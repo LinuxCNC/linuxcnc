@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:external-offsets]]
 = External Axis Offsets(((externaloffsets)))
@@ -21,10 +22,12 @@ For each axis letter (*L* in xyzabcuvw):
 
 . Allowed values: 0 <= value <= 0.9
 . Disallowed values are replaced with 0.1 with message to stdout
-. Default value:  0 (disables external offset).
-  Consequence: omitted [AXIS_L]OFFSET_AV_RATIO disables external offset for the axis.
-. If nonzero, the  OFFSET_AV_RATIO (*r*), adjusts the conventional (planning) max
-  velocity and acceleration to preserve [AXIS_L] constraints:
+. Default value:  0 (disables external offset). +
+  Consequence: omitted [AXIS_L]OFFSET_AV_RATIO disables external offset
+  for the axis.
+. If nonzero, the  OFFSET_AV_RATIO (*r*), adjusts the conventional
+  (planning) max velocity and acceleration to preserve [AXIS_L]
+  constraints:
 
 ----
 planning max velocity        = (1-r) * MAX_VELOCITY
@@ -60,16 +63,16 @@ pins used for wheel jogging.
 === Offset Computation
 
 At each servo period, the 'axis.L.eoffset-counts' pin is compared to
-its value in the prior period.  The increase or decrease (positive
+its value in the prior period. The increase or decrease (positive
 or negative delta) of the 'axis.L.eoffset-counts' pin is multiplied
 by the current 'axis.L.eoffset-scale' pin value.  This product is
 accumulated in an internal register and exported to the
-'axis.L.eoffset-request' hal pin.  The accumulation register is reset
+'axis.L.eoffset-request' hal pin. The accumulation register is reset
 to zero at each machine-on.
 
 The requested offset value is used to plan the movement for the
 offset that is applied to the 'L' coordinate and represented
-by the 'axis.L.eoffset' hal pin.  The planned motion respects the
+by the 'axis.L.eoffset' hal pin. The planned motion respects the
 allocated velocity and acceleration constraints and may be limited
 if the net motion (offset plus teleop jogging or coordinated motion)
 reaches a soft limit for the 'L' coordinate.
@@ -92,7 +95,7 @@ corresponding hal output pin 'axis.L.eoffset' is reset to zero.
 
 In other words, external offsets are *defined as ZERO at
 each startup* (machine-on) regardless of the value of
-the 'axis.L.eoffset-counts' pins.  To avoid confusion, it is
+the 'axis.L.eoffset-counts' pins. To avoid confusion, it is
 recommended that all 'axis.L.eoffset-counts' pins are set to
 zero when the machine is off.
 
@@ -100,9 +103,9 @@ zero when the machine is off.
 
 External axis offset movements are independently planned with
 velocity and acceleration settings specified by the
-'[AXIS_L]OFFSET_AV_RATIO'.  The offsetting motion is not
+'[AXIS_L]OFFSET_AV_RATIO'. The offsetting motion is not
 coordinated with teleop jogs nor with coordinated (G-code)
-motion.  During teleop  jogging and coordinated (G-code) motion,
+motion. During teleop  jogging and coordinated (G-code) motion,
 axis soft limits ('[AXIS_L]MIN_LIMIT,MAX_LIMIT') restrict
 movement of the axis.
 
@@ -112,19 +115,19 @@ motion), the hal pin 'motion.eoffset-limited' is asserted and the
 axis value is held nominally to the soft limit.  This hal pin can
 be used by associated hal logic to truncate additional eoffset
 counts or to stop the machine (connect to 'halui.machine.off' for
-instance).  If the axis is moved within the soft limit, the
+instance). If the axis is moved within the soft limit, the
 'motion.eoffset-limited' pin is reset.
 
 When operating at a soft limit during coordinated motion that
 continues to change the planned axis value, the hal output pin
 'axis.L.eoffset' will indicate the current offset -- the
 distance needed to reach the limit instead of the computed
-offset request.  This indicated value will change as the
+offset request. This indicated value will change as the
 planned axis value changes.
 
 The hal pin 'axis.L.eoffset-request' indicates the current
 requested offset that is the product of the internal counts
-register and the eoffset-scale.  In general, the 'axis.L.eoffset'
+register and the eoffset-scale. In general, the 'axis.L.eoffset'
 pin value lags the 'axis.L.eoffset-request' value since the
 external offset is subject to an acceleration limit.
 When operating at a soft limit, additional updates to the
@@ -137,7 +140,7 @@ non-zero values applied, encountering a soft limit will stop
 motion in the offending axis *without a deacceleration interval*.
 Similarly, during coordinated motion with external offsets
 enabled, reaching a soft limit will stop motion with no
-deacceleration phase.  For this case, it does not matter if the
+deacceleration phase. For this case, it does not matter if the
 offsets are zero.
 
 When motion is stopped with no deacceleration phase, system
@@ -324,3 +327,4 @@ pin (fraction of reference radius).
 Controls are provided to start/stop offset waveforms and to
 set the function type and its parameters.
 
+// vim: set syntax=asciidoc:

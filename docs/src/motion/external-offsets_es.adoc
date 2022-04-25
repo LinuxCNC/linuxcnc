@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 [[cha:external-offsets]]
 = Offsets Externos de Ejes(((Offsets Externos de Ejes)))
@@ -21,7 +22,7 @@ Para cada letra de eje (*L* será uno de x,y,z,a,b,c,u,v,w):
 
 . Valores permitidos: 0 <= valor <= 0.9
 . Los valores no permitidos se reemplazan con 0.1, con un mensaje a la salida estándar
-. Valor por defecto: 0 (desactiva el offset externo).
+. Valor por defecto: 0 (desactiva el offset externo). +
   Consecuencia: omitiendo [AXIS_L]OFFSET_AV_RATIO se desactiva el offset externo para el eje L.
 . Si no es cero, OFFSET_AV_RATIO (*r*), ajusta la velocidad y aceleración máxima convencional (planificada)
   para preservar las restricciones en [AXIS_L]:
@@ -154,7 +155,7 @@ cero, el offset se mantiene. El offset puede ser borrado por:
 
 . una conmutacion 'Máquina apagada/Máquina encendida'
 . reactivación del pin de habilitación e incremento/decremento del pin Hal 'axis.L.eoffset-count'
-para devolver el offset a cero.
+  para devolver el offset a cero.
 . pulso en el pin hal 'axis.L.eoffset-clear'
 
 Los offsets externos están diseñados para usarse con offsets 'pequeños' que
@@ -318,3 +319,5 @@ frecuencia usando el pin fmul y modificar la amplitud usando el pin rfrac
 
 Se proporcionan controles para iniciar/detener las formas de onda de offset y para
 establecer el tipo de función y sus parámetros.
+
+// vim: set syntax=asciidoc:

@@ -1,7 +1,7 @@
 :lang: es
+:toc:
 
 [[cha:parport]]
-
 = Controlador de puerto paralelo
 
 El componente hal_parport es un controlador para el puerto paralelo PC tradicional.
@@ -24,6 +24,7 @@ En otros puertos paralelos, el grupo de control tiene controladores push-pull y 
 utilizados como entrada.
 
 .HAL y colectores abiertos
+
 [NOTE]
 ===========================================================
 HAL no puede determinar automáticamente si los pines bidireccionales del modo 'x' son
@@ -81,17 +82,37 @@ loadrt hal_parport cfg="0"
 
 La dirección del puerto puede especificarse usando la notación hexadecimal '0x' y luego la dirección.
 
+The config string represents the hexadecimal address of the port,
+optionally followed by a direction, all repeated for each port.
+The directions are _in_, _out_, or _x_, and determine the direction of the
+physical pins 2 to 9 of the D-Sub 25 connector. If the direction is not specified,
+the data group will by default be configured as outputs. For example:
+
 ----
 loadrt hal_parport cfg="0x378"
 ----
+
+This example installs the drivers for a port 0x0278, with pins 2 to 9
+as outputs (by default, since neither _in_ nor _out_ is specified), a port
+0x0378, with pins 2 to 9 as inputs and a 0x20A0 port, with pins 2 to 9
+explicitly specified as outputs. Note that you must know the base address of the parallel ports to configure the drivers correctly. For ISA bus ports, this is
+usually not a problem,  since the ports are almost always at a well-known
+address,  such as 0x278 or 0x378 which are typically configured in the BIOS. The addresses of PCI bus cards are usually found with `lspci -v` in an _I/O ports_
+line, or in a kernel message after running `sudo modprobe -a parport_pc`.
+There is no default address, so if `<config-string>` does not contain at least one
+address, it is an error.
+
+[[fig:parport-block-diag]]
+.Parport block diagram(((Parport block diag)))
+image::images/parport-block-diag.png["Parport block diagram"]
 
 .Tipo
 
 Para cada puerto paralelo manejado por el controlador hal_parport, se puede
 especificar un 'tipo' opcionalmente. El tipo es uno de 'in', 'out', 'epp' o 'x'.
 
-. Dirección de Puerto Paralelo
-[cols=">1,3*^2", width="50%", options="header"]
+.Dirección de Puerto Paralelo
+[cols=">1,3*^2",width="50%",options="header"]
 |===========================
 |Pin|in|out/epp|x
 |1|out|out|in
@@ -132,7 +153,8 @@ y el segundo en modo de entrada:
 loadrt hal_parport cfg = "0 out 1 in"
 ----
 
-.Funciones
+.Funciones R/W de Parport
+
 También debe indicar a LinuxCNC que ejecute las funciones 'read' y 'write'.
 
 ----
@@ -185,14 +207,12 @@ inicie LinuxCNC.
 
 == Pines
 
+* 'parport.<p>.pin-<n>-out' (bit) Maneja el pin de salida física.
+* 'parport.<p>.pin-<n>-in' (bit) Realiza el seguimiento de un pin de entrada física.
+* 'parport.<p>.pin-<n>-in-not' (bit) Realiza el seguimiento de un pin de entrada física, pero invertido.
+
 Para cada pin, '<p>' es el número de puerto, y '<n>' es el
 número de pin físico en el conector D-shell de 25 pines.
-
-* 'parport.<p>.pin-<n>-out' (bit) Maneja el pin de salida física.
-
-* 'parport.<p>.pin-<n>-in' (bit) Realiza el seguimiento de un pin de entrada física.
-
-* 'parport.<p>.pin-<n>-in-not' (bit) Realiza el seguimiento de un pin de entrada física, pero invertido.
 
 Para cada pin de salida física, el controlador crea un solo pin HAL, por ejemplo:
 'parport.0.pin-14-out'.
@@ -207,13 +227,11 @@ el pin físico es alto
 == Parámetros
 
 * 'parport.<p>.pin-<n>-out-invert' (bit) Invierte un pin de salida.
-
 * 'parport.<p>.pin-<n>-out-reset' (bit) (solo para 'out' pins) TRUE si
-el pin debe reiniciarse cuando se ejecuta la función '-reset'.
-
+  el pin debe reiniciarse cuando se ejecuta la función '-reset'.
 * 'parport.<p>.reset-time' (u32) El tiempo (en nanosegundos)
-entre que un pin se establece mediante 'write' y se restablece mediante la función 'reset' si
-está habilitado.
+  entre que un pin se establece mediante 'write' y se restablece mediante la función 'reset' si
+  está habilitado.
 
 El parámetro '-invert' determina si un pin de salida está activo
 alto o activo bajo. Si '-invert' es FALSE, establecer el pin HAL '-out' TRUE lleva al
@@ -221,29 +239,24 @@ pin físico  a alto, y FALSO lo conduce bajo. Si '-invert' es TRUE, entonces
 al establecer el pin HAL '-out' TRUE, el pin físico estará bajo.
 
 [[sub:parport-functions]]
-
 == Funciones
 
 * 'parport.<p>.read' (funct) Lee los pines de entrada física del puerto
-   '<portnum>' y actualiza los pines HAL '-in' y '-in-not'.
-
+  '<portnum>' y actualiza los pines HAL '-in' y '-in-not'.
 * 'parport.read-all' (funct) Lee los pines de entrada física de todos los puertos
-   y actualiza los pines HAL '-in' y '-in-not'.
-
+  y actualiza los pines HAL '-in' y '-in-not'.
 * 'parport.<p>.write' (funct) Lee los pines HAL '-out' del puerto
-   '<p>' y actualiza los pines de salida física del puerto.
-
+  '<p>' y actualiza los pines de salida física del puerto.
 * 'parport.write-all' (funct) Lee los pines HAL '-out' de todos los puertos
-   y actualiza todos los pines de salida física.
-
+  y actualiza todos los pines de salida física.
 * 'parport.<p>.reset' (funct) Espera hasta que 'reset-time' halla
-   transcurrido desde la 'write' asociada, luego restablece los pines a los valores
-   indicados por las configuraciones '-out-invert' y '-out-invert'. 'reset' debe ser,
-   en el mismo hilo, posterior a 'write'. Si '-reset' es TRUE, entonces
-   la función 'reset' configurará el pin al valor de '-out-invert'. Esta
-   puede usarse junto con 'doublefreq' de stepgen para producir un
-   paso por periodo. El <<sec:stepgen,stepgen steppace>> para ese pin
-   debe establecerse en 0 para habilitar doublefreq.
+  transcurrido desde la 'write' asociada, luego restablece los pines a los valores
+  indicados por las configuraciones '-out-invert' y '-out-invert'. 'reset' debe ser,
+  en el mismo hilo, posterior a 'write'. Si '-reset' es TRUE, entonces
+  la función 'reset' configurará el pin al valor de '-out-invert'. Esta
+  puede usarse junto con 'doublefreq' de stepgen para producir un
+  paso por periodo. El <<sec:stepgen,stepgen steppace>> para ese pin
+  debe establecerse en 0 para habilitar doublefreq.
 
 Las funciones individuales se proporcionan para situaciones en las que un puerto
 necesita ser actualizado en un hilo muy rápido, pero otros puertos pueden ser
@@ -294,3 +307,36 @@ setp stepgen.0.stepspace 0
 
 Puede encontrar más información sobre DoubleStep en
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?TweakingSoftwareStepGeneration[wiki].
+
+[[sec:probe_parport]]
+== probe_parport
+
+In today's PCs, parallel ports may require a plug and play (PNP) configuration
+before they can be used. The kernel module _probe_parport_ configures all
+PNP ports present. It must be loaded before _hal_parport_. On machines
+without a PNP port, it can be loaded but will have no effect.
+
+=== Installing probe_parport
+
+If, when `parport_pc` kernel module is loaded with command:
+
+----
+sudo modprobe -a parport_pc; sudo rmmod parport_pc
+----
+
+Linux kernel outputs a message similar to:
+
+----
+parport: PnPBIOS parport detected.
+----
+
+Then use of this module will probably be necessary.
+
+Finally, HAL parport components should be loaded:
+
+----
+loadrt probe_parport
+loadrt hal_parport ...
+----
+
+// vim: set syntax=asciidoc:

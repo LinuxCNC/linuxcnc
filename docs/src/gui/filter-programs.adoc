@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 = Filter Programs
 
@@ -8,9 +9,9 @@ Most of Linuxcnc's screens have the ability to send loaded files through a 'filt
 use the filter program to make Gcode. +
 This filter can do any desired task: Something as simple as making sure +
 the file ends with 'M2', or something as complicated as generating +
-G-Code from an image. +
+G-Code from an image.
 
-== Setting  up the INI for Program Filters +
+== Setting  up the INI for Program Filters
 
 The '[FILTER]'  section of the ini file controls how filters work. +
 First, for each type of file, write a 'PROGRAM_EXTENSION' line. +
@@ -19,7 +20,7 @@ This program is given the name of the input file as its first argument, +
 and must write rs274ngc code to standard output. This output is what  +
 will be displayed in the text area, previewed in the display area, and +
 executed by LinuxCNC when 'Run'. The following lines add support for the +
-'image-to-gcode' converter included with LinuxCNC: +
+'image-to-gcode' converter included with LinuxCNC:
 
 ----
 [FILTER]
@@ -38,7 +39,7 @@ py = python
 In this way, any Python script can be opened, and its output is +
 treated as G-code. One such example script is available at +
 'nc_files/holecircle.py'. This script creates G-code for drilling a +
-series of holes along the circumference of a circle. +
+series of holes along the circumference of a circle.
 
 .Circular Holes
 image::images/holes.png[align="center", alt="Circular Holes"]
@@ -50,7 +51,7 @@ FILTER_PROGRESS=10
 ----
 
 It will set the screens progress bar to the given (10 in this case) percentage. +
-This feature should be used by any filter that runs for a long time. +
+This feature should be used by any filter that runs for a long time.
 
 == Making Python Based Filter Programs
 
@@ -58,7 +59,7 @@ Here is a very basic example of the filtering mechanics:
 When run through a Linucnc screen that offers program filtering, +
 it will produce and write a line of G-code every 100th of a second to standard output. +
 It also sends a progress message out to the Unix standard error stream. +
-If there was an error it would post an error message and exit with an exitcode of 1. +
+If there was an error it would post an error message and exit with an exitcode of 1.
 
 [source,python]
 ----
@@ -85,7 +86,7 @@ for i in range(0,100):
 Here is a similar program but it actually could filters. +
 It puts up a Pyqt5 dialog with a cancel button. +
 Then it reads the program line by line and passes it to standard output. +
-As it does along it updates any process listening to standard error output'
+As it does along it updates any process listening to standard error output'.
 
 [source,python]
 ----
@@ -175,3 +176,5 @@ if __name__ == "__main__":
     sys.exit( app.exec_() )
 
 ----
+
+// vim: set syntax=asciidoc:

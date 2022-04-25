@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:qtvcp]]
 = Qtvcp
@@ -9,11 +10,12 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-Qtvcp is an infrastructure to display a custom CNC screen or control panel in LinuxCNC.
+Qtvcp is an infrastructure to display a custom CNC screen or control panel in
+LinuxCNC.
 It displays a UI file built with the QTDesigner screen editor or combines this
 with python programming to create a GUI screen for running a CNC machine.
-Qtvcp is completely customizable - you can add different buttons and status LEDs etc.
-or add python code for even finer grain customization.
+Qtvcp is completely customizable - you can add different buttons and status
+LEDs etc. or add python code for even finer grain customization.
 
 .qtdragon - 3 or 4 Axis Sample
 image::images/silverdragon.png["QTDragon Router",align="left"]
@@ -128,14 +130,14 @@ libraries are prebuilt python modules that give added features to Qtvcp.
 In this way you can select what features you want - yet don't have to build common ones yourself.
 Such libraries include:
 
-audio_player +
-aux_program_loader +
-keybindings +
-message +
-preferences +
-notify +
-virtual_keyboard +
-machine_log
+* `audio_player`
+* `aux_program_loader`
+* `keybindings`
+* `message`
+* `preferences`
+* `notify`
+* `virtual_keyboard`
+* `machine_log`
 
 === Themes
 
@@ -285,21 +287,48 @@ Or use your package manager to install the same:
 sudo apt-get install qttools5-dev-tools qttools5-dev libpython3-dev
 ----
 
-Then you must add a link to the qtvcp_plugin.py to the folder that designer will search.
+////
+Luego necesita agregar la biblioteca de carga del módulo python.
+Qtvcp usa QT5 con python2. Esta combinación normalmente no está disponible
+desde repositorios. Puede compilarlo usted mismo, o hay versiones precompiladas
+disponible para sistemas comunes.
+En 'lib/python/qtvcp/designer' hay carpetas basadas en arquitecturas de sistema
+y luego la versión QT.
+Debe elegir la carpeta de arquitectura de la CPU y luego elegir la serie; 5.5,
+5.7 o 5.9 de Qt.
+Actualmente el estiramiento de Debian usa 5.7, Mint 12 usa 5.5, Mint 19 usa 5.9.
+En caso de duda, verifique la versión de QT5 en el sistema.
 
-In a RIP version of linuxcnc qtvcp_plugin.py will be in:
-'~/LINUXCNC_PROJECT_NAME/lib/python/qtvcp/plugins/qtvcp_plugin.py'
+Debe descomprimir el archivo y luego copiar esa versión adecuada de
+'libpyqt5_py2.so' a esta carpeta
+'/usr/lib/x86_64-linux-gnu/qt5/plugins/designer'.
 
-installed version should be:
-'usr/lib/python2.7/qtvcp/plugins/qtvcp_plugin.py' or
-'usr/lib/python2.7/dist-packages/qtvcp/plugins/qtvcp_plugin.py'
+(x86_64-linux-gnu podría llamarse algo ligeramente diferente en diferentes
+sistemas)
 
-make a link file to the above file and move it to one of the places Designer searches:
+Necesitará privilegios de superusuario para copiar el archivo en la carpeta.
+////
+
+Then you must add a link to the `qtvcp_plugin.py` to the folder that designer will search.
+
+In a RIP version of linuxcnc `qtvcp_plugin.py` will be in:
+
+  '~/LINUXCNC_PROJECT_NAME/lib/python/qtvcp/plugins/qtvcp_plugin.py'
+
+Package installed version should be:
+
+  'usr/lib/python2.7/qtvcp/plugins/qtvcp_plugin.py' or
+  'usr/lib/python2.7/dist-packages/qtvcp/plugins/qtvcp_plugin.py'
+
+Make a link file to the above file and move it to one of the places
+Designer searches in:
 
 Designer searches in these two place for links (pick one):
 This can be:
-'/usr/lib/x86_64-linux-gnu/qt5/plugins/designer/python' or
-'~/.designer/plugins/python'
+
+  '/usr/lib/x86_64-linux-gnu/qt5/plugins/designer/python' or
+  '~/.designer/plugins/python'
+
 You may need to add the plugins/python folders
 
 To start Designer:
@@ -348,24 +377,24 @@ that allows selecting actions while only display relevant data to the action.
 
 We will describe the convenient way first:
 
- - Right click the 'Machine On' button and select 'Set Actions'. When the Dialog displays,
-use the combobox to navigate to 'MACHINE CONTROLS - Machine On'. In this case there there
-is no option for this action so select ok. Now the button will turn the machine on when pressed
+- Right click the 'Machine On' button and select 'Set Actions'. When the Dialog displays,
+  use the combobox to navigate to 'MACHINE CONTROLS - Machine On'. In this case there there
+  is no option for this action so select ok. Now the button will turn the machine on when pressed
 
 And now the direct way with Designer's property editor
 
- - Select the 'Machine On' button. Now go to the 'Property Editor' on the right
-   side of Designer. Scroll down until you find the 'ActionButton' heading.
-   You will see a list of properties and values. find the 'machine on action' and
-   click the checkbox. the button will now control machine on/off.
+- Select the 'Machine On' button. Now go to the 'Property Editor' on the right
+  side of Designer. Scroll down until you find the 'ActionButton' heading.
+  You will see a list of properties and values. find the 'machine on action' and
+  click the checkbox. the button will now control machine on/off.
 
 Do the same for all the other button with the addition of:
 
- - With the 'Home' button we must also change the joint_number property to -1,
-   Which tells the controller to home all the axes rather then a specific axis.
+- With the 'Home' button we must also change the joint_number property to -1,
+  Which tells the controller to home all the axes rather then a specific axis.
 
- - With the 'Pause' button under the heading 'Indicated_PushButton' check the
-   'indicator_option' and under the 'QAbstactButton' heading check 'checkable'
+- With the 'Pause' button under the heading 'Indicated_PushButton' check the
+  'indicator_option' and under the 'QAbstactButton' heading check 'checkable'
 
 .Qt Designer - Selecting Pause button's properties
 image::images/designer_button_property.png["designer button property",align="left"]
@@ -388,7 +417,7 @@ basic keyboard jogging.
 If you are using qtvcp to make a CNC control screen:
 Under the '[DISPLAY]' heading:
 
-'DISPLAY = qtvcp <screen_name>'
+  'DISPLAY = qtvcp <screen_name>'
 
 '<screen_name>' is the base name of the .ui and _handler.py files.
 
@@ -633,7 +662,6 @@ class HandlerClass:
 
 def get_handlers(halcomp,widgets,paths):
      return [HandlerClass(halcomp,widgets,paths)]
-
 ----
 
 === IMPORT SECTION
@@ -691,11 +719,11 @@ This function is called to facilitate keyboard jogging etc.
 By using the keybindings library this can be used to easily add
 functions bound to keypresses.
 
-==== keypress_event__(self,receiver, event)):
+==== keypress_event__(self,receiver, event):
 
 This function gives raw key press events. It takes presidence over
 the processed_key_event.
- 
+
 ==== keyrelease_event__(receiver, event):
 
 This function gives raw key release events. It takes presidence over
@@ -711,7 +739,7 @@ At the point all widgets/libraries/initialization code has completed and the scr
 If present, this function overrides the normal function called when a user selects a total system shutdown.
 It could be used to do pre-shutdown housekeeping. The system will not shutdown if using this function, you will
 have to do that yourself. qtvcp/linuxcnc will shutdown without a prompt after this function returns
- 
+
 ==== closing_cleanup__(self):
 
 This function is called just before the screen closes. It can be used
@@ -743,6 +771,7 @@ The function signature is:
         if state:
             self.do_something_function()
 ----
+
 'KEY' being the code (from the keybindings library) for the desired key.
 
 === CLOSING EVENT section
@@ -759,17 +788,20 @@ It's usually better to use the special closing_cleanup__ function.
 ----
 
 == Connecting widgets to python code
+
 It's possible to connect widgets to python code using signals and slots.
 In this way you can give new functions to linuxcnc widgets or utilize
 standard widgets to control linuxcnc.
 
 === Overview
+
 In the Designer editor you would create user function slots and connect
 them to widgets using signals.
 In the handler file you would create the slot's functions defined in Designer.
 
 [[cha:designer-slots]]
 === Using Designer to add slots
+
 When you have loaded your screen into designer add a plain PushButton to the screen.
 You could change the name of the button to something interesting like 'test_button'
 There are two ways to edit connections - This is the graphical way
@@ -796,6 +828,7 @@ then press ok and save the file.
 image::images/designer_slots.png["QTvcp",align="left"]
 
 === Handler file changes
+
 Now you must add the function to the handler file.
 The function signature is 'def slotname(self):'
 We will add some code to print the widget name.
@@ -811,9 +844,9 @@ def test_button(self):
 
 Add this code under the section named:
 
-    #######################
-    # callbacks from form #
-    #######################
+  #######################
+  # callbacks from form #
+  #######################
 
 In fact it doesn't matter where in the handler class you put the commands
 but by convention this is where to put it.
@@ -832,3 +865,5 @@ of the button in the terminal.
 <<cha:qtvcp-development,QtVCP Development>>
 
 <<cha:qtvcp-custom-widgets,QtVCP Custom Designer Widgets>>
+
+// vim: set syntax=asciidoc:

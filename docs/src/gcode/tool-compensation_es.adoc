@@ -28,8 +28,8 @@ tabla de herramientas de forma automática.
 Los pasos típicos para actualizar la tabla de herramientas son:
 
 * Después de homing, cargue una herramienta con 'Tn M6' donde 'n' es el número de herramienta.
-* Mueva la herramienta a un punto establecido utilizando un calibre o realice un corte de prueba y    medida.
-* Haga clic en el botón "Touch Off" en la pestaña Control Manual (o presione el botón    Fin en su teclado).
+* Mueva la herramienta a un punto establecido utilizando un calibre o realice un corte de prueba y    medida.
+* Haga clic en el botón "Touch Off" en la pestaña Control Manual (o presione el botón    Fin en su teclado).
 * Seleccione 'Tabla de herramientas' en el cuadro desplegable Sistema de Coordenadas.
 * Ingrese el valor calibrado o la dimensión medida y seleccione OK.
 
@@ -39,7 +39,7 @@ para que la longitud Z de la nueva herramienta esté vigente. Touch Off de la ta
 está disponible cuando una herramienta se carga con 'Tn M6'.
 
 [[cap:touch-off-tool]]
-//.Touch Off de tabla de herramientas
+.Touch Off de tabla de herramientas
 image::images/ToolTable-TouchOff.png["Touch Off de tabla de herramientas",align="center"]
 
 == Usando G10 L1/L10/L11
@@ -73,7 +73,7 @@ tabla de herramientas. Si utiliza un editor de texto, asegúrese de volver a car
 === Formato de tabla de herramientas(((Tool-Table-Format)))
 
 .Formato de tabla de herramientas
-[width="100%", options="header"]
+[width="100%",options="header"]
 |====
 |T#    |P#  |X  |Y  |Z  |A  |B  |C  |U  |V  |W  |Dia |AF |AP |Ori |Com
 |; 15+^|(sin datos después de punto y coma)
@@ -84,7 +84,7 @@ tabla de herramientas. Si utiliza un editor de texto, asegúrese de volver a car
 
 En general, el nuevo formato de línea de la tabla de herramientas es:
 
-- ; - punto y coma de apertura, sin datos
+- ; - punto y coma de apertura, sin datos
 - T - número de herramienta, 0-99999 (los números de herramienta deben ser únicos)
 - P - número de ranura, 1-99999 (los números de ranura deben ser únicos)
 - X..W - offset de herramienta en el eje especificado - punto flotante
@@ -213,9 +213,9 @@ Tooldata is accessed by an ordered index (idx) that depends on the
 type of toolchanger specified by *[EMCIO]RANDOM_TOOLCHANGER=type*.
 
 . For *RANDOM_TOOLCHANGER = 0*, (0 is default and specifies a non-random
-toolchanger) idx is a number indicating the sequence in which tooldata was loaded.
+  toolchanger) idx is a number indicating the sequence in which tooldata was loaded.
 . For *RANDOM_TOOLCHANGER = 1*, idx is the *current* pocket number
-for the toolnumber specified by the gcode select tool command *Tn*.
+  for the toolnumber specified by the gcode select tool command *Tn*.
 
 The io program provides hal output pins to facilitate toolchanger management:
 
@@ -246,13 +246,12 @@ The io program provides hal output pins to facilitate toolchanger management:
 .. *iocontrol.0.tool-prep-number* = N
 .. *iocontrol.0.tool-prep-pocket* = pocket number for tool N
 
-
 [[sub:tool-changers]]
 === Cambiadores de herramientas(((Cambiadores de herramientas)))
 
 LinuxCNC admite tres tipos de cambiadores de herramientas: 'manual', 'ubicación aleatoria'
 y 'ubicación fija'. Información sobre la configuración de un cambiador de herramientas LinuxCNC
-está en la <<sec:emcio-section,Sección EMCIO>> del capítulo INI.
+está en la <<sub:ini:sec:emcio,Sección EMCIO>> del capítulo INI.
 
 .Cambiador de herramientas manual
 El cambiador manual de herramientas (cambiar la herramienta a mano) se trata como un cambiador de herramienta de ubicación fija y el número P se ignora.
@@ -301,9 +300,9 @@ el movimiento se detendrá brevemente para no dañar la pieza. La siguiente figu
 muestra cómo el movimiento compensado se detendrá en diferentes puntos dependiendo
 del próximo movimiento
 
-[[cap:compensation-end-point]](((Punto final de compensación)))
-//.Punto final de compensación
-image:images/comp-path_en.svg["Punto final de compensación",align="center"]
+[[cap:compensation-end-point]]
+.Punto final de compensación(((Punto final de compensación)))
+image::images/comp-path_en.svg["Punto final de compensación",align="center"]
 
 === Descripción general
 
@@ -327,10 +326,11 @@ X0, el perfil resultante dejaría una protuberancia debido al offset del
 movimiento de entrada.
 
 [[cap:entry-move]]
-//.Movimiento de entrada
-image::images/comp02_en.svg["Movimiento de entrada"]
+.Movimiento de entrada
+image::images/comp02_en.svg["Movimiento de entrada",align="center"]
 
 ==== Movimientos Z
+
 El movimiento del eje Z puede tener lugar mientras se sigue el contorno en
 el plano XY. Se pueden omitir partes del contorno retrayendo el
 eje Z sobre la pieza y extendiendo el eje Z en el siguiente punto de inicio.
@@ -348,11 +348,13 @@ Inicie un programa con G40 para asegurarse de que la compensación esté desacti
 ==== Perfil externo ejemplo
 
 [[cap:outside-profile]]
-//.Perfil externo
+.Perfil externo
 image::images/outside-comp.png["Perfil externo",align="center"]
 
 ==== Perfil interno ejemplo
 
 [[cap:inside-profile]]
-//.Perfil interno
+.Perfil interno
 image::images/inside-comp.png["Perfil interno",align="center"]
+
+// vim: set syntax=asciidoc:

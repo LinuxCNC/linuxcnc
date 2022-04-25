@@ -17,8 +17,8 @@ preview and backplot. It is written in Python and uses
 Tk and OpenGL to display its user interface.
 
 [[fig:axis-window]]
-//.Axis Window
-image::images/axis.png["AXIS screenshot",align="center"]
+.The AXIS Window
+image::images/axis.png["AXIS main window",align="center"]
 
 == Getting Started
 
@@ -34,11 +34,11 @@ When AXIS starts, a window like the one in the figure
 === INI settings
 
 For more information on ini file settings that can change how AXIS
-works see the <<sec:display-section,Display Section>> of the INI
+works see the <<sub:ini:sec:display,Display Section>> of the INI
 Configuration Chapter.
 
 Adjust the response rate of the GUI in milliseconds. Typical 100, useable range 50 - 200 +
-(will accept time in seconds (.05 -.2) for legacy reasons - milliseconds preferred to match other screens)
+(will accept time in seconds (.05 -.2) for legacy reasons - milliseconds preferred to match other screens).
 
 [source,{ini}]
 ----
@@ -54,7 +54,8 @@ CYCLE_TIME = 100
 . Load the G-code file.
 . Use the preview plot to verify that the program is correct.
 . Load the material.
-. Set the proper offset for each axis by jogging and using the `Touch Off` button as needed.
+. Set the proper offset for each axis by jogging and using the `Touch Off`
+  button as needed.
 . Run the program.
 . To machine the same file again, return to step 6.
   To machine a different file, return to step 4.
@@ -86,11 +87,11 @@ The AXIS window contains the following elements:
   which modal G Codes are in effect.
 * 'Feed Override' - which allows you to scale the speed of programmed motions.
   The default maximum is 120% and can be set to a different
-  value in the ini file. See the <<sec:display-section,Display Section>> of the
+  value in the ini file. See the <<sub:ini:sec:display,Display Section>> of the
   INI file for more information.
 * 'Spindle Override' - which allows you to scale the spindle speed up or down.
 * 'Jog Speed' - which allows you to set the jog speed within the limits set in the ini file.
-  See the <<sec:display-section,Display Section>> of the INI file for more information.
+  See the <<sub:ini:sec:display,Display Section>> of the INI file for more information.
 * 'Max Velocity' - which allows you to restrict the maximum velocity of all
   programmed motions (except spindle synchronized motion).
 * A text display area that shows the loaded G-Code.
@@ -109,11 +110,11 @@ file configured. For more information on configuration see the
 
 * 'Open...' - Opens a standard dialog box to open a g code file to load in AXIS. If
   you have configured LinuxCNC to use a filter program you can also open it
-  up. See the <<sec:filter-section,FILTER Section>> of the INI configuration
+  up. See the <<sub:ini:sec:filter,FILTER Section>> of the INI configuration
   for more information.
 * 'Recent Files' - Displays a list of recently opened files.
 * 'Edit...' - Open the current G code file for editing if you have an editor
-  configured in your ini file. See the <<sec:display-section,DISPLAY Section>>
+  configured in your ini file. See the <<sub:ini:sec:display,DISPLAY Section>>
   for more information on specifying an editor to use.
 * 'Reload' - Reload the current g code file. If you edited it you must reload it
   for the changes to take affect. If you stop a file and want to start
@@ -127,7 +128,7 @@ file configured. For more information on configuration see the
   you can open the tool table and edit it.
 * 'Reload tool table' - After editing the tool table you must reload it.
 * 'Ladder editor' - If you have loaded Classic Ladder you can edit it from
-  here. See the <<cha:classicladder,Classicladder Chapter>>
+  here. See the <<cha:classicladder,Classicladder chapter>>
   for more information.
 * 'Quit' - Terminates the current LinuxCNC session.
 
@@ -344,9 +345,9 @@ and the program requires 3.83 inches of X travel.
 To move the program so it's within the machine's travel in this case,
 jog to the left and Touch Off X again.
 
-[[fig:soft-limits]](((Soft Limits)))
-//.Soft limits
-image:images/axis-outofrange.png["Soft limits",align="center"]
+[[fig:soft-limits]]
+.Soft Limits(((Soft Limits)))
+image::images/axis-outofrange.png["Soft Limits",align="center"]
 
 .Tool Cone
 When no tool is loaded, the location of the tip of the tool is
@@ -443,7 +444,7 @@ the machine will move exactly the displayed distance
 each time the button is clicked or the key is pressed.
 By default, the available values are '0.1000, 0.0100, 0.0010, 0.0001'
 
-See the <<sec:display-section,DISPLAY Section>> for more information on setting
+See the <<sub:ini:sec:display,DISPLAY Section>> for more information on setting
 the increments.
 
 .Homing (Identity Kinematics)
@@ -477,7 +478,7 @@ See the <<cha:homing-configuration,Homing Configuration Chapter>> for more infor
 
 .Homing (Non-Identity Kinematics)
 Operation is similar to that for Identity Kinematics but, prior to
-homing, the selection radio buttons select joints by number.  The
+homing, the selection radio buttons select joints by number. The
 homing button will show 'Home All' if all joints are configured
 for homing and have valid home sequences.  Otherwise, the homing
 button will show 'Home Joint'.
@@ -492,8 +493,8 @@ specified value. Expressions may be entered using the rules for
 rs274ngc programs, except that variables may not be referred to. The
 resulting value is shown as a number.
 
-//.Touch Off Window
-image::images/touchoff.png["Touch Off Window", align="center"]
+.Touch Off Window
+image::images/touchoff.png["Touch Off Window",align="center"]
 
 See also the Machine menu options: 'Touch part' and 'Touch part holder'.
 
@@ -502,8 +503,8 @@ By pressing the 'Tool Touch Off' button the tool length and offsets of
 the currently loaded tool will be changed so that the current tool tip
 position matches the entered coordinate.
 
-//.Tool Touch Off Window
-image::images/tooltouchoff.png["Tool Touch Off Window", align="center"]
+.Tool Touch Off Window
+image::images/tooltouchoff.png["Tool Touch Off Window",align="center"]
 
 See also the 'Tool touch off to workpiece' and 'Tool touch off to fixture'
 options in the Machine menu.
@@ -539,15 +540,15 @@ When the machine is not turned on, or when a program is
 running, the MDI controls are unavailable.
 
 .The MDI tab
-image::images/axis-mdi.png["MDI tab", align="center"]
+image::images/axis-mdi.png["MDI tab",align="center"]
 
- * 'History' - This shows MDI commands that have been typed earlier in this session.
- * 'MDI Command' - This allows you to enter a G-code command to be executed. Execute the
-   command by pressing Enter or by clicking 'Go'.
- * 'Active G-Codes' - This shows the 'modal codes' that are active in the interpreter. For
-   instance, 'G54' indicates that the 'G54 offset' is applied to all
-   coordinates that are entered. When in Auto the Active G-Codes represent
-   the codes after any read ahead by the interpreter.
+* 'History' - This shows MDI commands that have been typed earlier in this session.
+* 'MDI Command' - This allows you to enter a G-code command to be executed. Execute the
+  command by pressing Enter or by clicking 'Go'.
+* 'Active G-Codes' - This shows the 'modal codes' that are active in the interpreter. For
+  instance, 'G54' indicates that the 'G54 offset' is applied to all
+  coordinates that are entered. When in Auto the Active G-Codes represent
+  the codes after any read ahead by the interpreter.
 
 === Feed Override
 
@@ -601,8 +602,9 @@ to 0% - 100%.
 
 The most frequently used keyboard shortcuts are shown in the following Table:
 
-.Most Common Keyboard Shortcuts(((Keyboard Shortcuts)))
-[width="80%", options="header", cols="^,<,^"]
+[[tab:common-keyboard-shortcuts]]
+.Most Common Keyboard Shortcuts(((AXIS,Keyboard Shortcuts)))
+[width="80%",options="header",cols="^,<,^"]
 |====================================================================
 |Keystroke        | Action Taken                              | Mode
 |F1               | Toggle Emergency Stop                     | Any
@@ -641,7 +643,7 @@ AXIS includes a program called 'linuxcnctop' which shows some of the
 details of LinuxCNC's state. You can run this program by invoking Machine >
 Show LinuxCNC Status
 
-//.LinuxCNC Status Window
+.LinuxCNC Status Window
 image::images/axis-emc-status.png["LinuxCNC Status Window",align="center"]
 
 The name of each item is shown in the left column. The current value
@@ -709,9 +711,9 @@ This can be very confusing to most users.
 To turn this feature off for the current tool change
 program a G1 with no move after the T<n>.
 
-[[fig:manual-toolchange-window]](((Axis:Manual Toolchange Window)))
-//.The Manual Toolchange Window
-image:images/manual-tool-change.png["The Manual Toolchange Screenshot",align="center"]
+[[fig:manual-toolchange-window]]
+.Manual Toolchange Window(((Axis:Manual Toolchange Window)))
+image::images/manual-tool-change.png["Manual Toolchange Window",align="center"]
 
 [[sec:axis-python-modules]]
 == Python modules(((Axis:Python Modules)))
@@ -743,21 +745,21 @@ the bottom of the screen, and several controls (such as those for
 preset views) are removed.  The coordinate readouts for X are replaced
 with diameter and radius.
 
-//.Axis Lathe
-image::images/axis-lathe.png["Axis Lathe",align="center"]
+.Axis Lathe Mode
+image::images/axis-lathe.png["Axis Lathe Mode",align="center"]
 
 Pressing 'V' zooms out to show the entire file, if one is loaded.
 
 When in lathe mode, the shape of the loaded tool (if any) is shown.
 
-//.Lathe Tool Shape
+.Lathe Tool Shape
 image::images/axis-lathe-tool.png["Lathe Tool Shape",align="center"]
 
 To change the display to a back tool lathe you need to have both 'LATHE = 1'
 and 'BACK_TOOL_LATHE = 1' in the [DISPLAY] section. This will invert the view
 and put the tool on the back side of the Z axis.
 
-//.Lathe Back Tool Shape
+.Lathe Back Tool Shape
 image::images/axis-back-tool-lathe.png["Lathe Back Tool Shape",align="center"]
 
 == Using AXIS in Foam Cutting mode
@@ -769,8 +771,8 @@ in another.  In the live plot, lines are drawn between corresponding points on
 the XY plane and the UV plane.  The special comments (XY_Z_POS) and (UV_Z_POS)
 set the Z coordinates of these planes, which default to 0 and 1.5 machine units.
 
-//.Foam cutting mode
-image::images/axis-foam.png["Foam cutting mode",align="center"]
+.Foam Cutting Mode
+image::images/axis-foam.png["Foam Cutting Mode",align="center"]
 
 == Advanced Configuration
 
@@ -784,7 +786,7 @@ You can have multiple line of 'POSTGUI_HALFILE=<filename>' in the INI.
 Each will be run one after the other in the order they appear.
 
 For more information on the ini file settings that can change the way AXIS
-works, see the << sec:display-section,Display Section>> of the INI configuration chapter.
+works, see the << sub:ini:sec:display,Display Section>> of the INI configuration chapter.
 
 === Program Filters
 
@@ -821,7 +823,7 @@ treated as G-code. One such example script is available at
 'nc_files/holecircle.py'. This script creates G-code for drilling a
 series of holes along the circumference of a circle.
 
-//.Circular Holes
+.Circular Holes
 image::images/holes.png["Circular Holes",align="center"]
 
 If the environment variable AXIS_PROGRESS_BAR is set, then lines
@@ -860,7 +862,7 @@ AXIS defaults, include the following line in your X Resources:
 
 // These asterisks are not for bold,
 ----
-    *Axis*optionLevel: widgetDefault
+*Axis*optionLevel: widgetDefault
 ----
 // in this case, we want the asterisks to actually appear.
 
@@ -938,7 +940,7 @@ HAL comp.ready() is called just after this function returns.
 The menu options File > Edit... and File > Edit Tool Table... become
 available after defining the editor in the ini section [DISPLAY].
 Useful values include EDITOR=gedit and EDITOR=gnome-terminal -e vim.
-For more information, see the <<sec:display-section,Display Section>>
+For more information, see the <<sub:ini:sec:display,Display Section>>
 of the INI Configuration Chapter.
 
 === Virtual Control Panel(((Axis: Virtual Control Panel)))
@@ -994,6 +996,7 @@ bit  OUT  axisui.jog.w
 ----
 
 Axis has a Hal pin to indicate the jog increment selected on the 'Manual Tab'.
+
 ----
 Type  Dir Name
 float OUT axisui.jog.increment
@@ -1027,6 +1030,7 @@ bit   IN     axisui.notifications-clear-info
 ----
 
 Axis has a Hal input pin that disables/enables the 'Pause/Resume' function.
+
 ----
 Type  Dir    Name
 bit   IN     axisui.resume-inhibit

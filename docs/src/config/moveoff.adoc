@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:moveoff]]
 = Moveoff Component(((Moveoff)))
@@ -134,9 +135,12 @@ HALFILE = LIB:hookup_moveoff.tcl
 
 Add ini file entries for the per-axis settings for each axis in use (if an
 entry is not defined, the corresponding entry from the [AXIS_n] section will be
-used, if no entry is found, then the moveoff component default will be used.
-Note: Using component defaults or [AXIS_n] section values for per-axis offset
+used, if no entry is found, then the moveoff component default will be used).
+
+[NOTE]
+Using component defaults or [AXIS_n] section values for per-axis offset
 settings is NOT recommended.
+
 ----
 [MOVEOFF_n]
 MAX_LIMIT =
@@ -264,7 +268,7 @@ Options:
     [-inc incrementvalue]   (default: 0.001 0.01 0.10 1.0 )
                               (specify one per -inc (up to 4) )
                               (example: -inc 0.001 -inc 0.01 -inc 0.1 )
-    [-size integer]         (default: 14
+    [-size integer]         (default: 14)
                               (Overall gui popup size is based on font size)
     [-loc center|+x+y]      (default: center)
                               (example: -loc +10+200)
@@ -281,12 +285,14 @@ Options for special cases:
                              (no check for halui.program.is-paused)
     [-no_cancel_autoresume] (default: notused)
                              (useful for retraact offsets with simple)
-                             (external control                       )
+                             (external control)
     [-no_display]           (default: notused)
                              (Use when both external controls and displays)
-                             (are in use (see Note))                      )
+                             (are in use (see Note))
 
 Note: If the moveoff move-enable pin (mv.move-enable) is connected when
       moveoff_gui is started, external controls are required and only
       displays are provided.
 ----
+
+// vim: set syntax=asciidoc:

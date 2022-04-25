@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 [[cha:componentes-hal]]
 = Componentes HAL
@@ -40,12 +41,19 @@ Algunos tendrán descripciones ampliadas y otros, limitadas.
 Con estas dos listas se sabe qué componentes existen.
 Usar 'man n name' para obtener información adicional. 
 
-[NOTE]
-See also the 'Man Pages' section of the link:../index.html[docs main page] or the
-link:../man/man9/[directory listing of man9].
+----
+man motion
+# or
+man 9 motion
+----
 
 [NOTE]
-Si el componente requiere un hilo de punto flotante, suele ser el hilo servo, más lento.
+Si el componente requiere un hilo de punto flotante, suele ser el hilo
+servo, más lento.
+
+[NOTE]
+See also the 'Man Pages' section of the link:../index.html[docs main page]
+or the link:../man/man9/[directory listing of man9].
 
 [[sec:core-realtime-components]]
 === Componentes principales de LinuxCNC
@@ -54,8 +62,7 @@ motion:: (((motion)))Acepta comandos de movimiento NML e interactúa con HAL en 
 
 axis:: (((axis)))Acepta comandos de movimiento NML e interactúa con HAL en tiempo real.
 
-classicladder:: (((classicladder)))Software PLC en tiempo real basado en lógica de escalera.
-    Consulte el capítulo ClassicLadder para obtener más información.
+classicladder:: (((classicladder)))Software PLC en tiempo real basado en lógica de escalera. Consulte el capítulo ClassicLadder para obtener más información.
 //<<cha:classicladder,ClassicLadder>> // all English _es file removed
 
 gladevcp:: (((gladevcp)))Muestra paneles de control virtuales construidos con GTK/Glade.
@@ -90,7 +97,7 @@ lut5:: (((lut5)))Función lógica de 5 entradas basada en tabla de consulta (loo
 match8:: (((match8)))Detector de coincidencia binaria de 8 bits.
 
 select8:: (((select8)))Detector de coincidencia binaria de 8 bits.
- 
+
 [[sec:Realtime-Components-flottant]]
 === Componentes aritméticos y de punto flotante
 
@@ -105,6 +112,7 @@ constant:: (((constant)))Use un parámetro para establecer el valor de un pin.
 sum2:: (((sum2)))Suma de dos entradas (cada una con una ganancia) y un desplazamiento.
 
 counter:: (((counter)))Cuenta los pulsos de entrada (obsoleto).
++
 Utilice el componente <<sec:encoder,encoder>>.
 
 updown:: (((updown)))Cuenta hacia arriba o hacia abajo, con límites opcionales y comportamiento envolvente.
@@ -141,10 +149,13 @@ biquad:: (((biquad)))Filtro Biquad IIR
 
 lowpass:: (((paso bajo)))filtro de paso bajo
 
-limit1:: (((limit1)))Limita la señal de salida para que caiga entre mín y máx. footnote:[Cuando la entrada
-es una posición, esto significa que la 'posición' está limitada.]
+limit1:: (((limit1)))Limita la señal de salida para que caiga entre mín y máx.
+    footnote:[Cuando la entrada es una posición, esto significa que la
+    'posición' está limitada.]
 
-limit2:: (((limit2)))Limita la señal de salida para que caiga entre min y max. Limita la velocidad de giro a menos de maxv por segundo. footnote:[Cuando la entrada es una posición, esto significa que 'posición' y 'velocidad' están limitadas.]
+limit2:: (((limit2)))Limita la señal de salida para que caiga entre min y max.
+    Limita la velocidad de giro a menos de maxv por segundo. footnote:[Cuando
+    la entrada es una posición, esto significa que 'posición' y 'velocidad' están limitadas.]
 
 limit3:: (((limit3)))Limita la señal de salida para que caiga entre min y max.  Limita su velocidad de giro a menos de maxv por segundo.  Limita su segunda derivada a menos de MaxA por segundo al cuadrado. footnote:[Cuando la entrada es una posición, esto significa que la 'posición', 'velocidad', y 'aceleración' están limitadas.]
 
@@ -261,14 +272,15 @@ feedcomp:: (((feedcomp))) Multiplica la entrada por la relación de la velocidad
 gearchange:: (((gearchange))) Seleccion de uno de dos rangos de velocidad. 
 
 [[sec:ilowpass]]
-ilowpass:: (((ilowpass))) Si bien puede encontrar otras aplicaciones, este componente se escribió para crear un movimiento más suave con un MPG. 
- 
-    En una máquina con alta aceleración, un jog corto puede comportarse casi como una funcion paso.
-    Al poner el componente ilowpass entre l a salida de cuentas del codificador MPG
-    y la entrada de jog-count del eje, se puede suavizar.
-
-    Elija la escala de forma conservadora para que durante una sesión nunca sea más de aproximadamente 2e9/escala pulsos vistos en el MPG.
-    Elija la ganancia de acuerdo al nivel de suavizado deseado.  Divida los valores de axis.N.jog-scale por escala.
+ilowpass:: (((ilowpass))) Si bien puede encontrar otras aplicaciones,
+  este componente se escribió para crear un movimiento más suave con un MPG. 
++
+En una máquina con alta aceleración, un jog corto puede comportarse casi como una funcion paso.
+Al poner el componente ilowpass entre l a salida de cuentas del codificador MPG
+y la entrada de jog-count del eje, se puede suavizar.
++
+Elija la escala de forma conservadora para que durante una sesión nunca sea más de aproximadamente 2e9/escala pulsos vistos en el MPG.
+Elija la ganancia de acuerdo al nivel de suavizado deseado.  Divida los valores de axis.N.jog-scale por escala.
 
 joyhandle:: (((joyhandle))) Establece movimientos de joypad no lineales, bandas muertas y escalas.
 
@@ -354,7 +366,7 @@ hal_type_t.3hal
 hal_u32_t.3hal
 hal_unlink.3hal
 intro.3hal
-indocument.3hal
+undocument.3hal
 ----
 
 == Llamadas RTAPI

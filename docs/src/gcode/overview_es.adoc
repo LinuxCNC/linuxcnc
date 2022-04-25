@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 [[cha:g-code-overview]]
 = Descripcion general del codigo G
@@ -80,6 +81,11 @@ Algunas interfaces de usuario pueden utilizarlo para omitir líneas de código c
 la combinación de teclas Alt-m-/ activa o desactiva la eliminación de bloque. Cuando eliminar bloque
 está activado, cualquier línea que comience con la barra '/' se omite.
 
+In AXIS, it is also possible to enable block delete with the following icon:
+
+.AXIS Block Delete Icon
+image:../gui/images/tool_blockdelete.png[]
+
 === Numero de línea(((Line Number)))
 
 Un número de línea es la letra N seguida de un entero sin signo,
@@ -102,7 +108,7 @@ Las letras que hacen referencia a los nombres de los ejes no son válidas en una
 no tiene el eje correspondiente.
 
 .Palabras y sus significados.
-[width="75%", options="header", cols="^1,<5"]
+[width="75%",options="header",cols="^1,<5"]
 |====
 | Letra | Significado
 |A | Eje A de la máquina
@@ -133,17 +139,21 @@ no tiene el eje correspondiente.
 |Z | Eje Z de la máquina
 |====
 
+[[gcode:numbers]]
 === Numeros
 
 Las siguientes reglas se utilizan para números (explícitos). En estas reglas, un
 dígito es un solo carácter entre 0 y 9.
 
-* Un número consta de (1) un signo, más o menos, opcional, seguido de
-  (2) de cero a muchos dígitos, seguido, posiblemente, por (3) un punto decimal,
-  seguido de (4) cero a muchos dígitos, siempre que haya al menos
-  un dígito en algún lugar del número.
-* Hay dos tipos de números: enteros y decimales. Un entero
-  no tiene un punto decimal en él; un decimal si lo tiene.
+* Un número consta de:
+** un signo, más o menos, opcional, seguido de
+** de cero a muchos dígitos, seguido, posiblemente, por
+** un punto decimal, seguido de
+** cero a muchos dígitos, siempre que haya al menos
+   un dígito en algún lugar del número.
+* Hay dos tipos de números:
+** enteros, que no tienen un punto decimal en él;
+** decimales, que lo tienen.
 * Los números pueden tener cualquier número de dígitos, sujeto a la limitación de
   longitud de la línea. Solo se retendrán unas diecisiete cifras significativas,
   suficiente para todas las aplicaciones conocidas.
@@ -194,9 +204,9 @@ variable global, son visibles. Las variables locales de un
 procedimiento de llamada no son visibles por el procedimiento llamado.
 
 Comportamiento de parámetros no inicializados::
- * Los parámetros globales no inicializados y los parámetros de subrutina no utilizados
-   devuelve valor cero cuando se usan en una expresión.
- * Los parámetros con nombre no inicializados indican un error cuando se usan en una expresión.
+* Los parámetros globales no inicializados y los parámetros de subrutina no utilizados
+  devuelve valor cero cuando se usan en una expresión.
+* Los parámetros con nombre no inicializados indican un error cuando se usan en una expresión.
 
 Modo:: La mayoría de los parámetros son de lectura/escritura y pueden asignarse
 dentro de una declaración de asignación. Sin embargo, para muchos parámetros predefinidos
@@ -206,7 +216,7 @@ sentencia de asignación.
 
 Persistencia:: Cuando LinuxCNC se cierra, los parámetros volátiles pierden su
 valores. Todos los parámetros excepto los parámetros numerados en el actual
-rango persistente footnoteref:[persistent_range, El rango de parámetros persistentes
+rango persistente footnote:[persistent_range, El rango de parámetros persistentes
 puede cambiar a medida que avanza el desarrollo. Este rango es
 actualmente 5161-5390. Se define en la matriz '_required_parameters'
 en el archivo src/emc/rs274ngc/interp_array.cc.] son ​​volátiles.
@@ -221,11 +231,11 @@ Uso previsto::
   resultados intermedios, banderas, etc., a lo largo de la ejecución del programa.
   Son de lectura/escritura (se le puede asignar un valor).
 * <<sub:subroutine-parameters,parámetros de subrutina >> - se utilizan para
-  mantener los parámetros reales pasados ​​a una subrutina.
+  mantener los parámetros reales pasados ​​a una subrutina.
 * <<sub:numbered-parameters,parámetros numerados>> - La mayoría de estos se utilizan
-  para acceder a offsets de sistemas de coordenadas.
+  para acceder a offsets de sistemas de coordenadas.
 * <<sub:system-parameters,parámetros del sistema>> - utilizado para determinar la
-  versión en ejecución. Son de solo lectura.
+  versión en ejecución. Son de solo lectura.
 
 [[sub:numbered-parameters]]
 === Parametros numerados
@@ -240,57 +250,58 @@ parámetros]. El parámetro es referido
 por este entero, y su valor es cualquier número almacenado en el parámetro.
 
 Un valor se almacena en un parámetro con el operador '=' , por ejemplo:
+
 ----
 #3 = 15 (configura el parámetro 3 a 15)
 ----
 
 Una configuración de parámetros no toma efecto hasta después de que todos los valores de los
 parámetros en la misma línea hayan sido encontrados. Por ejemplo, si el parámetro 3 tiene
-previamente el valor 15 y se interpreta la línea '#3=6 G1 X#3', ocurrirá un movimiento directo
+previamente el valor 15 y se interpreta la línea '#3=6 G1 X#3', ocurrirá un movimiento directo
 a un punto donde X es igual a 15 y el valor del parámetro #3 pasara a 6.
 
 El carácter '\#' tiene prioridad sobre otras operaciones, de modo que, por
 ejemplo, '\#1+2' significa el número resultante de sumar 2 al valor de
-parámetro 1, no el valor encontrado en el parámetro 3. Por supuesto, '\#[1+2]' significa el
+parámetro 1, no el valor encontrado en el parámetro 3. Por supuesto, '\#[1+2]' significa el
 valor encontrado en el parámetro 3. El carácter '\#' puede repetirse; por
 ejemplo '##2' significa el valor del parámetro cuyo índice es el valor (entero) del parámetro 2.
 
 * '31-5000' - parámetros de usuario del código G. Estos parámetros son globales en
-  archivos de código G, y disponibles para uso general. Volátiles.
+  archivos de código G, y disponibles para uso general. Volátiles.
 * '5061-5069' - Coordenadas de un resultado de la sonda <<gcode:g38,G38>> (X, Y,
-  Z, A, B, C, U, V y W). Las coordenadas están en el sistema de coordenadas en
-  que tuvo lugar el G38. Volátil.
+  Z, A, B, C, U, V y W). Las coordenadas están en el sistema de coordenadas en
+  que tuvo lugar el G38. Volátil.
 * '5070' - Resultado de la sonda <<gcode:g38,G38 >> ; 1 si es exitoso, 0 si la sonda
-  no se pudo cerrar. Utilizado con G38.3 y G38.5. Volátil.
+  no se pudo cerrar. Utilizado con G38.3 y G38.5. Volátil.
 * '5161-5169' - Home "G28" para X, Y, Z, A, B, C, U, V y W. Persistente.
 * '5181-5189' - Home "G30" para X, Y, Z, A, B, C, U, V y W. Persistente.
 * '5210' - 1 si actualmente se aplica el desplazamiento "G52" o "G92", 0
-  en caso contrario. Volátil por defecto; persistente si
-  'DISABLE_G92_PERSISTENCE = 1' en la sección '[RS274NGC]' del
-  archivo '.ini'.
+  en caso contrario. Volátil por defecto; persistente si
+  'DISABLE_G92_PERSISTENCE = 1' en la sección '[RS274NGC]' del
+  archivo '.ini'.
 * '5211-5219' - offsets compartidos "G52" y "G92" para X, Y, Z, A, B, C, U,
-  V y W. Volátil por defecto; persistente si
-  'DISABLE_G92_PERSISTENCE = 1' en la sección '[RS274NGC]' del
-  archivo '.ini'.
+  V y W. Volátil por defecto; persistente si
+  'DISABLE_G92_PERSISTENCE = 1' en la sección '[RS274NGC]' del
+  archivo '.ini'.
 * '5220' - Sistema de coordenadas número 1-9 para G54 - G59.3. Persistente.
 * '5221-5230' - Sistema de coordenadas 1, G54 para X, Y, Z, A, B, C, U, V, W y R.
-  R denota el ángulo de rotación XY alrededor del eje Z. Persistente.
+  R denota el ángulo de rotación XY alrededor del eje Z. Persistente.
 * '5241-5250' - Sistema de coordenadas 2, G55 para X, Y, Z, A, B, C, U, V, W y R.
-  Persistente.
+  Persistente.
 * '5261-5270' - Sistema de coordenadas 3, G56 para X, Y, Z, A, B, C, U, V, W y R.
-  Persistente.
+  Persistente.
 * '5281-5290' - Sistema de coordenadas 4, G57 para X, Y, Z, A, B, C, U, V, W y R.
-  Persistente.
+  Persistente.
 * '5301-5310' - Sistema de coordenadas 5, G58 para X, Y, Z, A, B, C, U, V, W y R.
-  Persistente.
+  Persistente.
 * '5321-5330' - Sistema de coordenadas 6, G59 para X, Y, Z, A, B, C, U, V, W y R.
-  Persistente.
+  Persistente.
 * '5341-5350' - Sistema de coordenadas 7, G59.1 para X, Y, Z, A, B, C, U, V, W y R.
-  Persistente.
+  Persistente.
 * '5361-5370' - Sistema de coordenadas 8, G59.2 para X, Y, Z, A, B, C, U, V, W y R.
-  Persistente.
+  Persistente.
 * '5381-5390' - Sistema de coordenadas 9, G59.3 para X, Y, Z, A, B, C, U, V, W y R.
-  Persistente.
+  Persistente.
 * '5399' - Resultado de M66 - Verifica o espera la entrada. Volátil.
 * '5400' - Número de herramienta. Volátil.
 * '5401-5409' - Offsets de herramientas para X, Y, Z, A, B, C, U, V y W. Volátil.
@@ -299,15 +310,15 @@ ejemplo '##2' significa el valor del parámetro cuyo índice es el valor (entero
 * '5412' - Ángulo posterior de la herramienta. Volátil.
 * '5413' - Orientación de herramienta. Volátil.
 * '5420-5428' - Posición relativa actual en el sistema de coordenadas activo
-  incluyendo todas los offsets y en las unidades de programa actuales para
-  X, Y, Z, A, B, C, U, V y W, volátiles.
+  incluyendo todas los offsets y en las unidades de programa actuales para
+  X, Y, Z, A, B, C, U, V y W, volátiles.
 * '5599' - Indicador para controlar la salida de las declaraciones (DEBUG,).
-  1 = salida, 0 = sin salida; predeterminado = 1. Volátil.
+  1 = salida, 0 = sin salida; predeterminado = 1. Volátil.
 * '5600' - Indicador de fallo del cambiador de herramientas. Utilizado con el componente iocontrol-v2.
-  1: cambiador de herramientas con fallos, 0: normal. Volátil.
+  1: cambiador de herramientas con fallos, 0: normal. Volátil.
 * '5601' - Código de fallo del cambiador de herramientas. Utilizado con el componente iocontrol-v2.
-  Refleja el valor del pin HAL 'toolchanger-reason' si ocurrió un fallo.
-  Volátil.
+  Refleja el valor del pin HAL 'toolchanger-reason' si ocurrió un fallo.
+  Volátil.
 
 .Persistencia de Parámetros Numerados
 Los valores de los parámetros en el rango persistente se conservan en el
@@ -340,7 +351,7 @@ El archivo original se guarda como un archivo de respaldo cuando se escribe el n
 
 [[gcode:format-parameter-file]]
 .Formato de archivo de parámetros
-[width="90%", options="header"]
+[width="90%",options="header"]
 |====
 |Número de parámetro | Valor del parámetro
 |5161 | 0.0
@@ -351,9 +362,10 @@ El archivo original se guarda como un archivo de respaldo cuando se escribe el n
 === Parametros de subrutina
 
 * '1-30' Parámetros locales de argumentos  de llamada de subrutina. Estos parámetros son
-  locales a la subrutina. Volátil. Ver también el capítulo sobre
-  <<cha:o-codes,códigos O>>.
+  locales a la subrutina. Volátil. Ver también el capítulo sobre
+  <<cha:o-codes,códigos O>>.
 
+[[gcode:named-parameters]]
 === Parametros con nombre
 
 Los parámetros con nombre funcionan como parámetros numerados pero son más fáciles de leer.
@@ -478,9 +490,8 @@ se puede agregar fácilmente, sin cambios en el código .ngc.
 * '#<_units_per_minute>' - Devuelve 1 si el modo de alimentación udes/minuto (G94) está activado, de lo contrario 0.
 * '#<_units_per_rev>' - Devuelve 1 si el modo udes/revolución (G95) está activado, de lo contrario 0.
 * '#<_coord_system>' - Devuelve un flotante del nombre del sistema de coordenadas actual (G54..G59.3).
-
-Por ejemplo, si está en el sistema de coordenadas G55, el valor de retorno es
-550.000000 y si está en G59.1 el valor de retorno es 591.000000.
+  Por ejemplo, si está en el sistema de coordenadas G55, el valor de retorno es
+  550.000000 y si está en G59.1 el valor de retorno es 591.000000.
 
 [width="20%",options="header"]
 |====
@@ -496,97 +507,73 @@ Por ejemplo, si está en el sistema de coordenadas G55, el valor de retorno es
 |G59.3|593
 |====
 
-* '#<_tool_offset>' - Devuelve 1 si el offset de herramienta (G43) está activado, de lo contrario 0.
+* '#<_tool_offset>' - Devuelve 1 si el offset de herramienta (G43) está activado, de lo contrario 0.
 * '#<_retract_r_plane>' - Devuelve 1 si G98 está configurado, de lo contrario 0.
 * '#<_retract_old_z>' - Devuelve 1 si G99 está activado, de lo contrario 0.
 
 [[sub:system-parameters]]
 === Parametros del sistema
 
-* '#<_spindle_rpm_mode>' -
-  Devuelva 1 si el modo rpm del cabezal (G97) está activado, de lo contrario 0.
-* '#<_spindle_css_mode>' -
-  Devuelve 1 si el modo de velocidad de superficie constante (G96) está activado, de lo contrario 0.
-* '#<_ijk_absolute_mode>' -
-  Devuelve 1 si el modo de distancia de Arco absoluto (G90.1) está activado, de lo contrario 0.
-* '#<_lathe_diameter_mode>' -
-  Devuelve 1 si el modo de diámetro en torno (G7) está activado, de lo contrario 0.
-* '#<_lathe_radius_mode>' -
-  Devuelve 1 si el modo de radio en torno (G8) está activado, de lo contrario 0.
-* '#<_spindle_on>' -
-  Devuelve 1 si el husillo está girando actualmente (M3 o M4), de lo contrario 0.
-* '#<_spindle_cw>' -
-  Devuelve 1 si la dirección del husillo es en sentido horario (M3), de lo contrario 0.
-* '#<_mist>' -
-  Devuelve 1 si la niebla (M7) está activada.
-* '#<_flood>' -
-  Devuelve 1 si la inundación (M8) está activada.
-* '#<_speed_override>' -
-  Devuelva 1 si la anulación de alimentación (M48 o M50 P1) está activada, de lo contrario 0.
-* '#<_feed_override>' -
-  Devuelve 1 si el ajuste de alimentación (M48 o M51 P1) está activado, de lo contrario 0.
-* '#<_adaptive_feed>' -
-  Devuelve 1 si la alimentación adaptativa (M52 o M52 P1) está activada, de lo contrario 0.
-* '#<_feed_hold>' -
-  Devuelve 1 si el interruptor de retención de alimentación está habilitado (M53 P1), de lo contrario 0.
-* '#<_feed>' -
-  Devuelve el valor actual de F, no la velocidad de alimentación real.
-* '#<_rpm>' -
-  Devuelve el valor actual de S, no la velocidad real del husillo.
-* '#<_x>' -
-  Devuelve la coordenada X relativa actual, incluidos todos los offsets. Igual que #5420.
-* '#<_y>' -
-  Devuelve la coordenada Y relativa actual, incluidos todos los offsets. Igual que #5421.
-* '#<_z>' -
-  Devuelve la coordenada Z relativa actual, incluidos todos los offsets. Igual que #5422.
-* '#<_a>' -
-  Devuelve la coordenada relativa actual A, incluidos todos los offsets. Igual que #5423.
-* '#<_b>' -
-  Devuelve la coordenada B relativa actual, incluidos todos los offsets. Igual que #5424.
-* '#<_c>' -
-  Devuelve la coordenada C relativa actual, incluidos todos los offsets. Igual que #5425.
-* '#<_u>' -
-  Devuelve la coordenada U relativa actual, incluidos todos los offsets. Igual que #5426.
-* '#<_v>' -
-  Devuelve la coordenada V relativa actual, incluidos todos los offsets. Igual que #5427.
-* '#<_w>' -
-  Devuelve la coordenada W relativa actual, incluidos todos los offsets. Igual que #5428.
-* '#<_current_tool>' -
-  Número de la herramienta actual en el husillo. Igual que # 5400.
-* '#<_current_pocket>' -
-  Devuelve el número de ranura de la herramienta actual.
-* '#<_selected_tool>' -
-  El número de la herramienta seleccionada por un código T. Por defecto -1.
-* '#<_selected_pocket>' -
-  El número de ranura seleccionado por un código T. Predeterminado -1
-  (sin ranura seleccionada).
-* '#<_value>' -
-  Valor de retorno de la última palabra O 'return' o 'endsub'. Por defecto
-  valor 0 si no hay expresión después de 'return' o 'endsub'. Inicializado
-  a 0 al inicio del programa.
-* '#<_value_returned>' -
-  1.0 si la última palabra O 'return' o 'endsub' devolvió un valor, 0
-  de otra manera. Limpiado por la siguiente llamada O-word.
-* '#<_task>' -
-  1.0 si la instancia del intérprete en ejecución es parte de milltask, 0.0
-  de otra manera. A veces es necesario tratar este caso especialmente
-  para mantener una vista previa adecuada, por ejemplo, cuando se prueba el éxito de
-  una sonda (G38.n) inspeccionando #5070, que siempre fallará en el
-  intérprete de vista previa (por ejemplo, Axis).
-* '#<_call_level>' -
-  nivel actual de anidamiento de los procedimientos O-word. Para depuracion.
-* '#<_remap_level>' -
-  nivel actual de la pila de reasignación. Cada reasignación en un bloque agrega uno
-  al nivel de reasignación. Para depuracion.
+* '#<_spindle_rpm_mode>' - Devuelva 1 si el modo rpm del cabezal (G97) está activado, de lo contrario 0.
+* '#<_spindle_css_mode>' - Devuelve 1 si el modo de velocidad de superficie constante (G96) está activado, de lo contrario 0.
+* '#<_ijk_absolute_mode>' - Devuelve 1 si el modo de distancia de Arco absoluto (G90.1) está activado, de lo contrario 0.
+* '#<_lathe_diameter_mode>' - Devuelve 1 si el modo de diámetro en torno (G7) está activado, de lo contrario 0.
+* '#<_lathe_radius_mode>' - Devuelve 1 si el modo de radio en torno (G8) está activado, de lo contrario 0.
+* '#<_spindle_on>' - Devuelve 1 si el husillo está girando actualmente (M3 o M4), de lo contrario 0.
+* '#<_spindle_cw>' - Devuelve 1 si la dirección del husillo es en sentido horario (M3), de lo contrario 0.
+* '#<_mist>' - Devuelve 1 si la niebla (M7) está activada.
+* '#<_flood>' - Devuelve 1 si la inundación (M8) está activada.
+* '#<_speed_override>' - Devuelva 1 si la anulación de alimentación (M48 o M50 P1) está activada, de lo contrario 0.
+* '#<_feed_override>' - Devuelve 1 si el ajuste de alimentación (M48 o M51 P1) está activado, de lo contrario 0.
+* '#<_adaptive_feed>' - Devuelve 1 si la alimentación adaptativa (M52 o M52 P1) está activada, de lo contrario 0.
+* '#<_feed_hold>' - Devuelve 1 si el interruptor de retención de alimentación está habilitado (M53 P1), de lo contrario 0.
+* '#<_feed>' - Devuelve el valor actual de F, no la velocidad de alimentación real.
+* '#<_rpm>' - Devuelve el valor actual de S, no la velocidad real del husillo.
+* '#<_x>' - Devuelve la coordenada X relativa actual, incluidos todos los offsets. Igual que #5420.
+  In a lathe configuration, it always returns radius.
+* '#<_y>' - Devuelve la coordenada Y relativa actual, incluidos todos los offsets. Igual que #5421.
+* '#<_z>' - Devuelve la coordenada Z relativa actual, incluidos todos los offsets. Igual que #5422.
+* '#<_a>' - Devuelve la coordenada relativa actual A, incluidos todos los offsets. Igual que #5423.
+* '#<_b>' - Devuelve la coordenada B relativa actual, incluidos todos los offsets. Igual que #5424.
+* '#<_c>' - Devuelve la coordenada C relativa actual, incluidos todos los offsets. Igual que #5425.
+* '#<_u>' - Devuelve la coordenada U relativa actual, incluidos todos los offsets. Igual que #5426.
+* '#<_v>' - Devuelve la coordenada V relativa actual, incluidos todos los offsets. Igual que #5427.
+* '#<_w>' - Devuelve la coordenada W relativa actual, incluidos todos los offsets. Igual que #5428.
+* '#<_abs_x>' - Return current absolute X coordinate (G53) including no offsets.
+* '#<_abs_y>' - Return current absolute Y coordinate (G53) including no offsets.
+* '#<_abs_z>' - Return current absolute Z coordinate (G53) including no offsets.
+* '#<_abs_a>' - Return current absolute A coordinate (G53) including no offsets.
+* '#<_abs_b>' - Return current absolute B coordinate (G53) including no offsets.
+* '#<_abs_c>' - Return current absolute C coordinate (G53) including no offsets.
+* '#<_current_tool>' - Número de la herramienta actual en el husillo. Igual que # 5400.
+* '#<_current_pocket>' - Devuelve el número de ranura de la herramienta actual.
+* '#<_selected_tool>' - El número de la herramienta seleccionada por un código T. Por defecto -1.
+* '#<_selected_pocket>' - El número de ranura seleccionado por un código T.
+  Predeterminado -1 (sin ranura seleccionada).
+* '#<_value>' - Valor de retorno de la última palabra O 'return' o 'endsub'. Por defecto
+  valor 0 si no hay expresión después de 'return' o 'endsub'. Inicializado
+  a 0 al inicio del programa.
+* '#<_value_returned>' - 1.0 si la última palabra O 'return' o 'endsub' devolvió un valor, 0
+  de otra manera. Limpiado por la siguiente llamada O-word.
+* '#<_task>' - 1.0 si la instancia del intérprete en ejecución es parte de milltask, 0.0
+  de otra manera. A veces es necesario tratar este caso especialmente
+  para mantener una vista previa adecuada, por ejemplo, cuando se prueba el éxito de
+  una sonda (G38.n) inspeccionando #5070, que siempre fallará en el
+  intérprete de vista previa (por ejemplo, Axis).
+* '#<_call_level>' - nivel actual de anidamiento de los procedimientos O-word. Para depuracion.
+* '#<_remap_level>' - nivel actual de la pila de reasignación. Cada reasignación en un bloque agrega uno
+  al nivel de reasignación. Para depuracion.
 
 [[gcode:ini-hal-params]]
 == Pines HAL y valores INI
 
-Si está habilitado en el <<gcode:ini-features,archivo INI>> G-code tiene acceso
+Si está habilitado en el <<sub:ini:sec:rs274ngc,archivo INI>> G-code tiene acceso
 a los valores de las entradas del archivo INI y a los pines HAL.
 
 * '#<_ini[section]name>' Devuelve el valor del elemento correspondiente en el archivo INI.
-Por ejemplo, si el archivo ini se ve así:
+  Por ejemplo, si el archivo ini se ve así:
+
+For example, if the ini file looks like so:
 
 [source,{ini}]
 ---------------------------------------------------------------------
@@ -615,13 +602,13 @@ causa un error de tiempo de ejecución. Los nombres no distinguen entre mayúscu
 convertido a mayúsculas antes de consultar el archivo ini.
 
 * '#<_hal[elemento Hal]>'
-Permite que los programas de código G lean los valores de los pines HAL. El acceso a las variables es
-de solo lectura; la única forma de _dar valores_ a pines HAL desde código G sigue siendo M62-M65,
-M67, M68 y los códigos personalizados M100-M199.
-Tenga en cuenta que el valor leído no se actualizará en tiempo real; normalmente será devuelto
-el valor que estaba en el pin cuando se inició el programa de código G.
-Es posible solucionar esto forzando una sincronización de estado.
-Una forma de hacerlo es con un comando M66 ficticio: M66E0L0
+  Permite que los programas de código G lean los valores de los pines HAL. El acceso a las variables es
+  de solo lectura; la única forma de _dar valores_ a pines HAL desde código G sigue siendo M62-M65,
+  M67, M68 y los códigos personalizados M100-M199.
+  Tenga en cuenta que el valor leído no se actualizará en tiempo real; normalmente será devuelto
+  el valor que estaba en el pin cuando se inició el programa de código G.
+  Es posible solucionar esto forzando una sincronización de estado.
+  Una forma de hacerlo es con un comando M66 ficticio: M66E0L0
 
 Ejemplo:
 
@@ -670,7 +657,7 @@ matemáticas básicas: suma ('+'), resta ('-'), multiplicación ('\*') y divisi�
 operaciones lógicas: o no exclusivo ('OR'), o exclusivo ('XOR'), y lógico 'AND').
 La octava operación es la operación de módulo ('MOD').
 La novena operación es la operación 'potencia' ('**'); elevar el número
-a la izquierda de la operación al exponente de la derecha.
+a la izquierda de la operación al exponente de la derecha.
 Los operadores relacionales son igualdad ('EQ'), desigualdad
 ('NE'), estrictamente mayor que ('GT'), mayor o igual que ('GE'),
 estrictamente menor que ('LT'), y menor o igual que ('LE').
@@ -689,15 +676,16 @@ Las operaciones lógicas y el módulo pueden realizarse en cualquier
 número, no solo en enteros. El número cero es equivalente a falso lógico,
 y cualquier número distinto de cero es equivalente a verdadero lógico.
 
+[[gcode:operators-precedence]]
 .Precedencia de operadores
-[width="60%", options="header", cols="2*^"]
+[width="60%",options="header",cols="2*^"]
 |====
-|Operador | Precedencia
-|** | 'más alto'
-|* / MOD |
-|+ - |
-|EQ NE GT GE LT LE |
-|AND OR XOR | 'más bajo'
+|Operador          | Precedencia
+|**                | 'más alto'
+|* / MOD           | 
+|+ -               | 
+|EQ NE GT GE LT LE | 
+|AND OR XOR        | 'más bajo'
 |====
 
 == Igualdad y valores de coma flotante
@@ -717,8 +705,8 @@ de las operaciones que toman medidas de ángulo ('COS', 'SIN' y 'TAN') están en
 grados. Los valores devueltos por operaciones unarias que devuelven medidas de ángulo
 ('ACOS', 'ASIN' y 'ATAN') también están en grados.
 
-.Funciones
-[width="75%", options="header", cols="^,<"]
+.Funciones Codigo G
+[width="75%",options="header",cols="^,<"]
 |====
 |Nombre de la función | Resultado de la función
 |ATAN[arg]/[arg] | Tangente inversa de cuatro cuadrantes
@@ -809,7 +797,7 @@ Si cada grupo se mantiene en orden o se reordena sin cambiar el
 significado de la línea, entonces los tres grupos pueden estar intercalados en cualquier
 forma sin cambiar el significado de la línea. Por ejemplo, la linea
 'g40 g1 #3 = 15 (foo) #4=-7.0' tiene cinco elementos y significa exactamente
-lo mismo en cualquiera de los 120 posibles ordenes (por ejemplo '#4=-7.0 g1 #3=15 g40 (foo)') de los cinco
+lo mismo en cualquiera de los 120 posibles ordenes (por ejemplo '#4=-7.0 g1 #3=15 g40 (foo)') de los cinco
 items.
 
 == Comandos y Modos de Maquina
@@ -825,6 +813,7 @@ esa línea, a menos que en ella se dé un comando explícito usando las palabras
 Los códigos 'no modales' solo tienen efecto en las líneas en las que se encuentran.
 Por ejemplo, G4 (Dwell) no es modal.
 
+[[gcode:polar-coordinates]]
 == Coordenadas Polares(((Polar Coordinates)))
 
 Las coordenadas polares se pueden usar para especificar la coordenada XY de un movimiento.
@@ -833,8 +822,8 @@ en cosas como círculos de agujeros de pernos que se pueden hacer de manera muy 
 moviéndose a un punto en el centro del círculo, estableciendo el desplazamiento y
 luego moviendose hacia el primer agujero para luego ejecutar el ciclo de perforación.
 Las coordenadas polares siempre son desde la posición cero XY actual.
-Para cambiar las coordenadas polares del cero máquina, use un desplazamiento
-o seleccione un sistema de coordenadas.
+Para cambiar las coordenadas polares del cero máquina, use un desplazamiento o
+seleccione un sistema de coordenadas.
 
 En modo absoluto, la distancia y el ángulo son desde la posición cero XY
 y el ángulo comienza con 0 en el eje X positivo y aumenta en dirección CCW
@@ -860,8 +849,8 @@ Puede ver en la siguiente figura que la salida no es lo que usted
 podría esperar. Ya que agregamos 0.5 a la distancia cada vez,
 la distancia desde la posición XY cero aumentó con cada línea.
 
-Espiral polar
-
+[[fig:polar-spiral]]
+.Espiral polar
 image::images/polar01.png["Espiral polar",align="center"]
 
 El siguiente código producirá nuestro patrón cuadrado.
@@ -878,8 +867,8 @@ G90 G0 X0 Y0 M2
 Como puede ver solo agregando al ángulo 90 grados cada vez,
 la distancia del punto final es la misma para cada línea.
 
-Cuadrado polar
-
+[[fig:polar-square]]
+.Cuadrado polar
 image::images/polar02.png["Cuadrado polar",align="center"]
 
 Es un error si:
@@ -898,8 +887,9 @@ medida en pulgadas y medida en milímetros. Un centro de mecanizado puede estar
 en muchos modos al mismo tiempo, con un modo de cada grupo modal
 en vigor. Los grupos modales se muestran en la siguiente tabla.
 
+[[cap:modal-groups]]
 .Grupos modales de código G.[[cap:modal-groups]]
-[width="80%", cols="4,6", options="header"]
+[width="80%",cols="4,6",options="header"]
 |====
 |Significado del grupo modal                         | Miembros
 |Códigos no modales (Grupo 0)                        | G4, G10 G28, G30, G52, G53, G92, G92.1, G92.2, G92.3,
@@ -919,11 +909,14 @@ en vigor. Los grupos modales se muestran en la siguiente tabla.
 |Modo de diámetro de torno (Grupo 15)                | G7, G8
 |====
 
+[[tbl:mcodes-modal-groups]]
 .Grupos modales de código M.
-[width="80%", cols="4,6", options="header"]
+[width="80%",cols="4,6",options="header"]
 |====
 |Significado del grupo modal          | Miembros
 |Detención (Grupo 4)                  | M0, M1, M2, M30, M60
+|On/Off I/O ('Group 5')               | FIXME M6 Tn
+|Toolchange ('Group 6')               | M6 Tn
 |Husillo (Grupo 7)                    | M3, M4, M5
 |Refrigerante (Grupo 8)               | (M7 M8 puede estar ambos ON), M9
 |Interruptores de ajuste (Grupo 9)    | M48, M49
@@ -932,8 +925,8 @@ en vigor. Los grupos modales se muestran en la siguiente tabla.
 
 Para varios grupos modales, cuando un centro de mecanizado está listo para aceptar
 comandos, un miembro del grupo debe estar en vigor. Hay por defecto
-ajustes para estos grupos modales. Cuando el centro de mecanizado está encendido
-o reinicializado, los valores predeterminados entran automáticamente en efecto.
+ajustes para estos grupos modales. Cuando el centro de mecanizado está encendido o
+reinicializado, los valores predeterminados entran automáticamente en efecto.
 
 El grupo 1 es un grupo de códigos G para movimiento. Uno de ellos siempre está vigente.
 A ese se le llama modo de movimiento actual.
@@ -950,6 +943,9 @@ Es un error incluir palabras no relacionadas en una línea con control de flujo 
 [[gcode:comments]]
 == Comentarios
 
+Comments are purely informative and have no
+influence on machine behaviour
+
 Se pueden agregar comentarios a las líneas de código G para ayudar a aclarar la
 intención del programador. Los comentarios se pueden incrustar en una línea usando
 paréntesis () o al final de una línea usando un punto y coma.
@@ -959,6 +955,8 @@ paréntesis
 Los comentarios pueden aparecer entre palabras, pero no entre palabras y sus
 parámetros correspondientes. Por tanto, 'S100 (velocidad establecida) F200 (alimentación)' está bien mientras que
 'S (velocidad) 100F (alimentación)' no lo está.
+
+Here is an example of a commented program:
 
 ----
 G0 (Rápido para comenzar) X1 Y1
@@ -977,7 +975,7 @@ deshabilitará el comentario activo. Por ejemplo, '(foo)
 Un comentario introducido por un punto y coma es, por definición, el último comentario
 en esa línea, y siempre se interpretará para la sintaxis activa de comentarios.
 
-NOTA: Los comentarios en línea en palabras O no deben usarse. Vea la sección del Código O
+NOTE: Los comentarios en línea en palabras O no deben usarse. Vea la sección del Código O
 <<ocode:comments,comentarios>>  para más información.
 
 [[gcode:messages]]
@@ -995,6 +993,7 @@ NOTA: Los comentarios en línea en palabras O no deben usarse. Vea la sección d
 (MSG, esto es un mensaje)
 ----
 
+[[gcode:probe-logging]]
 == Registro de sonda(((Probe Logging)))
 
 * '(PROBEOPEN filename.txt)' - abrirá filename.txt y almacenará 9 números de
@@ -1002,6 +1001,9 @@ NOTA: Los comentarios en línea en palabras O no deben usarse. Vea la sección d
 * '(PROBECLOSE)' - cerrará el archivo abierto. Para más información sobre
   sondeo ver la sección <<gcode:g38,G38>>.
 
+For more information on probing see the <<gcode:g38,G38>> Section.
+
+[[gcode:logging]]
 == Registro(((Logging)))
 
 * '(LOGOPEN, filename.txt)' - abre el archivo de registro nombrado. Si el archivo ya
@@ -1071,6 +1073,7 @@ podría comenzar en una condición peligrosa.
 El archivo debe crearse con un editor de texto como Gedit y no con un
 procesador como Open Office Word Processor.
 
+[[gcode:file-size]]
 == Tamaño de archivo
 
 El intérprete y el planificador de tareas están cuidadosamente escritos para que el único límite
@@ -1117,11 +1120,15 @@ posición de cada elemento en la línea, sino según la siguiente lista:
   (posiblemente) por G53.
 * Detener (M0, M1, M2, M30, M60).
 
+[[gcode:best-practices]]
 == Buenas practicas de código G(((G Code Best Practices)))
 
 .Utilice una precisión decimal adecuada.
 Use al menos 3 dígitos después del decimal al fresar en milímetros,
 y al menos 4 dígitos después del decimal al fresar en pulgadas.
+
+In particular, tolerance checks of arcs are done for .001 and .0001
+according to the active units.
 
 .Use espacios en blanco consistentes.
 El código G es más legible cuando aparece al menos un espacio antes de las palabras.
@@ -1137,12 +1144,12 @@ Cuando la ejecución correcta de su programa depende de la configuración modal,
 asegúrese de configurarlos al comienzo del programa de pieza. Los modos pueden llegar
 desde programas anteriores y desde los comandos MDI.
 
-Preámbulo de ejemplo para una fresadora.
+.Preámbulo de ejemplo para una fresadora.
 
 [source,{ngc}]
----------------------------------------------------------------------
+----
 G17 G20 G40 G49 G54 G80 G90 G94
----------------------------------------------------------------------
+----
 
 G17 usar plano XY, G20 modo pulgadas, G40 cancelar compensación de diámetro,
 G49 cancelar offset de longitud, G54 usar sistema de coordenadas 1, G80 cancelar
@@ -1167,6 +1174,15 @@ Los números de línea no ofrecen beneficios. Cuando se informan números de lí
 mensajes de error, los números se refieren al número de línea en el archivo, no
 al valor de palabras N.
 
+.When several coordinate systems are moved
+
+Consider using the inverse time speed mode
+
+Because the meaning of an 'F' word in meters per minute varies depending on
+the type of axis to be moved and because the amount of removed material does
+not depend only on the feed rate, it can be simpler to use G93, inverse
+speed of time, to achieve the removal of desired material.
+
 == Ejes lineales y rotativos
 
 Puesto que el significado de una palabra F en el modo de alimentación por minuto varía
@@ -1174,7 +1190,6 @@ dependiendo de qué ejes se ordena mover, y ya que la cantidad
 del material eliminado no depende solo de la velocidad de alimentación, puede ser
 más fácil usar el modo de alimentación de tiempo inverso G93  para lograr la
 tasa de eliminación de material deseada.
-
 
 == Mensajes de error comunes
 

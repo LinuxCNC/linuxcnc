@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 [[cha:coordinate-system]]
 = Sistemas de coordenadas(((Coordinate Systems)))
@@ -52,7 +53,7 @@ in machine coordinate system is desired
 
 [[fig:coordinate-systems-example]]
 .Ejemplo de sistemas de coordenadas
-image::images/offsets_es.png["Sistemas de coordenadas (ejemplo)",align="center"]
+image::images/offsets_es.png["Ejemplo de sistemas de coordenadas",align="center"]
 
 .Desplazamientos del sistema de coordenadas
 * G54 - usa el sistema de coordenadas 1
@@ -83,7 +84,7 @@ y reinicializando luego LinuxCNC para que lea los nuevos valores.
 Sin embargo, esta no es la forma recomendada. El uso de G10, G52, G92, G28.1,
 etc. son mejores formas de establecer las variables.
 
-.Ejemplo de parámetros G55.
+.Ejemplo de parámetros G55
 [width="40%",cols="^,^,^",options="header"]
 |====
 | Eje | Variable | Valor
@@ -451,3 +452,4 @@ recargados cuando se inicia de nuevo.
 
 (Para ser escrito)
 
+// vim: set syntax=asciidoc:

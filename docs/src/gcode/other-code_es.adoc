@@ -52,12 +52,12 @@ líneas sin cambio de herramienta. Solo la palabra T más reciente tomará
 efecto en el siguiente cambio de herramienta.
 
 NOTA: Cuando LinuxCNC está configurado para un cambiador de herramientas no aleatorio (consulte
-la entrada para RANDOM_TOOLCHANGER en <<sec:emcio-section, EMCIO>>), 
+la entrada para RANDOM_TOOLCHANGER en <<sub:ini:sec:emcio, EMCIO>>), 
 'T0' tiene un manejo especial: no se seleccionará ninguna herramienta. Esto
 es útil si desea que el husillo quede vacío después de un cambio de herramienta.
 
 NOTA: Cuando LinuxCNC está configurado para un cambiador de herramientas aleatorio (consulte
-la entrada para RANDOM_TOOLCHANGER en <<sec:emcio-section,EMCIO>>), 'T0' no recibe 
+la entrada para RANDOM_TOOLCHANGER en <<sub:ini:sec:emcio,EMCIO>>), 'T0' no recibe 
 ningún tratamiento especial: T0 es una herramienta válida como cualquier otra. Es costumbre 
 usar T0 en un cambiador de herramientas aleatorio
 para rastrear una ranura vacía, para que se comporte como cambiador de herramientas
@@ -67,8 +67,8 @@ Es un error si:
 
 * se usa un número T negativo,
 * Se utiliza un número T que no aparece en el archivo de la tabla de herramientas (con
-  la excepción de que T0 en cambiadores de herramientas no aleatorios, que *es* aceptado
-  como se señaló anteriormente).
+  la excepción de que T0 en cambiadores de herramientas no aleatorios, que *es* aceptado
+  como se señaló anteriormente).
 
 En algunas máquinas, el carrusel se moverá cuando se programe una palabra T,
 Al mismo tiempo, se está mecanizando. En tales máquinas, la programación
@@ -84,4 +84,3 @@ esta característica para la herramienta actual, programe un G1 sin ningún
 movimiento después de 'T<n>'.
 
 // vim: set syntax = asciidoc:
-

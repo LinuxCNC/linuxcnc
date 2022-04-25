@@ -19,7 +19,7 @@ else on the PCI bus:
 
 ----
 0000:00:10.0 Communication controller: \
-        NetMos Technology PCI 1 port parallel adapter (rev 01
+        NetMos Technology PCI 1 port parallel adapter (rev 01)
         Subsystem: LSI Logic / Symbios Logic: Unknown device 0010
         Flags: medium devsel, IRQ 11
         I/O ports at a800 [size=8]
@@ -53,3 +53,5 @@ addf parport.1.write base-thread
 
 After doing the above then run your config and verify that the
 parallel port got loaded in Machine/Show HAL Configuration window.
+
+// vim: set syntax=asciidoc:

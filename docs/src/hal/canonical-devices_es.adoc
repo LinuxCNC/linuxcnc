@@ -23,7 +23,6 @@ La entrada digital canónica (campo tipo E/S:`digin`) es bastante simple.
 [[sub:hal-cdi:di:pins]]
 === Pines(((HAL Entrada Pines)))
 
-[horizontal]
 (bit) *in*:: Estado de la entrada hardware.
 (bit) *in-not*:: Estado invertido de la entrada.
 
@@ -69,27 +68,26 @@ conviertan voltaje a un rango continuo de valores.
 === Pines(((HAL Entrada Pines Analógica)))
 
 (float) *value*:: La lectura del hardware, escalada según los parámetros
-   *scale* y *offset*. *Value* = ((lectura de entrada, en
-   unidades dependientes del hardware) * *scale*) - *offset*
+  *scale* y *offset*. *Value* = ((lectura de entrada, en
+  unidades dependientes del hardware) * *scale*) - *offset*
 
 [[sub:hal-cdi:ai:parameters]]
 === Parámetros(((HAL Entrada Parámetros Analógica)))
 
-[horizontal]
 (float) *scale*:: El voltaje de entrada (o corriente) se multiplicará
-   por *scale* antes de salir a *value*.
+  por *scale* antes de salir a *value*.
 (float) *offset*:: Se restará de la entrada de voltaje (o corriente) hardware
-   después de que se haya aplicado el multiplicador de escala.
+  después de que se haya aplicado el multiplicador de escala.
 (float) *bit_weight*:: El valor del bit menos significativo(LSB).
-   Es efectivamente la granularidad de la lectura de entrada.
+  Es efectivamente la granularidad de la lectura de entrada.
 (float) *hw_offset*:: El valor presente en la entrada cuando se aplican 0 voltios
-   al pin(es) de entrada.
+  al pin(es) de entrada.
 
 [[sub:hal-cdi:ai:functions]]
 === Funciones(((HAL Entrada Functiones Analógica)))
 
 (funct) *read*:: Lee los valores de este canal de entrada analógica. Se
-   puede usar para leer un canal individual, o puede hacer que se lean todos los canales
+  puede usar para leer un canal individual, o puede hacer que se lean todos los canales
 
 == Salida analógica(((HAL Salida Analógica)))
 
@@ -102,27 +100,27 @@ Los ejemplos son convertidores de digital a analógico o generadores PWM.
 
 [horizontal]
 (float) *value*:: El valor que se escribirá. El valor real de salida
-   para el hardware dependerá de la escala y los parámetros de offset.
+  para el hardware dependerá de la escala y los parámetros de offset.
 (bit) *enable*:: Si es falso, entonces salida al hardware es 0, independientemente
-   del pin *value*.
+  del pin *value*.
 
 [[sub:hal-cdi:ao:parameters]]
 === Parámetros(((HAL Salida Parámetros Analógica)))
 
 (float) *offset*:: Esto se agregará a *value* antes de la
-   actualizacion del hardware.
+  actualizacion del hardware.
 (float) *scale*:: Se debe configurar de modo que una entrada de 1 en el
-   pin *value*  causará que en el pin de salida analógica se lea 1 voltio.
+  pin *value*  causará que en el pin de salida analógica se lea 1 voltio.
 (float) *high_limit* (opcional):: Cuando se calcula el valor para
-   salida al hardware, si *value* + *offset* es mayor que
-   *high_limit*, se usará *high_limit* .
+  salida al hardware, si *value* + *offset* es mayor que
+  *high_limit*, se usará *high_limit* .
 (float) *low_limit* (opcional):: Cuando se calcula el valor de salida
-   para el hardware, si *value* + *offset* es menor que *low_limit*,
-   se usará *low_limit*.
+  para el hardware, si *value* + *offset* es menor que *low_limit*,
+  se usará *low_limit*.
 (float) *bit_weight* (opcional):: El valor del bit menos significativo
-   (LSB), en voltios (o mA, para salidas de corriente)
+  (LSB), en voltios (o mA, para salidas de corriente)
 (float) *hw_offset* (opcional):: El voltaje (o corriente) real
-   que saldrá si se escribe 0 en el hardware.
+  que saldrá si se escribe 0 en el hardware.
 
 [[sub:hal-cdi:ao:functions]]
 === Funciones(((HAL Salida Funciones Analógica)))

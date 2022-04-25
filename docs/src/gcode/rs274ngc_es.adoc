@@ -1,7 +1,7 @@
 :lang: es
+:toc:
 
 [[cha:rs274ngc-programs]]
-
 = Diferencias RS274/NGC
 
 == Cambios desde RS274/NGC
@@ -116,4 +116,4 @@ Ejes U, V y W::
 LinuxCNC permite máquinas con hasta 9 ejes definiendo un conjunto adicional
 de 3 ejes lineales conocidos como U, V y W
 
-
+// vim: set syntax=asciidoc:

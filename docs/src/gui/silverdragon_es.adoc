@@ -1,30 +1,58 @@
 :lang: es
+:toc:
 
 [[cha:qtdragon-gui]]
 = GUI SilverDragon(((SilverDragon)))
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
 
 == Introducción
 
-SilverDragon está construido con el marco QTVCP.
+QtDragon y QtDragon_hd estan construido con el marco QTVCP.
+It is the creative vision of forum personality Persei8.
 Gran parte se basa en el excelente trabajo de otros en la comunidad LinuxCNC.
+LinuxCNC's version is adapted from Persei8's Github versions.
+It is primarily meant for 3/4 axes machines such as mills or routers.
+It works well with a touchscreen and/or mouse.
+QtDragon supports multiple ways to touch off tools and probing work pieces.
+You can use linuxcnc's external offsets capability to automatically raise the spindle
+during a pause.
+If you the VersaProbe option and remap code you can add auto tool length probing
+at tool changes.
 
 [NOTE]
-SilverDragon y QtVcp son nuevos programas agregados a linuxcnc.
+QtDragon y QtDragon_hd y QtVcp son nuevos programas agregados a linuxcnc. +
 Errores y rarezas son posibles. Por favor pruebe cuidadosamente cuando use un
 máquina peligrosa Envíe informes al foro o a la lista de correo.
+
+=== Qtdragon
 
 .qtdragon - Muestra de 3 o 4 ejes
 image::images/silverdragon.png["QTDragon Router",scale="25%"]
 
+Qtdragon has a resolution of 1440x900 and is not resizable. +
+It will work in window mode on any monitor with higher resolution but not
+on monitors with lower resolution.
+
+=== Qtdragon_hd
+
+.qtdragon_hd - 3 or 4 Axis Sample for larger monitors (1920x1056) in dark theme
+image::images/qtdragon_hd.png["QTDragon_hd",scale="25%"]
+
+Qtdragon_hd is a similar design as Qtdragon but modified to utilize the extra space of modern larger monitors. +
+There are some small differences in layout and utility. +
+Qtdragon_hd has a resolution of 1920x1056 and is not realizable. +
+It will work in window mode on
+any monitor with higher resolution but not on monitors with lower resolution.
+
 == Comenzando
 
-Si su configuración no está configurada actualmente para usar SilverDragon,
+Si su configuración no está configurada actualmente para usar QtDragon,
 puede cambiarlo editando el archivo INI.
-En la sección '[DISPLAY]' cambie la línea 'DISPLAY' para que lea:
-<<sec:display-section,Sección de visualización>>
+For an exhaustive list of options, see the
+<<sub:ini:sec:display,display section>> of INI file documentation.
 
 [source,{ini}]
 ----
@@ -32,20 +60,29 @@ En la sección '[DISPLAY]' cambie la línea 'DISPLAY' para que lea:
 DISPLAY = qtvcp qtdragon
 ----
 
-Para realizar un seguimiento de las preferencias, qtdragon busca un archivo de texto de preferencias.
-agregue la siguiente entrada bajo el encabezado '[DISPLAY]'.
-(son posibles otras opciones, consulte los documentos del widget screenoption del qtvcp).
+=== Preference
+
+Para realizar un seguimiento de las preferencias, qtdragon busca un archivo
+de texto de preferencias. Agregue la siguiente entrada bajo el encabezado
+'[DISPLAY]'. (son posibles otras opciones, consulte los documentos del widget
+screenoption del qtvcp).
 
 [source,{ini}]
 ----
+[DISPLAY]
+...
 PREFERENCE_FILE_PATH = WORKINGFOLDER / qtdragon.pref
 ----
+
+=== Logging
 
 Puede especificar dónde guardar el historial / registros.
 En la sección '[DISPLAY]' agregue:
 
 [source,{ini}]
 ----
+[DISPLAY]
+...
 MDI_HISTORY_FILE = mdi_history.dat
 MACHINE_LOG_PATH = machine_log.dat
 LOG_FILE = qtdragon.log

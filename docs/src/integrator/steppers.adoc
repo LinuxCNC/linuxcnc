@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:stepper-info]]
 = Stepper Information
@@ -46,7 +47,7 @@ Using the same example as above, but increasing the step voltage to 80V it can b
 now reach the 5A maximum quite easily:
 
 image::images/inductance-pulse-response-fast-charge.png[align="center"]
- 	
+
 However, careful management of a higher drive voltage is required, as a higher voltage will increase current
 flowing in each coil with a corresponding increase in temperature of the winding. Excessive temperature rise in
 the winding will lead to eventual overheating and failure of the motor.
@@ -185,3 +186,5 @@ compensate without losing steps.
 More advanced implementations of closed loop operation bring the encoder signal all the way back to the host
 computer, but require that a much higher hardware and software overhead be installed to manage the encoder
 feedback and calculation and delivery of drive compensation.
+
+// vim: set syntax=asciidoc:

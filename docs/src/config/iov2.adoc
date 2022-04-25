@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:iov2]]
 = I/O Control V2
@@ -205,3 +206,4 @@ The value of the toolchanger-reason pin is used as follows:
 The usage of the toolchanger-fault-ack pin is optional. It will become true when
 toolchanger-fault is raised and the toolchanger-reason pin has been read by iov2. 
 
+// vim: set syntax=asciidoc:

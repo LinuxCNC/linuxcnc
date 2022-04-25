@@ -21,7 +21,7 @@ ini files.  Haltcl files are identified in the the HAL section of ini files
 [HAL]
 HALFILE = conventional_file.hal
 HALFILE = tcl_based_file.tcl
------
+----
 
 With appropriate care, .hal and .tcl files can be intermixed.
 
@@ -30,14 +30,13 @@ With appropriate care, .hal and .tcl files can be intermixed.
 The halcmd language used in .hal files has a simple syntax that is actually a
 subset of the more powerful general-purpose tcl scripting language.
 
-
 == Haltcl Commands
 
 Haltcl files use the tcl scripting language augmented with the specific
 commands of the LinuxCNC hardware abstraction layer (HAL).  The hal-specific
 commands are.
 
-....
+----
 addf, alias,
 delf, delsig,
 getp, gets
@@ -49,19 +48,18 @@ net, newsig,
 save, setp, sets, show, source, start, status, stop,
 unalias, unlinkp, unload, unloadrt, unloadusr, unlock,
 waitusr
-....
+----
 
 Two special cases occur for the 'gets' and 'list' commands due to
 conflicts with tcl builtin commands.  For haltcl, these
 commands must be preceded with the keyword 'hal'.
 
-....
+----
 halcmd   haltcl
 ------   ------
 gets     hal gets
 list     hal list
-....
-
+----
 
 == Haltcl Inifile variables
 
@@ -102,7 +100,7 @@ MAX_VELOCITY = 4
 ----
 
 is expressed as   [JOINT_0]MAX_VELOCITY  in .hal files for halcmd +
-and as          $::JOINT_0(MAX_VELOCITY) in .tcl files for haltcl +
+and as            $::JOINT_0(MAX_VELOCITY) in .tcl files for haltcl.
 
 Because inifiles can repat the same ITEM in the same SECTION multiple times,
 $::SECTION(ITEM) is actually a Tcl list of each individual value.
@@ -241,7 +239,6 @@ capability is useful for testing and for standalone hal applications.
 ----
 $ halrun -T haltclfile.tcl
 ----
-
 
 == Haltcl Distribution Examples (sim)
 

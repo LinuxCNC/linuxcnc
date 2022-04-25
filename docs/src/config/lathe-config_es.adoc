@@ -1,8 +1,8 @@
 :lang: es
+:toc:
 
 [[cha:lathe-configuration]]
-
-﻿= Configuración de torno
+= Configuración de torno
 
 == Plano predeterminado
 
@@ -20,8 +20,8 @@ en el preámbulo del archivo de código g.
 
 == Configuración INI
 
-Las siguientes configuraciones .ini son necesarias para el modo torno en Axis además de
-o reemplazando a la configuración normal en el archivo .ini. Estas configuraciones históricas usan
+Las siguientes configuraciones .ini son necesarias para el modo torno en Axis además de o
+reemplazando a la configuración normal en el archivo .ini. Estas configuraciones históricas usan
 cinemática de identidad (trivkins) y 'tres' articulaciones (0,1,2) correspondientes a
 coordenadas x, y, z. En estas configuraciones históricas se requiere la articulacion 1
 para el eje Y no utilizado. Las configuraciones de torno simuladas pueden usar estos
@@ -54,7 +54,8 @@ COORDINATES = X Z
 ----
 
 Con la incorporación de joint_axes, se puede hacer una configuración más simple con solo
-las dos articulaciones requeridas especificando trivkins con el parámetro 'coordinates=':
+las dos articulaciones requeridas especificando trivkins con el parámetro
+'coordinates=':
 
 ----
 [DISPLAY]
@@ -80,3 +81,4 @@ COORDINATES = X Z
 ...
 ----
 
+// vim: set syntax=asciidoc:

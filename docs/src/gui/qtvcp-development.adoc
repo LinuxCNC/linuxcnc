@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:qtvcp-development]]
 = QTvcp Development
@@ -26,9 +27,9 @@ We can mitigate minor linuxcnc code changes.
 
 Builtin screens and panels are stored in separate folders.
 
- * screens in share/qtvcp/screens
- * panels in share/qtvcp/panels
- * Stock images are in share/qtvcp/images
+* screens in share/qtvcp/screens
+* panels in share/qtvcp/panels
+* Stock images are in share/qtvcp/images
 
 screens and panels are sorted by their folder name, which is
 also the name used to load them.
@@ -39,21 +40,21 @@ possibly the .qss theme file.
 
 QtVCP source is located in src/emc/usr_intf/qtvcp
 
- * When QtVCP first starts, it must decide if this object is a screen
-   or a panel. Then it searches for and collects information about
-   paths of required files and useful folders.
- * Next, it builds the HAL component, loads the window instance,
-   adds handler extensions and installs an event filter.
- * Now the window/widgets are instantiated, the HAL pins are built,
-   which also initiates the '_init_hal()' function of the widgets.
- * The handler function 'initialized__()' is called and then the STATUS
-   library is forced to update. Hal component is set ready at this point.
- * A variety of optional switch arguments are set, including calling a
-   POSTGUI HAL file (if a screen). Terminate signals are trapped and
-   QtVCP now polls for events.
- * Finally when QtVCP is asked to shutdown, it calls shutdown functions
-   in the handler file, shuts down STATUS monitoring and kills the HAL
-   component.
+* When QtVCP first starts, it must decide if this object is a screen
+  or a panel. Then it searches for and collects information about
+  paths of required files and useful folders.
+* Next, it builds the HAL component, loads the window instance,
+  adds handler extensions and installs an event filter.
+* Now the window/widgets are instantiated, the HAL pins are built,
+  which also initiates the '_init_hal()' function of the widgets.
+* The handler function 'initialized__()' is called and then the STATUS
+  library is forced to update. Hal component is set ready at this point.
+* A variety of optional switch arguments are set, including calling a
+  POSTGUI HAL file (if a screen). Terminate signals are trapped and
+  QtVCP now polls for events.
+* Finally when QtVCP is asked to shutdown, it calls shutdown functions
+  in the handler file, shuts down STATUS monitoring and kills the HAL
+  component.
 
 == Path information
 
@@ -61,18 +62,18 @@ When QtVCP loads it collects Path information:
 This is available in the handler file's '__init__()' function
 as 'path'
 
- * IMAGEDIR = Path of builtin images
- * SCREENDIR = Path of builtin motion controller screens + 
- * PANELDIR = Path of builtin accessory panels
- * WORKINGDIR = Path of where QtVCP was launched from
- * CONFIGPATH = Path of the launched configuration
- * BASEDIR = general path, used to derive all paths
- * BASENAME = Generic name used to derive all paths + 
- * LIBDIR = Path of QtVCP's python library
- * HANDLER = Path of handler file
- * XML = Path of .ui file
- * DOMAIN = Path of translation
- * IS_SCREEN = screen/panel switch
+* IMAGEDIR = Path of builtin images
+* SCREENDIR = Path of builtin motion controller screens + 
+* PANELDIR = Path of builtin accessory panels
+* WORKINGDIR = Path of where QtVCP was launched from
+* CONFIGPATH = Path of the launched configuration
+* BASEDIR = general path, used to derive all paths
+* BASENAME = Generic name used to derive all paths + 
+* LIBDIR = Path of QtVCP's python library
+* HANDLER = Path of handler file
+* XML = Path of .ui file
+* DOMAIN = Path of translation
+* IS_SCREEN = screen/panel switch
 
 == Idiosyncrasies
 
@@ -157,3 +158,4 @@ convenient to change them later if they are all set in a
 separate .qss file. The file should be put in the same
 location as the handler file.
 
+// vim: set syntax=asciidoc:

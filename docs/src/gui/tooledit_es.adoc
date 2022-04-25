@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:tooledit-gui]]
-= GUI del Editor de Herramientas 
+= GUI del Editor de Herramientas
 
 == Descripción general
 
@@ -11,6 +11,7 @@ The tooledit elements described here are available
 in version 2.5.1 and later. In version 2.5.0, the graphical interface
 interface does not allow these adjustments.
 
+.GUI del Editor de Herramientas - Descripción general
 image::images/tooledit.png["GUI del Editor de Herramientas - Descripción general",align="center",width="640"]
 
 El programa 'tooledit' puede actualizar el archivo de la tabla de herramientas con
@@ -28,6 +29,7 @@ haciendo clic en el encabezado de la columna. Un segundo clic hace la clasificac
 en orden descendente. La clasificación de columnas requiere que la máquina
 se configure con la versión tcl mayor o igual a la 8.5.
 
+GUI del Editor de Herramientas - Ordenación por columnas
 image::images/tooledit-sort.png["GUI del Editor de Herramientas - Ordenación por columnas",align="center"]
 
 In Ubuntu Lucid 10.04 tcl/tk8.4 it is installed by default.
@@ -46,11 +48,10 @@ sudo update-alternative --config wish  # selecciona la opción para wish8.5
 ----
 
 == Selección de columnas
+
 Por defecto, el programa 'tooledit' mostrará todas las posibles
 columnas de parámetros de la tabla de herramientas. Dado que pocas máquinas utilizan todos los
 parámetros, las columnas mostradas pueden ser limitadas con el siguiente ajuste de archivo ini:
-
-image::images/tooledit-columns.png["GUI del Editor de Herramientas - Selección de columnas",align="center"]
 
 .Sintaxis en archivo .INI
 ----
@@ -64,13 +65,18 @@ TOOL_EDITOR = tooledit column_name column_name ...
 TOOL_EDITOR = tooledit Z DIAM
 ----
 
+.GUI del Editor de Herramientas - Selección de columnas
+image::images/tooledit-columns.png["GUI del Editor de Herramientas - Selección de columnas",align="center"]
+
 == Uso independiente
+
 El programa 'tooledit' también se puede invocar como un programa independiente.
 Por ejemplo, si el programa está en la ruta de acceso del usuario, escribiendo
 'tooledit' se mostrará la sintaxis de uso:
 
 .Stand Alone
 ----
+tooledit
 Uso:
        tooledit nombre de archivo
        tooledit [column_1 ... column_n] nombre de archivo

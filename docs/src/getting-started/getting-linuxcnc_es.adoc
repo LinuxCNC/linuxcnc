@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 [[cha:getting-linuxcnc]]
 = Obtener LinuxCNC(((Obtener LinuxCNC)))
@@ -44,6 +45,10 @@ Para la Raspberry Pi, una imagen completa de la tarjeta SD está disponible aqu�
 
 https://www.linuxcnc.org/iso/linuxcnc-2.8.1-pi4.zip
 
+Esto se puede instalar usando el Pi normal
+https://www.raspberrypi.org/documentation/installation/installing-images/README.md[proceso de instalación]
+incluso con la aplicación Raspberry Pi Imager.
+
 Se informa que esta imagen SD no funciona con el modelo Raspberry Pi4 de 8GB.
 Tenga en cuenta también que esta versión de la imagen SD limita la memoria disponible a
 3GB ya que esto es necesario para persuadirlo de que se ejecute tanto con WiFi como con USB
@@ -52,11 +57,6 @@ este límite editando el archivo config-rt.txt en el directorio de arranque. Si
 no puede arrancar después del cambio, entonces el archivo puede ser editado nuevamente por
 montar la tarjeta SD en una computadora diferente (tal vez incluso un Pi con un
 Lector de tarjetas USB)
-
-Esto se puede instalar usando el Pi normal
-https://www.raspberrypi.org/documentation/installation/installing-images/README.md[proceso de instalación]
-incluso con la aplicación Raspberry Pi Imager.
-
 
 === Descargar usando zsync
 
@@ -67,12 +67,14 @@ problemas descargando la imagen usando el método de <<sub:_normal_download,desc
 
 .zsync en Linux
 
-. Instalar zsync usando Synaptic o ejecutando lo siguiente en un <<faq:terminal,terminal>>
+* Instalar zsync usando Synaptic o ejecutando lo siguiente en un
+  <<faq:terminal,terminal>>
 +
 ----
 sudo apt-get install zsync
 ----
-. Luego, ejecute este comando para descargar el iso a su ordenador
+
+* Luego, ejecute este comando para descargar el iso a su ordenador
 +
 ----
 zsync http://www.linuxcnc.org/iso/linuxcnc-2.8.2-buster.iso.zsync
@@ -83,7 +85,7 @@ or
 ----
 zsync http://www.linuxcnc.org/iso/linuxcnc-2.8.1-pi4.zip.zsync
 ----
-+
+
 .zsync en Windows
 
 Hay una versión Windows de zsync. Funciona como una aplicación de consola. Puede ser
@@ -95,7 +97,7 @@ https://www.assembla.com/spaces/zsync-windows/documents
 
 (Este paso no es necesario si usó zsync)
 
-. Después de la descarga, verifique la suma de comprobación de la imagen para garantizar su integridad.
+* Después de la descarga, verifique la suma de comprobación de la imagen para garantizar su integridad.
 +
 ----
 md5sum linuxcnc-2.8.2-buster.iso
@@ -106,7 +108,8 @@ or
 ----
 sha256sum linuxcnc-2.8.2-buster.iso
 ----
-. Luego, compare con la suma de comprobación segun su caso
+
+* Luego, compare con la suma de comprobación segun su caso
 +
 -----
 md5sum: 4496eae88a1d66f457205d0d5b69c3c2
@@ -143,9 +146,8 @@ dd if=linuxcnc-2.8.2-buster.iso of=/dev/sde
 -----
 
 .Escribir la imagen en un dispositivo de almacenamiento USB en Mac OSX
-
 . Abra una terminal y escriba
-
++
 -----
 diskutil list
 -----
@@ -154,14 +156,14 @@ diskutil list
   /dev/disk5
 . desmonte el USB. El número encontrado arriba debe ser sustituido en lugar
   de la N
-
++
 -----
 diskutil unmountDisk /dev/diskN
 -----
 
 . Transfiera los datos con dd, como en Linux. Tenga en cuenta que el nombre del disco
   tiene una "r" agregada al principio
-
++
 -----
 sudo dd if=/path-to.iso of=/dev/rdiskN bs=1m
 -----
@@ -198,8 +200,7 @@ Con el dispositivo de almacenamiento USB conectado o el DVD en la unidad de DVD,
 apague el ordenador y vuelva a encenderlo. Esto arrancará
 el ordenador con la imagen Live/Install y elija la opción de arranque 'Live'.
 
-
-NOTA: Si el sistema no se inicia desde el DVD o la memoria USB, podría ser
+NOTE: Si el sistema no se inicia desde el DVD o la memoria USB, podría ser
 necesario para cambiar el orden de arranque en el BIOS del PC.
 
 Una vez que el ordenador se haya iniciado, puede probar LinuxCNC sin instalarlo.
@@ -234,9 +235,9 @@ Está bien actualizar todo, excepto el sistema operativo, cuando se le pida.
 [WARNING]
 No actualice el sistema operativo si se le solicita que lo haga. Debe aceptar en cambio los 
 _updates_ o actualizaciones de _su versión_ , especialmente las de seguridad. 
- 
 
-== Problemas de Instalacion 
+[[linuxcnc:install-problems]]
+== Problemas de Instalacion
 
 En casos excepcionales, es posible que deba restablecer el BIOS a la configuración predeterminada si
 durante la instalación de Live CD no puede reconocer el disco duro durante el arranque.
@@ -270,7 +271,7 @@ funcionara en cualquier sistema x86 de 64 bits)
 | Ubuntu Precise | amd64 e i386  | Stock      | linuxcnc-uspace    | solo simulación
 |====
 
-NOTA: LinuxCNC v2.8 no es compatible con Ubuntu Lucid o versiones anteriores.
+NOTE: LinuxCNC v2.8 no es compatible con Ubuntu Lucid o versiones anteriores.
 
 .Kernels Preempt-RT
 Los kernels Preempt-rt están disponibles para Debian desde el archivo regular
@@ -287,20 +288,23 @@ Las fuentes de apt son:
 * Debian Wheezy: `deb http://linuxcnc.org wheezy base`
 * Ubuntu Precise: `deb http://linuxcnc.org precise base`
 
-NOTA: Debian Wheezy y Ubuntu Precise son extremadamente antiguos y
+[NOTE]
+Debian Wheezy y Ubuntu Precise son extremadamente antiguos y
 ha finalizado su período de soporte. Se recomienda encarecidamente no utilizarlos
 para una nueva instalación y considerar seriamente la actualización de una existente.
 
 El paquete Buster/RTAI solo está disponible en amd64, pero hay muy
 pocos sistemas en funcionamiento que no puedan correr un sistema operativo de 64 bits.
 
-ADVERTENCIA: Existen problemas conocidos con el núcleo RTAI 5.2 de 64 bits con
+[WARNING]
+Existen problemas conocidos con el núcleo RTAI 5.2 de 64 bits con
 esta versión de LinuxCNC. Ocasionalmente, el sistema se bloqueará totalmente.
 Sin embargo, hasta ahora esto se ha visto solo durante la salida del sistema. Mientras
 el sistema está en funcionamiento parece ser estable. Con todo, debería ser
 considerado experimental por ahora.
 
-NOTA: Si decide usar el kernel RTAI 5.2 y ve un problema distinto de las
+[NOTE]
+Si decide usar el kernel RTAI 5.2 y ve un problema distinto de las
 circunstancias descritas anteriormente, por favor repórtelo inmediatamente a
 desarrolladores del proyecto.
 
@@ -310,21 +314,24 @@ desarrolladores del proyecto.
 
 . Después de quemar el iso y arrancar, si no quiere el escritorio Gnome, seleccione
   'Opciones avanzadas' > 'Entornos de escritorio alternativos' y elija el que
-  le guste. Luego seleccione 'Instalar' o 'Instalación gráfica'.
+  le guste.
 
-ADVERTENCIA: No ingrese una contraseña de root; si lo hace, sudo queda deshabilitado y no
+. Luego seleccione 'Instalar' o 'Instalación gráfica'.
+
+[WARNING]
+No ingrese una contraseña de root; si lo hace, sudo queda deshabilitado y no
 podrá completar los siguientes pasos.
 
 . Ejecute lo siguiente en un <<faq:terminal,terminal>> para que la máquina funcione
   con los últimos paquetes.
-
++
 ----
 sudo apt-get update
 sudo apt-get dist-upgrade
 ----
 
 . Instale el kernel y los módulos Preempt-RT
-
++
 ----
 sudo apt-get install linux-image-rt-amd64
 ----
@@ -332,7 +339,7 @@ sudo apt-get install linux-image-rt-amd64
 . Reinicie y seleccione el kernel de Linux 4.19.0-9-rt-amd64. Esto podría estar
   oculto en el submenú "Opciones avanzadas para Debian Buster" en Grub.
   Cuando usted inicie sesión, verifique que el siguiente comando informe `PREEMPT RT`.
-
++
 ----
 uname -v
 ----
@@ -346,33 +353,33 @@ uname -v
   más allá del alcance de este documento.
 
 . Agregue la clave de firma de archivo LinuxCNC a su apt keyring ejecutando
-
++
 ----
 sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
 Alternate keyserver: keyserver.ubuntu.com
 ----
 
 . Añada el repositorio apt:
-
++
 ----
  echo deb http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
  echo deb-src http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
 ----
 
 . Actualice la lista de paquetes desde linuxcnc.org
-
++
 ----
 sudo apt-get update
 ----
 
 . Instalar uspace (puede ser necesario reiniciar antes de instalar uspace)
-
++
 ----
 sudo apt-get install linuxcnc-uspace
 ----
 
 . Optionally you can install mesaflash if you are using a Mesa card.
-
++
 ----
 sudo apt install mesaflash
 ----
@@ -380,7 +387,8 @@ sudo apt install mesaflash
 [[cha:Installing-RTAI]]
 === Instalación en Debian Buster (con kernel experimental RTAI)
 
-ADVERTENCIA: Este núcleo tiene problemas de estabilidad conocidos. Parece correr
+[WARNING]
+Este núcleo tiene problemas de estabilidad conocidos. Parece correr
 confiablemente una vez que se carga LinuxCNC. Sin embargo, se han visto "kernel panics"
 en el apagado del sistema.
 
@@ -389,31 +397,33 @@ en el apagado del sistema.
   como se describió anteriormente
 . Agregue la clave de firma de archivo LinuxCNC a su apt keyring (no es
   necesario si se cambia el modo tiempo real de una imagen de Live-CD de LinuxCNC)
-
++
 ----
+# Alternate keyserver: keyserver.ubuntu.com
 sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
 ----
 
 . Agregue el repositorio apt:
-
++
 ----
-echo deb http://linuxcnc.org/ buster base 2.8-rt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
+ echo deb http://linuxcnc.org/ buster base 2.8-rt | sudo tee /etc/apt/sources.list.d/linuxcnc.list
+ echo deb-src http://linuxcnc.org/ buster base 2.8-rt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
 ----
 
 . Actualice la lista de paquetes de linuxcnc.org
-
++
 ----
 sudo apt-get update
 ----
 
 . Instale el kernel RTAI
-
++
 ----
 sudo apt-get install linux-image-4.19.195-rtai-amd64
 ----
 
 . Instale la capa de aplicación RTAI
-
++
 ----
 sudo apt-get install rtai-modules-4.19.195
 ----
@@ -432,31 +442,32 @@ Reboot the machine, ensuring that the system boots from the new 4.19.195-rtai ke
   https://www.raspberrypi.org/documentation/installation/installing-images/README.md[forma habitual]
 . Arranque Pi y abra una terminal
 . Agregue la clave de firma de archivo LinuxCNC a su apt keyring
-
++
 ----
+# Alternate keyserver: keyserver.ubuntu.com
 sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
 ----
 
 . Agregue el repositorio de apt
-
++
 -----
  echo deb http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
 -----
 
 . Actualice la lista de paquetes de linuxcnc.org
-
++
 ----
 sudo apt-get update
 ----
 
 . instale el kernel en tiempo real
-
++
 ----
 sudo apt-get install linux-image-4.19.71-rt24-v7l+
 ----
 
 . Instale linuxcnc (puede ser necesario reiniciar antes de instalar)
-
++
 ----
 sudo apt-get install linuxcnc-uspace
 ----
@@ -471,52 +482,55 @@ sudo apt-get install linuxcnc-uspace
   instalar LinuxCNC con un kernel RTAI bien probado.
 
 . Ejecute lo siguiente en Ubuntu Precise para actualizar la máquina con los últimos paquetes.
-
++
 ----
 sudo apt-get update
 sudo apt-get dist-upgrade
 ----
 
 . Agregue la clave de firma de archivo LinuxCNC a su apt keyring ejecutando
-
++
 ----
+# Alternate keyserver: keyserver.ubuntu.com
 sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
 ----
 
 . Agregue una nueva fuente apt
-
++
 ----
 sudo add-apt-repository "deb http://linuxcnc.org/ precise base 2.8-rt"
 ----
 
 . Obtenga la lista de paquetes de linuxcnc.org.
-
++
 ----
 sudo apt-get update
 ----
 
 . Instale el kernel y los módulos RTAI ejecutando
-
++
 ----
 sudo apt-get install linux-image-3.4-9-rtai-686-pae rtai-modules-3.4-9-rtai-686-pae
 ----
 
 . Si quiere poder construir LinuxCNC desde las fuentes usando el repositorio git,
   ejecute también
-
++
 ----
 sudo apt-get install linux-headers-3.4-9-rtai-686-pae
 ----
 
 . Reinicie, y asegúrese de iniciar en el kernel rtai. Cuando inicie sesión,
   verifique que el nombre del kernel sea 3.4-9-rtai-686-pae.
-
++
 ----
 uname -r
 ----
 
 . Ejecute
-
++
 ----
 sudo apt-get install linuxcnc
 ----
+
+// vim: set syntax=asciidoc:

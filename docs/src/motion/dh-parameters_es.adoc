@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 [[cha:dh-parameters]]
 = Configuración de parámetros "modificados" Denavit-Hartenberg (DH) para 'genserkins'(((DH parameters Examples)))
@@ -193,3 +194,5 @@ image::rv-6sl/rv-6sl-018.jpg[align="center"]
 
 Gracias al usuario Aciera por todo el texto y los gráficos.
 para el robot RV-6SL!
+
+// vim: set syntax=asciidoc:

@@ -1,7 +1,7 @@
 :lang: es
+:toc:
 
 [[cha:integrator-concepts]]
-
 = Conceptos para Integradores
 
 == Ubicaciones de archivos
@@ -12,7 +12,8 @@ La ubicación depende de cómo ejecute LinuxCNC.
 === LinuxCNC Instalado
 
 Si está ejecutando LinuxCNC desde el LiveCD o si lo instaló a través de un deb y usa el
-selector de configuración 'LinuxCNC' del menú LinuxCNC, mire en los siguientes directorios:
+selector de configuración 'LinuxCNC' del menú LinuxCNC, mire en los siguientes
+directorios:
 
 * El directorio LinuxCNC se encuentra en '/home/dir-de-usuario/linuxcnc'.
 * Los directorios de configuración se encuentran en '/home/dir-de-usuario/linuxcnc/configs'.
@@ -37,9 +38,9 @@ archivo INI, las ubicaciones de los archivos pueden estar en un lugar diferente.
 las opciones para ejecutar LinuxCNC desde la línea de comandos ejecute 'linuxcnc -h'.
 
 [NOTE]
-Las ubicaciones opcionales para algunos archivos se pueden configurar en el archivo INI. Ver las
-secciones <<sec:display-section,DISPLAY>> y <<sec:rs274ngc-section,RS274NGC>>.
-
+Las ubicaciones opcionales para algunos archivos se pueden configurar en
+el archivo INI. Ver las secciones `<<sub:ini:sec:display,[DISPLAY]>>` y
+`<<sub:ini:sec:rs274ngc,[RS274NGC]>>`.
 
 == Archivos
 
@@ -47,7 +48,7 @@ Cada directorio de configuración requiere al menos los siguientes archivos:
 
 * Un archivo INI .ini
 * Un archivo HAL .hal o un archivo HALTCL .tcl especificado en la sección
-  <<sec:hal-section,HAL>> del archivo INI.
+  <<sub:ini:sec:hal,HAL>> del archivo INI.
 
 [NOTE]
 Otros archivos pueden ser necesarios para algunas GUI.
@@ -56,12 +57,13 @@ Opcionalmente también puede tener:
 
 * Un archivo de variables .var
 ** Si omite un archivo .var en un directorio pero incluye
-   [<<sec:rs274ngc-section,RS274NGC>>]PARAMETER_FILE=algunFichero.var, el archivo
-   se creará para usted cuando se inicie LinuxCNC.
+   `<<sub:ini:sec:rs274ngc,[RS274NGC]>>` PARAMETER_FILE=algunFichero.var, el archivo
+   se creará para usted cuando se inicie LinuxCNC.
 ** Si omite un archivo .var y omite el elemento [RS274NGC]PARAMETER_FILE, se creará el archivo var
-   rs274ngc.var  cuando se inicie LinuxCNC. Puede haber algunos mensajes confusos si se omite [RS274NGC]PARAMETER_FILE.
-* Un archivo de tabla de herramientas .tbl si [<<sec:emcmot-section,EMCMOT>>]TOOL_TABLE ha sido
-  especificado en el archivo INI. Algunas configuraciones no necesitan una tabla de herramientas.
+   rs274ngc.var  cuando se inicie LinuxCNC. Puede haber algunos mensajes
+   confusos si se omite [RS274NGC]PARAMETER_FILE.
+* Un archivo de tabla de herramientas .tbl si `<<sub:ini:sec:emcmot,[EMCMOT]>>` TOOL_TABLE ha sido
+  especificado en el archivo INI. Algunas configuraciones no necesitan una tabla de herramientas.
 
 == Sistemas steppers
 
@@ -76,7 +78,8 @@ generador de pasos software decide si es hora de otro pulso de paso.
 Un período más corto le permitirá generar más pulsos por segundo,
 dentro de los limites. Pero si se hace muy corto, la computadora gastará mucho
 mucho tiempo generando pulsos de paso y todo lo demás se relentizara, o tal vez incluso se bloqueara.
-Los requisitos de latencia y de los drivers afectarán el período más corto que pueda usar.
+Los requisitos de latencia y de los drivers afectarán el período más
+corto que pueda usar.
 
 Las latencias, en el peor de los casos, solo pueden ocurrir unas pocas veces por minuto, y las
 probabilidades de que ocurra una mala latencia justo cuando el motor está cambiando de dirección
@@ -136,7 +139,8 @@ retroalimentación de posición, y debe ajustarse o 'tunearse', ya que no
 funcionan directamente como un sistema paso a paso. Estas diferencias
 existen porque los servos son sistemas de 'lazo cerrado',
 a diferencia de los motores paso a paso que generalmente funcionan en 'lazo abierto'. Que significa
-'lazo cerrado'?. Veamos un diagrama simplificado de cómo está conectado un sistema servomotor.
+'lazo cerrado'?. Veamos un diagrama simplificado de cómo está conectado
+un sistema servomotor.
 
 .Servo Loop
 image::images/servo-feedback.png["diagrama simplificado de cómo se conecta un sistema servomotor"]
@@ -158,7 +162,8 @@ estaban haciendo 'antes'. Si no ayuda, no importa.] Si 'todo'
 controla 'todo lo demás', cómo puede funcionar eso; ¿quién está a cargo?.
 La respuesta es que LinuxCNC 'puede' controlar este sistema,
 pero tiene que hacerlo mediante algun método de control.
-El método de control que utiliza LinuxCNC, uno de los más simples y mejores, se llama PID.
+El método de control que utiliza LinuxCNC, uno de los más simples y mejores,
+se llama PID.
 
 PID significa Proporcional, Integral y Derivativo.
 El valor proporcional determina la reacción al error actual, el valor integral
@@ -227,13 +232,13 @@ integral y derivado) se eligen incorrectamente, la entrada controlada
 del proceso puede ser inestable, es decir, su salida diverge, con o
 sin oscilación, y está limitada solo por saturación o rotura mecánica.
 Sintonizar un bucle de control es el ajuste de sus parámetros de control
-(ganancia / banda proporcional, ganancia integral / reset, ganancia derivada
- / tasa) a los valores óptimos para la respuesta de control deseada.
+(ganancia / banda proporcional, ganancia integral / reset, ganancia derivada /
+tasa) a los valores óptimos para la respuesta de control deseada.
 
 === Sintonización manual
 
 Un método de ajuste simple es establecer primero los valores I y D en cero.
-Aumente la P hasta que la salida del bucle oscile. Luego 
+Aumente la P hasta que la salida del bucle oscile. Luego
 debe establecerse la P en aproximadamente la mitad de ese valor, buscando una respuesta del tipo
 'decaimiento de un cuarto de amplitud'. Despues se aumenta I hasta que cualquier offset se
 corrija en tiempo suficiente para el proceso. Sin embargo, demasiad a I
@@ -266,4 +271,4 @@ para apagar completamente su computadora. El grupo RTAI ha estado
 mejorando esto en versiones recientes, por lo que su sistema LinuxCNC puede apagarse
 en sí mismo después de todo.
 
-
+// vim: set syntax=asciidoc:

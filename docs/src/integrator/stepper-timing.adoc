@@ -1,3 +1,8 @@
+:lang: en
+:toc:
+
+= Stepper Timing
+
 This page is for step and direction timing of stepper drives.
 
 Please add to this list using the stepconf wizard format and in nanoseconds so
@@ -81,3 +86,4 @@ nanoseconds (ns)
 |cnc4you|[[CW5045]]|2000|8000|5000|5000|Rising Edge|http://cnc4you.co.uk/resources/CW5045.pdf| 
 |=========================================================
 
+// vim: set syntax=asciidoc:

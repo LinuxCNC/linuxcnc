@@ -68,6 +68,7 @@ latency-test -h
 
 After stating a latency test you should see something like this:
 
+.HAL Latency Test
 image::../config/images/latency-test_en.png["HAL Latency Test",align="center"]
 
 While the test is running, you should 'abuse' the computer.
@@ -138,7 +139,8 @@ Options:
       --actual   (actual clock time)
 ----
 
-image::../config/images/latency-plot.png["latency-plot makes a strip chart recording for a base and a servo thread"]
+.`latency-plot` Window
+image::../config/images/latency-plot.png["latency-plot Window"]
 
 == Latency Histogram
 
@@ -173,6 +175,7 @@ Notes:
   the off-chart [pos|neg] bin
 ----
 
-image::../config/images/latency-histogram.png["latency-histogram displays a histogram of latency (jitter) for a base and servo thread"]
+.`latency-histogram` Window
+image::../config/images/latency-histogram.png["latency-histogram Window"]
 
 // vim: set syntax=asciidoc:

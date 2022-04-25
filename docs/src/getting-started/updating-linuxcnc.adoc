@@ -18,9 +18,8 @@ new 2.8.0 version.  It assumes that you have an existing 2.7 install that you
 want to update.
 
 To upgrade LinuxCNC from a version older than 2.7, you have to first
-http://linuxcnc.org/docs/2.7/html/getting-started/updating-linuxcnc.html[upgrade
-your old install to 2.7], then follow these instructions to upgrade to
-the new version.
+http://linuxcnc.org/docs/2.7/html/getting-started/updating-linuxcnc.html[upgrade your old install to 2.7],
+then follow these instructions to upgrade to the new version.
 
 If you do not have an old version of LinuxCNC to upgrade, then you're
 best off making a fresh install of the new version as described in the
@@ -67,7 +66,7 @@ If you see `-rtai-` in the kernel name then you are running RTAI
 realtime. See below for the LinuxCNC version to install.
 
 [[_setting_apt_sources]]
-=== Setting apt sources
+=== Apt Sources Configuration
 
 * Open the `Software Sources` window. The process for doing this
   differs slightly on the three supported platforms:
@@ -76,16 +75,18 @@ realtime. See below for the LinuxCNC version to install.
    `Synaptic Package Manager`.
 *** In Synaptic, click on the `Settings` menu, then click `Repositories`
     to open the `Software Sources` window.
-** Ubuntu:
+** Ubuntu Precise:
 *** Click on the `Dash Home` icon in the top left.
 *** In the `Search` field, type "software", then click on the `Ubuntu
     Software Center` icon.
 *** In the Ubuntu Software Center window, click on the `Edit` menu,
     then click on `Software Sources...` to open the `Software Sources`
     window.
-** Ubuntu (Lucid):
-*** Click the `System` menu, then `Administration`, then `Synaptic Package Manager`.
-*** In Synaptic, click on the `Settings` menu, then click on `Repositories` to open the `Software Sources` window.
+** Ubuntu Lucid:
+*** Click the `System` menu, then `Administration`, then
+    `Synaptic Package Manager`.
+*** In Synaptic, click on the `Settings` menu, then click on `Repositories`
+    to open the `Software Sources` window.
 * In the `Software Sources` window, select the `Other Software` tab.
 * Delete or un-check all the old linuxcnc.org entries (leave all
   non-linuxcnc.org lines as they are).
@@ -104,7 +105,7 @@ realtime. See below for the LinuxCNC version to install.
 | Debian Buster - RTAI    | `deb http://linuxcnc.org buster base 2.8-rt`
 |====
 
-image::images/upgrading-to-2.8.png["Setting apt sources",align="left"]
+image::images/upgrading-to-2.8.png["Setting apt sources",align="center"]
 
 * Click `Add Source`, then `Close` in the Software Sources window.
   If it pops up a window informing you that the information about
@@ -122,19 +123,14 @@ The process again differs depending on your platform.
 Debian Wheezy and Stretch both use the Synaptic Package Manager.
 
 * Open Synaptic using the instructions in <<_setting_apt_sources,Setting apt sources>> above.
-
 * Click the `Reload` button.
-
 * Use the Search function to search for `linuxcnc`.
-
 * The package is called "linuxcnc" for RTAI kernels and "linuxcnc-uspace"
   for preempt-rt.
-
 * Click the check box to mark the new linuxcnc and linuxcnc-doc-*
   packages for upgrade. The package manager may select a number of
   additional packages to be installed, to satisfy dependencies that the
   new linuxcnc package has.
-
 * Click the `Apply` button, and let your computer install the new
   package. The old linuxcnc package will be automatically upgraded to
   the new one.
@@ -148,7 +144,8 @@ Debian Wheezy and Stretch both use the Synaptic Package Manager.
 * Click the `Install Updates` button to install the new versions of
   all packages.
 
-== Updating without Network[[getting-started:update-no-network]]
+[[getting-started:update-no-network]]
+== Updating without Network
 
 To update without a network connection you need to download the deb then install
 it with dpkg. The debs can be found in http://linuxcnc.org/dists/
@@ -209,16 +206,16 @@ their related halfiles, a script named update_ini is provided to automatically
 convert user configurations.
 
 This script is invoked when a user starts an existing configuration for the
-first time after updating LinuxCNC.  The script searches the user ini file for
-a [EMC]VERSION item.   If this item 1) does not exist, or 2) exists and is set
+first time after updating LinuxCNC. The script searches the user ini file for
+a [EMC]VERSION item. If this item 1) does not exist, or 2) exists and is set
 to the historical CVS value "$Revision$", or is a numerical value less than
 1.1, then the update_ini script will popup a dialog to offer to edit the user
-files to create an updated configuration.  If the user accepts, the
+files to create an updated configuration. If the user accepts, the
 configuration will be updated.
 
 For example, if the user configuration is named bigmill.ini, the bigmill.ini file
 and its local associated hal files will be edited to incorporate joints_axes
-changes.  All files of the initial configuration will be saved in a new directory
+changes. All files of the initial configuration will be saved in a new directory
 named after the original configuration with a ".old" suffix (bigmill.old in the
 example).
 
@@ -302,8 +299,8 @@ was: loadrt gantrykins coordinates=xyyz
 See the trivkins man page for additional information ('$ man trivkins')
 
 Note: the most supported usage for specifying kinematics in joints_axes
-is to set values in the configuration ini file [KINS} section and then
-reference them within the specified [HAL]HALFILES ( .hal .tcl files).  For
+is to set values in the configuration ini file [KINS] section and then
+reference them within the specified [HAL]HALFILES ( .hal .tcl files). For
 example:
 
 ----
@@ -320,15 +317,15 @@ haltclfile: loadrt $::KINS(KINEMATICS)
 === Lathe Configurations
 
 Prior to joints_axes incorporation, lathes were often configured as if they
-were three axis (XYZ) machines with an unused axis (Y).  This was convenient
+were three axis (XYZ) machines with an unused axis (Y). This was convenient
 for sharing Hal files (especially for simulation configs) but required
 specification of [TRAJ]AXES =3, a 'dummy' AXIS_Y section, and provisions for
-homing the unused Y coordinate.  These arrangements are no longer required
+homing the unused Y coordinate. These arrangements are no longer required
 or recommended.
 
 Historical lathe configurations used the default options for the trivkins
-kinematics module.  These default options configure all axis letters
-(XYZABCUVW).  With joints_axes incorporation, a more appropriate kinematics
+kinematics module. These default options configure all axis letters
+(XYZABCUVW). With joints_axes incorporation, a more appropriate kinematics
 specification sets the coordinates to the exact ones used (XZ) and sets the
 number of joints accordingly to 2.  There is no need for an ini file [AXIS_Y]
 section and only two [JOINT_N] sections need be defined.
@@ -374,42 +371,47 @@ specification used by the task module item '[TRAJ]COORDINATES='.
 Examples:
 
 Three axis Cartesian machine using trivkins (KINEMATICS_IDENTITY):
+
 -----
-  [KINS]KINEMATICS  = trivkins
-  [KINS]JOINTS      = 3
-  [TRAJ]COORDINATES = XYZ
+[KINS]KINEMATICS  = trivkins
+[KINS]JOINTS      = 3
+[TRAJ]COORDINATES = XYZ
 -----
 
 Two axis lathe using trivkins (KINEMATICS_IDENTITY) with non-consecutive
 axis letters:
+
 -----
-  [KINS]KINEMATICS  = trivkins coordinates=XZ
-  [KINS]JOINTS      = 2
-  [TRAJ]COORDINATES = XZ
+[KINS]KINEMATICS  = trivkins coordinates=XZ
+[KINS]JOINTS      = 2
+[TRAJ]COORDINATES = XZ
 -----
 
 Gantry using trivkins with duplicated axis letters and KINEMATICS_BOTH to
 allow individual joint positioning (for homing):
+
 -----
-  [KINS]KINEMATICS  = trivkins coordinates=XYYZ kinstype=BOTH
-  [KINS]JOINTS      = 4
-  [TRAJ]COORDINATES = XYYZ
+[KINS]KINEMATICS  = trivkins coordinates=XYYZ kinstype=BOTH
+[KINS]JOINTS      = 4
+[TRAJ]COORDINATES = XYYZ
 -----
 
 Gantry using trivkins (KINEMATICS_BOTH) with duplicated axis letters
 and a rotary axis with skipped axis letters (A,B skipped):
+
 -----
-  [KINS]KINEMATICS  = trivkins coordinates=XYYZC kinstype=BOTH
-  [KINS]JOINTS      = 5
-  [TRAJ]COORDINATES = XYYZC
+[KINS]KINEMATICS  = trivkins coordinates=XYYZC kinstype=BOTH
+[KINS]JOINTS      = 5
+[TRAJ]COORDINATES = XYYZC
 -----
 
 Linear Delta Robot with non-identity kins (KINEMATICS_BOTH) working in Cartesian frame
 with an additional rotary coordinate:
+
 -----
-  [KINS]KINEMATICS  = lineardeltakins
-  [KINS]JOINTS      = 4
-  [TRAJ]COORDINATES = XYZA
+[KINS]KINEMATICS  = lineardeltakins
+[KINS]JOINTS      = 4
+[TRAJ]COORDINATES = XYZA
 -----
 
 Note: Some general-purpose kinematics modules (like trivkins) implement
@@ -418,9 +420,10 @@ Axis letters may be omitted.  Axis letters may be duplicated.
 Joints are assigned to axis letters in a defined manner ('$ man trivkins').
 
 Note: For trivkins module loading, do not include spaces about the = sign or letters:
+
 ----
-      This:     [KINS]KINEMATICS = trivkins coordinates=XZ
-      NOT This: [KINS]KINEMATICS = trivkins coordinates = X Z
+This:     [KINS]KINEMATICS = trivkins coordinates=XZ
+NOT This: [KINS]KINEMATICS = trivkins coordinates = X Z
 ----
 
 Note: Custom kinematics modules that implement non-identity kinematics (like
@@ -450,21 +453,21 @@ Specify the joint number that corresponds to a rotary axis (L = A,B, or C)
 with an ini file setting for the axis:
 
 ----
-  [AXIS_L]LOCKING_INDEXER_JOINT = joint_number_for_indexer
+[AXIS_L]LOCKING_INDEXER_JOINT = joint_number_for_indexer
 ----
 
 Specify that the joint is a locking indexer with an ini file setting
 for the joint (N is the joint_number_for_indexer):
 
 ----
-  [JOINT_N]LOCKING_INDEXER = 1
+[JOINT_N]LOCKING_INDEXER = 1
 ----
 
 Hal pins can be created to coordinate use of a locking indicator joint:
 
 ----
-   joint.N.unlock      (BIT output from Hal)
-   joint.N.is-unlocked (BIT input  to   Hal)
+joint.N.unlock      (BIT output from Hal)
+joint.N.is-unlocked (BIT input  to   Hal)
 ----
 
 To create these hal pins for locking joints, specify all joints that
@@ -472,8 +475,8 @@ are used as locking indexers with the 'unlock_joints_mask' parameter for
 the motmod module.  (bit0(LSB)==>joint0, bit1==>joint1, etc.)
 
 ----
-  [EMCMOT]
-  EMCMOT = motmod unlock_joints_mask=BITMASK
+[EMCMOT]
+EMCMOT = motmod unlock_joints_mask=BITMASK
 ----
 
 As an example, consider a machine using trivkins kinematics with coordinates
@@ -483,27 +486,28 @@ coordinate letters may be omitted).  For this example, X==>joint0, Y==>joint1,
 Z==>joint2, B==>joint3.  The mask to specify joint 3 is 000001000 (binary) == 0x08 (hexadecimal)
 
 The required ini file entries for this trivkins XYZB example are:
+
 ----
-  [KINS]
-  JOINTS = 4
-  KINEMATICS = trivkins coordinates=XYZB
-  ...
+[KINS]
+JOINTS = 4
+KINEMATICS = trivkins coordinates=XYZB
+...
 
-  [TRAJ]
-  COORDINATES = XYZB
-  ...
+[TRAJ]
+COORDINATES = XYZB
+...
 
-  [EMCMOT]
-  EMCMOT = motmod unlock_joints_mask=0x08
-  ...
+[EMCMOT]
+EMCMOT = motmod unlock_joints_mask=0x08
+...
 
-  [AXIS_B]
-  LOCKING_INDEXER_JOINT = 3
-  ...
+[AXIS_B]
+LOCKING_INDEXER_JOINT = 3
+...
 
-  [JOINT_3]
-  LOCKING_INDEXER = 1
-  ...
+[JOINT_3]
+LOCKING_INDEXER = 1
+...
 ----
 
 For more complex kinematics, select the joint number as required -- there must
@@ -520,11 +524,13 @@ This includes hash characters ("#"), which in this position are a part
 of the value, not a comment character.
 
 For example, lines like this will no longer be accepted:
+
 -----
 MAX_VELOCITY = 7.5 # This is the max velocity of the axis.
 -----
 
 They could be transformed into pairs of lines like this:
+
 -----
 # This is the max velocity of the axis.
 MAX_VELOCITY = 7.5
@@ -573,10 +579,10 @@ Prior to incorporation of joints_axes updates, wheel jogging was
 supported in joint mode only and controlled with hal pins:
 
 ----
-   bit   IN  axis.M.jog-enable
-   float IN  axis.M.jog-scale
-   s32   IN  axis.M.jog-counts
-   bit   IN  axis.M.jog-vel-mode
+bit   IN  axis.M.jog-enable
+float IN  axis.M.jog-scale
+s32   IN  axis.M.jog-counts
+bit   IN  axis.M.jog-vel-mode
 ----
 
 where 'M' is a number corresponding to an axis letter (0==>X, 1==>Y, etc.)
@@ -586,15 +592,15 @@ for joints in joint mode and for each axis coordinate in teleop mode.  The
 controlling hal pins provided are:
 
 ----
-   bit   IN  joint.N.jog-enable
-   float IN  joint.N.jog-scale
-   s32   IN  joint.N.jog-counts
-   bit   IN  joint.N.jog-vel-mode
+bit   IN  joint.N.jog-enable
+float IN  joint.N.jog-scale
+s32   IN  joint.N.jog-counts
+bit   IN  joint.N.jog-vel-mode
 
-   bit   IN  axis.L.jog-enable
-   float IN  axis.L.jog-scale
-   s32   IN  axis.L.jog-counts
-   bit   IN  axis.L.jog-vel-mode
+bit   IN  axis.L.jog-enable
+float IN  axis.L.jog-scale
+s32   IN  axis.L.jog-counts
+bit   IN  axis.L.jog-vel-mode
 ----
 
 where 'N' is a joint number and 'L' is an axis letter.
@@ -605,10 +611,10 @@ connect the corresponding hal pins.  For example, if joint 1 corresponds
 exactly to axis letter y:
 
 ----
-   net jora_1_y_enable   => joint.1.jog-enable => axis.y.jog-enable
-   net jora_1_y_scale    => joint.1.jog-scale  => axis.y.jog-scale
-   net jora_1_y_counts   => joint.1.jog-counts => axis.y.jog-counts
-   net jora_1_y_vel-mode => joint.1.jog-counts => axis.y.jog-vel-mode
+net jora_1_y_enable   => joint.1.jog-enable => axis.y.jog-enable
+net jora_1_y_scale    => joint.1.jog-scale  => axis.y.jog-scale
+net jora_1_y_counts   => joint.1.jog-counts => axis.y.jog-counts
+net jora_1_y_vel-mode => joint.1.jog-counts => axis.y.jog-vel-mode
 ----
 
 (The signal names jora_1_y_* are examples, names prior to conversion
@@ -621,7 +627,8 @@ both joint and teleop (world) jogging.
 
 === Ini Hal pins
 
-Hal pins are created for ini file items for both joints ([JOINT_N] stanzas) and axes ([AXIS_L] stanzas):
+Hal pins are created for ini file items for both joints ([JOINT_N]
+stanzas) and axes ([AXIS_L] stanzas):
 
   For N = 0 ... [KINS](JOINTS -1)
   Ini File Item              hal pin name
@@ -642,7 +649,10 @@ Hal pins are created for ini file items for both joints ([JOINT_N] stanzas) and 
   [AXIS_L]MAX_VELOCITY       ini.L.max_velocity
   [AXIS_L]MAX_ACCELERATION   ini.L.max_acceleration
 
-Note: In prior versions of LinuxCNC (before joints_axes updates), the hal pin names 'ini.N.*' referred to axes with 0==>x, 1==>y, etc.  (pins were created for all 9 axes) See the man page ('$ man milltask') for more information
+NOTE: In prior versions of LinuxCNC (before joints_axes updates), the
+hal pin names 'ini.N.*' referred to axes with 0==>x, 1==>y, etc. (pins
+were created for all 9 axes) See the man page ('$ man milltask') for
+more information
 
 == Hal Changes (Other 2.8.x)
 
@@ -662,8 +672,8 @@ The following hal output pins were changed from parameters to pins
 so that they can be connected to signals:
 
 ----
-   motion.servo.last-period    (servo last period in clks)
-   motion.servo.last-period_ns (kernel-dependent availability)
+motion.servo.last-period    (servo last period in clks)
+motion.servo.last-period_ns (kernel-dependent availability)
 ----
 
 == Interface changes for joints_axes 2.8.x
@@ -674,7 +684,7 @@ The jog() interface includes a 'joint-flag' to specify joint (True)
 or teleop (False) jogging:
 
 ----
-jog(command, joint-flag, axis-or-joint-number, velocity[, distance]])
+jog(command, joint-flag, axis-or-joint-number, velocity[, distance])
 
 jog(linuxcnc.JOG_STOP, joint-flag, axis-or-joint-number)
 jog(linuxcnc.JOG_CONTINUOUS, joint-flag, joint-flag, velocity)
@@ -776,12 +786,12 @@ See the man page ('$ man halui') for all pin names.
 New pins for teleop jogging are:
 
 ----
-      new: halui.axis.jog-speed
-      new: halui.axis.jog-deadband
+new: halui.axis.jog-speed
+new: halui.axis.jog-deadband
 
-      new: halui.axis.L.plus
-      new: halui.axis.L.minus
-           ... etc.
+new: halui.axis.L.plus
+new: halui.axis.L.minus
+      ... etc.
 ----
 
 where 'L' is a letter corresponding to one of the axis letters specified by
@@ -793,12 +803,12 @@ halui.axis.L.select pins.
 All pins for joint jogging were renamed for specificity:
 
 ----
-      was: halui.jog-speed          is: halui.joint.jog-speed
-      was: halui.jog-deadband       is: halui.joint.jog-deadband
+was: halui.jog-speed          is: halui.joint.jog-speed
+was: halui.jog-deadband       is: halui.joint.jog-deadband
 
-      was: halui.jog.N.plus         is: halui.joint.N.plus
-      was: halui.jog.N.minus        is: halui.joint.N.minus
-           ...  etc.                    ... etc.
+was: halui.jog.N.plus         is: halui.joint.N.plus
+was: halui.jog.N.minus        is: halui.joint.N.minus
+      ...  etc.                    ... etc.
 ----
 
 where 'N' is a joint number (0 ... num_noints-1) or 'selected'
@@ -810,11 +820,11 @@ The hal pins for 'selected' joints were renamed for consistency
 with related pins.
 
 ----
-      was: halui.joint.selected.is_homed
-       is: halui.joint.selected.is-homed
+was: halui.joint.selected.is_homed
+is: halui.joint.selected.is-homed
 
-      was: halui.joint.selected.on-soft-limit
-       is: halui.joint.selected.on-soft-min-limit
+was: halui.joint.selected.on-soft-limit
+is: halui.joint.selected.on-soft-min-limit
 ----
 
 === AXIS GUI
@@ -882,7 +892,7 @@ fashion.  For 3-axis machines, XYZA machines, and lathes the default is
 the same as in 2.7.  For other machines, the 4 pairs of jogging keys are
 assigned to the first 4 axes that exist in the order XYZ ABC UVW.
 These assignments can be controlled by new inifile directives in the
-<<sec:display-section,[DISPLAY] section of the inifile>>.
+<<sub:ini:sec:display,[DISPLAY] section of the inifile>>.
 
 Note that the parameters used for jogging may not be appropriate for both modes
 for machines with non-identity kinematics.
@@ -957,21 +967,24 @@ The jogging commands have been altered to accommodate both joint (free)
 and teleop (world) jogging.
 
 ----
-    was: set jog      joint_number             speed
-     is: set jog      joint_number|axis_letter speed
+was: set jog      joint_number             speed
+is: set jog      joint_number|axis_letter speed
 
-    was: set jog_incr joint_number             speed increment
-     is: set jog_incr joint_number|axis_letter speed increment
+was: set jog_incr joint_number             speed increment
+is: set jog_incr joint_number|axis_letter speed increment
 
-    was: set jog_stop
-     is: set jog_stop joint_number|axis_letter
+was: set jog_stop
+is: set jog_stop joint_number|axis_letter
 ----
 
-Note: Test for teleop mode using command: get teleop_enable
-      if TELEOP_ENABLE=YES, use axis_letter
-      else                  use joint_number
+[NOTE]
+====
+Test for teleop mode using command: `get teleop_enable` +
+If TELEOP_ENABLE=YES, use axis_letter; +
+Else                  use joint_number
+====
 
-Note: Formerly, the command 'set jog 0 1.234' would jog the zeroth
+NOTE: Formerly, the command 'set jog 0 1.234' would jog the zeroth
 axis (X) with requested speed=1.234 in any mode (free or teleop).
 This command now attempts to jog the zeroth joint (Joint0) provided
 the mode is free (not teleop).  To jog the X axis, the mode
@@ -1057,13 +1070,10 @@ Functions supported include:
 
 . 'ddts' -- differentiator hal components are loaded and connected
   for each joint (and xy, xyz for trivkins machines)
-
 . 'simulated_home' -- a sim_home_switch hal component is loaded and connected for each joint.
   The homing conditions are specified by the usual [JOINT_n]HOME_* ini file items.
-
 . 'use_hal_manualtoolchange' -- the user space hal_manualtoolchange
   component is loaded and connected.
-
 . 'sim_spindle' -- the sim_spindle component is loaded and connected to
   additional loaded hal components to simulate the inertia of a rotating
   spindle mass.
@@ -1104,18 +1114,17 @@ The equivalent halfile can be used to create a new configuration based on
 the original configuration made with LIB:basic_sim.tcl with the
 following steps:
 
-1) Run the simulator configuration to create a new equivalent halfile, for example: 'example_cmds.hal'.
-
-To use this new equivalent halfile in the original simulator
-configuration inifile (or a copy of it), edit to change:
-
+. Run the simulator configuration to create a new equivalent halfile, for example: 'example_cmds.hal'.
+. To use this new equivalent halfile in the original simulator
+  configuration inifile (or a copy of it), edit to change:
++
 ----
 [HAL]
 HALFILE = LIB:basic_sim.tcl other_parameters
 ----
-
++
 to:
-
++
 ----
 [HAL]
 HALFILE = ./example_cmds.hal
@@ -1159,7 +1168,7 @@ Name changes:
 
 ----
 was: axis.L.vel-cmd
- is: axis.l.teleop-vel-cmd
+is:  axis.l.teleop-vel-cmd
 ----
 
 New pins:

@@ -1,17 +1,33 @@
 :lang: es
+:toc:
 
 [[cha:hal-tutorial]]
 = Tutorial HAL
 
 == Introducción
 
-La configuración va de la teoría al dispositivo, es decir, al dispositivo HAL. Para
-aquellos que saben algo de programación informática, esta sección es
-el 'Hola mundo' de HAL. 
+La configuración va de la teoría al dispositivo, es decir, al dispositivo
+HAL. Para aquellos que saben algo de programación informática, esta
+sección es el 'Hola mundo' de HAL.
 
-Halrun se puede usar para crear un sistema de trabajo.
-Es una línea de comando o herramienta de archivo de texto para configuración y
-sintonización. Los siguientes ejemplos ilustran su configuración y funcionamiento.
+Halrun se puede usar para crear un sistema de trabajo. Es una línea de
+comando o herramienta de archivo de texto para configuración y
+sintonización.
+
+Los siguientes ejemplos ilustran su configuración y funcionamiento.
+
+[[haltut-halcmd]]
+== Halcmd(((Halcmd Tutorial)))
+
+`halcmd` is a command line tool for manipulating HAL. A more complete man
+page exists for halcmd and installed together with LinuxCNC, from source
+or from a package. If LinuxCNC has been compiled as _run-in-place_, the
+man page is not installed but is accessible in the LinuxCNC main directory
+with the following command:
+
+----
+$ man -M docs/man halcmd
+----
 
 === Notación
 
@@ -24,6 +40,7 @@ esta corriendo 'HAL'. La ventana del terminal está en el Menu de Aplicacione en
 mi@computer:~linuxcnc$ halrun
 (se mostrará la siguiente línea)
 halcmd:
+
 (el indicador halcmd: se mostrará cuando se ejecuta HAL)
 halcmd: loadrt debounce
 halcmd: show pin
@@ -38,10 +55,10 @@ Intente presionar el tabulador después de iniciar un comando HAL (las lineas co
 
 .Completado por tabulador
 ----
->halcmd: loa<TAB>
+halcmd: loa<TAB>
 halcmd: load
->halcmd: loadrt
->halcmd: loadrt deb<TAB>
+halcmd: loadrt
+halcmd: loadrt deb<TAB>
 halcmd: loadrt debounce
 ----
 
@@ -99,6 +116,7 @@ cargar 'siggen' use el comando HAL 'loadrt'.
 halcmd: loadrt siggen
 ----
 
+[[sec:tutorial-halcmd]]
 === Examinando el HAL
 
 Ahora que el módulo está cargado, es hora de ver 'halcmd', la
@@ -112,7 +130,7 @@ sobre el estado actual de HAL. Para mostrar todos los componentes instalados:
 ----
 halcmd: show comp
 
-Loaded HAL Components:  
+Loaded HAL Components:
 ID     Type  Name                                PID   State
     3  RT    siggen                                    ready
     2  User  halcmd2177                          2177  ready
@@ -256,7 +274,7 @@ Ahora el generador de señal está funcionando. Veamos sus pines de salida:
 halcmd: show pin
 
 Component Pins:
-Owner   Type  Dir         Value  Name 
+Owner   Type  Dir         Value  Name
      3  float IN              1  siggen.0.amplitude
      3  bit   OUT         FALSE  siggen.0.clock
      3  float OUT    -0.1640929  siggen.0.cosine
@@ -305,7 +323,7 @@ halcmd: setp siggen.0.amplitude 5
 ----
 halcmd: show param
 
-Parameters: 
+Parameters:
 Owner   Type  Dir         Value  Name
      3  s32   RO           1754  siggen.0.update.time
      3  s32   RW          16997  siggen.0.update.tmax
@@ -341,16 +359,17 @@ configuración de todo el HAL con un solo comando:
 .Salvar
 ----
 halcmd: save
-# components 
-loadrt threads name1=test-thread period1=1000000 
-loadrt siggen 
-# pin aliases 
-# signals 
-# nets 
-# parameter values 
-setp siggen.0.update.tmax 14687 
-# realtime thread/function links 
-addf siggen.0.update test-thread 
+
+# components
+loadrt threads name1=test-thread period1=1000000
+loadrt siggen
+# pin aliases
+# signals
+# nets
+# parameter values
+setp siggen.0.update.tmax 14687
+# realtime thread/function links
+addf siggen.0.update test-thread
 ----
 
 La salida del comando 'save' es una secuencia de comandos HAL. Si se comienza con un HAL 'vacío'
@@ -413,6 +432,54 @@ acaba de terminar el ejemplo anterior, puede cargar 'siggen' usando el
 archivo guardado. Si no, podemos cargarlo como lo hicimos antes:
 
 ----
+halmeter
+----
+
+//FIXME Add halmeter screenshot(s)
+
+Two windows will appear. The selection window is the largest and includes
+three tabs:
+
+* One lists all the pins currently defined in HAL,
+* One lists all the signals,
+* One lists all the parameters.
+
+Click on a tab, then click on one of the items to select it. The small
+window will show the name and value of the selected item.
+The display is updated approximately 10 times per second. To free screen
+space, the selection window can be closed with the _Close_ button.
+On the little window, hidden under the selection window at program launch,
+the _Select_ button, re-opens the selection window and the _Exit_ button
+stops the program and closes both windows.
+
+It is possible to run several halmeters simultaneously, which makes it
+possible to visualize several items at the same time. To open a halmeter
+and release the console by running it in the background, run the following command:
+
+----
+halmeter &
+----
+
+It is possible to launch halmeter and make it immediately display an item.
+For this, add  _pin|sig|par[am] name_ arguments on the command line. It
+will display the signal, pin, or parameter _name_ as soon as it
+will start. If the indicated item does not exist, it will start normally.
+
+//FIXME Add halmeter command example for direct item display
+
+Finally, if an item is specified for display, it is possible
+add _-s_ in front of pin|sig|param to tell halmeter to use
+an even smaller window. The item name will be displayed in the
+title bar instead of below the value and there will be no button.
+This is useful for displaying a lot of halmeters in a small space.
+
+//FIXME Add halmeter run with '-s' screenshot
+
+We will use the siggen component again to check out halmeter. If you
+just finished the previous example, then you can load siggen using the
+saved file. If not, we can load it just like we did before:
+
+----
 halrun
 halcmd: loadrt siggen
 halcmd: loadrt threads name1=test-thread period1=1000000
@@ -432,7 +499,7 @@ halcmd: loadusr halmeter
 La primera ventana que verá es la ventana 'Seleccionar elemento a sondear'.
 
 .Ventana de selección de Halmeter
-image::images/halmeter-select.png["Ventana de selección de halmeter",align="center"]
+image::images/halmeter-select.png["Ventana de selección de Halmeter",align="center"]
 
 Este diálogo tiene tres pestañas. La primera pestaña muestra todos los pines HAL
 en el sistema. La segunda muestra todas las señales, y la tercera
@@ -441,8 +508,8 @@ muestra todos los parámetros. Nos gustaría mirar primero el pin
 El cuadro de diálogo de selección se cerrará, y el medidor se vera como en la
 siguiente figura.
 
-.Halmeter
-image::images/halmeter-1.png["Halmeter",align="center"]
+.Ventana Halmeter
+image::images/halmeter-1.png["Ventana Halmeter",align="center"]
 
 Para cambiar lo que muestra el medidor presione el botón 'Select' que
 devuelve la ventana de seleccion del elemento a sondear.
@@ -456,7 +523,7 @@ Si desea ver más de un pin, señal o parámetro a la vez,
 puede lanzar más halmeters. La ventana de halmeter es intencionalmente
 muy pequeña para que se pueda tener muchas de ellas a la vez en la pantalla.
 
-== Ejemplo Stepgen(((stepgen)))
+== Ejemplo Stepgen(((Ejemplo Stepgen)))
 
 Hasta ahora solo hemos cargado un componente HAL. Pero toda la idea
 detrás de HAL es permitir cargar y conectar una serie de componentes simples
@@ -479,8 +546,11 @@ Manual del integrador. En este ejemplo usaremos el tipo de control de 'velocidad
 de stepgen. Por ahora, podemos omitir los detalles, y solo ejecutar los
 siguientes comandos.
 
+In this example we will use the _velocity_ control type from the `stepgen`
+component.
+
 ----
-halrun 
+halrun
 halcmd: loadrt stepgen step_type=0,0 ctrl_type=v,v
 halcmd: loadrt siggen
 halcmd: loadrt threads name1=fast fp1=0 period1=50000 name2=slow period2=1000000
@@ -521,7 +591,6 @@ Owner   Type  Dir         Value  Name
      3  float OUT             0  stepgen.1.position-fb
      3  bit   OUT         FALSE  stepgen.1.step
      3  float IN              0  stepgen.1.velocity-cmd
-
 
 halcmd: show param
 
@@ -791,12 +860,15 @@ halcmd: loadusr halscope
 halcmd: halscope: config file 'autosave.halscope' could not be opened
 ----
 
-Se abrirá la ventana GUI, seguida inmediatamente por
-el cuadro de diálogo 'Realtime function not linked' que se aparece a la siguiente
-figura.
+If LinuxCNC is not running or the autosave.halscope file does not match
+the pins available in the current running LinuxCNC se abrirá la ventana
+GUI, seguida inmediatamente por el cuadro de diálogo 'Realtime function
+not linked' que se aparece a la siguiente figura. To change the sample rate
+left click on the samples box.
 
-.diálogo Función Realtime no vinculada
-image::images/halscope-01.png["Diálogo de función de tiempo real no vinculada",align="center"]
+[[fig:halscope-rt-function-not-linked]]
+.Diálogo Función Realtime no vinculada
+image::images/halscope-01.png["Diálogo Función Realtime no vinculada",align="center"]
 
 Este diálogo es donde se establece la frecuencia de muestreo para el osciloscopio.
 Por ahora, queremos muestrear una vez por milisegundo, así que haga clic en el hilo 'slow'
@@ -805,7 +877,8 @@ longitud de registro a 4000 muestras, para que podamos usar hasta cuatro canales
 a la vez. Cuando selecciona un hilo y luego hace clic en 'Ok', el diálogo
 desaparece, y la ventana del osciloscopio aparece como en la siguiente figura.
 
-.Vista inicial de halscope
+[[fig:halscope-init-window]]
+.Ventana inicial de halscope
 image::images/halscope-02.png["Ventana inicial de halscope",align="center"]
 
 === Conectando las sondas
@@ -825,15 +898,17 @@ utilizado por halmeter. Nos gustaría ver las señales que definimos
 antes. Hacemos clic en la pestaña "Señales" y el cuadro de diálogo muestra todas
 las señales en HAL (solo dos para este ejemplo).
 
+[[fig:halscope-channel-source-selection]]
 .Seleccione Origen del canal
-image::images/halscope-03.png["Seleccionar fuente de canal",align="center"]
+image::images/halscope-03.png["Seleccione Origen del canal",align="center"]
 
 Para elegir una señal, simplemente haga clic en ella. En este caso, queremos que el canal 1
 muestre la señal 'X-vel'. Haga clic en la pestaña Señales y luego haga clic en
 'X-vel' y el diálogo se cerrara. El canal está ahora seleccionado.
 
+[[fig:halscope-source-signal-selection]]
 .Seleccion de señal
-image::images/halscope-04.png["Seleccionar señal",align="center"]
+image::images/halscope-04.png["Seleccion de señal",align="center"]
 
 El botón del canal 1 se ve "presionado", y el canal número 1 y el nombre
 'X-vel' aparece debajo de la fila de botones. Esa pantalla siempre indica
@@ -841,6 +916,7 @@ el canal seleccionado; puede tener muchos canales en la pantalla, pero
 el seleccionado se resalta, y los diversos controles, como posicion vertical
 y escala, siempre funcionan en el canal seleccionado.
 
+[[fig:halscope]]
 .Halscope
 image::images/halscope-05.png["Halscope",align="center"]
 
@@ -866,8 +942,9 @@ en la parte superior derecha. Debería ver el resto del relleno del buffer, y lu
 la pantalla mostrará las formas de onda capturadas. El resultado se verá
 como en la siguiente figura.
 
+[[fig:halscope-captured-owaveform]]
 .Capturando formas de onda
-image::images/halscope-06.png["Formas de onda capturadas",align="center"]
+image::images/halscope-06.png["Capturando formas de onda",align="center"]
 
 El cuadro "Selected Channel", en la parte inferior, le dice que la señal de color púrpura
 es el canal actualmente seleccionado, canal 4, que muestra el
@@ -885,8 +962,14 @@ pequeñas (pico-unidades) a muy grandes (unidades Tera). El control de posición
 mueve el trazo mostrado arriba y abajo sobre la altura de la pantalla
 solamente. Para ajustes más grandes, se debe usar el botón 'offset'.
 
+[[fig:halscope-vertical-adjustment]]
 .Ajuste vertical
 image::images/halscope-07.png["Ajuste vertical",align="center"]
+
+The large _Selected Channel_ button at the bottom indicates that channel 1 is
+currently selected channel and that it matches the _X-vel_ signal.
+Try clicking on the other channels to put their traces in evidence and
+to be able to move them with the _Pos_ cursor.
 
 === Disparando
 
@@ -897,8 +980,9 @@ simplemente una lista de todas las sondas que están actualmente conectadas. Sel
 sonda para usarla como disparador haciendo clic en ella. Para este ejemplo lo haremos
 con el canal 3, la onda triangular, como se muestra en la siguiente figura.
 
-.Diálogo de Fuente de Disparo 
-image::images/halscope-08.png["Diálogo de origen del disparador",align="center"]
+[[fig:halscope-trigger-source]]
+.Diálogo de Fuente de Disparo
+image::images/halscope-08.png["Diálogo de Fuente de Disparo",align="center"]
 
 Después de configurar la fuente de activación, puede ajustar el nivel de activación y
 posición del gatillo usando los controles deslizantes en la casilla 'Trigger' a lo largo del borde derecho.
@@ -916,8 +1000,9 @@ justo debajo del nivel de disparo.
 Ahora que hemos ajustado los controles verticales y el disparo,
 la pantalla del osciloscopio se parecerá a la siguiente figura.
 
-.Formas de onda con Triggering
-image::images/halscope-09.png["Formas de onda con disparador",align="center"]
+[[fig:halscope-waveforms-with-triggering]]
+.Formas de onda con Disparador
+image::images/halscope-09.png["Formas de onda con Disparador",align="center"]
 
 === Ajustes horizontales
 
@@ -935,6 +1020,7 @@ Frecuencia de muestreo'. Para este ejemplo, haremos clic en el hilo 'fast' de
 en lugar de mostrar aproximadamente 4 segundos de datos, un registro es 4000
 muestras a 20 kHz, o aproximadamente 0,20 segundos.
 
+[[fig:halscope-sample-rate-choice]]
 .Diálogo de frecuencia de muestreo
 image::images/halscope-10.png["Diálogo de frecuencia de muestreo",align="center"]
 
@@ -957,7 +1043,8 @@ aumentar la ganancia en el canal 1 a alrededor de 20 ms por división para ver m
 el cambio en el comando de velocidad. El resultado debería verse como la
 siguiente figura.
 
-.Pasos de paso
+[[fig:halscope-step-pulses]]
+.Impulsos de paso
 image::images/halscope-11.png["Impulsos de paso",align="center"]
 
 === Más muestras

@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 [[cha:remap]]
 = Remap Extendiendo el código G
@@ -93,11 +94,11 @@ Para hacer solucionable una situación compleja y que una situación simple sea 
 problema del codigo de union se trata de la siguiente manera:
 
 - para situaciones simples, un procedimiento de union incorporado (`argspec`) cubre la mayoría
-de los requisitos comunes de paso de parámetros.
+  de los requisitos comunes de paso de parámetros.
 - para el remapeado de T, M6, M61, S, F hay un algo de codigo de union Python estándar que debería
-cubrir la mayoría de las situaciones, ver <<remap:standard-glue, union estándar>>
+  cubrir la mayoría de las situaciones, ver <<remap:standard-glue, union estándar>>
 - para situaciones más complejas, puede escribir su propio codigo de union Python para implementar
-un nuevo comportamiento
+  un nuevo comportamiento
 
 Las funciones Python embebidas en el intérprete comenzaron como un codigo de union,
 pero resultaron muy útiles mas alla de eso. Los usuarios familiarizados con
@@ -123,7 +124,6 @@ El código Python Embebido puede acceder a las variables 'C/C\+\+' y
 funciona a través de un método de extensión de módulo similar.
 
 [[remap:getting-started]]
-
 == Comenzando
 
 La definición de un código implica los siguientes pasos:
@@ -143,12 +143,66 @@ un comportamiento existente como uno nuevo. Cuando haya terminado, redefina el
 código existente para utilizar su configuración de remapeado.
 
 - el conjunto actual de códigos M no utilizados, disponibles para definición de usuario, se puede encontrar
-<<remap:unallocated-m-codes, aquí>>,
-- Se enumeran los códigos G no asignados <<remap:unallocated-g-codes, aquí>>.
-- Los códigos existentes que pueden ser reasignados están listados <<remap:remappable-codes, aquí>>.
+  <<remap:unallocated-m-codes,aquí>>,
+- Se enumeran los códigos G no asignados <<remap:unallocated-g-codes,aquí>>.
+- Los códigos existentes que pueden ser reasignados están listados <<remap:remappable-codes,aquí>>.
+
+There are currently two complete python-only remaps that are available
+in stdglue.py. +
+
+* ignore_m6
+* index_lathe_tool_with_wear
+
+These are meant for use with lathe. +
+Lathes don't use M6 to index the tools, they use the T command. +
+This remap also adds wear offsets to the tool offset, ie. T201 would
+index to tool 2 (with tool 2's tool offset) and adds wear offset 1. +
+In the tool table, tools numbers above 10000 are wear offsets, ie in the
+tool table, tool 10001 would be wear offset 1. +
+
+Here is what you need in the INI to use them:
+
+[source,{ini}]
+----
+[RS274NGC]
+REMAP=T python=index_lathe_tool_with_wear
+REMAP=M6 python=ignore_m6
+
+[PYTHON]
+# where to find the Python code:
+
+# code specific for this configuration
+PATH_PREPEND=./
+
+# generic support code - make sure this actually points to python-stdglue
+PATH_APPEND=../../nc_files/remap_lib/python-stdglue/
+
+# import the following Python module
+TOPLEVEL=toplevel.py
+
+# the higher the more verbose tracing of the Python plugin
+LOG_LEVEL = 0
+----
+
+You must also add the required python file in your configuration folder. +
+
+<<remap:upgrading-an-existing,Upgrade an existing configuration>>
+
+=== Picking a code
+
+Note that currently only a few existing codes may be redefined,
+whereas there are many 'free' codes which might be made available by
+remapping. When developing a redefined existing code, it might be a
+good idea to start with an unallocated G- or M-code so both the
+existing and new behavior can be exercised. When done, redefine the
+existing code to use your remapping setup.
+
+- the current set of unused M-codes open to user definition can be found
+  <<remap:unallocated-m-codes,here>>,
+- unallocated G-codes are listed <<remap:unallocated-g-codes,here>>.
+- Existing codes which may be remapped are listed <<remap:remappable-codes,here>>.
 
 [[remap:parameter-handling]]
-
 === Manejo de parámetros
 
 Asumamos que el nuevo código será definido por un procedimiento NGC y necesita
@@ -159,16 +213,16 @@ Tenemos las siguientes opciones para alimentar al procedimiento con sus valores:
 . extraer palabras del bloque actual y pasarlas al
   procedimiento como parámetros (como `X22.34` o `P47`)
 // . <<remap:referto-inifile-variables, refiriéndose a las variables del
-//archivo ini>>
+//   archivo ini>>
 . refiriéndose a las <<gcode:ini-hal-params,variables del archivo ini>>
 . refiriéndose a variables globales (como `#2200 = 47.11` o
-   `#<_global_param> = 315.2`
+  `#<_global_param> = 315.2`)
 
 El primer método se prefiere para parámetros de naturaleza dinámica, como
 posiciones. Es necesario definir qué palabras en el bloque actual tienen algun
 significado para su nuevo código, y especificar cómo se pasan al
 procedimiento NGC. Una forma fácil es usar la
-declaración argspec. Un prologo personalizado podría
+<<sub:argspec-parameter,declaración argspec>>. Un prologo personalizado podría
 proporcionar mejores mensajes de error.
 
 Para referirse a la información de configuración de su máquina, es más útil usar las variables de archivo ini;
@@ -184,7 +238,6 @@ parámetros, por lo que podría tener que recurrir al segundo y tercer
 método si se necesitan muchos parámetros.
 
 [[remap:handling-results]]
-
 === Manejo de resultados
 
 Su nuevo código podría tener éxito o fallar, por ejemplo, si se pasa una combinación de parámetros inválida.
@@ -194,7 +247,6 @@ Los manejadores de epilogo ayudan en el procesamiento de los resultados de los p
 la sección de referencia.
 
 [[remap:execution-sequencing]]
-
 === Secuenciación de ejecución
 
 Las palabras de código G ejecutables se clasifican en <<gcode:modal-groups,grupos modales>>,
@@ -227,13 +279,13 @@ Esto significa, en pocas palabras:
   la ejecución falla con un error.
 
 - cuando se encuentra un código `M400`, se ejecuta `myprocedure.ngc` junto con
-otros códigos M del <<gcode:modal-groups,grupo modal>> 10 según el
-<<gcode:order-of-execution, orden de ejecución>>.
+  otros códigos M del <<gcode:modal-groups,grupo modal>> 10 según el
+  <<gcode:order-of-execution, orden de ejecución>>.
 
 - el valor de `P` y `Q` están disponibles en el procedimiento como parámetros nombrados locales.
-   Pueden denominarse `#<P>` y `#<Q>`.
-   El procedimiento puede probar si la palabra `Q` estaba presente con
-   la función incorporada <<gcode:functions,`EXISTS`>>.
+  Pueden denominarse `#<P>` y `#<Q>`.
+  El procedimiento puede probar si la palabra `Q` estaba presente con
+  la función incorporada <<gcode:functions,`EXISTS`>>.
 
 Se espera que el archivo `myprocedure.ngc` exista en el directorio `[DISPLAY]NC_FILES` o
 en `[RS274NGC]SUBROUTINE_PATH` .
@@ -251,8 +303,8 @@ Para reasignar un código, defínalo usando la opción `REMAP` en la sección
 La sintaxis de `REMAP` es:
 
 `REMAP=`'<code>' '<options>'::
-    donde '<code>' puede ser `T`,` M6`, `M61`,` S` o `F` (códigos existentes) o cualquiera de los
-     <<remap:unallocated-m-codes, códigos M >> o <<remap:unallocated-g-codes,códigos G>> sin asignar.
+  donde '<code>' puede ser `T`,` M6`, `M61`,` S` o `F` (códigos existentes) o cualquiera de los
+  <<remap:unallocated-m-codes, códigos M >> o <<remap:unallocated-g-codes,códigos G>> sin asignar.
 
 Es un error omitir el parámetro '<code>'.
 
@@ -260,26 +312,26 @@ Las opciones de la instrucción REMAP están separadas por espacios en blanco. L
 pares de palabra clave-valor y actualmente son:
 
 `modalgroup=`'<modal group>'::
-        Códigos G;; el único grupo modal actualmente soportado es 1, que
-        también es el valor predeterminado si no se da ningún grupo. Grupo 1 significa
-        'ejecutar junto con otros códigos G'.
+  Códigos G;; el único grupo modal actualmente soportado es 1, que
+    también es el valor predeterminado si no se da ningún grupo. Grupo 1 significa
+    'ejecutar junto con otros códigos G'.
 
   Códigos M;; Los grupos modales soportados actualmente son:
-        5,6,7,8,9,10. Si no se da ningún grupo modal, el valor predeterminado es 10
-        ('ejecutar después de todas las otras palabras en el bloque').
+    5,6,7,8,9,10. Si no se da ningún grupo modal, el valor predeterminado es 10
+    ('ejecutar después de todas las otras palabras en el bloque').
 
-  T, S, F; Para estos el grupo modal es fijo y cualquier
-  opción `modalgroup=` se ignora.
+  T, S, F;; Para estos el grupo modal es fijo y cualquier
+    opción `modalgroup=` se ignora.
 
 `argspec=`'<argspec>'::
   Ver descripción de opciones de parámetros argspec. Opcional.
 
 `ngc=`'<nombre_báse_ngc>'::
-   Nombre base de un nombre de archivo de subrutina O-word. No especifique la
-   extensión .ngc. Se busca en los directorios especificados en
-   el directorio dado en `[DISPLAY]PROGRAM_PREFIX`, y luego en
-   `[RS274NGC]SUBROUTINE_PATH`. Es mutuamente excluyente con
-   `python=`. Es un error omitir tanto `ngc=` como `python=`.
+  Nombre base de un nombre de archivo de subrutina O-word. No especifique la
+  extensión .ngc. Se busca en los directorios especificados en
+  el directorio dado en `[DISPLAY]PROGRAM_PREFIX`, y luego en
+  `[RS274NGC]SUBROUTINE_PATH`. Es mutuamente excluyente con
+  `python=`. Es un error omitir tanto `ngc=` como `python=`.
 
 `python=`'<nombre de la función de Python>'::
   En lugar de llamar a un procedimiento ngc O-word, llame a una función Python.
@@ -308,34 +360,35 @@ Tenga en cuenta que si bien son posibles muchas combinaciones de opciones argspe
 todas ellas tienen sentido. Las siguientes combinaciones son expresiones útiles:
 
 `argspec=`'<words>' `ngc=`'<procname>' `modalgroup=`'<group>'::
-    Forma recomendada de llamar a un procedimiento NGC con conversión estándar de parámetro argspec.
-    Se utiliza si argspec es suficientemente bueno para nuestro proposito. Tenga en cuenta que no es
-    suficientemente bueno para volver a asignar los códigos de cambio de herramientas Tx y M6/M61.
+  Forma recomendada de llamar a un procedimiento NGC con conversión estándar de parámetro argspec.
+  Se utiliza si argspec es suficientemente bueno para nuestro proposito. Tenga en cuenta que no es
+  suficientemente bueno para volver a asignar los códigos de cambio de herramientas Tx y M6/M61.
 
 `prolog=`'<pythonprolog>' `ngc=`'<procname>' `epilog=`'<pythonepilog>' `modalgroup=`'<group>'::
-    Llama a una función de prologo de Python para realizar cualquier paso preliminar, luego llama al
-    procedimiento NGC. Cuando ha terminado, llama a la función de epilogo de Python para hacer cualquier
-    limpieza o trabajo de extracción de resultados que no pueda ser manejado en código G.
-    Es la forma más flexible de volver a asignar un código a un procedimiento NGC,
-    ya que casi todas las variables, y algunas funciones, internas del intérprete
-    se pueden acceder desde los manipuladores de prologo y epilogo.
-    Pero tambien es la forma mas propensa a errores propios.
+  Llama a una función de prologo de Python para realizar cualquier paso preliminar, luego llama al
+  procedimiento NGC. Cuando ha terminado, llama a la función de epilogo de Python para hacer cualquier
+  limpieza o trabajo de extracción de resultados que no pueda ser manejado en código G.
+  Es la forma más flexible de volver a asignar un código a un procedimiento NGC,
+  ya que casi todas las variables, y algunas funciones, internas del intérprete
+  se pueden acceder desde los manipuladores de prologo y epilogo.
+  Pero tambien es la forma mas propensa a errores propios.
 
 `python=`'<pythonfunction>' `modalgroup=`'<group>'::
-    Llama directamente a una función de Python sin ninguna conversión de argumentos.
-    La forma más poderosa de reasignar un código e ir directamente a
-    python. Use esto si no necesita un procedimiento NGC, o NGC se
-    usa accidentalmente.
+  Llama directamente a una función de Python sin ninguna conversión de argumentos.
+  La forma más poderosa de reasignar un código e ir directamente a
+  python. Use esto si no necesita un procedimiento NGC, o NGC se
+  usa accidentalmente.
 
 `argspec=`'<words>' `python=`'<pythonfunction>' `modalgroup=`'<group>'::
-    Convierte las palabras argspec y las pása a una función Python como argumento
-    diccionario de palabras clave. Úselo para no tener que
-    investigar las palabras pasadas en el bloque por usted mismo.
+  Convierte las palabras argspec y las pása a una función Python como argumento
+  diccionario de palabras clave. Úselo para no tener que
+  investigar las palabras pasadas en el bloque por usted mismo.
 
 Tenga en cuenta que si todo lo que quiere lograr es llamar a algún código Python desde
 código G, hay una forma algo más fácil de
 <<remap:python-o-word-procs, llamar a funciones de Python como procedimientos O-word>>.
 
+[[sub:argspec-parameter]]
 === El parámetro argspec
 
 La especificación del argumento (palabra clave `argspec`) describe las palabras requeridas y
@@ -343,7 +396,7 @@ opcionales a pasar a un procedimiento ngc, así como las condiciones previas opc
 para que ese código se ejecute.
 
 Un argspec consta de 0 o más caracteres de la clase
- `[@A-KMNP-Za-kmnp-z^>]` . Puede estar vacío (como `argspec=`).
+`[@A-KMNP-Za-kmnp-z^>]` . Puede estar vacío (como `argspec=`).
 
 Un argumento argspec vacío, o ningún argumento argspec en absoluto, implica que el código
 remapeado no recibe ningún parámetro del bloque. Se ignora
@@ -443,7 +496,7 @@ M2
 - la ejecución de `M410 P10` mostrará` m410.ngc: [1]=10.000000 [2]=0.000000`
 - la ejecución de `M410 P10 Q20` mostrará` m410.ngc: [1]=10.000000 [2]=20.000000`
 
-NB: se pierde la capacidad de distinguir más de una palabra de parámetro opcional,
+NOTE: se pierde la capacidad de distinguir más de una palabra de parámetro opcional,
 y no se puede saber si un parámetro opcional estaba
 presente pero tenía el valor 0, o no estaba presente en absoluto.
 
@@ -473,12 +526,13 @@ def g886(self, **words):
     MESSAGE("comentario en esta línea: '%s'" % (self.blocks[self.remap_level].comment))
     return INTERP_OK
 ---------------------------------------------------------------------
+
 Pruebe esto con:
   g88.6 x1 y2 z3
   g88.6 x1 y2 z3 p33 (un comentario aquí)
 
-Notará la introducción gradual al entorno de Python incrustado.
-- vea <<remap:programming-embedded-python, esto>> para más detalles. Tenga en cuenta que
+Notará la introducción gradual al entorno de Python incrustado -
+vea <<remap:programming-embedded-python, esto>> para más detalles. Tenga en cuenta que
 con las funciones de remapeado Python, no tiene sentido tener
 funciones de prologo o epilogo ya que está ejecutando una función Python en
 primer lugar.
@@ -535,7 +589,7 @@ def involute(self, **words):
     old_z = self.current_z
 
     if self.debugmask & 0x10000000:
-        print "x0=%f y0=%f a=%f old_z=%f" % (x0,y0,a,old_z)
+        print("x0=%f y0=%f a=%f old_z=%f" % (x0,y0,a,old_z))
 
     try:
         #self.execute("G3456")  # generaría una excepción InterpreterException
@@ -567,23 +621,23 @@ def involute(self, **words):
 Los ejemplos descritos hasta ahora se pueden encontrar en
 'configs/sim/axis/remap/getting-started' con configuraciones completas.
 
-
+[[remap:upgrading-an-existing]]
 == Actualización de una configuración existente para remapeado
 
 Los requisitos mínimos para usar las declaraciones `REMAP` son las siguientes:
 
 - el plug Python debe activarse especificando `[PYTHON]TOPLEVEL=<path-to-toplevel-script>`
- en el archivo ini.
+  en el archivo ini.
 - el script de nivel superior debe importar el módulo `remap`, que puede estar
- inicialmente vacío, pero la importación debe estar en su lugar.
+  inicialmente vacío, pero la importación debe estar en su lugar.
 - El intérprete de Python necesita encontrar el módulo remap.py, por lo que
- la ruta al directorio donde residen los módulos de Python debe estar
- añadida con `[PYTHON]PATH_APPEND=<path-to-your-local-Python-directory>`
+  la ruta al directorio donde residen los módulos de Python debe estar
+  añadida con `[PYTHON]PATH_APPEND=<path-to-your-local-Python-directory>`
 - Recomendado: importe los manejadores `stdglue` en el módulo `remap`.
- En este caso, Python también necesita encontrar `stdglue.py` - simplemente lo copiamos
- desde la distribución para que pueda realizar cambios locales como sea
- necesario. Dependiendo de su instalación, la ruta a `stdglue.py` podría
- variar.
+  En este caso, Python también necesita encontrar `stdglue.py` - simplemente lo copiamos
+  desde la distribución para que pueda realizar cambios locales como sea
+  necesario. Dependiendo de su instalación, la ruta a `stdglue.py` podría
+  variar.
 
 Asumiendo que sus configuraciones residen bajo `/home/user/xxx` y
 el archivo ini es `/home/user/xxx/xxx.ini`, ejecute los siguientes comandos.
@@ -621,7 +675,7 @@ $ linuxcnc xxx.ini
 === Descripción general
 
 Si no está familiarizado con las partes internas de LinuxCNC, primero lea la sección
-<<remap:how-tool-change-currently-works, Cómo trabaja el cambio de herramienta actualmente>> (pesado, pero necesario).
+<<remap:how-tool-change-currently-works,Cómo trabaja el cambio de herramienta actualmente>> (pesado, pero necesario).
 
 Tenga en cuenta que al volver a asignar un código existente, deshabilitamos completamente
 <<remap:interpreter-action-on-m6,la funcionalidad incorporada de estos códigos>>
@@ -635,28 +689,28 @@ necesarios para mantener al intérprete y a Task sin problemas.
 Sin embargo, esto *no* afecta el procesamiento de comandos relacionados
 con el cambio de herramienta en Task e iocontrol. Esto significa que cuando
 ejecutemos el <<remap:send-tool-load-msg,paso 6b>> esto aún causará que
-<<remap:iocontrol-action-on-load, iocontrol haga sus cosas>>.
+<<remap:iocontrol-action-on-load,iocontrol haga sus cosas>>.
 
 Decisiones, decisiones:
 
 - ¿Queremos usar un procedimiento O-word o hacerlo todo en código Python?
 - ¿Es la secuencia HAL de iocontrol (preparación de herramienta/herramienta preparada y
- pines de cambio de herramienta/herramienta cambiada) suficientemente buenos o necesitamos un tipo diferente
- de interacción HAL para nuestro cambiador de herramientas (por ejemplo: más pines HAL
- involucrados con una secuencia de interacción diferente)?
+  pines de cambio de herramienta/herramienta cambiada) suficientemente buenos o necesitamos un tipo diferente
+  de interacción HAL para nuestro cambiador de herramientas (por ejemplo: más pines HAL
+  involucrados con una secuencia de interacción diferente)?
 
 Dependiendo de la respuesta, tenemos cuatro escenarios diferentes:
 
 - Cuando se usa un procedimiento O-word, necesitamos funciones de prologo y epilogo.
 - Si usa solo código Python y ningún procedimiento O-word, una función Python
-es suficiente.
+  es suficiente.
 - cuando se utilizan los pines de iocontrol, nuestro procedimiento O-word o el código Python
-contendrá movimientos en su mayoría.
+  contendrá movimientos en su mayoría.
 - cuando necesitamos una interacción más compleja que la ofrecida por iocontrol,
-necesitamos definir completamente nuestra propia interacción, usando los pines `motion.digital*` y
-`motion.analog*`, y esencialmente ignorar los pines de iocontrol puenteandolos
+  necesitamos definir completamente nuestra propia interacción, usando los pines `motion.digital*` y
+  `motion.analog*`, y esencialmente ignorar los pines de iocontrol puenteandolos
 
-NOTA: Si odias los procedimientos O-word y te encanta Python, eres libre de hacerlo
+NOTE: Si odias los procedimientos O-word y te encanta Python, eres libre de hacerlo
 todo en Python, en cuyo caso solo tendrías una especificacion `python=<function>`
 en la sentencia REMAP. Pero suponiendo que la mayoría de la gente estaría interesada en
 utilizar procedimientos O-word porque están más familiarizados con eso, lo haremos
@@ -665,28 +719,28 @@ asi como el primer ejemplo.
 El enfoque general para nuestro primer ejemplo será:
 
 . Por flexibilidad, nos gustaría hacer todo lo posible con el código G en un procedimiento de palabra O.
-Eso incluye toda la interacción HAL que normalmente sería manejada por iocontrol, porque preferiríamos hacer
-cosas inteligentes con movimientos, sondas, pines I/O HAL y demas.
+  Eso incluye toda la interacción HAL que normalmente sería manejada por iocontrol, porque preferiríamos hacer
+  cosas inteligentes con movimientos, sondas, pines I/O HAL y demas.
 
 . intentaremos minimizar el código de Python en la medida necesaria para mantener sin problemas al intérprete,
-y hacer que task haga realmente algo. Eso entrará en las funciones de Python `prolog` y` epilog`.
+  y hacer que task haga realmente algo. Eso entrará en las funciones de Python `prolog` y` epilog`.
 
 === Entender el rol de iocontrol con códigos de cambio de herramienta remapeados
 
 iocontrol proporciona dos secuencias de interacción HAL que podemos utilizar o no:
 
 - cuando el mensaje NML puesto en cola por un comando canonico SELECT_POCKET() es
-ejecutado, se desencadena la secuencia HAL "preparar herramienta y esperar que
-herramienta preparada pase a alto" en iocontrol, además de
-ajustar los pines XXXX
+  ejecutado, se desencadena la secuencia HAL "preparar herramienta y esperar que
+  herramienta preparada pase a alto" en iocontrol, además de
+  ajustar los pines XXXX
 - cuando el mensaje NML puesto en cola por el comando canonico CHANGE_TOOL() es
-ejecutado, esto activa la secuencia HAL "cambiar de herramienta y esperar
-que herramienta cambiada pase a alto" en iocontrol, además de
-ajustar de los pines XXXX
+  ejecutado, esto activa la secuencia HAL "cambiar de herramienta y esperar
+  que herramienta cambiada pase a alto" en iocontrol, además de
+  ajustar de los pines XXXX
 
 Lo que debe decidir es si las secuencias HAL de iocontrol existentes
-son suficientes para manejar su cambiador. Tal vez necesite una secuencia de interacción diferente
-- por ejemplo, más pines HAL, o tal vez interacción más compleja. Dependiendo de la respuesta, podríamos seguir utilizando
+son suficientes para manejar su cambiador. Tal vez necesite una secuencia de interacción diferente -
+por ejemplo, más pines HAL, o tal vez interacción más compleja. Dependiendo de la respuesta, podríamos seguir utilizando
 las secuencias HAL de iocontrol, o definir las nuestras propias.
 
 Para documentarlo mejor, deshabilitaremos estas secuencias de iocontrol
@@ -705,26 +759,26 @@ correspondencia en nuestro ejemplo:
 
 Correspondencia de pines iocontrol en los ejemplos.
 
-[format="csv",width="60%",cols="2"]
+[width="60%",cols="2"]
 [frame="topbot",grid="none"]
 [options="header"]
-|======
-pin iocontrol.0  ,pin motion
-tool-prepare,digital-out-00
-tool-prepared,digital-in-00
-tool-change,digital-out-01
-tool-changed,digital-in-01
-tool-prep-number,analog-out-00
-tool-prep-pocket,analog-out-01
-tool-number,analog-out-02
-|======
+|===
+|iocontrol.0 pin|motion pin
+|tool-prepare|digital-out-00
+|tool-prepared|digital-in-00
+|tool-change|digital-out-01
+|tool-changed|digital-in-01
+|tool-prep-number|analog-out-00
+|tool-prep-pocket|analog-out-01
+|tool-number|analog-out-02
+|===
 
 Supongamos que desea redefinir el comando M6 y reemplazarlo por
 un procedimiento O-word pero, aparte de eso, las demas cosas deberían continuar
 trabajando.
 
 Por tanto, lo que nuestro procedimiento O-word haría es reemplazar los pasos
-<<remap:interpreter-action-on-m6, descritos aquí>>. Mirando
+<<remap:interpreter-action-on-m6,descritos aquí>>. Mirando
 estos pasos encontrará que el código NGC puede usarse para la mayoría de ellos,
 pero no todos. Así que las cosas que NGC no puede manejar se harán en las funciones prolog
 y epilog de Python.
@@ -747,18 +801,25 @@ Al revisar los <<remap:interpreter-action-on-m6,pasos>>, encontramos:
 . enviar un comando canonico CHANGE_TOOL a Task - *ejecutar en el epilogo Python*
 . configurar los parámetros números 5400-5413 de acuerdo con la nueva herramienta - *ejecutar en el epilogo Python*
 . enviar una señal a Task para que deje de llamar al intérprete para lectura antes de completar el
-cambio de herramienta - *ejecutar en epilogo Python*
+  cambio de herramienta - *ejecutar en epilogo Python*
 
 Así que necesitamos un prologo y un epilogo. Asumamos que, en nuestro archivo ini, el remapeo M6 tiene el
 siguiente aspecto:
 
- REMAP=M6   modalgroup=6  prolog=change_prolog ngc=change epilog=change_epilog
+----
+REMAP=M6   modalgroup=6  prolog=change_prolog ngc=change epilog=change_epilog
+----
 
 Decidimos pasar algunas variables al procedimiento de remapeado que se puede inspeccionar y
 cambiar allí, o utilizarlas en un mensaje. Esos son: `tool_in_spindle`,
 `selected_tool` (números de herramientas) y sus respectivas ranuras
 `current_pocket` y` selected_pocket`.
 Con ello, el prologo que cubre los pasos 1 y 2 se vería así:
+
+[NOTE]
+The legacy names *selected_pocket* and *current_pocket* actually reference
+a sequential tooldata index for tool items loaded from a tool
+table ([EMCIO]TOOL_TABLE) or via a tooldata database ([EMCIO]DB_PROGRAM)
 
 [source,python]
 ---------------------------------------------------------------------
@@ -788,7 +849,7 @@ procedimiento NGC devolviendo INTERP_OK.
 Nuestra primera iteración de procedimiento O-word es poco interesante; solo
 verifica que tengamos los parámetros correctos y señalemos el éxito devolviendo un
 valor positivo; los pasos 3-5 eventualmente serían cubiertos aquí (ver
-<<gcode:ini-hal-params, aquí>> para las variables referentes
+<<gcode:ini-hal-params,aquí>> para las variables referentes
 a la configuración del archivo ini):
 
 [source,{ngc}]
@@ -836,8 +897,8 @@ que no se pueden hacer en código NGC.
 
 Tenga en cuenta que la secuencia de operaciones ha cambiado: hacemos todo lo
 requerido en el procedimiento O-word - incluyendo cualquier configuración/lectura de pin HAL
-para activar un cambiador, y para reconocer un cambio de herramienta
-- probablemente con pines IO `motion.digital-*` y `motion-analog-*`.
+para activar un cambiador, y para reconocer un cambio de herramienta -
+probablemente con pines IO `motion.digital-*` y `motion-analog-*`.
 Cuando finalmente ejecutamos el comando `CHANGE_TOOL()`, todos
 los movimientos y las interacciones HAL ya están completos.
 
@@ -861,7 +922,8 @@ los pines de iocontrol correspondientes también deben estar puenteados.
 === Escribiendo el cambio y preparando procedimientos O-word
 
 Los prologos y epilogos estándar encontrados en
-`ncfiles/remap_lib/python-stdglue/stdglue.py` pasan algunos 'parámetros expuestos' al procedimiento de remapeado.
+`ncfiles/remap_lib/python-stdglue/stdglue.py` pasan algunos 'parámetros
+expuestos' al procedimiento de remapeado.
 
 Un 'parámetro expuesto' es una variable local nombrada visible en un procedimiento
 de remapeado que corresponde a la variable interna del intérprete que
@@ -894,13 +956,15 @@ los códigos reasignados se han puesto a disposición dentro del procedimiento
 de remapeado. El intérprete detecta que nos estamos refiriendo a un
 código reasignado dentro del procedimiento que se supone que redefine su
 comportamiento. En este caso, se utiliza el comportamiento incorporado - este
-actualmente está habilitado para el conjunto: `M6`,` M61`, `T`,` S`, `F`). Note
+actualmente está habilitado para el conjunto: `M6`,` M61`, `T`,` S`, `F`. Note
 que de lo contrario, referirse a un código dentro de su propio procedimiento de remapeado
 sería un error - una `recursión remapping`.
 
 Retorciendo un poco una incorporada se vería así (en el caso de `M6`):
 
- REMAP=M6 modalgroup=6 ngc=mychange
+----
+REMAP=M6   modalgroup=6  ngc=mychange
+----
 
 [source,{ngc}]
 ---------------------------------------------------------------------
@@ -911,7 +975,7 @@ o<mychange> endsub
 m2
 ---------------------------------------------------------------------
 
-PRECAUCIÓN: al redefinir un código incorporado, *no especifique ningún cero encabezando
+CAUTION: al redefinir un código incorporado, *no especifique ningún cero encabezando
 los códigos G o M*; por ejemplo, diga `REMAP=M1 ..`, no
 `REMAP=M01 ...`.
 
@@ -927,9 +991,9 @@ no bloquear hasta que se establezca el pin "tool-prepared".
 
 Lo que podría hacer, por ejemplo, es:
 - en una T remapeada, simplemente establezca el equivalente del pin "tool-prepare",
-pero *no* espere "tool-prepared" aquí
+  pero *no* espere "tool-prepared" aquí
 - en el M6 remapeado correspondiente, espere a "tool-prepared"
-al principio del procedimiento O-word.
+  al principio del procedimiento O-word.
 
 Nuevamente, los pines de iocontrol tool-prepare/tool-ready no se utilizarían
 y serian reemplazados por pines `motion.*`, por lo que esos pines deben estar puenteados:
@@ -939,9 +1003,12 @@ y serian reemplazados por pines `motion.*`, por lo que esos pines deben estar pu
 # puentear señales preparar al reasignar T
 net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
 ---------------------------------------------------------------------
+
 Aquí está la configuración para una T reasignada:
 
-  REMAP=T  prolog=prepare_prolog epilog=prepare_epilog ngc=prepare
+----
+REMAP=T  prolog=prepare_prolog epilog=prepare_epilog ngc=prepare
+----
 
 [source,python]
 ---------------------------------------------------------------------
@@ -973,6 +1040,7 @@ def prepare_prolog(self,**words):
 ---------------------------------------------------------------------
 
 El procedimiento mínimo de preparación de ngc de nuevo se ve así:
+
 [source,{ngc}]
 ---------------------------------------------------------------------
 o<prepare> sub
@@ -982,6 +1050,7 @@ m2
 ---------------------------------------------------------------------
 
 Y el epilogo:
+
 [source,python]
 ---------------------------------------------------------------------
 def prepare_epilog(self, **words):
@@ -1001,7 +1070,8 @@ def prepare_epilog(self, **words):
 
 prepare_prolog y prepare_epilog son parte del 'codigo de union estándar'
 proporcionado por 'nc_files/remap_lib/python-stdglue/stdglue.py'.
-Este módulo está destinado a cubrir la mayoría de situaciones estándar de remapeado de una manera común.
+Este módulo está destinado a cubrir la mayoría de situaciones estándar
+de remapeado de una manera común.
 
 === Manejo de errores: tratando con abort
 
@@ -1047,7 +1117,7 @@ o<on_abort> endsub
 m2
 ---------------------------------------------------------------------
 
-PRECAUCION: Nunca use un `M2` dentro de una subrutina O-word, incluyendo esta.
+CAUTION: Nunca use un `M2` dentro de una subrutina O-word, incluyendo esta.
 Esto causará errores difíciles de encontrar. Por ejemplo, usando un `M2` en
 una subrutina, no terminará la subrutina correctamente y dejará el archivo NGC del
 subprograma abierto, no el programa principal.
@@ -1081,8 +1151,9 @@ o100 if [..] (alguna condición de error)
      (abort, ¡Algo va Mal! p42=#42 q=#<q> ini=#<_ini[a]x> pin=#<_hal[component.pin])
 o100 endif
 ---------------------------------------------------------------------
-NOTA: la expansión de variables ini y HAL es opcional y se pueden deshabilitar en
-el <<gcode:ini-features,archivo INI>>
+
+CAUTION: la expansión de variables ini y HAL es opcional y se pueden deshabilitar en
+el <<sub:ini:sec:rs274ngc,archivo INI>>
 
 Si se necesita una acción de recuperación más precisa, use lo
 presentado en el ejemplo anterior:
@@ -1128,10 +1199,10 @@ Para un ejemplo completo haciendo eso, vea
 Un ciclo de código G, como se usa aquí, debe comportarse de la siguiente manera:
 
 * En la primera invocación, se recogen las palabras asociadas y
-se ejecuta el ciclo de codigo G
+  se ejecuta el ciclo de codigo G
 * Si en las líneas subsiguientes simplemente continúan las palabras de parámetro aplicables a este
-código, pero no un nuevo código G, el código G anterior se vuelve a ejecutar con los
-parámetros cambiados en consecuencia.
+  código, pero no un nuevo código G, el código G anterior se vuelve a ejecutar con los
+  parámetros cambiados en consecuencia.
 
 Un ejemplo: Supongamos que tiene un `G84.3` definido como ciclo de código G reasignado
 con el siguiente segmento ini (ver <<remap:cycle-stdglue,aquí>> para
@@ -1143,7 +1214,9 @@ una descripción detallada de +cycle_prolog+ y +cycle_epilog+):
 # Un ciclo con un procedimiento oword: G84.3 <X- Y- Z- Q- P->
 REMAP=G84.3 argspec=xyzabcuvwpr prolog=cycle_prolog ngc=g843 epilog=cycle_epilog modalgroup=1
 ---------------------------------------------------------------------
+
 Ejecutando las siguientes lineas:
+
 [source,{ngc}]
 ---------------------------------------------------------------------
 g17
@@ -1152,6 +1225,7 @@ g17
 (3) x6 y7 z5
 (4) G80
 ---------------------------------------------------------------------
+
 provoca lo siguiente ('R' es sticky y 'Z' es sticky porque el plano es 'XY'):
 
 . `g843.ngc` se llama con las palabras x = 1, y = 2, z = 3, r = 1
@@ -1170,7 +1244,6 @@ característica. Contiene dos ciclos, uno con un procedimiento NGC como el anter
 y un ejemplo de ciclo usando solo Python.
 
 [[remap:embedded-python]]
-
 == Configurando Python Embebido
 
 El complemento de Python sirve tanto al intérprete como a task, si es configurado así,
@@ -1178,33 +1251,26 @@ y por lo tanto tiene su propia sección `PYTHON` en el archivo ini.
 
 === Plugin Python : configuración de archivos ini
 
-`[PYTHON]`
-
-`TOPLEVEL=`'<nombre de archivo>'::
-  nombre de archivo de la secuencia de comandos de Python inicial para ejecutar en la
-  puesta en marcha. Este script es responsable de configurar la estructura del nombre del paquete,
-  ver más abajo.
-
-`PATH_PREPEND=`'<directorio>'::
-  añade delante este directorio a `PYTHON_PATH`. Repetible.
-
-`PATH_APPEND=`'<directorio>'::
-  agrega detras este directorio a `PYTHON_PATH`. Repetible.
-
-`LOG_LEVEL=`'<integer>'::
-  Nivel de registro de las acciones relacionadas con el plugin. Aumente esto si
-  sospecha problemas.  Puede ser muy detallado.
-
-`RELOAD_ON_CHANGE`='[0 | 1]'::
-  vuelve a cargar la secuencia de comandos 'TOPLEVEL' si se cambió el archivo. Práctico
-  para la depuración, pero actualmente incurre en una sobrecarga de tiempo de ejecución.
-  Apaguelo para configuraciones de producción.
-
-`PYTHON_TASK`='[0 | 1]'::
-  Inicia el complemento de tareas de Python. Experimental. Ver xxx.
+`[PYTHON]`::
+  `TOPLEVEL =` <nombre de archivo>;;
+    nombre de archivo de la secuencia de comandos de Python inicial para ejecutar en la
+    puesta en marcha. Este script es responsable de configurar la estructura del nombre del paquete,
+    ver más abajo.
+  `PATH_PREPEND =` <directorio>;;
+    añade delante este directorio a `PYTHON_PATH`. Repetible.
+  `PATH_APPEND =` <directorio>;;
+    agrega detras este directorio a `PYTHON_PATH`. Repetible.
+  `LOG_LEVEL =` <integer>;;
+    Nivel de registro de las acciones relacionadas con el plugin. Aumente esto si
+    sospecha problemas.  Puede ser muy detallado.
+  `RELOAD_ON_CHANGE =` [0 | 1];;
+    vuelve a cargar la secuencia de comandos 'TOPLEVEL' si se cambió el archivo. Práctico
+    para la depuración, pero actualmente incurre en una sobrecarga de tiempo de ejecución.
+    Apaguelo para configuraciones de producción.
+  `PYTHON_TASK =` [0 | 1];;
+    Inicia el complemento de tareas de Python. Experimental. Ver xxx.
 
 [[remap:executing-python-statements]]
-
 === Ejecutando sentencias de Python desde el intérprete
 
 Para la ejecución ad hoc de comandos, ha sido añadido el 'comentario caliente' de Python.
@@ -1212,20 +1278,25 @@ La salida de Python por defecto va a la salida estándar, por lo que necesita co
 LinuxCNC desde una ventana de terminal para ver los resultados. Ejemplo (por ejemplo, en la
 ventana MDI):
 
-  ;py,print 2*3
+----
+;py,print 2*3
+----
 
 Tenga en cuenta que la instancia del intérprete está disponible aquí como `self`, por lo que
 también podría correr:
 
-  ;py,print self.tool_table[0].toolno
+----
+;py,print self.tool_table[0].toolno
+----
 
 La estructura `emcStatus` también es accesible:
 
-  ;py,from emctask import *
-  ;py,print emcstat.io.aux.estop
+----
+;py,from emctask import *
+;py,print emcstat.io.aux.estop
+----
 
 [[remap:programming-embedded-python]]
-
 == Programación de Python Embebido en el intérprete RS274NGC
 
 === El espacio de nombres del plugin Python
@@ -1316,14 +1387,13 @@ necesario para manejar los ciclos en 'ncfiles/remap_lib/python-stdglue/stdglue.p
 El código Python se llama desde NGC en las siguientes situaciones:
 
 - durante la ejecución normal del programa:
-* cuando se ejecuta una llamada O-word como `O<proc> call` y el nombre
-`oword.proc` está definido y es llamable
-* cuando se ejecuta un comentario como `;py,<Python statement>`
-- durante la ejecución de un código reasignado: cualquier manejador `prolog =`, `python =` y
-  `epilog =`.
+  * cuando se ejecuta una llamada O-word como `O<proc> call` y el nombre
+    `oword.proc` está definido y es llamable
+  * cuando se ejecuta un comentario como `;py,<Python statement>`
+- durante la ejecución de un código reasignado: cualquier manejador
+  `prolog =`, `python =` y `epilog =`.
 
 [[remap:python-o-word-procs]]
-
 .Llamar a subrutinas Python O-word
 
 Argumentos:
@@ -1332,8 +1402,8 @@ Argumentos:
   la instancia del intérprete
 
 `*args`::
-    La lista de parámetros posicionales reales. Ya que el numero
-    de los parámetros reales pueden variar, es mejor usar este estilo de declaración:
+  La lista de parámetros posicionales reales. Ya que el numero
+  de los parámetros reales pueden variar, es mejor usar este estilo de declaración:
 
 [source,python]
 ---------------------------------------------------------------------
@@ -1343,6 +1413,7 @@ def mysub(self, *args):
     for a in args:
   print a
 ---------------------------------------------------------------------
+
 .Devolver los valores de las subrutinas Python de O-word
 Al igual que los procedimientos NGC pueden devolver valores, también lo hacen las
 subrutinas O-word Python. Se espera que sean uno de los siguientes:
@@ -1357,13 +1428,13 @@ En un entorno NGC de llamada, los siguientes parámetros nombrados predefinidos
 están disponibles:
 
 `#<_value>`::
-        Valor devuelto por el último procedimiento llamado. Inicializado
-        a 0.0 en el inicio. Expuesto en Interp como `self.return_value` (float).
+  Valor devuelto por el último procedimiento llamado. Inicializado
+  a 0.0 en el inicio. Expuesto en Interp como `self.return_value` (float).
 
 `#<_value_returned>`::
-        indica el último procedimiento llamado `devuelto` o
-        `endsub` con un valor explícito. 1.0 si es cierto. Establecido a 0.0 en cada 'call'. Expuesto
-        en Interp como `self.value_returned` (int).
+  indica el último procedimiento llamado `devuelto` o
+  `endsub` con un valor explícito. 1.0 si es cierto. Establecido a 0.0 en cada 'call'. Expuesto
+  en Interp como `self.value_returned` (int).
 
 Vea también `tests/interp/value-return` para un ejemplo.
 
@@ -1379,12 +1450,13 @@ Los argumentos son:
   se recogen del bloque actual en consecuencia y se pasan
   al diccionario por conveniencia (las palabras también podrían ser
   recuperadas directamente del bloque llamante, pero esto requiere
-  más conocimientos internos del intérprete). Si no se pasó argspec,
-  o solo se especificaron valores opcionales y ninguno de
+  más conocimientos internos del intérprete). Si no se pasó argspec, o
+  solo se especificaron valores opcionales y ninguno de
   estos estaban presentes en el bloque llamante, este diccionario estará
   vacío. Los nombres de las palabras se convierten a minúsculas.
 
 Ejemplo de llamada:
+
 [source,python]
 ---------------------------------------------------------------------
 def minimal_prolog(self, **words): # in remap module
@@ -1398,12 +1470,12 @@ def minimal_prolog(self, **words): # in remap module
 
 Valores de retorno:
 
-`INTERP_OK`:: devolver esto en éxito. Se necesita importar esto desde "interpreter".
+`INTERP_OK`::
+  devolver esto en éxito. Se necesita importar esto desde "interpreter".
 
-`"un mensaje de texto"`:: devolver una cadena desde un manejador significa 'esto es
-un mensaje de error, abortar el programa '. Funciona como `(abortar, msg)`.
-
-.
+`"un mensaje de texto"`::
+  devolver una cadena desde un manejador significa 'esto es un mensaje
+  de error, abortar el programa '. Funciona como `(abortar, msg)`.
 
 .Convenciones de llamada para las subrutinas 'python='
 
@@ -1417,25 +1489,29 @@ Los argumentos son:
   prolog y epilog (ver arriba).
 
 Ejemplo mínimo de la función `python=`:
+
 [source,python]
 ---------------------------------------------------------------------
 def useless(self,  **words): # en el módulo de remapeado
     return INTERP_OK
 ---------------------------------------------------------------------
+
 Valores de retorno:
 
-`INTERP_OK`:: devolver esto en éxito
+`INTERP_OK`::
+devolver esto en éxito
 
-`"mensaje de texto"`:: devolver una cadena desde un manejador significa 'esto es
-un mensaje de error, abortar el programa '. Funciona como `(abort, msg)`.
+`"mensaje de texto"`::
+  devolver una cadena desde un manejador significa 'esto es un mensaje
+  de error, abortar el programa '. Funciona como `(abort, msg)`.
 
 Si el manejador necesita ejecutar una operación 'queuebuster'(cambio de herramienta, sonda, lectura del pin HAL)
 se supone que se suspende la ejecución con la siguiente declaración:
 
 `yield INTERP_EXECUTE_FINISH`::
-       Esto señala a task para que detenga la lectura adelantada, ejecuta todas
-       las operaciones en cola, ejecutar la operación 'queue-buster',
-       sincroniza el estado del intérprete con el estado de la máquina, y luego señaliza
+  Esto señala a task para que detenga la lectura adelantada, ejecuta todas
+  las operaciones en cola, ejecutar la operación 'queue-buster',
+  sincroniza el estado del intérprete con el estado de la máquina, y luego señaliza
   al intérprete que continue. En este punto la función es
   reanudada en la declaración siguiente a la declaración `yield ..`.
 
@@ -1466,7 +1542,7 @@ se aplica al uso de 'yield INTERP_EXECUTE_FINISH':
 - El código Python que ejecuta un 'yield INTERP_EXECUTE_FINISH' debe ser parte
   de un procedimiento de remapeado. yield no funciona en un procedimiento Python o-word.
 - Una subrutina de remapeado de Python que contiene la declaración de 'yield INTERP_EXECUTE_FINISH' puede
-no devolver un valor, como ocurre con las declaraciones yield de Python normales.
+  no devolver un valor, como ocurre con las declaraciones yield de Python normales.
 - El código que sigue a un yield no puede llamar al intérprete de forma recursiva, como con
   self.execute("<comando_mdi>"). Esta es una restricción de la arquitectura
   del intérprete y no se puede reparar sin un rediseño importante.
@@ -1477,7 +1553,7 @@ El código NGC se ejecuta desde Python cuando:
 
 - se ejecuta el método `self.execute(<código NGC>[,<número_de_línea>])`
 - durante la ejecución de un código reasignado, si está definida una función `prolog=`,
- el procedimiento NGC dado en `ngc=` se ejecuta inmediatamente.
+  el procedimiento NGC dado en `ngc=` se ejecuta inmediatamente.
 
 El manejador prolog no llama al manejador, sino que prepara el entorno de llamada,
 por ejemplo, mediante la configuración de parámetros locales predefinidos.
@@ -1502,7 +1578,9 @@ return/endsub de procedimientos O-word.
 Aquí hay un ejemplo de código reasignado que demuestra la inserción y
 extracción de parámetros en/desde un procedimiento O-word:
 
-  REMAP=m300 prolog=insert_param ngc=testparam epilog=retrieve_param modalgroup=10
+----
+REMAP=m300 prolog=insert_param ngc=testparam epilog=retrieve_param modalgroup=10
+----
 
 [source,python]
 ---------------------------------------------------------------------
@@ -1543,9 +1621,12 @@ Como `myname` es local, desaparece después de que finaliza el epilog.
 
 Puede llamar de forma recursiva al intérprete desde el código de Python de la siguiente manera:
 
-  self.execute(<código NGC>[,<número de línea>])
+----
+self.execute(<código NGC>[,<número de línea>])
+----
 
 Ejemplos:
+
 [source,python]
 ---------------------------------------------------------------------
   self.execute("G1 X%f Y%f" % (x,y))
@@ -1556,9 +1637,9 @@ Es posible que desee probar si el valor de retorno es
 menor que `INTERP_MIN_ERROR`. Si está usando muchas instrucciones execute(), es
 probablemente sea más fácil atrapar InterpreterException como se muestra a continuación.
 
-PRECAUCIÓN: el método de inserción/recuperación de parámetros descrito en la sección anterior no
-trabaja en este caso. Es lo suficientemente bueno para comandos ejecutar simples NGC
-o una llamada de procedimiento e introspección avanzada en el
+CAUTION: el método de inserción/recuperación de parámetros descrito en la sección anterior no
+trabaja en este caso. Es lo suficientemente bueno para comandos ejecutar simples NGC o
+una llamada de procedimiento e introspección avanzada en el
 procedimiento, y el paso de los parámetros locales con nombre no es necesario. La caracteristica de
 llamada recursiva es frágil.
 
@@ -1568,9 +1649,12 @@ Si `interpreter.throw_exceptions` es distinto de cero (valor predeterminado 1), 
 se genera la excepción `InterpreterException`. InterpreterException tiene los
 siguientes atributos:
 
-`line_number`:: donde ocurrió el error
-`line_text`:: la sentencia NGC causando el error
-`error_message`:: mensaje de error del intérprete
+`line_number`::
+  donde ocurrió el error
+`line_text`::
+  la sentencia NGC causando el error
+`error_message`::
+  mensaje de error del intérprete
 
 Los errores pueden ser atrapados de la siguiente manera:
 
@@ -1588,7 +1672,10 @@ interpreter.throw_exceptions = 1
 ---------------------------------------------------------------------
 
 .Canon
-La capa canonica está prácticamente compuesta de funciones libres. Ejemplo:
+
+La capa canonica está prácticamente compuesta de funciones libres.
+Ejemplo:
+
 [source,python]
 ---------------------------------------------------------------------
 import emccanon
@@ -1622,7 +1709,6 @@ Los siguientes módulos están integrados:
   solo está presente en la instancia miltask del intérprete.
 
 [[remap:adding-predefined-named-parameters]]
-
 == Agregando Parámetros Nombrados Predefinidos
 
 El intérprete viene con un conjunto de parámetros nombrados predefinidos para
@@ -1638,8 +1724,8 @@ Para agregar o redefinir un parámetro nombrado:
 
 * agregue un módulo `namedparams` para que el intérprete lo pueda encontrar
 * Definir nuevos parámetros por funciones (ver abajo). Estas funciones
- reciben `self` (la instancia del intérprete) como parámetro y así pueden
- acceder a estados aribtrarios. Las capacidades arbitrarias de Python se pueden usar para devolver un valor.
+  reciben `self` (la instancia del intérprete) como parámetro y así pueden
+  acceder a estados aribtrarios. Las capacidades arbitrarias de Python se pueden usar para devolver un valor.
 * importar ese módulo desde el script `TOPLEVEL`
 
 [source,python]
@@ -1672,7 +1758,6 @@ los predicados arbitrarios se pueden definir de esta manera. Para un ejemplo alg
 avanzado, vea `tests/remap/predefined-named-params`.
 
 [[remap:standard-glue]]
-
 == Rutinas estándar de union
 
 Dado que muchas tareas de remapeado son muy similares, se comenzo a recopilar
@@ -1726,14 +1811,13 @@ Estos envuelven un procedimiento NGC para M6 Tool Change.
 
 * Los siguientes tres pasos son aplicables solo si se utiliza el componente `iocontrol-v2`:
 ** Si el parámetro 5600 (indicador de fallo) es mayor que cero, esto indica un fallo del cambiador de herramientas,
-que se maneja de la siguiente manera:
+   que se maneja de la siguiente manera:
 ** Si el parámetro 5601 (código de error) es negativo, esto indica un error hard
-y el prolog aborta con un mensaje de error.
+   y el prolog aborta con un mensaje de error.
 ** Si el parámetro 5601 (código de error) es mayor o igual a cero, esto indica un
-fallo soft. Se muestra un mensaje informativo y prolog continúa.
-
+   fallo soft. Se muestra un mensaje informativo y prolog continúa.
 * Si no había un comando T precedente que causára que no fue seleccionada una ranura,
-prolog aborta con un mensaje de error.
+  prolog aborta con un mensaje de error.
 * Si la compensación del radio de corte está activada, prolog se cancela con un mensaje de error.
 
 Luego, los siguientes parámetros se exportan al procedimiento NGC:
@@ -1742,17 +1826,17 @@ Luego, los siguientes parámetros se exportan al procedimiento NGC:
 - `#<selected_tool>` : el número de herramienta seleccionado
 - `#<selected_pocket>` : el número de ranura de la herramienta seleccionada
 
-.Acciones de +change_epilog+
+.Acciones de +change_epilog
 
 * Se espera que el procedimiento NGC devuelva un valor positivo; de lo contrario
   se da un mensaje de error que contiene el valor de retorno y
   el intérprete aborta.
 * Si el parámetro 5600 (indicador de fallo) es mayor que cero, esto indica un fallo del cambiador de herramientas,
-que se maneja de la siguiente manera (solo para `iocontrol-v2`):
+  que se maneja de la siguiente manera (solo para `iocontrol-v2`):
 ** Si el parámetro 5601 (código de error) es negativo, esto indica un error hard
-y el epilog se anula con un mensaje de error.
+   y el epilog se anula con un mensaje de error.
 ** Si el parámetro 5601 (código de error) es mayor o igual a cero, esto indica un fallo soft.
-Se muestra un mensaje informativo y el epilog continúa.
+   Se muestra un mensaje informativo y el epilog continúa.
 * En caso de que el procedimiento NGC ejecutara el comando M6 (que luego se refiere
   al comportamiento M6 incorporado), no se realiza ninguna otra acción. Esto puede ser
   utilizado por ejemplo para ajustar mínimamente el comportamiento incorporado en
@@ -1767,7 +1851,6 @@ Se muestra un mensaje informativo y el epilog continúa.
 * Se establecen los nuevos parámetros de la herramienta (desplazamientos, diámetro, etc.).
 
 [[remap:cycle-stdglue]]
-
 === Ciclos de código G: +cycle_prolog+ y +cycle_epilog+
 
 Estos envuelven un procedimiento de NGC para que pueda actuar como un ciclo, lo que significa que
@@ -1783,36 +1866,38 @@ investigación más a fondo del bloque de forma manual para dar mejor mensaje
 de error.
 
 El argspec sugerido es el siguiente:
+
 [source,{ini}]
 ---------------------------------------------------------------------
 REMAP=G<somecode> argspec=xyzabcuvwqplr prolog=cycle_prolog ngc=<ngc procedure> epilog=cycle_epilog modalgroup=1
 ---------------------------------------------------------------------
+
 Esto permitirá a +cycle_prolog+ determinar la compatibilidad de cualquier
 palabra de eje dada en el bloque, ver más abajo.
 
 .Acciones de +cycle_prolog+
 * Determine si las palabras pasadas desde el bloque actual cumplen
-las condiciones descritas en <<gcode:canned-cycle-errors,Errores en ciclos fijos>>.
+  las condiciones descritas en <<gcode:canned-cycle-errors,Errores en ciclos fijos>>.
 ** exportar las palabras del eje como + <x> +, + # <y> + etc; falla si las palabras del eje de
-diferentes grupos (XYZ) (UVW) se utilizan juntos, o se da cualquiera de (ABC).
+   diferentes grupos (XYZ) (UVW) se utilizan juntos, o se da cualquiera de (ABC).
 ** exportar 'L-' como +#<l>+; por defecto a 1 si no se da.
 ** exportar 'P-' como +#<p>+; fallo si p es menor que 0.
 ** exportar 'R-' como +#<r>+; fallo si no se da r, o es menor o igual a 0 si se da.
 ** fallo si la velocidad de avance es cero, o el avance de tiempo inverso o
-la compensación del cortador está activas.
+   la compensación del cortador está activas.
 * Determine si esta es la primera invocación de un código G de ciclo, en
-cuyo caso:
+  cuyo caso:
 ** Agregue las palabras pasadas (según argspec) en un conjunto de
-parámetros sticky, que se conservan a través de varias invocaciones.
+   parámetros sticky, que se conservan a través de varias invocaciones.
 * Si no es así (una línea de continuación con nuevos parámetros):
 ** fusionar las palabras pasadas en el conjunto existente de
-parámetros sticky.
+   parámetros sticky.
 * exportar el conjunto de parámetros sticky al procedimiento NGC.
 
 .Acciones de +cycle_epilog+
 * Determine si el código actual era en realidad un ciclo, si es así:
 ** retenga el modo de movimiento actual para que una línea de continuación sin un
-código de movimiento ejecute el mismo código de movimiento.
+   código de movimiento ejecute el mismo código de movimiento.
 
 === S (Establecer velocidad): +setspeed_prolog+ y +setspeed_epilog+
 
@@ -1854,13 +1939,13 @@ que muestra el seguimiento de los números de secuencia durante el anidamiento d
 
 Los siguientes indicadores son relevantes para la remapeado y ejecución relacionada con Python:
 
- EMC_DEBUG_OWORD             0x00002000 rastrea la ejecución de subrutinas O-word
- EMC_DEBUG_REMAP             0x00004000 rastrea la ejecución del código relacionado con la remapeado
- EMC_DEBUG_PYTHON            0x00008000 llamadas a complemento de Python
- EMC_DEBUG_NAMEDPARAM        0x00010000 rastrea acceso a parámetros nombrados
- EMC_DEBUG_PYTHON_TASK       0x00040000 rastrea el complemento de Python de task
- EMC_DEBUG_USER1             0x10000000 definido por el usuario - no interpretado por LinuxCNC
- EMC_DEBUG_USER2             0x20000000 definido por el usuario - no interpretado por LinuxCNC
+  EMC_DEBUG_OWORD             0x00002000 rastrea la ejecución de subrutinas O-word
+  EMC_DEBUG_REMAP             0x00004000 rastrea la ejecución del código relacionado con la remapeado
+  EMC_DEBUG_PYTHON            0x00008000 llamadas a complemento de Python
+  EMC_DEBUG_NAMEDPARAM        0x00010000 rastrea acceso a parámetros nombrados
+  EMC_DEBUG_PYTHON_TASK       0x00040000 rastrea el complemento de Python de task
+  EMC_DEBUG_USER1             0x10000000 definido por el usuario - no interpretado por LinuxCNC
+  EMC_DEBUG_USER2             0x20000000 definido por el usuario - no interpretado por LinuxCNC
 
 combine con 'or' estas banderas en la variable `[EMC]DEBUG` según sea necesario. Para una
 lista actual de indicadores de depuración, vea 'src/emc/nml_intf/debugflags.h'.
@@ -1876,21 +1961,21 @@ y su http://pydev.org/manual_adv_remote_debugger.html[característica de depurac
 Para utilizar este enfoque:
 
 - instale Eclipse a través del 'Centro de software de Ubuntu' (elija primero
-selección)
+  selección)
 - Instale el plugin PyDev desde
-http://pydev.org/updates[Pydev Update Site]
+  http://pydev.org/updates[Pydev Update Site]
 - configure el árbol fuente de LinuxCNC como un proyecto de Eclipse
 - inicie el servidor de depuración Pydev en Eclipse
 - asegúrese de que el código Python incrustado pueda encontrar el módulo `pydevd.py`
-que viene con ese plugin - está enterrado en algún lugar profundo debajo del
-directorio de instalación de Eclipse. Establezca la variable `pydevd` en `util.py`
-para reflejar esta ubicación del directorio.
+  que viene con ese plugin - está enterrado en algún lugar profundo debajo del
+  directorio de instalación de Eclipse. Establezca la variable `pydevd` en `util.py`
+  para reflejar esta ubicación del directorio.
 - `import pydevd` en su módulo Python - vea los ejemplos `util.py` y `remap.py`
 - llame a `pydevd.settrace()` en su módulo en algún punto para conectarse
-al servidor de depuración de Eclipse Python: aquí puede establecer puntos de interrupción en su
-Código, inspeccionar variables, pasos, etc., como de costumbre.
+  al servidor de depuración de Eclipse Python: aquí puede establecer puntos de interrupción en su
+  Código, inspeccionar variables, pasos, etc., como de costumbre.
 
-PRECAUCIÓN: `pydevd.settrace()` bloqueará la ejecución si Eclipse y el
+CAUTION: `pydevd.settrace()` bloqueará la ejecución si Eclipse y el
 servidor de depuración Pydev no se ha iniciado.
 
 Para cubrir los dos últimos pasos: el procedimiento `o<pydevd>` ayuda a entrar
@@ -1904,7 +1989,6 @@ image::images/debug_embedded_python.png[Depuración con Eclipse]
 Vea el código de Python en `configs/sim/axis/remap/getting-started/python` para más detalles.
 
 [[remap:axis-preview-and-remapped-code-execution]]
-
 == Vista previa de Axis y Ejecución de código remapeado
 
 Para obtener una vista previa completa del camino de la herramienta de un código remapeado,
@@ -1917,10 +2001,10 @@ Primero, tenga en cuenta que hay *dos* instancias de intérprete independientes
 involucradas:
 
 - una instancia en el programa milltask, que ejecuta un programa cuando
-presiona el botón 'Inicio' y hace que la máquina se mueva
+  presiona el botón 'Inicio' y hace que la máquina se mueva
 - una segunda instancia en la interfaz de usuario cuyo propósito principal es
-generar la vista previa de ruta de herramienta. Éste 'ejecuta' el programa una vez que
-está cargado, pero en realidad no causa movimientos de la máquina.
+  generar la vista previa de ruta de herramienta. Éste 'ejecuta' el programa una vez que
+  está cargado, pero en realidad no causa movimientos de la máquina.
 
 Ahora suponga que su procedimiento de remapeado contiene una operación de sonda G38,
 por ejemplo, como parte de un cambio de herramienta con touch-off de longitud de herramienta automático.
@@ -1946,11 +2030,9 @@ probando 'self.task' - será 1 en la instancia de milltask, y 0
 en la(s) instancia(s) de vista previa.
 
 [[remap:remappable-codes]]
-
 == Códigos remapeables
 
 [[remap:existing-codes]]
-
 === Códigos existentes que pueden ser remapeados
 
 El conjunto actual de códigos *existentes* abiertos para redefinición es:
@@ -1967,7 +2049,6 @@ El conjunto actual de códigos *existentes* abiertos para redefinición es:
 Tenga en cuenta que el uso de M61 actualmente requiere el uso de iocontrol-v2.
 
 [[remap:unallocated-g-codes]]
-
 === Códigos G actualmente sin asignar:
 
 Los códigos G actualmente no asignados (para remapeado) deben seleccionarse de los espacios en blanco
@@ -1980,160 +2061,160 @@ agregue sus nuevos códigos G a estas tablas.)
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
 |==============================================================
 |#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
-|00 |G00 |     |     |     |     |     |     |     |     |
-|01 |G01 |     |     |     |     |     |     |     |     |
-|02 |G02 |     |     |     |     |     |     |     |     |
-|03 |G03 |     |     |     |     |     |     |     |     |
-|04 |G04 |     |     |     |     |     |     |     |     |
-|05 |G05 |G05.1|G05.2|G05.3|     |     |     |     |     |
-|06 |    |     |     |     |     |     |     |     |     |
-|07 |G07 |     |     |     |     |     |     |     |     |
-|08 |G08 |     |     |     |     |     |     |     |     |
-|09 |    |     |     |     |     |     |     |     |     |
+|00 |G00 |     |     |     |     |     |     |     |     | 
+|01 |G01 |     |     |     |     |     |     |     |     | 
+|02 |G02 |     |     |     |     |     |     |     |     | 
+|03 |G03 |     |     |     |     |     |     |     |     | 
+|04 |G04 |     |     |     |     |     |     |     |     | 
+|05 |G05 |G05.1|G05.2|G05.3|     |     |     |     |     | 
+|06 |    |     |     |     |     |     |     |     |     | 
+|07 |G07 |     |     |     |     |     |     |     |     | 
+|08 |G08 |     |     |     |     |     |     |     |     | 
+|09 |    |     |     |     |     |     |     |     |     | 
 |==============================================================
 
 .Tabla de códigos G asignados_10-19
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
 |==============================================================
 |#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
-|10 |G10 |     |     |     |     |     |     |     |     |
-|11 |    |     |     |     |     |     |     |     |     |
-|12 |    |     |     |     |     |     |     |     |     |
-|13 |    |     |     |     |     |     |     |     |     |
-|14 |    |     |     |     |     |     |     |     |     |
-|15 |    |     |     |     |     |     |     |     |     |
-|16 |    |     |     |     |     |     |     |     |     |
-|17 |G17 |G17.1|     |     |     |     |     |     |     |
-|18 |G18 |G18.1|     |     |     |     |     |     |     |
-|19 |G19 |G19.1|     |     |     |     |     |     |     |
+|10 |G10 |     |     |     |     |     |     |     |     | 
+|11 |    |     |     |     |     |     |     |     |     | 
+|12 |    |     |     |     |     |     |     |     |     | 
+|13 |    |     |     |     |     |     |     |     |     | 
+|14 |    |     |     |     |     |     |     |     |     | 
+|15 |    |     |     |     |     |     |     |     |     | 
+|16 |    |     |     |     |     |     |     |     |     | 
+|17 |G17 |G17.1|     |     |     |     |     |     |     | 
+|18 |G18 |G18.1|     |     |     |     |     |     |     | 
+|19 |G19 |G19.1|     |     |     |     |     |     |     | 
 |==============================================================
 
 .Tabla de códigos G asignados_20-29
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
 |==============================================================
 |#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
-|20 |G20 |     |     |     |     |     |     |     |     |
-|21 |G21 |     |     |     |     |     |     |     |     |
-|22 |    |     |     |     |     |     |     |     |     |
-|23 |    |     |     |     |     |     |     |     |     |
-|24 |    |     |     |     |     |     |     |     |     |
-|25 |    |     |     |     |     |     |     |     |     |
-|26 |    |     |     |     |     |     |     |     |     |
-|27 |    |     |     |     |     |     |     |     |     |
-|28 |G28 |G28.1|     |     |     |     |     |     |     |
-|29 |    |     |     |     |     |     |     |     |     |
+|20 |G20 |     |     |     |     |     |     |     |     | 
+|21 |G21 |     |     |     |     |     |     |     |     | 
+|22 |    |     |     |     |     |     |     |     |     | 
+|23 |    |     |     |     |     |     |     |     |     | 
+|24 |    |     |     |     |     |     |     |     |     | 
+|25 |    |     |     |     |     |     |     |     |     | 
+|26 |    |     |     |     |     |     |     |     |     | 
+|27 |    |     |     |     |     |     |     |     |     | 
+|28 |G28 |G28.1|     |     |     |     |     |     |     | 
+|29 |    |     |     |     |     |     |     |     |     | 
 |==============================================================
 
 .Tabla de códigos G asignados_30-39
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
 |==============================================================
 |#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
-|30 |G30 |G30.1|     |     |     |     |     |     |     |
-|31 |    |     |     |     |     |     |     |     |     |
-|32 |    |     |     |     |     |     |     |     |     |
-|33 |G30 |G30.1|     |     |     |     |     |     |     |
-|34 |    |     |     |     |     |     |     |     |     |
-|35 |    |     |     |     |     |     |     |     |     |
-|36 |    |     |     |     |     |     |     |     |     |
-|37 |    |     |     |     |     |     |     |     |     |
-|38 |    |     |     |     |     |     |     |     |     |
-|39 |    |     |     |     |     |     |     |     |     |
+|30 |G30 |G30.1|     |     |     |     |     |     |     | 
+|31 |    |     |     |     |     |     |     |     |     | 
+|32 |    |     |     |     |     |     |     |     |     | 
+|33 |G30 |G30.1|     |     |     |     |     |     |     | 
+|34 |    |     |     |     |     |     |     |     |     | 
+|35 |    |     |     |     |     |     |     |     |     | 
+|36 |    |     |     |     |     |     |     |     |     | 
+|37 |    |     |     |     |     |     |     |     |     | 
+|38 |    |     |     |     |     |     |     |     |     | 
+|39 |    |     |     |     |     |     |     |     |     | 
 |==============================================================
 
 .Tabla de códigos G asignados_40-49
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
 |==============================================================
 |#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
-|40 |G40 |     |     |     |     |     |     |     |     |
-|41 |G41 |G41.1|     |     |     |     |     |     |     |
-|42 |G42 |G42.1|     |     |     |     |     |     |     |
-|43 |G43 |G43.1|     |     |     |     |     |     |     |
-|44 |    |     |     |     |     |     |     |     |     |
-|45 |    |     |     |     |     |     |     |     |     |
-|46 |    |     |     |     |     |     |     |     |     |
-|47 |    |     |     |     |     |     |     |     |     |
-|48 |    |     |     |     |     |     |     |     |     |
-|49 |G40 |     |     |     |     |     |     |     |     |
+|40 |G40 |     |     |     |     |     |     |     |     | 
+|41 |G41 |G41.1|     |     |     |     |     |     |     | 
+|42 |G42 |G42.1|     |     |     |     |     |     |     | 
+|43 |G43 |G43.1|     |     |     |     |     |     |     | 
+|44 |    |     |     |     |     |     |     |     |     | 
+|45 |    |     |     |     |     |     |     |     |     | 
+|46 |    |     |     |     |     |     |     |     |     | 
+|47 |    |     |     |     |     |     |     |     |     | 
+|48 |    |     |     |     |     |     |     |     |     | 
+|49 |G40 |     |     |     |     |     |     |     |     | 
 |==============================================================
 
 .Tabla de códigos G asignados_50-59
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
 |==============================================================
 |#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
-|50 |    |     |     |     |     |     |     |     |     |
-|51 |    |     |     |     |     |     |     |     |     |
-|52 |    |     |     |     |     |     |     |     |     |
-|53 |G53 |     |     |     |     |     |     |     |     |
-|54 |G54 |     |     |     |     |     |     |     |     |
-|55 |G55 |     |     |     |     |     |     |     |     |
-|56 |G56 |     |     |     |     |     |     |     |     |
-|57 |G57 |     |     |     |     |     |     |     |     |
-|58 |G58 |     |     |     |     |     |     |     |     |
-|59 |G59 |G59.1|G59.2|G59.3|     |     |     |     |     |
+|50 |    |     |     |     |     |     |     |     |     | 
+|51 |    |     |     |     |     |     |     |     |     | 
+|52 |    |     |     |     |     |     |     |     |     | 
+|53 |G53 |     |     |     |     |     |     |     |     | 
+|54 |G54 |     |     |     |     |     |     |     |     | 
+|55 |G55 |     |     |     |     |     |     |     |     | 
+|56 |G56 |     |     |     |     |     |     |     |     | 
+|57 |G57 |     |     |     |     |     |     |     |     | 
+|58 |G58 |     |     |     |     |     |     |     |     | 
+|59 |G59 |G59.1|G59.2|G59.3|     |     |     |     |     | 
 |==============================================================
 
 .Tabla de códigos G asignados_60-69
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
 |==============================================================
 |#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
-|60 |G60 |     |     |     |     |     |     |     |     |
-|61 |G61 |G61.1|     |     |     |     |     |     |     |
-|62 |    |     |     |     |     |     |     |     |     |
-|63 |    |     |     |     |     |     |     |     |     |
-|64 |G64 |     |     |     |     |     |     |     |     |
-|65 |    |     |     |     |     |     |     |     |     |
-|66 |    |     |     |     |     |     |     |     |     |
-|67 |    |     |     |     |     |     |     |     |     |
-|68 |    |     |     |     |     |     |     |     |     |
-|69 |    |     |     |     |     |     |     |     |     |
+|60 |G60 |     |     |     |     |     |     |     |     | 
+|61 |G61 |G61.1|     |     |     |     |     |     |     | 
+|62 |    |     |     |     |     |     |     |     |     | 
+|63 |    |     |     |     |     |     |     |     |     | 
+|64 |G64 |     |     |     |     |     |     |     |     | 
+|65 |    |     |     |     |     |     |     |     |     | 
+|66 |    |     |     |     |     |     |     |     |     | 
+|67 |    |     |     |     |     |     |     |     |     | 
+|68 |    |     |     |     |     |     |     |     |     | 
+|69 |    |     |     |     |     |     |     |     |     | 
 |==============================================================
 
 .Tabla de códigos G asignados_70-79
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
 |==============================================================
 |#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
-|70 |    |     |     |     |     |     |     |     |     |
-|71 |    |     |     |     |     |     |     |     |     |
-|72 |    |     |     |     |     |     |     |     |     |
-|73 |    |     |     |     |     |     |     |     |     |
-|74 |    |     |     |     |     |     |     |     |     |
-|75 |    |     |     |     |     |     |     |     |     |
-|76 |G76 |     |     |     |     |     |     |     |     |
-|77 |    |     |     |     |     |     |     |     |     |
-|78 |    |     |     |     |     |     |     |     |     |
-|79 |    |     |     |     |     |     |     |     |     |
+|70 |    |     |     |     |     |     |     |     |     | 
+|71 |    |     |     |     |     |     |     |     |     | 
+|72 |    |     |     |     |     |     |     |     |     | 
+|73 |    |     |     |     |     |     |     |     |     | 
+|74 |    |     |     |     |     |     |     |     |     | 
+|75 |    |     |     |     |     |     |     |     |     | 
+|76 |G76 |     |     |     |     |     |     |     |     | 
+|77 |    |     |     |     |     |     |     |     |     | 
+|78 |    |     |     |     |     |     |     |     |     | 
+|79 |    |     |     |     |     |     |     |     |     | 
 |==============================================================
 
 .Tabla de códigos G asignados_80-89
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
 |==============================================================
 |#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
-|80 |G80 |     |     |     |     |     |     |     |     |
-|81 |G81 |     |     |     |     |     |     |     |     |
-|82 |G82 |     |     |     |     |     |     |     |     |
-|83 |G83 |     |     |     |     |     |     |     |     |
-|84 |G84 |     |     |     |     |     |     |     |     |
-|85 |G85 |     |     |     |     |     |     |     |     |
-|86 |G86 |     |     |     |     |     |     |     |     |
-|87 |G87 |     |     |     |     |     |     |     |     |
-|88 |G88 |     |     |     |     |     |     |     |     |
-|89 |G89 |     |     |     |     |     |     |     |     |
+|80 |G80 |     |     |     |     |     |     |     |     | 
+|81 |G81 |     |     |     |     |     |     |     |     | 
+|82 |G82 |     |     |     |     |     |     |     |     | 
+|83 |G83 |     |     |     |     |     |     |     |     | 
+|84 |G84 |     |     |     |     |     |     |     |     | 
+|85 |G85 |     |     |     |     |     |     |     |     | 
+|86 |G86 |     |     |     |     |     |     |     |     | 
+|87 |G87 |     |     |     |     |     |     |     |     | 
+|88 |G88 |     |     |     |     |     |     |     |     | 
+|89 |G89 |     |     |     |     |     |     |     |     | 
 |==============================================================
 
 .Tabla de códigos G asignados_90-99
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
 |==============================================================
 |#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
-|90 |G90 |G90.1|     |     |     |     |     |     |     |
-|91 |G91 |G91.1|     |     |     |     |     |     |     |
-|92 |G92 |G92.1|G92.2|G92.3|     |     |     |     |     |
-|93 |G93 |     |     |     |     |     |     |     |     |
-|94 |G94 |     |     |     |     |     |     |     |     |
-|95 |G95 |     |     |     |     |     |     |     |     |
-|96 |G96 |     |     |     |     |     |     |     |     |
-|97 |G97 |     |     |     |     |     |     |     |     |
-|98 |G98 |     |     |     |     |     |     |     |     |
-|99 |G99 |     |     |     |     |     |     |     |     |
+|90 |G90 |G90.1|     |     |     |     |     |     |     | 
+|91 |G91 |G91.1|     |     |     |     |     |     |     | 
+|92 |G92 |G92.1|G92.2|G92.3|     |     |     |     |     | 
+|93 |G93 |     |     |     |     |     |     |     |     | 
+|94 |G94 |     |     |     |     |     |     |     |     | 
+|95 |G95 |     |     |     |     |     |     |     |     | 
+|96 |G96 |     |     |     |     |     |     |     |     | 
+|97 |G97 |     |     |     |     |     |     |     |     | 
+|98 |G98 |     |     |     |     |     |     |     |     | 
+|99 |G99 |     |     |     |     |     |     |     |     | 
 |==============================================================
 
 [[remap:unallocated-m-codes]]
@@ -2148,13 +2229,13 @@ LinuxCNC se recomienda que los elimine de esta tabla.)
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
 |==============================================================
 |#     |Mx0 |Mx1 |Mx2 |Mx3 |Mx4 |Mx5 |Mx6 |Mx7 |Mx8 |Mx9
-|00-09 |    |    |    |    |    |    |    |    |    |
-|10-19 |M10 |M11 |M12 |M13 |M14 |M15 |M16 |M17 |M18 |
+|00-09 |    |    |    |    |    |    |    |    |    | 
+|10-19 |M10 |M11 |M12 |M13 |M14 |M15 |M16 |M17 |M18 | 
 |20-29 |M20 |M21 |M22 |M23 |M24 |M25 |M26 |M27 |M28 |M29
 |30-39 |    |M31 |M32 |M33 |M34 |M35 |M36 |M37 |M38 |M39
-|40-49 |M40 |M41 |M42 |M43 |M44 |M45 |M46 |M47 |    |
+|40-49 |M40 |M41 |M42 |M43 |M44 |M45 |M46 |M47 |    | 
 |50-59 |    |    |    |    |M54 |M55 |M56 |M57 |M58 |M59
-|60-69 |    |    |    |    |    |    |    |    |    |
+|60-69 |    |    |    |    |    |    |    |    |    | 
 |70-79 |    |    |    |    |M74 |M75 |M76 |M77 |M78 |M79
 |80-89 |M80 |M81 |M82 |M83 |M84 |M85 |M86 |M87 |M88 |M89
 |90-99 |M90 |M91 |M92 |M93 |M94 |M95 |M96 |M97 |M98 |M99
@@ -2219,25 +2300,22 @@ las siguientes categorias:
 
 1. información de configuración (típicamente del archivo INI)
 2. El 'modelo mundial': una representación del estado real de la máquina.
-3. Estado modal y ajustes
-4. estado de ejecución del intérprete
-
-(3) se refiere al estado que se "transfiere" entre la ejecución
-de códigos NGC individuales: por ejemplo, una vez que el husillo está encendido y
-la velocidad establecida, permanece en este ajuste hasta que se desactiva.
-Lo mismo ocurre con muchos códigos, como alimentación, unidades, modos de movimiento (alimentación o
-rápido) y así sucesivamente.
-
-(4) contiene información sobre el bloque actualmente ejecutado, ya sea que
-esté en una subrutina, variables de intérprete, etc.
-
-La mayor parte de este estado se agrega en una, bastante poco sistemática,
-`structure _setup` (vea interp_internals.hh).
+3. Estado modal y ajustes +
+   se refiere al estado que se "transfiere" entre la ejecución
+   de códigos NGC individuales: por ejemplo, una vez que el husillo está encendido y
+   la velocidad establecida, permanece en este ajuste hasta que se desactiva.
+   Lo mismo ocurre con muchos códigos, como alimentación, unidades, modos de movimiento (alimentación o
+   rápido) y así sucesivamente.
+4. estado de ejecución del intérprete +
+   contiene información sobre el bloque actualmente ejecutado, ya sea que
+   esté en una subrutina, variables de intérprete, etc. +
+   La mayor parte de este estado se agrega en una, bastante poco sistemática,
+   `structure _setup` (vea interp_internals.hh).
 
 === Interacción de Task e Interpreter, puesta en cola y lectura anticipada
 
-La parte Task de LinuxCNC es responsable de coordinar los comandos de máquina real
-- movimiento, interacciones HAL y así sucesivamente. No lo hace por si misma
+La parte Task de LinuxCNC es responsable de coordinar los comandos de máquina real -
+movimiento, interacciones HAL y así sucesivamente. No lo hace por si misma
 manejando el lenguaje RS274NGC. Task apela al
 intérprete para analizar y ejecutar el siguiente comando, ya sea desde MDI o
 el archivo actual.
@@ -2299,6 +2377,7 @@ N80 O100 endif
 N90 G1 Z10
 N95 M2
 ---------------------------------------------------------------------
+
 Para pre-calcular el movimiento en N90, el intérprete debería saber
 dónde está la máquina después de la línea N80, y eso depende de si el
 comando de la sonda tuvo éxito o no, lo cual no se conoce hasta que en realidad se
@@ -2318,19 +2397,16 @@ la lectura anticipada y esperar hasta que el resultado relevante esté disponibl
 en que esto funciona es:
 
 - cuando se encuentra dicho código, el intérprete devuelve un
-código de retorno especial a la tarea ('INTERP_EXECUTE_FINISH').
-
+  código de retorno especial a la tarea ('INTERP_EXECUTE_FINISH').
 - este código de retorno señala a task la detencion de lectura anticipada por ahora, ejecutar
-todos los comandos canónicos en cola acumulados hasta el momento (incluido el último,
-que es el destructor de la cola), y luego 'sincronizar
-el estado del intérprete con el modelo universal'. Técnicamente, esto significa
-actualizar variables internas para reflejar los valores de pines HAL, recargar geometrías de herramienta
-después de un M6, y transmitir los resultados de una sonda.
-
+  todos los comandos canónicos en cola acumulados hasta el momento (incluido el último,
+  que es el destructor de la cola), y luego 'sincronizar
+  el estado del intérprete con el modelo universal'. Técnicamente, esto significa
+  actualizar variables internas para reflejar los valores de pines HAL, recargar geometrías de herramienta
+  después de un M6, y transmitir los resultados de una sonda.
 - El método 'synch()' del intérprete es llamado por task y hace solo
-eso - lee todos los valores 'reales' del modelo universal que sean relevantes para la
-posterior ejecución.
-
+  eso - lee todos los valores 'reales' del modelo universal que sean relevantes para la
+  posterior ejecución.
 - En este punto, task continúa y llama al intérprete para obtener más información por lectura
   adelantada - hasta que el programa finalice o se encuentre otro destructor de colas.
 
@@ -2368,7 +2444,7 @@ indica que la lectura anticipada puede continuar.
 Cuando la lectura anticipada continúa después de la sincronización, task comienza a ejecutar
 de nuevo las operaciones read() del intérprete. Durante la siguiente operación de lectura,
 se comprueban los indicadores mencionados anteriormente y las variables correspondientes son
-establecidas (porque se acaba de ejecutar un synch(), los valores son ahora los actuales.
+establecidas (porque se acaba de ejecutar un synch(), los valores son ahora los actuales).
 Esto significa que el siguiente comando ya se ejecuta en el contexto de variables correctamente establecidas.
 
 === Ejecución de procedimientos
@@ -2380,7 +2456,6 @@ Task se asegura de sincronizar el modelo universal y continua
  el análisis y ejecución siempre que haya un procedimiento en ejecución (call_level> 0).
 
 [[remap:how-tool-change-currently-works]]
-
 === Cómo funciona el cambio de herramienta actualmente
 
 Las acciones que suceden en LinuxCNC están poco involucradas, pero son necesarias
@@ -2388,8 +2463,8 @@ para tener una idea general de lo que sucede actualmente antes de
 adaptar esos trabajos a sus propias necesidades.
 
 Tenga en cuenta que la remapeado de un código existente desactiva completamente todo el procesamiento
-interno de ese código. Eso significa que más allá del comportamiento deseado
-- probablemente descrito a través de una Oword NGC o procedimiento Python,
+interno de ese código. Eso significa que más allá del comportamiento deseado -
+probablemente descrito a través de una Oword NGC o procedimiento Python,
 necesita replicar esas acciones internas con el
 intérprete, que juntos resultan en un reemplazo completo del
 código existente. El código prolog y epilog es el lugar para hacer esto.
@@ -2413,22 +2488,25 @@ Para los curiosos, se puede acceder a la estructura actual de emcStatus mediante
 La percepción del intérprete de la herramienta cargada actualmente, por ejemplo, es
 accedida por:
 
- ;py,from interpreter import *
- ;py,print this.tool_table[0]
+----
+;py,from interpreter import *
+;py,print(this.tool_table[0])
+----
 
 Para ver los campos en la estructura global de emcStatus, intente esto:
 
- ;py,from emctask import *
- ;py,print emcstat.io.tool.pocketPrepped
- ;py,print emcstat.io.tool.toolInSpindle
- ;py,print emcstat.io.tool.toolTable[0]
+----
+;py,from emctask import *
+;py,print(emcstat.io.tool.pocketPrepped)
+;py,print(emcstat.io.tool.toolInSpindle)
+;py,print(emcstat.io.tool.toolTable[0])
+----
 
 Debe tener LinuxCNC iniciado desde una ventana de terminal para ver los resultados.
 
 === Cómo funciona Tx (Prepare Tool)
 
 [[remap:interpreter-action-on-t]]
-
 .Acción de intérprete en un comando Tx
 
 Todo lo que hace el intérprete es evaluar el parámetro toolnumber, busca
@@ -2443,8 +2521,8 @@ EMC_TOOL_PREPARE al proceso iocontrol, que maneja la mayoría
 de acciones relacionadas con herramientas en LinuxCNC.
 
 En la implementación actual, task realmente espera a que iocontrol
-complete la operación de posicionamiento del cambiador, (que creo que no es necesario)
-- esto rechaza la idea de que la preparación del cambiador y la ejecución del código pueden
+complete la operación de posicionamiento del cambiador, (que creo que no es necesario) -
+esto rechaza la idea de que la preparación del cambiador y la ejecución del código pueden
 proceder en paralelo.
 
 .Acción de iocontrol sobre EMC_TOOL_PREPARE
@@ -2476,30 +2554,28 @@ código 'Interp::convert_tool_change' en
 'src/emc/rs274/interp_convert.cc'.
 
 [[remap:interpreter-action-on-m6]]
-
 .Acción del intérprete en un comando M6
 
 Cuando el intérprete ve un M6, éste:
 
 [[remap:send-tool-load-msg]]
-
 . verifica si un comando T ya ha sido ejecutado (prueba si
-'settings->selected_pocket' es >= 0). y si falla da el mensaje 'necesito
-preparada -Txx- para  de cambio de herramientas'.
+  'settings->selected_pocket' es >= 0). y si falla da el mensaje 'necesito
+  preparada -Txx- para  de cambio de herramientas'.
 . verifica que la compensación del cortador está activa y si es así, falla con el mensaje 'No se puede
-cambiar las herramientas con la compensación del radio de corte activa'.
+  cambiar las herramientas con la compensación del radio de corte activa'.
 . detiene el husillo, excepto si se establece la opción "TOOL_CHANGE_WITH_SPINDLE_ON" en el ini.
 . genera un movimiento rápido de 'Z up' si se establece la opción "TOOL_CHANGE_QUILL_UP" en el ini.
 . si se estableció TOOL_CHANGE_AT_G30:
 .. mueve los indizadores A, B y C si corresponde
 .. genera un movimiento rápido a la posición G30
 . ejecuta un comando canonico CHANGE_TOOL, con el ranura seleccionada como
-parámetro. CHANGE_TOOL puede:
+  parámetro. CHANGE_TOOL puede:
 .. generar un movimiento rápido a TOOL_CHANGE_POSITION si así lo establece el ini
 .. encolar un mensaje EMC_TOOL_LOAD NML a task.
 . Configura los parámetros numerados 5400-5413 de acuerdo con la nueva herramienta
 . señala a task que deje de llamar al intérprete para leer adelantadamente
-devolviendo INTERP_EXECUTE_FINISH, ya que M6 es un destructor de colas.
+  devolviendo INTERP_EXECUTE_FINISH, ya que M6 es un destructor de colas.
 
 .Qué hace task cuando ve un comando CHANGE_TOOL
 Nuevamente, no mucho más que pasar la carga a iocontrol enviándole
@@ -2507,9 +2583,7 @@ un mensaje EMC_TOOL_LOAD, y espera hasta que iocontrol haya realizado su
 labor.
 
 [[remap:iocontrol-action-on-load]]
-
 .Acción de iocontrol tras EMC_TOOL_LOAD
-
 . Establece el pin "tool-change"
 . espera a que el pin "tool-changed" se active
 . cuando eso ha sucedido:
@@ -2525,9 +2599,9 @@ Cuando eso ha sucedido:
 
 . iocontrol señala a task que puede seguir adelante
 . task le dice al intérprete que ejecute una operación 'synch()', para actualizar
-los cambios.
+  los cambios.
 . 'synch()' del intérprete extrae toda la información necesaria del modelo universal,
-entre ellos la tabla de herramientas cambiada.
+  entre ellos la tabla de herramientas cambiada.
 
 A partir de ahí, el intérprete tiene un conocimiento completo del modelo universal
 y continúa con la lectura adelantada.
@@ -2546,12 +2620,21 @@ Un ejemplo de redefinición de Python para M61 se puede encontrar en la
 función `set_tool_number` en
 `configs/sim/axis/remap/toolchange/python/toolchange.py`.
 
+==  Status
+
+. the RELOAD_ON_CHANGE feature is fairly broken.  Restart after changing a Python file.
+. M61 (remapped or not) is broken in iocontrol and requires iocontrol-v2 to actually work.
+
+// A short survey of LinuxCNC execution
+// Interpreter internals access - Python view
+// Task internals access - Python view
+
 == Cambios
 
 - el método para devolver mensajes de error y fallo solía ser
   'self.set_errormsg(texto)' seguido de 'return INTERP_ERROR'. Esto
-  ha sido reemplazado simplemente devolviendo una cadena desde un manejador de Python
-  o subrutina oword. Esto establece el mensaje de error y aborta el
+  ha sido reemplazado simplemente devolviendo una cadena desde un manejador de Python o
+  subrutina oword. Esto establece el mensaje de error y aborta el
   programa. Anteriormente no había una forma clara de abortar una subrutina de palabra O de Python
 
 == Depuración
@@ -2576,3 +2659,5 @@ DEBUG = 0x10008000 # USER1, PYTHON
 DEBUG = 0x30008000 # USER1, USER2, PYTHON # USER2 hará que la involuta intente conectarse a pydev
 DEBUG = 0x7FFFFFFF # Todos los mensajes de depuración
 ----
+
+// vim: set syntax=asciidoc:

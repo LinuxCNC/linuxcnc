@@ -16,8 +16,8 @@ AXIS es una interfaz gráfica para LinuxCNC que cuenta con vista previa y backpl
 Tk y OpenGL para mostrar la interfaz de usuario.
 
 [[fig:axis-window]]
-//.Ventana de AXIS
-image::images/axis_es.png["Ventana AXIS",align="center"]
+.La Ventana de AXIS
+image::images/axis_es.png["Ventana Principal AXIS",align="center"]
 
 == Primeros pasos
 
@@ -33,7 +33,7 @@ When AXIS starts, a window like the one in the figure
 === INI settings
 
 For more information on ini file settings that can change how AXIS
-works see the <<sec:display-section,Display Section>> of the INI
+works see the <<sub:ini:sec:display,Display Section>> of the INI
 Configuration Chapter.
 
 Adjust the response rate of the GUI in milliseconds. Typical 100, useable range 50 - 200 +
@@ -85,11 +85,11 @@ La ventana de AXIS contiene los siguientes elementos:
   los códigos G modales en vigor.
 * 'Feed Override' - que le permite escalar la velocidad de los movimientos programados.
   El máximo predeterminado es 120% y se puede configurar a un valor diferente
-  en el archivo ini. Consulte la <<sec:display-section, Sección de visualización>> del
+  en el archivo ini. Consulte la <<sub:ini:sec:display, Sección de visualización>> del
   archivo INI para más información.
 * 'Spindle Override' - que le permite escalar la velocidad del husillo hacia arriba o hacia abajo.
 * 'Jog Speed' - que te permite configurar la velocidad de jog dentro de los límites establecidos en el archivo ini.
-  Ver la <<sec:display-section,Sección de visualización>> del archivo INI para obtener más información.
+  Ver la <<sub:ini:sec:display,Sección de visualización>> del archivo INI para obtener más información.
 * 'Velocidad máxima' - que le permite restringir la velocidad máxima de todos
   los movimientos programados (excepto movimiento sincronizados del husillo).
 * Una zona de visualización de texto que muestra el G-Code cargado.
@@ -108,11 +108,11 @@ archivo .ini configurado. Para más información sobre configuración vea el
 
 * 'Abrir ...' - abre un cuadro de diálogo estándar para abrir un archivo de código g para cargar en AXIS. Si
   ha configurado LinuxCNC para usar un programa de filtro, también puede abrirlo.
-  Consulte la <<sec:filter-section,sección FILTRO>> de la configuración INI
+  Consulte la <<sub:ini:sec:filter,sección FILTRO>> de la configuración INI
   para más información.
 * 'Archivos recientes' - muestra una lista de los archivos abiertos recientemente.
 * 'Editar ...' - abre el archivo de código G actual para editarlo si tienes un editor
-  configurado en su archivo ini. Consulte la sección <<sec:display-section,sección DISPLAY>>
+  configurado en su archivo ini. Consulte la sección <<sub:ini:sec:display,sección DISPLAY>>
   para obtener más información sobre la especificación del editor a usar.
 * 'Recargar' - vuelve a cargar el archivo de código g actual. Si lo edita, debe recargarlo
   para que los cambios se actualizen. Si detiene un archivo y quiere empezar
@@ -143,61 +143,57 @@ archivo .ini configurado. Para más información sobre configuración vea el
 [WARNING]
 No use 'Ejecutar desde la línea seleccionada' si su programa de código g contiene subrutinas.
 
- * 'Step' - Un solo paso a través de un programa.
- * 'Pausa' - Pausa un programa.
- * 'Resume' - reanudar la ejecución de una pausa.
- * 'Stop' - Detiene un programa en ejecución. Cuando se selecciona ejecutar después de una parada, el programa
-   comenzará desde el principio.
- * 'Stop en M1' - Si se alcanza un M1, y esto esta activo, la ejecución del programa
-   parará en la línea M1. Presione Resume para continuar.
- * 'Saltar líneas con "/"' - Si una línea comienza con '/' y esto está activo,
-   la línea se saltará.
- * 'Borrar historial de MDI': borra la ventana del historial de MDI.
- * 'Copiar desde el historial de MDI': copia el historial MDI al portapapeles
- * 'Pegar al historial de MDI' - Pegar desde el portapapeles a la ventana del historial MDI
- * 'Calibración': inicia el asistente de calibración (emccalib.tcl).
-   La calibración lee el archivo HAL y para cada 'setp' que usa una variable
-   del archivo ini que se encuentra en las secciones [AXIS_L], [JOINT_N] o [TUNE],
-   crea una entrada que puede ser editada y probada.
- * 'Mostrar configuración HAL' - abre la ventana de configuración HAL donde puede
-   monitorear componentes HAL, pines, parámetros, señales, funciones y subprocesos.
- * 'HAL Meter' - abre una ventana donde puede monitorear un solo Pin HAL, señal o Parámetro.
- * 'HAL Scope' - abre un osciloscopio virtual que permite seguir valores HAL en función del tiempo.
- * 'Mostrar estado de LinuxCNC' - abre una ventana que muestra el estado de LinuxCNC.
- * 'Establecer nivel de depuración' - abre una ventana donde se pueden ver los niveles de depuración y se pueden configurar algunos.
- * 'Homing' - home uno o todos los ejes.
- * 'Unhoming' - Deshacer home de uno o todos los ejes.
- * 'Sistema de coordenadas cero' - establece todos los offsets a cero en el sistema de coordenadas elegido.
+* 'Step' - Un solo paso a través de un programa.
+* 'Pausa' - Pausa un programa.
+* 'Resume' - reanudar la ejecución de una pausa.
+* 'Stop' - Detiene un programa en ejecución. Cuando se selecciona ejecutar después de una parada, el programa
+  comenzará desde el principio.
+* 'Stop en M1' - Si se alcanza un M1, y esto esta activo, la ejecución del programa
+  parará en la línea M1. Presione Resume para continuar.
+* 'Saltar líneas con "/"' - Si una línea comienza con '/' y esto está activo,
+  la línea se saltará.
+* 'Borrar historial de MDI': borra la ventana del historial de MDI.
+* 'Copiar desde el historial de MDI': copia el historial MDI al portapapeles
+* 'Pegar al historial de MDI' - Pegar desde el portapapeles a la ventana del historial MDI
+* 'Calibración': inicia el asistente de calibración (emccalib.tcl).
+  La calibración lee el archivo HAL y para cada 'setp' que usa una variable
+  del archivo ini que se encuentra en las secciones [AXIS_L], [JOINT_N] o [TUNE],
+  crea una entrada que puede ser editada y probada.
+* 'Mostrar configuración HAL' - abre la ventana de configuración HAL donde puede
+  monitorear componentes HAL, pines, parámetros, señales, funciones y subprocesos.
+* 'HAL Meter' - abre una ventana donde puede monitorear un solo Pin HAL, señal o Parámetro.
+* 'HAL Scope' - abre un osciloscopio virtual que permite seguir valores HAL en función del tiempo.
+* 'Mostrar estado de LinuxCNC' - abre una ventana que muestra el estado de LinuxCNC.
+* 'Establecer nivel de depuración' - abre una ventana donde se pueden ver los niveles de depuración y se pueden configurar algunos.
+* 'Homing' - home uno o todos los ejes.
+* 'Unhoming' - Deshacer home de uno o todos los ejes.
+* 'Sistema de coordenadas cero' - establece todos los offsets a cero en el sistema de coordenadas elegido.
 //[[sub:axis:tool-touch-off]]
- * 'Tool Touch Off'(((Axis, Tool Touch Off)))
- ** 'Tool touch off to workpiece' - Al realizar Touch Off, el valor
-    ingresado es relativo al sistema de coordenadas de la pieza actual ('G5x'),
-    modificado por el offset del eje ('G92'). Cuando se completa el Touch Off,
-    la coordenada relativa para el eje elegido se convertirá en el valor ingresado.
-    Consulte <<gcode:g10-l10,G10 L10 en el capítulo de código G.
- ** 'Tool touch off to fixture' - Al realizar Touch Off, el valor ingresado
-    es relativo al noveno ('G59.3') sistema de coordenadas, con el offset del eje
-    ('G92') ignorado. Esto es útil cuando hay un accesorio para Tool touch off en una
-    ubicación fija en la máquina, con el noveno ('G59.3') sistema de coordenadas establecido
-    de tal manera que la punta de una herramienta de longitud cero esté en el origen del montaje cuando
-    las coordenadas relativas son 0. Consulte <<gcode:g10-l11,G10 L11 en el capítulo de códigos G.
+* 'Tool Touch Off'(((Axis, Tool Touch Off)))
+** 'Tool touch off to workpiece' - Al realizar Touch Off, el valor
+   ingresado es relativo al sistema de coordenadas de la pieza actual ('G5x'),
+   modificado por el offset del eje ('G92'). Cuando se completa el Touch Off,
+   la coordenada relativa para el eje elegido se convertirá en el valor ingresado.
+   Consulte <<gcode:g10-l10,G10 L10 en el capítulo de código G.
+** 'Tool touch off to fixture' - Al realizar Touch Off, el valor ingresado
+   es relativo al noveno ('G59.3') sistema de coordenadas, con el offset del eje
+   ('G92') ignorado. Esto es útil cuando hay un accesorio para Tool touch off en una
+   ubicación fija en la máquina, con el noveno ('G59.3') sistema de coordenadas establecido
+   de tal manera que la punta de una herramienta de longitud cero esté en el origen del montaje cuando
+   las coordenadas relativas son 0. Consulte <<gcode:g10-l11,G10 L11 en el capítulo de códigos G.
 
 ==== Menú Ver
 
 * 'Vista superior' - la vista superior (o vista Z) muestra la previsualizacion del código G mirando en direccion
   del eje Z de positivo a negativo. Esta vista es la mejor para mirar el plano XY.
-
 * 'Vista superior girada' - la vista superior girada (o vista Z girada) también se muestra
   el código G mirando a lo largo del eje Z de positivo a negativo. Pero a veces
   es conveniente mostrar los ejes X e Y girados 90 grados para ajustarse al
   mostrar mejor Este punto de vista es también mejor para mirar X y Y.
-
 * 'Vista lateral' - la vista lateral (o vista X) muestra el código G mirando hacia adelante
   El eje X de positivo a negativo. Esta vista es mejor para mirar a Y & Z.
-
 * 'Vista frontal' - la vista frontal (o vista en Y) muestra el código G mirando hacia adelante
   El eje Y de negativo a positivo. Esta vista es mejor para mirar X y Z.
-
 * 'Vista en perspectiva' - la vista en perspectiva (o vista P) muestra el código G
   mirando la pieza desde un punto de vista ajustable, por defecto a X+, Y-,
   Z+. La posición es ajustable usando el mouse y el selector de arrastrar/rotar.
@@ -333,7 +329,6 @@ vista previa hasta después del primer movimiento de alimentación.
 Para desactivar cualquiera de estas funciones, programe un G1 sin ningún movimiento antes de los movimientos G0.
 
 .Dimensiones (fisicas necesarias) del programa
-
 Se muestran las 'dimensiones' resultantes del programa en cada eje.
 En los extremos, se indican los valores de coordenadas mínimo y máximo.
 En el medio, se muestra la diferencia entre las coordenadas, o dimension.
@@ -347,9 +342,9 @@ y el programa requiere 3,83 pulgadas de recorrido X.
 Para que el movimiento programado esté dentro del recorrido de la máquina en este caso,
 haga jog a la izquierda y vuelva a hacer Touch Off X.
 
-[[fig:soft-limits]](((Soft Limits)))
-//.Soft limits
-image:images/axis-outofrange.png["Se muestran las extensiones del programa en el eje x",align="center",]
+[[fig:soft-limits]]
+.Lìmites Suaves(((Lìmites Suaves)))
+image::images/axis-outofrange.png["Lìmites Suaves",align="center"]
 
 .Herramienta Cono
 Cuando no se ha cargado ninguna herramienta, la ubicación de la punta de la herramienta esta
@@ -440,7 +435,7 @@ la máquina se moverá exactamente la distancia mostrada
 cada vez que se hace clic en el botón o se presiona la tecla.
 Por defecto, los valores disponibles son '0.1000, 0.0100, 0.0010, 0.0001'
 
-Consulte la <<sec:display-section, sección DISPLAY>> para obtener más información sobre la configuración
+Consulte la <<sub:ini:sec:display, sección DISPLAY>> para obtener más información sobre la configuración
 los incrementos.
 
 .Homing (Identity Kinematics)
@@ -487,8 +482,8 @@ valor específicado. Las expresiones se pueden ingresar usando las reglas para l
 programas rs274ngc, excepto que las variables no pueden ser referidas.
 El valor resultante se muestra como un número.
 
-//.Touch Off
-image::images/touchoff_es.png["Touch Off screenshot",align="center"]
+.Touch Off Window
+image::images/touchoff_es.png["Touch Off Window",align="center"]
 
 See also the Machine menu options: 'Touch part' and 'Touch part holder'.
 
@@ -497,8 +492,8 @@ By pressing the 'Tool Touch Off' button the tool length and offsets of
 the currently loaded tool will be changed so that the current tool tip
 position matches the entered coordinate.
 
-//.Tool Touch Off Window
-image::images/tooltouchoff.png["Tool Touch Off Window", align="center"]
+.Tool Touch Off Window
+image::images/tooltouchoff.png["Tool Touch Off Window",align="center"]
 
 Consulte también las opciones 'Tool touch off to workpiece' y 'Tool touch off to fixture'
 en el menú Machine.
@@ -535,15 +530,15 @@ Cuando la máquina no está encendida, o cuando un programa está
 en ejecución, los controles MDI no están disponibles.
 
 .La pestaña MDI
-image::images/axis-mdi_es.png["pestaña MDI",align="center"]
+image::images/axis-mdi_es.png["Pestaña MDI",align="center"]
 
- * 'Historial' - Muestra los comandos MDI que se han escrito anteriormente en esta sesión.
- * 'Comando MDI' - Esto le permite ingresar un comando de código g para ser ejecutado. Ejecute el
-   comando pulsando Intro o haciendo clic en 'Go'.
- * 'Códigos G activos' - Se muestran los 'códigos modales' que están activos en el intérprete.
-   Por ejemplo, 'G54' indica que el 'offset G54' se aplica a todas
-   las coordenadas que se introduzcan. En modo Auto los G-Códigos Activos representan
-   los códigos después la lectura por el intérprete.
+* 'Historial' - Muestra los comandos MDI que se han escrito anteriormente en esta sesión.
+* 'Comando MDI' - Esto le permite ingresar un comando de código g para ser ejecutado. Ejecute el
+  comando pulsando Intro o haciendo clic en 'Go'.
+* 'Códigos G activos' - Se muestran los 'códigos modales' que están activos en el intérprete.
+  Por ejemplo, 'G54' indica que el 'offset G54' se aplica a todas
+  las coordenadas que se introduzcan. En modo Auto los G-Códigos Activos representan
+  los códigos después la lectura por el intérprete.
 
 === Porcentaje de alimentacion
 
@@ -597,8 +592,9 @@ a 0% - 100%.
 
 Los métodos abreviados de teclado más utilizados se muestran en la siguiente tabla
 
-.Atajos de teclado más comunes
-[width="80%", options="header", cols="^,<,^"]
+[[tab:common-keyboard-shortcuts]]
+.Atajos de teclado más comunes(((AXIS,Keyboard Shortcuts)))
+[width="80%",options="header",cols="^,<,^"]
 |====================================================================
 | Pulsar tecla       | Acción tomada                                   | Modo
 | F1                 | Stop de emergencia                              | Todos
@@ -637,8 +633,8 @@ AXIS incluye un programa llamado 'linuxcnctop' que muestra algunos de los
 detalles del estado de LinuxCNC. Puedes ejecutar este programa mediante Maquina >
 Mostrar estado de LinuxCNC
 
-//.Ventana de estado de LinuxCNC
-image::images/axis-emc-status_es.png["Status LinuxCNC",align="center"]
+.Ventana de Estado de LinuxCNC
+image::images/axis-emc-status_es.png["Ventana de Estado de LinuxCNC",align="center"]
 
 El nombre de cada elemento se muestra en la columna izquierda. El valor actual
 se muestra en la columna derecha. Si el valor ha cambiado recientemente,
@@ -706,9 +702,9 @@ Esto puede ser muy confuso para la mayoría de los usuarios.
 Para desactivar esta función para el cambio de herramienta actual,
 programe un G1 sin movimiento después de T<n>.
 
-[[fig:manual-toolchange-window]](((Cambio de herramientas manual)))
-//.Ventana de cambio de herramientas manual
-image:images/manual-tool-change_es.png["Cambio de herramientas manual screenshot",align="center"]
+[[fig:manual-toolchange-window]]
+.Ventana de cambio de herramientas manual(((AXIS: Ventana de cambio de herramientas manual)))
+image::images/manual-tool-change_es.png["Ventana de cambio de herramientas manual",align="center"]
 
 [[sec:axis-python-modules]]
 == Módulos de Python
@@ -739,21 +735,21 @@ en la parte inferior de la pantalla. Varios controles (como los de
 vistas preestablecidas) se eliminan. Se reemplazan las lecturas de coordenadas para X
 con diámetro y radio.
 
-//.La forma de la herramienta del torno
-image::images/axis-lathe-tool.png["Forma de herramienta del torno",align="center"]
+.Modo AXIS para el torno
+image::images/axis-lathe-tool.png["Modo AXIS para el torno",align="center"]
 
 Al presionar 'V' se hace zoom para mostrar el archivo completo, si hay uno cargado.
 
 En el modo de torno, se muestra la forma de la herramienta cargada (si existe).
 
-//.Lathe Tool Shape
+.Lathe Tool Shape
 image::images/axis-lathe-tool.png["Lathe Tool Shape",align="center"]
 
 To change the display to a back tool lathe you need to have both 'LATHE = 1'
 and 'BACK_TOOL_LATHE = 1' in the [DISPLAY] section. This will invert the view
 and put the tool on the back side of the Z axis.
 
-//.Lathe Back Tool Shape
+.Lathe Back Tool Shape
 image::images/axis-back-tool-lathe.png["Lathe Back Tool Shape",align="center"]
 
 == Usando AXIS en el modo de corte de espuma
@@ -765,7 +761,7 @@ en otro. En el plot en vivo, se dibujan líneas entre los puntos correspondiente
 el plano XY y el plano UV. Los comentarios especiales (XY_Z_POS) y (UV_Z_POS)
 establecen las coordenadas Z de estos planos, que por defecto son 0 y 1,5 unidades de máquina.
 
-//.Modo de corte de espuma.
+.Modo de corte de espuma
 image::images/axis-foam_es.png["Modo de corte de espuma",align="center"]
 
 == Configuración avanzada
@@ -776,7 +772,7 @@ se puede utilizar un archivo POSTGUI. Coloque todos los comandos HAL que se cone
 en el archivo de postgui HAL.
 
 Para obtener más información sobre la configuración del archivo ini que puede cambiar la forma en que AXIS
-trabaja, consulte la sección << sec:display-section,Seccion Display>> del capitulo de configuración INI.
+trabaja, consulte la sección << sub:ini:sec:display,Seccion Display>> del capitulo de configuración INI.
 
 === Filtros de programa
 
@@ -813,7 +809,7 @@ tratada como g-code. Un ejemplo de este script está disponible en
 'nc_files/holecircle.py'. Este script crea g-code para perforar una
 serie de agujeros a lo largo de la circunferencia de un círculo.
 
-//.Agujeros circulares
+.Agujeros circulares
 image::images/holes.png["Agujeros circulares",align="center"]
 
 Si la variable de entorno AXIS_PROGRESS_BAR está establecida, entonces las líneas
@@ -930,7 +926,7 @@ HAL comp.ready() is called just after this function returns.
 Las opciones de menú Archivo > Editar ... y Archivo > Editar tabla de herramientas ... estaran
 disponible después de definir el editor en la sección ini [DISPLAY].
 Los valores útiles incluyen EDITOR=gedit y EDITOR=gnome-terminal -e vim.
-Para obtener más información, consulte la sección <<sec:display-section,Sección display>>
+Para obtener más información, consulte la sección <<sub:ini:sec:display,Sección display>>
 del capítulo de Configuración INI.
 
 === Panel de control virtual
@@ -1020,6 +1016,7 @@ bit   IN  axisui.notifications-clear-info
 ----
 
 Axis tiene un pin de entrada Hal que deshabilita/habilita la función 'Pausa/Reanudar'.
+
 ----
 Tipo  Dir Nombre
 bit   IN  axisui.resume-inhibit
@@ -1042,7 +1039,7 @@ cada vez que Axis se actualiza solo. Puede usar esto para actualizar sus propias
 ----
 # función de actualización continua
 def user_live_update():
-    print 'i am printed every update...'
+    print('i am printed every update...')
 ----
 
 === Deshabilitar el cuadro de diálogo Cerrar
@@ -1117,7 +1114,7 @@ root_window.bind('<Key-0>',lambda event: set_feedrate(100))
 ----
 # leer un elemento del archivo ini
 machine = inifile.find('EMC','MACHINE')
-print 'machine name =',machine
+print('machine name =',machine)
 ----
 
 === Leer el estado de linuxcnc
@@ -1125,8 +1122,8 @@ print 'machine name =',machine
 [source,python]
 ----
 # El estado de linuxcnc se puede leer desde s.
-print s.actual_position
-print s.paused
+print(s.actual_position)
+print(s.paused)
 ----
 
 === Cambiar la vista actual
@@ -1249,11 +1246,11 @@ root_window.tk.call('bind','.pane.top.tabs.fmanual.mybutton','<ButtonRelease-1>'
 # funciones llamadas desde los botones
 
 def mybutton_clicked():
-    print 'mybutton was clicked'
+    print('mybutton was clicked')
 def mybutton_pressed():
-    print 'mybutton was pressed'
+    print('mybutton was pressed')
 def mybutton_released():
-    print 'mybutton was released'
+    print('mybutton was released')
 
 # cualquier función llamada desde tcl debe agregarse a TclCommands
 
@@ -1269,8 +1266,8 @@ commands = TclCommands(root_window)
 ----
 # las siguientes variables pueden leerse desde la instancia de vars
 
-print vars.machine.get()
-print vars.emcini.get()
+print(vars.machine.get())
+print(vars.emcini.get())
 
     active_codes            = StringVar
     block_delete            = BooleanVar
@@ -1365,7 +1362,7 @@ root_window.tk.call('.pane.top.tabs.fmanual.mist','configure','-command','hijack
 
 # La nueva función
 def hijacked_command():
-    print 'hijacked mist command'
+    print('hijacked mist command')
 
 # agrega la función a TclCommands
 TclCommands.hijacked_command = hijacked_command
@@ -1429,6 +1426,5 @@ try:
 except Exception as e:
     print(e)
 ----
-
 
 // vim: set syntax=asciidoc:

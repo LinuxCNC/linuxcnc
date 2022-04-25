@@ -1,5 +1,7 @@
 :lang: en
+:toc:
 
+[[cha:mitsub]]
 = Mitsub VFD Driver
 
 :hal: {basebackend@docbook:'':hal}
@@ -16,6 +18,7 @@ VFD to stop if it loses communication if that is desirable. One should always
 have an Estop circuit that kills the power to the unit in case of emergency.
 
 This component is loaded using the halcmd "loadusr" command:
+
 ----
 loadusr -Wn coolant mitsub_vfd spindle=02 coolant=01
 ----
@@ -57,8 +60,9 @@ Where <n> is +mitsub_vfd+ or the name given during loading.
    when drive is at commanded speed (speed-tolerance is set on vfd)
 
  * '<n>.monitor' (bit, in)
-   some models (eg E500) cannot monitor status -set the monitor pin to false
-   in this case pins such as up-to-speed, amps, alarm and status bits are not updated.
+   some models (eg E500) cannot monitor status -set the monitor pin to
+   false in this case pins such as up-to-speed, amps, alarm and status
+   bits are not updated.
 
  * '<n>.motor-cmd' (float, in)
    commanded speed to the VFD (scaled to hertz by default).
@@ -88,8 +92,9 @@ Where <n> is +mitsub_vfd+ or the name given during loading.
    puts the VFD into emergency-stopped status.
 
  * '<n>.status-bit-N' (bit, out)
-   N = 0 to 7, Status bits are user configurable on the VFD. bit 3 should be set to
-   at speed and bit 7 should be set to alarm. others are free to be set as required.
+   N = 0 to 7, Status bits are user configurable on the VFD. bit 3
+   should be set to at speed and bit 7 should be set to alarm. others
+   are free to be set as required.
 
 == HAL example
 
@@ -133,14 +138,17 @@ setp coolant.monitor 1
 === Connecting the Serial Port
 
 The Mitsubishi VFDs have an RJ-45 jack for serial communication. +
-Since they use RS485 protocol,  they can be networked together point to point. +
-This driver was tested using the Opto22 AC7A to convert from RS232 to RS485.
+Since they use RS485 protocol,  they can be networked together point to
+point. +
+This driver was tested using the Opto22 AC7A to convert from RS232 to
+RS485.
 
 === Modbus setup
 
 Referenced manuals:
 
-'communication option reference manual' and 'A500 technical manual' for 500 series. +
+'communication option reference manual' and 'A500 technical manual' for
+500 series. +
 'Fr-A700 F700 E700 D700 technical manual' for the 700 series
 
 The VFD must have PR settings adjusted manually for serial communication. +
@@ -177,3 +185,5 @@ One must power cycle the VFD for some of these to register eg PR 79
    '-no carriage return at end of line.'
 
 //Chris Morley;
+
+// vim: set syntax=asciidoc:

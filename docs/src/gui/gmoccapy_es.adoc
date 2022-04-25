@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 [[cha:gmoccapy]]
 = GMOCCAPY
@@ -97,7 +98,8 @@ Los nombres deben explicar la intención principal de los diferentes archivos IN
 
 Si utiliza una configuración existente en su máquina, simplemente edite su INI de acuerdo con este documento.
 
-IMPORTANTE: si desea utilizar <<gmoccapy:macros, MACROS>>, no olvide configurar la ruta a sus macros o
+[IMPORTANT]
+si desea utilizar <<gmoccapy:macros, MACROS>>, no olvide configurar la ruta a sus macros o
 carpeta de subrutinas como se describe a continuación.
 
 Echemos un vistazo más de cerca al archivo INI y lo que necesita incluir
@@ -105,7 +107,7 @@ para usar gmoccapy en su máquina: +
 
 [[gmoccapy:display-section]]
 === La sección DISPLAY
- 
+
 ----
 [DISPLAY]
 DISPLAY = gmoccapy
@@ -193,7 +195,6 @@ Si nunca usó un panel glade, se recomienda leer la excelente documentación.
 http://www.linuxcnc.org/docs/html/gui/gladevcp.html[Glade VCP]
 
 .Ejemplo
-
 ----
  EMBED_TAB_NAME = DRO
  EMBED_TAB_LOCATION = ntb_user_tabs
@@ -285,15 +286,15 @@ MESSAGE_TYPE = "status", "okdialog", "yesnodialog"
 MESSAGE_PINNAME = es el nombre del grupo de pines hal que se creará
 ----
 
- * 'status' : solo mostrará un mensaje como ventana emergente, usando el 
-   sistema de mensajes de gmoccapy
- * 'okdialog' : mantendrá el foco en el cuadro de diálogo del mensaje y activará un Hal_Pin OUT
-   "-waiting". Cerrar el mensaje restablecerá el pin de espera
- * 'yesnodialog' : mantendrá el foco en el cuadro de diálogo del mensaje y lo activará
-   un bit Hal_Pin OUT "-waiting" y también dará acceso a un bit Hal_Pin Out "-response".
-   Este pin mantendrá 1 si el usuario hace clic en Aceptar, y en todos
-   los otros estados será 0. Al cerrar el mensaje se restablecerá el pin de espera.
-   El pin hal de respuesta permanecerá a 1 hasta que se vuelva a llamar al diálogo.
+* 'status' : solo mostrará un mensaje como ventana emergente, usando el 
+  sistema de mensajes de gmoccapy
+* 'okdialog' : mantendrá el foco en el cuadro de diálogo del mensaje y activará un Hal_Pin OUT
+  "-waiting". Cerrar el mensaje restablecerá el pin de espera
+* 'yesnodialog' : mantendrá el foco en el cuadro de diálogo del mensaje y lo activará
+  un bit Hal_Pin OUT "-waiting" y también dará acceso a un bit Hal_Pin Out "-response".
+  Este pin mantendrá 1 si el usuario hace clic en Aceptar, y en todos
+  los otros estados será 0. Al cerrar el mensaje se restablecerá el pin de espera.
+  El pin hal de respuesta permanecerá a 1 hasta que se vuelva a llamar al diálogo.
 
 .Ejemplo
 ----
@@ -580,7 +581,7 @@ in tool mode:
 
 in edit mode:
 
-* gmoccapy.h-button.button-0 == 
+* gmoccapy.h-button.button-0 ==
 * gmoccapy.h-button.button-1 == reload file
 * gmoccapy.h-button.button-2 == save
 * gmoccapy.h-button.button-3 == save as
@@ -660,7 +661,6 @@ En un lanzamiento futuro esto estara integrado en la página de configuración.
 [width="80%",options="header",cols="^,<,^"]
 |====
 | PIN                               | TIPO          | FUNCION
-|                                   |               |
 | VELOCIDAD                         |               |
 | gmoccapy.spc_jog_vel.increase     | HAL_BIT IN    | Si True, el valor del control deslizante aumentará
 | gmoccapy.spc_jog_vel.decrease     | HAL_BIT IN    | Si True, el valor del control deslizante disminuira
@@ -690,11 +690,13 @@ En un lanzamiento futuro esto estara integrado en la página de configuración.
 Los pines float aceptan valores de 0.0 a 1.0, siendo el valor de porcentaje que
 desea establecer como valor del control deslizante
 
-[AVISO] Si usa ambos tipos de conexión, no conecte el mismo control deslizante a
+[WARNING]
+Si usa ambos tipos de conexión, no conecte el mismo control deslizante a
 ambos pines, ya que las influencias entre los dos no han sido probadas. Diferentes
 deslizadores pueden estar conectados a uno u otro tipo de conexión hal.
 
-[IMPORTANT] Tenga en cuenta que la velocidad de jog depende del estado del botón tortuga,
+[IMPORTANT]
+Tenga en cuenta que la velocidad de jog depende del estado del botón tortuga,
 con diferentes escalas deslizantes dependiendo del modo (tortuga o conejo).
 Por favor, eche un vistazo también a <<gmoccapy:jog-velocity,velocidades jog y pin hal jog-tortuga>> para más
 detalles
@@ -791,15 +793,16 @@ Para usar este pin, debes activarlo en la página de configuración.
 
 === Pines de error
 
- * gmoccapy.error _BIT OUT_
- * gmoccapy.delete-message _BIT IN_
- * gmoccapy.warning-confirm _BIT IN_ Confirms warning dialog like click on OK
+* gmoccapy.error _BIT OUT_
+* gmoccapy.delete-message _BIT IN_
+* gmoccapy.warning-confirm _BIT IN_ Confirms warning dialog like click on OK
 
 gmoccapy.error es un pin de salida, para indicar un error, por lo que una luz puede encenderse o incluso la máquina puede
 ser detenida. Se resetea con el pin gmoccapy.delete-message, que
 elimina el primer error y restablece el pin gmoccapy.error en False una vez que se haya borrado el último error.
 
-NOTA: Los mensajes o las informaciones de usuario no afectarán el pin gmoccapy.error, pero el mensaje gmoccapy.delete
+[NOTE]
+Los mensajes o las informaciones de usuario no afectarán el pin gmoccapy.error, pero el mensaje gmoccapy.delete
 pin borrará el último mensaje si no se muestra ningún error!
 
 [[gmoccapy:user-created-message]]
@@ -934,7 +937,8 @@ Gmoccapy ofrece una medición automática integrada de herramientas. Para usar e
 tendrá que hacer algunos ajustes adicionales y es posible que desee utilizar el
 pin hal que se ofrece para obtener valores en su propio procedimiento ngc de remapeo.
 
-[IMPORTANT] Antes de comenzar la primera prueba, no olvide ingresar
+[IMPORTANT]
+Antes de comenzar la primera prueba, no olvide ingresar
 altura y velocidades de la sonda en la página de configuración! Ver
 <<gmoccapy:tool-measurement, página de configuración de medición de Herramienta>>
 
@@ -1034,16 +1038,11 @@ TOPLEVEL = python/toplevel.py
 Debe copiar los siguientes archivos a su directorio de configuración
 
 Primero cree un directorio 'python' en su carpeta de configuración. Desde
-'su_directorio_linuxcnc-dev/configs/sim/gmoccapy/python' copie:
-'toplevel.py',
-'remap.py' y 
-'stdglue.py' 
-a su carpeta 'config_dir / python'.
+'su_directorio_linuxcnc-dev/configs/sim/gmoccapy/python' copie: 'toplevel.py',
+'remap.py', y 'stdglue.py' a su carpeta 'config_dir / python'.
 
 Desde 'su_directorio_linuxcnc-dev/configs/sim/gmoccapy/macros' copie:
-'on_abort.ngc' y 
-'change.ngc' 
-al directorio especificado como SUBROUTINE_PATH. 
+'on_abort.ngc' y 'change.ngc' al directorio especificado como SUBROUTINE_PATH.
 Vea <<gmocappy:rs274ngc,Seccion RS274NGC>>.
 
 Abra 'change.ngc' con un editor y descomente las siguientes líneas
@@ -1091,7 +1090,7 @@ net tool-prep-loop iocontrol.0.tool-prepare <= iocontrol.0.tool-prepared
 
 Para ingresar a la página deberás hacer click en
 image:images/gmoccapy_settings_button.png[align="left"]
-y dar un código de desbloqueo, que es * 123 * por defecto. Si quieres cambiarlo
+y dar un código de desbloqueo, que es *123* por defecto. Si quieres cambiarlo
 en este momento tendrá que editar el archivo de preferencias oculto. Vea
 <<gmoccapy:display-section, la sección de pantalla>> para más detalles.
 
@@ -1105,10 +1104,11 @@ La página está separada en tres pestañas principales:
 
 En esta pestaña encontrará las siguientes opciones:
 
-Ventana principal::
-    Aquí puede seleccionar cómo desea que comience la GUI. La razón principal de esto fue el deseo de obtener una forma 
-    facil para el usuario de configurar las opciones de inicio sin la necesidad de tocar código.
-    Tienes tres opciones:
+==== Ventana principal
+
+Aquí puede seleccionar cómo desea que comience la GUI. La razón principal de esto fue el deseo de obtener una forma 
+facil para el usuario de configurar las opciones de inicio sin la necesidad de tocar código.
+Tienes tres opciones:
 
 * iniciar como pantalla completa
 * iniciar maximizado
@@ -1120,14 +1120,15 @@ Ventana principal::
 
 * 'Ocultar cursor' permite ocultar el cursor, lo que es muy útil si utilizar una pantalla táctil.
 
-Teclado::
-    Las casillas de verificación permiten al usuario seleccionar si desea que el teclado integrado se muestre de inmediato, +
-    al ingresar al modo MDI, al ingresar a la página de offsets, al widget tooledit o al abrir un programa +
-    en el modo EDITAR. El botón del teclado en la lista de botones inferior no se verá afectado por esta configuración, +
-    para que pueda mostrar u ocultar el teclado presionando el botón. El comportamiento por defecto será establecido por +
-    las casillas de verificación. +
-    +
-    Los valores predeterminados son: +
+==== Teclado
+
+Las casillas de verificación permiten al usuario seleccionar si desea que el teclado integrado se muestre de inmediato, +
+al ingresar al modo MDI, al ingresar a la página de offsets, al widget tooledit o al abrir un programa +
+en el modo EDITAR. El botón del teclado en la lista de botones inferior no se verá afectado por esta configuración, +
+para que pueda mostrar u ocultar el teclado presionando el botón. El comportamiento por defecto será establecido por +
+las casillas de verificación.
+
+Los valores predeterminados son:
 
 [NOTE]
 Si esta sección no es confidencial, no se ha instalado un teclado virtual; los admitidos son 'onboard' y 'matchbox-keyboard'.
@@ -1143,8 +1144,8 @@ el diseño no se ha establecido correctamente, en relacion con la configuración
 'onboard' se puede resolver con un pequeño archivo por lotes con el siguiente contenido:
 
 ----
- #!/bin/bash
- setxkbmap -model pc105 -layout XX -variant basic
+#!/bin/bash
+setxkbmap -model pc105 -layout XX -variant basic
 ----
 
 Las letras XX se tendrán que configurar de acuerdo con su
@@ -1159,9 +1160,10 @@ para que el diseño se establezca automáticamente en el inicio.
 
 Para matchbox-keyboard tendrá que hacer su propio diseño.
 
-On Touch Off::
-    da la opción de mostrar la pestaña de vista previa o de la página de offsets si ingresa en el modo touch off haciendo clic en
-    botón inferior correspondiente.
+==== On Touch Off
+
+da la opción de mostrar la pestaña de vista previa o de la página de offsets si ingresa en el modo touch off haciendo clic en
+botón inferior correspondiente.
 
 * Mostrar vista previa
 * Mostrar offsets
@@ -1169,14 +1171,16 @@ On Touch Off::
 A medida que se muestran las pestañas, puede cambiar entre ambas vistas en
 cualquier caso.
 
-Mostrar pantalla auxiliar::
-    Al hacer clic en este botón se abrirá una ventana adicional. Este botón solo es sensible si un archivo llamado 'Gmoccapy 3.glade'
-    se encuentra en su carpeta de configuración. Puedes construir la pantalla Aux usando Glade.
+==== Mostrar pantalla auxiliar
+
+Al hacer clic en este botón se abrirá una ventana adicional. Este botón solo es sensible si un archivo llamado 'Gmoccapy 3.glade'
+se encuentra en su carpeta de configuración. Puedes construir la pantalla Aux usando Glade.
 
 [WARNING]
 La ventana principal de la pantalla auxiliar debe llamarse 'window2'
 
-Opciones de DRO::
+==== Opciones de DRO
+
 Tiene la opción de seleccionar los colores de fondo de los diferentes estados del DRO.
 Por lo tanto, los usuarios que sufren de protanopia (debilidad roja/verde) pueden seleccionar los colores adecuados
 
@@ -1210,7 +1214,7 @@ permite configurar el tamaño de la fuente DRO; el valor predeterminado es 28; s
 
 'dígitos' +
 establece el número de dígitos del DRO de 1 a 5. +
- 
+
 [NOTE]
 Imperial mostrará un dígito más que métrico; si está en unidades de máquinas imperiales y establece el valor de dígito en 1, no obtendrá ningún dígito en métrico.
 
@@ -1218,7 +1222,7 @@ Imperial mostrará un dígito más que métrico; si está en unidades de máquin
 Si no está activo, un clic del ratón en el DRO no realizará ninguna acción. +
 De forma predeterminada, esta casilla de verificación está activa, por lo que cada clic en cualquier DRO cambiará la lectura DRO de real a relativa a DTG (distancia a recorrer).
 
-Vista previa::
+==== Vista previa
 
 'Tamaño de cuadrícula' Establece el tamaño de cuadrícula de la ventana de vista previa.
 Desafortunadamente, el tamaño *debe establecerse en pulgadas*, incluso si las unidades de su máquina son métricas.
@@ -1258,9 +1262,10 @@ La rueda del ratón seguirá ampliando la vista previa en todos los modos.
 Si selecciona un elemento en la vista previa, el elemento seleccionado será
 tomado como punto central de rotación.
 
-Archivo para cargar en el inicio::
-    Seleccione el archivo que desea cargar en el inicio.
-    En otras GUI, cambiar esto es muy engorroso, porque los usuarios se ven obligados a editar el archivo INI.
+==== Archivo para cargar en el inicio
+
+Seleccione el archivo que desea cargar en el inicio.
+En otras GUI, cambiar esto es muy engorroso, porque los usuarios se ven obligados a editar el archivo INI.
 
 Seleccione el archivo que desea cargar en el inicio. Si se carga un archivo,
 esto puede configurarse presionando el botón actual para evitar que cualquier programa se cargue en
@@ -1270,21 +1275,24 @@ La pantalla de selección de archivos utilizará los filtros que haya configurad
 Si no hay filtros, solo verá los archivos *ngc*. El camino
 se establecerá de acuerdo con la configuración de INI en [DISPLAY]PROGRAM_PREFIX
 
-Saltar a dir::
-    Puede configurar aquí el directorio a donde saltar si presiona el botón correspondiente
-    en el cuadro de diálogo de selección de archivos.
+==== Saltar a dir
+
+Puede configurar aquí el directorio a donde saltar si presiona el botón correspondiente
+en el cuadro de diálogo de selección de archivos.
 
 image::images/gmoccapy_file_selection_dialog_with_keyboard.png["Seleccion de directorio",align="center"]
 
-Temas y sonidos ::
-    Esto le permite al usuario seleccionar qué tema de escritorio aplicar y qué sonidos de error y mensajes deben reproducirse.
-    Por defecto está establecido "Seguir tema del sistema".
+==== Temas y sonidos
+
+Esto le permite al usuario seleccionar qué tema de escritorio aplicar y qué sonidos de error y mensajes deben reproducirse.
+Por defecto está establecido "Seguir tema del sistema".
 
 === Hardware
 
-image::images/gmoccapy_settings_hardware.png["Hardware Settings",align="left"]
+image::images/gmoccapy_settings_hardware.png["Hardware settings",align="left"]
 
-Escalas de hardware MPG::
+==== Escalas de hardware MPG
+
 Para los diferentes pines Hal se conectan a los volantes MPG, puede seleccionar escalas individuales.
 La razón principal de esto fue mi propia prueba para resolver esto a través de conexiones hal, resultando en un
 archivo hal muy complejo. Imagine a un usuario que tiene un volante MPG con 100 ipr y quiere reducir la velocidad máxima
@@ -1298,7 +1306,8 @@ Por defecto, todas las escalas se establecen utilizando el cálculo:
 (MAX - MIN)/100
 ----
 
-Atajos de teclado::
+==== Atajos de teclado
+
 Algunos usuarios desean hacer jog usando los botones del teclado y hay otros que nunca lo permitirán.
 Así que todos pueden elegir si usarlos o no.
 
@@ -1333,7 +1342,7 @@ Hay teclas adicionales para el manejo de mensajes, ver
  * WINDOWS = Borrar el último mensaje
  * <CTRL><SPACE> = Borrar todos los mensajes
 
-Desbloquear opciones::
+==== Desbloquear opciones
 
 Hay tres opciones para desbloquear la página de configuración:
 
@@ -1344,7 +1353,8 @@ Hay tres opciones para desbloquear la página de configuración:
 
 El valor predeterminado es usar el código de desbloqueo (predeterminado = * 123 *)
 
-Husillo::
+==== Husillo
+
 RPM establece las rpm que se utilizarán si el husillo se inicia y no se ha establecido ningún valor de S.
 
 [NOTE]
@@ -1388,14 +1398,16 @@ image::images/gmoccapy_settings_advanced.png["Configuracion avanzada",align="cen
 Si esta parte no es sensible, no tiene una configuración de archivo INI válida
 para utilizar la medición de herramienta.
 
-.Medición de herramientas
+==== Medición de herramientas
+
 Verifique <<gmoccapy:auto-tool-measurement, medición automática de herramientas>>
 
 * Usar la medición automática de herramientas: si se marca, después de cada cambio de herramienta
   se realizará la medición. El resultado se almacenará en la tabla de herramientas y se ejecutará un
   G43 después del cambio.
 
-.Información de sonda
+===== Información de sonda
+
 Las siguientes informaciones se tomaran de las de su archivo INI y se deben proporcionar
 en coordenadas absolutas
 
@@ -1412,7 +1424,8 @@ en coordenadas absolutas
   cero. Luego haga un cambio de herramienta y observe el valor de tool_offset_z, que es el
   valor que debe entrar aquí.
 
-.Las velocidades de la sonda
+===== Velocidades de la sonda
+
 * Vel. Búsqueda = La velocidad para buscar el interruptor. Después del contacto,
   la herramienta volverá a subir y luego volverá hacia la sonda con la velocidad de sonda,
   por lo que obtendrá mejores resultados.
@@ -1421,8 +1434,9 @@ en coordenadas absolutas
   comentado en macros/change.ngc, de lo contrario el usuario tendría que hacer clic
   dos veces en el botón de la sonda)
 
-.Cambiador de herramientas
-Si su cuarto eje 'se utiliza en un cambiador de herramientas, es posible que desee ocultar el DRO
+==== Cambiador de herramientas
+
+Si su cuarto eje se utiliza en un cambiador de herramientas, es posible que desee ocultar el DRO
 y todos los demás botones relacionados con ese eje.
 
 Puedes hacerlo marcando la casilla de verificación, que ocultará:
@@ -1441,7 +1455,8 @@ permitido ejecutar comandos MDI. Si usa NO_FORCE_HOMING no puedes usar
 esta característica, porque nunca se emitirá la señal 'all_homed' necesaria.
 
 [[gmoccapy:message-behavior]]
-.Comportamiento y apariencia de mensajes.
+==== Comportamiento y apariencia de mensajes
+
 Esto mostrará pequeñas ventanas emergentes que muestran el mensaje o el texto de error.
 El comportamiento es muy similar al que utiliza AXIS. Puede eliminar un determinado
 mensaje haciendo clic en el botón Cerrar. Si desea eliminar el último,
@@ -1465,7 +1480,8 @@ Puedes configurar algunas opciones:
    mostrar un mensaje, para que pueda ver los cambios de su configuración sin la necesidad
    para generar un error.
 
-.La opción Ejecutar desde línea
+==== La opción Ejecutar desde línea
+
 Puede permitir o rechazar la ejecución desde línea. Esto pondra al correspondiente
 botón insensible (en gris), por lo que el usuario no podrá utilizar esta
 opción. El valor predeterminado es deshabilitar la ejecución desde la línea.
@@ -1501,17 +1517,17 @@ También cambiará el comportamiento del teclado:
 
 Torno normal:
 
- * Flecha izquierda o NumPad_Left = Z menos
- * Flecha derecha o NumPad_Right = Z más
- * Flecha arriba o NumPad_Up = X menos
- * Flecha abajo o NumPad_Down = X más
+* Flecha izquierda o NumPad_Left = Z menos
+* Flecha derecha o NumPad_Right = Z más
+* Flecha arriba o NumPad_Up = X menos
+* Flecha abajo o NumPad_Down = X más
 
 Torno de herramienta trasera:
 
- * Flecha izquierda o NumPad_Left = Z menos
- * Flecha derecha o NumPad_Right = Z más
- * Flecha arriba o NumPad_Up = X más
- * Flecha abajo o NumPad_Down = X menos
+* Flecha izquierda o NumPad_Left = Z menos
+* Flecha derecha o NumPad_Right = Z más
+* Flecha arriba o NumPad_Up = X más
+* Flecha abajo o NumPad_Down = X menos
 
 El cuadro de información de la herramienta mostrará no solo el desplazamiento Z, sino también el
 offset X y la tabla de herramientas muestra toda la información relevante del torno.
@@ -1572,7 +1588,8 @@ ha creado su archivo de configuración con una versión anterior de StepConfWiza
 Este ha hecho una entrada incorrecta en el archivo INI bajo [TRAJ]MAX_LINEAR_VELOCITY = xxx. 
 Cambia esa entrada a MAX_VELOCITY = xxx
 
-=== Macro no finalizada [[sub:NOT_ENDING_MACROS]]
+[[sub:NOT_ENDING_MACROS]]
+=== Macro no finalizada
 
 Si usas una macro sin movimiento, como esta:
 
@@ -1585,7 +1602,7 @@ G40
 
 G10 L20 P0 X0 Y0
 
-o<zeroxy> endsub 
+o<zeroxy> endsub
 m2
 ---------
 

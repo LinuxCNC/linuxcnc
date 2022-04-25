@@ -22,7 +22,6 @@ number zero as the first character in the number like O100 or o100.
 Numbered O codes must have a unique number for each subroutine,
 
 .Numbering Example
-
 ----
 (the start of o100)
 o100 sub
@@ -90,6 +89,7 @@ o100 sub
     (DEBUG, parameter 1 is [#1])
 o100 endsub
 ----
+
 See the <<gcode:binary-operators,Binary Operators>> and <<sec:overview-parameters,Parameters>> sections for more information.
 
 .O- Call
@@ -130,7 +130,7 @@ be visible to the calling code. Subroutines may also change the value of global
 named parameters.
 
 [[ocode:fanuc-style-programs]]
-=== Fanuc-Style Numbered Programs(((Subroutines, M98, M99)))
+=== Fanuc-Style Numbered Programs(((Subroutines,M98,M99)))
 
 Numbered programs (both main and subprograms), the 'M98' call and
 'M99' return M-codes, and their respective semantic differences are an
@@ -171,18 +171,15 @@ following numbered subprogram defined with `o100`...`M99`.  An
 optional 'L'-word specifies a loop count.
 
 .'M30'
-
 The main program must be terminated with `M02` or `M30` (or `M99`; see
 below).
 
 .'O-' subprogram definition start
-
 Marks the start of a numbered subprogram definition.  The block `O100`
 is similar to `o100 sub`, except that it must be placed later in the
 file than the `M98 P100` calling block.
 
 .'M99' return from numbered subroutine
-
 The block `M99` is analogous to the traditional `o100 endsub` syntax,
 but may only terminate a numbered program (`o100` in this example),
 and may not terminate a subroutine beginning with the `o100 sub`
@@ -193,15 +190,12 @@ following ways:
 
 * The numbered subprogram must follow the `M98` call in the program file.
   The interpreter will throw an error if the subprogram precedes the call block.
-
 * Parameters `#1`, `#2`, ..., `#30` are global and accessible in
   numbered subprograms, similar to higher-numbered parameters in
   traditional style calls.  Modifications to these parameters within
   a subprogram are global modifications, and will be persist after
   subprogram return.
-
 * `M98` subprogram calls have no return value.
-
 * `M98` subprogram call blocks may contain an optional L-word specifying a loop repeat count.
   Without the L-word, the subprogram will execute once only (equivalent to `M98 L1`).
   An `M98 L0` block will not execute the subprogram.
@@ -245,7 +239,7 @@ Note that parameter `#1` is global.  At the end of the main program,
 after updates within `O100` and `O200`, its value will equal `5.25`.
 
 [[ocode:looping]]
-== Looping(((Subroutines, Looping)))
+== Looping(((Subroutines,Looping)))
 
 The 'while loop' has two structures: 'while/endwhile', and 'do/while'. In
 each case, the loop is exited when the 'while' condition evaluates to
@@ -290,7 +284,7 @@ condition. If it is still true, the loop begins again at the top. If
 it is false, it exits the loop.
 
 [[ocode:conditional]]
-== Conditional(((Subroutines, Conditional Loops)))
+== Conditional(((Subroutines,Conditional Loops)))
 
 The 'if' conditional consists of a group of statements with the same 'o' number
 that start with 'if' and end with 'endif'. Optional 'elseif' and 'else' conditions
@@ -346,7 +340,7 @@ O102 endif
 ----
 
 [[ocode:repeat]]
-== Repeat(((Subroutines, Repeat Loop)))
+== Repeat(((Subroutines,Repeat Loop)))
 
 The 'repeat' will execute the statements inside of the
 repeat/endrepeat the specified number of times. The example shows how

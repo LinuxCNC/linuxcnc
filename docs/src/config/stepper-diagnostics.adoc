@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:stepper-diagnostics]]
 = Stepper Diagnostics(((Stepper Diagnostics)))
@@ -139,3 +140,5 @@ o101 endwhile
 ( msg, Done...Z should be exactly .5" above table )
 M2
 ----
+
+// vim: set syntax=asciidoc:

@@ -2,38 +2,34 @@
 :toc:
 
 [[cha:Panneau-Virtuel-Control]]
-
-= PyVCP
+= PyVCP: Panneau de Contrôle Virtuel Python
 
 == Introduction
 
-Panneau virtuel de contrôle en python (**Py**thon **V**irtual **C**ontrol
-**P**anel)
-
-Le panneau de contrôle virtuel pyVCP a été créé pour donner à
+Le panneau virtuel de contrôle en python (**Py**thon **V**irtual **C**ontrol **P**anel) a été créé pour donner à 
 l'intégrateur la possibilité de personnaliser l'interface graphique d'AXIS avec
 des boutons et des indicateurs destinés aux tâches spéciales.
 
 Le coût d'un panneau de contrôle physique est très élevé et il peut
 utiliser un grand nombre de broches d'entrées/sorties. C'est là que le
-panneau virtuel prends l'avantage car il ne coûte rien d'utiliser pyVCP.
+panneau virtuel prends l'avantage car il ne coûte rien d'utiliser PyVCP.
 
 Les panneaux de contrôle virtuels peuvent être utilisés pour tester ou
 monitorer le matériel, les entrées/sorties, remplacer temporairement
 d'autres matériels d'entrées/sorties pendant le déboguage d'une logique
-ladder ou pour simuler un panneau physique, avant de le construire et
-de le câbler vers les cartes électroniques.
+ladder ou pour simuler un panneau physique, avant de le construire et de le câbler vers les cartes électroniques.
 
-L'image suivante montre quelques widgets pyVCP.
+L'image suivante montre quelques widgets PyVCP.
 
+.Python VCP
 image::images/pyvcp_group.png[]
 
-== Construction d'un panneau pyVCP
+== Construction d'un panneau PyVCP
 
-La disposition d'un panneau pyVCP est spécifiée dans un fichier XML
-qui contient les balises des widgets entre <pyvcp> et </pyvcp>. Par
-exemple:
+La disposition d'un panneau PyVCP est spécifiée dans un fichier XML
+qui contient les balises des widgets entre <pyvcp> et </pyvcp>. Par exemple:
 
+[source,xml]
 ----
 <pyvcp>
    <label text="Ceci est un indicateur à LED"/>
@@ -41,54 +37,50 @@ exemple:
 </pyvcp>
 ----
 
-image::images/pyvcp_mypanel_fr.png[]
+.Simple PyVCP LED Panel Example
+image::images/pyvcp_mypanel_fr.png[align="center"]
 
-Si vous placez ce texte dans un fichier nommé tiny.xml et que vous le
-lancez avec:
+Si vous placez ce texte dans un fichier nommé tiny.xml et que vous le lancez avec:
 
 ----
 pyvcp -c panneau tiny.xml
 ----
 
-pyVCP va créer le panneau pour vous, il y inclut deux widgets, un
+PyVCP va créer le panneau pour vous, il y inclut deux widgets, un
 Label avec le texte _Ceci est un indicateur à LED_ et une LED rouge,
 utilisée pour afficher l'état d'un signal HAL de type BIT. Il va aussi
 créer un composant HAL nommé _panneau_ (tous les widgets dans ce
 panneau sont connectés aux pins qui démarrent avec _panneau_). Comme
 aucune balise <halpin> n'était présente à l'intérieur de la balise
-<led>, pyVCP nomme automatiquement la pin HAL pour le widget LED
-panneau.led.0
+<led>, PyVCP nomme automatiquement la pin HAL pour le widget LED panneau.led.0
 
 Pour obtenir la liste des widgets, leurs balises et options, consultez
-<<sec:pyvcp:widgets,la documentation des widgets>>.
+<<sec:Documentation-des-widgets, la documentation des widgets>>.
 
 Un fois que vous avez créé votre panneau, connectez lui les signaux HAL, vers
-et à partir des pins pyVCP et avec la commande habituelle:
+et à partir des pins PyVCP et avec la commande habituelle:
 
 ----
 net <signal-name> <pin-name> <opt-direction> <opt-pin-name>signal-name
 ----
 
-//<<cha:hal-tutorial,le tutoriel de HAL>> - no idea why this fails, should not
-Si vous débutez avec HAL, le tutoriel de HAL
-est vivement recommandé.
+Si vous débutez avec HAL, <<cha:Tutoriel-HAL,le tutoriel de HAL>> est
+vivement recommandé.
 
-== Sécurité avec pyVCP
+== Sécurité avec PyVCP
 
-Certaines parties de pyVCP sont évaluées comme du code Python, elles
+Certaines parties de PyVCP sont évaluées comme du code Python, elles
 peuvent donc exécuter n'importe quelle action disponible dans les
-programmes Python. N'utilisez que des fichiers pyVCP en .xml à partir
-d'une source de confiance.tag
+programmes Python. N'utilisez que des fichiers PyVCP en .xml à partir d'une source de confiance.tag
 
 [[sec:pyvcp-avec-axis]]
-== Utiliser pyVCP avec AXIS(((PyVCP avec Axis)))
+== Utiliser PyVCP avec AXIS(((PyVCP avec Axis)))
 
 Puisque AXIS utilise le même environnement graphique et les même
-outils (Tkinter) que pyVCP, il est possible d'inclure un panneau pyVCP
-sur le côté droit de l'interface utilisateur normale d'AXIS. Un exemple
-typique est présenté ci-dessous.
+outils (Tkinter) que PyVCP, il est possible d'inclure un panneau PyVCP
+sur le côté droit de l'interface utilisateur normale d'AXIS. Un exemple typique est présenté ci-dessous.
 
-Placer le fichier pyVCP XML décrivant le panneau dans le même
+Placer le fichier PyVCP XML décrivant le panneau dans le même
 répertoire que le fichier .ini. Nous voulons afficher la vitesse
 courante de la broche sur un widget barre de progression. Copier le
 code XML suivant dans un fichier appelé broche.xml:
@@ -106,30 +98,37 @@ code XML suivant dans un fichier appelé broche.xml:
 </pyvcp>
 ----
 
-Ici nous avons fait un panneau avec un label _Vitesse broche:_ et un
-widget barre de progression. Nous avons spécifié que la pin HAL
+Ici nous avons fait un panneau avec un label _Vitesse broche:_ et un widget barre de progression. Nous avons spécifié que la pin HAL
 connectée à la barre de progression devait s'appeler _spindle-speed_ et
 régler la valeur maximum de la barre à 5000 (se reporter à la
-<<sec:pyvcp:widgets,documentation des widgets>>, pour toutes
-les options disponibles). Pour faire connaître ce fichier à AXIS et qu'il
-l'appelle au démarrage, nous devons préciser ce qui suit dans la section
-[DISPLAY] du fichier .ini:
+<<sec:Documentation-des-widgets, documentation des widgets>>, pour toutes
+les options disponibles). Pour faire connaître ce fichier à AXIS et qu'ill'appelle au démarrage, nous devons préciser ce qui suit dans la section [DISPLAY] du fichier .ini:
 
 ----
 PYVCP = broche.xml
 ----
 
+If the panel should appear at the bottom of the AXIS user interface
+then we need to specify the following in the [DISPLAY] section of the '.ini' file:
+
+----
+PYVCP_POSITION = BOTTOM
+----
+
+Anything other than BOTTOM or omitting this variable will place the
+PYVCP panel at the right.
+
 Pour que notre widget affiche réellement la vitesse de la broche
 _spindle-speed_, il doit être raccordé au signal approprié de HAL. Le
-fichier .hal qui sera exécuté quand AXIS et pyVCP démarreront doit être
-spécifié, de la manière suivante, dans la section [HAL] du fichier .ini:
+fichier .hal qui sera exécuté quand AXIS et PyVCP démarreront doit être spécifié,
+de la manière suivante, dans la section [HAL] du fichier .ini:
 
 ----
 POSTGUI_HALFILE = broche_vers_pyvcp.hal
 ----
 
-Ce changement lancera la commande HAL spécifiée dans
-_broche_vers_pyvcp.hal_. Dans notre exemple, ce fichier contiendra
+Ce changement lancera la commande HAL spécifiée dans _broche_vers_pyvcp.hal_.
+Dans notre exemple, ce fichier contiendra
 juste la commande suivante:
 
 ----
@@ -138,22 +137,19 @@ net spindle-rpm-filtered  => pyvcp.spindle-speed
 
 ce qui suppose que le signal appelé _spindle-rpm-filtered_ existe
 aussi. Noter que lors de l'exécution avec AXIS, toutes les pins des
-widgets de pyVCP ont des noms commençant par _pyvcp._.
+widgets de PyVCP ont des noms commençant par _pyvcp._.
 
 image::images/pyvcp_AXIS_fr.png[]
 
-Voila à quoi ressemble le panneau pyVCP que nous venons de créer,
-incorporé à AXIS. La configuration _sim/lathe_ fournie en exemple, est
-configurée de cette manière.
+Voila à quoi ressemble le panneau PyVCP que nous venons de créer,
+incorporé à AXIS. La configuration _sim/lathe_ fournie en exemple, est configurée de cette manière.
 
 == Panneaux PyVCP autonomes
 
 Cette section va décrire comment les panneaux PyVCP peuvent être
-affichés par eux même, par l'intermédiaire ou non des contrôleurs
-machine de LinuxCNC.
+affichés par eux même, par l'intermédiaire ou non des contrôleurs machine de LinuxCNC.
 
-Pour charger un panneau PyVCP autonome avec LinuxCNC utiliser cette
-commande:
+Pour charger un panneau PyVCP autonome avec LinuxCNC utiliser cette commande:
 
 ----
 loadusr -Wn monpanneau pyvcp -g WxH+X+Y -c monpanneau <path/>fichier_panneau.xml
@@ -163,32 +159,27 @@ Vous l'utiliserez pour avoir un panneau flottant ou un panneau avec
 une interface graphique autre que Axis.
 
 * '-Wn monpanneau' -
-     Fait attendre à HAL que le composant _monpanneau_ soit chargé
-    (devienne _ready_ en langage HAL), avant d'exécuter d'autres commandes HAL.
-    C'est important parce-que les panneaux PyVCP exportent des pins de HAL
-    ainsi que d'autres composants de HAL qui doivent être présents pour pouvoir
-    se connecter à eux. Noter la lettre *W* en majuscule et la lettre *n* en
-    minuscule. Si vous utilisez l'option -Wn vous devez également utiliser
-    l'option -c pour nommer le panneau.
-
+  Fait attendre à HAL que le composant _monpanneau_ soit chargé
+  (devienne _ready_ en langage HAL), avant d'exécuter d'autres commandes HAL.
+  C'est important parce-que les panneaux PyVCP exportent des pins de HAL
+  ainsi que d'autres composants de HAL qui doivent être présents pour pouvoir
+  se connecter à eux. Noter la lettre *W* en majuscule et la lettre *n* en
+  minuscule. Si vous utilisez l'option -Wn vous devez également utiliser l'option -c pour nommer le panneau.
 * 'pyvcp < -g> < -c> panneau.xml' -
-     Construit le panneau avec la géométrie optionnelle et/ou le nom de panneau
-    depuis le fichier panneau.xml. Le fichier panneau.xml peut avoir n'importe
-    quel nom avec l'extension .xml. Le fichier .xml décrit comment construire
-    le panneau. Il est nécessaire d'ajouter le nom du chemin si le panneau
-    n'est pas dans le répertoire dans lequel se trouve le script HAL.
-
+  Construit le panneau avec la géométrie optionnelle et/ou le nom de panneau
+  depuis le fichier panneau.xml. Le fichier panneau.xml peut avoir n'importe
+  quel nom avec l'extension .xml. Le fichier '.xml' décrit comment construire
+  le panneau. Il est nécessaire d'ajouter le nom du chemin si le panneau
+  n'est pas dans le répertoire dans lequel se trouve le script HAL.
 * '-g <WxH><+X+Y>' -
-     Spécifie la géométrie à utiliser quand le panneau est construit. La
-    syntaxe est _Largeur x Hauteur + Ancrage X + Ancrage Y_. La taille ou la
-    position, ou les deux peuvent être fixés. Le point d'ancrage est le coin
-    supérieur gauche du panneau. Par exemple; -g 250x500+800+0 fixe le
-    panneau à 250 pixels de large, 500 pixels de haut avec le point d'ancrage
-    placé en X800 Y0.
-
+  Spécifie la géométrie à utiliser quand le panneau est construit. La
+  syntaxe est _Largeur x Hauteur + Ancrage X + Ancrage Y_. La taille ou la
+  position, ou les deux peuvent être fixés. Le point d'ancrage est le coin
+  supérieur gauche du panneau. Par exemple; -g 250x500+800+0 fixe le
+  panneau à 250 pixels de large, 500 pixels de haut avec le point d'ancrage placé en X800 Y0.
 * '-c nompanneau' -
-     Indique à PyVCP quel composant appeler et le titre de la fenêtre.
-    Le nom du fichier _nompanneau_ peut être n'importe quel nom sans espace.
+  Indique à PyVCP quel composant appeler et le titre de la fenêtre.
+  Le nom du fichier _nompanneau_ peut être n'importe quel nom sans espace.
 
 Pour charger un panneau PyVCP autonome, sans LinuxCNC utiliser cette commande:
 
@@ -203,11 +194,9 @@ loadusr pyvcp monpanneau.xml
 ----
 
 Vous pourrez utiliser cette commande si vous voulez un panneau sans passer
-par un des contrôleurs machine de LinuxCNC, par exemple pour des tests ou
-une visu autonome.
+par un des contrôleurs machine de LinuxCNC, par exemple pour des tests ou une visu autonome.
 
-La commande loadusr est utilisée quand vous chargez aussi un composant qui
-stoppera HAL depuis la fermeture jusqu'à ce qu'il soit prêt. Si vous avez
+La commande loadusr est utilisée quand vous chargez aussi un composant qui stoppera HAL depuis la fermeture jusqu'à ce qu'il soit prêt. Si vous avez
 chargé un panneau puis chargé Classic Ladder en utilisant la commande
 _loadusr -w classicladder_, CL maintiendra HAL et le panneau ouverts jusqu'à
 ce que vous fermiez Classic Ladder. Le '-Wn' signifie d'attendre que le
@@ -217,8 +206,7 @@ Le -c indique à PyVCP de construire un panneau avec le nom 'monpanneau' en
 utilisant les infos contenues dans le fichier 'monpanneau.xml'.
 Le nom du fichier 'monpanneau.xml' est sans importante mais doit porter
 l'extension .xml. C'est le fichier qui décrit comment construire le panneau.
-Il est nécessaire d'ajouter le nom du chemin si le panneau n'est pas dans
-le répertoire dans lequel se trouve le script HAL.
+Il est nécessaire d'ajouter le nom du chemin si le panneau n'est pas dans le répertoire dans lequel se trouve le script HAL.
 
 Une commande optionnelle à utiliser si vous voulez que le panneau stoppe HAL
 depuis les commandes _Continuer_ / _Quitter_. Après avoir chargé n'importe
@@ -230,30 +218,29 @@ waituser nompanneau
 
 Cette commande indique à HAL d'attendre que le composant _nompanneau_ soit
 fermé avant de continuer avec d'autres commandes. C'est généralement défini
-comme étant la dernière commande, de sorte que HAL s'arrêtera si le panneau
-est fermé.
+comme étant la dernière commande, de sorte que HAL s'arrêtera si le panneau est fermé.
 
-[[sec:pyvcp:widgets]]
-== Documentation des widgets de pyVCP(((Documentation des widgets)))
+[[sec:Documentation-des-widgets]]
+== Documentation des widgets de PyVCP(((Documentation des widgets)))
 
-Les signaux de HAL existent en deux variantes, BIT et FLOAT. pyVCP
+Les signaux de HAL existent en deux variantes, BIT et FLOAT. PyVCP
 peut afficher la valeur d'un signal avec un widget indicateur, ou
 modifier la valeur d'un signal avec un widget de contrôle. Ainsi, il y
-a quatre classes de widgets pyVCP connectables aux signaux de HAL. Une
-cinquième classe de widgets d'aide permet d'organiser et d'appliquer
+a quatre classes de widgets PyVCP connectables aux signaux de HAL. Une
+cinquième classe de widgets d'aide
+permet d'organiser et d'appliquer
 des labels aux panneaux.
 
-- Widgets de signalisation, signaux de type bit: led, rectled
-- Widgets de contrôle, signaux de type bit: button, checkbutton, radiobutton
-- Widgets de signalisation de type nombre: number, s32, u32, bar, meter
-- Widgets de contrôle de type nombre: spinbox, scale, jogwheel
-- Widgets d'aide: hbox, vbox, table, label, labelframe
+* Widgets de signalisation, signaux de type bit: `led`, `rectled`.
+* Widgets de contrôle, signaux de type bit: `button`, `checkbutton`, `radiobutton`.
+* Widgets de signalisation de type nombre: `number`, `s32`, `u32`, `bar`, `meter`.
+* Widgets de contrôle de type nombre: `spinbox`, `scale`, `jogwheel`.
+* Widgets d'aide: `hbox`, `vbox`, `table`, `label`, `labelframe`.
 
 === Syntaxe
 
 Chaque widget sera décrit brièvement, suivi par la forme d'écriture
-utilisée et d'une capture d'écran. Toutes les balises contenues dans la
-balise du widget principal, sont optionnelles.
+utilisée et d'une capture d'écran. Toutes les balises contenues dans la balise du widget principal, sont optionnelles.
 
 === Notes générales
 
@@ -261,56 +248,55 @@ balise du widget principal, sont optionnelles.
 sur les attributs, sont supportées. Par exemple, les deux fragments de
 code XML suivants sont traités de manière identique:
 
+[source,xml]
 ----
 <led halpin="ma-led"/>
 ----
 
 et
 
+[source,xml]
 ----
 <led><halpin>"ma-led"</halpin></led>
 ----
 
 Quand la syntaxe basée sur les attributs est utilisée, les règles
-suivantes sont utilisées pour convertir les valeurs des attributs en
-valeurs Python:
+suivantes sont utilisées pour convertir les valeurs des attributs en valeurs Python:
 
- .  Si le premier caractère de l'attribut est un des suivants: _{(["'_ ,
-   il est évalué comme une expression Python.
- .  Si la chaine est acceptée par int(), la valeur est traitée comme un
-   entier.
- .  Si la chaine est acceptée par float(), la valeur est traitée comme un
-   flottant.
- . Autrement, la chaine est acceptée comme une chaine.
+. Si le premier caractère de l'attribut est un des suivants: _{(["'_ ,
+  il est évalué comme une expression Python.  
+. Si la chaine est acceptée par int(), la valeur est traitée comme un entier.
+. Si la chaine est acceptée par float(), la valeur est traitée comme un
+  flottant.
+. Autrement, la chaine est acceptée comme une chaine.
 
 Quand la syntaxe basée sur les balises est utilisée, le texte entre
 les balises est toujours évalué comme un expression Python.
 
 Les exemples ci-dessous montrent un mélange des deux formats.
 
-=== Commentaires
+.Commentaires
 
 Pour ajouter un commentaire utiliser la syntaxe de xml.
 
+[source,xml]
 ----
 <!-- Mon commentaire -->
 ----
 
-=== Editer un fichier XML
+.Editer un fichier XML
 
 Editer le fichier XML avec un éditeur de texte. La plupart du temps un
-double click sur le nom de fichier permet de choisir
-_ouvrir avec l'editeur de texte_ ou similaire.
+double click sur le nom de fichier permet de choisir _ouvrir avec l'editeur de texte_ ou similaire.
 
-=== Couleurs
+[[pyvcp:colors]]
+.Couleurs
 
 Les couleurs peuvent être spécifiées en utilisant les couleurs RGB de
-X11 soit par le nom, par exemple: _gray75_ ou soit en hexa décimal, par
-exemple: _#0000ff_. Une liste complète est consultable ici:
+X11 soit par le nom, par exemple: _gray75_ ou soit en hexa décimal, par exemple: _#0000ff_. Une liste complète est consultable ici:
 http://sedition.com/perl/rgb.html[http://sedition.com/perl/rgb.html].
 
-Couleurs les plus courantes (les numéros suivant la couleur indiquent
-la nuance de la couleur)
+Couleurs les plus courantes (les numéros suivant la couleur indiquent la nuance de la couleur)
 
 - white  (blanc)
 - black  (noir)
@@ -322,7 +308,7 @@ la nuance de la couleur)
 - purple et purple1 - purple4  (violet/pourpre)
 - gray et gray0 - gray100  (gris)
 
-=== Pins de HAL
+.Pins de HAL
 
 Les pins de HAL fournisse le moyen de connecter les widgets aux autres éléments.
 Quand une pin de HAL est créée pour un widget, il est possible de la _connecter_
@@ -332,6 +318,17 @@ de détails, voir la commande _net_ dans le manuel de HAL.
 === Label
 
 Un label est un texte qui s'affiche sur le panneau.
+
+* '<label></label>' - creates a label
+* '<text>"text"</text>' - the text to put in your label, a blank label can be
+  used as a spacer to align other objects.
+* '<font>("Helvetica",20)</font>' - specify the font and size of the text
+* '<relief>FLAT</relief>' - specify the border around the label ('FLAT',
+  'RAISED', 'SUNKEN') default is 'FLAT'
+* '<bd>n</bd>' - where 'n' is the border width when 'RAISED' or 'SUNKEN' borders
+  are used.
+* '<padx>n</padx>' - where 'n' is the amount of extra horizontal extra space.
+* '<pady>n</pady>' - where 'n' is the amount of extra vertical extra space.
 
 Le label a une pin optionnelle de désactivation en ajoutant:
 _<disable_pin>True</disable_pin>_.
@@ -344,23 +341,72 @@ _<disable_pin>True</disable_pin>_.
 </label>
 ----
 
-Ce code produira:
+Le code ci-dessus donne le résultat suivant:
 
-image::images/pyvcp_label_fr.png[]
+.Simple Label Example
+image::images/pyvcp_label_fr.png[align="center"]
+
+=== Multi_Label
+
+An extension of the text label.
+
+Selectable text label, can display up to 6 label legends when associated bit pin
+is activated.
+
+Attach each legend pin to a signal and get a descriptive label when the signal
+is TRUE.
+
+If more than one legend pin is TRUE, the highest numbered 'TRUE' legend will be
+displayed.
+
+If a disable pin is created with '<disable_pin>True</disable_pin>' and that pin
+is set to true the label changes to a grayed out state.
+
+[source,xml]
+----
+<multilabel>
+    <legends>["Label1", "Label2", "Label3", "Label4", "Label5", "Label6"]</legends>
+    <font>("Helvetica",20)</font>
+    <disable_pin>True</disable_pin>
+</multilabel>
+----
+
+The above example would create the following pins.
+
+----
+pyvcp.multilabel.0.disable
+pyvcp.multilabel.0.legend0
+pyvcp.multilabel.0.legend1
+pyvcp.multilabel.0.legend2
+pyvcp.multilabel.0.legend3
+pyvcp.multilabel.0.legend4
+pyvcp.multilabel.0.legend5
+----
+
+If you have more than one multilabel the pins created would increment the number
+like this 'pyvcp.multilabel.1.legend1'.
 
 === Les leds
 
 Une led est utilisée pour indiquer l'état d'une pin de HAL de type bit. La
-couleur de la led sera on_color quand le signal est vrai et off_color
-autrement.
-* _<halpin>_ définit le nom de la pin, par défaut: _led.n_, où n est un entier.
-* _<size>_ définit la taille de la led, par défaut: 20.
-* _<on_color>_ définit la couleur de la led led quand la pin est vraie,
-par défaut: _green_
-* _<off_color>_ définit la couleur de la led quand la pin est fausse,
-par défaut: _ref_
+couleur de la led sera on_color quand le signal est vrai et off_color autrement.
 
-=== La led ronde
+* '<led></led>' - makes a round LED
+* '<rectled></rectled>' - makes a rectangle LED
+* _<halpin>_ définit le nom de la pin, par défaut: _led.n_, où n est un entier
+  that is incremented for each LED.
+* _<size>_ définit la taille de la led, par défaut: 20. 
+* _<on_color>_ définit la couleur de la led led quand la pin est vraie,
+  par défaut: _green_
+* _<off_color>_ définit la couleur de la led quand la pin est fausse,
+  par défaut: _ref_
+* '<height>n</height>' - sets the height of the LED in pixels
+* '<width>n</width>' - sets the width of the LED in pixels
+* '<disable_pin>false</disable_pin>' - when true adds a disable pin to the led.
+* '<disabled_color>color</disabled_color>' - sets the color of the LED when the
+  pin is disabled.
+
+.La led ronde
 
 [source,xml]
 ----
@@ -372,47 +418,56 @@ par défaut: _ref_
 </led>
 ----
 
-Le résultat du code ci-dessus.
+Le code ci-dessus donne le résultat suivant:
 
-image::images/pyvcp_led.png[]
+.Round LED Example
+image::images/pyvcp_led.png[align="center"]
 
-=== La led rectangulaire
+.La led rectangulaire
 
 C'est une variante du widget _led_.
 
 [source,xml]
 ----
-<vbox>
-    <relief>RIDGE</relief>
-    <bd>6</bd>
-    <rectled>
-        <halpin>"ma-led-rect"</halpin>
-        <height>"50"</height>
-        <width>"100"</width>
-        <on_color>"green"</on_color>
-        <off_color>"red"</off_color>
-    </rectled>
+<vbox> 
+    <relief>RIDGE</relief> 
+    <bd>6</bd> 
+    <rectled> 
+        <halpin>"ma-led-rect"</halpin> 
+        <height>"50"</height> 
+        <width>"100"</width> 
+        <on_color>"green"</on_color> 
+        <off_color>"red"</off_color> 
+    </rectled> 
 </vbox>
 ----
 
-Le code ci-dessus produit cette led, entourée d'un relief.
+Le code ci-dessus produit cette led,
+entourée d'un relief.
 
-image::images/pyvcp_rectled.png[]
+.Simple Rectangle LED Example
+image::images/pyvcp_rectled.png[align="center"]
 
 === Le bouton (button)
 
 Un bouton permet de contrôler une pin de type bit. La pin sera mise vraie
 quand le bouton sera pressé et maintenu enfoncé, elle sera mise fausse
-quand le bouton sera relâché.
+quand le bouton sera relâché. Les boutons peuvent suivre les options de formatage suivantes:
 
-Les boutons peuvent suivre les options de formatage suivantes:
+* <padx>n</padx> - où _n_ est le nombre d'espaces horizontaux supplémentaires
+* <pady>n</pady> - où _n_ est le nombre d'espaces verticaux supplémentaires
+* <activebackground>"color"</activebackground> - Couleur au survol du curseur
+* '<fg> "color"</fg>' - the foreground color.
+* <bg>"color"</bg> - Couleur d'arrière plan du bouton.
+* '<disable_pin>True</disable_pin>' - disable pin.
 
- - <padx>n</padx> où _n_ est le nombre d'espaces horizontaux supplémentaires
- - <pady>n</pady> où _n_ est le nombre d'espaces verticaux supplémentaires
- - <activebackground>"color"</activebackground> Couleur au survol du curseur
- - <bg>"color"</bg> Couleur du bouton
+.Bouton avec texte (Text Button)
 
-==== Bouton avec texte (Text Button)
+A text button controls a 'bit' halpin. The halpin is false until the
+button is pressed then it is true. The button is a momentary button.
+
+The text button has an optional disable pin that is created when you
+add <disable_pin>True</disable_pin>.
 
 [source,xml]
 ----
@@ -423,95 +478,91 @@ Les boutons peuvent suivre les options de formatage suivantes:
 <button>
     <halpin>"Bouton-Abandon"</halpin>
     <text>"Abort"</text>
-</button
+</button>
 ----
 
-Le code ci-dessus produit:
+Le code ci-dessus donne le résultat suivant:
 
-image::images/pyvcp_button.png[]
+.Simple Buttons Example
+image::images/pyvcp_button.png[align="center"]
 
-==== Case à cocher (checkbutton)
+.Case à cocher (checkbutton)
 
 Une case à cocher contrôle une pin de type bit. La pin sera mise vraie quand
-la case est cochée et fausse si la case est décochée.
+la case est cochée et fausse si la case est décochée.  The checkbutton is a
+toggle type button. The Checkbuttons may be set initially as TRUE or FALSE the
+initval field A pin called changepin is also created automatically, which can
+toggle the Checkbutton via HAL, if the value linked is changed, to update the
+display remotely.
 
-Une case non cochée:
+.Unchecked button
+image::images/pyvcp_checkbutton1.png[align="center"]
 
-image::images/pyvcp_checkbutton1.png[]
+.Checked button
+image::images/pyvcp_checkbutton2.png[align="center"]
 
-et une case cochée:
-
-image::images/pyvcp_checkbutton2.png[]
-
-Exemple de code:
-
+.Checkbutton Code Example
 [source,xml]
 ----
 <checkbutton>
     <halpin>"coolant-chkbtn"</halpin>
     <text>"Coolant"</text>
+    <initval>1</initval>
 </checkbutton>
 <checkbutton>
     <halpin>"chip-chkbtn"</halpin>
     <text>"Chips    "</text>
+    <initval>0</initval>
 </checkbutton>
 ----
 
-Le code ci-dessus produit:
+Le code ci-dessus donne le résultat suivant:
 
-image::images/pyvcp_checkbutton.png[]
+.Bouton radio (radiobutton)
+image::images/pyvcp_checkbutton.png[align="center"]
 
-==== Bouton radio (radiobutton)
+The coolant checkbutton is checked. +
+Notice the extra spaces in the Chips text to keep the checkbuttons aligned.
 
-Un bouton radio placera une seule des pins vraie. Les autres
-seront mises fausses.
+.Radiobutton
+
+Un bouton radio placera une seule des pins vraie. Les autres seront mises fausses.
+The initval field may be set to choose the default selection when the panel
+displays. Only one radio button may be set to TRUE (1) or only the highest
+number pin set TRUE will have that value.
 
 [source,xml]
--------------------------------------------------
+----
 <radiobutton>
     <choices>["un","deux","trois"]</choices>
     <halpin>"mon-radiobtn"</halpin>
+    <initval>0</initval>
 </radiobutton>
--------------------------------------------------
+----
 
 Le code ci-dessus donne ce résultat:
 
-image::images/pyvcp_radiobutton_fr.png[]
+.Simple Radiobutton Example
+image::images/pyvcp_radiobutton_fr.png[align="center"]
 
 Noter que dans l'exemple ci-dessus, les pins de HAL seront nommées
 mon-radiobtn.un, mon-radiobtn.deux et mon-radiobtn.trois. Dans l'image
 précédente, 'trois' est la valeur sélectionnée courante.
+Use this tag '<orient>HORIZONTAL</orient>' to display horizontally.
 
 === Affichage d'un nombre (number)
 
 L'affichage d'un nombre peux recevoir les options de formatage suivantes:
 
- - <font>("Font Name",n)</font> où _n_ est la taille de la police
- - <width>n</width> où _n_ est la largeur totale utilisée
- - <justify>pos</justify> où "pos" peut être LEFT, CENTER ou RIGHT
-   (devrait marcher)
- - <padx>n</padx> où "n" est le nombre d'espaces horizontaux supplémentaires
- - <pady>n</pady> où "n" est le nombre d'espaces verticaux supplémentaires
+* <font>("Font Name",n)</font> où _n_ est la taille de la police
+* <width>n</width> où _n_ est la largeur totale utilisée
+* <justify>pos</justify> où "pos" peut être LEFT, CENTER ou RIGHT (devrait marcher)
+* <padx>n</padx> où "n" est le nombre d'espaces horizontaux supplémentaires
+* <pady>n</pady> où "n" est le nombre d'espaces verticaux supplémentaires
 
-==== Number
+.Number
 
 Le widget _number_ affiche la valeur d'un signal de type flottant.
-
-----
-<number>
-    <halpin>"number"</halpin>
-    <font>("Helvetica",24)</font>
-    <format>"+4.4f"</format>
-</number>
-----
-
-Le code ci-dessus donne ce résultat:
-
-image::images/pyvcp_number.png[]
-
-==== Flottant
-
-Le widget number affiche la valeur d'un signal de type flottant.
 
 [source,xml]
 ----
@@ -522,132 +573,105 @@ Le widget number affiche la valeur d'un signal de type flottant.
 </number>
 ----
 
+Le code ci-dessus donne le résultat suivant:
+
+.Simple Number Example
 image::images/pyvcp_number.png[]
 
-<font> est une police de caractères de type Tkinter avec la
-spécification de sa taille. Une police qui peut être agrandie jusqu'à la
-taille 200 est la police _courier 10 pitch_, que vous pouvez spécifier de la
-manière suivante, pour afficher des chiffres réellement grands:
+* '<font>' - est une police de caractères de type Tkinter avec la
+  spécification de sa taille. Une police qui peut être agrandie jusqu'à la
+  taille 200 est la police _courier 10 pitch_, que vous pouvez spécifier de la manière suivante, pour afficher des chiffres réellement grands:
 
+[source,xml]
 ----
-<font>('courier 10 pitch',100)</font>
+<font>("courier 10 pitch",100)</font>
 ----
 
-<format> est un format _style C_, spécifié pour définir le format
-d'affichage du nombre.
+* '<format>' est un format _style C_, spécifié pour définir le format
+  d'affichage du nombre.
 
-==== Nombre s32
+.Nombre s32
 
 Le widget s32 affiche la valeur d'un nombre s32. La syntaxe est la
 même que celle de _number_ excepté le nom qui est <s32>. Il faut
-prévoir une largeur suffisante pour afficher le nombre dans sa
-totalité.
+prévoir une largeur suffisante pour afficher le nombre dans sa totalité.
 
+[source,xml]
 ----
-<s32>
-    <halpin>"simple-number"</halpin>
-    <font>("Helvetica",24)</font>
-    <format>"6d"</format>
-    <width>6</width>
+<s32> 
+    <halpin>"simple-number"</halpin> 
+    <font>("Helvetica",24)</font> 
+    <format>"6d"</format> 
+    <width>6</width> 
 </s32>
 ----
 
+Le code ci-dessus donne le résultat suivant:
+
+.Simple s32 Number Example
 image::images/pyvcp_s32.png[]
 
-==== Nombre u32
+.Nombre u32
 
 Le widget u32 affiche la valeur d'un nombre u32. La syntaxe est la
 même que celle de _number_ excepté le nom qui est <u32>.
 
-=== Affichage d'images
-
-Seul l'affichage d'images au format gif est possible. Toutes les
-images doivent avoir la même taille. Les images doivent être toutes
-dans le même répertoire que le fichier ini (ou dans le répertoire
-courant pour un fonctionnement en ligne de commande avec
-halrun/halcmd).
-
-==== Image Bit
-
-La bascule _image_bit_ bascule entre deux images selon la position
-vraie ou fausse de halpin.
-
-----
-<pyvcp>
-    <image name='fwd' file='fwd.gif'/>
-    <image name='rev' file='rev.gif'/>
-    <vbox>
-        <image_bit halpin='selectimage' images='fwd rev'/>
-    </vbox>
-</pyvcp>
-----
-
-En utilisant les deux images fwd.gif et rev.gif.
-FWD est affiché quand _selectimage_ est fausse
-et REV est affiché quand _selectimage_ est vraie.
-
-.selectimage fausse
-image::images/pyvcp_image01.png[]
-
-.selectimage vraie
-image::images/pyvcp_image02.png[]
-
-
-==== Image u32
-
-La bascule _image_u32_ est la même que _image_bit_ excepté que le
-nombre d'images n'est pratiquement plus limité, il suffit de
-_selectionner_ l'image en ajustant halpin à une valeur entière
-commençant à 0 pour la première image de la liste, à 1 pour la seconde
-image etc.
-
-----
-<pyvcp>
-    <image name='stb' file='stb.gif'/>
-    <image name='fwd' file='fwd.gif'/>
-    <image name='rev' file='rev.gif'/>
-    <vbox>
-        <image_u32 halpin='selectimage' images='stb fwd rev'/>
-    </vbox>
-</pyvcp>
-----
-
-Même résultat mais en ajoutant l'image stb.gif.
-
-.Halpin = 0
-image::images/pyvcp_image_u32_01.png[]
-
-.Halpin = 1
-image::images/pyvcp_image01.png[]
-
-.Halpin = 2
-image::images/pyvcp_image02.png[]
-
-=== Barre de progression (bar)
+.Barre de progression (bar)
 
 Le widget barre de progression affiche la valeur d'un signal FLOAT,
-graphiquement dans une barre de progression et simultanément, en
-numérique.
+graphiquement dans une barre de progression et simultanément, en numérique.
+The color of the bar can be set as one color throughout its range (default
+using fillcolor) or set to change color dependent upon the value of the halpin
+(range1, range2 range3 must all be set, if you only want 2 ranges, set 2 of
+them to the same color).
+
+* <halpin>"my-bar"</halpin> text, sets the pin name, pyvcp.my-bar
+* <min_>0</min_> number, sets the minimum scale
+* <max_>140</max_> number, sets the maximum scale
+* <format>"3.1f"</format> text, sets the number format using python number
+  formatting
+* <bgcolor>"grey"</bgcolor> text, sets the background color
+* <fillcolor>"red"</fillcolor> text, sets the fill color
+* <range1>0,100,"green"</range1> number, number, text, sets the first range and
+  color
+* <range2>101,135,"orange"</range2> number, number, text, sets the first range
+  and color
+* <range3>136, 150,"red"</range3> number, number, text, sets the first range and
+  color
+* <canvas_width>200</canvas_width> number, sets the overall width
+* <canvas_height>50</canvas_height> number, sets the overall height
+* <bar_height>30</bar_height> number, sets the bar height, must be less than
+  canvas_height
+* <bar_width>150</bar_width> number, sets the bar width, must be less than
+  canvas_width
 
 [source,xml]
 ----
 <bar>
-    <halpin>"bar"</halpin>
+    <halpin>"my-bar"</halpin>
     <min_>0</min_>
     <max_>123</max_>
+    <format>"3.1f"</format>
     <bgcolor>"grey"</bgcolor>
     <fillcolor>"red"</fillcolor>
+    <range1>0,100,"green"</range1>
+    <range2>101,135,"orange"</range2>
+    <range3>136, 150,"red"</range3>
+    <canvas_width>200</canvas_width>
+    <canvas_height>50</canvas_height>
+    <bar_height>30</bar_height>
+    <bar_width>150</bar_width>
 </bar>
 ----
 
-Le code ci-dessus donne ce résultat:
+Le code ci-dessus donne le résultat suivant:
 
+.Simple Bar Example
 image::images/pyvcp_bar.png[]
 
-=== Galvanomètre (meter)
+.Galvanomètre (meter)
 
-Le galvanomètre affiche la valeur d'un signal FLOAT dans un affichage
-à aiguille _à l'ancienne_.
+Le galvanomètre affiche la valeur d'un signal FLOAT dans un affichage à aiguille _à l'ancienne_.
 
 [source,xml]
 ----
@@ -666,16 +690,20 @@ Le galvanomètre affiche la valeur d'un signal FLOAT dans un affichage
 </meter>
 ----
 
-Le code ci-dessus donne ce résultat:
+Le code ci-dessus donne le résultat suivant:
 
+.Simple Meter Example
 image::images/pyvcp_meter.png[]
 
-=== Boîte d'incrément (spinbox)
+=== Number Inputs
+
+.Boîte d'incrément (spinbox)
 
 La boîte d'incrément contrôle une pin FLOAT. La valeur de la pin est
 augmentée ou diminuée de la valeur de _resolution_, à chaque pression
 sur une flèche, ou en positionnant la souris sur le nombre puis en
-tournant la molette de la souris.
+tournant la molette de la souris.If the param_pin field is set TRUE(1), a pin will be created that
+can be used to set the spinbox to an initial value and to remotely alter its value without HID input.
 
 [source,xml]
 ----
@@ -683,22 +711,29 @@ tournant la molette de la souris.
     <halpin>"my-spinbox"</halpin>
     <min_>-12</min_>
     <max_>33</max_>
-    <inival>0</inival>
+    <initval>0</initval>
     <resolution>0.1</resolution>
     <format>"2.3f"</format>
     <font>("Arial",30)</font>
+    <param_pin>1</param_pin>
 </spinbox>
 ----
 
-Le code ci-dessus donne ce résultat:
+Le code ci-dessus donne le résultat suivant:
 
+.Simple Spinbox Example
 image::images/pyvcp_spinbox.png[]
 
-=== Curseur (scale)
+.Curseur (scale)
 
-Le curseur contrôle une pin FLOAT. La valeur de la pin est augmentée
+Le curseur contrôle une broche FLOAT ou s32. La valeur de la broche est augmentée
 ou diminuée en déplaçant le curseur, ou en positionnant la souris sur
-le curseur puis en tournant la molette de la souris.
+le curseur puis en tournant la molette de la souris. The 'halpin' will have both '-f'
+and '-i' added to it to form the float and s32 pins. Width is the width
+of the slider in vertical and the height of the slider in horizontal
+orientation. If the param_pin field is set TRUE(1), a pin will be created that
+can be used to set the spinbox to an initial value and to remotely alter its
+value without HID input.
 
 [source,xml]
 ----
@@ -711,6 +746,7 @@ le curseur puis en tournant la molette de la souris.
     <initval>-15</initval>
     <min_>-33</min_>
     <max_>26</max_>
+    <param_pin>1</param_pin>
 </scale>
 <scale>
     <font>("Helvetica",16)</font>
@@ -720,17 +756,22 @@ le curseur puis en tournant la molette de la souris.
     <orient>VERTICAL</orient>
     <min_>100</min_>
     <max_>0</max_>
+    <param_pin>1</param_pin>
 </scale>
 ----
 
-Le code ci-dessus donne ce résultat:
+Le code ci-dessus donne le résultat suivant:
 
+.Simple Scale Example
 image::images/pyvcp_scale.png[]
 
+[NOTE]
+====
 Noter que par défaut c'est min qui est affiché même si il est
 supérieur à max, à moins que min ne soit négatif.
+====
 
-=== Bouton tournant (dial)
+.Bouton tournant (dial)
 
 Le bouton tournant imite le fonctionnement d'un vrai bouton tournant,
 en sortant sur un FLOAT HAL la valeur sur laquelle est positionné le
@@ -738,8 +779,7 @@ curseur, que ce soit en le faisant tourner avec un mouvement
 circulaire, ou en tournant la molette de la souris. Un double click
 gauche augmente la résolution et un double click droit la diminue d'un
 digit. La sortie est limitée par les valeurs min et max. La variable
-cpr fixe le nombre de graduations sur le pourtour du cadran (prudence
-avec les grands nombres).
+cpr fixe le nombre de graduations sur le pourtour du cadran (prudence avec les grands nombres).
 
 [source,xml]
 ----
@@ -755,19 +795,27 @@ avec les grands nombres).
     <dialcolor>"yellow"</dialcolor>
     <edgecolor>"green"</edgecolor>
     <dotcolor>"black"</dotcolor>
+    <param_pin>1</param_pin>
 </dial>
 ----
 
-Le code ci-dessus donne ce résultat:
+Le code ci-dessus donne le résultat suivant:
 
+.Simple Dial Example
 image::images/pyvcp_dial.png[]
 
-=== Manivelle (jogwheel)
+.Manivelle (jogwheel)
 
 La manivelle imite le fonctionnement d'une vraie manivelle,
 en sortant sur une pin FLOAT la valeur sur laquelle est positionné le
-curseur, que ce soit en le faisant tourner avec un mouvement
-circulaire, ou en tournant la molette de la souris.
+curseur, que ce soit en le faisant tourner avec un mouvement circulaire, ou en tournant la molette de la souris.
+
+Optional tags:
+* '<text>"My Text"</text>' displays text
+* '<bgcolor>"grey"</bgcolor> <fillcolor>"green"</fillcolor>' background & active colors
+* '<scale_pin>1</scale_pin>' creates scale text and a FLOAT.scale pin to display jog scale
+* '<clear_pin>1</clear_pin>' creates DRO and a BIT.reset pin to reset DRO. Needs scale_pin 
+  for scaled DRO. shift+click resets DRO also
 
 [source,xml]
 ----
@@ -778,26 +826,93 @@ circulaire, ou en tournant la molette de la souris.
 </jogwheel>
 ----
 
-Le code ci-dessus donne ce résultat:
+Le code ci-dessus donne le résultat suivant:
 
+.Simple Jogwheel Example
 image::images/pyvcp_jogwheel.png[]
 
-== Documentation des containers de pyVCP
+=== Affichage d'images
 
-Les containers sont des widgets qui contiennent d'autres widgets.
+Seul l'affichage d'images au format gif est possible. Toutes les
+images doivent avoir la même taille. Les images doivent être toutes
+dans le même répertoire que le fichier ini (ou dans le répertoire courant pour un fonctionnement en ligne de commande avec
+halrun/halcmd).
 
-=== Bordures
+.Image Bit
+
+La bascule _image_bit_ bascule entre deux images selon la position
+vraie ou fausse de halpin.
+
+[source,xml]
+----
+<image name='fwd' file='fwd.gif'/>
+<image name='rev' file='rev.gif'/>
+<vbox>
+    <image_bit halpin='selectimage' images='fwd rev'/>
+</vbox>
+----
+
+En utilisant les deux images fwd.gif et rev.gif. 
+FWD est affiché quand _selectimage_ est fausse 
+et REV est affiché 
+quand _selectimage_ est vraie. 
+
+.Selectimage False Example
+image::images/pyvcp_image01.png[]
+
+.Selectimage True Example
+image::images/pyvcp_image02.png[]
+
+.Image u32
+
+La bascule _image_u32_ est la même que _image_bit_ excepté que le
+nombre d'images n'est pratiquement plus limité, il suffit de
+_selectionner_ l'image en ajustant halpin à une valeur entière
+commençant à 0 pour la première image de la liste, à 1 pour la seconde image etc.
+
+[source,xml]
+----
+<image name='stb' file='stb.gif'/>
+<image name='fwd' file='fwd.gif'/>
+<image name='rev' file='rev.gif'/>
+<vbox>
+    <image_u32 halpin='selectimage' images='stb fwd rev'/>
+</vbox>
+----
+
+The above code produced the following example
+Même résultat mais en ajoutant l'image stb.gif.
+
+.Simple image_u32 Example with halpin=0
+image::images/pyvcp_image_u32_01.png[]
+
+.Simple image_u32 Example withhalpin=1
+image::images/pyvcp_image01.png[]
+
+.Simple image_u32 Example withhalpin=2
+image::images/pyvcp_image02.png[]
+
+Notice that the default is the min even though it is set higher than
+max unless there is a negative min.
+
+=== Conteneurs
+
+Les containers sont des widgets qui contiennent d'autres widgets. Containers are used
+to group other widgets.
+
+.Bordures
 
 Le container bordure est spécifié avec deux balises utilisées ensembles.
 La balise <relief> spécifie le type de bordure et la balise <bd> spécifie la
 largeur de la bordure.
 
 <relief>type</relief>::
-    La valeur de _type_ peut être: FLAT, SUNKEN, RAISED, GROOVE, ou RIDGE
+  La valeur de _type_ peut être: FLAT, SUNKEN, RAISED, GROOVE, ou RIDGE
 
 <bd>n</bd>::
-    La valeur de *n* fixe la largeur de la bordure.
+  La valeur de *n* fixe la largeur de la bordure.
 
+[source,xml]
 ----
 <hbox>
     <button>
@@ -805,25 +920,21 @@ largeur de la bordure.
         <text>"FLAT"</text>
         <bd>3</bd>
     </button>
-
     <button>
         <relief>SUNKEN</relief>
         <text>"SUNKEN"</text>
         <bd>3</bd>
     </button>
-
     <button>
         <relief>RAISED</relief>
         <text>"RAISED"</text>
         <bd>3</bd>
     </button>
-
     <button>
         <relief>GROOVE</relief>
         <text>"GROOVE"</text>
         <bd>3</bd>
     </button>
-
     <button>
         <relief>RIDGE</relief>
         <text>"RIDGE"</text>
@@ -832,9 +943,39 @@ largeur de la bordure.
 </hbox>
 ----
 
+Le code ci-dessus donne le résultat suivant:
+
+.Containers Borders Showcase
 image::images/pyvcp_borders.png[]
 
-=== Hbox
+.Fill
+
+Container fill are specified with the '<boxfill fill=""/>' tag. Valid entries
+are none, x, y and both. The x fill is a horizontal fill and the y fill is a
+vertical fill
+
+`<boxfill fill ="style"/>`::
+  Where 'style' is none, x, y, or both. Default is x for Vbox and y for Hbox.
+
+.Anchor
+
+Container anchors are specified with the <boxanchor anchor=""/> tag. The anchor
+specifies where to position each slave in its parcel. Valid entries are center,
+n, s, e, w, for center, north, south, east and west. Combinations like sw, se,
+nw and ne are also valid.
+
+`<boxanchor anchor="position"/>`::
+  Where 'position' is center, n, s, e, w, ne, nw, se or sw. Default is center.
+
+.Expand
+
+Container expand is specified with the boolean <boxexpand expand=""/> tag.
+Valid entries are yes, no.
+
+`<boxexpand expand="boolean"/>`::
+  Where 'boolean' is either yes or no. Default is yes.
+
+.Hbox
 
 Utilisez une Hbox lorsque vous voulez aligner les widgets,
 horizontalement, les uns à côtés des autres.
@@ -851,17 +992,17 @@ horizontalement, les uns à côtés des autres.
 </hbox>
 ----
 
+Le code ci-dessus donne le résultat suivant:
+
+.Simple hbox Example
 image::images/pyvcp_hbox.png[]
 
-Á l'intérieur d'une Hbox, il est possible d'utiliser les balises
-_<boxfill fill=/>_, _<boxanchor anchor=/>_ et _<boxexpand expand=/>_ pour
+Á l'intérieur d'une Hbox, il est possible d'utiliser les balises _<boxfill fill=/>_, _<boxanchor anchor=/>_ et _<boxexpand expand=/>_ pour
 choisir le comportement des éléments contenus dans la boîte,
 lors d'un redimensionnement de la fenêtre. Pour des détails sur le
-comportement de fill, anchor, et expand, référez vous au manuel du pack
- Tk, _pack(3tk)_. Valeurs par défaut, _fill='y'_, _anchor='center'_,
-_expand='yes'_.
+comportement de fill, anchor, et expand, référez vous au manuel du pack Tk, _pack(3tk)_. Valeurs par défaut, _fill='y'_, _anchor='center'_, _expand='yes'_.
 
-=== Vbox
+.Vbox
 
 Utilisez une Vbox lorsque vous voulez aligner les widgets
 verticalement, les uns au dessus des autres.
@@ -878,18 +1019,17 @@ verticalement, les uns au dessus des autres.
 </vbox>
 ----
 
+Le code ci-dessus donne le résultat suivant:
 
+.Simple vbox Example
 image::images/pyvcp_vbox.png[]
 
-Á l'intérieur d'une Vbox, vous pouvez utiliser les balises
-_<boxfill fill=/>_, _<boxanchor anchor=/>_ et _<boxexpand expand=/>_ pour
+Á l'intérieur d'une Vbox, vous pouvez utiliser les balises _<boxfill fill=/>_, _<boxanchor anchor=/>_ et _<boxexpand expand=/>_ pour
 choisir le comportement des éléments contenus dans la boîte,
 lors d'un redimensionnement de la fenêtre. Pour des détails sur le
-comportement de fill, anchor, et expand, référez vous au manuel du pack
- Tk, _pack(3tk)_. Valeurs par défaut, _fill='y'_, _anchor='center'_,
-_expand='yes'_.
+comportement de fill, anchor, et expand, référez vous au manuel du pack Tk, _pack(3tk)_. Valeurs par défaut, _fill='y'_, _anchor='center'_, _expand='yes'_.
 
-=== Labelframe
+.Labelframe
 
 Un labelframe est un cadre entouré d'un sillon et un label en haut à
 gauche.
@@ -900,29 +1040,31 @@ gauche.
 
 [source,xml]
 ----
-<labelframe text="Label: Leds groupées">
+<labelframe text="Group Title">
     <font>("Helvetica",16)</font>
     <hbox>
-    <led/>
     <led/>
     <led/>
     </hbox>
 </labelframe>
 ----
 
+Le code ci-dessus donne le résultat suivant:
+
+.Simple labelframe Example
 image::images/pyvcp_labelframe_fr1.png[]
 
-=== Table
+.Table
 
 Une table est un container qui permet d'écrire dans une grille de
-lignes et de colonnes. Chaque ligne débute avec la balise _<tablerow/>_
-. Un widget contenu peut être en lignes ou en colonnes par
- l'utilisation de la balise _<tablespan rows= cols=/>_. Les bordures
+lignes et de colonnes. Chaque ligne débute avec la balise _<tablerow/>_.
+Un widget contenu peut être en lignes ou en colonnes par
+l'utilisation de la balise _<tablespan rows= cols=/>_. Les bordures
 des cellules contenant les widgets _sticky_ peuvent
- être réglées grâce à l'utilisation de la balise _<tablesticky sticky=/>_.
+être réglées grâce à l'utilisation de la balise _<tablesticky sticky=/>_.
 Une table flexible peut s'étirer sur ses lignes et ses colonnes (sticky).
 
-Exemple:
+.Table Code Example
 [source,xml]
 ----
 <table flexible_rows="[2]" flexible_columns="[1,4]">
@@ -951,17 +1093,20 @@ Exemple:
 </table>
 ----
 
+Le code ci-dessus donne le résultat suivant:
+
+.Table Example
 image::images/pyvcp_table.png[]
 
-=== Onglets (Tabs)
+.Onglets (Tabs)
 
-Une interface à onglets permet d'économiser l'espace en créant un container pour
-chaque nom d'onglet (tabs). Une seule section _tabs_ peut exister, les _tabs_ ne
-peuvent pas être imbriqués ni empilés. La largeur de l'onglet le plus large,
-determine la largeur des onglets.
+Une interface à onglets permet d'économiser l'espace en créant un container pour chaque nom d'onglet (tabs). Une seule section _tabs_ peut exister, les _tabs_ ne peuvent pas être imbriqués ni empilés. La largeur de l'onglet le plus large, determine la largeur des onglets.
 
 [source,xml]
 ----
+<tabs>
+    <names> ["spindle","green eggs"]</names>
+</tabs>
 <tabs>
     <names>["Spindle", "Green Eggs", "Ham"]</names>
     <vbox>
@@ -986,4 +1131,13 @@ determine la largeur des onglets.
 </tabs>
 ----
 
-image::images/pyvcp_tabs1.png[] image::images/pyvcp_tabs2.png[] image::images/pyvcp_tabs3.png[]
+Le code ci-dessus donne le résultat suivant montrant chaque onglet sélectionné:
+
+image::images/pyvcp_tabs1.png[]
+
+image::images/pyvcp_tabs2.png[]
+
+.Simple Tabs Example
+image::images/pyvcp_tabs3.png[]
+
+// vim: set syntax=asciidoc:

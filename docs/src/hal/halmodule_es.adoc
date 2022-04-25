@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 [[cha:halmodule]]
 = Crear Componentes Python de Espacio de Usuario
@@ -31,25 +32,25 @@ Copie el listado anterior en un archivo llamado "passthrough", hágalo
 ejecutable ('chmod +x'), y colóquelo en su '$PATH'. Luego, pruébelo:
 
 ----
-Halrun
+halrun
 
 halcmd: loadusr passthrough
 
 halcmd: show pin
 
-    Component Pins: 
-    Owner Type  Dir     Value  Name 
-     03   float IN          0  passthrough.in 
-     03   float OUT         0  passthrough.out 
+    Component Pins:
+    Owner Type  Dir     Value  Name
+     03   float IN          0  passthrough.in
+     03   float OUT         0  passthrough.out
 
 halcmd: setp passthrough.in 3.14
 
 halcmd: show pin
 
-    Component Pins: 
-    Owner Type  Dir     Value  Name 
-     03   float IN       3.14  passthrough.in 
-     03   float OUT      3.14  passthrough.out 
+    Component Pins:
+    Owner Type  Dir     Value  Name
+     03   float IN       3.14  passthrough.in
+     03   float OUT      3.14  passthrough.out
 ----
 
 == Componentes de espacio de usuario y retrasos
@@ -169,14 +170,20 @@ para completar el proceso de apagado.
 === component_exists
 
 Existencia del componente especificado en este momento +
-Ejemplo: +
-hal.component_exists("testpanel") +
+Ejemplo:
+
+----
+hal.component_exists("testpanel")
+----
 
 === component_is_ready
 
 Componente especificado listo en este momento +
-Ejemplo: +
-hal.component_is_ready("testpanel") +
+Ejemplo:
+
+----
+hal.component_is_ready("testpanel")
+----
 
 === get_msg_level
 
@@ -185,19 +192,25 @@ Nivel msg de tiempo real actual.
 === set_msg_level
 
 Establecer nivel msg de tiempo real. +
-usado para informacion de depuracion. +
+usado para informacion de depuracion.
 
 === connect
 
 Conecta un pin a una señal. +
-ejemplo: +
+Ejemplo:
+
+----
 hal.connect("pinname","signal_name")
+----
 
 === get_value
 
 leer pin, parametro o señal directamente. +
-ejemplo: +
-value = hal.get_value("iocontrol.0.emc-enable-in") +
+Ejemplo:
+
+----
+value = hal.get_value("iocontrol.0.emc-enable-in")
+----
 
 === get_info_pins()
 
@@ -212,6 +225,7 @@ pinDirection1 = listOfDicts[0].get('DIRECTION')
 ----
 
 === get_info_signals()
+
 returns a list of dicts of all system signals.
 
 [source,python]
@@ -233,95 +247,111 @@ paramName1 = listOfDicts[0].get('NAME')
 paramValue1 = listOfDicts[0].get('VALUE')
 ----
 
-
 === new_signal
+
 Crea una nueva señal del tipo especificado. +
-ejemplo "+
-hal.new_sig("nombre-de-la-señal",hal.HAL_BIT)
+Ejemplo:
+
+----
+hal.new_sig("signalname",hal.HAL_BIT)
+----
 
 === pin_has_writer
 
 El pin especificado tiene un pin de manejo conectado +
-Devuelve verdadero o falso. +
+Devuelve verdadero o falso.
+
+----
 h.in.pin_has_writer()
+----
 
 === get_name
+
 Obtener nombre de objeto HAL +
-h.in.get_name() +
 devuelve una cadena
 
+----
+h.in.get_name()
+----
+
 === get_type
+
 Obtener tipo de objeto HAL +
-h.in.get_type() +
 devuelve un entero
+
+----
+h.in.get_type()
+----
 
 === get_dir
+
 Obtener tipo de direccion de objeto HAL +
-h.in.get_dir() +
 devuelve un entero
 
+----
+h.in.get_dir()
+----
+
 === get
+
 Obtener valor del objeto HAL +
+----
 h.in.get()
+----
 
 === set
+
 Establecer valor del objeto HAL +
+----
 h.out.set(10)
+----
 
 === is_pin
+
 el objeto es pin o parametro? +
-h.in.is_pin() +
 devuelve bool
+----
+h.in.is_pin()
+----
 
 === sampler_base
 
-TODO +
+TODO
 
 === stream_base
 
-TODO +
+TODO
 
 === stream
 
-TODO +
-
+TODO
 
 === set_p
 
 Establecer un valor en cualquier pin HAL. +
-ejemplo: +
-hal.set_p("pinname","10") +
+ejemplo:
+
+----
+hal.set_p("pinname","10")
+----
 
 == Constantes
 
 Úselas para especificar detalles con el valor que representan.
 
 * HAL_BIT
-
 * HAL_FLOAT
-
 * HAL_S32
-
 * HAL_U32
-
 * HAL_IN
-
 * HAL_OUT
-
 * HAL_RO
-
 * HAL_RW
-
 * MSG_NONE
-
 * MSG_ALL
-
 * MSG_DBG
-
 * MSG_ERR
-
 * MSG_INFO
-
 * MSG_WARN
 
 == Información del sistema
@@ -329,14 +359,12 @@ hal.set_p("pinname","10") +
 Leer estas variables para obtener información sobre el sistema en tiempo real.
 
 * is_kernelspace
-
 * is_rt
-
 * is_sim
-
 * is_userspace
 
 == Usar con hal_glib en el handler GladeVCP
+
 GladeVCP usa la biblioteca hal_glib, que puede usarse para conectar una señal "observador" en un pin de entrada HAL. +
 Esta señal se puede usar para registrar una función a llamar cuando el pin HAL cambia de estado. +
 
@@ -349,6 +377,7 @@ import hal
 ----
 
 Luego haga un pin y conecte una señal 'value-changed' (el observador) a una llamada de función:
+
 [source,python]
 ----
 class HandlerClass:
@@ -358,6 +387,7 @@ class HandlerClass:
 ----
 
 Y tener una función que se llamará:
+
 [source,python]
 ----
     def _on_example_trigger_change(self,pin,userdata=None):
@@ -370,6 +400,7 @@ Y tener una función que se llamará:
 ----
 
 == Usar con hal_glib en el handler QtVCP
+
 QtVCP usa la biblioteca hal_glib, que puede usarse para conectar una señal "observador" en un pin de entrada HAL. +
 Esta señal se puede usar para registrar una función a llamar cuando el pin HAL cambia de estado. +
 
@@ -381,6 +412,7 @@ import hal
 ----
 
 Luego haga un pin y conecte una señal 'value_changed' (el observador) a una llamada de función:
+
 [source,python]
 ----
     ########################
@@ -396,6 +428,7 @@ Luego haga un pin y conecte una señal 'value_changed' (el observador) a una lla
 
 Y tener una función que se llamará. +
 Esto muestra formas de obtener el valor y la información del pin. +
+
 [source,python]
 ----
     #######################
@@ -422,7 +455,7 @@ Esto muestra formas de obtener el valor y la información del pin. +
 * Adjunte un módulo LCD compatible con http://lcdproc.omnipotent.net/[LCDProc]-
   y úselo para mostrar una lectura digital con la información que elija
   (Nombre del paquete de Ubuntu "lcdproc", en el repositorio universo)
-* Crear un panel de control virtual utilizando cualquier biblioteca GUI compatible con
-  Python (gtk, qt, wxwindows, etc.)
+* Crear un panel de control virtual utilizando cualquier biblioteca GUI
+  compatible con Python (gtk, qt, wxwindows, etc.)
 
 // vim: set syntax=asciidoc:

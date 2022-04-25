@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 [[cha:hal-examples]]
 = Ejemplos HAL
@@ -73,7 +74,7 @@ En este ejemplo, se supone que está usando su propia
 configuración y desea agregar la ventana HAL Manual Toolchange.
 El cambio manual de herramientas HAL es principalmente útil si tiene herramientas preestablecidas y
 almacena los offsets en la tabla de herramientas. Si necesita hacer touch off para
-cada cambio de herramienta, entonces es mejor dividir su código g. 
+cada cambio de herramienta, entonces es mejor dividir su código g.
 Para usar la ventana HAL Manual Toolchange básicamente tiene que cargar el
 componente hal_manualtoolchange y luego enviar el 'cambio de herramienta' de iocontrol a
 el "cambio" de hal_manualtoolchange y devolver el cambio de hal_manualtool
@@ -84,7 +85,7 @@ Este es un ejemplo de cambio de herramienta manual 'con'
 el componente HAL Manual Toolchange:
 
 ----
-loadusr -W hal_manualtoolchange 
+loadusr -W hal_manualtoolchange
 net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change
 net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed
 net external-tool-changed hal_manualtoolchange.change_button <= parport.0.pin-12-in
@@ -117,27 +118,27 @@ valor correcto. Agregue lo siguiente a su archivo custom.hal.
 Carga de componentes de tiempo real.
 
 ----
-loadrt ddt count=1 
-loadrt mult2 count=1 
-loadrt abs count=1 
+loadrt ddt count=1
+loadrt mult2 count=1
+loadrt abs count=1
 ----
 
 Agregue las funciones a un hilo para que se actualicen.
 
 ----
-addf ddt.0 servo-thread 
-addf mult2.0 servo-thread 
-addf abs.0 servo-thread 
+addf ddt.0 servo-thread
+addf mult2.0 servo-thread
+addf abs.0 servo-thread
 ----
 
 Haga las conexiones.
 
 ----
-setp mult2.in1 60 
-net xpos-cmd ddt.0.in 
-net X-IPS mult2.0.in0 <= ddt.0.out 
-net X-ABS abs.0.in <= mult2.0.out 
-net X-IPM abs.0.out 
+setp mult2.in1 60
+net xpos-cmd ddt.0.in
+net X-IPS mult2.0.in0 <= ddt.0.out
+net X-ABS abs.0.in <= mult2.0.out
+net X-IPM abs.0.out
 ----
 
 En esta última sección, se ha configurado mult2.0.in1 a 60 para convertir
@@ -154,9 +155,9 @@ La siguiente figura muestra el resultado cuando el eje X se mueve a 15
 IPM en la dirección negativa. Tenga en cuenta que podemos obtener el valor absoluto
 desde el pin abs.0.out o la señal X-IPM.
 
-[[cap:hal-velocity-example]](((HAL Ejemplo Velocidad)))
-//.Ejemplo cálculo de velocidad
-image:images/velocity-01.png["Ejemplo Velocidad Screenshot"]
+[[cap:hal-velocity-example]]
+.HAL: Ejemplo Velocidad(((HAL:Ejemplo Velocidad)))
+image::images/velocity-01.png["HAL: Ejemplo Velocidad"]
 
 == Arranque suave details
 
@@ -182,26 +183,26 @@ Coloque lo siguiente en un archivo de texto llamado softstart.hal. Si no está
 familiarizado con Linux, coloque el archivo en su directorio de usuario.
 
 ----
-loadrt threads period1=1000000 name1=thread  
-loadrt siggen  
-loadrt lowpass  
-loadrt limit2  
-loadrt limit3  
-net square siggen.0.square => lowpass.0.in limit2.0.in limit3.0.in  
-net lowpass <= lowpass.0.out  
-net limit2 <= limit2.0.out  
-net limit3 <= limit3.0.out  
-setp siggen.0.frequency .1  
-setp lowpass.0.gain .01  
-setp limit2.0.maxv 2  
-setp limit3.0.maxv 2  
-setp limit3.0.maxa 10  
-addf siggen.0.update thread  
-addf lowpass.0 thread  
-addf limit2.0 thread  
-addf limit3.0 thread  
-start  
-loadusr halscope 
+loadrt threads period1=1000000 name1=thread
+loadrt siggen
+loadrt lowpass
+loadrt limit2
+loadrt limit3
+net square siggen.0.square => lowpass.0.in limit2.0.in limit3.0.in
+net lowpass <= lowpass.0.out
+net limit2 <= limit2.0.out
+net limit3 <= limit3.0.out
+setp siggen.0.frequency .1
+setp lowpass.0.gain .01
+setp limit2.0.maxv 2
+setp limit3.0.maxv 2
+setp limit3.0.maxa 10
+addf siggen.0.update thread
+addf lowpass.0 thread
+addf limit2.0 thread
+addf limit3.0 thread
+start
+loadusr halscope
 ----
 
 Abra una ventana de terminal y ejecute el archivo con el siguiente comando.
@@ -226,7 +227,7 @@ comenzara a correr y cuando termine verá las trazas en el osciloscopio.
 Para separar las señales para que pueda verlas mejor, haga clic en un canal y
 luego use el control deslizante Pos en el cuadro Vertical para establecer las posiciones.
 
-[[cap:Softstart]]
+[[fig:softstart]]
 image::images/softstart-scope.png["Arranque suave"]
 
 To see the effect of changing the set point values of any of the
@@ -281,8 +282,6 @@ addf parport.0.write fast
 net winder-step parport.0.pin-02-out <= stepgen.0.step
 net winder-dir parport.0.pin-03-out <= stepgen.0.dir
 net run-stepgen stepgen.0.enable <= winder.start_button
-
-
 
 # iniciar los hilos
 start

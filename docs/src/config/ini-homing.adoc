@@ -15,13 +15,14 @@ Linuxcnc can be homed by eye (alignment marks), with switches, with switches and
 Homing seems simple enough - just move each joint to a known location,
 and set LinuxCNC's internal variables accordingly.
 However, different machines have different requirements, and homing is actually quite
-complicated. 
+complicated.
 
 [NOTE]
-While it is possible to use linuxcnc without homing switches/home procedures or limit switches, 
-It defeats the extra security of the soft limits. 
+While it is possible to use linuxcnc without homing switches/home procedures or limit switches,
+It defeats the extra security of the soft limits.
 
 == Prerequisite
+
 Homing relies on some fundamental machine assumptions.
 
 * The negative and positive directions are based on <<sec:machine-configurations,Tool Movement>> which can be different
@@ -79,9 +80,7 @@ which is probably easiest to remember. Do this by setting MIN_LIMIT = 0 and make
 This example shows a maximum limit switch and a combined minimum limit/home switch.
 
 .Demonstrative Shared Switch Layout
-
 image::images/HomeAxisTravel_V3.png["Example shared Home Limit Switch layout",align="center"]
-
 
 * A is the negative soft limit 
 * B is the G53 machine coordinate Origin
@@ -113,7 +112,7 @@ image::images/emc2-motion-homing-diag.png["Homing Sequences",align="center"]
 The following determines exactly how the home sequence behaves.
 They are defined in an [JOINT_n] section of the inifile.
 
-[width="80%", options="header", cols="4*^"]
+[width="80%",options="header",cols="4*^"]
 |==========================================================
 |Homing Type      |HOME_SEARCH_VEL |HOME_LATCH_VEL    |HOME_USE_INDEX
 |Immediate        |0          |0            |NO
@@ -125,7 +124,7 @@ They are defined in an [JOINT_n] section of the inifile.
 [NOTE]
 Any other combinations may result in an error.
 
-=== HOME_SEARCH_VEL (((HOME SEARCH VEL)))
+=== HOME_SEARCH_VEL(((HOME SEARCH VEL)))
 
 This variable has units of machine-units per second.
 
@@ -145,7 +144,7 @@ overshoot enough to hit a limit switch or crash into the end of travel.
 On the other hand, if HOME_SEARCH_VEL is too low, homing can take a
 long time.
 
-=== HOME_LATCH_VEL (((HOME LATCH VEL)))
+=== HOME_LATCH_VEL(((HOME LATCH VEL)))
 
 This variable has units of machine-units per second.
 
@@ -174,7 +173,7 @@ HOME_OFFSET to the HOME position. If the HOME_FINAL_VEL is missing from
 the ini file, then the maximum joint speed is used to make this move.
 The value must be a positive number.
 
-=== HOME_IGNORE_LIMITS (((HOME IGNORE LIMITS)))
+=== HOME_IGNORE_LIMITS(((HOME IGNORE LIMITS)))
 
 Can hold the values YES / NO. The default value for this parameter is NO.
 This flag determines whether LinuxCNC will ignore the limit switch input
@@ -185,7 +184,7 @@ will ignore the limit switch input for this joint while homing. To use only
 one input for all homing and limits you will have to block the limit signals
 of the joints not homing in HAL and home one joint at a time.
 
-=== HOME_USE_INDEX (((HOME USE INDEX)))
+=== HOME_USE_INDEX(((HOME USE INDEX)))
 
 Specifies whether or not there is an index pulse. If the flag is true
 (HOME_USE_INDEX = YES), LinuxCNC will latch on the rising edge of the index
@@ -197,15 +196,14 @@ HOME_LATCH_VEL). The default value is NO.
 HOME_USE_INDEX requires connections in your hal file to joint.n.index-enable
 from the encoder.n.index-enable.
 
-=== HOME_INDEX_NO_ENCODER_RESET (((HOME INDEX NO ENCODER RESET)))
+=== HOME_INDEX_NO_ENCODER_RESET(((HOME INDEX NO ENCODER RESET)))
 
 Default is NO.   Use YES if the encoder used for this joint does not
 reset its counter when an index pulse is detected after assertion
 of the joint index_enable hal pin.
 Applicable only for HOME_USE_INDEX = YES.
 
-
-=== HOME_OFFSET (((HOME OFFSET)))
+=== HOME_OFFSET(((HOME OFFSET)))
 
 This defines the location of the origin zero point of the G53 machine coordinate system.
 It is the distance (offset), in joint units, from the machine origin to the home switch
@@ -218,7 +216,7 @@ NOTE: The home switch location, as indicated by the HOME_OFFSET variable,
 can be inside or outside the soft limits. They will be shared with or inside the 
 hard limit switches.
 
-=== HOME (((HOME)))
+=== HOME(((HOME)))
 
 The position that the joint will go to upon completion of the homing
 sequence. After detecting the home switch or home switch then index pulse
@@ -237,7 +235,7 @@ establishes the origin location and scale on the machine by applying the 'HOME_O
 value to the location where home was found, and then 'HOME' says where the
 joint should move to on that scale.
 
-=== HOME_IS_SHARED (((HOME IS SHARED)))
+=== HOME_IS_SHARED(((HOME IS SHARED)))
 
 If there is not a separate home switch input for this joint, but a
 number of momentary switches wired to the same pin, set this value to 1
@@ -245,7 +243,7 @@ to prevent homing from starting if one of the shared switches is
 already closed. Set this value to 0 to permit homing even if the switch
 is already closed.
 
-=== HOME_ABSOLUTE_ENCODER (((HOME ABSOLUTE ENCODER)))
+=== HOME_ABSOLUTE_ENCODER(((HOME ABSOLUTE ENCODER)))
 
 Use for absolute encoders.  When a request is made to home the joint,
 the current joint position is set to the '[JOINT_n]HOME_OFFSET' value.
@@ -306,15 +304,15 @@ to misalignment (racking).  Note that conventional jogging in
 world coordinates is always available once a machine is homed.
 
 Examples for a 3 joint system
-    
+
 Two sequences (0,1), no synchronization
 
 ----
-[JOINT_0]HOME_SEQUENCE =  0
-[JOINT_1]HOME_SEQUENCE =  1
-[JOINT_2]HOME_SEQUENCE =  1
+[JOINT_0]HOME_SEQUENCE = 0
+[JOINT_1]HOME_SEQUENCE = 1
+[JOINT_2]HOME_SEQUENCE = 1
 ----
-    
+
 Two sequences, joints 1 and 2 synchronized
 
 ----
@@ -331,7 +329,6 @@ With mixed positive and negative values, joints 1 and 2 synchronized
 [JOINT_2]HOME_SEQUENCE =  1
 ----
 
-    
 One sequence, no synchronization
 
 ----
@@ -339,7 +336,7 @@ One sequence, no synchronization
 [JOINT_1]HOME_SEQUENCE =  0
 [JOINT_2]HOME_SEQUENCE =  0
 ----
-    
+
 One sequence, all joints synchronized
 
 ----
@@ -347,9 +344,8 @@ One sequence, all joints synchronized
 [JOINT_1]HOME_SEQUENCE = -1
 [JOINT_2]HOME_SEQUENCE = -1
 ----
-    
 
-=== VOLATILE_HOME (((VOLATILE HOME)))
+=== VOLATILE_HOME(((VOLATILE HOME)))
 
 If this setting is true, this joint becomes unhomed whenever the
 machine transitions into the OFF state. This is appropriate for
@@ -357,12 +353,12 @@ any joint that does not maintain position when the joint drive is
 off.  Some stepper drives, especially microstep drives, may need
 this.
 
-=== LOCKING_INDEXER (((LOCKING INDEXER)))
+=== LOCKING_INDEXER(((LOCKING INDEXER)))
 
 If this joint is a locking rotary indexer, it will unlock before
 homing, and lock afterward.
 
-=== Immediate Homing (((Immediate Homing)))
+=== Immediate Homing(((Immediate Homing)))
 
 If a joint does not have home switches or does not have a logical
 home position like a rotary joint and you want that joint to home at
@@ -382,7 +378,7 @@ omitted when requesting immediate homing.  A valid HOME_SEQUENCE
 number should usually be included since omitting a HOME_SEQUENCE
 eliminates the joint from *HOME ALL* behavior as noted above.
 
-=== Inhibiting Homing (((Inhibiting Homing)))
+=== Inhibiting Homing(((Inhibiting Homing)))
 
 A hal pin (motion.homing-inhibit) is provided to disallow
 homing initiation for both "Home All" and individual joint
@@ -440,3 +436,5 @@ requires additional hal connections for the Manual-Pulse-Generator
 An example simulation config (gantry_jjog.ini) that demonstrates
 joint jogging when using negative home sequences is located in the:
 configs/sim/axis/gantry/ directory.
+
+// vim: set syntax=asciidoc:

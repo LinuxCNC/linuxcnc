@@ -80,3 +80,4 @@ tool table.
 
 This file shows an example of threading on a lathe using parameters.
 
+// vim: set syntax=asciidoc:
