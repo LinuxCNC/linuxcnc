@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.2 -->
+<!-- Generated with glade 3.22.1 -->
 <interface>
   <requires lib="gtk+" version="3.0"/>
   <requires lib="gladevcp" version="0.0"/>
@@ -178,6 +178,11 @@
     <property name="can_focus">False</property>
     <property name="pixbuf">images/auto_mode.png</property>
   </object>
+  <object class="GtkImage" id="img_auto_on">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/auto_mode.png</property>
+  </object>
   <object class="GtkImage" id="img_back_file_load">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -186,12 +191,6 @@
   <object class="GtkImage" id="img_back_tool">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="icon_name">edit-undo</property>
-  </object>
-  <object class="GtkImage" id="img_back_zero">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="ypad">3</property>
     <property name="icon_name">edit-undo</property>
   </object>
   <object class="GtkImage" id="img_close">
@@ -209,15 +208,60 @@
     <property name="can_focus">False</property>
     <property name="pixbuf">images/coolant_on.gif</property>
   </object>
+  <object class="GtkImage" id="img_dimensions">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/dimensions.png</property>
+  </object>
   <object class="GtkImage" id="img_dir_up">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="icon_name">go-up</property>
   </object>
+  <object class="GtkImage" id="img_edit_menu_close">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">edit-undo</property>
+  </object>
+  <object class="GtkImage" id="img_edit_menu_keyboard">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/keyboard.png</property>
+  </object>
+  <object class="GtkImage" id="img_edit_menu_keyboard_hide">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/keyboard.png</property>
+  </object>
+  <object class="GtkImage" id="img_edit_menu_new">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">document-new</property>
+  </object>
+  <object class="GtkImage" id="img_edit_menu_reload">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">view-refresh</property>
+  </object>
+  <object class="GtkImage" id="img_edit_menu_save">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">document-save</property>
+  </object>
+  <object class="GtkImage" id="img_edit_menu_save_as">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">document-save-as</property>
+  </object>
   <object class="GtkImage" id="img_editor">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="pixbuf">images/editor.png</property>
+  </object>
+  <object class="GtkImage" id="img_emergency">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/estopred.png</property>
   </object>
   <object class="GtkImage" id="img_emergency_off">
     <property name="width_request">48</property>
@@ -226,56 +270,87 @@
     <property name="can_focus">False</property>
     <property name="pixbuf">images/E-Stop.gif</property>
   </object>
-  <object class="GtkImage" id="img_forward">
-    <property name="width_request">48</property>
-    <property name="height_request">48</property>
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/forward.png</property>
-  </object>
-  <object class="GtkImage" id="img_forward_on">
-    <property name="width_request">48</property>
-    <property name="height_request">48</property>
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="pixbuf">images/forward_on.gif</property>
-  </object>
-  <object class="GtkImage" id="img_fullsize_preview">
+  <object class="GtkImage" id="img_fullsize_preview0_close">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="pixbuf">images/fullscreen_preview.png</property>
   </object>
-  <object class="GtkImage" id="img_fullsize_preview1">
+  <object class="GtkImage" id="img_fullsize_preview0_open">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="pixbuf">images/fullscreen_preview.png</property>
   </object>
-  <object class="GtkImage" id="img_hom_all">
+  <object class="GtkImage" id="img_fullsize_preview1_close">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/ref_all.png</property>
+    <property name="pixbuf">images/fullscreen_preview.png</property>
+  </object>
+  <object class="GtkImage" id="img_fullsize_preview1_open">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/fullscreen_preview.png</property>
   </object>
   <object class="GtkImage" id="img_home">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="stock">gtk-home</property>
+    <property name="icon_name">go-home</property>
   </object>
   <object class="GtkImage" id="img_jump_to">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="stock">gtk-jump-to</property>
+    <property name="icon_name">go-jump</property>
+  </object>
+  <object class="GtkImage" id="img_machine_off">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/machine_off.png</property>
   </object>
   <object class="GtkImage" id="img_machine_on">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="pixbuf">images/machine_on.png</property>
   </object>
+  <object class="GtkImage" id="img_macro_menu_keyboard">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/keyboard.png</property>
+  </object>
+  <object class="GtkImage" id="img_macro_menu_keyboard_hide">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/keyboard.png</property>
+  </object>
+  <object class="GtkImage" id="img_macro_menu_stop">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/stop.png</property>
+  </object>
+  <object class="GtkImage" id="img_macro_paginate_next">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">go-next</property>
+  </object>
+  <object class="GtkImage" id="img_macro_paginate_prev">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">go-previous</property>
+  </object>
   <object class="GtkImage" id="img_manual">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="pixbuf">images/manual_mode.png</property>
   </object>
+  <object class="GtkImage" id="img_manual_on">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/manual_mode.png</property>
+  </object>
   <object class="GtkImage" id="img_mdi">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/mdi_mode.png</property>
+  </object>
+  <object class="GtkImage" id="img_mdi_on">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="pixbuf">images/mdi_mode.png</property>
@@ -293,19 +368,129 @@
   <object class="GtkImage" id="img_open">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="stock">gtk-open</property>
+    <property name="icon_name">document-open</property>
+  </object>
+  <object class="GtkImage" id="img_pause">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="tooltip_text" translatable="yes">pause the running program</property>
+    <property name="pixbuf">images/pause.png</property>
+  </object>
+  <object class="GtkImage" id="img_pause_active">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="tooltip_text" translatable="yes">pause the running program</property>
+    <property name="pixbuf">images/pause.png</property>
+  </object>
+  <object class="GtkImage" id="img_ref_0">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/ref_0.png</property>
+  </object>
+  <object class="GtkImage" id="img_ref_1">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/ref_1.png</property>
+  </object>
+  <object class="GtkImage" id="img_ref_2">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/ref_2.png</property>
+  </object>
+  <object class="GtkImage" id="img_ref_3">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/ref_3.png</property>
+  </object>
+  <object class="GtkImage" id="img_ref_4">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/ref_4.png</property>
+  </object>
+  <object class="GtkImage" id="img_ref_5">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/ref_5.png</property>
+  </object>
+  <object class="GtkImage" id="img_ref_6">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/ref_6.png</property>
+  </object>
+  <object class="GtkImage" id="img_ref_7">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/ref_7.png</property>
+  </object>
+  <object class="GtkImage" id="img_ref_a">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/ref_a.png</property>
   </object>
   <object class="GtkImage" id="img_ref_all">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="pixbuf">images/ref_all.png</property>
   </object>
-  <object class="GtkImage" id="img_reverse_on">
-    <property name="width_request">48</property>
-    <property name="height_request">48</property>
+  <object class="GtkImage" id="img_ref_b">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/reverse_on.gif</property>
+    <property name="pixbuf">images/ref_b.png</property>
+  </object>
+  <object class="GtkImage" id="img_ref_c">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/ref_c.png</property>
+  </object>
+  <object class="GtkImage" id="img_ref_menu">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/ref_all.png</property>
+  </object>
+  <object class="GtkImage" id="img_ref_menu_close">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">edit-undo</property>
+  </object>
+  <object class="GtkImage" id="img_ref_paginate_next">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">go-next</property>
+  </object>
+  <object class="GtkImage" id="img_ref_paginate_prev">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">go-previous</property>
+  </object>
+  <object class="GtkImage" id="img_ref_u">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/ref_u.png</property>
+  </object>
+  <object class="GtkImage" id="img_ref_v">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/ref_v.png</property>
+  </object>
+  <object class="GtkImage" id="img_ref_w">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/ref_w.png</property>
+  </object>
+  <object class="GtkImage" id="img_ref_x">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/ref_x.png</property>
+  </object>
+  <object class="GtkImage" id="img_ref_y">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/ref_y.png</property>
+  </object>
+  <object class="GtkImage" id="img_ref_z">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/ref_z.png</property>
   </object>
   <object class="GtkImage" id="img_run">
     <property name="visible">True</property>
@@ -321,34 +506,89 @@
   <object class="GtkImage" id="img_sel_next">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="stock">gtk-go-forward</property>
+    <property name="icon_name">go-next</property>
   </object>
   <object class="GtkImage" id="img_sel_next1">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="stock">gtk-go-forward</property>
+    <property name="icon_name">go-next</property>
   </object>
   <object class="GtkImage" id="img_sel_prev">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="stock">gtk-go-back</property>
+    <property name="icon_name">go-previous</property>
   </object>
   <object class="GtkImage" id="img_sel_prev1">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="stock">gtk-go-back</property>
+    <property name="icon_name">go-previous</property>
   </object>
   <object class="GtkImage" id="img_sel_prev2">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="stock">gtk-go-back</property>
+    <property name="icon_name">go-previous</property>
   </object>
   <object class="GtkImage" id="img_select">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="stock">gtk-ok</property>
+    <property name="pixbuf">images/gtk-ok.png</property>
   </object>
-  <object class="GtkImage" id="img_sstop">
+  <object class="GtkImage" id="img_settings">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/configure-2.png</property>
+  </object>
+  <object class="GtkImage" id="img_settings_on">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/configure-2.png</property>
+  </object>
+  <object class="GtkImage" id="img_skip_optional_active">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/tool_blockdelete.gif</property>
+  </object>
+  <object class="GtkImage" id="img_skip_optional_inactive">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/tool_blockdelete.gif</property>
+  </object>
+  <object class="GtkImage" id="img_spindle_forward">
+    <property name="width_request">48</property>
+    <property name="height_request">48</property>
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/forward.png</property>
+  </object>
+  <object class="GtkImage" id="img_spindle_forward_on">
+    <property name="width_request">48</property>
+    <property name="height_request">48</property>
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/forward_on.gif</property>
+  </object>
+  <object class="GtkImage" id="img_spindle_reverse">
+    <property name="width_request">48</property>
+    <property name="height_request">48</property>
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/reverse.png</property>
+  </object>
+  <object class="GtkImage" id="img_spindle_reverse_on">
+    <property name="width_request">48</property>
+    <property name="height_request">48</property>
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/reverse_on.gif</property>
+  </object>
+  <object class="GtkImage" id="img_spindle_stop">
+    <property name="width_request">48</property>
+    <property name="height_request">48</property>
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/stop.gif</property>
+  </object>
+  <object class="GtkImage" id="img_spindle_stop_on">
     <property name="width_request">48</property>
     <property name="height_request">48</property>
     <property name="visible">True</property>
@@ -365,12 +605,15 @@
     <property name="can_focus">False</property>
     <property name="pixbuf">images/stop.png</property>
   </object>
-  <object class="GtkImage" id="img_stop_on">
-    <property name="width_request">48</property>
-    <property name="height_request">48</property>
+  <object class="GtkImage" id="img_tool_clear">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/stop.gif</property>
+    <property name="pixbuf">images/clear.png</property>
+  </object>
+  <object class="GtkImage" id="img_tool_path">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/toolpath.png</property>
   </object>
   <object class="GtkImage" id="img_toolchange">
     <property name="visible">True</property>
@@ -382,10 +625,75 @@
     <property name="can_focus">False</property>
     <property name="pixbuf">images/toolchange.png</property>
   </object>
+  <object class="GtkImage" id="img_tools">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/tools.png</property>
+  </object>
+  <object class="GtkImage" id="img_touch_a">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/touch_a.png</property>
+  </object>
+  <object class="GtkImage" id="img_touch_b">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/touch_b.png</property>
+  </object>
+  <object class="GtkImage" id="img_touch_c">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/touch_c.png</property>
+  </object>
+  <object class="GtkImage" id="img_touch_menu_close">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">edit-undo</property>
+  </object>
   <object class="GtkImage" id="img_touch_off">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="pixbuf">images/touchoff.png</property>
+  </object>
+  <object class="GtkImage" id="img_touch_paginate_next">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">go-next</property>
+  </object>
+  <object class="GtkImage" id="img_touch_paginate_prev">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">go-previous</property>
+  </object>
+  <object class="GtkImage" id="img_touch_u">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/touch_u.png</property>
+  </object>
+  <object class="GtkImage" id="img_touch_v">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/touch_v.png</property>
+  </object>
+  <object class="GtkImage" id="img_touch_w">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/touch_w.png</property>
+  </object>
+  <object class="GtkImage" id="img_touch_x">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/touch_x.png</property>
+  </object>
+  <object class="GtkImage" id="img_touch_y">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/touch_y.png</property>
+  </object>
+  <object class="GtkImage" id="img_touch_z">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/touch_z.png</property>
   </object>
   <object class="GtkImage" id="img_turtle_jog">
     <property name="width_request">36</property>
@@ -394,10 +702,45 @@
     <property name="can_focus">False</property>
     <property name="pixbuf">images/turtle_jog.png</property>
   </object>
+  <object class="GtkImage" id="img_unref_all">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/unhome.png</property>
+  </object>
   <object class="GtkImage" id="img_user_tabs">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="pixbuf">images/user_tabs.png</property>
+  </object>
+  <object class="GtkImage" id="img_user_tabs_on">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/user_tabs.png</property>
+  </object>
+  <object class="GtkImage" id="img_view_p">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/toolaxisp.png</property>
+  </object>
+  <object class="GtkImage" id="img_view_x">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/toolaxisx.png</property>
+  </object>
+  <object class="GtkImage" id="img_view_y">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/toolaxisy.png</property>
+  </object>
+  <object class="GtkImage" id="img_view_y2">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/toolaxisy2.png</property>
+  </object>
+  <object class="GtkImage" id="img_view_z">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/toolaxisz.png</property>
   </object>
   <object class="GtkImage" id="img_zoom_in">
     <property name="visible">True</property>
@@ -440,6 +783,20 @@
       <row>
         <col id="0">5</col>
         <col id="1" translatable="yes">left rotate,  middle zoom,  right move</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkListStore" id="lstst_icon_themes">
+    <columns>
+      <!-- column-name path -->
+      <column type="gchararray"/>
+      <!-- column-name name -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0">default</col>
+        <col id="1" translatable="yes">default</col>
       </row>
     </data>
   </object>
@@ -617,14 +974,8 @@
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
                                             <property name="tooltip_text" translatable="yes">clear plot</property>
+                                            <property name="image">img_tool_clear</property>
                                             <signal name="clicked" handler="on_btn_delete_view_clicked" swapped="no"/>
-                                            <child>
-                                              <object class="GtkImage" id="img_tool_clear">
-                                                <property name="visible">True</property>
-                                                <property name="can_focus">False</property>
-                                                <property name="pixbuf">images/clear.png</property>
-                                              </object>
-                                            </child>
                                           </object>
                                           <packing>
                                             <property name="left_attach">10</property>
@@ -680,16 +1031,10 @@
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
                                             <property name="tooltip_text" translatable="yes">view perspective</property>
+                                            <property name="image">img_view_p</property>
                                             <property name="active">True</property>
                                             <property name="draw_indicator">False</property>
                                             <signal name="toggled" handler="on_rbt_view_p_toggled" swapped="no"/>
-                                            <child>
-                                              <object class="GtkImage" id="img_view_p">
-                                                <property name="visible">True</property>
-                                                <property name="can_focus">False</property>
-                                                <property name="pixbuf">images/toolaxisp.png</property>
-                                              </object>
-                                            </child>
                                           </object>
                                           <packing>
                                             <property name="x_options">GTK_SHRINK</property>
@@ -705,16 +1050,10 @@
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
                                             <property name="tooltip_text" translatable="yes">view along the X axis from positive to negative</property>
+                                            <property name="image">img_view_x</property>
                                             <property name="draw_indicator">False</property>
                                             <property name="group">rbt_view_p</property>
                                             <signal name="toggled" handler="on_rbt_view_x_toggled" swapped="no"/>
-                                            <child>
-                                              <object class="GtkImage" id="img_view_x">
-                                                <property name="visible">True</property>
-                                                <property name="can_focus">False</property>
-                                                <property name="pixbuf">images/toolaxisx.png</property>
-                                              </object>
-                                            </child>
                                           </object>
                                           <packing>
                                             <property name="left_attach">1</property>
@@ -732,16 +1071,10 @@
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
                                             <property name="tooltip_text" translatable="yes">view along the Y axis from positive to negative</property>
+                                            <property name="image">img_view_y</property>
                                             <property name="draw_indicator">False</property>
                                             <property name="group">rbt_view_p</property>
                                             <signal name="toggled" handler="on_rbt_view_y_toggled" swapped="no"/>
-                                            <child>
-                                              <object class="GtkImage" id="img_view_y">
-                                                <property name="visible">True</property>
-                                                <property name="can_focus">False</property>
-                                                <property name="pixbuf">images/toolaxisy.png</property>
-                                              </object>
-                                            </child>
                                           </object>
                                           <packing>
                                             <property name="left_attach">2</property>
@@ -759,16 +1092,10 @@
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
                                             <property name="tooltip_text" translatable="yes">view along the Z axis from positive to negative</property>
+                                            <property name="image">img_view_z</property>
                                             <property name="draw_indicator">False</property>
                                             <property name="group">rbt_view_p</property>
                                             <signal name="toggled" handler="on_rbt_view_z_toggled" swapped="no"/>
-                                            <child>
-                                              <object class="GtkImage" id="img_view_z">
-                                                <property name="visible">True</property>
-                                                <property name="can_focus">False</property>
-                                                <property name="pixbuf">images/toolaxisz.png</property>
-                                              </object>
-                                            </child>
                                           </object>
                                           <packing>
                                             <property name="left_attach">3</property>
@@ -786,14 +1113,8 @@
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
                                             <property name="tooltip_text" translatable="yes">Show or hide tool path</property>
+                                            <property name="image">img_tool_path</property>
                                             <signal name="toggled" handler="on_tbtn_view_tool_path_toggled" swapped="no"/>
-                                            <child>
-                                              <object class="GtkImage" id="imimg_toll_path">
-                                                <property name="visible">True</property>
-                                                <property name="can_focus">False</property>
-                                                <property name="pixbuf">images/toolpath.png</property>
-                                              </object>
-                                            </child>
                                           </object>
                                           <packing>
                                             <property name="left_attach">9</property>
@@ -811,14 +1132,8 @@
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
                                             <property name="tooltip_text" translatable="yes">Show or hide dimensions</property>
+                                            <property name="image">img_dimensions</property>
                                             <signal name="toggled" handler="on_tbtn_view_dimension_toggled" swapped="no"/>
-                                            <child>
-                                              <object class="GtkImage" id="img_dimensions">
-                                                <property name="visible">True</property>
-                                                <property name="can_focus">False</property>
-                                                <property name="pixbuf">images/dimensions.png</property>
-                                              </object>
-                                            </child>
                                           </object>
                                           <packing>
                                             <property name="left_attach">8</property>
@@ -836,16 +1151,10 @@
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
                                             <property name="tooltip_text" translatable="yes">view along the Y axis from positive to negative as viewn for a back tool lathe</property>
+                                            <property name="image">img_view_y2</property>
                                             <property name="draw_indicator">False</property>
                                             <property name="group">rbt_view_p</property>
                                             <signal name="toggled" handler="on_rbt_view_y2_toggled" swapped="no"/>
-                                            <child>
-                                              <object class="GtkImage" id="img_view_y2">
-                                                <property name="visible">True</property>
-                                                <property name="can_focus">False</property>
-                                                <property name="pixbuf">images/toolaxisy2.png</property>
-                                              </object>
-                                            </child>
                                           </object>
                                           <packing>
                                             <property name="left_attach">4</property>
@@ -979,336 +1288,6 @@
                                 <property name="n_columns">2</property>
                                 <property name="column_spacing">2</property>
                                 <property name="homogeneous">True</property>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
                                 <child>
                                   <placeholder/>
                                 </child>
@@ -1673,606 +1652,6 @@
                                                             <child>
                                                             <placeholder/>
                                                             </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
                                                             </object>
                                                             <packing>
                                                             <property name="tab_fill">False</property>
@@ -2298,606 +1677,6 @@
                                                             <property name="column_spacing">3</property>
                                                             <property name="row_spacing">3</property>
                                                             <property name="homogeneous">True</property>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
-                                                            <child>
-                                                            <placeholder/>
-                                                            </child>
                                                             <child>
                                                             <placeholder/>
                                                             </child>
@@ -3911,18 +2690,10 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">False</property>
+                                                            <property name="image">img_spindle_reverse</property>
                                                             <property name="draw_indicator">False</property>
                                                             <property name="group">rbt_stop</property>
                                                             <signal name="clicked" handler="on_rbt_reverse_clicked" swapped="no"/>
-                                                            <child>
-                                                            <object class="GtkImage" id="img_reverse">
-                                                            <property name="width_request">48</property>
-                                                            <property name="height_request">48</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">False</property>
-                                                            <property name="pixbuf">images/reverse.png</property>
-                                                            </object>
-                                                            </child>
                                                             </object>
                                                             <packing>
                                                             <property name="x_options">GTK_SHRINK</property>
@@ -3937,18 +2708,10 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">False</property>
+                                                            <property name="image">img_spindle_forward</property>
                                                             <property name="draw_indicator">False</property>
                                                             <property name="group">rbt_stop</property>
                                                             <signal name="clicked" handler="on_rbt_forward_clicked" swapped="no"/>
-                                                            <child>
-                                                            <object class="GtkImage" id="img_spindle_forward">
-                                                            <property name="width_request">48</property>
-                                                            <property name="height_request">48</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">False</property>
-                                                            <property name="pixbuf">images/forward.png</property>
-                                                            </object>
-                                                            </child>
                                                             </object>
                                                             <packing>
                                                             <property name="left_attach">4</property>
@@ -3965,18 +2728,10 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">False</property>
+                                                            <property name="image">img_spindle_stop_on</property>
                                                             <property name="active">True</property>
                                                             <property name="draw_indicator">False</property>
                                                             <signal name="clicked" handler="on_rbt_stop_clicked" swapped="no"/>
-                                                            <child>
-                                                            <object class="GtkImage" id="img_spindle_stop">
-                                                            <property name="width_request">48</property>
-                                                            <property name="height_request">48</property>
-                                                            <property name="visible">True</property>
-                                                            <property name="can_focus">False</property>
-                                                            <property name="pixbuf">images/stop.gif</property>
-                                                            </object>
-                                                            </child>
                                                             </object>
                                                             <packing>
                                                             <property name="left_attach">2</property>
@@ -5830,7 +4585,7 @@ clicking on the DRO</property>
                                       <object class="GtkTable" id="table1">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="n_rows">4</property>
+                                        <property name="n_rows">6</property>
                                         <property name="n_columns">2</property>
                                         <child>
                                           <object class="GtkLabel" id="lbl_themes">
@@ -5873,8 +4628,8 @@ clicking on the DRO</property>
                                             <property name="xalign">0</property>
                                           </object>
                                           <packing>
-                                            <property name="top_attach">2</property>
-                                            <property name="bottom_attach">3</property>
+                                            <property name="top_attach">4</property>
+                                            <property name="bottom_attach">5</property>
                                             <property name="x_options">GTK_SHRINK | GTK_FILL</property>
                                             <property name="y_options">GTK_SHRINK</property>
                                           </packing>
@@ -5887,8 +4642,8 @@ clicking on the DRO</property>
                                             <property name="xalign">0</property>
                                           </object>
                                           <packing>
-                                            <property name="top_attach">3</property>
-                                            <property name="bottom_attach">4</property>
+                                            <property name="top_attach">5</property>
+                                            <property name="bottom_attach">6</property>
                                             <property name="x_options">GTK_SHRINK | GTK_FILL</property>
                                             <property name="y_options">GTK_SHRINK</property>
                                           </packing>
@@ -5902,8 +4657,8 @@ clicking on the DRO</property>
                                           <packing>
                                             <property name="left_attach">1</property>
                                             <property name="right_attach">2</property>
-                                            <property name="top_attach">2</property>
-                                            <property name="bottom_attach">3</property>
+                                            <property name="top_attach">4</property>
+                                            <property name="bottom_attach">5</property>
                                             <property name="x_options">GTK_SHRINK | GTK_FILL</property>
                                             <property name="y_options">GTK_SHRINK</property>
                                           </packing>
@@ -5917,10 +4672,47 @@ clicking on the DRO</property>
                                           <packing>
                                             <property name="left_attach">1</property>
                                             <property name="right_attach">2</property>
-                                            <property name="top_attach">3</property>
-                                            <property name="bottom_attach">4</property>
+                                            <property name="top_attach">5</property>
+                                            <property name="bottom_attach">6</property>
                                             <property name="x_options">GTK_SHRINK | GTK_FILL</property>
                                             <property name="y_options">GTK_SHRINK</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel" id="lbl_icon_themes">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="label" translatable="yes">Icon Theme</property>
+                                          </object>
+                                          <packing>
+                                            <property name="right_attach">2</property>
+                                            <property name="top_attach">2</property>
+                                            <property name="bottom_attach">3</property>
+                                            <property name="y_options">GTK_SHRINK</property>
+                                            <property name="x_padding">5</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkComboBox" id="icon_theme_choice">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="model">lstst_icon_themes</property>
+                                            <property name="active">0</property>
+                                            <property name="id_column">0</property>
+                                            <signal name="changed" handler="on_icon_theme_choice_changed" swapped="no"/>
+                                            <child>
+                                              <object class="GtkCellRendererText" id="cellrenderertext2"/>
+                                              <attributes>
+                                                <attribute name="text">1</attribute>
+                                              </attributes>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="right_attach">2</property>
+                                            <property name="top_attach">3</property>
+                                            <property name="bottom_attach">4</property>
+                                            <property name="y_options">GTK_SHRINK</property>
+                                            <property name="x_padding">5</property>
                                           </packing>
                                         </child>
                                       </object>
@@ -7509,14 +6301,8 @@ to test your settings.</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Estop the machine
 [F1]</property>
+                    <property name="image">img_emergency</property>
                     <signal name="toggled" handler="on_tbtn_estop_toggled" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_emergency">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/estopred.png</property>
-                      </object>
-                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -7534,14 +6320,8 @@ to test your settings.</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Turn the machine on/off
 [F2]</property>
+                    <property name="image">img_machine_off</property>
                     <signal name="toggled" handler="on_tbtn_on_toggled" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_machine_off">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/machine_off.png</property>
-                      </object>
-                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -7564,6 +6344,7 @@ to test your settings.</property>
                     <property name="draw_indicator">False</property>
                     <property name="group">rbt_auto</property>
                     <signal name="pressed" handler="on_rbt_manual_pressed" swapped="no"/>
+                    <signal name="toggled" handler="on_rbt_manual_toggled" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -7585,6 +6366,7 @@ to test your settings.</property>
                     <property name="draw_indicator">False</property>
                     <property name="group">rbt_auto</property>
                     <signal name="pressed" handler="on_rbt_mdi_pressed" swapped="no"/>
+                    <signal name="toggled" handler="on_rbt_mdi_toggled" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -7604,6 +6386,7 @@ to test your settings.</property>
                     <property name="image">img_auto</property>
                     <property name="draw_indicator">False</property>
                     <signal name="pressed" handler="on_rbt_auto_pressed" swapped="no"/>
+                    <signal name="toggled" handler="on_rbt_auto_toggled" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -7620,14 +6403,8 @@ to test your settings.</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Enter the settings page, the default code is "123"</property>
+                    <property name="image">img_settings</property>
                     <signal name="toggled" handler="on_tbtn_setup_toggled" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_settings">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/configure-2.png</property>
-                      </object>
-                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -7702,7 +6479,7 @@ Date</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">open homing button list</property>
-                    <property name="image">img_ref_all</property>
+                    <property name="image">img_ref_menu</property>
                     <signal name="clicked" handler="on_btn_homing_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -7751,15 +6528,9 @@ Date</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Open the tooleditor page</property>
+                    <property name="image">img_tools</property>
                     <property name="image_position">top</property>
                     <signal name="clicked" handler="on_btn_tool_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_tools">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/tools.png</property>
-                      </object>
-                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -7848,7 +6619,7 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">make the preview as large as possible</property>
-                    <property name="image">img_fullsize_preview</property>
+                    <property name="image">img_fullsize_preview0_open</property>
                     <signal name="toggled" handler="on_tbtn_fullsize_preview_toggled" swapped="no"/>
                   </object>
                   <packing>
@@ -7967,6 +6738,8 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_reload">
                     <property name="related_action">hal_action_reload</property>
+                    <property name="width_request">85</property>
+                    <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -8030,17 +6803,8 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Pause the running program</property>
+                    <property name="image">img_pause</property>
                     <signal name="toggled" handler="on_tbtn_pause_toggled" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_pause">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="tooltip_text" translatable="yes">pause the running program</property>
-                        <property name="pixbuf">images/pause.png</property>
-                      </object>
-                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -8092,16 +6856,8 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Machine or not the optional blocks of the program. If the button is pressed, the optional blocks will not be machined. The button will indicate this by a yellow background.</property>
+                    <property name="image">img_skip_optional_inactive</property>
                     <signal name="toggled" handler="on_tbtn_optional_blocks_toggled" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_optional_blocks">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/tool_blockdelete.gif</property>
-                      </object>
-                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -8117,7 +6873,7 @@ F12 or $ key does the same</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="image">img_fullsize_preview1</property>
+                    <property name="image">img_fullsize_preview1_open</property>
                     <signal name="toggled" handler="on_tbtn_fullsize_preview_toggled" swapped="no"/>
                   </object>
                   <packing>
@@ -8484,14 +7240,8 @@ F12 or $ key does the same</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="image">img_edit_menu_reload</property>
                     <property name="use_underline">True</property>
-                    <child>
-                      <object class="GtkImage" id="img_reload">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="icon_name">view-refresh</property>
-                      </object>
-                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -8506,13 +7256,7 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">save the file using the original name</property>
-                    <child>
-                      <object class="GtkImage" id="img_save">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="icon_name">document-save</property>
-                      </object>
-                    </child>
+                    <property name="image">img_edit_menu_save</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -8529,13 +7273,7 @@ F12 or $ key does the same</property>
                     <property name="can_focus">False</property>
                     <property name="receives_default">False</property>
                     <property name="tooltip_text" translatable="yes">save the file with a new name</property>
-                    <child>
-                      <object class="GtkImage" id="img_save_as">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="icon_name">document-save-as</property>
-                      </object>
-                    </child>
+                    <property name="image">img_edit_menu_save_as</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -8578,16 +7316,8 @@ F12 or $ key does the same</property>
                     <property name="can_focus">False</property>
                     <property name="receives_default">False</property>
                     <property name="tooltip_text" translatable="yes">clear the edit field and make a new file</property>
+                    <property name="image">img_edit_menu_new</property>
                     <signal name="clicked" handler="on_btn_new_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_new">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="stock">gtk-new</property>
-                      </object>
-                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -8617,16 +7347,8 @@ F12 or $ key does the same</property>
                     <property name="can_focus">False</property>
                     <property name="receives_default">False</property>
                     <property name="tooltip_text" translatable="yes">Show or hide the virtual keyboard</property>
+                    <property name="image">img_edit_menu_keyboard</property>
                     <signal name="clicked" handler="on_btn_show_kbd_clicked" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="img_keyboard2">
-                        <property name="width_request">48</property>
-                        <property name="height_request">48</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">images/keyboard.png</property>
-                      </object>
-                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -8643,7 +7365,7 @@ F12 or $ key does the same</property>
                     <property name="can_focus">False</property>
                     <property name="receives_default">False</property>
                     <property name="tooltip_text" translatable="yes">Go back to main button list</property>
-                    <property name="image">img_back_zero</property>
+                    <property name="image">img_edit_menu_close</property>
                     <signal name="clicked" handler="on_btn_back_clicked" swapped="no"/>
                   </object>
                   <packing>

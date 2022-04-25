@@ -114,7 +114,7 @@ class Notification(Gtk.Window):
         Pango_ok = True
         try:
             # The GError exception is raised if an error occurs while parsing the markup text.
-            Pango.parse_markup(text)        
+            Pango.parse_markup(text)
         except:
             Pango_ok = False
         if Pango_ok:
@@ -124,9 +124,8 @@ class Notification(Gtk.Window):
         hbox.pack_start(label, False, False, 0)
         btn_close = Gtk.Button()
         image = Gtk.Image()
-        pixbuf = Gtk.IconTheme.get_default().load_icon("gtk-cancel", self.icon_size, 0)
+        pixbuf = Gtk.IconTheme.get_default().load_icon("window-close", self.icon_size, 0)
         image.set_from_pixbuf(pixbuf)
-        
         btn_close.set_image(image)
         btn_close.set_border_width(2)
         btn_close.connect('clicked', self._on_btn_close_clicked, labelnumber.get_text())
@@ -153,7 +152,7 @@ class Notification(Gtk.Window):
     # if to long for the frame
     def add_message(self, message, icon_file_name=None):
         '''Notification.add_message(messagetext, icon_file_name)
-        
+
            messagetext = a string to display
            icon_file_name = a valid absolute path to an icon or None
         '''
@@ -196,7 +195,7 @@ class Notification(Gtk.Window):
     def del_message(self, messagenumber):
         '''del_message(messagenumber)
            delete the message with the given number
-           
+
            messagenumber = integer
                            -1 will erase all messages
         '''
