@@ -102,7 +102,7 @@ class Notification(Gtk.Window):
         if message[2]:
             icon.set_from_file(icon_file_name)
         else:
-            icon.set_from_icon_name("gtk-dialog-warning", self.icon_size)
+            icon.set_from_icon_name("dialog-warning", self.icon_size)
         hbox.pack_start(icon, False, False, 0)
         label = Gtk.Label()
         label.set_line_wrap(True)
@@ -123,6 +123,7 @@ class Notification(Gtk.Window):
             label.set_text(text)
         hbox.pack_start(label, False, False, 0)
         btn_close = Gtk.Button()
+        btn_close.set_name("notification_close")
         image = Gtk.Image()
         pixbuf = Gtk.IconTheme.get_default().load_icon("window-close", self.icon_size, 0)
         image.set_from_pixbuf(pixbuf)

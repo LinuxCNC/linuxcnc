@@ -176,9 +176,12 @@ class gmoccapy(object):
             button {
                 padding: 0;
             }
-            #gcode_edit { 
+            #gcode_edit {
                 padding: 3px;
                 margin: 1px;
+            }
+            #notification_close {
+                padding: 8px;
             }
         """
         provider.load_from_data(css)
