@@ -39,7 +39,7 @@ the new tool Z length will be in effect. Tool table touch off is only
 available when a tool is loaded with 'Tn M6'.
 
 [[cap:touch-off-tool]]
-//.Touch Off Tool Table
+.Touch Off Tool Table
 image::images/ToolTable-TouchOff.png["Touch Off Tool Table",align="center"]
 
 == Using G10 L1/L10/L11
@@ -74,7 +74,7 @@ the GUI.
 === Tool Table Format(((Tool Table Format)))
 
 .Tool Table Format
-[width="100%", options="header"]
+[width="100%",options="header"]
 |====
 |T#    |P#  |X  |Y  |Z  |A  |B  |C  |U  |V  |W  |Dia |FA |BA |Ori |Rem
 |; 15+^|(no data after semicolon)
@@ -299,9 +299,9 @@ move will stop short so to not gouge the part. The following figure
 shows how the compensated move will stop at different points depending
 on the next move.
 
-[[cap:compensation-end-point]](((Compensation End Point)))
-//.Compensation End Point
-image:images/comp-path_en.svg["Compensation End Point",align="center"]
+[[cap:compensation-end-point]]
+.Compensation End Point(((Compensation End Point)))
+image::images/comp-path_en.svg["Compensation End Point",align="center"]
 
 === Overview
 
@@ -326,7 +326,7 @@ X0 the resulting profile would leave a bump due to the offset of the
 entry move.
 
 [[cap:entry-move]]
-//.Entry Move
+.Entry Move
 image::images/comp02_en.svg["Entry Move",align="center"]
 
 ==== Z Motion
@@ -348,11 +348,11 @@ Start a program with G40 to make sure compensation is off.
 ==== Outside Profile Example
 
 [[cap:outside-profile]]
-//.Outside Profile
+.Outside Profile
 image::images/outside-comp.png["Outside Profile",align="center"]
 
 ==== Inside Profile Example
 
 [[cap:inside-profile]]
-//.Inside Profile
+.Inside Profile
 image::images/inside-comp.png["Inside Profile",align="center"]

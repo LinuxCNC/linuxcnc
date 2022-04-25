@@ -54,7 +54,7 @@ you might see with some file browsers. At the right is a tabbed notebook with
 tabs for show and watch.
 
 [[cap:halshow-layout]]
-.The Halshow Layout
+.Halshow Layout
 image::images/halshow-1.png["Halshow Layout",align="center"]
 
 The tree shows all of the major parts of a HAL. In front of each is a
@@ -69,8 +69,8 @@ Expand Signals; and Erase Watch. (Note that Erase Watch erases 'all'
 previously set watches, you cannot erase just one watch.)
 
 [[fig:halshow-show-tab]]
-.Show Tab
-image::images/halshow-3.png["Show Tab",align="center"]
+.Halshow: Show Tab
+image::images/halshow-3.png["Halshow: Show Tab",align="center"]
 
 == HAL Show Area
 
@@ -278,9 +278,9 @@ side. Pins that are linked to a signal have disabled buttons. To set these value
 the corresponding pin has to be unlinked from the signal. That can be done by
 right-click on the signal name and select "Unlink pin", see <<cap:watch-tab-context-menu>>.
 
-[[fig:halshow-watch-tab]](((Halshow: Watch Tab)))
-.The Watch Tab
-image:images/halshow-4.png["Watch Tab",align="center"]
+[[fig:halshow-watch-tab]]
+.Halshow: Watch Tab(((Halshow: Watch Tab)))
+image::images/halshow-4.png["Halshow: Watch Tab",align="center"]
 
 Watch displays bit type (binary) values using colored circles
 representing LEDs. They show as dark red when a bit signal or pin is
@@ -296,7 +296,7 @@ increments of distance. If you've used IO_Show in LinuxCNC, the watch page
 in halshow can be set up to watch a parport much as IO_Show did.
 
 [[cap:watch-tab-context-menu]]
-.The Watch Tab context menu
-image:images/halshow-5.png["Watch Tab context menu",align="center"]
+.Halshow: Watch Tab Context Menu
+image::images/halshow-5.png["Halshow: Watch Tab Context Menu",align="center"]
 
 // vim: set syntax=asciidoc:

@@ -50,7 +50,7 @@ These next options will be recorded in a preference file for the next run of Ste
 == Basic Information
 
 [[cap:Basic-Information-Page]]
-//.Basic Information Page
+.Basic Information Page
 image::images/stepconf-base_en.png["Basic Information Page",align="center"]
 
 * 'Create Simulated Hardware' - This allows you to build a config for testing,
@@ -235,8 +235,8 @@ image::images/stepconf-axis-x_en.png["Axis X Configuration Page",align="center"]
 * 'Test this axis' - (((Test this axis)))
   This will open a window to allow testing for each axis. This can be used after filling out all the information for this axis.
 
-//.Test This Axis B
-image::images/stepconf-x-test_en.png[align="center"]
+.Axis Test
+image::images/stepconf-x-test_en.png["Axis Test",align="center"]
 
 Test this axis is a basic tester that only outputs step and direction signals
 to try different values for acceleration and velocity.
@@ -247,7 +247,8 @@ is required. If your driver has a charge pump you will have to bypass it.
 Test this axis does not react to limit switch inputs. Use with caution.
 
 [[sub:finding-maximum-velocity]]
-=== Finding Maximum Velocity
+=== Finding Maximum Velocity(((Finding Maximum Velocity)))
+
 Begin with a low Acceleration
 // comment out latexmath until a fix is found for the html docs
 // (e.g., latexmath:[ 2 in/s^2 ] or latexmath:[ 50 mm/s^2 ])
@@ -290,7 +291,7 @@ Once you have found a speed at which the axis does not stall or lose steps
 during this testing procedure, reduce it by 10% and use that as the axis 'Maximum Velocity'.
 
 [[sub:finding-maximum-acceleration]]
-.Finding Maximum Acceleration(((Finding Maximum Acceleration)))
+=== Finding Maximum Acceleration(((Finding Maximum Acceleration)))
 
 With the Maximum Velocity you found in the previous step,
 enter the acceleration value to test.
@@ -304,12 +305,12 @@ reduce it by 10% and use that as the axis Maximum Acceleration.
 
 == Spindle Configuration
 
-//.Spindle Configuration Page
+.Spindle Configuration Page
 image::images/stepconf-spindle_en.png["Spindle Configuration Page",align="center"]
 
 This page only appears when 'Spindle PWM' is chosen in the 'Parallel Port Pinout' page for one of the outputs.
 
-=== Spindle Speed Control
+=== Spindle Speed Control(((Spindle Speed Control)))
 
 If 'Spindle PWM' appears on the pinout, the following information should be entered:
 
@@ -321,7 +322,7 @@ If 'Spindle PWM' appears on the pinout, the following information should be ente
   values are not known, they can be determined. For more information see
   <<sub:determining-spindle-calibration,Determining Spindle Calibration>>.
 
-=== Spindle-synchronized motion
+=== Spindle-synchronized motion(((Spindle-synchronized motion)))
 
 When the appropriate signals from a spindle encoder are connected to 
 LinuxCNC via HAL, LinuxCNC supports lathe threading.
@@ -353,7 +354,7 @@ on the pinout, the following information should be entered:
 
 Enter the following values in the Spindle Configuration page:
 
-[width="80%"]
+[width="80%",options="header",cols="^,^,^,^"]
 |============================
 |Speed 1: | 0    | PWM 1: | 0
 |Speed 2: | 1000 | PWM 2: | 1
@@ -382,8 +383,8 @@ then find the PWM values that give 1600 RPM (40%) and 2800 RPM (70%).
 
 == Options
 
-//.Options Configuration
-image::images/stepconf-options_en.png["Advanved Options Configuration",align="center"]
+.Advanced Options Configuration
+image::images/stepconf-options_en.png["Advanced Options Configuration",align="center"]
 
 * 'Include Halui' - This will add the Halui user interface component. See the
   <<cha:hal-user-interface,HALUI Chapter>> for more information on.
@@ -396,7 +397,7 @@ image::images/stepconf-options_en.png["Advanved Options Configuration",align="ce
   pause and prompt you to change the tool when 'M6' is encountered. This feature
   is usually only useful if you have presettable tools.
 
-== Machine Configuration Complete
+== Complete Machine Configuration(((Complete Machine Configuration)))
 
 Click 'Apply' to write the configuration files. 
 Later, you can re-run this program and tweak the settings you entered before.

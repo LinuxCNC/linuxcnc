@@ -42,6 +42,10 @@ Some will have limited descriptions. All of the components have man pages.
 From this list you know what components exist and can use 'man n name' to get additional information.
 To view the information in the man page, in a terminal window type:
 
+----
+man motion (or perhaps 'man 9 motion' if your system requires it.)
+----
+
 [NOTE]
 If component requires a thread with a float, it is usually the slowest,
 thus _servo-thread_.
@@ -50,142 +54,139 @@ thus _servo-thread_.
 See also the 'Man Pages' section of the link:../index.html[docs main page] or the
 link:../man/man9/[directory listing of man9].
 
-[NOTE]
-Si el componente requiere un hilo de punto flotante, suele ser el hilo servo, más lento.
-
 [[sec:core-realtime-components]]
 === Core LinuxCNC components
 
-motion:: (((motion)))Accepts NML motion commands, interacts with HAL in realtime.
+motion:: (((motion))) Accepts NML motion commands, interacts with HAL in realtime.
 
-axis:: (((axis)))Accepts NML motion commands, interacts with HAL in realtime.
+axis:: (((axis))) Accepts NML motion commands, interacts with HAL in realtime.
 
-classicladder:: (((classicladder)))Realtime software PLC based on ladder logic. See <<cha:classicladder,ClassicLadder>> chapter for more information.
+classicladder:: (((classicladder))) Realtime software PLC based on ladder logic. See <<cha:classicladder,ClassicLadder>> chapter for more information.
 
-gladevcp:: (((gladevcp)))Displays Virtual Control Panels built with GTK/Glade.
+gladevcp:: (((gladevcp))) Displays Virtual Control Panels built with GTK/Glade.
 
-threads:: (((threads)))Creates hard realtime HAL threads.
+threads:: (((threads))) Creates hard realtime HAL threads.
 
 [[sec:Realtime-Components-logic]]
 === Logic and Bitwise components
 
-and2:: (((and2)))Two-input AND gate. For out to be true both inputs must be true. link:../man/man9/and2.9.html[Details]
+and2:: (((and2))) Two-input AND gate. For out to be true both inputs must be true. link:../man/man9/and2.9.html[Details]
 
-not:: (((not)))Inverter. link:../man/man9/not.9.html[Details]
+not:: (((not))) Inverter. link:../man/man9/not.9.html[Details]
 
-or2:: (((or2)))Two-input OR gate. link:../man/man9/or2.9.html[Details]
+or2:: (((or2))) Two-input OR gate. link:../man/man9/or2.9.html[Details]
 
-xor2:: (((xor2)))Two-input XOR (exclusive OR) gate. link:../man/man9/xor2.9.html[Details]
+xor2:: (((xor2))) Two-input XOR (exclusive OR) gate. link:../man/man9/xor2.9.html[Details]
 
-dbounce:: (((dbounce)))Filter noisy digital inputs. link:../man/man9/dbounce.9.html[Details].
+dbounce:: (((dbounce))) Filter noisy digital inputs. link:../man/man9/dbounce.9.html[Details].
 
-debounce:: (((debounce)))Filter noisy digital inputs. link:../man/man9/debounce.9.html[Details]. <<sec:debounce, Description>>
+debounce:: (((debounce))) Filter noisy digital inputs. link:../man/man9/debounce.9.html[Details]. <<sec:debounce, Description>>
 
-edge:: (((edge)))Edge detector.
+edge:: (((edge))) Edge detector.
 
-flipflop:: (((flipflop)))D type flip-flop.
+flipflop:: (((flipflop))) D type flip-flop.
 
-oneshot:: (((oneshot)))One-shot pulse generator.
+oneshot:: (((oneshot))) One-shot pulse generator.
 
-logic:: (((logic)))General logic function component.
+logic:: (((logic))) General logic function component.
 
-lut5:: (((lut5)))A 5-input logic function based on a look-up table. <<sec:lut5,Description>>
+lut5:: (((lut5))) A 5-input logic function based on a look-up table. <<sec:lut5,Description>>
 
-match8:: (((match8)))8-bit binary match detector.
+match8:: (((match8))) 8-bit binary match detector.
 
-select8:: (((select8)))8-bit binary match detector.
+select8:: (((select8))) 8-bit binary match detector.
 
 [[sec:Realtime-Components-flottant]]
 === Arithmetic and float-components
 
-abs:: [[sub:abs]](((abs)))Compute the absolute value and sign of the input signal.
+abs:: [[sub:abs]](((abs))) Compute the absolute value and sign of the input signal.
 
-blend:: (((blend)))Perform linear interpolation between two values.
+blend:: (((blend))) Perform linear interpolation between two values.
 
-comp:: (((comp)))Two input comparator with hysteresis.
+comp:: (((comp))) Two input comparator with hysteresis.
 
-constant:: (((constant)))Use a parameter to set the value of a pin.
+constant:: (((constant))) Use a parameter to set the value of a pin.
 
-sum2:: (((sum2)))Sum of two inputs (each with a gain) and an offset.
+sum2:: (((sum2))) Sum of two inputs (each with a gain) and an offset.
 
-counter:: (((counter)))Counts input pulses (deprecated).
+counter:: (((counter))) Counts input pulses (deprecated).
 +
 Use the _encoder_ component with _... counter-mode = TRUE_.
 See section <<sec:encoder,encoder>>.
 
-updown:: (((updown)))Counts up or down, with optional limits and wraparound behavior.
+updown:: (((updown))) Counts up or down, with optional limits and wraparound behavior.
 
-ddt:: (((ddt)))Compute the derivative of the input function.
+ddt:: (((ddt))) Compute the derivative of the input function.
 
-deadzone:: (((deadzone)))Return the center if within the threshold.
+deadzone:: (((deadzone))) Return the center if within the threshold.
 
-hypot:: (((hypot)))Three-input hypotenuse (Euclidean distance) calculator.
+hypot:: (((hypot))) Three-input hypotenuse (Euclidean distance) calculator.
 
-mult2:: (((mult2)))Product of two inputs.
+mult2:: (((mult2))) Product of two inputs.
 
-mux16:: (((mux16)))Select from one of sixteen input values.
+mux16:: (((mux16))) Select from one of sixteen input values.
 
-mux2:: (((mux2)))Select from one of two input values.
+mux2:: (((mux2))) Select from one of two input values.
 
-mux4:: (((mux4)))Select from one of four input values.
+mux4:: (((mux4))) Select from one of four input values.
 
-mux8:: (((mux8)))Select from one of eight input values.
+mux8:: (((mux8))) Select from one of eight input values.
 
-near:: (((near)))Determine whether two values are roughly equal.
+near:: (((near))) Determine whether two values are roughly equal.
 
-offset:: (((offset)))Adds an offset to an input, and subtracts it from the feedback value.
+offset:: (((offset))) Adds an offset to an input, and subtracts it from the feedback value.
 
-integ:: (((integ)))Integrator.
+integ:: (((integ))) Integrator.
 
-invert:: (((invert)))Compute the inverse of the input signal.
+invert:: (((invert))) Compute the inverse of the input signal.
 
-wcomp:: (((wcomp)))Window comparator.
+wcomp:: (((wcomp))) Window comparator.
 
-weighted_sum:: (((weighted_sum)))Convert a group of bits to an integer.
+weighted_sum:: (((weighted_sum))) Convert a group of bits to an integer.
 
-biquad:: (((biquad)))Biquad IIR filter
+biquad:: (((biquad))) Biquad IIR filter
 
-lowpass:: (((lowpass)))Low-pass filter
+lowpass:: (((lowpass))) Low-pass filter
 
-limit1:: (((limit1)))Limit the output signal to fall between min and max.
+limit1:: (((limit1))) Limit the output signal to fall between min and max.
   footnote:[When the input is a position, this means that the 'position'
   is limited.]
 
-limit2:: (((limit2)))Limit the output signal to fall between min and max.
+limit2:: (((limit2))) Limit the output signal to fall between min and max.
   Limit its slew rate to less than maxv per second. footnote:[When the input
   is a position, this means that 'position' and 'velocity' are limited.]
 
-limit3:: (((limit3)))Limit the output signal to fall between min and max.
+limit3:: (((limit3))) Limit the output signal to fall between min and max.
   Limit its slew rate to less than maxv per second.
   Limit its second derivative to less than MaxA per second squared.
   footnote:[When the input is a position, this means that the 'position',
   'velocity', and 'acceleration' are limited.]
 
-maj3:: (((maj3)))Compute the majority of 3 inputs.
+maj3:: (((maj3))) Compute the majority of 3 inputs.
 
-scale:: (((scale)))Applies a scale and offset to its input.
+scale:: (((scale))) Applies a scale and offset to its input.
 
 === Type conversion
 
-conv_bit_s32:: (((conv_bit_s32)))Convert a value from bit to s32.
+conv_bit_s32:: (((conv_bit_s32))) Convert a value from bit to s32.
 
-conv_bit_u32:: (((conv_bit_u32)))Convert a value from bit to u32.
+conv_bit_u32:: (((conv_bit_u32))) Convert a value from bit to u32.
 
-conv_float_s32:: (((conv_float_s32)))Convert a value from float to s32.
+conv_float_s32:: (((conv_float_s32))) Convert a value from float to s32.
 
-conv_float_u32:: (((conv_float_u32)))Convert a value from float to u32.
+conv_float_u32:: (((conv_float_u32))) Convert a value from float to u32.
 
-conv_s32_bit:: (((conv_s32_bit)))Convert a value from s32 to bit.
+conv_s32_bit:: (((conv_s32_bit))) Convert a value from s32 to bit.
 
-conv_s32_float:: (((conv_s32_float)))Convert a value from s32 to float.
+conv_s32_float:: (((conv_s32_float))) Convert a value from s32 to float.
 
-conv_s32_u32:: (((conv_s32_u32)))Convert a value from s32 to u32.
+conv_s32_u32:: (((conv_s32_u32))) Convert a value from s32 to u32.
 
-conv_u32_bit:: (((conv_u32_bit)))Convert a value from u32 to bit.
+conv_u32_bit:: (((conv_u32_bit))) Convert a value from u32 to bit.
 
-conv_u32_float:: (((conv_u32_float)))Convert a value from u32 to float.
+conv_u32_float:: (((conv_u32_float))) Convert a value from u32 to float.
 
-conv_u32_s32:: (((conv_u32_s32)))Convert a value from u32 to s32.
+conv_u32_s32:: (((conv_u32_s32))) Convert a value from u32 to s32.
 
 [[sec:Realtime-Components-pilotes]]
 === Hardware Drivers
@@ -211,11 +212,11 @@ serport:: (((serport))) Hardware driver for the digital I/O bits of the 8250 and
 [[sec:Realtime-Components-cinematiques]]
 === Kinematics
 
-kins:: (((kins)))kinematics definitions for LinuxCNC.
+kins:: (((kins))) kinematics definitions for LinuxCNC.
 
-gantrykins:: (((gantrykins)))A kinematics module that maps one axis to multiple joints.
+gantrykins:: (((gantrykins))) A kinematics module that maps one axis to multiple joints.
 
-genhexkins:: (((genhexkins)))Gives six degrees of freedom in position and orientation (XYZABC).
+genhexkins:: (((genhexkins))) Gives six degrees of freedom in position and orientation (XYZABC).
   The location of the motors is defined at compile time.
 
 genserkins:: (((genserkins))) Kinematics that can model a general serial-link manipulator with up to
@@ -243,7 +244,7 @@ scarakins:: (((scarakins))) Kinematics for SCARA-type robots.
 
 at_pid:: (((at_pid))) Proportional/integral/derivative controller with auto tuning.
 
-pid:: Proportional/integral/derivative controller. <<sec:pid,Description>>
+pid:: (((pid))) Proportional/integral/derivative controller. <<sec:pid,Description>>
 
 pwmgen:: (((pwmgen))) Software PWM/PDM generation. <<sec:pwmgen,Description>>
 
@@ -326,7 +327,7 @@ tristate_bit:: (((tristate_bit))) Place a signal on an I/O pin only when enabled
 tristate_float:: (((tristate_float))) Place a signal on an I/O pin only when enabled, similar to a tristate
   buffer in electronics.
 
-watchdog:: (((watchdog)))Monitor one to thirty-two inputs for a 'heartbeat'.
+watchdog:: (((watchdog))) Monitor one to thirty-two inputs for a 'heartbeat'.
 
 == HAL API calls
 

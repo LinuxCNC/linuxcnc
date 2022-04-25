@@ -66,20 +66,21 @@ angle of each orientation and info on FRONTANGLE and BACKANGLE.
 
 The FRONTANGLE and BACKANGLE are clockwise starting at a line parallel to Z+.
 
+.Lathe Tool Orientations
 image::images/tool-positions_en.svg["Lathe Tool Orientations",align="center"]
 
 In AXIS the following figures show what the Tool Positions look like, as
 entered in the tool table.
 
 [[fig:Outil-Positions-1-2-3-4]]
-.Tool Positions 1, 2, 3 & 4(((Outils en positions 1, 2, 3 et 4)))
+.Tool Positions 1, 2, 3 & 4(((Tool Positions 1, 2, 3 & 4)))
 image:images/tool-pos-1_en.svg["Tool Position 1"]
 image:images/tool-pos-2_en.svg["Tool Position 2"]
 image:images/tool-pos-3_en.svg["Tool Position 3"]
 image:images/tool-pos-4_en.svg["Tool Position 4"]
 
 [[fig:Outil-Positions-5-6-7-8]]
-.Tool Positions 5, 6, 7 & 8(((Outils en positions 5, 6, 7 et 8)))
+.Tool Positions 5, 6, 7 & 8(((Tool Positions 5, 6, 7 & 8)))
 image:images/tool-pos-5_en.svg["Tool Position 5"]
 image:images/tool-pos-6_en.svg["Tool Position 6"]
 image:images/tool-pos-7_en.svg["Tool Position 7"]
@@ -248,7 +249,8 @@ the programmed path unless cutter comp is in effect. In the following
 figures you can see how the control point does not follow the tool edge
 as you might assume.
 
-image::images/control-point_en.svg["Control Point",align="center"]
+.Control point
+image::images/control-point_en.svg["Control point",align="center"]
 
 === Cutting Angles without Cutter Comp
 
@@ -298,7 +300,7 @@ amount of material will be left from the radius of the tool. To finish
 a face cut to the center of a part you have to program the tool to go
 past center at least the nose radius of the tool.
 
-image::images/radius-4_en.svg["Face Cut Image",align="center"]
+image::images/radius-4_en.svg["Face Cut",align="center"]
 
 === Using Cutter Comp
 

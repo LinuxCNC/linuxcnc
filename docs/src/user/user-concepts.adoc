@@ -41,7 +41,7 @@ For more information on the Trajectory Panner ini options see the
 <<sec:traj-section,Trajectory Section>> in the INI chapter.
 
 [[sub:path-following]]
-=== Path Following(((Path Following)))
+=== Path Following(((Trajectory Planning:Path Following)))
 
 A less straightforward problem is that of path following. When you
 program a corner in G Code, the trajectory planner can do several
@@ -63,7 +63,7 @@ enough to reach maximum velocity on a machine with low acceleration and
 no path tolerance specified, you can get a fairly round corner.
 
 [[sub:programming-the-planner]]
-=== Programming the Planner(((Programming the Planner)))
+=== Programming the Planner(((Trajectory Planning:Programming the Planner)))
 
 The trajectory control commands are as follows:
 
@@ -133,11 +133,11 @@ the next move. The bottom plot shows the effect of the Naive Cam
 Detector to combine the moves and do a better job of keeping the
 velocity as planned.
 
-//.Naive CAM Detector
+.Naive CAM Detector
 image::images/naive-cam.png["Naive CAM Detector",align="center"]
 
 [[sub:planning-moves]]
-=== Planning Moves(((Planning Moves)))
+=== Planning Moves(((Trajectory Planning:Planning Moves)))
 
 Make sure moves are 'long enough' to suit your machine/material.
 Principally because of the rule that the machine will never move at
@@ -313,13 +313,13 @@ reversed, +X will be on the right of the table and -X on the left. This
 inversion does not change anything from the point of view of the direction of
 movement of the tool.
 
-//.Typical Mill Configuration
-image::images/mill-diagram_en.svg["Mill Configuration",align="center"]
+.Typical Mill Configuration
+image::images/mill-diagram_en.svg["Typical Mill Configuration",align="center"]
 
 The following diagram shows a typical lathe showing direction of travel
 of the tool and limit switches.
 
-//.Typical Lathe Configuration
-image::images/lathe-diagram_en.svg["Lathe Configuration",align="center"]
+.Typical Lathe Configuration
+image::images/lathe-diagram_en.svg["Typical Lathe Configuration",align="center"]
 
 // vim: set syntax=asciidoc:

@@ -55,7 +55,7 @@ INCORRECT = value     # and a comment
 CORRECT = value
 ----
 
-=== Sections
+=== Sections(((Sections)))
 
 Related parts of an ini file are separated into sections.
 A section name is enclosed in brackets like this '[THIS_SECTION]'
@@ -257,8 +257,8 @@ User Manual.
   the graphics display
 * 'MAX_FEED_OVERRIDE = 1.2' - The maximum feed override the user may select.
   1.2 means 120% of the programmed feed rate.
-* 'MIN_SPINDLE_OVERRIDE = 0.5' - The minimum spindle override the user may
-  select. 0.5 means 50% of the programmed spindle speed. (This is used to
+* 'MIN_SPINDLE_OVERRIDE = 0.5' - The minimum spindle override the user may select.
+  0.5 means 50% of the programmed spindle speed. (This is used to
   set the minimum spindle speed).
 * 'MIN_SPINDLE_0_OVERRIDE = 0.5' - The minimum spindle override the user may select.
   0.5 means 50% of the programmed spindle speed.  (This is used to
@@ -522,11 +522,11 @@ if __name__ == "__main__":
 [[gcode:ini-features]]
 === [RS274NGC] Section(((INI File,RS274NGC Section)))
 
-* 'PARAMETER_FILE = myfile.var' -
-  (((PARAMETER FILE))) The file located in the same directory as the ini
+* 'PARAMETER_FILE = myfile.var' - (((PARAMETER FILE)))
+  The file located in the same directory as the ini
   file which contains the parameters used by the interpreter (saved between runs).
-* 'ORIENT_OFFSET = 0' -
-  (((ORIENT OFFSET))) A float value added to the R word parameter of an <<mcode:m19,M19 Orient Spindle>> operation.
+* 'ORIENT_OFFSET = 0' - (((ORIENT OFFSET)))
+  A float value added to the R word parameter of an <<mcode:m19,M19 Orient Spindle>> operation.
   Used to define an arbitrary zero position regardless of encoder mount orientation.
 * 'RS274NGC_STARTUP_CODE = G17 G20 G40 G49 G64 P0.001 G80 G90 G92 G94 G97 G98' - (((RS274NGC STARTUP CODE)))
   A string of NC codes that the interpreter
@@ -768,7 +768,7 @@ APP = halscope -i my.halscope
 === [TRAJ] Section(((INI File, TRAJ Section)))
 
 [WARNING]
-----
+====
 The new Trajectory Planner (TP) is on by default.
 If you have no TP settings in your [TRAJ] section - LinuxCNC defaults to: +
 ARC_BLEND_ENABLE = 1 +
@@ -776,7 +776,7 @@ ARC_BLEND_FALLBACK_ENABLE = 0 +
 ARC_BLEND_OPTIMIZATION_DEPTH = 50 +
 ARC_BLEND_GAP_CYCLES = 4 +
 ARC_BLEND_RAMP_FREQ = 100
-----
+====
 
 The [TRAJ] section contains general parameters for the trajectory
 planning module in 'motion'.
@@ -1317,7 +1317,7 @@ See the following table for an example of voltage measurements.
 // latexmath:[ raw=(cmd-b)/a ]
 
 .Output Voltage Measurements
-[width="50%", cols="2*^", options="header"]
+[width="50%",cols="2*^",options="header"]
 |===============
 |Raw | Measured
 |-10 | -9.93
@@ -1452,11 +1452,11 @@ The value of 'num_spindles' is set by [TRAJ]SPINDLES=
 
 * 'EMCIO = io' - Name of IO controller program.
 * 'CYCLE_TIME = 0.100' - The period, in seconds, at which EMCIO will run.
-   Making it 0.0 or a negative number will tell EMCIO not to sleep at all.
-   There is usually no need to change this number.
+  Making it 0.0 or a negative number will tell EMCIO not to sleep at all.
+  There is usually no need to change this number.
 * 'TOOL_TABLE = tool.tbl' - The file which contains tool information, described in the User Manual.
 * 'DB_PROGRAM = db_program' - Path to an executable program that manages tool data.
-   (When a DB_PROGRAM is specified, a TOOL_TABLE entry is ignored)
+  (When a DB_PROGRAM is specified, a TOOL_TABLE entry is ignored)
 * 'TOOL_CHANGE_POSITION = 0 0 2' -
   Specifies the XYZ location to move to when performing a tool change if three digits are used.
   Specifies the XYZABC location when 6 digits are used.
@@ -1464,14 +1464,14 @@ The value of 'num_spindles' is set by [TRAJ]SPINDLES=
   Tool Changes can be combined.
   For example if you combine the quill up with change position you can move the Z first theun the X and Y.
 * 'TOOL_CHANGE_WITH_SPINDLE_ON = 1' -
-   The spindle will be left on during the tool change when the value is 1.
-   Useful for lathes or machines where the material is in the spindle, not the tool.
+  The spindle will be left on during the tool change when the value is 1.
+  Useful for lathes or machines where the material is in the spindle, not the tool.
 * 'TOOL_CHANGE_QUILL_UP = 1' -
-   The Z axis will be moved to machine zero prior to the tool change when
-   the value is 1. This is the same as issuing a G0 G53 Z0.
+  The Z axis will be moved to machine zero prior to the tool change when
+  the value is 1. This is the same as issuing a G0 G53 Z0.
 * 'TOOL_CHANGE_AT_G30 = 1' -
-   The machine is moved to reference point defined by parameters 5181-5186 for G30 if the value is 1.
-   For more information see <<sec:overview-parameters,G-Code Parameters>> and <<gcode:g30-g30.1,G-Code G30-G30.1>>.
+  The machine is moved to reference point defined by parameters 5181-5186 for G30 if the value is 1.
+  For more information see <<sec:overview-parameters,G-Code Parameters>> and <<gcode:g30-g30.1,G-Code G30-G30.1>>.
 * 'RANDOM_TOOLCHANGER = 1' -
-   This is for machines that cannot place the tool back into the pocket it came from.
-   For example, machines that exchange the tool in the active pocket with the tool in the spindle.
+  This is for machines that cannot place the tool back into the pocket it came from.
+  For example, machines that exchange the tool in the active pocket with the tool in the spindle.

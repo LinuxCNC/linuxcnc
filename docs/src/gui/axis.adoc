@@ -38,7 +38,7 @@ works see the <<sec:display-section,Display Section>> of the INI
 Configuration Chapter.
 
 Adjust the response rate of the GUI in milliseconds. Typical 100, useable range 50 - 200 +
-(will accept time in seconds (.05 -.2) for legacy reasons - milliseconds preferred to match other screens)
+(will accept time in seconds (.05 -.2) for legacy reasons - milliseconds preferred to match other screens).
 
 [source,{ini}]
 ----
@@ -346,8 +346,8 @@ To move the program so it's within the machine's travel in this case,
 jog to the left and Touch Off X again.
 
 [[fig:soft-limits]]
-.The Soft limits(((Soft Limits)))
-image::images/axis-outofrange.png["Soft limits", align="center"]
+.Soft Limits(((Soft Limits)))
+image::images/axis-outofrange.png["Soft Limits", align="center"]
 
 .Tool Cone
 When no tool is loaded, the location of the tip of the tool is
@@ -493,8 +493,8 @@ specified value. Expressions may be entered using the rules for
 rs274ngc programs, except that variables may not be referred to. The
 resulting value is shown as a number.
 
-//.Touch Off Window
-image::images/touchoff.png["Touch Off Window", align="center"]
+.Touch Off Window
+image::images/touchoff.png["Touch Off Window",align="center"]
 
 See also the Machine menu options: 'Touch part' and 'Touch part holder'.
 
@@ -503,8 +503,8 @@ By pressing the 'Tool Touch Off' button the tool length and offsets of
 the currently loaded tool will be changed so that the current tool tip
 position matches the entered coordinate.
 
-//.Tool Touch Off Window
-image::images/tooltouchoff.png["Tool Touch Off Window", align="center"]
+.Tool Touch Off Window
+image::images/tooltouchoff.png["Tool Touch Off Window",align="center"]
 
 See also the 'Tool touch off to workpiece' and 'Tool touch off to fixture'
 options in the Machine menu.
@@ -540,7 +540,7 @@ When the machine is not turned on, or when a program is
 running, the MDI controls are unavailable.
 
 .The MDI tab
-image::images/axis-mdi.png["MDI tab", align="center"]
+image::images/axis-mdi.png["MDI tab",align="center"]
 
 * 'History' - This shows MDI commands that have been typed earlier in this session.
 * 'MDI Command' - This allows you to enter a G-code command to be executed. Execute the
@@ -643,7 +643,7 @@ AXIS includes a program called 'linuxcnctop' which shows some of the
 details of LinuxCNC's state. You can run this program by invoking Machine >
 Show LinuxCNC Status
 
-//.LinuxCNC Status Window
+.LinuxCNC Status Window
 image::images/axis-emc-status.png["LinuxCNC Status Window",align="center"]
 
 The name of each item is shown in the left column. The current value
@@ -711,9 +711,9 @@ This can be very confusing to most users.
 To turn this feature off for the current tool change
 program a G1 with no move after the T<n>.
 
-[[fig:manual-toolchange-window]](((Axis:Manual Toolchange Window)))
-//.The Manual Toolchange Window
-image:images/manual-tool-change.png["The Manual Toolchange Screenshot",align="center"]
+[[fig:manual-toolchange-window]]
+.Manual Toolchange Window(((Axis:Manual Toolchange Window)))
+image::images/manual-tool-change.png["Manual Toolchange Window",align="center"]
 
 [[sec:axis-python-modules]]
 == Python modules(((Axis:Python Modules)))
@@ -746,20 +746,20 @@ preset views) are removed.  The coordinate readouts for X are replaced
 with diameter and radius.
 
 .Axis Lathe Mode
-image::images/axis-lathe.png["Axis Lathe",align="center"]
+image::images/axis-lathe.png["Axis Lathe Mode",align="center"]
 
 Pressing 'V' zooms out to show the entire file, if one is loaded.
 
 When in lathe mode, the shape of the loaded tool (if any) is shown.
 
-//.Lathe Tool Shape
+.Lathe Tool Shape
 image::images/axis-lathe-tool.png["Lathe Tool Shape",align="center"]
 
 To change the display to a back tool lathe you need to have both 'LATHE = 1'
 and 'BACK_TOOL_LATHE = 1' in the [DISPLAY] section. This will invert the view
 and put the tool on the back side of the Z axis.
 
-//.Lathe Back Tool Shape
+.Lathe Back Tool Shape
 image::images/axis-back-tool-lathe.png["Lathe Back Tool Shape",align="center"]
 
 == Using AXIS in Foam Cutting mode
@@ -771,8 +771,8 @@ in another.  In the live plot, lines are drawn between corresponding points on
 the XY plane and the UV plane.  The special comments (XY_Z_POS) and (UV_Z_POS)
 set the Z coordinates of these planes, which default to 0 and 1.5 machine units.
 
-//.Foam cutting mode
-image::images/axis-foam.png["Foam cutting mode",align="center"]
+.Foam Cutting Mode
+image::images/axis-foam.png["Foam Cutting Mode",align="center"]
 
 == Advanced Configuration
 
@@ -823,7 +823,7 @@ treated as G-code. One such example script is available at
 'nc_files/holecircle.py'. This script creates G-code for drilling a
 series of holes along the circumference of a circle.
 
-//.Circular Holes
+.Circular Holes
 image::images/holes.png["Circular Holes",align="center"]
 
 If the environment variable AXIS_PROGRESS_BAR is set, then lines
@@ -862,7 +862,7 @@ AXIS defaults, include the following line in your X Resources:
 
 // These asterisks are not for bold,
 ----
-    *Axis*optionLevel: widgetDefault
+*Axis*optionLevel: widgetDefault
 ----
 // in this case, we want the asterisks to actually appear.
 

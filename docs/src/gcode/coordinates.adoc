@@ -53,7 +53,7 @@ in machine coordinate system is desired
 
 [[fig:coordinate-systems-example]]
 .Coordinate Systems Example
-image::images/offsets.png["Coordinate systems example",align="center"]
+image::images/offsets.png["Coordinate Systems Example",align="center"]
 
 .Coordinate System Offsets
 * G54 - use coordinate system 1
@@ -237,6 +237,7 @@ the other offsets.
 offset".
 
 The 'G92' set of commands includes:
+
 * 'G92' - This command, when used with axis names, sets values to offset variables.
 * 'G92.1' - This command sets zero values to the G92 variables.
 * 'G92.2' - This command suspends but does not zero out the G92 variables.
