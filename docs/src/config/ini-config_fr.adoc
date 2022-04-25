@@ -90,7 +90,7 @@ besoin. Un nom de variable est souvent appelé un mot clé.
 
 .Variable Example
 ----
-MACHINE = MaVariable
+MACHINE = Ma Machine
 ----
 
 A variable line may be extended to multiple lines with a terminal backslash (\)
@@ -259,10 +259,11 @@ Manuel de l'utilisateur.
   peut utiliser. 1.2 signifie 120% de la vitesse programmée.
 * 'MIN_SPINDLE_OVERRIDE = 0.5' - Correction de vitesse minimum de broche que
   l'opérateur pourra utiliser. 0.5 signifie 50% de la vitesse de broche
-  programmée. (utile si il est dangereux de démarrer un programme avec une   vitesse de broche trop basse).
+  programmée. (utile si il est dangereux de démarrer un programme avec une vitesse de broche trop basse).
 * 'MIN_SPINDLE_0_OVERRIDE = 0.5' - The minimum spindle override the user may
   select. 0.5 means 50% of the programmed spindle speed. (This is used to
-  set the minimum spindle speed). On multi spindle machine there will be entries for each spindle number. Qtvcp only.
+  set the minimum spindle speed).
+  On multi spindle machine there will be entries for each spindle number. Qtvcp only.
 * 'MAX_SPINDLE_OVERRIDE = 1.0' - Correction de vitesse maximum de broche que
   l'opérateur pourra utiliser. 1.0 signifie 100% de la vitesse de broche programmée.
 * 'MAX_SPINDLE_0_OVERRIDE = 1.0' - The maximum feed override the user may select.
@@ -298,7 +299,8 @@ Manuel de l'utilisateur.
 
 [NOTE]
 The following [DISPLAY] items are used by GladeVCP, see the
-<<gladevcp:embeding-tab,embedding a tab>> section of the GladeVCP Chapter.
+gladevcp:embeding-tab,embedding a tab section of the GladeVCP Chapter.
+//<<gladevcp:integration-onglet,embedding a tab>> section of the GladeVCP Chapter. FIXME SPANISH
 
 * 'EMBED_TAB_NAME=GladeVCP demo'
 * 'EMBED_TAB_COMMAND=halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x {XID} -u ./gladevcp/hitcounter.py ./gladevcp/manual-example.ui'
@@ -317,8 +319,7 @@ See <<cha:gmoccapy,gmoccapy>> document for Gmoccapy details.
 * 'DEFAULT_ANGULAR_VELOCITY = .25' - Vitesse minimum par défaut pour les jogs angulaires, en unités machine par seconde. Seulement utilisé dans l'interface AXIS.
 * 'MIN_ANGULAR_VELOCITY = .01' - Valeur approximative minimale du curseur de vitesse angulaire de jog.
 * 'MAX_ANGULAR_VELOCITY = 1.0' - Vitesse maximum par défaut pour les jogs angulaires, en unités machine par seconde. Seulement utilisé dans l'interface AXIS.
-* 'INCREMENTS = 1 mm, .5 mm, ...' - Définit les incréments disponibles pour
-  le jog incrémental. Les incréments peuvent être utilisés pour remplacer la
+* 'INCREMENTS = 1 mm, .5 mm, ...' - Définit les incréments disponibles pour   le jog incrémental. Les incréments peuvent être utilisés pour remplacer la
   valeur par défaut. Ces valeurs doivent contenir des nombres décimaux
   (ex. 0.1000) ou des nombres fractionnaires (ex. 1/16), éventuellement suivis
   par une unité parmi 'cm', 'mm', 'um', 'inch', 'in' ou 'mil'. Si aucune unité n'est spécifiée, les unités natives de la machine seront utilisées.
@@ -337,7 +338,8 @@ See <<cha:gmoccapy,gmoccapy>> document for Gmoccapy details.
   tables d'outils. (par exemple en sélectionnant "Fichiers > Éditer la table.
   d'outils" dans le menu d'Axis). D'autres entrées comme 'gedit',
   'gnome-terminal -e vim', 'gvim' ou 'nano' sont valides.
-* 'PYVCP = /filename.xml' - Le fichier de description du panneau PyVCP. Voir la section PyVCP.
+* 'PYVCP = /filename.xml' - Le fichier de description du panneau PyVCP.
+  Voir la section PyVCP.
 * 'PYVCP_POSITION = BOTTOM' - The placement of the PyVCP panel in the AXIS user interface.
   If this variable is omitted the panel will default to the right side. The only valid
   alternative is BOTTOM. See the <<cha:pyvcp,PyVCP Chapter>> for more information.
@@ -365,17 +367,13 @@ See <<cha:gmoccapy,gmoccapy>> document for Gmoccapy details.
 . Rotations are by default applied with respect to the machine origin.
   Example: GEOMETRY=CXYZ first translates the control point to X,Y,Z and then
   performs a C rotation about the Z axis centered at the machine origin.
-. Rotations applied after translations may use the "*!*" provision to
-  to act with respect to the current machine offset.  Example: GEOMETRY=!CXYZ
+. Rotations applied after translations may use the "*!*" provision to to act with respect to the current machine offset.  Example: GEOMETRY=!CXYZ
   translates the control point to the X,Y,Z position and then performs
   a C rotation about the machine origin displaced by the current G5x,G92
   X,Y,Z offsets.  (Changing offsets may require a program reload).
-. UVW translation example: GEOMETRY=XYZUVW causes UVW to move in the coordinate
-  system of the tool and XYZ to move in the coordinate system of the material
-. Foam-cutting machines (FOAM = 1) should specify "XY;UV" or leave the value
-  blank even though this value is presently ignored in foam-cutter mode.  A
-  future version may define what ";" means, but if it does "XY;UV" will mean
-  the same as the current foam default.
+. UVW translation example: GEOMETRY=XYZUVW causes UVW to move in the coordinate system of the tool and XYZ to move in the coordinate system of the material
+. Foam-cutting machines (FOAM = 1) should specify "XY;UV" or leave the value blank even though this value is presently ignored in foam-cutter mode.  A
+  future version may define what ";" means, but if it does "XY;UV" will mean the same as the current foam default.
 
 [NOTE]
 If no [DISPLAY]GEOMETRY is included in the inifile, a default is provided
@@ -393,12 +391,14 @@ by the [DISPLAY]DISPLAY gui program (typically "XYZABCUVW")
   The left and right arrows are assigned to the first axis letter, up and down to the second,
   page up/page down to the third, and left and right bracket to the fourth.
   If unspecified, the default is determined from the [TRAJ]COORDINATES, [DISPLAY]LATHE and [DISPLAY]FOAM values.
-* 'JOG_INVERT =' - For each axis letter, the jog direction is inverted.  The default is "X" for lathes and blank otherwise.
+* 'JOG_INVERT =' - For each axis letter, the jog direction is inverted.
+  The default is "X" for lathes and blank otherwise.
 
 [NOTE]
 The settings for 'JOG_AXES' and 'JOG_INVERT' apply to world mode jogging by axis coordinate letter
 and are in effect while in world mode after successful homing. When operating in joint
-mode prior to homing, keyboard jog keys are assigned in a fixed sequence: left/right: joint0,
+mode prior to homing, keyboard jog keys are assigned in a fixed sequence:
+left/right: joint0,
 up/down: joint1, page up/page down: joint2, left/right bracket: joint3
 
 * 'USER_COMMAND_FILE = mycommands.py' -- The name of an optional, configuration-specific
@@ -522,21 +522,18 @@ if __name__ == "__main__":
 [[gcode:ini-features]]
 === Section [RS274NGC](((Fichier INI,Section [RS274NGC])))
 
-* 'PARAMETER_FILE = monfichier.var' - (((PARAMETER FILE))) Le fichier situé
-  dans le même répertoire que le fichier INI qui contiendra les paramètres
+* 'PARAMETER_FILE = monfichier.var' - (((PARAMETER FILE)))
+  Le fichier situé dans le même répertoire que le fichier INI qui contiendra les paramètres
   utilisés par l'interpréteur (enregistré entre chaque lancement).
-
-* 'ORIENT_OFFSET = 0' -
-  (((ORIENT OFFSET ))) Une valeur flottante ajoutée au paramètre R d'une opération <<mcode:m19,d'orientation de la broche par M19>>. Utilisée pour
+* 'ORIENT_OFFSET = 0' - (((ORIENT OFFSET )))
+  Une valeur flottante ajoutée au paramètre R d'une opération <<mcode:m19,d'orientation de la broche par M19>>. Utilisée pour
   définir une position zéro quelconque quelle que soit l'orientation de montage du codeur de broche.
-
-* 'RS274NGC_STARTUP_CODE = G17 G20 G40 G49 G64 P0.001 G80 G90 G92 G94 G97 G98' -
-  (((RS274NGC STARTUP CODE))) Une chaine de codes NGC qui sera utilisée
+* 'RS274NGC_STARTUP_CODE = G17 G20 G40 G49 G64 P0.001 G80 G90 G92 G94 G97 G98' - (((RS274NGC STARTUP CODE)))
+  Une chaine de codes NGC qui sera utilisée
   pour initialiser l'interpréteur. Elle ne se substitue pas à la
   spécification des G-codes modaux du début de chaque fichier ngc. Les
   codes modaux des machines diffèrent, ils pourraient être modifiés par
   les G-codes interprétés plutôt dans la session.
-
 * 'SUBROUTINE_PATH = ncsubroutines:/tmp/testsubs:lathesubs:millsubs' - (((SUBROUTINE PATH)))
   Spécifie une liste, séparée par (:) d'au maximum 10
   répertoires dans lesquels seront cherchés les fichier de sous-programme
@@ -547,11 +544,8 @@ if __name__ == "__main__":
   sous-programme recherché est utilisée. Les répertoires sont spécifiés
   relativement au répertoire courant du fichier INI ou par des chemins
   absolus. La liste ne doit contenir aucun espace blanc.
-
 * 'CENTER_ARC_RADIUS_TOLERANCE_INCH = n' Default 0.00005
-
 * 'CENTER_ARC_RADIUS_TOLERANCE_MM = n' Default 0.00127
-
 * 'USER_M_PATH = myfuncs:/tmp/mcodes:experimentalmcodes' - (((USER M PATH)))
   Spécifie une liste de répertoires, séparés par (:) (sans aucun espace blanc) pour les fonctions définies par l'utilisateur. Les
   répertoires sont spécifiés par rapport au répertoire courant pour les
@@ -572,24 +566,19 @@ Le premier M1xx trouvé au cours de la recherche est utilisé pour chaque M1xx.
 * 'INI_VARS = 1' Default 1
   Allows G-code programs to read values from the INI file using the format #<_ini[section]name>.
   See <<sec:overview-parameters,G-code Parameters>>.
-
 * 'HAL_PIN_VARS = 1' Default 1
   Allows G-code programs to read the values of HAL pins using the format #<_hal[Hal item]>.
   Variable access is read-only.
   See <<sec:overview-parameters,G-code Parameters>> for more details and an important caveat.
-
 * 'RETAIN_G43 = 0' Default 0
   When set, you can  turn on G43 after loading the first tool, and then not worry about it through the program.
   When you finally unload the last tool, G43 mode is canceled.
-
 * 'OWORD_NARGS = 0' Default 0
   If this feature is enabled then a called subroutine can determine the
   number of actual positional parameters passed by inspecting the +#<n_args>+ parameter.
-
 * 'NO_DOWNCASE_OWORD = 0' Default 0
   Preserve case in O-word names within comments if set, enables reading of
   mixed-case HAL items in structured comments like '(debug, #<_hal[MixedCaseItem])'.
-
 * 'OWORD_WARNONLY = 0' Default 0
   Warn rather than error in case of errors in O-word subroutines.
 
@@ -603,7 +592,6 @@ pas encore complétement implémenté et les résultats, découlant de son utili
 
 * 'REMAP=M400  modalgroup=10 argspec=Pq ngc=myprocedure'
   See <<cha:remap,Remap Extending G-Code>> chapter for details.
-
 * 'ON_ABORT_COMMAND=O <on_abort> call'
   See <<cha:remap,Remap Extending G-Code>> chapter for details.
 
@@ -638,7 +626,6 @@ Section.
   la mémoire partagée non-HAL, et interpréter le g-code.
   Actuellement il n'y a qu'une seule tâche exécutable qui fait sens pour
   99,9% des utilisateurs, milltask.
-
 * 'CYCLE_TIME = 0.010' -
   Période exprimée en secondes, à laquelle TASK va tourner. Ce paramètre affecte l'intervalle de polling lors de l'attente de
   la fin d'un mouvement, lors de l'exécution d'une pause d'instruction et quand
@@ -654,25 +641,28 @@ Section.
   configurations auront au moins un 'HALFILE' . Les systèmes à moteurs
   pas à pas ont généralement deux de ces fichiers, un qui spécifie la
   configuration générale des moteurs 'core_stepper.hal' et un qui spécifie le brochage des sorties 'xxx_pinout.hal'.
-+
+
 HALFILES are found using a search.
 If the named file is found in the directory containing the ini file, it is used.
 If the named file is not found in this ini file directory, a search is made using a system library of halfiles.
-+
+
 If LinuxCNC is started with the linuxcnc script using the "-H dirname" option,
 the specified dirname is prepended to the search described above so that
 "dirname" is searched first.  The "-H dirname" option may be specified more
 than once, directories are prepended in order.
-+
+
 A HALFILE may also be specified as an absolute path (when the name starts with
 a '/' character).  Absolute paths are not recommended as their use may limit
 relocation of configurations.
+
 * 'HALFILE = texample.tcl [arg1 [arg2] ...]' - Execute the tcl file 'texample.tcl'
   at start up with arg1, arg2, etc as ::argv list.  Files with a .tcl suffix are
   processed as above but use haltcl for processing  See the
   <<cha:haltcl,HALTCL Chapter>> for more information.
+
 * 'HALFILE = LIB:sys_example.hal' - Execute the system library file 'sys_example.hal' at start up.
   Explicit use of the LIB: prefix causes use of the system library HALFILE without searching the ini file directory.
+
 * 'HALFILE = LIB:sys_texample.tcl [arg1 [arg2 ...]]' - Execute the system library file 'sys_texample.tcl' at start up.
   Explicit use of the LIB: prefix causes use of the system library HALFILE without searching the ini file directory.
 
@@ -700,6 +690,7 @@ Connections made using a POSTGUI_HALFILE are not checked.
   pour chaque module sont cumulées. Aucune commande HAL n'est exécutée à la première passe. These accumulated load commands are executed at the end of pass0.
   This accumulation allows load lines to be specified more than once for a given component (provided the names= names used are unique on each use).
   In the second pass (pass1), the HALFILES are reread and all commands except the previously executed load commands are executed.
+
 * 'TWOPASS = nodelete verbose' - The TWOPASS feature can be activated with any non-null string including the keywords verbose and nodelete.
   The verbose keyword causes printing of details to stdout.
   The nodelete keyword preserves temporary files in /tmp.
@@ -790,7 +781,8 @@ ARC_BLEND_RAMP_FREQ = 100
 La section [TRAJ] contient les paramètres généraux du module
 planificateur de trajectoires de EMCMOT.
 
-* 'ARC_BLEND_ENABLE = 1' - Turn on new TP. If set to 0 TP uses parabolic blending (1 segment look ahead).
+* 'ARC_BLEND_ENABLE = 1' - Turn on new TP.
+  If set to 0 TP uses parabolic blending (1 segment look ahead).
   Default value 1.
 * 'ARC_BLEND_FALLBACK_ENABLE = 0' - Optionally fall back to parabolic blends if the estimated speed is faster.
   However, this estimate is rough, and it seems that just disabling it gives better performance.
@@ -893,7 +885,6 @@ small, tight corners, since you're limited by cornering acceleration.
 
 * 'SPINDLES = 3' - The number of spindles to support. It is imperative that this
   number matches the "num_spindles" parameter passed to the motion module.
-
 * 'COORDINATES = X Y Z' - Les noms des axes à contrôler.
   X, Y, Z, A, B, C, U, V
   et W sont valides. Seuls les axes nommés dans 'COORDINATES' seront acceptés dans
@@ -903,29 +894,22 @@ small, tight corners, since you're limited by cornering acceleration.
   U est toujours l'articulation 6 et ainsi de suite. Il est permis d'écrire les
   noms d'axe par paire (ex: X Y Y Z pour une machine à portique) mais
   cela n'a aucun effet.
-
 * 'LINEAR_UNITS=<units>' - (((LINEAR UNITS)))Le nom des unités utilisées dans
   le fichier INI. Les choix possibles sont 'in', 'inch', 'imperial', 'metric',
   'mm'. Cela n'affecte pas les unités linéaires du code NC (pour cela il y a les mots G20 et G21).
-
 * 'ANGULAR_UNITS=<units>' - (((ANGULAR UNITS)))Le nom des unités utilisées
   dans le fichier INI. Les choix possibles sont 'deg', 'degree' (360 pour un
   cercle), 'rad', 'radian' (2pi pour un cercle), 'grad', ou 'gon' (400 pour un
   cercle). Cela n'affecte pas les unités angulaires du code NC. Dans le code RS274NGC, les mots A-, B- et C- sont toujours exprimés en degrés.
-
 * 'DEFAULT_LINEAR_VELOCITY = 0.0167' - La vitesse initiale de jog des axes linéaires,
   en unités par seconde. La valeur indiquée ici correspond à une unité par minute.
-
 * 'DEFDEFAULT_LINEAR_ACCELERATIONAULT_ACCELERATION = 2.0' - Dans les machines à cinématique non triviale,
   l'accélération utilisée pour 'teleop' jog (espace cartésien), en unités machine par seconde par seconde.
-
 * 'MAX_LINEAR_VELOCITY = 5.0' - (((MAX VELOCITY))) Vitesse maximale de déplacement
   pour les axes, exprimée en unités machine par seconde. La valeur indiquée est
   égale à 300 unités par minute.
-
 * 'MAX_LINEAR_ACCELERATION = 20.0' - (((MAX ACCELERATION))) Accélération maximale pour
   les axes, exprimée en unités machine par seconde par seconde.
-
 * 'POSITION_FILE = position.txt' - Si réglée à une valeur non vide, les
   positions des axes (joins) sont enregistrées dans ce fichier.
   Cela permet donc
@@ -935,7 +919,6 @@ small, tight corners, since you're limited by cornering acceleration.
   C'est utile pour les petites machines sans contact d'origine machine.
   Si vide, les positions ne seront pas enregistrées et commenceront à 0 à
   chaque fois que LinuxCNC démarrera.
-
 * 'NO_FORCE_HOMING = 1' - LinuxCNC oblige implicitement l'utilisateur à
   référencer la machine par une prise d'origine machine avant de pouvoir lancer
   un programme ou exécuter une commande dans le MDI, seuls les mouvements de Jog
@@ -945,7 +928,9 @@ small, tight corners, since you're limited by cornering acceleration.
   au point de la machine.
 
 [WARNING]
+====
 'NO_FORCE_HOMING = 1' permettra à la machine de franchir les limites logicielles pendant les mouvements ce qui n'est pas souhaitable pour un fonctionnement normal!
+====
 
 * 'HOME = 0 0 0' - Coordonnées de l'origine machine
   de chaque axe. De nouveau,
@@ -954,7 +939,6 @@ small, tight corners, since you're limited by cornering acceleration.
   uniquement pour les machines à cinématique non triviale. Sur les
   machines avec cinématique triviale,
   cette valeur est ignorée.
-
 * TPMOD = alternate_trajectory_planning module [tp_parms=value]
   The TPMOD variable is optional.  If specified, use a specified (user-built)
   module instead of the default (tpmod).  Module parameters (tp_parms) may be
@@ -966,10 +950,8 @@ small, tight corners, since you're limited by cornering acceleration.
 
 * 'JOINTS = 3' - (Cette variable de configuration est utilisée seulement par Axis et non par le planificateur de trajectoire du contrôleur de
   mouvement.) Elle spécifie le nombre d'articulations (moteurs) que
-  comporte le système. Par exemple, une machine XYZ avec un seul moteur
-  pour chacun des 3 axes, comporte 3 articulations (joints). Une machine
+  comporte le système. Par exemple, une machine XYZ avec un seul moteur   pour chacun des 3 axes, comporte 3 articulations (joints). Une machine
   à portique avec un seul moteur sur deux de ses axes et deux moteurs sur le troisième axe, comporte 4 articulations (joints).
-
 * 'KINEMATICS = trivkins' - Specify a kinematics module for the motion module.
   Guis may use this variable to specify the loadrt line in hal files for the motmod module.
   For more information on kinematics modules see the manpage: '$ man kins'
@@ -980,24 +962,19 @@ small, tight corners, since you're limited by cornering acceleration.
 The <letter> specifies one of: X Y Z A B C U V W
 
 * 'MAX_VELOCITY = 1.2' - Vitesse maximum pour cet axe en unités machine par seconde.
-
 * 'MAX_ACCELERATION = 20.0' - Accélération maximum pour cet axe en unités machine par seconde au carré.
-
 * 'MIN_LIMIT = -1000' - (((MIN LIMIT))) Limite minimale des mouvements de cet
   axe (limite logicielle), en unités machine. Quand cette limite tend à être
   dépassée, le contrôleur arrête le mouvement.
   For a rotary axis (A,B,C typ)  with unlimited rotation having no MIN_LIMIT
   for that axis in the [AXIS_<letter>] section a value of -1e99 is used.
-
 * 'MAX_LIMIT = 1000' - (((MAX LIMIT))) Limite maximale des mouvements de cet
   axe (limite logicielle), en unités machine. Quand cette limite tend à être
   dépassée, le contrôleur arrête le mouvement.
   For a rotary axis (A,B,C typ) with unlimited rotation having no MAX_LIMIT
   for that axis in the [AXIS_<letter>] section a value of 1e99 is used.
-
 * 'WRAPPED_ROTARY = 1' - Lorsque ce paramètre est réglé à 1 pour un axe angulaire
   l'axe se déplace de 0 à 359.999 degrés. Les nombres positifs déplacent l'axe dans le sens positif et les nombres négatifs dans le sens négatif.
-
 * 'LOCKING_INDEXER_JOINT = 4' - This value selects a joint to use for a locking indexer for the specified axis <letter>.
   In this example, the joint is 4 which would correspond to the B axis for a XYZAB system with trivkins (identity) kinematics.
   When set, a G0 move for this axis will initiate an unlock with the joint.4.unlock pin then wait for the joint.4.is-unlocked pin then move
@@ -1022,8 +999,7 @@ Example: `loadrt motmod ... unlock_joints_mask=0x38` creates unlock pins for joi
 'axis.<letter>.eoffset-scale'
 ----
 
-See the chapter: <<cha:external-offsets, 'External Axis Offsets'>> for
-usage information.
+See the chapter: <<cha:external-offsets, 'External Axis Offsets'>> for usage information.
 
 [[sec:joint-section]]
 === [JOINT_<num>] Section(((Fichier INI,Section [JOINT])))
@@ -1059,26 +1035,19 @@ with coordinates=XZ, the joint-axes relationships are:
 For more information on kinematics modules see the manpage: '$ man kins'
 
 * 'TYPE = LINEAR' - Type des axes, soit LINEAR, soit ANGULAR.
-
 * 'UNITS = inch' - (((UNITS))) Ce réglage écrase celui des variables
   [TRAJ] UNITS si il est spécifié. (ex: [TRAJ]LINEAR_UNITS si le TYPE de cet axe
   est LINEAR, [TRAJ]ANGULAR_UNITS si le TYPE de
   cet axe est ANGULAR)
-
-* 'MAX_VELOCITY = 1.2' -
-  Vitesse maximum pour cet axe en unités machine par seconde.
-
+* 'MAX_VELOCITY = 1.2' - Vitesse maximum pour cet axe en unités machine par seconde.
 * 'MAX_ACCELERATION = 20.0' -
   Accélération maximum pour cet axe en unités machine par seconde au carré.
-
 * 'BACKLASH = 0.000' - Valeur de compensation du jeu en unités machine.
   Peut être utilisée pour atténuer de petites déficiences du matériel utilisé
   pour piloter cet axe. Si un backlash est ajouté à un axe et que des moteurs
   pas à pas sont utilisés, la valeur de STEPGEN_MAXACCEL doit être 1.5 à 2
   fois plus grande que celle de MAX_ACCELERATION pour cet axe.
-
 // add a link to machine units
-
 * 'COMP_FILE = file.extension' - Fichier dans lequel est enregistrée une
   structure de compensation spécifique à cet axe. Le fichier peut être nommé
   'xscrew.comp', par exemple, pour l'axe X. Les noms de fichiers sont sensibles
@@ -1095,7 +1064,6 @@ A 'COMP_FILE_TYPE' must be specified for each 'COMP_FILE'.
 
 * 'COMP_FILE_TYPE = 0 ou 1' -Specifies the type of compensation file. The
   first value is the nominal (commanded) position for both types.
-
 ** 'Si 0:' Les deuxième et troisième valeurs spécifient la position en avant
    (de combien l'axe est en avance) et la position en arrière (de combien l'axe
    est en retard), positions qui correspondent à la position nominale.
@@ -1108,7 +1076,6 @@ Type 0 Example:
 0.000 0.002 -0.003
 1.000 1.003 0.998
 ----
-
 ** 'Si 1:' Les deuxième et troisième valeurs spécifient l'ajustement avant (à quelle distance de la valeur nominale lors d'un déplacement vers l'avant)
    et l'ajustement arrière (à quelle distance de la valeur nominale lors d'un déplacement vers l'arrière), positions qui correspondent à la position
    nominale.
@@ -1120,24 +1087,25 @@ Type 1 Example:
 0.000 0.002 -0.003
 1.000 0.003 -0.004
 ----
-
 * 'MIN_LIMIT = -1000' - (((MIN LIMIT)))
   The minimum limit for joint motion, in machine units.
   When this limit is reached, the controller aborts joint motion.
   For a rotary joint with unlimited rotation having no MIN_LIMIT for that joint in the [JOINT_N] section a the value -1e99 is used.
-
 * 'MAX_LIMIT = 1000' - (((MAX LIMIT)))
   The maximum limit for joint motion, in machine units.
   When this limit is reached, the controller aborts joint motion.
   For a rotary joint with unlimited rotation having no MAX_LIMIT for that joint in the [JOINT_N] section a the value 1e99 is used.
 
 [NOTE]
+====
 For *identity* kinematics, the [JOINT_N]MIN_LIMIT,MAX_LIMIT settings must equal
 or exceed the corresponding (one-to-one identity) [AXIS_L] limits.  These
 settings are verified at startup when the trivkins kinematics modules is
 specified.
+====
 
 [NOTE]
+====
 The [JOINT_N]MIN_LIMIT, MAX_LIMIT settings are enforced while jogging in joint
 mode prior to homing.  After homing, [AXIS_L]MIN_LIMIT,MAX_LIMIT coordinate
 limits are used as constraints for axis (coordinate letter) jogging and
@@ -1149,13 +1117,13 @@ trajectory planning position limits when non identity kinematics are used.  The
 motion module always detects joint position limit violations and faults if they
 occur during the execution of G-code commands.  See also related github issue
 #97.
+====
 
 * 'MIN_FERROR = 0.010' - (((MIN FERROR))) Valeur indiquant, en unités machine, de combien le mobile peut dévier à très petite vitesse de la position commandée.
   Si MIN_FERROR est plus petit que FERROR, les deux produisent une rampe de
   points de dérive. Vous pouvez imaginer un graphe sur lequel une
   dimension représente la vitesse et l'autre, l'erreur tolérée. Quand la
   vitesse augmente, la quantité d'erreurs de suivi augmente également et   tend vers la valeur FERROR.
-
 * 'FERROR = 1.0' - (((FERROR))) FERROR est le maximum d'erreur de suivi tolérable, en unités machine. Si la différence entre la position commandée et la
   position retournée excède cette valeur, le contrôleur désactive les calculs des servomoteurs, positionne toutes les sorties à 0.0 et coupe
   les amplis des moteurs. Si MIN_FERROR est présent dans le fichier .ini, une vitesse proportionnelle aux erreurs de suivi est utilisée. Ici, le
@@ -1167,7 +1135,6 @@ occur during the execution of G-code commands.  See also related github issue
   possibilités. L'utilitaire de calibration peut être utilisé pour les ajuster interactivement et vérifier les résultats, de sorte que les
   valeurs puissent être mises dans le fichier INI avec un minimum de difficultés. Cet utilitaire est accessible dans Axis depuis le menu
   'Machine' puis 'Calibration' et dans TkLinuxCNC depuis le menu 'Réglages' puis 'Calibration'.
-
 * 'LOCKING_INDEXER = 1' - Quand ce paramètre est mis à 1, un mouvement en G0 sur cet axe va produire un signal de déblocage sur la pin 'axis.N.unlock', puis attendre le signal 'axis.N.is-unlocked' de cet axe pour déplacer l'axe à la vitesse rapide prévue pour cet axe. Après ce mouvement, le signal 'axis.N.unlock' retombera à false et les mouvements attendront que 'axis.N.is-unlocked' redevienne false. Le mouvement des autres axes n'est pas autorisé lors du mouvement d'un axe rotatif à verrou.
 
 ==== Section [HOMING]
@@ -1176,55 +1143,45 @@ Les paramètres suivants sont relatifs aux prises d'origine, pour plus
 d'informations, lire <<cha:homing-configuration,le chapitre sur la POM>>.
 
 * 'HOME = 0.0' - La position à laquelle le mobile ira à la fin de la séquence de prise d'origine.
-
 * 'HOME_OFFSET = 0.0' - Position du contact d'origine machine de l'axe ou de l'impulsion d'index, en <<sub:Section-TRAJ,unités machine>>. Lorsque le point
   d'origine est détecté pendant le processus de prise d'origine, c'est cette
   position qui est assignée à ce point. Dans le cas du partage de capteur entre
   l'origine et les limites d'axe et de l'utilisation d'une séquence de prise
   d'origine qui laisse le capteur dans l'état activé, la valeur de HOME_OFFSET
   peut être utilisée pour définir une position du capteur différente du 0 utilisé alors pour l'origine.
-
 * 'HOME_SEARCH_VEL = 0.0' - (((HOME SEARCH VEL))) Vitesse du mouvement initial
   de prise d'origine, en unités machine par seconde. Une valeur de zéro suppose
   que la position courante est l'origine machine. Si la machine n'a pas de
   contact d'origine, laisser cette valeur à zéro.
-
 * 'HOME_LATCH_VEL = 0.0' - Vitesse du mouvement de dégagement du contact
   d'origine, en unités machine par seconde.
   Sign denotes direction of travel.
-
 * 'HOME_FINAL_VEL = 0.0' - Vitesse du mouvement final entre le contact d'origine
   et la position d'origine, en unités machine par seconde. Si cette variable est
   laissée à 0 ou absente, la vitesse de déplacement rapide est utilisée. Doit
   avoir une valeur positive.
-
 * 'HOME_USE_INDEX = NO' - Si l'encodeur utilisé pour cet axe fournit une
   impulsion d'index et qu'elle est gérée par la carte contrôleur, il est possible
   de mettre sur Yes. Quand il est sur yes, il aura une incidence sur le type de
   séquence de prise d'origine utilisée.
   Currently, you can't home to index with steppers unless you're using stepgen in velocity mode and PID.
-
 * 'HOME_INDEX_NO_ENCODER_RESET = NO' -
   Use YES if the encoder used for this joint does not reset its counter when
   an index pulse is detected after assertion of the joint index_enable hal pin.
   Applicable only for HOME_USE_INDEX = YES.
-
 * 'HOME_IGNORE_LIMITS = NO' - Si la machine utilise un seul et même   contact comme limite d'axe et origine machine de l'axe. Cette variable devra
   alors être positionnée sur yes. Dans ce cas le contact de limite de cet axe est
   ignoré pendant la séquence de prise d'origines. Il est nécessaire de configurer
   la séquence pour qu'à la fin du mouvement le capteur ne reste pas dans l'état
   activé qui aboutirait finalement à un message d'erreur du capteur de limite.
-
 * 'HOME_IS_SHARED = <n>' - Si l'entrée du contact d'origine est partagée par
   plusieurs axes, mettre <n> à 0 pour permettre la POM même si un des contacts
   partagés est déjà attaqué. Le mettre à 1 pour interdire la prise d'origine dans
   ce cas.
-
 * 'HOME_ABSOLUTE_ENCODER = 0 | 1 | 2' - Used to indicate the joint uses an absolute encoder.
   At a request for homing, the current joint value is set to the 'HOME_OFFSET' value.
   If the 'HOME_ABSOLUTE_ENCODER' setting is 1, the machine makes the usual final move to the 'HOME' value.
   If the 'HOME_ABSOLUTE_ENCODER' setting is 2, no final move is made.
-
 * 'HOME_SEQUENCE = <n>' - Utilisé pour définir l'ordre dans lequel les axes se succéderont lors d'une séquence de 'POM générale'.
   *<n>* commence à 0,
   Additional sequences may be specified with numbers increasing by 1 (in absolute value).
@@ -1233,10 +1190,8 @@ d'informations, lire <<cha:homing-configuration,le chapitre sur la POM>>.
   plusieurs axes peut se dérouler simultanément.
   A negative sequence number is used to defer the final move for all joints having that (negative or positive) sequence number.
   For additional info, see: <<sec:homing-section,HOME SEQUENCE>>.
-
 * 'VOLATILE_HOME = 0' - Lorsqu'il est activé (mis à 1), l'origine machine de
-  cette articulation sera effacée si la machine est en marche et que l'arrêt
-  d'urgence est activé. Ceci est utile si la machine possède des contacts
+  cette articulation sera effacée si la machine est en marche et que l'arrêt d'urgence est activé. Ceci est utile si la machine possède des contacts
   d'origine mais n'a pas de retour de position comme une machine à moteur pas à pas de type pas/direction.
 
 ==== Servomoteurs
@@ -1284,48 +1239,35 @@ image::images/encoder-counts-math.png[align="center"]
   du servo, ou équilibrer le poids d'un objet se déplaçant verticalement.
   Le bias est mis à zéro quand la boucle PID est désactivée, comme
   tous les autres composants de la sortie.
-
 * 'P = 50' - (hal) La composante Proportionnelle du gain de l'ampli moteur de   cet axe. Cette valeur multiplie l'erreur entre la position commandée et la
   position actuelle en unités machine, elle entre dans le calcul de la tension
   appliquée à l'ampli moteur. Les unités du gain *P*  sont des Volts sur des unités
   machine, par exemple: image:images/p-term.png[height=25] si l'unité machine est le millimètre.
-
 //latexmath:[$\frac{volt}{mu}$].
-
 * 'I = 0' - (hal) La composante Intégrale du gain de l'ampli moteur de cet axe. Cette valeur multiplie l'erreur cumulative entre la position commandée et
   la position actuelle en unités machine, elle entre dans le calcul de la tension
   appliquée à l'ampli moteur. Les unités du gain *I* sont des Volts sur des unités
   machine par seconde, exemple: image:images/i-term.png[height=25] si l'unité machine est le millimètre.
-
 //latexmath:[$\frac{volt}{mu\, s}$].
-
 * 'D = 0' - (hal) La composante Dérivée du gain de l'ampli moteur de cet axe. Cette valeur multiplie la différence entre l'erreur courante et les précédentes,
   elle entre dans le calcul de la tension appliquée à l'ampli moteur. Les unités
   du gain *D* sont des Volts sur des unités machine sur des secondes, exemple:
   image:images/i-term.png[height=25] si l'unité machine est le millimètre.
-
 // latexmath:[$\frac{volt}{mu/s}$].
-
 * 'FF0 = 0' - (hal) Gain à priori (retour vitesse) d'ordre 0. Cette valeur est  multipliée par la position commandée, elle entre dans le calcul de la tension
   appliquée à l'ampli moteur. Les unités du gain FF0 sont des Volts sur des unités
   machine, exemple: image:images/p-term.png[height=25] si l'unité machine est le millimètre.
-
 // latexmath:[$\frac{volt}{mu}$].
-
 * 'FF1 = 0' - (hal) Gain à priori (retour vitesse) de premier ordre. Cette valeur est multipliée par l'écart de la position commandée par seconde, elle entre
   dans le calcul de la tension appliquée à l'ampli moteur. Les unités du
   gain FF1 sont des Volts sur des unités machine par seconde, exemple:
   image:images/i-term.png[height=25] si l'unité machine est le millimètre.
-
 // latexmath:[$\frac{volt}{mu\, s}$].
-
 * 'FF2 = 0' - (hal)  Gain à priori (retour vitesse) de second ordre. Cette valeur est multipliée par l'écart de la position commandée par seconde au carré,
   elle entre dans le calcul de la tension appliquée à l'ampli moteur. Les
   unités du gain FF2 sont des Volts sur des unités machine par des
   secondes au carré, exemple si l'unité machine est le millimètre: image:images/ff2.png[height=25].
-
 // latexmath:[$\frac{volt}{mu\, s^{2}}$].
-
 * 'OUTPUT_SCALE = 1.000' -
 * 'OUTPUT_OFFSET = 0.000' - (hal)  Ces deux valeurs sont les facteurs d'échelle et offset pour la sortie de l'axe à l'amplificateurs moteur.
   La seconde valeur (offset) est soustraite de la valeur de sortie calculée (en Volts) puis divisée par la première
@@ -1360,12 +1302,13 @@ de la non linéarité du DAC, des unités du DAC, etc.
 
 Pour ce faire, suivez cette procédure:
 
-. Construire un tableau de calibrage pour la sortie, piloter le DAC avec la tension souhaitée et mesurer le résultat. Voir le tableau ci-dessous pour un exemple de mesures de tension.
+. Construire un tableau de calibrage pour la sortie, piloter le DAC avec la
+  tension souhaitée et mesurer le résultat. Voir le tableau ci-dessous pour un exemple de mesures de tension.
 . Par la méthode des moindres carrés, obtenir les coefficients *a*,*b* tels que: image:images/calibration-1.png[]
 . Noter que nous voulons des sorties brutes de sorte que nos résultats mesurés soient identiques à la sortie commandée. Ce qui signifie:
 .. image:images/calibration-2.png[]
 .. image:images/calibration-3.png[]
-.  En conséquence, les coefficients *a* et *b* d'ajustement linéaire peuvent être directement utilisés comme valeurs d'échelle et d'offset pour le contrôleur.
+. En conséquence, les coefficients *a* et *b* d'ajustement linéaire peuvent être directement utilisés comme valeurs d'échelle et d'offset pour le contrôleur.
 
 See the following table for an example of voltage measurements.
 
@@ -1460,7 +1403,6 @@ image::images/encoder-scale.png[align="center"]
   une correction de jeu a été appliquée sur un axe, alors STEPGEN_MAXACCEL doit
   être 1,5 à 2 fois plus grande que
   MAX_ACCELERATION.
-
 * 'STEPGEN_MAXVEL = 1.4' - (hal) Les anciens fichiers de configuration avaient
   également une limite de vitesse du générateur de pas. Si spécifiée, elle doit
   aussi être 1% à 10% supérieure à celle de l'axe MAX_VELOCITY. Des tests
@@ -1475,37 +1417,31 @@ The value of 'num_spindles' is set by [TRAJ]SPINDLES=
 
 * 'MAX_VELOCITY = 20000'
   The maximum spindle speed (in rpm) for the specified spindle. Optional.
-
 * 'MIN_VELOCITY = 3000'
   The minimum spindle speed (in rpm) for the specified spindle. Optional.
   Many spindles have a minimum speed below which they should not be run.
   Any spindle speed command below this limit will be /increased/ to this
   limit.
-
 * 'MAX_REVERSE_VELOCITY = 20000'
   This setting will default to MAX_VELOCITY if omitted. It can be used
   in cases where the spindle speed is limited in reverse. Set to zero
   for spindles which must not be run in reverse.
   In this context "max" refers to the absolute magnitude of the spindle
   speed.
-
 * 'MIN_REVERSE_VELOCITY = 3000'
   This setting is equivalent to MIN_VELOCITY but for reverse spindle
   rotation. It will default to the MIN_VELOCITY if omitted.
-
 * 'INCREMENT = 200'
   Sets the step size for spindle speed increment / decrement commands.
   This can have a different value for each spindle.
   This setting is effective with Axis and Touchy but note that some
   GUIs may handle things differently.
-
 * 'HOME_SEARCH_VELOCITY = 100' - FIXME: Spindle homing not yet working
   Sets the homing speed (rpm) for the spindle. The spindle will rotate
   at this velocity during the homing sequence until the spindle index
   is located, at which point the spindle position will be set to zero.
   Note that it makes no sense for the spindle home position to be any
   value other than zero, and so there is no provision to do so.
-
 * 'HOME_SEQUENCE = 0' - FIXME: Spindle homing not yet working
   Controls where in the general homing sequence the spindle homing
   rotations occur. Set the HOME_SEARCH_VELOCITY to zero to avoid spindle
@@ -1515,35 +1451,27 @@ The value of 'num_spindles' is set by [TRAJ]SPINDLES=
 === Section [EMCIO](((Fichier INI, Section [EMCIO])))
 
 * 'EMCIO = io' - Name of IO controller program.
-
 * 'CYCLE_TIME = 0.100' - La période en secondes, à laquelle EMCIO va tourner.
   La mettre à 0.0 ou à une valeur négative fera que EMCIO tournera en permanence.
   Il est préférable de ne pas modifier cette valeur.
-
 * 'TOOL_TABLE = tool.tbl' - Ce fichier contient les informations des outils, décrites dans le Manuel de l'utilisateur.
-
 * 'DB_PROGRAM = db_program' - Path to an executable program that manages tool data.
   (When a DB_PROGRAM is specified, a TOOL_TABLE entry is ignored)
-
 * 'TOOL_CHANGE_POSITION = 0 0 2' -
   Quand trois digits sont utilisés, spécifie la position XYZ ou le mobile sera déplacé pour le changement d'outil.
   Si six digits sont utilisés, spécifie l'emplacement ou sera envoyé le mobile pour réaliser le changement d'outil sur une machine de type XYZABC et
   de même, sur une machine de type XYZABCUVW lorsque 9 digits sont utilisés. Les variables relatives à la position du changement d'outil peuvent être
   combinées, par exemple; en combinant TOOL_CHANGE_POSITION avec
   TOOL_CHANGE_QUILL_UP il est possible de déplacer d'abord Z puis X et Y.
-
 * 'TOOL_CHANGE_WITH_SPINDLE_ON = 1' -
   Avec cette valeur à 1, la broche reste en marche pendant le changement
   d'outil. Particulièrement utile sur les tours.
-
 * 'TOOL_CHANGE_QUILL_UP = 1' -
   Avec cette valeur à 1, l'axe Z sera déplacé sur son origine machine avant
   le changement d'outil. C'est l'équivalent d'un G0 G53 Z0.
-
 * 'TOOL_CHANGE_AT_G30 = 1' -
   Avec cette valeur à 1, le mobile sera envoyé sur un point de référence prédéfini par G30 dans les paramètres 5181-5186. Pour
   plus de détails sur les paramètres de G30, voir le chapitre relatif au G-code dans le Manuel de l'utilisateur.
-
 * 'RANDOM_TOOLCHANGER = 1' -
   C'est pour des machines qui ne peuvent pas placer l'outil dans la poche il vient.
   Par exemple, les machines qui change l'outil dans la poche active avec l'outil dans la broche.

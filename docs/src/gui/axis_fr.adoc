@@ -24,11 +24,9 @@ image::../user/images/axis_25_fr.png["Fenêtre principale d'AXIS",align="center"
 
 Si votre configuration actuelle n'est pas paramétrée pour utiliser AXIS comme interface graphique de LinuxCNC,
 vous pouvez changer cela en éditant le fichier .ini. Dans la
-section [DISPLAY] changez la ligne DISPLAY comme ceci:
-'DISPLAY = axis'. Puis, lancez LinuxCNC et choisissez le fichier ini.
+section [DISPLAY] changez la ligne DISPLAY comme ceci: 'DISPLAY = axis'. Puis, lancez LinuxCNC et choisissez le fichier ini.
 
-La configuration simplifiée 'sim/axis.ini' est déjà configurée pour utiliser AXIS comme
-interface graphique.
+La configuration simplifiée 'sim/axis.ini' est déjà configurée pour utiliser AXIS comme interface graphique.
 
 Quand AXIS démarre, une fenêtre telle que celle de la figure
 <<cap:Fenetre-AXIS,ci-dessus>> s'ouvre.
@@ -40,7 +38,7 @@ works see the <<sec:display-section,Display Section>> of the INI
 Configuration Chapter.
 
 Adjust the response rate of the GUI in milli seconds. Typical 100, useable range 50 - 200 +
-(will accept time in seconds (.05 -.2) for legacy reasons - milli seconds preferred to match other screens)
+(will accept time in seconds (.05 -.2) for legacy reasons - milli seconds preferred to match other screens).
 
 [source,{ini}]
 ----
@@ -68,8 +66,7 @@ To run the same program again depends on your setup and requirements.
 You might need to load more material and set offsets or move over and
 set an offset then run the program again. If your material is fixtured
 then you might need to only run the program again. See the
-<<sub:axis-machine-menu,Machine Menu>> for more information on the run
-command.
+<<sub:axis-machine-menu,Machine Menu>> for more information on the run command.
 
 == Éléments de la fenêtre d'AXIS
 
@@ -224,18 +221,15 @@ Il faut juste se rappeler que l'axe Z est toujours parallèle a la broche et plu
 
 * 'Affichage en pouces...' - Ajuste l'échelle d'affichage d'AXIS pour les pouces.
 * 'Affichage en mm...' - Ajuste l'échelle d'affichage d'AXIS pour les   millimètres.
-* 'Afficher le programme...' - L'affichage à l'écran de l'aspect du G-code peut
-  être entièrement désactivé si l'opérateur le souhaite.
+* 'Afficher le programme...' - L'affichage à l'écran de l'aspect du G-code peut être entièrement désactivé si l'opérateur le souhaite.
 * 'Parcours d'outil en vitesse rapide...' - L'affichage du parcours d'outil du programme G-code courant représente toujours les mouvements en vitesse
   travail (G1,G2,G3) en blanc. Mais l'affichage des mouvements en vitesse
   rapide (G0) en cyan peut être désactivé si si l'opérateur le souhaite.
 * 'Simulation de transparence...' - Cette option rends plus lisible le tracé des
   parcours affichés par les programmes complexes, mais il peut rendre l'affichage plus lent.
-* 'Parcours d'outil en temps réel...' - La surbrillance des chemins d'outils en
-  vitesse travail (G1,G2,G3) quand l'outil se déplace peut être désactivée si l'opérateur le souhaite.
+* 'Parcours d'outil en temps réel...' - La surbrillance des chemins d'outils en vitesse travail (G1,G2,G3) quand l'outil se déplace peut être désactivée si l'opérateur le souhaite.
 * 'Afficher l'outil...' - Le symbole d'un outil, représenté par un cône ou un cylindre peut être désactivé si l'opérateur le souhaite.
-* 'Afficher les étendues...' - L'affichage des étendues du programme G-code
-  chargé (déplacements maximum de chacun des axes), peut être désactivé si l'opérateur le souhaite.
+* 'Afficher les étendues...' - L'affichage des étendues du programme G-code chargé (déplacements maximum de chacun des axes), peut être désactivé si l'opérateur le souhaite.
 * 'Afficher les offsets...' - L'emplacement de l'origine du système de coordonnées pièce (G54 à G59.3) peut être représenté par un jeu de trois
   lignes orthogonales, une rouge, une bleue et une verte.
   L'affichage de cette origine pièce (ou zéro pièce), peut être désactivé si l'opérateur le souhaite.
@@ -245,14 +239,11 @@ Il faut juste se rappeler que l'axe Z est toujours parallèle a la broche et plu
   être décalé, pour que le G-code puisse être usiné sans dépasser les limites
   de déplacements de la machine. Cette option peut être désactivée si l'opérateur le souhaite.
 * 'Afficher la vitesse d'avance...' - L'affichage de la vitesse peut être utile
-  pour voir la précision avec laquelle la machine suit la vitesse commandée.
-  Cette option peut être désactivée si l'opérateur le souhaite.
-* 'Afficher la distance restante...' - La distance restante est une valeur très
-  utile à suivre, au lancement d'un programme de G-code inconnu pour la
+  pour voir la précision avec laquelle la machine suit la vitesse commandée. Cette option peut être désactivée si l'opérateur le souhaite.
+* 'Afficher la distance restante...' - La distance restante est une valeur très utile à suivre, au lancement d'un programme de G-code inconnu pour la
   première fois. En combinaison avec les curseurs des correcteurs de vitesse,
   des dégâts sur l'outil ou la machine peuvent être évités. Quand le programme
-  G-code sera débogué et qu'il fonctionnera en douceur, l'affichage de la
-  distance restante pourra être désactivée si l'opérateur le souhaite.
+  G-code sera débogué et qu'il fonctionnera en douceur, l'affichage de la distance restante pourra être désactivée si l'opérateur le souhaite.
 * 'Coordonnées en police large...' - Les coordonnées des axes et la vitesse
   d'avance, s'afficheront en police large dans la vue du parcours d'outil.
 * 'Rafraîchir le parcours d'outil...' - Au fur et à mesure des déplacements de
@@ -355,14 +346,13 @@ se déplacer en jog vers la gauche puis 'Toucher' à nouveau pour corriger
 l'origine pièce.
 
 [[fig:limites-logicielles]]
-.Les Limites logicielles
-image::images/axis-outofrange.png["Limites logicielles", align="center"]
+.Limites Logicielles(((Limites Logicielles)))
+image::images/axis-outofrange.png["Limites Logicielles", align="center"]
 
 .Le cône d'outil
 Si aucun outil n'est chargé, l'emplacement de la pointe de l'outil est
 indiqué par le 'cône d'outil'.
-Le cône d'outil ne donne aucune indication sur la forme,
-la longueur, ou le rayon de l'outil.
+Le cône d'outil ne donne aucune indication sur la forme, la longueur, ou le rayon de l'outil.
 
 Quand un outil est chargé, par exemple dans le MDI, avec la commande *T1 M6*,
 le cône d'outil passe de conique à cylindrique, il indique alors la proportion
@@ -381,16 +371,13 @@ or disable the grid using the 'Grid' menu under 'View'.  When
 enabled, the grid is shown in the top and rotated top views; when
 coordinate system is not rotated, the grid is shown in the front and
 side views as well.  The presets in the 'Grid' menu are controlled
-by the inifile item `[DISPLAY]GRIDS`; if unspecified, the default is
-`10mm 20mm 50mm 100mm 1in 2in 5in 10in`.
+by the inifile item `[DISPLAY]GRIDS`; if unspecified, the default is `10mm 20mm 50mm 100mm 1in 2in 5in 10in`.
 
 FIXME Specifying a very small grid may decrease performance.
 
 .Interaction avec l'affichage
-Par un clic gauche sur une portion du parcours d'outil,
-la ligne sous la souris passe en surbrillance
-à la fois dans le parcours d'outil et dans le texte.
-Un clic droit dans une zone vide enlève la surbrillance
+Par un clic gauche sur une portion du parcours d'outil, la ligne sous la souris passe en surbrillance
+à la fois dans le parcours d'outil et dans le texte. Un clic droit dans une zone vide enlève la surbrillance
 
 En déplaçant la souris avec son bouton gauche appuyé,
 la vue est glissée sur l'écran.
@@ -419,8 +406,8 @@ Quand le programme est lancé, la ligne en cours d'exécution est en
 surbrillance rouge. Si aucune ligne n'est sélectionnée par l'utilisateur,
 le texte défile automatiquement pour toujours laisser la ligne courante visible.
 
-.Ligne courante et ligne en surbrillance
-image::images/axis-currentandselected_fr.png["Ligne courante et ligne en surbrillance"]
+.Ligne courante et en surbrillance
+image::images/axis-currentandselected_fr.png["Ligne courante et en surbrillance"]
 
 === Contrôle manuel
 
@@ -507,19 +494,19 @@ d'origine pièce, on affleure l'outil sur une cale de 5mm d'épaisseur posée su
 boîte de dialogue. La pointe de l'outil sera alors référencée à 0 sur la surface du bloc.
 
 .Fenêtre du Toucher
-image::images/touchoff_fr.png["Fenêtre du Toucher", align="center"]
+image::images/touchoff_fr.png["Fenêtre du Toucher",align="center"]
 
 Voir aussi les options du menu Machine: 'Toucher la pièce' et 'Toucher le porte-pièce'.
 
 .FIXME Tool Touch Off
-FIXME By pressing the 'Tool Touch Off' button the tool length and offsets of
+By pressing the 'Tool Touch Off' button the tool length and offsets of
 the currently loaded tool will be changed so that the current tool tip
 position matches the entered coordinate.
 
-.FIXME Tool Touch Off Window
-image::images/tooltouchoff.png["FIXME Tool Touch Off Window", align="center"]
+.Tool Touch Off Window
+image::images/tooltouchoff.png["Tool Touch Off Window",align="center"]
 
-FIXME See also the 'Tool touch off to workpiece' and 'Tool touch off to fixture'
+See also the 'Tool touch off to workpiece' and 'Tool touch off to fixture'
 options in the Machine menu.
 
 .Dépassement de limite
@@ -553,7 +540,7 @@ permet d'entrer et d'exécuter manuellement et une par une, des lignes de
 programme en G-code. Quand la machine n'est pas en marche, ou quand un programme est en cours d'exécution, cet onglet n'est pas opérationnel.
 
 .L'onglet 'Données manuelles'
-image::images/axis-codeentry_fr.png["Onglet 'Données manuelles'", align="center"]
+image::images/axis-codeentry_fr.png["Onglet 'Données manuelles'",align="center"]
 
 * 'Historique' - Affiche les commandes précédemment tapées et au cours des session précédentes.
 * 'Commande MDI' - Ce champ permet la saisie d'une ligne de commande à exécuter.
@@ -601,7 +588,7 @@ liste complète des raccourcis clavier est disponible dans l'aide rapide
 d'AXIS qui s'affiche en cliquant sur Aide > Aide rapide . Beaucoup de
 ces raccourcis sont inaccessible en mode Entrées manuelles.
 
-.Touches des correcteurs de vitesse
+=== Touches des correcteurs de vitesse
 
 [NOTE]
 For details on the Spanish keyboard layout please inspect the translated documentation.
@@ -759,14 +746,14 @@ Plusieurs contrôles (tels que ceux des vues prédéfinies) sont supprimés.
 Les lectures de coordonnées pour X sont désormais en diamètre et en rayon.
 
 .AXIS en mode Tours
-image::images/axis-lathe.png["AXIS Tours",align="center"]
+image::images/axis-lathe.png["AXIS en mode Tours",align="center"]
 
 La touche *V* agit alors sur le zoom pour afficher le tracé complet du fichier chargé.
 
 En mode tour (lathe), la forme et l'orientation de l'outil chargé sont représentés.
 
 .Représentation de l'outil en mode tour
-image::images/axis-lathe-tool.png["Représentation de l'outil en mode tour"]
+image::images/axis-lathe-tool.png["Représentation de l'outil en mode tour",align="center"]
 
 To change the display to a back tool lathe you need to have both 'LATHE = 1'
 and 'BACK_TOOL_LATHE = 1' in the [DISPLAY] section. This will invert the view
@@ -784,8 +771,8 @@ in another.  In the live plot, lines are drawn between corresponding points on
 the XY plane and the UV plane.  The special comments (XY_Z_POS) and (UV_Z_POS)
 set the Z coordinates of these planes, which default to 0 and 1.5 machine units.
 
-.Foam cutting mode
-image::images/axis-foam.png["Foam cutting mode",align="center"]
+.Foam Cutting Mode
+image::images/axis-foam.png["Foam Cutting Mode",align="center"]
 
 == Configuration avancée d'AXIS
 
@@ -836,8 +823,8 @@ sa sortie traitée comme du G-code. Un autre exemple est disponible
 dans: '/nc_files/holecircle.py' . Ce script crée le G-code pour percer
 une série de trous suivant un arc de cercle.
 
-.Perçages circulaires
-image::images/holes.png["Perçages circulaires",align="center"]
+.Trous Circulaires
+image::images/holes.png["Trous Circulaires",align="center"]
 
 Si la variable d'environnement: AXIS_PROGRESS_BAR est active, alors
 les lignes seront écrites sur stderr de la forme:
@@ -875,7 +862,7 @@ ressources X écrasent ceux par défaut dans AXIS, il faut inclure cette ligne d
 
 // These asterisks are not for bold,
 ----
-    *Axis*optionLevel: widgetDefault
+*Axis*optionLevel: widgetDefault
 ----
 // in this case, we want the asterisks to actually appear.
 
@@ -921,14 +908,14 @@ root_window.tk.call("wm","protocol",".","WM_DELETE_WINDOW","destroy .")
 
 === USER_COMMAND_FILE
 
-FIXME A configuration-specific python file may be specified with an ini file
+A configuration-specific python file may be specified with an ini file
 setting '[DISPLAY]USER_COMMAND_FILE=filename.py'.  Like a `~/.axisrc` file,
 this file is sourced just before the AXIS GUI is displayed.  This file
 is specific to an ini file configuration not the user's home directory.
 
 === user_live_update()
 
-FIXME The axis gui includes a no-op (placeholder) function named
+The axis gui includes a no-op (placeholder) function named
 'user_live_update()' that is executed at the conclusion of the update()
 function of its LivePlotter class.  This function may be implemented
 within a `~/.axisrc` python script or a '[DISPLAY]USER_COMMAND_FILE'
@@ -938,7 +925,7 @@ implementation and subject to change during the development cycle.
 
 === user_hal_pins()
 
-FIXME The axis gui includes a no-op (placeholder) function named
+The axis gui includes a no-op (placeholder) function named
 'user_hal_pins()'. +
 It is executed just after the .axisrc file is called and
 just before any gladevcp panels / embedded tabs are initialized. +
@@ -953,7 +940,7 @@ HAL comp.ready() is called just after this function returns.
 En définissant: [DISPLAY]EDITOR , les options de menu: 'Fichier' →
 'Éditer' ainsi que 'Fichier' → 'Éditer la table d'outils', deviennent accessibles.
 Deux valeurs qui fonctionnent bien: EDITOR=gedit et 'EDITOR=gnome-terminal -e nano'.
-FIXME For more information, see the <<sec:display-section,Display Section>>
+For more information, see the <<sec:display-section,Display Section>>
 of the INI Configuration Chapter.
 
 === Panneau de contrôle virtuel(((AXIS: Panneau de contrôle virtuel)))
@@ -994,8 +981,7 @@ like 'axisui.jog.x'. One of these pins is 'TRUE' at one time, and the rest are
 
 .Axisui Pins
 
-Axis has Hal pins to indicate which jog radio button is selected in the
-'Manual Control' tab.
+Axis has Hal pins to indicate which jog radio button is selected in the 'Manual Control' tab.
 
 ----
 Type Dir  Name
@@ -1367,7 +1353,6 @@ print(vars.emcini.get())
 ----
 # hide a widget
 # use 'grid' or 'pack' depending on how it was originally placed
-
 root_window.tk.call('grid','forget','.pane.top.tabs.fmanual.jogf.zerohome.tooltouch')
 ----
 
@@ -1388,16 +1373,13 @@ root_window.tk.call('grid','.pane.top.tabs.fmanual.mist','-column','1','-row','5
 ----
 # hijack an existing command
 # originally the mist button calls the mist function
-
 root_window.tk.call('.pane.top.tabs.fmanual.mist','configure','-command','hijacked_command')
 
 # The new function
-
 def hijacked_command():
     print('hijacked mist command')
 
 # add the function to TclCommands
-
 TclCommands.hijacked_command = hijacked_command
 commands = TclCommands(root_window)
 ----
@@ -1407,7 +1389,6 @@ commands = TclCommands(root_window)
 [source,python]
 ----
 # change dro screen
-
 root_window.tk.call('.pane.top.right.fnumbers.text','configure','-foreground','green','-background','black')
 ----
 

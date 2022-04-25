@@ -69,7 +69,9 @@ peu plus basse que celle du planificateur de mouvements.
 
 Quand vous rencontrez cette erreur:
 
-  RTAPI: ERROR: Unexpected realtime delay on task n
+----
+RTAPI: ERROR: Unexpected realtime delay on task n
+----
 
 C'est généralement que la variable BASE_PERIOD dans la section
 [EMCMOT] du fichier INI a une valeur trop petite. Vous devez lancer un
@@ -85,7 +87,8 @@ LinuxCNC vérifie le nombre de cycles du CPU entre les invocations du thread tem
 délai excessif ou que les threads sont ajustés à des valeurs trop
 rapides, vous rencontrerez cette erreur.
 
-NOTE: Cette erreur n'est affichée qu'une seule fois par session. En
+[NOTE]
+Cette erreur n'est affichée qu'une seule fois par session. En
 effet, si votre BASE_PERIOD était trop basse vous pourriez avoir des
 centaines de milliers de messages d'erreur par seconde si plus d'un était affiché.
 

@@ -11,7 +11,7 @@ before attempting to run a CNC machine with g code.
 == Contrôle de trajectoire(((Trajectory Control)))
 
 [[sub:trajectory-planning]]
-=== La planification de trajectoire(((Trajectory Planning)))
+=== La planification de trajectoire(((Trajectory Planning,TP)))
 
 La planification de trajectoire est en général, le moyen qui permet à
 LinuxCNC de suivre le chemin spécifié par le programme G-code, tout en
@@ -258,7 +258,7 @@ de ce manuel.
 Quand vous réalisez une prise d'origine de plusieurs axes de LinuxCNC,
 vous passez G53, les coordonnées système, à 0 pour chacun des axes concernés.
 
-- La prises d'origine ne modifient en rien les autres systèmes de coordonnées, ni les compensations d'outil.
+La prises d'origine ne modifient en rien les autres systèmes de coordonnées, ni les compensations d'outil.
 
 La seule façon de se déplacer en mode G53, en coordonnées machine, c'est de programmer
 un G53 sur la même ligne que celle d'un mouvement. En fonctionnement normal,
@@ -314,12 +314,12 @@ point de vue du sens de
 déplacement de l'outil.
 
 .Configuration typique d'une fraiseuse
-image::images/mill-diagram.png["Configuration d'une fraiseuse",align="center"]
+image::images/mill-diagram.png["Configuration typique d'une fraiseuse",align="center"]
 
 Le dessin suivant montre les directions de déplacement de l'outil et la position
 des fins de course de limite sur un tour classique.
 
 .Configuration typique d'un tour
-image::images/lathe-diagram.png["Configuration d'un tour",align="center"]
+image::images/lathe-diagram.png["Configuration typique d'un tour",align="center"]
 
 // vim: set syntax=asciidoc:

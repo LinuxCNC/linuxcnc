@@ -13,7 +13,7 @@ le fichier custom_postgui.hal sera chargé après que l'interface graphique ne l
 
 == Changement d'outil manuel
 
-FIXME To connect two outputs to an input you can use the or2 component. The or2 works
+To connect two outputs to an input you can use the or2 component. The or2 works
 like this, if either input to or2 is on then the or2 output is on. If neither
 input to or2 is on the or2 output is off.
 
@@ -50,7 +50,7 @@ net button-2 or2.0.in1 <= pyvcp.button-2
 net led-1 pyvcp.led-1 <= or2.0.out
 ----
 
-FIXME When you run this example in an Axis simulator created with the Stepconf
+When you run this example in an Axis simulator created with the Stepconf
 Wizard you can open a terminal and see the pins created with 'loadrt or2' by
 typing in 'halcmd show pin or2' in the terminal
 
@@ -63,7 +63,7 @@ Owner   Type  Dir         Value  Name
     22  bit   OUT         FALSE  or2.0.out ==> led-1
 ----
 
-FIXME You can see from the hal command 'show pin or2' that the 'button-1' pin is
+You can see from the hal command 'show pin or2' that the 'button-1' pin is
 connected to the 'or2.0.in0' pin and from the direction arrow you can see that
 the button is and output and the 'or2.0.in0' is an input. The output from or2
 goes to the input of the led.
@@ -156,8 +156,8 @@ dans la direction négative. Noter que la valeur absolue peut être prise sur
 la pin _abs.0.out_ ou le signal X-IPM.
 
 [[cap:hal-exemple-velocite]]
-.HAL: Velocity example(((HAL: Exemple avec la velocité)))
-image::images/velocity-01.png["HAL: Exemple avec la vélocité"]
+.HAL: Exemple avec la vélocité(((HAL:Exemple avec la vélocité)))
+image::images/velocity-01.png["HAL: Exemple avec la vélocité",align="center"]
 
 == Amortissement d'un signal
 
@@ -245,7 +245,7 @@ Ne pas refermer le terminal avec halrun en marche, la mémoire ne serait pas
 vidée proprement, ce qui pourrait
 empêcher LinuxCNC de se charger.
 
-Pour tout savoir sur Halscope et Halrun <<sec:Intro-tutoriel, voir le tutoriel de HAL>>.
+Pour tout savoir sur Halscope et Halrun <<sec:Intro-tutoriel,voir le tutoriel de HAL>>.
 
 == HAL en autonome
 

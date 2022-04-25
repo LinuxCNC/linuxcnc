@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:linuxcnc-user-introduction]]
-= LinuxCNC(((Introduction)))
+= LinuxCNC Introduction Utilisateur(((LinuxCNC Introduction Utilisateur,Introduction Utilisateur)))
 
 == Introduction
 
@@ -103,35 +103,35 @@ Axis:: <<cha:Axis,_Axis_>>, l'interface utilisateur standard. This is also the d
   Configuration Wizard is used to create a desktop icon launcher:
 
 [[fig:Interface-graphique-AXIS]]
-.L'interface graphique AXIS
-image::images/axis_25_fr.png["Axis, l'interface graphique utilisateur standard au clavier",align="center"]
+.AXIS, l'interface graphique utilisateur standard au clavier
+image::images/axis_25_fr.png["AXIS, l'interface graphique utilisateur standard au clavier",align="center"]
 
 Touchy:: <<cha:touchy-gui,_Touchy_>>, une interface graphique pour écrans tactiles:
 
 [[fig:touchy-gui]]
-.L'interface graphique Touchy
+.Touchy, une interface graphique pour écrans tactiles
 image::images/touchy_fr.png["Touchy, une interface graphique pour écrans tactiles",align="center"]
 
 Gscreen:: <<cha:gscreen,Gscreen>>, a user-configurable touch screen GUI:
 
 [[fig:gscreen-graphical-interface]]
-.Gscreen graphical interface
-image::../gui/images/gscreen-mill.png["Gscreen, a configurable base touch screen GUI",align="center"]
+.Gscreen, une interface graphique tactile de base
+image::../gui/images/gscreen-mill.png["Gscreen, une interface graphique tactile de base",align="center"]
 
 GMOCCAPY:: <<cha:gmoccapy,GMOCCAPY>>, a touch screen GUI based on Gscreen. GMOCCAPY is also designed to work equally
   well in applications where a keyboard and mouse are the preferred methods of controlling the GUI:
 
 [[fig:gmoccapy-graphical-interface]]
-.GMOCCAPY graphical interface
-image::../gui/images/gmoccapy_3_axis.png["gmoccapy, a touch screen GUI based on Gscreen",align="center"]
+.GMOCCAPY, une interface graphique tactile basée sur Gscreen
+image::../gui/images/gmoccapy_3_axis.png["GMOCCAPY, une interface graphique tactile basée sur Gscreen",align="center"]
 
 NGCGUI:: <<cha:ngcgui,_NGCGUI_>>, une interface graphique gérant les sous-programmes.
   Elle permet très simplement de créer des programme G-code. Elle supporte
   surtout la concaténation de fichiers de sous-programmes, ce qui permet de construire des programmes G-code complets sans aucune programmation.
 
 [[fig:interface-graphique-ngcgui-dans-axis]]
-.L'interface graphique NGCGUI intégrée dans Axis
-image::images/ngcgui_fr.png["L'interface graphique NGCGUI intégrée dans Axis",align="center"]
+.NGCGUI, une interface graphique intégrée dans AXIS
+image::images/ngcgui_fr.png["NGCGUI, une interface graphique intégrée dans AXIS",align="center"]
 
 TkLinuxCNC:: <<cha:TkLinuxCNC,_TkLinuxCNC_>>, une autre interface basée sur Tcl/Tk.
   C'est l'interface la plus populaire après Axis
@@ -159,16 +159,16 @@ PyVCP:: <<cha:pyvcp,'PyVCP'>>, un panneau de contrôle virtuel basé sur Python,
   indicator or the Emergency Stop output signal, and has a simple no-frills appearance. This makes it an
   excellent choice if the user wants to add a Virtual Control Panel with minimal fuss.
 
-.PyVCP Example Embedded Into AXIS GUI
-image::../gui/images/axis-pyvcp.png["PyVCP with Axis",align="center"]
+.Exemple de PyVCP embarqué dans AXIS
+image::../gui/images/axis-pyvcp.png["PyVCP embarqué dans Axis",align="center"]
 
 GladeVCP:: <<cha:glade-vcp,'GladeVCP'>>, un panneau de contrôle virtuel basé sur Glade, il peut être
   intégré dans l'interface graphique Axis ou utilisé en autonome. GladeVCP has the advantage over PyVCP in that it is not limited to the display or control of HAL
   virtual signals, but can include other external interfaces outside LinuxCNC such as window or network
   events. GladeVCP is also more flexible in how it may be configured to appear on the GUI:
 
-.GladeVCP Example Embedded Into AXIS GUI
-image::../gui/images/axis-gladevcp.png["GladeVCP with Axis",align="center"]
+.Exemple GladeVCP embarqué dans AXIS
+image::../gui/images/axis-gladevcp.png["GladeVCP embarqué dans AXIS",align="center"]
 
 == Langues
 

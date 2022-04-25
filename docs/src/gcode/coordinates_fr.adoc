@@ -12,8 +12,7 @@ configuration et son utilisation.
 
 Nous montrerons également, qu'il est très intéressant d'utiliser un point de
 référence sur le brut ou la pièce et de faire travailler le programme à partir
-de ce point, sans avoir à tenir compte d'où est placée la pièce sur la
-machine pendant l'usinage.
+de ce point, sans avoir à tenir compte d'où est placée la pièce sur la machine pendant l'usinage.
 
 Ce chapitre va donc introduire les décalages et comment ils sont utilisés
 par LinuxCNC:
@@ -194,20 +193,18 @@ orientation on the pallet.
 
 [CAUTION]
 As a temporary offset, set and unset within the localized scope of a
-part program, in other g-code interpreters 'G52' does not persist
+part program, in other G-code interpreters 'G52' does not persist
 after machine reset, 'M02' or 'M30'.  In LinuxCNC, 'G52' shares
 parameters with 'G92', which, for historical reasons, *does* persist
 these parameters.
 See <<sec:g92-persistence-cautions,G92 Persistence Cautions>> below.
 
 [CAUTION]
-====
 'G52' and 'G92' share the same offset registers.  Therefore, setting
 'G52' will override any earlier 'G92' setting, and 'G52' will persist
 across machine reset when 'G92' persistence is enabled.  These
 interactions may result in unexpected offsets.
 See <<sec:g92-g52-interaction-cautions,G92 and G52 Interaction Cautions>> below.
-====
 
 Programming 'G52 X1 Y2' offsets the current workpiece coordinate
 system X axis by 1 and Y axis by 2.  Accordingly, on the DRO, the

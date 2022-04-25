@@ -9,7 +9,7 @@ control pins with names like spindle.0...
 In the case of a multiple spindle machine all that changes is that
 additional pins exist with names such as spindle.6...
 
-== Vitesse broche en 0-10V (((Vitesse broche en 0-10V)))
+== Vitesse broche en 0-10V(((Vitesse broche en 0-10V)))
 
 Si la vitesse de la broche est contrôlée par un variateur de
 fréquence avec une consigne vitesse en 0 à 10V et qu'une carte de conversion 
@@ -100,8 +100,8 @@ net spindle-speed-scale spindle.N.speed-out => scale.0.in
 
 sera modifiée, comme indiqué dans l'exemple ci-dessous:
 
-.Introduction aux composants de HAL _limit2_ et _near_:
-****
+=== Introduction aux composants de HAL _limit2_ et _near_:
+
 Au cas ou vous ne les auriez jamais rencontré auparavant, voici une rapide
 introduction à ces deux composants de HAL utilisés dans l'exemple suivant.
 
@@ -114,7 +114,6 @@ introduction à ces deux composants de HAL utilisés dans l'exemple suivant.
 
 Voir le manuel de HAL ou les man pages,
 taper juste _man limit2_ ou _man near_.
-****
 
 ----
 # charge un composant temps réel limit2 et un near avec des noms aisés à suivre
@@ -171,7 +170,8 @@ Matériel supposé présent:
 Configuration de base pour ajouter ces composants:
 footnote:[In this example, we will assume that some encoders have already
 been issued to axes/joints 0, 1, and 2. So the next encoder available for us
-to attach to the spindle would be number 3. Your situation may differ.]
+to attach to the spindle would be number 3. Your situation may
+differ.]
 footnote:[The HAL encoder index-enable is an exception to the rule in that
 it behaves as both an input and an output, see the
 <<sec:encoder,Encoder Section>> for details]

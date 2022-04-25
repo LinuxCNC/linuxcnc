@@ -40,7 +40,7 @@ n'apparaitra dans la liste déroulante du 'Toucher', que si l'outil à été cha
 
 [[cap:touch-off-tool]]
 .Toucher et table d'outils
-//image::images/ToolTable-TouchOff_fr.png[alt="Toucher et table d'outils"]
+image::images/ToolTable-TouchOff_fr.png["Toucher et table d'outils",align="center"]
 
 == Utilisation de G10 L1/L10/L11
 
@@ -74,7 +74,7 @@ the GUI.
 === Format de la table d'outils(((Format de la table d'outils)))
 
 .Format de la table d'outils
-[width="100%", options="header"]
+[width="100%",options="header"]
 |========================================
 |T#    |P#  |X  |Y  |Z  |A  |B  |C  |U  |V  |W  |Dia |FA |BA |Ori |Rem
 |; 15+^|(aucune donnée après le point-virgule)
@@ -95,7 +95,8 @@ En général, le format d'une ligne de table d'outils est le suivant:
  - Q  orientation de l'outil (tour seulement) - entier de 0 à 9
  - ;  début de commentaire ou remarque - texte
 
-Le fichier commence par un point-virgule en première ligne, suivi par les caractéristiques de 1000 outils au maximum.
+Le fichier commence par un point-virgule en première ligne,
+suivi par les caractéristiques de 1000 outils au maximum.
 
 [NOTE]
 Bien que les numéros d'outils puissent aller jusqu'à 99999, le nombre
@@ -243,7 +244,7 @@ The io program provides hal output pins to facilitate toolchanger management:
 .. *iocontrol.0.tool-prep-pocket* = pocket number for tool N
 
 [[sub:tool-changers]]
-=== Tool Changers
+=== Tool Changers(((Tool Changers)))
 
 LinuxCNC supports three types of tool changers: 'manual', 'random location'
 and 'non-random or fixed location'. Information about configuring a LinuxCNC tool changer
@@ -340,16 +341,18 @@ Des mouvements en vitesse rapide peuvent être programmé avec les compensations
 
 ==== Bonne pratique
 
-- Débuter tout programme avec un G40 pour être sûr que la compensation est désactivée.
+Débuter tout programme avec un G40 pour être sûr que la compensation est désactivée.
 
 === Exemples de profils
 
-==== Profil extérieur
+==== Exemple de profil extérieur
 
-.Profil extérieur[[cap:profil-exterieur]]
+[[cap:profil-exterieur]]
+.Profil extérieur
 image::images/outside-comp_fr.png["Profil extérieur",align="center"]
 
-==== Profil intérieur
+==== Exemple de profil intérieur
 
-.Profil intérieur[[cap:profil-interieur]]
+[[cap:profil-interieur]]
+.Profil intérieur
 image::images/inside-comp_fr.png["Profil intérieur",align="center"]

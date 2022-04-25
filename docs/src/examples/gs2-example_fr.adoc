@@ -18,6 +18,7 @@ port parallèle.
 Placer les lignes suivantes dans le fichier custom.hal pour connecter LinuxCNC au
 GS2 et avoir le contrôle de celui-ci depuis l'interface utilisateur.
 
+.GS2 Example
 ----
 # Charger le composant utilisateur pour le variateur variateur 
 loadusr -Wn spindle-vfd gs2_vfd -n spindle-vfd

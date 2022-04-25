@@ -11,7 +11,8 @@ Les éléments de tooledit modifiables décrits ici sont disponibles
 dans les versions 2.5.1 et suivantes. Dans la version 2.5.0, l'interface
 graphique ne permet pas ces ajustements.
 
-image::images/tooledit_fr.png["Éditeur graphique de table d’outils",align="left", width="640"]
+.Éditeur graphique de table d’outils - Aperçu
+image::images/tooledit_fr.png["Éditeur graphique de table d’outils - Aperçu",align="left",width="640"]
 
 Le programme tooledit rafraichi le fichier de la table d'outils avec les changements édités puis enregistrés avec le bouton _EnregistrerFichier_.
 Le bouton _EnregistrerFichier_ met à jour le fichier système mais une action
@@ -28,7 +29,8 @@ colonne, par ordre croissant ou décroissant, en cliquant sur l'entête de la
 colonne. Un second clic inverse l'ordre de tri. Le tri par colonne nécessite
 une version de TCL/TK >= 8.5
 
-image::images/tooledit-sort_fr.png["Éditeur graphique de table d’outils - Tri par colonne",align="left"]
+.Éditeur graphique de table d’outils - Tri par colonne
+image::images/tooledit-sort_fr.png["Éditeur graphique de table d’outils - Tri par colonne",align="center"]
 
 Sous Ubuntu Lucid 10.04 tcl/tk8.4 est installé par défaut.
 Il est possible d'ajouter tcl/tk8.5 avec la commande suivante:
@@ -52,9 +54,7 @@ une table d'outils. Très peu de machines utilisent tous les paramètres,
 les colonnes affichées peuvent être limitées aux paramètres utilisés. Pour cela,
 passer une ligne de paramètre dans le fichier ini, comme ci-dessous:
 
-image::images/tooledit-columns.png["Tool Edit GUI - Column Selection",align="center"]
-
-.Syntaxe
+.Syntaxe du fichier .INI
 ----
 [DISPLAY]
 TOOL_EDITOR = tooledit nom_colonne nom_colonne ...
@@ -66,8 +66,8 @@ TOOL_EDITOR = tooledit nom_colonne nom_colonne ...
 TOOL_EDITOR = tooledit Z DIAM
 ----
 
-.Résultat obtenu
-image::images/tooledit-columns_fr.png["Éditeur graphique de table d’outils - Choix des colonnes",align="left"]
+.Éditeur graphique de table d’outils - Exemple de sélection des colonnes
+image::images/tooledit-columns.png["Éditeur graphique de table d’outils - Exemple de sélection des colonnes",align="center"]
 
 == Utilisation autonome
 

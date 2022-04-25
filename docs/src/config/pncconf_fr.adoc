@@ -36,7 +36,6 @@ Elles disparaîtront quand le logiciel sera finalisé.
 == Instructions pas à pas
 
 .Écran de lancement de PnCConf
-
 image::images/pncconf-splash_fr.png["Écran d'accueil de PnCConf"]
 
 == Créer ou éditer une configuration
@@ -58,7 +57,6 @@ en choisissant la configuration souhaitée dans la liste.
 == Informations machine de base
 
 .Informations de base
-
 image::images/pncconf-basic_fr.png["Informations machine"]
 
 Paramètres machine de base::
@@ -68,7 +66,7 @@ Choisir une configuration d'axes: ceci permet de sélectionner le type de machin
 et quels axes sont présents. Le sélecteur d'unités machine permet l'utilisation de
 données métriques ou impériales dans les pages suivantes.
 
-ASTUCE: Les valeurs par défaut dans cet assistant ne sont pas converties
+TIP: Les valeurs par défaut dans cet assistant ne sont pas converties
 automatiquement lorsque _métrique_ est choisi, bien *vérifier toutes ces valeurs*.
 
 Temps de réponse de l'ordinateur::
@@ -192,9 +190,8 @@ _QtPlasmaC_
 Cette page permet de sélectionner des contrôles externes pour la commande
 manuelle de déplacement des axes (jog) ou des curseurs des correcteurs de vitesse.
 
-.GUI externe
-
-image::images/pncconf-external_fr.png["Contrôles externes"]
+.Contrôles externes
+image::images/pncconf-external_fr.png["Contrôles externes",align="center"]
 
 Si une manette de jeu externe est sélectionnée pour le jog, il faudra toujours la connecter à LinuxCNC avant de démarrer celui-ci. Si la manette est
 analogique il faudra probablement ajouter du code personnalisé à HAL. Les manivelles de jog à vernier et micro impulsion nécessitent d'être
@@ -210,10 +207,8 @@ système. Il s'agi d'un fichier qui est utilisé par LinuxCNC pour se connecter
 
 * Ajouter règle dispositif: s'utilise pour configurer un nouveau périphérique
   en suivant les instructions. Le périphérique doit être branché et disponible.
-
 * test dispositif: permet de charger un périphérique, d'afficher les noms de
   ses broches et de visualiser ses fonctions avec l’outil halmeter.
-
 * Rechercher règles pour le dispositif: va rechercher les règles dans le
   système, utilisable pour trouver le nom des périphériques déjà construits avec PnCConf.
 
@@ -244,10 +239,9 @@ Ici il est possible de  configurer l'interface graphique utilisateur (GUI), lui
 ajouter des panneaux de commande virtuels (VCP) et définir certaines options d'LinuxCNC.
 
 .Configuration des GUI
-
 image::images/pncconf-gui_fr.png["Configuration des GUI"]
 
-_Options des interfaces graphiques::
+Options des interfaces graphiques::
 
 Permet de fixer des valeurs générales par défaut, communes à toutes les interfaces graphiques.
 
@@ -272,7 +266,6 @@ If QtPlasmac is selected then the following screen will be a user button setup
 screen that is specific to QtPlasmaC and VCP options will not be available.
 
 Options de Panneaux de Contrôle::
-
 Les panneaux de contrôle virtuels permettent d'ajouter des contrôles
 et des afficheurs personnalisés. AXIS et Touchy peuvent intégrer ces
 contrôles dans une zone déterminée de leur écran. Il y a deux sortes de
@@ -332,14 +325,12 @@ système le permet.
 Sélectionner un thème GTK pour définir l'aspect du panneaux.
 En général, on le souhaite identique à l'aspect de l'écran frontal.
 Le panneau créé et ses options seront visibles en appuyant sur le bouton _Ouvrir un panneau simple_.
-GladeVCP placé sur l'écran frontal permet de sélectionner la position du panneau
-sur celui-ci.
+GladeVCP placé sur l'écran frontal permet de sélectionner la position du panneau sur celui-ci.
 
 Il peut fonctionner de manière autonome ou avec AXIS, il peut être au centre ou sur le côté droit,
 avec Touchy il peut être au centre.
 
 Paramètres par défauts et options::
-
 * Require homing before MDI / Running
 ** Pour pouvoir déplacer la machine sans passer par une recherche du point d'origine machine décocher la case. Dans ce cas la plus grande vigilance est
    nécessaire pour ne pas percuter une limite.
@@ -363,8 +354,7 @@ logiciels. Sur la page de configuration, si une carte Mesa a été sélectionné
 ici s'effectue le choix du micro logiciel parmi ceux disponibles, puis le choix et le paramétrage des composants nécessaires à la machine.
 
 .Configuration Carte Mesa
-
-image::images/pncconf-mesa-config_fr.png["Config. Mesa"]
+image::images/pncconf-mesa-config_fr.png["Configuration Carte Mesa"]
 
 Un port parallèle est utilisé seulement avec la carte Mesa 7i43. Les ports parallèles sur la carte mère ont généralement les adresses 0x378 et
 0x278 il est possible de trouver l'adresse sur la page du BIOS. Le 7i43 nécessite de programmer le port parallèle dans le mode EPP,
@@ -420,7 +410,6 @@ Les onglets sont utilisés pour configurer les broches d'entrée et de sortie
 des cartes Mesa. PnCConf permet de créer des noms de signaux personnalisés à utiliser dans les fichiers de HAL personnalisés.
 
 .Réglages des E/S Mesa C2
-
 image::images/pncconf-mesa-io2_fr.png["Réglages des E/S Mesa C2"]
 
 Sur cet onglet, avec ce micro logiciel, les composants sont liés à l'installation
@@ -429,7 +418,6 @@ Noter que les numéros de composant des codeurs, des compteurs et des pilotes PW
 ne sont pas dans l'ordre numérique. Cela fait suite aux exigences de l'architecture des cartes filles.
 
 .Réglages des E/S Mesa C3
-
 image::images/pncconf-mesa-io3_fr.png["Réglages des E/S Mesa C3"]
 
 Sur cet onglet, il n'y a que des broches GPIO. Noter les numéros à trois
@@ -437,7 +425,6 @@ chiffres, ils correspondent au numéros des _HAL pins_. Les broches GPIO
 peuvent être sélectionnées comme des entrées ou des sorties et elles peuvent être inversées.
 
 .Réglages des E/S Mesa C4
-
 image::images/pncconf-mesa-io4_fr.png["Réglages des E/S Mesa C4"]
 
 Sur cet onglet, il y a un mélange entre des broches GPIO et des générateurs de pas.
@@ -453,9 +440,8 @@ Les ports parallèles peuvent être utilisés pour de simples E/S similaires aux
 
 == Configuration des axes
 
-.Configuration des axes
-
-image::images/pncconf-axis-drive_fr.png["Configuration des axes"]
+.Configuration entraînement des axes
+image::images/pncconf-axis-drive_fr.png["Configuration entraînement des axes"]
 
 Cette page permet de configurer et tester un moteur combiné ou non à un codeur.
 Si un servomoteur est utilisé, un test en boucle ouverte est disponible.
@@ -475,7 +461,8 @@ Déplacer l'axe sur une distance connue, confirmera la bonne mise à l'échelle 
 codeur. Le codeur doit compter dans le même sens, même sans la puissance sur le
 moteur, mais cela dépend de la manière dont le codeur est alimenté.
 
-[red]#AVERTISSEMENT:# Si le moteur et le codeur ne comptent pas dans le même sens, le servomoteur sera incontrôlable et s'emballera lors de l'utilisation en boucle
+[WARNING]
+Si le moteur et le codeur ne comptent pas dans le même sens, le servomoteur sera incontrôlable et s'emballera lors de l'utilisation en boucle
 fermée sous régulation PID.footnote:[ PID: acronyme de Proportionnelle, Intégrale, Dérivée. Ce sont les 3 composantes de la régulation en boucle fermée de type PID.]
 
 Pour le moment les paramètres PID ne peuvent pas être testés dans PnCConf, ces réglages sont vraiment, 
@@ -510,8 +497,7 @@ l'amplificateur, de la non-linéarité du DAC, des unités du DAC, etc. Pour le 
   Piloter le DAC avec la tension souhaitée et mesurer le résultat:
 
 .Mesure des tensions de sortie:
-
-[cols="^,^",width="50%"]
+[cols="^,^",width="50%",options="header"]
 |========================================
 |*Sortie brute* | *Mesure*
 |-10            | *-9.93*
@@ -560,7 +546,6 @@ Elles permettent également la conversion des capteurs à effet Hall d'un fabric
 intervention pour terminer les connexions de HAL. Contacter la mail-liste ou un forum pour avoir de l'aide.
 
 .Calcul de l'échelle d'axe
-
 image::images/pncconf-scale-calc_fr.png["Calcul de l'échelle d'axe"]
 
 Les paramètres d'échelle peuvent être saisis directement ou, on peut utiliser le bouton _calculer échelle_ pour être assisté. Utiliser alors les cases à cocher
@@ -570,14 +555,14 @@ entre poulie menante et poulie menée (Entrée/Sortie). Si l'échelle à déjà 
 calculée manuellement, il est possible de la saisir directement sans passer par l'assistant.
 
 .Configuration des axes
-
 image::images/pncconf-axis-config_fr.png["Configuration des axes"]
 
 Se référer également à l'onglet diagramme pour deux exemples de disposition des
 contacts de fin de course d'origine machine et de limites. Ce sont deux exemples
 parmi les nombreuses façons différentes de placer ces contacts.
 
-IMPORTANT: Il est très important de commencer avec l'axe se déplaçant dans la
+[IMPORTANT]
+Il est très important de commencer avec l'axe se déplaçant dans la
 bonne direction sinon l’acquisition du point d'origine est impossible !
 
 Se souvenir que les directions positives et négatives se référent toujours à
@@ -752,7 +737,6 @@ pas être utilisée n même temps qu'un fichier de compensation. Voir <<sec:axes
 ou le chapitre INI.
 
 .Dessin d'aide à l'identification des axes et fins de course
-
 image::images/pncconf-diagram-lathe_fr.png["Dessin d'aide à l'identification des axes et fins de course"]
 
 Ce dessin devrait aider à comprendre un exemple de positionnement des contacts de fin
@@ -776,7 +760,6 @@ TIP: Beaucoup d'options de cette page ne sont visibles que si les sélections ap
 ont été sélectionnés, alors cette page est disponible pour les configurer.
 
 .Configuration moteur/codeur de la broche
-
 image::images/pncconf-spindle-config_fr.png["Configuration de la broche"]
 
 Cette page est semblable à la page de configuration des moteurs d'axe.
@@ -824,7 +807,6 @@ l'utilisation de classicladder avec le protocole série modbus. Voir la section
 classicladder dans le manuel.
 
 .PnCConf, Options avancées
-
 image::images/pncconf-advanced_fr.png["Options avancées de PnCConf"]
 
 == Composants de HAL
@@ -835,7 +817,6 @@ d'éditer le fichier HAL principal en permettant malgré tout à l'utilisateur d
 définir ses propres composants.
 
 .Composants de HAL
-
 image::images/pncconf-hal_fr.png["Composants de HAL"]
 
 La première sélection est prévue pour les composants que pncconf utilise en interne.

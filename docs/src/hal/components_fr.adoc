@@ -10,8 +10,7 @@ Certaines de ces descriptions sont plus approfondies dans leurs pages man.
 Certaines y auront une description exhaustive, d'autres, juste une description
 limitée. Chaque composant a sa man page. La liste ci-dessous, montre les
 composants existants, avec le nom et le N° de section de leur page man.
-Par exemple dans une console, tapez _man axis_ pour accéder aux informations de
-la man page d'Axis. Ou peut être _man 1 axis_, si le système exige le N° de section des man pages.
+Par exemple dans une console, tapez _man axis_ pour accéder aux informations de la man page d'Axis. Ou peut être _man 1 axis_, si le système exige le N° de section des man pages.
 
 ----
 man axis (or perhaps 'man 1 axis' if your system requires it.)
@@ -59,132 +58,134 @@ link:../man/man9/[directory listing of man9].
 [[sec:Realtime-Components-coeur]]
 === Composants du coeur de LinuxCNC
 
-motion:: (((motion)))Accepte les commandes de mouvement NML, interagi en temps réel avec HAL.
+motion:: (((motion))) Accepte les commandes de mouvement NML, interagi en temps réel avec HAL.
 
-axis:: (((axis)))Commandes de mouvement NML acceptées, intéragi en temps réel avec HAL
+axis:: (((axis))) Commandes de mouvement NML acceptées, intéragi en temps réel avec HAL
 
-classicladder:: (((classicladder)))Automate temps réel programmable en logique Ladder. See <<cha:classicladder,ClassicLadder>> chapter for more information.
+classicladder:: (((classicladder))) Automate temps réel programmable en logique Ladder. See <<cha:classicladder,ClassicLadder>> chapter for more information.
 
-gladevcp:: (((gladevcp)))Affiche un panneaux de contrôle virtuel construit avec GladeVCP.
+gladevcp:: (((gladevcp))) Affiche un panneaux de contrôle virtuel construit avec GladeVCP.
 
-threads:: (((threads)))Crée des threads de HAL temps réel.
+threads:: (((threads))) Crée des threads de HAL temps réel.
 
 [[sec:Realtime-Components-logic]]
 === Composants binaires et logiques
 
 and2:: (((and2))) Porte AND (ET) à deux entrées.
 
-not:: (((not)))Inverseur.
+not:: (((not))) Inverseur.
 
-or2:: (((or2)))Porte OR (OU) à deux entrées.
+or2:: (((or2))) Porte OR (OU) à deux entrées.
 
-xor2:: (((xor2)))Porte XOR (OU exclusif) à deux entrées.
+xor2:: (((xor2))) Porte XOR (OU exclusif) à deux entrées.
 
-dbounce:: (((dbounce)))Filtre une entrée digitale bruitée (typiquement antirebond).
+dbounce:: (((dbounce))) Filtre une entrée digitale bruitée (typiquement antirebond).
 
-debounce:: (((debounce)))Filtre une entrée digitale bruitée (typiquement antirebond).
+debounce:: (((debounce))) Filtre une entrée digitale bruitée (typiquement antirebond).
 
-edge:: (((edge)))Détecteur de front.
+edge:: (((edge))) Détecteur de front.
 
-flipflop:: (((flipflop)))Bascule D.
+flipflop:: (((flipflop))) Bascule D.
 
-oneshot:: (((oneshot)))Générateur d'impulsion monostable. Crée sur sa sortie une impulsion de longueur variable quand son entrée change d'état.
+oneshot:: (((oneshot))) Générateur d'impulsion monostable. Crée sur sa sortie une impulsion de longueur variable quand son entrée change d'état.
 
-logic:: (((logic)))Composant expérimental de logique générale.
+logic:: (((logic))) Composant expérimental de logique générale.
 
-lut5:: (((lut5)))Fonction logique arbitraire à cinq entrées, basée sur une table de correspondance.
+lut5:: (((lut5))) Fonction logique arbitraire à cinq entrées, basée sur une table de correspondance.
 
-match8:: (((match8)))Détecteur de coïncidence binaire sur 8 bits.
+match8:: (((match8))) Détecteur de coïncidence binaire sur 8 bits.
 
-select8:: (((select8)))Détecteur de coïncidence binaire sur 8 bits.
+select8:: (((select8))) Détecteur de coïncidence binaire sur 8 bits.
 
 [[sec:Realtime-Components-flottant]]
 === Composants arithmétiques et flottants
 
-abs:: (((abs)))Calcule la valeur absolue et le signe d'un signal d'entrée.
+abs:: (((abs))) Calcule la valeur absolue et le signe d'un signal d'entrée.
 
-blend:: (((blend)))Provoque une interpolation linéaire entre deux valeurs
+blend:: (((blend))) Provoque une interpolation linéaire entre deux valeurs
 
-comp:: (((comp)))Comparateur à deux entrées avec hystérésis.
+comp:: (((comp))) Comparateur à deux entrées avec hystérésis.
 
-constant:: (((constant)))Utilise un paramètre pour positionner une pin.
+constant:: (((constant))) Utilise un paramètre pour positionner une pin.
 
-sum2:: (((sum2)))Somme de deux entrées (chacune avec son gain) et d'un offset.
+sum2:: (((sum2))) Somme de deux entrées (chacune avec son gain) et d'un offset.
 
-counter:: (((counter)))Comptage d'impulsions d'entrée (obsolète).
+counter:: (((counter))) Comptage d'impulsions d'entrée (obsolète).
 +
 Utiliser le composant _encoder_ avec _... counter-mode = TRUE_.
 Voir la section <<sec:Codeur, codeur>>.
 
-updown:: (((updown)))Compteur/décompteur avec limites optionnelles et bouclage en cas de dépassement.
+updown:: (((updown))) Compteur/décompteur avec limites optionnelles et bouclage en cas de dépassement.
 
-ddt:: (((ddt)))Calcule la dérivée de la fonction d'entrée.
+ddt:: (((ddt))) Calcule la dérivée de la fonction d'entrée.
 
-deadzone:: (((deadzone)))Retourne le centre si il est dans le seuil.
+deadzone:: (((deadzone))) Retourne le centre si il est dans le seuil.
 
-hypot:: (((hypot)))Calculateur d'hypoténuse à trois entrées (distance Euclidienne).
+hypot:: (((hypot))) Calculateur d'hypoténuse à trois entrées (distance Euclidienne).
 
-mult2:: (((mult2)))Le produit de deux entrées.
+mult2:: (((mult2))) Le produit de deux entrées.
 
-mux16:: (((mux16)))Sélection d'une valeur d'entrée sur seize.
+mux16:: (((mux16))) Sélection d'une valeur d'entrée sur seize.
 
-mux2:: (((mux2)))Sélection d'une valeur d'entrée sur deux.
+mux2:: (((mux2))) Sélection d'une valeur d'entrée sur deux.
 
-mux4:: (((mux4)))Sélection d'une valeur d'entrée sur quatre.
+mux4:: (((mux4))) Sélection d'une valeur d'entrée sur quatre.
 
-mux8:: (((mux8)))Sélection d'une valeur d'entrée sur huit.
+mux8:: (((mux8))) Sélection d'une valeur d'entrée sur huit.
 
-near:: (((near)))Détermine si deux valeurs sont à peu près égales.
+near:: (((near))) Détermine si deux valeurs sont à peu près égales.
 
-offset:: (((offset)))Ajoute un décalage à une entrée et la soustrait à la valeur de retour.
+offset:: (((offset))) Ajoute un décalage à une entrée et la soustrait à la valeur de retour.
 
-integ:: (((integ)))Intégrateur.
+integ:: (((integ))) Intégrateur.
 
-invert:: (((invert)))Calcule l'inverse du signal d'entrée.
+invert:: (((invert))) Calcule l'inverse du signal d'entrée.
 
-wcomp:: (((wcomp)))Comparateur à fenêtre.
+wcomp:: (((wcomp))) Comparateur à fenêtre.
 
-weighted_sum:: (((weighted_sum)))Converti un groupe de bits en un entier.
+weighted_sum:: (((weighted_sum))) Converti un groupe de bits en un entier.
 
-biquad:: (((biquad)))Filtre biquad IIR
+biquad:: (((biquad)))  Filtre biquad IIR
 
-lowpass:: (((lowpass)))Filtre passe-bas.
+lowpass:: (((lowpass))) Filtre passe-bas.
 
-limit1:: (((limit1)))Limite le signal de sortie pour qu'il soit entre min
-  et max.  footnote:[Lorsque l'entrée est une position, cela signifie que la _position_ est limitée.]
+limit1:: (((limit1))) Limite le signal de sortie pour qu'il soit entre min
+  et max.  footnote:[Lorsque l'entrée est une position, cela signifie que
+  la _position_ est limitée.]
 
-limit2:: (((limit2)))Limite le signal de sortie pour qu'il soit entre min
+limit2:: (((limit2))) Limite le signal de sortie pour qu'il soit entre min
   et max.  Limite sa vitesse de montée à moins de MaxV par seconde.
   footnote:[Lorsque l'entrée est une position, cela signifie que la _position_ et la _vitesse_ sont limitées.]
 
-limit3:: (((limit3)))Limite le signal de sortie pour qu'il soit entre min
+limit3:: (((limit3))) Limite le signal de sortie pour qu'il soit entre min
   et max.  Limite sa vitesse de montée à moins de MaxV par seconde.
   Limite sa dérivée seconde à moins de MaxA par seconde carré.
-  footnote:[Lorsque l'entrée est une position, cela signifie que la _position_, la _vitesse_ et l'_accélération_ sont limitées.]
+  footnote:[Lorsque l'entrée est une position, cela signifie que
+  la _position_, la _vitesse_ et l'_accélération_ sont limitées.]
 
-maj3:: (((maj3)))Calcule l'entrée majoritaire parmi 3.
+maj3:: (((maj3))) Calcule l'entrée majoritaire parmi 3.
 
-scale:: (((scale)))Applique une échelle et un décalage à son entrée.
+scale:: (((scale))) Applique une échelle et un décalage à son entrée.
 
 === Conversions de type
 
-conv_bit_s32:: (((conv_bit_s32)))Converti une valeur de bit vers s32 (entier 32 bits signé).
+conv_bit_s32:: (((conv_bit_s32))) Converti une valeur de bit vers s32 (entier 32 bits signé).
 
-conv_bit_u32:: (((conv_bit_u32)))Converti une valeur de bit vers u32  (entier 32 bit non signé).
+conv_bit_u32:: (((conv_bit_u32))) Converti une valeur de bit vers u32  (entier 32 bit non signé).
 
-conv_float_s32:: (((conv_float_s32)))Converti la valeur d'un flottant vers s32.
+conv_float_s32:: (((conv_float_s32))) Converti la valeur d'un flottant vers s32.
 
-conv_float_u32:: (((conv_float_u32)))Converti la valeur d'un flottant vers u32.
+conv_float_u32:: (((conv_float_u32))) Converti la valeur d'un flottant vers u32.
 
-conv_s32_bit:: (((conv_s32_bit)))Converti une valeur de s32 en bit.
+conv_s32_bit:: (((conv_s32_bit))) Converti une valeur de s32 en bit.
 
-conv_s32_float:: (((conv_s32_float)))Converti une valeur de s32 en flottant.
+conv_s32_float:: (((conv_s32_float))) Converti une valeur de s32 en flottant.
 
-conv_s32_u32:: (((conv_s32_u32)))Converti une valeur de s32 en u32.
+conv_s32_u32:: (((conv_s32_u32))) Converti une valeur de s32 en u32.
 
-conv_u32_bit:: (((conv_u32_bit)))Converti une valeur de u32 en bit.
+conv_u32_bit:: (((conv_u32_bit))) Converti une valeur de u32 en bit.
 
-conv_u32_float:: (((conv_u32_float)))Converti une valeur de u32 en flottant.
+conv_u32_float:: (((conv_u32_float))) Converti une valeur de u32 en flottant.
 
 conv_u32_s32:: (((conv_u32_s32))) Converti une valeur de u32 en s32.
 
@@ -223,7 +224,7 @@ genserkins:: (((genserkins))) Cinématique capable de modéliser une bras
   manipulateur avec un maximum de 6 articulations angulaires.
 
 maxkins:: (((maxkins))) Cinématique d'une fraiseuse 5 axes nommée _max_, avec tête inclinable (axe B)
-  ​et un axe rotatif horizontal monté sur la table (axe C).
+  et un axe rotatif horizontal monté sur la table (axe C).
   Fourni les mouvements UVW dans le système de coordonnées système basculé.
   Le fichier source, maxkins.c, peut être un point de départ utile pour d'autres systèmes 5 axes.
 
@@ -321,17 +322,17 @@ toggle2nist:: (((toggle2nist))) Bouton à bascule pour logique NIST.
 
 toggle:: (((toggle))) Bouton à bascule NO/NF à partir d'un bouton poussoir   momentané.
 
-tristate_bit:: (((tristate_bit)))Place un signal sur une pin d'I/O seulement
+tristate_bit:: (((tristate_bit))) Place un signal sur une pin d'I/O seulement
   quand elle est validée, similaire à un tampon trois états en électronique.
 
-tristate_float:: (((tristate_float))) lace un signal sur une pin d'I/O seulement
+tristate_float:: (((tristate_float))) Place un signal sur une pin d'I/O seulement
   quand elle est validée, similaire à un tampon trois états en électronique.
 
-watchdog:: (((watchdog)))Moniteur de fréquence (chien de garde) sur 1 à 32 entrées.
+watchdog:: (((watchdog))) Moniteur de fréquence (chien de garde) sur 1 à 32 entrées.
 
 == Appels à l'API de HAL (liste de la section 3 des man pages)
 
-....
+----
 hal_add_funct_to_thread.3hal
 hal_bit_t.3hal
 hal_create_thread.3hal
@@ -374,11 +375,11 @@ hal_u32_t.3hal
 hal_unlink.3hal
 intro.3hal
 undocumented.3hal
-....
+----
 
 == Appels à RTAPI
 
-....
+----
 EXPORT_FUNCTION.3rtapi
 MODULE_AUTHOR.3rtapi
 MODULE_DESCRIPTION.3rtapi
@@ -431,6 +432,6 @@ rtapi_task_pause.3rtapi
 rtapi_task_resume.3rtapi
 rtapi_task_start.3rtapi
 rtapi_task_wait.3rtapi
-....
+----
 
 // vim: set syntax=asciidoc:

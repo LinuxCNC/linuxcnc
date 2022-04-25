@@ -167,7 +167,7 @@ Un changement d'outil complet donnera:
   n'importe quelle ligne après le changement d'outil précédent), sera placé dans la broche.
 * Si l'outil sélectionné n'est pas déjà dans la broche avant le
   changement d'outil, l'outil qui était dans la broche
-(s'il y en avait un) va être replacé dans son emplacement dans le chargeur.
+  (s'il y en avait un) va être replacé dans son emplacement dans le chargeur.
 * Les coordonnées des axes seront arrêtées dans les mêmes positions
   absolues qu'elles avaient avant le changement d'outil (mais la broche
   devra peut-être être réorientée).

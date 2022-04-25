@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:halshow]]
-= Les fonctionnalités de Halshow(((Halshow)))
+= Halshow(((Halshow)))
 
 Le script halshow peut vous aider à retrouver votre chemin dans un HAL
 en fonctionnement. Il s'agit d'un système très spécialisé qui doit se
@@ -18,9 +18,9 @@ lui même est un des facteurs clés pour arriver à un système CNC optimum.
 
 On peut accéder à Halshow depuis Axis, pour cela, aller dans le menu _Machine_ puis choisir _Afficher la configuration de HAL_.
 
-FIXME Halshow is in the TkLinuxCNC menu under Scripts/HAL Show.
+Halshow is in the TkLinuxCNC menu under Scripts/HAL Show.
 
-FIXME Halshow can be started from a terminal command line and specify
+Halshow can be started from a terminal command line and specify
 formats for integer and float items (pins or signals) and identify a
 saved watchlist file to use:
 
@@ -38,11 +38,11 @@ Notes:
        linuxcnc must be running for standalone usage
 ----
 
-FIXME Example to limit number of decimal points for floats
-and used a file named my.halshow in the current directory:
+Example to limit number of decimal points for floats
+and use a file named my.halshow in the current directory:
 
 ----
-$ halshow --fformat ".5f" ./my.halshow
+$ halshow  --fformat "%.5f" ./my.halshow
 ----
 
 For more information regarding the format, please refer to https://www.tcl.tk/man/tcl/TclCmd/format.html
@@ -54,8 +54,8 @@ une arborescence, un peu comme vous pouvez le voir avec certains
 navigateurs de fichiers. Sur la droite, une zone avec deux onglets: MONTRER et WATCH.
 
 [[fig:halshow-layout]]
-.La Fenêtre de Halshow
-image::images/halshow-1_fr.png["Fenêtre Halshow",align="center"]
+.Fenêtre de Halshow
+image::images/halshow-1_fr.png["Fenêtre de Halshow",align="center"]
 
 L'arborescence montre toutes les parties principales de HAL. En face
 de chacune d'entre elles, se trouve un petit signe + ou - dans une
@@ -69,8 +69,8 @@ Expand Signals; and Erase Watch. (Note that Erase Watch erases 'all'
 previously set watches, you cannot erase just one watch.)
 
 [[fig:halshow-onglet-montrer]]
-.L'onglet Montrer
-image::images/halshow-3.png["L'onglet Montrer",align="center"]
+.Halshow: Onglet Montrer
+image::images/halshow-3.png["Halshow: Onglet Montrer",align="center"]
 
 == Zone de l'onglet Montrer
 
@@ -279,8 +279,8 @@ bref regard sur TkLinuxCNC en arrière plan, montre que l'état de LinuxCNC est
 ESTOP RESET. L'activation des amplis ne deviendra pas vraie tant que la machine ne sera pas mise en marche.
 
 [[fig:halshow-onglet-watch]]
-.L'onglet Watch(((Halshow: Onglet Watch)))
-image::images/halshow-4.png["L'onglet Watch",align="center"]
+.Halshow: Onglet Watch(((Halshow: Onglet Watch)))
+image::images/halshow-4.png["Halshow: Onglet Watch",align="center"]
 
 Les cercles de deux couleurs, simili Leds, sont toujours bruns foncé
 quand un signal est faux. Elle sont jaunes quand le signal est vrai.
@@ -296,7 +296,7 @@ par très petits incréments de distance. Si vous avez déjà utilisé
 IO_Show dans LinuxCNC, la page de Watch de halshow peut être réglée pour afficher ce que fait le port parallèle.
 
 [[cap:watch-tab-context-menu]]
-.Watch Tab context menu
-image::images/halshow-5.png["Watch Tab context menu",align="center"]
+.Halshow: Watch Tab Context Menu
+image::images/halshow-5.png["Halshow: Watch Tab Context Menu",align="center"]
 
 // vim: set syntax=asciidoc:

@@ -142,6 +142,7 @@ Cette différence s'explique par le mode de régulation différent
 des deux systèmes. Les servosystèmes sont régulés en _boucle fermée_ et le moteur pas à pas en _boucle ouverte_.
 Que signifie _boucle fermée_ ? Regardons un schéma simplifié et la façon dont un système de servomoteur fonctionne.
 
+.Servo Loop
 image::images/servo-feedback_fr.png["Boucle fermée"]
 
 Ce diagramme montre que le signal de consigne (de commande) et le signal
@@ -173,6 +174,7 @@ de mathématique qui sont appliquées pour fournir un processus de suivi
 d'une consigne. Dans le cas de LinuxCNC le processus que nous
 voulons contrôler est l'actuelle position de l'axe et le point de consigne qui est la position commandée l'axe.
 
+.PID Loop
 image::images/pid-feedback_fr.png["Boucle PID"]
 
 En ajustant trois composantes (proportionnelle, intégrale et dérivée)

@@ -92,16 +92,19 @@ image::images/stepconf-basic_fr.png["Page d'informations sur la machine"]
 * _Réglage direction_ - Délai avant le changement de direction après la dernière impulsion de pas,
   en nanosecondes. If your not sure about this setting a value of
   20,000 will work with most drives.
-* 'One / Two Parport' - Select how many parallel port are to be configured. 
+* 'One / Two Parport' - Select how many parallel port are to be configured.
 * _Période de base minimale_ - (((Période de base minimale)))
   En se basant sur les caractéristiques du pilote et sur le résultat du
-  test de latence, Stepconf détermine automatiquement la période de base (BASE_PERIOD) la plus petite utilisable et l'affiche ici.
+  test de latence, Stepconf détermine automatiquement la période de
+  base (BASE_PERIOD) la plus petite utilisable et l'affiche ici.
 * _Fréquence maxi des pas_ - (((Fréquence maximale de pas)))
-  Affiche la valeur calculée de la fréquence maximum des pas que la machine devrait atteindre avec les paramètres de cette configuration.
-* 'Min Base Period' - Stepconf automatically determines the Min Base Period
+  Affiche la valeur calculée de la fréquence maximum des pas que la machine
+  devrait atteindre avec les paramètres de cette configuration.
+* 'Min Base Period' - (((Min Base Period)))
+  Stepconf automatically determines the Min Base Period
   based on the driver characteristics entered and latency test result.
 
-[[latency-test]]
+[[sub:latency-test]]
 == Latency Test(((Latency Test)))
 
 While the test is running, you should 'abuse' the computer. Move
@@ -169,7 +172,8 @@ si le signal est inversé (0V pour vrai/actif, 5V pour faux/inactif).
 * _Entrées et sorties_ - Les entrées ou les sorties non utilisées doivent être placées sur Inutilisé.
 * _Sortie arrêt d'urgence_ - Sélectionnable dans la liste déroulante des sorties. La sortie d'arrêt d'urgence est utilisée pour actionner l'organe de coupure
   du circuit de puissance de la machine. Le contact de cet organe est câblé en série avec les contacts des boutons d'arrêt d'urgence extérieurs ainsi qu'avec tous les contacts compris dans la boucle d'arrêt d'urgence.
-* 'Homing & Limit Switches' - These can be selected from an input pin drop down box for most configurations.
+* 'Homing & Limit Switches' - These can be selected from an input pin
+  drop down box for most configurations.
 * _Pompe de charge_ -
   Si la carte de contrôle accepte un signal pompe de charge, dans la liste déroulante des sorties, sélectionner _Pompe de charge_ sur la sortie
   correspondant à l'entrée Pompe de charge de la carte de contrôle. La sortie pompe de charge sera connectée en interne par Stepconf.
@@ -196,9 +200,7 @@ image::images/stepconf-axis_fr.png["Page de configuration des axes"]
 * _Nombre de pas moteur par tour_ - (((Nombre de pas par tour)))
   Nombre de pas entiers par tour de moteur. Si l'angle d'un pas en degrés est
   connu (par exemple, 1.8 degrés), diviser 360 par cet angle pour obtenir le nombre de pas par tour du moteur.
-* _Micropas du pilote_ - (((Micropas du pilote)))
-  Le nombre de micropas produits par le pilote. Entrer par exemple 2
-  pour le demi pas ou une des valeurs permise par le pilote du moteur.
+* _Micropas du pilote_ - (((Micropas du pilote))) Le nombre de micropas produits par le pilote. Entrer par exemple 2 pour le demi pas ou une des valeurs permise par le pilote du moteur.
 * _Dents des poulies_ - (((Dents des poulies)))
   Si entre le moteur et la vis un réducteur poulie/courroie est présent,
   entrer ici le nombre de dents de chacune des poulies. Pour un entrainement direct, entrer 1:1.
@@ -233,10 +235,8 @@ image::images/stepconf-axis_fr.png["Page de configuration des axes"]
 * _Test de cet axe_ - (((Test de cet axe)))
   Ouvre une fenêtre permettant de tester les paramètres pour chaque axe. Il est possible de modifier par expérimentation certaines données et de les reporter dans la configuration.
 
-//== Test This Axis C
-
 .Test de l'axe
-image::images/stepconf-test_fr.png["Tester cet axe"]
+image::images/stepconf-test_fr.png["Test de l'axe",align="center"]
 
 Tester cet axe et un test simple pour définir les signaux de directions et de
 pas, ainsi que les valeurs d'accélération et de vitesse.
@@ -247,7 +247,7 @@ manuellement l'axe à tester. Si le driver utilise une pompe de charge, il faudr
 la bi-passer pour essayer les différentes valeurs de vitesse et d'accélération.
 
 [[sub:finding-maximum-velocity]]
-.Trouver la vitesse maximale(((Trouver Vitesse Maximale)))
+=== Trouver la vitesse maximale(((Trouver la vitesse maximale)))
 
 Commencer avec une faible valeur d'accélération
 // comment out latexmath until a fix is found for the html docs
@@ -291,7 +291,7 @@ Quand la vitesse à laquelle l'axe ne perd plus de pas et à laquelle les mesure
 sont exactes pendant le test a été déterminée, réduire cette vitesse de 10% et l'utiliser comme vitesse maximale pour cet axe.
 
 [[sub:finding-maximum-acceleration]]
-.Trouver l'accélération maximale(((Trouver Accélération Maximale)))
+=== Trouver l'accélération maximale(((Trouver l'accélération maximale)))
 
 Avec la vitesse maximale déterminée à l'étape précédente, entrer
 une valeur d'accélération approximative.
@@ -305,8 +305,8 @@ accélération maximale pour cet axe.
 
 == Configuration de la broche
 
-.Page configuration de la broche
-image::images/stepconf-spindle_fr.png["Page configuration de la broche"]
+.Page de configuration de la broche
+image::images/stepconf-spindle_fr.png["Page de configuration de la broche",align="center"]
 
 Ces options ne sont accessibles que quand _PWM broche_, _Phase A codeur broche_ ou _index broche_ sont configurés dans le réglage du port parallèle.
 
@@ -354,7 +354,7 @@ l'information suivante doit être renseignée sur la page de configuration broch
 
 Entrer les valeurs suivantes dans la page de configuration de la broche:
 
-[width="80%",options="header", cols="^,^,^,^"]
+[width="80%",options="header",cols="^,^,^,^"]
 |===============================
 | Vitesse 1: | 0    | PWM 1: | 0
 | Vitesse 2: | 1000 | PWM 2: | 1
@@ -383,8 +383,8 @@ des valeurs qui donneront 1600tr/mn et 2800tr/mn.
 
 == Options
 
-//.Options Configuration
-image::images/stepconf-options_en.png["Options Configuration",align="center"]
+.Configuration de options avancées
+image::images/stepconf-options_en.png["Configuration de options avancées",align="center"]
 
 * 'Include Halui' - This will add the Halui user interface component. See the
   <<cha:hal-user-interface,HALUI Chapter>> for more information on.
@@ -479,15 +479,11 @@ nivaux haut. La valeur typique pour un port parallèle est de 47K.
 Une bonne sécurité utilise des contacts normalement fermés sans pièce
 de commande souple.
 
-.Contacts normalement fermés
-Câblage de contacts NC en série (schéma simplifié)
+.Contacts normalement fermés (N/C) câblage en série (schéma simplifié)
+image::images/switch-nc-series_fr.png["Contacts normalement fermés",align="center"]
 
-image::images/switch-nc-series_fr.png["Contacts normalement fermés"]
-
-.Contacts normalement ouverts
-Câblage de contacts NO en parallèle (schéma simplifié)
-
-image::images/switch-no-parallel_fr.png["Contacts normalement ouverts"]
+.Contacts normalement ouverts (N/0) câblage en parallèle (schéma simplifié)
+image::images/switch-no-parallel_fr.png["Contacts normalement ouverts",align="center"]
 
 Les combinaisons suivantes sont permises dans Stepconf:
 
