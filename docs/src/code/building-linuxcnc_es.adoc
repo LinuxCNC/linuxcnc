@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 = Construyendo LinuxCNC
 
@@ -30,7 +31,7 @@ Especialmente la sección sobre <<Satisfying-Build-Dependencies,
 Satisfacer Dependencias de Construcción>>.
 
 Si está manejando un sistema con capacidad de tiempo real (como una instalación desde
-la imagen de LinuxCNC Live/Install, vea la sección <<_realtime,Tiempo Real>> mas abajo);
+la imagen de LinuxCNC Live/Install, vea la sección <<sub:realtime,Tiempo Real>> mas abajo);
 se necesita un paso de compilación adicional:
 
 -----
@@ -59,28 +60,26 @@ LinuxCNC compila en la mayoría de las otras distribuciones de Linux, aunque la 
 de dependencias será más manual. Siempre son bienvenidos parches para mejorar
 la portabilidad a nuevas plataformas .
 
+[[sub:realtime]]
 === Realtime
 
 LinuxCNC es un controlador de máquina herramienta, y requiere una plataforma en tiempo real
 para hacer este trabajo. Esta versión de LinuxCNC admite tres plataformas en tiempo real.
 
 RTAI::
-
-    De https://www.rtai.org. En el archivo de Debian en http://www.linuxcnc.org
-    hay disponible un kernel de Linux con el parche RTAI.
-    Ver <<cha:getting-linuxcnc,Obtener LinuxCNC>> para las instrucciones de instalación.
+  De https://www.rtai.org. En el archivo de Debian en http://www.linuxcnc.org
+  hay disponible un kernel de Linux con el parche RTAI.
+  Ver <<cha:getting-linuxcnc,Obtener LinuxCNC>> para las instrucciones de instalación.
 
 Xenomai::
-
-    De https://xenomai.org. Tendrá que compilar u obtener un kernel Xenomai
-    por usted mismo
+  De https://xenomai.org. Tendrá que compilar u obtener un kernel Xenomai
+  por usted mismo
 
 Preempt-RT::
-
-    De https://rt.wiki.kernel.org. Un kernel de Linux con el
-    parche Preempt-RT, que está disponible ocasionalmente en el archivo Debian
-    en https://www.debian.org, y desde la "máquina wayback" en
-    https://snapshot.debian.org.
+  De https://rt.wiki.kernel.org. Un kernel de Linux con el
+  parche Preempt-RT, que está disponible ocasionalmente en el archivo Debian
+  en https://www.debian.org, y desde la "máquina wayback" en
+  https://snapshot.debian.org.
 
 Para hacer uso de las capacidades en tiempo real de LinuxCNC, ciertas partes
 necesitan ejecutarse con privilegios root. Para habilitar root para estas
@@ -111,14 +110,15 @@ En una compilación Run-In-Place, los programas LinuxCNC se compilan desde las f
 y luego se ejecuta directamente desde el directorio de compilación. Nada queda
 instalado fuera del directorio de compilación.
 
+This is quick and easy, and suitable for rapid iteration of changes.
+
 El conjunto de pruebas LinuxCNC se ejecuta solo en una compilación Run-In-Place.
 
 La mayoría de los desarrolladores de LinuxCNC compilan principalmente con este modo.
 
-Para una compilacion Run-In-Place, sigua los pasos en la sección <<Quick-Start,
-Inicio rápido>> en la parte superior de este documento, posiblemente con
-diferentes argumentos para `src/configure` y` make`.
-
+Para una compilacion Run-In-Place, sigua los pasos en la sección
+<<Quick-Start,Inicio rápido>> en la parte superior de este documento,
+posiblemente con diferentes argumentos para `src/configure` y` make`.
 
 [[src-configure-arguments]]
 ==== Argumentos `src/configure`
@@ -136,32 +136,28 @@ Enumere todos los argumentos para `src/configure` ejecutando:
 Los argumentos más utilizados son:
 
 `--with-realtime=uspace`::
-
-    Compilar para cualquier plataforma en tiempo real, o no.
-    Los ejecutables LinuxCNC resultantes se ejecutarán tanto en un kernel de Linux
-    con parches Preempt-RT (que proporcionan control de la máquina en tiempo real) o
-    en un núcleo Linux original (sin parches) (que proporciona simulación de código G
-    pero sin control de máquina en tiempo real). Si los archivos de desarrollo están instalados
-    para Xenomai (típicamente del paquete libxenomai-dev) o RTAI (típicamente
-    desde un paquete con un nombre que comienza por "rtai-modules"), también estarán habilitado
-    soporte para estos núcleos en tiempo real.
+  Compilar para cualquier plataforma en tiempo real, o no.
+  Los ejecutables LinuxCNC resultantes se ejecutarán tanto en un kernel de Linux
+  con parches Preempt-RT (que proporcionan control de la máquina en tiempo real) o
+  en un núcleo Linux original (sin parches) (que proporciona simulación de código G
+  pero sin control de máquina en tiempo real). Si los archivos de desarrollo están instalados
+  para Xenomai (típicamente del paquete libxenomai-dev) o RTAI (típicamente
+  desde un paquete con un nombre que comienza por "rtai-modules"), también estarán habilitado
+  soporte para estos núcleos en tiempo real.
 
 `--with-realtime=/usr/realtime-$VERSION`::
-
-    Compilación para la plataforma RTAI en tiempo real utilizando el antiguo
-    modelo "kernel realtime". Esto requiere tener
-    un kernel RTAI y los módulos RTAI instalados en
-    `/usr/realtime-$VERSION`. Los ejecutables LinuxCNC resultantes
-    solo se ejecutarán en el kernel RTAI especificado. A partir de LinuxCNC 2.7, esto
-    produce el mejor rendimiento en tiempo real.
+  Compilación para la plataforma RTAI en tiempo real utilizando el antiguo
+  modelo "kernel realtime". Esto requiere tener
+  un kernel RTAI y los módulos RTAI instalados en
+  `/usr/realtime-$VERSION`. Los ejecutables LinuxCNC resultantes
+  solo se ejecutarán en el kernel RTAI especificado. A partir de LinuxCNC 2.7, esto
+  produce el mejor rendimiento en tiempo real.
 
 `--enable-build-documentation`::
-
-    Crear la documentación, además de los ejecutables. Esta opción
-    aumenta significativamente el tiempo requerido para la compilación, ya que construir
-    los documentos consumen bastante tiempo. Si no está trabajando activamente
-    en la documentación es posible que desee omitir este argumento.
-
+  Crear la documentación, además de los ejecutables. Esta opción
+  aumenta significativamente el tiempo requerido para la compilación, ya que construir
+  los documentos consumen bastante tiempo. Si no está trabajando activamente
+  en la documentación es posible que desee omitir este argumento.
 
 [[make-arguments]]
 ==== Argumentos `make`
@@ -169,20 +165,18 @@ Los argumentos más utilizados son:
 El comando `make` admite dos argumentos opcionales útiles.
 
 Compilación Paralela::
-
-    `make` admite un argumento opcional `-jN` (donde N es un número).
-    Esto permite la compilación paralela con N procesos simultáneos, que
-    puede acelerar significativamente tu construcción.
+  `make` admite un argumento opcional `-jN` (donde N es un número).
+  Esto permite la compilación paralela con N procesos simultáneos, que
+  puede acelerar significativamente tu construcción.
 +
 Un valor útil para N es la cantidad de CPU's en su sistema de compilación. Usted puede
 averiguar el número de CPU ejecutando `nproc`.
 
 Compilar un solo objetivo específico ::
-
-    Si desea compilar solo una parte específica de LinuxCNC, puede nombrar
-    lo que quiere construir en la línea de comando `make`. Por ejemplo,
-    si está trabajando en un componente llamado `froboz`, puede construir su
-    ejecutable con los comandos:
+  Si desea compilar solo una parte específica de LinuxCNC, puede nombrar
+  lo que quiere construir en la línea de comando `make`. Por ejemplo,
+  si está trabajando en un componente llamado `froboz`, puede construir su
+  ejecutable con los comandos:
 +
 -----
 > cd linuxcnc-dev/src
@@ -198,7 +192,8 @@ que el paquete Debian se instala en una máquina de destino.
 
 Este modo de compilación es principalmente útil cuando se empaqueta el software para
 entrega a usuarios finales, o para construir el software para una máquina
-que no tiene instalado el entorno de compilación, o que no tiene acceso a Internet.
+que no tiene instalado el entorno de compilación, o que no tiene acceso
+a Internet.
 
 La creación de paquetes Debian requiere la herramienta `dpkg-buildpackage`, del
 paquete `dpkg-dev`, que puede ser instalado con:
@@ -225,7 +220,8 @@ desde su clon del repositorio git ejecutando esto:
 
 [NOTE]
 =====
-El script `debian/configure` es diferente del script `src/configure`!
+El script `debian/configure` es diferente del script
+`src/configure`!
 
 El script `debian/configure` necesita diferentes argumentos dependiendo de la
 plataforma en/para la que está compilando; vea la sección <<debian-configure-arguments,
@@ -250,43 +246,38 @@ Admite un solo argumento que especifica la plataforma de tiempo real o no tiempo
 Los valores normales para este argumento son:
 
 `uspace`::
-
-    Configura el paquete Debian para Preempt-RT en tiempo real o para
-    no tiempo real (estos dos son compatibles).
+  Configura el paquete Debian para Preempt-RT en tiempo real o para
+  no tiempo real (estos dos son compatibles).
 
 `noauto`::
 `rtai`::
 `xenomai`::
-
-    Normalmente, se detectan automáticamente las listas de RTOS para uspace en tiempo real soportados.
-    Sin embargo, si lo desea, puede especificar uno o más de estos RTOS
-    después de `uspace` para habilitar el soporte para estos RTOS. Para deshabilitar
-    la autodetección, especifique `noauto`.
-
-    Si solo desea el tradicional "módulo de kernel" RTAI en tiempo real, use
-    `-r` o `$KERNEL_VERSION` en su lugar.
+  Normalmente, se detectan automáticamente las listas de RTOS para uspace en tiempo real soportados.
+  Sin embargo, si lo desea, puede especificar uno o más de estos RTOS
+  después de `uspace` para habilitar el soporte para estos RTOS. Para deshabilitar
+  la autodetección, especifique `noauto`.
++
+Si solo desea el tradicional "módulo de kernel" RTAI en tiempo real, use
+`-r` o `$KERNEL_VERSION` en su lugar.
 
 `rtai=<nombre del paquete>`::
-
-    Si el paquete de desarrollo para rtai lxrt no comienza con
-    "rtai-modules", o si el primer paquete de este tipo aparece en la búsqueda de apt-cache
-    no es el deseado, especifique explícitamente el nombre del paquete.
+  Si el paquete de desarrollo para rtai lxrt no comienza con
+  "rtai-modules", o si el primer paquete de este tipo aparece en la búsqueda de apt-cache
+  no es el deseado, especifique explícitamente el nombre del paquete.
 
 `-r`::
-
-    Configura el paquete Debian para el kernel RTAI actualmente en ejecución.
-    Debe estar ejecutando un kernel RTAI en su máquina de compilación para que esto
-    trabaje!
+  Configura el paquete Debian para el kernel RTAI actualmente en ejecución.
+  Debe estar ejecutando un kernel RTAI en su máquina de compilación para que esto
+  trabaje!
 
 `$KERNEL_VERSION`::
-
-    Configura el paquete debian para la versión de kernel RTAI especificada
-    (por ejemplo, "3.4.9-rtai-686-pae"). Los encabezados del kernel 
-    del paquete debian coincidente debe estar instalado en su máquina de compilación (por ejemplo
-    "linux-headers-3.4.9-rtai-686-pae"). Tenga en cuenta que puede _construir_
-    LinuxCNC en esta configuración, pero si no está ejecutando el
-    kernel RTAI coincidente, no podrá ejecutar LinuxCNC, incluyendo
-    el conjunto de pruebas.
+  Configura el paquete debian para la versión de kernel RTAI especificada
+  (por ejemplo, "3.4.9-rtai-686-pae"). Los encabezados del kernel 
+  del paquete debian coincidente debe estar instalado en su máquina de compilación (por ejemplo
+  "linux-headers-3.4.9-rtai-686-pae"). Tenga en cuenta que puede _construir_
+  LinuxCNC en esta configuración, pero si no está ejecutando el
+  kernel RTAI coincidente, no podrá ejecutar LinuxCNC, incluyendo
+  el conjunto de pruebas.
 
 [[Satisfying-Build-Dependencies]]
 == Satisfacer Dependencias de Construcción
@@ -381,7 +372,6 @@ Las instrucciones <<Quick-Start,Inicio rápido>> en la parte superior de este
 documento hablan de hacer un clon local anónimo desde nuestro repositorio git en
 http://github.com/linuxcnc/linuxcnc.git. Esta es la manera más rápida y fácil
 de empezar. Sin embargo, hay otras opciones a considerar.
-
 
 === Bifurcación en Github (fork)
 

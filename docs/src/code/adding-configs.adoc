@@ -10,10 +10,10 @@ by two methods:
   a specified system directory.  The directory name is specified
   using the shell linuxcnc_var script:
 
-====
-  $ linuxcnc_var LINUXCNC_AUX_EXAMPLES
-  /usr/share/linuxcnc/aux_examples
-====
+----
+$ linuxcnc_var LINUXCNC_AUX_EXAMPLES
+/usr/share/linuxcnc/aux_examples
+----
 
 * Runtime settings -- the configuration selector can also offer
   configuration subdirectories specified at runtime using an
@@ -23,8 +23,8 @@ by two methods:
   would be set in a shell starting linuxcnc or in a user's
   ~/.profile startup script.  Example:
 
-====
-  export LINUXCNC_AUX_CONFIGS=~/myconfigs:/opt/otherconfigs
-====
+----
+export LINUXCNC_AUX_CONFIGS=~/myconfigs:/opt/otherconfigs
+----
 
 // vim: set syntax=asciidoc:

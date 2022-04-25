@@ -23,7 +23,6 @@ The canonical digital input (I/O type field: `digin`) is quite simple.
 [[sub:hal-cdi:di:pins]]
 === Pins(((HAL Digital Input Pins)))
 
-[horizontal]
 (bit) *in*:: State of the hardware input.
 (bit) *in-not*:: Inverted state of the input.
 
@@ -75,7 +74,6 @@ continuous range of values.
 [[sub:hal-cdi:ai:parameters]]
 === Parameters(((HAL Analog Input Parameters)))
 
-[horizontal]
 (float) *scale*:: The input voltage (or current) will be multiplied
   by *scale* before being output to *value*.
 (float) *offset*:: This will be subtracted from the hardware input
@@ -101,7 +99,6 @@ of values. Examples are digital to analog converters or PWM generators.
 [[sub:hal-cdi:ao:pins]]
 === Pins(((HAL Analog Output Pins)))
 
-[horizontal]
 (float) *value*:: The value to be written. The actual value output
   to the hardware will depend on the scale and offset parameters.
 (bit) *enable*:: If false, then output 0 to the hardware, regardless
@@ -110,7 +107,6 @@ of values. Examples are digital to analog converters or PWM generators.
 [[sub:hal-cdi:ao:parameters]]
 === Parameters(((HAL Analog Output Parameters)))
 
-[horizontal]
 (float) *offset*:: This will be added to the *value* before the
   hardware is updated
 (float) *scale*:: This should be set so that an input of 1 on the

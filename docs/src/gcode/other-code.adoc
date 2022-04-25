@@ -52,12 +52,12 @@ lines with no tool change. Only the the most recent T word will take
 effect at the next tool change.
 
 NOTE: When LinuxCNC is configured for a nonrandom toolchanger (see
-the entry for RANDOM_TOOLCHANGER in the <<sec:emcio-section,EMCIO Section>>),
+the entry for RANDOM_TOOLCHANGER in the <<sub:ini:sec:emcio,EMCIO Section>>),
 'T0' gets special handling: no tool will be selected. This
 is useful if you want the spindle to be empty after a tool change.
 
 NOTE: When LinuxCNC is configured for a random toolchanger (see
-the entry for RANDOM_TOOLCHANGER in the <<sec:emcio-section,EMCIO Section>>),
+the entry for RANDOM_TOOLCHANGER in the <<sub:ini:sec:emcio,EMCIO Section>>),
 'T0' does not get any special treatment: T0 is a valid
 tool like any other.  It is customary to use T0 on a random toolchanger
 machine to track an empty pocket, so that it behaves like a nonrandom

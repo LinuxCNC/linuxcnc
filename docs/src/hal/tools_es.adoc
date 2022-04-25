@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 [[cha:hal-tools]]
 = Herramientas HAL(((Herramientas HAL)))
@@ -73,10 +74,12 @@ loadusr halmeter pin hm2.0.stepgen.00.velocity-fb -g 0 500
 ----
 
 Vea la página man para más opciones. Vea tambien la sección <<sec:halmeter,Halmeter>>.
-  
-image::images/hal-meter01.png["Halmeter 1"]
 
-image::images/hal-meter02.png["Halmeter 2"]
+.Halmeter selection window
+image::images/hal-meter01.png["Halmeter selection window"]
+
+.Halmeter watch window
+image::images/hal-meter02.png["Halmeter watch window"]
 
 == Halshow
 
@@ -104,14 +107,15 @@ Notes:
 
 LinuxCNC debe estar ejecutanse para uso independiente de Halshow.
 
-image:images/halshow-4.png["Watch Tab",align="center"]
+.Halshow Watch Tab
+image::images/halshow-4.png["Halshow Watch Tab",align="center"]
 
 El archivo watchfile creado utilizando la opción de menú 'Archivo/Guardar lista de observación'
 está formateado como una sola línea con tokens "pin+", "param+", "sig=+"
 seguido del nombre de pin, param o señal apropiado.
 Los pares token-nombre están separados por un carácter de espacio.
 
-.Ejemplo:
+.Ejemplo Watchfile con Sola Línea
 ----
 pin+joint.0.pos-hard-limit pin+joint.1.pos-hard-limit sig+estop-loop
 ----
@@ -120,7 +124,7 @@ Un archivo watchfile creado utilizando la opción de menú 'Archivo/Guardar list
 está formateado con líneas separadas para cada elemento identificado con pares token-nombre
 como se describe arriba.
 
-.Ejemplo:
+.Ejemplo Watchfile con Líneas Separadas
 ----
 pin+joint.0.pos-hard-limit
 pin+joint.1.pos-hard-limit
@@ -157,7 +161,7 @@ Uso:
 sim_pin es una utilidad de línea de comandos para mostrar y actualizar cualquier cantidad de
 Pines, parámetros o señales editables.
 
-.Uso
+.Uso de `sim_pin`
 ----
   Uso:
          sim_pin [Opciones] nombre1 [nombre2 ...] &
@@ -194,15 +198,16 @@ Para obtener información completa, consulte la página man:
 man sim_pin
 ----
 
-.Ejemplo (con LinuxCNC ejecutándose):
+.Ejemplo `sim_pin` (con LinuxCNC ejecutándose)
 ----
 halcmd loadrt mux2 names=example; halcmd net sig_example example.in0
 sim_pin example.sel example.in1 sig_example &
 ----
 
-image::images/sim_pin.png["sim_pin es una utilidad de línea de comandos para mostrar y actualizar cualquier cantidad de pines, parámetros o señales que se puedan escribir"]
+.Pantalla `sim_pin`
+image::images/sim_pin.png["Pantalla sim_pin"]
 
-== Sonda simulada
+== Sonda Simulada
 
 simulate_probe es una gui simple para simular la activación del pin
 motion.probe-input. Uso:
@@ -211,12 +216,14 @@ motion.probe-input. Uso:
 simulate_probe &
 ----
 
-image::images/simulate_probe.png["simulate_probe es una gui simple para simular la activación del pin motion.probe-input"]
+.Pantalla `simulate_probe`
+image::images/simulate_probe.png["Pantalla simulate_probe"]
 
 == Hal Histogram
 
 hal-histogram es una utilidad de línea de comandos para mostrar histogramas para pines hal.
 
+.Uso de `hal-histogram`
 ----
 Uso:
    hal-histograma --help | -?
@@ -243,7 +250,8 @@ Notas:
      loadrt motmod ... base_thread_fp=1
 ----
 
-image::images/hal-histogram.png["hal-histogram es una utilidad de línea de comandos para mostrar histogramas para pines de hal"]
+.Pantalla `hal-histogram`
+image::images/hal-histogram.png["Pantalla hal-histogram"]
 
 == Halreport
 
@@ -266,6 +274,7 @@ Información incluida:
 El informe puede generarse desde la línea de comando y dirigirse a
 un archivo de salida (o stdout si no se especifica archivo de salida):
 
+.Uso de `halreport`
 ----
 Uso:
   halreport -h | --help (this help)
@@ -276,7 +285,7 @@ o
 Para generar el informe para cada inicio de LinuxCNC, incluya halreport
 y un nombre de archivo de salida como una entrada de [APPLICATIONS]APP en el archivo ini.
 
-.Ejemplo:
+.Ejemplo `halreport`
 ----
 [APPLICATIONS]
 APP = halreport /tmp/halreport.txt
@@ -330,8 +339,8 @@ alias pin hm2_7i92.0.stepgen.00.position-fb h.00.position-fb
 [NOTE]
 La detección de funciones de componentes cuestionables puede ocurrir para 1)
 componentes no compatibles (obsoletos), 2) componentes creados por el usuario
-que usan múltiples funciones o nombres de funciones no convencionales, o
-3) componentes de espacio de usuario creados por GUI que carecen de 
+que usan múltiples funciones o nombres de funciones no convencionales, o 3)
+componentes de espacio de usuario creados por GUI que carecen de 
 características de distinción como un prefijo basado en el nombre del programa gui.
 Las funciones cuestionables están etiquetadas con un signo de interrogación "?".
 
@@ -346,6 +355,4 @@ tipos y valores actuales de pines. Para esta información use
 aplicaciones como halshow, halmeter, halscope o el comando 'show'
 disponible con el programa halcmd.
 
-
-
-
+// vim: set syntax=asciidoc:

@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:getting-linuxcnc]]
 = Getting LinuxCNC(((Getting LinuxCNC)))
@@ -9,15 +10,15 @@ and make a fresh install of LinuxCNC.  There are also
 adventurous.  If you have an existing install that you want to upgrade,
 go to the <<cha:updating-linuxcnc,Updating LinuxCNC>> section instead.
 
-NOTE: LinuxCNC requires a special kernel with real-time extensions. There are
-three possibilities here: preempt-rt, RTAI or Xenomai. In addition there
-are two versions of LinuxCNC which work with these kernels. See the table
-below for details.
+NOTE: LinuxCNC requires a special kernel with real-time extensions.
+There are three possibilities here: preempt-rt, RTAI or Xenomai. In
+addition there are two versions of LinuxCNC which work with these kernels.
+See the table below for details.
 
 Fresh installs of LinuxCNC are most easily created using the Live/Install
 Image.  This is a hybrid ISO filesystem image that can be written to a
-USB storage device or a DVD and used to boot a computer.  At boot time you
-will be given a choice of booting the "Live" system (to run LinuxCNC
+USB storage device or a DVD and used to boot a computer.  At boot time
+you will be given a choice of booting the "Live" system (to run LinuxCNC
 without making any permanent changes to your computer) or booting the
 Installer (to install LinuxCNC and its operating system onto your
 computer's hard drive).
@@ -31,7 +32,8 @@ The outline of the process looks like this:
 
 == Download the image
 
-This section describes some methods for downloading the Live/Install Image.
+This section describes some methods for downloading the Live/Install
+Image.
 
 [[sec:_normal_download]]
 === Normal Download
@@ -42,7 +44,8 @@ http://www.linuxcnc.org/iso/linuxcnc-2.8.2-buster.iso
 
 For the Raspberry Pi a complete SD card image is available here:
 
-http://www.linuxcnc.org/iso/linuxcnc-2.8.1-pi4.zip (this will auto-update to 2.8.2)
+http://www.linuxcnc.org/iso/linuxcnc-2.8.1-pi4.zip (this will auto-update
+to 2.8.2)
 
 This can be installed using the normal Pi
 https://www.raspberrypi.org/documentation/installation/installing-images/README.md[install process]
@@ -67,28 +70,29 @@ method.
 
 .zsync in Linux
 
-. Install zsync using Synaptic or, by running the following in a <<faq:terminal,terminal>>
-
+* Install zsync using Synaptic or, by running the following in a
+  <<faq:terminal,terminal>>
++
 ----
 sudo apt-get install zsync
 ----
 
-. Then run this command to download the iso to your computer
-
+* Then run this command to download the iso to your computer
++
 ----
-http://www.linuxcnc.org/iso/linuxcnc-2.8.2-buster.iso
+zsync http://www.linuxcnc.org/iso/linuxcnc-2.8.2-buster.iso
 ----
-
++
 or
-
++
 ----
 zsync http://www.linuxcnc.org/iso/linuxcnc-2.8.1-pi4.zip.zsync
 ----
 
 .zsync in Windows
 
-There is a Windows port of zsync. It works as a console application. It can be
-downloaded from:
+There is a Windows port of zsync. It works as a console application. It
+can be downloaded from:
 
 https://www.assembla.com/spaces/zsync-windows/documents
 
@@ -96,20 +100,20 @@ https://www.assembla.com/spaces/zsync-windows/documents
 
 (This step is unnecessary if you used zsync)
 
-After downloading, verify the checksum of the image to ensure integrity.
-
+* After downloading, verify the checksum of the image to ensure integrity.
++
 ----
 md5sum linuxcnc-2.8.2-buster.iso
 ----
-
++
 or
-
++
 ----
 sha256sum linuxcnc-2.8.2-buster.iso
 ----
 
-Then compare to these checksums
-
+* Then compare to these checksums
++
 -----
 md5sum: 4496eae88a1d66f457205d0d5b69c3c2
 sha256sum: 94a6dc7ef12fbdc0bafd9259ce36797a8b3410ad22e73c4ab57b8e937a924e1a
@@ -145,23 +149,24 @@ dd if=linuxcnc-2.8.2-buster.iso of=/dev/sde
 -----
 
 .Writing the image to a USB storage device in Mac OSX
-
-Open a terminal and type
-
+. Open a terminal and type
++
 -----
 diskutil list
 -----
 
-. Insert the USB and note the name of the new disk that appears, eg /dev/disk5
-. unmount the USB. The number found above should be substituted in place of the N
-
+. Insert the USB and note the name of the new disk that appears, eg
+  /dev/disk5
+. unmount the USB. The number found above should be substituted in place
+  of the N
++
 -----
 diskutil unmountDisk /dev/diskN
 -----
 
 . Transfer the data with dd, as for Linux above. Note that the disk name
   has an added "r" at the beginning
-
++
 -----
 sudo dd if=/path-to.iso of=/dev/rdiskN bs=1m
 -----
@@ -170,14 +175,15 @@ sudo dd if=/path-to.iso of=/dev/rdiskN bs=1m
   feedback during the process.
 
 .Writing the image to a DVD in Linux
-. Insert a blank DVD into your burner. A 'CD/DVD Creator' or 'Choose Disc Type'
-  window will pop up. Close this, as we will not be using it.
+. Insert a blank DVD into your burner. A 'CD/DVD Creator' or 'Choose
+  Disc Type' window will pop up. Close this, as we will not be using it.
 . Browse to the downloaded image in the file browser.
 . Right click on the ISO image file and choose Write to Disc.
 . Select the write speed. It is recommended that you write at the lowest
   possible speed.
 . Start the burning process.
-. If a 'choose a file name for the disc image' window pops up, just pick OK.
+. If a 'choose a file name for the disc image' window pops up, just pick
+  OK.
 
 .Writing the image to a DVD in Windows
 . Download and install Infra Recorder, a free and open source image
@@ -202,9 +208,10 @@ the computer from the Live/Install Image and choose the Live boot option.
 NOTE: If the system does not boot from the DVD or USB stick it might be
 necessary to change the boot order in the PC BIOS.
 
-Once the computer has booted up you can try out LinuxCNC without installing
-it. You can not create custom configurations or modify most system
-settings in a Live session, but you can (and should) run the latency test.
+Once the computer has booted up you can try out LinuxCNC without
+installing it. You can not create custom configurations or modify most
+system settings in a Live session, but you can (and should) run the
+latency test.
 
 To try out LinuxCNC: from the Applications/CNC menu pick LinuxCNC. A
 dialog box will open from which you can choose one of many sample
@@ -222,7 +229,8 @@ using the RTAI realtime kernel which will often give better latency.
 
 == Installing LinuxCNC
 
-To install LinuxCNC from the LiveCD select 'Install (Graphical)' at bootup.
+To install LinuxCNC from the LiveCD select 'Install (Graphical)' at
+bootup.
 
 == Updates to LinuxCNC (((Updates to LinuxCNC)))
 
@@ -290,50 +298,58 @@ debian archive.  The apt source is:
 [NOTE]
 Debian Wheezy and Ubuntu Precise are both extremely old, and
 are out of their support period. It is strongly advised not to use either
-for a new install, and to seriously consider upgrading an existing installation.
+for a new install, and to seriously consider upgrading an existing
+installation.
 
 The Buster / RTAI package is only available on amd64, but there are very
 few surviving systems that can not run a 64-bit OS.
 
-WARNING: There are known issues with the 64-bit RTAI 5.2 kernel with
+[WARNING]
+There are known issues with the 64-bit RTAI 5.2 kernel with
 this version of LinuxCNC. The system will occasionally lock solid.
 However, this has, so far, been seen only during system exit. While
 running the system appears to be stable. But should nevertheless be
 considered experimental at this point.
 
-NOTE: If you decide to use the RTAI 5.2 kernel and see a problem outside the
+[NOTE]
+If you decide to use the RTAI 5.2 kernel and see a problem outside the
 circumstances described above then please report it immediately to the
 project developers.
 
 === Installing on Debian Buster (with Preempt-RT kernel)
 
-. Install Debian Buster (Debian 10), amd64 version. You can download the installer here: https://www.debian.org/releases/buster/
+. Install Debian Buster (Debian 10), amd64 version. You can download the
+  installer here: https://www.debian.org/releases/buster/
 
-. After burning the iso and booting up if you don't want Gnome desktop select
-  'Advanced Options' > 'Alternative desktop environments' and pick the one you
-  like. Then select 'Install' or 'Graphical Install'.
+. After burning the iso and booting up if you don't want Gnome desktop
+  select 'Advanced Options' > 'Alternative desktop environments' and
+  pick the one you like.
 
-WARNING: Do not enter a root password, if you do sudo is disabled and you won't
+. Then select 'Install' or 'Graphical Install'.
+
+[WARNING]
+Do not enter a root password, if you do sudo is disabled and you won't
 be able to complete the following steps.
 
-. Run the following in a <<faq:terminal,terminal>> to bring the machine up to
-  date with the latest packages.
-
+. Run the following in a <<faq:terminal,terminal>> to bring the machine
+  up to date with the latest packages.
++
 ----
 sudo apt-get update
 sudo apt-get dist-upgrade
 ----
 
 . Install the Preempt-RT kernel and modules
-
++
 ----
 sudo apt-get install linux-image-rt-amd64
 ----
 
 . Re-boot, and select the Linux 4.19.0-9-rt-amd64 kernel. This might be
   hidden in the "Advanced options for Debian Buster" sub-menu in Grub.
-  When you log in, verify that `PREEMPT RT`is reported by the following command.
-
+  When you log in, verify that `PREEMPT RT`is reported by the following
+  command.
++
 ----
 uname -v
 ----
@@ -343,37 +359,37 @@ uname -v
   'Mark for Complete Removal'. Reboot.
   This is to force the system to boot from the RT kernel. If you prefer
   to retain both kernels then the other kernels need not be deleted, but
-  grub boot configuration changes will be needed beyond the scope of this
-  document.
+  grub boot configuration changes will be needed beyond the scope of
+  this document.
 
 . Add the LinuxCNC Archive Signing Key to your apt keyring by running
-
++
 ----
 sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
 Alternate keyserver: keyserver.ubuntu.com
 ----
 
 . Add the apt repository:
-
++
 ----
  echo deb http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
  echo deb-src http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
 ----
 
 . Update the package list from linuxcnc.org
-
++
 ----
 sudo apt-get update
 ----
 
 . Install uspace (a reboot may be required prior to installing uspace)
-
++
 ----
 sudo apt-get install linuxcnc-uspace
 ----
 
 . Optionally you can install mesaflash if you are using a Mesa card.
-
++
 ----
 sudo apt install mesaflash
 ----
@@ -381,7 +397,8 @@ sudo apt install mesaflash
 [[cha:Installing-RTAI]]
 === Installing on Debian Buster (with experimental RTAI kernel)
 
-WARNING: This kernel has known stability problems. It appears to run
+[WARNING]
+This kernel has known stability problems. It appears to run
 reliably once LinuxCNC is loaded. However kernel panics have been seen
 at system shut-down.
 
@@ -390,39 +407,39 @@ at system shut-down.
   as described above
 . Add the LinuxCNC Archive Signing Key to your apt keyring (Not
   necessary if switching the realtime mode of a LinuxCNC Live-CD image)
-
++
 ----
+# Alternate keyserver: keyserver.ubuntu.com
 sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
-Alternate keyserver: keyserver.ubuntu.com
 ----
 
 . Add the apt repository:
-
++
 ----
  echo deb http://linuxcnc.org/ buster base 2.8-rt | sudo tee /etc/apt/sources.list.d/linuxcnc.list
  echo deb-src http://linuxcnc.org/ buster base 2.8-rt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
 ----
 
 . Update the package list from linuxcnc.org
-
++
 ----
 sudo apt-get update
 ----
 
 . Install the new realtime kernel, RTAI and the rtai version of linuxcnc
-
++
 ----
 sudo apt-get install linux-image-4.19.195-rtai-amd64
 ----
 
 . Install the RTAI application layer
-
++
 ----
 sudo apt-get install rtai-modules-4.19.195
 ----
 
-. Instale linuxcnc (puede ser necesario reiniciar antes de instalar)
-
+. Install LinuxCNC (may be necessary to reboot before installing)
++
 ----
 sudo apt-get install linuxcnc
 ----
@@ -435,32 +452,32 @@ Reboot the machine, ensuring that the system boots from the new 4.19.195-rtai ke
   https://www.raspberrypi.org/documentation/installation/installing-images/README.md[usual way]
 . Boot the Pi and open a terminal
 . Add the LinuxCNC Archive Signing Key to your apt keyring
-
++
 ----
+# Alternate keyserver: keyserver.ubuntu.com
 sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
-Alternate keyserver: keyserver.ubuntu.com
 ----
 
 . Add the apt repository:
-
++
 -----
  echo deb http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee /etc/apt/sources.list.d/linuxcnc.list
 -----
 
 . Update the package list from linuxcnc.org
-
++
 ----
 sudo apt-get update
 ----
 
 . install the realtime kernel
-
++
 ----
 sudo apt-get install linux-image-4.19.71-rt24-v7l+
 ----
 
 . Install linuxcnc (a reboot may be required prior to installing)
-
++
 ----
 sudo apt-get install linuxcnc-uspace
 ----
@@ -474,55 +491,57 @@ sudo apt-get install linuxcnc-uspace
   Note the warnings that this release is out of support. But it is a way
   to install LinuxCNC with a well-tested RTAI kernel.
 
-. Run the following to  bring the machine up to date with the latest packages
-  in Ubuntu Precise.
-
+. Run the following to bring the machine up to date with the latest
+  packages in Ubuntu Precise.
++
 ----
 sudo apt-get update
 sudo apt-get dist-upgrade
 ----
 
 . Add the LinuxCNC Archive Signing Key to your apt keyring by running
-
++
 ----
+# Alternate keyserver: keyserver.ubuntu.com
 sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
-Alternate keyserver: keyserver.ubuntu.com
 ----
 
 . Add a new apt source
-
++
 ----
 sudo add-apt-repository "deb http://linuxcnc.org/ precise base 2.8-rt"
 ----
 
 . Fetch the package list from linuxcnc.org.
-
++
 ----
 sudo apt-get update
 ----
 
 . Install the RTAI kernel and modules by running
-
++
 ----
 sudo apt-get install linux-image-3.4-9-rtai-686-pae rtai-modules-3.4-9-rtai-686-pae
 ----
 
-. If you want to be able to build LinuxCNC from source using the git repo,
-  also run
-
+. If you want to be able to build LinuxCNC from source using the git
+  repo, also run
++
 ----
 sudo apt-get install linux-headers-3.4-9-rtai-686-pae
 ----
 
 . Reboot, and make sure you boot into the rtai kernel. When you log in,
   verify that the kernel name is 3.4-9-rtai-686-pae.
-
++
 ----
 uname -r
 ----
 
 . Run
-
++
 ----
 sudo apt-get install linuxcnc
 ----
+
+// vim: set syntax=asciidoc:

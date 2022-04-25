@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 = PyVCP Examples
 
@@ -60,7 +61,7 @@ Wizard.
 
 [[cap:XYZ-Wizard-Configuration]]
 .XYZ Wizard Configuration
-image::images/xyz_ACO.png["XYZ Wizard Configuration"]
+image::images/xyz_ACO.png["PyVCP XYZ Wizard Configuration"]
 
 The Stepconf Wizard will create several files and place them in the
 linuxcnc/configs/pyvcp_xyz directory. If you left the create link checked
@@ -272,6 +273,7 @@ image::images/ptest.png["Port Tester Panel"]
 To run the HAL commands that we need to get everything up and running
 we put the following in our ptest.hal file.
 
+[source,c]
 ----
 loadrt hal_parport cfg="0x378 out"
 loadusr -Wn ptest pyvcp -c ptest ptest.xml
@@ -501,7 +503,9 @@ MDI_COMMAND = G53 G0 X0 Y0 Z0
 ----
 
 [NOTE]
+====
 Information about <<gcode:g53,G53>> and <<gcode:g0,G0>> G-codes
+====
 
 In the [HAL] section if you don't have a post gui file add the following and
 create a file called 'postgui.hal'.
@@ -518,6 +522,8 @@ net rth halui.mdi-command-00 <= pyvcp.rth-button
 ----
 
 [NOTE]
+====
 Information about the <<sub:hal-net, net>> command
+====
 
 // vim: set syntax=asciidoc:

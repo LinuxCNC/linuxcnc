@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:system-requirements]]
 = System Requirements(((System Requirements)))
@@ -52,7 +53,7 @@ distributed. The package names are "linuxcnc" and "linuxcnc-uspace"
 
 The realtime kernel options are preempt-rt, RTAI and Xenomai.
 
-You can discover the kernel version of your system with the command
+You can discover the kernel version of your system with the command:
 
 ----
 uname -a

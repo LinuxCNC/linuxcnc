@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 = Building LinuxCNC
 
@@ -30,8 +31,8 @@ problems.  Especially the section on <<Satisfying-Build-Dependencies,
 Satisfying Build Dependencies>>.
 
 If you are running on a realtime-capable system (such as an install from
-the LinuxCNC Live/Install Image, see the <<_realtime,Realtime>> section below),
-one extra build step is needed at this time:
+the LinuxCNC Live/Install Image, see the <<sub:realtime,Realtime>> section
+below), one extra build step is needed at this time:
 
 -----
 > sudo make setuid
@@ -45,8 +46,7 @@ After you've successfully built LinuxCNC it's time to run the tests:
 -----
 
 This might fail too!  Read this whole document, but especially the section
-on <<Setting-up-the-environment, Setting up the test environment>>.
-
+on <<Setting-up-the-environment,Setting up the test environment>>.
 
 == Supported Platforms
 
@@ -57,32 +57,29 @@ We continuously test on the platforms listed at
 http://buildbot.linuxcnc.org.
 
 LinuxCNC builds on most other Linux distributions, though dependency
-management will be more manual and less automatic.  Patches to improve
+management will be more manual and less automatic. Patches to improve
 portability to new platforms are always welcome.
 
-
+[[sub:realtime]]
 === Realtime
 
 LinuxCNC is a machine tool controller, and it requires a realtime platform
-to do this job.  This version of LinuxCNC supports three realtime platforms
+to do this job. This version of LinuxCNC supports three realtime platforms
 
 RTAI::
-
-    From https://www.rtai.org.  A Linux kernel with the RTAI patch is
-    available from the Debian archive at http://www.linuxcnc.org.  See
-    <<cha:getting-linuxcnc, Getting LinuxCNC>> for installation instructions.
+  From https://www.rtai.org. A Linux kernel with the RTAI patch is
+  available from the Debian archive at http://www.linuxcnc.org. See
+  <<cha:getting-linuxcnc,Getting LinuxCNC>> for installation instructions.
 
 Xenomai::
-
-    From https://xenomai.org.  You will have to compile or obtain a Xenomai
-    kernel yourself.
+  From https://xenomai.org. You will have to compile or obtain a Xenomai
+  kernel yourself.
 
 Preempt-RT::
-
-    From https://rt.wiki.kernel.org.  A Linux kernel with the
-    Preempt-RT patch is occasionally available from the Debian
-    archive at https://www.debian.org, and from the wayback machine at
-    https://snapshot.debian.org.
+  From https://rt.wiki.kernel.org. A Linux kernel with the
+  Preempt-RT patch is occasionally available from the Debian
+  archive at https://www.debian.org, and from the wayback machine at
+  https://snapshot.debian.org.
 
 To make use of the realtime capabilities of LinuxCNC, certain parts of
 LinuxCNC need to run with root privileges.  To enable root for these
@@ -91,7 +88,6 @@ parts, run this extra command after the `make` that builds LinuxCNC:
 -----
 > sudo make setuid
 -----
-
 
 === Non-realtime
 
@@ -103,12 +99,10 @@ it is useful for simulating the execution of G-code and for testing the
 non-realtime parts of the system (such as the user interfaces, and some
 kinds of components and device drivers).
 
-
 == Build modes
 
 There are two ways to build LinuxCNC: the developer-friendly "run in
 place" mode and the user-friendly Debian packaging mode.
-
 
 === Building for Run In Place
 
@@ -122,10 +116,9 @@ The LinuxCNC test suite runs only in a Run-In-Place build.
 
 Most LinuxCNC developers primarily build using this mode.
 
-Building for Run-In-Place follows the steps in the <<Quick-Start,
-Quick Start>> section at the top of this document, possibly with
-different arguments to `src/configure` and `make`.
-
+Building for Run-In-Place follows the steps in the <<Quick-Start,Quick Start>>
+section at the top of this document, possibly with different arguments
+to `src/configure` and `make`.
 
 [[src-configure-arguments]]
 ==== `src/configure` arguments
@@ -143,62 +136,52 @@ List all arguments to `src/configure` by running this:
 The most commonly used arguments are:
 
 `--with-realtime=uspace`::
-
-    Build for any realtime platform, or for non-realtime.
-    The resulting LinuxCNC executables will run on both a Linux kernel
-    with Preempt-RT patches (providing realtime machine control) and
-    on a vanilla (un-patched) Linux kernel (providing G-code simulation
-    but no realtime machine control).  If development files are installed
-    for Xenomai (typically from package libxenomai-dev) or RTAI (typically
-    from a package with a name starting "rtai-modules"), support for
-    these real-time kernels will also be enabled.
+  Build for any realtime platform, or for non-realtime.
+  The resulting LinuxCNC executables will run on both a Linux kernel
+  with Preempt-RT patches (providing realtime machine control) and
+  on a vanilla (un-patched) Linux kernel (providing G-code simulation
+  but no realtime machine control).  If development files are installed
+  for Xenomai (typically from package libxenomai-dev) or RTAI (typically
+  from a package with a name starting "rtai-modules"), support for
+  these real-time kernels will also be enabled.
 
 `--with-realtime=/usr/realtime-$VERSION`::
-
-    Build for the RTAI realtime platform using the older "kernel realtime"
-    model.
-    This requires that
-    you have an RTAI kernel and the RTAI modules installed in
-    `/usr/realtime-$VERSION`.  The resulting LinuxCNC executables will
-    only run on the specified RTAI kernel.  As of LinuxCNC 2.7, this
-    produces the best realtime performance.
+  Build for the RTAI realtime platform using the older "kernel realtime"
+  model.
+  This requires that you have an RTAI kernel and the RTAI modules
+  installed in `/usr/realtime-$VERSION`. The resulting LinuxCNC
+  executables will only run on the specified RTAI kernel. As of
+  LinuxCNC 2.7, this produces the best realtime performance.
 
 `--enable-build-documentation`::
-
-    Build the documentation, in addition to the executables.  This option
-    adds significantly to the time required for compilation, as building
-    the docs is quite time consuming.  If you are not actively working
-    on the documentation you may want to omit this argument.
-
+  Build the documentation, in addition to the executables.  This option
+  adds significantly to the time required for compilation, as building
+  the docs is quite time consuming.  If you are not actively working
+  on the documentation you may want to omit this argument.
 
 [[make-arguments]]
 ==== `make` arguments
 
 The `make` command takes two useful optional arguments.
 
-
 Parallel compilation::
-
-    `make` takes an optional argument `-jN` (where N is a number).
-    This enables parallel compilation with N simultaneous processes, which
-    can significantly speed up your build.
+  `make` takes an optional argument `-jN` (where N is a number).
+  This enables parallel compilation with N simultaneous processes, which
+  can significantly speed up your build.
 +
 A useful value for N is the number of CPUs in your build system.  You can
 discover the number of CPUs by running `nproc`.
 
-
 Building just a specific target::
-
-    If you want to build just a specific part of LinuxCNC, you can name
-    the thing you want to build on the `make` command line.  For example,
-    if you are working on a component named `froboz`, you can build its
-    executable by running:
+  If you want to build just a specific part of LinuxCNC, you can name
+  the thing you want to build on the `make` command line.  For example,
+  if you are working on a component named `froboz`, you can build its
+  executable by running:
 +
 -----
 > cd linuxcnc-dev/src
 > make ../bin/froboz
 -----
-
 
 === Building Debian Packages
 
@@ -253,7 +236,6 @@ the `linuxcnc-dev` directory, *not* from `linuxcnc-dev/debian`):
 > dpkg-buildpackage -b -uc
 -----
 
-
 [[debian-configure-arguments]]
 ==== `debian/configure` arguments
 
@@ -264,44 +246,38 @@ It takes a single argument which specifies the realtime or non-realtime
 platform to build for.  The normal values for this argument are:
 
 `uspace`::
-
-    Configure the Debian package for Preempt-RT realtime or for
-    non-realtime (these two are compatible).
+  Configure the Debian package for Preempt-RT realtime or for
+  non-realtime (these two are compatible).
 
 `noauto`::
 `rtai`::
 `xenomai`::
-
-    Normally, the lists of RTOSes for uspace realtime to support is detected
-    automatically.  However, if you wish, you may specify one or more of these
-    after `uspace` to enable support for these RTOSes.  Or, to disable
-    autodetection, specify `noauto`.
-
-    If you want just the traditional RTAI "kernel module" realtime, use
-    `-r` or `$KERNEL_VERSION` instead.
+  Normally, the lists of RTOSes for uspace realtime to support is detected
+  automatically.  However, if you wish, you may specify one or more of these
+  after `uspace` to enable support for these RTOSes.  Or, to disable
+  autodetection, specify `noauto`.
++
+If you want just the traditional RTAI "kernel module" realtime, use
+`-r` or `$KERNEL_VERSION` instead.
 
 `rtai=<package name>`::
-
-    If the development package for rtai lxrt does not start with
-    "rtai-modules", or if the first such package listed by apt-cache search
-    is not the desired one, then explicitly specify the package name.
+  If the development package for rtai lxrt does not start with
+  "rtai-modules", or if the first such package listed by apt-cache search
+  is not the desired one, then explicitly specify the package name.
 
 `-r`::
-
-    Configure the Debian package for the currently running RTAI kernel.
-    You must be running an RTAI kernel on your build machine for this
-    to work!
+  Configure the Debian package for the currently running RTAI kernel.
+  You must be running an RTAI kernel on your build machine for this
+  to work!
 
 `$KERNEL_VERSION`::
-
-    Configure the debian package for the specified RTAI kernel version
-    (for example "3.4.9-rtai-686-pae").  The matching kernel headers
-    debian package must be installed on your build machine (for example
-    "linux-headers-3.4.9-rtai-686-pae").  Note that you can _build_
-    LinuxCNC in this configuration, but if you are not running the
-    matching RTAI kernel you will not be able to _run_ LinuxCNC, including
-    the test suite.
-
+  Configure the debian package for the specified RTAI kernel version
+  (for example "3.4.9-rtai-686-pae").  The matching kernel headers
+  debian package must be installed on your build machine (for example
+  "linux-headers-3.4.9-rtai-686-pae").  Note that you can _build_
+  LinuxCNC in this configuration, but if you are not running the
+  matching RTAI kernel you will not be able to _run_ LinuxCNC, including
+  the test suite.
 
 [[Satisfying-Build-Dependencies]]
 == Satisfying Build Dependencies
@@ -345,7 +321,6 @@ on your system, but that are not installed yet.  Install them all with
 
 You can rerun `dpkg-checkbuilddeps` any time you want, to list any
 missing packages.
-
 
 [[Setting-up-the-environment]]
 == Setting up the environment
@@ -393,7 +368,7 @@ the memory lock limit is raised using the following command:
 
 == Options for checking out the git repo
 
-The <<Quick-Start, Quick Start>> instructions at the top of this
+The <<Quick-Start,Quick Start>> instructions at the top of this
 document clone our git repo at
 https://github.com/LinuxCNC/linuxcnc.git.  This is the quickest, easiest
 way to get started.  However, there are other options to consider.

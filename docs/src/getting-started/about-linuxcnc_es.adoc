@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 [[cha:about-linuxcnc]]
 = Acerca de LinuxCNC
@@ -6,15 +7,18 @@
 == El software
 
 * LinuxCNC (“Enhanced Machine Control” o Control de Máquina Mejorado) es un sistema de software para
-  control de máquinas herramientas como fresadoras y tornos, robots
-  tipos puma y scara y otras máquinas controladas por computadora, de hasta 9 ejes.
+  control de máquinas herramientas como fresadoras y tornos, robots
+  tipos puma y scara y otras máquinas controladas por computadora, de hasta 9 ejes.
 * LinuxCNC es un software gratuito con código fuente abierto. Las versiones actuales de LinuxCNC
-  están completamente licenciadas bajo la Licencia Pública General de GNU (GPL) y Lesser GNU 
+  están completamente licenciadas bajo la Licencia Pública General de GNU (GPL) y Lesser GNU 
   General Public License (LGPL)
 * LinuxCNC proporciona:
 ** easy discovery and testing without installation with the LiveCD
 ** instalación fácil con un Live-CD
+** Easy to use graphical configuration wizards to rapidly create a configuration
+   specific to the machine
 ** una interfaz gráfica de usuario (en realidad, varias interfaces entre las que elegir)
+** A graphical interface creation tool (GladeVCP)
 ** un intérprete para 'código G' (lenguaje de programación de máquinas herramienta RS-274)
 ** un sistema de planificación de movimiento en tiempo real con análisis de instrucción siguiente
 ** operación de la electrónica de bajo nivel de la máquina, como sensores y motores
@@ -27,12 +31,12 @@
   cerrado por el software LinuxCNC en la computadora, o bucle abierto, con
   servomotores o motores paso a paso.
 * Las características de control de movimiento incluyen: compensación del radio de corte y
-  longitud  de herramienta, desviación de trayectoria limitada a una tolerancia especificada,
-  roscado en torno,  movimientos de eje sincronizados, avance adaptativo, control de ajuste
-  de avance por el operador  y control de velocidad constante.
-* Soporte para sistemas de movimiento no cartesianos, a través de módulos cinemáticos personalizados.
+  longitud  de herramienta, desviación de trayectoria limitada a una tolerancia especificada,
+  roscado en torno,  movimientos de eje sincronizados, avance adaptativo, control de ajuste
+  de avance por el operador  y control de velocidad constante.
+* Soporte para sistemas de movimiento no cartesianos, a través de módulos cinemáticos personalizados.
   Las arquitecturas disponibles incluyen hexapodos (plataformas Stewart y conceptos similares) y
-  sistemas con articulaciones rotativas para proporcionar movimiento como robots PUMA o SCARA.
+  sistemas con articulaciones rotativas para proporcionar movimiento como robots PUMA o SCARA.
 * LinuxCNC se ejecuta en Linux usando extensiones en tiempo real.
 
 == El sistema operativo
@@ -51,14 +55,14 @@ La forma más sencilla de acceder al IRC es usar el cliente Java incrustado en e
 
 Reglas de comportamiento en IRC::
 * Haga preguntas específicas ... Evite preguntas como "¿Puede alguien ayudarme?".
-* Si es realmente nuevo en todo esto, piense un poco en su pregunta  antes de escribirla.
-  Asegúrese de dar suficiente información para que  alguien puede resolver su pregunta.
+* Si es realmente nuevo en todo esto, piense un poco en su pregunta  antes de escribirla.
+  Asegúrese de dar suficiente información para que  alguien puede resolver su pregunta.
 * Tenga paciencia al esperar una respuesta; a veces se necesita un tiempo mientras se
-  formula una respuesta o todos pueden estar ocupados trabajando o  alguna otra cosa.
-* Configure su cuenta IRC con su nombre único para que las personas sepan quién es usted.
-  Si usa el cliente java, use el mismo nombre cada vez que inicie sesión.
-  Esto ayuda a las personas a recordar quién es usted y si ha estado conectado antes,
-  muchos recordarán las discusiones pasadas, lo que ahorrará tiempo a todos.
+  formula una respuesta o todos pueden estar ocupados trabajando o  alguna otra cosa.
+* Configure su cuenta IRC con su nombre único para que las personas sepan quién es usted.
+  Si usa el cliente java, use el mismo nombre cada vez que inicie sesión.
+  Esto ayuda a las personas a recordar quién es usted y si ha estado conectado antes,
+  muchos recordarán las discusiones pasadas, lo que ahorrará tiempo a todos.
 
 Compartir archivos::
 La forma más común de compartir archivos en el IRC es cargar el archivo a uno de los siguientes servicios, o similares, y pegar el enlace:
@@ -102,3 +106,4 @@ link:http://wiki.linuxcnc.org/[http://wiki.linuxcnc.org]
 Para informar de errores en LinuxCNC use el
 link:http:///github.com/LinuxCNC/linuxcnc/issues[rastreador de errores github].
 
+// vim: set syntax=asciidoc:

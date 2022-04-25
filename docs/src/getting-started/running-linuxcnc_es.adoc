@@ -66,7 +66,6 @@ compatibles como:
 Estas configuraciones pueden requerir el uso de hardware relacionado como
 puntos de partida para un sistema.
 
-
 Las configuraciones 'by_machine' están organizadas alrededor de sistemas completos
 conocidos como:
 
@@ -80,8 +79,9 @@ conocidos como:
 
 Es posible que se requiera un sistema completo para usar estas configuraciones.
 
-Los elementos de 'aplicaciones' son típicamente utilidades que no requieren iniciar linuxcnc o demostraciones
-de aplicaciones que pueden usarse con linuxcnc:
+Los elementos de 'aplicaciones' son típicamente 1) utilidades que no
+requieren iniciar linuxcnc o 2) demostraciones de aplicaciones que
+pueden usarse con linuxcnc:
 
 * info: crea un archivo con información del sistema que puede ser útil para diagnóstico de problemas
 * gladevcp - Ejemplo de aplicaciones de gladevcp.
@@ -99,8 +99,8 @@ En el directorio de aplicaciones, solo se ofrecen para copiar en el directorio d
 las aplicaciones que se pueden modificar de forma útil por el usuario.
 
 [[cap:LinuxCNC-Configuration-Selector]]
-//.Selector de Configuración de LinuxCNC
-image::images/configuration-selector_es.png["Selector de Configuración"]
+.Selector de Configuración de LinuxCNC
+image::images/configuration-selector_es.png["Selector de Configuración de LinuxCNC"]
 
 Haga clic en cualquiera de las configuraciones enumeradas
 para mostrar información específica al respecto.

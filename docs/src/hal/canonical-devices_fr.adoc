@@ -1,0 +1,138 @@
+:lang: fr
+:toc:
+
+[[cha:interfaces-peripheriques-canoniques]]
+= Interfaces de périphériques canoniques(((Interfaces de périphériques canoniques)))
+
+== Introduction
+
+Les sections qui suivent expliquent les pins, paramètres et fonctions
+qui sont fournies par les _périphériques canoniques_. Tous les pilotes
+de périphériques HAL devraient fournir les mêmes pins et paramètres et implémenter les mêmes comportements.
+
+Noter que seuls les champs _<io-type>_ et _<specific-name>_ sont
+définis pour un périphérique canonique. Les champs _<device-name>_,
+_<device-num>_ et _<chan-num>_ sont définis en fonction des
+caractéristiques du périphérique réel.
+
+[[sec:hal-cdi:digital-in]]
+== Entrée numérique (Digital Input)
+
+L'entrée numérique canonique (I/O type: _digin_) est assez simple.
+
+[[sub:hal-cdi:di:pins]]
+=== Pins(((HAL Digital Input Pins)))
+
+(bit) *in*:: État de l'entrée matérielle.
+(bit) *in-not*:: État inversé de l'entrée matérielle.
+
+[[sub:hal-cdi:di:parameters]]
+=== Paramètres(((HAL Digital Input Parameters)))
+
+Aucun
+
+[[sub:hal-cdi:di:functions]]
+=== Fonctions(((HAL Digital Input Functions)))
+
+(funct) *read*:: Lire le matériel et ajuster les HAL pins _in_ et _in-not_.
+
+[[sec:hal-cdi:digital-out]]
+== Sortie numérique (Digital Output)
+
+La sortie numérique canonique (I/O type: _digout_) est également très
+simple.
+
+[[sub:hal-cdi:do:pins]]
+=== Pins(((HAL Digital Output Pins)))
+
+(bit) _out_:: Valeur à écrire (éventuellement inversée) sur une sortie matérielle.
+
+[[sub:hal-cdi:do:parameters]]
+=== Paramètres(((HAL Digital Output Parameters)))
+
+(bit) _invert_:: si TRUE, _out_ est inversée avant écriture sur la sortie matérielle.
+
+[[sub:hal-cdi:do:functions]]
+=== Fonctions(((HAL Digital Output Functions)))
+
+(funct) _write_:: Lit _out_ et _invert_ et ajuste la sortie en conséquence.
+
+[[sec:hal-cdi:analog-in]]
+== Entrée analogique (Analog Input)(((HAL Analog Input)))
+
+L'entrée analogique canonique (I/O type: _adcin_ ). Devrait être
+utilisée pour les convertisseurs
+analogiques/numériques, qui convertissent par exemple, les tensions en une échelle continue de valeurs.
+
+[[sub:hal-cdi:ai:pins]]
+=== Pins(((HAL Analog Input Pins)))
+
+(float) _value_:: Lecture du matériel, avec mise à l'échelle ajustée par les
+  paramètres _scale_ et _offset_. +
+  _Value_ = ((lecture entrée, en unités dépendantes du matériel) x _scale_) - _offset_
+
+[[sub:hal-cdi:ai:parameters]]
+=== Paramètres(((HAL Analog Input Parameters)))
+
+(float) _scale_:: La tension d'entrée (ou l'intensité) sera
+  multipliée par _scale_ avant d'être placée dans _value_.
+(float) _offset_:: Sera soustrait à la tension d'entrée (ou l'intensité) après que 
+  la mise à l'échelle par scale ait été appliquée.
+(float) _bit_weight_:: Valeur du bit le moins significatif (LSB). C'est effectivement, la 
+  granularité de lecture en entrée.
+(float) _hw_offset_:: Valeur présente sur l'entrée quand aucune tension n'est appliquée sur la 
+  pin.
+
+[[sub:hal-cdi:ai:functions]]
+=== Fonctions(((HAL Analog Input Functions)))
+
+(funct) _read_:: Lit les valeurs de ce canal d'entrée analogique. Peut être utilisé pour 
+  lire un canal individuellement, ou pour lire tous les canaux à la fois. 
+
+[[sec:hal-cdi:analog-out]]
+== Sortie analogique (Analog Output)(((HAL Analog Output)))
+
+La sortie analogique canonique (I/O Type: _adcout_ ). Elle est destinée à tout type de matériel capable de sortir une
+échelle plus ou moins étendue de valeurs. Comme par exemple les
+convertisseurs numérique/analogique ou les générateurs de PWM.
+
+[[sub:hal-cdi:ao:pins]]
+=== Pins(((HAL Analog Output Pins)))
+
+(float) _value_:: La valeur à écrire. La valeur réelle sur la sortie matérielle dépends
+  de la mise à l'échelle des paramètres d'offset.
+(bit) _enable_:: Si fausse, la sortie matérielle passera à 0, indépendamment de
+  la pin _value_.
+
+[[sub:hal-cdi:ao:parameters]]
+=== Paramètres(((HAL Analog Output Parameters)))
+
+(float) _offset_:: Sera ajouté à _value_ avant l'actualisation du
+  matériel.
+(float) _scale_:: Doit être défini de sorte qu'une entrée avec 1 dans
+  _value_ produira 1V 
+(float) _high_limit_:: (optionnel) Quand la valeur en sortie matérielle est calculée,
+  si _value_ + _offset_ est plus grande que _high_limit_, alors _high_limit_
+  lui sera substitué.
+(float) _low_limit_:: (optionnel) Quand la valeur en sortie matérielle est calculée,
+  si _value_ + _offset_ est plus petite que _low_limit_, alors _low_limit_
+  lui sera substitué.
+(float) _bit_weight_:: (optionnel) La valeur du bit le moins significatif (LSB), en Volts
+  (ou mA, pour les sorties courant)
+(float) _hw_offset_:: (optionnel) La tension actuelle (ou l'intensité) présente sur la
+  sortie quand 0 est écrit sur le matériel.
+
+[[sub:hal-cdi:ao:functions]]
+=== Fonctions(((HAL Analog Output Functions)))
+
+(funct) _write_:: Ecrit la valeur calculée sur la sortie matérielle. Si enable est FALSE,
+  la sortie passera à 0, indépendamment des valeurs de _value_, _scale_ et
+  _offset_ . La signification de _0_ dépend du matériel. Par exemple, un
+  convertisseur A/D 12 bits peut vouloir écrire 0x1FF (milieu d'échelle)
+  alors que le convertisseur D/A reçoit 0 Volt de la broche matérielle.
+  Si enable est TRUE, l'échelle, l'offset et la valeur sont traités et
+  (_scale_ _ _value_) + _offset_ sont envoyés à la sortie du DAC . Si
+  enable est FALSE,
+  la sortie passe à 0.
+
+// vim: set syntax=asciidoc:

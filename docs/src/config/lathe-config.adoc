@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:lathe-configuration]]
 = Lathe Configuration
@@ -20,8 +21,8 @@ in the preamble of the g code file.
 == INI Settings
 
 The following .ini settings are needed for lathe mode in Axis in addition to
-or replacing normal settings in the .ini file.  These historical settings use
-identity kinematics (trivkins) and 'three' joints (0,1,2) corresponding to 
+or replacing normal settings in the .ini file. These historical settings use
+identity kinematics (trivkins) and 'three' joints (0,1,2) corresponding to
 coordinates x,y,z.  The joint 1 for the unused y axis is required but not used
 in these historical configurations.  Simulated lathe configs may use these
 historical settings.
@@ -79,3 +80,5 @@ COORDINATES = X Z
 [AXIS_Z]
 ...
 ----
+
+// vim: set syntax=asciidoc:

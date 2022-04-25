@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 [[cha:moveoff]]
 = Componente moveoff(((Moveoff)))
@@ -9,7 +10,8 @@ para limitaciones y advertencias IMPORTANTES.
 
 El componente moveoff se utiliza para offsets de posiciones articulares utilizando conexiones Hal personalizadas.
 Implementa una funcionalidad offset-mientras-programa-parado
-con conexiones apropiadas para los pines de entrada. Se soportan nueve articulaciones.
+con conexiones apropiadas para los pines de entrada. Se soportan nueve
+articulaciones.
 
 Los valores de los pines de offset de eje (offset-in-M) se aplican continuamente (respetando
 límites de valor, velocidad y aceleración) a los pines de salida
@@ -97,15 +99,15 @@ de configuración admite el uso de una interfaz gráfica de usuario simple (move
 Cuando el archivo HAL del sistema (LIB:hookup_moveoff.tcl) se especifica correctamente en
 un archivo ini de configuración, podrá:
 
-. Desconectar los pines joint.N.motor-pos-cmd and joint.N.motor-pos-fb
+. Desconectar los pines de conexion joint.N.motor-pos-cmd y
+  joint.N.motor-pos-fb
 . Cargar (loadrt) el componente moveoff (usando el nombre mv) con una personalidad
-  configurada para acomodar todos los ejes identificados en el archivo ini
+  configurada para acomodar todos los ejes identificados en el archivo ini
 . Agregar (addf) las funciones del componente moveoff en la secuencia requerida
 . Volver a conectar los pines joint.N.motor-pos-cmd y joint.N.motor-pos-fb para usar
-  el componente
+  el componente
 . Establecer los parámetros operativos y los límites del componente moveoff para cada eje
-  de acuerdo con la configuración adicional del archivo ini
-
+  de acuerdo con la configuración adicional del archivo ini
 
 Nota: La aplicación moveoff_gui admite configuraciones que utilizan
 módulos de cinemática conocidos con KINEMATICS_TYPE=KINEMATICS_IDENTITY.
@@ -133,9 +135,12 @@ HALFILE = LIB:hookup_moveoff.tcl
 
 Agregue entradas de archivo ini para la configuración por eje para cada eje en uso (si una
 entrada no está definida, la entrada correspondiente de la sección [AXIS_n] será
-utilizada; si no se encuentra ninguna entrada, se utilizará lo predeterminado del componente moveoff.
-Nota: NO se recomienda la configuración usando los valores predeterminados o valores de 
+utilizada; si no se encuentra ninguna entrada, se utilizará lo predeterminado del componente moveoff).
+
+[NOTE]
+NO se recomienda la configuración usando los valores predeterminados o valores de 
 sección [AXIS_n] para offset por eje.
+
 ----
 [MOVEOFF_n]
 MAX_LIMIT =
@@ -144,8 +149,8 @@ MAX_VELOCITY =
 MAX_ACCELERATION =
 ----
 
-Agregar entradas de archivo ini para la configuración del componente moveoff
-(omitalo para usar los valores predeterminados):
+Agregar entradas de archivo ini para la configuración del componente moveoff (omitalo para usar los valores predeterminados):
+
 ----
 [MOVEOFF]
 EPSILON =
@@ -185,6 +190,7 @@ se crea automáticamente si es necesario.
 
 Para usar moveoff_gui, agregue una entrada en la sección del archivo ini [APPLICATIONS]
 de la siguiente manera:
+
 ----
 [APPLICATIONS]
 # Nota: puede ser requerido un retraso (especificado en segundos) si las conexiones
@@ -205,6 +211,7 @@ debe hacer conexiones adicionales. Por ejemplo, las demostraciones proporcionada
 (configs/sim/axis/moveoff/*.ini) usan un halfile de sistema simple
 (llamado LIB:moveoff_external.hal) para conectar los pines mv.move-enable, mv.offset-in-M
 mv.bactrack-enable a señales:
+
 ----
 [HAL]
 HALUI = halui
@@ -215,6 +222,7 @@ HALFILE = LIB:moveoff_external.hal
 
 Las conexiones realizadas por LIB:moveoff_external.hal (para una configuración
 de tres ejes) son:
+
 ----
 net external_enable mv.move-enable
 
@@ -232,11 +240,13 @@ para valores de offset y estado actuales.
 
 Moveoff_gui se configura con opciones de línea de comando. Para detalles
 sobre la operación de moveoff_gui, vea la página del manual:
+
 ----
 $ man moveoff_gui
 ----
-Para obtener una breve lista de las opciones de línea de comando para moveoff_gui, use el comando
-opción de ayuda de línea:
+
+Para obtener una breve lista de las opciones de línea de comando para moveoff_gui, use el comando opción de ayuda de línea:
+
 ----
 $ moveoff_gui --help
 
@@ -244,44 +254,45 @@ Uso:
 moveoff_gui [Opciones]
 
 Opciones:
-    [--ayuda | -? | -- -h] (Este texto)
+    [--ayuda | -? | -- -h] (Este texto)
 
-    [-modo [enpausa | siempre]] (predeterminado: enpausa)
-                                  (enpausa: muestra la gui cuando el programa está en pausa)
-                                  (siempre: muestra gui siempre)
+    [-modo [enpausa | siempre]] (predeterminado: enpausa)
+                                  (enpausa: muestra la gui cuando el programa está en pausa)
+                                  (siempre: muestra gui siempre)
 
-    [-axes axisnames]        (predeterminado: xyz (sin espacios))
-                              (letras del conjunto de: x y z a b c u v w)
-                              (ejemplo: -axes z)
-                              (ejemplo: -axes xz)
-                              (ejemplo: -axes xyz)
-    [-inc incrementvalue]    (predeterminado: 0.001 0.01 0.10 1.0)
-                              (especifique uno por cada (hasta 4))
-                              (ejemplo: -inc 0.001 -inc 0.01 -inc 0.1)
-    [entero de tamaño]       (predeterminado: 14
-                              (El tamaño general emergente de la gui se basa en el tamaño de la fuente)
-    [-loc center | +x+y]     (predeterminado: centro)
-                              (ejemplo: -loc +10+200)
-    [-autoresume]            (predeterminado: no utilizado)
-                              (reanudar el programa cuando move-enable sea false)
-    [-delay delay_secs]      (predeterminado: 5 (retraso de reanudación))
+    [-axes axisnames]        (predeterminado: xyz (sin espacios))
+                               (letras del conjunto de: x y z a b c u v w)
+                               (ejemplo: -axes z)
+                               (ejemplo: -axes xz)
+                               (ejemplo: -axes xyz)
+    [-inc incrementvalue]    (predeterminado: 0.001 0.01 0.10 1.0)
+                               (especifique uno por cada (hasta 4))
+                               (ejemplo: -inc 0.001 -inc 0.01 -inc 0.1)
+    [entero de tamaño]       (predeterminado: 14)
+                               (El tamaño general emergente de la gui se basa en el tamaño de la fuente)
+    [-loc center | +x+y]     (predeterminado: centro)
+                               (ejemplo: -loc +10+200)
+    [-autoresume]            (predeterminado: no utilizado)
+                               (reanudar el programa cuando move-enable sea false)
+    [-delay delay_secs]      (predeterminado: 5 (retraso de reanudación))
 
 Opciones para casos especiales:
-    [-noentry]               (predeterminado: no utilizado)
-                              (no cree widgets de entrada)
-    [-no_resume_inhibit]     (predeterminado: no utilizado)
-                              (no use un pin de reanudar inhibición)
-    [-no_pause_requirement]  (predeterminado: no utilizado)
-                              (sin verificación de halui.program.is-paused)
-    [-no_cancel_autoresume]  (predeterminado: no utilizado)
-                              (útil para retractaciones con simple)
-                              (control externo                       )
-    [-no_display]            (predeterminado: no utilizado)
-                              (Usar cuando tanto los controles externos como las pantallas)
-                              (están en uso (ver Nota)))
+    [-noentry]               (predeterminado: no utilizado)
+                              (no cree widgets de entrada)
+    [-no_resume_inhibit]     (predeterminado: no utilizado)
+                              (no use un pin de reanudar inhibición)
+    [-no_pause_requirement]  (predeterminado: no utilizado)
+                              (sin verificación de halui.program.is-paused)
+    [-no_cancel_autoresume]  (predeterminado: no utilizado)
+                              (útil para retractaciones con simple)
+                              (control externo)
+    [-no_display]            (predeterminado: no utilizado)
+                              (Usar cuando tanto los controles externos como las pantallas)
+                              (están en uso (ver Nota))
 
 Nota: Si el pin mv.move-enable está conectado cuando
-      moveoff_gui se inicia, se requieren controles externos y solo
-      se proporciona pantallas.
+      moveoff_gui se inicia, se requieren controles externos y solo
+      se proporciona pantallas.
 ----
 
+// vim: set syntax=asciidoc:

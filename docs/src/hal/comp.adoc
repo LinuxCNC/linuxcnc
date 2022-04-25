@@ -35,8 +35,8 @@ old = tmp;
 == Installing
 
 To compile a component, if a packaged version of LinuxCNC is used, development packages
-have to be installed using either Synaptic from the main menu 'System -> Administration
--> Synaptic package manager' or running one of the following commands in a terminal window:
+have to be installed using either Synaptic from the main menu 'System -> Administration -> Synaptic package manager'
+or running one of the following commands in a terminal window:
 
 .Development packages installation
 ----
@@ -44,6 +44,10 @@ sudo apt install linuxcnc-dev
 # or
 sudo apt install linuxcnc-uspace-dev
 ----
+
+Another method is using the Synaptic package manager, from the
+Applications menu, to install the `linuxcnc-dev` or `linuxcnc-uspace-dev`
+packages.
 
 == Using a Component
 
@@ -136,8 +140,8 @@ alternatives. Words in 'CAPITALS' indicate variable text, as follows:
   "this_name_" will be turned into "this-name", and if the name is "_",
   then a trailing period is removed as well, so that "function _" gives
   a HAL function name like "component.<num>" instead of "component.<num>."
-
-If present, the prefix 'hal_'  is removed from the beginning of the
++
+If present, the prefix 'hal_' is removed from the beginning of the
 component name when creating pins, parameters and functions.
 
 In the HAL identifier for a pin or parameter, # denotes an array item,
@@ -156,7 +160,7 @@ to the HALNAME:
 A trailing "_" is retained, so that HAL identifiers which would otherwise
 collide with reserved names or keywords (e.g., 'min') can be used.
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |===
 |HALNAME | C Identifier | HAL Identifier
 |x_y_z   | x_y_z        | x-y-z
@@ -167,7 +171,7 @@ collide with reserved names or keywords (e.g., 'min') can be used.
 |===
 
 * 'if CONDITION' - An expression involving the variable 'personality' which is nonzero
-   when the pin or parameter should be created
+  when the pin or parameter should be created
 
 * 'SIZE' - A number that gives the size of an array. The array items are numbered
   from 0 to 'SIZE'-1.
@@ -179,14 +183,14 @@ collide with reserved names or keywords (e.g., 'min') can be used.
 
 * 'DOC' - A string that documents the item. String can be a C-style "double
   quoted" string, like:
-
++
 ----
 "Selects the desired edge: TRUE means falling, FALSE means rising"
 ----
-
++
 or a Python-style "triple quoted" string, which
 may include embedded newlines and quote characters, such as:
-
++
 ----
 """The effect of this parameter, also known as "the orb of zot",
 will require at least two paragraphs to explain.
@@ -194,25 +198,25 @@ will require at least two paragraphs to explain.
 Hopefully these paragraphs have allowed you to understand "zot"
 better."""
 ----
-
++
 Or a string may be preceded by the literal character 'r', in which
 case the string is interpreted like a Python raw-string.
-
++
 The documentation string is in "groff -man" format. For more
 information on this markup format, see 'groff_man(7)'. Remember that
 'halcompile' interprets backslash escapes in strings, so for instance
 to set the italic font for the word 'example', write:
-
-  ----
-  "\\fIexample\\fB"
-  ----
-
++
+----
+"\\fIexample\\fB"
+----
++
 In this case, r-strings are particularly useful, because the backslashes
 in an r-string need not be doubled:
-
-  ----
-  r"\fIexample\fB"
-  ----
++
+----
+r"\fIexample\fB"
+----
 
 * 'TYPE' - One of the HAL types: 'bit', 'signed', 'unsigned', or 'float'. The old
   names 's32' and 'u32' may also be used, but 'signed' and 'unsigned' are
@@ -268,11 +272,13 @@ The currently defined options are:
   Normally, the functions `rtapi_app_main()` and `rtapi_app_exit()` are
   automatically defined. With 'option rtapi_app no', they are not, and
   must be provided in the C code.  Use the following prototypes:
++
+----
+`int rtapi_app_main(void);`
 
-  `int rtapi_app_main(void);`
-
-  `void rtapi_app_exit(void);`
-
+`void rtapi_app_exit(void);`
+----
++
 When implementing your own `rtapi_app_main()`, call the function `int
 export(char *prefix, long extra_arg)` to register the pins,
 parameters, and functions for `prefix`.
@@ -326,10 +332,10 @@ parameters, and functions for `prefix`.
   in the compiler command line.
 
 * 'option homemod yes' - (default: no)
-   Module is a custom Homing module loaded using [EMCMOT]HOMEMOD=modulename
+  Module is a custom Homing module loaded using [EMCMOT]HOMEMOD=modulename
 
 * 'option tpmod yes' - (default: no)
-   Module is a custom Trajectory Planning (tp) module loaded using [TRAJ]TPMOD=modulename
+  Module is a custom Trajectory Planning (tp) module loaded using [TRAJ]TPMOD=modulename
 
 If an option's VALUE is not specified, then it is equivalent to
 specifying 'option … yes'. +
@@ -341,42 +347,41 @@ The result of using any other option is undefined. +
 * 'LICENSE' - Specify the license of the module for the documentation and for the
   MODULE_LICENSE() module declaration. For example, to specify that the
   module's license is GPL v2 or later:
-
-        license "GPL"; // indicates GPL v2 or later
-
++
+  license "GPL"; // indicates GPL v2 or later
++
 For additional information on the meaning of MODULE_LICENSE() and
 additional license identifiers, see '<linux/module.h>'. or the manual page
 'rtapi_module_param(3)'
-
++
 This declaration is *required*.
 
 * 'AUTHOR' - Specify the author of the module for the documentation.
 
 === Per-instance data storage
 
-* 'variable CTYPE STARREDNAME;'
-
-* 'variable CTYPE STARREDNAME[SIZE];'
-
-* 'variable CTYPE STARREDNAME = DEFAULT;'
-
-* 'variable CTYPE STARREDNAME[SIZE] = DEFAULT;'
-
-Declare a per-instance variable 'STARREDNAME' of type 'CTYPE', optionally as
-an array of 'SIZE' items, and optionally with a default value
-'DEFAULT'. Items with no 'DEFAULT' are initialized to all-bits-zero.
+* `variable CTYPE STARREDNAME; +
+  variable CTYPE STARREDNAME[SIZE]; +
+  variable CTYPE STARREDNAME = DEFAULT; +
+  variable CTYPE STARREDNAME[SIZE] = DEFAULT;`
++
+Declare a per-instance variable 'STARREDNAME' of type 'CTYPE',
+optionally as an array of 'SIZE' items, and optionally with a default
+value 'DEFAULT'. +
+Items with no 'DEFAULT' are initialized to all-bits-zero. +
 'CTYPE' is a simple one-word C type, such as 'float', 'u32', 's32',
-int, etc. Access to array variables uses square brackets.
+int, etc. +
+Access to array variables uses square brackets.
 
 If a variable is to be of a pointer type, there may not be any space
-between the "*" and the variable name.
+between the "*" and the variable name. +
 Therefore, the following is acceptable:
 
 ----
 variable int *example;
 ----
 
-but the following are not:
+But the following are not:
 
 ----
 variable int* badexample;
@@ -385,9 +390,9 @@ variable int * badexample;
 
 === Comments
 
-C++-style one-line comments (//... ) and
-
-C-style multi-line comments (/* ... */) are both supported in the declaration section.
+C++-style one-line comments (`//...`) and
+C-style multi-line comments (`/* ... */`)
+are both supported in the declaration section.
 
 == Restrictions
 
@@ -398,17 +403,11 @@ Variable and function names that can not be used or are likely to cause
 problems include:
 
 * Anything beginning with '__comp_'.
-
 * 'comp_id'
-
 * 'fperiod'
-
 * 'rtapi_app_main'
-
 * 'rtapi_app_exit'
-
 * 'extra_setup'
-
 * 'extra_cleanup'
 
 == Convenience Macros
@@ -442,9 +441,10 @@ of 'halcompile' to the next.
   When 'pin_name' or 'parameter_name' is an array, the macro is of the
   form 'pin_name(idx)' or 'param_name(idx)' where 'idx'  is the index
   into the pin array. When the array is a variable-sized
-  array, it is only legal to refer to items up to its 'condsize'. +
-  When the item is a conditional item, it is only legal to refer to it
-  when its 'condition' evaluated to a nonzero value.
+  array, it is only legal to refer to items up to its 'condsize'.
++
+When the item is a conditional item, it is only legal to refer to it
+when its 'condition' evaluated to a nonzero value.
 
 * 'variable_name' - For each variable 'variable_name'  there is a macro which allows the
   name to be used on its own to refer
@@ -790,9 +790,9 @@ which creates the following pins:
 
 - A 2-input AND gate: logic.0.and, logic.0.in-00, logic.0.in-01
 - 5-input AND and OR gates: logic.1.and, logic.1.or, logic.1.in-00,
-logic.1.in-01, logic.1.in-02, logic.1.in-03, logic.1.in-04,
+  logic.1.in-01, logic.1.in-02, logic.1.in-03, logic.1.in-04,
 - 3-input AND and XOR gates: logic.2.and, logic.2.xor, logic.2.in-00,
-logic.2.in-01, logic.2.in-02
+  logic.2.in-01, logic.2.in-02
 
 === general functions
 
@@ -832,7 +832,6 @@ FUNCTION(_) {
         unset(&out1);
         unset(&out2);
     }
-
 }
 ----
 

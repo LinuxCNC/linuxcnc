@@ -75,9 +75,8 @@ microseconds, no matter what).
 h = hal.component("passthrough")
 ----
 
-The component itself is created by a call to the constructor
-'hal.component'. The arguments are the HAL component name and
-(optionally) the
+The component itself is created by a call to the constructor 'hal.component'.
+The arguments are the HAL component name and (optionally) the
 prefix used for pin and parameter names. If the prefix is not
 specified, the component name is used.
 
@@ -172,35 +171,47 @@ writing files) must be done to complete the shutdown process.
 === component_exists
 
 Does the specified component exist at this time. +
-Example: +
-hal.component_exists("testpanel") +
+Example:
+
+----
+hal.component_exists("testpanel")
+----
 
 === component_is_ready
 
 Is the specified component ready at this time. +
-Example: +
-hal.component_is_ready("testpanel") +
+Example:
+
+----
+hal.component_is_ready("testpanel")
+----
 
 === get_msg_level
 
-Get the current Realtime msg level. +
+Get the current Realtime msg level.
 
 === set_msg_level
 
 set the current Realtime msg level. +
-used for debugging information. +
+used for debugging information.
 
 === connect
 
 Connect a pin to a signal. +
-example: +
+Example:
+
+----
 hal.connect("pinname","signal_name")
+----
 
 === get_value
 
 read a pin, param or signal directly. +
-example: +
-value = hal.get_value("iocontrol.0.emc-enable-in") +
+Example:
+
+----
+value = hal.get_value("iocontrol.0.emc-enable-in")
+----
 
 === get_info_pins()
 
@@ -215,6 +226,7 @@ pinDirection1 = listOfDicts[0].get('DIRECTION')
 ----
 
 === get_info_signals()
+
 returns a list of dicts of all system signals.
 
 [source,python]
@@ -238,91 +250,112 @@ paramValue1 = listOfDicts[0].get('VALUE')
 
 === new_signal
 
-Create a New signal of the type specified. Example: +
+Create a New signal of the type specified. +
+Example:
+
+----
 hal.new_sig("signalname",hal.HAL_BIT)
+----
 
 === pin_has_writer
 
 Does the specified pin have a driving pin connected. +
-Returns True or False. +
+Returns True or False.
+
+----
 h.in.pin_has_writer()
+----
 
 === get_name
+
 Get the HAL object name +
-h.in.get_name() +
 return a string
 
+----
+h.in.get_name()
+----
+
 === get_type
+
 Get the HAL object's type +
-h.in.get_type() +
 returns an integer
+
+----
+h.in.get_type()
+----
 
 === get_dir
+
 Get the HAL object direction type +
-h.in.get_dir() +
 returns an integer
 
+----
+h.in.get_dir()
+----
+
 === get
-get the HAL object value +
+
+get the HAL object value
+
+----
 h.in.get()
+----
 
 === set
-set the HAL object value +
+
+set the HAL object value
+
+----
 h.out.set(10)
+----
 
 === is_pin
+
 Is the object a pin or parameter? +
-h.in.is_pin() +
 returns bool
+
+----
+h.in.is_pin()
+----
 
 === sampler_base
 
-TODO +
+TODO
 
 === stream_base
 
-TODO +
+TODO
 
 === stream
 
-TODO +
+TODO
 
 === set_p
 
 Set a pin value of any pin in the HAL system. +
-example: +
-hal.set_p("pinname","10") +
+Example:
+
+----
+hal.set_p("pinname","10")
+----
 
 == Constants
 
 Use These To specify details rather then the value they hold.
 
 * HAL_BIT
-
 * HAL_FLOAT
-
 * HAL_S32
-
 * HAL_U32
-
 * HAL_IN
-
 * HAL_OUT
-
 * HAL_RO
-
 * HAL_RW
-
 * MSG_NONE
-
 * MSG_ALL
-
 * MSG_DBG
-
 * MSG_ERR
-
 * MSG_INFO
-
 * MSG_WARN
 
 == System Information
@@ -330,11 +363,8 @@ Use These To specify details rather then the value they hold.
 Read these to acquire information about the realtime system.
 
 * is_kernelspace
-
 * is_rt
-
 * is_sim
-
 * is_userspace
 
 == Use with hal_glib in GladeVCP Handler
@@ -374,6 +404,7 @@ And have a function to be called:
 ----
 
 == Use with hal_glib in QtVCP Handler
+
 QtVCP uses the hal_glib library, which can be used to connect a "watcher" signal on a HAL input pin. +
 This signal can be used to register a function to call when the HAL pin changes state. +
 
@@ -416,7 +447,6 @@ This shows ways to get the pin value and information.
         # this can be called outside the function
         print(self.testPin.get())
 ----
-
 
 == Project ideas
 

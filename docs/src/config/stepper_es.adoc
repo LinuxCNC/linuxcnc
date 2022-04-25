@@ -1,7 +1,7 @@
 :lang: es
+:toc:
 
 [[cha:stepper-config]]
-
 = Configuración de steppers
 
 == Introducción
@@ -163,12 +163,12 @@ Hay un par de operaciones que se ejecutan cuando se ejecuta/interpreta
 standard_pinout.hal:
 
 * El controlador Parport se carga (ver el <<cha:parport,Capítulo Parport>>
-   para más detalles)
+  para más detalles)
 * Las funciones de lectura y escritura del controlador parport se asignan al hilo base
-   footnote:[el subproceso más rápido en la configuración de LinuxCNC, generalmente 
-   su código se ejecuta cada pocas decenas de microsegundos]
+  footnote:[el subproceso más rápido en la configuración de LinuxCNC, generalmente 
+  su código se ejecuta cada pocas decenas de microsegundos]
 * Las señales de paso y dirección para los ejes X, Y, Z se vinculan a los pines en el
-   parport
+  parport
 * Se conectan más señales de E /S (loopback de estop, loopback del cambiador de herramientas)
 * Se define una señal de husillo y se vincula a un pin parport
 
@@ -249,3 +249,4 @@ tener una sola señal/pin de habilitación para todas las unidades es una práct
 El archivo standard_pinout.hal supone que no hay un botón ESTOP externo. Para más
 información sobre un E-Stop externo, consulte la página del manual estop_latch.
 
+// vim: set syntax=asciidoc:

@@ -1,15 +1,16 @@
 :lang: en
+:toc:
 
 [[cha:gscreen]]
 = Gscreen
-
-== Intro
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
+
+== Introduction
 
 Gscreen is an infrastructure to display a custom screen to control LinuxCNC.
 Gscreen borrows heavily from GladeVCP. GladeVCP uses the GTK widget editor
@@ -23,19 +24,19 @@ Gscreen you use the Glade editor. Gscreen is not restricted to adding a custom
 panel on the right or a custom tab it is fully editable.
 
 .Gscreen Default Screen
-image::images/gscreen-mill.png[align="center", alt="Gscreen Mill Based Screen"]
+image::images/gscreen-mill.png["Gscreen Mill Based Screen",align="center"]
 
 .Gscreen Silverdragon Screen
-image::images/silverdragon.png[align="center", alt="Gscreen's Silverdragon Screen"]
+image::images/silverdragon.png["Gscreen Silverdragon Screen",align="center"]
 
 .Gscreen Spartan Screen
-image::images/spartan.png[align="center", alt="Gscreen's Spartan Screen"]
+image::images/spartan.png["Gscreen Spartan Screen",align="center"]
 
 .Gscreen Gaxis Screen
-image::images/gaxis.png[align="center", alt="Gscreen's Gaxis Screen"]
+image::images/gaxis.png["Gscreen Gaxis Screen",align="center"]
 
 .Gscreen Industrial Screen
-image::images/industrial.png[align="center", alt="Gscreen's Industrial Screen"]
+image::images/industrial.png["Gscreen Industrial Screen",align="center"]
 
 Gscreen is based on 'Glade' (the editor), 'PyGTK' (the widget toolkit), and
 'GladeVCP' (LinuxCNC's connection to Glade and PyGTK). GladeVCP has some
@@ -193,7 +194,7 @@ Remember, if you use a custom screen option YOU are responsible for fixing it
 
 == Building a simple clean-sheet custom screen
 
-image::images/tester.png[align="center", alt="simple usable screen"]
+image::images/tester.png["Gscreen simple usable screen",align="center"]
 
 Lets build a simple usable screen. Build this in the Glade editor (if using a
 RIP package run it from a terminal after using . scripts/rip-environment ).
@@ -217,7 +218,7 @@ RIP package run it from a terminal after using . scripts/rip-environment ).
 * The buttons in this example are regular buttons not HAL buttons. We don't
   need the HAL pins.
 
-image::images/tester_editor.png[align="center", alt="Glade editor tester.glade"]
+image::images/tester_editor.png["Glade editor tester.glade",align="center"]
 
 In this screen we are using VCP_actions to communicate to LinuxCNC the actions
 we want. This allows us standard functions without adding python code in the
@@ -252,44 +253,44 @@ means learning about handler files.
 There are special functions Gscreen checks the handler file for.
 If you add these in you handler file Gscreen will call them instead of gscreen's internal same-named functions. 
 
- * initialize_preferences(self): You can install new preference routines.
- * initialize_keybindings(self) You can install new keybinding routines. In
-   most cases you won't want to do this, you will want to override the
-   individual keybinding calls. You can also add more keybindings that will
-   call an arbitrary function.
- * initialize_pins(self): makes / initializes HAL pins
- * connect_signals(self,handlers): If you are using a completely different
-   screen the default Gscreen you must add this or gscreen will try to connect
-   signals to widgets that are not there. Gscreen's default function is called
-   with self.gscreen.connect_signals(handlers) If you wish to just add extra
-   signals to your screen but still want the default ones call this first then
-   add more signals. If you signals are simple (no user data passed) then you
-   can also use the Glade signal selection in the Glade editor.
- * initialize_widgets(self): You can use this to set up any widgets. Gscreen
-   usually calls 'self.gscreen.initialize_widgets()' which actually calls
-   many separate functions. If you wish to incorporate some of those widgets
-   then just call those functions directly. or add 
-   self.gscreen.init_show_windows() so widgets are just shown. Then if
-   desired, initialize/adjust your new widgets.
- * initialize_manual_toolchange(self): allows a complete revamp of the manual
-   toolchange system.
- * set_restart_line(self.line):
- * timer_interrupt(self): allows one to complete redefine the interrupt
-   routine This is used for calling periodic() and checking for errors from
-   linuxcnc.status.
- * check_mode(self): used to check what mode the screen is in. Returns a list[]
-   0 -manual 1- mdi 2- auto 3- jog.
- * on_tool_change(self,widget): You can use this to override the manual tool
-   change dialog -this is called when 'gscreen.tool-change' changes state.
- * dialog_return(self,dialog_widget,displaytype,pinname): Use this to override
-   any user message or manual tool change dialog. Called when the dialog is
-   closed.
- * periodic(self): This is called every (default 100) milliseconds. Use it to
-   update your widgets/HAL pins. You can call Gscreen regular periodic
-   afterwards too, self.gscreen.update_position() or just add pass to not
-   update anything. Gscreen's update_position() actually calls many separate
-   functions. If you wish to incorporate some of those widgets then just call
-   those functions directly.
+* initialize_preferences(self): You can install new preference routines.
+* initialize_keybindings(self) You can install new keybinding routines. In
+  most cases you won't want to do this, you will want to override the
+  individual keybinding calls. You can also add more keybindings that will
+  call an arbitrary function.
+* initialize_pins(self): makes / initializes HAL pins
+* connect_signals(self,handlers): If you are using a completely different
+  screen the default Gscreen you must add this or gscreen will try to connect
+  signals to widgets that are not there. Gscreen's default function is called
+  with self.gscreen.connect_signals(handlers) If you wish to just add extra
+  signals to your screen but still want the default ones call this first then
+  add more signals. If you signals are simple (no user data passed) then you
+  can also use the Glade signal selection in the Glade editor.
+* initialize_widgets(self): You can use this to set up any widgets. Gscreen
+  usually calls 'self.gscreen.initialize_widgets()' which actually calls
+  many separate functions. If you wish to incorporate some of those widgets
+  then just call those functions directly. or add 
+  self.gscreen.init_show_windows() so widgets are just shown. Then if
+  desired, initialize/adjust your new widgets.
+* initialize_manual_toolchange(self): allows a complete revamp of the manual
+  toolchange system.
+* set_restart_line(self.line):
+* timer_interrupt(self): allows one to complete redefine the interrupt
+  routine This is used for calling periodic() and checking for errors from
+  linuxcnc.status.
+* check_mode(self): used to check what mode the screen is in. Returns a list[]
+  0 -manual 1- mdi 2- auto 3- jog.
+* on_tool_change(self,widget): You can use this to override the manual tool
+  change dialog -this is called when 'gscreen.tool-change' changes state.
+* dialog_return(self,dialog_widget,displaytype,pinname): Use this to override
+  any user message or manual tool change dialog. Called when the dialog is
+  closed.
+* periodic(self): This is called every (default 100) milliseconds. Use it to
+  update your widgets/HAL pins. You can call Gscreen regular periodic
+  afterwards too, self.gscreen.update_position() or just add pass to not
+  update anything. Gscreen's update_position() actually calls many separate
+  functions. If you wish to incorporate some of those widgets then just call
+  those functions directly.
 
 You can also add you own functions to be called in this file. Usually you
 would add a signal to a widget to call your function.
@@ -307,22 +308,22 @@ But instead we are going to override the standard calls and add our own.
 Add these command to the handler file:
 
 ----
-  # override Gscreen Functions
-  # keybinding calls
-  def on_keycall_ESTOP(self,state,SHIFT,CNTRL,ALT):
-    if state: # only if pressed, not released
-      self.widgets.togglebutton1.emit('activate')
-      self.gscreen.audio.set_sound(self.data.alert_sound)
-      self.gscreen.audio.run()
-      return True # stop progression of signal to other widgets
-  def on_keycall_POWER(self,state,SHIFT,CNTRL,ALT):
-    if state:
-      self.widgets.togglebutton2.emit('activate')
-      return True
-  def on_keycall_ABORT(self,state,SHIFT,CNTRL,ALT):
-    if state:
-      self.widgets.button3.emit('activate')
-      return True
+# override Gscreen Functions
+# keybinding calls
+def on_keycall_ESTOP(self,state,SHIFT,CNTRL,ALT):
+  if state: # only if pressed, not released
+    self.widgets.togglebutton1.emit('activate')
+    self.gscreen.audio.set_sound(self.data.alert_sound)
+    self.gscreen.audio.run()
+    return True # stop progression of signal to other widgets
+def on_keycall_POWER(self,state,SHIFT,CNTRL,ALT):
+  if state:
+    self.widgets.togglebutton2.emit('activate')
+    return True
+def on_keycall_ABORT(self,state,SHIFT,CNTRL,ALT):
+  if state:
+    self.widgets.button3.emit('activate')
+    return True
 ----
 
 So now we have overridden Gscreen's function calls of the same name and deal with them in our handler file
@@ -571,7 +572,7 @@ Found file(lib): /home/chris/emc-dev/lib/hallib/simulated_home.hal
 
 **** GSCREEN INFO:  No Screen 2 glade file present
 **** GSCREEN INFO: handler file path: ['/home/chris/emc-dev/share/gscreen/skins/industrial/industrial_handler.py']
----- 
+----
 
 The line:
 

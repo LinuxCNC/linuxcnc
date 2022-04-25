@@ -1,8 +1,12 @@
 :lang: fr
 :toc:
 
-[[cha:touchy-gui]]
-= L'interface graphique Touchy
+[[cha:touchygui]]
+= L'interface graphique Touchy(((touchygui)))
+
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
 
 Touchy est une interface utilisateur pour LinuxCNC, destinée à être utilisée avec les
 panneaux de commande de machines. Il ne nécessite ni clavier, ni souris.
@@ -10,64 +14,79 @@ panneaux de commande de machines. Il ne nécessite ni clavier, ni souris.
 Il a été conçu pour fonctionner également sur les écrans tactiles, en combinaison
 avec une manivelle électronique (MPG) et des boutons et interrupteurs.
 
-.L'interface tactile Touchy
-image::images/touchy_fr.png[alt="L'interface tactile Touchy"]
+The 'Handwheel' tab has radio buttons to select between 'Feed Override',
+'Spindle Override', 'Maximum Velocity' and 'Jogging' functions for the wheel/MPG
+input. Radio buttons for axis selection and increment for jogging are also
+provided.
+
+image::images/touchy_fr.png["L'interface tactile Touchy"]
 
 == Panneau de Configuration
 
 === Connections avec HAL
 
-Touchy requiert qu'un fichier nommé _touchy.hal_ soit créé, dans le même
+Touchy requiert qu'un fichier nommé 'touchy.hal' soit créé, dans le même
 répertoire de configuration que le fichier ini, pour y connecter ses contrôles.
 Touchy exécute les commandes de HAL dans ce fichier après qu'il a créé ses propres
 pins, lesquelles sont disponibles pour connexion.
+You can have multiple line of 'POSTGUI_HALFILE=<filename>' in the INI.
+Each will be run one after the other in the order they appear in the INI file.
+
+[NOTE]
+Touchy used to require that you create a file named 'touchy.hal' in your
+configuration directory (the directory your INI file is in). For legacy reasons
+this will continue to work, but INI based postgui files are preferred.
+
+For more information on HAL files and the net command see the
+<<cha:basic-hal-reference,HAL Basics>>.
 
 Touchy dispose de plusieurs pins de sortie destinées à être connectées au
 contrôleur de mouvement pour gérer les manivelles de jog:
 
- - touchy.jog.wheel.increment,
-   qui doit être connecté à la pin _axis.N.jog-scale_ de chacun des N axes.
- - touchy.jog.wheel.N, qui doit être connecté à _axis.N.jog-enable_ pour
-   chacun des N axes.
- - En plus d'être connecté à _touchy.wheel-counts_, le compteur d'impulsions
-   de la manivelle doit aussi être connecté à _axis.N.jog-counts_ pour chacun
-   des N axes. Si le composant de HAL _ilowpass_ est utilisé pour adoucir les
-   mouvements de jog à la manivelle, il faut l'appliquer uniquement sur
-   _axis.N.jog-counts_ et non sur _touchy.wheel-counts_.
+- touchy.jog.wheel.increment, qui doit être connecté à la pin _axis.N.jog-scale_ de chacun des N axes.
+- touchy.jog.wheel.N, qui doit être connecté à _axis.N.jog-enable_ pour chacun des N axes.
 
-==== Contrôles requis
+[NOTE]
+'N' represents the axis number 0-8.
 
- - Un bouton _Abandon_ (contact momentané) connecté sur la HAL pin _touchy.abort_
- - Un bouton de _Départ cycle_ (contact momentané) connecté à _touchy.cycle-start_
- - Volant/Manivelle/MPG, connecté à _touchy.wheel-counts_ et à la pin de mouvement
-   comme décrit précédemment.
- - Un bouton à bascule simple (contact à deux positions) connecté à _touchy.single-block_
+- En plus d'être connecté à _touchy.wheel-counts_, le compteur d'impulsions
+  de la manivelle doit aussi être connecté à _axis.N.jog-counts_ pour chacun
+  des N axes. Si le composant de HAL _ilowpass_ est utilisé pour adoucir les
+  mouvements de jog à la manivelle, il faut l'appliquer uniquement sur _axis.N.jog-counts_ et non sur _touchy.wheel-counts_.
 
-==== Contrôles optionnels
+.Contrôles requis
 
- - Pour le jog continu, un interrupteur à trois positions avec retour au centre
-   (ou deux boutons momentanés) pour chacun des axes concernés, attaché à
-   _touchy.jog.continuous.x.negative_ et à _touchy.jog.continuous.x.positive_,
-   etc. pour les autres axes.
- - Si un bouton de genouillère est nécessaire, (pour jogger Z en haut de sa
-   course en grande vitesse), un bouton à contact momentané sera connecté à _touchy.quill-up_.
+- Un bouton _Abandon_ (contact momentané) connecté sur la HAL pin _touchy.abort_
+- Un bouton de _Départ cycle_ (contact momentané) connecté à _touchy.cycle-start_
+- Volant/Manivelle/MPG, connecté à _touchy.wheel-counts_ et à la pin de mouvement comme décrit précédemment.
+- Un bouton à bascule simple (contact à deux positions) connecté à _touchy.single-block_
 
-==== Voyants de panneau optionnels
+.Contrôles optionnels
 
- - _touchy.jog.active_ indique quand les contrôles de jog du panneau sont actifs.
- - _touchy.status-indicator_ est allumé en continu quand la machine exécute un
-   G-code et clignote quand la machine est en marche mais en pause, ou en
-   vitesse à zéro.
+- Pour le jog continu, un interrupteur à trois positions avec retour au centre
+  (ou deux boutons momentanés) pour chacun des axes concernés, attaché à
+  'touchy.jog.continuous.x.negative' et à 'touchy.jog.continuous.x.positive', etc. pour les autres axes.
+- Si un bouton de genouillère est nécessaire, (pour jogger Z en haut de sa
+  course en grande vitesse), un bouton à contact momentané sera connecté à 'touchy.quill-up'.
+
+.Voyants de panneau optionnels
+
+- 'touchy.jog.active' indique quand les contrôles de jog du panneau sont actifs.
+- 'touchy.status-indicator_ est allumé en continu quand la machine exécute un
+  G-code et clignote quand la machine est en marche mais en pause, ou en vitesse à zéro.
 
 === Recommandé pour toutes les configurations
 
- - Un bouton d'Arrêt d'Urgence (A/U) câblé physiquement, dans la chaîne d'arrêt
-   d'urgence.
+- Un bouton d'Arrêt d'Urgence (A/U) câblé physiquement, dans la chaîne d'arrêt d'urgence.
 
 == Réglages
 
+=== Enabling Touchy
+
 Pour utiliser Touchy, dans la section [DISPLAY] du fichier ini de la machine,
 modifier la ligne de cette manière: DISPLAY = touchy
+
+=== Preferences
 
 Quand Touchy démarre pour la première fois, vérifier l'onglet _Préférences_.
 Dans le cas d'un écran tactile, choisir de cacher le pointeur dans les options,
@@ -78,12 +97,13 @@ La résolution de Gnome peut affecter cela. Si le bas de l'écran est coupé, al
 dans le gestionnaire de résolution de Gnome pour revenir au réglage d'origine,
 à 96 DPI.
 
+All other font sizes can be changed on the Preferences tab.
+
 === Macros
 
 Touchy peut invoquer les macros avec mots O au travers de l'interface MDI. Pour
 configurer cette possibilité, dans la section [TOUCHY] du fichier ini, ajouter
-une ou plusieurs lignes avec MACRO. Chacune de ces lignes doit respecter le
-format suivant:
+une ou plusieurs lignes avec MACRO. Chacune de ces lignes doit respecter le format suivant:
 
 ----
 MACRO=increment xinc yinc
@@ -92,10 +112,8 @@ MACRO=increment xinc yinc
 Dans lequel, _increment_ est le nom de la macro, laquelle accepte deux paramètres,
 nommés ici _xinc_ et _yinc_.
 
-Maintenant, placer la macro proprement dite dans un fichier nommé
-_increment.ngc_. La variable PROGRAM_PREFIX du fichier ini pourra être
-utilisée pour identifier le répertoire contenant ce fichier. Il est également
-possible de le déclarer dans la variable SUBROUTINE_PATH.
+Maintenant, placer la macro proprement dite dans un fichier nommé _increment.ngc_. La variable PROGRAM_PREFIX du fichier ini pourra être
+utilisée pour identifier le répertoire contenant ce fichier. Il est également possible de le déclarer dans la variable SUBROUTINE_PATH.
 
 Elle pourrait ressembler à cela:
 
@@ -107,8 +125,7 @@ O<increment> endsub
 ----
 
 Noter que le nom du sous-programme, le nom de la macro ainsi que le nom du
-fichier .ngc doivent correspondre exactement, y compris les minuscules/
-majuscules des noms.
+fichier .ngc doivent correspondre exactement, y compris les minuscules/majuscules des noms.
 
 Quand la macro est invoquée en pressant le bouton _Macro_ dans l'onglet MDI
 de Touchy, il est possible de saisir des valeurs pour xinc et yinc, lesquelles

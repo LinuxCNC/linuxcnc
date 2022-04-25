@@ -2,7 +2,6 @@
 :toc:
 
 [[cha:gcode-examples]]
-
 = Ejemplos de código G
 
 Después de instalar LinuxCNC, se colocan varios archivos de muestra en la carpeta
@@ -72,7 +71,6 @@ This program demonstrates the peculiarity of the toolpath without and with
 tool radius compensation. The tool radius is taken from the
 tool table.
 
-
 == Ejemplos de torno
 
 === Roscado
@@ -82,3 +80,4 @@ tool table.
 
 Este archivo muestra un ejemplo de roscado en un torno utilizando parámetros.
 
+// vim: set syntax=asciidoc:

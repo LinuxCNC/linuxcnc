@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 = Contribuir a LinuxCNC
 
@@ -16,18 +17,19 @@ y bibliotecas, como el texto fuente para la documentación.
 
 Las dos formas principales en que los desarrolladores de proyectos se comunican entre sí son:
 
-* Via IRC, en irc://irc.libera.chat/%23linuxcnc-devel[#linuxcnc-devel on Libera.chat].
-* Por correo electrónico, en la lista de correo de los desarrolladores:
-  https://lists.sourceforge.net/lists/listinfo/emc-developers
+* Via IRC, en irc://irc.libera.chat/%23linuxcnc-devel[#linuxcnc-devel]
+  on https://libera.chat/[Libera.chat].
+* Por correo electrónico, en la https://lists.sourceforge.net/lists/listinfo/emc-developers[lista de correo de los desarrolladores]
 
 == El proyecto LinuxCNC Source Forge
 
-Utilizamos Source Forge para las listas de correo: http://sourceforge.net/p/emc/mailman/
+Utilizamos Source Forge para las
+http://sourceforge.net/p/emc/mailman/[listas de correo]
 
-== El Sistema de Control de Revisiones git
+== El Sistema de Control de Revisiones Git
 
-Todas las fuentes LinuxCNC se mantiene en el sistema de control de revisión
-git footnote:[http://git-scm.com/].
+Todas las fuentes LinuxCNC se mantiene en el
+http://git-scm.com/[sistema de control de revisiónGit].
 
 === LinuxCNC repositorio oficial de git
 
@@ -49,7 +51,7 @@ Esto se debe a que el software LinuxCNC por defecto espera configuraciones y
 Programas de código G en un directorio llamado `$ HOME / linuxcnc`, y tener el
 repositorio git en el mismo sitio es confuso.
 
-Los problemas y las solicitudes pull son bienvenidos en github:
+Los problemas y las solicitudes pull son bienvenidos en GitHub:
 https://github.com/LinuxCNC/linuxcnc/issues
 https://github.com/LinuxCNC/linuxcnc/pulls
 
@@ -65,7 +67,6 @@ Las correcciones de errores van en la rama estable aplicable más antigua, y esa
 
 Las nuevas características generalmente van en la rama `master`, pero algunos tipos de características (específicamente controladores de dispositivo y documentación bien aislados) pueden (a discreción de los gerentes de ramas estables) entrar en
 una rama estable y fusionarse como lo hacen las correcciones de errores.
-
 
 === tutoriales git
 
@@ -268,7 +269,6 @@ https://docs.weblate.org/en/latest/user/basic.html
 If web services are not your thing, you can also work on translations
 using a variety of local gettext translator apps including gtranslator,
 poedit, and many more.
-
 
 == Otras formas de contribuir
 

@@ -1,9 +1,8 @@
 :lang: es
+:toc:
 
 [[cha:plasma-primer]]
 = Basicos del Corte por Plasma para Usuarios de LinuxCNC(((Basicos del Corte por Plasma)))
-
-:toc:
 
 == ¿Qué es el plasma?
 
@@ -26,7 +25,6 @@ Este tipo de inicio es ampliamente empleado. Aunque es una tecnología más anti
 === Inicio por Blowback
 
 Este tipo de arranque utiliza la presión de aire suministrada a la cortadora para forzar un pequeño pistón o cartucho dentro del cabezal de la antorcha hacia atrás para crear una pequeña chispa entre la superficie interior del consumible, ionizando el aire y creando una pequeña llama de plasma. Esto también crea un "arco piloto" que proporciona una llama de plasma que permanece encendida, tanto si está en contacto con el metal como si no. Este es un muy buen tipo de inicio que ahora utilizan varios fabricantes. Su ventaja es que requiere algo menos de circuiteria, es bastante confiable y genera mucho menos ruido eléctrico.
-
 
 Para los sistemas CNC de plasma de aire de nivel basico, se prefiere el estilo blowback para minimizar la interferencia eléctrica con la electrónica y las PC estándar, pero el arranque de alta frecuencia sigue siendo el más importante en máquinas grandes de 200 amperios o más. Estos requieren PC’s y dispositivos electrónicos de nivel industrial e incluso los fabricantes comerciales han tenido problemas con fallos porque no han tenido en cuenta el ruido eléctrico en sus diseños.
 
@@ -84,7 +82,8 @@ Con el lanzamiento de la interfaz de voltaje a frecuencia Mesa THCAD, LinuxCNC p
 
 Jim Colt, de Hypertherm, dice que los mejores controladores de THC estaban completamente integrados en el controlador CNC. Por supuesto, se refería a los sistemas de gama alta fabricados por Hypertherm, Esab, Thermal Dynamics y otros, como Advanced Robotic Technology en Australia, sin soñar que el código abierto podría producir sistemas utilizando este enfoque que rivaliza con los sistemas de gama alta.
 
-La inclusión de offsets externos en Linuxcnc V2.8 permitió que el control de plasma en LinuxCNC se elevara a un nivel completamente nuevo. Los offsets externos se refieren a la capacidad de aplicar un offset a la posición ordenada del eje, externa al controlador de movimiento. Esto es perfecto para el control de THC por plasma como un método para ajustar la altura de la antorcha en tiempo real según nuestra metodología de control de proceso elegida. Después de una serie de compilaciones experimentales, la configuración link:http://linuxcnc.org/docs/devel/html/plasma/qtplasmac.html[QtPlasmaC] se incorporó a LinuxCNC 2.8. Este ha sido un proyecto extremadamente ambicioso y muchas personas en todo el mundo han participado en las pruebas y la mejora del conjunto de características. QtPlasmaC es único en el sentido de que su objetivo de diseño era admitir todos los THC, incluidos los de bit bang, hasta el sofisticado control de voltaje de la antorcha si el voltaje está disponible para LinuxCNC a través de un THCAD o algún otro sensor de voltaje. Además, QtPlasmaC está diseñado para ser un sistema independiente que no necesita ninguna subrutina adicional de código G y permite al usuario definir sus propias tablas de corte que están almacenadas en el sistema y accesibles mediante un menú desplegable.
+La inclusión de offsets externos en Linuxcnc V2.8 permitió que el control
+de plasma en LinuxCNC se elevara a un nivel completamente nuevo. Los offsets externos se refieren a la capacidad de aplicar un offset a la posición ordenada del eje, externa al controlador de movimiento. Esto es perfecto para el control de THC por plasma como un método para ajustar la altura de la antorcha en tiempo real según nuestra metodología de control de proceso elegida. Después de una serie de compilaciones experimentales, la configuración link:http://linuxcnc.org/docs/devel/html/plasma/qtplasmac.html[QtPlasmaC] se incorporó a LinuxCNC 2.8. Este ha sido un proyecto extremadamente ambicioso y muchas personas en todo el mundo han participado en las pruebas y la mejora del conjunto de características. QtPlasmaC es único en el sentido de que su objetivo de diseño era admitir todos los THC, incluidos los de bit bang, hasta el sofisticado control de voltaje de la antorcha si el voltaje está disponible para LinuxCNC a través de un THCAD o algún otro sensor de voltaje. Además, QtPlasmaC está diseñado para ser un sistema independiente que no necesita ninguna subrutina adicional de código G y permite al usuario definir sus propias tablas de corte que están almacenadas en el sistema y accesibles mediante un menú desplegable.
 
 == Señal Arc OK
 
@@ -174,7 +173,6 @@ Es importante que el controlador de plasma "espere" antes de muestrear automáti
 
 En nuestras pruebas, esto varía entre máquinas y material de 0.5 a 1.5 segundos. Por lo tanto, una demora de 1.5 segundos después de que se recibe una señal válida de arcoOK antes de habilitar el control de THC es una configuración inicial segura. Si desea acortar esto para un material determinado, el  Halscope de LinuxCNC le permitirá trazar el voltaje de la antorcha y tomar decisiones informadas sobre el menor retraso seguro a utilizar.
 
-
 [NOTE]
 Si la velocidad de corte no está cerca de la velocidad de corte deseada al final de este retraso, el controlador debe esperar hasta que esto se logre antes de habilitar el THC.
 
@@ -188,7 +186,7 @@ Se recomienda que se proporcione un mecanismo para permitir que la antorcha se "
 
 == Esquinas;  anti-inmersión por baja velocidad
 
-El planificador de trayectoria Linuxcnc es responsable de traducir los comandos de velocidad y aceleración en movimiento que obedece las leyes de la física. Por ejemplo, el movimiento se ralentizará al negociar una esquina. Si bien esto no es un problema con las fresadoras o enrutadores, esto plantea un problema particular para el corte por plasma ya que el voltaje del arco aumenta a medida que el movimiento disminuye. Esto hará que el THC baje la antorcha. Una de las enormes ventajas de un control THC integrado en el controlador de movimiento LinuxCNC es que sabe lo que está sucediendo en todo momento. Por lo tanto, se convierte en una cuestión trivial controlar la velocidad actual (motion.current-speed) y mantener la operación de THC si cae por debajo de un umbral establecido (por ejemplo, 10% por debajo de la velocidad de avance deseada.
+El planificador de trayectoria Linuxcnc es responsable de traducir los comandos de velocidad y aceleración en movimiento que obedece las leyes de la física. Por ejemplo, el movimiento se ralentizará al negociar una esquina. Si bien esto no es un problema con las fresadoras o enrutadores, esto plantea un problema particular para el corte por plasma ya que el voltaje del arco aumenta a medida que el movimiento disminuye. Esto hará que el THC baje la antorcha. Una de las enormes ventajas de un control THC integrado en el controlador de movimiento LinuxCNC es que sabe lo que está sucediendo en todo momento. Por lo tanto, se convierte en una cuestión trivial controlar la velocidad actual (motion.current-speed) y mantener la operación de THC si cae por debajo de un umbral establecido (por ejemplo, 10% por debajo de la velocidad de avance deseada).
 
 == Cruce de vacío / Kerf
 
@@ -254,7 +252,7 @@ Por lo general, se requieren los siguientes pines (tenga en cuenta que las conex
 * En algunas circunstancias, se puede usar el relé del husillo integrado en las tarjetas Mesa en lugar de un relé externo.
 * Generalmente conectado a 'spindle.0.on'
 
-[WARNING] Se recomienda encarecidamente que la antorcha no se pueda habilitar mientras este pin sea falso; de lo contrario, la antorcha no se apagará cuando se presione Estop;
+WARNING: Se recomienda encarecidamente que la antorcha no se pueda habilitar mientras este pin sea falso; de lo contrario, la antorcha no se apagará cuando se presione Estop;
 
 === Interruptor flotante (entrada)
 
@@ -262,13 +260,11 @@ Por lo general, se requieren los siguientes pines (tenga en cuenta que las conex
 * Conecte la salida del sensor de proximidad al pin de entrada elegido. Si se utilizan interruptores mecánicos, conecte un lado del interruptor a la alimentación de campo y el otro lado a la entrada.
 * Generalmente conectado a 'motion.probe-input'
 
-
 === Activación del sensor óhmico (salida)
 
 * Vea el esquema de <<ohmic-sensing,detección óhmica>>.
 * Conecte el pin de salida a un lado de los relés de aislamiento y el otro lado a tierra de la alimentación de campo.
 * En una configuración que no sea QtPlasmaC, generalmente activado por un 'motion.digital-out-<nn>' para que M62 / M63 / M64 / M65 pueda controlarlo en G-Code
-
 
 === Detección óhmica (entrada)
 
@@ -352,7 +348,7 @@ MAX_VELOCITY = 60
 MAX_ACCELERATION = 700
 ----
 
-Para obtener más información sobre las compensaciones externas (para V 2.8 y superior), lea la <<sec:axis-section,Seccion [AXIS_<letter>]>> del documento del archivo INI y <<cha:external-offsets,Offsets externos>> en la documentación de Linuxcnc.
+Para obtener más información sobre las compensaciones externas (para V 2.8 y superior), lea la <<sub:ini:sec:axis-letter,Seccion [AXIS_<letter>]>> del documento del archivo INI y <<cha:external-offsets,Offsets externos>> en la documentación de Linuxcnc.
 
 == Lectura de voltaje de arco con el THCAD de Mesa
 
@@ -399,6 +395,7 @@ Suponiendo que está conectado a una 7i76e, conecte la salida a la entrada del c
 === Prueba inicial de THCAD
 
 Asegúrese de tener las siguientes líneas en su archivo ini (suponiendo una Mesa 7i76e):
+
 ----
 setp hm2_7i76e.0.encoder.00.scale -1
 setp hm2_7i76e.0.encoder.00.counter-mode 1
@@ -417,7 +414,6 @@ Recordando que los voltajes de arco de plasma son potencialmente letales, aquí 
 Debido a que no es probable que haya ningún EMI significativo, debería poder instalar de forma segura el THCAD en su panel de control si ha seguido nuestras pautas de construcción. 
 
 * Si no tiene un divisor de voltaje, instale resistencias de escala dentro del cortador de plasma e instale el THCAD en el panel de control o siga las sugerencias para máquinas de arranque de alta frecuencia.
-
 * Si tiene un divisor de voltaje, instale un THCAD-10 en su panel de control. No hemos tenido problemas con esta configuración con un cortador de plasma Thermal Dynamics de 120 amp.
 
 .Inicio HF 
@@ -425,9 +421,7 @@ Debido a que no es probable que haya ningún EMI significativo, debería poder i
 Instale el THCAD en el inverter ya que la señal de frecuencia es mucho más inmune al ruido EMI. 
 
 * Si no tiene un divisor de voltaje y tiene espacio dentro del cortador de plasma, instale un THCAD-300 dentro del cortador de plasma.
-
 * Si no tiene un divisor de voltaje y no tiene espacio dentro del cortador de plasma, instale un THCAD-10 en una caja de metal fuera del cortador de plasma e instale el 50% de la resistencia de escala en cada uno de los IN + e IN- dentro la carcasa del cortador de plasma para que no salgan voltajes letales de la carcasa.
-
 * Si tiene un divisor de voltaje, instale un THCAD-10 en una caja de metal fuera del cortador de plasma
 
 .Tensión de arco presentada en un conector

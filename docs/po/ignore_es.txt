@@ -1,0 +1,5 @@
+## Still too much out of sync
+src/common/glossary_es.adoc
+
+## Matching masters english files missing
+src/gui/silverdragon_es.adoc

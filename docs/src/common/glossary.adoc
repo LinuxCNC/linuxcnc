@@ -32,7 +32,7 @@ Gmoccapy (GUI)::
     LinuxCNC. It features the use and feel of an industrial control and can
     be used with touch screen, mouse and keyboard. It support embedded tabs and
     hal driven user messages, it offers a lot of hal beens to be controlled with
-    hardware. Gmoccapy is highly cusomizable.
+    hardware. Gmoccapy is highly customizable.
 
 
 Backlash::
@@ -379,3 +379,4 @@ World Coordinates::
     frame that is attached to some point (generally the base) of the
     machine tool.
 
+// vim: set syntax=asciidoc:

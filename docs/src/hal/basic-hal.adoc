@@ -1,6 +1,5 @@
 :lang: en
 :toc:
-:toclevels: 3
 
 [[cha:basic-hal-reference]]
 = HAL Basics(((HAL Basics)))
@@ -19,7 +18,7 @@ a pin status open the Watch tab and click on each pin you wish to watch
 and it will be added to the watch window.
 
 .HAL Configuration Window
-image::images/HAL_Configuration.png["HAL Configuration Window",align="center"]
+image::images/HAL_Configuration.png["The HAL Configuration Window",align="center"]
 
 [[sub:hal-loart]]
 === loadrt(((HAL loadrt,loadrt)))
@@ -84,7 +83,7 @@ Realtime Threads:
   need a fast response, like making step pulses, and reading and writing
   the parallel port. Does not support floating point math.
 - servo-thread (the slow-speed thread): this thread handles items that
-  can tolerate a slower response, like the motion controller,    ClassicLadder,
+  can tolerate a slower response, like the motion controller, ClassicLadder,
   and the motion command handler and supports floating point math.
 
 .addf Syntax and Example
@@ -160,7 +159,7 @@ A pin can be connected to a signal if it obeys the following rules:
 * An IN pin can always be connected to a signal
 * An IO pin can be connected unless there's an OUT pin on the signal
 * An OUT pin can be connected only if there are no other OUT or IO pins
-on the signal
+  on the signal
 
 The same 'signal-name' can be used in multiple net commands to connect
 additional pins, as long as the rules above are obeyed.
@@ -191,7 +190,6 @@ net xStep => parport.0.pin-06-out
 ----
 
 .I/O pins
-
 An I/O pin like encoder.N.index-enable can be read or set as allowed by the component.
 
 [[sub:hal-setp]]
@@ -252,7 +250,7 @@ The following commands are depreciated and may be removed from future
 versions. Any new configuration should use the <<sub:hal-net,'net'>> command.
 These commands are included so older configurations will still work.
 
-.linksp
+==== linksp
 
 The command 'linksp' creates a 'connection' between a signal and one
 pin.
@@ -266,7 +264,7 @@ linksp X-step parport.0.pin-02-out
 
 The 'linksp' command has been superseded by the 'net' command.
 
-.linkps
+==== linkps
 
 The command 'linkps' creates a 'connection' between one pin and one
 signal. It is the same as linksp but the arguments are reversed.
@@ -280,7 +278,7 @@ linkps parport.0.pin-02-out X-Step
 
 The 'linkps' command has been superseded by the 'net' command.
 
-.newsig
+==== newsig
 
 the command 'newsig' creates a new HAL signal by the name <signame>
 and the data type of <type>. Type must be 'bit', 's32', 'u32' or
@@ -313,7 +311,7 @@ A 'float' is a floating point number. In other words the decimal point
 can move as needed.
 
 - float values = a 64 bit floating point value, with approximately 53 bits of
-resolution and over 1000 bits of dynamic range.
+  resolution and over 1000 bits of dynamic range.
 
 For more information on floating point numbers see:
 
@@ -360,7 +358,7 @@ component.
 [horizontal]
 `.time`(((HAL time))):: Time is the number of CPU cycles it took to execute the function.
 `.tmax`(((HAL tmax))):: Tmax is the maximum number of CPU cycles it took to execute the
-function.
+  function.
 
 `tmax` is a read/write parameter so the user can set it to 0 to
 get rid of the first time initialization on the function's execution
@@ -374,7 +372,7 @@ follow a 'Truth Table' that states what the output is for any given
 input. Typically these are bit manipulators and follow electrical logic
 gate truth tables.
 
-For further components see <<sec:realtime-components, Realtime Components List>>
+For further components see <<sec:realtime-components,Realtime Components List>>
 or the man pages.
 
 [[sub:hal-and2]]
@@ -389,22 +387,26 @@ and2 [count=N] | [names=name1[,name2...]]
 ----
 
 .and2 Functions
-  and2.n
+----
+and2.n
+----
 
 .and2 Pins
-  and2.N.in0 (bit, in)
-  and2.N.in1 (bit, in)
-  and2.N.out (bit, out)
+----
+and2.N.in0 (bit, in)
+and2.N.in1 (bit, in)
+and2.N.out (bit, out)
+----
 
 .and2 Truth Table
-[width="90%", options="header"]
-|===
+[width="90%",options="header"]
+|======================
 |in0   | in1   | out
 |False | False | False
 |True  | False | False
 |False | True  | False
 |True  | True  | True
-|===
+|======================
 
 [[sub:hal-not]]
 === not(((HAL not,not)))
@@ -417,20 +419,24 @@ not [count=n] | [names=name1[,name2...]]
 ----
 
 .not Functions
-  not.all
-  not.n
+----
+not.all
+not.n
+----
 
 .not Pins
-  not.n.in (bit, in)
-  not.n.out (bit, out)
+----
+not.n.in (bit, in)
+not.n.out (bit, out)
+----
 
 .not Truth Table
-[width="90%", options="header"]
-|===
+[width="90%",options="header"]
+|=============
 |in    | out
 |True  | False
 |False | True
-|===
+|=============
 
 [[sub:hal-or2]]
 === or2(((HAL or2,or2)))
@@ -443,22 +449,26 @@ or2[count=n] | [names=name1[,name2...]]
 ----
 
 .or2 Functions
-  or2.n
+----
+or2.n
+----
 
 .or2 Pins
-  or2.n.in0 (bit, in)
-  or2.n.in1 (bit, in)
-  or2.n.out (bit, out)
+----
+or2.n.in0 (bit, in)
+or2.n.in1 (bit, in)
+or2.n.out (bit, out)
+----
 
 .or2 Truth Table
-[width="90%", options="header"]
-|===
+[width="90%",options="header"]
+|=====================
 |in0   | in1   | out
 |True  | False | True
 |True  | True  | True
 |False | True  | True
 |False | False | False
-|===
+|=====================
 
 [[sub:hal-xor2]]
 === xor2(((HAL xor2,xor2)))
@@ -471,22 +481,26 @@ xor2[count=n] | [names=name1[,name2...]]
 ----
 
 .xor2 Functions
-  xor2.n
+----
+xor2.n
+----
 
 .xor2 Pins
-  xor2.n.in0 (bit, in)
-  xor2.n.in1 (bit, in)
-  xor2.n.out (bit, out)
+----
+xor2.n.in0 (bit, in)
+xor2.n.in1 (bit, in)
+xor2.n.out (bit, out)
+----
 
 .xor2 Truth Table
-[width="90%", options="header"]
-|===
+[width="90%",options="header"]
+|=====================
 |in0   | in1   | out
 |True  | False | True
 |True  | True  | False
 |False | True  | True
 |False | False | False
-|===
+|=====================
 
 [[sec:hal-logic-examples]]
 == Logic Examples(((HAL Logic Examples)))
@@ -558,3 +572,5 @@ Owner   Type  Dir         Value  Name
     10  s32   I/O             0  wsum.0.offset
     10  s32   Out             5  wsum.0.sum
 ----
+
+// vim: set syntax=asciidoc:

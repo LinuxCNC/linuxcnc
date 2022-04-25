@@ -1,7 +1,8 @@
 :lang: en
+:toc:
 
-[[cha:linuxcnc-history]](((History)))
-== Origin
+[[cha:linuxcnc-history]]
+= Origin(((History)))
 
 EMC (the Enhanced Machine Controller) was created by
 http://www.nist.gov/index.html[NIST] , the National Institute of Standards
@@ -119,3 +120,5 @@ The paper is also available at http://linuxcnc.org/files/RS274NGCv3.pdf .
 NIST also published a paper on the history of EMC and its
 transition to https://www.nist.gov/node/702276[open source]. The paper is also available at
 http://linuxcnc.org/files/Use-of-Open-Source-Distribution-for-a-Machine-Tool-Controller.pdf
+
+// vim: set syntax=asciidoc:

@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 [[cha:stepper-quickstart]]
 = Configuración de motores a pasos
@@ -49,7 +50,7 @@ que difieren con los originales. Una lista con tiempos de diversos controladores
 en el sitio wiki del LinuxCNC que es administrado por los mismos usuarios,
 en la siguiente dirección: http://wiki.linuxcnc.org/[list]
 
-[width="100%", options="header"]
+[width="100%",options="header"]
 |====
 |Eje  | Tipo de controlador | Tiempo de paso en ns | Tiempo entre pasos en ns | Dir. Mantener en ns | Dir. Cambiar en ns
 |X    |                     |                      |                          |                     |
@@ -63,7 +64,7 @@ en la siguiente dirección: http://wiki.linuxcnc.org/[list]
 Obtenga la información sobre las conecciones de su maquina hacia el puerto
 Paralelo de su computadora.
 
-[width="100%", options="header"]
+[width="100%",options="header"]
 |====
 |Pin de Salida | Función Típica         | Si es Diferente | Pin de Entrada | Función típica   | Si es Diferente
 |1            | Salida de Paro E-stop  |                 | 10       	  | X Limite/Casa   |
@@ -90,7 +91,7 @@ Obtenga la información de sus motores a pasos y en caso de existir de las reduc
 El resultado sera el desplazamiento lineal en cada eje por paso en el motor, esta información sera utilizada
 en el parámetro SCALE del archivo de configuración .ini.
 
-[width="100%", options="header"]
+[width="100%",options="header"]
 |====
 |Eje  | Pasos/Rev. | Micro Pasos | Dientes del motor | Dientes en el tornillo guía | Paso del tornillo guía
 |X    |            |             |                   |                             |
@@ -149,7 +150,7 @@ latexmath:[
 \frac{2 revoluciones del motor}{1 revoluciones del tornillo guía} \times
 \frac{1 revoluciones del tornillo guía}{0.2000 pulgadas}
 = \frac{20,000 micro pasos}{pulgadas}]
-///////////////////////////////////////////
+////////////////////////////////////////////
 
 .Unidades mm
 ----

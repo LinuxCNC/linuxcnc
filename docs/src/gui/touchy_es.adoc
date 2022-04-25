@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 [[cha:touchy-gui]]
 = GUI táctil
@@ -39,36 +40,37 @@ Para obtener más información sobre los archivos HAL y el comando net, consulte
 Touchy tiene varios pines de salida que deben conectarse al
 controlador de movimiento para controlar el jogging de volante:
 
- - 'touchy.jog.wheel.increment', que debe conectarse al pin 'axis.N.jog-scale' de cada eje N.
- - 'touchy.jog.wheel.N', que se debe conectar a 'axis.N.jog-enable' para cada eje N.
+- 'touchy.jog.wheel.increment', que debe conectarse al pin 'axis.N.jog-scale' de cada eje N.
+- 'touchy.jog.wheel.N', que se debe conectar a 'axis.N.jog-enable' para cada eje N.
 
-[NOTE] 'N' representa el número de eje 0-8.
+[NOTE]
+'N' representa el número de eje 0-8.
 
- - Además de estar conectado a 'touchy.wheel-count', la cuenta del volante
-   también debe estar conectada a 'axis.N.jog-count' para cada eje N. Si usa el componente 
-   HAL 'ilowpass' para suavizar el jog con el volante,
-   asegúrese de suavizar solo 'axis.N.jog-count' y no 'touchy.wheel-count'.
+- Además de estar conectado a 'touchy.wheel-count', la cuenta del volante
+  también debe estar conectada a 'axis.N.jog-count' para cada eje N. Si usa el componente 
+  HAL 'ilowpass' para suavizar el jog con el volante,
+  asegúrese de suavizar solo 'axis.N.jog-count' y no 'touchy.wheel-count'.
 
 .Controles requeridos.
 
- - Botón de cancelación (contacto momentáneo) conectado al pin HAL 'touchy.abort'
- - Botón de inicio de ciclo (contacto momentáneo) conectado a 'touchy.cycle-start'
- - Rueda / MPG, conectada a 'touchy.wheel-count' y pines de movimiento como se describe anteriormente
- - Bloque único (interruptor de palanca) conectado a 'touchy.single-block'
+- Botón de cancelación (contacto momentáneo) conectado al pin HAL 'touchy.abort'
+- Botón de inicio de ciclo (contacto momentáneo) conectado a 'touchy.cycle-start'
+- Rueda / MPG, conectada a 'touchy.wheel-count' y pines de movimiento como se describe anteriormente
+- Bloque único (interruptor de palanca) conectado a 'touchy.single-block'
 
 .Controles opcionales.
 
- - Para jog continuo, una palanca momentánea bidireccional centrada
-   (o dos botones momentáneos) para cada eje, enganchados a 'touchy.jog.continuous.x.negative',
-   'touchy.jog.continuous.x.positive', etc.
- - Si se desea un botón momentaneo para mover Z a la parte superior del recorrido a maxima velocidad,
-   debe conectarse a 'touchy.quill-up'.
+- Para jog continuo, una palanca momentánea bidireccional centrada
+  (o dos botones momentáneos) para cada eje, enganchados a 'touchy.jog.continuous.x.negative',
+  'touchy.jog.continuous.x.positive', etc.
+- Si se desea un botón momentaneo para mover Z a la parte superior del recorrido a maxima velocidad,
+  debe conectarse a 'touchy.quill-up'.
 
 .Lámparas de panel opcionales.
 
- - 'touchy.jog.active' muestra cuando los controles de desplazamiento del panel están activos.
- - 'touchy.status-indicator' está encendido cuando la máquina está ejecutando código G,
-   y parpadea cuando la máquina está ejecutando pero está en pausa/feedhold.
+- 'touchy.jog.active' muestra cuando los controles de desplazamiento del panel están activos.
+- 'touchy.status-indicator' está encendido cuando la máquina está ejecutando código G,
+  y parpadea cuando la máquina está ejecutando pero está en pausa/feedhold.
 
 === Recomendado para cualquier configuración
 

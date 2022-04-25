@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 = Contributing to LinuxCNC
 
@@ -15,20 +16,21 @@ programs and libraries, and the source text for the documentation.
 
 The two main ways that project developers communicate with each other are:
 
-* Via IRC, at irc://irc.libera.chat/%23linuxcnc-devel[#linuxcnc-devel on Libera.chat].
-* Via email, on the developers' mailing list:
-  https://lists.sourceforge.net/lists/listinfo/emc-developers
+* Via IRC, at irc://irc.libera.chat/%23linuxcnc-devel[#linuxcnc-devel]
+  on https://libera.chat/[Libera.chat].
+* Via email, on the https://lists.sourceforge.net/lists/listinfo/emc-developers[developers' mailing list]
 
 == The LinuxCNC Source Forge project
 
-We use Source Forge for mailing lists: http://sourceforge.net/p/emc/mailman/
+We use Source Forge for
+http://sourceforge.net/p/emc/mailman/[mailing lists].
 
-== The git Revision Control System
+== The Git Revision Control System
 
-All of the LinuxCNC source is maintained in the revision control system
-git footnote:[http://git-scm.com/].
+All of the LinuxCNC source is maintained in the
+http://git-scm.com/[Git revision control system].
 
-=== LinuxCNC official git repo
+=== LinuxCNC official Git repo
 
 The official LinuxCNC git repo is at http://github.com/linuxcnc/linuxcnc/
 
@@ -47,11 +49,11 @@ This is because the LinuxCNC software by default expects configs and
 G-code programs in a directory called `$HOME/linuxcnc`, and having the
 git repo there too is confusing.
 
-Issues and pull requests are welcome on github:
+Issues and pull requests are welcome on GitHub:
 https://github.com/LinuxCNC/linuxcnc/issues
 https://github.com/LinuxCNC/linuxcnc/pulls
 
-=== Use of git in the LinuxCNC project
+=== Use of Git in the LinuxCNC project
 
 We use the "merging upwards" and "topic branches" git workflows described
 here:
@@ -137,7 +139,6 @@ git config --global user.email "you@example.com"
 ----
 
 Use your real name (not a handle), and use an unobfuscated e-mail address.
-
 
 == Effective use of git
 

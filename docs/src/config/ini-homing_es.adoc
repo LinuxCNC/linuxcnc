@@ -2,7 +2,6 @@
 :toc:
 
 [[cha:homing-configuration]]
-
 = Configuracion de Homing
 
 == Descripción general
@@ -23,6 +22,7 @@ Si bien es posible usar linuxcnc sin interruptores, procedimientos de homing o i
 la seguridad adicional de los límites soft no es suficiente.
 
 == Prerrequisitos
+
 Homing se basa en algunos supuestos fundamentales de la máquina.
 
 * Las direcciones negativa y positiva se basan en  <<sec:machine-configurations,Movimientos de la herramienta>> que puede ser diferentes
@@ -30,29 +30,32 @@ Homing se basa en algunos supuestos fundamentales de la máquina.
 * Todo está referenciado desde el origen G53, cero de la máquina. El origen puede estar en cualquier lugar (incluso fuera de donde puede moverse)
 * El origen cero de la máquina G53 está típicamente dentro del área de límites soft, pero no necesariamente.
 * El offset del interruptor home establece dónde está el origen, pero incluso esto se referencia desde el origen.
+* When using encoder index homing, the home switch offset is calculated from the encoder reference position, after the home switch has been tripped.
 * Los límites soft negativos son lo máximo que puede mover en la dirección negativa después de homing.
   (pero pueden no ser negativos en sentido absoluto)
 * Los límites soft positivos son lo máximo que puede mover en la dirección positiva después de homing.
   (pero podrían no ser positivos en sentido absoluto, aunque es habitual establecerlo como un número positivo)
 * Los límites software están dentro del área de interruptores de límite.
+* (Final) Homed Position is inside the soft limit area
 * (Si se utiliza homing basado en conmutadores), los conmutadores de homing utilizan
-  los interruptores de límite (interruptor de home/límite compartido),
-o cuando se usa un interruptor home separado, están dentro del área de interruptores de límite.
+  los interruptores de límite (interruptor de home/límite compartido), o cuando se usa un interruptor home separado, están dentro del área de interruptores de límite.
 * Si usa un interruptor home independiente, es posible comenzar a buscar en el lado equivocado del interruptor,
-lo que combinado con la opción HOME_IGNORE_LIMITS, provocará un bloqueo grave.
-Puede evitar esto haciendo que el interruptor home cambie su estado cuando el disparador está en un lado en particular hasta que vuelva a pasar el punto nuevamente.
-Dicho de otra manera, el estado del interruptor home debe representar la posición del disparador con respecto al interruptor (es decir, antes o después del interruptor),
-y debe permanecer así incluso si el disparador pasa por el interruptor en la misma dirección.
+  lo que combinado con la opción HOME_IGNORE_LIMITS, provocará un bloqueo grave.
+  Puede evitar esto haciendo que el interruptor home cambie su estado cuando el
+  disparador está en un lado en particular hasta que vuelva a pasar el punto nuevamente.
+  Dicho de otra manera, el estado del interruptor home debe representar la posición del disparador con respecto al interruptor (es decir, antes o después del interruptor),
+  y debe permanecer así incluso si el disparador pasa por el interruptor en la misma dirección.
 
+[NOTE]
+While it is possible to use linuxcnc with the G53 machine origin outside the soft machine limits, if you use G28 or G30 without setting
+the parameters it goes to the origin by default. This would trip the limit switches before getting to position.
 
 == Ejemplo de Diseño de interruptor home separado
 
 Este ejemplo muestra los interruptores de límite mínimo y máximo con un interruptor home separado.
 
 .Diseño de demostrativo interruptor separado
-
-image::images/HomeAxisTravel_V2.png[align="center", alt="Ejemplo de diseño de conmutador homing"]
-
+image::images/HomeAxisTravel_V2.png["Ejemplo de diseño de conmutador homing",align="center"]
 
 * A es el límite soft negativo
 * B es la coordenada Origen de máquina G53 
@@ -77,9 +80,7 @@ lo cual es probablemente más fácil de recordar. Haga esto configurando MIN_LIM
 Este ejemplo muestra un interruptor de límite máximo y un interruptor combinado de límite mínimo/home.
 
 .Diseño demostrativo de conmutador compartido
-
-image::images/HomeAxisTravel_V3.png[align="center", alt="Ejemplo de diseño de interruptor de límite/home compartido"]
-
+image::images/HomeAxisTravel_V3.png["Ejemplo de diseño de interruptor de límite/home compartido",align="center"]
 
 * A es el límite soft negativo
 * B es la coordenada G53 Origen de máquina 
@@ -103,16 +104,15 @@ HOME_LATCH_VEL son el mismo signo o son signos opuestos. Para una
 descripción detallada de lo que hace cada parámetro de configuración, vea la
 sección siguiente.
 
-.Secuencia Homing
-
-image::images/emc2-motion-homing-diag.png[align="center", alt="Secuencias homing"]
+.Secuencias Homing
+image::images/emc2-motion-homing-diag.png["Secuencias Homing",align="center"]
 
 == Configuración
 
 Lo siguiente determina exactamente cómo se comporta la secuencia homing.
 Se definen en una sección [JOINT_n] del inifile.
 
-[width="80%", options="header", cols="4*^"]
+[width="80%",options="header",cols="4*^"]
 |==========================================================
 |Tipo de Homing   |HOME_SEARCH_VEL |HOME_LATCH_VEL    |HOME_USE_INDEX
 |Immediato        |0          |0            |NO
@@ -124,7 +124,7 @@ Se definen en una sección [JOINT_n] del inifile.
 [NOTE]
 Cualquier otra combinación puede provocar un error.
 
-=== HOME_SEARCH_VEL (((HOME SEARCH VEL)))
+=== HOME_SEARCH_VEL(((HOME SEARCH VEL)))
 
 Esta variable tiene unidades de unidades máquina por segundo.
 
@@ -144,7 +144,7 @@ sobrepasar lo suficiente para alcanzar un interruptor de límite o chocar contra
 Por otro lado, si HOME_SEARCH_VEL es demasiado bajo, el recorrido homing puede tomar un
 largo tiempo.
 
-=== HOME_LATCH_VEL (((HOME LATCH VEL)))
+=== HOME_LATCH_VEL(((HOME LATCH VEL)))
 
 Esta variable tiene unidades de unidades máquina por segundo.
 
@@ -173,7 +173,7 @@ HOME_OFFSET a la posición HOME. Si falta HOME_FINAL_VEL en
 el archivo ini, se usa la velocidad máxima para hacer este movimiento.
 El valor debe ser un número positivo.
 
-=== HOME_IGNORE_LIMITS (((HOME IGNORE LIMITS)))
+=== HOME_IGNORE_LIMITS(((HOME IGNORE LIMITS)))
 
 Puede contener los valores YES / NO. El valor predeterminado para este parámetro es NO.
 Este indicador determina si LinuxCNC ignorará la entrada del interruptor de límite
@@ -184,7 +184,7 @@ ignorará la entrada del interruptor de límite para esta articulación durante 
 una entrada para todo el recorrido de homing y límites, tendrá que bloquear las señales de límite
 de las articulaciones que no estan haciendo homing en HAL y hacer home en una articulación cada vez.
 
-=== HOME_USE_INDEX (((HOME USA ÍNDICE)))
+=== HOME_USE_INDEX(((HOME USA ÍNDICE)))
 
 Especifica si hay o no un pulso de índice. Si la bandera es verdadera
 (HOME_USE_INDEX = YES), LinuxCNC se enclavara en el borde ascendente del pulso índice.
@@ -196,15 +196,14 @@ HOME_LATCH_VEL). El valor predeterminado es NO.
 HOME_USE_INDEX requiere conexiones en su archivo hal para joint.n.index-enable
 desde encoder.n.index-enable.
 
-=== HOME_INDEX_NO_ENCODER_RESET (((ÍNDICE HOME SIN REINICIO DEL CODIFICADOR)))
+=== HOME_INDEX_NO_ENCODER_RESET(((ÍNDICE HOME SIN REINICIO DEL CODIFICADOR)))
 
 El valor predeterminado es NO. Utilice YES si el codificador utilizado para esta articulación no
 restablecer su contador cuando se detecta un pulso de índice después de la aserción
 del pin hal de la articulación index_enable.
 Aplicable solo si HOME_USE_INDEX = YES.
 
-
-=== HOME_OFFSET (((HOME OFFSET)))
+=== HOME_OFFSET(((HOME OFFSET)))
 
 Esto define la ubicación del punto cero de origen del sistema de coordenadas G53 de la máquina.
 Es la distancia (offset), en unidades articulares, desde el origen de la máquina hasta el punto de disparo
@@ -271,7 +270,8 @@ Se usa para definir una secuencia homing múltiple *HOME ALL* y aplicar un
 orden de referencia (p. ej., Z puede no estar homeado si X aún no lo está). Una articulación
 puede ser homeada después de todas las articulaciones con un valor más bajo (en valor absoluto)
 de HOME_SEQUENCE ya han sido homeadas y están en HOME_OFFSET. Si
-dos articulaciones tienen la misma HOME_SEQUENCE, pueden ser homeadas al mismo tiempo.
+dos articulaciones tienen la misma HOME_SEQUENCE, pueden ser homeadas al mismo
+tiempo.
 
 [NOTE]
 Si HOME_SEQUENCE no se especifica, la articulacion no será
@@ -281,7 +281,8 @@ con comandos homing de la articulación).
 El número inicial de HOME_SEQUENCE puede ser 0, 1 (o -1).
 El valor absoluto de los números de secuencia debe incrementarse en uno;
 saltar números de secuencia no está permitido. Si un número de secuencia
-se omite, *HOME ALL* se detendrá al finalizar el ultimo número de secuencia válido.
+se omite, *HOME ALL* se detendrá al finalizar el
+ultimo número de secuencia válido.
 
 Los valores de HOME_SEQUENCE *negativos* indican que las articulaciones en la secuencia
 debería *sincronizar el movimiento final* a [JOINT_n]HOME esperando hasta que todas
@@ -303,7 +304,7 @@ a la desalineación. Tenga en cuenta que el jog convencional en
 las coordenadas mundiales siempre están disponibles una vez que la máquina tenga sus home.
 
 Ejemplos para un sistema de 3 articulaciones
-    
+
 Dos secuencias (0,1), sin sincronización
 
 ----
@@ -311,11 +312,11 @@ Dos secuencias (0,1), sin sincronización
 [JOINT_1]HOME_SEQUENCE = 1
 [JOINT_2]HOME_SEQUENCE = 1
 ----
-    
+
 Dos secuencias, articulaciones 1 y 2 sincronizadas
 
 ----
-[JOINT_0]HOME_SEQUENCE = 0
+[JOINT_0]HOME_SEQUENCE =  0
 [JOINT_1]HOME_SEQUENCE = -1
 [JOINT_2]HOME_SEQUENCE = -1
 ----
@@ -323,12 +324,11 @@ Dos secuencias, articulaciones 1 y 2 sincronizadas
 Con valores mixtos positivos y negativos, las articulaciones 1 y 2 sincronizadas
 
 ----
-[JOINT_0]HOME_SEQUENCE = 0
+[JOINT_0]HOME_SEQUENCE =  0
 [JOINT_1]HOME_SEQUENCE = -1
-[JOINT_2]HOME_SEQUENCE = 1
+[JOINT_2]HOME_SEQUENCE =  1
 ----
 
-    
 Una secuencia, sin sincronización
 
 ----
@@ -336,7 +336,7 @@ Una secuencia, sin sincronización
 [JOINT_1]HOME_SEQUENCE = 0
 [JOINT_2]HOME_SEQUENCE = 0
 ----
-    
+
 Una secuencia, todas las articulaciones sincronizadas
 
 ----
@@ -344,7 +344,6 @@ Una secuencia, todas las articulaciones sincronizadas
 [JOINT_1]HOME_SEQUENCE = -1
 [JOINT_2]HOME_SEQUENCE = -1
 ----
-    
 
 === VOLATILE_HOME (((VOLATILE HOME)))
 
@@ -382,7 +381,8 @@ elimina la articulación del comportamiento *HOME ALL* como se indicó anteriorm
 === Inhibición de home (((Inhibición de referencia)))
 
 Se proporciona un pin hal (motion.homing-inhibit) para no permitir
-iniciación de homing para "Home All" y para articulación individual.
+iniciación de homing para "Home All" y para articulación
+individual.
 
 Algunos sistemas aprovechan las disposiciones para sincronizar
 movimientos homing conjuntos finales controlados por elementos negativos
@@ -423,10 +423,10 @@ net hsequence_select => motion.homing-inhibit
 ----
 
 [NOTE]
-
 Los pines inihal (como ini.N.home_sequence) no están disponibles hasta que
 milltask comienza, por lo que la ejecución de los comandos hal anteriores debe ser
-diferida utilizando un halfile postgui o [APLICACIÓN] APLICACIÓN = script retrasado.
+diferida utilizando un halfile postgui o
+[APLICACIÓN] APLICACIÓN = script retrasado.
 
 [NOTE]
 Sincronización en tiempo real del jog articular para múltiples articulaciones
@@ -437,3 +437,4 @@ Un ejemplo de configuración de simulación (gantry_jjog.ini) que demuestra
 el jog conjunto cuando se utilizan secuencias home negativas se encuentra en el directorio:
 configs/sim/axis/gantry/.
 
+// vim: set syntax=asciidoc:

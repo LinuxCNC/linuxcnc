@@ -1,5 +1,7 @@
 :lang: es
+:toc:
 
+[[cha:pid-tuning]]
 = Ajuste PID
 
 == Controlador PID
@@ -39,9 +41,7 @@ La diferencia entre la aguja del indicador y el punto de ajuste es el "error".
 Un lazo de control consta de tres partes:
 
 1. Medición por un sensor conectado al proceso (por ejemplo, un codificador),
-
 2. Decisión en un elemento controlador,
-
 3. Acción a través de un dispositivo de salida, como un motor.
 
 A medida que el controlador lee el sensor, resta esta medida
@@ -144,13 +144,13 @@ D hasta que el ciclo sea aceptablemente rápido en alcanzar su referencia. Un PI
 generalmente sobrepasa ligeramente el punto de ajuste establecido para alcanzarlo con más
 rapidez. Sin embargo, algunos sistemas no pueden aceptar estos rebasamientos.
 
-[width="90%", options="header", cols="^,4*<"]
-| =====================================
-| Parámetro | Tiempo de subida | Sobredisparo | Tiempo de estabilizacion | Error de estado estable
-| P | Disminuir | Aumentar | Pequeño cambio | Disminuir
-| I | Disminuir | Aumentar | Aumentar | Eliminar
-| D | Pequeño cambio | Disminuir | Disminuir | Pequeño cambio
-| =====================================
+[width="90%",options="header",cols="^,4*<"]
+|=====================================
+|Parámetro | Tiempo de subida  | Sobredisparo  | Tiempo de estabilizacion  | Error de estado estable
+|P         | Disminuir         | Aumentar      | Pequeño cambio            | Disminuir
+|I         | Disminuir         | Aumentar      | Aumentar                  | Eliminar
+|D         | Pequeño cambio    | Disminuir     | Disminuir                 | Pequeño cambio
+|=====================================
 
 Efectos del aumento de parámetros
 
@@ -164,16 +164,17 @@ período de oscilación hasta que la salida del bucle comience a oscilar.
 Anote la ganancia crítica (K~c~) y el periodo de la oscilación
 de la salida (P~c~). Luego ajuste los controles P, I y D como muestra la tabla:
 
-[width="90%", options="header", cols="4*^"]
-| =======================================
-| Tipo de control | P       | I        | D
-| P               | .5K~c~  |          |
-| PI              | .45K~c~ | P~c~/1.2 |
-| PID             | .6K~c~  | P~c~/2   | P~c~/8
-| =======================================
+[width="90%",options="header",cols="4*^"]
+|=======================================
+|Tipo de control | P       | I        | D
+|P               | .5K~c~  |          |
+|PI              | .45K~c~ | P~c~/1.2 |
+|PID             | .6K~c~  | P~c~/2   | P~c~/8
+|=======================================
 
 .Pasos Finales
 Después de ajustar el eje, verifique el error de seguimiento con Halscope para 
 asegurarse de que está dentro de los requisitos de su máquina. Hay más información sobre
 Halscope en el manual de usuario de HAL.
 
+// vim: set syntax=asciidoc:

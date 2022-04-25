@@ -155,9 +155,9 @@ The following figure shows the result when the X axis is moving at 15
 IPM in the minus direction. Notice that we can get the absolute value
 from either the abs.0.out pin or the X-IPM signal.
 
-[[cap:hal-velocity-example]](((HAL Velocity example)))
-//.HAL: Velocity example
-image:images/velocity-01.png["Velocity Example Screenshot"]
+[[cap:hal-velocity-example]]
+.HAL: Velocity Example(((HAL:Velocity example)))
+image::images/velocity-01.png["HAL: Velocity Example",align="center"]
 
 == Soft Start Details
 
@@ -227,6 +227,7 @@ start a run and when it finishes you will see your traces.
 To separate the signals so you can see them better click on a channel
 then use the Pos slider in the Vertical box to set the positions.
 
+[[fig:softstart]]
 image::images/softstart-scope.png["Softstart screenshot"]
 
 To see the effect of changing the set point values of any of the
@@ -277,8 +278,6 @@ addf parport.0.write fast
 net winder-step parport.0.pin-02-out <= stepgen.0.step
 net winder-dir parport.0.pin-03-out <= stepgen.0.dir
 net run-stepgen stepgen.0.enable <= winder.start_button
-
-
 
 # start the threads
 start
