@@ -1444,7 +1444,8 @@ then
 	    AC_MSG_RESULT([found])
 	else
 	    AC_MSG_RESULT(no)
-	    AC_MSG_ERROR([Python pango and cairo modules not found!\ninstall with "sudo apt-get install python3-gi"])
+	    AC_MSG_WARN([Python pango and cairo modules not found!])
+	    AC_MSG_ERROR([install with "sudo apt-get install python3-gi"])
 	fi
 
 else
@@ -1453,7 +1454,8 @@ else
 	    AC_MSG_RESULT([found])
 	else
 	    AC_MSG_RESULT(no)
-	    AC_MSG_ERROR([Python pango and cairo modules not found!\ninstall with "sudo apt-get install python-gtk2"])
+	    AC_MSG_WARN([Python pango and cairo modules not found!])
+	    AC_MSG_ERROR([install with "sudo apt-get install python-gtk2"])
 	fi
 	fi
 fi
