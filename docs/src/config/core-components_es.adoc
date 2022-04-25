@@ -1,13 +1,13 @@
 :lang: es
-
-= Componentes principales
+:toc:
 
 [[cha:core-components]]
+= Componentes principales
 
 Vea también la página man 'motion(9)'.
 
 [[sec:motion]]
-== Motion (motmod)
+== Motion (`motmod`)
 
 Los siguientes pines y parámetros son creados por el módulo 'motmod' en tiempo real.
 
@@ -18,16 +18,19 @@ limitado por las restricciones de posiciones de articulaciones, de posiciones de
 que alimenta a los drivers de motor.
 
 Opcionalmente, el número de E/S digitales se establece con 'num_dio'.
-El número de E/S analógicas se establece con 'num_aio'. El valor predeterminado es 4 en cada uno.
+El número de E/S analógicas se establece con 'num_aio'. El valor
+predeterminado es 4 en cada uno.
 
 Los nombres de pines y parámetros, que comienzan con 'axis.L' y 'joint.N'
 son leídos y actualizados por la función motion-controller.
 
-Motion se carga con el comando 'motmod'. Antes de motion, debe ser cargado un modulo de cinematica.
+Motion se carga con el comando 'motmod'. Antes de motion, debe ser
+cargado un modulo de cinematica.
 
 ----
-loadrt motmod [base_period_nsec=period] [servo_period_nsec=period] 
-              [traj_period_nsec=period] [num_joints=[0-9] ([num_dio=1-64] [num_aio=1-16]) 
+loadrt motmod [base_period_nsec=period] [servo_period_nsec=period]
+              [traj_period_nsec=period] [num_joints=[0-9]
+              ([num_dio=1-64] [num_aio=1-16])]
               ([unlock_joints_mask=0xnn])
               num_spindles=['1-8']
 ----
@@ -83,7 +86,6 @@ Ejemplo:
 ----
 unlock_joints_mask = 0x38 (111000b) 
 ----
-
 
 [[sec:motion-pins]]
 === Pines(((motion(pines HAL))))
@@ -234,9 +236,9 @@ The 'N' will be the integer of the spindle number. (0-7)
 .Uso del pin HAL de orientacion del husillo M19.
 Conceptualmente, el husillo está en uno de los siguientes modos:
 
- - modo de rotación (predeterminado)
- - modo de busqueda de orientación deseada
- - modo de orientación completada.
+- modo de rotación (predeterminado)
+- modo de busqueda de orientación deseada
+- modo de orientación completada.
 
 Cuando se ejecuta un M19, el husillo cambia a 'buscando el modo de orientación deseado',
 y se activa el pin HAL `spindle.N.orient`.
@@ -264,9 +266,9 @@ al desactivar los pins 'spindle-orient' y 'spindle-locked'.
 El pin 'spindle-orient-mode' refleja la palabra M19 P y debe ser
 interpretado de la siguiente manera:
 
- - 0: girar en sentido horario o antihorario, el que obtenga el movimiento angular más pequeño.
- - 1: girar siempre en el sentido horario.
- - 2: girar siempre en sentido antihorario.
+- 0: girar en sentido horario o antihorario, el que obtenga el movimiento angular más pequeño.
+- 1: girar siempre en el sentido horario.
+- 2: girar siempre en sentido antihorario.
 
 Se puede usar con el componente HAL `orient` que proporciona un PID
 basado en la posición del encoder del husillo, `spindle-orient-angle`
@@ -352,3 +354,5 @@ de comandos.
 * 'ini.traj_default_acceleration' - (float, in) [TRAJ]DEFAULT_ACCELERATION
 * 'ini.traj_default_velocity' - (float, in) [TRAJ]DEFAULT_VELOCITY
 * 'ini.traj_max_acceleration' - (float, in) [TRAJ]MAX_ACCELERATION
+
+// vim: set syntax=asciidoc:

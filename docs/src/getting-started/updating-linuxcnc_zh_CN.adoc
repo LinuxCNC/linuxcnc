@@ -742,7 +742,7 @@ fashion.  For 3-axis machines, XYZA machines, and lathes the default is
 the same as in 2.7.  For other machines, the 4 pairs of jogging keys are
 assigned to the first 4 axes that exist in the order XYZ ABC UVW.
 These assignments can be controlled by new inifile directives in the
-http://linuxcnc.org/docs/2.8/html/config/ini-config.html#sec:display-section[[DISPLAY] section of the inifile]
+http://linuxcnc.org/docs/2.8/html/config/ini-config.html#sub:ini:sec:display[[DISPLAY] section of the inifile]
 
 Note that the parameters used for jogging may not be appropriate for both modes
 for machines with non-identity kinematics.

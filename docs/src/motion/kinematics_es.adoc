@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 [[cha:kinematics]]
 = Cinemática(((Cinemática)))
@@ -19,7 +20,9 @@ Cuando hablamos de un programa de código G (RS274/NGC) hablamos de un conjunto
 de comandos (G0, G1, etc.) que tienen posiciones cartesianas como parámetros (X- Y-
 Z-). Estas posiciones se refieren exactamente a las posiciones cartesianas. Parte del
 controlador de movimiento LinuxCNC es responsable de traducir esas posiciones
-en posiciones que corresponden a la (((cinemática)))Cinemática de la máquina. footnote:[Cinemática: una función bidireccional para transformar del espacio cartesiano al espacio de articulaciones]
+en posiciones que corresponden a la (((cinemática)))Cinemática de la máquina.
+footnote:[Cinemática: una función bidireccional para transformar del
+espacio cartesiano al espacio de articulaciones]
 
 === Articulaciones vs. Ejes
 
@@ -152,8 +155,8 @@ Para ilustrar lo anterior, analizaremos una maquina de cinemática simple llamad
 bípode (una versión simplificada del trípode, que es una version simplificada
 del hexápodo).
 
-//.Configuración del bípode
-image::images/bipod.png["Configuracion de Bipod"]
+.Configuración del bípode
+image::images/bipod.png["Configuración del bípode",align="center"]
 
 El Bipod del que estamos hablando es un dispositivo que consta de 2 motores
 colocado en una pared, de la cual cuelga un dispositivo usando un cable. Las
@@ -165,37 +168,38 @@ La posición de los motores está fijada por convención. El motor A está en
 también 0. El motor B se coloca en (Bx, 0), lo que significa que su coordenada X
 es Bx (y a la misma altura Y que el otro motor).
 
-Nuestra herramienta estará en el punto D que se define por las distancias AD
-y BD, y por las coordenadas cartesianas Dx, Dy.
+Nuestra herramienta estará en el punto D que se define por las distancias
+AD y BD, y por las coordenadas cartesianas Dx, Dy.
 
-El trabajo de la cinemática es transformar a partir de longitudes de articulaciones (AD, BD)
-a coordenadas cartesianas (Dx, Dy) y viceversa.
+El trabajo de la cinemática es transformar a partir de longitudes de
+articulaciones (AD, BD) a coordenadas cartesianas (Dx, Dy) y viceversa.
 
+[[sec:Forward-transformation]]
 === Transformación directa
 
 Para transformar del espacio de articulaciones al espacio cartesiano utilizaremos algunas
 reglas de trigonometría (los triángulos rectángulos determinados por los puntos (0,0),
-(Dx, 0), (Dx, Dy) y el triángulo (Dx, 0), (Bx, 0) y (Dx, Dy).
+(Dx, 0), (Dx, Dy) y el triángulo (Dx, 0), (Bx, 0) y (Dx, Dy)).
 
-Podemos ver fácilmente que: 
+Podemos ver fácilmente que:
 
-image:images/kinematics-math-01.png[align="center"]
+image::images/kinematics-math-01.png[align="center"]
 
-asi como: 
+asi como:
 
-image:images/kinematics-math-02.png[align="center"]
+image::images/kinematics-math-02.png[align="center"]
 
 Si restamos una de la otra obtendremos:
 
-image:images/kinematics-math-03.png[align="center"]
+image::images/kinematics-math-03.png[align="center"]
 
 y por lo tanto:
 
-image:images/kinematics-math-04.png[align="center"]
+image::images/kinematics-math-04.png[align="center"]
 
 A partir de ahí calculamos:
 
-image:images/kinematics-math-05.png[align="center"]
+image::images/kinematics-math-05.png[align="center"]
 
 ////////////////////////////////////////////////////////////////////
 podemos ver fácilmente que latexmath:[$AD^{2}=x^{2}+y^{2}$], likewise
@@ -245,9 +249,9 @@ image::images/kinematics-math-07.png[align="center"]
 latexmath::[\[AD=\sqrt{x^{2}+y^{2}}\]]
 
 latexmath::[\[BD=\sqrt{(Bx-x)^{2}+y^{2}}\]]
-////////////////////////////////////////////////
+/////////////////////////////////////////////////
 
-o traducido al código real:
+or traducido al código real:
 
 ----
 double x2 = pos->tran.x * pos->tran.x;
@@ -304,7 +308,7 @@ KINS_NOT_SWITCHABLE
 The function kinematicsSwitchable() returns 1 if multiple
 kinematics types are supported.  The function kinematicsSwitch()
 selects the kinematics type.
-See << cha:switchable-kinematics,Switchable Kinematitcs >>.
+See <<cha:switchable-kinematics,Switchable Kinematitcs>>.
 
 [NOTE]
 The majority of provided kinematics modules support a single
@@ -312,14 +316,13 @@ kinematics type and use the directive "*KINS_NOT_SWITCHABLE*" to
 supply defaults for the required kinematicsSwitchable() and
 kinematicsSwitch() functions.
 
-
 ----
 int kinematicsHome(EmcPose *world, double *joint,
 KINEMATICS_FORWARD_FLAGS *fflags,
 KINEMATICS_INVERSE_FLAGS *iflags)
 ----
 
-La función cinemática home establece todos sus argumentos a 
+La función cinemática home establece todos sus argumentos a
 valores de la posición home conocida. Cuando se llama, estos deben establecerse,
 cuando se conocen, a valores iniciales de, por ejemplo, un archivo INI. Si la cinematica de
 home puede aceptar puntos de partida arbitrarios, estos valores iniciales
@@ -350,3 +353,4 @@ modifications are somewhat more complicated.
 See 'millturn.comp' as an example of a switchable kinematic
 module that was created using the 'userkins.comp' template.
 
+// vim: set syntax=asciidoc:

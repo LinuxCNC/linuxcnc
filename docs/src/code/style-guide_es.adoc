@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 = Estilo de codificación
 
@@ -30,7 +31,6 @@ es aceptable pero no requerido.
 == Colocación de llaves
 
 Ponga la llave de apertura al final de la línea y la llave de cierre al principio:
-
 
 [source,c]
 ----
@@ -263,4 +263,4 @@ la primera columna. Insertar líneas en blanco adicionales cuando ayuden a agrup
 
 En la parte del código de un archivo .comp, siga el estilo de codificación C normal.
 
-
+// vim: set syntax=asciidoc:

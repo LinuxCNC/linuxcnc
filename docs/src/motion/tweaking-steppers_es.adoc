@@ -90,6 +90,7 @@ Configuración de dirección:
 ....
 
 De la hoja de datos de Xylotex:
+
 ....
 Tiempo de configuración de DIR mínimo antes del flanco ascendente de STEP Pulse 200 ns Mínimo
 Tiempo de retención DIR después del flanco ascendente del impulso STEP 200 ns
@@ -234,3 +235,5 @@ que podrá generar
 
 Se han agregado mas cosas a la hoja de cálculo para calcular la velocidad máxima y
 cálculos eléctricos paso a paso.
+
+// vim: set syntax=asciidoc:

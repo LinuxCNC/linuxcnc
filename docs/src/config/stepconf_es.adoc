@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 [[cha:stepconf-wizard]]
 = Asistente de configuracion Stepconf(((Stepper Configuration Asistente)))
@@ -25,87 +26,85 @@ La extension del archivo es *.stepconf*.
 El asistente Stepconf necesita una resolucion de pantalla de al menos 800 x 600
 para que los botones de la parte baja de la pantalla sean visibles.
 
-== Pagina de Entrada
+== Pagina Inicial
 
-[[cap:init-Page]]
-//.Pagina inicial
-image::images/stepconf-start_1_es.png["Pagina inicial",align="center"]
+//.Pagina de Entrada de StepConf
+//image::images/stepconf-start_1_es.png["Pagina de Entrada de StepConf",align="center"]
 
-[[cap:Entry-Page]]
-//.Pimera Pagina
-image::images/stepconf-start_2_es.png["Pagina de entrada",align="center"]
+.Pagina de Entrada de StepConf
+image::images/stepconf-start_2_es.png["Pagina de Entrada de StepConf",align="center"]
 
 Los tres primeros botones radio son autoexplicativos:
 
- * 'Crear una nueva configuración' - Crea una configuracion nueva.
- * 'Modificar una configuracion ya creada...' - Modifica una configuracion existente.
-    Despues de seleccionar esta opcion, aparecera una pantalla de seleccion de archivo
-    y usted debera seleccionar el archivo con extension .stepconf que desea modificar.
-    Si usted relizo alguna modificacion previa a los archivos principales .hal o .ini, estas modificaciones se perderan.
-    Las modificaciones en los archivos custom.hal y custom_postgui.hal no seran canbiadas por el
-    asistente Stepconf. Stepconf resaltara la ultima configuracion que se construyo.
- * 'Importar un archivo Mach' - Despues de seleccionar esta opcion, aparecera una pantalla de seleccion de archivo.
-    Seleccione un archivo de configuración de Mach; LinuxCNC intentará convertirlo en un archivo de configuración apropiado para si mismo.
-    Después de la importación, pase por las páginas de stepconf para confirmar/modificar las entradas.
-    El archivo mach xml original no se cambiará.
+* 'Crear una nueva configuración' - Crea una configuracion nueva.
+* 'Modificar una configuracion ya creada...' - Modifica una configuracion existente.
+  Despues de seleccionar esta opcion, aparecera una pantalla de seleccion de archivo
+  y usted debera seleccionar el archivo con extension .stepconf que desea modificar.
+  Si usted relizo alguna modificacion previa a los archivos principales .hal o .ini, estas modificaciones se perderan.
+  Las modificaciones en los archivos custom.hal y custom_postgui.hal no seran canbiadas por el
+  asistente Stepconf. Stepconf resaltara la ultima configuracion que se construyo.
+* 'Importar un archivo Mach' - Despues de seleccionar esta opcion, aparecera una pantalla de seleccion de archivo.
+  Seleccione un archivo de configuración de Mach; LinuxCNC intentará convertirlo en un archivo de configuración apropiado para si mismo.
+  Después de la importación, pase por las páginas de stepconf para confirmar/modificar las entradas.
+  El archivo mach xml original no se cambiará.
 
 Las siguientes opciones se registrarán en un archivo de preferencias para la próxima ejecución de Stepconf.
 
- * 'Crear Atajo en Escritorio' - Se generara en su escritorio un enlace a los archivos. 
- * 'Crear un Lanzador en Escritorio' - Se generara un lanzador en su escritorio para iniciar la aplicacion.
- * 'Crear Hardware Simulado' - Permite crear configuraciones para pruebas, incluso sin tener el hardware apropiado.
+* 'Crear Atajo en Escritorio' - Se generara en su escritorio un enlace a los archivos.
+* 'Crear un Lanzador en Escritorio' - Se generara un lanzador en su escritorio para iniciar la aplicacion.
+* 'Crear Hardware Simulado' - Permite crear configuraciones para pruebas, incluso sin tener el hardware apropiado.
 
 [[sec:Basic-Information]]
-== Informacion Basica Pagina
+== Informacion Basica
 
-//.Informacion Basica[[cap:Basic-Information-Page]]
-image::images/stepconf-base_es.png["Informacion Basica",align="center"]
+[[cap:Basic-Information-Page]]
+.Pagina de Informacion Basica
+image::images/stepconf-base_es.png["Pagina de Informacion Basica",align="center"]
 
- * 'Create Simulated Hardware' - This allows you to build a config for testing, even if you don't have the actual hardware.
- * 'Nombre de la maquina' - (((Nombre de la Maquina))) Seleccione un nombre para su maquina.  Utilice solo letras mayusculas, minusculas, digitos, '-' y '_'.
- * 'Configuracion de Ejes' - (((Configuracion de Ejes))) Seleccione XYZ (Fresadora), XYZA (Fresadora de 4 ejes) o XZ (Torno).
- * 'Unidades Maquina' - (((Unidades Maquina)))
-    Seleccione pulgadas o milimetros. Todas las preguntas posteriores
-    (tales como el largo de los ejes, el paso de los tornillos, etc)
-    deberan ser contestadas utilizando las unidades seleccionadas.
- * 'Tipo de Driver' - (((Tipo de Driver)))
-    Si usted tiene uno de los controladores de motor a pasos listados en el menu desplegable, seleccionelo directamente.
-    En cualquier otro caso, busque los 4 valores de tiempo necesarios.
-    Utilize los manuales de su controlador y rellene los campos.
-    Si sus manuales le dan los datos en microsegundos multipliquelos por 1000 para nanosegundos.
-    Por ejemplo, si el manual marca 4.5 us, escriba 4500 ns.
-
+* 'Create Simulated Hardware' - This allows you to build a config for testing, even if you don't have the actual hardware.
+* 'Nombre de la maquina' - (((Nombre de la Maquina))) Seleccione un nombre para su maquina.  Utilice solo letras mayusculas, minusculas, digitos, '-' y '_'.
+* 'Configuracion de Ejes' - (((Configuracion de Ejes))) Seleccione XYZ (Fresadora), XYZA (Fresadora de 4 ejes) o XZ (Torno).
+* 'Unidades Maquina' - (((Unidades Maquina)))
+  Seleccione pulgadas o milimetros. Todas las preguntas posteriores
+  (tales como el largo de los ejes, el paso de los tornillos, etc)
+  deberan ser contestadas utilizando las unidades seleccionadas.
+* 'Tipo de Driver' - (((Tipo de Driver)))
+  Si usted tiene uno de los controladores de motor a pasos listados en el menu desplegable, seleccionelo directamente.
+  En cualquier otro caso, busque los 4 valores de tiempo necesarios.
+  Utilize los manuales de su controlador y rellene los campos.
+  Si sus manuales le dan los datos en microsegundos multipliquelos por 1000 para nanosegundos.
+  Por ejemplo, si el manual marca 4.5 us, escriba 4500 ns.
++
 En la pagina wiki de LinuxCNC.org puede ser consultada una lista de controladores populares, asi como sus tiempos, en http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Stepper_Drive_Timing[Temporizado de Drivers Stepper]. 
-
++
 El acondicionamiento extra de señal o el aislamiento electrico, como cuando se usan optoacopladores y filtros RC en tarjetas breakboards, pueden requerir diferentes valores de tiempo a los indicados para su controlador.
 Puede ser el caso que se requiera agregar tiempo extra a los valores de temporizacion para compensar los filtros o aislamientos.
-
++
 La seccion de seleccion de configuracion tiene maquinas de la marca Sherline ya configuradas para su uso en caso de que posea una de estas.
-
- * 'Step Time' - Tiempo del pulso de paso "Encendido" en nanosegundos.
- * 'Step Space' - Tiempo minimo entre dos pulsos de paso en nanosegundos.
- * 'Direction Hold' - Tiempo que debe ser mantenido activo el pin de direccion despues de ordenar cambio de direccion, en nanosegundos.
- * 'Direction Setup' - Tiempo debe preceder a un cambio de direccion despues del ultimo pulso de paso en la direccion anterior.
- * 'One / Two Parport' - Select how many parallel port are to be configured. 
+* 'Step Time' - Tiempo del pulso de paso "Encendido" en nanosegundos.
+* 'Step Space' - Tiempo minimo entre dos pulsos de paso en nanosegundos.
+* 'Direction Hold' - Tiempo que debe ser mantenido activo el pin de direccion despues de ordenar cambio de direccion, en nanosegundos.
+* 'Direction Setup' - Tiempo debe preceder a un cambio de direccion despues del ultimo pulso de paso en la direccion anterior.
+* 'One / Two Parport' - Select how many parallel port are to be configured. 
 ////
- * 'Primer Parport' - Usualmente la direcion en hexadecimal del primer puerto paralelo es 0x378 (puerto no PCI). 
- * 'Segundo Parport' - En caso de ser necesario especificar un puerto paralelo extra, introduca la direccion
-   y el tipo. Para informacion de como encontrar la direccion de puertos paralelos PCI
-   vea la seccion Port Address en el manual de integrador (trate con 0x278 o 0x3BC para puertos no PCI)
+* 'Primer Parport' - Usualmente la direcion en hexadecimal del primer puerto paralelo es 0x378 (puerto no PCI). 
+* 'Segundo Parport' - En caso de ser necesario especificar un puerto paralelo extra, introduca la direccion
+  y el tipo. Para informacion de como encontrar la direccion de puertos paralelos PCI
+  vea la seccion Port Address en el manual de integrador (trate con 0x278 o 0x3BC para puertos no PCI)
 ////
- * 'Maximo Jitter en Periodo Base' - (((Jitter Maximo del Periodo Base)))
-   Introduzca el resultado de la prueba de latencia.
-   Para correr la prueba de latencia presione el boton "Test Jitter Periodo Base".
-   Vea la seccion de la prueba de latencia para mas detalles.
- * 'Tasa Max de Pasos' - (((Max Step Rate)))
-   Stepconf calculara automaticamente la tasa maxima de pulsos de pasos
-   basandose en las caracteristicas del controlador del motor y en el resultado de la prueba de latencia.
- * 'Periodo Base Mínimo' - (((Min Base Period)))
-   Stepconf calculara automaticamente el periodo base minimo
-   basandose en las caracteristicas del controlador del motor y el resultado de la prueba de latencia.    
+* 'Maximo Jitter en Periodo Base' - (((Jitter Maximo del Periodo Base)))
+  Introduzca el resultado de la prueba de latencia.
+  Para correr la prueba de latencia presione el boton "Test Jitter Periodo Base".
+  Vea la seccion de la prueba de latencia para mas detalles.
+* 'Tasa Max de Pasos' - (((Max Step Rate)))
+  Stepconf calculara automaticamente la tasa maxima de pulsos de pasos
+  basandose en las caracteristicas del controlador del motor y en el resultado de la prueba de latencia.
+* 'Periodo Base Mínimo' - (((Min Base Period)))
+  Stepconf calculara automaticamente el periodo base minimo
+  basandose en las caracteristicas del controlador del motor y el resultado de la prueba de latencia.    
 
 [[sub:latency-test]]
-== Prueba de latencia(((Latency Test)))
+== Prueba de Latencia(((Prueba de Latencia)))
 
 Mientras se ejecute la prueba, usted debera 'abusar' de la computadora. Mueva
 ventanas alrededor de la pantalla. Navegue en internet. Copie algunos archivos de gran tamano
@@ -119,7 +118,7 @@ la computadora; no se requiere que conecte los controladores de motores.
 [WARNING]
 No ejecute LinuxCNC mientras realiza la prueba de latencia.
 
-//.Prueba de Latencia
+.Prueba de Latencia
 image::images/latency-test_en.png["Prueba de Latencia",align="center"]
 
 La latencia es el tiempo que le tomara a una PC concreta detener lo que esta haciendo
@@ -187,7 +186,7 @@ ser invertida (0V para activo/Verdadero, 5v para inactivo/Falso).
 
 == Configuracion del puerto paralelo 2
 
-//.Página de configuración del puerto paralelo 2
+.Página de configuración del puerto paralelo 2
 image::images/stepconf-parallel-2_es.png["Página de configuración del puerto paralelo 2",align="center"]
 
 El segundo puerto paralelo (si está seleccionado) puede configurarse y asignar sus pines en esta página. +
@@ -196,10 +195,10 @@ Puede seleccionarlo de entrada o de salida para maximizar el número de pines de
 Puede especificar la dirección como hexadecimal (a menudo 0x378) o como el número de puerto predeterminado de Linux (probablemente 1).
 
 [[sec:Axis-Configuration]]
-== Configuracion de los Ejes(((Axis Configuration)))
+== Configuracion de los Ejes(((Configuracion de los Ejes)))
 
-//.Pagina de configuracion de ejes[[cap:Axis-Configuration-Page]]
-image::images/stepconf-axis-x_es.png["Pagina de configuracion de ejes",align="center"]
+.Pagina de configuracion de ejes
+image::images/stepconf-axis-x_es.png["Pagina de configuracion del eje X",align="center"]
 
 * 'Pasos del motor por revolucion' (Motor Steps Per Revolution) - (((Motor Steps Per Revolution)))
   El numero de pasos completos por revolucion del motor.
@@ -283,8 +282,8 @@ image::images/stepconf-axis-x_es.png["Pagina de configuracion de ejes",align="ce
   Esta opcion abre una ventana para permitir probar cada eje 
   y puede ser utilizada despues de llenar toda la informacion referente a cada eje.
 
-//.Probar este eje
-image::images/stepconf-x-test_es.png[align="center"]
+.Probar eje
+image::images/stepconf-x-test_es.png["Probar eje",align="center"]
 
 Es un comprobador básico que solo emite señales de paso y dirección
 para probar diferentes valores de aceleración y velocidad.
@@ -339,7 +338,8 @@ durante este procedimiento de prueba, reducirlo en un 10% y usarlo como
 'Velocidad máxima' del eje.
 
 [[sub:finding-maximum-acceleration]]
-.Encontrar la máxima aceleración(((Encontrar la máxima aceleración)))
+=== Encontrar la máxima aceleración(((Encontrar la máxima aceleración)))
+
 Con la velocidad máxima que encontro en el paso anterior,
 ingrese el valor de aceleración a probar.
 Usando el mismo procedimiento anterior,
@@ -352,7 +352,7 @@ reducirlo en un 10% y usarlo como  Aceleración máxima del eje.
 
 == Configuracion del husillo
 
-//.Página de configuración del husillo
+.Página de configuración del husillo
 image::images/stepconf-spindle_es.png["Página de configuración del husillo",align="center"]
 
 Esta página solo aparece cuando se selecciona 'Spindle PWM' en
@@ -435,8 +435,8 @@ encuentre los valores de PWM que dan 1600 RPM (40%) y 2800 RPM (70%).
 
 == Opciones
 
-//.Configuracion avanzada
-image::images/stepconf-options_es.png["Configuración avanzada",align="center"]
+.Configuración de opciones avanzadas
+image::images/stepconf-options_es.png["Configuración de opciones avanzadas",align="center"]
 
 * 'Incluir Halui': esto agregará el componente de interfaz de usuario Halui. Ver el
   capitulo "HALUI" para más información.
@@ -458,10 +458,17 @@ image::images/stepconf-options_es.png["Configuración avanzada",align="center"]
 Haga clic en 'Aplicar' para escribir los archivos de configuración.
 Más tarde, puede volver a ejecutar este programa y ajustar la configuración que ingresó antes.
 
-== Recorrido de eje y home
+== Recorridos y homes de ejes
+
+.Recorrido de eje y home
+image::images/HomeAxisTravel.png["Recorrido de eje y home",align="center"]
 
 Para cada eje, hay un rango limitado de recorrido.
 El final físico del recorrido se llama 'parada dura o hard'.
+
+[WARNING]
+[red]#If a mechanical hard stop were to be exceeded,
+the screw or the machine frame would be damaged!#
 
 Antes de la "parada dura" hay un "interruptor de límite".
 Si se encuentra el interruptor de límite durante la operación normal,
@@ -542,4 +549,8 @@ Las siguientes combinaciones de interruptores están permitidas en Stepconf:
 * Combinar ambos interruptores de límite para un eje
 * Combinar ambos interruptores de límite y el interruptor de home para un eje
 * Combinar un interruptor de límite y el interruptor de home para un eje
+
+The last two combinations are also appropriate when the type
+contact + home is used.
+
 // vim: set syntax = asciidoc:

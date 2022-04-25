@@ -12,15 +12,15 @@ is provided by a traditional GUI (Axis, GMoccapy, QtDragon, etc.), is provided b
 pins in Halui.
 
 The easiest way to add halui is to add the following to the [HAL]
-section of the ini file.
+section of the ini file:
 
 ----
 [HAL]
 HALUI = halui
 ----
 
-An alternate way to invoke it is to include the following in your .hal
-file. Make sure you use the correct path to your ini file.
+An alternate way to invoke it (specially if you generate the configuration with StepConf) is to include the following in your `custom.hal` file. +
+Make sure you use the correct path to your ini file.
 
 ----
 loadusr halui -ini /path/to/inifile.ini
@@ -29,8 +29,8 @@ loadusr halui -ini /path/to/inifile.ini
 == MDI
 
 Sometimes the user wants to add more complicated tasks to be performed
-by the activation of a HAL pin. This is possible by adding MDI commands
-to the ini file in the [HALUI] section:
+by the activation of a HAL pin. +
+This is possible by adding MDI commands to the ini file in the [HALUI] section. +
 Example:
 
 ----
@@ -42,11 +42,11 @@ MDI_COMMAND = o<mysub>call
 ...
 ----
 
-When halui starts it will read the MDI_COMMAND fields in the ini and
-export pins from 00 to the number of MDI_COMMAND's found in the ini up
-to a maximum of 64 commands.  These pins can be connected like any
-hal pins.  A common method is to use buttons provided by virtual
-control panels.  Example halfile connections:
+When halui starts it will read the `MDI_COMMAND` fields in the ini and
+export pins from 00 to the number of `MDI_COMMAND` 's found in the ini, up
+to a maximum of 64 commands. These pins can be connected like any
+hal pins. A common method is to use buttons provided by virtual
+control panels. Example halfile connections:
 
 ----
 net quill-up       <= pyvcp.quillup
@@ -57,7 +57,7 @@ net call-mysub     <= pyvcp.callmysub
 net call-mysub     => halui.mdi-command-02
 ----
 
-These nets connect the halui.mdi-command-NN pins
+These nets connect the `halui.mdi-command-NN` pins
 provided by halui:
 
 ----
@@ -71,13 +71,13 @@ Owner  Type  Dir Value  Name
 ----
 
 When a halui MDI pin is set (pulsed) true, halui will send the MDI
-command defined in the ini.
+command defined in the ini. +
 This will not always succeed depending on the current operating
 mode (e.g., while in AUTO halui can't successfully send MDI commands).
 
 == Example Configuration
 
-An example sim config (configs/sim/axis/halui_pyvcp/halui.ini)
+An example sim config (`configs/sim/axis/halui_pyvcp/halui.ini`)
 is included in the distribution.
 
 == Halui Pin Reference
@@ -123,7 +123,7 @@ $ man halui
 === Homing
 
 * 'halui.home-all' (bit, in) - pin for requesting all axis to home. This
-   pin will only be there if HOME_SEQUENCE is set in the ini file.
+  pin will only be there if HOME_SEQUENCE is set in the ini file.
 
 === Lube
 
@@ -135,7 +135,6 @@ $ man halui
 
 * 'halui.machine.units-per-mm' (float out) - pin  for  machine  units-per-mm
   (inch:1/25.4,  mm:1) according to inifile setting: [TRAJ]LINEAR_UNITS
-
 * 'halui.machine.is-on' (bit, out) - indicates machine on
 * 'halui.machine.off' (bit, in) - pin for requesting machine off
 * 'halui.machine.on' (bit, in) - pin for requesting machine on
@@ -156,14 +155,14 @@ that is set in the [TRAJ] section of the ini file.
 === MDI
 
 * 'halui.mdi-command-<nn>' (bit, in) - halui will try to send the MDI
-   command defined in the ini. <nn> is a  two  digit number  starting  at 00. +
-If the command succeeds then it will place LinuxCNC in the MDI mode and then back to Manual mode. +
-If no [HALUI]MDI_COMMAND variables are set in the  ini  file, no halui.mdi-command-<nn> pins will be
-exported by halui.
+  command defined in the ini. <nn> is a  two  digit number  starting  at 00. +
+  If the command succeeds then it will place LinuxCNC in the MDI mode and then back to Manual mode. +
+  If no [HALUI]MDI_COMMAND variables are set in the  ini  file, no halui.mdi-command-<nn> pins will be
+  exported by halui.
 
 === Joint
 
-N = joint number (0 ... num_joints-1)
+N = joint number (0 ... num_joints-1) +
 Example:
 
 * 'halui.joint.N.select' (bit in) - pin for selecting joint N
@@ -192,9 +191,7 @@ Example:
 
 N = joint number (0 ... num_joints-1)
 
-* 'halui.joint.jog-deadband' (float in pin for setting jog  analog  deadband
-       (jog  analog  inputs  smaller/slower  than this (in absolute value) are
-       ignored)
+* 'halui.joint.jog-deadband' (float in) - pin for setting jog analog deadband (jog analog inputs smaller/slower than this - in absolute value - are ignored)
 * 'halui.joint.jog-speed' (float in) - pin for setting jog speed for plus/minus jogging.
 * 'halui.joint.N.analog' (float in) - pin for jogging the joint N using  an  float  value  (e.g.  joy-stick).   The value, typically set between 0.0 and ±1.0, is used as a jog-speed multiplier.
 * 'halui.joint.N.increment' (float in) - pin for setting the jog increment for joint N when using  increment-plus/minus
@@ -213,13 +210,9 @@ N = joint number (0 ... num_joints-1)
 L = axis letter (xyzabcuvw)
 
 * 'halui.axis.L.select' (bit) - pin for selecting axis by letter
-
 * 'halui.axis.L.is-selected' (bit out) - status pin that axis L is selected
-
 * 'halui.axis.L.pos-commanded' (float out) - Commanded axis position in machine coordinates
-
 * 'halui.axis.L.pos-feedback' float out) - Feedback axis position in machine coordinates
-
 * 'halui.axis.L.pos-relative' (float out) - Commanded axis position in relative coordinates
 
 === Axis Jogging
@@ -286,8 +279,7 @@ L = axis letter (xyzabcuvw)
 * 'halui.spindle.N.override.count-enable' (bit, in) - must be true for 'counts' or 'direct-value' to work.
 * 'halui.spindle.N.override.counts' (s32, in) - counts * scale = SO percentage.  Can be used with an encoder or 'direct-value'.
 * 'halui.spindle.N.override.decrease' (bit, in) - pin for decreasing the SO (-=scale)
-* 'halui.spindle.N.override.direct-value' (bit, in) - false when using encoder to change counts,
-true when setting counts directly.
+* 'halui.spindle.N.override.direct-value' (bit, in) - false when using encoder to change counts, true when setting counts directly.
 * 'halui.spindle.N.override.increase' (bit, in) - pin for increasing the SO (+=scale)
 * 'halui.spindle.N.override.scale' (float, in) - pin for setting the scale on changing the SO
 * 'halui.spindle.N.override.value' (float, out) - current SO value
@@ -320,3 +312,5 @@ true when setting counts directly.
 * 'halui.tool.length-offset.z' (float out) - current applied tool length offset for the Z axis
 * 'halui.tool.diameter' (float out) - Current tool diameter, or 0 if no tool is loaded.
 * 'halui.tool.number' (u32, out) - indicates current selected tool
+
+// vim: set syntax=asciidoc:

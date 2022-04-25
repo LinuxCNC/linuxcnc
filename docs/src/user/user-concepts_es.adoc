@@ -39,7 +39,7 @@ las restricciones de la máquina, como la velocidad y aceleración máxima de ej
 que deben ser obedecidas por el planificador de trayectoria.
 
 Para obtener más información sobre las opciones ini del planificador vea la
-<<sec:traj-section,Sección Trayectoria en el capítulo INI.
+<<sub:ini:sec:traj,Sección Trayectoria en el capítulo INI.
 
 [[sub:path-following]]
 === Seguimiento de ruta(((Seguimiento de ruta)))
@@ -70,63 +70,63 @@ esquina bastante redonda.
 Los comandos de control de trayectoria son los siguientes:
 
 'G61':: (Modo de ruta exacta) visita el punto programado exactamente, aunque
-    eso signifique que la maquina podría detenerse temporalmente para cambiar de
-    dirección hacia el siguiente punto programado.
+  eso signifique que la maquina podría detenerse temporalmente para cambiar de
+  dirección hacia el siguiente punto programado.
 
 'G61.1':: (Modo de parada exacta) le dice al planificador que se detenga
-    exactamente en cada final de segmento.
+  exactamente en cada final de segmento.
 
 'G64':: (Fusión sin modo de tolerancia) G64 es la configuración predeterminada
-    cuando se inicia LinuxCNC. G64 es simplemente fusión sin 'naive cam detector'
-    habilitado. G64 y G64 P0 le dicen al planificador que sacrifique la
-    precisión de seguimiento de ruta para mantener la velocidad de avance. Esto
-    es necesario para algunos tipos de materiales o herramientas donde las paradas
-    exactas son dañinas y puede funciona bien siempre que el programador
-    no olvide que la ruta de la herramienta será algo más
-    curvilínea que lo que especifica el programa. Al usar movimientos G0
-    (rápidos) con G64, tenga cuidado con los movimientos a puntos seguros
-    (clareance) y permita suficiente distancia para evitar obstáculos en función
-    de las capacidades de aceleración de su máquina.
+  cuando se inicia LinuxCNC. G64 es simplemente fusión sin 'naive cam detector'
+  habilitado. G64 y G64 P0 le dicen al planificador que sacrifique la
+  precisión de seguimiento de ruta para mantener la velocidad de avance. Esto
+  es necesario para algunos tipos de materiales o herramientas donde las paradas
+  exactas son dañinas y puede funciona bien siempre que el programador
+  no olvide que la ruta de la herramienta será algo más
+  curvilínea que lo que especifica el programa. Al usar movimientos G0
+  (rápidos) con G64, tenga cuidado con los movimientos a puntos seguros
+  (clareance) y permita suficiente distancia para evitar obstáculos en función
+  de las capacidades de aceleración de su máquina.
 
 'G64 P- Q-':: (Fusión con modo de tolerancia) Esto habilita 'naive cam
-    detector' y permite fusiones con tolerancia. Si se programa, por ejemplo, G64 P0.05, se le
-    dice al planificador que se desea alimentación continua, pero en esquinas
-    programadas quiere que desacelere lo suficiente para que la ruta de la
-    herramienta pueda mantenerse a no mas de 0.05 unidades de usuario de la ruta
-    programada. La cantidad exacta de desaceleración depende de la geometría de
-    la esquina programada y las limitaciones de la máquina, pero lo único de lo
-    que el programador necesita preocuparse es de la tolerancia. Esto le da al
-    programador control total sobre el compromiso de seguimiento de camino. La
-    tolerancia de la fusión se puede cambiar a lo largo de todo el programa
-    según sea necesario. Tenga en cuenta que una especificación G64 P0 tiene
-    el mismo efecto que G64 solo, necesario para compatibilidad con los viejos
-    programas de G Code. Vea la <<gcode:g64,sección G64 del capítulo
-    de Código G.
+  detector' y permite fusiones con tolerancia. Si se programa, por ejemplo, G64 P0.05, se le
+  dice al planificador que se desea alimentación continua, pero en esquinas
+  programadas quiere que desacelere lo suficiente para que la ruta de la
+  herramienta pueda mantenerse a no mas de 0.05 unidades de usuario de la ruta
+  programada. La cantidad exacta de desaceleración depende de la geometría de
+  la esquina programada y las limitaciones de la máquina, pero lo único de lo
+  que el programador necesita preocuparse es de la tolerancia. Esto le da al
+  programador control total sobre el compromiso de seguimiento de camino. La
+  tolerancia de la fusión se puede cambiar a lo largo de todo el programa
+  según sea necesario. Tenga en cuenta que una especificación G64 P0 tiene
+  el mismo efecto que G64 solo, necesario para compatibilidad con los viejos
+  programas de G Code. Vea la <<gcode:g64,sección G64 del capítulo
+  de Código G.
 
 'Fusión sin tolerancia':: El punto controlado tocará cada movimiento
-    especificado en al menos un punto. La máquina nunca se moverá a una
-    velocidad tal que no pueda llegar a una parada exacta al final del
-    movimiento actual (o el próximo movimiento, si hace una pausa cuando la
-    fusión ya ha comenzado). La distancia desde el punto final del movimiento sera
-    tan grande como deba ser para mantener la mejor alimentación para el contorno.
+  especificado en al menos un punto. La máquina nunca se moverá a una
+  velocidad tal que no pueda llegar a una parada exacta al final del
+  movimiento actual (o el próximo movimiento, si hace una pausa cuando la
+  fusión ya ha comenzado). La distancia desde el punto final del movimiento sera
+  tan grande como deba ser para mantener la mejor alimentación para el contorno.
 
-'Naive Cam Detector':: Varios movimientos G1 sucesivos que involucran solo a los
-    ejes XYZ y que se desvíen menos de una cantidad Q- de una línea recta que los
-    contenga, se fusionaran en una única línea recta. Este movimiento combinado
-    reemplaza los movimientos individuales G1 cuando se quiere fusionar con
-    tolerancia. Entre movimientos sucesivos, el punto controlado no se desviara más
-    de P- desde los puntos finales reales de los movimientos. El punto controlado
-    tocará al menos un punto en cada movimiento. La máquina nunca se moverá a una
-    velocidad tal que no puede llegar a una parada exacta al final del movimiento
-    actual (o siguiente movimiento, si hace una pausa cuando la fusión ya ha
-    comenzado). En movimientos G2/G3, que se muevan en el plano G17 (XY), cuando la
-    desviación máxima de un arco desde un línea recta es menor que la tolerancia
-    Q-, el arco se divide en dos líneas (desde el inicio del arco hasta el
-    punto medio y desde el punto medio hasta el final). Esas líneas están
-    entonces sujetas al algoritmo 'Naive Cam Detector' para líneas. Por lo tanto,
-    casos de arco a línea, arco a arco y línea a arco, así como línea a línea,
-    podrán beneficiarse de 'naive cam detector'. Esto mejora el rendimiento
-    de contorneado simplificando el camino.
+Naive CAM Detector:: Varios movimientos G1 sucesivos que involucran solo a los
+  ejes XYZ y que se desvíen menos de una cantidad Q- de una línea recta que los
+  contenga, se fusionaran en una única línea recta. Este movimiento combinado
+  reemplaza los movimientos individuales G1 cuando se quiere fusionar con
+  tolerancia. Entre movimientos sucesivos, el punto controlado no se desviara más
+  de P- desde los puntos finales reales de los movimientos. El punto controlado
+  tocará al menos un punto en cada movimiento. La máquina nunca se moverá a una
+  velocidad tal que no puede llegar a una parada exacta al final del movimiento
+  actual (o siguiente movimiento, si hace una pausa cuando la fusión ya ha
+  comenzado). En movimientos G2/G3, que se muevan en el plano G17 (XY), cuando la
+  desviación máxima de un arco desde un línea recta es menor que la tolerancia
+  Q-, el arco se divide en dos líneas (desde el inicio del arco hasta el
+  punto medio y desde el punto medio hasta el final). Esas líneas están
+  entonces sujetas al algoritmo 'Naive Cam Detector' para líneas. Por lo tanto,
+  casos de arco a línea, arco a arco y línea a arco, así como línea a línea,
+  podrán beneficiarse de 'naive cam detector'. Esto mejora el rendimiento
+  de contorneado simplificando el camino.
 
 En la siguiente figura, la línea azul representa la velocidad real de la máquina.
 Las líneas rojas son la capacidad de aceleración de la máquina. Las líneas
@@ -138,8 +138,8 @@ próximo movimiento. La gráfica inferior muestra el efecto de Naive Cam Detecto
 combinar los movimientos y hacer un mejor trabajo manteniendo el velocidad según lo
 planeado.
 
-//.Naive Cam Detector
-image::images/naive-cam.png["Naive Cam Detector",align="center"]
+.Naive CAM Detector
+image::images/naive-cam.png["Naive CAM Detector",align="center"]
 
 [[sub:planning-moves]]
 === Planificacion de movimientos(((Planificacion de movimientos)))
@@ -235,7 +235,7 @@ Se puede obtener más información sobre homing en <<cha:homing-configuration,ho
 == Cambios de herramientas
 
 Hay varias opciones al hacer cambios de herramientas manuales. Ver la
-<<sec:emcio-section,Sección [EMCIO]>> para obtener información sobre la
+<<sub:ini:sec:emcio,Sección [EMCIO]>> para obtener información sobre la
 configuración de estas opciones. Ver también las secciones
 <<gcode:g28-g28.1,G28>> y <<gcode:g30-g30.1,G30>> del capítulo de Código G.
 
@@ -308,13 +308,13 @@ reversed, +X will be on the right of the table and -X on the left. This
 inversion does not change anything from the point of view of the direction of
 movement of the tool.
 
-//.Configuración de fresadora
+.Configuración de fresadora
 image::images/mill-diagram_es.png["Configuración de fresadora",align="center"]
 
 El siguiente diagrama muestra un torno típico que muestra la dirección del recorrido
 de la herramienta y los interruptores de límite.
 
-//.Configuración de Torno
+.Configuración de torno
 image::images/lathe-diagram_es.png["Configuración de torno",align="center"]
 
 // vim: set syntax = asciidoc:

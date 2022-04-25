@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 ////////////////////////////////////////////////
 use image:: for equation png files -- no latexmath
@@ -252,7 +253,6 @@ Equating the last column of (32) with the tool position vector Q, we can write:
 
 image::5-axis-figures/equation__34.png[align="center"]
 
-
 The vector on the right hand side can also be written as the product of a matrix and a vector resulting in:
 
 image::5-axis-figures/equation__35.png[align="center"]
@@ -377,13 +377,13 @@ setp xyzac-trt-kins.z-offset 20
 
 == Figures
 
-//.Table tilting/rotating configuration
+.Table tilting/rotating configuration
 image::5-axis-figures/Figure-9.png["Table tilting/rotating configuration",align="center",height=300]
 
-//.Spindle/table tilting configuration
+.Spindle/table tilting configuration
 image::5-axis-figures/Figure-10.png["Spindle/table tilting configuration",align="center",height=300]
 
-//.Spindle tilting/rotary configuration
+.Spindle tilting/rotary configuration
 image::5-axis-figures/Figure-11.png["Spindle tilting/rotary configuration",align="center",height=300]
 
 /////////////////////////////////////////////////////
@@ -401,3 +401,5 @@ image::5-axis-figures/Figure-11.png["Spindle tilting/rotary configuration",align
 . Design of a generic five-axis postprocessor based on generalized kinematics
   model of machine tool: C-H She, C-C Chang, Int. J Machine Tools & Manufacture,
   47 (2007) 537-545.
+
+// vim: set syntax=asciidoc:

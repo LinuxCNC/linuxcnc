@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 [[cha:python-interface]]
 = Interfaz de Python
@@ -41,10 +42,9 @@ El patrón general para el uso de `linuxcnc` es, en lineas generales, así:
 - establecer conexiones a los canales NML de comandos, estado y errores según sea necesario
 - sondear el canal de estado, ya sea periódicamente o según sea necesario
 - antes de enviar un comando, determinar desde el estado si está en
-  uno correcto para hacerlo (por ejemplo, no tiene sentido enviar un 
-  comando 'Ejecutar' si la tarea está en el estado ESTOP o el intérprete no está inactivo)
+  uno correcto para hacerlo (por ejemplo, no tiene sentido enviar un 
+  comando 'Ejecutar' si la tarea está en el estado ESTOP o el intérprete no está inactivo)
 - envíar el comando utilizando uno de los métodos del canal de comandos `linuxcnc`
-
 
 Para recuperar mensajes del canal de errores, sondee el canal de errores
 periódicamente y procese los mensajes recuperados.
@@ -68,7 +68,7 @@ import sys
 import linuxcnc
 try:
     s = linuxcnc.stat() # crea una conexión al canal de estado
-    s.poll() # obtener valores actuales
+    s.poll() # obtener valores actuales
 except linuxcnc.error, detail:
     print "error", detail
     sys.exit(1)
@@ -80,7 +80,6 @@ for x in dir(s):
 Linuxcnc usa la ruta de compilacion predeterminada para el archivo de configuración 
 NML a menos que se sobreescriba; vea <<python:reading-ini-values, lectura
 valores de archivo ini>> para un ejemplo.
-
 
 === Atributos en linuxcnc.stat
 
@@ -119,6 +118,9 @@ V = 128, W = 256.
 
 *block_delete*:: '(devuelve boolean)' -
 el estado actual de eliminar bloque.
+
+*call_level*:: '(returns integer)'` -
+  current subroutine depth. - 0 If not in a subroutine, Depth if not otherwise specified
 
 *command*:: '(devuelve cadena)' -
 comando actualmente en ejecución.
@@ -242,11 +244,11 @@ Posiciones articulares deseadas.
 Número de articulaciones. Refleja [KINS]JOINTS del ini.
 
 *kinematics_type*:: '(devuelve entero)' -
-El tipo de cinemática. Uno de:
-    * KINEMATICS_IDENTITY
-    * KINEMATICS_FORWARD_ONLY
-    * KINEMATICS_INVERSE_ONLY
-    * KINEMATICS_BOTH
+  El tipo de cinemática. Uno de:
+  * KINEMATICS_IDENTITY
+  * KINEMATICS_FORWARD_ONLY
+  * KINEMATICS_INVERSE_ONLY
+  * KINEMATICS_BOTH
 
 *limit*:: '(devuelve tupla de enteros)' -
 Máscaras de límites de eje. minHardLimit = 1,
@@ -283,13 +285,13 @@ TRAJ_MODE_FREE, TRAJ_MODE_TELEOP.
 
 *motion_type*:: '(devuelve entero)' -
 El tipo de movimiento que se está ejecutando actualmente. Uno de:
-    * MOTION_TYPE_TRAVERSE
-    * MOTION_TYPE_FEED
-    * MOTION_TYPE_ARC
-    * MOTION_TYPE_TOOLCHANGE
-    * MOTION_TYPE_PROBING
-    * MOTION_TYPE_INDEXROTARY
-    * 0 si no hay movimiento en este momento.
+    * MOTION_TYPE_TRAVERSE
+    * MOTION_TYPE_FEED
+    * MOTION_TYPE_ARC
+    * MOTION_TYPE_TOOLCHANGE
+    * MOTION_TYPE_PROBING
+    * MOTION_TYPE_INDEXROTARY
+    * 0 si no hay movimiento en este momento.
 
 *optional_stop*:: '(devuelve entero)' -
 bandera de stop opcional.
@@ -301,7 +303,7 @@ bandera de `movimiento en pausa`.
 comando Tx completado, la ranura está preparada. -1 si la
 ranura no está preparada.
 
-*poll() * :: - '(función incorporada)'
+*poll()*:: - '(función incorporada)'
 Método para actualizar los atributos del estado actual.
 
 *position*:: '(devuelve tupla de floats)' -
@@ -337,9 +339,11 @@ línea que el intérprete RS274NGC está leyendo actualmente.
 *rotación_xy*:: '(devuelve float)' -
 ángulo de rotación XY actual alrededor del eje Z.
 
-*settings* :: '(devuelve tupla de floats)' -
+*settings*:: '(devuelve tupla de floats)' -
 configuración actual del intérprete. settings[0] =
 número de secuencia, settings[1] = velocidad de avance, settings[2] = velocidad
+  settings[3] = `G64 P` blend tolerance,
+  settings[4] = `G64 Q` naive CAM tolerance.
 
 *spindle*:: '(devuelve tupla de diccionarios)' -
 devuelve el estado actual del husillo
@@ -384,30 +388,20 @@ s = linuxcnc.stat()
 s.poll()
 # para encontrar la información de la herramienta cargada en el índice 0 de la tabla de herramientas
 if s.tool_table[0].id != 0: # se carga una herramienta
-    print s.tool_table[0].zoffset
+    print(s.tool_table[0].zoffset)
 else:
-    print "sin herramienta cargada"
+    print("no tool loaded")
 ----
 
 * velocity*:: '(devuelve float)' -
 Esta propiedad está definida, pero no tiene una interpretación útil.
 
-=== El diccionario `axis` [[sec:the-axis-dictionary]]
+[[sec:the-axis-dictionary]]
+=== El diccionario `axis`
 
 La configuración de ejes y los valores de estado están disponibles a través de una lista
 de diccionarios por eje. Aquí hay un ejemplo de cómo acceder a un atributo
 de un eje particular:
-
-[source,python]
----------------------------------------------------------------------
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-import linuxcnc
-s = linuxcnc.stat()
-s.poll()
-print "Joint 1 homed: ", s.joint[1]["homed"]
----------------------------------------------------------------------
-
 Tenga en cuenta que muchas propiedades que anteriormente estaban en el diccionario `axis` están
 ahora en el diccionario `joint`, porque en máquinas con cinemáticas no triviales
 estos elementos (como el backlash) no son propiedades de un eje.
@@ -423,7 +417,18 @@ units.configuration, refleja [JOINT_n]MIN_LIMIT.
 *velocity*:: '(devuelve float)' -
 velocidad actual
 
-=== El diccionario `joint` [[sec:the-joint-dictionary]]
+[[sec:the-joint-dictionary]]
+=== El diccionario `joint`
+
+[source,python]
+----
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+import linuxcnc
+s = linuxcnc.stat()
+s.poll()
+print("Joint 1 homed: ", s.joint[1]["homed"])
+----
 
 Para cada articulación, están disponibles las siguientes claves de diccionario:
 
@@ -456,7 +461,7 @@ entrada de posición actual.
 
 *jointType*:: '(devuelve entero)' -
 parámetro del tipo de configuración del eje, refleja
-[JOINT_n]TYPE. LINEAL=1, ANGULAR=2. Ver <<sec:axis-section, configuración 
+[JOINT_n]TYPE. LINEAL=1, ANGULAR=2. Ver <<sub:ini:sec:axis-letter, configuración 
 ini de articulacion>> para más detalles.
 
 *max_ferror*:: '(devuelve float)' -
@@ -470,7 +475,7 @@ distinto de cero significa que se ha excedido el límite hard máximo.
 Límite máximo (límite soft) para el movimiento articular, en unidades de máquina. parámetro de configuración,
 refleja [JOINT_n]MAX_LIMIT.
 
-*max_soft_limit * ::
+*max_soft_limit*::
 distinto de cero significa que se ha excedido `max_position_limit`, int
 
 *min_ferror*:: '(devuelve float)' -
@@ -500,7 +505,8 @@ por el parámetro de configuración [JOINT_n]UNITS)
 *velocity*:: '(devuelve float)' -
 velocidad actual
 
-== El diccionario `spindle` [[sec:the-spindle-dictionary]]
+[[sec:the-spindle-dictionary]]
+== El diccionario `spindle`
 
 *brake*:: '(devuelve entero)' -
 valor de la bandera del freno del husillo.
@@ -548,7 +554,7 @@ entonces una prueba apropiada antes de enviar un comando MDI a través de
 `linuxcnc.command.mdi()` podría ser:
 
 [source,python]
----------------------------------------------------------------------
+----
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import linuxcnc
@@ -563,14 +569,14 @@ if ok_for_mdi():
     c.mode(linuxcnc.MODE_MDI)
     c.wait_complete() # espera hasta que se ejecute el cambio de modo
     c.mdi("G0 X10 Y20 Z30")
----------------------------------------------------------------------
+----
 
 == Enviar comandos a través de `linuxcnc.command`
 
 Antes de enviar un comando, inicialice un canal de comando así:
 
 [source,python]
----------------------------------------------------------------------
+----
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import linuxcnc
@@ -615,7 +621,8 @@ c.program_open("foo.ngc")
 c.reset_interpreter()
 
 c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orientation)
----------------------------------------------------------------------
+----
+
 === Atributos `linuxcnc.command`
 
 `serial`::
@@ -635,29 +642,35 @@ el número de serie del comando actual
 `debug(int)`::
     establecer el nivel de depuración a través del mensaje EMC_SET_DEBUG.
 
+`display_msg(string)`::
+  sends a operator display message to the screen. (max 254 characters)
+
+`error_msg(string)`::
+  sends a operator error message to the screen. (max 254 characters)
+
 `feedrate(float)`::
     establecer la velocidad de avance.
 
 `flood(int)`::
-    encender/apagar inundacion. +
-    Sintaxis: +
-    flood(command) +
-    flood(linuxcnc.FLOOD_ON) +
-    flood(linuxcnc.FLOOD_OFF) +
-    Constants: +
-    FLOOD_ON +
-    FLOOD_OFF
+    encender/apagar inundacion.
+    Sintaxis;;
+      flood(command) +
+      flood(linuxcnc.FLOOD_ON) +
+      flood(linuxcnc.FLOOD_OFF)
+    Constants;;
+      FLOOD_ON +
+      FLOOD_OFF
 
 `home(int)`::
     home una articulación determinada.
 
 `jog(command-constant, bool, int[, float[, float]])`::
-    Sintaxis: +
-    jog(command,                 jjogmode, joint_num_or_axis_index, velocity[, distance]]) +
+    Sintaxis;;
+    jog(command,                 jjogmode, joint_num_or_axis_index, velocity[, distance]) +
     jog(linuxcnc.JOG_STOP,       jjogmode, joint_num_or_axis_index) +
     jog(linuxcnc.JOG_CONTINUOUS, jjogmode, joint_num_or_axis_index, velocity) +
     jog(linuxcnc.JOG_INCREMENT,  jjogmode, joint_num_or_axis_index, velocity, distance)
-    Constantes de comando;
+    Constantes de comando;;
     linuxcnc.JOG_STOP +
     linuxcnc.JOG_CONTINUOUS +
     linuxcnc.JOG_INCREMENT
@@ -681,66 +694,69 @@ el número de serie del comando actual
     Enviar un comando MDI. Máximo 254 caracteres.
 
 `mist(int)`:: activa/desactiva la niebla. +
-    Sintaxis: +
-    mist(command) +
-    mist(linuxcnc.MIST_ON) +
-    mist(linuxcnc.MIST_OFF) +
-    Constants: +
-    MIST_ON +
-    MIST_OFF
+    Sintaxis;;
+      mist(command) +
+      mist(linuxcnc.MIST_ON) +
+      mist(linuxcnc.MIST_OFF) +
+    Constants;;
+      MIST_ON +
+      MIST_OFF
 
 `mode(int)`::
-    establecer modo (MODE_MDI, MODE_MANUAL, MODE_AUTO).
+    establecer modo (MODE_MDI, MODE_MANUAL, MODE_AUTO).
 
 `override_limits()`::
-    establecer la bandera de límites de ajuste de eje.
+    establecer la bandera de límites de ajuste de eje.
 
 `program_open(string)`::
-    Abrir un archivo NGC.
+    Abrir un archivo NGC.
 
 `rapidrate()`::
-    establecer factor de ajuste de rápidos
+    establecer factor de ajuste de rápidos
 
 `reset_interpreter()`::
-    restablecer el intérprete RS274NGC
+    restablecer el intérprete RS274NGC
 
 `set_adaptive_feed(int)`::
-    establecer bandera de alimentación adaptativa
+    establecer bandera de alimentación adaptativa
 
 `set_analog_output(int, float)`::
-    ajustar el pin de salida analógica al valor
+    ajustar el pin de salida analógica al valor
 
 `set_block_delete(int)`::
-    establecer bloque eliminar bandera
+    establecer bloque eliminar bandera
 
 `set_digital_output(int, int)`::
-    configurar el pin de salida digital al valor
+    configurar el pin de salida digital al valor
 
 `set_feed_hold(int)`::
-    activar/desactivar la retención de alimentación
+    activar/desactivar la retención de alimentación
 
 `set_feed_override(int)`::
-    activar/desactivar el ajuste de alimentación
+    activar/desactivar el ajuste de alimentación
 
 `set_max_limit(int, float)`::
-        establecer el límite de posición máxima para un eje dado
+        establecer el límite de posición máxima para un eje dado
 
 `set_min_limit()`::
-        establecer el límite de posición mínima para un eje dado
+        establecer el límite de posición mínima para un eje dado
 
 `set_optional_stop(int)`::
-    activar/desactivar parada opcional
+    activar/desactivar parada opcional
 
 `set_spindle_override(int [, int])`::
-    establecer ajuste del husillo habilitado. Por defecto el husillo 0.
+    establecer ajuste del husillo habilitado. Por defecto el husillo 0.
 
 `spindle(int [[float] [int] [float, int]])`::
-    establecer la dirección del husillo. Uno de SPINDLE_FORWARD,
-    SPINDLE_REVERSE, SPINDLE_OFF, SPINDLE_INCREASE,
-    SPINDLE_DECREASE o SPINDLE_CONSTANT.
+    establecer la dirección del husillo. Uno de SPINDLE_FORWARD,
+    SPINDLE_REVERSE, SPINDLE_OFF, SPINDLE_INCREASE,
+    SPINDLE_DECREASE o SPINDLE_CONSTANT.
+
+`text_msg(string)`::
+  sends a operator text message to the screen. (max 254 characters)
 
 [source,python]
----------------------------------------------------------------------
+----
 #!/usr/bin/env python3
 import linuxcnc
 c = linuxcnc.command()
@@ -762,37 +778,36 @@ c.spindle.(linuxcnc.SPINDLE_OFF)
 
 # Detener el eje 0 explícitamente
 c.spindle.(linuxcnc.SPINDLE_OFF, 0)
----------------------------------------------------------------------
+----
 
 `spindleoverride(float [, int])`::
-    establecer el factor de ajuste del husillo. Por defecto el husillo 0.
+    establecer el factor de ajuste del husillo. Por defecto el husillo 0.
 
 `state(int)`::
-    establecer el estado de la máquina. El estado de la máquina debe ser STATE_ESTOP, STATE_ESTOP_RESET, STATE_ON o STATE_OFF
+    establecer el estado de la máquina. El estado de la máquina debe ser STATE_ESTOP, STATE_ESTOP_RESET, STATE_ON o STATE_OFF
 
 `task_plan_sync()`::
-        al finalizar esta llamada, el archivo var en el disco se actualiza con
-        valores vivos del intérprete.
+        al finalizar esta llamada, el archivo var en el disco se actualiza con
+        valores vivos del intérprete.
 
 `teleop_enable(int)`::
-    habilitar/deshabilitar el modo teleop (deshabilitar para jogging articular).
+    habilitar/deshabilitar el modo teleop (deshabilitar para jogging articular).
 
 `tool_offset(int, float, float, float, float, float, int)`::
-        establecer offset de herramienta. Ver ejemplo de uso arriba.
+        establecer offset de herramienta. Ver ejemplo de uso arriba.
 
 `traj_mode(int)`::
-    establecer el modo de trayectoria. El modo es uno de MODE_FREE, MODE_COORD o
-    MODE_TELEOP.
+    establecer el modo de trayectoria. El modo es uno de MODE_FREE, MODE_COORD o
+    MODE_TELEOP.
 
 `unhome(int)`::
-    dejar sin home una articulación determinada.
+    dejar sin home una articulación determinada.
 
 `wait_complete([float])`::
-    Esperar a que se complete el último comando enviado. Si el tiempo de espera en
-    segundos no esta especificado, el valor predeterminado es 5 segundos. Devuelve -1 si
-    se agota el tiempo de espera, devuelva RCS_DONE o RCS_ERROR según el
-    estado de ejecución del comando
-
+    Esperar a que se complete el último comando enviado. Si el tiempo de espera en
+    segundos no esta especificado, el valor predeterminado es 5 segundos. Devuelve -1 si
+    se agota el tiempo de espera, devuelva RCS_DONE o RCS_ERROR según el
+    estado de ejecución del comando
 
 == Lectura del canal de error
 
@@ -806,9 +821,8 @@ la cola; si es otro consumidor de mensajes de error (por ejemplo, Axis)
 "verá" el mensaje dependiendo del timing. Se recomienda tener solo
 una tarea de lector de canal de error en una configuración.
 
-
 [source,python]
----------------------------------------------------------------------
+----
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import linuxcnc
@@ -823,16 +837,16 @@ if error:
     else:
         typus = "info"
     print typus, text
----------------------------------------------------------------------
+----
 
-
-== Lectura de valores de archivo ini [[python:reading-ini-values]]
+[[python:reading-ini-values]]
+== Lectura de valores de archivo ini
 
 Aquí hay un ejemplo para leer valores de un archivo ini a través del
 objeto `linuxcnc.ini`:
 
 [source,python]
----------------------------------------------------------------------
+----
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # run as:
@@ -859,32 +873,52 @@ print "extensions: ", extensions
 nmlfile = inifile.find("EMC", "NML_FILE")
 if nmlfile:
     linuxcnc.nmlfile = os.path.join(os.path.dirname(sys.argv[1]), nmlfile)
----------------------------------------------------------------------
+----
+
+Or for the same INI file as LinuxCNC:
+
+[source,python]
+----
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# run as:
+# python ini-example2.py
+
+import linuxcnc
+
+stat = linuxcnc.stat()
+stat.poll()
+
+inifile = linuxcnc.ini(stat.ini_filename)
+
+# See example above for usage of 'inifile' object
+----
 
 == El tipo `linuxcnc.positionlogger`
 
 Algunas sugerencias de uso se pueden obtener de
 `src/emc/usr_intf/gremlin/gremlin.py`.
 
-
 === miembros
 
-`npts` ::
-    número de puntos.
+`npts`::
+    número de puntos.
 
 === métodos
+
 `start(float)`::
-    iniciar el registrador de posición y ejecutar cada ARG segundos
+    iniciar el registrador de posición y ejecutar cada ARG segundos
 
 `clear()`::
-    borrar el registrador de posición
+    borrar el registrador de posición
 
 `stop()`::
-    detener el registrador de posición
+    detener el registrador de posición
 
 `call()`::
-    plot el backplot ahora.
+    plot el backplot ahora.
 
 `last([int])`::
-    Devuelve el punto más reciente de la trama o ninguno.
-,
+    Devuelve el punto más reciente de la trama o ninguno.
+
+// vim: set syntax=asciidoc:

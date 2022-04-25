@@ -1,14 +1,13 @@
-:lang: fr
+:lang: en
+:toc:
 
 = Legal Section
 
-Ce document n'est pas traduit en raison de la complexité de la 
-validation des documents juridiques. Vous trouverez sur ce site 
-plus d'information: http://www.gnu.org/licenses/licenses.fr.html
+Ce document n'est pas traduit en raison de la complexité de la validation des documents juridiques. Vous trouverez sur ce site plus d'information: http://www.gnu.org/licenses/licenses.fr.html
 
 == Copyright Terms
 
-Copyright (c) 2000-2020 LinuxCNC.org
+*`Copyright (c) 2000-2022 LinuxCNC.org`*
 
 Permission is granted to copy, distribute and/or modify this document
 under the terms of the GNU Free Documentation License, Version 1.1
@@ -17,10 +16,9 @@ with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
 A copy of the license is included in the section entitled "GNU
 Free Documentation License".
 
-
 == GNU Free Documentation License
 
-GNU Free Documentation License Version 1.1, March 2000
+*GNU Free Documentation License Version 1.1, March 2000*
 
 Copyright (C) 2000 Free Software Foundation, Inc. 51 Franklin Street,
 Fifth Floor, Boston, MA 02110-1301 USA. Everyone is permitted to copy and
@@ -169,6 +167,7 @@ Modified Version under precisely this License, with the Modified
 Version filling the role of the Document, thus licensing distribution
 and modification of the Modified Version to whoever possesses a copy of
 it. In addition, you must do these things in the Modified Version:
+
 A. Use in the Title Page (and on the covers, if any) a title distinct
 from that of the Document, and from those of previous versions (which
 should, if there were any, be listed in the History section of the
@@ -357,3 +356,4 @@ recommend releasing these examples in parallel under your choice of
 free software license, such as the GNU General Public License, to
 permit their use in free software.
 
+// vim: set syntax=asciidoc:

@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:stepper-quickstart]]
 = Stepper Quickstart
@@ -40,7 +41,7 @@ Note some newer Gecko drives have different timing than the original
 one. A http://wiki.linuxcnc.org/[list] is also on the user maintained LinuxCNC
 wiki site of more drives.
 
-[width="100%", options="header"]
+[width="100%",options="header"]
 |====================================================================
 |Axis | Drive Type | Step Time ns | Step Space ns | Dir. Hold ns | Dir. Setup ns
 |X    |            |              |               |              | 
@@ -54,7 +55,7 @@ wiki site of more drives.
 Gather the information about the connections from your machine to the
 PC parallel port.
 
-[width="100%", options="header"]
+[width="100%",options="header"]
 |==============================================================================
 |Output Pin | Typ. Function    | If Different | Input Pin | Typ. Function | If Different
 |1          | E-Stop Out       |              | 10        | X Limit/Home  | 
@@ -79,7 +80,7 @@ These can always be changed later by running Stepconf again.
 Gather information on steps and gearing. The result of this is steps
 per user unit which is used for SCALE in the .ini file.
 
-[width="100%", options="header"]
+[width="100%",options="header"]
 |==============================================================================
 |Axis | Steps/Rev. | Micro Steps | Motor Teeth | Leadscrew Teeth | Leadscrew Pitch
 |X    |            |             |             |                 | 
@@ -111,7 +112,7 @@ The net result you're looking for is how many CNC-output-steps it takes
 to move one user unit (inches or mm).
 
 .Units inches
-====
+----
 ............................................
 Stepper         = 200 steps per revolution
 Drive           =  10 micro steps per step
@@ -119,7 +120,7 @@ Motor Teeth     =  20
 Leadscrew Teeth =  40
 Leadscrew Pitch =   0.2000 inches per turn
 ............................................
-====
+----
 
 From the above information, the leadscrew moves 0.200 inches per turn.
 - The motor turns 2.000 times per 1 leadscrew turn.
@@ -140,7 +141,7 @@ latexmath:[
 ////////////////////////////////////////////
 
 .Units mm
-====
+----
 ............................................
     Stepper         = 200 steps per revolution
     Drive           =   8 micro steps per step
@@ -148,7 +149,7 @@ latexmath:[
     Leadscrew Teeth =  90
     Leadscrew Pitch =   5.00 mm per turn
 ............................................
-====
+----
 
 From the above information:
 - The leadscrew moves 5.00 mm per turn.

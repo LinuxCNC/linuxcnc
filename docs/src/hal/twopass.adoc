@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:hal-twopass]]
 = HAL TWOPASS
@@ -149,7 +150,7 @@ TWOPASS processing, include all loadrt items for components added by postgui hal
 in a separate halfile that is processed before the GUI.  The addf commands can also
 be included in the file.
 
-.Example:
+.Example
 ----
 [HAL]
 TWOPASS = on
@@ -218,8 +219,7 @@ their ordering may be important.
 
 Examples of TWOPASS usage for a simulator are included in the directories:
 
-   configs/sim/axis/twopass/
-
-   configs/sim/axis/simtcl/
+  configs/sim/axis/twopass/
+  configs/sim/axis/simtcl/
 
 // vim: set syntax=asciidoc:

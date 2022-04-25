@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 [[cha:spindle-control]]
 = Control de husillo(((0-10v Spindle Speed Example)))
@@ -28,7 +29,7 @@ la tarjeta no hace escalado.
 ----
 loadrt scale count=1
 addf scale.0 servo-thread
-setp scale.0.gain 0.002    
+setp scale.0.gain 0.002
 net spindle-speed-scale spindle.0.speed-out => scale.0.in
 net spindle-speed-DAC scale.0.out => <su nombre pin DAC>    
 ----
@@ -235,3 +236,4 @@ net spindle-at-speed spindle.0.at-speed <= near.0.out
 setp near.0.scale 1.01
 ----
 
+// vim: set syntax=asciidoc:

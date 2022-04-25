@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:ax5214-driver]]
 = AX5214H Driver
@@ -64,3 +65,4 @@ high and turn the module OFF.
 * '(funct) ax5214.<boardnum>.read' -- Reads all digital inputs on one board.
 * '(funct) ax5214.<boardnum>.write' -- Writes all digital outputs on one board.
 
+// vim: set syntax=asciidoc:

@@ -38,7 +38,7 @@ contains widget tags between <pyvcp> and </pyvcp>. For example:
 ----
 
 .Simple PyVCP LED Panel Example
-image::images/pyvcp_mypanel.png[]
+image::images/pyvcp_mypanel.png[align="center"]
 
 If you place this text in a file called tiny.xml, and run
 
@@ -231,11 +231,11 @@ modify the signal value with a control widget. Thus there are four
 classes of PyVCP widgets that you can connect to a HAL signal. A fifth
 class of helper widgets allow you to organize and label your panel.
 
-. Widgets for indicating 'bit' signals: led, rectled
-. Widgets for controlling 'bit' signals: button, checkbutton, radiobutton
-. Widgets for indicating 'number' signals: number, s32, u32, bar, meter
-. Widgets for controlling 'number' signals: spinbox, scale, jogwheel
-. Helper widgets: hbox, vbox, table, label, labelframe
+* Widgets for indicating 'bit' signals: `led`, `rectled`.
+* Widgets for controlling 'bit' signals: `button`, `checkbutton`, `radiobutton`.
+* Widgets for indicating 'number' signals: `number`, `s32`, `u32`, `bar`, `meter`.
+* Widgets for controlling 'number' signals: `spinbox`, `scale`, `jogwheel`.
+* Helper widgets: `hbox`, `vbox`, `table`, `label`, `labelframe`.
 
 === Syntax
 
@@ -334,17 +334,17 @@ The label has an optional disable pin that is created when you add
 '<disable_pin>True</disable_pin>'.
 
 [source,xml]
--------------------------------------------------
+----
 <label>
     <text>"This is a Label:"</text>
     <font>("Helvetica",20)</font>
 </label>
--------------------------------------------------
+----
 
 The above code produced this example:
 
 .Simple Label Example
-image::images/pyvcp_label.png[]
+image::images/pyvcp_label.png[align="center"]
 
 === Multi_Label
 
@@ -404,7 +404,7 @@ will be on_color when the halpin is true, and off_color otherwise.
 * '<width>n</width>' - sets the width of the LED in pixels
 * '<disable_pin>false</disable_pin>' - when true adds a disable pin to the led.
 * '<disabled_color>color</disabled_color>' - sets the color of the LED when the
-pin is disabled.
+  pin is disabled.
 
 .Round LED
 
@@ -421,7 +421,7 @@ pin is disabled.
 The above code produced this example:
 
 .Round LED Example
-image::images/pyvcp_led.png[]
+image::images/pyvcp_led.png[align="center"]
 
 .Rectangle LED
 
@@ -446,7 +446,7 @@ The above code produced this example.
 Also showing a vertical box with relief.
 
 .Simple Rectangle LED Example
-image::images/pyvcp_rectled.png[]
+image::images/pyvcp_rectled.png[align="center"]
 
 === Buttons
 
@@ -462,6 +462,7 @@ button is released. Buttons can use the following optional options.
 * '<disable_pin>True</disable_pin>' - disable pin.
 
 .Text Button
+
 A text button controls a 'bit' halpin. The halpin is false until the
 button is pressed then it is true. The button is a momentary button.
 
@@ -483,7 +484,7 @@ add <disable_pin>True</disable_pin>.
 The above code produced this example:
 
 .Simple Buttons Example
-image::images/pyvcp_button.png[]
+image::images/pyvcp_button.png[align="center"]
 
 .Checkbutton
 
@@ -495,10 +496,10 @@ toggle the Checkbutton via HAL, if the value linked is changed, to update the
 display remotely.
 
 .Unchecked button
-image::images/pyvcp_checkbutton1.png[]
+image::images/pyvcp_checkbutton1.png[align="center"]
 
 .Checked button
-image::images/pyvcp_checkbutton2.png[]
+image::images/pyvcp_checkbutton2.png[align="center"]
 
 .Checkbutton Code Example
 [source,xml]
@@ -518,7 +519,7 @@ image::images/pyvcp_checkbutton2.png[]
 The above code produced this example:
 
 .Simple Checkbutton Example
-image::images/pyvcp_checkbutton.png[]
+image::images/pyvcp_checkbutton.png[align="center"]
 
 The coolant checkbutton is checked. +
 Notice the extra spaces in the "Chips" text to keep the checkbuttons aligned.
@@ -542,7 +543,7 @@ number pin set TRUE will have that value.
 The above code produced this example:
 
 .Simple Radiobutton Example
-image::images/pyvcp_radiobutton.png[]
+image::images/pyvcp_radiobutton.png[align="center"]
 
 Note that the HAL pins in the example above will be named
 my-radio.one, my-radio.two, and my-radio.three. +
@@ -636,7 +637,7 @@ them to the same color).
 * <range2>101,135,"orange"</range2> number, number, text, sets the first range
   and color
 * <range3>136, 150,"red"</range3> number, number, text, sets the first range and
-color
+  color
 * <canvas_width>200</canvas_width> number, sets the overall width
 * <canvas_height>50</canvas_height> number, sets the overall height
 * <bar_height>30</bar_height> number, sets the bar height, must be less than
@@ -857,10 +858,10 @@ FWD is displayed when 'selectimage' is false
 and REV is displayed when 'selectimage' is true.
 
 .Selectimage False Example
-image:images/pyvcp_image01.png[]
+image::images/pyvcp_image01.png[]
 
 .Selectimage True Example
-image:images/pyvcp_image02.png[]
+image::images/pyvcp_image02.png[]
 
 .Image u32
 
@@ -883,13 +884,13 @@ The above code produced the following example
 by adding the stb.gif image.
 
 .Simple image_u32 Example with halpin=0
-image:images/pyvcp_image_u32_01.png[]
+image::images/pyvcp_image_u32_01.png[]
 
 .Simple image_u32 Example withhalpin=1
-image:images/pyvcp_image01.png[]
+image::images/pyvcp_image01.png[]
 
 .Simple image_u32 Example withhalpin=2
-image:images/pyvcp_image02.png[]
+image::images/pyvcp_image02.png[]
 
 Notice that the default is the min even though it is set higher than
 max unless there is a negative min.
@@ -905,10 +906,10 @@ Container borders are specified with two tags used together. The
 <relief> tag specifies the type of border and the <bd> specifies the
 width of the border.
 
-* '<relief>type</relief>' -
+'<relief>type</relief>'::
   Where 'type' is FLAT, SUNKEN, RAISED, GROOVE, or RIDGE
 
-* '<bd>n</bd>' -
+'<bd>n</bd>'::
   Where 'n' is the width of the border.
 
 [source,xml]
@@ -953,8 +954,8 @@ Container fill are specified with the '<boxfill fill=""/>' tag. Valid entries
 are none, x, y and both. The x fill is a horizontal fill and the y fill is a
 vertical fill
 
-* '<boxfill fill ="style"/>' -
-  where 'style' is none, x, y, or both. Default is x for Vbox and y for Hbox.
+`<boxfill fill ="style"/>`::
+  Where 'style' is none, x, y, or both. Default is x for Vbox and y for Hbox.
 
 .Anchor
 
@@ -963,15 +964,16 @@ specifies where to position each slave in its parcel. Valid entries are center,
 n, s, e, w, for center, north, south, east and west. Combinations like sw, se,
 nw and ne are also valid.
 
-* '<boxanchor anchor="position"/>' -
-  where 'position' is center, n, s, e, w, ne, nw, se or sw. Default is center.
+`<boxanchor anchor="position"/>`::
+  Where 'position' is center, n, s, e, w, ne, nw, se or sw. Default is center.
 
 .Expand
 
 Container expand is specified with the boolean <boxexpand expand=""/> tag.
 Valid entries are yes, no.
 
-* '<boxexpand expand="boolean"/>' - Where 'boolean' is either yes or no. Default is yes.
+`<boxexpand expand="boolean"/>`::
+  Where 'boolean' is either yes or no. Default is yes.
 
 .Hbox
 
@@ -995,8 +997,8 @@ The above code produced this example:
 .Simple hbox Example
 image::images/pyvcp_hbox.png[]
 
-Inside an Hbox, you can use the '<boxfill fill=""/>', '<boxanchor anchor=""/>'
-, and '<boxexpand expand=""/>' tags to choose how items in the box behave when
+Inside an Hbox, you can use the '<boxfill fill=""/>', '<boxanchor anchor=""/>',
+and '<boxexpand expand=""/>' tags to choose how items in the box behave when
 the window is re-sized.The default is 'fill="y"', 'anchor="center"', 'expand="yes"'
 for a Hbox.
 
@@ -1131,9 +1133,10 @@ A tabbed interface can save quite a bit of space.
 
 The above code produced this example showing each tab selected.
 
-
 image::images/pyvcp_tabs1.png[]
+
 image::images/pyvcp_tabs2.png[]
+
 .Simple Tabs Example
 image::images/pyvcp_tabs3.png[]
 

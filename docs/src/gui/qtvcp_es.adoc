@@ -1,13 +1,22 @@
 :lang: es
+:toc:
 
 [[cha:qtvcp]]
 = Qtvcp
 
-Qtvcp es una infraestructura para mostrar pantallas CNC personalizada o paneles de control en LinuxCNC.
-Muestra un archivo de interfaz de usuario creado con el editor de pantalla QTDesigner o combina esto
-con programación python para crear una pantalla GUI para manejar una máquina CNC.
-Qtvcp es completamente personalizable: puede agregar diferentes botones, LED de estado, etc,
-o agregar código Python para una personalización aún más fina.
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
+Qtvcp es una infraestructura para mostrar pantallas CNC personalizada o paneles
+de control en LinuxCNC.
+Muestra un archivo de interfaz de usuario creado con el editor de pantalla
+QTDesigner o combina esto con programación python para crear una pantalla GUI
+para manejar una máquina CNC.
+Qtvcp es completamente personalizable: puede agregar diferentes botones, LED de
+estado, etc, o agregar código Python para una personalización aún más fina.
 
 .qtdragon - Muestra de 3 o 4 ejes
 image::images/silverdragon.png["QTDragon Router",align="left"]
@@ -21,10 +30,11 @@ image::images/blender.png["QTscreen Blender",align="left"]
 image::images/x1mill.png["QTscreen x1mill",align="left"]
 .cam_align: alineación de cámara VCP
 image::images/qtvcp-cam-align.png["QTscreen x1mill",align="left"]
+.test panel - Test Panel VCP
+image::images/test_panel.png["Test Panel",align="left"]
 
-[[sec:qtvcp-overview]] (((QtVcp Overview)))
-
-== Descripción general
+[[sec:qtvcp-overview]]
+== Descripción general(((QtVcp Overview)))
 
 Hay dos archivos que se pueden usar, individualmente o en combinación, para agregar
 personalización.
@@ -73,6 +83,10 @@ DISPLAY = qtvcp <nombre_pantalla>
     -t tema. El valor predeterminado es el tema del sistema
     -x incrustar en una ventana X11 que no soporta la incrustación.
     --push_xid envía el número de identificación de la ventana X11 de qtvcp a la salida estándar; para empotrar
+    -u file path of a substitute handler file
+    -o pass a string to qtvcp's handler file under self.w.USEROPTIONS_ list variable. can be multiple -o
+
+    all <options> must be before <screen name>
     <screen_name> es el nombre base de los archivos .ui y _handler.py.
     Si falta <nombre_pantalla>, se cargará la pantalla predeterminada.
 ----
@@ -80,6 +94,17 @@ DISPLAY = qtvcp <nombre_pantalla>
 Qtvcp asume que el archivo UI y el archivo del controlador usan este mismo nombre base.
 Qtvcp buscará el archivo de configuración LinuxCNC que se lanzó primero para los archivos,
 luego en la carpeta de máscara del sistema. Las carpetas de máscaras contienen pantallas estándar.
+
+----
+[DISPLAY]
+CYCLE_TIME = 100
+GRAPHICS_CYCLE_TIME = 100
+HALPIN_CYCLE = 100
+----
+
+Adjust the response rate of the GUI updates in milli seconds. Defaults to 100, useable range 50 - 200
+The widgets, graphics and HAL pin update can be set separately.
+If the update time is not set right the screen can become unresponsive or very jerky.
 
 === QTDesigner UI File
 
@@ -106,14 +131,14 @@ Las bibliotecas son módulos de Python preconstruidos que le dan característica
 De esta manera, puede seleccionar qué características desea, sin embargo, no tiene que crear las comunes usted mismo.
 Dichas bibliotecas incluyen:
 
-audio_player +
-aux_program_loader +
-combinaciones de teclas +
-mensaje +
-preferencias +
-notificar +
-virtual_keyboard +
-machine_log
+* `audio_player`
+* `aux_program_loader`
+* `keybindings`
+* `message`
+* `preferences`
+* `notify`
+* `virtual_keyboard`
+* `machine_log`
 
 === Temas
 
@@ -135,8 +160,112 @@ Puede colocar estos archivos en una carpeta con nombre arbitrario: qtvcp buscar�
 
 === Modificar pantallas de stock
 
-Si desea modificar una pantalla de archivo, copie su UI y el archivo del controlador en su carpeta de configuración.
+Ther are three ways to customize a screen/panel.
 
+.Minor StyleSheet changes:
+StyleSheets can be used to set Qt properties.
+If a widget uses properties they usually can be modified by stylesheets.
+ie:
+
+----
+State_LED #name_0f_led{
+qproperty-color: red;
+qproperty-diameter: 20;
+qproperty-flashRate: 150;
+}
+----
+
+.Minor python code changes:
+A file can be added to add commands to the screen, after the handlerfile is parsed.
+In the INI file under the [DISPLAY] heading add USER_COMMAND_FILE = _PATH_
+_PATH_ can be any valid path, it can use '~' for home directory or 'WORKINGDIRECTORY' or
+'CONFIGDIRECTORY' to represent Qtvcp's idea of those directories.
+ie:
+
+----
+[DISPLAY]
+USER_COMMAND_FILE = CONFIGDIRECTORY/qtdragon_added_commands
+----
+
+If no entry is found in the INI, Qtvcp will look in the default path.
+The default path is in the configuration directory as a hidden file using the screen basename and rc.
+ie: CONFIGDIRECTORY/.qtdragonrc
+
+This file will be read and executed as python code in context of the handler file.
+Only local functions and local attributes can be referenced.
+Global libraries can not be referenced. (usual seen as all capital words with no preceding self.)
+What can be used can vary by screen and development cycle.
+
+.valid example:
+[source,python]
+----
+self.w.setWindowTitle('My Title Test')
+----
+
+
+.Full creative control:
+If you wish to modify a stock screen with full control, copy it's UI and handler file to your configuration folder.
+There is a QtVCP panel to help with this.
+Open a terminal and type 'qtvcp copy_dialog' and a dialog will show to select the screen and
+destination folder. This will copy all the file - delete the ones you don't wish to modify so
+that the original files will be used.
+It you wish to name your screen differently then the builtin screen's default name -
+change the basename in the edit box.
+
+== VCP Panels
+Qtvcp can be used to create control panels that interface with HAL.
+
+=== Builtin panels
+
+There are several builtin HAL panels available.
+in a  terminal type 'qtvcp' <return> to see a list.
+
+* test_panel - collect of useful widgets for testing HAL component. Including speech of LED state.
+* cam_align - a camera display widget for rotational alignment
+* sim_panel - a small control panel to simulate MPG jogging controls etc. for simulated configurations
+* vismach_mill_xyz - 3d openGL view of a 3 axis milling machine
+
+.qtvismach- 3 Axis Mill Builtin panel
+image::images/qtvismach.png["QtVismach Mill",align="left"]
+
+[source,{hal}]
+----
+loadusr qtvcp test_panel
+----
+
+You can of course make your own panel and load it.
+If you made a ui file named 'my_panel.ui' and name the following HAL file, 'my_panel.hal'
+You would then load this from a terminal with halrun -I -f my_panel.hal
+
+[source,{hal}]
+----
+# load realtime components
+loadrt threads 
+loadrt classicladder_rt
+
+# load user space programs
+loadusr classicladder
+loadusr -Wn my_panel qtvcp my_panel.ui
+
+# add components to thread
+addf classicladder.0.refresh thread1
+
+
+# connect pins
+net bit-input1     test_panel.checkbox_1        classicladder.0.in-00
+net bit-hide       test_panel.checkbox_4        classicladder.0.hide_gui
+
+net bit-output1    test_panel.led_1             classicladder.0.out-00
+
+net s32-in1        test_panel.doublescale_1-s   classicladder.0.s32in-00
+
+# start thread
+start
+----
+
+In this case we load qtvcp using -Wn; which waits for the panel to finish loading before
+continuing to run the next HAL command. This is so the HAL pins from the panel are finished
+in case the are used in the rest of the file.
 
 == Construir una pantalla personalizada de hoja limpia simple
 
@@ -155,43 +284,52 @@ Luego, conecte los pines HAL necesarios en un archivo HAL
 Debe tener instalado el diseñador; Estos comandos deberían agregarlo: O utilice su administrador de paquetes para instalar lo mismo:
 
 ----
-sudo apt-get install qttools5-dev-tools
-sudo apt-get install qttools5.dev
+sudo apt-get install qttools5-dev-tools qttools5-dev libpython3-dev
 ----
 
-Luego necesita agregar la biblioteca de carga del módulo python. 
-Qtvcp usa QT5 con python2: esta combinación normalmente no está disponible desde
-repositorios Puede compilarlo usted mismo o hay versiones precompiladas
+////
+Luego necesita agregar la biblioteca de carga del módulo python.
+Qtvcp usa QT5 con python2. Esta combinación normalmente no está disponible
+desde repositorios. Puede compilarlo usted mismo, o hay versiones precompiladas
 disponible para sistemas comunes.
-en 'lib / python / qtvcp / designer' hay carpetas basadas en arquitecturas de sistema
+En 'lib/python/qtvcp/designer' hay carpetas basadas en arquitecturas de sistema
 y luego la versión QT.
-Debe elegir la carpeta de arquitectura de la CPU y luego elegir la serie; 5.5, 5.7 o 5.9 de Qt.
-actualmente el estiramiento de Debian usa 5.7, Mint 12 usa 5.5, Mint 19 usa 5.9
-en caso de duda, verifique la versión de QT5 en el sistema.
+Debe elegir la carpeta de arquitectura de la CPU y luego elegir la serie; 5.5,
+5.7 o 5.9 de Qt.
+Actualmente el estiramiento de Debian usa 5.7, Mint 12 usa 5.5, Mint 19 usa 5.9.
+En caso de duda, verifique la versión de QT5 en el sistema.
 
 Debe descomprimir el archivo y luego copiar esa versión adecuada de
-'libpyqt5_py2.so' a esta carpeta:
-'/ usr / lib / x86_64-linux-gnu / qt5 / plugins / designer'
-(x86_64-linux-gnu podría llamarse algo ligeramente diferente
-en diferentes sistemas)
+'libpyqt5_py2.so' a esta carpeta
+'/usr/lib/x86_64-linux-gnu/qt5/plugins/designer'.
+
+(x86_64-linux-gnu podría llamarse algo ligeramente diferente en diferentes
+sistemas)
 
 Necesitará privilegios de superusuario para copiar el archivo en la carpeta.
+////
 
-entonces debe agregar un enlace a qtvcp_plugin.py a la carpeta que buscará el diseñador.
+Entonces debe agregar un enlace a qtvcp_plugin.py a la carpeta que buscará
+el diseñador.
 
 En una versión RIP de linuxcnc qtvcp_plugin.py estará en:
-'~ / LINUXCNC_PROJECT_NAME / lib / python / qtvcp / plugins / qtvcp_plugin.py'
+
+  '~/LINUXCNC_PROJECT_NAME/lib/python/qtvcp/plugins/qtvcp_plugin.py'
 
 la versión instalada debe ser:
-'usr / lib / python2.7 / qtvcp / plugins / qtvcp_plugin.py' o
-'usr / lib / python2.7 / dist-packages / qtvcp / plugins / qtvcp_plugin.py'
 
-cree un archivo de enlace al archivo anterior y muévalo a uno de los lugares en los que el Diseñador busca:
+  'usr/lib/python2.7/qtvcp/plugins/qtvcp_plugin.py' o
+  'usr/lib/python2.7/dist-packages/qtvcp/plugins/qtvcp_plugin.py'
+
+Cree un archivo de enlace al archivo anterior y muévalo a uno de los lugares
+en los que el Diseñador busca:
 
 El diseñador busca enlaces en estos dos lugares (elija uno):
 Esto puede ser:
-'/ usr / lib / x86_64-linux-gnu / qt5 / plugins / designer / python' o
-'~ / .designer / plugins / python'
+
+  '/usr/lib/x86_64-linux-gnu/qt5/plugins/designer/python' o
+  '~/.designer/plugins/python'
+
 Es posible que deba agregar los complementos / carpetas de python
 
 Para iniciar Designer:
@@ -240,24 +378,24 @@ que permite seleccionar acciones mientras solo muestra datos relevantes para la 
 
 Primero describiremos la manera conveniente:
 
- - Haga clic derecho en el botón 'Máquina encendida' y seleccione 'Establecer acciones'. Cuando se muestra el cuadro de diálogo,
-   use el cuadro combinado para navegar a 'CONTROLES DE MÁQUINA - Máquina encendida'. En este caso hay
-   no hay opción para esta acción, así que seleccione ok. Ahora el botón encenderá la máquina cuando se presione
+- Haga clic derecho en el botón 'Máquina encendida' y seleccione 'Establecer acciones'. Cuando se muestra el cuadro de diálogo,
+  use el cuadro combinado para navegar a 'CONTROLES DE MÁQUINA - Máquina encendida'. En este caso hay
+  no hay opción para esta acción, así que seleccione ok. Ahora el botón encenderá la máquina cuando se presione
 
 Y ahora el camino directo con el editor de propiedades del Diseñador
 
- - Seleccione el botón 'Máquina encendida'. Ahora ve al 'Editor de propiedades' a la derecha
-   lado del diseñador. Desplácese hacia abajo hasta encontrar el encabezado 'ActionButton'.
-   Verá una lista de propiedades y valores. encuentra la 'máquina en acción' y
-   haz clic en la casilla de verificación. el botón ahora controlará el encendido / apagado de la máquina.
+- Seleccione el botón 'Máquina encendida'. Ahora ve al 'Editor de propiedades' a la derecha
+  lado del diseñador. Desplácese hacia abajo hasta encontrar el encabezado 'ActionButton'.
+  Verá una lista de propiedades y valores. encuentra la 'máquina en acción' y
+  haz clic en la casilla de verificación. el botón ahora controlará el encendido / apagado de la máquina.
 
 Haga lo mismo para todos los demás botones con la adición de:
 
- - Con el botón 'Inicio' también debemos cambiar la propiedad joint_number a -1,
-   Lo que le dice al controlador que guarde todos los ejes en lugar de un eje específico.
+- Con el botón 'Inicio' también debemos cambiar la propiedad joint_number a -1,
+  Lo que le dice al controlador que guarde todos los ejes en lugar de un eje específico.
 
- - Con el botón 'Pausa' debajo del encabezado 'Indicated_PushButton' marque el
-   'indicator_option' y debajo del encabezado 'QAbstactButton' marque 'checkable'
+- Con el botón 'Pausa' debajo del encabezado 'Indicated_PushButton' marque el
+  'indicator_option' y debajo del encabezado 'QAbstactButton' marque 'checkable'
 
 .Qt Designer: selección de las propiedades del botón Pausa
 image::images/designer_button_property.png["propiedad del botón del diseñador", align = "left"]
@@ -280,7 +418,7 @@ Teclado básico para correr.
 Si está utilizando qtvcp para hacer una pantalla de control CNC:
 Bajo el encabezado '[DISPLAY]':
 
-'DISPLAY = qtvcp <nombre_pantalla>'
+  'DISPLAY = qtvcp <nombre_pantalla>'
 
 '<screen_name>' es el nombre base de los archivos .ui y _handler.py.
 
@@ -296,6 +434,13 @@ p.ej. 'qtvcp_postgui.hal'
 Estos comandos se ejecutan después de construir la pantalla, garantizando el widget HAL
 Los pines están disponibles.
 
+Qtvcp also looks in the INI file, under the heading '[HAL]' for the entry 'POSTGUI_HALCMD=<command>'
+'<command>' would be any valid HAL command.
+These commands are executed after the screen is built, after all the POSTGUI_HALFILEs are run,
+guaranteeing the widget HAL pins are available.
+You can have multiple line of 'POSTGUI_HALCMD=<command>' in the INI.
+Each will be run one after the other in the order they appear.
+
 En nuestro ejemplo, no hay pines HAl para conectar.
 
 == Archivo de controlador en detalle
@@ -310,211 +455,212 @@ Está dividido en secciones para facilitar la discusión.
 [source,python]
 ----
 ############################
-# **** SECCIÓN DE IMPORTACIÓN **** #
+# **** IMPORT SECTION **** #
 ############################
-sistema de importación
-importar os
-importar linuxcnc
+import sys
+import os
+import linuxcnc
 
-desde PyQt5 importar QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets
 
-desde qtvcp.widgets.mdi_line importa MDILine como MDI_WIDGET
-desde qtvcp.widgets.gcode_editor importa GcodeEditor como GCODE
-desde qtvcp.lib.keybindings import Keylookup
+from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
+from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
+from qtvcp.lib.keybindings import Keylookup
 from qtvcp.core import Status, Action
 
-# Configurar registro
-del registrador de importación qtvcp
-LOG = logger.getLogger (__ name__)
+# Set up logging
+from qtvcp import logger
+LOG = logger.getLogger(__name__)
 
-# Establecer el nivel de registro para este módulo
-# LOG.setLevel (logger.INFO) # Uno de DEPURACIÓN, INFORMACIÓN, ADVERTENCIA, ERROR, CRÍTICO
+# Set the log level for this module
+#LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 ###########################################
-# **** SECCIÓN DE BIBLIOTECAS INSTANCIA **** #
+# **** INSTANTIATE LIBRARIES SECTION **** #
 ###########################################
 
-KEYBIND = Keylookup ()
-ESTADO = Estado ()
-ACCIÓN = Acción ()
+KEYBIND = Keylookup()
+STATUS = Status()
+ACTION = Action()
 ###################################
-# **** SECCIÓN DE CLASE DE MANEJADOR **** #
+# **** HANDLER CLASS SECTION **** #
 ###################################
 
-clase HandlerClass:
+class HandlerClass:
 
     ########################
-    # **** INICIALIZAR **** #
+    # **** INITIALIZE **** #
     ########################
-    # widgets permite el acceso a widgets desde los archivos qtvcp
-    # en este punto, los widgets y los pines hal no están instanciados
-    def __init __ (self, halcomp, widgets, caminos):
+    # widgets allows access to  widgets from the qtvcp files
+    # at this point the widgets and hal pins are not instantiated
+    def __init__(self, halcomp,widgets,paths):
         self.hal = halcomp
         self.w = widgets
-        self.PATHS = caminos
+        self.PATHS = paths
 
     ##########################################
-    # FUNCIONES ESPECIALES SECCIÓN #
+    # SPECIAL FUNCTIONS SECTION              #
     ##########################################
 
-    # en este punto:
-    # los widgets son instanciados.
-    # los pines HAL están construidos pero HAL no está listo
-    # Aquí es donde haces pines HAL o inicializas el estado de los widgets, etc.
-    def inicializado __ (self):
-        pasar
+    # at this point:
+    # the widgets are instantiated.
+    # the HAL pins are built but HAL is not set ready
+    # This is where you make HAL pins or initialize state of widgets etc
+    def initialized__(self):
+        pass
 
-    def created_key_event __ (self, receptor, evento, is_pressed, key, code, shift, cntrl):
-        # al escribir MDI, no queremos que la combinación de teclas llame a funciones
-        # así que capturamos y procesamos los eventos directamente.
-        # Queremos que ESC, F1 y F2 llamen a funciones de combinación de teclas
-        si el código no está en (QtCore.Qt.Key_Escape, QtCore.Qt.Key_F1, QtCore.Qt.Key_F2,
-                    QtCore.Qt.Key_F3, QtCore.Qt.Key_F5, QtCore.Qt.Key_F5):
+    def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
+        # when typing in MDI, we don't want keybinding to call functions
+        # so we catch and process the events directly.
+        # We do want ESC, F1 and F2 to call keybinding functions though
+        if code not in(QtCore.Qt.Key_Escape,QtCore.Qt.Key_F1 ,QtCore.Qt.Key_F2,
+                    QtCore.Qt.Key_F3,QtCore.Qt.Key_F5,QtCore.Qt.Key_F5):
 
-            # busca el widget superior de cualquier widget que haya recibido el evento
-            # luego verifique si es uno al que queremos que vayan los eventos de pulsación de teclas
-            bandera = falso
-            receptor2 = receptor
-            mientras el receptor2 no es Ninguno y no marca:
-                if isinstance (receptor2, QtWidgets.QDialog):
-                    bandera = verdadero
-                    descanso
-                if isinstance (receptor2, MDI_WIDGET):
-                    bandera = verdadero
-                    descanso
-                if isinstance (receptor2, GCODE):
-                    bandera = verdadero
-                    descanso
-                receptor2 = receptor2.parente ()
+            # search for the top widget of whatever widget received the event
+            # then check if it's one we want the keypress events to go to
+            flag = False
+            receiver2 = receiver
+            while receiver2 is not None and not flag:
+                if isinstance(receiver2, QtWidgets.QDialog):
+                    flag = True
+                    break
+                if isinstance(receiver2, MDI_WIDGET):
+                    flag = True
+                    break
+                if isinstance(receiver2, GCODE):
+                    flag = True
+                    break
+                receiver2 = receiver2.parent()
 
-            si bandera:
-                if isinstance (receptor2, GCODE):
-                    # si en el manual hacemos nuestras combinaciones de teclas - de lo contrario
-                    # enviar eventos al widget de gcode
-                    if STATUS.is_man_mode () == False:
-                        si está_presionado:
-                            receptor.keyPressEvent (evento)
-                            event.accept ()
-                        volver verdadero
-                elif está_presionado:
-                    receptor.keyPressEvent (evento)
-                    event.accept ()
-                    volver verdadero
-                más:
-                    event.accept ()
-                    volver verdadero
+            if flag:
+                if isinstance(receiver2, GCODE):
+                    # if in manual do our keybindings - otherwise
+                    # send events to G-code widget
+                    if STATUS.is_man_mode() == False:
+                        if is_pressed:
+                            receiver.keyPressEvent(event)
+                            event.accept()
+                        return True
+                elif is_pressed:
+                    receiver.keyPressEvent(event)
+                    event.accept()
+                    return True
+                else:
+                    event.accept()
+                    return True
 
-        # ok si llegamos aquí, entonces intente las combinaciones de teclas
-        tratar:
-            return KEYBIND.call (self, event, is_pressed, shift, cntrl)
-        excepto NameError como e:
-            LOG.debug ('Excepción en KEYBINDING: {}'. Formato (e))
-        excepto Excepción como e:
-            LOG.debug ('Excepción en KEYBINDING:', exc_info = e)
-            print 'Error en, o ninguna función para:% s en el archivo del controlador para-% s'% (KEYBIND.convert (evento), clave)
-            falso retorno
+        if event.isAutoRepeat():return True
+
+        # ok if we got here then try keybindings
+        try:
+            return KEYBIND.call(self,event,is_pressed,shift,cntrl)
+        except NameError as e:
+            LOG.debug('Exception in KEYBINDING: {}'.format (e))
+        except Exception as e:
+            LOG.debug('Exception in KEYBINDING:', exc_info=e)
+            print('Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key))
+            return False
 
     ########################
-    # LLAMADAS DE ESTADO #
+    # CALLBACKS FROM STATUS #
     ########################
 
     #######################
-    # LLAMADAS DEL FORMULARIO #
+    # CALLBACKS FROM FORM #
     #######################
 
     #####################
-    # FUNCIONES GENERALES #
+    # GENERAL FUNCTIONS #
     #####################
 
-    # teclado trotar desde llamadas de enlace de teclas
-    # duplica la tasa si rápido es cierto
-    def kb_jog (self, state, joint, direction, fast = False, linear = True):
-        si no STATUS.is_man_mode () o no STATUS.machine_is_on ():
-            regreso
-        si lineal:
-            distancia = ESTADO.get_jog_increment ()
-            rate = STATUS.get_jograte () / 60
-        más:
-            distancia = ESTADO.get_jog_increment_angular ()
-            rate = STATUS.get_jograte_angular () / 60
-        si estado:
-            si es rápido:
-                tasa = tasa * 2
-            ACTION.JOG (articulación, dirección, velocidad, distancia)
-        más:
-            ACTION.JOG (conjunto, 0, 0, 0)
+    # keyboard jogging from key binding calls
+    # double the rate if fast is true 
+    def kb_jog(self, state, joint, direction, fast = False, linear = True):
+        if not STATUS.is_man_mode() or not STATUS.machine_is_on():
+            return
+        if linear:
+            distance = STATUS.get_jog_increment()
+            rate = STATUS.get_jograte()/60
+        else:
+            distance = STATUS.get_jog_increment_angular()
+            rate = STATUS.get_jograte_angular()/60
+        if state:
+            if fast:
+                rate = rate * 2
+            ACTION.JOG(joint, direction, rate, distance)
+        else:
+            ACTION.JOG(joint, 0, 0, 0)
 
     #####################
-    # LLAMADAS DE VINCULACIÓN CLAVE #
+    # KEY BINDING CALLS #
     #####################
 
-    # Control de maquina
-    def on_keycall_ESTOP (self, event, state, shift, cntrl):
-        si estado:
-            ACTION.SET_ESTOP_STATE (STATUS.estop_is_clear ())
-    def on_keycall_POWER (self, event, state, shift, cntrl):
-        si estado:
-            ACTION.SET_MACHINE_STATE (no STATUS.machine_is_on ())
-    def on_keycall_HOME (self, event, state, shift, cntrl):
-        si estado:
-            if STATUS.is_all_homed ():
-                ACTION.SET_MACHINE_UNHOMED (-1)
-            más:
-                ACTION.SET_MACHINE_HOMING (-1)
-    def on_keycall_ABORT (self, event, state, shift, cntrl):
-        si estado:
+    # Machine control
+    def on_keycall_ESTOP(self,event,state,shift,cntrl):
+        if state:
+            ACTION.SET_ESTOP_STATE(STATUS.estop_is_clear())
+    def on_keycall_POWER(self,event,state,shift,cntrl):
+        if state:
+            ACTION.SET_MACHINE_STATE(not STATUS.machine_is_on())
+    def on_keycall_HOME(self,event,state,shift,cntrl):
+        if state:
+            if STATUS.is_all_homed():
+                ACTION.SET_MACHINE_UNHOMED(-1)
+            else:
+                ACTION.SET_MACHINE_HOMING(-1)
+    def on_keycall_ABORT(self,event,state,shift,cntrl):
+        if state:
             if STATUS.stat.interp_state == linuxcnc.INTERP_IDLE:
-                self.w.close ()
-            más:
-                self.cmnd.abort ()
+                self.w.close()
+            else:
+                self.cmnd.abort()
 
-    # Jogging lineal
-    def on_keycall_XPOS (self, event, state, shift, cntrl):
-        self.kb_jog (estado, 0, 1, turno)
+    # Linear Jogging
+    def on_keycall_XPOS(self,event,state,shift,cntrl):
+        self.kb_jog(state, 0, 1, shift)
 
-    def on_keycall_XNEG (self, event, state, shift, cntrl):
-        self.kb_jog (estado, 0, -1, turno)
+    def on_keycall_XNEG(self,event,state,shift,cntrl):
+        self.kb_jog(state, 0, -1, shift)
 
-    def on_keycall_YPOS (self, event, state, shift, cntrl):
-        self.kb_jog (estado, 1, 1, turno)
+    def on_keycall_YPOS(self,event,state,shift,cntrl):
+        self.kb_jog(state, 1, 1, shift)
 
-    def on_keycall_YNEG (self, event, state, shift, cntrl):
-        self.kb_jog (estado, 1, -1, turno)
+    def on_keycall_YNEG(self,event,state,shift,cntrl):
+        self.kb_jog(state, 1, -1, shift)
 
-    def on_keycall_ZPOS (self, event, state, shift, cntrl):
-        self.kb_jog (estado, 2, 1, turno)
+    def on_keycall_ZPOS(self,event,state,shift,cntrl):
+        self.kb_jog(state, 2, 1, shift)
 
-    def on_keycall_ZNEG (self, event, state, shift, cntrl):
-        self.kb_jog (estado, 2, -1, turno)
+    def on_keycall_ZNEG(self,event,state,shift,cntrl):
+        self.kb_jog(state, 2, -1, shift)
 
-    def on_keycall_APOS (self, event, state, shift, cntrl):
-        pasar
-        # self.kb_jog (estado, 3, 1, turno, falso)
+    def on_keycall_APOS(self,event,state,shift,cntrl):
+        pass
+        #self.kb_jog(state, 3, 1, shift, False)
 
-    def on_keycall_ANEG (self, event, state, shift, cntrl):
-        pasar
-        # self.kb_jog (estado, 3, -1, shift, linear = False)
+    def on_keycall_ANEG(self,event,state,shift,cntrl):
+        pass
+        #self.kb_jog(state, 3, -1, shift, linear=False)
 
     ###########################
-    # **** evento de cierre **** #
+    # **** closing event **** #
     ###########################
 
     ##############################
-    # código de caldera de clase requerido #
+    # required class boiler code #
     ##############################
 
-    def __getitem __ (self, item):
-        return getattr (auto, artículo)
-    def __setitem __ (self, item, value):
-        return setattr (self, item, value)
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
 
 ################################
-# código de caldera del controlador requerido #
+# required handler boiler code #
 ################################
 
-def get_handlers (halcomp, widgets, caminos):
-     return [HandlerClass (halcomp, widgets, caminos)]
-
+def get_handlers(halcomp,widgets,paths):
+     return [HandlerClass(halcomp,widgets,paths)]
 ----
 
 === SECCIÓN DE IMPORTACIÓN
@@ -572,11 +718,11 @@ Esta función se llama para facilitar el desplazamiento del teclado, etc.
 Al usar la biblioteca de combinaciones de teclas, esto se puede usar para agregar fácilmente
 funciones vinculadas a las pulsaciones de teclas.
 
-==== keypress_event __ (self, receptor, evento)):
+==== keypress_event __ (self, receptor, evento):
 
 Esta función proporciona eventos de pulsación de tecla sin procesar. Se necesita presidencia sobre
 el evento_clave_procesado.
- 
+
 ==== keyrelease_event __ (receptor, evento):
 
 Esta función proporciona eventos de liberación de clave sin procesar. Se necesita presidencia sobre
@@ -592,7 +738,7 @@ En este momento, todos los widgets / bibliotecas / código de inicialización se
 Si está presente, esta función anula la función normal llamada cuando un usuario selecciona un apagado total del sistema.
 Podría usarse para realizar tareas de limpieza antes del cierre. El sistema no se apagará si usa esta función, usted
 tienes que hacerlo tú mismo. qtvcp / linuxcnc se apagará sin un aviso después de que esta función regrese
- 
+
 ==== ending_cleanup __ (self)
 
 Esta función se llama justo antes de que se cierre la pantalla. Se puede usar
@@ -621,10 +767,11 @@ La firma de la función es:
 
 [source,python]
 ----
-    def on_keycall_KEY (self, event, state, shift, cntrl):
-        si estado:
-            self.do_something_function ()
+    def on_keycall_KEY(self,event,state,shift,cntrl):
+        if state:
+            self.do_something_function()
 ----
+
 'KEY' es el código (de la biblioteca de combinaciones de teclas) para la clave deseada.
 
 === sección EVENTO DE CIERRE
@@ -635,9 +782,9 @@ Por lo general, es mejor usar la función de cierre_cleanup__ especial.
 
 [source,python]
 ----
-    def closeEvent (self, event):
-        self.do_something ()
-        event.accept ()
+    def closeEvent(self, event):
+        self.do_something()
+        event.accept()
 ----
 
 == Conexión de widgets a código python
@@ -652,6 +799,7 @@ En el editor Designer, crearía ranuras de funciones de usuario y conectaría
 ellos a los widgets usando señales.
 En el archivo del controlador, crearía las funciones de la ranura definidas en Designer.
 
+[[cha:designer-slots]]
 === Usar Designer para agregar ranuras
 
 Cuando haya cargado su pantalla en el diseñador, agregue un PushButton simple a la pantalla.
@@ -689,16 +837,16 @@ Entonces, para nuestro ejemplo:
 
 [source,python]
 ----
-def test_button (self):
-    nombre = self.w.sender (). text ()
-    nombre impreso
+def test_button(self):
+    name = self.w.sender().text()
+    print(name)
 ----
 
 Agregue este código en la sección llamada:
 
-    #######################
-    # devoluciones de llamada del formulario #
-    #######################
+  ##########################################
+  # devoluciones de llamada del formulario #
+  ##########################################
 
 De hecho, no importa en qué parte de la clase de controlador coloque los comandos
 pero por convención, aquí es donde ponerlo.
@@ -717,3 +865,5 @@ Removed all-English _es file: cha:qtvcp-code,fragmentos de código de archivo de
 Removed all-English _es file: cha:qtvcp-development,QtVCP Development
 
 Removed all-English _es file: cha:qtvcp-custom-widgets,QtVCP Custom Designer Widgets
+
+// vim: set syntax=asciidoc:

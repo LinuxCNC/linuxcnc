@@ -1,12 +1,13 @@
 :lang: es
+:toc:
 
 [[cha:basic-hal-reference]]
-= Referencia básica HAL
+= Referencia básica HAL(((Referencia básica HAL)))
 
 Este documento proporciona una referencia de los conceptos básicos de HAL.
 
 [[sec:hal-commands]]
-== Comandos HAL
+== Comandos HAL(((Comandos HAL)))
 
 Se puede encontrar información más detallada en la página del manual de 'halcmd'; ejecutar
 'man halcmd' en una ventana de terminal.
@@ -16,34 +17,30 @@ use la ventana de configuración de HAL en el menú 'Máquina' en AXIS. Para ver
 el estado de un pin, abra la pestaña 'Ver' y haga clic en cada pin de su interés,
 que se agregará a la ventana de observación.
 
-.Ventana de configuración HAL
+.Ventana de Configuración HAL
+image::images/HAL_Configuration.png["La Ventana de Configuración HAL",align="center"]
 
-image::images/HAL_Configuration.png[align="center", alt="HAL Configuration Window"]
-
-=== loadrt
+[[sub:hal-loart]]
+=== loadrt(((HAL loadrt,loadrt)))
 
 El comando 'loadrt' carga componentes HAL en tiempo real.
 Las funciones de los componentes de tiempo real deben agregarse a un hilo para ejecutarse a la
 velocidad de ese hilo. No puede cargar un componente de espacio de usuario en el
 espacio de tiempo real.
 
-Sintaxis y ejemplo:
-
+.loadrt Sintaxis y Ejemplo
 ----
 loadrt <componente> <opciones>
 
 loadrt mux4 count=1
 ----
 
-=== addf
+[[sub:hal-addf]]
+=== addf(((HAL addf,addf)))
 
-Sintaxis y ejemplo:
-
-----
-addf <función> <thread>
-
-addf mux4.0 servo-thread
-----
+The `addf` command adds a function to a real-time thread. If
+the StepConf wizard was used to create the configuration, two
+threads have been created (``base-thread`` and ``servo-thread``).
 
 Agrega la función 'funct' al hilo 'thread'. El valor predeterminado es agregar la función
 en el orden en que están en el archivo. Si se especifica 'posición', agrega la función
@@ -82,26 +79,26 @@ Realtime Threads:
       55332  NO            base-thread (        0,        0 )
 ----
 
- - base-thread (el hilo de alta velocidad): este hilo maneja elementos que
-   necesita una respuesta rápida, como hacer pulsos de paso o leer y escribir
-   del/al puerto paralelo. No es compatible con matemática de coma flotante.
- - servo-thread (el hilo de baja velocidad): este hilo maneja los elementos que
-   puede tolerar una respuesta más lenta, como el controlador de movimiento, ClassicLadder,
-   y el controlador de comandos de movimiento. Admite matemáticas de coma flotante.
+- base-thread (el hilo de alta velocidad): este hilo maneja elementos que
+  necesita una respuesta rápida, como hacer pulsos de paso o leer y escribir
+  del/al puerto paralelo. No es compatible con matemática de coma flotante.
+- servo-thread (el hilo de baja velocidad): este hilo maneja los elementos que
+  puede tolerar una respuesta más lenta, como el controlador de movimiento, ClassicLadder,
+  y el controlador de comandos de movimiento. Admite matemáticas de coma flotante.
 
-=== loadusr
-
-Sintaxis y ejemplos:
-
+.addf Sintaxis y ejemplo
 ----
-loadusr <componente> <opciones>
+addf <función> <thread>
 
-loadusr halui
-
-loadusr -Wn spindle gs2_vfd -n spindle
+addf mux4.0 servo-thread
 ----
-Esto ultimo significa:
-'loadusr espera la carga del componente spindle, que es un componente gs2_vfd, nombrado como spindle'
+
+[NOTE]
+If the component requires a floating point thread that is usually the slower
+servo-thread.
+
+[[sub:hal-loadusr]]
+=== loadusr(((HAL loadusr,loadusr)))
 
 El comando 'loadusr' carga un componente HAL en espacio de usuario. Los programas en
 espacio de usuario tienen sus propios procesos separados que, opcionalmente, se comunican
@@ -123,25 +120,37 @@ Las banderas pueden ser una o más de las siguientes:
 
 -n:: Nombrar un componente cuando es una opción válida para ese componente.
 
-[[sub:hal-net]] (((net)))
+.loadusr Sintaxis y ejemplos
+----
+loadusr <componente> <opciones>
 
-=== net
+loadusr halui
 
-Sintaxis y ejemplo:
+loadusr -Wn spindle gs2_vfd -n spindle
+----
+
+Esto ultimo significa: 'loadusr espera la carga del componente spindle,
+que es un componente gs2_vfd, nombrado como spindle'
+
+[[sub:hal-net]]
+=== net(((HAL net,net)))
+
+El comando 'net' crea una 'conexión' entre una señal y uno o más pines.
+Si la señal no existe, 'net' crea la nueva señal, evitando el uso del
+comando 'newsig'. Las flechas de dirección opcionales
+'<=', '=>' y '<=>' sirven para que sea más fácil seguir la lógica al leer
+una línea de comando 'net', pero no son utilizadas por el propio comando. Las flechas de dirección
+debe estar separadas por un espacio de los nombres de los pines.
+
+.net Sintaxis y ejemplo
 ----
 net nombre-señal nombre-pin <flecha opcional> <segundo nombre-pin opcional>
 
 net home-x joint.0.home-sw-in <= parport.0.pin-11-in
 ----
 
-El comando 'net' crea una 'conexión' entre una señal y uno
-o más pines. Si la señal no existe, 'net' crea la nueva señal, evitando el uso del comando 'newsig'. Las flechas de dirección opcionales
-'<​=', '=​>' y '<​​=​>' sirven para que sea más fácil seguir la lógica al leer
-una línea de comando 'net', pero no son utilizadas por el propio comando. Las flechas de dirección
-debe estar separadas por un espacio de los nombres de los pines.
-
 En el ejemplo, 'home-x' es el nombre de la señal, 'joint.0.home-sw-in' es un
-pin 'Dirección IN', '<​=' es la flecha de dirección opcional, y
+pin 'Dirección IN', '<=' es la flecha de dirección opcional, y
 'parport.0.pin-11-in' es un pin 'Dirección OUT'. Esto puede parecer confuso pero
 las etiquetas de entrada y salida para un pin de puerto paralelo indican la forma física en la
 que el pin funciona, no como se maneja en HAL.
@@ -150,14 +159,15 @@ Se puede conectar un pin a una señal, si obedece las siguientes reglas:
 
 * Un pin IN siempre se puede conectar a una señal.
 * Un pin IO se puede conectar si no hay un pin OUT conectado a la señal.
-* Un pin OUT se puede conectar solo si no hay otros pines OUT o IO en la señal
+* Un pin OUT se puede conectar solo si no hay otros pines OUT o IO en la
+  señal
 
 El mismo 'nombre-señal' se puede usar en múltiples comandos 'net' para conectar
 pines adicionales, siempre que se obedezcan las reglas anteriores.
 
+[[cap:signal-direction]]
 .Dirección de señal
-
-image::images/signal-direction.png[align="center", alt="Dirección de señal"]
+image::images/signal-direction.png["Dirección de señal",align="center"]
 
 El siguiente ejemplo muestra la señal xStep, siendo la fuente
 stepgen.0.out, y con dos lectores, parport.0.pin-02-out y
@@ -176,22 +186,15 @@ lector. Para hacer esto, simplemente use la señal, con los nuevos lectores, en 
 línea.
 
 ----
+#   signal       destination2
 net xStep => parport.0.pin-02-out
 ----
 
 .Pines I/O
-
 Un pin de E/S, como encoder.N.index-enable, se puede leer o establecer tal como lo permita el componente.
 
-=== setp
-
-Sintaxis y un ejemplo:
-
-----
-setp <nombre-pin/parámetro> <valor>
-
-setp parport.0.pin-08-out TRUE
-----
+[[sub:hal-setp]]
+=== setp(((HAL setp,setp)))
 
 El comando 'setp' establece el valor de un pin o parámetro.
 Los valores validos dependerán del tipo de pin o parámetro. Es un error
@@ -201,12 +204,19 @@ Algunos componentes tienen parámetros que deben establecerse antes de su uso.
 Los parámetros se pueden configurar antes de usarse o mientras se ejecuta el componente, según sea necesario. No puede
 usar 'setp' en un pin que está conectado a una señal.
 
-=== sets
+.setp Sintaxis y un ejemplo
+----
+setp <nombre-pin/parámetro> <valor>
+
+setp parport.0.pin-08-out TRUE
+----
+
+[[sub:hal-sets]]
+=== sets(((HAL sets,sets)))
 
 El comando 'sets' establece el valor de una señal.
 
-Sintaxis y un ejemplo:
-
+.sets Sintaxis y un ejemplo
 ----
 sets <nombre-señal> <valor>
 
@@ -221,15 +231,15 @@ Es un error si:
 * La señal ya tiene un escritor
 * El valor no es el tipo correcto para la señal
 
-=== unlinkp
+[[sub:hal-inlinkp]]
+=== unlinkp(((HAL unlinkp,unlinkp)))
 
 El comando 'unlinkp' desvincula un pin de la señal conectada. Si no
 se conectó el pin a una señal antes de ejecutar el comando, no sucede nada. No es necesario el nombre de la señal; el
 pin quedara aislado de cualquier señal.
 El comando 'unlinkp' es útil para la resolución de problemas.
 
-Sintaxis y ejemplo:
-
+.unlinkp Sintaxis y ejemplo
 ----
 unlinkp <nombre-pin>
 
@@ -242,27 +252,26 @@ Los siguientes comandos están desaconsejados y pueden eliminarse en futuras
 versiones. Cualquier nueva configuración debe usar el comando <<sub:hal-net,'net'>>.
 Estos comandos están incluidos para que las configuraciones más antiguas sigan funcionando.
 
-.linksp
+==== linksp
 
 El comando 'linksp' crea una 'conexión' entre una señal y un
 pin.
 
-Sintaxis y un ejemplo:
-
+.linksp Sintaxis y un ejemplo
 ----
 linksp <nombre-señal> <nombre-pin>
+
 linksp X-step parport.0.pin-02-out
 ----
 
 El comando 'net' ha reemplazado al comando 'linksp'.
 
-.linkps
+==== linkps
 
 El comando 'linkps' crea una 'conexión' entre un pin y una
 señal. Es lo mismo que linksp pero los argumentos están invertidos.
 
-Sintaxis y un ejemplo:
-
+.linkps Sintaxis y un ejemplo
 ----
 linkps <nombre-pin> <nombre-señal>
 
@@ -271,14 +280,13 @@ linkps parport.0.pin-02-out X-Step
 
 El comando 'net' ha reemplazado el comando 'linkps'.
 
-.newsig
+==== newsig
 
 el comando 'newsig' crea una nueva señal HAL con el nombre <signame>
 y el tipo de datos <tipo>. El tipo debe ser 'bit', 's32', 'u32' o
 'float'. Es un error si 'signame' ya existe.
 
-Sintaxis y un ejemplo:
-
+.newsig Sintaxis y un ejemplo:
 ----
 newsig <signame> <tipo>
 
@@ -289,99 +297,107 @@ Se puede encontrar más información en el manual de HAL o en las páginas man d
 halrun.
 
 [[sec:hal-data]]
+== Datos HAL(((Datos HAL)))
 
-== Datos HAL
-
-=== Bit (((Bit)))
+[[sub:hal-bit]]
+=== Bit(((HAL Bit,bit)))
 
 Un valor de bit puede estar activado o desactivado.
 
- - valores de bit = true o 1 y false o 0 (True, TRUE, true, son todos válidos)
+- valores de bit = true o 1 y false o 0 (True, TRUE, true, son todos válidos)
 
+[[sub:hal-float]]
 === Float (((Float)))
 
 Un "float" es un número de punto flotante. En otras palabras, el punto decimal
 puede moverse según sea necesario.
 
- - valores de float = un valor de punto flotante de 64 bits, con aproximadamente 53 bits de
-   resolución y más de 1000 bits de rango dinámico.
+- valores de float = un valor de punto flotante de 64 bits, con aproximadamente 53 bits de
+  resolución y más de 1000 bits de rango dinámico.
 
 Para obtener más información sobre los números de punto flotante, consulte:
 
 http://en.wikipedia.org/wiki/Floating_point[http://en.wikipedia.org/wiki/Floating_point]
 
-=== s32 (((s32)))
+[[sub:hal-s32]]
+=== s32(((HAL s32,s32)))
 
-Un número 's32' es un número entero que puede tener un valor negativo o positivo.
+Un número 's32' es un número entero que puede tener un valor negativo o
+positivo.
 
- - valores de s32 = números enteros de -2147483648 a 2147483647
+- valores de s32 = números enteros de -2147483648 a 2147483647
 
-=== u32 (((u32)))
+[[sub:hal-u32]]
+=== u32(((HAL u32,u32)))
 
 Un número 'u32' es un número entero que es positivo solamente.
 
- - valores u32 = números enteros de 0 a 4294967295
+- valores u32 = números enteros de 0 a 4294967295
 
-== Archivos HAL
+[[sec:hal-files]]
+== Archivos HAL(((Archivos HAL)))
 
 Si utilizó el Asistente de configuración de Steppers para generar su configuración,
 tendrá hasta tres archivos HAL en su directorio de configuración.
 
- - mi-mill.hal (si ha llamado a su configuración 'mi-mill') Este archivo será cargado el
-   primero y no debe cambiarse si usó el Asistente de configuración de Stepper.
- - custom.hal Este archivo se carga a continuación y antes de que se cargue la GUI. En él
-   se ponen los comandos HAL personalizados que se quieren cargar antes de que sea cargada
-   la GUI.
- - custom_postgui.hal Este archivo se carga después de que se cargue la GUI. Es
-   donde se colocan los comandos HAL personalizados que desea cargar después de
-   la carga de la GUI. Cualquier comando HAL que use widgets pyVCP debe ser
-   colocado aquí.
+- mi-mill.hal (si ha llamado a su configuración 'mi-mill') Este archivo será cargado el
+  primero y no debe cambiarse si usó el Asistente de configuración de Stepper.
+- custom.hal Este archivo se carga a continuación y antes de que se cargue la GUI. En él
+  se ponen los comandos HAL personalizados que se quieren cargar antes de que sea cargada
+  la GUI.
+- custom_postgui.hal Este archivo se carga después de que se cargue la GUI. Es
+  donde se colocan los comandos HAL personalizados que desea cargar después de
+  la carga de la GUI. Cualquier comando HAL que use widgets pyVCP debe ser
+  colocado aquí.
 
-== Componentes HAL
+[[sec:hal-parameters]]
+== Parámetros HAL(((Parámetros HAL)))
 
 A cada componente HAL, cuando es creado, se le agregan automáticamente dos parámetros.
 Estos parámetros permiten monitorizar el tiempo de ejecución de un componente.
 
-+.time+(((tiempo)))
+[horizontal]
+`.time`(((HAL time))):: 'time' es la cantidad de ciclos de CPU necesarios para ejecutar la función.
+`.tmax`(((HAL tmax))):: 'tmax' es la cantidad máxima de ciclos de CPU necesarios para ejecutar la
+función.
 
-+.tmax+(((tmax)))
-
-'time' es la cantidad de ciclos de CPU necesarios para ejecutar la función.
-
-'tmax' es la cantidad máxima de ciclos de CPU necesarios para ejecutar la
-función. 'tmax' es un parámetro de lectura/escritura para que el usuario pueda configurarlo a 0
+'tmax' es un parámetro de lectura/escritura para que el usuario pueda configurarlo a 0
 para deshacerse de la primera inicialización en la ejecución de la función.
 
-== Componentes lógicos
+[[sec:hal-logic-components]]
+== Componentes lógicos(((Componentes lógicos HAL)))
 
 HAL contiene varios componentes lógicos en tiempo real. Un componentes lógico
 sigue una 'tabla de verdad' que indica cuál es el resultado para cualquier entrada dada.
 Normalmente, son manipuladores de bits y siguen la lógica eléctrica de tablas de verdad de puertas lógicas.
 
-=== and2
+For further components see <<sec:realtime-components,Realtime Components List>>
+or the man pages.
+[[sub:hal-and2]]
+=== and2(((HAL and2,and2)))
 
 El componente 'and2' es una puerta 'and' de dos entradas. La tabla de verdad que sigue
 muestra el resultado en función de cada combinación de entrada.
 
-Sintaxis
-
+.and2 Sintaxis
 ----
 and2 [count=N] | [nombres=nombre1[, nombre2 ...]]
 ----
 
-Funciones
+.and2 Funciones
+----
+and2.n
+----
 
-    and2.n
+.and2 Pines
+----
+and2.N.in0 (bit, in)
+and2.N.in1 (bit, in)
+and2.N.out (bit, out)
+----
 
-Pines
-
-    and2.N.in0 (bit, in)
-    and2.N.in1 (bit, in)
-    and2.N.out (bit, out)
-
-Tabla de verdad
-
-[width="40%", options="header"]
+.and2 Tabla de verdad
+[width="40%",options="header"]
 |========================================
 |in0   | in1   | out
 |False | False | False
@@ -390,58 +406,60 @@ Tabla de verdad
 |True  | True  | True
 |========================================
 
-=== not
+[[sub:hal-not]]
+=== not(((HAL not,not)))
 
 El componente 'not' es un inversor.
 
-Sintaxis
-
+.not Sintaxis
 ----
 not [count=n] | [nombres=nombre1[,nombre2...]]
 ----
 
-Funciones
+.not Funciones
+----
+  not.all
+  not.n
+----
 
-    not.all
-    not.n
+.not Pines
+----
+  not.n.in (bit, in)
+  not.n.out (bit, out)
+----
 
-Pines
-
-    not.n.in (bit, in)
-    not.n.out (bit, out)
-
-Tabla de verdad
-
-[width="30%", options="header"]
+.not Tabla de verdad
+[width="30%",options="header"]
 |========================================
 |in | out
 |True | False
 |False | True
 |========================================
 
-=== or2
+[[sub:hal-or2]]
+=== or2(((HAL or2,or2)))
 
 El componente 'or2' es una puerta OR de dos entradas.
 
-Sintaxis
-
+.or2 Sintaxis
 ----
 or2 [count=n] | [nombres=nombre1[,nombre2...]]
 ----
 
-Funciones
+.or2 Funciones
+----
+or2.n
+----
 
-+or2.n+
+.or2 Pines
+----
+or2.n.in0 (bit, in)
+or2.n.in1 (bit, in)
+or2.n.out (bit, out)
+----
 
-Pines
-
-    or2.n.in0 (bit, in)
-    or2.n.in1 (bit, in)
-    or2.n.out (bit, out)
-
-Tabla de verdad
-
-[width="40%", options="header"]
+.or2 Tabla de verdad
+[width="40%",options="header"]
 |========================================
 |in0   | in1   | out
 |True  | False | True
@@ -450,29 +468,30 @@ Tabla de verdad
 |False | False | False
 |========================================
 
-=== xor2
+[[sub:hal-xor2]]
+=== xor2(((HAL xor2,xor2)))
 
 El componente 'xor2' es una puerta XOR de dos entradas (O exclusivo).
 
-Sintaxis
-
+.xor2 Sintaxis
 ----
 xor2 [count=n] | [nombres=nombre1[,nombre2...]]
 ----
 
-Funciones
+.xor2 Funciones
+----
+xor2.n
+----
 
-    xor2.n
+.xor2 Pines
+----
+xor2.n.in0 (bit, in)
+xor2.n.in1 (bit, in)
+xor2.n.out (bit, out)
+----
 
-Pines
-
-    xor2.n.in0 (bit, in)
-    xor2.n.in1 (bit, in)
-    xor2.n.out (bit, out)
-
-Tabla de verdad
-
-[width="40%", options="header"]
+.xor2 Tabla de verdad
+[width="40%",options="header"]
 |========================================
 |in0   | in1   | out
 |True  | False | True
@@ -481,10 +500,10 @@ Tabla de verdad
 |False | False | False
 |========================================
 
-=== Ejemplos de lógica
+[[sec:hal-logic-examples]]
+== Ejemplos de lógica(((Ejemplos de lógica HAL)))
 
-Ejemplo 'and2' que conecta dos entradas a una salida.
-
+.Ejemplo 'and2' que conecta dos entradas a una salida.
 ----
 loadrt and2 count=1
 
@@ -504,9 +523,11 @@ bit 1 de la puerta and2.0. Por último, se conecta el bit de salida del componen
 al pin 14 del puerto paralelo. Para ello se crea y usa la señal both-on. Entonces, siguiendo la tabla de verdad para and2, si el pin 11
 y el pin 12 están encendidos, el pin de salida 14 estará encendido.
 
-== Componentes de conversión
+[[sec:hal-conversion-components]]
+== Componentes de conversión(((Componentes de conversión HAL)))
 
-=== weighted_sum
+[[sub:hal-weighted-sum]]
+=== weighted_sum(((HAL weighted_sum,weighted_sum)))
 
 'weighted_sum' convierte un grupo de bits en un entero. La
 conversión es la suma de los "pesos" de los bits que valen 1, mas cualquier
@@ -514,8 +535,7 @@ offset. El peso del bit m-ésimo es 2^m. Esto es similar a un binario
 codificado en decimal pero con más opciones. El bit 'hold' (retención) detiene el procesamiento;
 si la entrada cambia, la 'suma' no cambia.
 
-La siguiente sintaxis se usa para cargar el componente weighted_sum.
-
+.Sintaxis para cargar el componente weighted_sum.
 ----
 loadrt weighted_sum wsum_sizes=tamaño[,tamaño,...]
 ----
@@ -524,6 +544,7 @@ Crea grupos de suma ponderada, cada uno con la cantidad dada de bits de entrada 
 
 Para actualizar 'weighted_sum' se necesita adjuntar la funcion 'process_wsums' a un hilo.
 
+.add `process_wsums` function
 ----
 addf process_wsums servo-thread
 ----
@@ -535,7 +556,7 @@ Axis, Los bits '0' y '2' son verdaderos y no hay offset. El 'peso'
 del bit 0 es 1 y el 'peso' del bit 2 es 4, por lo que la suma es 5.
 
 .suma ponderada
------------------------------------------------------------
+----
 Component Pins:
 Owner   Type  Dir         Value  Name
     10  bit   In           TRUE  wsum.0.bit.0.in
@@ -549,6 +570,6 @@ Owner   Type  Dir         Value  Name
     10  bit   In          FALSE  wsum.0.hold
     10  s32   I/O             0  wsum.0.offset
     10  s32   Out             5  wsum.0.sum
------------------------------------------------------------
+----
 
 // vim: set syntax=asciidoc:

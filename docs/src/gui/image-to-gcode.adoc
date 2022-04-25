@@ -4,7 +4,7 @@
 [[cha:image-to-g-code]]
 = Image to G-Code
 
-image::images/image-to-gcode.png[align="center", alt="Image to G-Code"]
+image::images/image-to-gcode.png["Image to G-Code",align="center"]
 
 == What is a depth map?
 
@@ -98,23 +98,23 @@ The spindle speed S code that should be put into the gcode file.
 
 Possible scan patterns are:
 
- - Rows
- - Columns
- - Rows, then Columns
- - Columns, then Rows
+- Rows
+- Columns
+- Rows, then Columns
+- Columns, then Rows
 
 === Scan Direction
 
 Possible scan directions are:
 
- - Positive: Start milling at a low X or Y axis value, and move towards a
-   high X or Y axis value
- - Negative: Start milling at a high X or Y axis value, and move towards
-   a low X or Y axis value
- - Alternating: Start on the same end of the X or Y axis travel that the
-   last move ended on. This reduces the amount of traverse movements
- - Up Milling: Start milling at low points, moving towards high points
- - Down Milling: Start milling at high points, moving towards low points
+- Positive: Start milling at a low X or Y axis value, and move towards a
+  high X or Y axis value
+- Negative: Start milling at a high X or Y axis value, and move towards
+  a low X or Y axis value
+- Alternating: Start on the same end of the X or Y axis travel that the
+  last move ended on. This reduces the amount of traverse movements
+- Up Milling: Start milling at low points, moving towards high points
+- Down Milling: Start milling at high points, moving towards low points
 
 === Depth (units)
 
@@ -153,13 +153,13 @@ This controls whether areas that are relatively flat along a row or
 column are skipped. This option only makes sense when both rows and
 columns are being milled. Possible bounding options are:
 
- - None: Rows and columns are both fully milled.
- - Secondary: When milling in the second direction, areas that do not
-   strongly slope in that direction are skipped.
- - Full: When milling in the first direction, areas that strongly slope
-   in the second direction are skipped. When milling in the second
-   direction, areas that do not strongly slope in that direction are
-   skipped.
+- None: Rows and columns are both fully milled.
+- Secondary: When milling in the second direction, areas that do not
+  strongly slope in that direction are skipped.
+- Full: When milling in the first direction, areas that strongly slope
+  in the second direction are skipped. When milling in the second
+  direction, areas that do not strongly slope in that direction are
+  skipped.
 
 === Contact angle
 
@@ -180,5 +180,6 @@ In this image, Roughing depth per pass is 0.2 inches and roughing
 offset is 0.1 inches.
 
 .Roughing passes and final pass
-image::images/i2g-roughing.png["Roughing passes and final pass"]
+image::images/i2g-roughing.png["Roughing passes and final pass",align="center"]
 
+// vim: set syntax=asciidoc:

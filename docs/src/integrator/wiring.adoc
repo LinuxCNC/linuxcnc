@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:wiring]]
 = Best Wiring Practices
@@ -299,3 +300,5 @@ Take the time to identify each wire in the system. When a bundle of wires has be
 very difficult to look at them and know for sure which wire goes where. Label the motor wires with the joint or
 axis they are associated with, or identify each signal wire so that it is easy to identify what that signal does.
 It will also help if this information is transferred to the wiring schematics.
+
+// vim: set syntax=asciidoc:

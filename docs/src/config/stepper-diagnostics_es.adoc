@@ -1,8 +1,11 @@
 :lang: es
+:toc:
 
 [[cha:stepper-diagnostics]]
 = Diagnósticos para steppers
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
 :ini:{basebackend@docbook:'':ini}
 :hal:{basebackend@docbook:'':hal}
 :ngc:{basebackend@docbook:'':ngc}
@@ -137,3 +140,5 @@ o101 endwhile
 (msg, Listo ... Z debe estar exactamente .5" sobre la mesa)
 M2
 ----
+
+// vim: set syntax=asciidoc:

@@ -1,6 +1,8 @@
 :lang: fr
 :toc:
 
+// TODO Backtranslate linuxcnc2hal_fr.adoc
+
 = LinuxCNC et HAL
 
 [[cha:LinuxCNC-et-HAL]]
@@ -224,7 +226,7 @@ l'option num_aio au chargement de motmod.
 
 * 'spindle.N.orient-angle' - 
      (float,out) Orientation souhaitée par M19. Contient la valeur du paramètre
-    R du M19 plus la valeur du paramètre [RS274NGC]ORIENT_OFFSET du fichier ini.
+    R du M19 plus la valeur du paramètre [RS274NGC]ORIENT_OFFSET du fichier INI.
 
 * 'spindle.N.orient-mode' - 
 	(s32,out) Broche en mode 'recherche d'orientation' par M19. Par défaut 0.
@@ -541,4 +543,3 @@ utilisateur, habituellement appelé 'io'.
 
 * 'iocontrol.0.user-request-enable' - 
     (bit, out) TRUE quand l'arrêt d'urgence est relâché.
-
