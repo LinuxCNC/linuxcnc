@@ -22,7 +22,6 @@ with this program; if not, write to the Free Software Foundation, Inc
 import os
 import sys
 import linuxcnc
-import hal
 import math
 import shutil
 import time
@@ -35,7 +34,6 @@ from PyQt5.QtWidgets import QApplication, QDialog, QScrollArea, QWidget, QVBoxLa
 app = QApplication(sys.argv)
 ini = linuxcnc.ini(os.environ['INI_FILE_NAME'])
 cmd = linuxcnc.command()
-h = hal.component('dummy')
 inPath = sys.argv[1]
 inFile = os.path.basename(inPath)
 if inFile == 'rfl.ngc':
@@ -62,6 +60,7 @@ response = RUN(['halcmd', 'getp', 'qtplasmac.color_bgalt'], capture_output = Tru
 bgAltColor = str(hex(int(response.stdout.decode()))).replace('0x', '#')
 response = RUN(['halcmd', 'getp', 'plasmac.max-offset'], capture_output = True)
 zMaxOffset = float(response.stdout.decode())
+RUN(['halcmd', 'setp', 'qtplasmac.conv_block_loaded', '0'])
 metric = ['mm', 4]
 imperial = ['in', 6]
 units, precision = imperial if ini.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch' else metric
@@ -103,7 +102,6 @@ offsetG4x = False
 zSetup = False
 zBypass = False
 convBlock = False
-hal.set_p('qtplasmac.conv_block_loaded', '0')
 filtered = False
 firstMove = False
 notice  = 'If the G-code editor is used to resolve the following issues, the lines with errors\n'
@@ -624,7 +622,7 @@ def rewrite_material_file(newMaterial):
         add_edit_material(newMaterial, outFile)
     inFile.close()
     outFile.close()
-    RUN(['halcmd', 'setp', 'qtplasmac.material_reload', 1])
+    RUN(['halcmd', 'setp', 'qtplasmac.material_reload', '1'])
     get_materials()
     matDelay = time.time()
     while 1:
@@ -797,7 +795,7 @@ with open(inPath, 'r') as inCode:
         # check if original is a conversational block
         if line.startswith(';conversational block'):
             convBlock = True
-            hal.set_p('qtplasmac.conv_block_loaded', '1')
+            RUN(['halcmd', 'setp', 'qtplasmac.conv_block_loaded', '1'])
         # remove whitespace and trailing periods
         line = line.strip().rstrip('.')
         # remove line numbers
