@@ -19,7 +19,7 @@
 /* for debugging */
 extern int printf(const char * fmt, ...);
 #include <stddef.h>		/* NULL */
-#include <string.h>		/* memset */
+#include <rtapi_string.h>	/* memset */
 
 #include "rtapi_math.h"
 #include <float.h>
