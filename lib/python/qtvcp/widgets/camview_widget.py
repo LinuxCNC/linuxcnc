@@ -15,6 +15,7 @@
 #
 # use open cv to do camera alignment
 
+import os
 import _thread as Thread
 
 import hal
@@ -29,8 +30,9 @@ from qtvcp import logger
 # STATUS gives us status messages from linuxcnc
 # LOG is for running code logging
 if __name__ != '__main__':  # This avoids segfault when testing directly in python
-    from qtvcp.core import Status
+    from qtvcp.core import Status, Info
     STATUS = Status()
+    INFO = Info()
 LOG = logger.getLogger(__name__)
 
 # If the library is missing don't crash the GUI
@@ -73,6 +75,11 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         self.pix = None
         self.stopped = False
         self.degree = str("\N{DEGREE SIGN}")
+        if INFO.PROGRAM_PREFIX is not None:
+            self.user_path = os.path.expanduser(INFO.PROGRAM_PREFIX)
+        else:
+            self.user_path = (os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files'))
+
         #self.blobInit()
 
     def _hal_init(self):
@@ -348,6 +355,10 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
     def setPointerColor(self, color):
         self.cross_pointer_color = color
 
+    def saveImage(self):
+        filepath = '{}/camImage.png'.format(self.user_path)
+        self.video.writeFrame(filepath)
+
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
@@ -378,6 +389,8 @@ class WebcamVideoStream:
         # initialize the video camera stream and read the first frame
         # from the stream
         self.stream = CV.VideoCapture(src)
+        if not (self.stream.isOpened()):
+            print('Could not open video device')
         # initialize the variable used to indicate if the thread should
         # be stopped
         self.stopped = False
@@ -406,6 +419,11 @@ class WebcamVideoStream:
     def stop(self):
         # indicate that the thread should be stopped
         self.stopped = True
+
+    # TODO path checking
+    def writeFrame(self, filepath):
+        CV.imwrite(filepath, self.frame)
+        print('saved camview image to: {}'.format(filepath))
 
 if __name__ == '__main__':
 
