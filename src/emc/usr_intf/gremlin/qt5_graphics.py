@@ -230,6 +230,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                               kinsmodule=kinsmodule)
 
         # set defaults
+        self.display_loaded = False
         self.current_view = 'p'
         self.fingerprint = ()
         self.select_primed = None
@@ -324,10 +325,12 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             self.update()
         return True
 
-    # when shown make sure display is set to the default view
+    # when shown for the first time make sure display is set to the default view
     def showEvent(self, event):
-        super(Lcnc_3dGraphics ,self).showEvent(event)
-        self.set_current_view()
+        if not self.display_loaded:
+            super(Lcnc_3dGraphics ,self).showEvent(event)
+            self.set_current_view()
+            self.display_loaded = True
 
     def load(self,filename = None):
         s = self.stat
