@@ -5641,6 +5641,34 @@ TO FILE</string>
                             </property>
                            </widget>
                           </item>
+                          <item>
+                           <widget class="ActionButton" name="actionbutton">
+                            <property name="minimumSize">
+                             <size>
+                              <width>0</width>
+                              <height>42</height>
+                             </size>
+                            </property>
+                            <property name="toolTip">
+                             <string extracomment="save Image to user/linuxcnc/nc_files/camImage.png">save Image to user/linuxcnc/nc_files/camImage.png</string>
+                            </property>
+                            <property name="text">
+                             <string>Save</string>
+                            </property>
+                            <property name="python_command_option" stdset="0">
+                             <bool>true</bool>
+                            </property>
+                            <property name="true_python_cmd_string" stdset="0">
+                             <string>INSTANCE.camview.saveImage()</string>
+                            </property>
+                            <property name="false_python_cmd_string" stdset="0">
+                             <string/>
+                            </property>
+                            <property name="command_text_string" stdset="0">
+                             <string/>
+                            </property>
+                           </widget>
+                          </item>
                          </layout>
                         </widget>
                        </item>
@@ -14613,7 +14641,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>12:12:54 PM</string>
+            <string>08:56:54 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -15560,7 +15588,7 @@ ZERO</string>
   <slot>tab_utilities_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>
