@@ -2570,16 +2570,20 @@ class gmoccapy(object):
         if self.load_tool:
             return
 
-        widgetlist = ["rbt_manual", "ntb_jog", "btn_from_line",
+        widgetlist = ["ntb_jog", "btn_from_line",
                       "tbtn_flood", "tbtn_mist", "rbt_forward", "rbt_reverse", "rbt_stop",
                       "btn_load", "btn_edit", "tbtn_optional_blocks", "btn_reload"
         ]
         if not self.widgets.rbt_hal_unlock.get_active() and not self.user_mode:
             widgetlist.append("tbtn_setup")
 
+        if not self.widgets.tbtn_setup.get_active():
+            widgetlist.append("rbt_manual")
+
         if self.all_homed or self.no_force_homing:
-            widgetlist.append("rbt_mdi")
-            widgetlist.append("rbt_auto")
+            if not self.widgets.tbtn_setup.get_active():
+                widgetlist.append("rbt_mdi")
+                widgetlist.append("rbt_auto")
             widgetlist.append("btn_index_tool")
             widgetlist.append("btn_change_tool")
             widgetlist.append("btn_select_tool_by_no")
@@ -3728,6 +3732,7 @@ class gmoccapy(object):
         self.command.mode(linuxcnc.MODE_MANUAL)
         self.command.wait_complete()
         self.widgets.rbt_manual.set_active(True)
+        self.stat.poll()
 
         if widget.get_active():
             # deactivate the mode buttons, so changing modes is not possible while we are in settings mode
