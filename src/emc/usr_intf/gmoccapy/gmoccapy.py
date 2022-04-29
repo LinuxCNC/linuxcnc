@@ -2849,6 +2849,9 @@ class gmoccapy(object):
         print("hal status metric mode changed")
         # set gremlin_units
         self.widgets.gremlin.set_property("metric_units", metric_units)
+        # unit switch could be done here if not done in combi_dro/_position()
+        # for dro in self.dro_dic:
+        #     self.dro_dic[dro].set_property("metric_units", metric_units)
 
         widgetlist = ["spc_lin_jog_vel"]
 
