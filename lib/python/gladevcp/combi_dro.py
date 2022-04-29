@@ -131,7 +131,7 @@ class Combi_DRO(Gtk.VBox):
         self.machine_units = _MM
         self.unit_convert = 1
         self._auto_units = True
-        self.toggle_readout = True
+        self.toggle_readout_enable = True
         self.cycle_time = 150
         self.diameter = False
         self.actual = True
@@ -268,9 +268,9 @@ class Combi_DRO(Gtk.VBox):
             self.emit('axis_clicked', self.widgets["lbl_axisletter"].get_text().lower())
             #self.set_style("labelcolor", "#00FF00")
         else:
-            if not self.toggle_readout:
+            if not self.toggle_readout_enable:
                 return
-            self.set_toggle_readout()
+            self.toggle_readout()
 
     # Get propertys
     def do_get_property(self, property):
@@ -328,7 +328,7 @@ class Combi_DRO(Gtk.VBox):
                     self.font_size = int(value)
                     self.set_style("size", self.font_size)
                 if name == "toggle_readout":
-                    self.toggle_readout = value
+                    self.toggle_readout_enable = value
                 if name == "cycle_time":
                     self.cycle_time = value
                 if name in ('metric_units', 'actual', 'diameter'):
@@ -529,7 +529,7 @@ class Combi_DRO(Gtk.VBox):
     # this will toggle the DRO around, mainly used to maintain all DRO
     # at the same state, because a click on one will only change that DRO
     # This can be used to change also the others
-    def set_toggle_readout(self, Data = None):
+    def toggle_readout(self, Data = None):
         '''
         toggles the order of the DRO in the widget
 
@@ -615,7 +615,7 @@ class Combi_DRO(Gtk.VBox):
         '''
         self._ORDER = order
         self._set_labels()
-        self.set_toggle_readout(Data=True)
+        self.toggle_readout(Data=True)
 
     # This will return the position information of all three DRO
     # it will be in the order Abs, Rel, DTG
