@@ -280,9 +280,14 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
     def showEvent(self, event):
         if LIB_GOOD:
             try:
-                self.video = WebcamVideoStream(src=self._camNum).start()
-            except:
-                LOG.error('Video capture error: {}'.format(self.video))
+                self.video = WebcamVideoStream(src=self._camNum)
+                if not self.video.isOpened:
+                    p = self.video.list_ports()[1]
+                    self.text = 'Error with video {}\nAvailable ports:\n{}'.format(self._camNum, p)
+                else:
+                    self.video.start()
+            except Exception as e:
+                LOG.error('Video capture error: {}'.format(e))
 
     def hideEvent(self, event):
         if LIB_GOOD:
@@ -385,17 +390,19 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
     camera_number = QtCore.pyqtProperty(int, get_camnum, set_camnum, reset_camnum)
 
 class WebcamVideoStream:
-    def __init__(self, src=0):
+    def __init__(self, src=0, api=CV.CAP_ANY):
         # initialize the video camera stream and read the first frame
         # from the stream
-        self.stream = CV.VideoCapture(src)
-        if not (self.stream.isOpened()):
-            print('Could not open video device')
+        self.stream = CV.VideoCapture(src, api)
+
         # initialize the variable used to indicate if the thread should
         # be stopped
         self.stopped = False
         self.grabbed = None
         self.frame = None
+        self.isOpened = self.stream.isOpened()
+        if not (self.stream.isOpened()):
+            print('Could not open video device {}'.format(src))
 
     def start(self):
         # start the thread to read frames from the video stream
@@ -424,6 +431,32 @@ class WebcamVideoStream:
     def writeFrame(self, filepath):
         CV.imwrite(filepath, self.frame)
         print('saved camview image to: {}'.format(filepath))
+
+    def list_ports(self):
+        """
+        Test the ports and returns a tuple with the available ports and the ones that are working.
+        """
+        non_working_ports = []
+        dev_port = 0
+        working_ports = []
+        available_ports = []
+        while len(non_working_ports) < 6: # if there are more than 5 non working ports stop the testing. 
+            camera = CV.VideoCapture(dev_port)
+            if not camera.isOpened():
+                non_working_ports.append(dev_port)
+                print("Port %s is not working." %dev_port)
+            else:
+                is_reading, img = camera.read()
+                w = camera.get(3)
+                h = camera.get(4)
+                if is_reading:
+                    print("Port %s is working and reads images (%s x %s)" %(dev_port,h,w))
+                    working_ports.append(dev_port)
+                else:
+                    print("Port %s for camera ( %s x %s) is present but does not read." %(dev_port,h,w))
+                    available_ports.append(dev_port)
+            dev_port +=1
+        return available_ports,working_ports,non_working_ports
 
 if __name__ == '__main__':
 
