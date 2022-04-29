@@ -930,6 +930,9 @@ class HandlerClass:
         self.w.gcodegraphics._font = 'monospace 11'
         self.w.conv_preview.set_cone_basesize(0.1)
         self.w.conv_preview.set_view('Z')
+        self.w.conv_preview.show_tool = False
+        self.w.conv_preview.show_limits = False
+        self.w.conv_preview.draw_small_origin = False
         self.w.conv_preview.set_alpha_mode(True)
         self.w.conv_preview.setShowOffsets(False)
         self.w.conv_preview._font = 'monospace 11'
