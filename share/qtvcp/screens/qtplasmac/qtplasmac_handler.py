@@ -1,4 +1,4 @@
-VERSION = '1.223.185'
+VERSION = '1.223.186'
 
 '''
 qtplasmac_handler.py
@@ -1489,11 +1489,7 @@ class HandlerClass:
         if self.w.main_tab_widget.currentIndex():
             self.w.main_tab_widget.setCurrentIndex(0)
         if self.fileOpened:
-            if self.w.view_p.isChecked():
-                self.w.gcodegraphics.set_view('P')
-            elif self.w.view_z.isChecked():
-                self.w.gcodegraphics.set_view('Z')
-            else:
+            if not (self.w.view_p.isChecked() or self.w.view_z.isChecked()):
                 self.view_t_pressed()
         else:
             self.view_t_pressed()
@@ -1962,15 +1958,6 @@ class HandlerClass:
         while time.time() < t:
             QApplication.processEvents()
         if tab == 0:
-            if self.fileOpened:
-                if self.w.view_p.isChecked():
-                    self.w.gcodegraphics.set_view('P')
-                elif self.w.view_z.isChecked():
-                    self.w.gcodegraphics.set_view('Z')
-                else:
-                    self.view_t_pressed()
-            else:
-                self.view_t_pressed()
             if self.w.preview_stack.currentIndex() == 2:
                 self.vkb_show()
             else:
