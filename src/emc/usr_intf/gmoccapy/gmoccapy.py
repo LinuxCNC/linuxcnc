@@ -2849,6 +2849,9 @@ class gmoccapy(object):
         print("hal status metric mode changed")
         # set gremlin_units
         self.widgets.gremlin.set_property("metric_units", metric_units)
+        # unit switch could be done here if not done in combi_dro/_position()
+        # for dro in self.dro_dic:
+        #     self.dro_dic[dro].set_property("metric_units", metric_units)
 
         widgetlist = ["spc_lin_jog_vel"]
 
@@ -3020,7 +3023,7 @@ class gmoccapy(object):
 
     def _switch_to_g7(self, state):
         # we do this only if we have a lathe, the check for lathe is done in gmoccapy
-        print(state)
+        print("switch to G7:", state)
         if state:
             self.dro_dic["Combi_DRO_0"].set_property("abs_color", self._get_RGBA_color("#F2F1F0"))
             self.dro_dic["Combi_DRO_0"].set_property("rel_color", self._get_RGBA_color("#F2F1F0"))
@@ -3349,9 +3352,9 @@ class gmoccapy(object):
             if code == -1:
                 continue
             if code % 10 == 0:
-                temp.append("{0}".format(code / 10))
+                temp.append("{0}".format(code // 10))
             else:
-                temp.append("{0}.{1}".format(code / 10, code % 10))
+                temp.append("{0}.{1}".format(code // 10, code % 10))
         for num, code in enumerate(temp):
             if num == 8:
                 active_codes.append("\n")
