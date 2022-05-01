@@ -5140,9 +5140,8 @@ class gmoccapy(object):
         self.file_changed = False
 
     def on_gcode_view_changed(self, widget, state):
-        buf_modified = self.widgets.gcode_view.buf.get_modified()
-        print("gcode view changed (modified: {})".format(buf_modified))
-        self.file_changed = buf_modified
+        print("gcode view changed (modified: {})".format(state))
+        self.file_changed = state
 
     # Search and replace handling in edit mode
     # undo changes while in edit mode
