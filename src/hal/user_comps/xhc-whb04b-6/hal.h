@@ -549,6 +549,10 @@ public:
     //! Writes the corresponding counter to to each axis' count.
     //! \param counters values to propagate to each axis
     void setJogCounts(const HandWheelCounters& counters);
+    //! waits until a given pin is set to a requested state 
+    //! \param state requested state
+    //! \param pin requested pin to compare with
+    void checkState(bool state, hal_bit_t *pin);
 
     //! Returns the axis position.
     //! \param absolute true absolute, false relative

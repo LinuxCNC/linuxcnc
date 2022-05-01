@@ -26,6 +26,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <unistd.h>
+#include <fstream>
 
 // local library includes
 #include "./pendant.h"
@@ -753,7 +754,7 @@ void Hal::setStart(bool enabled)
         toggleStartResumeProgram();
     }
     setPin(enabled, KeyCodes::Buttons.start.text);
-}
+    }
 
     if (!enabled)
     {
@@ -795,6 +796,24 @@ void Hal::clearStartResumeProgramStates()
     *memory->out.doRunProgram      = false;
     *memory->out.doResumeProgram   = false;
 }
+
+void Hal::checkState(bool state, hal_bit_t *pin)
+{
+    // 500 milliseconds timeout
+    unsigned int timeouts=500;
+    unsigned int timeoutMs=1;
+    do
+    {
+        if (state == *pin)
+        {
+            usleep(timeoutMs * 1000);
+        }
+        else
+        {
+            break;
+        }
+    } while ((state == *pin) && (--timeouts) > 0);
+}
 // ----------------------------------------------------------------------
 void Hal::toggleStartResumeProgram()
 {
@@ -803,17 +822,21 @@ void Hal::toggleStartResumeProgram()
         *memory->out.doPauseProgram  = false;
         *memory->out.doRunProgram    = false;
         *memory->out.doResumeProgram = true;
-    }
-    if (*memory->in.isProgramRunning)
+        checkState(true, memory->in.isProgramPaused);
+        *memory->out.doResumeProgram = false;
+    } else if (*memory->in.isProgramRunning)
     {
         *memory->out.doPauseProgram  = true;
+        checkState(false, memory->in.isProgramPaused);
+        *memory->out.doPauseProgram  = false;
         *memory->out.doRunProgram    = false;
         *memory->out.doResumeProgram = false;
-    }
-    if (*memory->in.isProgramIdle)
+    } else if (*memory->in.isProgramIdle)
     {
         *memory->out.doPauseProgram  = false;
         *memory->out.doRunProgram    = true;
+        checkState(false, memory->in.isProgramRunning);
+        *memory->out.doRunProgram    = false;
         *memory->out.doResumeProgram = false;
     }
 }
@@ -1373,6 +1396,7 @@ bool Hal::requestMode(bool isRisingEdge, hal_bit_t *requestPin, hal_bit_t * mode
 {
     if (isRisingEdge)
     {
+        bool rv;
         if (true == *modeFeedbackPin)
         {
             // shortcut for mode request which is already active
@@ -1381,9 +1405,10 @@ bool Hal::requestMode(bool isRisingEdge, hal_bit_t *requestPin, hal_bit_t * mode
         // request mode
         *requestPin = true;
         usleep(mHalRequestProfile.mode.holdMs * 1000);
+        rv = waitForRequestedMode(modeFeedbackPin);
         *requestPin = false;
         usleep(mHalRequestProfile.mode.spaceMs * 1000);
-        return waitForRequestedMode(modeFeedbackPin);
+        return rv;
     }
     else
     {
@@ -1403,6 +1428,7 @@ bool Hal::waitForRequestedMode(volatile hal_bit_t * condition)
     useconds_t   timeoutMs   = mHalRequestProfile.mode.modeCheckLoopTimeoutMs;
     unsigned int maxTimeouts = mHalRequestProfile.mode.modeCheckLoops;
     unsigned int timeouts    = maxTimeouts;
+
     do
     {
         if (false == *condition)

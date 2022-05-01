@@ -277,7 +277,10 @@ ifeq ($(BUILD_DOCS_HTML),yes)
 docs: htmldocs
 install-doc: install-doc-html
 endif
+
 pdfdocs: svgs_made_from_dots $(PDF_TARGETS)
+	../scripts/make-docs-pdf-index
+
 htmldocs: svgs_made_from_dots .htmldoc-stamp checkref
 
 .htmldoc-stamp: copy_asciidoc_files $(HTML_TARGETS) .html-images-stamp

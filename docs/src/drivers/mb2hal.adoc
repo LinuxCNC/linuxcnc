@@ -9,6 +9,8 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
+== Introduction
+
 MB2HAL is a generic userspace HAL component to communicate with one or more Modbus devices.
 So far, there are two options to communicate with a Modbus device:
 
