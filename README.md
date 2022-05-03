@@ -1,11 +1,23 @@
+
+[![Badge GPL2]][License]
+[![Badge LGPL]][License]
+
 <div align = center>
+
+<br>
   
 # LinuxCNC
   
 *Controlling CNC Machines*
 
-[![Badge Translation]][Translation]
+<br>
+  
 
+
+<br>
+  
+[![Badge Translation]][Translation]
+  
 <br>
   
 </div>
@@ -52,9 +64,6 @@ software cannot and do not, take any responsibility
 for such compliance.
 ```
 
-This software is released under the GPLv2, with some parts under the LGPL.
-See the file COPYING for more details.
-
 <br>
 <br>
   
@@ -68,9 +77,13 @@ about building and running the software, or look [here][Building Information]
 <!----------------------------------------------------------------------------->
 
 [Badge Translation]: https://hosted.weblate.org/widgets/linuxcnc/-/svg-badge.svg
+[Badge GPL2]: https://img.shields.io/badge/Most-LGPL_3-blue.svg?style=for-the-badge 'The license this software is under'
+[Badge LGPL]: https://img.shields.io/badge/Some-GPL_2-blue.svg?style=for-the-badge 'Some parts are under this license'
 
 [Translation]: https://hosted.weblate.org/engage/linuxcnc/
 [Weblate]: https://hosted.weblate.org/projects/linuxcnc/
 [Website]: https://linuxcnc.org/
+
+[License]: COPYING
 
 [Building Information]: http://linuxcnc.org/docs/devel/html/code/building-linuxcnc.html
