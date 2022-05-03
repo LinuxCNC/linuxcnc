@@ -11,7 +11,6 @@
 *Controlling CNC Machines*
 
 <br>
-<br>
   
 [![Badge Translation]][Translation]
   
@@ -19,9 +18,9 @@
   
 ---
 
-<kbd> <br> [Ｗｅｂｓｉｔｅ][Website] <br> </kbd> 
-<kbd> <br> [Ｂｕｉｌｄ] <br> </kbd> 
-<kbd> <br> [Ｄｏｃｕｍｅｎｔａｔｉｏｎ] <br> </kbd>
+[<kbd> <br> Ｗｅｂｓｉｔｅ <br> </kbd>][Website] 
+[<kbd> <br> Ｂｕｉｌｄ <br> </kbd>][Ｂｕｉｌｄ] 
+[<kbd> <br> Ｄｏｃｕｍｅｎｔａｔｉｏｎ <br> </kbd>][Ｄｏｃｕｍｅｎｔａｔｉｏｎ]  
   
 ---
 
@@ -41,9 +40,6 @@ The translations we expect to help attract practitioners <br>
 to the project and also helps educating enthusiasts of <br>
 all age groups on automated machining.
 
-
-
-<br>
 <br>
 
 ## DISCLAIMER
@@ -51,6 +47,7 @@ all age groups on automated machining.
 <br>
 
 ```
+  
 Ｔｈｅ ａｕｔｈｏｒｓ ｏｆ ｔｈｉｓ ｓｏｆｔｗａｒｅ ａｃｃｅｐｔ
 ａｂｓｏｌｕｔｅｌｙ ｎｏ ｌｉａｂｉｌｉｔｙ ｆｏｒ ａｎｙ
 ｈａｒｍ　ｏｒ ｌｏｓｓ ｒｅｓｕｌｔｉｎｇ ｆｒｏｍ ｉｔｓ ｕｓｅ．
@@ -66,9 +63,9 @@ All machinery must be designed to comply with local
 and national safety codes, and the authors of this 
 software cannot and do not, take any responsibility 
 for such compliance.
+  
 ```
 
-<br>
 <br>
   
 </div>
