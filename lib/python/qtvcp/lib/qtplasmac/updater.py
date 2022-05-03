@@ -22,6 +22,34 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 import os
 from shutil import copy as COPY
 
+# delete [CONVERSATIONAL] prefs from <machine_name>.prefs if they exist from previous copy in V1.222.170 then move [CONVERSATIONAL] prefs from qtvcp.prefs to <machine_name>.prefs (pre V1.222.187 2022/05/03)
+def move_prefs(qtvcp, machine):
+    deleteMachineLine = False
+    moveQtvcpLine = False
+    with open(machine, 'r') as inFile:
+            machineData = inFile.readlines()
+    with open(qtvcp, 'r') as inFile:
+            qtvcpData = inFile.readlines()
+    with open(machine, 'w') as machineFile:
+        with open(qtvcp, 'w') as qtvcpFile:
+            for line in machineData:
+                if line.strip() == '[CONVERSATIONAL]':
+                    deleteMachineLine = True
+                elif line.startswith('['):
+                    deleteMachineLine = False
+                if not deleteMachineLine:
+                    machineFile.write(line)
+            for line in qtvcpData:
+                if line.strip() == '[CONVERSATIONAL]':
+                    moveQtvcpLine = True
+                elif line.startswith('['):
+                    moveQtvcpLine = False
+                if moveQtvcpLine:
+                    machineFile.write(line)
+                else:
+                    qtvcpFile.write(line)
+    print('QtPlasmaC updated to V1.222.187')
+
 # split out qtplasmac.prefs into <machine_name>.prefs and qtvcp.prefs (pre V1.222.170 2022/03/08)
 def split_prefs_file(old, new, prefs):
     move = False
