@@ -11,14 +11,19 @@
 *Controlling CNC Machines*
 
 <br>
-  
-
-
 <br>
   
 [![Badge Translation]][Translation]
   
 <br>
+  
+---
+
+<kbd> <br> [Ｗｅｂｓｉｔｅ][Website] <br> </kbd> 
+<kbd> <br> [Ｂｕｉｌｄ] <br> </kbd> 
+<kbd> <br> [Ｄｏｃｕｍｅｎｔａｔｉｏｎ] <br> </kbd>
+  
+---
   
 </div>
 
@@ -68,11 +73,6 @@ for such compliance.
 <br>
   
 </div>
-  
-# The Build Process
-
-Refer to the file 'docs/src/code/building-linuxcnc.txt' for information
-about building and running the software, or look [here][Building Information]
 
 <!----------------------------------------------------------------------------->
 
@@ -84,6 +84,6 @@ about building and running the software, or look [here][Building Information]
 [Weblate]: https://hosted.weblate.org/projects/linuxcnc/
 [Website]: https://linuxcnc.org/
 
+[Ｄｏｃｕｍｅｎｔａｔｉｏｎ]: docs/src
+[Ｂｕｉｌｄ]: docs/src/code/building-linuxcnc.adoc
 [License]: COPYING
-
-[Building Information]: http://linuxcnc.org/docs/devel/html/code/building-linuxcnc.html
