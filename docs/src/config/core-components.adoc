@@ -13,18 +13,18 @@ These pins and parameters are created by the realtime 'motmod' module.
 This module provides a HAL interface for LinuxCNC's motion planner.
 
 Basically motmod takes in a list of waypoints and generates a nice
-blended and constraint-limited stream of joint positions to be fed to
-the motor drives.
+blended and constraint-limited stream of joint positions to be fed
+to the motor drives.
 
 Optionally the number of Digital I/O is set with 'num_dio'.
 The number of Analog I/O is set with 'num_aio', default is 4 each.
 The number of Spindles is set with 'num_spindles', default is 1.
 
-Pin and parameter names starting with 'axis.L' and joint.N' are read and
-updated by the motion-controller function.
+Pin and parameter names starting with 'axis.L' and joint.N'
+are read and updated by the motion-controller function.
 
-Motion is loaded with the motmod command. A kins should be loaded before
-motion.
+Motion is loaded with the motmod command. A kins should be loaded
+before motion.
 
 ----
 loadrt motmod base_period_nsec=['period'] servo_period_nsec=['period']
