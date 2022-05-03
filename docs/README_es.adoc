@@ -254,7 +254,7 @@ traducción. Por lo general, eso significa copiar los archivos de idioma
 de uno de los idiomas existentes, probablemente inglés ya que suele ser
 el más actualizado.
 
-Copy the docs/po/Documentation.pot to docs/po/Documentation.$LANG.po.
+Copy the docs/po/documentation.pot to docs/po/Documentation.$LANG.po.
 where $LANG is a two letter language code according to ISO 639-1, or
 three letter code according to ISO 639-2 if no two letter code exist.
 Add the new language code to the proper place in docs/po4a.conf.
