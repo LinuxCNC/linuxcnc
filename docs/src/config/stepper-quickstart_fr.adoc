@@ -112,7 +112,7 @@ The net result you're looking for is how many CNC-output-steps it takes
 to move one user unit (inches or mm).
 
 .Unités Pouces
-----
+====
 ............................................
 Moteur            = 200 pas par tour
 Pilote            = 10 micropas par pas
@@ -120,7 +120,7 @@ Dents côté moteur = 20
 Dents côté vis    = 40
 Pas de vis        = 0.2000 pouces par tour
 ............................................
-----
+====
 
 D'après les informations ci-dessus:
 - Le moteur fera 2000 micropas par tour de vis. 
@@ -141,7 +141,7 @@ latexmath:[
 ////////////////////////////////////////////
 
 .Unités mm
-----
+====
 ............................................
     Stepper         = 200 steps per revolution
     Drive           =   8 micro steps per step
@@ -149,7 +149,7 @@ latexmath:[
     Leadscrew Teeth =  90
     Leadscrew Pitch =   5.00 mm per turn
 ............................................
-----
+====
 
 From the above information:
 - The leadscrew moves 5.00 mm per turn.

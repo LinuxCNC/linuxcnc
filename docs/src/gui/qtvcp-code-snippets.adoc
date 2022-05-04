@@ -48,7 +48,7 @@ In this example:
 * The names 'MyGroupName', 'int_value', 'float_value', 'myInteger', and
   'myFloat' are user defined.
 
-under the 'def initialized__(self):' function add:
+Under the 'def initialized__(self):' function add:
 
 [source,python]
 ----
@@ -862,7 +862,7 @@ while True:
 == Sending messages to status bar or desktop notify dialogs
 There several ways to report information to the user. +
 A statusbar is used for short information to show the user. +
- +
++
 Not all screens have a statusbar. This is how you would use it. +
 'timeout' is seconds. 'statusbar' is the designer set name. +
 

@@ -80,7 +80,6 @@ This will save the file in the config folder of the launch screen.
 [source,{ini}]
 ----
 [DISPLAY]
-...
 PREFERENCE_FILE_PATH = WORKINGFOLDER/qtdragon.pref
 ----
 
@@ -92,7 +91,6 @@ In the section '[DISPLAY]' add:
 [source,{ini}]
 ----
 [DISPLAY]
-...
 MDI_HISTORY_FILE = mdi_history.dat
 MACHINE_LOG_PATH = machine_log.dat
 LOG_FILE = qtdragon.log
@@ -534,7 +532,7 @@ When fist setting up auto tool measurement, please use caution until you confirm
 tool change and probe locations - it's easy to break a tool/probe. Abort will
 be honoured while the probe is in motion.
 
-.Auto tool measurement diagram
+.Auto tool measurement
 image::images/sketch_auto_tool_measurement.png[align="left"]
 
 With the first given tool change the tool will be measured and the offset will

@@ -132,9 +132,6 @@ charger un module de HAL nommé ddt, l'ajouter au thread servo et le
 connecter à la pin position d'un axe. Une fois cela fait, nous pourrons
 retrouver la sortie du différenciateur dans halscope. Alors allons-y. (oui j'ai vérifié).
 
-[NOTE]
-Le message qui s'affiche au chargement de ddt ne l'empêche pas de fonctionner.
-
 ----
 loadrt ddt
 ----

@@ -59,7 +59,8 @@ un trabajo en progreso y su diseño puede cambiar en el futuro.
   el archivo ini usa el término 'eje' para datos que serían más precisos
   describirse como datos de articulaciones, como las escalas de entrada y salida, etc.
 
-N.T. En la version 2.8 de Linuxcnc ya se hace esta distinción.
+[NOTE]
+En la version 2.8 de Linuxcnc ya se hace esta distinción.
 El archivo .ini cuenta con la nueva sección [JOINT_<num>]. Muchos de los parámetros que antes
 eran propios de la sección [AXIS_<letter>] están ahora en la nueva sección. Otras secciones,
 como por ejemplo [KINS], también adquieren nuevos parámetros para ajustarse a esto. 
@@ -241,10 +242,11 @@ texto, ni en el resto del Manual del Desarrollador.
 Hay aproximadamente 44 comandos: esta lista todavía está bajo
 construcción.
 
-N.T. La enumeracion cmd_code_t, en motion.h, contiene 73 comandos (a 6-5-2020)
-N.T. La instrucción switch en command.c contempla 70
-N.T. Los comandos ENABLE_WATCHDOG / DISABLE_WATCHDOG están en motion-logger.c. Quizas sean obsoletos.
-N.T. El comando SET_TELEOP_VECTOR solo aparece en motion-logger.c, sin mas efecto que su propio log.
+[NOTE]
+La enumeracion cmd_code_t, en motion.h, contiene 73 comandos (a 6-5-2020)
+La instrucción switch en command.c contempla 70
+Los comandos ENABLE_WATCHDOG / DISABLE_WATCHDOG están en motion-logger.c. Quizas sean obsoletos.
+El comando SET_TELEOP_VECTOR solo aparece en motion-logger.c, sin mas efecto que su propio log.
 
 === ABORT
 

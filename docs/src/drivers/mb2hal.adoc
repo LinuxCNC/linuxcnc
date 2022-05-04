@@ -38,28 +38,23 @@ Consider using Mb2hal if:
 
 == Usage
 
-. Create a config file from the example below
-. Set component name (optional) +
-  Default `HAL_MODULE_NAME=mb2hal`
+.. Create a config file from the example below
+. Set component name (optional)
 +
-----
-set `HAL_MODULE_NAME=mymodule`
-----
+Set `HAL_MODULE_NAME=mymodule` (default `HAL_MODULE_NAME=mb2hal`)
 +
 . Load the modbus HAL userspace component
-.. Default component name: +
-   `loadusr -W mb2hal config=config_file.ini`
-.. Custom component name: +
-   `loadusr -Wn mymodule mb2hal config=config_file.ini`
+.. Default component name: `loadusr -W mb2hal config=config_file.ini`
+.. Custom component name: `loadusr -Wn mymodule mb2hal config=config_file.ini`
 
 
 == Options
 
 === Init Section
 
-*`[MB2HAL_INIT]`*
+`[MB2HAL_INIT]`
 
-[options="header",cols="12,8,13,70"]
+[options="header",cols="14,8,13,67"]
 |=======================
 |Value | Type | Required | Description
 |`INIT_DEBUG`| Integer | No | Debug level of init and INI file parsing. +
@@ -89,7 +84,7 @@ parameters 1st time.
 Warning: Any OPTIONAL parameter not specified are copied from the
 previous transaction.
 
-[options="header",cols="12,8,13,70"]
+[options="header",cols="14,8,13,67"]
 |=======================
 |Value            | Type | Required | Description
 |`LINK_TYPE`      | String | Yes | You must specify either a "serial" or
@@ -203,10 +198,7 @@ Program or connection:
 * 0x10 (-16) - INVALID_CRC
 * 0x11 (-17) - INVALID_EXCEPTION_CODE
 
-////
 == Example config file
-
-FIXME Files missing
 
 Click link:mb2hal_HOWTO.ini[here] to download.
 
@@ -214,7 +206,6 @@ Click link:mb2hal_HOWTO.ini[here] to download.
 ----
 include::mb2hal_HOWTO.ini[]
 ----
-////
 
 == Pins
 

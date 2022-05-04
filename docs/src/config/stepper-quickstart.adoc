@@ -112,7 +112,7 @@ The net result you're looking for is how many CNC-output-steps it takes
 to move one user unit (inches or mm).
 
 .Units inches
-----
+====
 ............................................
 Stepper         = 200 steps per revolution
 Drive           =  10 micro steps per step
@@ -120,7 +120,7 @@ Motor Teeth     =  20
 Leadscrew Teeth =  40
 Leadscrew Pitch =   0.2000 inches per turn
 ............................................
-----
+====
 
 From the above information, the leadscrew moves 0.200 inches per turn.
 - The motor turns 2.000 times per 1 leadscrew turn.
@@ -141,7 +141,7 @@ latexmath:[
 ////////////////////////////////////////////
 
 .Units mm
-----
+====
 ............................................
     Stepper         = 200 steps per revolution
     Drive           =   8 micro steps per step
@@ -149,7 +149,7 @@ latexmath:[
     Leadscrew Teeth =  90
     Leadscrew Pitch =   5.00 mm per turn
 ............................................
-----
+====
 
 From the above information:
 - The leadscrew moves 5.00 mm per turn.

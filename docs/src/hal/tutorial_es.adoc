@@ -857,7 +857,6 @@ de que el archivo 'autosave.halscope' no se pudo abrir. Ello se debe a que aun n
 .Arranque de Halscope
 ----
 halcmd: loadusr halscope
-halcmd: halscope: config file 'autosave.halscope' could not be opened
 ----
 
 If LinuxCNC is not running or the autosave.halscope file does not match
