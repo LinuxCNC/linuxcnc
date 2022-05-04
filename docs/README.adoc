@@ -158,7 +158,7 @@ https://po4a.alioth.debian.org/man/man7/po4a.7.php[po4a(7)] manpage.
 
 We are using po4a version 0.62, available in Debian Bullseye.
 
-=== To transition a translated file to po4a
+=== Transfer a translated file to po4a
 
 If there is a pre-existing translation of the file to your language,
 create a .po translation database seeded by the old translation.

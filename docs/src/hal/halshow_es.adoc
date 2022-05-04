@@ -130,9 +130,6 @@ ddt; agréguelo al hilo del servo. Luego conéctelo al pin de posición
 de una articulación. Una vez hecho esto podemos encontrar la salida del
 diferenciador en halscope. Veamoslo.
 
-[NOTE]
-The message output when ddt is loaded doesn't prevent it from running.
-
 ----
 loadrt ddt
 ----

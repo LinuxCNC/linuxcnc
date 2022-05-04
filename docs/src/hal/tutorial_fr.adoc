@@ -880,7 +880,6 @@ running in a terminal you can start halscope with the following command.
 .Starting Halscope
 ----
 halcmd: loadusr halscope
-halcmd: halscope: config file 'autosave.halscope' could not be opened
 ----
 
 If LinuxCNC is not running or the autosave.halscope file does not match

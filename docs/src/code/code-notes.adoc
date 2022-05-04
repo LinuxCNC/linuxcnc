@@ -59,12 +59,12 @@ very much a work in progress, and its layout may change in the future.
   the ini file uses the term 'axis' for data that would more accurately
   be described as joint data, such as input and output scaling, etc.
 
-Ed. In version 2.8 of LinuxCNC this distinction is already made.
-The .ini file has a new section [JOINT_<num>]. Many of the parameters that were previously
-were proper to the [AXIS_<letter>] section are now in the new section. other sections,
+[NOTE]
+This distinction was made in version 2.8 of LinuxCNC.
+The .ini file got a new section [JOINT_<num>]. Many of the parameters that were previously
+proper to the [AXIS_<letter>] section are now in the new section. Other sections,
 such as [KINS], also take on new parameters to match this.
-A mechanism has been provided to transform old .ini files to the new configuration
-axles/joints.
+An update script has been provided to transform old .ini files to the new axes/joints configuration.
 
 * 'POSE' - A pose is a fully specified position in 3-D Cartesian space. In
   the LinuxCNC motion controller, when we refer to a pose we mean an
@@ -241,10 +241,11 @@ More on that function later.
 There are approximately 44 commands - this list is still under
 construction.
 
-Ed. The cmd_code_t enumeration, in motion.h, contains 73 commands (as of 6-5-2020)
-Ed. The switch statement in command.c contemplates 70
-Ed. ENABLE_WATCHDOG / DISABLE_WATCHDOG commands are in motion-logger.c. Maybe they are obsolete.
-Ed. The SET_TELEOP_VECTOR command only appears in motion-logger.c, with no effect other than its own log.
+[NOTE]
+The cmd_code_t enumeration, in motion.h, contains 73 commands, but the switch
+statement in command.c contemplates only 70 commands (as of 6/5/2020).
+ENABLE_WATCHDOG / DISABLE_WATCHDOG commands are in motion-logger.c. Maybe they are obsolete.
+The SET_TELEOP_VECTOR command only appears in motion-logger.c, with no effect other than its own log.
 
 === ABORT
 
@@ -1100,8 +1101,8 @@ emc.cc.
 NMLmsg is the base class from which all message classes are derived.
 Each message class must have a unique ID defined (and passed to the
 constructor) and also an update(*cms) function. The update() will be
-called by the NML read/write functions when the NML formatter is called -
-The pointer to the formatter will have been declared in the NML
+called by the NML read/write functions when the NML formatter is called --
+the pointer to the formatter will have been declared in the NML
 constructor at some point. By virtue of the linked lists NML creates,
 it is able to select cms pointer that is passed to the formatter and
 therefor which buffer is to be used.
@@ -1177,7 +1178,7 @@ came from has the tool information for the old tool (the tool that was
 in the spindle before the tool change), if any.
 
 [NOTE]
-In LinuxCNC configured for random toolchanger, tool 0 (T0) has *no*
+If LinuxCNC is configured for random toolchanger, tool 0 (T0) has *no*
 special meaning.  It is treated exactly like any other tool in the tool
 table.  It is customary to use T0 to represent "no tool" (ie, a tool with
 zero TLO), so that the spindle can be conveniently emptied when needed.
