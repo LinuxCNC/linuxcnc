@@ -9,6 +9,7 @@ from qtvcp.widgets.file_manager import FileManager as FM
 from qtvcp.lib.writer import writer
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.gcodes import GCodes
+from qtvcp.lib.qt_pdf import PDFViewer 
 from qtvcp.core import Status, Action, Info, Path, Qhal
 from qtvcp import logger
 from shutil import copyfile
@@ -141,7 +142,7 @@ class HandlerClass:
             # web view widget for SETUP page
             if self.w.web_view:
                 self.toolBar = QtWidgets.QToolBar(self.w)
-                self.w.layout_setup.addWidget(self.toolBar)
+                self.w.layout_HTML.addWidget(self.toolBar)
 
                 self.backBtn = QtWidgets.QPushButton(self.w)
                 self.backBtn.setEnabled(True)
@@ -164,13 +165,17 @@ class HandlerClass:
                 self.writeBtn.clicked.connect(self.writer)
                 self.toolBar.addWidget(self.writeBtn)
 
-                self.w.layout_setup.addWidget(self.w.web_view)
+                self.w.layout_HTML.addWidget(self.w.web_view)
                 if os.path.exists(self.default_setup):
                     self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.default_setup))
                 else:
                     self.w.web_view.setHtml(self.html)
         except Exception as e:
             print("No default setup file found - {}".format(e))
+
+        # PDF setup page
+        self.PDFView = PDFViewer.PDFView()
+        self.w.layout_PDF.addWidget(self.PDFView)
 
         # Show assigned macrobuttons define in INI under [MDI_COMMAND_LIST]
         flag = True
@@ -838,6 +843,9 @@ class HandlerClass:
     def load_code(self, fname):
         if fname is None: return
         filename, file_extension = os.path.splitext(fname)
+
+        # loading ngc then HTML/PDF
+
         if not file_extension in (".html", '.pdf'):
             if not (INFO.program_extension_valid(fname)):
                 self.add_status("Unknown or invalid filename extension {}".format(file_extension))
@@ -862,10 +870,13 @@ class HandlerClass:
             # load it with system program
             fname = filename+'.pdf'
             if os.path.exists(fname):
-                url = QtCore.QUrl.fromLocalFile(fname)
-                QtGui.QDesktopServices.openUrl(url)
+                self.PDFView.loadView(fname)
+                #url = QtCore.QUrl.fromLocalFile(fname)
+                #QtGui.QDesktopServices.openUrl(url)
                 self.add_status("Loaded PDF file : {}".format(fname))
             return
+
+        # loading HTML/PDF directly
 
         if file_extension == ".html":
             try:
@@ -879,8 +890,9 @@ class HandlerClass:
                 print("Error loading HTML file : {}".format(e))
         else:
             if os.path.exists(fname):
-                url = QtCore.QUrl.fromLocalFile(fname)
-                QtGui.QDesktopServices.openUrl(url)
+                self.PDFView.loadView(fname)
+                #url = QtCore.QUrl.fromLocalFile(fname)
+                #QtGui.QDesktopServices.openUrl(url)
                 self.add_status("Loaded PDF file : {}".format(fname))
 
     def disable_spindle_pause(self):
