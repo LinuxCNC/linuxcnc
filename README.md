@@ -19,6 +19,7 @@
 ---
 
 [<kbd> <br> Ｗｅｂｓｉｔｅ <br> </kbd>][Website] 
+[<kbd> <br> Ｉｎｓｔａｌｌ <br> </kbd>][Ｉｎｓｔａｌｌ] 
 [<kbd> <br> Ｂｕｉｌｄ <br> </kbd>][Ｂｕｉｌｄ] 
 [<kbd> <br> Ｄｏｃｕｍｅｎｔａｔｉｏｎ <br> </kbd>][Ｄｏｃｕｍｅｎｔａｔｉｏｎ]  
   
@@ -80,6 +81,7 @@ for such compliance.
 [Weblate]: https://hosted.weblate.org/projects/linuxcnc/
 [Website]: https://linuxcnc.org/
 
-[Ｄｏｃｕｍｅｎｔａｔｉｏｎ]: docs/src
-[Ｂｕｉｌｄ]: docs/src/code/building-linuxcnc.adoc
+[Ｄｏｃｕｍｅｎｔａｔｉｏｎ]: http://linuxcnc.org/docs/stable/html/
+[Ｉｎｓｔａｌｌ]: http://linuxcnc.org/docs/stable/html/getting-started/getting-linuxcnc.html
+[Ｂｕｉｌｄ]: http://linuxcnc.org/docs/stable/html/code/building-linuxcnc.html
 [License]: COPYING
