@@ -4,6 +4,42 @@ from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 import popplerqt5
 
+class PDFView(QtWidgets.QScrollArea):
+    def __init__(self, parent=None):
+        super(PDFView, self).__init__(parent)
+        self.setWidgetResizable(True)
+
+        self.widget = QtWidgets.QWidget()
+        self.setWidget(self.widget)
+        self.vbox = QtWidgets.QVBoxLayout()
+        self.widget.setLayout(self.vbox)
+
+
+    def loadView(self, path):
+        filename = os.path.expanduser(path)
+        if not os.path.exists(filename):
+            print('No path:',filename)
+
+        doc = popplerqt5.Poppler.Document.load(filename)
+        doc.setRenderHint(popplerqt5.Poppler.Document.Antialiasing)
+        doc.setRenderHint(popplerqt5.Poppler.Document.TextAntialiasing)
+
+        # clear layout of pages
+        for i in reversed(range(self.vbox.count())): 
+            self.vbox.itemAt(i).widget().setParent(None)
+
+        # convert pages to images in a label
+        for i in range(0,doc.numPages()):
+            label = QtWidgets.QLabel()
+            label.setScaledContents(True)
+
+            page = doc.page(i)
+            image = page.renderToImage()
+
+            label.setPixmap(QtGui.QPixmap.fromImage(image))
+            self.vbox.addWidget(label)
+
+
 def pdf_view(filename):
     """Return a Scrollarea showing the pages of the specified PDF file."""
     filename = os.path.expanduser(filename)
