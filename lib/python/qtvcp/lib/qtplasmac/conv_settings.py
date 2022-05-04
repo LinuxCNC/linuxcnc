@@ -60,14 +60,14 @@ def save(P, W, Conv):
         error_set(P, '{}:\n\n{}'.format(msg0, msg1))
         return
 
-    W.PREFS_.putpref('Preamble', P.preAmble, str, 'CONVERSATIONAL')
-    W.PREFS_.putpref('Postamble', P.postAmble, str, 'CONVERSATIONAL')
-    W.PREFS_.putpref('Origin', int(P.origin), int, 'CONVERSATIONAL')
-    W.PREFS_.putpref('Leadin', P.leadIn, float, 'CONVERSATIONAL')
-    W.PREFS_.putpref('Leadout', P.leadOut, float, 'CONVERSATIONAL')
-    W.PREFS_.putpref('Hole diameter', P.holeDiameter, float, 'CONVERSATIONAL')
-    W.PREFS_.putpref('Hole speed', P.holeSpeed, int, 'CONVERSATIONAL')
-    W.PREFS_.putpref('Grid Size', P.gridSize, float, 'CONVERSATIONAL')
+    P.PREFS.putpref('Preamble', P.preAmble, str, 'CONVERSATIONAL')
+    P.PREFS.putpref('Postamble', P.postAmble, str, 'CONVERSATIONAL')
+    P.PREFS.putpref('Origin', P.origin, bool, 'CONVERSATIONAL')
+    P.PREFS.putpref('Leadin', P.leadIn, float, 'CONVERSATIONAL')
+    P.PREFS.putpref('Leadout', P.leadOut, float, 'CONVERSATIONAL')
+    P.PREFS.putpref('Hole diameter', P.holeDiameter, float, 'CONVERSATIONAL')
+    P.PREFS.putpref('Hole speed', P.holeSpeed, int, 'CONVERSATIONAL')
+    P.PREFS.putpref('Grid Size', P.gridSize, float, 'CONVERSATIONAL')
     show(P, W)
     P.convSettingsChanged = True
     Conv.conv_restore_buttons(P, W)
@@ -86,14 +86,14 @@ def reload(P, W, Conv):
     W[P.oldConvButton].click()
 
 def load(P, W):
-    P.preAmble = W.PREFS_.getpref('Preamble', P.ambles, str, 'CONVERSATIONAL')
-    P.postAmble = W.PREFS_.getpref('Postamble', P.ambles, str, 'CONVERSATIONAL')
-    P.origin = bool(W.PREFS_.getpref('Origin', False, int, 'CONVERSATIONAL'))
-    P.leadIn = W.PREFS_.getpref('Leadin', 0, float, 'CONVERSATIONAL')
-    P.leadOut = W.PREFS_.getpref('Leadout', 0, float, 'CONVERSATIONAL')
-    P.holeDiameter = W.PREFS_.getpref('Hole diameter', P.unitCode[2], float, 'CONVERSATIONAL')
-    P.holeSpeed = W.PREFS_.getpref('Hole speed', 60, int, 'CONVERSATIONAL')
-    P.gridSize = W.PREFS_.getpref('Grid Size', 0, float, 'CONVERSATIONAL')
+    P.preAmble = P.PREFS.getpref('Preamble', P.ambles, str, 'CONVERSATIONAL')
+    P.postAmble = P.PREFS.getpref('Postamble', P.ambles, str, 'CONVERSATIONAL')
+    P.origin = P.PREFS.getpref('Origin', False, bool, 'CONVERSATIONAL')
+    P.leadIn = P.PREFS.getpref('Leadin', 0, float, 'CONVERSATIONAL')
+    P.leadOut = P.PREFS.getpref('Leadout', 0, float, 'CONVERSATIONAL')
+    P.holeDiameter = P.PREFS.getpref('Hole diameter', P.unitCode[2], float, 'CONVERSATIONAL')
+    P.holeSpeed = P.PREFS.getpref('Hole speed', 60, int, 'CONVERSATIONAL')
+    P.gridSize = P.PREFS.getpref('Grid Size', 0, float, 'CONVERSATIONAL')
 
 def show(P, W):
     W.preEntry.setText(P.preAmble)

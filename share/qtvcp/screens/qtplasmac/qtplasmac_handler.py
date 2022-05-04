@@ -1,4 +1,4 @@
-VERSION = '1.223.186'
+VERSION = '1.223.187'
 
 '''
 qtplasmac_handler.py
@@ -1719,8 +1719,9 @@ class HandlerClass:
             ACTION.ABORT()
             if self.torchPulse:
                 self.torch_pulse(True)
-            hal.set_p('plasmac.cut-recovery', '0')
-            self.laserOnPin.set(0)
+            if hal.get_value('plasmac.cut-recovery'):
+                hal.set_p('plasmac.cut-recovery', '0')
+                self.laserOnPin.set(0)
             self.interp_idle(None)
             if self.convBlockLoaded.get():
                 self.wcs_rotation('set')
@@ -2120,17 +2121,23 @@ class HandlerClass:
 
     def update_check(self):
         halfiles = self.iniFile.findall('HAL', 'HALFILE') or None
-        prefsFile = os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs')
+        machinePrefsFile = os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs')
+        qtvcpPrefsFile = os.path.join(self.PATHS.CONFIGPATH, 'qtvcp.prefs')
     # use qtplasmac_comp.hal for component connections (pre V1.221.154 2022/01/18)
         if halfiles and not [f for f in halfiles if 'plasmac.tcl' in f] and not \
             [f for f in halfiles if 'qtplasmac_comp.hal' in f]:
             UPDATER.add_component_hal_file(self.PATHS.CONFIGPATH, INIPATH, halfiles)
     # split out qtplasmac specific prefs into a separate file (pre V1.222.170 2022/03/08)
-        if not os.path.isfile(prefsFile):
+        if not os.path.isfile(machinePrefsFile):
             old = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac.prefs')
             if os.path.isfile(old):
-                new = os.path.join(self.PATHS.CONFIGPATH, 'qtvcp.prefs')
-                UPDATER.split_prefs_file(old, new, prefsFile)
+                UPDATER.split_prefs_file(old, qtvcpPrefsFile, machinePrefsFile)
+    # move conversational prefs from qtvcp.prefs to <machine_name>.prefs (pre V1.222.187 2022/05/03)
+        if os.path.isfile(qtvcpPrefsFile) and os.path.isfile(machinePrefsFile):
+            with open(qtvcpPrefsFile, 'r') as inFile:
+                data = inFile.readlines()
+                if [line for line in data if '[CONVERSATIONAL]' in line]:
+                    UPDATER.move_prefs(qtvcpPrefsFile, machinePrefsFile)
 
     def set_blank_gcodeprops(self):
         # a workaround for the extreme values in gcodeprops for a blank file
