@@ -2915,7 +2915,7 @@ RESET</string>
                     <enum>QFrame::Raised</enum>
                    </property>
                    <property name="currentIndex">
-                    <number>0</number>
+                    <number>8</number>
                    </property>
                    <widget class="QWidget" name="main_tab_widgetPage1">
                     <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -5787,7 +5787,53 @@ TO FILE</string>
                       <number>0</number>
                      </property>
                      <item>
-                      <layout class="QVBoxLayout" name="layout_setup"/>
+                      <layout class="QVBoxLayout" name="layout_setup">
+                       <item>
+                        <widget class="QTabWidget" name="tabWidget_setup">
+                         <property name="currentIndex">
+                          <number>1</number>
+                         </property>
+                         <widget class="QWidget" name="tabHTML">
+                          <attribute name="title">
+                           <string>HTML</string>
+                          </attribute>
+                          <layout class="QVBoxLayout" name="layout_HTML">
+                           <property name="leftMargin">
+                            <number>0</number>
+                           </property>
+                           <property name="topMargin">
+                            <number>0</number>
+                           </property>
+                           <property name="rightMargin">
+                            <number>0</number>
+                           </property>
+                           <property name="bottomMargin">
+                            <number>0</number>
+                           </property>
+                          </layout>
+                         </widget>
+                         <widget class="QWidget" name="tabPDF">
+                          <attribute name="title">
+                           <string>PDF</string>
+                          </attribute>
+                          <layout class="QHBoxLayout" name="layout_PDF">
+                           <property name="leftMargin">
+                            <number>0</number>
+                           </property>
+                           <property name="topMargin">
+                            <number>0</number>
+                           </property>
+                           <property name="rightMargin">
+                            <number>0</number>
+                           </property>
+                           <property name="bottomMargin">
+                            <number>0</number>
+                           </property>
+                          </layout>
+                         </widget>
+                        </widget>
+                       </item>
+                      </layout>
                      </item>
                     </layout>
                    </widget>
@@ -14654,7 +14700,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>08:56:54 PM</string>
+            <string>10:07:20 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
