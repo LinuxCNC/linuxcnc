@@ -18,7 +18,7 @@
 ** Easy to use graphical configuration wizards to rapidly create a configuration
    specific to the machine
 ** a graphical user interface (actually several interfaces to choose from)
-** A graphical interface creation tool (GladeVCP)
+** A graphical interface creation tool (Glade)
 ** an interpreter for 'G-code' (the RS-274 machine tool programming
    language)
 ** a realtime motion planning system with look-ahead

@@ -124,15 +124,15 @@ pasos producidos por el software CNC le tomara al eje moverse linealmente
 una unidad de usuario (pulgadas o mm).
 
 .Unidades Pulgadas
-----
-............................................
+====
+.......................................
 Motor a Pasos             = 200 Pasos por revolución
 Controlador de Motor      =  10 micro pasos por paso
 Dientes del motor         =  20
 Dientes del tornillo guía =  40
 Paso del tornillo guía    =   0.2000 pulgadas por revolución
 ............................................
-----
+====
 
 A partir de la información anterior, el tornillo guía se mueve 0.200 pulgadas por vuelta.
 - El motor da  2 vueltas por una vuelta del tornillo guía.
@@ -153,7 +153,7 @@ latexmath:[
 ////////////////////////////////////////////
 
 .Unidades mm
-----
+====
 ............................................
 Motor a Pasos             = 200 Pasos por revolución
 Controlador de Motor      =  8 micro pasos por paso
@@ -161,7 +161,7 @@ Dientes del motor         =  30
 Dientes del tornillo guía =  90
 Paso del tornillo guía    =   5.00 mm por revolución
 ............................................
-----
+====
 
 A partir de la información anterior:
 - El tornillo guía se mueve 5.00 mm por vuelta.

@@ -1,5 +1,6 @@
 :lang: en
 :toc:
+:toclevels: 3
 
 [[cha:gmoccapy]]
 = GMOCCAPY
@@ -1451,7 +1452,7 @@ in absolute coordinates
   commented out in macros/change.ngc, otherwise the  user would have to click
   twice on the probe button)
 
-==== Cambiador de herramientas
+==== Tool Changer
 
 If your fourth axis is used as a tool changer, you may want to hide the
 DRO and all other buttons related to that axis.

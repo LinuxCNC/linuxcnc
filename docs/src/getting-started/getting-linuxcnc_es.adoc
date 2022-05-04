@@ -97,7 +97,7 @@ https://www.assembla.com/spaces/zsync-windows/documents
 
 (Este paso no es necesario si usó zsync)
 
-* Después de la descarga, verifique la suma de comprobación de la imagen para garantizar su integridad.
+. Después de la descarga, verifique la suma de comprobación de la imagen para garantizar su integridad.
 +
 ----
 md5sum linuxcnc-2.8.2-buster.iso
@@ -109,7 +109,7 @@ or
 sha256sum linuxcnc-2.8.2-buster.iso
 ----
 
-* Luego, compare con la suma de comprobación segun su caso
+. Luego, compare con la suma de comprobación segun su caso
 +
 -----
 md5sum: 4496eae88a1d66f457205d0d5b69c3c2

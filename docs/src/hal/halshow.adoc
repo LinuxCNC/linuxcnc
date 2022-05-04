@@ -132,9 +132,6 @@ ddt, add it to the servo thread, then connect it to the position pin
 of a joint. Once that is done we can find the output of the
 differentiator in halscope. So let's go. (Yes, I looked this one up.)
 
-[NOTE]
-The message output when ddt is loaded doesn't prevent it from running.
-
 ----
 loadrt ddt
 ----
