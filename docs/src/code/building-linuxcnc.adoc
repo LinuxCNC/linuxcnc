@@ -2,8 +2,6 @@
 
 = Building LinuxCNC
 
-You may also want to check out http://linuxcnc.org/docs/devel/html/code/building-linuxcnc.html
-
 == Introduction
 
 This document describes how to build the LinuxCNC software and
