@@ -690,6 +690,7 @@ The external program named 'M100' through 'M199' (no extension, a capital M,
 found in directory pointed by '[DISPLAY] PROGRAM_PREFIX'
 parameter of the INI file) is executed with the optional P and Q values
 as its two arguments.
+
 Execution of the G code file pauses until the external program exits.
 Any valid executable file can be used. The file must be located in the search
 path specified in the ini file configuration.
@@ -701,7 +702,7 @@ new program is taken into account, otherwise a 'Unknown M-code' error will occur
 [WARNING]
 Do not use a word processor to create or edit the files. A word processor
 will leave unseen codes that will cause problems and may prevent a bash or
-python file from working. Use a text editor like Gedit in Ubuntu or Notepad++
+python file from working. Use a text editor like Geany in Debian or Notepad++
 in other operating systems to create or edit the files.
 
 The error 'Unknown M code used' denotes one of the following:
@@ -709,7 +710,7 @@ The error 'Unknown M code used' denotes one of the following:
 * The specified User Defined Command does not exist
 * The file is not an executable file
 * The file name has an extension
-* The file name does not follow this format M1nn where nn = 00 through 99
+* The file name does not follow this format Mnnn where nnn = 100 through 199
 * The file name used a lower case M
 
 For example to open and close a collet closer that is controlled by a
