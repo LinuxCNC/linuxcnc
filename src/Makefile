@@ -752,7 +752,7 @@ install-python: install-dirs
 	$(FILE) ../lib/python/qtvcp/lib/qtplasmac/*.py $(DESTDIR)$(SITEPY)/qtvcp/lib/qtplasmac
 	$(FILE) ../lib/python/qtvcp/lib/qt_vismach/*.py $(DESTDIR)$(SITEPY)/qtvcp/lib/qt_vismach
 	$(FILE) ../lib/python/qtvcp/lib/qt_ngcgui/*.py ../lib/python/qtvcp/lib/qt_ngcgui/*.ui $(DESTDIR)$(SITEPY)/qtvcp/lib/qt_ngcgui
-	$(FILE) ../lib/python/qtvcp/lib/qt_pdf/*.py ../lib/python/qtvcp/lib/qt_pdf/*.ui $(DESTDIR)$(SITEPY)/qtvcp/lib/qt_pdf
+	$(FILE) ../lib/python/qtvcp/lib/qt_pdf/*.py $(DESTDIR)$(SITEPY)/qtvcp/lib/qt_pdf
 	$(FILE) ../lib/python/qtvcp/lib/gcode_utility/*.py ../lib/python/qtvcp/lib/gcode_utility/*.ui ../lib/python/qtvcp/lib/gcode_utility/*.txt $(DESTDIR)$(SITEPY)/qtvcp/lib/gcode_utility
 	$(FILE) ../lib/python/gmoccapy/*.py $(DESTDIR)$(SITEPY)/gmoccapy
 	$(FILE) ../lib/python/gladevcp/*.py $(DESTDIR)$(SITEPY)/gladevcp
