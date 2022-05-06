@@ -1,9 +1,10 @@
 :lang: en
+:toc:
 
 [[cha:mesa-hostmot2-driver]]
-= Mesa HostMot2 Driver 
+= Mesa HostMot2 Driver
 
-== Introduction 
+== Introduction
 
 HostMot2 is an FPGA configuration developed by Mesa Electronics for
 their line of 'Anything I/O' motion control cards. The firmware is open
@@ -62,7 +63,7 @@ all the PCI- and PC-104/Plus-based Anything I/O boards). The hostmot2 driver
 must be loaded first, using a HAL command like this:
 
 ----
-loadrt hostmot2 
+loadrt hostmot2
 ----
 
 See the hostmot2(9) man page for details.
@@ -73,7 +74,7 @@ this access. The low-level I/O drivers are loaded with commands like
 this:
 
 ----
-loadrt hm2_pci config="firmware=hm2/5i20/SVST8_4.BIT 
+loadrt hm2_pci config="firmware=hm2/5i20/SVST8_4.BIT
        num_encoders=3 num_pwmgens=3 num_stepgens=1"
 ----
 
@@ -103,16 +104,16 @@ exported:
 
 === Pins:
 
- * 'has_bit' - (bit i/o) True if the watchdog has bit, False if the watchdog has not
-   bit. If the watchdog has bit and the has_bit bit is True, the user can
-   reset it to False to resume operation.
+* 'has_bit' - (bit i/o) True if the watchdog has bit, False if the
+  watchdog has not bit. If the watchdog has bit and the has_bit bit is
+  True, the user can reset it to False to resume operation.
 
 === Parameters:
 
- * 'timeout_ns' - (u32 read/write) Watchdog timeout, in nanoseconds. This is
-   initialized to 5,000,000 (5 milliseconds) at module load time. If
-   more than this amount of time passes between calls to the hm2 write
-   function, the watchdog will bite.
+* 'timeout_ns' - (u32 read/write) Watchdog timeout, in nanoseconds.
+  This is initialized to 5,000,000 (5 milliseconds) at module load time.
+  If more than this amount of time passes between calls to the hm2 write
+  function, the watchdog will bite.
 
 == HostMot2 Functions
 
@@ -124,19 +125,19 @@ exported:
    (This function is not available on the 7i43 due to limitations of the EPP bus.)
 
  * 'hm2_<BoardType>.<BoardNum>.write_gpio' - Write the GPIO control registers and output pins only.
-   (This function is not available on the 7i43 due to limitations of the EPP bus.) 
+   (This function is not available on the 7i43 due to limitations of the EPP bus.)
 
 [NOTE]
 =====================================================================
-The above 'read_gpio' and 'write_gpio' functions should not 
-normally be needed, since the GPIO bits are read and written along 
-with everything else in the standard 'read' and 'write' 
+The above 'read_gpio' and 'write_gpio' functions should not
+normally be needed, since the GPIO bits are read and written along
+with everything else in the standard 'read' and 'write'
 functions above, which are normally run in the servo thread.
 
-The 'read_gpio' and 'write_gpio' functions were provided in 
-case some very fast (frequently updated) I/O is needed. These 
-functions should be run in the base thread. If you have need for 
-this, please send an email and tell us about it, and what your 
+The 'read_gpio' and 'write_gpio' functions were provided in
+case some very fast (frequently updated) I/O is needed. These
+functions should be run in the base thread. If you have need for
+this, please send an email and tell us about it, and what your
 application is.
 =====================================================================
 
@@ -174,42 +175,42 @@ your configuration.
 An example of a 5i20 configuration:
 
 ----
-[HOSTMOT2] 
-DRIVER=hm2_pci 
-BOARD=5i20 
+[HOSTMOT2]
+DRIVER=hm2_pci
+BOARD=5i20
 CONFIG="firmware=hm2/5i20/SVST8_4.BIT num_encoders=1 num_pwmgens=1 num_stepgens=3"
 ----
 
 The above configuration produced this printout.
 
 ----
-[ 1141.053386] hm2/hm2_5i20.0: 72 I/O Pins used: 
-[ 1141.053394] hm2/hm2_5i20.0: IO Pin 000 (P2-01): IOPort 
-[ 1141.053397] hm2/hm2_5i20.0: IO Pin 001 (P2-03): IOPort 
-[ 1141.053401] hm2/hm2_5i20.0: IO Pin 002 (P2-05): Encoder #0, pin B (Input) 
-[ 1141.053405] hm2/hm2_5i20.0: IO Pin 003 (P2-07): Encoder #0, pin A (Input) 
-[ 1141.053408] hm2/hm2_5i20.0: IO Pin 004 (P2-09): IOPort 
-[ 1141.053411] hm2/hm2_5i20.0: IO Pin 005 (P2-11): Encoder #0, pin Index (Input) 
-[ 1141.053415] hm2/hm2_5i20.0: IO Pin 006 (P2-13): IOPort 
-[ 1141.053418] hm2/hm2_5i20.0: IO Pin 007 (P2-15): PWMGen #0, pin Out0 (PWM or Up) (Output) 
-[ 1141.053422] hm2/hm2_5i20.0: IO Pin 008 (P2-17): IOPort 
-[ 1141.053425] hm2/hm2_5i20.0: IO Pin 009 (P2-19): PWMGen #0, pin Out1 (Dir or Down) (Output) 
-[ 1141.053429] hm2/hm2_5i20.0: IO Pin 010 (P2-21): IOPort 
-[ 1141.053432] hm2/hm2_5i20.0: IO Pin 011 (P2-23): PWMGen #0, pin Not-Enable (Output) 
-<snip>... 
-[ 1141.053589] hm2/hm2_5i20.0: IO Pin 060 (P4-25): StepGen #2, pin Step (Output) 
-[ 1141.053593] hm2/hm2_5i20.0: IO Pin 061 (P4-27): StepGen #2, pin Direction (Output) 
-[ 1141.053597] hm2/hm2_5i20.0: IO Pin 062 (P4-29): StepGen #2, pin (unused) (Output) 
-[ 1141.053601] hm2/hm2_5i20.0: IO Pin 063 (P4-31): StepGen #2, pin (unused) (Output) 
-[ 1141.053605] hm2/hm2_5i20.0: IO Pin 064 (P4-33): StepGen #2, pin (unused) (Output) 
-[ 1141.053609] hm2/hm2_5i20.0: IO Pin 065 (P4-35): StepGen #2, pin (unused) (Output) 
-[ 1141.053613] hm2/hm2_5i20.0: IO Pin 066 (P4-37): IOPort 
-[ 1141.053616] hm2/hm2_5i20.0: IO Pin 067 (P4-39): IOPort 
-[ 1141.053619] hm2/hm2_5i20.0: IO Pin 068 (P4-41): IOPort 
-[ 1141.053621] hm2/hm2_5i20.0: IO Pin 069 (P4-43): IOPort 
-[ 1141.053624] hm2/hm2_5i20.0: IO Pin 070 (P4-45): IOPort 
-[ 1141.053627] hm2/hm2_5i20.0: IO Pin 071 (P4-47): IOPort 
-[ 1141.053811] hm2/hm2_5i20.0: registered 
+[ 1141.053386] hm2/hm2_5i20.0: 72 I/O Pins used:
+[ 1141.053394] hm2/hm2_5i20.0: IO Pin 000 (P2-01): IOPort
+[ 1141.053397] hm2/hm2_5i20.0: IO Pin 001 (P2-03): IOPort
+[ 1141.053401] hm2/hm2_5i20.0: IO Pin 002 (P2-05): Encoder #0, pin B (Input)
+[ 1141.053405] hm2/hm2_5i20.0: IO Pin 003 (P2-07): Encoder #0, pin A (Input)
+[ 1141.053408] hm2/hm2_5i20.0: IO Pin 004 (P2-09): IOPort
+[ 1141.053411] hm2/hm2_5i20.0: IO Pin 005 (P2-11): Encoder #0, pin Index (Input)
+[ 1141.053415] hm2/hm2_5i20.0: IO Pin 006 (P2-13): IOPort
+[ 1141.053418] hm2/hm2_5i20.0: IO Pin 007 (P2-15): PWMGen #0, pin Out0 (PWM or Up) (Output)
+[ 1141.053422] hm2/hm2_5i20.0: IO Pin 008 (P2-17): IOPort
+[ 1141.053425] hm2/hm2_5i20.0: IO Pin 009 (P2-19): PWMGen #0, pin Out1 (Dir or Down) (Output)
+[ 1141.053429] hm2/hm2_5i20.0: IO Pin 010 (P2-21): IOPort
+[ 1141.053432] hm2/hm2_5i20.0: IO Pin 011 (P2-23): PWMGen #0, pin Not-Enable (Output)
+<snip>...
+[ 1141.053589] hm2/hm2_5i20.0: IO Pin 060 (P4-25): StepGen #2, pin Step (Output)
+[ 1141.053593] hm2/hm2_5i20.0: IO Pin 061 (P4-27): StepGen #2, pin Direction (Output)
+[ 1141.053597] hm2/hm2_5i20.0: IO Pin 062 (P4-29): StepGen #2, pin (unused) (Output)
+[ 1141.053601] hm2/hm2_5i20.0: IO Pin 063 (P4-31): StepGen #2, pin (unused) (Output)
+[ 1141.053605] hm2/hm2_5i20.0: IO Pin 064 (P4-33): StepGen #2, pin (unused) (Output)
+[ 1141.053609] hm2/hm2_5i20.0: IO Pin 065 (P4-35): StepGen #2, pin (unused) (Output)
+[ 1141.053613] hm2/hm2_5i20.0: IO Pin 066 (P4-37): IOPort
+[ 1141.053616] hm2/hm2_5i20.0: IO Pin 067 (P4-39): IOPort
+[ 1141.053619] hm2/hm2_5i20.0: IO Pin 068 (P4-41): IOPort
+[ 1141.053621] hm2/hm2_5i20.0: IO Pin 069 (P4-43): IOPort
+[ 1141.053624] hm2/hm2_5i20.0: IO Pin 070 (P4-45): IOPort
+[ 1141.053627] hm2/hm2_5i20.0: IO Pin 071 (P4-47): IOPort
+[ 1141.053811] hm2/hm2_5i20.0: registered
 [ 1141.053815] hm2_5i20.0: initialized AnyIO board at 0000:02:02.0
 ----
 
@@ -220,20 +221,20 @@ and PWMGen will also show up as GPIOs in the HAL Configuration screen.
 
 == PIN Files
 
-The default pinout is described in a .PIN file (human-readable text). 
-When you install a firmware package the .PIN files are installed in 
+The default pinout is described in a .PIN file (human-readable text).
+When you install a firmware package the .PIN files are installed in
 
 ----
-/usr/share/doc/hostmot2-firmware-<board>/ 
+/usr/share/doc/hostmot2-firmware-<board>/
 ----
 
 == Firmware
 
-The selected firmware (.BIT file) and configuration is uploaded from 
-the PC motherboard to the Mesa mothercard on LinuxCNC startup. 
-If you are using Run In Place, you must still install a 
-hostmot2-firmware-<board> package. There is more information about 
-firmware and configuration in the 'Configurations' section. 
+The selected firmware (.BIT file) and configuration is uploaded from
+the PC motherboard to the Mesa mothercard on LinuxCNC startup.
+If you are using Run In Place, you must still install a
+hostmot2-firmware-<board> package. There is more information about
+firmware and configuration in the 'Configurations' section.
 
 == HAL Pins
 
@@ -244,47 +245,51 @@ configuration used above.
 
 [[cap:5i20-HAL-Pins]]
 .5i20 HAL Pins
-image::images/5i20-halpins.png[alt="5i20 HAL Pins"]
+image::images/5i20-halpins.png["5i20 HAL Pins"]
 
 == Configurations
 
-The Hostmot2 firmware is available in several versions, depending on 
-what you are trying to accomplish. You can get a reminder of what a 
-particular firmware is for by looking at the name. Let's look at a 
-couple of examples. 
+The Hostmot2 firmware is available in several versions, depending on
+what you are trying to accomplish. You can get a reminder of what a
+particular firmware is for by looking at the name. Let's look at a
+couple of examples.
 
-In the 7i43 (two ports), SV8 ('Servo 8') would be for having 8 servos 
-or fewer, using the 'classic' 7i33 4-axis (per port) servo board. 
-So 8 servos would use up all 48 signals in the two ports. But if 
-you only needed 3 servos, you could say 'num_encoders=3' and 'num_pwmgens=3' 
-and recover 5 servos at 6 signals each, thus gaining 30 bits of GPIO. 
+In the 7i43 (two ports), SV8 ('Servo 8') would be for having 8 servos
+or fewer, using the 'classic' 7i33 4-axis (per port) servo board.
+So 8 servos would use up all 48 signals in the two ports. But if
+you only needed 3 servos, you could say 'num_encoders=3' and 'num_pwmgens=3'
+and recover 5 servos at 6 signals each, thus gaining 30 bits of GPIO.
 
-Or, in the 5i22 (four ports), SVST8_24 ('Servo 8, Stepper 24') would be 
-for having 8 servos or fewer (7i33 x2 again), and 24 steppers or fewer 
-(7i47 x2). This would use up all four ports. 
-If you only needed 4 servos you could say 'num_encoders=4' and 
-'num_pwmgens=4' and recover 1 port (and save a 7i33). 
-And if you only needed 12 steppers you could say 'num_stepgens=12' and 
-free up one port (and save a 7i47). 
-So in this way we can save two ports (48 bits) for GPIO. 
+Or, in the 5i22 (four ports), SVST8_24 ('Servo 8, Stepper 24') would be
+for having 8 servos or fewer (7i33 x2 again), and 24 steppers or fewer
+(7i47 x2). This would use up all four ports.
+If you only needed 4 servos you could say 'num_encoders=4' and
+'num_pwmgens=4' and recover 1 port (and save a 7i33).
+And if you only needed 12 steppers you could say 'num_stepgens=12' and
+free up one port (and save a 7i47).
+So in this way we can save two ports (48 bits) for GPIO.
 
-Here are tables of the firmwares available in the official packages. 
-There may be additional firmwares available at the Mesanet.com website 
-that have not yet made it into the LinuxCNC official firmware packages, so 
-check there too.  
+Here are tables of the firmwares available in the official packages.
+There may be additional firmwares available at the Mesanet.com website
+that have not yet made it into the LinuxCNC official firmware packages, so
+check there too.
 
-3x20 (6-port various) Default Configurations (The 3x20 comes in 1M, 1.5M, and 2M gate versions. 
-So far, all firmware is available in all gate sizes.) 
-[width="90%", options="header"]
+3x20 (6-port various) Default Configurations (The 3x20 comes in 1M,
+1.5M, and 2M gate versions.
+So far, all firmware is available in all gate sizes.)
+
+[width="90%",options="header"]
 |====================================================================
 |Firmware         | Encoder | PWMGen | StepGen | GPIO
 |SV24             | 24      | 24     | 0       | 0
 |SVST16_24        | 16      | 16     | 24      | 0
 |====================================================================
 
-5i22 (4-port PCI) Default Configurations (The 5i22 comes in 1M and 1.5M gate versions. 
-So far, all firmware is available in all gate sizes.) 
-[width="90%", options="header"]
+5i22 (4-port PCI) Default Configurations (The 5i22 comes in 1M and 1.5M
+gate versions.
+So far, all firmware is available in all gate sizes.)
+
+[width="90%",options="header"]
 |====================================================================
 |Firmware         | Encoder | PWM | StepGen | GPIO
 |SV16             | 16      | 16  | 0       | 0
@@ -294,7 +299,8 @@ So far, all firmware is available in all gate sizes.)
 |====================================================================
 
 5i23 (3-port PCI) Default Configurations (The 5i23 has 400k gates.)
-[width="90%", options="header"]
+
+[width="90%",options="header"]
 |====================================================================
 |Firmware         | Encoder  | PWM        | StepGen  | GPIO
 |SV12             | 12       | 12         | 0        | 0
@@ -310,7 +316,8 @@ So far, all firmware is available in all gate sizes.)
 |====================================================================
 
 5i20 (3-port PCI) Default Configurations (The 5i20 has 200k gates.)
-[width="90%", options="header"]
+
+[width="90%",options="header"]
 |====================================================================
 |Firmware         | Encoder  | PWM        | StepGen  | GPIO
 |SV12             | 12       | 12         | 0        | 0
@@ -323,7 +330,8 @@ So far, all firmware is available in all gate sizes.)
 |====================================================================
 
 4i68 (3-port PC/104) Default Configurations (The 4i68 has 400k gates.)
-[width="90%", options="header"]
+
+[width="90%",options="header"]
 |====================================================================
 |Firmware         | Encoder  | PWM        | StepGen  | GPIO
 |SV12             | 12       | 12         | 0        | 0
@@ -336,7 +344,8 @@ So far, all firmware is available in all gate sizes.)
 
 
 4i65 (3-port PC/104) Default Configurations (The 4i65 has 200k gates.)
-[width="90%", options="header"]
+
+[width="90%",options="header"]
 |====================================================================
 |Firmware         | Encoder  | PWM        | StepGen  | GPIO
 |SV12             | 12       | 12         | 0        | 0
@@ -345,7 +354,8 @@ So far, all firmware is available in all gate sizes.)
 |====================================================================
 
 7i43 (2-port parallel) 400k gate versions, Default Configurations
-[width="90%", options="header"]
+
+[width="90%",options="header"]
 |====================================================================
 |Firmware         | Encoder  | PWM        | StepGen  | GPIO
 |SV8              | 8        | 8          | 0        | 0
@@ -356,7 +366,8 @@ So far, all firmware is available in all gate sizes.)
 |====================================================================
 
 7i43 (2-port parallel) 200k gate versions, Default Configurations
-[width="90%", options="header"]
+
+[width="90%",options="header"]
 |====================================================================
 |Firmware         | Encoder  | PWM        | StepGen  | GPIO
 |SV8              | 8        | 8          | 0        | 0
@@ -365,12 +376,12 @@ So far, all firmware is available in all gate sizes.)
 |SVST2_4_7I47     | 4        | 2          | 4        | 24
 |====================================================================
 
-Even though several cards may have the same named .BIT file you cannot use 
-a .BIT file that is not for that card. Different cards have different 
-clock frequencies so make sure you load the proper .BIT file for your 
-card. Custom hm2 firmwares can be created for special applications and 
-you may see some custom hm2 firmwares in the directories with the 
-default ones. 
+Even though several cards may have the same named .BIT file you cannot use
+a .BIT file that is not for that card. Different cards have different
+clock frequencies so make sure you load the proper .BIT file for your
+card. Custom hm2 firmwares can be created for special applications and
+you may see some custom hm2 firmwares in the directories with the
+default ones.
 
 When you load the board-driver (hm2_pci or hm2_7i43), you can tell it
 to disable instances of the three primary modules (pwmgen, stepgen, and
@@ -399,55 +410,61 @@ GPIO pins default to input.
 
 === Pins
 
- * 'in' - (Bit, Out) Normal state of the hardware input pin.
-   Both full GPIO pins and I/O pins used as inputs by active module instances have this pin.
+* 'in' - (Bit, Out) Normal state of the hardware input pin.
+  Both full GPIO pins and I/O pins used as inputs by active module
+  instances have this pin.
 
- * 'in_not' - (Bit, Out) Inverted state of the hardware input pin.
-   Both full GPIO pins and I/O pins used as inputs by active module instances have this pin.
+* 'in_not' - (Bit, Out) Inverted state of the hardware input pin.
+  Both full GPIO pins and I/O pins used as inputs by active module
+  instances have this pin.
 
- * 'out' - (Bit, In) Value to be written (possibly inverted) to the hardware output pin.
-   Only full GPIO pins have this pin.
+* 'out' - (Bit, In) Value to be written (possibly inverted) to the
+  hardware output pin.
+  Only full GPIO pins have this pin.
 
 === Parameters
 
- * 'invert_output' - (Bit, RW) This parameter only has an effect if the 'is_output' parameter is true.
-   If this parameter is true, the output value of the
-   GPIO will be the inverse of the value on the 'out' HAL pin. Only full
-   GPIO pins and I/O pins used as outputs by active module instances have
-   this parameter. To invert an active module pin you have to invert the
-   GPIO pin not the module pin.
+* 'invert_output' - (Bit, RW) This parameter only has an effect if the
+  'is_output' parameter is true.
+  If this parameter is true, the output value of the
+  GPIO will be the inverse of the value on the 'out' HAL pin. Only full
+  GPIO pins and I/O pins used as outputs by active module instances have
+  this parameter. To invert an active module pin you have to invert the
+  GPIO pin not the module pin.
 
- * 'is_opendrain' - (Bit, RW) This parameter only has an effect if the 'is_output' parameter is true.
-   If this parameter is false, the GPIO behaves as a
-   normal output pin: the I/O pin on the connector is driven to the value
-   specified by the 'out' HAL pin (possibly inverted), and the value of
-   the 'in' and 'in_not' HAL pins is undefined. If this parameter is true,
-   the GPIO behaves as an open-drain pin. Writing 0 to the 'out' HAL pin
-   drives the I/O pin low, writing 1 to the 'out' HAL pin puts the I/O pin
-   in a high-impedance state. In this high-impedance state the I/O pin
-   floats (weakly pulled high), and other devices can drive the value; the
-   resulting value on the I/O pin is available on the 'in' and 'in_not'
-   pins. Only full GPIO pins and I/O pins used as outputs by active module
-   instances have this parameter.
+* 'is_opendrain' - (Bit, RW) This parameter only has an effect if the
+  'is_output' parameter is true.
+  If this parameter is false, the GPIO behaves as a
+  normal output pin: the I/O pin on the connector is driven to the value
+  specified by the 'out' HAL pin (possibly inverted), and the value of
+  the 'in' and 'in_not' HAL pins is undefined. If this parameter is true,
+  the GPIO behaves as an open-drain pin. Writing 0 to the 'out' HAL pin
+  drives the I/O pin low, writing 1 to the 'out' HAL pin puts the I/O pin
+  in a high-impedance state. In this high-impedance state the I/O pin
+  floats (weakly pulled high), and other devices can drive the value; the
+  resulting value on the I/O pin is available on the 'in' and 'in_not'
+  pins. Only full GPIO pins and I/O pins used as outputs by active module
+  instances have this parameter.
 
- * 'is_output' - (Bit, RW) If set to 0, the GPIO is an input.
-   The I/O pin is put in a
-   high-impedance state (weakly pulled high), to be driven by other
-   devices. The logic value on the I/O pin is available in the 'in' and
-   'in_not' HAL pins. Writes to the 'out' HAL pin have no effect. If this
-   parameter is set to 1, the GPIO is an output; its behavior then depends
-   on the 'is_opendrain' parameter. Only full GPIO pins have this parameter.
+* 'is_output' - (Bit, RW) If set to 0, the GPIO is an input.
+  The I/O pin is put in a
+  high-impedance state (weakly pulled high), to be driven by other
+  devices. The logic value on the I/O pin is available in the 'in' and
+  'in_not' HAL pins. Writes to the 'out' HAL pin have no effect. If this
+  parameter is set to 1, the GPIO is an output; its behavior then depends
+  on the 'is_opendrain' parameter. Only full GPIO pins have this parameter.
 
 == StepGen
 
 Stepgens have names like 'hm2_<BoardType>.<BoardNum>.stepgen.<Instance>.'.
-'Instance' is a two-digit number that corresponds to the HostMot2 stepgen instance number.
+'Instance' is a two-digit number that corresponds to the HostMot2 stepgen
+instance number.
 There are 'num_stepgens' instances, starting with 00.
 
 Each stepgen allocates 2-6 I/O pins (selected at firmware compile
-time), but currently only uses two: Step and Direction outputs.footnote:[At 
-present, the firmware supports multi-phase stepper outputs, but 
-the driver doesn't. Interested volunteers are solicited.]
+time), but currently only uses two: Step and Direction outputs.
+footnote:[At present, the firmware supports multi-phase stepper outputs,
+but the driver doesn't. Interested volunteers are solicited.]
 
 The stepgen representation is modeled on the stepgen software
 component. Stepgen default is active high step output (high during step
@@ -459,45 +476,58 @@ Each stepgen instance has the following pins and parameters:
 
 === Pins
 
- * 'control-type' - (Bit, In) Switches between position control mode (0) and velocity control mode (1).
-   Defaults to position control (0).
+* 'control-type' - (Bit, In) Switches between position control mode (0)
+  and velocity control mode (1).
+  Defaults to position control (0).
 
- * 'counts' - (s32, Out) Feedback position in counts (number of steps).
+* 'counts' - (s32, Out) Feedback position in counts (number of steps).
 
- * 'enable' - (Bit, In) Enables output steps. When false, no steps are generated.
+* 'enable' - (Bit, In) Enables output steps. When false, no steps are
+  generated.
 
- * 'position-cmd' - (Float, In) Target position of stepper motion, in user-defined position units.
+* 'position-cmd' - (Float, In) Target position of stepper motion, in
+  user-defined position units.
 
- * 'position-fb' - (Float, Out) Feedback position in user-defined position units (counts / position_scale).
+* 'position-fb' - (Float, Out) Feedback position in user-defined position
+  units (counts / position_scale).
 
- * 'velocity-cmd' - (Float, In) Target velocity of stepper motion, in user-defined position units per second.
-   This pin is only used when the stepgen is in velocity control mode (control-type=1).
+* 'velocity-cmd' - (Float, In) Target velocity of stepper motion, in
+  user-defined position units per second.
+  This pin is only used when the stepgen is in velocity control mode
+  (control-type=1).
 
- * 'velocity-fb' - (Float, Out) Feedback velocity in user-defined position units per second.
+* 'velocity-fb' - (Float, Out) Feedback velocity in user-defined position
+  units per second.
 
 === Parameters
 
- * 'dirhold' - (u32, RW) Minimum duration of stable Direction signal after a step ends, in nanoseconds.
+* 'dirhold' - (u32, RW) Minimum duration of stable Direction signal
+  after a step ends, in nanoseconds.
 
- * 'dirsetup' - (u32, RW) Minimum duration of stable Direction signal before a step begins, in nanoseconds.
+* 'dirsetup' - (u32, RW) Minimum duration of stable Direction signal
+  before a step begins, in nanoseconds.
 
- * 'maxaccel' - (Float, RW) Maximum acceleration, in position units per second per second.
-   If set to 0, the driver will not limit its acceleration.
+* 'maxaccel' - (Float, RW) Maximum acceleration, in position units per
+  second per second.
+  If set to 0, the driver will not limit its acceleration.
 
- * 'maxvel' - (Float, RW) Maximum speed, in position units per second.
-   If set to 0, the driver will choose the maximum velocity based on the values of
-   steplen and stepspace (at the time that maxvel was set to 0).
+* 'maxvel' - (Float, RW) Maximum speed, in position units per second.
+  If set to 0, the driver will choose the maximum velocity based on the
+  values of steplen and stepspace (at the time that maxvel was set to 0).
 
- * 'position-scale' - (Float, RW) Converts from counts to position units. position = counts / position_scale
+* 'position-scale' - (Float, RW) Converts from counts to position units.
+  position = counts / position_scale
 
- * 'step_type' - (u32, RW) Output format, like the step_type modparam to the software stegen(9) component.
-   0 = Step/Dir, 1 = Up/Down, 2 = Quadrature. In
-   Quadrature mode (step_type=2), the stepgen outputs one complete Gray
-   cycle (00 \-> 01 \-> 11 \-> 10 \-> 00) for each 'step' it takes.
+* 'step_type' - (u32, RW) Output format, like the step_type modparam to
+  the software stegen(9) component.
+  0 = Step/Dir, 1 = Up/Down, 2 = Quadrature. In
+  Quadrature mode (step_type=2), the stepgen outputs one complete Gray
+  cycle (00 \-> 01 \-> 11 \-> 10 \-> 00) for each 'step' it takes.
 
- * 'steplen' - (u32, RW) Duration of the step signal, in nanoseconds.
+* 'steplen' - (u32, RW) Duration of the step signal, in nanoseconds.
 
- * 'stepspace' - (u32, RW) Minimum interval between step signals, in nanoseconds.
+* 'stepspace' - (u32, RW) Minimum interval between step signals, in
+  nanoseconds.
 
 === Output Parameters
 
@@ -505,20 +535,22 @@ The Step and Direction pins of each StepGen have two additional
 parameters. To find which I/O pin belongs to which step and direction
 output run dmesg as described above.
 
- * 'invert_output' - (Bit, RW) This parameter only has an effect if the 'is_output' parameter is true.
-   If this parameter is true, the output value of the
-   GPIO will be the inverse of the value on the 'out' HAL pin. 
+* 'invert_output' - (Bit, RW) This parameter only has an effect if the
+  'is_output' parameter is true.
+  If this parameter is true, the output value of the
+  GPIO will be the inverse of the value on the 'out' HAL pin.
 
- * 'is_opendrain' - (Bit, RW) If this parameter is false, the GPIO behaves as a normal output pin: the I/O pin on the connector is driven to the value
-   specified by the 'out' HAL pin (possibly inverted).
-   If this parameter
-   is true, the GPIO behaves as an open-drain pin. Writing 0 to the 'out'
-   HAL pin drives the I/O pin low, writing 1 to the 'out' HAL pin puts the
-   I/O pin in a high-impedance state. In this high-impedance state the I/O
-   pin floats (weakly pulled high), and other devices can drive the value;
-   the resulting value on the I/O pin is available on the 'in' and 'in_not'
-   pins. Only full GPIO pins and I/O pins used as outputs by active module
-   instances have this parameter.
+* 'is_opendrain' - (Bit, RW) If this parameter is false, the GPIO
+  behaves as a normal output pin: the I/O pin on the connector is driven
+  to the value specified by the 'out' HAL pin (possibly inverted).
+  If this parameter
+  is true, the GPIO behaves as an open-drain pin. Writing 0 to the 'out'
+  HAL pin drives the I/O pin low, writing 1 to the 'out' HAL pin puts the
+  I/O pin in a high-impedance state. In this high-impedance state the I/O
+  pin floats (weakly pulled high), and other devices can drive the value;
+  the resulting value on the I/O pin is available on the 'in' and 'in_not'
+  pins. Only full GPIO pins and I/O pins used as outputs by active module
+  instances have this parameter.
 
 == PWMGen
 
@@ -540,71 +572,82 @@ component. Each pwmgen instance has the following pins and parameters:
 
 === Pins
 
- * 'enable' - (Bit, In) If true, the pwmgen will set its Not-Enable pin false and output its pulses.
-   If 'enable' is false, pwmgen will set its Not-Enable pin true and not output any signals.
+* 'enable' - (Bit, In) If true, the pwmgen will set its Not-Enable pin
+  false and output its pulses.
+  If 'enable' is false, pwmgen will set its Not-Enable pin true and not
+  output any signals.
 
- * 'value' - (Float, In) The current pwmgen command value, in arbitrary units.
+* 'value' - (Float, In) The current pwmgen command value, in arbitrary
+  units.
 
 === Parameters
 
- * 'output-type' - (s32, RW) This emulates the output_type load-time argument to the software pwmgen component.
-   This parameter may be changed at runtime,
-   but most of the time you probably want to set it at startup and then
-   leave it alone. Accepted values are 1 (PWM on Out0 and Direction on
-   Out1), 2 (Up on Out0 and Down on Out1), 3 (PDM mode, PDM on Out0 and
-   Dir on Out1), and 4 (Direction on Out0 and PWM on Out1, 'for locked
-   antiphase').
+* 'output-type' - (s32, RW) This emulates the output_type load-time
+  argument to the software pwmgen component.
+  This parameter may be changed at runtime,
+  but most of the time you probably want to set it at startup and then
+  leave it alone. Accepted values are 1 (PWM on Out0 and Direction on
+  Out1), 2 (Up on Out0 and Down on Out1), 3 (PDM mode, PDM on Out0 and
+  Dir on Out1), and 4 (Direction on Out0 and PWM on Out1, 'for locked
+  antiphase').
 
- * 'scale' - (Float, RW) Scaling factor to convert 'value' from arbitrary units to duty cycle: dc = value / scale.
-  Duty cycle has an effective range of -1.0 to +1.0 inclusive, anything outside that range gets clipped.
+* 'scale' - (Float, RW) Scaling factor to convert 'value' from arbitrary
+  units to duty cycle: dc = value / scale.
+  Duty cycle has an effective range of -1.0 to +1.0 inclusive, anything
+  outside that range gets clipped.
 
- * 'pdm_frequency' - (u32, RW) This specifies the PDM frequency, in Hz, of all the pwmgen instances running in PDM mode (mode 3).
-   This is the 'pulse slot
-   frequency'; the frequency at which the pdm generator in the Anything I/O board
-   chooses whether to emit a pulse or a space. Each pulse (and space) in
-   the PDM pulse train has a duration of 1/pdm_frequency seconds. For
-   example, setting the pdm_frequency to 2e6 (2 MHz) and the duty cycle to
-   50% results in a 1 MHz square wave, identical to a 1 MHz PWM signal
-   with 50% duty cycle. The effective range of this parameter is from
-   about 1525 Hz up to just under 100 MHz. Note that the max frequency is
-   determined by the ClockHigh frequency of the Anything I/O board; the
-   5i20 and 7i43 both have a 100 MHz clock, resulting in a 100 Mhz max PDM
-   frequency. Other boards may have different clocks, resulting in
-   different max PDM frequencies. If the user attempts to set the
-   frequency too high, it will be clipped to the max supported frequency
-   of the board.
+* 'pdm_frequency' - (u32, RW) This specifies the PDM frequency, in Hz,
+  of all the pwmgen instances running in PDM mode (mode 3).
+  This is the 'pulse slot frequency'; the frequency at which the pdm
+  generator in the Anything I/O board chooses whether to emit a pulse or
+  a space.
+  Each pulse (and space) in the PDM pulse train has a duration of
+  1/pdm_frequency seconds.
+  For example, setting the pdm_frequency to 2e6 (2 MHz) and the duty
+  cycle to   50% results in a 1 MHz square wave, identical to a 1 MHz
+  PWM signal with 50% duty cycle. The effective range of this parameter
+  is from about 1525 Hz up to just under 100 MHz. Note that the max
+  frequency is determined by the ClockHigh frequency of the Anything I/O
+  board; the 5i20 and 7i43 both have a 100 MHz clock, resulting in a
+  100 Mhz max PDM frequency. Other boards may have different clocks,
+  resulting in different max PDM frequencies. If the user attempts to
+  set the frequency too high, it will be clipped to the max supported
+  frequency of the board.
 
- * 'pwm_frequency' - (u32, RW) This specifies the PWM frequency, in Hz, of all the pwmgen instances running in the PWM modes (modes 1 and 2).
-    This is the
-    frequency of the variable-duty-cycle wave. Its effective range is from
-    1 Hz up to 193 KHz. Note that the max frequency is determined by the
-    ClockHigh frequency of the Anything I/O board; the 5i20 and 7i43 both
-    have a 100 MHz clock, resulting in a 193 KHz max PWM frequency. Other
-    boards may have different clocks, resulting in different max PWM
-    frequencies. If the user attempts to set the frequency too high, it
-    will be clipped to the max supported frequency of the board.
-    Frequencies below about 5 Hz are not terribly accurate, but above 5 Hz
-    they're pretty close.
+* 'pwm_frequency' - (u32, RW) This specifies the PWM frequency, in Hz,
+  of all the pwmgen instances running in the PWM modes (modes 1 and 2).
+  This is the
+  frequency of the variable-duty-cycle wave. Its effective range is from
+  1 Hz up to 193 KHz. Note that the max frequency is determined by the
+  ClockHigh frequency of the Anything I/O board; the 5i20 and 7i43 both
+  have a 100 MHz clock, resulting in a 193 KHz max PWM frequency. Other
+  boards may have different clocks, resulting in different max PWM
+  frequencies. If the user attempts to set the frequency too high, it
+  will be clipped to the max supported frequency of the board.
+  Frequencies below about 5 Hz are not terribly accurate, but above 5 Hz
+  they're pretty close.
 
 === Output Parameters
 
 The output pins of each PWMGen have two additional parameters. To find
 which I/O pin belongs to which output run dmesg as described above.
 
- * 'invert_output' - (Bit, RW) This parameter only has an effect if the 'is_output'
-    parameter is true. If this parameter is true, the output value of the
-    GPIO will be the inverse of the value on the 'out' HAL pin. 
+* 'invert_output' - (Bit, RW) This parameter only has an effect if the
+  'is_output' parameter is true. If this parameter is true, the output
+  value of the GPIO will be the inverse of the value on the 'out' HAL
+  pin.
 
- * 'is_opendrain' - (Bit, RW) If this parameter is false, the GPIO behaves as a normal
-    output pin: the I/O pin on the connector is driven to the value
-    specified by the 'out' HAL pin (possibly inverted). If this parameter
-    is true, the GPIO behaves as an open-drain pin. Writing 0 to the 'out'
-    HAL pin drives the I/O pin low, writing 1 to the 'out' HAL pin puts the
-    I/O pin in a high-impedance state. In this high-impedance state the I/O
-    pin floats (weakly pulled high), and other devices can drive the value;
-    the resulting value on the I/O pin is available on the 'in' and 'in_not'
-    pins. Only full GPIO pins and I/O pins used as outputs by active module
-    instances have this parameter.
+* 'is_opendrain' - (Bit, RW) If this parameter is false, the GPIO behaves
+  as a normal output pin: the I/O pin on the connector is driven to the
+  value specified by the 'out' HAL pin (possibly inverted).
+  If this parameter is true, the GPIO behaves as an open-drain pin.
+  Writing 0 to the 'out' HAL pin drives the I/O pin low, writing 1 to
+  the 'out' HAL pin puts the I/O pin in a high-impedance state. In this
+  high-impedance state the I/O pin floats (weakly pulled high), and other
+  devices can drive the value; the resulting value on the I/O pin is
+  available on the 'in' and 'in_not' pins.
+  Only full GPIO pins and I/O pins used as outputs by active module
+  instances have this parameter.
 
 [[sec:hm2-encoder]]
 == Encoder
@@ -626,63 +669,70 @@ following pins and parameters:
 
 === Pins
 
- * 'count' - (s32, Out) Number of encoder counts since the previous reset.
+* 'count' - (s32, Out) Number of encoder counts since the previous reset.
 
- * 'index-enable' - (Bit, I/O) When this pin is set to True, the count (and therefore also
-   position) are reset to zero on the next Index (Phase-Z) pulse. At the
-   same time, index-enable is reset to zero to indicate that the pulse has
-   occurred.
+* 'index-enable' - (Bit, I/O) When this pin is set to True, the count
+  (and therefore also
+  position) are reset to zero on the next Index (Phase-Z) pulse. At the
+  same time, index-enable is reset to zero to indicate that the pulse has
+  occurred.
 
- * 'position' - (Float, Out) Encoder position in position units (count / scale).
+* 'position' - (Float, Out) Encoder position in position units
+  (count / scale).
 
- * 'rawcounts' - (s32, Out) Total number of encoder counts since the start, not adjusted for index or reset.
+* 'rawcounts' - (s32, Out) Total number of encoder counts since the
+  start, not adjusted for index or reset.
 
- * 'reset' - (Bit, In) When this pin is TRUE, the count and position pins are set to 0.
-   (The value of the velocity pin is not affected by this.) The
-   driver does not reset this pin to FALSE after resetting the count to 0,
-   that is the user's job.
+* 'reset' - (Bit, In) When this pin is TRUE, the count and position pins
+  are set to 0.
+  The value of the velocity pin is not affected by this.
+  The driver does not reset this pin to FALSE after resetting the count
+  to 0, that is the user's job.
 
- * 'velocity' - (Float, Out) Estimated encoder velocity in position units per second.
+* 'velocity' - (Float, Out) Estimated encoder velocity in position units
+  per second.
 
 === Parameters
 
- * 'counter-mode' - (Bit, RW) Set to False (the default) for Quadrature.
-   Set to True for
-   Up/Down or for single input on Phase A. Can be used for a frequency to
-   velocity converter with a single input on Phase A when set to true.
+* 'counter-mode' - (Bit, RW) Set to False (the default) for Quadrature.
+  Set to True for
+  Up/Down or for single input on Phase A. Can be used for a frequency to
+  velocity converter with a single input on Phase A when set to true.
 
- * 'filter' - (Bit, RW) If set to True (the default), the quadrature counter needs
-   15 clocks to register a change on any of the three input lines (any
-   pulse shorter than this is rejected as noise). If set to False, the
-   quadrature counter needs only 3 clocks to register a change. The
-   encoder sample clock runs at 33 MHz on the PCI Anything I/O cards and 50 MHz
-   on the 7i43.
+* 'filter' - (Bit, RW) If set to True (the default), the quadrature
+  counter needs 15 clocks to register a change on any of the three input
+  lines (any pulse shorter than this is rejected as noise).
+  If set to False, the quadrature counter needs only 3 clocks to register
+  a change. The encoder sample clock runs at 33 MHz on the PCI Anything
+  I/O cards and 50 MHz on the 7i43.
 
- * 'index-invert' - (Bit, RW) If set to True, the rising edge of the Index input pin
-   triggers the Index event (if index-enable is True). If set to False,
-   the falling edge triggers.
+* 'index-invert' - (Bit, RW) If set to True, the rising edge of the
+  Index input pin triggers the Index event (if index-enable is True). If
+  set to False, the falling edge triggers.
 
- * 'index-mask' - (Bit, RW) If set to True, the Index input pin only has an effect if
-   the Index-Mask input pin is True (or False, depending on the
-   index-mask-invert pin below).
+* 'index-mask' - (Bit, RW) If set to True, the Index input pin only has
+  an effect if the Index-Mask input pin is True (or False, depending on
+  the index-mask-invert pin below).
 
- * 'index-mask-invert' - (Bit, RW) If set to True, Index-Mask must be False for Index to have an effect.
-   If set to False, the Index-Mask pin must be True.
+* 'index-mask-invert' - (Bit, RW) If set to True, Index-Mask must be
+  False for Index to have an effect.
+  If set to False, the Index-Mask pin must be True.
 
- * 'scale' - (Float, RW) Converts from 'count' units to 'position' units.
-   A quadrature encoder will normally have 4 counts per pulse so a 100 PPR
-   encoder would be 400 counts per revolution. In '.counter-mode' a 100
-   PPR encoder would have 100 counts per revelution as it only uses the
-   rising edge of A and direction is B.
+* 'scale' - (Float, RW) Converts from 'count' units to 'position' units.
+  A quadrature encoder will normally have 4 counts per pulse so a 100 PPR
+  encoder would be 400 counts per revolution. In '.counter-mode' a 100
+  PPR encoder would have 100 counts per revelution as it only uses the
+  rising edge of A and direction is B.
 
- * 'vel-timeout' - (Float, RW) When the encoder is moving slower than one pulse for each
-   time that the driver reads the count from the FPGA (in the hm2_read()
-   function), the velocity is harder to estimate. The driver can wait
-   several iterations for the next pulse to arrive, all the while
-   reporting the upper bound of the encoder velocity, which can be
-   accurately guessed. This parameter specifies how long to wait for the
-   next pulse, before reporting the encoder stopped. This parameter is in
-   seconds.
+* 'vel-timeout' - (Float, RW) When the encoder is moving slower than one
+  pulse for each time that the driver reads the count from the FPGA (in
+  the hm2_read() function), the velocity is harder to estimate.
+  The driver can wait several iterations for the next pulse to arrive,
+  all the while reporting the upper bound of the encoder velocity, which
+  can be accurately guessed.
+  This parameter specifies how long to wait for the next pulse, before
+  reporting the encoder stopped.
+  This parameter is in seconds.
 
 == 5i25 Configuration
 
@@ -766,3 +816,4 @@ and parameters that your configuration gave you, open the Show HAL
 Configuration window from the Machine menu, or do dmesg as outlined
 above.
 
+// vim: set syntax=asciidoc:

@@ -100,8 +100,8 @@ Under the Apps directory, only applications that are usefully modified
 by the user are offered for copying to the user's directory.
 
 [[cap:LinuxCNC-Configuration-Selector]]
-//.LinuxCNC Configuration Selecto
-image::images/configuration-selector.png["Configuration Selector"]
+.LinuxCNC Configuration Selector
+image::images/configuration-selector.png["LinuxCNC Configuration Selector"]
 
 Click any of the listed configurations to display specific information about it.
 Double-click a configuration or click OK to start the configuration.

@@ -15,7 +15,7 @@ sure you don't have mux4 or an encoder already in use. If you do just
 increase the counts and change the reference numbers. More information
 about mux4 and encoder can be found in the HAL manual or the man page.
 
-See the <<sec:hal-section,HAL Ini Section>> of the manual for more
+See the <<sub:ini:sec:hal,HAL Ini Section>> of the manual for more
 information on adding a hal file.
 
 Jog management pins are provided for each joint and all coordinate
@@ -78,7 +78,7 @@ net encoder-counts => axis.z.jog-counts
 ----
 
 If the machine is capable of high acceleration to smooth out the moves
-for each click of the MPG use the link:../man/man9/ilowpass.9.html[ilowpass] component to
+for each click of the MPG use the <<sec:ilowpass,ilowpass>> component to
 limit the acceleration.
 
 .jog.hal with ilowpass
@@ -144,3 +144,5 @@ net encoder-counts => axis.x.jog-counts
 net encoder-counts => axis.y.jog-counts
 net encoder-counts => axis.z.jog-counts
 ----
+
+// vim: set syntax=asciidoc:

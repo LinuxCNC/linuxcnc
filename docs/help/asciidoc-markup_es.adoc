@@ -1,0 +1,188 @@
+:lang: es
+:lversion: {sys: cat ../VERSION}
+:date: {sys: LANG=C date --date="@$(dpkg-parsechangelog --file ../debian/changelog -S timestamp)" '+%d %b %Y'}
+:ascii-ids:
+:masterdir: {indir}
+:revdate: {docdate}
+:builddate: {localdate}
+= AsciiDoc Markup, LinuxCNC V{lversion}, {builddate}
+
+:leveloffset: 1
+
+Este documento es una guía para usar el marcado de asciidoc
+
+Los parámetros se interpretan antes de que se cargen los archivos
+lang-xx.conf y los demás archivos .conf
+Es particularmente importante para los parámetros como :lang:
+
+Los atributos típicos autorizados son: doctype, lang, encoding, icons,
+data-uri, toc, numbered
+
+Más información aquí
+http://www.methods.co.nz/asciidoc/userguide.html#_introduction
+8.2 Header
+
+= Título del documento (nivel 0)
+
+Nota: ¡el nivel 0 solo puede estar una vez por archivo!
+
+== Título de la sección (nivel 1)
+
+=== Título de la sección (nivel 2)
+
+==== Título de la sección (nivel 3)
+
+==== Título de la sección (nivel 4)
+
+= Enlaces
+
+[[anchor]]
+<<anchor,leyenda>>
+
+Ejemplo de enlace de documento
+[[sub:torpodeos]]
+<<sub:torpodeos,bombas>>
+
+Solo se mostrará "bombas" en el texto con un subrayado, así que siempre
+proporcione una leyenda para un enlace.
+
+Enlace externo
+http://linuxnc.org/someplace[descripcion del link]
+
+= Bloque de comentarios
+
+////
+Uso: ocultar comentarios
+////
+
+
+= Bloque de listado para código G y salida por terminal
+
+<4 guiones comienzan un bloque +
+<1 antés, línea en blanco
+
+----
+líneas de código
+...
+mas codigo
+----
+
+<4 guiones finalizan el bloque +
+<1 después, línea en blanco
+
+= Bloques literales
+
+<4 puntos comienzan el bloque
+<1 antés, línea en blanco
+
+....
+Un bloque literal
+aparecerá
+tal como lo escribe.
+....
+
+<4 puntos terminan el bloque
+<1 después, línea en blanco
+
+= Listas
+
+* bullet
+** bullet
+
+. numbered
+.. numbered
+
+Continuacion de Lista de elementos
+
+* Parrafo uno de la lista de elementos
+  continuado con un signo + ajustado a la izquierda.
++
+El elemento de lista uno continua con un segundo párrafo
+   y la primera línea del segundo párrafo estar ajustada a la izquierda.
+
+Hacer una lista etiquetada horizontal:
+
+[horizontal]
+Label:: El texto acerca de la etiqueta
+
+Para ser consistentes, los pines y parámetros HAL usaran el siguiente
+formato:
+
+* 'parport.<p>.pin-<n>-out' (bit) Maneja un pin de salida física. +
+  Lista con bullets con el nombre del pin enfatizado rodeándolo con
+  comillas simples.
+
+= Imágenes
+
+Poner todas las imágenes en el subdirectorio de imágenes
+
+image::<objetivo>[<atributos>]
+
+ejemplo:
+
+image::images/axis.png[]
+image::images/tiger.png["Imagen de tigre",align="center"]
+
+Si la imagen es pequeña y se muestra demasiado grande en un pdf, puede
+usar el atributo scaledwidth="60%"
+
+= Imágenes en línea
+
+Igual que imágenes excepto que solo se usa un : y no se usan atributos
+entre los []
+
+Mi texto tiene una imagen en el image:images/axisbutton.png[]
+
+= Figuras
+
+Utilice el siguiente formato para las figuras de modo que los enlaces al
+ancla se moverán a lugar correcto. Solo cree un enlace a una figura si
+está en otro lugar y no en lo siguiente que se vea en un scroll hacia
+abajo. Diga algo como "en la siguiente figura... "
+
+[[fig:Parport-block-diag]]
+.Parport Block Diagram
+image::images/parport-block-diag.png[align="center"]
+
+= Notas y Advertencias
+
+Ejemplo en línea:
+
+NOTE: Esta es un ejemplo de nota.
+
+Ejemplo de párrafo:
+
+[NOTE]
+Esta es una nota de ejemplo de
+estilo de párrafo.
+
+Los estilos incluyen:
+NOTE TIP IMPORTANT WARNING CAUTION
+
+
+= Tablas
+
+[options="header,width="80%"]
+|=======
+|1 |2 |A
+|3 |4 |B
+|5 |6 |C
+|=======
+
+= Escapar un caracter
+
+Normalmente los caracteres como ' y * no se imprimirían a menos que use
+\' o \* y entonces se imprimirán como caracteres normales.
+
+= Latexmath
+
+Latexmath no funciona en este momento y destruye el HTML. Una solución
+alternativa es utilizar Open Office Math (o LibreOffice) para crear la
+imagen matemática y gimp para la captura de pantalla y guardarla en un
+png.
+
+Compruebe la http://powerman.name/doc/asciidoc[hoja de referencia de asciidoc]
+o el http://www.methods.co.nz/asciidoc/userguide.html[manual del usuario]
+para detalles sobre el formato.
+
+// vim: set syntax=asciidoc:

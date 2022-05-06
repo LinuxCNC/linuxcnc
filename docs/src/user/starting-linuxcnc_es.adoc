@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 [[cha:starting-linuxcnc]]
 = Iniciando LinuxCNC(((Iniciando LinuxCNC)))
@@ -50,7 +51,7 @@ LinuxCNC. La sección [HAL] del archivo .ini especifica el orden de carga de arc
 si se usa más de uno. Una vez que se cargan los archivos HAL=xxx.hal,
 se carga la GUI y luego se carga el archivo POSTGUI=.xxx.hal. Si se han creado objetos PyVCP o
 GladeVCP con pines HAL, debe usar el archivo HAL postgui para hacer cualquier
-conexion a esos pines. Consulte la sección <<sec:hal-section,[HAL]>> de la configuración INI para más información.
+conexion a esos pines. Consulte la sección <<sub:ini:sec:hal,[HAL]>> de la configuración INI para más información.
 
 [[sub:selector-de-configuración]]
 === Selector de configuracion(((Selector de configuracion)))

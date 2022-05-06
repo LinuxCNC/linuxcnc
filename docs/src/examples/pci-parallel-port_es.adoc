@@ -1,7 +1,7 @@
 :lang: es
+:toc:
 
 [[cha:pci-parallel-port]]
-
 = Puerto paralelo PCI
 
 Cuando agrega un segundo puerto paralelo a su bus PCI, debe encontrar
@@ -19,14 +19,14 @@ demás en el bus PCI:
 
 ----
 0000:00:10.0 Communication controller: \
-        NetMos Technology PCI 1 port parallel adapter (rev 01)  
-        Subsystem: LSI Logic / Symbios Logic: Unknown device 0010  
-        Flags: medium devsel, IRQ 11  
-        I/O ports at a800 [size=8]  
-        I/O ports at ac00 [size=8]  
-        I/O ports at b000 [size=8]  
-        I/O ports at b400 [size=8]  
-        I/O ports at b800 [size=8]  
+        NetMos Technology PCI 1 port parallel adapter (rev 01)
+        Subsystem: LSI Logic / Symbios Logic: Unknown device 0010
+        Flags: medium devsel, IRQ 11
+        I/O ports at a800 [size=8]
+        I/O ports at ac00 [size=8]
+        I/O ports at b000 [size=8]
+        I/O ports at b400 [size=8]
+        I/O ports at b800 [size=8]
         I/O ports at bc00 [size=16]
 ----
 
@@ -54,4 +54,4 @@ addf parport.1.write base-thread
 Después de hacer lo anterior, ejecute su configuración y verifique que
 el puerto paralelo se cargó en la ventana Máquina/Mostrar Configuración HAL.
 
-
+// vim: set syntax=asciidoc:

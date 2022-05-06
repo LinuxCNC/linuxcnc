@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 //////////////////////////////////////////////////////////
 use image:: para archivos png de ecuaciónes - no latexmath
@@ -296,7 +297,6 @@ Al igualar la última columna de (32) con el vector de posición de herramienta 
 
 image::5-axis-figures/equation__34.png[align="center"]
 
-
 El vector en el lado derecho también se puede escribir como el producto de una matriz y un vector que da como resultado:
 
 image::5-axis-figures/equation__35.png[align="center"]
@@ -426,11 +426,14 @@ setp xyzac-trt-kins.z-offset 20
 
 == Figuras
 
+.Configuración de mesa basculante/giratoria
 image::5-axis-figures/Figure-9.png["Configuración de mesa basculante/giratoria",align="center",height=300]
 
+.Configuración con inclinación de husillo/mesa
 image::5-axis-figures/Figure-10.png["Configuración con inclinación de husillo/mesa",align="center",height=300]
 
-image::5-axis-figures/Figure-11.png["Configuracion husillo oscilante / giratoria",align="center",height=300]
+.Configuracion husillo oscilante/giratoria
+image::5-axis-figures/Figure-11.png["Configuracion husillo oscilante/giratoria",align="center",height=300]
 
 /////////////////////////////////////////////////////
 == Referencias nope nope nope pdf nope
@@ -447,3 +450,5 @@ image::5-axis-figures/Figure-11.png["Configuracion husillo oscilante / giratoria
 . Design of a generic five-axis postprocessor based on generalized kinematics
   model of machine tool: C-H She, C-C Chang, Int. J Machine Tools & Manufacture,
   47 (2007) 537-545.
+
+// vim: set syntax=asciidoc:

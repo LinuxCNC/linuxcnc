@@ -1,9 +1,10 @@
 :lang: es
+:toc:
 
 [[cha:code-notes]]
 = Notas sobre el código
 
-== Audiencia 
+== Audiencia
 
 Este documento es una colección de notas sobre los aspectos internos de LinuxCNC.
 Tiene principalmente interés para los desarrolladores. Sin embargo, gran parte de la información
@@ -37,7 +38,8 @@ un trabajo en progreso y su diseño puede cambiar en el futuro.
   y grados de libertad de la máquina. En este documento, esto último
   se llamarán 'articulaciones', no ejes. (Las GUI y algunas otras partes de
   el código no siempre sigue esta distinción, pero las partes internas de
-  el controlador de movimiento si lo hacen.)
+  el controlador de movimiento
+  si lo hacen.)
 
 * 'ARTICULACIÓN': una articulación es cada una de las partes móviles de la máquina. Las articulaciones son
   distintas de los ejes, aunque los dos términos a veces se usan (incorrectamente) para
@@ -57,12 +59,13 @@ un trabajo en progreso y su diseño puede cambiar en el futuro.
   el archivo ini usa el término 'eje' para datos que serían más precisos
   describirse como datos de articulaciones, como las escalas de entrada y salida, etc.
 
-  N.T. En la version 2.8 de Linuxcnc ya se hace esta distinción. 
-  El archivo .ini cuenta con la nueva sección [JOINT_<num>]. Muchos de los parámetros que antes
-  eran propios de la sección [AXIS_<letter>] están ahora en la nueva sección. Otras secciones,
-  como por ejemplo [KINS], también adquieren nuevos parámetros para ajustarse a esto. 
-  Se ha previsto un mecanismo para transformar archivos .ini antiguos a la nueva configuración
-  ejes/articulaciones.
+[NOTE]
+En la version 2.8 de Linuxcnc ya se hace esta distinción.
+El archivo .ini cuenta con la nueva sección [JOINT_<num>]. Muchos de los parámetros que antes
+eran propios de la sección [AXIS_<letter>] están ahora en la nueva sección. Otras secciones,
+como por ejemplo [KINS], también adquieren nuevos parámetros para ajustarse a esto. 
+Se ha previsto un mecanismo para transformar archivos .ini antiguos a la nueva configuración
+ejes/articulaciones.
 
 * 'POSE'- una pose es una posición completamente especificada en un espacio cartesiano 3-D. En
   el controlador de movimiento LinuxCNC, cuando nos referimos a una pose nos referimos a una
@@ -71,20 +74,21 @@ un trabajo en progreso y su diseño puede cambiar en el futuro.
 
 * 'coord', o modo coordinado, significa que todas las articulaciones están sincronizadas y se
   mueven juntas según lo ordenado por el código de nivel superior. Es el modo normal al mecanizar.
-  En el modo coordinado, se supone que los comandos se dan en el marco de referencia cartesiano, 
-  y si la máquina no es cartesiana, los comandos son traducidos por la cinemática para impulsar 
+  En el modo coordinado, se supone que los comandos se dan en el marco de referencia cartesiano,
+  y si la máquina no es cartesiana, los comandos son traducidos por la cinemática para impulsar
   cada articulación en el espacio articular según sea necesario.
 
 * 'free', o modo libre, significa que los comandos se interpretan en el espacio articular.
-  Se usa para mover manualmente (jog) articulaciones individuales, aunque no impide que se muevan 
+  Se usa para mover manualmente (jog) articulaciones individuales, aunque no impide que se muevan
   múltiples articulaciones a la vez (creo).
   El homing también se realiza en modo libre; de hecho, las máquinas con cinemática no trivial
   deben ser homeadas antes de que puedan pasar al modo coord o teleop.
 
-* 'teleop' es el modo que probablemente necesite si está haciendo 'jogging' con un hexápodo. 
+* 'teleop' es el modo que probablemente necesite si está haciendo 'jogging' con un hexápodo.
   Los comandos de jog implementados por el controlador de movimiento son jogs articulares, que
-  funcionan en modo free. Pero si desea mover un hexápodo o una máquina similar a lo largo de un 
-  eje cartesiano en particular, debe operar más de una articulación. Para eso está 'teleop'.
+  funcionan en modo free. Pero si desea mover un hexápodo o una máquina similar a lo largo de un
+  eje cartesiano en particular, debe operar más de una articulación.
+  Para eso está 'teleop'.
 
 == Descripción general de la arquitectura
 
@@ -93,12 +97,13 @@ movimiento (EMCMOT), un controlador de E/S discreto (EMCIO), un ejecutor de tare
 que los coordina (EMCTASK) y varios interfaces de usuario en modos texto y gráficos.
 Cada uno de ellos se describirá en el presente documento, tanto desde el punto de
 vista del diseño como del punto de vista de los desarrolladores
-(dónde encontrar los datos necesarios, cómo ampliar/modificar cosas fácilmente, etc.).
+(dónde encontrar los datos necesarios, cómo ampliar/modificar cosas
+fácilmente, etc.).
 
 image::LinuxCNC-block-diagram-small_es.png[align="center"]
 
-== Arquitectura del software LinuxCNC.
- 
+=== Arquitectura del software LinuxCNC.
+
 Al nivel más general, LinuxCNC es un jerarquía de tres controladores: el manejador
 de comandos a nivel de tarea y programa intérprete, el controlador de movimiento y el
 controlador de E/S discretas.
@@ -124,6 +129,31 @@ Manual HAL. Otro capítulo de este documento entrará
 eventualmente en las interioridades del propio HAL, pero en este
 capítulo, solo usamos la API HAL, definida en src/hal/hal.h.
 
+=== Motion Controller Modules
+
+The realtime functions of the motion controller are implemented
+with modules -- shared objects for rtpreempt systems or kernel
+modules for some implementations (RTAI):
+
+* 'tpmod' - trajectory planning
+* 'homemod' - homing functions
+* 'motmod' - processes NML commands and controls hardware via hal
+* 'kinematics module' - performs forward (joints-->coordinates) and
+  inverse (coordinates->joints) kinematics calculations
+
+LinuxCNC is started by a *linuxcnc* script which reads a
+configuration ini file and starts all needed processes.  For
+realtime motion control, the script first loads the default tpmod
+and homemod modules and then loads the kinematics and motion
+modules according to settings in halfiles specified by the ini
+file.
+
+Custom (user-built) homing or trajectory-planning modules can
+be used in place of the default modules via ini file settings
+or command line options.  Custom modules must implement all
+functions used by the default modules.  The halcompile utility
+can be used to create a custom module.
+
 image::LinuxCNC-motion-controller-small.png[align="center"]
 
 == Diagrama de bloque y flujo de datos
@@ -133,11 +163,11 @@ de un controlador articular. Hay un controlador por articulación.
 Los controladores articulares funcionan a un nivel más bajo que la cinemática; un nivel
 donde todas las articulaciones son completamente independientes. Todos los datos para una articulación
 está en una sola estructura articular. Algunos miembros de esa estructura son
-visible en el diagrama de bloques, como coarse_pos, pos_cmd y motor_pos_fb.
-
-image::emc2-motion-joint-controller-block-diag_es.png[align="center"]
+visible en el diagrama de bloques, como coarse_pos, pos_cmd y
+motor_pos_fb.
 
 .Diagrama de bloque del controlador articular
+image::emc2-motion-joint-controller-block-diag_es.png[align="center"]
 
 La figura anterior muestra cinco de los
 siete conjuntos de información de posición que forman el flujo principal de datos a través del
@@ -147,7 +177,8 @@ controlador de movimiento. Las siete formas de datos de posición son las siguie
   coordenadas cartesianas. Se actualiza a tasa traj, no a tasa servo.
   En modo coord, se determina por el planificador traj. En modo teleop, está
   determinado por el planificador traj?. En modo libre, es
-  copiado de actualPos, o generado mediante la aplicación de cinemática directa a (2) o (3)
+  copiado de actualPos, o generado mediante la aplicación de cinemática directa a (2) o
+  (3).
 . 'emcmotStatus\->joints[n].coarse_pos' - Esta es la posición deseada, en
   coordenadas articulares, pero antes de interpolación. Se actualiza a tasa traj,
   no a tasa servo. En modo coord, se genera aplicando
@@ -157,7 +188,8 @@ controlador de movimiento. Las siete formas de datos de posición son las siguie
   coordenadas articulares, después de interpolación. En cada período servo, se genera
   un nuevo conjunto de estas coordenadas. En modo coord, se genera a partir de (2)
   por el interpolador. En modo teleop, se genera a partir de (2) por el
-  interpolador. En modo libre, es generado por el planificador traj de modo libre.
+  interpolador. En modo libre, es generado por el planificador traj de modo
+  libre.
 . 'emcmotStatus\->joints[n].motor_pos_cmd' - Esta es la posición deseada,
   en coordenadas de motor. Las coordenadas del motor se generan agregando
   compensación backlash, compensación de error del tornillo de avance y offset (para homing) a
@@ -182,7 +214,8 @@ controlador de movimiento. Las siete formas de datos de posición son las siguie
   de la misma manera, independientemente del modo de operación. Yo propondría lo
   siguiente; si hay cinemática directa, usarla, a menos que no funcionen
   debido a ejes sin home u otros problemas, en cuyo caso hacer (B). Si no hay cinemática directa,
-  hacer (A), ya que de lo contrario actualPos _nunca_ obtendrá actualización.
+  hacer (A), ya que de lo contrario actualPos _nunca_ obtendrá 
+  actualización.
 
 == Homing
 
@@ -202,33 +235,32 @@ los nombres de los comandos se definen en cmd_code_t, que es un tipo definido po
 una gran enumeración en {linuxcnc}/src/emc/motion/motion.h . (Tenga en cuenta que en el
 código, cada nombre de comando comienza con 'EMCMOT_', que se omite aquí).
 
-Los comandos se implementan mediante una gran instrucción switch en la
-función emcmotCommandHandler() del archivo fuente src/emc/motion/command.c, que se llama a la tasa servo.
-Más sobre esa función más adelante.
+Los comandos se implementan mediante una gran instrucción switch en la función emcmotCommandHandler() del archivo fuente src/emc/motion/command.c, que se llama a la tasa servo. Más sobre esa función más adelante.
 N.T. Esta ultima afirmación es erronea. No se vuelve a hablar de emcmotCommandHandler(), ni en este
-texto, ni en el resto del Manual del Desarrollador. 
+texto, ni en el resto del Manual del Desarrollador.
 
-Hay aproximadamente 44 comandos: esta lista todavía está bajo construcción.
+Hay aproximadamente 44 comandos: esta lista todavía está bajo
+construcción.
 
-N.T. La enumeracion cmd_code_t, en motion.h, contiene 73 comandos (a 6-5-2020)
-N.T. La instrucción switch en command.c contempla 70
-N.T. Los comandos ENABLE_WATCHDOG / DISABLE_WATCHDOG están en motion-logger.c. Quizas sean obsoletos.
-N.T. El comando SET_TELEOP_VECTOR solo aparece en motion-logger.c, sin mas efecto que su propio log.
+[NOTE]
+La enumeracion cmd_code_t, en motion.h, contiene 73 comandos (a 6-5-2020)
+La instrucción switch en command.c contempla 70
+Los comandos ENABLE_WATCHDOG / DISABLE_WATCHDOG están en motion-logger.c. Quizas sean obsoletos.
+El comando SET_TELEOP_VECTOR solo aparece en motion-logger.c, sin mas efecto que su propio log.
 
 === ABORT
 
 El comando ABORT simplemente detiene todo movimiento. Se puede emitir en cualquier
 momento y siempre será aceptado. No deshabilita el controlador de movimiento
 ni cambia ninguna información de estado; simplemente cancela cualquier
-movimiento que esté actualmente en progreso. footnote:[Parece que el
-código de nivel superior (TASK y superior) también usa ABORT para borrar fallos.
+movimiento que esté actualmente en progreso. footnote:[Parece que el código de nivel superior (TASK y superior) también usa ABORT para borrar fallos.
 Siempre que haya un fallo persistente (como estar fuera de
 interruptores hardware de límite), el código de nivel superior envía un constante
 flujo de ABORT al controlador de movimiento en su intento de sobrepasar
 el fallo. Miles de ellos ... Eso significa que el controlador de movimiento
 debe evitar fallos persistentes. Esto necesita ser investigado.]
-Actuá conforme al modo actual. En modo teleop, asigna cero a las velocidades deseadas. ???
-En modo coordinado, llama a la función abort del planificador de trayectorias tpAbort()
+Actuá conforme al modo actual. En modo teleop, asigna cero a las velocidades deseadas. (???)
+En modo coordinado, llama a la función abort del planificador de trayectorias tpAbort().
 
 ==== Requisitos
 
@@ -519,8 +551,6 @@ punto específico.
 
 === SCALE (SPINDLE_SCALE para husillo, FEED_SCALE para avance, RAPID_SCALE para rapidos)
 
-	N.T. El siguiente párrafo necesita nueva redacción
-
 El comando SCALE escala todos los límites de velocidad y comandos por un
 cantidad especificada Se utiliza para implementar la anulación de la velocidad de alimentación y otros
 funciones similares El escalado funciona en modo libre, teleop y coord,
@@ -711,7 +741,6 @@ Los métodos existentes requieren que se agreguen muchas líneas de código a m�
 archivos cada vez que se agrega un parámetro. Gran parte de ese código es idéntico o
 casi idéntico para cada parámetro.
 
-
 == Compensación de error de tornillo y backlash
 
  +
@@ -720,7 +749,8 @@ casi idéntico para cada parámetro.
 
 === Estado
 
-Task tiene tres estados internos posibles: *E-stop*, *E-stop Reset*, y *Machine on*.
+Task tiene tres estados internos posibles: *E-stop*, *E-stop Reset*,
+y *Machine on*.
 
 image::task-state-transitions.svg[align="center"]
 
@@ -767,9 +797,9 @@ números de mensaje nml: de emc.hh:
 
 == Interfaces de usuario
 
- +
+  FIXME Interfaces de usuario
 
-== Introducción a libnml 
+== Introducción a libnml
 
 libnml se deriva de rcslib del NIST sin todos los apoyos para otras plataformas.
 Muchos de los contenedores del código específico de plataformas han sido
@@ -786,7 +816,8 @@ se agregarán como comentarios aleatorios a medida que el código se analice y m
 == LinkedList
 
 Clase base para mantener una lista enlazada. Este es uno de los principales
-bloques utilizados para pasar mensajes NML y estructuras de datos internas variadas.
+bloques utilizados para pasar mensajes NML y estructuras de datos internas
+variadas.
 
 == LinkedListNode
 
@@ -805,7 +836,8 @@ manejado por el constructor y destructor SharedMemory.
 == ShmBuffer
 
 Clase para pasar mensajes NML entre procesos locales mediante memoria intermedia
-de uso compartido. Gran parte del funcionamiento interno se hereda de la clase CMS.
+de uso compartido. Gran parte del funcionamiento interno se hereda de la
+clase CMS.
 
 == Timer
 
@@ -820,8 +852,8 @@ main()
 {
     timer = new Timer(5.0);    /* Inicializa un temporizador con un ciclo de 5 segundos */
     while(0) {
-        / * Hacer algún proceso * /
-        timer.wait(); /* Espera hasta el siguiente intervalo de 5 segundos */
+        /* Hacer algún proceso */
+        timer.wait();    /* Espera hasta el siguiente intervalo de 5 segundos */
     }
     delete timer;
 }
@@ -833,7 +865,8 @@ La clase Semaphore proporciona un método de exclusiones mutuas para
 acceder a un recurso compartido. La función para obtener un semáforo puede
 bloquear hasta que el acceso esté disponible, regresar después de un tiempo de espera o regresar
 inmediatamente con o sin obtener el semáforo. El constructor
-crear un semáforo o adjuntar a uno existente si la ID ya está en uso.
+crear un semáforo o adjuntar a uno existente si la ID ya está
+en uso.
 
 Semaphore::destroy() debe ser invocado solo por el último proceso.
 
@@ -861,7 +894,7 @@ image::CMS_buffer.png[align="center"]
 La clase base de CMS es la principal responsable de crear las
 vías de comunicación e interfaz con el S.O.
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////// //////////////////////
+////////////////////////////////////////////////////////////////////////
 == Notas NML /* FIX ME */
 
 Una colección de notas y pensamientos al azar mientras estudias el código libnml
@@ -869,7 +902,7 @@ y rcslib.
 
 Gran parte de esto necesita ser editado y reescrito de manera coherente
 antes de su publicación
-//////////////////////////////////////////////////////////////////////////////////////////////////////////// /////////////////////
+////////////////////////////////////////////////////////////////////////
 
 == Formato del archivo de configuración
 
@@ -886,7 +919,8 @@ El formato NIST original de la línea de búfer es:
 * 'tipo'- describe el tipo de búfer: SHMEM, LOCMEM, FILEMEM, PHANTOM o GLOBMEM.
 * 'host'- es una dirección IP o un nombre de host para el servidor NML
 * 'tamaño'- es el tamaño del búfer
-* 'neut'- un booleano para indicar si los datos en el búfer están codificados en un formato independiente de la máquina, o sin formato.
+* 'neut'- un booleano para indicar si los datos en el búfer están codificados
+  en un formato independiente de la máquina, o sin formato.
 * 'RPC#'- Obsoleto - placeholder retenido solo para compatibilidad con versiones anteriores.
 * 'buffer#'- un número de ID único que se usa si un servidor controla varios buffers.
 * 'max_procs'- procesos máximos permitidos para conectarse a este búfer.
@@ -904,16 +938,16 @@ el tipo de buffer *SHMEM*.
 * 'mutex=no_interrupts' - no aplicable en un sistema Linux
 * 'mutex=no_switching' - no aplicable en un sistema Linux
 * 'mutex=mao split'- divide el búfer en la mitad (o más) y permite que
-     un proceso acceda a una parte del búfer mientras que un segundo proceso está
-     escribiendo en la otra parte.
+  un proceso acceda a una parte del búfer mientras que un segundo proceso está
+  escribiendo en la otra parte.
 * 'TCP=(número de puerto)'- especifica qué puerto de red utilizar.
 * 'UDP =(número de puerto)' - ídem
 * 'STCP =(número de puerto)' - ídem
 * 'serialPortDevName=(puerto serie)' - Sin documentar.
 * 'passwd=file_name.pwd'- agrega una capa de seguridad al búfer
-     requiriendo que cada proceso proporcione una contraseña.
+  requiriendo que cada proceso proporcione una contraseña.
 * 'bsem'- la documentación del NIST implica una clave para un semáforo de bloqueo,
-     y si bsem=-1, se evitan los bloqueos de lectura.
+  y si bsem=-1, se evitan los bloqueos de lectura.
 * 'queue'- permite pasar mensajes en cola.
 * 'ascii' - Codifica mensajes en formato de texto plano
 * 'disp'- codifica los mensajes en un formato adecuado para mostrarlos (???)
@@ -924,7 +958,7 @@ el tipo de buffer *SHMEM*.
 
 El formato NIST original de la línea de proceso es:
 
-* P nombre buffer tipo host ops server timeout master c_num [configuraciones específicas por tipo] *
+*P nombre buffer tipo host ops server timeout master c_num [configuraciones específicas por tipo]*
 
 * 'P'- identifica esta línea como una configuración de proceso.
 * 'nombre'- es el identificador del proceso.
@@ -999,7 +1033,8 @@ esté leyendo o escribiendo en ese momento.
 timeout < 0 o INF - El acceso está bloqueado hasta que el búfer esté disponible.
 
 == clase base NML
-// FIX ME
+
+// FIXME
 
 Expandir las listas y la relación entre NML, NMLmsg y el
 clases de cms de nivel inferior.
@@ -1055,19 +1090,20 @@ dirección del flujo de datos.
 
 Una llamada a la función de lectura primero obtiene datos del búfer y luego
 llama a format_output(), mientras que una función de escritura llamaría a
-format_input() antes de pasar los datos al búfer. El trabajo de construir 
-o deconstruir el mensaje está dentro de format_xxx(). Una lista de funciones
+format_input() antes de pasar los datos al búfer. El trabajo de construir o
+deconstruir el mensaje está dentro de format_xxx(). Una lista de funciones
 variadas se llama a su vez para colocar varias partes del encabezado NML
 (que no debe confundirse con el encabezado cms) en el orden correcto.
-La última función llamada es emcFormat() en emc.cc.
+La última función llamada es emcFormat() en
+emc.cc.
 
 ==== Relaciones NMLmsg y NML
 
 NMLmsg es la clase base de la que se derivan todas las clases de mensajes.
 Cada clase de mensaje debe tener un ID único definido (y pasado al
 constructor) y también una función update(*cms). update() será
-llamado por las funciones de lectura/escritura NML cuando se llama al formateador NML
-- El puntero al formateador habrá sido declarado en el constructor NML
+llamado por las funciones de lectura/escritura NML cuando se llama al formateador NML -
+El puntero al formateador habrá sido declarado en el constructor NML
 en algún momento. En virtud de las listas enlazadas que crea NML,
 puede seleccionar el puntero cms que se pasa al formateador y, por tanto,
 que búfer se utilizará.
@@ -1093,13 +1129,11 @@ Al recompilar, el nuevo mensaje debería estar allí. La siguiente parte es
 enviar tales mensajes desde algún lugar y recibirlos en otro lugar,
 y hacer algunas cosas con eso.
 
-
 == La tabla de herramientas y el cambiador de herramientas
 
 LinuxCNC interactúa con el hardware del cambiador de herramientas y tiene una abstracción
 interna del mismo. LinuxCNC gestiona la información de la herramienta con un
 archivo de tabla de herramientas
-
 
 === Abstracción del cambiador de herramientas en LinuxCNC
 
@@ -1107,7 +1141,6 @@ LinuxCNC admite dos tipos de hardware de cambiador de herramientas,
 llamados _nonrandom_ y _random_. La entrada ini
 <<-section,[EMCIO]RANDOM_TOOLCHANGER controla cuál de
 estos tipos de hardware es con el que LinuxCNC considera que está conectado.
-
 
 ==== Cambiadores de herramientas no aleatorios
 
@@ -1123,10 +1156,10 @@ Internamente, en el cambio de herramienta la información de la herramienta se *
 de la ranura fuente de la tabla de herramientas a la ranura 0 (que representa el
 husillo), reemplazando cualquier información de herramienta que estaba allí anteriormente.
 
-NOTA: Con LinuxCNC configurado para cambiador de herramientas no aleatorio, la herramienta 0 (T0) tiene
+[NOTE]
+Con LinuxCNC configurado para cambiador de herramientas no aleatorio, la herramienta 0 (T0) tiene
 significado especial: "sin herramienta". T0 puede no aparecer en el archivo de tabla de herramientas y
 cambiar a T0 dará como resultado que LinuxCNC piense que tiene el husillo vacío.
-
 
 ==== Cambiadores de herramientas aleatorios
 
@@ -1145,11 +1178,11 @@ la información de la herramienta para la nueva herramienta y la ranura de la qu
 vino tendrá la información de la herramienta que estaba
 en el husillo antes del cambio de herramienta, si la había.
 
-NOTA: En LinuxCNC configurado para cambiador de herramientas aleatorio, la herramienta 0 (T0) *no* tiene
+[NOTE]
+En LinuxCNC configurado para cambiador de herramientas aleatorio, la herramienta 0 (T0) *no* tiene
 significado especial. Se trata exactamente como cualquier otra herramienta en la tabla de herramientas.
 Es habitual utilizar T0 para representar "sin herramienta" (es decir, una herramienta con
 TLO cero), de modo que el husillo se pueda vaciar convenientemente cuando sea necesario.
-
 
 === La tabla de herramientas
 
@@ -1157,46 +1190,39 @@ LinuxCNC realiza un seguimiento de las herramientas en un archivo llamado << sec
 La tabla de herramientas registra la siguiente información para cada herramienta:
 
 número de herramienta::
-
-Un entero que identifica de forma exclusiva esta herramienta. Los números de herramienta son
-manejados de manera diferente por LinuxCNC cuando se configuran cambiadores de herramientas no
-aleatorios o aleatorios:
-
+  Un entero que identifica de forma exclusiva esta herramienta. Los números de herramienta son
+  manejados de manera diferente por LinuxCNC cuando se configuran cambiadores de herramientas no
+  aleatorios o aleatorios:
++
 * Cuando LinuxCNC está configurado para un cambiador de herramientas no aleatorio,
   el número debe ser positivo. T0 recibe un manejo especial y no está
   permitido que aparezca en la tabla de herramientas.
-
 * Cuando LinuxCNC está configurado para un cambiador de herramientas aleatorio este número
   debe ser positivo o cero. T0 está permitido en la tabla de herramientas y
   generalmente se usa para representar "ninguna herramienta", es decir, ranura vacía.
 
 número de ranura::
-
-Un entero que identifica la ranura en el hardware del cambiador
-donde reside la herramienta. Los números de ranura se manejan 
-de manera diferente por LinuxCNC cuando está configurado para cambiadores de herramientas aleatorios
-y no aleatorio:
-
+  Un entero que identifica la ranura en el hardware del cambiador
+  donde reside la herramienta. Los números de ranura se manejan 
+  de manera diferente por LinuxCNC cuando está configurado para cambiadores de herramientas aleatorios
+  y no aleatorio:
++
 * Cuando LinuxCNC está configurado para un cambiador de herramientas no aleatorio,
   el número de ranura en el archivo de herramientas puede ser cualquier número entero positivo (ranura
   0 no está permitida). LinuxCNC compacta en silencio
   los números de ranura cuando carga el archivo de herramienta, por lo que puede haber una diferencia
   entre los números en el archivo de herramientas y los números internos de ranura utilizados
   por LinuxCNC.
-
 * Cuando LinuxCNC está configurado para un cambiador de herramientas aleatorio, los números de ranura
   en el archivo de herramientas deben estar entre 0 y 1000, ambos inclusive.
   Las ranuras 1-1000 están en el cambiador de herramientas; la ranura 0 es el husillo.
 
 diámetro::
-
-Diámetro de la herramienta, en unidades de máquina.
+  Diámetro de la herramienta, en unidades de máquina.
 
 offsets de longitud de herramienta::
-
-Desplazamiento de longitud de herramienta (también llamado TLO), en hasta 9 ejes, en unidades máquina.
-Los ejes que no tienen una TLO especificada, la rellenan con 0.
-
+  Desplazamiento de longitud de herramienta (también llamado TLO), en hasta 9 ejes, en unidades máquina.
+  Los ejes que no tienen una TLO especificada, la rellenan con 0.
 
 === Códigos G que afectan a las herramientas
 
@@ -1212,9 +1238,7 @@ Manejado por +Interp::convert_tool_select()+.
 . Se le pide a la máquina que se prepare para cambiar a la herramienta seleccionada
   llamando a la función Canonica +SELECT_POCKET()+ con el número de ranura
   de la herramienta solicitada.
-
 .. (saicanon) No-op.
-
 .. (emccanon) Crea un mensaje +EMC_TOOL_PREPARE+ con el número de ranura solicitada
    y lo envía a Task, que lo envía a IO. IO recibe el mensaje y le pide a HAL que prepare
    la ranura configurando +iocontrol.0.tool-prep-pocket+,
@@ -1223,10 +1247,15 @@ Manejado por +Interp::convert_tool_select()+.
    +iocontrol.0.tool-ready+, que informa a IO, desde el hardware del cambiador de herramientas,
    a través de HAL, que la preparación de la herramienta solicitada está completa.
    Cuando ese pin se vuelve true, IO establece +emcioStatus.tool.pocketPrepped+
-   con el número de ranura de la herramienta solicitada.
-
+   con el número de ranura de la herramienta
+   solicitada.
 . De vuelta a Interp, se le asigna a +settings->selected_pocket+ el número de ranura
   de la herramienta solicitada _xxx_.
+
+[NOTE]
+Los nombres heredados *selected_pocket* y *current_pocket* en realidad hacen referencia
+un índice secuencial de datos de herramientas para elementos de herramientas cargados desde una herramienta
+tabla ([EMCIO]TOOL_TABLE) o a través de una base de datos de herramientas ([EMCIO]DB_PROGRAM).
 
 ==== M6
 
@@ -1266,8 +1295,8 @@ Manejado por +Interp::convert_tool_change()+.
 
 ==== G43/G43.1/G49
 
-Aplicar desplazamiento de longitud de herramienta. G43 usa el TLO de la herramienta cargada actualmente,
-o de una herramienta especificada si la palabra H se da en el bloque. G43.1 consigue el
+Aplicar desplazamiento de longitud de herramienta. G43 usa el TLO de la herramienta cargada actualmente, o
+de una herramienta especificada si la palabra H se da en el bloque. G43.1 consigue el
 TLO de las palabras de eje en el bloque. G49 cancela el TLO (usa 0 para
 el desplazamiento de todos los ejes).
 
@@ -1298,25 +1327,19 @@ Manejado por +Interp::convert_setup_tool()+.
 
 . Selecciona el número de herramienta de la palabra P en el bloque y encuentra la
   ranura para esa herramienta:
-
 .. Con una configuración de cambiador de herramientas no aleatorio, este es siempre el
    número de ranura en el cambiador de herramientas (incluso cuando la herramienta está en
    el husillo).
-
 .. Con una configuración de cambiador de herramientas aleatorio, si la herramienta está actualmente
    cargada utiliza la ranura 0 (ranura 0 significa "el husillo"),
    y si la herramienta no está cargada, usa el número de ranura en
    el cambiador de herramientas. (Esta diferencia es importante).
-
 . Averigua cuáles deberían ser las nuevas compensaciones.
-
 . La nueva información de la herramienta (diámetro, desplazamientos, ángulos y orientación),
   junto con el número de herramienta y el número de ranura, se pasan al Canon
   llame a SET_TOOL_TABLE_ENTRY ().
-
 .. (saicanon) Copie la información de la nueva herramienta en el ranura especificado
    (en la tabla de herramientas interna de sai, + _tools +).
-
 .. (emccanon) Cree un mensaje + EMC_TOOL_SET_OFFSET + con el nuevo
    información de la herramienta y enviarla a Tarea, que la pasa
    a IO. IO actualiza el ranura especificado en su interno
@@ -1353,9 +1376,9 @@ Establecer el número de herramienta actual. Esto cambia la representación inte
 de qué herramienta está en el eje, sin mover realmente el cambiador de herramientas o
 intercambiando cualquier herramienta.
 
-Manejado por + Interp :: convert_tool_change () +.
+Manejado por +Interp::convert_tool_change()+.
 
-Canon: + CHANGE_TOOL_NUMBER () +
+Canon: +CHANGE_TOOL_NUMBER ()+
 
 settings-> current_pocket tiene asignado el número de ranura actualmente
 sosteniendo la herramienta especificada por el argumento Q-word.
@@ -1364,7 +1387,7 @@ sosteniendo la herramienta especificada por el argumento Q-word.
 
 Habilite la compensación del radio de corte (generalmente se llama _cutter comp_).
 
-Manejado por + Interp :: convert_cutter_compensation_on () +.
+Manejado por +Interp::convert_cutter_compensation_on()+.
 
 No hay llamada de Canon, la composición del cortador ocurre en el intérprete. Usa la herramienta
 tabla de la manera esperada: si se proporciona un número de herramienta D-word se ve
@@ -1375,122 +1398,105 @@ no se suministra ninguna palabra D, utiliza la cavidad 0 (el eje).
 
 Cancele la compensación del radio de corte.
 
-Manejado por + Interp :: convert_cutter_compensation_off () +.
+Manejado por +Interp::convert_cutter_compensation_off()+.
 
 No hay llamada de Canon, la composición del cortador ocurre en el intérprete. No se usa
 la mesa de herramientas.
-
 
 === Variables de estado interno
 
 ¡Esta no es una lista exhaustiva! La información de la herramienta se difunde a través de
 fuera LinuxCNC.
 
-
 ==== IO
 
 +emcioStatus+ es de tipo +EMC_IO_STAT+
 
-emcioStatus.tool.pocketPrepped ::
+emcioStatus.tool.pocketPrepped::
+  Cuando IO recibe la señal de HAL de que la preparación del cambiador de herramientas es
+  completa (después de un comando + Txxx +), esta variable se establece en
+  ranura de la herramienta solicitada. Cuando IO recibe la señal de HAL
+  que el cambio de herramienta en sí está completo (después de un comando + M6 +),
+  esta variable se restablece a -1.
 
-Cuando IO recibe la señal de HAL de que la preparación del cambiador de herramientas es
-completa (después de un comando + Txxx +), esta variable se establece en
-ranura de la herramienta solicitada. Cuando IO recibe la señal de HAL
-que el cambio de herramienta en sí está completo (después de un comando + M6 +),
-esta variable se restablece a -1.
+emcioStatus.tool.toolInSpindle::
+  Número de herramienta de la herramienta instalada actualmente en el eje.
+  Exportado en el pin HAL + iocontrol.0.tool-number + (s32).
 
-emcioStatus.tool.toolInSpindle ::
-
-Número de herramienta de la herramienta instalada actualmente en el eje.
-Exportado en el pin HAL + iocontrol.0.tool-number + (s32).
-
-emcioStatus.tool.toolTable [] ::
-
-Una matriz de + CANON_TOOL_TABLE + estructuras, + CANON_POCKETS_MAX + long.
-Cargado desde el archivo de la tabla de herramientas al inicio y mantenido allí
-después El índice 0 es el huso, los índices 1- (CANON_POCKETS_MAX-1)
-son los ranuras en el cambiador de herramientas. Esta es una copia completa
-de la información de la herramienta, mantenida por separado de la de Interp
-+settings.tool_table+.
+emcioStatus.tool.toolTable[]::
+  Una matriz de + CANON_TOOL_TABLE + estructuras, + CANON_POCKETS_MAX + long.
+  Cargado desde el archivo de la tabla de herramientas al inicio y mantenido allí
+  después El índice 0 es el huso, los índices 1- (CANON_POCKETS_MAX-1)
+  son los ranuras en el cambiador de herramientas. Esta es una copia completa
+  de la información de la herramienta, mantenida por separado de la de Interp
+  +settings.tool_table+.
 
 ==== interp
 
 +settings+ es de tipo +settings+, que es +struct setup_struct+.
 Definido en +src / emc / rs274ngc / interp_internal.hh+.
 
-settings.selected_pocket ::
+settings.selected_pocket::
+  ranura de la herramienta seleccionada más recientemente por + Txxx +.
 
-ranura de la herramienta seleccionada más recientemente por + Txxx +.
+settings.current_pocket::
+  ranura original de la herramienta actualmente en el husillo. En otras palabras:
+  qué cambiador de herramientas guarda la herramienta que está actualmente en el eje
+  fue cargado desde.
 
-settings.current_pocket ::
+settings.tool_table[]::
+  Un conjunto de información de herramientas. El índice en la matriz es el "ranura
+  número "(también conocido como" número de ranura "). El ranura 0 es el eje, los ranuras 1
+  hasta (CANON_POCKETS_MAX-1) son los ranuras del cambiador de herramientas.
 
-ranura original de la herramienta actualmente en el husillo. En otras palabras:
-qué cambiador de herramientas guarda la herramienta que está actualmente en el eje
-fue cargado desde.
+settings.tool_offset_index::
+  No usado. FIXME: Probablemente debería eliminarse.
 
-settings.tool_table [] ::
+settings.toolchange_flag::
+  Interp establece esto en verdadero cuando llama a Canon CHANGE_TOOL()
+  función. Está marcado en +Interp::convert_tool_length_offset()+
+  para decidir qué ranura usar para G43 (sin palabra H):
+  +configuración-> current_pocket+ si el cambio de herramienta aún está en progreso,
+  ranura 0 (el husillo) si se completa el cambio de herramienta.
 
-Un conjunto de información de herramientas. El índice en la matriz es el "ranura
-número "(también conocido como" número de ranura "). El ranura 0 es el eje, los ranuras 1
-hasta (CANON_POCKETS_MAX-1) son los ranuras del cambiador de herramientas.
+settings.random_toolchanger::
+  Establecer desde la variable ini +[EMCIO] RANDOM_TOOLCHANGER+ al inicio.
+  Controla varias herramientas de lógica de manejo de tablas. (IO también lee esto
+  ini variable y cambia su comportamiento en función de ella. Por ejemplo,
+  al guardar la tabla de herramientas, el cambiador de herramientas aleatorio guarda la herramienta en
+  el husillo (ranura 0), pero el cambiador de herramientas no aleatorio guarda cada herramienta
+  en su "ranura de casa".)
 
-settings.tool_offset_index ::
-
-No usado. FIXME: Probablemente debería eliminarse.
-
-settings.toolchange_flag ::
-
-Interp establece esto en verdadero cuando llama a Canon CHANGE_TOOL ()
-función. Está marcado en + Interp :: convert_tool_length_offset () +
-para decidir qué ranura usar para G43 (sin palabra H):
-+configuración-> current_pocket+ si el cambio de herramienta aún está en progreso,
-ranura 0 (el husillo) si se completa el cambio de herramienta.
-
-settings.random_toolchanger ::
-
-Establecer desde la variable ini + [EMCIO] RANDOM_TOOLCHANGER + al inicio.
-Controla varias herramientas de lógica de manejo de tablas. (IO también lee esto
-ini variable y cambia su comportamiento en función de ella. Por ejemplo,
-al guardar la tabla de herramientas, el cambiador de herramientas aleatorio guarda la herramienta en
-el husillo (ranura 0), pero el cambiador de herramientas no aleatorio guarda cada herramienta
-en su "ranura de casa".)
-
-settings.tool_offset ::
-
-Esta es una variable + EmcPose +.
-
+settings.tool_offset::
+  Esta es una variable + EmcPose +.
++
 * Se utiliza para calcular la posición en varios lugares.
-
 * Enviado a Motion a través del mensaje +EMCMOT_SET_OFFSET+.
   Todo el movimiento que se hace con los desplazamientos es exportarlos a los pines HAL
   +motion.0.tooloffset. [xyzabcuvw]+. FIXME: exportarlos desde
   algún lugar más cercano a la mesa de herramientas (io o interp, probablemente)
   y elimine el mensaje EMCMOT_SET_OFFSET.
 
-settings.pockets_max ::
+settings.pockets_max::
+  Se usa de manera intercambiable con +CANON_POCKETS_MAX+ (una constante #definida,
+  establecido en 1000 a partir de abril de 2020). FIXME: esta variable de configuración
+  actualmente no es útil y probablemente debería eliminarse.
 
-Se usa de manera intercambiable con + CANON_POCKETS_MAX + (una constante #definida,
-establecido en 1000 a partir de abril de 2020). FIXME: esta variable de configuración
-actualmente no es útil y probablemente debería eliminarse.
+settings.tool_table::
+  Esta es una matriz de +CANON_TOOL_TABLE+ estructuras (definidas en
+  +src / emc / nml_intf / emctool.h+), con +CANON_POCKETS_MAX+ entradas.
+  Indizado por "número de ranura", también conocido como "número de ranura". El índice 0 es el
+  husillo, los índices 1- (CANON_POCKETS_MAX-1) son los ranuras de la herramienta
+  cambiador En un cambiador de herramientas al azar, los números de ranura son significativos.
+  En un cambiador de herramientas no aleatorio, los ranuras no tienen sentido; el ranura
+  los números en el archivo de la tabla de herramientas se ignoran y las herramientas se asignan
+  para +tool_table+ ranuras secuencialmente.
 
-settings.tool_table ::
-
-Esta es una matriz de +CANON_TOOL_TABLE+ estructuras (definidas en
-+src / emc / nml_intf / emctool.h+), con +CANON_POCKETS_MAX+ entradas.
-Indizado por "número de ranura", también conocido como "número de ranura". El índice 0 es el
-husillo, los índices 1- (CANON_POCKETS_MAX-1) son los ranuras de la herramienta
-cambiador En un cambiador de herramientas al azar, los números de ranura son significativos.
-En un cambiador de herramientas no aleatorio, los ranuras no tienen sentido; el ranura
-los números en el archivo de la tabla de herramientas se ignoran y las herramientas se asignan
-para +tool_table+ ranuras secuencialmente.
-
-settings.tool_change_at_g30 ::
-settings.tool_change_quill_up ::
-settings.tool_change_with_spindle_on ::
-
-Estos se establecen a partir de variables ini en la sección +[EMCIO]+, y
-controlar cómo se realizan los cambios de herramienta.
-
+settings.tool_change_at_g30::
+settings.tool_change_quill_up::
+settings.tool_change_with_spindle_on::
+  Estos se establecen a partir de variables ini en la sección +[EMCIO]+, y
+  controlar cómo se realizan los cambios de herramienta.
 
 == Recuento de juntas y ejes
 
@@ -1500,43 +1506,38 @@ El buffer de estado es utilizado por Task y las UI.
 
 FIXME: `axis_mask` y` axes` especifican en exceso el número de ejes
 
-`status.motion.traj.axis_mask` ::
+`status.motion.traj.axis_mask`::
+  Una máscara de bits con un "1" para los ejes que están presentes y un "0"
+  para los ejes que no están presentes. X es el bit 0, Y es el bit 1, etc.
+  Por ejemplo, una máquina con ejes X y Z tendría una `axis_mask`
+  de 0x5, una máquina XYZ tendría 0x7, y una máquina XYZB
+  tener un `axis_mask` de 0x17.
 
-Una máscara de bits con un "1" para los ejes que están presentes y un "0"
-para los ejes que no están presentes. X es el bit 0, Y es el bit 1, etc.
-Por ejemplo, una máquina con ejes X y Z tendría una `axis_mask`
-de 0x5, una máquina XYZ tendría 0x7, y una máquina XYZB
-tener un `axis_mask` de 0x17.
+`status.motion.traj.axes` (en desuso)::
+  El valor de esta variable es uno más que el índice de
+  eje con el número más alto presente en la máquina. Como en la `axis_mask`,
+  el índice de X en 0, Y es 1, etc. Una máquina XZ tiene un valor de 'ejes'
+  de 3, al igual que una máquina XYZ. Una máquina XYZW tiene un valor de 'ejes' 9.
+  Esta variable no es muy útil y su uso está en desuso.
+  Use `axis_mask` en su lugar.
 
-`status.motion.traj.axes` (en desuso) ::
+`status.motion.traj.joints`::
+  Un recuento del número de juntas que tiene la máquina. Un torno normal
+  tiene 2 articulaciones; uno manejando el eje X y otro manejando el eje Z.
+  Un molino de pórtico XYYZ tiene 4 articulaciones; uno manejando X, uno manejando un lado
+  de la Y, uno manejando el otro lado de la Y, y uno manejando Z.
+  Un molino XYZA también tiene 4 articulaciones.
 
-El valor de esta variable es uno más que el índice de
-eje con el número más alto presente en la máquina. Como en la `axis_mask`,
-el índice de X en 0, Y es 1, etc. Una máquina XZ tiene un valor de 'ejes'
-de 3, al igual que una máquina XYZ. Una máquina XYZW tiene un valor de 'ejes' 9.
-Esta variable no es muy útil y su uso está en desuso.
-Use `axis_mask` en su lugar.
+`status.motion.axis [EMCMOT_MAX_AXIS]`::
+  Una matriz de estructuras de eje `EMCMOT_MAX_AXIS`. `axis [n]` es válido
+  si `(axis_mask & (1 << n))` es True. Si `(axis_mask & (1 << n))`
+  es Falso, entonces `axis [n]` no existe en esta máquina y debe
+  ser ignorado.
 
-`status.motion.traj.joints` ::
-
-Un recuento del número de juntas que tiene la máquina. Un torno normal
-tiene 2 articulaciones; uno manejando el eje X y otro manejando el eje Z.
-Un molino de pórtico XYYZ tiene 4 articulaciones; uno manejando X, uno manejando un lado
-de la Y, uno manejando el otro lado de la Y, y uno manejando Z.
-Un molino XYZA también tiene 4 articulaciones.
-
-`status.motion.axis [EMCMOT_MAX_AXIS]` ::
-
-Una matriz de estructuras de eje `EMCMOT_MAX_AXIS`. `axis [n]` es válido
-si `(axis_mask & (1 << n))` es True. Si `(axis_mask & (1 << n))`
-es Falso, entonces `axis [n]` no existe en esta máquina y debe
-ser ignorado.
-
-`status.motion.joint [EMCMOT_MAX_JOINTS]` ::
-
-Una matriz de estructuras de unión `EMCMOT_MAX_JOINTS`. `conjunta [0]` a través
-`joint [joint-1]` son válidas, las otras no existen en esta máquina
-y debe ser ignorado.
+`status.motion.joint [EMCMOT_MAX_JOINTS]`::
+  Una matriz de estructuras de unión `EMCMOT_MAX_JOINTS`. `conjunta [0]` a través
+  `joint [joint-1]` son válidas, las otras no existen en esta máquina
+  y debe ser ignorado.
 
 Las cosas no están así actualmente en la rama de ejes articulados, pero
 Las desviaciones de este diseño se consideran errores. Por un ejemplo de tal

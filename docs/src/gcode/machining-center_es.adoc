@@ -2,7 +2,6 @@
 :toc:
 
 [[cha:cnc-machine-overview]]
-
 = Descripcion general de una máquina CNC
 
 Esta sección proporciona una breve descripción de una máquina CNC
@@ -39,27 +38,27 @@ With LinuxCNC, the case of the XYYZ gantry machine with two
 motors for one axis is better handled by the kinematics than by an additional
 linear axis.
 
-.Ejes lineales primarios (((ejes, primarios lineales)))
+.Ejes lineales primarios(((ejes, primarios lineales)))
 Los ejes X, Y y Z producen movimiento lineal en tres
 direcciones mutuamente ortogonales.
 
-.Ejes lineales secundarios (((ejes, secundarios lineales)))
+.Ejes lineales secundarios(((ejes, secundarios lineales)))
 Los ejes U, V y W producen movimiento lineal en tres
 direcciones ortogonales. Típicamente, X y U son paralelos, Y y V son
 paralelo, y Z y W son paralelos.
 
-.Ejes Rotacionales (((ejes, rotacionales)))
+.Ejes Rotacionales(((ejes, rotacionales)))
 Los ejes A, B y C producen movimiento angular (rotación). Normalmente, A
 gira alrededor de una línea paralela a X, B gira alrededor de una línea paralela
 a Y, y C gira alrededor de una línea paralela a Z.
 
-=== Husillo (((husillo)))
+=== Husillo(((husillo)))
 
 Una máquina CNC tiene generalmente un husillo que contiene una herramienta de corte,
 una sonda, o el material en el caso de un torno. El husillo puede 
 ser controlado por el software CNC.
 
-=== Refrigerante (((refrigerante)))
+=== Refrigerante(((refrigerante)))
 
 Una máquina CNC puede tener componentes para proporcionar refrigerante por niebla  y/o inundación.
 El refrigerante puede ser controlado por códigos G.
@@ -75,6 +74,7 @@ velocidad utilizada en el husillo, en porcentaje de la velocidad programada.
 Una máquina CNC puede tener un interruptor de eliminación de bloques de codigo G marcados para ello. Vea la
 seccion <<sub:block-delete-switch,Eliminar Bloques>>.
 
+[[sub:optional-program-stop-switch]]
 === Interruptor de parada de programa opcional
 
 Una máquina CNC puede tener un interruptor de parada opcional de programa. Ver la
@@ -159,14 +159,14 @@ se interpreta de la siguiente manera (a menos que los modos 'alimentacion invers
 por revolución' se esten utilizando, en cuyo caso, consulte la Sección
 <<gcode:g93-g94-g95,G93-G94-G95-Mode,G93 G94 G95>>).
 
- . Si X,Y o Z se mueven, F está en unidades por minuto en el
-   sistema cartesiano XYZ, y todos los demás ejes (ABCUVW) se mueven para arrancar y
-   parar de manera coordinada.
- . De lo contrario, si U,V o W se mueven, F está en unidades por minuto en el
-   sistema cartesiano UVW y todos los demás ejes (ABC) se mueven para arrancar y
-   parar de manera coordinada.
- . De lo contrario, el movimiento es puro movimiento giratorio y la palabra F está en
-   unidades de rotación en el sistema ABC 'pseudo-cartesiano'.
+. Si X,Y o Z se mueven, F está en unidades por minuto en el
+  sistema cartesiano XYZ, y todos los demás ejes (ABCUVW) se mueven para arrancar y
+  parar de manera coordinada.
+. De lo contrario, si U,V o W se mueven, F está en unidades por minuto en el
+  sistema cartesiano UVW y todos los demás ejes (ABC) se mueven para arrancar y
+  parar de manera coordinada.
+. De lo contrario, el movimiento es puro movimiento giratorio y la palabra F está en
+  unidades de rotación en el sistema ABC 'pseudo-cartesiano'.
 
 === Refrigerante(((refrigerante)))
 
@@ -200,9 +200,9 @@ y el controlador siempre conoce dónde está ese punto. Los números que
 representan la posición actual deben ajustarse si, en ausencia de
 cualquier movimiento del eje, ocurre alguno de estos eventos:
 
- . Se cambian las unidades de longitud.
- . El offset de la longitud de la herramienta ha cambiado.
- . Se modifican los offsets del sistema de coordenadas.
+. Se cambian las unidades de longitud.
+. El offset de la longitud de la herramienta ha cambiado.
+. Se modifican los offsets del sistema de coordenadas.
 
 === Plano seleccionado
 
@@ -222,6 +222,15 @@ Se puede ordenar a un centro de mecanizado que cambie las herramientas.
 === Pallet Shuttle
 
 Hasta dos palets pueden intercambiarse por comando.
+
+=== Speed Override
+
+The speed override buttons can be activated (they
+function normally) or rendered inoperative (they no longer have any
+effect). The RS274/NGC language has a command that activates all the
+buttons and another that disables them.
+See inhibition and activation <<mcode:m48-m49, speed correctors>>.
+See also <<sec:speed-interaction,here for further details>>.
 
 [[sec:path-control-mode]]
 === Modo de control de ruta(((modo de control de ruta)))
@@ -305,6 +314,7 @@ TOOL_TABLE = EMC-AXIS-SIM.tbl
 Para obtener más información sobre los detalles del formato de la tabla de herramientas,
 vea la sección <<sec:tool-table,Formato de la tabla de herramientas>>.
 
+[[sec:machine-center-parameters]]
 == Parametros
 
 Bajo el punto de vista del lenguaje RS274/NGC, un centro de mecanizado mantiene una matriz
@@ -349,7 +359,7 @@ El archivo original se guarda como un archivo de copia de seguridad cuando se es
 Los comentarios no se conservan cuando se escribe el archivo.
 
 .Formato de archivo de parámetros
-[width="75%", options="header", cols="^,^,<"]
+[width="75%",options="header",cols="^,^,<"]
 |=====================================
 |Número de parámetro|Valor Parámetro|Comentario
 | 5161 | 0.0 | G28 Home X
@@ -358,4 +368,4 @@ Los comentarios no se conservan cuando se escribe el archivo.
 
 Vea la sección <<sec:overview-parameters,Parametros para más información.
 
-
+// vim: set syntax=asciidoc:

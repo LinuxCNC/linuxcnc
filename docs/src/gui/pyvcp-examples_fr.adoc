@@ -5,37 +5,38 @@
 
 == Panneau PyVCP dans AXIS
 
-Procédure pour créer un panneau PyVCP et l'utiliser, attaché dans la partie
-droite de l'interface AXIS.
+Pour créer un panneau PyVCP et l'utiliser attaché dans la partie
+droite de l'interface AXIS les éléments de base suivants sont
+nécessaires:
 
- - Créer un fichier .xml contenant la description du panneau et le placer dans
-   le répertoire de la configuration.
- - Ajouter une entrée, avec le nom du fichier .xml, dans la section [DISPLAY]
-   du fichier ini.
- - Ajouter une entrée POSTGUI_HALFILE, avec le nom du fichier postgui HAL.
- - Ajouter les liens vers les pins de HAL pour le panneau dans le fichier
-   postgui.hal pour "connecter" le panneau PyVCP avec LinuxCNC.
+* Créer un fichier .xml contenant la description du panneau et le placer dans
+  le répertoire de la configuration.
+* Ajouter une entrée, avec le nom du fichier .xml, dans la section [DISPLAY]
+  du fichier ini.
+* Ajouter une entrée POSTGUI_HALFILE, avec le nom du fichier postgui HAL.
+* Ajouter les liens vers les pins de HAL pour le panneau dans le fichier
+  postgui.hal pour "connecter" le panneau PyVCP avec LinuxCNC.
 
 == Panneaux flottants
 
 Pour créer des panneaux flottants PyVCP pouvant être utilisés avec
 n'importe quelle interface, suivre les points suivants:
 
- - Créer un fichier .xml contenant la description du panneau et le placer dans
-   le répertoire de configuration.
- - Ajouter les lignes _loadusr_ dans le fichier.hal pour charger chaque panneau.
- - Ajouter les liens vers les pins de HAl du panneau dans le fichier postgui.hal,
-   pour "connecter" les panneaux PyVCP à LinuxCNC.
+* Créer un fichier .xml contenant la description du panneau et le placer dans
+  le répertoire de configuration.
+* Ajouter les lignes _loadusr_ dans le fichier.hal pour charger chaque panneau.
+* Ajouter les liens vers les pins de HAl du panneau dans le fichier postgui.hal,
+  pour "connecter" les panneaux PyVCP à LinuxCNC.
 
-L'exemple suivant montre le chargement de deux panneaux PyVCP.
-
+L'exemple suivant montre l'utilisation de la commande loadusr pour charger deux panneaux PyVCP
+et les nommer chacun de telle sorte que les noms de connection dans HAL seront connus.
+[source,c]
 ----
 loadusr -Wn btnpanel pyvcp -c btnpanel panel1.xml
 loadusr -Wn sppanel pyvcp -c sppanel panel2.xml
 ----
 
-Les paramètres -Wn font que HAL **W**ait for **n**ame, attends le composant
-nommé _btnpanel_.
+Les paramètres -Wn font que HAL **W**ait for **n**ame, attends le composant nommé _btnpanel_.
 
 Les paramètres pyvcp -c font que PyVCP nomme le panneau.
 
@@ -46,7 +47,7 @@ Les pins de HAL de panel2.xml seront nommées _sppanel.<pin name>_
 Bien s'assurer qu'aucune ligne _loadusr_ ne fasse déjà appel à une de ces pins
 PyVCP.
 
-== Boutons de Jog
+== Boutons de Jog Example
 
 Dans cet exemple nous allons créer un panneau PyVCP avec 3 boutons utilisables
 pour déplacer en manuel les axes X, Y et Z. Cette configuration sera réalisée
@@ -57,8 +58,9 @@ les sélections pour ajouter un panneau PyVCP vierge, comme indiqué sur l'image
 suivante. Pour cet exemple nous avons nommé la configuration _pyvcp_xyz_ sur la
 page _Basic Machine Information_ de l'assistant Stepconf.
 
-.Assistant de configuration XYZ[[cap:XYZ-Wizard-Configuration]]
-image::images/xyz_ACO.png[alt="Assistant de configuration XYZ"]
+[[cap:XYZ-Wizard-Configuration]]
+.XYZ Wizard Configuration
+image::images/xyz_ACO.png["Assistant de configuration XYZ"]
 
 L'assistant Stepconf Wizard va créer plusieurs fichiers et les placer dans le
 répertoire _/emc/configs/pyvcp_xyz_. Si la case _Créer un lien_ est cochée,
@@ -70,15 +72,14 @@ Ouvrir le fichier custompanel.xml par un clic droit sur son nom, puis en
 sélectionnant _Ouvrir avec l'éditeur de texte_. Entre les balises
 _<pyvcp>_ et _</pyvcp>_ nous ajouterons les widgets pour le panneau.
 
-Tous les détails sur chacun des Widgets de PyVCP sont donnés dans la
-<<sec:pyvcp:widgets,documentation des widgets>>.
+Tous les détails sur chacun des Widgets de PyVCP sont donnés
+dans la <<sec:Documentation-des-widgets,documentation des widgets>>.
 
-Dans le fichier custompanel.xml nous ajoutons la description des widgets.
+Dans le fichier custompanel.xml nous ajoutons la description
+des widgets.
 
-[source,xml]
 ----
 <pyvcp>
-
     <labelframe text="Boutons de Jog">
        <font>("Helvetica",16)</font>
 
@@ -164,15 +165,13 @@ produit lors du déplacement de la fenêtre vers le bas, c'est généralement d�
 une erreur de syntaxe ou d'écriture, elle est donc dans cette partie qu'il
 conviendra tout d'abord de vérifier soigneusement.
 
-.Boutons de Jog[[cap:Jog-Buttons]]
-image::images/xyz_buttons.png[alt="Boutons de Jog"]
+image::images/xyz_buttons.png["Boutons de Jog"]
 
 === Effectuer les connections
 
 Pour effectuer les connections nécessaires, ouvrir le fichier custom_postgui.hal
 et y ajouter le code suivant:
 
-[source,c]
 ----
 # connecte les boutons PyVCP pour X
 net my-jogxmoins halui.jog.0.minus <= pyvcp.x-moins
@@ -193,8 +192,7 @@ net my-jogspeed halui.jog-speed <= pyvcp.jog-speed-f
 Après avoir désactivé l'A/U (E-Stop) et activé la marche machine en mode Jog,
 le déplacement du curseur du panneau PyVCP devrait agir dès qu'il est placé au
 delà de zéro et les boutons de jog devraient fonctionner. Il est impossible de
-jogger alors qu'un fichier G-code s'exécute ou pendant qu'il est en pause ni
-quand l'onglet _Données manuelles [F5]_ du (MDI), est ouvert.
+jogger alors qu'un fichier G-code s'exécute ou pendant qu'il est en pause ni quand l'onglet _Données manuelles [F5]_ du (MDI), est ouvert.
 
 == Testeur de port
 
@@ -204,7 +202,6 @@ PyVCP et HAL.
 Premièrement, créer le fichier ptest.xml qui contiendra le code suivant pour créer
 la description du panneau.
 
-[source,xml]
 ----
 <!-- Panneau de test pour la config. du port parallèle -->
 <pyvcp>
@@ -270,8 +267,7 @@ la description du panneau.
 Le panneau flottant contenant deux pins de HAL d'entrée et deux pins de
 HAL de sortie.
 
-.Panneau flottant testeur de port parallèle[[cap:Port-Tester-Panel]]
-image::images/ptest.png[alt="Panneau flottant testeur de port parallèle"]
+image::images/ptest.png["Panneau flottant testeur de port parallèle"]
 
 Pour lancer les commandes de HAL dont nous avons besoin et démarrer tout ce
 qi'il nous faut, nous avons mis le code suivant dans notre fichier ptest.hal.
@@ -290,22 +286,20 @@ net pin11 parport.0.pin-11-in ptest.led-11
 start
 ----
 
-Pour lancer le fichier HAL, nous utilisons, dans un terminal, les commandes
-suivantes:
+Pour lancer le fichier HAL, nous utilisons, dans un terminal, les commandes suivantes:
+
 ----
 ~$ halrun -I -f ptest.hal
 ----
 
 La figure suivante montre à quoi ressemble le panneau complet.
 
-.Testeur de port parallèle, complet[[cap:Port-Tester-Complete]]
-image::images/ptest-final.png[alt="Testeur de port parallèle, complet"]
+image::images/ptest-final.png["Testeur de port parallèle, complet"]
 
-Pour ajouter le reste des pins du port parallèle, il suffi de modifier les
-fichiers .xml et .hal.
+Pour ajouter le reste des pins du port parallèle, il suffi de modifier les fichiers .xml et .hal.
 
 Pour visualiser les pins après avoir lancé le script HAL, utiliser la
-commande suivante au prompt _halcmd:_
+commande suivante au prompt _halcmd_:
 
 ----
 halcmd: show pin
@@ -339,7 +333,7 @@ Owner Type  Dir Value  Name
     4 bit   IN  FALSE  ptest.led-02 <== pin02
     4 bit   IN  TRUE   ptest.led-10 <== pin10
     4 bit   IN  TRUE   ptest.led-11 <== pin11
-------
+----
 
 Cela montre quelles pins sont IN est lesquelles sont OUT, ainsi que toutes les
 connections.
@@ -347,20 +341,14 @@ connections.
 [[sec:Exemple-Compte-Tours-GS2]]
 == Compte tours pour GS2
 
-L'exemple suivant utilise un variateur de fréquence GS2 de la société Automation
-Direct. footnote:[ En Europe on trouve ce type de variateur sous la marque Omron.]
- Il permet le pilotage du moteur, la visualisation de la vitesse ainsi que
-d'autres informations dans un panneau PyVCP. Cet exemple est basé sur un autre,
-relatif au variateur GS2 et se trouvant dans la section des exemples matériels
-de ce manuel.
-Ce dernier exemple s'appuie lui même sur la description du composant de
-HAL gs2_vfd.
+L'exemple suivant utilise un variateur de fréquence GS2 de la société Automation Direct. footnote:[ En Europe on trouve ce type de variateur sous la marque Omron.] Il permet le pilotage du moteur, la visualisation de la vitesse ainsi que
+d'autres informations dans un panneau PyVCP. Cet exemple est basé sur un autre, relatif au variateur GS2 et se trouvant dans la section des exemples matériels de ce manuel.
+Ce dernier exemple s'appuie lui même sur la description du composant de HAL gs2_vfd.
 
 === Le panneau
 
 Pour créer le panneau nous ajoutons ce code au fichier .xml.
 
-[source,xml]
 ----
 <pyvcp>
 
@@ -448,8 +436,6 @@ Pour créer le panneau nous ajoutons ce code au fichier .xml.
 
 L'image ci-dessous montre notre panneau PyVCP en fonctionnement.
 
-[[cap:Panneau-GS2]]
-.Panneau pour GS2
 image::images/gs2_panel.png["Panneau pour GS2"]
 
 === Les connections
@@ -457,7 +443,6 @@ image::images/gs2_panel.png["Panneau pour GS2"]
 Pour qu'il fonctionne, il est nécessaire d'ajouter le code suivant au fichier
 custom_postgui.hal, il réalise les connections entre PyVCP et LinuxCNC.
 
-[source,c]
 ----
 # affiche le compte tours, calcul basé sur freq * rpm par hz
 loadrt mult2
@@ -477,10 +462,67 @@ net running-rev spindle-vfd.spindle-rev => pyvcp.rev-led
 ----
 
 Certaines lignes demandent quelques explications.
+La ligne de la led Sens horaire utilise le signal créé dans le fichier
+custom.hal dans lequel la led Sens inverse doit utiliser le bit _spindle-rev_.
+On ne _peut pas_ lier deux fois le bit _spindle-fwd_ pour utiliser le signal auquel il est déjà lié.
 
- - La ligne de la led Sens horaire utilise le signal créé dans le fichier
-   custom.hal dans lequel la led Sens inverse doit utiliser le bit _spindle-rev_.
- - On ne _peut pas_ lier deux fois le bit _spindle-fwd_ pour utiliser le signal
-   auquel il est déjà lié.
+== Rapid to Home Button
+
+This example creates a button on the PyVCP side panel when pressed will send
+all the axis back to the home position. This example assumes you don't have a
+PyVCP panel.
+
+image::images/pyvcp-rth.png[align="center"]
+
+In your configuration directory create the .xml file. In this example it's named
+'rth.xml'. In the 'rth.xml' file add the following code to create the button.
+
+----
+<pyvcp>
+<!-- rapid to home button example -->
+<button>
+<halpin>"rth-button"</halpin>
+<text>"Rapid to Home"</text>
+</button>
+</pyvcp>
+----
+
+Open your .ini file with a text editor and in the [DISPLAY] section add the
+following line. This is what loads the PyVCP panel.
+
+----
+PYVCP = rth.xml
+----
+
+If you don't have a [HALUI] section in the ini file create it and add the
+following MDI command.
+
+----
+MDI_COMMAND = G53 G0 X0 Y0 Z0
+----
+
+[NOTE]
+====
+Information about <<gcode:g53,G53>> and <<gcode:g0,G0>> G-codes
+====
+
+In the [HAL] section if you don't have a post gui file add the following and
+create a file called 'postgui.hal'.
+
+----
+POSTGUI_HALFILE = postgui.hal
+----
+
+In the 'postgui.hal' file add the following code to link the PyVCP button to the
+MDI command.
+
+----
+net rth halui.mdi-command-00 <= pyvcp.rth-button
+----
+
+[NOTE]
+====
+Information about the <<sub:hal-net, net>> command
+====
 
 // vim: set syntax=asciidoc:

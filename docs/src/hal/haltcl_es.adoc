@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 [[cha:haltcl]]
 = Archivos HALTCL
@@ -20,7 +21,7 @@ archivos ini. Los archivos haltcl se identifican en la sección HAL de los archi
 [HAL]
 HALFILE = archivo_convencional.hal
 HALFILE = archivo_tcl.tcl
------
+----
 
 Con el cuidado adecuado, los archivos .hal y .tcl se pueden mezclar.
 
@@ -29,14 +30,13 @@ Con el cuidado adecuado, los archivos .hal y .tcl se pueden mezclar.
 El lenguaje halcmd utilizado en los archivos .hal tiene una sintaxis simple que en realidad es un
 subconjunto del lenguaje de scripting tcl de propósito general, más poderoso.
 
-
 == Comandos Haltcl
 
 Los archivos haltcl utilizan el lenguaje de scripting tcl aumentado con 
 comandos específicos de la capa de abstracción de hardware (HAL) de LinuxCNC. Los comandos especificos
 de hal son:
 
-....
+----
 addf, alias,
 delf, delsig,
 getp, gets
@@ -48,19 +48,18 @@ net, newsig,
 save, setp, sets, show, source, start, status, stop,
 unalias, unlinkp, unload, unloadrt, unloadusr, unlock,
 waitusr
-....
+----
 
 Hay dos casos especiales para los comandos 'gets' y 'list' debido a
 conflictos con los comandos internos de tcl. Para haltcl, estos
 comandos deben ir precedidos de la palabra clave 'hal'.
 
-....
+----
 halcmd   haltcl
 ------   ------
 gets     hal gets
 list     hal list
-....
-
+----
 
 == Variables Ini Haltcl 
 
@@ -238,7 +237,6 @@ capacidad es útil para pruebas y para aplicaciones hal independientes.
 ----
 $ halrun -T haltclfile.tcl
 ----
-
 
 == Ejemplos Haltcl de la distribución de (sim)
 

@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 [[cha:gscreen]]
 = Gscreen
@@ -23,19 +24,19 @@ Gscreen se usa el editor de Glade. Gscreen no se limita a añadir una personaliz
 El panel de la derecha o una pestaña personalizada es completamente editable.
 
 .Pantalla por defecto Gscreen
-image::images/gscreen-mill.png[align="center", alt="Fresadora Based"]
+image::images/gscreen-mill.png["Fresadora Based",align="center"]
 
 .Silverdragon
-image::images/silverdragon.png[align="center", alt="Silverdragon"]
+image::images/silverdragon.png["Silverdragon",align="center"]
 
 .Spartan
-image::images/spartan.png[align="center", alt="Spartan"]
+image::images/spartan.png["Spartan",align="center"]
 
 .Gaxis
-image::images/gaxis.png[align="center", alt="Gaxis"]
+image::images/gaxis.png["Gaxis",align="center"]
 
 .Industrial
-image::images/industrial.png[align="center", alt="Industrial"]
+image::images/industrial.png["Industrial",align="center"]
 
 Gscreen se basa en 'Glade' (el editor), 'PyGTK' (el kit de herramientas widgets), y
 'GladeVCP' (conexión de LinuxCNC a Glade y PyGTK). GladeVCP tiene algunos
@@ -114,8 +115,8 @@ permite buscar un archivo handler; si lo encuentra, tomara nota
 de los nombres de funciones específicas y las llamara en lugar de las predeterminadas. Si se
 agregan widgets, puede configurar llamadas de señal desde el editor de Glade para llamar a
 rutinas que haya escrito en el archivo handler. De esta forma podrás tener un
-comportamiento personalizado. Las rutinas del handler pueden llamar a las rutinas predeterminadas de Gscreen, ya sea antes
-o después de ejecutar su propio código. De esta manera se puede añadir comportamiento extra,
+comportamiento personalizado. Las rutinas del handler pueden llamar a las rutinas predeterminadas de Gscreen, ya sea antes o
+después de ejecutar su propio código. De esta manera se puede añadir comportamiento extra,
 como añadir un sonido. Por favor vea el capitulo GladeVCP para entender
 los fundamentos de los archivos handler GladeVCP. Gscreen utiliza una técnica muy similar.
 
@@ -153,12 +154,12 @@ https://wiki.gnome.org/Attic/GnomeArt/Tutorials/GtkEngines/PixmapEngine[Motor de
 Gscreen es solo un gran y complicado panel GladeVCP, con código python para controlarlo.
 Para personalizarlo necesitamos el archivo Glade cargado en el editor de Glade.
 
-.LinuxCNC Instalado 
+.LinuxCNC Instalado
 Si tiene LinuxCNC 2.6+ instalado en Ubuntu 10.04, simplemente inicie el editor Glade
 Desde el menú de aplicaciones o desde el terminal. Las nuevas versiones de Linux
 requieren que instale Glade 3.8.0 - 3.8.6 (posiblemente deberá compilarlo)
 
-.Comandos en compilados RIP 
+.Comandos en compilados RIP
 Usando un compilado de la versión fuente de
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Installing_LinuxCNC[LinuxCNC], abra
 un terminal y cambie de directorio a la parte superior de la carpeta LinuxCNC. Configure el
@@ -195,7 +196,7 @@ Recuerde, si utiliza una opción de pantalla personalizada, USTED es responsable
 
 == Construyendo una simple pantalla limpia personalizada
 
-image::images/tester.png["pantalla utilizable simple",align="center"]
+image::images/tester.png["Gscreen pantalla utilizable simple",align="center"]
 
 Permite construir una pantalla usable simple. Construya esto en el editor de Glade (si usa un
 RIP ejecutelo desde un terminal después de usar .scripts/rip-environment).
@@ -254,55 +255,44 @@ significa aprender acerca de los archivos handler.
 Hay funciones especiales para las que Gscreen verifica el archivo handler.
 Si los agrega en su archivo handler, Gscreen los llamará en lugar de las funciones internas del mismo nombre de gscreen.
 
- * initialize_preferences(self): puede instalar nuevas rutinas de preferencias.
-
- * initialize_keybindings(self) Puede instalar nuevas rutinas de enlace de teclas. En
-   la mayoría de los casos no querrá hacer esto, querrá reasignar 
-   las llamadas de enlaces a teclas individuales. También puede agregar más enlaces de teclas que
-   llamen a una función arbitraria.
-
- * initialize_pins(self): crea / inicializa pines HAL
-
- * connect_signals(self,handlers): si está utilizando un dispositivo completamente diferente
-   pantalla la pantalla de G por defecto que debe agregar esto o la pantalla de g intentará conectarse
-   Señales a los widgets que no están allí. La función por defecto de Gscreen se llama.
-   with self.gscreen.connect_signals (manejadores) Si desea simplemente agregar extra
-   envía señales a su pantalla, pero aún así desea que las predeterminadas llamen a esto primero y luego
-   añadir más señales. Si las señales son simples (no se pasan datos de usuario), entonces
-   También puede utilizar la selección de señal de Glade en el editor de Glade.
-
- * initialize_widgets(self): puedes usar esto para configurar cualquier widget. Gscreen
-   normalmente llama a 'self.gscreen.initialize_widgets()' que en realidad llama
-   Muchas funciones separadas. Si deseas incorporar alguno de esos widgets.
-   entonces simplemente llame a esas funciones directamente. o agregar
-   self.gscreen.init_show_windows () para que solo se muestren los widgets. Entonces sí
-   deseado, inicialice / ajuste sus nuevos widgets.
-
- * initialize_manual_toolchange (self): permite una renovación completa del manual
-   sistema de cambio de herramientas.
-
- * set_restart_line(self.line):
-
- * timer_interrupt (self): permite que uno complete de nuevo la interrupción
-   rutina Esto se usa para llamar a periodic () y verificar errores de
-   linuxcnc.status.
-
- * check_mode(self): se usa para verificar en qué modo se encuentra la pantalla. Devuelve una lista []
-   0 -manual 1- mdi 2- auto 3- jog.
-
- * on_tool_change(self, widget): puede usar esto para anular la herramienta manual
-   diálogo de cambio: esto se llama cuando 'gscreen.tool-change' cambia de estado.
-
- * dialog_return(self, dialog_widget, displaytype, pinname): use esto para anular
-   Cualquier mensaje de usuario o cuadro de diálogo de cambio de herramienta manual. Llamado cuando el diálogo es
-   cerrado.
-
- * periódico (auto): Esto se denomina cada milisegundos (predeterminado 100). Usalo para
-   actualiza tus widgets / HAL pins. Puedes llamar a Gscreen regularmente.
-   después también, self.gscreen.update_position() o simplemente agregar pass to no
-   actualizar cualquier cosa El update_position() de Gscreen en realidad llama a muchos por separado
-   funciones Si desea incorporar algunos de esos widgets, simplemente llame
-   esas funciones directamente.
+* initialize_preferences(self): puede instalar nuevas rutinas de preferencias.
+* initialize_keybindings(self) Puede instalar nuevas rutinas de enlace de teclas. En
+  la mayoría de los casos no querrá hacer esto, querrá reasignar 
+  las llamadas de enlaces a teclas individuales. También puede agregar más enlaces de teclas que
+  llamen a una función arbitraria.
+* initialize_pins(self): crea / inicializa pines HAL
+* connect_signals(self,handlers): si está utilizando un dispositivo completamente diferente
+  pantalla la pantalla de G por defecto que debe agregar esto o la pantalla de g intentará conectarse
+  Señales a los widgets que no están allí. La función por defecto de Gscreen se llama.
+  with self.gscreen.connect_signals (manejadores) Si desea simplemente agregar extra
+  envía señales a su pantalla, pero aún así desea que las predeterminadas llamen a esto primero y luego
+  añadir más señales. Si las señales son simples (no se pasan datos de usuario), entonces
+  También puede utilizar la selección de señal de Glade en el editor de Glade.
+* initialize_widgets(self): puedes usar esto para configurar cualquier widget. Gscreen
+  normalmente llama a 'self.gscreen.initialize_widgets()' que en realidad llama
+  Muchas funciones separadas. Si deseas incorporar alguno de esos widgets.
+  entonces simplemente llame a esas funciones directamente. o agregar
+  self.gscreen.init_show_windows () para que solo se muestren los widgets. Entonces sí
+  deseado, inicialice / ajuste sus nuevos widgets.
+* initialize_manual_toolchange (self): permite una renovación completa del manual
+  sistema de cambio de herramientas.
+* set_restart_line(self.line):
+* timer_interrupt (self): permite que uno complete de nuevo la interrupción
+  rutina Esto se usa para llamar a periodic () y verificar errores de
+  linuxcnc.status.
+* check_mode(self): se usa para verificar en qué modo se encuentra la pantalla. Devuelve una lista []
+  0 -manual 1- mdi 2- auto 3- jog.
+* on_tool_change(self, widget): puede usar esto para anular la herramienta manual
+  diálogo de cambio: esto se llama cuando 'gscreen.tool-change' cambia de estado.
+* dialog_return(self, dialog_widget, displaytype, pinname): use esto para anular
+  Cualquier mensaje de usuario o cuadro de diálogo de cambio de herramienta manual. Llamado cuando el diálogo es
+  cerrado.
+* periódico (auto): Esto se denomina cada milisegundos (predeterminado 100). Usalo para
+  actualiza tus widgets / HAL pins. Puedes llamar a Gscreen regularmente.
+  después también, self.gscreen.update_position() o simplemente agregar pass to no
+  actualizar cualquier cosa El update_position() de Gscreen en realidad llama a muchos por separado
+  funciones Si desea incorporar algunos de esos widgets, simplemente llame
+  esas funciones directamente.
 
 También puede agregar sus propias funciones para llamarlas en este archivo. Usualmente tu
 agregaría una señal a un widget para llamar a su función.
@@ -320,22 +310,22 @@ Pero en cambio, vamos a anular las llamadas estándar y agregar las nuestras.
 Agregue estos comandos al archivo de controlador:
 
 ----
-  # Ajustar funciones de Gscreen
-  # llamadas de combinacion de teclas
-  def on_keycall_ESTOP(self,state,SHIFT,CNTRL,ALT):
-    if state: # only if pressed, not released
-      self.widgets.togglebutton1.emit('activate')
-      self.gscreen.audio.set_sound(self.data.alert_sound)
-      self.gscreen.audio.run()
-      return True # stop progression of signal to other widgets
-  def on_keycall_POWER(self,state,SHIFT,CNTRL,ALT):
-    if state:
-      self.widgets.togglebutton2.emit('activate')
-      return True
-  def on_keycall_ABORT(self,state,SHIFT,CNTRL,ALT):
-    if state:
-      self.widgets.button3.emit('activate')
-      return True
+# Ajustar funciones de Gscreen
+# llamadas de combinacion de teclas
+def on_keycall_ESTOP(self,state,SHIFT,CNTRL,ALT):
+  if state: # only if pressed, not released
+    self.widgets.togglebutton1.emit('activate')
+    self.gscreen.audio.set_sound(self.data.alert_sound)
+    self.gscreen.audio.run()
+    return True # stop progression of signal to other widgets
+def on_keycall_POWER(self,state,SHIFT,CNTRL,ALT):
+  if state:
+    self.widgets.togglebutton2.emit('activate')
+    return True
+def on_keycall_ABORT(self,state,SHIFT,CNTRL,ALT):
+  if state:
+    self.widgets.button3.emit('activate')
+    return True
 ----
 
 Así que ahora hemos anulado las llamadas de función de Gscreen del mismo nombre y las tratamos en nuestro archivo de manejador.
@@ -345,6 +335,7 @@ Tenga en cuenta que llamamos a las funciones integradas de Gscreen que debemos u
 Si usamos self. [NOMBRE DE LA FUNCIÓN] () llamaría a la función en nuestro archivo de controlador.
 
 Permite agregar otro enlace de teclas que carga el halómetro cuando se presiona F4.
+
 En el archivo del controlador bajo def initialize_widgets (self): cambie a:
 
 ----
@@ -420,6 +411,7 @@ Agregue estas funciones bajo la clase HandlerClass:
     def jog_speed_changed(self,widget,value):
         self.gscreen.set_jog_rate(absolute = value)
 ----
+
 Finalmente, agregue dos botones al archivo GLADE para cada eje, uno para positivo, otro para jogging en dirección negativa. +
 Nombra estos botones xneg, xpos, yneg, ypos zneg, zpos respectivamente. +
 agregue un widget SpeedControl al archivo GLADE y llámelo jog_speed +
@@ -468,8 +460,8 @@ interactuar con ella
   INI.
 . Gscreen comprueba el archivo de controlador para la función de enlace de teclas
   ('initialize_keybindings (self)') o use Gscreen stock one.
-. Gscreen comprueba el archivo del controlador para la función de pines ('initialize_pins (self)')
-  o bien usar Gscreen stock uno.
+. Gscreen comprueba el archivo del controlador para la función de pines ('initialize_pins (self)') o
+  bien usar Gscreen stock uno.
 . Gscreen comprueba el archivo del controlador para la función manual_toolchange
   ('initialize_manual_toolchange (self)') o use Gscreen stock one.
 . Gscreen comprueba el archivo de controlador para la función connect_signals
@@ -494,6 +486,7 @@ DISPLAY = gscreen -c tester
    -d depurando en
    -v verbose depuración en
 ----
+
 El interruptor -c permite seleccionar un 'skin'. Gscreen asume el archivo Glade y
 El archivo manejador usa este mismo nombre. La segunda pantalla opcional será la
 mismo nombre con un 2 (por ejemplo, tester2.glade) No se permite un segundo archivo de controlador.
@@ -562,6 +555,7 @@ En el terminal se imprimirán las ubicaciones de los archivos. +
 Puede ser útil agregar el interruptor -d a la línea de carga de gscreen en el INI. +
 
 Aquí hay una muestra:
+
 ----
 chris@chris-ThinkPad-T500 ~/emc-dev/src $ linuxcnc
 LINUXCNC - 2.7.14
@@ -573,7 +567,7 @@ Note: Using POSIX non-realtime
 Found file(lib): /home/chris/emc-dev/lib/hallib/sim_spindle_encoder.hal
 Found file(lib): /home/chris/emc-dev/lib/hallib/axis_manualtoolchange.hal
 Found file(lib): /home/chris/emc-dev/lib/hallib/simulated_home.hal
-**** GSCREEN WARNING: no audio alerts available - Is python-gst0.10 libray installed?
+**** GSCREEN WARNING: no audio alerts available - Is python-gst0.10 library installed?
 **** GSCREEN INFO ini: /home/chris/emc-dev/configs/sim/gscreen/gscreen_custom/industrial_lathe.ini
 **** GSCREEN INFO: Skin name = industrial
 
@@ -583,9 +577,13 @@ Found file(lib): /home/chris/emc-dev/lib/hallib/simulated_home.hal
 **** GSCREEN INFO: handler file path: ['/home/chris/emc-dev/share/gscreen/skins/industrial/industrial_handler.py']
 ----
 
-La linea: +
+La linea:
+
 ----
 **** GSCREEN INFO: handler file path: ['/home/chris/emc-dev/share/gscreen/skins/industrial/industrial_handler.py']
 ----
+
 muestra dónde vive el archivo de stock. Copie este archivo a su carpeta de configuración. +
 Esto funciona igual para el archivo Glade.
+
+// vim: set syntax=asciidoc:

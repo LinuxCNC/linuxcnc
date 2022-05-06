@@ -32,9 +32,9 @@ Casi todas las PC admiten uno mas puertos paralelo que son capaces de emitir pul
 generados por el software.
 Sin embargo, los pulsos de paso software también tiene algunas desventajas:
 
- - velocidad de paso máxima limitada
- - jitter (fluctuaciones) en los pulsos generados
- - añade carga a la CPU
+- velocidad de paso máxima limitada
+- jitter (fluctuaciones) en los pulsos generados
+- añade carga a la CPU
 
 La mejor forma de descubrir si su PC funcionará bien con LinuxCNC
 es ejecutar la prueba de latencia HAL.
@@ -65,7 +65,7 @@ latency-test -h
 
 Debería ver algo como esto:
 
-//.Prueba de Latencia HAL
+.Prueba de Latencia HAL
 image::../config/images/latency.png["Prueba de Latencia HAL",align="center"]
 
 Mientras se ejecuta la prueba, debe 'abusar' de la computadora.
@@ -133,7 +133,8 @@ Opciones:
       --actual   (hora actual del reloj)
 ----
 
-image::../config/images/latency-plot.png["latency-plot hace una grabación en un gráfico de bandas para hilos base y servo"]
+.Ventana `latency-plot`
+image::../config/images/latency-plot.png[".Ventana latency-plot"]
 
 == Latency Histogram
 
@@ -143,7 +144,6 @@ base y servo.
 ----
 Uso:
    latency-histogram --help | -?
-o
    latency-histogram [Opciones]
 
 Opciones:
@@ -169,6 +169,7 @@ Notas:
   bins fuera del grrafico [pos | neg]
 ----
 
-image::../config/images/latency-histogram.png["latency-histogram muestra un histograma de latencia (jitter) para hilos base y servo"]
+.Ventana `latency-histogram`
+image::../config/images/latency-histogram.png[".Ventana latency-histogram"]
 
-// vim: set syntax = asciidoc:
+// vim: set syntax=asciidoc:

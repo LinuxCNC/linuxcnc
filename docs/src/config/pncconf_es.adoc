@@ -4,35 +4,56 @@
 [[cha:pncconf-wizard]]
 = Asistente de configuracion Mesa
 
-PNCconf está hecho para ayudar a construir configuraciones que utilizan productos específicos Mesa 'Anything I/O'.
+PNCconf está hecho para ayudar a construir configuraciones que utilizan
+productos específicos Mesa 'Anything I/O'.
 
-Puede configurar sistemas servo de bucle cerrado o sistemas de hardware paso a paso. Utiliza un enfoque de 'asistente' similar a Stepconf (utilizado para sistemas accionados por pasos software, por puerto paralelo).
+Puede configurar sistemas servo de bucle cerrado o sistemas de hardware
+paso a paso. Utiliza un enfoque de 'asistente' similar a Stepconf (utilizado
+para sistemas accionados por pasos software, por puerto paralelo).
 
-PNCconf aún se encuentra en una etapa de desarrollo (Beta), por lo que hay algunos errores y carece de algunas características.
+PNCconf aún se encuentra en una etapa de desarrollo (Beta), por lo que hay
+algunos errores y carece de algunas características.
 Informe de los errores y sugerencias a la página del foro de LinuxCNC o a la lista de correo.
 
 Hay dos líneas accion cuando se utiliza PNCconf:
 
 Una es usar PNCconf para configurar siempre su sistema; si decide cambiar
-algunas opciones, vuelva a cargar PNCconf y permita que configure las nuevas opciones. Esta actitud funciona bien si su máquina es bastante estándar y puede usar archivos personalizados para agregar características no estándar. PNCconf intenta trabajar con usted en este aspecto.
+algunas opciones, vuelva a cargar PNCconf y permita que configure las
+nuevas opciones. Esta actitud funciona bien si su máquina es bastante
+estándar y puede usar archivos personalizados para agregar características no estándar. PNCconf intenta trabajar con usted en este aspecto.
 
-La otra es usar PNCconf para construir una configuración que esté cerca de lo deseado y luego editar a mano para adaptarlo a sus necesidades. Esta sería la elección si necesita modificaciones extensas más allá del alcance de PNCconf o solo quiere jugar con el o aprender LinuxCNC
+La otra es usar PNCconf para construir una configuración que esté cerca
+de lo deseado y luego editar a mano para adaptarlo a sus necesidades.
+Esta sería la elección si necesita modificaciones extensas más allá del
+alcance de PNCconf o solo quiere jugar con el o aprender LinuxCNC
 
-Navege por las páginas del asistente con los botones de avanzar, retroceder y cancelar. Hay también un botón de ayuda que brinda información sobre las páginas, diagramas y una página de salida.
+Navege por las páginas del asistente con los botones de avanzar,
+retroceder y cancelar. Hay también un botón de ayuda que brinda
+información sobre las páginas, diagramas y una página de salida.
 
-SUGERENCIA: la página de ayuda de PNCconf debe tener la información más actualizada e informaciónde detalles adicional.
+TIP: La página de ayuda de PNCconf debe tener la información más actualizada
+e informaciónde detalles adicional.
 
 == Instrucciones punto por punto
 
-.Ventana Splash PnCConf 
+.Ventana Splash PnCConf
 image::images/pncconf-splash.png["Asistente de configuración de PnCConf"]
 
 == Crear o editar
 
 Se permite seleccionar una configuración previamente guardada o crear una nueva.
-Si elige 'Modificar una configuración' y luego presiona siguiente, se mostrara un cuadro de selección de archivos. Pncconf preselecciona su último archivo guardado. Elija la configuración que usted desea editar. Si realizó algún cambio en los archivos principales hal o ini *Pncconf sobre-escribira* esos archivos y los cambios se perderán. Algunos archivos no serán sobre-escritos y Pncconf colocara una nota en esos archivos. También le permite seleccionar las opciones de atajo de escritorio/lanzador. Un atajo de escritorio colocará un icono de carpeta en el escritorio que apunta a sus nuevos archivos de configuración. De lo contrario, tendría que buscar en su carpeta home bajo linuxcnc/configs.
+Si elige 'Modificar una configuración' y luego presiona siguiente, se
+mostrara un cuadro de selección de archivos. Pncconf preselecciona su
+último archivo guardado. Elija la configuración que usted desea editar.
+Si realizó algún cambio en los archivos principales hal o ini
+*Pncconf sobre-escribira* esos archivos y los cambios se perderán.
+Algunos archivos no serán sobre-escritos y Pncconf colocara una nota en
+esos archivos. También le permite seleccionar las opciones de atajo de
+escritorio/lanzador. Un atajo de escritorio colocará un icono de carpeta en el escritorio que apunta a sus nuevos archivos de configuración. De lo contrario, tendría que buscar en su carpeta home bajo linuxcnc/configs.
 
-Un lanzador de escritorio agregará un icono al escritorio para iniciar su configuración directamente. También puede iniciarlo desde el menú principal utilizando el Selector de Configuración 'LinuxCNC' encontrado en el menú CNC y seleccionando su nombre de configuración.
+Un lanzador de escritorio agregará un icono al escritorio para iniciar
+su configuración directamente. También puede iniciarlo desde el menú
+principal utilizando el Selector de Configuración 'LinuxCNC' encontrado en el menú CNC y seleccionando su nombre de configuración.
 
 == Informacion basica de la maquina
 
@@ -41,9 +62,13 @@ image::images/pncconf-basic.png["Información básica PnCConf de la máquina"]
 
 Conceptos básicos de la máquina::
 Si usa un nombre con espacios, PNCconf reemplazará los espacios con guiones bajos
-(como regla general, a Linux no le gustan los espacios en los nombres). Elija una configuración de ejes; esto selecciona qué tipo de máquina está construyendo y qué ejes están disponibles. El selector de unidades de máquina permite la entrada de datos de unidades métricas o imperiales en las siguientes páginas.
+(como regla general, a Linux no le gustan los espacios en los nombres).
+Elija una configuración de ejes; esto selecciona qué tipo de máquina
+está construyendo y qué ejes están disponibles. El selector de unidades
+de máquina permite la entrada de datos de unidades métricas o imperiales en las siguientes páginas.
 
-SUGERENCIA: los valores predeterminados no se convierten cuando se usa métrica, así que asegúrese de que sean valores correctos.
+TIP: Los valores predeterminados no se convierten cuando se usa métrica,
+así que asegúrese de que sean valores correctos.
 
 Tiempo de respuesta del equipo::
 
@@ -59,7 +84,8 @@ De 20000 a 50000 sigue siendo bueno para pasos software y está bien para nosotr
 De 50000 a 100000 ya no es tan bueno, pero aún se puede usar con tarjetas hardware
 que se encargen de las cosas de respuesta rápida. Cualquier cosa por debajo de 100000 es útil para nosotros. Si la latencia es decepcionante o si tiene un mal jitter periódicamente, todavía es posible mejorarlo.
 
-SUGERENCIA: hay una lista de equipos compilada por los usuarios con la latencia obtenida en la wiki de LinuxCNC:
+TIP: Hay una lista de equipos compilada por los usuarios con la latencia
+obtenida en la wiki de LinuxCNC:
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Latency-Test
 Considere agregar su información a la lista. También en esa página hay enlaces a
 información sobre cómo solucionar algunos problemas de latencia.
@@ -103,8 +129,7 @@ TkLinuxCNC
 
 TOUCHY
 
-* Touchy fue diseñado para ser utilizado con una pantalla táctil, con los mínimos
-  interruptores físicos y un volante MPG.
+* Touchy fue diseñado para ser utilizado con una pantalla táctil, con los mínimos interruptores físicos y un volante MPG.
 * Requiere botones para ciclo de inicio, aborto y señales de un solo paso
 * También requiere que se seleccione jogging MPG de eje compartido.
 * está basado en GTK por lo que integra GLADE VCP (paneles de control virtual) de forma natural.
@@ -122,6 +147,7 @@ QtPlasmaC
 
 Esta página le permite seleccionar controles externos como jogging o mando manual de velocidades.
 
+.GUI Externo
 image::images/pncconf-external.png["GUI Externo"]
 
 Si selecciona un Joystick para jogging, lo necesitará siempre conectado para que LinuxCNC lo cargue. Para usar los sticks analógicos para un jogging útil probablemente necesite agregar algún código HAL personalizado. El jogging MPG requiere un generador de impulsos conectado a un contador de encoder MESA.
@@ -154,11 +180,12 @@ tiene opciones como debounce y codigo Gray para ayudar a filtrar la entrada del 
 
 Ajuste manual::
 PNCconf permite mando manual de velocidades de avance y/o velocidad del husillo con un generador de pulsos (MPG) o interruptores (por ejemplo, rotativos).
- 
-== Configuracion de GUI
+
+== Configuración de la GUI
 
 Aquí puede establecer valores predeterminados para las pantallas de visualización, agregar paneles de control virtual (VCP), y establecer algunas opciones de LinuxCNC ..
 
+.Configuración de la GUI
 image::images/pncconf-gui.png["Configuración de la GUI"]
 
 Opciones de GUIs::
@@ -242,8 +269,8 @@ Las páginas de configuración de Mesa le permiten utilizar diferentes firmwares
 En la página básica seleccione una tarjeta Mesa, elija el firmware disponible
 y seleccione qué y cuántos componentes están disponibles.
 
-.Configuración Mesa
-image::images/pncconf-mesa-config.png[alt="Configuración de Mesa"]
+.Configuración de Mesa
+image::images/pncconf-mesa-config.png["Configuración de Mesa"]
 
 La dirección de parport se usa solo con la tarjeta parport de Mesa, la 7i43. Los parport en placa base generalmente usan 0x278 o 0x378, aunque debería poder encontrar la dirección desde la página de BIOS. La 7i43 requiere que el puerto paralelo use el modo EPP, de nuevo establecido en la página de BIOS. Si usa un puerto paralelo PCI, la dirección puede ser buscada utilizando el botón de búsqueda en la página básica.
 
@@ -277,31 +304,31 @@ Después de elegir todas estas opciones, presione el botón 'Aceptar cambios de 
 == Configuracion de E/S Mesa
 Las pestañas se utilizan para configurar los pines de entrada y salida de las placas Mesa. PNCconf le permite crear nombres de señal personalizados para usar en archivos HAL personalizados.
 
-.Mesa I/O C2 configuration
-image::images/pncconf-mesa-io2.png["Mesa I/O C2"]
+.Mesa I/O C2 Configuration
+image::images/pncconf-mesa-io2.png["Mesa I/O C2 Configuration"]
 
 En esta pestaña con este firmware, los componentes están configurados para una tarjeta hija 7i33, generalmente utilizada con servos de lazo cerrado. Tenga en cuenta que los números de componente de los contadores de encoder y los controladores PWM no están en orden numérico. Siguen los requisitos de la tarjeta hija.
 
-.Mesa I/O C3 configuration
-image::images/pncconf-mesa-io3.png["Mesa I/O C3"]
+.Mesa I/O C3 Configuration
+image::images/pncconf-mesa-io3.png["Mesa I/O C3 Configuration"]
 
 En esta pestaña, todos los pines son GPIO. Tenga en cuenta los números de 3 dígitos; coincidirán con el número de pin HAL. Los pines GPIO se pueden seleccionar como entrada o salida y se pueden invertir.
 
-.Mesa I/O C4 configuration
-image::images/pncconf-mesa-io4.png["Mesa I/O C4"]
+.Mesa I/O C4 Configuration
+image::images/pncconf-mesa-io4.png["Mesa I/O C4 Configuration"]
 
 En esta pestaña hay una mezcla de generadores de pasos y GPIO.
 Los generadores de paso y los pines de dirección se pueden invertir. Tenga en cuenta que invertir un pin Step Gen-A (el pin de salida de paso) cambia el tiempo del paso. Debería coincidir con lo que espera su controlador
 
 == Configuracion de Puerto Paralelo
 
-image::images/pncconf-parport.png["Configuración de Parport"]
+image::images/pncconf-parport.png["Configuracion de Puerto Paralelo"]
 
 El puerto paralelo se puede usar para E/S simple, similar a los pines GPIO de Mesa.
 
-== Configuración de eje
+== Configuración del eje
 
-//.Ajuste del drive del eje
+.Configuración del drive del eje
 image::images/pncconf-axis-drive.png["Configuración del drive del eje"]
 
 Esta página permite configurar y probar la combinación de motor y/o encoder.
@@ -395,7 +422,7 @@ de un fabricante a otro. Sólo está parcialmente apoyado y lo hará
 requiere uno para terminar las conexiones HAL. Póngase en contacto con la lista de correo o foro para
 más ayuda.
 
-//.Cálculo de la Escala de Axis
+.Cálculo de la escala del eje
 image::images/pncconf-scale-calc.png["Cálculo de la escala del eje"]
 
 La configuración de la escala se puede ingresar directamente o se puede usar la "escala de cálculo"
@@ -404,7 +431,7 @@ que los 'dientes de polea' requieren el número de dientes no la relación de en
 La relación es justo lo contrario, requiere la relación de transmisión. Si estas feliz con el
 escala presionar aplicar de lo contrario presionar cancelar e ingresar la escala directamente.
 
-//.Axis de configuración
+.Configuración del eje
 image::images/pncconf-axis-config.png["Configuración del eje"]
 
 Consulte también la pestaña del diagrama para ver dos ejemplos de
@@ -568,8 +595,8 @@ Utilice la compensación de contragolpe::
     No se puede utilizar con el archivo de compensación. Ver << sec: sección del eje, Sección AXIS >>
     del Capítulo INI.
 
-//.Diagrama de ayuda AXIS
-image::images/pncconf-diagram-lathe.png["AXIS Help Diagram"]
+.Diagrama de ayuda AXIS
+image::images/pncconf-diagram-lathe.png["Diagrama de ayuda AXIS"]
 
 Los diagramas deberían ayudar a demostrar un ejemplo de interruptores de límite y
 Direcciones de movimiento del eje estándar.
@@ -591,7 +618,7 @@ controlar.
 CONSEJO: Muchas de las opciones en esta página no se mostrarán a menos que la opción correcta sea
 Seleccionado en páginas anteriores!
 
-//.Configuración del husillo
+.Configuración del motor/codificador de husillo
 image::images/pncconf-spindle-config.png["Configuración del husillo"]
 
 Esta página es similar a la página de configuración del motor del eje.
@@ -636,9 +663,9 @@ claro.
 El programa modbus serie es básicamente un programa de plantilla en blanco que configura
 Escalera clasica para modbus serie.
 Ver el << cha:classicladder,Classicladder Chapter >> en el manual.
-  
-//.PNCconf, opciones avanzadas
-image::images/pncconf-advanced.png["PNCconf Opciones avanzadas"]
+
+.PNCconf, Opciones Avanzadas
+image::images/pncconf-advanced.png["PNCconf Opciones Avanzadas"]
 
 == Componentes HAL
 
@@ -647,8 +674,8 @@ Archivos HAL.
 De esta manera, uno no debería tener que editar manualmente el archivo HAL principal, mientras aún está
 permitiendo los componentes necesarios para el usuario.
 
-//.HAL Componentes
-image::images/pncconf-hal.png["HAL Components"]
+.Componentes HAL
+image::images/pncconf-hal.png["Componentes HAL"]
 
 La primera selección es componentes que pncconf utiliza internamente.
 Puede configurar pncconf para cargar instancias adicionales de los componentes para su
@@ -737,7 +764,7 @@ presione el botón de ayuda y mire la página de salida.
 Pregunte en la lista de correo o foro de LinuxCNC para obtener información sobre la conversión de firmware personalizado.
 No todo el firmware se puede utilizar con PNCconf.
 
-Archivos HAL personalizados ::
+Archivos HAL personalizados::
 
 Hay cuatro archivos personalizados que puede usar para agregar comandos HAL a:
 

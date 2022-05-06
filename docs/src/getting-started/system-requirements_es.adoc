@@ -1,8 +1,8 @@
 :lang: es
-
-= Requerimientos del sistema
+:toc:
 
 [[cha:system-requirements]]
+= Requerimientos del sistema
 
 == Requerimientos Mínimos
 

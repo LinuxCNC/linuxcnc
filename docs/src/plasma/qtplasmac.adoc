@@ -1,10 +1,8 @@
 :lang: en
+:toc:
 
 [[cha:qtplasmac]]
 = QtPlasmaC
-:toc:
-:toclevels: 5
-:figure-caption!:
 
 == Preamble
 
@@ -91,7 +89,7 @@ QtPlasmaC requires the selection of one of following three operating modes:
    Use external up/down signals for Torch Height Control.
 |===
 
-IMPORTANT:
+[IMPORTANT]
 If the plasma power source has an Arc OK (Transfer) output then it is recommended
 to use that for Arc OK rather than the soft (calculated) Arc OK provided by mode 0.
 It may also be possible to use a <<qt_reed-arc-ok,reed relay>> as an alternative
@@ -176,21 +174,21 @@ The minimum I/O requirement for a QtPlasmaC configuration to function are:  *Arc
 
 Refer to the <<qt_initial-setup,Heights Diagram>> diagram for a visual representation of the terms below.
 
- * *[AXIS_Z] MIN_LIMIT* should be just below top of the slats with
-   allowances for float_switch_travel and over travel tolerance. For example,
-   if the user's float switch takes 4mm (0.157") to activate then set the Z
-   minimum to 5mm (0.2") plus an allowance for overrun (either calculated
-   using the equation below or allow 5mm (0.2") below the lowest slat.
- * *[AXIS_Z] MAX_LIMIT* should be the highest the user wants the Z axis
-   to travel (it must not be lower than Z HOME_OFFSET).
- * *[AXIS_Z] HOME* should be set to be approximately 5mm-10mm (0.2"-0.4")
-   below the maximum limit.
- * *Floating Head* - it is recommended that a floating head be used and
-   that it has enough movement to allow for overrun during probing. Overrun
-   can be calculated using the following formula:
+* *[AXIS_Z] MIN_LIMIT* should be just below top of the slats with
+  allowances for float_switch_travel and over travel tolerance. For example,
+  if the user's float switch takes 4mm (0.157") to activate then set the Z
+  minimum to 5mm (0.2") plus an allowance for overrun (either calculated
+  using the equation below or allow 5mm (0.2") below the lowest slat).
+* *[AXIS_Z] MAX_LIMIT* should be the highest the user wants the Z axis
+  to travel (it must not be lower than Z HOME_OFFSET).
+* *[AXIS_Z] HOME* should be set to be approximately 5mm-10mm (0.2"-0.4")
+  below the maximum limit.
+* *Floating Head* - it is recommended that a floating head be used and
+  that it has enough movement to allow for overrun during probing. Overrun
+  can be calculated using the following formula:
 
 ----
-o = 0.5 × a × (v ÷ a)^2
+o = 0.5 x a x (v ÷ a)^2
 ----
 
 where: o = overrun, a = acceleration in units/sec2 and v = velocity in units/sec.
@@ -323,43 +321,31 @@ Click on the <<qt_parameters-tab,Parameters Tab>> to view the *CONFIGURATION* se
 To set the Z axis DRO relative to the Z axis MINIMUM_LIMIT, the user should perform the following steps. It is important to understand that in QtPlasmaC, touching off the Z axis DRO has no effect on the Z axis position while running a G-Code program. These steps simply allow the user to more easily set the probe height as after performing the steps, the displayed Z axis DRO value will be relative to Z axis MINIMUM_LIMIT.
 
 . The user should be familiar with the recommended <<qt_z-settings, Z Axis Settings>>.
-
 . Home the Z axis.
-
 . Ensure there is nothing below the torch then jog the Z axis down until it stops at the Z axis MINIMUM_LIMIT then click the 0 next to the Z axis DRO to *Touch Off* with the Z axis selected to set the Z axis at zero offset. This step only serves to allow the user to more easily visualize and adjust *Probe Height* this value is measured from the Z axis MINIMUM_LIMIT up.
-
 . Home the Z axis again.
 
 [[qt_probe-test]]
 If the machine is equipped with a float switch then the user will need to set the offset in the *CONFIGURATION* section of the *PARAMETERS* tab. This will be done by running a "Probe Test" cycle.
 
 . Check that the Probe Speed and the Probe Height in the *CONFIGURATION* section of the *PARAMETERS* tab are correct. QtPlasmaC can probe at the full Z axis velocity so long as the machine has enough movement in the float switch to absorb any overrun. If the machine is suitable, the user could set the Probe Height to a value near the Z axis minimum and do all probing at full speed.
-
 . If the machine is not already homed and in the home position, home the machine.
-
 . Place some material on the slats under the torch.
-
 . Press the *PROBE TEST* button.
-
 . The Z axis will probe down, find the material then move up to the specified *Pierce Height* as set by the currently selected material. The torch will wait in this position for the time set in the <machine_name>.ini file. The default probe test hold time is 10 seconds, this value may be edited in the <machine_name>.ini file. After this the torch will return to the starting height.
-
 . Measure the distance between the material and the tip of the torch while the torch is waiting at *Pierce Height*.
-
 . If the measurement is greater than the *Pierce Height* of the currently selected material, then reduce the "Float Travel" in the *CONFIGURATION* section of the *PARAMETERS* tab by the difference between the measured value and the specified value. If the measurement is less than *Pierce Height* of the currently selected material, then increase the "Float Travel" in the *CONFIGURATION* section of the *PARAMETERS* tab by the difference between the specified value and the measured value.
-
 . After the adjustments to the "Float Travel" have been made, repeat the process from #4 above until the measured distance between the material and the torch tip matches the *Pierce Height* of the currently selected material.
-
 . If the table has a laser or camera for sheet alignment, a scribe, or uses offset probing then the required offsets need to be applied by following the procedure described in <<peripheral-offsets,Peripheral Offsets>>.
-
 . CONGRATULATIONS! The user should now have a working QtPlasmaC Configuration.
 
 [NOTE]
 If the amount of time between the torch contacting the material and when the torch moves up and comes to rest at the Pierce Height seems excessive, see <<qt_probing,the probing section>> for a possible solution.
 
-IMPORTANT:
+[IMPORTANT]
 IF USING A *Mesa Electronics THCAD* THEN THE *Voltage Scale* VALUE WAS OBTAINED MATHEMATICALLY. IF THE USER INTENDS TO USE CUT VOLTAGES FROM A MANUFACTURE'S CUT CHART THEN IT WOULD BE ADVISABLE TO DO MEASUREMENTS OF ACTUAL VOLTAGES AND FINE TUNE THE *Voltage Scale* AND *Voltage Offset*.
 
-CAUTION:
+[CAUTION]
 PLASMA CUTTING VOLTAGES CAN BE LETHAL, IF THE USER IS NOT EXPERIENCED IN DOING THESE MEASUREMENTS GET SOME QUALIFIED HELP.
 
 [[qt_modify-config]]
@@ -516,7 +502,6 @@ Most relays using gold contacts will not require any additional current for reli
 There are two different methods available to provide this minimum current if it is required:
 
 . A 0.1μF film capacitor placed across the contacts.
-
 . A 1200Ω 1W resistor across the load (see calculations below).
 
 Schematics are shown at <<qt_contact-load-schematics, contact load schematics>>.
@@ -536,7 +521,7 @@ The resistance can be calculated using R = Vs / (Im - Ii) where:
 - Im = minimum current required
 - Ii = input current
 
-Using a 7i76E with an input current of 2.4mA gives a calculated value of 1304Ω. (24 / (.0208 - .0024) This could then be rounded down to a commonly available 1200Ω resistor giving a small safety margin.
+Using a 7i76E with an input current of 2.4mA gives a calculated value of 1304Ω. (24 / (.0208 - .0024)) This could then be rounded down to a commonly available 1200Ω resistor giving a small safety margin.
 
 The power dissipation can by calculated using P = Vs^2^ / Rs where:
 
@@ -689,7 +674,7 @@ SUBROUTINE_PATH       = ./:./qtplasmac:../../nc_files/subroutines (./ must be in
 USER_M_PATH           = ./:./qtplasmac (for M190 material change)
 ----
 
-IMPORTANT:
+[IMPORTANT]
 SEE <<qt_path-tolerance,PATH TOLERANCE>> FOR RS274NGC_STARTUP_CODE INFORMATION RELATED TO G64.
 
 *[HAL]* Section
@@ -1726,13 +1711,11 @@ A LinuxCNC spindle number (designated by $n) is required to be in the starting c
 * *M3 $1 S1* will select and start the scribe.
 * *M3 $2 S1* will select and start the plasma spotting tool.
 
-
 * *M5 $0* will stop the plasma cutting tool.
 * *M5 $1* will stop the scribe.
 * *M5 $2* will stop the plasma spotting tool.
 
 It is permissible to use *M5 $-1* in lieu of the M5 $n codes above to stop all tools.
-
 
 In order to use a scribe, it is necessary for the user to add the X and Y axis offsets to the LinuxCNC tool table. Tool 0 is assigned to the Plasma Torch and Tool 1 is assigned to the scribe. Tools are selected with a *Tn M6* command, and then a *G43 H0* command is required to apply the offsets for the selected tool. It is important to note that the LinuxCNC tool table and tool commands only come into play if the user is using a <<qt_scribe, scribe>> in addition to a plasma torch. For more information, see <<qt_scribe, scribe>>.
 
@@ -1778,7 +1761,6 @@ The THC does not become active until the velocity reaches 99.9% of the *CutFeedR
 QtPlasmaC uses a control voltage which is dependent on the state of the *AUTO VOLTS* checkbox on the <<qt_main-tab, MAIN Tab>>:
 
 . If *Use Auto Volts* is checked then the actual cut voltage is sampled at the end of the THC *Delay* time and this is used as the target voltage to adjust the height of the torch.
-
 . If *Use Auto Volts* is not checked then the voltage displayed as Cut Volts in the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>> is used as the target voltage to adjust the height of the torch.
 
 [underline]*G-Code THC*
@@ -1826,7 +1808,6 @@ IMPORTANT: IF *CUTTER COMPENSATION* IS IN EFFECT *G-CODE THC*, *VELOCITY BASED T
 IHS may be skipped in one of two different ways:
 
 . If the THC is disabled then the IHS skip will occur if the start of the cut is less than *Skip IHS* distance from the last successful probe.
-
 . If the THC is enabled then the IHS skip will occur if the start of the cut is less than *Skip IHS* distance from the end of the last cut.
 
 A value of zero for *Skip IHS* will disable IHS skipping.
@@ -1846,9 +1827,9 @@ QtPlasmaC can probe at the full Z axis velocity so long as the machine has enoug
 
 Some float switches can exhibit a large switching hysteresis which shows up in the probing sequence as an excessive time to complete the final probe up.
 
- * This time may be decreased by changing the speed of the final probe up.
- * This speed defaults to 0.001mm (0.000039") per servo cycle.
- * It is possible to increase this speed by up to a factor of 10 by adding the following line to the custom.hal file:
+* This time may be decreased by changing the speed of the final probe up.
+* This speed defaults to 0.001mm (0.000039") per servo cycle.
+* It is possible to increase this speed by up to a factor of 10 by adding the following line to the custom.hal file:
 
 ----
 setp plasmac.probe-final-speed n
@@ -1931,7 +1912,6 @@ There are three methods available for improving the quality of small holes:
 If both *Arc Dwell* and *Overcut* are active at the same time then *Overcut* will take precedence.
 
 IMPORTANT: *OVERCUT* IS NOT ABLE TO BE USED IF CUTTER COMPENSATION IS IN EFFECT; AN ERROR MESSAGE WILL BE DISPLAYED.
-
 
 === Hole Cutting
 
@@ -2334,7 +2314,7 @@ sudo apt install onboard
 
 The following two custom layouts are used for soft key support:
 
-image::images/qtplasmac_numpad.png[caption="", title="Number keypad - used for the CONVERSATIONAL Tab and the PARAMETERS Tab", width=240,align="center"]
+image::images/qtplasmac_numpad.png[caption="", title="Number keypad - used for the CONVERSATIONAL Tab and the PARAMETERS Tab",width=240,align="center"]
 
 image::images/qtplasmac_keypad.png[caption="", title="Alpha-numeric keypad - used for G-Code editing and file management.",width=700,align="center"]
 
@@ -2715,7 +2695,7 @@ These errors indicate the corresponding sensor was activated before a probe test
 This indicates that the corresponding sensor was activated during a consumable change:
 
 * *breakaway, float, or ohmic activated during consumable change, motion is paused* +
-*WARNING: MOTION WILL RESUME IMMEDIATELY UPON RESOLVING THIS CONDITION!*
+  *WARNING: MOTION WILL RESUME IMMEDIATELY UPON RESOLVING THIS CONDITION!*
 
 WARNING: CONSUMABLE CHANGE MOTION WILL RESUME IMMEDIATELY UPON RESOLVING THE CORRESPONDING SENSOR ACTIVATION.
 
@@ -3390,7 +3370,6 @@ Mode 0 Arc OK relies on the arc voltage to set the Arc OK signal. This is accomp
 There are two settings in the <<qt_parameters-tab, PARAMETERS Tab>> for setting the range, these are:
 
 - *OK HIGH VOLTS* which is the upper value of the voltage range. The default is 250V.
-
 - *OK LOW VOLTS* which is the lower value of the voltage range. The default is 60V.
 
 Both of these values may be changed by direct entry or by the use of the increment/decrement buttons.
@@ -3398,7 +3377,6 @@ Both of these values may be changed by direct entry or by the use of the increme
 There are also two HAL pins that have been provided to allow the user to tune the set point. These HAL pins are:
 
 - *plasmac.arc-ok-counts* which is the number of consecutive readings within the threshold that are required to set the Arc OK signal. The default is 10.
-
 - *plasmac.arc-ok-threshold* which is the maximum voltage deviation that is allowed for a valid voltage to set the Arc OK signal. The default is 10.
 
 The following example would set the number of valid consecutive readings required to 6:

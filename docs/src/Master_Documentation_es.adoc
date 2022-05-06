@@ -1,14 +1,13 @@
+:lang: es
 :lversion: {sys: cat ../VERSION}
 :date: {sys: LANG=C date --date="@$(dpkg-parsechangelog --file ../debian/changelog -S timestamp)" '+%d %b %Y'}
+:ascii-ids:
+:masterdir: {indir}
+:revdate: 2021-10-28
 LinuxCNC V{lversion}, {date}
 ============================
-:ascii-ids:
-:lang: es
-:revdate: 2021-10-28
 
 = Contenido
-
-:masterdir: {indir}
 
 :leveloffset: 0
 
@@ -70,7 +69,13 @@ include::gui/gmoccapy_es.adoc[]
 
 include::gui/ngcgui_es.adoc[]
 
+include::gui/touchy_es.adoc[]
+
 include::gui/gscreen_es.adoc[]
+
+//include::gui/tklinuxcnc.adoc[]
+
+//include::plasma/qtplasmac.adoc[]
 
 :leveloffset: 1
 
@@ -80,7 +85,7 @@ include::gui/gscreen_es.adoc[]
 
 include::gcode/coordinates_es.adoc[]
 
-// include::gcode/overview_es.adoc[]
+include::gcode/overview_es.adoc[]
 
 include::gcode/g-code_es.adoc[]
 
@@ -130,11 +135,13 @@ include::config/stepper-diagnostics_es.adoc[]
 
 :leveloffset: 2
 
-// include::config/stepper-quickstart_es.adoc[]
+include::config/stepper-quickstart_es.adoc[]
 
 include::config/ini-config_es.adoc[]
 
 include::config/ini-homing_es.adoc[]
+
+//include::config/iov2_es.adoc[]
 
 include::config/lathe-config_es.adoc[]
 
@@ -158,21 +165,41 @@ include::config/stepper_es.adoc[]
 
 // include::gui/gladevcp_es.adoc[]
 
+include::gui/qtvcp_es.adoc[]
+
+:leveloffset: 3
+
+//include::gui/qtvcp-vcp-panels_es.adoc[]
+
+//include::gui/qtvcp-widgets_es.adoc[]
+
+//include::gui/qtvcp-libraries_es.adoc[]
+
+//include::gui/qtvcp-vismach_es.adoc[]
+
+//include::gui/qtvcp-custom-widgets_es.adoc[]
+
+//include::gui/qtvcp-code-snippets_es.adoc[]
+
+//include::gui/qtvcp-development_es.adoc[]
+
 :leveloffset: 1
 
 = Interfaces de Usuario
 
 :leveloffset: 2
 
-// include::gui/panelui_es.adoc[]
+//include::gui/panelui_es.adoc[]
 
-// include::gui/halui_es.adoc[]
+//include::gui/halui_es.adoc[]
 
 include::hal/halui-examples_es.adoc[]
 
+//include::gui/vismach_es.adoc[]
+
 include::config/python-interface_es.adoc[]
 
-// include::gui/vismach_es.adoc[]
+//include::gui/gstat_es.adoc[]
 
 :leveloffset: 1
 
@@ -281,9 +308,13 @@ include::motion/dh-parameters_es.adoc[]
 
 include::motion/5-axis-kinematics_es.adoc[]
 
+//include::motion/switchkins_es.adoc[]
+
 include::motion/pid-theory_es.adoc[]
 
 include::motion/external-offsets_es.adoc[]
+
+//include::tooldatabase/tooldatabase_es.adoc[]
 
 include::code/rs274_es.adoc[]
 

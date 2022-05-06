@@ -4,7 +4,6 @@
 [[cha:pid-tuning]]
 = PID Tuning(((PID Tuning)))
 
-
 == PID Controller
 
 A proportional-integral-derivative controller (PID controller) is a
@@ -150,7 +149,7 @@ D until the loop is acceptably quick to reach its reference. A fast PID
 loop tuning usually overshoots slightly to reach the set point more
 quickly; however, some systems cannot accept overshoot.
 
-[width="90%", options="header", cols="^,4*<"]
+[width="90%",options="header",cols="^,4*<"]
 |=========================================================================
 |Parameter | Rise Time    | Overshoot | Settling Time | Steady State Error
 |P         | Decrease     | Increase  | Small Change  | Decrease
@@ -172,11 +171,11 @@ Write down the critical gain (K~c~) and the oscillation
 period of the output (P~c~). Then adjust the P, I and D
 controls as the table shows:
 
-[width="90%", options="header", cols="4*^"]
+[width="90%",options="header",cols="4*^"]
 |==========================================
 |Control type | P       | I        | D
-|P            | .5K~c~  |          |
-|PI           | .45K~c~ | P~c~/1.2 |
+|P            | .5K~c~  |          | 
+|PI           | .45K~c~ | P~c~/1.2 | 
 |PID          | .6K~c~  | P~c~/2   | P~c~/8
 |==========================================
 

@@ -15,11 +15,8 @@ escritura de código que algunos llaman "la manera Unix". Estos primeros autores
 Eric S. Raymond, en su libro The Art of Unix Programming, resume la filosofía Unix como una filosofía de ingeniería ampliamente utilizada, "Mantenlo simple, estúpido "("Keep it Simple, Stupid" o Principio KISS). Luego describe cómo cree que esta filosofía general se aplica como una norma cultural en Unix aunque, como era de esperar, no es difícil encontrar violaciones graves de la mayoría de las siguientes prácticas en la realidad de Unix:
 
 * Regla de modularidad: escribir partes simples conectadas por interfaces claras.
-
 * Regla de claridad: la claridad es mejor que el ingenio.
-
 * Regla de composición: diseñar programas para conectarse a otros programas.
-
 * Regla de separación: Separar las políticas de los mecanismos; separar
   interfaces de motores.footnote:[Encontrado en http://en.wikipedia.org/wiki/Unix_philosophy, 07/06/2008]
 
@@ -44,9 +41,17 @@ lugar de esa otra" o "Voy a escribir offsets de piezas de esta manera en lugar d
 
 Al comenzar su viaje hacia el uso de LinuxCNC, le ofrecemos dos consideraciones:footnote:[Encontrado en http://en.wikipedia.org/wiki/Unix_philosophy, 07/06/2008]
 
- - Parafraseando las palabras de Doug Gwyn en UNIX: "LinuxCNC no fue diseñado para
-   evitar que sus usuarios hagan cosas estúpidas, ya que eso también les impediria
-   hacer cosas ingeniosas".
- - Tambien las palabras de Steven King: "LinuxCNC es fácil de usar. Simplemente no
-   se descuida con respecto a qué tipo de usuarios es amigable".
+- Parafraseando las palabras de Doug Gwyn en UNIX: "LinuxCNC no fue diseñado para
+  evitar que sus usuarios hagan cosas estúpidas, ya que eso también les impediria
+  hacer cosas ingeniosas".
+- Tambien las palabras de Steven King: "LinuxCNC es fácil de usar. Simplemente no
+  se descuida con respecto a qué tipo de usuarios es amigable".
 
+A series of videos on YouTube provide plenty of evidence a transition to LinuxCNC
+is possible no matter what your regular computer operating system may be. That said,
+with the advent of additive manufacturing like 3D printing there is an increasing
+interest by the broader IT community in CNC machining and it should be possible
+to find someone with complementary skills/equipment near to you to jointly overcome
+the initial hurdles.
+
+// vim: set syntax=asciidoc:

@@ -9,8 +9,7 @@
 Faire générer les impulsions de pas au logiciel présente un gros
 avantage, c'est gratuit. Quasiment chaque PC dispose d'un port parallèle
 capable de sortir sur ses broches les signaux de pas générés par le logiciel.
-Cependant, les générateurs d'impulsions logiciels ont aussi quelques
-inconvénients:
+Cependant, les générateurs d'impulsions logiciels ont aussi quelques inconvénients:
 
 * La fréquence maximum des impulsions est limitée.
 * Les impulsions générées sont irrégulières à cause du bruit.
@@ -23,48 +22,81 @@ meilleurs résultats du logiciel.
 
 Le CPU n'est pas le seul facteur déterminant la latence. Les cartes
 mères, cartes graphiques, ports USB et nombre d'autres choses peuvent
-la dégrader. La meilleure façon de savoir ce que vous pouvez attendre
-d'un PC consiste à exécuter le test de latence RTAI.
+la dégrader. La meilleure façon de savoir ce que vous pouvez attendre d'un PC consiste à exécuter le test de latence RTAI.
 
-Lancer un test comme décrit au chapitre sur
-le <<sec:latency-test,test de latence>>.
+Lancer un test comme décrit <<cha:test-de-latence, au chapitre sur le test>>
+de latence.
+
+While the test is running, you should 'abuse' the computer. Move
+windows around on the screen. Surf the web. Copy some large files
+around on the disk. Play some music. Run an OpenGL program such as
+glxgears. The idea is to put the PC through its paces while the latency
+test checks to see what the worst case numbers are.
+
+The last number in the column labeled 'Max Jitter' is the most important.
+Write it down - you will need it later. It contains the worst latency
+measurement during the entire run of the test. In the example above,
+that is 6693 nano-seconds, or 6,69 micro-seconds, which is excellent.
+However the example only ran for a few seconds (it prints one line
+every second). You should run the test for at least several minutes;
+sometimes the worst case latency doesn't happen very often, or only
+happens when you do some particular action. I had one Intel motherboard
+that worked pretty well most of the time, but every 64 seconds it had a
+very bad 300 us latency.
+Fortunately that is fixable, see
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?FixingSMIIssues[Fixing SMI
+issues on the LinuxCNC Wiki]
+
+So, what do the results mean? If your 'Max Jitter' number is less than
+about 15-20 microseconds (15000-20000 nanoseconds), the computer should
+give very nice results with software stepping. If the max latency is
+more like 30-50 microseconds, you can still get good results, but your
+maximum step rate might be a little disappointing, especially if you
+use microstepping or have very fine pitch leadscrews. If the numbers
+are 100 us or more (100,000 nanoseconds), then the PC is not a good
+candidate for software stepping. Numbers over 1 millisecond (1,000,000
+nanoseconds) mean the PC is not a good candidate for LinuxCNC,
+regardless of whether you use software stepping or not.
+
+Note that if you get high numbers, there may be ways to improve them.
+For example, one PC had very bad latency (several milliseconds) when
+using the onboard video. But a $5 used video card solved the
+problem - LinuxCNC does not require bleeding edge hardware.
 
 === Connaître ce dont vos cartes de pilotage ont besoin
 
-Les différente marques de cartes de pilotage de moteurs pas à pas
-demandent toutes des timing différents pour les impulsions de commande
+Les différente marques de cartes de pilotage de moteurs pas à pas demandent toutes des timing différents pour les impulsions de commande
 de pas et de direction. Aussi vous avez besoin d'accéder (ou Google) à
 la fiche des spécifications techniques de votre carte.
 
 Par exemple, le manuel du Gecko G202 indique:
 
 ....
-Step Frequency: 0 to 200 kHz
-Step Pulse “0” Time: 0.5 µs min (Step on falling edge)
-Step Pulse “1” Time: 4.5 µs min
+Step Frequency: 0 to 200 kHz 
+Step Pulse “0” Time: 0.5 µs min (Step on falling edge) 
+Step Pulse “1” Time: 4.5 µs min 
 Direction Setup: 1 µs min (20 µs min hold time after Step edge)
 ....
 
 Les spécifications du Gecko G203V indiquent:
 
 ....
-Step Frequency: 0 to 333 kHz
-Step Pulse “0” Time: 2.0 µs min (Step on rising edge)
-Step Pulse “1” Time: 1.0 µs min
+Step Frequency: 0 to 333 kHz 
+Step Pulse “0” Time: 2.0 µs min (Step on rising edge) 
+Step Pulse “1” Time: 1.0 µs min 
 
 Direction setup:
-    200 ns (0.2µs) before step pulse rising edge
+    200 ns (0.2µs) before step pulse rising edge 
     200 ns (0.2µs) hold after step pulse rising edge
 ....
 
-Un carte Xylotex donne dans ses données techniques un superbe graphe
-du timing nécessaire, il indique:
+Un carte Xylotex donne dans ses données techniques un superbe graphe du timing nécessaire, il indique:
 
 ....
-Minimum DIR setup time before rising edge of STEP Pulse 200ns Minimum
-DIR hold time after rising edge of STEP pulse 200ns
-Minimum STEP pulse high time 2.0µs
-Minimum STEP pulse low time 1.0µs
+Minimum DIR setup time before rising edge of STEP Pulse 200ns Minimum 
+DIR hold time after rising edge of STEP pulse 200ns 
+Minimum STEP pulse high time 2.0µs 
+Minimum STEP pulse low time 1.0µs 
 Step happens on rising edge
 ....
 
@@ -73,18 +105,15 @@ prochaine étape.
 
 === Choisir la valeur de BASE_PERIOD
 
-BASE_PERIOD est l'horloge de votre LinuxCNC. A chaque période, le
-générateur d'impulsions de pas décide si il est temps pour une autre
+BASE_PERIOD est l'horloge de votre LinuxCNC. A chaque période, le générateur d'impulsions de pas décide si il est temps pour une autre
 impulsion. Une période plus courte vous permettra de générer plus
 d'impulsions par seconde, dans les limites. Mais si vous la réglez trop
 bas, votre ordinateur va passer autant de temps à générer des
 impulsions de pas que pour exécuter tous le reste de ses tâches, il
 finira peut-être même par se bloquer. La latence et la génération de
-pas exigent d'affecter la plus courte période utilisable, comme nous le
-verrons un peu plus loin.
+pas exigent d'affecter la plus courte période utilisable, comme nous le verrons un peu plus loin.
 
-Regardons l'exemple du Gecko en premier. Le G202 peut gérer des
-impulsions restant à l'état bas pendant 0.5µs et à l'état haut pendant
+Regardons l'exemple du Gecko en premier. Le G202 peut gérer des impulsions restant à l'état bas pendant 0.5µs et à l'état haut pendant
 4.5µs, il a besoin que la broche de direction soit stable 1µs avant le
 front descendant et qu'elle reste stable pendant 20µs après le front
 descendant. La plus longue durée est de 20µs, c'est le temps de
@@ -103,15 +132,13 @@ G202 sera tout simplement violé. Cela signifie que votre moteur aura
 peut être fait un pas dans la mauvaise direction et que votre pièce ne
 sera pas à la cote.
 
-Le côté vraiment mauvais de ce problème est qu'il peut être très très
-rare. Les pires latences sont celles qui ne se produisent que quelques
+Le côté vraiment mauvais de ce problème est qu'il peut être très très rare. Les pires latences sont celles qui ne se produisent que quelques
 fois par minute. Les chances qu'une mauvaise latence de ce genre arrive
 juste quand le moteur est en train de changer de direction sont
 faibles. Ainsi, vous avez de très rares erreurs qui vous ruinent une
 pièce de temps en temps et qui sont impossibles à résoudre.
 
-La façon la plus simple pour éviter ce problème est de choisir une
-BASE_PERIOD qui soit la somme de la plus longue période requise par
+La façon la plus simple pour éviter ce problème est de choisir une BASE_PERIOD qui soit la somme de la plus longue période requise par
 votre carte plus la durée de la pire latence de votre ordinateur. Si
 vous utilisez un Gecko avec un temps de maintien exigé de 20µs et que
 votre test de latence vous avait donné une latence maximum de 11µs,
@@ -119,8 +146,7 @@ alors si vous définissez BASE_PERIOD à 20+11 = 31µs (31000 nanosecondes
 dans le fichier ini), vous aurez la garantie de répondre aux exigences
 de votre carte de pilotage.
 
-Mais c'est un compromis. Faire une impulsion de pas demande au moins
-deux périodes. Une pour débuter l'impulsion, et une pour y mettre fin.
+Mais c'est un compromis. Faire une impulsion de pas demande au moins deux périodes. Une pour débuter l'impulsion, et une pour y mettre fin.
 Etant donné que la période est de 31µs, il faut 2x31 = 62µs pour créer
 une impulsion de pas. Ce qui signifie que la fréquence de pas maximum
 sera seulement de 16129 pas par seconde. Pas très bon. (Mais
@@ -142,31 +168,25 @@ et votre ordinateur se bloquera. Si vous visez des périodes de moins de
 les choses réagissent. Si tout va bien, vous pouvez réduire
 progressivement la période. Si le pointeur de la souris commence à être
 sacadé et que le reste du PC ralentit, votre période est un peu trop
-court. Retournez alors à la valeur précédente qui permettent le
-meilleur fonctionnement.
+court. Retournez alors à la valeur précédente qui permettent le meilleur fonctionnement.
 
-Dans ce cas, supposons que vous ayez commencé à 25µs, en essayant
-descendre à 13µs, vous trouvez que c'est autour de 16µs que se situe la
+Dans ce cas, supposons que vous ayez commencé à 25µs, en essayant descendre à 13µs, vous trouvez que c'est autour de 16µs que se situe la
 limite la plus basse et qu'en dessous l'ordinateur ne répond plus très
 bien. Alors, vous utilisez 16µs. Avec une période à 16µs et une latence
 à 11µs, le temps de sortie le plus court sera de 16-11 = 5µs. La carte
 demande seulement 2µs, ainsi vous aurez une certaine marge. Il est bon
-d'avoir une marge si vous ne voulez pas perdre de pas parce que vous
-auriez réglé un timing trop court.
+d'avoir une marge si vous ne voulez pas perdre de pas parce que vous auriez réglé un timing trop court.
 
 Quel est la fréquence de pas maximum? Rappelez-vous, deux périodes
 pour faire un pas. Vous avez réglé la période à 16µs alors qu'un pas
-prend 32µs. Il fonctionnera à 31250 pas par seconde, ce qui n'est pas
-mal.
+prend 32µs. Il fonctionnera à 31250 pas par seconde, ce qui n'est pas mal.
 
 === Utiliser steplen, stepspace, dirsetup, et/ou dirhold
 
-Dans la section précédente, nous avons utilisé la carte de puissance
-Xylotex pour piloter nos moteurs avec une période de 16µs ce qui nous a
+Dans la section précédente, nous avons utilisé la carte de puissance Xylotex pour piloter nos moteurs avec une période de 16µs ce qui nous a
 donné une fréquence de pas de 31250 pas par seconde maximum. Alors que
 la Gecko a été bloquée à 31µs avec une assez mauvaise fréquence de pas
-de 16129 pas par seconde. L'exemple de la Xylotex est au mieux de ce
-que nous puissions faire. Mais la Gecko peut être ameliorées.
+de 16129 pas par seconde. L'exemple de la Xylotex est au mieux de ce que nous puissions faire. Mais la Gecko peut être ameliorées.
 
 Le problème avec le G202 est le temps de maintien demandé de 20µs. Ca
 plus la latence de 11µs nous oblige à utiliser une période longue de
@@ -175,11 +195,9 @@ paramètres qui permettent d'augmenter les différentes durées d'une
 période à plusieurs autres. Par exemple, si _steplen_ passe de 1 à 2,
 alors il y aura deux périodes entre le début et la fin de l'impulsion.
 De même, si _dirhold_ passe de 1 à 3, il y aura au moins trois périodes
-entre l'impulsion de pas et un changement d'état de la broche de
-direction.
+entre l'impulsion de pas et un changement d'état de la broche de direction.
 
-Si nous pouvons utiliser _dirhold_ pour le temps de maintien de 20µs
-demandé, alors le temps le plus long suivant sera de 4.5µs. Ajoutez les
+Si nous pouvons utiliser _dirhold_ pour le temps de maintien de 20µs demandé, alors le temps le plus long suivant sera de 4.5µs. Ajoutez les
 11µs de latence à ces 4.5µs, et vous obtenez une période minimale de
 15.5µs. Lorsque vous essayez 15.5µs, vous trouvez que l'ordinateur est
 très lent, donc vous régler sur 16µs. Si nous laissons _dirhold_ à 1
@@ -189,19 +207,16 @@ suffisant. Nous avons besoin de 15 autres µs, puisque la période est de
 16µs, nous avons besoin d'une période de plus. Nous allons donc passer
 _dirhold_ de 1 à 2. Maintenant, le temps minimum entre la fin de
 l'impulsion et l'impulsion de changement de direction est de 5+16 =
-21µs et nous n'avons pas à craindre que la Gecko parte dans la mauvaise
-direction en raison de la latence.
+21µs et nous n'avons pas à craindre que la Gecko parte dans la mauvaise direction en raison de la latence.
 
-Si l'ordinateur a une latence de 11µs, alors la combinaison d'une
-période de base de 16µs et d'une valeur de _dirhold_ de 2 garanti que
+Si l'ordinateur a une latence de 11µs, alors la combinaison d'une période de base de 16µs et d'une valeur de _dirhold_ de 2 garanti que
 nous serons toujours dans le respect des délais exigés par la Gecko.
 Pour les pas normaux (sans changement de direction), l'augmentation de
 la valeur de _dirhold_ n'aura aucun effet. Il faudra deux périodes d'un
 total de 32µs pour faire un seul pas et nous avons la même fréquence de
 31250 pas par seconde que nous avions eu avec la Xylotex.
 
-Le temps de latence de 11µs utilisé dans cet exemple est très bon. Si
-vous travaillez par le biais de ces exemples avec des latences plus
+Le temps de latence de 11µs utilisé dans cet exemple est très bon. Si vous travaillez par le biais de ces exemples avec des latences plus
 grandes, comme 20 ou 25µs, la fréquence de pas la plus grande à la fois
 pour la Xylotex et la Gecko sera plus faible. Mais les mêmes formules
 sont applicables pour calculer un BASE_PERIOD optimal et pour régler
@@ -212,11 +227,9 @@ _dirhold_ ou d'autres paramètres du générateur de pas.
 Pour un système à moteurs pas à pas avec générateur de pas logiciel
 rapide et fiable, vous ne pouvez pas deviner la période et les autres
 paramètres de configuration. Vous devez faire des mesures sur votre
-ordinateur et faire les calculs qui garantirons les meilleurs signaux
-dont les moteurs ont besoin.
+ordinateur et faire les calculs qui garantirons les meilleurs signaux dont les moteurs ont besoin.
 
-Pour rendre le calcul plus facile, j'ai créé une feuille de calcul
-Open Office:
+Pour rendre le calcul plus facile, j'ai créé une feuille de calcul Open Office:
 http://wiki.linuxcnc.org/uploads/StepTimingCalculator.ods[Step Timing Calculator (en) - Calculatrice Calendrier étape (fr)].
 Vous entrez les résultats du test de latence et les timing de votre
 carte de pilotage et la feuille calcule la meilleure BASE_PERIOD.
@@ -228,3 +241,5 @@ aussi la fréquence de pas maximum que vous serez en mesure de générer.
 
 J'ai ajouté quelques petites choses à la feuille de calcul pour
 calculer la fréquence maximum et quelques autres calculs.
+
+// vim: set syntax=asciidoc:

@@ -70,6 +70,7 @@ o100 endsub
 o100 call
 M2
 ----
+
 Consulte las secciones <<gcode:g53,G53>> , <<gcode:g0,G0>> y <<mcode:m2-m30,M2>> para obtener más información.
 
 .O- Return
@@ -88,6 +89,7 @@ o100 sub
     (DEBUG, el parámetro 2 es [#1])
 o100 endsub
 ----
+
 Consulte las secciones <<gcode:binary-operators,operadores binarios>> y <<sec:overview-parameters,parámetros>> para obtener más información.
 
 .O- Call
@@ -138,7 +140,6 @@ Los programas numerados están habilitados de manera predeterminada y pueden des
 colocando `DISABLE_FANUC_STYLE_SUB = 1` en la sección `[RS274NGC]` del archivo `.ini`.
 
 [NOTE]
-
 Las definiciones y llamadas principales y subprogramas numerados difieren de
 rs274ngc tradicional tanto en sintaxis como en ejecución. Para reducir la
 posibilidad de confusión, el intérprete generará un error si

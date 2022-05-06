@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:switchable-kinematics]]
 = Switchable Kinematics (switchkins)
@@ -6,27 +7,27 @@
 == Introduction
 
 A number of kinematics modules support the switching of
-kinematics calculations.  These modules support a default
+kinematics calculations. These modules support a default
 kinematics method (type0), a second built-in method (type1), and
 (optionally) a user-provided kinematics method (type2).
 Identity kinematics are typically used for the type1 method.
 
 The switchkins functionality can be used for machines where
 post-homing joint control is needed during setup or to avoid
-movement near singularities from G-code.  Such machines use
+movement near singularities from G-code. Such machines use
 specific kinematics calculations for most operations but can be
 switched to identity kinematics for control of individual joints
 after homing.
 
 The kinematics type is selected by a motion module hal pin that
 can be updated from a G-code program or by interactive MDI
-commands.  The halui provisions for activating MDI commands can be
+commands. The halui provisions for activating MDI commands can be
 used to allow buttons to select the kinematics type using
 hardware controls or a virtual panel (pyvcp,gladevcp, etc.).
 
 When a kinematics type is changed, the G-code must also issue
 commands to *force synchronization* of the interpreter and motion
-parts of LinuxCNC.  Typically, a hal pin 'read' command (M66 E0 L0) is
+parts of LinuxCNC. Typically, a hal pin 'read' command (M66 E0 L0) is
 used immediately after altering the controlling hal pin to force
 synchronization.
 
@@ -34,14 +35,13 @@ synchronization.
 
 The following kinematics modules support switchable kinematics:
 
-. *xyzac-trt-kins* (type0:xyzac-trt-kins type1:identity
-. *xyzbc-trt-kins* (type0:xyzbc-trt-kins type1:identity
+. *xyzac-trt-kins* (type0:xyzac-trt-kins type1:identity)
+. *xyzbc-trt-kins* (type0:xyzbc-trt-kins type1:identity)
 . *genhexkins*     (type0:genhexkins     type1:identity)
 . *genserkins*     (type0:genserkins     type1:identity) (puma560 example)
 . *pumakins*       (type0:pumakins       type1:identity)
 . *scarakins*      (type0:scarakins      type1:identity)
 . *5axiskins*      (type0:5axiskins      type1:identity) (bridgemill)
-
 
 The xyz[ab]c-trt-kins modules by default use type0==xyz[ab]c-trt-kins
 for backwards compatibility.  The provided sim configs alter the
@@ -338,10 +338,8 @@ can be circumvented in G-code programs by:
 
 . Connecting appropriate kinstype.is.N hal pins to digital input
   pins (like motion.digital-in-0m).
-
 . Reading the digital input pin (M66 E0 Pm) at the start of the
   G-code program
-
 . Aborting (M2) the G-code program with a message (DEBUG, problem_message)
   if the kinstype is not suitable.
 
@@ -379,3 +377,4 @@ pins and set them to default values.  When all setup routines
 finish, rtapi_app_main() issues hal_ready() for the component
 to complete creation of the module.
 
+// vim: set syntax=asciidoc:

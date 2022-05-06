@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:stepper-config]]
 = Stepper Configuration(((Stepper Configuration)))
@@ -55,7 +56,8 @@ for more information on HAL.
 As it is described in the HAL Introduction and tutorial, we have
 signals, pins and parameters inside the HAL.
 
-NOTE: We are presenting one axis to keep it short, all others are similar.
+[NOTE]
+We are presenting one axis to keep it short, all others are similar.
 
 The ones relevant for our pinout are:
 
@@ -248,3 +250,5 @@ practice.
 
 The standard_pinout.hal file assumes no external ESTOP button. For more
 information on an external E-Stop see the estop_latch man page.
+
+// vim: set syntax=asciidoc:

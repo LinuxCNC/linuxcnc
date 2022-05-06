@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 [[cha:hal-component-generator]]
 = El Generador de Componentes HAL
@@ -17,8 +18,7 @@ líneas de código. El componente equivalente cuando se escribe usando el
 preprocesador 'halcompile' es mucho mas corto:
 
 [[code:simple-comp-example]]
-
-.Ejemplo de componente simple:
+.Ejemplo de componente simple
 ----
 component ddt "Calcular la derivada de la función de entrada";
 pin in float in;
@@ -36,24 +36,23 @@ old = tmp;
 
 Si está trabajando con una versión instalada de LinuxCNC, necesitará instalar
 los paquetes de desarrollo.
-
 Un método es usar la siguiente línea en una terminal.
 
-.Instalación del paquete de desarrollo:
+.Instalación del paquete de desarrollo
 ----
 sudo apt-get install linuxcnc-dev
-o
+# o
 sudo apt install linuxcnc-uspace-dev
 ----
 
 Otro método es usar el administrador de paquetes Synaptic, desde el menú,
-para instalar linuxcnc-dev o linuxcnc-uspace-dev.
+para instalar `linuxcnc-dev` o `linuxcnc-uspace-dev`.
 
 == Usando un componente
 
 Los componentes deben cargarse y agregarse a un hilo antes de poder usarlos.
-Ejemplo:
 
+.Ejemplo
 ----
 loadrt threads name1=servo-thread period1=1000000 
 loadrt ddt
@@ -67,22 +66,21 @@ Para probar su componente puede seguir los ejemplos en el <<cha:hal-tutorial,tut
 == Definiciones
 
 * 'componente' - Un componente es un módulo de tiempo real, único, que se carga con
-    'halcmd loadrt'. Un componente se especifica con un archivo '.comp'. El nombre del componente
-     y el nombre de archivo deben coincidir.
+  'halcmd loadrt'. Un componente se especifica con un archivo '.comp'. El nombre del componente
+  y el nombre de archivo deben coincidir.
 
 * 'instancia' - Un componente puede tener cero o más instancias. Cada instancia de un
-    componente se crea igual (todas tienen los mismos pines, parámetros,
-    funciones y datos) pero se comportan independientemente cuando sus pines,
-    parámetros y datos tienen diferentes valores.
-+
-N.T. Las instancias de componentes pueden ser numeradas o con nombre.
-+
+  componente se crea igual (todas tienen los mismos pines, parámetros,
+  funciones y datos) pero se comportan independientemente cuando sus pines,
+  parámetros y datos tienen diferentes valores. +
+  N.T. Las instancias de componentes pueden ser numeradas o con nombre.
+
 * 'singleton': es posible que un componente sea un "singleton", en cuyo caso
-    se crea una unica instancia. Rara vez tiene sentido escribir un
-    componente 'singleton' a menos que, literalmente, solo pueda haber un único
-    objeto de ese tipo en el sistema (por ejemplo, un componente cuyo propósito es
-    proporcionar un pin con la hora actual de UNIX, o un controlador de hardware para el
-    altavoz interno de PC)
+  se crea una unica instancia. Rara vez tiene sentido escribir un
+  componente 'singleton' a menos que, literalmente, solo pueda haber un único
+  objeto de ese tipo en el sistema (por ejemplo, un componente cuyo propósito es
+  proporcionar un pin con la hora actual de UNIX, o un controlador de hardware para el
+  altavoz interno de PC)
 
 == Creación de instancias
 
@@ -128,34 +126,33 @@ alternativas. Las palabras en 'MAYUSCULAS' indican texto variable, de la siguien
 * 'STARREDNAME' - Un identificador C con cero o más * antes de él. Esta sintaxis puede ser utilizada
   para declarar variables de instancia que son punteros. Tenga en cuenta que debido a la
   gramática, es posible que no haya espacios en blanco entre el * y el nombre de la variable.
-    
+
 * 'HALNAME' - Un identificador extendido.
   Cuando se usa para crear un identificador HAL, cualquier guión bajo se reemplaza
   con guiones, y cualquier guión o punto al final se elimina, por lo que
   "this_name_" se convertirá en "this-name", y si el nombre es "_",
   también se elimina un punto al final, de modo que "function _" da
   un nombre de función HAL como "component.<num>" en lugar de "component.<num>."
-+   
++
 Si está presente, el prefijo 'hal_' se elimina del comienzo del
 nombre del componente al crear pines, parámetros y funciones.
-+   
+
 En el identificador HAL para un pin o parámetro, # denota un elemento de matriz,
 y debe usarse junto con una declaración '[SIZE]'. Las marcas hash (#)
 se reemplazan con un relleno de números 0 con
 la misma longitud que el número de caracteres #.
-+   
+
 Cuando HALNAME se usa para crear un identificador de C, se aplican los siguientes cambios:
-+   
---
- . Cualquier carácter "#" y cualquier carácter ".", "\_" o "-" inmediatamente
-   delante, se eliminan.
- . Cualquier "." restante y los caracteres "-" se reemplazan por "_".
- . Los caracteres repetidos "\_" se cambian a un solo carácter "_".
+
+. Cualquier carácter "#" y cualquier carácter ".", "\_" o "-" inmediatamente
+  delante, se eliminan.
+. Cualquier "." restante y los caracteres "-" se reemplazan por "_".
+. Los caracteres repetidos "\_" se cambian a un solo carácter "_".
 
 Se conserva un "_" final, de modo que los identificadores HAL que de otro modo
 colisionarian con nombres reservados o palabras clave (por ejemplo, 'min') pueden ser utilizados.
 
-[width="90%", options="header"]
+[width="90%",options="header"]
 |========================================
 |HALNAME | Identificador C  | Identificador HAL
 |x_y_z   | x_y_z            | x-y-z
@@ -164,7 +161,7 @@ colisionarian con nombres reservados o palabras clave (por ejemplo, 'min') puede
 |x.##.y  | x_y(MM)          | x.MM.z
 |x.##    | x(MM)            | x.MM 
 |========================================
---
+
 * 'if CONDITION' - Una expresión que involucra la variable 'personality' , que no es cero
   cuando se debe crear el pin o parámetro
 
@@ -183,7 +180,7 @@ colisionarian con nombres reservados o palabras clave (por ejemplo, 'min') puede
 "Selecciona el flanco deseado: VERDADERO significa descendente, FALSO significa ascendente"
 ----
 +
-o una cadena "triple quoted" al estilo Python, que
+or una cadena "triple quoted" al estilo Python, que
 puede incluir nuevas líneas incorporadas y caracteres de comillas, como:
 +
 ----
@@ -194,7 +191,7 @@ Espero que estos párrafos te hayan permitido entender "zot"
 mejor."""
 ----
 +
-o una cadena puede estar precedida por el carácter literal 'r' (r-strings), en cuyo
+or una cadena puede estar precedida por el carácter literal 'r' (r-strings), en cuyo
 caso, la cadena se interpreta como una cadena en bruto (raw) de Python.
 +
 La cadena de documentación está en formato "groff -man". Para más
@@ -231,7 +228,7 @@ r"\fIexample\fB"
   (`include "myfile.h";`) o en corchetes angulares (`include <systemfile.h>;`). 
   El archivo de encabezado se incluirá (usando
   #include) en la parte superior del archivo, antes de las declaraciones de pines y parámetros.
-   
+
 === Funciones HAL
 
 * 'fp' - Indica que la función realiza cálculos de coma flotante.
@@ -265,11 +262,13 @@ Las opciones definidas actualmente son:
   Normalmente, las funciones 'rtapi_app_main()' y 'rtapi_app_exit()' son
   definidas automáticamente. Con 'option rtapi_app no', no lo son, y
   debe ser previstas en el código C. Use los siguientes prototipos:
-  +
-  `int rtapi_app_main(void);`
-  +
-  `void rtapi_app_exit(void);`
-  +
++
+----
+`int rtapi_app_main(void);`
+
+`void rtapi_app_exit(void);`
+----
++
 Al implementar su propio 'rtapi_app_main()', llame a la función
 'int export(char *prefix, long extra_arg)' para registrar los pines, parámetros y funciones para 'prefix'.
 
@@ -316,6 +315,16 @@ Al implementar su propio 'rtapi_app_main()', llame a la función
   directorio temporal, "-L" se refiere al directorio temporal y no al directorio donde
   el archivo fuente .comp reside.
 
+* 'option extra_compile_args "..."' - (default: "")
+  This option is ignored if the option 'userspace' (see above) is set to
+  'no'.  When compiling a userspace component, the arguments given are inserted
+  in the compiler command line.
+
+* 'option homemod yes' - (default: no)
+  Module is a custom Homing module loaded using [EMCMOT]HOMEMOD=modulename
+
+* 'option tpmod yes' - (default: no)
+  Module is a custom Trajectory Planning (tp) module loaded using [TRAJ]TPMOD=modulename
 
 Si el VALOR de una opción no está especificado, entonces es equivalente a
 especificar 'option ... yes'.
@@ -324,46 +333,44 @@ El resultado de usar cualquier otra opción no está definido.
 
 === Licencia y autoría
 
-* 'LICENSE': especifica la licencia del módulo para la documentación y para la
-    declaración del módulo MODULE_LICENSE (). Por ejemplo, para especificar que
-    la licencia del módulo es GPL v2 o posterior,
-
-        license "GPL"; // indica GPL v2 o posterior
+* 'LICENSE' - especifica la licencia del módulo para la documentación y para la
+  declaración del módulo MODULE_LICENSE (). Por ejemplo, para especificar que
+  la licencia del módulo es GPL v2 o posterior,
++
+  license "GPL"; // indica GPL v2 o posterior
 +
 Para obtener información adicional sobre el significado de MODULE_LICENSE() e
 identificadores de licencia adicionales, consulte '<linux/module.h>'. o la página de manual
 'rtapi_module_param(3)'
 +
-Esta declaración es obligatoria.
+Esta declaración es *obligatoria*.
 
-* 'AUTHOR': especifica el autor del módulo para la documentación.
+* 'AUTHOR' - especifica el autor del módulo para la documentación.
 
 === Almacenamiento de datos por instancia
 
-* 'variable CTYPE STARREDNAME;'
-
-* 'variable CTYPE STARREDNAME[SIZE];'
-
-* 'variable CTYPE STARREDNAME = DEFAULT;'
-
-* 'variable CTYPE STARREDNAME[SIZE] = DEFAULT;'
+* `variable CTYPE STARREDNAME; +
+  variable CTYPE STARREDNAME[SIZE]; +
+  variable CTYPE STARREDNAME = DEFAULT; +
+  variable CTYPE STARREDNAME[SIZE] = DEFAULT;`
 +
 Declare una variable 'STARREDNAME' por instancia, de tipo 'CTYPE', opcionalmente como
-una matriz de 'SIZE' elementos, y opcionalmente con un valor 'DEFAULT' predeterminado.
-Los elementos sin 'DEFAULT' se inicializan con todos los bits a cero.
+una matriz de 'SIZE' elementos, y opcionalmente con un valor 'DEFAULT' predeterminado. +
+Los elementos sin 'DEFAULT' se inicializan con todos los bits a cero. +
 'CTYPE' es una palabra de tipo de C, como 'float', 'u32', 's32',
-'int', etc. El acceso a variables de matriz usa corchetes.
-+
+'int', etc. +
+El acceso a variables de matriz usa corchetes.
+
 Si una variable debe ser de tipo puntero, no debe haber espacio
-entre el "*" y el nombre de la variable.
+entre el "*" y el nombre de la variable. +
 Por lo tanto, lo siguiente es aceptable:
-+
+
 ----
 variable int *ejemplo;
 ----
-+
-pero los siguientes no lo son:
-+
+
+Pero los siguientes no lo son:
+
 ----
 variable int* badexample;
 variable int * badexample;
@@ -371,8 +378,9 @@ variable int * badexample;
 
 === Comentarios
 
-En la sección de declaración, son compatibles comentarios de una línea de estilo C++ (// ...) y
-comentarios multilínea estilo C (/* ... */).
+En la sección de declaración, son compatibles comentarios de
+una línea de estilo C++ (`//...`) y
+comentarios multilínea estilo C (`/* ... */`).
 
 == Restricciones
 
@@ -383,19 +391,12 @@ Nombres de variables y funciones que no se pueden usar o que pueden causar
 problemas incluyen:
 
 * Cualquier cosa que comience con '__comp_'.
-
 * 'comp_id'
-
 * 'fperiod'
-
 * 'rtapi_app_main'
-
 * 'rtapi_app_exit'
-
 * 'extra_setup'
-
 * 'extra_cleanup'
-
 
 == Macros de Conveniencia
 
@@ -509,14 +510,19 @@ de módulos en tiempo real de LinuxCNC:
 halcompile --install rtexample.comp
 ----
 
-O bien, puede procesar y compilar en un solo paso, dejando el modulo 'example.ko' (o
+[NOTE]
+sudo (for root permission) is needed when using LinuxCNC from
+a deb package install.  When using a Run-In-Place (RIP) build,
+root privileges should not be needed.
+
+Or bien, puede procesar y compilar en un solo paso, dejando el modulo 'example.ko' (o
 'example.so' para el simulador) en el directorio actual:
 
 ----
 halcompile --compile example.comp
 ----
 
-O simplemente puede procesar, dejando 'example.c' en el directorio actual:
+Or simplemente puede procesar, dejando 'example.c' en el directorio actual:
 
 ----
 halcompile rtexample.comp
@@ -542,7 +548,7 @@ La página de manual resultante, 'ejemplo.9' se puede ver con
 man ./ejemplo.9
 ----
 
-o copiandola a una ubicación estándar de páginas de manual.
+or copiandola a una ubicación estándar de páginas de manual.
 
 == Compilación de componentes de espacio de usuario fuera del árbol de fuentes
 
@@ -551,7 +557,7 @@ o copiandola a una ubicación estándar de páginas de manual.
 ----
 halcompile usrexample.comp
 halcompile --compile usrexample.comp
-halcompile --install usrexample.comp
+[sudo] halcompile --install usrexample.comp
 halcompile --document usrexample.comp
 ----
 
@@ -607,7 +613,7 @@ tratado como un solo valor de 8 bits. Puede haber un número variable de tales
 tarjetas en el sistema, y ​​pueden estar en varias direcciones. El pin es
 llamado 'out_' porque 'out' es un identificador utilizado en '<asm/io.h>'. Eso
 ilustra el uso de 'EXTRA_SETUP' y 'EXTRA_CLEANUP' para solicitar una
-región de E / S y luego liberarla en caso de error o cuando
+región de E/S y luego liberarla en caso de error o cuando
 el módulo sea descargado
 
 [source,c]
@@ -641,12 +647,12 @@ EXTRA_SETUP() {
     if(!rtapi_request_region(io[extra_arg], 1, "out8")) {
         // establecer este puerto de E/S a 0 para que EXTRA_CLEANUP no libere
         // puertos IO que nunca fueron solicitados
-        io [extra_arg] = 0;
         io[extra_arg] = 0;
         return -EBUSY;
     }
     ioaddr = io[extra_arg];
-    return 0; }
+    return 0;
+}
 
 EXTRA_CLEANUP() {
     int i;
@@ -657,7 +663,6 @@ EXTRA_CLEANUP() {
 
 FUNCTION(_) { outb(out_, ioaddr); }
 ----
-
 
 === hal_loop
 
@@ -760,13 +765,14 @@ Una línea típica para cargar este componente podría ser
 ----
 loadrt logic count=3 personality=0x102,0x305,0x503
 ----
+
 que crea los siguientes pines:
 
- - Una puerta AND de 2 entradas: logic.0.and, logic.0.in-00, logic.0.in-01
- - Puertas AND y OR de 5 entradas: logic.1.and, logic.1.or, logic.1.in-00,
-   logic.1.in-01, logic.1.in-02, logic.1.in-03, logic.1.in-04,
- - Puertas AND y XOR de 3 entradas: logic.2.and, logic.2.xor, logic.2.in-00,
-   logic.2.in-01, logic.2.in-02
+- Una puerta AND de 2 entradas: logic.0.and, logic.0.in-00, logic.0.in-01
+- Puertas AND y OR de 5 entradas: logic.1.and, logic.1.or, logic.1.in-00,
+  logic.1.in-01, logic.1.in-02, logic.1.in-03, logic.1.in-04,
+- Puertas AND y XOR de 3 entradas: logic.2.and, logic.2.xor, logic.2.in-00,
+  logic.2.in-01, logic.2.in-02
 
 === funciones generales
 
@@ -806,7 +812,6 @@ FUNCTION(_) {
         unset(&out1);
         unset(&out2);
     }
-    
 }
 ----
 

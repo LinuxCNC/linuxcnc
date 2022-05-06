@@ -1,9 +1,10 @@
 :lang: en
+:toc:
 
-[[cha:opto22-driver]]
+[[cha:opto22]]
 = Opto22 Driver
 
-PCI AC5 ADAPTER CARD / HAL DRIVER
+*PCI AC5 ADAPTER CARD / HAL DRIVER*
 
 == The Adapter Card
 
@@ -40,8 +41,10 @@ configuration is for 12 inputs then 12 outputs. The pin name numbers
 correspond to the position on the relay rack. For example the pin names
 for the default I/O setting of port 0 would be:
 
- * 'opto_ac5.0.port0.in-00' - They would be numbered from 00 to 11
- * 'opto_ac5.0.port0.out-12' - They would be numbered 12 to 23 port 1 would be the same.
+* 'opto_ac5.0.port0.in-00' -
+  They would be numbered from 00 to 11
+* 'opto_ac5.0.port0.out-12' -
+  They would be numbered 12 to 23 port 1 would be the same.
 
 == Pins
 
@@ -50,9 +53,9 @@ for the default I/O setting of port 0 would be:
  * 'opto_ac5.[BOARDNUMBER].port[PORTNUMBER].in-[PINNUMBER]-not OUT bit' -
    Connect a HAL bit signal to this pin to read an I/O point from the
    card. The PINNUMBER represents the position in the relay rack. Eg.
-   PINNUMBER 0 is position 0 in a Opto22 relay rack and would be pin 47 on
-   the 50 pin header connector. The -not pin is inverted so that LOW gives
-   TRUE and HIGH gives FALSE.
+   PINNUMBER 0 is position 0 in a Opto22 relay rack and would be pin 47
+   on the 50 pin header connector. The -not pin is inverted so that LOW
+   gives TRUE and HIGH gives FALSE.
 
  * 'opto_ac5.[BOARDNUMBER].port[PORTNUMBER].out-[PINNUMBER] IN bit' -
    Connect a HAL bit signal to this pin to write to an I/O point of the
@@ -68,17 +71,20 @@ the card bracket.
 
 == Parameters
 
- * 'opto_ac5.[BOARDNUMBER].port[PORTNUMBER].out-[PINNUMBER]-invert W bit' -
-   When TRUE, invert the meaning of the corresponding -out pin so that
-   TRUE gives LOW and FALSE gives HIGH.
+* 'opto_ac5.[BOARDNUMBER].port[PORTNUMBER].out-[PINNUMBER]-invert W bit' -
+  When TRUE, invert the meaning of the corresponding -out pin so that
+  TRUE gives LOW and FALSE gives HIGH.
 
 == FUNCTIONS
 
- * 'opto_ac5.0.digital-read' - Add this to a thread to read all the input points.
+* 'opto_ac5.0.digital-read' -
+  Add this to a thread to read all the input points.
 
- * 'opto_ac5.0.digital-write' - Add this to a thread to write all the output points and LEDs.
+* 'opto_ac5.0.digital-write' -
+  Add this to a thread to write all the output points and LEDs.
 
-For example the pin names for the default I/O setting of port 0 would be:
+For example the pin names for the default I/O setting of port 0 would
+be:
 
 ----
 opto_ac5.0.port0.in-00
@@ -128,7 +134,7 @@ Another example: To set the port for 8 outputs and 16 inputs (the
 same as a Mesa card). Here is the 24 bits represented in a BINARY
 number. Bit 1 is the rightmost number.
 
-000000000000000011111111
+  000000000000000011111111
 
 16 zeros for the 16 inputs and 8 ones for the 8 outputs
 
@@ -152,3 +158,4 @@ position 23 = connector pin 1, and the position goes down as the
 connector pin number goes up. Mesa Hostmot2 position 1 = connector pin
 1, and the position number goes up as the connector pin number goes up.
 
+// vim: set syntax=asciidoc:

@@ -1,26 +1,28 @@
 :lang: en
+:toc:
 
 [[cha:gstat]]
 = GStat
 
 == Intro
 
-GStat is a python class used to send messages from linuxcnc to other python programs. +
+GStat is a python class used to send messages from LinuxCNC to other python programs. +
 It uses GObject to deliver messages, making it easy to listen for specific information. +
 This is referred to as event-driven programming, which is more efficient then every program +
-polling linuxcnc at the same time. +
+polling LinuxCNC at the same time. +
 GladeVCP, Gscreen, Gmoccapy and QtVCP use GStat extensively. +
-GStat is in the hal_glib module
+GStat is in the `hal_glib` module.
 
 == Overview
 
-First a program imports the hal_glib module and instantiates GStat. +
+First a program imports the `hal_glib` module and instantiates GStat. +
 Then it 'connects' to the messages it wishes to monitor. +
-GStat checks linuxcnc's status every 100ms and if there are differences from +
+GStat checks LinuxCNC's status every 100ms and if there are differences from +
 the last check, it will send a callback message to all the connected programs +
 with the current status. +
 When GStat calls the registered function, it sends the GStat object plus any return codes from the message. +
-typical code signatures: +
+Typical code signatures:
+
 [source,python]
 ----
 GSTAT.connect('MESSGAE-TO-LISTEN-FOR', FUNCTION_TO_CALL)
@@ -28,7 +30,7 @@ GSTAT.connect('MESSGAE-TO-LISTEN-FOR', FUNCTION_TO_CALL)
 def FUNCTION_TO_CALL(gstat_object, return_codes):
 ----
 
-Often LAMBDA is used to strip the GSTAT object and manipulate the return codes): +
+Often LAMBDA is used to strip the GSTAT object and manipulate the return codes:
 
 [source,python]
 ----
@@ -40,13 +42,13 @@ def FUNCTION_TO_CALL(return_codes):
 == Sample GStat Code
 
 There are some basic patterns for using GStat, depending on what library +
-You are using them in. +
-If using GStat with Gladevcp, Gscreen, or Qtvcp, the gobject library is not needed, +
-Those toolkits already set up Gobject. +
+you are using them in. +
+If using GStat with GladeVCP, Gscreen, or Qtvcp, the gobject library is not needed as +
+those toolkits already set up Gobject.
 
 === Sample HAL component code pattern
-This program creates two HAL pins that output the status +
-of G20/G21.
+
+This program creates two HAL pins that output the status of G20/G21.
 
 [source,python]
 ----
@@ -87,13 +89,15 @@ except KeyboardInterrupt:
 This would be loaded with 'loadusr python PATH-TO-FILE/FILENAME.py' +
 or if you need to wait for the pins to be made before continuing: +
 'loadusr python -Wn metric_status PATH-TO-FILE/FILENAME.py' +
-The pins would be: 'metric_status.g20' and 'metric_status.g21' +
+The pins would be: 'metric_status.g20' and 'metric_status.g21'.
 
 === GladeVCP python extension code pattern
-This file assumes there are three GTK labels named: +
-'state_label' +
-'e_state_label' +
-'interp_state_label' +
+
+This file assumes there are three GTK labels named:
+
+* 'state_label'
+* 'e_state_label'
+* 'interp_state_label'
 
 [source,python]
 ----
@@ -131,11 +135,14 @@ def get_handlers(halcomp,builder,useropts):
 ----
 
 === QTVCP python extension code pattern
+
 Qtvcp extends GStat, so must be loaded differently but all the messages are available in Qtvcp. +
-This handler file assumes there are three QLabels named: +
-'state_label' +
-'e_state_label' +
-'interp_state_label' +
+This handler file assumes there are three QLabels named:
+
+* 'state_label'
+* 'e_state_label'
+* 'interp_state_label'
+
 [source,python]
 ----
 #!/usr/bin/env python3
@@ -170,6 +177,7 @@ class HandlerClass:
 def get_handlers(halcomp,builder,useropts):
     return [HandlerClass(halcomp,widgets,paths)]
 ----
+
 ==  Messages
 
 *periodic* :: '(returns nothing)' -
@@ -434,9 +442,11 @@ intended to be sent when requesting a gui dialog. +
 It uses a python dict for communication. +
 The dict must include the following keyname pair: +
 * NAME: 'requested dialog name' +
-The dict usually has more keyname pair - it depends on the dialog. +
+The dict usually has several keyname pairs - it depends on the dialog. +
 dialogs return information using a general message +
 This depends on the widget/libraries used. +
+  The dict _must_ include the following keyname pair: +
+  * `NAME: <requested dialog name>`
 
 *focus-overlay-changed* :: '(returns bool, string, python object)' -
 intended to be sent when requesting an overlay to be put over the display. +
@@ -489,7 +499,8 @@ This depends on the widget/libraries used. +
 returns a list of all joints current following error +
 
 == Functions
-These are convenience functions that are commonly used in programming
+
+These are convenience functions that are commonly used in programming.
 
 *set_jograte* :: '(float)' -
 Linuxcnc has no internal concept of jog rate -each GUI has it's own. +
@@ -596,3 +607,5 @@ returns string representing the internal selected axis letter. +
 Some status points are reported wrongly during a running program. +
 This is because the interpreter runs ahead of the current position of a running program. +
 This will hopefully be resolved with the merge of state-tags branch. +
+
+// vim: set syntax=asciidoc:

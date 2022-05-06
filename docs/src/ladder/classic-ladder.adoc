@@ -89,7 +89,7 @@ default values.
 [[cap:default-variable-count]]
 .Default Variable Count
 
-[width="90%", options="header", cols="<8,<4,<2"]
+[width="90%",options="header",cols="<8,<4,<2"]
 |========================================
 |Object Name                      | Variable Name   | Default Value
 |Number of rungs                  | (numRungs)      | 100
@@ -960,7 +960,7 @@ Lets look at an example of reading one hold register at 8448 Decimal (0x2100 Hex
 Looking in the Modbus protocol reference:
 
 .Read holding register request
-[width="50%", options="header", cols="<6,<2,<6"]
+[width="50%",options="header",cols="<6,<2,<6"]
 |===
 |Name                | number of bytes | Value (hex)
 |Function code       | (1 Byte)        | 3  (0x03)
@@ -991,7 +991,7 @@ Getting an error response means the slave is seeing the request command but can 
 Looking in the Modbus protocol reference:
 
 .Error returned for function code 3 (read holding register)
-[width="50%", options="header", cols="<6,<2,<6"]
+[width="50%",options="header",cols="<6,<2,<6"]
 |===
 | Name           | Number of bytes | Value (hex)
 | Error code     | 1 Byte          | 131 (0x83)
@@ -1024,7 +1024,7 @@ Meaning (Hex): +
 Looking in the Modbus protocol reference for Response:
 
 .Data response for function code 3 (read holding register)
-[width="50%", options="header", cols="<6,<2,<6"]
+[width="50%",options="header",cols="<6,<2,<6"]
 |===
 |Name           | number of bytes | Value (hex)
 |Function code  | 1 Byte          | 3 (0x03)
@@ -1032,12 +1032,13 @@ Looking in the Modbus protocol reference for Response:
 |Register value | N* x 2 Bytes    | returned value of requested address
 |Checksum       | (2 bytes)       | calculated automatically
 |===
+
 *N = Number of registers
 
 Here is an example received command as printed in the terminal (all Hex):
 
 ----
-INFO CLASSICLADDER-   Modbus I/O module received: Lgt=7 ->   (Slave address-1  Function code-3 2 0 0 B8 44
+INFO CLASSICLADDER-   Modbus I/O module received: Lgt=7 ->   (Slave address-1  Function code-3 2 0 0 B8 44)
 ----
 
 meaning (Hex):

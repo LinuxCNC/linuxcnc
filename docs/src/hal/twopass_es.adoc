@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 [[cha:hal-twopass]]
 = HAL TWOPASS
@@ -62,7 +63,7 @@ La opción TWOPASS se puede especificar con opciones para ampliar la salida para
 depuración (verbose) o para evitar la eliminación de archivos temporales (nodelete).
 Las opciones están separadas por comas.
 
-.Ejemplo:
+.Ejemplo
 ----
 [HAL]
 
@@ -145,7 +146,7 @@ el procesamiento TWOPASS, incluya todos los elementos loadrt para los componente
 en un halfile separado que se procese antes que la GUI. Los comandos addf también pueden
 ser incluido en el archivo.
 
-.Ejemplo:
+.Ejemplo
 ----
 [HAL]
 HALFILE = file_1.hal
@@ -206,8 +207,7 @@ El caso y los espacios en blanco dentro de # NOTWOPASS se ignoran.
 
 Se incluyen ejemplos de uso de TWOPASS para simulador en los directorios:
 
-   configs/sim/axis/twopass/
-
-   configs/sim/axis/simtcl/
+  configs/sim/axis/twopass/
+  configs/sim/axis/simtcl/
 
 // vim: set syntax=asciidoc:

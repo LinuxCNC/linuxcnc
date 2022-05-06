@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:Panelui]]
 = Panelui(((Panelui)))
@@ -21,10 +22,13 @@ While actual input buttons are required to be momentary, Panelui will use this
 input to make toggle, radio, or momentary button output. +
 
 == Loading Commands
+
 The command used to load panelui (with optional -d debug switch):
+
 ----
 loadusr -W panelui -d
 ----
+
 This will initialize panelui, which will look for the INI file panelui.ini in
 the config folder or user folder.
 
@@ -100,9 +104,9 @@ This allows one to change the prefix of the HAL pins from 'panelui' to an arbitr
 [source,{ini}]
 ----
 [ZMQ_SETUP]
-    TOPIC = 'QTVCP'
-    SOCKET = 'tcp://127.0.0.1:5690'
-    ENABLE = True
+  TOPIC = 'QTVCP'
+  SOCKET = 'tcp://127.0.0.1:5690'
+  ENABLE = True
 ----
 
 This sets up and enables ZMQ based messaging. +
@@ -116,52 +120,52 @@ Radio button definitions start with the text 'RADIO_BUTTON' inside single bracke
 [source,{ini}]
 ----
 [RADIO_BUTTONS]
-        # The double bracket section(s) define the group(s) of radio buttons.
-        # The group name must be unique and is case sensitive.
-        # Groups output is controlled by what button is active not directly by keycode.
-        # DEFAULT references a button in the group by name and is case sensitive.
-        [[group1_name]]
-            KEY = NONE
-            OUTPUT = FLOAT
-            DEFAULT = small
-            # The triple bracket sections define the buttons in this group.
-            # button names must be unique and are case sensitive.
-            # There must be at least two buttons in a group.
-            #
-            # This button, named 'small'is controller by the row 0 column 1 key.
-            # It will cause the group output to be .0001 when it is pressed.
-            # It has no output of it's own, but has a status
-            # pin which will follow it's current state.
-            # since this button is in a group, DEFAULT has no bearing.
-            # since OUTPUT in not 'COMMAND' _COMMAND entries are ignored.
-            [[[small]]]
-                KEY = R0C1
-                GROUP = group1_name
-                GROUP_OUTPUT = .0001
-                OUTPUT = NONE
-                STATUS_PIN = True
-                TRUE_STATE = TRUE
-                FALSE_STATE = FALSE
-                TRUE_COMMAND = NONE, NONE
-                FALSE_COMMAND = NONE, NONE
-                DEFAULT = false
-            # This button, named 'large' is controller by the row 0 column 2 key.
-            # It will cause the group output to be 1000 when it is pressed.
-            # It has a S32 output of it's own, will be 20 on true and 0 on false.
-            # It also has a status pin which will follow it's current state.
-            # since this button is in a group, DEFAULT has no bearing.
-            # since OUTPUT in not 'COMMAND' _COMMAND entries are ignored.
-            [[[large]]]
-                KEY = R0C2
-                GROUP = group1_name
-                GROUP_OUTPUT = 1000
-                OUTPUT = S32
-                STATUS_PIN = True
-                TRUE_STATE = 20
-                TRUE_COMMAND = NONE, NONE
-                FALSE_COMMAND = NONE, NONE
-                FALSE_STATE = 0
-                DEFAULT = false
+  # The double bracket section(s) define the group(s) of radio buttons.
+  # The group name must be unique and is case sensitive.
+  # Groups output is controlled by what button is active not directly by keycode.
+  # DEFAULT references a button in the group by name and is case sensitive.
+  [[group1_name]]
+    KEY = NONE
+    OUTPUT = FLOAT
+    DEFAULT = small
+    # The triple bracket sections define the buttons in this group.
+    # button names must be unique and are case sensitive.
+    # There must be at least two buttons in a group.
+    #
+    # This button, named 'small'is controller by the row 0 column 1 key.
+    # It will cause the group output to be .0001 when it is pressed.
+    # It has no output of it's own, but has a status
+    # pin which will follow it's current state.
+    # since this button is in a group, DEFAULT has no bearing.
+    # since OUTPUT in not 'COMMAND' _COMMAND entries are ignored.
+    [[[small]]]
+      KEY = R0C1
+      GROUP = group1_name
+      GROUP_OUTPUT = .0001
+      OUTPUT = NONE
+      STATUS_PIN = True
+      TRUE_STATE = TRUE
+      FALSE_STATE = FALSE
+      TRUE_COMMAND = NONE, NONE
+      FALSE_COMMAND = NONE, NONE
+      DEFAULT = false
+    # This button, named 'large' is controller by the row 0 column 2 key.
+    # It will cause the group output to be 1000 when it is pressed.
+    # It has a S32 output of it's own, will be 20 on true and 0 on false.
+    # It also has a status pin which will follow it's current state.
+    # since this button is in a group, DEFAULT has no bearing.
+    # since OUTPUT in not 'COMMAND' _COMMAND entries are ignored.
+    [[[large]]]
+      KEY = R0C2
+      GROUP = group1_name
+      GROUP_OUTPUT = 1000
+      OUTPUT = S32
+      STATUS_PIN = True
+      TRUE_STATE = 20
+      TRUE_COMMAND = NONE, NONE
+      FALSE_COMMAND = NONE, NONE
+      FALSE_STATE = 0
+      DEFAULT = false
 ----
 
 .*Toggle Buttons*
@@ -171,22 +175,22 @@ Toggle button definitions start with the text 'TOGGLE_BUTTON' inside single brac
 [source,{ini}]
 ----
 [TOGGLE_BUTTONS]
-    # Each button name inside double brackets, must be unique and is case sensitive.
-    # This button, named 'tool_change'is controller by the row 2 column 5 key.
-    # It has a BIT output, will output 1 on true state and 0 on false state.
-    # It also has a status pin which will follow it's current state.
-    # DEFAULT sets this to true when first initialized.
-    # The _COMMAND are not used since OUTPUT is not set to COMMAND but validation will
-    # add the lines regardless
-    [[tool_change]]
-        KEY = R2C5
-        OUTPUT = BIT
-        TRUE_COMMAND = NONE, NONE
-        FALSE_COMMAND = NONE, NONE
-        STATUS_PIN = True
-        DEFAULT = TRUE
-        TRUE_STATE = 1
-        FALSE_STATE = 0
+  # Each button name inside double brackets, must be unique and is case sensitive.
+  # This button, named 'tool_change'is controller by the row 2 column 5 key.
+  # It has a BIT output, will output 1 on true state and 0 on false state.
+  # It also has a status pin which will follow it's current state.
+  # DEFAULT sets this to true when first initialized.
+  # The _COMMAND are not used since OUTPUT is not set to COMMAND but validation will
+  # add the lines regardless
+  [[tool_change]]
+    KEY = R2C5
+    OUTPUT = BIT
+    TRUE_COMMAND = NONE, NONE
+    FALSE_COMMAND = NONE, NONE
+    STATUS_PIN = True
+    DEFAULT = TRUE
+    TRUE_STATE = 1
+    FALSE_STATE = 0
 ----
 
 .*Momentary Buttons*
@@ -196,50 +200,50 @@ Momentary button definitions start with the text 'MOMENTARY_BUTTON' inside singl
 [source,{ini}]
 ----
 [MOMENTARY_BUTTONS]
-    # Each button name inside double brackets, must be unique and is case sensitive.
-    # This button, named 'spindle_rev'is controller by the row 2 column 3 key.
-    # It has a COMMAND output, so will use TRUE_COMMAND and FALSE_COMMAND.
-    # It also has a status pin which will follow it's current state.
-    # COMMANDs will have a command name and then any required arguments
-    # This TRUE_COMMAND calls an internal command to start the spindle in reverse at 200 rpm
-    # If the spindle is already started, it will increase the rpm.
-    # DEFAULT is not used with Momentary buttons.
-    # The _STATE are not used since OUTPUT is set to COMMAND but validation will
-    # add the lines regardless
-    [[spindle_rev]]
-        KEY = R2C3
-        OUTPUT = COMMAND
-        TRUE_COMMAND = SPINDLE_REVERSE_INCREASE, 200
-        FALSE_COMMAND = None, NONE
-        STATUS_PIN = True
-        DEFAULT = FALSE
-        TRUE_STATE = 1
-        FALSE_STATE = 0
+  # Each button name inside double brackets, must be unique and is case sensitive.
+  # This button, named 'spindle_rev'is controller by the row 2 column 3 key.
+  # It has a COMMAND output, so will use TRUE_COMMAND and FALSE_COMMAND.
+  # It also has a status pin which will follow it's current state.
+  # COMMANDs will have a command name and then any required arguments
+  # This TRUE_COMMAND calls an internal command to start the spindle in reverse at 200 rpm
+  # If the spindle is already started, it will increase the rpm.
+  # DEFAULT is not used with Momentary buttons.
+  # The _STATE are not used since OUTPUT is set to COMMAND but validation will
+  # add the lines regardless
+  [[spindle_rev]]
+    KEY = R2C3
+    OUTPUT = COMMAND
+    TRUE_COMMAND = SPINDLE_REVERSE_INCREASE, 200
+    FALSE_COMMAND = None, NONE
+    STATUS_PIN = True
+    DEFAULT = FALSE
+    TRUE_STATE = 1
+    FALSE_STATE = 0
 ----
 
 == Internal Command reference
 
 There are a number of internal commands you may use. 
 
-*mist_on*
+.*mist_on*
 
-*mist_off*
+.*mist_off*
 
-*flood_on*
+.*flood_on*
 
-*flood_off*
+.*flood_off*
 
-*estop*
+.*estop*
 
-*estop_reset*
+.*estop_reset*
 
-*machine_off*
+.*machine_off*
 
-*machine_on*
+.*machine_on*
 
-*home_all*
+.*home_all*
 
-*unhome_all*
+.*unhome_all*
 
 .*home_selected*
 * required argument: axis number (int)
@@ -252,8 +256,8 @@ There are a number of internal commands you may use.
 .*spindle_forward_adjust*
 * optional argument: starting RPM (int) - default 100
 * Description: If the spindle is stopped it will start in the forward direction.
-  If it is already running it will increase or decrease the rpm depending on what direction
-  the spindle is running in.
+  If it is already running it will increase or decrease the rpm depending on
+  what direction the spindle is running in.
 
 .*spindle_forward*
 * optional argument: starting RPM (int) - default 100
@@ -266,8 +270,8 @@ There are a number of internal commands you may use.
 .*spindle_reverse_adjust*
 * optional argument: starting RPM (int) - default 100
 * Description: If the spindle is stopped it will start in the reverse direction.
-  If it is already running it will increase or decrease the rpm depending on what direction
-  the spindle is running in.
+  If it is already running it will increase or decrease the rpm depending on
+  what direction the spindle is running in.
 
 .*spindle_faster*
 * Description: increases spindle speed by 100 RPM
@@ -308,7 +312,7 @@ There are a number of internal commands you may use.
 .*max_velocity*
 * required argument: rate (float)
 
-*reload_tooltable*
+.*reload_tooltable*
 
 .*optional_stop*
 * required argument: state (bool 0 or 1)
@@ -316,11 +320,11 @@ There are a number of internal commands you may use.
 .*block_delete*
 * required argument: state (bool 0 or 1)
 
-*abort*
+.*abort*
 
-*pause*
+.*pause*
 
-*resume*
+.*resume*
 
 .*single_block*
 * required argument: state (bool 0 or 1)
@@ -333,7 +337,8 @@ There are a number of internal commands you may use.
 
 .*mdi_and_return*
 * required argument: G-code command(s)
-* Description: records the current mode, calls commands and then returns to mode.
+* Description: records the current mode, calls commands and then returns to
+  mode.
 
 .*mdi*
 * required argument: G-code command(s)
@@ -342,24 +347,24 @@ There are a number of internal commands you may use.
 == ZMQ Messages
 
 panelui can send ZMQ based messages on button presses. +
-In this way panelui can interact will other programs such as qtvcp screens. +
+In this way panelui can interact will other programs such as QtVCP screens. +
 
 [source,{ini}]
 ----
 [TOGGLE_BUTTONS]
-
-    [[zmq_test]]
-        KEY = R2C3
-        OUTPUT = ZMQ
-        TRUE_FUNCTION = ZMQ_BUTTON, 200
-        FALSE_FUNCTION = ZMQ_BUTTON, 0
-        STATUS_PIN = False
-        DEFAULT = FALSE
-        TRUE_STATE = 1
-        FALSE_STATE = 0
+  [[zmq_test]]
+    KEY = R2C3
+    OUTPUT = ZMQ
+    TRUE_FUNCTION = ZMQ_BUTTON, 200
+    FALSE_FUNCTION = ZMQ_BUTTON, 0
+    STATUS_PIN = False
+    DEFAULT = FALSE
+    TRUE_STATE = 1
+    FALSE_STATE = 0
 ----
 
-Here is a sample program that will receive the message and print it to the terminal. +
+Here is a sample program that will receive the message and print it to the
+terminal. +
 
 [source,python]
 ----
@@ -383,6 +388,7 @@ while True:
 ----
 
 == Handler File Extension
+
 A special file can be used to add custom python code that will be available as commands.
 panelui_handler.py must be written in python and be placed in the configuration folder.
 If panelui finds a file there it will add it's function calls to the available commands.
@@ -392,3 +398,5 @@ Here is an example of a handler file that adds two functions - hello_world and c
 ----
 include::panelui_handler.py[]
 ----
+
+// vim: set syntax=asciidoc:

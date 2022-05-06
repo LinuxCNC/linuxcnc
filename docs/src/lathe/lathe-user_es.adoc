@@ -17,23 +17,23 @@ Consulte la sección <<cha:ini-configuration,configuración INI>> para obtener m
 
 Para configurar AXIS para el modo torno:
 
----------------------------------------
+----
 [DISPLAY]
 
 # Informar a Axis que nuestra máquina es un torno.
 LATHE = TRUE
----------------------------------------
+----
 
 El modo torno en Axis no establece su plano predeterminado en G18 (XZ).
 Debe programarlo en el preámbulo de cada archivo gcode o
 (mejor) agrégar a su archivo ini lo siguiente:
 
----------------------------------------
+----
 [RS274NGC]
 
 # códigos g modales iniciales del intérprete
 RS274NGC_STARTUP_CODE = G18 G20 G90
----------------------------------------
+----
 
 Si está usando Gmoccapy entonces vea
 <<gmoccapy:lathe-section, la sección Torno de Gmoccapy>>.
@@ -63,7 +63,7 @@ con el ángulo de la línea central (l.c.) de cada orientación e información s
 
 FRONTANGLE y BACKANGLE están en el sentido de las agujas del reloj comenzando en una línea paralela a Z+.
 
-//.Orientaciones de la herramienta del torno
+.Orientaciones herramienta torno
 image::images/tool-positions_es.svg["Orientaciones herramienta torno",align="center"]
 
 En AXIS, la siguientes figura muestra cómo se ven las posiciones de las herramientas, tal como se ingresaron en la tabla de herramientas.
@@ -245,8 +245,8 @@ Al tornear radios y ángulos, el filo de la herramienta no seguirá
 la ruta programada a menos que esté activada la 'compensacion del cortador'. En la siguientes
 figuras se puede ver cómo el punto de control no sigue el filo de la herramienta, como se podría suponer.
 
-//.Punto de control
-image::images/control-point_es.svg["Punto de Control",align="center"]
+.Punto de control
+image::images/control-point_es.svg["Punto de control",align="center"]
 
 === Corte de angulos sin Compensacion
 
@@ -255,7 +255,7 @@ se muestra en la siguiente figura. Como se puede ver, la
 ruta programada y la ruta de corte deseada son una y la misma, siempre
 que nos estemos moviendo en la dirección X o Z solamente.
 
-//.Rampa de entrada
+.Entrada a Rampa
 image::images/ramp-entry_es.svg["Entrada a Rampa",align="center"]
 
 Ahora, a medida que el punto de control avanza a lo largo del camino programado, el
@@ -263,8 +263,8 @@ borde del cortador real no sigue ese camino como se muestra en la
 siguiente figura. Hay dos maneras de resolver esto; compensacion del cortador o
 ajustar la ruta programada para compensar el radio de la punta.
 
-//.Rampa de ruta
-image::images/ramp-cut_es.svg["Camino en Rampa",align="center"]
+.Ruta en Rampa
+image::images/ramp-cut_es.svg["Ruta en Rampa",align="center"]
 
 El ejemplo anterior se podria ajustar la ruta programada a la ruta real deseada
 moviendo la ruta programada hacia la izquierda del radio de la punta de la herramienta.
@@ -276,7 +276,7 @@ sin compensacion. En la siguiente figura se ve la herramienta torneando el diame
 exterior de la pieza. El punto de control de la herramienta sigue el camino programado
 y la herramienta toca el diametro.
 
-//.Torneado exterior
+.Torneado exterior
 image::images/radius-1_es.svg["Torneado exterior",align="center"]
 
 En la siguiente figura puede ver que a medida que la herramienta se acerca al final de la
@@ -284,13 +284,13 @@ pieza, el punto de control todavía sigue el camino pero la punta de la herramie
 la pieza y está al aire. También puede ver que aunque ha sido programado un radio,
 la pieza terminará con una esquina cuadrada.
 
-//.Corte del radio
+.Corte del radio
 image::images/radius-2_es.svg["Corte del radio",align="center"]
 
 Ahora puede ver como el punto de control sigue el radio programado
 La punta de la herramienta ha dejado la pieza y ahora está al aire.
 
-//.Corte del radio
+.Corte del radio
 image::images/radius-3_es.svg["Corte del radio",align="center"]
 
 En la figura final podemos ver que la punta de la herramienta terminará de cortar la
@@ -300,7 +300,7 @@ cantidad de material no se cortara debido al radio de la herramienta. Para termi
 una cara cortada en el centro de una parte, tiene que programar la herramienta para ir
 más allá del centro; como minimo, el radio de la punta de la herramienta.
 
-//.Corte de la cara
+.Corte de la cara
 image::images/radius-4_es.svg["Corte de la cara",align="center"]
 
 === Usando Compensacion del Cortador
@@ -311,3 +311,5 @@ image::images/radius-4_es.svg["Corte de la cara",align="center"]
 - Cuando se cortan líneas rectas en el torno es posible que no desee utilizar compensacion del cortador.
   Por ejemplo, mandrinar un agujero con una barra demasiado ajustada puede que no le permita suficiente espacio para realizar el movimiento de salida.
 - El movimiento de entrada en un arco con compensacion es importante para obtener los resultados correctos.
+
+// vim: set syntax=asciidoc:

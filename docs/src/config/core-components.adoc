@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:core-components]]
 = Core Components(((Core components)))
@@ -6,7 +7,7 @@
 See also the man pages 'motion(9)'.
 
 [[sec:motion]]
-== Motion(((Motion)))
+== Motion (`motmod`)(((Motion)))
 
 These pins and parameters are created by the realtime 'motmod' module.
 
@@ -27,9 +28,10 @@ Motion is loaded with the motmod command. A kins should be loaded
 before motion.
 
 ----
-loadrt motmod base_period_nsec=['period'] servo_period_nsec=['period']
-              traj_period_nsec=['period'] num_joints=['0-9'] num_dio=['1-64'] num_aio=['1-16']
-              unlock_joints_mask=['0xNN']
+loadrt motmod [base_period_nsec=period] [servo_period_nsec=period]
+              [traj_period_nsec=period] [num_joints=[0-9]
+              ([num_dio=1-64] [num_aio=1-16])]
+              ([unlock_joints_mask=0xnn])
               num_spindles=['1-8']
 ----
 
@@ -233,9 +235,9 @@ The 'N' will be the integer of the spindle number. (0-7)
 .HAL pin usage for M19 orient spindle
 Conceptually the spindle is in one of the following modes:
 
- - rotation mode (the default)
- - searching for desired orientation mode
- - orientation complete mode.
+- rotation mode (the default)
+- searching for desired orientation mode
+- orientation complete mode.
 
 When an M19 is executed, the spindle changes to 'searching for desired
 orientation', and the `spindle.N.orient` HAL pin is asserted.
@@ -263,9 +265,9 @@ This is indicated by deasserting both the `spindle-orient` and `spindle-locked` 
 The `spindle-orient-mode` pin reflects the M19 P word and shall be
 interpreted as follows:
 
- - 0: rotate clockwise or counterclockwise for smallest angular movement
- - 1: always rotate clockwise
- - 2: always rotate counterclockwise
+- 0: rotate clockwise or counterclockwise for smallest angular movement
+- 1: always rotate clockwise
+- 2: always rotate counterclockwise
 
 It can be used with the `orient` HAL component which provides a PID
 command value based on spindle encoder position, `spindle-orient-angle`
@@ -351,3 +353,5 @@ of commands.
 * 'ini.traj_default_acceleration' - (float, in) [TRAJ]DEFAULT_ACCELERATION
 * 'ini.traj_default_velocity' - (float, in) [TRAJ]DEFAULT_VELOCITY
 * 'ini.traj_max_acceleration' - (float, in) [TRAJ]MAX_ACCELERATION
+
+// vim: set syntax=asciidoc:
