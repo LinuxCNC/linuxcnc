@@ -353,7 +353,11 @@ $(DOC_DIR)/LinuxCNC_Developer_fr.pdf: $(DOC_SRCDIR)/Master_Developer_fr.pdf
 $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
 	@echo Formatting $(notdir $<) as HTML
 	@mkdir -p $(dir $@)
-	@(cd $(DOC_DIR)/man; groff -Thtml -man stylesheet.9 $(patsubst $(DOC_DIR)/man/%,%,$<)) > $@
+#   Attention! This is a temporary fix until Groff 1.23 is released. Should be
+#   set back to "-m man" when 1.23 is available.
+#	This fixes the formatting of subsections and appearance in the toc.
+#   It uses the local an-old.tmac instead of the one which is shipped with Groff.
+	@(cd $(DOC_DIR)/man; groff -Thtml -m an-old-fixed -M . stylesheet.9 $(patsubst $(DOC_DIR)/man/%,%,$<)) > $@
 
 SA := <p><a onclick=\"return toggle('man_
 SB := ')\"><img id=\"man_
