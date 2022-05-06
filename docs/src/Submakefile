@@ -172,11 +172,11 @@ GENERATED_TRANSLATED = $(foreach l, $(LANGUAGES), \
 	$(DOC_DIR)/man/$(l) \
 )
 
-$(DOC_DIR)/po/Documentation.pot: $(addprefix $(DOC_SRCDIR)/, $(DOC_SRCS_EN))
+$(DOC_DIR)/po/documentation.pot: $(addprefix $(DOC_SRCDIR)/, $(DOC_SRCS_EN))
 	cd $(DOC_DIR); po4a --no-translations po4a.cfg
-pofiles: $(DOC_DIR)/po/Documentation.pot
+pofiles: $(DOC_DIR)/po/documentation.pot
 
-translateddocs: manpages $(DOC_DIR)/po/Documentation.pot
+translateddocs: manpages $(DOC_DIR)/po/documentation.pot
 	cd $(DOC_DIR); po4a --no-update po4a.cfg
 docs: translateddocs
 
