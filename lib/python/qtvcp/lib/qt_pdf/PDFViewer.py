@@ -2,7 +2,17 @@ import sys
 import os
 from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtCore import Qt
-import popplerqt5
+
+# Set up logging
+from qtvcp import logger
+LOG = logger.getLogger(__name__)
+
+try:
+    import popplerqt5
+    LIB_BAD = False
+except:
+    LIB_BAD = True
+    LOG.warning('PDFViwer - Is python3-poppler-qt5 installed?')
 
 class PDFView(QtWidgets.QScrollArea):
     def __init__(self, parent=None):
@@ -13,12 +23,17 @@ class PDFView(QtWidgets.QScrollArea):
         self.setWidget(self.widget)
         self.vbox = QtWidgets.QVBoxLayout()
         self.widget.setLayout(self.vbox)
-
+        if LIB_BAD:
+            label = QtWidgets.QLabel('<b>Missing python3-poppler-qt5 module</b>')
+            self.vbox.addWidget(label)
 
     def loadView(self, path):
         filename = os.path.expanduser(path)
         if not os.path.exists(filename):
             print('No path:',filename)
+
+        if LIB_BAD:
+            return
 
         doc = popplerqt5.Poppler.Document.load(filename)
         doc.setRenderHint(popplerqt5.Poppler.Document.Antialiasing)
