@@ -1,7 +1,7 @@
 :lang: en
 :toc:
 
-= Install LinuxCNC
+= Build LinuxCNC for "run in place"
 
 == Basic Instructions
 
