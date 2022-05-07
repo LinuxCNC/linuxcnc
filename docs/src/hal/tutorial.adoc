@@ -878,7 +878,7 @@ running in a terminal you can start halscope with the following command.
 
 .Starting Halscope
 ----
-halcmd: loadusr halscope
+halcmd loadusr halscope
 ----
 
 If LinuxCNC is not running or the autosave.halscope file does not match
@@ -1079,7 +1079,7 @@ halscope with a numeric argument which indicates the number of samples
 you want to capture.
 
 ----
-halcmd: loadusr halscope 80000
+halcmd loadusr halscope 80000
 ----
 
 If the 'scope_rt' component was not already loaded, halscope will
