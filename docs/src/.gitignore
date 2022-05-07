@@ -2,3 +2,5 @@
 *.xml
 !docs.xml
 !terms.xml
+drivers/mb2hal_HOWTO.ini
+*/drivers/mb2hal_HOWTO.ini
