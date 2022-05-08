@@ -442,11 +442,11 @@ intended to be sent when requesting a gui dialog. +
 It uses a python dict for communication. +
 The dict must include the following keyname pair: +
 * NAME: 'requested dialog name' +
-The dict usually has several keyname pairs - it depends on the dialog. +
-dialogs return information using a general message +
-This depends on the widget/libraries used. +
+  The dict usually has several keyname pairs - it depends on the dialog. +
+  dialogs return information using a general message +
+  This depends on the widget/libraries used. +
   The dict _must_ include the following keyname pair: +
-  * `NAME: <requested dialog name>`
+* `NAME: <requested dialog name>`
 
 *focus-overlay-changed* :: '(returns bool, string, python object)' -
 intended to be sent when requesting an overlay to be put over the display. +
