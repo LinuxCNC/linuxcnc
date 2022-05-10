@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2022-05-02 20:23+0200\n"
+"POT-Creation-Date: 2022-05-10 19:56+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -14700,45 +14700,41 @@ msgstr ""
 msgid "Units inches"
 msgstr "Unités Pouces"
 
-#. type: delimited block -
-#: src/config/stepper-quickstart.adoc:123
+#. type: delimited block .
+#: src/config/stepper-quickstart.adoc:122
 #, fuzzy, no-wrap
 msgid ""
-"............................................\n"
 "Stepper         = 200 steps per revolution\n"
 "Drive           =  10 micro steps per step\n"
 "Motor Teeth     =  20\n"
 "Leadscrew Teeth =  40\n"
 "Leadscrew Pitch =   0.2000 inches per turn\n"
-"............................................\n"
 msgstr ""
-"............................................\n"
 "Moteur            = 200 pas par tour\n"
 "Pilote            = 10 micropas par pas\n"
 "Dents côté moteur = 20\n"
 "Dents côté vis    = 40\n"
 "Pas de vis        = 0.2000 pouces par tour\n"
-"............................................\n"
 
-#. type: Plain text
+#. type: delimited block =
 #: src/config/stepper-quickstart.adoc:126
 #, fuzzy
 msgid "From the above information, the leadscrew moves 0.200 inches per turn."
 msgstr "D'après les informations ci-dessus:"
 
-#. type: Plain text
+#. type: delimited block =
 #: src/config/stepper-quickstart.adoc:127
 #, fuzzy
 msgid "The motor turns 2.000 times per 1 leadscrew turn."
 msgstr "Le moteur fera 2000 micropas par tour de vis."
 
-#. type: Plain text
+#. type: delimited block =
 #: src/config/stepper-quickstart.adoc:128
 #, fuzzy
 msgid "The drive takes 10 microstep inputs to make the stepper step once."
 msgstr "Le pilote demandera 10 micropas pour faire un pas."
 
-#. type: Plain text
+#. type: delimited block =
 #: src/config/stepper-quickstart.adoc:129
 #, fuzzy
 msgid "The drive needs 2000 steps to turn the stepper one revolution."
@@ -14746,7 +14742,7 @@ msgstr ""
 "Le pilote recevra 2000 impulsions de pas pour faire tourner le moteur d'un "
 "tour."
 
-#. type: Plain text
+#. type: delimited block =
 #: src/config/stepper-quickstart.adoc:131
 #: src/config/stepper-quickstart.adoc:161
 #, fuzzy
@@ -14765,51 +14761,47 @@ msgstr "images/step-calc-inch-math.png"
 msgid "Units mm"
 msgstr "Unités mm"
 
-#. type: delimited block -
-#: src/config/stepper-quickstart.adoc:152
+#. type: delimited block .
+#: src/config/stepper-quickstart.adoc:151
 #, fuzzy, no-wrap
 msgid ""
-"............................................\n"
 "    Stepper         = 200 steps per revolution\n"
 "    Drive           =   8 micro steps per step\n"
 "    Motor Teeth     =  30\n"
 "    Leadscrew Teeth =  90\n"
 "    Leadscrew Pitch =   5.00 mm per turn\n"
-"............................................\n"
 msgstr ""
-"............................................\n"
 "    Stepper         = 200 steps per revolution\n"
 "    Drive           =   8 micro steps per step\n"
 "    Motor Teeth     =  30\n"
 "    Leadscrew Teeth =  90\n"
 "    Leadscrew Pitch =   5.00 mm per turn\n"
-"............................................\n"
 
-#. type: Plain text
+#. type: delimited block =
 #: src/config/stepper-quickstart.adoc:155
 #, fuzzy
 msgid "From the above information:"
 msgstr "From the above information:"
 
-#. type: Plain text
+#. type: delimited block =
 #: src/config/stepper-quickstart.adoc:156
 #, fuzzy
 msgid "The leadscrew moves 5.00 mm per turn."
 msgstr "The leadscrew moves 5.00 mm per turn."
 
-#. type: Plain text
+#. type: delimited block =
 #: src/config/stepper-quickstart.adoc:157
 #, fuzzy
 msgid "The motor turns 3.000 times per 1 leadscrew turn."
 msgstr "The motor turns 3.000 times per 1 leadscrew turn."
 
-#. type: Plain text
+#. type: delimited block =
 #: src/config/stepper-quickstart.adoc:158
 #, fuzzy
 msgid "The drive takes 8 microstep inputs to make the stepper step once."
 msgstr "The drive takes 8 microstep inputs to make the stepper step once."
 
-#. type: Plain text
+#. type: delimited block =
 #: src/config/stepper-quickstart.adoc:159
 #, fuzzy
 msgid "The drive needs 1600 steps to turn the stepper one revolution."
@@ -35756,7 +35748,7 @@ msgstr "Une interface graphique (plusieurs interfaces au choix)."
 #. type: Plain text
 #: src/getting-started/about-linuxcnc.adoc:22
 #, fuzzy
-msgid "A graphical interface creation tool (GladeVCP)"
+msgid "A graphical interface creation tool (Glade)"
 msgstr "Un outil de création d'interface graphique (GladeVCP)."
 
 #. type: Plain text
@@ -69986,7 +69978,7 @@ msgstr ""
 "souris. Accès qui peut être aussi large ou aussi focalisé que vous le voulez."
 
 #. type: Block title
-#: src/hal/halshow.adoc:86 src/hal/halshow.adoc:258
+#: src/hal/halshow.adoc:86 src/hal/halshow.adoc:255
 #, fuzzy, no-wrap
 msgid "[yellow-background]#New in 2.9#"
 msgstr "[yellow-background]#New in 2.9#"
@@ -70142,22 +70134,14 @@ msgstr ""
 "d'un axe. Une fois cela fait, nous pourrons retrouver la sortie du "
 "différenciateur dans halscope. Alors allons-y. (oui j'ai vérifié)."
 
-#. type: Plain text
-#: src/hal/halshow.adoc:137
-#, fuzzy
-msgid "The message output when ddt is loaded doesn't prevent it from running."
-msgstr ""
-"Le message qui s'affiche au chargement de ddt ne l'empêche pas de "
-"fonctionner."
-
 #. type: delimited block -
-#: src/hal/halshow.adoc:140
+#: src/hal/halshow.adoc:137
 #, fuzzy, no-wrap
 msgid "loadrt ddt\n"
 msgstr "loadrt ddt\n"
 
 #. type: Plain text
-#: src/hal/halshow.adoc:144
+#: src/hal/halshow.adoc:141
 #, fuzzy
 msgid ""
 "Now look at the components node and you should see ddt in there someplace."
@@ -70165,7 +70149,7 @@ msgstr ""
 "Maintenant, regardez dans components, vous devriez y voir ddt quelque part."
 
 #. type: delimited block -
-#: src/hal/halshow.adoc:156
+#: src/hal/halshow.adoc:153
 #, fuzzy, no-wrap
 msgid ""
 "Loaded HAL Components:\n"
@@ -70191,7 +70175,7 @@ msgstr ""
 "02 User   iocontrol\n"
 
 #. type: Plain text
-#: src/hal/halshow.adoc:160
+#: src/hal/halshow.adoc:157
 #, fuzzy
 msgid ""
 "Sure enough there it is. Notice that its ID is 08. Next we need to find out "
@@ -70202,7 +70186,7 @@ msgstr ""
 "Functions."
 
 #. type: delimited block -
-#: src/hal/halshow.adoc:175
+#: src/hal/halshow.adoc:172
 #, fuzzy, no-wrap
 msgid ""
 "Exported Functions:\n"
@@ -70234,7 +70218,7 @@ msgstr ""
 "  04   E0B614AD E0DC7448 YES     1 stepgen.update-freq\n"
 
 #. type: Plain text
-#: src/hal/halshow.adoc:182
+#: src/hal/halshow.adoc:179
 #, fuzzy
 msgid ""
 "Here we look for owner #08 and see a function named ddt.0. We should be able "
@@ -70249,13 +70233,13 @@ msgstr ""
 "comme cela:"
 
 #. type: delimited block -
-#: src/hal/halshow.adoc:185
+#: src/hal/halshow.adoc:182
 #, fuzzy, no-wrap
 msgid "addf <functname> <threadname> [<position>]\n"
 msgstr "addf <functname> <threadname> [<position>]\n"
 
 #. type: Plain text
-#: src/hal/halshow.adoc:191
+#: src/hal/halshow.adoc:188
 #, fuzzy
 msgid ""
 "We already know the functname=ddt.0 so let's get the thread name right by "
@@ -70269,13 +70253,13 @@ msgstr ""
 "critique. Passons la commande:"
 
 #. type: delimited block -
-#: src/hal/halshow.adoc:194
+#: src/hal/halshow.adoc:191
 #, fuzzy, no-wrap
 msgid "addf ddt.0 servo-thread\n"
 msgstr "addf ddt.0 servo-thread\n"
 
 #. type: Plain text
-#: src/hal/halshow.adoc:199
+#: src/hal/halshow.adoc:196
 #, fuzzy
 msgid ""
 "This is just for viewing, so we leave position blank and get the last "
@@ -70288,19 +70272,19 @@ msgstr ""
 "été exécutée."
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
-#: src/hal/halshow.adoc:201 src/hal/halshow.adoc:202
+#: src/hal/halshow.adoc:198 src/hal/halshow.adoc:199
 #, fuzzy, no-wrap
 msgid "Addf command"
 msgstr "Commande addf"
 
 #. type: Target for macro image
-#: src/hal/halshow.adoc:202
+#: src/hal/halshow.adoc:199
 #, fuzzy, no-wrap
 msgid "images/halshow-2.png"
 msgstr "images/halshow-2_fr.png"
 
 #. type: Plain text
-#: src/hal/halshow.adoc:207
+#: src/hal/halshow.adoc:204
 #, fuzzy
 msgid ""
 "Next we need to connect ddt to something. But how do we know what pins are "
@@ -70311,7 +70295,7 @@ msgstr ""
 "regardant sous Pins. On y trouve ddt et on voit:"
 
 #. type: delimited block -
-#: src/hal/halshow.adoc:213
+#: src/hal/halshow.adoc:210
 #, fuzzy, no-wrap
 msgid ""
 "Component Pins:\n"
@@ -70325,7 +70309,7 @@ msgstr ""
 "08    float -W  0.00000e+00 ddt.0.out\n"
 
 #. type: Plain text
-#: src/hal/halshow.adoc:218
+#: src/hal/halshow.adoc:215
 #, fuzzy
 msgid ""
 "That looks easy enough to understand, but what signal or pin do we want to "
@@ -70337,7 +70321,7 @@ msgstr ""
 "un signal. On vois cela en regardant dans axis.0."
 
 #. type: delimited block -
-#: src/hal/halshow.adoc:223
+#: src/hal/halshow.adoc:220
 #, fuzzy, no-wrap
 msgid ""
 "Component Pins:\n"
@@ -70349,7 +70333,7 @@ msgstr ""
 "03    float -W  0.00000e+00 joint.0.motor-pos-cmd ==> Xpos-cmd\n"
 
 #. type: Plain text
-#: src/hal/halshow.adoc:227
+#: src/hal/halshow.adoc:224
 #, fuzzy
 msgid ""
 "So it looks like Xpos-cmd should be a good signal to use.  Back to the "
@@ -70359,13 +70343,13 @@ msgstr ""
 "à l'éditeur et entrons la commande suivante:"
 
 #. type: delimited block -
-#: src/hal/halshow.adoc:230
+#: src/hal/halshow.adoc:227
 #, fuzzy, no-wrap
 msgid "linksp Xpos-cmd ddt.0.in\n"
 msgstr "linksp Xpos-cmd ddt.0.in\n"
 
 #. type: Plain text
-#: src/hal/halshow.adoc:234
+#: src/hal/halshow.adoc:231
 #, fuzzy
 msgid ""
 "Now if we look at the Xpos-cmd signal using the tree node we'll see what "
@@ -70375,7 +70359,7 @@ msgstr ""
 "fait."
 
 #. type: delimited block -
-#: src/hal/halshow.adoc:242
+#: src/hal/halshow.adoc:239
 #, fuzzy, no-wrap
 msgid ""
 "Signals:\n"
@@ -70393,7 +70377,7 @@ msgstr ""
 "==> stepgen.0.position-cmd\n"
 
 #. type: Plain text
-#: src/hal/halshow.adoc:248
+#: src/hal/halshow.adoc:245
 #, fuzzy
 msgid ""
 "We see that this signal comes from joint.o.motor-pos-cmd and goes to both "
@@ -70407,7 +70391,7 @@ msgstr ""
 "commande de mouvement."
 
 #. type: Plain text
-#: src/hal/halshow.adoc:255
+#: src/hal/halshow.adoc:252
 #, fuzzy
 msgid ""
 "The HAL Show Area uses halcmd to discover what is happening in a running "
@@ -70426,67 +70410,67 @@ msgstr ""
 "_WATCH_ d'offrir cela graphiquement."
 
 #. type: Title ==
-#: src/hal/halshow.adoc:256
+#: src/hal/halshow.adoc:253
 #, fuzzy, no-wrap
 msgid "Watch Tab Area"
 msgstr "Zone de l'onglet Watch"
 
 #. type: Plain text
-#: src/hal/halshow.adoc:260
+#: src/hal/halshow.adoc:257
 #, fuzzy
 msgid "Buttons for pin/signal/parameter manipulation"
 msgstr "Buttons for pin/signal/parameter manipulation"
 
 #. type: Plain text
-#: src/hal/halshow.adoc:261
+#: src/hal/halshow.adoc:258
 #, fuzzy
 msgid "Right-click menu to"
 msgstr "Right-click menu to"
 
 #. type: Plain text
-#: src/hal/halshow.adoc:262
+#: src/hal/halshow.adoc:259
 #, fuzzy
 msgid "Copy name"
 msgstr "Copy name"
 
 #. type: Plain text
-#: src/hal/halshow.adoc:263
+#: src/hal/halshow.adoc:260
 #, fuzzy
 msgid "Set value"
 msgstr "Set value"
 
 #. type: Plain text
-#: src/hal/halshow.adoc:264
+#: src/hal/halshow.adoc:261
 #, fuzzy
 msgid "Unlink pin"
 msgstr "Unlink pin"
 
 #. type: Plain text
-#: src/hal/halshow.adoc:265
+#: src/hal/halshow.adoc:262
 #, fuzzy
 msgid "Remove from view"
 msgstr "Remove from view"
 
 #. type: Plain text
-#: src/hal/halshow.adoc:266
+#: src/hal/halshow.adoc:263
 #, fuzzy
 msgid "Menu entries for"
 msgstr "Menu entries for"
 
 #. type: Plain text
-#: src/hal/halshow.adoc:267
+#: src/hal/halshow.adoc:264
 #, fuzzy
 msgid "Add signals/pins/parameters by name"
 msgstr "Add signals/pins/parameters by name"
 
 #. type: Plain text
-#: src/hal/halshow.adoc:268
+#: src/hal/halshow.adoc:265
 #, fuzzy
 msgid "Set watch interval"
 msgstr "Set watch interval"
 
 #. type: Plain text
-#: src/hal/halshow.adoc:280
+#: src/hal/halshow.adoc:277
 #, fuzzy
 msgid ""
 "Clicking the watch tab produces a blank canvas. You can add signals and pins "
@@ -70515,25 +70499,25 @@ msgstr ""
 "tant que la machine ne sera pas mise en marche."
 
 #. type: Block title
-#: src/hal/halshow.adoc:282
+#: src/hal/halshow.adoc:279
 #, fuzzy, no-wrap
 msgid "Halshow: Watch Tab(((Halshow: Watch Tab)))"
 msgstr "Halshow: Onglet Watch(((Halshow: Onglet Watch)))"
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
-#: src/hal/halshow.adoc:283
+#: src/hal/halshow.adoc:280
 #, fuzzy, no-wrap
 msgid "Halshow: Watch Tab"
 msgstr "Halshow: Onglet Watch"
 
 #. type: Target for macro image
-#: src/hal/halshow.adoc:283
+#: src/hal/halshow.adoc:280
 #, fuzzy, no-wrap
 msgid "images/halshow-4.png"
 msgstr "images/halshow-4.png"
 
 #. type: Plain text
-#: src/hal/halshow.adoc:290
+#: src/hal/halshow.adoc:287
 #, fuzzy
 msgid ""
 "Watch displays bit type (binary) values using colored circles representing "
@@ -70547,7 +70531,7 @@ msgstr ""
 "numérique s'affiche."
 
 #. type: Plain text
-#: src/hal/halshow.adoc:297
+#: src/hal/halshow.adoc:294
 #, fuzzy
 msgid ""
 "Watch will quickly allow you to test switches or see the effect of changes "
@@ -70567,13 +70551,13 @@ msgstr ""
 "parallèle."
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
-#: src/hal/halshow.adoc:299 src/hal/halshow.adoc:300
+#: src/hal/halshow.adoc:296 src/hal/halshow.adoc:297
 #, fuzzy, no-wrap
 msgid "Halshow: Watch Tab Context Menu"
 msgstr "Halshow: Watch Tab Context Menu"
 
 #. type: Target for macro image
-#: src/hal/halshow.adoc:300
+#: src/hal/halshow.adoc:297
 #, fuzzy, no-wrap
 msgid "images/halshow-5.png"
 msgstr "images/halshow-5.png"
@@ -77762,17 +77746,13 @@ msgid "Starting Halscope"
 msgstr "Starting Halscope"
 
 #. type: delimited block -
-#: src/hal/tutorial.adoc:883
+#: src/hal/tutorial.adoc:882
 #, fuzzy, no-wrap
-msgid ""
-"halcmd: loadusr halscope\n"
-"halcmd: halscope: config file 'autosave.halscope' could not be opened\n"
-msgstr ""
-"halcmd: loadusr halscope\n"
-"halcmd: halscope: config file 'autosave.halscope' could not be opened\n"
+msgid "halcmd loadusr halscope\n"
+msgstr "halcmd loadusr halscope\n"
 
 #. type: Plain text
-#: src/hal/tutorial.adoc:890
+#: src/hal/tutorial.adoc:889
 #, fuzzy
 msgid ""
 "If LinuxCNC is not running or the autosave.halscope file does not match the "
@@ -77788,19 +77768,19 @@ msgstr ""
 "the samples box."
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
-#: src/hal/tutorial.adoc:892 src/hal/tutorial.adoc:893
+#: src/hal/tutorial.adoc:891 src/hal/tutorial.adoc:892
 #, fuzzy, no-wrap
 msgid "Realtime function not linked dialog"
 msgstr "Dialogue Fonction temps réel non liée"
 
 #. type: Target for macro image
-#: src/hal/tutorial.adoc:893
+#: src/hal/tutorial.adoc:892
 #, fuzzy, no-wrap
 msgid "images/halscope-01.png"
 msgstr "images/halscope-01_fr.png"
 
 #. type: Plain text
-#: src/hal/tutorial.adoc:902
+#: src/hal/tutorial.adoc:901
 #, fuzzy
 msgid ""
 "This dialog is where you set the sampling rate for the oscilloscope.  For "
@@ -77819,25 +77799,25 @@ msgstr ""
 "disparaît et la fenêtre initiale du scope s'ouvre, comme ci-dessous."
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
-#: src/hal/tutorial.adoc:904 src/hal/tutorial.adoc:905
+#: src/hal/tutorial.adoc:903 src/hal/tutorial.adoc:904
 #, fuzzy, no-wrap
 msgid "Initial scope window"
 msgstr "Fenêtre initiale du scope"
 
 #. type: Target for macro image
-#: src/hal/tutorial.adoc:905
+#: src/hal/tutorial.adoc:904
 #, fuzzy, no-wrap
 msgid "images/halscope-02.png"
 msgstr "images/halscope-02_fr.png"
 
 #. type: Title ===
-#: src/hal/tutorial.adoc:907
+#: src/hal/tutorial.adoc:906
 #, fuzzy, no-wrap
 msgid "Hooking up the scope probes"
 msgstr "Branchement des sondes du scope"
 
 #. type: Plain text
-#: src/hal/tutorial.adoc:916
+#: src/hal/tutorial.adoc:915
 #, fuzzy
 msgid ""
 "At this point, Halscope is ready to use. We have already selected a sample "
@@ -77857,7 +77837,7 @@ msgstr ""
 "environ 16000 échantillons."
 
 #. type: Plain text
-#: src/hal/tutorial.adoc:923
+#: src/hal/tutorial.adoc:922
 #, fuzzy
 msgid ""
 "The channel buttons run across the bottom of the halscope screen.  Click "
@@ -77877,19 +77857,19 @@ msgstr ""
 "nous avons seulement les deux signaux X-vel et Y-vel, comme ci-dessous."
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
-#: src/hal/tutorial.adoc:925 src/hal/tutorial.adoc:926
+#: src/hal/tutorial.adoc:924 src/hal/tutorial.adoc:925
 #, fuzzy, no-wrap
 msgid "Select Channel Source"
 msgstr "Dialogue de sélection de la source du canal"
 
 #. type: Target for macro image
-#: src/hal/tutorial.adoc:926
+#: src/hal/tutorial.adoc:925
 #, fuzzy, no-wrap
 msgid "images/halscope-03.png"
 msgstr "images/halscope-03_fr.png"
 
 #. type: Plain text
-#: src/hal/tutorial.adoc:931
+#: src/hal/tutorial.adoc:930
 #, fuzzy
 msgid ""
 "To choose a signal, just click on it. In this case, we want channel 1 to "
@@ -77901,19 +77881,19 @@ msgstr ""
 "clique sur _X-vel_, la fenêtre se ferme et le canal a été sélectionné."
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
-#: src/hal/tutorial.adoc:933 src/hal/tutorial.adoc:934
+#: src/hal/tutorial.adoc:932 src/hal/tutorial.adoc:933
 #, fuzzy, no-wrap
 msgid "Select Signal"
 msgstr "Sélection du signal"
 
 #. type: Target for macro image
-#: src/hal/tutorial.adoc:934
+#: src/hal/tutorial.adoc:933
 #, fuzzy, no-wrap
 msgid "images/halscope-04.png"
 msgstr "images/halscope-04_fr.png"
 
 #. type: Plain text
-#: src/hal/tutorial.adoc:941
+#: src/hal/tutorial.adoc:940
 #, fuzzy
 msgid ""
 "The channel 1 button is pressed in, and channel number 1 and the name 'X-"
@@ -77928,19 +77908,19 @@ msgstr ""
 "celui qui est actif sera en surbrillance."
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
-#: src/hal/tutorial.adoc:943 src/hal/tutorial.adoc:944
+#: src/hal/tutorial.adoc:942 src/hal/tutorial.adoc:943
 #, fuzzy, no-wrap
 msgid "Halscope"
 msgstr "Halscope"
 
 #. type: Target for macro image
-#: src/hal/tutorial.adoc:944
+#: src/hal/tutorial.adoc:943
 #, fuzzy, no-wrap
 msgid "images/halscope-05.png"
 msgstr "images/halscope-05_fr.png"
 
 #. type: Plain text
-#: src/hal/tutorial.adoc:952
+#: src/hal/tutorial.adoc:951
 #, fuzzy
 msgid ""
 "To add a signal to channel 2, click the '2' button. When the dialog pops up, "
@@ -77958,13 +77938,13 @@ msgstr ""
 "_siggen.0.triangle_ et pour le canal _4_, choisissez _siggen.0.square_."
 
 #. type: Title ===
-#: src/hal/tutorial.adoc:953
+#: src/hal/tutorial.adoc:952
 #, fuzzy, no-wrap
 msgid "Capturing our first waveforms"
 msgstr "Capturer notre première forme d'onde"
 
 #. type: Plain text
-#: src/hal/tutorial.adoc:967
+#: src/hal/tutorial.adoc:966
 #, fuzzy
 msgid ""
 "Now that we have several probes hooked to the HAL, it's time to capture some "
@@ -77994,19 +77974,19 @@ msgstr ""
 "ressemble à la figure ci-dessous."
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
-#: src/hal/tutorial.adoc:969 src/hal/tutorial.adoc:970
+#: src/hal/tutorial.adoc:968 src/hal/tutorial.adoc:969
 #, fuzzy, no-wrap
 msgid "Captured Waveforms"
 msgstr "Capture d'ondes"
 
 #. type: Target for macro image
-#: src/hal/tutorial.adoc:970
+#: src/hal/tutorial.adoc:969
 #, fuzzy, no-wrap
 msgid "images/halscope-06.png"
 msgstr "images/halscope-06_fr.png"
 
 #. type: Plain text
-#: src/hal/tutorial.adoc:976
+#: src/hal/tutorial.adoc:975
 #, fuzzy
 msgid ""
 "The 'Selected Channel' box at the bottom tells you that the purple trace is "
@@ -78020,13 +78000,13 @@ msgstr ""
 "the other three traces."
 
 #. type: Title ===
-#: src/hal/tutorial.adoc:977
+#: src/hal/tutorial.adoc:976
 #, fuzzy, no-wrap
 msgid "Vertical Adjustments"
 msgstr "Ajustements verticaux"
 
 #. type: Plain text
-#: src/hal/tutorial.adoc:987
+#: src/hal/tutorial.adoc:986
 #, fuzzy
 msgid ""
 "The traces are rather hard to distinguish since all four are on top of each "
@@ -78049,19 +78029,19 @@ msgstr ""
 "_Offset_ peut être utilisé."
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
-#: src/hal/tutorial.adoc:989 src/hal/tutorial.adoc:990
+#: src/hal/tutorial.adoc:988 src/hal/tutorial.adoc:989
 #, fuzzy, no-wrap
 msgid "Vertical Adjustment"
 msgstr "Ajustement vertical"
 
 #. type: Target for macro image
-#: src/hal/tutorial.adoc:990
+#: src/hal/tutorial.adoc:989
 #, fuzzy, no-wrap
 msgid "images/halscope-07.png"
 msgstr "images/halscope-07_fr.png"
 
 #. type: Plain text
-#: src/hal/tutorial.adoc:996
+#: src/hal/tutorial.adoc:995
 #, fuzzy
 msgid ""
 "The large _Selected Channel_ button at the bottom indicates that channel 1 "
@@ -78075,13 +78055,13 @@ msgstr ""
 "évidence et pouvoir les déplacer avec le curseur _Pos_."
 
 #. type: Title ===
-#: src/hal/tutorial.adoc:997
+#: src/hal/tutorial.adoc:996
 #, fuzzy, no-wrap
 msgid "Triggering"
 msgstr "Déclenchement (Triggering)"
 
 #. type: Plain text
-#: src/hal/tutorial.adoc:1005
+#: src/hal/tutorial.adoc:1004
 #, fuzzy
 msgid ""
 "Using the 'Force' button is a rather unsatisfying way to trigger the scope. "
@@ -78102,19 +78082,19 @@ msgstr ""
 "choisi comme déclencheur."
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
-#: src/hal/tutorial.adoc:1007 src/hal/tutorial.adoc:1008
+#: src/hal/tutorial.adoc:1006 src/hal/tutorial.adoc:1007
 #, fuzzy, no-wrap
 msgid "Trigger Source Dialog"
 msgstr "Dialogue des sources de déclenchement"
 
 #. type: Target for macro image
-#: src/hal/tutorial.adoc:1008
+#: src/hal/tutorial.adoc:1007
 #, fuzzy, no-wrap
 msgid "images/halscope-08.png"
 msgstr "images/halscope-08_fr.png"
 
 #. type: Plain text
-#: src/hal/tutorial.adoc:1025
+#: src/hal/tutorial.adoc:1024
 #, fuzzy
 msgid ""
 "After setting the trigger source, you can adjust the trigger level and "
@@ -78150,7 +78130,7 @@ msgstr ""
 "scope en cliquant sur le bouton _Normal_ du groupe _Mode \"Run\"_."
 
 #. type: Plain text
-#: src/hal/tutorial.adoc:1028
+#: src/hal/tutorial.adoc:1027
 #, fuzzy
 msgid ""
 "Now that we have adjusted the vertical controls and triggering, the scope "
@@ -78160,25 +78140,25 @@ msgstr ""
 "l'écran doit ressembler à la figure ci-dessous."
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
-#: src/hal/tutorial.adoc:1030 src/hal/tutorial.adoc:1031
+#: src/hal/tutorial.adoc:1029 src/hal/tutorial.adoc:1030
 #, fuzzy, no-wrap
 msgid "Waveforms with Triggering"
 msgstr "Formes d'ondes avec déclenchement"
 
 #. type: Target for macro image
-#: src/hal/tutorial.adoc:1031
+#: src/hal/tutorial.adoc:1030
 #, fuzzy, no-wrap
 msgid "images/halscope-09.png"
 msgstr "images/halscope-09_fr.png"
 
 #. type: Title ===
-#: src/hal/tutorial.adoc:1033
+#: src/hal/tutorial.adoc:1032
 #, fuzzy, no-wrap
 msgid "Horizontal Adjustments"
 msgstr "Ajustement horizontal"
 
 #. type: Plain text
-#: src/hal/tutorial.adoc:1048
+#: src/hal/tutorial.adoc:1047
 #, fuzzy
 msgid ""
 "To look closely at part of a waveform, you can use the zoom slider at the "
@@ -78210,25 +78190,25 @@ msgstr ""
 "enregistrement sera de 4000 échantillons à 20kHz, soit environ 0.20 seconde."
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
-#: src/hal/tutorial.adoc:1050 src/hal/tutorial.adoc:1051
+#: src/hal/tutorial.adoc:1049 src/hal/tutorial.adoc:1050
 #, fuzzy, no-wrap
 msgid "Sample Rate Dialog"
 msgstr "Dialogue de choix d'échantillonnage"
 
 #. type: Target for macro image
-#: src/hal/tutorial.adoc:1051
+#: src/hal/tutorial.adoc:1050
 #, fuzzy, no-wrap
 msgid "images/halscope-10.png"
 msgstr "images/halscope-10_fr.png"
 
 #. type: Title ===
-#: src/hal/tutorial.adoc:1053
+#: src/hal/tutorial.adoc:1052
 #, fuzzy, no-wrap
 msgid "More Channels"
 msgstr "Plus de canaux"
 
 #. type: Plain text
-#: src/hal/tutorial.adoc:1071
+#: src/hal/tutorial.adoc:1070
 #, fuzzy
 msgid ""
 "Now let's look at the step pulses. Halscope has 16 channels, but for this "
@@ -78269,25 +78249,25 @@ msgstr ""
 "resserrées."
 
 #. type: Positional ($1) AttributeList argument for macro 'image'
-#: src/hal/tutorial.adoc:1073 src/hal/tutorial.adoc:1074
+#: src/hal/tutorial.adoc:1072 src/hal/tutorial.adoc:1073
 #, fuzzy, no-wrap
 msgid "Step Pulses"
 msgstr "Observer les impulsions de pas"
 
 #. type: Target for macro image
-#: src/hal/tutorial.adoc:1074
+#: src/hal/tutorial.adoc:1073
 #, fuzzy, no-wrap
 msgid "images/halscope-11.png"
 msgstr "images/halscope-11_fr.png"
 
 #. type: Title ===
-#: src/hal/tutorial.adoc:1076
+#: src/hal/tutorial.adoc:1075
 #, fuzzy, no-wrap
 msgid "More samples"
 msgstr "Plus d'échantillons"
 
 #. type: Plain text
-#: src/hal/tutorial.adoc:1081
+#: src/hal/tutorial.adoc:1080
 #, fuzzy
 msgid ""
 "If you want to record more samples at once, restart realtime and load "
@@ -78299,13 +78279,13 @@ msgstr ""
 "nombre d'échantillons que vous voulez capturer, comme:"
 
 #. type: delimited block -
-#: src/hal/tutorial.adoc:1084
+#: src/hal/tutorial.adoc:1083
 #, fuzzy, no-wrap
-msgid "halcmd: loadusr halscope 80000\n"
-msgstr "halcmd: loadusr halscope 80000 \n"
+msgid "halcmd loadusr halscope 80000\n"
+msgstr "halcmd loadusr halscope 80000 \n"
 
 #. type: Plain text
-#: src/hal/tutorial.adoc:1091
+#: src/hal/tutorial.adoc:1090
 #, fuzzy
 msgid ""
 "If the 'scope_rt' component was not already loaded, halscope will load it "
