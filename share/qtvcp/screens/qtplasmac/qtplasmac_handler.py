@@ -1,4 +1,4 @@
-VERSION = '1.223.188'
+VERSION = '1.223.189'
 
 '''
 qtplasmac_handler.py
@@ -425,6 +425,7 @@ class HandlerClass:
                 self.rflSelected = False
                 self.rflActive = False
                 self.startLine = 0
+                self.w.gcodegraphics.highlight_graphics(0)
                 self.preRflFile = ''
                 ACTION.OPEN_PROGRAM(saved)
 
@@ -1443,7 +1444,8 @@ class HandlerClass:
                 self.w.gcode_stack.setCurrentIndex(0)
             self.w.file_reload.setEnabled(True)
         self.w.gcodegraphics.logger.clear()
-        if self.preRflFile and self.preRflFile != ACTION.prefilter_path:
+        self.w.gcodegraphics.highlight_graphics(0)
+        if self.preRflFile != ACTION.prefilter_path:
             self.rflActive = False
             self.startLine = 0
             self.preRflFile = ''
@@ -1607,6 +1609,7 @@ class HandlerClass:
                 self.runText = '{}\n{}'.format(txt0, txt1)
             else:
                 self.startLine = 0
+                self.w.gcodegraphics.highlight_graphics(0)
                 self.rflSelected = False
                 self.w.gcode_display.setCursorPosition(0, 0)
 
@@ -1885,6 +1888,7 @@ class HandlerClass:
             self.rflSelected = False
             self.rflActive = False
             self.startLine = 0
+            self.w.gcodegraphics.highlight_graphics(0)
             self.preRflFile = ''
             clearFile = '{}qtplasmac_program_clear.ngc'.format(self.tmpPath)
             with open(clearFile, 'w') as outFile:
@@ -2029,10 +2033,11 @@ class HandlerClass:
         self.stats_state_changed(state)
 
     def file_reload_clicked(self):
-        if self.rflActive:
+        if self.startLine:
             self.rflActive = False
             self.set_run_button_state()
             self.startLine = 0
+            self.w.gcodegraphics.highlight_graphics(0)
             self.preRflFile = ''
         if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
             file = ACTION.prefilter_path or self.lastLoadedProgram
