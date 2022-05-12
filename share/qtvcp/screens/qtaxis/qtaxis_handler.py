@@ -107,6 +107,7 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionOpen, 'load')
         TOOLBAR.configure_action(self.w.actionReload, 'Reload')
         TOOLBAR.configure_action(self.w.actionRun, 'run')
+        TOOLBAR.configure_action(self.w.actionStep, 'step')
         TOOLBAR.configure_action(self.w.actionPause, 'pause')
         TOOLBAR.configure_action(self.w.actionStop, 'abort')
         TOOLBAR.configure_action(self.w.actionSkip, 'block_delete')
