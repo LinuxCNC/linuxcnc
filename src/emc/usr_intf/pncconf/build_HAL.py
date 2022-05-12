@@ -738,23 +738,24 @@ class HAL:
                     value = self.d["soincrvalue%d"% i]
                     print("    setp soincr.in%02d          %f"% (i,value), file=file)
                 print(file=file)
-        # qtplasmac doesn't require these:
-        if self.d.frontend != _PD._QTPLASMAC:
-            print(_("#  ---motion control signals---"), file=file)
-            print(file=file)
-            print("net in-position               <=  motion.in-position", file=file)
-            print("net machine-is-enabled        <=  motion.motion-enabled", file=file)
-            print(file=file)
-            print(_("#  ---digital in / out signals---"), file=file)
-            print(file=file)
-            for i in range(4):
-                dout = "dout-%02d" % i
-                if self.a.findsignal(dout):
-                    print("net %s     <=  motion.digital-out-%02d" % (dout, i), file=file)
-            for i in range(4):
-                din = "din-%02d" % i
-                if self.a.findsignal(din):
-                    print("net %s     =>  motion.digital-in-%02d" % (din, i), file=file)
+        print(_("#  ---motion control signals---"), file=file)
+        print(file=file)
+        print("net in-position               <=  motion.in-position", file=file)
+        print("net machine-is-enabled        <=  motion.motion-enabled", file=file)
+        print(file=file)
+        print(_("#  ---digital in / out signals---"), file=file)
+        print(file=file)
+        for i in range(4):
+            dout = "dout-%02d" % i
+            if self.a.findsignal(dout):
+                comment = ""
+                if self.d.frontend == _PD._QTPLASMAC and dout in ['dout-01','dout-02','dout-03']:
+                    comment = "#qtplasmac uses digital output %s:\n#" % dout
+                print("%snet %s     <=  motion.digital-out-%02d" % (comment, dout, i), file=file)
+        for i in range(4):
+            din = "din-%02d" % i
+            if self.a.findsignal(din):
+                print("net %s     =>  motion.digital-in-%02d" % (din, i), file=file)
         print(_("#  ---estop signals---"), file=file)
         print(file=file)
         print("net estop-out     <=  iocontrol.0.user-enable-out", file=file)
@@ -1683,7 +1684,10 @@ class HAL:
                         if p == "force-pin-true":
                             print("setp %s true"% (temp), file=file)
                         else:
-                            print("net %s  =>     %s"% (p,temp), file=file)
+                            comment = ""
+                            if self.d.frontend == _PD._QTPLASMAC and p in ['dout-01','dout-02','dout-03']:
+                                comment = "#qtplasmac uses digital output %s:\n#" % p
+                            print("%snet %s  =>     %s"% (comment,p,temp), file=file)
                     if i: # invert pin
                         if "sserial" in pname:
                             ending = "-invert"
