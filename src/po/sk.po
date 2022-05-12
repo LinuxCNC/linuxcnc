@@ -1,16 +1,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sk\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-03-13 11:02+0100\n"
-"PO-Revision-Date: 2009-01-25 14:12+0100\n"
-"Last-Translator: Ševc Dominik <sevc2post.sk>\n"
+"PO-Revision-Date: 2022-05-14 19:38+0000\n"
+"Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
 "Language: sk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"X-Generator: Weblate 4.13-dev\n"
 "X-Poedit-Language: Slovak\n"
 "X-Poedit-Country: SLOVAKIA\n"
 
@@ -20,62 +21,66 @@ msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
 "turned on"
 msgstr ""
+"príkaz (%s) nie je možné vykonať, kým sa stroj nevypne z núdzového "
+"zastavenia a nezapne sa"
 
 #: src/emc/task/emctaskmain.cc:1001
 #, c-format
 msgid "can't do that (%s:%d) in manual mode"
-msgstr ""
+msgstr "nemôžem vykonať (%s:%d) v manuálnom režime"
 
 #: src/emc/task/emctaskmain.cc:1108
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idle"
-msgstr ""
+msgstr "nemôžem  vykonať (%s) v automatickom režime, keď je interpreter nečinný"
 
 #: src/emc/task/emctaskmain.cc:1177
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
-msgstr ""
+msgstr "nemôže vykonať (%s) v automatickom režime s čítaním interpretera"
 
 #: src/emc/task/emctaskmain.cc:1264
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
-msgstr ""
+msgstr "nemôžem vykonať (%s) v automatickom režime s pozastaveným interpreterom"
 
 #: src/emc/task/emctaskmain.cc:1335
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
-msgstr ""
+msgstr "nemôžem vykonať (%s) v automatickom režime pokiaľ interpreter čaká"
 
 #: src/emc/task/emctaskmain.cc:1456
 #, c-format
 msgid "can't do that (%s:%d) in MDI mode"
-msgstr ""
+msgstr "nemôžem vykonať (%s:%d) v móde MDI"
 
 #: src/emc/task/emctaskmain.cc:2127
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
 msgstr ""
+"Nie je možné prepnúť režim, pokiaľ je v režime AUTO a interpreter nie je "
+"nečinný"
 
 #: src/emc/task/emctaskmain.cc:2180
 msgid "failed to close file"
-msgstr ""
+msgstr "nepodarilo sa zatvoriť súbor"
 
 #: src/emc/task/emctaskmain.cc:2194 tcl/bin/genedit.tcl:197
 #: tcl/tklinuxcnc.tcl:452
 #, c-format, tcl-format
 msgid "can't open %s"
-msgstr "Nie je možné otvoriť %s."
+msgstr "Nie je možné otvoriť %s"
 
 #: src/emc/task/emctaskmain.cc:2206
 msgid "Can't issue MDI command when not homed"
-msgstr ""
+msgstr "Nie je možné zadať príkaz MDI, pokiaľ nie je stroj skalibrovaný"
 
 #: src/emc/task/emctaskmain.cc:2211
 msgid "Must be in MDI mode to issue MDI command"
-msgstr ""
+msgstr "Ak chcete zadať príkaz MDI, musíte byť v režime MDI"
 
 #: src/emc/task/emctaskmain.cc:2293
 msgid "Can't run a program when not homed"
-msgstr ""
+msgstr "Nie je možné spustiť program, pokiaľ nie je stroj skalibrovaný"
 
 #: src/emc/rs274ngc/interp_arc.cc:111 src/emc/rs274ngc/interp_arc.cc:287
 #, c-format
@@ -83,6 +88,8 @@ msgid ""
 "Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c"
 "%.4f) r1=%.4f r2=%.4f"
 msgstr ""
+"Oblúk s nulovým polomerom: začiatok=(%c%.4f,%c%.4f) stred=(%c%.4f,%c%.4f) "
+"koniec=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
 
 #: src/emc/rs274ngc/interp_arc.cc:122 src/emc/rs274ngc/interp_arc.cc:296
 #, c-format
@@ -91,23 +98,26 @@ msgid ""
 "center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f abs_err=%.4g "
 "rel_err=%.4f%%"
 msgstr ""
+"Nelogicky zadaný polomer, alebo súradnice jeho konca: začiatok=(%c%.4f,%c%."
+"4f) stred=(%c%.4f,%c%.4f) koniec=(%c%.4f, %c%.4f) r1=%.4f r2=%.4f "
+"abs_err=%.4g rel_err=%.4f%%"
 
 #: src/emc/rs274ngc/interp_check.cc:89
 msgid "G4 not allowed with G2 or G3 because they both use P"
-msgstr ""
+msgstr "G4 nie je povolené s G2 alebo G3, pretože oba používajú parameter P"
 
 #: src/emc/rs274ngc/interp_check.cc:92
 msgid "Line with G10 does not have L0, L1, L10, L11, L2, or L20"
-msgstr ""
+msgstr "Riadok s G10 nemá parameter L0, L1, L10, L11, L2 alebo L20"
 
 #: src/emc/rs274ngc/interp_check.cc:93
 msgid "P value not an integer with G10"
-msgstr ""
+msgstr "Hodnota P nie je celé číslo v G10"
 
 #: src/emc/rs274ngc/interp_check.cc:94
 #, c-format
 msgid "P value out of range (0-9) with G10 L%d"
-msgstr ""
+msgstr "Hodnota P je mimo rozsahu (0-9) s G10 L%d"
 
 #: src/emc/rs274ngc/interp_check.cc:95
 #, c-format
@@ -1364,9 +1374,8 @@ msgid "Negative p word used"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:123
-#, fuzzy
 msgid "Negative spindle speed used"
-msgstr "Nastaviť zmenu rýchlosti vretena:"
+msgstr "Použitá negatívna hodnota rýchlosti vretena"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:124
 msgid "Negative tool id (tool not found)"
@@ -1771,7 +1780,7 @@ msgstr ""
 
 #: src/hal/utils/meter.c:243 tcl/tklinuxcnc.tcl:793
 msgid "Hal Meter"
-msgstr "HAL-Meter"
+msgstr "HAL Meter"
 
 #: src/hal/utils/meter.c:292
 #, fuzzy
@@ -2897,7 +2906,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:3708
 #: src/emc/usr_intf/gscreen/gscreen.glade:2660
 msgid "Run"
-msgstr "Ausführen"
+msgstr "Bežať"
 
 #: src/hal/classicladder/classicladder_gtk.c:338
 msgid "Stopped ladder program - press run button to continue."
@@ -3114,9 +3123,8 @@ msgid "Display symbols"
 msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:816
-#, fuzzy
 msgid "Statusbar"
-msgstr "Stav:"
+msgstr "Stav"
 
 #: src/hal/classicladder/classicladder_gtk.c:836
 msgid "Load"
@@ -3637,7 +3645,7 @@ msgstr "Zmeniť "
 #: src/emc/usr_intf/pncconf/dialogs.glade:576
 #: src/emc/usr_intf/gscreen/gscreen.glade:4027
 msgid "Cancel"
-msgstr "ZrušiťAbbrechen"
+msgstr "Zrušiť"
 
 #: src/hal/classicladder/edit_sequential.c:68
 #, fuzzy
@@ -3645,9 +3653,8 @@ msgid "Step Nbr"
 msgstr "Krok"
 
 #: src/hal/classicladder/edit_sequential.c:76
-#, fuzzy
 msgid "Comment"
-msgstr "Príkaz:"
+msgstr "Komentár"
 
 #: src/hal/classicladder/edit_sequential.c:151
 #, c-format
@@ -4513,7 +4520,7 @@ msgstr "Kalibrácia osi EMC2"
 
 #: tcl/bin/emccalib.tcl:103
 msgid "Save To File"
-msgstr "Uložiť"
+msgstr "Uložiť do súboru"
 
 #: tcl/bin/emccalib.tcl:119 tcl/bin/genedit.tcl:77 tcl/bin/halconfig.tcl:151
 #: tcl/bin/halshow.tcl:197 tcl/tklinuxcnc.tcl:748 tcl/ngcgui.tcl:493
@@ -4711,7 +4718,7 @@ msgstr "Nájsť:"
 
 #: tcl/bin/genedit.tcl:276
 msgid "Replace:"
-msgstr "Nahradiť."
+msgstr "Nahradiť :"
 
 #: tcl/bin/genedit.tcl:282
 msgid "Find All"
@@ -5260,7 +5267,7 @@ msgstr "SMER"
 
 #: tcl/bin/tkbackplot.tcl:270
 msgid "SIZE :"
-msgstr "VEĽKOSŤ"
+msgstr "VELKOST :"
 
 #: tcl/show_errors.tcl:78
 #, fuzzy
@@ -9216,9 +9223,8 @@ msgid "Mist Off"
 msgstr "Chladenie vypnuté"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1361
-#, fuzzy
 msgid "<b>Coolant</b>"
-msgstr "Príkaz:"
+msgstr "<b>Chladenie</b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1418
 msgid "Spindle Forward"
@@ -9253,9 +9259,8 @@ msgid "label26"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:1535
-#, fuzzy
 msgid "<b>Spindle</b>"
-msgstr "Vreteno vypni"
+msgstr "<b>Vreteno</b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1586
 msgid "file.ngc"
@@ -11678,7 +11683,8 @@ msgstr "Typ polohy"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -16089,9 +16095,8 @@ msgid "/dev/ttyS0"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:389
-#, fuzzy
 msgid "<b>Serial VFD</b>"
-msgstr "Vreteno vypni"
+msgstr "<b>Serial FM</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:431
 msgid "<b>External Button Jogging</b>"
@@ -16102,23 +16107,20 @@ msgid "<b>External MPG Jogging</b>"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:477
-#, fuzzy
 msgid "<b>External Feed Override</b>"
-msgstr "Nastav prechod posunu"
+msgstr "<b> Externý posun</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:500
 msgid "<b>Max Velocity Override</b>"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:523
-#, fuzzy
 msgid "<b>Spindle Override</b>"
-msgstr "Nastaviť zmenu vretena"
+msgstr "<b>Otáčky vretena</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:546
-#, fuzzy
 msgid "<b>USB Jogging</b>"
-msgstr "Vreteno vypni"
+msgstr "<b>USB Pohyby strojom</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:711
 msgid ""
@@ -16186,9 +16188,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/external.glade:2682
 #: src/emc/usr_intf/pncconf/external.glade:3625
 #: src/emc/usr_intf/pncconf/external.glade:4568
-#, fuzzy
 msgid "<b>default</b>"
-msgstr "Vreteno vypni"
+msgstr "<b>predvolené</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:1111
 #, fuzzy
@@ -17423,9 +17424,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/z_motor.glade:1667
 #: src/emc/usr_intf/pncconf/a_motor.glade:1598
 #: src/emc/usr_intf/pncconf/s_motor.glade:1832
-#, fuzzy
 msgid "<b>Configuration</b>"
-msgstr "Nastavenie HAL"
+msgstr "<b>Konfigurácia</b>"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1684
 #: src/emc/usr_intf/pncconf/y_motor.glade:1684
@@ -17480,9 +17480,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/y_motor.glade:1848
 #: src/emc/usr_intf/pncconf/z_motor.glade:1848
 #: src/emc/usr_intf/pncconf/a_motor.glade:1773
-#, fuzzy
 msgid "<b>Use Spindle-At-Speed</b>"
-msgstr "Vreteno vypni"
+msgstr "<b>Použitie Spindle-At-Speed</b>"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1879
 #: src/emc/usr_intf/pncconf/y_motor.glade:1879
@@ -17983,9 +17982,8 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:536
-#, fuzzy
 msgid "<b>frame2</b>"
-msgstr "Vreteno vypni"
+msgstr "<b>rámec2</b>"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:589
 #, fuzzy
@@ -18073,9 +18071,8 @@ msgid "      <b>MOTOR</b> RPM at Max Voltage"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1600
-#, fuzzy
 msgid "<b>Spindle Drive Motor</b>"
-msgstr "Vreteno vypni"
+msgstr "<b>Vreteno Drive Motor</b>"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1640
 #: src/emc/usr_intf/pncconf/dialogs.glade:2440
@@ -18880,9 +18877,8 @@ msgid "G-code"
 msgstr "Vreteno dozadu"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1392
-#, fuzzy
 msgid "<b>G-Codes Active</b>"
-msgstr "Vreteno vypni"
+msgstr "<b>Aktívne G-kódy</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1451
 msgid "MV:100%"
@@ -18916,9 +18912,8 @@ msgid "10 Ipm"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1690
-#, fuzzy
 msgid "<b>Status</b>"
-msgstr "Príkaz:"
+msgstr "<b>Status</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1715
 msgid ""
@@ -18947,9 +18942,8 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1801
-#, fuzzy
 msgid "<b>Mode</b>"
-msgstr "Vreteno vypni"
+msgstr "<b>Mód</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1817
 msgid "Main Level"
