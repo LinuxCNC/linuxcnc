@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-03-13 11:02+0100\n"
-"PO-Revision-Date: 2022-05-03 20:12+0000\n"
-"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
+"PO-Revision-Date: 2022-05-14 08:02+0000\n"
+"Last-Translator: Asle Næss <aness@bofh.no>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
 "Language: nb\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.12.1\n"
+"X-Generator: Weblate 4.13-dev\n"
 
 #: src/emc/task/emctaskmain.cc:871
 #, c-format
@@ -25,37 +25,37 @@ msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
 "turned on"
 msgstr ""
-"Kommandoen (%s) kan ikke kjøres før maskinen er fri for E-stopp og påskrudd"
+"Kommandoen (%s) kan ikke kjøres før maskinen er slått på og ute av E-stopp"
 
 #: src/emc/task/emctaskmain.cc:1001
 #, c-format
 msgid "can't do that (%s:%d) in manual mode"
-msgstr "kan ikke gjøre det (%s:%d) i manuell modus"
+msgstr "(%s:%d) kan ikke gjøres i manuell modus"
 
 #: src/emc/task/emctaskmain.cc:1108
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idle"
-msgstr "kan ikke gjøre det (%s) i automodus når kommandotolkeren står stille"
+msgstr "kan ikke gjøre dette (%s) i automodus når kommandotolkeren ikke kjører"
 
 #: src/emc/task/emctaskmain.cc:1177
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
-msgstr "kan ikke gjøre det (%s) i automodus mens kommandotolkeren leser"
+msgstr "kan ikke gjøre dette (%s) i automodus mens kommandotolkeren leser"
 
 #: src/emc/task/emctaskmain.cc:1264
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
-msgstr "kan ikke gjøre det (%s) i automodus mens kommandotolkeren er pauset"
+msgstr "kan ikke gjøre dette (%s) i automodus mens kommandotolkeren er pauset"
 
 #: src/emc/task/emctaskmain.cc:1335
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
-msgstr "kan ikke gjøre det (%s) i automodus mens kommandotolkeren venter"
+msgstr "kan ikke gjøre dette (%s) i automodus mens kommandotolkeren venter"
 
 #: src/emc/task/emctaskmain.cc:1456
 #, c-format
 msgid "can't do that (%s:%d) in MDI mode"
-msgstr ""
+msgstr "kan ikke utføre dette (%s:%d) i MDI-modus"
 
 #: src/emc/task/emctaskmain.cc:2127
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
@@ -109,10 +109,8 @@ msgid "G4 not allowed with G2 or G3 because they both use P"
 msgstr "G4 kan ikke brukes med G2 eller G3 da de begge bruker P"
 
 #: src/emc/rs274ngc/interp_check.cc:92
-#, fuzzy
-#| msgid "Line with G10 does not have L1, L10, L11, L2, or L20"
 msgid "Line with G10 does not have L0, L1, L10, L11, L2, or L20"
-msgstr "Linje med G10 mangler L1, L10, L11, L2 eller L20"
+msgstr "Linjen med G10 mangler L0, L1, L10, L11, L2 eller L20"
 
 #: src/emc/rs274ngc/interp_check.cc:93
 msgid "P value not an integer with G10"
@@ -121,16 +119,16 @@ msgstr "P-verdi er ikke et heltall med G10"
 #: src/emc/rs274ngc/interp_check.cc:94
 #, c-format
 msgid "P value out of range (0-9) with G10 L%d"
-msgstr "P-verdi er utenfor område (0-9) med G10 L%d"
+msgstr "P-verdi er utenfor gyldig område (0-9) med G10 L%d"
 
 #: src/emc/rs274ngc/interp_check.cc:95
 #, c-format
 msgid "P value out of range with G10 L%d"
-msgstr "P-verdi er utenfor område med G10 L%d"
+msgstr "P-verdi er utenfor gyldig område med G10 L%d"
 
 #: src/emc/rs274ngc/interp_check.cc:99
 msgid "Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."
-msgstr "Mellom kodene G5.2 og G5.3 er det kun tillatt med flere G5.2-koder."
+msgstr "Mellom kodene G5.2 og G5.3 er kun ekstra G5.2-koder tillatt."
 
 #: src/emc/rs274ngc/interp_check.cc:260
 msgid ""
@@ -219,7 +217,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:195
 msgid "Cannot use G5.3 without G5.2 first"
-msgstr ""
+msgstr "G5.3 kan ikke brukes uten G5.2 foran"
 
 #: src/emc/rs274ngc/interp_convert.cc:196
 #, c-format
@@ -242,7 +240,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:244
 msgid "Must specify both I and J with G5.1"
-msgstr ""
+msgstr "Både I og J må spesifiseres med G5.1"
 
 #: src/emc/rs274ngc/interp_convert.cc:266
 msgid "Must specify both I and J, or neither"
@@ -329,16 +327,16 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:1956
 #, c-format
 msgid "G%d requires D word to be a whole number"
-msgstr ""
+msgstr "G%d krever at D-parameter er heltall"
 
 #: src/emc/rs274ngc/interp_convert.cc:1963
 #, c-format
 msgid "G%d with lathe tool, but plane is not G18"
-msgstr ""
+msgstr "G%d med dreieverktøy, men plan er ikke G18"
 
 #: src/emc/rs274ngc/interp_convert.cc:2365
 msgid "Cannot set reference point with cutter compensation in effect"
-msgstr ""
+msgstr "Kan ikke sette referansepunkt når fresekompensasjon er aktiv"
 
 #: src/emc/rs274ngc/interp_convert.cc:2945
 #, c-format
@@ -666,7 +664,7 @@ msgstr ""
 #: src/emc/rs274ngc/interp_cycles.cc:283
 #, c-format
 msgid "Spindle state unknown for %s"
-msgstr ""
+msgstr "Spindelstatus er ukjent for %s"
 
 #: src/emc/rs274ngc/interp_cycles.cc:724
 msgid "Cannot feed with zero feed rate"
@@ -11288,6 +11286,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
 msgid ""
 "_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
