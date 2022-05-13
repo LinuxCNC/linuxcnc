@@ -15,8 +15,27 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
     <item>
-     <layout class="QHBoxLayout" name="mainLayout"/>
+     <layout class="QHBoxLayout" name="mainLayout">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+     </layout>
     </item>
    </layout>
   </widget>
@@ -26,11 +45,10 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>27</height>
+     <height>24</height>
     </rect>
    </property>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
  <connections/>

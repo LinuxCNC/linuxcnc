@@ -208,6 +208,7 @@ class Window(QWidget):
         v.work2view = work
 
         mainLayout = QHBoxLayout()
+        mainLayout.setContentsMargins(0,0,0,0)
         mainLayout.addWidget(self.glWidget)
         self.setLayout(mainLayout)
 
