@@ -455,6 +455,7 @@ class HandlerClass:
         sensor_code = bool(message.get('ID') == '_toolsensor_')
         wait_code = bool(message.get('ID') == '_wait_resume_')
         unhome_code = bool(message.get('ID') == '_unhome_')
+        overwrite = bool(message.get('ID') == '_overwrite_')
         if plate_code and name == 'MESSAGE' and rtn is True:
             self.touchoff('touchplate')
         elif sensor_code and name == 'MESSAGE' and rtn is True:
@@ -463,6 +464,11 @@ class HandlerClass:
             self.h['eoffset-clear'] = False
         elif unhome_code and name == 'MESSAGE' and rtn is True:
             ACTION.SET_MACHINE_UNHOMED(-1)
+        elif overwrite and name == 'MESSAGE':
+            if rtn is True:
+                self.do_file_copy()
+            else:
+                self.add_status("File not copied")
 
     def user_system_changed(self, data):
         sys = self.system_list[int(data) - 1]
@@ -771,15 +777,17 @@ class HandlerClass:
         if source[1] is False:
             self.add_status("Specified source is not a file")
             return
+        self.source_file = source[0]
         if target[1] is True:
-            destination = os.path.join(os.path.dirname(target[0]), os.path.basename(source[0]))
+            self.destination_file = os.path.join(os.path.dirname(target[0]), os.path.basename(source[0]))
         else:
-            destination = os.path.join(target[0], os.path.basename(source[0]))
-        try:
-            copyfile(source[0], destination)
-            self.add_status("Copied file from {} to {}".format(source[0], destination))
-        except Exception as e:
-            self.add_status("Unable to copy file. %s" %e)
+            self.destination_file = os.path.join(target[0], os.path.basename(source[0]))
+        if os.path.isfile(self.destination_file):
+            info = "{} already exists in destination directory".format(self.destination_file)
+            mess = {'NAME':'MESSAGE', 'ICON':'WARNING', 'ID':'_overwrite_', 'MESSAGE':'OVERWRITE FILE?', 'MORE':info, 'TYPE':'YESNO','NONBLOCKING':True}
+            ACTION.CALL_DIALOG(mess)
+        else:
+            self.do_file_copy()
 
     # tool tab
     def btn_m61_clicked(self):
@@ -993,6 +1001,13 @@ class HandlerClass:
         else:
             self.add_status('Keyboard shortcuts are disabled')
             return False
+
+    def do_file_copy(self):
+        try:
+            copyfile(self.source_file, self.destination_file)
+            self.add_status("Copied file from {} to {}".format(self.source_file, self.destination_file))
+        except Exception as e:
+            self.add_status("Unable to copy file. %s" %e)
 
     def update_runtimer(self):
         if self.timer_on is False or STATUS.is_auto_paused(): return
