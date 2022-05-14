@@ -1,7 +1,8 @@
 import os
 import subprocess
 
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import (QApplication, QTabWidget, QStackedWidget,
+    QWidget, QGridLayout)
 from PyQt5.QtCore import Qt, QProcess
 
 import linuxcnc
@@ -720,6 +721,28 @@ class _Lcnc_Action(object):
                                         str(z_offset))
         self.proc.writeData(bytes(string_to_send, 'utf-8'))
         return 1
+
+    def ADD_WIDGET_TO_TAB(self, widgetTo, widget,name):
+        try:
+            if isinstance(widgetTo, QTabWidget):
+                tw = QWidget()
+                widgetTo.addTab(tw, name)
+            elif isinstance(widgetTo, QStackedWidget):
+                tw = QWidget()
+                widgetTo.addWidget(tw)
+            else:
+                LOG.warning('Widget {} is not a Tab or stacked Widget - skipping'.format(loc))
+                return False
+        except Exception as e:
+            LOG.warning("problem inserting child into location: {},{}".format(widget,e))
+            return False
+
+        layout = QGridLayout(tw)
+        layout.setContentsMargins(0,0,0,0)
+        layout.addWidget(widget, 0, 0)
+
+        return True
+
 
     ######################################
     # Action Helper functions
