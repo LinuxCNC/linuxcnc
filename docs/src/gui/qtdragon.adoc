@@ -152,6 +152,21 @@ MESSAGE_TYPE = okdialog
 MESSAGE_PINNAME = oktest
 ----
 
+=== Embed Custom VCP Panels
+You can embed QTVCP Virtual Control Panels into the QtDragon or QtDragon_hd screen. +
+These panels can be either user built or builtin <<cha:qtvcp-vcp-panels,QtVCP Panels>>. +
+The TAB_NAME entry will used as the title for the new tab. + 
+Tab TAB_LOCATION options include: 'tabWidget_utilities' and 'tabWidget_setup' +
+
+This sample adds a builtin panel; a graphical animated machine using the vismach library. 
+[source,{ini}]
+----
+[DISPLAY]
+EMBED_TAB_NAME = Vismach demo
+EMBED_TAB_COMMAND = qtvcp vismach_mill_xyz
+EMBED_TAB_LOCATION = tabWidget_utilities
+----
+
 === Program Extensions/Filters
 
 You can control what programs are displayed in the filemanager window with program extensions:
@@ -688,10 +703,11 @@ if you click on a line, a description of the code will be displayed. +
 
 === Setup Tab
 
-It's possible to load Html or PDF file (.html ending) with setup notes.
-HTML docs will be displayed in the setup tab and PDF will launch the system PDF Viewer.
-Some program, such as Fusion and Aspire will create this files for you.
-If you load a G-code program and there is an HTML/PDF file of the same name, it will load automatically.
+It's possible to load Html or PDF file (.html /,pdf ending) with setup notes. +
+HTML/PDF docs will be displayed in the setup tab. +
+Some program, such as Fusion and Aspire will create this files for you. +
+If you load a G-code program and there is an HTML/PDF file of the same name, it will load automatically. +
+you can also write your own HTML docs with the included SetUp Writer button. +
 
 .qtdragon - Setup Tab Sample
 image::images/silverdragon_setup.png["QtDragon Setup Tab",scale="25%"]
