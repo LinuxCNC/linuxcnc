@@ -65,7 +65,7 @@ to those in the INI file can be set on the command line:
 
 Using an example of "XYZA" for an AXES argument, these pins will be created
 when MDRO starts:
-[source.python]
+[source,python]
 ----
 mdro.axis.0
 mdro.axis.1
@@ -123,7 +123,7 @@ The easiest way to see how `MDRO` works is to try it in a simulation
 environment.  Add this section to the end of your simulation HAL file,
 usually "hallib/core_sim.hal":
 
-[source.python]
+[source,python]
 ----
 loadusr -W mdro -l sim.var XYZ
 net x-pos-fb  => mdro.axis.0
