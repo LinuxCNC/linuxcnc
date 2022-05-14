@@ -445,33 +445,34 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             os.environ['QTVCP_FORWARD_EVENTS_TO'] = str(wid)
 
             for name, loc, cmd in INFO.ZIPPED_TABS:
-                LOG.debug('Installing Embedded tab:{}, {}, {}'.format(name,loc,cmd))
+                LOG.info('green<Installing Embedded tab:{}, {}, {}>'.format(name,loc,cmd))
                 if loc == 'default':
                     loc = 'rightTab'
-                try:
-                    if isinstance(self.QTVCP_INSTANCE_[loc], QtWidgets.QTabWidget):
-                        tw = QtWidgets.QWidget()
-                        self.QTVCP_INSTANCE_[loc].addTab(tw, name)
-                    elif isinstance(self.QTVCP_INSTANCE_[loc], QtWidgets.QStackedWidget):
-                        tw = QtWidgets.QWidget()
-                        self.QTVCP_INSTANCE_[loc].addWidget(tw)
-                    else:
-                        LOG.warning('tab location {} is not a Tab or stacked Widget - skipping'.format(loc))
-                        continue
-                except Exception as e:
-                    LOG.warning("problem inserting VCP '{}' to location: {} :\n {}".format(name, loc, e))
-                    return
+
                 try:
                     if 'qtvcp' in cmd.split()[0].lower():
-                        layout = QtWidgets.QGridLayout(tw)
-                        layout.setContentsMargins(0,0,0,0)
-                        layout.addWidget(self.QTVCP_INSTANCE_[name.replace(' ','_')], 0, 0)
+                        rtn = ACTION.ADD_WIDGET_TO_TAB(self.QTVCP_INSTANCE_[loc],
+                                self.QTVCP_INSTANCE_[name.replace(' ','_')],name)
+                        if not rtn:
+                            raise Exception
                         continue
+
+                    else:
+                        if isinstance(self.QTVCP_INSTANCE_[loc], QtWidgets.QTabWidget):
+                            tw = QtWidgets.QWidget()
+                            self.QTVCP_INSTANCE_[loc].addTab(tw, name)
+                        elif isinstance(self.QTVCP_INSTANCE_[loc], QtWidgets.QStackedWidget):
+                            tw = QtWidgets.QWidget()
+                            self.QTVCP_INSTANCE_[loc].addWidget(tw)
+                        else:
+                            LOG.warning('tab location {} is not a Tab or stacked Widget - skipping'.format(loc))
+                            continue
+                    self._embed(cmd,loc,tw)
                 except Exception as e:
-                    LOG.warning("problem inserting NATIVE VCP '{}' to location: {} :\n {}"
-                            .format(name, loc, e))
+                    LOG.warning("problem inserting VCP '{}' to location: {} :\n {}".format(name, loc, e))
                     continue
-                self._embed(cmd,loc,tw)
+
+
 
     def _embed(self, cmd,loc,twidget):
             if twidget is None:
