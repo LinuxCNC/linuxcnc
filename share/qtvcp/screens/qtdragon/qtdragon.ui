@@ -112,7 +112,7 @@
        <string>~/linuxcnc/configs/qtdragon/qtdragon.pref</string>
       </property>
       <property name="embedded_program_option" stdset="0">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="entryDialog_option" stdset="0">
        <bool>true</bool>
