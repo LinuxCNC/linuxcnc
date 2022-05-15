@@ -1,8 +1,8 @@
 '''
 plasmac_gcode.py
 
-Copyright (C) 2019, 2020, 2021  Phillip A Carter
-Copyright (C) 2020, 2021  Gregory D Carl
+Copyright (C) 2019, 2020, 2021, 2022  Phillip A Carter
+Copyright (C)       2020, 2021, 2022  Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -471,7 +471,8 @@ def check_material_edit():
     tmpMaterial = False
     newMaterial = []
     th = 0
-    kw = jh = jd = ca = cv = pe = gp = cm = 0.0
+    kw = jh = jd = pe = gp = 0.0
+    cm = 1
     ca = 15
     cv = 100
     try:

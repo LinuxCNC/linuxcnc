@@ -1,4 +1,4 @@
-VERSION = '1.223.189'
+VERSION = '1.223.190'
 
 '''
 qtplasmac_handler.py
@@ -48,7 +48,6 @@ from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.preferences import Access
 from qtvcp.lib.qtplasmac import tooltips as TOOLTIPS
 from qtvcp.lib.qtplasmac import set_offsets as OFFSETS
-from qtvcp.lib.qtplasmac import run_from_line as RFL
 from qtvcp.lib.qtplasmac import updater as UPDATER
 from qtvcp.widgets.camview_widget import CamView as CAM
 from qtvcp.widgets.file_manager import FileManager as FILE_MAN
@@ -64,6 +63,7 @@ from qtvcp.widgets.status_label import StatusLabel as STATLABEL
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
 from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp.lib.notify import Notify
+from plasmac import run_from_line as RFL
 from rs274.glcanon import GlCanonDraw
 from qt5_graphics import Lcnc_3dGraphics as DRO
 
@@ -1703,7 +1703,55 @@ class HandlerClass:
             self.rflSelected = False
             if self.developmentPin:
                 reload(RFL)
-            RFL.run_from_line(self, self.w, ACTION, STATUS, linuxcnc)
+            head = _translate('HandlerClass', 'GCODE ERROR')
+            setup = RFL.run_from_line_get(self.lastLoadedProgram, self.startLine)
+            # cannot do run from line within a subroutine or if using cutter compensation
+            if setup['error']:
+                if setup['compError']:
+                    msg0 = _translate('HandlerClass', 'Cannot run from line while')
+                    msg1 = _translate('HandlerClass', 'cutter compensation is active')
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
+                if setup['subError']:
+                    msg0 = _translate('HandlerClass', 'Cannot do run from line')
+                    msg1 = _translate('HandlerClass', 'inside subroutine')
+                    msg2 = ''
+                    for sub in setup['subError']:
+                        msg2 += ' {}'.format(sub)
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}{}\n'.format(head, msg0, msg1, msg2))
+                self.rflActive = False
+                self.set_run_button_state()
+                self.startLine = 0
+                self.w.gcode_display.setCursorPosition(0, 0)
+                self.w.gcodegraphics.highlight_graphics(0)
+            else:
+                # get user input
+                userInput = self.dialog_run_from_line()
+                # rfl cancel clicked
+                if userInput['cancel']:
+                    self.rflActive = False
+                    self.set_run_button_state()
+                    self.startLine = 0
+                    self.w.gcode_display.setCursorPosition(0, 0)
+                    self.w.gcodegraphics.highlight_graphics(0)
+                else:
+                    # rfl load clicked
+                    rflFile = '{}rfl.ngc'.format(self.tmpPath)
+                    result = RFL.run_from_line_set(rflFile, setup['codes'], setup['params'], setup['material'], setup['data'], userInput, self.unitsPerMm)
+                    # leadin cannot be used
+                    if result['error']:
+                        msg0 = _translate('HandlerClass', 'Unable to calculate a leadin for this cut')
+                        msg1 = _translate('HandlerClass', 'Program will run from selected line with no leadin applied')
+                        status.emit('error', operror, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
+                    # load rfl file
+                    if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
+                        self.preRflFile = ACTION.prefilter_path or self.lastLoadedProgram
+                    ACTION.OPEN_PROGRAM(rflFile)
+                    ACTION.prefilter_path = self.preRflFile
+                    self.set_run_button_state()
+                    txt0 = _translate('HandlerClass', 'RUN FROM LINE')
+                    txt1 = _translate('HandlerClass', 'CYCLE START')
+                    self.runText = '{}\n{}'.format(txt0, txt1)
+                    self.w.gcodegraphics.highlight_graphics(None)
         elif not self.run_critical_check():
             ACTION.RUN(0)
 
@@ -2802,6 +2850,65 @@ class HandlerClass:
 
     def dlg_ok_clicked(self):
         self.dlg.accept()
+
+    def dialog_run_from_line(self):
+        rFl = QDialog(self.w)
+        rFl.setWindowTitle(_translate('HandlerClass', 'RUN FROM LINE'))
+        lbl1 = QLabel(_translate('HandlerClass', 'USE LEADIN:'))
+        lbl2 = QLabel(_translate('HandlerClass', 'LEADIN LENGTH:'))
+        lbl3 = QLabel(_translate('HandlerClass', 'LEADIN ANGLE:'))
+        lbl4 = QLabel('')
+        leadinDo = QCheckBox()
+        leadinLength = QDoubleSpinBox()
+        leadinAngle = QDoubleSpinBox()
+        buttons = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        buttonBox = QDialogButtonBox(buttons)
+        buttonBox.accepted.connect(rFl.accept)
+        buttonBox.rejected.connect(rFl.reject)
+        buttonBox.button(QDialogButtonBox.Ok).setText(_translate('HandlerClass', 'LOAD'))
+        buttonBox.button(QDialogButtonBox.Ok).setIcon(QIcon())
+        buttonBox.button(QDialogButtonBox.Cancel).setText(_translate('HandlerClass', 'CANCEL'))
+        buttonBox.button(QDialogButtonBox.Cancel).setIcon(QIcon())
+        layout = QGridLayout()
+        layout.addWidget(lbl1, 0, 0)
+        layout.addWidget(lbl2, 1, 0)
+        layout.addWidget(lbl3, 2, 0)
+        layout.addWidget(lbl4, 3, 0)
+        layout.addWidget(leadinDo, 0, 1)
+        layout.addWidget(leadinLength, 1, 1)
+        layout.addWidget(leadinAngle, 2, 1)
+        layout.addWidget(buttonBox, 4, 0, 1, 2)
+        rFl.setLayout(layout)
+        lbl1.setAlignment(Qt.AlignRight | Qt.AlignBottom)
+        lbl2.setAlignment(Qt.AlignRight | Qt.AlignBottom)
+        lbl3.setAlignment(Qt.AlignRight | Qt.AlignBottom)
+        if self.units == 'in':
+            leadinLength.setDecimals(2)
+            leadinLength.setSingleStep(0.05)
+            leadinLength.setSuffix(' inch')
+            leadinLength.setMinimum(0.05)
+        else:
+            leadinLength.setDecimals(0)
+            leadinLength.setSingleStep(1)
+            leadinLength.setSuffix(' mm')
+            leadinLength.setMinimum(1)
+        leadinAngle.setDecimals(0)
+        leadinAngle.setSingleStep(1)
+        leadinAngle.setSuffix(' deg')
+        leadinAngle.setRange(-359, 359)
+        leadinAngle.setWrapping(True)
+        result = rFl.exec_()
+        # load clicked
+        if result:
+            return {'cancel':False, 'do':leadinDo.isChecked(), 'length':leadinLength.value(), 'angle':leadinAngle.value()}
+        # cancel clicked
+        else:
+            self.rflActive = False
+            self.set_run_button_state()
+            self.startLine = 0
+            self.w.gcode_display.setCursorPosition(0, 0)
+            return {'cancel':True}
+
 
     def invert_pin_state(self, halpin):
         if 'qtplasmac.ext_out_' in halpin:
