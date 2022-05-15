@@ -27,7 +27,9 @@ problem, all of the source files have been converted to .dxf files,
 and added to Git. The .dxf files can be edited with multiple CAD packages,
 and serve as the 'source' files for future changes to the drawings.
 They can be converted from .dxf to postscript (not .eps) using QCAD, which
-is available for many systems [![Packaging status](https://repology.org/badge/tiny-repos/qcad.svg)](https://repology.org/project/qcad/versions)).
+is available 
+image:https://repology.org/badge/tiny-repos/qcad.svg[title="Badge of available systems"] 
+and also specified on https://repology.org/project/qcad/versions[this page].
 
 Unfortunately, EasyCAD (and AutoCAD) support a number of entities 
 that QCAD does not import properly. Including some that were used 
@@ -135,8 +137,8 @@ checked into git.  These started out as copies of the english master
 docs at some point, and diverged from there over time.  This turned out
 not to be an ideal situation.
 
-We are experimenting with a new system using
-[po4a](https://po4a.alioth.debian.org/).  With po4a, the English text
+We are experimenting with a new system using 
+https://po4a.alioth.debian.org/[po4a].  With po4a, the English text
 is the master document, and each paragraph is translated using
 gettext, just like the strings in our software.
 
