@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-03-13 11:02+0100\n"
-"PO-Revision-Date: 2022-05-14 19:38+0000\n"
-"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
+"PO-Revision-Date: 2022-05-16 00:58+0000\n"
+"Last-Translator: Asle Næss <aness@bofh.no>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
 "Language: nb\n"
@@ -55,7 +55,7 @@ msgstr "kan ikke gjøre dette (%s) i automodus mens kommandotolkeren venter"
 #: src/emc/task/emctaskmain.cc:1456
 #, c-format
 msgid "can't do that (%s:%d) in MDI mode"
-msgstr "kan ikke utføre dette (%s:%d) i MDI-modus"
+msgstr "kan ikke utføre (%s:%d) i MDI modus"
 
 #: src/emc/task/emctaskmain.cc:2127
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
@@ -78,7 +78,7 @@ msgstr ""
 
 #: src/emc/task/emctaskmain.cc:2211
 msgid "Must be in MDI mode to issue MDI command"
-msgstr ""
+msgstr "Må være i MDI-modus for å sende MDI-kommando"
 
 #: src/emc/task/emctaskmain.cc:2293
 msgid "Can't run a program when not homed"
@@ -142,28 +142,30 @@ msgid ""
 "$ (spindle selection) word with no G41, G41.1, G42, G42.1, G76 G95 or G96 to "
 "use it"
 msgstr ""
+"$ (spindle selection) parameter mangler for G41, G41.1, G42, G42.1, G76 G95 "
+"eller G96-kommando"
 
 #: src/emc/rs274ngc/interp_check.cc:277
 msgid "E word with no G76, M3, M4, M5, M19, M51, M66, M67 or M68 to use it"
 msgstr ""
-"E-uttrykk uten noe G76, M3, M4, M5, M19, M51, M66, M67 eller M68 til å bruke "
-"den"
+"E-uttrykk mangler til G76, M3, M4, M5, M19, M51, M66, M67 eller M68-kommando"
 
 #: src/emc/rs274ngc/interp_check.cc:282
 msgid "H word with no G43 or G76 to use it"
-msgstr ""
+msgstr "H-parameter uten tilhørende G43 or G76-kommando"
 
 #: src/emc/rs274ngc/interp_check.cc:290
 msgid "I word with no G2, G3, G5, G5.1, G10, G33.1, G76, or G87 to use it"
-msgstr ""
+msgstr "I-parameter uten tilhørende G2, G3, G5, G5.1, G10, G33.1, G76 eller G87"
 
 #: src/emc/rs274ngc/interp_check.cc:296
 msgid "J word with no G2, G3, G5, G5.1, G10, G76 or G87 to use it"
 msgstr ""
+"J-parameter uten tilhørende G2, G3, G5, G5.1, G10, G76 eller G87-kommando"
 
 #: src/emc/rs274ngc/interp_check.cc:302
 msgid "K word with no G2, G3, G33, G33.1, G76, or G87 to use it"
-msgstr ""
+msgstr "K-parameter uten tilhørende G2, G3, G33, G33.1, G76 eller G87-kommando"
 
 #: src/emc/rs274ngc/interp_check.cc:314
 msgid ""
@@ -176,36 +178,40 @@ msgid ""
 "P word with no G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89 or M50 M51 M52 "
 "M53 M62 M63 M64 M65 M66 M98 or user M code to use it"
 msgstr ""
+"P-parameter uten noen tilhørende G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 "
+"G89 eller M50 M51 M52 M53 M62 M63 M64 M65 M66 M98 eller egendefinert M"
 
 #: src/emc/rs274ngc/interp_check.cc:336
 msgid "P value not an integer with M19 G2 or G3"
-msgstr ""
+msgstr "P-verdi er ikke heltall for M19 G2 eller G3"
 
 #: src/emc/rs274ngc/interp_check.cc:338
 msgid "P value must be 0,1,or 2 with M19"
-msgstr ""
+msgstr "P-verdi må være 0, 1 eller 2 til M19"
 
 #: src/emc/rs274ngc/interp_check.cc:340
 msgid "P value should be 1 or greater with G2 or G3"
-msgstr ""
+msgstr "P-verdi bør være 1 eller høyere med G2 eller G3"
 
 #: src/emc/rs274ngc/interp_check.cc:351
 msgid ""
 "Q word with no G5, G10, G64, G73, G76, G83, M19, M66, M67, M68 or user M "
 "code that uses it"
 msgstr ""
+"Q-parameter uten noen G5, G10, G64, G73, G76, G83, M19, M66, M67, M68 eller "
+"egendefinert M-kode som bruker det"
 
 #: src/emc/rs274ngc/interp_check.cc:364
 msgid "R value must be within 0..360 with M19"
-msgstr ""
+msgstr "R-parameter må være mellom 0 og 360 med M19"
 
 #: src/emc/rs274ngc/interp_convert.cc:149
 msgid "You must specify both X and Y coordinates for Control Points"
-msgstr ""
+msgstr "Både X og Y-koordinater må spesifiseres for kontrollpunkter"
 
 #: src/emc/rs274ngc/interp_convert.cc:152
 msgid "Can specify P without X and Y only for the first control point"
-msgstr ""
+msgstr "P kan bare brukes uten X og Y i det første kontrollpunktet"
 
 #: src/emc/rs274ngc/interp_convert.cc:155
 msgid "Must specify positive weight P for every Control Point"
@@ -244,11 +250,11 @@ msgstr "Både I og J må spesifiseres med G5.1"
 
 #: src/emc/rs274ngc/interp_convert.cc:266
 msgid "Must specify both I and J, or neither"
-msgstr ""
+msgstr "Både I og J må spesifiseres, evt ingen av dem"
 
 #: src/emc/rs274ngc/interp_convert.cc:277
 msgid "Must specify both P and Q with G5"
-msgstr ""
+msgstr "Både P og Q må spesifiseres med G5"
 
 #: src/emc/rs274ngc/interp_convert.cc:382
 msgid ""
@@ -317,12 +323,12 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:1942
 #, c-format
 msgid "G%d.1 with no D word"
-msgstr ""
+msgstr "G%d.1 uten D-parameter"
 
 #: src/emc/rs274ngc/interp_convert.cc:1945
 #, c-format
 msgid "G%d.1 with L word, but plane is not G18"
-msgstr ""
+msgstr "G%d.1 med L-parameter, men plan er ikke G18"
 
 #: src/emc/rs274ngc/interp_convert.cc:1956
 #, c-format
@@ -341,7 +347,7 @@ msgstr "Kan ikke sette referansepunkt når fresekompensasjon er aktiv"
 #: src/emc/rs274ngc/interp_convert.cc:2945
 #, c-format
 msgid "gen_restore G20/G21 failed: '%s'"
-msgstr ""
+msgstr "gen_restore G20/G21 feilet: '%s'"
 
 #: src/emc/rs274ngc/interp_convert.cc:2995
 #, c-format
@@ -362,17 +368,18 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:3016
 #, c-format
 msgid "M7x: restore_settings G20/G21 failed: '%s'"
-msgstr ""
+msgstr "M7x: restore_settings G20/G21 feilet: '%s'"
 
 #: src/emc/rs274ngc/interp_convert.cc:3041
 #, c-format
 msgid "M7x: restore_settings failed executing: '%s': %s"
-msgstr ""
+msgstr "M7x: restore_settings klarte ikke å utføre: '%s': %s"
 
 #: src/emc/rs274ngc/interp_convert.cc:3110
 #, c-format
 msgid "Failed to restore interp state on abort '%s': %s"
 msgstr ""
+"Klarte ikke å gjenopprette kommandotolkerens tilstand etter avbrudd '%s': %s"
 
 #: src/emc/rs274ngc/interp_convert.cc:3181
 msgid "Cannot set motion output with cutter radius compensation on"
@@ -380,7 +387,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:3182
 msgid "No valid P word with M62"
-msgstr ""
+msgstr "Ingen gyldig P-parameter med M62"
 
 #: src/emc/rs274ngc/interp_convert.cc:3186
 msgid "Cannot set motion digital output with cutter radius compensation on"
@@ -388,7 +395,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:3187
 msgid "No valid P word with M63"
-msgstr ""
+msgstr "Ingen gyldig P-parameter til M63"
 
 #: src/emc/rs274ngc/interp_convert.cc:3191
 #: src/emc/rs274ngc/interp_convert.cc:3196
@@ -397,15 +404,15 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:3192
 msgid "No valid P word with M64"
-msgstr ""
+msgstr "Ingen gyldig P-parameter til M64"
 
 #: src/emc/rs274ngc/interp_convert.cc:3197
 msgid "No valid P word with M65"
-msgstr ""
+msgstr "Ingen gyldig P-parameter til M65"
 
 #: src/emc/rs274ngc/interp_convert.cc:3228
 msgid "invalid P-word with M66"
-msgstr ""
+msgstr "Ugyldig P-parameter til M66"
 
 #: src/emc/rs274ngc/interp_convert.cc:3243
 msgid "Cannot wait for digital input with cutter radius compensation on"
@@ -433,7 +440,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:3309
 msgid "Need non-negative Q-word to specify tool number with M61"
-msgstr ""
+msgstr "Q-parameter må være positiv for å spesifisere verktøynummer med M61"
 
 #: src/emc/rs274ngc/interp_convert.cc:3353
 #, c-format
@@ -462,7 +469,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:3413
 msgid "Q word with M19 requires a value > 0"
-msgstr ""
+msgstr "Q-parameter til M19 må være > 0"
 
 #: src/emc/rs274ngc/interp_convert.cc:3442
 msgid "Cannot restore context from invalid stack frame - missing M70/M73?"
@@ -486,7 +493,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:3519
 msgid "Invalid spindle ($) number in M51 command"
-msgstr ""
+msgstr "Ugyldig spindelnummer ($) i M51-kommando"
 
 #: src/emc/rs274ngc/interp_convert.cc:3682
 #: src/emc/rs274ngc/interp_convert.cc:3683
@@ -512,11 +519,11 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:3884
 msgid "G10 L1 without offsets has no effect"
-msgstr ""
+msgstr "G10 L1 uten offsett har ingen effekt"
 
 #: src/emc/rs274ngc/interp_convert.cc:3990
 msgid "Q number in G10 is not an integer"
-msgstr ""
+msgstr "Q-parameter til G10 er ikke et heltall"
 
 #: src/emc/rs274ngc/interp_convert.cc:3991
 msgid "Invalid tool orientation"
@@ -524,7 +531,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:4115
 msgid "I J words not allowed with G10 L2"
-msgstr ""
+msgstr "I og J-parametere er ikke tillatt med G10 L2"
 
 #: src/emc/rs274ngc/interp_convert.cc:4136
 msgid ""
@@ -533,7 +540,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:4144
 msgid "R not allowed in G10 L20"
-msgstr ""
+msgstr "R er ikke tillatt i G10 L20"
 
 #: src/emc/rs274ngc/interp_convert.cc:4488
 msgid "Bug:  Reached convert_stop() from M99 as subprogram return"
@@ -541,28 +548,28 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:4768
 msgid "Invalid spindle ($) number in G33 move"
-msgstr ""
+msgstr "Ugyldig spindelnummer ($) i G33-flytting"
 
 #: src/emc/rs274ngc/interp_convert.cc:4773
 msgid "Spindle not turning in G33"
-msgstr ""
+msgstr "Spindel roterer ikke i G33"
 
 #: src/emc/rs274ngc/interp_convert.cc:4783
 msgid "Invalid spindle ($) number in G33.1 move"
-msgstr ""
+msgstr "Ugyldig spindelnummer ($) i G33.1-flytting"
 
 #: src/emc/rs274ngc/interp_convert.cc:4788
 msgid "Spindle not turning in G33.1"
-msgstr ""
+msgstr "Spindel roterer ikke i G33.1"
 
 #: src/emc/rs274ngc/interp_convert.cc:4803
 msgid "Invalid D-number in G76 cycle"
-msgstr ""
+msgstr "Ugyldig D-parameter i G76-syklus"
 
 #: src/emc/rs274ngc/interp_convert.cc:4808
 #, c-format
 msgid "Chosen spindle (%i) not turning in G76"
-msgstr ""
+msgstr "Valgt spindel (%i) roterer ikke i G76"
 
 #: src/emc/rs274ngc/interp_convert.cc:4846
 msgid "BUG: An axis incorrectly moved along with an indexer"
@@ -570,7 +577,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:4859
 msgid "BUG: trying to index incorrect axis"
-msgstr ""
+msgstr "BUG: forsøker å indeksere feil akse"
 
 #: src/emc/rs274ngc/interp_convert.cc:4954
 msgid "Cannot use G76 threading cycle with cutter radius compensation on"
@@ -578,15 +585,15 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:4957
 msgid "In G76, I must not be 0"
-msgstr ""
+msgstr "I-parameter kan ikke være 0 til G76"
 
 #: src/emc/rs274ngc/interp_convert.cc:4959
 msgid "In G76, J must be greater than 0"
-msgstr ""
+msgstr "J-parameter må være større enn 0 til G76"
 
 #: src/emc/rs274ngc/interp_convert.cc:4961
 msgid "In G76, K must be greater than J"
-msgstr ""
+msgstr "K-parameter må være større enn J-parameter til G76"
 
 #: src/emc/rs274ngc/interp_convert.cc:5104
 msgid ""
@@ -614,11 +621,11 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:5628
 msgid "G43.2: Can not have both H and axis words"
-msgstr ""
+msgstr "G43.2: kan ikke ha både H og akse-parametere"
 
 #: src/emc/rs274ngc/interp_convert.cc:5631
 msgid "G43.2: No axes specified and H word missing"
-msgstr ""
+msgstr "G43.2: ingen akser spesifisert og H-parameter mangler"
 
 #: src/emc/rs274ngc/interp_queue.cc:605
 #, c-format
@@ -651,15 +658,15 @@ msgstr ""
 #: src/emc/rs274ngc/interp_cycles.cc:275
 #, c-format
 msgid "Spindle not turning in %s"
-msgstr ""
+msgstr "Spindelen roterer ikke i %s"
 
 #: src/emc/rs274ngc/interp_cycles.cc:277
 msgid "Spindle turning clockwise in G74"
-msgstr ""
+msgstr "Spindelen roterer med klokken i G74"
 
 #: src/emc/rs274ngc/interp_cycles.cc:280
 msgid "Spindle turning counterclockwise in G84"
-msgstr ""
+msgstr "Spindelen roterer mot klokken i G84"
 
 #: src/emc/rs274ngc/interp_cycles.cc:283
 #, c-format
@@ -691,7 +698,7 @@ msgstr ""
 #: src/emc/rs274ngc/interp_cycles.cc:2105
 #: src/emc/rs274ngc/interp_cycles.cc:2129
 msgid "Invalid spindle ($) number in G74/G84 cycle"
-msgstr ""
+msgstr "Ugyldig spindelnummer ($) i G74/G84-syklus"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1131
 msgid "G17.1 canned cycle is not possible on a machine without W axis"
@@ -711,7 +718,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_cycles.cc:1882
 msgid "Invalid E-number in G74/G84 cycle"
-msgstr ""
+msgstr "Ugyldig E-parameter i G74/G84-syklus"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1988
 msgid "G18.1 canned cycle is not possible on a machine without V axis"
@@ -755,7 +762,7 @@ msgstr ""
 #: src/emc/rs274ngc/interp_find.cc:724 src/emc/rs274ngc/interp_find.cc:740
 #, c-format
 msgid "Requested tool %d not found in the tool table"
-msgstr ""
+msgstr "Ønsket verktøy %d finnes ikke i verktøytabellen"
 
 #: src/emc/rs274ngc/interp_internal.cc:159
 msgid "Cannot use polar coordinate on a machine lacking X or Y axes"
@@ -782,12 +789,12 @@ msgstr ""
 #: src/emc/rs274ngc/interp_read.cc:1208 src/emc/rs274ngc/interp_read.cc:1212
 #, c-format
 msgid "Bad character '\\%03o' used"
-msgstr ""
+msgstr "Ugyldig tegn '\\%03o' brukt"
 
 #: src/emc/rs274ngc/interp_read.cc:1212
 #, c-format
 msgid "Bad character '%c' used"
-msgstr ""
+msgstr "Ugyldig tegn '%c' brukt"
 
 #: src/emc/rs274ngc/interp_read.cc:1603
 #, c-format
@@ -796,19 +803,19 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_read.cc:1807
 msgid "Left bracket missing after 'while'"
-msgstr ""
+msgstr "Venstre klammeparantes mangler etter 'while'"
 
 #: src/emc/rs274ngc/interp_read.cc:1822
 msgid "Left bracket missing after 'repeat'"
-msgstr ""
+msgstr "Venstre klammeparantes mangler etter 'repeat'"
 
 #: src/emc/rs274ngc/interp_read.cc:1837
 msgid "Left bracket missing after 'if'"
-msgstr ""
+msgstr "Venstre klammeparantes mangler etter 'if'"
 
 #: src/emc/rs274ngc/interp_read.cc:1852
 msgid "Left bracket missing after 'elseif'"
-msgstr ""
+msgstr "Venstre klammeparantes mangler etter 'elseif'"
 
 #: src/emc/rs274ngc/interp_read.cc:2056
 msgid "Cannot read current position with cutter radius compensation on"
@@ -834,11 +841,11 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_read.cc:2836
 msgid "Calculation resulted in 'not a number'"
-msgstr ""
+msgstr "Resultatet av kalkulasjonen ble 'not a number'"
 
 #: src/emc/rs274ngc/interp_read.cc:2838
 msgid "Calculation resulted in 'infinity'"
-msgstr ""
+msgstr "Resultatet av kalkulasjonen ble 'infinity'"
 
 #: src/emc/rs274ngc/interp_read.cc:3131
 #, c-format
@@ -847,20 +854,20 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_read.cc:3243
 msgid "Multiple U words on one line"
-msgstr ""
+msgstr "Flere U-parametere på samme linje"
 
 #: src/emc/rs274ngc/interp_read.cc:3259
 msgid "Multiple V words on one line"
-msgstr ""
+msgstr "Flere V-parametere på samme linje"
 
 #: src/emc/rs274ngc/interp_read.cc:3275
 msgid "Multiple W words on one line"
-msgstr ""
+msgstr "Flere W-parametere på samme linje"
 
 #: src/emc/rs274ngc/interp_o_word.cc:104
 #, c-format
 msgid "File:%s line:%d sub: o|%s| found in illegal location"
-msgstr ""
+msgstr "Fil:%s linje:%d sub: o|%s| funnet i ugyldig posisjon"
 
 #: src/emc/rs274ngc/interp_o_word.cc:108
 #, c-format
@@ -870,7 +877,7 @@ msgstr ""
 #: src/emc/rs274ngc/interp_o_word.cc:823
 #, c-format
 msgid "%d: not in a subroutine definition: '%s'"
-msgstr ""
+msgstr "%d: er ikke i en subrutinedefinisjon: '%s'"
 
 #: src/emc/rs274ngc/interp_o_word.cc:872 src/emc/rs274ngc/interp_o_word.cc:922
 #, c-format
@@ -921,12 +928,12 @@ msgstr ""
 #: src/emc/rs274ngc/interp_namedparams.cc:215
 #, c-format
 msgid "can't open ini file '%s'"
-msgstr ""
+msgstr "kan ikke åpne ini-fil '%s'"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:232
 #, c-format
 msgid "Named ini parameter #<%s> not found in inifile '%s': error=0x%x"
-msgstr ""
+msgstr "Angitt ini-parameter #<%s> ikke funnet i ini-fil '%s': feil=0x%x"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:257
 #, c-format
@@ -941,12 +948,12 @@ msgstr ""
 #: src/emc/rs274ngc/interp_namedparams.cc:422
 #, c-format
 msgid "Internal error: Could not assign #<%s>"
-msgstr ""
+msgstr "Intern feil: Kan ikke sette #<%s>"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:430
 #, c-format
 msgid "Cannot assign to read-only parameter #<%s>"
-msgstr ""
+msgstr "Skrivebeskyttet parameter #<%s> kan ikke endres"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:772
 #, c-format
@@ -960,15 +967,15 @@ msgstr ""
 #: src/emc/rs274ngc/rs274ngc_pre.cc:1840
 #, c-format
 msgid "Unable to open parameter file: '%s'"
-msgstr ""
+msgstr "Kan ikke åpne parameterfil: '%s'"
 
 #: src/emc/rs274ngc/rs274ngc_pre.cc:2507
 msgid "Parameter file name is missing"
-msgstr ""
+msgstr "Parameterfilnavn mangler"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:19
 msgid "A file is already open"
-msgstr ""
+msgstr "En fil er allerede åpnet"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:21
 msgid "All axes missing with g52 or g92"
@@ -984,15 +991,15 @@ msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:24
 msgid "Argument to acos out of range"
-msgstr ""
+msgstr "Argument til acos er utenfor lovlig område"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:25
 msgid "Argument to asin out of range"
-msgstr ""
+msgstr "Argument til asin er utenfor lovlig område"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:26
 msgid "Attempt to divide by zero"
-msgstr ""
+msgstr "Forsøkte å dele på null"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:27
 msgid "Attempt to raise negative to non integer power"
@@ -1004,7 +1011,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:29
 msgid "Bad number format"
-msgstr ""
+msgstr "Feil nummerformat"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:30
 msgid "Bug bad g code modal group 0"
@@ -1092,7 +1099,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:52
 msgid "Cannot create backup file"
-msgstr ""
+msgstr "Kan ikke opprette backupfil"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:53
 msgid "Cannot do g1 with zero feed rate"
@@ -1108,11 +1115,11 @@ msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:56
 msgid "Cannot open backup file"
-msgstr ""
+msgstr "Kan ikke åpne backupfil"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:57
 msgid "Cannot open variable file"
-msgstr ""
+msgstr "Kan ikke åpne variabelfil"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:58
 msgid "Cannot probe with cutter radius comp on"
@@ -1140,7 +1147,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:64
 msgid "Cannot use axis values with g80"
-msgstr ""
+msgstr "Kan ikke bruke akse-verdier med g80"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:65
 msgid "Cannot use axis values without a g code that uses them"
@@ -1152,7 +1159,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:67
 msgid "Cannot use g53 incremental"
-msgstr ""
+msgstr "Kan ikke bruke trinnvis g53"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:68
 msgid "Cannot use g53 with cutter radius comp"
@@ -1160,11 +1167,11 @@ msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:69
 msgid "Cannot use two g codes that both use axis values"
-msgstr ""
+msgstr "Kan ikke bruke to g-koder hvor begge har akse-verdier"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:70
 msgid "Command too long"
-msgstr ""
+msgstr "Kommandoen er for lang"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:71
 msgid "Current point same as end point of arc"
@@ -1212,7 +1219,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:82
 msgid "File name too long"
-msgstr ""
+msgstr "Filnavnet er for langt"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:83
 msgid "G-code out of range"
@@ -1224,7 +1231,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:85
 msgid "I word missing with g87"
-msgstr ""
+msgstr "I-parameter mangler til g87"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:86
 msgid "J word given for arc in xz plane"
@@ -1232,7 +1239,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:87
 msgid "J word missing with g87"
-msgstr ""
+msgstr "J-parameter mangler til g87"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:88
 msgid "K word given for arc in xy plane"
@@ -1240,7 +1247,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:89
 msgid "K word missing with g87"
-msgstr ""
+msgstr "K-parameter mangler til g87"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:90
 msgid "Left bracket missing after slash with atan"
@@ -1253,7 +1260,7 @@ msgstr ""
 #: src/emc/rs274ngc/rs274ngc_return.hh:92
 #, c-format
 msgid "M-code greater than 199: M%d"
-msgstr ""
+msgstr "M-kode er høyere enn 199: M%d"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:93
 msgid "Mixed radius ijk format for arc"
@@ -1265,79 +1272,79 @@ msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:95
 msgid "Multiple a words on one line"
-msgstr ""
+msgstr "Flere a-parametere i samme linje"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:96
 msgid "Multiple b words on one line"
-msgstr ""
+msgstr "Flere b-parametere i samme linje"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:97
 msgid "Multiple c words on one line"
-msgstr ""
+msgstr "Flere c-parametere i samme linje"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:98
 msgid "Multiple d words on one line"
-msgstr ""
+msgstr "Flere d-parametere i samme linje"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:99
 msgid "Multiple f words on one line"
-msgstr ""
+msgstr "Flere f-parametere i samme linje"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:100
 msgid "Multiple h words on one line"
-msgstr ""
+msgstr "Flere h-parametere i samme linje"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:101
 msgid "Multiple i words on one line"
-msgstr ""
+msgstr "Flere i-parametere i samme linje"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:102
 msgid "Multiple j words on one line"
-msgstr ""
+msgstr "Flere j-parametere i samme linje"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:103
 msgid "Multiple k words on one line"
-msgstr ""
+msgstr "Flere k-parametere i samme linje"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:104
 msgid "Multiple l words on one line"
-msgstr ""
+msgstr "Flere l-parametere i samme linje"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:105
 msgid "Multiple p words on one line"
-msgstr ""
+msgstr "Flere p-parametere i samme linje"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:106
 msgid "Multiple q words on one line"
-msgstr ""
+msgstr "Flere q-parametere i samme linje"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:107
 msgid "Multiple r words on one line"
-msgstr ""
+msgstr "Flere r-parametere i samme linje"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:108
 msgid "Multiple s words on one line"
-msgstr ""
+msgstr "Flere s-parametere i samme linje"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:109
 msgid "Multiple t words on one line"
-msgstr ""
+msgstr "Flere t-parametere i samme linje"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:110
 msgid "Multiple x words on one line"
-msgstr ""
+msgstr "Flere x-parametere i samme linje"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:111
 msgid "Multiple y words on one line"
-msgstr ""
+msgstr "Flere y-parametere i samme linje"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:112
 msgid "Multiple z words on one line"
-msgstr ""
+msgstr "Flere z-parametere i samme linje"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:113
 msgid "Must use g0 or g1 with g53"
-msgstr ""
+msgstr "g0 eller g1 må brukes med g53"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:114
 msgid "Negative argument to sqrt"
@@ -1381,7 +1388,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:124
 msgid "Negative tool id (tool not found)"
-msgstr ""
+msgstr "Negativ verktøy-id (verktøy ikke funnet)"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:125
 msgid "Nested comment found"
@@ -1405,15 +1412,15 @@ msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:130
 msgid "Parameter number out of range"
-msgstr ""
+msgstr "Ugyldig parameternummer"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:131
 msgid "Parameter is readonly"
-msgstr ""
+msgstr "Parameter er skrivebeskyttet"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:132
 msgid "Q word missing with g83"
-msgstr ""
+msgstr "Q-parameter mangler til g83"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:133
 msgid "Queue is not empty after probing"
@@ -1441,39 +1448,39 @@ msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:139
 msgid "R word with no g code that uses it"
-msgstr ""
+msgstr "R-parameter uten tilhørende g-kode"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:140
 msgid "Slash missing after first atan argument"
-msgstr ""
+msgstr "Skråstrek mangler etter første atan-argument"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:141
 msgid "Spindle not turning clockwise in g84"
-msgstr ""
+msgstr "Spindelen roterer ikke med klokken i g84"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:142
 msgid "Spindle not turning in g86"
-msgstr ""
+msgstr "Spindelen roterer ikke i g86"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:143
 msgid "Spindle not turning in g87"
-msgstr ""
+msgstr "Spindelen roterer ikke i g87"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:144
 msgid "Spindle not turning in g88"
-msgstr ""
+msgstr "Spindelen roterer ikke i g88"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:145
 msgid "Sscanf failed"
-msgstr ""
+msgstr "Sscanf feilet"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:146
 msgid "Start point too close to probe point"
-msgstr ""
+msgstr "Startpunkt er for nært probepunkt"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:147
 msgid "Too many m codes on line"
-msgstr ""
+msgstr "For mange M-kommandoer på linjen"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:148
 msgid "Pocket max too large"
@@ -1494,7 +1501,7 @@ msgstr ""
 #: src/emc/rs274ngc/rs274ngc_return.hh:152
 #, c-format
 msgid "Unable to open file <%s>"
-msgstr ""
+msgstr "Kan ikke åpne filen <%s>"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:153
 msgid "Unclosed comment found"
@@ -1506,12 +1513,12 @@ msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:155
 msgid "Unknown g code used"
-msgstr ""
+msgstr "Ukjent g-kode brukt"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:156
 #, c-format
 msgid "Unknown m code used: M%d"
-msgstr ""
+msgstr "Ukjent m-kode brukt: M%d"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:157
 msgid "Unknown operation"
@@ -1595,7 +1602,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:177
 msgid "Zero or negative argument to ln"
-msgstr ""
+msgstr "Null eller negativt argument til ln"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:178
 msgid "Zero radius arc"
@@ -1603,11 +1610,11 @@ msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:179
 msgid "K word missing with g33/g33.1"
-msgstr ""
+msgstr "K-parameter mangler til g33/g33.1"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:180
 msgid "F word used with a g33/g33.1"
-msgstr ""
+msgstr "F-parameter brukt til g33/g33.1"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:181
 msgid "Unknown operation name starting with e"
@@ -1627,11 +1634,11 @@ msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:185
 msgid "Too many subroutine parameters"
-msgstr ""
+msgstr "For mange parametere til subrutine"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:186
 msgid "Too many subroutine levels"
-msgstr ""
+msgstr "For mange subrutinenivåer"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:187
 msgid "Bug: call stack underrun"
@@ -1655,16 +1662,16 @@ msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:192
 msgid "Not in subroutine definition"
-msgstr ""
+msgstr "Mangler i definisjonen av subrutinen"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:193
 msgid "File not open"
-msgstr ""
+msgstr "Filen er ikke åpnet"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:194
 #, c-format
 msgid "cannot reopen file %s - removed or renamed? (%s)"
-msgstr ""
+msgstr "kan ikke gjenåpne fil %s - fjernet eller gitt nytt navn? (%s)"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:195
 msgid "Need tool prepared -Txx- for toolchange"
@@ -1680,19 +1687,19 @@ msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:198
 msgid "P word missing with G76"
-msgstr ""
+msgstr "P-parameter mangler til G76"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:199
 msgid "I J or K words missing with G76"
-msgstr ""
+msgstr "I, J eller K-parameter mangler til G76"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:200
 msgid "Cannot move rotary axes with G76"
-msgstr ""
+msgstr "Kan ikke flytte roterende akser med G76"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:201
 msgid "Multiple e words on one line"
-msgstr ""
+msgstr "Flere e-parametere på samme linje"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:202
 msgid "Named parameter not terminated"
@@ -1700,11 +1707,11 @@ msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:203
 msgid "Out of memory"
-msgstr ""
+msgstr "Tom for minne"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:204
 msgid "S word missing with G96"
-msgstr ""
+msgstr "S-parameter mangler til G96"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:205
 msgid "Queue is not empty after external input"
@@ -1728,7 +1735,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:210
 msgid "Q word missing with g73"
-msgstr ""
+msgstr "Q-parameter mangler til g73"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:211
 msgid "Digital input selected out of bounds"
@@ -1765,7 +1772,7 @@ msgstr ""
 #: src/hal/utils/meter.c:205
 #, c-format
 msgid "ERROR: '%s' is not a valid probe type\n"
-msgstr ""
+msgstr "FEIL: '%s' er ikke en gyldig probe-type\n"
 
 #: src/hal/utils/meter.c:213
 #, c-format
@@ -1815,10 +1822,12 @@ msgid ""
 "Usage:\n"
 "  halscope [-h] [-i infile] [-o outfile] [num_samples]\n"
 msgstr ""
+"Bruk:\n"
+"  halscope [-h] [-i innfil] [-o utfil] [antall_datapunkter]\n"
 
 #: src/hal/utils/scope.c:468
 msgid "Open Configuration File:"
-msgstr ""
+msgstr "Åpne konfigurasjonsfil:"
 
 #: src/hal/utils/scope.c:470 src/hal/utils/scope.c:493
 #: src/hal/utils/scope_horiz.c:808 src/hal/utils/scope_vert.c:713
@@ -1832,7 +1841,7 @@ msgstr ""
 
 #: src/hal/utils/scope.c:491
 msgid "Save Configuration File:"
-msgstr ""
+msgstr "Lagre konfigurasjonsfil:"
 
 #: src/hal/utils/scope.c:494 src/hal/utils/scope_horiz.c:809
 msgid "_Save"
@@ -1864,35 +1873,35 @@ msgstr ""
 
 #: src/hal/utils/scope.c:568 share/axis/tcl/axis.tcl:470
 msgid "_File"
-msgstr ""
+msgstr "_Fil"
 
 #: src/hal/utils/scope.c:572 share/axis/tcl/axis.tcl:482
 msgid "_Help"
-msgstr ""
+msgstr "_Hjelp"
 
 #: src/hal/utils/scope.c:627
 msgid "HAL Oscilloscope"
-msgstr ""
+msgstr "HAL Oscilloskop"
 
 #: src/hal/utils/scope.c:655
 msgid "Horizontal"
-msgstr ""
+msgstr "Horisontal"
 
 #: src/hal/utils/scope.c:665
 msgid "Selected Channel"
-msgstr ""
+msgstr "Valgt kanal"
 
 #: src/hal/utils/scope.c:671
 msgid "Run Mode"
-msgstr ""
+msgstr "Kjøremodus"
 
 #: src/hal/utils/scope.c:674
 msgid "Trigger"
-msgstr ""
+msgstr "Utløser"
 
 #: src/hal/utils/scope.c:680
 msgid "Vertical"
-msgstr ""
+msgstr "Vertikal"
 
 #: src/hal/utils/scope.c:688 src/hal/classicladder/classicladder_gtk.c:343
 #: src/hal/classicladder/classicladder_gtk.c:856 share/axis/tcl/axis.tcl:144
@@ -1900,11 +1909,11 @@ msgstr ""
 #: src/emc/usr_intf/gscreen/gscreen.py:4464
 #: src/emc/usr_intf/gscreen/gscreen.glade:2649
 msgid "Stop"
-msgstr ""
+msgstr "Stopp"
 
 #: src/hal/utils/scope.c:690 src/hal/utils/scope_trig.c:201
 msgid "Normal"
-msgstr ""
+msgstr "Normal"
 
 #: src/hal/utils/scope.c:692
 msgid "Single"
@@ -1916,7 +1925,7 @@ msgstr ""
 
 #: src/hal/utils/scope_horiz.c:139 src/emc/usr_intf/gscreen/gscreen.glade:3454
 msgid "Zoom"
-msgstr ""
+msgstr "Skalere"
 
 #: src/hal/utils/scope_horiz.c:140
 msgid " Pos "
@@ -1927,6 +1936,8 @@ msgid ""
 "----- Samples\n"
 "at ---- kHz"
 msgstr ""
+"----- datapunkter\n"
+"med ---- kHz"
 
 #: src/hal/utils/scope_horiz.c:474
 msgid "Realtime component not loaded"
@@ -1964,7 +1975,7 @@ msgstr ""
 #: lib/python/propertywindow.py:35 share/axis/tcl/axis.tcl:1580
 #: share/axis/tcl/axis.tcl:1617
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: src/hal/utils/scope_horiz.c:486 src/hal/utils/scope_horiz.c:536
 #: src/hal/utils/scope_horiz.c:763
@@ -1972,7 +1983,7 @@ msgstr ""
 #: tcl/bin/halconfig.tcl:103 tcl/tooledit.tcl:468
 #: src/emc/usr_intf/pncconf/dialogs.glade:602
 msgid "Quit"
-msgstr ""
+msgstr "Avslutt"
 
 #: src/hal/utils/scope_horiz.c:519
 msgid "Realtime function not linked"
@@ -1993,7 +2004,7 @@ msgstr ""
 
 #: src/hal/utils/scope_horiz.c:527
 msgid "Select Sample Rate"
-msgstr ""
+msgstr "Velg samplingsrate"
 
 #: src/hal/utils/scope_horiz.c:528
 msgid ""
@@ -2004,28 +2015,28 @@ msgstr ""
 
 #: src/hal/utils/scope_horiz.c:535 src/hal/utils/scope_vert.c:712
 msgid "_OK"
-msgstr ""
+msgstr "_OK"
 
 #: src/hal/utils/scope_horiz.c:555
 msgid "Thread:"
-msgstr ""
+msgstr "Tråd:"
 
 #: src/hal/utils/scope_horiz.c:564
 msgid "Sample Period:"
-msgstr ""
+msgstr "Samplingsintervall:"
 
 #: src/hal/utils/scope_horiz.c:573
 msgid "Sample Rate:"
-msgstr ""
+msgstr "Samplingshastighet:"
 
 #: src/hal/utils/scope_horiz.c:589 src/emc/usr_intf/touchy/mdi.py:83
 #: src/emc/usr_intf/gscreen/mdi.py:78
 msgid "Thread"
-msgstr ""
+msgstr "Tråd"
 
 #: src/hal/utils/scope_horiz.c:590
 msgid "Period"
-msgstr ""
+msgstr "Periode"
 
 #: src/hal/utils/scope_horiz.c:637
 msgid "Multiplier:"
@@ -2080,11 +2091,11 @@ msgstr ""
 
 #: src/hal/utils/scope_horiz.c:793
 msgid "No channels selected"
-msgstr ""
+msgstr "Ingen kanaler valgt"
 
 #: src/hal/utils/scope_horiz.c:796
 msgid "You need to choose at least one channel."
-msgstr ""
+msgstr "Du må velge minst en kanal."
 
 #: src/hal/utils/scope_horiz.c:806
 msgid "Pick log file to write to:"
@@ -2124,15 +2135,15 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:471
 #: src/emc/usr_intf/pncconf/base.glade:384
 msgid "ns"
-msgstr ""
+msgstr "ns"
 
 #: src/hal/utils/scope_horiz.c:1189
 msgid "µs"
-msgstr ""
+msgstr "µs"
 
 #: src/hal/utils/scope_horiz.c:1193
 msgid "ms"
-msgstr ""
+msgstr "ms"
 
 #: src/hal/utils/scope_horiz.c:1197 src/emc/usr_intf/stepconf/axisx.glade:345
 #: src/emc/usr_intf/stepconf/axisy.glade:343
@@ -2141,7 +2152,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisv.glade:345
 #: src/emc/usr_intf/stepconf/axisa.glade:343
 msgid "s"
-msgstr ""
+msgstr "s"
 
 #: src/hal/utils/scope_horiz.c:1214 src/emc/usr_intf/stepconf/spindle.glade:112
 #: src/emc/usr_intf/stepconf/axisx.glade:359
@@ -2157,15 +2168,15 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:444
 #: src/emc/usr_intf/pncconf/mesa1.glade:457
 msgid "Hz"
-msgstr ""
+msgstr "Hz"
 
 #: src/hal/utils/scope_horiz.c:1217
 msgid "kHz"
-msgstr ""
+msgstr "kHz"
 
 #: src/hal/utils/scope_horiz.c:1221
 msgid "MHz"
-msgstr ""
+msgstr "MHz"
 
 #: src/hal/utils/scope_vert.c:411 src/hal/utils/scope_vert.c:1126
 #, c-format
@@ -2190,7 +2201,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/s_motor.glade:1821
 #: lib/python/gladevcp/gladevcp-test.glade:222
 msgid "Scale"
-msgstr ""
+msgstr "Skala"
 
 #: src/hal/utils/scope_vert.c:640
 msgid ""
@@ -2200,7 +2211,7 @@ msgstr ""
 
 #: src/hal/utils/scope_vert.c:648
 msgid "Chan Off"
-msgstr ""
+msgstr "Kanal av"
 
 #: src/hal/utils/scope_vert.c:706
 #, c-format
@@ -2219,7 +2230,7 @@ msgstr ""
 
 #: src/hal/utils/scope_vert.c:831
 msgid "Too many channels"
-msgstr ""
+msgstr "For mange kanaler"
 
 #: src/hal/utils/scope_vert.c:834
 msgid ""
@@ -2238,7 +2249,7 @@ msgstr ""
 
 #: src/hal/utils/scope_vert.c:931
 msgid "Select Channel Source"
-msgstr ""
+msgstr "Velg kanalkilde"
 
 #: src/hal/utils/scope_vert.c:955
 msgid "Pins"
@@ -2255,18 +2266,20 @@ msgstr ""
 #: src/hal/utils/scope_trig.c:115
 #, c-format
 msgid "Falling"
-msgstr ""
+msgstr "Synkende"
 
 #: src/hal/utils/scope_trig.c:117 src/hal/utils/scope_trig.c:281
 #, c-format
 msgid "Rising"
-msgstr ""
+msgstr "Stigende"
 
 #: src/hal/utils/scope_trig.c:124 src/hal/utils/scope_trig.c:289
 msgid ""
 "Source\n"
 "None"
 msgstr ""
+"Kilde\n"
+"Ingen"
 
 #: src/hal/utils/scope_trig.c:129
 #, c-format
@@ -2274,6 +2287,8 @@ msgid ""
 "Source\n"
 "Chan %2d"
 msgstr ""
+"Kilde\n"
+"Kanal %2d"
 
 #: src/hal/utils/scope_trig.c:203 tcl/tklinuxcnc.tcl:856
 #: src/emc/usr_intf/touchy/touchy.glade:2443
@@ -2286,7 +2301,7 @@ msgstr ""
 
 #: src/hal/utils/scope_trig.c:239 src/hal/utils/scope_trig.c:275
 msgid "Level"
-msgstr ""
+msgstr "Nivå"
 
 #: src/hal/utils/scope_trig.c:310
 msgid "Select a channel to use for triggering."
@@ -2298,11 +2313,11 @@ msgstr ""
 
 #: src/hal/utils/scope_trig.c:336
 msgid "Chan"
-msgstr ""
+msgstr "Kanal"
 
 #: src/hal/utils/scope_trig.c:337
 msgid "Source"
-msgstr ""
+msgstr "Kilde"
 
 #: src/emc/motion/control.c:508
 #, c-format
@@ -2421,11 +2436,11 @@ msgstr ""
 
 #: src/emc/motion/command.c:215
 msgid "negative"
-msgstr ""
+msgstr "negativ"
 
 #: src/emc/motion/command.c:220
 msgid "positive"
-msgstr ""
+msgstr "positiv"
 
 #: src/emc/motion/command.c:237
 #, c-format
@@ -2584,21 +2599,21 @@ msgstr ""
 
 #: src/emc/motion/command.c:1659
 msgid "Attempt to configure non-existent spindle"
-msgstr ""
+msgstr "Forsøkte å konfigurere en spindel som ikke finnes"
 
 #: src/emc/motion/command.c:1677
 msgid "Attempt to start non-existent spindle"
-msgstr ""
+msgstr "Forsøkte å starte en spindel som ikke finnes"
 
 #: src/emc/motion/command.c:1728
 #, c-format
 msgid "Attempt to stop non-existent spindle <%d>"
-msgstr ""
+msgstr "Forsøkte å stoppe en spindel som ikke finnes <%d>"
 
 #: src/emc/motion/command.c:1759
 #, c-format
 msgid "Attempt to orient non-existent spindle <%d>"
-msgstr ""
+msgstr "Forsøkte å orientere en spindel som ikke finnes <%d>"
 
 #: src/emc/motion/command.c:1805
 #, c-format
@@ -2613,12 +2628,12 @@ msgstr ""
 #: src/emc/motion/command.c:1853
 #, c-format
 msgid "Attempt to engage brake of non-existent spindle <%d>"
-msgstr ""
+msgstr "Forsøkte å slå på bremsen på en spindel som ikke finnes <%d>"
 
 #: src/emc/motion/command.c:1875
 #, c-format
 msgid "Attempt to release brake of non-existent spindle <%d>"
-msgstr ""
+msgstr "Forsøkte å slå av bremsen på en spindel som ikke finnes <%d>"
 
 #: src/emc/motion/command.c:1897
 #, c-format
@@ -2633,7 +2648,7 @@ msgstr ""
 #: src/emc/motion/command.c:1981
 #, c-format
 msgid "unrecognized command %d"
-msgstr ""
+msgstr "ukjent kommando %d"
 
 #: src/emc/motion/motion.c:169
 msgid "all joints must be homed before going into teleop mode"
@@ -2641,12 +2656,12 @@ msgstr ""
 
 #: src/emc/motion/motion.c:273
 msgid "MOTION: hal_init() failed\n"
-msgstr ""
+msgstr "BEVEGELSE: hal_init() feilet\n"
 
 #: src/emc/motion/motion.c:278
 #, c-format
 msgid "MOTION: num_joints is %d, must be between 1 and %d\n"
-msgstr ""
+msgstr "BEVEGELSE: num_joints er %d, må være mellom 1 og %d\n"
 
 #: src/emc/motion/motion.c:285
 #, c-format
@@ -2655,6 +2670,9 @@ msgid ""
 "MOTION: num_extrajoints is %d, must be between 0 and %d\n"
 "\n"
 msgstr ""
+"\n"
+"BEVEGELSE: num_extrajoints er %d, må være mellom 0 og %d\n"
+"\n"
 
 #: src/emc/motion/motion.c:290
 msgid ""
@@ -2662,6 +2680,9 @@ msgid ""
 "MOTION: nonzero num_extrajoints requires KINEMATICS_BOTH\n"
 "\n"
 msgstr ""
+"\n"
+"BEVEGELSE: KINEMATICS_BOTH kreves når num_extrajoints ikke er null\n"
+"\n"
 
 #: src/emc/motion/motion.c:295
 #, c-format
@@ -2672,81 +2693,88 @@ msgid ""
 "           Total joints=%2d\n"
 "\n"
 msgstr ""
+"\n"
+"BEVEGELSE: kinematicjoints=%2d\n"
+"            extrajoints=%2d\n"
+"           Total joints=%2d\n"
+"\n"
 
 #: src/emc/motion/motion.c:302
 #, c-format
 msgid "MOTION: num_spindles is %d, must be between 0 and %d\n"
-msgstr ""
+msgstr "BEVEGELSE: num_spindles er %d, må være mellom 0 og %d\n"
 
 #: src/emc/motion/motion.c:309
 msgid "MOTION: Can't specify both names and number for digital pins\n"
 msgstr ""
+"BEVEGELSE: Kan ikke spesifisere både navn og nummer for digitale pinner\n"
 
 #: src/emc/motion/motion.c:323
 #, c-format
 msgid "MOTION: num_dio is %d, must be between 1 and %d\n"
-msgstr ""
+msgstr "BEVEGELSE: num_dio er %d, må være mellom 1 og %d\n"
 
 #: src/emc/motion/motion.c:329
 msgid "MOTION: Can't specify both names and number for analog pins\n"
 msgstr ""
+"BEVEGELSE: Kan ikke spesifisere både navn og nummer for analoge pinner\n"
 
 #: src/emc/motion/motion.c:342
 #, c-format
 msgid "MOTION: num_aio is %d, must be between 1 and %d\n"
-msgstr ""
+msgstr "BEVEGELSE: num_aio er %d, må være mellom 1 og %d\n"
 
 #: src/emc/motion/motion.c:348
 msgid "MOTION: Can't specify both names and number for misc error\n"
-msgstr ""
+msgstr "BEVEGELSE: Kan ikke spesifisere både navn og nummer for misc_error\n"
 
 #: src/emc/motion/motion.c:361
 #, c-format
 msgid "MOTION: num_misc_error is %d, must be between 0 and %d\n"
-msgstr ""
+msgstr "BEVEGELSE: num_misc_error er %d, må være mellom 0 og %d\n"
 
 #: src/emc/motion/motion.c:369
 msgid "MOTION: init_hal_io() failed\n"
-msgstr ""
+msgstr "BEVEGELSE: init_hal_io() feilet\n"
 
 #: src/emc/motion/motion.c:377
 msgid "MOTION: init_comm_buffers() failed\n"
-msgstr ""
+msgstr "BEVEGELSE: init_comm_buffers() feilet\n"
 
 #: src/emc/motion/motion.c:383
 msgid "MOTION: module_intfc() failed\n"
-msgstr ""
+msgstr "BEVEGELSE: module_intfc() feilet\n"
 
 #: src/emc/motion/motion.c:387
 msgid "MOTION: tp_init() failed\n"
-msgstr ""
+msgstr "BEVEGELSE: tp_init() feilet\n"
 
 #: src/emc/motion/motion.c:394
 msgid "MOTION: init_threads() failed\n"
-msgstr ""
+msgstr "BEVEGELSE: init_threads() feilet\n"
 
 #: src/emc/motion/motion.c:400
 msgid "MOTION: homing_init() failed\n"
-msgstr ""
+msgstr "BEVEGELSE: homing_init() feilet\n"
 
 #: src/emc/motion/motion.c:425
 #, c-format
 msgid "MOTION: hal_stop_threads() failed, returned %d\n"
-msgstr ""
+msgstr "BEVEGELSE: hal_stop_threads() feilet, returnerte %d\n"
 
 #: src/emc/motion/motion.c:431
 #, c-format
 msgid "MOTION: rtapi_shmem_delete() failed, returned %d\n"
-msgstr ""
+msgstr "BEVEGELSE: rtapi_shmem_delete() feilet, returnerte %d\n"
 
 #: src/emc/motion/motion.c:437
 #, c-format
 msgid "MOTION: hal_exit() failed, returned %d\n"
-msgstr ""
+msgstr "BEVEGELSE: hal_exit() feilet, returnerte %d\n"
 
 #: src/emc/motion/motion.c:466
 msgid "MOTION: emcmot_hal_data malloc failed\n"
-msgstr ""
+msgstr "BEVEGELSE: emcmot_hal_data malloc feilet\n"
 
 #: src/emc/motion/motion.c:657
 #, c-format
@@ -2840,12 +2868,12 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder.c:275
 msgid "Project loaded and running"
-msgstr ""
+msgstr "Prosjekt lastet og kjører"
 
 #: src/hal/classicladder/classicladder.c:275
 #: src/hal/classicladder/classicladder_gtk.c:397
 msgid "Project failed to load..."
-msgstr ""
+msgstr "Prosjektet kunne ikke leses inn..."
 
 #: src/hal/classicladder/classicladder.c:286
 msgid "GUI reloaded with existing ladder program"
@@ -2869,14 +2897,14 @@ msgstr ""
 #, c-format
 msgid ""
 "Error in ChoiceOfTheCurrentRung( %d ) with OffsetCurrentRungDisplayed=%d\n"
-msgstr ""
+msgstr "Feil i ChoiceOfTheCurrentRung( %d ) med OffsetCurrentRungDisplayed=%d\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:337 tcl/tklinuxcnc.tcl:1547
 #: src/emc/usr_intf/stepconf/main_page.glade:292
 #: src/emc/usr_intf/pncconf/dialogs.glade:3708
 #: src/emc/usr_intf/gscreen/gscreen.glade:2660
 msgid "Run"
-msgstr ""
+msgstr "Kjør"
 
 #: src/hal/classicladder/classicladder_gtk.c:338
 msgid "Stopped ladder program - press run button to continue."
@@ -2892,7 +2920,7 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:394
 msgid "Failed to load the project file..."
-msgstr ""
+msgstr "Kunne ikke laste inn prosjektfilen..."
 
 #: src/hal/classicladder/classicladder_gtk.c:394
 #: src/hal/classicladder/classicladder_gtk.c:409
@@ -2935,21 +2963,21 @@ msgstr ""
 #: src/hal/classicladder/symbols_gtk.c:140
 #: src/emc/usr_intf/axis/scripts/axis.py:1581
 msgid "Ok"
-msgstr ""
+msgstr "Ok"
 
 #: src/hal/classicladder/classicladder_gtk.c:397
 msgid "Project loaded (stopped)."
-msgstr ""
+msgstr "Prosjektet er lastet inn (stoppet)."
 
 #: src/hal/classicladder/classicladder_gtk.c:409
 #: src/hal/classicladder/classicladder_gtk.c:426
 msgid "Save Error"
-msgstr ""
+msgstr "Lagringsfeil"
 
 #: src/hal/classicladder/classicladder_gtk.c:409
 #: src/hal/classicladder/classicladder_gtk.c:426
 msgid "Failed to save the project file..."
-msgstr ""
+msgstr "Kunne ikke lagre prosjektfilen..."
 
 #: src/hal/classicladder/classicladder_gtk.c:434
 #, c-format
@@ -2973,35 +3001,37 @@ msgstr ""
 #: src/hal/classicladder/classicladder_gtk.c:831
 #: src/hal/classicladder/manager_gtk.c:170 tcl/bin/genedit.tcl:78
 msgid "New"
-msgstr ""
+msgstr "Ny"
 
 #: src/hal/classicladder/classicladder_gtk.c:532
 msgid "Do you really want to clear all data ?"
-msgstr ""
+msgstr "Er du sikker på at du vil nullstille alle data?"
 
 #: src/hal/classicladder/classicladder_gtk.c:536
 msgid "Please select the project to load"
-msgstr ""
+msgstr "Velg prosjektet som skal lastes inn"
 
 #: src/hal/classicladder/classicladder_gtk.c:542
 msgid "Sure?"
-msgstr ""
+msgstr "Sikker?"
 
 #: src/hal/classicladder/classicladder_gtk.c:542
 msgid ""
 "Do you really want to load another project ?\n"
 "If not saved, all modifications on the current project will be lost  \n"
 msgstr ""
+"Er du sikker på at du vil laste inn nytt prosjekt?\n"
+"Hvis du ikke har lagret vil alle endringer i nåværende prosjekt gå tapt\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:549
 msgid "Please select the project to save"
-msgstr ""
+msgstr "Velg prosjekt som skal lagres"
 
 #: src/hal/classicladder/classicladder_gtk.c:556
 #: src/hal/classicladder/classicladder_gtk.c:695
 #: src/hal/classicladder/classicladder_gtk.c:701
 msgid "Warning!"
-msgstr ""
+msgstr "Advarsel!"
 
 #: src/hal/classicladder/classicladder_gtk.c:556
 msgid ""
@@ -3009,6 +3039,9 @@ msgid ""
 "can cause unexpected behavior\n"
 " Do you really want to reset?"
 msgstr ""
+"Reset av kjørende program\n"
+"kan føre til uventet oppførsel\n"
+" Er du sikker på at du vil resette?"
 
 #: src/hal/classicladder/classicladder_gtk.c:572
 msgid "Reset ladder data "
@@ -3034,7 +3067,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/z_axis.glade:33
 #: src/emc/usr_intf/pncconf/a_axis.glade:33
 msgid "Yes"
-msgstr ""
+msgstr "Ja"
 
 #: src/hal/classicladder/classicladder_gtk.c:650 tcl/tooledit.tcl:906
 #: src/emc/usr_intf/axis/scripts/axis.py:156
@@ -3051,27 +3084,31 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/z_axis.glade:30
 #: src/emc/usr_intf/pncconf/a_axis.glade:30
 msgid "No"
-msgstr ""
+msgstr "Nei"
 
 #: src/hal/classicladder/classicladder_gtk.c:695
 msgid ""
 "If not saved, all modifications will be lost.\n"
 "Do you really want to quit ?\n"
 msgstr ""
+"Alle endringer vil gå tapt hvis de ikke er lagret.\n"
+"Er du sikker på at du vil avslutte?\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:699
 msgid "Confirm!"
-msgstr ""
+msgstr "Bekreft!"
 
 #: src/hal/classicladder/classicladder_gtk.c:699
 msgid "Do you really want to quit ?\n"
-msgstr ""
+msgstr "Er du sikker på at du vil avslutte?\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:701
 msgid ""
 "MODBUS will stop if you quit.\n"
 " Do you really want to quit ?\n"
 msgstr ""
+"MODBUS vil stoppe hvis du avslutter..\n"
+" Er du sikker på at du vil avslutte?\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:731
 msgid "Section Display"
@@ -3095,17 +3132,17 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:836
 msgid "Load"
-msgstr ""
+msgstr "Last inn"
 
 #: src/hal/classicladder/classicladder_gtk.c:841 tcl/bin/emccalib.tcl:123
 #: tcl/bin/genedit.tcl:82 tcl/bin/halconfig.tcl:155
 #: src/emc/usr_intf/axis/scripts/axis.py:2285
 msgid "Save"
-msgstr ""
+msgstr "Lagre"
 
 #: src/hal/classicladder/classicladder_gtk.c:846
 msgid "Save As"
-msgstr ""
+msgstr "Lagre som"
 
 #: src/hal/classicladder/classicladder_gtk.c:851 tcl/tklinuxcnc.tcl:761
 msgid "Reset"
@@ -3123,12 +3160,12 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:872
 msgid "Symbols"
-msgstr ""
+msgstr "Symboler"
 
 #: src/hal/classicladder/classicladder_gtk.c:877
 #: src/hal/classicladder/config_gtk.c:1025
 msgid "Config"
-msgstr ""
+msgstr "Konfigurasjon"
 
 #: src/hal/classicladder/classicladder_gtk.c:883 share/axis/tcl/axis.tcl:1301
 msgid "Preview"
@@ -3136,12 +3173,12 @@ msgstr "Forhåndsvis"
 
 #: src/hal/classicladder/classicladder_gtk.c:888
 msgid "Print"
-msgstr ""
+msgstr "Skriv ut"
 
 #: src/hal/classicladder/classicladder_gtk.c:894 tcl/bin/halconfig.tcl:194
 #: src/emc/usr_intf/pncconf/help.glade:511
 msgid "About"
-msgstr ""
+msgstr "Om"
 
 #: src/hal/classicladder/classicladder_gtk.c:938
 #, c-format
@@ -3187,11 +3224,11 @@ msgstr ""
 #: src/hal/classicladder/symbols_gtk.c:140 tcl/bin/halshow.tcl:49
 #: tcl/tklinuxcnc.tcl:1885 tcl/tooledit.tcl:889
 msgid "Error"
-msgstr ""
+msgstr "Feil"
 
 #: src/hal/classicladder/classicladder_gtk.c:984
 msgid "Failed MODBUS communications"
-msgstr ""
+msgstr "MODBUS-kommunikasjon feilet"
 
 #: src/hal/classicladder/classicladder_gtk.c:1010
 #, c-format
@@ -3206,12 +3243,12 @@ msgstr ""
 #: src/hal/classicladder/config.c:86
 #, c-format
 msgid "Cannot open %s file !!!\n"
-msgstr ""
+msgstr "Kan ikke åpne filen, %s !!!\n"
 
 #: src/hal/classicladder/config.c:117
 #, c-format
 msgid "Unknown configtype for %s: %d\n"
-msgstr ""
+msgstr "Ukjent konfigurasjonstype for %s: %d\n"
 
 #: src/hal/classicladder/config_gtk.c:109
 msgid "Rung Refresh Rate (milliseconds)"
@@ -3224,7 +3261,7 @@ msgstr ""
 #: src/hal/classicladder/config_gtk.c:114
 #: src/hal/classicladder/config_gtk.c:143
 msgid "used"
-msgstr ""
+msgstr "brukt"
 
 #: src/hal/classicladder/config_gtk.c:118
 msgid "Number of Bits                  "
@@ -3292,7 +3329,7 @@ msgstr ""
 
 #: src/hal/classicladder/config_gtk.c:185
 msgid "Current path/filename"
-msgstr ""
+msgstr "Nåværende filsti/filnavn"
 
 #: src/hal/classicladder/config_gtk.c:294
 msgid "Slave Address"
@@ -3336,22 +3373,22 @@ msgstr ""
 #: src/hal/classicladder/config_gtk.c:633
 #, c-format
 msgid "Serial port (blank = IP mode)"
-msgstr ""
+msgstr "Seriellport (blank = IP modus)"
 
 #: src/hal/classicladder/config_gtk.c:637
 #, c-format
 msgid "Serial baud rate"
-msgstr ""
+msgstr "Seriell baudrate"
 
 #: src/hal/classicladder/config_gtk.c:642
 #, c-format
 msgid "After transmit pause - milliseconds"
-msgstr ""
+msgstr "Pause etter sending - millisekunder"
 
 #: src/hal/classicladder/config_gtk.c:647
 #, c-format
 msgid "After receive pause - milliseconds"
-msgstr ""
+msgstr "Pause etter mottak - millisekunder"
 
 #: src/hal/classicladder/config_gtk.c:651
 #, c-format
@@ -3361,7 +3398,7 @@ msgstr ""
 #: src/hal/classicladder/config_gtk.c:655
 #, c-format
 msgid "Use RTS to send"
-msgstr ""
+msgstr "Bruk RTS for å sende"
 
 #: src/hal/classicladder/config_gtk.c:659
 #, c-format
@@ -3395,27 +3432,27 @@ msgstr ""
 
 #: src/hal/classicladder/config_gtk.c:733
 msgid "NO"
-msgstr ""
+msgstr "NEI"
 
 #: src/hal/classicladder/config_gtk.c:738
 msgid "YES"
-msgstr ""
+msgstr "JA"
 
 #: src/hal/classicladder/config_gtk.c:784
 msgid "QUIET"
-msgstr ""
+msgstr "STILLE"
 
 #: src/hal/classicladder/config_gtk.c:789
 msgid "LEVEL 1"
-msgstr ""
+msgstr "NIVÅ 1"
 
 #: src/hal/classicladder/config_gtk.c:793
 msgid "LEVEL 2"
-msgstr ""
+msgstr "NiVÅ 2"
 
 #: src/hal/classicladder/config_gtk.c:797
 msgid "LEVEL 3"
-msgstr ""
+msgstr "NIVÅ 3"
 
 #: src/hal/classicladder/config_gtk.c:970
 msgid " To change Modbus port settings, save and reload ladder GUI"
@@ -3423,7 +3460,7 @@ msgstr ""
 
 #: src/hal/classicladder/config_gtk.c:973
 msgid "Updated Modbus configuration"
-msgstr ""
+msgstr "Modbus-konfigurasjon oppdatert"
 
 #: src/hal/classicladder/config_gtk.c:996
 msgid "Opened Configuration window. Press again to update changes and close"
@@ -3435,16 +3472,16 @@ msgstr ""
 
 #: src/hal/classicladder/config_gtk.c:1031
 msgid "Modbus communication setup"
-msgstr ""
+msgstr "Modbus kommunikasjonsoppsett"
 
 #: src/hal/classicladder/config_gtk.c:1034
 msgid "Modbus  I/O register setup "
-msgstr ""
+msgstr "Modbus  I/O register oppsett "
 
 #: src/hal/classicladder/edit.c:147 src/hal/classicladder/edit_sequential.c:73
 #: src/hal/classicladder/symbols_gtk.c:191
 msgid "Variable"
-msgstr ""
+msgstr "Variabel"
 
 #: src/hal/classicladder/edit.c:150
 msgid "JumpToLabel"
@@ -3488,7 +3525,7 @@ msgstr ""
 #: src/hal/classicladder/edit.c:227
 #, c-format
 msgid "Variable: %s    Hal sig: %s"
-msgstr ""
+msgstr "Variabel: %s    Hal sig: %s"
 
 #: src/hal/classicladder/edit.c:230
 #, c-format
@@ -3527,7 +3564,7 @@ msgstr ""
 
 #: src/hal/classicladder/edit.c:352
 msgid "Incompatible type of variable (must be an integer!)"
-msgstr ""
+msgstr "Feil variabeltype (må være heltall!)"
 
 #: src/hal/classicladder/edit.c:391
 #, c-format
@@ -3545,7 +3582,7 @@ msgstr ""
 #: src/hal/classicladder/edit.c:473 src/hal/classicladder/edit_sequential.c:100
 #: src/hal/classicladder/symbols_gtk.c:140
 msgid "Unknown variable..."
-msgstr ""
+msgstr "Ukjent variabel..."
 
 #: src/hal/classicladder/edit.c:1082
 #, c-format
@@ -3602,7 +3639,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:576
 #: src/emc/usr_intf/gscreen/gscreen.glade:4027
 msgid "Cancel"
-msgstr ""
+msgstr "Avbryt"
 
 #: src/hal/classicladder/edit_sequential.c:68
 msgid "Step Nbr"
@@ -3610,7 +3647,7 @@ msgstr ""
 
 #: src/hal/classicladder/edit_sequential.c:76
 msgid "Comment"
-msgstr ""
+msgstr "Kommentar"
 
 #: src/hal/classicladder/edit_sequential.c:151
 #, c-format
@@ -3660,7 +3697,7 @@ msgstr ""
 
 #: src/hal/classicladder/edit_sequential.c:421
 msgid "Unknown element type for Ele1"
-msgstr ""
+msgstr "Ukjent elementtype for Ele1"
 
 #: src/hal/classicladder/edit_sequential.c:435
 msgid "First and last steps selected are not on the same line !!??"
@@ -3672,7 +3709,7 @@ msgstr ""
 
 #: src/hal/classicladder/edit_sequential.c:459
 msgid "Unknown element type for Ele2"
-msgstr ""
+msgstr "Ukjent elementtype for Ele2"
 
 #: src/hal/classicladder/edit_sequential.c:478
 #, c-format
@@ -3779,7 +3816,7 @@ msgstr ""
 
 #: src/hal/classicladder/editproperties_gtk.c:168
 msgid "Properties"
-msgstr ""
+msgstr "Egenskaper"
 
 #: src/hal/classicladder/editproperties_gtk.c:180 tcl/bin/halshow.tcl:241
 msgid "Parameter"
@@ -3792,7 +3829,7 @@ msgstr "Bruk"
 
 #: src/hal/classicladder/emc_mods.c:60
 msgid "Error blank symbol name"
-msgstr ""
+msgstr "Feil, tomt symbolnavn"
 
 #: src/hal/classicladder/emc_mods.c:72 src/hal/classicladder/emc_mods.c:78
 #: src/hal/classicladder/emc_mods.c:86 src/hal/classicladder/emc_mods.c:94
@@ -3875,7 +3912,7 @@ msgstr ""
 #: src/hal/classicladder/files.c:260 src/hal/classicladder/files.c:299
 #, c-format
 msgid "Loading file : %s"
-msgstr ""
+msgstr "Laster fil : %s"
 
 #: src/hal/classicladder/files.c:277 src/hal/classicladder/files.c:303
 #: src/hal/classicladder/files.c:332
@@ -3884,16 +3921,16 @@ msgstr ""
 
 #: src/hal/classicladder/files.c:280 src/hal/classicladder/files.c:306
 msgid " - not found.\n"
-msgstr ""
+msgstr " - ikke funnet.\n"
 
 #: src/hal/classicladder/files.c:330
 #, c-format
 msgid "Saving file : %s"
-msgstr ""
+msgstr "Lagrer fil : %s"
 
 #: src/hal/classicladder/files.c:334
 msgid " - failed.\n"
-msgstr ""
+msgstr " - feilet.\n"
 
 #: src/hal/classicladder/files.c:342
 #, c-format
@@ -3903,7 +3940,7 @@ msgstr ""
 #: src/hal/classicladder/files.c:396
 #, c-format
 msgid "!!!Error in ConvBaseInMilliSecsToInt()\n"
-msgstr ""
+msgstr "!!!Feil i ConvBaseInMilliSecsToInt()\n"
 
 #: src/hal/classicladder/files.c:466 src/hal/classicladder/files.c:536
 #: src/hal/classicladder/files.c:660
@@ -4009,15 +4046,15 @@ msgstr ""
 
 #: src/hal/classicladder/manager_gtk.c:256
 msgid "Language"
-msgstr ""
+msgstr "Språk"
 
 #: src/hal/classicladder/manager_gtk.c:257
 msgid "Main/Sub-Routine"
-msgstr ""
+msgstr "Hoved/Subrutine"
 
 #: src/hal/classicladder/manager_gtk.c:258
 msgid "Name"
-msgstr ""
+msgstr "Navn"
 
 #: src/hal/classicladder/manager_gtk.c:314
 msgid "Section Name   "
@@ -4025,7 +4062,7 @@ msgstr ""
 
 #: src/hal/classicladder/manager_gtk.c:314
 msgid "Language    "
-msgstr ""
+msgstr "Språk    "
 
 #: src/hal/classicladder/manager_gtk.c:314
 msgid "Type   "
@@ -4050,13 +4087,13 @@ msgstr ""
 #: src/hal/classicladder/manager_gtk.c:345
 #: src/emc/usr_intf/pncconf/private_data.py:462
 msgid "Move Up"
-msgstr ""
+msgstr "Flytt opp"
 
 #: src/hal/classicladder/manager_gtk.c:350
 #: src/emc/usr_intf/stepconf/halui_page.glade:156
 #: src/emc/usr_intf/pncconf/private_data.py:462
 msgid "Move Down"
-msgstr ""
+msgstr "Flytt ned"
 
 #: src/hal/classicladder/protocol_modbus_master.c:277
 #, c-format
@@ -4159,12 +4196,12 @@ msgstr ""
 #: src/hal/classicladder/serial_linux.c:139
 #, c-format
 msgid "Speed value not found for serial\n"
-msgstr ""
+msgstr "Verdi for hastighet ikke funnet for seriell\n"
 
 #: src/hal/classicladder/serial_linux.c:144
 #, c-format
 msgid "Failed to open serial port %s...\n"
-msgstr ""
+msgstr "Kunne ikke åpne seriellport %s...\n"
 
 #: src/hal/classicladder/serial_linux.c:171
 #, c-format
@@ -4179,7 +4216,7 @@ msgstr ""
 #: src/hal/classicladder/serial_linux.c:190
 #, c-format
 msgid "SerialSend failed: %s!\n"
-msgstr ""
+msgstr "SerialSend feilet: %s!\n"
 
 #: src/hal/classicladder/serial_linux.c:197
 #, c-format
@@ -4189,7 +4226,7 @@ msgstr ""
 #: src/hal/classicladder/serial_linux.c:215
 #, c-format
 msgid "Serial config...\n"
-msgstr ""
+msgstr "Seriellkonfigurasjon...\n"
 
 #: src/hal/classicladder/serial_linux.c:236
 #, c-format
@@ -4229,14 +4266,14 @@ msgstr ""
 
 #: src/hal/classicladder/socket_modbus_master.c:124
 msgid "Serial"
-msgstr ""
+msgstr "Seriell"
 
 #: src/hal/classicladder/socket_modbus_master.c:124
 #: src/emc/usr_intf/pncconf/dialogs.glade:36
 #: src/emc/usr_intf/pncconf/dialogs.glade:302
 #: src/emc/usr_intf/pncconf/dialogs.glade:328
 msgid "Ethernet"
-msgstr ""
+msgstr "Ethernet"
 
 #: src/hal/classicladder/socket_modbus_master.c:168
 #, c-format
@@ -4251,17 +4288,17 @@ msgstr ""
 #: src/hal/classicladder/socket_modbus_master.c:198
 #, c-format
 msgid "Connecting I/O module...\n"
-msgstr ""
+msgstr "Kobler til I/O-modul...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:220
 #, c-format
 msgid "Not able to retrieve IP address in modbus table, huhh?!!!\n"
-msgstr ""
+msgstr "Kunne ikke hente IP-addresse fra modbus-tabellen?!!!\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:225
 #, c-format
 msgid "Failed  to connect to I/O module\n"
-msgstr ""
+msgstr "Tilkobling til I/O-modulen feilet\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:231
 #, c-format
@@ -4419,7 +4456,7 @@ msgstr ""
 
 #: src/hal/classicladder/vars_names.c:178
 msgid "Unknown symbol for variable name"
-msgstr ""
+msgstr "Ukjent symbol for variabelnavn"
 
 #: src/hal/classicladder/vars_names.c:198
 #: src/hal/classicladder/vars_names.c:220
@@ -4431,13 +4468,13 @@ msgstr ""
 #: src/hal/classicladder/vars_names.c:413
 #: src/hal/classicladder/vars_names.c:621
 msgid "Unknown variable (number value out of bound)"
-msgstr ""
+msgstr "Ukjent variabel (nummerverdi utenfor lovlig område)"
 
 #: src/hal/classicladder/vars_names.c:229
 #: src/hal/classicladder/vars_names.c:301
 #: src/hal/classicladder/vars_names.c:343
 msgid "Unknown variable (missing '.' character before attribute)"
-msgstr ""
+msgstr "Ukjent variabel (mangler '.' foran attributt)"
 
 #: src/hal/classicladder/vars_names.c:244
 #: src/hal/classicladder/vars_names.c:255
@@ -4447,28 +4484,28 @@ msgstr ""
 #: src/hal/classicladder/vars_names.c:367
 #: src/hal/classicladder/vars_names.c:429
 msgid "Unknown variable (unknown attribute)"
-msgstr ""
+msgstr "Ukjent variabel (ukjent attributt)"
 
 #: src/hal/classicladder/vars_names.c:438
 msgid "Unknown variable (on first character following %)"
-msgstr ""
+msgstr "Ukjent variabel (på første tegn etter %)"
 
 #: src/hal/classicladder/vars_names.c:452
 msgid "Unknown variable (global error)"
-msgstr ""
+msgstr "Ukjent variabel (global feil)"
 
 #: tcl/bin/emccalib.tcl:95
 msgid "LinuxCNC Calibration"
-msgstr ""
+msgstr "LinuxCNC kalibrering"
 
 #: tcl/bin/emccalib.tcl:103
 msgid "Save To File"
-msgstr ""
+msgstr "Lagre til fil"
 
 #: tcl/bin/emccalib.tcl:119 tcl/bin/genedit.tcl:77 tcl/bin/halconfig.tcl:151
 #: tcl/bin/halshow.tcl:197 tcl/tklinuxcnc.tcl:748 tcl/ngcgui.tcl:493
 msgid "File"
-msgstr ""
+msgstr "Fil"
 
 #: tcl/bin/emccalib.tcl:121 tcl/bin/emccalib.tcl:280 tcl/bin/halconfig.tcl:153
 #: src/emc/usr_intf/touchy/touchy.glade:2400
@@ -4477,7 +4514,7 @@ msgstr ""
 
 #: tcl/bin/emccalib.tcl:229 tcl/bin/halconfig.tcl:628
 msgid "INI Name"
-msgstr ""
+msgstr "INI-navn"
 
 #: tcl/bin/emccalib.tcl:230 tcl/bin/halconfig.tcl:629
 msgid "HAL's Value"
@@ -4489,7 +4526,7 @@ msgstr ""
 
 #: tcl/bin/emccalib.tcl:274 tcl/bin/halconfig.tcl:680 tcl/bin/halconfig.tcl:731
 msgid "Test"
-msgstr ""
+msgstr "Test"
 
 #: tcl/bin/emccalib.tcl:439 tcl/bin/halconfig.tcl:1170
 msgid ""
@@ -4497,17 +4534,20 @@ msgid ""
 "\n"
 "  You need to copy a configuration to your home directory and work there."
 msgstr ""
+"Kan ikke lagre her.\n"
+"\n"
+"  Du må kopiere en konfigurasjon til hjemmekatalogen og jobbe der."
 
 #: tcl/bin/emccalib.tcl:522 tcl/bin/genedit.tcl:211 tcl/bin/halconfig.tcl:1242
 #: tcl/bin/pickconfig.tcl:907 tcl/bin/pickconfig.tcl:918
 #: tcl/scripts/Set_Coordinates.tcl:191 tcl/scripts/Set_Coordinates.tcl:212
 #, tcl-format
 msgid "can't save %s"
-msgstr ""
+msgstr "kan ikke lagre %s"
 
 #: tcl/bin/emcdebug.tcl:166 tcl/bin/emcdebug.tcl:177
 msgid "LinuxCNC Debug"
-msgstr ""
+msgstr "LinuxCNC debug"
 
 #: tcl/bin/emcdebug.tcl:185
 msgid "Invalid INI file entries"
@@ -4515,15 +4555,15 @@ msgstr ""
 
 #: tcl/bin/emcdebug.tcl:186
 msgid "Configuration information"
-msgstr ""
+msgstr "Konfigurasjonsinformasjon"
 
 #: tcl/bin/emcdebug.tcl:187
 msgid "Use of defaults"
-msgstr ""
+msgstr "Bruk av standardverdier"
 
 #: tcl/bin/emcdebug.tcl:188
 msgid "Version information"
-msgstr ""
+msgstr "Versjonsinformasjon"
 
 #: tcl/bin/emcdebug.tcl:189
 msgid "Command issuing"
@@ -4531,7 +4571,7 @@ msgstr ""
 
 #: tcl/bin/emcdebug.tcl:190
 msgid "IO points"
-msgstr ""
+msgstr "I/O-punkter"
 
 #: tcl/bin/emcdebug.tcl:191
 msgid "NML"
@@ -4543,7 +4583,7 @@ msgstr ""
 
 #: tcl/bin/emcdebug.tcl:193 src/emc/usr_intf/axis/scripts/debuglevel.py:42
 msgid "Interpreter"
-msgstr ""
+msgstr "Kommandotolk"
 
 #: tcl/bin/emcdebug.tcl:194
 msgid "RCS"
@@ -4559,55 +4599,55 @@ msgstr ""
 
 #: tcl/bin/genedit.tcl:80 tcl/tklinuxcnc.tcl:749 tcl/tklinuxcnc.tcl:1546
 msgid "Open..."
-msgstr ""
+msgstr "Åpne..."
 
 #: tcl/bin/genedit.tcl:84
 msgid "Save As..."
-msgstr ""
+msgstr "Lagre som..."
 
 #: tcl/bin/genedit.tcl:87 tcl/bin/halconfig.tcl:165 tcl/bin/halshow.tcl:207
 #: tcl/tklinuxcnc.tcl:763 tcl/ngcgui.tcl:1335 tcl/ngcgui.tcl:3853
 msgid "Exit"
-msgstr ""
+msgstr "Avslutt"
 
 #: tcl/bin/genedit.tcl:91 src/emc/usr_intf/gscreen/gscreen.glade:2720
 #: lib/python/gladevcp/offsetpage.glade:488
 msgid "Edit"
-msgstr ""
+msgstr "Rediger"
 
 #: tcl/bin/genedit.tcl:92
 msgid "Cut"
-msgstr ""
+msgstr "Klipp"
 
 #: tcl/bin/genedit.tcl:94 tcl/bin/halshow.tcl:784 tcl/bin/halshow.tcl:802
 msgid "Copy"
-msgstr ""
+msgstr "Kopier"
 
 #: tcl/bin/genedit.tcl:96
 msgid "Paste"
-msgstr ""
+msgstr "Lim inn"
 
 #: tcl/bin/genedit.tcl:99
 msgid "Select All"
-msgstr ""
+msgstr "Velg alt"
 
 #: tcl/bin/genedit.tcl:104 tcl/bin/halconfig.tcl:192 tcl/tklinuxcnc.tcl:819
 #: src/emc/usr_intf/stepconf/main_page.glade:452
 #: src/emc/usr_intf/pncconf/main_page.glade:78
 msgid "Help"
-msgstr ""
+msgstr "Hjelp"
 
 #: tcl/bin/genedit.tcl:105 tcl/tklinuxcnc.tcl:825
 msgid "About..."
-msgstr ""
+msgstr "Om..."
 
 #: tcl/bin/genedit.tcl:130
 msgid "Save and Reload"
-msgstr ""
+msgstr "Lagre og last på nytt"
 
 #: tcl/bin/genedit.tcl:133
 msgid "Find..."
-msgstr ""
+msgstr "Finn..."
 
 #: tcl/bin/genedit.tcl:135
 msgid "Renumber File..."
@@ -4623,15 +4663,15 @@ msgstr ""
 
 #: tcl/bin/genedit.tcl:144
 msgid "Line Numbering..."
-msgstr ""
+msgstr "Linjenummerering..."
 
 #: tcl/bin/genedit.tcl:150 tcl/tklinuxcnc.tcl:797
 msgid "Scripts"
-msgstr ""
+msgstr "Skript"
 
 #: tcl/bin/genedit.tcl:177
 msgid "About TkEditor"
-msgstr ""
+msgstr "Om TkEditor"
 
 #: tcl/bin/genedit.tcl:179
 msgid ""
@@ -4641,42 +4681,47 @@ msgid ""
 "\n"
 "GPL Version 2"
 msgstr ""
+"TkEditor\n"
+"\n"
+"Enkelt Tcl/Tk tekstprogram\n"
+"\n"
+"GPL Version 2"
 
 #: tcl/bin/genedit.tcl:267
 msgid "Find"
-msgstr ""
+msgstr "Finn"
 
 #: tcl/bin/genedit.tcl:270
 msgid "Find:"
-msgstr ""
+msgstr "Finn:"
 
 #: tcl/bin/genedit.tcl:276
 msgid "Replace:"
-msgstr ""
+msgstr "Erstatt:"
 
 #: tcl/bin/genedit.tcl:282
 msgid "Find All"
-msgstr ""
+msgstr "Finn alle"
 
 #: tcl/bin/genedit.tcl:285
 msgid "Replace All"
-msgstr ""
+msgstr "Erstatt alle"
 
 #: tcl/bin/genedit.tcl:288
 msgid "Skip This"
-msgstr ""
+msgstr "Hopp over denne"
 
 #: tcl/bin/genedit.tcl:291
 msgid "Replace This"
-msgstr ""
+msgstr "Erstatt denne"
 
 #: tcl/bin/genedit.tcl:297
 msgid "Clear"
-msgstr ""
+msgstr "Tøm"
 
 #: tcl/bin/genedit.tcl:422
 msgid "Set Line Numbering"
-msgstr ""
+msgstr "Sett linjenummerering"
 
 #: tcl/bin/genedit.tcl:424
 msgid "Increment"
@@ -4684,31 +4729,31 @@ msgstr ""
 
 #: tcl/bin/genedit.tcl:426
 msgid "One"
-msgstr ""
+msgstr "En"
 
 #: tcl/bin/genedit.tcl:429
 msgid "Two"
-msgstr ""
+msgstr "To"
 
 #: tcl/bin/genedit.tcl:432
 msgid "Five"
-msgstr ""
+msgstr "Fem"
 
 #: tcl/bin/genedit.tcl:435
 msgid "Ten"
-msgstr ""
+msgstr "Ti"
 
 #: tcl/bin/genedit.tcl:439
 msgid "Space"
-msgstr ""
+msgstr "Mellomrom"
 
 #: tcl/bin/genedit.tcl:441
 msgid "Single Space"
-msgstr ""
+msgstr "Enkelt mellomrom"
 
 #: tcl/bin/genedit.tcl:444
 msgid "Double Space"
-msgstr ""
+msgstr "Dobbelt mellomrom"
 
 #: tcl/bin/genedit.tcl:447
 msgid "Tab Space"
@@ -4716,15 +4761,15 @@ msgstr ""
 
 #: tcl/bin/genedit.tcl:453
 msgid "Next Number:"
-msgstr ""
+msgstr "Neste nummer:"
 
 #: tcl/bin/genedit.tcl:474
 msgid "Renumber"
-msgstr ""
+msgstr "Omnummerere"
 
 #: tcl/bin/halconfig.tcl:88
 msgid "HAL Configuration"
-msgstr ""
+msgstr "HAL-konfigurasjon"
 
 #: tcl/bin/halconfig.tcl:103
 msgid "Would you like to save your configuration before you exit?"
@@ -4911,10 +4956,8 @@ msgid "Add signal"
 msgstr "Legg til signal"
 
 #: tcl/bin/halshow.tcl:239
-#, fuzzy
-#| msgid "Add signal"
 msgid "Signal"
-msgstr "Legg til signal"
+msgstr ""
 
 #: tcl/bin/halshow.tcl:240
 msgid "Add parameter"
@@ -4937,10 +4980,8 @@ msgid "added"
 msgstr ""
 
 #: tcl/bin/halshow.tcl:514
-#, fuzzy
-#| msgid "Test HAL command :"
 msgid "HAL command :"
-msgstr "Test HAL-kommando:"
+msgstr "HAL-kommando:"
 
 #: tcl/bin/halshow.tcl:574
 msgid "Update interval (in ms)"
@@ -4999,10 +5040,8 @@ msgid "Add as Pin(s)"
 msgstr "Legg til signal"
 
 #: tcl/bin/halshow.tcl:804
-#, fuzzy
-#| msgid "Add signal"
 msgid "Add as Signal(s)"
-msgstr "Legg til signal"
+msgstr "Legg til som signal(er)"
 
 #: tcl/bin/halshow.tcl:805
 msgid "Add as Param(s)"
@@ -5021,10 +5060,8 @@ msgid "Update interval for this session (ms)"
 msgstr ""
 
 #: tcl/bin/halshow.tcl:908
-#, fuzzy
-#| msgid "P value out of range with G10 L%d"
 msgid "Value out of range"
-msgstr "P-verdi er utenfor område med G10 L%d"
+msgstr "Verdi er utenfor gyldig område"
 
 #: tcl/bin/halshow.tcl:976
 msgid "removed from list"
@@ -5035,10 +5072,8 @@ msgid "Load a watch list"
 msgstr ""
 
 #: tcl/bin/halshow.tcl:1028
-#, fuzzy
-#| msgid "Reload"
 msgid "loaded"
-msgstr "Last inn igjen"
+msgstr "Lastet inn"
 
 #: tcl/bin/halshow.tcl:1039
 msgid "Save current watch list"
