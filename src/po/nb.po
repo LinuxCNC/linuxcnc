@@ -1857,7 +1857,7 @@ msgstr ""
 
 #: src/hal/utils/scope.c:540
 msgid "O_pen Log File"
-msgstr ""
+msgstr "Å_pne loggfil"
 
 #: src/hal/utils/scope.c:547
 msgid "S_ave Log File"
