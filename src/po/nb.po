@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-03-13 11:02+0100\n"
-"PO-Revision-Date: 2022-05-16 00:58+0000\n"
+"PO-Revision-Date: 2022-05-16 19:06+0000\n"
 "Last-Translator: Asle Næss <aness@bofh.no>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
@@ -923,7 +923,7 @@ msgstr ""
 #: src/emc/rs274ngc/interp_namedparams.cc:185
 #, c-format
 msgid "Named parameter #<%s> not defined"
-msgstr ""
+msgstr "Angitt parameter #<%s> er ikke definert"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:215
 #, c-format
@@ -4773,11 +4773,11 @@ msgstr "HAL-konfigurasjon"
 
 #: tcl/bin/halconfig.tcl:103
 msgid "Would you like to save your configuration before you exit?"
-msgstr ""
+msgstr "Ønsker du å lagre konfigurasjonen før du avslutter?"
 
 #: tcl/bin/halconfig.tcl:103
 msgid "Save All"
-msgstr ""
+msgstr "Lagre alt"
 
 #: tcl/bin/halconfig.tcl:103
 msgid "Save Tune"
@@ -4789,11 +4789,11 @@ msgstr ""
 
 #: tcl/bin/halconfig.tcl:103
 msgid "Don't Save"
-msgstr ""
+msgstr "Ikke lagre"
 
 #: tcl/bin/halconfig.tcl:132
 msgid "Show"
-msgstr ""
+msgstr "Vis"
 
 #: tcl/bin/halconfig.tcl:133 tcl/bin/halshow.tcl:234
 msgid "Watch"
@@ -4805,7 +4805,7 @@ msgstr ""
 
 #: tcl/bin/halconfig.tcl:159
 msgid "Save HAL Ini"
-msgstr ""
+msgstr "Lagre HAL ini"
 
 #: tcl/bin/halconfig.tcl:161
 msgid "Save HAL Net"
@@ -4813,15 +4813,15 @@ msgstr ""
 
 #: tcl/bin/halconfig.tcl:163
 msgid "Save and Exit"
-msgstr ""
+msgstr "Lagre og avslutt"
 
 #: tcl/bin/halconfig.tcl:168 tcl/tklinuxcnc.tcl:768
 msgid "View"
-msgstr ""
+msgstr "Se"
 
 #: tcl/bin/halconfig.tcl:170
 msgid "Expand Tree"
-msgstr ""
+msgstr "Utvid trestruktur"
 
 #: tcl/bin/halconfig.tcl:172
 msgid "Collapse Tree"
@@ -4845,11 +4845,11 @@ msgstr ""
 
 #: tcl/bin/halconfig.tcl:476
 msgid "Enter HAL command :"
-msgstr ""
+msgstr "Skriv inn HAL-kommando:"
 
 #: tcl/bin/halconfig.tcl:479 tcl/bin/halconfig.tcl:528 tcl/bin/halshow.tcl:524
 msgid "Execute"
-msgstr ""
+msgstr "Kjør"
 
 #: tcl/bin/halconfig.tcl:623
 #, tcl-format
@@ -4864,6 +4864,10 @@ msgid ""
 " has changed. \n"
 " Really quit?"
 msgstr ""
+"HAL-parameter \n"
+"  %s \n"
+" er endret. \n"
+" Avslutte likevel?"
 
 #: tcl/bin/halconfig.tcl:943 tcl/bin/halshow.tcl:629
 msgid "Select a node to show."
@@ -4900,6 +4904,14 @@ msgid ""
 "This script carries no warranty or liability for its use to the extent "
 "allowed by law."
 msgstr ""
+"Copyright Raymond E Henry. 2006\n"
+"Lisens: GPL Version 2\n"
+"\n"
+"Halconfig er et konfigurasjonsverktøy for LinuxCNC.  Du må ha linuxcnc "
+"kjørende for å bruke det.\n"
+"\n"
+"Bruk av dette skriptet medfører ingen garanti eller ansvar, i den grad det "
+"er tillatt ved lov."
 
 #: tcl/bin/halshow.tcl:105
 msgid "Halshow"
@@ -4907,7 +4919,7 @@ msgstr ""
 
 #: tcl/bin/halshow.tcl:153
 msgid " SHOW "
-msgstr ""
+msgstr " VIS "
 
 #: tcl/bin/halshow.tcl:154
 msgid " WATCH "
@@ -4935,7 +4947,7 @@ msgstr ""
 
 #: tcl/bin/halshow.tcl:221
 msgid "Expand All"
-msgstr ""
+msgstr "Utvid alle"
 
 #: tcl/bin/halshow.tcl:223
 #, fuzzy
@@ -4977,7 +4989,7 @@ msgstr ""
 
 #: tcl/bin/halshow.tcl:257
 msgid "added"
-msgstr ""
+msgstr "lagt til"
 
 #: tcl/bin/halshow.tcl:514
 msgid "HAL command :"
@@ -4985,7 +4997,7 @@ msgstr "HAL-kommando:"
 
 #: tcl/bin/halshow.tcl:574
 msgid "Update interval (in ms)"
-msgstr ""
+msgstr "Oppdater intervall (i ms)"
 
 #: tcl/bin/halshow.tcl:575
 msgid "Column width for value in watch tab"
@@ -4997,11 +5009,11 @@ msgstr ""
 
 #: tcl/bin/halshow.tcl:578
 msgid "Float"
-msgstr ""
+msgstr "Flyttall"
 
 #: tcl/bin/halshow.tcl:579
 msgid "Integer"
-msgstr ""
+msgstr "Heltall"
 
 #: tcl/bin/halshow.tcl:582
 msgid ""
@@ -5019,7 +5031,7 @@ msgstr ""
 
 #: tcl/bin/halshow.tcl:695
 msgid "already in list"
-msgstr ""
+msgstr "finnes allerede i listen"
 
 #: tcl/bin/halshow.tcl:786
 msgid "Set to .."
@@ -5057,7 +5069,7 @@ msgstr ""
 
 #: tcl/bin/halshow.tcl:906
 msgid "Update interval for this session (ms)"
-msgstr ""
+msgstr "Oppdateringsintervall for denne sesjonen (ms)"
 
 #: tcl/bin/halshow.tcl:908
 msgid "Value out of range"
@@ -5065,7 +5077,7 @@ msgstr "Verdi er utenfor gyldig område"
 
 #: tcl/bin/halshow.tcl:976
 msgid "removed from list"
-msgstr ""
+msgstr "fjernet fra listen"
 
 #: tcl/bin/halshow.tcl:1006
 msgid "Load a watch list"
@@ -5107,7 +5119,7 @@ msgstr "LinuxCNC oppsettvelger"
 
 #: tcl/bin/pickconfig.tcl:308
 msgid "No details available."
-msgstr ""
+msgstr "Ingen detaljer tilgjengelige."
 
 #: tcl/bin/pickconfig.tcl:385
 msgid ""
@@ -5125,7 +5137,7 @@ msgstr "Mine oppsett"
 
 #: tcl/bin/pickconfig.tcl:447
 msgid "Sample Configurations"
-msgstr ""
+msgstr "Eksempelkonfigurasjoner"
 
 #: tcl/bin/pickconfig.tcl:575
 #, tcl-format
@@ -5253,7 +5265,7 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:264
 msgid "Task"
-msgstr ""
+msgstr "Oppgave"
 
 #: tcl/tklinuxcnc.tcl:266 tcl/tklinuxcnc.tcl:289 tcl/tklinuxcnc.tcl:312
 msgid "Heartbeat:"
@@ -5261,27 +5273,27 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:269 tcl/tklinuxcnc.tcl:292 tcl/tklinuxcnc.tcl:315
 msgid "Command:"
-msgstr ""
+msgstr "Kommando:"
 
 #: tcl/tklinuxcnc.tcl:272 tcl/tklinuxcnc.tcl:295 tcl/tklinuxcnc.tcl:318
 msgid "Command #:"
-msgstr ""
+msgstr "Kommando #:"
 
 #: tcl/tklinuxcnc.tcl:275 tcl/tklinuxcnc.tcl:298 tcl/tklinuxcnc.tcl:321
 msgid "Status:"
-msgstr ""
+msgstr "Status:"
 
 #: tcl/tklinuxcnc.tcl:287
 msgid "Io"
-msgstr ""
+msgstr "I/O"
 
 #: tcl/tklinuxcnc.tcl:310
 msgid "Motion"
-msgstr ""
+msgstr "Bevegelse"
 
 #: tcl/tklinuxcnc.tcl:351
 msgid "About TkLinuxCNC"
-msgstr ""
+msgstr "Om TkLinuxCNC"
 
 #: tcl/tklinuxcnc.tcl:352
 msgid ""
@@ -5291,6 +5303,11 @@ msgid ""
 "\n"
 "GPL Version 2 (2012)"
 msgstr ""
+"TkLinuxcnc\n"
+"\n"
+"Tcl/Tk brukergrensesnitt for LinuxCNC\n"
+"\n"
+"GPL Version 2 (2012)"
 
 #: tcl/tklinuxcnc.tcl:400
 msgid "Set Tool Offset"
@@ -5298,30 +5315,30 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:405 tcl/tklinuxcnc.tcl:934
 msgid "Tool:"
-msgstr ""
+msgstr "Verktøy:"
 
 #: tcl/tklinuxcnc.tcl:466 src/emc/usr_intf/axis/scripts/axis.py:2206
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:763
 msgid "All files"
-msgstr ""
+msgstr "Alle filer"
 
 #: tcl/tklinuxcnc.tcl:467
 msgid "Text files"
-msgstr ""
+msgstr "Tekstfiler"
 
 #: tcl/tklinuxcnc.tcl:468
 msgid "NC files"
-msgstr ""
+msgstr "NC-filer"
 
 #: tcl/tklinuxcnc.tcl:630 tcl/tklinuxcnc.tcl:1152 tcl/tklinuxcnc.tcl:1156
 #: src/emc/usr_intf/gscreen/gscreen.glade:1574
 #: src/emc/usr_intf/gscreen/gscreen.glade:1586
 msgid "continuous"
-msgstr ""
+msgstr "kontinuerlig"
 
 #: tcl/tklinuxcnc.tcl:751
 msgid "Edit..."
-msgstr ""
+msgstr "Editer..."
 
 #: tcl/tklinuxcnc.tcl:756
 msgid "Tool Table Editor..."
@@ -5329,7 +5346,7 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:759 src/emc/usr_intf/touchy/touchy.glade:1379
 msgid "Reload Tool Table"
-msgstr ""
+msgstr "Last inn verktøytabellen på nytt"
 
 #: tcl/tklinuxcnc.tcl:769
 msgid "Offsets and Variables..."
@@ -5337,7 +5354,7 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:770
 msgid "Diagnostics..."
-msgstr ""
+msgstr "Diagnostikk..."
 
 #: tcl/tklinuxcnc.tcl:771
 msgid "Backplot..."
@@ -5345,11 +5362,11 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:776
 msgid "Calibration..."
-msgstr ""
+msgstr "Kalibrering..."
 
 #: tcl/tklinuxcnc.tcl:777
 msgid "Testing..."
-msgstr ""
+msgstr "Testing..."
 
 #: tcl/tklinuxcnc.tcl:778
 msgid "Debug..."
@@ -5357,19 +5374,19 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:779
 msgid "Font..."
-msgstr ""
+msgstr "Font..."
 
 #: tcl/tklinuxcnc.tcl:783 src/emc/usr_intf/axis/scripts/image-to-gcode.py:672
 msgid "Units"
-msgstr ""
+msgstr "Enheter"
 
 #: tcl/tklinuxcnc.tcl:784
 msgid "auto"
-msgstr ""
+msgstr "auto"
 
 #: tcl/tklinuxcnc.tcl:785 src/emc/usr_intf/pncconf/tests.py:522
 msgid "inches"
-msgstr ""
+msgstr "tommer"
 
 #: tcl/tklinuxcnc.tcl:786 src/emc/usr_intf/axis/scripts/axis.py:1737
 #: src/emc/usr_intf/axis/scripts/axis.py:2023
@@ -5392,11 +5409,11 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:1974
 #: src/emc/usr_intf/pncconf/dialogs.glade:3548
 msgid "mm"
-msgstr ""
+msgstr "mm"
 
 #: tcl/tklinuxcnc.tcl:787
 msgid "cm"
-msgstr ""
+msgstr "cm"
 
 #: tcl/tklinuxcnc.tcl:791
 msgid "Utilities"
