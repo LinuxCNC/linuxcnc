@@ -43,8 +43,6 @@ class ActionToolButton(QToolButton, _HalWidgetBase):
         super(ActionToolButton, self).__init__(parent)
         self._userView = True
 
-        self.buildMenu()
-
     def buildMenu(self):
         if self._userView:
             SettingMenu = QMenu(self)
@@ -59,6 +57,7 @@ class ActionToolButton(QToolButton, _HalWidgetBase):
         def homed_on_test():
             return (STATUS.machine_is_on()
                     and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
+        self.buildMenu()
 
     def recordView(self):
         ACTION.SET_GRAPHICS_VIEW('record-view')
