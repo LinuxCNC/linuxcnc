@@ -463,7 +463,7 @@ Still want to proceed?""",
 
     def set_font(self, font):
         self.editor.font = font
-        for i in range(0,4):
+        for i in range(0,8):
             self.editor.lexer.setFont(font,i)
 
     def set_background_color(self, color):

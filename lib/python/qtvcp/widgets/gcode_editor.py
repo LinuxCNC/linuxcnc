@@ -293,7 +293,7 @@ class EditorBase(QsciScintilla):
 
         # default gray background
         self.set_background_color('#C0C0C0')
-        self._stylebackgroundColor = '#C0C0C0'
+        self._styleBackgroundColor = QColor('#C0C0C0')
 
         # not too small
         self.setMinimumSize(200, 100)
@@ -366,11 +366,15 @@ class EditorBase(QsciScintilla):
         self.lexer = QsciLexerPython()
         self.lexer.setDefaultFont(self.font)
         self.setLexer(self.lexer)
+        #self.set_background_color(self.backgroundColor())
         #self.SendScintilla(QsciScintilla.SCI_STYLESETFONT, 1, 'Courier')
 
     def set_gcode_lexer(self):
         self.lexer = GcodeLexer(self)
+        self.lexer.setDefaultFont(self.font)
         self.setLexer(self.lexer)
+        self.set_background_color(self.backgroundColor())
+        self.setMarginsBackgroundColor(self._styleMarginsBackgroundColor)
 
     def new_text(self):
         self.setText('')
@@ -1071,8 +1075,8 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         self.editor.set_margin_width(width)
 
     def set_font(self, font):
-        self.editor.font = font
-        for i in range(0,4):
+        self.editor.lexer.setFont(font)
+        for i in range(0,8):
             self.editor.lexer.setFont(font,i)
 
     def set_background_color(self, color):
