@@ -32,7 +32,7 @@ problem, all of the source files have been converted to .dxf files,
 and added to Git. The .dxf files can be edited with multiple CAD packages,
 and serve as the 'source' files for future changes to the drawings.
 They can be converted from .dxf to postscript (not .eps) using QCAD,
-which is available for many systems image:https://repology.org/badge/tiny-repos/qcad.svg[link=https://repology.org/project/qcad/].
+which is available for many systems, see link:https://repology.org/project/qcad/[here].
 
 Unfortunately, EasyCAD (and AutoCAD) support a number of entities
 that QCAD does not import properly. Including some that were used
