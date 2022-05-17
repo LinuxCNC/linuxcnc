@@ -1,5 +1,13 @@
-.PHONY: docs docsclean checkref checkref_en checkref_es checkref_fr checkref_vi checkref_zh_CN
-.PHONY: pdfdocs htmldocs install-doc install-doc-pdf install-doc-html
+# This is a regular Makefile
+
+help:
+	@echo This Makefile represents all the is needed to compile the complete documentation of LinuxCNC. The most common targets are:
+	@echo "  docs    - all documentation"
+	@echo "  docs_en - English documentation."
+	@echo Documentation in other languages is created with po4a via the Weblate volunteer community service. For this makefile to be functional, the variable BUILD_DOCS=yes is expected to be passed as an parameter or to be set as an environment variable.
+
+.PHONY: docs docs_en docsclean checkref checkref_en checkref_es checkref_fr checkref_vi checkref_zh_CN
+.PHONY: pdfdocs pdfdocs_en htmldocs htmldocs_en install-doc install-doc-pdf install-doc-html
 
 # To make linuxcnc-checklink widely available
 export PATH:=$(BASEPWD)/../scripts:$(PATH)
@@ -240,6 +248,11 @@ HTML_TARGETS := \
 	$(DOC_DIR)/html/index_fr.html \
 	$(DOC_DIR)/html/index_zh_CN.html \
 
+HTML_TARGETS_EN := \
+	$(DOC_TARGETS_HTML_EN) \
+	$(MAN_HTML_TARGETS_EN) \
+	$(DOC_DIR)/html/index.html 
+
 A2X = a2x --xsltproc-opts "--nonet \
 			   --stringparam toc.section.depth 3 \
 			   --stringparam toc.max.depth 2 \
@@ -258,6 +271,7 @@ Makefile: $(patsubst %.adoc, depends/%.d, $(DOC_SRCS))
 endif
 
 docs: manpages
+docs_en: manpages
 manpages: $(GENERATED_MANPAGES)
 
 clean: clean-manpages
@@ -271,19 +285,28 @@ svgs_made_from_dots: $(DOTFILES:.dot=.svg)
 
 ifeq ($(BUILD_DOCS_PDF),yes)
 docs: pdfdocs
+docs_en: pdfdocs_en
 install-doc: install-doc-pdf
 endif
 ifeq ($(BUILD_DOCS_HTML),yes)
 docs: htmldocs
+docs_en: htmldocs_en
 install-doc: install-doc-html
 endif
 
 pdfdocs: svgs_made_from_dots $(PDF_TARGETS)
 	../scripts/make-docs-pdf-index
 
+pdfdocs_en: svgs_made_from_dots $(PDF_TARGETS_EN)
+
 htmldocs: svgs_made_from_dots .htmldoc-stamp checkref
 
+htmldocs_en: svgs_made_from_dots .htmldoc-stamp_en checkref_en
+
 .htmldoc-stamp: copy_asciidoc_files $(HTML_TARGETS) .html-images-stamp
+	touch $@
+
+.htmldoc-stamp_en: copy_asciidoc_files $(HTML_TARGETS_EN) .html-images-stamp_en
 	touch $@
 
 .PHONY: copy_asciidoc_files
@@ -293,7 +316,7 @@ copy_asciidoc_files:
 
 checkref: checkref_en checkref_es checkref_fr checkref_hu checkref_vi checkref_zh_CN
 
-checkref_en: $(DOC_TARGETS_HTML_EN) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/gcode.html .htmldoc-stamp
+checkref_en: $(DOC_TARGETS_HTML_EN) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/gcode.html .htmldoc-stamp_en
 	@$(DOC_SRCDIR)/checkref English $^
 
 checkref_fr: $(DOC_TARGETS_HTML_FR) $(DOC_DIR)/html/gcode_fr.html .htmldoc-stamp
@@ -461,6 +484,20 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 	mkdir -p $(shell dirname $@)
 	@cp $< $@
 
+.html-images-stamp_en: $(DOC_TARGETS_HTML_EN)
+	set -e; for HTML_FILE in $^; do \
+		HTML_DIR=$$(basename $$(dirname $$HTML_FILE)); \
+		for IMAGE_FILE in $$(xsltproc --novalid --nonet $(DOC_SRCDIR)/html-images.xslt $$HTML_FILE); do \
+			IMAGE_DIR=$$(dirname $$IMAGE_FILE); \
+			mkdir -p $(DOC_DIR)/html/$$HTML_DIR/$$IMAGE_DIR; \
+			cp -f $(DOC_SRCDIR)/$$HTML_DIR/$$IMAGE_FILE $(DOC_DIR)/html/$$HTML_DIR/$$IMAGE_FILE; \
+		done; \
+		mkdir -p objects/image-cache; \
+		HTML_LATEX_CACHE=objects/image-cache $(DOC_SRCDIR)/html-latex-images $$HTML_FILE || (X=$$?; rm $$HTML_FILE; exit $$X); \
+	done
+	cp -f ../src/hal/user_comps/mb2hal/mb2hal_HOWTO.ini $(DOC_DIR)/html/drivers/
+	touch $@
+
 .html-images-stamp: $(DOC_TARGETS_HTML)
 	set -e; for HTML_FILE in $^; do \
 		HTML_DIR=$$(basename $$(dirname $$HTML_FILE)); \
@@ -549,7 +586,6 @@ $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ZH_CN_SMALL)): $(DOC_SRCDIR)/%
 		 -a stylesheet=linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
 
-default: docs
 $(DOC_DIR)/html/xref_fr.html: objects/xref_fr.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
 	$(ECHO) Converting $< to HTML
 	@xsltproc --stringparam docname "xref_fr" --stringparam language french --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
@@ -613,8 +649,8 @@ docclean:
 	-rm -f $(DOC_DIR)/html/man/man3/*.*
 	-rm -f $(DOC_DIR)/html/man/man9/*.*
 	-rm -f $(DOC_TARGETS_HTML) $(DOC_DIR)/html/xref*.html $(DOC_DIR)/html/index*.html $(DOC_DIR)/*.png $(DOC_DIR)/man/*.png
-	-rm -f .htmldoc-stamp
-	-rm -f .html-images-stamp
+	-rm -f .htmldoc-stamp*
+	-rm -f .html-images-stamp*
 	-rm -f $(DOTFILES:.dot=.svg)
 
 
@@ -660,6 +696,9 @@ $(DOC_DIR)/man/%: $(DOC_DIR)/src/man/%.adoc
 		-a mansource=LinuxCNC \
 		-a manmanual='LinuxCNC Documentation' \
 		$<
+
+#hello:
+#	echo DOC_TARGET_HTML_EN: $(DOC_TARGETS_HTML_EN)
 
 else
 :
