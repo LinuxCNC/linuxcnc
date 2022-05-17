@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-03-13 11:02+0100\n"
-"PO-Revision-Date: 2022-05-17 05:24+0000\n"
+"PO-Revision-Date: 2022-05-17 14:11+0000\n"
 "Last-Translator: Asle Næss <aness@bofh.no>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
@@ -2384,7 +2384,7 @@ msgstr ""
 
 #: src/emc/motion/control.c:1343 src/emc/motion/control.c:1405
 msgid "kinematicsInverse failed"
-msgstr ""
+msgstr "kinematicsInverse feilet"
 
 #: src/emc/motion/control.c:1482
 #, c-format
@@ -2982,12 +2982,12 @@ msgstr "Kunne ikke lagre prosjektfilen..."
 #: src/hal/classicladder/classicladder_gtk.c:434
 #, c-format
 msgid "SAVE %s %d\n"
-msgstr ""
+msgstr "LAGRE %s %d\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:443
 #, c-format
 msgid "LOAD %s %d\n"
-msgstr ""
+msgstr "LAST INN %s %d\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:488
 msgid "Old directories projects"
@@ -3146,7 +3146,7 @@ msgstr "Lagre som"
 
 #: src/hal/classicladder/classicladder_gtk.c:851 tcl/tklinuxcnc.tcl:761
 msgid "Reset"
-msgstr ""
+msgstr "Resett"
 
 #: src/hal/classicladder/classicladder_gtk.c:861
 msgid "Vars"
@@ -3183,7 +3183,7 @@ msgstr "Om"
 #: src/hal/classicladder/classicladder_gtk.c:938
 #, c-format
 msgid "%d µs"
-msgstr ""
+msgstr "%d µs"
 
 #: src/hal/classicladder/classicladder_gtk.c:960
 msgid "Config hardware error occurred!"
@@ -3520,7 +3520,7 @@ msgstr ""
 
 #: src/hal/classicladder/edit.c:197
 msgid "Expression"
-msgstr ""
+msgstr "Uttrykk"
 
 #: src/hal/classicladder/edit.c:227
 #, c-format
@@ -3780,12 +3780,12 @@ msgstr ""
 #: src/hal/classicladder/edit_sequential.c:797
 #: src/hal/classicladder/edit_sequential.c:805
 msgid "top"
-msgstr ""
+msgstr "topp"
 
 #: src/hal/classicladder/edit_sequential.c:797
 #: src/hal/classicladder/edit_sequential.c:805
 msgid "bottom"
-msgstr ""
+msgstr "bunn"
 
 #: src/hal/classicladder/edit_sequential.c:805
 #, c-format
@@ -3857,7 +3857,7 @@ msgstr ""
 
 #: src/hal/classicladder/emc_mods.c:130
 msgid "error"
-msgstr ""
+msgstr "feil"
 
 #: src/hal/classicladder/emc_mods.c:151
 msgid "no signal connected"
@@ -3894,7 +3894,7 @@ msgstr ""
 
 #: src/hal/classicladder/emc_mods.c:272
 msgid "Counter"
-msgstr ""
+msgstr "Teller"
 
 #: src/hal/classicladder/emc_mods.c:277
 msgid "Error Flag Bit"
@@ -3917,7 +3917,7 @@ msgstr "Laster fil : %s"
 #: src/hal/classicladder/files.c:277 src/hal/classicladder/files.c:303
 #: src/hal/classicladder/files.c:332
 msgid " - ok.\n"
-msgstr ""
+msgstr " - ok.\n"
 
 #: src/hal/classicladder/files.c:280 src/hal/classicladder/files.c:306
 msgid " - not found.\n"
@@ -3956,7 +3956,7 @@ msgstr ""
 #: src/hal/classicladder/files.c:501
 #, c-format
 msgid " - result=%d\n"
-msgstr ""
+msgstr " - resultat=%d\n"
 
 #: src/hal/classicladder/files.c:539
 #, c-format
@@ -3993,7 +3993,7 @@ msgstr ""
 #: src/hal/classicladder/files_project.c:184
 #, c-format
 msgid "Save project '%s' from tmp dir=%s\n"
-msgstr ""
+msgstr "Lagre prosjektet '%s' fra tmp dir=%s\n"
 
 #: src/hal/classicladder/files_sequential.c:97
 #, c-format
@@ -4070,7 +4070,7 @@ msgstr ""
 
 #: src/hal/classicladder/manager_gtk.c:314
 msgid "debug"
-msgstr ""
+msgstr "debug"
 
 #: src/hal/classicladder/manager_gtk.c:319
 msgid "Sections Manager"
@@ -4140,7 +4140,7 @@ msgstr ""
 #: src/hal/classicladder/protocol_modbus_master.c:587
 #, c-format
 msgid "Slave: %X  "
-msgstr ""
+msgstr "Slave: %X  "
 
 #: src/hal/classicladder/protocol_modbus_master.c:564
 #, c-format
@@ -4151,7 +4151,7 @@ msgstr ""
 #: src/hal/classicladder/protocol_modbus_master.c:591
 #, c-format
 msgid " CRC: %X "
-msgstr ""
+msgstr " CRC: %X "
 
 #: src/hal/classicladder/protocol_modbus_master.c:583
 #, c-format
@@ -4659,7 +4659,7 @@ msgstr "Innstillinger"
 
 #: tcl/bin/genedit.tcl:141
 msgid "No Numbering"
-msgstr ""
+msgstr "Ingen nummerering"
 
 #: tcl/bin/genedit.tcl:144
 msgid "Line Numbering..."
@@ -5130,6 +5130,11 @@ msgid ""
 "right.\n"
 "Click 'OK' to run the selected configuration"
 msgstr ""
+"Velkommen til LinuxCNC.\n"
+"\n"
+"Velg en maskinkonfigurasjon fra listen til venstre.\n"
+"Detaljer om den valgte konfigurasjonen vil vises til høyre på skjermen.\n"
+"Klikk 'OK' for å bruke den valgte konfigurasjonen"
 
 #: tcl/bin/pickconfig.tcl:443
 msgid "My Configurations"
@@ -5425,19 +5430,19 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:806
 msgid "Set Coordinates"
-msgstr ""
+msgstr "Sett koordinater"
 
 #: tcl/tklinuxcnc.tcl:814
 msgid "HAL Show"
-msgstr ""
+msgstr "Vis HAL"
 
 #: tcl/tklinuxcnc.tcl:815
 msgid "HAL Config"
-msgstr ""
+msgstr "HAL-konfigurasjon"
 
 #: tcl/tklinuxcnc.tcl:820
 msgid "Help..."
-msgstr ""
+msgstr "Hjelp..."
 
 #: tcl/tklinuxcnc.tcl:821
 msgid "Balloon help"
@@ -5445,19 +5450,19 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:844
 msgid "Estop on"
-msgstr ""
+msgstr "Nødstopp på"
 
 #: tcl/tklinuxcnc.tcl:845
 msgid "Estop off"
-msgstr ""
+msgstr "Nødstopp av"
 
 #: tcl/tklinuxcnc.tcl:847
 msgid "Machine on"
-msgstr ""
+msgstr "Maskin på"
 
 #: tcl/tklinuxcnc.tcl:848 src/emc/usr_intf/gscreen/gscreen.glade:2487
 msgid "Machine off"
-msgstr ""
+msgstr "Maskin av"
 
 #: tcl/tklinuxcnc.tcl:855 src/emc/usr_intf/touchy/touchy.glade:1551
 msgid "Manual"
@@ -5466,15 +5471,15 @@ msgstr ""
 #: tcl/tklinuxcnc.tcl:857 tcl/tklinuxcnc.tcl:2105
 #: src/emc/usr_intf/touchy/touchy.glade:1264
 msgid "MDI"
-msgstr ""
+msgstr "MDI"
 
 #: tcl/tklinuxcnc.tcl:864
 msgid "Mist on"
-msgstr ""
+msgstr "Tåke på"
 
 #: tcl/tklinuxcnc.tcl:865
 msgid "Mist off"
-msgstr ""
+msgstr "Tåke av"
 
 #: tcl/tklinuxcnc.tcl:872
 msgid "Flood on"
@@ -5486,15 +5491,15 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:880
 msgid "Lube on"
-msgstr ""
+msgstr "Smøring på"
 
 #: tcl/tklinuxcnc.tcl:881
 msgid "Lube off"
-msgstr ""
+msgstr "Smøring av"
 
 #: tcl/tklinuxcnc.tcl:898
 msgid "Spindle forward"
-msgstr ""
+msgstr "Spindel forover"
 
 #: tcl/tklinuxcnc.tcl:899
 msgid "Spindle reverse"
@@ -5502,19 +5507,19 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:900
 msgid "Spindle off"
-msgstr ""
+msgstr "Spindel av"
 
 #: tcl/tklinuxcnc.tcl:914
 msgid "Brake on"
-msgstr ""
+msgstr "Bremse på"
 
 #: tcl/tklinuxcnc.tcl:915
 msgid "Brake off"
-msgstr ""
+msgstr "Bremse av"
 
 #: tcl/tklinuxcnc.tcl:919
 msgid "ABORT"
-msgstr ""
+msgstr "AVBRYT"
 
 #: tcl/tklinuxcnc.tcl:936
 msgid "Offset:"
@@ -5530,11 +5535,11 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:1132
 msgid "relative"
-msgstr ""
+msgstr "relativ"
 
 #: tcl/tklinuxcnc.tcl:1133
 msgid "machine"
-msgstr ""
+msgstr "maskin"
 
 #: tcl/tklinuxcnc.tcl:1135
 msgid "actual"
@@ -5554,11 +5559,11 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:1167 src/emc/usr_intf/pncconf/private_data.py:465
 msgid "home"
-msgstr ""
+msgstr "hjem"
 
 #: tcl/tklinuxcnc.tcl:1222
 msgid "Set axis value:"
-msgstr ""
+msgstr "Sett akseverdi:"
 
 #: tcl/tklinuxcnc.tcl:1280
 msgid "Set Jog Speed"
@@ -5602,24 +5607,24 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:1509
 msgid "MDI:"
-msgstr ""
+msgstr "MDI:"
 
 #: tcl/tklinuxcnc.tcl:1531
 msgid "Program: "
-msgstr ""
+msgstr "Programm: "
 
 #: tcl/tklinuxcnc.tcl:1536
 msgid "  -  Status: "
-msgstr ""
+msgstr "  -  Status: "
 
 #: tcl/tklinuxcnc.tcl:1548 src/emc/usr_intf/pncconf/dialogs.glade:3625
 #: src/emc/usr_intf/gscreen/gscreen.glade:2673
 msgid "Pause"
-msgstr ""
+msgstr "Pause"
 
 #: tcl/tklinuxcnc.tcl:1549
 msgid "Resume"
-msgstr ""
+msgstr "Fortsett"
 
 #: tcl/tklinuxcnc.tcl:1550
 msgid "Step"
@@ -5627,7 +5632,7 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:1551
 msgid "Verify"
-msgstr ""
+msgstr "Verifiser"
 
 #: tcl/tklinuxcnc.tcl:1552
 msgid "Optional Stop"
@@ -5651,35 +5656,35 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:2016 tcl/tklinuxcnc.tcl:2115
 msgid "MANUAL"
-msgstr ""
+msgstr "MANUELL"
 
 #: tcl/tklinuxcnc.tcl:2086 share/axis/tcl/axis.tcl:1771
 msgid "ESTOP"
-msgstr ""
+msgstr "NØDSTOPP"
 
 #: tcl/tklinuxcnc.tcl:2088 tcl/ngcgui.tcl:3000 share/axis/tcl/axis.tcl:1773
 msgid "ON"
-msgstr ""
+msgstr "PÅ"
 
 #: tcl/tklinuxcnc.tcl:2090
 msgid "ESTOP RESET"
-msgstr ""
+msgstr "NULLSTILL NØDSTOPP"
 
 #: tcl/tklinuxcnc.tcl:2096
 msgid "AUTO"
-msgstr ""
+msgstr "AUTO"
 
 #: tcl/tklinuxcnc.tcl:2128
 msgid "MIST ON"
-msgstr ""
+msgstr "TÅKE PÅ"
 
 #: tcl/tklinuxcnc.tcl:2130
 msgid "MIST OFF"
-msgstr ""
+msgstr "TÅKE AV"
 
 #: tcl/tklinuxcnc.tcl:2132
 msgid "MIST ?"
-msgstr ""
+msgstr "TÅKE ?"
 
 #: tcl/tklinuxcnc.tcl:2136
 msgid "FLOOD ON"
@@ -5695,15 +5700,15 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:2144
 msgid "LUBE ON"
-msgstr ""
+msgstr "SMØRING PÅ"
 
 #: tcl/tklinuxcnc.tcl:2146
 msgid "LUBE OFF"
-msgstr ""
+msgstr "SMØRING AV"
 
 #: tcl/tklinuxcnc.tcl:2148
 msgid "LUBE ?"
-msgstr ""
+msgstr "SMØRING ?"
 
 #: tcl/tklinuxcnc.tcl:2152
 msgid "SPINDLE FORWARD"
@@ -5715,7 +5720,7 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:2156
 msgid "SPINDLE OFF"
-msgstr ""
+msgstr "SPINDEL AV"
 
 #: tcl/tklinuxcnc.tcl:2158
 msgid "SPINDLE INCREASE"
@@ -5727,19 +5732,19 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:2162
 msgid "SPINDLE ?"
-msgstr ""
+msgstr "SPINDEL ?"
 
 #: tcl/tklinuxcnc.tcl:2166
 msgid "BRAKE ON"
-msgstr ""
+msgstr "BREMSE PÅ"
 
 #: tcl/tklinuxcnc.tcl:2168
 msgid "BRAKE OFF"
-msgstr ""
+msgstr "BREMSE AV"
 
 #: tcl/tklinuxcnc.tcl:2170
 msgid "BRAKE ?"
-msgstr ""
+msgstr "BREMSE ?"
 
 #: tcl/scripts/Set_Coordinates.tcl:23
 msgid "LinuxCNC Set Coordinate"
@@ -5768,7 +5773,7 @@ msgstr ""
 
 #: tcl/scripts/Set_Coordinates.tcl:95
 msgid "Teach"
-msgstr ""
+msgstr "Lær"
 
 #: tcl/scripts/Set_Coordinates.tcl:105
 msgid "Set Old"
@@ -5823,11 +5828,11 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:549
 msgid "file contains lines after subend"
-msgstr ""
+msgstr "filen har linjer etter 'subend'"
 
 #: tcl/ngcgui.tcl:562
 msgid "file contains lines before sub"
-msgstr ""
+msgstr "filen har linjer før 'sub'"
 
 #: tcl/ngcgui.tcl:583
 msgid "endsub label"
@@ -5839,15 +5844,15 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:688
 msgid "expected"
-msgstr ""
+msgstr "forventet"
 
 #: tcl/ngcgui.tcl:739
 msgid "no 'sub' found in file"
-msgstr ""
+msgstr "ingen 'sub' funnet i filen"
 
 #: tcl/ngcgui.tcl:742
 msgid "no 'endsub' found in file"
-msgstr ""
+msgstr "ingen 'endsub' funnet i filen"
 
 #: tcl/ngcgui.tcl:814
 msgid "Cannot find gcmc executable"
@@ -5863,7 +5868,7 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:1051
 msgid "Choose Files"
-msgstr ""
+msgstr "Velg filer"
 
 #: tcl/ngcgui.tcl:1191
 msgid "Controls"
@@ -5916,7 +5921,7 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:1313 src/emc/usr_intf/gscreen/gscreen.glade:4014
 msgid "Restart"
-msgstr ""
+msgstr "Restart"
 
 #: tcl/ngcgui.tcl:1323
 msgid "SendFileToAxis"
@@ -5968,15 +5973,15 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:1857
 msgid "No, just this page"
-msgstr ""
+msgstr "Nei, bare denne siden"
 
 #: tcl/ngcgui.tcl:1871
 msgid "Axis is not responding"
-msgstr ""
+msgstr "Akse svarer ikke"
 
 #: tcl/ngcgui.tcl:1872
 msgid "Error: "
-msgstr ""
+msgstr "Feil: "
 
 #: tcl/ngcgui.tcl:1874
 msgid "Autosend disabled, Ctrl-A toggles autosend"
@@ -5988,7 +5993,7 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:1892
 msgid "Require .ngc suffix for filename"
-msgstr ""
+msgstr "Filnavn må slutte med .ngc"
 
 #: tcl/ngcgui.tcl:1902
 msgid "Disallowed overwrite of"
@@ -6008,11 +6013,11 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:1953
 msgid "line added"
-msgstr ""
+msgstr "linje lagt til"
 
 #: tcl/ngcgui.tcl:1953
 msgid "activated"
-msgstr ""
+msgstr "aktivert"
 
 #: tcl/ngcgui.tcl:1955
 msgid "restores"
@@ -6056,7 +6061,7 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:2465
 msgid "Create Next"
-msgstr ""
+msgstr "Lag neste"
 
 #: tcl/ngcgui.tcl:2470
 msgid "Created feature "
@@ -6064,11 +6069,11 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:2494
 msgid "option"
-msgstr ""
+msgstr "opsjon"
 
 #: tcl/ngcgui.tcl:2505
 msgid "Missing parameters"
-msgstr ""
+msgstr "Manglende parametere"
 
 #: tcl/ngcgui.tcl:2509
 msgid "Parse Error"
@@ -6236,7 +6241,7 @@ msgstr "Vis status"
 
 #: tcl/ngcgui.tcl:3018
 msgid "Show full status (debug info)"
-msgstr ""
+msgstr "Vis full status (debug info)"
 
 #: tcl/ngcgui.tcl:3020
 msgid "on current subfile"
@@ -6256,7 +6261,7 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:3103
 msgid "Trying gedit"
-msgstr ""
+msgstr "Forsøker gedit"
 
 #: tcl/ngcgui.tcl:3116
 msgid "No file available for editing yet"
@@ -6284,11 +6289,11 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:3278
 msgid "not writable"
-msgstr ""
+msgstr "ikke skrivbar"
 
 #: tcl/ngcgui.tcl:3417 tcl/ngcgui.tcl:3598
 msgid "new"
-msgstr ""
+msgstr "ny"
 
 #: tcl/ngcgui.tcl:3443
 msgid "Open a new Subfile"
@@ -6296,11 +6301,11 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:3589
 msgid "remove"
-msgstr ""
+msgstr "slett"
 
 #: tcl/ngcgui.tcl:3611 tcl/ngcgui.tcl:3617
 msgid "move"
-msgstr ""
+msgstr "flytt"
 
 #: tcl/ngcgui.tcl:3725 src/emc/usr_intf/pncconf/pncconf.py:3943
 #: src/emc/usr_intf/pncconf/pncconf.py:4049
@@ -6327,7 +6332,7 @@ msgstr ""
 #: tcl/ngcgui.tcl:3811 src/emc/usr_intf/axis/scripts/axis.py:2661
 #: src/emc/usr_intf/axis/scripts/axis.py:2687
 msgid "Warning"
-msgstr ""
+msgstr "Advarsel"
 
 #: tcl/ngcgui.tcl:3812
 msgid "File absolute path specifier conflicts with searchpath result"
@@ -6355,7 +6360,7 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:3825
 msgid "Current directory"
-msgstr ""
+msgstr "Gjeldende katalog"
 
 #: tcl/ngcgui.tcl:3826
 msgid "Search path"
@@ -6367,11 +6372,11 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:3837
 msgid "in ini file"
-msgstr ""
+msgstr "i ini-fil"
 
 #: tcl/ngcgui.tcl:3838
 msgid "(Restart required after fixing ini file)"
-msgstr ""
+msgstr "(Restart er nødvendig etter at ini-filen er fikset)"
 
 #: tcl/ngcgui.tcl:3853
 msgid "Try to Continue"
@@ -6379,35 +6384,35 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:3858
 msgid "Ngcgui Configuration File Not Found"
-msgstr ""
+msgstr "Ngcgui konfigurasjonsfil ikke funnet"
 
 #: tcl/ngcgui.tcl:3938
 msgid "Missing Tcl Package Img"
-msgstr ""
+msgstr "Mangler Tcl-pakke Img"
 
 #: tcl/ngcgui.tcl:3939
 msgid "Please install Img"
-msgstr ""
+msgstr "Vennligst installer Img"
 
 #: tcl/ngcgui.tcl:4143
 msgid "ini file"
-msgstr ""
+msgstr "ini-fil"
 
 #: tcl/ngcgui.tcl:4152
 msgid "not found"
-msgstr ""
+msgstr "ikke funnet"
 
 #: tcl/ngcgui_ttt.tcl:68
 msgid "found truetype-tracer v4 -OK"
-msgstr ""
+msgstr "fant truetype-tracer v4 -OK"
 
 #: tcl/ngcgui_ttt.tcl:71
 msgid "Note truetype-tracer v4 is required"
-msgstr ""
+msgstr "Obs, truetype-tracer v4 kreves"
 
 #: tcl/ngcgui_ttt.tcl:72
 msgid "Note: truetype-tracer v4 is required"
-msgstr ""
+msgstr "Obs: truetype-tracer v4 kreves"
 
 #: tcl/ngcgui_ttt.tcl:82
 msgid "ngcgui_app.tcl must be loaded before"
@@ -6419,7 +6424,7 @@ msgstr ""
 
 #: tcl/ngcgui_ttt.tcl:103 tcl/ngcgui_ttt.tcl:116
 msgid "problem with"
-msgstr ""
+msgstr "problem med"
 
 #: tcl/ngcgui_ttt.tcl:107
 msgid "No entry for"
@@ -6427,11 +6432,11 @@ msgstr ""
 
 #: tcl/ngcgui_ttt.tcl:110
 msgid "wrong version of truetype-tracer"
-msgstr ""
+msgstr "feil versjon av truetype-tracer"
 
 #: tcl/ngcgui_ttt.tcl:126
 msgid "not writable, using"
-msgstr ""
+msgstr "ikke skrivbar, bruker"
 
 #: tcl/ngcgui_ttt.tcl:126
 msgid "and setting expandsub"
@@ -6439,7 +6444,7 @@ msgstr ""
 
 #: tcl/ngcgui_ttt.tcl:162 src/emc/usr_intf/pncconf/external.glade:721
 msgid "Text"
-msgstr ""
+msgstr "Tekst"
 
 #: tcl/ngcgui_ttt.tcl:172
 msgid "Linescale"
@@ -6463,15 +6468,15 @@ msgstr ""
 
 #: tcl/ngcgui_ttt.tcl:248
 msgid "normal"
-msgstr ""
+msgstr "normal"
 
 #: tcl/ngcgui_ttt.tcl:249
 msgid "date"
-msgstr ""
+msgstr "dato"
 
 #: tcl/ngcgui_ttt.tcl:250
 msgid "fontname"
-msgstr ""
+msgstr "fontnavn"
 
 #: tcl/ngcgui_ttt.tcl:263
 msgid "Switches"
@@ -6479,11 +6484,11 @@ msgstr ""
 
 #: tcl/ngcgui_ttt.tcl:271
 msgid "Unicode"
-msgstr ""
+msgstr "Unicode"
 
 #: tcl/ngcgui_ttt.tcl:276
 msgid "Allow Rotation"
-msgstr ""
+msgstr "Tillat rotasjon"
 
 #: tcl/ngcgui_ttt.tcl:296
 msgid "Make ngcgui-compatible subfile and new tab page"
@@ -6491,11 +6496,11 @@ msgstr ""
 
 #: tcl/ngcgui_ttt.tcl:354
 msgid "Null text"
-msgstr ""
+msgstr "Ingen tekst"
 
 #: tcl/ngcgui_ttt.tcl:385
 msgid "Using truetype-tracer default font"
-msgstr ""
+msgstr "Bruker truetype-tracer standardfont"
 
 #: tcl/ngcgui_ttt.tcl:389
 msgid "no such file"
@@ -6503,7 +6508,7 @@ msgstr ""
 
 #: tcl/ngcgui_ttt.tcl:394
 msgid "file not readable"
-msgstr ""
+msgstr "filen kan ikke leses"
 
 #: tcl/ngcgui_ttt.tcl:508
 msgid "Creating new tab page"
@@ -6514,10 +6519,12 @@ msgid ""
 "requires command inifindall\n"
 "from axis.py (LinuxCNC 2.5) or"
 msgstr ""
+"krever kommandoen 'inifindall'\n"
+"fra axis.py (LinuxCNC 2.5) eller"
 
 #: tcl/ngcgui_app.tcl:43
 msgid "not readable"
-msgstr ""
+msgstr "ikke lesbar"
 
 #: tcl/ngcgui_app.tcl:49 tcl/ngcgui_app.tcl:52
 msgid "Unexpected: multiple startups for ngcgui"
@@ -6525,7 +6532,7 @@ msgstr ""
 
 #: tcl/ngcgui_app.tcl:50
 msgid "LinuxCNC"
-msgstr ""
+msgstr "LinuxCNC"
 
 #: tcl/ngcgui_app.tcl:51 tcl/ngcgui_app.tcl:71
 msgid "for LinuxCNC 2.5.xxx, Do not include tkapp.py in the ini file"
@@ -6533,7 +6540,7 @@ msgstr ""
 
 #: tcl/ngcgui_app.tcl:70
 msgid "LinuxCNC version"
-msgstr ""
+msgstr "LinuxCNC versjon"
 
 #: tcl/tooledit.tcl:65
 msgid "Problem reading ~/.tooleditrc"
@@ -6552,27 +6559,27 @@ msgstr ""
 #: tcl/tooledit.tcl:210 tcl/tooledit.tcl:213 tcl/tooledit.tcl:598
 #: tcl/tooledit.tcl:599 tcl/tooledit.tcl:1032
 msgid "NEW"
-msgstr ""
+msgstr "NY"
 
 #: tcl/tooledit.tcl:232
 #, tcl-format
 msgid "%s must be a number"
-msgstr ""
+msgstr "%s må være ett tall"
 
 #: tcl/tooledit.tcl:241
 #, tcl-format
 msgid "filename: <%s> not readable"
-msgstr ""
+msgstr "filnavn: kan ikke lese fra <%s>"
 
 #: tcl/tooledit.tcl:245
 #, tcl-format
 msgid "filename: <%s> not writable"
-msgstr ""
+msgstr "filnavn: kan ikke skrive til <%s>"
 
 #: tcl/tooledit.tcl:250
 #, tcl-format
 msgid "directory: <%s> not writable"
-msgstr ""
+msgstr "katalog: kan ikke skrive til <%s>"
 
 #: tcl/tooledit.tcl:294
 #, tcl-format
@@ -6592,11 +6599,11 @@ msgstr ""
 #: tcl/tooledit.tcl:399
 #, tcl-format
 msgid "%s: Column sorting not available with tcl_version==%s"
-msgstr ""
+msgstr "%s: Kolonnesortering er ikke mulig med tcl_version==%s"
 
 #: tcl/tooledit.tcl:408
 msgid "tool"
-msgstr ""
+msgstr "verktøy"
 
 #: tcl/tooledit.tcl:409
 msgid "poc"
@@ -6620,7 +6627,7 @@ msgstr ""
 
 #: tcl/tooledit.tcl:414
 msgid "comment"
-msgstr ""
+msgstr "kommentar"
 
 #: tcl/tooledit.tcl:444
 msgid "Del"
@@ -6654,11 +6661,11 @@ msgstr ""
 
 #: tcl/tooledit.tcl:537
 msgid "File updated"
-msgstr ""
+msgstr "Fil oppdatert"
 
 #: tcl/tooledit.tcl:538
 msgid "File modified"
-msgstr ""
+msgstr "Fil endret"
 
 #: tcl/tooledit.tcl:539
 msgid "File check errors"
@@ -6682,39 +6689,39 @@ msgstr ""
 
 #: tcl/tooledit.tcl:544
 msgid "Warning: File changed by another process"
-msgstr ""
+msgstr "Advarsel: Fil endret av en annen prosess"
 
 #: tcl/tooledit.tcl:545
 msgid "Warning: File deleted by another process"
-msgstr ""
+msgstr "Advarsel: Fil slettet av en annen prosess"
 
 #: tcl/tooledit.tcl:546
 msgid "Added Tool"
-msgstr ""
+msgstr "Verktøy lagt til"
 
 #: tcl/tooledit.tcl:550
 #, tcl-format
 msgid "Sorted by %s, increasing"
-msgstr ""
+msgstr "Sortert på %s, stigende"
 
 #: tcl/tooledit.tcl:551
 #, tcl-format
 msgid "Sorted by %s, decreasing"
-msgstr ""
+msgstr "Sortert på %s, synkende"
 
 #: tcl/tooledit.tcl:593
 msgid "Added"
-msgstr ""
+msgstr "Lagt til"
 
 #: tcl/tooledit.tcl:802
 #, tcl-format
 msgid "Tool %s, Column %s, parameter %s is not a number"
-msgstr ""
+msgstr "Verktøy %s, Kolonne %s, parameter %s er ikke nummer"
 
 #: tcl/tooledit.tcl:811
 #, tcl-format
 msgid "Tool %s, parameter %s must be nonnegative integer"
-msgstr ""
+msgstr "Verktøy %s, parameter %s må være positivt heltall"
 
 #: tcl/tooledit.tcl:819
 #, tcl-format
@@ -6724,7 +6731,7 @@ msgstr ""
 #: tcl/tooledit.tcl:826
 #, tcl-format
 msgid "Tool %s: <%s> must be between -360 and 360"
-msgstr ""
+msgstr "Verktøy %s: <%s> må være mellom -360 og 360"
 
 #: tcl/tooledit.tcl:842
 #, tcl-format
@@ -6742,7 +6749,7 @@ msgstr ""
 
 #: tcl/tooledit.tcl:903
 msgid "Save Modifications to File?"
-msgstr ""
+msgstr "Lagre endringer til fil?"
 
 #: tcl/tooledit.tcl:930
 #, tcl-format
@@ -6758,7 +6765,7 @@ msgstr ""
 
 #: tcl/tooledit.tcl:933
 msgid "Format for ini file is"
-msgstr ""
+msgstr "Formatet for ini-filen er"
 
 #: tcl/tooledit.tcl:935
 msgid "For standalone use, invoke as"
@@ -6786,7 +6793,7 @@ msgstr ""
 #: tcl/tooledit.tcl:981
 #, tcl-format
 msgid "%s: Using: %s"
-msgstr ""
+msgstr "%s: Bruker: %s"
 
 #: tcl/tooledit.tcl:990
 #, tcl-format
@@ -6801,11 +6808,11 @@ msgstr ""
 
 #: tcl/tooledit.tcl:1093
 msgid "Usage"
-msgstr ""
+msgstr "Bruk"
 
 #: tcl/tooledit.tcl:1094 tcl/tooledit.tcl:1095
 msgid "filename"
-msgstr ""
+msgstr "filnavn"
 
 #: tcl/tooledit.tcl:1096
 #, tcl-format
@@ -6814,11 +6821,11 @@ msgstr ""
 
 #: tcl/tooledit.tcl:1106
 msgid "Missing filename"
-msgstr ""
+msgstr "Mangler filnavn"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:155
 msgid "Do you really want to close LinuxCNC?"
-msgstr ""
+msgstr "Er du sikker på at du vil avslutte LinuxCNC?"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:156
 msgid "Confirm Close"
@@ -6826,27 +6833,27 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:182
 msgid "Emergency stop"
-msgstr ""
+msgstr "Nødstopp"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:183
 msgid "Turn machine on"
-msgstr ""
+msgstr "Start maskinen"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:185
 msgid "Activate first axis"
-msgstr ""
+msgstr "Aktiver første aksel"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:186
 msgid "Activate second axis"
-msgstr ""
+msgstr "Aktiver andre aksel"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:187
 msgid "Activate third axis"
-msgstr ""
+msgstr "Aktiver tredje akse"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:188
 msgid "Activate fourth axis"
-msgstr ""
+msgstr "Aktiver fjerde akse"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:189
 msgid "Activate first through ninth joint"
@@ -6866,7 +6873,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:193
 msgid ", and ."
-msgstr ""
+msgstr ", og ."
 
 #: src/emc/usr_intf/axis/scripts/axis.py:193
 msgid "Select jog speed"
@@ -6874,7 +6881,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:194
 msgid "< and >"
-msgstr ""
+msgstr "< og >"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:194
 msgid "Select angular jog speed"
@@ -6982,7 +6989,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:214
 msgid "Left Button"
-msgstr ""
+msgstr "Venstre knapp"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:214
 msgid "Pan, rotate or select line"
@@ -6990,7 +6997,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:215
 msgid "Shift+Left Button"
-msgstr ""
+msgstr "Shift+Venstre knapp"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:215
 msgid "Rotate or pan"
@@ -6998,7 +7005,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:216
 msgid "Right Button"
-msgstr ""
+msgstr "Høyre knapp"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:216
 #: src/emc/usr_intf/axis/scripts/axis.py:218
@@ -7024,7 +7031,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:222
 msgid "Manual control"
-msgstr ""
+msgstr "Manuell kontroll"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:223
 msgid "Code entry (MDI)"
@@ -7065,7 +7072,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:230
 msgid "Open program"
-msgstr ""
+msgstr "Åpne program"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:231
 msgid "Control-R"
@@ -7073,7 +7080,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:231
 msgid "Reload program"
-msgstr ""
+msgstr "Last program på nytt"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:232
 msgid "Control-S"
@@ -7081,15 +7088,15 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:232
 msgid "Save G-code as"
-msgstr ""
+msgstr "Lagre G-code som"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:233
 msgid "Run program"
-msgstr ""
+msgstr "Kjør program"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:234
 msgid "Step program"
-msgstr ""
+msgstr "Blokkvis kjøring av program"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:235
 msgid "Pause program"
@@ -7101,11 +7108,11 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:237
 msgid "Stop running program, or"
-msgstr ""
+msgstr "Stopp kjørende program, eller"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:238
 msgid "stop loading program preview"
-msgstr ""
+msgstr "stopp lasting av programforhåndsvisning"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:240
 msgid "Toggle mist"
@@ -7117,7 +7124,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:242
 msgid "Spindle brake off"
-msgstr ""
+msgstr "Spindelbremse av"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:243
 msgid "Shift-B"
@@ -7125,23 +7132,23 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:243
 msgid "Spindle brake on"
-msgstr ""
+msgstr "Spindelbremse på"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:244
 msgid "Turn spindle clockwise"
-msgstr ""
+msgstr "Spindel på, med klokken"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:245
 msgid "Turn spindle counterclockwise"
-msgstr ""
+msgstr "Spindel på, mot klokken"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:246
 msgid "Turn spindle more slowly"
-msgstr ""
+msgstr "Roter spindel saktere"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:247
 msgid "Turn spindle more quickly"
-msgstr ""
+msgstr "Roter spindel raskere"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:248
 msgid "Control-K"
@@ -7186,11 +7193,11 @@ msgstr ""
 #: src/emc/usr_intf/axis/scripts/axis.py:918
 #, python-format
 msgid "Unknown tool %d"
-msgstr ""
+msgstr "Ukjent verktøy %d"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:920 share/axis/tcl/axis.tcl:1872
 msgid "No tool"
-msgstr ""
+msgstr "Verktøy mangler"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:922
 #, python-format
@@ -7204,11 +7211,11 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1108
 msgid "Filtering..."
-msgstr ""
+msgstr "Filtrerer..."
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1172
 msgid "Filter failed"
-msgstr ""
+msgstr "Filter feilet"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1173
 #, python-format
@@ -7216,6 +7223,8 @@ msgid ""
 "The program %(program)r exited with code %(code)d.  Any error messages it "
 "produced are shown below:"
 msgstr ""
+"Programmet %(program)r avsluttet med kode %(code)d.  Feilmeldinger fra "
+"programmet vises nedenfor:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1275
 #, python-format
@@ -7228,6 +7237,8 @@ msgid ""
 "Near line %(seq)d of %(f)s:\n"
 "%(error_str)s"
 msgstr ""
+"Nær linje %(seq)d i %(f)s:\n"
+"%(error_str)s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1465
 #: src/emc/usr_intf/axis/scripts/axis.py:3222 share/axis/tcl/axis.tcl:922
@@ -7245,19 +7256,19 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/stepconf.py:1585
 #: src/emc/usr_intf/stepconf/pages.py:966
 msgid "in"
-msgstr ""
+msgstr "i"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1741
 msgid " radius"
-msgstr ""
+msgstr " radius"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1743
 msgid " diameter"
-msgstr ""
+msgstr " diameter"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1744
 msgid "°"
-msgstr ""
+msgstr "°"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1754
 msgid "Coordinate System:"
@@ -7273,11 +7284,11 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1794
 msgid "Name:"
-msgstr ""
+msgstr "Navn:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1794
 msgid "Size:"
-msgstr ""
+msgstr "Størrelse:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1795
 msgid "Tool order:"
@@ -7297,7 +7308,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1797
 msgid "Run time:"
-msgstr ""
+msgstr "Kjøretid:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1797
 msgid "X bounds:"
@@ -7343,7 +7354,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2005
 msgid "No file loaded"
-msgstr ""
+msgstr "Ingen fil lastet"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2013
 #, python-format
@@ -7356,6 +7367,8 @@ msgid ""
 "%(size)s bytes\n"
 "%(lines)s gcode lines"
 msgstr ""
+"%(size)s bytes\n"
+"%(lines)s gcode-linjer"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2045
 #, python-format
@@ -7370,7 +7383,7 @@ msgstr "%d sekunder"
 #: src/emc/usr_intf/axis/scripts/axis.py:2055
 #, python-format
 msgid "%(a)f to %(b)f = %(diff)f %(units)s"
-msgstr ""
+msgstr "%(a)f til %(b)f = %(diff)f %(units)s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2056
 msgid "G-Code Properties"
@@ -7553,7 +7566,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3842
 msgid "Run from here"
-msgstr ""
+msgstr "Kjør herfra"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3902
 msgid "toggle PYVCP panel visibility"
@@ -8121,11 +8134,11 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:412
 msgid "Show machine position"
-msgstr ""
+msgstr "Vis maskin-posisjon"
 
 #: share/axis/tcl/axis.tcl:419
 msgid "Show relative position"
-msgstr ""
+msgstr "Vis relativ posisjon"
 
 #: share/axis/tcl/axis.tcl:428
 msgid "Joint mode"
@@ -8145,7 +8158,7 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:460
 msgid "_About AXIS"
-msgstr ""
+msgstr "_Om AXIS"
 
 #: share/axis/tcl/axis.tcl:464
 msgid "Quick _Reference"
