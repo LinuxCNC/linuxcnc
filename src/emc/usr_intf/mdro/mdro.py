@@ -88,7 +88,7 @@ class axis_row_gui():
         self.vlabel = tk.Label(frame, width=10, justify=tk.RIGHT, anchor=tk.E,
                             textvariable=self.value, font=params["font1"])
         self.vlabel.grid(row=row, column=1, columnspan=1, sticky=tk.W)
-        self.zero = tk.Button(frame, text="Z", font=params["font2"])
+        self.zero = tk.Button(frame, text="0", font=params["font2"])
         self.zero.bind("<ButtonRelease-1>", lambda event: self.zero_up(event))
         self.zero.grid(row=row, column=2, columnspan=1, padx=px, sticky=tk.W)
         self.half = tk.Button(frame, text="1/2", font=params["font2"])
@@ -174,21 +174,25 @@ class keypad_gui():
     def __init__(self, frame, callback):
         self.kp_var = tk.StringVar()
         self.callback = callback
-        rows = (('7','8','9'), ('4','5','6'),
-                ('1','2','3'), ('0','.','-'),
-                ('C','<','E'))
+        rows = ((('7','7'),('8','8'),('9','9')),
+                (('4','4'),('5','5'),('6','6')),
+                (('1','1'),('2','2'),('3','3')),
+                (('0','0'),('.','.'),('-','-')),
+                (('C','C'),('\u232B','<'),('\u23CE','E')))
         px = 5
         for row, values in enumerate(rows):
-            for col, c in enumerate(values):
-                rb = tk.Radiobutton(frame, text=c, variable=self.kp_var, value=c, width=4,
+            for col, e in enumerate(values):
+                t, v = e
+                rb = tk.Radiobutton(frame, text=t, variable=self.kp_var, value=v, width=4,
                                  indicatoron=0, command=lambda: self.kp_hit(),
                                  font=params["font1"])
                 rb.grid(row=row, column=col, padx=px)
 
     def kp_hit(self):
+        key = self.kp_var.get()
         if params["verbose"]:
-            print("kp_hit", self.kp_var.get())
-        self.callback(self.kp_var.get())
+            print("kp_hit", key, "0x{:04x}".format(ord(key)))
+        self.callback(key)
         self.kp_var.set("")
 
 class coord_systems():
@@ -197,9 +201,9 @@ class coord_systems():
         self.rb_var = tk.IntVar()
         self.rb_var.set(1)
         if not params["preload"] is None:
-            self.coord_sys = ['mcs', 'g54', 'g55', 'g56', 'g57']
+            self.coord_sys = ['MCS', 'G54', 'G55', 'G56', 'G57']
         else:
-            self.coord_sys = ['mcs', 'cs1', 'cs2', 'cs3', 'cs4']
+            self.coord_sys = ['MCS', 'CS1', 'CS2', 'CS3', 'CS4']
         self.coords = []
         for i in range(len(self.coord_sys)):
             self.coords.append([0.0]*params["naxes"])
