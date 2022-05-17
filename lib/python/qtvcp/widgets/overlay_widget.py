@@ -18,8 +18,9 @@ import os
 
 from PyQt5.QtWidgets import (QWidget, QLabel, QHBoxLayout,
                 QVBoxLayout, QPushButton, QDialog, QProgressBar)
-from PyQt5.QtCore import Qt, QEvent, pyqtSlot, pyqtProperty, QChildEvent
-from PyQt5.QtGui import QColor, QImage, QResizeEvent, QPainter
+from PyQt5.QtCore import (Qt, QEvent, pyqtSlot, pyqtProperty, QChildEvent,
+                 )
+from PyQt5.QtGui import QColor, QImage, QResizeEvent, QPainter, QMoveEvent
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status
@@ -33,7 +34,7 @@ if __name__ != '__main__':
 LOG = logger.getLogger(__name__)
 
 # Set the log level for this module
-# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+#LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
 ################################################################
@@ -48,11 +49,14 @@ class OverlayWidget(QWidget):
         self.top_level = parent
         super(OverlayWidget, self).__init__(parent)
         self.parent = parent
-        self.setAttribute(Qt.WA_NoSystemBackground)
-        self.setAttribute(Qt.WA_TransparentForMouseEvents)
-#        self.setWindowFlags( self.windowFlags() |Qt.Tool |
-#                        Qt.FramelessWindowHint | Qt.Dialog |
-#                             Qt.WindowStaysOnTopHint |Qt.WindowSystemMenuHint)
+        #self.setAttribute(Qt.WA_NoSystemBackground)
+        #self.setAttribute(Qt.WA_TransparentForMouseEvents)
+
+        self.setWindowFlags( self.windowFlags() |Qt.Tool |
+                        Qt.FramelessWindowHint  |
+                             Qt.WindowStaysOnTopHint )
+        if not self.parent is None:
+            self.parent.installEventFilter(self)
 
     # There seems to be no way to get the very top level widget
     # in QT the parent widget can be owned in another parent
@@ -62,7 +66,7 @@ class OverlayWidget(QWidget):
         self.parent = self.top_level
         self.last = self.parent
         if self.last is not None:
-            LOG.debug('last removed: {}'.format(self.last))
+            LOG.debug('last removed: {} NEW:{}'.format(self.last, self.parent))
             self.last.removeEventFilter(self)
         if not self.parent: return
         self.parent.installEventFilter(self)
@@ -83,8 +87,8 @@ class OverlayWidget(QWidget):
             if event.type() == QEvent.Resize:
                 #print 'resize'
                 self.resize(QResizeEvent.size(event))
-            #elif event.type() == QEvent.Move:
-                #self.move(QMoveEvent.pos(event))
+            elif event.type() == QEvent.Move:
+                self.move(QMoveEvent.pos(event))
             elif(event.type() == QEvent.ChildAdded):
                 #print 'CHILD',QChildEvent.child(event)
                 if not QChildEvent.child(event) is QDialog:
@@ -381,6 +385,8 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
 #################
 def main():
     import sys
+    from PyQt5.QtWidgets import QWidget, QApplication
+    from PyQt5.QtCore import QTimer
     app = QApplication(sys.argv)
 
     w = QWidget()
@@ -400,8 +406,14 @@ def main():
         # make update
         w.hide()
         w.show()
-    FocusOverlay.okChecked = newOk
 
+    def pop():
+        print('Pop')
+        f.show()
+        f.update()
+
+    FocusOverlay.okChecked = newOk
+    w.show()
     # could use f = FocusOverlay( w )
     # then dont need to adjust top level
     f = FocusOverlay()
@@ -410,10 +422,10 @@ def main():
     # set with qtproperty call
     f.setshow_buttons(True)
 
-    w.show()
+
 
     timer2 = QTimer()
-    timer2.timeout.connect(lambda: f.show())
+    timer2.timeout.connect(lambda:pop() )
     timer2.start(1500)
 
     sys.exit(app.exec_())
