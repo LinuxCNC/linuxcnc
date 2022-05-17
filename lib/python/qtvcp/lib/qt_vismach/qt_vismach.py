@@ -279,7 +279,7 @@ class GLWidget(QOpenGLWidget):
         # wx, wy, wz are the values to use for backplot
         # so we save them in a buffer
         if len(self.plotdata) == self.plotlen:
-            del self.plotdata[:self.plotlen / 10]
+            del self.plotdata[:self.plotlen // 10]
         point = [wx, wy, wz]
         if not self.plotdata or point != self.plotdata[-1]:
             self.plotdata.append(point)
