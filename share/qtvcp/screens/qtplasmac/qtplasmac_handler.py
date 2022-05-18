@@ -1640,7 +1640,7 @@ class HandlerClass:
 #########################################################################################################################
     def ext_run(self, state):
         if self.w.run.isEnabled() and state:
-            self.run_pressed()
+            self.run_clicked()
 
     def ext_abort(self, state):
         if self.w.abort.isEnabled() and state:
@@ -1669,7 +1669,7 @@ class HandlerClass:
 
     def ext_run_pause(self, state):
         if self.w.run.isEnabled() and state:
-            self.run_pressed()
+            self.run_clicked()
         elif self.w.pause.isEnabled() and state:
             ACTION.PAUSE()
 
@@ -1692,7 +1692,7 @@ class HandlerClass:
                 self.w.power.setDown(False)
                 self.w.power.click()
 
-    def run_pressed(self):
+    def run_clicked(self):
         if self.convBlockLoaded.get():
             self.wcs_rotation('get')
         if self.startLine and self.rflSelected:
@@ -2355,7 +2355,7 @@ class HandlerClass:
         self.w.power.pressed.connect(lambda:self.power_button("pressed", True))
         self.w.power.released.connect(lambda:self.power_button("released", False))
         self.w.power.clicked.connect(lambda:self.power_button("clicked", None))
-        self.w.run.pressed.connect(self.run_pressed)
+        self.w.run.clicked.connect(self.run_clicked)
         self.w.pause.pressed.connect(self.pause_pressed)
         self.w.abort.pressed.connect(self.abort_pressed)
         self.w.file_reload.clicked.connect(self.file_reload_clicked)
@@ -5581,7 +5581,7 @@ class HandlerClass:
     def on_keycall_RUN(self, event, state, shift, cntrl):
         if self.key_is_valid(event, state) and not shift and not self.w.main_tab_widget.currentIndex():
             if self.w.run.isEnabled():
-                self.run_pressed()
+                self.run_clicked()
             elif self.w.pause.isEnabled():
                 ACTION.PAUSE()
 
