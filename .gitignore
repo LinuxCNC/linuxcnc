@@ -49,3 +49,10 @@ position.txt
 *-new_??.po
 # Ignore stamp files
 *.*-stamp
+# Ignore po4a-generated files for other languages
+docs/help/es/*
+docs/help/fr/*
+docs/help/hu/*
+docs/help/nb/*
+docs/help/vi/*
+docs/help/zh_CN/*
