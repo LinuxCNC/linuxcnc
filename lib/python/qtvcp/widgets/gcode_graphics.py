@@ -127,6 +127,10 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         self._block_line_selected = True
         self.set_highlight_line(line)
 
+    # used to clear highlighting externally
+    def clear_highlight(self):
+        self.set_highlight_line(None)
+
     def set_view_signal(self, view, args):
         v = view.lower()
         if v == 'clear':
