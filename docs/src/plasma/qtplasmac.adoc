@@ -2195,6 +2195,8 @@ Once the user has selected the starting place, the *CYCLE START* button will bli
 
 It is not possible to use Run From Line from within a subroutine. If the user selects a line within a subroutine and clicks *"SELECTED nn"* then an error message will be displayed that includes the O-Code name of the subroutine.
 
+It is not possible to use Run From Line if previous G-Code has set cutter compensation active. If the user selects a line while cutter compensation is active and clicks *"SELECTED nn"* then an error message will be displayed.
+
 It is possible to select a new line while Run From Line is active.
 
 image::images/qtplasmac_run_from_line.png[width=350,align="center"]
@@ -2222,7 +2224,7 @@ After pressing *LOAD*, the blinking "SELECTED nn" button will change to *RUN FRO
 *Run From Line selections may be canceled in the following ways:*
 
 . Click the background of the preview window - this method will cancel a selection of either a cut line in the preview window, or a G-Code line in the G-Code window.
-. Click the first line of the G-Code program in the G-Code display - this method will cancel a selection of either a cut line in the preview window, or a G-Code line in the G-Code window.
+. Click the text of the first line of the G-Code program in the G-Code display - this method will cancel a selection of either a cut line in the preview window, or a G-Code line in the G-Code window.
 . Clicking *RELOAD* in the G-Code window header - this method will cancel the Run From Line process if LOAD was clicked on the Run From Line dialog box and "rfl.ngc" is displayed as the loaded file name in the G-Code window header. This will return the user to the originally loaded file.
 
 [[qt_scribe]]
