@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-03-13 11:02+0100\n"
-"PO-Revision-Date: 2022-05-17 14:11+0000\n"
+"PO-Revision-Date: 2022-05-19 04:45+0000\n"
 "Last-Translator: Asle Næss <aness@bofh.no>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
@@ -8202,7 +8202,7 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:560
 msgid "Stop program execution [ESC]"
-msgstr ""
+msgstr "Stopp kjøring av program [ESC]"
 
 #: share/axis/tcl/axis.tcl:570
 msgid "Toggle skip lines with '/' [Alt-M /]"
@@ -8222,7 +8222,7 @@ msgstr "Forminsk"
 
 #: share/axis/tcl/axis.tcl:602
 msgid "Top view"
-msgstr ""
+msgstr "Se ovenfra"
 
 #: share/axis/tcl/axis.tcl:610
 msgid "Rotated top view"
@@ -8230,11 +8230,11 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:618
 msgid "Side view"
-msgstr ""
+msgstr "Se fra siden"
 
 #: share/axis/tcl/axis.tcl:626
 msgid "Front view"
-msgstr ""
+msgstr "Se forfra"
 
 #: share/axis/tcl/axis.tcl:634
 msgid "Inverted Front view"
@@ -8254,16 +8254,16 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:820
 msgid "Manual Control [F3]"
-msgstr ""
+msgstr "Manuell kontroll [F3]"
 
 #: share/axis/tcl/axis.tcl:821
 msgid "MDI [F5]"
-msgstr ""
+msgstr "MDI [F5]"
 
 #: share/axis/tcl/axis.tcl:835 share/axis/tcl/axis.tcl:1923
 #: share/axis/tcl/axis.tcl:2110
 msgid "Axis:"
-msgstr ""
+msgstr "Akse:"
 
 #: share/axis/tcl/axis.tcl:932 src/emc/usr_intf/gscreen/gscreen.glade:2979
 msgid "Home Axis"
@@ -8279,7 +8279,7 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:1021
 msgid "Spindle:"
-msgstr ""
+msgstr "Spindel:"
 
 #: share/axis/tcl/axis.tcl:1068 src/emc/usr_intf/touchy/touchy.glade:949
 #: src/emc/usr_intf/stepconf/main_page.glade:29
@@ -8289,7 +8289,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:3421
 #: src/emc/usr_intf/gscreen/gscreen.glade:4108
 msgid "-"
-msgstr ""
+msgstr "-"
 
 #: share/axis/tcl/axis.tcl:1082 src/emc/usr_intf/stepconf/main_page.glade:26
 #: src/emc/usr_intf/pncconf/main_page.glade:38
@@ -8297,19 +8297,19 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:3448
 #: src/emc/usr_intf/gscreen/gscreen.glade:4097
 msgid "+"
-msgstr ""
+msgstr "+"
 
 #: share/axis/tcl/axis.tcl:1087
 msgid "Brake"
-msgstr ""
+msgstr "Brems"
 
 #: share/axis/tcl/axis.tcl:1134
 msgid "Coolant:"
-msgstr ""
+msgstr "Kjøling:"
 
 #: share/axis/tcl/axis.tcl:1139
 msgid "Mist"
-msgstr ""
+msgstr "Tåke"
 
 #: share/axis/tcl/axis.tcl:1144
 msgid "Flood"
@@ -8317,11 +8317,11 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:1216
 msgid "History:"
-msgstr ""
+msgstr "Historikk:"
 
 #: share/axis/tcl/axis.tcl:1239
 msgid "MDI Command:"
-msgstr ""
+msgstr "MDI-kommando:"
 
 #: share/axis/tcl/axis.tcl:1248
 msgid "Go"
@@ -8333,7 +8333,7 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:1385
 msgid "Active G-Codes:"
-msgstr ""
+msgstr "Aktive G-koder:"
 
 #: share/axis/tcl/axis.tcl:1397 share/axis/tcl/axis.tcl:1410
 msgid "Jog Speed:"
@@ -8341,11 +8341,11 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:1422
 msgid "Max Velocity:"
-msgstr ""
+msgstr "Max hastighet:"
 
 #: share/axis/tcl/axis.tcl:1451
 msgid "Spindle Override:"
-msgstr ""
+msgstr "Overstyr spindel:"
 
 #: share/axis/tcl/axis.tcl:1453 share/axis/tcl/axis.tcl:1493
 #: share/axis/tcl/axis.tcl:1531 src/emc/usr_intf/pncconf/external.glade:2643
@@ -8401,7 +8401,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/screen.glade:540
 #: src/emc/usr_intf/pncconf/screen.glade:3839
 msgid "%"
-msgstr ""
+msgstr "%"
 
 #: share/axis/tcl/axis.tcl:1529
 msgid "Rapid Override:"
@@ -8419,10 +8419,19 @@ msgid ""
 "\n"
 "Visit the LinuxCNC web site: "
 msgstr ""
+"LinuxCNC/AXIS versjon $version\n"
+"\n"
+"Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, "
+"2014, 2015, 2016 Jeff Epler og Chris Radek.\n"
+"\n"
+"Dette er gratis programvare, og du står fritt til å distribuere den under "
+"visse vilkår.  Se filen COPYING, som er lagt ved LinuxCNC.\n"
+"\n"
+"Besøk LinuxCNCs webside: "
 
 #: share/axis/tcl/axis.tcl:1599
 msgid "About AXIS"
-msgstr ""
+msgstr "Om AXIS"
 
 #: share/axis/tcl/axis.tcl:1628
 msgid "AXIS Quick Reference"
@@ -8430,25 +8439,25 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:1756
 msgid "AXIS $::version on $::machine"
-msgstr ""
+msgstr "AXIS $::version på $::machine"
 
 #: share/axis/tcl/axis.tcl:1758
 msgid "(no file)"
-msgstr ""
+msgstr "(ingen fil)"
 
 #: share/axis/tcl/axis.tcl:1833 share/axis/tcl/axis.tcl:1838
 msgid "Position:"
-msgstr ""
+msgstr "Posisjon:"
 
 #: share/axis/tcl/axis.tcl:1835 src/emc/usr_intf/pncconf/screen.glade:89
 #: src/emc/usr_intf/gscreen/gscreen.py:4569
 msgid "Machine"
-msgstr ""
+msgstr "Maskin"
 
 #: share/axis/tcl/axis.tcl:1835 src/emc/usr_intf/touchy/touchy.glade:165
 #: src/emc/usr_intf/pncconf/screen.glade:92
 msgid "Relative"
-msgstr ""
+msgstr "Relativ"
 
 #: share/axis/tcl/axis.tcl:1836 src/emc/usr_intf/touchy/touchy.glade:3300
 #: src/emc/usr_intf/pncconf/screen.glade:78
@@ -8470,27 +8479,27 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:2250
 msgid "Turn spindle counterclockwise [F10]"
-msgstr ""
+msgstr "Kjør spindel mot klokken [F10]"
 
 #: share/axis/tcl/axis.tcl:2251
 msgid "Turn spindle clockwise [F9]"
-msgstr ""
+msgstr "Kjør spindel med klokken [F9]"
 
 #: share/axis/tcl/axis.tcl:2252
 msgid "Stop spindle [F9/F10]"
-msgstr ""
+msgstr "Stopp spindel [F9/F10]"
 
 #: share/axis/tcl/axis.tcl:2253
 msgid "Turn spindle Faster [F12]"
-msgstr ""
+msgstr "Øk spindelhastighet [F12]"
 
 #: share/axis/tcl/axis.tcl:2254
 msgid "Turn spindle Slower [F11]"
-msgstr ""
+msgstr "Senk spindelhastighet [F11]"
 
 #: share/axis/tcl/axis.tcl:2255
 msgid "Turn spindle brake on [Shift-B] or off [B]"
-msgstr ""
+msgstr "Slå spindelbrems på [Shift-B] eller av [B]"
 
 #: share/axis/tcl/axis.tcl:2256
 msgid "Turn flood on or off [F8]"
@@ -8498,15 +8507,15 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:2257
 msgid "Turn mist on or off [F7]"
-msgstr ""
+msgstr "Skru tåke på eller av [F7]"
 
 #: share/axis/tcl/axis.tcl:2258
 msgid "Send active axis home [Home]"
-msgstr ""
+msgstr "Send aktiv akse hjem [Home]"
 
 #: share/axis/tcl/axis.tcl:2259
 msgid "Set G54 offset for active axis [End]"
-msgstr ""
+msgstr "Sett G54-offsett for aktiv akse [End]"
 
 #: share/axis/tcl/axis.tcl:2260
 msgid "Set tool offset for loaded tool [Control-End]"
@@ -8514,27 +8523,27 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:2261
 msgid "Activate axis [X]"
-msgstr ""
+msgstr "Aktiver akse [X]"
 
 #: share/axis/tcl/axis.tcl:2262
 msgid "Activate axis [Y]"
-msgstr ""
+msgstr "Aktiver akse [Y]"
 
 #: share/axis/tcl/axis.tcl:2263
 msgid "Activate axis [Z]"
-msgstr ""
+msgstr "Aktiver akse [Z]"
 
 #: share/axis/tcl/axis.tcl:2264
 msgid "Activate axis [A]"
-msgstr ""
+msgstr "Aktiver akse [A]"
 
 #: share/axis/tcl/axis.tcl:2265
 msgid "Activate axis [4]"
-msgstr ""
+msgstr "Aktiver akse [4]"
 
 #: share/axis/tcl/axis.tcl:2266
 msgid "Activate axis [5]"
-msgstr ""
+msgstr "Aktiver akse [5]"
 
 #: share/axis/tcl/axis.tcl:2267 share/axis/tcl/axis.tcl:2268
 msgid "Jog selected axis"
@@ -8598,7 +8607,7 @@ msgstr ""
 
 #: src/emc/usr_intf/touchy/mdi.py:67 src/emc/usr_intf/gscreen/mdi.py:63
 msgid "Setup"
-msgstr ""
+msgstr "Oppsett"
 
 #: src/emc/usr_intf/touchy/mdi.py:68 src/emc/usr_intf/gscreen/mdi.py:64
 msgid "Spindle synchronized feed"
@@ -8827,7 +8836,7 @@ msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:458
 msgid "Estop Reset"
-msgstr ""
+msgstr "Nullstill nødstopp"
 
 #: src/emc/usr_intf/touchy/touchy.glade:469
 #: src/emc/usr_intf/stepconf/pport1.glade:21
@@ -8836,17 +8845,17 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/pport2.glade:26
 #: src/emc/usr_intf/gscreen/gscreen.glade:2477
 msgid "Estop"
-msgstr ""
+msgstr "Nødstopp"
 
 #: src/emc/usr_intf/touchy/touchy.glade:485
 #: src/emc/usr_intf/gscreen/gscreen.py:2542
 msgid "Machine On"
-msgstr ""
+msgstr "Maskin på"
 
 #: src/emc/usr_intf/touchy/touchy.glade:500
 #: src/emc/usr_intf/gscreen/gscreen.py:2547
 msgid "Machine Off"
-msgstr ""
+msgstr "Maskin av"
 
 #: src/emc/usr_intf/touchy/touchy.glade:541
 msgid "<b>Power</b>"
@@ -8870,7 +8879,7 @@ msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:648
 msgid "Startup"
-msgstr ""
+msgstr "Oppstart"
 
 #: src/emc/usr_intf/touchy/touchy.glade:663
 msgid "Set Tool"
@@ -8983,15 +8992,15 @@ msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:1323
 msgid "Mist On"
-msgstr ""
+msgstr "Tåke på"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1338
 msgid "Mist Off"
-msgstr ""
+msgstr "Tåke av"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1361
 msgid "<b>Coolant</b>"
-msgstr ""
+msgstr "<b>Kjøling</b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1418
 msgid "Spindle Forward"
@@ -9007,16 +9016,16 @@ msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:1460
 msgid "Spindle Faster"
-msgstr ""
+msgstr "Øk spindelhastighet"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1475
 msgid "Spindle Slower"
-msgstr ""
+msgstr "Senk spindelhastighet"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1497
 #: src/emc/usr_intf/touchy/touchy.glade:2551
 msgid "Spindle speed:"
-msgstr ""
+msgstr "Spindelhastighet:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1509
 #: src/emc/usr_intf/touchy/touchy.glade:2680
@@ -9047,19 +9056,19 @@ msgstr ""
 #: src/emc/usr_intf/touchy/touchy.glade:2233
 #: src/emc/usr_intf/touchy/touchy.glade:2357
 msgid "<b>Page</b>"
-msgstr ""
+msgstr "<b>Side</b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2294
 msgid "<span foreground=\"blue\" weight=\"bold\">Start Point</span>"
-msgstr ""
+msgstr "<span foreground=\"blue\" weight=\"bold\">Startpunkt</span>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2432
 msgid "<b>Loaded File</b>"
-msgstr ""
+msgstr "<b>Lastet fil</b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2461
 msgid "Loaded file:"
-msgstr ""
+msgstr "Lastet fil:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2472
 msgid "Interpreted line:"
@@ -9067,13 +9076,13 @@ msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:2486
 msgid "Distance:"
-msgstr ""
+msgstr "Avstand:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2499
 #: src/emc/usr_intf/stepconf/main_page.glade:324
 #: src/emc/usr_intf/pncconf/dialogs.glade:3730
 msgid "Velocity:"
-msgstr ""
+msgstr "Hastighet:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2512
 msgid "Delay:"
@@ -9085,7 +9094,7 @@ msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:2538
 msgid "Spindle direction:"
-msgstr ""
+msgstr "Spindelretning:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2564
 msgid "Loaded tool:"
@@ -9142,11 +9151,11 @@ msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:2767
 msgid "XY Rotation:"
-msgstr ""
+msgstr "XY-rotasjon:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2796
 msgid "Tool length:"
-msgstr ""
+msgstr "Verktøylengde:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2809
 msgid "label52"
@@ -9314,7 +9323,7 @@ msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:3582
 msgid "Start Point"
-msgstr ""
+msgstr "Startpunkt"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3609
 msgid ".01"
@@ -9390,7 +9399,7 @@ msgstr ""
 #: src/emc/usr_intf/gscreen/gscreen.py:4462
 #: src/emc/usr_intf/gscreen/gscreen.glade:4084
 msgid "Start"
-msgstr ""
+msgstr "Start"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:142
 #: src/emc/usr_intf/pncconf/private_data.py:40
@@ -9426,39 +9435,39 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:147
 msgid "Axis X"
-msgstr ""
+msgstr "X-akse"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:148
 msgid "Axis Y"
-msgstr ""
+msgstr "Y-akse"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:148
 msgid "Axis Z"
-msgstr ""
+msgstr "Z-akse"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:149
 msgid "Axis U"
-msgstr ""
+msgstr "U-akse"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:149
 msgid "Axis V"
-msgstr ""
+msgstr "V-akse"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:150
 msgid "Axis A"
-msgstr ""
+msgstr "A-akse"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:151
 #: src/emc/usr_intf/pncconf/private_data.py:467
 #: src/emc/usr_intf/pncconf/private_data.py:528
 #: src/emc/usr_intf/pncconf/private_data.py:536
 msgid "Spindle"
-msgstr ""
+msgstr "Spindel"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:151
 #: src/emc/usr_intf/pncconf/private_data.py:61
 msgid "Almost Done"
-msgstr ""
+msgstr "Snart ferdig"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:155
 #: src/emc/usr_intf/pncconf/private_data.py:1066
@@ -9542,7 +9551,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:218
 msgid "X Direction"
-msgstr ""
+msgstr "X-retning"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:218
 msgid "Y Step"
@@ -9550,7 +9559,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:218
 msgid "Y Direction"
-msgstr ""
+msgstr "Y-retning"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:219
 msgid "Z Step"
@@ -9558,7 +9567,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:219
 msgid "Z Direction"
-msgstr ""
+msgstr "Z-retning"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:219
 msgid "A Step"
@@ -9566,7 +9575,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:219
 msgid "A Direction"
-msgstr ""
+msgstr "A-retning"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:220
 msgid "U Step"
@@ -9574,7 +9583,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:220
 msgid "U Direction"
-msgstr ""
+msgstr "U-retning"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:220
 msgid "V Step"
@@ -9582,7 +9591,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:220
 msgid "V Direction"
-msgstr ""
+msgstr "V-retning"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:221
 msgid "Tandem X Step"
@@ -9602,7 +9611,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:222
 msgid "Spindle ON"
-msgstr ""
+msgstr "Spindel PÅ"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:222
 #: src/emc/usr_intf/pncconf/private_data.py:479
@@ -9612,12 +9621,12 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/stepconf.py:222
 #: src/emc/usr_intf/pncconf/private_data.py:510
 msgid "Spindle Brake"
-msgstr ""
+msgstr "Spindelbrems"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:223
 #: src/emc/usr_intf/pncconf/private_data.py:511
 msgid "Coolant Mist"
-msgstr ""
+msgstr "Tåkekjøling"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:223
 #: src/emc/usr_intf/pncconf/private_data.py:511
@@ -9641,22 +9650,22 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/stepconf.py:225
 #: src/emc/usr_intf/pncconf/private_data.py:515
 msgid "Digital out 0"
-msgstr ""
+msgstr "Digital ut 0"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:225
 #: src/emc/usr_intf/pncconf/private_data.py:515
 msgid "Digital out 1"
-msgstr ""
+msgstr "Digital ut 1"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:225
 #: src/emc/usr_intf/pncconf/private_data.py:515
 msgid "Digital out 2"
-msgstr ""
+msgstr "Digital ut 2"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:225
 #: src/emc/usr_intf/pncconf/private_data.py:515
 msgid "Digital out 3"
-msgstr ""
+msgstr "Digital ut 3"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:226
 msgid "Plasma Torch On"
@@ -9951,22 +9960,22 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/stepconf.py:258
 #: src/emc/usr_intf/pncconf/private_data.py:423
 msgid "Digital in 0"
-msgstr ""
+msgstr "Digital inn 0"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:258
 #: src/emc/usr_intf/pncconf/private_data.py:423
 msgid "Digital in 1"
-msgstr ""
+msgstr "Digital inn 1"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:258
 #: src/emc/usr_intf/pncconf/private_data.py:423
 msgid "Digital in 2"
-msgstr ""
+msgstr "Digital inn 2"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:258
 #: src/emc/usr_intf/pncconf/private_data.py:423
 msgid "Digital in 3"
-msgstr ""
+msgstr "Digital inn 3"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:259
 msgid "Plasma Arc Voltage"
@@ -10004,7 +10013,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/stepconf.py:265
 #: src/emc/usr_intf/pncconf/private_data.py:1106
 msgid "Done"
-msgstr ""
+msgstr "Ferdig"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:266
 #: src/emc/usr_intf/pncconf/private_data.py:1107
@@ -10041,7 +10050,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:270
 msgid "Quit Stepconf and discard changes?"
-msgstr ""
+msgstr "Avslutt Stepconf og forkast endringer?"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:271
 #: src/emc/usr_intf/pncconf/private_data.py:1113
@@ -10049,6 +10058,8 @@ msgid ""
 "The configuration has been built and saved.\n"
 "Do you want to quit?"
 msgstr ""
+"Konfigurasjonen er bygget og lagret.\n"
+"Vil du avslutte?"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:272
 #: src/emc/usr_intf/pncconf/private_data.py:1114
@@ -10075,18 +10086,20 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/stepconf.py:641
 #, python-format
 msgid "File %r was modified since it was written by stepconf"
-msgstr ""
+msgstr "Filen %r har blitt endret etter at stepconf lagret den"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:644
 msgid ""
 "Saving this configuration file will discard configuration changes made "
 "outside stepconf."
 msgstr ""
+"Lagring av denne konfigurasjonsfilen vil overskrive endringer gjort utenfor "
+"stepconf."
 
 #: src/emc/usr_intf/stepconf/stepconf.py:662
 #: src/emc/usr_intf/pncconf/data.py:903
 msgid "Continue? "
-msgstr ""
+msgstr "Fortsett? "
 
 #: src/emc/usr_intf/stepconf/stepconf.py:663
 #: src/emc/usr_intf/pncconf/data.py:904
@@ -10097,7 +10110,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/data.py:1084
 #, python-format
 msgid "launch %s"
-msgstr ""
+msgstr "kjør %s"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:752
 msgid "Desktop Launcher for LinuxCNC config made by Stepconf"
@@ -10109,6 +10122,9 @@ msgid ""
 "\n"
 "{}"
 msgstr ""
+"Feil ved lasting av konfigurasjon:\n"
+"\n"
+"{}"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:973
 #: src/emc/usr_intf/stepconf/pages.py:152
@@ -10119,12 +10135,12 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/tests.py:1037
 #, python-format
 msgid "%s Axis Test"
-msgstr ""
+msgstr "Test %s-akse"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1555
 #: src/emc/usr_intf/stepconf/pages.py:952
 msgid "deg / s"
-msgstr ""
+msgstr "grader / s"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1556
 #: src/emc/usr_intf/stepconf/pages.py:953
@@ -10171,12 +10187,12 @@ msgstr "mm / s²"
 #: src/emc/usr_intf/stepconf/stepconf.py:1583
 #: src/emc/usr_intf/stepconf/pages.py:964
 msgid "in / s"
-msgstr ""
+msgstr "tommer / s"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1584
 #: src/emc/usr_intf/stepconf/pages.py:965
 msgid "in / s²"
-msgstr ""
+msgstr "tommer / s²"
 
 #: src/emc/usr_intf/stepconf/pages.py:230
 msgid "LinuxCNC 'stepconf' configuration files"
@@ -10243,7 +10259,7 @@ msgstr "# Laget av stepconf 1.1 %s"
 #: src/emc/usr_intf/pncconf/build_INI.py:19
 #: src/emc/usr_intf/pncconf/build_HAL.py:55
 msgid "# If you make changes to this file, they will be"
-msgstr ""
+msgstr "# Endringer i denne filen vil bli"
 
 #: src/emc/usr_intf/stepconf/build_INI.py:56
 #: src/emc/usr_intf/stepconf/build_HAL.py:46
@@ -10251,7 +10267,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/build_HAL.py:379
 #: src/emc/usr_intf/stepconf/build_HAL.py:420
 msgid "# overwritten when you run stepconf again"
-msgstr ""
+msgstr "# overskrevet når du kjører stepconf igjen"
 
 #: src/emc/usr_intf/stepconf/build_INI.py:236
 msgid "# add halui MDI commands here (max 64) "
@@ -10296,13 +10312,13 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/build_HAL.py:343
 #: src/emc/usr_intf/pncconf/build_HAL.py:925
 msgid "Include your PyVCP panel here.\n"
-msgstr ""
+msgstr "Inkluder ditt PyVCP-panel her.\n"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:358
 #: src/emc/usr_intf/stepconf/build_HAL.py:376
 #: src/emc/usr_intf/stepconf/build_HAL.py:417
 msgid "# These files are loaded post GUI, in the order they appear"
-msgstr ""
+msgstr "# Disse filene blir lastet etter GUIet, i angitt rekkefølge"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:380
 #: src/emc/usr_intf/pncconf/build_HAL.py:938
@@ -10349,7 +10365,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/build_HAL.py:722
 #: src/emc/usr_intf/stepconf/build_HAL.py:769
 msgid "# This file will not be overwritten when you run stepconf again"
-msgstr ""
+msgstr "# Denne filen blir ikke overskrevet når du kjører stepconf igjen"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:475
 msgid "# This file sets up simulated limits/home/spindle encoder hardware."
@@ -10372,12 +10388,17 @@ msgid ""
 "\n"
 "########################################"
 msgstr ""
+"\n"
+"\n"
+"\n"
+"########################################"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:740
 #: src/emc/usr_intf/pncconf/build_HAL.py:1919
 msgid ""
 "# The following variables are available for fine tuning some parameters."
 msgstr ""
+"# De følgende variablene er tilgjengelige for å finjustere noen parametere."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:741
 #: src/emc/usr_intf/pncconf/build_HAL.py:1920
@@ -10385,6 +10406,8 @@ msgid ""
 "# To use any of these, uncomment the required setp line and set an "
 "appropriate value.\n"
 msgstr ""
+"# For å bruke noen av disse, fjern kommentartegn foran setp-linjen og sett "
+"en passende verdi.\n"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:742
 #: src/emc/usr_intf/pncconf/build_HAL.py:1921
@@ -10477,11 +10500,11 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/main_page.glade:35
 #: src/emc/usr_intf/pncconf/dialogs.glade:3247
 msgid "±"
-msgstr ""
+msgstr "±"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:129
 msgid "mm/s"
-msgstr ""
+msgstr "mm/s"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:337
 #: src/emc/usr_intf/pncconf/dialogs.glade:864
@@ -10496,12 +10519,12 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/main_page.glade:381
 msgid "mm/s^2"
-msgstr ""
+msgstr "mm/s^2"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:400
 #: src/emc/usr_intf/pncconf/dialogs.glade:3743
 msgid "Acceleration:"
-msgstr ""
+msgstr "Aksellerasjon:"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:425
 msgid "Stepconf -Stepper Configuration Wizard"
@@ -10559,21 +10582,21 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/main_page.glade:675
 msgid "Page 1"
-msgstr ""
+msgstr "Side 1"
 
 #: src/emc/usr_intf/stepconf/base.glade:18
 #: src/emc/usr_intf/pncconf/base.glade:12
 msgid "XYZ"
-msgstr ""
+msgstr "XYZ"
 
 #: src/emc/usr_intf/stepconf/base.glade:21
 #: src/emc/usr_intf/pncconf/base.glade:15
 msgid "XYZA"
-msgstr ""
+msgstr "XYZA"
 
 #: src/emc/usr_intf/stepconf/base.glade:24
 msgid "XZ (Lathe)"
-msgstr ""
+msgstr "XZ (Dreiebenk)"
 
 #: src/emc/usr_intf/stepconf/base.glade:27
 msgid "XYUV (Foam)"
@@ -10647,7 +10670,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/base.glade:591
 #: src/emc/usr_intf/pncconf/base.glade:137
 msgid "Configuration directory:"
-msgstr ""
+msgstr "Katalog for konfigurasjon:"
 
 #: src/emc/usr_intf/stepconf/base.glade:603
 msgid "_Axis configuration:"
