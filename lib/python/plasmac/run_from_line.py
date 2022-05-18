@@ -22,7 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc
 import math
 
 def run_from_line_get(file, startLine):
-    preData,postData,params,material = [],[],[],[]
+    preData,postData,newData,params,material = [],[],[],[],[]
     codes = {'g2':'','g4':'','g6':'','g9':'','g9arc':'','d3':'','d2':'','a3':'','x1':'','y1':'','x2':'','y2':''}
     codes['last'] = {'feed':'', 'code':''}
     codes['move'] = {'isSet':False, 'isG0':False}
@@ -202,94 +202,93 @@ def run_from_line_get(file, startLine):
     if cutComp or oSub:
         return {'error':True, 'compError':cutComp, 'subError':oSub}
     # else return all data
-    return {'error':False, 'codes':codes, 'params':params, 'material':material, 'data':postData}
+    return {'error':False, 'codes':codes, 'params':params, 'material':material, 'postData':postData, 'newData':newData}
 
-def run_from_line_set(rflFile, codes, params, material, data, leadin, unitsPerMm):
-    newData = []
+def run_from_line_set(rflFile, data, leadin, unitsPerMm):
     error = False
     # add all the codes retrieved from before the start line
-    for param in params:
+    for param in data['params']:
         if param:
-            newData.append(param)
+            data['newData'].append(param)
     scale = 1
     zMax = ''
     if unitsPerMm == 1:
-        if codes['g2'] == 'g20':
+        if data['codes']['g2'] == 'g20':
             scale = 0.03937
             zMax = 'g53 g0z[[#<_ini[axis_z]max_limit> - 5] * 0.03937]'
         else:
             zMax = 'g53 g0z[#<_ini[axis_z]max_limit> - 5]'
     else:
-        if codes['g2'] == 'g21':
+        if data['codes']['g2'] == 'g21':
             scale = 25.4
             zMax = 'g53 g0z[[#<_ini[axis_z]max_limit> * 25.4] - 5]'
         else:
             zMax = 'g53 g0z[#<_ini[axis_z]max_limit> - 0.02]'
-    if codes['g2']:
-        newData.append(codes['g2'])
-    if codes['g4']:
-        newData.append(codes['g4'])
-    if codes['g6']:
-        newData.append(codes['g6'])
-    if codes['g9']:
-        newData.append(codes['g9'])
-    if codes['g9arc']:
-        newData.append(codes['g9arc'])
-    newData.append('m52 p1')
-    if codes['d3']:
-        newData.append(codes['d3'])
-    if codes['d2']:
-        newData.append(codes['d2'])
-    if codes['a3']:
-        newData.append(codes['a3'])
+    if data['codes']['g2']:
+        data['newData'].append(data['codes']['g2'])
+    if data['codes']['g4']:
+        data['newData'].append(data['codes']['g4'])
+    if data['codes']['g6']:
+        data['newData'].append(data['codes']['g6'])
+    if data['codes']['g9']:
+        data['newData'].append(data['codes']['g9'])
+    if data['codes']['g9arc']:
+        data['newData'].append(data['codes']['g9arc'])
+    data['newData'].append('m52 p1')
+    if data['codes']['d3']:
+        data['newData'].append(data['codes']['d3'])
+    if data['codes']['d2']:
+        data['newData'].append(data['codes']['d2'])
+    if data['codes']['a3']:
+        data['newData'].append(data['codes']['a3'])
     if zMax:
-        newData.append(zMax)
-    if material:
-        for line in material:
-            newData.append(line)
-    if codes['last']['feed']:
-        newData.append(codes['last']['feed'])
+        data['newData'].append(zMax)
+    if data['material']:
+        for line in data['material']:
+            data['newData'].append(line)
+    if data['codes']['last']['feed']:
+        data['newData'].append(data['codes']['last']['feed'])
     # if g0 is not the first motion command after selected line set x and y coordinates
-    if not codes['move']['isG0']:
+    if not data['codes']['move']['isG0']:
         if leadin['do']:
-            error, xL, yL = set_leadin_coordinates(codes['x1'], codes['y1'], scale, leadin['length'], leadin['angle'])
+            error, xL, yL = set_leadin_coordinates(data['codes']['x1'], data['codes']['y1'], scale, leadin['length'], leadin['angle'])
         else:
-            xL = codes['x1']
-            yL = codes['y1']
-        codes['spindle']['code'] = set_spindle_start(xL, yL, codes['x1'], codes['y1'], codes['spindle']['line'], newData, False)
+            xL = data['codes']['x1']
+            yL = data['codes']['y1']
+        data['codes']['spindle']['code'] = set_spindle_start(xL, yL, data['codes']['x1'], data['codes']['y1'], data['codes']['spindle']['line'], data['newData'], False)
     # if no spindle command yet then find the next one for the correct tool
-    if not codes['spindle']['line']:
-        for line in data:
+    if not data['codes']['spindle']['line']:
+        for line in data['postData']:
             if 'm3$' in line.replace(' ',''):
-                codes['spindle']['line'] = line.strip()
+                data['codes']['spindle']['line'] = line.strip()
                 break
     # add all the code from the selected line to the end
-    for line in data:
+    for line in data['postData']:
         # if we have the first spindle code we don't need it again
-        if 'm3$' in line.replace(' ','') and codes['spindle']['code']:
-            codes['spindle']['code'] = False
+        if 'm3$' in line.replace(' ','') and data['codes']['spindle']['code']:
+            data['codes']['spindle']['code'] = False
             continue
         # if g0 is the first motion command after the selected line
-        if codes['move']['isG0']:
+        if data['codes']['move']['isG0']:
             # if g0 is the current motion command
             if 'g0' in line:
                 # no need to process a g53g0 command]
                 if 'g53g0' in line or 'g20' in line or 'g21' in line:
-                    newData.append(line.strip())
+                    data['newData'].append(line.strip())
                     continue
                 if leadin['do']:
-                    error, xL, yL = set_leadin_coordinates(codes['x2'], codes['y2'], scale, leadin['length'], leadin['angle'])
+                    error, xL, yL = set_leadin_coordinates(data['codes']['x2'], data['codes']['y2'], scale, leadin['length'], leadin['angle'])
                 else:
-                    xL = codes['x2']
-                    yL = codes['y2']
-                codes['spindle']['code'] = set_spindle_start(xL, yL, codes['x2'], codes['y2'], codes['spindle']['line'], newData, True)
+                    xL = data['codes']['x2']
+                    yL = data['codes']['y2']
+                data['codes']['spindle']['code'] = set_spindle_start(xL, yL, data['codes']['x2'], data['codes']['y2'], data['codes']['spindle']['line'], data['newData'], True)
                 # no need to process any more g0 commands
-                codes['move']['isG0'] = False
+                data['codes']['move']['isG0'] = False
                 continue
-        newData.append(line.strip())
+        data['newData'].append(line.strip())
     # create the rfl file
     with open(rflFile, 'w') as outFile:
-        for line in newData:
+        for line in data['newData']:
             outFile.write('{}\n'.format(line))
     return {'error':error}
 

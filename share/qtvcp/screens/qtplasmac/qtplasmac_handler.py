@@ -1,4 +1,4 @@
-VERSION = '1.223.191'
+VERSION = '1.223.192'
 
 '''
 qtplasmac_handler.py
@@ -1714,18 +1714,18 @@ class HandlerClass:
             if self.developmentPin:
                 reload(RFL)
             head = _translate('HandlerClass', 'GCODE ERROR')
-            setup = RFL.run_from_line_get(self.lastLoadedProgram, self.startLine)
+            data = RFL.run_from_line_get(self.lastLoadedProgram, self.startLine)
             # cannot do run from line within a subroutine or if using cutter compensation
-            if setup['error']:
-                if setup['compError']:
+            if data['error']:
+                if data['compError']:
                     msg0 = _translate('HandlerClass', 'Cannot run from line while')
                     msg1 = _translate('HandlerClass', 'cutter compensation is active')
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
-                if setup['subError']:
+                if data['subError']:
                     msg0 = _translate('HandlerClass', 'Cannot do run from line')
                     msg1 = _translate('HandlerClass', 'inside subroutine')
                     msg2 = ''
-                    for sub in setup['subError']:
+                    for sub in data['subError']:
                         msg2 += ' {}'.format(sub)
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}{}\n'.format(head, msg0, msg1, msg2))
                 self.clear_rfl()
@@ -1740,7 +1740,7 @@ class HandlerClass:
                 else:
                     # rfl load clicked
                     rflFile = '{}rfl.ngc'.format(self.tmpPath)
-                    result = RFL.run_from_line_set(rflFile, setup['codes'], setup['params'], setup['material'], setup['data'], userInput, self.unitsPerMm)
+                    result = RFL.run_from_line_set(rflFile, data, userInput, self.unitsPerMm)
                     # leadin cannot be used
                     if result['error']:
                         msg0 = _translate('HandlerClass', 'Unable to calculate a leadin for this cut')
