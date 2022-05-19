@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-03-13 11:02+0100\n"
-"PO-Revision-Date: 2022-05-19 04:45+0000\n"
+"PO-Revision-Date: 2022-05-19 14:13+0000\n"
 "Last-Translator: Asle Næss <aness@bofh.no>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
@@ -10948,12 +10948,12 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/spindle.glade:313
 msgid "Scale %"
-msgstr ""
+msgstr "Skaler %"
 
 #: src/emc/usr_intf/stepconf/options.glade:48
 #: src/emc/usr_intf/pncconf/private_data.py:489
 msgid "Axis"
-msgstr ""
+msgstr "Akse"
 
 #: src/emc/usr_intf/stepconf/options.glade:51
 msgid "Gmoccapy"
@@ -10970,7 +10970,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/options.glade:73
 msgid "Screen:  "
-msgstr ""
+msgstr "Skjerm:  "
 
 #: src/emc/usr_intf/stepconf/options.glade:127
 #: src/emc/usr_intf/pncconf/screen.glade:3281
@@ -10980,32 +10980,32 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/options.glade:140
 #: src/emc/usr_intf/pncconf/screen.glade:3294
 msgid "Estop Button:"
-msgstr ""
+msgstr "Nødstoppknapp:"
 
 #: src/emc/usr_intf/stepconf/options.glade:156
 #: src/emc/usr_intf/pncconf/screen.glade:3325
 msgid "4:3"
-msgstr ""
+msgstr "4:3"
 
 #: src/emc/usr_intf/stepconf/options.glade:172
 #: src/emc/usr_intf/pncconf/screen.glade:3341
 msgid "Hidden"
-msgstr ""
+msgstr "Skjult"
 
 #: src/emc/usr_intf/stepconf/options.glade:188
 #: src/emc/usr_intf/pncconf/screen.glade:3357
 msgid "9:16"
-msgstr ""
+msgstr "9:16"
 
 #: src/emc/usr_intf/stepconf/options.glade:204
 #: src/emc/usr_intf/pncconf/screen.glade:3373
 msgid "Button"
-msgstr ""
+msgstr "Knapp"
 
 #: src/emc/usr_intf/stepconf/options.glade:220
 #: src/emc/usr_intf/pncconf/screen.glade:3389
 msgid "16:9"
-msgstr ""
+msgstr "16:9"
 
 #: src/emc/usr_intf/stepconf/options.glade:234
 #: src/emc/usr_intf/pncconf/screen.glade:3403
@@ -11015,12 +11015,12 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/options.glade:301
 #: src/emc/usr_intf/pncconf/screen.glade:3457
 msgid "Bottom"
-msgstr ""
+msgstr "Bunn"
 
 #: src/emc/usr_intf/stepconf/options.glade:371
 #: src/emc/usr_intf/pncconf/screen.glade:3471
 msgid "Top"
-msgstr ""
+msgstr "Topp"
 
 #: src/emc/usr_intf/stepconf/options.glade:465
 #: src/emc/usr_intf/pncconf/screen.glade:3621
@@ -11047,17 +11047,17 @@ msgstr "Operatørmelding"
 #: src/emc/usr_intf/stepconf/options.glade:528
 #: src/emc/usr_intf/pncconf/screen.glade:3879
 msgid "Hide Start Button:"
-msgstr ""
+msgstr "Skjul startknapp:"
 
 #: src/emc/usr_intf/stepconf/options.glade:541
 #: src/emc/usr_intf/pncconf/screen.glade:3892
 msgid "Hide Pause Button:"
-msgstr ""
+msgstr "Skjul pauseknapp:"
 
 #: src/emc/usr_intf/stepconf/options.glade:554
 #: src/emc/usr_intf/pncconf/screen.glade:3905
 msgid "Hide Stop Button:"
-msgstr ""
+msgstr "Skjul stoppknapp:"
 
 #: src/emc/usr_intf/stepconf/options.glade:571
 msgid "_Onscreen prompt for manual tool change"
@@ -11071,7 +11071,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/options.glade:645
 #: src/emc/usr_intf/pncconf/vcp.glade:79
 msgid "Blank program"
-msgstr ""
+msgstr "Tomt program"
 
 #: src/emc/usr_intf/stepconf/options.glade:662
 #: src/emc/usr_intf/pncconf/vcp.glade:96
@@ -11113,21 +11113,21 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/options.glade:948
 msgid "Number of digital in pins:"
-msgstr ""
+msgstr "Antall digitale innganger:"
 
 #: src/emc/usr_intf/stepconf/options.glade:964
 msgid "Number of digital  out pins:"
-msgstr ""
+msgstr "Antall digitale utganger:"
 
 #: src/emc/usr_intf/stepconf/options.glade:979
 #: src/emc/usr_intf/pncconf/options.glade:638
 msgid " Number of analog (s32) in pins:"
-msgstr ""
+msgstr " Antall analoge (s32) innganger:"
 
 #: src/emc/usr_intf/stepconf/options.glade:995
 #: src/emc/usr_intf/pncconf/options.glade:655
 msgid " Number of analog (s32) out pins:"
-msgstr ""
+msgstr " Antall analoge (s32) utganger:"
 
 #: src/emc/usr_intf/stepconf/options.glade:1010
 #: src/emc/usr_intf/pncconf/options.glade:671
@@ -11815,18 +11815,18 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/pncconf.py:4071
 #: src/emc/usr_intf/pncconf/pncconf.py:4072
 msgid "("
-msgstr ""
+msgstr "("
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4073
 #: src/emc/usr_intf/pncconf/pncconf.py:4083
 #: src/emc/usr_intf/pncconf/pncconf.py:4084
 #: src/emc/usr_intf/pncconf/pncconf.py:4085
 msgid " / min"
-msgstr ""
+msgstr " / min"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4074
 msgid " / sec²"
-msgstr ""
+msgstr " / sek²"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4077
 msgid " / Step"
@@ -11859,7 +11859,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/pages.py:246 src/emc/usr_intf/pncconf/pages.py:297
 #, python-format
 msgid "Point and click configuration - %s.pncconf "
-msgstr ""
+msgstr "Pek og klikk-konfigurasjon - %s.pncconf "
 
 #: src/emc/usr_intf/pncconf/pages.py:329
 msgid ""
@@ -11872,7 +11872,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/pages.py:441
 msgid "in / min"
-msgstr ""
+msgstr "tommer / min"
 
 #: src/emc/usr_intf/pncconf/pages.py:445
 #: src/emc/usr_intf/pncconf/screen.glade:799
@@ -11882,7 +11882,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/screen.glade:3785
 #: src/emc/usr_intf/pncconf/screen.glade:3798
 msgid "mm / min"
-msgstr ""
+msgstr "mm / min"
 
 #: src/emc/usr_intf/pncconf/pages.py:1024
 msgid ""
@@ -11932,7 +11932,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/build_HAL.py:1063
 #, python-format
 msgid "# Generated by PNCconf at %s"
-msgstr ""
+msgstr "# Generert av PNCconf den %s"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:18
 #: src/emc/usr_intf/pncconf/build_HAL.py:54
@@ -11943,11 +11943,11 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/build_INI.py:20
 #: src/emc/usr_intf/pncconf/build_HAL.py:56
 msgid "# overwritten when you run PNCconf again"
-msgstr ""
+msgstr "# overskrevet når du kjører PNCconf igjen"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:176
 msgid "# **** This is for info only ****"
-msgstr ""
+msgstr "# **** Dette er kun til informasjon ****"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:186
 msgid ""
@@ -11960,6 +11960,7 @@ msgid ""
 "# The values below should be 25% larger than MAX_VELOCITY and "
 "MAX_ACCELERATION"
 msgstr ""
+"# Verdiene under bør være 25% større enn MAX_VELOCITY og MAX_ACCELERATION"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:412
 msgid ""
@@ -11968,7 +11969,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_INI.py:464
 msgid "# these are in nanoseconds"
-msgstr ""
+msgstr "# disse er i nanosekunder"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:543
 msgid "# MAX_VEL & MAX_ACC need to be twice the corresponding joint value"
@@ -12181,7 +12182,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/build_HAL.py:962
 #: src/emc/usr_intf/pncconf/build_HAL.py:1903
 msgid "# This file will not be overwritten when you run PNCconf again"
-msgstr ""
+msgstr "# Denne filen blir ikke overskrevet når du kjører PNCconf igjen"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:964
 msgid ""
@@ -12382,7 +12383,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1820
 msgid "#values for these are in custom.hal"
-msgstr ""
+msgstr "# verdier for disse finnes i custom.hal"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1826
 msgid ""
@@ -14023,11 +14024,11 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:1111
 msgid "Quit PNCconf and discard changes?"
-msgstr ""
+msgstr "Avslutt PNCconf uten å lagre endringer?"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1112
 msgid "Do you want to quit?"
-msgstr ""
+msgstr "Vil du avslutte?"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1118
 msgid ""
@@ -14059,15 +14060,15 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/tests.py:507
 msgid "degrees"
-msgstr ""
+msgstr "grader"
 
 #: src/emc/usr_intf/pncconf/tests.py:508
 msgid "degrees / minute"
-msgstr ""
+msgstr "grader / minutt"
 
 #: src/emc/usr_intf/pncconf/tests.py:509
 msgid "degrees / second²"
-msgstr ""
+msgstr "grader/ sekund²"
 
 #: src/emc/usr_intf/pncconf/tests.py:512
 msgid "revolutions"
@@ -14095,19 +14096,19 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_axis.glade:655
 #: src/emc/usr_intf/pncconf/a_axis.glade:671
 msgid "mm / minute"
-msgstr ""
+msgstr "mm / minutt"
 
 #: src/emc/usr_intf/pncconf/tests.py:519
 msgid "mm / second²"
-msgstr ""
+msgstr "mm / sekund²"
 
 #: src/emc/usr_intf/pncconf/tests.py:523
 msgid "inches / minute"
-msgstr ""
+msgstr "tommer / minutt"
 
 #: src/emc/usr_intf/pncconf/tests.py:524
 msgid "inches / second²"
-msgstr ""
+msgstr "tommer/ sekund²"
 
 #: src/emc/usr_intf/pncconf/tests.py:726
 #, python-format
@@ -14152,7 +14153,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/data.py:881
 #, python-format
 msgid "File %r was modified since it was written by PNCconf"
-msgstr ""
+msgstr "Filen %r har blitt endret etter at den ble lagret av PNCconf"
 
 #: src/emc/usr_intf/pncconf/data.py:885
 msgid ""
@@ -14198,7 +14199,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:40974
 #: src/emc/usr_intf/pncconf/mesa1.glade:46156
 msgid "page 1"
-msgstr ""
+msgstr "side 1"
 
 #: src/emc/usr_intf/pncconf/help.glade:6
 msgid ""
@@ -14294,7 +14295,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/help.glade:111
 msgid "Help Page"
-msgstr ""
+msgstr "Hjelpeside"
 
 #: src/emc/usr_intf/pncconf/help.glade:173
 msgid "Mill"
@@ -14315,7 +14316,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/help.glade:235
 msgid "Lathe"
-msgstr ""
+msgstr "Dreiebenk"
 
 #: src/emc/usr_intf/pncconf/help.glade:266
 msgid ""
@@ -14517,6 +14518,8 @@ msgid ""
 "Configuration\n"
 "     Page"
 msgstr ""
+"Konfigurasjons-\n"
+"     side"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1125
 #: src/emc/usr_intf/pncconf/mesa0.glade:1390
@@ -14733,7 +14736,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:14705
 #: src/emc/usr_intf/pncconf/mesa1.glade:16631
 msgid "  1:"
-msgstr ""
+msgstr "  1:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1225
 #: src/emc/usr_intf/pncconf/mesa0.glade:3231
@@ -14752,7 +14755,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:14720
 #: src/emc/usr_intf/pncconf/mesa1.glade:16646
 msgid "  3:"
-msgstr ""
+msgstr "  3:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1240
 #: src/emc/usr_intf/pncconf/mesa0.glade:3246
@@ -14771,7 +14774,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:14735
 #: src/emc/usr_intf/pncconf/mesa1.glade:16661
 msgid "  5:"
-msgstr ""
+msgstr "  5:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1255
 #: src/emc/usr_intf/pncconf/mesa0.glade:3261
@@ -14790,7 +14793,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:14750
 #: src/emc/usr_intf/pncconf/mesa1.glade:16676
 msgid "  7:"
-msgstr ""
+msgstr "  7:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1270
 #: src/emc/usr_intf/pncconf/mesa0.glade:3276
@@ -14809,7 +14812,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:14765
 #: src/emc/usr_intf/pncconf/mesa1.glade:16691
 msgid "  9:"
-msgstr ""
+msgstr "  9:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1285
 #: src/emc/usr_intf/pncconf/mesa0.glade:3291
@@ -14828,7 +14831,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:14780
 #: src/emc/usr_intf/pncconf/mesa1.glade:16706
 msgid "11:"
-msgstr ""
+msgstr "11:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1300
 #: src/emc/usr_intf/pncconf/mesa0.glade:3306
@@ -14847,7 +14850,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:14795
 #: src/emc/usr_intf/pncconf/mesa1.glade:16721
 msgid "13:"
-msgstr ""
+msgstr "13:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1315
 #: src/emc/usr_intf/pncconf/mesa0.glade:3321
@@ -14866,7 +14869,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:14810
 #: src/emc/usr_intf/pncconf/mesa1.glade:16736
 msgid "15:"
-msgstr ""
+msgstr "15:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1330
 #: src/emc/usr_intf/pncconf/mesa0.glade:3336
@@ -14885,7 +14888,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:14825
 #: src/emc/usr_intf/pncconf/mesa1.glade:16751
 msgid "17:"
-msgstr ""
+msgstr "17:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1345
 #: src/emc/usr_intf/pncconf/mesa0.glade:3351
@@ -14904,7 +14907,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:14840
 #: src/emc/usr_intf/pncconf/mesa1.glade:16766
 msgid "19:"
-msgstr ""
+msgstr "19:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1360
 #: src/emc/usr_intf/pncconf/mesa0.glade:3366
@@ -14923,7 +14926,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:14855
 #: src/emc/usr_intf/pncconf/mesa1.glade:16781
 msgid "21:"
-msgstr ""
+msgstr "21:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1375
 #: src/emc/usr_intf/pncconf/mesa0.glade:3381
@@ -14942,7 +14945,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:14870
 #: src/emc/usr_intf/pncconf/mesa1.glade:16796
 msgid "23:"
-msgstr ""
+msgstr "23:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1811
 #: src/emc/usr_intf/pncconf/mesa0.glade:3817
@@ -14961,7 +14964,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:15328
 #: src/emc/usr_intf/pncconf/mesa1.glade:17254
 msgid "47:"
-msgstr ""
+msgstr "47:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1867
 #: src/emc/usr_intf/pncconf/mesa0.glade:3873
@@ -14980,7 +14983,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:15384
 #: src/emc/usr_intf/pncconf/mesa1.glade:17310
 msgid "45:"
-msgstr ""
+msgstr "45:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1884
 #: src/emc/usr_intf/pncconf/mesa0.glade:3890
@@ -14999,7 +15002,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:15401
 #: src/emc/usr_intf/pncconf/mesa1.glade:17327
 msgid "43:"
-msgstr ""
+msgstr "43:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1901
 #: src/emc/usr_intf/pncconf/mesa0.glade:3907
@@ -15018,7 +15021,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:15418
 #: src/emc/usr_intf/pncconf/mesa1.glade:17344
 msgid "41:"
-msgstr ""
+msgstr "41:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1918
 #: src/emc/usr_intf/pncconf/mesa0.glade:3924
@@ -15037,7 +15040,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:15435
 #: src/emc/usr_intf/pncconf/mesa1.glade:17361
 msgid "39:"
-msgstr ""
+msgstr "39:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1935
 #: src/emc/usr_intf/pncconf/mesa0.glade:3941
@@ -15056,7 +15059,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:15452
 #: src/emc/usr_intf/pncconf/mesa1.glade:17378
 msgid "37:"
-msgstr ""
+msgstr "37:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1952
 #: src/emc/usr_intf/pncconf/mesa0.glade:3958
@@ -15075,7 +15078,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:15469
 #: src/emc/usr_intf/pncconf/mesa1.glade:17395
 msgid "35:"
-msgstr ""
+msgstr "35:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1969
 #: src/emc/usr_intf/pncconf/mesa0.glade:3975
@@ -15094,7 +15097,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:15486
 #: src/emc/usr_intf/pncconf/mesa1.glade:17412
 msgid "33:"
-msgstr ""
+msgstr "33:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:2259
 #: src/emc/usr_intf/pncconf/mesa0.glade:4265
@@ -15113,7 +15116,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:15776
 #: src/emc/usr_intf/pncconf/mesa1.glade:17702
 msgid "25:"
-msgstr ""
+msgstr "25:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:2276
 #: src/emc/usr_intf/pncconf/mesa0.glade:4282
@@ -15132,7 +15135,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:15793
 #: src/emc/usr_intf/pncconf/mesa1.glade:17719
 msgid "27:"
-msgstr ""
+msgstr "27:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:2293
 #: src/emc/usr_intf/pncconf/mesa0.glade:4299
@@ -15151,7 +15154,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:15810
 #: src/emc/usr_intf/pncconf/mesa1.glade:17736
 msgid "29:"
-msgstr ""
+msgstr "29:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:2310
 #: src/emc/usr_intf/pncconf/mesa0.glade:4316
@@ -15170,7 +15173,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:15827
 #: src/emc/usr_intf/pncconf/mesa1.glade:17753
 msgid "31:"
-msgstr ""
+msgstr "31:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:2483
 #: src/emc/usr_intf/pncconf/mesa0.glade:2496
@@ -15527,7 +15530,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:48438
 #: src/emc/usr_intf/pncconf/mesa1.glade:48453
 msgid " "
-msgstr ""
+msgstr " "
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:8729
 #: src/emc/usr_intf/pncconf/mesa1.glade:8730
@@ -15584,7 +15587,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:42868
 #: src/emc/usr_intf/pncconf/mesa1.glade:48050
 msgid "page 2"
-msgstr ""
+msgstr "side 2"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:23523
 #: src/emc/usr_intf/pncconf/mesa0.glade:28705
@@ -15599,7 +15602,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:44253
 #: src/emc/usr_intf/pncconf/mesa1.glade:49435
 msgid "page 3"
-msgstr ""
+msgstr "side 3"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:23539
 #: src/emc/usr_intf/pncconf/mesa1.glade:23541
@@ -15649,27 +15652,27 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:157
 msgid "9600"
-msgstr ""
+msgstr "9600"
 
 #: src/emc/usr_intf/pncconf/external.glade:161
 msgid "19200"
-msgstr ""
+msgstr "19200"
 
 #: src/emc/usr_intf/pncconf/external.glade:165
 msgid "38400"
-msgstr ""
+msgstr "38400"
 
 #: src/emc/usr_intf/pncconf/external.glade:169
 msgid "57600"
-msgstr ""
+msgstr "57600"
 
 #: src/emc/usr_intf/pncconf/external.glade:173
 msgid "115200"
-msgstr ""
+msgstr "115200"
 
 #: src/emc/usr_intf/pncconf/external.glade:189
 msgid "/dev/ttyS0"
-msgstr ""
+msgstr "/dev/ttyS0"
 
 #: src/emc/usr_intf/pncconf/external.glade:389
 msgid "<b>Serial VFD</b>"
@@ -15736,7 +15739,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/external.glade:1007
 #: src/emc/usr_intf/pncconf/external.glade:1541
 msgid "mm/min "
-msgstr ""
+msgstr "mm/min "
 
 #: src/emc/usr_intf/pncconf/external.glade:1034
 msgid " <b>ab)</b>"
@@ -16216,7 +16219,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/screen.glade:852
 msgid "gedit"
-msgstr ""
+msgstr "gedit"
 
 #: src/emc/usr_intf/pncconf/screen.glade:867
 msgid "Min Angular velocity"
@@ -16255,7 +16258,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/vcp.glade:185
 #: src/emc/usr_intf/pncconf/vcp.glade:648
 msgid "Position"
-msgstr ""
+msgstr "Posisjon"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1087
 #: src/emc/usr_intf/pncconf/screen.glade:1652
