@@ -743,6 +743,7 @@ class FileDialog(QFileDialog, GeometryMixin):
     def save_dialog(self, extensions = None, preselect = None, directory = None):
         self.setFileMode(QFileDialog.AnyFile)
         self.setAcceptMode(QFileDialog.AcceptSave)
+        self.setDefaultSuffix('ngc')
         if extensions:
             self.setNameFilter(extensions)
         else:
