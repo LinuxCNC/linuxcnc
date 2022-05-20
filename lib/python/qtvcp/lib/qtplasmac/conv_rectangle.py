@@ -1,8 +1,8 @@
 '''
 conv_rectangle.py
 
-Copyright (C) 2020, 2021  Phillip A Carter
-Copyright (C) 2020, 2021  Gregory D Carl
+Copyright (C) 2020, 2021, 2022  Phillip A Carter
+Copyright (C) 2020, 2021, 2022  Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -21,7 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import math
 from PyQt5.QtCore import Qt, QCoreApplication
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
+from PyQt5.QtWidgets import QLabel, QMessageBox
 from PyQt5.QtGui import QPixmap
 
 _translate = QCoreApplication.translate
@@ -118,8 +118,8 @@ def preview(P, W, Conv):
             blLength = math.sqrt(xC ** 2 + (yC * 2) ** 2)
             blAngle = math.atan((yC * 2) / xC)
             try:
-                if W.angEntry.text():
-                    angle = math.radians(float(W.angEntry.text()))
+                if W.aEntry.text():
+                    angle = math.radians(float(W.aEntry.text()))
                 else:
                     angle = 0.0
             except:
@@ -483,58 +483,13 @@ def auto_preview(P, W, Conv):
         preview(P, W, Conv)
 
 def widgets(P, W, Conv):
-    W.spGroup = QButtonGroup(W)
-    W.center = QRadioButton(_translate('Conversational', 'CENTER'))
-    W.spGroup.addButton(W.center)
-    W.bLeft = QRadioButton(_translate('Conversational', 'BTM LEFT'))
-    W.spGroup.addButton(W.bLeft)
-    W.liLabel = QLabel(_translate('Conversational', 'LEAD IN'))
-    W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
-    W.loLabel = QLabel(_translate('Conversational', 'LEAD OUT'))
-    W.loEntry = QLineEdit(str(P.leadOut), objectName = 'loEntry')
-    if not P.convSettingsChanged:
-        #widgets
-        W.ctLabel = QLabel(_translate('Conversational', 'CUT TYPE'))
-        W.ctGroup = QButtonGroup(W)
-        W.cExt = QRadioButton(_translate('Conversational', 'EXTERNAL'))
-        W.cExt.setChecked(True)
-        W.ctGroup.addButton(W.cExt)
-        W.cInt = QRadioButton(_translate('Conversational', 'INTERNAL'))
-        W.ctGroup.addButton(W.cInt)
-        W.koLabel = QLabel(_translate('Conversational', 'KERF'))
-        W.kOffset = QPushButton(_translate('Conversational', 'OFFSET'))
-        W.kOffset.setCheckable(True)
-        W.spLabel = QLabel(_translate('Conversational', 'START'))
-        text = _translate('Conversational', 'ORIGIN')
-        W.xsLabel = QLabel(_translate('Conversational', 'X {}'.format(text)))
-        W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
-        W.ysLabel = QLabel(_translate('Conversational', 'Y {}'.format(text)))
-        W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
-        text = _translate('Conversational', 'LENGTH')
-        W.xlLabel = QLabel(_translate('Conversational', 'X {}'.format(text)))
-        W.xlEntry = QLineEdit()
-        W.ylLabel = QLabel(_translate('Conversational', 'Y {}'.format(text)))
-        W.ylEntry = QLineEdit()
-        W.angLabel = QLabel(_translate('Conversational', 'ANGLE'))
-        W.angEntry = QLineEdit('0.0', objectName='aEntry')
-        text = _translate('Conversational', 'RADIUS')
-        W.r1Button = QPushButton(_translate('Conversational', '{} 1'.format(text)))
-        W.r1Entry = QLineEdit()
-        W.r2Button = QPushButton(_translate('Conversational', '{} 2'.format(text)))
-        W.r2Entry = QLineEdit()
-        W.r3Button = QPushButton(_translate('Conversational', '{} 3'.format(text)))
-        W.r3Entry = QLineEdit()
-        W.r4Button = QPushButton(_translate('Conversational', '{} 4'.format(text)))
-        W.r4Entry = QLineEdit()
-    W.add = QPushButton(_translate('Conversational', 'ADD'))
-    W.lDesc = QLabel(_translate('Conversational', 'CREATING RECTANGLE'))
-    W.iLabel = QLabel()
+    W.lDesc.setText(_translate('Conversational', 'CREATING RECTANGLE'))
     pixmap = QPixmap('{}conv_rectangle_l.png'.format(P.IMAGES)).scaledToWidth(196)
     W.iLabel.setPixmap(pixmap)
     #alignment and size
     rightAlign = ['ctLabel', 'koLabel', 'spLabel', 'xsLabel', 'xsEntry', 'ysLabel', \
                   'ysEntry', 'liLabel', 'liEntry', 'loLabel', 'loEntry', 'xlLabel', \
-                  'xlEntry', 'ylLabel', 'ylEntry', 'angLabel', 'angEntry', 'r1Entry', \
+                  'xlEntry', 'ylLabel', 'ylEntry', 'aLabel', 'aEntry', 'r1Entry', \
                   'r2Entry', 'r3Entry', 'r4Entry']
     centerAlign = ['lDesc']
     rButton = ['cExt', 'cInt', 'center', 'bLeft']
@@ -572,7 +527,7 @@ def widgets(P, W, Conv):
     W.add.pressed.connect(lambda:Conv.conv_add_shape_to_file(P, W))
     W.undo.pressed.connect(lambda:Conv.conv_undo_shape(P, W))
     entries = ['xsEntry', 'ysEntry', 'liEntry', 'loEntry', 'xlEntry', 'ylEntry', \
-               'angEntry', 'r1Entry', 'r2Entry', 'r3Entry', 'r4Entry', ]
+               'aEntry', 'r1Entry', 'r2Entry', 'r3Entry', 'r4Entry', ]
     for entry in entries:
         W[entry].textChanged.connect(lambda:entry_changed(P, W, Conv, W.sender()))
         W[entry].returnPressed.connect(lambda:preview(P, W, Conv))
@@ -602,8 +557,8 @@ def widgets(P, W, Conv):
         W.entries.addWidget(W.xlEntry, 6, 1)
         W.entries.addWidget(W.ylLabel, 7, 0)
         W.entries.addWidget(W.ylEntry, 7, 1)
-        W.entries.addWidget(W.angLabel, 8, 0)
-        W.entries.addWidget(W.angEntry, 8, 1)
+        W.entries.addWidget(W.aLabel, 8, 0)
+        W.entries.addWidget(W.aEntry, 8, 1)
         W.entries.addWidget(W.r1Button, 9, 0)
         W.entries.addWidget(W.r1Entry, 9, 1)
         W.entries.addWidget(W.r2Button, 9, 2)
@@ -643,8 +598,8 @@ def widgets(P, W, Conv):
         W.entries.addWidget(W.xlEntry, 5, 1)
         W.entries.addWidget(W.ylLabel, 5, 2)
         W.entries.addWidget(W.ylEntry, 5, 3)
-        W.entries.addWidget(W.angLabel, 6, 0)
-        W.entries.addWidget(W.angEntry, 6, 1)
+        W.entries.addWidget(W.aLabel, 6, 0)
+        W.entries.addWidget(W.aEntry, 6, 1)
         W.entries.addWidget(W.r1Button, 7, 0)
         W.entries.addWidget(W.r1Entry, 7, 1)
         W.entries.addWidget(W.r2Button, 7, 2)

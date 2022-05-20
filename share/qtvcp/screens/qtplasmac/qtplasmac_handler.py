@@ -1,4 +1,4 @@
-VERSION = '1.223.192'
+VERSION = '1.223.193'
 
 '''
 qtplasmac_handler.py
@@ -247,6 +247,7 @@ class HandlerClass:
         self.fNgcSent = '{}sent_shape.ngc'.format(self.tmpPath)
         self.filteredBkp = '{}filtered_bkp.ngc'.format(self.tmpPath)
         self.oldConvButton = False
+        self.convWidgetsLoaded = False
         self.programPrefix = self.iniFile.find('DISPLAY', 'PROGRAM_PREFIX') or os.environ['LINUXCNC_NCFILES_DIR']
         self.dialogError = False
         self.cutTypeText = ''

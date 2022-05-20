@@ -1,8 +1,8 @@
 '''
 conv_triangle.py
 
-Copyright (C) 2020, 2021  Phillip A Carter
-Copyright (C) 2020, 2021  Gregory D Carl
+Copyright (C) 2020, 2021, 2022  Phillip A Carter
+Copyright (C) 2020, 2021, 2022  Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -21,7 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import math
 from PyQt5.QtCore import Qt, QCoreApplication
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
+from PyQt5.QtWidgets import QLabel, QMessageBox
 from PyQt5.QtGui import QPixmap
 
 _translate = QCoreApplication.translate
@@ -51,8 +51,8 @@ def preview(P, W, Conv):
         text2 = _translate('Conversational', 'ORIGIN')
         msg.append(_translate('Conversational', 'X {} Y {}'.format(text1, text2)))
     try:
-        if W.angEntry.text():
-            angle = math.radians(float(W.angEntry.text()))
+        if W.aEntry.text():
+            angle = math.radians(float(W.aEntry.text()))
         else:
             angle = 0.0
     except:
@@ -75,34 +75,34 @@ def preview(P, W, Conv):
     a = b = c = A = B = C = 0
     text = _translate('Conversational', 'LENGTH')
     try:
-        if W.aEntry.text():
-            a = float(W.aEntry.text())
+        if W.AlEntry.text():
+            a = float(W.AlEntry.text())
     except:
         msg.append(_translate('Conversational', 'a {}'.format(text)))
     try:
-        if W.bEntry.text():
-            b = float(W.bEntry.text())
+        if W.BlEntry.text():
+            b = float(W.BlEntry.text())
     except:
         msg.append(_translate('Conversational', 'b {}'.format(text)))
     try:
-        if W.cEntry.text():
-            c = float(W.cEntry.text())
+        if W.ClEntry.text():
+            c = float(W.ClEntry.text())
     except:
         msg.append(_translate('Conversational', 'c {}'.format(text)))
     text = _translate('Conversational', 'ANGLE')
     try:
-        if W.AEntry.text():
-            A = math.radians(float(W.AEntry.text()))
+        if W.AaEntry.text():
+            A = math.radians(float(W.AaEntry.text()))
     except:
         msg.append(_translate('Conversational', 'A {}'.format(text)))
     try:
-        if W.BEntry.text():
-            B = math.radians(float(W.BEntry.text()))
+        if W.BaEntry.text():
+            B = math.radians(float(W.BaEntry.text()))
     except:
         msg.append(_translate('Conversational', 'B {}'.format(text)))
     try:
-        if W.CEntry.text():
-            C = math.radians(float(W.CEntry.text()))
+        if W.CaEntry.text():
+            C = math.radians(float(W.CaEntry.text()))
     except:
         msg.append(_translate('Conversational', 'C {}'.format(text)))
     if msg:
@@ -278,62 +278,23 @@ def entry_changed(P, W, Conv, widget):
 
 def auto_preview(P, W, Conv):
     if W.main_tab_widget.currentIndex() == 1 and \
-       (W.AEntry.text() and W.BEntry.text() and W.CEntry.text() and \
-       (W.aEntry.text() or W.bEntry.text() or W.cEntry.text())) or \
-       (W.AEntry.text() and W.bEntry.text() and W.cEntry.text()) or \
-       (W.aEntry.text() and W.BEntry.text() and W.cEntry.text()) or \
-       (W.aEntry.text() and W.bEntry.text() and W.CEntry.text()) or \
-       (W.aEntry.text() and W.bEntry.text() and W.cEntry.text()):
+       (W.AaEntry.text() and W.BaEntry.text() and W.CaEntry.text() and \
+       (W.AlEntry.text() or W.BlEntry.text() or W.ClEntry.text())) or \
+       (W.AaEntry.text() and W.BlEntry.text() and W.ClEntry.text()) or \
+       (W.AlEntry.text() and W.BaEntry.text() and W.ClEntry.text()) or \
+       (W.AlEntry.text() and W.BlEntry.text() and W.CaEntry.text()) or \
+       (W.AlEntry.text() and W.BlEntry.text() and W.ClEntry.text()):
         preview(P, W, Conv)
 
 def widgets(P, W, Conv):
-    W.liLabel = QLabel(_translate('Conversational', 'LEAD IN'))
-    W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
-    W.loLabel = QLabel(_translate('Conversational', 'LEAD OUT'))
-    W.loEntry = QLineEdit(str(P.leadOut), objectName = 'loEntry')
-    if not P.convSettingsChanged:
-        #widgets
-        W.ctLabel = QLabel(_translate('Conversational', 'CUT TYPE'))
-        W.ctGroup = QButtonGroup(W)
-        W.cExt = QRadioButton(_translate('Conversational', 'EXTERNAL'))
-        W.cExt.setChecked(True)
-        W.ctGroup.addButton(W.cExt)
-        W.cInt = QRadioButton(_translate('Conversational', 'INTERNAL'))
-        W.ctGroup.addButton(W.cInt)
-        W.koLabel = QLabel(_translate('Conversational', 'KERF'))
-        W.kOffset = QPushButton(_translate('Conversational', 'OFFSET'))
-        W.kOffset.setCheckable(True)
-        text = _translate('Conversational', 'ORIGIN')
-        W.xsLabel = QLabel(_translate('Conversational', 'X {}'.format(text)))
-        W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
-        W.ysLabel = QLabel(_translate('Conversational', 'Y {}'.format(text)))
-        W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
-        text = _translate('Conversational', 'ANGLE')
-        W.ALabel = QLabel(_translate('Conversational', 'A {}'.format(text)))
-        W.AEntry = QLineEdit()
-        W.BLabel = QLabel(_translate('Conversational', 'B {}'.format(text)))
-        W.BEntry = QLineEdit()
-        W.CLabel = QLabel(_translate('Conversational', 'C {}'.format(text)))
-        W.CEntry = QLineEdit()
-        text = _translate('Conversational', 'LENGTH')
-        W.aLabel = QLabel(_translate('Conversational', 'a {}'.format(text)))
-        W.aEntry = QLineEdit()
-        W.bLabel = QLabel(_translate('Conversational', 'b {}'.format(text)))
-        W.bEntry = QLineEdit()
-        W.cLabel = QLabel(_translate('Conversational', 'c {}'.format(text)))
-        W.cEntry = QLineEdit()
-        W.angLabel = QLabel(_translate('Conversational', 'ANGLE'))
-        W.angEntry = QLineEdit('0.0', objectName='aEntry')
-    W.add = QPushButton(_translate('Conversational', 'ADD'))
-    W.lDesc = QLabel(_translate('Conversational', 'CREATING TRIANGLE'))
-    W.iLabel = QLabel()
+    W.lDesc.setText(_translate('Conversational', 'CREATING TRIANGLE'))
     pixmap = QPixmap('{}conv_triangle_l.png'.format(P.IMAGES)).scaledToWidth(196)
     W.iLabel.setPixmap(pixmap)
     #alignment and size
     rightAlign = ['ctLabel', 'koLabel', 'xsLabel', 'xsEntry', 'ysLabel', 'ysEntry', \
-                  'liLabel', 'liEntry', 'loLabel', 'loEntry', 'ALabel', 'AEntry', \
-                  'BLabel', 'BEntry', 'CLabel', 'CEntry', 'aLabel', 'aEntry',
-                  'bLabel', 'bEntry', 'cLabel', 'cEntry', 'angLabel', 'angEntry']
+                  'liLabel', 'liEntry', 'loLabel', 'loEntry', 'AaLabel', 'AaEntry', \
+                  'BaLabel', 'BaEntry', 'CaLabel', 'CaEntry', 'AlLabel', 'AlEntry',
+                  'BlLabel', 'BlEntry', 'ClLabel', 'ClEntry', 'aLabel', 'aEntry']
     centerAlign = ['lDesc']
     rButton = ['cExt', 'cInt']
     pButton = ['preview', 'add', 'undo', 'kOffset']
@@ -363,8 +324,8 @@ def widgets(P, W, Conv):
     W.preview.pressed.connect(lambda:preview(P, W, Conv))
     W.add.pressed.connect(lambda:Conv.conv_add_shape_to_file(P, W))
     W.undo.pressed.connect(lambda:Conv.conv_undo_shape(P, W))
-    entries = ['xsEntry', 'ysEntry', 'liEntry', 'loEntry', 'AEntry', 'BEntry', \
-               'CEntry', 'aEntry', 'bEntry', 'cEntry', 'angEntry']
+    entries = ['xsEntry', 'ysEntry', 'liEntry', 'loEntry', 'AaEntry', 'BaEntry', \
+               'CaEntry', 'AlEntry', 'BlEntry', 'ClEntry', 'aEntry']
     for entry in entries:
         W[entry].textChanged.connect(lambda:entry_changed(P, W, Conv, W.sender()))
         W[entry].returnPressed.connect(lambda:preview(P, W, Conv))
@@ -383,20 +344,20 @@ def widgets(P, W, Conv):
         W.entries.addWidget(W.liEntry, 3, 1)
         W.entries.addWidget(W.loLabel, 4, 0)
         W.entries.addWidget(W.loEntry, 4, 1)
-        W.entries.addWidget(W.ALabel, 5, 0)
-        W.entries.addWidget(W.AEntry, 5, 1)
-        W.entries.addWidget(W.BLabel, 6, 0)
-        W.entries.addWidget(W.BEntry, 6, 1)
-        W.entries.addWidget(W.CLabel, 7, 0)
-        W.entries.addWidget(W.CEntry, 7, 1)
-        W.entries.addWidget(W.aLabel, 8, 0)
-        W.entries.addWidget(W.aEntry, 8, 1)
-        W.entries.addWidget(W.bLabel, 9, 0)
-        W.entries.addWidget(W.bEntry, 9, 1)
-        W.entries.addWidget(W.cLabel, 10, 0)
-        W.entries.addWidget(W.cEntry, 10, 1)
-        W.entries.addWidget(W.angLabel, 11, 0)
-        W.entries.addWidget(W.angEntry, 11, 1)
+        W.entries.addWidget(W.AaLabel, 5, 0)
+        W.entries.addWidget(W.AaEntry, 5, 1)
+        W.entries.addWidget(W.BaLabel, 6, 0)
+        W.entries.addWidget(W.BaEntry, 6, 1)
+        W.entries.addWidget(W.CaLabel, 7, 0)
+        W.entries.addWidget(W.CaEntry, 7, 1)
+        W.entries.addWidget(W.AlLabel, 8, 0)
+        W.entries.addWidget(W.AlEntry, 8, 1)
+        W.entries.addWidget(W.BlLabel, 9, 0)
+        W.entries.addWidget(W.BlEntry, 9, 1)
+        W.entries.addWidget(W.ClLabel, 10, 0)
+        W.entries.addWidget(W.ClEntry, 10, 1)
+        W.entries.addWidget(W.aLabel, 11, 0)
+        W.entries.addWidget(W.aEntry, 11, 1)
         W.entries.addWidget(W.preview, 12, 0)
         W.entries.addWidget(W.add, 12, 2)
         W.entries.addWidget(W.undo, 12, 4)
@@ -417,24 +378,24 @@ def widgets(P, W, Conv):
         W.entries.addWidget(W.liEntry, 3, 1)
         W.entries.addWidget(W.loLabel, 3, 2)
         W.entries.addWidget(W.loEntry, 3, 3)
-        W.entries.addWidget(W.ALabel, 4, 0)
-        W.entries.addWidget(W.AEntry, 4, 1)
-        W.entries.addWidget(W.BLabel, 4, 2)
-        W.entries.addWidget(W.BEntry, 4, 3)
-        W.entries.addWidget(W.CLabel, 5, 0)
-        W.entries.addWidget(W.CEntry, 5, 1)
-        W.entries.addWidget(W.aLabel, 6, 0)
-        W.entries.addWidget(W.aEntry, 6, 1)
-        W.entries.addWidget(W.bLabel, 6, 2)
-        W.entries.addWidget(W.bEntry, 6, 3)
-        W.entries.addWidget(W.cLabel, 7, 0)
-        W.entries.addWidget(W.cEntry, 7, 1)
-        W.entries.addWidget(W.angLabel, 8, 0)
-        W.entries.addWidget(W.angEntry, 8, 1)
+        W.entries.addWidget(W.AaLabel, 4, 0)
+        W.entries.addWidget(W.AaEntry, 4, 1)
+        W.entries.addWidget(W.BaLabel, 4, 2)
+        W.entries.addWidget(W.BaEntry, 4, 3)
+        W.entries.addWidget(W.CaLabel, 5, 0)
+        W.entries.addWidget(W.CaEntry, 5, 1)
+        W.entries.addWidget(W.AlLabel, 6, 0)
+        W.entries.addWidget(W.AlEntry, 6, 1)
+        W.entries.addWidget(W.BlLabel, 6, 2)
+        W.entries.addWidget(W.BlEntry, 6, 3)
+        W.entries.addWidget(W.ClLabel, 7, 0)
+        W.entries.addWidget(W.ClEntry, 7, 1)
+        W.entries.addWidget(W.aLabel, 8, 0)
+        W.entries.addWidget(W.aEntry, 8, 1)
         W.entries.addWidget(W.preview, 9, 0)
         W.entries.addWidget(W.add, 9, 2)
         W.entries.addWidget(W.undo, 9, 4)
         W.entries.addWidget(W.lDesc, 10 , 1, 1, 3)
         W.entries.addWidget(W.iLabel, 0 , 5, 7, 3)
-    W.AEntry.setFocus()
+    W.AaEntry.setFocus()
     P.convSettingsChanged = False

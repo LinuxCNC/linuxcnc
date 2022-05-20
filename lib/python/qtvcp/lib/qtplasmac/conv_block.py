@@ -23,7 +23,7 @@ import sys, io
 import math
 from shutil import copy as COPY
 from PyQt5.QtCore import Qt, QCoreApplication
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
+from PyQt5.QtWidgets import QLabel, QMessageBox
 from PyQt5.QtGui import QPixmap
 from qtvcp.core import Action, Status
 
@@ -53,11 +53,11 @@ def preview(P, W, Conv):
     except:
         msg.append(_translate('Conversational', 'ROWS OFFSET'))
     try:
-        xOrgOffset = float(W.xsEntry.text())
+        xOrgOffset = float(W.oxEntry.text())
     except:
         msg.append(_translate('Conversational', 'X OFFSET ORIGIN'))
     try:
-        yOrgOffset = float(W.ysEntry.text())
+        yOrgOffset = float(W.oyEntry.text())
     except:
         msg.append(_translate('Conversational', 'Y OFFSET ORIGIN'))
     try:
@@ -404,9 +404,9 @@ def get_parameters(P, W):
             elif line.startswith('#<array_rows>'):
                 W.rnEntry.setText(line.split('=')[1].strip())
             elif line.startswith('#<origin_x_offset>'):
-                W.xsEntry.setText('{:0.4f}'.format(float(line.split('=')[1].strip())))
+                W.oxEntry.setText('{:0.4f}'.format(float(line.split('=')[1].strip())))
             elif line.startswith('#<origin_y_offset>'):
-                W.ysEntry.setText('{:0.4f}'.format(float(line.split('=')[1].strip())))
+                W.oyEntry.setText('{:0.4f}'.format(float(line.split('=')[1].strip())))
             elif line.startswith('#<array_angle>'):
                 W.aEntry.setText(line.split('=')[1].strip())
             elif line.startswith('#<blk_scale>'):
@@ -426,72 +426,45 @@ def error_set(P, W, msg):
     P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Array Error'), msg)
 
 def widgets(P, W, Conv):
-    if not P.convSettingsChanged:
-        #widgets
-        W.cLabel = QLabel(_translate('Conversational', 'COLUMNS'))
-        W.cnLabel = QLabel(_translate('Conversational', 'NUMBER'))
-        W.cnEntry = QLineEdit('1', objectName='cnEntry')
-        W.coEntry = QLineEdit('0.0', objectName='coEntry')
-        W.coLabel = QLabel(_translate('Conversational', 'OFFSET'))
-        W.rLabel = QLabel(_translate('Conversational', 'ROWS'))
-        W.rnLabel = QLabel(_translate('Conversational', 'NUMBER'))
-        W.rnEntry = QLineEdit('1', objectName='rnEntry')
-        W.roEntry = QLineEdit('0.0', objectName='coEntry')
-        W.roLabel = QLabel(_translate('Conversational', 'OFFSET'))
-        W.oLabel = QLabel(_translate('Conversational', 'ORIGIN'))
-        text = _translate('Conversational', 'OFFSET')
-        W.oxLabel = QLabel('X {}'.format(text))
-        W.xsEntry = QLineEdit('0.0', objectName='xsEntry')
-        W.ysEntry = QLineEdit('0.0', objectName='ysEntry')
-        W.oyLabel = QLabel('Y {}'.format(text))
-        W.aEntry = QLineEdit('0.0', objectName='aEntry')
-        W.aLabel = QLabel(_translate('Conversational', 'ANGLE'))
-        W.scLabel = QLabel(_translate('Conversational', 'SCALE'))
-        W.scEntry = QLineEdit('1.0')
-        W.rtEntry = QLineEdit('0.0', objectName='aEntry')
-        W.rtLabel = QLabel(_translate('Conversational', 'ROTATION'))
-        W.mirror = QPushButton(_translate('Conversational', 'MIRROR'))
-        W.flip = QPushButton(_translate('Conversational', 'FLIP'))
-        W.add = QPushButton(_translate('Conversational', 'ADD'))
-        W.lDesc = QLabel(_translate('Conversational', 'CREATE ARRAY OF SHAPES'))
-        W.shLabel = QLabel(_translate('Conversational', 'SHAPE'))
-        #alignment and size
-        rightAlign = ['cnLabel', 'cnEntry', 'coEntry', \
-                      'rnLabel', 'rnEntry', 'roEntry', \
-                      'oxLabel', 'xsEntry', 'ysEntry', \
-                      'scLabel', 'aEntry', 'scEntry', \
-                      'rtEntry']
-        leftAlign = ['coLabel', 'roLabel', 'oyLabel', 'aLabel', 'rtLabel']
-        centerAlign = ['lDesc', 'cLabel', 'rLabel', 'oLabel','shLabel']
-        pButton = ['preview', 'add', 'undo', 'mirror', 'flip']
-        for widget in rightAlign:
-            W[widget].setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+    W.shLabel.setText(_translate('Conversational', 'SHAPE'))
+    W.lDesc.setText(_translate('Conversational', 'CREATE ARRAY OF SHAPES'))
+    #alignment and size
+    rightAlign = ['cnLabel', 'cnEntry', 'coEntry', \
+                  'rnLabel', 'rnEntry', 'roEntry', \
+                  'oxLabel', 'oxEntry', 'oyEntry', \
+                  'scLabel', 'aEntry', 'scEntry', \
+                  'rtEntry']
+    leftAlign = ['coLabel', 'roLabel', 'oyLabel', 'aLabel', 'rtLabel']
+    centerAlign = ['lDesc', 'ccLabel', 'rrLabel', 'oLabel','shLabel']
+    pButton = ['preview', 'add', 'undo', 'mirror', 'flip']
+    for widget in rightAlign:
+        W[widget].setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        W[widget].setFixedWidth(80)
+        W[widget].setFixedHeight(24)
+    for widget in leftAlign:
+        W[widget].setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        W[widget].setFixedWidth(80)
+        W[widget].setFixedHeight(24)
+    for widget in centerAlign:
+        W[widget].setAlignment(Qt.AlignCenter | Qt.AlignBottom)
+        if widget == 'lDesc':
+            W[widget].setFixedWidth(240)
+        else:
             W[widget].setFixedWidth(80)
-            W[widget].setFixedHeight(24)
-        for widget in leftAlign:
-            W[widget].setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-            W[widget].setFixedWidth(80)
-            W[widget].setFixedHeight(24)
-        for widget in centerAlign:
-            W[widget].setAlignment(Qt.AlignCenter | Qt.AlignBottom)
-            if widget == 'lDesc':
-                W[widget].setFixedWidth(240)
-            else:
-                W[widget].setFixedWidth(80)
-            W[widget].setFixedHeight(24)
-        for widget in pButton:
-            W[widget].setFixedWidth(80)
-            W[widget].setFixedHeight(24)
-        #starting parameters
-        W.add.setEnabled(False)
+        W[widget].setFixedHeight(24)
+    for widget in pButton:
+        W[widget].setFixedWidth(80)
+        W[widget].setFixedHeight(24)
+    #starting parameters
+    W.add.setEnabled(False)
     #connections
     W.preview.pressed.connect(lambda:preview(P, W, Conv))
     W.add.pressed.connect(lambda:Conv.conv_accept(P, W))
     W.undo.pressed.connect(lambda:undo_shape(P, W, Conv))
     W.mirror.clicked.connect(lambda:mirror_shape(P, W, Conv))
     W.flip.clicked.connect(lambda:flip_shape(P, W, Conv))
-    entries = ['cnEntry', 'coEntry', 'rnEntry', 'roEntry', 'xsEntry',
-               'ysEntry', 'scEntry', 'aEntry', 'rtEntry']
+    entries = ['cnEntry', 'coEntry', 'rnEntry', 'roEntry', 'oxEntry',
+               'oyEntry', 'scEntry', 'aEntry', 'rtEntry']
     for entry in entries:
         W[entry].textChanged.connect(lambda:Conv.conv_entry_changed(P, W, W.sender()))
         W[entry].returnPressed.connect(lambda:preview(P, W, Conv))
@@ -500,20 +473,20 @@ def widgets(P, W, Conv):
         W.s0 = QLabel('')
         W.s0.setFixedHeight(51)
         W.entries.addWidget(W.s0, 0, 0)
-        W.entries.addWidget(W.cLabel, 1, 2)
+        W.entries.addWidget(W.ccLabel, 1, 2)
         W.entries.addWidget(W.cnLabel, 1, 0)
         W.entries.addWidget(W.cnEntry, 1, 1)
         W.entries.addWidget(W.coEntry, 1, 3)
         W.entries.addWidget(W.coLabel, 1, 4)
-        W.entries.addWidget(W.rLabel, 3, 2)
+        W.entries.addWidget(W.rrLabel, 3, 2)
         W.entries.addWidget(W.rnLabel, 3, 0)
         W.entries.addWidget(W.rnEntry, 3, 1)
         W.entries.addWidget(W.roEntry, 3, 3)
         W.entries.addWidget(W.roLabel, 3, 4)
         W.entries.addWidget(W.oLabel, 5, 2)
         W.entries.addWidget(W.oxLabel, 5, 0)
-        W.entries.addWidget(W.xsEntry, 5, 1)
-        W.entries.addWidget(W.ysEntry, 5, 3)
+        W.entries.addWidget(W.oxEntry, 5, 1)
+        W.entries.addWidget(W.oyEntry, 5, 3)
         W.entries.addWidget(W.oyLabel, 5, 4)
         W.entries.addWidget(W.aEntry, 7, 3)
         W.entries.addWidget(W.aLabel, 7, 4)
@@ -533,20 +506,20 @@ def widgets(P, W, Conv):
         W.entries.addWidget(W.undo, 12, 4)
         W.entries.addWidget(W.lDesc, 13 , 1, 1, 3)
     else:
-        W.entries.addWidget(W.cLabel, 0, 2)
+        W.entries.addWidget(W.ccLabel, 0, 2)
         W.entries.addWidget(W.cnLabel, 0, 0)
         W.entries.addWidget(W.cnEntry, 0, 1)
         W.entries.addWidget(W.coEntry, 0, 3)
         W.entries.addWidget(W.coLabel, 0, 4)
-        W.entries.addWidget(W.rLabel, 2, 2)
+        W.entries.addWidget(W.rrLabel, 2, 2)
         W.entries.addWidget(W.rnLabel, 2, 0)
         W.entries.addWidget(W.rnEntry, 2, 1)
         W.entries.addWidget(W.roEntry, 2, 3)
         W.entries.addWidget(W.roLabel, 2, 4)
         W.entries.addWidget(W.oLabel, 4, 2)
         W.entries.addWidget(W.oxLabel, 4, 0)
-        W.entries.addWidget(W.xsEntry, 4, 1)
-        W.entries.addWidget(W.ysEntry, 4, 3)
+        W.entries.addWidget(W.oxEntry, 4, 1)
+        W.entries.addWidget(W.oyEntry, 4, 3)
         W.entries.addWidget(W.oyLabel, 4, 4)
         W.entries.addWidget(W.aEntry, 6, 3)
         W.entries.addWidget(W.aLabel, 6, 4)
