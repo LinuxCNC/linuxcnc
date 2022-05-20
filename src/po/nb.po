@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-03-13 11:02+0100\n"
-"PO-Revision-Date: 2022-05-19 14:13+0000\n"
-"Last-Translator: Asle Næss <aness@bofh.no>\n"
+"PO-Revision-Date: 2022-05-20 23:54+0000\n"
+"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
 "Language: nb\n"
@@ -1827,7 +1827,7 @@ msgstr ""
 
 #: src/hal/utils/scope.c:468
 msgid "Open Configuration File:"
-msgstr "Åpne konfigurasjonsfil:"
+msgstr "Åpne oppsettfil:"
 
 #: src/hal/utils/scope.c:470 src/hal/utils/scope.c:493
 #: src/hal/utils/scope_horiz.c:808 src/hal/utils/scope_vert.c:713
@@ -1841,7 +1841,7 @@ msgstr ""
 
 #: src/hal/utils/scope.c:491
 msgid "Save Configuration File:"
-msgstr "Lagre konfigurasjonsfil:"
+msgstr "Lagre oppsettfil:"
 
 #: src/hal/utils/scope.c:494 src/hal/utils/scope_horiz.c:809
 msgid "_Save"
@@ -3165,7 +3165,7 @@ msgstr "Symboler"
 #: src/hal/classicladder/classicladder_gtk.c:877
 #: src/hal/classicladder/config_gtk.c:1025
 msgid "Config"
-msgstr "Konfigurasjon"
+msgstr "Oppsett"
 
 #: src/hal/classicladder/classicladder_gtk.c:883 share/axis/tcl/axis.tcl:1301
 msgid "Preview"
@@ -3248,7 +3248,7 @@ msgstr "Kan ikke åpne filen, %s !!!\n"
 #: src/hal/classicladder/config.c:117
 #, c-format
 msgid "Unknown configtype for %s: %d\n"
-msgstr "Ukjent konfigurasjonstype for %s: %d\n"
+msgstr "Ukjent oppsettype for %s: %d\n"
 
 #: src/hal/classicladder/config_gtk.c:109
 msgid "Rung Refresh Rate (milliseconds)"
@@ -3460,7 +3460,7 @@ msgstr ""
 
 #: src/hal/classicladder/config_gtk.c:973
 msgid "Updated Modbus configuration"
-msgstr "Modbus-konfigurasjon oppdatert"
+msgstr "Modbus-oppsett oppdatert"
 
 #: src/hal/classicladder/config_gtk.c:996
 msgid "Opened Configuration window. Press again to update changes and close"
@@ -4226,7 +4226,7 @@ msgstr ""
 #: src/hal/classicladder/serial_linux.c:215
 #, c-format
 msgid "Serial config...\n"
-msgstr "Seriellkonfigurasjon...\n"
+msgstr "Serielloppsett...\n"
 
 #: src/hal/classicladder/serial_linux.c:236
 #, c-format
@@ -4536,7 +4536,7 @@ msgid ""
 msgstr ""
 "Kan ikke lagre her.\n"
 "\n"
-"  Du må kopiere en konfigurasjon til hjemmekatalogen og jobbe der."
+"  Du må kopiere et oppsett til hjemmekatalogen og jobbe der."
 
 #: tcl/bin/emccalib.tcl:522 tcl/bin/genedit.tcl:211 tcl/bin/halconfig.tcl:1242
 #: tcl/bin/pickconfig.tcl:907 tcl/bin/pickconfig.tcl:918
@@ -4555,7 +4555,7 @@ msgstr ""
 
 #: tcl/bin/emcdebug.tcl:186
 msgid "Configuration information"
-msgstr "Konfigurasjonsinformasjon"
+msgstr "Oppsettsinformasjon"
 
 #: tcl/bin/emcdebug.tcl:187
 msgid "Use of defaults"
@@ -4769,11 +4769,11 @@ msgstr "Omnummerere"
 
 #: tcl/bin/halconfig.tcl:88
 msgid "HAL Configuration"
-msgstr "HAL-konfigurasjon"
+msgstr "HAL-oppsett"
 
 #: tcl/bin/halconfig.tcl:103
 msgid "Would you like to save your configuration before you exit?"
-msgstr "Ønsker du å lagre konfigurasjonen før du avslutter?"
+msgstr "Ønsker du å lagre oppsettet før du avslutter?"
 
 #: tcl/bin/halconfig.tcl:103
 msgid "Save All"
@@ -4907,8 +4907,8 @@ msgstr ""
 "Copyright Raymond E Henry. 2006\n"
 "Lisens: GPL Version 2\n"
 "\n"
-"Halconfig er et konfigurasjonsverktøy for LinuxCNC.  Du må ha linuxcnc "
-"kjørende for å bruke det.\n"
+"Halconfig er et oppsettverktøy for LinuxCNC.  Du må ha linuxcnc kjørende for "
+"å bruke det.\n"
 "\n"
 "Bruk av dette skriptet medfører ingen garanti eller ansvar, i den grad det "
 "er tillatt ved lov."
@@ -5132,9 +5132,9 @@ msgid ""
 msgstr ""
 "Velkommen til LinuxCNC.\n"
 "\n"
-"Velg en maskinkonfigurasjon fra listen til venstre.\n"
-"Detaljer om den valgte konfigurasjonen vil vises til høyre på skjermen.\n"
-"Klikk 'OK' for å bruke den valgte konfigurasjonen"
+"Velg et maskinoppsett fra listen til venstre.\n"
+"Detaljer om det valgte oppsettet vil vises til høyre på skjermen.\n"
+"Klikk 'OK' for å bruke det valgte oppsettet"
 
 #: tcl/bin/pickconfig.tcl:443
 msgid "My Configurations"
@@ -5142,7 +5142,7 @@ msgstr "Mine oppsett"
 
 #: tcl/bin/pickconfig.tcl:447
 msgid "Sample Configurations"
-msgstr "Eksempelkonfigurasjoner"
+msgstr "Eksempeloppsett"
 
 #: tcl/bin/pickconfig.tcl:575
 #, tcl-format
@@ -5438,7 +5438,7 @@ msgstr "Vis HAL"
 
 #: tcl/tklinuxcnc.tcl:815
 msgid "HAL Config"
-msgstr "HAL-konfigurasjon"
+msgstr "HAL-oppsett"
 
 #: tcl/tklinuxcnc.tcl:820
 msgid "Help..."
@@ -6384,7 +6384,7 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:3858
 msgid "Ngcgui Configuration File Not Found"
-msgstr "Ngcgui konfigurasjonsfil ikke funnet"
+msgstr "Oppsettfil for Ngcgui ikke funnet"
 
 #: tcl/ngcgui.tcl:3938
 msgid "Missing Tcl Package Img"
@@ -10058,7 +10058,7 @@ msgid ""
 "The configuration has been built and saved.\n"
 "Do you want to quit?"
 msgstr ""
-"Konfigurasjonen er bygget og lagret.\n"
+"Oppsettet er bygget og lagret.\n"
 "Vil du avslutte?"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:272
@@ -10093,7 +10093,7 @@ msgid ""
 "Saving this configuration file will discard configuration changes made "
 "outside stepconf."
 msgstr ""
-"Lagring av denne konfigurasjonsfilen vil overskrive endringer gjort utenfor "
+"Lagring av denne oppsettfilen vil overskrive endringer gjort utenfor "
 "stepconf."
 
 #: src/emc/usr_intf/stepconf/stepconf.py:662
@@ -10122,7 +10122,7 @@ msgid ""
 "\n"
 "{}"
 msgstr ""
-"Feil ved lasting av konfigurasjon:\n"
+"Feil ved lasting av oppsett:\n"
 "\n"
 "{}"
 
@@ -10670,11 +10670,11 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/base.glade:591
 #: src/emc/usr_intf/pncconf/base.glade:137
 msgid "Configuration directory:"
-msgstr "Katalog for konfigurasjon:"
+msgstr "Oppsettkatalog:"
 
 #: src/emc/usr_intf/stepconf/base.glade:603
 msgid "_Axis configuration:"
-msgstr ""
+msgstr "_Akseoppsett:"
 
 #: src/emc/usr_intf/stepconf/base.glade:616
 msgid "Reset Default machine _units:"
@@ -11859,7 +11859,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/pages.py:246 src/emc/usr_intf/pncconf/pages.py:297
 #, python-format
 msgid "Point and click configuration - %s.pncconf "
-msgstr "Pek og klikk-konfigurasjon - %s.pncconf "
+msgstr "Pek og klikk-oppsett - %s.pncconf "
 
 #: src/emc/usr_intf/pncconf/pages.py:329
 msgid ""
@@ -14518,7 +14518,7 @@ msgid ""
 "Configuration\n"
 "     Page"
 msgstr ""
-"Konfigurasjons-\n"
+"oppsett-\n"
 "     side"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1125
