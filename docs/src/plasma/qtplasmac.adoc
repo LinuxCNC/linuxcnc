@@ -1826,7 +1826,7 @@ To use cutter compensation the user will need to use G41.1, G42.1 and G40 with t
 * *G42.1 D#<_hal[plasmac_run.kerf-width-f]>* : offsets torch to the right of the programmed path
 * *G40* turns the cutter compensation off
 
-IMPORTANT: IF *CUTTER COMPENSATION* IS IN EFFECT *G-CODE THC*, *VELOCITY BASED THC* AND *OVERCUT* ARE NOT ABLE TO BE USED; AN ERROR MESSAGE WILL BE DISPLAYED.
+IMPORTANT: IF *CUTTER COMPENSATION* IS IN EFFECT *G-CODE THC*, *VELOCITY BASED THC* AND *OVER CUT* ARE NOT ABLE TO BE USED; AN ERROR MESSAGE WILL BE DISPLAYED.
 
 [[qt_ihs-skip]]
 === Initial Height Sense (IHS) Skip
@@ -1933,12 +1933,12 @@ There are three methods available for improving the quality of small holes:
 
 . *Velocity Reduction* - <<qt_hole-cutting-velocity-reduction, Reducing the velocity>> to approximately 60% of the *CutFeedRate*.
 . *Arc Dwell (<<qt_pause-at-end, Pause At End>>)* - Keeping the torch on for a short time at the end of the hole while motion is stopped to allow the arc to catch up.
-. *Overcut* - Turning the torch off at the end of the hole then continue along the path.
+. *Over cut* - Turning the torch off at the end of the hole then continue along the path.
 
 [NOTE]
-If both *Arc Dwell* and *Overcut* are active at the same time then *Overcut* will take precedence.
+If both *Arc Dwell* and *Over cut* are active at the same time then *Over cut* will take precedence.
 
-IMPORTANT: *OVERCUT* IS NOT ABLE TO BE USED IF CUTTER COMPENSATION IS IN EFFECT; AN ERROR MESSAGE WILL BE DISPLAYED.
+IMPORTANT: *OVER CUT* IS NOT ABLE TO BE USED IF CUTTER COMPENSATION IS IN EFFECT; AN ERROR MESSAGE WILL BE DISPLAYED.
 
 
 === Hole Cutting
@@ -1975,7 +1975,7 @@ M2 (end job)
 This method can be invoked by setting the <<qt_pause-at-end, Pause At End>> parameter in the MATERIAL frame of the <<qt_parameters-tab, PARAMETERS Tab>>.
 
 [[qt_overcut]]
-[underline]*Overcut*
+[underline]*Over cut*
 
 The torch can be turned off at the end of the hole by setting the *motion.digital-out-03* pin with the M-Codes *M62 (Synchronized with Motion)* or *M64 (Immediate)*. After turning the torch off it is necessary to allow the torch to be turned on again before beginning the next cut by resetting the *motion.digital-out-03* pin with the M-Codes *M63* or *M65*, this will be done automatically by the QtPlasmaC G-Code parser if it reaches an M5 command without seeing a *M63 P3* or *M65 P3*.
 
@@ -2015,7 +2015,7 @@ M2 (end job)
 [[qt_hole-cutting]]
 === Hole Cutting - Automatic
 
-QtPlasmaC has the ability to automatically modify the G-Code to reduce the velocity and/or apply *Overcut* which can be useful when cutting holes.
+QtPlasmaC has the ability to automatically modify the G-Code to reduce the velocity and/or apply *Over cut* which can be useful when cutting holes.
 
 For valid hole sensing it is required that all values in the G2 or G3 G-Code line are explicit, an error dialog will be dispalyed if any values are mathematically calculated.
 
@@ -2023,9 +2023,9 @@ QtPlasmaC Hole Sensing is disabled by default. It can be enabled/disabled by usi
 
 * *#<holes> = 0* - Causes QtPlasmaC to disable hole sensing if it was previously enabled.
 * *#<holes> = 1* - Causes QtPlasmaC to reduce the speed of holes less than 32mm (1.26") to 60% of *CutFeedRate*.
-* *#<holes> = 2* - Causes QtPlasmaC to <<qt_overcut, Overcut>> the hole in addition to the velocity changes in setting 1.
+* *#<holes> = 2* - Causes QtPlasmaC to <<qt_overcut, Over cut>> the hole in addition to the velocity changes in setting 1.
 * *#<holes> = 3* - Causes QtPlasmaC to reduce the speed of holes less than 32mm (1.26") and arcs less than 16mm (0.63") to 60% of *CutFeedRate*.
-* *#<holes> = 4* - Causes QtPlasmaC to <<qt_overcut, Overcut>> the hole in addition to the velocity change in setting 3.
+* *#<holes> = 4* - Causes QtPlasmaC to <<qt_overcut, Over cut>> the hole in addition to the velocity change in setting 3.
 
 The default hole size for QtPlasmaC hole sensing is 32mm (1.26"). It is possible to change this value with the following command in a G-Code file:
 
@@ -2035,13 +2035,13 @@ The default velocity for QtPlasmaC small holes is 60% of the current feed rate. 
 
 * *#<h_velocity> = nn* - to set the percentage (nn) of the current feed rate required.
 
-[underline]*Overcut*
+[underline]*Over cut*
 
-If Hole Sensing modes 2 or 4 are active, QtPlasmaC will overcut the hole in addition to the velocity changes associated with modes 1 and 3.
+If Hole Sensing modes 2 or 4 are active, QtPlasmaC will over cut the hole in addition to the velocity changes associated with modes 1 and 3.
 
-The default overcut length for QtPlasmaC hole sensing is 4mm (0.157"). It is possible to change this value with the following command in a G-Code file:
+The default over cut length for QtPlasmaC hole sensing is 4mm (0.157"). It is possible to change this value with the following command in a G-Code file:
 
-* *#<oclength> = nn* to specify an overcut length (nn) in the same units system as the rest of the G-Code file.
+* *#<oclength> = nn* to specify an over cut length (nn) in the same units system as the rest of the G-Code file.
 
 [underline]*Arc Dwell (Pause At End)*
 
@@ -2054,8 +2054,8 @@ G21 (metric)
 G64 P0.005
 M52 P1 (allow paused motion)
 F#<_hal[plasmac.cut-feed-rate]> (feed rate from cut parameters)
-#<holes> = 2 (overcut for holes)
-#<oclength> = 6.5 (optional, 6.5mm overcut length)
+#<holes> = 2 (over cut for holes)
+#<oclength> = 6.5 (optional, 6.5mm over cut length)
 G0 X10 Y10
 M3 $0 S1 (start cut)
 G1 X0
@@ -2549,9 +2549,9 @@ To create a shape:
 . Press *ADD* to add the shape to the G-Code file.
 . Press *SEND* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting.
 
-For *CIRCLE*, the *OVERCUT* button will become valid when a CUT TYPE of INTERNAL is selected and the value entered in the DIAMETER field is less than the Small Hole Diameter parameter in the Conversational SETTINGS section.
+For *CIRCLE*, the *OVER CUT* button will become valid when a CUT TYPE of INTERNAL is selected and the value entered in the DIAMETER field is less than the Small Hole Diameter parameter in the Conversational SETTINGS section.
 
-For *BOLT CIRCLE* the *OVERCUT* button will become valid if the value entered in the HOLE DIA field is less than the SMALL HOLES DIAMETER parameter in the Conversational SETTINGS section.
+For *BOLT CIRCLE* the *OVER CUT* button will become valid if the value entered in the HOLE DIA field is less than the SMALL HOLES DIAMETER parameter in the Conversational SETTINGS section.
 
 For the following shapes, KERF OFFSET will become active once a LEAD IN is specified:
 
@@ -3727,23 +3727,23 @@ press 'SELECT' which will open a file dialog box, select the .ini file of the Qt
     *Note that M62 through M68 are invalid while cutter compensation is on*
 |Cut <<qt_hole-cutting, holes>> at 60% feed rate |#<holes> = 1 +
     for holes less than 32mm (1.26") diameter
-|Cut <<qt_hole-cutting, holes>> at 60% feed rate, turn torch off at hole end, continue hole path for overcut |#<holes> = 2 +
+|Cut <<qt_hole-cutting, holes>> at 60% feed rate, turn torch off at hole end, continue hole path for over cut |#<holes> = 2 +
     for holes less than 32mm (1.26") diameter +
-    overcut length = 4mm (0.157")
+    over cut length = 4mm (0.157")
 |Cut <<qt_hole-cutting, holes>> and arcs at 60% feed rate |#<holes> = 3 +
     for holes less than 32mm (1.26") diameter +
     for arcs less than 16mm (0.63") radius
-|Cut <<qt_hole-cutting, holes>> and arcs at 60% feed rate, turn torch off at hole end, continue hole path for overcut |#<holes> = 4 +
+|Cut <<qt_hole-cutting, holes>> and arcs at 60% feed rate, turn torch off at hole end, continue hole path for over cut |#<holes> = 4 +
     for holes less than 32mm (1.26") diameter +
     for arcs less than 16mm (0.63") radius +
-    overcut length = 4mm (0.157")
+    over cut length = 4mm (0.157")
 |Specify <<qt_hole-cutting, hole>> diameter for +
  #<holes> = 1-4 |#<h_diameter> = n +
     (n is the diameter, use the same units system as the rest of the G-Code file)
 |Specify <<qt_hole-cutting, hole>> velocity for +
  #<holes>=1-4 |#<h_velocity> = n +
     (n is the percentage, set the percentage of the current feed rate)
-|Specify <<qt_overcut, overcut>> length |#<oclength> = n +
+|Specify <<qt_overcut, over cut>> length |#<oclength> = n +
     (n is the length, use the same units system as the rest of the G-Code file)
 |Specify <<qt_cut-types, pierce-only>> mode |#<pierce-only> = n +
     (n is the mode, 0=normal cut mode, 1=pierce only mode)
@@ -3798,7 +3798,7 @@ press 'SELECT' which will open a file dialog box, select the .ini file of the Qt
     M5 $0 (end cut) +
     G0 X0 Y0 +
     M2 (end job)
-|Cut a hole with overcut using torch disable |G21 (metric) +
+|Cut a hole with over cut using torch disable |G21 (metric) +
     G64 P0.05 +
     M52 P1 (allow paused motion) +
     F#<_hal[plasmac.cut-feed-rate]> +
@@ -3814,10 +3814,10 @@ press 'SELECT' which will open a file dialog box, select the .ini file of the Qt
     M5 $0 (end cut) +
     G0 X0 Y0 +
     M2 (end job) +
-|Cut a hole with overcut using the #<holes> command |G21 (metric) +
+|Cut a hole with over cut using the #<holes> command |G21 (metric) +
     G64 P0.05 +
     M52 P1 (allow paused motion) +
-    \#<holes> = 2 (overcut for holes) +
+    \#<holes> = 2 (over cut for holes) +
     F#<_hal[plasmac.cut-feed-rate]> +
     G0 X10 Y10 +
     M3 $0 S1 (start cut) +
@@ -3826,11 +3826,11 @@ press 'SELECT' which will open a file dialog box, select the .ini file of the Qt
     M5 $0 (end cut) +
     G0 X0 Y0 +
     M2 (end job) +
-|Cut a hole with 6.5mm overcut using the #<holes> command |G21 (metric) +
+|Cut a hole with 6.5mm over cut using the #<holes> command |G21 (metric) +
     G64 P0.05 +
     M52 P1 (allow paused motion) +
-    \#<holes> = 2 (overcut for holes) +
-    #<oclength> = 6.5 (6.5mm overcut length) +
+    \#<holes> = 2 (over cut for holes) +
+    #<oclength> = 6.5 (6.5mm over cut length) +
     F#<_hal[plasmac.cut-feed-rate]> +
     G0 X10 Y10 +
     M3 $0 S1 (start cut) +
