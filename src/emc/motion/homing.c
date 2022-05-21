@@ -210,31 +210,16 @@ static bool home_do_moving_checks(int jno)
 
 static void update_home_is_synchronized(void) {
     // invoke anytime H[*].home_sequence is altered
-    int jno,jj,joint_num;
+    int jno,jj;
 
-    // first, clear all H[*].home_is_synchronized
     for (jno = 0; jno < all_joints; jno++) {
         H[jno].home_is_synchronized = 0;
         if (H[jno].home_sequence < 0) {
             // neg: sync all joints with same ABS(H[jno].home_sequence):
             for (jj = 0; jj < all_joints; jj++) {
                 if (ABS(H[jj].home_sequence) == ABS(H[jno].home_sequence)) {
-                    H[jj].home_sequence = H[jno].home_sequence;
+                    H[jj].home_is_synchronized = 1;
                 }
-            }
-        }
-    }
-    for (jno = 0; jno < all_joints; jno++) {
-        if (H[jno].home_sequence < 0) {
-            H[jno].home_is_synchronized = 1;
-            continue;
-        }
-        for (joint_num = 0; joint_num < all_joints; joint_num++) {
-            if (joint_num == jno) continue;
-            if (   (    H[joint_num].home_sequence < 0)
-                && (ABS(H[joint_num].home_sequence) == H[jno].home_sequence) )  {
-                H[jno].home_is_synchronized = 1;
-                H[joint_num].home_is_synchronized = 1;
             }
         }
     }
@@ -424,8 +409,10 @@ static void do_homing_sequence(void)
                 H[i].homed = 0;
             }
             if (H[i].home_sequence < 0) {
-                // if a H[i].home_sequence is neg, find all joints that
-                // have the same ABS sequence value and make them the same
+                // If a H[i].home_sequence is neg, find all joints that
+                // have the same ABS sequence value and make them the same.
+                // Note: overrides inconsistent mixed positive/negative settings
+                //       for H[ii].home_sequence
                 for(ii=0; ii < all_joints; ii++) {
                     if (H[ii].home_sequence == ABS(H[i].home_sequence)) {
                         H[ii].home_sequence =      H[i].home_sequence;
