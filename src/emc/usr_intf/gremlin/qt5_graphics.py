@@ -27,7 +27,7 @@ except ImportError:
     LIB_GOOD = False
 
 import _thread
-    
+
 import glnav
 from rs274 import glcanon
 from rs274 import interpret
@@ -49,7 +49,7 @@ class Window(QWidget):
     def __init__(self, inifile):
         super(Window, self).__init__()
         self.glWidget = Lcnc_3dGraphics()
-  
+
         self.xSlider = self.createSlider()
         self.ySlider = self.createSlider()
         self.zSlider = self.createSlider()
@@ -70,34 +70,34 @@ class Window(QWidget):
         mainLayout.addWidget(self.zSlider)
         mainLayout.addWidget(self.zoomSlider)
         self.setLayout(mainLayout)
-  
+
         self.xSlider.setValue(15 * 16)
         self.ySlider.setValue(345 * 16)
         self.zSlider.setValue(0 * 16)
         self.zSlider.setValue(10)
 
         self.setWindowTitle("Hello GL")
-  
+
     def createSlider(self):
         slider = QSlider(Qt.Vertical)
-  
+
         slider.setRange(0, 360 * 16)
         slider.setSingleStep(16)
         slider.setPageStep(15 * 16)
         slider.setTickInterval(15 * 16)
         slider.setTickPosition(QSlider.TicksRight)
-  
+
         return slider
 
     def createZoomSlider(self):
         slider = QSlider(Qt.Vertical)
-  
+
         slider.setRange(1, 1000000)
         slider.setSingleStep(1)
         slider.setPageStep(10)
         slider.setTickInterval(10)
         slider.setTickPosition(QSlider.TicksRight)
-  
+
         return slider
 
 #################
@@ -301,6 +301,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self._buttonList = [Qt.LeftButton,
                             Qt.MiddleButton,
                             Qt.RightButton]
+        self._invertWheelZoom = False
 
     # add a 100ms timer to poll linuxcnc stats
     # this may be overridden in sub widgets
@@ -463,7 +464,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 sum(dist(l[1][:3], l[2][:3])/mf  for l in canon.traverse) +
                 canon.dwell_time
                 )
- 
+
             props['G0'] = "%f %s".replace("%f", fmt) % (self.from_internal_linear_unit(g0, conv), units)
             props['G1'] = "%f %s".replace("%f", fmt) % (self.from_internal_linear_unit(g1, conv), units)
             if gt > 120:
@@ -764,7 +765,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         #GL.glRotated(self.yRot / 16.0, 0.0, 1.0, 0.0) # rotate on y
         #GL.glRotated(self.zRot / 16.0, 0.0, 0.0, 1.0) # rotate on z
 
-        
+
         try:
             if self.perspective:
                 self.redraw_perspective()
@@ -1004,9 +1005,9 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         # Use the mouse wheel to zoom in/out
         a = _event.angleDelta().y()/200
         if a < 0:
-            self.zoomout()
+            self.zoomin() if self._invertWheelZoom else self.zoomout()
         else:
-            self.zoomin()
+            self.zoomout() if self._invertWheelZoom else self.zoomin()
         _event.accept()
 
     def mousePressEvent(self, event):
@@ -1103,7 +1104,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def makeObject(self):
         genList = GL.glGenLists(1)
         GL.glNewList(genList, GL.GL_COMPILE)
-  
+
         GL.glBegin(GL.GL_QUADS)
         factor = 4
         # Make a tee section
@@ -1131,9 +1132,9 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.extrude(x3, y3, x4, y4, z= .05, color = self.Green)
         self.extrude(x4, y4, y4, x4, z= .05, color = self.Green)
         self.extrude(y4, x4, y3, x3, z= .05, color = self.Green)
-  
+
         NumSectors = 200
-  
+
         # Make a circle
         for i in range(NumSectors):
             angle1 = (i * 2 * math.pi) / NumSectors
@@ -1141,31 +1142,31 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             y5 = 0.30 * math.cos(angle1) * factor
             x6 = 0.20 * math.sin(angle1) * factor
             y6 = 0.20 * math.cos(angle1) * factor
-  
+
             angle2 = ((i + 1) * 2 * math.pi) / NumSectors
             x7 = 0.20 * math.sin(angle2) * factor
             y7 = 0.20 * math.cos(angle2) * factor
             x8 = 0.30 * math.sin(angle2) * factor
             y8 = 0.30 * math.cos(angle2) * factor
-  
+
             self.quad(x5, y5, x6, y6, x7, y7, x8, y8, z= .05, color = self.Green)
-  
+
             self.extrude(x6, y6, x7, y7, z= .05, color = self.Green)
             self.extrude(x8, y8, x5, y5, z= .05, color = self.Green)
-  
+
         GL.glEnd()
         GL.glEndList()
-  
+
         return genList
-  
+
     def quad(self, x1, y1, x2, y2, x3, y3, x4, y4, z, color):
         self.qglColor(color)
-  
+
         GL.glVertex3d(x1, y1, -z)
         GL.glVertex3d(x2, y2, -z)
         GL.glVertex3d(x3, y3, -z)
         GL.glVertex3d(x4, y4, -z)
-  
+
         GL.glVertex3d(x4, y4, +z)
         GL.glVertex3d(x3, y3, +z)
         GL.glVertex3d(x2, y2, +z)
@@ -1173,7 +1174,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
     def lathe_quad(self, x1, x2, x3, x4, z1, z2, z3, z4, color):
         self.qglColor(color)
-  
+
         GL.glVertex3d(x1, 0, z1)
         GL.glVertex3d(x2, 0, z2)
         GL.glVertex3d(x3, 0, z3)
@@ -1187,7 +1188,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
     def extrude(self, x1, y1, x2, y2, z, color):
         self.qglColor(color)
-  
+
         GL.glVertex3d(x1, y1, +z)
         GL.glVertex3d(x2, y2, +z)
         GL.glVertex3d(x2, y2, -z)
@@ -1219,5 +1220,5 @@ if __name__ == '__main__':
     window = Window(inifilename)
     window.show()
     sys.exit(app.exec_())
-  
+
 

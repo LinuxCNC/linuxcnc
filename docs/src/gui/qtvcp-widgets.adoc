@@ -354,7 +354,7 @@ The python_command_option allow small snippets of python code to be run from the
 with out having to edit the handler file. (though it can call functions in the handler file)
 When using the command_string properties.
 
- * 'true_python_cmd_string' - a python command that will be called when the button is toggled true 
+ * 'true_python_cmd_string' - a python command that will be called when the button is toggled true
  * 'false_python_cmd_string' - a python command that will be called when the button is toggled false
 
 The capitalized word 'INSTANCE' will give access to the widgets instances and handler functions.
@@ -852,40 +852,219 @@ It is based on pyQT's QWidget which incorporates GcodeDisplay widget
 
 === GCodeGraphics Widget
 
+This Displays the current G-code in a graphical form.
+
 .Graphics Display
 image::images/qtvcp_gcodeGraphics.png["QTvcp G-code Graphics",scale="25%"]
 
-This Displays the current G-code in a graphical form.
-
-Properties:
+Properties that can be set via stylesheets:
 
 * '_view'
 * '_dro'
 * '_dtg'
 * '_metric'
-* 'overlay'
+* '_overlay'
 * '_offsets'
+* 'overlay_color'
 * 'background_color'
+* '_use_gradient_background'
+* 'jog_color'
+* 'Feed_color'
+* 'Rapid_color'
+* 'InhibitControls'
 * 'MouseButtonMode'
+* 'MouseWheelInvertZoom'
 
-Changes the button behavior of the mouse to rotate, move or zoom within the preview.
-Can be set 0-5
+'''
 
-0 -left move, middle zoom, right rotate.
-1 -left rotate, middle move, right zoom
-2 -left zoom, middle move, right rotate
-3 -left move, middle rotate, right zoom
-4 -left move, middle zoom, right rotate
-5 -left rotate, middle zoom, right move
-
-StyleSheets:
-
-MouseButtonMode can be set in stylesheets:
+*_view* Expects a string. The following shows an example of how to set this property:
 
 ----
 #gcodegraphics{
-qproperty-MouseButtonMode:1;
+qproperty-_view:z;}
 ----
+
+Setting this property sets the default view on GUI load. Valid choices for a lathe are p, y, y2. For other screens, valid choices are p, x, y, z, z2.
+
+'''
+
+*_dro* Expects a boolean. The following shows an example of how to set this property:
+
+----
+#gcodegraphics{
+qproperty-_dro:False;}
+----
+
+Setting this property will determine whether or not to show the DRO.
+
+'''
+
+*_dtg* Expects a boolean. The following shows an example of how to set this property:
+
+----
+#gcodegraphics{
+qproperty-_dtg:False;}
+----
+
+Setting this property will determine whether or not to show the Distance To Go.
+
+'''
+
+*_metric* Expects a boolean. The following shows an example of how to set this property:
+
+----
+#gcodegraphics{
+qproperty-_metric:False;}
+----
+
+Setting this property will determine whether or not to show the units in metric by default.
+
+'''
+
+*_overlay* Expects a boolean. The following shows an example of how to set this property:
+
+----
+#gcodegraphics{
+qproperty-_overlay:False;}
+----
+
+Setting this property will determine whether or not to show the overlay by default.
+
+'''
+
+*_offsets* Expects a boolean. The following shows an example of how to set this property:
+
+----
+#gcodegraphics{
+qproperty-_offsets:False;}
+----
+
+Setting this property will determine whether or not to show the offsets by default.
+
+'''
+
+*overlay_color* Expects a primary, secondary, or RGBA formatted color. The following shows an example of how to set this property:
+
+----
+#gcodegraphics{
+qproperty-overlay_color:blue;}
+----
+
+Setting this property will set the default overlay color.
+
+'''
+
+*background_color* Expects a primary, secondary, or RGBA formatted color. The following shows an example of how to set this property:
+
+----
+#gcodegraphics{
+qproperty-background_color:blue;}
+----
+
+Setting this property will set the default background color.
+
+'''
+
+*_use_gradient_background* Expects a boolean. The following shows an example of how to set this property:
+
+----
+#gcodegraphics{
+qproperty-_use_gradient_background:False;}
+----
+
+Setting this property will determine whether or not use a gradient background by default.
+
+'''
+
+*jog_color* Expects a primary, secondary, or RGBA formatted color. The following shows an example of how to set this property:
+
+----
+#gcodegraphics{
+qproperty-jog_color:red;}
+----
+
+Setting this property will set the default jog color.
+
+'''
+
+*Feed_color* Expects a primary, secondary, or RGBA formatted color. The following shows an example of how to set this property:
+
+----
+#gcodegraphics{
+qproperty-Feed_color:green;}
+----
+
+Setting this property will set the default feed color.
+
+'''
+
+*Rapid_color* Expects a primary, secondary, or RGBA formatted color. The following shows an example of how to set this property:
+
+----
+#gcodegraphics{
+qproperty-Rapid_color: rgba(0, 0, 255, .5);}
+----
+
+Setting this property will set the default rapid color.
+
+'''
+
+*InhibitControls* Expects a boolean. The following shows an example of how to set this property:
+
+----
+#gcodegraphics{
+qproperty-InhibitControls:True;}
+----
+
+Setting this property will determine whether or not to inhibit external controls by default.
+
+'''
+
+*MouseButtonMode* Expects an integer. The following shows an example of how to set this property:
+
+----
+#gcodegraphics{
+qproperty-MouseButtonMode:1;}
+----
+
+Setting this property changes the button behavior of the mouse to rotate, move or zoom within the preview.
+
+There are 12 valid modes:
+
+[width="50%",cols="1,1,1,1"]
+|===
+|*Mode*|*Move*|*Zoom*|*Rotate*
+|0|Left|Middle|Right
+|1|Middle|Right|Left
+|2|Middle|Left|Right
+|3|Left|Right|Middle
+|4|Right|Left|Middle
+|5|Right|Middle|Left
+|===
+
+Modes 6-11 are intended for Machines that only require a 2D preview such as plasma or some Lathes and have no rotate button assigned.
+
+[width="50%",cols="1,1,1"]
+|===
+|*Mode*|*Move*|*Zoom*
+|6|Left|Middle
+|7|Middle|Left
+|8|Right|Left
+|9|Left|Right
+|10|Middle|Right
+|11|Right|Middle
+|===
+
+'''
+
+*MouseWheelInvertZoom* Expects a boolean. The following shows an example of how to set this property:
+
+----
+#gcodegraphics{
+qproperty-MouseWheelInvertZoom:True;}
+----
+
+Setting this property to True will invert the zoom direction when zooming with the mouse wheel.
 
 ==== ACTION functions
 The ACTION library can control the G-code graphics widget.
@@ -1929,8 +2108,7 @@ This is used to load G-code files.
 If there is a Focus Overlay widget present, it will signal it to display.
 When using STATUS's 'request-dialog' function, the default launch names are 'LOAD' or 'SAVE'.
 
-There are options that can be set when requesting a dialog, these would be added to 
-the message dict.
+There are options that can be set when requesting a dialog, these would be added to the message dict.
 
 * EXTENSIONS
 * FILENAME

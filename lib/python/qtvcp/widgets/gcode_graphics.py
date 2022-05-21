@@ -251,17 +251,29 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
 
     def updateMouseMode(self, value):
         if value == 0:
-            m = Qt.LeftButton; z = Qt.MiddleButton; r = Qt.RightButton
+            m = Qt.LeftButton;   z = Qt.MiddleButton; r = Qt.RightButton
         elif value == 1:
-            r = Qt.LeftButton; m = Qt.MiddleButton; z = Qt.RightButton
+            m = Qt.MiddleButton; z = Qt.RightButton;  r = Qt.LeftButton
         elif value == 2:
-            z = Qt.LeftButton; m = Qt.MiddleButton; r = Qt.RightButton
+            m = Qt.MiddleButton; z = Qt.LeftButton;   r = Qt.RightButton
         elif value == 3:
-            m = Qt.LeftButton; r = Qt.MiddleButton; z = Qt.RightButton
+            m = Qt.LeftButton;   z = Qt.RightButton;  r = Qt.MiddleButton
         elif value == 4:
-            m = Qt.LeftButton; z = Qt.MiddleButton; r = Qt.RightButton
+            m = Qt.RightButton;  z = Qt.LeftButton;   r = Qt.MiddleButton
         elif value == 5:
-            r = Qt.LeftButton; z = Qt.MiddleButton; m = Qt.RightButton
+            m = Qt.RightButton;  z = Qt.MiddleButton; r = Qt.LeftButton
+        elif value == 6:
+            m = Qt.LeftButton;   z = Qt.MiddleButton; r = False
+        elif value == 7:
+            m = Qt.MiddleButton; z = Qt.LeftButton;   r = False
+        elif value == 8:
+            m = Qt.RightButton;  z = Qt.LeftButton;   r = False
+        elif value == 9:
+            m = Qt.LeftButton;   z = Qt.RightButton;  r = False
+        elif value == 10:
+            m = Qt.MiddleButton; z = Qt.RightButton;  r = False
+        elif value == 11:
+            m = Qt.RightButton;  z = Qt.MiddleButton; r = False
         else:
             return
         self._buttonList =[m,z,r]
@@ -463,6 +475,15 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         self._mouseMode = 0
         self.updateMouseMode(0)
     MouseButtonMode = pyqtProperty(int, getMouseButtonMode, setMouseButtonMode,resetMouseButtonMode)
+
+    # set mouse wheel zoom inversion
+    def setMouseWheelInvertZoom(self, state):
+        self._invertWheelZoom = state
+    def getMouseWheelInvertZoom(self):
+        return self._invertWheelZoom
+    def resetMouseWheelInvertZoom(self):
+        self._invertWheelZoom = False
+    MouseWheelInvertZoom = pyqtProperty(bool, getMouseWheelInvertZoom, setMouseWheelInvertZoom, resetMouseWheelInvertZoom)
 
 # For testing purposes, include code to allow a widget to be created and shown
 # if this file is run.
