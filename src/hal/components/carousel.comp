@@ -302,7 +302,7 @@ FUNCTION(_){
         } else {
             motor_fwd = 0;
             motor_rev = 0;
-            motor_rev = hold_dc;
+            motor_vel = hold_dc;
             active = 0;
             if (enable) ready = 1;
             state = 4;
