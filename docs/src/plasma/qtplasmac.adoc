@@ -719,6 +719,14 @@ DISPLAY = qtvcp qtplasmac      (use 16:9 resolution)
         = qtvcp qtplasmac_4x3  (use 4:3 resolution)
 ----
 
+There are multiple QtVCP options that are described here: link:http://linuxcnc.org/docs/devel/html/gui/qtvcp.html#_ini_settings[QtVCP INI Settings]
+
+For example the following would start a 16:9 resolution QtPlasmaC screen in full screen mode:
+
+----
+DISPLAY = qtvcp -f qtplasmac
+----
+
 *[TRAJ]* Section
 
 This variable  is mandatory.
