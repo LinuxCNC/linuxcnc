@@ -337,10 +337,7 @@ $(DOC_DIR)/LinuxCNC_Getting_Started.pdf: $(DOC_SRCDIR)/Master_Getting_Started.pd
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Getting_Started_es.pdf: $(DOC_SRCDIR)/Master_Getting_Started_es.pdf
 	@ln -f $< $@
-<<<<<<< HEAD
-# Chinese PDFs only build when xetex is available.
-$(DOC_DIR)/LinuxCNC_Getting_Started_zh_CN.pdf:$(DOC_SRCDIR)/Master_Getting_Started_zh_CN.pdf
-=======
+
 # Chinese PDFs do not build. They can be persuaded to build by using xetex
 # as the a2x backend. See line 403 but even then all characters display as boxes
 $(DOC_DIR)/LinuxCNC_Getting_Started_cn.pdf:
@@ -348,9 +345,6 @@ $(DOC_DIR)/LinuxCNC_Getting_Started_cn.pdf:
 $(DOC_DIR)/LinuxCNC_Documentation_ja.pdf:
 $(DOC_DIR)/LinuxCNC_Manual_Pages_ja.pdf:
 
-$(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf: $(DOC_SRCDIR)/Master_Getting_Started_fr.pdf
->>>>>>> docs: added japanese PDF docs from MasaoSakai (https://github.com/MasaoSakai/LinuxCNC)
-	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf: $(DOC_SRCDIR)/Master_Getting_Started_fr.pdf
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Integrator.pdf: $(DOC_SRCDIR)/Master_Integrator.pdf
