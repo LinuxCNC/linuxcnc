@@ -44,6 +44,12 @@ for num,temp in enumerate(sys.argv):
         if temp == '-h' or temp == '--help' or len(sys.argv) == 1:
             _print_help()
 
+# Set up the base logger
+#   We have do do this before importing other modules because on import
+#   they set up their own loggers as children of the base logger.
+from qtvcp import logger
+LOG = logger.initBaseLogger('GScreen', log_file=None, log_level=logger.INFO)
+
 import gi
 gi.require_version("Gtk","3.0")
 gi.require_version("Gdk","3.0")
