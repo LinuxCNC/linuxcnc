@@ -729,6 +729,8 @@ class _Lcnc_Action(object):
                 widgetTo.addTab(tw, name)
             elif isinstance(widgetTo, QStackedWidget):
                 tw = QWidget()
+                widgetTo.setMinimumWidth(widget.minimumWidth())
+                widgetTo.setMaximumWidth(widget.maximumWidth())
                 widgetTo.addWidget(tw)
             else:
                 LOG.warning('Widget {} is not a Tab or stacked Widget - skipping'.format(loc))
