@@ -45,12 +45,17 @@ from gi.repository import Gtk
 from gi.repository import Gdk
 
 import signal
+# Set up the base logger
+#   We have do do this before importing other modules because on import
+#   they set up their own loggers as children of the base logger.
+from qtvcp import logger
+LOG = logger.initBaseLogger('GladeVCP', log_file=None, log_level=logger.INFO)
 
 import gladevcp.makepins
 from gladevcp.gladebuilder import GladeBuilder
 from gladevcp import xembed
-from hal_glib import GStat
-GSTAT = GStat()
+from gladevcp.core import Status
+GSTAT = Status()
 
 options = [ Option( '-c', dest='component', metavar='NAME'
                   , help="Set component name to NAME. Default is basename of UI file")
