@@ -443,26 +443,6 @@ class FileManager(QWidget, _HalWidgetBase):
         except Exception as e:
             LOG.error("Load file error: {}".format(e))
             STATUS.emit('error', NML_ERROR, "Load file error: {}".format(e))
-            
-    def _hal_init(self):
-        if self.PREFS_:
-            last_path = self.PREFS_.getpref('last_loaded_directory', self.default_path, str, 'BOOK_KEEPING')
-           LOG.debug("lAST FILE PATH: {}".format(last_path))
-            if not last_path == '' and os.path.exists(last_path):
-                self.updateDirectoryView(last_path)
-            else:
-                self.updateDirectoryView(self.default_path)
-
-        else:
-            LOG.debug("lAST FILE PATH: {}".format(self.default_path))
-            self.updateDirectoryView(self.default_path)
-
-    # get current selection and update the path
-    # then if the path is good load it into linuxcnc
-    # record it in the preference file if available
-    def _getPathActivated(self):
-        row = self.list.selectionModel().currentIndex()
-        self.clicked(row)
 
     # This can be class patched to do something else
     def recordBookKeeping(self):
