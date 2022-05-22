@@ -42,7 +42,4 @@ position.txt
 *.glade.h
 # Ignore test results
 *.result
-# Temporary
-!docs/LinuxCNC_Getting_Started_cn.pdf
-!docs/LinuxCNC_Documentation_ja.pdf
-!docs/LinuxCNC_Manual_Pages_ja.pdf
+
