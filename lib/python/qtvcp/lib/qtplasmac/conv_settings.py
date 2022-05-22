@@ -68,7 +68,6 @@ def save(P, W, Conv):
     P.PREFS.putpref('Grid Size', P.gridSize, float, 'CONVERSATIONAL')
     show(P, W)
     P.convSettingsChanged = True
-    Conv.conv_restore_buttons(P, W)
 #    W[P.oldConvButton].click()
 
 def error_set(P, msg):
@@ -80,16 +79,16 @@ def reload(P, W, Conv):
     load(P, W)
     show(P, W)
     P.convSettingsChanged = True
-    Conv.conv_restore_buttons(P, W)
 #    W[P.oldConvButton].click()
 
 def exit(P, W, Conv):
+    Conv.conv_restore_buttons(P, W)
     W[P.oldConvButton].click()
 
 def load(P, W):
     P.preAmble = P.PREFS.getpref('Preamble', P.ambles, str, 'CONVERSATIONAL')
     P.postAmble = P.PREFS.getpref('Postamble', P.ambles, str, 'CONVERSATIONAL')
-    P.origin = P.PREFS.getpref('Origin', False, int, 'CONVERSATIONAL')
+    P.origin = P.PREFS.getpref('Origin', 0, int, 'CONVERSATIONAL')
     P.leadIn = P.PREFS.getpref('Leadin', 0, float, 'CONVERSATIONAL')
     P.leadOut = P.PREFS.getpref('Leadout', 0, float, 'CONVERSATIONAL')
     P.holeDiameter = P.PREFS.getpref('Hole diameter', P.unitCode[2], float, 'CONVERSATIONAL')
@@ -121,7 +120,7 @@ def widgets(P, W, Conv):
     la = ['loLabel', 'hsLabel']
     ca = ['oLabel', 'llLabel', 'shLabel', 'pvLabel']
     rb = ['center', 'bLeft']
-    bt = ['save', 'reload']
+    bt = ['save', 'reload', 'cExit']
     for w in ra:
         W[w].setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         W[w].setFixedWidth(80)

@@ -545,6 +545,7 @@ def entry_changed(P, W, Conv, widget, entry):
     Conv.conv_entry_changed(P, W, widget)
 
 def widgets(P, W, Conv):
+    P.previewActive = False
     W.lDesc.setText(_translate('Conversational', 'CREATING LINE OR ARC'))
     P.pixLinePoint = QPixmap('{}conv_line_point.png'.format(P.IMAGES)).scaledToWidth(196)
     P.pixLineAngle = QPixmap('{}conv_line_angle.png'.format(P.IMAGES)).scaledToWidth(196)

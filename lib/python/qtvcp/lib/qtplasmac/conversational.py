@@ -65,6 +65,7 @@ def conv_setup(P, W):
     # grid size is in inches
     W.conv_preview.grid_size = P.gridSize / P.unitsPerMm / 25.4
     W.conv_preview.set_current_view()
+    W.conv_new.setEnabled(True)
     W.conv_save.setEnabled(False)
     W.conv_send.setEnabled(False)
     W.conv_settings.setEnabled(True)
@@ -82,7 +83,7 @@ def conv_setup(P, W):
     P.ySaved = '0.000'
     P.oSaved = P.origin
     P.convBlock = [False, False]
-    if not P.convWidgetsLoaded:
+    if not P.convWidgetsLoaded or P.developmentPin:
         conv_widgets(P, W)
     if not P.oldConvButton:
         conv_shape_request(P, W, 'conv_line', True)
