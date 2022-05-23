@@ -312,7 +312,7 @@ else
     subst linuxcnc.files.in $DRIVERS > $MAIN_PACKAGE_NAME.files
 fi
 
-DOCS_PACKAGES=$(echo linuxcnc-doc-{en,fr,es,cn})
+DOCS_PACKAGES=$(echo linuxcnc-doc-{en,fr,es,cn,ja})
 for P in $DOCS_PACKAGES; do
     if [ -f $EXTRAS/$P.files ]; then
         cat $P.files.in $EXTRAS/$P.files > $P.files
