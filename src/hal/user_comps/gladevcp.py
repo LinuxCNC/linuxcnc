@@ -118,29 +118,29 @@ def load_handlers(usermod,halcomp,builder,useropts):
             directory = '.'
         if directory not in sys.path:
             sys.path.insert(0,directory)
-            dbg('adding import dir %s' % directory)
+            LOG.debug('adding import dir %s' % directory)
 
         try:
             mod = __import__(basename)
         except ImportError as msg:
             print("module '%s' skipped - import error: %s" %(basename,msg))
             continue
-        dbg("module '%s' imported OK" % mod.__name__)
+        LOG.debug("module '%s' imported OK" % mod.__name__)
         try:
             # look for 'get_handlers' function
             h = getattr(mod,hdl_func,None)
 
             if h and callable(h):
-                dbg("module '%s' : '%s' function found" % (mod.__name__,hdl_func))
+                LOG.debug("module '%s' : '%s' function found" % (mod.__name__,hdl_func))
                 objlist = h(halcomp,builder,useropts)
             else:
                 # the module has no get_handlers() callable.
                 # in this case we permit any callable except class Objects in the module to register as handler
-                dbg("module '%s': no '%s' function - registering only functions as callbacks" % (mod.__name__,hdl_func))
+                LOG.debug("module '%s': no '%s' function - registering only functions as callbacks" % (mod.__name__,hdl_func))
                 objlist =  [mod]
             # extract callback candidates
             for object in objlist:
-                dbg("Registering handlers in module %s object %s" % (mod.__name__, object))
+                LOG.debug("Registering handlers in module %s object %s" % (mod.__name__, object))
                 if isinstance(object, dict):
                     methods = list(dict.items())
                 else:
@@ -149,7 +149,7 @@ def load_handlers(usermod,halcomp,builder,useropts):
                     if method.startswith('_'):
                         continue
                     if callable(f):
-                        dbg("Register callback '%s' in %s" % (method, object))
+                        LOG.debug("Register callback '%s' in %s" % (method, object))
                         add_handler(method, f)
         except Exception as e:
             print("gladevcp: trouble looking for handlers in '%s': %s" %(basename, e))
@@ -185,6 +185,10 @@ def main():
         sys.exit(1)
 
     gladevcp_debug = debug = opts.debug
+    if opts.debug:
+        # Log level defaults to INFO, so set lower if in debug mode
+        logger.setGlobalLevel(logger.DEBUG)
+
     xmlname = args[0]
 
     #if there was no component name specified use the xml file name
@@ -195,10 +199,11 @@ def main():
     try:
         builder = Gtk.Builder()
         builder.add_from_file(xmlname)
-    except:
+    except Exception as e:
         try:
             # try loading as a Gtk.builder project
-            dbg("**** GLADE VCP INFO:    Not a builder project, trying to load as a lib glade project")
+            LOG.debug("**** GLADE VCP INFO:    Not a builder project, trying to load as a lib glade project")
+            print(e)
             builder = Gtk.glade.XML(xmlname)
             builder = GladeBuilder(builder)
 
@@ -284,12 +289,12 @@ def main():
             sys.exit(1)
 
     if opts.gtk_rc:
-        dbg( "**** GLADE VCP INFO: %s reading gtkrc file '%s'" %(opts.component,opts.gtk_rc))
+        LOG.debug( "**** GLADE VCP INFO: %s reading gtkrc file '%s'" %(opts.component,opts.gtk_rc))
         Gtk.rc_add_default_file(opts.gtk_rc)
         Gtk.rc_parse(opts.gtk_rc)
 
     if opts.theme:
-        dbg("**** GLADE VCP INFO:    Switching %s to '%s' theme" %(opts.component,opts.theme))
+        LOG.debug("**** GLADE VCP INFO:    Switching %s to '%s' theme" %(opts.component,opts.theme))
         settings = Gtk.Settings.get_default()
         settings.set_string_property("gtk-theme-name", opts.theme, "")
 
@@ -319,7 +324,7 @@ def main():
         sys.stdout.flush()
 
     if signal_func in handlers:
-        dbg("Register callback '%s' for SIGINT and SIGTERM" %(signal_func))
+        LOG.debug("Register callback '%s' for SIGINT and SIGTERM" %(signal_func))
         signal.signal(signal.SIGTERM, handlers[signal_func])
         signal.signal(signal.SIGINT,  handlers[signal_func])
 
