@@ -1,6 +1,10 @@
 import os
 import subprocess
 
+import gi
+gi.require_version("Gtk","3.0")
+gi.require_version("Gdk","3.0")
+from gi.repository import Gtk as gtk
 
 import linuxcnc
 import hal
@@ -9,7 +13,7 @@ import hal
 from qtvcp import logger
 
 LOG = logger.getLogger(__name__)
-# LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 from gladevcp.core import Status, Info
 
@@ -891,21 +895,16 @@ class FilterProgram:
 
     # request an error dialog box
     def error(self, exitcode, stderr):
-        message = '''The filter program '{}' that was filtering '{}' 
-                        exited with an error'''.format(self.program_filter, self.filtered_program)
-        if stderr != '':
-            more = "The error messages it produced are shown below:"
-        else:
-            more = None
-        mess = {'NAME': 'MESSAGE', 'ID': 'ACTION_ERROR__',
-                'MESSAGE': message,
-                'MORE': more,
-                'DETAILS': stderr,
-                'ICON': 'CRITICAL',
-                'FOCUS_TEXT': 'Filter program Error',
-                'TITLE': 'Program Filter Error'}
-        STATUS.emit('dialog-request', mess)
         LOG.error('Filter Program Error:{}'.format(stderr))
+        message = _('''The filter program '{}' that was filtering '{}' 
+                        exited with an errorL'''.format(
+                            self.program_filter, self.filtered_program))
+
+        dialog = gtk.MessageDialog(None, 0, gtk.MessageType.ERROR,
+                                        gtk.ButtonsType.CLOSE, message)
+        dialog.format_secondary_text(stderr)
+        dialog.run()
+        dialog.destroy()
 
 
 # For testing purposes
@@ -915,11 +914,9 @@ if __name__ == "__main__":
 
     testcase = Action()
 
-
     # print status caught errors
     def mess(error, text):
         print('STATUS caught:', text)
-
 
     STATUS.connect("error", lambda w, n, d: mess(n, d))
 
