@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>730</width>
-    <height>450</height>
+    <width>790</width>
+    <height>479</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>Form</string>
@@ -49,12 +55,24 @@
       </property>
       <item>
        <widget class="QWidget" name="widget_probe_parameters" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <layout class="QHBoxLayout" name="horizontalLayout_42">
          <property name="spacing">
           <number>4</number>
          </property>
          <property name="leftMargin">
-          <number>2</number>
+          <number>1</number>
          </property>
          <property name="topMargin">
           <number>0</number>
@@ -67,6 +85,18 @@
          </property>
          <item>
           <widget class="QWidget" name="widget_parameters" native="true">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>500</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <layout class="QVBoxLayout" name="verticalLayout_38">
             <property name="spacing">
              <number>4</number>
@@ -78,7 +108,7 @@
              <number>0</number>
             </property>
             <property name="rightMargin">
-             <number>4</number>
+             <number>1</number>
             </property>
             <property name="bottomMargin">
              <number>0</number>
@@ -96,10 +126,16 @@
               </property>
               <item>
                <widget class="QComboBox" name="cmb_probe_select">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="MinimumExpanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="minimumSize">
                  <size>
-                  <width>0</width>
-                  <height>40</height>
+                  <width>160</width>
+                  <height>45</height>
                  </size>
                 </property>
                 <property name="maximumSize">
@@ -116,20 +152,20 @@
               <item>
                <widget class="QPushButton" name="allow_auto_zero">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
                 <property name="minimumSize">
                  <size>
-                  <width>80</width>
-                  <height>50</height>
+                  <width>70</width>
+                  <height>45</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>80</width>
+                  <width>110</width>
                   <height>50</height>
                  </size>
                 </property>
@@ -148,20 +184,20 @@ ZERO</string>
               <item>
                <widget class="PushButton" name="btn_probe_help">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
                 <property name="minimumSize">
                  <size>
-                  <width>80</width>
-                  <height>50</height>
+                  <width>65</width>
+                  <height>45</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>80</width>
+                  <width>110</width>
                   <height>50</height>
                  </size>
                 </property>
@@ -206,7 +242,7 @@ HELP</string>
               <item>
                <widget class="QLabel" name="label_67">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -214,7 +250,7 @@ HELP</string>
                 <property name="minimumSize">
                  <size>
                   <width>0</width>
-                  <height>30</height>
+                  <height>28</height>
                  </size>
                 </property>
                 <property name="maximumSize">
@@ -238,10 +274,16 @@ HELP</string>
               <property name="spacing">
                <number>4</number>
               </property>
+              <property name="sizeConstraint">
+               <enum>QLayout::SetDefaultConstraint</enum>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
               <item>
                <widget class="QLabel" name="label_56">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -249,13 +291,13 @@ HELP</string>
                 <property name="minimumSize">
                  <size>
                   <width>100</width>
-                  <height>30</height>
+                  <height>28</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
                   <width>100</width>
-                  <height>30</height>
+                  <height>15</height>
                  </size>
                 </property>
                 <property name="text">
@@ -269,21 +311,21 @@ HELP</string>
               <item>
                <widget class="QLineEdit" name="lineEdit_probe_tool">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
                 <property name="minimumSize">
                  <size>
-                  <width>70</width>
-                  <height>0</height>
+                  <width>60</width>
+                  <height>28</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>70</width>
-                  <height>16777215</height>
+                  <width>80</width>
+                  <height>35</height>
                  </size>
                 </property>
                 <property name="toolTip">
@@ -298,9 +340,25 @@ HELP</string>
                </widget>
               </item>
               <item>
+               <spacer name="horizontalSpacer_17">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Expanding</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>5</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
                <widget class="QLabel" name="label_58">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -308,13 +366,13 @@ HELP</string>
                 <property name="minimumSize">
                  <size>
                   <width>100</width>
-                  <height>30</height>
+                  <height>28</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
                   <width>100</width>
-                  <height>30</height>
+                  <height>15</height>
                  </size>
                 </property>
                 <property name="text">
@@ -328,21 +386,21 @@ HELP</string>
               <item>
                <widget class="QLineEdit" name="lineEdit_latch_return_dist">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
                 <property name="minimumSize">
                  <size>
-                  <width>70</width>
-                  <height>0</height>
+                  <width>60</width>
+                  <height>28</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>70</width>
-                  <height>16777215</height>
+                  <width>80</width>
+                  <height>35</height>
                  </size>
                 </property>
                 <property name="toolTip">
@@ -366,7 +424,7 @@ HELP</string>
               <item>
                <widget class="QLabel" name="label_7">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -374,13 +432,13 @@ HELP</string>
                 <property name="minimumSize">
                  <size>
                   <width>100</width>
-                  <height>30</height>
+                  <height>28</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
                   <width>100</width>
-                  <height>30</height>
+                  <height>15</height>
                  </size>
                 </property>
                 <property name="text">
@@ -394,21 +452,21 @@ HELP</string>
               <item>
                <widget class="QLineEdit" name="lineEdit_probe_diam">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
                 <property name="minimumSize">
                  <size>
-                  <width>70</width>
-                  <height>0</height>
+                  <width>60</width>
+                  <height>28</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>70</width>
-                  <height>16777215</height>
+                  <width>80</width>
+                  <height>35</height>
                  </size>
                 </property>
                 <property name="toolTip">
@@ -423,9 +481,25 @@ HELP</string>
                </widget>
               </item>
               <item>
+               <spacer name="horizontalSpacer_12">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Expanding</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
                <widget class="QLabel" name="label_59">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -433,13 +507,13 @@ HELP</string>
                 <property name="minimumSize">
                  <size>
                   <width>100</width>
-                  <height>30</height>
+                  <height>28</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
                   <width>100</width>
-                  <height>30</height>
+                  <height>15</height>
                  </size>
                 </property>
                 <property name="text">
@@ -453,21 +527,21 @@ HELP</string>
               <item>
                <widget class="QLineEdit" name="lineEdit_max_travel">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
                 <property name="minimumSize">
                  <size>
-                  <width>70</width>
-                  <height>0</height>
+                  <width>60</width>
+                  <height>28</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>70</width>
-                  <height>16777215</height>
+                  <width>80</width>
+                  <height>35</height>
                  </size>
                 </property>
                 <property name="toolTip">
@@ -491,7 +565,7 @@ HELP</string>
               <item>
                <widget class="QLabel" name="label_57">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -499,13 +573,13 @@ HELP</string>
                 <property name="minimumSize">
                  <size>
                   <width>100</width>
-                  <height>30</height>
+                  <height>28</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
                   <width>100</width>
-                  <height>30</height>
+                  <height>15</height>
                  </size>
                 </property>
                 <property name="text">
@@ -519,21 +593,21 @@ HELP</string>
               <item>
                <widget class="QLineEdit" name="lineEdit_rapid_vel">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
                 <property name="minimumSize">
                  <size>
-                  <width>70</width>
-                  <height>0</height>
+                  <width>60</width>
+                  <height>28</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>70</width>
-                  <height>16777215</height>
+                  <width>80</width>
+                  <height>35</height>
                  </size>
                 </property>
                 <property name="toolTip">
@@ -548,9 +622,25 @@ HELP</string>
                </widget>
               </item>
               <item>
+               <spacer name="horizontalSpacer_13">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Expanding</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
                <widget class="QLabel" name="label_61">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -558,13 +648,13 @@ HELP</string>
                 <property name="minimumSize">
                  <size>
                   <width>100</width>
-                  <height>30</height>
+                  <height>28</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
                   <width>100</width>
-                  <height>30</height>
+                  <height>15</height>
                  </size>
                 </property>
                 <property name="text">
@@ -578,21 +668,21 @@ HELP</string>
               <item>
                <widget class="QLineEdit" name="lineEdit_max_z">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
                 <property name="minimumSize">
                  <size>
-                  <width>70</width>
-                  <height>0</height>
+                  <width>60</width>
+                  <height>28</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>70</width>
-                  <height>16777215</height>
+                  <width>80</width>
+                  <height>35</height>
                  </size>
                 </property>
                 <property name="toolTip">
@@ -616,7 +706,7 @@ HELP</string>
               <item>
                <widget class="QLabel" name="label_6">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -624,13 +714,13 @@ HELP</string>
                 <property name="minimumSize">
                  <size>
                   <width>100</width>
-                  <height>30</height>
+                  <height>28</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
                   <width>100</width>
-                  <height>30</height>
+                  <height>15</height>
                  </size>
                 </property>
                 <property name="text">
@@ -644,21 +734,21 @@ HELP</string>
               <item>
                <widget class="QLineEdit" name="lineEdit_search_vel">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
                 <property name="minimumSize">
                  <size>
-                  <width>70</width>
-                  <height>0</height>
+                  <width>60</width>
+                  <height>28</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>70</width>
-                  <height>16777215</height>
+                  <width>80</width>
+                  <height>35</height>
                  </size>
                 </property>
                 <property name="toolTip">
@@ -673,9 +763,25 @@ HELP</string>
                </widget>
               </item>
               <item>
+               <spacer name="horizontalSpacer_14">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Expanding</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
                <widget class="QLabel" name="label_60">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -683,13 +789,13 @@ HELP</string>
                 <property name="minimumSize">
                  <size>
                   <width>100</width>
-                  <height>30</height>
+                  <height>28</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
                   <width>100</width>
-                  <height>30</height>
+                  <height>15</height>
                  </size>
                 </property>
                 <property name="text">
@@ -703,21 +809,21 @@ HELP</string>
               <item>
                <widget class="QLineEdit" name="lineEdit_xy_clearance">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
                 <property name="minimumSize">
                  <size>
-                  <width>70</width>
-                  <height>0</height>
+                  <width>60</width>
+                  <height>28</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>70</width>
-                  <height>16777215</height>
+                  <width>80</width>
+                  <height>35</height>
                  </size>
                 </property>
                 <property name="toolTip">
@@ -741,7 +847,7 @@ HELP</string>
               <item>
                <widget class="QLabel" name="label_65">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -749,13 +855,13 @@ HELP</string>
                 <property name="minimumSize">
                  <size>
                   <width>100</width>
-                  <height>30</height>
+                  <height>28</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
                   <width>100</width>
-                  <height>30</height>
+                  <height>15</height>
                  </size>
                 </property>
                 <property name="text">
@@ -769,21 +875,21 @@ HELP</string>
               <item>
                <widget class="QLineEdit" name="lineEdit_probe_vel">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
                 <property name="minimumSize">
                  <size>
-                  <width>70</width>
-                  <height>0</height>
+                  <width>60</width>
+                  <height>28</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>70</width>
-                  <height>16777215</height>
+                  <width>80</width>
+                  <height>35</height>
                  </size>
                 </property>
                 <property name="toolTip">
@@ -798,9 +904,25 @@ HELP</string>
                </widget>
               </item>
               <item>
+               <spacer name="horizontalSpacer_15">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Expanding</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
                <widget class="QLabel" name="label_62">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -808,13 +930,13 @@ HELP</string>
                 <property name="minimumSize">
                  <size>
                   <width>100</width>
-                  <height>30</height>
+                  <height>28</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
                   <width>100</width>
-                  <height>30</height>
+                  <height>15</height>
                  </size>
                 </property>
                 <property name="text">
@@ -828,21 +950,21 @@ HELP</string>
               <item>
                <widget class="QLineEdit" name="lineEdit_z_clearance">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
                 <property name="minimumSize">
                  <size>
-                  <width>70</width>
-                  <height>0</height>
+                  <width>60</width>
+                  <height>28</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>70</width>
-                  <height>16777215</height>
+                  <width>80</width>
+                  <height>35</height>
                  </size>
                 </property>
                 <property name="toolTip">
@@ -869,7 +991,7 @@ HELP</string>
               <item>
                <widget class="QLabel" name="label_63">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -877,13 +999,13 @@ HELP</string>
                 <property name="minimumSize">
                  <size>
                   <width>100</width>
-                  <height>30</height>
+                  <height>28</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
                   <width>100</width>
-                  <height>30</height>
+                  <height>15</height>
                  </size>
                 </property>
                 <property name="text">
@@ -897,21 +1019,21 @@ HELP</string>
               <item>
                <widget class="QLineEdit" name="lineEdit_extra_depth">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
                 <property name="minimumSize">
                  <size>
-                  <width>70</width>
-                  <height>0</height>
+                  <width>60</width>
+                  <height>28</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>70</width>
-                  <height>16777215</height>
+                  <width>80</width>
+                  <height>35</height>
                  </size>
                 </property>
                 <property name="maxLength">
@@ -923,9 +1045,25 @@ HELP</string>
                </widget>
               </item>
               <item>
+               <spacer name="horizontalSpacer_16">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Expanding</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
                <widget class="QLabel" name="label_64">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -933,13 +1071,13 @@ HELP</string>
                 <property name="minimumSize">
                  <size>
                   <width>100</width>
-                  <height>30</height>
+                  <height>28</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
                   <width>100</width>
-                  <height>30</height>
+                  <height>15</height>
                  </size>
                 </property>
                 <property name="text">
@@ -953,21 +1091,21 @@ HELP</string>
               <item>
                <widget class="QLineEdit" name="lineEdit_side_edge_length">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
                 <property name="minimumSize">
                  <size>
-                  <width>70</width>
-                  <height>0</height>
+                  <width>60</width>
+                  <height>28</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>70</width>
-                  <height>16777215</height>
+                  <width>80</width>
+                  <height>35</height>
                  </size>
                 </property>
                 <property name="toolTip">
@@ -984,7 +1122,7 @@ HELP</string>
              </layout>
             </item>
             <item>
-             <spacer name="verticalSpacer_23">
+             <spacer name="verticalSpacer_10">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
               </property>
@@ -1000,16 +1138,29 @@ HELP</string>
           </widget>
          </item>
          <item>
+          <spacer name="horizontalSpacer_19">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>10</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
           <widget class="QStackedWidget" name="stackedWidget_probe_buttons">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
            <property name="minimumSize">
             <size>
-             <width>360</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
@@ -1026,9 +1177,15 @@ HELP</string>
             <enum>QFrame::Plain</enum>
            </property>
            <property name="currentIndex">
-            <number>3</number>
+            <number>4</number>
            </property>
            <widget class="QWidget" name="outside_corners">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <layout class="QVBoxLayout" name="verticalLayout">
              <property name="spacing">
               <number>2</number>
@@ -1063,7 +1220,7 @@ HELP</string>
                 <string>OUTSIDE MEASUREMENTS</string>
                </property>
                <property name="alignment">
-                <set>Qt::AlignCenter</set>
+                <set>Qt::AlignBottom|Qt::AlignHCenter</set>
                </property>
               </widget>
              </item>
@@ -1104,317 +1261,9 @@ HELP</string>
                  <number>0</number>
                 </property>
                 <property name="spacing">
-                 <number>2</number>
+                 <number>4</number>
                 </property>
-                <item row="1" column="4">
-                 <widget class="QPushButton" name="probe_z_minus_wco">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="toolTip">
-                   <string>z_minus_wco</string>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">background: white;</string>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="icon">
-                   <iconset>
-                    <normaloff>../images/widgets/basic_probe_icons/z_top.png</normaloff>../images/widgets/basic_probe_icons/z_top.png</iconset>
-                  </property>
-                  <property name="iconSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="probe" stdset="0">
-                   <string>probe_down</string>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">outside_buttonGroup</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item row="2" column="1">
-                 <widget class="QPushButton" name="probe_front_left_outside">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="toolTip">
-                   <string>front_left_outside</string>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">background: white;</string>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="icon">
-                   <iconset>
-                    <normaloff>../images/widgets/basic_probe_icons/front_left_outside_corner.png</normaloff>../images/widgets/basic_probe_icons/front_left_outside_corner.png</iconset>
-                  </property>
-                  <property name="iconSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="probe" stdset="0">
-                   <string>probe_outside_xpyp</string>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">outside_buttonGroup</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <spacer name="horizontalSpacer">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item row="1" column="6">
-                 <spacer name="horizontalSpacer_3">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QPushButton" name="probe_left_outside">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="toolTip">
-                   <string>left_outside</string>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">background: white;</string>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="icon">
-                   <iconset>
-                    <normaloff>../images/widgets/basic_probe_icons/left_side_edge.png</normaloff>../images/widgets/basic_probe_icons/left_side_edge.png</iconset>
-                  </property>
-                  <property name="iconSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="probe" stdset="0">
-                   <string>probe_xp</string>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">outside_buttonGroup</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QPushButton" name="probe_back_left_outside">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="toolTip">
-                   <string>back_left_outside</string>
-                  </property>
-                  <property name="autoFillBackground">
-                   <bool>false</bool>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">background: white;</string>
-                  </property>
-                  <property name="icon">
-                   <iconset>
-                    <normaloff>../images/widgets/basic_probe_icons/back_left_outside_corner.png</normaloff>../images/widgets/basic_probe_icons/back_left_outside_corner.png</iconset>
-                  </property>
-                  <property name="iconSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="probe" stdset="0">
-                   <string>probe_outside_xpym</string>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">outside_buttonGroup</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item row="0" column="5">
-                 <widget class="QPushButton" name="probe_back_right_outside">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="toolTip">
-                   <string>back_right_outside</string>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">background: white;</string>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="icon">
-                   <iconset>
-                    <normaloff>../images/widgets/basic_probe_icons/back_right_outside_corner.png</normaloff>../images/widgets/basic_probe_icons/back_right_outside_corner.png</iconset>
-                  </property>
-                  <property name="iconSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="probe" stdset="0">
-                   <string>probe_outside_xmym</string>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">outside_buttonGroup</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item row="0" column="4">
-                 <widget class="QPushButton" name="probe_back_outside">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="toolTip">
-                   <string>back_outside</string>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">background: white;</string>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="icon">
-                   <iconset>
-                    <normaloff>../images/widgets/basic_probe_icons/back_middle_outside_edge.png</normaloff>../images/widgets/basic_probe_icons/back_middle_outside_edge.png</iconset>
-                  </property>
-                  <property name="iconSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="probe" stdset="0">
-                   <string>probe_ym</string>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">outside_buttonGroup</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item row="1" column="5">
+                <item row="2" column="5">
                  <widget class="QPushButton" name="probe_right_outside">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -1424,8 +1273,8 @@ HELP</string>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>80</width>
+                    <height>80</height>
                    </size>
                   </property>
                   <property name="maximumSize">
@@ -1449,8 +1298,8 @@ HELP</string>
                   </property>
                   <property name="iconSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>82</width>
+                    <height>82</height>
                    </size>
                   </property>
                   <property name="probe" stdset="0">
@@ -1461,54 +1310,7 @@ HELP</string>
                   </attribute>
                  </widget>
                 </item>
-                <item row="2" column="4">
-                 <widget class="QPushButton" name="probe_front_outside">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="toolTip">
-                   <string>front_outside</string>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">background: white;</string>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="icon">
-                   <iconset>
-                    <normaloff>../images/widgets/basic_probe_icons/front_middle_edge.png</normaloff>../images/widgets/basic_probe_icons/front_middle_edge.png</iconset>
-                  </property>
-                  <property name="iconSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="probe" stdset="0">
-                   <string>probe_yp</string>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">outside_buttonGroup</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item row="2" column="5">
+                <item row="3" column="5">
                  <widget class="QPushButton" name="probe_front_right_outside">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -1518,8 +1320,8 @@ HELP</string>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>80</width>
+                    <height>80</height>
                    </size>
                   </property>
                   <property name="maximumSize">
@@ -1543,8 +1345,8 @@ HELP</string>
                   </property>
                   <property name="iconSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>82</width>
+                    <height>82</height>
                    </size>
                   </property>
                   <property name="probe" stdset="0">
@@ -1554,6 +1356,374 @@ HELP</string>
                    <string notr="true">outside_buttonGroup</string>
                   </attribute>
                  </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QPushButton" name="probe_left_outside">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>80</width>
+                    <height>80</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>90</width>
+                    <height>90</height>
+                   </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>left_outside</string>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">background: white;</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normaloff>../images/widgets/basic_probe_icons/left_side_edge.png</normaloff>../images/widgets/basic_probe_icons/left_side_edge.png</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>82</width>
+                    <height>82</height>
+                   </size>
+                  </property>
+                  <property name="probe" stdset="0">
+                   <string>probe_xp</string>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">outside_buttonGroup</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QPushButton" name="probe_front_left_outside">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>80</width>
+                    <height>80</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>90</width>
+                    <height>90</height>
+                   </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>front_left_outside</string>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">background: white;</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normaloff>../images/widgets/basic_probe_icons/front_left_outside_corner.png</normaloff>../images/widgets/basic_probe_icons/front_left_outside_corner.png</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>82</width>
+                    <height>82</height>
+                   </size>
+                  </property>
+                  <property name="probe" stdset="0">
+                   <string>probe_outside_xpyp</string>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">outside_buttonGroup</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="3" column="4">
+                 <widget class="QPushButton" name="probe_front_outside">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>80</width>
+                    <height>80</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>90</width>
+                    <height>90</height>
+                   </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>front_outside</string>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">background: white;</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normaloff>../images/widgets/basic_probe_icons/front_middle_edge.png</normaloff>../images/widgets/basic_probe_icons/front_middle_edge.png</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>82</width>
+                    <height>82</height>
+                   </size>
+                  </property>
+                  <property name="probe" stdset="0">
+                   <string>probe_yp</string>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">outside_buttonGroup</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <spacer name="horizontalSpacer">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="2" column="4">
+                 <widget class="QPushButton" name="probe_z_minus_wco">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>80</width>
+                    <height>80</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>90</width>
+                    <height>90</height>
+                   </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>z_minus_wco</string>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">background: white;</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normaloff>../images/widgets/basic_probe_icons/z_top.png</normaloff>../images/widgets/basic_probe_icons/z_top.png</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>82</width>
+                    <height>82</height>
+                   </size>
+                  </property>
+                  <property name="probe" stdset="0">
+                   <string>probe_down</string>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">outside_buttonGroup</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QPushButton" name="probe_back_left_outside">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>80</width>
+                    <height>80</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>90</width>
+                    <height>90</height>
+                   </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>back_left_outside</string>
+                  </property>
+                  <property name="autoFillBackground">
+                   <bool>false</bool>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">background: white;</string>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normaloff>../images/widgets/basic_probe_icons/back_left_outside_corner.png</normaloff>../images/widgets/basic_probe_icons/back_left_outside_corner.png</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>82</width>
+                    <height>82</height>
+                   </size>
+                  </property>
+                  <property name="probe" stdset="0">
+                   <string>probe_outside_xpym</string>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">outside_buttonGroup</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="1" column="5">
+                 <widget class="QPushButton" name="probe_back_right_outside">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>80</width>
+                    <height>80</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>90</width>
+                    <height>90</height>
+                   </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>back_right_outside</string>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">background: white;</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normaloff>../images/widgets/basic_probe_icons/back_right_outside_corner.png</normaloff>../images/widgets/basic_probe_icons/back_right_outside_corner.png</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>82</width>
+                    <height>82</height>
+                   </size>
+                  </property>
+                  <property name="probe" stdset="0">
+                   <string>probe_outside_xmym</string>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">outside_buttonGroup</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="2" column="6">
+                 <spacer name="horizontalSpacer_3">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="1" column="4">
+                 <widget class="QPushButton" name="probe_back_outside">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>80</width>
+                    <height>80</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>90</width>
+                    <height>90</height>
+                   </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>back_outside</string>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">background: white;</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normaloff>../images/widgets/basic_probe_icons/back_middle_outside_edge.png</normaloff>../images/widgets/basic_probe_icons/back_middle_outside_edge.png</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>82</width>
+                    <height>82</height>
+                   </size>
+                  </property>
+                  <property name="probe" stdset="0">
+                   <string>probe_ym</string>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">outside_buttonGroup</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="0" column="4">
+                 <spacer name="verticalSpacer_14">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>30</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                </layout>
               </widget>
@@ -1608,7 +1778,7 @@ HELP</string>
                 <string>INSIDE MEASUREMENTS</string>
                </property>
                <property name="alignment">
-                <set>Qt::AlignCenter</set>
+                <set>Qt::AlignBottom|Qt::AlignHCenter</set>
                </property>
               </widget>
              </item>
@@ -1651,257 +1821,9 @@ HELP</string>
                  <number>0</number>
                 </property>
                 <property name="spacing">
-                 <number>2</number>
+                 <number>4</number>
                 </property>
-                <item row="3" column="1">
-                 <widget class="QPushButton" name="probe_front_left_inside">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="toolTip">
-                   <string>front_left_inside</string>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">background: white;</string>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="icon">
-                   <iconset>
-                    <normaloff>../images/widgets/basic_probe_icons/inside_front_left_corner.png</normaloff>../images/widgets/basic_probe_icons/inside_front_left_corner.png</iconset>
-                  </property>
-                  <property name="iconSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="probe" stdset="0">
-                   <string>probe_inside_xmym</string>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">inside_buttonGroup</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item row="0" column="5">
-                 <widget class="QPushButton" name="probe_back_right_inside">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="toolTip">
-                   <string>back_right_inside</string>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">background: white;</string>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="icon">
-                   <iconset>
-                    <normaloff>../images/widgets/basic_probe_icons/inside_back_right_corner.png</normaloff>../images/widgets/basic_probe_icons/inside_back_right_corner.png</iconset>
-                  </property>
-                  <property name="iconSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="probe" stdset="0">
-                   <string>probe_inside_xpyp</string>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">inside_buttonGroup</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <spacer name="horizontalSpacer_8">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QPushButton" name="probe_back_left_inside">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="toolTip">
-                   <string>back_left_inside</string>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">background: white;</string>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="icon">
-                   <iconset>
-                    <normaloff>../images/widgets/basic_probe_icons/inside_back_left_corner.png</normaloff>../images/widgets/basic_probe_icons/inside_back_left_corner.png</iconset>
-                  </property>
-                  <property name="iconSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="probe" stdset="0">
-                   <string>probe_inside_xmyp</string>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">inside_buttonGroup</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item row="0" column="4">
-                 <widget class="QPushButton" name="probe_y_plus_wco">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="toolTip">
-                   <string>y_plus_wco</string>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">background: white;</string>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="icon">
-                   <iconset>
-                    <normaloff>../images/widgets/basic_probe_icons/y_plus.png</normaloff>../images/widgets/basic_probe_icons/y_plus.png</iconset>
-                  </property>
-                  <property name="iconSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="probe" stdset="0">
-                   <string>probe_yp</string>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">inside_buttonGroup</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QPushButton" name="probe_x_minus_wco">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="toolTip">
-                   <string>x_minus_wco</string>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">background: white;</string>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="icon">
-                   <iconset>
-                    <normaloff>../images/widgets/basic_probe_icons/x_minus.png</normaloff>../images/widgets/basic_probe_icons/x_minus.png</iconset>
-                  </property>
-                  <property name="iconSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="probe" stdset="0">
-                   <string>probe_xm</string>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">inside_buttonGroup</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item row="3" column="4">
+                <item row="4" column="4">
                  <widget class="QPushButton" name="probe_y_minus_wco">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -1911,8 +1833,8 @@ HELP</string>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>85</width>
+                    <height>85</height>
                    </size>
                   </property>
                   <property name="maximumSize">
@@ -1948,54 +1870,7 @@ HELP</string>
                   </attribute>
                  </widget>
                 </item>
-                <item row="3" column="5">
-                 <widget class="QPushButton" name="probe_front_right_inside">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="toolTip">
-                   <string>front_right_inside</string>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">background: white;</string>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                  <property name="icon">
-                   <iconset>
-                    <normaloff>../images/widgets/basic_probe_icons/inside_front_right_corner.png</normaloff>../images/widgets/basic_probe_icons/inside_front_right_corner.png</iconset>
-                  </property>
-                  <property name="iconSize">
-                   <size>
-                    <width>90</width>
-                    <height>90</height>
-                   </size>
-                  </property>
-                  <property name="probe" stdset="0">
-                   <string>probe_inside_xpym</string>
-                  </property>
-                  <attribute name="buttonGroup">
-                   <string notr="true">inside_buttonGroup</string>
-                  </attribute>
-                 </widget>
-                </item>
-                <item row="1" column="5">
+                <item row="2" column="5">
                  <widget class="QPushButton" name="probe_x_plus_wco">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -2005,8 +1880,8 @@ HELP</string>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>85</width>
+                    <height>85</height>
                    </size>
                   </property>
                   <property name="maximumSize">
@@ -2043,6 +1918,160 @@ HELP</string>
                  </widget>
                 </item>
                 <item row="1" column="4">
+                 <widget class="QPushButton" name="probe_y_plus_wco">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>85</width>
+                    <height>85</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>90</width>
+                    <height>90</height>
+                   </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>y_plus_wco</string>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">background: white;</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normaloff>../images/widgets/basic_probe_icons/y_plus.png</normaloff>../images/widgets/basic_probe_icons/y_plus.png</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>90</width>
+                    <height>90</height>
+                   </size>
+                  </property>
+                  <property name="probe" stdset="0">
+                   <string>probe_yp</string>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">inside_buttonGroup</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QPushButton" name="probe_back_left_inside">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>85</width>
+                    <height>85</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>90</width>
+                    <height>90</height>
+                   </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>back_left_inside</string>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">background: white;</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normaloff>../images/widgets/basic_probe_icons/inside_back_left_corner.png</normaloff>../images/widgets/basic_probe_icons/inside_back_left_corner.png</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>90</width>
+                    <height>90</height>
+                   </size>
+                  </property>
+                  <property name="probe" stdset="0">
+                   <string>probe_inside_xmyp</string>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">inside_buttonGroup</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="2" column="6">
+                 <spacer name="horizontalSpacer_9">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="1" column="5">
+                 <widget class="QPushButton" name="probe_back_right_inside">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>85</width>
+                    <height>85</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>90</width>
+                    <height>90</height>
+                   </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>back_right_inside</string>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">background: white;</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normaloff>../images/widgets/basic_probe_icons/inside_back_right_corner.png</normaloff>../images/widgets/basic_probe_icons/inside_back_right_corner.png</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>90</width>
+                    <height>90</height>
+                   </size>
+                  </property>
+                  <property name="probe" stdset="0">
+                   <string>probe_inside_xpyp</string>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">inside_buttonGroup</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="2" column="4">
                  <widget class="QPushButton" name="probe_z_minus_wco_inside">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -2052,8 +2081,8 @@ HELP</string>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>85</width>
+                    <height>85</height>
                    </size>
                   </property>
                   <property name="maximumSize">
@@ -2089,8 +2118,55 @@ HELP</string>
                   </attribute>
                  </widget>
                 </item>
-                <item row="1" column="6">
-                 <spacer name="horizontalSpacer_9">
+                <item row="2" column="1">
+                 <widget class="QPushButton" name="probe_x_minus_wco">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>85</width>
+                    <height>85</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>90</width>
+                    <height>90</height>
+                   </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>x_minus_wco</string>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">background: white;</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normaloff>../images/widgets/basic_probe_icons/x_minus.png</normaloff>../images/widgets/basic_probe_icons/x_minus.png</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>90</width>
+                    <height>90</height>
+                   </size>
+                  </property>
+                  <property name="probe" stdset="0">
+                   <string>probe_xm</string>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">inside_buttonGroup</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <spacer name="horizontalSpacer_8">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
@@ -2098,6 +2174,113 @@ HELP</string>
                    <size>
                     <width>40</width>
                     <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="4" column="1">
+                 <widget class="QPushButton" name="probe_front_left_inside">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>85</width>
+                    <height>85</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>90</width>
+                    <height>90</height>
+                   </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>front_left_inside</string>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">background: white;</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normaloff>../images/widgets/basic_probe_icons/inside_front_left_corner.png</normaloff>../images/widgets/basic_probe_icons/inside_front_left_corner.png</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>90</width>
+                    <height>90</height>
+                   </size>
+                  </property>
+                  <property name="probe" stdset="0">
+                   <string>probe_inside_xmym</string>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">inside_buttonGroup</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="4" column="5">
+                 <widget class="QPushButton" name="probe_front_right_inside">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>85</width>
+                    <height>85</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>90</width>
+                    <height>90</height>
+                   </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>front_right_inside</string>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">background: white;</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normaloff>../images/widgets/basic_probe_icons/inside_front_right_corner.png</normaloff>../images/widgets/basic_probe_icons/inside_front_right_corner.png</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>90</width>
+                    <height>90</height>
+                   </size>
+                  </property>
+                  <property name="probe" stdset="0">
+                   <string>probe_inside_xpym</string>
+                  </property>
+                  <attribute name="buttonGroup">
+                   <string notr="true">inside_buttonGroup</string>
+                  </attribute>
+                 </widget>
+                </item>
+                <item row="0" column="4">
+                 <spacer name="verticalSpacer_13">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>30</height>
                    </size>
                   </property>
                  </spacer>
@@ -2155,9 +2338,22 @@ HELP</string>
                 <string>ANGLE MEASUREMENTS</string>
                </property>
                <property name="alignment">
-                <set>Qt::AlignCenter</set>
+                <set>Qt::AlignBottom|Qt::AlignHCenter</set>
                </property>
               </widget>
+             </item>
+             <item>
+              <spacer name="verticalSpacer_12">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </spacer>
              </item>
              <item>
               <widget class="QWidget" name="widget_angle" native="true">
@@ -2220,360 +2416,8 @@ HELP</string>
                     <number>0</number>
                    </property>
                    <property name="spacing">
-                    <number>2</number>
+                    <number>4</number>
                    </property>
-                   <item row="2" column="2">
-                    <widget class="QPushButton" name="probe_z_minus_edge">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>90</width>
-                       <height>90</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>90</width>
-                       <height>90</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>z_minus_wco</string>
-                     </property>
-                     <property name="styleSheet">
-                      <string notr="true">background: white;</string>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="icon">
-                      <iconset>
-                       <normaloff>../images/widgets/basic_probe_icons/z_top_r.png</normaloff>../images/widgets/basic_probe_icons/z_top_r.png</iconset>
-                     </property>
-                     <property name="iconSize">
-                      <size>
-                       <width>90</width>
-                       <height>90</height>
-                      </size>
-                     </property>
-                     <property name="probe" stdset="0">
-                      <string>probe_down</string>
-                     </property>
-                     <attribute name="buttonGroup">
-                      <string notr="true">skew_buttonGroup</string>
-                     </attribute>
-                    </widget>
-                   </item>
-                   <item row="2" column="3">
-                    <widget class="QPushButton" name="probe_right_edge_angle">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>90</width>
-                       <height>90</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>90</width>
-                       <height>90</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>right_edge_angle</string>
-                     </property>
-                     <property name="styleSheet">
-                      <string notr="true">background: white;</string>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="icon">
-                      <iconset>
-                       <normaloff>../images/widgets/basic_probe_icons/probe_right_edge_angle_r.png</normaloff>../images/widgets/basic_probe_icons/probe_right_edge_angle_r.png</iconset>
-                     </property>
-                     <property name="iconSize">
-                      <size>
-                       <width>90</width>
-                       <height>90</height>
-                      </size>
-                     </property>
-                     <property name="probe" stdset="0">
-                      <string>probe_angle_right</string>
-                     </property>
-                     <attribute name="buttonGroup">
-                      <string notr="true">skew_buttonGroup</string>
-                     </attribute>
-                    </widget>
-                   </item>
-                   <item row="2" column="4">
-                    <spacer name="horizontalSpacer_11">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item row="2" column="0">
-                    <spacer name="horizontalSpacer_10">
-                     <property name="orientation">
-                      <enum>Qt::Horizontal</enum>
-                     </property>
-                     <property name="sizeHint" stdset="0">
-                      <size>
-                       <width>40</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                    </spacer>
-                   </item>
-                   <item row="1" column="3">
-                    <widget class="QPushButton" name="probe_corner_y_minus_edge_angle">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>90</width>
-                       <height>90</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>90</width>
-                       <height>90</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>corner_y_minus_edge_angle</string>
-                     </property>
-                     <property name="styleSheet">
-                      <string notr="true">background: white;</string>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="icon">
-                      <iconset>
-                       <normaloff>../images/widgets/basic_probe_icons/probe_corner_y_minus_edge_angle_r.png</normaloff>../images/widgets/basic_probe_icons/probe_corner_y_minus_edge_angle_r.png</iconset>
-                     </property>
-                     <property name="iconSize">
-                      <size>
-                       <width>90</width>
-                       <height>90</height>
-                      </size>
-                     </property>
-                     <property name="probe" stdset="0">
-                      <string>probe_angle_ym</string>
-                     </property>
-                     <attribute name="buttonGroup">
-                      <string notr="true">skew_buttonGroup</string>
-                     </attribute>
-                    </widget>
-                   </item>
-                   <item row="1" column="1">
-                    <widget class="QPushButton" name="probe_corner_x_plus_edge_angle">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>90</width>
-                       <height>90</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>90</width>
-                       <height>90</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>corner_x_plus_edge_angle</string>
-                     </property>
-                     <property name="styleSheet">
-                      <string>background: white;</string>
-                     </property>
-                     <property name="icon">
-                      <iconset>
-                       <normaloff>../images/widgets/basic_probe_icons/probe_corner_x_plus_edge_angle_r.png</normaloff>../images/widgets/basic_probe_icons/probe_corner_x_plus_edge_angle_r.png</iconset>
-                     </property>
-                     <property name="iconSize">
-                      <size>
-                       <width>90</width>
-                       <height>90</height>
-                      </size>
-                     </property>
-                     <property name="probe" stdset="0">
-                      <string>probe_angle_xp</string>
-                     </property>
-                     <attribute name="buttonGroup">
-                      <string notr="true">skew_buttonGroup</string>
-                     </attribute>
-                    </widget>
-                   </item>
-                   <item row="2" column="1">
-                    <widget class="QPushButton" name="probe_left_edge_angle">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>90</width>
-                       <height>90</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>90</width>
-                       <height>90</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>left_edge_angle</string>
-                     </property>
-                     <property name="styleSheet">
-                      <string notr="true">background: white;</string>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="icon">
-                      <iconset>
-                       <normaloff>../images/widgets/basic_probe_icons/probe_left_edge_angle_r.png</normaloff>../images/widgets/basic_probe_icons/probe_left_edge_angle_r.png</iconset>
-                     </property>
-                     <property name="iconSize">
-                      <size>
-                       <width>90</width>
-                       <height>90</height>
-                      </size>
-                     </property>
-                     <property name="probe" stdset="0">
-                      <string>probe_angle_left</string>
-                     </property>
-                     <attribute name="buttonGroup">
-                      <string notr="true">skew_buttonGroup</string>
-                     </attribute>
-                    </widget>
-                   </item>
-                   <item row="1" column="2">
-                    <widget class="QPushButton" name="probe_back_edge_angle">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>90</width>
-                       <height>90</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>90</width>
-                       <height>90</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>back_edge_angle</string>
-                     </property>
-                     <property name="styleSheet">
-                      <string notr="true">background: white;</string>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="icon">
-                      <iconset>
-                       <normaloff>../images/widgets/basic_probe_icons/probe_back_edge_angle_r.png</normaloff>../images/widgets/basic_probe_icons/probe_back_edge_angle_r.png</iconset>
-                     </property>
-                     <property name="iconSize">
-                      <size>
-                       <width>90</width>
-                       <height>90</height>
-                      </size>
-                     </property>
-                     <property name="probe" stdset="0">
-                      <string>probe_angle_back</string>
-                     </property>
-                     <attribute name="buttonGroup">
-                      <string notr="true">skew_buttonGroup</string>
-                     </attribute>
-                    </widget>
-                   </item>
-                   <item row="3" column="2">
-                    <widget class="QPushButton" name="probe_front_edge_angle">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>90</width>
-                       <height>90</height>
-                      </size>
-                     </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>90</width>
-                       <height>90</height>
-                      </size>
-                     </property>
-                     <property name="toolTip">
-                      <string>front_edge_angle</string>
-                     </property>
-                     <property name="styleSheet">
-                      <string notr="true">background: white;</string>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="icon">
-                      <iconset>
-                       <normaloff>../images/widgets/basic_probe_icons/probe_front_edge_angle_r.png</normaloff>../images/widgets/basic_probe_icons/probe_front_edge_angle_r.png</iconset>
-                     </property>
-                     <property name="iconSize">
-                      <size>
-                       <width>90</width>
-                       <height>90</height>
-                      </size>
-                     </property>
-                     <property name="probe" stdset="0">
-                      <string>probe_angle_front</string>
-                     </property>
-                     <attribute name="buttonGroup">
-                      <string notr="true">skew_buttonGroup</string>
-                     </attribute>
-                    </widget>
-                   </item>
                    <item row="3" column="3">
                     <widget class="QPushButton" name="probe_corner_x_minus_edge_angle">
                      <property name="sizePolicy">
@@ -2584,8 +2428,8 @@ HELP</string>
                      </property>
                      <property name="minimumSize">
                       <size>
-                       <width>90</width>
-                       <height>90</height>
+                       <width>80</width>
+                       <height>80</height>
                       </size>
                      </property>
                      <property name="maximumSize">
@@ -2609,12 +2453,59 @@ HELP</string>
                      </property>
                      <property name="iconSize">
                       <size>
-                       <width>90</width>
-                       <height>90</height>
+                       <width>80</width>
+                       <height>80</height>
                       </size>
                      </property>
                      <property name="probe" stdset="0">
                       <string>probe_angle_xm</string>
+                     </property>
+                     <attribute name="buttonGroup">
+                      <string notr="true">skew_buttonGroup</string>
+                     </attribute>
+                    </widget>
+                   </item>
+                   <item row="1" column="2">
+                    <widget class="QPushButton" name="probe_back_edge_angle">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>80</width>
+                       <height>80</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>90</width>
+                       <height>90</height>
+                      </size>
+                     </property>
+                     <property name="toolTip">
+                      <string>back_edge_angle</string>
+                     </property>
+                     <property name="styleSheet">
+                      <string notr="true">background: white;</string>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="icon">
+                      <iconset>
+                       <normaloff>../images/widgets/basic_probe_icons/probe_back_edge_angle_r.png</normaloff>../images/widgets/basic_probe_icons/probe_back_edge_angle_r.png</iconset>
+                     </property>
+                     <property name="iconSize">
+                      <size>
+                       <width>80</width>
+                       <height>80</height>
+                      </size>
+                     </property>
+                     <property name="probe" stdset="0">
+                      <string>probe_angle_back</string>
                      </property>
                      <attribute name="buttonGroup">
                       <string notr="true">skew_buttonGroup</string>
@@ -2631,8 +2522,8 @@ HELP</string>
                      </property>
                      <property name="minimumSize">
                       <size>
-                       <width>90</width>
-                       <height>90</height>
+                       <width>80</width>
+                       <height>80</height>
                       </size>
                      </property>
                      <property name="maximumSize">
@@ -2656,8 +2547,8 @@ HELP</string>
                      </property>
                      <property name="iconSize">
                       <size>
-                       <width>90</width>
-                       <height>90</height>
+                       <width>80</width>
+                       <height>80</height>
                       </size>
                      </property>
                      <property name="probe" stdset="0">
@@ -2668,6 +2559,311 @@ HELP</string>
                      </attribute>
                     </widget>
                    </item>
+                   <item row="2" column="3">
+                    <widget class="QPushButton" name="probe_right_edge_angle">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>80</width>
+                       <height>80</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>90</width>
+                       <height>90</height>
+                      </size>
+                     </property>
+                     <property name="toolTip">
+                      <string>right_edge_angle</string>
+                     </property>
+                     <property name="styleSheet">
+                      <string notr="true">background: white;</string>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="icon">
+                      <iconset>
+                       <normaloff>../images/widgets/basic_probe_icons/probe_right_edge_angle_r.png</normaloff>../images/widgets/basic_probe_icons/probe_right_edge_angle_r.png</iconset>
+                     </property>
+                     <property name="iconSize">
+                      <size>
+                       <width>80</width>
+                       <height>80</height>
+                      </size>
+                     </property>
+                     <property name="probe" stdset="0">
+                      <string>probe_angle_right</string>
+                     </property>
+                     <attribute name="buttonGroup">
+                      <string notr="true">skew_buttonGroup</string>
+                     </attribute>
+                    </widget>
+                   </item>
+                   <item row="2" column="1">
+                    <widget class="QPushButton" name="probe_left_edge_angle">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>80</width>
+                       <height>80</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>90</width>
+                       <height>90</height>
+                      </size>
+                     </property>
+                     <property name="toolTip">
+                      <string>left_edge_angle</string>
+                     </property>
+                     <property name="styleSheet">
+                      <string notr="true">background: white;</string>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="icon">
+                      <iconset>
+                       <normaloff>../images/widgets/basic_probe_icons/probe_left_edge_angle_r.png</normaloff>../images/widgets/basic_probe_icons/probe_left_edge_angle_r.png</iconset>
+                     </property>
+                     <property name="iconSize">
+                      <size>
+                       <width>80</width>
+                       <height>80</height>
+                      </size>
+                     </property>
+                     <property name="probe" stdset="0">
+                      <string>probe_angle_left</string>
+                     </property>
+                     <attribute name="buttonGroup">
+                      <string notr="true">skew_buttonGroup</string>
+                     </attribute>
+                    </widget>
+                   </item>
+                   <item row="1" column="3">
+                    <widget class="QPushButton" name="probe_corner_y_minus_edge_angle">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>80</width>
+                       <height>80</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>90</width>
+                       <height>90</height>
+                      </size>
+                     </property>
+                     <property name="toolTip">
+                      <string>corner_y_minus_edge_angle</string>
+                     </property>
+                     <property name="styleSheet">
+                      <string notr="true">background: white;</string>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="icon">
+                      <iconset>
+                       <normaloff>../images/widgets/basic_probe_icons/probe_corner_y_minus_edge_angle_r.png</normaloff>../images/widgets/basic_probe_icons/probe_corner_y_minus_edge_angle_r.png</iconset>
+                     </property>
+                     <property name="iconSize">
+                      <size>
+                       <width>80</width>
+                       <height>80</height>
+                      </size>
+                     </property>
+                     <property name="probe" stdset="0">
+                      <string>probe_angle_ym</string>
+                     </property>
+                     <attribute name="buttonGroup">
+                      <string notr="true">skew_buttonGroup</string>
+                     </attribute>
+                    </widget>
+                   </item>
+                   <item row="3" column="2">
+                    <widget class="QPushButton" name="probe_front_edge_angle">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>80</width>
+                       <height>80</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>90</width>
+                       <height>90</height>
+                      </size>
+                     </property>
+                     <property name="toolTip">
+                      <string>front_edge_angle</string>
+                     </property>
+                     <property name="styleSheet">
+                      <string notr="true">background: white;</string>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="icon">
+                      <iconset>
+                       <normaloff>../images/widgets/basic_probe_icons/probe_front_edge_angle_r.png</normaloff>../images/widgets/basic_probe_icons/probe_front_edge_angle_r.png</iconset>
+                     </property>
+                     <property name="iconSize">
+                      <size>
+                       <width>80</width>
+                       <height>80</height>
+                      </size>
+                     </property>
+                     <property name="probe" stdset="0">
+                      <string>probe_angle_front</string>
+                     </property>
+                     <attribute name="buttonGroup">
+                      <string notr="true">skew_buttonGroup</string>
+                     </attribute>
+                    </widget>
+                   </item>
+                   <item row="1" column="1">
+                    <widget class="QPushButton" name="probe_corner_x_plus_edge_angle">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>80</width>
+                       <height>80</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>90</width>
+                       <height>90</height>
+                      </size>
+                     </property>
+                     <property name="toolTip">
+                      <string>corner_x_plus_edge_angle</string>
+                     </property>
+                     <property name="styleSheet">
+                      <string>background: white;</string>
+                     </property>
+                     <property name="icon">
+                      <iconset>
+                       <normaloff>../images/widgets/basic_probe_icons/probe_corner_x_plus_edge_angle_r.png</normaloff>../images/widgets/basic_probe_icons/probe_corner_x_plus_edge_angle_r.png</iconset>
+                     </property>
+                     <property name="iconSize">
+                      <size>
+                       <width>80</width>
+                       <height>80</height>
+                      </size>
+                     </property>
+                     <property name="probe" stdset="0">
+                      <string>probe_angle_xp</string>
+                     </property>
+                     <attribute name="buttonGroup">
+                      <string notr="true">skew_buttonGroup</string>
+                     </attribute>
+                    </widget>
+                   </item>
+                   <item row="2" column="2">
+                    <widget class="QPushButton" name="probe_z_minus_edge">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>80</width>
+                       <height>80</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>90</width>
+                       <height>90</height>
+                      </size>
+                     </property>
+                     <property name="toolTip">
+                      <string>z_minus_wco</string>
+                     </property>
+                     <property name="styleSheet">
+                      <string notr="true">background: white;</string>
+                     </property>
+                     <property name="text">
+                      <string/>
+                     </property>
+                     <property name="icon">
+                      <iconset>
+                       <normaloff>../images/widgets/basic_probe_icons/z_top_r.png</normaloff>../images/widgets/basic_probe_icons/z_top_r.png</iconset>
+                     </property>
+                     <property name="iconSize">
+                      <size>
+                       <width>80</width>
+                       <height>80</height>
+                      </size>
+                     </property>
+                     <property name="probe" stdset="0">
+                      <string>probe_down</string>
+                     </property>
+                     <attribute name="buttonGroup">
+                      <string notr="true">skew_buttonGroup</string>
+                     </attribute>
+                    </widget>
+                   </item>
+                   <item row="2" column="0">
+                    <spacer name="horizontalSpacer_10">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>40</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                   <item row="2" column="4">
+                    <spacer name="horizontalSpacer_11">
+                     <property name="orientation">
+                      <enum>Qt::Horizontal</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>40</width>
+                       <height>20</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
                   </layout>
                  </widget>
                 </item>
@@ -2675,6 +2871,9 @@ HELP</string>
                  <spacer name="verticalSpacer_2">
                   <property name="orientation">
                    <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeType">
+                   <enum>QSizePolicy::Expanding</enum>
                   </property>
                   <property name="sizeHint" stdset="0">
                    <size>
@@ -2695,13 +2894,13 @@ HELP</string>
                   <property name="minimumSize">
                    <size>
                     <width>200</width>
-                    <height>40</height>
+                    <height>26</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
                     <width>200</width>
-                    <height>40</height>
+                    <height>30</height>
                    </size>
                   </property>
                   <property name="toolTip">
@@ -2731,6 +2930,9 @@ HELP</string>
                  <spacer name="verticalSpacer">
                   <property name="orientation">
                    <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeType">
+                   <enum>QSizePolicy::Expanding</enum>
                   </property>
                   <property name="sizeHint" stdset="0">
                    <size>
@@ -2793,7 +2995,7 @@ HELP</string>
                 <string>BOSS AND POCKET</string>
                </property>
                <property name="alignment">
-                <set>Qt::AlignCenter</set>
+                <set>Qt::AlignBottom|Qt::AlignHCenter</set>
                </property>
               </widget>
              </item>
@@ -2813,7 +3015,7 @@ HELP</string>
                  <number>0</number>
                 </property>
                 <property name="spacing">
-                 <number>2</number>
+                 <number>4</number>
                 </property>
                 <item row="0" column="2">
                  <widget class="QPushButton" name="probe_round_pocket">
@@ -2825,14 +3027,14 @@ HELP</string>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>100</width>
+                    <height>100</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>100</width>
+                    <height>100</height>
                    </size>
                   </property>
                   <property name="toolTip">
@@ -2850,8 +3052,8 @@ HELP</string>
                   </property>
                   <property name="iconSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>100</width>
+                    <height>100</height>
                    </size>
                   </property>
                   <property name="probe" stdset="0">
@@ -2872,14 +3074,14 @@ HELP</string>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>100</width>
+                    <height>100</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>100</width>
+                    <height>100</height>
                    </size>
                   </property>
                   <property name="focusPolicy">
@@ -2900,8 +3102,8 @@ HELP</string>
                   </property>
                   <property name="iconSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>100</width>
+                    <height>100</height>
                    </size>
                   </property>
                   <property name="probe" stdset="0">
@@ -2922,14 +3124,14 @@ HELP</string>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>100</width>
+                    <height>100</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>100</width>
+                    <height>100</height>
                    </size>
                   </property>
                   <property name="toolTip">
@@ -2947,8 +3149,8 @@ HELP</string>
                   </property>
                   <property name="iconSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>100</width>
+                    <height>100</height>
                    </size>
                   </property>
                   <property name="probe" stdset="0">
@@ -2969,14 +3171,14 @@ HELP</string>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>100</width>
+                    <height>100</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>100</width>
+                    <height>100</height>
                    </size>
                   </property>
                   <property name="toolTip">
@@ -2994,8 +3196,8 @@ HELP</string>
                   </property>
                   <property name="iconSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>100</width>
+                    <height>100</height>
                    </size>
                   </property>
                   <property name="probe" stdset="0">
@@ -3043,7 +3245,7 @@ HELP</string>
                <property name="sizeHint" stdset="0">
                 <size>
                  <width>20</width>
-                 <height>40</height>
+                 <height>30</height>
                 </size>
                </property>
               </spacer>
@@ -3092,7 +3294,7 @@ HELP</string>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>50</width>
+                    <width>45</width>
                     <height>16777215</height>
                    </size>
                   </property>
@@ -3100,7 +3302,7 @@ HELP</string>
                    <string>DIAM:</string>
                   </property>
                   <property name="alignment">
-                   <set>Qt::AlignCenter</set>
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                   </property>
                   <property name="indent">
                    <number>0</number>
@@ -3117,7 +3319,7 @@ HELP</string>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>70</width>
+                    <width>58</width>
                     <height>30</height>
                    </size>
                   </property>
@@ -3148,7 +3350,7 @@ HELP</string>
                  <widget class="QLabel" name="label_71">
                   <property name="minimumSize">
                    <size>
-                    <width>30</width>
+                    <width>15</width>
                     <height>30</height>
                    </size>
                   </property>
@@ -3162,7 +3364,7 @@ HELP</string>
                    <string>X :</string>
                   </property>
                   <property name="alignment">
-                   <set>Qt::AlignCenter</set>
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                   </property>
                   <property name="indent">
                    <number>0</number>
@@ -3179,7 +3381,7 @@ HELP</string>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>70</width>
+                    <width>58</width>
                     <height>30</height>
                    </size>
                   </property>
@@ -3210,7 +3412,7 @@ HELP</string>
                  <widget class="QLabel" name="label_72">
                   <property name="minimumSize">
                    <size>
-                    <width>30</width>
+                    <width>15</width>
                     <height>30</height>
                    </size>
                   </property>
@@ -3224,7 +3426,7 @@ HELP</string>
                    <string>Y :</string>
                   </property>
                   <property name="alignment">
-                   <set>Qt::AlignCenter</set>
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                   </property>
                   <property name="indent">
                    <number>0</number>
@@ -3241,7 +3443,7 @@ HELP</string>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>70</width>
+                    <width>58</width>
                     <height>30</height>
                    </size>
                   </property>
@@ -3279,7 +3481,7 @@ HELP</string>
                <property name="sizeHint" stdset="0">
                 <size>
                  <width>20</width>
-                 <height>40</height>
+                 <height>33</height>
                 </size>
                </property>
               </spacer>
@@ -3354,7 +3556,7 @@ HELP</string>
                  <number>0</number>
                 </property>
                 <property name="spacing">
-                 <number>2</number>
+                 <number>4</number>
                 </property>
                 <item row="1" column="1">
                  <widget class="QPushButton" name="probe_valley_x">
@@ -3366,14 +3568,14 @@ HELP</string>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>100</width>
+                    <height>100</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>100</width>
+                    <height>100</height>
                    </size>
                   </property>
                   <property name="toolTip">
@@ -3439,14 +3641,14 @@ HELP</string>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>100</width>
+                    <height>100</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>100</width>
+                    <height>100</height>
                    </size>
                   </property>
                   <property name="toolTip">
@@ -3486,14 +3688,14 @@ HELP</string>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>100</width>
+                    <height>100</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>100</width>
+                    <height>100</height>
                    </size>
                   </property>
                   <property name="toolTip">
@@ -3533,14 +3735,14 @@ HELP</string>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>100</width>
+                    <height>100</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>100</width>
+                    <height>100</height>
                    </size>
                   </property>
                   <property name="toolTip">
@@ -3581,7 +3783,7 @@ HELP</string>
                <property name="sizeHint" stdset="0">
                 <size>
                  <width>20</width>
-                 <height>40</height>
+                 <height>30</height>
                 </size>
                </property>
               </spacer>
@@ -3636,13 +3838,13 @@ HELP</string>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>40</width>
+                    <width>32</width>
                     <height>30</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>40</width>
+                    <width>32</width>
                     <height>30</height>
                    </size>
                   </property>
@@ -3650,7 +3852,7 @@ HELP</string>
                    <string>X :</string>
                   </property>
                   <property name="alignment">
-                   <set>Qt::AlignCenter</set>
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                   </property>
                   <property name="indent">
                    <number>0</number>
@@ -3704,13 +3906,13 @@ HELP</string>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>40</width>
+                    <width>32</width>
                     <height>30</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>40</width>
+                    <width>32</width>
                     <height>30</height>
                    </size>
                   </property>
@@ -3718,7 +3920,7 @@ HELP</string>
                    <string>Y :</string>
                   </property>
                   <property name="alignment">
-                   <set>Qt::AlignCenter</set>
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                   </property>
                   <property name="indent">
                    <number>0</number>
@@ -3764,6 +3966,19 @@ HELP</string>
                    <bool>false</bool>
                   </property>
                  </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_20">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                </layout>
               </widget>
@@ -3815,26 +4030,26 @@ HELP</string>
              <item alignment="Qt::AlignHCenter">
               <widget class="QWidget" name="widget_cal_offset" native="true">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
                <property name="minimumSize">
                 <size>
-                 <width>360</width>
+                 <width>320</width>
                  <height>0</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
                  <width>16777215</width>
-                 <height>16777215</height>
+                 <height>61</height>
                 </size>
                </property>
                <layout class="QHBoxLayout" name="horizontalLayout_61">
                 <property name="spacing">
-                 <number>4</number>
+                 <number>6</number>
                 </property>
                 <property name="leftMargin">
                  <number>0</number>
@@ -3898,13 +4113,13 @@ HELP</string>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>80</width>
+                    <width>60</width>
                     <height>30</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>80</width>
+                    <width>70</width>
                     <height>30</height>
                    </size>
                   </property>
@@ -3937,7 +4152,7 @@ HELP</string>
                 <item>
                  <widget class="ActionButton" name="actionbutton">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
@@ -3945,13 +4160,13 @@ HELP</string>
                   <property name="minimumSize">
                    <size>
                     <width>80</width>
-                    <height>50</height>
+                    <height>40</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
                     <width>80</width>
-                    <height>50</height>
+                    <height>40</height>
                    </size>
                   </property>
                   <property name="text">
@@ -4018,7 +4233,7 @@ OFFSET</string>
                </property>
                <property name="minimumSize">
                 <size>
-                 <width>360</width>
+                 <width>0</width>
                  <height>0</height>
                 </size>
                </property>
@@ -4027,6 +4242,9 @@ OFFSET</string>
                  <width>16777215</width>
                  <height>16777215</height>
                 </size>
+               </property>
+               <property name="layoutDirection">
+                <enum>Qt::LeftToRight</enum>
                </property>
                <layout class="QHBoxLayout" name="horizontalLayout_60">
                 <property name="spacing">
@@ -4054,14 +4272,14 @@ OFFSET</string>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>80</width>
+                    <height>80</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>80</width>
+                    <height>80</height>
                    </size>
                   </property>
                   <property name="focusPolicy">
@@ -4085,8 +4303,8 @@ OFFSET</string>
                   </property>
                   <property name="iconSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>75</width>
+                    <height>75</height>
                    </size>
                   </property>
                   <property name="probe" stdset="0">
@@ -4107,14 +4325,14 @@ OFFSET</string>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>80</width>
+                    <height>80</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>80</width>
+                    <height>80</height>
                    </size>
                   </property>
                   <property name="focusPolicy">
@@ -4138,8 +4356,8 @@ OFFSET</string>
                   </property>
                   <property name="iconSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>80</width>
+                    <height>80</height>
                    </size>
                   </property>
                   <property name="autoDefault">
@@ -4152,6 +4370,19 @@ OFFSET</string>
                    <string notr="true">cal_buttonGroup</string>
                   </attribute>
                  </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_7">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>50</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                 <item>
                  <widget class="QWidget" name="widget_cal_diameter" native="true">
@@ -4172,6 +4403,9 @@ OFFSET</string>
                     <width>16777215</width>
                     <height>16777215</height>
                    </size>
+                  </property>
+                  <property name="layoutDirection">
+                   <enum>Qt::LeftToRight</enum>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_43">
                    <property name="spacing">
@@ -4206,20 +4440,30 @@ OFFSET</string>
                      <property name="maximumSize">
                       <size>
                        <width>16777215</width>
-                       <height>30</height>
+                       <height>35</height>
                       </size>
                      </property>
+                     <property name="mouseTracking">
+                      <bool>false</bool>
+                     </property>
+                     <property name="layoutDirection">
+                      <enum>Qt::LeftToRight</enum>
+                     </property>
+                     <property name="lineWidth">
+                      <number>-1</number>
+                     </property>
                      <property name="text">
-                      <string>CALIBRATION DIAMETER</string>
+                      <string>CALIBRATION
+DIAMETER</string>
                      </property>
                      <property name="textFormat">
-                      <enum>Qt::RichText</enum>
+                      <enum>Qt::AutoText</enum>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignCenter</set>
                      </property>
                      <property name="wordWrap">
-                      <bool>true</bool>
+                      <bool>false</bool>
                      </property>
                     </widget>
                    </item>
@@ -4263,6 +4507,19 @@ OFFSET</string>
                   </layout>
                  </widget>
                 </item>
+                <item>
+                 <spacer name="horizontalSpacer_18">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>50</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
                </layout>
               </widget>
              </item>
@@ -4276,7 +4533,7 @@ OFFSET</string>
                </property>
                <property name="minimumSize">
                 <size>
-                 <width>360</width>
+                 <width>0</width>
                  <height>0</height>
                 </size>
                </property>
@@ -4312,14 +4569,14 @@ OFFSET</string>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>80</width>
+                    <height>80</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>80</width>
+                    <height>80</height>
                    </size>
                   </property>
                   <property name="focusPolicy">
@@ -4343,8 +4600,8 @@ OFFSET</string>
                   </property>
                   <property name="iconSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>80</width>
+                    <height>80</height>
                    </size>
                   </property>
                   <property name="probe" stdset="0">
@@ -4365,14 +4622,14 @@ OFFSET</string>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>80</width>
+                    <height>80</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>80</width>
+                    <height>80</height>
                    </size>
                   </property>
                   <property name="focusPolicy">
@@ -4396,8 +4653,8 @@ OFFSET</string>
                   </property>
                   <property name="iconSize">
                    <size>
-                    <width>90</width>
-                    <height>90</height>
+                    <width>80</width>
+                    <height>80</height>
                    </size>
                   </property>
                   <property name="probe" stdset="0">
@@ -4461,11 +4718,12 @@ OFFSET</string>
                      <property name="maximumSize">
                       <size>
                        <width>16777215</width>
-                       <height>16777215</height>
+                       <height>48</height>
                       </size>
                      </property>
                      <property name="text">
-                      <string>CALIBRATION WIDTH</string>
+                      <string>CALIBRATION
+WIDTH</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignCenter</set>
@@ -4479,6 +4737,9 @@ OFFSET</string>
                      </property>
                      <property name="rightMargin">
                       <number>4</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>0</number>
                      </property>
                      <item>
                       <widget class="QLabel" name="label_103">
@@ -4497,7 +4758,7 @@ OFFSET</string>
                        <property name="maximumSize">
                         <size>
                          <width>16777215</width>
-                         <height>16777215</height>
+                         <height>30</height>
                         </size>
                        </property>
                        <property name="lineWidth">
@@ -4507,7 +4768,7 @@ OFFSET</string>
                         <string>X :</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                        </property>
                        <property name="indent">
                         <number>0</number>
@@ -4574,7 +4835,7 @@ OFFSET</string>
                        <property name="maximumSize">
                         <size>
                          <width>16777215</width>
-                         <height>16777215</height>
+                         <height>30</height>
                         </size>
                        </property>
                        <property name="lineWidth">
@@ -4584,7 +4845,7 @@ OFFSET</string>
                         <string>Y :</string>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignCenter</set>
+                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                        </property>
                        <property name="indent">
                         <number>0</number>
@@ -4639,17 +4900,17 @@ OFFSET</string>
                </layout>
               </widget>
              </item>
-             <item alignment="Qt::AlignHCenter">
+             <item>
               <widget class="QWidget" name="widget_cal_error" native="true">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
                <property name="minimumSize">
                 <size>
-                 <width>360</width>
+                 <width>300</width>
                  <height>0</height>
                 </size>
                </property>
@@ -4678,21 +4939,21 @@ OFFSET</string>
                 <item>
                  <widget class="QPushButton" name="cal_avg_error">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>100</width>
-                    <height>60</height>
+                    <width>80</width>
+                    <height>50</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
                     <width>100</width>
-                    <height>60</height>
+                    <height>52</height>
                    </size>
                   </property>
                   <property name="styleSheet">
@@ -4720,21 +4981,21 @@ ERROR</string>
                 <item>
                  <widget class="QPushButton" name="cal_x_error">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>100</width>
-                    <height>60</height>
+                    <width>80</width>
+                    <height>50</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
                     <width>100</width>
-                    <height>60</height>
+                    <height>52</height>
                    </size>
                   </property>
                   <property name="baseSize">
@@ -4764,21 +5025,21 @@ X ERROR</string>
                 <item>
                  <widget class="QPushButton" name="cal_y_error">
                   <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>100</width>
-                    <height>60</height>
+                    <width>80</width>
+                    <height>50</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
                     <width>100</width>
-                    <height>60</height>
+                    <height>52</height>
                    </size>
                   </property>
                   <property name="baseSize">
@@ -4816,6 +5077,19 @@ Y ERROR</string>
        </widget>
       </item>
       <item>
+       <spacer name="verticalSpacer_11">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
        <widget class="QWidget" name="widget_probe_results" native="true">
         <layout class="QHBoxLayout" name="horizontalLayout_51">
          <property name="spacing">
@@ -4831,7 +5105,7 @@ Y ERROR</string>
           <number>2</number>
          </property>
          <property name="bottomMargin">
-          <number>2</number>
+          <number>30</number>
          </property>
          <item>
           <widget class="QWidget" name="widget_clear_results" native="true">
@@ -4867,14 +5141,14 @@ Y ERROR</string>
               </property>
               <property name="minimumSize">
                <size>
-                <width>0</width>
+                <width>85</width>
                 <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
-                <height>16777215</height>
+                <height>35</height>
                </size>
               </property>
               <property name="text">
@@ -4898,14 +5172,14 @@ Y ERROR</string>
               </property>
               <property name="minimumSize">
                <size>
-                <width>0</width>
+                <width>85</width>
                 <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
-                <height>16777215</height>
+                <height>35</height>
                </size>
               </property>
               <property name="text">
@@ -4929,8 +5203,14 @@ Y ERROR</string>
               </property>
               <property name="minimumSize">
                <size>
-                <width>0</width>
+                <width>85</width>
                 <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>35</height>
                </size>
               </property>
               <property name="text">
@@ -4949,6 +5229,12 @@ Y ERROR</string>
          </item>
          <item>
           <widget class="QWidget" name="widget_result_table" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <layout class="QVBoxLayout" name="verticalLayout_46">
             <property name="spacing">
              <number>4</number>
@@ -4960,10 +5246,10 @@ Y ERROR</string>
              <number>0</number>
             </property>
             <property name="rightMargin">
-             <number>2</number>
+             <number>4</number>
             </property>
             <property name="bottomMargin">
-             <number>0</number>
+             <number>2</number>
             </property>
             <item>
              <widget class="QWidget" name="widget_x_results" native="true">
@@ -4993,14 +5279,14 @@ Y ERROR</string>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>65</width>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
                    <width>70</width>
-                   <height>30</height>
+                   <height>35</height>
                   </size>
                  </property>
                  <property name="text">
@@ -5021,14 +5307,14 @@ Y ERROR</string>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>60</width>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>80</width>
+                   <height>35</height>
                   </size>
                  </property>
                  <property name="maxLength">
@@ -5055,14 +5341,14 @@ Y ERROR</string>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>65</width>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
                    <width>70</width>
-                   <height>30</height>
+                   <height>35</height>
                   </size>
                  </property>
                  <property name="text">
@@ -5083,14 +5369,14 @@ Y ERROR</string>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>60</width>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>80</width>
+                   <height>35</height>
                   </size>
                  </property>
                  <property name="maxLength">
@@ -5117,14 +5403,14 @@ Y ERROR</string>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>65</width>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
                    <width>70</width>
-                   <height>30</height>
+                   <height>35</height>
                   </size>
                  </property>
                  <property name="text">
@@ -5145,14 +5431,14 @@ Y ERROR</string>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>60</width>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>80</width>
+                   <height>35</height>
                   </size>
                  </property>
                  <property name="maxLength">
@@ -5179,14 +5465,14 @@ Y ERROR</string>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>65</width>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
                    <width>70</width>
-                   <height>30</height>
+                   <height>35</height>
                   </size>
                  </property>
                  <property name="text">
@@ -5207,14 +5493,14 @@ Y ERROR</string>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>60</width>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>80</width>
+                   <height>35</height>
                   </size>
                  </property>
                  <property name="maxLength">
@@ -5262,14 +5548,14 @@ Y ERROR</string>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>65</width>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
                    <width>70</width>
-                   <height>30</height>
+                   <height>35</height>
                   </size>
                  </property>
                  <property name="text">
@@ -5290,14 +5576,14 @@ Y ERROR</string>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>60</width>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>80</width>
+                   <height>35</height>
                   </size>
                  </property>
                  <property name="maxLength">
@@ -5324,14 +5610,14 @@ Y ERROR</string>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>65</width>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
                    <width>70</width>
-                   <height>30</height>
+                   <height>35</height>
                   </size>
                  </property>
                  <property name="text">
@@ -5352,14 +5638,14 @@ Y ERROR</string>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>60</width>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>80</width>
+                   <height>35</height>
                   </size>
                  </property>
                  <property name="maxLength">
@@ -5386,14 +5672,14 @@ Y ERROR</string>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>65</width>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
                    <width>70</width>
-                   <height>30</height>
+                   <height>35</height>
                   </size>
                  </property>
                  <property name="text">
@@ -5414,14 +5700,14 @@ Y ERROR</string>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>60</width>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>80</width>
+                   <height>35</height>
                   </size>
                  </property>
                  <property name="maxLength">
@@ -5448,14 +5734,14 @@ Y ERROR</string>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>65</width>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
                    <width>70</width>
-                   <height>30</height>
+                   <height>35</height>
                   </size>
                  </property>
                  <property name="text">
@@ -5476,14 +5762,14 @@ Y ERROR</string>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>60</width>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>80</width>
+                   <height>35</height>
                   </size>
                  </property>
                  <property name="maxLength">
@@ -5531,14 +5817,14 @@ Y ERROR</string>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>65</width>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
                    <width>70</width>
-                   <height>30</height>
+                   <height>35</height>
                   </size>
                  </property>
                  <property name="text">
@@ -5559,14 +5845,14 @@ Y ERROR</string>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>60</width>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>80</width>
+                   <height>35</height>
                   </size>
                  </property>
                  <property name="maxLength">
@@ -5593,14 +5879,14 @@ Y ERROR</string>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>65</width>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
                    <width>70</width>
-                   <height>30</height>
+                   <height>35</height>
                   </size>
                  </property>
                  <property name="text">
@@ -5621,14 +5907,14 @@ Y ERROR</string>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>60</width>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>80</width>
+                   <height>35</height>
                   </size>
                  </property>
                  <property name="maxLength">
@@ -5655,14 +5941,14 @@ Y ERROR</string>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>65</width>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
                    <width>70</width>
-                   <height>30</height>
+                   <height>35</height>
                   </size>
                  </property>
                  <property name="text">
@@ -5683,14 +5969,14 @@ Y ERROR</string>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>60</width>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>80</width>
+                   <height>35</height>
                   </size>
                  </property>
                  <property name="maxLength">
@@ -5717,14 +6003,14 @@ Y ERROR</string>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>65</width>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
                    <width>70</width>
-                   <height>30</height>
+                   <height>35</height>
                   </size>
                  </property>
                  <property name="text">
@@ -5745,14 +6031,14 @@ Y ERROR</string>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>60</width>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>70</width>
-                   <height>30</height>
+                   <width>80</width>
+                   <height>35</height>
                   </size>
                  </property>
                  <property name="maxLength">
@@ -5775,6 +6061,22 @@ Y ERROR</string>
            </layout>
           </widget>
          </item>
+         <item>
+          <spacer name="verticalSpacer_9">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeType">
+            <enum>QSizePolicy::Expanding</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>2</width>
+             <height>150</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
         </layout>
        </widget>
       </item>
@@ -5785,25 +6087,31 @@ Y ERROR</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>PushButton</class>
+   <class>IndicatedPushButton</class>
    <extends>QPushButton</extends>
    <header>qtvcp.widgets.simple_widgets</header>
   </customwidget>
   <customwidget>
+   <class>PushButton</class>
+   <extends>IndicatedPushButton</extends>
+   <header>qtvcp.widgets.simple_widgets</header>
+  </customwidget>
+  <customwidget>
    <class>ActionButton</class>
-   <extends>QPushButton</extends>
+   <extends>IndicatedPushButton</extends>
    <header>qtvcp.widgets.action_button</header>
   </customwidget>
  </customwidgets>
  <resources/>
  <connections/>
  <buttongroups>
+  <buttongroup name="cal_buttonGroup"/>
+  <buttongroup name="clear_buttonGroup"/>
   <buttongroup name="skew_buttonGroup"/>
   <buttongroup name="inside_buttonGroup"/>
-  <buttongroup name="clear_buttonGroup"/>
+  <buttongroup name="ridge_valley_buttonGroup"/>
   <buttongroup name="boss_pocket_buttonGroup"/>
   <buttongroup name="outside_buttonGroup"/>
-  <buttongroup name="ridge_valley_buttonGroup"/>
-  <buttongroup name="cal_buttonGroup"/>
  </buttongroups>
 </ui>
+
