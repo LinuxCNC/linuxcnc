@@ -43,9 +43,10 @@ class HandlerClass:
         self.w = widgets
         self.gcodes = GCodes(widgets)
         self.valid = QtGui.QDoubleValidator(-999.999, 999.999, 3)
+        KEYBIND.add_call('Key_F11','on_keycall_F11')
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         KEYBIND.add_call('Key_Pause', 'on_keycall_pause')
-                
+
         # some global variables
         self.probe = None
         self.default_setup = os.path.join(PATH.CONFIGPATH, "default_setup.html")
@@ -104,6 +105,8 @@ class HandlerClass:
 <body>
 <h1>Setup Tab</h1>
 <p>If you select a file with .html as a file ending, it will be shown here..</p>
+<li><a href="http://linuxcnc.org/docs/devel/html/">Documents online</a></li>
+<li><a href="file://">Local files</a></li>
 <img src="file://%s" alt="lcnc_swoop" />
 <hr />
 </body>
@@ -146,7 +149,7 @@ class HandlerClass:
 
                 self.backBtn = QtWidgets.QPushButton(self.w)
                 self.backBtn.setEnabled(True)
-                self.backBtn.setIconSize(QtCore.QSize(58, 52))
+                self.backBtn.setIconSize(QtCore.QSize(48, 38))
                 self.backBtn.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/left-32.png'))
 
                 self.backBtn.clicked.connect(self.back)
@@ -154,13 +157,13 @@ class HandlerClass:
 
                 self.forBtn = QtWidgets.QPushButton(self.w)
                 self.forBtn.setEnabled(True)
-                self.forBtn.setIconSize(QtCore.QSize(48, 48))
+                self.forBtn.setIconSize(QtCore.QSize(48, 38))
                 self.forBtn.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/right-32.png'))
                 self.forBtn.clicked.connect(self.forward)
                 self.toolBar.addWidget(self.forBtn)
 
                 self.writeBtn = QtWidgets.QPushButton('SetUp\n Writer',self.w)
-                self.writeBtn.setMinimumSize(48,48)
+                self.writeBtn.setMinimumSize(58,42)
                 self.writeBtn.setEnabled(True)
                 self.writeBtn.clicked.connect(self.writer)
                 self.toolBar.addWidget(self.writeBtn)
@@ -1091,6 +1094,15 @@ class HandlerClass:
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:
             STYLEEDITOR.load_dialog()
+
+    def on_keycall_F11(self,event,state,shift,cntrl):
+        if self.w.isFullScreen() == False and state == True:
+            self.w.showFullScreen()
+        else:
+            if self.w.isFullScreen() == True and state == True:
+                self.w.showNormal()
+
+
 
     ##############################
     # required class boiler code #
