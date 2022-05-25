@@ -1831,13 +1831,13 @@ IMPORTANT: IF *CUTTER COMPENSATION* IS IN EFFECT *G-CODE THC*, *VELOCITY BASED T
 [[qt_ihs-skip]]
 === Initial Height Sense (IHS) Skip
 
-IHS may be skipped in one of two different ways:
+Initial Height Sense may be skipped in one of two different ways:
 
-. If the THC is disabled then the IHS skip will occur if the start of the cut is less than *Skip IHS* distance from the last successful probe.
+. If the THC is disabled, or the THC is enabled but not active, then the IHS skip will occur if the start of the cut is less than *Skip IHS* distance from the last successful probe.
 
-. If the THC is enabled then the IHS skip will occur if the start of the cut is less than *Skip IHS* distance from the end of the last cut.
+. If the THC is enabled and active, then the IHS skip will occur if the start of the cut is less than *Skip IHS* distance from the end of the last cut.
 
-A value of zero for *Skip IHS* will disable IHS skipping.
+A value of zero for *Skip IHS* will disable all IHS skipping.
 
 Any errors encountered during a cut will disable IHS skipping for the next cut if *Skip IHS* is enabled.
 
