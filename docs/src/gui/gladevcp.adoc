@@ -2256,6 +2256,31 @@ provides a way to import your module(s) at startup and will
 automatically link your event handlers with the widget signals as set
 in the Glade UI description.
 
+=== Core Library
+
+There are three libraries of functions that can be used to help program
+GladeVCP.
+
+* 'Info': collects details from the INI file.
+* 'Action': A collection of functions to change linuxcnc states.
+* 'Status': Reports the state of linuxcnc. It wraps around 'Gstat'.
+
+Importing and instantiating the libraries:
+[source,python]
+----
+from gladevcp.core import Info, Action
+
+ACTION = Action()
+INFO = Info()
+----
+
+using the library functions:
+[source,python]
+----
+print(INFO.MACHINE_IS_METRIC)
+ACTION.SET_ERROR_MESSAGE('Something went wrong')
+----
+
 === An example: adding custom user callbacks in Python
 
 This is just a minimal example to convey the idea - details are laid
