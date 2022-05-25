@@ -1,4 +1,4 @@
-VERSION = '1.223.194'
+VERSION = '1.223.195'
 
 '''
 qtplasmac_handler.py
@@ -2794,8 +2794,8 @@ class HandlerClass:
             return True
         else:
             return False
-
-    def dialog_input(self, title, text, btn1, btn2, delay=None):
+    # virtkb: 0=none, 1=alpha~close, 2=num~close, 3=alpha~num, 4=num~num, 5=alpha~alpha, 6=num~alpha
+    def dialog_input(self, virtkb, title, text, btn1, btn2, delay=None):
         input = QInputDialog(self.w)
         input.setWindowTitle(title)
         input.setLabelText('{}'.format(text))
@@ -2807,7 +2807,17 @@ class HandlerClass:
             input.setTextValue('{:0.2f}'.format(delay))
         for button in input.findChildren(QPushButton):
             button.setIcon(QIcon())
+        if virtkb in (1,3,5):
+            self.vkb_show(False)
+        elif virtkb in (2,4,6):
+            self.vkb_show(True)
         valid = input.exec_()
+        if virtkb < 3:
+            self.vkb_hide()
+        elif virtkb in (3,4):
+            self.vkb_show(True)
+        elif virtkb in (5,6):
+            self.vkb_show(False)
         out = input.textValue()
         return valid, out
 
@@ -2895,7 +2905,9 @@ class HandlerClass:
         leadinAngle.setSuffix(' deg')
         leadinAngle.setRange(-359, 359)
         leadinAngle.setWrapping(True)
+        self.vkb_show(True)
         result = rFl.exec_()
+        self.vkb_hide()
         # load clicked
         if result:
             return {'cancel':False, 'do':leadinDo.isChecked(), 'length':leadinLength.value(), 'angle':leadinAngle.value()}
@@ -3930,7 +3942,9 @@ class HandlerClass:
         sC.setLayout(layout)
         xLength.setValue(self.PREFS.getpref('X length', 0.0, float, 'SINGLE CUT'))
         yLength.setValue(self.PREFS.getpref('Y length', 0.0, float, 'SINGLE CUT'))
+        self.vkb_show(True)
         result = sC.exec_()
+        self.vkb_hide()
         if not result:
             self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], True)
             return
@@ -4070,8 +4084,9 @@ class HandlerClass:
         msgs = msg1
         btn1 = _translate('HandlerClass', 'ADD')
         btn2 = _translate('HandlerClass', 'CANCEL')
+        virtkb = 4
         while(1):
-            valid, num = self.dialog_input(head, '{}:'.format(msgs), btn1, btn2)
+            valid, num = self.dialog_input(virtkb, head, '{}:'.format(msgs), btn1, btn2)
             if not valid:
                 return
             try:
@@ -4095,8 +4110,9 @@ class HandlerClass:
                 continue
             break
         msg1 = 'Enter New Material Name'
+        virtkb = 3
         while(1):
-            valid, nam = self.dialog_input(head, msg1, btn1, btn2)
+            valid, nam = self.dialog_input(virtkb, head, msg1, btn1, btn2)
             if not valid:
                 return
             if not nam:
@@ -4155,8 +4171,9 @@ class HandlerClass:
         btn1 = _translate('HandlerClass', 'DELETE')
         btn2 = _translate('HandlerClass', 'CANCEL')
         msgs = msg1
+        virtkb = 4
         while(1):
-            valid, num = self.dialog_input(head, '{}:'.format(msgs), btn1, btn2)
+            valid, num = self.dialog_input(virtkb, head, '{}:'.format(msgs), btn1, btn2)
             if not valid:
                 return
             try:

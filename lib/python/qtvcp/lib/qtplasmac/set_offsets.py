@@ -87,9 +87,12 @@ def dialog_show(P, W, iniPath, STATUS, ACTION, TOOL, foreColor, backColor):
             ACTION.RELOAD_TOOLTABLE()
     elif choice == 4:
         new = 0.0
+        head = _translate('HandlerClass', 'Offset Probe Delay')
+        text = _translate('HandlerClass', 'Delay (Seconds)')
         btn1 = _translate('HandlerClass', 'OK')
         btn2 = _translate('HandlerClass', 'CANCEL')
-        valid, value = (P.dialog_input('Offset Probe Delay', 'Delay (Seconds)', btn1, btn2, P.probeDelay))
+        virtkb = 4
+        valid, value = (P.dialog_input(virtkb, head, text, btn1, btn2, P.probeDelay))
         if valid:
             try:
                 new = float(value)
