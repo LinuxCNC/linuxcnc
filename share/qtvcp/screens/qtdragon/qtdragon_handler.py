@@ -179,6 +179,7 @@ class HandlerClass:
         # PDF setup page
         self.PDFView = PDFViewer.PDFView()
         self.w.layout_PDF.addWidget(self.PDFView)
+        self.PDFView.loadSample('setup_tab')
 
         # Show assigned macrobuttons define in INI under [MDI_COMMAND_LIST]
         flag = True
