@@ -27,6 +27,13 @@ class PDFView(QtWidgets.QScrollArea):
             label = QtWidgets.QLabel('<b>Missing python3-poppler-qt5 module</b>')
             self.vbox.addWidget(label)
 
+    def loadSample(self, name):
+        n = os.path.join(os.path.dirname(__file__),name+'.pdf')
+        if os.path.exists(n):
+            self.loadView(n)
+        else:
+            LOG.warning('Sample {}, does not exists at: {}'.format(name, n))
+
     def loadView(self, path):
         filename = os.path.expanduser(path)
         if not os.path.exists(filename):
@@ -53,7 +60,6 @@ class PDFView(QtWidgets.QScrollArea):
 
             label.setPixmap(QtGui.QPixmap.fromImage(image))
             self.vbox.addWidget(label)
-
 
 def pdf_view(filename):
     """Return a Scrollarea showing the pages of the specified PDF file."""
