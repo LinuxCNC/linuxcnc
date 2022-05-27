@@ -302,6 +302,27 @@ void emcmotController(void *arg, long period)
    prototypes"
 */
 
+bool axis_jog_is_active(void)
+{
+    int n;
+    for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
+        if ( (&axes[n])->kb_ajog_active || (&axes[n])->wheel_ajog_active) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool joint_jog_is_active(void)
+{
+    int n;
+    for (n = 0; n < EMCMOT_MAX_JOINTS; n++) {
+        if ( (&joints[n])->kb_jjog_active ||  (&joints[n])->wheel_jjog_active) {
+            return true;
+        }
+    }
+    return false;
+}
 static void process_inputs(void)
 {
     int joint_num, spindle_num;
@@ -2166,6 +2187,8 @@ static void update_status(void)
     /* check to see if we should pause in order to implement
        single emcmotDebug->stepping */
 
+    emcmotStatus->jogging_active =  axis_jog_is_active()
+                                 || joint_jog_is_active();
     if (emcmotDebug->stepping && emcmotDebug->idForStep != emcmotStatus->id) {
       tpPause(&emcmotDebug->coord_tp);
       emcmotDebug->stepping = 0;

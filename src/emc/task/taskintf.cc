@@ -1968,6 +1968,8 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
 	stat->analog_output[aio] = emcmotStatus.analog_output[aio];
     }
 
+    stat->jogging_active = emcmotStatus.jogging_active;
+
     // set the status flag
     error = 0;
     exec = 0;

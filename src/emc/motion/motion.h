@@ -78,6 +78,7 @@ to another.
 #include "kinematics.h"
 #include "simple_tp.h"
 #include "rtapi_limits.h"
+#include "rtapi_bool.h"
 #include <stdarg.h>
 
 
@@ -738,7 +739,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	unsigned char tail;	/* flag count for mutex detect */
 	int external_offsets_applied;
 	EmcPose eoffset_pose;
-        
+    bool jogging_active;
     } emcmot_status_t;
 
 /*********************************
