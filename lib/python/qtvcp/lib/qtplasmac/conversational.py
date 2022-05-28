@@ -1,8 +1,8 @@
 '''
 conversational.py
 
-Copyright (C) 2019, 2020, 2021  Phillip A Carter
-Copyright (C) 2020, 2021  Gregory D Carl
+Copyright (C) 2019, 2020, 2021, 2022  Phillip A Carter
+Copyright (C)       2020, 2021, 2022  Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -23,7 +23,7 @@ import os
 from shutil import copy as COPY
 from importlib import reload
 from PyQt5.QtCore import Qt, QCoreApplication
-from PyQt5.QtWidgets import QFileDialog, QMessageBox, QPushButton #QDialog, QLabel, QCheckBox, QDoubleSpinBox, QDialogButtonBox, QGridLayout
+from PyQt5.QtWidgets import QFileDialog, QMessageBox, QPushButton, QLabel, QLineEdit, QRadioButton, QButtonGroup, QComboBox
 from qtvcp.core import Status, Action
 from qtvcp.lib.qtplasmac import conv_settings as CONVSET
 from qtvcp.lib.qtplasmac import conv_line as CONVLINE
@@ -65,6 +65,7 @@ def conv_setup(P, W):
     # grid size is in inches
     W.conv_preview.grid_size = P.gridSize / P.unitsPerMm / 25.4
     W.conv_preview.set_current_view()
+    W.conv_new.setEnabled(True)
     W.conv_save.setEnabled(False)
     W.conv_send.setEnabled(False)
     W.conv_settings.setEnabled(True)
@@ -82,6 +83,8 @@ def conv_setup(P, W):
     P.ySaved = '0.000'
     P.oSaved = P.origin
     P.convBlock = [False, False]
+    if not P.convWidgetsLoaded or P.developmentPin:
+        conv_widgets(P, W)
     if not P.oldConvButton:
         conv_shape_request(P, W, 'conv_line', True)
     else:
@@ -248,6 +251,8 @@ def conv_preview_button(P, W, state):
             W.conv_save.setEnabled(True)
             W.conv_send.setEnabled(True)
         W.undo.setText(_translate('HandlerClass', 'RELOAD'))
+        if P.convWidgetsLoaded:
+            W.add.setEnabled(False)
 
 def conv_active_shape(P, W):
     btn1 = _translate('HandlerClass', 'CONTINUE')
@@ -400,7 +405,188 @@ def conv_accept(P, W):
 
 def conv_clear_widgets(P, W):
     for i in reversed(range(W.entries.count())):
-        widgetToRemove = W.entries.itemAt(i).widget()
-        if widgetToRemove:
-            W.entries.removeWidget(widgetToRemove)
-            widgetToRemove.setParent(None)
+        widget = W.entries.itemAt(i).widget()
+        if widget:
+            if isinstance(widget, QLineEdit) and \
+               widget not in [W.liEntry, W.loEntry, W.xsEntry, W.ysEntry]:
+                widget.setText('')
+            if widget in [W.aEntry, W.oxEntry, W.oyEntry, W.rtEntry, W.coEntry, W.roEntry]:
+                widget.setText('0.0')
+            elif widget in [W.caEntry]:
+                widget.setText('360')
+            elif widget in [W.cnEntry, W.rnEntry]:
+                widget.setText('1')
+            elif widget in [W.scEntry]:
+                widget.setText('1.0')
+            elif widget in [W.ocEntry]:
+                widget.setText('{}'.format(4 * P.unitsPerMm))
+            W.entries.removeWidget(widget)
+            widget.setParent(None)
+            try:
+                widget.disconnect()
+            except:
+                pass
+
+# create all required widgets without showing them
+def conv_widgets(P, W):
+    # common
+    W.spGroup = QButtonGroup(W)
+    W.center = QRadioButton(_translate('Conversational', 'CENTER'))
+    W.spGroup.addButton(W.center)
+    W.bLeft = QRadioButton(_translate('Conversational', 'BTM LEFT'))
+    W.spGroup.addButton(W.bLeft)
+    W.liLabel = QLabel(_translate('Conversational', 'LEAD IN'))
+    W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
+    W.loLabel = QLabel(_translate('Conversational', 'LEAD OUT'))
+    W.loEntry = QLineEdit(str(P.leadOut), objectName = 'loEntry')
+    W.ctLabel = QLabel(_translate('Conversational', 'CUT TYPE'))
+    W.ctGroup = QButtonGroup(W)
+    W.cExt = QRadioButton(_translate('Conversational', 'EXTERNAL'))
+    W.cExt.setChecked(True)
+    W.ctGroup.addButton(W.cExt)
+    W.cInt = QRadioButton(_translate('Conversational', 'INTERNAL'))
+    W.ctGroup.addButton(W.cInt)
+    W.koLabel = QLabel(_translate('Conversational', 'KERF'))
+    W.kOffset = QPushButton(_translate('Conversational', 'OFFSET'))
+    W.kOffset.setCheckable(True)
+    W.spLabel = QLabel(_translate('Conversational', 'START'))
+    text = _translate('Conversational', 'ORIGIN')
+    W.xsLabel = QLabel(_translate('Conversational', 'X {}'.format(text)))
+    W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
+    W.ysLabel = QLabel(_translate('Conversational', 'Y {}'.format(text)))
+    W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
+    W.overcut = QPushButton(_translate('Conversational', 'OVER CUT'))
+    W.overcut.setEnabled(False)
+    W.overcut.setCheckable(True)
+    W.ocLabel = QLabel(_translate('Conversational', 'OC LENGTH'))
+    W.ocEntry = QLineEdit(objectName = 'ocEntry')
+    W.ocEntry.setEnabled(False)
+    W.ocEntry.setText('{}'.format(4 * P.unitsPerMm))
+    W.add = QPushButton(_translate('Conversational', 'ADD'))
+    W.lDesc = QLabel('')
+    W.iLabel = QLabel()
+    W.aLabel = QLabel(_translate('Conversational', 'ANGLE'))
+    W.aEntry = QLineEdit('0.0', objectName='aEntry')
+    W.dLabel = QLabel(_translate('Conversational', 'DIAMETER'))
+    W.dEntry = QLineEdit(objectName = '')
+    W.hdLabel = QLabel(_translate('Conversational', 'HOLE DIA'))
+    W.hdEntry = QLineEdit()
+    W.hLabel = QLabel('') # shared with different uses
+    W.hEntry = QLineEdit() # shared with different uses
+    W.caLabel = QLabel(_translate('Conversational', 'CIRCLE ANG'))
+    W.caEntry = QLineEdit('360')
+    W.wLabel = QLabel(_translate('Conversational', 'WIDTH'))
+    W.wEntry = QLineEdit(objectName = '')
+    W.rLabel = QLabel(_translate('Conversational', 'RADIUS'))
+    W.rButton = QPushButton(_translate('Conversational', 'RADIUS'))
+    W.rEntry = QLineEdit('')
+    W.sLabel = QLabel() # shared with different uses
+    W.sEntry = QLineEdit() # shared with different uses
+    W.mCombo = QComboBox()
+    text = _translate('Conversational', 'LENGTH')
+    W.xlLabel = QLabel(_translate('Conversational', 'X {}'.format(text)))
+    W.xlEntry = QLineEdit()
+    W.ylLabel = QLabel(_translate('Conversational', 'Y {}'.format(text)))
+    W.ylEntry = QLineEdit()
+    text = _translate('Conversational', 'RADIUS')
+    W.r1Button = QPushButton(_translate('Conversational', '{} 1'.format(text)))
+    W.r1Entry = QLineEdit()
+    W.r2Button = QPushButton(_translate('Conversational', '{} 2'.format(text)))
+    W.r2Entry = QLineEdit()
+    W.r3Button = QPushButton(_translate('Conversational', '{} 3'.format(text)))
+    W.r3Entry = QLineEdit()
+    W.r4Button = QPushButton(_translate('Conversational', '{} 4'.format(text)))
+    W.r4Entry = QLineEdit()
+    W.lLabel = QLabel(_translate('Conversational', 'LENGTH'))
+    W.lEntry = QLineEdit()
+    W.pLabel = QLabel(_translate('Conversational', 'POINTS'))
+    W.pEntry = QLineEdit(objectName='intEntry')
+    W.odLabel = QLabel(_translate('Conversational', 'OUTER DIA'))
+    W.odEntry = QLineEdit()
+    W.idLabel = QLabel(_translate('Conversational', 'INNER DIA'))
+    W.idEntry = QLineEdit()
+    W.shLabel = QLabel(_translate('Conversational', 'SHAPE')) # shared with different uses
+    # triangle
+    text = _translate('Conversational', 'ANGLE')
+    W.AaLabel = QLabel(_translate('Conversational', 'A {}'.format(text)))
+    W.AaEntry = QLineEdit()
+    W.BaLabel = QLabel(_translate('Conversational', 'B {}'.format(text)))
+    W.BaEntry = QLineEdit()
+    W.CaLabel = QLabel(_translate('Conversational', 'C {}'.format(text)))
+    W.CaEntry = QLineEdit()
+    text = _translate('Conversational', 'LENGTH')
+    W.AlLabel = QLabel(_translate('Conversational', 'a {}'.format(text)))
+    W.AlEntry = QLineEdit()
+    W.BlLabel = QLabel(_translate('Conversational', 'b {}'.format(text)))
+    W.BlEntry = QLineEdit()
+    W.ClLabel = QLabel(_translate('Conversational', 'c {}'.format(text)))
+    W.ClEntry = QLineEdit()
+    # block
+    W.ccLabel = QLabel(_translate('Conversational', 'COLUMNS'))
+    W.cnLabel = QLabel(_translate('Conversational', 'NUMBER'))
+    W.cnEntry = QLineEdit('1', objectName='cnEntry')
+    W.coEntry = QLineEdit('0.0', objectName='coEntry')
+    W.coLabel = QLabel(_translate('Conversational', 'OFFSET'))
+    W.rrLabel = QLabel(_translate('Conversational', 'ROWS'))
+    W.rnLabel = QLabel(_translate('Conversational', 'NUMBER'))
+    W.rnEntry = QLineEdit('1', objectName='rnEntry')
+    W.roEntry = QLineEdit('0.0', objectName='coEntry')
+    W.roLabel = QLabel(_translate('Conversational', 'OFFSET'))
+    W.oLabel = QLabel(_translate('Conversational', 'ORIGIN'))
+    text = _translate('Conversational', 'OFFSET')
+    W.oxLabel = QLabel('X {}'.format(text))
+    W.oxEntry = QLineEdit('0.0', objectName='xsEntry')
+    W.oyEntry = QLineEdit('0.0', objectName='ysEntry')
+    W.oyLabel = QLabel('Y {}'.format(text))
+    W.scLabel = QLabel(_translate('Conversational', 'SCALE'))
+    W.scEntry = QLineEdit('1.0')
+    W.rtEntry = QLineEdit('0.0', objectName='aEntry')
+    W.rtLabel = QLabel(_translate('Conversational', 'ROTATION'))
+    W.mirror = QPushButton(_translate('Conversational', 'MIRROR'))
+    W.flip = QPushButton(_translate('Conversational', 'FLIP'))
+    # lines and arcs
+    W.lType = QComboBox()
+    W.label1 = QLabel()
+    W.entry1 = QLineEdit()
+    W.label2 = QLabel()
+    W.entry2 = QLineEdit()
+    W.label3 = QLabel()
+    W.entry3 = QLineEdit()
+    W.label4 = QLabel()
+    W.entry4 = QLineEdit()
+    W.label5 = QLabel()
+    W.entry5 = QLineEdit()
+    W.label6 = QLabel()
+    W.entry6 = QLineEdit()
+    W.label7 = QLabel()
+    W.entry7 = QLineEdit()
+    W.label8 = QLabel()
+    W.entry8 = QLineEdit()
+    W.g2Arc = QRadioButton('CW'.format(text))
+    W.g3Arc = QRadioButton('CCW'.format(text))
+    # settings
+    W.preLabel = QLabel(_translate('Conversational', 'PREAMBLE'))
+    W.preEntry = QLineEdit()
+    W.pstLabel = QLabel(_translate('Conversational', 'POSTAMBLE'))
+    W.pstEntry = QLineEdit()
+    W.llLabel = QLabel(_translate('Conversational', 'LEAD LENGTHS'))
+    W.shEntry = QLineEdit()
+    W.hsEntry = QLineEdit()
+    W.hsLabel = QLabel(_translate('Conversational', 'SPEED %'))
+    W.pvLabel = QLabel(_translate('Conversational', 'PREVIEW'))
+    W.gsLabel = QLabel(_translate('Conversational', 'GRID SIZE'))
+    W.gsEntry = QLineEdit()
+    W.save = QPushButton(_translate('Conversational', 'SAVE'))
+    W.reload = QPushButton(_translate('Conversational', 'RELOAD'))
+    W.cExit = QPushButton(_translate('Conversational', 'EXIT'))
+    if not W.lType.count():
+        W.lType.addItem(_translate('Conversational', 'LINE POINT ~ POINT'))
+        W.lType.addItem(_translate('Conversational', 'LINE BY ANGLE'))
+        W.lType.addItem(_translate('Conversational', 'ARC 3P'))
+        W.lType.addItem(_translate('Conversational', 'ARC 2P +RADIUS'))
+        W.lType.addItem(_translate('Conversational', 'ARC ANGLE +RADIUS'))
+    if not W.mCombo.count():
+        W.mCombo.addItem('CIRCUMSCRIBED')
+        W.mCombo.addItem('INSCRIBED')
+        W.mCombo.addItem('SIDE LENGTH')
+    P.convWidgetsLoaded = True

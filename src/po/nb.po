@@ -6,9 +6,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-03-13 11:02+0100\n"
-"PO-Revision-Date: 2022-02-20 00:43+0000\n"
+"PO-Revision-Date: 2022-05-03 20:12+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.11-dev\n"
+"X-Generator: Weblate 4.12.1\n"
 
 #: src/emc/task/emctaskmain.cc:871
 #, c-format
@@ -9087,7 +9087,7 @@ msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:2809
 msgid "label52"
-msgstr ""
+msgstr "label52"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2824
 msgid ""
@@ -9095,10 +9095,13 @@ msgid ""
 "M1 M2 M3\n"
 "F1 S1"
 msgstr ""
+"G1 G2 G3\n"
+"M1 M2 M3\n"
+"F1 S1"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2843
 msgid "Active codes:"
-msgstr ""
+msgstr "Aktive koder:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2856
 msgid "G5x Offset:"
@@ -9114,7 +9117,7 @@ msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:2944
 msgid "Pockets:"
-msgstr ""
+msgstr "Lommer:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2957
 msgid ""
@@ -9122,6 +9125,9 @@ msgid ""
 "2\n"
 "3"
 msgstr ""
+"<b>1</b>\n"
+"2\n"
+"3"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2979
 msgid "Status"
@@ -9161,11 +9167,11 @@ msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:3145
 msgid "Hide pointer"
-msgstr ""
+msgstr "Skjul peker"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3156
 msgid "Show pointer"
-msgstr ""
+msgstr "Vis peker"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3183
 msgid "Theme:"
@@ -9182,7 +9188,7 @@ msgstr ""
 #: src/emc/usr_intf/gscreen/gscreen.py:4630
 #: src/emc/usr_intf/gscreen/gscreen.glade:3707
 msgid "Inch"
-msgstr ""
+msgstr "Tomme"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3320
 msgid "<b>Position Readout</b>"
@@ -9190,15 +9196,15 @@ msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:3347
 msgid "Workpiece"
-msgstr ""
+msgstr "Emne"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3358
 msgid "Fixture"
-msgstr ""
+msgstr "Feste"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3378
 msgid "<b>Tool Setting</b>"
-msgstr ""
+msgstr "<b>Verktøyoppsett</b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3406
 msgid "Delete / lines"
@@ -9214,7 +9220,7 @@ msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:3449
 msgid "Ignore M1"
-msgstr ""
+msgstr "Ignorer M1"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3469
 msgid "<b>Program Options</b>"
@@ -11280,7 +11286,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -18972,7 +18979,7 @@ msgstr ""
 
 #: lib/python/gladevcp/calculator.glade:83
 msgid "CLR"
-msgstr ""
+msgstr "CLR"
 
 #: lib/python/gladevcp/calculator.glade:332
 msgid "DEL"

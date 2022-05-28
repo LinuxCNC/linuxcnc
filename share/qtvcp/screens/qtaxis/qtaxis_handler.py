@@ -107,6 +107,7 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionOpen, 'load')
         TOOLBAR.configure_action(self.w.actionReload, 'Reload')
         TOOLBAR.configure_action(self.w.actionRun, 'run')
+        TOOLBAR.configure_action(self.w.actionStep, 'step')
         TOOLBAR.configure_action(self.w.actionPause, 'pause')
         TOOLBAR.configure_action(self.w.actionStop, 'abort')
         TOOLBAR.configure_action(self.w.actionSkip, 'block_delete')
@@ -187,7 +188,11 @@ class HandlerClass:
                 if isinstance(receiver2, GCODE):
                     flag = True
                     break
+                if isinstance(receiver2, QtWidgets.QLineEdit):
+                    flag = True
+                    break
                 receiver2 = receiver2.parent()
+
             if flag:
                 if isinstance(receiver2, GCODE):
                     # send events to gcode widget if in edit mode

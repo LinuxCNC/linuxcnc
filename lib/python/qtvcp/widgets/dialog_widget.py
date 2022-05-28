@@ -189,6 +189,7 @@ class LcncDialog(QMessageBox, GeometryMixin):
         self._use_exec = False
         self.set_default_geometry()
         self.hide()
+        self.buttonClicked.connect(self.msgbtn)
 
     def _hal_init(self):
         self.read_preference_geometry('LncMessage-geometry')
@@ -307,7 +308,6 @@ class LcncDialog(QMessageBox, GeometryMixin):
         elif display_type == LcncDialog.NONE:
             self.setStandardButtons(QMessageBox.NoButton)
 
-        self.buttonClicked.connect(self.msgbtn)
 
         if not nblock:
             STATUS.emit('focus-overlay-changed', True, focus_text, color)
@@ -743,6 +743,7 @@ class FileDialog(QFileDialog, GeometryMixin):
     def save_dialog(self, extensions = None, preselect = None, directory = None):
         self.setFileMode(QFileDialog.AnyFile)
         self.setAcceptMode(QFileDialog.AcceptSave)
+        self.setDefaultSuffix('ngc')
         if extensions:
             self.setNameFilter(extensions)
         else:

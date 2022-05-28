@@ -1,8 +1,8 @@
 '''
 conv_bolt.py
 
-Copyright (C) 2020, 2021  Phillip A Carter
-Copyright (C) 2020, 2021  Gregory D Carl
+Copyright (C) 2020, 2021, 2022  Phillip A Carter
+Copyright (C) 2020, 2021, 2022  Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -21,7 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import math
 from PyQt5.QtCore import Qt, QCoreApplication
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
+from PyQt5.QtWidgets import QLabel, QMessageBox
 from PyQt5.QtGui import QPixmap
 
 _translate = QCoreApplication.translate
@@ -83,10 +83,7 @@ def preview(P, W, Conv):
         else:
             sHole = False
         try:
-            if W.aEntry.text():
-                angle = math.radians(float(W.aEntry.text()))
-            else:
-                angle = 0
+            angle = math.radians(float(W.aEntry.text()))
         except:
             msg.append(_translate('Conversational', 'ANGLE'))
         try:
@@ -249,44 +246,9 @@ def auto_preview(P, W, Conv):
         preview(P, W, Conv)
 
 def widgets(P, W, Conv):
-    W.spGroup = QButtonGroup(W)
-    W.center = QRadioButton(_translate('Conversational', 'CENTER'))
-    W.spGroup.addButton(W.center)
-    W.bLeft = QRadioButton(_translate('Conversational', 'BTM LEFT'))
-    W.spGroup.addButton(W.bLeft)
-    W.liLabel = QLabel(_translate('Conversational', 'LEAD IN'))
-    W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
-    if not P.convSettingsChanged:
-        #widgets
-        W.overcut = QPushButton(_translate('Conversational', 'OVER CUT'))
-        W.overcut.setEnabled(False)
-        W.overcut.setCheckable(True)
-        W.ocLabel = QLabel(_translate('Conversational', 'OC LENGTH'))
-        W.ocEntry = QLineEdit(objectName = 'ocEntry')
-        W.ocEntry.setEnabled(False)
-        W.ocEntry.setText('{}'.format(4 * P.unitsPerMm))
-        W.koLabel = QLabel(_translate('Conversational', 'KERF'))
-        W.kOffset = QPushButton(_translate('Conversational', 'OFFSET'))
-        W.kOffset.setCheckable(True)
-        W.spLabel = QLabel(_translate('Conversational', 'START'))
-        text = _translate('Conversational', 'X ORIGIN')
-        W.xsLabel = QLabel(_translate('Conversational', 'X {}'.format(text)))
-        W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
-        W.ysLabel = QLabel(_translate('Conversational', 'Y {}'.format(text)))
-        W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
-        W.dLabel = QLabel(_translate('Conversational', 'DIAMETER'))
-        W.dEntry = QLineEdit(objectName = '')
-        W.hdLabel = QLabel(_translate('Conversational', 'HOLE DIA'))
-        W.hdEntry = QLineEdit()
-        W.hLabel = QLabel(_translate('Conversational', '# OF HOLES'))
-        W.hEntry = QLineEdit(objectName='intEntry')
-        W.aLabel = QLabel(_translate('Conversational', 'ANGLE'))
-        W.aEntry = QLineEdit('0.0', objectName='aEntry')
-        W.caLabel = QLabel(_translate('Conversational', 'CIRCLE ANG'))
-        W.caEntry = QLineEdit('360')
-    W.add = QPushButton(_translate('Conversational', 'ADD'))
-    W.lDesc = QLabel(_translate('Conversational', 'CREATING BOLT CIRCLE'))
-    W.iLabel = QLabel()
+    W.hLabel.setText(_translate('Conversational', '# OF HOLES'))
+    W.hEntry.setObjectName('intEntry')
+    W.lDesc.setText(_translate('Conversational', 'CREATING BOLT CIRCLE'))
     pixmap = QPixmap('{}conv_bolt_l.png'.format(P.IMAGES)).scaledToWidth(196)
     W.iLabel.setPixmap(pixmap)
     #alignment and size
@@ -346,20 +308,20 @@ def widgets(P, W, Conv):
         W.entries.addWidget(W.ysEntry, 3, 1)
         W.entries.addWidget(W.liLabel, 4, 0)
         W.entries.addWidget(W.liEntry, 4, 1)
-        W.entries.addWidget(W.dLabel, 6, 0)
-        W.entries.addWidget(W.dEntry, 6, 1)
-        W.entries.addWidget(W.hdLabel, 7, 0)
-        W.entries.addWidget(W.hdEntry, 7, 1)
-        W.entries.addWidget(W.hLabel, 8, 0)
-        W.entries.addWidget(W.hEntry, 8, 1)
-        W.entries.addWidget(W.aLabel, 9, 0)
-        W.entries.addWidget(W.aEntry, 9, 1)
-        W.entries.addWidget(W.caLabel, 10, 0)
-        W.entries.addWidget(W.caEntry, 10, 1)
         for r in [5,11]:
             W['s{}'.format(r)] = QLabel('')
             W['s{}'.format(r)].setFixedHeight(24)
             W.entries.addWidget(W['s{}'.format(r)], r, 0)
+        W.entries.addWidget(W.dLabel, 5, 0)
+        W.entries.addWidget(W.dEntry, 5, 1)
+        W.entries.addWidget(W.hdLabel, 6, 0)
+        W.entries.addWidget(W.hdEntry, 6, 1)
+        W.entries.addWidget(W.hLabel, 7, 0)
+        W.entries.addWidget(W.hEntry, 7, 1)
+        W.entries.addWidget(W.aLabel, 8, 0)
+        W.entries.addWidget(W.aEntry, 8, 1)
+        W.entries.addWidget(W.caLabel, 9, 0)
+        W.entries.addWidget(W.caEntry, 9, 1)
         W.entries.addWidget(W.preview, 12, 0)
         W.entries.addWidget(W.add, 12, 2)
         W.entries.addWidget(W.undo, 12, 4)

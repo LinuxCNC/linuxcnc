@@ -1,8 +1,8 @@
 '''
 conv_sector.py
 
-Copyright (C) 2020, 2021  Phillip A Carter
-Copyright (C) 2020, 2021  Gregory D Carl
+Copyright (C) 2020, 2021, 2022  Phillip A Carter
+Copyright (C) 2020, 2021, 2022  Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -21,7 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import math
 from PyQt5.QtCore import Qt, QCoreApplication
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
+from PyQt5.QtWidgets import QLabel, QMessageBox
 from PyQt5.QtGui import QPixmap
 
 _translate = QCoreApplication.translate
@@ -47,7 +47,10 @@ def preview(P, W, Conv):
     except:
         msg.append(_translate('Conversational', 'SEC ANGLE'))
     try:
-        angle = math.radians(float(W.aEntry.text()))
+        if W.aEntry.text():
+            angle = math.radians(float(W.aEntry.text()))
+        else:
+            angle = 0.0
     except:
         msg.append(_translate('Conversational', 'ANGLE'))
     if msg:
@@ -59,8 +62,8 @@ def preview(P, W, Conv):
         return
     if radius == 0 or sAngle == 0:
         msg0 = _translate('Conversational', 'Value must be greater than zero for')
-        msg0 = _translate('Conversational', 'RADIUS')
-        msg0 = _translate('Conversational', 'SEC ANGLE')
+        msg1 = _translate('Conversational', 'RADIUS')
+        msg2 = _translate('Conversational', 'SEC ANGLE')
         error_set(P, '{}:\n\n{}\n{}\n'.format(msg0, msg1, msg2))
         return
     if W.kOffset.isChecked() and leadInOffset <= 0:
@@ -205,36 +208,8 @@ def entry_changed(P, W, Conv, widget):
         W.kOffset.setEnabled(True)
 
 def widgets(P, W, Conv):
-    W.liLabel = QLabel(_translate('Conversational', 'LEAD IN'))
-    W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
-    W.loLabel = QLabel(_translate('Conversational', 'LEAD OUT'))
-    W.loEntry = QLineEdit(str(P.leadOut), objectName = 'loEntry')
-    if not P.convSettingsChanged:
-        #widgets
-        W.ctLabel = QLabel(_translate('Conversational', 'CUT TYPE'))
-        W.ctGroup = QButtonGroup(W)
-        W.cExt = QRadioButton(_translate('Conversational', 'EXTERNAL'))
-        W.cExt.setChecked(True)
-        W.ctGroup.addButton(W.cExt)
-        W.cInt = QRadioButton(_translate('Conversational', 'INTERNAL'))
-        W.ctGroup.addButton(W.cInt)
-        W.koLabel = QLabel(_translate('Conversational', 'KERF'))
-        W.kOffset = QPushButton(_translate('Conversational', 'OFFSET'))
-        W.kOffset.setCheckable(True)
-        text = _translate('Conversational', 'ORIGIN')
-        W.xsLabel = QLabel(_translate('Conversational', 'X {}'.format(text)))
-        W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
-        W.ysLabel = QLabel(_translate('Conversational', 'Y {}'.format(text)))
-        W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
-        W.rLabel = QLabel(_translate('Conversational', 'RADIUS'))
-        W.rEntry = QLineEdit()
-        W.sLabel = QLabel(_translate('Conversational', 'SEC ANGLE'))
-        W.sEntry = QLineEdit()
-        W.aLabel = QLabel(_translate('Conversational', 'ANGLE'))
-        W.aEntry = QLineEdit('0.0', objectName='aEntry')
-    W.add = QPushButton(_translate('Conversational', 'ADD'))
-    W.lDesc = QLabel(_translate('Conversational', 'CREATING SECTOR'))
-    W.iLabel = QLabel()
+    W.sLabel.setText(_translate('Conversational', 'SEC ANGLE')) ###############################
+    W.lDesc.setText(_translate('Conversational', 'CREATING SECTOR'))
     pixmap = QPixmap('{}conv_sector_l.png'.format(P.IMAGES)).scaledToWidth(196)
     W.iLabel.setPixmap(pixmap)
     #alignment and size

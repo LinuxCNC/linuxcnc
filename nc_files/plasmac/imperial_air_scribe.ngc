@@ -1,4 +1,4 @@
-; imperial air-scribe
+;imperial air-scribe
 
 G20 (units: imperial)
 G40 (cutter compensation: off)

@@ -284,10 +284,11 @@ class INI:
         minlim = get("minlim")
         maxlim = get("maxlim")
         home = get("homepos")
-        if self.d.units: extend = .001
-        else: extend = .01
-        minlim = min(minlim, home) - extend
-        maxlim = max(maxlim, home) + extend
+        extend = 0.001 if self.d.units else 0.01
+        if minlim == home:
+            minlim = minlim - extend
+        elif maxlim == home:
+            maxlim = maxlim + extend
         axis_letter = letter.upper()
         if not tandem:
             print(file=file)

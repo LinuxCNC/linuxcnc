@@ -1,8 +1,8 @@
 '''
 conv_ploygon.py
 
-Copyright (C) 2020, 2021  Phillip A Carter
-Copyright (C) 2020, 2021  Gregory D Carl
+Copyright (C) 2020, 2021, 2022  Phillip A Carter
+Copyright (C) 2020, 2021, 2022  Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -21,7 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import math
 from PyQt5.QtCore import Qt, QCoreApplication
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QComboBox, QMessageBox
+from PyQt5.QtWidgets import QLabel, QMessageBox
 from PyQt5.QtGui import QPixmap
 
 _translate = QCoreApplication.translate
@@ -229,42 +229,8 @@ def entry_changed(P, W, Conv, widget):
         W.kOffset.setEnabled(True)
 
 def widgets(P, W, Conv):
-    W.spGroup = QButtonGroup(W)
-    W.center = QRadioButton(_translate('Conversational', 'CENTER'))
-    W.spGroup.addButton(W.center)
-    W.bLeft = QRadioButton(_translate('Conversational', 'BTM LEFT'))
-    W.spGroup.addButton(W.bLeft)
-    W.liLabel = QLabel(_translate('Conversational', 'LEAD IN'))
-    W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
-    W.loLabel = QLabel(_translate('Conversational', 'LEAD OUT'))
-    W.loEntry = QLineEdit(str(P.leadOut), objectName = 'loEntry')
-    if not P.convSettingsChanged:
-        W.ctLabel = QLabel(_translate('Conversational', 'CUT TYPE'))
-        W.ctGroup = QButtonGroup(W)
-        W.cExt = QRadioButton(_translate('Conversational', 'EXTERNAL'))
-        W.cExt.setChecked(True)
-        W.ctGroup.addButton(W.cExt)
-        W.cInt = QRadioButton(_translate('Conversational', 'INTERNAL'))
-        W.ctGroup.addButton(W.cInt)
-        W.koLabel = QLabel(_translate('Conversational', 'KERF'))
-        W.kOffset = QPushButton(_translate('Conversational', 'OFFSET'))
-        W.kOffset.setCheckable(True)
-        W.spLabel = QLabel(_translate('Conversational', 'START'))
-        text = _translate('Conversational', 'ORIGIN')
-        W.xsLabel = QLabel(_translate('Conversational', 'X {}'.format(text)))
-        W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
-        W.ysLabel = QLabel(_translate('Conversational', 'Y {}'.format(text)))
-        W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
-        W.sLabel = QLabel(_translate('Conversational', 'SIDES'))
-        W.sEntry = QLineEdit(objectName = 'intEntry')
-        W.mCombo = QComboBox()
-        W.dLabel = QLabel(_translate('Conversational', 'DIAMETER'))
-        W.dEntry = QLineEdit()
-        W.aLabel = QLabel(_translate('Conversational', 'ANGLE'))
-        W.aEntry = QLineEdit('0.0', objectName='aEntry')
-    W.add = QPushButton(_translate('Conversational', 'ADD'))
-    W.lDesc = QLabel(_translate('Conversational', 'CREATING POLYGON'))
-    W.iLabel = QLabel()
+    W.sLabel.setText(_translate('Conversational', 'SIDES')) #################################
+    W.lDesc.setText(_translate('Conversational', 'CREATING POLYGON'))
     pixmap = QPixmap('{}conv_polygon_l.png'.format(P.IMAGES)).scaledToWidth(196)
     W.iLabel.setPixmap(pixmap)
     #alignment and size
@@ -290,9 +256,6 @@ def widgets(P, W, Conv):
         W[widget].setFixedHeight(24)
     #starting parameters
     W.add.setEnabled(False)
-    W.mCombo.addItem('CIRCUMSCRIBED')
-    W.mCombo.addItem('INSCRIBED')
-    W.mCombo.addItem('SIDE LENGTH')
     if P.oSaved:
         W.center.setChecked(True)
     else:

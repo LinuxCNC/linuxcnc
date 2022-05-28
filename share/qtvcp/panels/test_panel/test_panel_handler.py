@@ -26,7 +26,7 @@ class HandlerClass:
         self.w = widgets
 
         self.timer = QTimer()
-        self.timer.timeout.connect(self.announceTime)
+        self.timer.timeout.connect(self.announceLEDText)
 
         self.lastLED_1 = 0
         self.lastLED_2 = 0
@@ -49,6 +49,12 @@ class HandlerClass:
         self.w.dial_2.valueChanged.emit(self.w.dial_2.value())
         self.w.dial_3.valueChanged.emit(self.w.dial_3.value())
         self.w.dial_4.valueChanged.emit(self.w.dial_4.value())
+
+        # speak text when return pressed
+        self.w.lineEdit_led_1.returnPressed.connect(lambda : self.announceText(self.w.lineEdit_led_1))
+        self.w.lineEdit_led_2.returnPressed.connect(lambda : self.announceText(self.w.lineEdit_led_2))
+        self.w.lineEdit_led_3.returnPressed.connect(lambda : self.announceText(self.w.lineEdit_led_3))
+        self.w.lineEdit_led_4.returnPressed.connect(lambda : self.announceText(self.w.lineEdit_led_4))
 
         if find_executable('urxvt') is not None:
             term = embterminal()
@@ -91,7 +97,7 @@ Try sudo apt install rxvt-unicode-256color'''))
             self.w.dial_2.setMaximum(100)
             self.w.dockWidget_3.setWindowTitle('Dial 2 (0-100)')
 
-    def announceTime(self):
+    def announceLEDText(self):
         # speak led label contents on state change, if checked
         for i in range(1,5):
             if self.w['actionLED_{}'.format(i)].isChecked():
@@ -100,6 +106,9 @@ Try sudo apt install rxvt-unicode-256color'''))
                     name = self.w['lineEdit_led_{}'.format(i)].text()
                     STATUS.emit('play-sound', 'SPEAK {} {}'.format(name,data))
                     self['lastLED_{}'.format(i)] = data
+
+    def announceText(self, widget):
+        STATUS.emit('play-sound', 'SPEAK {}'.format(widget.text()))
 
     #####################
     # general functions #

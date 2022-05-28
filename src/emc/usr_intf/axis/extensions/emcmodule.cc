@@ -923,7 +923,8 @@ static PyObject *spindleoverride(pyCommandChannel *s, PyObject *o) {
 static PyObject *spindle(pyCommandChannel *s, PyObject *o) {
     int dir;
     double arg1 = 0,arg2 = 0;
-    if(!PyArg_ParseTuple(o, "i|dd", &dir, &arg1, &arg2)) return NULL;
+    int arg3 = 0;
+    if(!PyArg_ParseTuple(o, "i|ddi", &dir, &arg1, &arg2, &arg3)) return NULL;
     switch(dir) {
         case LOCAL_SPINDLE_FORWARD:
         case LOCAL_SPINDLE_REVERSE:
@@ -931,6 +932,7 @@ static PyObject *spindle(pyCommandChannel *s, PyObject *o) {
             EMC_SPINDLE_ON m;
             m.speed = dir * arg1;
             m.spindle = (int)arg2;
+            m.wait_for_spindle_at_speed = arg3;
             emcSendCommand(s, m);
         }
             break;

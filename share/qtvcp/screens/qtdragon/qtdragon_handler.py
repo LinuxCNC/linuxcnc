@@ -9,6 +9,7 @@ from qtvcp.widgets.file_manager import FileManager as FM
 from qtvcp.lib.writer import writer
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.gcodes import GCodes
+from qtvcp.lib.qt_pdf import PDFViewer 
 from qtvcp.core import Status, Action, Info, Path, Qhal
 from qtvcp import logger
 from shutil import copyfile
@@ -42,9 +43,10 @@ class HandlerClass:
         self.w = widgets
         self.gcodes = GCodes(widgets)
         self.valid = QtGui.QDoubleValidator(-999.999, 999.999, 3)
+        KEYBIND.add_call('Key_F11','on_keycall_F11')
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         KEYBIND.add_call('Key_Pause', 'on_keycall_pause')
-                
+
         # some global variables
         self.probe = None
         self.default_setup = os.path.join(PATH.CONFIGPATH, "default_setup.html")
@@ -103,6 +105,8 @@ class HandlerClass:
 <body>
 <h1>Setup Tab</h1>
 <p>If you select a file with .html as a file ending, it will be shown here..</p>
+<li><a href="http://linuxcnc.org/docs/devel/html/">Documents online</a></li>
+<li><a href="file://">Local files</a></li>
 <img src="file://%s" alt="lcnc_swoop" />
 <hr />
 </body>
@@ -141,11 +145,11 @@ class HandlerClass:
             # web view widget for SETUP page
             if self.w.web_view:
                 self.toolBar = QtWidgets.QToolBar(self.w)
-                self.w.layout_setup.addWidget(self.toolBar)
+                self.w.layout_HTML.addWidget(self.toolBar)
 
                 self.backBtn = QtWidgets.QPushButton(self.w)
                 self.backBtn.setEnabled(True)
-                self.backBtn.setIconSize(QtCore.QSize(58, 52))
+                self.backBtn.setIconSize(QtCore.QSize(48, 38))
                 self.backBtn.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/left-32.png'))
 
                 self.backBtn.clicked.connect(self.back)
@@ -153,24 +157,29 @@ class HandlerClass:
 
                 self.forBtn = QtWidgets.QPushButton(self.w)
                 self.forBtn.setEnabled(True)
-                self.forBtn.setIconSize(QtCore.QSize(48, 48))
+                self.forBtn.setIconSize(QtCore.QSize(48, 38))
                 self.forBtn.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/right-32.png'))
                 self.forBtn.clicked.connect(self.forward)
                 self.toolBar.addWidget(self.forBtn)
 
                 self.writeBtn = QtWidgets.QPushButton('SetUp\n Writer',self.w)
-                self.writeBtn.setMinimumSize(48,48)
+                self.writeBtn.setMinimumSize(58,42)
                 self.writeBtn.setEnabled(True)
                 self.writeBtn.clicked.connect(self.writer)
                 self.toolBar.addWidget(self.writeBtn)
 
-                self.w.layout_setup.addWidget(self.w.web_view)
+                self.w.layout_HTML.addWidget(self.w.web_view)
                 if os.path.exists(self.default_setup):
                     self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.default_setup))
                 else:
                     self.w.web_view.setHtml(self.html)
         except Exception as e:
             print("No default setup file found - {}".format(e))
+
+        # PDF setup page
+        self.PDFView = PDFViewer.PDFView()
+        self.w.layout_PDF.addWidget(self.PDFView)
+        self.PDFView.loadSample('setup_tab')
 
         # Show assigned macrobuttons define in INI under [MDI_COMMAND_LIST]
         flag = True
@@ -431,6 +440,7 @@ class HandlerClass:
         sensor_code = bool(message.get('ID') == '_toolsensor_')
         wait_code = bool(message.get('ID') == '_wait_resume_')
         unhome_code = bool(message.get('ID') == '_unhome_')
+        overwrite = bool(message.get('ID') == '_overwrite_')
         if plate_code and name == 'MESSAGE' and rtn is True:
             self.touchoff('touchplate')
         elif sensor_code and name == 'MESSAGE' and rtn is True:
@@ -439,6 +449,11 @@ class HandlerClass:
             self.h['eoffset-clear'] = False
         elif unhome_code and name == 'MESSAGE' and rtn is True:
             ACTION.SET_MACHINE_UNHOMED(-1)
+        elif overwrite and name == 'MESSAGE':
+            if rtn is True:
+                self.do_file_copy()
+            else:
+                self.add_status("File not copied")
 
     def user_system_changed(self, data):
         sys = self.system_list[int(data) - 1]
@@ -685,6 +700,7 @@ class HandlerClass:
             self.load_code(fname[0])
 
     def btn_copy_file_clicked(self):
+        if self.w.btn_gcode_edit.isChecked(): return
         if self.w.sender() == self.w.btn_copy_right:
             source = self.w.filemanager_usb.getCurrentSelected()
             target = self.w.filemanager.getCurrentSelected()
@@ -696,15 +712,17 @@ class HandlerClass:
         if source[1] is False:
             self.add_status("Specified source is not a file")
             return
+        self.source_file = source[0]
         if target[1] is True:
-            destination = os.path.join(os.path.dirname(target[0]), os.path.basename(source[0]))
+            self.destination_file = os.path.join(os.path.dirname(target[0]), os.path.basename(source[0]))
         else:
-            destination = os.path.join(target[0], os.path.basename(source[0]))
-        try:
-            copyfile(source[0], destination)
-            self.add_status("Copied file from {} to {}".format(source[0], destination))
-        except Exception as e:
-            self.add_status("Unable to copy file. %s" %e)
+            self.destination_file = os.path.join(target[0], os.path.basename(source[0]))
+        if os.path.isfile(self.destination_file):
+            info = "{} already exists in destination directory".format(self.destination_file)
+            mess = {'NAME':'MESSAGE', 'ICON':'WARNING', 'ID':'_overwrite_', 'MESSAGE':'OVERWRITE FILE?', 'MORE':info, 'TYPE':'YESNO','NONBLOCKING':True}
+            ACTION.CALL_DIALOG(mess)
+        else:
+            self.do_file_copy()
 
     # offsets tab
     def btn_goto_sensor_clicked(self):
@@ -838,6 +856,9 @@ class HandlerClass:
     def load_code(self, fname):
         if fname is None: return
         filename, file_extension = os.path.splitext(fname)
+
+        # loading ngc then HTML/PDF
+
         if not file_extension in (".html", '.pdf'):
             if not (INFO.program_extension_valid(fname)):
                 self.add_status("Unknown or invalid filename extension {}".format(file_extension))
@@ -862,10 +883,13 @@ class HandlerClass:
             # load it with system program
             fname = filename+'.pdf'
             if os.path.exists(fname):
-                url = QtCore.QUrl.fromLocalFile(fname)
-                QtGui.QDesktopServices.openUrl(url)
+                self.PDFView.loadView(fname)
+                #url = QtCore.QUrl.fromLocalFile(fname)
+                #QtGui.QDesktopServices.openUrl(url)
                 self.add_status("Loaded PDF file : {}".format(fname))
             return
+
+        # loading HTML/PDF directly
 
         if file_extension == ".html":
             try:
@@ -879,8 +903,9 @@ class HandlerClass:
                 print("Error loading HTML file : {}".format(e))
         else:
             if os.path.exists(fname):
-                url = QtCore.QUrl.fromLocalFile(fname)
-                QtGui.QDesktopServices.openUrl(url)
+                self.PDFView.loadView(fname)
+                #url = QtCore.QUrl.fromLocalFile(fname)
+                #QtGui.QDesktopServices.openUrl(url)
                 self.add_status("Loaded PDF file : {}".format(fname))
 
     def disable_spindle_pause(self):
@@ -963,6 +988,13 @@ class HandlerClass:
         else:
             self.add_status('Keyboard shortcuts are disabled')
             return False
+
+    def do_file_copy(self):
+        try:
+            copyfile(self.source_file, self.destination_file)
+            self.add_status("Copied file from {} to {}".format(self.source_file, self.destination_file))
+        except Exception as e:
+            self.add_status("Unable to copy file. %s" %e)
 
     def update_rpm(self, speed):
         if self.max_spindle_rpm < int(speed) < self.min_spindle_rpm:
@@ -1063,6 +1095,15 @@ class HandlerClass:
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:
             STYLEEDITOR.load_dialog()
+
+    def on_keycall_F11(self,event,state,shift,cntrl):
+        if self.w.isFullScreen() == False and state == True:
+            self.w.showFullScreen()
+        else:
+            if self.w.isFullScreen() == True and state == True:
+                self.w.showNormal()
+
+
 
     ##############################
     # required class boiler code #

@@ -44,12 +44,22 @@ for num,temp in enumerate(sys.argv):
         if temp == '-h' or temp == '--help' or len(sys.argv) == 1:
             _print_help()
 
+# Set up the base logger
+#   We have do do this before importing other modules because on import
+#   they set up their own loggers as children of the base logger.
+from qtvcp import logger
+LOG = logger.initBaseLogger('GScreen', log_file=None, log_level=logger.INFO)
+
 import gi
 gi.require_version("Gtk","3.0")
 gi.require_version("Gdk","3.0")
 gi.require_version('PangoCairo', '1.0')
-from gi.repository import Gtk,Gdk,GObject,Pango,PangoCairo,cairo, Vte,GLib
+from gi.repository import Gtk,Gdk,GObject,Pango,PangoCairo,cairo,GLib
 from gi.repository import Pango as pango
+try:
+    from gi.repository import Vte as vte
+except:
+    LOG.error("**** WARNING GSCREEN: could not import vte terminal - is package installed?")
 
 import hal
 import errno
@@ -58,10 +68,7 @@ from gladevcp.gladebuilder import GladeBuilder
 #import pango
 import traceback
 import atexit
-try:
-    import vte
-except:
-    print (_("**** WARNING GSCREEN: could not import vte terminal - is package installed?"))
+
 import time
 from time import strftime,localtime
 import hal_glib

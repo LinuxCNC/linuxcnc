@@ -116,6 +116,13 @@ class ToolBarActions():
             STATUS.connect('interp-paused', lambda w: widget.setEnabled(homed_on_test()))
             STATUS.connect('file-loaded', lambda w, f: widget.setEnabled(homed_on_test()))
             function = (self.actOnRun)
+        elif action == 'step':
+            STATUS.connect('state-off', lambda w: widget.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: widget.setEnabled(homed_on_test()))
+            STATUS.connect('all-homed', lambda w: widget.setEnabled(True))
+            STATUS.connect('not-all-homed', lambda w, data: widget.setEnabled(False))
+            function = (self.actOnStep)
         elif action == 'pause':
             STATUS.connect('state-off', lambda w: widget.setEnabled(False))
             STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
@@ -387,6 +394,9 @@ class ToolBarActions():
 
     def actOnRun(self, widget, state=None):
         ACTION.RUN()
+
+    def actOnStep(self, widget, state=None):
+        ACTION.STEP()
 
     def actOnPause(self, widget, state=None):
         ACTION.PAUSE()

@@ -1,0 +1,25 @@
+[Icon Theme]
+Name=material-light
+Comment=Material icon theme for gmoccapy (optimized for light themes)
+Inherits=hicolor
+Directories=16x16/actions,24x24/actions,32x32/actions,48x48/actions
+
+[16x16/actions]
+Size=16
+Type=Fixed
+Context=Actions
+
+[24x24/actions]
+Size=24
+Type=Fixed
+Context=Actions
+
+[32x32/actions]
+Size=32
+Type=Fixed
+Context=Actions
+
+[48x48/actions]
+Size=48
+Type=Fixed
+Context=Actions

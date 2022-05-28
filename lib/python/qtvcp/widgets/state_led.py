@@ -32,6 +32,10 @@ LOG = logger.getLogger(__name__)
 
 
 class StateLED(LED):
+    '''
+
+    Widget to display a colored LED based on a linuxcnc state.
+    '''
 
     def __init__(self, parent=None):
         super(StateLED, self).__init__(parent)
@@ -56,6 +60,9 @@ class StateLED(LED):
         self.is_spindle_fwd = False
         self.is_spindle_rev = False
         self.is_spindle_at_speed = False
+        self.is_neg_limit_tripped = False
+        self.is_pos_limit_tripped = False
+        self.is_limits_tripped = False
 
         self.joint_number = 0
 
@@ -108,6 +115,10 @@ class StateLED(LED):
             STATUS.connect('requested-spindle-speed-changed', lambda w, speed: self.spindle_requested_changed(speed))
             STATUS.connect('spindle-override-changed', lambda w, rate: self.spindle_override_changed(rate))
             STATUS.connect('actual-spindle-speed-changed',lambda w, speed: self.spindle_actual_changed(speed))
+        elif self.is_neg_limit_tripped or \
+             self.is_pos_limit_tripped or \
+             self.is_limits_tripped:
+            STATUS.connect('hard-limits-tripped', lambda w, data, group: self.switch_on_hard_limits(data, group))
 
     def _flip_state(self, data):
             if self.invert_state:
@@ -189,6 +200,24 @@ class StateLED(LED):
             return False
         return True
 
+    def switch_on_hard_limits(self, data, group):
+        '''
+        Switch LED state based on hard limits state
+        of selected joint.
+
+        Args:
+            data (bool): combined limits state.
+            group (list): list of all joints negative 
+            and positive hard limits state.
+        '''
+
+        pair = group[self.joint_number]
+        if self.is_neg_limit_tripped: data = pair[0]
+        elif self.is_pos_limit_tripped: data = pair[1]
+        else:
+            data = pair[0]+pair[1]
+        self._flip_state(data)
+
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
@@ -202,11 +231,16 @@ class StateLED(LED):
                 'is_flood', 'is_mist', 'is_block_delete', 'is_optional_stop',
                 'is_joint_homed', 'is_limits_overridden','is_manual',
                 'is_mdi', 'is_auto', 'is_spindle_stopped', 'is_spindle_fwd',
-                'is_spindle_rev','is_spindle_at_speed')
+                'is_spindle_rev','is_spindle_at_speed','neg_hard_limit_state',
+                'pos_hard_limit_state','hard_limits_state')
 
         for i in data:
             if not i == picked:
-                self[i+'_status'] = False
+                if i in('neg_hard_limit_state',
+                        'pos_hard_limit_state','hard_limits_state'):
+                     self[i] = False
+                else:
+                    self[i+'_status'] = False
 
 # property getter/setters
 
@@ -398,6 +432,36 @@ class StateLED(LED):
     def reset_is_spindle_at_speed(self):
         self.is_spindle_at_speed = False
 
+    # machine hard limits_tripped status
+    def set_neg_limit_tripped(self, data):
+        self.is_neg_limit_tripped = data
+        if data:
+            self._toggle_properties('neg_hard_limit_state')
+    def get_neg_limit_tripped(self):
+        return self.is_neg_limit_tripped
+    def reset_neg_limit_tripped(self):
+        self.is_neg_limit_tripped = False
+
+    # machine hard limits_tripped status
+    def set_pos_limit_tripped(self, data):
+        self.is_pos_limit_tripped = data
+        if data:
+            self._toggle_properties('pos_hard_limit_state')
+    def get_pos_limit_tripped(self):
+        return self.is_pos_limit_tripped
+    def reset_pos_limit_tripped(self):
+        self.is_pos_limit_tripped = False
+
+    # machine hard limits_tripped status
+    def set_limits_tripped(self, data):
+        self.is_limits_tripped = data
+        if data:
+            self._toggle_properties('hard_limits_state')
+    def get_limits_tripped(self):
+        return self.is_limits_tripped
+    def reset_limits_tripped(self):
+        self.is_limits_tripped = False
+
     # Non bool
 
     # machine_joint_number status
@@ -430,6 +494,9 @@ class StateLED(LED):
     is_spindle_fwd_status = pyqtProperty(bool, get_is_spindle_fwd, set_is_spindle_fwd, reset_is_spindle_fwd)
     is_spindle_rev_status = pyqtProperty(bool, get_is_spindle_rev, set_is_spindle_rev, reset_is_spindle_rev)
     is_spindle_at_speed_status = pyqtProperty(bool, get_is_spindle_at_speed, set_is_spindle_at_speed, reset_is_spindle_at_speed)
+    neg_hard_limit_state = pyqtProperty(bool, get_neg_limit_tripped, set_neg_limit_tripped, reset_neg_limit_tripped)
+    pos_hard_limit_state = pyqtProperty(bool, get_pos_limit_tripped, set_pos_limit_tripped, reset_pos_limit_tripped)
+    hard_limits_state = pyqtProperty(bool, get_limits_tripped, set_limits_tripped, reset_limits_tripped)
 
     # NON BOOL
     joint_number_status = pyqtProperty(int, get_joint_number, set_joint_number, reset_joint_number)

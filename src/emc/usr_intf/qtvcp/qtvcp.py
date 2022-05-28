@@ -268,7 +268,7 @@ Pressing cancel will close linuxcnc.""" % target)
             self.app.installEventFilter(myFilter)
 
         # actually build the widgets
-        window.instance()
+        window.instance(filename=PATH.XML)
 
         # title
         if INIPATH:
@@ -409,6 +409,7 @@ Pressing cancel will close linuxcnc.""" % target)
         LOG.info("postgui filename: yellow<{}>".format(postgui_halfile))
         if postgui_halfile is not None:
             for f in postgui_halfile:
+                f = os.path.expanduser(f)
                 if f.lower().endswith('.tcl'):
                     res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i",self.inipath, f])
                 else:
@@ -420,6 +421,7 @@ Pressing cancel will close linuxcnc.""" % target)
         LOG.info("postgui commands: yellow<{}>".format(postgui_commands))
         if postgui_commands is not None:
             for f in postgui_commands:
+                f = os.path.expanduser(f)
                 res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd"] + f.split())
                 if res: raise SystemExit(res)
 

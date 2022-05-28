@@ -49,6 +49,7 @@ class Message:
 
                 if not name == None:
                     D = self['dialog-{}'.format(name)] = LcncDialog(window)
+                    D._request_name = 'INI_MESSAGE_{}'.format(name)
                     D.hal_init()
                     D.pinname = name
 

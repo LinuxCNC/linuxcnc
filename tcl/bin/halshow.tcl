@@ -906,7 +906,7 @@ proc watchHAL {which} {
     } else {
         $::cisp create text 10 [expr $i * 20 + 12] -text "" \
             -anchor w -tag text$i
-       
+
         if {$writable == 1} {
             canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] \
                 [expr $i * 20 + 4] 52 17 "Set val" [list setValue $label] 1
@@ -917,7 +917,7 @@ proc watchHAL {which} {
     }
     if {$i > 1} {$::cisp create line 10 [expr $i * 20 + 3] [expr $::canvaswidth - 52] \
         [expr $i * 20 + 3] -fill grey70}
-    $::cisp bind $label <Button-3> [list popupmenu_watch $label $i $writable $which %X %Y]
+    $::cisp bind $label <Button-3> [list popupmenu_watch $vartype $label $i $writable $which %X %Y]
     $::cisp configure -scrollregion [$::cisp bbox all]
     $::cisp yview moveto 1.0
     set tmplist [split $which +]
@@ -927,7 +927,7 @@ proc watchHAL {which} {
     refreshItem $i $vartype $label
 }
 
-proc popupmenu_watch {label index writable which x y} {
+proc popupmenu_watch {vartype label index writable which x y} {
     # create menu
     set m [menu .popupMenu$index -tearoff false]
     # add entries
@@ -938,6 +938,7 @@ proc popupmenu_watch {label index writable which x y} {
     if {$writable == -1} {
         $m add command -label [msgcat::mc "Unlink pin"] -command [list unlinkp $label $index]
     }
+    $m add command -label [msgcat::mc "Show in Tree"] -command "refreshHAL; openTreePath $vartype+$label 1"
     $m add command -label [msgcat::mc "Remove"] -command [list watchReset $label]
     # show menu
     tk_popup $m $x $y

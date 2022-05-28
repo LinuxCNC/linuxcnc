@@ -1,8 +1,8 @@
 '''
 conv_line.py
 
-Copyright (C) 2020, 2021  Phillip A Carter
-Copyright (C) 2020, 2021  Gregory D Carl
+Copyright (C) 2020, 2021, 2022  Phillip A Carter
+Copyright (C) 2020, 2021, 2022  Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -23,7 +23,7 @@ import math
 import numpy
 from shutil import copy as COPY
 from PyQt5.QtCore import Qt, QCoreApplication
-from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QComboBox, QMessageBox
+from PyQt5.QtWidgets import QLabel, QMessageBox
 from PyQt5.QtGui import QPixmap
 
 _translate = QCoreApplication.translate
@@ -546,34 +546,7 @@ def entry_changed(P, W, Conv, widget, entry):
 
 def widgets(P, W, Conv):
     P.previewActive = False
-    if not P.convSettingsChanged:
-        #widgets
-        W.lType = QComboBox()
-        W.label1 = QLabel()
-#        W.entry1 = QLineEdit(P.xSaved)
-        W.entry1 = QLineEdit()
-        W.label2 = QLabel()
-#        W.entry2 = QLineEdit(P.ySaved)
-        W.entry2 = QLineEdit()
-        W.label3 = QLabel()
-        W.entry3 = QLineEdit()
-        W.label4 = QLabel()
-        W.entry4 = QLineEdit()
-        W.label5 = QLabel()
-        W.entry5 = QLineEdit()
-        W.label6 = QLabel()
-        W.entry6 = QLineEdit()
-        W.label7 = QLabel()
-        W.entry7 = QLineEdit()
-        W.label8 = QLabel()
-        W.entry8 = QLineEdit()
-    W.add = QPushButton(_translate('Conversational', 'ADD'))
-    W.lDesc = QLabel(_translate('Conversational', 'CREATING LINE OR ARC'))
-    text = _translate('Conversational', 'CW')
-    W.g2Arc = QRadioButton('      {}'.format(text))
-    text = _translate('Conversational', 'CCW')
-    W.g3Arc = QRadioButton('     {}'.format(text))
-    W.iLabel = QLabel()
+    W.lDesc.setText(_translate('Conversational', 'CREATING LINE OR ARC'))
     P.pixLinePoint = QPixmap('{}conv_line_point.png'.format(P.IMAGES)).scaledToWidth(196)
     P.pixLineAngle = QPixmap('{}conv_line_angle.png'.format(P.IMAGES)).scaledToWidth(196)
     P.pixArc3p = QPixmap('{}conv_arc_3p.png'.format(P.IMAGES)).scaledToWidth(196)
@@ -602,13 +575,7 @@ def widgets(P, W, Conv):
         W[widget].setFixedHeight(24)
     #starting parameters
     W.add.setEnabled(False)
-    if not P.convSettingsChanged:
-        W.lType.addItem(_translate('Conversational', 'LINE POINT ~ POINT'))
-        W.lType.addItem(_translate('Conversational', 'LINE BY ANGLE'))
-        W.lType.addItem(_translate('Conversational', 'ARC 3P'))
-        W.lType.addItem(_translate('Conversational', 'ARC 2P +RADIUS'))
-        W.lType.addItem(_translate('Conversational', 'ARC ANGLE +RADIUS'))
-    else:
+    if P.convSettingsChanged:
         if P.lAlias == 'LBLA':
             W.iLabel.setPixmap(P.pixLineAngle)
         elif P.lAlias == 'A3Pt':

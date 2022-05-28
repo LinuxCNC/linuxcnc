@@ -445,23 +445,34 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             os.environ['QTVCP_FORWARD_EVENTS_TO'] = str(wid)
 
             for name, loc, cmd in INFO.ZIPPED_TABS:
-                LOG.debug('Processing Embedded tab:{}, {}, {}'.format(name,loc,cmd))
+                LOG.info('green<Installing Embedded tab:{}, {}, {}>'.format(name,loc,cmd))
                 if loc == 'default':
                     loc = 'rightTab'
+
                 try:
-                    if isinstance(self.QTVCP_INSTANCE_[loc], QtWidgets.QTabWidget):
-                        tw = QtWidgets.QWidget()
-                        self.QTVCP_INSTANCE_[loc].addTab(tw, name)
-                    elif isinstance(self.QTVCP_INSTANCE_[loc], QtWidgets.QStackedWidget):
-                        tw = QtWidgets.QWidget()
-                        self.QTVCP_INSTANCE_[loc].addWidget(tw)
-                    else:
-                        LOG.warning('tab location {} is not a Tab or stacked Widget - skipping'.format(loc))
+                    if 'qtvcp' in cmd.split()[0].lower():
+                        rtn = ACTION.ADD_WIDGET_TO_TAB(self.QTVCP_INSTANCE_[loc],
+                                self.QTVCP_INSTANCE_[name.replace(' ','_')],name)
+                        if not rtn:
+                            raise Exception
                         continue
+
+                    else:
+                        if isinstance(self.QTVCP_INSTANCE_[loc], QtWidgets.QTabWidget):
+                            tw = QtWidgets.QWidget()
+                            self.QTVCP_INSTANCE_[loc].addTab(tw, name)
+                        elif isinstance(self.QTVCP_INSTANCE_[loc], QtWidgets.QStackedWidget):
+                            tw = QtWidgets.QWidget()
+                            self.QTVCP_INSTANCE_[loc].addWidget(tw)
+                        else:
+                            LOG.warning('tab location {} is not a Tab or stacked Widget - skipping'.format(loc))
+                            continue
+                    self._embed(cmd,loc,tw)
                 except Exception as e:
                     LOG.warning("problem inserting VCP '{}' to location: {} :\n {}".format(name, loc, e))
-                    return
-                self._embed(cmd,loc,tw)
+                    continue
+
+
 
     def _embed(self, cmd,loc,twidget):
             if twidget is None:

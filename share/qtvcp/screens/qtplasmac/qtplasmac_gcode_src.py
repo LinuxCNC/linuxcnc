@@ -1,8 +1,8 @@
 '''
 plasmac_gcode.py
 
-Copyright (C) 2019, 2020, 2021  Phillip A Carter
-Copyright (C) 2020, 2021  Gregory D Carl
+Copyright (C) 2019, 2020, 2021, 2022  Phillip A Carter
+Copyright (C)       2020, 2021, 2022  Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -60,6 +60,7 @@ response = RUN(['halcmd', 'getp', 'qtplasmac.color_bgalt'], capture_output = Tru
 bgAltColor = str(hex(int(response.stdout.decode()))).replace('0x', '#')
 response = RUN(['halcmd', 'getp', 'plasmac.max-offset'], capture_output = True)
 zMaxOffset = float(response.stdout.decode())
+RUN(['halcmd', 'setp', 'qtplasmac.conv_block_loaded', '0'])
 metric = ['mm', 4]
 imperial = ['in', 6]
 units, precision = imperial if ini.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch' else metric
@@ -470,7 +471,8 @@ def check_material_edit():
     tmpMaterial = False
     newMaterial = []
     th = 0
-    kw = jh = jd = ca = cv = pe = gp = cm = 0.0
+    kw = jh = jd = pe = gp = 0.0
+    cm = 1
     ca = 15
     cv = 100
     try:
@@ -621,7 +623,7 @@ def rewrite_material_file(newMaterial):
         add_edit_material(newMaterial, outFile)
     inFile.close()
     outFile.close()
-    RUN(['halcmd', 'setp', 'qtplasmac.material_reload', 1])
+    RUN(['halcmd', 'setp', 'qtplasmac.material_reload', '1'])
     get_materials()
     matDelay = time.time()
     while 1:
@@ -791,6 +793,10 @@ with open(inPath, 'r') as inCode:
             if not ';qtplasmac filtered G-code file' in line:
                 gcodeList.append(line.rstrip())
             continue
+        # check if original is a conversational block
+        if line.startswith(';conversational block'):
+            convBlock = True
+            RUN(['halcmd', 'setp', 'qtplasmac.conv_block_loaded', '1'])
         # remove whitespace and trailing periods
         line = line.strip().rstrip('.')
         # remove line numbers
@@ -815,9 +821,6 @@ with open(inPath, 'r') as inCode:
             errorLines.append(lineNumOrg)
             gcodeList.append(';{}'.format(line))
             continue
-        # check if original is a conversational block
-        if line.startswith(';conversational block'):
-            convBlock = True
         # check for a material edit
         if line.startswith('(o='):
             check_material_edit()
