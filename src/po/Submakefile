@@ -137,9 +137,11 @@ GMOCCAPY_I18N_SRCS := \
 		preferences.py widgets.py gmoccapy.glade.h) \
 
 po/gmoccapy/gmoccapy.pot: $(GMOCCAPY_I18N_SRCS)
-	$(XGETTEXT) --from-code=UTF-8 --language=Python \
+	$(ECHO) Localizing gmoccapy.pot
+	$(Q)(cd ..; $(XGETTEXT) --from-code=UTF-8 --language=Python \
 		--keyword=_ --keyword=N_ \
-		--output=$@ $^
+		--output=src/$@ `$(PYTHON) src/po/fixpaths.py -j src $^`)
+	$(Q)touch $@
 
 clean: gmoccapy_i18n_clean
 gmoccapy_i18n_clean:
