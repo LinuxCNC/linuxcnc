@@ -275,6 +275,16 @@ void emcmotController(void *arg, long period)
    prototypes"
 */
 
+static bool joint_jog_is_active(void) {
+    int jno;
+    for (jno = 0; jno < EMCMOT_MAX_AXIS; jno++) {
+        if ( (&joints[jno])->kb_jjog_active || (&joints[jno])->wheel_jjog_active) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static void handle_kinematicsSwitch(void) {
     int joint_num;
     int hal_switchkins_type = 0;
@@ -2114,6 +2124,8 @@ static void update_status(void)
     emcmotStatus->motionType = tpGetMotionType(&emcmotInternal->coord_tp);
     emcmotStatus->queueFull = tcqFull(&emcmotInternal->coord_tp.queue);
 
+    emcmotStatus->jogging_active =  axis_jog_is_active()
+                                 || joint_jog_is_active();
     /* check to see if we should pause in order to implement
        single emcmotStatus->stepping */
 

@@ -269,6 +269,11 @@ int emcTaskSetMode(int mode)
 {
     int retval = 0;
 
+    if (jogging_is_active()) {
+        emcOperatorError(0, "Ignoring task mode change while jogging");
+        return 0;
+    }
+
     switch (mode) {
     case EMC_TASK_MODE_MANUAL:
 	// go to manual mode

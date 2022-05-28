@@ -27,6 +27,7 @@ extern int emcRunHalFiles(const char *filename);
 
 // Returns 0 if all joints are homed, 1 if any joints are un-homed.
 int all_homed(void);
+bool jogging_is_active(void);
 
 int emcTaskInit();
 int emcTaskHalt();

@@ -152,6 +152,10 @@ int all_homed(void) {
     return 1;
 }
 
+bool jogging_is_active(void) {
+    return emcStatus->motion.jogging_active;
+}
+
 void emctask_quit(int sig)
 {
     // set main's done flag

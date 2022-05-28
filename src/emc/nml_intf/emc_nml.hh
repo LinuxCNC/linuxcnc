@@ -1232,6 +1232,7 @@ class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
     int external_offsets_applied;
     EmcPose eoffset_pose;
     int numExtraJoints;
+    bool jogging_active;
 };
 
 // declarations for EMC_TASK classes

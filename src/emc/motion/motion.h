@@ -656,6 +656,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	EmcPose eoffset_pose;
 	int numExtraJoints;
     int stepping;
+    bool jogging_active;
     } emcmot_status_t;
 
 /*********************************

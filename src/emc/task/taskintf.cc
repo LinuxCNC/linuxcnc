@@ -2060,7 +2060,8 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
       stat->misc_error[num_error] = emcmotStatus.misc_error[num_error];
     }
 
-    stat->numExtraJoints=emcmotStatus.numExtraJoints;
+    stat->jogging_active = emcmotStatus.jogging_active;
+    stat->numExtraJoints = emcmotStatus.numExtraJoints;
 
     // set the status flag
     error = 0;
