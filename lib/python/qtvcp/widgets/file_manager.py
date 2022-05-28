@@ -157,7 +157,7 @@ class FileManager(QWidget, _HalWidgetBase):
     def _hal_init(self):
         if self.PREFS_:
             last_path = self.PREFS_.getpref('last_loaded_directory', self.default_path, str, 'BOOK_KEEPING')
-           LOG.debug("lAST FILE PATH: {}".format(last_path))
+            LOG.debug("lAST FILE PATH: {}".format(last_path))
             if not last_path == '' and os.path.exists(last_path):
                 self.updateDirectoryView(last_path)
             else:
