@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-13 11:02+0100\n"
+"POT-Creation-Date: 2022-05-28 23:16+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,67 +17,67 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/emc/task/emctaskmain.cc:871
+#: src/emc/task/emctaskmain.cc:875
 #, c-format
 msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
 "turned on"
 msgstr "命令 (%s) 不能執行 直到機器 離開 急停 並開動"
 
-#: src/emc/task/emctaskmain.cc:1001
+#: src/emc/task/emctaskmain.cc:1005
 #, fuzzy, c-format
 msgid "can't do that (%s:%d) in manual mode"
 msgstr "不能做到這一點（%s）在手動模式"
 
-#: src/emc/task/emctaskmain.cc:1108
+#: src/emc/task/emctaskmain.cc:1112
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idle"
 msgstr "不能做到這一點（%s）在自動模式與翻譯空閒"
 
-#: src/emc/task/emctaskmain.cc:1177
+#: src/emc/task/emctaskmain.cc:1181
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
 msgstr "不能做到這一點（%s）在自動模式與翻譯閱讀"
 
-#: src/emc/task/emctaskmain.cc:1264
+#: src/emc/task/emctaskmain.cc:1268
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
 msgstr "不能做到這一點（%s）在自動模式與翻譯暫停"
 
-#: src/emc/task/emctaskmain.cc:1335
+#: src/emc/task/emctaskmain.cc:1339
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
 msgstr "不能做到這一點（%s）在自動模式與翻譯等待"
 
-#: src/emc/task/emctaskmain.cc:1456
+#: src/emc/task/emctaskmain.cc:1460
 #, fuzzy, c-format
 msgid "can't do that (%s:%d) in MDI mode"
 msgstr "不能做到這一點（%s）在MDI模式"
 
-#: src/emc/task/emctaskmain.cc:2127
+#: src/emc/task/emctaskmain.cc:2131
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
 msgstr "無法切換模式，而模式是AUTO和解釋是沒有閒著"
 
-#: src/emc/task/emctaskmain.cc:2180
+#: src/emc/task/emctaskmain.cc:2184
 #, fuzzy
 msgid "failed to close file"
 msgstr "無法打開文件 <%s>"
 
-#: src/emc/task/emctaskmain.cc:2194 tcl/bin/genedit.tcl:197
+#: src/emc/task/emctaskmain.cc:2198 tcl/bin/genedit.tcl:197
 #: tcl/tklinuxcnc.tcl:452
 #, c-format, tcl-format
 msgid "can't open %s"
 msgstr "不能打開 %s"
 
-#: src/emc/task/emctaskmain.cc:2206
+#: src/emc/task/emctaskmain.cc:2210
 msgid "Can't issue MDI command when not homed"
 msgstr "不能發出 MDI命令當沒有歸零"
 
-#: src/emc/task/emctaskmain.cc:2211
+#: src/emc/task/emctaskmain.cc:2215
 msgid "Must be in MDI mode to issue MDI command"
 msgstr "必須在MDI模式下發出 MDI命令"
 
-#: src/emc/task/emctaskmain.cc:2293
+#: src/emc/task/emctaskmain.cc:2297
 msgid "Can't run a program when not homed"
 msgstr "不能運行程序，當沒有歸零"
 
@@ -260,7 +260,7 @@ msgid "Cannot do an arc in planes G17.1, G18.1, or G19.1"
 msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:402
-#: src/emc/rs274ngc/interp_convert.cc:4708
+#: src/emc/rs274ngc/interp_convert.cc:4730
 msgid "Cannot feed with zero spindle speed in feed per rev mode"
 msgstr "不能進給 用 零速度主軸 在 進給每轉 模式下"
 
@@ -295,328 +295,328 @@ msgid ""
 "gouging"
 msgstr "弧至弧運動 做一個角落 補償工具 不適合 有刨削槽"
 
-#: src/emc/rs274ngc/interp_convert.cc:1066
-#: src/emc/rs274ngc/interp_convert.cc:1070
-#: src/emc/rs274ngc/interp_convert.cc:1074
-#: src/emc/rs274ngc/interp_convert.cc:4127
-#: src/emc/rs274ngc/interp_convert.cc:4130
-#: src/emc/rs274ngc/interp_convert.cc:4133 src/emc/rs274ngc/interp_find.cc:99
+#: src/emc/rs274ngc/interp_convert.cc:1069
+#: src/emc/rs274ngc/interp_convert.cc:1073
+#: src/emc/rs274ngc/interp_convert.cc:1077
+#: src/emc/rs274ngc/interp_convert.cc:4149
+#: src/emc/rs274ngc/interp_convert.cc:4152
+#: src/emc/rs274ngc/interp_convert.cc:4155 src/emc/rs274ngc/interp_find.cc:99
 #, c-format
 msgid "Invalid absolute position %5.2f for wrapped rotary axis %c"
 msgstr "無效的絕對位置 %5.2f 給包裹 旋轉軸 %c"
 
-#: src/emc/rs274ngc/interp_convert.cc:1579
+#: src/emc/rs274ngc/interp_convert.cc:1582
 msgid "Cannot change control mode with cutter radius compensation on"
 msgstr "不能改變控制模式 當 使用刀具半徑補償"
 
-#: src/emc/rs274ngc/interp_convert.cc:1697
+#: src/emc/rs274ngc/interp_convert.cc:1700
 msgid "Cannot change coordinate systems with cutter radius compensation on"
 msgstr "不能改變坐標系 當 使用刀具半徑補償"
 
-#: src/emc/rs274ngc/interp_convert.cc:1942
+#: src/emc/rs274ngc/interp_convert.cc:1945
 #, c-format
 msgid "G%d.1 with no D word"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:1945
+#: src/emc/rs274ngc/interp_convert.cc:1948
 #, c-format
 msgid "G%d.1 with L word, but plane is not G18"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:1956
+#: src/emc/rs274ngc/interp_convert.cc:1959
 #, c-format
 msgid "G%d requires D word to be a whole number"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:1963
+#: src/emc/rs274ngc/interp_convert.cc:1966
 #, c-format
 msgid "G%d with lathe tool, but plane is not G18"
 msgstr "G%d 與車刀，但平面不是 G18"
 
-#: src/emc/rs274ngc/interp_convert.cc:2365
+#: src/emc/rs274ngc/interp_convert.cc:2384
 msgid "Cannot set reference point with cutter compensation in effect"
 msgstr "無法設置 參考點 當 使用刀具補償"
 
-#: src/emc/rs274ngc/interp_convert.cc:2945
+#: src/emc/rs274ngc/interp_convert.cc:2967
 #, c-format
 msgid "gen_restore G20/G21 failed: '%s'"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2995
+#: src/emc/rs274ngc/interp_convert.cc:3017
 #, c-format
 msgid ""
 "BUG: cannot restore from a lower call level (%d) to a higher call level (%d)"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2996
+#: src/emc/rs274ngc/interp_convert.cc:3018
 #, c-format
 msgid "BUG: restore from level %d !?"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:2997
+#: src/emc/rs274ngc/interp_convert.cc:3019
 #, c-format
 msgid "BUG: restore to level %d !?"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3016
+#: src/emc/rs274ngc/interp_convert.cc:3038
 #, c-format
 msgid "M7x: restore_settings G20/G21 failed: '%s'"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3041
+#: src/emc/rs274ngc/interp_convert.cc:3063
 #, c-format
 msgid "M7x: restore_settings failed executing: '%s': %s"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3110
+#: src/emc/rs274ngc/interp_convert.cc:3132
 #, c-format
 msgid "Failed to restore interp state on abort '%s': %s"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3181
+#: src/emc/rs274ngc/interp_convert.cc:3203
 msgid "Cannot set motion output with cutter radius compensation on"
 msgstr "無法設置 運動 輸出 當 刀具半徑補償 開"
 
-#: src/emc/rs274ngc/interp_convert.cc:3182
+#: src/emc/rs274ngc/interp_convert.cc:3204
 msgid "No valid P word with M62"
 msgstr "沒有有效的P字使用 M62"
 
-#: src/emc/rs274ngc/interp_convert.cc:3186
+#: src/emc/rs274ngc/interp_convert.cc:3208
 msgid "Cannot set motion digital output with cutter radius compensation on"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3187
+#: src/emc/rs274ngc/interp_convert.cc:3209
 msgid "No valid P word with M63"
 msgstr "沒有有效的P字使用 M62"
 
-#: src/emc/rs274ngc/interp_convert.cc:3191
-#: src/emc/rs274ngc/interp_convert.cc:3196
+#: src/emc/rs274ngc/interp_convert.cc:3213
+#: src/emc/rs274ngc/interp_convert.cc:3218
 msgid "Cannot set auxiliary digital output with cutter radius compensation on"
 msgstr "無法設置附屬數碼輸出當刀具半徑補償在使用"
 
-#: src/emc/rs274ngc/interp_convert.cc:3192
+#: src/emc/rs274ngc/interp_convert.cc:3214
 msgid "No valid P word with M64"
 msgstr "沒有有效的P字使用 M64"
 
-#: src/emc/rs274ngc/interp_convert.cc:3197
+#: src/emc/rs274ngc/interp_convert.cc:3219
 msgid "No valid P word with M65"
 msgstr "沒有有效的P字使用 M65"
 
-#: src/emc/rs274ngc/interp_convert.cc:3228
+#: src/emc/rs274ngc/interp_convert.cc:3250
 msgid "invalid P-word with M66"
 msgstr "沒有有效的P字使用 M66"
 
-#: src/emc/rs274ngc/interp_convert.cc:3243
+#: src/emc/rs274ngc/interp_convert.cc:3265
 msgid "Cannot wait for digital input with cutter radius compensation on"
 msgstr "不能等待數碼輸入當刀具半徑補償在使用"
 
-#: src/emc/rs274ngc/interp_convert.cc:3255
+#: src/emc/rs274ngc/interp_convert.cc:3277
 msgid "Cannot wait for analog input with cutter radius compensation on"
 msgstr "不能等待模擬輸入當刀具半徑補償在使用"
 
-#: src/emc/rs274ngc/interp_convert.cc:3270
+#: src/emc/rs274ngc/interp_convert.cc:3292
 msgid "Cannot set motion analog output with cutter radius compensation on"
 msgstr "無法設置運動模擬輸出當刀具半徑補償在使用"
 
-#: src/emc/rs274ngc/interp_convert.cc:3271
+#: src/emc/rs274ngc/interp_convert.cc:3293
 msgid "Invalid analog index with M67"
 msgstr "無效的模擬指標使用 M67"
 
-#: src/emc/rs274ngc/interp_convert.cc:3277
+#: src/emc/rs274ngc/interp_convert.cc:3299
 msgid "Cannot set auxiliary analog output with cutter radius compensation on"
 msgstr "無法設置輔助模擬輸出當刀具半徑補償在使用"
 
-#: src/emc/rs274ngc/interp_convert.cc:3278
+#: src/emc/rs274ngc/interp_convert.cc:3300
 msgid "Invalid analog index with M68"
 msgstr "無效的模擬指標使用 M68"
 
-#: src/emc/rs274ngc/interp_convert.cc:3309
+#: src/emc/rs274ngc/interp_convert.cc:3331
 #, fuzzy
 msgid "Need non-negative Q-word to specify tool number with M61"
 msgstr "需要正的 Q-字 指定刀具號 當使用M61"
 
-#: src/emc/rs274ngc/interp_convert.cc:3353
+#: src/emc/rs274ngc/interp_convert.cc:3375
 #, c-format
 msgid ""
 "Spindle ($) number out of range in M3 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3370
+#: src/emc/rs274ngc/interp_convert.cc:3392
 #, c-format
 msgid ""
 "Spindle ($) number out of range in M4 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3387
+#: src/emc/rs274ngc/interp_convert.cc:3409
 #, c-format
 msgid ""
 "Spindle ($) number out of range in M5 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3406
+#: src/emc/rs274ngc/interp_convert.cc:3428
 msgid "Spindle ($) number out of range in M19 Command"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3413
+#: src/emc/rs274ngc/interp_convert.cc:3435
 msgid "Q word with M19 requires a value > 0"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3442
+#: src/emc/rs274ngc/interp_convert.cc:3464
 msgid "Cannot restore context from invalid stack frame - missing M70/M73?"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3483
-#: src/emc/rs274ngc/interp_convert.cc:3504
-#: src/emc/rs274ngc/interp_convert.cc:3524
+#: src/emc/rs274ngc/interp_convert.cc:3505
+#: src/emc/rs274ngc/interp_convert.cc:3526
 #: src/emc/rs274ngc/interp_convert.cc:3546
-#: src/emc/rs274ngc/interp_convert.cc:3560
+#: src/emc/rs274ngc/interp_convert.cc:3568
+#: src/emc/rs274ngc/interp_convert.cc:3582
 msgid "Cannot enable overrides with cutter radius compensation on"
 msgstr "無法啟用超速 當刀具半徑補償在使用"
 
-#: src/emc/rs274ngc/interp_convert.cc:3492
-#: src/emc/rs274ngc/interp_convert.cc:3509
-#: src/emc/rs274ngc/interp_convert.cc:3533
-#: src/emc/rs274ngc/interp_convert.cc:3551
-#: src/emc/rs274ngc/interp_convert.cc:3565
+#: src/emc/rs274ngc/interp_convert.cc:3514
+#: src/emc/rs274ngc/interp_convert.cc:3531
+#: src/emc/rs274ngc/interp_convert.cc:3555
+#: src/emc/rs274ngc/interp_convert.cc:3573
+#: src/emc/rs274ngc/interp_convert.cc:3587
 msgid "Cannot disable overrides with cutter radius compensation on"
 msgstr "無法禁用超速 當刀具半徑補償在使用"
 
-#: src/emc/rs274ngc/interp_convert.cc:3519
+#: src/emc/rs274ngc/interp_convert.cc:3541
 msgid "Invalid spindle ($) number in M51 command"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3682
-#: src/emc/rs274ngc/interp_convert.cc:3683
-#: src/emc/rs274ngc/interp_convert.cc:3684
+#: src/emc/rs274ngc/interp_convert.cc:3704
+#: src/emc/rs274ngc/interp_convert.cc:3705
+#: src/emc/rs274ngc/interp_convert.cc:3706
 #, c-format
 msgid "Indexing axis %c can only be moved with G0"
 msgstr "指標軸 %c 只能 用 G0 移動"
 
-#: src/emc/rs274ngc/interp_convert.cc:3691
-#: src/emc/rs274ngc/interp_convert.cc:3693
-#: src/emc/rs274ngc/interp_convert.cc:3695
+#: src/emc/rs274ngc/interp_convert.cc:3713
+#: src/emc/rs274ngc/interp_convert.cc:3715
+#: src/emc/rs274ngc/interp_convert.cc:3717
 #, c-format
 msgid "Indexing axis %c can only be moved alone"
 msgstr "指標軸 %c 只能單獨移動 "
 
-#: src/emc/rs274ngc/interp_convert.cc:3802
+#: src/emc/rs274ngc/interp_convert.cc:3824
 msgid "Cannot probe with feed per rev mode"
 msgstr "無法 探測 使用 進給每轉 模式"
 
-#: src/emc/rs274ngc/interp_convert.cc:3850
+#: src/emc/rs274ngc/interp_convert.cc:3872
 msgid "Cannot change retract mode with cutter radius compensation on"
 msgstr "不能改變回縮模式當刀具半徑補償在使用"
 
-#: src/emc/rs274ngc/interp_convert.cc:3884
+#: src/emc/rs274ngc/interp_convert.cc:3906
 msgid "G10 L1 without offsets has no effect"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:3990
+#: src/emc/rs274ngc/interp_convert.cc:4012
 msgid "Q number in G10 is not an integer"
 msgstr "Q 編號在 G10 是不是整數"
 
-#: src/emc/rs274ngc/interp_convert.cc:3991
+#: src/emc/rs274ngc/interp_convert.cc:4013
 msgid "Invalid tool orientation"
 msgstr "無效的刀具定位"
 
-#: src/emc/rs274ngc/interp_convert.cc:4115
+#: src/emc/rs274ngc/interp_convert.cc:4137
 msgid "I J words not allowed with G10 L2"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4136
+#: src/emc/rs274ngc/interp_convert.cc:4158
 msgid ""
 "Cannot change the active coordinate system with cutter radius compensation on"
 msgstr "不能改變激活的坐標系當刀具半徑補償在使用"
 
-#: src/emc/rs274ngc/interp_convert.cc:4144
+#: src/emc/rs274ngc/interp_convert.cc:4166
 msgid "R not allowed in G10 L20"
 msgstr "R 不容許在 G10 L20"
 
-#: src/emc/rs274ngc/interp_convert.cc:4488
+#: src/emc/rs274ngc/interp_convert.cc:4510
 msgid "Bug:  Reached convert_stop() from M99 as subprogram return"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4768
+#: src/emc/rs274ngc/interp_convert.cc:4790
 msgid "Invalid spindle ($) number in G33 move"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4773
+#: src/emc/rs274ngc/interp_convert.cc:4795
 msgid "Spindle not turning in G33"
 msgstr "在 G33 主軸不轉動"
 
-#: src/emc/rs274ngc/interp_convert.cc:4783
+#: src/emc/rs274ngc/interp_convert.cc:4805
 msgid "Invalid spindle ($) number in G33.1 move"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4788
+#: src/emc/rs274ngc/interp_convert.cc:4810
 msgid "Spindle not turning in G33.1"
 msgstr "在 G33.1 主軸不轉動"
 
-#: src/emc/rs274ngc/interp_convert.cc:4803
+#: src/emc/rs274ngc/interp_convert.cc:4825
 msgid "Invalid D-number in G76 cycle"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:4808
+#: src/emc/rs274ngc/interp_convert.cc:4830
 #, fuzzy, c-format
 msgid "Chosen spindle (%i) not turning in G76"
 msgstr "在 G33 主軸不轉動"
 
-#: src/emc/rs274ngc/interp_convert.cc:4846
+#: src/emc/rs274ngc/interp_convert.cc:4868
 msgid "BUG: An axis incorrectly moved along with an indexer"
 msgstr "BUG: 一軸錯誤地和索引器一起移動"
 
-#: src/emc/rs274ngc/interp_convert.cc:4859
+#: src/emc/rs274ngc/interp_convert.cc:4881
 msgid "BUG: trying to index incorrect axis"
 msgstr "BUG: 試圖指標不正確軸"
 
-#: src/emc/rs274ngc/interp_convert.cc:4954
+#: src/emc/rs274ngc/interp_convert.cc:4976
 msgid "Cannot use G76 threading cycle with cutter radius compensation on"
 msgstr "不能使用G76螺紋週期當刀具半徑補償在使用"
 
-#: src/emc/rs274ngc/interp_convert.cc:4957
+#: src/emc/rs274ngc/interp_convert.cc:4979
 msgid "In G76, I must not be 0"
 msgstr "在 G76，I 不能為 0"
 
-#: src/emc/rs274ngc/interp_convert.cc:4959
+#: src/emc/rs274ngc/interp_convert.cc:4981
 msgid "In G76, J must be greater than 0"
 msgstr "在 G76，J 必須大於 0"
 
-#: src/emc/rs274ngc/interp_convert.cc:4961
+#: src/emc/rs274ngc/interp_convert.cc:4983
 msgid "In G76, K must be greater than J"
 msgstr "在 G76，K 必須大於 J"
 
-#: src/emc/rs274ngc/interp_convert.cc:5104
+#: src/emc/rs274ngc/interp_convert.cc:5126
 msgid ""
 "Length of cutter compensation entry move is not greater than the tool radius"
 msgstr "刀具長度補償 進入移動 不大於刀具半徑"
 
-#: src/emc/rs274ngc/interp_convert.cc:5323
+#: src/emc/rs274ngc/interp_convert.cc:5345
 msgid "Zero degree inside corner is invalid for cutter compensation"
 msgstr "零度內角 是無效的刀具補償"
 
-#: src/emc/rs274ngc/interp_convert.cc:5361
-#: src/emc/rs274ngc/interp_convert.cc:5369
+#: src/emc/rs274ngc/interp_convert.cc:5383
+#: src/emc/rs274ngc/interp_convert.cc:5391
 msgid ""
 "Arc to straight motion makes a corner the compensated tool can't fit in "
 "without gouging"
 msgstr "弧到直線運動做的角,補償工具不適合會做成刨削槽"
 
-#: src/emc/rs274ngc/interp_convert.cc:5453
+#: src/emc/rs274ngc/interp_convert.cc:5475
 msgid "Cannot change tools with cutter radius compensation on"
 msgstr "不能更改工具，刀具半徑補償在使用"
 
-#: src/emc/rs274ngc/interp_convert.cc:5577
+#: src/emc/rs274ngc/interp_convert.cc:5599
 msgid "Cannot change tool offset with cutter radius compensation on"
 msgstr "不能改變刀具補償當刀具半徑補償在使用"
 
-#: src/emc/rs274ngc/interp_convert.cc:5628
+#: src/emc/rs274ngc/interp_convert.cc:5650
 msgid "G43.2: Can not have both H and axis words"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_convert.cc:5631
+#: src/emc/rs274ngc/interp_convert.cc:5653
 msgid "G43.2: No axes specified and H word missing"
 msgstr ""
 
@@ -731,30 +731,30 @@ msgstr ""
 msgid "Invalid spindle ($) number in Spindle speed command"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_find.cc:172
+#: src/emc/rs274ngc/interp_find.cc:174
 msgid "Cannot use polar coordinates with G53"
 msgstr "不能用極坐標使用 G53"
 
-#: src/emc/rs274ngc/interp_find.cc:268 src/emc/rs274ngc/interp_find.cc:273
-#: src/emc/rs274ngc/interp_find.cc:280 src/emc/rs274ngc/interp_find.cc:339
-#: src/emc/rs274ngc/interp_find.cc:349
+#: src/emc/rs274ngc/interp_find.cc:272 src/emc/rs274ngc/interp_find.cc:277
+#: src/emc/rs274ngc/interp_find.cc:284 src/emc/rs274ngc/interp_find.cc:343
+#: src/emc/rs274ngc/interp_find.cc:353
 msgid "Cannot specify X or Y words with polar coordinate"
 msgstr "無法指定X或Y字當使用極坐標"
 
-#: src/emc/rs274ngc/interp_find.cc:274
+#: src/emc/rs274ngc/interp_find.cc:278
 msgid "Must specify angle in polar coordinate if at the origin"
 msgstr "必須指定角度在極坐標如過在原點"
 
-#: src/emc/rs274ngc/interp_find.cc:340
+#: src/emc/rs274ngc/interp_find.cc:344
 msgid ""
 "Incremental motion with polar coordinates is indeterminate when at the origin"
 msgstr "增量運動使用極坐標是不確定的，當在原點"
 
-#: src/emc/rs274ngc/interp_find.cc:350
+#: src/emc/rs274ngc/interp_find.cc:354
 msgid "G91 motion with polar coordinates is indeterminate when at the origin"
 msgstr "G91運動使用極坐標是不確定的，當在原點"
 
-#: src/emc/rs274ngc/interp_find.cc:724 src/emc/rs274ngc/interp_find.cc:740
+#: src/emc/rs274ngc/interp_find.cc:730 src/emc/rs274ngc/interp_find.cc:746
 #, c-format
 msgid "Requested tool %d not found in the tool table"
 msgstr "請求工具 %d 刀具表找不到"
@@ -950,7 +950,7 @@ msgstr "內部錯誤：無法指派 #<%S>"
 msgid "Cannot assign to read-only parameter #<%s>"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_namedparams.cc:772
+#: src/emc/rs274ngc/interp_namedparams.cc:787
 #, c-format
 msgid "BUG: lookup_named_param(%s): unhandled index=%fn"
 msgstr ""
@@ -964,7 +964,7 @@ msgstr "換刀後隊列不空"
 msgid "Unable to open parameter file: '%s'"
 msgstr "無法打開參數文件: '%s'"
 
-#: src/emc/rs274ngc/rs274ngc_pre.cc:2507
+#: src/emc/rs274ngc/rs274ngc_pre.cc:2511
 #, fuzzy
 msgid "Parameter file name is missing"
 msgstr "參數 文件 是　%s"
@@ -1916,8 +1916,8 @@ msgstr "垂直"
 
 #: src/hal/utils/scope.c:688 src/hal/classicladder/classicladder_gtk.c:343
 #: src/hal/classicladder/classicladder_gtk.c:856 share/axis/tcl/axis.tcl:144
-#: share/axis/tcl/axis.tcl:1044 src/emc/usr_intf/gscreen/gscreen.py:4463
-#: src/emc/usr_intf/gscreen/gscreen.py:4464
+#: share/axis/tcl/axis.tcl:1044 src/emc/usr_intf/gscreen/gscreen.py:4481
+#: src/emc/usr_intf/gscreen/gscreen.py:4482
 #: src/emc/usr_intf/gscreen/gscreen.glade:2649
 msgid "Stop"
 msgstr "停"
@@ -1978,11 +1978,11 @@ msgstr ""
 #: tcl/tklinuxcnc.tcl:1225 tcl/tklinuxcnc.tcl:1296 tcl/tklinuxcnc.tcl:1327
 #: tcl/tklinuxcnc.tcl:1358 tcl/tklinuxcnc.tcl:1892 tcl/tklinuxcnc.tcl:1911
 #: tcl/tklinuxcnc.tcl:1930 tcl/tklinuxcnc.tcl:1977
-#: src/emc/usr_intf/axis/scripts/axis.py:1176
-#: src/emc/usr_intf/axis/scripts/axis.py:1277
-#: src/emc/usr_intf/axis/scripts/axis.py:1637
-#: src/emc/usr_intf/axis/scripts/axis.py:2936
-#: src/emc/usr_intf/axis/scripts/axis.py:4176
+#: src/emc/usr_intf/axis/scripts/axis.py:1177
+#: src/emc/usr_intf/axis/scripts/axis.py:1278
+#: src/emc/usr_intf/axis/scripts/axis.py:1638
+#: src/emc/usr_intf/axis/scripts/axis.py:2937
+#: src/emc/usr_intf/axis/scripts/axis.py:4177
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:725
 #: lib/python/propertywindow.py:35 share/axis/tcl/axis.tcl:1580
 #: share/axis/tcl/axis.tcl:1617
@@ -2213,10 +2213,10 @@ msgid "Pos"
 msgstr "定位"
 
 #: src/hal/utils/scope_vert.c:635 tcl/ngcgui_ttt.tcl:215
-#: src/emc/usr_intf/pncconf/x_motor.glade:1656
-#: src/emc/usr_intf/pncconf/y_motor.glade:1656
-#: src/emc/usr_intf/pncconf/z_motor.glade:1656
-#: src/emc/usr_intf/pncconf/a_motor.glade:1587
+#: src/emc/usr_intf/pncconf/x_motor.glade:1672
+#: src/emc/usr_intf/pncconf/y_motor.glade:1666
+#: src/emc/usr_intf/pncconf/z_motor.glade:1666
+#: src/emc/usr_intf/pncconf/a_motor.glade:1591
 #: src/emc/usr_intf/pncconf/s_motor.glade:1821
 #: lib/python/gladevcp/gladevcp-test.glade:222
 msgid "Scale"
@@ -2347,91 +2347,91 @@ msgstr "通道"
 msgid "Source"
 msgstr "來源"
 
-#: src/emc/motion/control.c:508
+#: src/emc/motion/control.c:517
 #, fuzzy, c-format
 msgid "fault %d during orient in progress"
 msgstr "歸零 已在 進行中"
 
-#: src/emc/motion/control.c:685
+#: src/emc/motion/control.c:694
 msgid "G38.4 move finished without breaking contact."
 msgstr "G38.4 移動完成後不阻斷接觸."
 
-#: src/emc/motion/control.c:688
+#: src/emc/motion/control.c:697
 msgid "G38.2 move finished without making contact."
 msgstr "G38.2 移動完成後不作出接觸."
 
-#: src/emc/motion/control.c:701
+#: src/emc/motion/control.c:710
 #, fuzzy
 msgid "Probe tripped during non-probe move."
 msgstr "探頭跳閘在非探測 MDI 命令."
 
-#: src/emc/motion/control.c:732
+#: src/emc/motion/control.c:741
 msgid "Probe tripped during homing motion."
 msgstr "探頭跳閘在歸零運動."
 
-#: src/emc/motion/control.c:736
+#: src/emc/motion/control.c:745
 #, fuzzy
 msgid "Probe tripped during a joint jog."
 msgstr "探頭跳閘當正在慢步."
 
-#: src/emc/motion/control.c:739
+#: src/emc/motion/control.c:748
 #, fuzzy
 msgid "Probe tripped during a coordinate jog."
 msgstr "探頭跳閘當正在慢步."
 
-#: src/emc/motion/control.c:755
+#: src/emc/motion/control.c:764
 msgid "motion stopped by enable input"
 msgstr "運動停止因有 允許 輸入"
 
-#: src/emc/motion/control.c:762
+#: src/emc/motion/control.c:771
 #, fuzzy, c-format
 msgid "spindle %d amplifier fault"
 msgstr "Joint %d 放大器故障"
 
-#: src/emc/motion/control.c:785
+#: src/emc/motion/control.c:794
 #, c-format
 msgid "joint %d on limit switch error"
 msgstr "Joint %d 在限位開關 故障"
 
-#: src/emc/motion/control.c:797
+#: src/emc/motion/control.c:806
 #, c-format
 msgid "joint %d amplifier fault"
 msgstr "Joint %d 放大器故障"
 
-#: src/emc/motion/control.c:806
+#: src/emc/motion/control.c:815
 #, c-format
 msgid "joint %d following error"
 msgstr "Joint %d 跟隨 故障"
 
-#: src/emc/motion/control.c:819
+#: src/emc/motion/control.c:828
 #, c-format
 msgid "Motion Stopped by misc error %d"
 msgstr ""
 
-#: src/emc/motion/control.c:1326 src/emc/motion/control.c:1386
+#: src/emc/motion/control.c:1331 src/emc/motion/control.c:1391
 #, c-format
 msgid "kinematicsInverse gave non-finite joint location on joint %d"
 msgstr ""
 
-#: src/emc/motion/control.c:1343 src/emc/motion/control.c:1405
+#: src/emc/motion/control.c:1348 src/emc/motion/control.c:1410
 msgid "kinematicsInverse failed"
 msgstr ""
 
-#: src/emc/motion/control.c:1482
+#: src/emc/motion/control.c:1487
 #, fuzzy, c-format
 msgid "Exceeded NEGATIVE soft limit (%.5f) on joint %d\n"
 msgstr "超出 正 軟極限在 Joint %d"
 
-#: src/emc/motion/control.c:1485 src/emc/motion/control.c:1494
+#: src/emc/motion/control.c:1490 src/emc/motion/control.c:1499
 #, fuzzy
 msgid "Joint must be unhomed, jogged into limits, rehomed"
 msgstr "所有 joint 一定 要在 零點 才能  進入 遠程操作 模式"
 
-#: src/emc/motion/control.c:1487 src/emc/motion/control.c:1496
+#: src/emc/motion/control.c:1492 src/emc/motion/control.c:1501
 msgid "Hint: switch to joint mode to jog off soft limit"
 msgstr ""
 
-#: src/emc/motion/control.c:1491
+#: src/emc/motion/control.c:1496
 #, fuzzy, c-format
 msgid "Exceeded POSITIVE soft limit (%.5f) on joint %d\n"
 msgstr "超出 正 軟極限在 Joint %d"
@@ -2565,122 +2565,93 @@ msgstr "一定 要在 Joint 模式 才能 歸零 "
 msgid "Homing denied by motion.homing-inhibit joint=%d\n"
 msgstr ""
 
-#: src/emc/motion/command.c:1397
-msgid "homing sequence already in progress"
-msgstr "歸零 序列 已在 進行中"
-
-#: src/emc/motion/command.c:1430
+#: src/emc/motion/command.c:1403
 msgid "must be in joint mode or disabled to unhome"
 msgstr "一定 要在 Joint 模式 或 不允許 才 可以 離零"
 
-#: src/emc/motion/command.c:1442 src/emc/motion/command.c:1485
-#, c-format
-msgid "Cannot unhome while homing, joint %d"
-msgstr "不能 離零 當 在 歸零中, Joint %d"
-
-#: src/emc/motion/command.c:1446 src/emc/motion/command.c:1489
-#, c-format
-msgid "Cannot unhome while moving, joint %d"
-msgstr "不能 離零 當 在 移動 中, Joint %d "
-
-#: src/emc/motion/command.c:1452 src/emc/motion/command.c:1480
-#, fuzzy, c-format
-msgid "Cannot unhome extrajoint <%d> with motion enabled"
-msgstr "不能 慢步 joint 當 未有 允許 "
-
-#: src/emc/motion/command.c:1494
-#, c-format
-msgid "Cannot unhome inactive joint %d"
-msgstr "不能 離零 未激活的 Joint %d"
-
-#: src/emc/motion/command.c:1498
-#, c-format
-msgid "Cannot unhome invalid joint %d (max %d)"
-msgstr "不能 離零 無效的 Joint %d (max %d) "
-
-#: src/emc/motion/command.c:1516
+#: src/emc/motion/command.c:1423
 msgid "need to be enabled, in coord mode for probe move"
 msgstr ""
 
-#: src/emc/motion/command.c:1526
+#: src/emc/motion/command.c:1433
 msgid "can't do probe move with limits exceeded"
 msgstr ""
 
-#: src/emc/motion/command.c:1540
+#: src/emc/motion/command.c:1447
 msgid "Probe is already clear when starting G38.4 or G38.5 move"
 msgstr ""
 
-#: src/emc/motion/command.c:1542
+#: src/emc/motion/command.c:1449
 msgid "Probe is already tripped when starting G38.2 or G38.3 move"
 msgstr ""
 
-#: src/emc/motion/command.c:1563
+#: src/emc/motion/command.c:1470
 msgid "can't add probe move"
 msgstr ""
 
-#: src/emc/motion/command.c:1585
+#: src/emc/motion/command.c:1492
 msgid "need to be enabled, in coord mode for rigid tap move"
 msgstr ""
 
-#: src/emc/motion/command.c:1595
+#: src/emc/motion/command.c:1502
 msgid "can't do rigid tap move with limits exceeded"
 msgstr ""
 
-#: src/emc/motion/command.c:1614
+#: src/emc/motion/command.c:1521
 #, c-format
 msgid "can't add rigid tap move at line %d, error code %d"
 msgstr ""
 
-#: src/emc/motion/command.c:1659
+#: src/emc/motion/command.c:1566
 #, fuzzy
 msgid "Attempt to configure non-existent spindle"
 msgstr "試圖提高負對非整數冪"
 
-#: src/emc/motion/command.c:1677
+#: src/emc/motion/command.c:1584
 msgid "Attempt to start non-existent spindle"
 msgstr ""
 
-#: src/emc/motion/command.c:1728
+#: src/emc/motion/command.c:1635
 #, c-format
 msgid "Attempt to stop non-existent spindle <%d>"
 msgstr ""
 
-#: src/emc/motion/command.c:1759
+#: src/emc/motion/command.c:1666
 #, c-format
 msgid "Attempt to orient non-existent spindle <%d>"
 msgstr ""
 
-#: src/emc/motion/command.c:1805
+#: src/emc/motion/command.c:1712
 #, c-format
 msgid "Attempt to increase non-existent spindle <%d>"
 msgstr ""
 
-#: src/emc/motion/command.c:1829
+#: src/emc/motion/command.c:1736
 #, fuzzy, c-format
 msgid "Attempt to decrease non-existent spindle <%d>."
 msgstr "試圖提高負對非整數冪"
 
-#: src/emc/motion/command.c:1853
+#: src/emc/motion/command.c:1760
 #, c-format
 msgid "Attempt to engage brake of non-existent spindle <%d>"
 msgstr ""
 
-#: src/emc/motion/command.c:1875
+#: src/emc/motion/command.c:1782
 #, fuzzy, c-format
 msgid "Attempt to release brake of non-existent spindle <%d>"
 msgstr "試圖提高負對非整數冪"
 
-#: src/emc/motion/command.c:1897
+#: src/emc/motion/command.c:1804
 #, c-format
 msgid "joint %d: too many compensation entries"
 msgstr "joint %d: 太多的補償條目"
 
-#: src/emc/motion/command.c:1903
+#: src/emc/motion/command.c:1810
 #, c-format
 msgid "joint %d: compensation values must increase"
 msgstr "joint %d: 補償值必須增加"
 
-#: src/emc/motion/command.c:1981
+#: src/emc/motion/command.c:1888
 #, c-format
 msgid "unrecognized command %d"
 msgstr ""
@@ -2689,16 +2660,16 @@ msgstr ""
 msgid "all joints must be homed before going into teleop mode"
 msgstr "所有 joint 一定 要在 零點 才能  進入 遠程操作 模式"
 
-#: src/emc/motion/motion.c:273
+#: src/emc/motion/motion.c:270
 msgid "MOTION: hal_init() failed\n"
 msgstr ""
 
-#: src/emc/motion/motion.c:278
+#: src/emc/motion/motion.c:275
 #, c-format
 msgid "MOTION: num_joints is %d, must be between 1 and %d\n"
 msgstr ""
 
-#: src/emc/motion/motion.c:285
+#: src/emc/motion/motion.c:282
 #, c-format
 msgid ""
 "\n"
@@ -2706,14 +2677,14 @@ msgid ""
 "\n"
 msgstr ""
 
-#: src/emc/motion/motion.c:290
+#: src/emc/motion/motion.c:287
 msgid ""
 "\n"
 "MOTION: nonzero num_extrajoints requires KINEMATICS_BOTH\n"
 "\n"
 msgstr ""
 
-#: src/emc/motion/motion.c:295
+#: src/emc/motion/motion.c:292
 #, c-format
 msgid ""
 "\n"
@@ -2723,156 +2694,200 @@ msgid ""
 "\n"
 msgstr ""
 
-#: src/emc/motion/motion.c:302
+#: src/emc/motion/motion.c:299
 #, c-format
 msgid "MOTION: num_spindles is %d, must be between 0 and %d\n"
 msgstr ""
 
-#: src/emc/motion/motion.c:309
+#: src/emc/motion/motion.c:306
 msgid "MOTION: Can't specify both names and number for digital pins\n"
 msgstr ""
 
-#: src/emc/motion/motion.c:323
+#: src/emc/motion/motion.c:320
 #, c-format
 msgid "MOTION: num_dio is %d, must be between 1 and %d\n"
 msgstr ""
 
-#: src/emc/motion/motion.c:329
+#: src/emc/motion/motion.c:326
 msgid "MOTION: Can't specify both names and number for analog pins\n"
 msgstr ""
 
-#: src/emc/motion/motion.c:342
+#: src/emc/motion/motion.c:339
 #, c-format
 msgid "MOTION: num_aio is %d, must be between 1 and %d\n"
 msgstr ""
 
-#: src/emc/motion/motion.c:348
+#: src/emc/motion/motion.c:345
 msgid "MOTION: Can't specify both names and number for misc error\n"
 msgstr ""
 
-#: src/emc/motion/motion.c:361
+#: src/emc/motion/motion.c:358
 #, c-format
 msgid "MOTION: num_misc_error is %d, must be between 0 and %d\n"
 msgstr ""
 
-#: src/emc/motion/motion.c:369
+#: src/emc/motion/motion.c:366
 msgid "MOTION: init_hal_io() failed\n"
 msgstr ""
 
-#: src/emc/motion/motion.c:377
+#: src/emc/motion/motion.c:374
 msgid "MOTION: init_comm_buffers() failed\n"
 msgstr ""
 
-#: src/emc/motion/motion.c:383
+#: src/emc/motion/motion.c:380
 msgid "MOTION: module_intfc() failed\n"
 msgstr ""
 
-#: src/emc/motion/motion.c:387
+#: src/emc/motion/motion.c:384
 msgid "MOTION: tp_init() failed\n"
 msgstr ""
 
-#: src/emc/motion/motion.c:394
+#: src/emc/motion/motion.c:391
 msgid "MOTION: init_threads() failed\n"
 msgstr ""
 
-#: src/emc/motion/motion.c:400
+#: src/emc/motion/motion.c:401
 msgid "MOTION: homing_init() failed\n"
 msgstr ""
 
-#: src/emc/motion/motion.c:425
+#: src/emc/motion/motion.c:426
 #, c-format
 msgid "MOTION: hal_stop_threads() failed, returned %d\n"
 msgstr ""
 
-#: src/emc/motion/motion.c:431
+#: src/emc/motion/motion.c:432
 #, c-format
 msgid "MOTION: rtapi_shmem_delete() failed, returned %d\n"
 msgstr ""
 
-#: src/emc/motion/motion.c:437
+#: src/emc/motion/motion.c:438
 #, c-format
 msgid "MOTION: hal_exit() failed, returned %d\n"
 msgstr ""
 
-#: src/emc/motion/motion.c:466
+#: src/emc/motion/motion.c:467
 msgid "MOTION: emcmot_hal_data malloc failed\n"
 msgstr ""
 
-#: src/emc/motion/motion.c:657
+#: src/emc/motion/motion.c:660
 #, c-format
 msgid "MOTION: spindle %d pin export failed"
 msgstr ""
 
-#: src/emc/motion/motion.c:667
+#: src/emc/motion/motion.c:670
 #, c-format
 msgid "MOTION: joint %d pin/param export failed\n"
 msgstr ""
 
-#: src/emc/motion/motion.c:680
+#: src/emc/motion/motion.c:683
 #, c-format
 msgid "MOTION: ejoint %d pin/param export failed\n"
 msgstr ""
 
-#: src/emc/motion/homing.c:191
+#: src/emc/motion/homing.c:188
 #, c-format
-msgid "hit limit in home state %d"
+msgid "j%d hit limit in home state %d"
 msgstr ""
 
-#: src/emc/motion/homing.c:201
+#: src/emc/motion/homing.c:197
 #, c-format
-msgid "end of move in home state %d"
+msgid "j%d end of move in home state %d"
 msgstr ""
 
-#: src/emc/motion/homing.c:240
+#: src/emc/motion/homing.c:236
 msgid "HOMING: all_joints_home_data_t malloc failed\n"
 msgstr ""
 
-#: src/emc/motion/homing.c:495
+#: src/emc/motion/homing.c:299
 #, c-format
-msgid "homing.c Unexpected joint=%d jsequence=%d seq=%d\n"
+msgid "Cannot unhome while homing, joint %d"
+msgstr "不能 離零 當 在 歸零中, Joint %d"
+
+#: src/emc/motion/homing.c:304
+#, c-format
+msgid "Cannot unhome while moving, joint %d"
+msgstr "不能 離零 當 在 移動 中, Joint %d "
+
+#: src/emc/motion/homing.c:311
+#, fuzzy, c-format
+msgid "Cannot unhome extrajoint <%d> with motion enabled"
+msgstr "不能 慢步 joint 當 未有 允許 "
+
+#: src/emc/motion/homing.c:366
+#, c-format
+msgid "homing.c Unexpected joint=%d jseq=%d current_seq=%d\n"
 msgstr ""
 
-#: src/emc/motion/homing.c:627
+#: src/emc/motion/homing.c:482
 #, c-format
 msgid "unknown state '%d' during homing sequence"
 msgstr ""
 
-#: src/emc/motion/homing.c:686
+#: src/emc/motion/homing.c:576
+#, fuzzy, c-format
+#| msgid "Cannot unhome invalid joint %d (max %d)"
+msgid "Cannot unhome invalid joint %d (max %d)\n"
+msgstr "不能 離零 無效的 Joint %d (max %d) "
+
+#: src/emc/motion/homing.c:583
+#, fuzzy, c-format
+msgid "Cannot unhome extrajoint <%d> with motion enabled\n"
+msgstr "不能 慢步 joint 當 未有 允許 "
+
+#: src/emc/motion/homing.c:590
+#, fuzzy, c-format
+#| msgid "Cannot unhome while homing, joint %d"
+msgid "Cannot unhome while homing, joint %d\n"
+msgstr "不能 離零 當 在 歸零中, Joint %d"
+
+#: src/emc/motion/homing.c:595
+#, fuzzy, c-format
+#| msgid "Cannot unhome while moving, joint %d"
+msgid "Cannot unhome while moving, joint %d\n"
+msgstr "不能 離零 當 在 移動 中, Joint %d "
+
+#: src/emc/motion/homing.c:601
+#, fuzzy, c-format
+#| msgid "Cannot unhome inactive joint %d"
+msgid "Cannot unhome inactive joint %d\n"
+msgstr "不能 離零 未激活的 Joint %d"
+
+#: src/emc/motion/homing.c:757
 #, fuzzy, c-format
 msgid "Cannot home while shared home switch is closed j=%d"
 msgstr "不能 離零 當 在 歸零中, Joint %d"
 
-#: src/emc/motion/homing.c:747
+#: src/emc/motion/homing.c:816
 msgid ""
 "invalid homing config: non-zero LATCH_VEL needs either SEARCH_VEL or "
 "USE_INDEX"
 msgstr ""
 
-#: src/emc/motion/homing.c:757
+#: src/emc/motion/homing.c:826
 msgid "invalid homing config: non-zero SEARCH_VEL needs LATCH_VEL"
 msgstr ""
 
-#: src/emc/motion/homing.c:905
+#: src/emc/motion/homing.c:974
 #, c-format
 msgid "Home switch inactive before start of backoff move j=%d"
 msgstr ""
 
-#: src/emc/motion/homing.c:953
+#: src/emc/motion/homing.c:1022
 #, c-format
 msgid "Home switch active before start of latch move j=%d"
 msgstr ""
 
-#: src/emc/motion/homing.c:1010
+#: src/emc/motion/homing.c:1079
 #, c-format
 msgid "Home switch inactive before start of latch move j=%d"
 msgstr ""
 
-#: src/emc/motion/homing.c:1261
+#: src/emc/motion/homing.c:1313
 #, c-format
 msgid "hit limit in home state j=%d"
 msgstr ""
 
-#: src/emc/motion/homing.c:1317
+#: src/emc/motion/homing.c:1361
 #, c-format
 msgid "unknown state '%d' during homing j=%d"
 msgstr ""
@@ -2923,7 +2938,7 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:337 tcl/tklinuxcnc.tcl:1547
 #: src/emc/usr_intf/stepconf/main_page.glade:292
-#: src/emc/usr_intf/pncconf/dialogs.glade:3708
+#: src/emc/usr_intf/pncconf/dialogs.glade:3714
 #: src/emc/usr_intf/gscreen/gscreen.glade:2660
 msgid "Run"
 msgstr "運行"
@@ -2984,7 +2999,7 @@ msgstr ""
 #: src/hal/classicladder/symbols_gtk.c:122
 #: src/hal/classicladder/symbols_gtk.c:138
 #: src/hal/classicladder/symbols_gtk.c:140
-#: src/emc/usr_intf/axis/scripts/axis.py:1581
+#: src/emc/usr_intf/axis/scripts/axis.py:1582
 msgid "Ok"
 msgstr ""
 
@@ -3156,7 +3171,7 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:841 tcl/bin/emccalib.tcl:123
 #: tcl/bin/genedit.tcl:82 tcl/bin/halconfig.tcl:155
-#: src/emc/usr_intf/axis/scripts/axis.py:2285
+#: src/emc/usr_intf/axis/scripts/axis.py:2286
 msgid "Save"
 msgstr "保存"
 
@@ -3665,10 +3680,10 @@ msgstr "修改"
 #: tcl/bin/pickconfig.tcl:432 tcl/bin/pickconfig.tcl:625 tcl/tklinuxcnc.tcl:163
 #: tcl/tklinuxcnc.tcl:214 tcl/tklinuxcnc.tcl:421 tcl/tklinuxcnc.tcl:1227
 #: tcl/tklinuxcnc.tcl:1297 tcl/tklinuxcnc.tcl:1328 tcl/tklinuxcnc.tcl:1359
-#: tcl/tklinuxcnc.tcl:1978 src/emc/usr_intf/axis/scripts/axis.py:1582
-#: src/emc/usr_intf/axis/scripts/axis.py:1638
-#: src/emc/usr_intf/axis/scripts/axis.py:1868
-#: src/emc/usr_intf/axis/scripts/axis.py:2286
+#: tcl/tklinuxcnc.tcl:1978 src/emc/usr_intf/axis/scripts/axis.py:1583
+#: src/emc/usr_intf/axis/scripts/axis.py:1639
+#: src/emc/usr_intf/axis/scripts/axis.py:1869
+#: src/emc/usr_intf/axis/scripts/axis.py:2287
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:727
 #: src/emc/usr_intf/stepconf/main_page.glade:475
 #: src/emc/usr_intf/pncconf/main_page.glade:101
@@ -3859,12 +3874,12 @@ msgstr ""
 msgid "Properties"
 msgstr "屬性(_P)......"
 
-#: src/hal/classicladder/editproperties_gtk.c:180 tcl/bin/halshow.tcl:241
+#: src/hal/classicladder/editproperties_gtk.c:180 tcl/bin/halshow.tcl:267
 #, fuzzy
 msgid "Parameter"
 msgstr "參數"
 
-#: src/hal/classicladder/editproperties_gtk.c:213 tcl/bin/halshow.tcl:585
+#: src/hal/classicladder/editproperties_gtk.c:213 tcl/bin/halshow.tcl:735
 #: lib/python/gladevcp/tooledit_gtk.glade:340
 msgid "Apply"
 msgstr ""
@@ -4555,7 +4570,7 @@ msgid "Save To File"
 msgstr "保存到文件"
 
 #: tcl/bin/emccalib.tcl:119 tcl/bin/genedit.tcl:77 tcl/bin/halconfig.tcl:151
-#: tcl/bin/halshow.tcl:197 tcl/tklinuxcnc.tcl:748 tcl/ngcgui.tcl:493
+#: tcl/bin/halshow.tcl:220 tcl/tklinuxcnc.tcl:748 tcl/ngcgui.tcl:493
 msgid "File"
 msgstr "文件"
 
@@ -4658,7 +4673,7 @@ msgstr "打開..."
 msgid "Save As..."
 msgstr "另存為..."
 
-#: tcl/bin/genedit.tcl:87 tcl/bin/halconfig.tcl:165 tcl/bin/halshow.tcl:207
+#: tcl/bin/genedit.tcl:87 tcl/bin/halconfig.tcl:165 tcl/bin/halshow.tcl:230
 #: tcl/tklinuxcnc.tcl:763 tcl/ngcgui.tcl:1335 tcl/ngcgui.tcl:3853
 msgid "Exit"
 msgstr "退出"
@@ -4672,7 +4687,7 @@ msgstr "修訂"
 msgid "Cut"
 msgstr "切割"
 
-#: tcl/bin/genedit.tcl:94 tcl/bin/halshow.tcl:784 tcl/bin/halshow.tcl:802
+#: tcl/bin/genedit.tcl:94 tcl/bin/halshow.tcl:934 tcl/bin/halshow.tcl:952
 msgid "Copy"
 msgstr "複製"
 
@@ -4843,7 +4858,7 @@ msgstr "不保存"
 msgid "Show"
 msgstr "展示"
 
-#: tcl/bin/halconfig.tcl:133 tcl/bin/halshow.tcl:234
+#: tcl/bin/halconfig.tcl:133 tcl/bin/halshow.tcl:260
 msgid "Watch"
 msgstr "監視"
 
@@ -4875,19 +4890,19 @@ msgstr "樹狀 擴張"
 msgid "Collapse Tree"
 msgstr "樹狀 收縮"
 
-#: tcl/bin/halconfig.tcl:175 tcl/bin/halshow.tcl:226
+#: tcl/bin/halconfig.tcl:175 tcl/bin/halshow.tcl:249
 msgid "Expand Pins"
 msgstr "展開 針"
 
-#: tcl/bin/halconfig.tcl:177 tcl/bin/halshow.tcl:228
+#: tcl/bin/halconfig.tcl:177 tcl/bin/halshow.tcl:251
 msgid "Expand Parameters"
 msgstr "展開 參數"
 
-#: tcl/bin/halconfig.tcl:179 tcl/bin/halshow.tcl:230
+#: tcl/bin/halconfig.tcl:179 tcl/bin/halshow.tcl:253
 msgid "Expand Signals"
 msgstr "展開 信號"
 
-#: tcl/bin/halconfig.tcl:182 tcl/bin/halshow.tcl:245
+#: tcl/bin/halconfig.tcl:182 tcl/bin/halshow.tcl:271
 msgid "Erase Watch"
 msgstr "清徐 監視"
 
@@ -4895,7 +4910,7 @@ msgstr "清徐 監視"
 msgid "Enter HAL command :"
 msgstr "输入 HAL 指令 :"
 
-#: tcl/bin/halconfig.tcl:479 tcl/bin/halconfig.tcl:528 tcl/bin/halshow.tcl:524
+#: tcl/bin/halconfig.tcl:479 tcl/bin/halconfig.tcl:528 tcl/bin/halshow.tcl:674
 msgid "Execute"
 msgstr "執行"
 
@@ -4917,11 +4932,11 @@ msgstr ""
 " 已經改變. \n"
 " 真的退出?"
 
-#: tcl/bin/halconfig.tcl:943 tcl/bin/halshow.tcl:629
+#: tcl/bin/halconfig.tcl:943 tcl/bin/halshow.tcl:779
 msgid "Select a node to show."
 msgstr "選定要展示的節點."
 
-#: tcl/bin/halconfig.tcl:968 tcl/bin/halshow.tcl:683
+#: tcl/bin/halconfig.tcl:968 tcl/bin/halshow.tcl:833
 msgid "<-- Select a Leaf.  Click on its name."
 msgstr "<-- 選定一葉. 點擊它的名字."
 
@@ -4958,213 +4973,238 @@ msgstr ""
 msgid "Halshow"
 msgstr "HAL 顯示器"
 
-#: tcl/bin/halshow.tcl:153
+#: tcl/bin/halshow.tcl:176
 msgid " SHOW "
 msgstr "展示"
 
-#: tcl/bin/halshow.tcl:154
+#: tcl/bin/halshow.tcl:177
 msgid " WATCH "
 msgstr "監視 "
 
-#: tcl/bin/halshow.tcl:155
+#: tcl/bin/halshow.tcl:178
 msgid " SETTINGS "
 msgstr ""
 
-#: tcl/bin/halshow.tcl:199
+#: tcl/bin/halshow.tcl:222
 msgid "Load Watch List"
 msgstr "加載觀察名單"
 
-#: tcl/bin/halshow.tcl:201
+#: tcl/bin/halshow.tcl:224
 #, fuzzy
 msgid "Save Watch List"
 msgstr "加載觀察名單"
 
-#: tcl/bin/halshow.tcl:202
+#: tcl/bin/halshow.tcl:225
 msgid "Save Watch List (multiline)"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:219 tcl/bin/halshow.tcl:292 tcl/bin/halshow.tcl:304
+#: tcl/bin/halshow.tcl:242 tcl/bin/halshow.tcl:363
 msgid "Tree View"
 msgstr "樹狀觀看"
 
-#: tcl/bin/halshow.tcl:221
+#: tcl/bin/halshow.tcl:244
 #, fuzzy
 msgid "Expand All"
 msgstr "展開 針"
 
-#: tcl/bin/halshow.tcl:223
+#: tcl/bin/halshow.tcl:246
 #, fuzzy
 #| msgid "Collapse Tree"
 msgid "Collapse All"
 msgstr "樹狀 收縮"
 
-#: tcl/bin/halshow.tcl:236
+#: tcl/bin/halshow.tcl:256
+#, fuzzy
+#| msgid "Rotate view"
+msgid "Reload tree view"
+msgstr "旋轉 視圖"
+
+#: tcl/bin/halshow.tcl:262
 msgid "Add pin"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:237
+#: tcl/bin/halshow.tcl:263
 #, fuzzy
 #| msgid "Pins"
 msgid "Pin"
 msgstr "針"
 
-#: tcl/bin/halshow.tcl:238
+#: tcl/bin/halshow.tcl:264
 #, fuzzy
 #| msgid " _Signals "
 msgid "Add signal"
 msgstr " 信號​​(_S) "
 
-#: tcl/bin/halshow.tcl:239
+#: tcl/bin/halshow.tcl:265
 #, fuzzy
 #| msgid "Signals"
 msgid "Signal"
 msgstr "信號"
 
-#: tcl/bin/halshow.tcl:240
+#: tcl/bin/halshow.tcl:266
 #, fuzzy
 msgid "Add parameter"
 msgstr "參數"
 
-#: tcl/bin/halshow.tcl:243
+#: tcl/bin/halshow.tcl:269
 #, fuzzy
 #| msgid "Load Watch List"
 msgid "Reload Watch"
 msgstr "加載觀察名單"
 
-#: tcl/bin/halshow.tcl:248
+#: tcl/bin/halshow.tcl:274
 msgid "Watchlist cleared"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:254
+#: tcl/bin/halshow.tcl:280
 msgid "Add to watch"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:257
+#: tcl/bin/halshow.tcl:283
 msgid "added"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:514
+#: tcl/bin/halshow.tcl:331
+msgid "Full path (regex)"
+msgstr ""
+
+#: tcl/bin/halshow.tcl:335 tcl/bin/halshow.tcl:348
+#, fuzzy
+#| msgid "Filter failed"
+msgid "Filter tree"
+msgstr "篩選 失敗"
+
+#: tcl/bin/halshow.tcl:664
 #, fuzzy
 #| msgid "Test HAL command :"
 msgid "HAL command :"
 msgstr "測試 HAL 指令 ："
 
-#: tcl/bin/halshow.tcl:574
+#: tcl/bin/halshow.tcl:724
 msgid "Update interval (in ms)"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:575
+#: tcl/bin/halshow.tcl:725
 msgid "Column width for value in watch tab"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:576
+#: tcl/bin/halshow.tcl:726
 msgid "Override format string (leave empty for default)"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:578
+#: tcl/bin/halshow.tcl:728
 msgid "Float"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:579
+#: tcl/bin/halshow.tcl:729
 #, fuzzy
 #| msgid "Interpreter"
 msgid "Integer"
 msgstr "解释程序"
 
-#: tcl/bin/halshow.tcl:582
+#: tcl/bin/halshow.tcl:732
 msgid ""
 "Always on top\n"
 "(Note: May not working with all desktop environments)"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:584
+#: tcl/bin/halshow.tcl:734
 msgid "Remember watchlist"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:591
+#: tcl/bin/halshow.tcl:741
 msgid "Settings stored in: "
 msgstr ""
 
-#: tcl/bin/halshow.tcl:695
+#: tcl/bin/halshow.tcl:845
 msgid "already in list"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:786
+#: tcl/bin/halshow.tcl:936
 #, fuzzy
 msgid "Set to .."
 msgstr "字體 設為"
 
-#: tcl/bin/halshow.tcl:789
+#: tcl/bin/halshow.tcl:939
 msgid "Unlink pin"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:791
+#: tcl/bin/halshow.tcl:941
+#, fuzzy
+msgid "Show in Tree"
+msgstr "展示"
+
+#: tcl/bin/halshow.tcl:942
 msgid "Remove"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:803
+#: tcl/bin/halshow.tcl:953
 #, fuzzy
 #| msgid " _Signals "
 msgid "Add as Pin(s)"
 msgstr " 信號​​(_S) "
 
-#: tcl/bin/halshow.tcl:804
+#: tcl/bin/halshow.tcl:954
 #, fuzzy
 #| msgid " _Signals "
 msgid "Add as Signal(s)"
 msgstr " 信號​​(_S) "
 
-#: tcl/bin/halshow.tcl:805
+#: tcl/bin/halshow.tcl:955
 msgid "Add as Param(s)"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:837 tcl/bin/halshow.tcl:905
+#: tcl/bin/halshow.tcl:966
+msgid "Add all sub-items to watch"
+msgstr ""
+
+#: tcl/bin/halshow.tcl:998 tcl/bin/halshow.tcl:1066
 #, fuzzy
 #| msgid "Sec"
 msgid "Set"
 msgstr "秒"
 
-#: tcl/bin/halshow.tcl:857
+#: tcl/bin/halshow.tcl:1018
 #, fuzzy
 msgid "User input"
 msgstr "左 按鈕"
 
-#: tcl/bin/halshow.tcl:906
+#: tcl/bin/halshow.tcl:1067
 msgid "Update interval for this session (ms)"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:908
+#: tcl/bin/halshow.tcl:1069
 #, fuzzy
 #| msgid "G code out of range"
 msgid "Value out of range"
 msgstr "G代碼超出範圍"
 
-#: tcl/bin/halshow.tcl:976
+#: tcl/bin/halshow.tcl:1137
 msgid "removed from list"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:1006
+#: tcl/bin/halshow.tcl:1167
 msgid "Load a watch list"
 msgstr "加載觀察名單"
 
-#: tcl/bin/halshow.tcl:1028
+#: tcl/bin/halshow.tcl:1189
 #, fuzzy
 msgid "loaded"
 msgstr "重新載入(_R)"
 
-#: tcl/bin/halshow.tcl:1039
+#: tcl/bin/halshow.tcl:1200
 msgid "Save current watch list"
 msgstr "保存當前觀察名單"
 
-#: tcl/bin/halshow.tcl:1071
+#: tcl/bin/halshow.tcl:1232
 msgid "Commands may be tested here but they will NOT be saved"
 msgstr "指令可以在這兒測試但不會被保存"
 
-#: tcl/bin/halshow.tcl:1096
+#: tcl/bin/halshow.tcl:1257
 msgid "Integer (disabled by \"--iformat\" argument)"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:1102
+#: tcl/bin/halshow.tcl:1263
 msgid "Float (disabled by \"--fformat\" argument)"
 msgstr ""
 
@@ -5373,7 +5413,7 @@ msgstr "設置 刀具 偏移量"
 msgid "Tool:"
 msgstr "刀具:"
 
-#: tcl/tklinuxcnc.tcl:466 src/emc/usr_intf/axis/scripts/axis.py:2206
+#: tcl/tklinuxcnc.tcl:466 src/emc/usr_intf/axis/scripts/axis.py:2207
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:763
 msgid "All files"
 msgstr "所有文件"
@@ -5444,9 +5484,9 @@ msgstr "自動"
 msgid "inches"
 msgstr "英寸"
 
-#: tcl/tklinuxcnc.tcl:786 src/emc/usr_intf/axis/scripts/axis.py:1737
-#: src/emc/usr_intf/axis/scripts/axis.py:2023
-#: src/emc/usr_intf/axis/scripts/axis.py:2600
+#: tcl/tklinuxcnc.tcl:786 src/emc/usr_intf/axis/scripts/axis.py:1738
+#: src/emc/usr_intf/axis/scripts/axis.py:2024
+#: src/emc/usr_intf/axis/scripts/axis.py:2601
 #: src/emc/usr_intf/touchy/touchy.glade:3272
 #: src/emc/usr_intf/stepconf/stepconf.py:1571
 #: src/emc/usr_intf/stepconf/pages.py:960
@@ -5455,15 +5495,15 @@ msgstr "英寸"
 #: src/emc/usr_intf/pncconf/external.glade:1960
 #: src/emc/usr_intf/pncconf/external.glade:2157
 #: src/emc/usr_intf/pncconf/base.glade:57
-#: src/emc/usr_intf/pncconf/x_motor.glade:1979
-#: src/emc/usr_intf/pncconf/x_motor.glade:2053
-#: src/emc/usr_intf/pncconf/y_motor.glade:1979
-#: src/emc/usr_intf/pncconf/y_motor.glade:2053
-#: src/emc/usr_intf/pncconf/z_motor.glade:1979
-#: src/emc/usr_intf/pncconf/z_motor.glade:2053
-#: src/emc/usr_intf/pncconf/a_motor.glade:1902
-#: src/emc/usr_intf/pncconf/a_motor.glade:1974
-#: src/emc/usr_intf/pncconf/dialogs.glade:3548
+#: src/emc/usr_intf/pncconf/x_motor.glade:1995
+#: src/emc/usr_intf/pncconf/x_motor.glade:2069
+#: src/emc/usr_intf/pncconf/y_motor.glade:1989
+#: src/emc/usr_intf/pncconf/y_motor.glade:2063
+#: src/emc/usr_intf/pncconf/z_motor.glade:1989
+#: src/emc/usr_intf/pncconf/z_motor.glade:2063
+#: src/emc/usr_intf/pncconf/a_motor.glade:1906
+#: src/emc/usr_intf/pncconf/a_motor.glade:1978
+#: src/emc/usr_intf/pncconf/dialogs.glade:3554
 msgid "mm"
 msgstr "毫米"
 
@@ -5669,7 +5709,7 @@ msgstr "程式:　"
 msgid "  -  Status: "
 msgstr "　-　狀況:　"
 
-#: tcl/tklinuxcnc.tcl:1548 src/emc/usr_intf/pncconf/dialogs.glade:3625
+#: tcl/tklinuxcnc.tcl:1548 src/emc/usr_intf/pncconf/dialogs.glade:3631
 #: src/emc/usr_intf/gscreen/gscreen.glade:2673
 msgid "Pause"
 msgstr "暫停"
@@ -5808,7 +5848,7 @@ msgid "Coordinate System Control Window"
 msgstr "坐標 系統 控制 窗口"
 
 #: tcl/scripts/Set_Coordinates.tcl:83
-#: src/emc/usr_intf/axis/scripts/axis.py:3619
+#: src/emc/usr_intf/axis/scripts/axis.py:3620
 msgid "Axis "
 msgstr "軸 "
 
@@ -6421,8 +6461,8 @@ msgstr ""
 msgid "using path"
 msgstr ""
 
-#: tcl/ngcgui.tcl:3811 src/emc/usr_intf/axis/scripts/axis.py:2661
-#: src/emc/usr_intf/axis/scripts/axis.py:2687
+#: tcl/ngcgui.tcl:3811 src/emc/usr_intf/axis/scripts/axis.py:2662
+#: src/emc/usr_intf/axis/scripts/axis.py:2688
 msgid "Warning"
 msgstr "警告"
 
@@ -7344,195 +7384,195 @@ msgstr "刀具 %(tool)d, zo %(zo)g, xo %(xo)g, dia %(dia)g"
 msgid "Filtering..."
 msgstr "篩選...."
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1172
+#: src/emc/usr_intf/axis/scripts/axis.py:1173
 msgid "Filter failed"
 msgstr "篩選 失敗"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1173
+#: src/emc/usr_intf/axis/scripts/axis.py:1174
 #, python-format
 msgid ""
 "The program %(program)r exited with code %(code)d.  Any error messages it "
 "produced are shown below:"
 msgstr "該程序 %(program)r 退出 的 程式碼 %(code)d. 所有 錯誤信息 產生 如下:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1275
+#: src/emc/usr_intf/axis/scripts/axis.py:1276
 #, python-format
 msgid "G-Code error in %s"
 msgstr "G 代碼 錯誤 在 %s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1276
+#: src/emc/usr_intf/axis/scripts/axis.py:1277
 #, python-format
 msgid ""
 "Near line %(seq)d of %(f)s:\n"
 "%(error_str)s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1465
-#: src/emc/usr_intf/axis/scripts/axis.py:3222 share/axis/tcl/axis.tcl:922
+#: src/emc/usr_intf/axis/scripts/axis.py:1466
+#: src/emc/usr_intf/axis/scripts/axis.py:3223 share/axis/tcl/axis.tcl:922
 #: share/axis/tcl/axis.tcl:924 share/axis/tcl/axis.tcl:2051
 msgid "Continuous"
 msgstr "連續"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1728
+#: src/emc/usr_intf/axis/scripts/axis.py:1729
 msgid "T    Tool Table"
 msgstr "T    刀具表"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1738
-#: src/emc/usr_intf/axis/scripts/axis.py:2027
-#: src/emc/usr_intf/axis/scripts/axis.py:2601
+#: src/emc/usr_intf/axis/scripts/axis.py:1739
+#: src/emc/usr_intf/axis/scripts/axis.py:2028
+#: src/emc/usr_intf/axis/scripts/axis.py:2602
 #: src/emc/usr_intf/stepconf/stepconf.py:1585
 #: src/emc/usr_intf/stepconf/pages.py:966
 msgid "in"
 msgstr "英寸"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1741
+#: src/emc/usr_intf/axis/scripts/axis.py:1742
 msgid " radius"
 msgstr "  半徑"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1743
+#: src/emc/usr_intf/axis/scripts/axis.py:1744
 msgid " diameter"
 msgstr "  直徑"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1744
+#: src/emc/usr_intf/axis/scripts/axis.py:1745
 msgid "°"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1754
+#: src/emc/usr_intf/axis/scripts/axis.py:1755
 msgid "Coordinate System:"
 msgstr "坐標系:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1772
+#: src/emc/usr_intf/axis/scripts/axis.py:1773
 msgid "fixture"
 msgstr "夾具"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1773
+#: src/emc/usr_intf/axis/scripts/axis.py:1774
 msgid "workpiece"
 msgstr "工件"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1794
+#: src/emc/usr_intf/axis/scripts/axis.py:1795
 msgid "Name:"
 msgstr "名稱:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1794
+#: src/emc/usr_intf/axis/scripts/axis.py:1795
 msgid "Size:"
 msgstr "尺寸:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1795
+#: src/emc/usr_intf/axis/scripts/axis.py:1796
 msgid "Tool order:"
 msgstr "刀具秩序:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1795
+#: src/emc/usr_intf/axis/scripts/axis.py:1796
 msgid "Rapid distance:"
 msgstr "快速的距離:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1796
+#: src/emc/usr_intf/axis/scripts/axis.py:1797
 msgid "Feed distance:"
 msgstr "進給距離:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1796
+#: src/emc/usr_intf/axis/scripts/axis.py:1797
 msgid "Total distance:"
 msgstr "總距離:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1797
+#: src/emc/usr_intf/axis/scripts/axis.py:1798
 msgid "Run time:"
 msgstr "運行時間:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1797
+#: src/emc/usr_intf/axis/scripts/axis.py:1798
 msgid "X bounds:"
 msgstr "X 範圍:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1798
+#: src/emc/usr_intf/axis/scripts/axis.py:1799
 msgid "Y bounds:"
 msgstr "Y 範圍:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1798
+#: src/emc/usr_intf/axis/scripts/axis.py:1799
 msgid "Z bounds:"
 msgstr "Z 範圍:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1799
+#: src/emc/usr_intf/axis/scripts/axis.py:1800
 msgid "A bounds:"
 msgstr "A 範圍:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1799
+#: src/emc/usr_intf/axis/scripts/axis.py:1800
 msgid "B bounds:"
 msgstr "B 範圍:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1800
+#: src/emc/usr_intf/axis/scripts/axis.py:1801
 msgid "C bounds:"
 msgstr "C 範圍:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1857
+#: src/emc/usr_intf/axis/scripts/axis.py:1858
 #, python-format
 msgid "Program exceeds machine minimum on axis %s"
 msgstr "程序 超出 机床 最低 限度 在 軸 %s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1860
+#: src/emc/usr_intf/axis/scripts/axis.py:1861
 #, python-format
 msgid "Program exceeds machine maximum on axis %s"
 msgstr "程序 超出 机床 最高 限度 在 軸 %s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1865
+#: src/emc/usr_intf/axis/scripts/axis.py:1866
 msgid "Program exceeds machine limits"
 msgstr "程序 超出 机床 極限"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1868
+#: src/emc/usr_intf/axis/scripts/axis.py:1869
 msgid "Run Anyway"
 msgstr "運行 無論如何"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2005
+#: src/emc/usr_intf/axis/scripts/axis.py:2006
 msgid "No file loaded"
 msgstr "沒有 文件 加載"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2013
+#: src/emc/usr_intf/axis/scripts/axis.py:2014
 #, python-format
 msgid "generated from %s"
 msgstr "產生 於　%s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2019
+#: src/emc/usr_intf/axis/scripts/axis.py:2020
 #, python-format
 msgid ""
 "%(size)s bytes\n"
 "%(lines)s gcode lines"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2045
+#: src/emc/usr_intf/axis/scripts/axis.py:2046
 #, python-format
 msgid "%.1f minutes"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2047
+#: src/emc/usr_intf/axis/scripts/axis.py:2048
 #, python-format
 msgid "%d seconds"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2055
+#: src/emc/usr_intf/axis/scripts/axis.py:2056
 #, python-format
 msgid "%(a)f to %(b)f = %(diff)f %(units)s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2056
+#: src/emc/usr_intf/axis/scripts/axis.py:2057
 msgid "G-Code Properties"
 msgstr "G 代碼 性質"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2204
+#: src/emc/usr_intf/axis/scripts/axis.py:2205
 msgid "All machinable files"
 msgstr "所有 可 加工 文件"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2205
-#: src/emc/usr_intf/axis/scripts/axis.py:2923
+#: src/emc/usr_intf/axis/scripts/axis.py:2206
+#: src/emc/usr_intf/axis/scripts/axis.py:2924
 msgid "rs274ngc files"
 msgstr "rs274ngc 文件"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2221
+#: src/emc/usr_intf/axis/scripts/axis.py:2222
 msgid "axis cannot accept remote command while running"
 msgstr "軸 不能接受 遠程 指令 在 運行時"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2276
+#: src/emc/usr_intf/axis/scripts/axis.py:2277
 #, fuzzy
 msgid "File not Writable:"
 msgstr "文件未打開"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2277
+#: src/emc/usr_intf/axis/scripts/axis.py:2278
 msgid ""
 "This file is not writable\n"
 "You can Edit-readonly\n"
@@ -7543,62 +7583,62 @@ msgid ""
 "then open that saved, writable file"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2284
+#: src/emc/usr_intf/axis/scripts/axis.py:2285
 msgid "Edit-readonly"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2602
+#: src/emc/usr_intf/axis/scripts/axis.py:2603
 #, fuzzy
 msgid "Custom Grid"
 msgstr "自訂"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2602
+#: src/emc/usr_intf/axis/scripts/axis.py:2603
 msgid "Enter grid size"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2661
+#: src/emc/usr_intf/axis/scripts/axis.py:2662
 #, fuzzy
 msgid "Joint is already homed, are you sure you want to re-home?"
 msgstr "軸 已經 在零，你一定要 重新 再 歸零?"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2675
+#: src/emc/usr_intf/axis/scripts/axis.py:2676
 #, fuzzy, python-format
 msgid "home_joint <%s> Use joint mode for homing"
 msgstr "一定 要在 Joint 模式 才能 歸零 "
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2678
+#: src/emc/usr_intf/axis/scripts/axis.py:2679
 #, python-format
 msgid ""
 "\n"
 "Individual axis homing disallowed for duplicated letter:<%s> "
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2687
+#: src/emc/usr_intf/axis/scripts/axis.py:2688
 #, fuzzy
 msgid "This joint is already homed, are you sure you want to re-home?"
 msgstr "這軸 已經 在零，你一定要 重新 再 歸零?"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2725
+#: src/emc/usr_intf/axis/scripts/axis.py:2726
 #, fuzzy
 msgid "Touch Off (system)"
 msgstr "對刀"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2726
-#: src/emc/usr_intf/axis/scripts/axis.py:2767
+#: src/emc/usr_intf/axis/scripts/axis.py:2727
+#: src/emc/usr_intf/axis/scripts/axis.py:2768
 #, python-format
 msgid "Enter %s coordinate relative to %%s:"
 msgstr "輸入 %s 坐標相對於 %%s:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2766
+#: src/emc/usr_intf/axis/scripts/axis.py:2767
 #, fuzzy, python-format
 msgid "Tool %s TouchOff"
 msgstr "對刀"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2935
+#: src/emc/usr_intf/axis/scripts/axis.py:2936
 msgid "Error saving file"
 msgstr "保存 文件 時出錯"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3391
+#: src/emc/usr_intf/axis/scripts/axis.py:3392
 #, python-format
 msgid ""
 "\n"
@@ -7607,7 +7647,7 @@ msgid ""
 "See the 'INI Configuration' documents\n"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3404
+#: src/emc/usr_intf/axis/scripts/axis.py:3405
 #, python-format
 msgid ""
 "\n"
@@ -7616,7 +7656,7 @@ msgid ""
 "See the 'INI Configuration' documents\n"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3417
+#: src/emc/usr_intf/axis/scripts/axis.py:3418
 #, python-format
 msgid ""
 "\n"
@@ -7625,91 +7665,91 @@ msgid ""
 "See the 'INI Configuration' documents\n"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3536
+#: src/emc/usr_intf/axis/scripts/axis.py:3537
 msgid "Axes"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3538
+#: src/emc/usr_intf/axis/scripts/axis.py:3539
 #, fuzzy
 msgid "Joints"
 msgstr "輸入輸出點"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3540
+#: src/emc/usr_intf/axis/scripts/axis.py:3541
 #: src/emc/usr_intf/touchy/touchy.glade:584
 #: src/emc/usr_intf/gscreen/gscreen.glade:2968
 msgid "Home All"
 msgstr "全部 歸零"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3542
+#: src/emc/usr_intf/axis/scripts/axis.py:3543
 #, fuzzy, python-format
 msgid "Home all %s [Ctrl-Home]"
 msgstr "所有軸 歸零 [Ctrl-Home]"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3545
+#: src/emc/usr_intf/axis/scripts/axis.py:3546
 #, fuzzy, python-format
 msgid "Home All %s"
 msgstr "全部 歸零"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3547
+#: src/emc/usr_intf/axis/scripts/axis.py:3548
 #, fuzzy, python-format
 msgid "Unhome All %s"
 msgstr "離零"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3588
+#: src/emc/usr_intf/axis/scripts/axis.py:3589
 #, python-format
 msgid "Warning: Forward kinematics must handle duplicate coordinate letters:%s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3591
+#: src/emc/usr_intf/axis/scripts/axis.py:3592
 #, python-format
 msgid "Note: number of [TRAJ]COORDINATES=%(t)s exceeds [KINS]JOINTS=%(l)d"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3623
+#: src/emc/usr_intf/axis/scripts/axis.py:3624
 msgid ""
 "\n"
 "Note:\n"
 "Individual axis homing is not currently supported for"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3624
+#: src/emc/usr_intf/axis/scripts/axis.py:3625
 #, python-format
 msgid "KINEMATICS_IDENTITY with duplicate axis letter <%s>\n"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3636
+#: src/emc/usr_intf/axis/scripts/axis.py:3637
 #, fuzzy
 msgid "Joint"
 msgstr "Joint 模式"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3638
+#: src/emc/usr_intf/axis/scripts/axis.py:3639
 #, fuzzy
 msgid "Home Joint"
 msgstr "軸回零"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3646
+#: src/emc/usr_intf/axis/scripts/axis.py:3647
 #, python-format
 msgid "Home %(name)s _%(id)s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3648
+#: src/emc/usr_intf/axis/scripts/axis.py:3649
 #, fuzzy, python-format
 msgid "Unhome %(name)s _%(id)s"
 msgstr "離零 軸 _%s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3842
+#: src/emc/usr_intf/axis/scripts/axis.py:3843
 msgid "Run from here"
 msgstr "從 這裡 運行"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3902
+#: src/emc/usr_intf/axis/scripts/axis.py:3903
 msgid "toggle PYVCP panel visibility"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3904 share/axis/tcl/axis.tcl:387
+#: src/emc/usr_intf/axis/scripts/axis.py:3905 share/axis/tcl/axis.tcl:387
 msgid "Show pyVCP pan_el"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:4175
+#: src/emc/usr_intf/axis/scripts/axis.py:4176
 msgid "Error in ~/.axisrc"
 msgstr "錯誤 joi ~/.axisrc"
 
@@ -8430,16 +8470,16 @@ msgstr "主軸"
 #: src/emc/usr_intf/stepconf/main_page.glade:29
 #: src/emc/usr_intf/pncconf/main_page.glade:41
 #: src/emc/usr_intf/pncconf/dialogs.glade:889
-#: src/emc/usr_intf/pncconf/dialogs.glade:3253
-#: src/emc/usr_intf/pncconf/dialogs.glade:3421
+#: src/emc/usr_intf/pncconf/dialogs.glade:3259
+#: src/emc/usr_intf/pncconf/dialogs.glade:3427
 #: src/emc/usr_intf/gscreen/gscreen.glade:4108
 msgid "-"
 msgstr ""
 
 #: share/axis/tcl/axis.tcl:1082 src/emc/usr_intf/stepconf/main_page.glade:26
 #: src/emc/usr_intf/pncconf/main_page.glade:38
-#: src/emc/usr_intf/pncconf/dialogs.glade:3250
-#: src/emc/usr_intf/pncconf/dialogs.glade:3448
+#: src/emc/usr_intf/pncconf/dialogs.glade:3256
+#: src/emc/usr_intf/pncconf/dialogs.glade:3454
 #: src/emc/usr_intf/gscreen/gscreen.glade:4097
 msgid "+"
 msgstr ""
@@ -8587,7 +8627,7 @@ msgid "Position:"
 msgstr "位置:"
 
 #: share/axis/tcl/axis.tcl:1835 src/emc/usr_intf/pncconf/screen.glade:89
-#: src/emc/usr_intf/gscreen/gscreen.py:4569
+#: src/emc/usr_intf/gscreen/gscreen.py:4587
 msgid "Machine"
 msgstr ""
 
@@ -8695,7 +8735,7 @@ msgstr "暫時 讓 機器 在 極限外 慢步 [L]"
 #: src/emc/usr_intf/touchy/touchy.py:144
 #: src/emc/usr_intf/pncconf/pncconf.py:1751
 #: src/emc/usr_intf/pncconf/pncconf.py:1754
-#: src/emc/usr_intf/gscreen/gscreen.py:1329
+#: src/emc/usr_intf/gscreen/gscreen.py:1339
 msgid "Follow System Theme"
 msgstr ""
 
@@ -8988,12 +9028,12 @@ msgid "Estop"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:485
-#: src/emc/usr_intf/gscreen/gscreen.py:2542
+#: src/emc/usr_intf/gscreen/gscreen.py:2552
 msgid "Machine On"
 msgstr "機器開"
 
 #: src/emc/usr_intf/touchy/touchy.glade:500
-#: src/emc/usr_intf/gscreen/gscreen.py:2547
+#: src/emc/usr_intf/gscreen/gscreen.py:2557
 msgid "Machine Off"
 msgstr "機器關"
 
@@ -9048,14 +9088,14 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/options.glade:248
 #: src/emc/usr_intf/pncconf/screen.glade:3417
 #: src/emc/usr_intf/pncconf/dialogs.glade:2804
-#: src/emc/usr_intf/pncconf/dialogs.glade:4002
-#: src/emc/usr_intf/pncconf/dialogs.glade:4015
-#: src/emc/usr_intf/pncconf/dialogs.glade:4028
-#: src/emc/usr_intf/pncconf/dialogs.glade:4041
-#: src/emc/usr_intf/pncconf/dialogs.glade:4054
-#: src/emc/usr_intf/pncconf/dialogs.glade:4067
-#: src/emc/usr_intf/pncconf/dialogs.glade:4210
-#: src/emc/usr_intf/pncconf/dialogs.glade:4223
+#: src/emc/usr_intf/pncconf/dialogs.glade:4008
+#: src/emc/usr_intf/pncconf/dialogs.glade:4021
+#: src/emc/usr_intf/pncconf/dialogs.glade:4034
+#: src/emc/usr_intf/pncconf/dialogs.glade:4047
+#: src/emc/usr_intf/pncconf/dialogs.glade:4060
+#: src/emc/usr_intf/pncconf/dialogs.glade:4073
+#: src/emc/usr_intf/pncconf/dialogs.glade:4216
+#: src/emc/usr_intf/pncconf/dialogs.glade:4229
 msgid "0"
 msgstr ""
 
@@ -9222,7 +9262,7 @@ msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:2499
 #: src/emc/usr_intf/stepconf/main_page.glade:324
-#: src/emc/usr_intf/pncconf/dialogs.glade:3730
+#: src/emc/usr_intf/pncconf/dialogs.glade:3736
 msgid "Velocity:"
 msgstr ""
 
@@ -9392,8 +9432,8 @@ msgstr ""
 #: src/emc/usr_intf/touchy/touchy.glade:3257
 #: src/emc/usr_intf/stepconf/base.glade:69
 #: src/emc/usr_intf/pncconf/base.glade:54
-#: src/emc/usr_intf/gscreen/gscreen.py:4629
-#: src/emc/usr_intf/gscreen/gscreen.py:4630
+#: src/emc/usr_intf/gscreen/gscreen.py:4647
+#: src/emc/usr_intf/gscreen/gscreen.py:4648
 #: src/emc/usr_intf/gscreen/gscreen.glade:3707
 msgid "Inch"
 msgstr ""
@@ -9531,8 +9571,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/private_data.py:39
 #: src/emc/usr_intf/pncconf/private_data.py:1104
 #: src/emc/usr_intf/pncconf/main_page.glade:229
-#: src/emc/usr_intf/gscreen/gscreen.py:4461
-#: src/emc/usr_intf/gscreen/gscreen.py:4462
+#: src/emc/usr_intf/gscreen/gscreen.py:4479
+#: src/emc/usr_intf/gscreen/gscreen.py:4480
 #: src/emc/usr_intf/gscreen/gscreen.glade:4084
 #, fuzzy
 msgid "Start"
@@ -10322,10 +10362,10 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisu.glade:305
 #: src/emc/usr_intf/stepconf/axisv.glade:304
 #: src/emc/usr_intf/stepconf/axisa.glade:302
-#: src/emc/usr_intf/pncconf/x_motor.glade:2159
-#: src/emc/usr_intf/pncconf/y_motor.glade:2159
-#: src/emc/usr_intf/pncconf/z_motor.glade:2159
-#: src/emc/usr_intf/pncconf/a_motor.glade:2075
+#: src/emc/usr_intf/pncconf/x_motor.glade:2175
+#: src/emc/usr_intf/pncconf/y_motor.glade:2169
+#: src/emc/usr_intf/pncconf/z_motor.glade:2169
+#: src/emc/usr_intf/pncconf/a_motor.glade:2079
 #: src/emc/usr_intf/pncconf/s_motor.glade:2130
 msgid "mm / s"
 msgstr ""
@@ -10338,10 +10378,10 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisu.glade:318
 #: src/emc/usr_intf/stepconf/axisv.glade:317
 #: src/emc/usr_intf/stepconf/axisa.glade:315
-#: src/emc/usr_intf/pncconf/x_motor.glade:2175
-#: src/emc/usr_intf/pncconf/y_motor.glade:2175
-#: src/emc/usr_intf/pncconf/z_motor.glade:2175
-#: src/emc/usr_intf/pncconf/a_motor.glade:2091
+#: src/emc/usr_intf/pncconf/x_motor.glade:2191
+#: src/emc/usr_intf/pncconf/y_motor.glade:2185
+#: src/emc/usr_intf/pncconf/z_motor.glade:2185
+#: src/emc/usr_intf/pncconf/a_motor.glade:2095
 #: src/emc/usr_intf/pncconf/s_motor.glade:2146
 msgid "mm / s²"
 msgstr ""
@@ -10436,44 +10476,44 @@ msgstr ""
 msgid "# add halui MDI commands here (max 64) "
 msgstr ""
 
-#: src/emc/usr_intf/stepconf/build_INI.py:405
-#: src/emc/usr_intf/pncconf/build_INI.py:561
+#: src/emc/usr_intf/stepconf/build_INI.py:406
+#: src/emc/usr_intf/pncconf/build_INI.py:568
 msgid "# set the dro position ('top' or 'bottom')"
 msgstr ""
 
-#: src/emc/usr_intf/stepconf/build_INI.py:408
-#: src/emc/usr_intf/pncconf/build_INI.py:564
+#: src/emc/usr_intf/stepconf/build_INI.py:409
+#: src/emc/usr_intf/pncconf/build_INI.py:571
 msgid "# error message flash (0=no, 1=yes)"
 msgstr ""
 
-#: src/emc/usr_intf/stepconf/build_INI.py:410
-#: src/emc/usr_intf/pncconf/build_INI.py:566
+#: src/emc/usr_intf/stepconf/build_INI.py:411
+#: src/emc/usr_intf/pncconf/build_INI.py:573
 msgid "# hide buttons (0=no, 1=yes)"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:292
-#: src/emc/usr_intf/pncconf/build_HAL.py:763
+#: src/emc/usr_intf/pncconf/build_HAL.py:764
 msgid "# **** Setup for external estop ladder program -START ****"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:299
-#: src/emc/usr_intf/pncconf/build_HAL.py:770
+#: src/emc/usr_intf/pncconf/build_HAL.py:771
 msgid "# **** Setup for external estop ladder program -END ****"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:330
-#: src/emc/usr_intf/pncconf/build_HAL.py:838
+#: src/emc/usr_intf/pncconf/build_HAL.py:839
 msgid ""
 "# Load Classicladder with modbus master included (GUI must run for Modbus)"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:333
-#: src/emc/usr_intf/pncconf/build_HAL.py:843
+#: src/emc/usr_intf/pncconf/build_HAL.py:844
 msgid "# Load Classicladder without GUI (can reload LADDER GUI in AXIS GUI"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:343
-#: src/emc/usr_intf/pncconf/build_HAL.py:925
+#: src/emc/usr_intf/pncconf/build_HAL.py:926
 msgid "Include your PyVCP panel here.\n"
 msgstr ""
 
@@ -10484,7 +10524,7 @@ msgid "# These files are loaded post GUI, in the order they appear"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:380
-#: src/emc/usr_intf/pncconf/build_HAL.py:938
+#: src/emc/usr_intf/pncconf/build_HAL.py:939
 msgid "# **** Setup of spindle speed display using pyvcp -START ****"
 msgstr ""
 
@@ -10519,7 +10559,7 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:430
-#: src/emc/usr_intf/pncconf/build_HAL.py:961
+#: src/emc/usr_intf/pncconf/build_HAL.py:962
 #, python-format
 msgid "# Include your %s HAL commands here"
 msgstr ""
@@ -10539,12 +10579,12 @@ msgid "# This is a generated file do not edit."
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:721
-#: src/emc/usr_intf/pncconf/build_HAL.py:1902
+#: src/emc/usr_intf/pncconf/build_HAL.py:1903
 msgid "# Include your custom HAL commands here"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:739
-#: src/emc/usr_intf/pncconf/build_HAL.py:1918
+#: src/emc/usr_intf/pncconf/build_HAL.py:1919
 msgid ""
 "\n"
 "\n"
@@ -10553,95 +10593,95 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:740
-#: src/emc/usr_intf/pncconf/build_HAL.py:1919
+#: src/emc/usr_intf/pncconf/build_HAL.py:1920
 msgid ""
 "# The following variables are available for fine tuning some parameters."
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:741
-#: src/emc/usr_intf/pncconf/build_HAL.py:1920
+#: src/emc/usr_intf/pncconf/build_HAL.py:1921
 msgid ""
 "# To use any of these, uncomment the required setp line and set an "
 "appropriate value.\n"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:742
-#: src/emc/usr_intf/pncconf/build_HAL.py:1921
+#: src/emc/usr_intf/pncconf/build_HAL.py:1922
 msgid "# Dampen excessive noise on the arc voltage input"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:743
 #: src/emc/usr_intf/stepconf/build_HAL.py:755
-#: src/emc/usr_intf/pncconf/build_HAL.py:1922
-#: src/emc/usr_intf/pncconf/build_HAL.py:1934
+#: src/emc/usr_intf/pncconf/build_HAL.py:1923
+#: src/emc/usr_intf/pncconf/build_HAL.py:1935
 msgid "# default = 0 (volts)"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:745
-#: src/emc/usr_intf/pncconf/build_HAL.py:1924
+#: src/emc/usr_intf/pncconf/build_HAL.py:1925
 msgid ""
 "# The time delay from losing the arc ok signal until QtPlasmaC reacts to the "
 "arc loss."
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:746
-#: src/emc/usr_intf/pncconf/build_HAL.py:1925
+#: src/emc/usr_intf/pncconf/build_HAL.py:1926
 msgid "# default = 0.0 (seconds)"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:748
-#: src/emc/usr_intf/pncconf/build_HAL.py:1927
+#: src/emc/usr_intf/pncconf/build_HAL.py:1928
 msgid ""
 "# For mode 0 Arc-OK only, the number of consecutive readings within the "
 "threshold that are required to set the Arc-OK signal."
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:749
-#: src/emc/usr_intf/pncconf/build_HAL.py:1928
+#: src/emc/usr_intf/pncconf/build_HAL.py:1929
 #, fuzzy
 msgid "# default = 6"
 msgstr "AXIS 預 置 值"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:751
-#: src/emc/usr_intf/pncconf/build_HAL.py:1930
+#: src/emc/usr_intf/pncconf/build_HAL.py:1931
 msgid ""
 "# For mode 0 Arc-OK only, the maximum voltage deviation that is allowed for "
 "a valid voltage to set the Arc OK signal."
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:752
-#: src/emc/usr_intf/pncconf/build_HAL.py:1931
+#: src/emc/usr_intf/pncconf/build_HAL.py:1932
 msgid "# default = 10 (volts)"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:754
-#: src/emc/usr_intf/pncconf/build_HAL.py:1933
+#: src/emc/usr_intf/pncconf/build_HAL.py:1934
 msgid ""
 "# The voltage above and below 0V that will display as 0V. Prevents small "
 "fluctuations from flickering the voltage display."
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:757
-#: src/emc/usr_intf/pncconf/build_HAL.py:1936
+#: src/emc/usr_intf/pncconf/build_HAL.py:1937
 msgid ""
 "# The distance (in millimeters) away from the Z MAX_LIMIT that QtPlasmaC "
 "will allow the Z axis to travel while under machine control."
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:758
-#: src/emc/usr_intf/pncconf/build_HAL.py:1937
+#: src/emc/usr_intf/pncconf/build_HAL.py:1938
 msgid "# default = 5 (mm)"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:760
-#: src/emc/usr_intf/pncconf/build_HAL.py:1939
+#: src/emc/usr_intf/pncconf/build_HAL.py:1940
 msgid ""
 "# The required number of consecutive times that the threshold has been "
 "exceeded before applying the void lock to the THC."
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:761
-#: src/emc/usr_intf/pncconf/build_HAL.py:1940
+#: src/emc/usr_intf/pncconf/build_HAL.py:1941
 #, fuzzy
 msgid "# default = 2"
 msgstr "AXIS 預 置 值"
@@ -10657,7 +10697,7 @@ msgstr "我的配置"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:23
 #: src/emc/usr_intf/pncconf/main_page.glade:35
-#: src/emc/usr_intf/pncconf/dialogs.glade:3247
+#: src/emc/usr_intf/pncconf/dialogs.glade:3253
 msgid "±"
 msgstr ""
 
@@ -10667,12 +10707,12 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/main_page.glade:337
 #: src/emc/usr_intf/pncconf/dialogs.glade:864
-#: src/emc/usr_intf/pncconf/dialogs.glade:3478
+#: src/emc/usr_intf/pncconf/dialogs.glade:3484
 msgid "Jog:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/main_page.glade:349
-#: src/emc/usr_intf/pncconf/dialogs.glade:3493
+#: src/emc/usr_intf/pncconf/dialogs.glade:3499
 msgid "Test Area:"
 msgstr ""
 
@@ -10681,7 +10721,7 @@ msgid "mm/s^2"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/main_page.glade:400
-#: src/emc/usr_intf/pncconf/dialogs.glade:3743
+#: src/emc/usr_intf/pncconf/dialogs.glade:3749
 msgid "Acceleration:"
 msgstr ""
 
@@ -10711,11 +10751,11 @@ msgstr "樣辦配置"
 #: src/emc/usr_intf/pncconf/x_motor.glade:594
 #: src/emc/usr_intf/pncconf/y_motor.glade:594
 #: src/emc/usr_intf/pncconf/z_motor.glade:594
-#: src/emc/usr_intf/pncconf/a_motor.glade:576
-#: src/emc/usr_intf/pncconf/dialogs.glade:4803
-#: src/emc/usr_intf/pncconf/dialogs.glade:4816
-#: src/emc/usr_intf/pncconf/dialogs.glade:4829
-#: src/emc/usr_intf/pncconf/dialogs.glade:4842
+#: src/emc/usr_intf/pncconf/a_motor.glade:570
+#: src/emc/usr_intf/pncconf/dialogs.glade:4837
+#: src/emc/usr_intf/pncconf/dialogs.glade:4850
+#: src/emc/usr_intf/pncconf/dialogs.glade:4863
+#: src/emc/usr_intf/pncconf/dialogs.glade:4876
 #: src/emc/usr_intf/gscreen/gscreen.glade:1342
 #: src/emc/usr_intf/gscreen/gscreen.glade:1360
 #: src/emc/usr_intf/gscreen/gscreen.glade:1378
@@ -11616,10 +11656,10 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisu.glade:499
 #: src/emc/usr_intf/stepconf/axisv.glade:496
 #: src/emc/usr_intf/stepconf/axisa.glade:494
-#: src/emc/usr_intf/pncconf/x_motor.glade:2129
-#: src/emc/usr_intf/pncconf/y_motor.glade:2129
-#: src/emc/usr_intf/pncconf/z_motor.glade:2129
-#: src/emc/usr_intf/pncconf/a_motor.glade:2045
+#: src/emc/usr_intf/pncconf/x_motor.glade:2145
+#: src/emc/usr_intf/pncconf/y_motor.glade:2139
+#: src/emc/usr_intf/pncconf/z_motor.glade:2139
+#: src/emc/usr_intf/pncconf/a_motor.glade:2049
 #: src/emc/usr_intf/pncconf/s_motor.glade:2100
 msgid "Maximum _Velocity:"
 msgstr ""
@@ -11630,10 +11670,10 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisu.glade:513
 #: src/emc/usr_intf/stepconf/axisv.glade:510
 #: src/emc/usr_intf/stepconf/axisa.glade:507
-#: src/emc/usr_intf/pncconf/x_motor.glade:2144
-#: src/emc/usr_intf/pncconf/y_motor.glade:2144
-#: src/emc/usr_intf/pncconf/z_motor.glade:2144
-#: src/emc/usr_intf/pncconf/a_motor.glade:2060
+#: src/emc/usr_intf/pncconf/x_motor.glade:2160
+#: src/emc/usr_intf/pncconf/y_motor.glade:2154
+#: src/emc/usr_intf/pncconf/z_motor.glade:2154
+#: src/emc/usr_intf/pncconf/a_motor.glade:2064
 #: src/emc/usr_intf/pncconf/s_motor.glade:2115
 msgid "Maximum _Acceleration:"
 msgstr ""
@@ -12132,8 +12172,8 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_INI.py:17
 #: src/emc/usr_intf/pncconf/build_HAL.py:53
-#: src/emc/usr_intf/pncconf/build_HAL.py:1043
-#: src/emc/usr_intf/pncconf/build_HAL.py:1063
+#: src/emc/usr_intf/pncconf/build_HAL.py:1041
+#: src/emc/usr_intf/pncconf/build_HAL.py:1061
 #, python-format
 msgid "# Generated by PNCconf at %s"
 msgstr ""
@@ -12149,56 +12189,56 @@ msgstr ""
 msgid "# overwritten when you run PNCconf again"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_INI.py:176
+#: src/emc/usr_intf/pncconf/build_INI.py:183
 msgid "# **** This is for info only ****"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_INI.py:186
+#: src/emc/usr_intf/pncconf/build_INI.py:193
 msgid ""
 "# These are to ease setting custom component's parameters in a custom HAL "
 "file"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_INI.py:411
+#: src/emc/usr_intf/pncconf/build_INI.py:418
 msgid ""
 "# The values below should be 25% larger than MAX_VELOCITY and "
 "MAX_ACCELERATION"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_INI.py:412
+#: src/emc/usr_intf/pncconf/build_INI.py:419
 msgid ""
 "# If using BACKLASH compensation STEPGEN_MAXACCEL should be 100% larger."
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_INI.py:464
+#: src/emc/usr_intf/pncconf/build_INI.py:471
 msgid "# these are in nanoseconds"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_INI.py:543
+#: src/emc/usr_intf/pncconf/build_INI.py:550
 msgid "# MAX_VEL & MAX_ACC need to be twice the corresponding joint value"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_INI.py:557
+#: src/emc/usr_intf/pncconf/build_INI.py:564
 msgid "# set the operating mode (default is 0)"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_INI.py:559
+#: src/emc/usr_intf/pncconf/build_INI.py:566
 msgid "# set the estop type (0=indicator, 1=hidden, 2=button)"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_INI.py:570
+#: src/emc/usr_intf/pncconf/build_INI.py:577
 msgid "# laser touchoff"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_INI.py:572
+#: src/emc/usr_intf/pncconf/build_INI.py:579
 msgid "# camera touchoff"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_INI.py:574
+#: src/emc/usr_intf/pncconf/build_INI.py:581
 msgid "# powermax communications"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_INI.py:579
+#: src/emc/usr_intf/pncconf/build_INI.py:586
 #, fuzzy
 msgid "# user buttons"
 msgstr "左 按鈕"
@@ -12304,366 +12344,360 @@ msgstr "主軸超速 遞增 A"
 msgid "# connect spindle override increments "
 msgstr "主軸超速 遞增 A"
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:743
+#: src/emc/usr_intf/pncconf/build_HAL.py:741
 msgid "#  ---motion control signals---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:748
+#: src/emc/usr_intf/pncconf/build_HAL.py:746
 msgid "#  ---digital in / out signals---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:758
+#: src/emc/usr_intf/pncconf/build_HAL.py:759
 msgid "#  ---estop signals---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:779
+#: src/emc/usr_intf/pncconf/build_HAL.py:780
 msgid "#  ---manual tool change signals---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:787
+#: src/emc/usr_intf/pncconf/build_HAL.py:788
 msgid "#  ---Use external manual tool change dialog---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:799
+#: src/emc/usr_intf/pncconf/build_HAL.py:800
 msgid "#  ---manual tool change signals to gmoccapy's dialog---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:809
+#: src/emc/usr_intf/pncconf/build_HAL.py:810
 msgid "#  ---manual tool change signals to qtdragon's dialog---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:816
+#: src/emc/usr_intf/pncconf/build_HAL.py:817
 msgid "#  ---ignore tool prepare requests---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:821
+#: src/emc/usr_intf/pncconf/build_HAL.py:822
 msgid "#  ---toolchange signals for custom tool changer---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:832
+#: src/emc/usr_intf/pncconf/build_HAL.py:833
 msgid ""
 "\n"
 "# ---QTPLASMAC TOOLCHANGE PASSTHROUGH---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:849
+#: src/emc/usr_intf/pncconf/build_HAL.py:850
 msgid "#  --- Classicladder signals for Z axis Auto touch off program---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:868
+#: src/emc/usr_intf/pncconf/build_HAL.py:869
 msgid "# These files are loaded post gladeVCP, in the order they appear"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:882
-#: src/emc/usr_intf/pncconf/build_HAL.py:934
+#: src/emc/usr_intf/pncconf/build_HAL.py:883
+#: src/emc/usr_intf/pncconf/build_HAL.py:935
 msgid "# _DO NOT_ include your HAL commands here."
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:883
+#: src/emc/usr_intf/pncconf/build_HAL.py:884
 msgid "# Put custom HAL commands in custom_gvcp.hal"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:886
+#: src/emc/usr_intf/pncconf/build_HAL.py:887
 msgid "# **** Setup of spindle speed display using gladevcp ****"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:895
+#: src/emc/usr_intf/pncconf/build_HAL.py:896
 msgid "# **** Setup GLADE MDI buttons ****"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:908
+#: src/emc/usr_intf/pncconf/build_HAL.py:909
 msgid ""
 "# **** Z axis touch-off button - requires the touch-off classicladder "
 "program ****"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:935
+#: src/emc/usr_intf/pncconf/build_HAL.py:936
 msgid "# Put custom HAL commands in custom_postgui.hal"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:936
+#: src/emc/usr_intf/pncconf/build_HAL.py:937
 msgid "# The commands in this file are run after the GUI loads"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:946
+#: src/emc/usr_intf/pncconf/build_HAL.py:947
 msgid "# **** Setup of spindle speed display using pyvcp -END ****"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:962
-#: src/emc/usr_intf/pncconf/build_HAL.py:1903
+#: src/emc/usr_intf/pncconf/build_HAL.py:963
+#: src/emc/usr_intf/pncconf/build_HAL.py:1904
 msgid "# This file will not be overwritten when you run PNCconf again"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:964
-msgid ""
-"\n"
-"# --- PLASMAC:LASER-ON ---"
-msgstr ""
-
-#: src/emc/usr_intf/pncconf/build_HAL.py:971
+#: src/emc/usr_intf/pncconf/build_HAL.py:969
 msgid "# These commands are required for Touchy GUI"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1045
+#: src/emc/usr_intf/pncconf/build_HAL.py:1043
 msgid "#    Automation Direct GS2 VFD for spindle control"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1047
+#: src/emc/usr_intf/pncconf/build_HAL.py:1045
 msgid "#    The communications switches must be set to RS-232C"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1048
+#: src/emc/usr_intf/pncconf/build_HAL.py:1046
 msgid "#    The motor parameters must be set to match the motor"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1049
+#: src/emc/usr_intf/pncconf/build_HAL.py:1047
 msgid ""
 "#    P3.00 (Source of Operation Command) must be set to Operation determined "
 "by RS-485 interface, 03 or 04"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1050
+#: src/emc/usr_intf/pncconf/build_HAL.py:1048
 msgid ""
 "#    P4.00 (Source of Frequency Command) must be set to Frequency determined "
 "by RS232C/RS485 communication interface, 05"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1051
+#: src/emc/usr_intf/pncconf/build_HAL.py:1049
 msgid ""
 "#    P9.01 (Transmission Speed) must be set to the specified baud, 9600 = 01"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1052
+#: src/emc/usr_intf/pncconf/build_HAL.py:1050
 msgid ""
 "#    P9.02 (Communication Protocol) must be set to \"Modbus RTU mode, 8 data "
 "bits, no parity, 2 stop bits\", 03"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1065
+#: src/emc/usr_intf/pncconf/build_HAL.py:1063
 msgid "#    Misubishi FR VFD for spindle control"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1071
+#: src/emc/usr_intf/pncconf/build_HAL.py:1069
 #, python-format
 msgid "Generated by PNCconf at %s"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1083
+#: src/emc/usr_intf/pncconf/build_HAL.py:1081
 msgid "configures LinuxCNC as:\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1084
+#: src/emc/usr_intf/pncconf/build_HAL.py:1082
 msgid "type CNC\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1085
+#: src/emc/usr_intf/pncconf/build_HAL.py:1083
 msgid "will be used as the frontend display"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1094
+#: src/emc/usr_intf/pncconf/build_HAL.py:1092
 msgid " connector"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1106
+#: src/emc/usr_intf/pncconf/build_HAL.py:1104
 msgid "invrt"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1115
+#: src/emc/usr_intf/pncconf/build_HAL.py:1113
 #, python-format
 msgid "%(name)s Parport"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1120
-#: src/emc/usr_intf/pncconf/build_HAL.py:1128
+#: src/emc/usr_intf/pncconf/build_HAL.py:1118
+#: src/emc/usr_intf/pncconf/build_HAL.py:1126
 msgid "-> inverted"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1122
+#: src/emc/usr_intf/pncconf/build_HAL.py:1120
 #, python-format
 msgid "pin# %(pinnum)d is connected to input signal:'%(data)s' %(mesag)s"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1130
+#: src/emc/usr_intf/pncconf/build_HAL.py:1128
 #, python-format
 msgid "pin# %(pinnum)d is connected to output signal:'%(data)s' %(mesag)s"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1245
+#: src/emc/usr_intf/pncconf/build_HAL.py:1243
 #, fuzzy
 #| msgid "SPINDLE ?"
 msgid "#  SPINDLE"
 msgstr "主軸　?"
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1255
+#: src/emc/usr_intf/pncconf/build_HAL.py:1253
 msgid "# -- BLDC setup --"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1323
+#: src/emc/usr_intf/pncconf/build_HAL.py:1321
 msgid "# ---TPPWM Generator signals/setup---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1325
+#: src/emc/usr_intf/pncconf/build_HAL.py:1323
 msgid "# six output 3pwg"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1326
+#: src/emc/usr_intf/pncconf/build_HAL.py:1324
 msgid "# three output 3pwg"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1327
+#: src/emc/usr_intf/pncconf/build_HAL.py:1325
 msgid "# TODO write some commands!"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1331
+#: src/emc/usr_intf/pncconf/build_HAL.py:1329
 msgid "# ---8i20 amplifier card signals/setup---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1341
+#: src/emc/usr_intf/pncconf/build_HAL.py:1339
 msgid "# ---digital potentiometer output signals/setup---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1358
+#: src/emc/usr_intf/pncconf/build_HAL.py:1356
 msgid "# ---PWM Generator signals/setup---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1383
+#: src/emc/usr_intf/pncconf/build_HAL.py:1381
 msgid "# enable _all_ sserial pwmgens"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1413
+#: src/emc/usr_intf/pncconf/build_HAL.py:1411
 msgid "# Step Gen signals/setup for tandem axis"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1415
+#: src/emc/usr_intf/pncconf/build_HAL.py:1413
 msgid "# Step Gen signals/setup"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1446
+#: src/emc/usr_intf/pncconf/build_HAL.py:1444
 msgid "# ---closedloop stepper signals---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1460
+#: src/emc/usr_intf/pncconf/build_HAL.py:1458
 msgid "# ---Encoder feedback signals/setup---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1483
+#: src/emc/usr_intf/pncconf/build_HAL.py:1481
 msgid "# ---Resolver feedback signals/setup---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1502
+#: src/emc/usr_intf/pncconf/build_HAL.py:1500
 msgid "# ---setup spindle control signals---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1518
+#: src/emc/usr_intf/pncconf/build_HAL.py:1516
 msgid "# ---Setup spindle at speed signals---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1539
+#: src/emc/usr_intf/pncconf/build_HAL.py:1537
 msgid "#  Use ACTUAL spindle velocity from spindle encoder"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1540
+#: src/emc/usr_intf/pncconf/build_HAL.py:1538
 msgid "#  spindle-velocity bounces around so we filter it with lowpass"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1541
+#: src/emc/usr_intf/pncconf/build_HAL.py:1539
 msgid ""
 "#  spindle-velocity is signed so we use absolute component to remove sign"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1542
+#: src/emc/usr_intf/pncconf/build_HAL.py:1540
 msgid "#  ACTUAL velocity is in RPS not RPM so we scale it."
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1558
+#: src/emc/usr_intf/pncconf/build_HAL.py:1556
 msgid "# ---setup home / limit switch signals---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1566
+#: src/emc/usr_intf/pncconf/build_HAL.py:1564
 msgid "# external input signals"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1661
+#: src/emc/usr_intf/pncconf/build_HAL.py:1659
 msgid "# external output signals"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1819
+#: src/emc/usr_intf/pncconf/build_HAL.py:1820
 msgid ""
 "\n"
 "# ---PLASMA INPUT DEBOUNCE---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1820
+#: src/emc/usr_intf/pncconf/build_HAL.py:1821
 msgid "#values for these are in custom.hal"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1826
+#: src/emc/usr_intf/pncconf/build_HAL.py:1827
 msgid ""
 "\n"
 "# ---JOINT ASSOCIATED WITH THE Z AXIS---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1837
+#: src/emc/usr_intf/pncconf/build_HAL.py:1838
 msgid ""
 "\n"
 "# ---PLASMA INPUTS---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1838
-#: src/emc/usr_intf/pncconf/build_HAL.py:1851
+#: src/emc/usr_intf/pncconf/build_HAL.py:1839
+#: src/emc/usr_intf/pncconf/build_HAL.py:1852
 msgid "# ---all modes---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1843
+#: src/emc/usr_intf/pncconf/build_HAL.py:1844
 msgid "# ---modes 0 & 1"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1845
+#: src/emc/usr_intf/pncconf/build_HAL.py:1846
 msgid "# ---modes 1 & 2"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1847
+#: src/emc/usr_intf/pncconf/build_HAL.py:1848
 msgid "# ---mode 2"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1850
+#: src/emc/usr_intf/pncconf/build_HAL.py:1851
 msgid ""
 "\n"
 "# ---PLASMA OUTPUTS---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1886
+#: src/emc/usr_intf/pncconf/build_HAL.py:1887
 msgid ""
 "\n"
 "# ---ARC VOLTAGE ENCODER---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1896
+#: src/emc/usr_intf/pncconf/build_HAL.py:1897
 msgid ""
 "\n"
 "# ---OHMIC SENSE LINK---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1904
+#: src/emc/usr_intf/pncconf/build_HAL.py:1905
 msgid ""
 "\n"
 "# ---COMMON PLASMAC DEBOUNCE---"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1905
+#: src/emc/usr_intf/pncconf/build_HAL.py:1906
 msgid "# for the float and ohmic inputs each increment in delay is"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1906
+#: src/emc/usr_intf/pncconf/build_HAL.py:1907
 msgid "# is a 0.001mm (0.00004\") increase in any probed height result"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1909
-#: src/emc/usr_intf/pncconf/build_HAL.py:1954
+#: src/emc/usr_intf/pncconf/build_HAL.py:1910
+#: src/emc/usr_intf/pncconf/build_HAL.py:1955
 msgid "# set to zero if using internal ohmic sensing"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_HAL.py:1960
+#: src/emc/usr_intf/pncconf/build_HAL.py:1961
 msgid ""
 "\n"
 "# ---OHMIC SENSE CONTACT DEBOUNCE---"
@@ -14547,11 +14581,11 @@ msgid ""
 "    The G53 machine zero origin is typically inside the soft limits area but "
 "not necessarily.\n"
 "\n"
-"    If using a separate homing switch, it’s possible to start homing on the "
+"    If using a separate homing switch, it's possible to start homing on the "
 "wrong side of the home switch,\n"
 "    which combined with HOME_IGNORE_LIMITS option will lead to a hard "
 "crash.\n"
-"    You can avoid this by making the home switch toggle it’s state when the "
+"    You can avoid this by making the home switch toggle it's state when the "
 "trip dog is on a particular side until it returns passed the trip point "
 "again.\n"
 "    Said another way, the home switch state must represent the position of "
@@ -16891,7 +16925,7 @@ msgstr "歸零開關的位置 (從機床零點的偏移):"
 #: src/emc/usr_intf/pncconf/x_motor.glade:184
 #: src/emc/usr_intf/pncconf/y_motor.glade:184
 #: src/emc/usr_intf/pncconf/z_motor.glade:184
-#: src/emc/usr_intf/pncconf/a_motor.glade:182
+#: src/emc/usr_intf/pncconf/a_motor.glade:176
 #: src/emc/usr_intf/pncconf/s_motor.glade:213
 #, fuzzy
 msgid "Max Output"
@@ -16900,34 +16934,34 @@ msgstr "DAC 最大 輸出:"
 #: src/emc/usr_intf/pncconf/x_motor.glade:259
 #: src/emc/usr_intf/pncconf/y_motor.glade:259
 #: src/emc/usr_intf/pncconf/z_motor.glade:259
-#: src/emc/usr_intf/pncconf/a_motor.glade:251
+#: src/emc/usr_intf/pncconf/a_motor.glade:245
 #: src/emc/usr_intf/pncconf/s_motor.glade:288
-#: src/emc/usr_intf/pncconf/dialogs.glade:3970
+#: src/emc/usr_intf/pncconf/dialogs.glade:3976
 msgid "FF2"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:273
 #: src/emc/usr_intf/pncconf/y_motor.glade:273
 #: src/emc/usr_intf/pncconf/z_motor.glade:273
-#: src/emc/usr_intf/pncconf/a_motor.glade:265
+#: src/emc/usr_intf/pncconf/a_motor.glade:259
 #: src/emc/usr_intf/pncconf/s_motor.glade:302
-#: src/emc/usr_intf/pncconf/dialogs.glade:3959
+#: src/emc/usr_intf/pncconf/dialogs.glade:3965
 msgid "FF1"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:287
 #: src/emc/usr_intf/pncconf/y_motor.glade:287
 #: src/emc/usr_intf/pncconf/z_motor.glade:287
-#: src/emc/usr_intf/pncconf/a_motor.glade:279
+#: src/emc/usr_intf/pncconf/a_motor.glade:273
 #: src/emc/usr_intf/pncconf/s_motor.glade:316
-#: src/emc/usr_intf/pncconf/dialogs.glade:3948
+#: src/emc/usr_intf/pncconf/dialogs.glade:3954
 msgid "FF0"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:341
 #: src/emc/usr_intf/pncconf/y_motor.glade:341
 #: src/emc/usr_intf/pncconf/z_motor.glade:341
-#: src/emc/usr_intf/pncconf/a_motor.glade:329
+#: src/emc/usr_intf/pncconf/a_motor.glade:323
 #: src/emc/usr_intf/pncconf/s_motor.glade:370
 msgid "Deadband"
 msgstr "死區"
@@ -16935,16 +16969,16 @@ msgstr "死區"
 #: src/emc/usr_intf/pncconf/x_motor.glade:355
 #: src/emc/usr_intf/pncconf/y_motor.glade:355
 #: src/emc/usr_intf/pncconf/z_motor.glade:355
-#: src/emc/usr_intf/pncconf/a_motor.glade:343
+#: src/emc/usr_intf/pncconf/a_motor.glade:337
 #: src/emc/usr_intf/pncconf/s_motor.glade:384
-#: src/emc/usr_intf/pncconf/dialogs.glade:4188
+#: src/emc/usr_intf/pncconf/dialogs.glade:4194
 msgid "Bias"
 msgstr "偏壓"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:369
 #: src/emc/usr_intf/pncconf/y_motor.glade:369
 #: src/emc/usr_intf/pncconf/z_motor.glade:369
-#: src/emc/usr_intf/pncconf/a_motor.glade:357
+#: src/emc/usr_intf/pncconf/a_motor.glade:351
 #: src/emc/usr_intf/pncconf/s_motor.glade:398
 msgid "P"
 msgstr ""
@@ -16952,7 +16986,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/x_motor.glade:381
 #: src/emc/usr_intf/pncconf/y_motor.glade:381
 #: src/emc/usr_intf/pncconf/z_motor.glade:381
-#: src/emc/usr_intf/pncconf/a_motor.glade:369
+#: src/emc/usr_intf/pncconf/a_motor.glade:363
 #: src/emc/usr_intf/pncconf/s_motor.glade:410
 msgid "I"
 msgstr ""
@@ -16960,7 +16994,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/x_motor.glade:395
 #: src/emc/usr_intf/pncconf/y_motor.glade:395
 #: src/emc/usr_intf/pncconf/z_motor.glade:395
-#: src/emc/usr_intf/pncconf/a_motor.glade:383
+#: src/emc/usr_intf/pncconf/a_motor.glade:377
 #: src/emc/usr_intf/pncconf/s_motor.glade:424
 msgid "D"
 msgstr ""
@@ -16974,7 +17008,7 @@ msgstr "訊息"
 #: src/emc/usr_intf/pncconf/x_motor.glade:551
 #: src/emc/usr_intf/pncconf/y_motor.glade:551
 #: src/emc/usr_intf/pncconf/z_motor.glade:551
-#: src/emc/usr_intf/pncconf/a_motor.glade:533
+#: src/emc/usr_intf/pncconf/a_motor.glade:527
 #: src/emc/usr_intf/pncconf/s_motor.glade:586
 msgid "3pwm Scale:"
 msgstr ""
@@ -16982,7 +17016,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/x_motor.glade:563
 #: src/emc/usr_intf/pncconf/y_motor.glade:563
 #: src/emc/usr_intf/pncconf/z_motor.glade:563
-#: src/emc/usr_intf/pncconf/a_motor.glade:545
+#: src/emc/usr_intf/pncconf/a_motor.glade:539
 #: src/emc/usr_intf/pncconf/s_motor.glade:598
 msgid "3pwm Deadtime:"
 msgstr ""
@@ -16990,14 +17024,14 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/x_motor.glade:577
 #: src/emc/usr_intf/pncconf/y_motor.glade:577
 #: src/emc/usr_intf/pncconf/z_motor.glade:577
-#: src/emc/usr_intf/pncconf/a_motor.glade:559
+#: src/emc/usr_intf/pncconf/a_motor.glade:553
 msgid "Quad Pulses / Rev:"
 msgstr "四  脈衝 / 轉"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:670
 #: src/emc/usr_intf/pncconf/y_motor.glade:670
 #: src/emc/usr_intf/pncconf/z_motor.glade:670
-#: src/emc/usr_intf/pncconf/a_motor.glade:647
+#: src/emc/usr_intf/pncconf/a_motor.glade:641
 #: src/emc/usr_intf/pncconf/s_motor.glade:2437
 msgid ""
 "Open Loop\n"
@@ -17007,7 +17041,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/x_motor.glade:696
 #: src/emc/usr_intf/pncconf/y_motor.glade:696
 #: src/emc/usr_intf/pncconf/z_motor.glade:696
-#: src/emc/usr_intf/pncconf/a_motor.glade:673
+#: src/emc/usr_intf/pncconf/a_motor.glade:667
 #, fuzzy
 msgid "Analog Min Limit:"
 msgstr "主軸"
@@ -17015,7 +17049,7 @@ msgstr "主軸"
 #: src/emc/usr_intf/pncconf/x_motor.glade:711
 #: src/emc/usr_intf/pncconf/y_motor.glade:711
 #: src/emc/usr_intf/pncconf/z_motor.glade:711
-#: src/emc/usr_intf/pncconf/a_motor.glade:688
+#: src/emc/usr_intf/pncconf/a_motor.glade:682
 #, fuzzy
 msgid "Analog Max limit:"
 msgstr "主軸 快些"
@@ -17023,14 +17057,14 @@ msgstr "主軸 快些"
 #: src/emc/usr_intf/pncconf/x_motor.glade:726
 #: src/emc/usr_intf/pncconf/y_motor.glade:726
 #: src/emc/usr_intf/pncconf/z_motor.glade:726
-#: src/emc/usr_intf/pncconf/a_motor.glade:703
+#: src/emc/usr_intf/pncconf/a_motor.glade:697
 msgid "Analog Max Scale:"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:801
 #: src/emc/usr_intf/pncconf/y_motor.glade:801
 #: src/emc/usr_intf/pncconf/z_motor.glade:801
-#: src/emc/usr_intf/pncconf/a_motor.glade:772
+#: src/emc/usr_intf/pncconf/a_motor.glade:766
 #, fuzzy
 msgid "Output Info"
 msgstr "輸出"
@@ -17038,7 +17072,7 @@ msgstr "輸出"
 #: src/emc/usr_intf/pncconf/x_motor.glade:845
 #: src/emc/usr_intf/pncconf/y_motor.glade:845
 #: src/emc/usr_intf/pncconf/z_motor.glade:845
-#: src/emc/usr_intf/pncconf/a_motor.glade:816
+#: src/emc/usr_intf/pncconf/a_motor.glade:810
 #: src/emc/usr_intf/pncconf/s_motor.glade:817
 msgid "Step On-Time"
 msgstr "步進 準時"
@@ -17046,287 +17080,287 @@ msgstr "步進 準時"
 #: src/emc/usr_intf/pncconf/x_motor.glade:859
 #: src/emc/usr_intf/pncconf/y_motor.glade:859
 #: src/emc/usr_intf/pncconf/z_motor.glade:859
-#: src/emc/usr_intf/pncconf/a_motor.glade:830
+#: src/emc/usr_intf/pncconf/a_motor.glade:824
 #: src/emc/usr_intf/pncconf/s_motor.glade:831
 msgid "Step Space"
 msgstr "步進 間距"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:909
-#: src/emc/usr_intf/pncconf/y_motor.glade:909
-#: src/emc/usr_intf/pncconf/z_motor.glade:909
-#: src/emc/usr_intf/pncconf/a_motor.glade:876
+#: src/emc/usr_intf/pncconf/x_motor.glade:911
+#: src/emc/usr_intf/pncconf/y_motor.glade:911
+#: src/emc/usr_intf/pncconf/z_motor.glade:911
+#: src/emc/usr_intf/pncconf/a_motor.glade:872
 #: src/emc/usr_intf/pncconf/s_motor.glade:881
 msgid "Direction Hold"
 msgstr "方向保持"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:923
-#: src/emc/usr_intf/pncconf/y_motor.glade:923
-#: src/emc/usr_intf/pncconf/z_motor.glade:923
-#: src/emc/usr_intf/pncconf/a_motor.glade:890
+#: src/emc/usr_intf/pncconf/x_motor.glade:925
+#: src/emc/usr_intf/pncconf/y_motor.glade:925
+#: src/emc/usr_intf/pncconf/z_motor.glade:925
+#: src/emc/usr_intf/pncconf/a_motor.glade:886
 #: src/emc/usr_intf/pncconf/s_motor.glade:895
 msgid "Direction Setup"
 msgstr "方向設定"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:973
-#: src/emc/usr_intf/pncconf/y_motor.glade:973
-#: src/emc/usr_intf/pncconf/z_motor.glade:973
-#: src/emc/usr_intf/pncconf/a_motor.glade:936
+#: src/emc/usr_intf/pncconf/x_motor.glade:977
+#: src/emc/usr_intf/pncconf/y_motor.glade:977
+#: src/emc/usr_intf/pncconf/z_motor.glade:977
+#: src/emc/usr_intf/pncconf/a_motor.glade:934
 #: src/emc/usr_intf/pncconf/s_motor.glade:945
 msgid "Driver Type:"
 msgstr "驅動類型"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1032
-#: src/emc/usr_intf/pncconf/y_motor.glade:1032
-#: src/emc/usr_intf/pncconf/z_motor.glade:1032
-#: src/emc/usr_intf/pncconf/a_motor.glade:995
+#: src/emc/usr_intf/pncconf/x_motor.glade:1048
+#: src/emc/usr_intf/pncconf/y_motor.glade:1042
+#: src/emc/usr_intf/pncconf/z_motor.glade:1042
+#: src/emc/usr_intf/pncconf/a_motor.glade:999
 #: src/emc/usr_intf/pncconf/s_motor.glade:1004
 msgid "Stepper Info"
 msgstr "步進 信息"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1085
-#: src/emc/usr_intf/pncconf/y_motor.glade:1085
-#: src/emc/usr_intf/pncconf/z_motor.glade:1085
-#: src/emc/usr_intf/pncconf/a_motor.glade:1048
+#: src/emc/usr_intf/pncconf/x_motor.glade:1101
+#: src/emc/usr_intf/pncconf/y_motor.glade:1095
+#: src/emc/usr_intf/pncconf/z_motor.glade:1095
+#: src/emc/usr_intf/pncconf/a_motor.glade:1052
 #: src/emc/usr_intf/pncconf/s_motor.glade:1250
 msgid "No feedback"
 msgstr "沒有反饋"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1101
-#: src/emc/usr_intf/pncconf/y_motor.glade:1101
-#: src/emc/usr_intf/pncconf/z_motor.glade:1101
-#: src/emc/usr_intf/pncconf/a_motor.glade:1063
+#: src/emc/usr_intf/pncconf/x_motor.glade:1117
+#: src/emc/usr_intf/pncconf/y_motor.glade:1111
+#: src/emc/usr_intf/pncconf/z_motor.glade:1111
+#: src/emc/usr_intf/pncconf/a_motor.glade:1067
 #: src/emc/usr_intf/pncconf/s_motor.glade:1266
 msgid "Absolute Feedback"
 msgstr "絕對反饋"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1116
-#: src/emc/usr_intf/pncconf/y_motor.glade:1116
-#: src/emc/usr_intf/pncconf/z_motor.glade:1116
-#: src/emc/usr_intf/pncconf/a_motor.glade:1077
+#: src/emc/usr_intf/pncconf/x_motor.glade:1132
+#: src/emc/usr_intf/pncconf/y_motor.glade:1126
+#: src/emc/usr_intf/pncconf/z_motor.glade:1126
+#: src/emc/usr_intf/pncconf/a_motor.glade:1081
 #: src/emc/usr_intf/pncconf/s_motor.glade:1281
 msgid "Incremental Feedback"
 msgstr "增量反饋"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1131
-#: src/emc/usr_intf/pncconf/y_motor.glade:1131
-#: src/emc/usr_intf/pncconf/z_motor.glade:1131
-#: src/emc/usr_intf/pncconf/a_motor.glade:1091
+#: src/emc/usr_intf/pncconf/x_motor.glade:1147
+#: src/emc/usr_intf/pncconf/y_motor.glade:1141
+#: src/emc/usr_intf/pncconf/z_motor.glade:1141
+#: src/emc/usr_intf/pncconf/a_motor.glade:1095
 #: src/emc/usr_intf/pncconf/s_motor.glade:1296
 msgid "Incremental Encoder"
 msgstr "增量編碼器"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1146
-#: src/emc/usr_intf/pncconf/y_motor.glade:1146
-#: src/emc/usr_intf/pncconf/z_motor.glade:1146
-#: src/emc/usr_intf/pncconf/a_motor.glade:1105
+#: src/emc/usr_intf/pncconf/x_motor.glade:1162
+#: src/emc/usr_intf/pncconf/y_motor.glade:1156
+#: src/emc/usr_intf/pncconf/z_motor.glade:1156
+#: src/emc/usr_intf/pncconf/a_motor.glade:1109
 #: src/emc/usr_intf/pncconf/s_motor.glade:1311
 msgid "Hall sensors"
 msgstr "霍爾傳感器"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1161
-#: src/emc/usr_intf/pncconf/y_motor.glade:1161
-#: src/emc/usr_intf/pncconf/z_motor.glade:1161
-#: src/emc/usr_intf/pncconf/a_motor.glade:1119
+#: src/emc/usr_intf/pncconf/x_motor.glade:1177
+#: src/emc/usr_intf/pncconf/y_motor.glade:1171
+#: src/emc/usr_intf/pncconf/z_motor.glade:1171
+#: src/emc/usr_intf/pncconf/a_motor.glade:1123
 #: src/emc/usr_intf/pncconf/s_motor.glade:1326
 msgid "Fanuc Red Cap "
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1176
-#: src/emc/usr_intf/pncconf/y_motor.glade:1176
-#: src/emc/usr_intf/pncconf/z_motor.glade:1176
-#: src/emc/usr_intf/pncconf/a_motor.glade:1133
+#: src/emc/usr_intf/pncconf/x_motor.glade:1192
+#: src/emc/usr_intf/pncconf/y_motor.glade:1186
+#: src/emc/usr_intf/pncconf/z_motor.glade:1186
+#: src/emc/usr_intf/pncconf/a_motor.glade:1137
 #: src/emc/usr_intf/pncconf/s_motor.glade:1341
 msgid "Use encoder Index"
 msgstr "使用編碼器指數"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1219
-#: src/emc/usr_intf/pncconf/y_motor.glade:1219
-#: src/emc/usr_intf/pncconf/z_motor.glade:1219
-#: src/emc/usr_intf/pncconf/a_motor.glade:1175
+#: src/emc/usr_intf/pncconf/x_motor.glade:1235
+#: src/emc/usr_intf/pncconf/y_motor.glade:1229
+#: src/emc/usr_intf/pncconf/z_motor.glade:1229
+#: src/emc/usr_intf/pncconf/a_motor.glade:1179
 #: src/emc/usr_intf/pncconf/s_motor.glade:1384
 msgid "<b>Input Options</b>"
 msgstr "<b>輸入選項</b>"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1246
-#: src/emc/usr_intf/pncconf/y_motor.glade:1246
-#: src/emc/usr_intf/pncconf/z_motor.glade:1246
-#: src/emc/usr_intf/pncconf/a_motor.glade:1202
+#: src/emc/usr_intf/pncconf/x_motor.glade:1262
+#: src/emc/usr_intf/pncconf/y_motor.glade:1256
+#: src/emc/usr_intf/pncconf/z_motor.glade:1256
+#: src/emc/usr_intf/pncconf/a_motor.glade:1206
 #: src/emc/usr_intf/pncconf/s_motor.glade:1411
 msgid "Digital instead of PWM outputs"
 msgstr "數碼代替PWM輸出"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1261
-#: src/emc/usr_intf/pncconf/y_motor.glade:1261
-#: src/emc/usr_intf/pncconf/z_motor.glade:1261
-#: src/emc/usr_intf/pncconf/a_motor.glade:1216
+#: src/emc/usr_intf/pncconf/x_motor.glade:1277
+#: src/emc/usr_intf/pncconf/y_motor.glade:1271
+#: src/emc/usr_intf/pncconf/z_motor.glade:1271
+#: src/emc/usr_intf/pncconf/a_motor.glade:1220
 #: src/emc/usr_intf/pncconf/s_motor.glade:1426
 msgid "6 outputs instead of 3 "
 msgstr "6 輸出代替 3"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1276
-#: src/emc/usr_intf/pncconf/y_motor.glade:1276
-#: src/emc/usr_intf/pncconf/z_motor.glade:1276
-#: src/emc/usr_intf/pncconf/a_motor.glade:1230
+#: src/emc/usr_intf/pncconf/x_motor.glade:1292
+#: src/emc/usr_intf/pncconf/y_motor.glade:1286
+#: src/emc/usr_intf/pncconf/z_motor.glade:1286
+#: src/emc/usr_intf/pncconf/a_motor.glade:1234
 #: src/emc/usr_intf/pncconf/s_motor.glade:1441
 msgid "Force Trapezoid Mode"
 msgstr "強制梯型模式"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1291
-#: src/emc/usr_intf/pncconf/y_motor.glade:1291
-#: src/emc/usr_intf/pncconf/z_motor.glade:1291
-#: src/emc/usr_intf/pncconf/a_motor.glade:1244
+#: src/emc/usr_intf/pncconf/x_motor.glade:1307
+#: src/emc/usr_intf/pncconf/y_motor.glade:1301
+#: src/emc/usr_intf/pncconf/z_motor.glade:1301
+#: src/emc/usr_intf/pncconf/a_motor.glade:1248
 #: src/emc/usr_intf/pncconf/s_motor.glade:1456
 msgid "Emulate feedback "
 msgstr "仿真反饋"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1306
-#: src/emc/usr_intf/pncconf/y_motor.glade:1306
-#: src/emc/usr_intf/pncconf/z_motor.glade:1306
-#: src/emc/usr_intf/pncconf/a_motor.glade:1258
+#: src/emc/usr_intf/pncconf/x_motor.glade:1322
+#: src/emc/usr_intf/pncconf/y_motor.glade:1316
+#: src/emc/usr_intf/pncconf/z_motor.glade:1316
+#: src/emc/usr_intf/pncconf/a_motor.glade:1262
 #: src/emc/usr_intf/pncconf/s_motor.glade:1471
 msgid "Emulated Hall sensors"
 msgstr "霍爾傳感器仿真"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1322
-#: src/emc/usr_intf/pncconf/y_motor.glade:1322
-#: src/emc/usr_intf/pncconf/z_motor.glade:1322
-#: src/emc/usr_intf/pncconf/a_motor.glade:1273
+#: src/emc/usr_intf/pncconf/x_motor.glade:1338
+#: src/emc/usr_intf/pncconf/y_motor.glade:1332
+#: src/emc/usr_intf/pncconf/z_motor.glade:1332
+#: src/emc/usr_intf/pncconf/a_motor.glade:1277
 #: src/emc/usr_intf/pncconf/s_motor.glade:1487
 msgid "Emulated Fanuc Red Cap"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1358
-#: src/emc/usr_intf/pncconf/y_motor.glade:1358
-#: src/emc/usr_intf/pncconf/z_motor.glade:1358
-#: src/emc/usr_intf/pncconf/a_motor.glade:1306
+#: src/emc/usr_intf/pncconf/x_motor.glade:1374
+#: src/emc/usr_intf/pncconf/y_motor.glade:1368
+#: src/emc/usr_intf/pncconf/z_motor.glade:1368
+#: src/emc/usr_intf/pncconf/a_motor.glade:1310
 #: src/emc/usr_intf/pncconf/s_motor.glade:1523
 #, fuzzy
 msgid "8i20 Max Current"
 msgstr "電流"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1403
-#: src/emc/usr_intf/pncconf/y_motor.glade:1403
-#: src/emc/usr_intf/pncconf/z_motor.glade:1403
-#: src/emc/usr_intf/pncconf/a_motor.glade:1351
+#: src/emc/usr_intf/pncconf/x_motor.glade:1419
+#: src/emc/usr_intf/pncconf/y_motor.glade:1413
+#: src/emc/usr_intf/pncconf/z_motor.glade:1413
+#: src/emc/usr_intf/pncconf/a_motor.glade:1355
 #: src/emc/usr_intf/pncconf/s_motor.glade:1568
 msgid "<b>Output Options</b>"
 msgstr "<b>輸入選項</b>"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1465
-#: src/emc/usr_intf/pncconf/y_motor.glade:1465
-#: src/emc/usr_intf/pncconf/z_motor.glade:1465
-#: src/emc/usr_intf/pncconf/a_motor.glade:1409
+#: src/emc/usr_intf/pncconf/x_motor.glade:1481
+#: src/emc/usr_intf/pncconf/y_motor.glade:1475
+#: src/emc/usr_intf/pncconf/z_motor.glade:1475
+#: src/emc/usr_intf/pncconf/a_motor.glade:1413
 #: src/emc/usr_intf/pncconf/s_motor.glade:1630
 msgid "alignment current"
 msgstr "對準電流"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1476
-#: src/emc/usr_intf/pncconf/y_motor.glade:1476
-#: src/emc/usr_intf/pncconf/z_motor.glade:1476
-#: src/emc/usr_intf/pncconf/a_motor.glade:1420
+#: src/emc/usr_intf/pncconf/x_motor.glade:1492
+#: src/emc/usr_intf/pncconf/y_motor.glade:1486
+#: src/emc/usr_intf/pncconf/z_motor.glade:1486
+#: src/emc/usr_intf/pncconf/a_motor.glade:1424
 #: src/emc/usr_intf/pncconf/s_motor.glade:1641
 msgid "lead angle"
 msgstr "超前角"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1590
-#: src/emc/usr_intf/pncconf/y_motor.glade:1590
-#: src/emc/usr_intf/pncconf/z_motor.glade:1590
-#: src/emc/usr_intf/pncconf/a_motor.glade:1521
+#: src/emc/usr_intf/pncconf/x_motor.glade:1606
+#: src/emc/usr_intf/pncconf/y_motor.glade:1600
+#: src/emc/usr_intf/pncconf/z_motor.glade:1600
+#: src/emc/usr_intf/pncconf/a_motor.glade:1525
 #: src/emc/usr_intf/pncconf/s_motor.glade:1755
 msgid "Reverse"
 msgstr "反向"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1601
-#: src/emc/usr_intf/pncconf/y_motor.glade:1601
-#: src/emc/usr_intf/pncconf/z_motor.glade:1601
-#: src/emc/usr_intf/pncconf/a_motor.glade:1532
+#: src/emc/usr_intf/pncconf/x_motor.glade:1617
+#: src/emc/usr_intf/pncconf/y_motor.glade:1611
+#: src/emc/usr_intf/pncconf/z_motor.glade:1611
+#: src/emc/usr_intf/pncconf/a_motor.glade:1536
 #: src/emc/usr_intf/pncconf/s_motor.glade:1766
 msgid "Input-pattern"
 msgstr "輸入模式"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1612
-#: src/emc/usr_intf/pncconf/y_motor.glade:1612
-#: src/emc/usr_intf/pncconf/z_motor.glade:1612
-#: src/emc/usr_intf/pncconf/a_motor.glade:1543
+#: src/emc/usr_intf/pncconf/x_motor.glade:1628
+#: src/emc/usr_intf/pncconf/y_motor.glade:1622
+#: src/emc/usr_intf/pncconf/z_motor.glade:1622
+#: src/emc/usr_intf/pncconf/a_motor.glade:1547
 #: src/emc/usr_intf/pncconf/s_motor.glade:1777
 msgid "output-pattern"
 msgstr "輸出模式"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1623
-#: src/emc/usr_intf/pncconf/y_motor.glade:1623
-#: src/emc/usr_intf/pncconf/z_motor.glade:1623
-#: src/emc/usr_intf/pncconf/a_motor.glade:1554
+#: src/emc/usr_intf/pncconf/x_motor.glade:1639
+#: src/emc/usr_intf/pncconf/y_motor.glade:1633
+#: src/emc/usr_intf/pncconf/z_motor.glade:1633
+#: src/emc/usr_intf/pncconf/a_motor.glade:1558
 #: src/emc/usr_intf/pncconf/s_motor.glade:1788
 msgid "Drive-offset"
 msgstr "驅動器偏移"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1634
-#: src/emc/usr_intf/pncconf/y_motor.glade:1634
-#: src/emc/usr_intf/pncconf/z_motor.glade:1634
-#: src/emc/usr_intf/pncconf/a_motor.glade:1565
+#: src/emc/usr_intf/pncconf/x_motor.glade:1650
+#: src/emc/usr_intf/pncconf/y_motor.glade:1644
+#: src/emc/usr_intf/pncconf/z_motor.glade:1644
+#: src/emc/usr_intf/pncconf/a_motor.glade:1569
 #: src/emc/usr_intf/pncconf/s_motor.glade:1799
 msgid "Encoder-offset"
 msgstr "編碼器偏移"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1645
-#: src/emc/usr_intf/pncconf/y_motor.glade:1645
-#: src/emc/usr_intf/pncconf/z_motor.glade:1645
-#: src/emc/usr_intf/pncconf/a_motor.glade:1576
+#: src/emc/usr_intf/pncconf/x_motor.glade:1661
+#: src/emc/usr_intf/pncconf/y_motor.glade:1655
+#: src/emc/usr_intf/pncconf/z_motor.glade:1655
+#: src/emc/usr_intf/pncconf/a_motor.glade:1580
 #: src/emc/usr_intf/pncconf/s_motor.glade:1810
 msgid "Poles"
 msgstr "極"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1667
-#: src/emc/usr_intf/pncconf/y_motor.glade:1667
-#: src/emc/usr_intf/pncconf/z_motor.glade:1667
-#: src/emc/usr_intf/pncconf/a_motor.glade:1598
+#: src/emc/usr_intf/pncconf/x_motor.glade:1683
+#: src/emc/usr_intf/pncconf/y_motor.glade:1677
+#: src/emc/usr_intf/pncconf/z_motor.glade:1677
+#: src/emc/usr_intf/pncconf/a_motor.glade:1602
 #: src/emc/usr_intf/pncconf/s_motor.glade:1832
 msgid "<b>Configuration</b>"
 msgstr "<b>配置</b>"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1684
-#: src/emc/usr_intf/pncconf/y_motor.glade:1684
-#: src/emc/usr_intf/pncconf/z_motor.glade:1684
-#: src/emc/usr_intf/pncconf/a_motor.glade:1615
+#: src/emc/usr_intf/pncconf/x_motor.glade:1700
+#: src/emc/usr_intf/pncconf/y_motor.glade:1694
+#: src/emc/usr_intf/pncconf/z_motor.glade:1694
+#: src/emc/usr_intf/pncconf/a_motor.glade:1619
 #: src/emc/usr_intf/pncconf/s_motor.glade:1849
 msgid "Details"
 msgstr "詳情"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1701
-#: src/emc/usr_intf/pncconf/y_motor.glade:1701
-#: src/emc/usr_intf/pncconf/z_motor.glade:1701
-#: src/emc/usr_intf/pncconf/a_motor.glade:1631
+#: src/emc/usr_intf/pncconf/x_motor.glade:1717
+#: src/emc/usr_intf/pncconf/y_motor.glade:1711
+#: src/emc/usr_intf/pncconf/z_motor.glade:1711
+#: src/emc/usr_intf/pncconf/a_motor.glade:1635
 #: src/emc/usr_intf/pncconf/s_motor.glade:1866
 #, fuzzy
 msgid "<b>Use BLDC Motor Commutation Control</b>"
 msgstr "<b>使用無刷電機控制</b>"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1746
-#: src/emc/usr_intf/pncconf/y_motor.glade:1746
-#: src/emc/usr_intf/pncconf/z_motor.glade:1746
-#: src/emc/usr_intf/pncconf/a_motor.glade:1676
+#: src/emc/usr_intf/pncconf/x_motor.glade:1762
+#: src/emc/usr_intf/pncconf/y_motor.glade:1756
+#: src/emc/usr_intf/pncconf/z_motor.glade:1756
+#: src/emc/usr_intf/pncconf/a_motor.glade:1680
 msgid "Scale:"
 msgstr "比例:"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1773
-#: src/emc/usr_intf/pncconf/y_motor.glade:1773
-#: src/emc/usr_intf/pncconf/z_motor.glade:1773
-#: src/emc/usr_intf/pncconf/a_motor.glade:1701
+#: src/emc/usr_intf/pncconf/x_motor.glade:1789
+#: src/emc/usr_intf/pncconf/y_motor.glade:1783
+#: src/emc/usr_intf/pncconf/z_motor.glade:1783
+#: src/emc/usr_intf/pncconf/a_motor.glade:1705
 #: src/emc/usr_intf/pncconf/s_motor.glade:2316
 msgid "% "
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1796
-#: src/emc/usr_intf/pncconf/y_motor.glade:1796
-#: src/emc/usr_intf/pncconf/z_motor.glade:1796
-#: src/emc/usr_intf/pncconf/a_motor.glade:1724
+#: src/emc/usr_intf/pncconf/x_motor.glade:1812
+#: src/emc/usr_intf/pncconf/y_motor.glade:1806
+#: src/emc/usr_intf/pncconf/z_motor.glade:1806
+#: src/emc/usr_intf/pncconf/a_motor.glade:1728
 msgid "Range:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1825
-#: src/emc/usr_intf/pncconf/y_motor.glade:1825
-#: src/emc/usr_intf/pncconf/z_motor.glade:1825
-#: src/emc/usr_intf/pncconf/a_motor.glade:1751
+#: src/emc/usr_intf/pncconf/x_motor.glade:1841
+#: src/emc/usr_intf/pncconf/y_motor.glade:1835
+#: src/emc/usr_intf/pncconf/z_motor.glade:1835
+#: src/emc/usr_intf/pncconf/a_motor.glade:1755
 #: src/emc/usr_intf/pncconf/s_motor.glade:2329
 #: src/emc/usr_intf/pncconf/dialogs.glade:1771
 #: src/emc/usr_intf/pncconf/dialogs.glade:1782
@@ -17334,88 +17368,88 @@ msgstr ""
 msgid "RPM"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1848
-#: src/emc/usr_intf/pncconf/y_motor.glade:1848
-#: src/emc/usr_intf/pncconf/z_motor.glade:1848
-#: src/emc/usr_intf/pncconf/a_motor.glade:1773
+#: src/emc/usr_intf/pncconf/x_motor.glade:1864
+#: src/emc/usr_intf/pncconf/y_motor.glade:1858
+#: src/emc/usr_intf/pncconf/z_motor.glade:1858
+#: src/emc/usr_intf/pncconf/a_motor.glade:1777
 #, fuzzy
 msgid "<b>Use Spindle-At-Speed</b>"
 msgstr "<b>主軸速度設置</b>"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1879
-#: src/emc/usr_intf/pncconf/y_motor.glade:1879
-#: src/emc/usr_intf/pncconf/z_motor.glade:1879
-#: src/emc/usr_intf/pncconf/a_motor.glade:1804
+#: src/emc/usr_intf/pncconf/x_motor.glade:1895
+#: src/emc/usr_intf/pncconf/y_motor.glade:1889
+#: src/emc/usr_intf/pncconf/z_motor.glade:1889
+#: src/emc/usr_intf/pncconf/a_motor.glade:1808
 msgid "Filter gain:"
 msgstr "濾波增益:"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1922
-#: src/emc/usr_intf/pncconf/y_motor.glade:1922
-#: src/emc/usr_intf/pncconf/z_motor.glade:1922
-#: src/emc/usr_intf/pncconf/a_motor.glade:1845
+#: src/emc/usr_intf/pncconf/x_motor.glade:1938
+#: src/emc/usr_intf/pncconf/y_motor.glade:1932
+#: src/emc/usr_intf/pncconf/z_motor.glade:1932
+#: src/emc/usr_intf/pncconf/a_motor.glade:1849
 #, fuzzy
 msgid "<b>Spindle Display Filter Settings</b>"
 msgstr "<b>主軸顯示過濾器設置</b>"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:1993
-#: src/emc/usr_intf/pncconf/y_motor.glade:1993
-#: src/emc/usr_intf/pncconf/z_motor.glade:1993
-#: src/emc/usr_intf/pncconf/a_motor.glade:1916
+#: src/emc/usr_intf/pncconf/x_motor.glade:2009
+#: src/emc/usr_intf/pncconf/y_motor.glade:2003
+#: src/emc/usr_intf/pncconf/z_motor.glade:2003
+#: src/emc/usr_intf/pncconf/a_motor.glade:1920
 msgid "Rapid Speed Following Error:"
 msgstr "高速度跟隨故障:"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:2006
-#: src/emc/usr_intf/pncconf/y_motor.glade:2006
-#: src/emc/usr_intf/pncconf/z_motor.glade:2006
-#: src/emc/usr_intf/pncconf/a_motor.glade:1929
+#: src/emc/usr_intf/pncconf/x_motor.glade:2022
+#: src/emc/usr_intf/pncconf/y_motor.glade:2016
+#: src/emc/usr_intf/pncconf/z_motor.glade:2016
+#: src/emc/usr_intf/pncconf/a_motor.glade:1933
 msgid "Feed Speed Following Error:"
 msgstr "故障"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:2019
-#: src/emc/usr_intf/pncconf/y_motor.glade:2019
-#: src/emc/usr_intf/pncconf/z_motor.glade:2019
-#: src/emc/usr_intf/pncconf/a_motor.glade:1942
+#: src/emc/usr_intf/pncconf/x_motor.glade:2035
+#: src/emc/usr_intf/pncconf/y_motor.glade:2029
+#: src/emc/usr_intf/pncconf/z_motor.glade:2029
+#: src/emc/usr_intf/pncconf/a_motor.glade:1946
 #: src/emc/usr_intf/pncconf/s_motor.glade:1961
 msgid "Invert Motor Direction"
 msgstr "翻轉電機方向"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:2035
-#: src/emc/usr_intf/pncconf/y_motor.glade:2035
-#: src/emc/usr_intf/pncconf/z_motor.glade:2035
-#: src/emc/usr_intf/pncconf/a_motor.glade:1957
+#: src/emc/usr_intf/pncconf/x_motor.glade:2051
+#: src/emc/usr_intf/pncconf/y_motor.glade:2045
+#: src/emc/usr_intf/pncconf/z_motor.glade:2045
+#: src/emc/usr_intf/pncconf/a_motor.glade:1961
 #: src/emc/usr_intf/pncconf/s_motor.glade:1977
 msgid "Invert Encoder Direction "
 msgstr "翻轉編碼器方向 "
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:2099
-#: src/emc/usr_intf/pncconf/y_motor.glade:2099
-#: src/emc/usr_intf/pncconf/z_motor.glade:2099
-#: src/emc/usr_intf/pncconf/a_motor.glade:2016
+#: src/emc/usr_intf/pncconf/x_motor.glade:2115
+#: src/emc/usr_intf/pncconf/y_motor.glade:2109
+#: src/emc/usr_intf/pncconf/z_motor.glade:2109
+#: src/emc/usr_intf/pncconf/a_motor.glade:2020
 #: src/emc/usr_intf/pncconf/s_motor.glade:1993
 #, fuzzy
 msgid "Single Input Encoder"
 msgstr "反轉 編碼器"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:2224
-#: src/emc/usr_intf/pncconf/y_motor.glade:2224
-#: src/emc/usr_intf/pncconf/z_motor.glade:2224
-#: src/emc/usr_intf/pncconf/a_motor.glade:2136
+#: src/emc/usr_intf/pncconf/x_motor.glade:2240
+#: src/emc/usr_intf/pncconf/y_motor.glade:2234
+#: src/emc/usr_intf/pncconf/z_motor.glade:2234
+#: src/emc/usr_intf/pncconf/a_motor.glade:2140
 #: src/emc/usr_intf/pncconf/s_motor.glade:2195
 msgid "encoder Scale:"
 msgstr "編碼器比例"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:2252
-#: src/emc/usr_intf/pncconf/y_motor.glade:2252
-#: src/emc/usr_intf/pncconf/z_motor.glade:2252
-#: src/emc/usr_intf/pncconf/a_motor.glade:2162
+#: src/emc/usr_intf/pncconf/x_motor.glade:2268
+#: src/emc/usr_intf/pncconf/y_motor.glade:2262
+#: src/emc/usr_intf/pncconf/z_motor.glade:2262
+#: src/emc/usr_intf/pncconf/a_motor.glade:2166
 #: src/emc/usr_intf/pncconf/s_motor.glade:2223
 msgid "Stepper Scale:"
 msgstr "步進比例:"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:2282
-#: src/emc/usr_intf/pncconf/y_motor.glade:2282
-#: src/emc/usr_intf/pncconf/z_motor.glade:2282
-#: src/emc/usr_intf/pncconf/a_motor.glade:2190
+#: src/emc/usr_intf/pncconf/x_motor.glade:2298
+#: src/emc/usr_intf/pncconf/y_motor.glade:2292
+#: src/emc/usr_intf/pncconf/z_motor.glade:2292
+#: src/emc/usr_intf/pncconf/a_motor.glade:2194
 #: src/emc/usr_intf/pncconf/s_motor.glade:2394
 msgid ""
 "Calculate\n"
@@ -17424,17 +17458,17 @@ msgstr ""
 "計算\n"
 "比例"
 
-#: src/emc/usr_intf/pncconf/x_motor.glade:2364
-#: src/emc/usr_intf/pncconf/y_motor.glade:2364
-#: src/emc/usr_intf/pncconf/z_motor.glade:2364
-#: src/emc/usr_intf/pncconf/a_motor.glade:2270
+#: src/emc/usr_intf/pncconf/x_motor.glade:2380
+#: src/emc/usr_intf/pncconf/y_motor.glade:2374
+#: src/emc/usr_intf/pncconf/z_motor.glade:2374
+#: src/emc/usr_intf/pncconf/a_motor.glade:2274
 #: src/emc/usr_intf/pncconf/s_motor.glade:2488
 msgid "Test / Tune Axis"
 msgstr "測試 / 調整軸"
 
 #: src/emc/usr_intf/pncconf/y_motor.glade:471
 #: src/emc/usr_intf/pncconf/z_motor.glade:471
-#: src/emc/usr_intf/pncconf/a_motor.glade:453
+#: src/emc/usr_intf/pncconf/a_motor.glade:447
 msgid "Servo Info"
 msgstr "伺服資料"
 
@@ -17973,7 +18007,7 @@ msgid "1000"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1799
-#: src/emc/usr_intf/pncconf/dialogs.glade:3215
+#: src/emc/usr_intf/pncconf/dialogs.glade:3221
 msgid "<b>Motion Data</b>"
 msgstr "<b>動作數據</b>"
 
@@ -18053,73 +18087,73 @@ msgstr "計算軸比例:"
 msgid "Motor RPM at max speed:"
 msgstr "電機轉速在最大速度:"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3101
+#: src/emc/usr_intf/pncconf/dialogs.glade:3104
 msgid "xmaxrpm"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3604
+#: src/emc/usr_intf/pncconf/dialogs.glade:3610
 msgid "Seconds"
 msgstr "秒"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3660
+#: src/emc/usr_intf/pncconf/dialogs.glade:3666
 msgid "Enable"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3779
+#: src/emc/usr_intf/pncconf/dialogs.glade:3785
 msgid "mm/minute^2"
 msgstr "毫米/分鐘^2"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3824
+#: src/emc/usr_intf/pncconf/dialogs.glade:3830
 msgid "mm/minute"
 msgstr "毫米/分鐘"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3904
-#: src/emc/usr_intf/pncconf/dialogs.glade:4698
+#: src/emc/usr_intf/pncconf/dialogs.glade:3910
+#: src/emc/usr_intf/pncconf/dialogs.glade:4728
 msgid "Current"
 msgstr "電流"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3915
+#: src/emc/usr_intf/pncconf/dialogs.glade:3921
 msgid "P:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3926
+#: src/emc/usr_intf/pncconf/dialogs.glade:3932
 msgid "I:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3937
+#: src/emc/usr_intf/pncconf/dialogs.glade:3943
 msgid "D:"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:3991
-#: src/emc/usr_intf/pncconf/dialogs.glade:4711
+#: src/emc/usr_intf/pncconf/dialogs.glade:3997
+#: src/emc/usr_intf/pncconf/dialogs.glade:4741
 msgid "Original"
 msgstr "原本"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:4199
+#: src/emc/usr_intf/pncconf/dialogs.glade:4205
 msgid "DeadBand"
 msgstr "死區"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:4274
+#: src/emc/usr_intf/pncconf/dialogs.glade:4280
 msgid "PID Tuning"
 msgstr "PID調節"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:4665
+#: src/emc/usr_intf/pncconf/dialogs.glade:4695
 msgid "Step Time:"
 msgstr "步進時間"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:4676
+#: src/emc/usr_intf/pncconf/dialogs.glade:4706
 msgid "Step Space:"
 msgstr "步進空間:"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:4687
+#: src/emc/usr_intf/pncconf/dialogs.glade:4717
 msgid "Direction Hold:"
 msgstr "方向保持："
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:4724
+#: src/emc/usr_intf/pncconf/dialogs.glade:4754
 msgid "Direction Setup:"
 msgstr "方向設置:"
 
-#: src/emc/usr_intf/pncconf/dialogs.glade:4929
+#: src/emc/usr_intf/pncconf/dialogs.glade:4963
 msgid "Step Timing"
 msgstr "步進時序"
 
@@ -18144,291 +18178,286 @@ msgid ""
 "https://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:64
-msgid ""
-"**** WARNING GSCREEN: could not import vte terminal - is package installed?"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.py:278
+#: src/emc/usr_intf/gscreen/gscreen.py:285
 #, fuzzy
 msgid "Manual Mode"
 msgstr "說明書"
 
-#: src/emc/usr_intf/gscreen/gscreen.py:278
+#: src/emc/usr_intf/gscreen/gscreen.py:285
 #, fuzzy
 msgid "MDI Mode"
 msgstr "運行模式"
 
-#: src/emc/usr_intf/gscreen/gscreen.py:278
+#: src/emc/usr_intf/gscreen/gscreen.py:285
 #, fuzzy
 msgid "Auto Mode"
 msgstr "運行模式"
 
-#: src/emc/usr_intf/gscreen/gscreen.py:393
+#: src/emc/usr_intf/gscreen/gscreen.py:401
 #, python-format
 msgid "adding import dir %s"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:399
+#: src/emc/usr_intf/gscreen/gscreen.py:407
 #, python-format
 msgid "module '%s' imported OK"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:478
+#: src/emc/usr_intf/gscreen/gscreen.py:486
 msgid ""
 "**** GSCREEN ERROR: INI file path missing from Gscreen launch command ****\n"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:486
+#: src/emc/usr_intf/gscreen/gscreen.py:494
 msgid "**** GSCREEN INFO: CUSTOM locale name ="
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:492
+#: src/emc/usr_intf/gscreen/gscreen.py:500
 msgid "**** GSCREEN INFO: SKIN locale name ="
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.py:504
-#, python-format
-msgid ""
-"\n"
-"**** GSCREEN INFO:  Using CUSTOM glade file from %s ****"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.py:509
-#, python-format
-msgid ""
-"\n"
-"**** GSCREEN INFO:  Using SKIN glade file from %s ****"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:512
 #, python-format
 msgid ""
 "\n"
+"**** GSCREEN INFO:  Using CUSTOM glade file from %s ****"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:517
+#, python-format
+msgid ""
+"\n"
+"**** GSCREEN INFO:  Using SKIN glade file from %s ****"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.py:520
+#, python-format
+msgid ""
+"\n"
 "**** GSCREEN INFO:  using STOCK glade file from: %s ****"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:526
+#: src/emc/usr_intf/gscreen/gscreen.py:534
 #, python-format
 msgid "**** Gscreen GLADE ERROR:    With main screen xml file: %s"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:531
+#: src/emc/usr_intf/gscreen/gscreen.py:539
 #, python-format
 msgid ""
 "\n"
 "**** GSCREEN INFO:  Screen 2 -Using CUSTOM glade file from %s ****"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:537
+#: src/emc/usr_intf/gscreen/gscreen.py:545
 #, python-format
 msgid "**** Gscreen GLADE ERROR:    With screen 2's xml file: %s"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:539
+#: src/emc/usr_intf/gscreen/gscreen.py:547
 msgid ""
 "\n"
 "**** GSCREEN INFO:  No Screen 2 glade file present"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:583
+#: src/emc/usr_intf/gscreen/gscreen.py:591
 msgid "No UNITS entry found in [TRAJ] or [AXIS_X] of INI file"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:596
+#: src/emc/usr_intf/gscreen/gscreen.py:604
 msgid ""
 "*** Gscreen ERROR:    Asking for a HAL component using a name that already "
 "exists."
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:667
+#: src/emc/usr_intf/gscreen/gscreen.py:675
 msgid "No default jog increments entry found in [DISPLAY] of INI file"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:680
+#: src/emc/usr_intf/gscreen/gscreen.py:688
 msgid "No default angular jog increments entry found in [DISPLAY] of INI file"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:689
+#: src/emc/usr_intf/gscreen/gscreen.py:697
 #, python-format
 msgid ""
 "No DEFAULT_LINEAR_VELOCITY entry found in [DISPLAY] of INI file: using "
 "internal default of %s"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:700
+#: src/emc/usr_intf/gscreen/gscreen.py:708
 #, python-format
 msgid ""
 "No MAX_LINEAR_VELOCITY entry found in [DISPLAY] of INI file: using internal "
 "default of %s"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:707
+#: src/emc/usr_intf/gscreen/gscreen.py:715
 msgid "No MAX_LINEAR_VELOCITY found in [TRAJ] of the INI file"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:720
+#: src/emc/usr_intf/gscreen/gscreen.py:728
 #, python-format
 msgid ""
 "No DEFAULT_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file: using "
 "internal default of %s"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:731
+#: src/emc/usr_intf/gscreen/gscreen.py:739
 #, python-format
 msgid ""
 "No MAX_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file: using internal "
 "default of %s"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:739
+#: src/emc/usr_intf/gscreen/gscreen.py:747
 msgid "No MAX_SPINDLE_OVERRIDE entry found in [DISPLAY] of INI file"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:745
+#: src/emc/usr_intf/gscreen/gscreen.py:753
 msgid "No MIN_SPINDLE_OVERRIDE entry found in [DISPLAY] of INI file"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:751
+#: src/emc/usr_intf/gscreen/gscreen.py:759
 msgid "No MAX_FEED_OVERRIDE entry found in [DISPLAY] of INI file"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:756
+#: src/emc/usr_intf/gscreen/gscreen.py:764
 msgid "This screen will be orientated for Lathe options"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:810
+#: src/emc/usr_intf/gscreen/gscreen.py:818
 msgid "CYCLE_TIME in [DISPLAY] of INI file is missing: defaulting to 100ms"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:813
+#: src/emc/usr_intf/gscreen/gscreen.py:821
 msgid "CYCLE_TIME in [DISPLAY] of INI file is too small: defaulting to 100ms"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:815
+#: src/emc/usr_intf/gscreen/gscreen.py:823
 #, python-format
 msgid "timeout %d"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:1265
+#: src/emc/usr_intf/gscreen/gscreen.py:1275
 msgid "Ready For Homing"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:1316
+#: src/emc/usr_intf/gscreen/gscreen.py:1326
 msgid ""
 "**** WARNING GSCREEN: could not initialize vte terminal - is package vte "
 "installed? Is widget: terminal_window in GLADE file?"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:1332
+#: src/emc/usr_intf/gscreen/gscreen.py:1342
 msgid "Local Config Theme"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:1388
+#: src/emc/usr_intf/gscreen/gscreen.py:1398
 msgid ""
 "**** WARNING GSCREEN: could not understand the window geometry info in "
 "hidden preference file"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:1520
+#: src/emc/usr_intf/gscreen/gscreen.py:1530
 msgid "Control powered up and initialized"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:1887
+#: src/emc/usr_intf/gscreen/gscreen.py:1897
 msgid "Cycle start pressed in AUTO mode"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:1890
+#: src/emc/usr_intf/gscreen/gscreen.py:1900
 #, fuzzy
 msgid "Cycle start pressed in MDI mode"
 msgstr "不能做到這一點（%s）在MDI模式"
 
-#: src/emc/usr_intf/gscreen/gscreen.py:1925
+#: src/emc/usr_intf/gscreen/gscreen.py:1935
 #, python-format
 msgid "Please change to tool # %s, then click OK."
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:1926
-#: src/emc/usr_intf/gscreen/gscreen.py:1938
-#: src/emc/usr_intf/gscreen/gscreen.py:1941
-#: src/emc/usr_intf/gscreen/gscreen.py:1957
-#: src/emc/usr_intf/gscreen/gscreen.py:1960
-#: src/emc/usr_intf/gscreen/gscreen.py:1966
-#: src/emc/usr_intf/gscreen/gscreen.py:2348
-#: src/emc/usr_intf/gscreen/gscreen.py:2677
-#: src/emc/usr_intf/gscreen/gscreen.py:4096
-#: src/emc/usr_intf/gscreen/gscreen.py:4099
-#: src/emc/usr_intf/gscreen/gscreen.py:4143
-#: src/emc/usr_intf/gscreen/gscreen.py:4163
-#: src/emc/usr_intf/gscreen/gscreen.py:4166
-#: src/emc/usr_intf/gscreen/gscreen.py:4236
-#: src/emc/usr_intf/gscreen/gscreen.py:4239
-#: src/emc/usr_intf/gscreen/gscreen.py:4246
-#: src/emc/usr_intf/gscreen/gscreen.py:4249
-#: src/emc/usr_intf/gscreen/gscreen.py:4258
-#: src/emc/usr_intf/gscreen/gscreen.py:4269
-#: src/emc/usr_intf/gscreen/gscreen.py:4275
-#: src/emc/usr_intf/gscreen/gscreen.py:4278
+#: src/emc/usr_intf/gscreen/gscreen.py:1936
+#: src/emc/usr_intf/gscreen/gscreen.py:1948
+#: src/emc/usr_intf/gscreen/gscreen.py:1951
+#: src/emc/usr_intf/gscreen/gscreen.py:1967
+#: src/emc/usr_intf/gscreen/gscreen.py:1970
+#: src/emc/usr_intf/gscreen/gscreen.py:1976
+#: src/emc/usr_intf/gscreen/gscreen.py:2358
+#: src/emc/usr_intf/gscreen/gscreen.py:2687
+#: src/emc/usr_intf/gscreen/gscreen.py:4106
+#: src/emc/usr_intf/gscreen/gscreen.py:4109
+#: src/emc/usr_intf/gscreen/gscreen.py:4161
+#: src/emc/usr_intf/gscreen/gscreen.py:4181
+#: src/emc/usr_intf/gscreen/gscreen.py:4184
+#: src/emc/usr_intf/gscreen/gscreen.py:4254
+#: src/emc/usr_intf/gscreen/gscreen.py:4257
+#: src/emc/usr_intf/gscreen/gscreen.py:4264
+#: src/emc/usr_intf/gscreen/gscreen.py:4267
+#: src/emc/usr_intf/gscreen/gscreen.py:4276
+#: src/emc/usr_intf/gscreen/gscreen.py:4287
+#: src/emc/usr_intf/gscreen/gscreen.py:4293
+#: src/emc/usr_intf/gscreen/gscreen.py:4296
 msgid "INFO:"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:1938
-#: src/emc/usr_intf/gscreen/gscreen.py:1957
+#: src/emc/usr_intf/gscreen/gscreen.py:1948
+#: src/emc/usr_intf/gscreen/gscreen.py:1967
 msgid "Can't start spindle manually while MDI busy"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:1941
-#: src/emc/usr_intf/gscreen/gscreen.py:1960
+#: src/emc/usr_intf/gscreen/gscreen.py:1951
+#: src/emc/usr_intf/gscreen/gscreen.py:1970
 #, fuzzy
 msgid "can't start spindle manually in Auto mode"
 msgstr "不能做到這一點（%s）在手動模式"
 
-#: src/emc/usr_intf/gscreen/gscreen.py:1966
-#: src/emc/usr_intf/gscreen/gscreen.py:4143
+#: src/emc/usr_intf/gscreen/gscreen.py:1976
+#: src/emc/usr_intf/gscreen/gscreen.py:4161
 msgid "No direction selected for spindle"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:1978
-#: src/emc/usr_intf/gscreen/gscreen.py:1980
+#: src/emc/usr_intf/gscreen/gscreen.py:1988
+#: src/emc/usr_intf/gscreen/gscreen.py:1990
 #, fuzzy
 msgid "Spindle Speed Preset Entry"
 msgstr "主軸 轉速（RPM）"
 
-#: src/emc/usr_intf/gscreen/gscreen.py:2012
-#: src/emc/usr_intf/gscreen/gscreen.py:2015
+#: src/emc/usr_intf/gscreen/gscreen.py:2022
+#: src/emc/usr_intf/gscreen/gscreen.py:2025
 #, fuzzy
 msgid "Manual Tool Index Entry"
 msgstr "AXIS 手動 換刀"
 
-#: src/emc/usr_intf/gscreen/gscreen.py:2183
+#: src/emc/usr_intf/gscreen/gscreen.py:2193
 msgid "Entry dialog"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:2348
+#: src/emc/usr_intf/gscreen/gscreen.py:2358
 #, fuzzy
 msgid "Classicladder realtime component not detected"
 msgstr "實時元件沒有加載"
 
-#: src/emc/usr_intf/gscreen/gscreen.py:2349
+#: src/emc/usr_intf/gscreen/gscreen.py:2359
 msgid "ladder not available - is the realtime component loaded?"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:2499
+#: src/emc/usr_intf/gscreen/gscreen.py:2509
 #, fuzzy
 msgid "Override Entry"
 msgstr "超速 MPG　操控"
 
-#: src/emc/usr_intf/gscreen/gscreen.py:2543
+#: src/emc/usr_intf/gscreen/gscreen.py:2553
 #, fuzzy
 msgid "Machine powered on"
 msgstr "開机"
 
-#: src/emc/usr_intf/gscreen/gscreen.py:2548
+#: src/emc/usr_intf/gscreen/gscreen.py:2558
 #, fuzzy
 msgid "Machine Estopped!"
 msgstr "機床位置"
 
-#: src/emc/usr_intf/gscreen/gscreen.py:2554
+#: src/emc/usr_intf/gscreen/gscreen.py:2564
 #: lib/python/gladevcp/calculator.glade:33
 #, fuzzy
 msgid "Calculator"
@@ -18436,233 +18465,233 @@ msgstr ""
 "計算\n"
 "比例"
 
-#: src/emc/usr_intf/gscreen/gscreen.py:2785
+#: src/emc/usr_intf/gscreen/gscreen.py:2795
 #, python-format
 msgid "Axes %s are homed"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:2799
+#: src/emc/usr_intf/gscreen/gscreen.py:2809
 msgid "All the axes have been homed"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:2812
+#: src/emc/usr_intf/gscreen/gscreen.py:2822
 #, python-format
 msgid "There are unhomed axes: %s"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:2821
+#: src/emc/usr_intf/gscreen/gscreen.py:2831
 #, fuzzy, python-format
 msgid "Program loaded: %s"
 msgstr "程序檔案是　%s"
 
-#: src/emc/usr_intf/gscreen/gscreen.py:2974
+#: src/emc/usr_intf/gscreen/gscreen.py:2984
 #, fuzzy
 msgid "Manual Spindle Control"
 msgstr "手動 主軸 停"
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3054
-#: src/emc/usr_intf/gscreen/gscreen.py:3055
+#: src/emc/usr_intf/gscreen/gscreen.py:3064
+#: src/emc/usr_intf/gscreen/gscreen.py:3065
 msgid "Error with launching on-screen keyboard program -can't find program."
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3065
+#: src/emc/usr_intf/gscreen/gscreen.py:3075
 msgid "Keyboard"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3098
+#: src/emc/usr_intf/gscreen/gscreen.py:3108
 #, python-format
 msgid "Error with launching 'Onboard' on-screen keyboard program %s"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3247
+#: src/emc/usr_intf/gscreen/gscreen.py:3257
 #, python-format
 msgid "**** GSCREEN INFO: Overriding internal signal call to %s"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3679
+#: src/emc/usr_intf/gscreen/gscreen.py:3689
 msgid ""
 "Zero\n"
 " "
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3680
+#: src/emc/usr_intf/gscreen/gscreen.py:3690
 #, fuzzy
 msgid ""
 "Set At\n"
 " "
 msgstr "字體 設為"
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3684
+#: src/emc/usr_intf/gscreen/gscreen.py:3694
 #, fuzzy
 msgid " Zero Origin"
 msgstr "原本"
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3685
+#: src/emc/usr_intf/gscreen/gscreen.py:3695
 #: src/emc/usr_intf/gscreen/gscreen.glade:2573
 #, fuzzy
 msgid "Offset Origin"
 msgstr "偏移訊息"
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3700
+#: src/emc/usr_intf/gscreen/gscreen.py:3710
 msgid ""
 "**** Gscreen ERROR:    Invalid message configuration (missing text or type) "
 "in INI File [DISPLAY] section"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3702
+#: src/emc/usr_intf/gscreen/gscreen.py:3712
 msgid ""
 "**** Gscreen ERROR:    Invalid message configuration (missing pinname) in "
 "INI File [DISPLAY] section"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3704
+#: src/emc/usr_intf/gscreen/gscreen.py:3714
 msgid ""
 "**** Gscreen ERROR:    Invalid message configuration (missing boldtext) in "
 "INI File [DISPLAY] section"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3708
+#: src/emc/usr_intf/gscreen/gscreen.py:3718
 #, python-format
 msgid ""
 "**** Gscreen ERROR:    invalid message type (%s)in INI File [DISPLAY] section"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3742
+#: src/emc/usr_intf/gscreen/gscreen.py:3752
 msgid "Dialog error - Is the dialog handler missing from the handler file?"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3744
+#: src/emc/usr_intf/gscreen/gscreen.py:3754
 #, fuzzy
 msgid "Manual Toolchange"
 msgstr "AXIS 手動 換刀"
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3746
+#: src/emc/usr_intf/gscreen/gscreen.py:3756
 msgid "Operator Message"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3780
-#: src/emc/usr_intf/gscreen/gscreen.py:3783
+#: src/emc/usr_intf/gscreen/gscreen.py:3790
+#: src/emc/usr_intf/gscreen/gscreen.py:3793
 #, fuzzy
 msgid "Restart Entry"
 msgstr "重新 起動"
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3795
+#: src/emc/usr_intf/gscreen/gscreen.py:3805
 msgid "_Up     "
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3797
+#: src/emc/usr_intf/gscreen/gscreen.py:3807
 #, fuzzy
 #| msgid "Down"
 msgid "_Down"
 msgstr "向下"
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3799
+#: src/emc/usr_intf/gscreen/gscreen.py:3809
 msgid "_Jump to"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3819
+#: src/emc/usr_intf/gscreen/gscreen.py:3829
 #, python-format
 msgid "Ready to Restart program from line %d"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:3852
+#: src/emc/usr_intf/gscreen/gscreen.py:3862
 #, fuzzy
 msgid "Invalid embedded tab configuration"
 msgstr "創建一個新的配置"
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4096
-#: src/emc/usr_intf/gscreen/gscreen.py:4163
+#: src/emc/usr_intf/gscreen/gscreen.py:4106
+#: src/emc/usr_intf/gscreen/gscreen.py:4181
 msgid "Can't jog multiple axis"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4099
+#: src/emc/usr_intf/gscreen/gscreen.py:4109
 msgid "No axis selected to jog"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4166
+#: src/emc/usr_intf/gscreen/gscreen.py:4184
 msgid "No axis selected to move"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4236
+#: src/emc/usr_intf/gscreen/gscreen.py:4254
 msgid "Can't home multiple axis - select HOME ALL instead"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4239
+#: src/emc/usr_intf/gscreen/gscreen.py:4257
 msgid "No axis selected to home"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4246
+#: src/emc/usr_intf/gscreen/gscreen.py:4264
 msgid "Can't unhome multiple axis"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4249
+#: src/emc/usr_intf/gscreen/gscreen.py:4267
 msgid "No axis selected to unhome"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4258
+#: src/emc/usr_intf/gscreen/gscreen.py:4276
 msgid "No axis selected for origin zeroing"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4269
+#: src/emc/usr_intf/gscreen/gscreen.py:4287
 msgid "No axis selected for origin touch-off"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4275
+#: src/emc/usr_intf/gscreen/gscreen.py:4293
 msgid "Can't tool touch-off multiple axes"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4278
+#: src/emc/usr_intf/gscreen/gscreen.py:4296
 msgid "No axis selected for tool touch-off"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4337
-#: src/emc/usr_intf/gscreen/gscreen.py:4422
+#: src/emc/usr_intf/gscreen/gscreen.py:4355
+#: src/emc/usr_intf/gscreen/gscreen.py:4440
 #, fuzzy
 msgid "Error Message"
 msgstr "保存 文件 時出錯"
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4337
+#: src/emc/usr_intf/gscreen/gscreen.py:4355
 #, python-format
 msgid "Tool editor error - is the %s editor available?"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4424
-#: src/emc/usr_intf/gscreen/gscreen.py:4426
+#: src/emc/usr_intf/gscreen/gscreen.py:4442
+#: src/emc/usr_intf/gscreen/gscreen.py:4444
 msgid "Message"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4456
+#: src/emc/usr_intf/gscreen/gscreen.py:4474
 #, python-format
 msgid "%d RPM"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4572
+#: src/emc/usr_intf/gscreen/gscreen.py:4590
 #, python-format
 msgid "Tool %(t)s     %(l)s"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4604
+#: src/emc/usr_intf/gscreen/gscreen.py:4622
 #, fuzzy, python-format
 msgid "%4.2f mm/min"
 msgstr "mm/分"
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4606
+#: src/emc/usr_intf/gscreen/gscreen.py:4624
 #, python-format
 msgid "%3.2f IPM"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4609
+#: src/emc/usr_intf/gscreen/gscreen.py:4627
 #, python-format
 msgid "%4.2f DPM"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4618
+#: src/emc/usr_intf/gscreen/gscreen.py:4636
 #, python-format
 msgid "%(n)s   View -%(v)s               %(t)s"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.py:4627
-#: src/emc/usr_intf/gscreen/gscreen.py:4628
+#: src/emc/usr_intf/gscreen/gscreen.py:4645
+#: src/emc/usr_intf/gscreen/gscreen.py:4646
 msgid " mm "
 msgstr ""
 
@@ -19328,13 +19357,13 @@ msgstr ""
 msgid "Close without returning a file path"
 msgstr ""
 
-#: lib/python/gladevcp/hal_mdihistory.py:86
+#: lib/python/gladevcp/hal_mdihistory.py:89
 #, fuzzy
 #| msgid "Command:"
 msgid "Command"
 msgstr "指令："
 
-#: lib/python/gladevcp/hal_mdihistory.py:268
+#: lib/python/gladevcp/hal_mdihistory.py:271
 msgid "ERROR loading halshow"
 msgstr ""
 
@@ -19553,6 +19582,9 @@ msgstr "取消"
 #: lib/python/gladevcp/calculator.glade:393
 msgid "_Ok"
 msgstr ""
+
+#~ msgid "homing sequence already in progress"
+#~ msgstr "歸零 序列 已在 進行中"
 
 #, fuzzy
 #~ msgid "Set Watch interval"
@@ -19823,10 +19855,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Show offsets"
 #~ msgstr "顯示 偏移量(_f)"
-
-#, fuzzy
-#~ msgid "Show DTG"
-#~ msgstr "展示"
 
 #, fuzzy
 #~ msgid "<b>Mouse Button mode</b>"
