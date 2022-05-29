@@ -6,10 +6,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-05-28 23:16+0200\n"
-"PO-Revision-Date: 2022-05-17 14:11+0000\n"
-"Last-Translator: Asle Næss <aness@bofh.no>\n"
+"PO-Revision-Date: 2022-05-29 16:23+0000\n"
+"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/gmocappy/nb_NO/>\n"
 "Language: nb\n"
@@ -120,15 +120,11 @@ msgid "Press to enter new value for block height"
 msgstr "Trykk for å skrive inn ny verdi for blokkhøyde"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1049
-#, fuzzy
-#| msgid ""
-#| "    set\n"
-#| "selected"
 msgid ""
 "set\n"
 "selected"
 msgstr ""
-"    satt\n"
+"   satt\n"
 "valgt"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1055
@@ -278,6 +274,7 @@ msgstr "**** Ingen faner vil bli lagt til. ****"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1840
 msgid "ERROR, trying to initialize the user tabs or panels, check for typos"
 msgstr ""
+"FEIL, forøker nullstille brukerfaner eller paneler, sjekk etter skrivefeil"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1930
 msgid "**** Did not find a toolfile file in [EMCIO] TOOL_TABLE ****"
@@ -344,25 +341,25 @@ msgstr "bryt av kjørende makro"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2186
 msgid "**** Did not find a parameter file in [RS274NGC] PARAMETER_FILE ****"
-msgstr ""
+msgstr "**** Fant ikke parameterfil i [RS274NGC] PARAMETER_FILE ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2256
 msgid "Select the file you want to be loaded at program start"
-msgstr ""
+msgstr "Velg filen du ønsker å laste ved oppstart av program"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2290
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2314
 #, python-brace-format
 msgid "**** GMOCCAPY ERROR **** /n Message type {0} not supported"
-msgstr ""
+msgstr "**** GMOCCAPY-FEIL **** /n Ikke støtte for meldingstype {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2427
 msgid "Unknown error type and no error text given"
-msgstr ""
+msgstr "Ukjent feiltype og ingen feiltekst oppgitt"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2441
 msgid "Important Warning"
-msgstr ""
+msgstr "Viktig advarsel"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2461
 msgid "External ESTOP is set, could not change state!"
