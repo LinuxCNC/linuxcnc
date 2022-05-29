@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-05-28 23:16+0200\n"
-"PO-Revision-Date: 2022-05-29 16:23+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"PO-Revision-Date: 2022-05-30 01:32+0000\n"
+"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -2594,8 +2594,8 @@ msgstr "Negatives Softlimit bei (%.5f) Achse/Gelenk %d überschritten\n"
 #: src/emc/motion/control.c:1490 src/emc/motion/control.c:1499
 msgid "Joint must be unhomed, jogged into limits, rehomed"
 msgstr ""
-"Das Gelenkt muss die Referenzposition verlassen, in den Arbeitsbereich "
-"bewegt werden und die Referenzfahrt erneut ausführen"
+"Achse/Gelenkt muss die Referenzposition verlassen, in den Arbeitsbereich "
+"bewegt werden und erneut referenziert werden"
 
 #: src/emc/motion/control.c:1492 src/emc/motion/control.c:1501
 msgid "Hint: switch to joint mode to jog off soft limit"
@@ -2744,8 +2744,8 @@ msgstr "Referenzfahrt abgelehnt wegen motion.homing-inhibit joint=%d\n"
 #: src/emc/motion/command.c:1403
 msgid "must be in joint mode or disabled to unhome"
 msgstr ""
-"Kann nur im Gelenk-Modus oder abgeschaltet aus der Referenzpos. gefahren "
-"werden"
+"Referenzierung kann nur im Joint-Modus oder im abgeschalteten Zustand "
+"aufgehoben werden"
 
 #: src/emc/motion/command.c:1423
 msgid "need to be enabled, in coord mode for probe move"
@@ -2997,14 +2997,14 @@ msgstr "HOMING: all_joints_home_data_t malloc fehlgeschlagen\n"
 #, c-format
 msgid "Cannot unhome while homing, joint %d"
 msgstr ""
-"Achse/Gelenk %d: Während Referenzfahrt kann nicht aus der Referenzpos. "
-"gefahren werden"
+"Achse/Gelenk %d: Referenzierung kann nicht aufgehoben werden während "
+"Referenzfahrt"
 
 #: src/emc/motion/homing.c:304
 #, c-format
 msgid "Cannot unhome while moving, joint %d"
 msgstr ""
-"Achse/Gelenk %d: Während der Bewegung kann nicht aus der Referenzpos. "
+"Achse/Gelenk %d kann während der Bewegung nicht aus der Referenzpos. "
 "gefahren werden"
 
 #: src/emc/motion/homing.c:311
@@ -3028,23 +3028,22 @@ msgstr "Unbekannter Zustand '%d' bei Referenzfahrt"
 #, c-format
 msgid "Cannot unhome invalid joint %d (max %d)\n"
 msgstr ""
-"Ungültige(s) Achse/Gelenk %d kann nicht aus der Referenzpos. gefahren werden "
-"(max. %d)\n"
+"Kann Referenzierung von ungültiger(m) Achse/Gelenk %d nicht aufheben (max. "
+"%d)\n"
 
 #: src/emc/motion/homing.c:583
-#, fuzzy, c-format
-#| msgid "Cannot unhome extrajoint <%d> with motion enabled"
+#, c-format
 msgid "Cannot unhome extrajoint <%d> with motion enabled\n"
 msgstr ""
-"Aufheben der Referenzierung von Extra-Achse/Gelenk <%d> nicht möglich "
-"solange Bewegungen möglich sind\n"
+"Aufheben der Referenzierung von Extra-Achse/Gelenk %d nicht möglich solange "
+"Bewegungen aktiviert sind\n"
 
 #: src/emc/motion/homing.c:590
 #, c-format
 msgid "Cannot unhome while homing, joint %d\n"
 msgstr ""
-"Achse/Gelenk %d kann während Referenzfahrt kann nicht aus der Referenzpos. "
-"gefahren werden\n"
+"Achse/Gelenk %d: Referenzierung kann nicht aufgehoben werden während "
+"Referenzfahrt\n"
 
 #: src/emc/motion/homing.c:595
 #, c-format
@@ -3057,7 +3056,8 @@ msgstr ""
 #, c-format
 msgid "Cannot unhome inactive joint %d\n"
 msgstr ""
-"Inaktive(s) Achse/Gelenk %d kann nicht aus der Referenzpos. gefahren werden\n"
+"Referenzierung von inaktiver(m) Achse/Gelenk %d kann nicht aufgehoben "
+"werden\n"
 
 #: src/emc/motion/homing.c:757
 #, c-format
@@ -3610,7 +3610,6 @@ msgid "Logic"
 msgstr "Logik"
 
 #: src/hal/classicladder/config_gtk.c:294
-#, fuzzy
 msgid "1st Variable mapped"
 msgstr "Erste zugeordnete Variable"
 
@@ -5253,7 +5252,7 @@ msgstr "Alle zuklappen"
 
 #: tcl/bin/halshow.tcl:256
 msgid "Reload tree view"
-msgstr "Vorschau erneut laden"
+msgstr "Baumansicht neu laden"
 
 #: tcl/bin/halshow.tcl:262
 msgid "Add pin"
@@ -5293,13 +5292,11 @@ msgstr "hinzugefügt"
 
 #: tcl/bin/halshow.tcl:331
 msgid "Full path (regex)"
-msgstr "Vollständiger Pfad (regex)"
+msgstr "Vollst. Pfad (regex)"
 
 #: tcl/bin/halshow.tcl:335 tcl/bin/halshow.tcl:348
-#, fuzzy
-#| msgid "Filter failed"
 msgid "Filter tree"
-msgstr "Filter Baum"
+msgstr "Baum filtern"
 
 #: tcl/bin/halshow.tcl:664
 msgid "HAL command :"
@@ -5354,10 +5351,8 @@ msgid "Unlink pin"
 msgstr "Pin trennen"
 
 #: tcl/bin/halshow.tcl:941
-#, fuzzy
-#| msgid "Show pointer"
 msgid "Show in Tree"
-msgstr "Zeige in Baum"
+msgstr "In Baumansicht zeigen"
 
 #: tcl/bin/halshow.tcl:942
 msgid "Remove"
@@ -5376,10 +5371,8 @@ msgid "Add as Param(s)"
 msgstr "Als Parameter hinzufügen"
 
 #: tcl/bin/halshow.tcl:966
-#, fuzzy
-#| msgid "Add to watch"
 msgid "Add all sub-items to watch"
-msgstr "Hinzufügen"
+msgstr "Alle untergeordneten Elemente zu BEOBACHTEN hinzufügen"
 
 #: tcl/bin/halshow.tcl:998 tcl/bin/halshow.tcl:1066
 msgid "Set"
@@ -11833,6 +11826,7 @@ msgstr "Entgegengesetzt"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
 msgid ""
 "_:"
+""
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -17320,9 +17314,8 @@ msgstr "Geschwindigkeit Referenzfahrt:"
 #: src/emc/usr_intf/pncconf/y_axis.glade:179
 #: src/emc/usr_intf/pncconf/z_axis.glade:179
 #: src/emc/usr_intf/pncconf/a_axis.glade:179
-#, fuzzy
 msgid "Home Latch Direction:"
-msgstr "Richtung beim Übernehmen des Referenzpunkt:"
+msgstr "Richtung zum Übernehmen des Referenzpunkts:"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:194
 #: src/emc/usr_intf/pncconf/y_axis.glade:194
@@ -18981,7 +18974,7 @@ msgstr "Alle Achsen sind am Referenzpunkt"
 #: src/emc/usr_intf/gscreen/gscreen.py:2822
 #, python-format
 msgid "There are unhomed axes: %s"
-msgstr "Es sind folgende Achsen nicht am Referenzpunkt: %s"
+msgstr "Es sind folgende Achsen nicht referenziert: %s"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2831
 #, python-format
@@ -19135,11 +19128,11 @@ msgstr "Keine Achse ausgewählt für Referenzpunktfahrt"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4264
 msgid "Can't unhome multiple axis"
-msgstr "Kann nicht mehrere Achsen von Referenzpunkt zurückfahren"
+msgstr "Kann Referenzierung von mehreren Achsen nicht aufheben"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4267
 msgid "No axis selected to unhome"
-msgstr "Keine Achse zum Ausfahren ausgewählt"
+msgstr "Keine Achse ausgewählt zum Aufheben der Referenzierung"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4276
 msgid "No axis selected for origin zeroing"
