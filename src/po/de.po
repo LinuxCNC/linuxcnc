@@ -1,10 +1,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-05-28 23:16+0200\n"
-"PO-Revision-Date: 2022-04-11 16:07+0000\n"
-"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
+"PO-Revision-Date: 2022-05-29 16:23+0000\n"
+"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.12-dev\n"
+"X-Generator: Weblate 4.13-dev\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -2930,26 +2930,20 @@ msgid "MOTION: init_comm_buffers() failed\n"
 msgstr "MOTION: init_comm_buffers() fehlgeschlagen\n"
 
 #: src/emc/motion/motion.c:380
-#, fuzzy
-#| msgid "MOTION: hal_init() failed\n"
 msgid "MOTION: module_intfc() failed\n"
-msgstr "MOTION: hal_init fehlgeschlagen\n"
+msgstr "MOTION: module_intfc() fehlgeschlagen\n"
 
 #: src/emc/motion/motion.c:384
-#, fuzzy
-#| msgid "MOTION: hal_init() failed\n"
 msgid "MOTION: tp_init() failed\n"
-msgstr "MOTION: hal_init fehlgeschlagen\n"
+msgstr "MOTION: tp_init() fehlgeschlagen\n"
 
 #: src/emc/motion/motion.c:391
 msgid "MOTION: init_threads() failed\n"
 msgstr "MOTION: init_threads() fehlgeschlagen\n"
 
 #: src/emc/motion/motion.c:401
-#, fuzzy
-#| msgid "MOTION: hal_init() failed\n"
 msgid "MOTION: homing_init() failed\n"
-msgstr "MOTION: hal_init fehlgeschlagen\n"
+msgstr "MOTION: homing_init() fehlgeschlagen\n"
 
 #: src/emc/motion/motion.c:426
 #, c-format
@@ -2986,16 +2980,14 @@ msgid "MOTION: ejoint %d pin/param export failed\n"
 msgstr "MOTION: Achse/Gelenk %d Pin/Parameterexport fehlgeschlagen\n"
 
 #: src/emc/motion/homing.c:188
-#, fuzzy, c-format
-#| msgid "hit limit in home state %d"
+#, c-format
 msgid "j%d hit limit in home state %d"
-msgstr "Grenze im Referenzstatus erreicht %d"
+msgstr "j%d erreicht Grenze im Referenzstatus %d"
 
 #: src/emc/motion/homing.c:197
-#, fuzzy, c-format
-#| msgid "end of move in home state %d"
+#, c-format
 msgid "j%d end of move in home state %d"
-msgstr "Bewegungsende im Referenzstatus %d"
+msgstr "j%d Bewegungsende im Referenzstatus %d"
 
 #: src/emc/motion/homing.c:236
 msgid "HOMING: all_joints_home_data_t malloc failed\n"
@@ -3025,7 +3017,7 @@ msgstr ""
 #: src/emc/motion/homing.c:366
 #, c-format
 msgid "homing.c Unexpected joint=%d jseq=%d current_seq=%d\n"
-msgstr ""
+msgstr "homing.c Unerwartet joint=%d jseq=%d current_seq=%d\n"
 
 #: src/emc/motion/homing.c:482
 #, c-format
@@ -3033,12 +3025,11 @@ msgid "unknown state '%d' during homing sequence"
 msgstr "Unbekannter Zustand '%d' bei Referenzfahrt"
 
 #: src/emc/motion/homing.c:576
-#, fuzzy, c-format
-#| msgid "Cannot unhome invalid joint %d (max %d)"
+#, c-format
 msgid "Cannot unhome invalid joint %d (max %d)\n"
 msgstr ""
-"Achse/Gelenk %d: Ungültige(s) Achse/Gelenk kann nicht aus der Referenzpos. "
-"gefahren werden (max. %d)"
+"Ungültige(s) Achse/Gelenk %d kann nicht aus der Referenzpos. gefahren werden "
+"(max. %d)\n"
 
 #: src/emc/motion/homing.c:583
 #, fuzzy, c-format
@@ -3046,30 +3037,27 @@ msgstr ""
 msgid "Cannot unhome extrajoint <%d> with motion enabled\n"
 msgstr ""
 "Aufheben der Referenzierung von Extra-Achse/Gelenk <%d> nicht möglich "
-"solange Bewegungen möglich sind"
+"solange Bewegungen möglich sind\n"
 
 #: src/emc/motion/homing.c:590
-#, fuzzy, c-format
-#| msgid "Cannot unhome while homing, joint %d"
+#, c-format
 msgid "Cannot unhome while homing, joint %d\n"
 msgstr ""
-"Achse/Gelenk %d: Während Referenzfahrt kann nicht aus der Referenzpos. "
-"gefahren werden"
+"Achse/Gelenk %d kann während Referenzfahrt kann nicht aus der Referenzpos. "
+"gefahren werden\n"
 
 #: src/emc/motion/homing.c:595
-#, fuzzy, c-format
-#| msgid "Cannot unhome while moving, joint %d"
+#, c-format
 msgid "Cannot unhome while moving, joint %d\n"
 msgstr ""
-"Achse/Gelenk %d: Während der Bewegung kann nicht aus der Referenzpos. "
-"gefahren werden"
+"Achse/Gelenk %d kann während der Bewegung nicht aus der Referenzpos. "
+"gefahren werden\n"
 
 #: src/emc/motion/homing.c:601
-#, fuzzy, c-format
-#| msgid "Cannot unhome inactive joint %d"
+#, c-format
 msgid "Cannot unhome inactive joint %d\n"
 msgstr ""
-"Inaktive(s) Achse/Gelenk %d kann nicht aus der Referenzpos. gefahren werden"
+"Inaktive(s) Achse/Gelenk %d kann nicht aus der Referenzpos. gefahren werden\n"
 
 #: src/emc/motion/homing.c:757
 #, c-format
@@ -3452,7 +3440,7 @@ msgstr "Über"
 #: src/hal/classicladder/classicladder_gtk.c:938
 #, c-format
 msgid "%d µs"
-msgstr ""
+msgstr "%d µs"
 
 #: src/hal/classicladder/classicladder_gtk.c:960
 msgid "Config hardware error occurred!"
@@ -3610,19 +3598,21 @@ msgstr ""
 
 #: src/hal/classicladder/config_gtk.c:294
 msgid "1st Modbus Ele."
-msgstr ""
+msgstr "Erstes Modbus Ele."
 
 #: src/hal/classicladder/config_gtk.c:294
+#, fuzzy
 msgid "# of Ele"
-msgstr ""
+msgstr "# Ele"
 
 #: src/hal/classicladder/config_gtk.c:294
 msgid "Logic"
-msgstr ""
+msgstr "Logik"
 
 #: src/hal/classicladder/config_gtk.c:294
+#, fuzzy
 msgid "1st Variable mapped"
-msgstr ""
+msgstr "Erste zugeordnete Variable"
 
 #: src/hal/classicladder/config_gtk.c:385
 msgid "Inverted"
@@ -5262,10 +5252,8 @@ msgid "Collapse All"
 msgstr "Alle zuklappen"
 
 #: tcl/bin/halshow.tcl:256
-#, fuzzy
-#| msgid "Rotate view"
 msgid "Reload tree view"
-msgstr "Vorschau drehen"
+msgstr "Vorschau erneut laden"
 
 #: tcl/bin/halshow.tcl:262
 msgid "Add pin"
@@ -5305,13 +5293,13 @@ msgstr "hinzugefügt"
 
 #: tcl/bin/halshow.tcl:331
 msgid "Full path (regex)"
-msgstr ""
+msgstr "Vollständiger Pfad (regex)"
 
 #: tcl/bin/halshow.tcl:335 tcl/bin/halshow.tcl:348
 #, fuzzy
 #| msgid "Filter failed"
 msgid "Filter tree"
-msgstr "Konvertierung fehlgeschlagen"
+msgstr "Filter Baum"
 
 #: tcl/bin/halshow.tcl:664
 msgid "HAL command :"
@@ -5369,7 +5357,7 @@ msgstr "Pin trennen"
 #, fuzzy
 #| msgid "Show pointer"
 msgid "Show in Tree"
-msgstr "Zeige Pointer"
+msgstr "Zeige in Baum"
 
 #: tcl/bin/halshow.tcl:942
 msgid "Remove"
@@ -11843,7 +11831,8 @@ msgstr "Entgegengesetzt"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -14998,41 +14987,6 @@ msgstr ""
 "  möglich"
 
 #: src/emc/usr_intf/pncconf/help.glade:54
-#, fuzzy
-#| msgid ""
-#| "Separate Home and Limit Switches Example\n"
-#| "\n"
-#| "    The negative and positive directions are based on Tool Movement which "
-#| "can be different\n"
-#| "    then the actual machine movement. ie on a mill typically the table "
-#| "moves rather then the tool.\n"
-#| "\n"
-#| "    Soft(ware) limits are inside the limit switch area.\n"
-#| "\n"
-#| "    (If using switch based homing) the homing switch(es) utilize the "
-#| "limit switches (shared home / limit switch)\n"
-#| "    or are inside the limit switch area when using a separate home "
-#| "switch.\n"
-#| "\n"
-#| "    The G53 machine zero origin is typically inside the soft limits area "
-#| "but not necessarily.\n"
-#| "\n"
-#| "    If using a separate homing switch, it’s possible to start homing on "
-#| "the wrong side of the home switch,\n"
-#| "    which combined with HOME_IGNORE_LIMITS option will lead to a hard "
-#| "crash.\n"
-#| "    You can avoid this by making the home switch toggle it’s state when "
-#| "the trip dog is on a particular side until it returns passed the trip "
-#| "point again.\n"
-#| "    Said another way, the home switch state must represent the position "
-#| "of the dog relative to the switch (ie before or after the switch),\n"
-#| "    and must stay that way even if the dog coasts past the switch in the "
-#| "same direction.\n"
-#| "\n"
-#| "    The distance between the limit switches and soft limits (-L<->A and "
-#| "D<-+L) is magnified in this example\n"
-#| "    Note that there is distance between the limit switches and actual "
-#| "physical hard contact for coasting after the amplifier is disabled.\n"
 msgid ""
 "Separate Home and Limit Switches Example\n"
 "\n"
@@ -15099,8 +15053,8 @@ msgstr ""
 "    und muss diesen Zustand auch dann beibehalten, wenn der Nocken in "
 "derselben Richtung am Schalter vorbeiläuft.\n"
 "\n"
-"    Der Abstand zwischen den Endschaltern und den Soft-Limits (-L<->A und D<-"
-"+L) wird in diesem Beispiel vergrößert dargestellt.\n"
+"    Der Abstand zwischen den Endschaltern und den Soft-Limits (-L<->A und "
+"D<-+L) wird in diesem Beispiel vergrößert dargestellt.\n"
 "    Beachten Sie, dass es einen Abstand zwischen den Endschaltern und dem "
 "tatsächlichen harten Kontakt für den Auslauf nach der Deaktivierung des "
 "Verstärkers gibt.\n"
