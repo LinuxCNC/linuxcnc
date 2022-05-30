@@ -1,4 +1,4 @@
-VERSION = '1.223.195'
+VERSION = '1.223.196'
 
 '''
 qtplasmac_handler.py
@@ -1712,7 +1712,7 @@ class HandlerClass:
                 self.w[self.frButton].setEnabled(False)
             self.rflActive = True
             self.rflSelected = False
-            if self.developmentPin:
+            if self.developmentPin.get():
                 reload(RFL)
             head = _translate('HandlerClass', 'GCODE ERROR')
             data = RFL.run_from_line_get(self.lastLoadedProgram, self.startLine)
@@ -1848,7 +1848,7 @@ class HandlerClass:
         self.dialog_show_ok(QMessageBox.Information, head, '\n{}:\n{}\n\n{}\n'.format(msg0, bkpName, msg1))
 
     def set_offsets_clicked(self):
-        if self.developmentPin:
+        if self.developmentPin.get():
             reload(OFFSETS)
         OFFSETS.dialog_show(self, self.w, INIPATH, STATUS, ACTION, TOOL, self.foreColor, self.backColor)
 
@@ -2021,7 +2021,7 @@ class HandlerClass:
         elif tab == 1:
             self.w.conv_preview.logger.clear()
             self.w.conv_preview.set_current_view()
-            if self.developmentPin:
+            if self.developmentPin.get():
                 reload(self.CONV)
             self.CONV.conv_setup(self, self.w)
             self.vkb_show(True)
@@ -2583,7 +2583,7 @@ class HandlerClass:
         self.laserRecStatePin.value_changed.connect(lambda v:self.laser_recovery_state_changed(v))
 
     def conv_call(self, operation):
-        if self.developmentPin:
+        if self.developmentPin.get():
             reload(self.CONV)
         if operation == 'block':
             self.CONV.conv_block_pressed(self, self.w)

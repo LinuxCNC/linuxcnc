@@ -29,35 +29,32 @@ def save(P, W, Conv):
     msg = []
     P.preAmble = W.preEntry.text()
     P.postAmble = W.pstEntry.text()
-    P.origin = W.center.isChecked()
-    try:
-        P.leadIn = float(W.liEntry.text())
-    except:
-        msg.append(_translate('Conversational', 'LEAD IN'))
-    try:
-        P.leadOut = float(W.loEntry.text())
-    except:
-        msg.append(_translate('Conversational', 'LEAD OUT'))
-    try:
-        P.holeDiameter = float(W.shEntry.text())
-    except:
-        msg.append(_translate('Conversational', 'DIAMETER'))
-    try:
-        P.holeSpeed = int(W.hsEntry.text())
-    except:
-        msg.append(_translate('Conversational', 'SPEED %'))
-    try:
-        P.gridSize = float(W.gsEntry.text())
-    except:
-        msg.append(_translate('Conversational', 'GRID SIZE'))
-    if msg:
-        msg0 = _translate('Conversational', 'Invalid entry detected in')
-        msg1 = ''
-        for m in msg:
-            msg1 += '{}\n'.format(m)
-        error_set(P, '{}:\n\n{}'.format(msg0, msg1))
+    P.origin = W.centLeft.text() == 'CENTER'
+    error = ''
+    valid, P.leadIn = Conv.conv_is_float(W.liEntry.text())
+    if not valid:
+        msg = _('Invalid LEAD IN entry detected')
+        error += '{}\n\n'.format(msg)
+    valid, P.leadOut = Conv.conv_is_float(W.loEntry.text())
+    if not valid:
+        msg = _('Invalid LEAD OUT entry detected')
+        error += '{}\n\n'.format(msg)
+    valid, P.holeDiameter = Conv.conv_is_float(W.shEntry.text())
+    if not valid:
+        msg = _('Invalid DIAMETER entry detected')
+        error += '{}\n\n'.format(msg)
+    valid, P.holeSpeed = Conv.conv_is_float(W.hsEntry.text())
+    if not valid:
+        msg = _('Invalid SPEED % entry detected')
+        error += '{}\n\n'.format(msg)
+    valid, P.gridSize = Conv.conv_is_float(W.gsEntry.text())
+    if not valid:
+        msg = _('Invalid GRID SIZE entry detected')
+        error += '{}\n\n'.format(msg)
+    if error:
+        P.dialogError = True
+        P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Settings Error'), error)
         return
-
     P.PREFS.putpref('Preamble', P.preAmble, str, 'CONVERSATIONAL')
     P.PREFS.putpref('Postamble', P.postAmble, str, 'CONVERSATIONAL')
     P.PREFS.putpref('Origin', P.origin, int, 'CONVERSATIONAL')
@@ -66,23 +63,27 @@ def save(P, W, Conv):
     P.PREFS.putpref('Hole diameter', P.holeDiameter, float, 'CONVERSATIONAL')
     P.PREFS.putpref('Hole speed', P.holeSpeed, int, 'CONVERSATIONAL')
     P.PREFS.putpref('Grid Size', P.gridSize, float, 'CONVERSATIONAL')
+    P.leadInOld = P.leadIn
+    P.leadOutOld = P.leadOut
     show(P, W)
     P.convSettingsChanged = True
-#    W[P.oldConvButton].click()
 
-def error_set(P, msg):
-    P.dialogError = True
-    P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Scaling Error'), msg)
-
-#def reload(parent, ambles, unitCode):
 def reload(P, W, Conv):
     load(P, W)
     show(P, W)
     P.convSettingsChanged = True
-#    W[P.oldConvButton].click()
 
 def exit(P, W, Conv):
+    if P.origin:
+        W.centLeft.setText('CENTER')
+    else:
+        W.centLeft.setText('BTM LEFT')
+    P.leadIn = P.leadInOld
+    P.leadOut = P.leadOutOld
+    W.liEntry.setText('{}'.format(P.leadIn))
+    W.loEntry.setText('{}'.format(P.leadOut))
     Conv.conv_restore_buttons(P, W)
+    P.convSettingsChanged = True
     W[P.oldConvButton].click()
 
 def load(P, W):
@@ -94,7 +95,8 @@ def load(P, W):
     P.holeDiameter = P.PREFS.getpref('Hole diameter', P.unitCode[2], float, 'CONVERSATIONAL')
     P.holeSpeed = P.PREFS.getpref('Hole speed', 60, int, 'CONVERSATIONAL')
     P.gridSize = P.PREFS.getpref('Grid Size', 0, float, 'CONVERSATIONAL')
-
+    P.leadInOld = P.leadIn
+    P.leadOutOld = P.leadOut
 def show(P, W):
     W.preEntry.setText(P.preAmble)
     W.pstEntry.setText(P.postAmble)
@@ -104,22 +106,29 @@ def show(P, W):
     W.hsEntry.setText('{}'.format(P.holeSpeed))
     W.gsEntry.setText('{}'.format(P.gridSize))
     if P.origin:
-        W.center.setChecked(True)
+        W.centLeft.setText('CENTER')
     else:
-        W.bLeft.setChecked(True)
-    P.oSaved = P.origin
+        W.centLeft.setText('BTM LEFT')
     # grid size is in inches
     W.conv_preview.grid_size = P.gridSize / P.unitsPerMm / 25.4
     W.conv_preview.set_current_view()
 
+def centLeft_toggled(P, W, Conv):
+    if not W.centLeft.isChecked():
+        return
+    text = 'CENTER' if W.centLeft.text() == 'BTM LEFT' else 'BTM LEFT'
+    W.centLeft.setText(text)
+    W.centLeft.setChecked(False)
+
 def widgets(P, W, Conv):
     W.shLabel.setText(_translate('Conversational', 'SMALL HOLES'))
+    W.hLabel.setText(_translate('Conversational', 'DIAMETER'))
     #alignment and size
     ra = ['preLabel', 'pstLabel', 'liLabel', 'liEntry', 'loEntry', \
           'hLabel', 'shEntry', 'hsEntry', 'gsLabel', 'gsEntry']
     la = ['loLabel', 'hsLabel']
     ca = ['oLabel', 'llLabel', 'shLabel', 'pvLabel']
-    rb = ['center', 'bLeft']
+    rb = ['centLeft']
     bt = ['save', 'reload', 'cExit']
     for w in ra:
         W[w].setAlignment(Qt.AlignRight | Qt.AlignVCenter)
@@ -140,6 +149,7 @@ def widgets(P, W, Conv):
         W[w].setFixedWidth(80)
         W[w].setFixedHeight(24)
     # connections
+    W.centLeft.toggled.connect(lambda:centLeft_toggled(P, W, Conv))
     W.liEntry.textChanged.connect(lambda:Conv.conv_entry_changed(P, W, W.sender()))
     W.loEntry.textChanged.connect(lambda:Conv.conv_entry_changed(P, W, W.sender()))
     W.shEntry.textChanged.connect(lambda:Conv.conv_entry_changed(P, W, W.sender()))
@@ -154,8 +164,7 @@ def widgets(P, W, Conv):
     W.entries.addWidget(W.pstLabel, 1, 0)
     W.entries.addWidget(W.pstEntry, 1, 1, 1, 4)
     W.entries.addWidget(W.oLabel, 2, 1, 1, 3)
-    W.entries.addWidget(W.center, 3, 1)
-    W.entries.addWidget(W.bLeft, 3, 3)
+    W.entries.addWidget(W.centLeft, 3, 2)
     W.entries.addWidget(W.llLabel, 4, 1, 1, 3)
     W.entries.addWidget(W.liLabel, 5, 0)
     W.entries.addWidget(W.liEntry, 5, 1)
@@ -169,10 +178,11 @@ def widgets(P, W, Conv):
     W.entries.addWidget(W.pvLabel, 8, 1, 1, 3)
     W.entries.addWidget(W.gsLabel, 9, 0)
     W.entries.addWidget(W.gsEntry, 9, 1)
+    for r in (10,11):
+        W['s{}'.format(r)] = QLabel('')
+        W['s{}'.format(r)].setFixedHeight(24)
+        W.entries.addWidget(W['s{}'.format(r)], r, 0)
     W.entries.addWidget(W.save, 12, 0)
     W.entries.addWidget(W.reload, 12, 2)
     W.entries.addWidget(W.cExit, 12, 4)
-    for blank in range(2):
-        W['{}'.format(blank)] = QLabel('')
-        W.entries.addWidget(W['{}'.format(blank)], 10 + blank, 0)
     W.preEntry.setFocus()

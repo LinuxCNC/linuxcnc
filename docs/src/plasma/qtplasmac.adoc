@@ -2498,11 +2498,23 @@ Global settings for the shape library can be set by pressing the *SETTINGS* butt
 
 Any internal circle that has a diameter less than *Small hole diameter* is classified as a small hole and will have a straight lead-in with a length that is the lesser of either the radius of the hole or the specified lead-in length. It will also have its feed rate set to *Small hole speed*.
 
-Pressing the *RELOAD* button will discard any changed settings.
+Preamble and Postamble may be entered as a string of G-Codes and M-Codes separate by spaces. If the user wishes for the generated G-Code to have each code on an individual line then this is made possible by separating the codes with *\n*.
+
+This will place all codes on the same line:
+----
+G21 G40 G49 G64p0.1 G80 G90 G92.1 G94 G97
+----
+
+This will place each code on its own line:
+----
+G21\nG40\nG49\nG64p0.1\nG80\nG90\nG92.1\nG94\nG97
+----
+
+Pressing the *RELOAD* button will discard any changed but unsaved settings.
 
 Pressing the *SAVE* button will save all the settings as displayed.
 
-After pressing *SAVE* or *RELOAD*, the settings panel will close and the user may press click on any shape to start/resume the Conversational process.
+Pressing the *EXIT* button will close the setting panel and return to the previous shape.
 
 === Conversational Lines And Arcs
 

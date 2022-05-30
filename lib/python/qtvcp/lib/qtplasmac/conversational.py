@@ -23,7 +23,8 @@ import os
 from shutil import copy as COPY
 from importlib import reload
 from PyQt5.QtCore import Qt, QCoreApplication
-from PyQt5.QtWidgets import QFileDialog, QMessageBox, QPushButton, QLabel, QLineEdit, QRadioButton, QButtonGroup, QComboBox
+from PyQt5.QtWidgets import QFileDialog, QMessageBox, QPushButton, QLabel, QLineEdit
+from PyQt5.QtWidgets import QRadioButton, QButtonGroup, QComboBox, QCheckBox, QGroupBox
 from qtvcp.core import Status, Action
 from qtvcp.lib.qtplasmac import conv_settings as CONVSET
 from qtvcp.lib.qtplasmac import conv_line as CONVLINE
@@ -81,9 +82,8 @@ def conv_setup(P, W):
     P.yOrigin = STATUS.get_position()[0][1]
     P.xSaved = '0.000'
     P.ySaved = '0.000'
-    P.oSaved = P.origin
     P.convBlock = [False, False]
-    if not P.convWidgetsLoaded or P.developmentPin:
+    if not P.convWidgetsLoaded or P.developmentPin.get():
         conv_widgets(P, W)
     if not P.oldConvButton:
         conv_shape_request(P, W, 'conv_line', True)
@@ -100,16 +100,16 @@ def conv_new_pressed(P, W, button):
         if not P.dialog_show_yesno(QMessageBox.Warning, '{}'.format(head), '{}\n\n{}\n'.format(msg0, msg1), '{}'.format(btn1), '{}'.format(btn2)):
             return
     if P.oldConvButton == 'conv_line':
-        if P.lAlias == 'LP2P':
-            CONVLINE.set_line_point_to_point(P, W, False)
-        elif P.lAlias == 'LBLA':
-            CONVLINE.set_line_by_angle(P, W, False)
-        elif P.lAlias == 'A3Pt':
-            CONVLINE.set_arc_3_points(P, W, False)
-        elif P.lAlias == 'A2PR':
-            CONVLINE.set_arc_2_points_radius(P, W, False)
-        elif P.lAlias == 'ALAR':
-            CONVLINE.set_arc_by_angle_radius(P, W, False)
+        if W.lType.currentText() == _translate('Conversational', 'LINE POINT ~ POINT'):
+            CONVLINE.set_line_point_to_point(P, W)
+        elif W.lType.currentText() == _translate('Conversational', 'LINE BY ANGLE'):
+            CONVLINE.set_line_by_angle(P, W)
+        elif W.lType.currentText() == _translate('Conversational', 'ARC 3P'):
+            CONVLINE.set_arc_3_points(P, W)
+        elif W.lType.currentText() == _translate('Conversational', 'ARC 2P +RADIUS'):
+            CONVLINE.set_arc_2_points_radius(P, W)
+        elif W.lType.currentText() == _translate('Conversational', 'ARC ANGLE +RADIUS'):
+            CONVLINE.set_arc_by_angle_radius(P, W)
     with open(P.fNgc, 'w') as outNgc:
         outNgc.write('(new conversational file)\nM2\n')
     COPY(P.fNgc, P.fTmp)
@@ -154,7 +154,7 @@ def conv_settings_pressed(P, W):
         P.convButtonState[w] = W['conv_{}'.format(w)].isEnabled()
         W['conv_{}'.format(w)].setEnabled(False)
     conv_clear_widgets(P, W)
-    if P.developmentPin:
+    if P.developmentPin.get():
         reload(CONVSET)
     CONVSET.widgets(P, W, P.CONV)
     CONVSET.show(P, W)
@@ -202,7 +202,7 @@ def conv_shape_request(P, W, shape, material):
     elif shape == 'conv_sector': module = CONVSECT
     elif shape == 'conv_block': module = CONVBLCK
     else: return
-    if P.developmentPin:
+    if P.developmentPin.get():
         reload(module)
     if not P.convSettingsChanged:
         if P.convPreviewActive and not conv_active_shape(P, W):
@@ -230,7 +230,18 @@ def conv_shape_request(P, W, shape, material):
     W.preview.setEnabled(True)
     if P.validShape:
         W.undo.setEnabled(True)
+    W.add.setEnabled(False)
     conv_clear_widgets(P, W)
+    # common starting parameters
+    W.intExt.setText('EXTERNAL')
+    P.intExt = True
+    if P.origin:
+        W.centLeft.setText('CENTER')
+    else:
+        W.centLeft.setText('BTM LEFT')
+    W.liEntry.setText('{}'.format(P.leadInOld))
+    W.loEntry.setText('{}'.format(P.leadOutOld))
+    # call the shape
     module.widgets(P, W, P.CONV)
 
 def conv_preview_button(P, W, state):
@@ -302,8 +313,22 @@ def conv_enable_tabs(P, W):
             W.gcode_display.setStyleSheet( \
                     'EditorBase{{ qproperty-styleColorMarginText: {} }}'.format(P.foreColor))
 
-def conv_entry_changed(P, W, widget):
+def conv_entry_changed(P, W, widget, overcut=False):
     name = widget.objectName()
+    # enable/disable overcut
+    if overcut:
+        value = W.hdEntry.text() if overcut == 'bolt' else W.dEntry.text()
+        try:
+            dia = float(value)
+        except:
+            dia = 0
+        if dia >= P.holeDiameter or dia == 0 or (P.intExt and overcut != 'bolt'):
+            W.overcut.setChecked(False)
+            W.overcut.setEnabled(False)
+            W.ocEntry.setEnabled(False)
+        else:
+            W.overcut.setEnabled(True)
+            W.ocEntry.setEnabled(True)
     if widget.text():
         if name in ['intEntry', 'hsEntry', 'cnEntry', 'rnEntry']:
             good = '0123456789'
@@ -316,19 +341,38 @@ def conv_entry_changed(P, W, widget):
             if t in good and not(t == '-' and len(out) > 0) and not(t == '.' and t in out):
                 out += t
         widget.setText(out)
-        if widget.text() in '-.' or widget.text() == '-.':
-            return 'operator'
+        if widget.text() in ['', '.', '-', '-.']:
+            return True
         try:
             a = float(widget.text())
+            reply = False
         except:
             head = _translate('HandlerClass', 'Numeric Entry Error')
             msg0 = _translate('HandlerClass', 'An invalid entry has been detected')
             P.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '{}\n'.format(msg0))
             widget.setText('0')
+            reply = True
+        return reply
+    else:
+        return True
     if name == 'gsEntry':
         # grid size is in inches
         W.conv_preview.grid_size = float(widget.text()) / P.unitsPerMm / 25.4
         W.conv_preview.set_current_view()
+
+def conv_is_float(entry):
+    try:
+        return True, float(entry)
+    except:
+        reply = -1 if entry else 0
+        return False, reply
+
+def conv_is_int(entry):
+    try:
+        return True, int(entry)
+    except:
+        reply = -1 if entry else 0
+        return False, reply
 
 def conv_undo_shape(P, W):
     # setup for a reload if required
@@ -382,10 +426,10 @@ def conv_add_shape_to_file(P, W):
             P.ySaved = W.ysEntry.text()
     except:
         pass
-    try:
-        P.oSaved = W.center.isChecked()
-    except:
-        pass
+    # try:
+    #     P.oSaved = W.centLeft.isChecked()
+    # except:
+    #     pass
     P.validShape = True
     W.add.setEnabled(False)
     W.conv_save.setEnabled(True)
@@ -426,34 +470,33 @@ def conv_clear_widgets(P, W):
                 widget.disconnect()
             except:
                 pass
+def conv_auto_preview_button(P, W, button):
+    if button == 'intext':
+        text = 'INTERNAL' if W.intExt.text() == 'EXTERNAL' else 'EXTERNAL'
+        W.intExt.setText(text)
+        P.intExt = True if text == 'EXTERNAL' else False
+        W.intExt.setChecked(False)
+    elif button == 'center':
+        text = 'CENTER' if W.centLeft.text() == 'BTM LEFT' else 'BTM LEFT'
+        W.centLeft.setText(text)
+        W.centLeft.setChecked(False)
 
 # create all required widgets without showing them
 def conv_widgets(P, W):
     # common
-    W.spGroup = QButtonGroup(W)
-    W.center = QRadioButton(_translate('Conversational', 'CENTER'))
-    W.spGroup.addButton(W.center)
-    W.bLeft = QRadioButton(_translate('Conversational', 'BTM LEFT'))
-    W.spGroup.addButton(W.bLeft)
+    W.centLeft = QPushButton(_translate('Conversational', 'BTM LEFT'))
+    W.centLeft.setCheckable(True)
+    W.intExt = QPushButton(_translate('Conversational', 'EXTERNAL'))
+    W.intExt.setCheckable(True)
     W.liLabel = QLabel(_translate('Conversational', 'LEAD IN'))
     W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
     W.loLabel = QLabel(_translate('Conversational', 'LEAD OUT'))
     W.loEntry = QLineEdit(str(P.leadOut), objectName = 'loEntry')
     W.ctLabel = QLabel(_translate('Conversational', 'CUT TYPE'))
-    W.ctGroup = QButtonGroup(W)
-    W.cExt = QRadioButton(_translate('Conversational', 'EXTERNAL'))
-    W.cExt.setChecked(True)
-    W.ctGroup.addButton(W.cExt)
-    W.cInt = QRadioButton(_translate('Conversational', 'INTERNAL'))
-    W.ctGroup.addButton(W.cInt)
-    W.koLabel = QLabel(_translate('Conversational', 'KERF'))
-    W.kOffset = QPushButton(_translate('Conversational', 'OFFSET'))
-    W.kOffset.setCheckable(True)
     W.spLabel = QLabel(_translate('Conversational', 'START'))
-    text = _translate('Conversational', 'ORIGIN')
-    W.xsLabel = QLabel(_translate('Conversational', 'X {}'.format(text)))
+    W.xsLabel = QLabel(_translate('Conversational', 'X ORIGIN'))
     W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
-    W.ysLabel = QLabel(_translate('Conversational', 'Y {}'.format(text)))
+    W.ysLabel = QLabel(_translate('Conversational', 'Y ORIGIN'))
     W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
     W.overcut = QPushButton(_translate('Conversational', 'OVER CUT'))
     W.overcut.setEnabled(False)
@@ -465,6 +508,7 @@ def conv_widgets(P, W):
     W.add = QPushButton(_translate('Conversational', 'ADD'))
     W.lDesc = QLabel('')
     W.iLabel = QLabel()
+    W.iLabel.setAlignment(Qt.AlignRight | Qt.AlignTop)
     W.aLabel = QLabel(_translate('Conversational', 'ANGLE'))
     W.aEntry = QLineEdit('0.0', objectName='aEntry')
     W.dLabel = QLabel(_translate('Conversational', 'DIAMETER'))
@@ -483,19 +527,16 @@ def conv_widgets(P, W):
     W.sLabel = QLabel() # shared with different uses
     W.sEntry = QLineEdit() # shared with different uses
     W.mCombo = QComboBox()
-    text = _translate('Conversational', 'LENGTH')
-    W.xlLabel = QLabel(_translate('Conversational', 'X {}'.format(text)))
-    W.xlEntry = QLineEdit()
-    W.ylLabel = QLabel(_translate('Conversational', 'Y {}'.format(text)))
-    W.ylEntry = QLineEdit()
-    text = _translate('Conversational', 'RADIUS')
-    W.r1Button = QPushButton(_translate('Conversational', '{} 1'.format(text)))
+    W.mCombo.addItem(_translate('Conversational', 'CIRCUMSCRIBED'))
+    W.mCombo.addItem(_translate('Conversational', 'INSCRIBED'))
+    W.mCombo.addItem(_translate('Conversational', 'SIDE LENGTH'))
+    W.r1Button = QPushButton(_translate('Conversational', 'RADIUS 1'))
     W.r1Entry = QLineEdit()
-    W.r2Button = QPushButton(_translate('Conversational', '{} 2'.format(text)))
+    W.r2Button = QPushButton(_translate('Conversational', 'RADIUS 2'))
     W.r2Entry = QLineEdit()
-    W.r3Button = QPushButton(_translate('Conversational', '{} 3'.format(text)))
+    W.r3Button = QPushButton(_translate('Conversational', 'RADIUS 3'))
     W.r3Entry = QLineEdit()
-    W.r4Button = QPushButton(_translate('Conversational', '{} 4'.format(text)))
+    W.r4Button = QPushButton(_translate('Conversational', 'RADIUS 4'))
     W.r4Entry = QLineEdit()
     W.lLabel = QLabel(_translate('Conversational', 'LENGTH'))
     W.lEntry = QLineEdit()
@@ -507,19 +548,17 @@ def conv_widgets(P, W):
     W.idEntry = QLineEdit()
     W.shLabel = QLabel(_translate('Conversational', 'SHAPE')) # shared with different uses
     # triangle
-    text = _translate('Conversational', 'ANGLE')
-    W.AaLabel = QLabel(_translate('Conversational', 'A {}'.format(text)))
+    W.AaLabel = QLabel(_translate('Conversational', 'A ANGLE'))
     W.AaEntry = QLineEdit()
-    W.BaLabel = QLabel(_translate('Conversational', 'B {}'.format(text)))
+    W.BaLabel = QLabel(_translate('Conversational', 'B ANGLE'))
     W.BaEntry = QLineEdit()
-    W.CaLabel = QLabel(_translate('Conversational', 'C {}'.format(text)))
+    W.CaLabel = QLabel(_translate('Conversational', 'C ANGLE'))
     W.CaEntry = QLineEdit()
-    text = _translate('Conversational', 'LENGTH')
-    W.AlLabel = QLabel(_translate('Conversational', 'a {}'.format(text)))
+    W.AlLabel = QLabel(_translate('Conversational', 'a LENGTH'))
     W.AlEntry = QLineEdit()
-    W.BlLabel = QLabel(_translate('Conversational', 'b {}'.format(text)))
+    W.BlLabel = QLabel(_translate('Conversational', 'b LENGTH'))
     W.BlEntry = QLineEdit()
-    W.ClLabel = QLabel(_translate('Conversational', 'c {}'.format(text)))
+    W.ClLabel = QLabel(_translate('Conversational', 'c LENGTH'))
     W.ClEntry = QLineEdit()
     # block
     W.ccLabel = QLabel(_translate('Conversational', 'COLUMNS'))
@@ -533,11 +572,11 @@ def conv_widgets(P, W):
     W.roEntry = QLineEdit('0.0', objectName='coEntry')
     W.roLabel = QLabel(_translate('Conversational', 'OFFSET'))
     W.oLabel = QLabel(_translate('Conversational', 'ORIGIN'))
-    text = _translate('Conversational', 'OFFSET')
-    W.oxLabel = QLabel('X {}'.format(text))
+    W.oxLabel = QLabel(_translate('Conversational', 'X OFFSET'))
     W.oxEntry = QLineEdit('0.0', objectName='xsEntry')
     W.oyEntry = QLineEdit('0.0', objectName='ysEntry')
-    W.oyLabel = QLabel('Y {}'.format(text))
+    W.oyLabel = QLabel(_translate('Conversational', 'Y OFFSET'))
+    W.ptLabel = QLabel(_translate('Conversational', 'PATTERN'))
     W.scLabel = QLabel(_translate('Conversational', 'SCALE'))
     W.scEntry = QLineEdit('1.0')
     W.rtEntry = QLineEdit('0.0', objectName='aEntry')
@@ -558,12 +597,8 @@ def conv_widgets(P, W):
     W.entry5 = QLineEdit()
     W.label6 = QLabel()
     W.entry6 = QLineEdit()
-    W.label7 = QLabel()
-    W.entry7 = QLineEdit()
-    W.label8 = QLabel()
-    W.entry8 = QLineEdit()
-    W.g2Arc = QRadioButton('CW'.format(text))
-    W.g3Arc = QRadioButton('CCW'.format(text))
+    W.g23Arc = QPushButton('CW - G2')
+    W.g23Arc.setCheckable(True)
     # settings
     W.preLabel = QLabel(_translate('Conversational', 'PREAMBLE'))
     W.preEntry = QLineEdit()
@@ -586,7 +621,7 @@ def conv_widgets(P, W):
         W.lType.addItem(_translate('Conversational', 'ARC 2P +RADIUS'))
         W.lType.addItem(_translate('Conversational', 'ARC ANGLE +RADIUS'))
     if not W.mCombo.count():
-        W.mCombo.addItem('CIRCUMSCRIBED')
-        W.mCombo.addItem('INSCRIBED')
-        W.mCombo.addItem('SIDE LENGTH')
+        W.mCombo.addItem(_translate('Conversational', 'CIRCUMSCRIBED'))
+        W.mCombo.addItem(_translate('Conversational', 'INSCRIBED'))
+        W.mCombo.addItem(_translate('Conversational', 'SIDE LENGTH'))
     P.convWidgetsLoaded = True
