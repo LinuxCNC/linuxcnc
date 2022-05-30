@@ -1372,7 +1372,10 @@
                      <property name="lineWidth">
                       <number>2</number>
                      </property>
-                     <layout class="QGridLayout" name="gridLayout_3">
+                     <layout class="QVBoxLayout" name="verticalLayout_9">
+                      <property name="spacing">
+                       <number>0</number>
+                      </property>
                       <property name="sizeConstraint">
                        <enum>QLayout::SetDefaultConstraint</enum>
                       </property>
@@ -1388,124 +1391,7 @@
                       <property name="bottomMargin">
                        <number>0</number>
                       </property>
-                      <property name="spacing">
-                       <number>0</number>
-                      </property>
-                      <item row="3" column="0">
-                       <layout class="QHBoxLayout" name="horizontalLayout_14" stretch="1">
-                        <property name="spacing">
-                         <number>0</number>
-                        </property>
-                        <item>
-                         <widget class="DROLabel" name="dro_label_g5x_x">
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="text">
-                           <string>%10.3f</string>
-                          </property>
-                          <property name="textFormat">
-                           <enum>Qt::PlainText</enum>
-                          </property>
-                          <property name="alignment">
-                           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                          </property>
-                          <property name="Qreference_type" stdset="0">
-                           <number>1</number>
-                          </property>
-                          <property name="metric_template" stdset="0">
-                           <string>X %10.3f</string>
-                          </property>
-                          <property name="imperial_template" stdset="0">
-                           <string>X %9.4f</string>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
-                      </item>
-                      <item row="5" column="0">
-                       <layout class="QHBoxLayout" name="horizontalLayout_19">
-                        <property name="spacing">
-                         <number>0</number>
-                        </property>
-                        <item>
-                         <widget class="DROLabel" name="dro_label_g5x_z">
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="text">
-                           <string>%10.3f</string>
-                          </property>
-                          <property name="textFormat">
-                           <enum>Qt::PlainText</enum>
-                          </property>
-                          <property name="alignment">
-                           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                          </property>
-                          <property name="Qjoint_number" stdset="0">
-                           <number>2</number>
-                          </property>
-                          <property name="Qreference_type" stdset="0">
-                           <number>1</number>
-                          </property>
-                          <property name="metric_template" stdset="0">
-                           <string>%10.3f</string>
-                          </property>
-                          <property name="imperial_template" stdset="0">
-                           <string>%9.4f</string>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
-                      </item>
-                      <item row="6" column="0">
-                       <layout class="QHBoxLayout" name="horizontalLayout_20">
-                        <property name="spacing">
-                         <number>0</number>
-                        </property>
-                        <item>
-                         <widget class="DROLabel" name="dro_label_g5x_r">
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="text">
-                           <string>%10.3f</string>
-                          </property>
-                          <property name="textFormat">
-                           <enum>Qt::PlainText</enum>
-                          </property>
-                          <property name="alignment">
-                           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                          </property>
-                          <property name="Qjoint_number" stdset="0">
-                           <number>10</number>
-                          </property>
-                          <property name="Qreference_type" stdset="0">
-                           <number>0</number>
-                          </property>
-                          <property name="metric_template" stdset="0">
-                           <string>%10.3f</string>
-                          </property>
-                          <property name="imperial_template" stdset="0">
-                           <string>%9.4f</string>
-                          </property>
-                          <property name="angular_template" stdset="0">
-                           <string>%4.2f</string>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
-                      </item>
-                      <item row="0" column="0">
+                      <item>
                        <widget class="QWidget" name="widget_dro_g53" native="true">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -1583,6 +1469,9 @@
                                   <verstretch>0</verstretch>
                                  </sizepolicy>
                                 </property>
+                                <property name="textSpaceSample" stdset="0">
+                                 <string/>
+                                </property>
                                 <property name="Qjoint_number" stdset="0">
                                  <number>1</number>
                                 </property>
@@ -1628,57 +1517,175 @@
                         </layout>
                        </widget>
                       </item>
-                      <item row="4" column="0">
-                       <widget class="QWidget" name="dro_relative_y" native="true">
-                        <layout class="QHBoxLayout" name="horizontalLayout_18">
-                         <property name="spacing">
-                          <number>0</number>
-                         </property>
-                         <property name="leftMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="topMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="rightMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="bottomMargin">
-                          <number>0</number>
-                         </property>
-                         <item>
-                          <widget class="DROLabel" name="dro_label_g5x_y">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="text">
-                            <string>%10.3f</string>
-                           </property>
-                           <property name="textFormat">
-                            <enum>Qt::PlainText</enum>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                           </property>
-                           <property name="Qjoint_number" stdset="0">
-                            <number>1</number>
-                           </property>
-                           <property name="Qreference_type" stdset="0">
-                            <number>1</number>
-                           </property>
-                           <property name="metric_template" stdset="0">
-                            <string>%10.3f</string>
-                           </property>
-                           <property name="imperial_template" stdset="0">
-                            <string>%9.4f</string>
-                           </property>
-                          </widget>
-                         </item>
-                        </layout>
-                       </widget>
+                      <item>
+                       <layout class="QHBoxLayout" name="horizontalLayout_14" stretch="0">
+                        <property name="spacing">
+                         <number>0</number>
+                        </property>
+                        <item>
+                         <widget class="DROLabel" name="dro_label_g5x_x_">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="frameShape">
+                           <enum>QFrame::NoFrame</enum>
+                          </property>
+                          <property name="text">
+                           <string>%10.3f</string>
+                          </property>
+                          <property name="textFormat">
+                           <enum>Qt::RichText</enum>
+                          </property>
+                          <property name="alignment">
+                           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                          </property>
+                          <property name="textSpaceSample" stdset="0">
+                           <string> -000.0000 X</string>
+                          </property>
+                          <property name="Qreference_type" stdset="0">
+                           <number>1</number>
+                          </property>
+                          <property name="metric_template" stdset="0">
+                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;%10.2f&lt;span style=&quot; color:gray;&quot;&gt; X&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                          </property>
+                          <property name="imperial_template" stdset="0">
+                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;%9.4f&lt;span style=&quot; color:gray;&quot;&gt; X&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
+                      </item>
+                      <item>
+                       <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0">
+                        <property name="spacing">
+                         <number>0</number>
+                        </property>
+                        <item>
+                         <widget class="DROLabel" name="dro_label_g5x_y">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="frameShape">
+                           <enum>QFrame::NoFrame</enum>
+                          </property>
+                          <property name="text">
+                           <string>%10.3f</string>
+                          </property>
+                          <property name="textFormat">
+                           <enum>Qt::RichText</enum>
+                          </property>
+                          <property name="alignment">
+                           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                          </property>
+                          <property name="textSpaceSample" stdset="0">
+                           <string> -000.0000 X</string>
+                          </property>
+                          <property name="Qjoint_number" stdset="0">
+                           <number>1</number>
+                          </property>
+                          <property name="Qreference_type" stdset="0">
+                           <number>1</number>
+                          </property>
+                          <property name="metric_template" stdset="0">
+                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;%10.2f&lt;span style=&quot; color:gray;&quot;&gt; Y&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                          </property>
+                          <property name="imperial_template" stdset="0">
+                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;%9.4f&lt;span style=&quot; color:gray;&quot;&gt; Y&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
+                      </item>
+                      <item>
+                       <layout class="QHBoxLayout" name="horizontalLayout_19" stretch="0">
+                        <property name="spacing">
+                         <number>0</number>
+                        </property>
+                        <item>
+                         <widget class="DROLabel" name="dro_label_g5x_z">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="frameShape">
+                           <enum>QFrame::NoFrame</enum>
+                          </property>
+                          <property name="textFormat">
+                           <enum>Qt::RichText</enum>
+                          </property>
+                          <property name="alignment">
+                           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                          </property>
+                          <property name="textSpaceSample" stdset="0">
+                           <string> -000.0000 X</string>
+                          </property>
+                          <property name="Qjoint_number" stdset="0">
+                           <number>2</number>
+                          </property>
+                          <property name="Qreference_type" stdset="0">
+                           <number>1</number>
+                          </property>
+                          <property name="metric_template" stdset="0">
+                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;%10.2f&lt;span style=&quot; color:gray;&quot;&gt; Z&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                          </property>
+                          <property name="imperial_template" stdset="0">
+                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;%9.4f&lt;span style=&quot; color:gray;&quot;&gt; Z&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
+                      </item>
+                      <item>
+                       <layout class="QHBoxLayout" name="horizontalLayout_20">
+                        <property name="spacing">
+                         <number>0</number>
+                        </property>
+                        <item>
+                         <widget class="DROLabel" name="dro_label_g5x_r">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="frameShape">
+                           <enum>QFrame::Panel</enum>
+                          </property>
+                          <property name="text">
+                           <string>%10.3f</string>
+                          </property>
+                          <property name="textFormat">
+                           <enum>Qt::RichText</enum>
+                          </property>
+                          <property name="alignment">
+                           <set>Qt::AlignCenter</set>
+                          </property>
+                          <property name="Qjoint_number" stdset="0">
+                           <number>10</number>
+                          </property>
+                          <property name="Qreference_type" stdset="0">
+                           <number>0</number>
+                          </property>
+                          <property name="metric_template" stdset="0">
+                           <string>%10.3f</string>
+                          </property>
+                          <property name="imperial_template" stdset="0">
+                           <string>%9.4f</string>
+                          </property>
+                          <property name="angular_template" stdset="0">
+                           <string>%4.2f</string>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
                       </item>
                      </layout>
                     </widget>

@@ -382,14 +382,8 @@ class HandlerClass:
     def _set_user_system_text(self, w, data):
         convert = { 1:"G54 ", 2:"G55 ", 3:"G56 ", 4:"G57 ", 5:"G58 ", 6:"G59 ", 7:"G59.1 ", 8:"G59.2 ", 9:"G59.3 "}
         unit = convert[int(data)]
-        for i in ('x','y','z'):
-            self.w['dro_label_g5x_%s'%i].imperial_template = unit + i.upper() + '%9.4f'
-            self.w['dro_label_g5x_%s'%i].metric_template = unit + i.upper() + '%10.3f'
-            self.w['dro_label_g5x_%s'%i].update_units()
-            self.w['dro_label_g53_%s'%i].imperial_template = i.upper() + '%9.4f'
-            self.w['dro_label_g53_%s'%i].metric_template = i.upper() + '%10.3f'
-            self.w['dro_label_g53_%s'%i].update_units()
-        self.w.dro_label_g5x_r.angular_template = unit + 'R      %3.2f'
+        rtext = '''<html><head/><body><p><span style=" color:gray;">{} </span> %3.2f<span style=" color:gray;"> R</span></p></body></html>'''.format(unit)
+        self.w.dro_label_g5x_r.angular_template = rtext
         self.w.dro_label_g5x_r.update_units()
         self.w.dro_label_g5x_r.update_rotation(None, STATUS.stat.rotation_xy)
 
