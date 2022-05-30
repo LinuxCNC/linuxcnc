@@ -1131,25 +1131,49 @@ class PushButton(IndicatedPushButton, _HalWidgetBase):
         _update(self.isChecked())
 
 class ScaledLabel(QtWidgets.QLabel):
+    '''
+    Label that scales the text based on available size.
+    Base widget for DRO display.
+    '''
     def __init__(self, parent=None):
         super(ScaledLabel, self).__init__(parent)
+        self._text = ''
+        self._scaled = True
 
     def _hal_init(self):
-        if self.textFormat() == 0:
+        if self.textFormat() in( 0,1) and self._scaled:
             self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Ignored,
                                              QtWidgets.QSizePolicy.Ignored))
-            self.setMinSize(14)
+            self.setMinSize(15)
 
-    def setMinSize(self, minfs):        
+    def textSample(self):
+        '''
+        Holds a sample of text to reserve space for the longest text.
+        '''
+        if self._text =='':
+            return self.text()
+        return self._text
+
+    def setMinSize(self, minfs):
         f = self.font()
-        f.setPixelSize(minfs)
-        br = QtGui.QFontMetrics(f).boundingRect(self.text())
+        f.setPointSizeF(minfs)
+        br = QtGui.QFontMetrics(f).boundingRect(self.textSample())
         self.setMinimumSize(br.width(), br.height())
 
-    def resizeEvent(self, event):
-        super(ScaledLabel, self).resizeEvent(event)        
+    def setMaxSize(self, maxfs):
+        f = self.font()
+        f.setPointSizeF(maxfs)
+        br = QtGui.QFontMetrics(f).boundingRect(self.textSample())
+        self.setMaximumSize(br.width(), br.height())
 
-        if not self.text() or self.textFormat() in(1, 2):
+    def resizeEvent(self, event):
+        super(ScaledLabel, self).resizeEvent(event)
+        if not self._scaled:
+            return
+        #if  self.textFormat() == QtCore.Qt.RichText:
+            #print(self.text())
+            #print(self.styleSheet(),self.text(),self.font().pointSizeF())
+        if not self.text() or self.textFormat() == QtCore.Qt.AutoText:
             return
 
         #--- fetch current parameters ----
@@ -1159,27 +1183,50 @@ class ScaledLabel(QtWidgets.QLabel):
         #--- iterate to find the font size that fits the contentsRect ---
         dw = event.size().width() - event.oldSize().width()   # width change
         dh = event.size().height() - event.oldSize().height() # height change
-        fs = max(f.pixelSize(), 1)
+        fs = max(f.pointSizeF(), .5)
         while True:
-            f.setPixelSize(fs)
+            f.setPointSize(fs)
             #gives bigger text
-            br =  QtGui.QFontMetrics(f).tightBoundingRect(self.text())
+            #br =  QtGui.QFontMetrics(f).tightBoundingRect(self.textSample())
             # then this
-            #br = QtGui.QFontMetrics(f).boundingRect(self.text())
+            br = QtGui.QFontMetrics(f).boundingRect(self.textSample())
             if dw >= 0 and dh >= 0: # label is expanding
                 if br.height() <= cr.height() and br.width() <= cr.width():
-                    fs += 1
+                    fs += .5
                 else:
-                    f.setPixelSize(max(fs - 1, 1)) # backtrack
+                    f.setPointSizeF(max(fs - .5, .5)) # backtrack
                     break
 
             else: # label is shrinking
                 if br.height() > cr.height() or br.width() > cr.width():
-                    fs -= 1
+                    fs -= .5
                 else:
                     break
 
-            if fs < 1: break
+            if fs < .5: break
+
         #print br, cr
         #--- update font size ---
-        self.setFont(f)
+        if  self.textFormat() == QtCore.Qt.RichText:
+            if fs <0: fs = 0.5
+            self.setStyleSheet(' font: {}pt ;'.format(f.pointSizeF()))
+        else:
+            self.setFont(f)
+
+    def set_scaleText(self, data):
+        self._scaled = data
+    def get_scaleText(self):
+        return self._scaled
+    def reset_scaleText(self):
+        self._scaled = True
+
+    def set_testSample(self, data):
+        self._text = data
+    def get_testSample(self):
+        return self._text
+    def reset_testSample(self):
+        self._text = ''
+
+    scaleText = QtCore.pyqtProperty(bool, get_scaleText, set_scaleText, reset_scaleText)
+    textSpaceSample = QtCore.pyqtProperty(str, get_testSample, set_testSample, reset_testSample)
+

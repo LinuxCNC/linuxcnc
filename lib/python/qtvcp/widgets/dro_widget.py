@@ -56,6 +56,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         self.force_radius = False
         self._scale = 1
         self._user = 0
+        self._text =' -000.0000'
 
         # for stylesheet reading
         self._isHomed = False
