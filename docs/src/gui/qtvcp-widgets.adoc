@@ -949,7 +949,7 @@ It is based on pyQT's QWidget which incorporates GcodeDisplay widget
 
 === GCodeGraphics Widget
 
-This Displays the current G-code in a graphical form.
+This displays the current G-code in a graphical form.
 
 .Graphics Display
 image::images/qtvcp_gcodeGraphics.png["QTvcp G-code Graphics",scale="25%"]

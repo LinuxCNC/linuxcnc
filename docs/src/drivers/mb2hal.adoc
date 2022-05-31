@@ -32,9 +32,9 @@ Consider using Mb2hal if:
 * You have more than one device to connect. Mb2hal is very efficient
   managing multiple devices, transactions and links.
   Currently I am monitoring two axis drivers using a Rs232 port, a VFD
-  driver using another Rs232 port, and a remote I/O using TCP/IP.
+  driver using another RS232 port, and a remote I/O using TCP/IP.
 * You want a protocol to connect your Arduino to HAL. Look the included
-  sample configuration file, sketch and library for Arduino Modbus. 
+  sample configuration file, sketch and library for Arduino Modbus.
 
 == Usage
 
@@ -46,7 +46,6 @@ Set `HAL_MODULE_NAME=mymodule` (default `HAL_MODULE_NAME=mb2hal`)
 . Load the modbus HAL userspace component
 .. Default component name: `loadusr -W mb2hal config=config_file.ini`
 .. Custom component name: `loadusr -Wn mymodule mb2hal config=config_file.ini`
-
 
 == Options
 
@@ -73,7 +72,6 @@ transactions. Use "0.0" for normal activity.
 | `TOTAL_TRANSACTIONS` | Integer | Yes | The number of total Modbus
 transactions. There is no maximum.
 |=======================
-
 
 === Transaction Sections
 

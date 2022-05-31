@@ -161,6 +161,7 @@ MESSAGE_PINNAME = oktest
 ----
 
 === Embed Custom VCP Panels
+
 You can embed QTVCP Virtual Control Panels into the QtDragon or QtDragon_hd screen. +
 These panels can be either user built or builtin <<cha:qtvcp-vcp-panels,QtVCP Panels>>. +
 The TAB_NAME entry will used as the title for the new tab. + 

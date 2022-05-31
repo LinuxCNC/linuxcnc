@@ -45,13 +45,14 @@ and use a file named my.halshow in the current directory:
 $ halshow  --fformat "%.5f" ./my.halshow
 ----
 
-For more information regarding the format, please refer to https://www.tcl.tk/man/tcl/TclCmd/format.html
+For more information regarding the format, please refer to
+https://www.tcl.tk/man/tcl/TclCmd/format.html
 
 == HAL Tree Area
 
-At the left of its display as shown in figure is a tree view, somewhat like
-you might see with some file browsers. At the right is a tabbed notebook with
-tabs for show and watch.
+At the left of its display as shown in figure is a tree view, somewhat
+like you might see with some file browsers. At the right is a tabbed
+notebook with tabs for show and watch.
 
 [[cap:halshow-layout]]
 .Halshow Layout
@@ -84,8 +85,10 @@ here is that we have mouse click access, access that can be as broad or
 as focused as you need.
 
 .[yellow-background]#New in 2.9#
-* Selected text from the Show tab can be copied by right-click or CTRL-C.
-* The command entry provides now a bash-like history (only for the session) for executed commands.
+* Selected text from the Show tab can be copied by right-click or
+  CTRL-C.
+* The command entry provides now a bash-like history (only for the
+  session) for executed commands.
 
 If we take a closer look at the tree display we can see that the six
 major parts of a HAL can all be expanded at least one level. As these
@@ -107,7 +110,8 @@ The second pin's name contains the complete name of the first.
 Below the show area on the right is a set of widgets that will allow
 you to play with the running HAL. The commands you enter here and the
 effect that they have on the running HAL are not saved. They will
-persist as long as LinuxCNC remains up but are gone as soon as LinuxCNC is.
+persist as long as LinuxCNC remains up but are gone as soon as LinuxCNC
+is.
 
 The entry box labeled "Test HAL Command:" will accept any of the
 commands listed for halcmd. These include:
@@ -127,9 +131,9 @@ working with.
 
 Let's use this editor to add a differential module to a HAL and
 connect it to axis position so that we could see the rate of change in
-position, i.e., acceleration. We first need to load a HAL component named
-ddt, add it to the servo thread, then connect it to the position pin
-of a joint. Once that is done we can find the output of the
+position, i.e., acceleration. We first need to load a HAL component
+named ddt, add it to the servo thread, then connect it to the position
+pin of a joint. Once that is done we can find the output of the
 differentiator in halscope. So let's go. (Yes, I looked this one up.)
 
 ----
@@ -209,7 +213,8 @@ Owner Type  Dir Value       Name
 08    float -W  0.00000e+00 ddt.0.out
 ----
 
-That looks easy enough to understand, but what signal or pin do we want to connect to it?
+That looks easy enough to understand, but what signal or pin do we want
+to connect to it?
 It could be an axis pin, a stepgen pin, or a signal.
 We see this when we look at joint.0:
 
@@ -263,17 +268,19 @@ available in this area. That is where the HAL Watch Area is of value.
   - Add signals/pins/parameters by name
   - Set watch interval
 
-Clicking the watch tab produces a blank canvas. You can add signals and pins
-to this canvas and watch their values.footnote:[The refresh rate of the watch
-display is much lower than Halmeter or Halscope. If you need good resolution
-of the timing of signals use these tools or set the interval in the Watch menu.]
-You can add signals or pins when the watch tab is displayed by clicking on the
-name of it in the tree view.
+Clicking the watch tab produces a blank canvas. You can add signals and
+pins to this canvas and watch their values.footnote:[The refresh rate of
+the watch display is much lower than Halmeter or Halscope. If you need
+good resolution of the timing of signals use these tools or set the
+interval in the Watch menu.]
+You can add signals or pins when the watch tab is displayed by clicking
+on the name of it in the tree view.
 The following figure shows this canvas with several pins.
-The pins and signals that are writable have buttons for manipulation on the right
-side. Pins that are linked to a signal have disabled buttons. To set these values,
-the corresponding pin has to be unlinked from the signal. That can be done by
-right-click on the signal name and select "Unlink pin", see <<cap:watch-tab-context-menu>>.
+The pins and signals that are writable have buttons for manipulation on
+the right side. Pins that are linked to a signal have disabled buttons.
+To set these values, the corresponding pin has to be unlinked from the
+signal. That can be done by right-click on the signal name and select
+"Unlink pin", see <<cap:watch-tab-context-menu>>.
 
 [[fig:halshow-watch-tab]]
 .Halshow: Watch Tab(((Halshow: Watch Tab)))
@@ -289,8 +296,8 @@ Watch will quickly allow you to test switches or see the effect of
 changes that you make to LinuxCNC while using the graphical interface.
 Watch's refresh rate is a bit slow to see stepper pulses, but you can
 use it for these if you move an axis very slowly or in very small
-increments of distance. If you've used IO_Show in LinuxCNC, the watch page
-in halshow can be set up to watch a parport much as IO_Show did.
+increments of distance. If you've used IO_Show in LinuxCNC, the watch
+page in halshow can be set up to watch a parport much as IO_Show did.
 
 [[cap:watch-tab-context-menu]]
 .Halshow: Watch Tab Context Menu

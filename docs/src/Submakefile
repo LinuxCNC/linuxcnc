@@ -111,7 +111,7 @@ DOC_SRCS_EN := \
 	gui/panelui.adoc \
 	gui/halui.adoc \
 	gui/image-to-gcode.adoc \
-        gui/mdro.adoc \
+  gui/mdro.adoc \
 	gui/ngcgui.adoc \
 	gui/tklinuxcnc.adoc \
 	gui/tooledit.adoc \
@@ -310,6 +310,8 @@ install-doc: install-doc-html
 endif
 
 pdfdocs: svgs_made_from_dots $(PDF_TARGETS)
+	../scripts/make-docs-pdf-index
+
 htmldocs: svgs_made_from_dots .htmldoc-stamp checkref_en
 
 .htmldoc-stamp: copy_asciidoc_files $(HTML_TARGETS) .images-stamp .include-stamp

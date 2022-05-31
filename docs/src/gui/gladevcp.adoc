@@ -2373,6 +2373,7 @@ GladeVCP.
 * 'Status': Reports the state of linuxcnc. It wraps around 'Gstat'.
 
 Importing and instantiating the libraries:
+
 [source,python]
 ----
 from gladevcp.core import Info, Action
@@ -2382,6 +2383,7 @@ INFO = Info()
 ----
 
 using the library functions:
+
 [source,python]
 ----
 print(INFO.MACHINE_IS_METRIC)
