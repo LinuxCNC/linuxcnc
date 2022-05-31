@@ -48,6 +48,7 @@ _translate = QCoreApplication.translate
 def conv_setup(P, W):
     P.convSettingsChanged = False
     P.validShape = False
+    P.savedSettings = {'origin':None, 'intext':None, 'in':None, 'out':None}
     W.preview = QPushButton(_translate('Conversational', 'PREVIEW'))
     W.undo = QPushButton(_translate('Conversational', 'RELOAD'))
     if not ACTION.prefilter_path:
@@ -153,7 +154,7 @@ def conv_settings_pressed(P, W):
     for w in P.convCommonButtons:
         P.convButtonState[w] = W['conv_{}'.format(w)].isEnabled()
         W['conv_{}'.format(w)].setEnabled(False)
-    conv_clear_widgets(P, W)
+    conv_clear_widgets(P, W, True)
     if P.developmentPin.get():
         reload(CONVSET)
     CONVSET.widgets(P, W, P.CONV)
@@ -233,16 +234,19 @@ def conv_shape_request(P, W, shape, material):
     W.add.setEnabled(False)
     conv_clear_widgets(P, W)
     # common starting parameters
-    W.intExt.setText('EXTERNAL')
-    P.intExt = True
-    if P.origin:
-        W.centLeft.setText('CENTER')
-    else:
-        W.centLeft.setText('BTM LEFT')
-    W.liEntry.setText('{}'.format(P.leadInOld))
-    W.loEntry.setText('{}'.format(P.leadOutOld))
+    if P.convSettingsChanged == 0:
+        W.intExt.setText('EXTERNAL')
+        P.intExt = True
+    if P.convSettingsChanged <= 1:
+        if P.origin:
+            W.centLeft.setText('CENTER')
+        else:
+            W.centLeft.setText('BTM LEFT')
+        W.liEntry.setText('{}'.format(P.leadIn))
+        W.loEntry.setText('{}'.format(P.leadOut))
     # call the shape
     module.widgets(P, W, P.CONV)
+    P.convSettingsChanged = False
 
 def conv_preview_button(P, W, state):
     P.convPreviewActive = state
@@ -447,29 +451,40 @@ def conv_accept(P, W):
     W.conv_send.setEnabled(True)
     conv_enable_tabs(P, W)
 
-def conv_clear_widgets(P, W):
+def conv_clear_widgets(P, W, settings=False):
     for i in reversed(range(W.entries.count())):
         widget = W.entries.itemAt(i).widget()
-        if widget:
+        name = widget.objectName()
+        if settings:
+            if name == 'liEntry':
+                P.savedSettings['in'] = widget.text()
+            if name == 'loEntry':
+                P.savedSettings['out'] = widget.text()
+            if name == 'centLeft':
+                P.savedSettings['origin'] = widget.text()
+            if name == 'intExt':
+                P.savedSettings['intext'] = widget.text()
+        else:
             if isinstance(widget, QLineEdit) and \
-               widget not in [W.liEntry, W.loEntry, W.xsEntry, W.ysEntry]:
+               name not in ['liEntry', 'loEntry', 'xsEntry', 'ysEntry']:
                 widget.setText('')
-            if widget in [W.aEntry, W.oxEntry, W.oyEntry, W.rtEntry, W.coEntry, W.roEntry]:
+            if name in ['aEntry', 'oxEntry', 'oyEntry', 'rtEntry', 'coEntry', 'roEntry']:
                 widget.setText('0.0')
-            elif widget in [W.caEntry]:
+            elif name in ['caEntry']:
                 widget.setText('360')
-            elif widget in [W.cnEntry, W.rnEntry]:
+            elif name in ['cnEntry', 'rnEntry']:
                 widget.setText('1')
-            elif widget in [W.scEntry]:
-                widget.setText('1.0')
-            elif widget in [W.ocEntry]:
+            elif name in ['scEntry']:
+                name.setText('1.0')
+            elif name in ['ocEntry']:
                 widget.setText('{}'.format(4 * P.unitsPerMm))
-            W.entries.removeWidget(widget)
-            widget.setParent(None)
-            try:
-                widget.disconnect()
-            except:
-                pass
+        W.entries.removeWidget(widget)
+        widget.setParent(None)
+        try:
+            widget.disconnect()
+        except:
+            pass
+
 def conv_auto_preview_button(P, W, button):
     if button == 'intext':
         text = 'INTERNAL' if W.intExt.text() == 'EXTERNAL' else 'EXTERNAL'
@@ -484,25 +499,25 @@ def conv_auto_preview_button(P, W, button):
 # create all required widgets without showing them
 def conv_widgets(P, W):
     # common
-    W.centLeft = QPushButton(_translate('Conversational', 'BTM LEFT'))
+    W.centLeft = QPushButton(_translate('Conversational', 'BTM LEFT'), objectName='centLeft')
     W.centLeft.setCheckable(True)
-    W.intExt = QPushButton(_translate('Conversational', 'EXTERNAL'))
+    W.intExt = QPushButton(_translate('Conversational', 'EXTERNAL'), objectName='intExt')
     W.intExt.setCheckable(True)
     W.liLabel = QLabel(_translate('Conversational', 'LEAD IN'))
-    W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
+    W.liEntry = QLineEdit(str(P.leadIn), objectName='liEntry')
     W.loLabel = QLabel(_translate('Conversational', 'LEAD OUT'))
-    W.loEntry = QLineEdit(str(P.leadOut), objectName = 'loEntry')
+    W.loEntry = QLineEdit(str(P.leadOut), objectName='loEntry')
     W.ctLabel = QLabel(_translate('Conversational', 'CUT TYPE'))
     W.spLabel = QLabel(_translate('Conversational', 'START'))
     W.xsLabel = QLabel(_translate('Conversational', 'X ORIGIN'))
-    W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
+    W.xsEntry = QLineEdit(str(P.xSaved), objectName='xsEntry')
     W.ysLabel = QLabel(_translate('Conversational', 'Y ORIGIN'))
-    W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
+    W.ysEntry = QLineEdit(str(P.ySaved), objectName='ysEntry')
     W.overcut = QPushButton(_translate('Conversational', 'OVER CUT'))
     W.overcut.setEnabled(False)
     W.overcut.setCheckable(True)
     W.ocLabel = QLabel(_translate('Conversational', 'OC LENGTH'))
-    W.ocEntry = QLineEdit(objectName = 'ocEntry')
+    W.ocEntry = QLineEdit(objectName='ocEntry')
     W.ocEntry.setEnabled(False)
     W.ocEntry.setText('{}'.format(4 * P.unitsPerMm))
     W.add = QPushButton(_translate('Conversational', 'ADD'))
@@ -512,15 +527,15 @@ def conv_widgets(P, W):
     W.aLabel = QLabel(_translate('Conversational', 'ANGLE'))
     W.aEntry = QLineEdit('0.0', objectName='aEntry')
     W.dLabel = QLabel(_translate('Conversational', 'DIAMETER'))
-    W.dEntry = QLineEdit(objectName = '')
+    W.dEntry = QLineEdit(objectName='')
     W.hdLabel = QLabel(_translate('Conversational', 'HOLE DIA'))
     W.hdEntry = QLineEdit()
     W.hLabel = QLabel('') # shared with different uses
     W.hEntry = QLineEdit() # shared with different uses
     W.caLabel = QLabel(_translate('Conversational', 'CIRCLE ANG'))
-    W.caEntry = QLineEdit('360')
+    W.caEntry = QLineEdit('360', objectName='caEntry')
     W.wLabel = QLabel(_translate('Conversational', 'WIDTH'))
-    W.wEntry = QLineEdit(objectName = '')
+    W.wEntry = QLineEdit(objectName='')
     W.rLabel = QLabel(_translate('Conversational', 'RADIUS'))
     W.rButton = QPushButton(_translate('Conversational', 'RADIUS'))
     W.rEntry = QLineEdit('')
@@ -578,7 +593,7 @@ def conv_widgets(P, W):
     W.oyLabel = QLabel(_translate('Conversational', 'Y OFFSET'))
     W.ptLabel = QLabel(_translate('Conversational', 'PATTERN'))
     W.scLabel = QLabel(_translate('Conversational', 'SCALE'))
-    W.scEntry = QLineEdit('1.0')
+    W.scEntry = QLineEdit('1.0', objectName='scEntry')
     W.rtEntry = QLineEdit('0.0', objectName='aEntry')
     W.rtLabel = QLabel(_translate('Conversational', 'ROTATION'))
     W.mirror = QPushButton(_translate('Conversational', 'MIRROR'))

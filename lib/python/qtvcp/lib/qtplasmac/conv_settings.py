@@ -63,27 +63,26 @@ def save(P, W, Conv):
     P.PREFS.putpref('Hole diameter', P.holeDiameter, float, 'CONVERSATIONAL')
     P.PREFS.putpref('Hole speed', P.holeSpeed, int, 'CONVERSATIONAL')
     P.PREFS.putpref('Grid Size', P.gridSize, float, 'CONVERSATIONAL')
-    P.leadInOld = P.leadIn
-    P.leadOutOld = P.leadOut
-    show(P, W)
-    P.convSettingsChanged = True
+    # grid size is in inches
+    W.conv_preview.grid_size = P.gridSize / P.unitsPerMm / 25.4
+    W.conv_preview.set_current_view()
+    P.convSettingsChanged = 1
 
 def reload(P, W, Conv):
     load(P, W)
     show(P, W)
-    P.convSettingsChanged = True
+    if not P.convSettingsChanged:
+        P.convSettingsChanged = 2
 
 def exit(P, W, Conv):
-    if P.origin:
-        W.centLeft.setText('CENTER')
-    else:
-        W.centLeft.setText('BTM LEFT')
-    P.leadIn = P.leadInOld
-    P.leadOut = P.leadOutOld
-    W.liEntry.setText('{}'.format(P.leadIn))
-    W.loEntry.setText('{}'.format(P.leadOut))
+    if P.convSettingsChanged != 1:
+        W.centLeft.setText(P.savedSettings['origin'])
+        W.intExt.setText(P.savedSettings['intext'])
+        W.liEntry.setText(P.savedSettings['in'])
+        W.loEntry.setText(P.savedSettings['out'])
     Conv.conv_restore_buttons(P, W)
-    P.convSettingsChanged = True
+    if not P.convSettingsChanged:
+        P.convSettingsChanged = 3
     W[P.oldConvButton].click()
 
 def load(P, W):
@@ -95,8 +94,7 @@ def load(P, W):
     P.holeDiameter = P.PREFS.getpref('Hole diameter', P.unitCode[2], float, 'CONVERSATIONAL')
     P.holeSpeed = P.PREFS.getpref('Hole speed', 60, int, 'CONVERSATIONAL')
     P.gridSize = P.PREFS.getpref('Grid Size', 0, float, 'CONVERSATIONAL')
-    P.leadInOld = P.leadIn
-    P.leadOutOld = P.leadOut
+
 def show(P, W):
     W.preEntry.setText(P.preAmble)
     W.pstEntry.setText(P.postAmble)

@@ -172,10 +172,9 @@ def undo_shape(P, W, Conv):
 
 def clear_widgets(P, W, image):
     set_start_point(P, W, image)
-    text = _translate('Conversational', 'END')
     for n in '3456':
         W['entry{}'.format(n)].hide()
-        W['label{}'.format(n)].hide()
+        W['label{}'.format(n)].setText('')
     W.g23Arc.hide()
 
 def set_start_point(P, W, image):
@@ -193,7 +192,6 @@ def set_line_point_to_point(P, W):
     for n in '34':
         W['entry{}'.format(n)].setText('')
         W['entry{}'.format(n)].show()
-        W['label{}'.format(n)].show()
 
 def set_line_by_angle(P, W):
     clear_widgets(P, W, P.pixLineAngle)
@@ -203,7 +201,6 @@ def set_line_by_angle(P, W):
     for n in '34':
         W['entry{}'.format(n)].setText('')
         W['entry{}'.format(n)].show()
-        W['label{}'.format(n)].show()
 
 def set_arc_3_points(P, W):
     clear_widgets(P, W, P.pixArc3p)
@@ -214,7 +211,6 @@ def set_arc_3_points(P, W):
     for n in '3456':
         W['entry{}'.format(n)].setText('')
         W['entry{}'.format(n)].show()
-        W['label{}'.format(n)].show()
 
 def set_arc_2_points_radius(P, W):
     clear_widgets(P, W, P.pixArc2pr)
@@ -227,7 +223,6 @@ def set_arc_2_points_radius(P, W):
     for n in '345':
         W['entry{}'.format(n)].setText('')
         W['entry{}'.format(n)].show()
-        W['label{}'.format(n)].show()
 
 def set_arc_by_angle_radius(P, W):
     clear_widgets(P, W, P.pixArcAngle)
@@ -240,7 +235,6 @@ def set_arc_by_angle_radius(P, W):
     for n in '345':
         W['entry{}'.format(n)].setText('')
         W['entry{}'.format(n)].show()
-        W['label{}'.format(n)].show()
 
 def set_arc_widgets(P, W):
     W.entries.removeWidget(W.g23Arc)
