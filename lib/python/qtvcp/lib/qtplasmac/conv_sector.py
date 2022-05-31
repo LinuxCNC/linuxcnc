@@ -73,8 +73,7 @@ def widgets(P, W, Conv):
         reload(SECTOR)
     W.sLabel.setText(_translate('Conversational', 'SEC ANGLE'))
     W.lDesc.setText(_translate('Conversational', 'CREATING SECTOR'))
-    pixmap = QPixmap('{}conv_sector_l.png'.format(P.IMAGES)).scaledToWidth(196)
-    W.iLabel.setPixmap(pixmap)
+    W.iLabel.setPixmap(P.conv_sector_l)
     #alignment and size
     rightAlign = ['ctLabel', 'xsLabel', 'xsEntry', 'ysLabel', 'ysEntry', \
                   'liLabel', 'liEntry', 'loLabel', 'loEntry', 'rLabel', \

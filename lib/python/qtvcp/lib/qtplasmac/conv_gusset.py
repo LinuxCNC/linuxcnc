@@ -83,8 +83,7 @@ def widgets(P, W, Conv):
     W.hLabel.setText(_translate('Conversational', 'HEIGHT'))
     W.hEntry.setObjectName('')
     W.lDesc.setText(_translate('Conversational', 'CREATING GUSSET'))
-    pixmap = QPixmap('{}conv_gusset_l.png'.format(P.IMAGES)).scaledToWidth(196)
-    W.iLabel.setPixmap(pixmap)
+    W.iLabel.setPixmap(P.conv_gusset_l)
     #alignment and size
     rightAlign = ['ctLabel', 'xsLabel', 'xsEntry', 'ysLabel', 'ysEntry', \
                   'liLabel', 'liEntry', 'loLabel', 'loEntry', 'wLabel', \

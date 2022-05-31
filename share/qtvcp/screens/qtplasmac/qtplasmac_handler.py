@@ -1,4 +1,4 @@
-VERSION = '1.223.197'
+VERSION = '1.223.198'
 
 '''
 qtplasmac_handler.py
@@ -5450,11 +5450,18 @@ class HandlerClass:
                    'conv_line', 'conv_circle', 'conv_ellipse', 'conv_triangle',
                    'conv_rectangle', 'conv_polygon', 'conv_bolt', 'conv_slot',
                    'conv_star', 'conv_gusset', 'conv_sector', 'conv_block']
+        conv_images = ['conv_line_point', 'conv_line_angle', 'conv_line_3p',
+                      'conv_line_2pr', 'conv_arc_angle', 'conv_bolt_l',
+                      'conv_circle_l', 'conv_ellipse_l', 'conv_gusset_l',
+                      'conv_polygon_l', 'conv_rectangle_l', 'conv_sector_l',
+                      'conv_slot_l', 'conv_star_l', 'conv_triangle_l']
         for button in buttons:
-            self.color_button_image(button, self.foreColor)
+            self.color_item(button, self.foreColor, 'button')
             self.w[button].setStyleSheet(\
                     'QPushButton {{ background: {0} }} \
                      QPushButton:pressed {{ background: {0} }}'.format(self.backColor))
+        for conv_image in conv_images:
+            self.color_item(conv_image, self.foreColor, 'image')
         # some gcode display/editor colors cannot use .qss file
         # gcode display current gcode line
         self.w.gcode_display.setMarkerBackgroundColor(QColor(self.back1Color))
@@ -5554,17 +5561,17 @@ class HandlerClass:
             self.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '\n{}\n\n{}\n'.format(msg0, msg1))
             self.standard_stylesheet()
 
-    def color_button_image(self, button, color):
-        image_path = '{}{}.png'.format(self.IMAGES, button)
-        self.image = QImage(image_path)
-        for x in range(self.image.width()):
-            for y in range(self.image.height()):
-                pColor = self.image.pixelColor(x, y)
-                if pColor.alpha() > 0:
-                    newColor = QColor(color)
-                    newColor.setAlpha(pColor.alpha())
-                    self.image.setPixelColor(x, y, newColor)
-        self.w['{}'.format(button)].setIcon(QIcon(QPixmap.fromImage(self.image)))
+    def color_item(self, item, color, type):
+        image_path = '{}{}.svg'.format(self.IMAGES, item)
+        self.image = QPixmap(image_path)
+        colorChange = QPainter(self.image)
+        colorChange.setCompositionMode(QPainter.CompositionMode_SourceIn)
+        colorChange.fillRect( self.image.rect(), QColor(color) )
+        colorChange.end()
+        if type == 'button':
+            self.w[item].setIcon(QIcon(self.image))
+        elif type == 'image':
+            self[item] = QPixmap(self.image)
 
 
 #########################################################################################################################

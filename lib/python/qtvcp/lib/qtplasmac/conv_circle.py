@@ -103,8 +103,7 @@ def widgets(P, W, Conv):
         reload(CIRCLE)
     W.dLabel.setText(_translate('Conversational', 'DIAMETER'))
     W.lDesc.setText(_translate('Conversational', 'CREATING CIRCLE'))
-    pixmap = QPixmap('{}conv_circle_l.png'.format(P.IMAGES)).scaledToWidth(196)
-    W.iLabel.setPixmap(pixmap)
+    W.iLabel.setPixmap(P.conv_circle_l)
     #alignment and size
     rightAlign = ['ctLabel', 'spLabel', 'xsLabel', 'xsEntry', 'ysLabel', \
                   'ysEntry', 'liLabel', 'liEntry', 'loLabel', 'loEntry', \

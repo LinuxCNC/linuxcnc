@@ -86,8 +86,7 @@ def widgets(P, W, Conv):
         W.dLabel.setText(_translate('Conversational', 'DIAMETER'))
     W.sLabel.setText(_translate('Conversational', 'SIDES'))
     W.lDesc.setText(_translate('Conversational', 'CREATING POLYGON'))
-    pixmap = QPixmap('{}conv_polygon_l.png'.format(P.IMAGES)).scaledToWidth(196)
-    W.iLabel.setPixmap(pixmap)
+    W.iLabel.setPixmap(P.conv_polygon_l)
     #alignment and size
     rightAlign = ['ctLabel', 'spLabel', 'xsLabel', 'xsEntry', 'ysLabel', \
                   'ysEntry', 'liLabel', 'liEntry', 'loLabel', 'loEntry', \

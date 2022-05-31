@@ -73,8 +73,7 @@ def widgets(P, W, Conv):
     if P.developmentPin.get():
         reload(SLOT)
     W.lDesc.setText(_translate('Conversational', 'CREATING SLOT'))
-    pixmap = QPixmap('{}conv_slot_l.png'.format(P.IMAGES)).scaledToWidth(196)
-    W.iLabel.setPixmap(pixmap)
+    W.iLabel.setPixmap(P.conv_slot_l)
     #alignment and size
     rightAlign = ['ctLabel', 'spLabel', 'xsLabel', 'xsEntry', 'ysLabel', \
                   'ysEntry', 'liLabel', 'liEntry', 'loLabel', 'loEntry', \

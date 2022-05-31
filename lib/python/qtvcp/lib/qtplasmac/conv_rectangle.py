@@ -101,8 +101,7 @@ def widgets(P, W, Conv):
     W.hLabel.setText(_translate('Conversational', 'HEIGHT'))
     W.hEntry.setObjectName('')
     W.lDesc.setText(_translate('Conversational', 'CREATING RECTANGLE'))
-    pixmap = QPixmap('{}conv_rectangle_l.png'.format(P.IMAGES)).scaledToWidth(196)
-    W.iLabel.setPixmap(pixmap)
+    W.iLabel.setPixmap(P.conv_rectangle_l)
     #alignment and size
     rightAlign = ['ctLabel', 'spLabel', 'xsLabel', 'xsEntry', 'ysLabel', \
                   'ysEntry', 'liLabel', 'liEntry', 'loLabel', 'loEntry', \

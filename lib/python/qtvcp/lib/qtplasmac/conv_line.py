@@ -186,7 +186,7 @@ def set_start_point(P, W, image):
     W.entry2.setText('{:0.3f}'.format(P.yLineStart))
 
 def set_line_point_to_point(P, W):
-    clear_widgets(P, W, P.pixLinePoint)
+    clear_widgets(P, W, P.conv_line_point)
     W.label3.setText(_translate('Conversational', 'X END'))
     W.label4.setText(_translate('Conversational', 'Y END'))
     for n in '34':
@@ -194,7 +194,7 @@ def set_line_point_to_point(P, W):
         W['entry{}'.format(n)].show()
 
 def set_line_by_angle(P, W):
-    clear_widgets(P, W, P.pixLineAngle)
+    clear_widgets(P, W, P.conv_line_angle)
     W.label3.setText(_translate('Conversational', 'LENGTH'))
     W.label4.setText(_translate('Conversational', 'ANGLE'))
     W.entry4.setText('0.000')
@@ -203,7 +203,7 @@ def set_line_by_angle(P, W):
         W['entry{}'.format(n)].show()
 
 def set_arc_3_points(P, W):
-    clear_widgets(P, W, P.pixArc3p)
+    clear_widgets(P, W, P.conv_line_3p)
     W.label3.setText(_translate('Conversational', 'X NEXT'))
     W.label4.setText(_translate('Conversational', 'Y NEXT'))
     W.label5.setText(_translate('Conversational', 'X END'))
@@ -213,7 +213,7 @@ def set_arc_3_points(P, W):
         W['entry{}'.format(n)].show()
 
 def set_arc_2_points_radius(P, W):
-    clear_widgets(P, W, P.pixArc2pr)
+    clear_widgets(P, W, P.conv_line_2pr)
     set_arc_widgets(P, W)
     W.label3.setText(_translate('Conversational', 'X END'))
     W.label4.setText(_translate('Conversational', 'Y END'))
@@ -225,7 +225,7 @@ def set_arc_2_points_radius(P, W):
         W['entry{}'.format(n)].show()
 
 def set_arc_by_angle_radius(P, W):
-    clear_widgets(P, W, P.pixArcAngle)
+    clear_widgets(P, W, P.conv_arc_angle)
     set_arc_widgets(P, W)
     W.label3.setText(_translate('Conversational', 'LENGTH'))
     W.label4.setText(_translate('Conversational', 'ANGLE'))
@@ -254,11 +254,6 @@ def widgets(P, W, Conv):
         reload(LINE)
     P.previewActive = False
     W.lDesc.setText(_translate('Conversational', 'CREATING LINE OR ARC'))
-    P.pixLinePoint = QPixmap('{}conv_line_point.png'.format(P.IMAGES)).scaledToWidth(196)
-    P.pixLineAngle = QPixmap('{}conv_line_angle.png'.format(P.IMAGES)).scaledToWidth(196)
-    P.pixArc3p = QPixmap('{}conv_arc_3p.png'.format(P.IMAGES)).scaledToWidth(196)
-    P.pixArc2pr = QPixmap('{}conv_arc_2pr.png'.format(P.IMAGES)).scaledToWidth(196)
-    P.pixArcAngle = QPixmap('{}conv_arc_angle.png'.format(P.IMAGES)).scaledToWidth(196)
     #alignment and size
     rightAlign = ['label1', 'entry1', 'label2', 'entry2', 'label3', 'entry3', \
                   'label4', 'entry4', 'label5', 'entry5', 'label6', 'entry6']

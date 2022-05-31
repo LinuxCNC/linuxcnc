@@ -74,8 +74,7 @@ def widgets(P, W, Conv):
     W.hLabel.setText(_translate('Conversational', '# OF HOLES'))
     W.hEntry.setObjectName('intEntry')
     W.lDesc.setText(_translate('Conversational', 'CREATING BOLT CIRCLE'))
-    pixmap = QPixmap('{}conv_bolt_l.png'.format(P.IMAGES)).scaledToWidth(196)
-    W.iLabel.setPixmap(pixmap)
+    W.iLabel.setPixmap(P.conv_bolt_l)
     #alignment and size
     rightAlign = ['ocLabel', 'ocEntry', 'spLabel', 'xsLabel', 'xsEntry', \
                   'ysLabel', 'ysEntry', 'liLabel', 'liEntry', 'dLabel', \
