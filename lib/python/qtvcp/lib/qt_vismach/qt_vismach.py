@@ -62,6 +62,8 @@ class Window(QWidget):
 
         return slider
 
+    def setZoomRange(self, small, big):
+        self.zoomSlider.setRange(small, big)
 
 class GLWidget(QOpenGLWidget):
     xRotationChanged = pyqtSignal(int)
@@ -77,6 +79,9 @@ class GLWidget(QOpenGLWidget):
         self.xRot = 1700
         self.yRot = 2850
         self.zRot = 0
+
+        self.viewX = 0
+        self.viewY = 0
 
         self.lastPos = QPoint()
 
@@ -168,14 +173,14 @@ class GLWidget(QOpenGLWidget):
 
     def zoomin(self):
         self.distance = self.distance / 1.1
-        if self.distance < 600:
-            self.distance = 600
+        if self.distance < self.near:
+            self.distance = self.near
         self.update()
 
     def zoomout(self):
         self.distance = self.distance * 1.1
-        if self.distance > 5600:
-            self.distance = 5600
+        if self.distance > self.far:
+            self.distance = self.far
         self.update()
 
     def set_latitudelimits(self, minlat, maxlat):
@@ -218,6 +223,8 @@ class GLWidget(QOpenGLWidget):
 
         # draw Objects
         GL.glPushMatrix()  # Protect our matrix
+
+        # set view size
         w = self.winfo_width()
         h = self.winfo_height()
         GL.glViewport(0, 0, w, h)
@@ -230,12 +237,13 @@ class GLWidget(QOpenGLWidget):
         GL.glLoadIdentity()
         GLU.gluPerspective(self.fovy, float(w) / float(h), self.near, self.far)
 
-        if 0:
+        if 1:
             # Now translate the scene origin away from the world origin
             GL.glMatrixMode(GL.GL_MODELVIEW)
             mat = GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX)
             GL.glLoadIdentity()
-            GL.glTranslatef(-self.xcenter, -self.ycenter, -(self.zcenter + self.distance))
+            GL.glTranslatef(-(self.xcenter + self.viewX), -(self.ycenter + self.viewY),
+                             -(self.zcenter + self.distance))
             GL.glMultMatrixd(mat)
         else:
             GLU.gluLookAt(self.xcenter, self.ycenter, self.zcenter + self.distance,
@@ -360,10 +368,20 @@ class GLWidget(QOpenGLWidget):
 
         if event.buttons() & Qt.LeftButton:
             self.setXRotation(self.xRot + 8 * dy)
-            self.setYRotation(self.yRot + 8 * dx)
+            self.setYRotation(self.yRot - 8 * dx)
         elif event.buttons() & Qt.RightButton:
             self.setXRotation(self.xRot + 8 * dy)
             self.setZRotation(self.zRot + 8 * dx)
+        else:
+            # basic panning
+            if dx > 0:
+                self.viewX -=2
+            elif dx < 0:
+                self.viewX +=2
+            if dy > 0:
+                self.viewY +=2
+            elif dy < 0:
+                self.viewY -=2
 
         self.lastPos = event.pos()
 
@@ -410,6 +428,7 @@ def main(model, tool, work, size=10, hud=None, rotation_vectors=None, lat=0, lon
 
     t.work2view = work
 
+    window.setZoomRange(int(t.near),int(t.far))
     window.show()
     sys.exit(app.exec_())
 
