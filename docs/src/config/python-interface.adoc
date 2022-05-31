@@ -760,6 +760,9 @@ WARNING: MDI commands will ignore this. "S1000" after this will turn
   - `wait_for_speed`: if 1 motion will wait for speed before continuing,
     defaults to not.
 
+[WARNING]
+MDI commands will ignore this. "S1000" after this will turn the spindle off
+
 `text_msg(string)`::
   sends a operator text message to the screen. (max 254 characters)
 

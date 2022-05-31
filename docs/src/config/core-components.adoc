@@ -14,8 +14,8 @@ These pins and parameters are created by the realtime 'motmod' module.
 This module provides a HAL interface for LinuxCNC's motion planner.
 
 Basically motmod takes in a list of waypoints and generates a nice
-blended and constraint-limited stream of joint positions to be fed to
-the motor drives.
+blended and constraint-limited stream of joint positions to be fed
+to the motor drives.
 
 Optionally the number of Digital I/O is set with 'num_dio'.
 The number of Analog I/O is set with 'num_aio', default is 4 each.

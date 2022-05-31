@@ -603,9 +603,8 @@ implemented and the results of using it are unpredictable.
 * 'LOG_FILE = file-name.log'
   For specify the file used for log the data.
 
-* 'REMAP=M400  modalgroup=10 argspec=Pq ngc=myprocedure'
+* 'REMAP=M400 modalgroup=10 argspec=Pq ngc=myprocedure'
   See <<cha:remap,Remap Extending G-Code>> chapter for details.
-
 * 'ON_ABORT_COMMAND=O <on_abort> call'
   See <<cha:remap,Remap Extending G-Code>> chapter for details.
 
@@ -947,7 +946,7 @@ LinuxCNC will not know your joint travel limits when using 'NO_FORCE_HOMING = 1'
   used for machines with nontrivial kinematics. On machines with trivial
   kinematics (mill, lathe, gantry types) this value is ignored.
   Note: the sim hexapod config requires a non-zero value for the Z coordinate.
-* TPMOD = alternate_trajectory_planning module [tp_parms=value] +
+* 'TPMOD = alternate_trajectory_planning module' [tp_parms=value] +
   The TPMOD variable is optional.  If specified, use a specified (user-built)
   module instead of the default (tpmod).  Module parameters (tp_parms) may be
   included if supported by the named module.  The setting may be overridden
