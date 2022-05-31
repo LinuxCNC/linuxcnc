@@ -475,7 +475,7 @@ def conv_clear_widgets(P, W, settings=False):
             elif name in ['cnEntry', 'rnEntry']:
                 widget.setText('1')
             elif name in ['scEntry']:
-                name.setText('1.0')
+                widget.setText('1.0')
             elif name in ['ocEntry']:
                 widget.setText('{}'.format(4 * P.unitsPerMm))
         W.entries.removeWidget(widget)
