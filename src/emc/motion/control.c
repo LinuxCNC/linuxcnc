@@ -277,7 +277,7 @@ void emcmotController(void *arg, long period)
 
 static bool joint_jog_is_active(void) {
     int jno;
-    for (jno = 0; jno < EMCMOT_MAX_AXIS; jno++) {
+    for (jno = 0; jno < EMCMOT_MAX_JOINTS; jno++) {
         if ( (&joints[jno])->kb_jjog_active || (&joints[jno])->wheel_jjog_active) {
             return 1;
         }
