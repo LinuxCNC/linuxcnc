@@ -76,26 +76,35 @@ Try sudo apt install rxvt-unicode-256color'''))
             self.w.dial_1.setMinimum(-50)
             self.w.dial_1.setMaximum(50)
             self.w.dockWidget_2.setWindowTitle('Dial 1 (+-50)')
-        elif data == self.w.actionSetD1_0_1000:
-            self.w.dial_1.setMinimum(0)
-            self.w.dial_1.setMaximum(1000)
-            self.w.dockWidget_2.setWindowTitle('Dial 1 (0-1000)')
         elif data == self.w.actionSetD1_0_100:
             self.w.dial_1.setMinimum(0)
             self.w.dial_1.setMaximum(100)
             self.w.dockWidget_2.setWindowTitle('Dial 1 (0-100)')
+        elif data == self.w.actionSetD1_0_360:
+            self.w.dial_1.setMinimum(0)
+            self.w.dial_1.setMaximum(360)
+            self.w.dockWidget_2.setWindowTitle('Dial 1 (0-360)')
+        elif data == self.w.actionSetD1_0_1000:
+            self.w.dial_1.setMinimum(0)
+            self.w.dial_1.setMaximum(1000)
+            self.w.dockWidget_2.setWindowTitle('Dial 1 (0-1000)')
+
         elif data == self.w.actionSetD2_50_50:
             self.w.dial_2.setMinimum(-50)
             self.w.dial_2.setMaximum(50)
             self.w.dockWidget_3.setWindowTitle('Dial 2 (+-50)')
-        elif data == self.w.actionSetD2_0_1000:
-            self.w.dial_2.setMinimum(0)
-            self.w.dial_2.setMaximum(1000)
-            self.w.dockWidget_3.setWindowTitle('Dial 2 (0-1000)')
         elif data == self.w.actionSetD2_0_100:
             self.w.dial_2.setMinimum(0)
             self.w.dial_2.setMaximum(100)
             self.w.dockWidget_3.setWindowTitle('Dial 2 (0-100)')
+        elif data == self.w.actionSetD2_0_360:
+            self.w.dial_2.setMinimum(0)
+            self.w.dial_2.setMaximum(360)
+            self.w.dockWidget_3.setWindowTitle('Dial 2 (0-360)')
+        elif data == self.w.actionSetD2_0_1000:
+            self.w.dial_2.setMinimum(0)
+            self.w.dial_2.setMaximum(1000)
+            self.w.dockWidget_3.setWindowTitle('Dial 2 (0-1000)')
 
     def announceLEDText(self):
         # speak led label contents on state change, if checked
