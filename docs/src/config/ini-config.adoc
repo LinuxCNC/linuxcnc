@@ -946,24 +946,19 @@ LinuxCNC will not know your joint travel limits when using 'NO_FORCE_HOMING = 1'
   used for machines with nontrivial kinematics. On machines with trivial
   kinematics (mill, lathe, gantry types) this value is ignored.
   Note: the sim hexapod config requires a non-zero value for the Z coordinate.
-* TPMOD = alternate_trajectory_planning module [tp_parms=value] +
+* 'TPMOD = alternate_trajectory_planning module' [tp_parms=value] +
   The TPMOD variable is optional.  If specified, use a specified (user-built)
   module instead of the default (tpmod).  Module parameters (tp_parms) may be
   included if supported by the named module.  The setting may be overridden
   from the command line using the -t option ($linuxcnc -h)
-
-The TPMOD variable is optional.  If specified, use a specified (user-built)
-module instead of the default (tpmod).  Module parameters (tp_parms) may be
-included if supported by the named module.  The setting may be overridden
-from the command line using the -t option ($linuxcnc -h)
 
 * 'NO_PROBE_JOG_ERROR = 0' - Allow to bypass probe tripped check when you jog manually
 
 * 'NO_PROBE_HOME_ERROR = 0' - Allow to bypass probe tripped check when homing is in progress
 
 
-[[sec:kins-section]]
-=== [KINS] Section(((INI File, KINS Section)))
+[[sub:ini:sec:kins]]
+=== [KINS] Section(((INI File,Sections,KINS Section)))
 
 * 'JOINTS = 3' - Specifies the number of joints (motors) in the system.
   For example, a trivkins XYZ machine with a single motor for each axis has 3 joints.

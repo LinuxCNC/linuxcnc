@@ -1,23 +1,7 @@
 :lang: en
 :toc:
-
 [[cha:tool-compensation]]
 = Tool Compensation(((Tool Compensation)))
-
-----
-N01 G1 F15 X0 Y0 Z0
-N02 G43 H1 Z0 X1
-N03 G49 X0 Z0
-N04 G0 X2
-N05 G1 G43 H1 G4 P10 Z0 X3
-N06 G49 X2 Z0
-N07 G0 X0
-----
-
-image:images/length1.png[]
-
-With this program, in most cases, the machine will apply the offset in the form
-of a ramp during the movement in xyz following the word G43.
 
 [[sec:touch-off]]
 == Touch Off(((Touch Off)))
@@ -46,9 +30,14 @@ image::images/ToolTable-TouchOff.png["Touch Off Tool Table",align="center"]
 
 The G10 L1/L10/L11 commands can be used to set tool table offsets:
 
-* 'G10 L1  Pn' - Set offset(s) to a value. Current position irrelevant (see <<gcode:g10-l1,G10 L1>> for details).
-* 'G10 L10 Pn' - Set offset(s) so current position w/ fixture 1-8 becomes a value (see <<gcode:g10-l10,G10 L10>> for details).
-* 'G10 L11 Pn' - Set offset(s) so current position w/ fixture 9 becomes a value (see <<gcode:g10-l11,G10 L11>> for details).
+* 'G10 L1  Pn' - Set offset(s) to a value. Current position irrelevant.
+                      (see <<gcode:g10-l1,G10 L1>> for details)
+
+* 'G10 L10 Pn' - Set offset(s) so current position w/ fixture 1-8 becomes a value.
+                      (see <<gcode:g10-l10,G10 L10>> for details)
+
+* 'G10 L11 Pn' - Set offset(s) so current position w/ fixture 9 becomes a value.
+                      (see <<gcode:g10-l11,G10 L11>> for details)
 
 [NOTE]
 This is only a brief presentation, refer to the reference guide of the
@@ -67,7 +56,7 @@ text editor or be updated using G10 L1. See the
 the lathe tool table format. The maximum pocket number is 1000.
 
 The <<cha:tooledit-gui,Tool Editor>> or a text editor can be used to edit the
-tool table.  If you use a text editor make sure you reload the tool table in
+tool table. If you use a text editor make sure you reload the tool table in
 the GUI.
 
 [[sub:tool-table-format]]
@@ -255,7 +244,8 @@ Fixed location tool changers always return the tools to a
 fixed position in the tool changer. This would also include
 designs like lathe turrets. When LinuxCNC is configured for a fixed
 location tool changer the 'P' number is not used internally (but read, preserved
-and rewritten) by LinuxCNC, so you can use P for any bookkeeping number you want.
+and rewritten) by LinuxCNC, so you can use P for any bookkeeping number you
+want.
 
 .Random Location Tool Changers
 Random location tool changers swap the tool in the spindle with the
@@ -264,6 +254,49 @@ always be in a different pocket after a tool change. When a tool is
 changed LinuxCNC rewrites the pocket number to keep track of where the tools
 are. T can be any number but P must be a number that makes sense for
 the machine.
+
+
+== Tool Length Compensation(((Tool Length Compensation)))
+The tool length compensations are given as positive numbers in the tool table.
+A tool compensation is programmed using G43 H'n', where 'n' is the index number
+of the desired tool in the tool table. It is intended that all entries
+in the tool table are positive. The value of H is checked,
+it must be a non-negative integer when read. The interpreter behaves as follows:
+
+1. If G43 H'n' is programmed, a call to the function
+USE_TOOL_LENGTH_OFFSET(length) is made (where length is the length difference,
+read from the tool table, of the indexed tool n),
+tool_length_offset is repositioned in the machine settings model
+and the value of current_z in the model is adjusted. Note that
+'n' does not have to be the same as the slot number of the tool
+currently in the spindle.
+
+2. If G49 is programmed, USE_TOOL_LENGTH_OFFSET(0.0) is called,
+tool_length_offset is reset to 0.0 in the machine settings template
+and the current value of current_z in the model is adjusted.
+The effect of the tool length compensation is illustrated in the
+capture below. Note that the tool length is subtracted from
+Z so that the programmed control point corresponds to the tip of the tool.
+Note also that the effect of the length compensation is immediate when you see
+the compensation is immediate when the position of Z is seen as a relative
+coordinate, but it has no effect on the actual machine position
+until a Z movement is programmed.
+
+.Tool length test program. Tool #1 is one inch long.
+----
+N01 G1 F15 X0 Y0 Z0
+N02 G43 H1 Z0 X1
+N03 G49 X0 Z0
+N04 G0 X2
+N05 G1 G43 H1 G4 P10 Z0 X3
+N06 G49 X2 Z0
+N07 G0 X0
+----
+
+image:images/length1.png[]
+
+With this program, in most cases, the machine will apply the offset in the form
+of a ramp during the movement in xyz following the word G43.
 
 [[sec:cutter-radius-compensation]]
 == Cutter Radius Compensation(((Cutter Radius Compensation)))
