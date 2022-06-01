@@ -66,6 +66,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
 
         self.show_overlay = False  # no DRO or DRO overlay
         self._reload_filename = None
+        self.show_small_origin = True
 
         self._view_incr = 20
         self.inhibit_selection = False
@@ -375,6 +376,14 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def getShowOffsets(self):
         return self.show_offsets
     _offsets = pyqtProperty(bool, getShowOffsets, setShowOffsets)
+
+    # show small origin
+    def setShowSmallOrigin(self, state):
+        self.show_small_origin = state
+        self.updateGL()
+    def getShowSmallOrigin(self):
+        return self.show_small_origin
+    _small_origin = pyqtProperty(bool, getShowSmallOrigin, setShowSmallOrigin)
 
     def getOverlayColor(self):
         return self._overlayColor
