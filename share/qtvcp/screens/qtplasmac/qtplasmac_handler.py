@@ -1,4 +1,4 @@
-VERSION = '1.223.200'
+VERSION = '1.223.201'
 
 '''
 qtplasmac_handler.py
@@ -941,7 +941,7 @@ class HandlerClass:
         self.w.conv_preview.set_view('Z')
         self.w.conv_preview.show_tool = False
         self.w.conv_preview.show_limits = False
-        self.w.conv_preview.draw_small_origin = False
+        self.w.conv_preview.show_small_origin = False
         self.w.conv_preview.set_alpha_mode(True)
         self.w.conv_preview.setShowOffsets(False)
         self.w.conv_preview._font = 'monospace 11'
