@@ -1,4 +1,4 @@
-VERSION = '1.223.199'
+VERSION = '1.223.200'
 
 '''
 qtplasmac_handler.py
@@ -1990,9 +1990,11 @@ class HandlerClass:
     def mdi_show_clicked(self):
         if STATUS.is_on_and_idle() and STATUS.is_all_homed() and self.w.gcode_stack.currentIndex() != 1:
             self.w.gcode_stack.setCurrentIndex(1)
+            self.vkb_show()
         else:
             self.w.gcode_stack.setCurrentIndex(0)
             ACTION.SET_MANUAL_MODE()
+            self.vkb_hide()
 
     def file_cancel_clicked(self):
         self.w.preview_stack.setCurrentIndex(0)
@@ -2736,7 +2738,6 @@ class HandlerClass:
 
     def soft_keyboard(self):
         if self.w.chk_soft_keyboard.isChecked():
-            self.w.mdihistory.MDILine.setProperty('dialog_keyboard_option',True)
             inputType = 'CALCULATOR'
             self.w.originoffsetview.setProperty('dialog_code_string','CALCULATOR')
             self.w.originoffsetview.setProperty('text_dialog_code_string','KEYBOARD')
@@ -2749,7 +2750,6 @@ class HandlerClass:
                (self.w.main_tab_widget.currentIndex() == 3 and self.gui43):
                 self.vkb_show(True)
         else:
-            self.w.mdihistory.MDILine.setProperty('dialog_keyboard_option',False)
             inputType = 'ENTRY'
             self.w.originoffsetview.setProperty('dialog_code_string','')
             self.w.originoffsetview.setProperty('text_dialog_code_string','')
