@@ -430,6 +430,7 @@ class GlCanonDraw:
         self.dro_mm = "% 9.3f"
         self.show_overlay = True
         self.cone_basesize = .5
+        self.show_small_origin = True
         try:
             if os.environ["INI_FILE_NAME"]:
                 self.inifile = linuxcnc.ini(os.environ["INI_FILE_NAME"])
@@ -1157,7 +1158,8 @@ class GlCanonDraw:
                                              s.rotation_xy):
                 olist = self.dlist('draw_small_origin',
                                         gen=self.draw_small_origin)
-                glCallList(olist)
+                if self.show_small_origin:
+                    glCallList(olist)
                 g5x_offset = self.to_internal_units(s.g5x_offset)[:3]
                 g92_offset = self.to_internal_units(s.g92_offset)[:3]
 
