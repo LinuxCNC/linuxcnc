@@ -44,7 +44,7 @@ def preview(P, W, Conv):
             W.kerf_width.value(), P.intExt, \
             W.overcut.isChecked(), W.ocEntry.text(), \
             P.holeDiameter, P.holeSpeed, \
-            W.dEntry.text())
+            W.dEntry.text(), P.invalidLeads)
     if error:
         P.dialogError = True
         P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Circle Error'), error)
@@ -60,7 +60,7 @@ def auto_preview(P, W, Conv, button=False):
         if not W.intExt.isChecked():
             return
         Conv.conv_auto_preview_button(P, W, button)
-        cut_type_toggled(P, W)
+        Conv.conv_entry_changed(P, W, None, 'circle')
     elif button == 'center':
         if not W.centLeft.isChecked():
             return

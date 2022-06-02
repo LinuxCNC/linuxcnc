@@ -49,6 +49,7 @@ def conv_setup(P, W):
     P.convSettingsChanged = False
     P.validShape = False
     P.savedSettings = {'origin':None, 'intext':None, 'in':None, 'out':None}
+    P.invalidLeads = 0
     W.preview = QPushButton(_translate('Conversational', 'PREVIEW'))
     W.undo = QPushButton(_translate('Conversational', 'RELOAD'))
     if not ACTION.prefilter_path:
@@ -229,6 +230,8 @@ def conv_shape_request(P, W, shape, material):
     conv_button_color(P, W, shape)
     W.conv_settings.setEnabled(True)
     W.preview.setEnabled(True)
+    W.loLabel.setEnabled(True)
+    W.loEntry.setEnabled(True)
     if P.validShape:
         W.undo.setEnabled(True)
     W.add.setEnabled(False)
@@ -317,23 +320,60 @@ def conv_enable_tabs(P, W):
             W.gcode_display.setStyleSheet( \
                     'EditorBase{{ qproperty-styleColorMarginText: {} }}'.format(P.foreColor))
 
-def conv_entry_changed(P, W, widget, overcut=False):
-    name = widget.objectName()
-    # enable/disable overcut
-    if overcut:
-        value = W.hdEntry.text() if overcut == 'bolt' else W.dEntry.text()
+def conv_entry_changed(P, W, widget, circleType=False):
+    if widget:
+        name = widget.objectName()
+        value = widget.text()
+    else:
+        name = value = None
+    # circle specific code
+    if circleType:
+        P.invalidLeads = 0
+        dia = W.hdEntry.text() if circleType == 'bolt' else W.dEntry.text()
         try:
-            dia = float(value)
+            dia = float(dia)
         except:
             dia = 0
-        if dia >= P.holeDiameter or dia == 0 or (P.intExt and overcut != 'bolt'):
+        # cannot do overcut if large hole, no hole, or external circle
+        if dia >= P.holeDiameter or dia == 0 or (P.intExt and circleType != 'bolt'):
             W.overcut.setChecked(False)
             W.overcut.setEnabled(False)
             W.ocEntry.setEnabled(False)
         else:
             W.overcut.setEnabled(True)
             W.ocEntry.setEnabled(True)
-    if widget.text():
+        # cannot do leadout if small hole
+        if not P.intExt or circleType == 'bolt':
+            if dia < P.holeDiameter:
+                W.loLabel.setEnabled(False)
+                W.loEntry.setEnabled(False)
+                P.invalidLeads = 2
+            else:
+            # test for large leadin or leadout
+                try:
+                    lIn = float(W.liEntry.text())
+                except:
+                    lIn = 0
+                try:
+                    lOut = float(W.loEntry.text())
+                except:
+                    lOut = 0
+                if lIn and lIn > dia / 4:
+                    W.loLabel.setEnabled(False)
+                    W.loEntry.setEnabled(False)
+                    P.invalidLeads = 2
+                elif lOut and lOut > dia / 4:
+                    W.loLabel.setEnabled(False)
+                    P.invalidLeads = 1
+                else:
+                    W.loLabel.setEnabled(True)
+                    W.loEntry.setEnabled(True)
+                    P.invalidLeads = 0
+        else:
+            W.loLabel.setEnabled(True)
+            W.loEntry.setEnabled(True)
+            P.invalidLeads = 0
+    if value:
         if name in ['intEntry', 'hsEntry', 'cnEntry', 'rnEntry']:
             good = '0123456789'
         elif name in ['xsEntry', 'ysEntry', 'aEntry', 'coEntry', 'roEntry']:
@@ -341,14 +381,14 @@ def conv_entry_changed(P, W, widget, overcut=False):
         else:
             good = '.0123456789'
         out = ''
-        for t in widget.text():
+        for t in value:
             if t in good and not(t == '-' and len(out) > 0) and not(t == '.' and t in out):
                 out += t
         widget.setText(out)
-        if widget.text() in ['', '.', '-', '-.']:
+        if value in ['', '.', '-', '-.']:
             return True
         try:
-            a = float(widget.text())
+            a = float(value)
             reply = False
         except:
             head = _translate('HandlerClass', 'Numeric Entry Error')
@@ -361,7 +401,7 @@ def conv_entry_changed(P, W, widget, overcut=False):
         return True
     if name == 'gsEntry':
         # grid size is in inches
-        W.conv_preview.grid_size = float(widget.text()) / P.unitsPerMm / 25.4
+        W.conv_preview.grid_size = float(value) / P.unitsPerMm / 25.4
         W.conv_preview.set_current_view()
 
 def conv_is_float(entry):
@@ -454,6 +494,10 @@ def conv_accept(P, W):
 def conv_clear_widgets(P, W, settings=False):
     for i in reversed(range(W.entries.count())):
         widget = W.entries.itemAt(i).widget()
+        try:
+            widget.disconnect()
+        except:
+            pass
         name = widget.objectName()
         if settings:
             if name == 'liEntry':
@@ -480,10 +524,6 @@ def conv_clear_widgets(P, W, settings=False):
                 widget.setText('{}'.format(4 * P.unitsPerMm))
         W.entries.removeWidget(widget)
         widget.setParent(None)
-        try:
-            widget.disconnect()
-        except:
-            pass
 
 def conv_auto_preview_button(P, W, button):
     if button == 'intext':

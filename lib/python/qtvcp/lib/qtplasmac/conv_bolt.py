@@ -35,25 +35,42 @@ def preview(P, W, Conv):
     if not W.ysEntry.text():
         W.ysEntry.setText('{:0.3f}'.format(P.yOrigin))
     origin = W.centLeft.text() == 'CENTER'
-    error = BOLT.preview(Conv, P.fTmp, P.fNgc, P.fNgcBkp, \
-            int(W.conv_material.currentText().split(':')[0]), \
-            W.conv_material.currentText().split(':')[1].strip(), \
-            P.preAmble, P.postAmble, \
-            W.liEntry.text(), W.loEntry.text(), W.aEntry.text(), \
-            origin, W.xsEntry.text(), W.ysEntry.text(), \
-            W.kerf_width.value(), \
-            W.overcut.isChecked(), W.ocEntry.text(), \
-            P.holeDiameter, P.holeSpeed, \
-            W.dEntry.text(), W.hdEntry.text(), W.hEntry.text(), W.caEntry.text())
-    if error:
-        P.dialogError = True
-        P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Bolt-Circle Error'), error)
-    else:
-        W.conv_preview.load(P.fNgc)
-        W.conv_preview.set_current_view()
-        W.add.setEnabled(True)
-        W.undo.setEnabled(True)
-        Conv.conv_preview_button(P, W, True)
+    head = _translate('HandlerClass', 'Bolt-Circle Error')
+    leadSwap = False
+    while 1:
+        error = BOLT.preview(Conv, P.fTmp, P.fNgc, P.fNgcBkp, \
+                int(W.conv_material.currentText().split(':')[0]), \
+                W.conv_material.currentText().split(':')[1].strip(), \
+                P.preAmble, P.postAmble, \
+                W.liEntry.text(), W.loEntry.text(), W.aEntry.text(), \
+                origin, W.xsEntry.text(), W.ysEntry.text(), \
+                W.kerf_width.value(), \
+                W.overcut.isChecked(), W.ocEntry.text(), \
+                P.holeDiameter, P.holeSpeed, \
+                W.dEntry.text(), W.hdEntry.text(), W.hEntry.text(), W.caEntry.text(), \
+                P.invalidLeads)
+        if error:
+            if _('is too large') in error:
+                btn1 = _translate('HandlerClass', 'CONTINUE')
+                btn2 = _translate('HandlerClass', 'CANCEL')
+                msg0 = _translate('HandlerClass', 'Use a perpendicular leadin')
+                msg = '{}:\n\n{}?\n'.format(error.strip(), msg0)
+                reply = P.dialog_show_yesno(QMessageBox.Warning, head, msg)
+                if reply:
+                    leadSwap = True
+                else:
+                    break
+            if not leadSwap:
+                P.dialogError = True
+                P.dialog_show_ok(QMessageBox.Warning, head, error)
+                break
+        else:
+            W.conv_preview.load(P.fNgc)
+            W.conv_preview.set_current_view()
+            W.add.setEnabled(True)
+            W.undo.setEnabled(True)
+            Conv.conv_preview_button(P, W, True)
+            break
 
 def auto_preview(P, W, Conv, button=False):
     if button == 'center':
@@ -72,15 +89,17 @@ def widgets(P, W, Conv):
         reload(BOLT)
     W.dLabel.setText(_translate('Conversational', 'DIAMETER'))
     W.hLabel.setText(_translate('Conversational', '# OF HOLES'))
+    W.loEntry.setText('0.0')
     W.hEntry.setObjectName('intEntry')
     W.lDesc.setText(_translate('Conversational', 'CREATING BOLT CIRCLE'))
     W.iLabel.setPixmap(P.conv_bolt_l)
     #alignment and size
-    rightAlign = ['ocLabel', 'ocEntry', 'spLabel', 'xsLabel', 'xsEntry', \
-                  'ysLabel', 'ysEntry', 'liLabel', 'liEntry', 'dLabel', \
-                  'dEntry', 'hdLabel', 'hdEntry', 'hLabel', 'hEntry', \
-                  'aLabel', 'aEntry', 'caLabel', 'caEntry']
+    rightAlign = ['spLabel', 'xsLabel', 'xsEntry', 'ysLabel', 'ysEntry', \
+                  'liLabel', 'liEntry', 'loLabel', 'loEntry', 'dLabel', 'dEntry', \
+                  'hdLabel', 'hdEntry', 'hLabel', 'hEntry', \
+                  'aLabel', 'aEntry', 'caLabel', 'caEntry', 'ocEntry']
     centerAlign = ['lDesc']
+    leftAlign = ['ocLabel']
     rButton = ['centLeft']
     pButton = ['preview', 'add', 'undo', 'overcut']
     for widget in rightAlign:
@@ -90,6 +109,10 @@ def widgets(P, W, Conv):
     for widget in centerAlign:
         W[widget].setAlignment(Qt.AlignCenter | Qt.AlignBottom)
         W[widget].setFixedWidth(240)
+        W[widget].setFixedHeight(24)
+    for widget in leftAlign:
+        W[widget].setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        W[widget].setFixedWidth(80)
         W[widget].setFixedHeight(24)
     for widget in rButton:
         W[widget].setFixedWidth(80)
@@ -104,8 +127,8 @@ def widgets(P, W, Conv):
     W.preview.pressed.connect(lambda:preview(P, W, Conv))
     W.add.pressed.connect(lambda:Conv.conv_add_shape_to_file(P, W))
     W.undo.pressed.connect(lambda:Conv.conv_undo_shape(P, W))
-    entries = ['ocEntry', 'xsEntry', 'ysEntry', 'liEntry', 'dEntry', \
-               'hdEntry', 'hEntry', 'aEntry', 'caEntry']
+    entries = ['ocEntry', 'xsEntry', 'ysEntry', 'liEntry', 'loEntry', \
+               'dEntry', 'hdEntry', 'hEntry', 'aEntry', 'caEntry']
     for entry in entries:
         W[entry].textChanged.connect(lambda:entry_changed(P, W, Conv, W.sender()))
         W[entry].returnPressed.connect(lambda:preview(P, W, Conv))
@@ -119,19 +142,21 @@ def widgets(P, W, Conv):
         W.entries.addWidget(W.ysEntry, 2, 1)
         W.entries.addWidget(W.liLabel, 3, 0)
         W.entries.addWidget(W.liEntry, 3, 1)
-        W.entries.addWidget(W.dLabel, 4, 0)
-        W.entries.addWidget(W.dEntry, 4, 1)
-        W.entries.addWidget(W.hdLabel, 5, 0)
-        W.entries.addWidget(W.hdEntry, 5, 1)
-        W.entries.addWidget(W.hLabel, 6, 0)
-        W.entries.addWidget(W.hEntry, 6, 1)
-        W.entries.addWidget(W.aLabel, 7, 0)
-        W.entries.addWidget(W.aEntry, 7, 1)
-        W.entries.addWidget(W.caLabel, 8, 0)
-        W.entries.addWidget(W.caEntry, 8, 1)
-        W.entries.addWidget(W.overcut, 9, 1)
-        W.entries.addWidget(W.ocLabel, 10, 0)
+        W.entries.addWidget(W.loLabel, 4, 0)
+        W.entries.addWidget(W.loEntry, 4, 1)
+        W.entries.addWidget(W.dLabel, 5, 0)
+        W.entries.addWidget(W.dEntry, 5, 1)
+        W.entries.addWidget(W.hdLabel, 6, 0)
+        W.entries.addWidget(W.hdEntry, 6, 1)
+        W.entries.addWidget(W.hLabel, 7, 0)
+        W.entries.addWidget(W.hEntry, 7, 1)
+        W.entries.addWidget(W.aLabel, 8, 0)
+        W.entries.addWidget(W.aEntry, 8, 1)
+        W.entries.addWidget(W.caLabel, 9, 0)
+        W.entries.addWidget(W.caEntry, 9, 1)
+        W.entries.addWidget(W.overcut, 10, 0)
         W.entries.addWidget(W.ocEntry, 10, 1)
+        W.entries.addWidget(W.ocLabel, 10, 2)
         W.s11 = QLabel('')
         W.s11.setFixedHeight(24)
         W.entries.addWidget(W.s11, 11, 0)
@@ -153,6 +178,8 @@ def widgets(P, W, Conv):
         W.entries.addWidget(W.ysEntry, 3, 3)
         W.entries.addWidget(W.liLabel, 4, 0)
         W.entries.addWidget(W.liEntry, 4, 1)
+        W.entries.addWidget(W.loLabel, 4, 2)
+        W.entries.addWidget(W.loEntry, 4, 3)
         W.entries.addWidget(W.dLabel, 5, 0)
         W.entries.addWidget(W.dEntry, 5, 1)
         W.entries.addWidget(W.hdLabel, 6, 0)

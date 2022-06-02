@@ -42,7 +42,7 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
             kerfWidth, isExternal, \
             isOvercut, overCut, \
             smallHoleDia, smallHoleSpeed, \
-            diameter):
+            diameter, invalidLeads):
     error = ''
     msg1 = _('entry is invalid')
     valid, xOffset = Conv.conv_is_float(xOffset)
@@ -80,11 +80,13 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
         error += '{}\n\n'.format(msg)
     if error:
         return error
-    radius = diameter / 2
+    kOffset = kerfWidth / 2
+    radius = (diameter / 2) - kOffset
     angle = math.radians(45)
     leadInOffset = math.sin(angle) * leadinLength
     leadOutOffset = math.sin(math.radians(45)) * leadoutLength
-    kOffset = kerfWidth / 2
+    if leadInOffset > radius - kOffset:
+        leadInOffset = radius - kOffset
     if isExternal:
         ijOffset = (radius + kOffset) * math.sin(angle)
     else:
@@ -109,10 +111,8 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
         dir = [left, down]
     else:
         dir = [right, up]
-    if radius <= smallHoleDia / 2:
+    if diameter < smallHoleDia:
         sHole = True
-        if leadInOffset > radius:
-            leadInOffset = radius
     else:
         sHole = False
     outTmp = open(fTmp, 'w')
@@ -137,8 +137,8 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
     outTmp.write('M190 P{}\n'.format(matNumber))
     outTmp.write('M66 P3 L3 Q1\n')
     outTmp.write('f#<_hal[plasmac.cut-feed-rate]>\n')
-    if leadInOffset > 0:
-        if sHole and not isExternal:
+    if leadInOffset:
+        if (sHole and not isExternal) or invalidLeads == 2:
             xlStart = xS + leadInOffset * math.cos(angle)
             ylStart = yS + leadInOffset * math.sin(angle)
         else:
@@ -150,7 +150,7 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
         outTmp.write('m3 $0 s1\n')
         if sHole:
             outTmp.write('M67 E3 Q{} (reduce feed rate to 60%)\n'.format(smallHoleSpeed))
-        if sHole and not isExternal:
+        if (sHole and not isExternal) or invalidLeads == 2:
             outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xS, yS))
         else:
             outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xS, yS, xlcenter - xlStart, ylcenter - ylStart))
@@ -163,7 +163,7 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
         outTmp.write('g2 x{0:.6f} y{1:.6f} i{2:.6f} j{2:.6f}\n'.format(xS, yS, ijOffset))
     else:
         outTmp.write('g3 x{0:.6f} y{1:.6f} i{2:.6f} j{2:.6f}\n'.format(xS, yS, ijOffset))
-    if leadOutOffset and not isOvercut and not (not isExternal and sHole):
+    if leadOutOffset and not isOvercut and not (not isExternal and sHole) and not invalidLeads:
             if isExternal:
                 dir = [left, up]
             else:

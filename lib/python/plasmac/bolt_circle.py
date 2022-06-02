@@ -42,7 +42,8 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
             kerfWidth, \
             isOvercut, overCut, \
             smallHoleDia, smallHoleSpeed, \
-            circleDia, holeDia, holeNum, circleAng):
+            circleDia, holeDia, holeNum, circleAng, \
+            invalidLeads):
     error = ''
     msg1 = _('entry is invalid')
     valid, xOffset = Conv.conv_is_float(xOffset)
@@ -106,19 +107,18 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
     if error:
         return error
     cRadius = circleDia / 2
-    hRadius = holeDia / 2
-    angle = math.radians(shapeAng)
     if circleAng == 360:
         hAngle = math.radians(circleAng / holeNum)
     else:
         hAngle = math.radians(circleAng / (holeNum - 1))
-    hRadius = hRadius - (kerfWidth / 2)
+    kOffset = kerfWidth / 2
+    hRadius = (holeDia / 2) - kOffset
+    angle = math.radians(shapeAng)
     leadinOffset = leadinLength * math.sin(math.radians(45))
-    if leadinLength > hRadius:
-        leadinLength = hRadius
-    if leadinOffset > hRadius:
-        leadinOffset = hRadius
-    if hRadius < smallHoleDia / 2:
+    leadoutOffset = leadoutLength * math.sin(math.radians(45))
+    if leadinOffset > hRadius - kOffset:
+        leadinOffset = hRadius - kOffset
+    if holeDia < smallHoleDia:
         sHole = True
     else:
         sHole = False
@@ -159,13 +159,14 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
         yhC = yC + cRadius * math.sin(hAngle * hole + angle)
         xS = xhC - hRadius
         yS = yhC
-        if sHole:
-            xlStart = xS + leadinLength
+        if sHole or invalidLeads == 2:
+            xlStart = xS + leadinOffset
             ylStart = yhC
             outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(xlStart, ylStart))
             outTmp.write('m3 $0 s1\n')
             outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xS, yS))
-            outTmp.write('m67 E3 Q{}\n'.format(smallHoleSpeed))
+            if sHole:
+                outTmp.write('m67 E3 Q{}\n'.format(smallHoleSpeed))
         else:
             xlCentre = xS + (leadinOffset * math.cos(angle + right))
             ylCentre = yS + (leadinOffset * math.sin(angle + right))
@@ -177,18 +178,29 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
                 outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xS, yS, xlCentre - xlStart, ylCentre - ylStart))
         outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f}\n'.format(xS, yS, hRadius))
         torch = True
-        if isOvercut and sHole:
-            Torch = False
-            outTmp.write('m62 p3 (disable torch)\n')
-            centerX = xS + hRadius
-            centerY = yS
-            cosA = math.cos(oclength / hRadius)
-            sinA = math.sin(oclength / hRadius)
-            cosB = (xS - centerX) / hRadius
-            sinB = (yS - centerY) / hRadius
-            endX = centerX + hRadius * ((cosB * cosA) - (sinB * sinA))
-            endY = centerY + hRadius * ((sinB * cosA) + (cosB * sinA))
-            outTmp.write('g3 x{0:.6f} y{1:.6f} i{2:.6f} j{3:.6f}\n'.format(endX, endY, hRadius, 0))
+        if sHole:
+            if isOvercut:
+                Torch = False
+                outTmp.write('m62 p3 (disable torch)\n')
+                centerX = xS + hRadius
+                centerY = yS
+                cosA = math.cos(oclength / hRadius)
+                sinA = math.sin(oclength / hRadius)
+                cosB = (xS - centerX) / hRadius
+                sinB = (yS - centerY) / hRadius
+                endX = centerX + hRadius * ((cosB * cosA) - (sinB * sinA))
+                endY = centerY + hRadius * ((sinB * cosA) + (cosB * sinA))
+                outTmp.write('g3 x{0:.6f} y{1:.6f} i{2:.6f} j{3:.6f}\n'.format(endX, endY, hRadius, 0))
+        else:
+            if leadoutLength and not invalidLeads:
+                xlCentre = xS + (leadinOffset * math.cos(angle + right))
+                ylCentre = yS + (leadinOffset * math.sin(angle + right))
+                xlStart = xlCentre + (leadinOffset * math.cos(angle + down))
+                ylStart = ylCentre + (leadinOffset * math.sin(angle + down))
+                outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(xlStart, ylStart))
+                outTmp.write('m3 $0 s1\n')
+                if leadinLength:
+                    outTmp.write('g2 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xS, yS, xlCentre - xlStart, ylCentre - ylStart))
         outTmp.write('m5 $0\n')
         if sHole:
             outTmp.write('M68 E3 Q0 (reset feed rate to 100%)\n')

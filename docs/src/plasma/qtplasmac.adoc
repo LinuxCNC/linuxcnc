@@ -2446,10 +2446,23 @@ The Conversational Library is not meant to be a CAD/CAM replacement as there are
 
 Blank entries in the shape input boxes will use the current setting at the time the G-Code was generated. For example, if *X start* was left blank then the current X axis position would be used.
 
-All lead-ins and lead-outs are arcs except for:
+All leadins and leadouts are arcs except for *Circles* and *Stars*:
 
-* Small holes
-* Stars
+*Circles:*
+
+- if the circle is external then any leadin or leadout will be an arc.
+
+- if the circle is internal and a *small hole* then any leadin will be perpendicular and there will be no lead out.
+
+- if the circle is internal and not a *small hole* then any leadin and leadout will be an arc. If the leadin has a length greater than half the radius then the leadin will revert to perpendicular and there will be no leadout. If the leadout has a length greater than half the radius then there will be no leadout.
+
+*Stars:*
+
+- the leadin is at the same angle as the first cut and the leadout is at the same angle as the last cut.
+
+NOTE: A *small hole* is a circle that is smaller than the SMALL HOLE DIAMETER specified in the CONVERSATIONAL SETTINGS page.
+
+NOTE: The holes in a BOLT CIRCLE shape will also abide by the above rules.
 
 *The cut order will occur in the same order as the shape was built.*
 
@@ -2490,13 +2503,13 @@ Global settings for the shape library can be set by pressing the *SETTINGS* butt
 * *Preamble*
 * *Postamble*
 * *Origin (Center or Bottom Left)*
-* *Lead-in length*
-* *Lead-out length*
+* *Leadin length*
+* *Leadout length*
 * *Small hole diameter*
 * *Small hole speed*
 * *Preview Window Grid Size*
 
-Any internal circle that has a diameter less than *Small hole diameter* is classified as a small hole and will have a straight lead-in with a length that is the lesser of either the radius of the hole or the specified lead-in length. It will also have its feed rate set to *Small hole speed*.
+Any internal circle that has a diameter less than *Small hole diameter* is classified as a small hole and will have a straight leadin with a length that is the lesser of either the radius of the hole or the specified leadin length. It will also have its feed rate set to *Small hole speed*.
 
 Preamble and Postamble may be entered as a string of G-Codes and M-Codes separate by spaces. If the user wishes for the generated G-Code to have each code on an individual line then this is made possible by separating the codes with *\n*.
 
@@ -2541,10 +2554,10 @@ To use lines and arcs:
 . Change the line or arc type if needed and continue this procedure until the shape is complete.
 . Press *SEND* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting.
 
-If the user wishes to create a closed shape, they will need to create any required lead-in as the first segment of the shape. If a lead-out is required it will need to be the last segment of the shape.
+If the user wishes to create a closed shape, they will need to create any required leadin as the first segment of the shape. If a leadout is required it will need to be the last segment of the shape.
 
 [NOTE]
-At this stage there is no automatic option for a lead-in/lead-out creation if the shape is closed.
+At this stage there is no automatic option for a leadin/leadout creation if the shape is closed.
 
 === Conversational Single Shape
 
