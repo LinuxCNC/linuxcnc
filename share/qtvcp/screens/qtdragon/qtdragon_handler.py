@@ -560,6 +560,7 @@ class HandlerClass:
             # make sure main page is showing
             self.w.main_tab_widget.setCurrentIndex(0)
             self.w.btn_main.setChecked(True)
+            self.w.jogging_frame.hide()
             return
         self.w.main_tab_widget.setCurrentIndex(index)
         self.w.stackedWidget.setCurrentIndex(self.tab_index_code[index])
