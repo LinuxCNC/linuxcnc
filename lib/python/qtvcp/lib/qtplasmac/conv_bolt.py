@@ -35,42 +35,25 @@ def preview(P, W, Conv):
     if not W.ysEntry.text():
         W.ysEntry.setText('{:0.3f}'.format(P.yOrigin))
     origin = W.centLeft.text() == 'CENTER'
-    head = _translate('HandlerClass', 'Bolt-Circle Error')
-    leadSwap = False
-    while 1:
-        error = BOLT.preview(Conv, P.fTmp, P.fNgc, P.fNgcBkp, \
-                int(W.conv_material.currentText().split(':')[0]), \
-                W.conv_material.currentText().split(':')[1].strip(), \
-                P.preAmble, P.postAmble, \
-                W.liEntry.text(), W.loEntry.text(), W.aEntry.text(), \
-                origin, W.xsEntry.text(), W.ysEntry.text(), \
-                W.kerf_width.value(), \
-                W.overcut.isChecked(), W.ocEntry.text(), \
-                P.holeDiameter, P.holeSpeed, \
-                W.dEntry.text(), W.hdEntry.text(), W.hEntry.text(), W.caEntry.text(), \
-                P.invalidLeads)
-        if error:
-            if _('is too large') in error:
-                btn1 = _translate('HandlerClass', 'CONTINUE')
-                btn2 = _translate('HandlerClass', 'CANCEL')
-                msg0 = _translate('HandlerClass', 'Use a perpendicular leadin')
-                msg = '{}:\n\n{}?\n'.format(error.strip(), msg0)
-                reply = P.dialog_show_yesno(QMessageBox.Warning, head, msg)
-                if reply:
-                    leadSwap = True
-                else:
-                    break
-            if not leadSwap:
-                P.dialogError = True
-                P.dialog_show_ok(QMessageBox.Warning, head, error)
-                break
-        else:
-            W.conv_preview.load(P.fNgc)
-            W.conv_preview.set_current_view()
-            W.add.setEnabled(True)
-            W.undo.setEnabled(True)
-            Conv.conv_preview_button(P, W, True)
-            break
+    error = BOLT.preview(Conv, P.fTmp, P.fNgc, P.fNgcBkp, \
+            int(W.conv_material.currentText().split(':')[0]), \
+            W.conv_material.currentText().split(':')[1].strip(), \
+            P.preAmble, P.postAmble, \
+            W.liEntry.text(), W.loEntry.text(), W.aEntry.text(), \
+            origin, W.xsEntry.text(), W.ysEntry.text(), \
+            W.kerf_width.value(), \
+            W.overcut.isChecked(), W.ocEntry.text(), \
+            P.holeDiameter, P.holeSpeed, W.dEntry.text(), W.hdEntry.text(), \
+            W.hEntry.text(), W.caEntry.text(), P.invalidLeads)
+    if error:
+        P.dialogError = True
+        P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Bolt-Circle Error'), error)
+    else:
+        W.conv_preview.load(P.fNgc)
+        W.conv_preview.set_current_view()
+        W.add.setEnabled(True)
+        W.undo.setEnabled(True)
+        Conv.conv_preview_button(P, W, True)
 
 def auto_preview(P, W, Conv, button=False):
     if button == 'center':
