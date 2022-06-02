@@ -7,8 +7,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1280</width>
-    <height>906</height>
+    <width>1477</width>
+    <height>958</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -74,7 +74,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="ScreenOptions" name="screen_options" native="true">
+     <widget class="ScreenOptions" name="screen_options">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
@@ -324,7 +324,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="GcodeEditor" name="gcode_viewer" native="true">
+                 <widget class="GcodeEditor" name="gcode_viewer">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                     <horstretch>0</horstretch>
@@ -379,7 +379,7 @@
                  <number>2</number>
                 </property>
                 <item>
-                 <widget class="FileManager" name="filemanager_usb" native="true">
+                 <widget class="FileManager" name="filemanager_usb">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                     <horstretch>0</horstretch>
@@ -407,6 +407,22 @@
                 <property name="bottomMargin">
                  <number>2</number>
                 </property>
+                <item>
+                 <spacer name="verticalSpacer_27">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeType">
+                   <enum>QSizePolicy::Preferred</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>15</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
                 <item>
                  <widget class="QWidget" name="widget_work_height" native="true">
                   <layout class="QHBoxLayout" name="horizontalLayout_35">
@@ -630,6 +646,19 @@
                  </widget>
                 </item>
                 <item>
+                 <spacer name="verticalSpacer_30">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
                  <widget class="QLabel" name="label_45">
                   <property name="focusPolicy">
                    <enum>Qt::NoFocus</enum>
@@ -641,7 +670,7 @@
                    <pixmap resource="qtdragon.qrc">:/images/images/tool_probe.png</pixmap>
                   </property>
                   <property name="alignment">
-                   <set>Qt::AlignCenter</set>
+                   <set>Qt::AlignHCenter|Qt::AlignTop</set>
                   </property>
                  </widget>
                 </item>
@@ -1575,6 +1604,22 @@ SENSOR</string>
                  </layout>
                 </item>
                 <item>
+                 <spacer name="verticalSpacer_29">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeType">
+                   <enum>QSizePolicy::Preferred</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_28">
                   <property name="spacing">
                    <number>4</number>
@@ -1596,6 +1641,22 @@ SENSOR</string>
                    </widget>
                   </item>
                  </layout>
+                </item>
+                <item>
+                 <spacer name="verticalSpacer_28">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeType">
+                   <enum>QSizePolicy::Preferred</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                 <item>
                  <widget class="QWidget" name="widget_tool_diameter" native="true">
@@ -1855,11 +1916,11 @@ SENSOR</string>
                     </widget>
                    </item>
                    <item>
-                    <widget class="LED" name="led_probe" native="true">
+                    <widget class="LED" name="led_probe">
                      <property name="pin_name" stdset="0">
                       <string>led-probe</string>
                      </property>
-                     <property name="color" stdset="0">
+                     <property name="color">
                       <color>
                        <red>0</red>
                        <green>255</green>
@@ -2931,7 +2992,7 @@ RESET</string>
                     <enum>QFrame::Raised</enum>
                    </property>
                    <property name="currentIndex">
-                    <number>0</number>
+                    <number>6</number>
                    </property>
                    <widget class="QWidget" name="main_tab_widgetPage1">
                     <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -3636,7 +3697,7 @@ View</string>
                       </widget>
                      </item>
                      <item>
-                      <widget class="GCodeGraphics" name="gcodegraphics" native="true">
+                      <widget class="GCodeGraphics" name="gcodegraphics">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                          <horstretch>0</horstretch>
@@ -4846,10 +4907,10 @@ GCODE</string>
                       </layout>
                      </item>
                      <item>
-                      <widget class="FileManager" name="filemanager" native="true"/>
+                      <widget class="FileManager" name="filemanager"/>
                      </item>
                      <item>
-                      <widget class="GcodeEditor" name="gcode_editor" native="true">
+                      <widget class="GcodeEditor" name="gcode_editor">
                        <property name="auto_show_mdi_status" stdset="0">
                         <bool>false</bool>
                        </property>
@@ -5467,7 +5528,7 @@ TO FILE</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="CamView" name="camview" native="true"/>
+                        <widget class="CamView" name="camview"/>
                        </item>
                        <item>
                         <widget class="QWidget" name="widget_cam_controls" native="true">
@@ -5520,7 +5581,7 @@ TO FILE</string>
                             <property name="minimumSize">
                              <size>
                               <width>30</width>
-                              <height>100</height>
+                              <height>80</height>
                              </size>
                             </property>
                             <property name="maximumSize">
@@ -5545,10 +5606,13 @@ TO FILE</string>
                             <property name="orientation">
                              <enum>Qt::Vertical</enum>
                             </property>
+                            <property name="sizeType">
+                             <enum>QSizePolicy::Maximum</enum>
+                            </property>
                             <property name="sizeHint" stdset="0">
                              <size>
                               <width>20</width>
-                              <height>40</height>
+                              <height>36</height>
                              </size>
                             </property>
                            </spacer>
@@ -5580,7 +5644,7 @@ TO FILE</string>
                             <property name="minimumSize">
                              <size>
                               <width>30</width>
-                              <height>100</height>
+                              <height>80</height>
                              </size>
                             </property>
                             <property name="maximumSize">
@@ -5608,10 +5672,13 @@ TO FILE</string>
                             <property name="orientation">
                              <enum>Qt::Vertical</enum>
                             </property>
+                            <property name="sizeType">
+                             <enum>QSizePolicy::Maximum</enum>
+                            </property>
                             <property name="sizeHint" stdset="0">
                              <size>
                               <width>20</width>
-                              <height>40</height>
+                              <height>36</height>
                              </size>
                             </property>
                            </spacer>
@@ -5643,7 +5710,7 @@ TO FILE</string>
                             <property name="minimumSize">
                              <size>
                               <width>30</width>
-                              <height>100</height>
+                              <height>80</height>
                              </size>
                             </property>
                             <property name="maximumSize">
@@ -5949,6 +6016,13 @@ TO FILE</string>
                          <widget class="QLabel" name="label_31">
                           <property name="text">
                            <string>F2 - Machine OFF</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="QLabel" name="label_36">
+                          <property name="text">
+                           <string>F11 - Fullscreen</string>
                           </property>
                          </widget>
                         </item>
@@ -8935,7 +9009,7 @@ MM/MIN</string>
              <widget class="QFrame" name="frame_program">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                <horstretch>2</horstretch>
+                <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
@@ -10242,7 +10316,7 @@ SPINDLE</string>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>525</width>
+                    <width>526</width>
                     <height>16777211</height>
                    </size>
                   </property>
@@ -11810,7 +11884,7 @@ ZERO</string>
                  <widget class="QFrame" name="frame_override">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                    <horstretch>6</horstretch>
+                    <horstretch>7</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
@@ -11822,7 +11896,7 @@ ZERO</string>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>427</width>
+                    <width>472</width>
                     <height>16777212</height>
                    </size>
                   </property>
@@ -13222,7 +13296,7 @@ ZERO</string>
               <number>0</number>
              </property>
              <item>
-              <widget class="VirtualKeyboard" name="virtualkeyboard" native="true">
+              <widget class="VirtualKeyboard" name="virtualkeyboard">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                  <horstretch>0</horstretch>
@@ -13238,8 +13312,8 @@ ZERO</string>
          <item>
           <widget class="QFrame" name="frame_status">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>4</horstretch>
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
@@ -13751,9 +13825,9 @@ ZERO</string>
                  </property>
                  <property name="icon">
                   <iconset>
-                   <normalon>../../../../../../home/marko/.designer/backup/images/spindle_rev.png</normalon>
-                   <activeon>../../../../../../home/marko/.designer/backup/images/spindle_rev.png</activeon>
-                   <selectedon>../../../../../../home/marko/.designer/backup/images/spindle_rev.png</selectedon>
+                   <normalon>../../../../../../../home/marko/.designer/backup/images/spindle_rev.png</normalon>
+                   <activeon>../../../../../../../home/marko/.designer/backup/images/spindle_rev.png</activeon>
+                   <selectedon>../../../../../../../home/marko/.designer/backup/images/spindle_rev.png</selectedon>
                   </iconset>
                  </property>
                  <property name="iconSize">
@@ -13965,9 +14039,9 @@ ZERO</string>
                  </property>
                  <property name="icon">
                   <iconset>
-                   <normalon>../../../../../../home/marko/.designer/backup/images/spindle_fwd.png</normalon>
-                   <activeon>../../../../../../home/marko/.designer/backup/images/spindle_fwd.png</activeon>
-                   <selectedon>../../../../../../home/marko/.designer/backup/images/spindle_fwd.png</selectedon>
+                   <normalon>../../../../../../../home/marko/.designer/backup/images/spindle_fwd.png</normalon>
+                   <activeon>../../../../../../../home/marko/.designer/backup/images/spindle_fwd.png</activeon>
+                   <selectedon>../../../../../../../home/marko/.designer/backup/images/spindle_fwd.png</selectedon>
                   </iconset>
                  </property>
                  <property name="iconSize">
@@ -14179,7 +14253,7 @@ ZERO</string>
                  </property>
                  <property name="icon">
                   <iconset>
-                   <selectedon>../../../../../../home/marko/.designer/backup/images/spindle_stop.png</selectedon>
+                   <selectedon>../../../../../../../home/marko/.designer/backup/images/spindle_stop.png</selectedon>
                   </iconset>
                  </property>
                  <property name="iconSize">
@@ -14371,7 +14445,7 @@ ZERO</string>
                 </widget>
                </item>
                <item row="1" column="2" alignment="Qt::AlignHCenter">
-                <widget class="StateLED" name="led_at_speed" native="true">
+                <widget class="StateLED" name="led_at_speed">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -14399,10 +14473,10 @@ ZERO</string>
                  <property name="halpin_option" stdset="0">
                   <bool>false</bool>
                  </property>
-                 <property name="diameter" stdset="0">
+                 <property name="diameter">
                   <number>15</number>
                  </property>
-                 <property name="color" stdset="0">
+                 <property name="color">
                   <color>
                    <red>0</red>
                    <green>255</green>
@@ -14807,7 +14881,7 @@ ZERO</string>
            </property>
            <property name="minimumSize">
             <size>
-             <width>754</width>
+             <width>746</width>
              <height>20</height>
             </size>
            </property>
@@ -14958,7 +15032,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>10:07:20 PM</string>
+            <string>06:26:39 </string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -15142,6 +15216,7 @@ ZERO</string>
   <include location="qtdragon.qrc"/>
   <include location="qtdragon.qrc"/>
   <include location="qtdragon.qrc"/>
+  <include location="../../../../../home/marko/.designer/backup/qtdragon.qrc"/>
  </resources>
  <connections>
   <connection>
