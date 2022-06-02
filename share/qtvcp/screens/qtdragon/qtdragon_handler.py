@@ -37,6 +37,10 @@ TAB_SETUP = 8
 TAB_SETTINGS = 9
 TAB_UTILITIES = 10
 
+DEFAULT = 0
+WARNING = 1
+CRITICAL = 2
+
 class HandlerClass:
     def __init__(self, halcomp, widgets, paths):
         self.h = halcomp
@@ -480,7 +484,7 @@ class HandlerClass:
             self.last_loaded_program = filename
             self.w.lbl_runtime.setText("00:00:00")
         else:
-            self.add_status("Filename not valid")
+            self.add_status("Filename not valid", CRITICAL)
 
     def updateProgress(self, p,text):
         if p <0:
@@ -528,7 +532,7 @@ class HandlerClass:
         self.w.btn_home_all.setText("HOME ALL")
 
     def hard_limit_tripped(self, obj, tripped, list_of_tripped):
-        self.add_status("Hard limits tripped")
+        self.add_status("Hard limits tripped", CRITICAL)
         self.w.chk_override_limits.setEnabled(tripped)
         if not tripped:
             self.w.chk_override_limits.setChecked(False)
@@ -556,7 +560,7 @@ class HandlerClass:
         if index is None: return
         # if in automode still allow settings to show so override linits can be used
         if STATUS.is_auto_mode() and index != 9:
-            self.add_status("Cannot switch pages while in AUTO mode")
+            self.add_status("Cannot switch pages while in AUTO mode", WARNING)
             # make sure main page is showing
             self.w.main_tab_widget.setCurrentIndex(0)
             self.w.btn_main.setChecked(True)
@@ -590,10 +594,10 @@ class HandlerClass:
         if self.w.main_tab_widget.currentIndex() != 0:
             return
         if not STATUS.is_auto_mode():
-            self.add_status("Must be in AUTO mode to run a program")
+            self.add_status("Must be in AUTO mode to run a program", WARNING)
             return
         if STATUS.is_auto_running():
-            self.add_status("Program is already running")
+            self.add_status("Program is already running", WARNING)
             return
         self.run_time = 0
         self.w.lbl_runtime.setText("00:00:00")
@@ -711,7 +715,7 @@ class HandlerClass:
         else:
             return
         if source[1] is False:
-            self.add_status("Specified source is not a file")
+            self.add_status("Specified source is not a file", WARNING)
             return
         self.source_file = source[0]
         if target[1] is True:
@@ -761,19 +765,19 @@ class HandlerClass:
     def btn_m61_clicked(self):
         checked = self.w.tooloffsetview.get_checked_list()
         if len(checked) > 1:
-            self.add_status("Select only 1 tool to load")
+            self.add_status("Select only 1 tool to load", WARNING)
         elif checked:
             self.add_status("Loaded tool {}".format(checked[0]))
             ACTION.CALL_MDI("M61 Q{} G43".format(checked[0]))
         else:
-            self.add_status("No tool selected")
+            self.add_status("No tool selected", CRITICAL)
 
     def btn_touchoff_clicked(self):
         if STATUS.get_current_tool() == 0:
-            self.add_status("Cannot touchoff with no tool loaded")
+            self.add_status("Cannot touchoff with no tool loaded", CRITICAL)
             return
         if not STATUS.is_all_homed():
-            self.add_status("Must be homed to perform tool touchoff")
+            self.add_status("Must be homed to perform tool touchoff", CRITICAL)
             return
         # instantiate dialog box
         sensor = self.w.sender().property('sensor')
@@ -811,7 +815,7 @@ class HandlerClass:
     def chk_override_limits_checked(self, state):
         # only toggle override if it's not in synch with the button
         if state and not STATUS.is_limits_override_set():
-            self.add_status("Override limits set")
+            self.add_status("Override limits set", WARNING)
             ACTION.TOGGLE_LIMITS_OVERRIDE()
         elif not state and STATUS.is_limits_override_set():
             error = ACTION.TOGGLE_LIMITS_OVERRIDE()
@@ -821,7 +825,7 @@ class HandlerClass:
                 self.w.chk_override_limits.setChecked(True)
                 self.w.chk_override_limits.blockSignals(False)
             else:
-                self.add_status("Override limits not set")
+                self.add_status("Override limits cleared")
 
     def chk_run_from_line_checked(self, state):
         self.w.btn_start.setText("START\n1") if state else self.w.btn_start.setText("CYCLE\nSTART")
@@ -862,7 +866,7 @@ class HandlerClass:
 
         if not file_extension in (".html", '.pdf'):
             if not (INFO.program_extension_valid(fname)):
-                self.add_status("Unknown or invalid filename extension {}".format(file_extension))
+                self.add_status("Unknown or invalid filename extension {}".format(file_extension), CRITICAL)
                 return
             self.w.cmb_gcode_history.addItem(fname)
             self.w.cmb_gcode_history.setCurrentIndex(self.w.cmb_gcode_history.count() - 1)
@@ -876,7 +880,7 @@ class HandlerClass:
             fname = filename+'.html'
             if os.path.exists(fname):
                 self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
-                self.add_status("Loaded HTML file : {}".format(fname))
+                self.add_status("Loaded HTML file : {}".format(fname), CRITICAL)
             else:
                 self.w.web_view.setHtml(self.html)
 
@@ -921,7 +925,7 @@ class HandlerClass:
         elif selector == 'sensor':
             z_offset = float(self.w.lineEdit_sensor_height.text()) - float(self.w.lineEdit_work_height.text())
         else:
-            self.add_status("Unknown touchoff routine specified")
+            self.add_status("Unknown touchoff routine specified", CRITICAL)
             return
         self.add_status("Touchoff to {} started".format(selector))
         max_probe = self.w.lineEdit_max_probe.text()
@@ -929,11 +933,11 @@ class HandlerClass:
         probe_vel = self.w.lineEdit_probe_vel.text()
         rtn = ACTION.TOUCHPLATE_TOUCHOFF(search_vel, probe_vel, max_probe, z_offset)
         if rtn == 0:
-            self.add_status("Touchoff routine is already running")
+            self.add_status("Touchoff routine is already running", CRITICAL)
 
     def kb_jog(self, state, joint, direction, fast = False, linear = True):
         if not STATUS.is_man_mode() or not STATUS.machine_is_on():
-            self.add_status('Machine must be ON and in Manual mode to jog')
+            self.add_status('Machine must be ON and in Manual mode to jog', CRITICAL)
             return
         if linear:
             distance = STATUS.get_jog_increment()
@@ -948,7 +952,13 @@ class HandlerClass:
         else:
             ACTION.JOG(joint, 0, 0, 0)
 
-    def add_status(self, message):
+    def add_status(self, message, alertLevel = DEFAULT):
+        if alertLevel==DEFAULT:
+            self.set_style_default()
+        elif alertLevel==WARNING:
+            self.set_style_warning()
+        else:
+            self.set_style_critical()
         self.w.lineEdit_statusbar.setText(message)
         STATUS.emit('update-machine-log', message, 'TIME')
 
@@ -1036,6 +1046,14 @@ class HandlerClass:
 
     def writer(self):
         WRITER.show()
+
+    # change Status bar text color
+    def set_style_default(self):
+        self.w.lineEdit_statusbar.setStyleSheet("background-color: rgb(252, 252, 252);color: rgb(0,0,0)")  #default white
+    def set_style_warning(self):
+        self.w.lineEdit_statusbar.setStyleSheet("background-color: rgb(200, 255, 156);color: rgb(0,0,0)")  #green
+    def set_style_critical(self):
+        self.w.lineEdit_statusbar.setStyleSheet("background-color: rgb(252, 243, 89);color: rgb(0,0,0)")   #yelow
 
     #####################
     # KEY BINDING CALLS #
