@@ -125,12 +125,12 @@ are not certain how to set up a proper command you'll need to read
 again the documentation on halcmd and the specific modules that you are
 working with.
 
-Let's use this editor to add a differential module to a HAL and
-connect it to axis position so that we could see the rate of change in
-position, i.e., acceleration. We first need to load a HAL component named
-ddt, add it to the servo thread, then connect it to the position pin
-of a joint. Once that is done we can find the output of the
-differentiator in halscope. So let's go. (Yes, I looked this one up.)
+Let's use this editor to add a differential module to a HAL and connect it 
+to axis position so that we could see the rate of change in position, i.e., 
+acceleration. We first need to load a HAL component named ddt, add it to the 
+servo thread, then connect it to the position pin of a joint. Once that is 
+done we can find the output of the differentiator in halscope. So let's go. 
+(Yes, I looked this one up.
 
 ----
 loadrt ddt
@@ -209,8 +209,8 @@ Owner Type  Dir Value       Name
 08    float -W  0.00000e+00 ddt.0.out
 ----
 
-That looks easy enough to understand, but what signal or pin do we want to connect to it?
-It could be an axis pin, a stepgen pin, or a signal.
+That looks easy enough to understand, but what signal or pin do we want to 
+to connect to it? It could be an axis pin, a stepgen pin, or a signal.
 We see this when we look at joint.0:
 
 ----

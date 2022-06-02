@@ -21,11 +21,11 @@ Optionally the number of Digital I/O is set with 'num_dio'.
 The number of Analog I/O is set with 'num_aio', default is 4 each.
 The number of Spindles is set with 'num_spindles', default is 1.
 
-Pin and parameter names starting with 'axis.L' and joint.N'
-are read and updated by the motion-controller function.
+Pin and parameter names starting with 'axis.L' and joint.N' are read and
+updated by the motion-controller function.
 
-Motion is loaded with the motmod command. A kins should be loaded
-before motion.
+Motion is loaded with the motmod command. A kins should be loaded before
+motion.
 
 ----
 loadrt motmod base_period_nsec=['period'] servo_period_nsec=['period']
@@ -69,11 +69,11 @@ of the low level motion planner.
 
 === Options
 
-If the number of digital I/O needed is more than the default of 4 you
-can add up to 64 digital I/O by using the num_dio option when loading 'motmod'.
+If the number of digital I/O needed is more than the default of 4 you can 
+add up to 64 digital I/O by using the num_dio option when loading 'motmod'.
 
-If the number of analog I/O needed is more than the default of 4 you
-can add up to 16 analog I/O by using the num_aio option when loading 'motmod'.
+If the number of analog I/O needed is more than the default of 4 you can add 
+up to 16 analog I/O by using the num_aio option when loading 'motmod'.
 
 The unlock_joints_mask parameter is used to create pins for a joint used
 as a locking indexer (typically a rotary).  The mask bits select the

@@ -32,7 +32,8 @@ separated from the linuxcnc.po files, so there is no need to translate unneeded
 stuff. The files are placed in */src/po/gmoccapy*. You could just copy the gmoccapy.pot
 file to something like it.po and translate that file with gtranslator or poedit.
 After rebuilding, you'd get the GUI in your preference language. To facilitate the
-sharing of the translation gmoccapy is presented on the https://hosted.weblate.org/projects/linuxcnc/gmocappy/[Weblate web interface].
+sharing of the translation gmoccapy is presented on the
+https://hosted.weblate.org/projects/linuxcnc/gmocappy/[Weblate web interface].
 'GMOCCAPY' is currently available in English, German,
 Spanish, Polish, Serbian and Hungarian. Feel free to help me to introduce more
 languages, be it locally or via the web.
@@ -1302,7 +1303,8 @@ image::images/gmoccapy_file_selection_dialog_with_keyboard.png["Directory select
 
 ==== Themes and Sounds
 
-This lets the user select what desktop theme and icon theme to apply and what error and messages sounds should be played.
+This lets the user select what desktop theme to apply and what error and
+messages sounds should be played. +
 By default "Follow System Theme" is set.
 
 See section <<gmoccapy:icon-theme-section,Icon Theme>> for details.

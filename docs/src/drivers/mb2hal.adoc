@@ -12,8 +12,9 @@
 
 == Introduction
 
-MB2HAL is a generic userspace HAL component to communicate with one or more Modbus devices.
-So far, there are two options to communicate with a Modbus device:
+MB2HAL is a generic userspace HAL component to communicate with one or more 
+Modbus devices. So far, there are two options to communicate with a Modbus 
+device:
 
 . One option is to create a HAL component as a driver see
   http://wiki.linuxcnc.org/cgi-bin/wiki.pl?VFD_Modbus[VFD Modbus].
