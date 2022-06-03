@@ -130,7 +130,7 @@ class WidgetSwitcher(QStackedWidget, _HalWidgetBase):
                 obj[0].show()
                 continue
 
-            obj[1].addWidget(obj[2], obj[0])
+            obj[1].insertWidget(obj[2], obj[0])
             obj[0].show()
             self.setCurrentIndex(0)
             self._current_object = None
