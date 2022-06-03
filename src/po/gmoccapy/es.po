@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-13 11:02+0100\n"
+"POT-Creation-Date: 2022-05-28 23:16+0200\n"
 "PO-Revision-Date: 2021-12-27 13:52+0000\n"
 "Last-Translator: Jose Manuel Garcia de Torres <jmgardeto@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
@@ -23,28 +23,29 @@ msgstr ""
 "X-Poedit-Country: GERMANY\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:254 emc/usr_intf/gmoccapy/gmoccapy.py:259
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:281
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:286
 #, fuzzy
 #| msgid "**** GMOCCAPY INI Entry **** \n"
 msgid "**** GMOCCAPY INI Entry ****"
 msgstr "**** Entrada GMOCCAPY INI **** \n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:255
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:282
 msgid "user mode selected"
 msgstr "Modo usuario seleccionado"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:260
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:287
 #, python-brace-format
 msgid "logo entry found = {0}"
 msgstr "logo encontrado = {0}"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:265
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:292
 #, fuzzy
 #| msgid "**** GMOCCAPY INI Entry Error **** \n"
 msgid "**** GMOCCAPY INI Entry Error ****"
 msgstr "**** Error entrada GMOCCAPY INI **** \n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:266
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:293
 #, fuzzy
 #| msgid "Logofile entry found, but could not be converted to path.\n"
 msgid "Logofile entry found, but could not be converted to path."
@@ -52,43 +53,47 @@ msgstr ""
 "Se encontró la entrada del archivo de registro, pero no se pudo convertir en "
 "la ruta.\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:267
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:294
 msgid "The file path should not contain any spaces"
 msgstr "La ruta del archivo no debe contener espacios"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:662
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:691
 #, python-brace-format
 msgid "Press to home all {0}"
 msgstr "Presione para iniciar todo {0}"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:671 emc/usr_intf/gmoccapy/gmoccapy.py:929
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:704
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:991
 msgid "Press to display previous homing button"
 msgstr "Presione para mostrar botón de inicio anterior"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:689
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:720
 #, python-brace-format
 msgid "Press to home {0} {1}"
 msgstr "Presione para iniciar {0} {1}"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:702 emc/usr_intf/gmoccapy/gmoccapy.py:953
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:737
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1020
 msgid "Press to display next homing button"
 msgstr "Presione para mostrar botón de inicio siguente"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:717
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:752
 #, python-brace-format
 msgid "Press to unhome all {0}"
 msgstr "Presione para desiniciar {0}"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:723 emc/usr_intf/gmoccapy/gmoccapy.py:990
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:761
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1065
 msgid "Press to return to main button list"
 msgstr "Volver a la lista de botones principales"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:757 emc/usr_intf/gmoccapy/gmoccapy.py:1847
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2080
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:815
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1929
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2185
 msgid "**** GMOCCAPY ERROR ****\n"
 msgstr "**** GMOCCAPY ERROR ****\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:758
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:816
 #, fuzzy, python-brace-format
 #| msgid ""
 #| "**** could not resolv the image path '{0}' given for macro button '{1}' "
@@ -98,7 +103,7 @@ msgstr ""
 "no se pudo resolver la ruta de la imagen'{0}' proporcionada para el botón de "
 "macro '{1}'"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:914
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:972
 #, fuzzy
 #| msgid ""
 #| "  edit\n"
@@ -110,20 +115,20 @@ msgstr ""
 "  editar\n"
 "offsets"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:920
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:978
 msgid "Press to edit the offsets"
 msgstr "Presione para editar los offsets"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:940
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1003
 #, python-brace-format
 msgid "Press to set touch off value for axis {0}"
 msgstr "Presione para establecer el valor para el eje {0}"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:969
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1036
 msgid "Press to reset all G92 offsets"
 msgstr "Reestablecer todos los offsets G92"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:975
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1042
 msgid ""
 " Block\n"
 "Height"
@@ -131,207 +136,211 @@ msgstr ""
 " Altura\n"
 "Pieza"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:977
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1044
 msgid "Press to enter new value for block height"
 msgstr "Oprima para seleccionar el nuevo valor para la altura de los bloques"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:982
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1049
+#, fuzzy
+#| msgid ""
+#| "    set\n"
+#| "selected"
 msgid ""
-"    set\n"
+"set\n"
 "selected"
 msgstr ""
 "    establecer\n"
 "seleccionado"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:984
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1055
 msgid "Press to set the selected coordinate system to be the active one"
 msgstr ""
 "Oprima para establecer el sistema de coordenadas seleccionado como activo"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1005
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1021
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1167
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1739
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1910
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1923
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1933
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1998
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2001
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1080
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1096
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1242
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1821
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2015
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2028
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2038
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2103
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2106
 msgid "**** GMOCCAPY INFO ****"
 msgstr "**** GMOCCAPY INFO ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1006
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1081
 msgid "**** no valid probe config in INI File ****"
 msgstr ""
 "**** No se encontró una configuración valida para el medidor de herramientas "
 "en el archivo INI ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1007
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1082
 msgid "**** disabled tool measurement ****"
 msgstr "**** Medición de herramientas no será posible"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1022
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1097
 msgid "**** found valid probe config in INI File ****"
 msgstr ""
 "**** Se encontró una configuración valida para el medidor de herramientas en "
 "el archivo INI ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1023
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1098
 msgid "**** will use auto tool measurement ****"
 msgstr "**** se utilizará la herramienta automatizada de medidas ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1038
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1113
 msgid "**** GMOCCAPY build_GUI INFO ****"
 msgstr "**** INFO GMOCCAPY build_GUI ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1039
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1114
 msgid "**** To many increments given in INI File for this screen ****"
 msgstr ""
 "**** Hemos encontrado demasiados incrementos en el archivo INI, para esta "
 "pantalla ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1040
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1115
 msgid "**** Only the first 10 will be reachable through this screen ****"
 msgstr "**** Solo los 10 primeros serán visualizado en la pantalla ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1049
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1124
 msgid "Continuous"
 msgstr "Continuo"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1168
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1243
 #, python-brace-format
 msgid "unknown jog command {0}"
 msgstr "comando de desplazamiento desconocido {0}"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1195
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1270
 #, python-brace-format
 msgid "Press to jog axis {0}"
 msgstr "Presione para mover el eje {0}"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1214
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1289
 #, python-brace-format
 msgid "Press to jog joint {0}"
 msgstr "Presione para mover el motor {0}"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1237
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1312
 msgid "**** GMOCCAPY INFO ****\n"
 msgstr "**** GMOCCAPY INFO ****\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1238
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1313
 msgid "**** found more than 16 macros, will use only the first 16 ****"
 msgstr ""
 "**** Hemos encontrado mas de 9 macros, solo los primeros 9 serán usados. ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1245
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1324
 msgid "Press to display previous macro button"
 msgstr "Presione para mostrar los botones de macro anterior"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1264
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1343
 #, python-brace-format
 msgid "Press to run macro {0}"
 msgstr "Presione para ejecutar macro {0}"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1271
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1354
 msgid "Press to display next macro button"
 msgstr "Presione para mostrar los botones de macro siguientes"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1291
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1374
 msgid "Press to display the virtual keyboard"
 msgstr "Mostrar o ocultar teclado"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1389
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1471
 msgid "*****  GMOCCAPY ERROR  *****"
 msgstr "****  GMOCCAPY ERROR ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1390
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1472
 msgid "this is not a lathe, as a lathe must have at least\n"
 msgstr "Esto no es un torno, un torne tiene que tener a menos\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1391
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1473
 msgid "an X and an Z axis\n"
 msgstr "los ejes X y Z\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1392
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1474
 msgid "Wrong lathe configuration, we will leave here"
 msgstr "Mala configuracion de torno, dejamos aqui"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1393
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1850
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2083
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1475
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1932
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2188
 msgid "Very critical situation"
 msgstr "sizuacion muy critica"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1543
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1625
 msgid "*****  GMOCCAPY INFO  *****"
 msgstr "****  GMOCCAPY INFO  ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1544
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1626
 msgid "this is not a usual config\n"
 msgstr "esto no es una configuración comun\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1545
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1627
 msgid "we miss one of X , Y or Z axis\n"
 msgstr "no etsa presente una de los ejes X, Y o Z\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1546
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1628
 msgid "We will use by axisletter ordered jog button"
 msgstr "Usaremos botones de desplacamiento ordenado por las leras de los ejes"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1712
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2774
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1794
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2888
 msgid "mm/min"
 msgstr "mm/min"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1715
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2777
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1797
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2891
 msgid "inch/min"
 msgstr "inch/mm"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1740
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1822
 msgid "**** Invalid embedded tab configuration ****"
 msgstr ""
 "**** La configuración de los programas implementados (embedded tabs) no es "
 "valida ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1741
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1823
 msgid "**** No tabs will be added! ****"
 msgstr "**** los programas exteriores no serán inicializados ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1758
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1840
 msgid "ERROR, trying to initialize the user tabs or panels, check for typos"
 msgstr ""
 "ERROR, intentando de iniciazar los user tabs o programas, cuida por "
 "ortografía"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1848
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1930
 msgid "**** Did not find a toolfile file in [EMCIO] TOOL_TABLE ****"
 msgstr ""
 "**** No existe el archivo para las herramientas en [EMCIO] TOOL_TABLE ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1911
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2016
 msgid "**** audio available! ****"
 msgstr "**** Sonido existente! ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1924
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2029
 msgid "**** no audio available! ****"
 msgstr "**** No sonido existente! ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1925
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2030
 #, fuzzy
 #| msgid "**** PYGST libray not installed? ****"
 msgid "**** PYGST library not installed? ****"
 msgstr "****Ha sido instalado el modulo PYGST? ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1926
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2031
 msgid "**** is python-gstX.XX installed? ****"
 msgstr "**** Ha sido instalado el modulo PYGST? ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1934
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2039
 msgid "**** Entering init gremlin ****"
 msgstr "**** entrando inicialisacion gremlin ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1954
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4924
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2059
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5269
 msgid ""
 " Joint\n"
 "mode"
@@ -339,11 +348,11 @@ msgstr ""
 " Modo\n"
 "motores"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:1999
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2104
 msgid "**** virtual keyboard program found : <onboard>"
 msgstr "**** teclado virtual <onboard> encontrado"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2002
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2107
 #, fuzzy
 #| msgid ""
 #| "**** No virtual keyboard installed, we checked for <onboard> and "
@@ -353,219 +362,220 @@ msgstr ""
 "**** No se encontró teclado virtual, hemos buscado por <onboard> y <matchbox-"
 "keyboard>."
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2003
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2018
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2108
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2123
 msgid "**** try sudo apt-get install onboard"
 msgstr ""
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2015
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3221
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3231
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2120
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3337
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3347
 msgid "**** GMOCCAPY ERROR ****"
 msgstr "**** GMOCCAPY ERROR ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2016
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2121
 msgid "**** Error with launching virtual keyboard,"
 msgstr "**** Error intentando de iniciar teclado virtual ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2017
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2122
 #, fuzzy
 #| msgid "**** is python-gstX.XX installed? ****"
 msgid "**** is onboard installed? ****"
 msgstr "**** Ha sido instalado el modulo PYGST? ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2050
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2900
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2155
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3016
 msgid "interrupt running macro"
 msgstr "Interrumpir ejecución de macro"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2081
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2186
 msgid "**** Did not find a parameter file in [RS274NGC] PARAMETER_FILE ****"
 msgstr ""
 "**** No se encontró archivo de paramentros en [RS274NGC] PARAMETER_FILE ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2151
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2256
 msgid "Select the file you want to be loaded at program start"
 msgstr "Seleccione el archivo que desea cargar al iniciar el programa"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2185
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2209
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2290
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2314
 #, python-brace-format
 msgid "**** GMOCCAPY ERROR **** /n Message type {0} not supported"
 msgstr "**** GMOCCAPY ERROR **** / tipo del mensaje {0} no soportado"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2322
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2427
 msgid "Unknown error type and no error text given"
 msgstr "Error no conocido sin texto del error"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2336
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2441
 msgid "Important Warning"
 msgstr "Advertencia importante"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2356
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2461
 msgid "External ESTOP is set, could not change state!"
 msgstr "ESTOP externo activo, no se pudo cambiar el estado!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2369
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2474
 msgid "Could not switch the machine on, is limit switch activated?"
 msgstr ""
 "No pude encender la maquina, esta un interruptor de los limites de ejes "
 "activo?"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2452
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2557
 msgid "No file loaded"
 msgstr "Ningún programa cargado"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2662
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2771
 msgid "It is not possible to change to MDI Mode at the moment"
 msgstr "No es posible cambiar al modo MDI en este momento"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2694
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2803
 msgid "It is not possible to change to Auto Mode at the moment"
 msgstr "No es posible cambiar al modo AUTO en este momento"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2859
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2982
 msgid "Enter value:"
 msgstr "Digite valor:"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2860
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2983
 #, python-brace-format
 msgid "Set parameter {0} to:"
 msgstr "Ajustar parametro {0} a:"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2862
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2985
 msgid "conversion error"
 msgstr "Error de conversiÃ³n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2863
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4581
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4604
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2986
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4924
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4947
 msgid "Conversion error !"
 msgstr "Error de conversión !"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2898
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3014
 msgid "This button will show or hide the keyboard"
 msgstr "Este botón muestra u oculta el teclado"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3006
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3122
 msgid "Mode change is only allowed if the interpreter is idle!"
 msgstr "Solo esta permitido el cambio de modo si el interprete está inactivo!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3222
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3338
 #, python-brace-format
 msgid "**** {0} ****"
 msgstr "**** {0} ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3232
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3348
 #, python-brace-format
 msgid "**** No widget named: {0} to sensitize ****"
 msgstr ""
 "**** No \"widget\" con el nombre {0} disponible para ser sensibilizado ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3398
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:34
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3514
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:36
 msgid "No tool description available"
 msgstr "No hay descripcion de herramienta"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3538
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3654
 #, python-brace-format
 msgid "Halo, welcome to the test message {0}"
 msgstr "Hola, esta el Mensaje no. {0}"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3634
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3762
 msgid "Hal Pin is low, Access denied"
 msgstr "Hal Pin es activado, acceso denegado"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3636
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3764
 msgid "wrong code entered, Access denied"
 msgstr "Código Incorrecto, acceso denegado"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3637
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3765
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4399
 msgid "Just to warn you"
 msgstr "Solo una advertencia"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3777
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3910
 msgid "INFO:"
 msgstr "INFO:"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3778
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3911
 msgid "Classicladder real-time component not detected"
 msgstr "Classicladder real-time componente no detectado"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3893
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4026
 #, python-brace-format
 msgid "Something went wrong, we have an unknown spindle widget {0}"
 msgstr "Algo esta mal, Widget {0} desconocido"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4004
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4137
 msgid "Do you really want to delete the MDI history?\n"
 msgstr "Esta seguro que quiere borrar el historial MDI?\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4005
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4138
 #, fuzzy
 #| msgid "this will not delete the MDI History file, but will\n"
 msgid "This will not delete the MDI History file, but will\n"
 msgstr "Esto no borrara el historico de MDI, pero \n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4006
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4139
 #, fuzzy
 #| msgid "delete the listbox entries for this session"
 msgid "delete the listbox entries for this session."
 msgstr "eliminara las entradas del cuadro de lista para esta sesión"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4007
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4140
 msgid "Attention!!"
 msgstr "Atención!!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4055
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4197
 msgid "Exit and discard changes?"
 msgstr ""
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4056
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4198
 #, fuzzy
 #| msgid "Attention!!"
 msgid "Attention!"
 msgstr "Atención!!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4133
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4275
 msgid "Enter value for diameter"
 msgstr "Digite el valor para el diámetro"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4134
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4276
 msgid "Set diameter to:"
 msgstr "Ajustar diametro a:"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4137
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4279
 msgid "Enter value for radius"
 msgstr "Digite el valor para el radio"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4138
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4280
 msgid "Set radius to:"
 msgstr "setear radio a {0}:"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4141
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4283
 #, python-brace-format
 msgid "Enter value for axis {0}"
 msgstr "Digite el valor para el eje {0}"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4142
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4284
 #, python-brace-format
 msgid "Set axis {0} to:"
 msgstr "setear eje {0}:"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4146
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4288
 msgid "Conversion error in btn_set_value"
 msgstr "Error de conversion en btn_set_value"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4147
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4289
 msgid "Conversion error in btn_set_value!"
 msgstr "Error de conversion en btn_set_value!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4148
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4290
 msgid "Please enter only numerical values. Values have not been applied"
 msgstr "Por favor entrar solo números. Los valores no han sido admitidos"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4162
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4304
 #, fuzzy
 #| msgid ""
 #| "you did not selected a system to be changed to, so nothing will be changed"
@@ -573,29 +583,29 @@ msgid ""
 "You did not select a system to be changed to, so nothing will be changed"
 msgstr "No ha eligido un systema al cual cambiar, ose nada sera cambiado"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4163
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4610
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4624
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4628
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4643
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4305
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4953
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4967
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4971
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4986
 msgid "Important Warning!"
 msgstr "Importante advertencia!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4213
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4355
 msgid "Enter the block height"
 msgstr "Digite la altura de la pieza a mecanizar"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4214
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4356
 msgid "Block height measured from base table"
 msgstr ""
 "Altura de la pieza a mecanizar, medido desde la base hasta la superficie "
 "superior"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4226
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4368
 msgid "Conversion error in btn_block_height!"
 msgstr "Error de conversión en btn_block_height!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4227
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4369
 msgid ""
 "Please enter only numerical values\n"
 "Values have not been applied"
@@ -603,11 +613,11 @@ msgstr ""
 "Por favor, entrar solo números\n"
 "Los valores no han sido admitidos"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4499
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4841
 msgid "Please remove the mounted tool and press OK when done"
 msgstr "Favor de remover la herramienta y presionar OK"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4503
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4845
 #, python-brace-format
 msgid ""
 "Please change to tool\n"
@@ -622,7 +632,7 @@ msgstr ""
 "\n"
 "y presione OK."
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4505
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4847
 #, python-brace-format
 msgid ""
 "Tool\n"
@@ -632,135 +642,135 @@ msgid ""
 " not in the tool table!"
 msgstr ""
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4507
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4849
 msgid "Manual Tool change"
 msgstr "Cambio de herramienta manual"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4516
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4859
 msgid "Tool Change has been aborted!\n"
 msgstr "Cambio de herramienta ha sido cancelado!\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4517
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4860
 msgid "The old tool will remain set!"
 msgstr "La herramienta previa sigue fijada!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4525
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4868
 msgid "You are trying to delete the tool mounted in the spindle\n"
 msgstr "No puede setear herramienta que no esta montada en el husillo!\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4526
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4869
 msgid "This is not allowed, please change tool prior to delete it"
 msgstr "Esto no está permitido, cambie la herramienta antes de eliminarla"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4527
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4870
 msgid "Warning Tool can not be deleted!"
 msgstr "Advertencia No se puede eliminar la herramienta!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4546
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4889
 #, fuzzy
 #| msgid "No or more than one tool selected in tool table"
 msgid "No or multiple tools selected in the tool table. "
 msgstr "Ha seleccionado ninguna, o mas de una herramienta"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4547
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4890
 #, fuzzy
 #| msgid "Please select only one tool in the table"
 msgid "Please select only one tool in the table!"
 msgstr "Por favor, seleccione solo una herramienta en la tabla"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4548
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4554
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4562
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4891
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4897
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4905
 msgid "Warning Tool Touch off not possible!"
 msgstr "Advertencia No es posible Touch off!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4552
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4895
 #, fuzzy
 #| msgid "you can not touch of a tool, witch is not mounted in the spindle"
 msgid "You can not touch off a tool, which is not mounted in the spindle! "
 msgstr ""
 "No puede hacer touch of a una herramienta que no esta montada en el husillo"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4553
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4896
 #, fuzzy
 #| msgid "your selection has been reseted to the tool in spindle"
 msgid "Your selection has been reset to the tool in spindle."
 msgstr ""
 "Su selección ha sido cancelada , perteneciendo la herramienta en el husillo"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4560
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4903
 msgid ""
 "Tool touch off is not possible with cutter radius compensation switched on!\n"
 msgstr ""
 "No es posible setear la herramienta con el comando de compensacion de radio "
 "encendido!\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4561
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4904
 #, fuzzy
 #| msgid "Please emit an G40 before tool touch off"
 msgid "Please emit an G40 before tool touch off."
 msgstr "Porfavor, ejecutar G40, antes de setear una herramienta"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4570
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4913
 msgid "Real big error!"
 msgstr "Problema muy grande!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4571
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4914
 msgid ""
 "You managed to come to a place that is not possible in on_btn_tool_touchoff"
 msgstr ""
 "Se las arreglo para llegar a un lugar que no es posible en "
 "on_btn_tool_touchoff"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4575
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4918
 #, python-brace-format
 msgid "Enter value for axis {0} to set:"
 msgstr "Digite el valor para setear el eje {0}:"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4576
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4919
 #, python-brace-format
 msgid "Set parameter of tool {0:d} and axis {1} to:"
 msgstr "Ajuste el parametro de la herramienta {0:d} y el del eje {1}:"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4580
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4923
 #, python-brace-format
 msgid "Conversion error because of wrong entry for touch off axis {0}"
 msgstr ""
 "Error de conversion porque a digitado un valor erroneo en el seteo del eje "
 "{0}"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4599
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4942
 msgid "Enter the tool number as integer "
 msgstr "Entrar el numero de herramienta como entero "
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4600
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4943
 msgid "Select the tool to change"
 msgstr "Elije la herramienta para el cambio"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4602
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4945
 #, fuzzy
 #| msgid "Conversion error because of wrong entry for tool number\n"
 msgid "Conversion error because of wrong entry for tool number.\n"
 msgstr "Error de conversion, por entrada erronea del numero de herramienta\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4603
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4946
 #, fuzzy
 #| msgid "enter only integer numbers"
 msgid "Enter only integer numbers!"
 msgstr "ingrese solo números enteros"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4609
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4627
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4952
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4970
 msgid "Selected tool is already in spindle, no change needed."
 msgstr "Herramienta seleccionada esta en el husillo, cambio no necesario."
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4623
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4966
 msgid ""
 "you selected no or more than one tool, the tool selection must be unique"
 msgstr ""
 "Ha seleccionado mas de una herramienta, la seleccion tiene que ser única"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4642
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4985
 #, fuzzy
 #| msgid ""
 #| "Could not understand the entered tool number. Will not change anything"
@@ -769,7 +779,7 @@ msgstr ""
 "No se puede entender el número de la herramienta introducida. No va a "
 "cambiar nada"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4929
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5274
 msgid ""
 "World\n"
 "mode"
@@ -777,102 +787,105 @@ msgstr ""
 "Modo\n"
 "ejes"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:5115
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5460
 msgid "Axis jogging is only allowed in world mode, but you are in joint mode!"
 msgstr ""
 "El jogging de ejes solo esta permitido en modo universal, pero se encuentra "
 "en modo articulación!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:5151
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5496
 #, fuzzy, python-brace-format
 #| msgid "Recieved a not clasified signal from pin {0}"
 msgid "Received a not classified signal from pin {0}"
 msgstr "recibí un signal no clasificadeo de {0}"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:5156
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5501
 #, python-brace-format
 msgid "Could not translate {0} to number"
 msgstr "No se pudo traducir {0} a un numero"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:5161
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5506
 msgid "no button here"
 msgstr "ningún botton aqui"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:5164
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5509
 msgid "the button is not sensitive"
 msgstr "el botón no es sensible"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:5169
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5514
 #, python-brace-format
 msgid "Button {0} has been toggled"
 msgstr "Se ha cambiado el botón {0}"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:5173
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5518
 #, python-brace-format
 msgid "Button {0} has been pressed"
 msgstr "botón {0} ha sido presionado"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:5176
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5521
 #, python-brace-format
 msgid "Button {0} has been clicked"
 msgstr "Se ha hecho clic en el botón {0}"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:5189
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5534
 msgid "got wrong location to locate the childs"
 msgstr "obtuve una ubicación incorrecta para ubicar a los elementos niños"
 
-#: emc/usr_intf/gmoccapy/dialogs.py:46 emc/usr_intf/gmoccapy/dialogs.py:49
+#: src/emc/usr_intf/gmoccapy/dialogs.py:47
+#: src/emc/usr_intf/gmoccapy/dialogs.py:50
 msgid "Enter System Unlock Code"
 msgstr "Digite código de desbloqueo"
 
-#: emc/usr_intf/gmoccapy/dialogs.py:72
+#: src/emc/usr_intf/gmoccapy/dialogs.py:73
 msgid "Enter value"
 msgstr "Digite valor"
 
-#: emc/usr_intf/gmoccapy/dialogs.py:72
+#: src/emc/usr_intf/gmoccapy/dialogs.py:73
 msgid "Enter the value to set"
 msgstr "Digite el valor ha aplicar"
 
-#: emc/usr_intf/gmoccapy/dialogs.py:111 emc/usr_intf/gmoccapy/dialogs.py:133
-#: emc/usr_intf/gmoccapy/dialogs.py:160
+#: src/emc/usr_intf/gmoccapy/dialogs.py:112
+#: src/emc/usr_intf/gmoccapy/dialogs.py:147
+#: src/emc/usr_intf/gmoccapy/dialogs.py:174
 msgid "Operator Message"
 msgstr "Mensage para el operario"
 
-#: emc/usr_intf/gmoccapy/dialogs.py:141
+#: src/emc/usr_intf/gmoccapy/dialogs.py:155
 msgid "_Yes"
 msgstr ""
 
-#: emc/usr_intf/gmoccapy/dialogs.py:142
+#: src/emc/usr_intf/gmoccapy/dialogs.py:156
 msgid "_No"
 msgstr ""
 
-#: emc/usr_intf/gmoccapy/dialogs.py:168
+#: src/emc/usr_intf/gmoccapy/dialogs.py:182
 msgid "_Ok"
 msgstr ""
 
-#: emc/usr_intf/gmoccapy/dialogs.py:205 emc/usr_intf/gmoccapy/dialogs.py:207
+#: src/emc/usr_intf/gmoccapy/dialogs.py:219
+#: src/emc/usr_intf/gmoccapy/dialogs.py:221
 msgid "Restart Entry"
 msgstr "Reiniciar Entrada"
 
-#: emc/usr_intf/gmoccapy/dialogs.py:219
+#: src/emc/usr_intf/gmoccapy/dialogs.py:233
 msgid "_Up     "
 msgstr ""
 
-#: emc/usr_intf/gmoccapy/dialogs.py:221
+#: src/emc/usr_intf/gmoccapy/dialogs.py:235
 #, fuzzy
 #| msgid "Down"
 msgid "_Down"
 msgstr "Abajo"
 
-#: emc/usr_intf/gmoccapy/dialogs.py:223
+#: src/emc/usr_intf/gmoccapy/dialogs.py:237
 msgid "_Jump to"
 msgstr ""
 
-#: emc/usr_intf/gmoccapy/getiniinfo.py:98
+#: src/emc/usr_intf/gmoccapy/getiniinfo.py:98
 msgid "**** GMOCCAPY GETINIINFO : ****"
 msgstr "**** GMOCCAPY GETINIINFO : ****"
 
-#: emc/usr_intf/gmoccapy/getiniinfo.py:99
+#: src/emc/usr_intf/gmoccapy/getiniinfo.py:99
 #, python-brace-format
 msgid ""
 "**** gmoccapy can only handle 9 axis, ****\n"
@@ -881,7 +894,7 @@ msgstr ""
 "**** gmoccapy solo puede operar con 9 ejes, ****\n"
 "**** pero se encuentran {0} en el archivo INI ****\n"
 
-#: emc/usr_intf/gmoccapy/getiniinfo.py:100
+#: src/emc/usr_intf/gmoccapy/getiniinfo.py:100
 msgid ""
 "**** gmoccapy will not start ****\n"
 "\n"
@@ -889,90 +902,98 @@ msgstr ""
 "**** gmoccapy no sera inicializado ****\n"
 "\n"
 
-#: emc/usr_intf/gmoccapy/getiniinfo.py:431
+#: src/emc/usr_intf/gmoccapy/getiniinfo.py:431
 msgid "**** GMOCCAPY GETINIINFO ****\n"
 msgstr "**** GMOCCAPY GETINIINFO ****\n"
 
-#: emc/usr_intf/gmoccapy/getiniinfo.py:432
+#: src/emc/usr_intf/gmoccapy/getiniinfo.py:432
 msgid ""
 "**** No subroutine folder or program prefix is given in the ini file **** \n"
 msgstr "**** No archivo para subrutinas o programas en el archivo INI **** \n"
 
-#: emc/usr_intf/gmoccapy/notification.py:209
+#: src/emc/usr_intf/gmoccapy/notification.py:209
 #, fuzzy, python-brace-format
 #| msgid "Error trying to delet the message with number {0}"
 msgid "Error trying to delete the message with number {0}"
 msgstr "Error, intentando de borrar el mensaje con numero {0}"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:1
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:1
+msgid "pause the running program"
+msgstr "Pausar un programa en ejecución"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:2
 msgid "left rotate,  middle move,  right zoom"
 msgstr "izquierda girar,  mitad mover  , derecha zoom"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:2
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:3
 msgid "left zoom,  middle move,  right rotate"
 msgstr "izquierda zoom,  mitad mover  , derecha girar"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:3
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:4
 msgid "left move,  middle rotate,  right zoom"
 msgstr "izquierda mover,  mitad girar  , derecha zoom"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:4
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:5
 msgid "left zoom,  middle rotate,  right move"
 msgstr "izquierda zoom,  mitad girar  , derecha mover"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:5
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:6
 msgid "left move,  middle zoom,  right rotate"
 msgstr "izquierda mover,  mitad zoom  , derecha girar"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:6
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:7
 msgid "left rotate,  middle zoom,  right move"
 msgstr "izquierda girar,  mitad zoom  , derecha mover"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:7
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:8
+msgid "default"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:9
 msgid "No Program loaded"
 msgstr "Ningun programa cargado"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:8
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:10
 msgid "blockheight = 0.0"
 msgstr "Altura pieza = 0.0"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:9
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:11
 msgid "clear plot"
 msgstr "limpiar trayectoria"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:10
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:12
 msgid "Zoom in"
 msgstr "Acercar"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:11
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:13
 msgid "Zoom out"
 msgstr "Alejar"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:12
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:14
 msgid "view perspective"
 msgstr "Vista en perspectiva"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:13
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:15
 msgid "view along the X axis from positive to negative"
 msgstr "vista a lo largo del eje X de positivo a negativo"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:14
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:16
 msgid "view along the Y axis from positive to negative"
 msgstr "Vista a lo largo del eje Y de positivo a negativo"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:15
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:17
 msgid "view along the Z axis from positive to negative"
 msgstr "Vista a lo largo del eje Z de positivo a negativo"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:16
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:18
 msgid "Show or hide tool path"
 msgstr "Mostrar o ocultar la trayectoria de la herramienta"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:17
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:19
 msgid "Show or hide dimensions"
 msgstr "Mostrar o ocultar dimensiones"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:18
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:20
 msgid ""
 "view along the Y axis from positive to negative as viewn for a back tool "
 "lathe"
@@ -980,129 +1001,129 @@ msgstr ""
 "ver a lo largo del eje Y de positivo a negativo vista para herramientas de "
 "torno con herramienta trasera"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:19
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:21
 msgid "Preview"
 msgstr "Vista previa"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:20
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:22
 msgid "Offset Page"
 msgstr "Pagina offset"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:21
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:23
 msgid "Tooledit"
 msgstr "Editor de herramientas"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:22
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:24
 msgid "File Selection"
 msgstr "Selecion de archivos"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:23
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:25
 msgid "jog axes"
 msgstr "deplazar eje"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:24
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:26
 msgid "jog joints"
 msgstr "desplazar motores"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:25
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:27
 msgid "Logo"
 msgstr "Logo"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:26
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:28
 msgid "Ignore limits"
 msgstr "Ignorar limites"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:27
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:29
 msgid "<b>Jogging</b>"
 msgstr "<b>Modo manual</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:28
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:30
 msgid "Shows the code to execute"
 msgstr ""
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:29
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:31
 msgid "Information over the tool in spindle"
 msgstr "Informacion del husillo"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:30
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:32
 msgid "Tool no."
 msgstr "Num de herramienta."
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:31
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:33
 msgid "Diameter"
 msgstr "Diámetro"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:32
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:34
 msgid "offset z"
 msgstr "Offset Z"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:33
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:35
 msgid "offset x"
 msgstr "Offset X"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:35
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:37
 msgid "Vc= 0.00"
 msgstr "Vc = 0.00"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:36
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:38
 msgid "<b>Tool information</b>"
 msgstr "<b>Informacion de herramienta</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:37
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:39
 msgid "G and M code information as well as speed and feed"
 msgstr "Informacion de códigos G y M, asi como de las RPM y el avance"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:38
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:40
 msgid "active_mcodes_label"
 msgstr "Códigos M activos"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:39
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:41
 msgid "active_gcodes_label"
 msgstr "Códigos G activos"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:40
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:42
 msgid "<b>G-Code</b>"
 msgstr "<b>Código G</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:41
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:43
 msgid "<b>Cooling</b>"
 msgstr "<b>Refrigerante</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:42
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:44
 msgid "<b>Spindle [rpm]</b>"
 msgstr "<b>Husillo [rpm]</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:43
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:45
 msgid "Vel."
 msgstr "Vel."
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:44
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:46
 msgid "Displays the current velocity"
 msgstr "Indica la velocidad actual"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:45
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:47
 msgid "<b>Rapid Override</b>"
 msgstr "<b>Avance de rapido</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:46
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:48
 #, fuzzy
 #| msgid "Displayes the programmed feed rate"
 msgid "Displays the programmed feed rate"
 msgstr "Indica la velocidad de corte programada"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:48
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:50
 msgid "reset feed override to 100 %"
 msgstr "reajustar el avance de corte a 100 %"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:49
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:51
 msgid "<b>Feed Override</b>"
 msgstr "<b>Avance de corte</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:50
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:52
 msgid "Undo"
 msgstr "rehacer"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:51
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:53
 msgid ""
 "Search\n"
 " back"
@@ -1110,7 +1131,7 @@ msgstr ""
 "Buscar\n"
 " hacia atrás"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:53
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:55
 msgid ""
 "Search\n"
 "  fwd"
@@ -1118,11 +1139,11 @@ msgstr ""
 "Buscar\n"
 "  hacia adelante"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:55
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:57
 msgid "Redo"
 msgstr "rehacer"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:56
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:58
 msgid ""
 "Replace\n"
 "  Text:"
@@ -1130,7 +1151,7 @@ msgstr ""
 "Reemplazar\n"
 "  Texto:"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:58
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:60
 msgid ""
 "Replace\n"
 "   All"
@@ -1138,7 +1159,7 @@ msgstr ""
 "Reemplazar\n"
 "   todo"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:60
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:62
 msgid ""
 "Ignore\n"
 " Case"
@@ -1146,11 +1167,11 @@ msgstr ""
 "Ignorar\n"
 " caso"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:62
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:64
 msgid "Replace"
 msgstr "reemplazar"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:63
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:65
 msgid ""
 "Search\n"
 "  Text:"
@@ -1158,115 +1179,115 @@ msgstr ""
 "Buscar\n"
 "  Texto:"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:65
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:67
 msgid "Main"
 msgstr "Principal"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:66
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:68
 msgid "Start as fullscreen"
 msgstr "Iniciar en pantalla completa"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:67
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:69
 msgid "Start maximized"
 msgstr "Iniciar en ventana maximizada"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:68
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:70
 msgid "Start as window"
 msgstr "Iniciar en ventana"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:69
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:71
 msgid "X Pos."
 msgstr "Pos X."
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:70
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:72
 msgid "Y Pos."
 msgstr "Pos Y."
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:71
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:73
 msgid "Width"
 msgstr "Anchura"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:72
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:74
 msgid "Height"
 msgstr "Altura"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:73
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:75
 msgid "hide cursor"
 msgstr "ocultar cursor"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:74
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:76
 msgid "hide tooltips"
 msgstr "ocultar información tooltip"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:75
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:77
 msgid "<b>Main Window</b>"
 msgstr "<b>Ventana principal</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:76
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:78
 msgid "Show keyboard on offset"
 msgstr "Mostrar teclado en offset"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:77
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:79
 msgid "Show keyboard on tooledit"
 msgstr "Mostrar teclado en editor de herramienta"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:78
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:80
 msgid "Show keyboard on MDI"
 msgstr "Mostrar teclado en modo MDI"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:79
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:81
 msgid "Show keyboard on EDIT"
 msgstr "Mostrar teclado en Modo Edición"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:80
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:82
 msgid "Show keyboard on load file"
 msgstr "Mostrar teclado en carcar programa"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:81
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:83
 msgid "<b>Keyboard</b>"
 msgstr "<b>Teclado</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:82
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:84
 msgid "show preview"
 msgstr "Mostrar vista previa"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:83
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:85
 msgid "show offsets"
 msgstr "Mostrar offsets"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:84
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:86
 msgid "<b>On Touch off</b>"
 msgstr "<b>En Touch off</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:85
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:87
 msgid "Relative Color"
 msgstr "color relativo"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:86
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:88
 msgid "Absolute Color"
 msgstr "Color absoluto"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:87
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:89
 msgid "DTG Color"
 msgstr "Color DTG"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:88
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:90
 msgid "Homed color"
 msgstr "color Homed"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:89
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:91
 msgid "Unhomed color"
 msgstr "color unhomed"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:90
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:92
 msgid "Size"
 msgstr "Tamaño"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:91
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:93
 msgid "Digits"
 msgstr "digitos"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:92
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:94
 #, fuzzy
 #| msgid ""
 #| "toggle DRO mode \n"
@@ -1278,35 +1299,35 @@ msgstr ""
 "cambiar DRO modo\n"
 "hacer click en el DRO"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:94
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:96
 msgid "<b>DRO</b>"
 msgstr "<b>DRO</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:95
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:97
 msgid "Grid size"
 msgstr "Tamaño de cuadricula"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:96
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:98
 msgid "Show DRO"
 msgstr "Enseña DRO"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:97
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:99
 msgid "Show offsets"
 msgstr "Enseña offsets"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:98
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:100
 msgid "Show DTG"
 msgstr "Enseña DTG"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:99
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:101
 msgid "<b>Mouse Button mode</b>"
 msgstr "<b>Modo de botones de mouse</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:100
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:102
 msgid "<b>Preview</b>"
 msgstr "<b>vista Previa</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:101
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:103
 msgid ""
 "current\n"
 "   file"
@@ -1314,157 +1335,163 @@ msgstr ""
 "Archivo\n"
 "Actual"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:103
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:105
 msgid "none"
 msgstr "ninguno"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:104
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:106
 msgid "<b>File to load on start</b>"
 msgstr "<b>Archivo para cargar en el inicio</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:105
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:107
 msgid "Select user dir"
 msgstr "Elige el directorio del operario"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:106
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:108
 msgid "<b>Select jump to dir</b>"
 msgstr "<b>Elige jump to dir</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:107
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:109
 msgid "Themes"
 msgstr "Temas"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:108
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:110
 msgid "Warning Audio"
 msgstr "Advertencia sonora"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:109
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:111
 msgid "Alert Audio"
 msgstr "Alerta de Audio"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:110
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:112
+#, fuzzy
+#| msgid "Themes"
+msgid "Icon Theme"
+msgstr "Temas"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:113
 msgid "<b>Themes and sound</b>"
 msgstr "<b>Temas y sonido</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:111
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:114
 msgid "Appearance"
 msgstr "Apariencia"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:112
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:115
 msgid "Scale rapid override"
 msgstr "Escala de velocidad rapida"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:113
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:116
 msgid "Scale jog velocity"
 msgstr "Escala de la vel. manual"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:114
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:117
 msgid "Scale feed override"
 msgstr "Escala del avance de corte"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:115
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:118
 msgid "Scale spindle override"
 msgstr "Escala del vel. del husillo"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:116
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:119
 msgid "<b>Hardware MPG Scale</b>"
 msgstr "<b>Escala Hardware MPG</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:117
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:120
 msgid "Use keyboard shortcuts"
 msgstr "Usar atajos de teclado"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:118
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:121
 msgid "<b>Keyboard shortcuts</b>"
 msgstr "<b>Atajos de Teclado</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:119
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:122
 msgid "Use unlock code"
 msgstr "Usar código de desbloqueo"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:120
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:123
 msgid "Do not use unlock code"
 msgstr "No use código de desbloqueo"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:121
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:124
 msgid "Use hal pin to unlock"
 msgstr "Usar el hal pin para desbloquear"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:122
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:125
 msgid "<b>Unlock settings</b>"
 msgstr "<b>Desbloquear ajustes</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:123
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:126
 msgid "Starting RPM"
 msgstr "Inicio de RPM"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:124
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:127
 msgid "Spindle bar min"
 msgstr "Husillo bar min"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:125
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:128
 msgid "Spindle bar max"
 msgstr "Husillo bar max"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:126
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:129
 msgid "<b>Spindle</b>"
 msgstr "<b>Husillo</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:127
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:130
 msgid "Hide turtle Jog Button"
 msgstr "Ocultar botón Jog tortuga"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:128
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:131
 msgid "Turtle jog Factor"
 msgstr "Factor vel. tortuga"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:129
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:132
 msgid "<b>Turtle Jog</b>"
 msgstr "<b>Movimiento tortuga</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:130
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:133
 msgid "Hardware"
 msgstr "Hardware"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:131
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:134
 msgid "Use auto tool measurement"
 msgstr "Usar medición de herramienta"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:132
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:135
 msgid "Probe Height"
 msgstr "Altura Sonda"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:133
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:136
 msgid "0.000"
 msgstr "0.000"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:134
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:137
 msgid "Z Pos."
 msgstr "Pos Z."
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:135
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:138
 msgid "Max. Probe"
 msgstr "Max. Sonda"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:136
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:139
 #, fuzzy
 #| msgid "<b>Probe Informations</b>"
 msgid "<b>Probe Information</b>"
 msgstr "<b>Informacion del medidor</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:137
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:140
 msgid "Search Vel."
 msgstr "Vel de búsqueda."
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:138
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:141
 msgid "Probe Vel."
 msgstr "Vel de sonda."
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:139
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:142
 msgid "<b>Probe velocitys</b>"
 msgstr "<b>Vel. de medición</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:140
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:143
 #, fuzzy
 #| msgid ""
 #| "No valid configuration\n"
@@ -1485,15 +1512,15 @@ msgstr ""
 "para ver como setear\n"
 "la configuración."
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:145
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:148
 msgid "<b>Tool Measurement</b>"
 msgstr "<b>Medición de herramienta</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:146
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:149
 msgid "Reload Tool on Start"
 msgstr "Recargar herramienta al iniciar"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:147
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:150
 #, fuzzy
 #| msgid ""
 #| "If checked, the tool in spindle\n"
@@ -1514,7 +1541,7 @@ msgstr ""
 "al inicio de la GUI. También es\n"
 "se recargará el desplazamiento de longitud\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:153
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:156
 msgid ""
 "You use NO_FORCE_HOMING,\n"
 "so the reload of a tool at start\n"
@@ -1524,27 +1551,27 @@ msgstr ""
 "por lo que la recarga de una herramienta al inicio\n"
 "no es posible."
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:156
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:159
 msgid "<b>Reload Tool</b>"
 msgstr "<b>Recarga herramienta</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:157
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:160
 msgid "Do not use run from line"
 msgstr "no use ejecutar-desde-linea"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:158
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:161
 msgid "Use run from line"
 msgstr "Usar ejecutar desde linea"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:159
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:162
 msgid "<b>Run from line</b>"
 msgstr "<b>Ejecutar desde linea</b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:160
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:163
 msgid "Use frames"
 msgstr "Usar bareras"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:161
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:164
 msgid ""
 "If checked, the messages\n"
 "will be in a frame."
@@ -1552,41 +1579,41 @@ msgstr ""
 "Si está marcado, los mensajes\n"
 "estarán en un marco."
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:163
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:166
 msgid "Font"
 msgstr "Tipo letra"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:164
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:167
 msgid "max."
 msgstr "max."
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:165
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:168
 msgid "The font to use"
 msgstr "La letra de usar"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:166
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:169
 msgid "The maximum messages you want to be shown\t"
 msgstr "Numero de cantidad de mensajes a mostrar\t"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:167
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:170
 msgid "The width of the messages"
 msgstr "Seleccione la anchura de los mensajes"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:168
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:171
 msgid "X-position in pixel from top left corner of the screen"
 msgstr ""
 "La posición X de la ventana, contando del eje arriba izquierdo de la pantalla"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:169
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:172
 msgid "Y-position in pixel from top left corner of the screen"
 msgstr ""
 "La posición Y de la ventana, contando del eje arriba izquierdo de la pantalla"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:170
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:173
 msgid "Launch test message"
 msgstr "Ejecutar mensaje de prueba"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:171
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:174
 msgid ""
 "Push here to launch a test message\n"
 "to test your settings."
@@ -1594,7 +1621,7 @@ msgstr ""
 "Presione aquí para lanzar un mensaje de prueba\n"
 "para probar su configuración."
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:173
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:176
 msgid ""
 "<b>      gmoccapy message\n"
 " behavior and appearance </b>"
@@ -1602,7 +1629,7 @@ msgstr ""
 "<b>  gmoccapy mensajes\n"
 "apariencia y comportamiento </b>"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:175
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:178
 msgid ""
 "Advanced\n"
 " Settings"
@@ -1610,19 +1637,19 @@ msgstr ""
 "Ajustes\n"
 " avanzados"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:177
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:180
 msgid "Settings"
 msgstr "Ajustes"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:178
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:181
 msgid "User tab 1"
 msgstr "Tab 1 del operario"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:179
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:182
 msgid "User tabs"
 msgstr "Usar Tabs"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:180
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:183
 msgid ""
 "Estop the machine\n"
 "[F1]"
@@ -1630,7 +1657,7 @@ msgstr ""
 "Detener maquina\n"
 "[F1]"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:182
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:185
 msgid ""
 "Turn the machine on/off\n"
 "[F2]"
@@ -1638,7 +1665,7 @@ msgstr ""
 "Apagar maquina ON/OFF\n"
 "[F2]"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:184
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:187
 msgid ""
 "enter manual mode to jog axis by hand or touch off\n"
 "[F3]"
@@ -1646,7 +1673,7 @@ msgstr ""
 "entrar en el modo manual para correr eje con la mano o setear herramienta\n"
 "[F3]"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:186
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:189
 #, fuzzy
 #| msgid ""
 #| "enter MDI mode to launch g-code commands\n"
@@ -1658,32 +1685,32 @@ msgstr ""
 "entrar en el modo MDI para ejecutar comandos de códigos G\n"
 "[F5]"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:188
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:191
 msgid "enter auto mode to run programs"
 msgstr "entrar en el modo automático para ejecutar programas"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:189
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:192
 msgid "Enter the settings page, the default code is \"123\""
 msgstr ""
 "Entre en la página de configuración para ajustar las opciones del programa"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:190
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:193
 msgid "show user tabs"
 msgstr "Mostrar usar Tabs"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:191
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:194
 msgid "open homing button list"
 msgstr "Abrir la lista de botones de referencia"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:192
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:195
 msgid "open touch off button list"
 msgstr "Abrir lista de botones de seteo"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:193
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:196
 msgid "Open the tooleditor page"
 msgstr "Abrir la pagina edición de herramienta"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:194
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:197
 msgid ""
 "World\n"
 "Mode"
@@ -1691,7 +1718,7 @@ msgstr ""
 "Modo\n"
 "ejes"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:196
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:199
 msgid ""
 "Switch motion mode between Joint and World mode\n"
 "F12 or $ key does the same"
@@ -1699,39 +1726,35 @@ msgstr ""
 "Cambiar mode entre ejes y motores\n"
 "F12 o $ hacen lo mismo"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:198
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:201
 msgid "make the preview as large as possible"
 msgstr "Hacer la vista previa lo mas grande posible"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:199
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:202
 msgid "Close gmoccapy / leave the program"
 msgstr "Cerrar gmoccapy / salir del programa"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:200
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:203
 msgid "Load a new program"
 msgstr "Cargar un nuevo programa"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:201
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:204
 msgid "Run the loaded program"
 msgstr "Ejecutar programa cargado"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:202
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:205
 msgid "Stop the running program"
 msgstr "Detener programa en ejecución"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:203
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:206
 msgid "Pause the running program"
 msgstr "Pausar un programa en ejecución"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:204
-msgid "pause the running program"
-msgstr "Pausar un programa en ejecución"
-
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:205
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:207
 msgid "Run the  loaded program step by step"
 msgstr "Ejecutar programa paso por paso"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:206
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:208
 #, fuzzy
 #| msgid ""
 #| "run the program from a certain line, attention, that is dangerous, "
@@ -1743,7 +1766,7 @@ msgstr ""
 "Iniciar el programa desde cierta linea, atención, es peligroso, ya que las "
 "lineas anteriores no se tomaran en cuenta!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:207
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:209
 msgid ""
 "Machine or not the optional blocks of the program. If the button is pressed, "
 "the optional blocks will not be machined. The button will indicate this by a "
@@ -1752,115 +1775,115 @@ msgstr ""
 "Bloques opcionales, si esta seleccionado no se mecanizan estos bloques, "
 "Bloques opcionales esta activo cuando el boton esta de color amarillo."
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:208
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:210
 msgid "Edit the loaded program"
 msgstr "Editar el programa cargado"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:209
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:211
 msgid "delete MDI"
 msgstr "Eliminar MDI"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:210
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:212
 msgid "delete MDI history"
 msgstr "Eliminar Historial de MDI"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:211
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:213
 msgid "Cl.-ladder"
 msgstr "Cl.-ladder"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:212
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:214
 msgid "Open classicladder"
 msgstr "Abrir classicladder"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:213
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:215
 msgid "Hal-Scope"
 msgstr "Hal-Scope"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:214
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:216
 msgid "launch hal scope"
 msgstr "iniciar hal scope"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:215
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:217
 msgid "Status"
 msgstr "Estatus"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:216
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:218
 msgid "launch linuxcnc status"
 msgstr "iniciar LinuxCNC estatus"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:217
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:219
 msgid "Hal Meter"
 msgstr "Hal Meter"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:218
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:220
 msgid "launch hal meter"
 msgstr "iniciar hal meter"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:219
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:221
 msgid "Calibration"
 msgstr "Calibración"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:220
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:222
 msgid "launch calibration"
 msgstr "iniciar calibración"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:221
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:223
 msgid "Halshow"
 msgstr "Halshow"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:222
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:224
 msgid "opens the show hal tool"
 msgstr "Abrir la herramienta show hal"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:223
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:225
 msgid "save the file using the original name"
 msgstr "guardar el programa con el nombre original"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:224
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:226
 msgid "save the file with a new name"
 msgstr "Guardar un programa nuevo"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:225
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:227
 msgid "clear the edit field and make a new file"
 msgstr "Limpiar el campo de edición y hacer un nuevo archivo"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:226
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:228
 msgid "Show or hide the virtual keyboard"
 msgstr "Mostrar u ocultar teclado virtual"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:227
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:229
 msgid "Go back to main button list"
 msgstr "Volver a la lista botones principales"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:228
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:230
 msgid "Delete"
 msgstr "Eliminar"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:229
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:231
 msgid "delete selected tool or tools"
 msgstr "Eliminar herramienta o herramientas seleccionadas"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:230
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:232
 msgid "Add"
 msgstr "Adicionar"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:231
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:233
 msgid "add a new tool to tool table"
 msgstr "Adicionar una nueva herramienta a la tabla de herramienta"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:232
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:234
 msgid "Reload"
 msgstr "Reacargar"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:233
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:235
 msgid "reload tool table from file"
 msgstr "Recargar tabla de herramienta"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:234
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:236
 msgid "Apply"
 msgstr "Aplicar"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:235
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:237
 #, fuzzy
 #| msgid ""
 #| "apply the changes you made, G43 will be excecuted only if it is active g-"
@@ -1871,34 +1894,38 @@ msgstr ""
 "aplicar los cambios que ha realizado, G43 se ejecutará solo si esta activo g-"
 "código"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:236
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:238
 msgid "Select a tool by number"
 msgstr "Elije la herramienta para el cambio por numero"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:237
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:239
 msgid "change tool with the command M61 Q?, no machine move will be done"
 msgstr ""
 "Cambio de herramienta con el comando M61 Q?, se llevará a cabo ningún "
 "movimiento de la máquina"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:238
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:240
 msgid "change tool to the selected one"
 msgstr "Un cambio de herramienta seleccionado"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:239
-msgid ""
-"touchoff\n"
-"  tool x"
-msgstr ""
-"touchof X\n"
-"  herramienta x"
-
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:241
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:241
 msgid "touch off the tool and set the value to the tool table"
 msgstr ""
 "setear la herramienta y establezca el valor en la tabla de herramientas"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:242
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:242
+#, fuzzy
+#| msgid ""
+#| "touchoff\n"
+#| "  tool x"
+msgid ""
+"touchoff\n"
+"tool x"
+msgstr ""
+"touchof X\n"
+"  herramienta x"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:244
 #, fuzzy
 #| msgid ""
 #| "touchoff\n"
@@ -1910,39 +1937,39 @@ msgstr ""
 "touchoff\n"
 "  herramienta z"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:244
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:246
 msgid "Move to your home directory"
 msgstr "Mover al directorio home"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:245
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:247
 msgid "Move to parent directory"
 msgstr "Salta a directorio padre"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:246
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:248
 msgid "Select the previous file"
 msgstr "Elige es archivo anterior"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:247
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:249
 msgid "Select the next file"
 msgstr "Eligir el siguiente archivo"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:248
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:250
 msgid "Jump to user defined directory"
 msgstr "Salta al directorio elegido por el operario"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:249
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:251
 msgid "select the highlighted file and return the path"
 msgstr "Elige el archivo selecionado y regresa el archivo"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:250
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:252
 msgid "Close without returning a file path"
 msgstr "Cerar sin regresar un archivo"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:251
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:253
 msgid "Load File"
 msgstr "Carga Archivo"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.glade.h:252
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:254
 msgid "home joints"
 msgstr "Referenciar ejes"
 
