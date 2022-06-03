@@ -77,7 +77,9 @@ class HandlerClass:
                             "action_home_a", "widget_jog_angular", "widget_increments_angular",
                             "a_plus_jogbutton", "a_minus_jogbutton"]
         self.button_response_list = ["btn_start", "btn_home_all", "btn_home_x", "btn_home_y",
-                            "btn_home_z", "action_home_a", "btn_reload_file"]
+                            "btn_home_z", "action_home_a", "btn_reload_file", "macrobutton0", "macrobutton1",
+                            "macrobutton2", "macrobutton3", "macrobutton4", "macrobutton5", "macrobutton6",
+                            "macrobutton7", "macrobutton8", "macrobutton9"]
 
         STATUS.connect('general', self.dialog_return)
         STATUS.connect('state-on', lambda w: self.enable_onoff(True))
@@ -591,10 +593,17 @@ class HandlerClass:
 
     # program frame
     def btn_start_clicked(self, obj):
-        if self.w.main_tab_widget.currentIndex() != 0:
+        if not STATUS.is_all_homed():
+           self.add_status("Machine must be is homed", CRITICAL)
+           return
+        if not  os.path.exists(self.last_loaded_program):
+            self.add_status("No program to execute", WARNING)
             return
         if not STATUS.is_auto_mode():
             self.add_status("Must be in AUTO mode to run a program", WARNING)
+            return
+        if self.w.main_tab_widget.currentIndex() != 0:
+            self.add_status("Switch view mode to MAIN", WARNING)
             return
         if STATUS.is_auto_running():
             self.add_status("Program is already running", WARNING)
@@ -1051,9 +1060,9 @@ class HandlerClass:
     def set_style_default(self):
         self.w.lineEdit_statusbar.setStyleSheet("background-color: rgb(252, 252, 252);color: rgb(0,0,0)")  #default white
     def set_style_warning(self):
-        self.w.lineEdit_statusbar.setStyleSheet("background-color: rgb(200, 255, 156);color: rgb(0,0,0)")  #green
+        self.w.lineEdit_statusbar.setStyleSheet("background-color: rgb(242, 246, 103);color: rgb(0,0,0)")  #yelow
     def set_style_critical(self):
-        self.w.lineEdit_statusbar.setStyleSheet("background-color: rgb(252, 243, 89);color: rgb(0,0,0)")   #yelow
+        self.w.lineEdit_statusbar.setStyleSheet("background-color: rgb(255, 144, 0);color: rgb(0,0,0)")   #orange
 
     #####################
     # KEY BINDING CALLS #
