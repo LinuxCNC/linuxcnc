@@ -14,9 +14,10 @@ image::images/qtvismach.png["Vismach displays the model in a 3D viewport",align=
 
 The Vismach viewport view can be manipulated as follows
 
-* zoom  by scroll wheel or right button drag
-* pan by left button drag
-* rotate by middle-button drag or shift-drag.
+* zoom  by scroll wheel
+* pan by middle button drag
+* rotate by right-button drag
+* tilt by left button drag
 
 A Vismach model takes the form of a Python script and can use standard
 Python syntax. +
@@ -346,7 +347,12 @@ model = Collection([base, saddle, head, carousel])
 [source,python]
 ----
 # imports
+import hal
 from qtvcp.lib.qt_vismach.qt_vismach import *
+
+# create HAL pins here if needed
+#c = hal.component("samplegui")
+#c.newpin("joint0", hal.HAL_FLOAT, hal.HAL_IN)
 
 # create the floor, tool and work
 floor = Box(-50, -50, -3, 50, 50, 0)
@@ -399,5 +405,8 @@ class Window(QWidget):
 if __name__ == '__main__':
     main(model, tooltip, work, size=600, hud=None, lat=-75, lon=215)
 ----
+
+== Builtin Vismach Sample Panels 
+<<cha:qtvcp-vismach-panels,QtVCP builtin Vismach Panels>>
 
 // vim: set syntax=asciidoc:

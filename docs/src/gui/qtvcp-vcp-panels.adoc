@@ -70,6 +70,8 @@ loadusr qtvcp sim_panel
 .Qtvcp sim panel - Simulated controls for screen testing.
 image::images/qtvcp_sim_panel.png["Sim Panel",align="left"]
 
+[[cha:qtvcp-vismach-panels]]
+
 === vismach_mill_xyz
 
 - 3d openGL view of a 3 axis milling machine
@@ -108,7 +110,7 @@ image::images/qtvismach_millturn.png["Qtvcp Vismach MillTurn",align="left"]
 
 === vismach_mill_5axis_gantry
 
-- 3d openGL view of a 5 axis gantry typr milling machine
+- 3d openGL view of a 5 axis gantry type milling machine
 
 [source,{hal}]
 ----
@@ -117,6 +119,19 @@ loadusr qtvcp vismach_mill_5axis_gantry
 
 .Qtvcp vismach- 3 Axis Mill panel
 image::images/qtvismach_5axis_gantry.png["Qtvcp Vismach 5 Axis Gantry",align="left"]
+
+=== vismach_fanuc_200f
+
+- 3d openGL view of a 6 joint robotic arm.
+
+[source,{hal}]
+----
+loadusr qtvcp vismach_fanuc_200f
+----
+
+.Qtvcp vismach- 6 Joint Robotic Arm
+image::images/qtvismach_fanuc_200f.png["Qtvcp 6 Joint Robotic Arm",align="left"]
+
 
 === tool_dialog
 
@@ -136,7 +151,7 @@ Options:
 .Qtvcp tool dialog - Manual Tool Change Dialog
 image::images/qtvcp_toolChange.png["Tool Change Dialog",align="left"]
 
-=== Custom Panels
+== Custom Panels
 
 You can of course make your own panel and load it. +
 If you made a ui file named 'my_panel.ui' and name the following HAL
