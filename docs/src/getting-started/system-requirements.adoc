@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:system-requirements]]
 = System Requirements(((System Requirements)))
@@ -11,7 +12,7 @@ generate step pulses than servo systems. You can use the Live-CD to test
 the software before committing to a permanent installation on a computer.
 Keep in mind that the Latency Test numbers are more important than the
 processor speed for software step generation. More information on the
-Latency Test is <<latency-test,here>>.
+Latency Test is <<sec:latency-test,here>>.
 In addition LinuxCNC needs to be run on an operating system that uses a
 specially modified kernel. See <<sec:kernel_and_version_requirements,Kernel and Version Requirements>>
 
@@ -52,10 +53,10 @@ distributed. The package names are "linuxcnc" and "linuxcnc-uspace"
 
 The realtime kernel options are preempt-rt, RTAI and Xenomai.
 
-You can discover the kernel version of your system with the command
+You can discover the kernel version of your system with the command:
 
 ----
- uname -a
+uname -a
 ----
 
 If you see (as above) `-rt-` in the kernel name then you are running the

@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:starting-linuxcnc]]
 = Starting LinuxCNC(((Starting LinuxCNC)))
@@ -12,7 +13,6 @@ linuxcnc [options] [<ini-file>]
 ----
 
 .linuxcnc script options
-
 ----
 linuxcnc: Run LINUXCNC
 
@@ -51,7 +51,7 @@ LinuxCNC. The ini file [HAL] section specifies the order of loading up HAL
 files if more than one is used. Once the HAL=xxx.hal files are loaded then the
 GUI is loaded then the POSTGUI=.xxx.hal file is loaded. If you create PyVCP or
 GladeVCP objects with HAL pins you must use the postgui HAL file to make any
-connections to those pins. See the <<sec:hal-section,[HAL]>> section of the
+connections to those pins. See the <<sub:ini:sec:hal,[HAL]>> section of the
 INI configuration for more information.
 
 [[sub:configuration-selector]]
@@ -62,7 +62,7 @@ selector so you can choose and save a sample configuration. Once a sample
 configuration has been saved it can be modified to suit your application.
 The configuration files are saved in linuxcnc/configs directory.
 
-.Configuration Selector
+//.Configuration Selector
 image::images/configuration-selector.png["LinuxCNC Configuration Selector",align="center"]
 
 // vim: set syntax=asciidoc:

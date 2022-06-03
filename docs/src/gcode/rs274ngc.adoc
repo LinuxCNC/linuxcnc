@@ -41,10 +41,11 @@ future release of LinuxCNC.
 
 G28, G30 with axis words::
 
-When G28 or G30 is programmed with only some axis words present, 
-LinuxCNC only moves the named axes. This is common on other machine 
-controls. To move some axes to an intermediate point and then 
+When G28 or G30 is programmed with only some axis words present,
+LinuxCNC only moves the named axes. This is common on other machine
+controls. To move some axes to an intermediate point and then
 move all axes to the predefined point, write two lines of G code:
+
 ----
 G0 X- Y- (axes to move to intermediate point)
 G28 (move all axes to predefined point)
@@ -117,3 +118,4 @@ U, V, and W axes::
 LinuxCNC allows machines with up to 9 axes by defining an additional
 set of 3 linear axes known as U, V and W
 
+// vim: set syntax=asciidoc:

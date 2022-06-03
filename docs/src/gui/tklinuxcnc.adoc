@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:tklinuxcnc-intro]]
 = TkLinuxCNC GUI
@@ -8,9 +9,9 @@
 
 TkLinuxCNC is one of the first graphical front-ends
 for LinuxCNC. It is written in Tcl and uses the Tk toolkit
-for the display. Being written in Tcl makes it very portable (it runs on a
-multitude of platforms). A separate backplot window can be displayed as
-shown.
+for the display. Being written in Tcl makes it very portable (it runs on
+a multitude of platforms). A separate backplot window can be displayed
+as shown.
 
 [[cap:tklinuxcnc-display]]
 .TkLinuxCNC Window
@@ -18,29 +19,32 @@ image::images/tkemc.png["TkLinuxCNC Window",align="center"]
 
 == Getting Started
 
-To select TkLinuxCNC as the front-end for LinuxCNC, edit the .ini file. In the
-section '[DISPLAY]' change the 'DISPLAY' line to read
+To select TkLinuxCNC as the front-end for LinuxCNC, edit the .ini file.
+In the section '[DISPLAY]' change the 'DISPLAY' line to read
 
 ----
 DISPLAY = tklinuxcnc
 ----
 
 Then, start LinuxCNC and select that ini file. The sample configuration
-'sim/tklinuxcnc/tklinuxcnc.ini' is already configured to use TkLinuxCNC as its front-end.
+'sim/tklinuxcnc/tklinuxcnc.ini' is already configured to use TkLinuxCNC
+as its front-end.
 
-When LinuxCNC is launched with TKLinuxCNC a window <<cap:tklinuxcnc-display,like this one>>
+When LinuxCNC is launched the <<cap:tklinuxcnc-display,TKLinuxCNC window>>
 is opened.
 
 === A typical session with TkLinuxCNC
 
 . Start LinuxCNC and select a configuration file.
-. Clear the 'E-STOP' condition and turn the machine on (by pressing F1 then F2).
+. Clear the 'E-STOP' condition and turn the machine on (by pressing F1
+  then F2).
 . 'Home' each axis.
 . Load the file to be milled.
 . Put the stock to be milled on the table.
 . Set the proper offsets for each axis by jogging and either homing
   again or right-clicking an axis name and entering an offset value.
-  footnote:[For some of these actions it might be necessary to change the mode LinuxCNC is currently running in.]
+  footnote:[For some of these actions it might be necessary to change
+  the mode LinuxCNC is currently running in.]
 . Run the program.
 . To mill the same file again, return to step 6. To mill a different
   file, return to step 4. When you're done, exit LinuxCNC.
@@ -54,7 +58,9 @@ The TkLinuxCNC window contains the following elements:
   start/stop spindle and other relevant I/O
 * Status bar for various offset related displays
 * Coordinate display area
-* A set of sliders which control 'Jogging speed', 'Feed Override' , and 'Spindle speed Override' which allow you to increase or decrease those settings
+* A set of sliders which control 'Jogging speed', 'Feed Override',
+  and 'Spindle speed Override' which allow you to increase or decrease
+  those settings
 * Manual data input text box 'MDI'
 * Status bar display with active G-codes, M-codes, F- and S-words
 * Interpreter related buttons
@@ -67,7 +73,7 @@ From left to right, the buttons are:
 * Machine enable: 'ESTOP' > 'ESTOP RESET' > 'ON'
 * Toggle mist coolant
 * Decrease spindle speed
-* Set spindle direction 'SPINDLE OFF' > 'SPINDLE FORWARD' .  'SPINDLE REVERSE'
+* Set spindle direction 'SPINDLE OFF' > 'SPINDLE FORWARD' . 'SPINDLE REVERSE'
 * Increase spindle speed
 * Abort
 
@@ -105,14 +111,10 @@ mill, but one step of your stepper motor is 0.00125, then the
 'Commanded' position will be 0.0033 but the 'Actual' position will be
 0.0025 (2 steps) or 0.00375 (3 steps).
 
-* MATCH ME
-* MATCH ME
-* MATCH ME
-* MATCH ME
-* MATCH ME
-
-Another set of radio buttons allows you to choose between 'joint' and 'world' view. These make little sense on a normal type of machine (e.g.
-trivial kinematics), but help on machines with non-trivial kinematics like robots or stewart platforms. (you can read more about kinematics
+Another set of radio buttons allows you to choose between 'joint' and
+'world' view. These make little sense on a normal type of machine (e.g.
+trivial kinematics), but help on machines with non-trivial kinematics
+like robots or stewart platforms. (you can read more about kinematics
 in the Integrator Manual).
 
 .Backplot
@@ -120,21 +122,22 @@ When the machine moves, it leaves a trail called the backplot. You can
 start the backplot window by selecting View→Backplot.
 
 [[cap:tklinuxcnc-interpreter]]
-=== Automatic control
+=== TkLinuxCNC Interpreter / Automatic Program Control(((TkLinuxCNC Interpreter)))
 
 image::images/tkemc-interp.png["TkLinuxCNC Interpreter / program control",align="center"]
 
 .Control Buttons
-The buttons in the lower part of TkLinuxCNC are used to control the execution of a
-program:
-
+The buttons in the lower part of TkLinuxCNC are used to control the
+execution of a program:
++
 * 'Open' to load a program,
 * 'Verify' to check it for errors,
 * 'Run' to start the actual cutting,
 * 'Pause' to stop it while running,
 * 'Resume' to resume an already paused program,
 * 'Step' to advance one line in the program and
-* 'Optional Stop' to toggle the optional stop switch (if the button is green the program execution will be stopped on any M1 encountered).
+* 'Optional Stop' to toggle the optional stop switch (if the button is
+  green the program execution will be stopped on any M1 encountered).
 
 .Text Program Display Area
 When the program is running, the line currently being executed is
@@ -149,22 +152,22 @@ TkLinuxCNC allows you to manually move the machine. This action is known as
 click and hold the '+' or '-' button depending on the desired direction
 of motion. The first four axes can also be moved by the keyboard arrow keys
 (X and Y), the PAGE UP and PAGE DOWN keys (Z) and the '[' and ']' keys (A/4th).
-
++
 If 'Continuous' is selected, the motion will continue as long as the
 button or key is pressed. If another value is selected, the machine
 will move exactly the displayed distance each time the button is
 clicked or the key is pressed. The available values are:
-
++
 ----
 1.0000, 0.1000, 0.0100, 0.0010, 0.0001
 ----
-
++
 By pressing 'Home' or the HOME key, the selected axis will be homed.
 Depending on your configuration, this may just set the axis value to be
 the absolute position 0.0, or it may make the machine move to a
 specific home location through use of 'home switches'. See the
 <<cha:homing-configuration,Homing Chapter>> for more information.
-
++
 By pressing 'Override Limits', the machine will temporarily be
 permitted to jog outside the limits defined in the .ini file. (Note: if
 'Override Limits' is active the button will be displayed using a red
@@ -256,3 +259,5 @@ following table.
 |[, ]         | Jog fourth axis
 |ESC          | Stop execution
 |========================================
+
+// vim: set syntax=asciidoc:

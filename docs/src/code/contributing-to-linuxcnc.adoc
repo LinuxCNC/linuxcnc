@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 = Contributing to LinuxCNC
 
@@ -15,20 +16,21 @@ programs and libraries, and the source text for the documentation.
 
 The two main ways that project developers communicate with each other are:
 
-* Via IRC, at irc://irc.libera.chat/%23linuxcnc-devel[#linuxcnc-devel on Libera.chat].
-* Via email, on the developers' mailing list:
-  https://lists.sourceforge.net/lists/listinfo/emc-developers
+* Via IRC, at irc://irc.libera.chat/%23linuxcnc-devel[#linuxcnc-devel]
+  on https://libera.chat/[Libera.chat].
+* Via email, on the https://lists.sourceforge.net/lists/listinfo/emc-developers[developers' mailing list]
 
 == The LinuxCNC Source Forge project
 
-We use Source Forge for mailing lists: http://sourceforge.net/p/emc/mailman/
+We use Source Forge for
+http://sourceforge.net/p/emc/mailman/[mailing lists].
 
-== The git Revision Control System
+== The Git Revision Control System
 
-All of the LinuxCNC source is maintained in the revision control system
-git footnote:[http://git-scm.com/].
+All of the LinuxCNC source is maintained in the
+http://git-scm.com/[Git revision control system].
 
-=== LinuxCNC official git repo
+=== LinuxCNC official Git repo
 
 The official LinuxCNC git repo is at http://github.com/linuxcnc/linuxcnc/
 
@@ -47,11 +49,11 @@ This is because the LinuxCNC software by default expects configs and
 G-code programs in a directory called `$HOME/linuxcnc`, and having the
 git repo there too is confusing.
 
-Issues and pull requests are welcome on github:
+Issues and pull requests are welcome on GitHub:
 https://github.com/LinuxCNC/linuxcnc/issues
 https://github.com/LinuxCNC/linuxcnc/pulls
 
-=== Use of git in the LinuxCNC project
+=== Use of Git in the LinuxCNC project
 
 We use the "merging upwards" and "topic branches" git workflows described
 here:
@@ -115,7 +117,8 @@ like this:
 ** Push your branch to a publicly visible git repo (such as github,
    bitbucket, your own publicly-accessible server, etc) and share that
    location on the emc-developers mailing list, or
-** Email your commits to the emc-developers mailing list (use `git
+** Email your commits to the LinuxCNC-developers mailing list
+   (emc-developers@lists.sourceforge.net) (use `git
    format-patch` to create the patches)
 * Advocate for your patch
 ** Explain what problem it addresses and why it should be included
@@ -123,7 +126,6 @@ like this:
 ** Be receptive to questions and feedback from the developer community.
 ** It is not uncommon for a patch to go through several revisions before
    it is accepted.
-
 
 == git configuration
 
@@ -138,13 +140,12 @@ git config --global user.email "you@example.com"
 
 Use your real name (not a handle), and use an unobfuscated e-mail address.
 
-
 == Effective use of git
 
 === Commit contents
 
-Keep your commits small and to the point.  Each commit should accomplish
-one logical change to the repo.
+Keep your commits small and to the point.
+Each commit should accomplish one logical change to the repo.
 
 === Write good commit messages
 
@@ -152,8 +153,8 @@ Keep commit messages around 72 columns wide (so that in a default-size
 terminal window, they don't wrap when shown by `git log`).
 
 Use the first line as a summary of the intent of the change (almost
-like the subject line of an e-mail).  Follow it with a blank line,
-then a longer message explaining the change.  Example:
+like the subject line of an e-mail). Follow it with a blank line,
+then a longer message explaining the change. Example:
 
 ----
 Get rid of RTAPI_SUCCESS, use 0 instead
@@ -205,10 +206,10 @@ you committed, optionally modifying the commit message as well. Use this
 if you realized right away that you left something out of the commit,
 or if you typo'd the commit message.
 
-`git rebase --interactive upstream-branch` lets you go back through each
+`git rebase --interactive` upstream-branch lets you go back through each
 commit made since you forked your feature branch from the upstream branch,
 possibly editing commits, dropping commits, or squashing (combining)
-commits with others.  Rebase can also be used to split individual commits
+commits with others. Rebase can also be used to split individual commits
 into multiple new commits.
 
 ===  Make sure every commit builds
@@ -226,9 +227,9 @@ later on to find the commit which introduced a bug.  So beyond making
 sure your branch builds, it is important to assure every single commit
 builds as well.
 
-There's an automatic way to check a branch for each commit being buildable
-- see http://dustin.sallings.org/2010/03/28/git-test-sequence.html
-, and the code at https://github.com/dustin/bindir/blob/master/git-test-sequence .
+There's an automatic way to check a branch for each commit being
+buildable - see http://dustin.sallings.org/2010/03/28/git-test-sequence.html
+and the code at https://github.com/dustin/bindir/blob/master/git-test-sequence.
 Use as follows (in this case testing every commit from origin/master to
 HEAD, including running regression tests):
 
@@ -237,7 +238,7 @@ cd linuxcnc-dev
 git-test-sequence origin/master..  '(cd src && make && ../scripts/runtests)'
 ----
 
-This will either report 'All's well' or 'Broke on <commit>'
+This will either report 'All is well' or 'Broke on <commit>'
 
 ===  Renaming files
 
@@ -272,7 +273,6 @@ https://docs.weblate.org/en/latest/user/basic.html
 If web services are not your thing, you can also work on translations
 using a variety of local gettext translator apps including gtranslator,
 poedit, and many more.
-
 
 == Other ways to contribute
 

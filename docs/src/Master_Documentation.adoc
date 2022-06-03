@@ -1,13 +1,13 @@
 :lang: en
 :lversion: {sys: cat ../VERSION}
 :date: {sys: LANG=C date --date="@$(dpkg-parsechangelog --file ../debian/changelog -S timestamp)" '+%d %b %Y'}
+:ascii-ids:
+:masterdir: {indir}
+:revdate: 2021-10-28
 LinuxCNC V{lversion}, {date}
 ============================
-:revdate: 2021-10-28
 
 = Contents
-
-:masterdir: {indir}
 
 :leveloffset: 0
 
@@ -58,7 +58,6 @@ include::lathe/lathe-user.adoc[]
 include::plasma/plasma-cnc-primer.adoc[]
 
 :leveloffset: 1
-
 
 = User Interfaces
 
@@ -194,13 +193,13 @@ include::gui/panelui.adoc[]
 
 include::gui/halui.adoc[]
 
-include::gui/GStat.adoc[]
-
 include::hal/halui-examples.adoc[]
+
+include::gui/vismach.adoc[]
 
 include::config/python-interface.adoc[]
 
-include::gui/vismach.adoc[]
+include::gui/gstat.adoc[]
 
 :leveloffset: 1
 

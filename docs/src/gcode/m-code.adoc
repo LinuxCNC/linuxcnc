@@ -10,7 +10,7 @@
 
 == M-Code Quick Reference Table
 
-[width="60%", options="header", cols="2^,5<"]
+[width="60%",options="header",cols="2^,5<"]
 |========================================
 |Code                                | Description
 |<<mcode:m0-m1,M0 M1>>               | Program Pause
@@ -42,13 +42,12 @@
 == M0, M1 Program Pause(((M0, M1 Program Pause)))(((M0 Mandatory Program Pause)))(((M1 Optional Program Pause)))
 
 * 'M0' - pause a running program temporarily. LinuxCNC remains in the Auto Mode
-so MDI and other manual actions are not enabled. Pressing the resume
-button will restart the program at the following line.
-
+  so MDI and other manual actions are not enabled. Pressing the resume
+  button will restart the program at the following line.
 * 'M1' - pause a running program temporarily if the optional stop switch is on.
-LinuxCNC remains in the Auto Mode so MDI and other manual actions are
-not enabled. Pressing the resume button will restart the program at the
-following line.
+  LinuxCNC remains in the Auto Mode so MDI and other manual actions are
+  not enabled. Pressing the resume button will restart the program at the
+  following line.
 
 [NOTE]
 It is OK to program 'M0' and 'M1' in MDI mode,
@@ -57,14 +56,13 @@ because normal behavior in MDI mode is
 to stop after each line of input anyway.
 
 [[mcode:m2-m30]]
-== M2, M30 Program End(((M2, M30 Program End)))(((M2 Program End)))(((M30 Pallet Exchange and Program End)))
+== M2, M30 Program End(((M2 Program End)))(((M30 Pallet Exchange and Program End)))
 
 * 'M2' - end the program. Pressing `Cycle Start` ("R" in the Axis GUI)
-will restart the program at the beginning of the file.
-
+  will restart the program at the beginning of the file.
 * 'M30' - exchange pallet shuttles and end the program.
-Pressing `Cycle Start` will start the program
-at the beginning of the file.
+  Pressing `Cycle Start` will start the program
+  at the beginning of the file.
 
 Both of these commands have the following effects:
 
@@ -84,17 +82,17 @@ Lines of code after M2/M30 will not be executed. Pressing `Cycle Start`
 will start the program at the beginning of the file.
 
 [WARNING]
-Using % to wrap the G-code does not do the same thing as a 'Program End'. See
-<<gcode:file-requirements,File Requirements>> for more information on what using
-% does not do.
+Using % to wrap the G-code does not do the same thing as a 'Program End'.
+See <<gcode:file-requirements,File Requirements>> for more information
+on what using % does not do.
 
 [[mcode:m60]]
 == M60 Pallet Change Pause(((M60 Pallet Change Pause)))
 
 * 'M60' - exchange pallet shuttles and then pause a running program
-temporarily (regardless of the setting of the optional stop
-switch). Pressing the cycle start button
-will restart the program at the following line.
+  temporarily (regardless of the setting of the optional stop
+  switch). Pressing the cycle start button
+  will restart the program at the following line.
 
 [[mcode:m3-m4-m5]]
 == M3, M4, M5 Spindle Control(((M3, M4, M5 Spindle Control)))
@@ -120,6 +118,7 @@ M3 $-1
 
 This example will then reverse spindle 1 but leave the other spindles
 rotating forwards:
+
 [source,{ngc}]
 ----
 M4 $1
@@ -165,15 +164,15 @@ When the tool change is complete:
 
 * The spindle will be stopped.
 * The tool that was selected (by a T word on the same line or on any
-line after the previous tool change) will be in the spindle.
+  line after the previous tool change) will be in the spindle.
 * If the selected tool was not in the spindle before the tool change,
-the tool that was in the spindle (if there was one) will be placed
-back into the tool changer magazine.
+  the tool that was in the spindle (if there was one) will be placed
+  back into the tool changer magazine.
 * If configured in the .ini file some axis positions may move when a M6
-is issued. See the <<sec:emcio-section,EMCIO section>> for more
-information on tool change options.
+  is issued. See the <<sub:ini:sec:emcio,EMCIO section>> for more
+  information on tool change options.
 * No other changes will be made. For example, coolant will continue to
-flow during the tool change unless it has been turned off by an 'M9'.
+  flow during the tool change unless it has been turned off by an 'M9'.
 
 [NOTE]
 The 'T-' word is an integer number designating the tool pocket number in
@@ -214,14 +213,14 @@ M19 R- Q- [P-] [$-]
 
 * 'R' Position to rotate to from 0, valid range is 0-360 degrees
 * 'Q' Number of seconds to wait until orient completes. If
-spindle.N.is-oriented does not become true within Q timeout
-an error occurs.
+  spindle.N.is-oriented does not become true within Q timeout
+  an error occurs.
 * 'P' Direction to rotate to position.
   ** '0' rotate for smallest angular movement (default)
   ** '1' always rotate clockwise (same as M3 direction)
   ** '2' always rotate counterclockwise (same as M4 direction)
 * '$' The spindle to orient (actually only determines which HAL pins
-carry the spindle position commands)
+  carry the spindle position commands)
 
 M19 is a command of modal group 7, like M3, M4 and M5.
 M19 is cleared by any of M3,M4,M5.
@@ -233,25 +232,25 @@ INI Settings in the [RS274NGC] section:
 
 * ORIENT_OFFSET = 0-360 (fixed offset in degrees added to M19 R word)
 * HAL Pins
-  ** 'spindle.N.orient-angle' (out float)
-     Desired spindle orientation for M19. Value of the M19 R word parameter
-     plus the value of the [RS274NGC]ORIENT_OFFSET ini parameter.
-  ** 'spindle.N.orient-mode' (out s32)
-     Desired spindle rotation mode. Reflects M19 P parameter word, Default = 0
-  ** 'spindle.N.orient' (out bit)
-     Indicates start of spindle orient cycle. Set by M19. Cleared by any of
-     M3,M4,M5. If spindle-orient-fault is not zero during spindle-orient true, the
-     M19 command fails with an error message.
-  ** 'spindle.N.is-oriented' (in bit)
-     Acknowledge pin for spindle-orient. Completes orient cycle. If
-     spindle-orient was true when spindle-is-orientedwas asserted, the spindle-orient
-     pin is cleared and the spindle-locked pin is asserted. Also, the spindle-brake
-     pin is asserted.
-  ** 'spindle.N.orient-fault' (in s32)
-     Fault code input for orient cycle. Any value other than zero will
-     cause the orient cycle to abort.
-  ** 'spindle.N.locked' (out bit)
-     Spindle orient complete pin. Cleared by any of M3,M4,M5.
+** 'spindle.N.orient-angle' (out float)
+   Desired spindle orientation for M19. Value of the M19 R word parameter
+   plus the value of the [RS274NGC]ORIENT_OFFSET ini parameter.
+** 'spindle.N.orient-mode' (out s32)
+   Desired spindle rotation mode. Reflects M19 P parameter word, Default = 0
+** 'spindle.N.orient' (out bit)
+   Indicates start of spindle orient cycle. Set by M19. Cleared by any of
+   M3,M4,M5. If spindle-orient-fault is not zero during spindle-orient true, the
+   M19 command fails with an error message.
+** 'spindle.N.is-oriented' (in bit)
+   Acknowledge pin for spindle-orient. Completes orient cycle. If
+   spindle-orient was true when spindle-is-orientedwas asserted, the spindle-orient
+   pin is cleared and the spindle-locked pin is asserted. Also, the spindle-brake
+   pin is asserted.
+** 'spindle.N.orient-fault' (in s32)
+   Fault code input for orient cycle. Any value other than zero will
+   cause the orient cycle to abort.
+** 'spindle.N.locked' (out bit)
+   Spindle orient complete pin. Cleared by any of M3,M4,M5.
 
 [[mcode:m48-m49]]
 == M48, M49 Speed and Feed Override Control(((M48, M49 Speed and Feed Override Control)))
@@ -314,12 +313,12 @@ cutters and wire spark eroders but it is not limited to such applications.
 == M53 Feed Stop Control(((M53 Feed Stop Control)))
 
 * 'M53 <P1>' - enable the feed stop switch. The P1 is optional.
-Enabling the feed stop switch will allow motion to be
-interrupted by means of the feed stop control. In LinuxCNC,
-the HAL pin 'motion.feed-hold' is used for this purpose. A 'true'
-value will cause the motion to stop when 'M53' is active.
+  Enabling the feed stop switch will allow motion to be
+  interrupted by means of the feed stop control. In LinuxCNC,
+  the HAL pin 'motion.feed-hold' is used for this purpose. A 'true'
+  value will cause the motion to stop when 'M53' is active.
 * 'M53 P0' - disable the feed stop switch. The state of 'motion.feed-hold'
-will have no effect on feed when M53 is not active.
+  will have no effect on feed when M53 is not active.
 
 [[mcode:m61]]
 == M61 Set Current Tool(((M61 Set Current Tool)))
@@ -505,13 +504,13 @@ Note that in particular, the motion mode (G1 etc) is NOT restored.
 'current call level' means either:
 
 * executing in the main program. There is a single storage location
-for state at the main program level; if several 'M70' instructions
-are executed in turn, only the most recently saved state is restored
-when an 'M72' is executed.
+  for state at the main program level; if several 'M70' instructions
+  are executed in turn, only the most recently saved state is restored
+  when an 'M72' is executed.
 * executing within a G-code subroutine. The state saved with 'M70'
-within a subroutine behaves exactly like a local named parameter - it
-can be referred to only within this subroutine invocation with an
-'M72' and when the subroutine exits, the parameter goes away.
+  within a subroutine behaves exactly like a local named parameter - it
+  can be referred to only within this subroutine invocation with an
+  'M72' and when the subroutine exits, the parameter goes away.
 
 A recursive invocation of a subroutine introduces a new call level.
 
@@ -640,7 +639,7 @@ The interpreter supports Fanuc-style main- and sub-programs with the
 'M98' and 'M99' M-codes.
 See <<ocode:fanuc-style-programs,Fanuc-Style Programs>>.
 
-== Selectively Restoring Modal State
+=== Selectively Restoring Modal State
 
 Executing an 'M72' or returning from a subroutine which contains an
 'M73' will restore <<mcode:m70-saved-state,*all* modal state saved>>.
@@ -694,7 +693,7 @@ as its two arguments.
 Execution of the G code file pauses until the external program exits.
 Any valid executable file can be used. The file must be located in the search
 path specified in the ini file configuration.
-See the <<sec:display-section,Display Section>> for more information on search paths.
+See the <<sub:ini:sec:display,Display Section>> for more information on search paths.
 
 After creating a new M1nn program, the GUI should be restarted so that the
 new program is taken into account, otherwise a 'Unknown M-code' error will occur.
@@ -720,7 +719,6 @@ right click/properties/permissions) before running LinuxCNC. Make sure the
 parallel port pin is not connected to anything in a HAL file.
 
 .M101 Example File
-
 ----
 #!/bin/bash
 # file to turn on parport pin 14 to open the collet closer
@@ -729,7 +727,6 @@ exit 0
 ----
 
 .M102 Example File
-
 ----
 #!/bin/bash
 # file to turn off parport pin 14 to open the collet closer
@@ -744,7 +741,6 @@ M100 P123.456 Q321.654
 ----
 
 .M100 Example file
-
 ----
 #!/bin/bash
 voltage=$1
@@ -759,7 +755,6 @@ use a graphic display program like Eye of Gnome to display the graphic
 file. When you close it the program will resume.
 
 .M110 Example file
-
 ----
 #!/bin/bash
 eog /home/john/linuxcnc/nc_files/message.png
@@ -770,7 +765,6 @@ To display a graphic message and continue processing the G-code file
 suffix an ampersand to the command.
 
 .M110 Example display and keep going
-
 ----
 #!/bin/bash
 eog /home/john/linuxcnc/nc_files/message.png &

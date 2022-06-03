@@ -112,8 +112,8 @@ hardware to LinuxCNC. See the
 <<sec:halui-remote-start,Remote Start Example>>
 section in the HAL UI Examples documentation.
 
-.Remote Start Example Schema
-image::images/remote-start.png["Remote Start Example"]
+.Remote Start Example (Schema)
+image::images/remote-start.png["Remote Start Example (Schema)"]
 
 The traditional hardware design as described above ends at the edge of
 the main control. Outside the control are a bunch of relatively simple
@@ -221,13 +221,13 @@ Type:: (((HAL Type)))
   have the same restrictions, which are based upon their type. Both pins
   and signals have types, and signals can only be connected to pins of
   the same type. Currently there are 4 types, as follows:
-
++
 - bit - a single TRUE/FALSE or ON/OFF value
 - float - a 64 bit floating point value, with approximately 53 bits of
-resolution and over 1000 bits of dynamic range.
+  resolution and over 1000 bits of dynamic range.
 - u32 - a 32 bit unsigned integer, legal values are 0 to 4,294,967,295
 - s32 - a 32 bit signed integer, legal values are -2,147,483,647 to
-+2,147,483,647
+  +2,147,483,647
 
 Function:: (((HAL:Function)))
   Real hardware components tend to
@@ -270,8 +270,8 @@ driver.
 
 Each HAL component is a piece of software with well-defined inputs,
 outputs, and behavior, that can be installed and interconnected as
-needed. The section <<sec:realtime-components, Realtime Components List>> 
-lists all available components and a brief description of what each does. 
+needed. The section <<sec:realtime-components,Realtime Components List>>
+lists all available components and a brief description of what each does.
 
 [[sec:hal-timing-issues]]
 == Timing Issues In HAL(((HAL Timing Issues)))

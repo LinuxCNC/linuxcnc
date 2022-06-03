@@ -1,9 +1,8 @@
 :lang: en
+:toc:
 
 [[cha:plasma-primer]]
 = Plasma Cutting Primer for LinuxCNC Users(((Plasma Cutting Primer)))
-
-:toc:
 
 == What Is Plasma?
 
@@ -26,7 +25,6 @@ This start type is widely employed, and has been around the longest. Although it
 === Blowback Start
 
 This start type uses air pressure supplied to the cutter to force a small piston or cartridge inside the torch head back to create a small spark between the inside surface of the consumable, ionising the air, and creating a small plasma flame. This also creates a "pilot arc" that provides a plasma flame that stays on, whether in contact with the metal or not. This is a very good start type that is now used by several manufacturers. It's advantage is that it requires somewhat less circuitry, is a fairly reliable and generates far less electrical noise
-
 
 For entry level air plasma CNC systems, the blowback style is much preferred to minimise electrical interference with electronics and standard PCs but the High frequency start still rules supreme in larger machines from 200 amps and up. These require industrial level PC's and electronics and even commercial manufacturers have had issues with faults because they have failed to account for electrical noise in their designs.
 
@@ -84,7 +82,7 @@ With the release of the Mesa THCAD voltage to frequency interface, LinuxCNC was 
 
 Jim Colt of Hypertherm is on record saying that the best THC controllers were fully integrated into the CNC controller itself. Of course he was referring to high end systems manufactured by Hypertherm, Esab, Thermal Dynamics and others such as Advanced Robotic Technology in Australia, little dreaming that open source could produce systems using this approach that rival high end systems.
 
-The inclusion of external offsets in Linuxcnc V2.8 allowed plasma control in LinuxCNC to rise to a whole new level. External Offsets refers to the ability to apply an offset to the axis commanded position external to the motion controller. This is perfect for plasma THC control as a method to adjust the torch height in real time based on our chosen process control methodology. Following a number of experimental builds, the <<cha:qtplasmac, QtPlasmaC>> configuration was incorporated into LinuxCNC 2.8.
+The inclusion of external offsets in Linuxcnc V2.8 allowed plasma control in LinuxCNC to rise to a whole new level. External Offsets refers to the ability to apply an offset to the axis commanded position external to the motion controller. This is perfect for plasma THC control as a method to adjust the torch height in real time based on our chosen process control methodology. Following a number of experimental builds, the <<cha:qtplasmac,QtPlasmaC>> configuration was incorporated into LinuxCNC 2.8.
 This has been an extremely ambitious project and many people around the globe have been involved in testing and improving the feature set. QtPlasmaC is unique in that its design goal was to support all THCs including the simple bit bang ones through to sophisticated torch voltage control if the voltage is made available to LinuxCNC via a THCAD or some other voltage sensor. What's more, QtPlasmaC is designed to be a stand alone system that does not need any additional G-Code subroutines and allows the user to define their own cut charts that are stored in the system and accessible by a drop-down.
 
 == Arc OK Signal
@@ -136,7 +134,7 @@ image::images/primer_hypersensing.png[width=75%]
 
 We used a 15W Mean Well HDR-15 Ultra Slim DIN Rail Supply 24V DIN rail based isolated power supply.. This is a double insulated  Isolation Class II device that will withstand any arc voltage that might be applied to the terminals.
 
-.Example HAL Code for Hypersensing
+=== Example HAL Code for Hypersensing
 
 The following HAL code can be pasted into your QtPlasmaC's custom.hal to enable Ohmic sensing on Encoder 2 of a 7i76e. Install the correct bit file and connect the THCAD to IDX+ and IDX-. Be sure to change the calibration settings to agree with your THCAD-5.
 
@@ -188,7 +186,7 @@ It is recommended that a mechanism is provided to allow the torch to “break aw
 
 == Corner Lock / Velocity Anti-Dive
 
-The Linuxcnc trajectory planner is responsible for translating velocity and acceleration commands into motion that obeys the laws of physics. For example, motion will slow when negotiating a corner. Whilst this is not a problem with milling machines or routers, this poses a particular problem for plasma cutting as the arc voltage increases as motion slows. This will cause the THC to drive the torch down. One of the enormous advantages of a THC control embedded within the LinuxCNC motion controller is that it knows what is going on at all times. So it becomes a trivial matter to monitor the current velocity (motion.current-velocity) and to hold THC operation if it falls below a set threshold (eg, 10% below the desired feedrate.
+The Linuxcnc trajectory planner is responsible for translating velocity and acceleration commands into motion that obeys the laws of physics. For example, motion will slow when negotiating a corner. Whilst this is not a problem with milling machines or routers, this poses a particular problem for plasma cutting as the arc voltage increases as motion slows. This will cause the THC to drive the torch down. One of the enormous advantages of a THC control embedded within the LinuxCNC motion controller is that it knows what is going on at all times. So it becomes a trivial matter to monitor the current velocity (motion.current-velocity) and to hold THC operation if it falls below a set threshold (eg, 10% below the desired feedrate).
 
 == Void / Kerf Crossing
 
@@ -219,7 +217,7 @@ You will need to experiment to get exact hole size because the kerf with this me
 
 This slow down can be achieved by manipulating the feed rate directly in your post processor or by using adaptive feed and an analog pin as input. This lets you use M67/M68 to set the percentage of desired feed to cut at.
 
--- Knowing The Feedrate
+- Knowing The Feedrate
 
 From the preceding discussion it is evident that the plasma controller needs to know the feed rate set by the user. This poses a problem with LinuxCNC because the Feedrate is not saved by LinuxCNC after the G-Code is buffered and parsed. There are two approaches to work around this:
 
@@ -262,13 +260,11 @@ WARNING: It is strongly recommended that the torch cannot be enabled while this 
 * Connect Proximity sensor output to chosen input pin. If mechanical switches are used. Connect one side of the switch to field power and the other side of the switch to input.
 * Usually Connected to 'motion.probe-input'
 
-
 === Ohmic Sensor enable (output)
 
 * See the <<ohmic-sensing,ohmic sensing>> schematic.
 * Connect output pin to one side of the isolation relays and the other side to field power ground.
 * In a non-QtPlasmaC configuration, usually triggered by a 'motion.digital-out-<nn>' so it can be controlled in G-Code by M62/M63/M64/M65
-
 
 === Ohmic Sensing (input)
 
@@ -352,7 +348,7 @@ MAX_VELOCITY = 60
 MAX_ACCELERATION = 700
 ----
 
-For further information about external offsets (for V 2.8 and higher) please read the <<sec:axis-section,[AXIS_<letter>] Section>> of the INI file document and <<cha:external-offsets,External Axis Offsets>> in the Linuxcnc documentation.
+For further information about external offsets (for V 2.8 and higher) please read the <<sub:ini:sec:axis-letter,[AXIS_<letter>] Section>> of the INI file document and <<cha:external-offsets,External Axis Offsets>> in the Linuxcnc documentation.
 
 == Reading Arc Voltage With The Mesa THCAD
 
@@ -399,6 +395,7 @@ Assuming it is connected to a 7i76e, connect the output to the spindle encoder i
 === THCAD Initial Testing
 
 Make sure you have the following lines in your ini file (assuming a Mesa 7i76e):
+
 ----
 setp hm2_7i76e.0.encoder.00.scale -1
 setp hm2_7i76e.0.encoder.00.counter-mode 1
@@ -417,7 +414,6 @@ Remembering that plasma arc voltages are potentially lethal, here are some sugge
 Because there is not likely to be any significant EMI, you should be able to safely install the THCAD in your control panel if you have followed our construction guidelines.
 
 * If you do not have a voltage divider, either install scaling resistors inside the plasma cutter and install the THCAD in the control panel or follow the suggestions for HF start machines.
-
 * If you have a voltage divider, install a THCAD-10 in your control panel. We've had no problems with this configuration with a 120 amp Thermal Dynamics plasma cutter.
 
 .HF Start
@@ -425,9 +421,7 @@ Because there is not likely to be any significant EMI, you should be able to saf
 Install the THCAD at the inverter as the frequency signal is far more immune to EMI noise.
 
 * If you do not have a voltage divider and you have room inside the plasma cutter, install a THCAD-300 inside the plasma cutter.
-
 * If you do not have a voltage divider and you do not have room inside the plasma cutter, install a THCAD-10 in a metal case outside the plasma cutter and install 50% of the scaling resistance on each of the IN+ and IN- inside the plasma cutter case so no lethal voltages come out of the case.
-
 * If you have a voltage divider, install a THCAD-10 in a metal case outside the plasma cutter
 
 .Raw Arc voltage presented on a connector

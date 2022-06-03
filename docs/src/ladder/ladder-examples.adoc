@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:classicladder-examples]]
 = Classicladder Examples
@@ -76,13 +77,13 @@ loadusr classicladder --nogui estop.clp
 
 I/O assignments
 
- - %I0 = Input from the pyVCP panel simulated E-Stop (the checkbox)
- - %I1 = Input from LinuxCNC's E-Stop
- - %I2 = Input from LinuxCNC's E-Stop Reset Pulse
- - %I3 = Input from the pyVCP panel reset button
- - %Q0 = Output to LinuxCNC to enable
- - %Q1 = Output to external driver board enable pin (use a N/C output if
-   your board had a disable pin)
+- %I0 = Input from the pyVCP panel simulated E-Stop (the checkbox)
+- %I1 = Input from LinuxCNC's E-Stop
+- %I2 = Input from LinuxCNC's E-Stop Reset Pulse
+- %I3 = Input from the pyVCP panel reset button
+- %Q0 = Output to LinuxCNC to enable
+- %Q1 = Output to external driver board enable pin (use a N/C output if
+  your board had a disable pin)
 
 Next we add the following lines to the custom_postgui.hal file
 
@@ -179,7 +180,9 @@ another s32 (in) pin would be used to get the requested tool number
 from LinuxCNC.You would have to load Classic Ladder's real time module
 specifying that you want s32 in and out pins. See 'loading options'
 above. [display turret sample]
+///////////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////////
 == Sequential Example
 
  - This Example is not complete yet.
@@ -203,3 +206,5 @@ Step 3 is active and waiting for %B2 to be true.
 Step 4 is active and is waiting for %B3 to be true.
 WOW, that was quite a mouthful!!
 ///////////////////////////////////////////////////////////////////////////////
+
+// vim: set syntax=asciidoc:

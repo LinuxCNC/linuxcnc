@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:mb2hal]]
 = MB2HAL
@@ -11,31 +12,40 @@
 
 == Introduction
 
-MB2HAL is a generic userspace HAL component to communicate with one or more Modbus devices.
-So far, there are two options to communicate with a Modbus device:
+MB2HAL is a generic userspace HAL component to communicate with one or more 
+Modbus devices. So far, there are two options to communicate with a Modbus 
+device:
 
-. One option is to create a HAL component as a driver see http://wiki.linuxcnc.org/cgi-bin/wiki.pl?VFD_Modbus[VFD Modbus].
-. Another option is to use Classic Ladder which has Modbus built in see <<cha:classicladder,ClassicLadder>>.
-. Now there is a third option that consists of a "generic" driver configured by text file, this is called MB2HAL.
+. One option is to create a HAL component as a driver see
+  http://wiki.linuxcnc.org/cgi-bin/wiki.pl?VFD_Modbus[VFD Modbus].
+. Another option is to use Classic Ladder which has Modbus built in
+  see << cha:classicladder,ClassicLadder >>.
+. Now there is a third option that consists of a "generic" driver
+  configured by text file, this is called MB2HAL.
 
 Why MB2HAL ?
 Consider using Mb2hal if:
 
-* You have to write a new driver and you don't know anything about programming. 
-* You need to use Classic Ladder "only" to manage the Modbus connections. 
-* You have to discover and configure first time the Modbus transactions. Mb2hal have debug levels to facilitate the low level protocol debug. 
-* You have more than one device to connect. Mb2hal is very efficient managing multiple devices, transactions and links.
-  Currently I am monitoring two axis drivers using a Rs232 port, a VFD driver using another Rs232 port, and a remote I/O using TCP/IP. 
-* You want a protocol to connect your Arduino to HAL. Look the included sample configuration file, sketch and library for Arduino Modbus. 
+* You have to write a new driver and you don't know anything about
+  programming.
+* You need to use Classic Ladder "only" to manage the Modbus connections.
+* You have to discover and configure first time the Modbus transactions.
+  Mb2hal have debug levels to facilitate the low level protocol debug.
+* You have more than one device to connect. Mb2hal is very efficient
+  managing multiple devices, transactions and links.
+  Currently I am monitoring two axis drivers using a Rs232 port, a VFD
+  driver using another Rs232 port, and a remote I/O using TCP/IP.
+* You want a protocol to connect your Arduino to HAL. Look the included
+  sample configuration file, sketch and library for Arduino Modbus. 
 
 == Usage
 
-. Create a config file from the example below
+.. Create a config file from the example below
 . Set component name (optional)
 +
 Set `HAL_MODULE_NAME=mymodule` (default `HAL_MODULE_NAME=mb2hal`)
 +
-. Load the modbus HAL userspace component 
+. Load the modbus HAL userspace component
 .. Default component name: `loadusr -W mb2hal config=config_file.ini`
 .. Custom component name: `loadusr -Wn mymodule mb2hal config=config_file.ini`
 
@@ -46,7 +56,7 @@ Set `HAL_MODULE_NAME=mymodule` (default `HAL_MODULE_NAME=mb2hal`)
 
 `[MB2HAL_INIT]`
 
-[options="header", cols="12,8,13,70", frame="none", grid="none"]
+[options="header",cols="14,8,13,67"]
 |=======================
 |Value | Type | Required | Description
 |`INIT_DEBUG`| Integer | No | Debug level of init and INI file parsing. +
@@ -55,40 +65,61 @@ Set `HAL_MODULE_NAME=mymodule` (default `HAL_MODULE_NAME=mb2hal`)
 2 = OK confirmation messages +
 3 = debugging messages +
 4 = maximum debugging messages (only in transactions) +
-|`HAL_MODULE_NAME` | String | No | HAL module (component) name. Defaults to "mb2hal".
-|`SLOWDOWN` | Float | No | Insert a delay of "FLOAT seconds" between transactions in order to not to have a lot of logging 
+|`HAL_MODULE_NAME` | String | No | HAL module (component) name. Defaults
+to "mb2hal".
+|`SLOWDOWN` | Float | No | Insert a delay of "FLOAT seconds" between
+transactions in order to not to have a lot of logging 
 and facilitate the debugging.
-Useful when using `DEBUG=3` (NOT `INIT_DEBUG=3`). It affects ALL transactions. Use "0.0" for normal activity.
-| `TOTAL_TRANSACTIONS` | Integer | Yes | The number of total Modbus transactions. There is no maximum.
+Useful when using `DEBUG=3` (NOT `INIT_DEBUG=3`). It affects ALL
+transactions. Use "0.0" for normal activity.
+| `TOTAL_TRANSACTIONS` | Integer | Yes | The number of total Modbus
+transactions. There is no maximum.
 |=======================
 
 
 === Transaction Sections
 
-One transaction section is required per transaction, starting at `[TRANSACTION_00]` and counting up sequentially.
-If there is a new link (not transaction), you must provide the REQUIRED parameters 1st time.
-Warning: Any OPTIONAL parameter not specified are copied from the previous transaction.
+One transaction section is required per transaction, starting at
+`[TRANSACTION_00]` and counting up sequentially.
+If there is a new link (not transaction), you must provide the REQUIRED
+parameters 1st time.
+Warning: Any OPTIONAL parameter not specified are copied from the
+previous transaction.
 
-[options="header", cols="12,8,13,70", frame="none", grid="none"]
+[options="header",cols="14,8,13,67"]
 |=======================
 |Value            | Type | Required | Description
-|`LINK_TYPE`      | String | Yes | You must specify either a "serial" or "tcp" link for the first transaction. 
-Later transactions will use the previous transaction link if not specified.
-|`TCP_IP`         | IP address | If `LINK_TYPE=tcp` | The Modbus slave device IP address. Ignored if `LINK_TYPE=serial`.
-|`TCP_PORT`       | Integer | No | The Modbus slave device TCP port. Defaults to 502.  Ignored if `LINK_TYPE=serial`.
-|`SERIAL_PORT`    | String | If `LINK_TYPE=serial` | The serial port. For example "/dev/ttyS0". Ignored if `LINK_TYPE=tcp`.
-|`SERIAL_BAUD`    | Integer | If `LINK_TYPE=serial` | The baud rate. Ignored if `LINK_TYPE=tcp`.
-|`SERIAL_BITS`    | Integer | If `LINK_TYPE=serial` | Data bits. One of 5,6,7,8. Ignored if `LINK_TYPE=tcp`.
-|`SERIAL_PARITY`  | String | If `LINK_TYPE=serial` | Data parity. One of: even, odd, none. Ignored if `LINK_TYPE=tcp`.
-|`SERIAL_STOP`    | Integer | If `LINK_TYPE=serial` | Stop bits. One of 1, 2. Ignored if `LINK_TYPE=tcp`.
-|`SERIAL_DELAY_MS`| Integer | If `LINK_TYPE=serial` | Serial port delay in ms between transactions of this section only. 
+|`LINK_TYPE`      | String | Yes | You must specify either a "serial" or
+"tcp" link for the first transaction.
+Later transactions will use the previous transaction link if not
+specified.
+|`TCP_IP`         | IP address | If `LINK_TYPE=tcp` | The Modbus slave
+device IP address. Ignored if `LINK_TYPE=serial`.
+|`TCP_PORT`       | Integer | No | The Modbus slave device TCP port.
+Defaults to 502.  Ignored if `LINK_TYPE=serial`.
+|`SERIAL_PORT`    | String | If `LINK_TYPE=serial` | The serial port.
+For example "/dev/ttyS0". Ignored if `LINK_TYPE=tcp`.
+|`SERIAL_BAUD`    | Integer | If `LINK_TYPE=serial` | The baud rate.
+Ignored if `LINK_TYPE=tcp`.
+|`SERIAL_BITS`    | Integer | If `LINK_TYPE=serial` | Data bits.
+One of 5, 6, 7, 8. Ignored if `LINK_TYPE=tcp`.
+|`SERIAL_PARITY`  | String | If `LINK_TYPE=serial` | Data parity.
+One of: even, odd, none. Ignored if `LINK_TYPE=tcp`.
+|`SERIAL_STOP`    | Integer | If `LINK_TYPE=serial` | Stop bits.
+One of 1, 2. Ignored if `LINK_TYPE=tcp`.
+|`SERIAL_DELAY_MS`| Integer | If `LINK_TYPE=serial` | Serial port delay
+in ms between transactions of this section only.
 In ms. Defaults to 0. Ignored if `LINK_TYPE=tcp`.
 |`MB_SLAVE_ID`    | Integer | Yes | Modbus slave number.
 |`FIRST_ELEMENT`  | Integer | Yes | The first element address.
-|`NELEMENTS`      | Integer | Unless `PIN_NAMES` is specified | The number of elements. It is an error to specify both 
-`NELEMENTS` and `PIN_NAMES`. The pin names will be sequential numbers e.g. `mb2hal.plcin.01`
-|`PIN_NAMES`      | List | Unless `NELEMENTS` is specified | A list of element names. 
-These names will be used for the pin names, e.g. mb2hal.plcin.cycle_start. +
+|`NELEMENTS`      | Integer | Unless `PIN_NAMES` is specified | The
+number of elements. It is an error to specify both `NELEMENTS` and
+`PIN_NAMES`. The pin names will be sequential numbers
+e.g. `mb2hal.plcin.01`
+|`PIN_NAMES`      | List | Unless `NELEMENTS` is specified | A list of
+element names.
+These names will be used for the pin names, e.g.
+mb2hal.plcin.cycle_start. +
 *NOTE:* There must be no white space characters in the list. Example:
 `PIN_NAMES=cycle_start,stop,feed_hold`
 |`MB_TX_CODE`     | String | Yes | 
@@ -105,47 +136,69 @@ Modbus transaction function code (see link:https://modbus.org/specs.php[specific
 • fnct_16_write_multiple_registers +
 
 |`MB_RESPONSE_TIMEOUT_MS`| Integer | No | 
-Response timeout for this transaction. In ms. Defaults to 500 ms. This is how much to wait for 1st byte before raise an error.
-|`MB_BYTE_TIMEOUT_MS`    | Integer | No | Byte timeout for this transaction. In ms. Defaults to 500 ms. This is how much to 
-wait from byte to byte before raise an error.
-|`HAL_TX_NAME`    | String | No | Instead of giving the transaction number, use a name. Example: `mb2hal.00.01` 
-could become `mb2hal.plcin.01`. The name must not exceed 28 characters. *NOTE:* when using names be careful that 
+Response timeout for this transaction. In ms. Defaults to 500 ms. This
+is how much to wait for 1st byte before raise an error.
+|`MB_BYTE_TIMEOUT_MS`    | Integer | No | Byte timeout for this
+transaction. In ms. Defaults to 500 ms. This is how much to wait from
+byte to byte before raise an error.
+|`HAL_TX_NAME`    | String | No | Instead of giving the transaction
+number, use a name. Example: `mb2hal.00.01`
+could become `mb2hal.plcin.01`. The name must not exceed 28 characters.
+*NOTE:* when using names be careful that
 you don't end up with two transactions using the same name.
-|`MAX_UPDATE_RATE`| Float | No | Maximum update rate in Hz. Defaults to 0.0 (0.0 = as soon as available = infinit).
-*NOTE:* This is a maximum rate and the actual rate may be lower. If you want to calculate it in ms use (1000 / required_ms).
-Example: 100 ms = `MAX_UPDATE_RATE=10.0`, because 1000.0 ms / 100.0 ms = 10.0 Hz.
-|`DEBUG`          | String | No | Debug level for this transaction only. See `INIT_DEBUG` parameter above.
+|`MAX_UPDATE_RATE`| Float | No | Maximum update rate in Hz. Defaults to
+0.0 (0.0 = as soon as available = infinit).
+*NOTE:* This is a maximum rate and the actual rate may be lower. If you
+want to calculate it in ms use (1000 / required_ms).
+Example: 100 ms = `MAX_UPDATE_RATE=10.0`,
+because 1000.0 ms / 100.0 ms = 10.0 Hz.
+|`DEBUG`          | String | No | Debug level for this transaction only.
+See `INIT_DEBUG` parameter above.
 
 |=======================
 
 === Error codes
 
-While debugging transactions, note the returned "`ret[]`" value correspond to:
+While debugging transactions, note the returned "`ret[]`" value
+correspond to:
 
 Modbus protocol exceptions:
 
-* 0x01 - ILLEGAL_FUNCTION        - the FUNCTION code received in the query is not allowed or invalid.
-* 0x02 - ILLEGAL_DATA_ADDRESS    - the DATA ADDRESS received in the query is not an allowable address for the slave or is invalid.
-* 0x03 - ILLEGAL_DATA_VALUE      - a VALUE contained in the data query field is not an allowable value or is invalid.
-* 0x04 - SLAVE_DEVICE_FAILURE    - SLAVE (or MASTER) device unrecoverable FAILURE while attempting to perform the requested action.
+* 0x01 - ILLEGAL_FUNCTION        - the FUNCTION code received in the
+  query is not allowed or invalid.
+* 0x02 - ILLEGAL_DATA_ADDRESS    - the DATA ADDRESS received in the
+                                   query is not an allowable address for
+                                   the slave or is invalid.
+* 0x03 - ILLEGAL_DATA_VALUE      - a VALUE contained in the data query
+                                   field is not an allowable value or is
+                                   invalid.
+* 0x04 - SLAVE_DEVICE_FAILURE    - SLAVE (or MASTER) device unrecoverable
+                                   FAILURE while attempting to perform
+                                   the requested action.
 * 0x04 - SERVER_FAILURE          - (see above).
-* 0x05 - ACKNOWLEDGE             - This response is returned to PREVENT A TIMEOUT in the master.
-                                   A long duration of time is required to process the request in the slave.
-* 0x06 - SLAVE_DEVICE_BUSY       - The slave (or server) is BUSY. Retrasmit the request later.
+* 0x05 - ACKNOWLEDGE             - This response is returned to
+                                   PREVENT A TIMEOUT in the master.
+                                   A long duration of time is required
+                                   to process the request in the slave.
+* 0x06 - SLAVE_DEVICE_BUSY       - The slave (or server) is BUSY.
+                                   Retransmit the request later.
 * 0x06 - SERVER_BUSY             - (see above).
-* 0x07 - NEGATIVE_ACKNOWLEDGE    - Unsuccessful programming request using function code 13 or 14.
+* 0x07 - NEGATIVE_ACKNOWLEDGE    - Unsuccessful programming request
+                                   using function code 13 or 14.
 * 0x08 - MEMORY_PARITY_ERROR     - SLAVE parity error in MEMORY.
-* 0x0A (-10) - GATEWAY_PROBLEM_PATH    - Gateway path(s) not available.
-* 0x0B (-11) - GATEWAY_PROBLEM_TARGET  - The target device failed to repond (generated by master, not slave).
+* 0x0A (-10) - GATEWAY_PROBLEM_PATH   - Gateway path(s) not available.
+* 0x0B (-11) - GATEWAY_PROBLEM_TARGET - The target device failed to
+                                        respond (generated by master,
+                                        not slave).
 
 Program or connection:
 
-* 0x0C (-12) - COMM_TIME_OUT           
-* 0x0D (-13) - PORT_SOCKET_FAILURE     
-* 0x0E (-14) - SELECT_FAILURE          
-* 0x0F (-15) - TOO_MANY_DATAS          
-* 0x10 (-16) - INVALID_CRC             
-* 0x11 (-17) - INVALID_EXCEPTION_CODE  
+* 0x0C (-12) - COMM_TIME_OUT
+* 0x0D (-13) - PORT_SOCKET_FAILURE
+* 0x0E (-14) - SELECT_FAILURE
+* 0x0F (-15) - TOO_MANY_DATAS
+* 0x10 (-16) - INVALID_CRC
+* 0x11 (-17) - INVALID_EXCEPTION_CODE
 
 == Example config file
 
@@ -153,7 +206,7 @@ Click link:mb2hal_HOWTO.ini[here] to download.
 
 [source,{ini}]
 ----
-include::../../../src/hal/user_comps/mb2hal/mb2hal_HOWTO.ini[]
+include::mb2hal_HOWTO.ini[]
 ----
 
 == Pins
@@ -193,7 +246,8 @@ include::../../../src/hal/user_comps/mb2hal/mb2hal_HOWTO.ini[]
 * [yellow-background]#mb2hal.m.n.int# _s32 in_
 
 `NELEMENTS` needs to be 1 or `PIN_NAMES` must contain just one name.
-Both pin values are added and limited to 65535 (UINT16_MAX). Use one and let the other open (read as 0).
+Both pin values are added and limited to 65535 (UINT16_MAX). Use one and
+let the other open (read as 0).
 
 === fnct_15_write_multiple_coils
 
@@ -204,13 +258,17 @@ Both pin values are added and limited to 65535 (UINT16_MAX). Use one and let the
 * mb2hal.m.n.[yellow-background]#float# _float in_
 * [yellow-background]#mb2hal.m.n.int# _s32 in_
 
-Both pin values are added and limited to 65535 (UINT16_MAX). Use one and let the other open (read as 0).
+Both pin values are added and limited to 65535 (UINT16_MAX). Use one and
+let the other open (read as 0).
 
 ==========================
-m = `HAL_TX_NAME` or transaction number if not set, n = element number (`NELEMENTS`) or name from `PIN_NAMES`
+m = `HAL_TX_NAME` or transaction number if not set, n = element number
+(`NELEMENTS`) or name from `PIN_NAMES`
 
 Example:
 
 * `mb2hal.00.01.<type>` (transaction=00, second register=01 (00 is the first one))
 * `mb2hal.TxName.01.<type>` (HAL_TX_NAME=TxName, second register=01 (00 is the first one))
 ==========================
+
+// vim: set syntax=asciidoc:

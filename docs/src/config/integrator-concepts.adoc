@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:integrator-concepts]]
 = Integrator Concepts
@@ -38,42 +39,42 @@ options for running LinuxCNC from the command line run 'linuxcnc -h'.
 
 [NOTE]
 Optional locations for some files can be configured in the INI file. See the
-<<sec:display-section,DISPLAY>> section and the <<sec:rs274ngc-section,RS274NGC>>
-section.
-
+`<<sub:ini:sec:display,[DISPLAY]>>` section and the
+`<<sub:ini:sec:rs274ngc,[RS274NGC]>>` section.
 
 == Files
 
 Each configuration directory requires at least the following files:
 
 * An INI file .ini
-* A HAL file .hal or HALTCL file .tcl specified in the 
-  <<sec:hal-section,HAL>> section of the INI file.
+* A HAL file .hal or HALTCL file .tcl specified in the <<sub:ini:sec:hal,HAL>>
+  section of the INI file.
 
-[NOTE]Other files may be required for some GUI's.
+[NOTE]
+Other files may be required for some GUI's.
 
 Optionally you can also have:
 
 * A Variables file .var
 ** If you omit a .var file in a directory but include
-   [<<sec:rs274ngc-section,RS274NGC>>] PARAMETER_FILE=somefilename.var, the file
+   `<<sub:ini:sec:rs274ngc,[RS274NGC]>>` PARAMETER_FILE=somefilename.var, the file
    will be created for you when LinuxCNC starts.
 ** If you omit a .var file  and  omit the item [RS274NGC] PARAMETER_FILE, a var
    file named rs274ngc.var will be created when LinuxCNC starts. There may be
    some confusing messages if [RS274NGC]PARAMETER_FILE is omitted.
-* A Tool Table file .tbl if [<<sec:emcmot-section,EMCMOT>>]TOOL_TABLE has been
+* A Tool Table file .tbl if `<<sub:ini:sec:emcmot,[EMCMOT]>>` TOOL_TABLE has been
   specified in the INI file. Some configurations do not need a tool table.
 
 == Stepper Systems
 
 === Base Period
 
-BASE_PERIOD is the 'heartbeat' of your LinuxCNC computer.footnote:[This 
-section refers to using *stepgen*, LinuxCNC's built-in 
-step generator. Some hardware devices have their own step 
-generator and do not use LinuxCNC's built-in one. In that case, refer to 
-your hardware manual.] Every period, the 
-software step generator decides if it is time for another step pulse. 
+BASE_PERIOD is the 'heartbeat' of your LinuxCNC computer.footnote:[This
+section refers to using *stepgen*, LinuxCNC's built-in
+step generator. Some hardware devices have their own step
+generator and do not use LinuxCNC's built-in one. In that case, refer to
+your hardware manual.] Every period, the
+software step generator decides if it is time for another step pulse.
 A shorter period will allow you to generate more pulses per second,
 within limits. But if you go too short, your computer will spend so
 much time generating step pulses that everything else will slow to a
@@ -87,23 +88,23 @@ a while and are impossible to troubleshoot.
 
 The simplest way to avoid this problem is to choose a BASE_PERIOD that
 is the sum of the longest timing requirement of your drive, and the
-worst case latency of your computer. This is not always the best choice. 
-For example, if you are running a drive with a 20 us  direction signal hold time 
+worst case latency of your computer. This is not always the best choice.
+For example, if you are running a drive with a 20 us  direction signal hold time
 requirement, and your latency test said you have a maximum latency of
-11 us , then if you set the BASE_PERIOD to 20+11 = 31 us  you get a 
-not-so-nice 32,258 steps per second in one mode and 16,129 steps per 
-second in another mode. 
+11 us , then if you set the BASE_PERIOD to 20+11 = 31 us  you get a
+not-so-nice 32,258 steps per second in one mode and 16,129 steps per
+second in another mode.
 
-The problem is with the 20 us  hold time requirement. That plus the 11 us 
+The problem is with the 20 us  hold time requirement. That plus the 11 us
 latency is what forces us to use a slow 31 us  period. But the LinuxCNC
 software step generator has some parameters that let you increase the
-various times from one period to several. For example, if 'steplen' footnote:[steplen 
-refers to a parameter that adjusts the performance of LinuxCNC's built-in step generator, 
-'stepgen', which is a HAL component. This parameter adjusts the length of the 
+various times from one period to several. For example, if 'steplen' footnote:[steplen
+refers to a parameter that adjusts the performance of LinuxCNC's built-in step generator,
+'stepgen', which is a HAL component. This parameter adjusts the length of the
 step pulse itself. Keep reading, all will be explained eventually.] is
 changed from 1 to 2, then there will be two periods between the
-beginning and end of the step pulse. Likewise, if 'dirhold' footnote:[dirhold 
-refers to a parameter that adjusts the length of the direction hold time.] is 
+beginning and end of the step pulse. Likewise, if 'dirhold' footnote:[dirhold
+refers to a parameter that adjusts the length of the direction hold time.] is
 changed from 1 to 3, there will be at least three periods between the step
 pulse and a change of the direction pin.
 
@@ -131,37 +132,38 @@ edge then the output pin should be inverted.
 
 === Basic Operation
 
-Servo systems are capable of greater speed and accuracy than equivalent 
-stepper systems, but are more costly and complex. 
-Unlike stepper systems, servo systems require some type of position 
-feedback device, and must be adjusted or 'tuned', as they don't quite 
-work right out of the box as a stepper system might. These differences 
-exist because servos are a 'closed loop' system, 
-unlike stepper motors which are generally run 'open loop'. What does 
-'closed loop' mean? Let's look at a simplified diagram of how a servomotor 
-system is connected. 
+Servo systems are capable of greater speed and accuracy than equivalent
+stepper systems, but are more costly and complex.
+Unlike stepper systems, servo systems require some type of position
+feedback device, and must be adjusted or 'tuned', as they don't quite
+work right out of the box as a stepper system might. These differences
+exist because servos are a 'closed loop' system,
+unlike stepper motors which are generally run 'open loop'. What does
+'closed loop' mean? Let's look at a simplified diagram of how a servomotor
+system is connected.
 
+.Servo Loop
 image::images/servo-feedback.png["simplified diagram of how a servomotor system is connected"]
 
-This diagram shows that the input signal (and the feedback signal) drive 
-the summing amplifier, the summing amplifier drives the power amplifier, 
-the power amplifier drives the motor, the motor drives the load 
-(and the feedback device), and the feedback device (and the input signal) 
-drive the motor.  This looks very much like a circle (a closed loop) where 
-A controls B, B controls C, C controls D, and D controls A. 
+This diagram shows that the input signal (and the feedback signal) drive
+the summing amplifier, the summing amplifier drives the power amplifier,
+the power amplifier drives the motor, the motor drives the load
+(and the feedback device), and the feedback device (and the input signal)
+drive the motor.  This looks very much like a circle (a closed loop) where
+A controls B, B controls C, C controls D, and D controls A.
 
-If you have not worked with servo systems before, this will no doubt seem a 
-very strange idea at first, especially as compared to more normal electronic 
-circuits, where the inputs proceed smoothly to the outputs, and never go 
-back.footnote:[If it helps, the closest equivalent to this in the digital 
-world are 'state machines', 'sequential machines' and so forth, where what 
-the outputs are doing 'now' depends on what the inputs (and the outputs) 
-were doing 'before'. If it doesn't help, then nevermind.] If 'everything' 
-controls 'everything else', how can that ever work, who's in 
-charge? The answer is that LinuxCNC 'can' control this system, 
-but it has to do it by choosing one of several control methods. 
-The control method that LinuxCNC uses, one of the simplest and best, 
-is called PID. 
+If you have not worked with servo systems before, this will no doubt seem a
+very strange idea at first, especially as compared to more normal electronic
+circuits, where the inputs proceed smoothly to the outputs, and never go
+back.footnote:[If it helps, the closest equivalent to this in the digital
+world are 'state machines', 'sequential machines' and so forth, where what
+the outputs are doing 'now' depends on what the inputs (and the outputs)
+were doing 'before'. If it doesn't help, then nevermind.] If 'everything'
+controls 'everything else', how can that ever work, who's in
+charge? The answer is that LinuxCNC 'can' control this system,
+but it has to do it by choosing one of several control methods.
+The control method that LinuxCNC uses, one of the simplest and best,
+is called PID.
 
 PID stands for Proportional, Integral, and Derivative. The Proportional
 value determines the reaction to the current error, the Integral value
@@ -172,6 +174,7 @@ that are applied to the task of getting a working process to follow a
 set point. In the case of LinuxCNC the process we want to control is actual
 axis position and the set point is the commanded axis position.
 
+.PID Loop
 image::images/pid-feedback.png["PID Loop, PID stands for Proportional, Integral, and Derivative"]
 
 By 'tuning' the three constants in the PID controller algorithm, the
@@ -183,25 +186,25 @@ oscillation.
 
 === Proportional term
 
-The proportional term (sometimes called gain) makes a change to the 
-output that is proportional to the current error value. A high 
-proportional gain results in a large change in the output for a given 
-change in the error. If the proportional gain is too high, the system 
-can become unstable. In contrast, a small gain results in a small 
-output response to a large input error. If the proportional gain is too 
-low, the control action may be too small when responding to system 
-disturbances. 
+The proportional term (sometimes called gain) makes a change to the
+output that is proportional to the current error value. A high
+proportional gain results in a large change in the output for a given
+change in the error. If the proportional gain is too high, the system
+can become unstable. In contrast, a small gain results in a small
+output response to a large input error. If the proportional gain is too
+low, the control action may be too small when responding to system
+disturbances.
 
-In the absence of disturbances, pure proportional control will not 
-settle at its target value, but will retain a steady state error that 
-is a function of the proportional gain and the process gain. Despite 
-the steady-state offset, both tuning theory and industrial practice 
-indicate that it is the proportional term that should contribute the 
-bulk of the output change. 
+In the absence of disturbances, pure proportional control will not
+settle at its target value, but will retain a steady state error that
+is a function of the proportional gain and the process gain. Despite
+the steady-state offset, both tuning theory and industrial practice
+indicate that it is the proportional term that should contribute the
+bulk of the output change.
 
 === Integral term
 
-The contribution from the integral term (sometimes called reset) is 
+The contribution from the integral term (sometimes called reset) is
 proportional to both the magnitude of the error and the duration of the
 error. Summing the instantaneous error over time (integrating the
 error) gives the accumulated offset that should have been corrected
@@ -271,7 +274,8 @@ example: power management, CPU power down, CPU frequency scaling, etc).
 The LinuxCNC kernel (and probably all RTAI-patched kernels) has ACPI
 disabled. ACPI also takes care of powering down the system after a
 shutdown has been started, and that's why you might need to push the power
-button to completely turn off your computer. The RTAI group has been 
-improving this in recent releases, so your LinuxCNC system may shut off by 
-itself after all. 
+button to completely turn off your computer. The RTAI group has been
+improving this in recent releases, so your LinuxCNC system may shut off by
+itself after all.
 
+// vim: set syntax=asciidoc:

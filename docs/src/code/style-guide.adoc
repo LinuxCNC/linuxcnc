@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 = Coding Style
 
@@ -267,3 +268,4 @@ items.
 
 In the code portion of a .comp file, follow normal C coding style.
 
+// vim: set syntax=asciidoc:

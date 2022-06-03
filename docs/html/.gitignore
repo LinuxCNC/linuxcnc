@@ -22,4 +22,10 @@ man
 motion
 remap
 user
-
+# Ignore po4a-generated files for other languages
+es/*
+fr/*
+hu/*
+nb/*
+vi/*
+zh_CN/*

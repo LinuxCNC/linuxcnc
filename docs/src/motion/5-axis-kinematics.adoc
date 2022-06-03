@@ -1,7 +1,9 @@
+:lang: en
+:toc:
+
 ////////////////////////////////////////////////
 use image:: for equation png files -- no latexmath
 ////////////////////////////////////////////////
-:lang: en
 
 [[cha:5-axis-kinematics]]
 = 5-Axis Kinematics(((5-Axis Kinematics)))
@@ -251,7 +253,6 @@ Equating the last column of (32) with the tool position vector Q, we can write:
 
 image::5-axis-figures/equation__34.png[align="center"]
 
-
 The vector on the right hand side can also be written as the product of a matrix and a vector resulting in:
 
 image::5-axis-figures/equation__35.png[align="center"]
@@ -362,11 +363,10 @@ is replaced by
 KINEMATICS = kinsname
 ----
 
-where "kinsname" is the name of your kins program.  Additional HAL pins may
-be created by the module for variable configuration items such as
-the D~x~, D~y~, D~z~, tool-offset used in the xyzac-trt kinematics
-module.   These pins can be connected to a signal for dynamic control
-or set once with HAL connections like:
+where "kinsname" is the name of your kins program.
+Additional HAL pins may be created by the module for variable configuration items
+such as the D~x~, D~y~, D~z~, tool-offset used in the xyzac-trt kinematics module.
+These pins can be connected to a signal for dynamic control or set once with HAL connections like:
 
 ----
 # set offset parameters
@@ -378,13 +378,13 @@ setp xyzac-trt-kins.z-offset 20
 == Figures
 
 .Table tilting/rotating configuration
-image::5-axis-figures/Figure-9.png[align="center",height=300]
+image::5-axis-figures/Figure-9.png["Table tilting/rotating configuration",align="center",height=300]
 
 .Spindle/table tilting configuration
-image::5-axis-figures/Figure-10.png[align="center",height=300]
+image::5-axis-figures/Figure-10.png["Spindle/table tilting configuration",align="center",height=300]
 
 .Spindle tilting/rotary configuration
-image::5-axis-figures/Figure-11.png[align="center",height=300]
+image::5-axis-figures/Figure-11.png["Spindle tilting/rotary configuration",align="center",height=300]
 
 /////////////////////////////////////////////////////
 == References  nope nope nope pdf nope
@@ -392,16 +392,14 @@ image::5-axis-figures/Figure-11.png[align="center",height=300]
 
 == REFERENCES
 
- . A Postprocessor Based on the Kinematics Model for General Five-Axis machine
-   Tools: C-H She, R-S Lee, J Manufacturing Processes, V2 N2, 2000.
+. A Postprocessor Based on the Kinematics Model for General Five-Axis machine
+  Tools: C-H She, R-S Lee, J Manufacturing Processes, V2 N2, 2000.
+. NC Post-processor for 5-axis milling of table-rotating/tilting type: YH Jung,
+  DW Lee, JS Kim, HS Mok, J Materials Processing Technology,130-131 (2002)
+  641-646.
+. 3D 6-DOF Serial Arm Robot Kinematics, RJ du Preez, SA-CNC-CLUB, Dec. 5, 2013.
+. Design of a generic five-axis postprocessor based on generalized kinematics
+  model of machine tool: C-H She, C-C Chang, Int. J Machine Tools & Manufacture,
+  47 (2007) 537-545.
 
- . NC Post-processor for 5-axis milling of table-rotating/tilting type: YH Jung,
-   DW Lee, JS Kim, HS Mok, J Materials Processing Technology,130-131 (2002)
-   641-646.
-
- . 3D 6-DOF Serial Arm Robot Kinematics, RJ du Preez, SA-CNC-CLUB, Dec.  5, 2013.
-
- . Design of a generic five-axis postprocessor based on generalized kinematics
-   model of machine tool: C-H She, C-C Chang, Int. J Machine Tools & Manufacture,
-   47 (2007) 537-545.
-
+// vim: set syntax=asciidoc:

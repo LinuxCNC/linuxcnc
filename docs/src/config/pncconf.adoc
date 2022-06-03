@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:pncconf-wizard]]
 = Mesa Configuration Wizard
@@ -36,7 +37,6 @@ details.
 == Step by Step Instructions
 
 .PnCConf Splash
-
 image::images/pncconf-splash.png["PnCConf Configuration Wizard"]
 
 == Create or Edit
@@ -58,7 +58,6 @@ Selector 'LinuxCNC' found in CNC menu and selecting your config name.
 == Basic Machine Information
 
 .PnCConf Basic
-
 image::images/pncconf-basic.png["PnCConf Basic machine information"]
 
 Machine Basics::
@@ -192,9 +191,8 @@ QtPlasmaC
 This page allows you to select external controls such as for jogging or
 overrides.
 
-.GUI External
-
-image::images/pncconf-external.png["External Controls"]
+.External Controls
+image::images/pncconf-external.png["External Controls",align="center"]
 
 If you select a Joystick for jogging, You will need it always connected for LinuxCNC
 to load. To use the analog sticks for useful jogging you probably need to add
@@ -208,14 +206,12 @@ Requires a custom 'device rule' to be installed in the system. This is a file
 that LinuxCNC uses to connect to LINUX's device list. PNCconf will help to make this
 file.
 
-'Search for device rule' will search the system for rules, you can use this to
-find the name of devices you have already built with PNCconf.
-
-'Add a device rule' will allow you to configure a new device by following the
-prompts. You will need your device available.
-
-'test device' allows you to load a device, see its pin names and check its
-functions with halmeter.
+* 'Search for device rule' will search the system for rules, you can use this to
+  find the name of devices you have already built with PNCconf.
+* 'Add a device rule' will allow you to configure a new device by following the
+  prompts. You will need your device available.
+* 'test device' allows you to load a device, see its pin names and check its
+  functions with halmeter.
 
 joystick jogging uses HALUI and hal_input components.
 
@@ -244,7 +240,6 @@ Here you can set defaults for the display screens, add virtual control panels
 (VCP), and set some LinuxCNC options..
 
 .GUI Configuration
-
 image::images/pncconf-gui.png["GUI Configuration"]
 
 Front-end GUI Options::
@@ -272,7 +267,6 @@ If QtPlasmac is selected then the following screen will be a user button setup
 screen that is specific to QtPlasmaC and VCP options will not be available.
 
 VCP options::
-
 Virtual Control Panels allow one to add custom controls and displays to the
 screen. AXIS and Touchy can integrate these controls inside the screen in
 designated positions. There are two kinds of VCPs -
@@ -332,20 +326,18 @@ the system is capable.
 You can select a GTK theme which sets the basic look and feel of the panel.
 You Usually want this to match the front-end screen.
 These options will be used if you press the 'Display sample button'.
-With GLADE VCP depending on the front-end screen, you can select where the panel
-will display.
+With GLADE VCP depending on the front-end screen, you can select where the panel will display.
 
 You can force it to be stand-alone or with AXIS it can be in the center or on
 the right side, with Touchy it can be in the center.
 
 Defaults and Options::
-
 * Require homing before MDI / Running
 ** If you want to be able to move the machine before homing uncheck
-this checkbox.
+   this checkbox.
 * Popup Tool Prompt
 ** Choose between an on screen prompt for tool changes or export standard signal
-names for a User supplied custom tool changer Hal file
+   names for a User supplied custom tool changer Hal file
 * Leave spindle on during tool change:
 ** Used for lathes
 * Force individual manual homing
@@ -354,7 +346,7 @@ names for a User supplied custom tool changer Hal file
 ** Used for non-trivial kinematics machines
 * Random position tool changers
 ** Used for tool changers that do not return the tool to the same
-pocket. You will need to add custom HAL code to support tool changers.
+   pocket. You will need to add custom HAL code to support tool changers.
 
 == Mesa Configuration
 
@@ -363,8 +355,7 @@ On the basic page you selected a Mesa card here you pick the available firmware
 and select what and how many components are available.
 
 .Mesa Board Configuration
-
-image::images/pncconf-mesa-config.png["Mesa Config."]
+image::images/pncconf-mesa-config.png["Mesa Board Configuration"]
 
 Parport address is used only with Mesa parport card, the 7i43. An on board
 parallel port usually uses 0x278 or 0x378 though you should be able to find the
@@ -419,42 +410,38 @@ available connectors, depending on the Mesa board.
 The tabs are used to configure the input and output pins of the Mesa boards.
 PNCconf allows one to create custom signal names for use in custom HAL files.
 
-.Mesa I/O C2
-
-image::images/pncconf-mesa-io2.png["Mesa I/O C2"]
+.Mesa I/O C2 Setup
+image::images/pncconf-mesa-io2.png["Mesa I/O C2 Setup"]
 
 On this tab with this firmware the components are setup for a 7i33 daughter
 board, usually used with closed loop servos. Note the component numbers of the
 encoder counters and PWM drivers are not in numerical order. This follows the
 daughter board requirements.
 
-.Mesa I/O C3
-
-image::images/pncconf-mesa-io3.png["Mesa I/O C3"]
+.Mesa I/O C3 Setup
+image::images/pncconf-mesa-io3.png["Mesa I/O C3 Setup"]
 
 On this tab all the pins are GPIO. Note the 3 digit numbers - they will match
 the HAL pin number. GPIO pins can be selected as input or output and can be
 inverted.
 
-.Mesa I/O C4
-
-image::images/pncconf-mesa-io4.png["Mesa I/O C4"]
+.Mesa I/O C4 Setup
+image::images/pncconf-mesa-io4.png["Mesa I/O C4 Setup"]
 
 On this tab there are a mix of step generators and GPIO.
 Step generators output and direction pins can be inverted. Note that inverting a
 Step Gen-A pin (the step output pin) changes the step timing. It should match
 what your controller expects.
 
-== Parport configuration
+== Parallel port configuration
 
-image::images/pncconf-parport.png["Parport configuration"]
+image::images/pncconf-parport.png["Parallel port configuration"]
 
 The parallel port can be used for simple I/O similar to Mesa's GPIO pins.
 
 == Axis Configuration
 
 .Axis Drive Configuration
-
 image::images/pncconf-axis-drive.png["Axis Drive Configuration"]
 
 This page allows configuring and testing of the motor and/or encoder combination.
@@ -475,7 +462,8 @@ test so start with lower DAC numbers. By moving the axis a known distance one
 can confirm the encoder scaling. The encoder should count even without the amp
 enabled depending on how power is supplied to the encoder.
 
-WARNING: If the motor and encoder do not agree on counting direction then the
+[WARNING]
+If the motor and encoder do not agree on counting direction then the
 servo will run away when using PID control.
 
 Since at the moment PID settings can not be tested in PNCconf the settings are
@@ -507,28 +495,27 @@ values that reflect the combined effects of amplifier gain, DAC non-linearity,
 DAC units, etc. To do this, follow this procedure:
 
 * Build a calibration table for the output, driving the DAC with a
-desired voltage and measuring the result:
+  desired voltage and measuring the result:
 
 .Output Voltage Measurements
-
-[cols="^,^",width="50%"]
-|==================
-|*Raw* | *Measured*
-|-10 | *-9.93*
-| -9 | *-8.83*
-|  0 | *-0.96*
-|  1 | *-0.03*
-|  9 | *9.87*
-| 10 | *10.07*
-|==================
+[cols="^,^",width="50%",options="header"]
+|====
+| Raw | Measured
+| -10 | *-9.93*
+|  -9 | *-8.83*
+|   0 | *-0.96*
+|   1 | *-0.03*
+|   9 | *9.87*
+|  10 | *10.07*
+|====
 
 * Do a least-squares linear fit to get coefficients a, b such that meas=a*raw+b
 * Note that we want raw output such that our measured result is
-            identical to the commanded output. This means
+  identical to the commanded output. This means
 ** cmd=a*raw+b
 ** raw=(cmd-b)/a
 * As a result, the a and b coefficients from the linear fit can be used
-            as the scale and offset for the controller directly.
+  as the scale and offset for the controller directly.
 
 MAX OUTPUT::
 The maximum value for the output of the PID compensation that is written to the
@@ -560,7 +547,6 @@ require one to finish the HAL connections. Contact the mail-list or forum for
 more help.
 
 .Axis Scale Calculation
-
 image::images/pncconf-scale-calc.png["Axis Scale Calculation"]
 
 The scale settings can be directly entered or one can use the 'calculate scale'
@@ -570,14 +556,14 @@ ratio is just the opposite it requires the gear ratio. If your happy with the
 scale press apply otherwise push cancel and enter the scale directly.
 
 .Axis Configuration
-
 image::images/pncconf-axis-config.png["Axis Configuration"]
 
 Also refer to the diagram tab for two examples of
 home and limit switches. These are two examples of
 many different ways to set homing and limits.
 
-IMPORTANT: It is very important to start with the axis moving in the right
+[IMPORTANT]
+It is very important to start with the axis moving in the right
 direction or else getting homing right is very difficult!
 
 Remember positive and negative directions
@@ -743,16 +729,15 @@ the latch stage of homing.
 
 Use Compensation File::
 Allows specifying a Comp filename and type.
-Allows sophisticated compensation. See <<sec:axis-section,AXIS Section>>
+Allows sophisticated compensation. See <<sub:ini:sec:axis-letter,AXIS Section>>
 of the INI Chapter.
 
 Use Backlash Compensation::
 Allows setting of simple backlash compensation. Can
-not be used with Compensation File. See <<sec:axis-section,AXIS Section>>
+not be used with Compensation File. See <<sub:ini:sec:axis-letter,AXIS Section>>
 of the INI Chapter.
 
 .AXIS Help Diagram
-
 image::images/pncconf-diagram-lathe.png["AXIS Help Diagram"]
 
 The diagram should help to demonstrate an example of limit switches and
@@ -775,8 +760,7 @@ control.
 TIP: Many of the option on this page will not show unless the proper option was
 selected on previous pages!
 
-.Spindle Configuration
-
+.Spindle Motor/Encoder Configuration
 image::images/pncconf-spindle-config.png["Spindle Configuration"]
 
 This page is similar to the axis motor configuration page.
@@ -784,26 +768,26 @@ This page is similar to the axis motor configuration page.
 There are some differences:
 
 * Unless one has chosen a stepper driven spindle there is no acceleration or
-velocity limiting.
+  velocity limiting.
 * There is no support for gear changes or ranges.
 * If you picked a VCP spindle display option then spindle-at-speed scale and
-filter settings may be shown.
+  filter settings may be shown.
 * Spindle-at-speed allows LinuxCNC to wait till the spindle is at the requested speed
-before moving the axis. This is particularly handy on lathes with constant
-surface feed and large speed diameter changes. It requires either encoder
-feedback or a digital spindle-at-speed signal typically connected to a VFD
-drive.
+  before moving the axis. This is particularly handy on lathes with constant
+  surface feed and large speed diameter changes. It requires either encoder
+  feedback or a digital spindle-at-speed signal typically connected to a VFD
+  drive.
 * If using encoder feedback, you may select a spindle-at-speed scale setting that
-specifies how close the actual speed must be to the requested speed to be
-considered at-speed.
+  specifies how close the actual speed must be to the requested speed to be
+  considered at-speed.
 * If using encoder feedback, the VCP speed display can be erratic - the
-filter setting can be used to smooth out the display. The encoder scale must be
-set for the encoder count / gearing used.
+  filter setting can be used to smooth out the display. The encoder scale must be
+  set for the encoder count / gearing used.
 * If you are using a single input for a spindle encoder you must add the line:
-setp hm2_7i43.0.encoder.00.counter-mode 1 (changing the board name and encoder
-number to your requirements) into a custom
-HAL file. See the <<sec:hm2-encoder,Encoders Section>> in Hostmot2 for more
-info about counter mode.
+  setp hm2_7i43.0.encoder.00.counter-mode 1 (changing the board name and encoder
+  number to your requirements) into a custom
+  HAL file. See the <<sec:hm2-encoder,Encoders Section>> in Hostmot2 for more
+  info about counter mode.
 
 == Advanced Options
 
@@ -811,7 +795,7 @@ This allows setting of HALUI commands and loading of classicladder and sample
 ladder programs.
 If you selected GLADE VCP options such as for zeroing axis, there will be
 commands showing.
-See the <<cha:hal-user-interface,HALUI Chapter>>for more info on using custom
+See the << cha:hal-user-interface,HALUI Chapter >>for more info on using custom
 halcmds.
 There are several ladder program options.
 The Estop program allows an external ESTOP switch or the GUI frontend to throw
@@ -820,11 +804,10 @@ The Z auto touch-off is with a touch-off plate, the GLADE VCP touch-off button
 and special HALUI commands to set the current user origin to zero and rapid
 clear.
 The serial modbus program is basically a blank template program that sets up
-classicladder for serial modbus. See the <<cha:classicladder,Classicladder Chapter>>
+classicladder for serial modbus. See the << cha:classicladder,Classicladder Chapter >>
 in the manual.
 
 .PnCConf, Advanced Options
-
 image::images/pncconf-advanced.png["PnCConf Advanced Options"]
 
 == HAL Components
@@ -835,7 +818,6 @@ In this way one should not have to hand edit the main HAL file, while still
 allowing user needed components.
 
 .HAL Components
-
 image::images/pncconf-hal.png["HAL Components"]
 
 The first selection is components that pncconf uses internally.

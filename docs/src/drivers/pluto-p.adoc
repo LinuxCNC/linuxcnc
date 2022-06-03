@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:pluto-p-driver]]
 = Pluto P Driver
@@ -10,79 +11,79 @@ The Pluto-P is a FPGA board featuring the ACEX1K chip from Altera.
 === Requirements
 
 . A Pluto-P board
-. An EPP-compatible parallel port, configured for EPP mode in the system BIOS
-  or a PCI EPP compatible parallel port card.
+. An EPP-compatible parallel port, configured for EPP mode in the system
+  BIOS or a PCI EPP compatible parallel port card.
 
 [NOTE]
-The Pluto P board requires EPP mode. Netmos98xx chips do not work in EPP mode.
+The Pluto P board requires EPP mode. Netmos98xx chips do not work in EPP
+mode.
 The Pluto P board  will work on some computers and not on others.
 There is no known pattern to which computers work and which don't work.
 
 For more information on PCI EPP compatible parallel port cards see the
-http://wiki.linuxcnc.org/cgi-bin/wiki.pl?LinuxCNC_Supported_Hardware[LinuxCNC
-Supported Hardware] page on the wiki.
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?LinuxCNC_Supported_Hardware[LinuxCNC Supported Hardware] page on the wiki.
 
 === Connectors
 
- * The Pluto-P board is shipped with the left connector presoldered, with
-   the key in the indicated position. The other connectors are
-   unpopulated. There does not seem to be a standard 12-pin IDC connector,
-   but some of the pins of a 16P connector can hang off the board next to
-   QA3/QZ3.
- * The bottom and right connectors are on the same .1" grid, but the left
-   connector is not. If OUT2…OUT9 are not required, a single IDC connector
-   can span the bottom connector and the bottom two rows of the right
-   connector.
+* The Pluto-P board is shipped with the left connector presoldered, with
+  the key in the indicated position. The other connectors are
+  unpopulated. There does not seem to be a standard 12-pin IDC connector,
+  but some of the pins of a 16P connector can hang off the board next to
+  QA3/QZ3.
+* The bottom and right connectors are on the same .1" grid, but the left
+  connector is not. If OUT2…OUT9 are not required, a single IDC connector
+  can span the bottom connector and the bottom two rows of the right
+  connector.
 
 === Physical Pins
 
- * Read the ACEX1K datasheet for information about input and output
-   voltage thresholds. The pins are all configured in 'LVTTL/LVCMOS' mode
-   and are generally compatible with 5V TTL logic.
- * Before configuration and after properly exiting LinuxCNC, all Pluto-P pins
-   are tristated with weak pull-ups (20k-ohms min, 50k-ohms max). If the
-   watchdog timer is enabled (the default),
-   these pins are also tristated after an interruption of communication
-   between LinuxCNC and the board. The watchdog timer takes approximately
-   6.5ms to activate. However, software bugs in the pluto_servo firmware
-   or LinuxCNC can leave the Pluto-P pins in an undefined state.
- * In pwm+dir mode, by default dir is HIGH for negative values and LOW
-   for positive values. To select HIGH for positive values and LOW for
-   negative values, set the corresponding dout-NN-invert parameter TRUE to
-   invert the signal.
- * The index input is triggered on the rising edge. Initial testing has
-   shown that the QZx inputs are particularly noise sensitive, due to
-   being polled every 25ns. Digital filtering has been added to filter
-   pulses shorter than 175ns (seven polling times). Additional external
-   filtering on all input pins, such as a Schmitt buffer or inverter, RC
-   filter, or differential receiver (if applicable) is recommended.
- * The IN1…IN7 pins have 22-ohm series resistors to their associated FPGA
-   pins. No other pins have any sort of protection for out-of-spec
-   voltages or currents. It is up to the integrator to add appropriate
-   isolation and protection. Traditional parallel port optoisolator boards
-   do not work with pluto_servo due to the bidirectional nature of the EPP
-   protocol.
+* Read the ACEX1K datasheet for information about input and output
+  voltage thresholds. The pins are all configured in 'LVTTL/LVCMOS' mode
+  and are generally compatible with 5V TTL logic.
+* Before configuration and after properly exiting LinuxCNC, all Pluto-P
+  pins are tristated with weak pull-ups (20k-ohms min, 50k-ohms max).
+  If the watchdog timer is enabled (the default),
+  these pins are also tristated after an interruption of communication
+  between LinuxCNC and the board. The watchdog timer takes approximately
+  6.5ms to activate. However, software bugs in the pluto_servo firmware
+  or LinuxCNC can leave the Pluto-P pins in an undefined state.
+* In pwm+dir mode, by default dir is HIGH for negative values and LOW
+  for positive values. To select HIGH for positive values and LOW for
+  negative values, set the corresponding dout-NN-invert parameter TRUE
+  to invert the signal.
+* The index input is triggered on the rising edge. Initial testing has
+  shown that the QZx inputs are particularly noise sensitive, due to
+  being polled every 25ns. Digital filtering has been added to filter
+  pulses shorter than 175ns (seven polling times). Additional external
+  filtering on all input pins, such as a Schmitt buffer or inverter, RC
+  filter, or differential receiver (if applicable) is recommended.
+* The IN1…IN7 pins have 22-ohm series resistors to their associated FPGA
+  pins. No other pins have any sort of protection for out-of-spec
+  voltages or currents. It is up to the integrator to add appropriate
+  isolation and protection. Traditional parallel port optoisolator
+  boards do not work with pluto_servo due to the bidirectional nature of
+  the EPP protocol.
 
 === LED
 
- * When the device is unprogrammed, the LED glows faintly. When the
-   device is programmed, the LED glows according to the duty cycle of PWM0
-   ('LED' = 'UP0' 'xor' 'DOWN0') or STEPGEN0 ('LED' = 'STEP0' 'xor'
-   'DIR0').
+* When the device is unprogrammed, the LED glows faintly. When the
+  device is programmed, the LED glows according to the duty cycle of
+  PWM0 ('LED' = 'UP0' 'xor' 'DOWN0') or
+  STEPGEN0 ('LED' = 'STEP0' 'xor' 'DIR0').
 
 === Power
 
- * A small amount of current may be drawn from VCC. The available current
-   depends on the unregulated DC input to the board. Alternately,
-   regulated +3.3VDC may be supplied to the FPGA through these VCC pins.
-   The required current is not yet known, but is probably around 50mA plus
-   I/O current.
- * The regulator on the Pluto-P board is a low-dropout type. Supplying 5V
-   at the power jack will allow the regulator to work properly.
+* A small amount of current may be drawn from VCC. The available current
+  depends on the unregulated DC input to the board. Alternately,
+  regulated +3.3VDC may be supplied to the FPGA through these VCC pins.
+  The required current is not yet known, but is probably around 50mA plus
+  I/O current.
+* The regulator on the Pluto-P board is a low-dropout type. Supplying 5V
+  at the power jack will allow the regulator to work properly.
 
 === PC interface
 
- * Only a single pluto_servo or pluto_step board is supported.
+* Only a single pluto_servo or pluto_step board is supported.
 
 === Rebuilding the FPGA firmware
 
@@ -90,8 +91,8 @@ The 'src/hal/drivers/pluto_servo_firmware/' and
 'src/hal/drivers/pluto_step_firmware/'  subdirectories contain the
 Verilog source code plus additional files
 used by Quartus for the FPGA firmwares. Altera's Quartus II software is
-required to rebuild the FPGA firmware. To rebuild the firmware from the .hdl
-and other source files, open the '.qpf' file and press CTRL-L.
+required to rebuild the FPGA firmware. To rebuild the firmware from
+the .hdl and other source files, open the '.qpf' file and press CTRL-L.
 Then, recompile LinuxCNC.
 
 Like the HAL hardware driver, the FPGA firmware is licensed under the
@@ -115,58 +116,50 @@ limit switches.
 
 This driver features:
 
- * 4 quadrature channels with 40MHz sample rate. The counters operate in
-   '4x' mode. The maximum useful quadrature rate is 8191 counts per LinuxCNC
-   servo cycle, or about 8MHz for LinuxCNC's default 1ms servo rate.
- * 4 PWM channels, 'up/down' or 'pwm+dir' style. 4095 duty cycles from
-   -100% to +100%, including 0%. The PWM period is approximately 19.5kHz
-   (40MHz / 2047). A PDM-like mode is also available.
- * 18 digital outputs: 10 dedicated, 8 shared with PWM functions.
-   (Example: A lathe with unidirectional PWM spindle control may use 13
-   total digital outputs)
- * 20 digital inputs: 8 dedicated, 12 shared with Quadrature functions.
-   (Example: A lathe with index pulse only on the spindle may use 13 total
-   digital inputs)
- * EPP communication with the PC. The EPP communication typically takes
-   around 100 us on machines tested so far, enabling servo rates above
-   1kHz.
+* 4 quadrature channels with 40MHz sample rate. The counters operate in
+  '4x' mode. The maximum useful quadrature rate is 8191 counts per
+  LinuxCNC servo cycle, or about 8MHz for LinuxCNC's default 1ms servo
+  rate.
+* 4 PWM channels, 'up/down' or 'pwm+dir' style. 4095 duty cycles from
+  -100% to +100%, including 0%. The PWM period is approximately 19.5kHz
+  (40MHz / 2047). A PDM-like mode is also available.
+* 18 digital outputs: 10 dedicated, 8 shared with PWM functions.
+  (Example: A lathe with unidirectional PWM spindle control may use 13
+  total digital outputs)
+* 20 digital inputs: 8 dedicated, 12 shared with Quadrature functions.
+  (Example: A lathe with index pulse only on the spindle may use 13
+  total digital inputs)
+* EPP communication with the PC. The EPP communication typically takes
+  around 100 us on machines tested so far, enabling servo rates above
+  1kHz.
 
 === Pinout
 
- * 'UPx' - The 'up' (up/down mode) or 'pwm' (pwm+direction mode) signal from PWM
-   generator X. May be used as a digital output if the corresponding PWM
-   channel is unused, or the output on the channel is always negative. The
-   corresponding digital output invert may be set to TRUE to make UPx
-   active low rather than active high.
-
- * 'DNx' - The 'down' (up/down mode) or 'direction' (pwm+direction mode) signal
-   from PWM generator X. May be used as a digital output if the
-   corresponding PWM channel is unused, or the output on the channel is
-   never negative. The corresponding digital output invert may be set to
-   TRUE to make DNx active low rather than active high.
-
- * 'QAx, QBx' - The A and B signals for Quadrature counter X. May be used as a digital
-   input if the corresponding quadrature channel is unused.
-
- * 'QZx' - The Z (index) signal for quadrature counter X. May be used as a
-   digital input if the index feature of the corresponding quadrature
-   channel is unused.
-
- * 'INx' - Dedicated digital input #x
-
- * 'OUTx' - Dedicated digital output #x
-
- * 'GND' - Ground
-
- * 'VCC' - +3.3V regulated DC
+* 'UPx' - The 'up' (up/down mode) or 'pwm' (pwm+direction mode) signal
+  from PWM generator X. May be used as a digital output if the
+  corresponding PWM channel is unused, or the output on the channel is
+  always negative. The corresponding digital output invert may be set to
+  TRUE to make UPx active low rather than active high.
+* 'DNx' - The 'down' (up/down mode) or 'direction' (pwm+direction mode)
+  signal from PWM generator X. May be used as a digital output if the
+  corresponding PWM channel is unused, or the output on the channel is
+  never negative. The corresponding digital output invert may be set to
+  TRUE to make DNx active low rather than active high.
+* 'QAx, QBx' - The A and B signals for Quadrature counter X. May be used
+  as a digital input if the corresponding quadrature channel is unused.
+* 'QZx' - The Z (index) signal for quadrature counter X. May be used as
+  a digital input if the index feature of the corresponding quadrature
+  channel is unused.
+* 'INx' - Dedicated digital input #x
+* 'OUTx' - Dedicated digital output #x
+* 'GND' - Ground
+* 'VCC' - +3.3V regulated DC
 
 .Pluto-Servo Pinout(((pluto-servo pinout)))
-
 image::images/pluto-pinout.png["Pluto-Servo Pinout",align="center"]
 
 .Pluto-Servo Alternate Pin Functions
-
-[width="90%", options="header"]
+[width="90%",options="header"]
 |========================================
 |Primary function | Alternate Function | Behavior if both functions used
 |*UP0* | PWM0  | When pwm-0-pwmdir is TRUE, this pin is the PWM output
@@ -201,12 +194,12 @@ image::images/pluto-pinout.png["Pluto-Servo Pinout",align="center"]
 
 === Input latching and output updating
 
- * PWM duty cycles for each channel are updated at different times.
- * Digital outputs OUT0 through OUT9 are all updated at the same time.
-   Digital outputs OUT10 through OUT17 are updated at the same time as the
-   pwm function they are shared with.
- * Digital inputs IN0 through IN19 are all latched at the same time.
- * Quadrature positions for each channel are latched at different times.
+* PWM duty cycles for each channel are updated at different times.
+* Digital outputs OUT0 through OUT9 are all updated at the same time.
+  Digital outputs OUT10 through OUT17 are updated at the same time as
+  the pwm function they are shared with.
+* Digital inputs IN0 through IN19 are all latched at the same time.
+* Quadrature positions for each channel are latched at different times.
 
 === HAL Functions, Pins and Parameters
 
@@ -233,11 +226,11 @@ limit switches.
 
 The board features:
 
- * 4 'step+direction' channels with 312.5kHz maximum step rate,
-   programmable step length, space, and direction change times
- * 14 dedicated digital outputs
- * 16 dedicated digital inputs
- * EPP communication with the PC
+* 4 'step+direction' channels with 312.5kHz maximum step rate,
+  programmable step length, space, and direction change times
+* 14 dedicated digital outputs
+* 16 dedicated digital inputs
+* EPP communication with the PC
 
 === Pinout
 
@@ -255,7 +248,6 @@ different than the layout of a standard 26-pin ribbon cable to DB25
 connector.
 
 .Pluto-Step Pinout (((pluto-step pinout)))
-
 image::images/pluto-step-pinout.png["Pluto-Step Pinout",align="center"]
 
 === Input latching and output updating
@@ -276,7 +268,6 @@ are the same as for the software stepgen component, except that
 step timings are always applied to all channels.
 
 .Pluto-Step Timings (((pluto-step timings)))
-
 image::images/pluto_step_waveform.png["Pluto-Step Timings",align="center"]
 
 === HAL Functions, Pins and Parameters
@@ -284,3 +275,4 @@ image::images/pluto_step_waveform.png["Pluto-Step Timings",align="center"]
 A list of all 'loadrt' arguments, HAL function names, pin names and
 parameter names is in the manual page, 'pluto_step.9'.
 
+// vim: set syntax=asciidoc:

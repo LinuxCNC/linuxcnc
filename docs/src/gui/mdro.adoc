@@ -65,6 +65,7 @@ to those in the INI file can be set on the command line:
 
 Using an example of "XYZA" for an AXES argument, these pins will be created
 when MDRO starts:
+
 [source,python]
 ----
 mdro.axis.0

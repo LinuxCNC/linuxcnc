@@ -8,9 +8,12 @@
 
 Configuration moves from theory to device -- HAL device that is. For
 those who have had just a bit of computer programming, this section is
-the 'Hello World' of the HAL. Halrun can be used to create a working
-system. It is a command line or text file tool for configuration and
-tuning. The following examples illustrate its setup and operation.
+the 'Hello World' of the HAL.
+
+Halrun can be used to create a working system. It is a command line or
+text file tool for configuration and tuning.
+
+The following examples illustrate its setup and operation.
 
 [[haltut-halcmd]]
 == Halcmd(((Halcmd Tutorial)))
@@ -49,7 +52,7 @@ completing file names as a shell does, it completes commands with HAL
 identifiers. You will have to type enough letters for a unique match.
 Try pressing tab after starting a HAL command:
 
-.Tab Completion
+.Tab-completion
 ----
 halcmd: loa<TAB>
 halcmd: load
@@ -335,7 +338,7 @@ Owner   Type  Dir         Value  Name
      3  s32   RO           1754  siggen.0.update.time
      3  s32   RW          16997  siggen.0.update.tmax
 
-halcmd: show pn
+halcmd: show pin
 
 Component Pins:
 Owner   Type  Dir         Value  Name
@@ -521,8 +524,8 @@ The probe
 selection dialog will close, and the meter looks something like the
 following figure.
 
-.Halmeter
-image::images/halmeter-1.png["Halmeter",align="center"]
+.Halmeter Window
+image::images/halmeter-1.png["Halmeter Window",align="center"]
 
 To change what the meter displays press the 'Select' button which
 brings back the 'Select Item to Probe' window.
@@ -875,7 +878,7 @@ running in a terminal you can start halscope with the following command.
 
 .Starting Halscope
 ----
-halcmd: loadusr halscope
+halcmd loadusr halscope
 ----
 
 If LinuxCNC is not running or the autosave.halscope file does not match
@@ -983,7 +986,7 @@ only. For larger adjustments the offset button should be used.
 
 [[fig:halscope-vertical-adjustment]]
 .Vertical Adjustment
-image::images/halscope-07.png["Vertical Adjustment", align="center"]
+image::images/halscope-07.png["Vertical Adjustment",align="center"]
 
 The large _Selected Channel_ button at the bottom indicates that channel 1 is
 currently selected channel and that it matches the _X-vel_ signal.
@@ -1076,7 +1079,7 @@ halscope with a numeric argument which indicates the number of samples
 you want to capture.
 
 ----
-halcmd: loadusr halscope 80000
+halcmd loadusr halscope 80000
 ----
 
 If the 'scope_rt' component was not already loaded, halscope will

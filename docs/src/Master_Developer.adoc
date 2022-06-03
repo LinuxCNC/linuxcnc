@@ -5,6 +5,7 @@
 :masterdir: {indir}
 :revdate: 2021-10-28
 = Developer Manual V{lversion}, {date}
+
 == Introduction
 
 image::common/images/emc2-intro.png[]

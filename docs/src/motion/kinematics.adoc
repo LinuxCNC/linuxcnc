@@ -26,7 +26,7 @@ into positions which correspond to the machine
 (((kinematics)))kinematics. footnote:[Kinematics: a two way function to
 transform from Cartesian space to joint space]
 
-=== Joints vs. Axes
+=== Joints vs Axes
 
 A joint of a CNC machine is a one of the physical degrees of freedom
 of the machine. This might be linear (leadscrews) or rotary (rotary
@@ -36,11 +36,10 @@ typical simple milling machine has only 3.
 
 There are certain machines where the joints are laid out to match
 kinematics axes (joint 0 along axis X, joint 1 along axis Y, joint 2
-along axis Z), and these machines are called (((Cartesian
-machines)))Cartesian machines (or machines with (((Trivial
-Kinematics)))Trivial Kinematics). These are the most common machines
-used in milling, but are not very common in other domains of machine
-control (e.g. welding: puma-typed robots).
+along axis Z), and these machines are called (((Cartesian machines)))
+Cartesian machines (or machines with (((Trivial Kinematics)))Trivial Kinematics).
+These are the most common machines used in milling,
+but are not very common in other domains of machine control (e.g. welding: puma-typed robots).
 
 LinuxCNC supports axes with names: X Y Z A B C U V W.  The X Y Z axes
 typically refer to the usual Cartesian coordinates. The A B C axes refer to
@@ -97,8 +96,7 @@ pos->v      = joints[7];
 pos->w      = joints[8];
 ----
 
-Similarly, the default relationships for inverse kinematics for trivkins
-are:
+Similarly, the default relationships for inverse kinematics for trivkins are:
 
 ----
 joints[0] = pos->tran.x;
@@ -118,7 +116,7 @@ axis letters used.
 
 It gets a bit more complicated if the machine is missing one or more of the
 axis letters.  The problems of omitted axis letters is addressed by using the
-'coordinates=' module parameter with the trivkins module.  Joint numbers are
+'coordinates=' module parameter with the trivkins module. Joint numbers are
 assigned consecutively to each coordinate specified.  A lathe can be described
 with 'coordinates=xz' The joint assignments will then be:
 
@@ -132,7 +130,7 @@ axis letters. footnote:[ Historically, the trivkins module did not support the
 'coordinates=' parameter so lathe configs were often configured as XYZ
 machines.  The unused Y axis was configured to 1) home immediately, 2) use a
 simple loopback to connect its position command hal pin to its position
-feedback hal pin, and 3) hidden in gui displays.   Numerous sim configs use
+feedback hal pin, and 3) hidden in gui displays. Numerous sim configs use
 these methods in order to share common hal files.]
 
 The 'trivkins' kinematics module also allows the same coordinate to be specified
@@ -162,11 +160,8 @@ To illustrate the above, we will analyze a simple kinematics called
 bipod (a simplified version of the tripod, which is a simplified
 version of the hexapod).
 
-////
 .Bipod setup
-////
-
-image::images/bipod.png["Bipod setup"]
+image::images/bipod.png["Bipod setup",align="center"]
 
 The Bipod we are talking about is a device that consists of 2 motors
 placed on a wall, from which a device is hung using some wire. The
@@ -189,27 +184,27 @@ to Cartesian coordinates (Dx, Dy) and vice-versa.
 
 To transform from joint space into Cartesian space we will use some
 trigonometry rules (the right triangles determined by the points (0,0),
-(Dx,0), (Dx,Dy) and the triangle (Dx,0), (Bx,0) and (Dx,Dy).
+(Dx,0), (Dx,Dy) and the triangle (Dx,0), (Bx,0) and (Dx,Dy)).
 
 We can easily see that:
 
-image:images/kinematics-math-01.png[align="center"],
+image::images/kinematics-math-01.png[align="center"]
 
 likewise:
 
-image:images/kinematics-math-02.png[align="center"]
+image::images/kinematics-math-02.png[align="center"]
 
 If we subtract one from the other we will get:
 
-image:images/kinematics-math-03.png[align="center"]
+image::images/kinematics-math-03.png[align="center"]
 
 and therefore:
 
-image:images/kinematics-math-04.png[align="center"]
+image::images/kinematics-math-04.png[align="center"]
 
 From there we calculate:
 
-image:images/kinematics-math-05.png[align="center"]
+image::images/kinematics-math-05.png[align="center"]
 
 ////////////////////////////////////////////////////////////////////
 we can easily see that latexmath:[$AD^{2}=x^{2}+y^{2}$], likewise
@@ -260,7 +255,7 @@ image::images/kinematics-math-07.png[align="left"]
 latexmath::[\[AD=\sqrt{x^{2}+y^{2}}\]]
 
 latexmath::[\[BD=\sqrt{(Bx-x)^{2}+y^{2}}\]]
-////////////////////////////////////////////////
+/////////////////////////////////////////////////
 
 or translated to actual code:
 
@@ -268,7 +263,7 @@ or translated to actual code:
 double x2 = pos->tran.x * pos->tran.x;
 double y2 = pos->tran.y * pos->tran.y;
 joints[0] = sqrt(x2 + y2);
-joints[1] = sqrt(Bx - pos->tran.x)*(Bx - pos->tran.x) + y2);
+joints[1] = sqrt((Bx - pos->tran.x)*(Bx - pos->tran.x) + y2);
 return 0;
 ----
 
@@ -298,7 +293,7 @@ Implements the inverse kinematics function.
 KINEMATICS_TYPE kinematicsType(void)
 ----
 
-Returns the kinematics type identifier:
+Returns the kinematics type identifier, típicamente 'KINEMATICS_BOTH':
 
 . KINEMATICS_IDENTITY  (each joint number corresponds to an axis letter)
 . KINEMATICS_BOTH      (forward and inverse kinematics functions are provided)
@@ -364,3 +359,4 @@ modifications are somewhat more complicated.
 See 'millturn.comp' as an example of a switchable kinematic
 module that was created using the 'userkins.comp' template.
 
+// vim: set syntax=asciidoc:

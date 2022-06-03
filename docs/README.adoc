@@ -1,24 +1,29 @@
-README for Document Writers
-===========================
+:lang: en
+:toc:
 
-Adding files:
--------------
-The src/Submakefile, src/docs.xml and src/index.tmpl files must be updated to add a new document file.
+= README for Document Writers
 
-The relevant pdf.adoc must be updated to include the new document in the pdf documentation. 
-e.g. if a new document belongs in the Master Documentation then an entry is required in src/Master_Documentation.adoc
+== Adding files
 
-docs.xml is used to create the "previous" and "next" buttons at the top of each individual HTML document. 
-it should generally match the order of the index.tmpl
+The src/Submakefile, src/docs.xml and src/index.tmpl files must be
+updated to add a new document file.
 
-Notes on LinuxCNC documentation:
---------------------------------
+The relevant pdf.adoc must be updated to include the new document in the
+pdf documentation. e.g. if a new document belongs in the Master
+Documentation then an entry is required in src/Master_Documentation.adoc
+
+docs.xml is used to create the "previous" and "next" buttons at the top
+of each individual HTML document. It should generally match the order of
+the index.tmpl
+
+== Notes on LinuxCNC documentation
+
 The main LinuxCNC makefile can optionally build the documentation and
-other files in this directory tree. Use "--enable-build-documentation" when
-invoking src/configure, and run "make" from src.
+other files in this directory tree. Use "--enable-build-documentation"
+when invoking src/configure, and run "make" from src.
 
-Notes about drawings:
----------------------
+== Notes about drawings
+
 Many of the documents include drawings. Most of them originally
 created using the non-free Windows app EasyCAD and then exported to .eps
 files and included in the the docs. The original 'source' files
@@ -26,32 +31,32 @@ files and included in the the docs. The original 'source' files
 problem, all of the source files have been converted to .dxf files,
 and added to Git. The .dxf files can be edited with multiple CAD packages,
 and serve as the 'source' files for future changes to the drawings.
-They can be converted from .dxf to postscript (not .eps) using QCAD, which
-is available for many systems [![Packaging status](https://repology.org/badge/tiny-repos/qcad.svg)](https://repology.org/project/qcad/versions)).
+They can be converted from .dxf to postscript (not .eps) using QCAD,
+which is available for many systems, see link:https://repology.org/project/qcad/[here].
 
-Unfortunately, EasyCAD (and AutoCAD) support a number of entities 
-that QCAD does not import properly. Including some that were used 
-in the LinuxCNC drawings: filled circles, filled arrowheads, non-zero 
-width lines, and dashed lines.  Qcad renders filled circles as 
-hollow, it renders all lines the same width, and it renders dashed 
-lines as solid, unless you tell it to do otherwise.  All of these 
-things make the drawings less attractive, but are somewhat 
-acceptable.  However, Qcad doesn't import filled arrowheads at all, 
-which seriously hurts the drawings.  So EasyCad was used to convert 
-the arrowheads to hollow before exporting them.  Hollow arrowheads 
+Unfortunately, EasyCAD (and AutoCAD) support a number of entities
+that QCAD does not import properly. Including some that were used
+in the LinuxCNC drawings: filled circles, filled arrowheads, non-zero
+width lines, and dashed lines.  Qcad renders filled circles as
+hollow, it renders all lines the same width, and it renders dashed
+lines as solid, unless you tell it to do otherwise.  All of these
+things make the drawings less attractive, but are somewhat
+acceptable.  However, Qcad doesn't import filled arrowheads at all,
+which seriously hurts the drawings.  So EasyCad was used to convert
+the arrowheads to hollow before exporting them.  Hollow arrowheads
 don't look as nice as solid ones, but at least they are visible.
 
-Once exported, the arrowheads lose their relationship with the line they 
-are on, and need to be moved and/or rotated manually if the line is 
+Once exported, the arrowheads lose their relationship with the line they
+are on, and need to be moved and/or rotated manually if the line is
 moved.  I believe that even if they were imported back into EasyCad, the
-line/arrow connection would remain broken. New lines with 
-arrowheads can be created in Qcad with the 'leader' dimension tool.
+line/arrow connection would remain broken. New lines with arrowheads can
+be created in Qcad with the 'leader' dimension tool.
 
 Because the original EPS files with filled lines and circles, wide lines,
 and dashed lines look so much nicer, they will remain in Git and should
 probably be used for the documents, however if they become inaccurate
 because of changes in the software, we will have to edit the DXF files,
-generate PostScript, and use the less pretty, but factually correct 
+generate PostScript, and use the less pretty, but factually correct
 images.
 
 Since QCAD itself is a GUI application, the DXF to PostScript conversion
@@ -62,43 +67,51 @@ files are stored in Git, and the normal documentation build process only
 uses the PostScript files. If/when the DXF files are edited, they have
 to be converted to PostScript manually as follows:
 
- - start QCAD
- - File→Open→choose DXF file (The drawing appears in window.)
- - Edit→CurrentDrawingPreferences→Paper
- - Set paper size to "Letter", set orientation to "Landscape" or "Portrait"
-  depending on the aspect ratio of the drawing.
- - File→PrintPreview
-   click the "fit to page" button on the toolbar (last button on the right at
-   least on version 2.0.4.0 of QCAD)
- - File→Print
- * Select "Print to file"
- * Set the path to point to the same directory as the source .dxf file
- * Set the name to be the same as the source file, but .ps instead of .dxf
- * Click "OK"
+- Start QCAD
+- File → Open → choose DXF file (the drawing appears in window)
+- Edit → Current Drawing Preferences → Paper +
+  Set:
+  * Paper size to "Letter",
+  * Orientation to "Landscape" or Portrait", depending on the aspect
+    ratio of the drawing.
+- File → Print Preview +
+  Click the "Fit to page" button on the toolbar (last button on the
+  right - at least on version 2.0.4.0 of QCAD)
+- File → Print
+  * Select "Print to file"
+  * Set the path to point to the same directory as the source .dxf file
+  * Set the name to be the same as the source file, but .ps instead
+    of .dxf
+  * Click "OK"
 
 The makers of QCAD also have a GPL'ed format converter called vec2web,
 which can do dxf to postscript conversion from the command-line. It
 is not available as a pre-compiled package, but available in source
 form from https://github.com/Seablade/vec2web
 
-vec2web depends on Qt 3 development packages to compile, so it should 
+vec2web depends on Qt 3 development packages to compile, so it should
 not be a dependency for building the LinuxCNC docs. But if configure can
 detect it, it would be nice to automate conversion from DXF to PS for
 systems where vec2web is installed.
 
 To build vec2web, apt-get install qt3-dev-tools.
 The vec2web tarball contains a build script, but before you run it you
-must set $QTDIR to point at your Qt 3 installation — in my case it was
+must set $QTDIR to point at your Qt 3 installation — in my case it was:
+
 ```
-  export QTDIR=/usr/share/qt3
+export QTDIR=/usr/share/qt3
 ```
+
 Then run the build script:
+
 ```
-  ./build_vec2web.sh
+./build_vec2web.sh
 ```
-There is no install step, the executable gets dumped into the build directory.
-There is also no man page, but running it with no args prints the following
-usage instructions:
+
+There is no install step, the executable gets dumped into the build
+directory. +
+There is also no man page, but running it with no args prints the
+following usage instructions:
 
 ```
 Usage: vec2web <input file> <output file> [options]
@@ -112,44 +125,39 @@ Where options are:
 e.g. vec2web drawing.dxf drawing.png
         converts drawing.dxf to a portable network graphic
 ```
+
 Initial attempts to use vec2web resulted in the graphical parts of the
-drawing being converted, but all text was lost. I don't know if vec2web is
-worth spending much more time on, however, it _is_ GPLv2, and it includes a
-library for reading DXF files, which might be worthwhile to the  Linux CNC
-community.
+drawing being converted, but all text was lost. I don't know if vec2web
+is worth spending much more time on, however, it _is_ GPLv2, and it
+includes a library for reading DXF files, which might be worthwhile to
+the Linux CNC community.
 
-Drawings from QCAD
--------------------
- - Save as .dxf to the same directory as the image
- - Set line thickness to 0.50mm
- - Export the  image as 480 x 480 Resolution Auto .png
+=== Drawings from QCAD
 
+- Save as .dxf to the same directory as the image
+- Set line thickness to 0.50mm
+- Export the  image as 480 x 480 Resolution Auto .png
 
-Dealing with translations
--------------------------
+== Dealing with translations
 
 Translation of our documentation is in transition at the moment.
 
-We have some old-style translations that are separate asciidoc .adoc files
-checked into git.  These started out as copies of the english master
-docs at some point, and diverged from there over time.  This turned out
-not to be an ideal situation.
+We have some old-style translations that are separate asciidoc .adoc
+files checked into git. These started out as copies of the english
+master docs at some point, and diverged from there over time.  This
+turned out not to be an ideal situation.
 
 We are experimenting with a new system using
-[po4a](https://po4a.alioth.debian.org/).  With po4a, the English text
+https://po4a.alioth.debian.org/[po4a]. With po4a, the English text
 is the master document, and each paragraph is translated using
 gettext, just like the strings in our software.
 
-Some documentation of po4a is available in the po4a(7) manpage, and
-online here:
-
-    https://po4a.alioth.debian.org/man/man7/po4a.7.php
+Some documentation of po4a is available in the
+https://po4a.alioth.debian.org/man/man7/po4a.7.php[po4a(7)] manpage.
 
 We are using po4a version 0.62, available in Debian Bullseye.
 
-
-To transition a translated file to po4a
----------------------------------------
+=== Transfer a translated file to po4a
 
 If there is a pre-existing translation of the file to your language,
 create a .po translation database seeded by the old translation.
@@ -157,24 +165,37 @@ create a .po translation database seeded by the old translation.
 If the english file is called "file.adoc" then the old pre-existing
 translated file is probably called "file_fr.adoc" (for the french
 translation, as an example), and the translation database should be
-called "file.fr.po".  Creating PO file from adoc can be done by
-running this command:
+called "file.fr.po". Creating PO file from adoc can be done by running
+this command:
 
-    (f=getting-linuxcnc; l=cn; po4a-gettextize --format asciidoc -m ${f}.adoc -M utf8 -l ${f}_${l}.adoc -L utf8 -p ${f}.${l}.po)
+```
+(f=getting-linuxcnc; l=cn; po4a-gettextize \
+  > --format asciidoc \
+  > -m ${f}.adoc -M utf8 \
+  > -l ${f}_${l}.adoc -L utf8 \
+  > -p ${f}.${l}.po)
+```
 
 Similarly, for translated manual pages:
 
-    (f=elbpcom.1; l=es; po4a-gettextize --format asciidoc -m man/man1/${f} -M utf8 -l man/${l}/man1/${f} -L utf8 -p ${f}.${l}.po)
-
+```
+(f=elbpcom.1; l=es; po4a-gettextize \
+  > --format asciidoc \
+  > -m man/man1/${f} -M utf8 \
+  > -l man/${l}/man1/${f} -L utf8 \
+  -p ${f}.${l}.po)
+```
 
 To append the extracted translations to the combined PO file, do
 something like this:
 
-    msgcat --use-first po/Documentation.es.po elbpcom.1.es.po \
-      > po/Documentation.es.po
+```
+msgcat --use-first po/documentation.es.po \
+  > elbpcom.1.es.po \
+  > po/documentation.es.po
+```
 
-To create a new po4a translation of an untranslated file
---------------------------------------------------------
+=== To create a new po4a translation of an untranslated file
 
 If there is no pre-existing translation of the file to your language,
 create an empty .po file to start with.  If the english file is called
@@ -182,50 +203,58 @@ create an empty .po file to start with.  If the english file is called
 (for the swedish translation, as an example).  It is created by running
 this command:
 
-    po4a-gettextize --format text -m file.adoc -M utf8 -p file.se.po
+```
+po4a-gettextize --format text \
+  > -m file.adoc -M utf8 \
+  > -p file.se.po
+```
 
-
-Improving the translation of a po4a-managed file
-------------------------------------------------
+=== Improving the translation of a po4a-managed file
 
 Translations are done paragraph by paragraph.
 
-You can use a GUI tool like poedit or gtranslator or others, or you can
+You can use a GUI tool like Poedit or Gtranslator or others, or you can
 (carefully!) edit the .po file by hand.
 
 The next time the translated document gets rebuilt, the updated
 translations will be used.
 
+=== When the master document (english) changes
 
-When the master document (english) changes
-------------------------------------------
+When the master document (english) file has changed, use the
+po4a-updatepo to update the .po files:
 
-When the master document (english) file has changed, use the po4a-updatepo
-to update the .po files:
+```
+po4a-updatepo -f text \
+  > -m file.adoc \
+  > -p file.fr.po
+```
 
-  po4a-updatepo -f text -m file.adoc -p file.fr.po
-
-
-How to add a new translation language
--------------------------------------
+=== How to add a new translation language
 
 Determine the ISO 639-1 code for your new language (for example:
 English -> "en", Vietnamese -> "vi", etc).  This becomes the "NEWLANG"
 variable in the examples below.  There is a list of codes here:
 <https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes>
 
-Add the asciidoc source files containing your new translation.  Usually
-that means copying the language files from one of the existing languages,
-probably English since that's usually the most up-to-date.
+Add the asciidoc source files containing your new translation. Usually
+that means copying the language files from one of the existing
+languages, probably English since that's usually the most up-to-date.
 
-Copy the docs/po/Documentation.pot todocs/po/Documentation.$LANG.po.
+Copy the docs/po/documentation.pot to docs/po/documentation.$LANG.po.
 where $LANG is a two letter language code according to ISO 639-1, or
 three letter code according to ISO 639-2 if no two letter code exist.
 Add the new language code to the proper place in docs/po4a.conf.
 
+Add the new files in the correct place in `docs/src/Submakefile` to
+ensure they will be built.
+
 Edit debian/control.in to add the new linuxcnc-doc-$NEWLANG package.
-Add the new doc package to the or-list of the "Recommends" line of the
+Add the new doc package to the "or" list of the "Recommends" line of the
 linuxcnc main package.
+
+Add the new language to the list in the DOCS_PACKAGES variable in
+debian/configure.
 
 If there is a texlive-lang-$NEWLANGUAGE package for your new language,
 add it to the DOC_DEPENDS variable in debian/configure.
@@ -234,3 +263,5 @@ Add the appropriate `linuxcnc-doc-$NEWLANG.*` files for the new package,
 probably by copying and editing `debian/linuxcnc-doc-en.*`.
 
 Test build the packages and verify!
+
+// vim: set syntax=asciidoc:

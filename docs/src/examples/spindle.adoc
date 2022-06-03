@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:spindle-control]]
 = Spindle Control
@@ -33,7 +34,7 @@ net spindle-speed-scale spindle.0.speed-out => scale.0.in
 net spindle-speed-DAC scale.0.out => <your DAC pin name>
 ----
 
-== PWM Spindle Speed (((PWM Spindle Speed Example)))
+== PWM Spindle Speed(((PWM Spindle Speed Example)))
 
 If your spindle can be controlled by a PWM signal,
 use the pwmgen component to create the signal:
@@ -54,7 +55,7 @@ This assumes that the spindle controller's response to PWM is simple:
 PWM required to get the spindle to turn, follow the example in the
 nist-lathe sample configuration to use a scale component.
 
-== Spindle Enable (((Spindle Enable Example)))
+== Spindle Enable(((Spindle Enable Example)))
 
 If you need a spindle enable signal,
 link your output pin to spindle.0.on.
@@ -66,7 +67,7 @@ pin that is connected to your control device.
 net spindle-enable spindle.0.on => parport.0.pin-14-out
 ----
 
-== Spindle Direction (((Spindle Direction Example)))
+== Spindle Direction(((Spindle Direction Example)))
 
 If you have direction control of your spindle the HAL pins
 spindle.N.forward and spindle.N.reverse are controlled by M3
@@ -82,15 +83,15 @@ net spindle-fwd spindle.0.forward => parport.0.pin-16-out
 net spindle-rev spindle.0.reverse => parport.0.pin-17-out
 ----
 
-== Spindle Soft Start (((Spindle Soft Start Example)))
+== Spindle Soft Start(((Spindle Soft Start Example)))
 
 If you need to ramp your spindle speed command and your control does
 not have that feature it can be done in HAL. Basically you need to
 hijack the output of spindle.N.speed-out and run it through a
 limit2 component with the scale set so it will ramp the rpm from
 spindle.N.speed-out to your device that receives the rpm.
-The second part is to let LinuxCNC know when the spindle is at speed so motion
-can begin.
+The second part is to let LinuxCNC know when the spindle is at speed so
+motion can begin.
 
 In the 0-10 volt example the line
 
@@ -100,8 +101,8 @@ net spindle-speed-scale spindle.0.speed-out => scale.0.in
 
 is changed as shown in the following example:
 
-.Intro to HAL components limit2 and near:
-****
+=== Intro to HAL components limit2 and near
+
 In case you have not run across them before, here's a quick introduction
 to the two HAL components used in the following example.
 
@@ -109,13 +110,11 @@ to the two HAL components used in the following example.
   input value and provides an output that has been limited to a
   max/min range, and also limited to not exceed a specified
   rate of change.
-
 * A "near" is a HAL component (floating point) with a binary output
   that says whether two inputs are approximately equal.
 
-More info is available in the documentation for HAL components,
-or from the man pages, just say 'man limit2' or 'man near' in a terminal.
-****
+More info is available in the documentation for HAL components, or from
+the man pages, just say 'man limit2' or 'man near' in a terminal.
 
 ----
 # load real time a limit2 and a near with names so it is easier to follow
@@ -150,11 +149,11 @@ net spindle-ready <= spindle-at-speed.out => spindle.0.at-speed
 
 == Spindle Feedback
 
-=== Spindle Synchronized Motion (((Spindle Synchronized Motion Example)))
+=== Spindle Synchronized Motion(((Spindle Synchronized Motion Example)))
 
 Spindle feedback is needed by LinuxCNC to perform any spindle coordinated
 motions like threading and constant surface speed.
-LinuxCNC can perform synchronised motion and CSS with any of up to 8
+LinuxCNC can perform synchronized motion and CSS with any of up to 8
 spindles. Which spindles are used is controlled from G-code. CSS is
 possible with several spindles simultaneously.
 
@@ -171,13 +170,14 @@ Hardware assumptions:
 
 Basic Steps to add the components and configure them:
 footnote:[In this example, we will assume that some encoders have already
-been issued to axes/joints 0, 1, and 2. So the next encoder available for us
-to attach to the spindle would be number 3. Your situation may differ.]
-footnote:[The HAL encoder index-enable is an exception to the rule in that
-it behaves as both an input and an output, see the
+been issued to axes/joints 0, 1, and 2. So the next encoder available
+for us to attach to the spindle would be number 3. Your situation may
+differ.]
+footnote:[The HAL encoder index-enable is an exception to the rule in
+that it behaves as both an input and an output, see the
 <<sec:encoder,Encoder Section>> for details]
-footnote:[It is because we selected 'non-quadrature simple counting...' above
-that we can get away with 'quadrature' counting without having any
+footnote:[It is because we selected 'non-quadrature simple counting...'
+above that we can get away with 'quadrature' counting without having any
 B quadrature input.]
 
 ----
@@ -244,3 +244,4 @@ net spindle-at-speed spindle.0.at-speed <= near.0.out
 setp near.0.scale 1.01
 ----
 
+// vim: set syntax=asciidoc:

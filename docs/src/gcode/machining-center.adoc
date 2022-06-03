@@ -25,7 +25,7 @@ foam-cutting machine may have XYUV axes. In LinuxCNC, the case of a XYYZ
 'gantry' machine with two motors for one axis is better handled by
 kinematics rather than by a second linear axis.
 
-NOTE:
+[NOTE]
 If the motion of mechanical components is not independent, as with
 hexapod machines, the RS274/NGC language and the canonical machining
 functions will still be usable, as long as the lower levels of control
@@ -33,27 +33,26 @@ know how to control the actual mechanisms to produce the same relative
 motion of tool and workpiece as would be produced by independent axes.
 This is called 'kinematics'.
 
-NOTE:
+[NOTE]
 With LinuxCNC, the case of the XYYZ gantry machine with two
 motors for one axis is better handled by the kinematics than by an additional
 linear axis.
 
-.Primary Linear Axes (((axes, primary linear)))
-
+.Primary Linear Axes(((axes, primary linear)))
 The X, Y, and Z axes produce linear motion in three mutually
 orthogonal directions.
 
-.Secondary Linear Axes (((axes, secondary linear)))
+.Secondary Linear Axes(((axes, secondary linear)))
 The U, V, and W axes produce linear motion in three mutually
 orthogonal directions. Typically, X and U are parallel, Y and V are
 parallel, and Z and W are parallel.
 
-.Rotational Axes (((axes, rotational)))
+.Rotational Axes(((axes, rotational)))
 The A, B and C axes produce angular motion (rotation). Typically, A
 rotates around a line parallel to X, B rotates around a line parallel
 to Y, and C rotates around a line parallel to Z.
 
-=== Spindle (((spindle)))
+=== Spindle(((spindle)))
 
 A CNC machine typically has a spindle which holds one cutting tool,
 probe, or the material in the case of a lathe. The spindle may or may
@@ -165,14 +164,20 @@ rate is interpreted as follows (unless 'inverse time feed' or 'feed
 per revolution' modes are being used, in which case see Section
 <<gcode:g93-g94-g95,G93-G94-G95-Mode,G93 G94 G95>>).
 
- . If any of XYZ are moving, F is in units per minute in the XYZ
-   cartesian system, and all other axes (ABCUVW) move so as to start and
-   stop in coordinated fashion.
- . Otherwise, if any of UVW are moving, F is in units per minute in the
-   UVW cartesian system, and all other axes (ABC) move so as to start and
-   stop in coordinated fashion.
- . Otherwise, the move is pure rotary motion and the F word is in rotary
-   units in the ABC 'pseudo-cartesian' system.
+. If any of XYZ are moving, F is in units per minute in the XYZ
+  cartesian system, and all other axes (ABCUVW) move so as to start and
+  stop in coordinated fashion.
+. Otherwise, if any of UVW are moving, F is in units per minute in the
+  UVW cartesian system, and all other axes (ABC) move so as to start and
+  stop in coordinated fashion.
+. Otherwise, the move is pure rotary motion and the F word is in rotary
+  units in the ABC 'pseudo-cartesian' system.
+
+=== Cooling(((Cooling)))
+
+Flood or droplets cooling can be enabled separately.
+RS274/NGC language stops them together.
+See section about <<mcode:m7-m8-m9,cooling control>>.
 
 === Dwell(((dwell)))
 
@@ -201,9 +206,9 @@ and the controller always knows where that is. The numbers
 representing the current position must be adjusted in the absence of
 any axis motion if any of several events take place:
 
- . Length units are changed.
- . Tool length offset is changed.
- . Coordinate system offsets are changed.
+. Length units are changed.
+. Tool length offset is changed.
+. Coordinate system offsets are changed.
 
 === Selected Plane
 
@@ -223,6 +228,15 @@ A machining center may be commanded to change tools.
 === Pallet Shuttle
 
 The two pallets may be exchanged by command.
+
+=== Speed Override
+
+The speed override buttons can be activated (they
+function normally) or rendered inoperative (they no longer have any
+effect). The RS274/NGC language has a command that activates all the
+buttons and another that disables them.
+See inhibition and activation <<mcode:m48-m49, speed correctors>>.
+See also <<sec:speed-interaction,here for further details>>.
 
 [[sec:path-control-mode]]
 === Path Control Mode(((Path Control Mode)))
@@ -244,7 +258,6 @@ modes:
 
 See Sections <<gcode:g61,G61>> and <<gcode:g64,G64>>.
 
-
 [[cnc:interpreter-interaction-with-switches]]
 == Interpreter Interaction with Switches
 
@@ -252,8 +265,8 @@ The Interpreter interacts with several switches. This section
 describes the interactions in more detail. In no case does the
 Interpreter know what the setting of any of these switches is.
 
-[[sec:Interaction-speed]](((Interaction-speed)))
-=== Feed and Speed Override Switches
+[[sec:speed-interaction]]
+=== Feed and Speed Override Switches(((Feed and Speed Interaction)))
 
 The Interpreter will interpret RS274/NGC commands which enable 'M48'
 or disable 'M49' the feed and speed override switches. For certain
@@ -300,7 +313,7 @@ same name as your ini file, but with a tbl extension:
 TOOL_TABLE = acme_300.tbl
 ----
 
-or
+or:
 
 ----
 TOOL_TABLE = EMC-AXIS-SIM.tbl
@@ -354,7 +367,7 @@ it exits. The original file is saved as a backup file when the new file
 is written. Comments are not preserved when the file is written.
 
 .Parameter File Format
-[width="75%", options="header", cols="^,^,<"]
+[width="75%",options="header",cols="^,^,<"]
 |===
 |Parameter Number | Parameter Value | Comment
 |5161             | 0.0             | G28 Home X
@@ -362,3 +375,5 @@ is written. Comments are not preserved when the file is written.
 |===
 
 See the <<sec:overview-parameters,Parameters>> section for more information.
+
+// vim: set syntax=asciidoc:

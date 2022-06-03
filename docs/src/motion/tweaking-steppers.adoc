@@ -42,7 +42,8 @@ every second). You should run the test for at least several minutes;
 sometimes the worst case latency doesn't happen very often, or only
 happens when you do some particular action. I had one Intel motherboard
 that worked pretty well most of the time, but every 64 seconds it had a
-very bad 300 us latency. Fortunately that is fixable, see
+very bad 300 us latency.
+Fortunately that is fixable, see
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?FixingSMIIssues[Fixing SMI
 issues on the LinuxCNC Wiki]
 
@@ -69,6 +70,7 @@ on their step and direction inputs. So you need to dig out (or Google
 for) the data sheet that has your drive's specs.
 
 From the Gecko G202 manual:
+
 ....
 Step Frequency: 0 to 200 kHz
 Step Pulse "0" Time: 0.5 us min (Step on falling edge)
@@ -77,6 +79,7 @@ Direction Setup: 1 us min (20 us min hold time after Step edge)
 ....
 
 From the Gecko G203V manual:
+
 ....
 Step Frequency: 0 to 333 kHz
 Step Pulse "0" Time: 2.0 us min (Step on rising edge)
@@ -88,6 +91,7 @@ Direction Setup:
 ....
 
 From the Xylotex datasheet:
+
 ....
 Minimum DIR setup time before rising edge of STEP Pulse 200 ns Minimum
 DIR hold time after rising edge of STEP pulse 200 ns
@@ -237,3 +241,5 @@ that you will be able to generate.
 
 I've added a few things to the spreadsheet to calculate max speed and
 stepper electrical calculations.
+
+// vim: set syntax=asciidoc:

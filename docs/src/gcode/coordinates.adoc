@@ -7,12 +7,13 @@
 == Introduction
 
 In this chapter, we will try to demystify coordinate systems.
-It is a very important concept to understand the operation of a CNC machine, its
-configuration and its use.
+It is a very important concept to understand the operation of a CNC
+machine, its configuration and its use.
 
-We will also show that it is very interesting to use a reference point on the
-blank or the part and to make the program work from this point, without having
-to take into account where the part is placed on the table.
+We will also show that it is very interesting to use a reference point
+on the blank or the part and to make the program work from this point,
+without having to take into account where the part is placed on the
+table.
 
 This chapter introduces you to offsets as they are used by the LinuxCNC.
 These include:
@@ -24,11 +25,11 @@ These include:
 [[sec:machine-coordinate-system]]
 == Machine Coordinate System
 
-When LinuxCNC is started the positions of each axis is the machine origin. Once
-an axis is homed, the machine origin for that axis is set to the homed position.
-The machine origin is the machine coordinate system on which all other coordinate
-systems are based. The <<gcode:g53,G53>> G code can be used to move in the
-machine coordinate system.
+When LinuxCNC is started the positions of each axis is the machine origin.
+Once an axis is homed, the machine origin for that axis is set to the
+homed position. The machine origin is the machine coordinate system on
+which all other coordinate systems are based. The <<gcode:g53,G53>>
+G-code can be used to move in the machine coordinate system.
 
 === Machine coordinates moves: G53
 
@@ -66,16 +67,16 @@ image::images/offsets.png["Coordinate Systems Example",align="center"]
 * G59.2 - use coordinate system 8
 * G59.3 - use coordinate system 9
 
-Coordinate system offsets are used to shift the coordinate system from the
-machine coordinate system. This allows the G-code to be programmed for the
-part without regard to the part location on the machine. Using coordinate
-system offsets would allow you to machine parts in multiple locations with the
-same G-code.
+Coordinate system offsets are used to shift the coordinate system from
+the machine coordinate system. This allows the G-code to be programmed
+for the part without regard to the part location on the machine. Using
+coordinate system offsets would allow you to machine parts in multiple
+locations with the same G-code.
 
-The values for offsets are stored in the VAR file that is requested by the INI
-file during the startup of an LinuxCNC. In the example
-below, which uses G55, the position of each axis for G55 origin
-is stored in a numbered variable.
+The values for offsets are stored in the VAR file that is requested by
+the INI file during the startup of an LinuxCNC. In the example below,
+which uses G55, the position of each axis for G55 origin is stored in a
+numbered variable.
 
 In the VAR file scheme, the first variable number stores the X offset,
 the second the Y offset and so on for all nine axes. There are numbered
@@ -85,12 +86,12 @@ Each of the graphical interfaces has a way to set values for these
 offsets.  You can also set these values by editing the VAR file itself
 and then restart LinuxCNC so that the LinuxCNC reads the new values
 however this is not the recommended way. Using G10, G52, G92, G28.1,
-etc are better ways to set the variables. For our example, we will directly
-edit the file so that G55 will take the following values:
+etc are better ways to set the variables. For our example, we will
+directly edit the file so that G55 will take the following values:
 
 .Example of G55 parameters
 [width="40%",cols="^,^,^",options="header"]
-|==========================
+|====
 |Axis | Variable |    Value
 | X   | 5241     |  2.000000
 | Y   | 5242     |  1.000000
@@ -101,7 +102,7 @@ edit the file so that G55 will take the following values:
 | U   | 5247     |  0.000000
 | V   | 5248     |  0.000000
 | W   | 5249     |  0.000000
-|==========================
+|====
 
 You should read this as moving the zero positions of G55 to X = 2
 units, Y= 1 unit, and Z = -2 units away from the absolute zero position.
@@ -130,13 +131,14 @@ G0 X0 Y0 Z0
 M2
 ----
 
-In this example the G54 near the end leaves the G54 coordinate system with all
-zero offsets so that there is a modal code for the absolute machine based axis
-positions. This program assumes that we have done that and use the ending
-command as a command to machine zero. It would have been possible to use G53
-and arrive at the same place but that command would not have been modal and
-any commands issued after it would have returned to using the G55 offsets
-because that coordinate system would still be in effect.
+In this example the G54 near the end leaves the G54 coordinate system
+with all zero offsets so that there is a modal code for the absolute
+machine based axis positions. This program assumes that we have done
+that and use the ending command as a command to machine zero. It would
+have been possible to use G53 and arrive at the same place but that
+command would not have been modal and any commands issued after it would
+have returned to using the G55 offsets because that coordinate system
+would still be in effect.
 
 ----
 G54	uses parameters of coordinate system 1(((G54)))
@@ -154,9 +156,9 @@ G59.3	uses parameters of coordinate system 9(((G59.3)))
 
 One other variable in the VAR file becomes important when we think
 about offset systems. This variable is named 5220. In the default files
-its value is set to 1.00000. This means that when the LinuxCNC starts up it
-should use the first coordinate system as its default. If you set this
-to 9.00000 it would use the ninth offset system as its default for
+its value is set to 1.00000. This means that when the LinuxCNC starts up
+it should use the first coordinate system as its default. If you set
+this to 9.00000 it would use the ninth offset system as its default for
 start up and reset. Any value other than an integer (decimal really)
 between 1 and 9, or a missing 5220 variable will cause the LinuxCNC to
 revert to the default value of 1.00000 on start up.
@@ -165,8 +167,10 @@ revert to the default value of 1.00000 on start up.
 
 The G10 L2x command can be used to set coordinate system offsets:
 
-* 'G10 L2  P(1-9)' - Set offset(s) to a value. Current position irrelevant (see <<gcode:g10-l2,G10 L2>> for details).
-* 'G10 L20 P(1-9)' - Set offset(s) so current position becomes a value (see <<gcode:g10-l20,G10 L20>> for details).
+* 'G10 L2  P(1-9)' - Set offset(s) to a value.
+  Current position irrelevant (see <<gcode:g10-l2,G10 L2>> for details).
+* 'G10 L20 P(1-9)' - Set offset(s) so current position becomes a value
+  (see <<gcode:g10-l20,G10 L20>> for details).
 
 [NOTE]
 We only give a brief overview here, refer to the G-code sections
@@ -200,13 +204,12 @@ these parameters.
 See <<sec:g92-persistence-cautions,G92 Persistence Cautions>> below.
 
 [CAUTION]
-====
 'G52' and 'G92' share the same offset registers.  Therefore, setting
 'G52' will override any earlier 'G92' setting, and 'G52' will persist
 across machine reset when 'G92' persistence is enabled.  These
 interactions may result in unexpected offsets.
-See <<sec:g92-g52-interaction-cautions,G92 and G52 Interaction Cautions>> below.
-====
+See <<sec:g92-g52-interaction-cautions,G92 and G52 Interaction Cautions>>
+below.
 
 Programming 'G52 X1 Y2' offsets the current workpiece coordinate
 system X axis by 1 and Y axis by 2.  Accordingly, on the DRO, the
@@ -240,9 +243,11 @@ offset".
 
 The 'G92' set of commands includes:
 
-* 'G92' - This command, when used with axis names, sets values to offset variables.
+* 'G92' - This command, when used with axis names, sets values to offset
+  variables.
 * 'G92.1' - This command sets zero values to the G92 variables.
-* 'G92.2' - This command suspends but does not zero out the G92 variables.
+* 'G92.2' - This command suspends but does not zero out the G92
+  variables.
 * 'G92.3' - This command applies offset values that have been suspended.
 
 As a global offset, 'G92' is used to shift all workpiece coordinate
@@ -304,7 +309,7 @@ will be applied when an axis is homed.  See
 There are at least two ways to set G92 values:
 
 * With a right click on the position displays in tklinuxcnc, a window opens
-where it is possible to enter a value
+  where it is possible to enter a value
 * With the G92 command
 
 Both work from the current position of the axis that should be moved.
@@ -321,8 +326,8 @@ G92 command. The effects work even though previous offsets are in.
 So if the X axis is currently showing 2.0000 as its position a 'G92 X0'
 will set an offset of -2.0000 so that the current location of X becomes
 zero. A 'G92 X2' will set an offset of 0.0000 and the displayed position
-will not change. A 'G92 X5.0000' will set an offset of 3.0000 so that the
-current displayed position becomes 5.0000.
+will not change. A 'G92 X5.0000' will set an offset of 3.0000 so that
+the current displayed position becomes 5.0000.
 
 [[sec:g92-persistence-cautions]]
 === G92 Persistence Cautions
@@ -353,13 +358,13 @@ If G92 values exist in the VAR file when LinuxCNC starts up, the G92
 values in the var file will be applied to the values of the current
 location of each axis. If this is home position and home position is
 set as machine zero everything will be correct. Once home has been
-established using real machine switches, or by moving each axis to a known
-home position and issuing an axis home command, any G92 offsets will be
-applied. If you have a G92 X1 in effect when you home the X axis the
-DRO will read 'X: 1.000' instead of the expected 'X: 0.000' because the
-G92 was applied to the machine origin. If you issue a G92.1 and the DRO
-now reads all zeros then you had a G92 offset in effect when you last
-ran LinuxCNC.
+established using real machine switches, or by moving each axis to a
+known home position and issuing an axis home command, any G92 offsets
+will be applied. If you have a G92 X1 in effect when you home the X axis
+the DRO will read 'X: 1.000' instead of the expected 'X: 0.000' because
+the G92 was applied to the machine origin. If you issue a G92.1 and the
+DRO now reads all zeros then you had a G92 offset in effect when you
+last ran LinuxCNC.
 
 Unless your intention is to use the same G92 offsets in the next
 program, the best practice is to issue a G92.1 at the end of any G
@@ -375,8 +380,9 @@ expect it.  Additionally, 'G92' persistence may be disabled by setting
 [[sec:g92-g52-interaction-cautions]]
 === G92 and G52 Interaction Cautions
 
-'G52' and 'G92' share the same offset registers.  Unless 'G92'
-persistence is disabled in the '.ini' file (see <<sec:g92-commands,G92 Commands>>),
+'G52' and 'G92' share the same offset registers. Unless 'G92'
+persistence is disabled in the '.ini' file(see
+<<sec:g92-commands,G92 Commands>>),
 'G52' offsets will also persist after machine reset,
 'M02' or 'M30'.  Beware that a 'G52' offset in effect during a program
 abort may result in unintended offsets when the next program is run.
@@ -462,3 +468,5 @@ recalled when you start up again.
 === Sample Program Using G52 Offsets
 
 (To be written)
+
+// vim: set syntax=asciidoc:

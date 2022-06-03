@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:hal-tools]]
 = HAL Tools(((HAL Tools)))
@@ -60,8 +61,7 @@ window. The item name will be displayed in the title bar instead of
 under the value, and there will be no buttons. Useful when you want a
 lot of meters in a small amount of screen space.
 
-Refer to <<sec:tutorial-halmeter,Halmeter Tutorial>> section for more
-information.
+Refer to <<sec:tutorial-halmeter,Halmeter Tutorial>> section for more information.
 
 Halmeter can be loaded from a terminal or from Axis. Halmeter is
 faster than Halshow at displaying values. Halmeter has two windows, one
@@ -77,11 +77,11 @@ loadusr halmeter pin hm2.0.stepgen.00.velocity-fb -g 0 500
 
 See the man page for more options. See section <<sec:halmeter,Halmeter>>.
 
-.Halmeter
+.Halmeter selection window
+image::images/hal-meter01.png["Halmeter selection window"]
 
-image::images/hal-meter01.png["Halmeter"]
-
-image::images/hal-meter02.png["Halmeter"]
+.Halmeter watch window
+image::images/hal-meter02.png["Halmeter watch window"]
 
 == Halshow
 
@@ -109,32 +109,33 @@ Notes:
 
 LinuxCNC must be running for standalone usage.
 
-image::images/halshow-4.png[align="center", alt="Watch Tab"]
+.Halshow Watch Tab
+image::images/halshow-4.png["Halshow Watch Tab",align="center"]
 
 A watchfile created using the 'File/Save Watch List' menu item
 is formatted as a single line with tokens "pin+", "param+", "sig=+"
-followed by the appropriate pin, param, or signal name.  The
+followed by the appropriate pin, param, or signal name. The
 token-name pairs are separated by a space character.
 
-Example:
+.Single Line Watchfile Example
 ----
-   pin+joint.0.pos-hard-limit pin+joint.1.pos-hard-limit sig+estop-loop
+pin+joint.0.pos-hard-limit pin+joint.1.pos-hard-limit sig+estop-loop
 ----
 
 A watchfile created using the 'File/Save Watch List (multiline)' menu item
 is formatted with separate lines for each item identified with token-name
 pairs as described above.
 
-Example:
+.Separated Lines Watchfile Example
 ----
-   pin+joint.0.pos-hard-limit
-   pin+joint.1.pos-hard-limit
-   sig+estop-loop
+pin+joint.0.pos-hard-limit
+pin+joint.1.pos-hard-limit
+sig+estop-loop
 ----
+
 When loading a watchfile with the 'File/Load Watch List' menu item, the
 token-name pairs may appear as single or multiple lines.  Blank lines and
 lines beginning with a # character are ignored.
-
 
 [[sec:halscope]]
 == Halscope
@@ -161,7 +162,9 @@ Usage:
 == Sim Pin
 
 sim_pin is a command line utility to display and update any number of
-writable pins, parameters or signals.  Usage:
+writable pins, parameters or signals.
+
+.`sim_pin` Usage
 ----
   Usage:
          sim_pin [Options] name1 [name2 ...] &
@@ -198,14 +201,14 @@ For complete information, see the man page:
 man sim_pin
 ----
 
-Example (with LinuxCNC running):
-
+.`sim_pin` Example (with LinuxCNC running)
 ----
 halcmd loadrt mux2 names=example; halcmd net sig_example example.in0
 sim_pin example.sel example.in1 sig_example &
 ----
 
-image::images/sim_pin.png["sim_pin is a command line utility to display and update any number of writable pins, parameters or signals"]
+.`sim_pin` Window
+image::images/sim_pin.png["sim_pin Window"]
 
 == Simulate Probe
 
@@ -216,12 +219,14 @@ Usage:
 simulate_probe &
 ----
 
-image::images/simulate_probe.png["simulate_probe is a simple gui to simulate activation of the pin motion.probe-input"]
+.`simulate_probe` Window
+image::images/simulate_probe.png["simulate_probe Window"]
 
 == Hal Histogram
 
 hal-histogram is a command line utility to display histograms for hal pins.
 
+.`hal-histogram` Usage
 ----
 Usage:
    hal-histogram --help | -?
@@ -247,7 +252,9 @@ Notes:
      For a base thread, this may require using:
      loadrt motmod ... base_thread_fp=1
 ----
-image::images/hal-histogram.png["hal-histogram is a command line utility to display histograms for hal pins"]
+
+.`hal-histogram` Window
+image::images/hal-histogram.png["hal-histogram Window"]
 
 == Halreport
 
@@ -270,6 +277,7 @@ Information included:
 The report can be generated from the command line and directed to
 an output file (or stdout if no outfilename is specified):
 
+.`halreport` Usage
 ----
 Usage:
   halreport -h | --help (this help)
@@ -279,8 +287,8 @@ or
 
 To generate the report for every LinuxCNC startup, include halreport
 and an output filename as an [APPLICATIONS]APP entry in the ini file.
-Example:
 
+.`halreport` Example
 ----
 [APPLICATIONS]
 APP = halreport /tmp/halreport.txt
@@ -326,6 +334,7 @@ SIG:    motor-cmd-0
 
 In the example above, the HALFILE uses halcmd aliases to simplify pin names
 for an hostmot2 fpga board with commands like:
+
 ----
 alias pin hm2_7i92.0.stepgen.00.position-fb h.00.position-fb
 ----
@@ -333,8 +342,8 @@ alias pin hm2_7i92.0.stepgen.00.position-fb h.00.position-fb
 [NOTE]
 Questionable component function detection may occur for 1)
 unsupported (deprecated) components, 2) user-created components
-that use multiple functions or unconventional function naming, or
-3) gui-created userspace components that lack distinguishing
+that use multiple functions or unconventional function naming, or 3)
+gui-created userspace components that lack distinguishing
 characteristics such as a prefix based on the gui program name.
 Questionable functions are tagged with a question mark "?".
 
@@ -348,3 +357,5 @@ application to aid in designing and verifying connections.  Pin
 types and current values are not shown.  For this information use
 applications like halshow, halmeter, halscope or the 'show'
 command available with command-line halcmd program.
+
+// vim: set syntax=asciidoc:

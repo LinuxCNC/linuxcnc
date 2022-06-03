@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:shuttle]]
 = Shuttle
@@ -61,7 +62,6 @@ using the Debian packaging you'll need to install this file by hand.
 If you install the file by hand you'll need to tell udev to reload its
 rules files by running `udevadm control --reload-rules`.
 
-
 == Pins
 
 All HAL pin names are prefixed with `shuttle` followed by the index
@@ -69,28 +69,21 @@ of the device (the order in which the driver found them), for example
 "shuttle.0" or "shuttle.2".
 
 '<Prefix>.button-<ButtonNumber>' (bit out)::
-
-    These pins are True (1) when the button is pressed.
-
+  These pins are True (1) when the button is pressed.
 '<Prefix>.button-<ButtonNumber>-not' (bit out)::
-
-    These pins have the inverse of the button state, so they're True
-    (1) when the button is not pressed.
-
+  These pins have the inverse of the button state, so they're True
+  (1) when the button is not pressed.
 '<Prefix>.counts' (s32 out)::
-
-    Accumulated counts from the jog wheel (the inner wheel).
-
+  Accumulated counts from the jog wheel (the inner wheel).
 '<Prefix>.spring-wheel-s32' (s32 out)::
-
-    The current deflection of the spring-wheel (the outer wheel).
-    It's 0 at rest, and ranges from -7 at the counter-clockwise extreme
-    to +7 at the clockwise extreme.
-
+  The current deflection of the spring-wheel (the outer wheel).
+  It's 0 at rest, and ranges from -7 at the counter-clockwise extreme
+  to +7 at the clockwise extreme.
 '<Prefix>.spring-wheel-f' (float out)::
+  The current deflection of the spring-wheel (the outer wheel).
+  It's 0.0 at rest, -1.0 at the counter-clockwise extreme, and +1.0 at
+  the clockwise extreme. (The Shuttle devices report the spring-wheel
+  position as an integer from -7 to +7, so this pin reports only 15
+  discrete values in it's range.)
 
-    The current deflection of the spring-wheel (the outer wheel).
-    It's 0.0 at rest, -1.0 at the counter-clockwise extreme, and +1.0 at
-    the clockwise extreme. (The Shuttle devices report the spring-wheel
-    position as an integer from -7 to +7, so this pin reports only 15
-    discrete values in it's range.)
+// vim: set syntax=asciidoc:

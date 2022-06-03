@@ -603,9 +603,11 @@ install-menus install-menu: $(MENUS)
 	cp $< $(HOME)/.config/menus/applications-merged
 else
 
-DOCS=README.adoc AUTHORS
+DOCS=README.adoc INSTALL.adoc AUTHORS
 
-DOCS_HELP=$(call GLOB,../docs/help/*)
+# FIXME figure out how to install translated docs in subdirs
+DOCS_HELP=$(call GLOB,../docs/help/*.adoc)
+
 NC_FILES=$(filter-out %/butterfly.ngc,$(call GLOB,../nc_files/*))
 TCL=$(call GLOB,../tcl/*.tcl)
 TCL_BIN=$(call GLOB,../tcl/bin/*.tcl) ../tcl/bin/popimage

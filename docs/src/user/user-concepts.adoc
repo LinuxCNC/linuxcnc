@@ -38,20 +38,20 @@ machine constraints such as maximum axis velocity and axis acceleration
 must be obeyed by the trajectory planner.
 
 For more information on the Trajectory Panner ini options see the
-<<sec:traj-section,Trajectory Section>> in the INI chapter.
+<<sub:ini:sec:traj,Trajectory Section>> in the INI chapter.
 
 [[sub:path-following]]
-=== Path Following(((Path Following)))
+=== Path Following(((Trajectory Planning:Path Following)))
 
 A less straightforward problem is that of path following. When you
 program a corner in G Code, the trajectory planner can do several
 things, all of which are right in some cases:
 
 * it can decelerate to a stop exactly at the coordinates of the corner,
-and then accelerate in the new direction.
+  and then accelerate in the new direction.
 * It can also do what is called blending,
-which is to keep the feed rate up while going through the corner,
-making it necessary to round the corner off in order to obey machine constraints.
+  which is to keep the feed rate up while going through the corner,
+  making it necessary to round the corner off in order to obey machine constraints.
 
 You can see that there is a trade off here: you can slow down to get
 better path following, or keep the speed up and have worse path
@@ -63,7 +63,7 @@ enough to reach maximum velocity on a machine with low acceleration and
 no path tolerance specified, you can get a fairly round corner.
 
 [[sub:programming-the-planner]]
-=== Programming the Planner(((Programming the Planner)))
+=== Programming the Planner(((Trajectory Planning:Programming the Planner)))
 
 The trajectory control commands are as follows:
 
@@ -106,7 +106,7 @@ Blending without tolerance:: The controlled point will touch each specified
   distance from the end point of the move is as large as it needs to be to
   keep up the best contouring feed.
 
-Naive Cam Detector:: Successive G1 moves that involve only the XYZ axes
+Naive CAM Detector:: Successive G1 moves that involve only the XYZ axes
   that deviate less than Q- from a straight line are merged into a single
   straight line. This merged movement replaces the individual G1 movements
   for the purposes of blending with tolerance. Between successive movements,
@@ -137,7 +137,7 @@ velocity as planned.
 image::images/naive-cam.png["Naive CAM Detector",align="center"]
 
 [[sub:planning-moves]]
-=== Planning Moves(((Planning Moves)))
+=== Planning Moves(((Trajectory Planning:Planning Moves)))
 
 Make sure moves are 'long enough' to suit your machine/material.
 Principally because of the rule that the machine will never move at
@@ -235,13 +235,13 @@ Once homed your soft limits that are set in the ini file will be used.
 
 If you want to deviate from the default behavior, or want to use the
 Mini interface you will need to set the option NO_FORCE_HOMING = 1 in
-the [TRAJ] section of your ini file. More information on homing can be
-found in the Integrator Manual.
+the [TRAJ] section of your ini file.
+More information on homing can be found in the Integrator Manual.
 
 == Tool Changes
 
 There are several options when doing manual tool changes. See the
-<<sec:emcio-section,[EMCIO] section>> for information on configuration
+<<sub:ini:sec:emcio,[EMCIO] section>> for information on configuration
 of these options. Also see the <<gcode:g28-g28.1,G28>> and <<gcode:g30-g30.1,G30>>
 section of the G-code chapter.
 
@@ -314,12 +314,12 @@ inversion does not change anything from the point of view of the direction of
 movement of the tool.
 
 .Typical Mill Configuration
-image::images/mill-diagram_en.svg["Mill Configuration",align="center"]
+image::images/mill-diagram_en.svg["Typical Mill Configuration",align="center"]
 
 The following diagram shows a typical lathe showing direction of travel
 of the tool and limit switches.
 
 .Typical Lathe Configuration
-image::images/lathe-diagram_en.svg["Lathe Configuration",align="center"]
+image::images/lathe-diagram_en.svg["Typical Lathe Configuration",align="center"]
 
 // vim: set syntax=asciidoc:

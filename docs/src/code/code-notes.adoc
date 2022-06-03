@@ -1,5 +1,7 @@
 :lang: en
+:toc:
 
+[[cha:code-notes]]
 = Code Notes
 
 == Intended audience
@@ -57,10 +59,35 @@ very much a work in progress, and its layout may change in the future.
   the ini file uses the term 'axis' for data that would more accurately
   be described as joint data, such as input and output scaling, etc.
 
+[NOTE]
+This distinction was made in version 2.8 of LinuxCNC.
+The .ini file got a new section [JOINT_<num>]. Many of the parameters that were previously
+proper to the [AXIS_<letter>] section are now in the new section. Other sections,
+such as [KINS], also take on new parameters to match this.
+An update script has been provided to transform old .ini files to the new axes/joints configuration.
+
 * 'POSE' - A pose is a fully specified position in 3-D Cartesian space. In
   the LinuxCNC motion controller, when we refer to a pose we mean an
   EmcPose structure, containing six linear coordinates (X, Y, Z, U,
   V, and W) and three angular ones (A, B, and C).
+
+* 'coord', or coordinated mode, means that all articulations are synchronized and
+  they move together as directed by the higher-level code. It is the normal mode when machining.
+  In coordinated mode, commands are assumed to be given in the Cartesian reference frame,
+  and if the machine is not Cartesian, the commands are translated by the kinematics to drive
+  each joint into the joint space as needed.
+
+* 'free' means that commands are interpreted in joint space.
+  It is used to manually move (jog) individual joints, although it does not prevent them from moving
+  multiple joints at once (I think).
+  Homing is also done in free mode; in fact, machines with non-trivial kinematics
+  must be homed before they can go into coord or teleop mode.
+
+* 'teleop' is the mode you probably need if you are jogging with a hexapod.
+  The jog commands implemented by the motion controller are joint jogs, which
+  work in free mode. But if you want to move a hexapod or similar machine along a
+  cartesian axis in particular, you must operate more than one joint.
+  That's what 'teleop' is for.
 
 == Architecture overview
 
@@ -74,7 +101,9 @@ things, etc.).
 
 image::LinuxCNC-block-diagram-small.png[align="center"]
 
-LinuxCNC software architecture. At the coarsest level, LinuxCNC is a
+=== LinuxCNC software architecture
+
+At the coarsest level, LinuxCNC is a
 hierarchy of three controllers: the task level command handler and program
 interpreter, the motion controller, and the discrete I/O controller. The
 discrete I/O controller is implemented as a hierarchy of controllers,
@@ -136,9 +165,8 @@ is in a single joint structure. Some members of that structure are
 visible in the block diagram, such as coarse_pos, pos_cmd, and
 motor_pos_fb.
 
-image::emc2-motion-joint-controller-block-diag.png[align="center"]
-
 .Joint Controller Block Diagram
+image::emc2-motion-joint-controller-block-diag.png[align="center"]
 
 The above figure shows five of the
 seven sets of position information that form the main data flow through
@@ -213,6 +241,12 @@ More on that function later.
 There are approximately 44 commands - this list is still under
 construction.
 
+[NOTE]
+The cmd_code_t enumeration, in motion.h, contains 73 commands, but the switch
+statement in command.c contemplates only 70 commands (as of 6/5/2020).
+ENABLE_WATCHDOG / DISABLE_WATCHDOG commands are in motion-logger.c. Maybe they are obsolete.
+The SET_TELEOP_VECTOR command only appears in motion-logger.c, with no effect other than its own log.
+
 === ABORT
 
 The ABORT command simply stops all motion. It can be issued at any
@@ -223,7 +257,7 @@ higher level code (TASK and above) also use ABORT to clear faults.
 Whenever there is a persistent fault (such as being outside the
 hardware limit switches), the higher level code sends a constant
 stream of ABORTs to the motion controller trying to make the
-fault go away. Thousands of 'em.... That means that the motion
+fault go away. Thousands of them.... That means that the motion
 controller should avoid persistent faults. This needs to be looked
 into.]
 
@@ -762,7 +796,7 @@ nml message numbers: from emc.hh:
 
 == User Interfaces
 
- + FIXME User Interfaces
+  FIXME User Interfaces
 
 == libnml Introduction
 
@@ -998,6 +1032,7 @@ is reading or writing at the time.
 timeout < 0 or INF Access is blocked until the buffer is available.
 
 == NML base class
+
 // FIXME
 
 Expand on the lists and the relationship between NML, NMLmsg, and the
@@ -1044,7 +1079,7 @@ a specific line to the cms constructor. The cms constructor then parses
 the line again to extract a couple of variables... It would make more
 sense to do ALL the parsing and save the variables in a struct that is
 passed to the cms constructor - This would eliminate string handling
-and reduce duplicate code in cms....
+and reduce duplicate code in cms...
 
 ==== NML read/write
 
@@ -1066,8 +1101,8 @@ emc.cc.
 NMLmsg is the base class from which all message classes are derived.
 Each message class must have a unique ID defined (and passed to the
 constructor) and also an update(*cms) function. The update() will be
-called by the NML read/write functions when the NML formatter is called
-- The pointer to the formatter will have been declared in the NML
+called by the NML read/write functions when the NML formatter is called --
+the pointer to the formatter will have been declared in the NML
 constructor at some point. By virtue of the linked lists NML creates,
 it is able to select cms pointer that is passed to the formatter and
 therefor which buffer is to be used.
@@ -1103,7 +1138,7 @@ table file.
 
 LinuxCNC supports two kinds of toolchanger hardware,
 called _nonrandom_ and _random_.  The ini setting
-<<sec:emcio-section,[EMCIO]RANDOM_TOOLCHANGER>> controls which of
+<<sub:ini:sec:emcio,[EMCIO]RANDOM_TOOLCHANGER>> controls which of
 these kinds of hardware LinuxCNC thinks it's connected to.
 
 ==== Nonrandom Toolchangers
@@ -1142,7 +1177,8 @@ the tool information for the new tool, and the pocket that the new tool
 came from has the tool information for the old tool (the tool that was
 in the spindle before the tool change), if any.
 
-NOTE: In LinuxCNC configured for random toolchanger, tool 0 (T0) has *no*
+[NOTE]
+If LinuxCNC is configured for random toolchanger, tool 0 (T0) has *no*
 special meaning.  It is treated exactly like any other tool in the tool
 table.  It is customary to use T0 to represent "no tool" (ie, a tool with
 zero TLO), so that the spindle can be conveniently emptied when needed.
@@ -1156,11 +1192,10 @@ tool number::
   An integer that uniquely identifies this tool.  Tool numbers are
   handled differently by LinuxCNC when configured for random and
   nonrandom toolchangers:
-
++
   * When LinuxCNC is configured for a nonrandom toolchanger this
     number must be positive.  T0 gets special handling and is not
     allowed to appear in the tool table.
-
   * When LinuxCNC is configured for a random toolchanger this number
     must be non-negative.  T0 is allowed in the tool table, and is
     usually used to represent "no tool", ie the empty pocket.
@@ -1170,14 +1205,13 @@ pocket number::
   hardware where the tool resides.  Pocket numbers are handled
   differently by LinuxCNC when configured for random and nonrandom
   toolchangers:
-
++
   * When LinuxCNC is configured for a nonrandom toolchanger, the pocket
     number in the tool file can be any positive integer (pocket
     0 is not allowed).  LinuxCNC silently compactifies the pocket
     numbers when it loads the tool file, so there may be a difference
     between the pocket numbers in the tool file and the internal
     pocket numbers used by LinuxCNC-with-nonrandom-toolchanger.
-
   * When LinuxCNC is configured for a random toolchanger, the pocket
     numbers in the tool file must be between 0 and 1000, inclusive.
     Pockets 1-1000 are in the toolchanger, pocket 0 is the spindle.
@@ -1203,27 +1237,24 @@ Handled by +Interp::convert_tool_select()+.
 . The machine is asked to prepare to switch to the selected tool by
   calling the Canon function +SELECT_TOOL()+ with the tool number
   of the requested tool.
-
-  .. (saicanon) No-op.
-
-  .. (emccanon) Builds an +EMC_TOOL_PREPARE+ message with the requested
-     pocket number and sends it to Task, which sends it on
-     to IO.  IO gets the message and asks HAL to prepare
-     the pocket by setting +iocontrol.0.tool-prep-pocket+,
-     +iocontrol.0.tool-prep-number+, and +iocontrol.0.tool-prepare+.
-     IO then repeatedly calls +read_tool_inputs()+ to poll the HAL pin
-     +iocontrol.0.tool-prepared+, which signals from the toolchanger
-     hardware, via HAL, to IO that the requested tool prep is complete.
-     When that pin goes True, IO sets +emcioStatus.tool.pocketPrepped+
-     to the requested tool's pocket number.
-
+.. (saicanon) No-op.
+.. (emccanon) Builds an +EMC_TOOL_PREPARE+ message with the requested
+   pocket number and sends it to Task, which sends it on
+   to IO.  IO gets the message and asks HAL to prepare
+   the pocket by setting +iocontrol.0.tool-prep-pocket+,
+   +iocontrol.0.tool-prep-number+, and +iocontrol.0.tool-prepare+.
+   IO then repeatedly calls +read_tool_inputs()+ to poll the HAL pin
+   +iocontrol.0.tool-prepared+, which signals from the toolchanger
+   hardware, via HAL, to IO that the requested tool prep is complete.
+   When that pin goes True, IO sets +emcioStatus.tool.pocketPrepped+
+   to the requested tool's pocket number.
 . Back in interp, +settings->selected_pocket+ is assigned the tooldata
   index of the requested tool _xxx_.
 
 [NOTE]
 The legacy names *selected_pocket* and *current_pocket* actually reference
 a sequential tooldata index for tool items loaded from a tool
-table ([EMCIO]TOOL_TABLE) or via a tooldata database ([EMCIO]DB_PROGRAM)
+table ([EMCIO]TOOL_TABLE) or via a tooldata database ([EMCIO]DB_PROGRAM).
 
 ==== M6
 
@@ -1235,37 +1266,31 @@ Handled by +Interp::convert_tool_change()+.
 . The machine is asked to change to the selected tool
   by calling the Canon function +CHANGE_TOOL()+ with
   +settings->selected_pocket+ (a tooldata index).
-
-  .. (saicanon) Sets sai's +_active_slot+ to the passed-in pocket
-     number.  Tool information is copied from the selected pocket
-     of of the tool table (ie, from sai's +_tools[_active_slot]+)
-     to the spindle (aka sai's +_tools[0]+).
-
-  .. (emccanon) Sends an +EMC_TOOL_LOAD+ message to Task, which
-     sends it to IO.  IO sets +emcioStatus.tool.toolInSpindle+
-     to the tool number of the tool in the pocket identified
-     by +emcioStatus.tool.pocketPrepped+ (set by +Txxx+
-     aka +SELECT_TOOL()+).  It then requests that the
-     toolchanger hardware perform a tool change, by setting
-     the HAL pin +iocontrol.0.tool-change+ to True.  Later,
-     IO's +read_tool_inputs()+ will sense that the HAL pin
-     +iocontrol.0.tool_changed+ has been set to True, indicating the
-     toolchanger has completed the tool change.  When this happens,
-     it calls +load_tool()+ to update the machine state.
-
-    ... +load_tool()+ with a nonrandom toolchanger
-        config copies the tool information from the selected pocket
-        to the spindle (pocket 0).
-
-    ... +load_tool()+ with a random toolchanger config swaps tool
-        information between pocket 0 (the spindle) and the selected
-        pocket, then saves the tool table.
-
+.. (saicanon) Sets sai's +_active_slot+ to the passed-in pocket
+   number.  Tool information is copied from the selected pocket
+   of of the tool table (ie, from sai's +_tools[_active_slot]+)
+   to the spindle (aka sai's +_tools[0]+).
+.. (emccanon) Sends an +EMC_TOOL_LOAD+ message to Task, which
+   sends it to IO.  IO sets +emcioStatus.tool.toolInSpindle+
+   to the tool number of the tool in the pocket identified
+   by +emcioStatus.tool.pocketPrepped+ (set by +Txxx+
+   aka +SELECT_TOOL()+).  It then requests that the
+   toolchanger hardware perform a tool change, by setting
+   the HAL pin +iocontrol.0.tool-change+ to True.  Later,
+   IO's +read_tool_inputs()+ will sense that the HAL pin
+   +iocontrol.0.tool_changed+ has been set to True, indicating the
+   toolchanger has completed the tool change.  When this happens,
+   it calls +load_tool()+ to update the machine state.
+... +load_tool()+ with a nonrandom toolchanger
+    config copies the tool information from the selected pocket
+    to the spindle (pocket 0).
+... +load_tool()+ with a random toolchanger config swaps tool
+    information between pocket 0 (the spindle) and the selected
+    pocket, then saves the tool table.
 . Back in interp, +settings->current_pocket+ is assigned the new
   tooldata index from +settings->selected_pocket+ (set by +Txxx+).  The relevant
   numbered parameters (<<sub:numbered-parameters,#5400-#5413>>) are
   updated with the new tool information from pocket 0 (spindle).
-
 
 ==== G43/G43.1/G49
 
@@ -1281,22 +1306,17 @@ Handled by +Interp::convert_tool_length_offset()+.
   current block.  For +G43+ these offsets come from the current tool
   (the tool in pocket 0), or from the tool specified by the H-word in
   the block.  For G49, the offsets are all 0.
-
 . The offsets are passed to Canon's +USE_TOOL_LENGTH_OFFSET()+ function.
-
-  .. (saicanon) Records the TLO in +_tool_offset+.
-
-  .. (emccanon) Builds an +EMC_TRAJ_SET_OFFSET+ message containing the
-     offsets and sends it to Task.  Task copies the offsets to
-     +emcStatus->task.toolOffset+ and sends them on to Motion via
-     an +EMCMOT_SET_OFFSET+ command.  Motion copies the offsets
-     to +emcmotStatus->tool_offset+, where it gets used to offset
-     future motions.
-
+.. (saicanon) Records the TLO in +_tool_offset+.
+.. (emccanon) Builds an +EMC_TRAJ_SET_OFFSET+ message containing the
+   offsets and sends it to Task.  Task copies the offsets to
+   +emcStatus->task.toolOffset+ and sends them on to Motion via
+   an +EMCMOT_SET_OFFSET+ command.  Motion copies the offsets
+   to +emcmotStatus->tool_offset+, where it gets used to offset
+   future motions.
 . Back in interp, the offsets are recorded in +settings->tool_offset+.
   The effective pocket is recorded in +settings->tool_offset_index+,
   though this value is never used.
-
 
 ==== G10 L1/L10/L11
 
@@ -1306,35 +1326,28 @@ Handled by +Interp::convert_setup_tool()+.
 
 . Picks the tool number out of the P-word in the block and finds the
   pocket for that tool:
-
-  .. With a nonrandom toolchanger config this is always the
-     pocket number in the toolchanger (even when the tool is in
-     the spindle).
-
-  .. With a random toolchanger config, if the tool is currently
-     loaded it uses pocket 0 (pocket 0 means "the spindle"),
-     and if the tool is not loaded it uses the pocket number in
-     the tool changer.  (This difference is important.)
-
+.. With a nonrandom toolchanger config this is always the
+   pocket number in the toolchanger (even when the tool is in
+   the spindle).
+.. With a random toolchanger config, if the tool is currently
+   loaded it uses pocket 0 (pocket 0 means "the spindle"),
+   and if the tool is not loaded it uses the pocket number in
+   the tool changer.  (This difference is important.)
 . Figures out what the new offsets should be.
-
 . The new tool information (diameter, offsets, angles, and orientation),
   along with the tool number and pocket number, are passed to the Canon
   call SET_TOOL_TABLE_ENTRY().
-
-  .. (saicanon)  Copy the new tool information to the specified pocket
-     (in sai's internal tool table, +_tools+).
-
-  .. (emccanon)  Build an +EMC_TOOL_SET_OFFSET+ message with the new
-     tool information, and send it to Task, which passes it
-     to IO.  IO updates the specified pocket in its internal
-     copy of the tool table (+emcioStatus.tool.toolTable+), and
-     if the specified tool is currently loaded (it is compared to
-     +emcioStatus.tool.toolInSpindle+) then the new tool information
-     is copied to pocket 0 (the spindle) as well.  (FIXME: that's a
-     buglet, should only be copied on nonrandom machines.)  Finally IO
-     saves the new tool table.
-
+.. (saicanon)  Copy the new tool information to the specified pocket
+   (in sai's internal tool table, +_tools+).
+.. (emccanon)  Build an +EMC_TOOL_SET_OFFSET+ message with the new
+   tool information, and send it to Task, which passes it
+   to IO.  IO updates the specified pocket in its internal
+   copy of the tool table (+emcioStatus.tool.toolTable+), and
+   if the specified tool is currently loaded (it is compared to
+   +emcioStatus.tool.toolInSpindle+) then the new tool information
+   is copied to pocket 0 (the spindle) as well.  (FIXME: that's a
+   buglet, should only be copied on nonrandom machines.)  Finally IO
+   saves the new tool table.
 . Back in interp, if the modified tool is currently loaded in the
   spindle, and if the machine is a non-random toolchanger, then
   the new tool information is copied from the tool's home pocket
@@ -1342,14 +1355,12 @@ Handled by +Interp::convert_setup_tool()+.
   +settings->tool_table+.  (This copy is not needed on random tool
   changer machines because there, tools don't have a home pocket and
   instead we just updated the tool in pocket 0 directly.)
-
 . The relevant numbered parameters
   (<<sub:numbered-parameters,#5400-#5413>>) are updated from the tool
   information in the spindle (by copying the information from interp's
   +settings->tool_table+ to +settings->parameters+).  (FIXME: this is
   a buglet, the params should only be updated if it was the current
   tool that was modified).
-
 . If the modified tool is currently loaded in the
   spindle, and if the config is for a nonrandom toolchanger, then the
   new tool information is written to the tool table's pocket 0 as well,
@@ -1457,14 +1468,13 @@ settings.random_toolchanger::
 
 settings.tool_offset::
   This is an +EmcPose+ variable.
-
-  * Used to compute position in various places.
-
-  * Sent to Motion via the +EMCMOT_SET_OFFSET+ message.
-    All motion does with the offsets is export them to the HAL
-    pins +motion.0.tooloffset.[xyzabcuvw]+.  FIXME: export these from
-    someplace closer to the tool table (io or interp, probably)
-    and remove the EMCMOT_SET_OFFSET message.
++
+* Used to compute position in various places.
+* Sent to Motion via the +EMCMOT_SET_OFFSET+ message.
+  All motion does with the offsets is export them to the HAL
+  pins +motion.0.tooloffset.[xyzabcuvw]+.  FIXME: export these from
+  someplace closer to the tool table (io or interp, probably)
+  and remove the EMCMOT_SET_OFFSET message.
 
 settings.pockets_max::
   Used interchangeably with +CANON_POCKETS_MAX+ (a #defined constant,
@@ -1497,39 +1507,39 @@ FIXME: `axis_mask` and `axes` overspecify the number of axes
 
 `status.motion.traj.axis_mask`::
   A bitmask with a "1" for the axes that are present and a "0"
-  for the axes that are not present.  X is bit 0, Y is bit 1, etc.
+  for the axes that are not present. X is bit 0, Y is bit 1, etc.
   For example, a machine with X and Z axes would have an `axis_mask`
   of 0x5, an XYZ machine would have 0x7, and an XYZB machine would
   have an `axis_mask` of 0x17.
 
 `status.motion.traj.axes` (deprecated)::
   The value of this variable is one more than the index of the
-  highest-numbered axis present on the machine.  As in the `axis_mask`,
+  highest-numbered axis present on the machine. As in the `axis_mask`,
   the index of X in 0, Y is 1, etc.  An XZ machine has `axes` value
   of 3, as does an XYZ machine.  An XYZW machine has `axes` value 9.
   This variable is not terribly helpful, and its use is deprecated.
   Use `axis_mask` instead.
 
 `status.motion.traj.joints`::
-  A count of the number of joints the machine has.  A normal lathe
+  A count of the number of joints the machine has. A normal lathe
   has 2 joints; one driving the X axis and one driving the Z axis.
   An XYYZ gantry mill has 4 joints; one driving X, one driving one side
   of the Y, one driving the other side of the Y, and one driving Z.
   An XYZA mill also has 4 joints.
 
 `status.motion.axis[EMCMOT_MAX_AXIS]`::
-  An array of `EMCMOT_MAX_AXIS` axis structures.  `axis[n]` is valid
-  if `(axis_mask & (1 << n))` is True.  If `(axis_mask & (1 << n))`
+  An array of `EMCMOT_MAX_AXIS` axis structures. `axis[n]` is valid
+  if `(axis_mask & (1 << n))` is True. If `(axis_mask & (1 << n))`
   is False, then `axis[n]` does not exist on this machine and must
   be ignored.
 
 `status.motion.joint[EMCMOT_MAX_JOINTS]`::
-  An array of `EMCMOT_MAX_JOINTS` joint structures.  `joint[0]` through
+  An array of `EMCMOT_MAX_JOINTS` joint structures. `joint[0]` through
   `joint[joints-1]` are valid, the others do not exist on this machine
   and must be ignored.
 
 Things are not this way currently in the joints-axes branch, but
-deviations from this design are considered bugs.  For an example of such
+deviations from this design are considered bugs. For an example of such
 a bug, see the treatment of axes in src/emc/ini/initraj.cc:loadTraj().
 There are undoubtedly more, and I need your help to find them and
 fix them.

@@ -2,3 +2,12 @@
 *.xml
 !docs.xml
 !terms.xml
+drivers/mb2hal_HOWTO.ini
+*/drivers/mb2hal_HOWTO.ini
+es/*
+fr/*
+hu/*
+nb/*
+vi/*
+zh_CN/*
+index_*.tmpl

@@ -1,0 +1,127 @@
+:lang: en
+:toc:
+
+= Build LinuxCNC for "run in place"
+
+== Basic Instructions
+
+From the repository top level directory:
+
+* *Build LinuxCNC* +
++
+----
+cd src                                            <1>
+./autogen.sh                                      <2>
+./configure [--with-realtime=uspace|/usr/rtai...] <3>
+make clean                                        <4>
+make                                              <5>
+sudo make setuid                                  <6>
+----
+<1> Change to source directory
+<2> Builds the configure script (uses `configure.in`)
+<3> Configure the package for your system +
+    Running `configure` takes awhile. While running, it prints some
+    messages telling which features it is checking for.
+<4> Remove previous build(s) artifacts
+<5> Build/compile the software package
+<6> Set ownership and mode of built files
+
+NOTE: If you're using `csh` on an old version of System V, you might
+      need to type `sh ./configure` instead to prevent `csh' from trying
+      to execute `configure' itself.
+
+* *Run LinuxCNC* +
++
+----
+cd ..                           <1>
+source scripts/rip-environment  <2>
+linuxcnc                        <3>
+----
+<1> Change back up to top level directory
+<2> Configure shell environment for LinuxCNC commands and Python modules
+<3> Run LinuxCNC
+
+== Detailed description
+
+=== Run-time script
+
+The runtime script is called *linuxcnc*, thus allowing you on an
+installed system to just type `linuxcnc` and get it running.
+
+On a run-in-place system (e.g. the one you just got out of git), the
+runscript is `scripts/linuxcnc`. +
+When you just checked out a fresh copy of LinuxCNC, you'll see there is
+no `scripts/linuxcnc`, just a `scripts/linuxcnc.in`. By running
+`configure` that one will get changed to `scripts/linuxcnc`. +
+`configure` will also replace some default values for your system
+(folders, paths, etc).
+
+
+=== Configure script
+
+The *`configure`* shell script attempts to guess correct values for
+various system-dependent variables used during compilation. It uses
+those values to create:
+
+`Makefile.inc` file::
+
+`config.status` shell script::
+  That you can run in the future to recreate the current configuration;
+
+`config.cache` file::
+  That saves the results of its tests to speed up reconfiguring;
+
+`config.log` file::
+  Containing compiler output (useful mainly for debugging `configure`).
+
+The *`configure.ac`* file is used by the `autogen.sh` script, from the
+`autoconf` package, to create the `configure` script. +
+You only need `configure.in` if you want to change `configure`, or
+regenerate it using a newer version of `autoconf`.
+
+==== Optional Features
+
+LinuxCNC can operate hardware only if a _real time system_ has been
+installed: either *RT-PREEMPT* or *RTAI*. If you don't have any installed,
+you cannot run LinuxCNC to control any machines. Please install one
+of the RT patches (refer to the documentation of the project on how to
+achieve that).
+
+// FIXME Add pointers for RT install
+
+However, it is possible to test LinuxCNC without a realtime system. This
+is possible using a _simulator mode_, which doesn't allow hardware control.
+This is an alternate mode of *uspace* _realtime_.
+
+To specify RT-PREEMPT or non-realtime, use `--with-realtime=uspace`.
+Otherwise, use `--with-realtime=[location where rtai is installed]`.
+
+If you don't want to generate the documentation from source use
+`--disable-build-documentation`
+
+`configure` also accepts other arguments. Use `--help` to view the list.
+
+==== Operation Controls
+
+`configure` recognizes the following options to control how it operates:
+
+`--cache-file=FILE`::
+  Use and save the results of the tests in FILE instead of
+  `./config.cache`. +
+  Set FILE to `/dev/null` to disable caching, for debugging `configure`.
+
+`--help`::
+  Print a summary of the options to `configure`, and exit.
+
+`--quiet` | `--silent` | `-q`::
+  Do not print messages saying which checks are being made. +
+  To suppress all normal output, redirect it to `/dev/null` (any error
+  messages will still be shown).
+
+`--srcdir=DIR`::
+  Look for the package's source code in directory DIR. +
+  Usually `configure' can determine that directory automatically.
+
+`--version`::
+  Print the version of _Autoconf_ used to generate the `configure'
+  script and exit.

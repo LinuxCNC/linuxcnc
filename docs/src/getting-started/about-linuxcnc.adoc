@@ -1,6 +1,8 @@
 :lang: en
+:toc:
 
-= About LinuxCNC
+[[cha:about-linuxcnc]]
+= About LinuxCNC(((About LinuxCNC)))
 
 == The Software
 
@@ -13,19 +15,22 @@
 * LinuxCNC provides:
 ** easy discovery and testing without installation with the LiveCD
 ** easy installation from the Live CD
+** Easy to use graphical configuration wizards to rapidly create a configuration
+   specific to the machine
 ** a graphical user interface (actually several interfaces to choose from)
-** an interpreter for 'G-code' (the RS-274 machine tool programming language)
+** A graphical interface creation tool (Glade)
+** an interpreter for 'G-code' (the RS-274 machine tool programming
+   language)
 ** a realtime motion planning system with look-ahead
 ** operation of low-level machine electronics such as sensors and motor drives
-** an easy to use 'breadboard' layer for quickly creating a unique
-   configuration for your machine
+** an easy to use 'breadboard' layer for quickly creating a unique configuration for your machine
 ** a software PLC programmable with ladder diagrams
-** easy installation with a Live-CD
 * It does not provide drawing (CAD - Computer Aided Design) or G-code generation
   from the drawing (CAM - Computer Automated Manufacturing) functions.
 * It can simultaneously move up to 9 axes and supports a variety of interfaces.
 * The control can operate true servos (analog or PWM) with the feedback
-  loop closed by the LinuxCNC software at the computer, or open loop with step-servos or stepper motors.
+  loop closed by the LinuxCNC software at the computer, or open loop with
+  step-servos or stepper motors.
 * Motion control features include: cutter radius and length
   compensation, path deviation limited to a specified tolerance, lathe
   threading, synchronized axis motion, adaptive feedrate, operator
@@ -48,13 +53,12 @@ distributions.
 
 IRC stands for Internet Relay Chat.
 It is a live connection to other LinuxCNC users.
-The LinuxCNC IRC channel is #linuxcnc on libera.
+The LinuxCNC IRC channel is #linuxcnc on libera.chat.
 
-The simplest way to get on the IRC is to use the embedded client on this
-https://web.libera.chat/#linuxcnc[page].
+The simplest way to get on the IRC is to use the embedded client on
+this https://web.libera.chat/#linuxcnc[page].
 
 Some IRC etiquette::
-
 * Ask specific questions... Avoid questions like "Can someone help me?".
 * If you're really new to all this, think a bit about your question
   before typing it.  Make sure you give enough information so
@@ -69,13 +73,12 @@ Some IRC etiquette::
   saves time on both ends.
 
 Sharing Files::
-
 The most common way to share files on the IRC is to upload the file
 to one of the following or a similar service and paste the link:
 
-* 'For text': http://pastebin.com/ , http://pastie.org/, https://gist.github.com/
-* 'For pictures': http://imagebin.org/ , http://imgur.com/ , http://bayimg.com/
-* 'For files': https://filedropper.com/ , http://filefactory.com/ , http://1fichier.com/
+* 'For text': http://pastebin.com/, http://pastie.org/, https://gist.github.com/
+* 'For pictures': http://imagebin.org/, http://imgur.com/, http://bayimg.com/
+* 'For files': https://filedropper.com/, http://filefactory.com/, http://1fichier.com/
 
 === Mailing List
 
@@ -91,8 +94,8 @@ https://lists.sourceforge.net/lists/listinfo/emc-users
 
 === Web Forum
 
-A web forum can be found at https://forum.linuxcnc.org or by following the link at the
-top of the linuxcnc.org home page.
+A web forum can be found at https://forum.linuxcnc.org or by following
+the link at the top of the linuxcnc.org home page.
 
 This is quite active but the demographic is more user-biased than the
 mailing list.  If you want to be sure that your message is seen by the
@@ -103,8 +106,12 @@ developers then the mailing list is to be preferred.
 A Wiki site is a user maintained web site that anyone can add to or edit.
 
 The user maintained LinuxCNC Wiki site contains a
-wealth of information and tips at: link:http://wiki.linuxcnc.org/[http://wiki.linuxcnc.org]
+wealth of information and tips at:
+link:http://wiki.linuxcnc.org/[http://wiki.linuxcnc.org]
 
 === Bug Reports
 
-Report bugs to the LinuxCNC link:http:///github.com/LinuxCNC/linuxcnc/issues[github bug tracker].
+Report bugs to the LinuxCNC
+link:http:///github.com/LinuxCNC/linuxcnc/issues[github bug tracker].
+
+// vim: set syntax=asciidoc:

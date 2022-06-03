@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:rs274]]
 = Stand Alone Interpreter

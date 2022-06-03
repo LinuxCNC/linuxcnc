@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:gm-driver]]
 = General Mechatronics Driver
@@ -13,24 +14,25 @@ with a short time system integration procedure. The following figure
 demonstrating the typical connection of devices related to the control
 system:
 
- * It can control up to six axis, each can be stepper or CAN bus
-   interface or analogue servo.
+* It can control up to six axis, each can be stepper or CAN bus
+  interface or analogue servo.
 
- * GPIO: Four time eight I/O pins are placed on standard flat cable headers.
+* GPIO: Four time eight I/O pins are placed on standard flat cable headers.
 
- * RS485 I/O expander modules: RS485 bus was designed for interfacing
-   with compact DIN-rail mounted expander modules. An 8-channel digital input,
-   an 8-channel relay output and an analogue I/O (4x +/-10 Volts output and 8x
-   +/-5 Volts input) modules are available now. Up to 16 modules can be
-   connected to the bus altogether.
+* RS485 I/O expander modules: RS485 bus was designed for interfacing
+  with compact DIN-rail mounted expander modules. An 8-channel digital input,
+  an 8-channel relay output and an analogue I/O (4x +/-10 Volts output and 8x
+  +/-5 Volts input) modules are available now. Up to 16 modules can be
+  connected to the bus altogether.
 
- * 20 optically isolated input pins: Six times three for the direct
-   connection of two end switch and one homing sensor for each joint. And
-   additionally, two optically isolated E-stop inputs.
+* 20 optically isolated input pins: Six times three for the direct
+  connection of two end switch and one homing sensor for each joint. And
+  additionally, two optically isolated E-stop inputs.
 
 image::images/GMsystem.png["GM servo control system",align="center",scaledwidth="70%"]
 
 Installing:
+
 ----
 loadrt hal_gm
 ----
@@ -43,25 +45,22 @@ Up to 3 boards may be used in one system.
 The following connectors can be found on the GM6-PCI card:
 
 .GM6-PCI card connectors and LEDs(((pci-card connectors)))
-
 image::images/GM_PCIpinout.png["GM6-PCI card connectors and LEDs",align="center",scaledwidth="70%"]
 
 
 == I/O connectors
 
 .Pin numbering of GPIO connectors(((pin-numbering-gpio)))
-
 image::images/GM_IOpinout.png["Pin numbering of GPIO connectors",align="center"]
 
 .Pinout of GPIO connectors
-
-[width="40%", options="header", cols="5*^"]
+[width="40%",options="header",cols="5*^"]
 |========================================
 | 9     | 7     | 5     | 3     | 1
 | IOx/7 | IOx/5 | IOx/3 | IOx/1 | VCC
 |========================================
 
-[width="40%", options="header", cols="5*^"]
+[width="40%",options="header",cols="5*^"]
 |========================================
 | 10  | 8     | 6     | 4     | 2
 | GND | IOx/6 | IOx/4 | IOx/2 | IOx/0
@@ -92,8 +91,7 @@ gm.<nr of card>.read
 === Pins
 
 .GPIO pins
-
-[width="80%", options="header", cols="<3,^2,<6"]
+[width="80%",options="header",cols="<3,^2,<6"]
 |========================================
 | Pins | Type and direction | Pin description
 | .in-<0-7> | (bit, Out) | Input pin
@@ -104,8 +102,7 @@ gm.<nr of card>.read
 === Parameters
 
 .GPIO parameters
-
-[width="80%", options="header", cols="<3,^2,<6"]
+[width="80%",options="header",cols="<3,^2,<6"]
 |========================================
 | Pins              | Type and direction | Parameter description
 | .is-out-<0-7>     | (bit, R/W)         | When True, the corresponding GPIO is set to totem-pole output, other wise set to high impedance input.
@@ -115,12 +112,10 @@ gm.<nr of card>.read
 == Axis connectors
 
 .Pin numbering of axis connectors(((pin-numbering-axis)))
-
 image::images/GM_AXISpinout.png["Pin numbering of axis connectors",align="center"]
 
 .Pinout of axis connectors
-
-[width="40%", cols="^1,<4"]
+[width="40%",cols="^1,<4"]
 |========================================
 |  1 | Encoder A
 |  2 | +5 Volt (PC)
@@ -146,8 +141,7 @@ Axis modules can be found in the System integration manual.
 For evaluating the appropriate servo-drive structure the modules
 have to be connected as the following block diagram shows:
 
-.Servo axis interfaces(((axis-iterface)))
-
+.Servo axis interfaces(((axis-interface)))
 image::images/GM_AxisInterface.png["Servo axis interfaces",align="center",scaledwidth="100%"]
 
 
@@ -185,11 +179,8 @@ Hal pins are updated by function:
 gm.<nr of card>.read
 ----
 
-.Pins
-
 .Encoder pins
-
-[width="80%", options="header", cols="<3,^2,<6"]
+[width="80%",options="header",cols="<3,^2,<6"]
 |========================================
 | Pins               | Type and direction | Pin description
 | .reset             | (bit, In)          | When True, resets counts and position to zero.
@@ -209,11 +200,8 @@ gm.<nr of card>.read
                                             min-speed-estimate, the velocity output is 0.
 |========================================
 
-.Parameters
-
 .Encoder parameters
-
-[width="80%", options="header", cols="<3,^2,<6"]
+[width="80%",options="header",cols="<3,^2,<6"]
 |========================================
 | Parameters          | Type and Read/Write | Parameter description
 | .counter-mode       | (bit, R/W)          | When True, the counter counts each rising edge of the
@@ -295,13 +283,9 @@ Hal pins are updated by function
 gm.<nr of card>.write
 ----
 
-<<<
-
-.Pins
-
 .Stepgen module pins
 
-[width="80%", options="header", cols="<3,^2,<6"]
+[width="80%",options="header",cols="<3,^2,<6"]
 |========================================
 | Pins               | Type and direction | Pin description
 | .enable            | (bit, In)          | Stepgen produces pulses only when this pin is true.
@@ -311,11 +295,9 @@ gm.<nr of card>.write
 | .velocity-cmd      | (float, In)        | Commanded velocity in position units per second. Used in velocity mode only.
 |========================================
 
-.Parameters
-
 .Stepgen module parameters
 
-[width="80%", options="header", cols="<3,^2,<6"]
+[width="80%",options="header",cols="<3,^2,<6"]
 |========================================
 | Parameters         | Type and Read/Write | Parameter description
 | .step-type         | (u32, R/W)          | When 0, module produces Step/Dir signal. When 1, it
@@ -336,12 +318,9 @@ gm.<nr of card>.write
 | .dirdelay          | (u32, R/W)          | Minimum time between step pulse and direction change in nano-seconds.
 |========================================
 
-<<<
-
 For evaluating the appropriate values see the timing diagrams below:
 
 .Reference signal timing diagrams(((refsig-timing-diagram)))
-
 image::images/GM_RefSignals.png["Reference signal timing diagrams",align="center", scaledwidth="70%"]
 
 .HAL example
@@ -382,11 +361,9 @@ Hal pins are updated by function:
 gm.<nr of card>.read
 ----
 
-.Pins
-
 .Enable and Fault signal pins
 
-[width="80%", options="header", cols="<3,^2,<6"]
+[width="80%",options="header",cols="<3,^2,<6"]
 |========================================
 | Pins                         | Type and direction | Pin description
 | gm.<nr of card>.power-enable | (bit, In)          | If this pin is True,
@@ -422,13 +399,9 @@ Hal pins are updated by function:
 gm.<nr of card>.write
 ----
 
-<<<
-
-.Pins
-
 .Axis DAC pins
 
-[width="80%", options="header", cols="<3,^2,<6"]
+[width="80%",options="header",cols="<3,^2,<6"]
 |========================================
 | Pins    | Type and direction | Pin description
 | .enable | (bit, In)          | Enable DAC output. When enable is
@@ -436,11 +409,9 @@ gm.<nr of card>.write
 | .value  | (float, In)        | Value of DAC output in Volts.
 |========================================
 
-.Parameters
-
 .Axis DAC parameters
 
-[width="80%", options="header", cols="<3,^2,<6"]
+[width="80%",options="header",cols="<3,^2,<6"]
 |========================================
 | Parameters     | Type and direction | Parameter description
 | .offset        | (float, R/W)       | Offset is added to the value before
@@ -474,7 +445,7 @@ The baud rate is 1 Mbit.
 The position command IDs for axis 0..5 are 0x10..0x15.
 The position feedback IDs for axis 0..5 are 0x20..0x25.
 
-These configuration can be changed with the modifivation
+These configuration can be changed with the modification
 of hal_gm.c and recompiling LinuxCNC.
 
 Every CAN pin and parameter name begins as follows:
@@ -497,13 +468,10 @@ Hal pins are updated by function:
 gm.<nr of card>.write
 ----
 
-<<<
-
 === Pins
 
 .CAN module pins
-
-[width="80%", options="header", cols="<3,^2,<6"]
+[width="80%",options="header",cols="<3,^2,<6"]
 |========================================
 | Pins               | Type and direction | Pin description
 | .enable            | (bit, In)          | Enable sending position references.
@@ -514,8 +482,7 @@ gm.<nr of card>.write
 === Parameters
 
 .CAN module parameters
-
-[width="80%", options="header", cols="<3,^2,<6"]
+[width="80%",options="header",cols="<3,^2,<6"]
 |========================================
 | Parameters         | Type and direction | Parameter description
 | .position-scale    | (float, R/W)       | Scale in per length unit.
@@ -532,8 +499,7 @@ gm.<nr of card>.read
 === Pins
 
 .Watchdog pins
-
-[width="80%", options="header", cols="<3,^2,<6"]
+[width="80%",options="header",cols="<3,^2,<6"]
 |========================================
 | Pins                             | Type and direction | Pin description
 | gm.<nr of card>.watchdog-expired | (bit, Out)         | Indicates that watchdog timer is expired.
@@ -544,8 +510,7 @@ Watchdog timer overrun causes the set of power-enable to low in hardware.
 === Parameters
 
 .Watchdog parameters
-
-[width="80%", options="header", cols="<3,^2,<6"]
+[width="80%",options="header",cols="<3,^2,<6"]
 |========================================
 | Parameters                          | Type and direction | Parameter description
 | gm.<nr of card>.watchdog-enable     | (bit, R/W)         | Enable watchdog timer.
@@ -565,18 +530,16 @@ Watchdog timer overrun causes the set of power-enable to low in hardware.
 == End-, homing- and E-stop switches
 
 .Pin numbering of homing & end switch connector(((pin-numbering-endsw)))
-
 image::images/GM_ENDSWpinout.png["Pin numbering of homing and end switch connector",align="center"]
 
 .End- and homing switch connector pinout
-
-[width="100%", options="header", cols="2*^.^1,11*^.^2"]
+[width="100%",options="header",cols="2*^.^1,11*^.^2"]
 |========================================
 | *25* | *23* | *21*   | *19*   | *17*      | *15*   | *13*   | *11*      | *9*    | *7*    | *5*       | *3*      | *1*
 2+| GND       | 1/End- | 2/End+ | 2/Hom-ing | 3/End- | 4/End+ | 4/Hom-ing | 5/End- | 6/End+ | 6/Hom-ing | E-Stop 2 | V+ (Ext.)
 |========================================
 
-[width="100%", options="header", cols="2*^.^1,11*^.^2"]
+[width="100%",options="header",cols="2*^.^1,11*^.^2"]
 |========================================
 | *26* | *24* | *22*   | *20*      | *18*   | *16*   | *14*      | *12*   | *10*   | *8*       | *6*    | *4*      | *2*
 2+| GND       | 1/End+ | 1/Hom-ing | 2/End- | 3/End+ | 3/Hom-ing | 4/End- | 5/End+ | 5/Hom-ing | 6/End- | E-Stop 1 | V+ (Ext.)
@@ -605,8 +568,7 @@ gm.<nr of card>.read
 === Pins
 
 .End- and homing switch pins
-
-[width="80%", options="header", cols="<3,^2,<6"]
+[width="80%",options="header",cols="<3,^2,<6"]
 |========================================
 | Pins               | Type and direction | Pin description
 | .home-sw-in        | (bit, Out)         | Home switch input
@@ -620,8 +582,7 @@ gm.<nr of card>.read
 === Parameters
 
 .E-stop switch parameters
-
-[width="80%", options="header", cols="<3,^2,<6"]
+[width="80%",options="header",cols="<3,^2,<6"]
 |========================================
 | Parameters            | Type and direction | Parameter description
 | gm.0.estop.0.in       | (bit, Out)         | Estop 0 input
@@ -633,37 +594,42 @@ gm.<nr of card>.read
 == Status LEDs
 
 === CAN
+
 Color: Orange
 
- * Blink, during data communication.
- * On, when any of the buffers are full - communication error.
- * Off, when no data communication.
+* Blink, during data communication.
+* On, when any of the buffers are full - communication error.
+* Off, when no data communication.
 
 === RS485
+
 Color: Orange
 
- * Blink, during initialization of modules on the bus
- * On, when the data communication is up between all initialized modules.
- * Off, when any of the initialized modules dropped off because of an error.
+* Blink, during initialization of modules on the bus
+* On, when the data communication is up between all initialized modules.
+* Off, when any of the initialized modules dropped off because of an error.
 
 === EMC
+
 Color: White
 
- * Blink, when LinuxCNC is running.
- * Otherwise off.
+* Blink, when LinuxCNC is running.
+* Otherwise off.
 
 === Boot
+
 Color: Green
 
- * On, when system booted successfully.
- * Otherwise off.
+* On, when system booted successfully.
+* Otherwise off.
 
 === Error
+
 Color: Red
 
- * Off, when there is no fault in the system.
- * Blink, when PCI communication error.
- * On, when watchdog timer overflowed.
+* Off, when there is no fault in the system.
+* Blink, when PCI communication error.
+* On, when watchdog timer overflowed.
 
 == RS485 I/O expander modules
 
@@ -672,13 +638,13 @@ capability along an RS485 line of the GM6-PCI motion control card.
 
 Available module types:
 
- * 8-channel relay output module - gives eight NO-NC relay output
-   on a three pole terminal connector for each channel.
- * 8-channel digital input module - gives eight optical
-   isolated digital input pins.
- * 8 channel ADC and 4-channel DAC module - gives four digital-to-analogue
-   converter outputs and eight analogue-to-digital inputs.
-   This module is also optically isolated from the GM6-PCI card.
+* 8-channel relay output module - gives eight NO-NC relay output
+  on a three pole terminal connector for each channel.
+* 8-channel digital input module - gives eight optical
+  isolated digital input pins.
+* 8 channel ADC and 4-channel DAC module - gives four digital-to-analogue
+  converter outputs and eight analogue-to-digital inputs.
+  This module is also optically isolated from the GM6-PCI card.
 
 *Automatic node recognizing:*
 
@@ -700,7 +666,6 @@ termination resistors on the end. The start of the topology is the PCI
 card, and the end is the last module.
 
 .Connecting the RS485 nodes to the GM6-PCI card(((connecting-rs485)))
-
 image::images/GM_RS485topology.png["Connecting the RS485 nodes to the GM6-PCI card",align="center",scaledwidth="60%"]
 
 *Addressing:*
@@ -711,9 +676,9 @@ Each node on the bus has a 4 bit unique address that can be set with a red DIP s
 
 A green LED indicates the status of the module:
 
- * Blink, when the module is only powered, but not jet identified, or when module is dropped down.
- * Off, during identification (computer is on, but LinuxCNC not started)
- * On, when it communicates continuously.
+* Blink, when the module is only powered, but not jet identified, or when module is dropped down.
+* Off, during identification (computer is on, but LinuxCNC not started)
+* On, when it communicates continuously.
 
 
 === Relay output module
@@ -737,21 +702,15 @@ gm.<nr of card>.rs485.<module ID>
 
 where <module ID> is from 00 to 15.
 
-.Pins
-
 .Relay output module pins
-
-[width="80%", options="header", cols="<3,^2,<6"]
+[width="80%",options="header",cols="<3,^2,<6"]
 |========================================
 | Pins                | Type and direction | Pin description
 | .relay-<0-7>        | (bit, Out)         | Output pin for relay
 |========================================
 
-.Parameters
-
 .Relay output module parameters
-
-[width="80%", options="header", cols="<3,^2,<6"]
+[width="80%",options="header",cols="<3,^2,<6"]
 |========================================
 | Parameters          | Type and direction | Parameter description
 | .invert-relay-<0-7> | (bit, R/W)         | Negate relay output pin
@@ -786,11 +745,8 @@ gm.<nr of card>.rs485.<module ID>
 
 where <module ID> is from 00 to 15.
 
-.Pins
-
 .Digital input output module pins
-
-[width="80%", options="header", cols="<3,^2,<6"]
+[width="80%",options="header",cols="<3,^2,<6"]
 |========================================
 | Pins                | Type and direction | Pin description
 | .in-<0-7>           | (bit, Out)         | Input pin
@@ -826,11 +782,8 @@ gm.<nr of card>.rs485.<module ID>
 
 where <module ID> is from 00 to 15.
 
-.Pins
-
 .DAC & ADC module pins
-
-[width="80%", options="header", cols="<3,^2,<6"]
+[width="80%",options="header",cols="<3,^2,<6"]
 |========================================
 | Pins                | Type and direction | Pin description
 | .adc-<0-7>          | (float, Out)       | Value of ADC input in Volts.
@@ -839,11 +792,8 @@ where <module ID> is from 00 to 15.
 | .dac-<0-3>          | (float, In)        | Value of DAC output in Volts.
 |========================================
 
-.Parameters
-
 .DAC & ADC module parameters
-
-[width="80%", options="header", cols="<3,^2,<6"]
+[width="80%",options="header",cols="<3,^2,<6"]
 |========================================
 | Parameters            | Type and direction | Parameter description
 | .adc-scale-<0-7>      | (float, R/W)       | The input voltage will be multiplied by
@@ -886,11 +836,8 @@ where <module ID> is from 00 to 15.
 Note that on the Teach Pendant module it cannot be changed, and pre-programmed as zero.
 Upon request it can be delivered with firmware pre-programmed different ID.
 
-.Pins
-
 .Teach Pendant module pins
-
-[width="80%", options="header", cols="<3,^2,<6"]
+[width="80%",options="header",cols="<3,^2,<6"]
 |========================================
 | Pins                | Type and direction | Pin description
 | .adc-<0-5>          | (float, Out)       | Value of ADC input in Volts.
@@ -902,11 +849,8 @@ Upon request it can be delivered with firmware pre-programmed different ID.
 | .in-not-<0-7>       | (bit, Out)         | Negated input pin
 |========================================
 
-.Parameters
-
 .Teach Pendant module parameters
-
-[width="80%", options="header", cols="<3,^2,<6"]
+[width="80%",options="header",cols="<3,^2,<6"]
 |========================================
 | Parameters            | Type and direction | Parameter description
 | .adc-scale-<0-5>      | (float, R/W)       | The input voltage will be multiplied by scale before being output to .adc- pin.
@@ -941,3 +885,4 @@ The revision number in this section refers to the revision of the GM6-PCI card d
 * Problem fix/workaround:
   Use other switch pin, or connect only normally open switch to this switch input pin.
 
+// vim: set syntax=asciidoc:
