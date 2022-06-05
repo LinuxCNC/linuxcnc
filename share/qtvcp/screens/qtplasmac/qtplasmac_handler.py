@@ -1,4 +1,4 @@
-VERSION = '1.223.202'
+VERSION = '1.223.203'
 
 '''
 qtplasmac_handler.py
@@ -581,11 +581,11 @@ class HandlerClass:
 
     # not used, placeholder for future change in qt5_graphics.py
     def new_joint_dro_format_OFF(self,s,spd,num_of_joints,limit, homed):
-        return limit, homed, self.get_overlay_text(), ['']
+        return limit, homed, self.get_overlay_text(), self.get_overlay_text()
 
     # replace dro with current material
     def new_dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
-        return limit, homed, self.get_overlay_text(), ['']
+        return limit, homed, self.get_overlay_text(), self.get_overlay_text()
 
 # patched screen options functions
     def screen_options_patch(self):
