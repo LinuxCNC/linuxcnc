@@ -985,22 +985,6 @@ install with "sudo apt-get install yapps2"])
 fi
 AC_SUBST(YAPPS)
 
-AC_PATH_PROG(PO4A, po4a, "none")
-if test $PO4A = "none"
-then
-    AC_MSG_ERROR([po4a not found])
-else
-    # Version 0.35 support asciidoc without tables
-    # Version 0.56 support the tablecells asciidoc option
-    # Version 0.62 correctly write UTF-8 into translated adocs
-    # Version 0.65 support grouping several doc files into different POTs
-    # Version 0.66 handle empty table cells in asciidoc
-    V=$(po4a --version| awk '/po4a version/ {print $3}')
-    if dpkg --compare-versions 0.62 gt "$V"; then
-        AC_MSG_ERROR([po4a version too old, need version 0.62 or newer])
-    fi
-fi
-
 ##############################################################################
 # Subsection 3.7 - check for programs needed to build documentation          #
 #                                                                            #
@@ -1151,9 +1135,31 @@ if ( test "$BUILD_DOCS_HTML" = "yes" ) ; then
 install with "sudo apt-get install w3c-linkchecker"])
     fi
 fi
+
+if ( test "$BUILD_DOCS" = "yes" ) ; then
+    AC_PATH_PROG(PO4A, po4a, "none")
+    BUILD_DOCS_TRANSLATED=yes
+    if test $PO4A = "none"
+    then
+        AC_MSG_WARN([po4a not found, not building translated docs])
+        BUILD_DOCS_TRANSLATED=no
+    else
+        # Version 0.35 support asciidoc without tables
+        # Version 0.56 support the tablecells asciidoc option
+        # Version 0.62 correctly write UTF-8 into translated adocs
+        # Version 0.65 support grouping several doc files into different POTs
+        # Version 0.66 handle empty table cells in asciidoc
+        V=$(po4a --version| awk '/po4a version/ {print $3}')
+        if dpkg --compare-versions 0.62 gt "$V"; then
+            AC_MSG_WARN([po4a version too old, need version 0.62 or newer, not building translated docs])
+	    BUILD_DOCS_TRANSLATED=no
+        fi
+    fi
+fi
 AC_SUBST(BUILD_DOCS)
 AC_SUBST(BUILD_DOCS_PDF)
 AC_SUBST(BUILD_DOCS_HTML)
+AC_SUBST(BUILD_DOCS_TRANSLATED)
 
 if test "$RTS" '!=' uspace
 then
