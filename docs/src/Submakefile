@@ -456,10 +456,12 @@ objects/index.incl: $(GENERATED_MANPAGES) objects/var-MAN_HTML_TARGETS $(DOC_SRC
 
 $(DOC_DIR)/html/%/index.html: $(DOC_SRCDIR)/index_%.tmpl ../VERSION $(DOC_SRCDIR)/index.foot
 	cat $(filter-out ../VERSION, $^) | \
-		sed "s/@VERSION@/`cat ../VERSION`/" > $@	
+		sed "s/@VERSION@/`cat ../VERSION`/" | \
+		if [ "yes" != "$(BUILD_DOCS_TRANSLATED)" ]; then sed '/@TRANSLATIONS@/,/@ENDTRANSLATIONS@/d' ; else grep -Ev '@(END)?TRANSLATIONS@'; fi > $@
 
 $(DOC_DIR)/html/index.html: $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot ../VERSION $(DOC_SRCDIR)/Submakefile
-	(cat $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot) | sed "s/@VERSION@/`cat ../VERSION`/" > $@	
+	(cat $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot) | sed "s/@VERSION@/`cat ../VERSION`/"  | \
+		if [ "yes" != "$(BUILD_DOCS_TRANSLATED)" ]; then sed '/@TRANSLATIONS@/,/@ENDTRANSLATIONS@/d' ; else grep -Ev '@(END)?TRANSLATIONS@'; fi > $@
 
 $(DOC_SRCDIR)/%.pdf: $(DOC_SRCDIR)/%.adoc svgs_made_from_dots .adoc-images-stamp
 	$(ECHO) Building $@
