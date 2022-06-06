@@ -5,8 +5,8 @@
 
 == Adding files
 
-The src/Submakefile, src/docs.xml and src/index.tmpl files must be
-updated to add a new document file.
+The src/Submakefile, src/docs.xml, docs/po4a.cfg and src/index.tmpl
+files must be updated to add a new document file.
 
 The relevant pdf.adoc must be updated to include the new document in the
 pdf documentation. e.g. if a new document belongs in the Master
@@ -15,6 +15,9 @@ Documentation then an entry is required in src/Master_Documentation.adoc
 docs.xml is used to create the "previous" and "next" buttons at the top
 of each individual HTML document. It should generally match the order of
 the index.tmpl
+
+po4a.cfg is used to map source files to translated documentation when
+generating translated files using the files in docs/po/.
 
 == Notes on LinuxCNC documentation
 
