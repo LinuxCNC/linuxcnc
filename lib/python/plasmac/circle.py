@@ -81,7 +81,7 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
     if error:
         return error
     kOffset = kerfWidth / 2
-    radius = (diameter / 2) - kOffset
+    radius = diameter / 2
     angle = math.radians(45)
     leadInOffset = math.sin(angle) * leadinLength
     leadOutOffset = math.sin(math.radians(45)) * leadoutLength
