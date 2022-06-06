@@ -1,10 +1,11 @@
+# Steffen Möller <steffen_moeller@gmx.de>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-05-28 23:16+0200\n"
-"PO-Revision-Date: 2022-05-30 01:32+0000\n"
-"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
+"PO-Revision-Date: 2022-06-07 03:23+0000\n"
+"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -5836,7 +5837,7 @@ msgstr "Bremse aus"
 
 #: tcl/tklinuxcnc.tcl:919
 msgid "ABORT"
-msgstr "ABBRECHEN"
+msgstr "ABORT (engl. für Abbruch)"
 
 #: tcl/tklinuxcnc.tcl:936
 msgid "Offset:"
