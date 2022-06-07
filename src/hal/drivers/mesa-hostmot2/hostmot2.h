@@ -641,7 +641,12 @@ typedef struct {
             hal_s32_t *enc0_count; 
             hal_s32_t *enc1_count; 
             hal_s32_t *enc2_count; 
-            hal_s32_t *enc3_count; 		
+            hal_s32_t *enc3_count;
+            hal_bit_t *enc0_reset; 
+            hal_bit_t *enc1_reset; 
+            hal_bit_t *enc2_reset; 
+            hal_bit_t *enc3_reset; 
+             		
         } pin;
 
         struct {
@@ -732,6 +737,10 @@ typedef struct {
             hal_s32_t *enc1_count; 
             hal_s32_t *enc2_count; 
             hal_s32_t *enc3_count; 		
+            hal_bit_t *enc0_reset; 
+            hal_bit_t *enc1_reset; 
+            hal_bit_t *enc2_reset; 
+            hal_bit_t *enc3_reset; 
         } pin;
 
         struct {
