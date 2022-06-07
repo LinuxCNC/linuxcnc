@@ -266,23 +266,23 @@ in the tool table are positive. The value of H is checked,
 it must be a non-negative integer when read. The interpreter behaves as follows:
 
 1. If G43 H'n' is programmed, a call to the function
-USE_TOOL_LENGTH_OFFSET(length) is made (where length is the length difference,
-read from the tool table, of the indexed tool n),
-tool_length_offset is repositioned in the machine settings model
-and the value of current_z in the model is adjusted. Note that
-'n' does not have to be the same as the slot number of the tool
-currently in the spindle.
+   USE_TOOL_LENGTH_OFFSET(length) is made (where length is the length difference,
+   read from the tool table, of the indexed tool n),
+   tool_length_offset is repositioned in the machine settings model
+   and the value of current_z in the model is adjusted. Note that
+   'n' does not have to be the same as the slot number of the tool
+   currently in the spindle.
 
 2. If G49 is programmed, USE_TOOL_LENGTH_OFFSET(0.0) is called,
-tool_length_offset is reset to 0.0 in the machine settings template
-and the current value of current_z in the model is adjusted.
-The effect of the tool length compensation is illustrated in the
-capture below. Note that the tool length is subtracted from
-Z so that the programmed control point corresponds to the tip of the tool.
-Note also that the effect of the length compensation is immediate when you see
-the compensation is immediate when the position of Z is seen as a relative
-coordinate, but it has no effect on the actual machine position
-until a Z movement is programmed.
+   tool_length_offset is reset to 0.0 in the machine settings template
+   and the current value of current_z in the model is adjusted.
+   The effect of the tool length compensation is illustrated in the
+   capture below. Note that the tool length is subtracted from
+   Z so that the programmed control point corresponds to the tip of the tool.
+   Note also that the effect of the length compensation is immediate when you see
+   the compensation is immediate when the position of Z is seen as a relative
+   coordinate, but it has no effect on the actual machine position
+   until a Z movement is programmed.
 
 .Tool length test program. Tool #1 is one inch long.
 ----
