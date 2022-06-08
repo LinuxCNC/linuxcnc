@@ -1,9 +1,4 @@
 .TH HAL_INPUT "1" "2007-02-25" "LinuxCNC Documentation" "HAL User's Manual"
-.de TQ
-.br
-.ns
-.TP \\$1
-..
 .SH NAME
 hal_input \- control HAL pins with any Linux input device, including USB HID devices
 .SH SYNOPSIS
@@ -72,31 +67,49 @@ EV_LED (LED outputs).  Subset \-L
 .SS For buttons
 .TP
 .B input.\fIN\fB.btn\-\fIname\fR bit out
-.TQ
+.br
+.ns
+.TP
 .B input.\fIN\fB.btn\-\fIname\fB\-not\fR bit out
 Created for each button on the device.
 .SS For keys
 .TP
 .B input.\fIN\fB.key\-\fIname\fB
-.TQ
+.br
+.ns
+.TP
 .B input.\fIN\fB.key\-\fIname\fB\-not
 Created for each key on the device.
 .SS For absolute axes
 .TP
 .B input.\fIN\fB.abs\-\fIname\fB\-counts\fR s32 out
-.TQ
+.br
+.ns
+.TP
 .B input.\fIN\fB.abs\-\fIname\fB\-position\fR float out
-.TQ
+.br
+.ns
+.TP
 .B input.\fIN\fB.abs\-\fIname\fB\-scale\fR parameter float rw
-.TQ
+.br
+.ns
+.TP
 .B input.\fIN\fB.abs\-\fIname\fB\-offset\fR parameter float rw
-.TQ
+.br
+.ns
+.TP
 .B input.\fIN\fB.abs\-\fIname\fB\-fuzz\fR parameter s32 rw
-.TQ
+.br
+.ns
+.TP
 .B input.\fIN\fB.abs\-\fIname\fB\-flat\fR parameter s32 rw
-.TQ
+.br
+.ns
+.TP
 .B input.\fIN\fB.abs\-\fIname\fB\-min\fR parameter s32 r
-.TQ
+.br
+.ns
+.TP
 .B input.\fIN\fB.abs\-\fIname\fB\-max\fR parameter s32 r
 Created for each absolute axis on the device.  Device positions closer than
 \fBflat\fR to \fBoffset\fR are reported as \fBoffset\fR in \fBcounts\fR, and
@@ -110,17 +123,29 @@ operating system.
 .SS For relative axes
 .TP
 .B input.\fIN\fB.rel\-\fIname\fB\-counts\fR s32 out
-.TQ
+.br
+.ns
+.TP
 .B input.\fIN\fB.rel\-\fIname\fB\-position\fR float out
-.TQ
+.br
+.ns
+.TP
 .B input.\fIN\fB.rel\-\fIname\fB\-reset\fR bit in
-.TQ
+.br
+.ns
+.TP
 .B input.\fIN\fB.rel\-\fIname\fB\-scale\fR parameter float rw
-.TQ
+.br
+.ns
+.TP
 .B input.\fIN\fB.rel\-\fIname\fB\-absolute\fR parameter s32 rw
-.TQ
+.br
+.ns
+.TP
 .B input.\fIN\fB.rel\-\fIname\fB\-precision\fR parameter s32 rw
-.TQ
+.br
+.ns
+.TP
 .B input.\fIN\fB.rel\-\fIname\fB\-last\fR parameter s32 rw
 Created for each relative axis on the device.  As long as \fBreset\fR is true,
 \fBcounts\fR is reset to zero regardless of any past or current axis movement.
@@ -137,7 +162,9 @@ device, and is used in the implementation of \fBabsolute\fR.
 .SS For LEDs
 .TP
 .B input.\fIN\fB.led\-\fIname\fR bit out
-.TQ
+.br
+.ns
+.TP
 .B input.\fIN\fB.led\-\fIname\fB\-invert\fR parameter bit rw
 Created for each LED on the device.
 .SH PERMISSIONS AND UDEV
