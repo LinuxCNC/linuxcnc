@@ -254,6 +254,7 @@ PDF_TARGETS_ZH_CN = $(addprefix $(DOC_DIR)/, $(subst zh_CN/,, \
 PDF_TARGETS = $(PDF_TARGETS_EN) $(PDF_TARGETS_ES) $(PDF_TARGETS_FR)
 
 # Chinese PDFs only build with xetex, which is missing in stretch
+SHELL=/bin/bash
 ifneq (, $(shell command -v xetex))
 USING_XETEX = true
 endif
