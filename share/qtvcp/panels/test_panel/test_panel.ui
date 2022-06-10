@@ -1076,6 +1076,8 @@
       <string>Dial 1</string>
      </property>
      <addaction name="actionSetD1_50_50"/>
+     <addaction name="actionSetD1_100_100"/>
+     <addaction name="actionSetD1_1000_1000"/>
      <addaction name="actionSetD1_0_100"/>
      <addaction name="actionSetD1_0_360"/>
      <addaction name="actionSetD1_0_1000"/>
@@ -1085,6 +1087,8 @@
       <string>Dial 2</string>
      </property>
      <addaction name="actionSetD2_50_50"/>
+     <addaction name="actionSetD2_100_100"/>
+     <addaction name="actionSetD2_1000_1000"/>
      <addaction name="actionSetD2_0_100"/>
      <addaction name="actionSetD2_0_360"/>
      <addaction name="actionSetD2_0_1000"/>
@@ -1196,6 +1200,26 @@
   <action name="actionSetD2_0_360">
    <property name="text">
     <string>Set 0 - 360</string>
+   </property>
+  </action>
+  <action name="actionSetD1_100_100">
+   <property name="text">
+    <string>Set +- 100</string>
+   </property>
+  </action>
+  <action name="actionSetD1_1000_1000">
+   <property name="text">
+    <string>Set +- 1000</string>
+   </property>
+  </action>
+  <action name="actionSetD2_100_100">
+   <property name="text">
+    <string>Set +- 100</string>
+   </property>
+  </action>
+  <action name="actionSetD2_1000_1000">
+   <property name="text">
+    <string>Set +- 1000</string>
    </property>
   </action>
  </widget>

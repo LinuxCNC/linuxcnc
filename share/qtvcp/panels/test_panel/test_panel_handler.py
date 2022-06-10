@@ -76,6 +76,14 @@ Try sudo apt install rxvt-unicode-256color'''))
             self.w.dial_1.setMinimum(-50)
             self.w.dial_1.setMaximum(50)
             self.w.dockWidget_2.setWindowTitle('Dial 1 (+-50)')
+        elif data == self.w.actionSetD1_100_100:
+            self.w.dial_1.setMinimum(-100)
+            self.w.dial_1.setMaximum(100)
+            self.w.dockWidget_2.setWindowTitle('Dial 1 (+-100)')
+        elif data == self.w.actionSetD1_1000_1000:
+            self.w.dial_1.setMinimum(-1000)
+            self.w.dial_1.setMaximum(1000)
+            self.w.dockWidget_2.setWindowTitle('Dial 1 (+-1000)')
         elif data == self.w.actionSetD1_0_100:
             self.w.dial_1.setMinimum(0)
             self.w.dial_1.setMaximum(100)
@@ -93,6 +101,14 @@ Try sudo apt install rxvt-unicode-256color'''))
             self.w.dial_2.setMinimum(-50)
             self.w.dial_2.setMaximum(50)
             self.w.dockWidget_3.setWindowTitle('Dial 2 (+-50)')
+        elif data == self.w.actionSetD2_100_100:
+            self.w.dial_2.setMinimum(-100)
+            self.w.dial_2.setMaximum(100)
+            self.w.dockWidget_3.setWindowTitle('Dial 1 (+-100)')
+        elif data == self.w.actionSetD2_1000_1000:
+            self.w.dial_2.setMinimum(-1000)
+            self.w.dial_2.setMaximum(1000)
+            self.w.dockWidget_3.setWindowTitle('Dial 1 (+-1000)')
         elif data == self.w.actionSetD2_0_100:
             self.w.dial_2.setMinimum(0)
             self.w.dial_2.setMaximum(100)
