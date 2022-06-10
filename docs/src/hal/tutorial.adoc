@@ -41,7 +41,7 @@ me@computer:~linuxcnc$ halrun
 halrun
 
 (the halcmd: prompt will be shown when running HAL)
-halcmd: loadrt debounce
+halcmd: loadrt counter
 halcmd: show pin
 ----
 
@@ -57,8 +57,8 @@ Try pressing tab after starting a HAL command:
 halcmd: loa<TAB>
 halcmd: load
 halcmd: loadrt
-halcmd: loadrt deb<TAB>
-halcmd: loadrt debounce
+halcmd: loadrt cou<TAB>
+halcmd: loadrt counter
 ----
 
 === The RTAPI environment
