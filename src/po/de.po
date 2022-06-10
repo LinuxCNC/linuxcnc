@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-05-28 23:16+0200\n"
-"PO-Revision-Date: 2022-06-07 03:23+0000\n"
+"PO-Revision-Date: 2022-06-10 20:33+0000\n"
 "Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
@@ -5527,7 +5527,7 @@ msgstr "ABBRECHEN"
 
 #: tcl/bin/tkbackplot.tcl:250
 msgid "AXIS"
-msgstr "ACHSE"
+msgstr "AXIS (engl. für Achse)"
 
 #: tcl/bin/tkbackplot.tcl:251
 msgid "OFFSET"
@@ -7136,7 +7136,7 @@ msgstr "Muss eingeschaltet und im Leerlauf sein, um Werkzeugtabelle zu laden"
 
 #: tcl/tooledit.tcl:1093
 msgid "Usage"
-msgstr "Aufruf"
+msgstr "Nutzung"
 
 #: tcl/tooledit.tcl:1094 tcl/tooledit.tcl:1095
 msgid "filename"
