@@ -40,7 +40,7 @@ The most common language used when working with Classic Ladder is
 
 == Components
 
-There are 2 components to Classic Ladder.
+There are two components to Classic Ladder.
 
 * The real time module classicladder_rt
 * The user space module (including a GUI) classicladder
@@ -764,7 +764,7 @@ Things to consider:
 
 * Modbus is a userspace program so it might have latency issues on a
   heavily laden computer.
-* Modbus is not really suited to Hard real time events such as position
+* Modbus is not really suited to hard real time events such as position
   control of motors or to control E-stop.
 * The Classic Ladder GUI must be running for Modbus to be running.
 * Modbus is not fully finished so it does not do all modbus functions.

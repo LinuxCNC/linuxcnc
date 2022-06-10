@@ -26,17 +26,21 @@ foam-cutting machine may have XYUV axes. In LinuxCNC, the case of a XYYZ
 kinematics rather than by a second linear axis.
 
 [NOTE]
+====
 If the motion of mechanical components is not independent, as with
 hexapod machines, the RS274/NGC language and the canonical machining
 functions will still be usable, as long as the lower levels of control
 know how to control the actual mechanisms to produce the same relative
 motion of tool and workpiece as would be produced by independent axes.
 This is called 'kinematics'.
+====
 
 [NOTE]
+====
 With LinuxCNC, the case of the XYYZ gantry machine with two
 motors for one axis is better handled by the kinematics than by an additional
 linear axis.
+====
 
 .Primary Linear Axes(((axes, primary linear)))
 The X, Y, and Z axes produce linear motion in three mutually

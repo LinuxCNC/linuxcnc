@@ -37,9 +37,9 @@ very much a work in progress, and its layout may change in the future.
   hexapod do not correspond to movement along any Cartesian axis, and in
   general it is important to make the distinction between the Cartesian
   axes and the machine degrees of freedom. In this document, the latter
-  will be called 'joints', not axes. (The GUIs and some other parts of
+  will be called 'joints', not axes. The GUIs and some other parts of
   the code may not always follow this distinction, but the internals of
-  the motion controller do.)
+  the motion controller do.
 
 * 'JOINT' - A joint is one of the movable parts of the machine. Joints are
   distinct from axes, although the two terms are sometimes (mis)used to
@@ -56,17 +56,17 @@ very much a work in progress, and its layout may change in the future.
   Unfortunately that isn't necessarily true everywhere else. In
   particular, GUIs for machines with trivial kinematics may gloss over or
   completely hide the distinction between joints and axes. In addition,
-  the ini file uses the term 'axis' for data that would more accurately
+  the INI file uses the term 'axis' for data that would more accurately
   be described as joint data, such as input and output scaling, etc.
 
 [NOTE]
 This distinction was made in version 2.8 of LinuxCNC.
-The .ini file got a new section [JOINT_<num>]. Many of the parameters that were previously
+The INI file got a new section [JOINT_<num>]. Many of the parameters that were previously
 proper to the [AXIS_<letter>] section are now in the new section. Other sections,
 such as [KINS], also take on new parameters to match this.
-An update script has been provided to transform old .ini files to the new axes/joints configuration.
+An update script has been provided to transform old INI files to the new axes/joints configuration.
 
-* 'POSE' - A pose is a fully specified position in 3-D Cartesian space. In
+* 'POSE' - A pose is a fully specified position in 3D Cartesian space. In
   the LinuxCNC motion controller, when we refer to a pose we mean an
   EmcPose structure, containing six linear coordinates (X, Y, Z, U,
   V, and W) and three angular ones (A, B, and C).
@@ -141,14 +141,14 @@ modules for some implementations (RTAI):
   inverse (coordinates->joints) kinematics calculations
 
 LinuxCNC is started by a *linuxcnc* script which reads a
-configuration ini file and starts all needed processes.  For
+configuration INI file and starts all needed processes.  For
 realtime motion control, the script first loads the default tpmod
 and homemod modules and then loads the kinematics and motion
-modules according to settings in halfiles specified by the ini
+modules according to settings in halfiles specified by the INI
 file.
 
 Custom (user-built) homing or trajectory-planning modules can
-be used in place of the default modules via ini file settings
+be used in place of the default modules via INI file settings
 or command line options.  Custom modules must implement all
 functions used by the default modules.  The halcompile utility
 can be used to create a custom module.
@@ -763,9 +763,9 @@ There are currently two versions of iocontrol. The second version handles toolch
 Currently ESTOP/Enable, coolant, lube, and tool changing are handled by
 iocontrol. These are relatively low speed events, high speed coordinated I/O is handled in motion.
 
-emctaskmain.cc sends I/O commands via taskclass.cc
-Taskclass's functions send NML messages out to iocontrol.cc
-taskclass either uses the commands defined in c++ in it's file or,
+emctaskmain.cc sends I/O commands via taskclass.cc.
+Taskclass's functions send NML messages out to iocontrol.cc.
+Taskclass either uses the commands defined in c++ in it's file or,
 if defined, runs python based commands defined in files provided by the user.
 
 iocontrol main loop process:
@@ -891,7 +891,7 @@ image::CMS_buffer.png[align="center"]
 
 .CMS buffer
 The CMS base class is primarily responsible for creating the
-communications pathways and interfacing to the O.S.
+communications pathways and interfacing to the operating system.
 
 ////////////////////////////////////////////////////////////////////////
 == NML Notes /* FIX ME */
@@ -1137,7 +1137,7 @@ table file.
 === Toolchanger abstraction in LinuxCNC
 
 LinuxCNC supports two kinds of toolchanger hardware,
-called _nonrandom_ and _random_.  The ini setting
+called _nonrandom_ and _random_.  The INI setting
 <<sub:ini:sec:emcio,[EMCIO]RANDOM_TOOLCHANGER>> controls which of
 these kinds of hardware LinuxCNC thinks it's connected to.
 
@@ -1198,7 +1198,7 @@ tool number::
     allowed to appear in the tool table.
   * When LinuxCNC is configured for a random toolchanger this number
     must be non-negative.  T0 is allowed in the tool table, and is
-    usually used to represent "no tool", ie the empty pocket.
+    usually used to represent "no tool", i.e. the empty pocket.
 
 pocket number::
   An integer that identifies the pocket or slot in the toolchanger
@@ -1432,8 +1432,8 @@ emcioStatus.tool.toolTable[]::
 
 ==== interp
 
-+settings+ is of type +settings+, which is +struct setup_struct+.
-Defined in +src/emc/rs274ngc/interp_internal.hh+.
++settings+ is of type +settings+, defined as +struct setup_struct+
+in +src/emc/rs274ngc/interp_internal.hh+.
 
 settings.selected_pocket::
   Tooldata index of the tool most recently selected by +Txxx+.
@@ -1459,9 +1459,9 @@ settings.toolchange_flag::
   tooldata index 0 (the spindle) if the tool change is complete.
 
 settings.random_toolchanger::
-  Set from the ini variable +[EMCIO]RANDOM_TOOLCHANGER+ at startup.
+  Set from the INI variable +[EMCIO]RANDOM_TOOLCHANGER+ at startup.
   Controls various tool table handling logic.  (IO also reads this
-  ini variable and changes its behavior based on it.  For example,
+  INI variable and changes its behavior based on it.  For example,
   when saving the tool table, random toolchanger save the tool in
   the spindle (pocket 0), but non-random toolchanger save each tool
   in its "home pocket".)
@@ -1485,7 +1485,7 @@ settings.tool_table::
   This is an array of +CANON_TOOL_TABLE+ structures (defined in
   +src/emc/nml_intf/emctool.h+), with +CANON_POCKETS_MAX+ entries.
   Indexed by "pocket number", aka "slot number".  Index 0 is the
-  spindle, indexes 1-(CANON_POCKETS_MAX-1) are the pockets in the tool
+  spindle, indexes 1 to (CANON_POCKETS_MAX-1) are the pockets in the tool
   changer.  On a random toolchanger pocket numbers are meaningful.
   On a nonrandom toolchanger pockets are meaningless; the pocket
   numbers in the tool table file are ignored and tools are assigned
@@ -1494,8 +1494,8 @@ settings.tool_table::
 settings.tool_change_at_g30::
 settings.tool_change_quill_up::
 settings.tool_change_with_spindle_on::
-  These are set from ini variables in the +[EMCIO]+ section, and
-  control how tool changes are performed.
+  These are set from INI variables in the +[EMCIO]+ section, and
+  determine how tool changes are performed.
 
 == Reckoning of joints and axes
 
@@ -1507,7 +1507,7 @@ FIXME: `axis_mask` and `axes` overspecify the number of axes
 
 `status.motion.traj.axis_mask`::
   A bitmask with a "1" for the axes that are present and a "0"
-  for the axes that are not present. X is bit 0, Y is bit 1, etc.
+  for the axes that are not present. X is bit 0 with value 2^0^ = 1 if set, Y is bit 1 with value 2^1^ = 2, Z is bit 2 with value 4, etc.
   For example, a machine with X and Z axes would have an `axis_mask`
   of 0x5, an XYZ machine would have 0x7, and an XYZB machine would
   have an `axis_mask` of 0x17.
@@ -1523,7 +1523,7 @@ FIXME: `axis_mask` and `axes` overspecify the number of axes
 `status.motion.traj.joints`::
   A count of the number of joints the machine has. A normal lathe
   has 2 joints; one driving the X axis and one driving the Z axis.
-  An XYYZ gantry mill has 4 joints; one driving X, one driving one side
+  An XYYZ gantry mill has 4 joints: one driving X, one driving one side
   of the Y, one driving the other side of the Y, and one driving Z.
   An XYZA mill also has 4 joints.
 

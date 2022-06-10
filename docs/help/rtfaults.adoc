@@ -23,15 +23,14 @@ and (re)build the component
    *DO NOT EXIT THE HAL SESSION YET*. +
    You must find the start of the module (step 5) first.
 
-4. Note the ip (instruction pointer) address in dmesg. +
-   e.g.:
+4. Note the ip (instruction pointer) address in dmesg, e.g.:
 +
   RTAPI: Task 1[c2800000]: Fault with vec=14, signo=11 ip=c93dc01a.
                                                           ^^^^^^^^
 
 5. Find the module which contains the offending IP.
 +
-  $cat /proc/modules
+  $ cat /proc/modules
   motmod 142230 0 - Live 0xc93df000
   fault 1626 1 motmod, Live 0xc93dc000
   hal_lib 30517 2 motmod,fault, Live 0xc93d5000
@@ -58,8 +57,8 @@ you localize the problem:
 Yup! Looks like it has.
 +
 Note that even if you do not prefix the address argument to addr2line
-with 0x, it is taken to be a hex number, and you'll get the wrong
-line-number information.  Take care to always use hex addresses with
-addr2line.
+with 0x, it is interpreted as a hex number, and you'll get the wrong
+line-number information if passing a decimal number. Thus take care
+to always use hex addresses with addr2line.
 
 // vim: set syntax=asciidoc:
