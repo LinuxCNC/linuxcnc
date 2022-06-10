@@ -1,11 +1,12 @@
 # Steffen Möller <steffen_moeller@gmx.de>, 2022.
+# Hans U. <hansunzner@gmail.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-05-28 23:16+0200\n"
-"PO-Revision-Date: 2022-06-10 20:33+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"PO-Revision-Date: 2022-06-10 22:36+0000\n"
+"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -5527,7 +5528,7 @@ msgstr "ABBRECHEN"
 
 #: tcl/bin/tkbackplot.tcl:250
 msgid "AXIS"
-msgstr "AXIS (engl. für Achse)"
+msgstr "ACHSE"
 
 #: tcl/bin/tkbackplot.tcl:251
 msgid "OFFSET"
@@ -5837,7 +5838,7 @@ msgstr "Bremse aus"
 
 #: tcl/tklinuxcnc.tcl:919
 msgid "ABORT"
-msgstr "ABORT (engl. für Abbruch)"
+msgstr "Abbrechen"
 
 #: tcl/tklinuxcnc.tcl:936
 msgid "Offset:"
