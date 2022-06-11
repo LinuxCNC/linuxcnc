@@ -235,8 +235,21 @@ Pressing cancel will close linuxcnc.""" % target)
             opts.component = PATH.BASENAME
 
         # initialize HAL
+        # if component fails (already exists) -> create a new name
+        # and try again.
         try:
-            self.halcomp = hal.component(opts.component)
+            try:
+                self.halcomp = hal.component(opts.component)
+            except hal.error:
+                n=2
+                while True:
+                    try:
+                        self.halcomp = hal.component('{}_{}'.format(opts.component,n))
+                    except:
+                        n+=1
+                        if n == 25: break
+                    else:
+                        break
             self.hal = Qhal(self.halcomp, hal)
         except:
             LOG.critical("Asking for a HAL component using a name that already exists?")
