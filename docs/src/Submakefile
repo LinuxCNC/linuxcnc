@@ -173,13 +173,21 @@ GENERATED_TRANSLATED = $(foreach l, $(LANGUAGES), \
 	$(DOC_DIR)/man/$(l) \
 )
 
+# Time how long po4a takes to run if the system has the `time` command
+# installed, but just skip timing and don't fail the build if it's
+# not available.
+TIME_CMD := $(shell which time || true)
+ifneq (${TIME_CMD},)
+    TIME_CMD := ${TIME_CMD} -v
+endif
+
 $(DOC_DIR)/po/documentation.pot: $(addprefix $(DOC_SRCDIR)/, $(DOC_SRCS_EN))
-	cd $(DOC_DIR); po4a -v --msgmerge-opt='-v' --no-translations po4a.cfg
+	cd $(DOC_DIR); ${TIME_CMD} po4a -v --msgmerge-opt='-v' --no-translations po4a.cfg
 pofiles: $(DOC_DIR)/po/documentation.pot
 
 ifeq ($(BUILD_DOCS_TRANSLATED),yes)
 translateddocs: manpages $(DOC_DIR)/po/documentation.pot
-	cd $(DOC_DIR); po4a -v --msgmerge-opt='-v' --no-update po4a.cfg
+	cd $(DOC_DIR); ${TIME_CMD} po4a -v --msgmerge-opt='-v' --no-update po4a.cfg
 else
 translateddocs:
 endif
