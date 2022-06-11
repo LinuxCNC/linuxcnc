@@ -1136,12 +1136,36 @@ install with "sudo apt-get install w3c-linkchecker"])
     fi
 fi
 
-if ( test "$BUILD_DOCS" = "yes" ) ; then
+AC_ARG_ENABLE(build-documentation-translation,
+    AS_HELP_STRING(
+        [--disable-build-documentation-translation],
+        [Disable building documention in other languages than English.]
+    ),
+    [
+    case "$enableval" in
+	Y*|y*)
+	    BUILD_DOCS_TRANSLATED_EXPLICIT=yes ;;
+	no)
+	    BUILD_DOCS_TRANSLATED_EXPLICIT=no ;;
+	*)
+	    BUILD_DOCS_TRANSLATED_EXPLICIT=$enableval ;;
+	esac
+    ],
+    [
+        BUILD_DOCS_TRANSLATED_EXPLICIT=not_set
+    ])
+
+if ( test "$BUILD_DOCS" = "yes" && test "$BUILD_DOCS_TRANSLATED_EXPLICIT" != "no") ; then
     AC_PATH_PROG(PO4A, po4a, "none")
     BUILD_DOCS_TRANSLATED=yes
     if test $PO4A = "none"
     then
-        AC_MSG_WARN([po4a not found, not building translated docs])
+        if test "$BUILD_DOCS_TRANSLATED_EXPLICIT" = "not_set"
+        then
+            AC_MSG_WARN([po4a not found, not building translated docs])
+        else
+            AC_MSG_ERROR([po4a not found, not building translated docs])
+        fi
         BUILD_DOCS_TRANSLATED=no
     else
         # Version 0.35 support asciidoc without tables
@@ -1151,7 +1175,12 @@ if ( test "$BUILD_DOCS" = "yes" ) ; then
         # Version 0.66 handle empty table cells in asciidoc
         V=$(po4a --version| awk '/po4a version/ {print $3}')
         if dpkg --compare-versions 0.62 gt "$V"; then
-            AC_MSG_WARN([po4a version too old, need version 0.62 or newer, not building translated docs])
+            if test "$BUILD_DOCS_TRANSLATED_EXPLICIT" = "not_set"
+            then
+                AC_MSG_WARN([po4a version too old, need version 0.62 or newer, not building translated docs])
+            else
+                AC_MSG_ERROR([po4a version too old, need version 0.62 or newer, not building translated docs])
+            fi
 	    BUILD_DOCS_TRANSLATED=no
         fi
     fi
