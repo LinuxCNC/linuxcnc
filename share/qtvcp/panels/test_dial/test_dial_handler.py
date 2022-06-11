@@ -7,6 +7,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from qtvcp.core import Status
 from qtvcp.widgets.simple_widgets import DoubleScale
+from qtvcp.widgets.hal_selectionbox import HALSelectionBox
 
 ###########################################
 # **** instantiate libraries section **** #
@@ -52,7 +53,11 @@ class HandlerClass:
         le = QLineEdit()
         le.setMaximumWidth(80)
         le.setText(self.h.comp.getprefix())
-        hbox.addWidget(le)
+
+        cb = HALSelectionBox()
+        cb.hal_init()
+        cb.currentTextChanged.connect(self.signalSelected)
+        hbox.addWidget(cb)
 
         # add those to the corner of the right tab widget
         self.w.menubar.setCornerWidget(w)
@@ -104,6 +109,23 @@ class HandlerClass:
 
     def updateLabel(self,v):
         self.w.hallabel.setDisplay(v)
+
+    def signalSelected(self, sig):
+        pname = self.spinbox.get_full_pinname(self.spinbox.hal_pin_f)
+        if sig == 'None':
+            self.h.hal.disconnect(pname)
+        else:
+            # suppress error messages
+            l = self.h.hal.get_msg_level()
+            self.h.hal.set_msg_level(0)
+
+            res = self.h.hal.connect(pname,sig)
+            if res:
+                self.h.hal.disconnect(pname)
+                self.h.hal.connect(pname,sig)
+
+            # restore error messages
+            self.h.hal.set_msg_level(l)
 
     #####################
     # KEY BINDING CALLS #
