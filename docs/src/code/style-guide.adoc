@@ -157,7 +157,7 @@ installed, preferring a lightweight text editor such as nano or the one
 built in to Midnight Commander.
 
 gawk versus mawk - Again, not everyone will have gawk installed, mawk
-is nearly a tenth of the size and yet conforms to the Posix AWK
+is nearly a tenth of the size and yet conforms to the POSIX AWK
 standard. If some obscure gawk specific command is needed that mawk
 does not provide, than the script will break for some users. The same
 would apply to mawk. In short, use the generic awk invocation in
@@ -172,35 +172,35 @@ readable code.
 
 Naming conventions: Constants either from #defines or enumerations
 should be in upper case through out. Rationale: Makes it easier to spot
-compile time constants in the source code. e.g. EMC_MESSAGE_TYPE
+compile time constants in the source code. e.g., EMC_MESSAGE_TYPE
 
 Classes and Namespaces should capitalize the first letter of each word
 and avoid underscores. Rationale: Identifies classes, constructors and
-destructors. e.g. GtkWidget
+destructors, e.g., GtkWidget
 
 Methods (or function names) should follow the C recommendations above
 and should not include the class name. Rationale: Maintains a common
-style across C and C++ sources. e.g. get_foo_bar()
+style across C and C++ sources, e.g., get_foo_bar()
 
 However, boolean methods are easier to read if they avoid underscores
 and use an 'is' prefix (not to be confused with methods that manipulate
 a boolean). Rationale: Identifies the return value as TRUE or FALSE and
-nothing else. e.g. isOpen, isHomed
+nothing else, e.g., isOpen, isHomed
 
 Do NOT use 'Not' in a boolean name, it leads only leads to confusion
-when doing logical tests. e.g. isNotOnLimit or is_not_on_limit are BAD.
+when doing logical tests, e.g., isNotOnLimit or is_not_on_limit are BAD.
 
 Variable names should avoid the use of upper case and underscores
 except for local or private names. The use of global variables should
 be avoided as much as possible. Rationale: Clarifies which are
-variables and which are methods. Public: e.g. axislimit Private: e.g.
+variables and which are methods. Public: e.g., axislimit Private: e.g.,
 maxvelocity_
 
-Specific method naming conventions
+=== Specific method naming conventions
 
 The terms get and set should be used where an attribute is accessed
-directly. Rationale: Indicates the purpose of the function or method.
-e.g. get_foo set_bar
+directly. Rationale: Indicates the purpose of the function or method,
+e.g., get_foo set_bar.
 
 For methods involving boolean attributes, set & reset is preferred.
 Rationale: As above. e.g. set_amp_enable reset_amp_fault
@@ -214,8 +214,8 @@ exception is for local variable names. Rationale: Clarity of code. e.g.
 pointer is preferred over ptr compute is preferred over cmp compare is
 again preferred over cmp.
 
-Enumerates and other constants can be prefixed by a common type name
-e.g. enum COLOR { COLOR_RED, COLOR_BLUE };
+Enumerates and other constants can be prefixed by a common type name,
+e.g., enum COLOR { COLOR_RED, COLOR_BLUE };
 
 Excessive use of macros and defines should be avoided - Using simple
 methods or functions is preferred. Rationale: Improves the debugging
@@ -225,22 +225,22 @@ Include Statements Header files must be included at the top of a
 source file and not scattered throughout the body. They should be
 sorted and grouped by their hierarchical position within the system
 with the low level files included first. Include file paths should
-NEVER be absolute - Use the compiler -I flag instead. Rationale:
-Headers may not be in the same place on all systems.
+NEVER be absolute - Use the compiler -I flag instead to extend the search
+path. Rationale: Headers may not be in the same place on all systems.
 
 Pointers and references should have their reference symbol next to the
-variable name rather than the type name. Rationale: Reduces confusion.
-e.g. float *x or int &i
+variable name rather than the type name. Rationale: Reduces confusion,
+e.g., float *x or int &i
 
 Implicit tests for zero should not be used except for boolean
-variables. e.g. if (spindle_speed != 0) NOT if (spindle_speed)
+variables, e.g., if (spindle_speed != 0) NOT if (spindle_speed)
 
-Only loop control statements must be included in a for() construct.
-e.g. sum = 0; for (i = 0; i < 10; i++) { sum += value[i]; }
+Only loop control statements must be included in a for() construct,
+e.g., sum = 0; for (i = 0; i < 10; i++) { sum += value[i]; }
 
 NOT for (i = 0, sum =0; i < 10; i++) sum += value[i];
 
-Likewise, executable statements in conditionals must be avoided. e.g.
+Likewise, executable statements in conditionals must be avoided, e.g.,
 if (fd = open(file_name) is bad.
 
 Complex conditional statements should be avoided - Introduce temporary
