@@ -208,7 +208,8 @@ class Dial(QtWidgets.QDial, _HalWidgetBase):
         self.hal_pin_f.set(self._currentTotalCount * data)
 
     def updateCount(self, count):
-        if count == self.maximum(): count = 0
+        # wrapping dials -> 0 and maximum is the same position
+        if count == self.maximum() and self.wrapping(): count = 0
 
         delta = self._lastRawCount - count
         #print 'last:',self._lastRawCount ,'raw count',count,'delta',delta,'count:',count
@@ -1205,13 +1206,15 @@ class ScaledLabel(QtWidgets.QLabel):
 
             if fs < .5: break
 
-        #print br, cr
+        #print (br, cr)
         #--- update font size ---
-        if  self.textFormat() == QtCore.Qt.RichText:
-            if fs <0: fs = 0.5
-            self.setStyleSheet(' font: {}pt ;'.format(f.pointSizeF()))
+        if self.textFormat() == QtCore.Qt.RichText:
+            self.setStyleFontSize(f.pointSizeF())
         else:
             self.setFont(f)
+
+    def setStyleFontSize(self, fs):
+        self.setStyleSheet(' font: {}pt ;'.format(fs))
 
     def set_scaleText(self, data):
         self._scaled = data
