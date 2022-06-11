@@ -543,10 +543,10 @@ class HandlerClass:
 
         # containers
         w = QtWidgets.QWidget()
-        w.setContentsMargins(0,0,0,6)
-        w.setMinimumHeight(40)
+        w.setContentsMargins(0,0,0,0)
 
         hbox = QtWidgets.QHBoxLayout()
+        hbox.setContentsMargins(0,0,0,0)
         hbox.addWidget(self.w.rpm_bar)
         hbox.addWidget(self.w.led)
         w.setLayout(hbox)
