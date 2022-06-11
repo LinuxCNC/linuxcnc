@@ -49,7 +49,7 @@ This is because the LinuxCNC software by default expects configs and
 G-code programs in a directory called `$HOME/linuxcnc`, and having the
 git repo there too is confusing.
 
-Issues and pull requests are welcome on GitHub:
+Issues and pull requests (abbreviated PRs) are welcome on GitHub:
 https://github.com/LinuxCNC/linuxcnc/issues
 https://github.com/LinuxCNC/linuxcnc/pulls
 

@@ -18,11 +18,11 @@ http://buildbot.linuxcnc.org
 For the impatient, try this:
 
 ----
-> git clone https://github.com/LinuxCNC/linuxcnc.git linuxcnc-dev
-> cd linuxcnc-dev/src
-> ./autogen.sh
-> ./configure --with-realtime=uspace
-> make
+$ git clone https://github.com/LinuxCNC/linuxcnc.git linuxcnc-dev
+$ cd linuxcnc-dev/src
+$ ./autogen.sh
+$ ./configure --with-realtime=uspace
+$ make
 ----
 
 That will probably fail!  That doesn't make you a bad person, it just
@@ -35,14 +35,14 @@ the LinuxCNC Live/Install Image, see the <<sub:realtime,Realtime>> section
 below), one extra build step is needed at this time:
 
 -----
-> sudo make setuid
+$ sudo make setuid
 -----
 
 After you've successfully built LinuxCNC it's time to run the tests:
 
 -----
-> source ../scripts/rip-environment
-> runtests
+$ source ../scripts/rip-environment
+$ runtests
 -----
 
 This might fail too!  Read this whole document, but especially the section
@@ -86,7 +86,7 @@ LinuxCNC need to run with root privileges.  To enable root for these
 parts, run this extra command after the `make` that builds LinuxCNC:
 
 -----
-> sudo make setuid
+$ sudo make setuid
 -----
 
 === Non-realtime
@@ -129,8 +129,8 @@ compiled.  It takes many optional arguments.
 List all arguments to `src/configure` by running this:
 
 -----
-> cd linuxcnc-dev/src
-> ./configure --help
+$ cd linuxcnc-dev/src
+$ ./configure --help
 -----
 
 The most commonly used arguments are:
@@ -179,8 +179,8 @@ Building just a specific target::
   executable by running:
 +
 -----
-> cd linuxcnc-dev/src
-> make ../bin/froboz
+$ cd linuxcnc-dev/src
+$ make ../bin/froboz
 -----
 
 === Building Debian Packages
@@ -199,7 +199,7 @@ Building Debian packages requires the `dpkg-buildpackage` tool, from the
 `dpkg-dev` package:
 
 -----
-> sudo apt-get install dpkg-dev
+$ sudo apt-get install dpkg-dev
 -----
 
 Building Debian packages also requires that all build dependencies are
@@ -213,9 +213,9 @@ The first step is generating the Debian package scripts and meta-data
 from the git repo by running this:
 
 -----
-> cd linuxcnc-dev/debian
-> ./configure uspace
-> cd ..
+$ cd linuxcnc-dev/debian
+$ ./configure uspace
+$ cd ..
 -----
 
 [NOTE]
@@ -233,7 +233,7 @@ package by running `dpkg-buildpackage` (note that it needs to run from
 the `linuxcnc-dev` directory, *not* from `linuxcnc-dev/debian`):
 
 -----
-> dpkg-buildpackage -b -uc
+$ dpkg-buildpackage -b -uc
 -----
 
 [[debian-configure-arguments]]
@@ -296,23 +296,23 @@ what's missing.
 First, install the `dpkg-checkbuilddeps` program by running:
 
 -----
-> sudo apt-get install dpkg-dev
+$ sudo apt-get install dpkg-dev
 -----
 
 Then ask your LinuxCNC git checkout to generate its Debian package
 meta-data:
 
 -----
-> cd linuxcnc-dev/debian
-> ./configure uspace
-> cd ..
+$ cd linuxcnc-dev/debian
+$ ./configure uspace
+$ cd ..
 -----
 
 Finally ask `dpkg-checkbuilddeps` to do its job (note that it needs to
 run from the `linuxcnc-dev` directory, *not* from `linuxcnc-dev/debian`):
 
 -----
-> dpkg-checkbuilddeps
+$ dpkg-checkbuilddeps
 -----
 
 It will emit a list of packages that are required to build LinuxCNC
@@ -363,7 +363,7 @@ Log out and log back in to make the changes take effect.  Verify that
 the memory lock limit is raised using the following command:
 
 -----
-> ulimit -l
+$ ulimit -l
 -----
 
 == Options for checking out the git repo

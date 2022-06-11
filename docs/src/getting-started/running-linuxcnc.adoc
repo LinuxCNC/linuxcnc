@@ -13,8 +13,8 @@ or select it in the 'Applications -> CNC' menu.
 [[sec:config-launcher]]
 == Configuration Launcher(((Configuration Launcher)))
 
-When starting LinuxCNC from the CNC menu or from the command line without
-specifying an ini file the Configuration Selector dialog starts.
+When starting LinuxCNC (from the CNC menu or from the command line without
+specifying an .ini file) the Configuration Selector dialog starts.
 
 The Configuration Selector dialog allows the user to pick one of their
 existing configurations (My Configurations) or select a new one (from the Sample
@@ -25,9 +25,9 @@ Selector.
 The Configuration Selector offers a selection of configurations organized:
 
 * 'My Configurations' - User configurations located in linuxcnc/configs in your home directory.
-* 'Sample Configurations' - Sample configurations, when selected are copied to linuxcnc/configs.
-  Once you copy a sample configuration if you use the launcher pick it from 'My Configurations'.
-  Names correspond to the directories under ../configs/
+* 'Sample Configurations' - Sample configurations, when selected, are copied to linuxcnc/configs.
+  Once a sample configuration was copied to your local directory, the launcher will offer it as 'My Configurations'.
+  The names under which these local configurations are presented correspond to the names of the directories within the configs/ directory:
 ** 'sim' - Configurations that include simulated hardware.
    These can be used for testing or learning how LinuxCNC works.
 ** 'by_interface' - Configurations organized by GUI.
@@ -37,18 +37,18 @@ The Configuration Selector offers a selection of configurations organized:
 ** 'attic' - Obsolete or historical configurations.
 
 The sim configurations are often the most useful starting point for
-new users and are organized around supported guis:
+new users and are organized around supported GUIs:
 
-* 'axis' - Keyboard and Mouse Gui
-* 'gmoccapy' - Touch Screen Gui
-* 'gscreen' - Touch Screen Gui
-* 'low_graphics' - Keyboard Gui
+* 'axis' - Keyboard and Mouse GUI
+* 'gmoccapy' - Touch Screen GUI
+* 'gscreen' - Touch Screen GUI
+* 'low_graphics' - Keyboard GUI
 * 'pyvcp_demo' - Paneles de Control Virtuales Python
 * 'qtvcp_screens' - Guis diseñadas con Qt5 y Python
 * 'tklinuxcnc' - Keyboard and Mouse Gui(no longer maintained)
-* 'touchy' - Touch Screen Gui
+* 'touchy' - Touch Screen GUI
 
-A gui configuration directory may contain subdirectories with
+A GUI configuration directory may contain subdirectories with
 configurations that illustrate special situations or the embedding
 of other applications.
 
