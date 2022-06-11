@@ -851,6 +851,18 @@ PyObject *connect(PyObject *self, PyObject *args) {
     return PyBool_FromLong(hal_link(pinname, signame) != 0);
 }
 
+PyObject *disconnect(PyObject *self, PyObject *args) {
+    char *pinname;
+    if(!PyArg_ParseTuple(args, "s", &pinname)) return NULL;
+    if(!SHMPTR(0)) {
+	PyErr_Format(PyExc_RuntimeError,
+		"Cannot call before creating component");
+	return NULL;
+    }
+    //printf("INFO HALMODULE -- unlink pin %s\n",pinname);
+    return PyBool_FromLong(hal_unlink(pinname) != 0);
+}
+
 static int set_common(hal_type_t type, void *d_ptr, char *value) {
     // This function assumes that the mutex is held
     int retval = 0;
@@ -1679,6 +1691,9 @@ PyMethodDef module_methods[] = {
 	".new_sig('signal_name', type): Create a new signal with the specified name.  'type' is one of HAL_BIT, HAL_FLOAT, HAL_S32, or HAL_U32."},
     {"connect", connect, METH_VARARGS,
 	".connect('pin_name', 'signal_name'): Connect the named pin to the named signal."},
+    {"disconnect", disconnect, METH_VARARGS,
+	".disconnect('pin_name'): Disconnect the named pin from any signal."},
+
     {"set_p", set_p, METH_VARARGS,
 	".set_p('name', 'value'): Set the pin or param value"},
     {"get_value", get_value, METH_VARARGS,
