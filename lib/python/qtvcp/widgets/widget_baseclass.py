@@ -77,6 +77,12 @@ class _HalWidgetBase_(object):
         """ Child Designer editor plugin initialization functions """
         pass
 
+    def get_full_pinname(self, pin):
+        """ Returns the component and pin name as a combined string """
+        n = self.HAL_GCOMP_.comp.getprefix()
+        p = pin.get_name()
+        return n+'.'+p
+
 # we do this so we can manipulate all instances based on this.
 # we wish to embed variables.
 # This class gets get instatiated in qt_makegui.py
