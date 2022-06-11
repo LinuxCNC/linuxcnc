@@ -1172,7 +1172,10 @@ PyObject *get_info_signals(PyObject *self, PyObject *args) {
 
     /* it have a writer? */
         pin = halpr_find_pin_by_sig(sig, 0);
-
+        while (pin != 0) {
+            if (pin->dir == HAL_OUT){break;}
+            pin = halpr_find_pin_by_sig(sig, pin);
+        }
         /* convert to dict of python values */
         switch(type) {
             case HAL_BIT:
@@ -1182,19 +1185,19 @@ PyObject *get_info_signals(PyObject *self, PyObject *args) {
                         str_d, (pin != 0) ? pin->name : NULL);
                 break;
             case HAL_U32:
-                obj = Py_BuildValue("{s:s,s:l}",
+                obj = Py_BuildValue("{s:s,s:l,s:s}",
                         str_n, sig->name,
                         str_v, (unsigned long)*(hal_u32_t *)d_ptr,
                         str_d, (pin != 0) ? pin->name : NULL);
                 break;
             case HAL_S32:
-                obj =  Py_BuildValue("{s:s,s:l}",
+                obj =  Py_BuildValue("{s:s,s:l,s:s}",
                         str_n, sig->name,
                         str_v, (long)*(hal_s32_t *)d_ptr,
                         str_d, (pin != 0) ? pin->name : NULL);
                 break;
             case HAL_FLOAT:
-                obj = Py_BuildValue("{s:s,s:f}",
+                obj = Py_BuildValue("{s:s,s:f,s:s}",
                         str_n, sig->name, str_v,
                         (double)*(hal_float_t *)d_ptr,
                         str_d, (pin != 0) ? pin->name : NULL);
@@ -1203,7 +1206,7 @@ PyObject *get_info_signals(PyObject *self, PyObject *args) {
             case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
             case HAL_TYPE_UNINITIALIZED: /* fallthrough */ ;
             default:
-                 obj = Py_BuildValue("{s:s,s:s}",
+                 obj = Py_BuildValue("{s:s,s:s,s:s}",
                         str_n, sig->name,
                         str_v, NULL,
                         str_d, (pin != 0) ? pin->name : NULL);
