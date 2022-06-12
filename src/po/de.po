@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-05-28 23:16+0200\n"
-"PO-Revision-Date: 2022-06-11 23:11+0000\n"
+"PO-Revision-Date: 2022-06-13 03:48+0000\n"
 "Last-Translator: Hans U. <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
@@ -5845,9 +5845,8 @@ msgid "Offset:"
 msgstr "Werkzeugkorrektur:"
 
 #: tcl/tklinuxcnc.tcl:942
-#, fuzzy
 msgid "Work Offsets:"
-msgstr "Werkstück Versatz:"
+msgstr "Werkstückversätze:"
 
 #: tcl/tklinuxcnc.tcl:1126
 msgid "override limits"
