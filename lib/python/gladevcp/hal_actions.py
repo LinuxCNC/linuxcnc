@@ -26,6 +26,11 @@ import re, string
 from .hal_widgets import _HalWidgetBase
 import linuxcnc
 from hal_glib import GStat
+import hal
+
+from gladevcp.core import Info, Action
+INFO = Info()
+ACTION = Action()
 
 _ = lambda x: x
 
@@ -331,7 +336,8 @@ class EMC_Action_Python(_EMC_Action):
 
     def on_activate(self, w):
         self._globalParameter = { 'EXT':self._panel_instance.get_handler_obj(),
-                                  'GSTAT':self.gstat,'CMD':self.linuxcnc,'STAT':self.stat}
+                                  'GSTAT':self.gstat,'CMD':self.linuxcnc,'STAT':self.stat,
+                                   'ACTION':ACTION, 'HAL':hal, 'INFO':INFO}
         self._localsParameter = {'dir': dir, 'self': self,'linuxcnc':linuxcnc}
         if self.requires_manual:
             ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_MAN)
