@@ -37,6 +37,21 @@ qtvcp copy
 .copy Dialog - Copy Qtvcp's builtin Screen, Panel or Vismach code
 image::images/qtvcp_copy_dialog.png["Copy Dialog",align="left"]
 
+=== test_dial
+
+- This panel has a dial that adjusts S32 and Float HAL output pins. +
+- The dial's range can be adjusted from a drop down menu. +
+- The output can be scaled with the spinbox. +
+- A combobox can be used to automatically select and connect to a signal.
+
+[source,{hal}]
+----
+loadusr qtvcp test_dial
+----
+
+.test dial - Test Dial VCP
+image::images/qtvcp_test_dial.png["Test Dial",align="left"]
+
 === test_panel
 
 - collect of useful widgets for testing HAL component. Including speech
