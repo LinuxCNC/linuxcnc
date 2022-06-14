@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-1.223
+1.224
 
 .I SUMMARY:
 .br
@@ -277,6 +277,8 @@ variable int    state_old = -1;             /* old state*/
 //variable int    target_samples = 6;         /* number of samples for setting target_volts */
 variable float  target_total;               /* total voltage of samples for setting target_volts */
 //variable float  target_volts;               /* target voltage for thc, set by arc voltage at cut height */
+variable bool   thc_activated;              /* thc was activated */
+variable float  thc_activated_timer;        /* timer to reset thc_activated - end of cut is detected from userspace :( */
 variable float  thc_delay_timer;            /* thc delay timer */
 variable int    thc_velocity;               /* velocity for thc moves */
 variable float  torch_off_timer;            /* arc off delay timer */
@@ -517,6 +519,17 @@ FUNCTION(_) {
 
     /* set THC status */
     thc_active = (state == CUT_MODE_01 || state == CUT_MODE_2) && ((mode < 2 && target_volts) || (mode == 2 && arc_ok_out)) && thc_enabled && !cornerlock_is_locked && !kerfcross_is_locked ? 1:0;
+    if(thc_active){
+        thc_activated = TRUE;
+        thc_activated_timer = 0.25;
+    }else if(thc_activated && (state == CUT_MODE_01 || state == CUT_MODE_2)){
+        thc_activated_timer -= fperiod;
+        if(thc_activated_timer <= 0){
+            thc_activated = FALSE;
+        }
+    }else if(probe_required){
+        thc_activated = FALSE;
+    }
 
     /* set ohmic probe state */
     ohmic_detected = ohmic_probe && ohmic_probe_enable;
@@ -594,7 +607,7 @@ FUNCTION(_) {
                     torch_on = FALSE;
                 }
                 stop_type = WAIT;
-                if(thc_enabled && ((!use_auto_volts || (use_auto_volts && target_volts)) || !torch_enable)){
+                if(thc_enabled || !torch_enable){
                     axis_x_finish = axis_x_position;
                     axis_y_finish = axis_y_position;
                 }else{
@@ -842,14 +855,15 @@ FUNCTION(_) {
                         }else{
                             probe_testing = TRUE;
                         }
-                        if(!thc_enabled && first_cut_finished){
+                        if(!thc_activated && first_cut_finished){
                             cut_offset = sqrt(pow(axis_x_start - axis_x_position, 2) + pow(axis_y_start - axis_y_position, 2));
                         }else if((axis_x_finish || axis_y_finish) && first_cut_finished){
                             cut_offset = sqrt(pow(axis_x_finish - axis_x_position, 2) + pow(axis_y_finish - axis_y_position, 2));
                             axis_x_finish = 0;
                             axis_y_finish = 0;
                         }
-                        if(cut_offset && cut_offset < skip_ihs_distance && !probe_required){
+                        thc_activated = FALSE;
+                        if(skip_ihs_distance && cut_offset < skip_ihs_distance && !probe_required){
                             if(thc_enabled){
                                 pierce_target = pierce_target + cut_height_last - cut_target;
                                 puddle_jump_target = puddle_jump_target + cut_height_last - cut_target;
@@ -857,8 +871,6 @@ FUNCTION(_) {
                                 cut_height_first = cut_target;
                             }
                             cut_offset = 0;
-                            axis_x_start = axis_x_position;
-                            axis_y_start = axis_y_position;
                             state = PIERCE_HEIGHT;
                         }else{
                             if(ohmic_detected && !probe_inhibit){
