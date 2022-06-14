@@ -63,7 +63,7 @@ def getLogger(name):
 def setGlobalLevel(level):
     base_log = logging.getLogger(BASE_LOGGER_NAME)
     base_log.setLevel(level)
-    base_log.info('Base log level set to {}'.format(level))
+    base_log.info('Base log level set to: yellow<{}>'.format(level))
 
 
 # Initialize the base logger
@@ -99,7 +99,7 @@ def initBaseLogger(name, log_file=None, log_level=DEBUG):
 
     # Get logger for logger
     log = getLogger(__name__)
-    base_log.info('Logging to "{}"'.format(log_file))
+    base_log.info('Logging to: yellow<{}>'.format(log_file))
 
     return base_log
 

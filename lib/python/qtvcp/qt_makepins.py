@@ -59,7 +59,7 @@ class QTPanel():
 
                     # change HAL base name to screenOptions setting if
                     # a new base name was not specified on the command line
-                    # and screenOptions name is not blank 
+                    # and screenOptions name is not blank
                     oldHALName = halcomp.comp.getprefix()
                     if oldHALName == path.BASENAME:
                         newHALName = widget.property('halCompBaseName')
@@ -98,7 +98,7 @@ class QTPanel():
                     oldname = halcomp.comp.getprefix()
                     halcomp.comp.setprefix('{}.{}'.format(oldname,cmd))
 
-                    LOG.debug('QTVCP: Parsing  external qtvcp {} panel for EMBEDDED hal widgets'.format(cmd))
+                    LOG.debug('QTVCP: Parsing external qtvcp {} panel for EMBEDDED HAL widgets.'.format(cmd))
                     for widget in window[pName].findChildren(QObject):
                         if isinstance(widget, _HalWidgetBase):
                             idname = widget.objectName()
@@ -110,7 +110,7 @@ class QTPanel():
         # parse for HAL objects:
         # initiate the hal function on each
         # keep a register list of these widgets for later
-        LOG.debug('QTVCP: Parsing for hal widgets')
+        LOG.debug('QTVCP: Parsing for HAL widgets.')
         for widget in window.findChildren(QObject):
             if isinstance(widget, _HalWidgetBase):
                 idname = widget.objectName()
@@ -123,7 +123,7 @@ class QTPanel():
     def shutdown(self):
         if self.window['PREFS_']:
             self.record_preference_geometry()
-        LOG.debug("calling widget's _hal_cleanup functions")
+        LOG.debug("Calling widget's _hal_cleanup functions.")
         for widget in self.window.getRegisteredHalWidgetList():
             try:
                 widget._hal_cleanup()
@@ -133,7 +133,7 @@ class QTPanel():
             if 'closing_cleanup__' in dir(widget):
                 idname = widget.objectName()
                 LOG.info('Closing cleanup on: {}'.format(idname))
-                LOG.info('"closing_cleanup__" function name is depreciated, please using "_hal_cleanup"')
+                LOG.info('"closing_cleanup__" function name is depreciated, please using "_hal_cleanup".')
                 widget.closing_cleanup__()
 
     # if there is a prefrence file and it is has digits (so no key word), then record
@@ -156,7 +156,7 @@ class QTPanel():
         if self.window['PREFS_']:
             self.geometry_parsing()
         else:
-            LOG.info('No preference file - can not set preference geometry.')
+            LOG.info('No preference file - cannot set preference geometry.')
 
     def geometry_parsing(self):
         def go(x, y, w, h):
@@ -164,7 +164,7 @@ class QTPanel():
 
         try:
             self._geo_string = self.window.PREFS_.getpref('mainwindow_geometry', '', str, 'SCREEN_OPTIONS')
-            LOG.debug('Calculating geometry of main window using natural placement:{}'.format(self._geo_string))
+            LOG.debug('Calculating geometry of main window using natural placement: {}'.format(self._geo_string))
             # If there is a preference file object use it to load the geometry
             if self._geo_string in ('default', ''):
                 return
