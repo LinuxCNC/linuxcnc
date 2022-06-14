@@ -40,7 +40,7 @@ Build-Depends:
     tk@TCLTK_VERSION@-dev,
     yapps2
 Build-Depends-Indep:
-    @DOC_DEPENDS@
+    @DOC_DEPENDS@,
 Standards-Version: 4.6.0
 Vcs-Browser: https://github.com/LinuxCNC/linuxcnc
 Vcs-Git: https://github.com/LinuxCNC/linuxcnc.git
