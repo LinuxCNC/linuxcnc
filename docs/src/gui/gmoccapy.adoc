@@ -1,6 +1,7 @@
 :lang: en
+:pin_tab_options: cols="40,10,50", frame="none", grid="none", options="header"
 :toc:
-:toclevels: 3
+:toclevels: 4
 
 [[cha:gmoccapy]]
 = GMOCCAPY
@@ -192,7 +193,7 @@ If not specified Gmoccapy will look in the following order for ngc files:
 linuxcnc/nc_files and then the users home directory.
 
 [[gmoccapy:configuration-of-tabs-and-side-panels]]
-.Configuration of tabs and side panels
+==== Configuration of tabs and side panels
 You can add embedded programs to gmoccapy like you can do in axis, touchy and
 gscreen. All is done by gmoccapy automatically if you include a few lines in
 your INI file in the DISPLAY section.
@@ -211,64 +212,75 @@ EMBED_TAB_LOCATION = ntb_preview
 EMBED_TAB_COMMAND = gladevcp -x {XID} vcp_box.glade
 ----
 
-All you have to take care off, is that you include for every tab or side panel
-the mentioned three lines,
+All you have to take care of, is that you include for every tab or side panel the mentioned three lines:
 
 * EMBED_TAB_NAME = Represents the name of the tab or side panel, it is up to you
   what name you use, but it must be present!
-* EMBED_TAB_LOCATION = Is the place where your program will be placed in the GUI.
+* EMBED_TAB_LOCATION = The place where your program will be placed in the GUI, see figure <<fig:gmoccapy_emb_tab_locations,Embedded tab locations>>. Valid values are:
+** *ntb_user_tabs*            (as main tab, covering the complete screen)
+** *ntb_preview*              (as tab on the preview side *(1)*)
+** *hbox_jog*                 (will hide the jog buttons and introduce your glade file here *(2)*)
+** *box_left*                 (on the left, complete high of the screen)
+** *box_right*                (on the right, in between the normal screen and the button list)
+** *box_tool_and_code_info*   (will hide the Tool information and G-Code frames and introduce your glade file here *(3)*)
+** *box_tool_info*            (will hide the Tool information frame and introduce your glade file here)
+** *box_code_info*            (will hide the G-Code information frame and introduce your glade file here)
+** *box_vel_info*             (will hide the velocity frames and introduce your glade file *(4)*)
+** *box_coolant_and_spindle*  (will hide the coolant and spindle frames and introduce your glade file here *(5)+(6)*)
+** *box_cooling*              (will hide the cooling frame and introduce your glade file *(5)*)
+** *box_spindle*              (will hide the spindle frame and introduce your glade file *(6)*)
+** *box_custom_1*             (will introduce your glade file left of vel_frame)
+** *box_custom_2*             (will introduce your glade file left of cooling_frame)
+** *box_custom_3*             (will introduce your glade file left of spindle_frame)
+** *box_custom_4*             (will introduce your glade file right of spindle_frame)
 
-Valid values are:
+[NOTE]
+See also the included sample INI files to see the differences.
 
-* ntb_user_tabs            (as main tab, covering the complete screen)'
-* ntb_preview              (as tab on the preview side)'
-* box_left                 (on the left, complete high of the screen)
-* box_right                (on the right, in between the normal screen and the button list)
-* box_coolant_and_spindle  (will hide the coolant and spindle frames and introduce your glade file here)
-* box_cooling              (will hide the cooling frame and introduce your glade file)
-* box_spindle              (will hide the spindle frame and introduce your glade file)
-* box_vel_info             (will hide the velocity frames and introduce your glade file)
-* box_custom_1             (will introduce your glade file left of vel_frame)
-* box_custom_2             (will introduce your glade file left of cooling_frame)
-* box_custom_3             (will introduce your glade file left of spindle_frame)
-* box_custom_4             (will introduce your glade file right of spindle_frame)
-
-See the different INI files included to see the differences
-
-* EMBED_TAB_COMMAND = the command to execute, i.e.
-
+* EMBED_TAB_COMMAND = The command to execute, i.e.
++
 ----
 gladevcp -x {XID} dro.glade
 ----
-
-Includes a custom glade file called dro.glade in the mentioned location
++
+includes a custom glade file called dro.glade in the mentioned location
 The file must be placed in the config folder of your machine.
-
++
 ----
 gladevcp h_buttonlist.glade
 ----
-
-Will just open a new user window called h_buttonlist.glade note the difference,
++
+will just open a new user window called h_buttonlist.glade note the difference,
 this one is stand alone, and can be moved around independent from gmoccapy
 window.
-
++
 ----
 gladevcp -c gladevcp -u hitcounter.py -H manual-example.hal manual-example.ui
 ----
-
-Will add a the panel manual-example.ui, include a custom python handler,
++
+will add a the panel manual-example.ui, include a custom python handler,
 hitcounter.py and make all connections after realizing the panel according to
 manual-example.hal.
++
+----
+hide
+----
++
+will hide the chosen box.
+
+[[fig:gmoccapy_emb_tab_locations]]
+.Embedded tab locations
+image::images/gmoccapy_embedded_tabs.png[align="left"]
 
 [NOTE]
-If you make any hal connections to you custom glade panel, you need to do that in the hal file
-specified in the EMBEDDED_TAB_COMMAND line, otherwise you may get an error that the hal pin does not exist,
-this is because of race conditions loading the hal files. Connections to gmoccapy hal pin need to be made in the
-postgui hal file specified in your INI file, because this pin do not exist prior of realizing the GUI
+If you make any hal connections to your custom glade panel, you need to do that in the hal file
+specified in the EMBED_TAB_COMMAND line, otherwise you may get an error that the hal pin does not exist --
+this is because of race conditions loading the hal files. Connections to gmoccapy hal pins need to be made in the
+postgui hal file specified in your INI file, because these pins do not exist prior of realizing the GUI.
 
 Here are some examples:
 
-.ntb_preview - as maximized version
+.ntb_preview - in maximized view
 image::images/gmoccapy_ntb_preview_maximized_2.png[align="left"]
 
 .ntb_preview
@@ -280,7 +292,7 @@ image::images/gmoccapy_with_left_box_in_edit_mode.png[align="left"]
 .box_right - and gmoccapy in MDI mode
 image::images/gmoccapy_with_right_panel_in_MDI_mode.png[align="left"]
 
-.Configuration of User Created Messages
+==== Configuration of User Created Messages
 Gmoccapy has the ability to create hal driven user messages. To use them you
 need to introduce some lines in the [DISPLAY] section of the INI file.
 
@@ -634,7 +646,7 @@ This change has been done as many user ask for that.
 
 To connect 'encoders' the following pin are exported:
 
-[width="80%",options="header",cols="^,<,^"]
+[{pin_tab_options}]
 |====
 |                   PIN                           |  TYPE   |  FUNCTION
 | gmoccapy.jog.jog-velocity.counts                | HAL_S32 | Jog velocity
@@ -651,7 +663,7 @@ To connect 'encoders' the following pin are exported:
 
 To connect 'potentiometers', use the following hal pin:
 
-[width="80%",options="header",cols="^,<,^"]
+[{pin_tab_options}]
 |====
 |                   PIN                           |  TYPE     |  FUNCTION
 | gmoccapy.jog.jog-velocity.direct-value          | HAL_FLOAT | To adjust the jog velocity slider
@@ -668,7 +680,7 @@ In addition gmoccapy 3 offers additional hal pin to control the new slider widge
 The values how fast the increase or decrease will be, must be set in the glade file.
 In a future release it will be integrated in the settings page.
 
-[width="80%",options="header",cols="^,<,^"]
+[{pin_tab_options}]
 |====
 |               PIN                 |  TYPE         |  FUNCTION
 | SPEED                             |               |
