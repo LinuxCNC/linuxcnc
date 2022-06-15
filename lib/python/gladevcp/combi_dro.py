@@ -241,6 +241,8 @@ class Combi_DRO(Gtk.VBox):
         self.gstat.connect('all-homed', self._all_homed )
         self.gstat.connect('homed', self._homed )
         self.gstat.connect('current-position', self._position)
+        self.gstat.connect('user-system-changed', self._user_system_changed)
+        self._set_labels()
 
         # This try is only needed because while working with glade
         # linuxcnc may not be working
@@ -360,6 +362,7 @@ class Combi_DRO(Gtk.VBox):
 
     # update the labels
     def _set_labels(self):
+        self.status.poll()
         if self._ORDER[0] == "Rel":
             self.widgets["lbl_sys_main"].set_text(self._get_current_system())
         else:
@@ -419,6 +422,9 @@ class Combi_DRO(Gtk.VBox):
                 self.widgets[widget].get_style_context().add_class('size_small')
                 
         self.queue_draw()
+
+    def _user_system_changed(self, object, system):
+        self._set_labels()
 
     def _position(self, object, p, rel_p, dtg, joint_actual_position):
         # object = hal_glib Object
@@ -554,23 +560,24 @@ class Combi_DRO(Gtk.VBox):
         Combi_DRO.toggle_readout()
 
         '''
-        self._ORDER = [self._ORDER[2], self._ORDER[0], self._ORDER[1]]
-        
+        if not Data:
+            self._ORDER = [self._ORDER[2], self._ORDER[0], self._ORDER[1]]
+
         if self._ORDER[0] == "Abs":
             bg_color = self.abs_color
         elif self._ORDER[0] == "DTG":
             bg_color = self.dtg_color
         else:
             bg_color = self.rel_color
-            
-        self.set_style("background", bg_color)
 
-        # if Data is True, we only updated the colors of the background
-        # so we won#t emit a click event
+        self.set_style("background", bg_color)
+        self._set_labels()
+
+        # if Data is True, we only update the colors of the background
+        # so we won't emit a click event
         if Data:
             return
 
-        self._set_labels()
         self.emit("clicked", self.joint_number, self._ORDER)
 
     # You can change the automatic given axisletter using this function
@@ -632,7 +639,6 @@ class Combi_DRO(Gtk.VBox):
                 ["Abs", "DTG", "Rel"]
         '''
         self._ORDER = order
-        self._set_labels()
         self.toggle_readout(Data=True)
 
     # This will return the position information of all three DRO
