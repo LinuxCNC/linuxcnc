@@ -3729,12 +3729,13 @@ class gmoccapy(object):
     def on_tbtn_setup_toggled(self, widget, data=None):
         # first we set to manual mode, as we do not allow changing settings in other modes
         # otherwise external halui commands could start a program while we are in settings
-        self.command.mode(linuxcnc.MODE_MANUAL)
-        self.command.wait_complete()
-        self.widgets.rbt_manual.set_active(True)
         self.stat.poll()
-
         if widget.get_active():
+            self.command.mode(linuxcnc.MODE_MANUAL)
+            self.command.wait_complete()
+            self.widgets.rbt_manual.set_active(True)
+            # save the mode to restore when leaving the settings page
+            self.last_mode = self.stat.task_mode
             # deactivate the mode buttons, so changing modes is not possible while we are in settings mode
             self.widgets.rbt_manual.set_sensitive(False)
             self.widgets.rbt_mdi.set_sensitive(False)
@@ -3792,6 +3793,10 @@ class gmoccapy(object):
             # if we are in user tabs, we must reset the button
             if self.widgets.tbtn_user_tabs.get_active():
                 self.widgets.tbtn_user_tabs.set_active(False)
+
+            # restore mode
+            self.command.mode(self.last_mode)
+            self.command.wait_complete()
 
             widget.set_image(self.widgets.img_settings)
 
