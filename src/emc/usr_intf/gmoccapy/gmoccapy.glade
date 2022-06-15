@@ -4400,6 +4400,28 @@ clicking on the DRO</property>
                                             <property name="position">5</property>
                                           </packing>
                                         </child>
+                                        <child>
+                                          <object class="GtkComboBox" id="cmb_mouse_button_mode">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <property name="model">lst_button_mode</property>
+                                            <property name="active">0</property>
+                                            <property name="has_entry">True</property>
+                                            <property name="entry_text_column">1</property>
+                                            <property name="id_column">0</property>
+                                            <signal name="changed" handler="on_cmb_mouse_button_mode_changed" swapped="no"/>
+                                            <child internal-child="entry">
+                                              <object class="GtkEntry">
+                                                <property name="can_focus">False</property>
+                                              </object>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">True</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">6</property>
+                                          </packing>
+                                        </child>
                                       </object>
                                     </child>
                                   </object>
