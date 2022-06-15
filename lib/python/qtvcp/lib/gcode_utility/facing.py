@@ -211,7 +211,7 @@ class Facing(QtWidgets.QWidget):
         self.file.write("%\n")
         self.file.write("({})\n".format(comment))
         self.file.write("({})\n".format(self.units_text))
-        self.file.write("(Area: X {} by Y {})\n".format(self.size_x,self.size_x))
+        self.file.write("(Area: X {} by Y {})\n".format(self.size_x,self.size_y))
         self.file.write("({} Tool Diameter with {} Stepover)\n".format(self.tool_dia, self.stepover))
         self.file.write("\n")
         self.next_line("{} G40 G49 G64 P0.03".format(self.unit_code))

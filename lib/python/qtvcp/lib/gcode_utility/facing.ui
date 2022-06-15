@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>647</width>
-    <height>429</height>
+    <width>667</width>
+    <height>410</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -163,9 +163,6 @@
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Expanding</enum>
-              </property>
               <property name="sizeHint" stdset="0">
                <size>
                 <width>40</width>
@@ -234,13 +231,13 @@
               <property name="minimumSize">
                <size>
                 <width>70</width>
-                <height>30</height>
+                <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
                 <width>70</width>
-                <height>30</height>
+                <height>16777215</height>
                </size>
               </property>
               <property name="maxLength">
@@ -262,13 +259,13 @@
               <property name="minimumSize">
                <size>
                 <width>70</width>
-                <height>30</height>
+                <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
                 <width>70</width>
-                <height>30</height>
+                <height>16777215</height>
                </size>
               </property>
               <property name="maxLength">
@@ -284,13 +281,13 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>30</height>
+                <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
-                <height>30</height>
+                <height>16777215</height>
                </size>
               </property>
               <property name="text">
@@ -392,13 +389,13 @@
               <property name="minimumSize">
                <size>
                 <width>70</width>
-                <height>30</height>
+                <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
                 <width>70</width>
-                <height>30</height>
+                <height>16777215</height>
                </size>
               </property>
               <property name="maxLength">
@@ -507,13 +504,13 @@
               <property name="minimumSize">
                <size>
                 <width>70</width>
-                <height>30</height>
+                <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
                 <width>70</width>
-                <height>30</height>
+                <height>16777215</height>
                </size>
               </property>
               <property name="maxLength">
@@ -625,13 +622,13 @@
               <property name="minimumSize">
                <size>
                 <width>70</width>
-                <height>30</height>
+                <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
                 <width>70</width>
-                <height>30</height>
+                <height>16777215</height>
                </size>
               </property>
               <property name="toolTip">
@@ -647,12 +644,6 @@
             </item>
             <item>
              <widget class="QLabel" name="lbl_tool_unit">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
               <property name="text">
                <string>MM</string>
               </property>
@@ -749,13 +740,13 @@
               <property name="minimumSize">
                <size>
                 <width>70</width>
-                <height>30</height>
+                <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
                 <width>70</width>
-                <height>30</height>
+                <height>16777215</height>
                </size>
               </property>
               <property name="maxLength">
@@ -926,9 +917,6 @@
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Expanding</enum>
-              </property>
               <property name="sizeHint" stdset="0">
                <size>
                 <width>40</width>
@@ -1087,9 +1075,6 @@
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Expanding</enum>
-              </property>
               <property name="sizeHint" stdset="0">
                <size>
                 <width>40</width>
@@ -1158,13 +1143,13 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>30</height>
+                <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
-                <height>30</height>
+                <height>16777215</height>
                </size>
               </property>
               <property name="toolTip">
@@ -1251,14 +1236,14 @@
             <item>
              <widget class="QPushButton" name="btn_validate">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
               <property name="minimumSize">
                <size>
-                <width>75</width>
+                <width>80</width>
                 <height>50</height>
                </size>
               </property>
@@ -1280,14 +1265,14 @@ INPUTS</string>
             <item>
              <widget class="QPushButton" name="btn_create">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
               <property name="minimumSize">
                <size>
-                <width>75</width>
+                <width>80</width>
                 <height>50</height>
                </size>
               </property>
@@ -1309,14 +1294,14 @@ PROGRAM</string>
             <item>
              <widget class="QPushButton" name="btn_send">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
               <property name="minimumSize">
                <size>
-                <width>75</width>
+                <width>80</width>
                 <height>50</height>
                </size>
               </property>
@@ -1340,12 +1325,9 @@ MACRO</string>
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Preferred</enum>
-              </property>
               <property name="sizeHint" stdset="0">
                <size>
-                <width>10</width>
+                <width>40</width>
                 <height>20</height>
                </size>
               </property>
@@ -1354,14 +1336,14 @@ MACRO</string>
             <item alignment="Qt::AlignRight">
              <widget class="QPushButton" name="btn_help">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
               <property name="minimumSize">
                <size>
-                <width>75</width>
+                <width>80</width>
                 <height>50</height>
                </size>
               </property>
@@ -1403,4 +1385,3 @@ MACRO</string>
   <slot>btn_help_clicked()</slot>
  </slots>
 </ui>
-
