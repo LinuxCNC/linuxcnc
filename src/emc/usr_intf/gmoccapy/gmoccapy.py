@@ -1911,10 +1911,25 @@ class gmoccapy(object):
                 self.widgets.box_custom_4.show()
 
             if "box_tool_and_code_info" in tab_locations:
-                widgetlist = ["frm_tool_info", "active_speed_label", "lbl_speed"]
+                widgetlist = ["frm_tool_info", "frm_gcode", "active_speed_label", "lbl_speed"]
                 for widget in widgetlist:
                     self.widgets[widget].hide()
                 self.widgets.btn_tool.set_sensitive( False )
+
+            if "box_code_info" in tab_locations:
+                widgetlist = ["frm_gcode"]
+                for widget in widgetlist:
+                    self.widgets[widget].hide()
+
+            if "box_tool_info" in tab_locations:
+                widgetlist = ["frm_tool_info"]
+                for widget in widgetlist:
+                    self.widgets[widget].hide()
+
+            if "hbox_jog" in tab_locations:
+                widgetlist = ["vbx_jog_button", "vbtb_jog_incr"]
+                for widget in widgetlist:
+                    self.widgets[widget].hide()
 
 # Dynamic tabs handling End
 # =============================================================

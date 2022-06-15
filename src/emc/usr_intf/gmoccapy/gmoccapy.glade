@@ -2100,188 +2100,200 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <child>
-                                      <object class="GtkFrame" id="frm_tool_info">
+                                      <object class="GtkBox" id="box_tool_info">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="tooltip_text" translatable="yes">Information over the tool in spindle</property>
-                                        <property name="label_xalign">0.5</property>
+                                        <property name="orientation">vertical</property>
                                         <child>
-                                          <object class="GtkAlignment" id="ali_tool_info">
+                                          <object class="GtkFrame" id="frm_tool_info">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="top_padding">5</property>
-                                            <property name="bottom_padding">5</property>
-                                            <property name="left_padding">5</property>
-                                            <property name="right_padding">5</property>
+                                            <property name="tooltip_text" translatable="yes">Information over the tool in spindle</property>
+                                            <property name="label_xalign">0.5</property>
                                             <child>
-                                              <object class="GtkTable" id="tbl_tool_info">
+                                              <object class="GtkAlignment" id="ali_tool_info">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
-                                                <property name="n_rows">3</property>
-                                                <property name="n_columns">4</property>
-                                                <property name="homogeneous">True</property>
+                                                <property name="top_padding">5</property>
+                                                <property name="bottom_padding">5</property>
+                                                <property name="left_padding">5</property>
+                                                <property name="right_padding">5</property>
                                                 <child>
-                                                  <object class="GtkLabel" id="lbl_tool">
+                                                  <object class="GtkTable" id="tbl_tool_info">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">False</property>
-                                                    <property name="label" translatable="yes">Tool no.</property>
-                                                    <property name="width_chars">8</property>
-                                                    <attributes>
-                                                      <attribute name="style" value="normal"/>
-                                                    </attributes>
+                                                    <property name="n_rows">3</property>
+                                                    <property name="n_columns">4</property>
+                                                    <property name="homogeneous">True</property>
+                                                    <child>
+                                                      <object class="GtkLabel" id="lbl_tool">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <property name="label" translatable="yes">Tool no.</property>
+                                                        <property name="width_chars">8</property>
+                                                        <attributes>
+                                                          <attribute name="style" value="normal"/>
+                                                        </attributes>
+                                                      </object>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkLabel" id="lbl_tool_no">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <property name="label">0</property>
+                                                        <property name="justify">center</property>
+                                                        <property name="width_chars">8</property>
+                                                        <attributes>
+                                                          <attribute name="style" value="normal"/>
+                                                          <attribute name="weight" value="bold"/>
+                                                        </attributes>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="top_attach">1</property>
+                                                        <property name="bottom_attach">2</property>
+                                                      </packing>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkLabel" id="lbl_diameter">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <property name="label" translatable="yes">Diameter</property>
+                                                        <property name="width_chars">8</property>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="left_attach">1</property>
+                                                        <property name="right_attach">2</property>
+                                                      </packing>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkLabel" id="lbl_tool_dia">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <property name="label">0</property>
+                                                        <property name="justify">center</property>
+                                                        <property name="width_chars">8</property>
+                                                        <attributes>
+                                                          <attribute name="style" value="normal"/>
+                                                          <attribute name="weight" value="bold"/>
+                                                        </attributes>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="left_attach">1</property>
+                                                        <property name="right_attach">2</property>
+                                                        <property name="top_attach">1</property>
+                                                        <property name="bottom_attach">2</property>
+                                                      </packing>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkLabel" id="lbl_offset_z">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <property name="label" translatable="yes">offset z</property>
+                                                        <property name="width_chars">8</property>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="left_attach">2</property>
+                                                        <property name="right_attach">3</property>
+                                                      </packing>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkLabel" id="lbl_tool_offset_z">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <property name="label">0</property>
+                                                        <property name="justify">center</property>
+                                                        <property name="width_chars">8</property>
+                                                        <attributes>
+                                                          <attribute name="style" value="normal"/>
+                                                          <attribute name="weight" value="bold"/>
+                                                        </attributes>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="left_attach">2</property>
+                                                        <property name="right_attach">3</property>
+                                                        <property name="top_attach">1</property>
+                                                        <property name="bottom_attach">2</property>
+                                                      </packing>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkLabel" id="lbl_offset_x">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <property name="label" translatable="yes">offset x</property>
+                                                        <property name="width_chars">8</property>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="left_attach">3</property>
+                                                        <property name="right_attach">4</property>
+                                                      </packing>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkLabel" id="lbl_tool_offset_x">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <property name="label">0</property>
+                                                        <property name="justify">center</property>
+                                                        <property name="width_chars">8</property>
+                                                        <attributes>
+                                                          <attribute name="style" value="normal"/>
+                                                          <attribute name="weight" value="bold"/>
+                                                        </attributes>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="left_attach">3</property>
+                                                        <property name="right_attach">4</property>
+                                                        <property name="top_attach">1</property>
+                                                        <property name="bottom_attach">2</property>
+                                                      </packing>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkLabel" id="lbl_tool_name">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <property name="label" translatable="yes">No tool description available</property>
+                                                        <attributes>
+                                                          <attribute name="style" value="normal"/>
+                                                          <attribute name="weight" value="bold"/>
+                                                        </attributes>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="right_attach">3</property>
+                                                        <property name="top_attach">2</property>
+                                                        <property name="bottom_attach">3</property>
+                                                      </packing>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkLabel" id="lbl_vc">
+                                                        <property name="visible">True</property>
+                                                        <property name="can_focus">False</property>
+                                                        <property name="label" translatable="yes">Vc= 0.00</property>
+                                                        <property name="xalign">0.94999998807907104</property>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="left_attach">3</property>
+                                                        <property name="right_attach">4</property>
+                                                        <property name="top_attach">2</property>
+                                                        <property name="bottom_attach">3</property>
+                                                      </packing>
+                                                    </child>
                                                   </object>
-                                                </child>
-                                                <child>
-                                                  <object class="GtkLabel" id="lbl_tool_no">
-                                                    <property name="visible">True</property>
-                                                    <property name="can_focus">False</property>
-                                                    <property name="label">0</property>
-                                                    <property name="justify">center</property>
-                                                    <property name="width_chars">8</property>
-                                                    <attributes>
-                                                      <attribute name="style" value="normal"/>
-                                                      <attribute name="weight" value="bold"/>
-                                                    </attributes>
-                                                  </object>
-                                                  <packing>
-                                                    <property name="top_attach">1</property>
-                                                    <property name="bottom_attach">2</property>
-                                                  </packing>
-                                                </child>
-                                                <child>
-                                                  <object class="GtkLabel" id="lbl_diameter">
-                                                    <property name="visible">True</property>
-                                                    <property name="can_focus">False</property>
-                                                    <property name="label" translatable="yes">Diameter</property>
-                                                    <property name="width_chars">8</property>
-                                                  </object>
-                                                  <packing>
-                                                    <property name="left_attach">1</property>
-                                                    <property name="right_attach">2</property>
-                                                  </packing>
-                                                </child>
-                                                <child>
-                                                  <object class="GtkLabel" id="lbl_tool_dia">
-                                                    <property name="visible">True</property>
-                                                    <property name="can_focus">False</property>
-                                                    <property name="label">0</property>
-                                                    <property name="justify">center</property>
-                                                    <property name="width_chars">8</property>
-                                                    <attributes>
-                                                      <attribute name="style" value="normal"/>
-                                                      <attribute name="weight" value="bold"/>
-                                                    </attributes>
-                                                  </object>
-                                                  <packing>
-                                                    <property name="left_attach">1</property>
-                                                    <property name="right_attach">2</property>
-                                                    <property name="top_attach">1</property>
-                                                    <property name="bottom_attach">2</property>
-                                                  </packing>
-                                                </child>
-                                                <child>
-                                                  <object class="GtkLabel" id="lbl_offset_z">
-                                                    <property name="visible">True</property>
-                                                    <property name="can_focus">False</property>
-                                                    <property name="label" translatable="yes">offset z</property>
-                                                    <property name="width_chars">8</property>
-                                                  </object>
-                                                  <packing>
-                                                    <property name="left_attach">2</property>
-                                                    <property name="right_attach">3</property>
-                                                  </packing>
-                                                </child>
-                                                <child>
-                                                  <object class="GtkLabel" id="lbl_tool_offset_z">
-                                                    <property name="visible">True</property>
-                                                    <property name="can_focus">False</property>
-                                                    <property name="label">0</property>
-                                                    <property name="justify">center</property>
-                                                    <property name="width_chars">8</property>
-                                                    <attributes>
-                                                      <attribute name="style" value="normal"/>
-                                                      <attribute name="weight" value="bold"/>
-                                                    </attributes>
-                                                  </object>
-                                                  <packing>
-                                                    <property name="left_attach">2</property>
-                                                    <property name="right_attach">3</property>
-                                                    <property name="top_attach">1</property>
-                                                    <property name="bottom_attach">2</property>
-                                                  </packing>
-                                                </child>
-                                                <child>
-                                                  <object class="GtkLabel" id="lbl_offset_x">
-                                                    <property name="visible">True</property>
-                                                    <property name="can_focus">False</property>
-                                                    <property name="label" translatable="yes">offset x</property>
-                                                    <property name="width_chars">8</property>
-                                                  </object>
-                                                  <packing>
-                                                    <property name="left_attach">3</property>
-                                                    <property name="right_attach">4</property>
-                                                  </packing>
-                                                </child>
-                                                <child>
-                                                  <object class="GtkLabel" id="lbl_tool_offset_x">
-                                                    <property name="visible">True</property>
-                                                    <property name="can_focus">False</property>
-                                                    <property name="label">0</property>
-                                                    <property name="justify">center</property>
-                                                    <property name="width_chars">8</property>
-                                                    <attributes>
-                                                      <attribute name="style" value="normal"/>
-                                                      <attribute name="weight" value="bold"/>
-                                                    </attributes>
-                                                  </object>
-                                                  <packing>
-                                                    <property name="left_attach">3</property>
-                                                    <property name="right_attach">4</property>
-                                                    <property name="top_attach">1</property>
-                                                    <property name="bottom_attach">2</property>
-                                                  </packing>
-                                                </child>
-                                                <child>
-                                                  <object class="GtkLabel" id="lbl_tool_name">
-                                                    <property name="visible">True</property>
-                                                    <property name="can_focus">False</property>
-                                                    <property name="label" translatable="yes">No tool description available</property>
-                                                    <attributes>
-                                                      <attribute name="style" value="normal"/>
-                                                      <attribute name="weight" value="bold"/>
-                                                    </attributes>
-                                                  </object>
-                                                  <packing>
-                                                    <property name="right_attach">3</property>
-                                                    <property name="top_attach">2</property>
-                                                    <property name="bottom_attach">3</property>
-                                                  </packing>
-                                                </child>
-                                                <child>
-                                                  <object class="GtkLabel" id="lbl_vc">
-                                                    <property name="visible">True</property>
-                                                    <property name="can_focus">False</property>
-                                                    <property name="label" translatable="yes">Vc= 0.00</property>
-                                                    <property name="xalign">0.94999998807907104</property>
-                                                  </object>
-                                                  <packing>
-                                                    <property name="left_attach">3</property>
-                                                    <property name="right_attach">4</property>
-                                                    <property name="top_attach">2</property>
-                                                    <property name="bottom_attach">3</property>
-                                                  </packing>
                                                 </child>
                                               </object>
                                             </child>
+                                            <child type="label">
+                                              <object class="GtkLabel" id="lbl_frm_tool_info">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="label" translatable="yes">&lt;b&gt;Tool information&lt;/b&gt;</property>
+                                                <property name="use_markup">True</property>
+                                              </object>
+                                            </child>
                                           </object>
-                                        </child>
-                                        <child type="label">
-                                          <object class="GtkLabel" id="lbl_frm_tool_info">
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                            <property name="label" translatable="yes">&lt;b&gt;Tool information&lt;/b&gt;</property>
-                                            <property name="use_markup">True</property>
-                                          </object>
+                                          <packing>
+                                            <property name="expand">True</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">0</property>
+                                          </packing>
                                         </child>
                                       </object>
                                       <packing>
@@ -2291,37 +2303,84 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkFrame" id="frm_gcode">
+                                      <object class="GtkBox" id="box_code_info">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="tooltip_text" translatable="yes">G and M code information as well as speed and feed</property>
-                                        <property name="label_xalign">0.5</property>
+                                        <property name="orientation">vertical</property>
                                         <child>
-                                          <object class="GtkAlignment" id="alignment9">
+                                          <object class="GtkFrame" id="frm_gcode">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="top_padding">5</property>
-                                            <property name="bottom_padding">5</property>
-                                            <property name="left_padding">5</property>
-                                            <property name="right_padding">5</property>
+                                            <property name="tooltip_text" translatable="yes">G and M code information as well as speed and feed</property>
+                                            <property name="label_xalign">0.5</property>
                                             <child>
-                                              <object class="GtkVBox" id="vbox13">
+                                              <object class="GtkAlignment" id="alignment9">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
+                                                <property name="top_padding">5</property>
+                                                <property name="bottom_padding">5</property>
+                                                <property name="left_padding">5</property>
+                                                <property name="right_padding">5</property>
                                                 <child>
-                                                  <object class="GtkHBox" id="hbox5">
+                                                  <object class="GtkVBox" id="vbox13">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">False</property>
                                                     <child>
-                                                      <object class="GtkLabel" id="active_mcodes_label">
+                                                      <object class="GtkHBox" id="hbox5">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">False</property>
-                                                        <property name="label" translatable="yes">active_mcodes_label</property>
-                                                        <property name="xalign">0</property>
-                                                        <attributes>
-                                                          <attribute name="style" value="normal"/>
-                                                          <attribute name="weight" value="bold"/>
-                                                        </attributes>
+                                                        <child>
+                                                          <object class="GtkLabel" id="active_mcodes_label">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="label" translatable="yes">active_mcodes_label</property>
+                                                            <property name="xalign">0</property>
+                                                            <attributes>
+                                                            <attribute name="style" value="normal"/>
+                                                            <attribute name="weight" value="bold"/>
+                                                            </attributes>
+                                                          </object>
+                                                          <packing>
+                                                            <property name="expand">True</property>
+                                                            <property name="fill">True</property>
+                                                            <property name="position">0</property>
+                                                          </packing>
+                                                        </child>
+                                                        <child>
+                                                          <object class="GtkLabel" id="lbl_feed">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="label">F </property>
+                                                            <property name="xalign">1</property>
+                                                            <attributes>
+                                                            <attribute name="style" value="normal"/>
+                                                            <attribute name="weight" value="bold"/>
+                                                            </attributes>
+                                                          </object>
+                                                          <packing>
+                                                            <property name="expand">True</property>
+                                                            <property name="fill">True</property>
+                                                            <property name="position">1</property>
+                                                          </packing>
+                                                        </child>
+                                                        <child>
+                                                          <object class="GtkLabel" id="lbl_active_feed">
+                                                            <property name="width_request">50</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="label">10000</property>
+                                                            <property name="xalign">1</property>
+                                                            <attributes>
+                                                            <attribute name="style" value="normal"/>
+                                                            <attribute name="weight" value="bold"/>
+                                                            </attributes>
+                                                          </object>
+                                                          <packing>
+                                                            <property name="expand">False</property>
+                                                            <property name="fill">True</property>
+                                                            <property name="position">2</property>
+                                                          </packing>
+                                                        </child>
                                                       </object>
                                                       <packing>
                                                         <property name="expand">True</property>
@@ -2330,15 +2389,63 @@
                                                       </packing>
                                                     </child>
                                                     <child>
-                                                      <object class="GtkLabel" id="lbl_feed">
+                                                      <object class="GtkHBox" id="hbox10">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">False</property>
-                                                        <property name="label">F </property>
-                                                        <property name="xalign">1</property>
-                                                        <attributes>
-                                                          <attribute name="style" value="normal"/>
-                                                          <attribute name="weight" value="bold"/>
-                                                        </attributes>
+                                                        <child>
+                                                          <object class="GtkLabel" id="active_gcodes_label">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="label" translatable="yes">active_gcodes_label</property>
+                                                            <property name="xalign">0</property>
+                                                            <attributes>
+                                                            <attribute name="style" value="normal"/>
+                                                            <attribute name="weight" value="bold"/>
+                                                            </attributes>
+                                                          </object>
+                                                          <packing>
+                                                            <property name="expand">True</property>
+                                                            <property name="fill">True</property>
+                                                            <property name="position">0</property>
+                                                          </packing>
+                                                        </child>
+                                                        <child>
+                                                          <object class="GtkLabel" id="lbl_speed">
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="ypad">3</property>
+                                                            <property name="label">S </property>
+                                                            <property name="xalign">1</property>
+                                                            <attributes>
+                                                            <attribute name="style" value="normal"/>
+                                                            <attribute name="weight" value="bold"/>
+                                                            </attributes>
+                                                          </object>
+                                                          <packing>
+                                                            <property name="expand">True</property>
+                                                            <property name="fill">True</property>
+                                                            <property name="position">1</property>
+                                                          </packing>
+                                                        </child>
+                                                        <child>
+                                                          <object class="GtkLabel" id="active_speed_label">
+                                                            <property name="width_request">50</property>
+                                                            <property name="visible">True</property>
+                                                            <property name="can_focus">False</property>
+                                                            <property name="ypad">3</property>
+                                                            <property name="label">0</property>
+                                                            <property name="xalign">1</property>
+                                                            <attributes>
+                                                            <attribute name="style" value="normal"/>
+                                                            <attribute name="weight" value="bold"/>
+                                                            </attributes>
+                                                          </object>
+                                                          <packing>
+                                                            <property name="expand">False</property>
+                                                            <property name="fill">True</property>
+                                                            <property name="position">2</property>
+                                                          </packing>
+                                                        </child>
                                                       </object>
                                                       <packing>
                                                         <property name="expand">True</property>
@@ -2346,113 +2453,30 @@
                                                         <property name="position">1</property>
                                                       </packing>
                                                     </child>
-                                                    <child>
-                                                      <object class="GtkLabel" id="lbl_active_feed">
-                                                        <property name="width_request">50</property>
-                                                        <property name="visible">True</property>
-                                                        <property name="can_focus">False</property>
-                                                        <property name="label">10000</property>
-                                                        <property name="xalign">1</property>
-                                                        <attributes>
-                                                          <attribute name="style" value="normal"/>
-                                                          <attribute name="weight" value="bold"/>
-                                                        </attributes>
-                                                      </object>
-                                                      <packing>
-                                                        <property name="expand">False</property>
-                                                        <property name="fill">True</property>
-                                                        <property name="position">2</property>
-                                                      </packing>
-                                                    </child>
                                                   </object>
-                                                  <packing>
-                                                    <property name="expand">True</property>
-                                                    <property name="fill">True</property>
-                                                    <property name="position">0</property>
-                                                  </packing>
-                                                </child>
-                                                <child>
-                                                  <object class="GtkHBox" id="hbox10">
-                                                    <property name="visible">True</property>
-                                                    <property name="can_focus">False</property>
-                                                    <child>
-                                                      <object class="GtkLabel" id="active_gcodes_label">
-                                                        <property name="visible">True</property>
-                                                        <property name="can_focus">False</property>
-                                                        <property name="label" translatable="yes">active_gcodes_label</property>
-                                                        <property name="xalign">0</property>
-                                                        <attributes>
-                                                          <attribute name="style" value="normal"/>
-                                                          <attribute name="weight" value="bold"/>
-                                                        </attributes>
-                                                      </object>
-                                                      <packing>
-                                                        <property name="expand">True</property>
-                                                        <property name="fill">True</property>
-                                                        <property name="position">0</property>
-                                                      </packing>
-                                                    </child>
-                                                    <child>
-                                                      <object class="GtkLabel" id="lbl_speed">
-                                                        <property name="visible">True</property>
-                                                        <property name="can_focus">False</property>
-                                                        <property name="ypad">3</property>
-                                                        <property name="label">S </property>
-                                                        <property name="xalign">1</property>
-                                                        <attributes>
-                                                          <attribute name="style" value="normal"/>
-                                                          <attribute name="weight" value="bold"/>
-                                                        </attributes>
-                                                      </object>
-                                                      <packing>
-                                                        <property name="expand">True</property>
-                                                        <property name="fill">True</property>
-                                                        <property name="position">1</property>
-                                                      </packing>
-                                                    </child>
-                                                    <child>
-                                                      <object class="GtkLabel" id="active_speed_label">
-                                                        <property name="width_request">50</property>
-                                                        <property name="visible">True</property>
-                                                        <property name="can_focus">False</property>
-                                                        <property name="ypad">3</property>
-                                                        <property name="label">0</property>
-                                                        <property name="xalign">1</property>
-                                                        <attributes>
-                                                          <attribute name="style" value="normal"/>
-                                                          <attribute name="weight" value="bold"/>
-                                                        </attributes>
-                                                      </object>
-                                                      <packing>
-                                                        <property name="expand">False</property>
-                                                        <property name="fill">True</property>
-                                                        <property name="position">2</property>
-                                                      </packing>
-                                                    </child>
-                                                  </object>
-                                                  <packing>
-                                                    <property name="expand">True</property>
-                                                    <property name="fill">True</property>
-                                                    <property name="position">1</property>
-                                                  </packing>
                                                 </child>
                                               </object>
                                             </child>
+                                            <child type="label">
+                                              <object class="GtkLabel" id="lbl_frame_code">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="label" translatable="yes">&lt;b&gt;G-Code&lt;/b&gt;</property>
+                                                <property name="use_markup">True</property>
+                                              </object>
+                                            </child>
                                           </object>
-                                        </child>
-                                        <child type="label">
-                                          <object class="GtkLabel" id="lbl_frame_code">
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                            <property name="label" translatable="yes">&lt;b&gt;G-Code&lt;/b&gt;</property>
-                                            <property name="use_markup">True</property>
-                                          </object>
+                                          <packing>
+                                            <property name="expand">True</property>
+                                            <property name="fill">True</property>
+                                            <property name="pack_type">end</property>
+                                            <property name="position">0</property>
+                                          </packing>
                                         </child>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
                                         <property name="fill">True</property>
-                                        <property name="pack_type">end</property>
                                         <property name="position">1</property>
                                       </packing>
                                     </child>
