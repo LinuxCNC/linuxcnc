@@ -3736,10 +3736,12 @@ class gmoccapy(object):
             self.widgets.rbt_manual.set_active(True)
             # save the mode to restore when leaving the settings page
             self.last_mode = self.stat.task_mode
+            self.user_tab_enabled = self.widgets.tbtn_user_tabs.get_sensitive()
             # deactivate the mode buttons, so changing modes is not possible while we are in settings mode
             self.widgets.rbt_manual.set_sensitive(False)
             self.widgets.rbt_mdi.set_sensitive(False)
             self.widgets.rbt_auto.set_sensitive(False)
+            self.widgets.tbtn_user_tabs.set_sensitive(False)
             code = False
             # here the user don"t want an unlock code
             if self.widgets.rbt_no_unlock.get_active():
@@ -3783,20 +3785,24 @@ class gmoccapy(object):
                 self.widgets.rbt_manual.set_sensitive(True)
                 self.widgets.rbt_mdi.set_sensitive(True)
                 self.widgets.rbt_auto.set_sensitive(True)
-            # this is needed here, because we do not
-            # change mode, so on_hal_status_manual will not be called
-            self.widgets.ntb_main.set_current_page(0)
-            self.widgets.ntb_button.set_current_page(_BB_MANUAL)
-            self.widgets.ntb_info.set_current_page(0)
-            self.widgets.ntb_jog.set_current_page(0)
 
-            # if we are in user tabs, we must reset the button
+            if self.user_tab_enabled:
+                self.widgets.tbtn_user_tabs.set_sensitive(True)
+            # if user tab was open before, switch back
             if self.widgets.tbtn_user_tabs.get_active():
-                self.widgets.tbtn_user_tabs.set_active(False)
-
-            # restore mode
-            self.command.mode(self.last_mode)
-            self.command.wait_complete()
+                self.widgets.ntb_main.set_current_page(2)
+            # if task_mode didn't change, enable tab "Manual Mode"
+            elif self.last_mode == self.stat.task_mode:
+                # this is needed here, because we do not
+                # change mode, so on_hal_status_manual will not be called
+                self.widgets.ntb_main.set_current_page(0)
+                self.widgets.ntb_button.set_current_page(_BB_MANUAL)
+                self.widgets.ntb_info.set_current_page(0)
+                self.widgets.ntb_jog.set_current_page(0)
+            else:
+                # restore mode
+                self.command.mode(self.last_mode)
+                self.command.wait_complete()
 
             widget.set_image(self.widgets.img_settings)
 
