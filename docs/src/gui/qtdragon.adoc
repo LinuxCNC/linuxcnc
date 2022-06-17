@@ -606,7 +606,7 @@ SUBROUTINE_PATH = ~/linuxcnc/nc_files/remap-subroutines:~/linuxcnc/nc_files/rema
 ON_ABORT_COMMAND=O <on_abort> call
 
 # The remap code for Qtvcp's versaprobe's automatic tool probe of Z
-REMAP=M6  modalgroup=6 prolog=change_prolog ngc=qt_auto_tool_probeepilog=change_epilog
+REMAP=M6  modalgroup=6 prolog=change_prolog ngc=qt_auto_probe_tool epilog=change_epilog
 ----
 
 ==== The Tool Sensor Section
@@ -658,23 +658,44 @@ TOPLEVEL = python/toplevel.py
 
 You must copy the following files to your config directory
 
-First create a directory named 'python' in your machine's configuration folder.
-From 'YOUR_LINUXCNC_DIRECTORY/configs/sim/QtDragon/python', copy 'toplevel.py'
+First create a folder named 'python' in your machine's configuration folder.
+
+If using a compiled RIP version of linuxcnc: +
+From 'YOUR-LINUXCNC-DIRECTORY/configs/sim/QtDragon/python', copy 'toplevel.py'
 and 'remap.py' to your configuration's new 'python' folder.
+
+if using an installed version of linuxcnc: +
+from '/usr/share/doc/linuxcnc/examples/sample-configs/sim/qtvcp_screens/qtdragon/python/'
+, copy 'toplevel.py' and 'remap.py' to your configuration's new 'python' folder.
+
+alternately, You can make new files in your 'python' folder that you made in your configuration folder,
+with a text editor.
+
+One named 'remap.py' saved with this text: 
+[source,python]
+----
+from stdglue import *
+----
+
+One named 'toplevel.py' saved with this text:
+[source,python]
+----
+import remap
+----
+
 Make a system link or copy the following files into the 'python' folder
 described above.
 
-In '~/linuxcnc/nc_files/remap_subroutine/' folder
-make sure 'on_abort.ngc' and 'qt_auto_tool_probe.ngc' are present
+In '~/linuxcnc/nc_files/examples/remap_subroutine/' folder
 
-In '~/linuxcnc/nc_files/remap_lib/python_stdglue/' folder
-make sure 'stdglue.py' is present.
+In '~/linuxcnc/nc_files/examples/remap_lib/python_stdglue/' folder
 
 [NOTE]
 These file names and location could be different depending on installed verses
-development (RIP)
-version of linuxcnc. You could use customized versions of the same files or name
-them differently.
+development (RIP) version of linuxcnc.
+For instance '~/linuxcnc/nc_files/macros' is '~/linuxcnc/nc_files/examples/macros' 
+in installed versions of linuxcnc.
+You could use customized versions of the same files or name them differently.
 The entries in the '[RS274NGC]' section dictate to linuxcnc what and where to
 look.
 The names and location quoted should be available in either system by default.
