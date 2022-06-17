@@ -393,7 +393,11 @@ class WebcamVideoStream:
     def __init__(self, src=0, api=CV.CAP_ANY):
         # initialize the video camera stream and read the first frame
         # from the stream
-        self.stream = CV.VideoCapture(src, api)
+        try:
+            self.stream = CV.VideoCapture(src, api)
+        except:
+            # try using an older function signature
+            self.stream = CV.VideoCapture(src)
 
         # initialize the variable used to indicate if the thread should
         # be stopped
