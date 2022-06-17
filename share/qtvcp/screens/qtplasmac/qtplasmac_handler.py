@@ -1,4 +1,4 @@
-VERSION = '1.224.205'
+VERSION = '1.224.206'
 
 '''
 qtplasmac_handler.py
@@ -574,18 +574,13 @@ class HandlerClass:
 
 # patched qt5_graphics functions
     def qt5_graphics_patch(self):
-        self.old_joint_dro_format_OFF = DRO.joint_dro_format_OFF
-        DRO.joint_dro_format_OFF = self.new_joint_dro_format_OFF
         self.old_dro_format = DRO.dro_format
         DRO.dro_format = self.new_dro_format
 
-    # not used, placeholder for future change in qt5_graphics.py
-    def new_joint_dro_format_OFF(self,s,spd,num_of_joints,limit, homed):
-        return limit, homed, self.get_overlay_text(), self.get_overlay_text()
-
     # replace dro with current material
     def new_dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
-        return limit, homed, self.get_overlay_text(), self.get_overlay_text()
+        text = self.get_overlay_text()
+        return limit, homed, text, text
 
 # patched screen options functions
     def screen_options_patch(self):
@@ -934,9 +929,11 @@ class HandlerClass:
         self.w.gcode_editor.pythonLexerAction.setVisible(False)
         self.w.gcode_editor.gCodeLexerAction.setVisible(False)
         self.w.gcode_editor.label.setText('')
+        self.w.gcodegraphics.enable_dro = True
         self.w.gcodegraphics.set_alpha_mode(True)
         self.w.gcodegraphics.setShowOffsets(False)
         self.w.gcodegraphics._font = 'monospace 11'
+        self.w.conv_preview.enable_dro = True
         self.w.conv_preview.set_cone_basesize(0.1)
         self.w.conv_preview.set_view('Z')
         self.w.conv_preview.show_tool = False
