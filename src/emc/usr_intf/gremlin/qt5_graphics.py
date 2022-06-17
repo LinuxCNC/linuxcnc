@@ -584,13 +584,10 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.updateGL()
 
     # This overrides glcannon.py method so we can change the joint DRO
-    # this is turned off because sending blank DRO variables (posstrs and droposstrs)
-    # breaks the screen display somehow - X axis indiator is offset
+    # this is turned off because amending extra variables (posstrs and droposstrs)
+    # breaks the screen display somehow
     # remove _OFF and re make to enable function
     def joint_dro_format_OFF(self,s,spd,num_of_joints,limit, homed):
-        if not self.enable_dro:
-            return limit, homed, [''], ['']
-
         posstrs = ["  %s:% 9.4f" % i for i in
             zip(list(range(num_of_joints)), s.joint_actual_position)]
         droposstrs = posstrs
@@ -602,16 +599,14 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 format = "% 6s:" + self.dro_mm
                 spd = spd * 25.4
             spd = spd * 60
-            #posstrs.append(format % ("Vel", spd))
-            #droposstrs.append(diaformat % ("Vel", spd))
+            # adding this strangely breaks the DRO _after_ homing
+            posstrs.append(format % ("Vel", spd))
+            droposstrs.append(diaformat % ("Vel", spd))
 
         return limit, homed, posstrs, droposstrs
 
     # This overrides glcannon.py method so we can change the DRO
     def dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
-            if not self.enable_dro:
-                return limit, homed, [''], ['']
-
             if self.metric_units:
                 format = "% 6s:" + self.dro_mm
                 if self.show_dtg:

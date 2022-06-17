@@ -429,6 +429,7 @@ class GlCanonDraw:
         self.dro_in = "% 9.4f"
         self.dro_mm = "% 9.3f"
         self.show_overlay = True
+        self.enable_dro = True
         self.cone_basesize = .5
         self.show_small_origin = True
         try:
@@ -1411,43 +1412,45 @@ class GlCanonDraw:
         if   self.get_show_offsets(): thestring = droposstrs
         else:                         thestring =    posstrs
 
-        for string in thestring:
-            maxlen = max(maxlen, len(string))
-            glRasterPos2i(stringstart_xpos, ypos)
-            for char in string:
-                glCallList(base + ord(char))
+        # allows showing/hiding overlay DRO readout
+        if self.enable_dro:
+            for string in thestring:
+                maxlen = max(maxlen, len(string))
+                glRasterPos2i(stringstart_xpos, ypos)
+                for char in string:
+                    glCallList(base + ord(char))
 
-            idx = self.idx_for_home_or_limit_icon(string)
-            if (idx == -1): # skip icon display for this line
-                if (len(string) != 0): ypos -= linespace
-                continue
+                idx = self.idx_for_home_or_limit_icon(string)
+                if (idx == -1): # skip icon display for this line
+                    if (len(string) != 0): ypos -= linespace
+                    continue
 
-            glRasterPos2i(0, ypos)
-            if (idx == -2 or idx == -6): # use allhomedicon
-                self.show_icon(idx,allhomedicon)
-            if (idx == -4 or idx == -6): # use somelimiticon
-                self.show_icon(idx,somelimiticon)
-            if (idx <= -2):
-                ypos -= linespace
-                continue
+                glRasterPos2i(0, ypos)
+                if (idx == -2 or idx == -6): # use allhomedicon
+                    self.show_icon(idx,allhomedicon)
+                if (idx == -4 or idx == -6): # use somelimiticon
+                    self.show_icon(idx,somelimiticon)
+                if (idx <= -2):
+                    ypos -= linespace
+                    continue
 
-            if  (   self.get_joints_mode()
-                 or (self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY)
-                ):
-                if homed[idx]:
+                if  (   self.get_joints_mode()
+                     or (self.stat.kinematics_type == linuxcnc.KINEMATICS_IDENTITY)
+                    ):
+                    if homed[idx]:
+                        self.show_icon(idx,homeicon)
+                    if limit[idx]:
+                        self.show_icon(idx,limiticon)
+                    ypos -= linespace
+                    continue
+
+                # extra joint after homing, world mode
+                if  ((self.stat.num_extrajoints>0) and (not self.get_joints_mode())):
                     self.show_icon(idx,homeicon)
-                if limit[idx]:
-                    self.show_icon(idx,limiticon)
+                    if limit[idx]:
+                        self.show_icon(idx,limiticon)
+
                 ypos -= linespace
-                continue
-
-            # extra joint after homing, world mode
-            if  ((self.stat.num_extrajoints>0) and (not self.get_joints_mode())):
-                self.show_icon(idx,homeicon)
-                if limit[idx]:
-                    self.show_icon(idx,limiticon)
-
-            ypos -= linespace
 
         glDepthFunc(GL_LESS)
         glDepthMask(GL_TRUE)
