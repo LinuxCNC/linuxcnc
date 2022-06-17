@@ -37,6 +37,14 @@ TAB_SETUP = 8
 TAB_SETTINGS = 9
 TAB_UTILITIES = 10
 
+# constants for (left side) stacked widget
+PAGE_UNCHANGED = -1
+PAGE_GCODE = 0
+PAGE_FILE = 1
+PAGE_OFFSET = 2
+PAGE_TOOL = 3
+PAGE_NGCGUI = 4
+
 DEFAULT = 0
 WARNING = 1
 CRITICAL = 2
@@ -63,7 +71,6 @@ class HandlerClass:
         self.min_spindle_rpm = INFO.MIN_SPINDLE_SPEED
         self.max_spindle_rpm = INFO.MAX_SPINDLE_SPEED
         self.system_list = ["G54","G55","G56","G57","G58","G59","G59.1","G59.2","G59.3"]
-        self.tab_index_code = (0, 1, 2, 3, 0, 0, 2, 0, 0, 0, 0)
         self.slow_jog_factor = 10
         self.reload_tool = 0
         self.last_loaded_program = ""
@@ -557,30 +564,12 @@ class HandlerClass:
     # main button bar
     def main_tab_changed(self, btn):
         index = btn.property("index")
+        # if you select the tab showing, force the DRO to show
         if index == self.w.main_tab_widget.currentIndex():
             self.w.stackedWidget_dro.setCurrentIndex(0)
         if index is None: return
-        # if in automode still allow settings to show so override linits can be used
-        if STATUS.is_auto_mode() and index != 9:
-            self.add_status("Cannot switch pages while in AUTO mode", WARNING)
-            # make sure main page is showing
-            self.w.main_tab_widget.setCurrentIndex(0)
-            self.w.btn_main.setChecked(True)
-            self.w.jogging_frame.hide()
-            return
-        self.w.main_tab_widget.setCurrentIndex(index)
-        self.w.stackedWidget.setCurrentIndex(self.tab_index_code[index])
-        if index == TAB_SETUP:
-            self.w.jogging_frame.hide()
-        else:
-            self.w.jogging_frame.show()
-        if index == TAB_MAIN:
-            self.w.stackedWidget_dro.setCurrentIndex(0)
-        # show ngcgui info tab if utilities tab is selected
-        # but only if the utilities tab has ngcgui selected
-        if index == TAB_UTILITIES:
-            if self.w.tabWidget_utilities.currentIndex() == 2:
-                self.w.stackedWidget.setCurrentIndex(4)
+        # adjust the stack widgets depending on modes
+        self.adjust_stacked_widgets(index)
 
     # gcode frame
     def cmb_gcode_history_clicked(self):
@@ -1063,6 +1052,74 @@ class HandlerClass:
         self.w.lineEdit_statusbar.setStyleSheet("background-color: rgb(242, 246, 103);color: rgb(0,0,0)")  #yelow
     def set_style_critical(self):
         self.w.lineEdit_statusbar.setStyleSheet("background-color: rgb(255, 144, 0);color: rgb(0,0,0)")   #orange
+
+    def adjust_stacked_widgets(self,requestedIndex):
+        IGNORE = -1
+        SHOW_DRO = 0
+        mode = STATUS.get_current_mode()
+        if mode == STATUS.AUTO:
+            seq = {TAB_MAIN: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
+                    TAB_FILE: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
+                    TAB_OFFSETS: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
+                    TAB_TOOL: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
+                    TAB_STATUS: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
+                    TAB_PROBE: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
+                    TAB_CAMERA: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
+                    TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
+                    TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
+                    TAB_SETTINGS: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
+                    TAB_UTILITIES: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO) }
+        else:
+            seq = {TAB_MAIN: (requestedIndex,PAGE_GCODE,True,SHOW_DRO),
+                    TAB_FILE: (requestedIndex,PAGE_FILE,True,IGNORE),
+                    TAB_OFFSETS: (requestedIndex,PAGE_OFFSET,True,IGNORE),
+                    TAB_TOOL: (requestedIndex,PAGE_TOOL,True,IGNORE),
+                    TAB_STATUS: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO),
+                    TAB_PROBE: (requestedIndex,PAGE_GCODE,True,SHOW_DRO),
+                    TAB_CAMERA: (requestedIndex,PAGE_UNCHANGED,True,IGNORE),
+                    TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
+                    TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,False,IGNORE),
+                    TAB_SETTINGS: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
+                    TAB_UTILITIES: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO) }
+
+        rtn =  seq.get(requestedIndex)
+        # if not found (None) use defaults
+        if rtn is None:
+            main_index = requestedIndex
+            stacked_index = 0
+            show_JogControls = True
+            show_dro = 0
+        else:
+            main_index,stacked_index,show_JogControls,show_dro = rtn
+
+        if show_JogControls:
+            self.w.jogging_frame.show()
+        else:
+            self.w.jogging_frame.hide()
+
+        # show DRO rather then keyboard.
+        if show_dro > IGNORE:
+            self.w.stackedWidget_dro.setCurrentIndex(0)
+
+        # show ngcgui info tab if utilities tab is selected
+        # but only if the utilities tab has ngcgui selected
+        if main_index == TAB_UTILITIES:
+            if self.w.tabWidget_utilities.currentIndex() == 2:
+                self.w.stackedWidget.setCurrentIndex(PAGE_NGCGUI)
+            else:
+                self.w.stackedWidget.setCurrentIndex(PAGE_GCODE)
+        # adjust the stacked widget
+        if stacked_index > PAGE_UNCHANGED:
+            self.w.stackedWidget.setCurrentIndex(stacked_index)
+
+        # set main tab to adjusted index
+        self.w.main_tab_widget.setCurrentIndex(main_index)
+
+        # if indexes don't match then request is dusallowed
+        # give a warning and reset the button check
+        if main_index != requestedIndex and not main_index in(TAB_CAMERA,TAB_GCODES,TAB_SETUP):
+            self.add_status("Cannot switch pages while in AUTO mode", WARNING)
+            self.w.btn_main.setChecked(True)
 
     #####################
     # KEY BINDING CALLS #
