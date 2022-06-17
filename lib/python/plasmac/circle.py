@@ -46,11 +46,11 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
     error = ''
     msg1 = _('entry is invalid')
     valid, xOffset = Conv.conv_is_float(xOffset)
-    if not valid:
+    if not valid and xOffset:
         msg0 = _('X ORIGIN')
         error += '{} {}\n\n'.format(msg0, msg1)
     valid, yOffset = Conv.conv_is_float(yOffset)
-    if not valid:
+    if not valid and yOffset:
         msg0 = _('Y ORIGIN')
         error += '{} {}\n\n'.format(msg0, msg1)
     valid, leadinLength = Conv.conv_is_float(leadinLength)

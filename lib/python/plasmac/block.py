@@ -51,7 +51,7 @@ def preview(Conv, fNgc, fTmp, columns, rows, cOffset, \
         msg0 = _('COLUMNS NUMBER')
         error += '{} {}\n\n'.format(msg0, msg1)
     valid, cOffset = Conv.conv_is_float(cOffset)
-    if not valid:
+    if not valid and cOffset:
         msg0 = _('COLUMNS OFFSET')
         error += '{} {}\n\n'.format(msg0, msg1)
     valid, rows = Conv.conv_is_float(rows)
@@ -59,19 +59,19 @@ def preview(Conv, fNgc, fTmp, columns, rows, cOffset, \
         msg0 = _('ROWS NUMBER')
         error += '{} {}\n\n'.format(msg0, msg1)
     valid, rOffset = Conv.conv_is_float(rOffset)
-    if not valid:
+    if not valid and rOffset:
         msg0 = _('ROWS OFFSET')
         error += '{} {}\n\n'.format(msg0, msg1)
     valid, xOffset = Conv.conv_is_float(xOffset)
-    if not valid:
+    if not valid and xOffset:
         msg0 = _('X OFFSET')
         error += '{} {}\n\n'.format(msg0, msg1)
     valid, yOffset = Conv.conv_is_float(yOffset)
-    if not valid:
+    if not valid and yOffset:
         msg0 = _('Y OFFSET')
         error += '{} {}\n\n'.format(msg0, msg1)
     valid, angle = Conv.conv_is_float(angle)
-    if not valid:
+    if not valid and angle:
         msg0 = _('PATTERN ANGLE')
         error += '{} {}\n\n'.format(msg0, msg1)
     valid, scale = Conv.conv_is_float(scale)
@@ -79,7 +79,7 @@ def preview(Conv, fNgc, fTmp, columns, rows, cOffset, \
         msg0 = _('SHAPE SCALE')
         error += '{} {}\n\n'.format(msg0, msg1)
     valid, rotation = Conv.conv_is_float(rotation)
-    if not valid:
+    if not valid and rotation:
         msg0 = _('SHAPE ROTATION')
         error += '{} {}\n\n'.format(msg0, msg1)
     if error:
