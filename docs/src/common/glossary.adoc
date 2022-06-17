@@ -148,7 +148,7 @@ Feed::
 
 Feed rate::
      (((feed rate))) The speed at which a cutting motion occurs.
-    In auto or mdi mode, feed rate is commanded using an F word.
+    In auto or MDI mode, feed rate is commanded using an F word.
     F10 would mean ten machine units per minute.
 
 Feedback::
@@ -164,20 +164,20 @@ Feedrate Override::
 Floating Point Number::
     A number that has a decimal point. (12.300) In HAL it is known as float.
 
-G-Code::
-     (((G-Code))) The generic term used to refer to the most
+G-code::
+     (((G-code))) The generic term used to refer to the most
     common part programming language. There are several dialects of G-code,
     LinuxCNC uses RS274/NGC.
 
 GUI::
     (((GUI))) Graphical User Interface.
     General;;
-         A type of interface that allows communications between a computer
+        A type of interface that allows communications between a computer
         and a human (in most cases) via the manipulation of icons and other
         elements (widgets) on a computer screen.
 
     LinuxCNC;;
-         An application that presents a graphical screen to the machine
+        An application that presents a graphical screen to the machine
         operator allowing manipulation of the machine and the corresponding
         controlling program.
 
@@ -200,8 +200,8 @@ ini file::
 Instance::
      (((Instance))) One can have an instance of a class or a
     particular object. The instance is the actual object created at
-    runtime. In programmer jargon, the Lassie object is an instance of the
-    Dog class.
+    runtime. In programmer jargon, the "Lassie" object is an instance of the
+    "Dog" class.
 
 Joint Coordinates::
      (((joint coordinates))) These specify the angles
@@ -284,7 +284,7 @@ Rapid::
 
 Rapid rate::
      (((rapid rate)))The speed at which a rapid motion occurs.
-    In auto or mdi mode, rapid rate is usually the maximum speed of the machine.
+    In auto or MDI mode, rapid rate is usually the maximum speed of the machine.
     It is often desirable to limit the rapid rate when
     testing a G-code program for the first time.
 
