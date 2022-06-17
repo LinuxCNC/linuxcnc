@@ -228,6 +228,16 @@ class _GStat(GObject.GObject):
              , linuxcnc.INTERP_IDLE: 'interp-idle'
              }
 
+    TEMPARARY_MESSAGE = 255
+    OPERATOR_ERROR = linuxcnc.OPERATOR_ERROR
+    OPERATOR_TEXT = linuxcnc.OPERATOR_TEXT
+    NML_ERROR = linuxcnc.NML_ERROR
+    NML_TEXT = linuxcnc.NML_TEXT
+
+    MANUAL = linuxcnc.MODE_MANUAL
+    AUTO = linuxcnc.MODE_AUTO
+    MDI = linuxcnc.MODE_MDI
+
     def __init__(self, stat = None):
         GObject.Object.__init__(self)
         self.stat = stat or linuxcnc.stat()
