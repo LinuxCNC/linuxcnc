@@ -23,7 +23,7 @@ or newline character creates a new element.
 
 === Comments(((INI File,Components,Comments)))
 
-A comment line is started with a ; or a # mark. When the ini reader
+A comment line is started with a ; or a # mark. When the INI reader
 sees either of these marks at the start a line, the rest of the line is
 ignored by the software. Comments can be used to describe what an INI
 element will do.
@@ -62,7 +62,7 @@ CORRECT = value
 [[sub:ini:sections]]
 === Sections(((INI File,Components,Sections)))
 
-Related parts of an ini file are separated into sections.
+Related parts of an INI file are separated into sections.
 A section name is enclosed in brackets like this '[THIS_SECTION]'
 The order of sections is unimportant. Sections begin at the section
 name and end at the next section name.
@@ -430,7 +430,7 @@ AXIS and gmoccapy have the ability to send loaded files through a filter program
 This filter can do any desired task: Something as simple as making sure
 the file ends with M2, or something as complicated as detecting whether
 the input is a depth image, and generating G-code to mill the shape it
-defines. The [FILTER] section of the ini file controls how filters
+defines. The [FILTER] section of the INI file controls how filters
 work. First, for each type of file, write a PROGRAM_EXTENSION line.
 Then, specify the program to execute for each type of file. This
 program is given the name of the input file as its first argument, and
@@ -534,7 +534,7 @@ if __name__ == "__main__":
 === [RS274NGC] Section(((INI File,Sections,[RS274NGC] Section)))
 
 * 'PARAMETER_FILE = myfile.var' - (((PARAMETER FILE)))
-  The file located in the same directory as the ini
+  The file located in the same directory as the INI
   file which contains the parameters used by the interpreter (saved between runs).
 * 'ORIENT_OFFSET = 0' - (((ORIENT OFFSET)))
   A float value added to the R word parameter of an <<mcode:m19,M19 Orient Spindle>> operation.
@@ -553,13 +553,13 @@ if __name__ == "__main__":
   [WIZARD]WIZARD_ROOT (if specified). The paths are searched in the order
   that they are listed. The first matching subroutine file
   found in the search is used. Directories are specified relative to the
-  current directory for the ini file or as absolute paths. The list must
+  current directory for the INI file or as absolute paths. The list must
   contain no intervening whitespace.
 * 'CENTER_ARC_RADIUS_TOLERANCE_INCH = n' Default 0.00005
 * 'CENTER_ARC_RADIUS_TOLERANCE_MM = n' Default 0.00127
 * 'USER_M_PATH = myfuncs:/tmp/mcodes:experimentalmcodes' - (((USER M PATH)))
   Specifies a list of colon (:) separated directories for user defined functions.
-  Directories are specified relative to the current directory for the ini file or as absolute paths.
+  Directories are specified relative to the current directory for the INI file or as absolute paths.
   The list must contain no intervening whitespace.
 +
 A search is made for each possible user defined function, typically
@@ -659,15 +659,15 @@ Section.
 === [HAL] section(((INI File,Sections,[HAL] Section)))
 
 * 'HALFILE = example.hal' - Execute the file 'example.hal' at start up.
-  If 'HALFILE' is specified multiple times, the files are executed in the order they appear in the ini file.
+  If 'HALFILE' is specified multiple times, the files are executed in the order they appear in the INI file.
   Almost all configurations will have at least one 'HALFILE', and stepper
   systems typically have two such files, one which specifies the generic
   stepper configuration ('core_stepper.hal') and one which specifies
   the machine pin out ('xxx_pinout.hal').
 
   HALFILES are found using a search.
-  If the named file is found in the directory containing the ini file, it is used.
-  If the named file is not found in this ini file directory, a search is made using a system library of halfiles.
+  If the named file is found in the directory containing the INI file, it is used.
+  If the named file is not found in this INI file directory, a search is made using a system library of halfiles.
 
   If LinuxCNC is started with the linuxcnc script using the "-H dirname" option,
   the specified dirname is prepended to the search described above so that
@@ -683,9 +683,9 @@ Section.
   processed as above but use haltcl for processing  See the
   <<cha:haltcl,HALTCL Chapter>> for more information.
 * 'HALFILE = LIB:sys_example.hal' - Execute the system library file 'sys_example.hal' at start up.
-  Explicit use of the LIB: prefix causes use of the system library HALFILE without searching the ini file directory.
+  Explicit use of the LIB: prefix causes use of the system library HALFILE without searching the INI file directory.
 * 'HALFILE = LIB:sys_texample.tcl [arg1 [arg2 ...]]' - Execute the system library file 'sys_texample.tcl' at start up.
-  Explicit use of the LIB: prefix causes use of the system library HALFILE without searching the ini file directory.
+  Explicit use of the LIB: prefix causes use of the system library HALFILE without searching the INI file directory.
 
 HALFILE items specify files that loadrt Hal components and make signal
 connections between component pins.  Common mistakes are 1) omission of the
@@ -720,7 +720,7 @@ For more information see the <<cha:hal-twopass,HAL TWOPASS>> chapter.
 
 * 'HALCMD = command' - Execute 'command' as a single HAL command.
   If 'HALCMD' is specified multiple times, the commands are executed in the order
-  they appear in the ini file.
+  they appear in the INI file.
   'HALCMD' lines are executed after all 'HALFILE' lines.
 * 'SHUTDOWN = shutdown.hal' - Execute the file 'shutdown.hal' when LinuxCNC is exiting.
   Depending on the hardware drivers used, this may make it possible to set outputs to

@@ -209,7 +209,7 @@ order shown.
 
 LinuxCNC can control upto eight spindles.
 Motion will produce the following pins:
-The 'N' will be the integer of the spindle number. (0-7)
+The 'N' (integer between 0 and 7) substitutes the spindle number.
 
 [[sec:spindle-pins]]
 === Pins(((spindle (HAL pins))))
@@ -251,10 +251,10 @@ The 'N' will be the integer of the spindle number. (0-7)
 * 'spindle.N.speed-out-rps-abs' - (float, out) Commanded spindle speed in rotations per second. This will
   always be a positive number.
 * 'spindle.N.orient-angle' - (float,out) Desired spindle orientation for M19. Value of the
-  M19 R word parameter plus the value of the [RS274NGC]ORIENT_OFFSET ini parameter.
+  M19 R word parameter plus the value of the [RS274NGC]ORIENT_OFFSET INI parameter.
 * 'spindle.N.orient-mode' - (s32,out) Desired spindle rotation mode M19. Default 0.
 * 'spindle.N.orient' - (out,bit)
-  Indicates start of spindle orient cycle. Set by M19. Cleared by any of M3,M4,M5.
+  Indicates start of spindle orient cycle. Set by M19. Cleared by any of M3, M4, or M5.
   If spindle-orient-fault is not zero during spindle-orient
   true, the M19 command fails with an error message.
 * 'spindle.N.is-oriented' - (in, bit) Acknowledge pin for spindle-orient. Completes orient cycle.
@@ -262,7 +262,7 @@ The 'N' will be the integer of the spindle number. (0-7)
   spindle-locked pin is asserted. Also, the spindle-brake pin is asserted.
 * 'spindle.N.orient-fault' - (s32, in) Fault code input for orient cycle. Any value other
   than zero  will cause the orient cycle to abort.
-* 'spindle.N.lock' - (bit, out) Spindle orient complete pin. Cleared by any of M3,M4,M5.
+* 'spindle.N.lock' - (bit, out) Spindle orient complete pin. Cleared by any of M3, M4, or M5.
 
 .HAL pin usage for M19 orient spindle
 Conceptually the spindle is in one of the following modes:
@@ -290,7 +290,7 @@ zero, the M19 command is aborted, a message including the fault code
 is displayed, and the motion queue is flushed.
 The spindle reverts to rotation mode.
 
-Also, any of the M3,M4 or M5 commands cancel
+Also, any of the M3, M4 or M5 commands cancel
 either 'searching for desired orientation' or 'orientation complete' mode.
 This is indicated by deasserting both the `spindle-orient` and `spindle-locked` pins.
 
@@ -338,11 +338,11 @@ synchronized i/o provided by <<sec:motion,motion>> instead.
 * 'iocontrol.0.user-enable-out' - (bit, out) FALSE when an internal E-Stop condition exists.
 * 'iocontrol.0.user-request-enable' - (bit, out) TRUE when the user has requested that E-Stop be cleared.
 
-== ini settings
+== INI settings
 
-A number of ini settings are made available as hal input pins.
+A number of INI settings are made available as hal input pins.
 
-=== Pins (((ini settings (HAL pins))))
+=== Pins (((INI settings (HAL pins))))
 
 N refers to a joint number, L refers to an axis letter
 
@@ -363,11 +363,11 @@ N refers to a joint number, L refers to an axis letter
 
 [NOTE]
 The per-axis min_limit and max_limit pins are honored continuously after homing.
-The  per-axis ferror and min_ferror pins are honored when the machine is on and
+The per-axis ferror and min_ferror pins are honored when the machine is on and
 not in position.
-The  per-axis max_velocity and max_acceleration pins are sampled when the
+The per-axis max_velocity and max_acceleration pins are sampled when the
 machine is on and the motion_state is free (homing or jogging) but are not
-sampled when in a program is running (auto mode) or in mdi mode.  Consequently,
+sampled when in a program is running (auto mode) or in MDI mode.  Consequently,
 changing the pin values when a program is running will not have effect until
 the program is stopped and the motion_state is again free.
 
