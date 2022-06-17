@@ -21,7 +21,7 @@ Optionally the number of Digital I/O is set with 'num_dio'.
 The number of Analog I/O is set with 'num_aio', default is 4 each.
 The number of Spindles is set with 'num_spindles', default is 1.
 
-Pin and parameter names starting with 'axis.L' and joint.N' are read and
+Pin and parameter names starting with 'axis.L' and 'joint.N' are read and
 updated by the motion-controller function.
 
 Motion is loaded with the motmod command. A kins should be loaded before

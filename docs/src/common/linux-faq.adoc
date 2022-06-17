@@ -56,6 +56,8 @@ Example:
 linuxcnc /home/mill/linuxcnc/config/mill/mill.ini
 ----
 
+The documentation refers to your respective .ini file as INI-file.
+
 [[faq:terminal]]
 == Terminal
 
@@ -110,7 +112,7 @@ it will be named mymod.txt or what ever you named it.
 
 == Editing a Root File
 
-When you open the file browser and you see the Owner of the file is
+When you open the file browser and you see the owner of the file is
 root you must do extra steps to edit that file. Editing some root files
 can have bad results. Be careful when editing root files. Generally, you
 can open and view most root files, but they will open in 'read only'
@@ -154,7 +156,7 @@ pwd
 [[faq:cd]]
 === Changing Directories(((Changing Directories)))(((cd)))
 
-To move up one level in the terminal window type:
+To change the working directory to the one one level up, i.e., the parent directory, in the terminal window type:
 
 ----
 cd ..
@@ -164,6 +166,12 @@ To move up two levels in the terminal window type:
 
 ----
 cd ../..
+----
+
+To move directly to your home directory, in the terrminal window use the cd command with no arguments:
+
+----
+cd
 ----
 
 To move down to the linuxcnc/configs subdirectory in the terminal window
@@ -197,7 +205,8 @@ find starting-directory parameters actions
 ----
 
 For example to find all the .ini files in your linuxcnc directory you
-first need to use the pwd command to find out the directory. +
+first need to use the pwd command to find out the directory.
+
 Open a new terminal window and type:
 
 ----
@@ -302,7 +311,7 @@ https://help.ubuntu.com/community/FixVideoResolutionHowto[https://help.ubuntu.co
 
 .Relative Paths
 Relative paths are based on the startup directory which is the directory
-containing the ini file.  Using relative paths can facilitate relocation of
+containing the INI-file.  Using relative paths can facilitate relocation of
 configurations but requires a good understanding of linux path specifiers.
 
 ....
