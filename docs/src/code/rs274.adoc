@@ -4,6 +4,12 @@
 [[cha:rs274]]
 = Stand Alone Interpreter
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 The rs274 stand alone interpreter is available for use via the command line.
 
 == Usage
@@ -34,6 +40,7 @@ and see that the loop never ends. To break out of the loop use Ctrl Z. The
 following two files are needed to run the example.
 
 .test.ngc
+[source,{ngc}]
 ----
 #<test> = 123.352
 

@@ -3,6 +3,12 @@
 
 = Contributing to LinuxCNC
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 == Introduction
 
 This document contains information for developers about LinuxCNC
@@ -156,13 +162,13 @@ Use the first line as a summary of the intent of the change (almost
 like the subject line of an e-mail). Follow it with a blank line,
 then a longer message explaining the change. Example:
 
-----
+====
 Get rid of RTAPI_SUCCESS, use 0 instead
 
 The test "retval < 0" should feel familiar; it's the same kind of
 test you use in userspace (returns -1 for error) and in kernel space
 (returns -ERRNO for error)
-----
+====
 
 === Commit to the proper branch
 

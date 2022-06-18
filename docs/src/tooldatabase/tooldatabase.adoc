@@ -133,6 +133,7 @@ A reload operation is also typically provided by a Graphical User
 Interface (GUI) so that on-demand reloads can be requested.  For
 example, a python GUI application can use:
 
+[source,python]
 ----
 #!/usr/bin/env python3
 from  linuxcnc import command
@@ -171,6 +172,7 @@ indicate tool data changes ('p', 'l', 'u').
 The *db_program* uses the 'tooldb' module by implementing the
 following python code:
 
+[source,python]
 ----
 user_tools = list(...)   # list of available tool numbers
 

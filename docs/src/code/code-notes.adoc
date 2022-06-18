@@ -4,6 +4,12 @@
 [[cha:code-notes]]
 = Code Notes
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 == Intended audience
 
 This document is a collection of notes about the internals of LinuxCNC. It
@@ -777,6 +783,7 @@ iocontrol main loop process:
 
 nml message numbers: from emc.hh:
 
+[source,c]
 ----
 #define EMC_IO_INIT_TYPE                             ((NMLTYPE) 1601)
 #define EMC_TOOL_STAT_TYPE                           ((NMLTYPE) 1199)
