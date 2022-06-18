@@ -693,7 +693,7 @@ In '~/linuxcnc/nc_files/examples/remap_lib/python_stdglue/' folder
 [NOTE]
 These file names and location could be different depending on installed verses
 development (RIP) version of linuxcnc.
-For instance '~/linuxcnc/nc_files/macros' is '~/linuxcnc/nc_files/examples/macros' 
+For instance '&ndash;/linuxcnc/nc_files/macros' is '&ndash;/linuxcnc/nc_files/examples/macros'
 in installed versions of linuxcnc.
 You could use customized versions of the same files or name them differently.
 The entries in the '[RS274NGC]' section dictate to linuxcnc what and where to
