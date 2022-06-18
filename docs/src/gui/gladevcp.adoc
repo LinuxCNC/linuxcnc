@@ -14,9 +14,9 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 // begin a listing of ini/hal/ngc files like so:
-//[source,ini]
-//[source,hal]
-//[source,ngc]
+//[source,{ini}]
+//[source,{hal}]
+//[source,{ngc}]
 
 == What is GladeVCP?
 
