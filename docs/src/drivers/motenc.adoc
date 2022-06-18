@@ -4,6 +4,12 @@
 [[cha:motenc]]
 = Motenc Driver
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 Vital Systems Motenc-100 and Motenc-LITE
 
 The Vital Systems Motenc-100 and Motenc-LITE are 8- and 4-channel
@@ -16,6 +22,7 @@ board and exports the appropriate HAL objects.
 
 Installing:
 
+[source,{hal}]
 ----
 loadrt hal_motenc
 ----

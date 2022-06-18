@@ -21,6 +21,7 @@ Regardless of the connection type, vfs11_vfd operates as a Modbus master.
 
 This component is loaded using the halcmd "loadusr" command:
 
+[source,{hal}]
 ----
 loadusr -Wn spindle-vfd vfs11_vfd -n spindle-vfd
 ----

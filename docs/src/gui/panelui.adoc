@@ -25,6 +25,7 @@ input to make toggle, radio, or momentary button output. +
 
 The command used to load panelui (with optional -d debug switch):
 
+[source,{hal}]
 ----
 loadusr -W panelui -d
 ----
@@ -34,6 +35,7 @@ the config folder or user folder.
 
 One can validate the INI file with this command:
 
+[source,{hal}]
 ----
 loadusr pyui
 ----

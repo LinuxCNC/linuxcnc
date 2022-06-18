@@ -4,6 +4,12 @@
 [[cha:spindle-control]]
 = Spindle Control
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 LinuxCNC can control up to 8 spindles. The number is set in the INI file.
 The examples below all refer to a single-spindle config with spindle
 control pins with names like spindle.0...
@@ -26,6 +32,7 @@ We have to add a scale component to the HAL file to scale the
 spindle.N.speed-out to the 0 to 10 needed by the VFD if your DAC
 card does not do scaling.
 
+[source,{hal}]
 ----
 loadrt scale count=1
 addf scale.0 servo-thread
@@ -39,6 +46,7 @@ net spindle-speed-DAC scale.0.out => <your DAC pin name>
 If your spindle can be controlled by a PWM signal,
 use the pwmgen component to create the signal:
 
+[source,{hal}]
 ----
 loadrt pwmgen output_type=0
 addf pwmgen.update servo-thread

@@ -4,6 +4,12 @@
 [[cha:mitsub]]
 = Mitsub VFD Driver
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 :hal: {basebackend@docbook:'':hal}
 
 This is a userspace HAL program, written in python, to control VFD's from
@@ -19,6 +25,7 @@ have an Estop circuit that kills the power to the unit in case of emergency.
 
 This component is loaded using the halcmd "loadusr" command:
 
+[source,{hal}]
 ----
 loadusr -Wn coolant mitsub_vfd spindle=02 coolant=01
 ----

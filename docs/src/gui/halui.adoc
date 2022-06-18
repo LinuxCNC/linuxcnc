@@ -29,6 +29,7 @@ HALUI = halui
 An alternate way to invoke it (specially if you generate the configuration with StepConf) is to include the following in your `custom.hal` file. +
 Make sure you use the correct path to your ini file.
 
+[source,{hal}]
 ----
 loadusr halui -ini /path/to/inifile.ini
 ----

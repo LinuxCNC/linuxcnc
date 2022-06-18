@@ -4,11 +4,18 @@
 [[cha:gs2-vfd-driver]]
 = GS2 VFD Driver(((GS2 VFD Driver)))
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 This is a userspace HAL program for the GS2 series of VFD's at
 Automation Direct. footnote:[In Europe the equivalent can be found under the brand name Omron.]
 
 This component is loaded using the halcmd "loadusr" command:
 
+[source,{hal}]
 ----
 loadusr -Wn spindle-vfd gs2_vfd -n spindle-vfd
 ----

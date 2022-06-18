@@ -1250,6 +1250,7 @@ homed prior to enabling conventional world mode jogging.
 Added twopass support for loadrt config modparams with multiple
 settings separated by blanks and enclosed with quotes.  Example:
 
+[source,{hal}]
 ----
 loadrt hm2_eth board_ip=10.10.10.10 config="num_encoders=2 num_pwmgens=2 num_stepgens=3"
 ----

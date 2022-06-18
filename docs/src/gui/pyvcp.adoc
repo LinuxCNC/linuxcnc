@@ -4,6 +4,12 @@
 [[cha:pyvcp]]
 = PyVCP
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 == Introduction
 
 PyVCP, **Py**thon **V**irtual **C**ontrol **P**anel, is designed to give the
@@ -151,6 +157,7 @@ with or without LinuxCNC's machine controller.
 
 To load a stand alone PyVCP panel with LinuxCNC use these commands:
 
+[source,{hal}]
 ----
 loadusr -Wn mypanel pyvcp -g WxH+X+Y -c mypanel <path/>panel_file.xml
 ----
@@ -183,12 +190,14 @@ GUI other than AXIS.
 
 To load a 'stand alone' PyVCP panel without LinuxCNC use this command:
 
+[source,{hal}]
 ----
 loadusr -Wn mypanel pyvcp -g 250x500+800+0 -c mypanel mypanel.xml
 ----
 
 The minimum command to load a pyvcp panel is:
 
+[source,{hal}]
 ----
 loadusr pyvcp mypanel.xml
 ----

@@ -4,6 +4,12 @@
 [[cha:iov2]]
 = I/O Control V2
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 == Description
 
 I/O control handles I/O tasks like coolant, toolchange, e-stop and lube. The
@@ -165,6 +171,7 @@ emc-abort and emc-reason pins. The toolchanger is expected to acknowledge the
 emc-abort pin by raising the emc-abort-ack pin - iov2 will block until this is
 done. If you do not need the abort handshake feature, jumper them as follows:
 
+[source,{hal}]
 ----
  net emc-abort-ack iocontrol.0.emc-abort iocontrol.0.emc-abort-ack 
 ----

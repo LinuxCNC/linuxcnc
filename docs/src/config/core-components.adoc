@@ -4,6 +4,12 @@
 [[cha:core-components]]
 = Core Components(((Core components)))
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 See also the man pages 'motion(9)'.
 
 [[sec:motion]]
@@ -27,6 +33,7 @@ updated by the motion-controller function.
 Motion is loaded with the motmod command. A kins should be loaded before
 motion.
 
+[source,{hal}]
 ----
 loadrt motmod base_period_nsec=['period'] servo_period_nsec=['period']
               traj_period_nsec=['period'] num_joints=['0-9'] 
@@ -80,6 +87,7 @@ as a locking indexer (typically a rotary).  The mask bits select the
 joint(s).  The LSB of the mask selects joint 0.
 Example:
 
+[source,{hal}]
 ----
 unlock_joints_mask=0x38 selects joints 3,4,5
 ----

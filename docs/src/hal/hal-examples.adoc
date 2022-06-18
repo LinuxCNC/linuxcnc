@@ -4,6 +4,12 @@
 [[cha:hal-examples]]
 = HAL Examples(((HAL Examples)))
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 All of these examples assume you are starting with a stepconf based
 configuration and have two threads 'base-thread' and 'servo-thread'. The
 stepconf wizard will create an empty custom.hal and a
@@ -84,6 +90,7 @@ external input to indicate the tool change is complete.
 This is an example of manual toolchange 'with'
 the HAL Manual Toolchange component:
 
+[source,{hal}]
 ----
 loadusr -W hal_manualtoolchange
 net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change
@@ -117,6 +124,7 @@ correct value. Add the following to your custom.hal file.
 
 Load the realtime components.
 
+[source,{hal}]
 ----
 loadrt ddt count=1
 loadrt mult2 count=1
@@ -125,6 +133,7 @@ loadrt abs count=1
 
 Add the functions to a thread so it will get updated.
 
+[source,{hal}]
 ----
 addf ddt.0 servo-thread
 addf mult2.0 servo-thread
@@ -133,6 +142,7 @@ addf abs.0 servo-thread
 
 Make the connections.
 
+[source,{hal}]
 ----
 setp mult2.in1 60
 net xpos-cmd ddt.0.in

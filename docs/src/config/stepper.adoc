@@ -4,6 +4,12 @@
 [[cha:stepper-config]]
 = Stepper Configuration(((Stepper Configuration)))
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 == Introduction
 
 The preferred way to set up a standard stepper machine is with the
@@ -75,6 +81,7 @@ on we'll investigate the standard_pinout.hal.
 
 This file contains several HAL commands, and usually looks like this:
 
+[source,{hal}]
 ----
 # standard pinout config file for 3-axis steppers
 # using a parport for I/O
@@ -181,6 +188,7 @@ If you want for example to change the pin for the X-axis Step &
 Directions signals, all you need to do is to change the number in the
 'parport.0.pin-XX-out' name:
 
+[source,{hal}]
 ----
 net Xstep parport.0.pin-03-out
 net Xdir  parport.0.pin-02-out
@@ -188,6 +196,7 @@ net Xdir  parport.0.pin-02-out
 
 can be changed to:
 
+[source,{hal}]
 ----
 net Xstep parport.0.pin-02-out
 net Xdir  parport.0.pin-03-out
@@ -204,6 +213,7 @@ If external hardware expects an "active low" signal, set the
 corresponding '-invert' parameter. For instance, to invert the spindle
 control signal:
 
+[source,{hal}]
 ----
 setp parport.0.pin-09-invert TRUE
 ----
@@ -213,6 +223,7 @@ setp parport.0.pin-09-invert TRUE
 If your spindle can be controlled by a PWM signal, use the 'pwmgen'
 component to create the signal:
 
+[source,{hal}]
 ----
 loadrt pwmgen output_type=0
 addf pwmgen.update servo-thread
@@ -236,6 +247,7 @@ defined signals called 'Xen', 'Yen', 'Zen'.
 
 To connect them use the following example:
 
+[source,{hal}]
 ----
 net Xen parport.0.pin-08-out
 ----

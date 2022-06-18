@@ -234,6 +234,7 @@ HALFILE = LIB:moveoff_external.hal
 The connections made by LIB:moveoff_external.hal (for a three axis
 configuration) are:
 
+[source,{hal}]
 ----
 net external_enable mv.move-enable
 

@@ -413,6 +413,7 @@ synchronized homing with a switch (allow_jjog) that selects a
 positive sequence (1) for individual *joint* jogging prior to
 homing (partial hal code):
 
+[source,{hal}]
 ----
 loadrt mux2           names=home_sequence_mux
 loadrt conv_float_s32 names=home_sequence_s32

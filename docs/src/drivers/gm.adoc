@@ -4,6 +4,12 @@
 [[cha:gm-driver]]
 = General Mechatronics Driver
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 General Mechatronics GM6-PCI card based motion control system
 
 For detailed description, please refer to the http://www.generalmechatronics.com/data/products/robot_controller/PCI_UserManual_eng.pdf[System integration manual].
@@ -33,6 +39,7 @@ image::images/GMsystem.png["GM servo control system",align="center",scaledwidth=
 
 Installing:
 
+[source,{hal}]
 ----
 loadrt hal_gm
 ----

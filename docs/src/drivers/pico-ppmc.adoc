@@ -4,6 +4,12 @@
 [[cha:pico-drivers]]
 = Pico Drivers
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 Pico Systems has a family of boards for doing analog servo, stepper,
 and PWM (digital) servo control. The boards connect to the PC through a
 parallel port working in EPP mode. Although most users connect one
@@ -18,6 +24,7 @@ USC. And the Universal PWM Controller, or UPC.
 
 Installing:
 
+[source,{hal}]
 ----
 loadrt hal_ppmc port_addr=<addr1>[,<addr2>[,<addr3>...]]
 ----

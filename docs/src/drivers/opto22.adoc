@@ -4,6 +4,12 @@
 [[cha:opto22]]
 = Opto22 Driver
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 *PCI AC5 ADAPTER CARD / HAL DRIVER*
 
 == The Adapter Card
@@ -31,6 +37,7 @@ card. The HAL driver is a realtime module. It will support 4 cards as
 is (more cards are possible with a change in the source code). Load the
 basic driver like so:
 
+[source,{hal}]
 ----
 loadrt opto_ac5
 ----
@@ -102,6 +109,7 @@ They would be numbered 12 to 23 port 1 would be the same.
 
 To change the default setting load the driver something like so:
 
+[source,{hal}]
 ----
 loadrt opto_ac5 portconfig0=0xffff portconfig1=0xff0000
 ----

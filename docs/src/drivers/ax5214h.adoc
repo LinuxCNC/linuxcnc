@@ -4,6 +4,12 @@
 [[cha:ax5214-driver]]
 = AX5214H Driver
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 The Axiom Measurement & Control AX5214H is a 48 channel digital I/O
 board. It plugs into an ISA bus, and resembles a pair of 8255 chips. In
 fact it may be a pair of 8255 chips, but I'm not sure. If/when someone
@@ -12,6 +18,7 @@ of the work is already done.
 
 == Installing
 
+[source,{hal}]
 ----
 loadrt hal_ax5214h cfg="<config-string>"
 ----
