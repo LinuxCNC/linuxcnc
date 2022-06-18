@@ -141,6 +141,7 @@ Switchkins functionality is enabled by the pin
 analog output pin like motion.analog-out-03 so that it can be
 set by M68 commands.  Example:
 
+[source,{hal}]
 ----
 net :kinstype-select <= motion.analog-out-03
 net :kinstype-select => motion.switchkins-type

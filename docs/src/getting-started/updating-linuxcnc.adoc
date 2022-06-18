@@ -623,6 +623,7 @@ correspondence of a joint number and an axis letter, it may be convenient to
 connect the corresponding hal pins.  For example, if joint 1 corresponds
 exactly to axis letter y:
 
+[source,{hal}]
 ----
 net jora_1_y_enable   => joint.1.jog-enable => axis.y.jog-enable
 net jora_1_y_scale    => joint.1.jog-scale  => axis.y.jog-scale

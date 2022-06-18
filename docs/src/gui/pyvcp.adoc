@@ -66,6 +66,7 @@ For a list of widgets and their tags and options, see the
 Once you have created your panel, connecting HAL signals to and from
 the PyVCP pins is done with the halcmd:
 
+[source,{hal}]
 ----
 net <signal-name> <pin-name> <opt-direction> <opt-pin-name>signal-name
 ----
@@ -137,6 +138,7 @@ This change will run the HAL commands specified in
 'spindle_to_pyvcp.hal'. In our example the contents could look like
 this:
 
+[source,{hal}]
 ----
 net spindle-rpm-filtered => pyvcp.spindle-speed
 ----

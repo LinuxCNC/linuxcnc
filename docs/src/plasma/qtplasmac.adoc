@@ -461,6 +461,7 @@ The HAL pin assigned to this filter is *plasmac.lowpass-frequency* and is set to
 
 For example:
 
+[source,{hal}]
 ----
 setp plasmac.lowpass-frequency 100
 ----
@@ -1026,6 +1027,7 @@ See <<qt_shape-library,Conversational Shape Library>> for detailed information o
 
 It is possible to disable this tab so the conversational feature cannot be used by an operator. This may be achieved either by wiring the pin to a physical key-switch or similar or it may also be set in a HAL file using the following command:
 
+[source,{hal}]
 ----
 setp qtplasmac.conv_disable 1
 ----
@@ -1045,6 +1047,7 @@ This tab is used to display configuration parameters that are modified infrequen
 
 It is possible to disable this tab so machine settings cannot be modified by unauthorized personnel. This may be achieved either by wiring the pin to a physical key-switch or similar or it may also be set in a HAL file using the following command:
 
+[source,{hal}]
 ----
 setp qtplasmac.param_disable 1
 ----
@@ -1852,6 +1855,7 @@ Some float switches can exhibit a large switching hysteresis which shows up in t
 * This speed defaults to 0.001mm (0.000039") per servo cycle.
 * It is possible to increase this speed by up to a factor of 10 by adding the following line to the custom.hal file:
 
+[source,{hal}]
 ----
 setp plasmac.probe-final-speed n
 ----
@@ -3395,6 +3399,7 @@ Void sensing may be further tuned by adjusting the required number of consecutiv
 
 The HAL pin for adjusting this is named plasmac.kerf-errors-max and the default value is 2. To change this value, add the pin and the required value to the custom.hal file. The following example would set the required number of consecutive times to exceed the threshold to 3:
 
+[source,{hal}]
 ----
 setp plasmac.kerf-error-max 3
 ----
@@ -3405,6 +3410,7 @@ Some plasma power sources/machine configurations may lose the Arc OK signal eith
 
 The following code would set a delay of 0.1 seconds:
 
+[source,{hal}]
 ----
 setp plasmac.arc-lost-delay 0.1
 ----
@@ -3432,6 +3438,7 @@ There are also two HAL pins that have been provided to allow the user to tune th
 
 The following example would set the number of valid consecutive readings required to 6:
 
+[source,{hal}]
 ----
 setp plasmac.arc-ok-counts 6
 ----
@@ -3442,6 +3449,7 @@ Small fluctuations in the arc voltage displayed while the machine is at idle are
 
 The pin for adjusting this value is named plasmac.zero-window and the default value is set to 0.1. To change this value, add the pin and the required value to the custom.hal file. The following example would set the voltage window to be displayed as 0v from -5v to +5v:
 
+[source,{hal}]
 ----
 setp plasmac.zero-window 5
 ----
@@ -3454,6 +3462,7 @@ The pin for adjusting this value is named plasmac.max-offset and the default val
 
 The following example would set the distance from Z MAX_LIMIT to 10mm:
 
+[source,{hal}]
 ----
 setp plasmac.max-offset 10
 ----
@@ -3462,6 +3471,7 @@ setp plasmac.max-offset 10
 
 By default, all tabs except the <<qt_main-tab, MAIN Tab>> are disabled during automated motion. It is possible for every tab but the <<qt_conversational-tab, CONVERSATIONAL Tab>> to be enabled during automated motion by setting the following HAL pin True:
 
+[source,{hal}]
 ----
 setp qtplasmac.tabs_always_enabled 1
 ----

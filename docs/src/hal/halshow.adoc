@@ -4,6 +4,12 @@
 [[cha:halshow]]
 = Halshow(((Halshow)))
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 The script halshow can help you find your way around a running HAL.
 This is a very specialized system and it must connect to a working HAL.
 It cannot run standalone because it relies on the ability of HAL to
@@ -132,6 +138,7 @@ servo thread, then connect it to the position pin of a joint. Once that is
 done we can find the output of the differentiator in halscope. So let's go. 
 (Yes, I looked this one up.
 
+[source,{hal}]
 ----
 loadrt ddt
 ----
@@ -139,6 +146,7 @@ loadrt ddt
 Now look at the components node and you should see ddt in there
 someplace.
 
+[source,{hal}]
 ----
 Loaded HAL Components:
 ID Type        Name
@@ -177,6 +185,7 @@ will do its math each time the servo thread is updated. Once again we
 look up the addf command and find that it uses three arguments like
 this:
 
+[source,{hal}]
 ----
 addf <functname> <threadname> [<position>]
 ----
@@ -186,6 +195,7 @@ by expanding the thread node in the tree. Here we see two threads,
 servo-thread and base-thread. The position of ddt.0 in the thread is
 not critical. So we add the function ddt.0 to the servo-thread:
 
+[source,{hal}]
 ----
 addf ddt.0 servo-thread
 ----

@@ -103,6 +103,7 @@ net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 This is an example of manual toolchange 'without'
 the HAL Manual Toolchange component:
 
+[source,{hal}]
 ----
 net tool-number <= iocontrol.0.tool-prep-number
 net tool-change-loopback iocontrol.0.tool-change => iocontrol.0.tool-changed
@@ -192,6 +193,7 @@ To find more information on these HAL components check the man pages.
 Place the following in a text file called softstart.hal. If you're not
 familiar with Linux place the file in your home directory.
 
+[source,{hal}]
 ----
 loadrt threads period1=1000000 name1=thread
 loadrt siggen
@@ -245,6 +247,7 @@ components you can change them in the terminal window. To see what
 different gain settings do for lowpass just type the following in the
 terminal window and try different settings.
 
+[source,{hal}]
 ----
 setp lowpass.0.gain *.01
 ----

@@ -43,6 +43,7 @@ Haltcl files use the tcl scripting language augmented with the specific
 commands of the LinuxCNC hardware abstraction layer (HAL).  The hal-specific
 commands are.
 
+[source,{hal}]
 ----
 addf, alias,
 delf, delsig,
@@ -139,12 +140,14 @@ CONFIG="num_encoders=0 num_pwmgens=0 num_stepgens=6"
 
 And this loadrt command:
 
+[source,{hal}]
 ----
 loadrt $::HOSTMOT2(DRIVER) board_ip=$::HOSTMOT2(IPADDR) config=$::HOSTMOT2(CONFIG)
 ----
 
 Here is the actual command that is run:
 
+[source,{hal}]
 ----
 loadrt hm2_eth board_ip={"10.10.10.10"} config={"num_encoders=0 num_pwmgens=0 num_stepgens=6"}
 ----
@@ -153,6 +156,7 @@ This fails because loadrt does not recognize the braces.
 
 So to get the values just as entered in the ini file, re-write the loadrt line like this:
 
+[source,{hal}]
 ----
 loadrt $::HOSTMOT2(DRIVER) board_ip=[lindex $::HOSTMOT2(IPADDR) 0] config=[lindex $::HOSTMOT2(CONFIG) 0]
 ----
@@ -184,6 +188,7 @@ setp scale.0.gain 6.28/360.0*$::JOINT_0(radius)*60.0
 Whitespace in the bare expression is not allowed, use quotes
 for that:
 
+[source,{hal}]
 ----
 setp scale.0.gain "6.28 / 360.0 * $::JOINT_0(radius) * 60.0"
 ----
@@ -213,6 +218,7 @@ STEPGEN_MAXACCEL = 10.5
 With haltcl, you can use tcl commands to do the computation and
 eliminate the STEPGEN_MAXACCEL inifile item altogether.
 
+[source,{hal}]
 ----
 setp stepgen.0.maxaccel $::JOINT_0(MAXACCEL)*1.05
 ----

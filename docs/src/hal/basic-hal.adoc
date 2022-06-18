@@ -4,6 +4,12 @@
 [[cha:basic-hal-reference]]
 = HAL Basics(((HAL Basics)))
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 This document provides a reference to the basics of HAL.
 
 [[sec:hal-commands]]
@@ -174,6 +180,7 @@ parport.0.pin-08-out. Basically the value of stepgen.0.out is sent to
 the signal xStep and that value is then sent to parport.0.pin-02-out
 and parport.0.pin-08-out.
 
+[source,{hal}]
 ----
 #   signal    source            destination          destination
 net xStep stepgen.0.out => parport.0.pin-02-out parport.0.pin-08-out
@@ -184,6 +191,7 @@ source) you can use the same signal again to send the value to another
 reader. To do this just use the signal with the readers on another
 line.
 
+[source,{hal}]
 ----
 #   signal       destination2
 net xStep => parport.0.pin-06-out

@@ -4,6 +4,12 @@
 [[cha:cl-programming]]
 = Classic Ladder Programming(((Classic Ladder Programming,CL Programming)))
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 == Ladder Concepts
 
 Classic Ladder is a type of programming language originally
@@ -62,6 +68,7 @@ first line loads real time the Classic Ladder module. The second line
 adds the function classicladder.0.refresh to the servo thread. This
 line makes Classic Ladder update at the servo thread rate.
 
+[source,{hal}]
 ----
 loadrt classicladder_rt
 addf classicladder.0.refresh servo-thread
@@ -120,6 +127,7 @@ HAL signed integers (+- integer range) pins are available.
 
 For example (you don't need all of these to change just a few):
 
+[source,{hal}]
 ----
 loadrt classicladder_rt numRungs=12 numBits=100 numWords=10
 numTimers=10 numMonostables=10 numCounters=10 numPhysInputs=10
@@ -129,6 +137,7 @@ numS32in=5 numS32out=5
 
 To load the default number of objects:
 
+[source,{hal}]
 ----
 loadrt classicladder_rt
 ----
@@ -142,6 +151,7 @@ file.
 
 To load the user module:
 
+[source,{hal}]
 ----
 loadusr classicladder
 ----
@@ -151,6 +161,7 @@ use Sections.
 
 To load a ladder file:
 
+[source,{hal}]
 ----
 loadusr classicladder myladder.clp
 ----
@@ -166,6 +177,7 @@ Classic Ladder Loading Options
 
 To use Classic Ladder with HAL without EMC:
 
+[source,{hal}]
 ----
 loadusr -w classicladder
 ----
@@ -1089,12 +1101,14 @@ done by adding a couple of lines to the custom.hal file.
 
 This line loads the real time module:
 
+[source,{hal}]
 ----
 loadrt classicladder_rt
 ----
 
 This line adds the Classic Ladder function to the servo thread:
 
+[source,{hal}]
 ----
 addf classicladder.0.refresh servo-thread
 ----
@@ -1158,6 +1172,7 @@ To manually add a ladder you need to add add a line to your custom.hal
 file that will load your ladder file. Close your LinuxCNC session and add
 this line to your custom.hal file.
 
+[source,{hal}]
 ----
 loadusr -w classicladder --nogui MyLadder.clp
 ----

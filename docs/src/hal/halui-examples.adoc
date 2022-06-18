@@ -4,6 +4,12 @@
 [[cha:halui-examples]]
 = Halui Examples(((Halui Examples)))
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 For any Halui examples to work you need to add the following line to the [HAL]
 section of the ini file.
 
@@ -30,6 +36,7 @@ image::images/remote-start.png["Remote Start Example"]
 
 The hal commands needed to accomplish the above are:
 
+[source,{hal}]
 ----
 net program-start-btn halui.mode.auto and2.0.in0 <= <your input pin>
 net program-run-ok and2.0.in1 <= halui.mode.is-auto
@@ -39,6 +46,7 @@ net remote-program-run halui.program.run <= and2.0.out
 Notice on line one that there are two reader pins, this can also be split
 up to two lines like this:
 
+[source,{hal}]
 ----
 net program-start-btn halui.mode.auto <= <your input pin>
 net program-start-btn and2.0.in0
@@ -59,6 +67,7 @@ two lines that will be connected to your I/O to turn
 on the program pause or to resume when the external
 system wants LinuxCNC to continue.
 
+[source,{hal}]
 ----
 net ispaused halui.program.is paused => "your output pin"
 net resume halui.program.resume <= "your input pin"

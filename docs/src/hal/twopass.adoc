@@ -23,6 +23,7 @@ instances of a component.  For example, if you use a two input AND
 gate component (and2) in three different places in your setup, you
 would need to have a single line somewhere to specify:
 
+[source,{hal}]
 ----
 loadrt and2 count=3
 ----
@@ -32,6 +33,7 @@ resulting in components and2.0, and2.1, and2.2.
 Configurations are more readable if you specify with the
 names=option for components where it is supported, e.g.,:
 
+[source,{hal}]
 ----
 loadrt and2 names=aa,ab,ac
 ----
@@ -56,6 +58,7 @@ TWOPASS = anystring
 Where "anystring" can be any non-null string.
 With this setting, you can have multiple specifications like:
 
+[source,{hal}]
 ----
 loadrt and2 names=aa
 ...
@@ -112,6 +115,7 @@ ddt.1, ddt.2, etc.
 
 Alternatively, using the 'names=' option like:
 
+[source,{hal}]
 ----
 loadrt ddt names=xvel,yvel,zvel
 ...

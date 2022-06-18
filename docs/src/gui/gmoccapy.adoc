@@ -878,6 +878,7 @@ To 'connect' new pins to and input you need to do this in the postgui HAL file.
 Here are some example connections that have the signal connected to an input
 some place else in the HAL file.
 
+[source,{hal}]
 ----
 net gmoccapy-lube-fault gmoccapy.messages.lube-fault
 net gmoccapy-lube-fault-waiting gmoccapy.messages.lube-fault-waiting
@@ -926,6 +927,7 @@ image::images/manual_toolchange.png["Manual tool change",align="left"]
 
 Usually they are connected like this for a manual tool change:
 
+[source,{hal}]
 ----
 net tool-change gmoccapy.toolchange-change <= iocontrol.0.tool-change
 net tool-changed gmoccapy.toolchange-changed <= iocontrol.0.tool-changed
@@ -1103,6 +1105,7 @@ You may want to modify this file to fit more your needs.
 
 Connect the tool probe in your hal file like so:
 
+[source,{hal}]
 ----
 net probe  motion.probe-input <= <your_input_pin>
 ----

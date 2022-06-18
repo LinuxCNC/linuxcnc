@@ -293,6 +293,7 @@ using the LinuxCNC vismach facility.
 
 Vismach is a library of python routines to display a dynamic simulation of a CNC machine on the PC screen. The python script for a particular machine is loaded in HAL and data passed by HAL pin connections.  The user-space vismach model is loaded by a hal command like:
 
+[source,{hal}]
 ----
 loadusr -W xyzac-trt-gui
 ----
@@ -314,6 +315,7 @@ image::5-axis-figures/equation__38.png[align="center"]
 
 The required HAL connection (for xyzac-trt) is:
 
+[source,{hal}]
 ----
 net :tool-offset motion.tooloffset.z xyzac-trt-kins.tool-offset
 ----
@@ -376,6 +378,7 @@ Additional HAL pins may be created by the module for variable configuration item
 such as the D~x~, D~y~, D~z~, tool-offset used in the xyzac-trt kinematics module.
 These pins can be connected to a signal for dynamic control or set once with HAL connections like:
 
+[source,{hal}]
 ----
 # set offset parameters
 net :tool-offset motion.tooloffset.z xyzac-trt-kins.tool-offset

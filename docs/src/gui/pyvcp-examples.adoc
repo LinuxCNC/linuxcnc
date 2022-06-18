@@ -3,6 +3,12 @@
 
 = PyVCP Examples
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 == AXIS
 
 To create a PyVCP panel to use with the AXIS interface that is
@@ -173,6 +179,7 @@ image::images/xyz_buttons.png["Jog Buttons Image"]
 To make the connections needed open up your custom_postgui.hal file
 and add the following.
 
+[source,{hal}]
 ----
 # connect the X PyVCP buttons
 net my-jogxminus halui.axis.x.minus <= pyvcp.x-minus
@@ -444,6 +451,7 @@ image::images/gs2_panel.png["GS2 Panel"]
 To make it work we add the following code to the custom_postgui.hal
 file.
 
+[source,{hal}]
 ----
 # display the rpm based on freq * rpm per hz
 loadrt mult2
@@ -517,6 +525,7 @@ POSTGUI_HALFILE = postgui.hal
 In the 'postgui.hal' file add the following code to link the PyVCP button to the
 MDI command.
 
+[source,{hal}]
 ----
 net rth halui.mdi-command-00 <= pyvcp.rth-button
 ----

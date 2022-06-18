@@ -144,6 +144,7 @@ We used a 15W Mean Well HDR-15 Ultra Slim DIN Rail Supply 24V DIN rail based iso
 
 The following HAL code can be pasted into your QtPlasmaC's custom.hal to enable Ohmic sensing on Encoder 2 of a 7i76e. Install the correct bit file and connect the THCAD to IDX+ and IDX-. Be sure to change the calibration settings to agree with your THCAD-5.
 
+[source,{hal}]
 ----
 # --- Load the Component ---
 loadrt ohmic names=ohmicsense
@@ -404,6 +405,7 @@ Assuming it is connected to a 7i76e, connect the output to the spindle encoder i
 
 Make sure you have the following lines in your ini file (assuming a Mesa 7i76e):
 
+[source,{hal}]
 ----
 setp hm2_7i76e.0.encoder.00.scale -1
 setp hm2_7i76e.0.encoder.00.counter-mode 1

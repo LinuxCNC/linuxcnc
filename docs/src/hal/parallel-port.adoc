@@ -4,6 +4,12 @@
 [[cha:parport]]
 = Parallel Port Driver
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 The hal_parport component is a driver for the traditional PC parallel port.
 The port has a total of 17 physical pins. The original parallel port divided
 those pins into three groups: data, control, and status. The data group
@@ -59,6 +65,7 @@ real time thread with 'loadrt'. The configuration string describes the parallel
 ports to be used, and (optionally) their types.  If the configuration string
 does not describe at least one port, it is an error.
 
+[source,{hal}]
 ----
 loadrt hal_parport cfg="port [type] [port [type] ...]"
 ----
@@ -74,6 +81,7 @@ detected on the system, 1 is the next and so on.
 
 This will use the first parallel port Linux detects:
 
+[source,{hal}]
 ----
 loadrt hal_parport cfg="0"
 ----
@@ -89,6 +97,7 @@ The directions are _in_, _out_, or _x_, and determine the direction of the
 physical pins 2 to 9 of the D-Sub 25 connector. If the direction is not specified,
 the data group will by default be configured as outputs. For example:
 
+[source,{hal}]
 ----
 loadrt hal_parport cfg="0x278 0x378 in 0x20A0 out"
 ----
@@ -151,6 +160,7 @@ See the Note above about mode 'x'.
 This will enable two system-detected parallel ports, the first in output mode
 and the second in input mode:
 
+[source,{hal}]
 ----
 loadrt hal_parport cfg="0 out 1 in"
 ----
@@ -159,6 +169,7 @@ loadrt hal_parport cfg="0 out 1 in"
 
 You must also direct LinuxCNC to run the 'read' and 'write' functions.
 
+[source,{hal}]
 ----
 addf parport.0.read base-thread
 addf parport.0.write base-thread
@@ -197,6 +208,7 @@ a ribbon cable) uses the first address listed (b800). The following example
 shows the onboard parallel port and a PCI parallel port using the default
 out direction.
 
+[source,{hal}]
 ----
 loadrt hal_parport cfg="0x378 0xc000"
 ----
@@ -295,6 +307,7 @@ specified by parport.n.reset-time.
 
 For example:
 
+[source,{hal}]
 ----
 loadrt hal_parport cfg="0x378 out"
 setp parport.0.reset-time 5000
@@ -338,6 +351,7 @@ Then use of this module will probably be necessary.
 
 Finally, HAL parport components should be loaded:
 
+[source,{hal}]
 ----
 loadrt probe_parport
 loadrt hal_parport ...

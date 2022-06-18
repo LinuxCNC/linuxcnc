@@ -71,6 +71,7 @@ To link these pins to a parallel port pin put something like
 the following in your .hal file, making sure you pick the
 pin that is connected to your control device.
 
+[source,{hal}]
 ----
 net spindle-enable spindle.0.on => parport.0.pin-14-out
 ----
@@ -86,6 +87,7 @@ To link these pins to a parallel port pin, put something like the
 following in your .hal file making sure you pick the pin that is
 connected to your control device.
 
+[source,{hal}]
 ----
 net spindle-fwd spindle.0.forward => parport.0.pin-16-out
 net spindle-rev spindle.0.reverse => parport.0.pin-17-out
@@ -103,6 +105,7 @@ motion can begin.
 
 In the 0-10 volt example the line
 
+[source,{hal}]
 ----
 net spindle-speed-scale spindle.0.speed-out => scale.0.in
 ----
@@ -124,6 +127,7 @@ to the two HAL components used in the following example.
 More info is available in the documentation for HAL components, or from
 the man pages, just say 'man limit2' or 'man near' in a terminal.
 
+[source,{hal}]
 ----
 # load real time a limit2 and a near with names so it is easier to follow
 loadrt limit2 names=spindle-ramp
@@ -188,6 +192,7 @@ footnote:[It is because we selected 'non-quadrature simple counting...'
 above that we can get away with 'quadrature' counting without having any
 B quadrature input.]
 
+[source,{hal}]
 ----
 # add the encoder to HAL and attach it to threads.
 loadrt encoder num_chan=4
@@ -234,6 +239,7 @@ file to enable Spindle At Speed. If you already have near in your HAL
 file then increase the count and adjust code to suit. Check to make
 sure the signal names are the same in your HAL file.
 
+[source,{hal}]
 ----
 # load a near component and attach it to a thread
 loadrt near
