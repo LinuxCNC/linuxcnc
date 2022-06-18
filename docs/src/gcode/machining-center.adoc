@@ -4,6 +4,11 @@
 [[cha:cnc-machine-overview]]
 = CNC Machine Overview(((Machine Overview)))
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
 This section gives a brief description of how a CNC machine is viewed
 from the input and output ends of the Interpreter.
 
@@ -302,6 +307,7 @@ A tool table is required to use the Interpreter. The file tells which
 tools are in which tool changer slots and what the size and type of
 each tool is. The name of the tool table is defined in the ini file:
 
+[source,{ini}]
 ----
 [EMCIO]
 

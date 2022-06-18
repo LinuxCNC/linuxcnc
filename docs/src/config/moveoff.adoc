@@ -4,6 +4,12 @@
 [[cha:moveoff]]
 = Moveoff Component(((Moveoff)))
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 The moveoff Hal component is a Hal-only method
 for implementing offsets.  See the manpage ('$ man moveoff')
 for the IMPORTANT limitations and warnings.
@@ -124,6 +130,7 @@ for halfiles that connect the pins for joint.N.motor-pos-cmd,
 joint.N.motor-pos-fb, and any components connected to these pins (pid
 and encoder components in a servo system for instance).
 
+[source,{ini}]
 ----
 [HAL]
 HALUI   = halui
@@ -141,6 +148,7 @@ used, if no entry is found, then the moveoff component default will be used).
 Using component defaults or [AXIS_n] section values for per-axis offset
 settings is NOT recommended.
 
+[source,{ini}]
 ----
 [MOVEOFF_n]
 MAX_LIMIT =
@@ -151,6 +159,7 @@ MAX_ACCELERATION =
 
 Add ini file entries for moveoff component settings (omit to use moveoff defaults):
 
+[source,{ini}]
 ----
 [MOVEOFF]
 EPSILON =
@@ -191,6 +200,7 @@ is automatically created if necessary.
 To use the moveoff_gui, add an entry in the ini file [APPLICATIONS]
 section as follows:
 
+[source,{ini}]
 ----
 [APPLICATIONS]
 # Note: a delay (specified in seconds) may be required if connections
@@ -212,6 +222,7 @@ configs (configs/sim/axis/moveoff/*.ini) use a simple system halfile
 (named LIB:moveoff_external.hal) to connect the mv.move-enable,mv.offset-in-M,
 and mv.bactrack-enable pins to signals:
 
+[source,{ini}]
 ----
 [HAL]
 HALUI = halui

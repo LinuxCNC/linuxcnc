@@ -4,6 +4,12 @@
 [[cha:hal-user-interface]]
 = HAL User Interface
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 == Introduction
 
 Halui is a HAL based user interface for LinuxCNC, it connects HAL pins to
@@ -14,6 +20,7 @@ pins in Halui.
 The easiest way to add halui is to add the following to the [HAL]
 section of the ini file:
 
+[source,{ini}]
 ----
 [HAL]
 HALUI = halui
@@ -33,6 +40,7 @@ by the activation of a HAL pin. +
 This is possible by adding MDI commands to the ini file in the [HALUI] section. +
 Example:
 
+[source,{ini}]
 ----
 [HALUI]
 MDI_COMMAND = G0 X0

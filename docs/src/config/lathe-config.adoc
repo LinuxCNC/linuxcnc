@@ -4,6 +4,12 @@
 [[cha:lathe-configuration]]
 = Lathe Configuration
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 == Default Plane
 
 When LinuxCNC's interpreter was first written, it was designed for mills.
@@ -11,6 +17,7 @@ That is why the default plane is XY (G17). A normal lathe only uses the
 XZ plane (G18). To change the default plane place the following line in
 the .ini file in the RS274NGC section.
 
+[source,{ini}]
 ----
 RS274NGC_STARTUP_CODE = G18
 ----
@@ -29,6 +36,7 @@ historical settings.
 Gmoccapy also uses the mentioned settings, but does offer additional settings,
 check the <<cha:gmoccapy,gmoccapy>> Section for details.
 
+[source,{ini}]
 ----
 [DISPLAY]
 DISPLAY = axis
@@ -57,6 +65,7 @@ With joints_axes incorporation, a simpler configuration can be made with just
 the two required joints by specifying trivkins with the 'coordinates='
 parameter:
 
+[source,{ini}]
 ----
 [DISPLAY]
 DISPLAY = axis

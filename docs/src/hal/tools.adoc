@@ -4,6 +4,12 @@
 [[cha:hal-tools]]
 = HAL Tools(((HAL Tools)))
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 [[sec:halcmd]]
 == Halcmd
 
@@ -289,6 +295,7 @@ To generate the report for every LinuxCNC startup, include halreport
 and an output filename as an [APPLICATIONS]APP entry in the ini file.
 
 .`halreport` Example
+[source,{ini}]
 ----
 [APPLICATIONS]
 APP = halreport /tmp/halreport.txt

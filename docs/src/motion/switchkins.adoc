@@ -4,6 +4,12 @@
 [[cha:switchable-kinematics]]
 = Switchable Kinematics (switchkins)
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 == Introduction
 
 A number of kinematics modules support the switching of
@@ -48,6 +54,7 @@ for backwards compatibility.  The provided sim configs alter the
 type0/type1 convention by forcing type0==identity kinematics using the
 module string parameter 'sparm' with an inifile setting like:
 
+[source,{ini}]
 ----
 [KINS]
 KINEMATICS = xyzac-trt-kins sparm=identityfirst
@@ -61,6 +68,7 @@ When using an *identity* kinematics type, the module parameter
 arbitrary order from the set of allowed coordinate letters.
 Examples:
 
+[source,{ini}]
 ----
 [KINS]
 JOINTS = 6
@@ -190,6 +198,7 @@ velocity, and acceleration for each applicable coordinate letter
 specified in the configuration ini file.  Example for letter L
 (in the set 'XYZABCUVW'):
 
+[source,{ini}]
 ----
 [AXIS_L]
 MIN_LIMIT =

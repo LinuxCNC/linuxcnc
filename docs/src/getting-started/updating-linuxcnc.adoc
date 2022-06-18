@@ -4,6 +4,12 @@
 [[cha:updating-linuxcnc]]
 = Updating LinuxCNC(((Updating LinuxCNC)))
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 Updating LinuxCNC to a new minor release (ie to a new version in
 the same stable series, for example from 2.7.0 to 2.7.1) is an
 automatic process if your PC is connected to the internet. You will
@@ -333,6 +339,7 @@ section and only two [JOINT_N] sections need be defined.
 Example ini file items for a lathe (only sections relevant to kinematics
 are shown):
 
+[source,{ini}]
 ----
 [KINS]
 KINEMATICS = trivkins coordinates=xz
@@ -452,6 +459,7 @@ correspondence between a single joint and an axis.
 Specify the joint number that corresponds to a rotary axis (L = A,B, or C)
 with an ini file setting for the axis:
 
+[source,{ini}]
 ----
 [AXIS_L]LOCKING_INDEXER_JOINT = joint_number_for_indexer
 ----
@@ -459,6 +467,7 @@ with an ini file setting for the axis:
 Specify that the joint is a locking indexer with an ini file setting
 for the joint (N is the joint_number_for_indexer):
 
+[source,{ini}]
 ----
 [JOINT_N]LOCKING_INDEXER = 1
 ----
@@ -474,6 +483,7 @@ To create these hal pins for locking joints, specify all joints that
 are used as locking indexers with the 'unlock_joints_mask' parameter for
 the motmod module.  (bit0(LSB)==>joint0, bit1==>joint1, etc.)
 
+[source,{ini}]
 ----
 [EMCMOT]
 EMCMOT = motmod unlock_joints_mask=BITMASK
@@ -487,6 +497,7 @@ Z==>joint2, B==>joint3.  The mask to specify joint 3 is 000001000 (binary) == 0x
 
 The required ini file entries for this trivkins XYZB example are:
 
+[source,{ini}]
 ----
 [KINS]
 JOINTS = 4
@@ -540,6 +551,7 @@ MAX_VELOCITY = 7.5
 
 In 2.7.x versions, trajectory planning ([TRAJ]) settings included:
 
+[source,{ini}]
 ----
 [TRAJ]
 DEFAULT_ACCELERATION
@@ -549,6 +561,7 @@ MAX_ACCELERATION
 Interim work prepared for distinct linear and angular items by
 renaming these items as:
 
+[source,{ini}]
 ----
 [TRAJ]
 DEFAULT_LINEAR_ACCEL
@@ -559,6 +572,7 @@ As these abbreviated names were inconsistent with other name
 conventions and the implementation of the update_ini script,
 the interim naming has been corrected to use:
 
+[source,{ini}]
 ----
 [TRAJ]
 DEFAULT_LINEAR_ACCELERATION
@@ -566,7 +580,6 @@ MAX_LINEAR_ACCELERATION
 ----
 
 [NOTE]
-
 Support for specifying trajectory planning angular default and maximum
 accelerations has not been implemented.
 
@@ -762,6 +775,7 @@ provisions that hide the distinctions of joints and axis letters
 should not be employed.  For example, for an xyz configuration,
 specify:
 
+[source,{ini}]
 ----
 [KINS]
 KINEMATICS = trivkins coordinates=xyz kinstype=both
@@ -842,6 +856,7 @@ one joint assigned to an axis letter.  This can be done with the trivkins
 kinematics module using repeated coordinate letters.  For example, a
 machine configured with ini settings:
 
+[source,{ini}]
 ----
 [KINS]
 KINEMATICS = trivkins coordinates=XYYZ kinstype=BOTH
@@ -1031,6 +1046,7 @@ typically supported a common milling machine -- a Cartesian system with
 trivial kinematics and three axes named 'X Y Z'.  Typical halfile
 entries:
 
+[source,{ini}]
 ----
 [HAL]
 HALFILE = core_sim.hal
@@ -1051,6 +1067,7 @@ in the distribution now take advantage of a general purpose halfile that
 supports numerous configurations automatically.  A typical sim config
 HALFILE specification is:
 
+[source,{ini}]
 ----
 [HAL]
 HALFILE = LIB:basic_sim.tcl
@@ -1059,6 +1076,7 @@ HALFILE = LIB:basic_sim.tcl
 The basic_sim.tcl HALFILE supports a number of commonly required
 functions for any number of joints as specified by:
 
+[source,{ini}]
 ----
 [KINS]
 ...
@@ -1118,6 +1136,7 @@ following steps:
 . To use this new equivalent halfile in the original simulator
   configuration inifile (or a copy of it), edit to change:
 +
+[source,{ini}]
 ----
 [HAL]
 HALFILE = LIB:basic_sim.tcl other_parameters
@@ -1125,6 +1144,7 @@ HALFILE = LIB:basic_sim.tcl other_parameters
 +
 to:
 +
+[source,{ini}]
 ----
 [HAL]
 HALFILE = ./example_cmds.hal

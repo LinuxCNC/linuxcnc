@@ -4,6 +4,12 @@
 [[cha:lathe-user-information]]
 = Lathe User Information(((Lathe User Information)))
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 This chapter will provide information specific to lathes.
 
 == Lathe Mode
@@ -17,6 +23,7 @@ See the <<cha:ini-configuration,INI Configuration>> section for more details.
 
 To set up AXIS for Lathe Mode.
 
+[source,{ini}]
 ----
 [DISPLAY]
 
@@ -28,6 +35,7 @@ Lathe Mode in Axis does not set your default plane to G18 (XZ). You
 must program that in the preamble of each G-code file or
 (better) add it to your ini file, like this:
 
+[source,{ini}]
 ----
 [RS274NGC]
 

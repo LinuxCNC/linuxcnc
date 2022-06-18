@@ -442,6 +442,7 @@ This requires additions to the INI and the qtdragon_post_gui file.
 
 In the INI, under the AXIS_Z heading.
 
+[source,{ini}]
 ----
 [AXIS_Z]
 OFFSET_AV_RATIO  = 0.2

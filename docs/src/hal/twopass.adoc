@@ -4,6 +4,12 @@
 [[cha:hal-twopass]]
 = HAL TWOPASS
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 == TWOPASS
 
 LinuxCNC 2.5 supports TWOPASS processing of hal configuration files
@@ -40,6 +46,7 @@ the component.
 TWOPASS processing is enabled by including an ini file parameter in
 the [HAL] section:
 
+[source,{ini}]
 ----
 [HAL]
 
@@ -65,9 +72,9 @@ debugging (verbose) and to prevent deletion of temporary files (nodelete).
 The options are separated with commas.
 
 .Example
+[source,{ini}]
 ----
 [HAL]
-
 TWOPASS = on,verbose,nodelete
 ----
 
@@ -128,6 +135,7 @@ Two-step processing occurs before the GUI is loaded. When using a
 loadrt declarations for the necessary components in a preloaded halfile.
 
 .Example of a HAL section when using a POSTGUI_HALFILE
+[source,{ini}]
 ----
 [HAL]
 
@@ -151,6 +159,7 @@ in a separate halfile that is processed before the GUI.  The addf commands can a
 be included in the file.
 
 .Example
+[source,{ini}]
 ----
 [HAL]
 TWOPASS = on

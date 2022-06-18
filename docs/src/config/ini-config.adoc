@@ -28,6 +28,7 @@ sees either of these marks at the start a line, the rest of the line is
 ignored by the software. Comments can be used to describe what an INI
 element will do.
 
+[source,{ini}]
 ----
 ; This is my mill configuration file.
 # I set it up on January 12, 2012
@@ -36,6 +37,7 @@ element will do.
 Comments can also be used to 'turn off' a variable. This makes it easier
 to pick between different variables.
 
+[source,{ini}]
 ----
 DISPLAY = axis
 # DISPLAY = touchy
@@ -49,6 +51,7 @@ will be used.
 Note that inside a variable, the "#" and ";" characters do not denote
 comments:
 
+[source,{ini}]
 ----
 INCORRECT = value     # and a comment
 
@@ -129,6 +132,7 @@ To add a custom variable to an existing LinuxCNC section, simply include
 the variable in that section.
 
 .Custom Variable Example
+[source,{ini}]
 ----
 [JOINT_0]
 TYPE = LINEAR
@@ -140,6 +144,7 @@ To introduce a custom section with its own variables, add the section
 and variables to the INI file.
 
 .Custom Section Example
+[source,{ini}]
 ----
 [PROBE]
 Z_FEEDRATE = 50
@@ -438,6 +443,7 @@ executed by LinuxCNC when Run.
 If your post processor outputs files in all caps you might want to add
 the following line:
 
+[source,{ini}]
 ----
 PROGRAM_EXTENSION = .NGC XYZ Post Processor
 ----
@@ -445,6 +451,7 @@ PROGRAM_EXTENSION = .NGC XYZ Post Processor
 The following lines add support for the image-to-G-code converter
 included with LinuxCNC.
 
+[source,{ini}]
 ----
 PROGRAM_EXTENSION = .png,.gif,.jpg # Greyscale Depth Image
   png = image-to-gcode
@@ -454,6 +461,7 @@ PROGRAM_EXTENSION = .png,.gif,.jpg # Greyscale Depth Image
 
 An example of a custom G-code converter located in the linuxcnc directory.
 
+[source,{ini}]
 ----
 PROGRAM_EXTENSION = .gcode 3D Printer
   gcode = /home/mill/linuxcnc/convert.py
@@ -464,6 +472,7 @@ path to the program or be located in a directory that is on the system path.
 
 It is also possible to specify an interpreter:
 
+[source,{ini}]
 ----
 PROGRAM_EXTENSION = .py Python Script
   py = python
@@ -481,6 +490,7 @@ Python filters should use the print function to output the result to Axis.
 This example program filters a file and adds a W axis to match the Z axis.
 It depends on there being a space between each axis word to work.
 
+[source,python]
 ----
 #!/usr/bin/env python3
 
@@ -686,6 +696,7 @@ connections and a single output (but both are not strictly required).
 A system library file is provided to make checks for these conditions and
 report to stdout and in a popup gui:
 
+[source,{ini}]
 ----
 HALFILE = LIB:halcheck.tcl [nopopup]
 ----
@@ -750,6 +761,7 @@ gui-dependent actions (like creating gui-specific hal pins).
 ** Simulate inputs to hal pins for testing (using sim_pin -- a simple gui to set inputs to parameters,
    unconnected pins, or signals with no writers):
 +
+[source,{ini}]
 ----
 APP = sim_pin motion.probe-input halui.abort motion.analog-in-00
 ----
@@ -757,16 +769,19 @@ APP = sim_pin motion.probe-input halui.abort motion.analog-in-00
    Since linuxcnc sets the working directory to the directory for the inifile,
    you can refer to files in that directory (example: my.halshow):
 +
+[source,{ini}]
 ----
 APP = halshow my.halshow
 ----
 ** Alternatively, a watchlist file identified with a full pathname could be specified:
 +
+[source,{ini}]
 ----
 APP = halshow ~/saved_shows/spindle.halshow
 ----
 ** Open halscope using a previously saved configuration:
 +
+[source,{ini}]
 ----
 APP = halscope -i my.halscope
 ----
@@ -995,6 +1010,7 @@ The <letter> specifies one of: X Y Z A B C U V W
   Moving with other joints is not allowed when moving a locked rotary joint.
   To create the unlock pins, use the motmod parameter:
 +
+[source,{ini}]
 ----
 unlock_joints_mask=jointmask
 ----
@@ -1005,6 +1021,7 @@ Example: `loadrt motmod ... unlock_joints_mask=0x38`
 creates unlock  pins for joints 3,4,5
 * 'OFFSET_AV_RATIO = 0.1' - If nonzero, this item enables the use of hal input pins for external axis offsets:
 +
+[source,{ini}]
 ----
 axis.<letter>.eoffset-enable
 axis.<letter>.eoffset-count

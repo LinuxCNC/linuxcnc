@@ -4,6 +4,12 @@
 [[cha:qtplasmac]]
 = QtPlasmaC
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 == Preamble
 
 *Except where noted, this guide assumes the user is using the latest version of QtPlasmaC. Version history can be seen by visiting this link:http://htmlpreview.github.io/?https://github.com/LinuxCNC/linuxcnc/blob/master/share/qtvcp/screens/qtplasmac/versions.html[link] which will show the latest available version. The installed QtPlasmaC version is displayed in the title bar. See <<qt_update, Update QtPlasmaC>> for information on updating QtPlasmaC.*
@@ -537,6 +543,7 @@ If a link to the launch the configuration was not created when creating the conf
 
 After the launcher appears on the desktop, right click on it and then edit it with the user's editor of choice. Edit the file so it looks similar to:
 
+[source,{ini}]
 ----
 [Desktop Entry]
 Comment=
@@ -1374,6 +1381,7 @@ WARNING: It is the responsibility of the operator to ensure that the variables a
 
 The material file uses the following format:
 
+[source,{ini}]
 ----
 [MATERIAL_NUMBER_1]
 NAME                = name
@@ -2905,6 +2913,7 @@ The next time QtPlasmaC is loaded all custom styling will be removed and the def
 
 Below is an example of the section to be deleted from <machine_name>.prefs:
 
+[source,{ini}]
 ----
 [COLOR_OPTIONS]
 Foreground = #ffee06
@@ -3519,6 +3528,7 @@ This feature is enabled by setting the correct port name for the PM_PORT variabl
 
 Example showing enabling the Hypertherm PowerMax Communications on USB0:
 
+[source,{ini}]
 ----
 [QTPLASMAC]
 PM_PORT = /dev/ttyusb0

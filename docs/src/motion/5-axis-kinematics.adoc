@@ -8,6 +8,12 @@ use image:: for equation png files -- no latexmath
 [[cha:5-axis-kinematics]]
 = 5-Axis Kinematics(((5-Axis Kinematics)))
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 == Introduction
 
 Coordinated multi-axis CNC machine tools controlled with LinuxCNC, require a special kinematics component for each type of machine. This chapter describes some of the most popular 5-axis machine configurations and then develops the forward (from work to joint coordinates) and inverse (from joint to work) transformations in a general mathematical process for two types of machine.
@@ -351,6 +357,7 @@ Once it is compiled and installed you can reference it in your config setup of
 your machine. This is done in the ini file of your config directory. For
 example, the common ini specificaion:
 
+[source,{ini}]
 ----
 [KINS]
 KINEMATICS = trivkins
@@ -358,6 +365,7 @@ KINEMATICS = trivkins
 
 is replaced by
 
+[source,{ini}]
 ----
 [KINS]
 KINEMATICS = kinsname

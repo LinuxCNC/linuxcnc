@@ -1,6 +1,5 @@
 = xhc-whb04b-6(1)
 
-
 == NAME
 xhc-whb04b-6 - Userspace jog dial HAL component for the wireless XHC WHB04B-6 USB device.
 

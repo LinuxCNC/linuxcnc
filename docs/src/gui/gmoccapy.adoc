@@ -6,6 +6,12 @@
 [[cha:gmoccapy]]
 = GMOCCAPY
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 == Introduction
 
 'GMOCCAPY' is a GUI for LinuxCNC, designed to be used with a touch screen,
@@ -113,6 +119,7 @@ to use gmoccapy on your machine: +
 [[gmoccapy:display-section]]
 === The DISPLAY Section
 
+[source,{ini}]
 ----
 [DISPLAY]
 DISPLAY = gmoccapy
@@ -127,6 +134,7 @@ PROGRAM_PREFIX = ../../nc_files/
 
 The most important part is to tell LinuxCNC to use gmoccapy, editing the [DISPLAY] section.
 
+[source,{ini}]
 ----
 [DISPLAY]
 DISPLAY = gmoccapy
@@ -338,6 +346,7 @@ The specific hal pin conventions for these can be found under the
 [[gmocappy:rs274ngc]]
 === The RS274NGC Section
 
+[source,{ini}]
 ----
 [RS274NGC]
 SUBROUTINE_PATH = macros
@@ -353,6 +362,7 @@ You can add macros to gmoccapy, similar to touchy's way. A macro is nothing
 else than a ngc-file. You are able to execute complete CNC programs in MDI
 mode, by just pushing one button. To do so, you have to add a section like so:
 
+[source,{ini}]
 ----
 [MACROS]
 MACRO = i_am_lost
@@ -1010,6 +1020,7 @@ to be read from a G-code subroutine, so the code can react to different values.
 Modify your INI File to include the following:
 
 .The RS274NGC section
+[source,{ini}]
 ----
 [RS274NGC]
 # Enables the reading of INI and HAL values from G-code
@@ -1027,6 +1038,7 @@ The position of the tool sensor and the start position of the probing movement,
 all values are absolute coordinates, except MAXPROBE, what must be given in
 relative movement.
 
+[source,{ini}]
 ----
 [TOOLSENSOR]
 X = 10
@@ -1040,6 +1052,7 @@ This is not named TOOL_CHANGE_POSITION  on purpose - *canon uses that name and
 will interfere otherwise.* The position to move the machine before giving the
 change tool command. All values are in absolute coordinates.
 
+[source,{ini}]
 ----
 [CHANGE_POSITION]
 X = 10
@@ -1050,6 +1063,7 @@ Z = -2
 .The Python Section
 The Python plug ins serves interpreter and task.
 
+[source,{ini}]
 ----
 [PYTHON]
 # The path to start a search for user modules

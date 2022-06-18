@@ -94,6 +94,7 @@ Qtvcp assumes the UI file and the handler file use this same base name.
 Qtvcp will search the LinuxCNC configuration file that was launched first for the files, 
 then in the system skin folder. (The skin folders holds standard screens.)
 
+[source,{ini}]
 ----
 [DISPLAY]
 CYCLE_TIME = 100
@@ -181,6 +182,7 @@ _PATH_ can be any valid path, it can use '~' for home directory or 'WORKINGDIREC
 'CONFIGDIRECTORY' to represent Qtvcp's idea of those directories.
 ie:
 
+[source,{ini}]
 ----
 [DISPLAY]
 USER_COMMAND_FILE = CONFIGDIRECTORY/qtdragon_added_commands

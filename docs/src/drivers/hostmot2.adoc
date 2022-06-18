@@ -4,6 +4,12 @@
 [[cha:mesa-hostmot2-driver]]
 = Mesa HostMot2 Driver
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 == Introduction
 
 HostMot2 is an FPGA configuration developed by Mesa Electronics for
@@ -174,6 +180,7 @@ your configuration.
 
 An example of a 5i20 configuration:
 
+[source,{ini}]
 ----
 [HOSTMOT2]
 DRIVER=hm2_pci

@@ -4,6 +4,12 @@
 [[cha:ngcgui]]
 = NGCGUI(((NGCGUI)))
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 .NGCGUI embedded into AXIS
 image::images/ngcgui.png[align="center"]
 
@@ -160,6 +166,7 @@ for ngcgui use symbolic links to non-user-writable LinuxCNC libraries for:
 These libraries are located by ini file items that specify the search
 paths used by LinuxCNC (and ngcgui):
 
+[source,{ini}]
 ----
 [RS274NGC]
 SUBROUTINE_PATH = ../../nc_files/ngcgui_lib:../../nc_files/gcmc_lib:../../nc_files/ngcgui_lib/utilitysubs
@@ -194,6 +201,7 @@ For instance, a user might create a ngcgui-compatible subfile named:
 To use files in new directories, the ini file must be edited to include the new
 subfiles and to augment the search path(s).  For this example:
 
+[source,{ini}]
 ----
 [RS274NGC]
 ...
@@ -395,6 +403,7 @@ the directory containing the linuxCNC ini file.  Additional directories can be
 prepended to the gcmc search order with the GCMC_INCLUDE_PATH item.
 
 .Sample axis-gui-based INI
+[source,{ini}]
 ----
 [RS274NGC]
 ...
@@ -479,12 +488,14 @@ Ngcgui uses the LinuxCNC search path to find files.
 
 The search path begins with the standard directory specified by:
 
+[source,{ini}]
 ----
 [DISPLAY]PROGRAM_PREFIX = directory_name
 ----
 
 followed by multiple directories specified by:
 
+[source,{ini}]
 ----
 [RS274NGC]SUBROUTINE_PATH = directory1_name:directory1_name:directory3_name ...
 ----
@@ -520,6 +531,7 @@ separating them with colons.  The following example illustrates the format
 for multiple directories and shows the use of relative and absolute paths.
 
 .Multiple Directories Example:
+[source,{ini}]
 ----
 [RS274NGC]SUBROUTINE_PATH = ../../nc_files/ngcgui_lib:../../nc_files/ngcgui_lib/utilitysubs:/tmp/tmpngc`
 ----
@@ -542,6 +554,7 @@ In the following example, files in /home/myname/linuxcnc/mysubs will be found be
 files in ../../nc_files/ngcgui_lib.
 
 .Adding User Directory Example:
+[source,{ini}]
 ----
 [RS274NGC]SUBROUTINE_PATH = /home/myname/linuxcnc/mysubs:../../nc_files/ngcgui_lib:../../nc_files/ngcgui_lib/utilitysubs`
 ----
@@ -930,6 +943,7 @@ include("ensure_mode.gcmc")
 and provide a proper path for gcmc include_files in the ini file,
 for example:
 
+[source,{ini}]
 ----
 [DISPLAY]
 GCMC_INCLUDE_PATH = ../../nc_files/gcmc_lib

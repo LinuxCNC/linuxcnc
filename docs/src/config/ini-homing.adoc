@@ -4,6 +4,12 @@
 [[cha:homing-configuration]]
 = Homing Configuration
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 == Overview
 
 Homing sets the zero origin of the G53 machine coordinates.
@@ -307,6 +313,7 @@ Examples for a 3 joint system
 
 Two sequences (0,1), no synchronization
 
+[source,{ini}]
 ----
 [JOINT_0]HOME_SEQUENCE = 0
 [JOINT_1]HOME_SEQUENCE = 1
@@ -315,6 +322,7 @@ Two sequences (0,1), no synchronization
 
 Two sequences, joints 1 and 2 synchronized
 
+[source,{ini}]
 ----
 [JOINT_0]HOME_SEQUENCE =  0
 [JOINT_1]HOME_SEQUENCE = -1
@@ -323,6 +331,7 @@ Two sequences, joints 1 and 2 synchronized
 
 With mixed positive and negative values, joints 1 and 2 synchronized
 
+[source,{ini}]
 ----
 [JOINT_0]HOME_SEQUENCE =  0
 [JOINT_1]HOME_SEQUENCE = -1
@@ -331,6 +340,7 @@ With mixed positive and negative values, joints 1 and 2 synchronized
 
 One sequence, no synchronization
 
+[source,{ini}]
 ----
 [JOINT_0]HOME_SEQUENCE =  0
 [JOINT_1]HOME_SEQUENCE =  0
@@ -339,6 +349,7 @@ One sequence, no synchronization
 
 One sequence, all joints synchronized
 
+[source,{ini}]
 ----
 [JOINT_0]HOME_SEQUENCE = -1
 [JOINT_1]HOME_SEQUENCE = -1

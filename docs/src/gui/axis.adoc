@@ -804,6 +804,7 @@ will be displayed in the text area, previewed in the display area, and
 executed by LinuxCNC when 'Run'. The following lines add support for the
 'image-to-gcode' converter included with LinuxCNC:
 
+[source,{ini}]
 ----
 [FILTER]
 PROGRAM_EXTENSION = .png,.gif Greyscale Depth Image
@@ -813,6 +814,7 @@ gif = image-to-gcode
 
 It is also possible to specify an interpreter:
 
+[source,{ini}]
 ----
 PROGRAM_EXTENSION = .py Python Script
 py = python
@@ -829,6 +831,7 @@ image::images/holes.png["Circular Holes",align="center"]
 If the environment variable AXIS_PROGRESS_BAR is set, then lines
 written to stderr of the form
 
+[source,{ini}]
 ----
 FILTER_PROGRESS=%d
 ----

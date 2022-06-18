@@ -4,6 +4,12 @@
 [[cha:haltcl]]
 = HALTCL Files
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 The halcmd language excels in specifying components and connections but
 offers no computational capabilities.  As a result, ini files are limited in
 the clarity and brevity that is possible with higher level languages.
@@ -17,6 +23,7 @@ ini files.  Haltcl files are identified in the the HAL section of ini files
 (just like .hal files).
 
 .Example
+[source,{ini}]
 ----
 [HAL]
 HALFILE = conventional_file.hal
@@ -69,6 +76,7 @@ differing syntax.
 LinuxCNC ini files use SECTION and ITEM specifiers to identify
 configuration items.
 
+[source,{ini}]
 ----
 [SECTION_A]
 ITEM1 = value_1
@@ -81,6 +89,7 @@ ITEM2 = value_2
 The ini file values are accessible by text substitution in .hal files using the
 form.
 
+[source,{ini}]
 ----
 [SECTION]ITEM
 ----
@@ -94,6 +103,7 @@ $::SECTION(ITEM)
 
 For example, an ini file item like:
 
+[source,{ini}]
 ----
 [JOINT_0]
 MAX_VELOCITY = 4
@@ -118,6 +128,7 @@ In Tcl, this is written `[lindex $::SECTION(ITEM) 0]`.
 
 For example: given the following ini values
 
+[source,{ini}]
 ----
 [HOSTMOT2]
 DRIVER=hm2_eth
@@ -152,6 +163,7 @@ Existing .hal files can be converted to .tcl files by hand editing to adapt to
 the differences mentioned above.  The process can be automated with scripts
 that convert using these substitutions.
 
+[source,{ini}]
 ----
 [SECTION]ITEM ---> $::SECTION(ITEM)
 gets          ---> hal gets
@@ -191,6 +203,7 @@ acceleration constraint that is "a bit higher" than the one used by the motion
 planner.  So, when using halcmd files, we force inifiles to have a manually
 calculated value.
 
+[source,{ini}]
 ----
 [JOINT_0]
 MAXACCEL = 10.0

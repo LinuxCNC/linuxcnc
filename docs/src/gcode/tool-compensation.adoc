@@ -4,6 +4,12 @@
 [[cha:tool-compensation]]
 = Tool Compensation(((Tool Compensation)))
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 [[sec:touch-off]]
 == Touch Off(((Touch Off)))
 
@@ -236,6 +242,7 @@ a hal configuration that employs the userspace program
 *hal_manualtoolchange* and is typically specified in an ini file
 with ini statements:
 
+[source,{ini}]
 ----
 [HAL]
 HALFILE = axis_manualtoolchange.hal
