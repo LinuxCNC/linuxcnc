@@ -478,6 +478,7 @@ interact with it.
 
 Under the [DISPLAY] heading:
 
+[source,{ini}]
 ----
 DISPLAY = gscreen -c tester
   options:

@@ -4,6 +4,12 @@
 [[cha:image-to-g-code]]
 = Image to G-Code
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 image::images/image-to-gcode.png["Image to G-Code",align="center"]
 
 == What is a depth map?
@@ -17,6 +23,7 @@ Add the following lines to the '[FILTER]'  section of your .ini file
 to make AXIS automatically invoke
 image-to-gcode when you open a .png, .gif, or .jpg image
 
+[source,{ini}]
 ----
 PROGRAM_EXTENSION = .png,.gif,.jpg Grayscale Depth Image
 png = image-to-gcode

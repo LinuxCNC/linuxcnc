@@ -105,6 +105,7 @@ Touchy can invoke O-word macros using the MDI interface.  To configure
 this, in the '[TOUCHY]' section of the ini file, add one or more 'MACRO'
 lines.  Each should be of the format
 
+[source,{ini}]
 ----
 MACRO=increment xinc yinc
 ----

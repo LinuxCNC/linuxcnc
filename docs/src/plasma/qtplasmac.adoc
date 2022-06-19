@@ -664,6 +664,7 @@ MODE and ESTOP_TYPE will default to 0 if not specified and all other variables a
 
 These variables are mandatory.
 
+[source,{ini}]
 ----
 PROGRAM_EXTENSION   = .ngc,.nc,.tap G-Code File (*.ngc, *.nc, *.tap)
 ngc                     = ./qtplasmac/qtplasmac_gcode.py
@@ -676,6 +677,7 @@ tap                     = ./qtplasmac/qtplasmac_gcode.py
 
 These variables are mandatory.
 
+[source,{ini}]
 ----
 RS274NGC_STARTUP_CODE = o<metric_startup> call (machine startup G-Code)
 SUBROUTINE_PATH       = ./:./qtplasmac:../../nc_files/subroutines (./ must be in this path)
@@ -3401,6 +3403,7 @@ The following HAL bit output pins are always created and can be used by either t
 
 If the user has external buttons and/or a pendant that emulates any of the program buttons, CYCLE START, CYCLE PAUSE, or CYCLE STOP then it is possible to hide any or all of these GUI program buttons by adding the following code to the [QTPLASMAC] section of the <machine_name>.ini file:
 
+[source,{ini}]
 ----
 HIDE_RUN       = 1
 HIDE_PAUSE     = 1
@@ -4062,6 +4065,7 @@ There is a known issue with some combinations of hardware and keyboards that may
 
 If the user wishes to prevent QtPlasmaC from changing the Operating System's autorepeat settings, enter the following in the [QTPLASMAC] section of the <machine_name>.ini file:
 
+[source,{ini}]
 ----
 AUTOREPEAT_ALL == ENABLE
 ----

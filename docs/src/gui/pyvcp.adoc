@@ -111,6 +111,7 @@ set the maximum value of the bar to 5000 (see <<sec:pyvcp:widgets,widget referen
 below for all options). To make AXIS aware of this file, and call it at start
 up, we need to specify the following in the `[DISPLAY]` section of the `.ini` file:
 
+[source,{ini}]
 ----
 PYVCP = spindle.xml
 ----
@@ -118,6 +119,7 @@ PYVCP = spindle.xml
 If the panel should appear at the bottom of the AXIS user interface
 then we need to specify the following in the `[DISPLAY]` section of the `.ini` file:
 
+[source,{ini}]
 ----
 PYVCP_POSITION = BOTTOM
 ----
@@ -130,6 +132,7 @@ hooked up to the appropriate HAL signal. A .hal file that will be run
 once AXIS and PyVCP have started can be specified in the [HAL] section
 of the .ini file:
 
+[source,{ini}]
 ----
 POSTGUI_HALFILE = spindle_to_pyvcp.hal
 ----

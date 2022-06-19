@@ -499,6 +499,7 @@ In your configuration directory create the .xml file. In this example it's named
 Open your .ini file with a text editor and in the [DISPLAY] section add the
 following line. This is what loads the PyVCP panel.
 
+[source,{ini}]
 ----
 PYVCP = rth.xml
 ----
@@ -506,6 +507,7 @@ PYVCP = rth.xml
 If you don't have a [HALUI] section in the ini file create it and add the
 following MDI command.
 
+[source,{ini}]
 ----
 MDI_COMMAND = G53 G0 X0 Y0 Z0
 ----
@@ -518,6 +520,7 @@ Information about <<gcode:g53,G53>> and <<gcode:g0,G0>> G-codes
 In the [HAL] section if you don't have a post gui file add the following and
 create a file called 'postgui.hal'.
 
+[source,{ini}]
 ----
 POSTGUI_HALFILE = postgui.hal
 ----

@@ -9,6 +9,7 @@
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
+
 This section gives a brief description of how a CNC machine is viewed
 from the input and output ends of the Interpreter.
 
@@ -319,12 +320,14 @@ The default filename probably looks something like the above, but
 you may prefer to give your machine its own tool table, using the
 same name as your ini file, but with a tbl extension:
 
+[source,{ini}]
 ----
 TOOL_TABLE = acme_300.tbl
 ----
 
 or:
 
+[source,{ini}]
 ----
 TOOL_TABLE = EMC-AXIS-SIM.tbl
 ----

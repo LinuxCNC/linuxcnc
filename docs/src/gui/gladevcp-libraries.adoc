@@ -19,6 +19,7 @@ Info is a library to collect and filters data from the INI file. +
 
 The available data and defaults:
 
+[source,{ini}]
 ----
 LINUXCNC_IS_RUNNING
 LINUXCNC_VERSION

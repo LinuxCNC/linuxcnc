@@ -159,6 +159,7 @@ settings will not be mixed if you use several configs. If you only want to use
 one file for several machines, you need to include PREFERENCE_FILE_PATH in your
 INI.
 
+[source,{ini}]
 ----
 MAX_FEED_OVERRIDE = 1.5
 ----
@@ -169,6 +170,7 @@ override the feed by 150%.
 [NOTE]
 If no value is given, it will be set to 1.0
 
+[source,{ini}]
 ----
 MAX_SPINDLE_OVERRIDE = 1.2
 MIN_SPINDLE_OVERRIDE = 0.5
@@ -179,6 +181,7 @@ Will allow you to change the spindle override within a limit from 50% to 120%.
 [NOTE]
 If no values are given, MAX will be set to 1.0 and MIN to 0.1
 
+[source,{ini}]
 ----
 LATHE = 1
 BACK_TOOL_LATHE = 1
@@ -210,6 +213,8 @@ If you never used a glade panel, I recommend to read the excellent documentation
 http://www.linuxcnc.org/docs/html/gui/gladevcp.html[Glade VCP]
 
 .Example
+
+[source,{ini}]
 ----
 EMBED_TAB_NAME = DRO
 EMBED_TAB_LOCATION = ntb_user_tabs
@@ -308,6 +313,7 @@ Here is how to set up 3 user pop up message dialogs the messages support pango
 markup language. Detailed information about the markup language can be found at
 https://developer.gnome.org/pango/stable/PangoMarkupFormat.html[Pango Markup]
 
+[source,{ini}]
 ----
 MESSAGE_TEXT    = The text to be displayed, may be pango markup formatted
 MESSAGE_TYPE    = "status" , "okdialog" , "yesnodialog"
@@ -449,6 +455,7 @@ image::images/gmoccapy_getting_macro_info.png[align="left"]
 [[gmoccapy:traj-section]]
 === The TRAJ Section
 
+[source,{ini}]
 ----
 DEFAULT_LINEAR_VELOCITY = 85.0
 MAX_VELOCITY = 230.000
@@ -862,6 +869,7 @@ All are HAL_BIT pin.
 To add user created message you need to add the message to the INI file in the
 [DISPLAY] section. Here are a couple of examples.
 
+[source,{ini}]
 ----
 MESSAGE_BOLDTEXT = LUBE SYSTEM FAULT
 MESSAGE_TEXT = LUBE FAULT
