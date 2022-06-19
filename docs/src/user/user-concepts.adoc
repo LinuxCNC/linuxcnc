@@ -4,6 +4,12 @@
 [[cha:important-user-concepts]]
 = Important User Concepts(((User Concepts)))
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 This chapter covers important user concepts that should be understood
 before attempting to run a CNC machine with g code.
 
@@ -20,6 +26,7 @@ limits of your machinery.
 A G-code program can never be fully obeyed. For example, imagine you
 specify as a single-line program the following move:
 
+[source,{ngc}]
 ----
 G1 X1 F10 (G1 is linear move, X1 is the destination, F10 is the speed)
 ----

@@ -1997,6 +1997,7 @@ Now, place the macro in a file named 'increment.ngc', in the
 
 It should look like:
 
+[source,{ngc}]
 ----
 O<increment> sub
 G91 G0 X#1 Y#2

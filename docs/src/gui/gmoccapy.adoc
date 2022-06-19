@@ -1094,6 +1094,8 @@ copy 'change.ngc' to the directory specified as SUBROUTINE_PATH see
 Open 'change.ngc' with a editor and uncomment the following lines
 (49 and 50):
 
+
+[source,{ngc}]
 ----
 F #<_hal[gmoccapy.probevel]>
 G38.2 Z-4

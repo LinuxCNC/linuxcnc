@@ -4,6 +4,12 @@
 [[cha:rs274ngc-programs]]
 = RS274/NGC Differences
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 == Changes from RS274/NGC
 
 .Differences that change the meaning of RS274/NGC programs
@@ -46,6 +52,7 @@ LinuxCNC only moves the named axes. This is common on other machine
 controls. To move some axes to an intermediate point and then
 move all axes to the predefined point, write two lines of G code:
 
+[source,{ngc}]
 ----
 G0 X- Y- (axes to move to intermediate point)
 G28 (move all axes to predefined point)

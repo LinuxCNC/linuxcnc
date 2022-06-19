@@ -1333,12 +1333,15 @@ If the user intends to place the material randomly on the table then the user mu
 
 QtPlasmaC is able to read a material file to load all the required cut parameters. To enable to G-Code file to use the cut feed rate setting from the cut parameters use the following code in the G-Code file:
 
+
+[source,{ngc}]
 ----
 F#<_hal[plasmac.cut-feed-rate]>
 ----
 
 It is possible to use the standard G-Code *F* word to set the cut feed rate as follows:
 
+[source,{ngc}]
 ----
 F 1000
 ----
@@ -1411,12 +1414,14 @@ The material file may be edited with a text editor while LinuxCNC is running. Af
 
 For manual material handling, the user would manually select the material from the materials list in the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>> before starting the G-Code program. In addition to selecting materials with materials list in the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>>, the user could use the MDI to change materials with the following command:
 
+[source,{ngc}]
 ----
 M190 Pn
 ----
 
 The following code is the minimum code necessary to have a successful cut using the manual material selection method:
 
+[source,{ngc}]
 ----
 F#<_hal[plasmac.cut-feed-rate]>
 M3 $0 S1
@@ -1440,6 +1445,7 @@ The following codes may be used to allow QtPlasmaC to automatically change mater
 
 For automatic material handling, the codes MUST be applied in the order shown. If a G-Code program is loaded which contains one or more material change commands then the first material will be displayed in the top header of the PREVIEW WINDOW on the <<qt_main-tab, MAIN Tab>> as the program is loading. The following code is the minimum code necessary to have a successful cut using the automatic material selection method:
 
+[source,{ngc}]
 ----
 M190 Pn
 M66 P3 L3 Q1
@@ -1693,12 +1699,14 @@ In order to use this feature, LinuxCNC's Adaptive Feed Control (M52) must be tur
 
 To enable *Paused Motion* The preamble of the G-Code must contain the following line:
 
+[source,{ngc}]
 ----
 M52 P1
 ----
 
 To turn off *Paused Motion* at any point, use the following command:
 
+[source,{ngc}]
 ----
 M52 P0
 ----
@@ -1913,6 +1921,7 @@ There are two ways of enabling this feature:
 . Utilize the default <<qt_button-cut, custom user button>> to toggle between the cut types.
 . Adding the following line to the G-Code program before the first cut to enable *Pierce Only* mode for the current file:
 
+[source,{ngc}]
 ----
 #<pierce-only> = 1
 ----
@@ -1951,6 +1960,7 @@ See the <<qt_velocity_thc,Velocity Based THC>> section.
 
 Sample code:
 
+[source,{ngc}]
 ----
 G21 (metric)
 G64 P0.005
@@ -1990,6 +2000,7 @@ It is important to thoroughly understand the difference between *Synchronized wi
 
 Sample code:
 
+[source,{ngc}]
 ----
 G21 (metric)
 G64 P0.005
@@ -2046,6 +2057,7 @@ This feature can be used in addition to setting the desired hole sensing mode vi
 
 Sample code:
 
+[source,{ngc}]
 ----
 G21 (metric)
 G64 P0.005
@@ -2306,6 +2318,7 @@ LinuxCNC (QtPlasmaC) requires some motion between any *M3* and *M5* commands. Fo
 
 An example G-Code is:
 
+[source,{ngc}]
 ----
 G21 (metric)
 F99999 (high feed rate)
@@ -2512,12 +2525,14 @@ Preamble and Postamble may be entered as a string of G-Codes and M-Codes separat
 
 This will place all codes on the same line:
 
+[source,{ngc}]
 ----
 G21 G40 G49 G64p0.1 G80 G90 G92.1 G94 G97
 ----
 
 This will place each code on its own line:
 
+[source,{ngc}]
 ----
 G21\nG40\nG49\nG64p0.1\nG80\nG90\nG92.1\nG94\nG97
 ----
@@ -3299,6 +3314,7 @@ By following the above procedure the offsets are available for use immediately a
 
 By default, QtPlasmaC will remove all Z motion from a loaded G-Code file and add an initial Z movement to bring the torch near the top of travel at the beginning of the file. If the user wishes to use their table with a marker, a drag knife, diamond scribe, etc. mounted in the torch holder, QtPlasmaC has the ability to retain the Z movements when executing a program by adding the following command in a G-Code file:
 
+[source,{ngc}]
 ----
   #<keep-z-motion> = 1
 ----

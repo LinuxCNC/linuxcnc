@@ -207,6 +207,7 @@ state.
 [[mcode:m19]]
 == M19 Orient Spindle(((M19 Orient Spindle)))
 
+[source,{ngc}]
 ----
 M19 R- Q- [P-] [$-]
 ----
@@ -371,6 +372,7 @@ connected in your hal file to outputs.
 [[mcode:m66]]
 == M66 Wait on Input(((M66 Wait on Input)))
 
+[source,{ngc}]
 ----
 M66 P- | E- <L->
 ----
@@ -392,6 +394,7 @@ M66 P- | E- <L->
 
 .M66 Example Lines
 
+[source,{ngc}]
 ----
 M66 P0 L3 Q5 (wait up to 5 seconds for digital input 0 to turn on)
 ----
@@ -420,6 +423,7 @@ net signal-name motion.digital-in-00 <= parport.0.pin10-in
 [[mcode:m67]]
 == M67 Analog Output,Synchronized(((M67 Analog Output, Synchronized)))
 
+[source,{ngc}]
 ----
 M67 E- Q-
 ----
@@ -445,6 +449,7 @@ connected in your hal file to outputs.
 [[mcode:m68]]
 == M68 Analog Output, Immediate(((M68 Analog Output)))
 
+[source,{ngc}]
 ----
 M68 E- Q-
 ----
@@ -673,6 +678,7 @@ O<measure> endsub
 [[mcode:m100-m199]]
 == M100-M199 User Defined Commands(((M100-M199 User Defined Commands)))
 
+[source,{ngc}]
 ----
 M1-- <P- Q->
 ----
@@ -736,6 +742,7 @@ exit 0
 
 To pass a variable to a M1nn file you use the P and Q option like this:
 
+[source,{ngc}]
 ----
 M100 P123.456 Q321.654
 ----

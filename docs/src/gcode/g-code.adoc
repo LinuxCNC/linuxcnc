@@ -130,6 +130,7 @@ as the 'L number', and so on for any other letter.
 [[gcode:g0]]
 == G0 Rapid Move(((G0 Rapid Move)))
 
+[source,{ngc}]
 ----
 G0 <axes>
 ----
@@ -222,6 +223,7 @@ It is an error if:
 [[gcode:g2-g3]]
 == G2, G3 Arc Move(((G2, G3 Arc Move)))
 
+[source,{ngc}]
 ----
 G2 or G3 axes offsets (center format)
 G2 or G3 axes R- (radius format)
@@ -462,6 +464,7 @@ It is an error if:
 
 === Radius Format Arcs
 
+[source,{ngc}]
 ----
 G2 or G3 axes R- <P->
 ----
@@ -510,6 +513,7 @@ otherwise it is a helical arc.
 [[gcode:g4]]
 == G4 Dwell(((G4 Dwell)))
 
+[source,{ngc}]
 ----
 G4 P-
 ----
@@ -533,6 +537,7 @@ It is an error if:
 [[gcode:g5]]
 == G5 Cubic Spline(((G5 Cubic spline)))
 
+[source,{ngc}]
 ----
 G5 X- Y- <I- J-> P- Q-
 ----
@@ -580,6 +585,7 @@ It is an error if:
 [[gcode:g5.1]]
 == G5.1 Quadratic Spline(((G5.1 Quadratic spline)))
 
+[source,{ngc}]
 ----
 G5.1 X- Y- I- J-
 ----
@@ -610,6 +616,7 @@ It is an error if:
 [[gcode:g5.2-g5.3]]
 == G5.2 G5.3 NURBS Block(((G5.2 G5.3 NURBS Block)))
 
+[source,{ngc}]
 ----
 G5.2 <P-> <X- Y-> <L->
 X- Y- <P->
@@ -660,6 +667,7 @@ http://wiki.linuxcnc.org/cgi-bin/wiki.pl?NURBS[http://wiki.linuxcnc.org/cgi-bin/
 [[gcode:g7]]
 == G7 Lathe Diameter Mode(((G7 Lathe Diameter Mode)))
 
+[source,{ngc}]
 ----
 G7
 ----
@@ -672,6 +680,7 @@ to the center of the lathe. For example X1 would move the cutter to
 [[gcode:g8]]
 == G8 Lathe Radius Mode(((G8 Lathe Radius Mode)))
 
+[source,{ngc}]
 ----
 G8
 ----
@@ -684,6 +693,7 @@ G8 is default at power up.
 [[gcode:g10-l0]]
 == G10 L0 Reload Tool Table Data(((G10 L0 Reload Tool Table Data)))
 
+[source,{ngc}]
 ----
 G10 L0
 ----
@@ -702,6 +712,7 @@ remain in effect until updated by new G43 commands.
 [[gcode:g10-l1]]
 == G10 L1 Set Tool Table(((G10 L1 Tool Table)))
 
+[source,{ngc}]
 ----
 G10 L1 P- axes <R- I- J- Q->
 ----
@@ -737,6 +748,7 @@ see the <<sec:lathe-tool-orientation,Lathe Tool Orientation>> diagram.
 [[gcode:g10-l2]]
 == G10 L2 Set Coordinate System(((G10 L2 Coordinate System)))
 
+[source,{ngc}]
 ----
 G10 L2 P- <axes R->
 ----
@@ -824,6 +836,7 @@ The coordinate system is described in the
 [[gcode:g10-l10]]
 == G10 L10 Set Tool Table(((G10 L10 Set Tool Table)))
 
+[source,{ngc}]
 ----
 G10 L10 P- axes <R- I- J- Q->
 ----
@@ -862,6 +875,7 @@ It is an error if:
 [[gcode:g10-l11]]
 == G10 L11 Set Tool Table(((G10 L11 Set Tool Table)))
 
+[source,{ngc}]
 ----
 G10 L11 P- axes <R- I- J- Q->
 ----
@@ -897,6 +911,7 @@ It is an error if:
 [[gcode:g10-l20]]
 == G10 L20 Set Coordinate System(((G10 L20 Set Coordinate System)))
 
+[source,{ngc}]
 ----
 G10 L20 P- axes
 ----
@@ -1020,6 +1035,7 @@ It is an error if :
 [[gcode:g33]]
 == G33 Spindle Synchronized Motion(((G33 Spindle Synchronized Motion)))
 
+[source,{ngc}]
 ----
 G33 X- Y- Z- K- $-
 ----
@@ -1095,6 +1111,7 @@ It is an error if:
 [[gcode:g33.1]]
 == G33.1 Rigid Tapping(((G33.1 Rigid Tapping)))
 
+[source,{ngc}]
 ----
 G33.1 X- Y- Z- K- I- $-
 ----
@@ -1160,6 +1177,7 @@ It is an error if:
 [[gcode:g38]]
 == G38.n Straight Probe(((G38.n Probe)))
 
+[source,{ngc}]
 ----
 G38.n axes
 ----
@@ -1269,6 +1287,7 @@ It is an error if:
 [[gcode:g41-g42]]
 == G41, G42 Cutter Compensation(((G41 G42 Cutter Compensation)))
 
+[source,{ngc}]
 ----
 G41 <D-> (left of programmed path)
 G42 <D-> (right of programmed path)
@@ -1323,6 +1342,7 @@ It is an error if:
 [[gcode:g41.1-g42.1]]
 == G41.1, G42.1 Dynamic Cutter Compensation(((G41.1 G42.1 Dynamic Compensation)))
 
+[source,{ngc}]
 ----
 G41.1 D- <L-> (left of programmed path)
 G42.1 D- <L-> (right of programmed path)
@@ -1345,6 +1365,7 @@ It is an error if:
 [[gcode:g43]]
 == G43 Tool Length Offset(((G43 Tool Length Offset)))
 
+[source,{ngc}]
 ----
 G43 <H->
 ----
@@ -1388,6 +1409,7 @@ It is an error if:
 [[gcode:g43.1]]
 == G43.1 Dynamic Tool Length Offset(((G43.1 Dynamic Tool Length Offset)))
 
+[source,{ngc}]
 ----
 G43.1 axes
 ----
@@ -1425,6 +1447,7 @@ G43.1 does not write to the tool table.
 [[gcode:g43.2]]
 == G43.2 Apply additional Tool Length Offset(((G43.2 Apply additional Tool Length Offset)))
 
+[source,{ngc}]
 ----
 G43.2 H- axes-
 ----
@@ -1472,6 +1495,7 @@ used.
 [[gcode:g52]]
 == G52 Local Coordinate System Offset(((Local Offsets)))
 
+[source,{ngc}]
 ----
 G52 axes
 ----
@@ -1483,6 +1507,7 @@ is in the <<gcode:g52,Local and Global Offsets>> section.
 [[gcode:g53]]
 == G53 Move in Machine Coordinates(((G53 Machine Coordinates)))
 
+[source,{ngc}]
 ----
 G53 axes
 ----
@@ -1562,6 +1587,7 @@ overview of coordinate systems.
 [[gcode:g64]]
 == G64 Path Blending(((G64 Path Blending)))(((Trajectory Control)))
 
+[source,{ngc}]
 ----
 G64 <P- <Q->>
 ----
@@ -1605,6 +1631,7 @@ of each G-code file.
 [[gcode:g70]]
 == G70 Lathe finishing cycle(((G70 Lathe finishing cycle)))
 
+[source,{ngc}]
 ----
 G70 Q- <X-> <Z-> <D-> <E-> <P->
 ----
@@ -1648,6 +1675,7 @@ It is an error if:
 [[gcode:g71-g72]]
 == G71 G72 Lathe roughing cycles(((G71 G72 Lathe roughing cycles)))
 
+[source,{ngc}]
 ----
 G71   Q- <X-> <Z-> <D-> <I-> <R->
 G71.1 Q- <X-> <Z-> <D-> <I-> <R->
@@ -1712,6 +1740,7 @@ It is an error if:
 [[gcode:g73]]
 == G73 Drilling Cycle with Chip Breaking(((G73 Drilling Cycle with Chip Break)))
 
+[source,{ngc}]
 ----
 G73 X- Y- Z- R- Q- <L->
 ----
@@ -1742,6 +1771,7 @@ It is an error if:
 [[gcode:g74]]
 == G74 Left-hand Tapping Cycle with Dwell(((G74 Left-hand Tapping Cycle with Dwell)))
 
+[source,{ngc}]
 ----
 G74 (X- Y- Z-) or (U- V- W-) R- L- P- $- F-
 ----
@@ -1778,6 +1808,7 @@ F125.
 [[gcode:g76]]
 == G76 Threading Cycle(((G76 Threading Cycle)))
 
+[source,{ngc}]
 ----
 G76 P- Z- I- J- R- K- Q- H- E- L- $-
 ----
@@ -2038,6 +2069,7 @@ Line numbers are not needed but help clarify these examples
 
 .Eight Holes
 
+[source,{ngc}]
 ----
 N100 G90 G0 X0 Y0 Z0 (move coordinate home)
 N110 G1 F10 X0 G4 P0.1
@@ -2062,6 +2094,7 @@ incremental drill cycles for successive blocks of code within the same
 G81 motion mode. Here we produce 12 holes using five lines of code in
 the canned motion mode.
 
+[source,{ngc}]
 ----
 N1000 G90 G0 X0 Y0 Z0 (move coordinate home)
 N1010 G1 F50 X0 G4 P0.1
@@ -2152,6 +2185,7 @@ to the canned cycle.
 [[gcode:g81]]
 == G81 Drilling Cycle(((G81 Drilling Cycle)))
 
+[source,{ngc}]
 ----
 G81 (X- Y- Z-) or (U- V- W-) R- L-
 ----
@@ -2258,6 +2292,7 @@ image::images/g81_en.svg[align="center"]
 
 This is a plot of the path of motion for the second g81 block of code.
 
+[source,{ngc}]
 ----
 G91 G98 G81 X4 Y5 Z-0.6 R1.8 L3
 ----
@@ -2271,6 +2306,7 @@ image::images/g81a_en.svg[align="center"]
 
 .Example 5 - Relative position R > Z
 
+[source,{ngc}]
 ----
 G90 G98 G81 X4 Y5 Z-0.6 R1.8
 ----
@@ -2284,6 +2320,7 @@ would make the Z move in the same location again.
 [[gcode:g82]]
 == G82 Drilling Cycle, Dwell(((G82 Drilling Cycle Dwell)))
 
+[source,{ngc}]
 ----
 G82 (X- Y- Z-) or (U- V- W-) R- L- P-
 ----
@@ -2302,6 +2339,7 @@ The motion of a G82 canned cycle looks just like G81 with the
 addition of a dwell at the bottom of the Z move. The length of
 the dwell is specified by a 'P-' word in the G82 block.
 
+[source,{ngc}]
 ----
 G90 G82 G98 X4 Y5 Z1.5 R2.8 P2
 ----
@@ -2312,6 +2350,7 @@ seconds at the bottom of the hole
 [[gcode:g83]]
 == G83 Peck Drilling Cycle(((G83 Peck Drilling)))
 
+[source,{ngc}]
 ----
 G83 (X- Y- Z-) or (U- V- W-) R- L- Q-
 ----
@@ -2341,6 +2380,7 @@ It is an error if:
 [[gcode:g84]]
 == G84 Right-hand Tapping Cycle, Dwell(((G84 Right-hand Tapping Cycle Dwell)))
 
+[source,{ngc}]
 ----
 G84 (X- Y- Z-) or (U- V- W-) R- L- P- $- F-
 ----
@@ -2377,6 +2417,7 @@ F125.
 [[gcode:g85]]
 == G85 Boring Cycle, Feed Out(((G85 Boring, Feed Out)))
 
+[source,{ngc}]
 ----
 G85 (X- Y- Z-) or (U- V- W-) R- L-
 ----
@@ -2395,6 +2436,7 @@ drilling or milling.
 [[gcode:g86]]
 == G86 Boring Cycle, Spindle Stop, Rapid Move Out(((G86 Boring, Spindle Stop, Rapid Move Out)))
 
+[source,{ngc}]
 ----
 G86 (X- Y- Z-) or (U- V- W-) R- L- P- $-
 ----
@@ -2430,6 +2472,7 @@ the behavior is undefined.
 [[gcode:g89]]
 == G89 Boring Cycle, Dwell, Feed Out(((G89 Boring, Dwell, Feed Out)))
 
+[source,{ngc}]
 ----
 G89 (X- Y- Z-) or (U- V- W-) R- L- P-
 ----
@@ -2480,6 +2523,7 @@ G0 X2.5 (rapid move 2.5 from current position along the X axis)
 [[gcode:g92]]
 == G92 Coordinate System Offset(((G92 Coordinate System Offset)))
 
+[source,{ngc}]
 ----
 G92 axes
 ----
@@ -2600,6 +2644,7 @@ It is an error if:
 [[gcode:g96-g97]]
 == G96, G97 Spindle Control Mode(((G96, G97 Spindle Control Mode)))
 
+[source,{ngc}]
 ----
 G96 <D-> S- <$-> (Constant Surface Speed Mode)
 G97 S- <$-> (RPM Mode)

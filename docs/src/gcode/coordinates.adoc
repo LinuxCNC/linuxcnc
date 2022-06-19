@@ -4,6 +4,12 @@
 [[cha:coordinate-system]]
 = Coordinate Systems(((Coordinate Systems)))
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 == Introduction
 
 In this chapter, we will try to demystify coordinate systems.
@@ -37,6 +43,7 @@ Regardless of any offset that may be active, a G53 in a line of
 code tells the interpreter to move to the actual axes positions
 (absolute positions) specified. For example:
 
+[source,{ngc}]
 ----
 G53 G0 X0 Y0 Z0
 ----
@@ -117,6 +124,7 @@ reference for each of the locations and all of the work to be done
 there. The following code is offered as an example of making a square
 using the G55 offsets that we set above.
 
+[source,{ngc}]
 ----
 G55 ; use coordinate system 2
 G0 X0 Y0 Z0
@@ -140,6 +148,7 @@ command would not have been modal and any commands issued after it would
 have returned to using the G55 offsets because that coordinate system
 would still be in effect.
 
+[source,{ngc}]
 ----
 G54	uses parameters of coordinate system 1(((G54)))
 G55	uses parameters of coordinate system 2(((G55)))
@@ -396,6 +405,7 @@ This sample engraving project mills a set of four .1 radius circles in
 roughly a star shape around a center circle. We can setup the
 individual circle pattern like this.
 
+[source,{ngc}]
 ----
 G10 L2 P1 X0 Y0 Z0 (ensure that G54 is set to machine zero)
 G0 X-0.1 Y0 Z0
@@ -408,6 +418,7 @@ M2
 We can issue a set of commands to create offsets for the four other
 circles like this.
 
+[source,{ngc}]
 ----
 G10 L2 P2 X0.5 (offsets G55 X value by 0.5 inch)
 G10 L2 P3 X-0.5 (offsets G56 X value by -0.5 inch)
@@ -417,6 +428,7 @@ G10 L2 P5 Y-0.5 (offsets G58 Y value by -0.5 inch)
 
 We put these together in the following program:
 
+[source,{ngc}]
 ----
 (a program for milling five small circles in a diamond shape)
 

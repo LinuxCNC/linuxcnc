@@ -294,6 +294,7 @@ Most plasma controllers offer a method to change settings from G-Code. Linuxcnc 
 
 === Select Material Settings In QtPlasmaC And Use The Feedrate For That Material:
 
+[source,{ngc}]
 ----
 M190 Pn
 M66 P3 L3 Q1
@@ -305,6 +306,7 @@ NOTE: Users with a very large number of entries in the QtPlasmaC Materials Table
 
 === Enable/Disable THC Operation:
 
+[source,{ngc}]
 ----
 M62 P2 will disable THC (synchronised with motion)
 M63 P2 will enable THC(synchronised with motion)
@@ -314,6 +316,7 @@ M65 P2 will enable THC(immediately)
 
 === Reduce Cutting Speeds: (eg for hole cutting)
 
+[source,{ngc}]
 ----
 M67 E3 Q0 would set the velocity to 100% of requested~speed
 M67 E3 Q40 would set the velocity to 40% of requested~speed
@@ -323,6 +326,7 @@ M67 E3 Q100 would set the velocity to 100% of requested~speed
 
 === Cutter Compensation:
 
+[source,{ngc}]
 ----
 G41.1 D#<_hal[plasmac_run.kerf-width-f]> ; for left of programmed path
 G42.1 D#<_hal[plasmac_run.kerf-width-f]> for right of programmed path

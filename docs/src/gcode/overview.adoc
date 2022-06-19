@@ -750,6 +750,7 @@ It takes only one named parameter and returns 1 if it exists and 0 if it does
 not exist. It is an error if you use a numbered parameter or an expression.
 Here is an example for the usage of the EXISTS function:
 
+[source,{ngc}]
 ----
 o<test> sub
 o10 if [EXISTS[#<_global>]]
@@ -854,6 +855,7 @@ This can be confusing at first how this works in incremental mode.
 For example if you have the following program you might expect it to
 be a square pattern.
 
+[source,{ngc}]
 ----
 F100 G1 @.5 ^90
 G91 @.5 ^90
@@ -873,6 +875,7 @@ image::images/polar01.png["Polar Spiral",align="center"]
 
 The following code will produce our square pattern:
 
+[source,{ngc}]
 ----
 F100 G1 @.5 ^90
 G91 ^90
@@ -980,6 +983,7 @@ corresponding parameter. So, 'S100(set speed)F200(feed)' is OK while
 
 Here is an example of a commented program:
 
+[source,{ngc}]
 ----
 G0 (Rapid to start) X1 Y1
 G0 X1 Y1 (Rapid to start; but don't forget the coolant)

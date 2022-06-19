@@ -151,6 +151,7 @@ net :kinstype-select => motion.switchkins-type
 
 Kinstype selection is managed using G-code sequences like:
 
+[source,{ngc}]
 ----
 ...
 M68 E3 Q1 ;update analog-out-03 to select kinstype 1

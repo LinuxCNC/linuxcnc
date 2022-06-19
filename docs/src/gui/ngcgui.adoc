@@ -813,6 +813,7 @@ Its value begins with a value of 0 and is incremented for each added feature.
 A special 'info' comment can be included anywhere in an ngcgui-compatible
 subfile. The format is:
 
+[source,{ngc}]
 ----
 (info: info_text)
 ----
@@ -822,6 +823,7 @@ The info_text is displayed near the top of the ngcgui tab page in axis.
 Files not intended for use as subfiles can include a special comment
 so that ngcgui will reject them automatically with a relevant message.
 
+[source,{ngc}]
 ----
 (not_a_subfile)
 ----
