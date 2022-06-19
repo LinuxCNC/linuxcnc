@@ -343,6 +343,7 @@ SIG:    motor-cmd-0
 In the example above, the HALFILE uses halcmd aliases to simplify pin names
 for an hostmot2 fpga board with commands like:
 
+[source,{hal}]
 ----
 alias pin hm2_7i92.0.stepgen.00.position-fb h.00.position-fb
 ----

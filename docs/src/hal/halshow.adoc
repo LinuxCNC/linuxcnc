@@ -232,6 +232,7 @@ Owner Type  Dir Value       Name
 So it looks like Xpos-cmd should be a good signal to use.
 Back to the editor where we enter the following command:
 
+[source,{hal}]
 ----
 linksp Xpos-cmd ddt.0.in
 ----

@@ -222,6 +222,7 @@ the milltask manpage for more information ($ man milltask)
 
 The relevant ini-hal pins for a joint number (N) are:
 
+[source,{hal}]
 ----
 ini.N.min_limit
 ini.N.max_limit
@@ -231,6 +232,7 @@ ini.N.max_velocity
 
 The relevant ini-hal pins for an axis coordinate (L) are:
 
+[source,{hal}]
 ----
 ini.L.min_limit
 ini.L.max_limit

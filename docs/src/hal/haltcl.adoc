@@ -197,6 +197,7 @@ In other contexts, such as 'loadrt', you must explicitly use
 the tcl expr command ([expr {}]) for computational expressions.
 
 .Example
+[source,{hal}]
 ----
 loadrt motion base_period=[expr {500000000/$::TRAJ(MAX_PULSE_RATE)}]
 ----

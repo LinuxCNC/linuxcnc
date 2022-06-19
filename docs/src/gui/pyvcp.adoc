@@ -223,8 +223,9 @@ An optional command to use if you want the panel to stop HAL from
 continuing commands / shutting down. After loading any other components
 you want the last HAL command to be:
 
+[source,{hal}]
 ----
-waituser panelname
+waitusr panelname
 ----
 
 This tells HAL to wait for component 'panelname' to close before
