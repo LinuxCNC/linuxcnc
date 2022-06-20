@@ -866,9 +866,10 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
-                      <object class="GtkHBox" id="hbox2">
+                      <object class="GtkPaned" id="hbox2">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can_focus">True</property>
+                        <property name="wide_handle">True</property>
                         <child>
                           <object class="GtkVBox" id="vbox14">
                             <property name="visible">True</property>
@@ -1270,9 +1271,8 @@
                             </child>
                           </object>
                           <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
-                            <property name="position">0</property>
+                            <property name="resize">True</property>
+                            <property name="shrink">True</property>
                           </packing>
                         </child>
                         <child>
@@ -2066,9 +2066,8 @@
                             </child>
                           </object>
                           <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">1</property>
+                            <property name="resize">False</property>
+                            <property name="shrink">False</property>
                           </packing>
                         </child>
                       </object>
