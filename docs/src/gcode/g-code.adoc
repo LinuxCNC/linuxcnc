@@ -150,6 +150,7 @@ MAX_VELOCITY setting in the [TRAJ] section if an axis MAX_VELOCITY or
 trajectory constraints limit it.
 
 .G0 Example
+[source,{ngc}]
 ----
 G90 (set absolute distance mode)
 G0 X1 Y-2.3 (Rapid linear move from current location to X1 Y-2.3)
@@ -185,6 +186,7 @@ It is an error if:
 [[gcode:g1]]
 == G1 Linear Move(((G1 Linear Move)))
 
+[source,{ngc}]
 -------------------
 G1 axes
 -------------------
@@ -196,6 +198,7 @@ will produce coordinated motion to the destination point at the current
 feed rate (or slower).
 
 .G1 Example
+[source,{ngc}]
 ----
 G90 (set absolute distance mode)
 G1 X1.2 Y-3 F10 (linear move at a feed rate of 10 from current position to X1.2 Y-3)
@@ -328,6 +331,7 @@ For more information on 'Absolute Arc Distance Mode see the
 <<gcode:g90.1-g91.1,G90.1>> section.
 
 .XY-plane (G17)
+[source,{ngc}]
 ----
 G2 or G3 <X- Y- Z- I- J- P->
 ----
@@ -338,6 +342,7 @@ G2 or G3 <X- Y- Z- I- J- P->
 * 'P' - number of turns
 
 .XZ-plane (G18)
+[source,{ngc}]
 ----
 G2 or G3 <X- Z- Y- I- K- P->
 ----
@@ -348,6 +353,7 @@ G2 or G3 <X- Z- Y- I- K- P->
 * 'P' - number of turns
 
 .YZ-plane (G19)
+[source,{ngc}]
 ----
 G2 or G3 <Y- Z- X- J- K- P->
 ----
@@ -431,6 +437,7 @@ In the next example we show how to make more than one turn using the P
 word.
 
 .P word Example
+[source,{ngc}]
 ----
 G0 X0 Y0 Z0
 G2 X0 Y1 Z-1 I1 J0.5 P2 F25
@@ -526,6 +533,7 @@ used.
 G4 does not affect spindle, coolant and any I/O.
 
 .G4 Example Line
+[source,{ngc}]
 ----
 G4 P0.5 (wait for 0.5 seconds before proceeding)
 ----
@@ -560,6 +568,7 @@ Q).
 For example, to program a curvy N shape:
 
 .G5 Sample initial cubic spline
+[source,{ngc}]
 ----
 G90 G17
 G0 X0 Y0
@@ -570,6 +579,7 @@ A second curvy N that attaches smoothly to this one can now be made
 without specifying I and J:
 
 .G5 Sample subsequent cubic spline
+[source,{ngc}]
 ----
 G5 P0 Q-3 X2 Y2
 ----
@@ -601,6 +611,7 @@ For example, to program a parabola, through the origin, from X-2 Y4 to
 X2 Y4:
 
 .G5.1 Sample quadratic spline
+[source,{ngc}]
 ----
 G90 G17
 G0 X-2 Y4
@@ -730,6 +741,7 @@ A valid G10 L1 rewrites and reloads the tool table for the specified
 tool.
 
 .G10 L1 Example Line
+[source,{ngc}]
 ----
 G10 L1 P1 Z1.5 (set tool 1 Z offset from the machine origin to 1.5)
 G10 L1 P2 R0.015 Q3 (lathe example setting tool 2 radius to 0.015 and orientation to 3)
@@ -855,6 +867,7 @@ specified in the G10 L10 command will not be changed. This could be
 useful with a probe move as described in the <<gcode:g38,G38>> section.
 
 .G10 L10 Example
+[source,{ngc}]
 ----
 T1 M6 G43 (load tool 1 and tool length offsets)
 G10 L10 P1 Z1.5 (set the current position for Z to be 1.5)
@@ -923,6 +936,7 @@ offset/entry to the given value, it is set to a calculated value that
 makes the current coordinates become the given value.
 
 .G10 L20 Example Line
+[source,{ngc}]
 ----
 G10 L20 P1 X1.5 (set the X axis current location in coordinate system 1 to 1.5)
 ----
@@ -986,6 +1000,7 @@ all axes will go to the <<sec:machine-coordinate-system,machine origin>>.
   5161-5166.
 
 .G28 Example Line
+[source,{ngc}]
 ----
 G28 Z2.5 (rapid to Z2.5 then to Z location specified in #5163)
 ----
@@ -1024,6 +1039,7 @@ if TOOL_CHANGE_AT_G30=1 is in the [EMCIO] section of the ini file.
   5181-5186.
 
 .G30 Example Line
+[source,{ngc}]
 ----
 G30 Z2.5 (rapid to Z2.5 then to the Z location specified in #5i83)
 ----
@@ -1088,6 +1104,7 @@ See the Integrators Manual for more information on spindle synchronized
 motion.
 
 .G33 Example
+[source,{ngc}]
 ----
 G90 (absolute distance mode)
 G0 X1 Z0.1 (rapid to position)
@@ -1269,6 +1286,7 @@ It is an error if:
   It is OK to turn compensation off when it is already off.
 
 .G40 Example
+[source,{ngc}]
 ----
 ; current location is X1 after finishing cutter compensated move
 G40 (turn compensation off)
@@ -1394,6 +1412,7 @@ in the tool table file (or causes an error if T0 is not defined in the
 tool table).
 
 .G43 H- Example Line
+[source,{ngc}]
 ----
 G43 H1 (set tool offsets using the values from tool 1 in the tool table)
 ----
@@ -1427,6 +1446,7 @@ gives the compensation length in Z (for lathes and milling machines).
 ////
 
 .G43.1 Example
+[source,{ngc}]
 ----
 G90 (set absolute mode)
 T1 M6 G43 (load tool 1 and tool length offsets, Z is at machine 0 and DRO shows Z1.500)
@@ -1457,6 +1477,7 @@ G43.2 H- axes-
 * 'G43.2' - applies an additional simultaneous tool offset.
 
 .G43.2 Example
+[source,{ngc}]
 ----
 G90 (set absolute mode)
 T1 M6 (load tool 1)
@@ -1521,6 +1542,7 @@ For example 'G53 G0 X0 Y0 Z0' will move the axes to the home position
 even if the currently selected coordinate system has offsets in effect.
 
 .G53 Example
+[source,{ngc}]
 ----
 G53 G0 X0 Y0 Z0 (rapid linear move to the machine origin)
 G53 X2 (rapid linear move to absolute coordinate X2)
@@ -1621,6 +1643,7 @@ G64 <P- <Q->>
   and use the value of P-.
 
 .G64 P- Example Line
+[source,{ngc}]
 ----
 G64 P0.015 (set path following to be within 0.015 of the actual path)
 ----
@@ -2127,6 +2150,7 @@ It is an error if:
 *  Axis words are programmed when G80 is active.
 
 .G80 Example
+[source,{ngc}]
 ----
 G90 G81 X1 Y1 Z1.5 R2.8 (absolute distance canned cycle)
 G80 (turn off canned cycle motion)
@@ -2137,6 +2161,7 @@ The following code produces the same final position and machine state as
 the previous code.
 
 .G0 Example
+[source,{ngc}]
 ----
 G90 G81 X1 Y1 Z1.5 R2.8 (absolute distance canned cycle)
 G0 X0 Y0 Z0 (rapid move to coordinate home)
@@ -2153,6 +2178,7 @@ that contains an X, Y, or Z word. The following file drills (G81) a set
 of eight holes as shown in the following caption.
 
 .G80 Example 1
+[source,{ngc}]
 ----
 N100 G90 G0 X0 Y0 Z0 (coordinate home)
 N110 G1 X0 G4 P0.1
@@ -2274,6 +2300,7 @@ The third repeat consists of 3 moves. The X position is reset to 13
 image::images/g81ex2_en.svg[align="center"]
 
 .Example 3 - Relative Position G81
+[source,{ngc}]
 ----
 G90 G98 G81 X4 Y5 Z1.5 R2.8
 ----
@@ -2498,12 +2525,14 @@ where P specifies the number of seconds to dwell.
   numbers usually represent increments from the current coordinate.
 
 .G90 Example
+[source,{ngc}]
 ----
 G90 (set absolute distance mode)
 G0 X2.5 (rapid move to coordinate X2.5 including any offsets in effect)
 ----
 
 .G91 Example
+[source,{ngc}]
 ----
 G91 (set incremental distance mode)
 G0 X2.5 (rapid move 2.5 from current position along the X axis)
@@ -2669,6 +2698,7 @@ for each spindle prior to issuing M3.
 * 'G97' selects RPM mode.
 
 .G96 Example Line
+[source,{ngc}]
 ----
 G96 D2500 S250 (set CSS with a max rpm of 2500 and a surface speed of 250)
 ----
@@ -2696,6 +2726,7 @@ used. The R word has different meanings in absolute distance mode and
 incremental distance mode.
 
 .G98 Retract to Origin
+[source,{ngc}]
 ----
 G0 X1 Y2 Z3
 G90 G98 G81 X4 Y5 Z-0.6 R1.8 F10
