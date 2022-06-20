@@ -469,6 +469,46 @@ int hal_ready(int comp_id) {
     return 0;
 }
 
+int hal_unready(int comp_id) {
+    int next;
+    hal_comp_t *comp;
+
+    rtapi_mutex_get(&(hal_data->mutex));
+
+    /* search component list for 'comp_id' */
+    next = hal_data->comp_list_ptr;
+    if (next == 0) {
+	/* list is empty - should never happen, but... */
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: component %d not found\n", comp_id);
+	return -EINVAL;
+    }
+
+    comp = SHMPTR(next);
+    while (comp->comp_id != comp_id) {
+	/* not a match, try the next one */
+	next = comp->next_ptr;
+	if (next == 0) {
+	    /* reached end of list without finding component */
+	    rtapi_mutex_give(&(hal_data->mutex));
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+		"HAL: ERROR: component %d not found\n", comp_id);
+	    return -EINVAL;
+	}
+	comp = SHMPTR(next);
+    }
+    if(comp->ready < 1) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                "HAL: ERROR: Component '%s' already unready\n", comp->name);
+        rtapi_mutex_give(&(hal_data->mutex));
+        return -EINVAL;
+    }
+    comp->ready = 0;
+    rtapi_mutex_give(&(hal_data->mutex));
+    return 0;
+}
+
 char *hal_comp_name(int comp_id)
 {
     hal_comp_t *comp;

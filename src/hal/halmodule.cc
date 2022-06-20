@@ -401,7 +401,7 @@ static PyObject *pyhal_new_param(PyObject *_self, PyObject *o) {
     EXCEPTION_IF_NOT_LIVE(NULL);
 
     if (find_item(self, name)) {
-        PyErr_Format(PyExc_ValueError, "Duplicate item name '%s'", name);
+        PyErr_Format(PyExc_ValueError, "Duplicate parameter name '%s'", name);
         return NULL;
     } else { PyErr_Clear(); }
     return pyhal_create_param(self, name, (hal_type_t)type, (hal_param_dir_t)dir);
@@ -418,7 +418,7 @@ static PyObject *pyhal_new_pin(PyObject *_self, PyObject *o) {
     EXCEPTION_IF_NOT_LIVE(NULL);
 
     if (find_item(self, name)) {
-        PyErr_Format(PyExc_ValueError, "Duplicate item name '%s'", name);
+        PyErr_Format(PyExc_ValueError, "Duplicate pin name '%s'", name);
         return NULL;
     } else { PyErr_Clear(); }
     return pyhal_create_pin(self, name, (hal_type_t)type, (hal_pin_dir_t)dir);
@@ -460,6 +460,15 @@ static PyObject *pyhal_ready(PyObject *_self, PyObject *o) {
     halobject *self = (halobject *)_self;
     EXCEPTION_IF_NOT_LIVE(NULL);
     int res = hal_ready(self->hal_id);
+    if(res) return pyhal_error(res);
+    Py_RETURN_NONE;
+}
+
+static PyObject *pyhal_unready(PyObject *_self, PyObject *o) {
+    // hal_ready did not exist in EMC 2.0.x, make it a no-op
+    halobject *self = (halobject *)_self;
+    EXCEPTION_IF_NOT_LIVE(NULL);
+    int res = hal_unready(self->hal_id);
     if(res) return pyhal_error(res);
     Py_RETURN_NONE;
 }
@@ -547,6 +556,8 @@ static PyMethodDef hal_methods[] = {
         "Call hal_exit"},
     {"ready", pyhal_ready, METH_NOARGS,
         "Call hal_ready"},
+    {"unready", pyhal_unready, METH_NOARGS,
+        "Call hal_unready"},
     {NULL},
 };
 

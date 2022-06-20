@@ -217,6 +217,13 @@ extern void *hal_malloc(long int size);
 */
 extern int hal_ready(int comp_id);
 
+/** hal_unready() indicates that this component is ready.  This allows
+    halcmd 'loadusr -W hal_example' to wait until the userspace
+    component 'hal_example' is ready before continuing.
+*/
+extern int hal_unready(int comp_id);
+
+
 /** hal_comp_name() returns the name of the given component, or NULL
     if comp_id is not a loaded component
 */
