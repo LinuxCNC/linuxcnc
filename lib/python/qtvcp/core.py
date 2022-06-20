@@ -116,6 +116,8 @@ class DummyPin(QObject):
     def set(self, *a, **kw):
         pass
 
+    def get_name(self):
+        return self._a[0]
 
 class _QHal(object):
     HAL_BIT = hal.HAL_BIT
@@ -147,6 +149,23 @@ class _QHal(object):
     def newpin(self, *a, **kw):
         try:
             p = QPin(_hal.component.newpin(self.comp, *a, **kw))
+        except ValueError as e:
+            # if pin is already made, find a new name
+            if 'Duplicate pin name' in '{}'.format(e):
+                try:
+                    # tuples are immutable, convert to list
+                    y = list(a)
+                    y[0] = self.makeUniqueName(y[0])
+                    a = tuple(y)
+                    # this late in the game, component is probably already 'ready'
+                    if self.hal.component_is_ready(self.comp.getprefix()):
+                        self.comp.unready()
+                        p = QPin(_hal.component.newpin(self.comp, *a, **kw))
+                        self.comp.ready()
+                    else:
+                        p = QPin(_hal.component.newpin(self.comp, *a, **kw))
+                except Exception as e:
+                    raise
         except Exception as e:
             if log.getEffectiveLevel() == logger.VERBOSE:
                 raise
@@ -172,6 +191,22 @@ class _QHal(object):
             log.error("Qhal: Error setting value of {} to {}\n {}".format(name,value, e))
 
     def exit(self, *a, **kw): return self.comp.exit(*a, **kw)
+
+    # find a unique HAL pin name by adding '-x' to the base name
+    # x being an ever increasing number till name is unique
+    def makeUniqueName(self, name):
+        num = 2
+        base = self.comp.getprefix()
+        while True:
+            trial = ('{}.{}-{}').format(base,name,num)
+            for i in hal.get_info_pins():
+                if i['NAME'] == trial:
+                    num +=1
+                    trial = ('{}.{}-{}').format(base,name,num)
+                    break
+            else:
+                break
+        return ('{}-{}').format(name,num)
 
     def __getitem__(self, k): return self.comp[k]
     def __setitem__(self, k, v): self.comp[k] = v
