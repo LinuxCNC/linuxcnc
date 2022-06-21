@@ -4252,6 +4252,10 @@ class gmoccapy(object):
             self.widgets.ntb_button.set_current_page(_BB_MANUAL)
             self.widgets.ntb_main.set_current_page(0)
             self.widgets.ntb_preview.set_current_page(0)
+        # re-enable mode buttons, when returning from edit or file selection
+        self.widgets.rbt_manual.set_sensitive(True)
+        self.widgets.rbt_mdi.set_sensitive(True)
+        self.widgets.tbtn_setup.set_sensitive(True)
 
     # The offset settings, set to zero
     def on_btn_touch_clicked(self, widget, data=None):
@@ -5112,6 +5116,10 @@ class gmoccapy(object):
         self.widgets.IconFileSelection1.refresh_filelist()
         self.widgets.IconFileSelection1.iconView.grab_focus()
         self.gcodeerror = ""
+        # deactivate mode buttons, so changing modes is not possible while we are in file chooser
+        self.widgets.rbt_manual.set_sensitive(False)
+        self.widgets.rbt_mdi.set_sensitive(False)
+        self.widgets.tbtn_setup.set_sensitive(False)
 
     def add_filters(self, dialog):
         filter_ngc = Gtk.FileFilter()
@@ -5155,6 +5163,10 @@ class gmoccapy(object):
 #            self.widgets.tbtn_fullsize_preview1.set_active(False)
             self.widgets.ntb_button.set_current_page(_BB_AUTO)
             self._show_iconview_tab(False)
+            # re-enable mode buttons, when returning from file selection
+            self.widgets.rbt_manual.set_sensitive(True)
+            self.widgets.rbt_mdi.set_sensitive(True)
+            self.widgets.tbtn_setup.set_sensitive(True)
 
     def on_IconFileSelection1_sensitive(self, widget, buttonname, state):
         self.widgets[buttonname].set_sensitive(state)
@@ -5189,6 +5201,10 @@ class gmoccapy(object):
         self.widgets.tbl_search.show()
         self.gcodeerror = ""
         self.file_changed = False
+        # deactivate the mode buttons, so changing modes is not possible while we are editing
+        self.widgets.rbt_manual.set_sensitive(False)
+        self.widgets.rbt_mdi.set_sensitive(False)
+        self.widgets.tbtn_setup.set_sensitive(False)
 
     def on_gcode_view_changed(self, widget, state):
         print("gcode view changed (modified: {})".format(state))
