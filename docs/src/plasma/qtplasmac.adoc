@@ -194,7 +194,7 @@ Refer to the <<qt_initial-setup,Heights Diagram>> diagram for a visual represent
   can be calculated using the following formula:
 
 ----
-o = 0.5 x a x (v ÷ a)^2
+o = 0.5 x a x (v / a)^2
 ----
 
 where: o = overrun, a = acceleration in units/sec2 and v = velocity in units/sec.
@@ -544,7 +544,6 @@ If a link to the launch the configuration was not created when creating the conf
 
 After the launcher appears on the desktop, right click on it and then edit it with the user's editor of choice. Edit the file so it looks similar to:
 
-[source,{ini}]
 ----
 [Desktop Entry]
 Comment=
@@ -557,7 +556,6 @@ Icon=/usr/share/pixmaps/linuxcncicon.png
 
 If the user would like a terminal window to open behind the GUI window then change the Terminal line to:
 
-[source,{ini}]
 ----
 Terminal=true
 ----
