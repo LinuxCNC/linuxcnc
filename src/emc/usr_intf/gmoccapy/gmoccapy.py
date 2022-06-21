@@ -616,6 +616,8 @@ class gmoccapy(object):
         default_spindle_speed = self.get_ini_info.get_default_spindle_speed()
         self.spindle_start_rpm = self.prefs.getpref( 'spindle_start_rpm', default_spindle_speed, float )
 
+        self.kbd_height = self.prefs.getpref("kbd_height", 250, int)
+
 ###############################################################################
 ##                     create widgets dynamically                            ##
 ###############################################################################
@@ -2338,6 +2340,7 @@ class gmoccapy(object):
             self.widgets.offsetpage1.mark_active((self.system_list[self.stat.g5x_index]).lower())
             if self.widgets.chk_use_kb_on_offset.get_active():
                 self.widgets.ntb_info.set_current_page(1)
+                self.widgets.ntb_info.set_size_request(-1, self.kbd_height)
         else:
             names = self.widgets.offsetpage1.get_names()
             for system, name in names:
@@ -2348,6 +2351,7 @@ class gmoccapy(object):
             self.touch_button_dic["edit_offsets"].set_active(False)
             self.widgets.ntb_preview.set_current_page(0)
             self.widgets.ntb_info.set_current_page(0)
+            self.widgets.ntb_info.set_size_request(-1, -1)
             if self.widgets.ntb_preview.get_n_pages() <= 4:  # else user tabs are available
                 self.widgets.ntb_preview.set_property("show-tabs", state)
 
@@ -2363,6 +2367,7 @@ class gmoccapy(object):
             self.widgets.tooledit1.set_selected_tool(self.stat.tool_in_spindle)
             if self.widgets.chk_use_kb_on_tooledit.get_active():
                 self.widgets.ntb_info.set_current_page(1)
+                self.widgets.ntb_info.set_size_request(-1, self.kbd_height)
         else:
             page.hide()
             if self.widgets.ntb_preview.get_n_pages() > 4:  # user tabs are available
@@ -2370,6 +2375,7 @@ class gmoccapy(object):
             self.widgets.vbx_jog.show()
             self.widgets.ntb_preview.set_current_page(0)
             self.widgets.ntb_info.set_current_page(0)
+            self.widgets.ntb_info.set_size_request(-1, -1)
 
     def _show_iconview_tab(self, state):
         page = self.widgets.ntb_preview.get_nth_page(3)
@@ -2382,12 +2388,14 @@ class gmoccapy(object):
             if self.widgets.chk_use_kb_on_file_selection.get_active():
                 self.widgets.box_info.show()
                 self.widgets.ntb_info.set_current_page(1)
+                self.widgets.ntb_info.set_size_request(-1, self.kbd_height)
         else:
             page.hide()
             if self.widgets.ntb_preview.get_n_pages() > 4:  # user tabs are available
                 self.widgets.ntb_preview.set_property("show-tabs", not state)
             self.widgets.ntb_preview.set_current_page(0)
             self.widgets.ntb_info.set_current_page(0)
+            self.widgets.ntb_info.set_size_request(-1, -1)
 
     # every 100 milli seconds this gets called
     # check linuxcnc for status, error and then update the readout
@@ -2695,6 +2703,7 @@ class gmoccapy(object):
         self.widgets.ntb_main.set_current_page(0)
         self.widgets.ntb_button.set_current_page(_BB_MANUAL)
         self.widgets.ntb_info.set_current_page(0)
+        self.widgets.ntb_info.set_size_request(-1, -1)
         self.widgets.ntb_jog.set_current_page(0)
 
     def on_hal_status_state_on(self, widget):
@@ -2746,8 +2755,10 @@ class gmoccapy(object):
         if self.widgets.tbtn_user_tabs.get_active():
             self.widgets.tbtn_user_tabs.set_active(False)
         self.widgets.ntb_main.set_current_page(0)
+        self.widgets.ntb_info.set_size_request(-1, -1)
         self.widgets.ntb_button.set_current_page(_BB_MANUAL)
         self.widgets.ntb_info.set_current_page(0)
+        self.widgets.ntb_info.set_size_request(-1, -1)
         self.widgets.ntb_jog.set_current_page(0)
 
         # if the status changed, we reset the key event, otherwise the key press
@@ -2772,6 +2783,7 @@ class gmoccapy(object):
             self.widgets.ntb_main.set_current_page(0)
             self.widgets.ntb_button.set_current_page(_BB_MANUAL)
             self.widgets.ntb_info.set_current_page(0)
+            self.widgets.ntb_info.set_size_request(-1, -1)
             self.widgets.ntb_jog.set_current_page(0)
             return
 
@@ -2790,8 +2802,10 @@ class gmoccapy(object):
                 self.widgets.tbtn_user_tabs.set_active(False)
             if self.widgets.chk_use_kb_on_mdi.get_active():
                 self.widgets.ntb_info.set_current_page(1)
+                self.widgets.ntb_info.set_size_request(-1, self.kbd_height)
             else:
                 self.widgets.ntb_info.set_current_page(0)
+                self.widgets.ntb_info.set_size_request(-1, -1)
             self.widgets.ntb_main.set_current_page(0)
             self.widgets.ntb_button.set_current_page(_BB_MDI)
             self.widgets.ntb_jog.set_current_page(1)
@@ -2821,6 +2835,7 @@ class gmoccapy(object):
             if self.widgets.tbtn_user_tabs.get_active():
                 self.widgets.tbtn_user_tabs.set_active(False)
             self.widgets.ntb_main.set_current_page(0)
+            self.widgets.ntb_info.set_size_request(-1, -1)
             self.widgets.ntb_button.set_current_page(_BB_AUTO)
             self.widgets.ntb_info.set_current_page(0)
             self.widgets.ntb_jog.set_current_page(2)
@@ -2946,6 +2961,7 @@ class gmoccapy(object):
             self.widgets.adj_y_pos.set_value(self.ypos)
             self.widgets.adj_width.set_value(self.width)
             self.widgets.adj_height.set_value(self.height)
+            self.widgets.adj_kbd_height.set_value(self.kbd_height)
 
             # move and resize the window
             self.widgets.window1.move(self.xpos, self.ypos)
@@ -3018,6 +3034,7 @@ class gmoccapy(object):
         if not self.onboard:
             self.macro_dic["keyboard"].set_sensitive(True)
         self.widgets.ntb_info.set_current_page(0)
+        self.widgets.ntb_info.set_size_request(-1, -1)
 
 # helpers functions start
 # =========================================================
@@ -3812,6 +3829,7 @@ class gmoccapy(object):
                 self.widgets.ntb_main.set_current_page(0)
                 self.widgets.ntb_button.set_current_page(_BB_MANUAL)
                 self.widgets.ntb_info.set_current_page(0)
+                self.widgets.ntb_info.set_size_request(-1, -1)
                 self.widgets.ntb_jog.set_current_page(0)
             else:
                 # restore mode
@@ -4187,16 +4205,16 @@ class gmoccapy(object):
                 self.macro_dic["keyboard"].set_sensitive(False)
         elif self.widgets.ntb_info.get_current_page() == 1:
             self.widgets.ntb_info.set_current_page(0)
+            self.widgets.ntb_info.set_size_request(-1, -1)
         else:
             self.widgets.ntb_info.set_current_page(1)
+            self.widgets.ntb_info.set_size_request(-1, self.kbd_height)
 
         # special case if we are in edit mode
         if self.widgets.ntb_button.get_current_page() == _BB_EDIT:
             if self.widgets.ntb_info.get_visible():
-                self.widgets.box_info.set_size_request(-1, 50)
                 self.widgets.ntb_info.hide()
             else:
-                self.widgets.box_info.set_size_request(-1, 250)
                 self.widgets.ntb_info.show()
 
     def on_ntb_info_switch_page(self, widget, page, page_num, data=None):
@@ -4273,6 +4291,7 @@ class gmoccapy(object):
         # show virtual keyboard?
         if state and self.widgets.chk_use_kb_on_offset.get_active():
             self.widgets.ntb_info.set_current_page(1)
+            self.widgets.ntb_info.set_size_request(-1, self.kbd_height)
             self.widgets.ntb_preview.set_current_page(1)
 
     def on_btn_zero_g92_clicked(self, widget, data=None):
@@ -4729,6 +4748,13 @@ class gmoccapy(object):
         self.height = value
         self.widgets.window1.resize(self.width, value)
 
+    def on_adj_kbd_height_value_changed(self, widget, data=None):
+        if not self.initialized:
+            return
+        value = int(widget.get_value())
+        self.prefs.putpref("kbd_height", value, int)
+        self.kbd_height = value
+
     def on_adj_dro_size_value_changed(self, widget, data=None):
         value = int(widget.get_value())
         self.prefs.putpref("dro_size", value, int)
@@ -5156,10 +5182,10 @@ class gmoccapy(object):
         self.widgets.gcode_view.grab_focus()
         if self.widgets.chk_use_kb_on_edit.get_active():
             self.widgets.ntb_info.set_current_page(1)
-            self.widgets.box_info.set_size_request(-1, 250)
+            self.widgets.ntb_info.set_size_request(-1, self.kbd_height)
         else:
             self.widgets.ntb_info.hide()
-            self.widgets.box_info.set_size_request(-1, 50)
+            self.widgets.ntb_info.set_size_request(-1, -1)
         self.widgets.tbl_search.show()
         self.gcodeerror = ""
         self.file_changed = False
@@ -5197,7 +5223,7 @@ class gmoccapy(object):
     def on_btn_redo_clicked(self, widget, data=None):
         self.widgets.gcode_view.redo()
 
-    # if we leave the edit mode, we will have to show all widgets again
+        # if we leave the edit mode, we will have to show all widgets again
     def on_ntb_button_switch_page(self, *args):
         print("ntb_button_switch_page")
         if self.widgets.ntb_preview.get_current_page() == 0:  # preview tab is active,
@@ -5212,6 +5238,10 @@ class gmoccapy(object):
         elif self.widgets.ntb_preview.get_current_page() == 3:
             self._show_iconview_tab(False)
 
+# TODO:    This line is not compared with the corresponding constant:
+#          self.widgets.ntb_preview.get_current_page() == _BB_HOME or \
+#          This line will be always false as ntb_preview has only four pages:
+#          self.widgets.ntb_preview.get_current_page() == _BB_LOAD_FILE:
         if self.widgets.ntb_button.get_current_page()  == _BB_EDIT or \
            self.widgets.ntb_preview.get_current_page() == _BB_HOME or \
            self.widgets.ntb_preview.get_current_page() == _BB_LOAD_FILE:
@@ -5224,7 +5254,7 @@ class gmoccapy(object):
             self.widgets.hal_action_reload.emit("activate")
             self.widgets.ntb_info.set_current_page(0)
             self.widgets.ntb_info.show()
-            self.widgets.box_info.set_size_request(-1, 200)
+            self.widgets.ntb_info.set_size_request(-1, -1)
             self.widgets.tbl_search.hide()
 
     # make a new file

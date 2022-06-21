@@ -28,6 +28,13 @@
     <property name="step_increment">1</property>
     <signal name="value-changed" handler="on_adj_height_value_changed" swapped="no"/>
   </object>
+  <object class="GtkAdjustment" id="adj_kbd_height">
+    <property name="lower">150</property>
+    <property name="upper">500</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+    <signal name="value-changed" handler="on_adj_kbd_height_value_changed" swapped="no"/>
+  </object>
   <object class="GtkAdjustment" id="adj_max_messages">
     <property name="lower">1</property>
     <property name="upper">25</property>
@@ -2079,7 +2086,6 @@
                     </child>
                     <child>
                       <object class="GtkVBox" id="box_info">
-                        <property name="height_request">200</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <child>
@@ -2091,7 +2097,6 @@
                             <signal name="switch-page" handler="on_ntb_info_switch_page" swapped="no"/>
                             <child>
                               <object class="GtkHBox" id="hbox_main_info">
-                                <property name="height_request">200</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <child>
@@ -3191,12 +3196,11 @@
                           <packing>
                             <property name="expand">True</property>
                             <property name="fill">True</property>
-                            <property name="position">0</property>
+                            <property name="position">1</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkTable" id="tbl_search">
-                            <property name="height_request">50</property>
                             <property name="can_focus">False</property>
                             <property name="n_columns">16</property>
                             <child>
@@ -3430,7 +3434,7 @@
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">True</property>
-                            <property name="position">1</property>
+                            <property name="position">0</property>
                           </packing>
                         </child>
                       </object>
@@ -3840,6 +3844,45 @@
                                             <property name="expand">True</property>
                                             <property name="fill">True</property>
                                             <property name="position">4</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkBox">
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">False</property>
+                                            <child>
+                                              <object class="GtkLabel" id="lbl_kbd_height">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <property name="xpad">5</property>
+                                                <property name="ypad">5</property>
+                                                <property name="label" translatable="yes">Height</property>
+                                                <property name="xalign">0</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">0</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkSpinButton">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">True</property>
+                                                <property name="adjustment">adj_kbd_height</property>
+                                                <property name="value">250</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">True</property>
+                                                <property name="fill">True</property>
+                                                <property name="position">1</property>
+                                              </packing>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">True</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">5</property>
                                           </packing>
                                         </child>
                                       </object>
