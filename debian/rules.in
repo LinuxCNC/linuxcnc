@@ -29,8 +29,8 @@ export DATE=$(shell LANG=C date --date='@$(TIMESTAMP)' '+%d\ %b\ %Y')
 export TIME=$(shell LANG=C date --date='@$(TIMESTAMP)' '+%T')
 
 kernel_version = @KERNEL_VERSION@
-enable_build_documentation = @ENABLE_BUILD_DOCUMENTATION@
 configure_realtime_arg = @CONFIGURE_REALTIME_ARG@
+enable_build_documentation = @ENABLE_BUILD_DOCUMENTATION@
 DESTDIR=$(CURDIR)/debian/@MAIN_PACKAGE_NAME@
 DEV_PACKAGE_NAME=@MAIN_PACKAGE_NAME@-dev
 
@@ -44,7 +44,7 @@ override_dh_auto_configure:
 	    --prefix=/usr --sysconfdir=/etc \
 	    --mandir=/usr/share/man \
 	    $(configure_realtime_arg) \
-            $(enable_build_documentation) \
+	    $(enable_build_documentation) \
 	    --disable-check-runtime-deps
 
 override_dh_auto_build-arch:
@@ -82,8 +82,11 @@ override_dh_auto_install:
 	cd debian/@EXTRAS@ && cp -a * $(DESTDIR)
 	DESTDIR=$(DESTDIR) $(MAKE) -C src INSTALL=install
 	py3clean .
-	mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/lib
-	cp lib/*.a debian/$(DEV_PACKAGE_NAME)/usr/lib
+	# In case that only the indep packages are built
+	if ls lib|egrep -q "*.a$$"; then \
+		mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/lib ; \
+		cp lib/*.a debian/$(DEV_PACKAGE_NAME)/usr/lib ; \
+	fi
 	mkdir -p $(DESTDIR)/usr/share/doc/linuxcnc
 	cp docs/html/gcode*.html $(DESTDIR)/usr/share/doc/linuxcnc/
 
@@ -102,21 +105,22 @@ override_dh_auto_install:
 	mv -t $$d $(DESTDIR)/usr/share/applications/linuxcnc-integratorinfo.desktop ; \
 	mv -t $$d $(DESTDIR)/usr/share/applications/linuxcnc-manualpages.desktop
 
-ifneq "$(enable_build_documentation)" ""
 	# Only the English developer documentation goes to the -dev package
-	mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/share/doc/linuxcnc-dev
-	mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/doc/linuxcnc-dev/ $(DESTDIR)/usr/share/doc/linuxcnc/LinuxCNC_Developer.pdf
 	# The translated developer documentation goes to the respective regular -doc package
-	mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/doc/linuxcnc-dev/ $(DESTDIR)/usr/share/doc/linuxcnc/LinuxCNC_Developer_*.pdf
-	for lang in zh_CN es fr; do \
-		p=$$(echo $$lang | tr _ - | tr A-Z a-z); \
-		d=debian/linuxcnc-doc-$$p/usr/share/doc/linuxcnc ; \
-		mkdir -p $$d ; \
-		find $(DESTDIR)/usr/share/doc/linuxcnc -name "*_$${lang}.pdf" | xargs -r mv -t $$d ; \
-	done
 	# english documentation has no "en" suffix
-	d=debian/linuxcnc-doc-en/usr/share/doc/linuxcnc && mkdir -p $$d && mv -t $$d $(DESTDIR)/usr/share/doc/linuxcnc/*.pdf
-endif
+	if [ -r $(DESTDIR)/usr/share/doc/linuxcnc/LinuxCNC_Developer.pdf ]; then \
+		mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/share/doc/linuxcnc-dev; \
+		mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/doc/linuxcnc-dev/ $(DESTDIR)/usr/share/doc/linuxcnc/LinuxCNC_Developer.pdf; \
+		mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/doc/linuxcnc-dev/ $(DESTDIR)/usr/share/doc/linuxcnc/LinuxCNC_Developer_*.pdf; \
+		for lang in zh_CN es fr; do \
+			p=$$(echo $$lang | tr _ - | tr A-Z a-z); \
+			d=debian/linuxcnc-doc-$$p/usr/share/doc/linuxcnc ; \
+			mkdir -p $$d ; \
+			find $(DESTDIR)/usr/share/doc/linuxcnc -name "*_$${lang}.pdf" | xargs -r mv -t $$d ; \
+		done; \
+		d=debian/linuxcnc-doc-en/usr/share/doc/linuxcnc && mkdir -p $$d && mv -t $$d $(DESTDIR)/usr/share/doc/linuxcnc/*.pdf; \
+	fi
+
 	mkdir -p $(DESTDIR)/usr/share/doc/linuxcnc/examples 
 	cd $(DESTDIR)/usr/share/doc/linuxcnc/examples && ln -sf ../../../linuxcnc/ncfiles ./nc_files
 
@@ -124,15 +128,18 @@ endif
 	mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/include
 	mv -t debian/$(DEV_PACKAGE_NAME)/usr/include $(DESTDIR)/usr/include/linuxcnc
 
-	mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/lib
-	mv -t debian/$(DEV_PACKAGE_NAME)/usr/lib/ $(DESTDIR)/usr/lib/*.a $(DESTDIR)/usr/lib/*.so
-	mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/bin
-	mv -t debian/$(DEV_PACKAGE_NAME)/usr/bin $(DESTDIR)/usr/bin/halcompile
-	mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/share/man/man1
-	mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/man/man1  $(DESTDIR)/usr/share/man/man1/halcompile.1
-	mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/man $(DESTDIR)/usr/share/man/man3
-	mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/share/linuxcnc
-	mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/linuxcnc $(DESTDIR)/usr/share/linuxcnc/Makefile.modinc
+	# In case that only the indep packages are built
+	if ls $(DESTDIR)/usr/lib/*.a $(DESTDIR)/usr/lib/*.so | egrep -q "*.(a|so)$$"; then \
+		mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/lib; \
+		mv -t debian/$(DEV_PACKAGE_NAME)/usr/lib/ $(DESTDIR)/usr/lib/*.a $(DESTDIR)/usr/lib/*.so; \
+		mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/bin; \
+		mv -t debian/$(DEV_PACKAGE_NAME)/usr/bin $(DESTDIR)/usr/bin/halcompile; \
+		mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/share/man/man1; \
+		mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/man/man1  $(DESTDIR)/usr/share/man/man1/halcompile.1; \
+		mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/man $(DESTDIR)/usr/share/man/man3; \
+		mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/share/linuxcnc; \
+		mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/linuxcnc $(DESTDIR)/usr/share/linuxcnc/Makefile.modinc; \
+	fi
 	#mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/share/doc/
 	#mkdir -t debian/$(DEV_PACKAGE_NAME)/usr/share/doc/ $(DESTDIR)/usr/share/doc/linuxcnc-dev/
 	# not a package: drivers
@@ -148,7 +155,10 @@ override_dh_compress:
 
 override_dh_fixperms:
 	dh_fixperms -X/linuxcnc_module_helper -X/rtapi_app
-	chmod -x $(DESTDIR)/usr/lib/tcltk/linuxcnc/linuxcnc.tcl
+	# In case that only the indep packages are built
+	if [ -r  "$(DESTDIR)/usr/lib/tcltk/linuxcnc/linuxcnc.tcl" ]; then \
+		chmod -x $(DESTDIR)/usr/lib/tcltk/linuxcnc/linuxcnc.tcl; \
+	fi
 	# override_dh_python3: # not executed, so we attach it to fixperms
 	DEB_HOST_ARCH=`dpkg-architecture -qDEB_HOST_ARCH` dh_python3
 

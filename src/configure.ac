@@ -1039,12 +1039,14 @@ AC_ARG_ENABLE(build-documentation,
 if ( test "$BUILD_DOCS" = "yes" ) ; then
     AC_PATH_PROG(ASCIIDOC,asciidoc,"none")
     if ( test "none" = "$ASCIIDOC" ) ; then
-	AC_MSG_ERROR([no AsciiDoc, documentation cannot be built])
+	AC_MSG_WARN([no AsciiDoc, documentation cannot be built])
+        BUILD_DOCS=no
     fi
 
     AC_PATH_PROG(A2X,a2x,"none")
     if ( test "none" = "$A2X" ) ; then
-	AC_MSG_ERROR([no a2x, documentation cannot be built])
+	AC_MSG_WARN([no a2x, documentation cannot be built])
+        BUILD_DOCS=no
     fi
 
     AC_MSG_CHECKING([whether to specify latex.encoding])
@@ -1070,35 +1072,47 @@ EOF
 
     AC_PATH_PROG(DBLATEX,dblatex,"none")
     if ( test "none" = "$DBLATEX" ) ; then
-	AC_MSG_ERROR([no dblatex, documentation cannot be built])
+	AC_MSG_WARN([no dblatex, documentation cannot be built])
+        BUILD_DOCS=no
     fi
 
-    AC_MSG_CHECKING([dblatex version])
-    set -- `dblatex --version`; DBLATEX_VER=$3
-    set -- `echo $DBLATEX_VER | sed 's/[[.-]]/ /g'`
-    micro=`echo $3 | sed 's/\([[0-9]]*\).*/\1/g'`
+    if ( test "$BUILD_DOCS" = "yes" ) ; then
+        AC_MSG_CHECKING([dblatex version])
+        set -- `dblatex --version`; DBLATEX_VER=$3
+        set -- `echo $DBLATEX_VER | sed 's/[[.-]]/ /g'`
+        micro=`echo $3 | sed 's/\([[0-9]]*\).*/\1/g'`
 
-    if test $1 -eq 0 -a \( $2 -lt 2 -o \( $2 -eq 2 -a ${micro:-0} -lt 12 \) \); then
-        AC_MSG_ERROR([dblatex version $DBLATEX_VER less than 0.2.12.
+        if test $1 -eq 0 -a \( $2 -lt 2 -o \( $2 -eq 2 -a ${micro:-0} -lt 12 \) \); then
+            AC_MSG_WARN([dblatex version $DBLATEX_VER less than 0.2.12.
 Documentation cannot be built.])
-    fi
-    AC_MSG_RESULT([$DBLATEX_VER])
-
-
-    AC_PATH_PROG(SOURCE_HIGHLIGHT,source-highlight,"none")
-    if ( test "none" = "$SOURCE_HIGHLIGHT" ) ; then
-	AC_MSG_ERROR([no source-highlight, documentation cannot be built])
+            BUILD_DOCS=no
+        else
+            AC_MSG_RESULT([$DBLATEX_VER])
+        fi
     fi
 
-
-    AC_PATH_PROG(CONVERT,convert,"none")
-    if ( test "none" = "$CONVERT" ) ; then
-	AC_MSG_ERROR([no convert, documentation cannot be built])
+    if ( test "$BUILD_DOCS" = "yes" ) ; then
+        AC_PATH_PROG(SOURCE_HIGHLIGHT,source-highlight,"none")
+        if ( test "none" = "$SOURCE_HIGHLIGHT" ) ; then
+            AC_MSG_WARN([no source-highlight, documentation cannot be built])
+            BUILD_DOCS=no
+        fi
     fi
 
-    AC_PATH_PROG(GS,gs,"none")
-    if ( test "none" = "$GS" ) ; then
-	AC_MSG_ERROR([no gs, documentation cannot be built])
+    if ( test "$BUILD_DOCS" = "yes" ) ; then
+        AC_PATH_PROG(CONVERT,convert,"none")
+        if ( test "none" = "$CONVERT" ) ; then
+            AC_MSG_WARN([no convert, documentation cannot be built])
+            BUILD_DOCS=no
+        fi
+    fi
+
+    if ( test "$BUILD_DOCS" = "yes" ) ; then
+        AC_PATH_PROG(GS,gs,"none")
+        if ( test "none" = "$GS" ) ; then
+            AC_MSG_WARN([no gs, documentation cannot be built])
+            BUILD_DOCS=no
+        fi
     fi
 fi
 
@@ -1106,7 +1120,8 @@ fi
 if ( test "$BUILD_DOCS_PDF" = "yes" ) ; then
     AC_PATH_PROG(PDFLATEX,pdflatex,"none")
     if ( test "none" = "$PDFLATEX" ) ; then
-	AC_MSG_ERROR([no pdflatex, PDF documentation cannot be built])
+	AC_MSG_WARN([no pdflatex, PDF documentation cannot be built])
+        BUILD_DOCS=no
     fi
 fi
 
@@ -1114,25 +1129,29 @@ fi
 if ( test "$BUILD_DOCS_HTML" = "yes" ) ; then
     AC_PATH_PROG(XSLTPROC,xsltproc,"none")
     if ( test "none" = "$XSLTPROC" ) ; then
-	AC_MSG_ERROR([no xsltproc, HTML documentation cannot be built])
+	AC_MSG_WARN([no xsltproc, HTML documentation cannot be built])
+        BUILD_DOCS=no
     fi
 
     AC_PATH_PROG(DVIPNG,dvipng,"none")
     if ( test "none" = "$DVIPNG" ) ; then
-	AC_MSG_ERROR([no dvipng, HTML documentation cannot be built])
+	AC_MSG_WARN([no dvipng, HTML documentation cannot be built])
+        BUILD_DOCS=no
     fi
 
     AC_MSG_CHECKING([for HTML support in groff])
     if ! groff -Thtml < /dev/null > /dev/null 2>&1 ; then
-        AC_MSG_ERROR([no groff -Thtml, HTML documentation cannot be built])
+        AC_MSG_WARN([no groff -Thtml, HTML documentation cannot be built])
+        BUILD_DOCS=no
     else
         AC_MSG_RESULT(yes)
     fi
 
     AC_PATH_PROG(CHECKLINK,checklink,"none")
     if ( test "none" = "$CHECKLINK" ) ; then
-	AC_MSG_ERROR([no checklink, HTML documentation cannot be built
+	AC_MSG_WARN([no checklink, HTML documentation cannot be built
 install with "sudo apt-get install w3c-linkchecker"])
+        BUILD_DOCS=no
     fi
 fi
 
