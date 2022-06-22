@@ -194,7 +194,7 @@ Refer to the <<qt_initial-setup,Heights Diagram>> diagram for a visual represent
   can be calculated using the following formula:
 
 ----
-o = 0.5 x a x (v / a)^2
+o = 0.5 * a * (v / a)^2
 ----
 
 where: o = overrun, a = acceleration in units/sec2 and v = velocity in units/sec.
@@ -517,7 +517,7 @@ More information on contact switching load can be seen on page III of link:https
 
 [underline]*Calculations:*
 
-If using a Mesa card, the input resistance could be 5000Ω (7i96) or 10000Ω (7i76E), giving a contact current of 4.8mA or 2.4mA assuming a supply voltage of 24V (I = V/R).
+If using a Mesa card, the input resistance of a 7i96 is 4700Ω (always consult the product manual associated with the revision being used as these values sometimes vary between revisions), giving a contact current of 5.1mA assuming a supply voltage of 24V (I = V/R).
 
 As an example, the typical relay used in a Hypertherm Powermax 65 plasma cutter (link:https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Data+Sheet%7F1308242_T77%7F1011%7Fpdf%7FEnglish%7FENG_DS_1308242_T77_1011.pdf%7F1-1393194-0[TE T77S1D10-24]) requires a minimum contact load of 100mA @ 5VDC which will dissipate 0.5W (P = I * V). If using a 24VDC power supply this would then equate to a minimum current of 20.8mA. Because there is less current drawn by the Mesa input than is required by the relay there needs to be an increase in the current.
 
@@ -528,7 +528,7 @@ The resistance can be calculated using R = Vs / (Im - Ii) where:
 - Im = minimum current required
 - Ii = input current
 
-Using a 7i76E with an input current of 2.4mA gives a calculated value of 1304Ω. (24 / (.0208 - .0024)) This could then be rounded down to a commonly available 1200Ω resistor giving a small safety margin.
+Using a 7i96 with an input current of 5.1mA gives a calculated value of 1529Ω. (24 / (.0208 - .0051)). This could then be rounded down to a commonly available 1500Ω resistor giving a small safety margin.
 
 The power dissipation can by calculated using P = Vs^2^ / Rs where:
 
@@ -536,7 +536,7 @@ The power dissipation can by calculated using P = Vs^2^ / Rs where:
 - Vs = supply voltage
 - Rs = selected resistance
 
-This gives a value of 0.48W. This could then be rounded up to 1W, giving a good safety margin. The final selection would be a 1200Ω 1W resistor. Note that this resistor could be used on either the 7i96 or the 7i76E.
+This gives a value of 0.38W. This could then be rounded up to 1W, giving a good safety margin. The final selection would be a 1500Ω 1W resistor.
 
 === Desktop Launcher
 
