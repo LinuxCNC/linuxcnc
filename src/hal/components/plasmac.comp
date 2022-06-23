@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-1.224
+1.225
 
 .I SUMMARY:
 .br
@@ -1399,11 +1399,11 @@ FUNCTION(_) {
                 feed_hold = TRUE;
                 if(pierce_timer > 0){
                     pierce_timer -= fperiod;
-                }else if(!puddle_jump_delay || !puddle_jump_percent){
-                    state = CUT_HEIGHT;
-                }else{
+                }else if((puddle_jump_delay || puddle_jump_percent != 100) && !cut_recovering){
                     puddle_jump_timer = puddle_jump_delay;
                     state = PUDDLE_JUMP;
+                }else{
+                    state = CUT_HEIGHT;
                 }
                 break;
             case PUDDLE_JUMP:
@@ -2066,6 +2066,9 @@ FUNCTION(_) {
                 }
                 if(!cut_recovering){
                     cut_recovering = TRUE;
+                    if(puddle_jump_delay || puddle_jump_percent != 100){
+                        rtapi_print_msg(RTAPI_MSG_ERR, "Puddle Jump is disabled during Cut Recovery.\n");
+                    }
                 }
                 /* offset for laser recovery if required */
                 if(laser_recovery_start && laser_recovery_state == OFF){

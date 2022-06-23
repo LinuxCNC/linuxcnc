@@ -1183,8 +1183,7 @@ This section shows the parameters which are active for the current cut.
 |Puddle Height|Expressed as a percentage of Pierce Height, this sets the Puddle Jump height for the currently selected material. +
     Typically used for thicker materials, Puddle Jump allows the torch to have an intermediate step between Pierce Height and Cut Height. +
     If set, the torch will proceed from Pierce Height to P-Jump Height for a period of time (P-Jump Delay) before proceeding to Cut Height to effectively "jump" over the molten puddle. Refer to the <<qt_initial-setup, Heights Diagram>> diagram for a visual representation.
-|Puddle Delay|This sets the Puddle Jump delay (in seconds) for the currently selected material. +
-    This value is mandatory if P-Jump Height is set as it sets the length of time the torch will stay at the P-Jump Height before proceeding to Cut Height.
+|Puddle Delay|This sets the amount of time (in seconds) the torch will stay at the P-Jump Height before proceeding to Cut Height.
 |Pause At End|This sets the amount of time (in seconds) the torch will stay on at the end of the cut before proceeding with the M5 command to turn off and raise the torch. For more information see <<qt_pause-at-end, Pause At End Of Cut>>.
 |Gas Pressure|This sets the gas pressure for the currently selected material. +
     This setting is only valid if PowerMax communications are being used. +
@@ -1195,6 +1194,8 @@ This section shows the parameters which are active for the current cut.
     2 = CPA (Constant Pilot Arc) +
     3 = Gouge/Mark
 |===
+
+NOTE: SEE THE <<qt_thick-materials, THICK MATERIALS>> SECTION FOR MORE INFORMATION ON PUDDLE JUMP
 
 [underline]*SAVE, RELOAD, NEW, & DELETE Buttons*
 
@@ -1534,7 +1535,7 @@ A complete example:
 
 [source,{ngc}]
 ----
-(o=1, nu=2, na=5mm Mild Steel 40A, ph=3.1, pd=0.1, ch=0.75, fr=3000, kw=0.5, th=1, ca=45, cv=110, pe=0.1, gp=5, cm=1, jh=0, jd=0)
+(o=0, nu=2, na=5mm Mild Steel 40A, ph=3.1, pd=0.1, ch=0.75, fr=3000, kw=0.5, th=1, ca=45, cv=110, pe=0.1, gp=5, cm=1, jh=0, jd=0)
 ----
 
 If a temporary material has been specified in a G-Code file then the material change line (M190...) and wait for change line (M66...) will be added by the G-Code filter and are not required in the G-Code file.
@@ -1929,11 +1930,7 @@ IMPORTANT: PROBE HEIGHT NEEDS TO BE SET ABOVE THE TOP OF THE MATERIAL FOR OFFSET
 QtPlasmaC allows two different cut modes:
 
 . *NORMAL CUT* - runs the loaded G-Code program to pierce then cut.
-. *PIERCE ONLY* - converts the loaded G-Code program and then runs the program to pierce the material at the *M3 S1* or *M3 $0 S1* command positions only. Scribe (*M3 $1 S1*) and Spotting (*M3 $2 S1*) commands will be ignored and no pierce will take place in those locations.
-
-*Pierce Only* mode is useful for thick materials which may produce enough dross on the material surface from piercing to interfere with the torch while cutting. This enables the entire sheet to be pierced and cleaned off before cutting.
-
-This also enables near-end-of-life consumables to be used for piercing and then they can be swapped out for good consumables to be used while cutting.
+. *PIERCE ONLY* - only pierces the material at each cut start position, useful prior to a *NORMAL CUT* on <<qt_thick-materials, thick materials>>
 
 There are two ways of enabling this feature:
 
@@ -2148,6 +2145,33 @@ If the user is using a custom user button then substitute *F9* with *User Button
 [NOTE]
 If the torch flames out during cutting, the user must still press *F9* or *Esc* or the *CYCLE STOP* button to end the cut. This clears the Z offsets and returns the torch to the starting position.
 
+[[qt_thick-materials]]
+=== Thick Materials
+
+Cutting thick materials can be problematic in that the large amount of molten metal caused by piercing can shorten the life of consumables and also may cause a puddle high enough that the torch may hit the puddle while moving to cut height.
+
+The are two functions built into QtPlasmaC to help alleviate these issues.
+
+[underline]*Pierce Only*
+
+*Pierce Only* mode converts the loaded G-Code program and then runs the program to pierce the material at the start position of each cut. Scribe and Spotting commands will be ignored and no pierce will take place in those locations.
+
+This mode is useful for thick materials which may produce enough dross on the material surface from piercing to interfere with the torch while cutting. The entire sheet can pierced and then cleaned off prior to cutting.
+
+It is possible to use near-end-of-life consumables for piercing and then they can be swapped out for good consumables to be used while cutting.
+
+*Pierce Only* is one of two different <<qt_cut-types, cut types>>
+
+[underline]*Puddle Jump*
+
+*Puddle Jump* is the height that the torch will move to after piercing and prior to moving to *Cut Height* and is expressed as a percentage of *Pierce Height*. This allows the torch to clear any puddle of molten material tht may be caused by piercing. The maximum allowable height is 200% of the *Pierce Height*
+
+Setting for *Puddle Jump* are described in <<qt_material, cut parameters>>
+
+The recommended option is to use *Pierce Only* due to it being able to utilise near end of life consumables.
+
+IMPORTANT: *PUDDLE JUMP* IS DISABLED DURING CUT RECOVERY
+
 [[qt_mesh-mode]]
 === Mesh Mode (Expanded Metal Cutting)
 
@@ -2214,6 +2238,8 @@ If a laser offset is in effect when *CANCEL MOVE* is pressed then this offset wi
 
 [NOTE]
 Cut recovery movements will be limited to a radius of 10mm (0.4") from either the point the program was paused, or from the last point on the cut path if paused motion was used.
+
+IMPORTANT: PUDDLE JUMP IS DISABLED DURING CUT RECOVERY
 
 [[qt_run-from-line]]
 === Run From Line
@@ -3846,9 +3872,9 @@ press 'SELECT' which will open a file dialog box, select the .ini file of the Qt
     (n is the mode, 0=normal cut mode, 1=pierce only mode)
 |Create or edit materials. +
  options: +
- 1 - Create temporary default +
- 2 - Add if not existing +
- 3 - Overwrite if existing else add new |mandatory parameters: +
+ 0 - Create temporary default +
+ 1 - Add if not existing +
+ 2 - Overwrite if existing else add new |mandatory parameters: +
     (o=<option>, nu=<nn>, na=<ll>, ph=<nn>, pd=<nn>, ch=<nn>, fr=<nn>) +
     optional parameters: +
     (kw=<nn>, th=<nn>, ca=<nn>, cv=<nn>, pe=<nn>, gp=<nn>, cm=<nn>, jh=<nn>, jd=<nn>)
@@ -3962,8 +3988,8 @@ press 'SELECT' which will open a file dialog box, select the .ini file of the Qt
     G0 X0 Y0 +
     G90 +
     M2 +
-|Create temporary default material |(o=1, nu=2, na=5mm Mild Steel 40A, ph=3.1, pd=0.1, ch=0.75, fr=3000)
-|Edit material, if not existing create a new one |(o=3, nu=2, na=5mm Mild Steel 40A, ph=3.1, pd=0.1, ch=0.75, fr=3000, kw=1.0)
+|Create temporary default material |(o=0, nu=2, na=5mm Mild Steel 40A, ph=3.1, pd=0.1, ch=0.75, fr=3000)
+|Edit material, if not existing create a new one |(o=2, nu=2, na=5mm Mild Steel 40A, ph=3.1, pd=0.1, ch=0.75, fr=3000, kw=1.0)
 |===
 
 [[qt_mesa-thcad]]
