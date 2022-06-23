@@ -1,12 +1,11 @@
-#
-#
+# nicolas <nicolas.camil@libertysurf.fr>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-05-28 23:16+0200\n"
-"PO-Revision-Date: 2022-03-26 16:10+0000\n"
-"Last-Translator: ButterflyOfFire <ButterflyOfFire@protonmail.com>\n"
+"PO-Revision-Date: 2022-06-23 10:22+0000\n"
+"Last-Translator: nicolas <nicolas.camil@libertysurf.fr>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "fr/>\n"
 "Language: fr\n"
@@ -14,7 +13,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.12-dev\n"
+"X-Generator: Weblate 4.13.1-dev\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -2728,7 +2727,7 @@ msgstr "mouvement circulaire impossible avec des limites dépassées"
 
 #: src/emc/motion/command.c:1213
 msgid "MOTION: can't STEP while already executing"
-msgstr "MOTION: can't STEP while already executing"
+msgstr "MOTION : can't STEP while already executing"
 
 #: src/emc/motion/command.c:1315
 msgid "can't enable motion, enable input is false"
@@ -2854,7 +2853,7 @@ msgstr "MOTION: défaut hal_init()\n"
 #: src/emc/motion/motion.c:275
 #, c-format
 msgid "MOTION: num_joints is %d, must be between 1 and %d\n"
-msgstr "MOTION: num_joints est %d, doit être compris entre 1 et %d\n"
+msgstr "MOTION : num_joints est %d, doit être compris entre 1 et %d\n"
 
 #: src/emc/motion/motion.c:282
 #, c-format
@@ -12097,7 +12096,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
