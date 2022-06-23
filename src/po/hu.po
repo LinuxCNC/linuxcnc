@@ -2,18 +2,19 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <dzsolt@gmail.com>, 2006.
+# Ambr Enzs <inarcsjavagarage@gmail.com>, 2022.
 #
-#  Beta.
-#  Now 100% translation.
-#  Now refinement a few word.
+# Beta.
+# Now 100% translation.
+# Now refinement a few word.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: AXIS Hungarian Translation 0.2\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-05-28 23:16+0200\n"
-"PO-Revision-Date: 2021-12-20 13:51+0000\n"
-"Last-Translator: Horváth Csaba <hcs.plc@gmail.com>\n"
+"PO-Revision-Date: 2022-06-24 12:03+0000\n"
+"Last-Translator: Ambr Enzs <inarcsjavagarage@gmail.com>\n"
 "Language-Team: Hungarian <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/hu/>\n"
 "Language: hu\n"
@@ -21,7 +22,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.10\n"
+"X-Generator: Weblate 4.13.1-dev\n"
 "X-Poedit-Language: Hungarian\n"
 "X-Poedit-Country: HUNGARY\n"
 
@@ -37,36 +38,41 @@ msgstr ""
 #: src/emc/task/emctaskmain.cc:1005
 #, c-format
 msgid "can't do that (%s:%d) in manual mode"
-msgstr "nem hajtható végre (%s:%d) kézi üzemben"
+msgstr "nem hajtható végre a (%s:%d) kifejezés kézi üzemben"
 
 #: src/emc/task/emctaskmain.cc:1112
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idle"
-msgstr "nem teheti meg (%s) automatikus módban a fordító idle"
+msgstr ""
+"nem teheti meg (%s) automatikus módban az interpreter \"idle\" üzemmódjában"
 
 #: src/emc/task/emctaskmain.cc:1181
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
-msgstr "nem lehetséges (%s) auto módban a fordító olvas"
+msgstr ""
+"nem lehetséges a (%s) kifejezés auto módban amennyiben az interpreter olvasó "
+"módban van"
 
 #: src/emc/task/emctaskmain.cc:1268
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
-msgstr "nem lehetséges (%s) auto módban a fordító szünetel"
+msgstr "nem lehetséges a (%s) auto módban a fordító szünetelve van"
 
 #: src/emc/task/emctaskmain.cc:1339
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
-msgstr "nem lehetséges (%s) auto módban a fordító várakozik"
+msgstr "nem lehetséges (%s) auto módban várakozó módban levő interpreterrel"
 
 #: src/emc/task/emctaskmain.cc:1460
 #, c-format
 msgid "can't do that (%s:%d) in MDI mode"
-msgstr "nem végrehajtható (%s:%d) MDI módban"
+msgstr "nem végrehajtható a  (%s:%d) MDI módban"
 
 #: src/emc/task/emctaskmain.cc:2131
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
-msgstr "Nem lehet módot váltani, AUTO módban és a fordító IDLE állpotban"
+msgstr ""
+"Nem lehet módot váltani, amíg  végrehajtási mód  AUTO  és az interpreter "
+"nincs IDLE állapotban"
 
 #: src/emc/task/emctaskmain.cc:2184
 msgid "failed to close file"
@@ -76,15 +82,15 @@ msgstr "nem sikerült bezárni a fájlt"
 #: tcl/tklinuxcnc.tcl:452
 #, c-format, tcl-format
 msgid "can't open %s"
-msgstr "nem sikerült megnyitni %s"
+msgstr "nem sikerült megnyitni az %s-t"
 
 #: src/emc/task/emctaskmain.cc:2210
 msgid "Can't issue MDI command when not homed"
-msgstr "Nem adható ki MDI parancs, ha nincs referencia felvéve"
+msgstr "Nem adható ki MDI parancs, ha nincs home  felvéve"
 
 #: src/emc/task/emctaskmain.cc:2215
 msgid "Must be in MDI mode to issue MDI command"
-msgstr "MDI módban kell lennie az MDI parancs kiadásához"
+msgstr "MDI módban kell lennie  MDI parancs kiadásához"
 
 #: src/emc/task/emctaskmain.cc:2297
 msgid "Can't run a program when not homed"
@@ -112,17 +118,15 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_check.cc:89
 msgid "G4 not allowed with G2 or G3 because they both use P"
-msgstr "G4 nem engedélyezett G2 vagy G3-al, mert mindkettő P-t használ"
+msgstr "G4 nem engedélyezett G2 -vel vagy G3-al, mert mindkettő P-t használ"
 
 #: src/emc/rs274ngc/interp_check.cc:92
-#, fuzzy
-#| msgid "Line with G10 does not have L1, L10, L11, L2, or L20"
 msgid "Line with G10 does not have L0, L1, L10, L11, L2, or L20"
-msgstr "A G10-es vonal nem rendelkezik L1, L10, L11, L2 vagy L20-val"
+msgstr "A G10 sor nem rendelkezik L1, L10, L11, L2 vagy L20-val"
 
 #: src/emc/rs274ngc/interp_check.cc:93
 msgid "P value not an integer with G10"
-msgstr "P értéke nem egész szám G10-nél"
+msgstr "P értéke nem egy egész szám G10-nél"
 
 #: src/emc/rs274ngc/interp_check.cc:94
 #, c-format
@@ -142,42 +146,42 @@ msgstr "A G5.2 és G5.3 kódok között csak további G5.2 kódok engedélyezett
 msgid ""
 "D word with no G41, G41.1, G42, G42.1, G71, G71.1, G71.2 or G96 to use it"
 msgstr ""
-"A G41, G41.1, G42, G42.1, G71, G71.1, G71.2 vagy G96 kódnak tartalmaznia "
-"kell a D paramétert"
+"A D word -öt a G41, G41.1, G42, G42.1, G71, G71.1, G71.2 nélkül  vagy G96 "
+"kóddal kell hsználni"
 
 #: src/emc/rs274ngc/interp_check.cc:269
 msgid ""
 "$ (spindle selection) word with no G41, G41.1, G42, G42.1, G76 G95 or G96 to "
 "use it"
 msgstr ""
-"$ (főorsó kiválasztás) word with no G41, G41.1, G42, G42.1, G76 G95 vagy G96 "
-"to use it"
+"$ (főorsó kiválasztás) kifejezést  G41, G41.1, G42, G42.1, G76 G95 vagy G96  "
+"nélkül kell használni"
 
 #: src/emc/rs274ngc/interp_check.cc:277
 msgid "E word with no G76, M3, M4, M5, M19, M51, M66, M67 or M68 to use it"
 msgstr ""
-"A G76, M3, M4, M5, M19, M51, M66, M67 vagy M68 kódnak tartalmaznia kell az E "
-"paramétert"
+"E paraméter  G76, M3, M4, M5, M19, M51, M66, M67 vagy M68 -al együtt nem "
+"használható"
 
 #: src/emc/rs274ngc/interp_check.cc:282
 msgid "H word with no G43 or G76 to use it"
-msgstr "A G43 vagy G76 kódnak tartalmaznia kell a H paramétert"
+msgstr "H paraméter nem  használható G43 vagy G76 kóddal együtt"
 
 #: src/emc/rs274ngc/interp_check.cc:290
 msgid "I word with no G2, G3, G5, G5.1, G10, G33.1, G76, or G87 to use it"
 msgstr ""
-"A G2, G3, G5, G5.1, G10, G33.1, G76, vagy G87 kódnak tartalmaznia kell az I "
-"paraméter"
+"Az I paraméter nem használható  G2, G3, G5, G5.1, G10, G33.1, G76, vagy "
+"G87-al"
 
 #: src/emc/rs274ngc/interp_check.cc:296
 msgid "J word with no G2, G3, G5, G5.1, G10, G76 or G87 to use it"
 msgstr ""
-"A G2, G3, G5, G5.1, G10, G76 vagy G87 kódnak tartalmaznia kell a J paramétert"
+"J paraméternem használható G2, G3, G5, G5.1, G10, G76 vagy G87-al együtt"
 
 #: src/emc/rs274ngc/interp_check.cc:302
 msgid "K word with no G2, G3, G33, G33.1, G76, or G87 to use it"
 msgstr ""
-"A G2, G3, G33, G33.1, G76, vagy G87 kódnak tartalmaznia kell a K paramétert"
+"K paraméter nem használható a G2, G3, G33, G33.1, G76, vagy G87 -el együtt"
 
 #: src/emc/rs274ngc/interp_check.cc:314
 msgid ""
@@ -190,16 +194,16 @@ msgid ""
 "P word with no G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89 or M50 M51 M52 "
 "M53 M62 M63 M64 M65 M66 M98 or user M code to use it"
 msgstr ""
-"G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89 vagy M50 M51 M52 M53 M62 M63 "
-"M64 M65 M66 M98 vagy a felhasználói M kódnak tartalmaznia kell a P paramétert"
+"P paraméter nem használható a G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89 "
+"vagy M50 M51 M52 M53 M62 M63 M64 M65 M66 M98 vagy a felhasználói M-al együtt"
 
 #: src/emc/rs274ngc/interp_check.cc:336
 msgid "P value not an integer with M19 G2 or G3"
-msgstr "P értéke nem egész szám az M19 G2 vagy G3 során"
+msgstr "P értéke nem integer az M19 G2 vagy G3 parancsoknál"
 
 #: src/emc/rs274ngc/interp_check.cc:338
 msgid "P value must be 0,1,or 2 with M19"
-msgstr "P értéke csak 0,1,2 lehet M19 használatakor"
+msgstr "P értéke csak 0,1 vagy 2 lehet M19 használatakor"
 
 #: src/emc/rs274ngc/interp_check.cc:340
 msgid "P value should be 1 or greater with G2 or G3"
@@ -221,7 +225,8 @@ msgstr "R értéke 0..360 közötti lehet M19 használatakor"
 #: src/emc/rs274ngc/interp_convert.cc:149
 msgid "You must specify both X and Y coordinates for Control Points"
 msgstr ""
-"Meg kell adnia mind az X, mind az Y koordinátát az ellenőrzési pontokhoz"
+"Meg kell adnia mind az X, mind az Y koordinátát az ellenőrzési pontokhoz("
+"Control Points)"
 
 #: src/emc/rs274ngc/interp_convert.cc:152
 msgid "Can specify P without X and Y only for the first control point"
@@ -233,11 +238,11 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:158
 msgid "Cannot make a NURBS with 0 feedrate"
-msgstr "Nem létrehozható NURBS, 0 előtolással"
+msgstr "Nem végezhetö NURBS 0 előtolással"
 
 #: src/emc/rs274ngc/interp_convert.cc:195
 msgid "Cannot use G5.3 without G5.2 first"
-msgstr "Nem használhatja a G5.3-at G5.2 nélkül"
+msgstr "Nem használhatja a G5.3-at előtte kiadott G5.2 parancs nélkül"
 
 #: src/emc/rs274ngc/interp_convert.cc:196
 #, c-format
@@ -248,27 +253,29 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:225
 msgid "Cannot convert spline with cutter radius compensation"
-msgstr "Nem tudja átalakítani a spline-t a vágó sugár kompenzációval"
+msgstr ""
+"Nem tudja átalakítani a spline-t vágó sugár kompenzáció művelettel (cutter "
+"radius compensation)"
 
 #: src/emc/rs274ngc/interp_convert.cc:235
 msgid "Splines must be in the XY plane"
-msgstr "A Spline-oknak az XY síkban kell lenni"
+msgstr "Az íveknek (Spline) az XY síkban kell lenni"
 
 #: src/emc/rs274ngc/interp_convert.cc:240
 msgid "Splines may not have motion in Z, A, B, or C"
-msgstr "Előfordulhat hogy Splines nem mozog Z, A, B, vagy C"
+msgstr "Az ívek( Splines) Z, A, B, vagy C irányban nem végezhetnek mozgást"
 
 #: src/emc/rs274ngc/interp_convert.cc:244
 msgid "Must specify both I and J with G5.1"
-msgstr "Meg kell adnia az I és J-t a G5.1-ben"
+msgstr "Meg kell adnia az I és J-t a G5.1 parancsnál"
 
 #: src/emc/rs274ngc/interp_convert.cc:266
 msgid "Must specify both I and J, or neither"
-msgstr "Meg kell adnia I-t és J-t vagy egyiket sem"
+msgstr "Meg kell adnia mind az I-t és a J-t, vagy egyiket sem"
 
 #: src/emc/rs274ngc/interp_convert.cc:277
 msgid "Must specify both P and Q with G5"
-msgstr "Meg kell adnia P-t és Q-t a G5 kódhoz"
+msgstr "Meg kell adnia mind a P-t és a Q-t a G5 kódhoz"
 
 #: src/emc/rs274ngc/interp_convert.cc:382
 msgid ""
@@ -278,7 +285,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:390
 msgid "Cannot do an arc in planes G17.1, G18.1, or G19.1"
-msgstr "Nem rakhat ívet a tervben G17.1, G18.1 vagy G19.1"
+msgstr "Nem rakhat ívet a G17.1, G18.1 vagy G19.1 síkokban"
 
 #: src/emc/rs274ngc/interp_convert.cc:402
 #: src/emc/rs274ngc/interp_convert.cc:4730
@@ -309,7 +316,8 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:931
 msgid "Arc to arc motion is invalid because the arcs have the same center"
 msgstr ""
-"Az ív az ívmozgásra érvénytelen, mert az ívek ugyanazon a központban vannak"
+"Az ív(Arc) az ív(Arc)-hoz mozgás érvénytelen, mert az íveknek ugyanaz a "
+"központjuk"
 
 #: src/emc/rs274ngc/interp_convert.cc:934
 msgid ""
@@ -342,7 +350,7 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:1945
 #, c-format
 msgid "G%d.1 with no D word"
-msgstr "G%d.1 nincs D szó"
+msgstr "G%d.1 nincs D szó megadva"
 
 #: src/emc/rs274ngc/interp_convert.cc:1948
 #, c-format
@@ -357,7 +365,7 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:1966
 #, c-format
 msgid "G%d with lathe tool, but plane is not G18"
-msgstr "G%d a(z) eszterga szerszám, de a sík nem G18"
+msgstr "G%d eszterga szerszámmal van, de a sík nem G18"
 
 #: src/emc/rs274ngc/interp_convert.cc:2384
 msgid "Cannot set reference point with cutter compensation in effect"
@@ -374,7 +382,7 @@ msgid ""
 "BUG: cannot restore from a lower call level (%d) to a higher call level (%d)"
 msgstr ""
 "BUG: nem lehet visszaállítani az alacsonyabb szintű hívást (%d) egy magasabb "
-"szintre hívásnál (%d)"
+"szintre hívásra (%d)"
 
 #: src/emc/rs274ngc/interp_convert.cc:3018
 #, c-format
@@ -384,7 +392,7 @@ msgstr "Bug: Visszaállítás a(z) %d szintről!?"
 #: src/emc/rs274ngc/interp_convert.cc:3019
 #, c-format
 msgid "BUG: restore to level %d !?"
-msgstr "Bug: Visszaállítás a(z) %d szintre!?"
+msgstr "Bug: Visszaállítás a  %d szintre!?"
 
 #: src/emc/rs274ngc/interp_convert.cc:3038
 #, c-format
@@ -489,7 +497,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:3435
 msgid "Q word with M19 requires a value > 0"
-msgstr "M19 Q értéke >0"
+msgstr "M19-nél a Q értéke >0 kell legyen"
 
 #: src/emc/rs274ngc/interp_convert.cc:3464
 msgid "Cannot restore context from invalid stack frame - missing M70/M73?"
@@ -513,7 +521,7 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:3587
 msgid "Cannot disable overrides with cutter radius compensation on"
 msgstr ""
-"Nem lehet kikapcsolni a túlhajtás ha a vágáskompenzálás bekapcsolt álapotú"
+"Nem lehet kikapcsolni a túlhajtást, ha a vágáskompenzálás bekapcsolt állapotú"
 
 #: src/emc/rs274ngc/interp_convert.cc:3541
 msgid "Invalid spindle ($) number in M51 command"
@@ -543,19 +551,19 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:3906
 msgid "G10 L1 without offsets has no effect"
-msgstr "G10 L1 eltolás nélkül nincs hatása"
+msgstr "G10 L1 parancsnak eltolás(offset) nélkül nincs hatása"
 
 #: src/emc/rs274ngc/interp_convert.cc:4012
 msgid "Q number in G10 is not an integer"
-msgstr "Q értékének G10-ben egésznek kell lennie"
+msgstr "Q értéke G10-ben nem integer"
 
 #: src/emc/rs274ngc/interp_convert.cc:4013
 msgid "Invalid tool orientation"
-msgstr "Érvénytelen szerszám tájolás"
+msgstr "Érvénytelen szerszám orientéció"
 
 #: src/emc/rs274ngc/interp_convert.cc:4137
 msgid "I J words not allowed with G10 L2"
-msgstr "I J nem engedélyezett G10 L2-ben"
+msgstr "I és J paraméter nem engedélyezett G10 L2-ben"
 
 #: src/emc/rs274ngc/interp_convert.cc:4158
 msgid ""
@@ -576,7 +584,7 @@ msgstr "Érvénytelen főorsó ($) szám a G33 mozgásban"
 
 #: src/emc/rs274ngc/interp_convert.cc:4795
 msgid "Spindle not turning in G33"
-msgstr "Főorsó nem forgatható a G33 kódban"
+msgstr "Főorsó nem forog G33-nál"
 
 #: src/emc/rs274ngc/interp_convert.cc:4805
 msgid "Invalid spindle ($) number in G33.1 move"
@@ -584,7 +592,7 @@ msgstr "Érvénytelen főorsó szám ($) a G33.1 mozgásban"
 
 #: src/emc/rs274ngc/interp_convert.cc:4810
 msgid "Spindle not turning in G33.1"
-msgstr "Főorsó nem forgatható a G33.1 kódban"
+msgstr "Főorsó nem forog G33.1 -nál"
 
 #: src/emc/rs274ngc/interp_convert.cc:4825
 msgid "Invalid D-number in G76 cycle"
@@ -593,7 +601,7 @@ msgstr "Érvénytelen D érték a G76 ciklusban"
 #: src/emc/rs274ngc/interp_convert.cc:4830
 #, c-format
 msgid "Chosen spindle (%i) not turning in G76"
-msgstr ""
+msgstr "A kiválasztott főorsó (%i)nem forog a G76-ban"
 
 #: src/emc/rs274ngc/interp_convert.cc:4868
 msgid "BUG: An axis incorrectly moved along with an indexer"
@@ -11394,7 +11402,8 @@ msgstr "Szemben (átellenben)"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
