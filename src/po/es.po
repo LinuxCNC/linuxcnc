@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-05-28 23:16+0200\n"
-"PO-Revision-Date: 2022-06-20 23:38+0000\n"
+"PO-Revision-Date: 2022-06-23 19:47+0000\n"
 "Last-Translator: Ulices <dev.n47os@aleeas.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/es/>\n"
@@ -2585,7 +2585,7 @@ msgstr "No jog de articulación %d más allá del límite soft min."
 #: src/emc/motion/command.c:214 src/emc/motion/command.c:219
 #, c-format
 msgid "%s move on line %d would exceed %c's %s limit"
-msgstr "el movimiento %s en la línea %d excedería el límite %s %c"
+msgstr "el movimiento %s en la línea %d excedería el límite %s de %c"
 
 #: src/emc/motion/command.c:215
 msgid "negative"
@@ -4681,7 +4681,7 @@ msgstr "abrió AMBAS ventanas de variables. presione nuevamente para cerrarlas."
 #: src/hal/classicladder/symbols_gtk.c:122
 #, c-format
 msgid "A variable name always start with '%' character !"
-msgstr "¡Un nombre de variable siempre comienza con el carácter '%'!"
+msgstr "¡Un nombre de variable siempre comienza con el caracter '%'!"
 
 #: src/hal/classicladder/symbols_gtk.c:173
 msgid "opened SYMBOLS window. Press again to close"
