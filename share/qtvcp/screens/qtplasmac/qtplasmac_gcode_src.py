@@ -827,7 +827,7 @@ with open(inPath, 'r') as inCode:
             # add comment for temporary material
             if line.startswith('(o=0'):
                 lineNum += 1
-                gcodeList.append(';temporay material #{}'.format(tmpMatNum))
+                gcodeList.append(';temporary material #{}'.format(tmpMatNum))
             gcodeList.append(line)
             # add material change for temporary material
             if line.startswith('(o=0'):
