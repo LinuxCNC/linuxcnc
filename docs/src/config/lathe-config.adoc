@@ -22,8 +22,8 @@ the .ini file in the RS274NGC section.
 RS274NGC_STARTUP_CODE = G18
 ----
 
-The above can be overwritten in a g code program so always set important things
-in the preamble of the g code file.
+The above can be overwritten in a G-code program so always set important things
+in the preamble of the G-code file.
 
 == INI Settings
 

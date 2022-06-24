@@ -86,8 +86,8 @@ INI file options:
   estop condition exists.
 
 * iocontrol.0.lube (Bit, Out) TRUE when lube is requested. This pin gets driven
-  True when the controller comes out of E-stop, and when the "Lube On" command
-  gets sent to the controller. It gets driven False when the controller goes
+  TRUE when the controller comes out of E-stop, and when the "Lube On" command
+  gets sent to the controller. It gets driven FALSE when the controller goes
   into E-stop, and when the "Lube Off" command gets sent to the controller.
 
 * iocontrol.0.lube_level (Bit, In) Should be driven FALSE when lubrication tank
@@ -126,7 +126,7 @@ Additional pins added by I/O Control V2
   signaling an emc-abort, iov2 will block until emc-abort-ack is raised.
 
 * emc-reason: (S32, Out) convey cause for EMC-originated abort to toolchanger.
-  Usage: UI informational. Valid during emc-abort True.
+  Usage: UI informational. Valid during emc-abort TRUE.
 
 * start-change: (Bit, Out) asserted at the very beginning of an M6 operation,
   before any spindle-off, quill-up, or move-to-toolchange-position oeprations
@@ -139,20 +139,20 @@ Additional pins added by I/O Control V2
   reflected in the toolchanger-faulted pin.
 
 * toolchanger-fault-ack: (Bit, Out) handshake line for above signal. will be set
-  by iov2 after above fault line True is recognized and deasserted when
+  by iov2 after above fault line TRUE is recognized and deasserted when
   toolchanger-fault drops. Toolchanger is free to interpret the ack; reading the
   -ack lines assures fault has been received and acted upon.
 
 * toolchanger-reason: (S32, In) convey reason code for toolchanger-originated
   fault to iov2. Usage: signal whether to continue or abort the program, plus UI
-  informational if negative. Read during toolchanger-fault True. Non-zero values
+  informational if negative. Read during toolchanger-fault TRUE. Non-zero values
   will cause an Axis operator operator message or error message, see below. 
 
 * toolchanger-faulted: (Bit, Out) signals toolchanger-notify line has toggled and
   toolchanger-reason-code was in the fault range. Next M6 will abort.
 
 * toolchanger-clear-fault: (Bit, In) resets TC fault condition. Deasserts
-  toolchanger-faulted if toolchanger-notify is line False. Usage: UI - e.g.
+  toolchanger-faulted if toolchanger-notify is line FALSE. Usage: UI - e.g.
   clear fault condition button.
 
 == Parameters
@@ -176,7 +176,7 @@ done. If you do not need the abort handshake feature, jumper them as follows:
  net emc-abort-ack iocontrol.0.emc-abort iocontrol.0.emc-abort-ack 
 ----
 
-The emc-reason pin is considered valid during emc-abort being true.
+The emc-reason pin is considered valid during emc-abort being TRUE.
 
 The reason codes are as follows for LinuxCNC internally generated aborts
 (see emc.hh ca line 321):
@@ -192,14 +192,14 @@ The reason codes are as follows for LinuxCNC internally generated aborts
 *	EMC_ABORT_USER = 100 
 
 iov2 adds one more code, namely EMC_ABORT_BY_TOOLCHANGER_FAULT = 101 which is
-signaled when an M6 aborts due to the toolchanger-faulted pin being true.
+signaled when an M6 aborts due to the toolchanger-faulted pin being TRUE.
 
 To signal toolchanger faults to LinuxCNC, wire the toolchanger-fault pin,
 and optionally the toolchanger-reason and toolchanger-ack pins.
 
 The toolchanger-fault triggers the fault condition, which is reflected in the
 toolchanger-faulted pin. This condition can be cleared by asserting the
-toolchanger-clear-fault pin, provided the toolchanger-fault pin is false.
+toolchanger-clear-fault pin, provided the toolchanger-fault pin is FALSE.
 
 The value of the toolchanger-reason pin is used as follows:
 
@@ -208,9 +208,9 @@ The value of the toolchanger-reason pin is used as follows:
   Parameter #5601 contains the value of the toolchanger-reason pin.
 ** toolchanger-reason = 0 : the program is aborted
 ** toolchanger-reason < 0 : the program is aborted and an operator error
-    message is displayed by using the IO_ERROR template. 
+   message is displayed by using the IO_ERROR template. 
 
-The usage of the toolchanger-fault-ack pin is optional. It will become true when
+The usage of the toolchanger-fault-ack pin is optional. It will become TRUE when
 toolchanger-fault is raised and the toolchanger-reason pin has been read by iov2. 
 
 // vim: set syntax=asciidoc:
