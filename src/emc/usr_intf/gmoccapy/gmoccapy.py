@@ -612,10 +612,14 @@ class gmoccapy(object):
             # lets find out, how many axis we got
             dic = self.axis_list
             name_prefix = "axis"
+            name_prefix_sg = _("axis")
+            name_prefix_pl = _("axes")
         else:
             # lets find out, how many joints we got
             dic = self.joint_axis_dic
             name_prefix = "joint"
+            name_prefix_sg = _("joint")
+            name_prefix_pl = _("joints")
         num_elements = len(dic)
         
         # as long as the number of axis is less 6 we can use the standard layout
@@ -630,7 +634,7 @@ class gmoccapy(object):
         filepath = os.path.join(IMAGEDIR, file)
         print("Filepath = ", filepath)
         btn = self._get_button_with_image("ref_all", filepath, None)
-        btn.set_property("tooltip-text", _("Press to home all {0}".format(name_prefix)))
+        btn.set_property("tooltip-text", _("Press to home all {0}").format(name_prefix_pl))
         btn.connect("clicked", self._on_btn_home_clicked)
         # we use pack_start, so the widgets will be moved from right to left
         # and are displayed the way we want
@@ -657,7 +661,7 @@ class gmoccapy(object):
 
             name = "home_{0}_{1}".format(name_prefix, elem)
             btn = self._get_button_with_image(name, filepath, None)
-            btn.set_property("tooltip-text", _("Press to home {0} {1}".format(name_prefix, elem)))
+            btn.set_property("tooltip-text", _("Press to home {0} {1}").format(name_prefix_sg, elem.upper()))
             btn.connect("clicked", self._on_btn_home_clicked)
 
             self.widgets.hbtb_ref.pack_start(btn)
@@ -685,7 +689,7 @@ class gmoccapy(object):
         print("Filepath = ", filepath)
         name = "unref_all"
         btn = self._get_button_with_image(name, filepath, None)
-        btn.set_property("tooltip-text", _("Press to unhome all {0}".format(name_prefix)))
+        btn.set_property("tooltip-text", _("Press to unhome all {0}").format(name_prefix_pl))
         btn.connect("clicked", self._on_btn_unhome_clicked)
         self.widgets.hbtb_ref.pack_start(btn)
         
@@ -900,7 +904,7 @@ class gmoccapy(object):
             filepath = os.path.join(IMAGEDIR, file)
             name = "touch_{0}".format(elem)
             btn = self._get_button_with_image(name, filepath, None)
-            btn.set_property("tooltip-text", _("Press to set touch off value for axis {0}".format(elem.upper())))
+            btn.set_property("tooltip-text", _("Press to set touch off value for axis {0}").format(elem.upper()))
             btn.connect("clicked", self._on_btn_set_value_clicked)
 
             #print("Touch button Name = ",name)
