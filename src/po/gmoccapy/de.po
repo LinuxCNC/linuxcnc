@@ -49,7 +49,7 @@ msgstr "Der Dateipfad sollte keine Lehrzeichen enthalten"
 #: gmoccapy.py:632
 #, python-brace-format
 msgid "Press to home all {0}"
-msgstr "Drucken um alle Achsen zu referenzieren{0}"
+msgstr "Drücken um alle {0} zu referenzieren"
 
 #: gmoccapy.py:641 gmoccapy.py:891
 msgid "Press to display previous homing button"
@@ -67,7 +67,7 @@ msgstr "Drücken um die nächsten Referenzknöpfe zu zeigen"
 #: gmoccapy.py:687
 #, python-brace-format
 msgid "Press to unhome all {0}"
-msgstr "Drücken um die Referenz aller Achsen aufzuheben{0}"
+msgstr "Drücken um die Referenz aller {0} aufzuheben"
 
 #: gmoccapy.py:693 gmoccapy.py:951
 msgid "Press to return to main button list"
