@@ -24,7 +24,7 @@ However, different machines have different requirements, and homing is actually 
 complicated.
 
 [NOTE]
-While it is possible to use linuxcnc without homing switches/home procedures or limit switches,
+While it is possible to use LinuxCNC without homing switches/home procedures or limit switches,
 It defeats the extra security of the soft limits.
 
 == Prerequisite
@@ -53,7 +53,7 @@ Homing relies on some fundamental machine assumptions.
   and must stay that way even if the dog coasts past the switch in the same direction.
 
 [NOTE]
-While it is possible to use linuxcnc with the G53 machine origin outside the soft machine limits, if you use G28 or G30 without setting
+While it is possible to use LinuxCNC with the G53 machine origin outside the soft machine limits, if you use G28 or G30 without setting
 the parameters it goes to the origin by default. This would trip the limit switches before getting to position.
 
 == Separate Home Switch Example Layout
@@ -88,17 +88,17 @@ This example shows a maximum limit switch and a combined minimum limit/home swit
 .Demonstrative Shared Switch Layout
 image::images/HomeAxisTravel_V3.png["Example shared Home Limit Switch layout",align="center"]
 
-* A is the negative soft limit 
-* B is the G53 machine coordinate Origin
-* C is the home switch trip point shared with (-L) minimum limit trip
-* D is the positive soft limit
-* H is the final home position (HOME) = 3 units
-* The -L and +L are the limit switch trip points
-* A<->B is the negative soft limits (MIN_LIMITS) = 0 units
-* B<->C is the home_offset (HOME_OFFSET) = -0.7 units
-* B<->D is the positive soft limits (MAX_LIMITS) 10 units
-* A<->D is the total travel = 10 units
-* The distance between the limits switches and soft limits (-L<->A and D<->+L) is magnified in this example
+* A is the negative soft limit.
+* B is the G53 machine coordinate Origin.
+* C is the home switch trip point shared with (-L) minimum limit trip.
+* D is the positive soft limit.
+* H is the final home position (HOME) = 3 units.
+* The -L and +L are the limit switch trip points.
+* A<->B is the negative soft limits (MIN_LIMITS) = 0 units.
+* B<->C is the home_offset (HOME_OFFSET) = -0.7 units.
+* B<->D is the positive soft limits (MAX_LIMITS) 10 units.
+* A<->D is the total travel = 10 units.
+* The distance between the limits switches and soft limits (-L<->A and D<->+L) is magnified in this example.
 * Note that there is distance between the limit switches and actual physical hard contact for coasting after the amplifier is disabled.
 
 == Homing Sequence
@@ -116,7 +116,7 @@ image::images/emc2-motion-homing-diag.png["Homing Sequences",align="center"]
 == Configuration
 
 The following determines exactly how the home sequence behaves.
-They are defined in an [JOINT_n] section of the inifile.
+They are defined in an [JOINT_n] section of the INI file.
 
 [width="80%",options="header",cols="4*^"]
 |==========================================================
@@ -176,7 +176,7 @@ This variable has units of machine-units per second.
 
 It specifies the speed that LinuxCNC uses when it makes its move from
 HOME_OFFSET to the HOME position. If the HOME_FINAL_VEL is missing from
-the ini file, then the maximum joint speed is used to make this move.
+the INI file, then the maximum joint speed is used to make this move.
 The value must be a positive number.
 
 === HOME_IGNORE_LIMITS(((HOME IGNORE LIMITS)))
@@ -199,14 +199,14 @@ the home switch (depending on the signs of HOME_SEARCH_VEL and
 HOME_LATCH_VEL). The default value is NO.
 
 [NOTE]
-HOME_USE_INDEX requires connections in your hal file to joint.n.index-enable
+HOME_USE_INDEX requires connections in your HAL file to joint.n.index-enable
 from the encoder.n.index-enable.
 
 === HOME_INDEX_NO_ENCODER_RESET(((HOME INDEX NO ENCODER RESET)))
 
 Default is NO.   Use YES if the encoder used for this joint does not
 reset its counter when an index pulse is detected after assertion
-of the joint index_enable hal pin.
+of the joint index_enable HAL pin.
 Applicable only for HOME_USE_INDEX = YES.
 
 === HOME_OFFSET(((HOME OFFSET)))
@@ -374,7 +374,7 @@ homing, and lock afterward.
 If a joint does not have home switches or does not have a logical
 home position like a rotary joint and you want that joint to home at
 the current position when the "Home All" button is pressed in the
-Axis gui, then the following ini entries for that joint are needed.
+Axis gui, then the following INI entries for that joint are needed.
 
 . HOME_SEARCH_VEL = 0
 . HOME_LATCH_VEL = 0
@@ -391,19 +391,19 @@ eliminates the joint from *HOME ALL* behavior as noted above.
 
 === Inhibiting Homing(((Inhibiting Homing)))
 
-A hal pin (motion.homing-inhibit) is provided to disallow
+A HAL pin (motion.homing-inhibit) is provided to disallow
 homing initiation for both "Home All" and individual joint
 homing.
 
 Some systems take advantage of the provisions for synchronizing
 final joint homing moves as controlled by negative
-[JOINT_N]HOME_SEQUENCE= ini file items.  By default, the
+[JOINT_N]HOME_SEQUENCE= INI file items.  By default, the
 synchronization provisions disallow *joint* jogging prior to
 homing in order to prevent *joint* jogs that could misalign the
 machine (gantry racking for example).
 
 System integrator can allow *joint* jogging prior to homing with
-hal logic that switches the [JOINT_N]HOME_SEQUENCE items.  This
+HAL logic that switches the [JOINT_N]HOME_SEQUENCE items.  This
 logic should also assert the *motion.homing-inhibit* pin to ensure
 that homing is not inadvertently initiated when *joint* jogging
 is enabled.
@@ -411,7 +411,7 @@ is enabled.
 Example: Synced joints 0,1 using negative sequence (-1) for
 synchronized homing with a switch (allow_jjog) that selects a
 positive sequence (1) for individual *joint* jogging prior to
-homing (partial hal code):
+homing (partial HAL code):
 
 [source,{hal}]
 ----
@@ -435,14 +435,14 @@ net hsequence_select => motion.homing-inhibit
 ----
 
 [NOTE]
-Inihal pins (like ini.N.home_sequence) are not available until
-milltask starts so execution of the above hal commands should be
-deferred using a postgui halfile or a delayed
+INI HAL pins (like ini.N.home_sequence) are not available until
+milltask starts so execution of the above HAL commands should be
+deferred using a postgui HAL file or a delayed
 [APPLICATION]APP= script.
 
 [NOTE]
 Realtime synchronization of joint jogging for multiple joints
-requires additional hal connections for the Manual-Pulse-Generator
+requires additional HAL connections for the Manual-Pulse-Generator
 (MPG) type jog pins (joint.N.enable, joint.N.scale, joint.N.counts).
 
 An example simulation config (gantry_jjog.ini) that demonstrates
