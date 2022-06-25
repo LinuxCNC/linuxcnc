@@ -39,10 +39,10 @@ O200 IF [#<selected_tool> GT 0]
     M64 P0 ; start carousel
     G4 P2
     M66 P0 L3 Q60 ; wait for carousel finished
+    M65 P0; stop carousel
     O107 if [#5399 LT 0]
         (abort, failed to align carousel)
     O107 endif
-    M65 P0; stop carousel
     M64 P1 ; lock carousel
     M66 P1 L3 Q1 ; wait for locked=true
     O108 if [#5399 LT 0]
