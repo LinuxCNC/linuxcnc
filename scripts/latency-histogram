@@ -286,11 +286,6 @@ proc load_packages {} {
      {8 8}
      {0xe3,0xf1,0xf8,0x7c, 0x3e,0x1f,0x8f,0xc7}
     }
-    if [catch {package require Img} msg] {
-      puts $msg
-      puts "To install: sudo apt-get install libtk-img"
-      exit 1
-    }
   }
 
   if {   [catch {exec pgrep linuxcnc} msg] \
@@ -694,7 +689,7 @@ proc update_bin_data {thd} {
   set variance [hal getp $::LH($thd,name).variance]
   if [catch {
     set ::LH($thd,latency_sdev,us) [format %.1f \
-               [expr 1e-3 * sqrt($variance)]]
+               [expr 1e-3 * sqrt(abs($variance))]]
     } msg] {
     puts "msg=$msg (variance=$variance)"
   }

@@ -1337,7 +1337,7 @@ if (test "x$TCLCONFIG" = "x"); then
    AC_MSG_RESULT([tclConfig.sh not found, trying tcl.h and libs.
 		  If it doesn't work try running ./configure --with-tclConfig=<path to tclConfig.sh>])
    AC_CHECK_HEADERS([tcl.h])
-   AC_SEARCH_LIBS(Tcl_Init,[tcl tcl8.1 tcl8.2 tcl8.3 tcl8.4 tcl8.5],[],[AC_MSG_ERROR([tcl lib not found])])
+   AC_SEARCH_LIBS(Tcl_Init,[tcl tcl8.7 tcl8.6],[],[AC_MSG_ERROR([tcl lib not found])])
 else
 # tclConfig.sh found,
 # extracting vars
@@ -1377,7 +1377,7 @@ if (test "x$TKCONFIG" = "x"); then
    AC_MSG_RESULT([tkConfig.sh not found, trying tk.h and libs.
 		  If it doesn't work try running ./configure --with-tkConfig=<path to tkConfig.sh>])
    AC_CHECK_HEADERS([tk.h])
-   AC_SEARCH_LIBS(Tk_Init,[tk tk80 tk8.0 tk8.1 tk8.2 tk8.3 tk8.4 tk8.5],[],[AC_MSG_ERROR([tk lib not found])])
+   AC_SEARCH_LIBS(Tk_Init,[tk tcl8.7 tcl8.6],[],[AC_MSG_ERROR([tk lib not found])])
 else
 # tkConfig.sh found,
 # extracting vars
@@ -1435,16 +1435,6 @@ if test "$RUNTIME_CHECK" = "yes"; then
         AC_MSG_RESULT([found])
     else
         AC_MSG_RESULT([not found])
-    fi
-
-    AC_MSG_CHECKING([for img::png using $TCLSH])
-    if (unset DISPLAY; echo ["catch { package require img::png }; exit [expr [lsearch [package names] img::png] == -1]"] | $TCLSH); then
-        AC_MSG_RESULT([found])
-        HAVE_WORKING_BLT=yes
-    else
-        AC_MSG_RESULT(no)
-        AC_MSG_ERROR([Tk img::png not found!
-    install with "sudo apt-get install libtk-img"])
     fi
 
     AC_MSG_CHECKING([for tclX using $TCLSH])

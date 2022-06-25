@@ -3933,14 +3933,6 @@ proc ::ngcgui::image_init {hdl} {
 proc ::ngcgui::image_widget {hdl f} {
   # f is name of a frame, it should not exist at call, caller packs
   # png, pgm,ppm etc support
-  if [catch {package require Img} msg] {
-    tk_dialog .img \
-      "[_ "Missing Tcl Package Img"] " \
-      "[_ "Please install Img"]:\n $ sudo apt-get install libtk-img" \
-      "" 0 \
-      "ok"
-    exit
-  }
   if {[winfo exists $f]} {return -code error "image_widget <$w> exists"}
   frame $f ;# caller packs
 
