@@ -52,6 +52,28 @@ loadusr qtvcp test_dial
 .test dial - Test Dial VCP
 image::images/qtvcp_test_dial.png["Test Dial",align="left"]
 
+=== test_led
+
+- This panel has an LED that can selected to watch HAL bit pins/signals. +
+- The LED's color can be adjusted from a drop down menu. +
+- The text box and state can be output as speech if sound is selected. +
+- A combobox can be used to automatically select and connect to a pin/signal. +
+- You can add more LEDs from the drop down menu. +
+- The LED can be detached from the main windows.
+
+Here is how to load test_led from a HAL script. +
+The '-o' switch sets how many LEDs the panel starts with. +
+(If loading directly from a terminal omit the 'loadusr')
+
+[source,{hal}]
+----
+loadusr qtvcp test_led
+loadusr qtvcp -o 4 test_led
+----
+
+.test dial - Test Dial VCP
+image::images/qtvcp_test_led.png["Test LED",align="left"]
+
 === test_panel
 
 - collect of useful widgets for testing HAL component. Including speech
