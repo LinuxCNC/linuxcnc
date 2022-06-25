@@ -679,10 +679,14 @@ These variables are mandatory.
 
 [source,{ini}]
 ----
-RS274NGC_STARTUP_CODE = o<metric_startup> call (machine startup G-Code)
-SUBROUTINE_PATH       = ./:./qtplasmac:../../nc_files/subroutines (./ must be in this path)
-USER_M_PATH           = ./:./qtplasmac (for M190 material change)
+RS274NGC_STARTUP_CODE = G21 G40 G49 G80 G90 G92.1 G94 G97 M52P1
+SUBROUTINE_PATH       = ./:./qtplasmac:../../nc_files/subroutines
+USER_M_PATH           = ./:./qtplasmac
 ----
+
+NOTE: for a imperial config replace G21 above with G20.
+
+NOTE: both the above paths show the minimum requirements.
 
 [IMPORTANT]
 SEE <<qt_path-tolerance,PATH TOLERANCE>> FOR RS274NGC_STARTUP_CODE INFORMATION RELATED TO G64.
@@ -1695,7 +1699,13 @@ If an alignment laser has been set up then it is possible to use the laser durin
 [[qt_path-tolerance]]
 === Path Tolerance
 
-The provided <<qt_rs274, RS274NGC_STARTUP_CODE>> files: metric_startup.ngc and imperial_startup.ngc set the motion blending path tolerance with a G64 command P value to 0.1mm and 0.004" respectively. The P value corresponds to the amount the actual cut path followed by the machine may deviated from the programmed cut path before reducing velocity. If LinuxCNC (QtPlasmaC) receives an E-stop signal at any stage, the path tolerance will be set to the default (no P value) which will maintain the best possible speed and round corners off as a result. To prevent this, it is recommended that the path tolerance is set by placing the appropriate G64 command and P value in the header of each G-Code file.
+Path tolerance is set with a G64 command and a following P value. The P value corresponds to the amount that the actual cut path followed by the machine may deviate from the programmed cut path.
+
+The default LinuxCNC path tolerence is set for maximum speed which will severely round corners when used with normal plasma cutting speeds.
+
+It is recommended that the path tolerance is set by placing the appropriate G64 command and P value in the header of each G-Code file.
+
+The provided G-Code filter program will test for the existance of a G64 Pn command prior to the first motion command. If no G64 command is found it will insert a G64 P0.1 command which sets the path tolerance to 0.1mm. For a imperial config the command will be G64 P0.004.
 
 For Metric:
 [source,{ngc}]

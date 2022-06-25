@@ -1,4 +1,4 @@
-VERSION = '1.225.206'
+VERSION = '1.225.207'
 
 '''
 qtplasmac_handler.py
@@ -131,6 +131,11 @@ class HandlerClass:
                 os.rename(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'), os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac' + str(time.time())))
                 os.symlink(linkFolder, os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'))
         self.machineName = self.iniFile.find('EMC', 'MACHINE')
+        self.unitsPerMm = 1
+        self.units = self.iniFile.find('TRAJ', 'LINEAR_UNITS')
+        if self.units == 'inch':
+            self.units = 'in'
+            self.unitsPerMm = 0.03937
         self.update_check()
         self.PREFS = Access(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs'))
         self.STYLEEDITOR = SSE(widgets, paths)
@@ -213,11 +218,6 @@ class HandlerClass:
         self.thcFeedRate = float(self.iniFile.find('AXIS_Z', 'MAX_VELOCITY')) * \
                            float(self.iniFile.find('AXIS_Z', 'OFFSET_AV_RATIO')) * 60
         self.maxHeight = self.zMax - self.zMin
-        self.unitsPerMm = 1
-        self.units = self.iniFile.find('TRAJ', 'LINEAR_UNITS')
-        if self.units == 'inch':
-            self.units = 'in'
-            self.unitsPerMm = 0.03937
         self.maxPidP = self.thcFeedRate / self.unitsPerMm * 0.1
         self.mode = int(self.iniFile.find('QTPLASMAC', 'MODE')) or 0
         self.tmpPath = '/tmp/qtplasmac/'
@@ -2170,6 +2170,7 @@ class HandlerClass:
                 event.ignore()
 
     def update_check(self):
+    # newest update must be added last in this function
         halfiles = self.iniFile.findall('HAL', 'HALFILE') or None
         machinePrefsFile = os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs')
         qtvcpPrefsFile = os.path.join(self.PATHS.CONFIGPATH, 'qtvcp.prefs')
@@ -2188,6 +2189,10 @@ class HandlerClass:
                 data = inFile.readlines()
                 if [line for line in data if '[CONVERSATIONAL]' in line]:
                     UPDATER.move_prefs(qtvcpPrefsFile, machinePrefsFile)
+    # change RS274 startup parameters from a subroutine (pre V1.224.207 2022/06/22)
+        startupCode = self.iniFile.find('RS274NGC', 'RS274NGC_STARTUP_CODE')
+        if 'metric_startup' in startupCode or 'imperial_startup' in startupCode:
+            UPDATER.rs274ngc_startup_code(INIPATH)
 
     def set_blank_gcodeprops(self):
         # a workaround for the extreme values in gcodeprops for a blank file

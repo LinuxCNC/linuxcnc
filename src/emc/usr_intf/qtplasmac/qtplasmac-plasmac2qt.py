@@ -455,6 +455,9 @@ class Converter(QMainWindow, object):
                                 line = line.replace('plasmac', 'qtplasmac')
                             else:
                                 line = '{}:./qtplasmac\n'.format(line.strip())
+                        if line.startswith('RS274NGC_STARTUP_CODE') and ('metric' in line or 'imperial' in line):
+                            units = 21 if 'metric' in line else 20
+                            line = 'RS274NGC_STARTUP_CODE   = G{} G40 G49 G80 G90 G92.1 G94 G97 M52P1\n'.format(units)
                         if line.startswith('#') or line.replace(' ', '').strip() == 'FEATURES=12':
                             continue
                         if line.startswith('['):

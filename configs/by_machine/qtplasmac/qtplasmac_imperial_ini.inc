@@ -39,7 +39,7 @@ nc                      = ./qtplasmac/qtplasmac_gcode.py
 tap                     = ./qtplasmac/qtplasmac_gcode.py
 
 [RS274NGC]
-RS274NGC_STARTUP_CODE   = o<imperial_startup> call
+RS274NGC_STARTUP_CODE   = G20 G40 G49 G80 G90 G92.1 G94 G97 M52P1
 PARAMETER_FILE          = imperial_parameters.txt
 
 SUBROUTINE_PATH         = ./:./qtplasmac:../../nc_files/subroutines

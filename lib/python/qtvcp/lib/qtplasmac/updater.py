@@ -22,7 +22,22 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 import os
 from shutil import copy as COPY
 
-# delete [CONVERSATIONAL] prefs from <machine_name>.prefs if they exist from previous copy in V1.222.170 then move [CONVERSATIONAL] prefs from qtvcp.prefs to <machine_name>.prefs (pre V1.222.187 2022/05/03)
+# change startup parameters from a subroutine (pre V1.224.207 2022/06/22)
+def rs274ngc_startup_code(inifile): #, unitsCode):
+    tmpFile = '{}~'.format(inifile)
+    COPY(inifile, tmpFile)
+    with open(tmpFile, 'r') as inFile:
+        with open(inifile, 'w') as outFile:
+            for line in inFile:
+                if line.startswith('RS274NGC_STARTUP_CODE') and ('metric' in line or 'imperial' in line):
+                    units = 21 if 'metric' in line else 20
+                    line = 'RS274NGC_STARTUP_CODE   = G{} G40 G49 G80 G90 G92.1 G94 G97 M52P1\n'.format(units)
+                outFile.write(line)
+    if os.path.isfile(tmpFile):
+        os.remove(tmpFile)
+    update_notify('V1.225.207')
+
+# move [CONVERSATIONAL] prefs from qtvcp.prefs to <machine_name>.prefs (pre V1.222.187 2022/05/03)
 def move_prefs(qtvcp, machine):
     deleteMachineLine = False
     moveQtvcpLine = False
@@ -48,7 +63,7 @@ def move_prefs(qtvcp, machine):
                     machineFile.write(line)
                 else:
                     qtvcpFile.write(line)
-    print('QtPlasmaC updated to V1.222.187')
+    update_notify('V1.222.187')
 
 # split out qtplasmac.prefs into <machine_name>.prefs and qtvcp.prefs (pre V1.222.170 2022/03/08)
 def split_prefs_file(old, new, prefs):
@@ -84,7 +99,7 @@ def split_prefs_file(old, new, prefs):
                     newFile.write(line)
     if os.path.isfile(old):
         os.remove(old)
-    print('QtPlasmaC updated to V1.222.170')
+    update_notify('V1.222.170')
 
 # use qtplasmac_comp.hal for component connections (pre V1.221.154 2022/01/18)
 def add_component_hal_file(path, inifile, halfiles):
@@ -161,4 +176,11 @@ def add_component_hal_file(path, inifile, halfiles):
                                 outFile.write(line)
     if os.path.isfile(tmpFile):
         os.remove(tmpFile)
-    print('QtPlasmaC updated to V1.221.154')
+    update_notify('V1.221.154')
+
+def update_notify(version, restart=False):
+    print('-------------------------------')
+    print('QtPlasmac updated to', version)
+    if restart:
+        print('\n**** A restart is required ****\n')
+    print('-------------------------------')

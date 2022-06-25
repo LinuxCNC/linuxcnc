@@ -68,10 +68,12 @@ if units == 'mm':
     minDiameter = 32
     ocLength = 4
     unitsPerMm = 1
+    blendTolerance = 0.1
 else:
     minDiameter = 1.26
     ocLength = 0.157
     unitsPerMm = 0.03937
+    blendTolerance = 0.004
 unitMultiplier = 1
 gcodeList = []
 newMaterial = []
@@ -101,6 +103,7 @@ spotting = False
 offsetG4x = False
 zSetup = False
 zBypass = False
+pathBlend = False
 convBlock = False
 filtered = False
 firstMove = False
@@ -875,9 +878,16 @@ with open(inPath, 'r') as inCode:
         # remove any additional z max moves
         if '[#<_ini[axis_z]max_limit>' in line and zSetup:
             continue
+        # set path blending
+        if 'g64' in line:
+            pathBlend = True
+        if not pathBlend and ('g0' in line or 'g1' in line or 'm3' in line):
+            blend = blendTolerance * unitMultiplier
+            gcodeList.append('g64p{}'.format(blend))
+            pathBlend = True
         # set initial Z height
         if not zSetup and not zBypass and ('g0' in line or 'g1' in line or 'm3' in line):
-            offsetTopZ = (zMaxOffset * unitsPerMm * unitMultiplier)
+            offsetTopZ = zMaxOffset * unitsPerMm * unitMultiplier
             moveTopZ = 'g53g0z[#<_ini[axis_z]max_limit>*{}-{:.3f}] (Z just below max height)'.format(unitMultiplier, offsetTopZ)
             if not '[#<_ini[axis_z]max_limit>' in line:
                 lineNum += 1
