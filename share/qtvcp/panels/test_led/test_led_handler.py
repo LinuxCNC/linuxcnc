@@ -36,15 +36,33 @@ class HandlerClass:
     # the widgets are instantiated.
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
+        geom = self.w.frameGeometry()
+        geom.moveCenter(QDesktopWidget().availableGeometry().center())
+        self.w.setGeometry(geom)
+
         if self.w.USEROPTIONS_ is not None:
-            if 'four' in self.w.USEROPTIONS_:
-                for i in range(3):
+            try:
+                num = int(self.w.USEROPTIONS_[0])
+            except:
+                print('Error with test_led number selection - not a number - using 1')
+                num = 1
+
+            if num >1:
+                for i in range(num-1):
                     self.addLED()
+                    # make window taller now
+                    x = self.w.geometry().x()
+                    y = self.w.geometry().y()
+                    w = self.w.geometry().width()
+                    h = self.w.geometry().height() + 37
+                    self.w.setGeometry(x,y,w,h)
+                    self.w.setMinimumHeight(h)
+
         self.addLED()
         self.w.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.w.setWindowTitle('{}'.format(self.h.comp.getprefix()))
 
-    # build a
+    # build a LED/controls line
     def addLED(self):
 
         # new toolbar added to window
