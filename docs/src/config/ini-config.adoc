@@ -669,7 +669,7 @@ Section.
 
   HALFILES are found using a search.
   If the named file is found in the directory containing the INI file, it is used.
-  If the named file is not found in this INI file directory, a search is made using a system library of .hal files.
+  If the named file is not found in this INI file directory, a search is made using a system library of HAL files.
 
   If LinuxCNC is started with the linuxcnc script using the "-H dirname" option,
   the specified dirname is prepended to the search described above so that
