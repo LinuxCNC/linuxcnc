@@ -1413,7 +1413,7 @@ image::images/stepper-scale.png[align="center"]
 //\frac{4000\, steps}{inch} ]
 
 [NOTE]
-Old .ini et .HAL files used `INPUT_SCALE` for this value.
+Old INI and HAL files used `INPUT_SCALE` for this value.
 
 * 'ENCODER_SCALE = 20000' (Optionally used in PNCconf built configs) -
   Specifies the number of pulses that
