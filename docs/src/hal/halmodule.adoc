@@ -168,6 +168,13 @@ writing files) must be done to complete the shutdown process.
 
 == Helpful Functions
 
+=== ready
+Tells the HAL system the component is initialized. Locks out adding pins.
+
+=== unready
+Allows a component to add pins after 'ready()' has been called.
+One should call 'ready()' on the component after.
+
 === component_exists
 
 Does the specified component exist at this time. +
@@ -222,6 +229,7 @@ returns a list of dicts of all system pins.
 listOfDicts = hal.get_info_pins()
 pinName1 = listOfDicts[0].get('NAME')
 pinValue1 = listOfDicts[0].get('VALUE')
+pinType1 = listOfDicts[0].get('TYPE')
 pinDirection1 = listOfDicts[0].get('DIRECTION')
 ----
 
@@ -246,6 +254,7 @@ returns a list of dicts of all system parameters.
 listOfDicts = hal.get_info_params()
 paramName1 = listOfDicts[0].get('NAME')
 paramValue1 = listOfDicts[0].get('VALUE')
+paramDirection1 = listOfDicts[0].get('DIRECTION')
 ----
 
 === new_signal
