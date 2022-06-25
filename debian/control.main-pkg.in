@@ -20,7 +20,6 @@ Depends:
     tcl@TCLTK_VERSION@,
     tk@TCLTK_VERSION@,
     bwidget (>= 1.7),
-    libtk-img (>=1.13),
     tclreadline,
     tclx,
     procps, psmisc,

@@ -24,7 +24,6 @@ Build-Depends:
     libmodbus-dev (>= 3.0),
     @LIBREADLINE_DEV@,
     libtirpc-dev,
-    libtk-img,
     libusb-1.0-0-dev,
     libxmu-dev,
     netcat,
