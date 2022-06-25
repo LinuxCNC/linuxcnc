@@ -732,7 +732,7 @@ For more information see the <<cha:hal-twopass,HAL TWOPASS>> chapter.
   chain or other protections against software failure.
 * 'POSTGUI_HALFILE = example2.hal' - Execute 'example2.hal' after the GUI has created its HAL pins.
   Some GUIs create HAL pins and support the use of a postgui halfile to use them.
-  GUIs that support postgui HAL-files include Touchy, Axis, Gscreen, and gmoccapy. +
+  GUIs that support postgui HAL files include Touchy, Axis, Gscreen, and gmoccapy. +
   See section <<sec:pyvcp-with-axis,pyVCP with Axis>> for more information.
 * 'HALUI = halui' - adds the HAL user interface pins. +
   For more information see the <<cha:hal-user-interface,HAL User Interface>> chapter.
