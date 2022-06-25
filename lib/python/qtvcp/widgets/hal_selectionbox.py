@@ -171,6 +171,7 @@ class HALSelectionBox(TreeComboBox, _HalWidgetBase):
 
         self.addItems(model, parent_node)
         self.setModel(model)
+        self.view().expandAll()
 
     def setShowTypes(self, types):
         ''' Sets the pin type: HAL_BIT,HAL_FLOAT,HAL_S32,HAL_U32 
