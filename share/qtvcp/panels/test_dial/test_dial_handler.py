@@ -55,6 +55,8 @@ class HandlerClass:
         le.setText(self.h.comp.getprefix())
 
         cb = HALSelectionBox()
+        cb.setShowTypes([cb.SIGNALS])
+        cb.setSignalTypes([cb.HAL_FLOAT], driven = [False,True])
         cb.hal_init()
         cb.currentTextChanged.connect(self.signalSelected)
         hbox.addWidget(cb)
