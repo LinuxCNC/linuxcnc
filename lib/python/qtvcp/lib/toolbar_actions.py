@@ -74,8 +74,8 @@ class ToolBarActions():
                 self.runfromLineWidget.setText('Run From Line: {}'.format(line))
 
         if action == 'estop':
-            STATUS.connect('state-estop', lambda w: self.displayEstop(widget,True))
-            STATUS.connect('state-estop-reset', lambda w: self.displayEstop(widget,False))
+            STATUS.connect('state-estop', lambda w: self.statusOfEstop(widget,True))
+            STATUS.connect('state-estop-reset', lambda w: self.statusOfEstop(widget,False))
             function = (self.actOnEstop)
         elif action == 'power':
             STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
