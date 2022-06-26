@@ -37,17 +37,26 @@ class _Lcnc_Action(object):
         self.home_all_warning_flag = False
         self.proc = None
 
+    def SET_DEBUG_LEVEL(self, level):
+        self.cmd.debug(level)
+
     def SET_ESTOP_STATE(self, state):
-        if state:
-            self.cmd.state(linuxcnc.STATE_ESTOP)
-        else:
-            self.cmd.state(linuxcnc.STATE_ESTOP_RESET)
+        if isinstance(state, bool):
+            if state:
+                self.cmd.state(linuxcnc.STATE_ESTOP)
+            else:
+                self.cmd.state(linuxcnc.STATE_ESTOP_RESET)
+        elif state in (state,linuxcnc.STATE_ESTOP,linuxcnc.STATE_ESTOP_RESET):
+            self.cmd.state(state)
 
     def SET_MACHINE_STATE(self, state):
-        if state:
-            self.cmd.state(linuxcnc.STATE_ON)
-        else:
-            self.cmd.state(linuxcnc.STATE_OFF)
+        if isinstance(state, bool):
+            if state:
+                self.cmd.state(linuxcnc.STATE_ON)
+            else:
+                self.cmd.state(linuxcnc.STATE_OFF)
+        elif state in (state,linuxcnc.STATE_ON,linuxcnc.STATE_ESTOP_OFF):
+            self.cmd.state(state)
 
     def SET_MOTION_TELEOP(self, value):
         # 1:teleop, 0: joint
