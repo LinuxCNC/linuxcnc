@@ -1112,6 +1112,27 @@ aborted.
 The way to do this is by using the `[RS274NGC]ON_ABORT_COMMAND`
 feature. This ini option specifies a O-word procedure call which is
 executed if task for some reason aborts program execution.
+`on_abort` receives a single parameter indicating 
+the cause for calling the abort procedure,
+which might be used for conditional cleanup.
+
+The reasons are defined in nml_intf/emc.hh
+
+[source,{ini}]
+---------------------------------------------------------------------
+	EMC_ABORT_TASK_EXEC_ERROR = 1,
+	EMC_ABORT_AUX_ESTOP = 2,
+	EMC_ABORT_MOTION_OR_IO_RCS_ERROR = 3,
+	EMC_ABORT_TASK_STATE_OFF = 4,
+	EMC_ABORT_TASK_STATE_ESTOP_RESET = 5,
+	EMC_ABORT_TASK_STATE_ESTOP = 6,
+	EMC_ABORT_TASK_STATE_NOT_ON = 7,
+	EMC_ABORT_TASK_ABORT = 8,
+	EMC_ABORT_INTERPRETER_ERROR = 9,	// interpreter failed during readahead
+	EMC_ABORT_INTERPRETER_ERROR_MDI = 10,	// interpreter failed during MDI execution
+	EMC_ABORT_USER = 100  // user-defined abort codes start here
+---------------------------------------------------------------------
+
 
 [source,{ini}]
 ---------------------------------------------------------------------
@@ -1136,6 +1157,18 @@ M5  (spindle off)
 G80 (cancel modal motion)
 M9  (mist and coolant off)
 
+o100 if [#1 eq 5]
+    (machine on)
+o100 elseif [#1 eq 6]
+    (machine off)
+o100 elseif [#1 eq 7]
+    (estopped)
+o100 elseif [#1 eq 8]
+    (msg, abort pressed)
+o100 else
+    (DEBUG, error parameter is [#1])
+o100 endif
+
 o<on_abort> endsub
 m2
 ---------------------------------------------------------------------
@@ -1147,9 +1180,7 @@ subroutine NGC file open, not your main program.
 
 Make sure `on_abort.ngc` is along the interpreter search path
 (recommended location: `SUBROUTINE_PATH` so as not to clutter your
-`NC_FILES` directory with internal procedures). `on_abort` receives a
-single parameter indicating the cause for calling the abort procedure,
-which might be used for conditional cleanup.
+`NC_FILES` directory with internal procedures).
 
 Statements in that procedure typically would assure that post-abort
 any state has been cleaned up, like HAL pins properly reset. For an
