@@ -124,53 +124,71 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
         self._alt_textTemplate = '%1.2f mm'
         self._run_from_line_int = 0
 
+    # Estop button behaviour works different then most buttons.
+    # The visual cue is set by linuxcnc E-state not button state.
+    # We catch the tsate change here and reset it to linuxcnc state
+    # only if the button is an estop button and is a checkable.
+    # This behaviour is consistent with AXIS ans users are used to it.
+    def nextCheckState (self):
+        if self.estop and self.isCheckable():
+            if STATUS.estop_is_clear():
+                self.setChecked(False)
+            else:
+                self.setChecked(True)
+            self._safecheck(not STATUS.estop_is_clear())
+        else:
+            self.setChecked(not self.isChecked())
+
     # only called from designer plugin when widget built in editor
     def _designer_init(self):
         self._designer_block_signal = True
         self._designer_running = True
 
     ##################################################
-    # This gets called by qtvcp_makepins
-    # It infers HAL involvement but there is none
-    # STATUS is used to synch the buttons in case
-    # other entities change linuxcnc's state
-    # also some buttons are disabled/enabled based on
-    # linuxcnc state / possible actions
-    #
-    # If the indicator isn't controlled by a HAL pin
-    # then update it's state.
-    # It still might not show do to the draw_indicator option off
-    #
     # _safecheck blocks the outgoing signal so
     # the buttons can be synced with linuxcnc
     # without setting an infinite loop
+    # If the indicator isn't controlled by a HAL pin
+    # then update it's state.
+    # It still might not show do to the draw_indicator option off
+    ###################################################
+    def _safecheck(self, state, data=None):
+        self._block_signal = True
+        self.setChecked(state)
+        # update indicator if halpin or status doesn't
+        if self._HAL_pin is False and self._ind_status is False:
+            self.indicator_update(state)
+        # if using state labels option update the labels
+        if self._state_text:
+            self.setText(None)
+        self._block_signal = False
+
+    ##################################################
+    # This gets called by qtvcp_makepins
+    # It infers HAL involvement but there is none
+    # STATUS is used to sync the buttons in case
+    # other entities change linuxcnc's state
+    # also some buttons are disabled/enabled based on
+    # linuxcnc state / possible actions
+    # 
+    # super()._hal_init() initializes parent classes
     ###################################################
     def _hal_init(self):
-        super(ActionButton, self)._hal_init()
-        def _safecheck(state, data=None):
-            self._block_signal = True
-            self.setChecked(state)
-            # update indicator if halpin or status doesn't
-            if self._HAL_pin is False and self._ind_status is False:
-                self.indicator_update(state)
-            # if using state labels option update the labels
-            if self._state_text:
-                self.setText(None)
-            self._block_signal = False
+        super()._hal_init()
 
         def _checkincrements(value, text):
             value = round(value , 5)
             if STATUS.is_metric_mode():
                 machn_units = INFO.convert_metric_to_machine(self.jog_incr_mm)
                 if round(machn_units , 5) == value:
-                    _safecheck(True)
+                    self._safecheck(True)
                     return
             else:
                 machn_units = INFO.convert_imperial_to_machine(self.jog_incr_imperial)
                 if  round(machn_units , 5) == value:
-                    _safecheck(True)
+                    self._safecheck(True)
                     return
-            _safecheck(False)
+            self._safecheck(False)
 
         def homed_on_loaded_test():
             return (STATUS.machine_is_on()
@@ -193,27 +211,27 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
         def spindle_control_test(e,d):
             if self.spindle_fwd:
                 if d in(0,-1):
-                    _safecheck(False)
+                    self._safecheck(False)
                     return
             else:
                 if d in(0,1):
-                    _safecheck(False)
+                    self._safecheck(False)
                     return
-            _safecheck(True)
+            self._safecheck(True)
 
         if self.estop:
             # Estop starts with button down - in estop which
             # backwards logic for the button...
-            if self.isCheckable(): _safecheck(True)
-            STATUS.connect('state-estop', lambda w: _safecheck(True))
-            STATUS.connect('state-estop-reset', lambda w: _safecheck(False))
+            if self.isCheckable(): self._safecheck(True)
+            STATUS.connect('state-estop', lambda w: self._safecheck(True))
+            STATUS.connect('state-estop-reset', lambda w: self._safecheck(False))
 
         elif self.machine_on or self.abort:
             #self.setEnabled(False)
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('state-estop-reset', lambda w: self.setEnabled(True))
-            STATUS.connect('state-on', lambda w: _safecheck(True))
-            STATUS.connect('state-off', lambda w: _safecheck(False))
+            STATUS.connect('state-on', lambda w: self._safecheck(True))
+            STATUS.connect('state-off', lambda w: self._safecheck(False))
 
         elif True in(self.home, self.unhome, self.home_select, self.unhome_select):
             #self.setEnabled(False)
@@ -221,15 +239,15 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('interp-idle', lambda w: self.setEnabled(STATUS.machine_is_on()))
             STATUS.connect('interp-run', lambda w: self.setEnabled(False))
-            STATUS.connect('all-homed', lambda w: _safecheck(True))
-            STATUS.connect('not-all-homed', lambda w, axis: _safecheck(False, axis))
+            STATUS.connect('all-homed', lambda w: self._safecheck(True))
+            STATUS.connect('not-all-homed', lambda w, axis: self._safecheck(False, axis))
 
         elif self.load_dialog:
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('interp-idle', lambda w: self.setEnabled(STATUS.machine_is_on()))
             STATUS.connect('interp-run', lambda w: self.setEnabled(False))
-            STATUS.connect('all-homed', lambda w: _safecheck(True))
+            STATUS.connect('all-homed', lambda w: self._safecheck(True))
 
         elif self.camview_dialog or self.macro_dialog or self.origin_offset_dialog or \
                 self.tool_offset_dialog:
@@ -278,7 +296,7 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
         elif True in(self.pause, self.step):
             self.setEnabled(False)
             if self.pause:
-                STATUS.connect('program-pause-changed', lambda w, state: _safecheck(state))
+                STATUS.connect('program-pause-changed', lambda w, state: self._safecheck(state))
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('interp-run', lambda w: self.setEnabled(homed_on_test()))
@@ -299,17 +317,17 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
             STATUS.connect('interp-paused', lambda w: self.setEnabled(False))
             STATUS.connect('interp-idle', lambda w: self.setEnabled(True))
             if self.auto:
-                STATUS.connect('mode-auto', lambda w: _safecheck(True))
-                STATUS.connect('mode-mdi', lambda w: _safecheck(False))
-                STATUS.connect('mode-manual', lambda w: _safecheck(False))
+                STATUS.connect('mode-auto', lambda w: self._safecheck(True))
+                STATUS.connect('mode-mdi', lambda w: self._safecheck(False))
+                STATUS.connect('mode-manual', lambda w: self._safecheck(False))
             elif self.mdi:
-                STATUS.connect('mode-mdi', lambda w: _safecheck(True))
-                STATUS.connect('mode-manual', lambda w: _safecheck(False))
-                STATUS.connect('mode-auto', lambda w: _safecheck(False))
+                STATUS.connect('mode-mdi', lambda w: self._safecheck(True))
+                STATUS.connect('mode-manual', lambda w: self._safecheck(False))
+                STATUS.connect('mode-auto', lambda w: self._safecheck(False))
             elif self.manual:
-                STATUS.connect('mode-manual', lambda w: _safecheck(True))
-                STATUS.connect('mode-mdi', lambda w: _safecheck(False))
-                STATUS.connect('mode-auto', lambda w: _safecheck(False))
+                STATUS.connect('mode-manual', lambda w: self._safecheck(True))
+                STATUS.connect('mode-mdi', lambda w: self._safecheck(False))
+                STATUS.connect('mode-auto', lambda w: self._safecheck(False))
 
         elif self.jog_incr:
             STATUS.connect('metric-mode-changed', lambda w, data:  self.incr_action())
@@ -319,8 +337,8 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
             self.max_velocity_over:
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('state-estop-reset', lambda w: self.setEnabled(True))
-            STATUS.connect('state-on', lambda w: _safecheck(True))
-            STATUS.connect('state-off', lambda w: _safecheck(False))
+            STATUS.connect('state-on', lambda w: self._safecheck(True))
+            STATUS.connect('state-off', lambda w: self._safecheck(False))
         elif self.view_change:
             pass
         elif self.spindle_fwd or self.spindle_rev or self.spindle_up or self.spindle_down:
@@ -345,26 +363,26 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('state-on', lambda w: self.setEnabled(True))
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
-            STATUS.connect('flood-changed', lambda w, data: _safecheck(data))
+            STATUS.connect('flood-changed', lambda w, data: self._safecheck(data))
         elif self.mist:
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('state-on', lambda w: self.setEnabled(True))
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
-            STATUS.connect('mist-changed', lambda w, data: _safecheck(data))
+            STATUS.connect('mist-changed', lambda w, data: self._safecheck(data))
         elif self.block_delete:
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
             STATUS.connect('mode-mdi', lambda w: self.setEnabled(True))
             STATUS.connect('mode-manual', lambda w: self.setEnabled(True))
             STATUS.connect('mode-auto', lambda w: self.setEnabled(False))
-            STATUS.connect('block-delete-changed', lambda w, data: _safecheck(data))
+            STATUS.connect('block-delete-changed', lambda w, data: self._safecheck(data))
         elif self.optional_stop:
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
             STATUS.connect('mode-mdi', lambda w: self.setEnabled(True))
             STATUS.connect('mode-manual', lambda w: self.setEnabled(True))
             STATUS.connect('mode-auto', lambda w: self.setEnabled(False))
-            STATUS.connect('optional-stop-changed', lambda w, data: _safecheck(data))
+            STATUS.connect('optional-stop-changed', lambda w, data: self._safecheck(data))
         elif self.mdi_command or self.ini_mdi_command:
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
@@ -410,7 +428,10 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
         if self._block_signal: return
         if self.estop:
             if self.isCheckable():
-                ACTION.SET_ESTOP_STATE(state)
+                if STATUS.estop_is_clear():
+                    ACTION.SET_ESTOP_STATE(STATUS.STATE_ESTOP)
+                else:
+                    ACTION.SET_ESTOP_STATE(STATUS.STATE_ESTOP_RESET)
             else:
                 ACTION.SET_ESTOP_STATE(STATUS.estop_is_clear())
         elif self.machine_on:
