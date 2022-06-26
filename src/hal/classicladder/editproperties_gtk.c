@@ -74,7 +74,7 @@ void gtk_combo_box_set_active_text( GtkComboBox *p_combo_box, const gchar *text 
 void SetProperty(int NumParam,char * LblParam,char * ValParam,char SetFocus)
 {
 	gtk_label_set_text((GtkLabel *)PropLabelParam[NumParam],LblParam);
-	if (strcmp(LblParam,"Base")==0)
+	if (strcmp(LblParam,_("Base"))==0)
 	{
 		gtk_widget_hide(PropEntryParam[NumParam]);
 		gtk_widget_show(PropEntryBaseParam[NumParam]);
@@ -86,7 +86,7 @@ void SetProperty(int NumParam,char * LblParam,char * ValParam,char SetFocus)
 	}
 	else
 	{
-		if (strcmp(LblParam,"TimerMode")==0)
+		if (strcmp(LblParam,_("TimerMode"))==0)
 		{
 			gtk_widget_hide(PropEntryParam[NumParam]);
 			gtk_widget_hide(PropEntryBaseParam[NumParam]);
@@ -133,14 +133,14 @@ char * GetProperty(int NumParam)
 	/* Convert to a number if it is a base */
 //ForGTK3	gtk_label_get(GTK_LABEL(PropLabelParam[NumParam]),&TxtParameter);
 	TxtParameter = gtk_label_get_text(GTK_LABEL(PropLabelParam[NumParam]));
-	if (strcmp(TxtParameter,"Base")==0)
+	if (strcmp(TxtParameter,_("Base"))==0)
 	{
 //		strcpy( ValTxtParameter , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)PropEntryBaseParam[NumParam])->entry) );
 		char *pGetText = gtk_combo_box_get_active_text( MY_GTK_COMBO_BOX(PropEntryBaseParam[NumParam]) );
 		strcpy( ValTxtParameter, pGetText );
 		g_free( pGetText );
 	}
-	else if (strcmp(TxtParameter,"TimerMode")==0)
+	else if (strcmp(TxtParameter,_("TimerMode"))==0)
 	{
 //			strcpy( ValTxtParameter , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)PropEntryTimerModeParam[NumParam])->entry) );
 		char *pGetText = gtk_combo_box_get_active_text( MY_GTK_COMBO_BOX(PropEntryTimerModeParam[NumParam]) );
