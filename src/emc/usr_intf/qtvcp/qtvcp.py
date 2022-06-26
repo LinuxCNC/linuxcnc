@@ -69,6 +69,7 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
 
 from PyQt5.QtCore import QObject, QEvent, pyqtSignal
 
+APP = None
 
 class inputFocusFilter(QObject):
     focusIn = pyqtSignal(object)
@@ -121,7 +122,8 @@ class QTVCP:
         sys.argv.append("--disable-web-security")
 
         # initialize QApp so we can pop up dialogs now.
-        self.app = MyApplication(sys.argv)
+        global APP
+        APP = MyApplication(sys.argv)
 
         # we import here so that the QApp is initialized before
         # the Notify library is loaded because it uses DBusQtMainLoop
@@ -222,7 +224,7 @@ Pressing cancel will close linuxcnc.""" % target)
         if PATH.LOCALEDIR is not None:
             translator = QtCore.QTranslator()
             translator.load(PATH.LOCALEDIR)
-            self.app.installTranslator(translator)
+            APP.installTranslator(translator)
             #QtCore.QCoreApplication.installTranslator(translator)
             #print(self.app.translate("MainWindow", 'Machine Log'))
 
@@ -278,7 +280,7 @@ Pressing cancel will close linuxcnc.""" % target)
             # add filter to catch keyboard events
             LOG.debug('Adding the key events filter.')
             myFilter = qt_makegui.MyEventFilter(window)
-            self.app.installEventFilter(myFilter)
+            APP.installEventFilter(myFilter)
 
         # actually build the widgets
         window.instance(filename=PATH.XML)
@@ -411,7 +413,7 @@ Pressing cancel will close linuxcnc.""" % target)
 
         LOG.info('Preference path: yellow<{}>'.format(PATH.PREFS_FILENAME))
         # start loop
-        self.app.exec_()
+        APP.exec_()
 
         # now shut it all down
         self.shutdown()
