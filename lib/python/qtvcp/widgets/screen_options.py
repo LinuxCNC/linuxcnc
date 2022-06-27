@@ -108,6 +108,9 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.add_tool_dialog = False
         self.add_file_dialog = False
         self.add_focus_overlay = False
+        self.add_focus_effect = False
+        self.use_focus_tint = False
+        self.use_focus_blur = False
         self.add_keyboard_dialog = False
         self.add_versaprobe_dialog = False
         self.add_macrotab_dialog = False
@@ -166,6 +169,9 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
         if self.add_focus_overlay:
             self.init_focus_overlay()
+
+        if self.add_focus_effect:
+            self.init_focus_effect()
 
         if self.add_keyboard_dialog:
             self.init_keyboard_dialog()
@@ -548,6 +554,10 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         w.focusOverlay_.setObjectName('focusOverlay_')
         w.focusOverlay_.hal_init(HAL_NAME='')
 
+    def init_focus_effect(self):
+        STATUS.connect('focus-overlay-changed', lambda w, data, text, color: 
+                        self.effect(data, text, color))
+
     def init_keyboard_dialog(self):
         from qtvcp.widgets.dialog_widget import KeyboardDialog
         w = self.QTVCP_INSTANCE_
@@ -690,6 +700,26 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             ACTION.TOGGLE_LIMITS_OVERRIDE()
         ACTION.SET_MACHINE_STATE(True)
 
+    def effect(self, data, text, color):
+        if self.use_focus_blur:
+            ACTION.SET_BLUR(self.QTVCP_INSTANCE_,data)
+        elif self.use_focus_tint:
+            ACTION.SET_TINT(self.QTVCP_INSTANCE_, data, color)
+
+    #########################################################################
+    # This is how designer can interact with our widget properties.
+    # designer will show the pyqtProperty properties in the editor
+    # it will use the get set and reset calls to do those actions
+    #
+    # _toggle_properties makes it so we can only select one option
+    ########################################################################
+
+    def _toggle_properties(self, picked):
+        data = ('focusBlur','focusTint')
+        for i in data:
+            if not i == picked:
+                self[i+'_option'] = False
+
     ########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
@@ -801,6 +831,34 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def reset_focusOverlay(self):
         self.add_focus_overlay = False
     focusOverlay_option = QtCore.pyqtProperty(bool, get_focusOverlay, set_focusOverlay, reset_focusOverlay)
+
+    def set_focusEffect(self, data):
+        self.add_focus_effect = data
+    def get_focusEffect(self):
+        return self.add_focus_effect
+    def reset_focusEffect(self):
+        self.add_focus_effect = False
+    focusEffect_option = QtCore.pyqtProperty(bool, get_focusEffect, set_focusEffect, reset_focusEffect)
+
+    def set_focusBlur(self, data):
+        self.use_focus_blur = data
+        if data:
+            self._toggle_properties('focusBlur')
+    def get_focusBlur(self):
+        return self.use_focus_blur
+    def reset_focusBlur(self):
+        self.use_focus_blur = False
+    focusBlur_option = QtCore.pyqtProperty(bool, get_focusBlur, set_focusBlur, reset_focusBlur)
+
+    def set_focusTint(self, data):
+        self.use_focus_tint = data
+        if data:
+            self._toggle_properties('focusTint')
+    def get_focusTint(self):
+        return self.use_focus_tint
+    def reset_focusTint(self):
+        self.use_focus_tint = False
+    focusTint_option = QtCore.pyqtProperty(bool, get_focusTint, set_focusTint, reset_focusTint)
 
     # Dialogs ##########################################
 
