@@ -1,15 +1,14 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# Petter Reinholdtsen <pere-weblate@hungry.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-05-28 23:16+0200\n"
-"PO-Revision-Date: 2022-05-29 16:23+0000\n"
-"Last-Translator: Asle Næss <aness@bofh.no>\n"
+"PO-Revision-Date: 2022-06-12 06:56+0000\n"
+"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
 "Language: nb\n"
@@ -8995,7 +8994,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/thcad.glade:156
 #: src/emc/usr_intf/pncconf/dialogs.glade:1446
 msgid "5"
-msgstr ""
+msgstr "5"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1068
 #: src/emc/usr_intf/stepconf/ubuttons.glade:105
@@ -9457,7 +9456,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/stepconf.py:144
 #: src/emc/usr_intf/pncconf/private_data.py:59
 msgid "Options"
-msgstr ""
+msgstr "Valgmuligheter"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:144
 msgid "HALUI"
@@ -17878,7 +17877,7 @@ msgstr ""
 #: src/emc/usr_intf/gscreen/gscreen.py:534
 #, python-format
 msgid "**** Gscreen GLADE ERROR:    With main screen xml file: %s"
-msgstr ""
+msgstr "**** Gscreen GLADE-FEIL:    Med xml-fil for hovedskjerm: %s"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:539
 #, python-format
@@ -17975,7 +17974,7 @@ msgstr ""
 #: src/emc/usr_intf/gscreen/gscreen.py:823
 #, python-format
 msgid "timeout %d"
-msgstr ""
+msgstr "tidsutløp %d"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1275
 msgid "Ready For Homing"
@@ -18012,7 +18011,7 @@ msgstr ""
 #: src/emc/usr_intf/gscreen/gscreen.py:1935
 #, python-format
 msgid "Please change to tool # %s, then click OK."
-msgstr ""
+msgstr "Vær så snill å bytt til verktøy # %s, trykk så OK."
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1936
 #: src/emc/usr_intf/gscreen/gscreen.py:1948
@@ -18051,7 +18050,7 @@ msgstr ""
 #: src/emc/usr_intf/gscreen/gscreen.py:1976
 #: src/emc/usr_intf/gscreen/gscreen.py:4161
 msgid "No direction selected for spindle"
-msgstr ""
+msgstr "Spindelen har ingen valgt retning"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1988
 #: src/emc/usr_intf/gscreen/gscreen.py:1990
@@ -18065,7 +18064,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2193
 msgid "Entry dialog"
-msgstr ""
+msgstr "Oppføringsdialog"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2358
 msgid "Classicladder realtime component not detected"

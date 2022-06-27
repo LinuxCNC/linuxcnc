@@ -6,10 +6,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-05-28 23:16+0200\n"
-"PO-Revision-Date: 2021-12-17 08:52+0000\n"
-"Last-Translator: Horváth Csaba <hcs.plc@gmail.com>\n"
+"PO-Revision-Date: 2022-06-26 11:30+0000\n"
+"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
 "Language-Team: Hungarian <https://hosted.weblate.org/projects/linuxcnc/"
 "gmocappy/hu/>\n"
 "Language: hu\n"
@@ -17,15 +17,13 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.10\n"
+"X-Generator: Weblate 4.13.1-dev\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:281
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:286
-#, fuzzy
-#| msgid "**** GMOCCAPY INI Entry **** \n"
 msgid "**** GMOCCAPY INI Entry ****"
-msgstr "**** GMOCCAPY INI elnevezés **** \n"
+msgstr "**** GMOCCAPY INI bejegyzés ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:282
 msgid "user mode selected"
@@ -37,16 +35,12 @@ msgid "logo entry found = {0}"
 msgstr "Logo bejegyzés található = {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:292
-#, fuzzy
-#| msgid "**** GMOCCAPY INI Entry Error **** \n"
 msgid "**** GMOCCAPY INI Entry Error ****"
-msgstr "**** GMOCCAPY INI elnevezési hiba **** \n"
+msgstr "**** GMOCCAPY INI Bejegyzés kifejezésének hibája ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:293
-#, fuzzy
-#| msgid "Logofile entry found, but could not be converted to path.\n"
 msgid "Logofile entry found, but could not be converted to path."
-msgstr "Logofájlt találtam, de nem alakítható útvonallá.\n"
+msgstr "Logofájl bejegyzést találtam, de nem alakítható útvonallá."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:294
 msgid "The file path should not contain any spaces"
@@ -60,7 +54,7 @@ msgstr "Nyomd meg az összes ref. pont felvételhez {0}"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:704
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:991
 msgid "Press to display previous homing button"
-msgstr ""
+msgstr "Nyomd meg, hogy az előző Homing gomb látszodjon"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:720
 #, python-brace-format
@@ -70,7 +64,7 @@ msgstr "Nyomd meg a ref. gombot {0} {1}"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:737
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1020
 msgid "Press to display next homing button"
-msgstr ""
+msgstr "Nyomd meg, hogy a következő Homing gomb látszódjon"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:752
 #, python-brace-format
@@ -131,16 +125,12 @@ msgid "Press to enter new value for block height"
 msgstr "Kérem a hasáb új magasságát"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1049
-#, fuzzy
-#| msgid ""
-#| "    set\n"
-#| "selected"
 msgid ""
 "set\n"
 "selected"
 msgstr ""
-"    a választás\n"
-"beállítása"
+"a Set\n"
+"kiválasztva"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1055
 msgid "Press to set the selected coordinate system to be the active one"
