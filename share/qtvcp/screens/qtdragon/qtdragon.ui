@@ -99,6 +99,13 @@
       <property name="catch_close_option" stdset="0">
        <bool>true</bool>
       </property>
+      <property name="close_overlay_color" stdset="0">
+       <color alpha="159">
+        <red>212</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </property>
       <property name="catch_errors_option" stdset="0">
        <bool>true</bool>
       </property>
@@ -114,6 +121,15 @@
       <property name="embedded_program_option" stdset="0">
        <bool>true</bool>
       </property>
+      <property name="focusEffect_option" stdset="0">
+       <bool>true</bool>
+      </property>
+      <property name="focusBlur_option" stdset="0">
+       <bool>true</bool>
+      </property>
+      <property name="focusTint_option" stdset="0">
+       <bool>false</bool>
+      </property>
       <property name="entryDialog_option" stdset="0">
        <bool>true</bool>
       </property>
@@ -122,6 +138,13 @@
       </property>
       <property name="toolDialog_option" stdset="0">
        <bool>true</bool>
+      </property>
+      <property name="tool_overlay_color" stdset="0">
+       <color alpha="150">
+        <red>0</red>
+        <green>0</green>
+        <blue>255</blue>
+       </color>
       </property>
       <property name="fileDialog_option" stdset="0">
        <bool>true</bool>
@@ -2128,7 +2151,7 @@ PLATE</string>
                </size>
               </property>
               <property name="maxLength">
-               <number>60</number>
+               <number>100</number>
               </property>
               <property name="placeholderText">
                <string>MDI:</string>
@@ -2658,10 +2681,10 @@ OFF</string>
                  <double>0.200000000000000</double>
                 </property>
                 <property name="right_edge_offset" stdset="0">
-                 <double>6.000000000000000</double>
+                 <number>6</number>
                 </property>
                 <property name="top_edge_offset" stdset="0">
-                 <double>6.000000000000000</double>
+                 <number>6</number>
                 </property>
                 <property name="true_state_string" stdset="0">
                  <string>MACHINE
@@ -2754,10 +2777,10 @@ RESET</string>
                  <double>0.200000000000000</double>
                 </property>
                 <property name="right_edge_offset" stdset="0">
-                 <double>6.000000000000000</double>
+                 <number>6</number>
                 </property>
                 <property name="top_edge_offset" stdset="0">
-                 <double>6.000000000000000</double>
+                 <number>6</number>
                 </property>
                 <property name="true_state_string" stdset="0">
                  <string>ESTOP
@@ -4976,19 +4999,19 @@ GCODE</string>
                           <property name="cornerButtonEnabled">
                            <bool>false</bool>
                           </property>
-                          <attribute name="horizontalHeaderDefaultSectionSize">
+                          <attribute name="horizontalHeaderMinimumSectionSize">
                            <number>80</number>
                           </attribute>
-                          <attribute name="horizontalHeaderMinimumSectionSize">
+                          <attribute name="horizontalHeaderDefaultSectionSize">
                            <number>80</number>
                           </attribute>
                           <attribute name="verticalHeaderCascadingSectionResizes">
                            <bool>false</bool>
                           </attribute>
-                          <attribute name="verticalHeaderDefaultSectionSize">
+                          <attribute name="verticalHeaderMinimumSectionSize">
                            <number>30</number>
                           </attribute>
-                          <attribute name="verticalHeaderMinimumSectionSize">
+                          <attribute name="verticalHeaderDefaultSectionSize">
                            <number>30</number>
                           </attribute>
                          </widget>
@@ -7080,10 +7103,10 @@ TO FILE</string>
                            <double>10.000000000000000</double>
                           </property>
                           <property name="right_edge_offset" stdset="0">
-                           <double>0.000000000000000</double>
+                           <number>0</number>
                           </property>
                           <property name="top_edge_offset" stdset="0">
-                           <double>0.000000000000000</double>
+                           <number>0</number>
                           </property>
                           <property name="corner_radius" stdset="0">
                            <double>5.000000000000000</double>
@@ -9090,10 +9113,10 @@ START</string>
                     <double>0.200000000000000</double>
                    </property>
                    <property name="right_edge_offset" stdset="0">
-                    <double>6.000000000000000</double>
+                    <number>6</number>
                    </property>
                    <property name="top_edge_offset" stdset="0">
-                    <double>6.000000000000000</double>
+                    <number>6</number>
                    </property>
                    <property name="invert_the_status" stdset="0">
                     <bool>true</bool>
@@ -9250,10 +9273,10 @@ START</string>
                     <double>0.200000000000000</double>
                    </property>
                    <property name="right_edge_offset" stdset="0">
-                    <double>6.000000000000000</double>
+                    <number>6</number>
                    </property>
                    <property name="top_edge_offset" stdset="0">
-                    <double>6.000000000000000</double>
+                    <number>6</number>
                    </property>
                    <property name="true_state_string" stdset="0">
                     <string>RESUME</string>
@@ -9408,10 +9431,10 @@ BLOCK</string>
                     <double>10.000000000000000</double>
                    </property>
                    <property name="right_edge_offset" stdset="0">
-                    <double>6.000000000000000</double>
+                    <number>6</number>
                    </property>
                    <property name="top_edge_offset" stdset="0">
-                    <double>6.000000000000000</double>
+                    <number>6</number>
                    </property>
                    <property name="is_block_delete_status" stdset="0">
                     <bool>true</bool>
@@ -9471,10 +9494,10 @@ STOP</string>
                     <double>0.200000000000000</double>
                    </property>
                    <property name="right_edge_offset" stdset="0">
-                    <double>6.000000000000000</double>
+                    <number>6</number>
                    </property>
                    <property name="top_edge_offset" stdset="0">
-                    <double>6.000000000000000</double>
+                    <number>6</number>
                    </property>
                    <property name="is_optional_stop_status" stdset="0">
                     <bool>true</bool>
@@ -9559,10 +9582,10 @@ OFF</string>
                     <double>0.200000000000000</double>
                    </property>
                    <property name="right_edge_offset" stdset="0">
-                    <double>6.000000000000000</double>
+                    <number>6</number>
                    </property>
                    <property name="top_edge_offset" stdset="0">
-                    <double>6.000000000000000</double>
+                    <number>6</number>
                    </property>
                    <property name="true_state_string" stdset="0">
                     <string>MIST
@@ -9633,10 +9656,10 @@ OFF</string>
                     <double>0.200000000000000</double>
                    </property>
                    <property name="right_edge_offset" stdset="0">
-                    <double>6.000000000000000</double>
+                    <number>6</number>
                    </property>
                    <property name="top_edge_offset" stdset="0">
-                    <double>6.000000000000000</double>
+                    <number>6</number>
                    </property>
                    <property name="true_state_string" stdset="0">
                     <string>FLOOD
@@ -9760,10 +9783,10 @@ SPINDLE</string>
                     <double>0.200000000000000</double>
                    </property>
                    <property name="right_edge_offset" stdset="0">
-                    <double>6.000000000000000</double>
+                    <number>6</number>
                    </property>
                    <property name="top_edge_offset" stdset="0">
-                    <double>6.000000000000000</double>
+                    <number>6</number>
                    </property>
                    <property name="true_state_string" stdset="0">
                     <string>SPINDLE
@@ -10820,10 +10843,10 @@ ZERO</string>
                          <double>0.200000000000000</double>
                         </property>
                         <property name="right_edge_offset" stdset="0">
-                         <double>4.000000000000000</double>
+                         <number>4</number>
                         </property>
                         <property name="top_edge_offset" stdset="0">
-                         <double>5.000000000000000</double>
+                         <number>5</number>
                         </property>
                         <property name="true_state_string" stdset="0">
                          <string>UNHOME</string>
@@ -11159,10 +11182,10 @@ ZERO</string>
                          <double>0.200000000000000</double>
                         </property>
                         <property name="right_edge_offset" stdset="0">
-                         <double>4.000000000000000</double>
+                         <number>4</number>
                         </property>
                         <property name="top_edge_offset" stdset="0">
-                         <double>5.000000000000000</double>
+                         <number>5</number>
                         </property>
                         <property name="true_state_string" stdset="0">
                          <string>UNHOME</string>
@@ -11276,10 +11299,10 @@ ZERO</string>
                          <double>0.200000000000000</double>
                         </property>
                         <property name="right_edge_offset" stdset="0">
-                         <double>4.000000000000000</double>
+                         <number>4</number>
                         </property>
                         <property name="top_edge_offset" stdset="0">
-                         <double>5.000000000000000</double>
+                         <number>5</number>
                         </property>
                         <property name="true_state_string" stdset="0">
                          <string>UNHOME</string>
@@ -11625,10 +11648,10 @@ ZERO</string>
                          <double>0.200000000000000</double>
                         </property>
                         <property name="right_edge_offset" stdset="0">
-                         <double>4.000000000000000</double>
+                         <number>4</number>
                         </property>
                         <property name="top_edge_offset" stdset="0">
-                         <double>5.000000000000000</double>
+                         <number>5</number>
                         </property>
                         <property name="is_homed_status" stdset="0">
                          <bool>true</bool>
@@ -13445,10 +13468,10 @@ ZERO</string>
                   <double>0.200000000000000</double>
                  </property>
                  <property name="right_edge_offset" stdset="0">
-                  <double>6.000000000000000</double>
+                  <number>6</number>
                  </property>
                  <property name="top_edge_offset" stdset="0">
-                  <double>6.000000000000000</double>
+                  <number>6</number>
                  </property>
                  <property name="is_manual_status" stdset="0">
                   <bool>true</bool>
@@ -13555,10 +13578,10 @@ ZERO</string>
                   <double>0.200000000000000</double>
                  </property>
                  <property name="right_edge_offset" stdset="0">
-                  <double>6.000000000000000</double>
+                  <number>6</number>
                  </property>
                  <property name="top_edge_offset" stdset="0">
-                  <double>6.000000000000000</double>
+                  <number>6</number>
                  </property>
                  <property name="is_optional_stop_status" stdset="0">
                   <bool>false</bool>
@@ -13668,10 +13691,10 @@ ZERO</string>
                   <double>0.200000000000000</double>
                  </property>
                  <property name="right_edge_offset" stdset="0">
-                  <double>6.000000000000000</double>
+                  <number>6</number>
                  </property>
                  <property name="top_edge_offset" stdset="0">
-                  <double>6.000000000000000</double>
+                  <number>6</number>
                  </property>
                  <property name="is_auto_status" stdset="0">
                   <bool>true</bool>
@@ -13825,9 +13848,9 @@ ZERO</string>
                  </property>
                  <property name="icon">
                   <iconset>
-                   <normalon>../../../../../../../home/marko/.designer/backup/images/spindle_rev.png</normalon>
-                   <activeon>../../../../../../../home/marko/.designer/backup/images/spindle_rev.png</activeon>
-                   <selectedon>../../../../../../../home/marko/.designer/backup/images/spindle_rev.png</selectedon>
+                   <normalon>../../../../../../marko/.designer/backup/images/spindle_rev.png</normalon>
+                   <activeon>../../../../../../marko/.designer/backup/images/spindle_rev.png</activeon>
+                   <selectedon>../../../../../../marko/.designer/backup/images/spindle_rev.png</selectedon>
                   </iconset>
                  </property>
                  <property name="iconSize">
@@ -13881,10 +13904,10 @@ ZERO</string>
                   <double>10.000000000000000</double>
                  </property>
                  <property name="right_edge_offset" stdset="0">
-                  <double>6.000000000000000</double>
+                  <number>6</number>
                  </property>
                  <property name="top_edge_offset" stdset="0">
-                  <double>6.000000000000000</double>
+                  <number>6</number>
                  </property>
                  <property name="corner_radius" stdset="0">
                   <double>5.000000000000000</double>
@@ -14039,9 +14062,9 @@ ZERO</string>
                  </property>
                  <property name="icon">
                   <iconset>
-                   <normalon>../../../../../../../home/marko/.designer/backup/images/spindle_fwd.png</normalon>
-                   <activeon>../../../../../../../home/marko/.designer/backup/images/spindle_fwd.png</activeon>
-                   <selectedon>../../../../../../../home/marko/.designer/backup/images/spindle_fwd.png</selectedon>
+                   <normalon>../../../../../../marko/.designer/backup/images/spindle_fwd.png</normalon>
+                   <activeon>../../../../../../marko/.designer/backup/images/spindle_fwd.png</activeon>
+                   <selectedon>../../../../../../marko/.designer/backup/images/spindle_fwd.png</selectedon>
                   </iconset>
                  </property>
                  <property name="iconSize">
@@ -14095,10 +14118,10 @@ ZERO</string>
                   <double>10.000000000000000</double>
                  </property>
                  <property name="right_edge_offset" stdset="0">
-                  <double>6.000000000000000</double>
+                  <number>6</number>
                  </property>
                  <property name="top_edge_offset" stdset="0">
-                  <double>6.000000000000000</double>
+                  <number>6</number>
                  </property>
                  <property name="corner_radius" stdset="0">
                   <double>5.000000000000000</double>
@@ -14253,7 +14276,7 @@ ZERO</string>
                  </property>
                  <property name="icon">
                   <iconset>
-                   <selectedon>../../../../../../../home/marko/.designer/backup/images/spindle_stop.png</selectedon>
+                   <selectedon>../../../../../../marko/.designer/backup/images/spindle_stop.png</selectedon>
                   </iconset>
                  </property>
                  <property name="iconSize">
@@ -14307,10 +14330,10 @@ ZERO</string>
                   <double>10.000000000000000</double>
                  </property>
                  <property name="right_edge_offset" stdset="0">
-                  <double>6.000000000000000</double>
+                  <number>6</number>
                  </property>
                  <property name="top_edge_offset" stdset="0">
-                  <double>6.000000000000000</double>
+                  <number>6</number>
                  </property>
                  <property name="corner_radius" stdset="0">
                   <double>5.000000000000000</double>
@@ -15032,7 +15055,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>06:26:39 </string>
+            <string>07:40:49 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -15216,7 +15239,6 @@ ZERO</string>
   <include location="qtdragon.qrc"/>
   <include location="qtdragon.qrc"/>
   <include location="qtdragon.qrc"/>
-  <include location="../../../../../home/marko/.designer/backup/qtdragon.qrc"/>
  </resources>
  <connections>
   <connection>
@@ -15966,8 +15988,7 @@ ZERO</string>
   <slot>tab_utilities_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>
-
