@@ -32,6 +32,12 @@
       <property name="focusOverlay_option" stdset="0">
        <bool>true</bool>
       </property>
+      <property name="focusEffect_option" stdset="0">
+       <bool>true</bool>
+      </property>
+      <property name="focusBlur_option" stdset="0">
+       <bool>true</bool>
+      </property>
       <property name="entryDialog_option" stdset="0">
        <bool>true</bool>
       </property>
