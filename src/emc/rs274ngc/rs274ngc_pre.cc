@@ -98,7 +98,7 @@ include an option for suppressing superfluous commands.
 #include "interp_internal.hh"	// interpreter private definitions
 #include "interp_queue.hh"
 #include "rs274ngc_interp.hh"
-
+#include <wordexp.h>
 #include "units.h"
 
 #include <unordered_set>
@@ -2651,6 +2651,12 @@ int Interp::on_abort(int reason, const char *message)
 
 // spun out from interp_o_word so we can use it to test ngc file accessibility during
 // config file parsing (REMAP... ngc=<basename>)
+// Will expand ~ to user's home path
+// searchs this sequence until it finds a match:
+// 1) checks if path is already the full path
+// 2) tries adding the INI defined program prefix to path
+// 3) tries adding the INI defined subroutine prefix to path
+// 4) tries adding the INI defined whizard prefix to path
 FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *foundhere )
 {
     FILE *newFP = NULL;
@@ -2658,48 +2664,83 @@ FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *f
     char newFileName[PATH_MAX+1];
     char foundPlace[PATH_MAX+1];
     int  dct;
+    wordexp_t exp_result;
 
-    // look for a new file
-    snprintf(tmpFileName, sizeof(tmpFileName), "%s.ngc", basename);
+    // #1 check if this is the full path already
 
-    // find subroutine by search: program_prefix, subroutines, wizard_root
-    // use first file found
+    // expand user path
+    wordexp(basename, &exp_result, 0);
+    // add .ngc to expanded path
+    snprintf(tmpFileName, sizeof(tmpFileName), "%s.ngc", exp_result.we_wordv[0]);
 
-    // first look in the program_prefix place
-    size_t chk = snprintf(newFileName, sizeof(newFileName), "%s/%s", settings->program_prefix, tmpFileName);
+    // copy to newFileName - in case this is the one...
+    size_t chk = snprintf(newFileName, sizeof(newFileName), "%s", tmpFileName);
+
+    // found a file we can open?
     if (chk < sizeof(newFileName)){
         newFP = fopen(newFileName, "r");
     }
 
-    // then look in the subroutines place
+    // #2 then look in the program_prefix place
     if (!newFP) {
-	for (dct = 0; dct < MAX_SUB_DIRS; dct++) {
-	    if (!settings->subroutines[dct])
-		continue;
-	    chk = snprintf(newFileName, sizeof(newFileName), "%s/%s", settings->subroutines[dct], tmpFileName);
-        if (chk <  sizeof(newFileName)){
-            newFP = fopen(newFileName, "r");
-            if (newFP) {
-            // logOword("fopen: |%s|", newFileName);
-            break; // use first occurrence in dir search
-            }
-	    }
-	}
-    }
-    // if not found, search the wizard tree
-    if (!newFP) {
-	int ret;
-	ret = findFile(settings->wizard_root, tmpFileName, foundPlace);
 
-	if (INTERP_OK == ret) {
-	    // create the long name
-	    chk = snprintf(newFileName, sizeof(newFileName), "%s/%s",
-		    foundPlace, tmpFileName);
-	    if (chk < sizeof(newFileName)) newFP = fopen(newFileName, "r");
-	}
+        // expand '~' into user path
+        wordexp(settings->program_prefix, &exp_result, 0);
+        chk = snprintf(newFileName, sizeof(newFileName), "%s/%s", exp_result.we_wordv[0], tmpFileName);
+
+         // found a file we can open?
+        if (chk < sizeof(newFileName)){
+            newFP = fopen(newFileName, "r");
+        }
     }
+    
+    // #3 then look in the list of subroutines prefixes
+    if (!newFP) {
+        for (dct = 0; dct < MAX_SUB_DIRS; dct++) {
+            if (!settings->subroutines[dct])
+            continue;
+
+            // expand '~' into user path
+            wordexp(settings->subroutines[dct], &exp_result, 0);
+            chk = snprintf(newFileName, sizeof(newFileName), "%s/%s", exp_result.we_wordv[0], tmpFileName);
+
+            // found a file we can open?
+            if (chk <  sizeof(newFileName)){
+                newFP = fopen(newFileName, "r");
+                if (newFP) {
+                // logOword("fopen: |%s|", newFileName);
+                break; // use first occurrence in dir search
+                }
+            }
+         }
+    }
+
+    // #4 if still not found, search the wizard tree
+    // Wiz directory already expands the '~' to user path
+    if (!newFP) {
+        int ret;
+
+        // walks the directory hierarchy ? 
+        ret = findFile(settings->wizard_root, tmpFileName, foundPlace);
+
+        if (INTERP_OK == ret) {
+            // create the long name
+            chk = snprintf(newFileName, sizeof(newFileName), "%s/%s",
+            foundPlace, tmpFileName);
+
+            // found a file we can open?
+            if (chk < sizeof(newFileName)){
+            newFP = fopen(newFileName, "r");
+            }
+        }
+    }
+
+    // pass what we found
     if (foundhere && (newFP != NULL)) 
-	strcpy(foundhere, newFileName);
+        strcpy(foundhere, newFileName);
+
+    // Not sure this is needed but the internet told me
+    wordfree(&exp_result);
     return newFP;
 }
 
