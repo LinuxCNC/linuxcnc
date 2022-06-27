@@ -2,7 +2,8 @@ import os
 import subprocess
 
 from PyQt5.QtWidgets import (QApplication, QTabWidget, QStackedWidget,
-    QWidget, QGridLayout)
+    QWidget, QGridLayout,QGraphicsBlurEffect, QGraphicsDropShadowEffect,
+                QGraphicsColorizeEffect)
 from PyQt5.QtCore import Qt, QProcess
 
 import linuxcnc
@@ -754,6 +755,38 @@ class _Lcnc_Action(object):
 
         return True
 
+    def SET_BLUR(self, widget, state, radius = 15):
+        if state:
+            blur = QGraphicsBlurEffect()
+            blur.setBlurRadius(radius)
+            widget.setGraphicsEffect(blur)
+            widget.hide()
+            widget.show()
+        else:
+            widget.setGraphicsEffect(None)
+
+    def SET_TINT(self, widget, state, color):
+        if state:
+            c = QGraphicsColorizeEffect()
+            c.setColor(color)
+            c.setStrength(1)
+            widget.setGraphicsEffect(c)
+            widget.hide()
+            widget.show()
+        else:
+            widget.setGraphicsEffect(None)
+
+    def SET_SHADOW(self, widget,state,color):
+        if state:
+            shadow = QGraphicsDropShadowEffect()
+            shadow.setBlurRadius(30)
+            shadow.setColor(color)
+            shadow.setOffset(10, 10)
+            widget.setGraphicsEffect(shadow)
+            widget.hide()
+            widget.show()
+        else:
+            widget.setGraphicsEffect(None)
 
     ######################################
     # Action Helper functions
