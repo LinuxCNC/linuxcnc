@@ -446,13 +446,13 @@ int Interp::parse_remap(const char *inistring, int lineno)
 		errored = true;
 		continue;
 	    }
-	    FILE *fp = find_ngc_file(&_setup,arg);
+	    FILE *fp = find_ngc_file(&_setup, arg);
 	    if (fp) {
 		r.remap_ngc = strstore(arg);
 		fclose(fp);
 	    } else {
-		Error("NGC file not found: ngc=%s - %d:REMAP = %s",
-		      arg, lineno,inistring);
+		fprintf(stderr,"INTERP_REMAP: NGC file not found: ngc=%s\nREMAP INI Line:%d = %s\n",
+		      arg, lineno, inistring);
 		errored = true;
 	    }
 	    continue;
@@ -465,7 +465,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 		continue;
 	    }
 	    if (!PYUSABLE) {
-		Error("Python plugin required for python=, but not available: %d:REMAP = %s",
+		fprintf(stderr,"iNTERP_REMAP: Python plugin required for python=, but not available:\nREMAP INI line:%d = %s\n",
 		      lineno,inistring);
 		errored = true;
 		continue;
