@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=
+Type=Application
+Exec=@EMC2_LATENCY_HISTOGRAM_SCRIPT@
+Icon=@EMC2_ICON@
+X-GNOME-DocPath=
+Terminal=false
+Name=Latency Histogram@EMC2_SUFFIX@
+Comment=Show histogram of your machine's latency
+StartupNotify=false
+Categories=Science;X-CNC;

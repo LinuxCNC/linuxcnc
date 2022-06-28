@@ -296,6 +296,7 @@ INFILES = \
 	../share/menus/CNC.menu \
 	../share/applications/linuxcnc.desktop \
 	../share/applications/linuxcnc-latency.desktop \
+	../share/applications/linuxcnc-latency-histogram.desktop \
 	../scripts/linuxcnc_var \
 	../scripts/halcmd_twopass \
 	../scripts/runtests \
@@ -597,6 +598,7 @@ MENUS = ../share/menus/CNC.menu \
     ../share/desktop-directories/cnc.directory \
     ../share/applications/linuxcnc.desktop \
     ../share/applications/linuxcnc-latency.desktop \
+    ../share/applications/linuxcnc-latency-histogram.desktop \
 
 install-menus install-menu: $(MENUS)
 	mkdir -p $(HOME)/.config/menus/applications-merged
