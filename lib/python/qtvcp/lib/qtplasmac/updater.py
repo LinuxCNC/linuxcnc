@@ -22,7 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 import os
 from shutil import copy as COPY
 
-# remove the qtplasmac link from the config directory (pre V1.???.??? 2022/??/??)
+# remove the qtplasmac link from the config directory (pre V1.225.208 2022/06/29)
 def remove_qtplasmac_link(inifile):
     tmpFile = '{}~'.format(inifile)
     COPY(inifile, tmpFile)

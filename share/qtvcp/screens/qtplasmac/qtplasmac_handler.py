@@ -1,4 +1,4 @@
-VERSION = '1.225.207'
+VERSION = '1.225.208'
 
 '''
 qtplasmac_handler.py
@@ -2177,7 +2177,7 @@ class HandlerClass:
         startupCode = self.iniFile.find('RS274NGC', 'RS274NGC_STARTUP_CODE')
         if 'metric_startup' in startupCode or 'imperial_startup' in startupCode:
             UPDATER.rs274ngc_startup_code(INIPATH)
-    # remove the qtplasmc link from the config directory (pre V1.???.??? 2022/??/??)
+    # remove the qtplasmac link from the config directory (pre V1.225.208 2022/06/29)
         if os.path.exists(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac')):
         # stage 1: set up for unlinking on the next run of qtplasmac
             if 'code.py' in self.iniFile.find('FILTER', 'ngc'):
