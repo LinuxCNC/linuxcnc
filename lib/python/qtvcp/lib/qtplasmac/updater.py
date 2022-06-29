@@ -22,6 +22,26 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 import os
 from shutil import copy as COPY
 
+# remove the qtplasmac link from the config directory (pre V1.???.??? 2022/??/??)
+def remove_qtplasmac_link(inifile):
+    tmpFile = '{}~'.format(inifile)
+    COPY(inifile, tmpFile)
+    with open(tmpFile, 'r') as inFile:
+        with open(inifile, 'w') as outFile:
+            for line in inFile:
+                if line.replace(' ','').startswith('ngc='):
+                    line = 'ngc = qtplasmac_gcode\n'
+                elif line.replace(' ','').startswith('nc='):
+                    line = 'nc  = qtplasmac_gcode\n'
+                elif line.replace(' ','').startswith('tap='):
+                    line = 'tap = qtplasmac_gcode\n'
+                elif (line.startswith('SUBROUTINE_PATH') or line.startswith('USER_M_PATH')) and ':./qtplasmac' in line:
+                    line = line.replace(':./qtplasmac','')
+                outFile.write(line)
+    if os.path.isfile(tmpFile):
+        os.remove(tmpFile)
+    update_notify('V1.???.???')
+
 # change startup parameters from a subroutine (pre V1.224.207 2022/06/22)
 def rs274ngc_startup_code(inifile): #, unitsCode):
     tmpFile = '{}~'.format(inifile)

@@ -862,19 +862,15 @@ class StepconfApp:
         #self.write_readme(base)
         self.INI.write_inifile(base)
         self.HAL.write_halfile(base)
-        # link to qtplasmac common directory
+        # qtplasmac specific
         if self.d.select_qtplasmac:
+            # copy M190 file
             if BASE == "/usr":
-                commonPath = '/usr/share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac/qtplasmac/'
+                m190Path = os.path.join(BASE, 'share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac/M190')
             else:
-                commonPath = '{}/configs/by_machine/qtplasmac/qtplasmac/'.format(BASE)
-            oldDir = '{}/qtplasmac'.format(base)
-            if os.path.islink(oldDir):
-                os.unlink(oldDir)
-            elif os.path.exists(oldDir):
-                os.rename(oldDir, '{}_old_{}'.format(oldDir, time.time()))
-            os.symlink(commonPath, '{}/qtplasmac'.format(base))
-            # different tool table for plasmac
+                m190Path = os.path.join(BASE, 'configs/by_machine/qtplasmac/M190')
+            shutil.copy(m190Path, os.path.join(base, 'M190'))
+            # different tool table for qtplasmac
             filename = os.path.join(base, "tool.tbl")
             file = open(filename, "w")
             print("T0 P1 X0 Y0 ;torch", file=file)

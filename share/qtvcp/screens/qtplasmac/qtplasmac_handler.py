@@ -24,6 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc
 import os, sys
 from shutil import copy as COPY
 from shutil import move as MOVE
+from shutil import rmtree as RMTREE
 from subprocess import Popen, PIPE
 from subprocess import run as RUN
 from subprocess import call as CALL
@@ -121,15 +122,15 @@ class HandlerClass:
         self.PATHS = paths
         self.iniFile = INFO.INI
         self.foreColor = '#ffee06'
-        # change local sim common folder to a link so sims keep up to date
-        if 'by_machine.qtplasmac' in self.PATHS.CONFIGPATH:
-            if os.path.isdir(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac')):
-                if '/usr' in self.PATHS.BASEDIR:
-                    linkFolder = os.path.join(self.PATHS.BASEDIR, 'share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac/qtplasmac/')
-                else:
-                    linkFolder = os.path.join(self.PATHS.BASEDIR, 'configs/by_machine/qtplasmac/qtplasmac/')
-                os.rename(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'), os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac' + str(time.time())))
-                os.symlink(linkFolder, os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'))
+
+        # ensure M190 is up to date
+        if not 'M190' in self.PATHS.CONFIGPATH:
+            if '/usr' in self.PATHS.BASEDIR:
+                m190Path = os.path.join(self.PATHS.BASEDIR, 'share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac')
+            else:
+                m190Path = os.path.join(self.PATHS.BASEDIR, 'configs/by_machine/qtplasmac')
+            COPY(os.path.join(m190Path, 'M190'), os.path.join(self.PATHS.CONFIGPATH, 'M190'))
+
         self.machineName = self.iniFile.find('EMC', 'MACHINE')
         self.unitsPerMm = 1
         self.units = self.iniFile.find('TRAJ', 'LINEAR_UNITS')
@@ -2135,23 +2136,6 @@ class HandlerClass:
 #########################################################################################################################
 # GENERAL FUNCTIONS #
 #########################################################################################################################
-    # def closeEvent(self, event):
-    #     if self.w.chk_exit_warning.isChecked() or not STATUS.is_interp_idle():
-    #         icon = QMessageBox.Question if STATUS.is_interp_idle() else QMessageBox.Critical
-    #         head = _translate('HandlerClass', 'Shutdown')
-    #         if self.exitMessage:
-    #             msg0 = '{}\n\n'.format(self.exitMessage)
-    #         else:
-    #             msg0 = ''
-    #         if not STATUS.is_interp_idle():
-    #             msg0 += _translate('HandlerClass', 'Current operation is not complete')
-    #             msg0 += '!\n\n'
-    #         msg0 += _translate('HandlerClass', 'Do you want to shutdown QtPlasmaC')
-    #         if self.dialog_show_yesno(icon, head, '{}?\n'.format(msg0)):
-    #             event.accept()
-    #         else:
-    #             event.ignore()
-
     def closeEvent(self, event):
         if self.w.chk_exit_warning.isChecked() or not STATUS.is_interp_idle():
             icon = QMessageBox.Question if STATUS.is_interp_idle() else QMessageBox.Critical
@@ -2193,6 +2177,15 @@ class HandlerClass:
         startupCode = self.iniFile.find('RS274NGC', 'RS274NGC_STARTUP_CODE')
         if 'metric_startup' in startupCode or 'imperial_startup' in startupCode:
             UPDATER.rs274ngc_startup_code(INIPATH)
+    # remove the qtplasmc link from the config directory (pre V1.???.??? 2022/??/??)
+        if os.path.exists(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac')):
+        # stage 1: set up for unlinking on the next run of qtplasmac
+            if 'code.py' in self.iniFile.find('FILTER', 'ngc'):
+                UPDATER.remove_qtplasmac_link(INIPATH)
+        # stage 2: remove the qtplasmac link
+            else:
+                if os.path.islink(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac')):
+                    os.unlink(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'))
 
     def set_blank_gcodeprops(self):
         # a workaround for the extreme values in gcodeprops for a blank file

@@ -363,7 +363,7 @@ If there are Qt dependency errors, the user should run the <<qt-dependency,QtVCP
 
 === Quick Method
 
-A quick method to move to QtPlasmaC from PlasmaC (loaded on top of either Axis or Gmoccapy) is to use the plasmac2qt conversion program which will attempt to create a new QtPlasmaC configuration from an existing PlasmaC .ini file. This program will convert the user's parameters, settings, and materials from the previous PlasmaC configuration and create a new QtPlasmaC configuration folder in the ~/linuxcnc/configs folder.
+A quick method to move to QtPlasmaC from PlasmaC (loaded on top of either Axis or Gmoccapy) is to use the plasmac2qt conversion program which will attempt to create a new QtPlasmaC configuration from an existing PlasmaC .ini file. This program will convert the user's parameters, settings, and materials from the previous PlasmaC configuration and create a new QtPlasmaC configuration directory in the ~/linuxcnc/configs directory.
 
 This methods will keep the original PlasmaC config as a backup with _plasmac and a time stamp appended to the directory name.
 
@@ -479,7 +479,7 @@ Contact bounce from mechanical relays, switches, or external interference may ca
 
 Due to the fact that the software is capable of sampling rates faster than the contact bounce period, it is possible that the software may see contact bounce as several changes in input states occurring in a very small time period, and incorrectly interpret this as a very quick on-off of the input. One method of mitigating contact bounce is to "debounce" the input. To summarize debounce, it requires the input state to be stable at the opposite state of the output state for consecutive delay periods before changing the state of the output.
 
-Debounce delay periods can be changed by editing the appropriate debounce value in the custom.hal file in the <machine_name> config folder.
+Debounce delay periods can be changed by editing the appropriate debounce value in the custom.hal file in the <machine_name> config directory.
 
 Each increment of delay adds one servo thread cycle to the debounce time. For example: given a servo thread period of 1000000 (measured in nano seconds), a debounce delay of 5 would equate to 5000000ns, or 5ms.
 
@@ -667,9 +667,9 @@ These variables are mandatory.
 [source,{ini}]
 ----
 PROGRAM_EXTENSION   = .ngc,.nc,.tap G-Code File (*.ngc, *.nc, *.tap)
-ngc                     = ./qtplasmac/qtplasmac_gcode.py
-nc                      = ./qtplasmac/qtplasmac_gcode.py
-tap                     = ./qtplasmac/qtplasmac_gcode.py
+ngc                     = qtplasmac_gcode
+nc                      = qtplasmac_gcode
+tap                     = qtplasmac_gcode
 ----
 
 [[qt_rs274]]
@@ -680,8 +680,8 @@ These variables are mandatory.
 [source,{ini}]
 ----
 RS274NGC_STARTUP_CODE = G21 G40 G49 G80 G90 G92.1 G94 G97 M52P1
-SUBROUTINE_PATH       = ./:./qtplasmac:../../nc_files/subroutines
-USER_M_PATH           = ./:./qtplasmac
+SUBROUTINE_PATH       = ./:../../nc_files
+USER_M_PATH           = ./:../../nc_files
 ----
 
 NOTE: for a imperial config replace G21 above with G20.
@@ -2731,7 +2731,7 @@ All errors are logged into the machine log which is able to be viewed in the <<q
 
 By default, QtPlasmaC will display error messages via a Operator Error popup window. In addition, QtPlasmaC will alert the user that an error has been sent to the machine log by displaying the message *"ERROR SENT TO MACHINE LOG"* in the lower left portion of the status bar.
 
-The user may opt to disable the Operator Error popup window, and view the error messages by going to the <<qt_statistics-tab, STATISTICS Tab>> by changing the following preference to *False* in the *[SCREEN_OPTIONS]* of the <machine_name>.prefs file in the <machine_name> folder:
+The user may opt to disable the Operator Error popup window, and view the error messages by going to the <<qt_statistics-tab, STATISTICS Tab>> by changing the following preference to *False* in the *[SCREEN_OPTIONS]* of the <machine_name>.prefs file in the <machine_name> directory:
 
 ----
 desktop_notify
@@ -2898,7 +2898,7 @@ There are two methods available to apply custom styles:
 
 === Add A Custom Style
 
-Adding style changes to the default stylesheet is achieved by creating a file in the <machine_name> configuration folder. This file MUST be named qtplasmac_custom.qss. Any required style changes are then added to this file.
+Adding style changes to the default stylesheet is achieved by creating a file in the <machine_name> configuration directory. This file MUST be named qtplasmac_custom.qss. Any required style changes are then added to this file.
 
 For example the user may want the arc voltage display in red, a green Torch On LED of a larger size and a larger Torch Enable button. This would be done with the following code in qtplasmac_custom.qss:
 
@@ -2981,8 +2981,8 @@ The above colors are used for the following widgets. So any custom styling will 
 The user may return to the default styling at any time by following the following steps:
 
 . Close QtPlasmaC if open.
-. Delete qtplasmac.qss from the machine config folder.
-. Delete qtplasmac_custom.qss from the machine config folder (if it exists).
+. Delete qtplasmac.qss from the machine config directory.
+. Delete qtplasmac_custom.qss from the machine config directory (if it exists).
 . Comment out or delete any CUSTOM_STYLE lines from the <machine_name>.ini file.
 . Open <machine_name>.prefs and delete the "[COLOR_OPTIONS]" section. Save the file.
 
@@ -3788,34 +3788,7 @@ Each sample configuration includes a popup control panel to simulate various inp
 
 === NGC Samples
 
-There are some sample G-Code files in nc_files/plasmac.
-
-=== Change Type Of LinuxCNC Installation
-
-It is recommended that a <<qt_backup, backup>> copy of the existing QtPlasmaC configuration is made before proceeding.
-
-To change the type of LinuxCNC installation from a Package installation (Buildbot) to a Run In Place or vice versa the user will need to run the qtplasmac-setup program.
-
-Enter the following command into a terminal window do one of the following:
-
-Switch to a Package installation (Buildbot):
-
-----
-qtplasmac-setup
-----
-
-Switch to a Run In Place installation:
-
-----
-source ~/linuxcnc-dev/scripts/rip-environment
-qtplasmac-setup
-----
-
-This will load the setup program:
-
-image::images/qtplasmac_setup.png[width=400,align="center"]
-
-press 'SELECT' which will open a file dialog box, select the .ini file of the QtPlasmaC configuration then press 'SWITCH'. The installation type will now be changed.
+There are some sample G-Code files in the ~/linuxcnc/nc_files/examples/plasmac directory.
 
 === QtPlasmaC Specific G-Codes
 

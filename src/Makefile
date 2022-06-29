@@ -164,8 +164,6 @@ SUBDIRS := \
     ../docs/src ../docs/src/source-highlight \
     \
     ../tests \
-	\
-	../share/qtvcp/screens/qtplasmac \
 
 
 
@@ -785,11 +783,6 @@ install-python: install-dirs
 	$(EXE) ../bin/gscreen $(DESTDIR)$(bindir)
 	$(EXE) ../bin/qtvcp $(DESTDIR)$(bindir)
 	$(EXE) ../lib/python/qtvcp/designer/install_script $(DESTDIR)$(SITEPY)/qtvcp/designer/
-	$(EXE) ../bin/qtplasmac-setup $(DESTDIR)$(bindir)
-	$(EXE) ../bin/qtplasmac-materials $(DESTDIR)$(bindir)
-	$(EXE) ../bin/qtplasmac-plasmac2qt $(DESTDIR)$(bindir)
-	$(EXE) ../bin/qtplasmac-cfg2prefs $(DESTDIR)$(bindir)
-	$(EXE) ../bin/pmx485-test $(DESTDIR)$(bindir)
 	$(EXE) ../bin/gmoccapy $(DESTDIR)$(bindir)
 	$(EXE) ../bin/teach-in $(DESTDIR)$(bindir)
 	$(EXE) ../bin/scorbot-er-3 $(DESTDIR)$(bindir)

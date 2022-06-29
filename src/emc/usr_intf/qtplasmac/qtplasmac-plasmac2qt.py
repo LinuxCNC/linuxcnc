@@ -445,16 +445,18 @@ class Converter(QMainWindow, object):
                         if line.startswith('[FILTER]'):
                             outFile.write('\n{}'.format(line))
                             outFile.write('PROGRAM_EXTENSION       = .ngc,.nc,.tap GCode File (*.ngc, *.nc, *.tap)\n')
-                            outFile.write('ngc                     = ./qtplasmac/qtplasmac_gcode.py\n')
-                            outFile.write('nc                      = ./qtplasmac/qtplasmac_gcode.py\n')
-                            outFile.write('tap                     = ./qtplasmac/qtplasmac_gcode.py\n')
+                            outFile.write('ngc                     = qtplasmac_gcode\n')
+                            outFile.write('nc                      = qtplasmac_gcode\n')
+                            outFile.write('tap                     = qtplasmac_gcode\n')
                         continue
                     elif section == 'RS274NGC':
                         if line.startswith('SUBROUTINE') or line.startswith('USER_M_PATH'):
-                            if 'plasmac' in line:
-                                line = line.replace('plasmac', 'qtplasmac')
+                            if ':./plasmac' in line:
+                                line = line.replace(':./plasmac', '')
+                            if line.strip().endswith('./') or './:' in line:
+                                pass
                             else:
-                                line = '{}:./qtplasmac\n'.format(line.strip())
+                                line = './:{}'.format(line)
                         if line.startswith('RS274NGC_STARTUP_CODE') and ('metric' in line or 'imperial' in line):
                             units = 21 if 'metric' in line else 20
                             line = 'RS274NGC_STARTUP_CODE   = G{} G40 G49 G80 G90 G92.1 G94 G97 M52P1\n'.format(units)
