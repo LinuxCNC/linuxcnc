@@ -48,10 +48,8 @@ class Converter(QMainWindow, object):
             self.mode = ''
             self.iniIn = ''
         if 'usr' in self.appPath:
-            self.commonPath = '/usr/share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac/qtplasmac'
             self.simPath = '/usr/share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac'
         else:
-            self.commonPath = self.appPath.replace('bin', 'configs/by_machine/qtplasmac/qtplasmac')
             self.simPath = self.appPath.replace('bin', 'configs/by_machine/qtplasmac')
         self.setFixedWidth(600)
         self.setFixedHeight(400)
@@ -302,16 +300,6 @@ class Converter(QMainWindow, object):
                     COPY('{}/backups/{}'.format(oldDir, filename), '{}/backups/{}'.format(newDir, filename))
         except:
             pass
-    # CREATE LINK TO QTPLASMAC COMMON FILES
-        try:
-            os.symlink(self.commonPath , '{}/qtplasmac'.format(newDir))
-        except:
-            msg  = 'Could not link to Common directory: '
-            msg += '{}\n'.format(self.commonPath)
-            msg += '\nConversion cannot continue'
-            self.dialog_ok('LINK ERROR', msg)
-            self.fromFile.setFocus()
-            return
     # COPY HAL FILES
         halFiles = []
         oldPostguiFile = None
