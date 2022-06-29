@@ -49,7 +49,7 @@ the MAX_VELOCITY and STEPGEN_MAXVEL.
 If no valid combination of BASE_PERIOD, INPUT_SCALE, and MAX_VELOCITY
 is acceptable, then consider using hardware step generation (such as
 with the LinuxCNC-supported Universal Stepper Controller, Mesa cards, and
-others.)
+others).
 
 == Pinout
 
@@ -72,7 +72,7 @@ signals: Xstep, Xdir & Xen
 pins: parport.0.pin-XX-out & parport.0.pin-XX-in
 ----
 
-Depending on what you have chosen in your .ini file you are using
+Depending on what you have chosen in your INI file you are using
 either standard_pinout.hal or xylotex_pinout.hal. These are two files
 that instruct the HAL how to link the various signals & pins. Further
 on we'll investigate the standard_pinout.hal.
@@ -129,7 +129,7 @@ net spindle-on spindle.0.on => parport.0.pin-09-out
 ###
 ### A sample home switch on the X axis (axis 0).  make a signal,
 ### link the incoming parport pin to the signal, then link the signal
-### to LinuxCNC's axis 0 home switch input pin
+### to LinuxCNC's axis 0 home switch input pin.
 ###
 
 # net Xhome parport.0.pin-10-in => joint.0.home-sw-in
@@ -137,7 +137,7 @@ net spindle-on spindle.0.on => parport.0.pin-09-out
 ###
 ### Shared home switches all on one parallel port pin?
 ### that's ok, hook the same signal to all the axes, but be sure to
-### set HOME_IS_SHARED and HOME_SEQUENCE in the ini file.
+### set HOME_IS_SHARED and HOME_SEQUENCE in the INI file.
 ###
 
 # net homeswitches <= parport.0.pin-10-in
@@ -155,7 +155,8 @@ net spindle-on spindle.0.on => parport.0.pin-09-out
 ###
 ### Just like the shared home switches example, you can wire together
 ### limit switches.  Beware if you hit one, LinuxCNC will stop but can't tell
-### you which switch/axis has faulted.  Use caution when recovering from this.
+### you which switch/axis has faulted.  Use caution when recovering from this
+### extreme position to avoid a hard stop.
 ###
 
 # net Xlimits parport.0.pin-13-in => joint.0.neg-lim-sw-in joint.0.pos-lim-sw-in
@@ -170,14 +171,14 @@ guide the reader through the file.
 There are a couple of operations that get executed when the
 standard_pinout.hal gets executed/interpreted:
 
-* The Parport driver gets loaded (see the <<cha:parport,Parport Chapter>> for details)
+* The Parport driver gets loaded (see the <<cha:parport,Parport Chapter>> for details).
 * The read & write functions of the parport driver get assigned to the
   base thread footnote:[the fastest thread in the LinuxCNC setup, usually ther
-  code gets executed every few tens of microseconds]
-* The step & direction signals for axes X,Y,Z get linked to pins on the
-  parport
-* Further I/O signals get connected (estop loopback, toolchanger loopback)
-* A spindle-on signal gets defined and linked to a parport pin
+  code gets executed every few tens of microseconds].
+* The step & direction signals for axes X, Y, Z get linked to pins on the
+  parport.
+* Further I/O signals get connected (estop loopback, toolchanger loopback).
+* A spindle-on signal gets defined and linked to a parport pin.
 
 === Changing the standard_pinout.hal
 
