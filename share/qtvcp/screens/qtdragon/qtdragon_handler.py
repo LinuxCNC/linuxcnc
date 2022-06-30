@@ -305,7 +305,7 @@ class HandlerClass:
         self.w.PREFS_.putpref('Inhibit display mouse selection', self.w.chk_inhibit_selection.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
 
     def init_widgets(self):
-        self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
+        self.adjust_stacked_widgets(TAB_MAIN)
         self.w.chk_override_limits.setChecked(False)
         self.w.chk_override_limits.setEnabled(False)
         self.w.lbl_maxv_percent.setText("100 %")
@@ -871,7 +871,7 @@ class HandlerClass:
             self.w.cmb_gcode_history.setToolTip(fname)
             ACTION.OPEN_PROGRAM(fname)
             self.add_status("Loaded program file : {}".format(fname))
-            self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
+            self.adjust_stacked_widgets(TAB_MAIN)
             self.w.filemanager.recordBookKeeping()
 
             # adjust ending to check for related HTML setup files
@@ -970,7 +970,7 @@ class HandlerClass:
             if self.w.main_tab_widget.currentIndex() != TAB_PROBE:
                 self.w.jogging_frame.hide()
                 self.w.btn_main.setChecked(True)
-                self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
+                self.adjust_stacked_widgets(TAB_MAIN)
                 self.w.stackedWidget.setCurrentIndex(0)
                 self.w.stackedWidget_dro.setCurrentIndex(0)
 
