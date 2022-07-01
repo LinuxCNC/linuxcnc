@@ -126,7 +126,7 @@ machine angular units per deg, reflects [TRAJ]ANGULAR_UNITS INI value.
   currently executing command.
 
 *current_line*:: '(returns integer)' -
-  currently executing line, int.
+  currently executing line.
 
 *current_vel*:: '(returns float)' -
   current velocity in user units per second.

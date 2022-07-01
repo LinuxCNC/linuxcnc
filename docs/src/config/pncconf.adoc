@@ -149,7 +149,7 @@ search' button. This pops up the help output page with a list of all the PCI
 devices that can be found. In there should be a reference to a parallel port
 device with a list of addresses. One of those addresses should work. Not all
 PCI parallel ports work properly. Either type can be selected as 'in' (maximum
-amount of input pins) or 'out' (maximum amount of output pins)
+amount of input pins) or 'out' (maximum amount of output pins).
 
 GUI Front-end list::
 This specifies the graphical display screens LinuxCNC will use.
@@ -337,7 +337,7 @@ Defaults and Options::
    this checkbox.
 * Popup Tool Prompt
 ** Choose between an on screen prompt for tool changes or export standard signal
-   names for a User supplied custom tool changer Hal file
+   names for a User supplied custom tool changer HAL file
 * Leave spindle on during tool change:
 ** Used for lathes
 * Force individual manual homing
@@ -824,15 +824,15 @@ The first selection is components that pncconf uses internally.
 You may configure pncconf to load extra instances of the components for your
 custom HAL file.
 
-Select the number of instances your custom file will need, pncconf will add
+Select the number of instances your custom file will need, PnCconf will add
 what it needs after them.
 
-Meaning if you need 2 and pncconf needs 1 pncconf will load 3 instances and use
+Meaning if you need 2 and PnCconf needs 1 PnCconf will load 3 instances and use
 the last one.
 
 Custom Component Commands::
 
-This selection will allow you to load HAL components that pncconf does not use.
+This selection will allow you to load HAL components that PnCconf does not use.
 Add the loadrt or loadusr command, under the heading 'loading command'
 Add the addf command under the heading 'Thread command'.
 The components will be added to the thread between reading of inputs and writing
@@ -887,7 +887,7 @@ have the option to move them around later.
 
 Custom Signal Names::
 
-The Hal Components page can be used to load components needed by a user for
+The HAL Components page can be used to load components needed by a user for
 customization.
 
 Loading Custom Firmware::
@@ -900,8 +900,9 @@ to PnCconf's preference file. By default this path searches the desktop for
 a folder named custom_firmware and a file named firmware.py.
 
 The hidden preference file is in the user's home file, is
-named .pncconf-preferences and require one to select 'show hidden files' to see
-and edit it. The contents of this file can be seen when you first load PnCconf -
+named .pncconf-preferences and require one to select 'show hidden files' in your
+file manager to see and edit it or on the command line you use 'ls' with the '-a' option.
+The contents of this file can be seen when you first load PnCconf -
 press the help button and look at the output page.
 
 Ask on the LinuxCNC mail-list or forum for info about converting custom firmware.

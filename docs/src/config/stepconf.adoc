@@ -71,7 +71,7 @@ image::images/stepconf-base_en.png["Basic Information Page",align="center"]
   Otherwise, select 'Other' and find the timing values in your
   driver's data sheet and enter them as 'nano seconds' in the 'Driver Timing Settings'.
   If the data sheet gives a value in microseconds, multiply by 1000.
-  For example, enter 4.5us as 4500ns.
+  For example, enter 4.5 µs as 4500 ns.
 +
 A list of some popular drives, along with their timing values, is on the
 LinuxCNC.org Wiki under
@@ -152,7 +152,7 @@ with software stepping. If the max latency is more like 30-50
 microseconds, you can still get good results, but your maximum step
 rate might be a little disappointing, especially if you use
 microstepping or have very fine pitch leadscrews. If the numbers are
-100 us  or more (100,000 nanoseconds), then the PC is not a good
+100 µs  or more (100,000 nanoseconds), then the PC is not a good
 candidate for software stepping. Numbers over 1 millisecond (1,000,000
 nanoseconds) mean the PC is not a good candidate for LinuxCNC, regardless of
 whether you use software stepping or not.
@@ -231,7 +231,7 @@ image::images/stepconf-axis-x_en.png["Axis X Configuration Page",align="center"]
   Information computed based on the values entered above.
   The greatest 'Pulse rate at max speed' determines the 'BASE_PERIOD'.
   Values above 20000Hz may lead to slow response time or even lockups (the fastest usable pulse rate varies from computer to computer)
-* 'Axis SCALE' - The number that will be used in the ini file [SCALE] setting.
+* 'Axis SCALE' - The number that will be used in the INI file [SCALE] setting.
   This is how many steps per user unit.
 * 'Test this axis' - (((Test this axis)))
   This will open a window to allow testing for each axis. This can be used after filling out all the information for this axis.
@@ -375,8 +375,8 @@ For 'Speed' enter the measured speed, and for 'PWM' enter the S-number divided b
 Because most spindle drivers are somewhat nonlinear in their response
 curves, it is best to:
 
-- Make sure the two calibration speeds are not too close together in RPM
-- Make sure the two calibration speeds are in the range of speeds you will typically use while milling
+- Make sure the two calibration speeds are not too close together in RPM.
+- Make sure the two calibration speeds are in the range of speeds you will typically use while milling.
 
 For instance, if your spindle will go from 0 RPM to 8000 RPM,
 but you generally use speeds from 400 RPM (10%) to 4000 RPM (100%),
@@ -389,7 +389,7 @@ image::images/stepconf-options_en.png["Advanced Options Configuration",align="ce
 
 * 'Include Halui' - This will add the Halui user interface component. See the
   <<cha:hal-user-interface,HALUI Chapter>> for more information on.
-* 'Include pyVCP' - This option adds the pyVCP panel base file or a sample file
+* 'Include PyVCP' - This option adds the PyVCP panel base file or a sample file
   to work on. See the <<cha:pyvcp,PyVCP Chapter>> for more information.
 * 'Include ClassicLadder PLC' - This option will add the ClassicLadder PLC
   (Programmable Logic Controller). See the
