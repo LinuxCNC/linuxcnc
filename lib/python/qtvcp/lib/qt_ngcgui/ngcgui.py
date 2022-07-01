@@ -744,6 +744,8 @@ class NgcGui(QtWidgets.QWidget):
     def warp_info_frame(self, newLayout):
         """ Convience function to move the info frame to another layout"""
         newLayout.addWidget(self.frame_info)
+        # is this enough?
+        self.frame_info.setMaximumWidth(500)
 
     def warp_tabs_frame(self, newLayout):
         """ Convience function to move the tabs frame to another layout"""
