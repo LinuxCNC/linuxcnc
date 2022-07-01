@@ -786,6 +786,11 @@ install-python: install-dirs
 	$(EXE) ../bin/gmoccapy $(DESTDIR)$(bindir)
 	$(EXE) ../bin/teach-in $(DESTDIR)$(bindir)
 	$(EXE) ../bin/scorbot-er-3 $(DESTDIR)$(bindir)
+	$(EXE) ../bin/qtplasmac-materials $(DESTDIR)$(bindir)
+	$(EXE) ../bin/qtplasmac-plasmac2qt $(DESTDIR)$(bindir)
+	$(EXE) ../bin/qtplasmac-cfg2prefs $(DESTDIR)$(bindir)
+	$(EXE) ../bin/qtplasmac_gcode $(DESTDIR)$(bindir)
+	$(EXE) ../bin/pmx485-test $(DESTDIR)$(bindir)
 	$(EXE) $(patsubst %.py,../bin/%,$(VISMACH_PY)) $(DESTDIR)$(bindir)
 	$(FILE) ../share/linuxcnc/linuxcnc-wizard.gif $(DESTDIR)$(prefix)/share/linuxcnc
 	$(FILE) ../share/axis/images/*.png ../share/axis/images/*.gif ../share/axis/images/*.xbm ../share/axis/images/*.ngc $(DESTDIR)$(datadir)/axis/images
