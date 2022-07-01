@@ -1,4 +1,5 @@
-#!/usr/bin/python3.9
+#!/usr/bin/python3
+
 '''
 plasmac_gcode.py
 
