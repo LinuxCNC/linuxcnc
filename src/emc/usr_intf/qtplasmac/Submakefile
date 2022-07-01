@@ -1,9 +1,9 @@
-PYSCRIPTS := qtplasmac-materials.py qtplasmac-plasmac2qt.py qtplasmac-cfg2prefs.py \
+QTPLASMAC_PY := qtplasmac-materials.py qtplasmac-plasmac2qt.py qtplasmac-cfg2prefs.py \
 	qtplasmac_gcode.py pmx485-test.py
-PYBIN := $(patsubst %.py,../bin/%,$(PYSCRIPTS))
+QTPLASMAC_PYBIN := $(patsubst %.py,../bin/%,$(QTPLASMAC_PY))
 
-PYTARGETS += $(PYBIN)
-$(PYBIN): ../bin/%: emc/usr_intf/qtplasmac/%.py
+PYTARGETS += $(QTPLASMAC_PYBIN)
+$(QTPLASMAC_PYBIN): ../bin/%: emc/usr_intf/qtplasmac/%.py
 	@$(ECHO) Syntax checking python script $(notdir $@)
 	$(Q)$(PYTHON) -m py_compile $<
 	$(ECHO) Copying python script $(notdir $@)

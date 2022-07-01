@@ -40,7 +40,7 @@ def remove_qtplasmac_link(inifile):
                 outFile.write(line)
     if os.path.isfile(tmpFile):
         os.remove(tmpFile)
-    update_notify('V1.???.???')
+    update_notify('V1.225.208')
 
 # change startup parameters from a subroutine (pre V1.224.207 2022/06/22)
 def rs274ngc_startup_code(inifile): #, unitsCode):
