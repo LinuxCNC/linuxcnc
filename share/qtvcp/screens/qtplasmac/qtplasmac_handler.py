@@ -63,7 +63,6 @@ from qtvcp.widgets.simple_widgets import DoubleScale as DOUBLESCALE
 from qtvcp.widgets.status_label import StatusLabel as STATLABEL
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
 from qtvcp.lib.aux_program_loader import Aux_program_loader
-from qtvcp.lib.notify import Notify
 from plasmac import run_from_line as RFL
 from rs274.glcanon import GlCanonDraw
 from qt5_graphics import Lcnc_3dGraphics as DRO
@@ -74,7 +73,6 @@ STATUS = Status()
 INFO = Info()
 ACTION = Action()
 TOOL = Tool()
-NOTICE = Notify()
 AUX_PRGM = Aux_program_loader()
 INIPATH = os.environ.get('INI_FILE_NAME', '/dev/null')
 
@@ -591,9 +589,10 @@ class HandlerClass:
     # we want custom notifications for jog errors
     def new_process_error(self, w, kind, text):
         O = self.w.screen_options
+        N = O.QTVCP_INSTANCE_._NOTICE
         if O.desktop_notify:
             if 'on limit switch error' in text:
-                NOTICE.update(O.notify_hard_limits, title='Machine Error:', message=text, msgs=O.notify_max_msgs)
+                N.update(O.notify_hard_limits, title='Machine Error:', message=text, msgs=O.notify_max_msgs)
             elif 'jog-inhibit' in text:
                 if self.w.led_float_switch.hal_pin.get():
                     trigger = _translate('HandlerClass', 'Float Switch')
@@ -603,21 +602,21 @@ class HandlerClass:
                     trigger = _translate('HandlerClass', 'Breakaway Switch')
                 msg0 = _translate('HandlerClass', 'has disabled jogging')
                 text = '{} {}\n'.format(trigger, msg0)
-                NOTICE.update(O.notify_critical, title='Operator Error:', message=text, msgs=O.notify_max_msgs)
+                N.update(O.notify_critical, title='Operator Error:', message=text, msgs=O.notify_max_msgs)
             elif kind == linuxcnc.OPERATOR_ERROR:
-                NOTICE.update(O.notify_critical, title='Operator Error:', message=text, msgs=O.notify_max_msgs)
+                N.update(O.notify_critical, title='Operator Error:', message=text, msgs=O.notify_max_msgs)
             elif kind == linuxcnc.OPERATOR_TEXT:
-                NOTICE.update(O.notify_critical, title='Operator Text:', message=text, msgs=O.notify_max_msgs)
+                N.update(O.notify_critical, title='Operator Text:', message=text, msgs=O.notify_max_msgs)
             elif kind == linuxcnc.OPERATOR_DISPLAY:
-                NOTICE.update(O.notify_critical, title='Operator Display:', message=text, msgs=O.notify_max_msgs)
+                N.update(O.notify_critical, title='Operator Display:', message=text, msgs=O.notify_max_msgs)
             elif kind == linuxcnc.NML_ERROR:
-                NOTICE.update(O.notify_critical, title='Internal NML Error:', message=text, msgs=O.notify_max_msgs)
+                N.update(O.notify_critical, title='Internal NML Error:', message=text, msgs=O.notify_max_msgs)
             elif kind == linuxcnc.NML_TEXT:
-                NOTICE.update(O.notify_critical, title='Internal NML Text:', message=text, msgs=O.notify_max_msgs)
+                N.update(O.notify_critical, title='Internal NML Text:', message=text, msgs=O.notify_max_msgs)
             elif kind == linuxcnc.NML_DISPLAY:
-                NOTICE.update(O.notify_critical, title='Internal NML Display:', message=text, msgs=O.notify_max_msgs)
+                N.update(O.notify_critical, title='Internal NML Display:', message=text, msgs=O.notify_max_msgs)
             elif kind == STATUS.TEMPARARY_MESSAGE:
-                NOTICE.update(O.notify_normal,
+                N.update(O.notify_normal,
                               title='Operator Info:',
                               message=text,
                               status_timeout=0,
