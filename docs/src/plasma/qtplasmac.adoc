@@ -3581,6 +3581,16 @@ setp qtplasmac.tabs_always_enabled 1
 
 WARNING: It is the responsibility of the operator to ensure that the machine is equipped with a suitable, working hardware ESTOP. If using only a touchscreen to navigate the QtPlasmaC GUI, there is no way to stop automated machine motion on any tab but the MAIN tab.
 
+=== Override Jog Inhibit Via Z+ Jog
+
+It is possible to override the jog inhibit by using the GUI or keyboard to jog in the Z+ direction rather than checking the Override Jog box on the <<qt_parameters-tab, PARAMETERS Tab>>.
+
+This is done by changing the following preference to *True* in the *[GUI_OPTIONS]* of the <machine_name>.prefs file in the <machine_name> folder:
+
+----
+Override jog inhibit via Z+
+----
+
 === QtPlasmaC State Outputs
 
 The plasmac HAL component has a HAL pin named *plasmac.state-out* which can be used to interface with user-coded components to provide the current state of the component.
