@@ -102,6 +102,13 @@
       <property name="catch_close_option" stdset="0">
        <bool>true</bool>
       </property>
+      <property name="close_overlay_color" stdset="0">
+       <color alpha="150">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </property>
       <property name="catch_errors_option" stdset="0">
        <bool>true</bool>
       </property>
@@ -115,6 +122,12 @@
        <string>~/linuxcnc/configs/qtdragon_hd/qtdragon.pref</string>
       </property>
       <property name="embedded_program_option" stdset="0">
+       <bool>true</bool>
+      </property>
+      <property name="focusEffect_option" stdset="0">
+       <bool>true</bool>
+      </property>
+      <property name="focusBlur_option" stdset="0">
        <bool>true</bool>
       </property>
       <property name="entryDialog_option" stdset="0">
@@ -14314,7 +14327,7 @@ ANGULAR</string>
                <number>2</number>
               </property>
               <property name="text">
-               <string>09:39:49 PM</string>
+               <string>10:08:22 PM</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
