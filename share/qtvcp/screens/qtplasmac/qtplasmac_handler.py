@@ -1,4 +1,4 @@
-VERSION = '1.225.210'
+VERSION = '1.226.211'
 
 '''
 qtplasmac_handler.py
@@ -644,8 +644,6 @@ class HandlerClass:
         self.consChangePin = self.h.newpin('consumable_changing', hal.HAL_BIT, hal.HAL_IN)
         self.convBlockLoaded = self.h.newpin('conv_block_loaded', hal.HAL_BIT, hal.HAL_IN)
         self.convTabDisable = self.h.newpin('conv_disable', hal.HAL_BIT, hal.HAL_IN)
-        self.cutLengthPin = self.h.newpin('cut_length', hal.HAL_FLOAT, hal.HAL_IN)
-        self.cutTimePin = self.h.newpin('cut_time', hal.HAL_FLOAT, hal.HAL_IN)
         self.cutTypePin = self.h.newpin('cut_type', hal.HAL_S32, hal.HAL_IN)
         self.developmentPin = self.h.newpin('development', hal.HAL_BIT, hal.HAL_IN)
         self.extAbortPin = self.h.newpin('ext_abort', hal.HAL_BIT, hal.HAL_IN)
@@ -694,7 +692,6 @@ class HandlerClass:
         self.motionTypePin = self.h.newpin('motion_type', hal.HAL_S32, hal.HAL_IN)
         self.offsetsActivePin = self.h.newpin('offsets_active', hal.HAL_BIT, hal.HAL_IN)
         self.paramTabDisable = self.h.newpin('param_disable', hal.HAL_BIT, hal.HAL_IN)
-        self.pierceCountPin = self.h.newpin('pierce_count', hal.HAL_S32, hal.HAL_IN)
         self.plasmacStatePin = self.h.newpin('plasmac_state', hal.HAL_S32, hal.HAL_IN)
         self.pmx485CurrentPin = self.h.newpin('pmx485_current', hal.HAL_FLOAT, hal.HAL_IN)
         self.pmx485CurrentMaxPin = self.h.newpin('pmx485_current_max', hal.HAL_FLOAT, hal.HAL_IN)
@@ -713,7 +710,6 @@ class HandlerClass:
         self.sensorActive = self.h.newpin('sensor_active', hal.HAL_BIT, hal.HAL_IN)
         self.tabsAlwaysEnabled = self.h.newpin('tabs_always_enabled', hal.HAL_BIT, hal.HAL_IN)
         self.thcFeedRatePin = self.h.newpin('thc_feed_rate', hal.HAL_FLOAT, hal.HAL_OUT)
-        self.torchOnPin = self.h.newpin('torch_on', hal.HAL_BIT, hal.HAL_IN)
         self.xOffsetPin = self.h.newpin('x_offset', hal.HAL_FLOAT, hal.HAL_IN)
         self.yOffsetPin = self.h.newpin('y_offset', hal.HAL_FLOAT, hal.HAL_IN)
         self.zHeightPin = self.h.newpin('z_height', hal.HAL_FLOAT, hal.HAL_IN)
@@ -799,18 +795,13 @@ class HandlerClass:
         CALL(['halcmd', 'net', 'plasmac:axis-y-min-limit', 'ini.y.min_limit', 'plasmac.axis-y-min-limit'])
         CALL(['halcmd', 'net', 'plasmac:axis-z-max-limit', 'ini.z.max_limit', 'plasmac.axis-z-max-limit'])
         CALL(['halcmd', 'net', 'plasmac:axis-z-min-limit', 'ini.z.min_limit', 'plasmac.axis-z-min-limit'])
-        # statistics
-        CALL(['halcmd', 'net', 'plasmac:cut-length', 'plasmac.cut-length', 'qtplasmac.cut_length'])
-        CALL(['halcmd', 'net', 'plasmac:cut-time', 'plasmac.cut-time', 'qtplasmac.cut_time'])
-        CALL(['halcmd', 'net', 'plasmac:pierce-count', 'plasmac.pierce-count', 'qtplasmac.pierce_count'])
-        CALL(['halcmd', 'net', 'plasmac:motion-type', 'qtplasmac.motion_type'])
-        CALL(['halcmd', 'net', 'plasmac:torch-on', 'qtplasmac.torch_on'])
         # misc
         CALL(['halcmd', 'net', 'plasmac:consumable-changing', 'plasmac.consumable-changing', 'qtplasmac.consumable_changing'])
         CALL(['halcmd', 'net', 'plasmac:gcode-scale', 'plasmac.gcode-scale', 'qtplasmac.gcode_scale'])
         CALL(['halcmd', 'net', 'plasmac:jog-inhibit', 'qtplasmac.jog_inhibited'])
         CALL(['halcmd', 'net', 'plasmac:laser-on', 'qtplasmac.laser_on'])
         CALL(['halcmd', 'net', 'plasmac:laser-recovery-state', 'plasmac.laser-recovery-state', 'qtplasmac.laser_recovery_state'])
+        CALL(['halcmd', 'net', 'plasmac:motion-type', 'qtplasmac.motion_type'])
         CALL(['halcmd', 'net', 'plasmac:probe-test-error', 'plasmac.probe-test-error', 'qtplasmac.probe_test_error'])
         CALL(['halcmd', 'net', 'plasmac:sensor_active', 'plasmac.sensor-active', 'qtplasmac.sensor_active'])
         CALL(['halcmd', 'net', 'plasmac:state', 'plasmac.state-out', 'qtplasmac.plasmac_state'])
@@ -1315,7 +1306,12 @@ class HandlerClass:
         self.set_tab_jog_states(True)
         self.set_run_button_state()
         self.set_jog_button_state()
-        self.stats_idle()
+        if self.jobRunning and obj:
+            if self.w.torch_enable.isChecked():
+                self.statistics_save()
+            else:
+                self.jobRunning = False
+            self.statistics_show()
         ACTION.SET_MANUAL_MODE()
 
     def set_run_button_state(self):
@@ -1373,7 +1369,6 @@ class HandlerClass:
             self.w.gcode_stack.setCurrentIndex(0)
         self.set_tab_jog_states(False)
         self.set_jog_button_state()
-        self.stats_run()
 
     def interp_reading(self, obj):
         pass
@@ -1756,6 +1751,7 @@ class HandlerClass:
                     txt1 = _translate('HandlerClass', 'CYCLE START')
                     self.runText = '{}\n{}'.format(txt0, txt1)
         elif not self.run_critical_check():
+            self.jobRunning = True
             ACTION.RUN(0)
 
     def abort_pressed(self):
@@ -2082,7 +2078,6 @@ class HandlerClass:
         if state == self.IDLE:
             self.set_run_button_state()
             self.set_jog_button_state()
-        self.stats_state_changed(state)
 
     def file_reload_clicked(self):
         if self.rflActive:
@@ -2189,6 +2184,10 @@ class HandlerClass:
             else:
                 if os.path.islink(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac')):
                     os.unlink(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'))
+
+    def motion_type_changed(self, value):
+        if value == 0 and STATUS.is_mdi_mode():
+            ACTION.SET_MANUAL_MODE()
 
     def set_blank_gcodeprops(self):
         # a workaround for the extreme values in gcodeprops for a blank file
@@ -2509,19 +2508,15 @@ class HandlerClass:
         self.w.jogs_label.pressed.connect(self.jogs_label_pressed)
         self.paramTabDisable.value_changed.connect(lambda v:self.param_tab_changed(v))
         self.convTabDisable.value_changed.connect(lambda v:self.conv_tab_changed(v))
-        self.pierceCountPin.value_changed.connect(self.pierce_count_changed)
-        self.cutLengthPin.value_changed.connect(lambda v:self.cut_length_changed(v))
-        self.cutTimePin.value_changed.connect(lambda v:self.cut_time_changed(v))
-        self.torchOnPin.value_changed.connect(lambda v:self.torch_on_changed(v))
         self.motionTypePin.value_changed.connect(lambda v:self.motion_type_changed(v))
-        self.w.pierce_reset.pressed.connect(self.pierce_reset)
-        self.w.cut_length_reset.pressed.connect(self.cut_length_reset)
-        self.w.cut_time_reset.pressed.connect(self.cut_time_reset)
-        self.w.torch_time_reset.pressed.connect(self.torch_time_reset)
-        self.w.run_time_reset.pressed.connect(self.run_time_reset)
-        self.w.rapid_time_reset.pressed.connect(self.rapid_time_reset)
-        self.w.probe_time_reset.pressed.connect(self.probe_time_reset)
-        self.w.all_reset.pressed.connect(self.all_reset)
+        self.w.cut_time_reset.pressed.connect(lambda:self.statistic_reset('Cut time'))
+        self.w.probe_time_reset.pressed.connect(lambda:self.statistic_reset('Probe time'))
+        self.w.run_time_reset.pressed.connect(lambda:self.statistic_reset('Program run time'))
+        self.w.torch_time_reset.pressed.connect(lambda:self.statistic_reset('Torch on time'))
+        self.w.rapid_time_reset.pressed.connect(lambda:self.statistic_reset('Rapid time'))
+        self.w.cut_length_reset.pressed.connect(lambda:self.statistic_reset('Cut length'))
+        self.w.pierce_reset.pressed.connect(lambda:self.statistic_reset('Pierce count'))
+        self.w.all_reset.pressed.connect(self.statistics_reset)
         self.extPowerPin.value_changed.connect(lambda v:self.power_button("external", v))
         self.extRunPin.value_changed.connect(lambda v:self.ext_run(v))
         self.extPausePin.value_changed.connect(lambda v:self.ext_pause(v))
@@ -3085,7 +3080,6 @@ class HandlerClass:
             self.laserOnPin.set(0)
             self.w.gcodegraphics.logger.clear()
         self.set_button_color()
-        self.stats_update()
         if self.flasher:
             self.flasher -= 1
         else:
@@ -4808,227 +4802,64 @@ class HandlerClass:
 #########################################################################################################################
 # STATISTICS FUNCTIONS #
 #########################################################################################################################
-    def pierce_count_changed(self):
-        if self.plasmacStatePin.get() >= self.TORCH_ON:
-            self.PIERCE_COUNT += 1
-            self.pierce_count += 1
-            if self.w.torch_enable.isChecked():
-                self.w.pierce_count_t.setText('{:d}'.format(self.PIERCE_COUNT))
-            self.w.pierce_count.setText('{:d}'.format(self.pierce_count))
+    def statistics_show(self):
+        for stat in ['cut', 'probe', 'run', 'torch', 'rapid']:
+            self.display_hms('{}_time'.format(stat), hal.get_value('plasmac.{}-time'.format(stat)))
+        self.w.cut_length.setText('{:0.2f}'.format(hal.get_value('plasmac.cut-length') / self.statsDivisor))
+        self.w.pierce_count.setText('{:d}'.format(hal.get_value('plasmac.pierce-count')))
+        self.statistics_load()
 
-    def cut_length_changed(self, value):
-        if value:
-            self.thisCutLength = value
-            if self.unitsPerMm == 1:
-                if self.w.torch_enable.isChecked():
-                    self.w.cut_length_t.setText('{:.2f}'.format((self.CUT_LENGTH + self.thisCutLength) * 0.001))
-                self.w.cut_length.setText('{:.2f}'.format((self.cut_length + self.thisCutLength) * 0.001))
-            else:
-                if self.w.torch_enable.isChecked():
-                    self.w.cut_length_t.setText('{:.2f}'.format(self.CUT_LENGTH + self.thisCutLength))
-                self.w.cut_length.setText('{:.2f}'.format(self.cut_length + self.thisCutLength))
-        else:
-            if self.w.torch_enable.isChecked():
-                self.CUT_LENGTH += self.thisCutLength
-            self.cut_length += self.thisCutLength
-            if self.unitsPerMm == 1:
-                self.w.cut_length_t.setText('{:.2f}'.format(self.CUT_LENGTH * 0.001))
-            else:
-                self.w.cut_length_t.setText('{:.2f}'.format(self.CUT_LENGTH))
-            self.thisCutLength = 0
+    def statistics_save(self, reset=False):
+        self.PREFS.putpref('Cut time', '{:0.2f}'.format(self.statsSaved['cut'] + hal.get_value('plasmac.cut-time')) , float,'STATISTICS')
+        self.PREFS.putpref('Probe time', '{:0.2f}'.format(self.statsSaved['probe'] + hal.get_value('plasmac.probe-time')) , float,'STATISTICS')
+        self.PREFS.putpref('Program run time', '{:0.2f}'.format(self.statsSaved['run'] + hal.get_value('plasmac.run-time')) , float,'STATISTICS')
+        self.PREFS.putpref('Torch on time', '{:0.2f}'.format(self.statsSaved['torch'] + hal.get_value('plasmac.torch-time')) , float,'STATISTICS')
+        self.PREFS.putpref('Rapid time', '{:0.2f}'.format(self.statsSaved['rapid'] + hal.get_value('plasmac.rapid-time')) , float,'STATISTICS')
+        self.PREFS.putpref('Cut length', '{:0.2f}'.format(self.statsSaved['length'] + hal.get_value('plasmac.cut-length')) , float,'STATISTICS')
+        self.PREFS.putpref('Pierce count', '{:d}'.format(self.statsSaved['pierce'] + hal.get_value('plasmac.pierce-count')) , int,'STATISTICS')
+        self.statistics_load()
+        self.jobRunning = False
 
-    def cut_time_changed(self, value):
-        if value:
-            self.thisCutTime = value
-            if self.w.torch_enable.isChecked():
-                self.display_time('cut_time_t', self.CUT_TIME + self.thisCutTime)
-            self.display_time('cut_time', self.cut_time + self.thisCutTime)
-        else:
-            if self.w.torch_enable.isChecked():
-                self.CUT_TIME += self.thisCutTime
-            self.cut_time += self.thisCutTime
-            self.display_time('cut_time_t', self.CUT_TIME)
-            thisCutTime = 0
+    def statistics_load(self):
+        self.statsSaved['cut'] = self.PREFS.getpref('Cut time', 0 , float,'STATISTICS')
+        self.statsSaved['probe'] = self.PREFS.getpref('Probe time', 0 , float,'STATISTICS')
+        self.statsSaved['run'] = self.PREFS.getpref('Program run time', 0 , float,'STATISTICS')
+        self.statsSaved['torch'] = self.PREFS.getpref('Torch on time', 0 , float,'STATISTICS')
+        self.statsSaved['rapid'] = self.PREFS.getpref('Rapid time', 0 , float,'STATISTICS')
+        self.statsSaved['length'] = self.PREFS.getpref('Cut length', 0 , float,'STATISTICS')
+        self.statsSaved['pierce'] = self.PREFS.getpref('Pierce count', 0 , int,'STATISTICS')
+        for stat in ['cut', 'probe', 'run', 'torch', 'rapid']:
+            self.display_hms('{}_time_t'.format(stat), self.statsSaved['{}'.format(stat)])
+        self.w.cut_length_t.setText('{:0.2f}'.format(self.statsSaved['length'] / self.statsDivisor))
+        self.w.pierce_count_t.setText('{:d}'.format(self.statsSaved['pierce']))
 
-    def torch_on_changed(self, value):
-        if value and not self.torchOn:
-            self.torchStart = time.time()
-        elif not value and self.torchOn:
-            self.TORCH_TIME += (time.time() - self.torchStart)
-            self.torch_time += (time.time() - self.torchStart)
-            self.display_time('torch_time_t', self.TORCH_TIME)
-        self.torchOn = value
-
-    def stats_run(self):
-        if not self.progRun:
-            self.clear_job_values()
-            self.runStart = time.time()
-            self.progRun = True
-
-    def stats_idle(self):
-        if self.progRun:
-            if self.w.torch_enable.isChecked():
-                self.RUN_TIME += (time.time() - self.runStart)
-            self.display_time('run_time_t', self.RUN_TIME)
-            self.progRun = False
-            self.stats_save()
-
-    def motion_type_changed(self, value):
-        if value == 1 and self.oldMotionType != 1:
-            self.rapidStart = time.time()
-            self.rapidOn = True
-        elif value != 1 and self.oldMotionType == 1:
-            if self.w.torch_enable.isChecked():
-                self.RAPID_TIME += (time.time() - self.rapidStart)
-            self.rapid_time += (time.time() - self.rapidStart)
-            self.display_time('rapid_time_t', self.RAPID_TIME)
-            self.rapidOn = False
-        elif value == 0 and STATUS.is_mdi_mode():
-            ACTION.SET_MANUAL_MODE()
-        self.oldMotionType = value
-
-    def stats_state_changed(self, state):
-        if state == self.PROBE_HEIGHT and self.oldState == self.IDLE:
-            self.probeStart = time.time()
-            self.probeOn = True
-        elif (state > self.ZERO_HEIGHT or state == self.IDLE) and not hal.get_value('plasmac.x-offset-counts') and not hal.get_value('plasmac.y-offset-counts') and self.probeOn:
-            if self.w.torch_enable.isChecked():
-                self.PROBE_TIME += (time.time() - self.probeStart)
-            self.probe_time += (time.time() - self.probeStart)
-            self.display_time('probe_time_t', self.PROBE_TIME)
-            self.probeOn = False
-        self.oldState = state
-
-    def pierce_reset(self):
-        self.PIERCE_COUNT = 0
-        self.w.pierce_count_t.setText('{:d}'.format(self.PIERCE_COUNT))
-        self.stats_save()
-
-    def cut_length_reset(self):
-        self.CUT_LENGTH = 0.0
-        self.w.cut_length_t.setText('{:.2f}'.format(self.CUT_LENGTH))
-        self.stats_save()
-
-    def cut_time_reset(self):
-        self.CUT_TIME = 0.0
-        self.display_time('cut_time_t', self.CUT_TIME)
-        self.stats_save()
-
-    def torch_time_reset(self):
-        self.TORCH_TIME = 0.0
-        self.display_time('torch_time_t', self.TORCH_TIME)
-        self.stats_save()
-
-    def run_time_reset(self):
-        self.RUN_TIME = 0.0
-        self.display_time('run_time_t', self.RUN_TIME)
-        self.stats_save()
-
-    def rapid_time_reset(self):
-        self.RAPID_TIME = 0.0
-        self.display_time('rapid_time_t', self.RAPID_TIME)
-        self.stats_save()
-
-    def probe_time_reset(self):
-        self.PROBE_TIME = 0.0
-        self.display_time('probe_time_t', self.PROBE_TIME)
-        self.stats_save()
-
-    def clear_job_values(self):
-        self.pierce_count = 0
-        self.w.pierce_count.setText('{:d}'.format(0))
-        self.cut_length = 0
-        self.w.cut_length.setText('{:.2f}'.format(0))
-        self.cut_time = 0
-        self.display_time('cut_time', 0)
-        self.torch_time = 0
-        self.display_time('torch_time', 0)
-        self.run_time = 0
-        self.display_time('run_time', 0)
-        self.rapid_time = 0
-        self.display_time('rapid_time', 0)
-        self.probe_time = 0
-        self.display_time('probe_time', 0)
-        self.torchOn = False
-        self.progRun = False
-        self.rapidOn = False
-        self.probeOn = False
-
-    def all_reset(self):
-        self.pierce_reset()
-        self.cut_length_reset()
-        self.cut_time_reset()
-        self.torch_time_reset()
-        self.run_time_reset()
-        self.rapid_time_reset()
-        self.probe_time_reset()
-        self.stats_save()
-
-    def display_time(self, widget, time):
+    def display_hms(self, widget, time):
         m, s = divmod(time, 60)
         h, m = divmod(m, 60)
         self.w[widget].setText('{:.0f}:{:02.0f}:{:02.0f}'.format(h,m,s))
 
-    def stats_update(self):
-        if self.torchOn:
-            self.display_time('torch_time_t', self.TORCH_TIME + (time.time() - self.torchStart))
-            self.display_time('torch_time', self.torch_time + (time.time() - self.torchStart))
-        if self.progRun:
-            if self.w.torch_enable.isChecked():
-                self.display_time('run_time_t', self.RUN_TIME + (time.time() - self.runStart))
-            self.display_time('run_time', time.time() - self.runStart)
-        if self.rapidOn:
-            if self.w.torch_enable.isChecked():
-                self.display_time('rapid_time_t', self.RAPID_TIME + (time.time() - self.rapidStart))
-            self.display_time('rapid_time', self.rapid_time + (time.time() - self.rapidStart))
-        if self.probeOn:
-            if self.w.torch_enable.isChecked():
-                self.display_time('probe_time_t', self.PROBE_TIME + (time.time() - self.probeStart))
-            self.display_time('probe_time', self.probe_time + (time.time() - self.probeStart))
+    def statistic_reset(self, stat):
+        self.PREFS.putpref(stat, 0 , float,'STATISTICS')
+        self.statistics_load()
 
-    def stats_save(self):
-        self.PREFS.putpref('Pierce count', self.PIERCE_COUNT , int,'STATISTICS')
-        self.PREFS.putpref('Cut length', self.CUT_LENGTH , float,'STATISTICS')
-        self.PREFS.putpref('Cut time', self.CUT_TIME , float,'STATISTICS')
-        self.PREFS.putpref('Torch on time', self.TORCH_TIME , float,'STATISTICS')
-        self.PREFS.putpref('Program run time', self.RUN_TIME , float,'STATISTICS')
-        self.PREFS.putpref('Rapid time', self.RAPID_TIME , float,'STATISTICS')
-        self.PREFS.putpref('Probe time', self.PROBE_TIME , float,'STATISTICS')
+    def statistics_reset(self):
+        for stat in ['Cut time', 'Probe time', 'Program run time', 'Torch on time', \
+                     'Rapid time', 'Cut length', 'Pierce count']:
+            self.PREFS.putpref(stat, 0 , float,'STATISTICS')
+        self.statistics_load()
 
     def statistics_init(self):
-        # get saved prefs
-        self.PIERCE_COUNT = self.PREFS.getpref('Pierce count', 0 , int,'STATISTICS')
-        self.CUT_LENGTH = self.PREFS.getpref('Cut length', 0 , float,'STATISTICS')
-        self.CUT_TIME = self.PREFS.getpref('Cut time', 0 , float,'STATISTICS')
-        self.TORCH_TIME = self.PREFS.getpref('Torch on time', 0 , float,'STATISTICS')
-        self.RUN_TIME = self.PREFS.getpref('Program run time', 0 , float,'STATISTICS')
-        self.RAPID_TIME = self.PREFS.getpref('Rapid time', 0 , float,'STATISTICS')
-        self.PROBE_TIME = self.PREFS.getpref('Probe time', 0 , float,'STATISTICS')
-        # set variables
-        self.oldState      = 0
-        self.oldMotionType = 0
-        self.pierce_count  = 0
-        self.cut_length    = 0
-        self.thisCutLength = 0
-        self.cut_time      = 0.0
-        self.thisCutTime   = 0.0
-        self.torch_time    = 0.0
-        self.rapid_time    = 0.0
-        self.probe_time    = 0.0
-        self.w.pierce_count_t.setText('{:d}'.format(self.PIERCE_COUNT))
-        self.w.pierce_count.setText('{:d}'.format(0))
         if self.unitsPerMm == 1:
-            self.w.cut_length_t.setText('{:0.2f}'.format(self.CUT_LENGTH * 0.001))
-            self.w.cut_length_label.setText(_translate('HandlerClass', 'CUT LENGTH (Metres)'))
+            self.statsDivisor = 1000
+            unit = _translate('HandlerClass', 'Metres')
         else:
-            self.w.cut_length_t.setText('{:0.2f}'.format(self.CUT_LENGTH))
-            self.w.cut_length_label.setText(_translate('HandlerClass', 'CUT LENGTH (Inches)'))
-        self.w.cut_length.setText('0.00')
-        self.display_time('cut_time_t', self.CUT_TIME)
-        self.display_time('torch_time_t', self.TORCH_TIME)
-        self.display_time('run_time_t', self.RUN_TIME)
-        self.display_time('rapid_time_t', self.RAPID_TIME)
-        self.display_time('probe_time_t', self.PROBE_TIME)
+            self.statsDivisor = 1
+            unit = _translate('HandlerClass', 'Inches')
+        msg0 = _translate('HandlerClass', 'CUT LENGTH')
+        self.w.cut_length_label.setText('{} ({})'.format(msg0, unit))
+        self.statsSaved = {'cut':0, 'length':0, 'pierce':0, 'probe':0, 'rapid':0, 'run':0, 'torch':0}
+        self.jobRunning = False
+        self.statistics_load()
 
 
 #########################################################################################################################
@@ -5185,7 +5016,7 @@ class HandlerClass:
             self.pmx485ArcTime = self.pmx485ArcTimePin.get()
             self.w.pmx_stats_frame.show()
             self.w.pmx_arc_time_label.setText(_translate('HandlerClass', 'ARC ON TIME'))
-            self.display_time('pmx_arc_time_t', self.pmx485ArcTime)
+            self.display_hms('pmx_arc_time_t', self.pmx485ArcTime)
 
     def pmx485_fault_changed(self, fault):
         if self.pmx485Connected:
