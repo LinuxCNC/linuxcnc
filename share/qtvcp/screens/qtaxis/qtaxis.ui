@@ -1550,6 +1550,9 @@
                     <property name="textTemplate" stdset="0">
                      <string>%s</string>
                     </property>
+                    <property name="feed_override_status" stdset="0">
+                     <bool>true</bool>
+                    </property>
                    </widget>
                   </item>
                   <item>
@@ -1810,7 +1813,7 @@
                <item>
                 <widget class="DetachTabWidget" name="rightTab">
                  <property name="currentIndex">
-                  <number>1</number>
+                  <number>0</number>
                  </property>
                  <widget class="QWidget" name="tab">
                   <attribute name="title">
