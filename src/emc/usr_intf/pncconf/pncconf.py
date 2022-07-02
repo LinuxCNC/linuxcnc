@@ -926,7 +926,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                             raise UserWarning
             except :
                 print(i,j,boardnum)
-                self.warning_dialog(_("It seems data in this file is from too old of a version of PNCConf to continue.\n."),True)
+                self.warning_dialog(_("It seems data in this file is from too old of a version of PNCConf to continue."),True)
                 return True
         else:
             dialog.destroy()
