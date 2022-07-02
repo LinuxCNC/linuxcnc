@@ -28,7 +28,7 @@ Python programs through the `linuxcnc` module.
 Beyond the NML interface to the command, status and error channels,
 the `linuxcnc` module also contains:
 
-- support for reading values from ini files
+- support for reading values from INI files
 
 ////
 - support for position logging  (???)
@@ -79,12 +79,12 @@ for x in dir(s):
 
 Linuxcnc uses the default compiled-in path to the NML configuration
 file unless overridden, see <<python:reading-ini-values,Reading
-ini file values>> for an example.
+INI file values>> for an example.
 
 === linuxcnc.stat attributes
 
 *acceleration*:: '(returns float)' -
-  default acceleration, reflects the ini entry [TRAJ]DEFAULT_ACCELERATION.
+  default acceleration, reflects the INI entry [TRAJ]DEFAULT_ACCELERATION.
 
 *active_queue*:: '(returns integer)' -
   number of motions blending.
@@ -99,20 +99,20 @@ ini file values>> for an example.
   current value of the analog input pins.
 
 *angular_units*:: '(returns float)' -
-machine angular units per deg, reflects [TRAJ]ANGULAR_UNITS ini value.
+machine angular units per deg, reflects [TRAJ]ANGULAR_UNITS INI value.
 
 *aout*:: '(returns tuple of floats)' -
   current value of the analog output pins.
 
 *axes*:: '(returns integer)' -
-  number of axes. Derived from [TRAJ]COORDINATES ini value.
+  number of axes. Derived from [TRAJ]COORDINATES INI value.
 
 *axis*:: '(returns tuple of dicts)' -
   reflecting current axis values. See
   <<sec:the-axis-dictionary,The axis dictionary>>.
 
 *axis_mask*:: '(returns integer)' -
-  mask of axis available as defined by [TRAJ]COORDINATES in the ini
+  mask of axis available as defined by [TRAJ]COORDINATES in the INI
   file. Returns the sum of the axes X=1, Y=2, Z=4, A=8, B=16, C=32, U=64,
   V=128, W=256.
 
@@ -126,7 +126,7 @@ machine angular units per deg, reflects [TRAJ]ANGULAR_UNITS ini value.
   currently executing command.
 
 *current_line*:: '(returns integer)' -
-  currently executing line, int.
+  currently executing line.
 
 *current_vel*:: '(returns float)' -
   current velocity in user units per second.
@@ -135,7 +135,7 @@ machine angular units per deg, reflects [TRAJ]ANGULAR_UNITS ini value.
   thread period
 
 *debug*:: '(returns integer)' -
-  debug flag from the ini file.
+  debug flag from the INI file.
 
 *delay_left*:: '(returns float)' -
   remaining time on dwell (G4) command, seconds.
@@ -242,7 +242,7 @@ machine angular units per deg, reflects [TRAJ]ANGULAR_UNITS ini value.
   Desired joint positions.
 
 *joints*:: '(returns integer)' -
-  number of joints. Reflects [KINS]JOINTS ini value.
+  number of joints. Reflects [KINS]JOINTS INI value.
 
 *kinematics_type*:: '(returns integer)' -
   The type of kinematics. One of:
@@ -256,7 +256,7 @@ machine angular units per deg, reflects [TRAJ]ANGULAR_UNITS ini value.
   maxHardLimit=2, minSoftLimit=4, maxSoftLimit=8.
 
 *linear_units*:: '(returns float)' -
-  machine linear units per mm, reflects [TRAJ]LINEAR_UNITS ini value.
+  machine linear units per mm, reflects [TRAJ]LINEAR_UNITS INI value.
 
 *lube*:: '(returns integer)' -
   'lube on' flag.
@@ -347,11 +347,11 @@ machine angular units per deg, reflects [TRAJ]ANGULAR_UNITS ini value.
   settings[4] = `G64 Q` naive CAM tolerance.
 
 *spindle*:: ' (returns tuple of dicts) ' -
-  returns the current spindle status
+  returns the current spindle status,
   see <<sec:the-spindle-dictionary, The spindle dictionary>>
 
 *spindles*:: '(returns integer)' -
-  number of spindles. Reflects [TRAJ]SPINDLES ini value.
+  number of spindles. Reflects [TRAJ]SPINDLES INI value.
 
 *state*:: '(returns integer)' -
   current command execution status. One of RCS_DONE,
@@ -391,7 +391,7 @@ s.poll()
 if s.tool_table[0].id != 0: # a tool is loaded
     print(s.tool_table[0].zoffset)
 else:
-    print("no tool loaded")
+    print("No tool loaded.")
 ----
 
 *velocity*:: '(returns float)' -
@@ -463,7 +463,7 @@ For each joint, the following dictionary keys are available:
 *jointType*:: '(returns integer)' -
   type of axis configuration parameter, reflects
   [JOINT_n]TYPE. LINEAR=1, ANGULAR=2. See <<sub:ini:sec:axis-letter, Joint
-  ini configuration>> for details.
+  INI configuration>> for details.
 
 *max_ferror*:: '(returns float)' -
   maximum following error. configuration
@@ -767,50 +767,50 @@ MDI commands will ignore this. "S1000" after this will turn the spindle off
 import linuxcnc
 c = linuxcnc.command()
 
-#Increase speed of spindle 0 by 100rpm. Spindle must be on first
+# Increase speed of spindle 0 by 100rpm. Spindle must be on first.
 c.spindle(linuxcnc.INCREASE)
 
-#Increase speed of spindle 2 by 100rpm. Spindle must be on first
+# Increase speed of spindle 2 by 100rpm. Spindle must be on first.
 c.spindle(linuxcnc.SPINDLE_INCREASE, 2)
 
-#Set speed of spindle 0 to 1024 rpm
+# Set speed of spindle 0 to 1024 rpm.
 c.spindle.(linuxcnc.SPINDLE_FORWARD, 1024)
 
-#Set speed of spindle 1 to -666 rpm
+# Set speed of spindle 1 to -666 rpm.
 c.spindle.(linuxcnc.SPINDLE_REVERSE, 666, 1)
 
-#Stop spindle 0
+# Stop spindle 0.
 c.spindle.(linuxcnc.SPINDLE_OFF)
 
-#Stop spindle 0 explicitly
+# Stop spindle 0 explicitly.
 c.spindle.(linuxcnc.SPINDLE_OFF, 0)
 ----
 
 `spindleoverride(float [, int])`::
-  set spindle override factor. Defaults to spindle 0.
+  Set spindle override factor. Defaults to spindle 0.
 
 `state(int)`::
-  set the machine state. Machine state should be STATE_ESTOP, STATE_ESTOP_RESET, STATE_ON, or STATE_OFF
+  Set the machine state. Machine state should be STATE_ESTOP, STATE_ESTOP_RESET, STATE_ON, or STATE_OFF.
 
 `task_plan_sync()`::
-  on completion of this call, the var file on disk is updated with
+  On completion of this call, the var file on disk is updated with
   live values from the interpreter.
 
 `teleop_enable(int)`::
-  enable/disable teleop mode (disable for joint jogging).
+  Enable/disable teleop mode (disable for joint jogging).
 
 `tool_offset(int, float, float, float, float, float, int)`::
-  set the tool offset. See usage example above.
+  Set the tool offset. See usage example above.
 
 `traj_mode(int)`::
-  set trajectory mode. Mode is one of MODE_FREE, MODE_COORD, or
+  Set trajectory mode. Mode is one of MODE_FREE, MODE_COORD, or
   MODE_TELEOP.
 
 `unhome(int)`::
-  unhome a given joint.
+  Unhome a given joint.
 
 `wait_complete([float])`::
-  wait for completion of the last command sent. If timeout in
+  Wait for completion of the last command sent. If timeout in
   seconds not specified, default is 5 seconds. Return -1 if
   timed out, return RCS_DONE or RCS_ERROR according to command
   execution status.
@@ -846,9 +846,9 @@ if error:
 ----
 
 [[python:reading-ini-values]]
-== Reading ini file values
+== Reading INI file values
 
-Here's an example for reading values from an ini file through the
+Here's an example for reading values from an INI file through the
 `linuxcnc.ini` object:
 
 [source,python]
@@ -856,7 +856,7 @@ Here's an example for reading values from an ini file through the
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # run as:
-# python ini-example.py ~/emc2-dev/configs/sim/axis/axis_mm.ini
+# python3 ini-example.py ~/emc2-dev/configs/sim/axis/axis_mm.ini
 
 import sys
 import linuxcnc
@@ -875,7 +875,7 @@ print("machine name: ", machine_name)
 extensions = inifile.findall("FILTER", "PROGRAM_EXTENSION")
 print("extensions: ", extensions)
 
-# override default NML file by ini parameter if given
+# override default NML file by INI parameter if given
 nmlfile = inifile.find("EMC", "NML_FILE")
 if nmlfile:
     linuxcnc.nmlfile = os.path.join(os.path.dirname(sys.argv[1]), nmlfile)
@@ -888,7 +888,7 @@ Or for the same INI file as LinuxCNC:
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # run as:
-# python ini-example2.py
+# python3 ini-example2.py
 
 import linuxcnc
 

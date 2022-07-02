@@ -9,20 +9,20 @@
 LinuxCNC is capable of controlling a wide range of machinery 
 using many different hardware interfaces.
 
-Stepconf is a program that generates configuration files for LinuxCNC
+StepConf is a program that generates configuration files for LinuxCNC
 for a specific class of CNC machine:
 those that are controlled via a 'standard parallel port', and
 controlled by signals of type 'step & direction'.
 
-Stepconf is installed when you install LinuxCNC and is in the CNC menu.
+StepConf is installed when you install LinuxCNC and is in the CNC menu.
 
-Stepconf places a file in the linuxcnc/config directory
+StepConf places a file in the linuxcnc/config directory
 to store the choices for each configuration you create.
 When you change something, you need to pick the file
 that matches your configuration name.
 The file extension is .stepconf.
 
-The Stepconf Wizard works best with at least 800 x 600 screen resolution.
+The StepConf Wizard works best with at least 800 x 600 screen resolution.
 
 == Start Page
 
@@ -35,13 +35,13 @@ The three first radio buttons are self-explanatory:
 * 'Modify' - Modify an existing configuration.
   After selecting this a file picker pops up so you can select the .stepconf file for modification.
   If you made any modifications to the main .hal or the .ini file these will be lost.
-  Modifications to custom.hal and custom_postgui.hal will not be changed by the Stepconf Wizard.
-  Stepconf will highlight the lastconf that was built.
+  Modifications to custom.hal and custom_postgui.hal will not be changed by the StepConf Wizard.
+  StepConf will highlight the lastconf that was built.
 * 'Import' - Import a Mach configuration file and attempt to convert it to a linuxcnc config file.
-  After the import, you will go though the pages of stepconf to confirm/modify the entries.
+  After the import, you will go though the pages of StepConf to confirm/modify the entries.
   The original mach xml file will not be changed.
 
-These next options will be recorded in a preference file for the next run of Stepconf.
+These next options will be recorded in a preference file for the next run of StepConf.
 
 * 'Create Desktop Shortcut' - This will place a link on your desktop to the files.
 * 'Create Desktop Launcher' - This will place a launcher on your desktop to start your application.
@@ -71,7 +71,7 @@ image::images/stepconf-base_en.png["Basic Information Page",align="center"]
   Otherwise, select 'Other' and find the timing values in your
   driver's data sheet and enter them as 'nano seconds' in the 'Driver Timing Settings'.
   If the data sheet gives a value in microseconds, multiply by 1000.
-  For example, enter 4.5us as 4500ns.
+  For example, enter 4.5 µs as 4500 ns.
 +
 A list of some popular drives, along with their timing values, is on the
 LinuxCNC.org Wiki under
@@ -99,10 +99,10 @@ The LinuxCNC Configuration Selector has configs for Sherline already configured.
   To run a latency test press the 'Test Base Period Jitter' button. See the
   <<sec:latency-test,Latency Test>> section for more details.
 * 'Max Step Rate' -(((Max Step Rate)))
-  Stepconf automatically calculates the Max Step Rate based
+  StepConf automatically calculates the Max Step Rate based
   on the driver characteristics entered and the latency test result.
 * 'Min Base Period' - (((Min Base Period)))
-  Stepconf automatically determines the Min Base Period
+  StepConf automatically determines the Min Base Period
   based on the driver characteristics entered and latency test result.
 
 [[sub:latency-test]]
@@ -152,7 +152,7 @@ with software stepping. If the max latency is more like 30-50
 microseconds, you can still get good results, but your maximum step
 rate might be a little disappointing, especially if you use
 microstepping or have very fine pitch leadscrews. If the numbers are
-100 us  or more (100,000 nanoseconds), then the PC is not a good
+100 µs  or more (100,000 nanoseconds), then the PC is not a good
 candidate for software stepping. Numbers over 1 millisecond (1,000,000
 nanoseconds) mean the PC is not a good candidate for LinuxCNC, regardless of
 whether you use software stepping or not.
@@ -177,7 +177,7 @@ Turn on the 'invert' check box if the signal is inverted (0V for true/active, 5V
   These can be selected from an input pin drop down box for most configurations.
 * 'Charge Pump' - If your driver board requires a charge pump signal select Charge Pump from
   the drop down list for the output pin you wish to connect to your charge pump input.
-  The charge pump output is connected to the base thread by Stepconf.
+  The charge pump output is connected to the base thread by StepConf.
   The charge pump output will be about 1/2 of the maximum step rate shown on the Basic Machine Configuration page.
 * 'Plasma Arc Voltage' - If you require a Mesa THCAD to input a plasma arc voltage then select Plasma Arc Voltage from the list of output pins.
   This will enable a THCAD page during the setup procedure for the entry of the card parameters.
@@ -231,7 +231,7 @@ image::images/stepconf-axis-x_en.png["Axis X Configuration Page",align="center"]
   Information computed based on the values entered above.
   The greatest 'Pulse rate at max speed' determines the 'BASE_PERIOD'.
   Values above 20000Hz may lead to slow response time or even lockups (the fastest usable pulse rate varies from computer to computer)
-* 'Axis SCALE' - The number that will be used in the ini file [SCALE] setting.
+* 'Axis SCALE' - The number that will be used in the INI file [SCALE] setting.
   This is how many steps per user unit.
 * 'Test this axis' - (((Test this axis)))
   This will open a window to allow testing for each axis. This can be used after filling out all the information for this axis.
@@ -369,14 +369,14 @@ Change the spindle speed by entering a different S-number: 'S800'.
 Valid numbers (at this point) range from 1 to 1000.
 
 For two different S-numbers, measure the actual spindle speed in RPM.
-Record the S-numbers and actual spindle speeds. Run Stepconf again.
+Record the S-numbers and actual spindle speeds. Run StepConf again.
 For 'Speed' enter the measured speed, and for 'PWM' enter the S-number divided by 1000.
 
 Because most spindle drivers are somewhat nonlinear in their response
 curves, it is best to:
 
-- Make sure the two calibration speeds are not too close together in RPM
-- Make sure the two calibration speeds are in the range of speeds you will typically use while milling
+- Make sure the two calibration speeds are not too close together in RPM.
+- Make sure the two calibration speeds are in the range of speeds you will typically use while milling.
 
 For instance, if your spindle will go from 0 RPM to 8000 RPM,
 but you generally use speeds from 400 RPM (10%) to 4000 RPM (100%),
@@ -389,7 +389,7 @@ image::images/stepconf-options_en.png["Advanced Options Configuration",align="ce
 
 * 'Include Halui' - This will add the Halui user interface component. See the
   <<cha:hal-user-interface,HALUI Chapter>> for more information on.
-* 'Include pyVCP' - This option adds the pyVCP panel base file or a sample file
+* 'Include PyVCP' - This option adds the PyVCP panel base file or a sample file
   to work on. See the <<cha:pyvcp,PyVCP Chapter>> for more information.
 * 'Include ClassicLadder PLC' - This option will add the ClassicLadder PLC
   (Programmable Logic Controller). See the
@@ -423,7 +423,7 @@ must be long enough to allow an unpowered motor to coast to a stop.
 
 Before the 'limit switch' there is a 'soft limit'.
 This is a limit enforced in software after homing.
-If a MDI command or g code program would pass the soft limit, it is not executed.
+If a MDI command or G-code program would pass the soft limit, it is not executed.
 If a jog would pass the soft limit, it is terminated at the soft limit.
 
 The 'home switch' can be placed anywhere within the travel (between hard stops).
@@ -487,7 +487,7 @@ image::images/switch-nc-series_en.svg["Normally Closed Switches",align="center"]
 .Normally Open Switches (N/O) wiring in parallel (simplified diagram)
 image::images/switch-no-parallel_en.svg["Normally Open Switches",align="center"]
 
-The following combinations of switches are permitted in Stepconf:
+The following combinations of switches are permitted in StepConf:
 
 * Combine home switches for all axes
 * Combine limit switches for all axes

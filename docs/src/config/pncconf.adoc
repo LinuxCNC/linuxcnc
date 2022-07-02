@@ -4,34 +4,34 @@
 [[cha:pncconf-wizard]]
 = Mesa Configuration Wizard
 
-PNCconf is made to help build configurations that utilize specific Mesa
+PnCconf is made to help build configurations that utilize specific Mesa
 'Anything I/O' products.
 
 It can configure closed loop servo systems or hardware stepper systems.
 It uses a similar 'wizard' approach as Stepconf (used for software stepping,
 parallel port driven systems).
 
-PNCconf is still in a development stage (Beta) so there are some bugs and
+PnCconf is still in a development stage (Beta) so there are some bugs and
 lacking features.
 Please report bugs and suggestions to the LinuxCNC forum page or mail-list.
 
-There are two trains of thought when using PNCconf:
+There are two trains of thought when using PnCconf:
 
-One is to use PNCconf to always configure your system - if you decide to change
-options, reload PNCconf and allow it to configure the new options. This will
+One is to use PnCconf to always configure your system - if you decide to change
+options, reload PnCconf and allow it to configure the new options. This will
 work well if your machine is fairly standard and you can use custom files to add
-non standard features. PNCconf tries to work with you in this regard.
+non standard features. PnCconf tries to work with you in this regard.
 
-The other is to use PNCconf to build a config that is close to what you want and
+The other is to use PnCconf to build a config that is close to what you want and
 then hand edit everything to tailor it to your needs. This would be the choice
-if you need extensive modifications beyond PNCconf's scope or just want to
+if you need extensive modifications beyond PnCconf's scope or just want to
 tinker with / learn about LinuxCNC.
 
 You navigate the wizard pages with the forward, back, and cancel buttons there
 is also a help button that gives some help information about the pages, diagrams
 and an output page.
 
-TIP: PNCconf's help page should have the most up to date info and has additional
+TIP: PnCconf's help page should have the most up to date info and has additional
 details.
 
 == Step by Step Instructions
@@ -44,7 +44,7 @@ image::images/pncconf-splash.png["PnCConf Configuration Wizard"]
 This allows you to select a previously saved configuration or create a new one.
 If you pick 'Modify a configuration' and then press 'Next' a file selection box
 will show. PnCConf preselects your last saved file. Choose the config you
-wish to edit. If you made any changes to the main hal or ini files *PnCConf will
+wish to edit. If you made any changes to the main HAL or INI files *PnCConf will
 over write* those files and those changes will be lost. Some files will not be
 over written and PnCConf places a note in those files. It also allows you to
 select desktop shortcut / launcher options. A desktop shortcut will place a
@@ -61,7 +61,7 @@ Selector 'LinuxCNC' found in CNC menu and selecting your config name.
 image::images/pncconf-basic.png["PnCConf Basic machine information"]
 
 Machine Basics::
-If you use a name with spaces PNCconf will replace the spaces with underscore
+If you use a name with spaces PnCconf will replace the spaces with underscore
 (as a loose rule Linux doesn't like spaces in names)
 Pick an axis configuration - this selects what type of machine you are building
 and what axes are available. The Machine units selector allows data entry of
@@ -119,17 +119,17 @@ must decide on a balance. Keep in mind that if you tune your closed loop servo
 system then change the servo period you probably will need to tune them again.
 
 I/O Control Ports/Boards::
-PNCconf is capable of configuring machines that have up to two Mesa boards and
+PnCconf is capable of configuring machines that have up to two Mesa boards and
 three parallel ports. Parallel ports can only be used for simple low speed
 (servo rate) I/O.
 
 Mesa::
-You must choose at least one Mesa board as PNCconf will not configure the
+You must choose at least one Mesa board as PnCconf will not configure the
 parallel ports to count encoders or output step or PWM signals.
-The mesa cards available in the selection box are based on what PNCconf finds
+The mesa cards available in the selection box are based on what PnCconf finds
 for firmware on the systems. There are options to add custom firmware and/or
 'blacklist' (ignore) some firmware or boards using a preference file.
-If no firmware is found PNCconf will show a warning and use internal sample
+If no firmware is found PnCconf will show a warning and use internal sample
 firmware - no testing will be possible. One point to note is that if you choose
 two PCI Mesa cards there currently is no way to predict which card is 0 and
 which is 1 - you must test - moving the cards could change their order. If you
@@ -149,7 +149,7 @@ search' button. This pops up the help output page with a list of all the PCI
 devices that can be found. In there should be a reference to a parallel port
 device with a list of addresses. One of those addresses should work. Not all
 PCI parallel ports work properly. Either type can be selected as 'in' (maximum
-amount of input pins) or 'out' (maximum amount of output pins)
+amount of input pins) or 'out' (maximum amount of output pins).
 
 GUI Front-end list::
 This specifies the graphical display screens LinuxCNC will use.
@@ -160,7 +160,7 @@ AXIS
 * fully supports lathes.
 * is the most developed and used front-end
 * is designed to be used with mouse and keyboard
-* is tkinter based so integrates PYVCP (python based virtual control panels) naturally.
+* is tkinter based so integrates PyVCP (Python based virtual control panels) naturally.
 * has a 3D graphical window.
 * allows VCP integrated on the side or in center tab
 
@@ -203,11 +203,11 @@ based OEM joystick.
 
 Joystick jogging::
 Requires a custom 'device rule' to be installed in the system. This is a file
-that LinuxCNC uses to connect to LINUX's device list. PNCconf will help to make this
+that LinuxCNC uses to connect to Linux's device list. PnCconf will help to prepare this
 file.
 
 * 'Search for device rule' will search the system for rules, you can use this to
-  find the name of devices you have already built with PNCconf.
+  find the name of devices you have already built with PnCconf.
 * 'Add a device rule' will allow you to configure a new device by following the
   prompts. You will need your device available.
 * 'test device' allows you to load a device, see its pin names and check its
@@ -223,7 +223,7 @@ MPG Jogging::
 Allows you to use a Manual Pulse Generator to jog the machine's axis.
 
 MPG's are often found on commercial grade machines. They output quadrature
-pulses that can be counted with a MESA encoder counter. PNCconf allows for an
+pulses that can be counted with a MESA encoder counter. PnCconf allows for an
 MPG per axis or one MPG shared with all axis. It allows for selection of jog
 speeds using switches or a single speed.
 
@@ -231,7 +231,7 @@ The selectable increments option uses the mux16 component. This component
 has options such as debounce and gray code to help filter the raw switch input.
 
 Overrides::
-PNCconf allows overrides of feed rates and/or spindle speed using a pulse
+PnCconf allows overrides of feed rates and/or spindle speed using a pulse
 generator (MPG) or switches (eg. rotary).
 
 == GUI Configuration
@@ -247,7 +247,7 @@ Front-end GUI Options::
 The default options allows general defaults to be chosen for any display screen.
 
 AXIS defaults are options specific to AXIS. If you choose size , position or
-force maximize options then PNCconf will ask if it's alright to overwrite a
+force maximize options then PnCconf will ask if it's alright to overwrite a
 preference file (.axisrc). Unless you have manually added commands to this file
 it is fine to allow it. Position and force max can be used to move AXIS to a
 second monitor if the system is capable.
@@ -257,7 +257,7 @@ changed while Touchy is running using the preference page. Touchy uses GTK to
 draw its screen, and GTK supports themes. Themes controls the basic look and
 feel of a program. You can download themes from the net or edit them yourself.
 There are a list of the current themes on the computer that you can pick from.
-To help some of the text to stand out PNCconf allows you to override the
+To help some of the text to stand out PnCconf allows you to override the
 Themes's defaults. The position and force max options can be used to move Touchy
 to a second monitor if the system is capable.
 
@@ -283,7 +283,7 @@ You may select a blank file that you can later add your controls 'widgets' to
 or select a spindle display sample that will display spindle speed and indicate
 if the spindle is at requested speed.
 
-PNCconf will connect the proper spindle display HAL pins for you.
+PnCconf will connect the proper spindle display HAL pins for you.
 If you are using AXIS then the panel will be integrated on the right side.
 If not using AXIS then the panel will be separate 'stand-alone' from the
 front-end screen.
@@ -295,18 +295,18 @@ sample panel' button the size and placement options will be honored.
 GLADE VCP::
 GLADE VCPs fit naturally inside of TOUCHY screen as they both use GTK to draw
 them, but by changing GLADE VCP's theme it can be made to blend pretty well in
-AXIS. (try Redmond)
+AXIS (try Redmond).
 
 It uses a graphical editor to build its XML files.
 HAL pins are created for the user to connect to, inside of their custom HAL
 file.
 
 GLADE VCP also allows much more sophisticated (and complicated) programming
-interaction, which PNCconf currently doesn't leverage. (see GLADE VCP in the
+interaction, which PnCconf currently doesn't leverage (see GLADE VCP in the
 manual)
 
-PNCconf has sample panels for the user to use as-is or build on.
-With GLADE VCP PNCconf will allow you to select different options on your
+PnCconf has sample panels for the user to use as-is or build on.
+With GLADE VCP PnCconf will allow you to select different options on your
 sample display.
 
 Under 'sample options' select which ones you would like.
@@ -337,7 +337,7 @@ Defaults and Options::
    this checkbox.
 * Popup Tool Prompt
 ** Choose between an on screen prompt for tool changes or export standard signal
-   names for a User supplied custom tool changer Hal file
+   names for a User supplied custom tool changer HAL file
 * Leave spindle on during tool change:
 ** Used for lathes
 * Force individual manual homing
@@ -398,17 +398,17 @@ first then down with out skipping a number. If by doing this the components are
 not where you want them then you must use a different firmware. The firmware
 dictates where, what and the max amounts of the components. Custom firmware is
 possible, ask nicely when contacting the LinuxCNC developers and Mesa. Using custom
-firmware in PNCconf requires special procedures and is not always possible -
-Though I try to make PNCconf as flexible as possible.
+firmware in PnCconf requires special procedures and is not always possible -
+Though I try to make PnCconf as flexible as possible.
 
 After choosing all these options press the 'Accept Component Changes' button and
-PNCconf will update the I/O setup pages. Only I/O tabs will be shown for
+PnCconf will update the I/O setup pages. Only I/O tabs will be shown for
 available connectors, depending on the Mesa board.
 
 == Mesa I/O Setup
 
 The tabs are used to configure the input and output pins of the Mesa boards.
-PNCconf allows one to create custom signal names for use in custom HAL files.
+PnCconf allows one to create custom signal names for use in custom HAL files.
 
 .Mesa I/O C2 Setup
 image::images/pncconf-mesa-io2.png["Mesa I/O C2 Setup"]
@@ -466,7 +466,7 @@ enabled depending on how power is supplied to the encoder.
 If the motor and encoder do not agree on counting direction then the
 servo will run away when using PID control.
 
-Since at the moment PID settings can not be tested in PNCconf the settings are
+Since at the moment PID settings can not be tested in PnCconf the settings are
 really for when you re-edit a config - enter your tested PID settings.
 
 DAC scale:: DAC scaling, max output and offset are used to tailor the DAC output.
@@ -534,7 +534,7 @@ set up and read a dial indicator to see if you are losing steps.
 
 Stepper Timing::
 Stepper timing needs to be tailored to the step controller's requirements.
-Pncconf supplies some default controller timing or allows custom timing settings.
+PnCconf supplies some default controller timing or allows custom timing settings.
 See http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Stepper_Drive_Timing for
 some more known timing numbers (feel free to add ones you have figured out). If
 in doubt use large numbers such as 5000 this will only limit max speed.
@@ -580,8 +580,8 @@ On a typical lathe::
 * that is the positive Z direction
 * when the TOOL moves toward the operator
 * that is the positive X direction. Some lathes have X
-* opposite (eg tool on back side), that will work fine but
-* AXIS graphical display can not be made to reflect this.
+  opposite (eg tool on back side), that will work fine but
+  AXIS graphical display can not be made to reflect this.
 
 When using homing and / or limit switches
 LinuxCNC expects the HAL signals to be true when
@@ -680,7 +680,7 @@ or the total travel minus the positive travel
 distance. You would set this to zero if the
 origin is positioned at the negative limit.
 This will always be zero or a negative number.
-If you forget to make this negative PNCconf
+If you forget to make this negative PnCconf
 will do it internally.
 
 (Final) HOME POSITION::
@@ -702,7 +702,7 @@ you must move in the Positive direction to
 get to the Origin, then the number will be
 negative. If you set this to zero then the
 Origin will be at the location of the limit
-switch (plus distance to find index if used)
+switch (plus distance to find index if used).
 
 Home Search Velocity::
 Course home search velocity in units per minute.
@@ -710,14 +710,14 @@ Course home search velocity in units per minute.
 Home Search Direction::
 Sets the home switch search direction
 either negative (ie. towards negative limit switch)
-or positive (ie. towards positive limit switch)
+or positive (ie. towards positive limit switch).
 
 Home Latch Velocity::
-Fine Home search velocity in units per minute
+Fine Home search velocity in units per minute.
 
 Home Final Velocity::
 Velocity used from latch position to (final) home position
-in units per minute. Set to 0 for max rapid speed
+in units per minute. Set to 0 for max rapid speed.
 
 Home latch Direction::
 Allows setting of the latch direction to the same
@@ -795,7 +795,7 @@ This allows setting of HALUI commands and loading of classicladder and sample
 ladder programs.
 If you selected GLADE VCP options such as for zeroing axis, there will be
 commands showing.
-See the << cha:hal-user-interface,HALUI Chapter >>for more info on using custom
+See the <<cha:hal-user-interface,HALUI Chapter>> for more info on using custom
 halcmds.
 There are several ladder program options.
 The Estop program allows an external ESTOP switch or the GUI frontend to throw
@@ -807,7 +807,7 @@ The serial modbus program is basically a blank template program that sets up
 classicladder for serial modbus. See the << cha:classicladder,Classicladder Chapter >>
 in the manual.
 
-.PnCConf, Advanced Options
+.PnCConf, advanced options
 image::images/pncconf-advanced.png["PnCConf Advanced Options"]
 
 == HAL Components
@@ -824,33 +824,33 @@ The first selection is components that pncconf uses internally.
 You may configure pncconf to load extra instances of the components for your
 custom HAL file.
 
-Select the number of instances your custom file will need, pncconf will add
+Select the number of instances your custom file will need, PnCconf will add
 what it needs after them.
 
-Meaning if you need 2 and pncconf needs 1 pncconf will load 3 instances and use
+Meaning if you need 2 and PnCconf needs 1 PnCconf will load 3 instances and use
 the last one.
 
 Custom Component Commands::
 
-This selection will allow you to load HAL components that pncconf does not use.
+This selection will allow you to load HAL components that PnCconf does not use.
 Add the loadrt or loadusr command, under the heading 'loading command'
 Add the addf command under the heading 'Thread command'.
 The components will be added to the thread between reading of inputs and writing
 of outputs, in the order you write them in the 'thread command'.
 
-== Advanced Usage Of PNCconf
+== Advanced Usage Of PnCconf
 
-PNCconf does its best to allow flexible customization by the user.
-PNCconf has support for custom signal names, custom loading of components,
+PnCconf does its best to allow flexible customization by the user.
+PnCconf has support for custom signal names, custom loading of components,
 custom HAL files and custom firmware.
 
-There are also signal names that PNCconf always provides regardless of options
+There are also signal names that PnCconf always provides regardless of options
 selected, for user's custom HAL files
 With some thought most customizations should work regardless if you later select
-different options in PNCconf.
+different options in PnCconf.
 
-Eventually if the customizations are beyond the scope of PNCconf's frame work
-you can use PNCconf to build a base config or use one of LinuxCNC's sample
+Eventually if the customizations are beyond the scope of PnCconf's frame work
+you can use PnCconf to build a base config or use one of LinuxCNC's sample
 configurations and just hand edit it to what ever you want.
 
 Custom Signal Names::
@@ -887,25 +887,26 @@ have the option to move them around later.
 
 Custom Signal Names::
 
-The Hal Components page can be used to load components needed by a user for
+The HAL Components page can be used to load components needed by a user for
 customization.
 
 Loading Custom Firmware::
 
-PNCconf searches for firmware on the system and then looks for the XML file that
+PnCconf searches for firmware on the system and then looks for the XML file that
 it can convert to what it understands. These XML files are only supplied for
 officially released firmware from the LinuxCNC team. To utilize custom firmware one
-must convert it to an array that PNCconf understands and add its file path
-to PNCconf's preference file. By default this path searches the desktop for
+must convert it to an array that PnCconf understands and add its file path
+to PnCconf's preference file. By default this path searches the desktop for
 a folder named custom_firmware and a file named firmware.py.
 
 The hidden preference file is in the user's home file, is
-named .pncconf-preferences and require one to select 'show hidden files' to see
-and edit it. The contents of this file can be seen when you first load PNCconf -
+named .pncconf-preferences and require one to select 'show hidden files' in your
+file manager to see and edit it or on the command line you use 'ls' with the '-a' option.
+The contents of this file can be seen when you first load PnCconf -
 press the help button and look at the output page.
 
 Ask on the LinuxCNC mail-list or forum for info about converting custom firmware.
-Not all firmware can be utilized with PNCconf.
+Not all firmware can be utilized with PnCconf.
 
 Custom HAL Files::
 
@@ -914,7 +915,7 @@ There are four custom files that you can use to add HAL commands to:
 * custom.hal is for HAL commands that don't have to be run after the GUI frontend
   loads. It is run after the configuration-named HAL file.
 * custom_postgui.hal is for commands that must be run after AXIS loads or a
-  standalone PYVCP display loads.
+  standalone PyVCP display loads.
 * custom_gvcp.hal is for commands that must be run after glade VCP is loaded.
 * shutdown.hal is for commands to run when LinuxCNC shuts down in a controlled manner.
 

@@ -14,7 +14,7 @@
 
 I/O control handles I/O tasks like coolant, toolchange, e-stop and lube. The
 signals are turned on and off in userspace with G-code or in the case of e-stop
-in hal.
+in HAL.
 
 I/O Control V2 adds more toolchanger support for communication with the
 toolchanger.
@@ -36,7 +36,7 @@ toolchanger.
 
 * Consistent view of state: Both parties must have a consistent view of the
   state at any point in time with respect to aborted versus completed, and tool
-  number and pocket
+  number and pocket.
 
 * Handshaked signaling an abort/fault: an abort signaled by LinuxCNC to the
   toolchanger, and a fault indicated from the toolchanger is handshaked to

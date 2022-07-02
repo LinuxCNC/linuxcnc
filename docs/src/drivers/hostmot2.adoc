@@ -479,7 +479,7 @@ The stepgen representation is modeled on the stepgen software
 component. Stepgen default is active high step output (high during step
 time low during step space). To invert a StepGen output pin you invert
 the corresponding GPIO pin that is being used by StepGen. To find the
-GPIO pin being used for the StepGen output run dmesg as shown above.
+GPIO pin being used for the StepGen output run 'dmesg' as shown above.
 
 Each stepgen instance has the following pins and parameters:
 
@@ -542,7 +542,7 @@ Each stepgen instance has the following pins and parameters:
 
 The Step and Direction pins of each StepGen have two additional
 parameters. To find which I/O pin belongs to which step and direction
-output run dmesg as described above.
+output run 'dmesg' as described above.
 
 * 'invert_output' - (Bit, RW) This parameter only has an effect if the
   'is_output' parameter is true.
@@ -571,7 +571,7 @@ number. There are 'num_pwmgens' instances, starting with 00.
 In HM2, each pwmgen uses three output I/O pins: Not-Enable, Out0, and
 Out1. To invert a PWMGen output pin you invert the corresponding GPIO
 pin that is being used by PWMGen. To find the GPIO pin being used for
-the PWMGen output run dmesg as shown above.
+the PWMGen output run 'dmesg' as shown above.
 
 The function of the Out0 and Out1 I/O pins varies with output-type
 parameter (see below).
@@ -639,7 +639,7 @@ component. Each pwmgen instance has the following pins and parameters:
 === Output Parameters
 
 The output pins of each PWMGen have two additional parameters. To find
-which I/O pin belongs to which output run dmesg as described above.
+which I/O pin belongs to which output run 'dmesg' as described above.
 
 * 'invert_output' - (Bit, RW) This parameter only has an effect if the
   'is_output' parameter is true. If this parameter is true, the output
@@ -822,7 +822,7 @@ load. The examples are a good place to start and will save you time.
 Just pick the proper example from the LinuxCNC Configuration Selector and
 save a copy to your computer so you can edit it. To see the exact pins
 and parameters that your configuration gave you, open the Show HAL
-Configuration window from the Machine menu, or do dmesg as outlined
+Configuration window from the Machine menu, or do 'dmesg' as outlined
 above.
 
 // vim: set syntax=asciidoc:

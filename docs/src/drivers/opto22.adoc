@@ -140,13 +140,14 @@ designating it as a HEX number).
 
 Another example: To set the port for 8 outputs and 16 inputs (the
 same as a Mesa card). Here is the 24 bits represented in a BINARY
-number. Bit 1 is the rightmost number.
+number. Bit 1 is the rightmost number:
 
-  000000000000000011111111
+.16 zeros for the 16 inputs and 8 ones for the 8 outputs
+----
+000000000000000011111111
+----
 
-16 zeros for the 16 inputs and 8 ones for the 8 outputs
-
-Which converts to FF on the calculator so 0xff is the number to use
+This converts to FF on the calculator, so 0xff is the number to use
 for portconfig0 and/or portconfig1 when loading the driver.
 
 == Pin Numbering
