@@ -3944,6 +3944,57 @@ TO FILE</string>
                     <property name="spacing">
                      <number>4</number>
                     </property>
+                    <item>
+                     <widget class="QTabWidget" name="tabWidget_setup">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="currentIndex">
+                       <number>1</number>
+                      </property>
+                      <widget class="QWidget" name="tabHTML">
+                       <attribute name="title">
+                        <string>HTML</string>
+                       </attribute>
+                       <layout class="QVBoxLayout" name="layout_HTML">
+                        <property name="leftMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="topMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="rightMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="bottomMargin">
+                         <number>0</number>
+                        </property>
+                       </layout>
+                      </widget>
+                      <widget class="QWidget" name="tabPDF">
+                       <attribute name="title">
+                        <string>PDF</string>
+                       </attribute>
+                       <layout class="QHBoxLayout" name="layout_PDF">
+                        <property name="leftMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="topMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="rightMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="bottomMargin">
+                         <number>0</number>
+                        </property>
+                       </layout>
+                      </widget>
+                     </widget>
+                    </item>
                    </layout>
                   </item>
                  </layout>
@@ -14235,7 +14286,7 @@ ANGULAR</string>
                <number>2</number>
               </property>
               <property name="text">
-               <string>08:14:12 PM</string>
+               <string>09:01:22 PM</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -15234,7 +15285,7 @@ ANGULAR</string>
   <slot>tab_utilities_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>

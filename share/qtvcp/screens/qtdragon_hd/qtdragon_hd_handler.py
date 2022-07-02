@@ -9,6 +9,7 @@ from qtvcp.widgets.file_manager import FileManager as FM
 from qtvcp.lib.writer import writer
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.gcodes import GCodes
+from qtvcp.lib.qt_pdf import PDFViewer
 from qtvcp.core import Status, Action, Info, Path, Qhal
 from qtvcp import logger
 from shutil import copyfile
@@ -289,7 +290,7 @@ class HandlerClass:
             # web view widget for SETUP page
             if self.w.web_view:
                 self.toolBar = QtWidgets.QToolBar(self.w)
-                self.w.layout_setup.addWidget(self.toolBar)
+                self.w.tabWidget_setup.setCornerWidget(self.toolBar)
 
                 self.backBtn = QtWidgets.QPushButton(self.w)
                 self.backBtn.setEnabled(True)
@@ -311,13 +312,19 @@ class HandlerClass:
                 self.writeBtn.clicked.connect(self.writer)
                 self.toolBar.addWidget(self.writeBtn)
 
-                self.w.layout_setup.addWidget(self.w.web_view)
+                self.w.layout_HTML.addWidget(self.w.web_view)
                 if os.path.exists(self.default_setup):
                     self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.default_setup))
                 else:
                     self.w.web_view.setHtml(self.html)
         except Exception as e:
             print("No default setup file found - {}".format(e))
+
+        # PDF setup page
+        self.PDFView = PDFViewer.PDFView()
+        self.w.layout_PDF.addWidget(self.PDFView)
+        self.PDFView.loadSample('setup_tab')
+
         # set up spindle gauge
         self.w.gauge_spindle.set_max_value(self.max_spindle_rpm)
         self.w.gauge_spindle.set_max_reading(self.max_spindle_rpm / 1000)
@@ -903,12 +910,12 @@ class HandlerClass:
                 self.w.web_view.setHtml(self.html)
 
             # look for PDF setup files
-            # load it with system program
             fname = filename+'.pdf'
             if os.path.exists(fname):
-                url = QtCore.QUrl.fromLocalFile(fname)
-                QtGui.QDesktopServices.openUrl(url)
+                self.PDFView.loadView(fname)
                 self.add_status("Loaded PDF file : {}".format(fname))
+            else:
+                self.PDFView.loadSample('setup_tab')
             return
 
         if file_extension == ".html":
@@ -921,10 +928,9 @@ class HandlerClass:
             except Exception as e:
                 print("Error loading HTML file : {}".format(e))
         else:
-            # load PDF with system program
+            # load PDF into setup page
             if os.path.exists(fname):
-                url = QtCore.QUrl.fromLocalFile(fname)
-                QtGui.QDesktopServices.openUrl(url)
+                self.PDFView.loadView(fname)
                 self.add_status("Loaded PDF file : {}".format(fname))
 
     def disable_spindle_pause(self):
