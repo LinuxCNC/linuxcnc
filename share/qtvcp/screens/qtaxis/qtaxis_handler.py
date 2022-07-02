@@ -159,8 +159,8 @@ class HandlerClass:
         self.make_progressbar()
 
         if INFO.MACHINE_IS_LATHE:
-            self.w.dro_relative_y.setVisible(False)
-            self.w.dro_absolute_y.setVisible(False)
+            self.w.dro_label_g5x_y.setVisible(False)
+            self.w.dro_label_g53_y.setVisible(False)
         self.restoreSettings()
         #QtWidgets.QApplication.instance().event_filter.focusIn.connect(self.focusInChanged)
 
