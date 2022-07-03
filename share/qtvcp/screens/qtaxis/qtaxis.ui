@@ -993,7 +993,7 @@
                         <property name="maximumSize">
                          <size>
                           <width>50</width>
-                          <height>25</height>
+                          <height>40</height>
                          </size>
                         </property>
                         <property name="text">
@@ -1216,7 +1216,7 @@
                         <property name="maximumSize">
                          <size>
                           <width>50</width>
-                          <height>25</height>
+                          <height>40</height>
                          </size>
                         </property>
                         <property name="text">
@@ -1813,7 +1813,7 @@
                <item>
                 <widget class="DetachTabWidget" name="rightTab">
                  <property name="currentIndex">
-                  <number>0</number>
+                  <number>1</number>
                  </property>
                  <widget class="QWidget" name="tab">
                   <attribute name="title">
