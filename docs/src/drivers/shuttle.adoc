@@ -71,8 +71,7 @@ of the device (the order in which the driver found them), for example
 '<Prefix>.button-<ButtonNumber>' (bit out)::
   These pins are True (1) when the button is pressed.
 '<Prefix>.button-<ButtonNumber>-not' (bit out)::
-  These pins have the inverse of the button state, so they're True
-  (1) when the button is not pressed.
+  These pins have the inverse of the button state, so they're True (1) when the button is not pressed.
 '<Prefix>.counts' (s32 out)::
   Accumulated counts from the jog wheel (the inner wheel).
 '<Prefix>.spring-wheel-s32' (s32 out)::
