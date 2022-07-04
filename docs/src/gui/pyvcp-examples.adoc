@@ -199,7 +199,7 @@ net my-jogspeed halui.axis.jog-speed <= pyvcp.jog-speed-f
 
 After resetting the E-Stop and putting it into jog mode and moving the
 jog speed slider in the PyVCP panel to a value greater than zero the
-PyVCP jog buttons should work. You can not jog when running a g code
+PyVCP jog buttons should work. You can not jog when running a G-code
 file or while paused or while the MDI tab is selected.
 
 == Port Tester

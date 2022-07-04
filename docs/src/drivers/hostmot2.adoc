@@ -225,7 +225,7 @@ The above configuration produced this printout.
 
 [NOTE]
 That the I/O Pin nnn will correspond to the pin number shown on
-the HAL Configuration screen for GPIOs. Some of the Stepgen, Encoder
+the HAL Configuration screen for GPIOs. Some of the StepGen, Encoder
 and PWMGen will also show up as GPIOs in the HAL Configuration screen.
 
 == PIN Files
@@ -465,7 +465,7 @@ GPIO pins default to input.
 
 == StepGen
 
-Stepgens have names like 'hm2_<BoardType>.<BoardNum>.stepgen.<Instance>.'.
+StepGens have names like 'hm2_<BoardType>.<BoardNum>.stepgen.<Instance>'.
 'Instance' is a two-digit number that corresponds to the HostMot2 stepgen
 instance number.
 There are 'num_stepgens' instances, starting with 00.
@@ -475,13 +475,13 @@ time), but currently only uses two: Step and Direction outputs.
 footnote:[At present, the firmware supports multi-phase stepper outputs,
 but the driver doesn't. Interested volunteers are solicited.]
 
-The stepgen representation is modeled on the stepgen software
-component. Stepgen default is active high step output (high during step
+The StepGen representation is modeled on the stepgen software
+component. StepGen default is active high step output (high during step
 time low during step space). To invert a StepGen output pin you invert
 the corresponding GPIO pin that is being used by StepGen. To find the
 GPIO pin being used for the StepGen output run 'dmesg' as shown above.
 
-Each stepgen instance has the following pins and parameters:
+Each StepGen instance has the following pins and parameters:
 
 === Pins
 
@@ -564,7 +564,7 @@ output run 'dmesg' as described above.
 == PWMGen
 
 PWMgens have names like
-'hm2_<BoardType>.<BoardNum>.pwmgen.<Instance>.'. 'Instance' is a
+'hm2_<BoardType>.<BoardNum>.pwmgen.<Instance>'. 'Instance' is a
 two-digit number that corresponds to the HostMot2 pwmgen instance
 number. There are 'num_pwmgens' instances, starting with 00.
 

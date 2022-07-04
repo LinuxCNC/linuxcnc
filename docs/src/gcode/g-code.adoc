@@ -142,7 +142,7 @@ rapid rate (or slower). 'G0' is typically used as a positioning move.
 
 === Rapid Velocity Rate
 
-The MAX_VELOCITY setting in the ini file [TRAJ] section defines the
+The MAX_VELOCITY setting in the INI file [TRAJ] section defines the
 maximumrapid traverse rate. The maximum rapid traverse rate can be
 higher than the individual axes MAX_VELOCITY setting during a
 coordinated move. The maximum rapid traverse rate can be slower than the
@@ -964,7 +964,7 @@ It is a good idea to include a plane selection in the preamble
 of each G-code file.
 
 The effects of having a plane selected are discussed in Section
-<<gcode:g2-g3,G2 G3 Arcs>> and Section <<gcode:g80-g89,G81 G89>>
+<<gcode:g2-g3,G2 G3 Arcs>> and Section <<gcode:g80-g89,G81 G89>>.
 
 [[gcode:g20-g21]]
 == G20, G21 Units(((G20 Units)))
@@ -985,7 +985,7 @@ desired G28 position has been stored with G28.1.
 G28 uses the values stored in <<sub:numbered-parameters,parameters>>
 5161-5169 as the X Y Z A B C U V W final point to move to. The parameter
 values are 'absolute' machine coordinates in the native machine 'units'
-as specified in the ini file. All axes defined in the ini file will be
+as specified in the INI file. All axes defined in the INI file will be
 moved when a G28 is issued. If no positions are stored with G28.1 then
 all axes will go to the <<sec:machine-coordinate-system,machine origin>>.
 
@@ -1019,14 +1019,14 @@ desired G30 position has been stored with G30.1.
 G30 functions the same as G28 but uses the values stored in
 <<sub:numbered-parameters,parameters>> 5181-5189 as the X Y Z A B C U V
 W final point to move to. The parameter values are 'absolute' machine
-coordinates in the native machine 'units' as specified in the ini file.
-All axes defined in the ini file will be moved when a G30 is issued. If
+coordinates in the native machine 'units' as specified in the INI file.
+All axes defined in the INI file will be moved when a G30 is issued. If
 no positions are stored with G30.1 then all axes will go to the
 <<sec:machine-coordinate-system,machine origin>>.
 
 [NOTE]
 G30 parameters will be used to move the tool when a M6 is programmed
-if TOOL_CHANGE_AT_G30=1 is in the [EMCIO] section of the ini file.
+if TOOL_CHANGE_AT_G30=1 is in the [EMCIO] section of the INI file.
 
 * 'G30' - makes a <<gcode:g0,rapid move>> from the current
   position to the 'absolute' position of the values in parameters
@@ -2576,8 +2576,8 @@ becomes the specified value. All of the coordinate system's origins
 'G92' uses the values stored in <<sub:numbered-parameters,parameters>>
 5211-5219 as the X Y Z A B C U V W offset values for each axis.
 The parameter values are 'absolute' machine coordinates
-in the native machine 'units' as specified in the ini file.
-All axes defined in the ini file will be offset when G92 is active.
+in the native machine 'units' as specified in the INI file.
+All axes defined in the INI file will be offset when G92 is active.
 If an axis was not entered following the G92, that axis' offset
 will be zero.
 

@@ -31,14 +31,14 @@ component vfs11_vfd, named spindle-vfd
 
 == Command Line Options
 
-'vfs11_vfd' is mostly configured through inifile options. The command
+'vfs11_vfd' is mostly configured through INI file options. The command
 line options are:
 
 * '-n or --name <halname>' : set the HAL component name
-* '-I or --ini <inifilename>' : take configuration from this ini file.
+* '-I or --ini <inifilename>' : take configuration from this INI file.
   Defaults to environment variable INI_FILE_NAME.
 * '-S or --section <section name>' : take configuration from this
-  section in the ini file. Defaults to 'VFS11'.
+  section in the INI file. Defaults to 'VFS11'.
 * '-d or --debug' enable debug messages on console output.
 * '-m or --modbus-debug' enable modbus messages on console output
 * '-r or --report-device' report device properties on console at startup
@@ -81,7 +81,7 @@ option.
   put the VFD into emergency-stopped status. No operation possible until
   cleared with err-reset or powercycling.
 * '<n>.frequency-command' (float, out)
-  current target frequency in HZ as set through speed-command (which is
+  current target frequency in Hz as set through speed-command (which is
   in RPM), from the VFD
 * '<n>.frequency-out' (float, out)
   current output frequency of the VFD
@@ -222,7 +222,7 @@ TARGET=1
 # for RECONNECT_DELAY seconds
 RECONNECT_DELAY=1
 
-# misc flags
+# misc. parameters
 DEBUG=10
 MODBUS_DEBUG=0
 POLLCYCLES=10
@@ -338,7 +338,7 @@ The Ubuntu +libmodbus5+ and +libmodbus-dev+ packages are
 only available starting from Ubuntu 12 ('Precise Pengolin'). Moreover,
 these packages lack support for the MODBUS_RTS_MODE_*
 flags. Therefore, building vfs11_vfd using this library might generate
-a warning if RTS_MODE= is specified in the ini file.
+a warning if RTS_MODE= is specified in the INI file.
 
 To use the full functionality on lucid and precise:
 
@@ -348,7 +348,7 @@ To use the full functionality on lucid and precise:
   https://github.com/stephane/libmodbus/blob/master/README.rst[here].
 
 Libmodbus does not build on Ubuntu Hardy, hence vfs11_vfd is not
-available on hardy.
+available on Hardy.
 
 // Michael Haberler; loosely based on gs2_vfd by Steve Padnos and John Thornton.
 
