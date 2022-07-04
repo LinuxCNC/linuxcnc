@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-1.226
+1.227
 
 .I SUMMARY:
 .br
@@ -165,6 +165,7 @@ pin out float   offset_scale                "offset scale, connect to axis.<x y 
 pin out bit     ohmic_enable                "on only while probing";
 pin out bit     ohmic_sense_out             "ohmic sense output state";
 pin out bit     paused_motion               "paused motion flag, true when paused motion is active";
+pin out float   paused_time                 "paused time during current job";
 pin out s32     pierce_count                "number of pierce attempts (torch starts)";
 pin out bit     probe_test_error            "minimum limit reached while probe testing";
 pin out float   probe_time                  "probe time of current job";
@@ -797,6 +798,8 @@ FUNCTION(_) {
         statistics_reset = FALSE;
     }else if(program_is_paused){
         program_pause = FALSE;
+        paused_time += fperiod;
+        run_time += fperiod;
     }else if(program_is_running){
         program_run = FALSE;
         program_resume = FALSE;
@@ -808,6 +811,7 @@ FUNCTION(_) {
         if(!statistics_reset){
             cut_length = 0;
             cut_time = 0;
+            paused_time = 0;
             pierce_count = 0;
             probe_time = 0;
             rapid_time = 0;

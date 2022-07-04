@@ -71,7 +71,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="ScreenOptions" name="screen_options">
+     <widget class="ScreenOptions" name="screen_options" native="true">
       <property name="notify_option" stdset="0">
        <bool>true</bool>
       </property>
@@ -609,7 +609,7 @@
                             <number>0</number>
                            </property>
                            <item>
-                            <widget class="MDIHistory" name="mdihistory">
+                            <widget class="MDIHistory" name="mdihistory" native="true">
                              <property name="soft_keyboard_option" stdset="0">
                               <bool>false</bool>
                              </property>
@@ -4089,7 +4089,7 @@ HOME</string>
                          </widget>
                         </item>
                         <item>
-                         <widget class="GCodeGraphics" name="gcodegraphics">
+                         <widget class="GCodeGraphics" name="gcodegraphics" native="true">
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                             <horstretch>0</horstretch>
@@ -4207,7 +4207,7 @@ HOME</string>
                       </widget>
                      </item>
                      <item>
-                      <widget class="FileManager" name="filemanager">
+                      <widget class="FileManager" name="filemanager" native="true">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                          <horstretch>0</horstretch>
@@ -4439,7 +4439,7 @@ HOME</string>
                       </widget>
                      </item>
                      <item>
-                      <widget class="GcodeEditor" name="gcode_editor">
+                      <widget class="GcodeEditor" name="gcode_editor" native="true">
                        <property name="auto_show_mdi_status" stdset="0">
                         <bool>false</bool>
                        </property>
@@ -4779,7 +4779,7 @@ EDGE</string>
                          </widget>
                         </item>
                         <item>
-                         <widget class="CamView" name="camview"/>
+                         <widget class="CamView" name="camview" native="true"/>
                         </item>
                        </layout>
                       </widget>
@@ -6237,7 +6237,7 @@ MOVE</string>
                            </widget>
                           </item>
                           <item row="1" column="0">
-                           <widget class="LED" name="led_thc_enabled">
+                           <widget class="LED" name="led_thc_enabled" native="true">
                             <property name="minimumSize">
                              <size>
                               <width>0</width>
@@ -6250,7 +6250,7 @@ MOVE</string>
                               <height>16777215</height>
                              </size>
                             </property>
-                            <property name="color">
+                            <property name="color" stdset="0">
                              <color>
                               <red>252</red>
                               <green>233</green>
@@ -6267,7 +6267,7 @@ MOVE</string>
                            </widget>
                           </item>
                           <item row="3" column="0">
-                           <widget class="LED" name="led_thc_up">
+                           <widget class="LED" name="led_thc_up" native="true">
                             <property name="minimumSize">
                              <size>
                               <width>0</width>
@@ -6280,7 +6280,7 @@ MOVE</string>
                               <height>16777215</height>
                              </size>
                             </property>
-                            <property name="color">
+                            <property name="color" stdset="0">
                              <color>
                               <red>252</red>
                               <green>233</green>
@@ -6290,7 +6290,7 @@ MOVE</string>
                            </widget>
                           </item>
                           <item row="4" column="0">
-                           <widget class="LED" name="led_thc_down">
+                           <widget class="LED" name="led_thc_down" native="true">
                             <property name="minimumSize">
                              <size>
                               <width>0</width>
@@ -6303,7 +6303,7 @@ MOVE</string>
                               <height>16777215</height>
                              </size>
                             </property>
-                            <property name="color">
+                            <property name="color" stdset="0">
                              <color>
                               <red>252</red>
                               <green>233</green>
@@ -6379,7 +6379,7 @@ MOVE</string>
                            </widget>
                           </item>
                           <item row="2" column="0">
-                           <widget class="LED" name="led_thc_active">
+                           <widget class="LED" name="led_thc_active" native="true">
                             <property name="minimumSize">
                              <size>
                               <width>0</width>
@@ -6392,7 +6392,7 @@ MOVE</string>
                               <height>16777215</height>
                              </size>
                             </property>
-                            <property name="color">
+                            <property name="color" stdset="0">
                              <color>
                               <red>252</red>
                               <green>233</green>
@@ -6528,7 +6528,7 @@ MOVE</string>
                            <number>3</number>
                           </property>
                           <item row="0" column="0">
-                           <widget class="LED" name="led_float_switch">
+                           <widget class="LED" name="led_float_switch" native="true">
                             <property name="minimumSize">
                              <size>
                               <width>0</width>
@@ -6541,7 +6541,7 @@ MOVE</string>
                               <height>16777215</height>
                              </size>
                             </property>
-                            <property name="color">
+                            <property name="color" stdset="0">
                              <color>
                               <red>252</red>
                               <green>233</green>
@@ -6573,7 +6573,7 @@ MOVE</string>
                            </widget>
                           </item>
                           <item row="1" column="0">
-                           <widget class="LED" name="led_ohmic_probe">
+                           <widget class="LED" name="led_ohmic_probe" native="true">
                             <property name="minimumSize">
                              <size>
                               <width>0</width>
@@ -6586,7 +6586,7 @@ MOVE</string>
                               <height>16777215</height>
                              </size>
                             </property>
-                            <property name="color">
+                            <property name="color" stdset="0">
                              <color>
                               <red>252</red>
                               <green>233</green>
@@ -6618,7 +6618,7 @@ MOVE</string>
                            </widget>
                           </item>
                           <item row="2" column="0">
-                           <widget class="LED" name="led_breakaway_switch">
+                           <widget class="LED" name="led_breakaway_switch" native="true">
                             <property name="minimumSize">
                              <size>
                               <width>0</width>
@@ -6631,7 +6631,7 @@ MOVE</string>
                               <height>16777215</height>
                              </size>
                             </property>
-                            <property name="color">
+                            <property name="color" stdset="0">
                              <color>
                               <red>252</red>
                               <green>233</green>
@@ -6925,7 +6925,7 @@ MOVE</string>
                               </widget>
                              </item>
                              <item>
-                              <widget class="LED" name="led_arc_ok">
+                              <widget class="LED" name="led_arc_ok" native="true">
                                <property name="minimumSize">
                                 <size>
                                  <width>0</width>
@@ -6938,7 +6938,7 @@ MOVE</string>
                                  <height>16777215</height>
                                 </size>
                                </property>
-                               <property name="color">
+                               <property name="color" stdset="0">
                                 <color>
                                  <red>252</red>
                                  <green>233</green>
@@ -7490,7 +7490,7 @@ MOVE</string>
                            <number>0</number>
                           </property>
                           <item>
-                           <widget class="LED" name="led_torch_on">
+                           <widget class="LED" name="led_torch_on" native="true">
                             <property name="minimumSize">
                              <size>
                               <width>0</width>
@@ -7503,7 +7503,7 @@ MOVE</string>
                               <height>16777215</height>
                              </size>
                             </property>
-                            <property name="color">
+                            <property name="color" stdset="0">
                              <color>
                               <red>252</red>
                               <green>233</green>
@@ -7631,7 +7631,7 @@ MOVE</string>
                            <number>0</number>
                           </property>
                           <item>
-                           <widget class="LED" name="led_corner_lock">
+                           <widget class="LED" name="led_corner_lock" native="true">
                             <property name="minimumSize">
                              <size>
                               <width>0</width>
@@ -7644,7 +7644,7 @@ MOVE</string>
                               <height>16777215</height>
                              </size>
                             </property>
-                            <property name="color">
+                            <property name="color" stdset="0">
                              <color>
                               <red>252</red>
                               <green>233</green>
@@ -7772,7 +7772,7 @@ MOVE</string>
                            <number>0</number>
                           </property>
                           <item>
-                           <widget class="LED" name="led_kerf_lock">
+                           <widget class="LED" name="led_kerf_lock" native="true">
                             <property name="minimumSize">
                              <size>
                               <width>0</width>
@@ -7785,7 +7785,7 @@ MOVE</string>
                               <height>16777215</height>
                              </size>
                             </property>
-                            <property name="color">
+                            <property name="color" stdset="0">
                              <color>
                               <red>252</red>
                               <green>233</green>
@@ -8851,7 +8851,7 @@ MOVE</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="GCodeGraphics" name="conv_preview"/>
+                        <widget class="GCodeGraphics" name="conv_preview" native="true"/>
                        </item>
                       </layout>
                      </widget>
@@ -14528,9 +14528,73 @@ CONFIG</string>
                  <property name="verticalSpacing">
                   <number>16</number>
                  </property>
-                 <item row="8" column="3">
+                 <item row="5" column="3">
                   <widget class="QLabel" name="probe_time_t">
                    <property name="text">
+                    <string>0:00:00</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="7" column="3">
+                  <widget class="QLabel" name="cut_time_t">
+                   <property name="text">
+                    <string>0:00:00</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="7" column="0">
+                  <widget class="QPushButton" name="cut_time_reset">
+                   <property name="text">
+                    <string>RESET</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="2">
+                  <widget class="QLabel" name="probe_time">
+                   <property name="text">
+                    <string>0:00:00</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="1">
+                  <widget class="QLabel" name="label_34">
+                   <property name="text">
+                    <string>RAPID TIME</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="0">
+                  <widget class="QPushButton" name="probe_time_reset">
+                   <property name="text">
+                    <string>RESET</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="2">
+                  <widget class="QLabel" name="rapid_time">
+                   <property name="text">
+                    <string>0:00:00</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="2">
+                  <widget class="QLabel" name="cut_length">
+                   <property name="text">
                     <string>0.00</string>
                    </property>
                    <property name="alignment">
@@ -14538,15 +14602,25 @@ CONFIG</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="10" column="0">
-                  <widget class="QPushButton" name="all_reset">
+                 <item row="4" column="0">
+                  <widget class="QPushButton" name="rapid_time_reset">
                    <property name="text">
-                    <string>RESET ALL</string>
+                    <string>RESET</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="5" column="3">
-                  <widget class="QLabel" name="torch_time_t">
+                 <item row="4" column="3">
+                  <widget class="QLabel" name="rapid_time_t">
+                   <property name="text">
+                    <string>0:00:00</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="3">
+                  <widget class="QLabel" name="cut_length_t">
                    <property name="text">
                     <string>0.00</string>
                    </property>
@@ -14555,57 +14629,34 @@ CONFIG</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="6" column="0">
+                 <item row="9" column="1">
+                  <widget class="QLabel" name="label_32">
+                   <property name="text">
+                    <string>TOTAL RUN TIME</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="0">
+                  <widget class="QPushButton" name="pierce_reset">
+                   <property name="text">
+                    <string>RESET</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="9" column="0">
                   <widget class="QPushButton" name="run_time_reset">
                    <property name="text">
                     <string>RESET</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="6" column="1">
-                  <widget class="QLabel" name="label_32">
-                   <property name="text">
-                    <string>PROGRAM RUN TIME</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="6" column="2">
-                  <widget class="QLabel" name="run_time">
-                   <property name="text">
-                    <string>0.00</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="6" column="3">
-                  <widget class="QLabel" name="run_time_t">
-                   <property name="text">
-                    <string>0.00</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
                  <item row="3" column="1">
-                  <widget class="QLabel" name="cut_length_label">
+                  <widget class="QLabel" name="label_28">
                    <property name="text">
-                    <string>CUT LENGTH</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="3" column="2">
-                  <widget class="QLabel" name="cut_length">
-                   <property name="text">
-                    <string>0.00</string>
+                    <string>TORCH STARTS</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -14635,93 +14686,16 @@ CONFIG</string>
                   </widget>
                  </item>
                  <item row="2" column="0">
-                  <widget class="QPushButton" name="pierce_reset">
-                   <property name="text">
-                    <string>RESET</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="2" column="1">
-                  <widget class="QLabel" name="label_28">
-                   <property name="text">
-                    <string>PIERCE COUNT</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="2" column="2">
-                  <widget class="QLabel" name="pierce_count">
-                   <property name="text">
-                    <string>0.00</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="3" column="3">
-                  <widget class="QLabel" name="cut_length_t">
-                   <property name="text">
-                    <string>0.00</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="4" column="0">
-                  <widget class="QPushButton" name="cut_time_reset">
-                   <property name="text">
-                    <string>RESET</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="4" column="1">
-                  <widget class="QLabel" name="label_30">
-                   <property name="text">
-                    <string>CUT TIME</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="4" column="2">
-                  <widget class="QLabel" name="cut_time">
-                   <property name="text">
-                    <string>0.00</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="5" column="2">
-                  <widget class="QLabel" name="torch_time">
-                   <property name="text">
-                    <string>0.00</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="2" column="3">
-                  <widget class="QLabel" name="pierce_count_t">
-                   <property name="text">
-                    <string>0.00</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="3" column="0">
                   <widget class="QPushButton" name="cut_length_reset">
                    <property name="text">
                     <string>RESET</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="13" column="0">
+                  <widget class="QPushButton" name="all_reset">
+                   <property name="text">
+                    <string>RESET ALL</string>
                    </property>
                   </widget>
                  </item>
@@ -14747,27 +14721,67 @@ CONFIG</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="4" column="3">
-                  <widget class="QLabel" name="cut_time_t">
+                 <item row="3" column="2">
+                  <widget class="QLabel" name="pierce_count">
                    <property name="text">
-                    <string>0.00</string>
+                    <string>0</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                    </property>
                   </widget>
                  </item>
-                 <item row="5" column="0">
-                  <widget class="QPushButton" name="torch_time_reset">
+                 <item row="9" column="3">
+                  <widget class="QLabel" name="run_time_t">
                    <property name="text">
-                    <string>RESET</string>
+                    <string>0:00:00</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                    </property>
                   </widget>
                  </item>
-                 <item row="5" column="1">
-                  <widget class="QLabel" name="label_31">
+                 <item row="12" column="0">
+                  <widget class="QLabel" name="label_27">
                    <property name="text">
-                    <string>TORCH ON TIME</string>
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="7" column="1">
+                  <widget class="QLabel" name="label_30">
+                   <property name="text">
+                    <string>CUTTING TIME</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="QLabel" name="cut_length_label">
+                   <property name="text">
+                    <string>CUT LENGTH</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="9" column="2">
+                  <widget class="QLabel" name="run_time">
+                   <property name="text">
+                    <string>0:00:00</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="3">
+                  <widget class="QLabel" name="pierce_count_t">
+                   <property name="text">
+                    <string>0</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -14796,51 +14810,7 @@ CONFIG</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="7" column="0">
-                  <widget class="QPushButton" name="rapid_time_reset">
-                   <property name="text">
-                    <string>RESET</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="7" column="1">
-                  <widget class="QLabel" name="label_34">
-                   <property name="text">
-                    <string>RAPID TIME</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="7" column="2">
-                  <widget class="QLabel" name="rapid_time">
-                   <property name="text">
-                    <string>0.00</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="7" column="3">
-                  <widget class="QLabel" name="rapid_time_t">
-                   <property name="text">
-                    <string>0.00</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="8" column="0">
-                  <widget class="QPushButton" name="probe_time_reset">
-                   <property name="text">
-                    <string>RESET</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="8" column="1">
+                 <item row="5" column="1">
                   <widget class="QLabel" name="label_35">
                    <property name="text">
                     <string>PROBE TIME</string>
@@ -14850,20 +14820,87 @@ CONFIG</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="8" column="2">
-                  <widget class="QLabel" name="probe_time">
+                 <item row="6" column="0">
+                  <widget class="QPushButton" name="torch_time_reset">
                    <property name="text">
-                    <string>0.00</string>
+                    <string>RESET</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="1">
+                  <widget class="QLabel" name="label_31">
+                   <property name="text">
+                    <string>TORCH ON TIME</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                    </property>
                   </widget>
                  </item>
-                 <item row="9" column="0">
-                  <widget class="QLabel" name="label_27">
+                 <item row="7" column="2">
+                  <widget class="QLabel" name="cut_time">
                    <property name="text">
-                    <string/>
+                    <string>0:00:00</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="2">
+                  <widget class="QLabel" name="torch_time">
+                   <property name="text">
+                    <string>0:00:00</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="3">
+                  <widget class="QLabel" name="torch_time_t">
+                   <property name="text">
+                    <string>0:00:00</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="8" column="0">
+                  <widget class="QPushButton" name="paused_time_reset">
+                   <property name="text">
+                    <string>RESET</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="8" column="1">
+                  <widget class="QLabel" name="label_51">
+                   <property name="text">
+                    <string>PAUSED TIME</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="8" column="2">
+                  <widget class="QLabel" name="paused_time">
+                   <property name="text">
+                    <string>0:00:00</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="8" column="3">
+                  <widget class="QLabel" name="paused_time_t">
+                   <property name="text">
+                    <string>0:00:00</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                    </property>
                   </widget>
                  </item>

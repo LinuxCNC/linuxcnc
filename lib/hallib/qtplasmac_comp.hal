@@ -16,6 +16,7 @@ net plasmac:feed-override        halui.feed-override.value   =>  plasmac.feed-ov
 net plasmac:feed-reduction       motion.analog-out-03        =>  plasmac.feed-reduction
 net plasmac:float-switch-out     db_float.out                =>  plasmac.float-switch
 net plasmac:feed-upm             motion.feed-upm             =>  plasmac.feed-upm
+net plasmac:homed                motion.is-all-homed         =>  plasmac.homed
 net plasmac:ignore-arc-ok-0      motion.digital-out-01       =>  plasmac.ignore-arc-ok-0
 net machine-is-on                halui.machine.is-on         =>  plasmac.machine-is-on
 net plasmac:motion-type          motion.motion-type          =>  plasmac.motion-type

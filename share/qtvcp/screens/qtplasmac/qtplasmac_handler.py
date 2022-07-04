@@ -1,4 +1,4 @@
-VERSION = '1.226.211'
+VERSION = '1.227.212'
 
 '''
 qtplasmac_handler.py
@@ -1499,7 +1499,6 @@ class HandlerClass:
             self.view_t_pressed()
 
     def joints_all_homed(self, obj):
-        hal.set_p('plasmac.homed', '1')
         self.interp_idle(None)
         if not self.firstHoming:
             ACTION.CALL_MDI_WAIT('T0 M6')
@@ -1531,7 +1530,6 @@ class HandlerClass:
             self.w.home_all.setEnabled(True)
         self.w.update
         STATUS.emit('dro-reference-change-request', 1)
-        hal.set_p('plasmac.homed', '0')
         self.interp_idle(None)
         self.w.gcodegraphics.updateGL()
         self.w.conv_preview.updateGL()
@@ -2509,13 +2507,14 @@ class HandlerClass:
         self.paramTabDisable.value_changed.connect(lambda v:self.param_tab_changed(v))
         self.convTabDisable.value_changed.connect(lambda v:self.conv_tab_changed(v))
         self.motionTypePin.value_changed.connect(lambda v:self.motion_type_changed(v))
-        self.w.cut_time_reset.pressed.connect(lambda:self.statistic_reset('Cut time'))
-        self.w.probe_time_reset.pressed.connect(lambda:self.statistic_reset('Probe time'))
-        self.w.run_time_reset.pressed.connect(lambda:self.statistic_reset('Program run time'))
-        self.w.torch_time_reset.pressed.connect(lambda:self.statistic_reset('Torch on time'))
-        self.w.rapid_time_reset.pressed.connect(lambda:self.statistic_reset('Rapid time'))
-        self.w.cut_length_reset.pressed.connect(lambda:self.statistic_reset('Cut length'))
-        self.w.pierce_reset.pressed.connect(lambda:self.statistic_reset('Pierce count'))
+        self.w.cut_time_reset.pressed.connect(lambda:self.statistic_reset('cut_time', 'Cut time'))
+        self.w.probe_time_reset.pressed.connect(lambda:self.statistic_reset('probe_time', 'Probe time'))
+        self.w.paused_time_reset.pressed.connect(lambda:self.statistic_reset('paused_time', 'Paused time'))
+        self.w.run_time_reset.pressed.connect(lambda:self.statistic_reset('run_time', 'Program run time'))
+        self.w.torch_time_reset.pressed.connect(lambda:self.statistic_reset('torch_time', 'Torch on time'))
+        self.w.rapid_time_reset.pressed.connect(lambda:self.statistic_reset('rapid_time', 'Rapid time'))
+        self.w.cut_length_reset.pressed.connect(lambda:self.statistic_reset('cut_length', 'Cut length'))
+        self.w.pierce_reset.pressed.connect(lambda:self.statistic_reset('pierce_count', 'Pierce count'))
         self.w.all_reset.pressed.connect(self.statistics_reset)
         self.extPowerPin.value_changed.connect(lambda v:self.power_button("external", v))
         self.extRunPin.value_changed.connect(lambda v:self.ext_run(v))
@@ -4803,7 +4802,7 @@ class HandlerClass:
 # STATISTICS FUNCTIONS #
 #########################################################################################################################
     def statistics_show(self):
-        for stat in ['cut', 'probe', 'run', 'torch', 'rapid']:
+        for stat in ['cut', 'paused', 'probe', 'run', 'torch', 'rapid']:
             self.display_hms('{}_time'.format(stat), hal.get_value('plasmac.{}-time'.format(stat)))
         self.w.cut_length.setText('{:0.2f}'.format(hal.get_value('plasmac.cut-length') / self.statsDivisor))
         self.w.pierce_count.setText('{:d}'.format(hal.get_value('plasmac.pierce-count')))
@@ -4811,6 +4810,7 @@ class HandlerClass:
 
     def statistics_save(self, reset=False):
         self.PREFS.putpref('Cut time', '{:0.2f}'.format(self.statsSaved['cut'] + hal.get_value('plasmac.cut-time')) , float,'STATISTICS')
+        self.PREFS.putpref('Paused time', '{:0.2f}'.format(self.statsSaved['paused'] + hal.get_value('plasmac.paused-time')) , float,'STATISTICS')
         self.PREFS.putpref('Probe time', '{:0.2f}'.format(self.statsSaved['probe'] + hal.get_value('plasmac.probe-time')) , float,'STATISTICS')
         self.PREFS.putpref('Program run time', '{:0.2f}'.format(self.statsSaved['run'] + hal.get_value('plasmac.run-time')) , float,'STATISTICS')
         self.PREFS.putpref('Torch on time', '{:0.2f}'.format(self.statsSaved['torch'] + hal.get_value('plasmac.torch-time')) , float,'STATISTICS')
@@ -4822,13 +4822,14 @@ class HandlerClass:
 
     def statistics_load(self):
         self.statsSaved['cut'] = self.PREFS.getpref('Cut time', 0 , float,'STATISTICS')
+        self.statsSaved['paused'] = self.PREFS.getpref('Paused time', 0 , float,'STATISTICS')
         self.statsSaved['probe'] = self.PREFS.getpref('Probe time', 0 , float,'STATISTICS')
         self.statsSaved['run'] = self.PREFS.getpref('Program run time', 0 , float,'STATISTICS')
         self.statsSaved['torch'] = self.PREFS.getpref('Torch on time', 0 , float,'STATISTICS')
         self.statsSaved['rapid'] = self.PREFS.getpref('Rapid time', 0 , float,'STATISTICS')
         self.statsSaved['length'] = self.PREFS.getpref('Cut length', 0 , float,'STATISTICS')
         self.statsSaved['pierce'] = self.PREFS.getpref('Pierce count', 0 , int,'STATISTICS')
-        for stat in ['cut', 'probe', 'run', 'torch', 'rapid']:
+        for stat in ['cut', 'paused', 'probe', 'run', 'torch', 'rapid']:
             self.display_hms('{}_time_t'.format(stat), self.statsSaved['{}'.format(stat)])
         self.w.cut_length_t.setText('{:0.2f}'.format(self.statsSaved['length'] / self.statsDivisor))
         self.w.pierce_count_t.setText('{:d}'.format(self.statsSaved['pierce']))
@@ -4838,14 +4839,25 @@ class HandlerClass:
         h, m = divmod(m, 60)
         self.w[widget].setText('{:.0f}:{:02.0f}:{:02.0f}'.format(h,m,s))
 
-    def statistic_reset(self, stat):
-        self.PREFS.putpref(stat, 0 , float,'STATISTICS')
+    def statistic_reset(self, stat, statT):
+        if stat in ['cut_time', 'paused_time', 'probe_time', 'run_time', 'torch_time', 'rapid_time']:
+            self.display_hms('{}'.format(stat), 0)
+        elif stat == 'cut_length':
+            self.w.cut_length.setText('0.00')
+        elif stat == 'pierce_count':
+            self.w.pierce_count.setText('0')
+        self.PREFS.putpref(statT, 0 , float,'STATISTICS')
         self.statistics_load()
 
     def statistics_reset(self):
-        for stat in ['Cut time', 'Probe time', 'Program run time', 'Torch on time', \
-                     'Rapid time', 'Cut length', 'Pierce count']:
+        for stat in ['cut', 'paused', 'probe', 'run', 'torch', 'rapid']:
+            self.display_hms('{}_time'.format(stat), 0)
+        self.w.cut_length.setText('0.00')
+        self.w.pierce_count.setText('0')
+        for stat in ['Cut time', 'Paused time', 'Probe time', 'Program run time', 'Torch on time', \
+                     'Rapid time', 'Cut length']:
             self.PREFS.putpref(stat, 0 , float,'STATISTICS')
+        self.PREFS.putpref('Pierce count', 0 , int ,'STATISTICS')
         self.statistics_load()
 
     def statistics_init(self):
@@ -4857,7 +4869,7 @@ class HandlerClass:
             unit = _translate('HandlerClass', 'Inches')
         msg0 = _translate('HandlerClass', 'CUT LENGTH')
         self.w.cut_length_label.setText('{} ({})'.format(msg0, unit))
-        self.statsSaved = {'cut':0, 'length':0, 'pierce':0, 'probe':0, 'rapid':0, 'run':0, 'torch':0}
+        self.statsSaved = {'cut':0, 'length':0, 'pierce':0, 'paused':0, 'probe':0, 'rapid':0, 'run':0, 'torch':0}
         self.jobRunning = False
         self.statistics_load()
 

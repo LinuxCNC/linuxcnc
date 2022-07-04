@@ -15,6 +15,7 @@ net plasmac:cutting-start       spindle.0.on                =>  plasmac.cutting-
 net plasmac:feed-override       halui.feed-override.value   =>  plasmac.feed-override
 net plasmac:feed-reduction      motion.analog-out-03        =>  plasmac.feed-reduction
 net plasmac:feed-upm            motion.feed-upm             =>  plasmac.feed-upm
+net plasmac:homed               motion.is-all-homed         =>  plasmac.homed
 net plasmac:ignore-arc-ok-0     motion.digital-out-01       =>  plasmac.ignore-arc-ok-0
 net plasmac:motion-type         motion.motion-type          =>  plasmac.motion-type
 net plasmac:offsets-active      motion.eoffset-active       =>  plasmac.offsets-active
