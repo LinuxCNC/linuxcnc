@@ -89,7 +89,7 @@ gm.0.gpio.0.in-0
 ----
 
 indicates the state of the first pin of the first GPIO
-connector on the GM6-PCI card. Hal pins are updated by function
+connector on the GM6-PCI card. HAL pins are updated by function
 
 ----
 gm.<nr of card>.read
@@ -180,7 +180,7 @@ gm.0.encoder.0.position
 refers to the position of encoder module of axis 0.
 
 The GM6-PCI card counts the encoder signal independently from LinuxCNC.
-Hal pins are updated by function:
+HAL pins are updated by function:
 
 ----
 gm.<nr of card>.read
@@ -197,7 +197,7 @@ gm.<nr of card>.read
 | .index-enabled     | (bit, IO)          | When True, counts and position are rounded or reset
                                             (depends on index-mode) on next rising edge of channel-I.
                                             Every time position is reset because of Index, index-enabled
-                                            pin is set to 0 and remain 0 until connected hal pin does
+                                            pin is set to 0 and remain 0 until connected HAL pin does
                                             not set it.
 | .velocity          | (float, Out)       | Velocity in scaled units per second. GM encoder uses high
                                             frequency hardware timer to measure time between encoder
@@ -262,14 +262,14 @@ Connect encoder position to LinuxCNC position feedback:
 net Xpos-fb gm.0.encoder.0.position => joint.0.motor-pos-fb
 ----
 
-=== Stepgen module
+=== StepGen module
 
-The GM6-PCI motion control card has six stepgen modules, one for each joint.
+The GM6-PCI motion control card has six StepGen modules, one for each joint.
 Each module has two output signals. It can produce Step/Direction,
-Up/Down or Quadrature (A/B) pulses. Each stepgen module is connected
+Up/Down or Quadrature (A/B) pulses. Each StepGen module is connected
 to the pins of the corresponding RJ50 axis connector.
 
-Every stepgen pin and parameter name begins as follows:
+Every StepGen pin and parameter name begins as follows:
 
 ----
 gm.<nr of card>.stepgen.<nr of axis>
@@ -281,10 +281,10 @@ where nr of axis is from 0 to 5. For example:
 gm.0.stepgen.0.position-cmd
 ----
 
-refers to the position command of stepgen module of axis 0 on card 0.
+refers to the position command of StepGen module of axis 0 on card 0.
 
 The GM6-PCI card generates step pulses independently from LinuxCNC.
-Hal pins are updated by function
+HAL pins are updated by function
 
 ----
 gm.<nr of card>.write
@@ -309,10 +309,10 @@ gm.<nr of card>.write
 | Parameters         | Type and Read/Write | Parameter description
 | .step-type         | (u32, R/W)          | When 0, module produces Step/Dir signal. When 1, it
                                              produces Up/Down step signals. And when it is 2, it
-											 produces quadrature output signals.
+                                             produces quadrature output signals.
 | .control-type      | (bit, R/W)          | When True, .velocity-cmd is used as reference and velocity
                                              control calculate pulse rate output. When False, .position-cmd
-											 is used as reference and position control calculate pulse rate output.
+                                             is used as reference and position control calculate pulse rate output.
 | .invert-step1      | (bit, R/W)          | Invert the output of channel 1 (Step signal in StepDir mode)
 | .invert-step2      | (bit, R/W)          | Invert the output of channel 2 (Dir signal in StepDir mode)
 | .maxvel            | (float, R/W)        | Maximum velocity in position units per second. If it is set to 0.0,
@@ -332,7 +332,7 @@ image::images/GM_RefSignals.png["Reference signal timing diagrams",align="center
 
 .HAL example
 
-Setting stepgen module of axis 0 to generate 1000 step pulse per position unit:
+Setting StepGen module of axis 0 to generate 1000 step pulse per position unit:
 
 ----
 setp gm.0.stepgen.0.step-type 0         # 0:stepDir, 1:UpDown, 2:Quad
@@ -349,7 +349,7 @@ setp gm.0.stepgen.0.stepspace1000       # 1000 ns = 1 us
 setp gm.0.stepgen.0.dirdelay 2000       # 2000 ns = 2 us
 ----
 
-Connect stepgen to axis 0 position reference and enable pins:
+Connect StepGen to axis 0 position reference and enable pins:
 
 ----
 net Xpos-cmd joint.0.motor-pos-cmd => gm.0.stepgen.0.position-cmd
@@ -362,7 +362,7 @@ The GM6-PCI motion control card has one enable output and one fault
 input HAL pins, both are connected to each RJ50 axis connector
 and to the CAN connector.
 
-Hal pins are updated by function:
+HAL pins are updated by function:
 
 ----
 gm.<nr of card>.read
@@ -400,7 +400,7 @@ gm.0.dac.0.value
 ----
 
 refers to the output voltage of DAC module of axis 0.
-Hal pins are updated by function:
+HAL pins are updated by function:
 
 ----
 gm.<nr of card>.write
@@ -469,7 +469,7 @@ gm.0.can-gm.0.position
 
 refers to the output position of axis 0 in position units.
 
-Hal pins are updated by function:
+HAL pins are updated by function:
 
 ----
 gm.<nr of card>.write
@@ -566,7 +566,7 @@ gm.0.joint.0.home-sw-in
 
 indicates the state of the axis 0 home switch.
 
-Hal pins are updated by function:
+HAL pins are updated by function:
 
 ----
 gm.<nr of card>.read
