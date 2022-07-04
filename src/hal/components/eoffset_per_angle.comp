@@ -27,9 +27,9 @@ One of the four built-in functions is specified by the \\fBfnum\\fR pin:
   \\fB3\\fR: f3 square wave
 
 Unsupported \\fBfnum\\fR values default to use function f0.
+""";
 
-\\fBNOTES:\\fR
-
+notes """
 \\fBradius-ref\\fR:
 The computed offsets are based on the \\fBradius-ref\\fR pin
 value.  This pin may be set to a constant radius value or
@@ -43,15 +43,15 @@ and velocity limits.  The allocations for coordinate \\fBL\\fR
 are typically controlled by an ini file setting:
 \\fB[AXIS_L]OFFSET_AV_RATIO\\fR.
 
-\\fBNOTES\\fR:
 If unsupported parameters are supplied to a function (for instance
 a polygon with fewer than three sides), the current offset
 will be returned to zero (respecting velocity and acceleration
 constraints).  After correcting the offending parameter, the
 \\fBenable-in\\fR pin must be toggled to resume offset
 computations.
+""";
 
-\\fBEXAMPLE:\\fR
+examples """
 An example simulation configuration is provided at:
 \\fBconfigs/sim/axis/external_offsets/opa.ini\\fR.  A
 simulated XZC machine uses the \\fBC\\fR coordinate angle to

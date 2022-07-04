@@ -125,6 +125,7 @@ Declarations include:
 * 'option OPT (VALUE);'
 * 'variable CTYPE STARREDNAME ([SIZE]);'
 * 'description DOC;'
+* 'examples DOC;'
 * 'notes DOC;'
 * 'see_also DOC;'
 * 'license LICENSE;'

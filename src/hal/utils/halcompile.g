@@ -47,6 +47,7 @@ parser Hal:
       | "see_also" String ";"   {{ see_also(String) }}
       | "notes" String ";"   {{ notes(String) }}
       | "description" String ";"   {{ description(String) }}
+      | "examples" String ";"   {{ examples(String) }}
       | "license" String ";"   {{ license(String) }}
       | "author" String ";"   {{ author(String) }}
       | "include" Header ";"   {{ include(Header) }}
@@ -177,6 +178,9 @@ def comp(name, doc):
 
 def description(doc):
     docs.append(('descr', doc));
+
+def examples(doc):
+    docs.append(('examples', doc));
 
 def license(doc):
     docs.append(('license', doc));
@@ -1016,6 +1020,11 @@ def document(filename, outfilename):
                 lead = ".TP"
             else:
                 lead = ".br\n.ns\n.TP"
+
+    doc = finddoc('examples')
+    if doc and doc[1]:
+        print(".SH EXAMPLES\n", file=f)
+        print("%s" % doc[1], file=f)
 
     doc = finddoc('see_also')    
     if doc and doc[1]:
