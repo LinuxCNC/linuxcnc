@@ -586,7 +586,7 @@ def tool_probe_m6(self, **words):
         yield INTERP_EXECUTE_FINISH
 
         # record current position; probably should record every axis
-        self.params[4990] = emccanon.GET_EXTERNAL_POSITION_X()
+        self.params[4999] = emccanon.GET_EXTERNAL_POSITION_X()
         self.params[4998] = emccanon.GET_EXTERNAL_POSITION_Y()
         self.params[4997] = emccanon.GET_EXTERNAL_POSITION_Z()
 
