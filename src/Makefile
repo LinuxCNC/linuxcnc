@@ -1,3 +1,31 @@
+# Some useful targets:
+#
+#     default (if no make target is specified): Build the software and
+#         the docs (if enabled via configure).
+#
+#     build-software: Build all the realtime and non-realtime software
+#         libraries & executables.
+#
+#     docs: Build all the documentation that's enabled through configure.
+#
+#
+#     install: Install everything (realtime software, non-realtime
+#         software, and docs).
+#
+#     install-software: Install all architecture-specific things (realtime
+#         and non-realtime libraries and executables).
+#
+#     install-docs: Install all enabled documentation into $(DESTDIR).
+#
+
+
+default: build-software
+
+install: install-software install-docs
+
+install-software: install-kernel-dep install-kernel-indep install-menu
+
+
 # buster gcc (Debian 8.3.0-6) emits many warnings
 # use at your own risk
 ifeq ($(origin SUPPRESS_WARNINGS), undefined)
@@ -32,7 +60,7 @@ endif
 
 # Delete the default suffix rules
 .SUFFIXES:
-.PHONY: default userspace modules clean modclean depclean install python pythonclean cscope cscopeclean
+.PHONY: default build-software userspace modules clean modclean depclean install install-software install-docs python pythonclean cscope cscopeclean
 
 # A "trivial build" is one which should not include dependency information
 # either because it should be usable before dependency information can be
@@ -113,7 +141,7 @@ cxx-option = $(shell if $(CXX) $(CXXFLAGS) $(1) -S -o /dev/null -xc++ /dev/null 
 ifeq ($(origin KERNELRELEASE),undefined)
 # When KERNELRELEASE is not defined, this is the userspace build.
 # The "modules" target is the gateway to the kernel module build.
-default: userspace modules
+build-software: userspace modules
 ifeq ($(RUN_IN_PLACE),yes)
 ifneq ($(BUILD_SYS),uspace)
 	@if [ -f ../bin/linuxcnc_module_helper ]; then if ! [ `id -u` = 0 -a -O ../bin/linuxcnc_module_helper -a -u ../bin/linuxcnc_module_helper ]; then $(VECHO) "You now need to run 'sudo make setuid' in order to run in place."; fi; fi
@@ -312,7 +340,7 @@ INFILES = \
 $(INFILES): %: %.in config.status
 	@./config.status --file=$@
 
-default: $(INFILES)
+build-software: $(INFILES)
 
 # For each file to be copied to ../include, its location in the source tree
 # is listed here.  Note that due to $(INCLUDE), defined above, the include
@@ -611,7 +639,7 @@ You configured run-in-place, but are trying to install.
 For an installable version, run configure without --enable-run-in-place
 and rebuild
 endef
-install:
+install install-software install-docs:
 	$(error $(ERROR_MESSAGE))
 
 MENUS = ../share/menus/CNC.menu \
@@ -629,13 +657,6 @@ DOCS_HELP=$(call GLOB,../docs/help/*.adoc)
 NC_FILES=$(filter-out %/butterfly.ngc,$(call GLOB,../nc_files/*))
 TCL=$(call GLOB,../tcl/*.tcl)
 TCL_BIN=$(call GLOB,../tcl/bin/*.tcl) ../tcl/bin/popimage
-
-install:
-	$(MAKE) install-docs || echo "Ignored."
-	$(MAKE) install-kernel-dep || echo "Ignored."
-	$(MAKE) install-kernel-indep || echo "Ignored."
-	$(MAKE) install-menu
-	$(ECHO) "Installed in DESTDIR='$(DESTDIR)' with prefix $(prefix)"
 
 install-docs:
 	$(DIR) $(DESTDIR)$(docsdir)

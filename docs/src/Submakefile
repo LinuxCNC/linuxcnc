@@ -28,7 +28,7 @@ MAN_SRCS = $(sort \
 	./config.status --file=$@:$<
 
 ifneq ($(MANDB),)
-default: $(DOC_DIR)/man/index.db
+docs: $(DOC_DIR)/man/index.db
 $(DOC_DIR)/man/index.db: $(MAN_SRCS)
 	@echo "Updating 'whatis' database"
 	$(Q)$(MANDB) $(DOC_DIR)/man
@@ -722,7 +722,6 @@ $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ZH_CN_SMALL)): $(DOC_SRCDIR)/%
 		 -a stylesheet=linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
 
-default: docs
 $(DOC_DIR)/html/de/xref.html: objects/xref_de.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
 	$(ECHO) Converting $< to HTML
 	@xsltproc --stringparam docname "xref_de" --stringparam language spanish --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
@@ -756,7 +755,6 @@ install-doc-pdf:
 install-doc-html:
 	$(DIR) $(DESTDIR)$(docsdir)
 	cp -a $(DOC_DIR)/html $(DESTDIR)$(docsdir)
-install-kernel-indep: install-doc
 
 docclean:
 	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started.pdf
