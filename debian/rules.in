@@ -79,7 +79,7 @@ override_dh_auto_install:
 		desktop-file-validate $$F; \
 	done
 	# Adding files that are Debian-specific
-	cd debian/@EXTRAS@ && cp -a * $(DESTDIR)
+	cd debian/extras && cp -a * $(DESTDIR)
 	DESTDIR=$(DESTDIR) $(MAKE) -C src INSTALL=install
 	py3clean .
 	# In case that only the indep packages are built
