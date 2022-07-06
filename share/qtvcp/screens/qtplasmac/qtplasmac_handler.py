@@ -1,4 +1,4 @@
-VERSION = '1.227.213'
+VERSION = '1.227.214'
 
 '''
 qtplasmac_handler.py
@@ -1610,7 +1610,8 @@ class HandlerClass:
                     self.startLine = 0
                     self.rflSelected = False
                     self.w.gcodegraphics.clear_highlight()
-            if line < 1:
+            if line <= 1:
+                self.rflSelected = False
                 self.w.gcode_display.setCursorPosition(0, 0)
                 self.w.gcode_display.moveMarker(0)
 
@@ -1726,7 +1727,10 @@ class HandlerClass:
                 userInput = self.dialog_run_from_line()
                 # rfl cancel clicked
                 if userInput['cancel']:
-                    self.clear_rfl()
+                    if 'rfl.ngc' in self.lastLoadedProgram:
+                        self.set_start_line(-1)
+                    else:
+                        self.clear_rfl()
                     self.set_run_button_state()
                 else:
                     # rfl load clicked
