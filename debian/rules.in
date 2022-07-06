@@ -66,22 +66,51 @@ override_dh_auto_clean:
 	rm -f $(for i in $(find . -name "*.in"); do basename $i .in; done)
 	dh_clean
 
-override_dh_auto_install:
-	# avoid installing into already existing directory
-	rm -rf $(DESTDIR)
-	# executing regular installation with regular prefix but unterneath the debian folder
-	DESTDIR=$(DESTDIR) $(MAKE) -C src install
+
+override_dh_auto_install-arch:
+	# Install all architecture-dependent libraries and executables
+	# in DESTDIR (the staging dir for the main package).
+	DESTDIR=$(DESTDIR) $(MAKE) -C src install-software
+	py3clean .
+
+	# Install all desktop files, application-menu entries, and associated
+	# icons in DESTDIR.
 	desktop-file-validate $(shell find debian/extras/ share/applications/ -name *.desktop);
 	cd debian/extras && cp -a * $(DESTDIR)
-	DESTDIR=$(DESTDIR) $(MAKE) -C src INSTALL=install
-	py3clean .
-	# In case that only the indep packages are built
-	if ls lib|egrep -q "*.a$$"; then \
-		mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/lib ; \
-		cp lib/*.a debian/$(DEV_PACKAGE_NAME)/usr/lib ; \
-	fi
+	
+	# Install G-code quick reference docs in DESTDIR.
+	# NOTE: This is arguably documentation, but it lives in the
+	# architecture-dependent binary package for historical reasons.
 	mkdir -p $(DESTDIR)/usr/share/doc/linuxcnc
 	cp docs/html/gcode*.html $(DESTDIR)/usr/share/doc/linuxcnc/
+
+	# Move static libraries to the -dev package.
+	mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/lib
+	cp lib/*.a debian/$(DEV_PACKAGE_NAME)/usr/lib
+
+	mkdir -p $(DESTDIR)/usr/share/doc/linuxcnc/examples
+	cd $(DESTDIR)/usr/share/doc/linuxcnc/examples && ln -sf ../../../linuxcnc/ncfiles ./nc_files
+
+	# -dev
+	mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/include
+	mv -t debian/$(DEV_PACKAGE_NAME)/usr/include $(DESTDIR)/usr/include/linuxcnc
+
+	mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/lib
+	mv -t debian/$(DEV_PACKAGE_NAME)/usr/lib/ $(DESTDIR)/usr/lib/*.a $(DESTDIR)/usr/lib/*.so
+	mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/bin
+	mv -t debian/$(DEV_PACKAGE_NAME)/usr/bin $(DESTDIR)/usr/bin/halcompile
+	mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/share/man/man1
+	mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/man/man1  $(DESTDIR)/usr/share/man/man1/halcompile.1
+	mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/man $(DESTDIR)/usr/share/man/man3
+	mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/share/linuxcnc
+	mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/linuxcnc $(DESTDIR)/usr/share/linuxcnc/Makefile.modinc
+
+	# some clean-up
+	rm -f $(DESTDIR)/usr/share/doc/linuxcnc/examples/sample-configs/*/*position*.txt
+
+
+override_dh_auto_install-indep:
+	DESTDIR=$(DESTDIR) $(MAKE) -C src install-docs install-doc
 
 	#  Moving all language-specific .desktop files to the respective -doc-$$lang package
 	for lang in zh_CN es fr; do \
@@ -114,28 +143,6 @@ override_dh_auto_install:
 		d=debian/linuxcnc-doc-en/usr/share/doc/linuxcnc && mkdir -p $$d && mv -t $$d $(DESTDIR)/usr/share/doc/linuxcnc/*.pdf; \
 	fi
 
-	mkdir -p $(DESTDIR)/usr/share/doc/linuxcnc/examples 
-	cd $(DESTDIR)/usr/share/doc/linuxcnc/examples && ln -sf ../../../linuxcnc/ncfiles ./nc_files
-
-	# -dev
-	mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/include
-	mv -t debian/$(DEV_PACKAGE_NAME)/usr/include $(DESTDIR)/usr/include/linuxcnc
-
-	# In case that only the indep packages are built
-	if ls $(DESTDIR)/usr/lib/*.a $(DESTDIR)/usr/lib/*.so | egrep -q "*.(a|so)$$"; then \
-		mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/lib; \
-		mv -t debian/$(DEV_PACKAGE_NAME)/usr/lib/ $(DESTDIR)/usr/lib/*.a $(DESTDIR)/usr/lib/*.so; \
-		mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/bin; \
-		mv -t debian/$(DEV_PACKAGE_NAME)/usr/bin $(DESTDIR)/usr/bin/halcompile; \
-		mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/share/man/man1; \
-		mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/man/man1  $(DESTDIR)/usr/share/man/man1/halcompile.1; \
-		mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/man $(DESTDIR)/usr/share/man/man3; \
-		mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/share/linuxcnc; \
-		mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/linuxcnc $(DESTDIR)/usr/share/linuxcnc/Makefile.modinc; \
-	fi
-
-	# some clean-up
-	rm -f $(DESTDIR)/usr/share/doc/linuxcnc/examples/sample-configs/*/*position*.txt
 
 override_dh_compress:
 	dh_compress -X.pdf -X.txt -X.hal -X.ini -X.clp -X.var -X.nml -X.tbl -X.xml -Xsample-configs
