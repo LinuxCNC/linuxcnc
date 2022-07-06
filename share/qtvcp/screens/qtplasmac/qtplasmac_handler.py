@@ -1606,12 +1606,12 @@ class HandlerClass:
                     txt0 = _translate('HandlerClass', 'RUN FROM LINE')
                     txt1 = _translate('HandlerClass', 'CYCLE START')
                     self.runText = '{}\n{}'.format(txt0, txt1)
+                    self.rflSelected = False
                 else:
                     self.startLine = 0
                     self.rflSelected = False
                     self.w.gcodegraphics.clear_highlight()
-            if line <= 1:
-                self.rflSelected = False
+            if line < 1:
                 self.w.gcode_display.setCursorPosition(0, 0)
                 self.w.gcode_display.moveMarker(0)
 
