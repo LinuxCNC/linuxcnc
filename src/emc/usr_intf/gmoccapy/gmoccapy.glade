@@ -4116,6 +4116,7 @@
                                 <property name="can_focus">False</property>
                                 <property name="receives_default">False</property>
                                 <signal name="clicked" handler="on_btn_undo_clicked" swapped="no"/>
+                                <property name="tooltip_text" translatable="yes">Reverts your edit</property>
                               </object>
                               <packing>
                                 <property name="x_options">GTK_SHRINK</property>
@@ -4131,6 +4132,7 @@
                                 <property name="can_focus">False</property>
                                 <property name="receives_default">False</property>
                                 <signal name="clicked" handler="on_btn_search_back_clicked" swapped="no"/>
+                                <property name="tooltip_text" translatable="yes">Finds text searching backwards</property>
                               </object>
                               <packing>
                                 <property name="left_attach">2</property>
@@ -4148,6 +4150,7 @@
                                 <property name="can_focus">False</property>
                                 <property name="receives_default">False</property>
                                 <signal name="clicked" handler="on_btn_search_forward_clicked" swapped="no"/>
+                                <property name="tooltip_text" translatable="yes">Finds text searching forwards</property>
                               </object>
                               <packing>
                                 <property name="left_attach">10</property>
@@ -4164,6 +4167,7 @@
                                 <property name="can_focus">False</property>
                                 <property name="receives_default">False</property>
                                 <signal name="clicked" handler="on_btn_redo_clicked" swapped="no"/>
+                                <property name="tooltip_text" translatable="yes">Returns your edit</property>
                               </object>
                               <packing>
                                 <property name="left_attach">15</property>
@@ -4212,6 +4216,7 @@
                                 <property name="can_focus">False</property>
                                 <property name="receives_default">False</property>
                                 <property name="draw_indicator">True</property>
+                                <property name="tooltip_text" translatable="yes">Replace all found text</property>
                               </object>
                               <packing>
                                 <property name="left_attach">12</property>
@@ -4227,6 +4232,7 @@
                                 <property name="receives_default">False</property>
                                 <property name="active">True</property>
                                 <property name="draw_indicator">True</property>
+                                <property name="tooltip_text" translatable="yes">Ignore capitalisation</property>
                               </object>
                               <packing>
                                 <property name="left_attach">11</property>
@@ -4251,6 +4257,7 @@
                                 <property name="can_focus">False</property>
                                 <property name="receives_default">False</property>
                                 <signal name="clicked" handler="on_btn_replace_clicked" swapped="no"/>
+                                <property name="tooltip_text" translatable="yes">Replace found text</property>
                               </object>
                               <packing>
                                 <property name="left_attach">13</property>
