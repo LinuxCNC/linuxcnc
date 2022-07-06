@@ -33,7 +33,6 @@ if [ "$1" == "-h" -o "$1" == "-help" -o "$1" == "--help" ]; then
     exit 0
 fi
 
-EXTRA_FILES=
 EXTRA_BUILD=
 PYTHON_VERSION_NEXT=$(python3 -c 'import sys; print (sys.version[:2] + str(1+int(sys.version[2])))')
 LIBREADLINE_DEV="libreadline-gplv2-dev | libreadline-dev"
@@ -118,7 +117,6 @@ KERNEL_DEPENDS_BUILD=libudev-dev
 KERNEL_HEADERS=
 KERNEL_VERSION=uspace
 MODUTILS_DEPENDS=
-EXTRA_FILES="usr/bin/rtapi_app"
 DISTRIB_NAME=uspace-$DISTRIB_NAME
 MAIN_PACKAGE_NAME=linuxcnc-uspace
 OTHER_MAIN_PACKAGE_NAME=linuxcnc
@@ -133,7 +131,6 @@ sed \
     -e "s#@DISTRIB_NAME@#$DISTRIB_NAME#g" \
     -e "s#@DOC_DEPENDS@#$DOC_DEPENDS#g" \
     -e "s#@EXTRA_BUILD@#$EXTRA_BUILD#g" \
-    -e "s#@EXTRA_FILES@#$EXTRA_FILES#g" \
     -e "s#@EXTRA_RECOMMENDS@#$EXTRA_RECOMMENDS#g" \
     -e "s#@KERNEL_DEPENDS@#$KERNEL_DEPENDS#g" \
     -e "s#@KERNEL_DEPENDS_BUILD@#$KERNEL_DEPENDS_BUILD#g" \
