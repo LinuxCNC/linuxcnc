@@ -141,116 +141,50 @@ the Linux CNC community.
 - Set line thickness to 0.50mm
 - Export the  image as 480 x 480 Resolution Auto .png
 
-== Dealing with translations
+== Provide translated documentation
 
-Translation of our documentation is in transition at the moment.
+The complete set of documents are translated using gettext PO files
+using the https://po4a.alioth.debian.org/[po4a]po4a system.  If you
+want to contribute a translation, please use the
+link:https://hosted.weblate.org/projects/linuxcnc/[web based
+translation editor Weblate].  Registered Weblate users can translate
+directly, while non-registered users can propose translations for
+others to review.  Translations are done paragraph by paragraph.  If
+there is no existing translation of the documentation to your
+language, you can add it in the Weblate interface.
 
-We have some old-style translations that are separate asciidoc .adoc
-files checked into git. These started out as copies of the english
-master docs at some point, and diverged from there over time.  This
-turned out not to be an ideal situation.
-
-We are experimenting with a new system using
-https://po4a.alioth.debian.org/[po4a]. With po4a, the English text
-is the master document, and each paragraph is translated using
-gettext, just like the strings in our software.
-
+With po4a, the English text is the master document, and each paragraph
+is translated using gettext, just like the strings in our software.
 Some documentation of po4a is available in the
 https://po4a.alioth.debian.org/man/man7/po4a.7.php[po4a(7)] manpage.
-
-We are using po4a version 0.62, available in Debian Bullseye.
-
-=== Transfer a translated file to po4a
-
-If there is a pre-existing translation of the file to your language,
-create a .po translation database seeded by the old translation.
-
-If the english file is called "file.adoc" then the old pre-existing
-translated file is probably called "file_fr.adoc" (for the french
-translation, as an example), and the translation database should be
-called "file.fr.po". Creating PO file from adoc can be done by running
-this command:
-
-```
-(f=getting-linuxcnc; l=cn; po4a-gettextize \
-  > --format asciidoc \
-  > -m ${f}.adoc -M utf8 \
-  > -l ${f}_${l}.adoc -L utf8 \
-  > -p ${f}.${l}.po)
-```
-
-Similarly, for translated manual pages:
-
-```
-(f=elbpcom.1; l=es; po4a-gettextize \
-  > --format asciidoc \
-  > -m man/man1/${f} -M utf8 \
-  > -l man/${l}/man1/${f} -L utf8 \
-  -p ${f}.${l}.po)
-```
-
-To append the extracted translations to the combined PO file, do
-something like this:
-
-```
-msgcat --use-first po/documentation.es.po \
-  > elbpcom.1.es.po \
-  > po/documentation.es.po
-```
-
-=== To create a new po4a translation of an untranslated file
-
-If there is no pre-existing translation of the file to your language,
-create an empty .po file to start with.  If the english file is called
-"file.adoc" then the translation database should be called "file.se.po"
-(for the swedish translation, as an example).  It is created by running
-this command:
-
-```
-po4a-gettextize --format text \
-  > -m file.adoc -M utf8 \
-  > -p file.se.po
-```
-
-=== Improving the translation of a po4a-managed file
-
-Translations are done paragraph by paragraph.
-
-You can use a GUI tool like Poedit or Gtranslator or others, or you can
-(carefully!) edit the .po file by hand.
-
-The next time the translated document gets rebuilt, the updated
-translations will be used.
+As the po4a support for asciidoc has been rapidly improving since
+LinuxCNC started using it, based on bug reports from the LinuxCNC
+community, a very recent version of po4a is needed.  At the moment, at
+least version 0.66 is needed, available in Debian Bookworm.
 
 === When the master document (english) changes
 
-When the master document (english) file has changed, use the
-po4a-updatepo to update the .po files:
+When the master document (english) file has changed, the POT file with
+the set of translatable strings need to be updated, and the updates
+need to be propagated into the PO files for each translation.  This
+can be done using the build system:
 
 ```
-po4a-updatepo -f text \
-  > -m file.adoc \
-  > -p file.fr.po
+make -C src translateddocs
 ```
+
+Once this is completed, the files in docs/po/ will be updated, and
+should be commited into git and pulled into Weblate.
 
 === How to add a new translation language
 
-Determine the ISO 639-1 code for your new language (for example:
-English -> "en", Vietnamese -> "vi", etc).  This becomes the "NEWLANG"
-variable in the examples below.  There is a list of codes here:
-<https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes>
+Once a new PO files for a fresh translation is added via Weblate, and
+the translation level raise to a sensible level (for example not 0%),
+build rules need to be added to use the generated translations to
+build HTML and PDF editions of the translation.
 
-Add the asciidoc source files containing your new translation. Usually
-that means copying the language files from one of the existing
-languages, probably English since that's usually the most up-to-date.
-
-Copy the docs/po/documentation.pot to docs/po/documentation.$LANG.po.
-where $LANG is a two letter language code according to ISO 639-1, or
-three letter code according to ISO 639-2 if no two letter code exist.
 Add the new language code to the proper place in docs/po4a.conf.
-
-Add the new files in the correct place in `docs/src/Submakefile` to
-ensure they will be built.
+Update build rules for the new language in `docs/src/Submakefile`.
 
 Edit debian/control.in to add the new linuxcnc-doc-$NEWLANG package.
 Add the new doc package to the "or" list of the "Recommends" line of the
