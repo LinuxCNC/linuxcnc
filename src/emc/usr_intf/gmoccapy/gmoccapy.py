@@ -1157,7 +1157,7 @@ class gmoccapy(object):
                 btn.set_property("name", name)
                 btn.connect("pressed", self._on_btn_jog_pressed, name)
                 btn.connect("released", self._on_btn_jog_released, name)
-                btn.set_property("tooltip-text", _("Press to jog axis {0}".format(axis)))
+                btn.set_property("tooltip-text", _("Press to jog axis {0}").format(axis))
                 btn.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
                 btn.set_size_request(48,48)
 
@@ -1176,7 +1176,7 @@ class gmoccapy(object):
                 btn.set_property("name", name)
                 btn.connect("pressed", self._on_btn_jog_pressed, name)
                 btn.connect("released", self._on_btn_jog_released, name)
-                btn.set_property("tooltip-text", _("Press to jog joint {0}".format(joint)))
+                btn.set_property("tooltip-text", _("Press to jog joint {0}").format(joint))
                 btn.modify_bg(gtk.STATE_ACTIVE, gtk.gdk.color_parse("#FFFF00"))
                 btn.set_size_request(48,48)
 
@@ -1226,7 +1226,7 @@ class gmoccapy(object):
                     lbl = lbl[0:10] + "\n" + lbl[11:20]
                 btn = gtk.Button(lbl, None, False)
                 btn.set_property("name","macro_{0}".format(pos))
-            btn.set_property("tooltip-text", _("Press to run macro {0}".format(name)))
+            btn.set_property("tooltip-text", _("Press to run macro {0}").format(name))
             btn.connect("clicked", self._on_btn_macro_pressed, name)
             btn.position = pos
             btn.show()
