@@ -8597,7 +8597,7 @@ F12 or $ key does the same</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">Move to parrent directory</property>
+                    <property name="tooltip_text" translatable="yes">Move to parent directory</property>
                     <property name="image">img_dir_up</property>
                     <signal name="clicked" handler="on_btn_dir_up_clicked" swapped="no"/>
                   </object>
@@ -8627,7 +8627,7 @@ F12 or $ key does the same</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">Select the previos file</property>
+                    <property name="tooltip_text" translatable="yes">Select the previous file</property>
                     <property name="image">img_sel_prev</property>
                     <property name="image_position">top</property>
                     <signal name="clicked" handler="on_btn_sel_prev_clicked" swapped="no"/>
