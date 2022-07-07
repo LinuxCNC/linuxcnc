@@ -199,7 +199,7 @@ Get the current Realtime msg level.
 
 === set_msg_level
 
-set the current Realtime msg level. +
+Set the current Realtime msg level. +
 used for debugging information.
 
 === connect
@@ -211,9 +211,18 @@ Example:
 hal.connect("pinname","signal_name")
 ----
 
+=== disconnect
+
+Disonnect a pin from a signal. +
+Example:
+
+----
+hal.disconnect("pinname")
+----
+
 === get_value
 
-read a pin, param or signal directly. +
+Read a pin, param, or signal directly. +
 Example:
 
 ----
@@ -222,7 +231,7 @@ value = hal.get_value("iocontrol.0.emc-enable-in")
 
 === get_info_pins()
 
-returns a list of dicts of all system pins.
+Returns a list of dicts of all system pins.
 
 [source,python]
 ----
@@ -235,7 +244,7 @@ pinDirection1 = listOfDicts[0].get('DIRECTION')
 
 === get_info_signals()
 
-returns a list of dicts of all system signals.
+Returns a list of dicts of all system signals.
 
 [source,python]
 ----
@@ -247,7 +256,7 @@ driverPin1 = listOfDicts[0].get('DRIVER')
 
 === get_info_params()
 
-returns a list of dicts of all system parameters.
+Returns a list of dicts of all system parameters.
 
 [source,python]
 ----
@@ -257,9 +266,9 @@ paramValue1 = listOfDicts[0].get('VALUE')
 paramDirection1 = listOfDicts[0].get('DIRECTION')
 ----
 
-=== new_signal
+=== new_sig
 
-Create a New signal of the type specified. +
+Create a new signal of the type specified. +
 Example:
 
 ----
@@ -277,8 +286,8 @@ h.in.pin_has_writer()
 
 === get_name
 
-Get the HAL object name +
-return a string
+Get the HAL object name. +
+Return a string.
 
 ----
 h.in.get_name()
@@ -286,8 +295,8 @@ h.in.get_name()
 
 === get_type
 
-Get the HAL object's type +
-returns an integer
+Get the HAL object's type. +
+Returns an integer.
 
 ----
 h.in.get_type()
@@ -295,8 +304,8 @@ h.in.get_type()
 
 === get_dir
 
-Get the HAL object direction type +
-returns an integer
+Get the HAL object direction type. +
+Returns an integer.
 
 ----
 h.in.get_dir()
@@ -304,7 +313,7 @@ h.in.get_dir()
 
 === get
 
-get the HAL object value
+Get the HAL object value.
 
 ----
 h.in.get()
@@ -312,7 +321,7 @@ h.in.get()
 
 === set
 
-set the HAL object value
+Set the HAL object value.
 
 ----
 h.out.set(10)
@@ -321,7 +330,7 @@ h.out.set(10)
 === is_pin
 
 Is the object a pin or parameter? +
-returns bool
+Returns True or False.
 
 ----
 h.in.is_pin()
