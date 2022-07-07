@@ -223,7 +223,7 @@ L = axis letter (xyzabcuvw)
 * 'halui.axis.L.is-selected' (bit out) - status pin that axis L is selected
 * 'halui.axis.L.pos-commanded' (float out) - Commanded axis position in machine coordinates
 * 'halui.axis.L.pos-feedback' float out) - Feedback axis position in machine coordinates
-* 'halui.axis.L.pos-relative' (float out) - Commanded axis position in relative coordinates
+* 'halui.axis.L.pos-relative' (float out) - Feedback axis position in relative coordinates
 
 === Axis Jogging
 
