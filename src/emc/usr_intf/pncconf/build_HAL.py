@@ -1168,7 +1168,7 @@ class HAL:
             name = "spindle"
         else:
             name = let
-        print("net %s-index-enable  <=> pid.%s.index-enable" % (name, let), file=file)
+        print("net %s-index-enable  =>  pid.%s.index-enable" % (name, let), file=file)
         print("net %s-enable        =>  pid.%s.enable" % (name, let), file=file)
 
         if let == 's':
