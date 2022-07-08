@@ -1113,7 +1113,7 @@ class HAL:
             name = "spindle"
         else:
             name = let
-        print >>file, "net %s-index-enable  <=> pid.%s.index-enable" % (name, let)
+        print >>file, "net %s-index-enable  => pid.%s.index-enable" % (name, let)
         print >>file, "net %s-enable        =>  pid.%s.enable" % (name, let)
 
         if let == 's':
@@ -1390,7 +1390,7 @@ class HAL:
                 print >>file
                 print >>file, "net %s-pos-cmd    <= joint.%d.motor-pos-cmd" % (let, jnum )
                 print >>file, "net %s-vel-cmd    <= joint.%d.vel-cmd" % (let, jnum )
-                print >>file, "net %s-output     <= "% (let) + steppinname + ".velocity-cmd"
+                print >>file, "net %s-output     => "% (let) + steppinname + ".velocity-cmd"
                 print >>file, "net %s-pos-fb     <= "% (let) + steppinname + ".position-fb"
                 print >>file, "net %s-pos-fb     => joint.%d.motor-pos-fb" % (let, jnum )
                 print >>file, "net %s-enable     <= joint.%d.amp-enable-out"% (let,jnum)
