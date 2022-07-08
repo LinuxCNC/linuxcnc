@@ -133,7 +133,7 @@ Initial attempts to use vec2web resulted in the graphical parts of the
 drawing being converted, but all text was lost. I don't know if vec2web
 is worth spending much more time on, however, it _is_ GPLv2, and it
 includes a library for reading DXF files, which might be worthwhile to
-the Linux CNC community.
+the LinuxCNC community.
 
 === Drawings from QCAD
 
