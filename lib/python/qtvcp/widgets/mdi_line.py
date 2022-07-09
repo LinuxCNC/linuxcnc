@@ -100,6 +100,10 @@ class MDI(QLineEdit):
             fp.close()
         elif text.lower().startswith('setp'):
             self.setp(text)
+        elif text.lower().startswith('unlinkp'):
+            self.unlinkp(text)
+        elif text.lower().startswith('net'):
+            self.net(text)
         elif self.spindleInhibit and self.inhibit_spindle_commands(text):
             return
         else:
@@ -141,21 +145,21 @@ class MDI(QLineEdit):
         STATUS.emit('move-text-linedown')
 
     def setp(self, setpString):
-        arguments = len(setpString.lower().replace('setp ','').split(' '))
+        arguments = len(setpString.lower().replace('setp',' ').split())
         if arguments == 2:
-            halpin, value = setpString.lower().replace('setp ','').split(' ')
+            halpin, value = setpString.lower().replace('setp',' ').split()
         else:
-            ACTION.SET_ERROR_MESSAGE('SETP UNSUCCESSFUL:\nsetp requires 2 arguments, {} given\n'.format(arguments))
+            ACTION.SET_ERROR_MESSAGE('SETP ERROR:\nsetp requires 2 arguments, {} given\n'.format(arguments))
             return
         try:
             hal.get_value(halpin)
         except Exception as err:
-            ACTION.SET_ERROR_MESSAGE('SETP UNSUCCESSFUL:\n{}\n'.format(err))
+            ACTION.SET_ERROR_MESSAGE('SETP ERROR:\n{}\n'.format(err))
             return
         try:
             hal.set_p(halpin, value)
         except Exception as err:
-            ACTION.SET_ERROR_MESSAGE('SETP UNSUCCESSFUL:\n"{}" {}\n'.format(halpin, err))
+            ACTION.SET_ERROR_MESSAGE('SETP ERROR:\n"{}" {}\n'.format(halpin, err))
             return
         if type(hal.get_value(halpin)) == bool:
             if value.lower() in ['true', '1']:
@@ -163,29 +167,51 @@ class MDI(QLineEdit):
             elif value.lower() in ['false', '0']:
                 value = False
             else:
-                ACTION.SET_ERROR_MESSAGE('SETP UNSUCCESSFUL:\nValue "{}" invalid for a BIT pin/parameter\n'.format(value))
+                ACTION.SET_ERROR_MESSAGE('SETP ERROR:\nValue "{}" invalid for a BIT pin/parameter\n'.format(value))
                 return
             if hal.get_value(halpin) != value:
-                ACTION.SET_ERROR_MESSAGE('SETP UNSUCCESSFUL:\nBIT value comparison error\n')
+                ACTION.SET_ERROR_MESSAGE('SETP ERROR:\nBIT value comparison error\n')
                 return
         elif type(hal.get_value(halpin)) == float:
             try:
                 value = float(value)
             except:
-                ACTION.SET_ERROR_MESSAGE('SETP UNSUCCESSFUL:\nValue "{}" invalid for a Float pin/parameter\n'.format(value))
+                ACTION.SET_ERROR_MESSAGE('SETP ERROR:\nValue "{}" invalid for a Float pin/parameter\n'.format(value))
                 return
             if hal.get_value(halpin) != value:
-                ACTION.SET_ERROR_MESSAGE('SETP UNSUCCESSFUL:\nFloat value comparison error\n')
+                ACTION.SET_ERROR_MESSAGE('SETP ERROR:\nFloat value comparison error\n')
                 return
         else:
             try:
                 value = int(value)
             except:
-                ACTION.SET_ERROR_MESSAGE('SETP UNSUCCESSFUL:\nValue "{}" invalid for S32 or U32 pin/parameter\n'.format(value))
+                ACTION.SET_ERROR_MESSAGE('SETP ERROR:\nValue "{}" invalid for S32 or U32 pin/parameter\n'.format(value))
                 return
             if hal.get_value(halpin) != value:
-                ACTION.SET_ERROR_MESSAGE('SETP UNSUCCESSFUL:\nS32 or U32 value comparison error\n')
+                ACTION.SET_ERROR_MESSAGE('SETP ERROR:\nS32 or U32 value comparison error\n')
                 return
+
+    def unlinkp(self, unlinkpString):
+        arguments = len(unlinkpString.lower().replace('unlinkp',' ').split())
+        if arguments == 1:
+            halpin = unlinkpString.lower().replace('unlinkp',' ').strip()
+        else:
+            ACTION.SET_ERROR_MESSAGE('UNLINKP ERROR:\nunlinkp requires 1 argument, {} given\n'.format(arguments))
+            return
+        reply = hal.disconnect(halpin)
+        if reply:
+            ACTION.SET_ERROR_MESSAGE('UNLINKP ERROR:\nPin "{}" not found\n'.format(halpin))
+
+    def net(self, netString):
+        arguments = len(netString.lower().replace('net',' ').split())
+        if arguments == 2:
+            halpin, signal = netString.lower().replace('net',' ').split()
+        else:
+            ACTION.SET_ERROR_MESSAGE('NET ERROR:\nnet requires 2 arguments, {} given\n'.format(arguments))
+            return
+        reply = hal.connect(halpin, signal)
+        if reply:
+            ACTION.SET_ERROR_MESSAGE('NET ERROR:\nFailed to link pin "{}" to signal "{}"\n'.format(halpin, signal))
 
     def spindle_inhibit(self, state):
         self.spindleInhibit = state

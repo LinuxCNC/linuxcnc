@@ -1873,7 +1873,7 @@ It is a comma separated list of keyword and data.
 
 === MDILine Widget
 
-One can enter MDI commands here. A popup keyboard is available
+One can enter MDI commands here. A popup keyboard is available.
 There are also embedded commands available from this Widget.
 Enter any of these case sensitive commands to load the respective
 program or access the feature:
@@ -1892,11 +1892,23 @@ program or access the feature:
   link:http://linuxcnc.org/docs/devel/html/ladder/classic-ladder.html[ClassicLadder GUI] if the ClassicLadder realtime HAL component was loaded by the machine's config files
 * `PREFERENCE` - Loads the preference file onto the gcodeEditor
 * `CLEAR HISTORY` - Clears the MDI History
+* `net` - Connects a pin to a signal. An error will result if
+  the command is unsuccessful. Running LinuxCNC from terminal
+  may help determine the root cause as error messages from hal_lib.c
+  will be displayed there.
+** _Syntax_: `net <pin name> <signal name>`
+** __Example__: `net motion.jog-stop plasmac:jog-inhibit`
 * `setp` - Sets the value of a pin or a parameter. Valid values depend
   on the object type of the pin or parameter. An error will result if
   the data types do not match or the pin is connected to a signal.
 ** _Syntax_: `setp <pin/parameter-name> <value>`
 ** __Example__: `setp plasmac.resolution 100`
+* `unlinkp` - Disconnects a pin from a signal. An error will result
+  if the pin does not exist. Running LinuxCNC from terminal
+  may help determine the root cause as error messages from hal_lib.c
+  will be displayed there.
+** _Syntax_: `unlinkp <pin name>`
+** __Example__: `unlinkp motion.jog-stop`
 
 Note that the MDILine function "spindle_inhibit" can be used by a GUI's
 handler file to inhibit M3, M4, and M5 spindle commands if necessary.
@@ -1907,34 +1919,9 @@ It is based on pyQT's QLineEdit.
 
 Displays a scrollable list of past MDI command.
 A edit line is embedded for MDI commands.
-There are also embedded commands available from this Widget.
-Enter any of these case sensitive commands to load the respective
-program or access the feature:
+The same MDILine embedded commands may be accessed from this Widget.
 
-* `HALMETER` - Starts LinuxCNC utility
-  link:http://linuxcnc.org/docs/devel/html/hal/tutorial.html#sec:tutorial-halmeter[`halmeter`]
-* `HALSHOW` - Starts LinuxCNC utility
-  link:http://linuxcnc.org/docs/devel/html/hal/halshow.html#cha:halshow[`halshow`]
-* `HALSCOPE` - Starts LinuxCNC utility
-  link:http://linuxcnc.org/docs/devel/html/hal/tutorial.html#sec:tutorial-halscope[`halscope`]
-* `STATUS` - Starts LinuxCNC utility
-  link:https://linuxcnc.org/docs//html/man/man1/linuxcnctop.1.html[`status`]
-* `CALIBRATION` - Starts LinuxCNC utility
-  link:http://linuxcnc.org/docs/devel/html/getting-started/updating-linuxcnc.html#_calibration_emccalib_tcl[`calibration`]
-* `CLASSICLADDER` - Starts the
-  link:http://linuxcnc.org/docs/devel/html/ladder/classic-ladder.html[ClassicLadder GUI] if the ClassicLadder realtime HAL component was loaded by the machine's config files
-* `PREFERENCE` - Loads the preference file onto the gcodeEditor
-* `CLEAR HISTORY` - Clears the MDI History
-* `setp` - Sets the value of a pin or a parameter. Valid values depend
-  on the object type of the pin or parameter. An error will result if
-  the data types do not match or the pin is connected to a signal.
-** _Syntax_: `setp <pin/parameter-name> <value>`
-** _Example_: `setp plasmac.resolution 100`
-
-Note that the MDILine function "spindle_inhibit" can be used by a GUI's
-handler file to inhibit M3, M4, and M5 spindle commands if necessary.
-
-The history is recorded on a file defined in the INI.
+The history is recorded in a file defined in the INI.
 under the heading [DISPLAY] (this shows the default)
 
 [source,{ini}]
