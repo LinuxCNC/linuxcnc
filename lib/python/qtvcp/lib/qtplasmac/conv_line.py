@@ -28,6 +28,9 @@ from plasmac import line as LINE
 _translate = QCoreApplication.translate
 
 def preview(P, W, Conv):
+    if P.xLineEnd != Conv.conv_is_float(W.entry1.text())[1] or \
+       P.yLineEnd != Conv.conv_is_float(W.entry2.text())[1]:
+        P.convAddSegment = 0
     if W.lType.currentText() == _translate('Conversational', 'LINE POINT ~ POINT'):
         reply = LINE.do_line_point_to_point(Conv, W.entry1.text(), W.entry2.text(), W.entry3.text(), \
                                                   W.entry4.text())
@@ -83,6 +86,8 @@ def preview(P, W, Conv):
     if P.convAddSegment == 1:
         LINE.next_segment(P.fTmp, P.fNgc)
     else:
+        valid, P.xLineStart = Conv.conv_is_float(W.entry1.text())
+        valid, P.yLineStart = Conv.conv_is_float(W.entry2.text())
         LINE.first_segment(P.fTmp, P.fNgc, P.fNgcBkp, P.preAmble, \
                            W.lType.currentText(), P.xLineStart, P.yLineStart, \
                            int(W.conv_material.currentText().split(':')[0]), \
@@ -111,15 +116,6 @@ def auto_preview(P, W, Conv):
               (W.lType.currentText() == _translate('Conversational', 'ARC 2P +RADIUS') and W.entry5.text()) or \
               (W.lType.currentText() == _translate('Conversational', 'ARC ANGLE +RADIUS') and W.entry5.text()):
                 preview(P, W, Conv)
-
-def entry_changed(P, W, Conv, widget, entry):
-    if widget == W.entry4 and \
-            (W.lType.currentText() == _translate('Conversational', 'LINE BY ANGLE') or \
-             W.lType.currentText() == _translate('Conversational', 'ARC ANGLE +RADIUS')):
-        widget.setObjectName('aEntry')
-    else:
-        widget.setObjectName(None)
-    Conv.conv_entry_changed(P, W, widget)
 
 def line_type_changed(P, W, refresh):
     W.entry3.setFocus()
@@ -192,6 +188,7 @@ def set_line_point_to_point(P, W):
     for n in '34':
         W['entry{}'.format(n)].setText('')
         W['entry{}'.format(n)].show()
+    W.entry3.setObjectName('neg')
 
 def set_line_by_angle(P, W):
     clear_widgets(P, W, P.conv_line_angle)
@@ -201,6 +198,7 @@ def set_line_by_angle(P, W):
     for n in '34':
         W['entry{}'.format(n)].setText('')
         W['entry{}'.format(n)].show()
+    W.entry3.setObjectName(None)
 
 def set_arc_3_points(P, W):
     clear_widgets(P, W, P.conv_line_3p)
@@ -211,6 +209,7 @@ def set_arc_3_points(P, W):
     for n in '3456':
         W['entry{}'.format(n)].setText('')
         W['entry{}'.format(n)].show()
+        W['entry{}'.format(n)].setObjectName('neg')
 
 def set_arc_2_points_radius(P, W):
     clear_widgets(P, W, P.conv_line_2pr)
@@ -223,6 +222,8 @@ def set_arc_2_points_radius(P, W):
     for n in '345':
         W['entry{}'.format(n)].setText('')
         W['entry{}'.format(n)].show()
+    W.entry3.setObjectName('neg')
+    W.entry5.setObjectName(None)
 
 def set_arc_by_angle_radius(P, W):
     clear_widgets(P, W, P.conv_arc_angle)
@@ -235,6 +236,8 @@ def set_arc_by_angle_radius(P, W):
     for n in '345':
         W['entry{}'.format(n)].setText('')
         W['entry{}'.format(n)].show()
+    W.entry3.setObjectName(None)
+    W.entry5.setObjectName(None)
 
 def set_arc_widgets(P, W):
     W.entries.removeWidget(W.g23Arc)
@@ -279,8 +282,8 @@ def widgets(P, W, Conv):
     P.convAddSegment = 0
     P.conv_gcodeLine = ''
     P.conv_gcodeSave = ''
-    P.xLineStart = 0.000
-    P.yLineStart = 0.000
+    P.xLineStart = P.xLineEnd = 0.000
+    P.yLineStart = P.yLineEnd = 0.000
     #connections
     W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W, Conv))
     W.preview.pressed.connect(lambda:preview(P, W, Conv))
@@ -290,7 +293,7 @@ def widgets(P, W, Conv):
     W.g23Arc.toggled.connect(lambda:auto_preview(P, W, Conv))
     entries = ['entry1', 'entry2', 'entry3', 'entry4', 'entry5', 'entry6']
     for entry in entries:
-        W[entry].textChanged.connect(lambda w:entry_changed(P, W, Conv, W.sender(), w))
+        W[entry].textChanged.connect(lambda w:Conv.conv_entry_changed(P, W, W.sender()))
         W[entry].returnPressed.connect(lambda:preview(P, W, Conv))
     #add to layout
     if P.landscape:

@@ -50,8 +50,8 @@ def conv_setup(P, W):
     P.validShape = False
     P.savedSettings = {'origin':None, 'intext':None, 'in':None, 'out':None}
     P.invalidLeads = 0
-    W.preview = QPushButton(_translate('Conversational', 'PREVIEW'))
-    W.undo = QPushButton(_translate('Conversational', 'RELOAD'))
+    if not P.convWidgetsLoaded or P.developmentPin.get():
+        conv_widgets(P, W)
     if not ACTION.prefilter_path:
         W.undo.setEnabled(False)
     conv_preview_button(P, W, False)
@@ -85,8 +85,6 @@ def conv_setup(P, W):
     P.xSaved = '0.000'
     P.ySaved = '0.000'
     P.convBlock = [False, False]
-    if not P.convWidgetsLoaded or P.developmentPin.get():
-        conv_widgets(P, W)
     if not P.oldConvButton:
         conv_shape_request(P, W, 'conv_line', True)
     else:
@@ -112,6 +110,8 @@ def conv_new_pressed(P, W, button):
             CONVLINE.set_arc_2_points_radius(P, W)
         elif W.lType.currentText() == _translate('Conversational', 'ARC ANGLE +RADIUS'):
             CONVLINE.set_arc_by_angle_radius(P, W)
+        W.entry1.setText('0.000')
+        W.entry2.setText('0.000')
     with open(P.fNgc, 'w') as outNgc:
         outNgc.write('(new conversational file)\nM2\n')
     COPY(P.fNgc, P.fTmp)
@@ -376,7 +376,7 @@ def conv_entry_changed(P, W, widget, circleType=False):
     if value:
         if name in ['intEntry', 'hsEntry', 'cnEntry', 'rnEntry']:
             good = '0123456789'
-        elif name in ['xsEntry', 'ysEntry', 'aEntry', 'coEntry', 'roEntry']:
+        elif name in ['xsEntry', 'ysEntry', 'aEntry', 'coEntry', 'roEntry', 'neg']:
             good = '-.0123456789'
         else:
             good = '.0123456789'
@@ -539,20 +539,22 @@ def conv_auto_preview_button(P, W, button):
 # create all required widgets without showing them
 def conv_widgets(P, W):
     # common
+    W.preview = QPushButton(_translate('Conversational', 'PREVIEW'))
+    W.undo = QPushButton(_translate('Conversational', 'RELOAD'))
     W.centLeft = QPushButton(_translate('Conversational', 'BTM LEFT'), objectName='centLeft')
     W.centLeft.setCheckable(True)
     W.intExt = QPushButton(_translate('Conversational', 'EXTERNAL'), objectName='intExt')
     W.intExt.setCheckable(True)
     W.liLabel = QLabel(_translate('Conversational', 'LEAD IN'))
-    W.liEntry = QLineEdit(str(P.leadIn), objectName='liEntry')
+    W.liEntry = QLineEdit(objectName='liEntry')
     W.loLabel = QLabel(_translate('Conversational', 'LEAD OUT'))
-    W.loEntry = QLineEdit(str(P.leadOut), objectName='loEntry')
+    W.loEntry = QLineEdit(objectName='loEntry')
     W.ctLabel = QLabel(_translate('Conversational', 'CUT TYPE'))
     W.spLabel = QLabel(_translate('Conversational', 'START'))
     W.xsLabel = QLabel(_translate('Conversational', 'X ORIGIN'))
-    W.xsEntry = QLineEdit(str(P.xSaved), objectName='xsEntry')
+    W.xsEntry = QLineEdit(objectName='xsEntry')
     W.ysLabel = QLabel(_translate('Conversational', 'Y ORIGIN'))
-    W.ysEntry = QLineEdit(str(P.ySaved), objectName='ysEntry')
+    W.ysEntry = QLineEdit(objectName='ysEntry')
     W.overcut = QPushButton(_translate('Conversational', 'OVER CUT'))
     W.overcut.setEnabled(False)
     W.overcut.setCheckable(True)
@@ -641,17 +643,17 @@ def conv_widgets(P, W):
     # lines and arcs
     W.lType = QComboBox()
     W.label1 = QLabel()
-    W.entry1 = QLineEdit()
+    W.entry1 = QLineEdit(objectName='neg')
     W.label2 = QLabel()
-    W.entry2 = QLineEdit()
+    W.entry2 = QLineEdit(objectName='neg')
     W.label3 = QLabel()
     W.entry3 = QLineEdit()
     W.label4 = QLabel()
-    W.entry4 = QLineEdit()
+    W.entry4 = QLineEdit(objectName='neg')
     W.label5 = QLabel()
     W.entry5 = QLineEdit()
     W.label6 = QLabel()
-    W.entry6 = QLineEdit()
+    W.entry6 = QLineEdit(objectName='neg')
     W.g23Arc = QPushButton('CW - G2')
     W.g23Arc.setCheckable(True)
     # settings
