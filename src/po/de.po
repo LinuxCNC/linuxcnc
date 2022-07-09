@@ -1,12 +1,13 @@
 # Steffen Möller <steffen_moeller@gmx.de>, 2022.
 # Hans U. <hansunzner@gmail.com>, 2022.
+# Michael Stellmacher <michaelst78@gmail.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-05-28 23:16+0200\n"
-"PO-Revision-Date: 2022-06-21 15:20+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"PO-Revision-Date: 2022-06-27 21:55+0000\n"
+"Last-Translator: Michael Stellmacher <michaelst78@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -10369,7 +10370,7 @@ msgstr "Plasma Float Schalter"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:259
 msgid "Plasma Breakaway"
-msgstr ""
+msgstr "Plasma Loslösung"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:260
 msgid "Plasma Ohmic Contact"
@@ -14056,7 +14057,7 @@ msgstr "Float Schalter"
 
 #: src/emc/usr_intf/pncconf/private_data.py:462
 msgid "Breakaway"
-msgstr ""
+msgstr "Loslösung"
 
 #: src/emc/usr_intf/pncconf/private_data.py:464
 msgid "Unused Input"
@@ -14094,7 +14095,7 @@ msgstr "Externe Steuerung"
 
 #: src/emc/usr_intf/pncconf/private_data.py:468
 msgid "Axis rapid"
-msgstr "Achse schnell"
+msgstr "Achse Eilgang"
 
 #: src/emc/usr_intf/pncconf/private_data.py:468
 #: src/emc/usr_intf/pncconf/private_data.py:530

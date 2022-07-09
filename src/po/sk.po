@@ -1,9 +1,10 @@
+# Juraj Adamkovic <stroje.hcnc@gmail.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: sk\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-05-28 23:16+0200\n"
-"PO-Revision-Date: 2022-05-14 19:38+0000\n"
+"PO-Revision-Date: 2022-07-09 10:32+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
 "Language: sk\n"
@@ -11,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 4.13-dev\n"
+"X-Generator: Weblate 4.13.1-dev\n"
 "X-Poedit-Language: Slovak\n"
 "X-Poedit-Country: SLOVAKIA\n"
 
@@ -32,8 +33,7 @@ msgstr "nemôžem vykonať (%s:%d) v manuálnom režime"
 #: src/emc/task/emctaskmain.cc:1112
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idle"
-msgstr ""
-"nemôžem  vykonať (%s) v automatickom režime, keď je interpreter nečinný"
+msgstr "nemôžem vykonať (%s) v automatickom režime keď je interpreter nečinný"
 
 #: src/emc/task/emctaskmain.cc:1181
 #, c-format
@@ -90,7 +90,7 @@ msgid ""
 "Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c"
 "%.4f) r1=%.4f r2=%.4f"
 msgstr ""
-"Oblúk s nulovým polomerom: začiatok=(%c%.4f,%c%.4f) stred=(%c%.4f,%c%.4f) "
+"Oblúk s neplatným polomerom: začiatok=(%c%.4f,%c%.4f) stred=(%c%.4f,%c%.4f) "
 "koniec=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
 
 #: src/emc/rs274ngc/interp_arc.cc:122 src/emc/rs274ngc/interp_arc.cc:296
@@ -645,18 +645,17 @@ msgid ""
 msgstr ""
 
 #: src/emc/rs274ngc/interp_cycles.cc:275
-#, fuzzy, c-format
+#, c-format
 msgid "Spindle not turning in %s"
-msgstr "Príklady konfigurácií"
+msgstr "Vreteno sa neotáča %s"
 
 #: src/emc/rs274ngc/interp_cycles.cc:277
 msgid "Spindle turning clockwise in G74"
 msgstr ""
 
 #: src/emc/rs274ngc/interp_cycles.cc:280
-#, fuzzy
 msgid "Spindle turning counterclockwise in G84"
-msgstr "Vreteno Pomalšie"
+msgstr "Otáčanie vretena proti smeru hodinových ručičiek v G84"
 
 #: src/emc/rs274ngc/interp_cycles.cc:283
 #, c-format
@@ -812,9 +811,8 @@ msgid "Cannot read current position with cutter radius compensation on"
 msgstr ""
 
 #: src/emc/rs274ngc/interp_read.cc:2071
-#, fuzzy
 msgid "Expected # reading parameter"
-msgstr "Rozšíriť parametre"
+msgstr "Očakávaný # parameter čítania"
 
 #: src/emc/rs274ngc/interp_read.cc:2073
 msgid "Expected ] reading bracketed parameter"
@@ -912,19 +910,19 @@ msgid "%d: no matching label: '%s' (found '%s' in line %d)"
 msgstr ""
 
 #: src/emc/rs274ngc/interp_namedparams.cc:185
-#, fuzzy, c-format
+#, c-format
 msgid "Named parameter #<%s> not defined"
-msgstr "Načítať súbor parametra"
+msgstr "Pomenovaný parameter #<%s> nie je definovaný"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:215
-#, fuzzy, c-format
+#, c-format
 msgid "can't open ini file '%s'"
-msgstr "Nie je možné otvoriť %s."
+msgstr "Nie je možné otvoriť %s"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:232
-#, fuzzy, c-format
+#, c-format
 msgid "Named ini parameter #<%s> not found in inifile '%s': error=0x%x"
-msgstr "Načítať súbor parametra"
+msgstr "Pomenovaný parameter #<%s> sa nenašiel v .ini zložke '%s': chyba=0x%x"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:257
 #, c-format
@@ -961,9 +959,8 @@ msgid "Unable to open parameter file: '%s'"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_pre.cc:2511
-#, fuzzy
 msgid "Parameter file name is missing"
-msgstr "Súbor parametrov je %s"
+msgstr "Názov parametru chýba"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:19
 msgid "A file is already open"
@@ -1162,9 +1159,8 @@ msgid "Cannot use two g codes that both use axis values"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:70
-#, fuzzy
 msgid "Command too long"
-msgstr "Zadaná pozícia"
+msgstr "Príkaz je príliš dlhý"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:71
 msgid "Current point same as end point of arc"
@@ -1400,18 +1396,16 @@ msgid "Null missing after newline"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:129
-#, fuzzy
 msgid "Parameter file out of order"
-msgstr "Súbor parametrov je %s"
+msgstr "Súbor parametrov je mimo prevádzky"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:130
 msgid "Parameter number out of range"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:131
-#, fuzzy
 msgid "Parameter is readonly"
-msgstr "Súbor parametrov"
+msgstr "Parameter je len na čítanie"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:132
 msgid "Q word missing with g83"
@@ -1785,37 +1779,32 @@ msgid "Hal Meter"
 msgstr "HAL Meter"
 
 #: src/hal/utils/meter.c:292
-#, fuzzy
 msgid "_Select"
-msgstr "Vybrať všetky"
+msgstr "_Vybrať"
 
 #: src/hal/utils/meter.c:293
 msgid "E_xit"
 msgstr ""
 
 #: src/hal/utils/meter.c:336 src/hal/utils/meter.c:364
-#, fuzzy
 msgid "Select Item to Probe"
-msgstr "Vyberte premennú pre zobrazenie."
+msgstr "Vyberte položku pre sondu"
 
 #: src/hal/utils/meter.c:616
 msgid " _Pins "
 msgstr ""
 
 #: src/hal/utils/meter.c:617
-#, fuzzy
 msgid " _Signals "
-msgstr "Rozšíriť signály"
+msgstr "_Signály"
 
 #: src/hal/utils/meter.c:618
-#, fuzzy
 msgid " Para_meters "
-msgstr "Súbor parametrov"
+msgstr "Parametre"
 
 #: src/hal/utils/meter.c:649
-#, fuzzy
 msgid "_Close"
-msgstr "Ukončiť"
+msgstr "_Zatvoriť"
 
 #: src/hal/utils/scope.c:126
 msgid ""
@@ -1824,71 +1813,58 @@ msgid ""
 msgstr ""
 
 #: src/hal/utils/scope.c:468
-#, fuzzy
 msgid "Open Configuration File:"
-msgstr "Konfigurácia skopírovaná"
+msgstr "Otvorte konfiguračný súbor:"
 
 #: src/hal/utils/scope.c:470 src/hal/utils/scope.c:493
 #: src/hal/utils/scope_horiz.c:808 src/hal/utils/scope_vert.c:713
 #: src/hal/utils/scope_vert.c:933 src/hal/utils/scope_trig.c:315
-#, fuzzy
 msgid "_Cancel"
-msgstr "ZrušiťAbbrechen"
+msgstr "_Zrušiť"
 
 #: src/hal/utils/scope.c:471
-#, fuzzy
 msgid "_Open"
-msgstr "Otvoriť..."
+msgstr "Otvoriť"
 
 #: src/hal/utils/scope.c:491
-#, fuzzy
 msgid "Save Configuration File:"
-msgstr "Konfigurácia skopírovaná"
+msgstr "Uložiť konfiguračný súbor:"
 
 #: src/hal/utils/scope.c:494 src/hal/utils/scope_horiz.c:809
-#, fuzzy
 msgid "_Save"
-msgstr "Uložiť"
+msgstr "_Uložiť"
 
 #: src/hal/utils/scope.c:525
-#, fuzzy
 msgid "_Open Configuration..."
-msgstr "Príklady konfigurácií"
+msgstr "_Otvoriť konfiguráciu..."
 
 #: src/hal/utils/scope.c:531
-#, fuzzy
 msgid "_Save Configuration..."
-msgstr "Príklady konfigurácií"
+msgstr "_Uložiť konfiguráciu..."
 
 #: src/hal/utils/scope.c:540
-#, fuzzy
 msgid "O_pen Log File"
-msgstr "Konfigurácia skopírovaná"
+msgstr "Otvoriť súbor protokolu"
 
 #: src/hal/utils/scope.c:547
-#, fuzzy
-#| msgid "Save To File"
 msgid "S_ave Log File"
-msgstr "Uložiť"
+msgstr "Uložiť protokol"
 
 #: src/hal/utils/scope.c:556 share/axis/tcl/axis.tcl:102
-#, fuzzy
 msgid "_Quit"
-msgstr "Ukončiť"
+msgstr "_Preč"
 
 #: src/hal/utils/scope.c:562
 msgid "_About Halscope"
 msgstr ""
 
 #: src/hal/utils/scope.c:568 share/axis/tcl/axis.tcl:470
-#, fuzzy
 msgid "_File"
-msgstr "Súbor"
+msgstr "_Súbor"
 
 #: src/hal/utils/scope.c:572 share/axis/tcl/axis.tcl:482
-#, fuzzy
 msgid "_Help"
-msgstr "Pomoc"
+msgstr "_Pomoc"
 
 #: src/hal/utils/scope.c:627
 msgid "HAL Oscilloscope"
@@ -1899,9 +1875,8 @@ msgid "Horizontal"
 msgstr ""
 
 #: src/hal/utils/scope.c:665
-#, fuzzy
 msgid "Selected Channel"
-msgstr "Vybrať všetky"
+msgstr "Vybrať kanál"
 
 #: src/hal/utils/scope.c:671
 msgid "Run Mode"
@@ -1920,18 +1895,16 @@ msgstr ""
 #: share/axis/tcl/axis.tcl:1044 src/emc/usr_intf/gscreen/gscreen.py:4481
 #: src/emc/usr_intf/gscreen/gscreen.py:4482
 #: src/emc/usr_intf/gscreen/gscreen.glade:2649
-#, fuzzy
 msgid "Stop"
-msgstr "Krok"
+msgstr "Stop"
 
 #: src/hal/utils/scope.c:690 src/hal/utils/scope_trig.c:201
 msgid "Normal"
 msgstr ""
 
 #: src/hal/utils/scope.c:692
-#, fuzzy
 msgid "Single"
-msgstr "Jedna medzera"
+msgstr "Jeden kanál"
 
 #: src/hal/utils/scope.c:694
 msgid "Roll"
@@ -2026,7 +1999,6 @@ msgid ""
 msgstr ""
 
 #: src/hal/utils/scope_horiz.c:535 src/hal/utils/scope_vert.c:712
-#, fuzzy
 msgid "_OK"
 msgstr "OK"
 
@@ -2056,9 +2028,8 @@ msgid "Multiplier:"
 msgstr ""
 
 #: src/hal/utils/scope_horiz.c:657
-#, fuzzy
 msgid "Record Length"
-msgstr "Dĺžka:"
+msgstr "Dĺžka záznamu"
 
 #: src/hal/utils/scope_horiz.c:662
 #, c-format
@@ -2193,11 +2164,13 @@ msgid "MHz"
 msgstr ""
 
 #: src/hal/utils/scope_vert.c:411 src/hal/utils/scope_vert.c:1126
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "Offset\n"
 "%s"
-msgstr "Doplnky"
+msgstr ""
+"Ofset\n"
+"%s"
 
 #: src/hal/utils/scope_vert.c:607
 msgid "Gain"
@@ -2218,11 +2191,12 @@ msgid "Scale"
 msgstr ""
 
 #: src/hal/utils/scope_vert.c:640
-#, fuzzy
 msgid ""
 "Offset\n"
 "----"
-msgstr "Doplnky"
+msgstr ""
+"Offset\n"
+"----"
 
 #: src/hal/utils/scope_vert.c:648
 msgid "Chan Off"
@@ -2236,18 +2210,16 @@ msgid ""
 msgstr ""
 
 #: src/hal/utils/scope_vert.c:710
-#, fuzzy
 msgid "Set Offset"
-msgstr "Určiť doplnok nástroja"
+msgstr "Nastaviť ofset"
 
 #: src/hal/utils/scope_vert.c:729
 msgid "AC Coupled"
 msgstr ""
 
 #: src/hal/utils/scope_vert.c:831
-#, fuzzy
 msgid "Too many channels"
-msgstr "Súbor nástrojov"
+msgstr "Príliš veľa kanálov"
 
 #: src/hal/utils/scope_vert.c:834
 msgid ""
@@ -2273,14 +2245,12 @@ msgid "Pins"
 msgstr ""
 
 #: src/hal/utils/scope_vert.c:956
-#, fuzzy
 msgid "Signals"
-msgstr "Rozšíriť signály"
+msgstr "Signály"
 
 #: src/hal/utils/scope_vert.c:957
-#, fuzzy
 msgid "Parameters"
-msgstr "Súbor parametrov"
+msgstr "Parametre"
 
 #: src/hal/utils/scope_trig.c:115
 #, c-format
@@ -2450,14 +2420,12 @@ msgid "%s move on line %d would exceed %c's %s limit"
 msgstr ""
 
 #: src/emc/motion/command.c:215
-#, fuzzy
 msgid "negative"
-msgstr "pomerný"
+msgstr "negatívne"
 
 #: src/emc/motion/command.c:220
-#, fuzzy
 msgid "positive"
-msgstr "Typ polohy"
+msgstr "Pozícia"
 
 #: src/emc/motion/command.c:237
 #, c-format
@@ -2930,9 +2898,8 @@ msgid "Started Ladder program - press stop to pause."
 msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:394
-#, fuzzy
 msgid "Load Error"
-msgstr "Chyba"
+msgstr "Chyba načítania"
 
 #: src/hal/classicladder/classicladder_gtk.c:394
 msgid "Failed to load the project file..."
@@ -2987,9 +2954,8 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:409
 #: src/hal/classicladder/classicladder_gtk.c:426
-#, fuzzy
 msgid "Save Error"
-msgstr "Chyba"
+msgstr "Chyba uloženia"
 
 #: src/hal/classicladder/classicladder_gtk.c:409
 #: src/hal/classicladder/classicladder_gtk.c:426
@@ -3105,9 +3071,8 @@ msgid ""
 msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:699
-#, fuzzy
 msgid "Confirm!"
-msgstr "Potvrdiť nové?"
+msgstr "Potvrdiť nové!"
 
 #: src/hal/classicladder/classicladder_gtk.c:699
 msgid "Do you really want to quit ?\n"
@@ -3150,9 +3115,8 @@ msgid "Save"
 msgstr "Uložiť"
 
 #: src/hal/classicladder/classicladder_gtk.c:846
-#, fuzzy
 msgid "Save As"
-msgstr "Uložiť ako..."
+msgstr "Uložiť ako"
 
 #: src/hal/classicladder/classicladder_gtk.c:851 tcl/tklinuxcnc.tcl:761
 msgid "Reset"
@@ -3174,19 +3138,16 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:877
 #: src/hal/classicladder/config_gtk.c:1025
-#, fuzzy
 msgid "Config"
-msgstr "HAL nastavenie..."
+msgstr "Konfig"
 
 #: src/hal/classicladder/classicladder_gtk.c:883 share/axis/tcl/axis.tcl:1301
-#, fuzzy
 msgid "Preview"
-msgstr "Vetvený Pohľad"
+msgstr "Náhľad"
 
 #: src/hal/classicladder/classicladder_gtk.c:888
-#, fuzzy
 msgid "Print"
-msgstr "Vytlačiť nastavenia"
+msgstr "Vytlačiť "
 
 #: src/hal/classicladder/classicladder_gtk.c:894 tcl/bin/halconfig.tcl:194
 #: src/emc/usr_intf/pncconf/help.glade:511
@@ -3254,9 +3215,9 @@ msgid "INFO CLASSICLADDER---Reading MODBUS config file -%s\n"
 msgstr ""
 
 #: src/hal/classicladder/config.c:86
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot open %s file !!!\n"
-msgstr "Nie je možné otvoriť %s."
+msgstr "Nie je možné otvoriť %s zložku !!!\n"
 
 #: src/hal/classicladder/config.c:117
 #, c-format
@@ -3273,9 +3234,8 @@ msgstr ""
 
 #: src/hal/classicladder/config_gtk.c:114
 #: src/hal/classicladder/config_gtk.c:143
-#, fuzzy
 msgid "used"
-msgstr "Späť"
+msgstr "použité"
 
 #: src/hal/classicladder/config_gtk.c:118
 msgid "Number of Bits                  "
@@ -3346,9 +3306,8 @@ msgid "Current path/filename"
 msgstr ""
 
 #: src/hal/classicladder/config_gtk.c:294
-#, fuzzy
 msgid "Slave Address"
-msgstr "Uložiť ako..."
+msgstr "Podriadená adresa"
 
 #: src/hal/classicladder/config_gtk.c:294
 msgid "Request Type"
@@ -3416,14 +3375,14 @@ msgid "Use RTS to send"
 msgstr ""
 
 #: src/hal/classicladder/config_gtk.c:659
-#, fuzzy, c-format
+#, c-format
 msgid "Modbus element offset"
-msgstr "Určiť doplnok nástroja"
+msgstr "Odsadenie prvku Modbus"
 
 #: src/hal/classicladder/config_gtk.c:663
-#, fuzzy, c-format
+#, c-format
 msgid "Debug level"
-msgstr "EMC2 Debug"
+msgstr "Úroveň ladenia"
 
 #: src/hal/classicladder/config_gtk.c:667
 #, c-format
@@ -3474,9 +3433,8 @@ msgid " To change Modbus port settings, save and reload ladder GUI"
 msgstr ""
 
 #: src/hal/classicladder/config_gtk.c:973
-#, fuzzy
 msgid "Updated Modbus configuration"
-msgstr "Príklady konfigurácií"
+msgstr "Aktualizovaná konfigurácia Modbus"
 
 #: src/hal/classicladder/config_gtk.c:996
 msgid "Opened Configuration window. Press again to update changes and close"
@@ -3519,9 +3477,8 @@ msgstr ""
 #: src/hal/classicladder/edit.c:164 src/hal/classicladder/edit.c:173
 #: src/hal/classicladder/edit.c:181 src/hal/classicladder/edit.c:190
 #: src/emc/usr_intf/stepconf/pport1.glade:1303
-#, fuzzy
 msgid "Preset"
-msgstr "Resetovať"
+msgstr "Prednastavené"
 
 #: src/hal/classicladder/edit.c:169
 msgid "MonostNbr"
@@ -3589,9 +3546,8 @@ msgid "New expr=%s\n"
 msgstr ""
 
 #: src/hal/classicladder/edit.c:393
-#, fuzzy
 msgid "Expression too long"
-msgstr "Zadaná pozícia"
+msgstr "Príliš dlhý výraz"
 
 #: src/hal/classicladder/edit.c:460
 msgid "You must select a boolean variable !"
@@ -3616,9 +3572,8 @@ msgid "Current rung in edit mode..."
 msgstr ""
 
 #: src/hal/classicladder/edit_gtk.c:128
-#, fuzzy
 msgid "Edit mode..."
-msgstr "Upraviť..."
+msgstr "Režim úprav..."
 
 #: src/hal/classicladder/edit_gtk.c:186 src/hal/classicladder/edit_gtk.c:360
 #: tcl/tooledit.tcl:488 lib/python/gladevcp/tooledit_gtk.glade:295
@@ -3661,9 +3616,8 @@ msgid "Cancel"
 msgstr "Zrušiť"
 
 #: src/hal/classicladder/edit_sequential.c:68
-#, fuzzy
 msgid "Step Nbr"
-msgstr "Krok"
+msgstr "Krok Nbr"
 
 #: src/hal/classicladder/edit_sequential.c:76
 msgid "Comment"
@@ -3799,9 +3753,8 @@ msgstr ""
 
 #: src/hal/classicladder/edit_sequential.c:797
 #: src/hal/classicladder/edit_sequential.c:805
-#, fuzzy
 msgid "top"
-msgstr "Krok"
+msgstr "nahor"
 
 #: src/hal/classicladder/edit_sequential.c:797
 #: src/hal/classicladder/edit_sequential.c:805
@@ -3840,9 +3793,8 @@ msgid "Properties"
 msgstr ""
 
 #: src/hal/classicladder/editproperties_gtk.c:180 tcl/bin/halshow.tcl:267
-#, fuzzy
 msgid "Parameter"
-msgstr "Súbor parametrov"
+msgstr "Parameter"
 
 #: src/hal/classicladder/editproperties_gtk.c:213 tcl/bin/halshow.tcl:735
 #: lib/python/gladevcp/tooledit_gtk.glade:340
@@ -3874,12 +3826,10 @@ msgstr ""
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:631
 #: src/emc/usr_intf/touchy/emc_interface.py:442
 #: src/emc/usr_intf/pncconf/base.glade:504
-#, fuzzy
 msgid "None"
-msgstr "Nie"
+msgstr "Žiadny"
 
 #: src/hal/classicladder/emc_mods.c:130
-#, fuzzy
 msgid "error"
 msgstr "Chyba"
 
@@ -3909,9 +3859,8 @@ msgid "Old Timer"
 msgstr ""
 
 #: src/hal/classicladder/emc_mods.c:262
-#, fuzzy
 msgid "New Timer"
-msgstr "Jedna medzera"
+msgstr "Nový časovač"
 
 #: src/hal/classicladder/emc_mods.c:267
 msgid "One-shot"
@@ -3922,9 +3871,8 @@ msgid "Counter"
 msgstr ""
 
 #: src/hal/classicladder/emc_mods.c:277
-#, fuzzy
 msgid "Error Flag Bit"
-msgstr "Chyba"
+msgstr "Chyba príznaku bitu"
 
 #: src/hal/classicladder/emc_mods.c:280
 msgid "Cannot auto assign symbol names-wrong variable name"
@@ -3936,9 +3884,9 @@ msgid "Rung version not supported...\n"
 msgstr ""
 
 #: src/hal/classicladder/files.c:260 src/hal/classicladder/files.c:299
-#, fuzzy, c-format
+#, c-format
 msgid "Loading file : %s"
-msgstr "Upravovací Súbor je %s"
+msgstr "Načítavam súbor : %s"
 
 #: src/hal/classicladder/files.c:277 src/hal/classicladder/files.c:303
 #: src/hal/classicladder/files.c:332
@@ -3950,9 +3898,9 @@ msgid " - not found.\n"
 msgstr ""
 
 #: src/hal/classicladder/files.c:330
-#, fuzzy, c-format
+#, c-format
 msgid "Saving file : %s"
-msgstr "Upravovací Súbor je %s"
+msgstr "Ukladám súbor: %s"
 
 #: src/hal/classicladder/files.c:334
 msgid " - failed.\n"
@@ -4075,14 +4023,12 @@ msgid "Language"
 msgstr ""
 
 #: src/hal/classicladder/manager_gtk.c:257
-#, fuzzy
 msgid "Main/Sub-Routine"
-msgstr "Rozšíriť strom"
+msgstr "Hlavný/podradený-podprogram"
 
 #: src/hal/classicladder/manager_gtk.c:258
-#, fuzzy
 msgid "Name"
-msgstr "INI-Názov"
+msgstr "Názov"
 
 #: src/hal/classicladder/manager_gtk.c:314
 msgid "Section Name   "
@@ -4097,23 +4043,20 @@ msgid "Type   "
 msgstr ""
 
 #: src/hal/classicladder/manager_gtk.c:314
-#, fuzzy
 msgid "debug"
-msgstr "Odstraňovanie chýb..."
+msgstr "Odstraňovanie chýb"
 
 #: src/hal/classicladder/manager_gtk.c:319
 msgid "Sections Manager"
 msgstr ""
 
 #: src/hal/classicladder/manager_gtk.c:335
-#, fuzzy
 msgid "Add section"
-msgstr "Nastavenie HAL"
+msgstr "Pridať sekciu"
 
 #: src/hal/classicladder/manager_gtk.c:340
-#, fuzzy
 msgid "Delete section"
-msgstr "Relatívna pozícia"
+msgstr "Odstrániť sekciu"
 
 #: src/hal/classicladder/manager_gtk.c:345
 #: src/emc/usr_intf/pncconf/private_data.py:462
@@ -4123,9 +4066,8 @@ msgstr ""
 #: src/hal/classicladder/manager_gtk.c:350
 #: src/emc/usr_intf/stepconf/halui_page.glade:156
 #: src/emc/usr_intf/pncconf/private_data.py:462
-#, fuzzy
 msgid "Move Down"
-msgstr "Dole"
+msgstr "Posunúť nadol"
 
 #: src/hal/classicladder/protocol_modbus_master.c:277
 #, c-format
@@ -4241,9 +4183,9 @@ msgid "Set RTS=%d\n"
 msgstr ""
 
 #: src/hal/classicladder/serial_linux.c:185
-#, fuzzy, c-format
+#, c-format
 msgid "Serial writing...\n"
-msgstr "Testujem..."
+msgstr "Testujem...\n"
 
 #: src/hal/classicladder/serial_linux.c:190
 #, c-format
@@ -4251,14 +4193,14 @@ msgid "SerialSend failed: %s!\n"
 msgstr ""
 
 #: src/hal/classicladder/serial_linux.c:197
-#, fuzzy, c-format
+#, c-format
 msgid "Writing done!\n"
-msgstr "Vybrať font"
+msgstr "Zápis je hotový!\n"
 
 #: src/hal/classicladder/serial_linux.c:215
-#, fuzzy, c-format
+#, c-format
 msgid "Serial config...\n"
-msgstr "Nastavenie HAL..."
+msgstr "Sériová konfigurácia...\n"
 
 #: src/hal/classicladder/serial_linux.c:236
 #, c-format
@@ -4266,9 +4208,9 @@ msgid "select() for serial reading...\n"
 msgstr ""
 
 #: src/hal/classicladder/serial_linux.c:241
-#, fuzzy, c-format
+#, c-format
 msgid "Serial reading...\n"
-msgstr "Testujem..."
+msgstr "Sériové čítanie...\n"
 
 #: src/hal/classicladder/serial_linux.c:244
 #, c-format
@@ -4527,9 +4469,8 @@ msgid "Unknown variable (global error)"
 msgstr ""
 
 #: tcl/bin/emccalib.tcl:95
-#, fuzzy
 msgid "LinuxCNC Calibration"
-msgstr "Kalibrácia osi EMC2"
+msgstr "Kalibrácia LinuxCNC"
 
 #: tcl/bin/emccalib.tcl:103
 msgid "Save To File"
@@ -4576,12 +4517,11 @@ msgstr ""
 #: tcl/scripts/Set_Coordinates.tcl:191 tcl/scripts/Set_Coordinates.tcl:212
 #, tcl-format
 msgid "can't save %s"
-msgstr "Nie je možné uložiť %s ."
+msgstr "Nie je možné uložiť %s"
 
 #: tcl/bin/emcdebug.tcl:166 tcl/bin/emcdebug.tcl:177
-#, fuzzy
 msgid "LinuxCNC Debug"
-msgstr "EMC2 Debug"
+msgstr "EMC2 Ladenie"
 
 #: tcl/bin/emcdebug.tcl:185
 msgid "Invalid INI file entries"
@@ -4929,7 +4869,6 @@ msgid "%s is not a leaf, try again"
 msgstr "%s nie je list, skúste znova"
 
 #: tcl/bin/halconfig.tcl:1281
-#, fuzzy
 msgid ""
 "Copyright Raymond E Henry. 2006\n"
 "License: GPL Version 2\n"
@@ -4943,12 +4882,11 @@ msgstr ""
 "Copyright Raymond E Henry. 2006\n"
 "License: GPL Version 2\n"
 "\n"
-"Halconfig is an EMC2 configuration tool.  It should be started from the emc2 "
-"directory and will require that you have started an instance of emc2 or work "
-"up a new configuration starting with a demo rt script.\n"
+"Halconfig je konfiguračný nástroj LinuxCNC. Vyžaduje, aby ste spustili "
+"inštanciu linuxcnc.\n"
 "\n"
-"This script is not for the faint hearted and carries no warranty or "
-"liability for its use to the extent allowed by law."
+"Tento skript nenesie žiadnu záruku ani zodpovednosť za jeho použitie v "
+"rozsahu povolenom zákonom."
 
 #: tcl/bin/halshow.tcl:105
 #, fuzzy
@@ -4972,9 +4910,8 @@ msgid "Load Watch List"
 msgstr ""
 
 #: tcl/bin/halshow.tcl:224
-#, fuzzy
 msgid "Save Watch List"
-msgstr "Uložiť ako Netlist"
+msgstr "Uložiť zoznam sledovania"
 
 #: tcl/bin/halshow.tcl:225
 msgid "Save Watch List (multiline)"
@@ -4985,49 +4922,40 @@ msgid "Tree View"
 msgstr "Vetvený Pohľad"
 
 #: tcl/bin/halshow.tcl:244
-#, fuzzy
 msgid "Expand All"
-msgstr "Rozšíriť piny"
+msgstr "Všetko expandovať"
 
 #: tcl/bin/halshow.tcl:246
-#, fuzzy
-#| msgid "Collapse Tree"
 msgid "Collapse All"
-msgstr "Uzavrieť strom"
+msgstr "Zbaliť všetko"
 
 #: tcl/bin/halshow.tcl:256
 msgid "Reload tree view"
 msgstr ""
 
 #: tcl/bin/halshow.tcl:262
-#, fuzzy
 msgid "Add pin"
-msgstr "Nastavenie HAL"
+msgstr "Pridať pin"
 
 #: tcl/bin/halshow.tcl:263
-#, fuzzy
 msgid "Pin"
-msgstr "Hlavné"
+msgstr "Pin"
 
 #: tcl/bin/halshow.tcl:264
-#, fuzzy
 msgid "Add signal"
-msgstr "Nastavenie HAL"
+msgstr "Pridať signál"
 
 #: tcl/bin/halshow.tcl:265
-#, fuzzy
 msgid "Signal"
-msgstr "Rozšíriť signály"
+msgstr "Signál"
 
 #: tcl/bin/halshow.tcl:266
-#, fuzzy
 msgid "Add parameter"
-msgstr "Súbor parametrov"
+msgstr "Pridať parameter"
 
 #: tcl/bin/halshow.tcl:269
-#, fuzzy
 msgid "Reload Watch"
-msgstr "Načítať tabuľku nástrojov"
+msgstr "Znova načítať "
 
 #: tcl/bin/halshow.tcl:274
 msgid "Watchlist cleared"
@@ -5046,15 +4974,12 @@ msgid "Full path (regex)"
 msgstr ""
 
 #: tcl/bin/halshow.tcl:335 tcl/bin/halshow.tcl:348
-#, fuzzy
 msgid "Filter tree"
-msgstr "Testujem..."
+msgstr "Strom filtra"
 
 #: tcl/bin/halshow.tcl:664
-#, fuzzy
-#| msgid "Test HAL command :"
 msgid "HAL command :"
-msgstr "Vyskúšať príkaz HAL :"
+msgstr "Príkaz HAL :"
 
 #: tcl/bin/halshow.tcl:724
 msgid "Update interval (in ms)"
@@ -5073,10 +4998,8 @@ msgid "Float"
 msgstr ""
 
 #: tcl/bin/halshow.tcl:729
-#, fuzzy
-#| msgid "Interpreter"
 msgid "Integer"
-msgstr "Interpret"
+msgstr "Celé číslo"
 
 #: tcl/bin/halshow.tcl:732
 msgid ""
@@ -5097,32 +5020,28 @@ msgid "already in list"
 msgstr ""
 
 #: tcl/bin/halshow.tcl:936
-#, fuzzy
 msgid "Set to .."
-msgstr "Vybrať font"
+msgstr "Nastavený na .."
 
 #: tcl/bin/halshow.tcl:939
 msgid "Unlink pin"
 msgstr ""
 
 #: tcl/bin/halshow.tcl:941
-#, fuzzy
 msgid "Show in Tree"
-msgstr "Program"
+msgstr "Zobraziť v strome"
 
 #: tcl/bin/halshow.tcl:942
 msgid "Remove"
 msgstr ""
 
 #: tcl/bin/halshow.tcl:953
-#, fuzzy
 msgid "Add as Pin(s)"
-msgstr "Nastavenie HAL"
+msgstr "Pridať ako pin(s)"
 
 #: tcl/bin/halshow.tcl:954
-#, fuzzy
 msgid "Add as Signal(s)"
-msgstr "Nastavenie HAL"
+msgstr "Pridať ako signál(s)"
 
 #: tcl/bin/halshow.tcl:955
 msgid "Add as Param(s)"
@@ -5133,9 +5052,8 @@ msgid "Add all sub-items to watch"
 msgstr ""
 
 #: tcl/bin/halshow.tcl:998 tcl/bin/halshow.tcl:1066
-#, fuzzy
 msgid "Set"
-msgstr "Schovať nastavenia."
+msgstr "Nastaviť"
 
 #: tcl/bin/halshow.tcl:1018
 msgid "User input"
@@ -5167,7 +5085,7 @@ msgstr ""
 
 #: tcl/bin/halshow.tcl:1232
 msgid "Commands may be tested here but they will NOT be saved"
-msgstr "Tu môžete vyskúšať príkazy, ale NEBUDÚ uložené."
+msgstr "Tu môžete vyskúšať príkazy, ale NEBUDÚ uložené"
 
 #: tcl/bin/halshow.tcl:1257
 msgid "Integer (disabled by \"--iformat\" argument)"
@@ -5183,21 +5101,18 @@ msgid ""
 "install \n"
 "it with sudo apt-get install bwidget."
 msgstr ""
-"Balík bwidget 1.7 nebol nájdený. \n"
-"Je tu balík debian bwidget .\n"
+"Balík bwidget 1.7 nebol nájdený. Je tu balík debian bwidget .\n"
 "Môžete ho nainštalovať použitím sudo apt-get bwidget."
 
 #: tcl/bin/pickconfig.tcl:158
-#, fuzzy
 msgid "LinuxCNC Configuration Selector"
-msgstr "EMC2 Pomocník nastavenia"
+msgstr "LinuxCNC Výber konfigurácie"
 
 #: tcl/bin/pickconfig.tcl:308
 msgid "No details available."
 msgstr "Nie sú dostupné žiadne detaily."
 
 #: tcl/bin/pickconfig.tcl:385
-#, fuzzy
 msgid ""
 "Welcome to LinuxCNC.\n"
 "\n"
@@ -5206,11 +5121,11 @@ msgid ""
 "right.\n"
 "Click 'OK' to run the selected configuration"
 msgstr ""
-"Vitajte v EMC2.\n"
+"Vitajte v EMC2. \n"
 "\n"
 "Vyberte konfiguráciu stroja zo zoznamu.\n"
 "Detaily o vybranej konfigurácii sa objavia na displeji vpravo.\n"
-"Stlačte 'OK' pre spustenie vybranej konfigurácie ."
+"Stlačte 'OK' pre spustenie vybranej konfigurácie"
 
 #: tcl/bin/pickconfig.tcl:443
 msgid "My Configurations"
@@ -5223,7 +5138,7 @@ msgstr "Príklady konfigurácií"
 #: tcl/bin/pickconfig.tcl:575
 #, tcl-format
 msgid "ERROR: no configurations found in path '%s'"
-msgstr "CHYBA: Neboli nájdené žiadne konfigurácie na ceste %s."
+msgstr "CHYBA: Neboli nájdené žiadne konfigurácie na ceste %s"
 
 #: tcl/bin/pickconfig.tcl:625
 msgid "Copy Configuration?"
@@ -5243,13 +5158,13 @@ msgid "Configuration Copied"
 msgstr "Konfigurácia skopírovaná"
 
 #: tcl/bin/pickconfig.tcl:813
-#, fuzzy, tcl-format
+#, tcl-format
 msgid ""
 "The configuration file has been copied to %s. Next time, choose this "
 "location when starting LinuxCNC."
 msgstr ""
-"Súbor konfigurácie bol skopírovaný do %s. Nabudúce vyberte túto pozíciu pri "
-"spúšťaní EMC2."
+"Konfiguračný súbor bol skopírovaný do %s. Nabudúce pri spúšťaní LinuxCNC "
+"zvoľte toto umiestnenie."
 
 #: tcl/bin/pickconfig.tcl:864
 msgid "Shortcut Created"
@@ -5268,9 +5183,8 @@ msgid "Create Desktop Shortcut"
 msgstr "Vytvoriť odkaz na ploche"
 
 #: tcl/bin/tkbackplot.tcl:110
-#, fuzzy
 msgid "TkLinuxCNC BackPlot"
-msgstr "TkEMC Backplot"
+msgstr "TkLinuxCNC zobrazenie"
 
 #: tcl/bin/tkbackplot.tcl:125
 msgid "SETUP"
@@ -5305,23 +5219,20 @@ msgid "SIZE :"
 msgstr "VELKOST :"
 
 #: tcl/show_errors.tcl:78
-#, fuzzy
 msgid "LinuxCNC Errors"
-msgstr "Chyby EMC2"
+msgstr "LinuxCNC Chyby"
 
 #: tcl/show_errors.tcl:81
-#, fuzzy
 msgid ""
 "LinuxCNC terminated with an error.  When reporting problems, please create a "
 "report file and include in your message."
 msgstr ""
-"EMC2 ukončené kvôli chybe.  Pri nahlasovaní problému prosím zahrňte všetky "
-"informácie vo vašej správe."
+"LinuxCNC bol ukončený s chybou. Pri nahlasovaní problémov vytvorte súbor s "
+"hlásením a zahrňte ho do správy."
 
 #: tcl/show_errors.tcl:107
-#, fuzzy
 msgid "Create Report File"
-msgstr "Súbor parametrov"
+msgstr "Vytvoriť súbor správy"
 
 #: tcl/show_errors.tcl:109 tcl/scripts/Set_Coordinates.tcl:107
 msgid "Close"
@@ -5345,9 +5256,8 @@ msgid "Load Parameter File"
 msgstr "Načítať súbor parametra"
 
 #: tcl/tklinuxcnc.tcl:262
-#, fuzzy
 msgid "LinuxCNC Diagnostics"
-msgstr "EMC2 Diagnostika"
+msgstr "LinuxCNC Diagnostika"
 
 #: tcl/tklinuxcnc.tcl:264
 msgid "Task"
@@ -5378,12 +5288,10 @@ msgid "Motion"
 msgstr "Pohyb"
 
 #: tcl/tklinuxcnc.tcl:351
-#, fuzzy
 msgid "About TkLinuxCNC"
-msgstr "O TkEditore"
+msgstr "O TkLinuxCNC"
 
 #: tcl/tklinuxcnc.tcl:352
-#, fuzzy
 msgid ""
 "TkLinuxcnc\n"
 "\n"
@@ -5391,13 +5299,11 @@ msgid ""
 "\n"
 "GPL Version 2 (2012)"
 msgstr ""
-"TkEmc\n"
+"TkLinuxcnc\n"
 "\n"
-" Tcl/Tk GUI  pre \n"
-"Enhanced Machine Controller, Verzia 2 (EMC2)\n"
+"Tcl/Tk GUI pre LinuxCNC\n"
 "\n"
-"\n"
-"GPL Verzia 2 (2006)"
+"GPL Verzia 2 (2012)"
 
 #: tcl/tklinuxcnc.tcl:400
 msgid "Set Tool Offset"
@@ -5435,9 +5341,8 @@ msgid "Tool Table Editor..."
 msgstr ""
 
 #: tcl/tklinuxcnc.tcl:759 src/emc/usr_intf/touchy/touchy.glade:1379
-#, fuzzy
 msgid "Reload Tool Table"
-msgstr "Načítať tabuľku nástrojov"
+msgstr "Znovu načítať tabuľku nástrojov"
 
 #: tcl/tklinuxcnc.tcl:769
 msgid "Offsets and Variables..."
@@ -5449,7 +5354,7 @@ msgstr "Diagnostika..."
 
 #: tcl/tklinuxcnc.tcl:771
 msgid "Backplot..."
-msgstr "Backplot..."
+msgstr "Záznam na pozadí..."
 
 #: tcl/tklinuxcnc.tcl:776
 msgid "Calibration..."
@@ -5515,9 +5420,8 @@ msgid "Hal Scope"
 msgstr "HAL-Dosah"
 
 #: tcl/tklinuxcnc.tcl:806
-#, fuzzy
 msgid "Set Coordinates"
-msgstr "EMC2 Nastavenie Súradníc"
+msgstr "Nastavenie Súradníc"
 
 #: tcl/tklinuxcnc.tcl:814
 msgid "HAL Show"
@@ -5525,7 +5429,7 @@ msgstr "HAL Ukáž"
 
 #: tcl/tklinuxcnc.tcl:815
 msgid "HAL Config"
-msgstr "HAL nastavenie..."
+msgstr "HAL nastavenie"
 
 #: tcl/tklinuxcnc.tcl:820
 msgid "Help..."
@@ -5549,7 +5453,7 @@ msgstr "Stroj zapnutý"
 
 #: tcl/tklinuxcnc.tcl:848 src/emc/usr_intf/gscreen/gscreen.glade:2487
 msgid "Machine off"
-msgstr "Machine off"
+msgstr "Stroj vypnúť"
 
 #: tcl/tklinuxcnc.tcl:855 src/emc/usr_intf/touchy/touchy.glade:1551
 msgid "Manual"
@@ -5677,9 +5581,8 @@ msgid "Set spindle speed override:"
 msgstr "Nastaviť zmenu rýchlosti vretena:"
 
 #: tcl/tklinuxcnc.tcl:1410
-#, fuzzy
 msgid "Linear Jog Speed"
-msgstr "Rýchlosť krokov"
+msgstr "Lineárna rýchlosť jogu"
 
 #: tcl/tklinuxcnc.tcl:1441
 msgid "Angular Jog Speed (deg)/min:"
@@ -5835,9 +5738,8 @@ msgid "BRAKE ?"
 msgstr "BRZDY ?"
 
 #: tcl/scripts/Set_Coordinates.tcl:23
-#, fuzzy
 msgid "LinuxCNC Set Coordinate"
-msgstr "EMC2 Nastavenie Súradníc"
+msgstr "LinuxCNC Nastavenie Súradníc"
 
 #: tcl/scripts/Set_Coordinates.tcl:26
 msgid "Coordinate System Control Window"
@@ -5956,14 +5858,12 @@ msgid "not embedded, deriving outdir from:"
 msgstr ""
 
 #: tcl/ngcgui.tcl:1051
-#, fuzzy
 msgid "Choose Files"
-msgstr "Súbor nástrojov"
+msgstr "Vyberať Súbory"
 
 #: tcl/ngcgui.tcl:1191
-#, fuzzy
 msgid "Controls"
-msgstr "Priebežný"
+msgstr "Ovládacie prvky"
 
 #: tcl/ngcgui.tcl:1200
 msgid "Preamble"
@@ -5982,14 +5882,12 @@ msgid "Retain values on Subfile read"
 msgstr ""
 
 #: tcl/ngcgui.tcl:1250
-#, fuzzy
 msgid "Expand subroutine"
-msgstr "Rozšíriť strom"
+msgstr "Rozbaliť podprogram"
 
 #: tcl/ngcgui.tcl:1260 tcl/ngcgui.tcl:2592
-#, fuzzy
 msgid "Autosend"
-msgstr "Automatika"
+msgstr "Automatické odoslanie"
 
 #: tcl/ngcgui.tcl:1270
 msgid "Verbose ngcfile"
@@ -6001,9 +5899,8 @@ msgid "Create Feature"
 msgstr ""
 
 #: tcl/ngcgui.tcl:1286 tcl/ngcgui.tcl:3079
-#, fuzzy
 msgid "MakeFile"
-msgstr "Súbor"
+msgstr "Vytvoriť súbor"
 
 #: tcl/ngcgui.tcl:1287 tcl/ngcgui.tcl:3076
 msgid "Finalize"
@@ -6034,18 +5931,16 @@ msgid "Subroutine file"
 msgstr ""
 
 #: tcl/ngcgui.tcl:1558
-#, fuzzy
 msgid "Positional Parameters"
-msgstr "Rozšíriť parametre"
+msgstr "Polohové parametre"
 
 #: tcl/ngcgui.tcl:1707
 msgid "No Subfile specified"
 msgstr ""
 
 #: tcl/ngcgui.tcl:1709
-#, fuzzy
 msgid "No parameters yet"
-msgstr "Načítať súbor parametra"
+msgstr "Zatiaľ bez parametrov"
 
 #: tcl/ngcgui.tcl:1718
 msgid "Missing value for parm"
@@ -6076,9 +5971,8 @@ msgid "Axis is not responding"
 msgstr ""
 
 #: tcl/ngcgui.tcl:1872
-#, fuzzy
 msgid "Error: "
-msgstr "Chyba"
+msgstr "Chyba: "
 
 #: tcl/ngcgui.tcl:1874
 msgid "Autosend disabled, Ctrl-A toggles autosend"
@@ -6117,9 +6011,8 @@ msgid "activated"
 msgstr ""
 
 #: tcl/ngcgui.tcl:1955
-#, fuzzy
 msgid "restores"
-msgstr "Testovať"
+msgstr "obnovuje"
 
 #: tcl/ngcgui.tcl:1994
 msgid "NOTREACHED mode"
@@ -6130,9 +6023,8 @@ msgid "Positional parameters for"
 msgstr ""
 
 #: tcl/ngcgui.tcl:2018
-#, fuzzy
 msgid "expanded file"
-msgstr "Text files"
+msgstr "rozšírený súbor"
 
 #: tcl/ngcgui.tcl:2032
 msgid "call subroutine file"
@@ -6143,9 +6035,8 @@ msgid "Enter parms for 1st feature"
 msgstr ""
 
 #: tcl/ngcgui.tcl:2422
-#, fuzzy
 msgid "New Outfile"
-msgstr "Súbory"
+msgstr "Nový výstup"
 
 #: tcl/ngcgui.tcl:2424
 msgid "Ready to make New Outfile"
@@ -6168,19 +6059,16 @@ msgid "Created feature "
 msgstr ""
 
 #: tcl/ngcgui.tcl:2494
-#, fuzzy
 msgid "option"
-msgstr "Pohyb"
+msgstr "možnosť"
 
 #: tcl/ngcgui.tcl:2505
-#, fuzzy
 msgid "Missing parameters"
-msgstr "Rozšíriť parametre"
+msgstr "Chýbajúce parametre"
 
 #: tcl/ngcgui.tcl:2509
-#, fuzzy
 msgid "Parse Error"
-msgstr "Chyba"
+msgstr "Chyba analýzy"
 
 #: tcl/ngcgui.tcl:2516
 msgid "Null Preamble"
@@ -6211,9 +6099,8 @@ msgid "Read Subfile"
 msgstr ""
 
 #: tcl/ngcgui.tcl:2549
-#, fuzzy
 msgid "Write Error"
-msgstr "Chyba"
+msgstr "Chyba zápisu"
 
 #: tcl/ngcgui.tcl:2553
 msgid "Outfile set"
@@ -6224,9 +6111,8 @@ msgid "Finished"
 msgstr ""
 
 #: tcl/ngcgui.tcl:2563
-#, fuzzy
 msgid "Canceled"
-msgstr "ZrušiťAbbrechen"
+msgstr "Zrušené"
 
 #: tcl/ngcgui.tcl:2569
 msgid "Sent"
@@ -6241,14 +6127,12 @@ msgid "Ctrl-k for Key bindings"
 msgstr ""
 
 #: tcl/ngcgui.tcl:2581
-#, fuzzy
 msgid "Expand sub"
-msgstr "Rozšíriť piny"
+msgstr "Rozbaliť sub"
 
 #: tcl/ngcgui.tcl:2585
-#, fuzzy
 msgid "Retain values"
-msgstr "Hodnota osi:"
+msgstr "Zachovať hodnoty"
 
 #: tcl/ngcgui.tcl:2589
 msgid "Verbose"
@@ -6279,18 +6163,16 @@ msgid "pre2.4_send_file_to_axis:error"
 msgstr ""
 
 #: tcl/ngcgui.tcl:2999 share/axis/tcl/axis.tcl:1772
-#, fuzzy
 msgid "OFF"
-msgstr "OFFSET"
+msgstr "OFF"
 
 #: tcl/ngcgui.tcl:3002
 msgid "Toggle autosend"
 msgstr ""
 
 #: tcl/ngcgui.tcl:3003 tcl/ngcgui.tcl:3210
-#, fuzzy
 msgid "Clear entries"
-msgstr "Príklady konfigurácií"
+msgstr "Vymazať záznamy"
 
 #: tcl/ngcgui.tcl:3004
 msgid "Set entries to default values"
@@ -6345,9 +6227,8 @@ msgid "toggle output file verbosity"
 msgstr ""
 
 #: tcl/ngcgui.tcl:3017
-#, fuzzy
 msgid "Show status"
-msgstr "Ukázať Reštart"
+msgstr "Zobraziť stav"
 
 #: tcl/ngcgui.tcl:3018
 msgid "Show full status (debug info)"
@@ -6378,14 +6259,12 @@ msgid "No file available for editing yet"
 msgstr ""
 
 #: tcl/ngcgui.tcl:3125 tcl/ngcgui.tcl:3134
-#, fuzzy
 msgid "No file available for editing"
-msgstr "Nie sú dostupné žiadne detaily."
+msgstr "Nie sú dostupné žiadne detaily"
 
 #: tcl/ngcgui.tcl:3151
-#, fuzzy
 msgid "Status items"
-msgstr "Stav:"
+msgstr "Stav"
 
 #: tcl/ngcgui.tcl:3164
 msgid "All-page opt items"
@@ -6396,16 +6275,14 @@ msgid "any-items"
 msgstr ""
 
 #: tcl/ngcgui.tcl:3203
-#, fuzzy
 msgid "Set defaults"
-msgstr "Použiť pôvodné"
+msgstr "Nastaviť predvolené hodnoty"
 
 #: tcl/ngcgui.tcl:3278
 msgid "not writable"
 msgstr ""
 
 #: tcl/ngcgui.tcl:3417 tcl/ngcgui.tcl:3598
-#, fuzzy
 msgid "new"
 msgstr "Nový"
 
@@ -6424,9 +6301,8 @@ msgstr ""
 #: tcl/ngcgui.tcl:3725 src/emc/usr_intf/pncconf/pncconf.py:3943
 #: src/emc/usr_intf/pncconf/pncconf.py:4049
 #: src/emc/usr_intf/pncconf/pncconf.py:4213
-#, fuzzy
 msgid "Custom"
-msgstr "Vystrihnúť"
+msgstr "Vlastné"
 
 #: tcl/ngcgui.tcl:3751
 msgid "Problem creating page"
@@ -6474,9 +6350,8 @@ msgid "(File found -- not in search path)"
 msgstr ""
 
 #: tcl/ngcgui.tcl:3825
-#, fuzzy
 msgid "Current directory"
-msgstr "EMC2 Pomocník nastavenia"
+msgstr "Aktuálny adresár"
 
 #: tcl/ngcgui.tcl:3826
 msgid "Search path"
@@ -6495,14 +6370,12 @@ msgid "(Restart required after fixing ini file)"
 msgstr ""
 
 #: tcl/ngcgui.tcl:3853
-#, fuzzy
 msgid "Try to Continue"
-msgstr "Priebežný"
+msgstr "Skúste pokračovať"
 
 #: tcl/ngcgui.tcl:3858
-#, fuzzy
 msgid "Ngcgui Configuration File Not Found"
-msgstr "Informácie o nastavení"
+msgstr "Konfiguračný súbor Ngcgui sa nenašiel"
 
 #: tcl/ngcgui.tcl:3938
 msgid "Missing Tcl Package Img"
@@ -6513,9 +6386,8 @@ msgid "Please install Img"
 msgstr ""
 
 #: tcl/ngcgui.tcl:4143
-#, fuzzy
 msgid "ini file"
-msgstr "Súbory"
+msgstr "ini súbor"
 
 #: tcl/ngcgui.tcl:4152
 msgid "not found"
@@ -6542,9 +6414,8 @@ msgid "Create a subroutine file from truetype-tracer (V4 reqd)"
 msgstr ""
 
 #: tcl/ngcgui_ttt.tcl:103 tcl/ngcgui_ttt.tcl:116
-#, fuzzy
 msgid "problem with"
-msgstr "Nahradiť týmto:"
+msgstr "problém s"
 
 #: tcl/ngcgui_ttt.tcl:107
 msgid "No entry for"
@@ -6579,9 +6450,8 @@ msgid "Subdiv"
 msgstr ""
 
 #: tcl/ngcgui_ttt.tcl:200 src/emc/usr_intf/touchy/touchy.glade:9
-#, fuzzy
 msgid "default"
-msgstr "Použiť pôvodné"
+msgstr "predvolené"
 
 #: tcl/ngcgui_ttt.tcl:240
 msgid "Mode"
@@ -6600,9 +6470,8 @@ msgid "fontname"
 msgstr ""
 
 #: tcl/ngcgui_ttt.tcl:263
-#, fuzzy
 msgid "Switches"
-msgstr "inch"
+msgstr "Prepínače"
 
 #: tcl/ngcgui_ttt.tcl:271
 msgid "Unicode"
@@ -6651,18 +6520,16 @@ msgid "Unexpected: multiple startups for ngcgui"
 msgstr ""
 
 #: tcl/ngcgui_app.tcl:50
-#, fuzzy
 msgid "LinuxCNC"
-msgstr "EMC2 Debug"
+msgstr "LinuxCNC"
 
 #: tcl/ngcgui_app.tcl:51 tcl/ngcgui_app.tcl:71
 msgid "for LinuxCNC 2.5.xxx, Do not include tkapp.py in the ini file"
 msgstr ""
 
 #: tcl/ngcgui_app.tcl:70
-#, fuzzy
 msgid "LinuxCNC version"
-msgstr "Chyby EMC2"
+msgstr "LinuxCNC verzia"
 
 #: tcl/tooledit.tcl:65
 msgid "Problem reading ~/.tooleditrc"
@@ -6732,9 +6599,8 @@ msgid "poc"
 msgstr ""
 
 #: tcl/tooledit.tcl:410
-#, fuzzy
 msgid "diam"
-msgstr "Priemer:"
+msgstr "priem"
 
 #: tcl/tooledit.tcl:411
 msgid "front"
@@ -6749,33 +6615,28 @@ msgid "orien"
 msgstr ""
 
 #: tcl/tooledit.tcl:414
-#, fuzzy
 msgid "comment"
-msgstr "Pričítať"
+msgstr "Popis nástroja"
 
 #: tcl/tooledit.tcl:444
-#, fuzzy
 msgid "Del"
 msgstr "Vymazať"
 
 #: tcl/tooledit.tcl:473
-#, fuzzy
 msgid "ReLoadTable"
-msgstr "Načítať tabuľku nástrojov"
+msgstr "Znova načítať tabuľku"
 
 #: tcl/tooledit.tcl:478
-#, fuzzy
 msgid "SaveFile"
-msgstr "Uložiť"
+msgstr "Uložiť súbor"
 
 #: tcl/tooledit.tcl:483
 msgid "ReRead"
 msgstr ""
 
 #: tcl/tooledit.tcl:485
-#, fuzzy
 msgid "AddTool"
-msgstr "Nástroje"
+msgstr "Pridať nástroj"
 
 #: tcl/tooledit.tcl:535
 #, tcl-format
@@ -6824,9 +6685,8 @@ msgid "Warning: File deleted by another process"
 msgstr ""
 
 #: tcl/tooledit.tcl:546
-#, fuzzy
 msgid "Added Tool"
-msgstr "Pridať nástroj"
+msgstr "Pridaný nástroj"
 
 #: tcl/tooledit.tcl:550
 #, tcl-format
@@ -6873,9 +6733,8 @@ msgid "Tool <%s> specified multiple times"
 msgstr ""
 
 #: tcl/tooledit.tcl:902
-#, fuzzy
 msgid "File Modified"
-msgstr "Zmenené..."
+msgstr "Zmenené"
 
 #: tcl/tooledit.tcl:903
 msgid "Save Modifications to File?"
@@ -6894,9 +6753,8 @@ msgid "Limit display to these columns by specifying"
 msgstr ""
 
 #: tcl/tooledit.tcl:933
-#, fuzzy
 msgid "Format for ini file is"
-msgstr "Nie je možné otvoriť %s."
+msgstr "Formát súboru ini je"
 
 #: tcl/tooledit.tcl:935
 msgid "For standalone use, invoke as"
@@ -6951,27 +6809,24 @@ msgid "Allowed column_ names are: %s"
 msgstr ""
 
 #: tcl/tooledit.tcl:1106
-#, fuzzy
 msgid "Missing filename"
-msgstr "Rozšíriť parametre"
+msgstr "Chýba názov súboru"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:155
 msgid "Do you really want to close LinuxCNC?"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:156
-#, fuzzy
 msgid "Confirm Close"
-msgstr "Konfigurácia skopírovaná"
+msgstr "Potvrdiť zatvorením"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:182
 msgid "Emergency stop"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:183
-#, fuzzy
 msgid "Turn machine on"
-msgstr "Stroj zapnutý"
+msgstr "Zapnúť stroj"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:185
 msgid "Activate first axis"
@@ -6998,9 +6853,8 @@ msgid "if joints radiobuttons visible"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:191
-#, fuzzy
 msgid "Set Feed Override from 0% to 100%"
-msgstr "Nastav prechod posunu"
+msgstr "Nastaviť rýchlosť obrábania z 0 % na 100 %"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:192
 msgid "if axes radiobuttons visible"
@@ -7011,37 +6865,32 @@ msgid ", and ."
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:193
-#, fuzzy
 msgid "Select jog speed"
-msgstr "Nastaviť rýchlosť krokov:"
+msgstr "Nastaviť rýchlosť pohybov"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:194
 msgid "< and >"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:194
-#, fuzzy
 msgid "Select angular jog speed"
-msgstr "Nastaviť rýchlosť krokov:"
+msgstr "Nastaviť rýchlosť uhlových pohybov"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:195
 msgid "I, Shift-I"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:195 share/axis/tcl/axis.tcl:2269
-#, fuzzy
 msgid "Select jog increment"
-msgstr "Pričítať"
+msgstr "Vybrať inkrement krokovania"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:196
-#, fuzzy
 msgid "Continuous jog"
-msgstr "Priebežný"
+msgstr "Kontinuálny jog"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:197
-#, fuzzy
 msgid "Home"
-msgstr "Domov"
+msgstr "Home"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:197
 msgid "Send active joint home"
@@ -7052,9 +6901,8 @@ msgid "Ctrl-Home"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:198
-#, fuzzy
 msgid "Home all joints"
-msgstr "Uložiť všetky"
+msgstr "Skalibrovať všetky kĺby"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:199
 msgid "Shift-Home"
@@ -7073,9 +6921,8 @@ msgid "Set G54 offset for active axis"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:201
-#, fuzzy
 msgid "Ctrl-End"
-msgstr "Medzera"
+msgstr "Ctrl-End"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:201
 msgid "Set tool offset for loaded tool"
@@ -7098,9 +6945,8 @@ msgid "Jog first axis or joint"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:207
-#, fuzzy
 msgid "Up, Down"
-msgstr "Dole"
+msgstr "Up, Down"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:207
 msgid "Jog second axis or joint"
@@ -7173,9 +7019,8 @@ msgid "Control+Left Button"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:222
-#, fuzzy
 msgid "Manual control"
-msgstr "Manuál"
+msgstr "Manuálne ovládanie"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:223
 msgid "Code entry (MDI)"
@@ -7213,12 +7058,11 @@ msgstr ""
 #: src/emc/usr_intf/touchy/touchy.glade:518
 #, fuzzy
 msgid "Override Limits"
-msgstr "Zmeniť limity"
+msgstr "Prepísať limity"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:230
-#, fuzzy
 msgid "Open program"
-msgstr "Program"
+msgstr "Otvoriť program"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:231
 msgid "Control-R"
@@ -7233,9 +7077,8 @@ msgid "Control-S"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:232
-#, fuzzy
 msgid "Save G-code as"
-msgstr "Uložiť ako..."
+msgstr "Uložiť G-kód ako"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:233
 #, fuzzy
@@ -7419,18 +7262,16 @@ msgid " radius"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1744
-#, fuzzy
 msgid " diameter"
-msgstr "Priemer:"
+msgstr "Priemer"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1745
 msgid "°"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1755
-#, fuzzy
 msgid "Coordinate System:"
-msgstr "Okno Kontroly Systému Súradníc"
+msgstr "Koordinačný systém:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1773
 msgid "fixture"
@@ -7441,14 +7282,12 @@ msgid "workpiece"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1795
-#, fuzzy
 msgid "Name:"
-msgstr "INI-Názov"
+msgstr "Meno:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1795
-#, fuzzy
 msgid "Size:"
-msgstr "Veľkosť"
+msgstr "Veľkosť:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1796
 #, fuzzy
@@ -7468,9 +7307,8 @@ msgid "Total distance:"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1798
-#, fuzzy
 msgid "Run time:"
-msgstr "Čas pohybu"
+msgstr "Čas chodu programu:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1798
 msgid "X bounds:"
@@ -7679,14 +7517,14 @@ msgid "Home all %s [Ctrl-Home]"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3546
-#, fuzzy, python-format
+#, python-format
 msgid "Home All %s"
-msgstr "Uložiť všetky"
+msgstr "Skalibrovať všetky %s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3548
-#, fuzzy, python-format
+#, python-format
 msgid "Unhome All %s"
-msgstr "Uložiť všetky"
+msgstr "Rozkalibrovať všetky %s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3589
 #, python-format
@@ -7952,9 +7790,8 @@ msgid "Contact Angle (degrees)"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:678
-#, fuzzy
 msgid "Spindle Speed (RPM)"
-msgstr "Zmena rýchlosti vretena:"
+msgstr "Rýchlosť vretena (RPM)"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:679
 msgid "Roughing offset (units, 0=no roughing)"
@@ -7987,9 +7824,8 @@ msgid "Configuration *"
 msgstr "Nastavenie HAL"
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:37
-#, fuzzy
 msgid "Version Numbers *"
-msgstr "Ďalšie číslo:"
+msgstr "Císlo verzie *"
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:38
 #, fuzzy
@@ -8016,9 +7852,8 @@ msgid "Interpreter List"
 msgstr "Zoznam interpretov"
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:44
-#, fuzzy
 msgid "State Tags"
-msgstr "Stav:"
+msgstr "Stav"
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:48
 #, python-format
@@ -8150,9 +7985,8 @@ msgid "Paste to MDI histor_y"
 msgstr ""
 
 #: share/axis/tcl/axis.tcl:175
-#, fuzzy
 msgid "_Calibration"
-msgstr "Kalibrácia..."
+msgstr "_Kalibrácia"
 
 #: share/axis/tcl/axis.tcl:179
 #, fuzzy
@@ -8170,9 +8004,8 @@ msgid "Ha_l Scope"
 msgstr "HAL-Dosah"
 
 #: share/axis/tcl/axis.tcl:191
-#, fuzzy
 msgid "Sho_w LinuxCNC Status"
-msgstr "Ukázať nastavenia."
+msgstr "Zobraziť stav LinuxCNC"
 
 #: share/axis/tcl/axis.tcl:195
 #, fuzzy
@@ -8287,9 +8120,8 @@ msgid "Sho_w live plot"
 msgstr ""
 
 #: share/axis/tcl/axis.tcl:342
-#, fuzzy
 msgid "Show too_l"
-msgstr "Ukázať nastavenia."
+msgstr "Zobraziť nástroj"
 
 #: share/axis/tcl/axis.tcl:347
 #, fuzzy
@@ -8485,9 +8317,8 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:835 share/axis/tcl/axis.tcl:1923
 #: share/axis/tcl/axis.tcl:2110
-#, fuzzy
 msgid "Axis:"
-msgstr "Os"
+msgstr "Os:"
 
 #: share/axis/tcl/axis.tcl:932 src/emc/usr_intf/gscreen/gscreen.glade:2979
 #, fuzzy
@@ -8503,9 +8334,8 @@ msgid "Tool Touch Off"
 msgstr ""
 
 #: share/axis/tcl/axis.tcl:1021
-#, fuzzy
 msgid "Spindle:"
-msgstr "Vreteno vypni"
+msgstr "Vreteno:"
 
 #: share/axis/tcl/axis.tcl:1068 src/emc/usr_intf/touchy/touchy.glade:949
 #: src/emc/usr_intf/stepconf/main_page.glade:29
@@ -8563,23 +8393,20 @@ msgid "DRO"
 msgstr ""
 
 #: share/axis/tcl/axis.tcl:1385
-#, fuzzy
 msgid "Active G-Codes:"
-msgstr "Aktívne G Kódy"
+msgstr "Aktívne G Kódy:"
 
 #: share/axis/tcl/axis.tcl:1397 share/axis/tcl/axis.tcl:1410
-#, fuzzy
 msgid "Jog Speed:"
-msgstr "Rýchlosť krokov"
+msgstr "Rýchlosť pohybov:"
 
 #: share/axis/tcl/axis.tcl:1422
 msgid "Max Velocity:"
 msgstr ""
 
 #: share/axis/tcl/axis.tcl:1451
-#, fuzzy
 msgid "Spindle Override:"
-msgstr "Nastaviť zmenu vretena"
+msgstr "Zmeniť otáčky vretena:"
 
 #: share/axis/tcl/axis.tcl:1453 share/axis/tcl/axis.tcl:1493
 #: share/axis/tcl/axis.tcl:1531 src/emc/usr_intf/pncconf/external.glade:2643
@@ -8638,9 +8465,8 @@ msgid "%"
 msgstr ""
 
 #: share/axis/tcl/axis.tcl:1529
-#, fuzzy
 msgid "Rapid Override:"
-msgstr "Nastaviť zmenu vretena"
+msgstr "Rýchloposuv:"
 
 #: share/axis/tcl/axis.tcl:1571
 msgid ""
@@ -8673,9 +8499,8 @@ msgid "(no file)"
 msgstr ""
 
 #: share/axis/tcl/axis.tcl:1833 share/axis/tcl/axis.tcl:1838
-#, fuzzy
 msgid "Position:"
-msgstr "Typ polohy"
+msgstr "Pozícia:"
 
 #: share/axis/tcl/axis.tcl:1835 src/emc/usr_intf/pncconf/screen.glade:89
 #: src/emc/usr_intf/gscreen/gscreen.py:4587
@@ -8702,9 +8527,8 @@ msgid "Commanded"
 msgstr "Rozkaz zadaný"
 
 #: share/axis/tcl/axis.tcl:1910 share/axis/tcl/axis.tcl:2110
-#, fuzzy
 msgid "Joint:"
-msgstr "spoj"
+msgstr "Kíb:"
 
 #: share/axis/tcl/axis.tcl:2230
 #, fuzzy
@@ -8848,9 +8672,8 @@ msgid "Dwell"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/mdi.py:67 src/emc/usr_intf/gscreen/mdi.py:63
-#, fuzzy
 msgid "Setup"
-msgstr "Schovať nastavenia."
+msgstr "Nastavenia"
 
 #: src/emc/usr_intf/touchy/mdi.py:68 src/emc/usr_intf/gscreen/mdi.py:64
 #, fuzzy
@@ -9211,7 +9034,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/thcad.glade:156
 #: src/emc/usr_intf/pncconf/dialogs.glade:1446
 msgid "5"
-msgstr ""
+msgstr "5"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1068
 #: src/emc/usr_intf/stepconf/ubuttons.glade:105
@@ -9332,9 +9155,8 @@ msgid "Loaded file:"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:2472
-#, fuzzy
 msgid "Interpreted line:"
-msgstr "Zoznam interpretov"
+msgstr "Interpretovaný riadok:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2486
 msgid "Distance:"
@@ -9355,9 +9177,8 @@ msgid "On limit switch:"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:2538
-#, fuzzy
 msgid "Spindle direction:"
-msgstr "Príklady konfigurácií"
+msgstr "Smer vretena:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2564
 msgid "Loaded tool:"
@@ -9417,9 +9238,8 @@ msgid "XY Rotation:"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:2796
-#, fuzzy
 msgid "Tool length:"
-msgstr "Súbor nástrojov"
+msgstr "Dĺžka nastroja:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2809
 msgid "label52"
@@ -9433,9 +9253,8 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:2843
-#, fuzzy
 msgid "Active codes:"
-msgstr "Aktívne G Kódy"
+msgstr "Aktívne Kódy:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2856
 #, fuzzy
@@ -9463,23 +9282,20 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:2979
-#, fuzzy
 msgid "Status"
-msgstr "Stav:"
+msgstr "Stav"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3007
 msgid "Control Font:"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:3019
-#, fuzzy
 msgid "DRO Font:"
-msgstr "Font"
+msgstr "DRO písmo:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3033
-#, fuzzy
 msgid "Error Font:"
-msgstr "Chyba"
+msgstr "Chyba písma:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3050
 msgid "ControlFont"
@@ -10435,12 +10251,14 @@ msgid "Desktop Launcher for LinuxCNC config made by Stepconf"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:821
-#, fuzzy
 msgid ""
 "Loading configuration error:\n"
 "\n"
 "{}"
-msgstr "EMC2 Pomocník nastavenia"
+msgstr ""
+"Chyba pri načítavaní konfigurácie:\n"
+"\n"
+"{}"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:973
 #: src/emc/usr_intf/stepconf/pages.py:152
@@ -10449,9 +10267,9 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1552
 #: src/emc/usr_intf/pncconf/tests.py:1037
-#, fuzzy, python-format
+#, python-format
 msgid "%s Axis Test"
-msgstr "Doplnok osi"
+msgstr "%s Test osi"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1555
 #: src/emc/usr_intf/stepconf/pages.py:952
@@ -10931,18 +10749,16 @@ msgid "Step _Time:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/base.glade:223
-#, fuzzy
 msgid "Step _Space:"
-msgstr "Jedna medzera"
+msgstr "Krok _Priestor:"
 
 #: src/emc/usr_intf/stepconf/base.glade:237
 msgid "Direction _Hold:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/base.glade:251
-#, fuzzy
 msgid "_Direction Setup:"
-msgstr "Vytlačiť nastavenia"
+msgstr "_Nastavenie smeru:"
 
 #: src/emc/usr_intf/stepconf/base.glade:269
 msgid "Driver Timing Settings"
@@ -10982,51 +10798,48 @@ msgid "Max step rate:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/base.glade:577
-#, fuzzy
 msgid "Machine _Name:"
-msgstr "Stroj zapnutý"
+msgstr "Stroj _Názov:"
 
 #: src/emc/usr_intf/stepconf/base.glade:591
 #: src/emc/usr_intf/pncconf/base.glade:137
-#, fuzzy
 msgid "Configuration directory:"
-msgstr "EMC2 Pomocník nastavenia"
+msgstr "Konfiguračný adresár:"
 
 #: src/emc/usr_intf/stepconf/base.glade:603
-#, fuzzy
 msgid "_Axis configuration:"
-msgstr "Nastavenie HAL"
+msgstr "_Axis konfigurácia:"
 
 #: src/emc/usr_intf/stepconf/base.glade:616
-#, fuzzy
 msgid "Reset Default machine _units:"
-msgstr "Stroj zapnutý"
+msgstr "Obnoviť predvolené jednotky stroja:"
 
 #: src/emc/usr_intf/stepconf/base.glade:641
 msgid ""
 "Driver characteristics: (Multiply by 1000 for times specified in µs or "
 "microseconds)"
 msgstr ""
+"Charakteristiky ovládača: (Vynásobte 1000 pre časy špecifikované v µs alebo "
+"mikrosekundách)"
 
 #: src/emc/usr_intf/stepconf/base.glade:654
 msgid "Base Period Maximum _Jitter:"
-msgstr ""
+msgstr "Maximálne chvenie základnej periódy:"
 
 #: src/emc/usr_intf/stepconf/start.glade:10
 #: src/emc/usr_intf/pncconf/start.glade:111
-#, fuzzy
 msgid "Create a new configuration"
-msgstr "Príklady konfigurácií"
+msgstr "Vytvorte novú konfiguráciu"
 
 #: src/emc/usr_intf/stepconf/start.glade:30
 #: src/emc/usr_intf/pncconf/start.glade:82
 msgid "Do you wish to:"
-msgstr ""
+msgstr "Chcete:"
 
 #: src/emc/usr_intf/stepconf/start.glade:39
 #: src/emc/usr_intf/pncconf/start.glade:93
 msgid "Modify a configuration already created with this program"
-msgstr ""
+msgstr "Upravte konfiguráciu už vytvorenú pomocou tohto programu"
 
 #: src/emc/usr_intf/stepconf/start.glade:56
 msgid "Import a Mach file"
@@ -11041,9 +10854,8 @@ msgid "Create a desktop _launcher to start LinuxCNC with this configuration."
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/start.glade:105
-#, fuzzy
 msgid "Create simulated hardware configuration."
-msgstr "Príklady konfigurácií"
+msgstr "Vytvoriť simulovanú hardvérovú konfiguráciu."
 
 #: src/emc/usr_intf/stepconf/start.glade:129
 #: src/emc/usr_intf/pncconf/start.glade:63
@@ -11256,9 +11068,8 @@ msgid "S_peed 2:"
 msgstr "Rýchlosť:"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:178
-#, fuzzy
 msgid "Calibration:"
-msgstr "Kalibrácia..."
+msgstr "Kalibrácia:"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:245
 msgid "12345"
@@ -11311,9 +11122,8 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/options.glade:140
 #: src/emc/usr_intf/pncconf/screen.glade:3294
-#, fuzzy
 msgid "Estop Button:"
-msgstr "Núdzové prerušenie zapnuté"
+msgstr "Tlačidlo núdzového prerušenia:"
 
 #: src/emc/usr_intf/stepconf/options.glade:156
 #: src/emc/usr_intf/pncconf/screen.glade:3325
@@ -11369,34 +11179,28 @@ msgstr "Príkaz:"
 
 #: src/emc/usr_intf/stepconf/options.glade:502
 #: src/emc/usr_intf/pncconf/screen.glade:3853
-#, fuzzy
 msgid "DRO Position:"
-msgstr "Typ polohy"
+msgstr "DRO pozícia:"
 
 #: src/emc/usr_intf/stepconf/options.glade:515
 #: src/emc/usr_intf/pncconf/screen.glade:3866
-#, fuzzy
 msgid "Flash Error Message:"
-msgstr "Chyba"
+msgstr "Chybové hlásenie Flash:"
 
 #: src/emc/usr_intf/stepconf/options.glade:528
 #: src/emc/usr_intf/pncconf/screen.glade:3879
-#, fuzzy
-#| msgid "Hide Restart"
 msgid "Hide Start Button:"
-msgstr "Schovať Reštart"
+msgstr "Skryť tlačidlo Štart:"
 
 #: src/emc/usr_intf/stepconf/options.glade:541
 #: src/emc/usr_intf/pncconf/screen.glade:3892
-#, fuzzy
 msgid "Hide Pause Button:"
-msgstr "Vreteno rýchlejšie"
+msgstr "Skryť tlačidlo pauzy:"
 
 #: src/emc/usr_intf/stepconf/options.glade:554
 #: src/emc/usr_intf/pncconf/screen.glade:3905
-#, fuzzy
 msgid "Hide Stop Button:"
-msgstr "Núdzové prerušenie zapnuté"
+msgstr "Skryť tlačidlo Stop:"
 
 #: src/emc/usr_intf/stepconf/options.glade:571
 msgid "_Onscreen prompt for manual tool change"
@@ -11415,9 +11219,8 @@ msgstr "Program"
 
 #: src/emc/usr_intf/stepconf/options.glade:662
 #: src/emc/usr_intf/pncconf/vcp.glade:96
-#, fuzzy
 msgid "Spindle speed display  "
-msgstr "Zmena rýchlosti vretena:"
+msgstr "Zobrazenie otáčok vretena"
 
 #: src/emc/usr_intf/stepconf/options.glade:679
 #: src/emc/usr_intf/stepconf/options.glade:1172
@@ -11669,9 +11472,8 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/thcad.glade:162
 #: src/emc/usr_intf/pncconf/thcad.glade:147
-#, fuzzy
 msgid "Model"
-msgstr "Príkaz:"
+msgstr "Model"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:261
 #: src/emc/usr_intf/pncconf/thcad.glade:243
@@ -11718,7 +11520,9 @@ msgstr "Typ polohy"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -11955,9 +11759,8 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:532
-#, fuzzy
 msgid "Specific Help page is unavailable\n"
-msgstr "Nie sú dostupné žiadne detaily."
+msgstr "Konkrétna stránka pomocníka nie je k dispozícii\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:534
 #, fuzzy
@@ -11999,18 +11802,16 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1353
-#, fuzzy
 msgid "Discovery is  unavailable\n"
-msgstr "Nie sú dostupné žiadne detaily."
+msgstr "Zistenie  nie je k dispozícii\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1615
 msgid "USB device Info Search"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1629
-#, fuzzy
 msgid "USB device  page is unavailable\n"
-msgstr "Nie sú dostupné žiadne detaily."
+msgstr "Stránka zariadenia USB je nedostupná\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1702
 #: src/emc/usr_intf/pncconf/tests.py:90
@@ -12198,9 +11999,8 @@ msgid "Encoder pulses / "
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4089
-#, fuzzy
 msgid "Resolver Scale:"
-msgstr "Jedna medzera"
+msgstr "Mierka resolvera:"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4427
 #, fuzzy
@@ -12212,9 +12012,9 @@ msgid "Axis Scale Calculation"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/pages.py:246 src/emc/usr_intf/pncconf/pages.py:297
-#, fuzzy, python-format
+#, python-format
 msgid "Point and click configuration - %s.pncconf "
-msgstr "Skopírovať konfiguráciu?"
+msgstr "Ukážte a kliknite na konfiguráciu - %s.pncconf "
 
 #: src/emc/usr_intf/pncconf/pages.py:329
 msgid ""
@@ -12631,10 +12431,8 @@ msgid "pin# %(pinnum)d is connected to output signal:'%(data)s' %(mesag)s"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1243
-#, fuzzy
-#| msgid "SPINDLE ?"
 msgid "#  SPINDLE"
-msgstr "VRETENO ?"
+msgstr "#  VRETENO "
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1253
 msgid "# -- BLDC setup --"
@@ -13401,24 +13199,20 @@ msgid "Jog incr D"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:427
-#, fuzzy
 msgid "Feed Override incr A"
-msgstr "Začať posun:"
+msgstr "Krok incr A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:427
-#, fuzzy
 msgid "Feed Override incr B"
-msgstr "Začať posun:"
+msgstr "Krok incr B"
 
 #: src/emc/usr_intf/pncconf/private_data.py:428
-#, fuzzy
 msgid "Feed Override incr C"
-msgstr "Začať posun:"
+msgstr "Krok incr C"
 
 #: src/emc/usr_intf/pncconf/private_data.py:428
-#, fuzzy
 msgid "Feed Override incr D"
-msgstr "Začať posun:"
+msgstr "Krok incr D"
 
 #: src/emc/usr_intf/pncconf/private_data.py:428
 #, fuzzy
@@ -13457,9 +13251,8 @@ msgid "Max Vel Override incr D"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:431
-#, fuzzy
 msgid "Feed Override enable"
-msgstr "Začať posun:"
+msgstr "Zmena kroku povolená"
 
 #: src/emc/usr_intf/pncconf/private_data.py:431
 #, fuzzy
@@ -13467,9 +13260,8 @@ msgid "Spindle Override enable"
 msgstr "Nastaviť zmenu vretena"
 
 #: src/emc/usr_intf/pncconf/private_data.py:432
-#, fuzzy
 msgid "Max Vel Override enable"
-msgstr "Začať posun:"
+msgstr "Zmena celkových rýchlostí povolená"
 
 #: src/emc/usr_intf/pncconf/private_data.py:433
 #, fuzzy
@@ -13487,9 +13279,8 @@ msgid "Manual Spindle Stop"
 msgstr "Vreteno Pomalšie"
 
 #: src/emc/usr_intf/pncconf/private_data.py:434
-#, fuzzy
 msgid "Spindle Up-To-Speed"
-msgstr "Zmena rýchlosti vretena:"
+msgstr "vreteno do otáčok"
 
 #: src/emc/usr_intf/pncconf/private_data.py:434
 #, fuzzy
@@ -14105,9 +13896,8 @@ msgid "Multi Hand Wheel"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:501
-#, fuzzy
 msgid "Feed Override"
-msgstr "Začať posun:"
+msgstr "Rýchlosť obrábania"
 
 #: src/emc/usr_intf/pncconf/private_data.py:501
 #, fuzzy
@@ -14115,9 +13905,8 @@ msgid "spindle Override"
 msgstr "Nastaviť zmenu vretena"
 
 #: src/emc/usr_intf/pncconf/private_data.py:501
-#, fuzzy
 msgid "Max Vel Override"
-msgstr "Začať posun:"
+msgstr "Celková rýchlost"
 
 #: src/emc/usr_intf/pncconf/private_data.py:502
 msgid "Arc Voltage"
@@ -14211,9 +14000,8 @@ msgid "Unused Output"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:529
-#, fuzzy
 msgid "Coolant"
-msgstr "Príkaz:"
+msgstr "Chladenie"
 
 #: src/emc/usr_intf/pncconf/private_data.py:529
 msgid "Control"
@@ -14614,11 +14402,12 @@ msgid "PNCconf - Mesa Card Configuration Wizard"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/main_page.glade:177
-#, fuzzy
 msgid ""
 "Save\n"
 "Data"
-msgstr "Uložiť"
+msgstr ""
+"Uložiť\n"
+"Data"
 
 #: src/emc/usr_intf/pncconf/main_page.glade:286
 msgid ""
@@ -14961,11 +14750,12 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:887
 #: src/emc/usr_intf/pncconf/mesa1.glade:887
-#, fuzzy
 msgid ""
 "Configuration\n"
 "     Page"
-msgstr "Nastavenie HAL"
+msgstr ""
+"Konfiguračná\n"
+"      stránka"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1125
 #: src/emc/usr_intf/pncconf/mesa0.glade:1390
@@ -16171,9 +15961,8 @@ msgid "Search for device rules"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:793
-#, fuzzy
 msgid "Device Name:"
-msgstr "Stroj zapnutý"
+msgstr "Meno zariadenia:"
 
 #: src/emc/usr_intf/pncconf/external.glade:867
 msgid "A +"
@@ -16220,9 +16009,8 @@ msgid "<b>default</b>"
 msgstr "<b>predvolené</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:1111
-#, fuzzy
 msgid "Speed B"
-msgstr "Rýchlosť:"
+msgstr "Rýchlosť B"
 
 #: src/emc/usr_intf/pncconf/external.glade:1124
 #, fuzzy
@@ -16251,9 +16039,8 @@ msgid "Z -"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:1276
-#, fuzzy
 msgid "Speed A"
-msgstr "Rýchlosť:"
+msgstr "Rýchlosť A"
 
 #: src/emc/usr_intf/pncconf/external.glade:1304
 #, fuzzy
@@ -16541,14 +16328,12 @@ msgid "XZ Lathe"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/base.glade:97
-#, fuzzy
 msgid "Machine Name:"
-msgstr "Stroj zapnutý"
+msgstr "Názov stroja:"
 
 #: src/emc/usr_intf/pncconf/base.glade:177
-#, fuzzy
 msgid "Axis configuration:"
-msgstr "Nastavenie HAL"
+msgstr "AXIS konfigurácia:"
 
 #: src/emc/usr_intf/pncconf/base.glade:189
 #, fuzzy
@@ -16556,9 +16341,8 @@ msgid "Include Spindle"
 msgstr "Vreteno vypni"
 
 #: src/emc/usr_intf/pncconf/base.glade:244
-#, fuzzy
 msgid "Machine units:"
-msgstr "Stroj zapnutý"
+msgstr "Jednotky stroje:"
 
 #: src/emc/usr_intf/pncconf/base.glade:303
 msgid "<b>Machine Basics</b>"
@@ -16656,9 +16440,8 @@ msgstr "Nastaviť zmenu vretena"
 
 #: src/emc/usr_intf/pncconf/screen.glade:510
 #: src/emc/usr_intf/pncconf/screen.glade:3811
-#, fuzzy
 msgid "Max Feed Override"
-msgstr "Začať posun:"
+msgstr "Max rýchlosť obrábania"
 
 #: src/emc/usr_intf/pncconf/screen.glade:554
 msgid "xyzabc"
@@ -16871,14 +16654,12 @@ msgid "Max RPM"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/vcp.glade:847
-#, fuzzy
 msgid "Spindle Speed Indicator"
-msgstr "Zmena rýchlosti vretena:"
+msgstr "Indikátor otáčok vretena"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:862
-#, fuzzy
 msgid "Spindle At Speed LED"
-msgstr "Zmena rýchlosti vretena:"
+msgstr "Vreteno beží"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:877
 msgid "Zero X Button"
@@ -16992,9 +16773,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/y_axis.glade:240
 #: src/emc/usr_intf/pncconf/z_axis.glade:240
 #: src/emc/usr_intf/pncconf/a_axis.glade:240
-#, fuzzy
 msgid "Use Compensation Filename:"
-msgstr "Konfigurácia skopírovaná"
+msgstr "Použiť názov kompenzačného súboru:"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:256
 #: src/emc/usr_intf/pncconf/y_axis.glade:256
@@ -17173,17 +16953,15 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/y_motor.glade:696
 #: src/emc/usr_intf/pncconf/z_motor.glade:696
 #: src/emc/usr_intf/pncconf/a_motor.glade:667
-#, fuzzy
 msgid "Analog Min Limit:"
-msgstr "Vreteno vypni"
+msgstr "Analógový min. limit:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:711
 #: src/emc/usr_intf/pncconf/y_motor.glade:711
 #: src/emc/usr_intf/pncconf/z_motor.glade:711
 #: src/emc/usr_intf/pncconf/a_motor.glade:682
-#, fuzzy
 msgid "Analog Max limit:"
-msgstr "Vreteno rýchlejšie"
+msgstr "Analógový max. limit:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:726
 #: src/emc/usr_intf/pncconf/y_motor.glade:726
@@ -17515,9 +17293,8 @@ msgstr "<b>Použitie Spindle-At-Speed</b>"
 #: src/emc/usr_intf/pncconf/y_motor.glade:1889
 #: src/emc/usr_intf/pncconf/z_motor.glade:1889
 #: src/emc/usr_intf/pncconf/a_motor.glade:1808
-#, fuzzy
 msgid "Filter gain:"
-msgstr "Testujem..."
+msgstr "Zosilnenie filtra:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1938
 #: src/emc/usr_intf/pncconf/y_motor.glade:1932
@@ -17578,9 +17355,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/z_motor.glade:2262
 #: src/emc/usr_intf/pncconf/a_motor.glade:2166
 #: src/emc/usr_intf/pncconf/s_motor.glade:2223
-#, fuzzy
 msgid "Stepper Scale:"
-msgstr "Jedna medzera"
+msgstr "Krokovacia mierka:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:2298
 #: src/emc/usr_intf/pncconf/y_motor.glade:2292
@@ -17631,9 +17407,8 @@ msgid "Output Voltage Info"
 msgstr "Informácie o doplnku"
 
 #: src/emc/usr_intf/pncconf/s_motor.glade:1176
-#, fuzzy
 msgid "Slave number:"
-msgstr "Prečíslovať"
+msgstr "Podradené číslo:"
 
 #: src/emc/usr_intf/pncconf/s_motor.glade:1197
 msgid "Serial Spindle VFD Info"
@@ -17783,18 +17558,16 @@ msgid "Servo Thread"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/realtime.glade:412
-#, fuzzy
 msgid "Load Command "
-msgstr "Rozkaz číslo:"
+msgstr "Príkaz načítať"
 
 #: src/emc/usr_intf/pncconf/realtime.glade:459
 msgid "Thread Speed"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/realtime.glade:470
-#, fuzzy
 msgid "Thread Command"
-msgstr "Príkaz:"
+msgstr "Príkaz vlákna"
 
 #: src/emc/usr_intf/pncconf/realtime.glade:483
 msgid "<b>Custom Components Commands</b>"
@@ -17925,9 +17698,8 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:117
 #: src/emc/usr_intf/pncconf/dialogs.glade:472
-#, fuzzy
 msgid "Interface type:"
-msgstr "Interpret"
+msgstr "Typ rozhrania:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:128
 msgid ""
@@ -17947,9 +17719,8 @@ msgid "192.168.1.121"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:191
-#, fuzzy
 msgid "Card Name:"
-msgstr "INI-Názov"
+msgstr "Meno karty:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:215
 msgid "Read hostmot2 PIN file From help's input tab"
@@ -18153,9 +17924,8 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2177
 #: src/emc/usr_intf/pncconf/dialogs.glade:2553
-#, fuzzy
 msgid "Leadscrew Metric Pitch"
-msgstr "Nahradiť týmto:"
+msgstr "Metrická rozteč stúpania skrutky"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2261
 msgid "<b>Step Motor Scale</b>"
@@ -18270,24 +18040,20 @@ msgid "PID Tuning"
 msgstr "Uložiť INI tunning"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:4695
-#, fuzzy
 msgid "Step Time:"
-msgstr "Jedna medzera"
+msgstr "Čas kroku:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:4706
-#, fuzzy
 msgid "Step Space:"
-msgstr "Jedna medzera"
+msgstr "Čas medzi krokom:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:4717
-#, fuzzy
 msgid "Direction Hold:"
-msgstr "Vytlačiť nastavenia"
+msgstr "Podržanie smeru:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:4754
-#, fuzzy
 msgid "Direction Setup:"
-msgstr "Vytlačiť nastavenia"
+msgstr "Nastavenie smeru:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:4963
 msgid "Step Timing"
@@ -18320,9 +18086,8 @@ msgid "Manual Mode"
 msgstr "Manuál"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:285
-#, fuzzy
 msgid "MDI Mode"
-msgstr "Príkaz:"
+msgstr "Mód MDI"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:285
 #, fuzzy
@@ -18553,9 +18318,8 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1988
 #: src/emc/usr_intf/gscreen/gscreen.py:1990
-#, fuzzy
 msgid "Spindle Speed Preset Entry"
-msgstr "Zmena rýchlosti vretena:"
+msgstr "Zadanie prednastavených otáčok vretena"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2022
 #: src/emc/usr_intf/gscreen/gscreen.py:2025
@@ -18585,9 +18349,8 @@ msgid "Machine powered on"
 msgstr "Stroj zapnutý"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2558
-#, fuzzy
 msgid "Machine Estopped!"
-msgstr "Pozícia stroja"
+msgstr "Pozícia stroja!"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2564
 #: lib/python/gladevcp/calculator.glade:33
@@ -18644,11 +18407,12 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3690
-#, fuzzy
 msgid ""
 "Set At\n"
 " "
-msgstr "Vybrať font"
+msgstr ""
+"Set At\n"
+" "
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3694
 msgid " Zero Origin"
@@ -18918,9 +18682,8 @@ msgid " Flood "
 msgstr "Chladenie zapnuté"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1533
-#, fuzzy
 msgid " At Speed "
-msgstr "Zmena rýchlosti vretena:"
+msgstr "V požadovanej rýchlosti"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1546
 msgid " Jog mode"
@@ -18945,18 +18708,20 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1743
-#, fuzzy
 msgid ""
 "Replace\n"
 "  Text:"
-msgstr "Nahradiť týmto:"
+msgstr ""
+"Nahradiť\n"
+"    Text:"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1762
-#, fuzzy
 msgid ""
 "Replace\n"
 "   All"
-msgstr "Nahradiť všetky"
+msgstr ""
+"Nahradiť\n"
+" všetko"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1775
 msgid ""
@@ -19014,26 +18779,29 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2080
-#, fuzzy
 msgid ""
 "Diameter\n"
 "   Mode"
-msgstr "Priemer:"
+msgstr ""
+"Mód\n"
+"priemeru"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2097
 #: src/emc/usr_intf/gscreen/gscreen.glade:3131
-#, fuzzy
 msgid ""
 " Show\n"
 "Offsets"
-msgstr "Ukázať Reštart"
+msgstr ""
+"Ukázať\n"
+"ofset"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2114
-#, fuzzy
 msgid ""
 "Show\n"
 "DTG"
-msgstr "Ukázať"
+msgstr ""
+"Ukázať\n"
+"DTG"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2131
 msgid ""
@@ -19065,9 +18833,8 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2263
 #: src/emc/usr_intf/gscreen/gscreen.glade:2403
-#, fuzzy
 msgid "Debug"
-msgstr "Odstraňovanie chýb..."
+msgstr "Odstraňovanie chýb"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2298
 msgid "Alarm History"
@@ -19080,9 +18847,8 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2328
-#, fuzzy
 msgid "Calibration"
-msgstr "Kalibrácia..."
+msgstr "Kalibrácia"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2339
 #, fuzzy
@@ -19106,11 +18872,12 @@ msgid "Tooleditor"
 msgstr "Editor"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2439
-#, fuzzy
 msgid ""
 "Offset\n"
 " Page"
-msgstr "Offset hodnota"
+msgstr ""
+"Stránka\n"
+"ofsetov"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2562
 msgid "Zero Origin"
@@ -19128,18 +18895,20 @@ msgid "Tool Setting"
 msgstr "Nastavenia"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2683
-#, fuzzy
 msgid ""
 "Single\n"
 " Step"
-msgstr "Jedna medzera"
+msgstr ""
+"Jeden\n"
+" krok"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2696
-#, fuzzy
 msgid ""
 "Run At\n"
 "  Line"
-msgstr "Čas pohybu"
+msgstr ""
+"Bežať na\n"
+"riadku"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2708
 msgid ""
@@ -19152,18 +18921,20 @@ msgid "Homing\n"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2816
-#, fuzzy
 msgid ""
 "Ignore\n"
 "Limits"
-msgstr "Všetky súbory"
+msgstr ""
+"Ignorovať\n"
+"limity"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2845
-#, fuzzy
 msgid ""
 "    Set\n"
 "Override"
-msgstr "Nastav prechod posunu"
+msgstr ""
+"Nastav\n"
+" prechod posunu"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2859
 msgid "Graphics\n"
@@ -19186,18 +18957,20 @@ msgid "<b>Select Buttons</b>"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2990
-#, fuzzy
 msgid ""
 "Unhome \n"
 "    All"
-msgstr "Uložiť všetky"
+msgstr ""
+"Rozkalibrovať\n"
+"všetko"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3002
-#, fuzzy
 msgid ""
 "Unhome\n"
 "   Axis"
-msgstr "Domov"
+msgstr ""
+"Rozkalibrovať\n"
+"os"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3014
 #: src/emc/usr_intf/gscreen/gscreen.glade:3119
@@ -19213,11 +18986,12 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3051
-#, fuzzy
 msgid ""
 "coordinate\n"
 "  System"
-msgstr "Okno Kontroly Systému Súradníc"
+msgstr ""
+"koordinačný\n"
+"systém"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3095
 msgid ""
@@ -19226,11 +19000,12 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3107
-#, fuzzy
 msgid ""
 "Spindle\n"
 "Controls"
-msgstr "Priebežný"
+msgstr ""
+"Kontrola\n"
+"vretena"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3230
 #, fuzzy
@@ -19238,18 +19013,20 @@ msgid "Open"
 msgstr "Otvoriť..."
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3240
-#, fuzzy
 msgid ""
 " Block\n"
 "Delete"
-msgstr "Vymazať"
+msgstr ""
+"Vymazať\n"
+"blok"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3252
-#, fuzzy
 msgid ""
 "Optional\n"
 "   Stop"
-msgstr "Možnosť prerušenia"
+msgstr ""
+"Volitelné\n"
+"STOP"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3264
 msgid ""
@@ -19258,46 +19035,52 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3300
-#, fuzzy
 msgid ""
 "Next\n"
 " Tab"
-msgstr "Ďalšia hodnota"
+msgstr ""
+"Ďalšia \n"
+"hodnota"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3320
-#, fuzzy
 msgid ""
 "   Feed\n"
 "Override"
-msgstr "Začať posun:"
+msgstr ""
+"Krok\n"
+"prepísať"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3333
-#, fuzzy
 msgid ""
 "Spindle\n"
 "Override"
-msgstr "Nastaviť zmenu vretena"
+msgstr ""
+"Otáčky\n"
+"prepísať"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3346
-#, fuzzy
 msgid ""
 "  Rapid\n"
 "Override"
-msgstr "Nastaviť zmenu vretena"
+msgstr ""
+"Rýchloposuv\n"
+"prepísať"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3367
-#, fuzzy
 msgid ""
 "   Jog\n"
 "Speed"
-msgstr "Rýchlosť krokov"
+msgstr ""
+"Rýchlosť\n"
+"pohybov"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3380
-#, fuzzy
 msgid ""
 "      Jog\n"
 "Increments"
-msgstr "Pričítať"
+msgstr ""
+"Inkrementálne\n"
+"pohyby"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3396
 msgid ""
@@ -19356,18 +19139,20 @@ msgid "Redo"
 msgstr "Obnoviť"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3596
-#, fuzzy
 msgid ""
 " Reload\n"
 "Program"
-msgstr "Program"
+msgstr ""
+"Znova načítať\n"
+"program"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3609
-#, fuzzy
 msgid ""
 "Replace\n"
 "  Text"
-msgstr "Nahradiť"
+msgstr ""
+"Nahradiť\n"
+"text"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3647
 msgid ""
@@ -19396,9 +19181,8 @@ msgid "Data Entry"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3847
-#, fuzzy
 msgid "<b>Calculator Entry</b>"
-msgstr "Príkaz:"
+msgstr "<b>Kalkulačka</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3936
 #, fuzzy
@@ -19450,14 +19234,12 @@ msgid "Move to parent directory"
 msgstr "EMC2 Pomocník nastavenia"
 
 #: lib/python/gladevcp/iconview.py:139
-#, fuzzy
 msgid "Select the previous file"
-msgstr "Vyberte premennú pre zobrazenie."
+msgstr "Vybrať predchádzajúci súbor"
 
 #: lib/python/gladevcp/iconview.py:148
-#, fuzzy
 msgid "Select the next file"
-msgstr "Vyberte premennú pre zobrazenie."
+msgstr "Vybrať nasledujúci súbor"
 
 #: lib/python/gladevcp/iconview.py:173
 msgid "Jump to user defined directory"
@@ -19472,10 +19254,8 @@ msgid "Close without returning a file path"
 msgstr ""
 
 #: lib/python/gladevcp/hal_mdihistory.py:89
-#, fuzzy
-#| msgid "Command:"
 msgid "Command"
-msgstr "Príkaz:"
+msgstr "Príkaz"
 
 #: lib/python/gladevcp/hal_mdihistory.py:271
 msgid "ERROR loading halshow"
@@ -19547,9 +19327,8 @@ msgstr ""
 
 #: lib/python/gladevcp/offsetpage.glade:40
 #: lib/python/gladevcp/offsetpage.glade:54
-#, fuzzy
 msgid "Tool"
-msgstr "Nástroj:"
+msgstr "Nástroj"
 
 #: lib/python/gladevcp/offsetpage.glade:74
 msgid "Rot"
@@ -19560,9 +19339,8 @@ msgid "Rotation of Z"
 msgstr ""
 
 #: lib/python/gladevcp/offsetpage.glade:285
-#, fuzzy
 msgid "Offset"
-msgstr "Nástrojový doplnok:"
+msgstr "Ofset"
 
 #: lib/python/gladevcp/offsetpage.glade:416
 #, fuzzy
@@ -19570,11 +19348,12 @@ msgid "Offset Name"
 msgstr "Offset hodnota"
 
 #: lib/python/gladevcp/offsetpage.glade:444
-#, fuzzy
 msgid ""
 "Zero\n"
 "G92"
-msgstr "Nula pre všetky G59.2"
+msgstr ""
+"Nulová\n"
+"G92"
 
 #: lib/python/gladevcp/offsetpage.glade:464
 msgid ""
@@ -19592,9 +19371,8 @@ msgstr "Vybrať všetky"
 #: lib/python/gladevcp/tooledit_gtk.glade:93
 #: lib/python/gladevcp/tooledit_gtk.glade:402
 #: lib/python/gladevcp/tooledit_gtk.glade:624
-#, fuzzy
 msgid "Tool#"
-msgstr "Nástroj :"
+msgstr "Nástroj"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:109
 #: lib/python/gladevcp/tooledit_gtk.glade:413
@@ -19605,9 +19383,8 @@ msgstr ""
 #: lib/python/gladevcp/tooledit_gtk.glade:222
 #: lib/python/gladevcp/tooledit_gtk.glade:523
 #: lib/python/gladevcp/tooledit_gtk.glade:745
-#, fuzzy
 msgid "Diameter"
-msgstr "Priemer:"
+msgstr "Priemer"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:237
 #: lib/python/gladevcp/tooledit_gtk.glade:538
@@ -19625,9 +19402,8 @@ msgstr ""
 #: lib/python/gladevcp/tooledit_gtk.glade:270
 #: lib/python/gladevcp/tooledit_gtk.glade:571
 #: lib/python/gladevcp/tooledit_gtk.glade:793
-#, fuzzy
 msgid "Comments"
-msgstr "Príkaz:"
+msgstr "Popis"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:325
 msgid "Reload"
@@ -19647,19 +19423,16 @@ msgid "Z Wear"
 msgstr ""
 
 #: lib/python/gladevcp/tooledit_gtk.glade:590
-#, fuzzy
 msgid "Lathe Wear Offsets"
-msgstr "Pracovný doplnok:"
+msgstr "Ofsety opotrebovania sústruhu"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:646
-#, fuzzy
 msgid "X Tool"
-msgstr "Nástroj:"
+msgstr "X Nástroj"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:668
-#, fuzzy
 msgid "Z Tool"
-msgstr "Nástroj:"
+msgstr "Z Nástroj"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:812
 #, fuzzy
