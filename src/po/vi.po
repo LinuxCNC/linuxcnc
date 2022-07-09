@@ -2,13 +2,14 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # NhanPham <annhandt09@gmail.com>, 2022.
+# Trần Ngọc Quân <vnwildman@gmail.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-05-28 23:16+0200\n"
-"PO-Revision-Date: 2022-06-21 05:50+0000\n"
-"Last-Translator: NhanPham <annhandt09@gmail.com>\n"
+"PO-Revision-Date: 2022-07-04 12:42+0000\n"
+"Last-Translator: Trần Ngọc Quân <vnwildman@gmail.com>\n"
 "Language-Team: none\n"
 "Language: vi\n"
 "MIME-Version: 1.0\n"
@@ -290,7 +291,7 @@ msgstr "Thiếu từ %c trong cung tâm tuyệt đối"
 #: src/emc/rs274ngc/interp_convert.cc:676
 msgid ""
 "Radius of cutter compensation entry arc is not greater than the tool radius"
-msgstr ""
+msgstr "Cung đi vào của bù bán kính dao cắt không lớn hơn bán kính công cụ"
 
 #: src/emc/rs274ngc/interp_convert.cc:895
 #: src/emc/rs274ngc/interp_convert.cc:905 src/emc/rs274ngc/interp_queue.cc:607
@@ -11417,6 +11418,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
 msgid ""
 "_:"
+""
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -19075,15 +19077,11 @@ msgstr ""
 "G92"
 
 #: lib/python/gladevcp/offsetpage.glade:464
-#, fuzzy
-#| msgid ""
-#| "    Zero\n"
-#| "Rotational"
 msgid ""
 "Zero\n"
 "Rotational"
 msgstr ""
-"    Không\n"
+"Không\n"
 "Quay vòng"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:80
