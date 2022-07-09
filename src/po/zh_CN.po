@@ -2,13 +2,14 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # whatawhiz <pink0floyd@vip.qq.com>, 2022.
+# Jeff Epler <jepler@gmail.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: LinuxCNC EMC2.8.0\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-05-28 23:16+0200\n"
-"PO-Revision-Date: 2022-06-29 05:24+0000\n"
-"Last-Translator: whatawhiz <pink0floyd@vip.qq.com>\n"
+"PO-Revision-Date: 2022-07-02 14:59+0000\n"
+"Last-Translator: Jeff Epler <jepler@gmail.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/zh_Hans/>\n"
 "Language: zh_CN\n"
@@ -11486,6 +11487,7 @@ msgstr "反向"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
 msgid ""
 "_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -11768,7 +11770,7 @@ msgid ""
 "It seems data in this file is from too old of a version of PNCConf to "
 "continue.\n"
 "."
-msgstr "看来这个文件中的数据是从太旧版的PNCConf继承。\n"
+msgstr "看来这个文件中的数据是从太旧版的PNCConf继承。"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1296
 msgid "No board was found\n"
