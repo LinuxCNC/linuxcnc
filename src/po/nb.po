@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-05-28 23:16+0200\n"
-"PO-Revision-Date: 2022-06-12 06:56+0000\n"
+"PO-Revision-Date: 2022-06-27 21:55+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.13-dev\n"
+"X-Generator: Weblate 4.13.1-dev\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -215,7 +215,7 @@ msgstr "P kan bare brukes uten X og Y i det første kontrollpunktet"
 
 #: src/emc/rs274ngc/interp_convert.cc:155
 msgid "Must specify positive weight P for every Control Point"
-msgstr ""
+msgstr "Hvert kontrollpunkt må angi positiv vekt P"
 
 #: src/emc/rs274ngc/interp_convert.cc:158
 msgid "Cannot make a NURBS with 0 feedrate"
@@ -230,7 +230,7 @@ msgstr "G5.3 kan ikke brukes uten G5.2 foran"
 msgid ""
 "You must specify a number of control points at least equal to the order L = "
 "%d"
-msgstr ""
+msgstr "Du må minst oppgi et antall kontrollpunker som er likt instruks L = %d"
 
 #: src/emc/rs274ngc/interp_convert.cc:225
 msgid "Cannot convert spline with cutter radius compensation"
