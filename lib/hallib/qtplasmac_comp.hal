@@ -37,7 +37,7 @@ net plasmac:z-offset-current     axis.z.eoffset              =>  plasmac.z-offse
 # ---PLASMAC COMPONENT OUTPUTS---
 net plasmac:adaptive-feed        plasmac.adaptive-feed       =>  motion.adaptive-feed
 net plasmac:feed-hold            plasmac.feed-hold           =>  motion.feed-hold
-net plasmac:jog-inhibit          plasmac.jog-inhibit         =>  motion.jog-inhibit
+net plasmac:jog-inhibit          plasmac.jog-inhibit         =>  motion.jog-inhibit motion.jog-stop
 net plasmac:offset-scale         plasmac.offset-scale        =>  axis.x.eoffset-scale axis.y.eoffset-scale axis.z.eoffset-scale
 net plasmac:program-pause        plasmac.program-pause       =>  halui.program.pause
 net plasmac:program-resume       plasmac.program-resume      =>  halui.program.resume

@@ -1,4 +1,4 @@
-VERSION = '1.227.214'
+VERSION = '1.227.215'
 
 '''
 qtplasmac_handler.py
@@ -600,6 +600,14 @@ class HandlerClass:
                     text = _translate('HandlerClass', 'Ohmic Probe has disabled jogging')
                 elif self.w.led_breakaway_switch.hal_pin.get():
                     text = _translate('HandlerClass', 'Breakaway Switch has disabled jogging')
+                N.update(O.notify_critical, title='Operator Error:', message=text, msgs=O.notify_max_msgs)
+            elif 'jog-stop' in text or 'jog-stop-immediate' in text:
+                if self.w.led_float_switch.hal_pin.get():
+                    text = _translate('HandlerClass', 'Float Switch has aborted active jogging')
+                elif self.w.led_ohmic_probe.hal_pin.get():
+                    text = _translate('HandlerClass', 'Ohmic Probe has aborted active jogging')
+                elif self.w.led_breakaway_switch.hal_pin.get():
+                    text = _translate('HandlerClass', 'Breakaway Switch has aborted active jogging')
                 N.update(O.notify_critical, title='Operator Error:', message=text, msgs=O.notify_max_msgs)
             elif kind == linuxcnc.OPERATOR_ERROR:
                 N.update(O.notify_critical, title='Operator Error:', message=text, msgs=O.notify_max_msgs)
@@ -1540,6 +1548,7 @@ class HandlerClass:
     def jog_inhibited_changed(self, state):
         if state:
             self.w.chk_override_jog.setEnabled(state)
+            self.w.releaseKeyboard()
         else:
            if not self.w.led_float_switch.hal_pin.get() and not self.w.led_ohmic_probe.hal_pin.get() and \
                                                             not self.w.led_breakaway_switch.hal_pin.get():
