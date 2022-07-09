@@ -503,7 +503,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    /* check for coord or free space motion active */
 	    if (GET_MOTION_TELEOP_FLAG()) {
-                axis_jog_abort_all();
+                axis_jog_abort_all(0);
 	    } else if (GET_MOTION_COORD_FLAG()) {
 		tpAbort(&emcmotInternal->coord_tp);
 	    } else {
@@ -538,7 +538,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	    if (GET_MOTION_TELEOP_FLAG()) {
 		/* tell teleop planner to stop */
 		if ((emcmotCommand->axis >= 0) && (emcmotCommand->axis < EMCMOT_MAX_AXIS)) {
-                    axis_jog_abort(emcmotCommand->axis);
+                    axis_jog_abort(emcmotCommand->axis, 0);
                 }
 	    } else if (GET_MOTION_COORD_FLAG()) {
 		/* do nothing in coord mode */
@@ -557,7 +557,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	    break;
 
 	case EMCMOT_FREE:
-            axis_jog_abort_all();
+            axis_jog_abort_all(0);
 	    /* change the mode to free mode motion (joint mode) */
 	    /* can be done at any time */
 	    /* this code doesn't actually make the transition, it merely
@@ -820,7 +820,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	        joint->kb_jjog_active = 1;
 	        /* and let it go */
 	        joint->free_tp.enable = 1;
-                axis_jog_abort_all();
+                axis_jog_abort_all(0);
 	        /*! \todo FIXME - should we really be clearing errors here? */
 	        SET_JOINT_ERROR_FLAG(joint, 0);
 	        /* clear joints homed flag(s) if we don't have forward kins.
@@ -897,7 +897,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	        joint->kb_jjog_active = 1;
 	        /* and let it go */
 	        joint->free_tp.enable = 1;
-                axis_jog_abort_all();
+                axis_jog_abort_all(0);
 	        SET_JOINT_ERROR_FLAG(joint, 0);
 	        /* clear joint homed flag(s) if we don't have forward kins.
 	           Otherwise, a transition into coordinated mode will incorrectly

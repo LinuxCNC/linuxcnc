@@ -317,64 +317,43 @@ void axis_jog_abs(int axis_num, double offset, double vel)
     axis->teleop_tp.enable = 1;
 }
 
-void axis_jog_abort(int axis_num)
+bool axis_jog_abort(int axis_num, bool immediate)
 {
+    bool aborted = 0;
     emcmot_axis_t *axis = &axis_array[axis_num];
-    axis->teleop_tp.enable = 0;
-}
-
-void axis_jog_abort_all(void)
-{
-    int n;
-    for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
-        axis_jog_abort(n);
+    if (axis->teleop_tp.enable) {
+        aborted = 1;
     }
-}
-
-bool axis_jog_immediate_stop_all(void)
-{
-    int n;
-    bool aborted = false;
-
-    for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
-        emcmot_axis_t *axis = &axis_array[n];
-        if (axis->teleop_tp.enable) {
-            aborted = true;
-        }
-        axis->teleop_tp.enable = 0;
+    axis->teleop_tp.enable = 0;
+    axis->kb_ajog_active = 0;
+    axis->wheel_ajog_active = 0;
+    if (immediate) {
         axis->teleop_tp.curr_vel = 0.0;
     }
     return aborted;
 }
 
-void axis_jog_inhibit_all(void)
+bool axis_jog_abort_all(bool immediate)
 {
     int n;
-    emcmot_axis_t *axis;
-
+    bool aborted = 0;
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
-        axis = &axis_array[n];
-        if (axis->kb_ajog_active || axis->wheel_ajog_active) {
-            axis->teleop_tp.enable = 0;
-            axis->teleop_tp.curr_vel = 0.0;
-            axis->kb_ajog_active = 0;
-            axis->wheel_ajog_active = 0;
-        }
+        aborted = aborted || axis_jog_abort(n, immediate);
     }
+    return aborted;
 }
 
 bool axis_jog_is_active(void)
 {
     int n;
     emcmot_axis_t *axis;
-
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
         axis = &axis_array[n];
         if (axis->kb_ajog_active || axis->wheel_ajog_active) {
-            return true;
+            return 1;
         }
     }
-    return false;
+    return 0;
 }
 
 void axis_handle_jogwheels(bool motion_teleop_flag, bool motion_enable_flag, bool homing_is_active)

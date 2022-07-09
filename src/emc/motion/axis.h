@@ -20,10 +20,8 @@ void axis_check_constraints(double pos[], int failing_axes[]);
 void axis_jog_cont(int axis_num, double vel, long servo_period);
 void axis_jog_incr(int axis_num, double offset, double vel, long servo_period);
 void axis_jog_abs(int axis_num, double offset, double vel);
-void axis_jog_abort_all(void);
-void axis_jog_abort(int axis_num);
-bool axis_jog_immediate_stop_all(void);
-void axis_jog_inhibit_all(void);
+bool axis_jog_abort_all(bool immediate);
+bool axis_jog_abort(int axis_num, bool immediate);
 bool axis_jog_is_active(void);
 
 void axis_output_to_hal(double *pcmd_p[]);

@@ -475,6 +475,8 @@ static int init_hal_io(void)
     CALL_CHECK(hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->feed_inhibit), mot_comp_id, "motion.feed-inhibit"));
     CALL_CHECK(hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->homing_inhibit), mot_comp_id, "motion.homing-inhibit"));
     CALL_CHECK(hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->jog_inhibit), mot_comp_id, "motion.jog-inhibit"));
+    CALL_CHECK(hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->jog_stop), mot_comp_id, "motion.jog-stop"));
+    CALL_CHECK(hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->jog_stop_immediate), mot_comp_id, "motion.jog-stop-immediate"));
     CALL_CHECK(hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->tp_reverse), mot_comp_id, "motion.tp-reverse"));
     CALL_CHECK(hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->enable), mot_comp_id, "motion.enable"));
     CALL_CHECK(hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->is_all_homed), mot_comp_id, "motion.is-all-homed"));
@@ -611,6 +613,8 @@ static int init_hal_io(void)
     *(emcmot_hal_data->feed_inhibit) = 0;
     *(emcmot_hal_data->homing_inhibit) = 0;
     *(emcmot_hal_data->jog_inhibit) = 0;
+    *(emcmot_hal_data->jog_stop) = 0;
+    *(emcmot_hal_data->jog_stop_immediate) = 0;
     *(emcmot_hal_data->is_all_homed) = 0;
 
     *(emcmot_hal_data->probe_input) = 0;

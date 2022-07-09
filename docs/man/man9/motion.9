@@ -212,11 +212,19 @@ TRUE if all active joints is homed.
 \fBmotion.jog\-inhibit\fR IN BIT
 If this bit is TRUE, jogging of any joint or axis is disallowed and an error
 is reported.
-If any jog is active when the pin state changes to TRUE then that jog will be
-stopped.
 
 .TP
-\fBmotion.jog\-is-active\fR OUT BIT
+\fBmotion.jog\-stop\fR IN BIT
+If any jog is active when the pin state changes to TRUE then that jog will be
+stopped following the associated acceleration values.
+
+.TP
+\fBmotion.jog\-stop\-immediate\fR IN BIT
+If any jog is active when the pin state changes to TRUE then that jog will be
+stopped immediately.
+
+.TP
+\fBmotion.jog\-is\-active\fR OUT BIT
 TRUE if any joint or axis is jogging.
 
 .TP
