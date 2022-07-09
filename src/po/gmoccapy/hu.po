@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy\n"
-"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
-"POT-Creation-Date: 2022-05-28 23:16+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-07-09 16:34+0100\n"
 "PO-Revision-Date: 2022-06-26 11:30+0000\n"
 "Last-Translator: Hans U. <hansunzner@gmail.com>\n"
 "Language-Team: Hungarian <https://hosted.weblate.org/projects/linuxcnc/"
@@ -46,52 +46,68 @@ msgstr "Logofájl bejegyzést találtam, de nem alakítható útvonallá."
 msgid "The file path should not contain any spaces"
 msgstr "A fájl elérési útja nem tartalmazhat szóközt"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:691
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:673
+msgid "axis"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:674
+#, fuzzy
+msgid "axes"
+msgstr "jog tengelyek"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:679
+#, fuzzy
+msgid "joint"
+msgstr "jog jointok"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:680
+#, fuzzy
+msgid "joints"
+msgstr "jog jointok"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:696
 #, python-brace-format
 msgid "Press to home all {0}"
 msgstr "Nyomd meg az összes ref. pont felvételhez {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:704
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:991
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:709
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:996
 msgid "Press to display previous homing button"
 msgstr "Nyomd meg, hogy az előző Homing gomb látszodjon"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:720
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:725
 #, python-brace-format
 msgid "Press to home {0} {1}"
 msgstr "Nyomd meg a ref. gombot {0} {1}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:737
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1020
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:742
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1025
 msgid "Press to display next homing button"
 msgstr "Nyomd meg, hogy a következő Homing gomb látszódjon"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:752
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:757
 #, python-brace-format
 msgid "Press to unhome all {0}"
 msgstr "Nyomd meg az összes ref. törléséhez {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:761
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1065
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:766
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1070
 msgid "Press to return to main button list"
 msgstr "Vissza az alap gombok listájához"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:815
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1929
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2185
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:820
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1949
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2205
 msgid "**** GMOCCAPY ERROR ****\n"
 msgstr "**** GMOCCAPY HIBA ****\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:816
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:821
 #, python-brace-format
 msgid "**** could not resolv the image path '{0}' given for button '{1}' ****"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:972
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:977
 #, fuzzy
-#| msgid ""
-#| "  edit\n"
-#| "offsets"
 msgid ""
 "edit\n"
 "offsets"
@@ -99,20 +115,20 @@ msgstr ""
 "  eltolások\n"
 "szerkesztése"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:978
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:983
 msgid "Press to edit the offsets"
 msgstr "Nyomja meg az eltolások szerkesztéséhez"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1003
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1008
 #, python-brace-format
 msgid "Press to set touch off value for axis {0}"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1036
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1041
 msgid "Press to reset all G92 offsets"
 msgstr "Minden G92 eltolás törlése"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1042
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1047
 msgid ""
 " Block\n"
 "Height"
@@ -120,11 +136,11 @@ msgstr ""
 " Hasáb\n"
 "Magasság"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1044
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1049
 msgid "Press to enter new value for block height"
 msgstr "Kérem a hasáb új magasságát"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1049
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1054
 msgid ""
 "set\n"
 "selected"
@@ -132,185 +148,184 @@ msgstr ""
 "a Set\n"
 "kiválasztva"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1055
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1060
 msgid "Press to set the selected coordinate system to be the active one"
 msgstr "A kiválasztott koordináta rendszer aktiválása"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1080
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1096
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1242
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1821
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2015
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2028
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2038
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2103
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2106
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1085
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1101
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1247
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1826
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2035
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2048
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2058
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2123
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2126
 msgid "**** GMOCCAPY INFO ****"
 msgstr "**** GMOCCAPY INFO ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1081
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1086
 msgid "**** no valid probe config in INI File ****"
 msgstr "**** Nincs érvényes tapintó konfiguráció az INI fájlban ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1082
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1087
 msgid "**** disabled tool measurement ****"
 msgstr "**** Szerszám bemérés letiltva ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1097
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1102
 msgid "**** found valid probe config in INI File ****"
 msgstr "**** érvényes tapintó konfiguráció az INI fájlban ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1098
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1103
 msgid "**** will use auto tool measurement ****"
 msgstr "**** Automatikus szerszámbemérés használ ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1113
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1118
 msgid "**** GMOCCAPY build_GUI INFO ****"
 msgstr "**** GMOCCAPY GUI INFO ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1114
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1119
 msgid "**** To many increments given in INI File for this screen ****"
 msgstr ""
 "**** túl sok növekmény van megadva az INI fájlban ehhez a képernyőhöz ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1115
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1120
 msgid "**** Only the first 10 will be reachable through this screen ****"
 msgstr "**** Csak az első 10 lesz elérhető ezen a képernyőn ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1124
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1129
 msgid "Continuous"
 msgstr "Folyamatos"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1243
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1248
 #, python-brace-format
 msgid "unknown jog command {0}"
 msgstr "ismeretlen kézi parancs {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1270
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1275
 #, python-brace-format
 msgid "Press to jog axis {0}"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1289
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1294
 #, python-brace-format
 msgid "Press to jog joint {0}"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1312
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1317
 msgid "**** GMOCCAPY INFO ****\n"
 msgstr "**** GMOCCAPY INFO ****\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1313
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1318
 msgid "**** found more than 16 macros, will use only the first 16 ****"
 msgstr "**** Túl sok makró, csak az első 9 lesz használva ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1324
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1329
 msgid "Press to display previous macro button"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1343
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1348
 #, python-brace-format
 msgid "Press to run macro {0}"
 msgstr "Nyomja meg a gombot a makró futtatásához {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1354
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1359
 msgid "Press to display next macro button"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1374
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1379
 msgid "Press to display the virtual keyboard"
 msgstr "Virtuális billentyűzet kijelzése"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1471
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1476
 msgid "*****  GMOCCAPY ERROR  *****"
 msgstr "****  GMOCCAPY HIBA  ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1472
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1477
 msgid "this is not a lathe, as a lathe must have at least\n"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1473
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1478
 msgid "an X and an Z axis\n"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1474
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1479
 msgid "Wrong lathe configuration, we will leave here"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1475
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1932
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2188
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1480
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1952
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2208
 msgid "Very critical situation"
 msgstr "Nagyon kritikus helyzet"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1625
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1630
 msgid "*****  GMOCCAPY INFO  *****"
 msgstr "**** GMOCCAPY INFO  ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1626
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1631
 msgid "this is not a usual config\n"
 msgstr "ez nem szokásos konfiguráció\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1627
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1632
 msgid "we miss one of X , Y or Z axis\n"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1628
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1633
 msgid "We will use by axisletter ordered jog button"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1794
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2888
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1799
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2921
 msgid "mm/min"
 msgstr "mm/min"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1797
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2891
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1802
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2924
 msgid "inch/min"
 msgstr "inch/min"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1822
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1827
 msgid "**** Invalid embedded tab configuration ****"
 msgstr "**** Érvénytelen beépített fül konfiguráció****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1823
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1828
 msgid "**** No tabs will be added! ****"
 msgstr "**** Fülek nem lesznek hozzáadva! ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1840
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1845
 msgid "ERROR, trying to initialize the user tabs or panels, check for typos"
 msgstr ""
 "HIBA, próbálom inicializálni a füleket és paneleket, ellenőrizze nem történt-"
 "e elírás"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1930
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1950
 msgid "**** Did not find a toolfile file in [EMCIO] TOOL_TABLE ****"
 msgstr "**** Szerszámtábla fájl nem található az [EMCIO] TOOL_TABLE-ban ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2016
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2036
 msgid "**** audio available! ****"
 msgstr "**** Hangjelzés elérhető ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2029
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2049
 msgid "**** no audio available! ****"
 msgstr "**** Hangjelzés nem elérhető****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2030
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2050
 #, fuzzy
-#| msgid "**** PYGST libray not installed? ****"
 msgid "**** PYGST library not installed? ****"
 msgstr "**** PYGST nincs itelepítve? ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2031
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2051
 msgid "**** is python-gstX.XX installed? ****"
 msgstr "**** python-gstX.XX nincs itelepítve? ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2039
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2059
 msgid "**** Entering init gremlin ****"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2059
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5269
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2079
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5344
 msgid ""
 " Joint\n"
 "mode"
@@ -318,258 +333,249 @@ msgstr ""
 " Joint\n"
 "mód"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2104
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2124
 msgid "**** virtual keyboard program found : <onboard>"
 msgstr "**** <onboard> virtuális billentyűzet program találtható"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2107
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2127
 #, fuzzy
-#| msgid ""
-#| "**** No virtual keyboard installed, we checked for <onboard> and "
-#| "<matchbox-keyboard>."
 msgid "**** No virtual keyboard installed, we checked for <onboard> ."
 msgstr ""
 "****Nincs telepítve virtuális billentyűzet program <onboard> vagy <matchbox-"
 "keyboard>."
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2108
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2123
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2128
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2143
 msgid "**** try sudo apt-get install onboard"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2120
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3337
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3347
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2140
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3372
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3382
 msgid "**** GMOCCAPY ERROR ****"
 msgstr "**** GMOCCAPY HIBA ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2121
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2141
 msgid "**** Error with launching virtual keyboard,"
 msgstr "**** Hiba a virtuális billentyűzet program indításakor ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2122
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2142
 #, fuzzy
-#| msgid "**** is python-gstX.XX installed? ****"
 msgid "**** is onboard installed? ****"
 msgstr "**** python-gstX.XX nincs itelepítve? ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2155
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3016
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2175
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3051
 msgid "interrupt running macro"
 msgstr "Futó makró megszakítása"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2186
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2206
 msgid "**** Did not find a parameter file in [RS274NGC] PARAMETER_FILE ****"
 msgstr "**** Nincs paraméter fájl a [RS274NGC] PARAMETER_FILE -ban ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2256
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2276
 msgid "Select the file you want to be loaded at program start"
 msgstr "Válaszd ki a program indításakor betöltendő fájlt"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2290
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2314
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2310
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2334
 #, python-brace-format
 msgid "**** GMOCCAPY ERROR **** /n Message type {0} not supported"
 msgstr "**** GMOCCAPY HIBA**** /n {0} típusu üzenet nem támogatott"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2427
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2453
 msgid "Unknown error type and no error text given"
 msgstr "Ismeretlen hiba, nincs hozzárendelt hibaüzenet"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2441
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2467
 msgid "Important Warning"
 msgstr "Fontos figyelmeztetés"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2461
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2487
 msgid "External ESTOP is set, could not change state!"
 msgstr "HIBA: Külső ESTOP beállítva - nem lehet állapotot váltani!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2474
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2500
 msgid "Could not switch the machine on, is limit switch activated?"
 msgstr "HIBA: gépet nem lehet bekapcsolni, a végállás kapcsoló aktív?"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2557
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2583
 msgid "No file loaded"
 msgstr "Nincs betöltött fájl"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2771
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2801
 msgid "It is not possible to change to MDI Mode at the moment"
 msgstr "Jelenleg nem lehet MDI módba váltani"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2803
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2835
 msgid "It is not possible to change to Auto Mode at the moment"
 msgstr "Jelenleg nem lehet AUTO módba váltani"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2982
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3016
 msgid "Enter value:"
 msgstr "Írd be az értéket:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2983
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3017
 #, python-brace-format
 msgid "Set parameter {0} to:"
 msgstr "{0} paraméter beállítva:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2985
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3019
 msgid "conversion error"
 msgstr "konverziós hiba"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2986
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4924
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4947
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3020
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4983
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5006
 msgid "Conversion error !"
 msgstr "konverziós hiba!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3014
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3049
 msgid "This button will show or hide the keyboard"
 msgstr "Ez a gomb megjeleníti vagy elrejti a billentyűzetet"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3122
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3157
 msgid "Mode change is only allowed if the interpreter is idle!"
 msgstr "Módváltás csak akkor engedélyezett, ha a fordító tétlen!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3338
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3373
 #, python-brace-format
 msgid "**** {0} ****"
 msgstr "**** {0} ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3348
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3383
 #, python-brace-format
 msgid "**** No widget named: {0} to sensitize ****"
 msgstr "**** Nincs {0} widget az aktíváláshoz ****"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3514
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3549
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:36
 msgid "No tool description available"
 msgstr "Nincs leírás a szerszámhoz"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3654
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3689
 #, python-brace-format
 msgid "Halo, welcome to the test message {0}"
 msgstr "Ez egy teszt üzenet {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3762
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3800
 msgid "Hal Pin is low, Access denied"
 msgstr "HAL láb alacsony jelszinten, hozzáférés megtagadva"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3764
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3802
 msgid "wrong code entered, Access denied"
 msgstr "Rossz kód, hozzáférés megtagadva"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3765
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4399
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3803
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4451
 msgid "Just to warn you"
 msgstr "Figyelem"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3910
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3957
 msgid "INFO:"
 msgstr "INFO:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3911
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3958
 msgid "Classicladder real-time component not detected"
 msgstr "Nincs Classicladder valós idejű komponens"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4026
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4073
 #, python-brace-format
 msgid "Something went wrong, we have an unknown spindle widget {0}"
 msgstr "Valami hiba keletkezett, ismeretlen főorsó widget {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4137
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4184
 msgid "Do you really want to delete the MDI history?\n"
 msgstr "Tényleg akarod törölni az MDI előzményeket?\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4138
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4185
 #, fuzzy
-#| msgid "this will not delete the MDI History file, but will\n"
 msgid "This will not delete the MDI History file, but will\n"
 msgstr "ez nem fogja törölni az MDI előzmények fájlt, de\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4139
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4186
 #, fuzzy
-#| msgid "delete the listbox entries for this session"
 msgid "delete the listbox entries for this session."
 msgstr "törli a listbox bejegyzéseket erre a munkamenetre"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4140
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4187
 msgid "Attention!!"
 msgstr "Vigyázat!!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4197
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4244
 msgid "Exit and discard changes?"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4198
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4245
 #, fuzzy
-#| msgid "Attention!!"
 msgid "Attention!"
 msgstr "Vigyázat!!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4275
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4327
 msgid "Enter value for diameter"
 msgstr "Kérem az átmérő értékét"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4276
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4328
 msgid "Set diameter to:"
 msgstr "Átmérő beállítása a következőre:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4279
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4331
 msgid "Enter value for radius"
 msgstr "Kérem a sugár értékét"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4280
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4332
 msgid "Set radius to:"
 msgstr "A sugár beállítása a következőre:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4283
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4335
 #, python-brace-format
 msgid "Enter value for axis {0}"
 msgstr "Kérem a(z) {0} tengely értékét"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4284
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4336
 #, python-brace-format
 msgid "Set axis {0} to:"
 msgstr "A(z) {0} tengely beállítva:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4288
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4340
 msgid "Conversion error in btn_set_value"
 msgstr "Konverziós hiba a btn_set_value-ben"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4289
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4341
 msgid "Conversion error in btn_set_value!"
 msgstr "Konverziós hiba a btn_set_value-ben!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4290
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4342
 msgid "Please enter only numerical values. Values have not been applied"
 msgstr "Csak numerikus értéket lehet megadni. Az érték ne lett elfogadva"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4304
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4356
 #, fuzzy
-#| msgid ""
-#| "you did not selected a system to be changed to, so nothing will be changed"
 msgid ""
 "You did not select a system to be changed to, so nothing will be changed"
 msgstr "A kívánt rendszer nem lett kiválasztva, nincs változás"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4305
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4953
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4967
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4971
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4986
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4357
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5012
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5026
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5030
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5045
 msgid "Important Warning!"
 msgstr "Fontos figyelmeztetés!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4355
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4407
 msgid "Enter the block height"
 msgstr "Kérem a hasáb magasságát"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4356
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4408
 msgid "Block height measured from base table"
 msgstr "Hasáb magasság az asztaltól mérve"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4368
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4420
 msgid "Conversion error in btn_block_height!"
 msgstr "Konverziós hiba a btn_block_height-ben!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4369
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4421
 msgid ""
 "Please enter only numerical values\n"
 "Values have not been applied"
@@ -577,11 +583,11 @@ msgstr ""
 "Csak numerikus értéket lehet megadni\n"
 "Az érték nem lett elfogadva"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4841
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4900
 msgid "Please remove the mounted tool and press OK when done"
 msgstr "Vegye ki a szerszámot és nyomja meg az OK gombot ha kész"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4845
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4904
 #, python-brace-format
 msgid ""
 "Please change to tool\n"
@@ -596,7 +602,7 @@ msgstr ""
 "\n"
 "és nyomd meg az OK gombot."
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4847
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4906
 #, python-brace-format
 msgid ""
 "Tool\n"
@@ -606,140 +612,131 @@ msgid ""
 " not in the tool table!"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4849
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4908
 msgid "Manual Tool change"
 msgstr "Kézi szerszámcsere"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4859
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4918
 msgid "Tool Change has been aborted!\n"
 msgstr "A szerszám csere megszakítva\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4860
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4919
 msgid "The old tool will remain set!"
 msgstr "A régi szerszám marad beállítva!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4868
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4927
 msgid "You are trying to delete the tool mounted in the spindle\n"
 msgstr "A főorsőban levő szerszámot próbálja törölni\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4869
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4928
 msgid "This is not allowed, please change tool prior to delete it"
 msgstr ""
 "Ez nem megengedett, kérjük, változtassa meg a szerszámot a törlés előtt"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4870
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4929
 msgid "Warning Tool can not be deleted!"
 msgstr "Vigyázat: Szerszám törlése nem lehetséges!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4889
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4948
 #, fuzzy
-#| msgid "No or more than one tool selected in tool table"
 msgid "No or multiple tools selected in the tool table. "
 msgstr "A szerszám táblában zéró vagy töb szerszám is ki lett választva"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4890
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4949
 #, fuzzy
-#| msgid "Please select only one tool in the table"
 msgid "Please select only one tool in the table!"
 msgstr "Csak egy szerszámot lehet kiválasztani a szerszám táblából"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4891
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4897
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4905
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4950
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4956
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4964
 msgid "Warning Tool Touch off not possible!"
 msgstr "Vigyázat: Szerszám bemérés nem lehetséges!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4895
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4954
 #, fuzzy
-#| msgid "you can not touch of a tool, witch is not mounted in the spindle"
 msgid "You can not touch off a tool, which is not mounted in the spindle! "
 msgstr "Csak a főorsóban levő szerszámmal lehet érinteni"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4896
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4955
 #, fuzzy
-#| msgid "your selection has been reseted to the tool in spindle"
 msgid "Your selection has been reset to the tool in spindle."
 msgstr "A választás vissza lett állitva a főorsóban levő szerszámra"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4903
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4962
 msgid ""
 "Tool touch off is not possible with cutter radius compensation switched on!\n"
 msgstr ""
 "Szerszám bemérés nem lehetséges bekapcsolt szerszámsugár kompenzáció "
 "mellett \n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4904
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4963
 #, fuzzy
-#| msgid "Please emit an G40 before tool touch off"
 msgid "Please emit an G40 before tool touch off."
 msgstr "A szerszám bemérés előtt G40-et kell végrehajtani"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4913
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4972
 msgid "Real big error!"
 msgstr "Végzetes hiba!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4914
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4973
 msgid ""
 "You managed to come to a place that is not possible in on_btn_tool_touchoff"
 msgstr ""
 "Olyan pozícióba került a gép ahova on_btn_tool_touchoff-al nem lehetséges"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4918
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4977
 #, python-brace-format
 msgid "Enter value for axis {0} to set:"
 msgstr "Add meg a(z) {0} tengely értékét:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4919
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4978
 #, python-brace-format
 msgid "Set parameter of tool {0:d} and axis {1} to:"
 msgstr "A {0:d} szerszám paraméterének és a {1} tengelynek a beállítása:"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4923
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4982
 #, python-brace-format
 msgid "Conversion error because of wrong entry for touch off axis {0}"
 msgstr "Konverziós hiba a(z) {0} tengely érintésének rossz bejegyzése miatt"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4942
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5001
 msgid "Enter the tool number as integer "
 msgstr "A szerszám száma egész szám kell legyen "
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4943
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5002
 msgid "Select the tool to change"
 msgstr "Kérem válassza ki a cserélendő szerszámot"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4945
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5004
 #, fuzzy
-#| msgid "Conversion error because of wrong entry for tool number\n"
 msgid "Conversion error because of wrong entry for tool number.\n"
 msgstr "Konverziós hiba rossz szerszámtábla bejegyzés miatt\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4946
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5005
 #, fuzzy
-#| msgid "enter only integer numbers"
 msgid "Enter only integer numbers!"
 msgstr "Csak egész szám bevitele engedélyezett"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4952
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4970
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5011
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5029
 msgid "Selected tool is already in spindle, no change needed."
 msgstr "A kiválasztott szerszám a főorsóban van, szerszámcsere nem szükséges."
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4966
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5025
 msgid ""
 "you selected no or more than one tool, the tool selection must be unique"
 msgstr ""
 "Zéró vagy több szerszám lett kiválasztva cserére, csak egy szerszám lehet "
 "kiválasztva"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4985
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5044
 #, fuzzy
-#| msgid ""
-#| "Could not understand the entered tool number. Will not change anything"
 msgid "Could not understand the entered tool number. Will not change anything!"
 msgstr ""
 "A választott szerszám száma nem értelmezhető, nem történik szerszámcsere"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5274
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5349
 msgid ""
 "World\n"
 "mode"
@@ -747,45 +744,45 @@ msgstr ""
 "World\n"
 "mód"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5460
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5535
 msgid "Axis jogging is only allowed in world mode, but you are in joint mode!"
 msgstr ""
 "A tengely jogging csak world módban engedélyezett, de joint módban van!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5496
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5571
 #, python-brace-format
 msgid "Received a not classified signal from pin {0}"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5501
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5576
 #, python-brace-format
 msgid "Could not translate {0} to number"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5506
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5581
 msgid "no button here"
 msgstr "Itt nincs gomb"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5509
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5584
 msgid "the button is not sensitive"
 msgstr "a gomb nem érzékeny"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5514
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5589
 #, python-brace-format
 msgid "Button {0} has been toggled"
 msgstr "Gomb {0} átkapcsolt"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5518
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5593
 #, python-brace-format
 msgid "Button {0} has been pressed"
 msgstr "Gomb {0} lenyomva"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5521
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5596
 #, python-brace-format
 msgid "Button {0} has been clicked"
 msgstr "Gomb {0} kattintott"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5534
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5609
 msgid "got wrong location to locate the childs"
 msgstr "rossz helyen van a gyermekek megtalálásához"
 
@@ -831,7 +828,6 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:235
 #, fuzzy
-#| msgid "Down"
 msgid "_Down"
 msgstr "Le"
 
@@ -873,7 +869,6 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/notification.py:209
 #, fuzzy, python-brace-format
-#| msgid "Error trying to delet the message with number {0}"
 msgid "Error trying to delete the message with number {0}"
 msgstr "{0} sz. üzenet hiba miatt törölhető"
 
@@ -1067,7 +1062,6 @@ msgstr "<b>Gyorsjárat előtolás túlvez.</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:48
 #, fuzzy
-#| msgid "Displayes the programmed feed rate"
 msgid "Displays the programmed feed rate"
 msgstr "Programozott előtolás kijelzése"
 
@@ -1204,7 +1198,8 @@ msgid "Show keyboard on load file"
 msgstr "megjelenítése fájl betöltéskor"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:83
-msgid "<b>Keyboard</b>"
+#, fuzzy
+msgid "<b>Virtual Keyboard</b>"
 msgstr "<b>Billentyűzet</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:84
@@ -1249,9 +1244,6 @@ msgstr "Számjegyek"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:94
 #, fuzzy
-#| msgid ""
-#| "toggle DRO mode \n"
-#| "clicking on the DRO"
 msgid ""
 "toggle DRO mode\n"
 "clicking on the DRO"
@@ -1325,7 +1317,6 @@ msgstr "Riasztás hangjelzéssel"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:112
 #, fuzzy
-#| msgid "Themes"
 msgid "Icon Theme"
 msgstr "Témák"
 
@@ -1435,7 +1426,6 @@ msgstr "Tapintás maximumális mélysége"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:139
 #, fuzzy
-#| msgid "<b>Probe Informations</b>"
 msgid "<b>Probe Information</b>"
 msgstr "<b>Tapintó információ </b>"
 
@@ -1453,12 +1443,6 @@ msgstr "<b>Tapintás sebessége</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:143
 #, fuzzy
-#| msgid ""
-#| "No valid configuration\n"
-#| "found in your INI file,\n"
-#| "please take a look at \n"
-#| "the WIKI to check how\n"
-#| "to configure the settings."
 msgid ""
 "No valid configuration\n"
 "found in your INI file,\n"
@@ -1529,8 +1513,9 @@ msgid "Font"
 msgstr "Karkter"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:167
-msgid "max."
-msgstr "Max."
+#, fuzzy
+msgid "Max. messages"
+msgstr "Hinweis"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:168
 msgid "The font to use"
@@ -1618,9 +1603,6 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:189
 #, fuzzy
-#| msgid ""
-#| "enter MDI mode to launch g-code commands\n"
-#| "[F5]"
 msgid ""
 "enter MDI mode to launch G-code commands\n"
 "[F5]"
@@ -1698,9 +1680,6 @@ msgstr "Program futtatása lépésenként"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:208
 #, fuzzy
-#| msgid ""
-#| "run the program from a certain line, attention, that is dangerous, "
-#| "because the previous lines will not checed!"
 msgid ""
 "run the program from a certain line, attention, that is dangerous, because "
 "the previous lines will not checked!"
@@ -1827,9 +1806,6 @@ msgstr "Elfogad"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:237
 #, fuzzy
-#| msgid ""
-#| "apply the changes you made, G43 will be excecuted only if it is active g-"
-#| "code"
 msgid ""
 "apply the changes you made, G43 will be executed only if it is active G-code"
 msgstr ""
@@ -1853,9 +1829,6 @@ msgstr "szerszám érintése és az érték beírása a szerszámtáblába"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:242
 #, fuzzy
-#| msgid ""
-#| "touchoff\n"
-#| "  tool x"
 msgid ""
 "touchoff\n"
 "tool x"
@@ -1865,9 +1838,6 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:244
 #, fuzzy
-#| msgid ""
-#| "touchoff\n"
-#| "  tool z"
 msgid ""
 "touchoff\n"
 "tool z"
@@ -1910,6 +1880,9 @@ msgstr "Fájl betöltése"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:254
 msgid "home joints"
 msgstr "Ref. felvételek"
+
+#~ msgid "max."
+#~ msgstr "Max."
 
 #, fuzzy
 #~| msgid ""
@@ -2343,9 +2316,6 @@ msgstr "Ref. felvételek"
 
 #~ msgid "Error Message"
 #~ msgstr "Fehlermeldung"
-
-#~ msgid "Message"
-#~ msgstr "Hinweis"
 
 #~ msgid "Question"
 #~ msgstr "Frage"

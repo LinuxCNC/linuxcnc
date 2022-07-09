@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: LinuxCNC EMC2.8.0\n"
-"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
-"POT-Creation-Date: 2022-05-28 23:16+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-07-09 16:34+0100\n"
 "PO-Revision-Date: 2022-07-02 14:59+0000\n"
 "Last-Translator: Jeff Epler <jepler@gmail.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
@@ -872,48 +872,49 @@ msgstr "文件:%s 行:%d sub: o|%s| 发现在非法的位置"
 msgid "File:%s line:%d redefining sub: o|%s| already defined in file:%s"
 msgstr "文件:%s 行:%d 重新定义 sub: o|%s| 已经在文件:%s中定义"
 
-#: src/emc/rs274ngc/interp_o_word.cc:823
+#: src/emc/rs274ngc/interp_o_word.cc:825
 #, c-format
 msgid "%d: not in a subroutine definition: '%s'"
 msgstr "%d:未在子程序定义中: '%s'"
 
-#: src/emc/rs274ngc/interp_o_word.cc:872 src/emc/rs274ngc/interp_o_word.cc:922
+#: src/emc/rs274ngc/interp_o_word.cc:874 src/emc/rs274ngc/interp_o_word.cc:924
 #, c-format
 msgid "%d: duplicate O-word label: '%s' - defined in line %d"
 msgstr "%d:重复O字标签:'%s' - 在%d行中定义"
 
-#: src/emc/rs274ngc/interp_o_word.cc:975
+#: src/emc/rs274ngc/interp_o_word.cc:977
 #, c-format
 msgid "%d: duplicate O-word label - already defined in line %d: '%s'"
 msgstr "%d:重复O字标签 - 已经在行%d:中定义:'%s'"
 
-#: src/emc/rs274ngc/interp_o_word.cc:999 src/emc/rs274ngc/interp_o_word.cc:1057
-#: src/emc/rs274ngc/interp_o_word.cc:1091
-#: src/emc/rs274ngc/interp_o_word.cc:1109
-#: src/emc/rs274ngc/interp_o_word.cc:1126
-#: src/emc/rs274ngc/interp_o_word.cc:1151
+#: src/emc/rs274ngc/interp_o_word.cc:1001
+#: src/emc/rs274ngc/interp_o_word.cc:1059
+#: src/emc/rs274ngc/interp_o_word.cc:1093
+#: src/emc/rs274ngc/interp_o_word.cc:1111
+#: src/emc/rs274ngc/interp_o_word.cc:1128
+#: src/emc/rs274ngc/interp_o_word.cc:1153
 #, c-format
 msgid "%d: undefined O-word label: '%s'"
 msgstr "%d:未定义的O字标签:'%s'"
 
-#: src/emc/rs274ngc/interp_o_word.cc:1002
-#: src/emc/rs274ngc/interp_o_word.cc:1060
+#: src/emc/rs274ngc/interp_o_word.cc:1004
+#: src/emc/rs274ngc/interp_o_word.cc:1062
 #, c-format
 msgid "%d: no matching 'if' label: '%s' (found '%s' in line %d)"
 msgstr "%d:不匹配'if'标签:'%s'(找到'%s'在%d行中) "
 
-#: src/emc/rs274ngc/interp_o_word.cc:1094
+#: src/emc/rs274ngc/interp_o_word.cc:1096
 #, c-format
 msgid "%d: no matching label: '%s' (found '%s' in line %d): '%s'"
 msgstr "%d: 没有匹配的标签: '%s'(找到'%s'在%d行中): '%s'"
 
-#: src/emc/rs274ngc/interp_o_word.cc:1112
-#: src/emc/rs274ngc/interp_o_word.cc:1129
+#: src/emc/rs274ngc/interp_o_word.cc:1114
+#: src/emc/rs274ngc/interp_o_word.cc:1131
 #, c-format
 msgid "%d: no matching while/do label: '%s' (found '%s' in line %d)"
 msgstr "%d:没有匹配while / do标签:'%s'(找到'%s'在%d行中)"
 
-#: src/emc/rs274ngc/interp_o_word.cc:1155
+#: src/emc/rs274ngc/interp_o_word.cc:1157
 #, c-format
 msgid "%d: no matching label: '%s' (found '%s' in line %d)"
 msgstr "%d: 没有匹配的标签: '%s'(找到'%s'在%d行中)"
@@ -2368,87 +2369,87 @@ msgstr "通道"
 msgid "Source"
 msgstr "来源"
 
-#: src/emc/motion/control.c:517
+#: src/emc/motion/control.c:526
 #, c-format
 msgid "fault %d during orient in progress"
 msgstr "正在前进的过程中的故障%d"
 
-#: src/emc/motion/control.c:694
+#: src/emc/motion/control.c:709
 msgid "G38.4 move finished without breaking contact."
 msgstr "G38.4 移动完成后不断开接触."
 
-#: src/emc/motion/control.c:697
+#: src/emc/motion/control.c:712
 msgid "G38.2 move finished without making contact."
 msgstr "G38.2 移动完成后不接触."
 
-#: src/emc/motion/control.c:710
+#: src/emc/motion/control.c:725
 msgid "Probe tripped during non-probe move."
 msgstr "探头在非探测运动中触发。"
 
-#: src/emc/motion/control.c:741
+#: src/emc/motion/control.c:756
 msgid "Probe tripped during homing motion."
 msgstr "在回零运动期间探头跳闸."
 
-#: src/emc/motion/control.c:745
+#: src/emc/motion/control.c:760
 msgid "Probe tripped during a joint jog."
 msgstr "在关节点动期间探头跳闸。"
 
-#: src/emc/motion/control.c:748
+#: src/emc/motion/control.c:763
 msgid "Probe tripped during a coordinate jog."
 msgstr "探头在坐标点动期间触发。"
 
-#: src/emc/motion/control.c:764
+#: src/emc/motion/control.c:779
 msgid "motion stopped by enable input"
 msgstr "运动停止因为启用了输入"
 
-#: src/emc/motion/control.c:771
+#: src/emc/motion/control.c:786
 #, c-format
 msgid "spindle %d amplifier fault"
 msgstr "主轴%d放大器故障"
 
-#: src/emc/motion/control.c:794
+#: src/emc/motion/control.c:809
 #, c-format
 msgid "joint %d on limit switch error"
 msgstr "关节%d 限位开关错误"
 
-#: src/emc/motion/control.c:806
+#: src/emc/motion/control.c:821
 #, c-format
 msgid "joint %d amplifier fault"
 msgstr "关节 %d 放大器故障"
 
-#: src/emc/motion/control.c:815
+#: src/emc/motion/control.c:830
 #, c-format
 msgid "joint %d following error"
 msgstr "关节 %d 跟随错误"
 
-#: src/emc/motion/control.c:828
+#: src/emc/motion/control.c:843
 #, c-format
 msgid "Motion Stopped by misc error %d"
 msgstr "由于杂项错误 %d 运动停止"
 
-#: src/emc/motion/control.c:1331 src/emc/motion/control.c:1391
+#: src/emc/motion/control.c:1346 src/emc/motion/control.c:1406
 #, c-format
 msgid "kinematicsInverse gave non-finite joint location on joint %d"
 msgstr "运动学逆向在关节%d上给出非有限关节位置"
 
-#: src/emc/motion/control.c:1348 src/emc/motion/control.c:1410
+#: src/emc/motion/control.c:1363 src/emc/motion/control.c:1425
 msgid "kinematicsInverse failed"
 msgstr "运动学逆向失败"
 
-#: src/emc/motion/control.c:1487
+#: src/emc/motion/control.c:1502
 #, c-format
 msgid "Exceeded NEGATIVE soft limit (%.5f) on joint %d\n"
 msgstr "负向软限位 (%.5f) 在关节 %d 上已超程\n"
 
-#: src/emc/motion/control.c:1490 src/emc/motion/control.c:1499
+#: src/emc/motion/control.c:1505 src/emc/motion/control.c:1514
 msgid "Joint must be unhomed, jogged into limits, rehomed"
 msgstr "关节必须设为未回零，然后点动至限位，重新回零"
 
-#: src/emc/motion/control.c:1492 src/emc/motion/control.c:1501
+#: src/emc/motion/control.c:1507 src/emc/motion/control.c:1516
 msgid "Hint: switch to joint mode to jog off soft limit"
 msgstr "提示:切换到关节模式，点动软限位"
 
-#: src/emc/motion/control.c:1496
+#: src/emc/motion/control.c:1511
 #, c-format
 msgid "Exceeded POSITIVE soft limit (%.5f) on joint %d\n"
 msgstr "正向软限位 (%.5f) 在关节 %d 上已超程\n"
@@ -2794,17 +2795,17 @@ msgstr "MOTION: hal_exit()() 失败, 返回 %d\n"
 msgid "MOTION: emcmot_hal_data malloc failed\n"
 msgstr "MOTION: emcmot_hal_data malloc 失败\n"
 
-#: src/emc/motion/motion.c:660
+#: src/emc/motion/motion.c:664
 #, c-format
 msgid "MOTION: spindle %d pin export failed"
 msgstr "MOTION: 主轴%d引脚输出失败"
 
-#: src/emc/motion/motion.c:670
+#: src/emc/motion/motion.c:674
 #, c-format
 msgid "MOTION: joint %d pin/param export failed\n"
 msgstr "MOTION: 关节 %d 针脚/参数 导出失败\n"
 
-#: src/emc/motion/motion.c:683
+#: src/emc/motion/motion.c:687
 #, c-format
 msgid "MOTION: ejoint %d pin/param export failed\n"
 msgstr "运动: 额外关节 %d 引脚/参数导出失败\n"
@@ -5461,7 +5462,7 @@ msgstr "英寸"
 #: src/emc/usr_intf/axis/scripts/axis.py:2024
 #: src/emc/usr_intf/axis/scripts/axis.py:2601
 #: src/emc/usr_intf/touchy/touchy.glade:3272
-#: src/emc/usr_intf/stepconf/stepconf.py:1571
+#: src/emc/usr_intf/stepconf/stepconf.py:1567
 #: src/emc/usr_intf/stepconf/pages.py:960
 #: src/emc/usr_intf/stepconf/main_page.glade:240
 #: src/emc/usr_intf/pncconf/tests.py:517
@@ -6373,9 +6374,9 @@ msgstr "删除"
 msgid "move"
 msgstr "移动"
 
-#: tcl/ngcgui.tcl:3725 src/emc/usr_intf/pncconf/pncconf.py:3943
-#: src/emc/usr_intf/pncconf/pncconf.py:4049
-#: src/emc/usr_intf/pncconf/pncconf.py:4213
+#: tcl/ngcgui.tcl:3725 src/emc/usr_intf/pncconf/pncconf.py:3939
+#: src/emc/usr_intf/pncconf/pncconf.py:4045
+#: src/emc/usr_intf/pncconf/pncconf.py:4209
 msgid "Custom"
 msgstr "自定义"
 
@@ -6452,19 +6453,11 @@ msgstr "尝试继续"
 msgid "Ngcgui Configuration File Not Found"
 msgstr "未找到Ngcgui配置文件"
 
-#: tcl/ngcgui.tcl:3938
-msgid "Missing Tcl Package Img"
-msgstr "缺少Tcl包镜像"
-
-#: tcl/ngcgui.tcl:3939
-msgid "Please install Img"
-msgstr "请安装镜像"
-
-#: tcl/ngcgui.tcl:4143
+#: tcl/ngcgui.tcl:4135
 msgid "ini file"
 msgstr "ini 文件"
 
-#: tcl/ngcgui.tcl:4152
+#: tcl/ngcgui.tcl:4144
 msgid "not found"
 msgstr "未找到"
 
@@ -7320,7 +7313,7 @@ msgstr "T   刀具表"
 #: src/emc/usr_intf/axis/scripts/axis.py:1739
 #: src/emc/usr_intf/axis/scripts/axis.py:2028
 #: src/emc/usr_intf/axis/scripts/axis.py:2602
-#: src/emc/usr_intf/stepconf/stepconf.py:1585
+#: src/emc/usr_intf/stepconf/stepconf.py:1581
 #: src/emc/usr_intf/stepconf/pages.py:966
 msgid "in"
 msgstr "英寸"
@@ -8522,8 +8515,8 @@ msgstr ""
 "版权 (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, "
 "2015, 2016 Jeff Epler 和 Chris Radek.\n"
 "\n"
-"这是一个开源软件，我们欢迎您在特定条件下重新分发。 "
-"详情请参阅LinuxCNC附带的许可协议。\n"
+"这是一个开源软件，我们欢迎您在特定条件下重新分发。 详情请参阅LinuxCNC附带的许"
+"可协议。\n"
 "\n"
 "请浏览LinuxCNC网站: "
 
@@ -8652,8 +8645,8 @@ msgid "Temporarily allow jogging outside machine limits [L]"
 msgstr "临时允许机床在极限外点动[L]"
 
 #: src/emc/usr_intf/touchy/touchy.py:144
-#: src/emc/usr_intf/pncconf/pncconf.py:1751
-#: src/emc/usr_intf/pncconf/pncconf.py:1754
+#: src/emc/usr_intf/pncconf/pncconf.py:1747
+#: src/emc/usr_intf/pncconf/pncconf.py:1750
 #: src/emc/usr_intf/gscreen/gscreen.py:1339
 msgid "Follow System Theme"
 msgstr "跟随系统主题"
@@ -10184,8 +10177,8 @@ msgid ""
 "You are using the {} kernel.\n"
 "You need to use kernel:"
 msgstr ""
-"您正在使用LinuxCNC的实时版本，但没有加载实时内核，因此硬件的测试/调优不可用。"
-"\n"
+"您正在使用LinuxCNC的实时版本，但没有加载实时内核，因此硬件的测试/调优不可"
+"用。\n"
 "这可能是因为您更新了操作系统，并且它不再自动加载RTAI内核。\n"
 "您正在使用 {} 内核。\n"
 "您需要使用以下内核："
@@ -10235,33 +10228,33 @@ msgstr ""
 "\n"
 "{}"
 
-#: src/emc/usr_intf/stepconf/stepconf.py:973
+#: src/emc/usr_intf/stepconf/stepconf.py:969
 #: src/emc/usr_intf/stepconf/pages.py:152
 msgid "Other"
 msgstr "其它"
 
-#: src/emc/usr_intf/stepconf/stepconf.py:1552
+#: src/emc/usr_intf/stepconf/stepconf.py:1548
 #: src/emc/usr_intf/pncconf/tests.py:1037
 #, python-format
 msgid "%s Axis Test"
 msgstr "%s 轴测试"
 
-#: src/emc/usr_intf/stepconf/stepconf.py:1555
+#: src/emc/usr_intf/stepconf/stepconf.py:1551
 #: src/emc/usr_intf/stepconf/pages.py:952
 msgid "deg / s"
 msgstr "度/秒"
 
-#: src/emc/usr_intf/stepconf/stepconf.py:1556
+#: src/emc/usr_intf/stepconf/stepconf.py:1552
 #: src/emc/usr_intf/stepconf/pages.py:953
 msgid "deg / s²"
 msgstr "度/秒²"
 
-#: src/emc/usr_intf/stepconf/stepconf.py:1557
+#: src/emc/usr_intf/stepconf/stepconf.py:1553
 #: src/emc/usr_intf/stepconf/pages.py:954
 msgid "deg"
 msgstr "度"
 
-#: src/emc/usr_intf/stepconf/stepconf.py:1569
+#: src/emc/usr_intf/stepconf/stepconf.py:1565
 #: src/emc/usr_intf/stepconf/pages.py:958
 #: src/emc/usr_intf/stepconf/axisx.glade:304
 #: src/emc/usr_intf/stepconf/axisy.glade:302
@@ -10277,7 +10270,7 @@ msgstr "度"
 msgid "mm / s"
 msgstr "毫米/秒"
 
-#: src/emc/usr_intf/stepconf/stepconf.py:1570
+#: src/emc/usr_intf/stepconf/stepconf.py:1566
 #: src/emc/usr_intf/stepconf/pages.py:959
 #: src/emc/usr_intf/stepconf/axisx.glade:317
 #: src/emc/usr_intf/stepconf/axisy.glade:315
@@ -10293,12 +10286,12 @@ msgstr "毫米/秒"
 msgid "mm / s²"
 msgstr "毫米/秒²"
 
-#: src/emc/usr_intf/stepconf/stepconf.py:1583
+#: src/emc/usr_intf/stepconf/stepconf.py:1579
 #: src/emc/usr_intf/stepconf/pages.py:964
 msgid "in / s"
 msgstr "英寸/秒"
 
-#: src/emc/usr_intf/stepconf/stepconf.py:1584
+#: src/emc/usr_intf/stepconf/stepconf.py:1580
 #: src/emc/usr_intf/stepconf/pages.py:965
 msgid "in / s²"
 msgstr "英寸/秒²"
@@ -10308,7 +10301,7 @@ msgid "LinuxCNC 'stepconf' configuration files"
 msgstr "LinuxCNC'stepconf'配置文件"
 
 #: src/emc/usr_intf/stepconf/pages.py:232
-#: src/emc/usr_intf/pncconf/pncconf.py:902
+#: src/emc/usr_intf/pncconf/pncconf.py:898
 msgid "Modify Existing Configuration"
 msgstr "修改现有配置"
 
@@ -10378,22 +10371,22 @@ msgstr "# 如果您对此文件进行了更改，那么"
 msgid "# overwritten when you run stepconf again"
 msgstr "# 当您再次运行stepconf时，它们将被覆盖"
 
-#: src/emc/usr_intf/stepconf/build_INI.py:236
+#: src/emc/usr_intf/stepconf/build_INI.py:233
 msgid "# add halui MDI commands here (max 64) "
 msgstr "# 在这里添加halui MDI指令(最多64个)"
 
-#: src/emc/usr_intf/stepconf/build_INI.py:406
-#: src/emc/usr_intf/pncconf/build_INI.py:568
+#: src/emc/usr_intf/stepconf/build_INI.py:403
+#: src/emc/usr_intf/pncconf/build_INI.py:565
 msgid "# set the dro position ('top' or 'bottom')"
 msgstr "# 设置DRO坐标 ('顶部' 或 '底部')"
 
-#: src/emc/usr_intf/stepconf/build_INI.py:409
-#: src/emc/usr_intf/pncconf/build_INI.py:571
+#: src/emc/usr_intf/stepconf/build_INI.py:406
+#: src/emc/usr_intf/pncconf/build_INI.py:568
 msgid "# error message flash (0=no, 1=yes)"
 msgstr "# 错误信息闪烁 (0=不, 1=是)"
 
-#: src/emc/usr_intf/stepconf/build_INI.py:411
-#: src/emc/usr_intf/pncconf/build_INI.py:573
+#: src/emc/usr_intf/stepconf/build_INI.py:408
+#: src/emc/usr_intf/pncconf/build_INI.py:570
 msgid "# hide buttons (0=no, 1=yes)"
 msgstr "# 隐藏按钮 (0=不, 1=是)"
 
@@ -10571,8 +10564,9 @@ msgstr "# 高于和低于0V的电压将显示为0V。防止电压显示出现微
 msgid ""
 "# The distance (in millimeters) away from the Z MAX_LIMIT that QtPlasmaC "
 "will allow the Z axis to travel while under machine control."
-msgstr "#在机器控制下，QtPlasmaC允许Z轴向远离Z正向限位的方向移动的距离（以毫米为单位"
-"）。"
+msgstr ""
+"#在机器控制下，QtPlasmaC允许Z轴向远离Z正向限位的方向移动的距离（以毫米为单"
+"位）。"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:758
 #: src/emc/usr_intf/pncconf/build_HAL.py:1938
@@ -11485,9 +11479,7 @@ msgstr "反向"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid ""
-"_:"
-""
+msgid "_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -11721,20 +11713,20 @@ msgstr "**** PNCCONF 错误:    自定义固件加载错误"
 msgid "**** PNCCONF INFO:    Found extra firmware in file"
 msgstr "**** PNCCONF 信息:    在文件中找到额外的固件"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:364
+#: src/emc/usr_intf/pncconf/pncconf.py:360
 msgid "Discovery metadata update"
 msgstr "发现元数据更新"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:408
+#: src/emc/usr_intf/pncconf/pncconf.py:404
 #, python-format
 msgid "%s metadata update"
 msgstr "%s 元数据更新"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:428
+#: src/emc/usr_intf/pncconf/pncconf.py:424
 msgid "PnCconf setup"
 msgstr "PnCconf 设置"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:448
+#: src/emc/usr_intf/pncconf/pncconf.py:444
 msgid ""
 "\n"
 "**** Debug Pause! ****"
@@ -11742,15 +11734,15 @@ msgstr ""
 "\n"
 "**** 调试暂停! ****"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:532
+#: src/emc/usr_intf/pncconf/pncconf.py:528
 msgid "Specific Help page is unavailable\n"
 msgstr "特定帮助页面不可用\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:534
+#: src/emc/usr_intf/pncconf/pncconf.py:530
 msgid "Help Pages"
 msgstr "帮助"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:585
+#: src/emc/usr_intf/pncconf/pncconf.py:581
 #, python-format
 msgid ""
 "You have no hostmot2 firmware downloaded in folder:\n"
@@ -11761,22 +11753,22 @@ msgstr ""
 "%s\n"
 "PNCconf将使用内部固件数据"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:900
+#: src/emc/usr_intf/pncconf/pncconf.py:896
 msgid "LinuxCNC 'PNCconf' configuration files"
 msgstr "LinuxCNC 'PNCconf' 配置文件"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:933
+#: src/emc/usr_intf/pncconf/pncconf.py:929
+#, fuzzy
 msgid ""
 "It seems data in this file is from too old of a version of PNCConf to "
-"continue.\n"
-"."
+"continue."
 msgstr "看来这个文件中的数据是从太旧版的PNCConf继承。"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1296
+#: src/emc/usr_intf/pncconf/pncconf.py:1292
 msgid "No board was found\n"
 msgstr "没有找到板\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1339
+#: src/emc/usr_intf/pncconf/pncconf.py:1335
 #, python-format
 msgid ""
 "Discovery has an error,\n"
@@ -11791,32 +11783,32 @@ msgstr ""
 "\n"
 " %s"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1353
+#: src/emc/usr_intf/pncconf/pncconf.py:1349
 msgid "Discovery is  unavailable\n"
 msgstr "发现不可用\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1615
+#: src/emc/usr_intf/pncconf/pncconf.py:1611
 msgid "USB device Info Search"
 msgstr "USB设备信息搜索"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1629
+#: src/emc/usr_intf/pncconf/pncconf.py:1625
 msgid "USB device  page is unavailable\n"
 msgstr "USB设备页面不可用\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1702
+#: src/emc/usr_intf/pncconf/pncconf.py:1698
 #: src/emc/usr_intf/pncconf/tests.py:90
 msgid "Pin names are unavailable\n"
 msgstr "引脚名称不可用\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1725
+#: src/emc/usr_intf/pncconf/pncconf.py:1721
 msgid "Device names are unavailable\n"
 msgstr "设备名称不可用\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1728
+#: src/emc/usr_intf/pncconf/pncconf.py:1724
 msgid "No Pncconf made device rules were found\n"
 msgstr "没有找到Pncconf的设备规则\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1773
+#: src/emc/usr_intf/pncconf/pncconf.py:1769
 msgid ""
 "OK to replace existing glade panel ?\n"
 "It will be renamed and added to 'backups' folder.\n"
@@ -11828,7 +11820,7 @@ msgstr ""
 "并添加到”备份“文件夹中，点击”现有的自定义程序“将避免此警告，\n"
 " 但是如果稍后更改相关选项，如主轴反馈，则HAL连接将不会更新"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1780
+#: src/emc/usr_intf/pncconf/pncconf.py:1776
 msgid ""
 "OK to replace existing custom pyvcp panel?\n"
 "Existing pyvcp-panel.xml will be renamed and added to 'backups' folder\n"
@@ -11838,167 +11830,167 @@ msgstr ""
 "现有的pyvcp-panel.xml将被重命名并添加到”备份“文件夹中\n"
 "单击”现有的自定义程序“将会避免此警告。 "
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3569
+#: src/emc/usr_intf/pncconf/pncconf.py:3565
 #: src/emc/usr_intf/pncconf/private_data.py:551
 msgid "Unused Channel"
 msgstr "选择通道"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3843
+#: src/emc/usr_intf/pncconf/pncconf.py:3839
 msgid "You can not have both steppers and pwm signals for spindle control\n"
 msgstr "您不能同时使用步进和pwm信号进行主轴控制\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3847
+#: src/emc/usr_intf/pncconf/pncconf.py:3843
 #, python-format
 msgid "You forgot to designate a stepper or pwm signal for axis %s\n"
 msgstr "您没有为轴%s指定步进或pwm信号\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3850
+#: src/emc/usr_intf/pncconf/pncconf.py:3846
 #, python-format
 msgid "You forgot to designate an encoder /resolver signal for axis %s servo\n"
 msgstr "您没有为%s轴伺服器指定编码器/旋转变压器信号\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3853
+#: src/emc/usr_intf/pncconf/pncconf.py:3849
 #, python-format
 msgid "You forgot to designate a pwm signal or stepper signal for axis %s\n"
 msgstr "您没有为%s轴指定pwm信号或步进信号\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3856
+#: src/emc/usr_intf/pncconf/pncconf.py:3852
 #, python-format
 msgid "You can not have both steppers and pwm signals for axis %s\n"
 msgstr "您不能同时使用步进和pwm信号控制%s轴。\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3859
+#: src/emc/usr_intf/pncconf/pncconf.py:3855
 #, python-format
 msgid ""
 "If using a tandem axis stepper, you must select a master stepgen for axis "
 "%s\n"
 msgstr "如果使用串联式步进电机，则必须为%s轴选择主步进电机\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3867
+#: src/emc/usr_intf/pncconf/pncconf.py:3863
 msgid "Touchy require an external cycle start signal\n"
 msgstr "Touchy需要一个外部循环启动信号\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3870
+#: src/emc/usr_intf/pncconf/pncconf.py:3866
 msgid "Touchy require an external abort signal\n"
 msgstr "Touchy需要一个外部中断信号\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3873
+#: src/emc/usr_intf/pncconf/pncconf.py:3869
 msgid "Touchy require an external single-step signal\n"
 msgstr "Touchy需要一个外部的单步信号\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3876
+#: src/emc/usr_intf/pncconf/pncconf.py:3872
 msgid ""
 "Touchy require an external multi handwheel MPG encoder signal on the mesa "
 "page\n"
 msgstr "Touchy在Mesa页面上需要一个外部多手轮MPG编码器信号\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3879
+#: src/emc/usr_intf/pncconf/pncconf.py:3875
 msgid ""
 "Touchy require 'external mpg jogging' to be selected on the external control "
 "page\n"
 msgstr "Touchy需要在外部控制页面上选择“外部手轮点动”\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3882
+#: src/emc/usr_intf/pncconf/pncconf.py:3878
 msgid ""
 "Touchy require the external mpg to be in 'shared mpg' mode on the external "
 "controls page\n"
 msgstr "Touchy要求外部控制页面上的外部手轮处于“共享手轮”模式\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3885
+#: src/emc/usr_intf/pncconf/pncconf.py:3881
 msgid ""
 "Touchy require selectable increments to be unchecked on the external "
 "controls page\n"
 msgstr "Touchy需要可选的增量在外部控制页面上取消选中\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3898
+#: src/emc/usr_intf/pncconf/pncconf.py:3894
 msgid ""
 "The 7i29 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
 msgstr "7i29子板需要PWM型发生器，PWM基频为20 khz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3901
+#: src/emc/usr_intf/pncconf/pncconf.py:3897
 msgid ""
 "The 7i30 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
 msgstr "7i30子板需要PWM型发生器，PWM基频为20 khz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3904
+#: src/emc/usr_intf/pncconf/pncconf.py:3900
 msgid ""
 "The 7i33 daughter board requires PDM type generators and a PDM base "
 "frequency of 6 Mhz\n"
 msgstr "7i33子板需要PDM型发生器，PDM基频为6 Mhz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3907
+#: src/emc/usr_intf/pncconf/pncconf.py:3903
 msgid ""
 "The 7i40 daughter board requires PWM type generators and a PWM base "
 "frequency of 50 khz\n"
 msgstr "7i40子板需要PWM型发生器，PWM基频为50 khz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3910
+#: src/emc/usr_intf/pncconf/pncconf.py:3906
 msgid ""
 "The 7i48 daughter board requires UDM type generators and a PWM base "
 "frequency of 24 khz\n"
 msgstr "7i48子板需要UDM型发生器，PWM基频为24 khz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4058
+#: src/emc/usr_intf/pncconf/pncconf.py:4054
 msgid "Gearbox Reduction Ratio"
 msgstr "减速机减速比"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4061
+#: src/emc/usr_intf/pncconf/pncconf.py:4057
 msgid "Reduction Ratio"
 msgstr "减速比"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4064
+#: src/emc/usr_intf/pncconf/pncconf.py:4060
 msgid "Leadscrew Pitch"
 msgstr "丝杆螺距"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4067
+#: src/emc/usr_intf/pncconf/pncconf.py:4063
 #: src/emc/usr_intf/pncconf/dialogs.glade:1985
 #: src/emc/usr_intf/pncconf/dialogs.glade:2350
 msgid "Leadscrew TPI"
 msgstr "丝杆TPI"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4071
-#: src/emc/usr_intf/pncconf/pncconf.py:4072
+#: src/emc/usr_intf/pncconf/pncconf.py:4067
+#: src/emc/usr_intf/pncconf/pncconf.py:4068
 msgid "("
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4073
-#: src/emc/usr_intf/pncconf/pncconf.py:4083
-#: src/emc/usr_intf/pncconf/pncconf.py:4084
-#: src/emc/usr_intf/pncconf/pncconf.py:4085
+#: src/emc/usr_intf/pncconf/pncconf.py:4069
+#: src/emc/usr_intf/pncconf/pncconf.py:4079
+#: src/emc/usr_intf/pncconf/pncconf.py:4080
+#: src/emc/usr_intf/pncconf/pncconf.py:4081
 msgid " / min"
 msgstr "/分钟"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4074
+#: src/emc/usr_intf/pncconf/pncconf.py:4070
 msgid " / sec²"
 msgstr "/秒²"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4077
+#: src/emc/usr_intf/pncconf/pncconf.py:4073
 msgid " / Step"
 msgstr "/步"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4078
+#: src/emc/usr_intf/pncconf/pncconf.py:4074
 msgid "Steps / "
 msgstr "步 / "
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4080
+#: src/emc/usr_intf/pncconf/pncconf.py:4076
 msgid " / encoder pulse"
 msgstr "/编码器脉冲"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4081
+#: src/emc/usr_intf/pncconf/pncconf.py:4077
 msgid "Encoder pulses / "
 msgstr "编码器脉冲/"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4089
+#: src/emc/usr_intf/pncconf/pncconf.py:4085
 msgid "Resolver Scale:"
 msgstr "解析器比例:"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4427
+#: src/emc/usr_intf/pncconf/pncconf.py:4423
 msgid "Spindle Scale Calculation"
 msgstr "主轴比例计算"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4539
+#: src/emc/usr_intf/pncconf/pncconf.py:4535
 msgid "Axis Scale Calculation"
 msgstr "轴比例计算"
 
@@ -12103,56 +12095,56 @@ msgstr "# 使用的 LinuxCNC 版本:  %s"
 msgid "# overwritten when you run PNCconf again"
 msgstr "# 再次运行PNCconf时会被覆盖"
 
-#: src/emc/usr_intf/pncconf/build_INI.py:183
+#: src/emc/usr_intf/pncconf/build_INI.py:180
 msgid "# **** This is for info only ****"
 msgstr "# **** 仅供参考 ****"
 
-#: src/emc/usr_intf/pncconf/build_INI.py:193
+#: src/emc/usr_intf/pncconf/build_INI.py:190
 msgid ""
 "# These are to ease setting custom component's parameters in a custom HAL "
 "file"
 msgstr "# 这些是为了方便在自定义HAL文件中设置自定义组件的参数"
 
-#: src/emc/usr_intf/pncconf/build_INI.py:418
+#: src/emc/usr_intf/pncconf/build_INI.py:415
 msgid ""
 "# The values below should be 25% larger than MAX_VELOCITY and "
 "MAX_ACCELERATION"
 msgstr "# 以下值应该比最大速度与最大加速度高25%"
 
-#: src/emc/usr_intf/pncconf/build_INI.py:419
+#: src/emc/usr_intf/pncconf/build_INI.py:416
 msgid ""
 "# If using BACKLASH compensation STEPGEN_MAXACCEL should be 100% larger."
 msgstr "# 如果使用背隙补偿 STEPGEN_MAXACCEL 应该比原本大100%。"
 
-#: src/emc/usr_intf/pncconf/build_INI.py:471
+#: src/emc/usr_intf/pncconf/build_INI.py:468
 msgid "# these are in nanoseconds"
 msgstr "#这些以纳秒为单位"
 
-#: src/emc/usr_intf/pncconf/build_INI.py:550
+#: src/emc/usr_intf/pncconf/build_INI.py:547
 msgid "# MAX_VEL & MAX_ACC need to be twice the corresponding joint value"
 msgstr "# MAX_VEL 和 MAX_ACC 需要是对应关节值的两倍"
 
-#: src/emc/usr_intf/pncconf/build_INI.py:564
+#: src/emc/usr_intf/pncconf/build_INI.py:561
 msgid "# set the operating mode (default is 0)"
 msgstr "#设置操作模式（默认值为0）"
 
-#: src/emc/usr_intf/pncconf/build_INI.py:566
+#: src/emc/usr_intf/pncconf/build_INI.py:563
 msgid "# set the estop type (0=indicator, 1=hidden, 2=button)"
 msgstr "# 设置急停开关类型 (0=指示灯, 1=隐藏, 2=按钮)"
 
-#: src/emc/usr_intf/pncconf/build_INI.py:577
+#: src/emc/usr_intf/pncconf/build_INI.py:574
 msgid "# laser touchoff"
 msgstr "#激光触发"
 
-#: src/emc/usr_intf/pncconf/build_INI.py:579
+#: src/emc/usr_intf/pncconf/build_INI.py:576
 msgid "# camera touchoff"
 msgstr "# 摄像机触发"
 
-#: src/emc/usr_intf/pncconf/build_INI.py:581
+#: src/emc/usr_intf/pncconf/build_INI.py:578
 msgid "# powermax communications"
 msgstr "# powermax 通信"
 
-#: src/emc/usr_intf/pncconf/build_INI.py:586
+#: src/emc/usr_intf/pncconf/build_INI.py:583
 msgid "# user buttons"
 msgstr "# 用户按钮"
 
@@ -12369,7 +12361,8 @@ msgstr "#    P3.00 （操作命令源）必须设置为由RS-485接口确定的�
 msgid ""
 "#    P4.00 (Source of Frequency Command) must be set to Frequency determined "
 "by RS232C/RS485 communication interface, 05"
-msgstr "#    P4.00 （频率命令源）必须设置为由RS232C/RS485通信接口确定的频率，05"
+msgstr ""
+"#    P4.00 （频率命令源）必须设置为由RS232C/RS485通信接口确定的频率，05"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1049
 msgid ""
@@ -12380,8 +12373,9 @@ msgstr "#    P9.01 （传输速度）必须设置为指定的波特率，9600 = 
 msgid ""
 "#    P9.02 (Communication Protocol) must be set to \"Modbus RTU mode, 8 data "
 "bits, no parity, 2 stop bits\", 03"
-msgstr "#    P9.02 （通信协议）必须设置为“Modbus "
-"RTU模式，8个数据位，无奇偶校验，2个停止位”，03"
+msgstr ""
+"#    P9.02 （通信协议）必须设置为“Modbus RTU模式，8个数据位，无奇偶校验，2个"
+"停止位”，03"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1063
 msgid "#    Misubishi FR VFD for spindle control"
@@ -14212,8 +14206,8 @@ msgid ""
 "be lost. "
 msgstr ""
 "确定要替换现有的自定义pyvcp面板和custom_postgui.hal文件吗?\n"
-"现有的custompanel.xml和custom_postgui.hal将重命名为 custompanel_backup."
-"xml和postgui_backup.hal。\n"
+"现有的custompanel.xml和custom_postgui.hal将重命名为 custompanel_backup.xml和"
+"postgui_backup.hal。\n"
 "任何名为custompanel_backup.xml和custom_postgui.hal的现有文件都将丢失。 "
 
 #: src/emc/usr_intf/pncconf/private_data.py:1111
@@ -14337,9 +14331,9 @@ msgid ""
 "hesitate to even allow it's use but at times it's very useful.\n"
 "Do you wish to continue the test?"
 msgstr ""
-"由于技术原因，这个测试面板只能加载一次，而不需要重新加载pncconf。 "
-"除非您重新加载pncconf，并且很可能需要打开终端并键入 'halrun -U' "
-"，否则您将无法进行任何其他测试。我甚至不愿允许使用它，但有时它非常有用。\n"
+"由于技术原因，这个测试面板只能加载一次，而不需要重新加载pncconf。 除非您重新"
+"加载pncconf，并且很可能需要打开终端并键入 'halrun -U' ，否则您将无法进行任何"
+"其他测试。我甚至不愿允许使用它，但有时它非常有用。\n"
 "你想继续测试吗?"
 
 #: src/emc/usr_intf/pncconf/data.py:112
@@ -14356,10 +14350,10 @@ msgid ""
 "version of PNConf - ask on the LinuxCNC forum - it may be possible.."
 msgstr ""
 "此配置已保存在较早版本的pncconf中，该版本可能不兼容。\n"
-"如果不明显导致错误，您仍然可能要用另一个名称保存它并检查它。 从头开始更安全。"
-"\n"
-"如果你有一个真正的大型配置，你希望转换到这个较新版本的PNConf - "
-"在LinuxCNC论坛上询问 - 这可能是..."
+"如果不明显导致错误，您仍然可能要用另一个名称保存它并检查它。 从头开始更安"
+"全。\n"
+"如果你有一个真正的大型配置，你希望转换到这个较新版本的PNConf - 在LinuxCNC论坛"
+"上询问 - 这可能是..."
 
 #: src/emc/usr_intf/pncconf/data.py:881
 #, python-format
@@ -14399,8 +14393,8 @@ msgid ""
 msgstr ""
 "该程序为连接到Mesa卡的铣床和车床创建(.ini和.hal)配置文件。\n"
 "\n"
-"我们推荐先从非常基本的轴选项开始配置，让它们正常运行后再回来添加其他选项，如V"
-"FD主轴控制或高级选项/限位/零点等。"
+"我们推荐先从非常基本的轴选项开始配置，让它们正常运行后再回来添加其他选项，如"
+"VFD主轴控制或高级选项/限位/零点等。"
 
 #: src/emc/usr_intf/pncconf/main_page.glade:315
 #: src/emc/usr_intf/pncconf/mesa0.glade:20244
@@ -14449,8 +14443,8 @@ msgstr ""
 "随着Linuxcnc的变化，它将会一直在进行着。\n"
 "\n"
 "非常感谢:\n"
-"Jeff Eppler - PNCconf 是基于 Jeff 的 stepconf 创建的。 "
-"Jeff也有帮助解决技术上的困难。\n"
+"Jeff Eppler - PNCconf 是基于 Jeff 的 stepconf 创建的。 Jeff也有帮助解决技术上"
+"的困难。\n"
 "Big John T - John 绘制了原始机器插图，提供了测试和建议。\n"
 "Peter Wallace - 解决关于Mesa I/O的技术问题。 提供样品设备进行测试。\n"
 "Andy Pugh - 提供很多关于引脚名称更改的建议和回答:)\n"
@@ -19587,6 +19581,12 @@ msgstr "_取消_"
 msgid "_Ok"
 msgstr "_确定"
 
+#~ msgid "Missing Tcl Package Img"
+#~ msgstr "缺少Tcl包镜像"
+
+#~ msgid "Please install Img"
+#~ msgstr "请安装镜像"
+
 #~ msgid "homing sequence already in progress"
 #~ msgstr "回零序列已在进行中"
 
@@ -19600,19 +19600,15 @@ msgstr "_确定"
 #~ msgid "MOTION: export_joint_home_pins failed\n"
 #~ msgstr "MOTION: init_hal_io() 失败\n"
 
-#, c-format
 #~ msgid "MOTION: axis %c pin/param export failed\n"
 #~ msgstr "MOTION: 轴 %d 针脚/参数 导出失败\n"
 
-#, c-format
 #~ msgid "%d us"
 #~ msgstr "%d 微秒"
 
-#, c-format
 #~ msgid "Number of rungs (%d%c used      "
 #~ msgstr "梯级数量(%d%c 使用         "
 
-#, c-format
 #~ msgid "Number of Sections (%d%c used)   "
 #~ msgstr "部件数量(%d%c 使用)         "
 

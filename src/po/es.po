@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
-"POT-Creation-Date: 2022-05-28 23:16+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-07-09 16:34+0100\n"
 "PO-Revision-Date: 2022-06-23 19:47+0000\n"
 "Last-Translator: Ulices <dev.n47os@aleeas.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
@@ -956,52 +956,53 @@ msgid "File:%s line:%d redefining sub: o|%s| already defined in file:%s"
 msgstr ""
 "Archivo:%s línea:%d redefiniendo sub: o|%s| ya definido en el archivo:%s"
 
-#: src/emc/rs274ngc/interp_o_word.cc:823
+#: src/emc/rs274ngc/interp_o_word.cc:825
 #, c-format
 msgid "%d: not in a subroutine definition: '%s'"
 msgstr "%d: no está en una definición de subrutina: '%s'"
 
-#: src/emc/rs274ngc/interp_o_word.cc:872 src/emc/rs274ngc/interp_o_word.cc:922
+#: src/emc/rs274ngc/interp_o_word.cc:874 src/emc/rs274ngc/interp_o_word.cc:924
 #, c-format
 msgid "%d: duplicate O-word label: '%s' - defined in line %d"
 msgstr "%d: etiqueta O-word duplicada: '%s' - definida en la línea %d"
 
-#: src/emc/rs274ngc/interp_o_word.cc:975
+#: src/emc/rs274ngc/interp_o_word.cc:977
 #, c-format
 msgid "%d: duplicate O-word label - already defined in line %d: '%s'"
 msgstr "%d: etiqueta O-word duplicada - ya definida en la línea %d: '%s'"
 
-#: src/emc/rs274ngc/interp_o_word.cc:999 src/emc/rs274ngc/interp_o_word.cc:1057
-#: src/emc/rs274ngc/interp_o_word.cc:1091
-#: src/emc/rs274ngc/interp_o_word.cc:1109
-#: src/emc/rs274ngc/interp_o_word.cc:1126
-#: src/emc/rs274ngc/interp_o_word.cc:1151
+#: src/emc/rs274ngc/interp_o_word.cc:1001
+#: src/emc/rs274ngc/interp_o_word.cc:1059
+#: src/emc/rs274ngc/interp_o_word.cc:1093
+#: src/emc/rs274ngc/interp_o_word.cc:1111
+#: src/emc/rs274ngc/interp_o_word.cc:1128
+#: src/emc/rs274ngc/interp_o_word.cc:1153
 #, c-format
 msgid "%d: undefined O-word label: '%s'"
 msgstr "%d: etiqueta O-word indefinida: '%s'"
 
-#: src/emc/rs274ngc/interp_o_word.cc:1002
-#: src/emc/rs274ngc/interp_o_word.cc:1060
+#: src/emc/rs274ngc/interp_o_word.cc:1004
+#: src/emc/rs274ngc/interp_o_word.cc:1062
 #, c-format
 msgid "%d: no matching 'if' label: '%s' (found '%s' in line %d)"
 msgstr ""
 "%d: no coincide con la etiqueta 'if': '%s' (se encontró '%s' en la línea %d)"
 
-#: src/emc/rs274ngc/interp_o_word.cc:1094
+#: src/emc/rs274ngc/interp_o_word.cc:1096
 #, c-format
 msgid "%d: no matching label: '%s' (found '%s' in line %d): '%s'"
 msgstr ""
 "%d: sin etiqueta coincidente: '%s' (encontrado '%s' en la línea %d): '%s'"
 
-#: src/emc/rs274ngc/interp_o_word.cc:1112
-#: src/emc/rs274ngc/interp_o_word.cc:1129
+#: src/emc/rs274ngc/interp_o_word.cc:1114
+#: src/emc/rs274ngc/interp_o_word.cc:1131
 #, c-format
 msgid "%d: no matching while/do label: '%s' (found '%s' in line %d)"
 msgstr ""
 "%d: no coincide con la etiqueta while/do: '%s' (se encontró '%s' en la línea "
 "%d)"
 
-#: src/emc/rs274ngc/interp_o_word.cc:1155
+#: src/emc/rs274ngc/interp_o_word.cc:1157
 #, c-format
 msgid "%d: no matching label: '%s' (found '%s' in line %d)"
 msgstr "%d: sin etiqueta coincidente: '%s' (se encontró '%s' en la línea %d)"
@@ -1312,7 +1313,6 @@ msgstr "Nombre de archivo demasiado largo"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:83
 #, fuzzy
-#| msgid "G code out of range"
 msgid "G-code out of range"
 msgstr "Código G fuera de rango"
 
@@ -1350,7 +1350,6 @@ msgstr "Falta el corchete izquierdo después de nombre de operación unaria"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:92
 #, fuzzy, c-format
-#| msgid "M code greater than 199: M%d"
 msgid "M-code greater than 199: M%d"
 msgstr "Código M mayor que 199: M%d"
 
@@ -2469,90 +2468,90 @@ msgstr "Canal"
 msgid "Source"
 msgstr "Fuente"
 
-#: src/emc/motion/control.c:517
+#: src/emc/motion/control.c:526
 #, c-format
 msgid "fault %d during orient in progress"
 msgstr "error %d durante orientación en progreso"
 
-#: src/emc/motion/control.c:694
+#: src/emc/motion/control.c:709
 msgid "G38.4 move finished without breaking contact."
 msgstr "Movimiento G38.4 terminado sin romper el contacto."
 
-#: src/emc/motion/control.c:697
+#: src/emc/motion/control.c:712
 msgid "G38.2 move finished without making contact."
 msgstr "Movimiento G38.2 terminado sin hacer contacto."
 
-#: src/emc/motion/control.c:710
+#: src/emc/motion/control.c:725
 msgid "Probe tripped during non-probe move."
 msgstr "La sonda se disparó durante movimiento no-sonda MDI."
 
-#: src/emc/motion/control.c:741
+#: src/emc/motion/control.c:756
 msgid "Probe tripped during homing motion."
 msgstr "La sonda se disparó durante el movimiento homing."
 
-#: src/emc/motion/control.c:745
+#: src/emc/motion/control.c:760
 msgid "Probe tripped during a joint jog."
 msgstr "La sonda se disparó durante un jog articular."
 
-#: src/emc/motion/control.c:748
+#: src/emc/motion/control.c:763
 msgid "Probe tripped during a coordinate jog."
 msgstr "La sonda se disparó durante un jog coordinado\"."
 
-#: src/emc/motion/control.c:764
+#: src/emc/motion/control.c:779
 msgid "motion stopped by enable input"
 msgstr "movimiento detenido por entrada habilitada"
 
-#: src/emc/motion/control.c:771
+#: src/emc/motion/control.c:786
 #, c-format
 msgid "spindle %d amplifier fault"
 msgstr "fallo del amplificador del husillo %d"
 
-#: src/emc/motion/control.c:794
+#: src/emc/motion/control.c:809
 #, c-format
 msgid "joint %d on limit switch error"
 msgstr "error articulacion %d en el interruptor de límite"
 
-#: src/emc/motion/control.c:806
+#: src/emc/motion/control.c:821
 #, c-format
 msgid "joint %d amplifier fault"
 msgstr "fallo del amplificador de articulacion %d"
 
-#: src/emc/motion/control.c:815
+#: src/emc/motion/control.c:830
 #, c-format
 msgid "joint %d following error"
 msgstr "error de seguimiento en articulacion %d"
 
-#: src/emc/motion/control.c:828
+#: src/emc/motion/control.c:843
 #, c-format
 msgid "Motion Stopped by misc error %d"
 msgstr "Movimiento detenido por error miscelaneo %d"
 
-#: src/emc/motion/control.c:1331 src/emc/motion/control.c:1391
+#: src/emc/motion/control.c:1346 src/emc/motion/control.c:1406
 #, c-format
 msgid "kinematicsInverse gave non-finite joint location on joint %d"
 msgstr ""
 "kinematicsInverse proporcionó una ubicación de articulación no finita en la "
 "articulación %d"
 
-#: src/emc/motion/control.c:1348 src/emc/motion/control.c:1410
+#: src/emc/motion/control.c:1363 src/emc/motion/control.c:1425
 msgid "kinematicsInverse failed"
 msgstr "error cinemática inversa"
 
-#: src/emc/motion/control.c:1487
+#: src/emc/motion/control.c:1502
 #, c-format
 msgid "Exceeded NEGATIVE soft limit (%.5f) on joint %d\n"
 msgstr "Límite soft NEGATIVO excedido (%.5f) en la articulacion %d\n"
 
-#: src/emc/motion/control.c:1490 src/emc/motion/control.c:1499
+#: src/emc/motion/control.c:1505 src/emc/motion/control.c:1514
 msgid "Joint must be unhomed, jogged into limits, rehomed"
 msgstr "La articulación debe ser unhomed, jog entre límites y rehomed"
 
-#: src/emc/motion/control.c:1492 src/emc/motion/control.c:1501
+#: src/emc/motion/control.c:1507 src/emc/motion/control.c:1516
 msgid "Hint: switch to joint mode to jog off soft limit"
 msgstr ""
 "Sugerencia: cambie al modo articulacion para jog despues del límite soft"
 
-#: src/emc/motion/control.c:1496
+#: src/emc/motion/control.c:1511
 #, c-format
 msgid "Exceeded POSITIVE soft limit (%.5f) on joint %d\n"
 msgstr "Límite soft POSITIVO excedido (%.5f) en la articulacion %d\n"
@@ -2635,7 +2634,8 @@ msgstr "No se puede mover la articulación cuando no está habilitada."
 #: src/emc/motion/command.c:785 src/emc/motion/command.c:853
 #: src/emc/motion/command.c:932
 msgid "Cannot jog while jog-inhibit is active."
-msgstr "No se puede avanzar mientras esté activa la inhibición de avance lento."
+msgstr ""
+"No se puede avanzar mientras esté activa la inhibición de avance lento."
 
 #: src/emc/motion/command.c:789 src/emc/motion/command.c:936
 msgid "Can't jog any joints while homing."
@@ -2761,7 +2761,6 @@ msgstr "Intento de aumentar revs. en husillo inexistente <%d>"
 
 #: src/emc/motion/command.c:1736
 #, fuzzy, c-format
-#| msgid "Attempt to decreasenon-existent spindle <%d>"
 msgid "Attempt to decrease non-existent spindle <%d>."
 msgstr "Intento de disminuir revs. en husillo inexistente <%d>"
 
@@ -2888,13 +2887,11 @@ msgstr "MOTION: init_comm_buffers() falló\n"
 
 #: src/emc/motion/motion.c:380
 #, fuzzy
-#| msgid "MOTION: hal_init() failed\n"
 msgid "MOTION: module_intfc() failed\n"
 msgstr "MOTION: el módulo module_intfc() falló\n"
 
 #: src/emc/motion/motion.c:384
 #, fuzzy
-#| msgid "MOTION: hal_init() failed\n"
 msgid "MOTION: tp_init() failed\n"
 msgstr "MOTION: el módulo tp_init() falló\n"
 
@@ -2925,30 +2922,28 @@ msgstr "MOTION: hal_exit() falló, devolvió %d\n"
 msgid "MOTION: emcmot_hal_data malloc failed\n"
 msgstr "MOTION: falló malloc emcmot_hal_data\n"
 
-#: src/emc/motion/motion.c:660
+#: src/emc/motion/motion.c:664
 #, c-format
 msgid "MOTION: spindle %d pin export failed"
 msgstr "MOTION: error en la exportación del pin husillo %d"
 
-#: src/emc/motion/motion.c:670
+#: src/emc/motion/motion.c:674
 #, c-format
 msgid "MOTION: joint %d pin/param export failed\n"
 msgstr "MOTION: falló la exportación pin/param articulacion %d\n"
 
-#: src/emc/motion/motion.c:683
+#: src/emc/motion/motion.c:687
 #, c-format
 msgid "MOTION: ejoint %d pin/param export failed\n"
 msgstr "MOTION: falló la exportación pin/param extrajoint %d\n"
 
 #: src/emc/motion/homing.c:188
 #, fuzzy, c-format
-#| msgid "hit limit in home state %d"
 msgid "j%d hit limit in home state %d"
 msgstr "j%d alcanzó límite en estado home %d"
 
 #: src/emc/motion/homing.c:197
 #, fuzzy, c-format
-#| msgid "end of move in home state %d"
 msgid "j%d end of move in home state %d"
 msgstr "j%d finalizó movimiento en estado home %d"
 
@@ -2972,7 +2967,7 @@ msgid "Cannot unhome extrajoint <%d> with motion enabled"
 msgstr "No se puede deshacer el extrajoint <%d> con el movimiento habilitado"
 
 #: src/emc/motion/homing.c:366
-#, c-format, fuzzy
+#, fuzzy, c-format
 msgid "homing.c Unexpected joint=%d jseq=%d current_seq=%d\n"
 msgstr "homing.c Inesperado joint=%d jseq=%d current_seq=%d"
 
@@ -2983,7 +2978,6 @@ msgstr "estado desconocido '%d' durante la secuencia homing"
 
 #: src/emc/motion/homing.c:576
 #, fuzzy, c-format
-#| msgid "Cannot unhome invalid joint %d (max %d)"
 msgid "Cannot unhome invalid joint %d (max %d)\n"
 msgstr "No se puede hacer unhome en articulacion inválida %d (max %d)"
 
@@ -2994,19 +2988,16 @@ msgstr "No se puede mover la articulación <%d> con el movimiento habilitado."
 
 #: src/emc/motion/homing.c:590
 #, fuzzy, c-format
-#| msgid "Cannot unhome while homing, joint %d"
 msgid "Cannot unhome while homing, joint %d\n"
 msgstr "No se puede hacer unhome mientras se hace homing, articulación %d"
 
 #: src/emc/motion/homing.c:595
 #, fuzzy, c-format
-#| msgid "Cannot unhome while moving, joint %d"
 msgid "Cannot unhome while moving, joint %d\n"
 msgstr "No se puede hacer unhome mientras se mueve, articulacion %d"
 
 #: src/emc/motion/homing.c:601
 #, fuzzy, c-format
-#| msgid "Cannot unhome inactive joint %d"
 msgid "Cannot unhome inactive joint %d\n"
 msgstr "No se puede hacer unhome en articulacion inactiva %d"
 
@@ -5673,7 +5664,7 @@ msgstr "pulgadas"
 #: src/emc/usr_intf/axis/scripts/axis.py:2024
 #: src/emc/usr_intf/axis/scripts/axis.py:2601
 #: src/emc/usr_intf/touchy/touchy.glade:3272
-#: src/emc/usr_intf/stepconf/stepconf.py:1571
+#: src/emc/usr_intf/stepconf/stepconf.py:1567
 #: src/emc/usr_intf/stepconf/pages.py:960
 #: src/emc/usr_intf/stepconf/main_page.glade:240
 #: src/emc/usr_intf/pncconf/tests.py:517
@@ -6126,7 +6117,6 @@ msgstr "esperado"
 
 #: tcl/ngcgui.tcl:739
 #, fuzzy
-#| msgid "no sub found in file"
 msgid "no 'sub' found in file"
 msgstr "no se encontró sub en el archivo"
 
@@ -6587,9 +6577,9 @@ msgstr "eliminar"
 msgid "move"
 msgstr "mover"
 
-#: tcl/ngcgui.tcl:3725 src/emc/usr_intf/pncconf/pncconf.py:3943
-#: src/emc/usr_intf/pncconf/pncconf.py:4049
-#: src/emc/usr_intf/pncconf/pncconf.py:4213
+#: tcl/ngcgui.tcl:3725 src/emc/usr_intf/pncconf/pncconf.py:3939
+#: src/emc/usr_intf/pncconf/pncconf.py:4045
+#: src/emc/usr_intf/pncconf/pncconf.py:4209
 msgid "Custom"
 msgstr "Personalizado"
 
@@ -6668,19 +6658,11 @@ msgstr "Intentar continuar"
 msgid "Ngcgui Configuration File Not Found"
 msgstr "Archivo de configuración de Ngcgui no encontrado"
 
-#: tcl/ngcgui.tcl:3938
-msgid "Missing Tcl Package Img"
-msgstr "Falta el paquete Tcl Img"
-
-#: tcl/ngcgui.tcl:3939
-msgid "Please install Img"
-msgstr "Instale Img"
-
-#: tcl/ngcgui.tcl:4143
+#: tcl/ngcgui.tcl:4135
 msgid "ini file"
 msgstr "archivo ini"
 
-#: tcl/ngcgui.tcl:4152
+#: tcl/ngcgui.tcl:4144
 msgid "not found"
 msgstr "no encontrado"
 
@@ -7548,7 +7530,7 @@ msgstr "Tabla de herramientas T"
 #: src/emc/usr_intf/axis/scripts/axis.py:1739
 #: src/emc/usr_intf/axis/scripts/axis.py:2028
 #: src/emc/usr_intf/axis/scripts/axis.py:2602
-#: src/emc/usr_intf/stepconf/stepconf.py:1585
+#: src/emc/usr_intf/stepconf/stepconf.py:1581
 #: src/emc/usr_intf/stepconf/pages.py:966
 msgid "in"
 msgstr "in"
@@ -8880,8 +8862,8 @@ msgid "Temporarily allow jogging outside machine limits [L]"
 msgstr "Permitir temporalmente correr fuera de los límites de la máquina [L]"
 
 #: src/emc/usr_intf/touchy/touchy.py:144
-#: src/emc/usr_intf/pncconf/pncconf.py:1751
-#: src/emc/usr_intf/pncconf/pncconf.py:1754
+#: src/emc/usr_intf/pncconf/pncconf.py:1747
+#: src/emc/usr_intf/pncconf/pncconf.py:1750
 #: src/emc/usr_intf/gscreen/gscreen.py:1339
 msgid "Follow System Theme"
 msgstr "Seguir el tema del sistema"
@@ -10492,33 +10474,33 @@ msgstr ""
 "\n"
 "{}"
 
-#: src/emc/usr_intf/stepconf/stepconf.py:973
+#: src/emc/usr_intf/stepconf/stepconf.py:969
 #: src/emc/usr_intf/stepconf/pages.py:152
 msgid "Other"
 msgstr "Otro"
 
-#: src/emc/usr_intf/stepconf/stepconf.py:1552
+#: src/emc/usr_intf/stepconf/stepconf.py:1548
 #: src/emc/usr_intf/pncconf/tests.py:1037
 #, python-format
 msgid "%s Axis Test"
 msgstr "%s Prueba de eje"
 
-#: src/emc/usr_intf/stepconf/stepconf.py:1555
+#: src/emc/usr_intf/stepconf/stepconf.py:1551
 #: src/emc/usr_intf/stepconf/pages.py:952
 msgid "deg / s"
 msgstr "deg / s"
 
-#: src/emc/usr_intf/stepconf/stepconf.py:1556
+#: src/emc/usr_intf/stepconf/stepconf.py:1552
 #: src/emc/usr_intf/stepconf/pages.py:953
 msgid "deg / s²"
 msgstr "deg / s²"
 
-#: src/emc/usr_intf/stepconf/stepconf.py:1557
+#: src/emc/usr_intf/stepconf/stepconf.py:1553
 #: src/emc/usr_intf/stepconf/pages.py:954
 msgid "deg"
 msgstr "deg"
 
-#: src/emc/usr_intf/stepconf/stepconf.py:1569
+#: src/emc/usr_intf/stepconf/stepconf.py:1565
 #: src/emc/usr_intf/stepconf/pages.py:958
 #: src/emc/usr_intf/stepconf/axisx.glade:304
 #: src/emc/usr_intf/stepconf/axisy.glade:302
@@ -10534,7 +10516,7 @@ msgstr "deg"
 msgid "mm / s"
 msgstr "mm / s"
 
-#: src/emc/usr_intf/stepconf/stepconf.py:1570
+#: src/emc/usr_intf/stepconf/stepconf.py:1566
 #: src/emc/usr_intf/stepconf/pages.py:959
 #: src/emc/usr_intf/stepconf/axisx.glade:317
 #: src/emc/usr_intf/stepconf/axisy.glade:315
@@ -10550,12 +10532,12 @@ msgstr "mm / s"
 msgid "mm / s²"
 msgstr "mm / s²"
 
-#: src/emc/usr_intf/stepconf/stepconf.py:1583
+#: src/emc/usr_intf/stepconf/stepconf.py:1579
 #: src/emc/usr_intf/stepconf/pages.py:964
 msgid "in / s"
 msgstr "en / s"
 
-#: src/emc/usr_intf/stepconf/stepconf.py:1584
+#: src/emc/usr_intf/stepconf/stepconf.py:1580
 #: src/emc/usr_intf/stepconf/pages.py:965
 msgid "in / s²"
 msgstr "en / s²"
@@ -10565,7 +10547,7 @@ msgid "LinuxCNC 'stepconf' configuration files"
 msgstr "Archivos de configuración LinuxCNC 'stepconf'"
 
 #: src/emc/usr_intf/stepconf/pages.py:232
-#: src/emc/usr_intf/pncconf/pncconf.py:902
+#: src/emc/usr_intf/pncconf/pncconf.py:898
 msgid "Modify Existing Configuration"
 msgstr "Modificar la configuración existente"
 
@@ -10635,24 +10617,24 @@ msgstr "# Si realiza cambios en este archivo, serán"
 msgid "# overwritten when you run stepconf again"
 msgstr "# sobrescrito cuando ejecuta stepconf nuevamente"
 
-#: src/emc/usr_intf/stepconf/build_INI.py:236
+#: src/emc/usr_intf/stepconf/build_INI.py:233
 msgid "# add halui MDI commands here (max 64) "
 msgstr "# agregar comandos MDI halui aquí (máx. 64)"
 
-#: src/emc/usr_intf/stepconf/build_INI.py:406
-#: src/emc/usr_intf/pncconf/build_INI.py:568
+#: src/emc/usr_intf/stepconf/build_INI.py:403
+#: src/emc/usr_intf/pncconf/build_INI.py:565
 #, fuzzy
 msgid "# set the dro position ('top' or 'bottom')"
 msgstr "# ajuste la posición dro ('superior' o 'inferior')"
 
-#: src/emc/usr_intf/stepconf/build_INI.py:409
-#: src/emc/usr_intf/pncconf/build_INI.py:571
+#: src/emc/usr_intf/stepconf/build_INI.py:406
+#: src/emc/usr_intf/pncconf/build_INI.py:568
 #, fuzzy
 msgid "# error message flash (0=no, 1=yes)"
 msgstr "# mensaje de error flash (0=no, 1=sí)"
 
-#: src/emc/usr_intf/stepconf/build_INI.py:411
-#: src/emc/usr_intf/pncconf/build_INI.py:573
+#: src/emc/usr_intf/stepconf/build_INI.py:408
+#: src/emc/usr_intf/pncconf/build_INI.py:570
 msgid "# hide buttons (0=no, 1=yes)"
 msgstr "# ocultar botones (0=no, 1=sí)"
 
@@ -11798,9 +11780,7 @@ msgstr "Opuesto"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid ""
-"_:"
-""
+msgid "_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -12039,20 +12019,20 @@ msgstr "**** ERROR PNCCONF: error de carga de firmware personalizado"
 msgid "**** PNCCONF INFO:    Found extra firmware in file"
 msgstr "**** INFORMACIÓN PNCCONF: Se encontró firmware adicional en el archivo"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:364
+#: src/emc/usr_intf/pncconf/pncconf.py:360
 msgid "Discovery metadata update"
 msgstr "Actualización de metadatos de descubrimiento"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:408
+#: src/emc/usr_intf/pncconf/pncconf.py:404
 #, python-format
 msgid "%s metadata update"
 msgstr "%s actualización de metadatos"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:428
+#: src/emc/usr_intf/pncconf/pncconf.py:424
 msgid "PnCconf setup"
 msgstr "Configuración de PnCconf"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:448
+#: src/emc/usr_intf/pncconf/pncconf.py:444
 msgid ""
 "\n"
 "**** Debug Pause! ****"
@@ -12060,15 +12040,15 @@ msgstr ""
 "\n"
 "**** Pausa de depuración! ****"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:532
+#: src/emc/usr_intf/pncconf/pncconf.py:528
 msgid "Specific Help page is unavailable\n"
 msgstr "La página de ayuda específica no está disponible\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:534
+#: src/emc/usr_intf/pncconf/pncconf.py:530
 msgid "Help Pages"
 msgstr "Páginas de ayuda"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:585
+#: src/emc/usr_intf/pncconf/pncconf.py:581
 #, python-format
 msgid ""
 "You have no hostmot2 firmware downloaded in folder:\n"
@@ -12079,24 +12059,24 @@ msgstr ""
 "%s\n"
 "PNCconf usará datos internos del firmware"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:900
+#: src/emc/usr_intf/pncconf/pncconf.py:896
 msgid "LinuxCNC 'PNCconf' configuration files"
 msgstr "Archivos de configuración LinuxCNC 'PNCconf'"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:933
+#: src/emc/usr_intf/pncconf/pncconf.py:929
+#, fuzzy
 msgid ""
 "It seems data in this file is from too old of a version of PNCConf to "
-"continue.\n"
-"."
+"continue."
 msgstr ""
 "Parece que los datos en este archivo son demasiado antiguos de una versión "
 "de PNCConf paracontinuar.."
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1296
+#: src/emc/usr_intf/pncconf/pncconf.py:1292
 msgid "No board was found\n"
 msgstr "No se encontró ninguna placa\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1339
+#: src/emc/usr_intf/pncconf/pncconf.py:1335
 #, python-format
 msgid ""
 "Discovery has an error,\n"
@@ -12111,32 +12091,32 @@ msgstr ""
 "\n"
 " %s"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1353
+#: src/emc/usr_intf/pncconf/pncconf.py:1349
 msgid "Discovery is  unavailable\n"
 msgstr "El descubrimiento no está disponible\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1615
+#: src/emc/usr_intf/pncconf/pncconf.py:1611
 msgid "USB device Info Search"
 msgstr "Búsqueda de información del dispositivo USB"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1629
+#: src/emc/usr_intf/pncconf/pncconf.py:1625
 msgid "USB device  page is unavailable\n"
 msgstr "La página del dispositivo USB no está disponible\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1702
+#: src/emc/usr_intf/pncconf/pncconf.py:1698
 #: src/emc/usr_intf/pncconf/tests.py:90
 msgid "Pin names are unavailable\n"
 msgstr "Los nombres de los pines no están disponibles\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1725
+#: src/emc/usr_intf/pncconf/pncconf.py:1721
 msgid "Device names are unavailable\n"
 msgstr "Los nombres de los dispositivos no están disponibles\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1728
+#: src/emc/usr_intf/pncconf/pncconf.py:1724
 msgid "No Pncconf made device rules were found\n"
 msgstr "No se encontraron reglas de dispositivo hechas por Pncconf\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1773
+#: src/emc/usr_intf/pncconf/pncconf.py:1769
 msgid ""
 "OK to replace existing glade panel ?\n"
 "It will be renamed and added to 'backups' folder.\n"
@@ -12150,7 +12130,7 @@ msgstr ""
 "opciones relacionadas más tarde, como la retroalimentación del husillo, la "
 "conexión HALno se actualizará"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1780
+#: src/emc/usr_intf/pncconf/pncconf.py:1776
 msgid ""
 "OK to replace existing custom pyvcp panel?\n"
 "Existing pyvcp-panel.xml will be renamed and added to 'backups' folder\n"
@@ -12161,37 +12141,37 @@ msgstr ""
 "'backups'\n"
 "Al hacer clic en 'programa personalizado existente' evitará esta advertencia."
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3569
+#: src/emc/usr_intf/pncconf/pncconf.py:3565
 #: src/emc/usr_intf/pncconf/private_data.py:551
 msgid "Unused Channel"
 msgstr "Canal no utilizado"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3843
+#: src/emc/usr_intf/pncconf/pncconf.py:3839
 msgid "You can not have both steppers and pwm signals for spindle control\n"
 msgstr "No puede tener señales paso a paso y pwm para el control del cabezal\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3847
+#: src/emc/usr_intf/pncconf/pncconf.py:3843
 #, python-format
 msgid "You forgot to designate a stepper or pwm signal for axis %s\n"
 msgstr "Olvidó designar una señal paso a paso o pwm para el eje %s\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3850
+#: src/emc/usr_intf/pncconf/pncconf.py:3846
 #, python-format
 msgid "You forgot to designate an encoder /resolver signal for axis %s servo\n"
 msgstr ""
 "Olvidó designar una señal de codificador / resolutor para el eje %s servo\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3853
+#: src/emc/usr_intf/pncconf/pncconf.py:3849
 #, python-format
 msgid "You forgot to designate a pwm signal or stepper signal for axis %s\n"
 msgstr "Olvidó designar una señal pwm o una señal paso a paso para el eje %s\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3856
+#: src/emc/usr_intf/pncconf/pncconf.py:3852
 #, python-format
 msgid "You can not have both steppers and pwm signals for axis %s\n"
 msgstr "No puede tener señales paso a paso y pwm para el eje %s\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3859
+#: src/emc/usr_intf/pncconf/pncconf.py:3855
 #, python-format
 msgid ""
 "If using a tandem axis stepper, you must select a master stepgen for axis "
@@ -12200,19 +12180,19 @@ msgstr ""
 "Si utiliza un stepper de eje en tándem, debe seleccionar un stepgen maestro "
 "para el eje%s\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3867
+#: src/emc/usr_intf/pncconf/pncconf.py:3863
 msgid "Touchy require an external cycle start signal\n"
 msgstr "Touchy requiere una señal externa de inicio de ciclo\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3870
+#: src/emc/usr_intf/pncconf/pncconf.py:3866
 msgid "Touchy require an external abort signal\n"
 msgstr "Touchy requiere una señal externa de cancelación\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3873
+#: src/emc/usr_intf/pncconf/pncconf.py:3869
 msgid "Touchy require an external single-step signal\n"
 msgstr "Touchy requiere una señal externa de paso-sencillo\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3876
+#: src/emc/usr_intf/pncconf/pncconf.py:3872
 msgid ""
 "Touchy require an external multi handwheel MPG encoder signal on the mesa "
 "page\n"
@@ -12220,7 +12200,7 @@ msgstr ""
 "Touchy requiere una señal externa de codificador MPG con volante manual "
 "múltiple en la mesa página\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3879
+#: src/emc/usr_intf/pncconf/pncconf.py:3875
 msgid ""
 "Touchy require 'external mpg jogging' to be selected on the external control "
 "page\n"
@@ -12228,7 +12208,7 @@ msgstr ""
 "Touchy requiere 'jogging externo mpg' para ser seleccionado en la pagina "
 "externa del control\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3882
+#: src/emc/usr_intf/pncconf/pncconf.py:3878
 msgid ""
 "Touchy require the external mpg to be in 'shared mpg' mode on the external "
 "controls page\n"
@@ -12236,7 +12216,7 @@ msgstr ""
 "Touchy requiere que el mpg externo esté en modo 'mpg compartido' en la "
 "página externa del control\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3885
+#: src/emc/usr_intf/pncconf/pncconf.py:3881
 msgid ""
 "Touchy require selectable increments to be unchecked on the external "
 "controls page\n"
@@ -12244,7 +12224,7 @@ msgstr ""
 "Touchy requiere que los incrementos seleccionables no estén marcados en la "
 "página externa del contro\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3898
+#: src/emc/usr_intf/pncconf/pncconf.py:3894
 msgid ""
 "The 7i29 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
@@ -12252,7 +12232,7 @@ msgstr ""
 "La placa secundaria 7i29 requiere generadores de tipo PWM y una base "
 "PWMfrecuencia de 20 khz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3901
+#: src/emc/usr_intf/pncconf/pncconf.py:3897
 msgid ""
 "The 7i30 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
@@ -12260,7 +12240,7 @@ msgstr ""
 "La placa secundaria 7i30 requiere generadores tipo PWM y una base "
 "PWMfrecuencia de 20 khz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3904
+#: src/emc/usr_intf/pncconf/pncconf.py:3900
 msgid ""
 "The 7i33 daughter board requires PDM type generators and a PDM base "
 "frequency of 6 Mhz\n"
@@ -12268,7 +12248,7 @@ msgstr ""
 "La placa secundaria 7i33 requiere generadores de tipo PDM y una base "
 "PDMfrecuencia de 6 Mhz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3907
+#: src/emc/usr_intf/pncconf/pncconf.py:3903
 msgid ""
 "The 7i40 daughter board requires PWM type generators and a PWM base "
 "frequency of 50 khz\n"
@@ -12276,7 +12256,7 @@ msgstr ""
 "La placa secundaria 7i40 requiere generadores de tipo PWM y una base "
 "PWMfrecuencia de 50 khz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3910
+#: src/emc/usr_intf/pncconf/pncconf.py:3906
 msgid ""
 "The 7i48 daughter board requires UDM type generators and a PWM base "
 "frequency of 24 khz\n"
@@ -12284,65 +12264,65 @@ msgstr ""
 "La placa secundaria 7i48 requiere generadores de tipo UDM y una base "
 "PWMfrecuencia de 24 khz\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4058
+#: src/emc/usr_intf/pncconf/pncconf.py:4054
 msgid "Gearbox Reduction Ratio"
 msgstr "Relación de reducción de la caja de cambios"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4061
+#: src/emc/usr_intf/pncconf/pncconf.py:4057
 msgid "Reduction Ratio"
 msgstr "Relación de reducción"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4064
+#: src/emc/usr_intf/pncconf/pncconf.py:4060
 msgid "Leadscrew Pitch"
 msgstr "Paso de husillo"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4067
+#: src/emc/usr_intf/pncconf/pncconf.py:4063
 #: src/emc/usr_intf/pncconf/dialogs.glade:1985
 #: src/emc/usr_intf/pncconf/dialogs.glade:2350
 msgid "Leadscrew TPI"
 msgstr "Leadscrew TPI"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4071
-#: src/emc/usr_intf/pncconf/pncconf.py:4072
+#: src/emc/usr_intf/pncconf/pncconf.py:4067
+#: src/emc/usr_intf/pncconf/pncconf.py:4068
 msgid "("
 msgstr "("
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4073
-#: src/emc/usr_intf/pncconf/pncconf.py:4083
-#: src/emc/usr_intf/pncconf/pncconf.py:4084
-#: src/emc/usr_intf/pncconf/pncconf.py:4085
+#: src/emc/usr_intf/pncconf/pncconf.py:4069
+#: src/emc/usr_intf/pncconf/pncconf.py:4079
+#: src/emc/usr_intf/pncconf/pncconf.py:4080
+#: src/emc/usr_intf/pncconf/pncconf.py:4081
 msgid " / min"
 msgstr "/ min"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4074
+#: src/emc/usr_intf/pncconf/pncconf.py:4070
 msgid " / sec²"
 msgstr "/ sec²"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4077
+#: src/emc/usr_intf/pncconf/pncconf.py:4073
 msgid " / Step"
 msgstr "/ Paso"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4078
+#: src/emc/usr_intf/pncconf/pncconf.py:4074
 msgid "Steps / "
 msgstr "Pasos /"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4080
+#: src/emc/usr_intf/pncconf/pncconf.py:4076
 msgid " / encoder pulse"
 msgstr "/ pulso codificador"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4081
+#: src/emc/usr_intf/pncconf/pncconf.py:4077
 msgid "Encoder pulses / "
 msgstr "Pulsos de codificador /"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4089
+#: src/emc/usr_intf/pncconf/pncconf.py:4085
 msgid "Resolver Scale:"
 msgstr "Escala de resolución:"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4427
+#: src/emc/usr_intf/pncconf/pncconf.py:4423
 msgid "Spindle Scale Calculation"
 msgstr "Cálculo de escala de husillo"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4539
+#: src/emc/usr_intf/pncconf/pncconf.py:4535
 msgid "Axis Scale Calculation"
 msgstr "Cálculo de escala de eje"
 
@@ -12454,11 +12434,11 @@ msgstr "# Utilizando la versión LinuxCNC: %s"
 msgid "# overwritten when you run PNCconf again"
 msgstr "# sobrescrito cuando ejecuta PNCconf nuevamente"
 
-#: src/emc/usr_intf/pncconf/build_INI.py:183
+#: src/emc/usr_intf/pncconf/build_INI.py:180
 msgid "# **** This is for info only ****"
 msgstr "# **** Esto es sólo para información ****"
 
-#: src/emc/usr_intf/pncconf/build_INI.py:193
+#: src/emc/usr_intf/pncconf/build_INI.py:190
 msgid ""
 "# These are to ease setting custom component's parameters in a custom HAL "
 "file"
@@ -12466,7 +12446,7 @@ msgstr ""
 "# Estos son para facilitar la configuración de parámetros de componentes "
 "personalizados en un archivo HAL personalizado"
 
-#: src/emc/usr_intf/pncconf/build_INI.py:418
+#: src/emc/usr_intf/pncconf/build_INI.py:415
 msgid ""
 "# The values below should be 25% larger than MAX_VELOCITY and "
 "MAX_ACCELERATION"
@@ -12474,46 +12454,45 @@ msgstr ""
 "# Los valores a continuación deben ser un 25% más grandes que MAX_VELOCITY y "
 "MAX_ACCELERATION"
 
-#: src/emc/usr_intf/pncconf/build_INI.py:419
+#: src/emc/usr_intf/pncconf/build_INI.py:416
 msgid ""
 "# If using BACKLASH compensation STEPGEN_MAXACCEL should be 100% larger."
 msgstr ""
 "# Si se usa compensación de CONTRAGOLPE, STEPGEN_MAXACCEL debe ser 100% "
 "mayor."
 
-#: src/emc/usr_intf/pncconf/build_INI.py:471
+#: src/emc/usr_intf/pncconf/build_INI.py:468
 msgid "# these are in nanoseconds"
 msgstr "# estos son en nanosegundos"
 
-#: src/emc/usr_intf/pncconf/build_INI.py:550
+#: src/emc/usr_intf/pncconf/build_INI.py:547
 msgid "# MAX_VEL & MAX_ACC need to be twice the corresponding joint value"
 msgstr ""
 "# MAX_VEL y MAX_ACC deben ser el doble del valor de articulación "
 "correspondiente"
 
-#: src/emc/usr_intf/pncconf/build_INI.py:564
+#: src/emc/usr_intf/pncconf/build_INI.py:561
 msgid "# set the operating mode (default is 0)"
 msgstr "# establecer el modo de operación (el valor predeterminado es 0)"
 
-#: src/emc/usr_intf/pncconf/build_INI.py:566
+#: src/emc/usr_intf/pncconf/build_INI.py:563
 msgid "# set the estop type (0=indicator, 1=hidden, 2=button)"
 msgstr "# establecer el tipo de parada (0=indicador, 1=oculto, 2=botón)"
 
-#: src/emc/usr_intf/pncconf/build_INI.py:577
+#: src/emc/usr_intf/pncconf/build_INI.py:574
 msgid "# laser touchoff"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_INI.py:579
+#: src/emc/usr_intf/pncconf/build_INI.py:576
 msgid "# camera touchoff"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/build_INI.py:581
+#: src/emc/usr_intf/pncconf/build_INI.py:578
 #, fuzzy
-#| msgid "Modbus communication setup"
 msgid "# powermax communications"
 msgstr "Configuración de comunicación Modbus"
 
-#: src/emc/usr_intf/pncconf/build_INI.py:586
+#: src/emc/usr_intf/pncconf/build_INI.py:583
 #, fuzzy
 msgid "# user buttons"
 msgstr "Botón Zero X"
@@ -12565,7 +12544,6 @@ msgstr "# --- señales mpg ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:538
 #, fuzzy, python-format
-#| msgid "      Voltage for Max RPM:"
 msgid "#       for axis %s MPG"
 msgstr "Voltaje para RPM máx .:"
 
@@ -12576,7 +12554,6 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:570
 #, fuzzy
-#| msgid "selectable MPG increments"
 msgid "# connect selectable mpg jog increments "
 msgstr "incrementos de MPG seleccionables"
 
@@ -12610,13 +12587,11 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:707
 #, fuzzy
-#| msgid "Spindle Override incr A"
 msgid "# connect spindle override increments - MPG"
 msgstr "Ajuste del husillo incr A"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:722
 #, fuzzy
-#| msgid "Spindle Override incr A"
 msgid "# connect spindle override increments "
 msgstr "Ajuste del husillo incr A"
 
@@ -12638,7 +12613,6 @@ msgstr "# --- señales de cambio de herramienta manual ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:788
 #, fuzzy
-#| msgid "#  ---manual tool change signals---"
 msgid "#  ---Use external manual tool change dialog---"
 msgstr "# --- señales de cambio de herramienta manual ---"
 
@@ -12766,7 +12740,6 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1063
 #, fuzzy
-#| msgid "Mitsubishi FR Spindle VFD"
 msgid "#    Misubishi FR VFD for spindle control"
 msgstr "Mitsubishi FR Husillo VFD"
 
@@ -12819,7 +12792,6 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1243
 #, fuzzy
-#| msgid "SPINDLE ?"
 msgid "#  SPINDLE"
 msgstr "¿HUSILLO?"
 
@@ -12829,7 +12801,6 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1321
 #, fuzzy
-#| msgid "#  ---estop signals---"
 msgid "# ---TPPWM Generator signals/setup---"
 msgstr "# --- señales de parada ---"
 
@@ -12851,13 +12822,11 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1339
 #, fuzzy
-#| msgid "#  ---digital in / out signals---"
 msgid "# ---digital potentiometer output signals/setup---"
 msgstr "# --- señales digitales de entrada / salida ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1356
 #, fuzzy
-#| msgid "#  ---estop signals---"
 msgid "# ---PWM Generator signals/setup---"
 msgstr "# --- señales de parada ---"
 
@@ -12875,31 +12844,26 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1444
 #, fuzzy
-#| msgid "#  ---estop signals---"
 msgid "# ---closedloop stepper signals---"
 msgstr "# --- señales de parada ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1458
 #, fuzzy
-#| msgid "#  ---coolant signals---"
 msgid "# ---Encoder feedback signals/setup---"
 msgstr "# --- señales de refrigerante ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1481
 #, fuzzy
-#| msgid "#  ---estop signals---"
 msgid "# ---Resolver feedback signals/setup---"
 msgstr "# --- señales de parada ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1500
 #, fuzzy
-#| msgid "#  ---motion control signals---"
 msgid "# ---setup spindle control signals---"
 msgstr "# --- señales de control de movimiento ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1516
 #, fuzzy
-#| msgid "#  ---estop signals---"
 msgid "# ---Setup spindle at speed signals---"
 msgstr "# --- señales de parada ---"
 
@@ -12925,13 +12889,11 @@ msgstr "# La velocidad REAL está en RPS, no en RPM, así que la escalamos\"."
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1556
 #, fuzzy
-#| msgid "#  ---manual tool change signals---"
 msgid "# ---setup home / limit switch signals---"
 msgstr "# --- señales de cambio de herramienta manual ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1564
 #, fuzzy
-#| msgid "#  ---digital in / out signals---"
 msgid "# external input signals"
 msgstr "# --- señales digitales de entrada / salida ---"
 
@@ -13047,7 +13009,6 @@ msgstr "Mesa Card 1"
 
 #: src/emc/usr_intf/pncconf/private_data.py:47
 #, fuzzy
-#| msgid "Parallel Port 1"
 msgid "Parallel Port 0"
 msgstr "Puerto paralelo 1"
 
@@ -14044,7 +14005,6 @@ msgstr "Límites"
 
 #: src/emc/usr_intf/pncconf/private_data.py:465
 #, fuzzy
-#| msgid "Limts/Home Shared"
 msgid "Limits/Home Shared"
 msgstr "Límites / Inicio compartido"
 
@@ -14728,13 +14688,6 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/tests.py:1212
 #, fuzzy
-#| msgid ""
-#| "Do to technical reasons this test panel can be loaded only once without "
-#| "reloading pncconf.You also will not be able to do any other testing "
-#| "untill you reload pncconf and quite possibly open a terminal and type "
-#| "'halrun -U' I hesitate to even allow it's use but at times it's very "
-#| "useful.\n"
-#| "Do you wish to continue the test?"
 msgid ""
 "Do to technical reasons this test panel can be loaded only once without "
 "reloading pncconf.You also will not be able to do any other testing until "
@@ -14798,13 +14751,6 @@ msgstr "Guardar"
 
 #: src/emc/usr_intf/pncconf/main_page.glade:286
 #, fuzzy
-#| msgid ""
-#| "This program creates configuration files (.ini and .hal) for  milling "
-#| "machines and lathes connected to a Mesa Card.\n"
-#| "\n"
-#| "It is a recommended stategy to start with very basic axes options, get "
-#| "them functional then go back and add other options such as VFD spindle "
-#| "control  or advanced limit/home control etc."
 msgid ""
 "This program creates configuration files (.ini and .hal) for milling "
 "machines and lathes connected to a Mesa Card.\n"
@@ -14933,40 +14879,6 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/help.glade:54
 #, fuzzy
-#| msgid ""
-#| "Separate Home and Limt Switches Example\n"
-#| "\n"
-#| "    The negative and positive directions are based on Tool Movement which "
-#| "can be different\n"
-#| "    then the actual machine movement. ie on a mill typically the table "
-#| "moves rather then the tool.\n"
-#| "\n"
-#| "    Soft(ware) limits are inside the limit switch area.\n"
-#| "\n"
-#| "    (If using switch based homing) the homing switch(es) utilize the "
-#| "limit switches (shared home / limit switch)\n"
-#| "    or are inside the limit switch area when using a separate home "
-#| "switch.\n"
-#| "\n"
-#| "    The G53 machine zero origin is typically inside the soft limits area "
-#| "but not necessarily.\n"
-#| "\n"
-#| "    If using a separate homing switch, it’s possible to start homing on "
-#| "the wrong side of the home switch,\n"
-#| "    which combined with HOME_IGNORE_LIMITS option will lead to a hard "
-#| "crash.\n"
-#| "    You can avoid this by making the home switch toggle it’s state when "
-#| "the trip dog is on a particular side until it returns passed the trip "
-#| "point again.\n"
-#| "    Said another way, the home switch state must represent the position "
-#| "of the dog relative to the switch (ie before or after the switch),\n"
-#| "    and must stay that way even if the dog coasts past the switch in the "
-#| "same direction.\n"
-#| "\n"
-#| "    The distance between the limit switches and soft limits (-L<->A and "
-#| "D<-+L) is magnified in this example\n"
-#| "    Note that there is distance between the limit switches and actual "
-#| "physical hard contact for coasting after the amplifier is disabled.\n"
 msgid ""
 "Separate Home and Limit Switches Example\n"
 "\n"
@@ -15066,19 +14978,6 @@ msgstr "Torno"
 
 #: src/emc/usr_intf/pncconf/help.glade:266
 #, fuzzy
-#| msgid ""
-#| "    A is the negative software limit\n"
-#| "    B is the G53 machine coordinate Origin\n"
-#| "    C is the home switch trip point/ \n"
-#| "                   Shared min limit trip\n"
-#| "    D is the positive software limit\n"
-#| "    H is the final Home Positon  = 3 units\n"
-#| "    The -L and +L are the limit switches trip points\n"
-#| "\n"
-#| "    A<->B is the Negative Travel Distance  = -0 units\n"
-#| "    B<->C is the home Switch Location  = -0.7 units\n"
-#| "    B<->D is the Positive Travel Distance  = 10 units\n"
-#| "    A<->D is the total travel = 10 units\n"
 msgid ""
 "    A is the negative software limit\n"
 "    B is the G53 machine coordinate Origin\n"
@@ -15112,18 +15011,6 @@ msgstr "Interruptor de inicio compartido"
 
 #: src/emc/usr_intf/pncconf/help.glade:343
 #, fuzzy
-#| msgid ""
-#| "    A is the negative software limit\n"
-#| "    B is the G53 machine coordinate Origin\n"
-#| "    C is the home switch trip point\n"
-#| "    D is the positive software limit\n"
-#| "    H is the final home positon  = 0 units\n"
-#| "    The -L and +L are the limit switches trip points\n"
-#| "\n"
-#| "    A<->B is the Negative Travel Distance  = -3 units\n"
-#| "    B<->C is the Home Swicth Location  = -2.3 units\n"
-#| "    B<->D is the Positive Travel Distance  = 7 units\n"
-#| "    A<->D is the total travel = 10 units\n"
 msgid ""
 "    A is the negative software limit\n"
 "    B is the G53 machine coordinate Origin\n"
@@ -17190,13 +17077,11 @@ msgstr "Panel independiente"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:691
 #, fuzzy
-#| msgid "Rightside Embeded"
 msgid "Rightside Embedded"
 msgstr "Incrustar del lado derecho"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:707
 #, fuzzy
-#| msgid "Center Tab Embeded"
 msgid "Center Tab Embedded"
 msgstr "Ficha central incrustada"
 
@@ -18292,7 +18177,6 @@ msgstr "Leer archivo PIN de hostmot2 en la ayuda de la solapa ENTRADA"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:233
 #, fuzzy
-#| msgid "Mesa Board Disvovery<"
 msgid "Mesa Board Discovery<"
 msgstr "Reconocimiento de placa Mesa <"
 
@@ -19102,7 +18986,6 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3807
 #, fuzzy
-#| msgid "Down"
 msgid "_Down"
 msgstr "Abajo"
 
@@ -19117,7 +19000,6 @@ msgstr "Listo para reiniciar el programa desde la línea %d"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3862
 #, fuzzy
-#| msgid "Invalid embeded tab configuration"
 msgid "Invalid embedded tab configuration"
 msgstr "Configuración de pestaña embebida no válida"
 
@@ -19288,13 +19170,11 @@ msgstr "V"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1298
 #, fuzzy
-#| msgid "G code"
 msgid "G-code"
 msgstr "Código G"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1392
 #, fuzzy
-#| msgid "<b>G Codes Active</b>"
 msgid "<b>G-Codes Active</b>"
 msgstr "<b>Códigos G activos</b>"
 
@@ -19914,7 +19794,6 @@ msgstr "Cerrar sin devolver una ruta de archivo"
 
 #: lib/python/gladevcp/hal_mdihistory.py:89
 #, fuzzy
-#| msgid "Command:"
 msgid "Command"
 msgstr "Comando:"
 
@@ -20022,9 +19901,6 @@ msgstr ""
 
 #: lib/python/gladevcp/offsetpage.glade:464
 #, fuzzy
-#| msgid ""
-#| "    Zero\n"
-#| "Rotational"
 msgid ""
 "Zero\n"
 "Rotational"
@@ -20122,7 +19998,6 @@ msgstr ""
 
 #: lib/python/gladevcp/calculator.glade:332
 #, fuzzy
-#| msgid "REL"
 msgid "DEL"
 msgstr "REL"
 
@@ -20141,9 +20016,14 @@ msgstr "Cancelar"
 
 #: lib/python/gladevcp/calculator.glade:393
 #, fuzzy
-#| msgid "Ok"
 msgid "_Ok"
 msgstr "Aceptar"
+
+#~ msgid "Missing Tcl Package Img"
+#~ msgstr "Falta el paquete Tcl Img"
+
+#~ msgid "Please install Img"
+#~ msgstr "Instale Img"
 
 #~ msgid "homing sequence already in progress"
 #~ msgstr "secuencia homing en progreso"
@@ -20158,19 +20038,15 @@ msgstr "Aceptar"
 #~ msgid "MOTION: export_joint_home_pins failed\n"
 #~ msgstr "MOTION:  falló export_joint_home_pins\n"
 
-#, c-format
 #~ msgid "MOTION: axis %c pin/param export failed\n"
 #~ msgstr "MOTION: falló la exportación pin/param del eje %c\n"
 
-#, c-format
 #~ msgid "%d us"
 #~ msgstr "%d us"
 
-#, c-format
 #~ msgid "Number of rungs (%d%c used      "
 #~ msgstr "Número de escalones (%d%c usado      "
 
-#, c-format
 #~ msgid "Number of Sections (%d%c used)   "
 #~ msgstr "Número de Secciones (%d%c usado)   "
 
