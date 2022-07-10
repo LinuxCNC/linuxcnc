@@ -165,6 +165,14 @@ class INI:
             print("SUBROUTINE_PATH = ./:../../nc_files", file=file)
             print("USER_M_PATH = ./:../../nc_files", file=file)
             print("", file=file)
+        else:
+            if self.d.units == _PD._METRIC:
+                unit = 21
+                p = .025
+            else:
+                unit = 20
+                p =.001
+            print ("RS274NGC_STARTUP_CODE = G{} G40 G90 G94 G97 G64 P{}".format(unit,p), file=file)
 
         #base_period = self.d.ideal_period()
 
