@@ -28,6 +28,13 @@ The number of input pins, usually from 2 to 16
 Outputs can be combined, for example 2 + 256 + 1024 = 1282 converted to hex
 would be 0x502 and would have two inputs and have both `xor' and `and' outputs.
 """;
+see_also """
+\\fBand2\\fR(9),
+\\fBlut5\\fR(9),
+\\fBnot\\fR(9),
+\\fBor2\\fR(9),
+\\fBxor2\\fR(9)
+""";
 license "GPL";
 ;;
 FUNCTION(_) {
