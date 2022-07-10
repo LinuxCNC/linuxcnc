@@ -2650,11 +2650,13 @@ When the inverse time feed rate mode is active, an F word must appear
 on every line which has a G1, G2, or G3 motion, and an F word on a line
 that does not have G1, G2, or G3 is ignored. Being in inverse time feed
 rate mode does not affect G0 (<<gcode:g0,rapid move>>) motions.
+
 * 'G94' - is Units per Minute Mode.
   In units per minute feed mode, an F word is interpreted to mean the
   controlled point should move at a certain number of inches per minute,
   millimeters per minute, or degrees per minute, depending upon what
   length units are being used and which axis or axes are moving.
+
 * 'G95' - is Units per Revolution Mode
   In units per revolution mode, an F word is interpreted to mean the
   controlled point should move a certain number of inches per revolution
