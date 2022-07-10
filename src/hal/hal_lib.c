@@ -1185,7 +1185,7 @@ int hal_link(const char *pin_name, const char *sig_name)
 	/* ports can only have one reader */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: siganl '%s' can only have one input pin\n", sig_name);
+	    "HAL: ERROR: signal '%s' can only have one input pin\n", sig_name);
 	return -EINVAL;
     }
     
