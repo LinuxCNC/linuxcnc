@@ -161,15 +161,19 @@ Effects of increasing parameters
 
 .Ziegler-Nichols method
 Another tuning method is formally known as the 'Ziegler-Nichols
-method', introduced by John G. Ziegler and Nathaniel B. Nichols. It
-starts in the same way as the method described before: first set the I
-and D gains to zero and then increase the P gain and expose the loop to
-external interference for example knocking the motor axis to cause it
-to move out of equilibrium in order to determine critical gain and
-period of oscillation until the output of the loop starts to oscillate.
-Write down the critical gain (K~c~) and the oscillation
-period of the output (P~c~). Then adjust the P, I and D
-controls as the table shows:
+method', introduced by John G. Ziegler and Nathaniel B. Nichols
+footnote:[Introduced in the 1942 paper Optimum Settings for Automatic
+Controllers, link:https://doi.org/10.1115/1.2899060[DOI
+10.1115/1.2899060] also
+link:https://web.archive.org/web/20170918055307/http://staff.guilan.ac.ir/staff/users/chaibakhsh/fckeditor_repo/file/documents/Optimum%20Settings%20for%20Automatic%20Controllers%20(Ziegler%20and%20Nichols,%201942).pdf[available from The
+Internet Archive].]. It starts in the same way as the method described
+before: first set the I and D gains to zero and then increase the P
+gain and expose the loop to external interference for example knocking
+the motor axis to cause it to move out of equilibrium in order to
+determine critical gain and period of oscillation until the output of
+the loop starts to oscillate.  Write down the critical gain (K~c~) and
+the oscillation period of the output (P~c~). Then adjust the P, I and
+D controls as the table shows:
 
 [width="90%",options="header",cols="4*^"]
 |==========================================
