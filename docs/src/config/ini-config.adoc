@@ -272,26 +272,26 @@ User Manual.
 * 'MIN_SPINDLE_0_OVERRIDE = 0.5' - The minimum spindle override the user may select.
   0.5 means 50% of the programmed spindle speed.  (This is used to
   set the minimum spindle speed).
-  On multi spindle machine there will be entries for each spindle number. QtVCP only.
+  On multi spindle machine there will be entries for each spindle number. Only used by the QtVCP based user interfaces.
 * 'MAX_SPINDLE_OVERRIDE = 1.0' - The maximum spindle override the user may
   select. 1.0 means 100% of the programmed spindle speed.
 * 'MAX_SPINDLE_0_OVERRIDE = 1.0' - The maximum feed override the user may select.
   1.2 means 120% of the programmed feed rate.
-  On multi spindle machine there will be entries for each spindle number. QtVCP only
+  On multi spindle machine there will be entries for each spindle number. Only used by the QtVCP based user interfaces.
 * 'DEFAULT_SPINDLE_SPEED = 100' - The default spindle RPM when the spindle
   is started in manual mode. if this setting is not present, this
   defaults to 1 RPM for AXIS and 300 RPM for gmoccapy.
   - _deprecated_ - use the [SPINDLE_n] section instead
 * 'DEFAULT_SPINDLE_0_SPEED = 100' - The default spindle RPM when the spindle
-  is started in manual mode. On multi spindle machine there will be entries for each spindle number. QtVCP only.
+  is started in manual mode. On multi spindle machine there will be entries for each spindle number. Only used by the QtVCP based user interfaces.
   - _deprecated_ - use the [SPINDLE_n] section instead.
-* 'SPINDLE_INCREMENT = 200' - The increment used when clicking increase/decrease buttons QtVCP only.
+* 'SPINDLE_INCREMENT = 200' - The increment used when clicking increase/decrease buttons Only used by the QtVCP based user interfaces.
   - _deprecated_ - use the [SPINDLE_n] section instead.
 * 'MIN_SPINDLE_0_SPEED = 1000' - The minimum RPM that can be manually selected.
-  On multi spindle machine there will be entries for each spindle number. QtVCP only.
+  On multi spindle machine there will be entries for each spindle number. Only used by the QtVCP based user interfaces.
   - _deprecated_ - use the [SPINDLE_n] section instead.
 * 'MAX_SPINDLE_0_SPEED = 20000' - The maximum RPM that can be manually selected.
-  On multi spindle machine there will be entries for each spindle number. QtVCP only.
+  On multi spindle machine there will be entries for each spindle number. Only used by the QtVCP based user interfaces.
   - _deprecated_ - use the [SPINDLE_n] section instead.
 * 'PROGRAM_PREFIX = ~/linuxcnc/nc_files' - The default location for G-code
   files and the location for user-defined M-codes. This location is searched
