@@ -109,6 +109,13 @@ class INI:
         print >>file
         print >>file, "[RS274NGC]"
         print >>file, "PARAMETER_FILE = linuxcnc.var"
+        if self.d.units == _PD._METRIC:
+            unit = 21
+            p = .025
+        else:
+            unit = 20
+            p =.001
+        print >>file, "RS274NGC_STARTUP_CODE = G{} G40 G90 G94 G97 G64 P{}".format(unit,p)
 
         #base_period = self.d.ideal_period()
 
