@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:qtvcp-custom-widgets]]
-= QTvcp Building Custom Widgets
+= QtVCP Building Custom Widgets
 
 == Overview
 
@@ -36,12 +36,12 @@ added to the right folder. +
 
 === initialization process
 
-Qtvcp does extra setup for widgets subclassed from _HALWidgetBase. (aka
+QtVCP does extra setup for widgets subclassed from _HALWidgetBase. (aka
 HAL-ified widgets)+
 This includes injecting important variables, calling an extra setup function
 and calling a closing cleanup function at shutdown. +
 These functions are not called when the Designer editor displays the widgets. +
-When Qtvcp builds a screen from the .ui file, it searches for all the
+When QtVCP builds a screen from the .ui file, it searches for all the
 HAL-ified widgets. +
 Then it finds the ScreenOptions widget, to collect information it needs
 to inject into the other widgets. +
@@ -60,14 +60,14 @@ self.HAL_GCOMP = the HAL component instance
 self.HAL_NAME = This widgets name as a string
 self.QT_OBJECT_ = This widgets object instance
 self.QTVCP_INSTANCE_ = The very toplevel Parent Of the screen
-self.PATHS_ = The instance of Qtvcp's path library
+self.PATHS_ = The instance of QtVCP's path library
 self.PREFS_ = the instance of an optional preference file
 self.SETTINGS_ = the Qsettings object
 ----
 
 === cleanup process
 
-When Qtvcp closes, it calls the function _hal_cleanup() on all HAL-ified
+When QtVCP closes, it calls the function _hal_cleanup() on all HAL-ified
 widgets. +
 The baseclass creates an empty _hal_cleanup() function, which can be
 redefined in the custom widget subclass. +
@@ -126,7 +126,7 @@ This defines the class name and the libraries in inherits from. +
 this class named Lcnc_GridLayout inheriets the functions of QWidget
 and _HalSensitiveBase. +
 _HalSensitiveBase is 'subclass' of _HalWidgetBase, the base class of most
-Qtvcp widgets meaning it has all the functions of _HalWidgetBase plus
+QtVCP widgets meaning it has all the functions of _HalWidgetBase plus
 the functions of _HalSensitiveBase. +
 It adds the function to make the widget be enabled or disabled based on
 a HAL input BIT pin. +
@@ -264,7 +264,7 @@ class StateLed(LED):
 ----
 
 This defines the name of our custom widget and what other class it inherits
-from, in this case we inherit LED - a Qtvcp widget that represents a status
+from, in this case we inherit LED - a QtVCP widget that represents a status
 light. +
 The __init__ is typical of most widgets, it is called when the widget is
 first made. +
@@ -294,7 +294,7 @@ controller. We have two states we can choose from is_estopped or is_on. +
 Depending on which is active our widget get connected to the appropriate
 STATUS messages. +
 _hal_int() is called on each widget that inherited _HalWidgetBase, when
-Qtvcp first builds the screen. +
+QtVCP first builds the screen. +
 You might wonder why it's called on this widget since we didn't have
 _HalWidgetBase in our class definition (class Lcnc_State_Led(Lcnc_Led):) -
 it's called because Lcnc_Led inherits  _HalWidgetBase
@@ -308,7 +308,7 @@ don't use them in this example)
         self.HAL_NAME = This widgets name as a string
         self.QT_OBJECT_ = This widgets pyQt object instance
         self.QTVCP_INSTANCE_ = The very toplevel Parent Of the screen
-        self.PATHS_ = The instance of Qtvcp's path library
+        self.PATHS_ = The instance of QtVCP's path library
         self.PREFS_ = the instance of an optional preference file
 ----
 

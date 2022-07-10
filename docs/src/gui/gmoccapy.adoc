@@ -286,10 +286,10 @@ will hide the chosen box.
 image::images/gmoccapy_embedded_tabs.png[align="left"]
 
 [NOTE]
-If you make any hal connections to your custom glade panel, you need to do that in the hal file
-specified in the EMBED_TAB_COMMAND line, otherwise you may get an error that the hal pin does not exist --
-this is because of race conditions loading the hal files. Connections to gmoccapy hal pins need to be made in the
-postgui hal file specified in your INI file, because these pins do not exist prior of realizing the GUI.
+If you make any HAL connections to your custom glade panel, you need to do that in the HAL file
+specified in the EMBED_TAB_COMMAND line, otherwise you may get an error that the HAL pin does not exist --
+this is because of race conditions loading the HAL files. Connections to gmoccapy HAL pins need to be made in the
+postgui HAL file specified in your INI file, because these pins do not exist prior of realizing the GUI.
 
 Here are some examples:
 
@@ -306,7 +306,7 @@ image::images/gmoccapy_with_left_box_in_edit_mode.png[align="left"]
 image::images/gmoccapy_with_right_panel_in_MDI_mode.png[align="left"]
 
 ==== Configuration of User Created Messages
-Gmoccapy has the ability to create hal driven user messages. To use them you
+Gmoccapy has the ability to create HAL driven user messages. To use them you
 need to introduce some lines in the [DISPLAY] section of the INI file.
 
 Here is how to set up 3 user pop up message dialogs the messages support pango
@@ -317,7 +317,7 @@ https://developer.gnome.org/pango/stable/PangoMarkupFormat.html[Pango Markup]
 ----
 MESSAGE_TEXT    = The text to be displayed, may be pango markup formatted
 MESSAGE_TYPE    = "status" , "okdialog" , "yesnodialog"
-MESSAGE_PINNAME = is the name of the hal pin group to be created
+MESSAGE_PINNAME = is the name of the HAL pin group to be created
 ----
 
 * 'status' : Will just display a message as pop up window, using the messaging
@@ -346,8 +346,8 @@ MESSAGE_TYPE = okdialog
 MESSAGE_PINNAME = okdialog
 ----
 
-The specific hal pin conventions for these can be found under the
-<<gmoccapy:user-created-message, User Messages>>  hal pin section.
+The specific HAL pin conventions for these can be found under the
+<<gmoccapy:user-created-message, User Messages>>  HAL pin section.
 
 [[gmocappy:rs274ngc]]
 === The RS274NGC Section
@@ -470,7 +470,7 @@ If MAX_VELOCITY is not given, it will default to 600
 
 == HAL Pins
 
-gmoccapy exports several hal pin to be able to react to hardware devices.
+gmoccapy exports several HAL pin to be able to react to hardware devices.
 The goal is to get a GUI that may be operated in a tool shop, completely/mostly
 without mouse or keyboard.
 
@@ -522,10 +522,10 @@ and the bottom (horizontal) buttons are:
 
 As the buttons in the bottom list will change according the mode and other
 influences, the hardware buttons will activate different functions, and you
-don't have to take care about switching functions around in hal, because that
+don't have to take care about switching functions around in HAL, because that
 is done completely by gmoccapy!
 
-for a 3 axis XYZ machine the hal pin will react as follows:
+for a 3 axis XYZ machine the HAL pin will react as follows:
 
 in manual mode:
 
@@ -573,11 +573,11 @@ in settings mode:
 * gmoccapy.h-button.button-2 ==
 * gmoccapy.h-button.button-3 ==
 * gmoccapy.h-button.button-4 == open classic ladder
-* gmoccapy.h-button.button-5 == open hal scope
-* gmoccapy.h-button.button-6 == open hal status
-* gmoccapy.h-button.button-7 == open hal meter
-* gmoccapy.h-button.button-8 == open hal calibration
-* gmoccapy.h-button.button-9 == open hal show
+* gmoccapy.h-button.button-5 == open HAL scope
+* gmoccapy.h-button.button-6 == open HAL status
+* gmoccapy.h-button.button-7 == open HAL meter
+* gmoccapy.h-button.button-8 == open HAL calibration
+* gmoccapy.h-button.button-9 == open HAL show
 
 in homing mode:
 
@@ -644,7 +644,7 @@ in select file mode:
 * gmoccapy.h-button.button-8 ==
 * gmoccapy.h-button.button-9 == back
 
-*So we have 67 reactions with only 10 hal pin!*
+*So we have 67 reactions with only 10 HAL pin!*
 
 These pins are made available to be able to use the screen without an touch
 panel, or protect it from excessive use by placing hardware buttons around
@@ -657,7 +657,7 @@ image::images/gmoccapy_0_9_7_sim_hardware_button.png[align="left"]
 All sliders from gmoccapy can be connected to hardware encoder or hardware potentiometers.
 
 [NOTE]
-for gmoccapy 3 the hal pin name has changed, as new controls has been implemented,
+for gmoccapy 3 the HAL pin name has changed, as new controls has been implemented,
 max velocity does not exist any more, as rapid override has been implemented.
 This change has been done as many user ask for that.
 
@@ -678,7 +678,7 @@ To connect 'encoders' the following pin are exported:
 | gmoccapy.rapid.rapid-override.count-enable      | HAL_BIT | Must be True, to enable counts
 |====
 
-To connect 'potentiometers', use the following hal pin:
+To connect 'potentiometers', use the following HAL pin:
 
 [{pin_tab_options}]
 |====
@@ -693,7 +693,7 @@ To connect 'potentiometers', use the following hal pin:
 | gmoccapy.rapid.rapid-override.analog-enable     | HAL_BIT   | Must be True, to allow analog inputs
 |====
 
-In addition gmoccapy 3 offers additional hal pin to control the new slider widgets with momentary switches.
+In addition gmoccapy 3 offers additional HAL pin to control the new slider widgets with momentary switches.
 The values how fast the increase or decrease will be, must be set in the glade file.
 In a future release it will be integrated in the settings page.
 
@@ -732,13 +732,13 @@ you want to set the slider value.
 [WARNING]
 If you use both connection types, do not connect the same slider to
 both pin, as the influences between the two has not been tested! Different
-sliders may be connected to the one or other hal connection type.
+sliders may be connected to the one or other HAL connection type.
 
 [IMPORTANT]
 Please be aware, jog velocity depends on the turtle button state,
 it will lead to different slider scales depending on the mode
 (turtle or rabbit). Please take also a look to
-<<gmoccapy:jog-velocity,jog velocities and turtle-jog hal pin>> for more
+<<gmoccapy:jog-velocity,jog velocities and turtle-jog HAL pin>> for more
 details.
 
 .Example
@@ -759,9 +759,9 @@ All axis given in the INI File have a jog-plus and a jog-minus pin, so
 hardware momentary switches can be used to jog the axis.
 
 [NOTE]
-naming of this hal pin has changed for gmoccapy2
+naming of this HAL pin has changed for gmoccapy2
 
-For the standard XYZ config following hal Pin will be available:
+For the standard XYZ config following HAL Pin will be available:
 
 * gmoccapy.jog.axis.jog-x-plus
 * gmoccapy.jog.axis.jog-x-minus
@@ -793,19 +793,19 @@ divider can be set on the <<gmoccapy:turtle-jog,settings page>>.
 
 So using a touch screen it is much easier to select smaller velocities.
 
-gmoccapy offers a hal pin to toggle between turtle and rabbit jogging
+gmoccapy offers a HAL pin to toggle between turtle and rabbit jogging
 
 * gmoccapy.jog.turtle-jog   (Hal Bit In)
 
 === Jog Increment Hal Pins
 
-The jog increments are selectable through hal pins, so a selection hardware
+The jog increments are selectable through HAL pins, so a selection hardware
 switch can be used to select the increment to use. There will be a maximum
-of 10 hal pin for the increments given in the INI File, if you give more
+of 10 HAL pin for the increments given in the INI File, if you give more
 increments in your INI File, they will be not reachable from the GUI as they
 will not be displayed.
 
-If you have 6 increments in your hal you will get *7* pins:
+If you have 6 increments in your HAL you will get *7* pins:
 jog-inc-0 is unchangeable and will represent continuous jogging.
 
 * gmoccapy.jog.jog-inc-0
@@ -816,7 +816,7 @@ jog-inc-0 is unchangeable and will represent continuous jogging.
 * gmoccapy.jog.jog-inc-5
 * gmoccapy.jog.jog-inc-6
 
-gmoccapy offers also a hal pint to output the selected jog invrement
+gmoccapy offers also a HAL pint to output the selected jog invrement
 
 * gmoccapy.jog.jog-increment
 
@@ -944,7 +944,7 @@ net tool-prep-loop iocontrol.0.tool-prepare <= iocontrol.0.tool-prepared
 ----
 
 [NOTE]
-Please take care, that this connections have to be done in the postgui hal file!
+Please take care, that this connections have to be done in the postgui HAL file!
 
 .Tool Offset Pins
 These pins allow you to show the active tool offset values for X and Z in the
@@ -956,7 +956,7 @@ image::images/gmoccapy_0_9_7_tool_info.png["Tool information",align="left"]
 * gmoccapy.tooloffset-z
 
 [NOTE]
-Please take care, that this connections have to be done in the postgui hal file!
+Please take care, that this connections have to be done in the postgui HAL file!
 
 [NOTE]
 the tooloffset-x line is not needed on a mill,
@@ -979,7 +979,7 @@ each tool change!
 
 Gmoccapy offers an integrated auto tool measurement. To use this feature, you
 will need to do some additional settings and you may want to use the
-offered hal pin to get values in your own ngc remap procedure.
+offered HAL pin to get values in your own ngc remap procedure.
 
 [IMPORTANT]
 Before starting the first test, do not forget to enter the probe
@@ -1113,7 +1113,7 @@ You may want to modify this file to fit more your needs.
 
 === Needed Hal Connections
 
-Connect the tool probe in your hal file like so:
+Connect the tool probe in your HAL file like so:
 
 [source,{hal}]
 ----
@@ -1356,8 +1356,8 @@ image::images/gmoccapy_settings_hardware.png["Hardware settings",align="left"]
 ==== Hardware MPG Scales
 
 For the different Hal Pin to connect MPG Wheels to, you may select individual scales to be applied.
-The main reason for this was my own test to solve this through hal connections, resulting in a very
-complex hal file. Imagine a user having an MPG Wheel with 100 ipr and he wants to slow down the max
+The main reason for this was my own test to solve this through HAL connections, resulting in a very
+complex HAL file. Imagine a user having an MPG Wheel with 100 ipr and he wants to slow down the max
 vel from 14000 to 2000 mm/min, that needs 12000 impulses, resulting in 120 turns of the wheel!
 Or an other user having a MPG Wheel with 500 ipr and he wants to set the spindle override witch has
 limits from 50 to 120 % so he goes from min to max within 70 impulses, meaning not even 1/4 turn.
@@ -1411,7 +1411,7 @@ There are three options to unlock the settings page:
 
 * use unlock code (the user must give a code to get in)
 * Do not use unlock code (There will be no security check)
-* Use hal pin to unlock  (hardware pin must be high to unlock the settings,
+* Use HAL pin to unlock  (hardware pin must be high to unlock the settings,
   see <<gmoccapy:hardware-unlock, hardware unlock pin>>
 
 Default is use unlock code (default = *123*)
@@ -1450,7 +1450,7 @@ This settings will have influence on the jog velocities.
   if in turtle mode (button pressed, showing the turtle)
 
 [NOTE]
-This button can be activated using the <<gmoccapy:jog-velocity,turtle-jog>> hal pin.
+This button can be activated using the <<gmoccapy:jog-velocity,turtle-jog>> HAL pin.
 
 [[gmoccapy:tool-measurement]]
 === Advanced Settings

@@ -29,7 +29,7 @@ rate to the programmed end point', and 'X3' provides an argument
 value (the value of X should be 3 at the end of the move).
 Most LinuxCNC G-code commands start with either G or M (for
 General and Miscellaneous). The words for these commands are called 'G
-codes' and 'M-codes.'
+codes' and 'M-codes'.
 
 The LinuxCNC language has no indicator for the start of a program. The
 Interpreter, however, deals with files. A single program may be in a
@@ -273,7 +273,7 @@ value found in parameter 3. The '\#' character may be repeated; for
 example '##2'  means the value of the parameter whose index is the
 (integer) value of parameter 2.
 
-* '31-5000' - G code user parameters. These parameters are global in the G
+* '31-5000' - G-code user parameters. These parameters are global in the G
   code file, and available for general use. Volatile.
 * '5061-5069' - Coordinates of a <<gcode:g38,G38>> probe result (X, Y,
   Z, A, B, C, U, V & W).  Coordinates are in the coordinate system in
@@ -585,7 +585,7 @@ to the values of INI file entries and HAL pins.
 * '#<_ini[section]name>' Returns the value of the corresponding item in
   the INI file.
 
-For example, if the ini file looks like so:
+For example, if the INI file looks like so:
 
 [source,{ini}]
 ---------------------------------------------------------------------
@@ -597,7 +597,7 @@ YPOS = 2.718
 you may refer to the named parameters `#<_ini[setup]xpos>` and
 `#<_ini[setup]ypos>` within G-code.
 
-`EXISTS` can be used to test for presence of a given ini file
+`EXISTS` can be used to test for presence of a given INI file
 variable:
 
 [source,{ngc}]
@@ -609,10 +609,10 @@ o100 else
 o100 endif
 ---------------------------------------------------------------------
 
-The value is read from the inifile once, and cached in the
+The value is read from the INI file once, and cached in the
 interpreter. These parameters are read-only - assigning a value will
 cause a runtime error. The names are not case sensitive - they are
-converted to uppercase before consulting the ini file.
+converted to uppercase before consulting the INI file.
 
 * '#<_hal[Hal item]>'
   Allows G-code programs to read the values of HAL pins Variable access is
@@ -1222,11 +1222,11 @@ material removal rate.
 * 'G-code out of range' - A G-code greater than G99 was used, the scope of G
   codes in LinuxCNC is 0 - 99. Not every number between 0 and 99 is a valid
   G-code.
-* 'Unknown g code used' - A G-code was used that is not part of the LinuxCNC
+* 'Unknown G-code used' - A G-code was used that is not part of the LinuxCNC
   G-code language.
 * 'i,j,k word with no Gx to use it' - i, j and k words must be used on the same
   line as the G-code.
-* 'Cannot use axis values without a g code that uses them' - Axis values can
+* 'Cannot use axis values without a G-code that uses them' - Axis values can
   not be used on a line without either a modal G-code in effect or a G-code
   on the same line.
 * 'File ended with no percent sign or program end' - Every G-code file must
