@@ -2580,7 +2580,7 @@ These can be set in stylesheets or python code to change it's properties.
   A file path or resource path to an image to display in the described
   button location.
   If the reset button is pressed in the Designer editor property, the
-  image will not be displayed. (allowing optionally text)
+  image will not be displayed (allowing optionally text).
 * 'left_text':
 * 'right_text':
 * 'center_text':

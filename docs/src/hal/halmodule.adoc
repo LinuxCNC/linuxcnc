@@ -178,8 +178,8 @@ One should call 'ready()' on the component after.
 === component_exists
 
 Does the specified component exist at this time. +
-Example:
 
+.Example
 ----
 hal.component_exists("testpanel")
 ----
@@ -187,8 +187,8 @@ hal.component_exists("testpanel")
 === component_is_ready
 
 Is the specified component ready at this time. +
-Example:
 
+.Example
 ----
 hal.component_is_ready("testpanel")
 ----
@@ -205,8 +205,8 @@ used for debugging information.
 === connect
 
 Connect a pin to a signal. +
-Example:
 
+.Example
 ----
 hal.connect("pinname","signal_name")
 ----
@@ -214,8 +214,8 @@ hal.connect("pinname","signal_name")
 === disconnect
 
 Disonnect a pin from a signal. +
-Example:
 
+.Example
 ----
 hal.disconnect("pinname")
 ----
@@ -223,8 +223,8 @@ hal.disconnect("pinname")
 === get_value
 
 Read a pin, param, or signal directly. +
-Example:
 
+.Example
 ----
 value = hal.get_value("iocontrol.0.emc-enable-in")
 ----
@@ -268,9 +268,9 @@ paramDirection1 = listOfDicts[0].get('DIRECTION')
 
 === new_sig
 
-Create a new signal of the type specified. +
-Example:
+Create a new signal of the type specified.
 
+.Example
 ----
 hal.new_sig("signalname",hal.HAL_BIT)
 ----
@@ -350,16 +350,16 @@ TODO
 
 === set_p
 
-Set a pin value of any pin in the HAL system. +
-Example:
+Set a pin value of any pin in the HAL system.
 
+.Example
 ----
 hal.set_p("pinname","10")
 ----
 
 == Constants
 
-Use These To specify details rather then the value they hold.
+Use these to specify details rather then the value they hold.
 
 * HAL_BIT
 * HAL_FLOAT
@@ -441,7 +441,7 @@ Then make a pin and connect a 'value_changed' (the watcher) signal to a function
     # **** INITIALIZE **** #
     ########################
     # widgets allows access to  widgets from the qtvcp files
-    # at this point the widgets and hal pins are not instantiated
+    # at this point the widgets and HAL pins are not instantiated
     def __init__(self, halcomp,widgets,paths):
         self.hal = halcomp
         self.testPin = self.hal.newpin('test-pin', hal.HAL_BIT, hal.HAL_IN)
@@ -459,8 +459,8 @@ This shows ways to get the pin value and information.
     def setTestPin(self, data):
         print("Test pin value changed to:" % (data))
         print('halpin object =', self.w.sender())
-        print('Halpin name: ',self.sender().text())
-        print('Halpin type: ',self.sender().get_type())
+        print('halpin name: ',self.sender().text())
+        print('halpin type: ',self.sender().get_type())
 
         # this can be called outside the function
         print(self.testPin.get())
@@ -478,6 +478,6 @@ This shows ways to get the pin value and information.
   and use it to display a digital readout with information of your choice
   (Ubuntu package name "lcdproc", in the universe repository)
 * Create a virtual control panel using any GUI library supported by
-  Python (gtk, qt, wxwindows, etc)
+  Python (gtk, Qt, wxWindows, etc.)
 
 // vim: set syntax=asciidoc:

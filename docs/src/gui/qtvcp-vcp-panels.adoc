@@ -24,7 +24,7 @@ in a  terminal type 'qtvcp list' <return> to see a list. +
 
 === copy
 
-used for copying qtvcp's builtin screen/panels/vismach code to a folder
+used for copying QtVCP's builtin screen/panels/vismach code to a folder
 so one can customize it.
 
 In a terminal:
