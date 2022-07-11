@@ -58,6 +58,7 @@ int inet_file_close(INET_FILE * inet_file)
     if (NULL != inet_file) {
 	if (inet_file->fp) {
 	    fclose(inet_file->fp);
+	    inet_file->fp = NULL;
 	}
 	delete inet_file;
     }
@@ -95,4 +96,5 @@ int inet_file_rewind(INET_FILE * ifp)
 
 ~INET_FILE() {
     if (fp) fclose(fp);
+    fp = NULL;
 }
