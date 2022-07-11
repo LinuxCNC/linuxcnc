@@ -894,8 +894,6 @@ obj-$(CONFIG_PID) += pid.o
 pid-objs := hal/components/pid.o $(MATHSTUB)
 obj-$(CONFIG_AT_PID) += at_pid.o
 at_pid-objs := hal/components/at_pid.o $(MATHSTUB)
-obj-$(CONFIG_AT_PIDV2) += at_pidv2.o
-at_pidv2-objs := hal/components/at_pidv2.o $(MATHSTUB)
 obj-$(CONFIG_PID) += threads.o
 threads-objs := hal/components/threads.o $(MATHSTUB)
 obj-$(CONFIG_SUPPLY) += supply.o
@@ -1228,7 +1226,6 @@ endif
 ../rtlib/pwmgen$(MODULE_EXT): $(addprefix objects/rt,$(pwmgen-objs))
 ../rtlib/siggen$(MODULE_EXT): $(addprefix objects/rt,$(siggen-objs))
 ../rtlib/at_pid$(MODULE_EXT): $(addprefix objects/rt,$(at_pid-objs))
-../rtlib/at_pidv2$(MODULE_EXT): $(addprefix objects/rt,$(at_pidv2-objs))
 ../rtlib/pid$(MODULE_EXT): $(addprefix objects/rt,$(pid-objs))
 ../rtlib/threads$(MODULE_EXT): $(addprefix objects/rt,$(threads-objs))
 ../rtlib/supply$(MODULE_EXT): $(addprefix objects/rt,$(supply-objs))

@@ -1,6 +1,6 @@
 /********************************************************************
-* Description:  at_pidv2.c
-*               This file, 'pid.c', is a HAL component that provides 
+* Description:  at_pid.c
+*               This file, 'at_pid.c', is a HAL component that provides
 *               Proportional/Integral/Derivative control loops.
 *
 * Author: John Kasunich, Peter G. Vavaroutsos, Petter Reinholdtsen
@@ -11,7 +11,7 @@
 *
 * Last change: 
 ********************************************************************/
-/** This file, 'at_pidv2.c', is a HAL component that provides Proportional/
+/** This file, 'at_pid.c', is a HAL component that provides Proportional/
     Integral/Derivative control loops.  It is a realtime component.
 
     It supports a maximum of 16 PID loops.
@@ -149,7 +149,7 @@ RTAPI_MP_INT(num_chan, "number of channels");
 static int howmany;
 #define MAX_CHAN 16
 char *names[MAX_CHAN] ={0,};
-RTAPI_MP_ARRAY_STRING(names, MAX_CHAN,"at_pidv2 names");
+RTAPI_MP_ARRAY_STRING(names, MAX_CHAN,"at_pid names");
 
 static int debug = 0;		/* flag to export optional params */
 RTAPI_MP_INT(debug, "enables optional params");
@@ -296,19 +296,19 @@ int rtapi_app_main(void)
     /* test for number of channels */
     if ((howmany <= 0) || (howmany > MAX_CHAN)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "AT_PIDV2: ERROR: invalid number of channels: %d\n", howmany);
+	    "AT_PID: ERROR: invalid number of channels: %d\n", howmany);
 	return -1;
     }
     /* have good config info, connect to the HAL */
-    comp_id = hal_init("at_pidv2");
+    comp_id = hal_init("at_pid");
     if (comp_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "AT_PIDv2: ERROR: hal_init() failed\n");
+	rtapi_print_msg(RTAPI_MSG_ERR, "AT_Pid: ERROR: hal_init() failed\n");
 	return -1;
     }
     /* allocate shared memory for pid loop data */
     pid_array = hal_malloc(howmany * sizeof(hal_pid_t));
     if (pid_array == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "AT_PIDV2: ERROR: hal_malloc() failed\n");
+	rtapi_print_msg(RTAPI_MSG_ERR, "AT_PID: ERROR: hal_malloc() failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
@@ -318,7 +318,7 @@ int rtapi_app_main(void)
 	/* export everything for this loop */
         if(num_chan) {
             char buf[HAL_NAME_LEN + 1];
-            rtapi_snprintf(buf, sizeof(buf), "at_pidv2.%d", n);
+            rtapi_snprintf(buf, sizeof(buf), "at_pid.%d", n);
 	    retval = export_pid(&(pid_array[n]), buf);
         } else {
 	    retval = export_pid(&(pid_array[n]), names[i++]);
@@ -326,12 +326,12 @@ int rtapi_app_main(void)
 
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"AT_PIDV2: ERROR: loop %d var export failed\n", n);
+		"AT_PID: ERROR: loop %d var export failed\n", n);
 	    hal_exit(comp_id);
 	    return -1;
 	}
     }
-    rtapi_print_msg(RTAPI_MSG_INFO, "AT_PIDV2: installed %d PID loops\n",
+    rtapi_print_msg(RTAPI_MSG_INFO, "AT_PID: installed %d PID loops\n",
 	howmany);
     hal_ready(comp_id);
     return 0;
@@ -966,7 +966,7 @@ static int export_pid(hal_pid_t * addr, char * prefix)
 	hal_export_funct(buf, calc_pid, addr, 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "AT_PIDV2: ERROR: do_pid_calcs funct export failed\n");
+	    "AT_PID: ERROR: do_pid_calcs funct export failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
