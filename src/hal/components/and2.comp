@@ -1,8 +1,10 @@
 component and2 "Two-input AND gate";
 pin in bit in0;
 pin in bit in1;
-pin out bit out """\
-\\fBout\\fR is computed from the value of \\fBin0\\fR and \\fBin1\\fR according to the following rule:
+pin out bit out """
+.P
+The \\fBout\\fR pin is computed from the value of the \\fBin0\\fR and
+\\fBin1\\fR pins according to the following rule:
 .RS
 .TP
 \\fBin0=TRUE in1=TRUE\\fB
