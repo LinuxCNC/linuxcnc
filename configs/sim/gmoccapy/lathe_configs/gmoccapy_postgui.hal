@@ -21,4 +21,3 @@ net tool-prep-number gmoccapy.toolchange-number   <=  iocontrol.0.tool-prep-numb
 
 net tooloffset-x  gmoccapy.tooloffset-x  <=  motion.tooloffset.x
 net tooloffset-z  gmoccapy.tooloffset-z  <=  motion.tooloffset.z
-

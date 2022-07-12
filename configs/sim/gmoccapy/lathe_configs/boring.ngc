@@ -22,13 +22,17 @@ M6 T#8 G43
 #24 = [[#23 - #13] * TAN[#7]]
 
 
-G96 D1500 S#2 ; Constant Surface Speed Mode
+G96 D2500 S#2 ; Constant Surface Speed Mode
 m3 ;Start Spindle
 g95 F#4 ; Feed-Per-Rev Mode
 
+O90 IF [#9 GT 0.5]
+	M8
+O90 ENDIF
+
 g4p1 ; Wait to reach speed
 
-	(debug, Turning finish dia #1 start  dia #14 start length #13 finish length #5)
+	(debug, Turning finish dia #1 start  dia #14 start length #13 finish length #5 coolant #9)
 	O100 WHILE [#14 LT [#1 - #3]]
         g0 X #14
 	#14=[#14 + #3]
@@ -53,7 +57,7 @@ g4p1 ; Wait to reach speed
         O102 ENDIF
 	G0 Z #13
 	G0 X #1 ; For touch-off
-        M5
+	M5 M9
 	G7
 O<boring> endsub
 

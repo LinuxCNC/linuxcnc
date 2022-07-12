@@ -68,11 +68,14 @@ show_preview_on_offset = False
 use_keyboard_shortcuts = True
 dro_digits = 3
 toggle_readout = True
-tool_in_spindle = 1
+tool_in_spindle = 3
 diameter offset_axis_x = 0
 offset_axis_x = 0.0
 offset_axis_z = 0.0
 offset_axis_r = 50.0
 radius offset_axis_x = 0
 use_toolmeasurement = False
+kbd_height = 250
+icon_theme = None
+hide_tooltips = False
 
