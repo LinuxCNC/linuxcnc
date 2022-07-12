@@ -2,13 +2,14 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # Petter Reinholdtsen <pere-weblate@hungry.com>, 2022.
+# Asle Næss <aness@bofh.no>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-07-09 16:34+0100\n"
-"PO-Revision-Date: 2022-06-27 21:55+0000\n"
-"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
+"PO-Revision-Date: 2022-07-11 22:46+0000\n"
+"Last-Translator: Asle Næss <aness@bofh.no>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
 "Language: nb\n"
@@ -16,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.13.1-dev\n"
+"X-Generator: Weblate 4.14-dev\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -141,8 +142,8 @@ msgid ""
 "$ (spindle selection) word with no G41, G41.1, G42, G42.1, G76 G95 or G96 to "
 "use it"
 msgstr ""
-"$ (spindle selection) parameter mangler for G41, G41.1, G42, G42.1, G76 G95 "
-"eller G96-kommando"
+"$ (spindle selection) parameter uten tilhørende G41-, G41.1-, G42-, G42.1-, "
+"G76-, G95- eller G96-kommando"
 
 #: src/emc/rs274ngc/interp_check.cc:277
 msgid "E word with no G76, M3, M4, M5, M19, M51, M66, M67 or M68 to use it"
@@ -2600,12 +2601,12 @@ msgstr ""
 #: src/emc/motion/command.c:1760
 #, c-format
 msgid "Attempt to engage brake of non-existent spindle <%d>"
-msgstr "Forsøkte å slå på bremsen på en spindel som ikke finnes <%d>"
+msgstr "Forsøkte å aktivere bremsen på en spindel som ikke finnes <%d>"
 
 #: src/emc/motion/command.c:1782
 #, c-format
 msgid "Attempt to release brake of non-existent spindle <%d>"
-msgstr "Forsøkte å slå av bremsen på en spindel som ikke finnes <%d>"
+msgstr "Forsøkte å slippe opp bremsen på en spindel som ikke finnes <%d>"
 
 #: src/emc/motion/command.c:1804
 #, c-format
@@ -3182,7 +3183,7 @@ msgstr "Oppsett"
 
 #: src/hal/classicladder/classicladder_gtk.c:883 share/axis/tcl/axis.tcl:1301
 msgid "Preview"
-msgstr "Forhåndsvis"
+msgstr "Forhåndsvisning"
 
 #: src/hal/classicladder/classicladder_gtk.c:888
 msgid "Print"
@@ -4963,22 +4964,20 @@ msgid "Expand All"
 msgstr "Utvid alle"
 
 #: tcl/bin/halshow.tcl:246
-#, fuzzy
 msgid "Collapse All"
-msgstr "Kopier alle"
+msgstr "Fold alle"
 
 #: tcl/bin/halshow.tcl:256
-#, fuzzy
 msgid "Reload tree view"
-msgstr "_Rotert toppvisning"
+msgstr "Last trevisning på nytt"
 
 #: tcl/bin/halshow.tcl:262
 msgid "Add pin"
-msgstr ""
+msgstr "Legg til pinne"
 
 #: tcl/bin/halshow.tcl:263
 msgid "Pin"
-msgstr ""
+msgstr "Pinne"
 
 #: tcl/bin/halshow.tcl:264
 msgid "Add signal"
@@ -4986,7 +4985,7 @@ msgstr "Legg til signal"
 
 #: tcl/bin/halshow.tcl:265
 msgid "Signal"
-msgstr ""
+msgstr "Signal"
 
 #: tcl/bin/halshow.tcl:266
 msgid "Add parameter"
@@ -5010,12 +5009,11 @@ msgstr "lagt til"
 
 #: tcl/bin/halshow.tcl:331
 msgid "Full path (regex)"
-msgstr ""
+msgstr "Full sti (regex)"
 
 #: tcl/bin/halshow.tcl:335 tcl/bin/halshow.tcl:348
-#, fuzzy
 msgid "Filter tree"
-msgstr "Filter feilet"
+msgstr "Filtrer tre"
 
 #: tcl/bin/halshow.tcl:664
 msgid "HAL command :"
@@ -5023,7 +5021,7 @@ msgstr "HAL-kommando:"
 
 #: tcl/bin/halshow.tcl:724
 msgid "Update interval (in ms)"
-msgstr "Oppdater intervall (i ms)"
+msgstr "Oppdateringsintervall (i ms)"
 
 #: tcl/bin/halshow.tcl:725
 msgid "Column width for value in watch tab"
@@ -5541,7 +5539,7 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:900
 msgid "Spindle off"
-msgstr "Spindel av"
+msgstr "Stopp spindel"
 
 #: tcl/tklinuxcnc.tcl:914
 msgid "Brake on"
@@ -5754,7 +5752,7 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:2156
 msgid "SPINDLE OFF"
-msgstr "SPINDEL AV"
+msgstr "STOPP SPINDEL"
 
 #: tcl/tklinuxcnc.tcl:2158
 msgid "SPINDLE INCREASE"
@@ -6867,11 +6865,11 @@ msgstr "Start maskinen"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:185
 msgid "Activate first axis"
-msgstr "Aktiver første aksel"
+msgstr "Aktiver første akse"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:186
 msgid "Activate second axis"
-msgstr "Aktiver andre aksel"
+msgstr "Aktiver andre akse"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:187
 msgid "Activate third axis"
@@ -6971,7 +6969,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:203
 msgid "Select Max velocity"
-msgstr ""
+msgstr "Velg maksimal hastighet"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:206
 msgid "Left, Right"
@@ -7130,7 +7128,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:236
 msgid "Resume program"
-msgstr ""
+msgstr "Fortsett program"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:237
 msgid "Stop running program, or"
@@ -7150,7 +7148,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:242
 msgid "Spindle brake off"
-msgstr "Spindelbremse av"
+msgstr "Slå av spindelbremse"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:243
 msgid "Shift-B"
@@ -7158,15 +7156,15 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:243
 msgid "Spindle brake on"
-msgstr "Spindelbremse på"
+msgstr "Aktiver spindelbremse"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:244
 msgid "Turn spindle clockwise"
-msgstr "Spindel på, med klokken"
+msgstr "Start spindel, med klokken"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:245
 msgid "Turn spindle counterclockwise"
-msgstr "Spindel på, mot klokken"
+msgstr "Start spindel, mot klokken"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:246
 msgid "Turn spindle more slowly"
@@ -7206,7 +7204,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:253
 msgid "Clear notifications"
-msgstr ""
+msgstr "Nullstill beskjeder"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:254
 msgid "Alt-F, M, V"
@@ -7214,7 +7212,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:254
 msgid "Open a Menu"
-msgstr ""
+msgstr "Åpne en meny"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:918
 #, python-format
@@ -7641,6 +7639,9 @@ msgid ""
 "This window is part of the AXIS manual toolchanger.  It is safe to close or "
 "iconify this window, or it will close automatically after a few seconds."
 msgstr ""
+"Dette vinduet er del av den manuelle verktøyveksleren til AXIS.  Det er "
+"trygt å lukke eller ikonifisere vinduet, det vil uansett lukke seg "
+"automatisk etter noen få sekunder."
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:514
 #, python-format
@@ -7892,7 +7893,7 @@ msgstr "Ctrl-R"
 
 #: share/axis/tcl/axis.tcl:71
 msgid "_Reload"
-msgstr ""
+msgstr "_Last på nytt"
 
 #: share/axis/tcl/axis.tcl:74
 msgid "Ctrl-S"
@@ -7900,11 +7901,11 @@ msgstr "Ctrl-S"
 
 #: share/axis/tcl/axis.tcl:76
 msgid "_Save gcode as..."
-msgstr ""
+msgstr "Lagre gcode _som..."
 
 #: share/axis/tcl/axis.tcl:80
 msgid "_Properties..."
-msgstr ""
+msgstr "_Egenskaper..."
 
 #: share/axis/tcl/axis.tcl:86
 msgid "Edit _tool data..."
@@ -7912,7 +7913,7 @@ msgstr "Rediger _verktøydata..."
 
 #: share/axis/tcl/axis.tcl:90
 msgid "Reload tool _data"
-msgstr ""
+msgstr "Last verktøy_data på nytt"
 
 #: share/axis/tcl/axis.tcl:96
 msgid "_Ladder Editor..."
@@ -7920,11 +7921,11 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:108
 msgid "Toggle _Emergency Stop"
-msgstr ""
+msgstr "Nødstopp på/av"
 
 #: share/axis/tcl/axis.tcl:113
 msgid "Toggle _Machine Power"
-msgstr ""
+msgstr "Maskinstrøm på/av"
 
 #: share/axis/tcl/axis.tcl:120
 msgid "_Run program"
@@ -7932,11 +7933,11 @@ msgstr "_Kjør program"
 
 #: share/axis/tcl/axis.tcl:124
 msgid "Ru_n from selected line"
-msgstr ""
+msgstr "Kjør fra valgt li_nje"
 
 #: share/axis/tcl/axis.tcl:129
 msgid "S_tep"
-msgstr ""
+msgstr "S_teg"
 
 #: share/axis/tcl/axis.tcl:134
 msgid "_Pause"
@@ -7960,7 +7961,7 @@ msgstr "Ctrl-M"
 
 #: share/axis/tcl/axis.tcl:161
 msgid "Clear MDI h_istory"
-msgstr ""
+msgstr "Nullstill MDI-h_istorikk"
 
 #: share/axis/tcl/axis.tcl:163
 msgid "Ctrl-H"
@@ -7968,7 +7969,7 @@ msgstr "Ctrl-H"
 
 #: share/axis/tcl/axis.tcl:165
 msgid "Copy from MDI hist_ory"
-msgstr ""
+msgstr "Kopier fra MDI-hist_orikk"
 
 #: share/axis/tcl/axis.tcl:167
 msgid "Ctrl-Shift-H"
@@ -7976,7 +7977,7 @@ msgstr "Ctrl-Shift-H"
 
 #: share/axis/tcl/axis.tcl:169
 msgid "Paste to MDI histor_y"
-msgstr ""
+msgstr "Lim inn i MDI-histori_kk"
 
 #: share/axis/tcl/axis.tcl:175
 msgid "_Calibration"
@@ -8128,19 +8129,19 @@ msgstr "Vis maskin_grenser"
 
 #: share/axis/tcl/axis.tcl:366
 msgid "Show v_elocity"
-msgstr ""
+msgstr "Vis hastigh_et"
 
 #: share/axis/tcl/axis.tcl:371
 msgid "Show _distance to go"
-msgstr ""
+msgstr "Vis gjenværen_de avstand"
 
 #: share/axis/tcl/axis.tcl:376
 msgid "Large coordinate fo_nt"
-msgstr ""
+msgstr "Stor koordi_natskriftstørrelse"
 
 #: share/axis/tcl/axis.tcl:379
 msgid "Ctrl-K"
-msgstr ""
+msgstr "Ctrl-K"
 
 #: share/axis/tcl/axis.tcl:381
 msgid "_Clear live plot"
@@ -8148,19 +8149,19 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:385
 msgid "Ctrl-E"
-msgstr ""
+msgstr "Ctrl-E"
 
 #: share/axis/tcl/axis.tcl:396
 msgid "Show commanded position"
-msgstr ""
+msgstr "Vis kommandert posisjon"
 
 #: share/axis/tcl/axis.tcl:403
 msgid "Show actual position"
-msgstr ""
+msgstr "Vis faktisk posisjon"
 
 #: share/axis/tcl/axis.tcl:412
 msgid "Show machine position"
-msgstr "Vis maskin-posisjon"
+msgstr "Vis maskinposisjon"
 
 #: share/axis/tcl/axis.tcl:419
 msgid "Show relative position"
@@ -8172,15 +8173,15 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:435
 msgid "World mode"
-msgstr ""
+msgstr "Verdensmodus"
 
 #: share/axis/tcl/axis.tcl:443
 msgid "_Off"
-msgstr ""
+msgstr "_Av"
 
 #: share/axis/tcl/axis.tcl:449
 msgid "_Custom"
-msgstr ""
+msgstr "_Tilpasset"
 
 #: share/axis/tcl/axis.tcl:460
 msgid "_About AXIS"
@@ -8188,43 +8189,43 @@ msgstr "_Om AXIS"
 
 #: share/axis/tcl/axis.tcl:464
 msgid "Quick _Reference"
-msgstr ""
+msgstr "Hu_rtigoppslag"
 
 #: share/axis/tcl/axis.tcl:474
 msgid "_Machine"
-msgstr ""
+msgstr "_Maskin"
 
 #: share/axis/tcl/axis.tcl:478
 msgid "_View"
-msgstr ""
+msgstr "_Vis"
 
 #: share/axis/tcl/axis.tcl:491
 msgid "Toggle Emergency Stop [F1]"
-msgstr ""
+msgstr "Nødstopp på/av [F1]"
 
 #: share/axis/tcl/axis.tcl:500
 msgid "Toggle Machine power [F2]"
-msgstr ""
+msgstr "Maskinstrøm på/av [F2]"
 
 #: share/axis/tcl/axis.tcl:511
 msgid "Open G-Code file [O]"
-msgstr ""
+msgstr "Åpne G-kodefil [O]"
 
 #: share/axis/tcl/axis.tcl:519
 msgid "Reopen current file [Control-R]"
-msgstr ""
+msgstr "Åpne gjeldende fil på nytt [Ctrl-R]"
 
 #: share/axis/tcl/axis.tcl:529
 msgid "Begin executing current file [R]"
-msgstr ""
+msgstr "Igangsett kjøring av gjeldende fil [R]"
 
 #: share/axis/tcl/axis.tcl:537
 msgid "Execute next line [T]"
-msgstr ""
+msgstr "Utfør neste linje [T]"
 
 #: share/axis/tcl/axis.tcl:545
 msgid "Pause [P] / resume [S] execution"
-msgstr ""
+msgstr "Pause [P] / fortsett [S] kjøring"
 
 #: share/axis/tcl/axis.tcl:560
 msgid "Stop program execution [ESC]"
@@ -8232,11 +8233,11 @@ msgstr "Stopp kjøring av program [ESC]"
 
 #: share/axis/tcl/axis.tcl:570
 msgid "Toggle skip lines with '/' [Alt-M /]"
-msgstr ""
+msgstr "Hopp over linjer med '/' på/av [Alt-M /]"
 
 #: share/axis/tcl/axis.tcl:577
 msgid "Toggle optional pause [Alt-M 1]"
-msgstr ""
+msgstr "Valgfri pause på/av [Alt-M 1]"
 
 #: share/axis/tcl/axis.tcl:586
 msgid "Zoom in"
@@ -8248,31 +8249,31 @@ msgstr "Forminsk"
 
 #: share/axis/tcl/axis.tcl:602
 msgid "Top view"
-msgstr "Se ovenfra"
+msgstr "Toppvisning"
 
 #: share/axis/tcl/axis.tcl:610
 msgid "Rotated top view"
-msgstr ""
+msgstr "Rotert toppvisning"
 
 #: share/axis/tcl/axis.tcl:618
 msgid "Side view"
-msgstr "Se fra siden"
+msgstr "Sidevisning"
 
 #: share/axis/tcl/axis.tcl:626
 msgid "Front view"
-msgstr "Se forfra"
+msgstr "Frontvisning"
 
 #: share/axis/tcl/axis.tcl:634
 msgid "Inverted Front view"
-msgstr ""
+msgstr "Speilet frontvisning"
 
 #: share/axis/tcl/axis.tcl:642
 msgid "Perspective view"
-msgstr ""
+msgstr "Perspektivvisning"
 
 #: share/axis/tcl/axis.tcl:650
 msgid "Toggle between Drag and Rotate Mode [D]"
-msgstr ""
+msgstr "Bytt mellom dra- og roteringsmodus [D]"
 
 #: share/axis/tcl/axis.tcl:665
 msgid "Clear live plot [Ctrl-K]"
@@ -8293,7 +8294,7 @@ msgstr "Akse:"
 
 #: share/axis/tcl/axis.tcl:932 src/emc/usr_intf/gscreen/gscreen.glade:2979
 msgid "Home Axis"
-msgstr ""
+msgstr "Nullstill akse"
 
 #: share/axis/tcl/axis.tcl:938
 msgid "Touch Off"
@@ -8331,11 +8332,11 @@ msgstr "Brems"
 
 #: share/axis/tcl/axis.tcl:1134
 msgid "Coolant:"
-msgstr "Kjøling:"
+msgstr "Kjøleveske:"
 
 #: share/axis/tcl/axis.tcl:1139
 msgid "Mist"
-msgstr "Tåke"
+msgstr "Kjøletåke"
 
 #: share/axis/tcl/axis.tcl:1144
 msgid "Flood"
@@ -8351,11 +8352,12 @@ msgstr "MDI-kommando:"
 
 #: share/axis/tcl/axis.tcl:1248
 msgid "Go"
-msgstr ""
+msgstr "Utfør"
 
 #: share/axis/tcl/axis.tcl:1302
+#, fuzzy
 msgid "DRO"
-msgstr ""
+msgstr "DRO"
 
 #: share/axis/tcl/axis.tcl:1385
 msgid "Active G-Codes:"
@@ -8367,11 +8369,11 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:1422
 msgid "Max Velocity:"
-msgstr "Max hastighet:"
+msgstr "Makshastighet:"
 
 #: share/axis/tcl/axis.tcl:1451
 msgid "Spindle Override:"
-msgstr "Overstyr spindel:"
+msgstr "Spindeloverstyring:"
 
 #: share/axis/tcl/axis.tcl:1453 share/axis/tcl/axis.tcl:1493
 #: share/axis/tcl/axis.tcl:1531 src/emc/usr_intf/pncconf/external.glade:2643
@@ -8450,8 +8452,8 @@ msgstr ""
 "Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, "
 "2014, 2015, 2016 Jeff Epler og Chris Radek.\n"
 "\n"
-"Dette er gratis programvare, og du står fritt til å distribuere den under "
-"visse vilkår.  Se filen COPYING, som er lagt ved LinuxCNC.\n"
+"Dette er fri programvare, og du står fritt til å distribuere den på visse "
+"vilkår.  Se filen COPYING, som følger med LinuxCNC.\n"
 "\n"
 "Besøk LinuxCNCs webside: "
 
@@ -8488,12 +8490,12 @@ msgstr "Relativ"
 #: share/axis/tcl/axis.tcl:1836 src/emc/usr_intf/touchy/touchy.glade:3300
 #: src/emc/usr_intf/pncconf/screen.glade:78
 msgid "Actual"
-msgstr ""
+msgstr "Faktisk"
 
 #: share/axis/tcl/axis.tcl:1836 src/emc/usr_intf/touchy/touchy.glade:3289
 #: src/emc/usr_intf/pncconf/screen.glade:75
 msgid "Commanded"
-msgstr ""
+msgstr "Beordret"
 
 #: share/axis/tcl/axis.tcl:1910 share/axis/tcl/axis.tcl:2110
 msgid "Joint:"
@@ -8525,7 +8527,7 @@ msgstr "Senk spindelhastighet [F11]"
 
 #: share/axis/tcl/axis.tcl:2255
 msgid "Turn spindle brake on [Shift-B] or off [B]"
-msgstr "Slå spindelbrems på [Shift-B] eller av [B]"
+msgstr "Spindelbrems på [Shift-B] eller av [B]"
 
 #: share/axis/tcl/axis.tcl:2256
 msgid "Turn flood on or off [F8]"
@@ -9038,7 +9040,7 @@ msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:1444
 msgid "Spindle Off"
-msgstr ""
+msgstr "Slå av spindel"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1460
 msgid "Spindle Faster"
@@ -9637,7 +9639,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:222
 msgid "Spindle ON"
-msgstr "Spindel PÅ"
+msgstr "Spindel igang"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:222
 #: src/emc/usr_intf/pncconf/private_data.py:479
@@ -11065,9 +11067,8 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/options.glade:515
 #: src/emc/usr_intf/pncconf/screen.glade:3866
-#, fuzzy
 msgid "Flash Error Message:"
-msgstr "Operatørmelding"
+msgstr "Viktig melding:"
 
 #: src/emc/usr_intf/stepconf/options.glade:528
 #: src/emc/usr_intf/pncconf/screen.glade:3879
@@ -11397,7 +11398,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -18718,6 +18720,8 @@ msgid ""
 "Spindle\n"
 "Override"
 msgstr ""
+"Spindel\n"
+"Overstyring"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3346
 msgid ""

@@ -2,9 +2,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sk\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-07-09 16:34+0100\n"
-"PO-Revision-Date: 2022-07-09 10:32+0000\n"
+"PO-Revision-Date: 2022-07-10 17:12+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
 "Language: sk\n"
@@ -4890,9 +4890,8 @@ msgstr ""
 "rozsahu povolenom zákonom."
 
 #: tcl/bin/halshow.tcl:105
-#, fuzzy
 msgid "Halshow"
-msgstr "HAL-Dosah"
+msgstr "HAL-prepojenia"
 
 #: tcl/bin/halshow.tcl:176
 msgid " SHOW "
@@ -7049,7 +7048,6 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:228 share/axis/tcl/axis.tcl:950
 #: src/emc/usr_intf/touchy/touchy.glade:518
-#, fuzzy
 msgid "Override Limits"
 msgstr "Prepísať limity"
 
@@ -7074,22 +7072,18 @@ msgid "Save G-code as"
 msgstr "Uložiť G-kód ako"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:233
-#, fuzzy
 msgid "Run program"
-msgstr "Program"
+msgstr "Spustiť program"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:234
-#, fuzzy
 msgid "Step program"
-msgstr "Program"
+msgstr "Program po riadkoch"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:235
-#, fuzzy
 msgid "Pause program"
-msgstr "Program"
+msgstr "Pauza"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:236
-#, fuzzy
 msgid "Resume program"
 msgstr "Pokračovať"
 
@@ -7110,23 +7104,20 @@ msgid "Toggle flood"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:242
-#, fuzzy
 msgid "Spindle brake off"
-msgstr "Vreteno vypni"
+msgstr "Brzda vretena neaktívna"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:243
 msgid "Shift-B"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:243
-#, fuzzy
 msgid "Spindle brake on"
-msgstr "Vreteno rýchlejšie"
+msgstr "Brzda vretena aktívna"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:244
-#, fuzzy
 msgid "Turn spindle clockwise"
-msgstr "Vreteno Pomalšie"
+msgstr "Chod vretena v smere hod. ručičiek"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:245
 msgid "Turn spindle counterclockwise"
@@ -7165,14 +7156,12 @@ msgid "toggle Relative/Machine"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:253
-#, fuzzy
 msgid "Ctrl-Space"
-msgstr "Medzera"
+msgstr "Ctrl-Medzera"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:253
-#, fuzzy
 msgid "Clear notifications"
-msgstr "Príklady konfigurácií"
+msgstr "Vymazať upozornenia"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:254
 msgid "Alt-F, M, V"
@@ -7202,9 +7191,8 @@ msgid "Tool %(tool)d, zo %(zo)g, xo %(xo)g, dia %(dia)g"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1108
-#, fuzzy
 msgid "Filtering..."
-msgstr "Testujem..."
+msgstr "Filtruje sa..."
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1173
 msgid "Filter failed"
@@ -7232,23 +7220,20 @@ msgstr ""
 #: src/emc/usr_intf/axis/scripts/axis.py:1466
 #: src/emc/usr_intf/axis/scripts/axis.py:3223 share/axis/tcl/axis.tcl:922
 #: share/axis/tcl/axis.tcl:924 share/axis/tcl/axis.tcl:2051
-#, fuzzy
 msgid "Continuous"
-msgstr "Priebežný"
+msgstr "Kontinuálne"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1729
-#, fuzzy
 msgid "T    Tool Table"
-msgstr "Načítať tabuľku nástrojov"
+msgstr "Tabuľka nástrojov"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1739
 #: src/emc/usr_intf/axis/scripts/axis.py:2028
 #: src/emc/usr_intf/axis/scripts/axis.py:2602
 #: src/emc/usr_intf/stepconf/stepconf.py:1581
 #: src/emc/usr_intf/stepconf/pages.py:966
-#, fuzzy
 msgid "in"
-msgstr "Hlavné"
+msgstr "v"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1742
 msgid " radius"
@@ -7283,9 +7268,8 @@ msgid "Size:"
 msgstr "Veľkosť:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1796
-#, fuzzy
 msgid "Tool order:"
-msgstr "Nástroj :"
+msgstr "Sled nástroja:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1796
 msgid "Rapid distance:"
@@ -7381,9 +7365,8 @@ msgid "G-Code Properties"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2205
-#, fuzzy
 msgid "All machinable files"
-msgstr "Všetky súbory"
+msgstr "Všetky strojové súbory"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2206
 #: src/emc/usr_intf/axis/scripts/axis.py:2924
@@ -7414,9 +7397,8 @@ msgid "Edit-readonly"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2603
-#, fuzzy
 msgid "Custom Grid"
-msgstr "Vystrihnúť"
+msgstr "Zvoliť mriežku"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2603
 msgid "Enter grid size"
@@ -7493,16 +7475,14 @@ msgid "Axes"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3539
-#, fuzzy
 msgid "Joints"
-msgstr "spoj"
+msgstr "Kĺby"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3541
 #: src/emc/usr_intf/touchy/touchy.glade:584
 #: src/emc/usr_intf/gscreen/gscreen.glade:2968
-#, fuzzy
 msgid "Home All"
-msgstr "Uložiť všetky"
+msgstr "Skalibrovať všetko"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3543
 #, python-format
@@ -7542,14 +7522,12 @@ msgid "KINEMATICS_IDENTITY with duplicate axis letter <%s>\n"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3637
-#, fuzzy
 msgid "Joint"
-msgstr "spoj"
+msgstr "Kĺb"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3639
-#, fuzzy
 msgid "Home Joint"
-msgstr "Domov"
+msgstr "Skalibrovať kĺb"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3647
 #, python-format
@@ -7582,9 +7560,8 @@ msgid "LinuxCNC Status"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/linuxcnctop.py:143
-#, fuzzy
 msgid "Copy All"
-msgstr "Kopírovať"
+msgstr "Kopírovať všetko"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:38
 #, python-format
@@ -7597,14 +7574,12 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:46
 #: src/emc/usr_intf/touchy/mdi.py:52 src/emc/usr_intf/gscreen/mdi.py:49
-#, fuzzy
 msgid "Tool change"
-msgstr "Súbor nástrojov"
+msgstr "Výmena nástroja"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:46
-#, fuzzy
 msgid "Continue"
-msgstr "Priebežný"
+msgstr "Pokračovať"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:67
 msgid "AXIS Manual Toolchanger"
@@ -7642,14 +7617,12 @@ msgid "G21 (mm)"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:618
-#, fuzzy
 msgid "White"
-msgstr "Písať"
+msgstr "Biela"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:618
-#, fuzzy
 msgid "Black"
-msgstr "Späť"
+msgstr "Čierna"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:624
 msgid "Rows"
@@ -7668,14 +7641,12 @@ msgid "Columns then Rows"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:625
-#, fuzzy
 msgid "Positive"
-msgstr "Typ polohy"
+msgstr "Pozitívna"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:625
-#, fuzzy
 msgid "Negative"
-msgstr "pomerný"
+msgstr "Negatívna"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:625
 msgid "Alternating"
@@ -7750,9 +7721,8 @@ msgid "Tool Diameter (units)"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:669
-#, fuzzy
 msgid "Tool Type"
-msgstr "Súbor nástrojov"
+msgstr "Typ nástroja"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:670
 msgid "Feed Rate (units per minute)"
@@ -7803,9 +7773,8 @@ msgid "Depth images"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:22
-#, fuzzy
 msgid "LinuxCNC Debug Level"
-msgstr "EMC2 Debug"
+msgstr "Úroveň ladenia LinuxCNC"
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:23
 msgid "debuglevel"
@@ -11513,7 +11482,8 @@ msgstr "Typ polohy"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
