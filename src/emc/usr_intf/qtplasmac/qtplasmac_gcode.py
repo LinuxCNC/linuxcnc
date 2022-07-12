@@ -41,26 +41,51 @@ if inFile == 'rfl.ngc':
         for line in inCode:
             print(line.strip())
     sys.exit()
-filteredBkp = '/tmp/qtplasmac/filtered_bkp.ngc'
-errorFile = '/tmp/qtplasmac/gcode_errors.txt'
-materialFile = '{}_material.cfg'.format(ini.find('EMC', 'MACHINE'))
-tmpMaterialFile = '/tmp/qtplasmac/{}_material.gcode'.format(ini.find('EMC', 'MACHINE'))
+# assume gui to be qtplasmac unless a specific gui selected
+if 'axis' in ini.find('DISPLAY', 'DISPLAY'):
+    gui = 'plasmac'
+    materialFile = '{}.mats'.format(ini.find('EMC', 'MACHINE'))
+    tmpPath = '/tmp/plasmac'
+    cutTypePin = 'axisui.cut-type'
+    matNumPin = 'axisui.material-change-number'
+    convBlockPin = 'axisui.conv-block-loaded'
+    matTmpPin = 'axisui.material-temp'
+    matReloadPin = 'axisui.material-reload'
+    fgColor = '#ffee00'
+    bgColor = '#050505'
+    bgAltColor = '#36362e'
+    notice  = 'The line numbers in the original file may differ from what is shown below.\n\n'
+else:
+    gui = 'qtplasmac'
+    materialFile = '{}_material.cfg'.format(ini.find('EMC', 'MACHINE'))
+    tmpPath = '/tmp/qtplasmac'
+    cutTypePin = 'qtplasmac.cut_type'
+    matNumPin = 'qtplasmac.material_change_number'
+    convBlockPin = 'qtplasmac.conv_block_loaded'
+    matTmpPin = 'qtplasmac.material_temp'
+    matReloadPin = 'qtplasmac.material_reload'
+    response = RUN(['halcmd', 'getp', 'qtplasmac.color_fg'], capture_output = True)
+    fgColor = str(hex(int(response.stdout.decode()))).replace('0x', '#')
+    response = RUN(['halcmd', 'getp', 'qtplasmac.color_bg'], capture_output = True)
+    bgColor = str(hex(int(response.stdout.decode()))).replace('0x', '#')
+    response = RUN(['halcmd', 'getp', 'qtplasmac.color_bgalt'], capture_output = True)
+    bgAltColor = str(hex(int(response.stdout.decode()))).replace('0x', '#')
+    response = RUN(['halcmd', 'getp', 'plasmac.max-offset'], capture_output = True)
+    notice  = 'If the G-code editor is used to resolve the following issues, the lines with errors\n'
+    notice += 'will be highlighted. The line numbers may differ from what is shown below.\n\n'
+filteredBkp = '{}/filtered_bkp.ngc'.format(tmpPath)
+errorFile = '{}/gcode_errors.txt'.format(tmpPath)
+tmpMaterialFile = '{}/{}_material.gcode'.format(tmpPath, ini.find('EMC', 'MACHINE'))
 tmpMatNum = 1000000
 tmpMatNam = ''
 prefsFile = ini.find('EMC', 'MACHINE') + '.prefs'
-response = RUN(['halcmd', 'getp', 'qtplasmac.cut_type'], capture_output = True)
+response = RUN(['halcmd', 'getp', '{}'.format(cutTypePin)], capture_output = True)
 cutType = int(response.stdout.decode())
-response = RUN(['halcmd', 'getp', 'qtplasmac.material_change_number'], capture_output = True)
+response = RUN(['halcmd', 'getp', '{}'.format(matNumPin)], capture_output = True)
 currentMat = int(response.stdout.decode())
-response = RUN(['halcmd', 'getp', 'qtplasmac.color_fg'], capture_output = True)
-fgColor = str(hex(int(response.stdout.decode()))).replace('0x', '#')
-response = RUN(['halcmd', 'getp', 'qtplasmac.color_bg'], capture_output = True)
-bgColor = str(hex(int(response.stdout.decode()))).replace('0x', '#')
-response = RUN(['halcmd', 'getp', 'qtplasmac.color_bgalt'], capture_output = True)
-bgAltColor = str(hex(int(response.stdout.decode()))).replace('0x', '#')
 response = RUN(['halcmd', 'getp', 'plasmac.max-offset'], capture_output = True)
 zMaxOffset = float(response.stdout.decode())
-RUN(['halcmd', 'setp', 'qtplasmac.conv_block_loaded', '0'])
+RUN(['halcmd', 'setp', '{}'.format(convBlockPin), '0'])
 metric = ['mm', 4]
 imperial = ['in', 6]
 units, precision = imperial if ini.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch' else metric
@@ -107,8 +132,6 @@ pathBlend = False
 convBlock = False
 filtered = False
 firstMove = False
-notice  = 'If the G-code editor is used to resolve the following issues, the lines with errors\n'
-notice += 'will be highlighted. The line numbers may differ from what is shown below.\n\n'
 codeError = False
 errors  = 'The following errors will affect the process.\n'
 errors += 'Errors must be fixed before reloading this file.\n'
@@ -463,7 +486,7 @@ def do_material_change():
         codeError = True
         errorMissMat.append(lineNum)
         errorLines.append(lineNumOrg)
-    RUN(['halcmd', 'setp', 'qtplasmac.material_change_number', '{}'.format(material[0])])
+    RUN(['halcmd', 'setp', '{}'.format(matNumPin), '{}'.format(material[0])])
     if not firstMaterial:
         firstMaterial = material[0]
     gcodeList.append(line)
@@ -559,29 +582,32 @@ def write_temporary_material(data):
     global lineNum, lineNumOrg, errorLines, errorTempMat, warnMatLoad, material, codeError
     try:
         with open(tmpMaterialFile, 'w') as fWrite:
-            fWrite.write('#plasmac temporary material file\n')
-            fWrite.write('\nnumber={}\n'.format(tmpMatNum))
+            if gui == 'plasmac':
+                fWrite.write('[MATERIAL_NUMBER_{}]\n'.format(tmpMatNum))
+            else:
+                fWrite.write('#plasmac temporary material file\n')
+                fWrite.write('\nnumber={}\n'.format(tmpMatNum))
             fWrite.write('name={}\n'.format(tmpMatNam))
-            fWrite.write('kerf-width={}\n'.format(data[3]))
-            fWrite.write('thc-enable={}\n'.format(data[4]))
-            fWrite.write('pierce-height={}\n'.format(data[5]))
-            fWrite.write('pierce-delay={}\n'.format(data[6]))
-            fWrite.write('puddle-jump-height={}\n'.format(data[7]))
-            fWrite.write('puddle-jump-delay={}\n'.format(data[8]))
-            fWrite.write('cut-height={}\n'.format(data[9]))
-            fWrite.write('cut-feed-rate={}\n'.format(data[10]))
-            fWrite.write('cut-amps={}\n'.format(data[11]))
-            fWrite.write('cut-volts={}\n'.format(data[12]))
-            fWrite.write('pause-at-end={}\n'.format(data[13]))
-            fWrite.write('gas-pressure={}\n'.format(data[14]))
-            fWrite.write('cut-mode={}\n'.format(data[15]))
+            fWrite.write('kerf_width={}\n'.format(data[3]))
+            fWrite.write('thc_enable={}\n'.format(data[4]))
+            fWrite.write('pierce_height={}\n'.format(data[5]))
+            fWrite.write('pierce_delay={}\n'.format(data[6]))
+            fWrite.write('puddle_jump_height={}\n'.format(data[7]))
+            fWrite.write('puddle_jump_delay={}\n'.format(data[8]))
+            fWrite.write('cut_height={}\n'.format(data[9]))
+            fWrite.write('cut_speed={}\n'.format(data[10]))
+            fWrite.write('cut_amps={}\n'.format(data[11]))
+            fWrite.write('cut_volts={}\n'.format(data[12]))
+            fWrite.write('pause_at_end={}\n'.format(data[13]))
+            fWrite.write('gas_pressure={}\n'.format(data[14]))
+            fWrite.write('cut_mode={}\n'.format(data[15]))
             fWrite.write('\n')
     except:
         codeError = True
         errorTempMat.append(lineNum)
         errorLines.append(lineNumOrg)
     materialDict[tmpMatNum] = [data[10], data[3]]
-    RUN(['halcmd', 'setp', 'qtplasmac.material_temp', '{}'.format(tmpMatNum)])
+    RUN(['halcmd', 'setp', '{}'.format(matTmpPin), '{}'.format(tmpMatNum)])
     material[0] = tmpMatNum
     matDelay = time.time()
     while 1:
@@ -590,7 +616,7 @@ def write_temporary_material(data):
             warnMatLoad.append(lineNum)
             errorLines.append(lineNumOrg)
             break
-        response = RUN(['halcmd', 'getp', 'qtplasmac.material_temp'], capture_output = True)
+        response = RUN(['halcmd', 'getp', '{}'.format(matTmpPin)], capture_output = True)
         if not int(response.stdout.decode()):
             break
 
@@ -626,7 +652,7 @@ def rewrite_material_file(newMaterial):
         add_edit_material(newMaterial, outFile)
     inFile.close()
     outFile.close()
-    RUN(['halcmd', 'setp', 'qtplasmac.material_reload', '1'])
+    RUN(['halcmd', 'setp', '{}'.format(matReloadPin), '1'])
     get_materials()
     matDelay = time.time()
     while 1:
@@ -635,7 +661,7 @@ def rewrite_material_file(newMaterial):
             warnMatLoad.append(lineNum)
             errorLines.append(lineNumOrg)
             break
-        response = RUN(['halcmd', 'getp', 'qtplasmac.material_reload'], capture_output = True)
+        response = RUN(['halcmd', 'getp', '{}'.format(matReloadPin)], capture_output = True)
         if not int(response.stdout.decode()):
             break
 
@@ -799,7 +825,7 @@ with open(inPath, 'r') as inCode:
         # check if original is a conversational block
         if line.startswith(';conversational block'):
             convBlock = True
-            RUN(['halcmd', 'setp', 'qtplasmac.conv_block_loaded', '1'])
+            RUN(['halcmd', 'setp', '{}'.format(convBlockPin), '1'])
         # remove whitespace and trailing periods
         line = line.strip().rstrip('.')
         # remove line numbers
@@ -1119,7 +1145,7 @@ with open(inPath, 'r') as inCode:
                 gcodeList.append('#<holes>=0 (disable hole sensing)')
                 holeEnable = False
             if firstMaterial:
-                RUN(['halcmd', 'setp', 'qtplasmac.material_change_number', '{}'.format(firstMaterial)])
+                RUN(['halcmd', 'setp', '{}'.format(matNumPin), '{}'.format(firstMaterial)])
             gcodeList.append(line)
             continue
         # check feed rate

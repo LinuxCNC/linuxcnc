@@ -1,4 +1,4 @@
-VERSION = '1.227.216'
+VERSION = '1.227.217'
 
 '''
 qtplasmac_handler.py
@@ -4303,29 +4303,29 @@ class HandlerClass:
                 for line in f_in:
                     if line.startswith('name'):
                         t_name = line.split('=')[1].strip()
-                    if line.startswith('kerf-width'):
+                    if line.startswith('kerf_width'):
                         k_width = float(line.split('=')[1].strip())
-                    elif line.startswith('pierce-height'):
+                    elif line.startswith('pierce_height'):
                         p_height = float(line.split('=')[1].strip())
-                    elif line.startswith('pierce-delay'):
+                    elif line.startswith('pierce_delay'):
                         p_delay = float(line.split('=')[1].strip())
-                    elif line.startswith('puddle-jump-height'):
+                    elif line.startswith('puddle_jump_height'):
                         pj_height = float(line.split('=')[1].strip())
-                    elif line.startswith('puddle-jump-delay'):
+                    elif line.startswith('puddle_jump_delay'):
                         pj_delay = float(line.split('=')[1].strip())
-                    elif line.startswith('cut-height'):
+                    elif line.startswith('cut_height'):
                         c_height = float(line.split('=')[1].strip())
-                    elif line.startswith('cut-feed-rate'):
+                    elif line.startswith('cut_speed'):
                         c_speed = float(line.split('=')[1].strip())
-                    elif line.startswith('cut-amps'):
+                    elif line.startswith('cut_amps'):
                         c_amps = float(line.split('=')[1].strip())
-                    elif line.startswith('cut-volts'):
+                    elif line.startswith('cut_volts'):
                         c_volts = float(line.split('=')[1].strip())
-                    elif line.startswith('pause-at-end'):
+                    elif line.startswith('pause_at_end'):
                         pause = float(line.split('=')[1].strip())
-                    elif line.startswith('gas-pressure'):
+                    elif line.startswith('gas_pressure'):
                         g_press = float(line.split('=')[1].strip())
-                    elif line.startswith('cut-mode'):
+                    elif line.startswith('cut_mode'):
                         c_mode = float(line.split('=')[1].strip())
             self.write_materials(halpin, t_name, k_width, p_height, \
                                  p_delay, pj_height, pj_delay, c_height, c_speed, \
