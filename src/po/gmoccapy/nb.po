@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-07-09 22:04+0100\n"
-"PO-Revision-Date: 2022-07-12 00:06+0000\n"
+"PO-Revision-Date: 2022-07-12 22:15+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/gmocappy/nb_NO/>\n"
@@ -47,11 +47,11 @@ msgstr "Filstien bør ikke inneholde mellomrom"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:673
 msgid "axis"
-msgstr ""
+msgstr "akse"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:674
 msgid "axes"
-msgstr ""
+msgstr "axer"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:679
 msgid "joint"
@@ -1230,7 +1230,7 @@ msgstr "Vis DTG"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:101
 msgid "<b>Mouse Button mode</b>"
-msgstr ""
+msgstr "<b>Musknappmodus</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:102
 msgid "<b>Preview</b>"
@@ -1298,7 +1298,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:118
 msgid "Scale spindle override"
-msgstr ""
+msgstr "Skaler spindeloverstyring"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:119
 msgid "<b>Hardware MPG Scale</b>"
@@ -1322,7 +1322,7 @@ msgstr "Uten bruk av opplåsingskode"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:124
 msgid "Use hal pin to unlock"
-msgstr ""
+msgstr "Bruk hal-pinne for å låse opp"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:125
 msgid "<b>Unlock settings</b>"
@@ -1330,7 +1330,7 @@ msgstr "<b>Opplåsningsoppsett</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:126
 msgid "Starting RPM"
-msgstr ""
+msgstr "Oppstartdreiehastighet"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:127
 msgid "Spindle bar min"
@@ -1386,7 +1386,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:140
 msgid "Search Vel."
-msgstr ""
+msgstr "Søkehast."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:141
 msgid "Probe Vel."
@@ -1397,7 +1397,6 @@ msgid "<b>Probe velocitys</b>"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:143
-#, fuzzy
 msgid ""
 "No valid configuration\n"
 "found in your INI file,\n"
@@ -1434,6 +1433,9 @@ msgid ""
 "so the reload of a tool at start\n"
 "is not possible."
 msgstr ""
+"Du bruker NO_FORCE_HOMING,\n"
+"så det er ikke mulig å laste samme\n"
+"verktøy inn fra start."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:159
 msgid "<b>Reload Tool</b>"
@@ -1453,13 +1455,15 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:163
 msgid "Use frames"
-msgstr ""
+msgstr "Bruk rammer"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:164
 msgid ""
 "If checked, the messages\n"
 "will be in a frame."
 msgstr ""
+"Hvis markert så vil meldinger\n"
+"være i en ramme."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:166
 msgid "Font"
@@ -1467,7 +1471,7 @@ msgstr "Skrift"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:167
 msgid "Max. messages"
-msgstr ""
+msgstr "Maks meldinger"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:168
 msgid "The font to use"
@@ -1498,6 +1502,8 @@ msgid ""
 "Push here to launch a test message\n"
 "to test your settings."
 msgstr ""
+"Trykk her for å teste innstillingene\n"
+"dine med en testmelding."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:176
 msgid ""
@@ -1532,6 +1538,8 @@ msgid ""
 "Estop the machine\n"
 "[F1]"
 msgstr ""
+"Nødstopp maskinen\n"
+"[F1]"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:185
 msgid ""
@@ -1552,6 +1560,8 @@ msgid ""
 "enter MDI mode to launch G-code commands\n"
 "[F5]"
 msgstr ""
+"Aktiver MDI-modus for å sende inn G-kodekommandoer\n"
+"[F5]"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:191
 msgid "enter auto mode to run programs"
