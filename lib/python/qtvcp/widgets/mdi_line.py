@@ -19,6 +19,8 @@ import linuxcnc
 import hal
 import time
 
+import subprocess
+
 from PyQt5.QtWidgets import QLineEdit, QApplication
 from PyQt5.QtCore import Qt, QEvent, pyqtProperty
 
@@ -204,14 +206,19 @@ class MDI(QLineEdit):
 
     def net(self, netString):
         arguments = len(netString.lower().replace('net',' ').split())
-        if arguments == 2:
-            halpin, signal = netString.lower().replace('net',' ').split()
+        if arguments >= 2:
+            args = ['halcmd', 'net']
+            split = netString.lower().replace('net',' ').split()
+            for arg in split:
+                args.append(arg)
         else:
-            ACTION.SET_ERROR_MESSAGE('NET ERROR:\nnet requires 2 arguments, {} given\n'.format(arguments))
+            ACTION.SET_ERROR_MESSAGE('NET ERROR:\nnet requires at least 2 arguments, {} given\n'.format(arguments))
             return
-        reply = hal.connect(halpin, signal)
-        if reply:
-            ACTION.SET_ERROR_MESSAGE('NET ERROR:\nFailed to link pin "{}" to signal "{}"\n'.format(halpin, signal))
+        reply = subprocess.Popen(args, stderr=subprocess.PIPE)
+        stdout, stderr = reply.communicate()
+        if stderr:
+            error = stderr.decode().replace('<commandline>:0:', '').strip()
+            ACTION.SET_ERROR_MESSAGE('NET ERROR:\n{}\n'.format(error))
 
     def spindle_inhibit(self, state):
         self.spindleInhibit = state

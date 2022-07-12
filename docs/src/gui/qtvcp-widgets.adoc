@@ -1892,12 +1892,10 @@ program or access the feature:
   link:http://linuxcnc.org/docs/devel/html/ladder/classic-ladder.html[ClassicLadder GUI] if the ClassicLadder realtime HAL component was loaded by the machine's config files
 * `PREFERENCE` - Loads the preference file onto the gcodeEditor
 * `CLEAR HISTORY` - Clears the MDI History
-* `net` - Connects a pin to a signal. An error will result if
-  the command is unsuccessful. Running LinuxCNC from terminal
-  may help determine the root cause as error messages from hal_lib.c
-  will be displayed there.
-** _Syntax_: `net <pin name> <signal name>`
-** __Example__: `net motion.jog-stop plasmac:jog-inhibit`
+* `net` - See link:http://linuxcnc.org/docs/devel/html/man/man1/halcmd.1.html#COMMANDS[halcmd net COMMAND].
+  An error will result if the command is unsuccessful.
+** _Syntax_: `net <signal name> <pin name>`
+** __Example__: `net plasmac:jog-inhibit motion.jog-stop`
 * `setp` - Sets the value of a pin or a parameter. Valid values depend
   on the object type of the pin or parameter. An error will result if
   the data types do not match or the pin is connected to a signal.
