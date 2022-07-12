@@ -1879,20 +1879,20 @@ Enter any of these case sensitive commands to load the respective
 program or access the feature:
 
 * `HALMETER` - Starts LinuxCNC utility
-  link:http://linuxcnc.org/docs/devel/html/hal/tools.html#_halmeter[`halmeter`]
+  link:../hal/tools.html#sec:halmeter[`halmeter`]
 * `HALSHOW` - Starts LinuxCNC utility
-  link:http://linuxcnc.org/docs/devel/html/hal/halshow.html#cha:halshow[`halshow`]
+  link:../hal/halshow.html#cha:halshow[`halshow`]
 * `HALSCOPE` - Starts LinuxCNC utility
-  link:http://linuxcnc.org/docs/devel/html/hal/tutorial.html#sec:tutorial-halscope[`halscope`]
+  link:../hal/tutorial.html#sec:tutorial-halscope[`halscope`]
 * `STATUS` - Starts LinuxCNC utility
-  link:https://linuxcnc.org/docs//html/man/man1/linuxcnctop.1.html[`status`]
+  link:../man/man1/linuxcnctop.1.html[`status`]
 * `CALIBRATION` - Starts LinuxCNC utility
-  link:http://linuxcnc.org/docs/devel/html/getting-started/updating-linuxcnc.html#_calibration_emccalib_tcl[`calibration`]
+  link:../getting-started/updating-linuxcnc.html#_calibration_emccalib_tcl[`calibration`]
 * `CLASSICLADDER` - Starts the
-  link:http://linuxcnc.org/docs/devel/html/ladder/classic-ladder.html[ClassicLadder GUI] if the ClassicLadder realtime HAL component was loaded by the machine's config files
+  link:../ladder/classic-ladder.html[ClassicLadder GUI] if the ClassicLadder realtime HAL component was loaded by the machine's config files
 * `PREFERENCE` - Loads the preference file onto the gcodeEditor
 * `CLEAR HISTORY` - Clears the MDI History
-* `net` - See link:http://linuxcnc.org/docs/devel/html/man/man1/halcmd.1.html#COMMANDS[halcmd net COMMAND].
+* `net` - See link:../man/man1/halcmd.1.html#COMMANDS[halcmd net COMMAND].
   An error will result if the command is unsuccessful.
 ** _Syntax_: `net <signal name> <pin name>`
 ** __Example__: `net plasmac:jog-inhibit motion.jog-stop`
