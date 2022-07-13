@@ -122,6 +122,14 @@ else
 endif
 endif
 
+VERSION=$(shell cat ../VERSION)
+dist:
+	mkdir ../linuxcnc-$(VERSION)
+	(cd ../ && git archive master) | (cd ../linuxcnc-$(VERSION) && tar xf -)
+	(cd ../linuxcnc-$(VERSION) && ./debian/configure)
+	(cd ../linuxcnc-$(VERSION)/src && ./autogen.sh)
+	(cd .. && tar zcf linuxcnc-$(VERSION).tar.gz linuxcnc-$(VERSION))
+	rm -rf ../linuxcnc-$(VERSION)
 
 # Print 'entering' all the time
 MAKEFLAGS += w
