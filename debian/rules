@@ -28,11 +28,12 @@ TIMESTAMP=$(shell dpkg-parsechangelog -S timestamp)
 export DATE=$(shell LANG=C date --date='@$(TIMESTAMP)' '+%d\ %b\ %Y')
 export TIME=$(shell LANG=C date --date='@$(TIMESTAMP)' '+%T')
 
-kernel_version = @KERNEL_VERSION@
-configure_realtime_arg = @CONFIGURE_REALTIME_ARG@
-enable_build_documentation = @ENABLE_BUILD_DOCUMENTATION@
-DESTDIR=$(CURDIR)/debian/@MAIN_PACKAGE_NAME@
-DEV_PACKAGE_NAME=@MAIN_PACKAGE_NAME@-dev
+ifeq ($(filter nodoc,$(DEB_BUILD_OPTIONS)),)
+enable_build_documentation = --enable-build-documentation=pdf
+endif
+MAIN_PACKAGE_NAME = linuxcnc-uspace
+DESTDIR=$(CURDIR)/debian/linuxcnc-uspace
+DEV_PACKAGE_NAME=linuxcnc-uspace-dev
 
 %:
 	# With debhelper 10 the --parallel becomes the default
@@ -43,7 +44,7 @@ override_dh_auto_configure:
 	cd src && PYTHON=/usr/bin/python3 ./configure \
 	    --prefix=/usr --sysconfdir=/etc \
 	    --mandir=/usr/share/man \
-	    $(configure_realtime_arg) \
+	    --with-realtime=uspace \
 	    $(enable_build_documentation) \
 	    --disable-check-runtime-deps
 
@@ -51,7 +52,7 @@ override_dh_auto_build-arch:
 	$(MAKE) PYTHON=/usr/bin/python3 -C src
 
 override_dh_auto_build-indep:
-ifneq "$(enable_build_documentation)" ""
+ifeq ($(filter nodoc,$(DEB_BUILD_OPTIONS)),)
 	$(MAKE) PYTHON=/usr/bin/python3 -C src manpages
 	$(MAKE) PYTHON=/usr/bin/python3 -C src translateddocs
 	$(MAKE) PYTHON=/usr/bin/python3 -C src docs
@@ -70,7 +71,7 @@ override_dh_auto_install:
 	# avoid installing into already existing directory
 	rm -rf $(DESTDIR)
 	# executing regular installation with regular prefix but unterneath the debian folder
-	DESTDIR=$(DESTDIR) $(MAKE) -C src install
+	$(MAKE) -C src DESTDIR=$(DESTDIR) install
 	# Version 0.22 and newer of the desktop-file-validate program
 	# (in Jessie and newer) can deal with multiple files specified
 	# on the command line.	Version 0.20 (in Wheezy) says it can,
@@ -79,13 +80,13 @@ override_dh_auto_install:
 		desktop-file-validate $$F; \
 	done
 	# Adding files that are Debian-specific
-	cd debian/@EXTRAS@ && cp -a * $(DESTDIR)
-	DESTDIR=$(DESTDIR) $(MAKE) -C src INSTALL=install
+	cd debian/extras && cp -a * $(DESTDIR)
+	$(MAKE) -C src DESTDIR=$(DESTDIR) INSTALL=install
 	py3clean .
 	# In case that only the indep packages are built
 	if ls lib|egrep -q "*.a$$"; then \
-		mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/lib ; \
-		cp lib/*.a debian/$(DEV_PACKAGE_NAME)/usr/lib ; \
+		mkdir -p debian/linuxcnc-uspace-dev/usr/lib ; \
+		cp lib/*.a debian/linuxcnc-uspace-dev/usr/lib ; \
 	fi
 	mkdir -p $(DESTDIR)/usr/share/doc/linuxcnc
 	cp docs/html/gcode*.html $(DESTDIR)/usr/share/doc/linuxcnc/
@@ -109,9 +110,9 @@ override_dh_auto_install:
 	# The translated developer documentation goes to the respective regular -doc package
 	# english documentation has no "en" suffix
 	if [ -r $(DESTDIR)/usr/share/doc/linuxcnc/LinuxCNC_Developer.pdf ]; then \
-		mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/share/doc/linuxcnc-dev; \
-		mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/doc/linuxcnc-dev/ $(DESTDIR)/usr/share/doc/linuxcnc/LinuxCNC_Developer.pdf; \
-		mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/doc/linuxcnc-dev/ $(DESTDIR)/usr/share/doc/linuxcnc/LinuxCNC_Developer_*.pdf; \
+		mkdir -p debian/linuxcnc-uspace-dev/usr/share/doc/linuxcnc-dev; \
+		mv -t debian/linuxcnc-uspace-dev/usr/share/doc/linuxcnc-dev/ $(DESTDIR)/usr/share/doc/linuxcnc/LinuxCNC_Developer.pdf; \
+		mv -t debian/linuxcnc-uspace-dev/usr/share/doc/linuxcnc-dev/ $(DESTDIR)/usr/share/doc/linuxcnc/LinuxCNC_Developer_*.pdf; \
 		for lang in zh_CN es fr; do \
 			p=$$(echo $$lang | tr _ - | tr A-Z a-z); \
 			d=debian/linuxcnc-doc-$$p/usr/share/doc/linuxcnc ; \
@@ -125,26 +126,29 @@ override_dh_auto_install:
 	cd $(DESTDIR)/usr/share/doc/linuxcnc/examples && ln -sf ../../../linuxcnc/ncfiles ./nc_files
 
 	# -dev
-	mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/include
-	mv -t debian/$(DEV_PACKAGE_NAME)/usr/include $(DESTDIR)/usr/include/linuxcnc
+	mkdir -p debian/linuxcnc-uspace-dev/usr/include
+	mv -t debian/linuxcnc-uspace-dev/usr/include $(DESTDIR)/usr/include/linuxcnc
 
 	# In case that only the indep packages are built
 	if ls $(DESTDIR)/usr/lib/*.a $(DESTDIR)/usr/lib/*.so | egrep -q "*.(a|so)$$"; then \
-		mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/lib; \
-		mv -t debian/$(DEV_PACKAGE_NAME)/usr/lib/ $(DESTDIR)/usr/lib/*.a $(DESTDIR)/usr/lib/*.so; \
-		mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/bin; \
-		mv -t debian/$(DEV_PACKAGE_NAME)/usr/bin $(DESTDIR)/usr/bin/halcompile; \
-		mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/share/man/man1; \
-		mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/man/man1  $(DESTDIR)/usr/share/man/man1/halcompile.1; \
-		mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/man $(DESTDIR)/usr/share/man/man3; \
-		mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/share/linuxcnc; \
-		mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/linuxcnc $(DESTDIR)/usr/share/linuxcnc/Makefile.modinc; \
+		mkdir -p debian/linuxcnc-uspace-dev/usr/lib; \
+		mv -t debian/linuxcnc-uspace-dev/usr/lib/ $(DESTDIR)/usr/lib/*.a $(DESTDIR)/usr/lib/*.so; \
+		mkdir -p debian/linuxcnc-uspace-dev/usr/bin; \
+		mv -t debian/linuxcnc-uspace-dev/usr/bin $(DESTDIR)/usr/bin/halcompile; \
+		mkdir -p debian/linuxcnc-uspace-dev/usr/share/man/man1; \
+		mv -t debian/linuxcnc-uspace-dev/usr/share/man/man1  $(DESTDIR)/usr/share/man/man1/halcompile.1; \
+		mv -t debian/linuxcnc-uspace-dev/usr/share/man $(DESTDIR)/usr/share/man/man3; \
+		mkdir -p debian/linuxcnc-uspace-dev/usr/share/linuxcnc; \
+		mv -t debian/linuxcnc-uspace-dev/usr/share/linuxcnc $(DESTDIR)/usr/share/linuxcnc/Makefile.modinc; \
 	fi
-	#mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/share/doc/
-	#mkdir -t debian/$(DEV_PACKAGE_NAME)/usr/share/doc/ $(DESTDIR)/usr/share/doc/linuxcnc-dev/
+	#mkdir -p debian/linuxcnc-uspace-dev/usr/share/doc/
+	#mkdir -t debian/linuxcnc-uspace-dev/usr/share/doc/ $(DESTDIR)/usr/share/doc/linuxcnc-dev/
 	# not a package: drivers
 	#mkdir -p debian/drivers/usr/bin
 	#mv -t debian/drivers/usr/bin $(DESTDIR)/usr/bin/pci_write $(DESTDIR)/usr/bin/pci_read
+
+	# Install Appstream XML
+	install -D debian/linuxcnc-uspace.metainfo.xml $(DESTDIR)/usr/share/metainfo/linuxcnc-uspace.metainfo.xml
 
 	# some clean-up
 	#rm -rf $(DESTDIR)/usr/share/doc/linuxcnc/html
@@ -163,5 +167,5 @@ override_dh_fixperms:
 	DEB_HOST_ARCH=`dpkg-architecture -qDEB_HOST_ARCH` dh_python3
 
 override_dh_shlibdeps:
-	cat debian/@MAIN_PACKAGE_NAME@/DEBIAN/shlibs debian/shlibs.pre > debian/shlibs.local
-	dh_shlibdeps -u--warnings=0 -l debian/@MAIN_PACKAGE_NAME@/usr/lib
+	cat debian/linuxcnc-uspace/DEBIAN/shlibs debian/shlibs.pre > debian/shlibs.local
+	dh_shlibdeps -u--warnings=0 -l debian/linuxcnc-uspace/usr/lib
