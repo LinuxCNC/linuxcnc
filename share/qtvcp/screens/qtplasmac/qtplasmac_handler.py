@@ -1,4 +1,4 @@
-VERSION = '1.227.217'
+VERSION = '1.227.218'
 
 '''
 qtplasmac_handler.py
@@ -120,15 +120,15 @@ class HandlerClass:
         self.PATHS = paths
         self.iniFile = INFO.INI
         self.foreColor = '#ffee06'
-
-        # ensure M190 is up to date
-        if not 'M190' in self.PATHS.CONFIGPATH:
+        # ensure M190 exists in config directory
+        if not os.path.isfile(os.path.join(self.PATHS.CONFIGPATH, 'M190')):
             if '/usr' in self.PATHS.BASEDIR:
                 m190Path = os.path.join(self.PATHS.BASEDIR, 'share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac')
             else:
                 m190Path = os.path.join(self.PATHS.BASEDIR, 'configs/by_machine/qtplasmac')
-            COPY(os.path.join(m190Path, 'M190'), os.path.join(self.PATHS.CONFIGPATH, 'M190'))
-
+            # M190 already exists for RIP sims
+            if os.path.realpath(m190Path) != os.path.realpath(self.PATHS.CONFIGPATH):
+                COPY(os.path.join(m190Path, 'M190'), os.path.join(self.PATHS.CONFIGPATH, 'M190'))
         self.machineName = self.iniFile.find('EMC', 'MACHINE')
         self.unitsPerMm = 1
         self.units = self.iniFile.find('TRAJ', 'LINEAR_UNITS')
