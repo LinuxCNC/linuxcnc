@@ -20,7 +20,7 @@ QtPlasmaC and all of its related software are released under GPLv2.
 
 == Introduction
 
-QtPlasmaC is a GUI for plasma cutting which utilises the link:http://linuxcnc.org/docs/devel/html/man/man9/plasmac.9.html[plasmac component] for controlling a plasma table from LinuxCNC v2.9 or later using the Debian Buster or similar distribution.
+QtPlasmaC is a GUI for plasma cutting which utilises the link:../man/man9/plasmac.9.html[plasmac component] for controlling a plasma table from LinuxCNC v2.9 or later using the Debian Buster or similar distribution.
 
 The QtPlasmaC GUI supports up to five axes and uses the QtVCP infrastructure provided with LinuxCNC.
 
@@ -55,7 +55,7 @@ It is possible to install and run LinuxCNC on a variety of Linux distributions h
 
 === If The User Does Not Have Linux Installed
 
-Installation instructions are available at: http://linuxcnc.org/docs/devel/html/getting-started/getting-linuxcnc.html
+Installation instructions are available at: link:../getting-started/getting-linuxcnc.html
 
 Following these instructions will yield a machine with the current stable branch (v2.8) of LinuxCNC on Debian Buster.
 
@@ -72,7 +72,7 @@ deb-src http://buildbot.linuxcnc.org/ buster master-rtpreempt
 
 === Run In Place Installation If The User Has Linux with LinuxCNC v2.8
 
-A run in place installation runs LinuxCNC from a locally compiled version usually located at ~/linuxcnc-dev, instructions for building a run in place installation are available at: http://linuxcnc.org/docs/master/html/code/building-linuxcnc.html
+A run in place installation runs LinuxCNC from a locally compiled version usually located at ~/linuxcnc-dev, instructions for building a run in place installation are available at: link:../code/building-linuxcnc.html
 
 Following these instructions will install the latest master branch (v2.9) of LinuxCNC.
 
@@ -485,9 +485,9 @@ Each increment of delay adds one servo thread cycle to the debounce time. For ex
 
 For the Float and Ohmic switches this equates to a 0.001mm (0.00004") increase in the probed height result.
 
-It is recommended to keep the debounce values as low as possible while still achieving consistent results. Using link:http://linuxcnc.org/docs/2.8/html/hal/tutorial.html#_halscope[Halscope] to plot the inputs is a good way to establish the correct value.
+It is recommended to keep the debounce values as low as possible while still achieving consistent results. Using link:../hal/tutorial.html#sec:tutorial-halscope[Halscope] to plot the inputs is a good way to establish the correct value.
 
-For QtPlasmaC installations, debounce is achieved by using the HAL link:http://linuxcnc.org/docs/2.8/html/man/man9/dbounce.9.html[dbounce component] which is a later alternative to the original debounce component. This new version allows for the loading and naming of individual debounce instances and is compatible with Twopass HAL file processing.
+For QtPlasmaC installations, debounce is achieved by using the HAL link:../man/man9/dbounce.9.html[dbounce component] which is a later alternative to the original debounce component. This new version allows for the loading and naming of individual debounce instances and is compatible with Twopass HAL file processing.
 
 All four signals above have an individual debounce component so the debounce periods can be catered individually to each input. Any changes made to these values in the custom.hal file will not be overwritten by later updates of QtPlasmaC.
 
@@ -721,7 +721,7 @@ DISPLAY = qtvcp qtplasmac      (use 16:9 resolution)
 ----
 
 There are multiple QtVCP options that are described here:
-link:http://linuxcnc.org/docs/devel/html/gui/qtvcp.html#_ini_settings[QtVCP INI Settings]
+link:../gui/qtvcp.html#_ini_settings[QtVCP INI Settings]
 
 For example the following would start a 16:9 resolution QtPlasmaC screen in full screen mode:
 
@@ -1250,11 +1250,11 @@ To return any of the color changes to their default values, see the <<qt_default
 
 Some standard LinuxCNC utilities are provided as an aid in the diagnosis of issues that may arise:
 
-- link:http://linuxcnc.org/docs/devel/html/hal/halshow.html#cha:halshow[Halshow]
-- link:http://linuxcnc.org/docs/devel/html/hal/tutorial.html#sec:tutorial-halscope[Halscope]
-- link:http://linuxcnc.org/docs/devel/html/hal/tutorial.html#sec:tutorial-halmeter[Halmeter]
-- link:http://linuxcnc.org/docs/devel/html/getting-started/updating-linuxcnc.html#_calibration_emccalib_tcl[Calibration]
-- link:https://linuxcnc.org/docs//html/man/man1/linuxcnctop.1.html[Status]
+- link:../hal/halshow.html#cha:halshow[Halshow]
+- link:../hal/tutorial.html#sec:tutorial-halscope[Halscope]
+- link:../hal/tutorial.html#sec:tutorial-halmeter[Halmeter]
+- link:../getting-started/updating-linuxcnc.html#_calibration_emccalib_tcl[Calibration]
+- link:../man/man1/linuxcnctop.1.html[Status]
 
 In addition the following two QtPlasmaC specific utilities are provided:
 
@@ -1318,7 +1318,7 @@ Imperial:
 G20 G40 G49 G64p0.004 G80 G90 G92.1 G94 G97
 ----
 
-A detailed explanation of each G-Code can be found in the docs link:http://linuxcnc.org/docs/html/gcode/g-code.html[here].
+A detailed explanation of each G-Code can be found in the docs link:../gcode/g-code.html[here].
 
 Note that throughout this user guide there are several additional recommendations for codes that are prudent to add to both the preamble and postamble depending on the features the user wishes to utilize.
 
@@ -2493,7 +2493,7 @@ In order to utilize them, *KB Shortcuts* must be enabled in the *GUI SETTINGS* s
 [[qt_mdi]]
 === MDI
 
-In addition to the typical G and M codes that are allowed by LinuxCNC in MDI mode, the MDI in QtPlasmaC can be used to access several other handy features. The following link outlines the features and their use:  link:http://linuxcnc.org/docs/devel/html/gui/qtvcp_widgets.html#_mdiline_widget[MDILine Widget]
+In addition to the typical G and M codes that are allowed by LinuxCNC in MDI mode, the MDI in QtPlasmaC can be used to access several other handy features. The following link outlines the features and their use:  link:../gui/qtvcp-widgets.html#_mdiline_widget[MDILine Widget]
 
 [NOTE]
 M3, M4, and M5 are not allowed in the QtPlasmaC MDI.
