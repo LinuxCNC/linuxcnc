@@ -887,8 +887,8 @@ def document(filename, outfilename):
     print("""
 .\\"*******************************************************************
 .\\"
-.\\" This file was generated with halcompile.g.
-.\\" Modify the source file %s.
+.\\" This file was extracted from %s using halcompile.g.
+.\\" Modify the source file.
 .\\"
 .\\"*******************************************************************
 """ % filename, file=f)
