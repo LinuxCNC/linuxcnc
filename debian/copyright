@@ -393,14 +393,14 @@ Files:
  lib/python/rs274/OpenGLTk.py
 Copyright:      Mike Hartshorn
                 Department of Chemistry, University of York, UK
-Copyright: BSD-3-Clause
+License: BSD-3-Clause
 
 Files:
  lib/python/qtvcp/widgets/stylesheeteditor.py
  lib/python/qtvcp/widgets/nurbs_editor.py
 Copyright: 2010 Hans-Peter Jansen <hpj@urpla.net>.
                 Nokia Corporation and/or its subsidiary(-ies).
-Copyright: BSD-3-Clause
+License: BSD-3-Clause
 
 Files: src/rtapi/*
 Copyright: the LinuxCNC developers
