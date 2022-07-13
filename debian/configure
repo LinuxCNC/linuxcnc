@@ -87,7 +87,7 @@ PYTHON_GST=python3-gst-1.0,gstreamer1.0-plugins-base
 TCLTK_VERSION=8.6
 PYTHON_IMAGING=python3-pil
 PYTHON_IMAGING_TK=python3-pil.imagetk
-QTVCP_DEPENDS="python3-pyqt5,\n    python3-pyqt5.qsci,\n    python3-pyqt5.qtsvg,\n    python3-pyqt5.qtopengl,\n    python3-opencv,\n    python3-dbus,python3-espeak,\n    python3-dbus.mainloop.pyqt5,\n    python3-pyqt5.qtwebkit,\n    python3-xlib,\n    espeak-ng,python3-numpy,\n    pyqt5-dev-tools,\n    gstreamer1.0-tools,espeak,\n    sound-theme-freedesktop"
+QTVCP_DEPENDS="python3-pyqt5,\n    python3-pyqt5.qsci,\n    python3-pyqt5.qtsvg,\n    python3-pyqt5.qtopengl,\n    python3-opencv,\n    python3-dbus,python3-espeak,\n    python3-dbus.mainloop.pyqt5,\n    python3-pyqt5.qtwebkit,\n    espeak-ng,\n    pyqt5-dev-tools,\n    gstreamer1.0-tools,espeak,\n    sound-theme-freedesktop"
 YAPPS_RUNTIME="python3-yapps"
 DEBHELPER="debhelper (>= 9)"
 COMPAT="9"
