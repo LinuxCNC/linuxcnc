@@ -1,11 +1,6 @@
 \# Author Andy Pugh
 \# Issued under the terms of the GPL v2 License or any later version
 .TH MATRIX_KB "9" "2013-03-24" "LinuxCNC Documentation" "HAL Component"
-.de TQ
-.br
-.ns
-.TP \\$1
-..
 
 .SH NAME
 
@@ -71,10 +66,11 @@ The pin corresponding to the key at row R column C of the matrix.
 .B matrix_kb.\fIN\fB.keycode\fR unsigned in or out depending on mode. 
 This pin should be connected to the scancode generator if hardware such as a 
 7i73 is being used. In this mode it is an input pin. In the internally-generated
-scanning mode this pin is an output, but will not normally be connected. 
+scanning mode this pin is an output, but will not normally be connected.
+.TP
 .B matrix_kb.\fIN\fB.row\-\fIRR\fB\-out bit out
 The row scan drive pins.Should be connected to external hardware pins connected
-to the keypad. 
+to the keypad.
 
 .SH PARAMETERS
 .TP

@@ -1,0 +1,37 @@
+dynamic_offsets
+
+Se aplica una onda sinusoidal al desplazamiento externo de la coordenada Z
+
+El amplitud y frecuencia de la forma de onda se establecen mediante spinboxes de un panel pyvcp.
+
+La configuración de aceleración máxima y velocidad máxima de coordenadas Z (del archivo ini) se puede modificar con los spinboxes del panel pyvcp.
+
+Uso:
+   1) Estop OFF (F1)
+   2) Máquina ON (F2)
+   3) HOME Todo (Ctrl-Inicio)
+   4) Se inicia una aplicación de halscope 
+      para mostrar los offsets de formas 
+      de onda y la respuesta de 
+      la coordenada z
+   5) Habilitar la forma de onda de  
+      offset dinamico con la casilla 'Habilitar Z'
+      del panel
+   6) Use el panel para ajustar:
+        Forma de onda: amplitud, frecuencia
+        Coordenada Z: max accel, max vel
+
+Notas:
+   La forma de onda dinámica se aplica 
+   con y sin ejecutar un programa.
+
+   MDI no puede iniciarse con offsets 
+   externos que no sean cero: deshabilite 
+   los offsets Z y active/desactive la 
+   máquina para offsets cero.
+
+   Los cambios en max accel y max vel 
+   de Z no se realizan mientras 
+   un programa o movimiento mdi esté 
+   en progreso.
+  

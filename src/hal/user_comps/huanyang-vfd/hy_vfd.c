@@ -163,6 +163,8 @@ static struct option long_options[] = {
                 {"motor-current", 1, 0, 'I'},
                 {"motor-speed", 1, 0, 'S'},
                 {"motor-poles", 1, 0, 'P'},
+                {"register", 1, 0, 'x'},
+                {"regdump", 0, 0, 'y'},
 		{0,0,0,0}
 };
 
@@ -239,6 +241,11 @@ void usage(int argc, char **argv) {
                         "-P or --motor-poles <n>\n"
                         "    Set VFD register PD143 (Number of Motor Poles) to <n>.  This value\n"
                         "    comes from the motor's name plate.\n"
+                        "-x or --register PDnnn=mmm\n"
+                        "    Set the specified register to the specified value at startup\n"
+                        "    Generally a one-time setting. Up to ten registers at a time can be set by repeating the command\n"
+                        "-y or --regdump\n"
+                        "    Print the values of all registers when the VFD is enabled\n"
         );
 }
 
@@ -387,6 +394,20 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 		return -1;
 	}
 
+	if (debug & 0x2) {
+		int reg;
+		printf("Current Register values list\n");
+		for (reg = 1; reg < 184; reg++){
+		    hc_data->function = FUNCTION_READ;
+		    hc_data->data = 0x0000;
+		    hc_data->parameter = reg;
+		    if ((retval = hy_comm(hc_param, hc_data)) != 0){
+			printf("PD%03d = INVALID\n", reg);
+		    } else {
+			printf("PD%03d = %d\n", reg, hc_data->ret_data);
+		    }
+		}
+	}
 
 	if (hc_param->debug) {
 		printf("read_setup: reading setup parameters:\n");
@@ -497,6 +518,21 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 		goto failed;		
         rpm_at_50hz = hc_data->ret_data;
         *(haldata->rated_motor_rev) = (rpm_at_50hz / 50.0) * *haldata->max_freq;
+
+	// Handle explicitly set registers
+	for (int i = 0;hc_param->extra_reg[i] != 0; i++){
+	    hc_data->parameter = hc_param->extra_reg[i];
+	    hc_data->function = FUNCTION_WRITE;
+	    hc_data->data = hc_param->extra_val[i];
+	    if ((retval = hy_comm(hc_param, hc_data)) != 0)
+		goto failed;
+	    hc_data->function = FUNCTION_READ;
+	    if ((retval = hy_comm(hc_param, hc_data)) != 0)
+		goto failed;
+	    if (hc_param->debug)
+		printf ("Register %i successfully set to %i\n",
+		hc_param->extra_reg[i], hc_param->extra_val[i]);
+	}
 
 	if (hc_param->debug) {
 		printf("read_setup: read setup parameters - OK.\n");
@@ -644,7 +680,8 @@ int main(int argc, char **argv)
 	char *device, *parity, *endarg;
 	int opt;
 	int argindex, argvalue;
-
+        int extra_reg[10], extra_val[10];
+        int extra_index = -1;
         float max_freq = 0;
         float base_freq = 0;
         float min_freq = 0;
@@ -659,7 +696,7 @@ int main(int argc, char **argv)
 	baud = 19200;
 	bits = 8;
 	stopbits = 1;
-	debug = FALSE;
+	debug = 0;
 	device = "/dev/ttyS0";
 	parity = "even";
 	slave = 1;
@@ -668,6 +705,16 @@ int main(int argc, char **argv)
 	// process command line options
 	while ((opt=getopt_long(argc, argv, option_string, long_options, NULL)) != -1) {
 		switch(opt) {
+                case 'x':  // not in list, is it an explicit PD number?
+                        if (++extra_index < 10){
+                            retval = sscanf(optarg, "PD%d=%d", &extra_reg[extra_index],&extra_val[extra_index]);
+                            if (retval <0) {
+                                    printf("Too many direct register writes, max is 10");
+                                    goto out_noclose;
+                            }
+                            if (debug & 1) printf("will set register %i to %i\n", extra_reg[extra_index],extra_val[extra_index]);
+                        }
+                        break;
 		case 'b':   // serial data bits, probably should be 8 (and defaults to 8)
 			argindex=match_string(optarg, bitstrings);
 			if (argindex<0) {
@@ -687,7 +734,10 @@ int main(int argc, char **argv)
 			device = strdup(optarg);
 			break;
 		case 'g':
-			debug = 1;
+			debug |= 1;
+			break;
+		case 'y':
+			debug |= 2;
 			break;
 		case 'n':   // module base name
 			if (strlen(optarg) > HAL_NAME_LEN-20) {
@@ -805,7 +855,7 @@ int main(int argc, char **argv)
 		}
 	}
 	
-	if (debug) {
+	if (debug & 1) {
 		printf("%s: device='%s', baud=%d, bits=%d, parity='%s', stopbits=%d, address=%d, debug=%d, PID=%d\n",
 				modname,device, baud, bits, parity, stopbits, slave, debug, getpid());
 	}
@@ -816,7 +866,7 @@ int main(int argc, char **argv)
 
 	/* Assume 19.2k E-8-1 serial settings, device 1 */
 	hycomm_init(&hc_param, device, baud, parity, bits, stopbits);
-	hc_param.debug = debug;
+	hc_param.debug = debug & 1;
 	hc_param.print_errors = 1;
 	
 	/* the open has got to work, or we're out of business */
@@ -992,6 +1042,10 @@ int main(int argc, char **argv)
 	}
 	
 	// read the VFD setup parameters
+        for (;extra_index >= 0; extra_index--){
+                hc_param.extra_reg[extra_index] = extra_reg[extra_index];
+                hc_param.extra_val[extra_index] = extra_val[extra_index];
+        }
         do {
             retval = read_setup(&hc_param, &hc_data, haldata);
             if (retval != 0) {

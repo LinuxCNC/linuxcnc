@@ -41,6 +41,20 @@ halcompile \- Build, compile and install LinuxCNC HAL components
 \fIsudo\fR \fBhalcompile\fR \fB\-\-install\fR \fB\-\-userspace\fR cfile...
 .PP
 \fIsudo\fR \fBhalcompile\fR \fB\-\-install\fR \fB\-\-userspace\fR pyfile...
+
+.PP
+
+When personalities are used in a comp file, hal instances are exported
+sequentially (typically by the mutually exclusive count= or names= parameters).
+If the number of exports exceeds the maximum number of personalities,
+subsequent personalities are assigned modulo the maximum number of
+personalities allowed.
+
+By default, the maximum number of personalities is 64.  To alter this
+limit, use the \fB--personalities=\fR option with halcompile.  For example,
+to set the maximum of  personality items to 4:
+   [sudo] \fBhalcompile --personalities=4\fR --install ...
+
 .PD
 .SH DESCRIPTION
 \fBhalcompile\fR performs many different functions:

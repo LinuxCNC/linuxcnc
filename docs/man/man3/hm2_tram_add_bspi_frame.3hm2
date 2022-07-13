@@ -6,6 +6,8 @@
 hm2_tram_add_bspi_frame \- add a register-write to the Hostmot2 TRAM
 
 .SH SYNTAX
+.nf
+.B #include <hostmot2-serial.h>
 .HP
 hm2_tram_add_bspi_frame(char *name, int chan, u32 **wbuff, u32 **rbuff)
 

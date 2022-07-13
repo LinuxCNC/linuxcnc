@@ -134,6 +134,13 @@ _
 .TE
 \\}
 """;
+see_also """
+\\fBand\\fR(9),
+\\fBlogic\\fR(9),
+\\fBnot\\fR(9),
+\\fBor2\\fR(9),
+\\fBxor2\\fR(9).
+""";
 license "GPL";
 ;;
 

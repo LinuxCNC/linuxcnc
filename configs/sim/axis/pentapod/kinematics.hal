@@ -1,0 +1,41 @@
+# cartesian coordinates of base and effector joints for pentapod machine
+
+setp pentakins.base.0.x -418.00
+setp pentakins.base.0.y  500.00
+setp pentakins.base.0.z -140.00
+
+setp pentakins.base.1.x  418.00
+setp pentakins.base.1.y  500.00
+setp pentakins.base.1.z -140.00
+
+setp pentakins.base.2.x    0.00
+setp pentakins.base.2.y  500.00
+setp pentakins.base.2.z -310.00
+
+setp pentakins.base.3.x  418.00
+setp pentakins.base.3.y  500.00
+setp pentakins.base.3.z  510.00
+
+setp pentakins.base.4.x -418.00
+setp pentakins.base.4.y  500.00
+setp pentakins.base.4.z  510.00
+
+
+setp pentakins.effector.0.r   80.30
+setp pentakins.effector.0.z   87.00
+
+setp pentakins.effector.1.r   80.30
+setp pentakins.effector.1.z  114.50
+
+setp pentakins.effector.2.r   80.30
+setp pentakins.effector.2.z  140.50
+
+setp pentakins.effector.3.r   80.30
+setp pentakins.effector.3.z  232.50
+
+setp pentakins.effector.4.r   80.30
+setp pentakins.effector.4.z  258.50
+
+setp pentakins.max-error 1000.0
+#setp pentakins.screw-lead 10.0
+#setp pentakins.spindle-offset 0.0

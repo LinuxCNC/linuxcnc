@@ -2,9 +2,7 @@
 ################################################################################
 # usage: linuxcnc [options] [<ini-file>]
 #
-# options:
-#     -v = verbose - prints info as it works
-#     -d = echos script commands to screen for debugging
+# options: see usage() function below
 #
 # this version calls pickconfig.tcl to pick an ini file if one
 # is not specified on the command line
@@ -32,6 +30,8 @@ exec_prefix=@exec_prefix@
 
 PIDOF="@PIDOF@ -x"
 PS=@PS@
+AWK=@AWK@
+GREP=@GREP@
 IPCS=@IPCS@
 KILL=@KILL@
 
@@ -48,7 +48,17 @@ REALTIME=@REALTIME@
 LINUXCNC_IMAGEDIR=@EMC2_IMAGE_DIR@
 LINUXCNC_TCL_LIB_DIR=@EMC2_TCL_LIB_DIR@
 HALLIB_DIR=@HALLIB_DIR@; export HALLIB_DIR
+
+#HALLIB_PATH: see also -H option
 HALLIB_PATH=.:$HALLIB_DIR; export HALLIB_PATH
+
+# put ~.local/bin in PATH if missing. See:
+# https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=839155
+if [ -d $HOME/.local/bin ]; then
+    if [[ "$PATH" != *".local/bin"* ]]; then
+        PATH=$HOME/.local/bin:$PATH
+    fi
+fi
 
 #put the LINUXCNC_BIN_DIR in PATH
 PATH=$LINUXCNC_BIN_DIR:$PATH
@@ -82,23 +92,38 @@ program_available () {
 }
 
 usage () {
-	P=${0##*/}
-	cat <<EOF
+    P=${0##*/}
+    cat <<EOF
 $P: Run LINUXCNC
 
 Usage:
-	$P [-d] [-v]
-		Choose the configuration file graphically
+  $ $P -h
+    This help
 
-	$P [-k] [-d] [-v] path/to/your.ini
-		Name the configuration file using its path
+  $ $P [Options]
+    Choose the configuration inifile graphically
 
-	$P [-k] [-d] [-v] -l
-		Use the previous configuration file
+  $ $P [Options] path/to/your_ini_file
+    Name the configuration inifile using its path
 
-	-d: Turn on "debug" mode
-	-v: Turn on "verbose" mode
-        -k: Continue in the presence of errors in .hal files
+  $ $P [Options] -l
+    Use the previously used configuration inifile
+
+Options:
+    -d: Turn on "debug" mode
+    -v: Turn on "verbose" mode
+    -k: Continue in the presence of errors in .hal files
+    -t "tpmodulename [parameters]"
+            specify custom trajectory_planning_module
+            overrides optional ini setting [TRAJ]TPMOD
+    -m "homemodulename [parameters]"
+            specify custom homing_module
+            overrides optional ini setting [EMCMOT]HOMEMOD
+    -H "dirname": search dirname for Halfiles before searching
+                  ini directory and system library:
+                  $HALLIB_DIR
+Note:
+    The -H "dirname" option may be specified multiple times
 EOF
 
 }
@@ -106,7 +131,7 @@ EOF
 ################################################################################
 # 1.1. strip and process command line options
 ################################################################################
-while getopts "dvlhkr" opt
+while getopts "dvlhkrH:t:m:" opt
 do
 	case "$opt" in
 	d)
@@ -131,6 +156,25 @@ do
 	h)
 		usage
 		exit 0;;
+    H)  # -H dirname: prepend dirname to HALLIB_PATH
+        if [ -d $OPTARG ]; then
+            HALLIB_PATH=$(cd $OPTARG;pwd):$HALLIB_PATH
+            echo "HALLIB_PATH = $HALLIB_PATH"
+        else
+            echo "Invalid dirname specified: -H $OPTARG"
+            exit 1
+        fi
+        ;;
+    t)  # -t modname: user-supplied trajectory planning module
+        # modname must conform to tpmod api,
+        # and be located in: $LINUXCNC_RTLIB_DIR
+        TPMOD=$OPTARG
+        ;;
+    m)  # -m modname: user-supplied homing module
+        # modname must conform to homing api,
+        # and be located in: $LINUXCNC_RTLIB_DIR
+        HOMEMOD=$OPTARG
+        ;;
 	*)
 		usage
 		exit 1
@@ -142,7 +186,7 @@ case "@KERNEL_VERS@" in
 "") ;;
 *)
     if [ `uname -r` != "@KERNEL_VERS@" ]; then
-        if tty -s; then
+        if tty -s || [ -z "$DISPLAY" ]; then
             echo "LinuxCNC requires the real-time kernel @KERNEL_VERS@ to run."
             echo "Before running LinuxCNC, reboot and choose this kernel at the boot menu."
         else
@@ -278,7 +322,7 @@ function handle_includes () {
   hdr="# handle_includes():"
   inifile="$1"
   cd "$(dirname $inifile)" ;# for the function() subprocess only
-  grep "^#INCLUDE" "$inifile" >/dev/null
+  $GREP "^#INCLUDE" "$inifile" >/dev/null
   status=$?
   if [ $status -ne 0 ] ; then
     echo "$inifile" ;# just use the input
@@ -344,8 +388,8 @@ function run_applications () {
              exe_name="$(pwd)/$app_name";;
           *) # try local first then PATH
              exe_name=$(pwd)/$app_name
-             if [ ! -x $exe_name ] ; then
-               exe_name=$(which $app_name)
+             if [ ! -x "$exe_name" ] ; then
+               exe_name=$(command -v $app_name)
              fi
        esac
        if [ ! -f "$exe_name" ] ; then
@@ -434,13 +478,26 @@ if [ "$retval" != "1.1" ]; then
         echo "ini file [EMC]VERSION indicates update is needed, but the update GUI can't run without an X display"
         exit 1
     fi
-    update_ini -d $INIFILE
+    update_ini -d "$INIFILE"
     exitval=$?
     case "$exitval" in
     0) ;;
     42) echo "update_ini cancelled by user" ; exit 0;;
     *) echo "update script failed in an unexpected way."; exit $exitval ;;
     esac
+fi
+
+# 2.1.6 check if PlasmaC config, if true it requires migration to QtPlasmaC
+if [ `$INIVAR -ini "$INIFILE" -var MODE -sec PLASMAC 2> /dev/null` ]; then
+    echo -e "\nThis is a PlasmaC configuration, it requires migrating to QtPlasmac.\n"
+    exitstr=$(qtplasmac-plasmac2qt "$INIFILE")
+    exitval=$?
+    case "$exitval" in
+        0) echo -e "$exitstr";;
+        2) echo -e "Migration cancelled by user.\nPlasmaC is not available in LinuxCNC 2.9 and later.\n";;
+        *) echo -e "QtPlasmaC migration failed with an unknown error.\n";;
+    esac
+    exit 0
 fi
 
 @TCLSH@ $HALLIB_DIR/check_config.tcl "$INIFILE"
@@ -458,6 +515,18 @@ RS274NGC_PARAMFILE=$retval
 # 2.3. get mot information
 GetFromIniEx MOT MOT EMCMOT EMCMOT motmod
 EMCMOT=$retval$MODULE_EXT # add module extension
+
+# commandline -t option supersedes inifile setting
+if [ -z "$TPMOD" ] ; then
+    GetFromIniQuiet TPMOD   TRAJ
+    TPMOD=${retval:-tpmod} #use default if not found
+fi
+# commandline -m option supersedes inifile setting
+if [ -z "$HOMEMOD" ] ; then
+    GetFromIniQuiet HOMEMOD EMCMOT
+    HOMEMOD=${retval:-homemod} #use default if not found
+fi
+
 
 # 2.4. get io information
 GetFromIniEx IO IO EMCIO EMCIO io
@@ -521,15 +590,20 @@ function KillTaskWithTimeout() {
 	echo "Could not find pid(s) for task $KILL_TASK"
 	return -1
     fi
+    local NPROCS
     for KILL_PID in $KILL_PIDS ; do
-	echo "Killing task $KILL_TASK, PID=$KILL_PID" >>$PRINT_FILE
+        if $PS -o comm= $KILL_PID | $GREP -q '<defunct>'; then
+            echo "Skipping defunct task $KILL_TASK, PID=$KILL_PID" >>$PRINT_FILE
+            continue
+        fi
 	# first a "gentle" kill with signal TERM
 	$KILL $KILL_PID
 	WAIT=$KILL_TIMEOUT
-	# wait and see if it dissappears
+	# wait and see if it disappears
 	while [ $WAIT -gt 1 ] ; do
 	    # see if it's still alive
-	    if $PS $KILL_PID >>$DEBUG_FILE ; then
+            NPROCS=$($PS -o comm= $KILL_PID | $GREP -v '<defunct>' | wc -l)
+            if [ $NPROCS -gt 0 ]; then
 		WAIT=$(($WAIT-1))
 		sleep .1
 	    else
@@ -541,10 +615,11 @@ function KillTaskWithTimeout() {
 	    echo "Timeout, trying kill -9" >>$PRINT_FILE
 	    $KILL -9 $KILL_PID
 	    WAIT=$KILL_TIMEOUT
-	    # wait and see if it dissappears
+	    # wait and see if it disappears
 	    while [ $WAIT -gt 1 ] ; do
 		# see if it's still alive
-		if $PS $KILL_PID >>$DEBUG_FILE ; then
+                NPROCS=$($PS -o comm= $KILL_PID | $GREP -v '<defunct>' | wc -l)
+                if [ $NPROCS -gt 0 ]; then
 		    WAIT=$(($WAIT-1))
 		    sleep .1
 		else
@@ -555,9 +630,9 @@ function KillTaskWithTimeout() {
 	if [ $WAIT -gt 0 ] ; then
 	    echo "Could not kill task $KILL_TASK, PID=$KILL_PID"
 	fi
-	KILL_PIDS=
-	KILL_TASK=
     done
+    KILL_PIDS=
+    KILL_TASK=
 }
 
 
@@ -606,7 +681,7 @@ function Cleanup() {
     fi
 
     # now kill all the other user space components
-    for KILL_TASK in linuxcncsvr milltask; do
+    for KILL_TASK in linuxcncsvr motion-logger milltask; do
 	if $PIDOF $KILL_TASK >>$DEBUG_FILE ; then
 	    KillTaskWithTimeout
 	fi
@@ -655,6 +730,9 @@ if [ -f $LOCKFILE ]; then
   if tty -s; then
     echo -n "LinuxCNC is still running.  Restart it? [Y/n] "
     read input; [ -z $input ] && input=y
+  elif [ -z "$DISPLAY" ]; then
+    echo "No display, no tty, trying to clean up other instance automatically"
+    input=y
   else
     input=$(@WISH@ <<EOF
 wm wi .
@@ -764,6 +842,10 @@ fi
 
 # 4.3.6. execute HALCMD config files (if any)
 
+echo "$(basename $0) TPMOD=$TPMOD HOMEMOD=$HOMEMOD EMCMOT=${EMCMOT%.*}"
+eval $HALCMD loadrt "$TPMOD"
+eval $HALCMD loadrt "$HOMEMOD"
+
 TWOPASS=`$INIVAR -ini "$INIFILE" -var TWOPASS -sec HAL -num 1 2> /dev/null`
 if [ -n "$TWOPASS" ] ; then
   # 4.3.6.1. if [HAL]TWOPASS is defined, handle all [HAL]HALFILE entries here:
@@ -839,6 +921,7 @@ else
         CFGFILE=`$INIVAR -tildeexpand -ini "$INIFILE" -var HALFILE -sec HAL -num $NUM 2> /dev/null`
     done
 fi
+
 
 # 4.3.7. Run task in background
 echo "Starting TASK program: $EMCTASK" >>$PRINT_FILE

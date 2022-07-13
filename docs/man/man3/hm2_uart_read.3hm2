@@ -6,6 +6,8 @@
 hm2_uart_read \- read data from a Hostmot2 UART buffer
 
 .SH SYNTAX
+.nf
+.B #include <hostmot2-serial.h>
 .HP
 int hm2_uart_read(char *name, unsigned char *data)
 
@@ -21,7 +23,7 @@ channel.It should be used inside a realtime HAL component registered with the
 main hostmot2 driver using the function hm2_uart_set_read_function in the setup
 code. 
 
-Note that the UART Receieve FIFO is only 16 bytes deep,(the transmit FIFO is 64 
+Note that the UART Receive FIFO is only 16 bytes deep,(the transmit FIFO is 64 
 bytes) and "data" needs to be at least that large or undefined mayhem will ensue. 
 
 .SH RETURN VALUE

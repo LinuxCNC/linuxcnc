@@ -1,13 +1,8 @@
 \# Author Andy Pugh
 \# Issued under the terms of the GPL v2 License or any later version
 .TH SSERIAL "9" "2008-05-13" "LinuxCNC Documentation" "HAL Component"
-.de TQ
-.br
-.ns
-.TP \\$1
-..
-.SH NAME
 
+.SH NAME
 hostmot2 - Smart Serial LinuxCNC HAL driver for the Mesa Electronics HostMot2 
 Smart-Serial remote cards
 .SH SYNOPSIS
@@ -16,7 +11,7 @@ Mesa Anything-IO cards and a range of subsidiary devices termed "smart-serial
 remotes".
 The remote cards perform a variety of functions, but typically they combine 
 various classes of IO. 
-The remot cards are self-configuring, in that they tell the main LinuxCNC 
+The remote cards are self-configuring, in that they tell the main LinuxCNC 
 Hostmot2 driver what their pin functions are and what they should be named. 
 
 Many sserial remotes offer different pinouts depending on the mode they are 
@@ -272,7 +267,7 @@ should match a sticker on the card. This can be useful for working out which
 card is which.
 
 (u32 ro) .7i76.0.0.nvwatchdogtimeout: The sserial remote watchdog timeout. This
-is separate from the Anything-IO card timeout. This is unlikley to need to be 
+is separate from the Anything-IO card timeout. This is unlikely to need to be 
 changed. 
 
 (bit rw) .7i76.0.0.output\-NN\-invert: Invert the sense of the corresponding
@@ -384,7 +379,7 @@ should match a sticker on the card. This can be useful for working out which
 card is which.
 
 (u32 ro) .7i69.0.0.nvwatchdogtimeout: The sserial remote watchdog timeout. This
-is separate from the Anything-IO card timeout. This is unlikley to need to be 
+is separate from the Anything-IO card timeout. This is unlikely to need to be 
 changed. 
 
 (bit rw) .7i69.0.0.output\-NN\-invert: Invert the sense of the corresponding
@@ -434,7 +429,7 @@ should match a sticker on the card. This can be useful for working out which
 card is which.
 
 (u32 ro) .7i70.0.0.nvwatchdogtimeout: The sserial remote watchdog timeout. This
-is separate from the Anything-IO card timeout. This is unlikley to need to be 
+is separate from the Anything-IO card timeout. This is unlikely to need to be 
 changed. 
 
 (u32 ro) .7i69.0.0.swrevision: The onboard firmware revision number. 
@@ -475,7 +470,7 @@ should match a sticker on the card. This can be useful for determining which
 card is which.
 
 (u32 ro) .7i71.0.0.nvwatchdogtimeout: The sserial remote watchdog timeout. This
-is separate from the Anything-IO card timeout. This is unlikley to need to be 
+is separate from the Anything-IO card timeout. This is unlikely to need to be 
 changed. 
 
 (u32 ro) .7i69.0.0.swrevision: The onboard firmware revision number. 
@@ -503,7 +498,7 @@ higher maximum update rates
 Pins:
 
 (float out) .7i73.0.0.analoginN: Analogue inputs. Up to 8 channels may be 
-available dependant on software and hardware configuration modes. 
+available dependent on software and hardware configuration modes. 
 (see the pdf manual downlaodable from www.mesanet.com)
 
 (u32 in) .7i73.0.1.display (modes 1 and 2). Data for LCD display. This pin may

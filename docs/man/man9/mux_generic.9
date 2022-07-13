@@ -1,11 +1,6 @@
 \# Author Andy Pugh
 \# Issued under the terms of the GPL v2 License or any later version
 .TH MUX_GENERIC "9" "2013-05-27" "LinuxCNC Documentation" "HAL Component"
-.de TQ
-.br
-.ns
-.TP \\$1
-..
 
 .SH NAME
 
@@ -23,7 +18,7 @@ point or non-floating point thread.
 .B mux\-gen.\fINN\fB.suppress\-no\-input\fR bit in \fR
 This suppresses changing the output if all select lines are false.
 This stops unwanted jumps in output between transitions of input.
-but makes in00 unavaliable.
+but makes in00 unavailable.
 
 .TP
 .B mux\-gen.\fINN\fB.debounce\-us\fR unsigned in \fR
@@ -32,7 +27,7 @@ The selection inputs must be stable this long before the output changes. This
 helps to ignore 'noisy' switches.
 
 .TP
-.B mux\-gen.\fINN\fB.sel\-bit\fIMM\fB\fR bit in  (M=0..N) \fR
+.B mux\-gen.\fINN\fB.sel\-bit\-\fIMM\fB\fR bit in  (M=0..N) \fR
 .TP
 .B mux\-gen.\fINN\fB.sel\-int\fI\fB\fR unsigned in \fR
 Together, these determine which \fBin\fIN\fR value is copied to \fBoutput\fR.

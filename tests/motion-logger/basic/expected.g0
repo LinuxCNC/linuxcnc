@@ -1,4 +1,4 @@
-SET_LINE x=1.000000, y=2.000000, z=3.000000, a=4.000000, b=5.000000, c=6.000000, u=7.000000, v=8.000000, w=9.000000, id=2, motion_type=1, vel=1.662959, ini_maxvel=1.662959, acc=415.739710, turn=-1
-SET_LINE x=0.100000, y=0.200000, z=0.300000, a=0.400000, b=0.500000, c=0.600000, u=0.700000, v=0.800000, w=0.900000, id=4, motion_type=1, vel=1.662959, ini_maxvel=1.662959, acc=415.739710, turn=-1
+SET_LINE x=1, y=2, z=3, a=4, b=5, c=6, u=7, v=8, w=9, id=2, motion_type=1, vel=1.66296, ini_maxvel=1.66296, acc=415.74, turn=-1
+SET_LINE x=0.1, y=0.2, z=0.3, a=0.4, b=0.5, c=0.6, u=0.7, v=0.8, w=0.9, id=4, motion_type=1, vel=1.66296, ini_maxvel=1.66296, acc=415.74, turn=-1
 SET_SPINDLESYNC sync=0.000000, flags=0x00000000
 SPINDLE_OFF

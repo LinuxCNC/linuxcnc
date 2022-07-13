@@ -24,7 +24,6 @@
 #include "inifile.hh"		// INIFILE
 #include "canon.hh"		// _parameter_file_name
 #include "config.h"		// LINELEN
-#include "tool_parse.h"
 #include <stdio.h>    /* gets, etc. */
 #include <stdlib.h>   /* exit       */
 #include <string.h>   /* strcpy     */
@@ -36,6 +35,10 @@
 #include <readline/history.h>
 #include <glob.h>
 #include <wordexp.h>
+#include <rtapi_string.h>
+
+#include <saicanon.hh>
+#include "tooldata.hh"
 
 InterpBase *pinterp;
 #define interp_new (*pinterp)
@@ -312,7 +315,7 @@ int interpret_from_file( /* ARGUMENTS                  */
 Returned Value: int
   Returns 0 for success, nonzero for failure.  Failures can be caused by:
   1. The file named by the user cannot be opened.
-  2. Any error detected by loadToolTable()
+  2. Any error detected by tooldata_load()
 
 Side Effects:
   Values in the tool table of the machine setup are changed,
@@ -334,7 +337,8 @@ int read_tool_file(  /* ARGUMENTS         */
       tool_file_name = buffer;
     }
 
-  return loadToolTable(tool_file_name, _tools, 0, 0, 0);
+  // no toolTable[] param used
+  return tooldata_load(tool_file_name, 0);
 }
 
 /************************************************************************/
@@ -548,13 +552,27 @@ int main (int argc, char ** argv)
   int log_level = -1;
   std::string interp;
 
+  setvbuf(stdout, NULL, _IONBF, 0);
+  setvbuf(stderr, NULL, _IONBF, 0);
+
   do_next = 2;  /* 2=stop */
   block_delete = OFF;
   print_stack = OFF;
   tool_flag = 0;
-  strcpy(_parameter_file_name, default_name);
+  SET_PARAMETER_FILE_NAME(default_name);
   _outfile = stdout; /* may be reset below */
   go_flag = 0;
+
+#ifdef TOOL_NML //{
+  tool_nml_register((CANON_TOOL_TABLE*)& _sai._tools);
+#else //}{
+  const int random_toolchanger = 0;
+  tool_mmap_creator((EMC_TOOL_STAT*)NULL,random_toolchanger);
+  /* Notes:
+  **   1) sai does not use toolInSpindle,pocketPrepped
+  **   2) sai does not distinguish changer type
+  */
+#endif //}
 
   while(1) {
       int c = getopt(argc, argv, "p:t:v:bsn:gi:l:T");
@@ -563,7 +581,7 @@ int main (int argc, char ** argv)
       switch(c) {
           case 'p': interp = optarg; break;
           case 't': read_tool_file(optarg); tool_flag=1; break;
-          case 'v': strcpy(_parameter_file_name, optarg); break;
+          case 'v': SET_PARAMETER_FILE_NAME(optarg); break;
           case 'b': block_delete = (block_delete == OFF) ? ON : OFF; break;
           case 's': print_stack = (print_stack == OFF) ? ON : OFF; break;
           case 'n': do_next = atoi(optarg); break;

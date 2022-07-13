@@ -27,6 +27,7 @@
 #include <limits.h>
 
 #include "config.h"
+#include "emc/linuxcnc.h"
 #include "inifile.hh"
 
 

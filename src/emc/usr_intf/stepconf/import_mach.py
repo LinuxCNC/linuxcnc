@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- encoding: utf-8 -*-
 #
 #    This is import_mach, a program to convert a mach 3 xml file to stepconf
@@ -23,26 +23,28 @@
 from xml.dom.minidom import parseString
 import sys
 import os
-import gtk
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
 
-filter = gtk.FileFilter()
+filter = Gtk.FileFilter()
 filter.add_pattern("*.xml")
 filter.set_name(_("Mach configuration files"))
-fcd = gtk.FileChooserDialog("Open...",
+fcd = Gtk.FileChooserDialog("Open...",
            None,
-           gtk.FILE_CHOOSER_ACTION_OPEN,
-           (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+           Gtk.FileChooserAction.OPEN,
+           (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
 fcd.set_current_folder(os.path.expanduser('~/Desktop'))
 fcd.add_filter(filter)
 response = fcd.run()
-if response == gtk.RESPONSE_OK:
+if response == Gtk.ResponseType.OK:
   file_name =  fcd.get_filename()
   machinename = os.path.splitext(os.path.basename(fcd.get_filename()))[0]
 fcd.destroy()
-if response == gtk.RESPONSE_CANCEL:
+if response == Gtk.ResponseType.CANCEL:
   quit(1)
-print file_name
-print machinename
+print(file_name)
+print(machinename)
 file = open(file_name,'r')
 #convert to string:
 data = file.read()
@@ -443,7 +445,7 @@ rm = open("README", "wb")
 if len(errors) > 0:
   rm.write("The following errors were found during processing.\n")
   rm.write(errors+"\n")
-  print errors
+  print(errors)
 rm.write("This file can be deleted after running the Stepconf Wizard once.\n")
 rm.write("Copy the generated .stepconf file to the linuxcnc/configs directory.\n")
 rm.write("Run the Stepconf Wizard from the CNC menu.\n")
@@ -455,4 +457,4 @@ rm.write("Allow the test to run for at least a hour then enter the largest Max J
 rm.write("Go through each screen and check for correctness then save when done.")
 rm.close()
 
-print 'Mach import/conversion done'
+print('Mach import/conversion done')

@@ -1,20 +1,22 @@
 import hal
 import linuxcnc
+import json
 
 DBG_state = 0
-DBG_supress = True
+DBG_suppress = True
 def DBG(str):
-    if not DBG_state or DBG_supress: return
-    print str
+    if not DBG_state or DBG_suppress: return
+    print(str)
 
 """ Set of base classes """
 class _WidgetBase:
-    def hal_init(self, comp, name,metadata,command,widgets,dbg):
+    def hal_init(self, master, comp, name,metadata,command,widgets,dbg):
+        self.master = master
         self.hal, self.hal_name = comp, name
         self.metadata = metadata
         self.widgets = widgets
         self.cmd = command
-        global DBG_supress
+        global DBG_suppress
         global DBG_state
         DBG_state = dbg
         self.state = False
@@ -47,6 +49,10 @@ class _WidgetBase:
             self.pintype='COMMAND'
             self.true_command = (self.metadata['TRUE_COMMAND'])
             self.false_command = (self.metadata['FALSE_COMMAND'])
+        elif self.metadata['OUTPUT'] == 'ZMQ':
+            self.pintype='ZMQ'
+            self.true_function = (self.metadata['TRUE_FUNCTION'])
+            self.false_function = (self.metadata['FALSE_FUNCTION'])
         else:
             self.pintype = None
 
@@ -97,7 +103,7 @@ class _ToggleBase(_WidgetBase):
         except:
             pass
         # If not a command output requested make the pins
-        if pintype not in(None,'COMMAND'):
+        if pintype not in(None,'COMMAND','ZMQ'):
             self.hal_pin = self.hal.newpin(self.hal_name, pintype, hal.HAL_OUT)
             self.hal_pin_not = self.hal.newpin(self.hal_name + "-not", pintype, hal.HAL_OUT)
         # If there is a status requested make there pins
@@ -105,10 +111,10 @@ class _ToggleBase(_WidgetBase):
             self.hal_status_pin = self.hal.newpin(self.hal_name+ "-state", hal.HAL_BIT, hal.HAL_OUT)
             self.hal_status_pin_not = self.hal.newpin(self.hal_name+ "-state-not", hal.HAL_BIT, hal.HAL_OUT)
         # Update the pin to the proper state, but don't print debug for this
-        if not pintype == 'COMMAND':
-            DBG_supress = True
+        if pintype not in ('COMMAND','ZMQ'):
+            DBG_suppress = True
             self.hal_update()
-            DBG_supress = False
+            DBG_suppress = False
 
     # This finds the function in either command class or
     # the optionally loaded custom handler class
@@ -123,8 +129,8 @@ class _ToggleBase(_WidgetBase):
                 return self.cmd
             else:
                 return None
-        except Exception, e:
-            print e
+        except Exception as e:
+            print(e)
             return None
 
     def toggle_state(self,pressed):
@@ -137,7 +143,7 @@ class _ToggleBase(_WidgetBase):
         # If not a command output:
         # figure out what the state should be and set the
         # HAL pin to it. This uses strange looking code for compactness
-        if self.pintype not in(None,'COMMAND'):
+        if self.pintype not in(None,'COMMAND','ZMQ'):
             output = self.true_state if self.state else self.false_state
             output_not = self.false_state if self.state else self.true_state
             self.hal_pin.set(output)
@@ -165,12 +171,57 @@ class _ToggleBase(_WidgetBase):
                     module[output.lower()](self, arg1)
                     DBG( '  Button: %s\n Command: %s\n State: %s\n'%(self.hal_name,output,self.state))
                 else:
-                    print 'Unknown Command',output,self.state
+                    print('Unknown Command',output,self.state)
+        elif self.pintype == 'ZMQ':
+            if self.master._zmq_output_enabled:
+                output = self.true_function if self.state else self.false_function
+                #print ('output',output)
+                if isinstance(output,list):
+                    args = self.stringToPython(output[1])
+                    funct = output[0]
+                else:
+                    funct = output
+                    args = [None]
+
+                if funct != 'NONE':
+                    x = {"FUNCTION": funct,
+                          "ARGS": args
+                        }
+                    # convert to json object and send
+                    try:
+                        m1 = json.dumps(x)
+                        self.master._socket.send_multipart(
+                                    [bytes(self.master._topic.encode('utf-8')),
+                                     bytes((m1).encode('utf-8'))])
+                    except Exception as e:
+                        print('Problem with ZMQ message:',e)
+            else:
+                print('ZMQ output not enabled:',funct)
 
         # If there are status pins set them based on state
         if self.status_pin:
             self.hal_status_pin.set(self.state)
             self.hal_status_pin_not.set(not self.state)
+
+    def stringToPython(self, cmd):
+        def convert(scmd):
+            if 'int(' in scmd:
+                out = eval(scmd)
+            elif 'float(' in scmd:
+                out = eval(scmd)
+            elif 'bool(' in scmd:
+                out = eval(scmd)
+            else:
+                return scmd
+            return out
+
+        if isinstance(cmd,list):
+            for num,i in enumerate(cmd):
+                cmd[num] = convert(i)
+        else:
+            cmd = convert(cmd)
+        return cmd
+
 
 # A group widget is a master widget for other widgets
 # only one of the widgets under it can be true
@@ -189,9 +240,9 @@ class GROUP(_WidgetBase):
         self.widgets[i].set_state(True)
         self.widgets[i].hal_update()
         self.toggle_state(i)
-        DBG_supress = True
+        DBG_suppress = True
         self.hal_update()
-        DBG_supress = False
+        DBG_suppress = False
 
     def add_list(self,grouplist):
         self.group_list = grouplist
@@ -228,7 +279,10 @@ class TOGGLE_BUTTONS( _ToggleBase):
 class MOMENTARY_BUTTONS( _ToggleBase):
     def toggle_state(self,pressed):
         """ Update internal button state """
-        self.state = not self.state
+        if pressed:
+            self.state = True
+        else:
+            self.state = False
         self.hal_update()
 
 # This works like a toggle button but

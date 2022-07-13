@@ -1,0 +1,33 @@
+Axis es una moderna interfaz basada en GL y codificada en Python
+
+Archivos ini principales de Axis gui sim:
+
+axis.ini               demo básica (in).
+axis_9axis.ini         9 ejes.
+axis_mm.ini            demo básica (mm).
+canterp.ini            demo de intérprete
+                       no-gcode.
+gantry.ini             demo pórtico.
+gantry_mm.ini          demo pórtico (mm).
+histogram_demo.ini     ejemplos
+                       hal-histogram. 
+historical_lathe.ini   torno, 3 articula-
+                       -ciones (XYZ, con Y
+                       sin usar).
+ini_hal_demo.ini       demo ini pines hal.
+lathe.ini              demo torno.
+ldelta.ini             robot delta lineal.
+ldelta_demo.ini        robot delta lineal
+                       con gui para jog.
+minimal_xyz.ini        conjunto mínimo de
+                       configuración.
+profile_axis.ini       perfil.
+random_tc.ini          cambiador aleatorio.
+                       de herramientas.
+rdelta.ini             robot delta rotativo. 
+
+Seleccione uno de estos si no tiene una máquina funcional pero desea editar algunas cosas de configuración básica o jugar con una de las pantallas de LinuxCNC.
+
+Se proporcionan configuraciones adicionales en los subdirectorios.
+
+Estas configuraciones demuestran la funcionalidad de LinuxCNC utilizando la interfaz Axis. (La funcionalidad demostrada puede estar disponible tambien en otras guis)

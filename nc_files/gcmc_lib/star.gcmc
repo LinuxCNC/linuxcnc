@@ -22,7 +22,7 @@ format is ^//ngcgui: vname [= value , [comment text]]
 //ngcgui: myscale=1,scale
 //ngcgui: n_erodes = 4; //, Erodes
 //ngcgui: erode_width = 2; //,width (+/-)
-//ngcgui: verbose = 0; //preced ensure_units
+//ngcgui: verbose = 0; //precede ensure_units
 */
 include("ensure_units.gcmc"); //avoid preamble conflict
 

@@ -25,7 +25,7 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-#include "cms_cfg.hh"		/* CMS_CONFIG_LINELEN */
+#include "linuxcnc.h"		/* LINELEN */
 
 class PHYSMEM_HANDLE;
 struct PM_CARTESIAN;
@@ -47,7 +47,7 @@ enum CMS_STATUS {
     CMS_UPDATE_ERROR = -2,	/* An error occurred during an update. */
     CMS_INTERNAL_ACCESS_ERROR = -3,	/* An error occurred during an
 					   internal access function. */
-    CMS_NO_MASTER_ERROR = -4,	/* An error occurred becouse the master was
+    CMS_NO_MASTER_ERROR = -4,	/* An error occurred because the master was
 				   not started */
     CMS_CONFIG_ERROR = -5,	/* There was an error in the configuration */
     CMS_TIMED_OUT = -6,		/* operation timed out. */
@@ -350,16 +350,16 @@ class CMS {
     void *data;			/* pointer to local copy of data (raw) */
     void *subdiv_data;		/* pointer to current subdiv; */
 
-    /* Intersting Info Saved from the Configuration File. */
-    char BufferName[CMS_CONFIG_LINELEN];
-    char BufferHost[CMS_CONFIG_LINELEN];
-    char ProcessName[CMS_CONFIG_LINELEN];
-    char BufferLine[CMS_CONFIG_LINELEN];
-    char ProcessLine[CMS_CONFIG_LINELEN];
-    char ProcessHost[CMS_CONFIG_LINELEN];
-    char buflineupper[CMS_CONFIG_LINELEN];
-    char proclineupper[CMS_CONFIG_LINELEN];
-    char PermissionString[CMS_CONFIG_LINELEN];
+    /* Interesting Info Saved from the Configuration File. */
+    char BufferName[LINELEN];
+    char BufferHost[LINELEN];
+    char ProcessName[LINELEN];
+    char BufferLine[LINELEN];
+    char ProcessLine[LINELEN];
+    char ProcessHost[LINELEN];
+    char buflineupper[LINELEN];
+    char proclineupper[LINELEN];
+    char PermissionString[LINELEN];
     int is_local_master;
     int force_raw;
     bool serial;

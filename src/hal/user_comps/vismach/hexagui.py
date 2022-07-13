@@ -1,18 +1,17 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright 2007 Ben Lipkowitz
 # You may distribute this software under the GNU GPL v2 or later
 #
 # Hexapod visualization.
-# In HAL, you must link axis.* to cartesian coordinates from 
-# halui, because I am too lazy to implement inverse kinematics.
-# This causes some mismatch between the struts and platform.
-# Hopefully this can be fixed with some twiddling.
+# Typical Hal connections require both joint and axis values:
+#   net skgui.L  genhexkins.gui.L hexagui.axis.L  (L= x,y,z,a,b,c)
+#   net jN       joint.N.pos-fb   hexagui.joint.N (N= 0..5)
 
 from vismach import *
 import hal
 import sys
 
-for setting in sys.argv[1:]: exec setting
+for setting in sys.argv[1:]: exec(setting)
 
 #compname must be the same as given in 'loadusr -W' or
 #else the comp will never be ready
@@ -28,12 +27,12 @@ c.newpin("joint.4", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("joint.5", hal.HAL_FLOAT, hal.HAL_IN)
 #get the tool tip position in cartesian coordinates from emc
 #so we dont have to do kinematics
-c.newpin("axis.0", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("axis.1", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("axis.2", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("axis.3", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("axis.4", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("axis.5", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("axis.x", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("axis.y", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("axis.z", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("axis.a", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("axis.b", hal.HAL_FLOAT, hal.HAL_IN)
+c.newpin("axis.c", hal.HAL_FLOAT, hal.HAL_IN)
 
 c.ready()
 
@@ -45,7 +44,7 @@ minitetra = 1
 #stolen from genhexkins.h 
 # you must change these if you are not using minitetra
 # positions of base strut ends in base (world) coordinates	
-base_offsets = range(6)
+base_offsets = list(range(6))
 base_offsets[0] = (-22.950, 13.250, 0)
 base_offsets[1] = (22.950, 13.250, 0)
 base_offsets[2] = (22.950, 13.250, 0)
@@ -54,7 +53,7 @@ base_offsets[4] = (0, -26.5, 0)
 base_offsets[5] = (-22.950, 13.250, 0)
 
 # position of platform strut end in platform coordinate system 
-plat_offsets = range(6)
+plat_offsets = list(range(6))
 plat_offsets[0] = (-1, 11.5, 0)
 plat_offsets[1] = (1, 11.5, 0)
 plat_offsets[2] = (10.459, -4.884, 0)
@@ -77,7 +76,7 @@ angles = [5, 115, 125, 235, 245, 355]
 
 #provide some reference frames
 world_coords = Capture()
-#i shouldnt have to do this
+#i shouldn't have to do this
 foo = Collection([world_coords, Sphere(0,0,0,0)])
 foo = Translate([foo],0,0,0)
 
@@ -145,7 +144,7 @@ for i in range(6):
   base_joints += [base_joint]
   
   #point strut at platform - this also translates the strut to the base joint
-  #because i couldnt figure out how to rotate it around the base of the strut
+  #because i couldn't figure out how to rotate it around the base of the strut
   strut = Track([strut],base_joint_coords, plat_joint_coords, world_coords)
   struts += [strut]
 
@@ -166,12 +165,12 @@ platform = Collection([tool, platform])
 ####
 #animate it
 #must rotate first or we will be rotating around the origin
-platform = HalRotate([platform], c, "axis.3",1,1,0,0)
-platform = HalRotate([platform], c, "axis.4",1,0,1,0)
-platform = HalRotate([platform], c, "axis.5",1,0,0,1)
-platform = HalTranslate([platform],c, "axis.0",1,0,0)
-platform = HalTranslate([platform],c, "axis.1",0,1,0)
-platform = HalTranslate([platform],c, "axis.2",0,0,1)
+platform = HalRotate([platform], c, "axis.a",1,1,0,0)
+platform = HalRotate([platform], c, "axis.b",1,0,1,0)
+platform = HalRotate([platform], c, "axis.c",1,0,0,1)
+platform = HalTranslate([platform],c, "axis.x",1,0,0)
+platform = HalTranslate([platform],c, "axis.y",0,1,0)
+platform = HalTranslate([platform],c, "axis.z",0,0,1)
 platform = Collection([platform])
 
 #put struts under platform - not perfect, oh well
@@ -187,5 +186,5 @@ workpiece = Translate([workpiece],0,0,-strut_length)
 model = Collection([platform, struts, base, workpiece, foo])
 
 #main(model, tool_coords, work_coords, size=30, hud=myhud)
-main(model, tool_coords, work_coords, size=30)
+main(model, tool_coords, work_coords, size=30, lat=-65, lon=-45)
 

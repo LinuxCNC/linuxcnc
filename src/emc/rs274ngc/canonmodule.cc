@@ -20,6 +20,7 @@
 #include <boost/python/def.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/scope.hpp>
+#include <boost/python/enum.hpp>
 
 namespace bp = boost::python;
 
@@ -28,8 +29,9 @@ namespace bp = boost::python;
 
 static void wrap_canon_error(const char *s)
 {
-    if ((s == NULL) || (strlen(s) == 0))
-	return;
+    if ((s == NULL) || (strlen(s) == 0)) {
+        return;
+    }
     CANON_ERROR("%s", s);
 }
 
@@ -39,42 +41,60 @@ BOOST_PYTHON_MODULE(emccanon) {
     scope().attr("__doc__") =
         "Canon access & introspection\n"
         ;
+    enum_<CANON_PLANE>("CANON_PLANE")
+            .value("CANON_PLANE_XY", CANON_PLANE_XY)
+            .value("CANON_PLANE_YZ", CANON_PLANE_YZ)
+            .value("CANON_PLANE_XZ", CANON_PLANE_XZ)
+            .value("CANON_PLANE_UV", CANON_PLANE_UV)
+            .value("CANON_PLANE_VW", CANON_PLANE_VW)
+            .value("CANON_PLANE_UW", CANON_PLANE_UW)
+            .export_values();
 
-    scope().attr("CANON_PLANE_XY") = CANON_PLANE_XY;
-    scope().attr("CANON_PLANE_YZ") = CANON_PLANE_YZ;
-    scope().attr("CANON_PLANE_XZ") = CANON_PLANE_XZ;
-    scope().attr("CANON_PLANE_UV") = CANON_PLANE_UV;
-    scope().attr("CANON_PLANE_VW") = CANON_PLANE_VW;
-    scope().attr("CANON_PLANE_UW") = CANON_PLANE_UW;
+    enum_<CANON_UNITS>("CANON_UNITS")
+            .value("CANON_UNITS_INCHES", CANON_UNITS_INCHES)
+            .value("CANON_UNITS_MM", CANON_UNITS_MM)
+            .value("CANON_UNITS_CM", CANON_UNITS_CM)
+            .export_values();
 
-    scope().attr("CANON_UNITS_INCHES") = CANON_UNITS_INCHES;
-    scope().attr("CANON_UNITS_MM") = CANON_UNITS_MM;
-    scope().attr("CANON_UNITS_CM") = CANON_UNITS_CM;
+    enum_<CANON_MOTION_MODE>("CANON_MOTION_MODE")
+            .value("CANON_EXACT_STOP", CANON_EXACT_STOP)
+            .value("CANON_EXACT_PATH", CANON_EXACT_PATH)
+            .value("CANON_CONTINUOUS", CANON_CONTINUOUS)
+            .export_values();
 
-    scope().attr("CANON_EXACT_STOP") = CANON_EXACT_STOP;
-    scope().attr("CANON_EXACT_PATH") = CANON_EXACT_PATH;
-    scope().attr("CANON_CONTINUOUS") = CANON_CONTINUOUS;
+    enum_<CANON_SPEED_FEED_MODE>("CANON_FEED_SPEED_MODE")
+            .value("CANON_SYNCHED", CANON_SYNCHED)
+            .value("CANON_INDEPENDENT", CANON_INDEPENDENT)
+            .export_values();
 
-    scope().attr("CANON_SYNCHED") = CANON_SYNCHED;
-    scope().attr("CANON_INDEPENDENT") = CANON_INDEPENDENT;
+    enum_<CANON_DIRECTION>("CANON_DIRECTION")
+            .value("CANON_STOPPED", CANON_STOPPED)
+            .value("CANON_CLOCKWISE", CANON_CLOCKWISE)
+            .value("CANON_COUNTERCLOCKWISE", CANON_COUNTERCLOCKWISE)
+            .export_values();
 
-    scope().attr("CANON_STOPPED") = CANON_STOPPED;
-    scope().attr("CANON_CLOCKWISE") = CANON_CLOCKWISE;
-    scope().attr("CANON_COUNTERCLOCKWISE") = CANON_COUNTERCLOCKWISE;
+    enum_<CANON_FEED_REFERENCE>("CANON_FEED_REFERENCE")
+            .value("CANON_WORKPIECE", CANON_WORKPIECE)
+            .value("CANON_XYZ", CANON_XYZ)
+            .export_values();
 
-    scope().attr("CANON_WORKPIECE") = CANON_WORKPIECE;
-    scope().attr("CANON_XYZ") = CANON_XYZ;
+    enum_<CANON_SIDE>("CANON_SIDE")
+            .value("CANON_SIDE_RIGHT", CANON_SIDE_RIGHT)
+            .value("CANON_SIDE_LEFT", CANON_SIDE_LEFT)
+            .value("CANON_SIDE_OFF", CANON_SIDE_OFF)
+            .export_values();
 
-    scope().attr("CANON_SIDE_RIGHT") = CANON_SIDE_RIGHT;
-    scope().attr("CANON_SIDE_LEFT") = CANON_SIDE_LEFT;
-    scope().attr("CANON_SIDE_OFF") = CANON_SIDE_OFF;
-
-    scope().attr("CANON_AXIS_X") = CANON_AXIS_X;
-    scope().attr("CANON_AXIS_Y") = CANON_AXIS_Y;
-    scope().attr("CANON_AXIS_Z") = CANON_AXIS_Z;
-    scope().attr("CANON_AXIS_A") = CANON_AXIS_A;
-    scope().attr("CANON_AXIS_B") = CANON_AXIS_B;
-    scope().attr("CANON_AXIS_C") = CANON_AXIS_C;
+    enum_<CANON_AXIS>("CANON_AXIS")
+            .value("CANON_AXIS_X", CANON_AXIS_X)
+            .value("CANON_AXIS_Y", CANON_AXIS_Y)
+            .value("CANON_AXIS_Z", CANON_AXIS_Z)
+            .value("CANON_AXIS_A", CANON_AXIS_A)
+            .value("CANON_AXIS_B", CANON_AXIS_B)
+            .value("CANON_AXIS_C", CANON_AXIS_C)
+            .value("CANON_AXIS_U", CANON_AXIS_U)
+            .value("CANON_AXIS_V", CANON_AXIS_V)
+            .value("CANON_AXIS_W", CANON_AXIS_W)
+            .export_values();
 
     //  scope().attr("") =  ;
 
@@ -82,6 +102,7 @@ BOOST_PYTHON_MODULE(emccanon) {
     def("CANON_ERROR",&wrap_canon_error);
     def("CHANGE_TOOL",&CHANGE_TOOL);
     def("CHANGE_TOOL_NUMBER",&CHANGE_TOOL_NUMBER);
+    def("RELOAD_TOOLDATA",&RELOAD_TOOLDATA);
     def("CLAMP_AXIS",&CLAMP_AXIS);
     def("CLEAR_AUX_OUTPUT_BIT",&CLEAR_AUX_OUTPUT_BIT);
     def("CLEAR_MOTION_OUTPUT_BIT",&CLEAR_MOTION_OUTPUT_BIT);
@@ -98,6 +119,7 @@ BOOST_PYTHON_MODULE(emccanon) {
     def("PLUGIN_CALL",&PLUGIN_CALL);
     def("IO_PLUGIN_CALL",&IO_PLUGIN_CALL);
     def("FINISH",&FINISH);
+    def("ON_RESET", &ON_RESET);
     def("FLOOD_OFF",&FLOOD_OFF);
     def("FLOOD_ON",&FLOOD_ON);
     def("GET_BLOCK_DELETE",&GET_BLOCK_DELETE);
@@ -114,9 +136,11 @@ BOOST_PYTHON_MODULE(emccanon) {
     def("GET_EXTERNAL_MIST",&GET_EXTERNAL_MIST);
     def("GET_EXTERNAL_MOTION_CONTROL_MODE",&GET_EXTERNAL_MOTION_CONTROL_MODE);
     def("GET_EXTERNAL_MOTION_CONTROL_TOLERANCE",&GET_EXTERNAL_MOTION_CONTROL_TOLERANCE);
+    def("SET_PARAMETER_FILE_NAME",&SET_PARAMETER_FILE_NAME);
+    def("GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE",
+	&GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE);
     def("GET_EXTERNAL_PARAMETER_FILE_NAME",&GET_EXTERNAL_PARAMETER_FILE_NAME);
     def("GET_EXTERNAL_PLANE",&GET_EXTERNAL_PLANE);
-    def("GET_EXTERNAL_POCKETS_MAX",&GET_EXTERNAL_POCKETS_MAX);
     def("GET_EXTERNAL_POSITION_A",&GET_EXTERNAL_POSITION_A);
     def("GET_EXTERNAL_POSITION_B",&GET_EXTERNAL_POSITION_B);
     def("GET_EXTERNAL_POSITION_C",&GET_EXTERNAL_POSITION_C);
@@ -177,7 +201,8 @@ BOOST_PYTHON_MODULE(emccanon) {
     def("PROGRAM_STOP",&PROGRAM_STOP);
     def("RIGID_TAP",&RIGID_TAP);
     def("SELECT_PLANE",&SELECT_PLANE);
-    def("SELECT_POCKET",&SELECT_POCKET);
+    def("SELECT_TOOL",&SELECT_TOOL);
+    def("UPDATE_TAG",&UPDATE_TAG);
     def("SET_AUX_OUTPUT_BIT",&SET_AUX_OUTPUT_BIT);
     def("SET_AUX_OUTPUT_VALUE",&SET_AUX_OUTPUT_VALUE);
     def("SET_BLOCK_DELETE",&SET_BLOCK_DELETE);
@@ -243,4 +268,7 @@ BOOST_PYTHON_MODULE(emccanon) {
     // def("enqueue_ARC_FEED", &enqueue_ARC_FEED);
     // def("enqueue_M_USER_COMMAND ", &enqueue_M_USER_COMMAND);
     // def("enqueue_START_CHANGE", & enqueue_START_CHANGE);
+    def("GET_EXTERNAL_OFFSET_APPLIED",&GET_EXTERNAL_OFFSET_APPLIED);
+    def("GET_EXTERNAL_OFFSETS",&GET_EXTERNAL_OFFSETS);
+
 }

@@ -3,10 +3,10 @@ loadrt carousel pockets=10 dir=1 encoding=gray num_sense=4
 addf carousel.0 servo-thread
 addf conv-float-s32.2 servo-thread # G-code analogue outputs are float-type
 
+setp carousel.0.fwd-dc 0.002
 net car-enable motion.digital-out-00 carousel.0.enable
 net car-ready carousel.0.ready motion.digital-in-00
-net car-fwd carousel.0.motor-fwd
-#net car-rev carousel.0.motor-rev
+net car-vel carousel.0.motor-vel
 net car-pos-req motion.analog-out-00 conv-float-s32.2.in
 net car-pos-s32 conv-float-s32.2.out carousel.0.pocket-number
 net bit0 carousel.0.sense-0

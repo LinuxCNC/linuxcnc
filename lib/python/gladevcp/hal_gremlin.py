@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # vim: sts=4 sw=4 et
 # GladeVcp Widgets
 #
@@ -25,15 +25,22 @@
 # 2015 Moses McKnight introduced mode 6 
 # 6 = left move, middle zoom, right zoom (no rotate - for 2D plasma machines or lathes)
 
+import gi
+gi.require_version("Gtk","3.0")
+from gi.repository import Gtk
+from gi.repository import GObject
+
 import os
-import gtk, gobject
 
 import linuxcnc
 import gremlin
 import rs274.glcanon
 import gcode
 
-from hal_actions import _EMC_ActionBase
+if __name__ == "__main__":
+    from hal_actions import _EMC_ActionBase
+else:
+    from .hal_actions import _EMC_ActionBase
 from hal_glib import GStat
 
 def get_linuxcnc_ini_file():
@@ -54,46 +61,46 @@ def get_linuxcnc_ini_file():
 class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
     __gtype_name__ = "HAL_Gremlin"
     __gsignals__ = {
-        'line-clicked': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
-        'gcode_error': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
+        'line-clicked': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'gcode_error': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
     }
 
     __gproperties__ = {
-        'view' : ( gobject.TYPE_STRING, 'View type', 'Default view: p, x, y, y2, z, z2',
-                    'p', gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'enable_dro' : ( gobject.TYPE_BOOLEAN, 'Enable DRO', 'Show DRO on graphics',
-                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'metric_units' : ( gobject.TYPE_BOOLEAN, 'Use Metric Units', 'Show DRO in metric or imperial units',
-                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'use_relative' : ( gobject.TYPE_BOOLEAN, 'Show Relative', 'Show DRO relative to active system or machine origin',
-                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'use_commanded' : ( gobject.TYPE_BOOLEAN, 'Show Commanded', 'Show commanded or actual position',
-                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'show_extents_option' : ( gobject.TYPE_BOOLEAN, 'Show Extents', 'Show machine extents',
-                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'show_limits' : ( gobject.TYPE_BOOLEAN, 'Show limits', 'Show machine limits',
-                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'show_live_plot' : ( gobject.TYPE_BOOLEAN, 'Show live plot', 'Show machine plot',
-                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'show_velocity' : ( gobject.TYPE_BOOLEAN, 'Show tool speed', 'Show tool velocity',
-                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'show_program' : ( gobject.TYPE_BOOLEAN, 'Show program', 'Show program',
-                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'show_rapids' : ( gobject.TYPE_BOOLEAN, 'Show rapids', 'Show rapid moves',
-                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'show_tool' : ( gobject.TYPE_BOOLEAN, 'Show tool', 'Show tool',
-                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'show_dtg' : ( gobject.TYPE_BOOLEAN, 'Show DTG', 'Show Distance To Go',
-                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'show_lathe_radius' : ( gobject.TYPE_BOOLEAN, 'Show Lathe Radius', 'Show X axis in Radius',
-                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'grid_size' : ( gobject.TYPE_FLOAT, 'Grid Size', 'Grid Size',
-                    0, 100, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'use_joints_mode' : ( gobject.TYPE_BOOLEAN, 'Use joints mode', 'Use joints mode',
-                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'use_default_controls' : ( gobject.TYPE_BOOLEAN, 'Use Default Mouse Controls', 'Use Default Mouse Controls',
-                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'mouse_btn_mode' : ( gobject.TYPE_INT, 'Mouse Button Mode',
+        'view' : ( GObject.TYPE_STRING, 'View type', 'Default view: p, x, y, y2, z, z2',
+                    'p', GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'enable_dro' : ( GObject.TYPE_BOOLEAN, 'Enable DRO', 'Show DRO on graphics',
+                    True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'metric_units' : ( GObject.TYPE_BOOLEAN, 'Use Metric Units', 'Show DRO in metric or imperial units',
+                    True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'use_relative' : ( GObject.TYPE_BOOLEAN, 'Show Relative', 'Show DRO relative to active system or machine origin',
+                    True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'use_commanded' : ( GObject.TYPE_BOOLEAN, 'Show Commanded', 'Show commanded or actual position',
+                    True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'show_extents_option' : ( GObject.TYPE_BOOLEAN, 'Show Extents', 'Show machine extents',
+                    True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'show_limits' : ( GObject.TYPE_BOOLEAN, 'Show limits', 'Show machine limits',
+                    True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'show_live_plot' : ( GObject.TYPE_BOOLEAN, 'Show live plot', 'Show machine plot',
+                    True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'show_velocity' : ( GObject.TYPE_BOOLEAN, 'Show tool speed', 'Show tool velocity',
+                    True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'show_program' : ( GObject.TYPE_BOOLEAN, 'Show program', 'Show program',
+                    True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'show_rapids' : ( GObject.TYPE_BOOLEAN, 'Show rapids', 'Show rapid moves',
+                    True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'show_tool' : ( GObject.TYPE_BOOLEAN, 'Show tool', 'Show tool',
+                    True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'show_dtg' : ( GObject.TYPE_BOOLEAN, 'Show DTG', 'Show Distance To Go',
+                    True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'show_lathe_radius' : ( GObject.TYPE_BOOLEAN, 'Show Lathe Radius', 'Show X axis in Radius',
+                    False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'grid_size' : ( GObject.TYPE_FLOAT, 'Grid Size', 'Grid Size',
+                    0, 100, 0, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'use_joints_mode' : ( GObject.TYPE_BOOLEAN, 'Use joints mode', 'Use joints mode',
+                    False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'use_default_controls' : ( GObject.TYPE_BOOLEAN, 'Use Default Mouse Controls', 'Use Default Mouse Controls',
+                    True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'mouse_btn_mode' : ( GObject.TYPE_INT, 'Mouse Button Mode',
                                                ('Mousebutton assignment, l means left, m middle, r right \n'
                                                 '0 = default: l-rotate, m-move, r-zoom \n'
                                                 '1 = l-zoom, m-move, r-rotate\n'
@@ -102,11 +109,11 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
                                                 '4 = l-move, m-zoom, r-rotate\n'
                                                 '5 = l-rotate, m-zoom, r-move\n'
                                                 '6 = l-move, m-zoom, r-zoom'),
-                    0, 6, 0, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+                    0, 6, 0, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
     }
     __gproperties = __gproperties__
     def __init__(self, *a, **kw):
-        gobject.GObject.__init__(self)
+        GObject.GObject.__init__(self)
         ini_filename = os.environ.get('INI_FILE_NAME')
         if ini_filename is None:
             ini_filename = get_linuxcnc_ini_file()
@@ -135,16 +142,16 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
         self._reload_filename=f
         try:
             self._load(f)
-        except AttributeError,detail:
+        except AttributeError as detail:
                #AttributeError: 'NoneType' object has no attribute 'gl_end'
-            print 'hal_gremlin: continuing after',detail
+            print('hal_gremlin: continuing after',detail)
 
 
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
         if name == 'view':
             return self.current_view
-        elif name in self.__gproperties.keys():
+        elif name in list(self.__gproperties.keys()):
             return getattr(self, name)
         else:
             raise AttributeError('unknown property %s' % property.name)
@@ -167,7 +174,7 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
             self.enable_dro = value
         elif name == 'metric_units':
             self.metric_units = value
-        elif name in self.__gproperties.keys():
+        elif name in list(self.__gproperties.keys()):
             setattr(self, name, value)
         else:
             raise AttributeError('unknown property %s' % property.name)
@@ -177,9 +184,6 @@ class HAL_Gremlin(gremlin.Gremlin, _EMC_ActionBase):
 
     # This overrides glcannon.py method so we can change the DRO 
     def dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
-            if not self.enable_dro:
-                return limit, homed, [''], ['']
-
             if self.metric_units:
                 format = "% 6s:% 9.3f"
                 if self.show_dtg:

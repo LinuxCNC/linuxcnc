@@ -1,11 +1,11 @@
-/********************************************************************
+/*******************************************************************
 * Description: mot_priv.h
 *   Macros and declarations local to the realtime sources.
 *
-* Author: 
+* Author:
 * License: GPL Version 2
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 ********************************************************************/
 #ifndef MOT_PRIV_H
@@ -60,6 +60,7 @@ typedef struct {
     hal_bit_t *spindle_inhibit;
     hal_float_t *spindle_revs;
     hal_bit_t *spindle_is_atspeed;
+    hal_bit_t *spindle_amp_fault;
 
     // spindle orient
     hal_float_t *spindle_orient_angle;  /* out: desired spindle angle, degrees */
@@ -81,7 +82,7 @@ typedef struct {
     hal_float_t *motor_offset;	/* RPI: motor offset, for checking homing stability */
     hal_float_t *motor_pos_cmd;	/* WPI: commanded position, with comp */
     hal_float_t *motor_pos_fb;	/* RPI: position feedback, with comp */
-    hal_float_t *joint_pos_cmd;	/* WPI: commanded position w/o comp, mot ofs */
+    hal_float_t *joint_pos_cmd;	/* WPI: commanded position w/o comp, not ofs */
     hal_float_t *joint_pos_fb;	/* RPI: position feedback, w/o comp */
     hal_float_t *f_error;	/* RPI: following error */
     hal_float_t *f_error_lim;	/* RPI: following error limit */
@@ -97,18 +98,12 @@ typedef struct {
     hal_bit_t *error;		/* RPI: joint has an error */
     hal_bit_t *phl;		/* RPI: joint is at positive hard limit */
     hal_bit_t *nhl;		/* RPI: joint is at negative hard limit */
-    hal_bit_t *homing;		/* RPI: joint is homing */
-    hal_bit_t *homed;		/* RPI: joint was homed */
     hal_bit_t *f_errored;	/* RPI: joint had too much following error */
     hal_bit_t *faulted;		/* RPI: joint amp faulted */
     hal_bit_t *pos_lim_sw;	/* RPI: positive limit switch input */
     hal_bit_t *neg_lim_sw;	/* RPI: negative limit switch input */
-    hal_bit_t *home_sw;		/* RPI: home switch input */
-    hal_bit_t *index_enable;	/* RPIO: motmod sets: request reset on index
-				         encoder clears: index arrived */
     hal_bit_t *amp_fault;	/* RPI: amp fault input */
     hal_bit_t *amp_enable;	/* WPI: amp enable output */
-    hal_s32_t *home_state;	/* WPI: homing state machine state */
 
     hal_bit_t *unlock;          /* WPI: command that axis should unlock for rotation */
     hal_bit_t *is_unlocked;     /* RPI: axis is currently unlocked */
@@ -118,24 +113,11 @@ typedef struct {
     hal_float_t *jjog_scale;	/* RPI: distance to jog on each count */
     hal_float_t *jjog_accel_fraction;	/* RPI: to limit wheel jog accel */
     hal_bit_t   *jjog_vel_mode;	/* RPI: true for "velocity mode" jogwheel */
-
 } joint_hal_t;
 
 typedef struct {
-    hal_float_t *pos_cmd;        /* RPI: commanded position */
-    hal_float_t *teleop_vel_cmd; /* RPI: commanded velocity */
-    hal_float_t *teleop_pos_cmd; /* RPI: teleop traj planner pos cmd */
-    hal_float_t *teleop_vel_lim; /* RPI: teleop traj planner vel limit */
-    hal_bit_t   *teleop_tp_enable; /* RPI: teleop traj planner is running */
-
-    hal_s32_t   *ajog_counts;	/* WPI: jogwheel position input */
-    hal_bit_t   *ajog_enable;	/* RPI: enable jogwheel */
-    hal_float_t *ajog_scale;	/* RPI: distance to jog on each count */
-    hal_float_t *ajog_accel_fraction;	/* RPI: to limit wheel jog accel */
-    hal_bit_t   *ajog_vel_mode;	/* RPI: true for "velocity mode" jogwheel */
-    hal_bit_t   *kb_ajog_active;   /* RPI: executing keyboard jog */
-    hal_bit_t   *wheel_ajog_active;/* RPI: executing handwheel jog */
-} axis_hal_t;
+    hal_float_t *posthome_cmd; //  IN pin extrajoint
+} extrajoint_hal_t;
 
 /* machine data */
 
@@ -146,7 +128,13 @@ typedef struct {
     hal_bit_t *feed_hold;	/* RPI: set TRUE to stop motion maskable with g53 P1*/
     hal_bit_t *feed_inhibit;	/* RPI: set TRUE to stop motion (non maskable)*/
     hal_bit_t *homing_inhibit;	/* RPI: set TRUE to inhibit homing*/
+    hal_bit_t *jog_inhibit;	/* RPI: set TRUE to inhibit jogging*/
+    hal_bit_t *jog_stop;	/* RPI: set TRUE to stop jogging following accel values*/
+    hal_bit_t *jog_stop_immediate;	/* RPI: set TRUE to stop jogging immediately*/
+    hal_bit_t *jog_is_active;	/* RPI: TRUE if active jogging*/
+    hal_bit_t *tp_reverse;	/* Set true if trajectory planner is running in reverse*/
     hal_bit_t *motion_enabled;	/* RPI: motion enable for all joints */
+    hal_bit_t *is_all_homed;	/* RPI: TRUE if all active joints is homed */
     hal_bit_t *in_position;	/* RPI: all joints are in position */
     hal_bit_t *coord_mode;	/* RPA: TRUE if coord, FALSE if free */
     hal_bit_t *teleop_mode;	/* RPA: TRUE if teleop mode */
@@ -167,11 +155,12 @@ typedef struct {
     hal_float_t debug_float_3;	/* RPA: generic param, for debugging */
     hal_s32_t debug_s32_0;	/* RPA: generic param, for debugging */
     hal_s32_t debug_s32_1;	/* RPA: generic param, for debugging */
-    
+
     hal_bit_t *synch_do[EMCMOT_MAX_DIO]; /* WPI array: output pins for motion synched IO */
     hal_bit_t *synch_di[EMCMOT_MAX_DIO]; /* RPI array: input pins for motion synched IO */
     hal_float_t *analog_input[EMCMOT_MAX_AIO]; /* RPI array: input pins for analog Inputs */
     hal_float_t *analog_output[EMCMOT_MAX_AIO]; /* RPI array: output pins for analog Inputs */
+    hal_bit_t *misc_error[EMCMOT_MAX_MISC_ERROR]; /* RPI array: output pins for misc error Inputs */
 
     // FIXME - debug only, remove later
     hal_float_t traj_pos_out;	/* RPA: traj internals, for debugging */
@@ -197,8 +186,18 @@ typedef struct {
 
     spindle_hal_t spindle[EMCMOT_MAX_SPINDLES];     /*spindle data */
     joint_hal_t joint[EMCMOT_MAX_JOINTS];	/* data for each joint */
-    axis_hal_t axis[EMCMOT_MAX_AXIS];	        /* data for each axis */
+    extrajoint_hal_t ejoint[EMCMOT_MAX_EXTRAJOINTS]; /* data for each extrajoint */
 
+    hal_bit_t   *eoffset_active; /* ext offsets active */
+    hal_bit_t   *eoffset_limited; /* ext offsets exceed limit */
+
+    hal_float_t *feed_upm; /* feed gcode units per minute*/
+    hal_float_t *feed_inches_per_minute; /* feed inches per minute*/
+    hal_float_t *feed_inches_per_second; /* feed inches per second*/
+    hal_float_t *feed_mm_per_minute; /* feed mm per minute*/
+    hal_float_t *feed_mm_per_second; /* feed mm per second*/
+
+    hal_float_t *switchkins_type;
 } emcmot_hal_data_t;
 
 /***********************************************************************
@@ -211,23 +210,19 @@ extern emcmot_hal_data_t *emcmot_hal_data;
 /* pointer to array of joint structs with all joint data */
 /* the actual array may be in shared memory or in kernel space, as
    determined by the init code in motion.c */
-extern emcmot_joint_t *joints;
-
-/* pointer to array of axis structs with all axis data */
-extern emcmot_axis_t *axes;
+extern emcmot_joint_t joints[EMCMOT_MAX_JOINTS];
 
 /* Variable defs */
 extern KINEMATICS_FORWARD_FLAGS fflags;
 extern KINEMATICS_INVERSE_FLAGS iflags;
 /* these variable have the 1/servo cycle time */
-extern double servo_freq;
 
 /* Struct pointers */
 extern struct emcmot_struct_t *emcmotStruct;
 extern struct emcmot_command_t *emcmotCommand;
 extern struct emcmot_status_t *emcmotStatus;
 extern struct emcmot_config_t *emcmotConfig;
-extern struct emcmot_debug_t *emcmotDebug;
+extern struct emcmot_internal_t *emcmotInternal;
 extern struct emcmot_error_t *emcmotError;
 
 /***********************************************************************
@@ -246,11 +241,6 @@ extern void emcmotAioWrite(int index, double value);
 extern void emcmotSetRotaryUnlock(int axis, int unlock);
 extern int emcmotGetRotaryIsUnlocked(int axis);
 
-/* homing is no longer in control.c, make functions public */
-extern void do_homing_sequence(void);
-extern void do_homing(void);
-
-
 //
 // Try to change the Motion mode to Teleop.
 //
@@ -261,19 +251,24 @@ extern void do_homing(void);
 //
 void switch_to_teleop_mode(void);
 
-
-/* loops through the active joints and checks if any are not homed */
-extern int checkAllHomed(void);
 /* recalculates jog limits */
-extern void refresh_jog_limits(emcmot_joint_t *joint);
+extern void refresh_jog_limits(emcmot_joint_t *joint,int joint_num);
 /* handles 'homed' flags, see command.c for details */
 extern void clearHomes(int joint_num);
 
 extern void emcmot_config_change(void);
-extern void reportError(const char *fmt, ...) __attribute((format(printf,1,2))); /* Use the rtapi_print call */
+extern void reportError(const char *fmt, ...) __attribute__((format(printf,1,2))); /* Use the rtapi_print call */
+
 
 int joint_is_lockable(int joint_num);
 
+#define ALL_JOINTS emcmotConfig->numJoints
+// number of kinematics-only joints:
+#define NO_OF_KINS_JOINTS (ALL_JOINTS - emcmotConfig->numExtraJoints)
+#define IS_EXTRA_JOINT(jno) (jno >= NO_OF_KINS_JOINTS)
+// 0-based Joint numbering:
+// kinematic-only jno.s: [0                 ... (NO_OF_KINS_JOINTS -1) ]
+// extrajoint     jno.s: [NO_OF_KINS_JOINTS ... (ALL_JOINTS  -1) ]
 
  /* rtapi_get_time() returns a nanosecond value. In time, we should use a u64
     value for all calcs and only do the conversion to seconds when it is
@@ -310,11 +305,7 @@ int joint_is_lockable(int joint_num);
 
 #define SET_JOINT_ENABLE_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_ENABLE_BIT; else (joint)->flag &= ~EMCMOT_JOINT_ENABLE_BIT;
 
-#define GET_JOINT_ACTIVE_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_ACTIVE_BIT ? 1 : 0)
-
 #define SET_JOINT_ACTIVE_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_ACTIVE_BIT; else (joint)->flag &= ~EMCMOT_JOINT_ACTIVE_BIT;
-
-#define GET_JOINT_INPOS_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_INPOS_BIT ? 1 : 0)
 
 #define SET_JOINT_INPOS_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_INPOS_BIT; else (joint)->flag &= ~EMCMOT_JOINT_INPOS_BIT;
 
@@ -330,21 +321,6 @@ int joint_is_lockable(int joint_num);
 
 #define SET_JOINT_NHL_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_MIN_HARD_LIMIT_BIT; else (joint)->flag &= ~EMCMOT_JOINT_MIN_HARD_LIMIT_BIT;
 
-#define GET_JOINT_HOME_SWITCH_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_HOME_SWITCH_BIT ? 1 : 0)
-
-#define SET_JOINT_HOME_SWITCH_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_HOME_SWITCH_BIT; else (joint)->flag &= ~EMCMOT_JOINT_HOME_SWITCH_BIT;
-
-#define GET_JOINT_HOMING_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_HOMING_BIT ? 1 : 0)
-
-#define SET_JOINT_HOMING_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_HOMING_BIT; else (joint)->flag &= ~EMCMOT_JOINT_HOMING_BIT;
-
-#define GET_JOINT_HOMED_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_HOMED_BIT ? 1 : 0)
-
-#define SET_JOINT_HOMED_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_HOMED_BIT; else (joint)->flag &= ~EMCMOT_JOINT_HOMED_BIT;
-
-#define GET_JOINT_AT_HOME_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_AT_HOME_BIT ? 1 : 0)
-
-#define SET_JOINT_AT_HOME_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_AT_HOME_BIT; else (joint)->flag &= ~EMCMOT_JOINT_AT_HOME_BIT;
 
 #define GET_JOINT_FERROR_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_FERROR_BIT ? 1 : 0)
 
@@ -357,4 +333,5 @@ int joint_is_lockable(int joint_num);
 #if defined(__KERNEL__)
 #define HAVE_CPU_KHZ
 #endif
+
 #endif /* MOT_PRIV_H */

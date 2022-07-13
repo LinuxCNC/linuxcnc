@@ -1,3 +1,9 @@
+/* misnomer: settings->current_pocket,selected_pocket
+** These variables are actually indexes to sequential tool
+** data structs (not real pockets).
+** Future renaming will affect current usage in python remaps.
+*/
+
 /********************************************************************
 * Description: interp_convert.cc
 *
@@ -6,7 +12,7 @@
 * Author:
 * License: GPL Version 2
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
 ********************************************************************/
@@ -28,11 +34,14 @@
 #include "rs274ngc_interp.hh"
 #include "interp_internal.hh"
 #include "interp_queue.hh"
+#include "interp_parameter_def.hh"
+#include <rtapi_string.h>
 
 #include "units.h"
 #define TOOL_INSIDE_ARC(side, turn) (((side)==LEFT&&(turn)>0)||((side)==RIGHT&&(turn)<0))
 #define DEBUG_EMC
 
+using namespace interp_param_global;
 
 // These four functions help make the rest of cutter comp
 // plane-agnostic in much the same way the ARC_FEED canon call is.
@@ -133,12 +142,12 @@ int Interp::convert_nurbs(int mode,
       setup_pointer settings)  //!< pointer to machine settings
 {
     double end_z, AA_end, BB_end, CC_end, u_end, v_end, w_end;
-    CONTROL_POINT CP;   
+    CONTROL_POINT CP;
 
     if (mode == G_5_2)  {
 	CHKS((((block->x_flag) && !(block->y_flag)) || (!(block->x_flag) && (block->y_flag))), (
              _("You must specify both X and Y coordinates for Control Points")));
-	CHKS((!(block->x_flag) && !(block->y_flag) && (block->p_number > 0) && 
+	CHKS((!(block->x_flag) && !(block->y_flag) && (block->p_number > 0) &&
              (!nurbs_control_points.empty())), (
              _("Can specify P without X and Y only for the first control point")));
 
@@ -160,10 +169,10 @@ int Interp::convert_nurbs(int mode,
             }
             nurbs_order = 3;
             nurbs_control_points.push_back(CP);
-        } 
+        }
         if (block->l_number != -1 && block->l_number > 3) {
-            nurbs_order = block->l_number;  
-        } 
+            nurbs_order = block->l_number;
+        }
         if ((block->x_flag) && (block->y_flag)) {
             CHP(find_ends(block, settings, &CP.X, &CP.Y, &end_z, &AA_end, &BB_end, &CC_end,
                           &u_end, &v_end, &w_end));
@@ -180,7 +189,7 @@ int Interp::convert_nurbs(int mode,
 //        printf("*-----------------------------------------*\n");
         settings->motion_mode = mode;
     }
-    
+
     else if (mode == G_5_3){
         CHKS((settings->motion_mode != G_5_2), (
              _("Cannot use G5.3 without G5.2 first")));
@@ -238,11 +247,14 @@ int Interp::convert_spline(int mode,
       CHP(find_ends(block, settings, &x2, &y2, &end_z, &AA_end, &BB_end, &CC_end,
                     &u_end, &v_end, &w_end));
       cp.W = 1;
-      cp.X = settings->current_x, cp.Y = settings->current_y;
+        cp.X = settings->current_x;
+        cp.Y = settings->current_y;
       nurbs_control_points.push_back(cp);
-      cp.X = x1, cp.Y = y1;
+        cp.X = x1;
+        cp.Y = y1;
       nurbs_control_points.push_back(cp);
-      cp.X = x2, cp.Y = y2;
+        cp.X = x2;
+        cp.Y = y2;
       nurbs_control_points.push_back(cp);
       NURBS_FEED(block->line_number, nurbs_control_points, 3);
       nurbs_control_points.clear();
@@ -267,13 +279,17 @@ int Interp::convert_spline(int mode,
       y2 = y3 + block->q_number;
 
       cp.W = 1;
-      cp.X = settings->current_x, cp.Y = settings->current_y;
+      cp.X = settings->current_x;
+      cp.Y = settings->current_y;
       nurbs_control_points.push_back(cp);
-      cp.X = x1, cp.Y = y1;
+      cp.X = x1;
+      cp.Y = y1;
       nurbs_control_points.push_back(cp);
-      cp.X = x2, cp.Y = y2;
+      cp.X = x2;
+      cp.Y = y2;
       nurbs_control_points.push_back(cp);
-      cp.X = x3, cp.Y = y3;
+      cp.X = x3;
+      cp.Y = y3;
       nurbs_control_points.push_back(cp);
       NURBS_FEED(block->line_number, nurbs_control_points, 4);
       nurbs_control_points.clear();
@@ -348,9 +364,9 @@ new longer or shorter original arc are taken at this feed.
 
 */
 
-int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw arc)    
+int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw arc)
                        block_pointer block,     //!< pointer to a block of RS274 instructions
-                       setup_pointer settings)  //!< pointer to machine settings             
+                       setup_pointer settings)  //!< pointer to machine settings
 {
   int status;
   int first;                    /* flag set true if this is first move after comp true */
@@ -440,7 +456,7 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
     }
   } else {
     // in R format, we need some XYZ words specified because a full circle is not allowed.
-    if (settings->plane == CANON_PLANE_XY) { 
+    if (settings->plane == CANON_PLANE_XY) {
         CHKS(((!block->x_flag) && (!block->y_flag) && (!block->radius_flag) && (!block->theta_flag)),
             NCE_X_AND_Y_WORDS_MISSING_FOR_ARC_IN_XY_PLANE);
     } else if (settings->plane == CANON_PLANE_YZ) {
@@ -454,11 +470,13 @@ int Interp::convert_arc(int move,        //!< either G_2 (cw arc) or G_3 (ccw ar
 
 
   CHP(find_ends(block, settings, &end_x, &end_y, &end_z,
-                &AA_end, &BB_end, &CC_end, 
+                &AA_end, &BB_end, &CC_end,
                 &u_end, &v_end, &w_end));
 
   settings->motion_mode = move;
 
+  // Should be done with changes to settings here, so we can pack the state
+  write_canon_state_tag(block, settings);
 
   if (settings->plane == CANON_PLANE_XY) {
     if ((!settings->cutter_comp_side) ||
@@ -542,18 +560,18 @@ This converts a helical or circular arc.
 
 */
 
-int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw arc)    
+int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw arc)
                         block_pointer block,    //!< pointer to a block of RS274 instructions
-                        setup_pointer settings, //!< pointer to machine settings             
+                        setup_pointer settings, //!< pointer to machine settings
                         double *current1,       //!< pointer to current value of coordinate 1
                         double *current2,       //!< pointer to current value of coordinate 2
                         double *current3,       //!< pointer to current value of coordinate 3
-                        double end1,    //!< coordinate 1 value at end of arc        
-                        double end2,    //!< coordinate 2 value at end of arc        
-                        double end3,    //!< coordinate 3 value at end of arc        
-                        double AA_end,  //!< a-value at end of arc                   
-                        double BB_end,  //!< b-value at end of arc                   
-                        double CC_end,  //!< c-value at end of arc                   
+                        double end1,    //!< coordinate 1 value at end of arc
+                        double end2,    //!< coordinate 2 value at end of arc
+                        double end3,    //!< coordinate 3 value at end of arc
+                        double AA_end,  //!< a-value at end of arc
+                        double BB_end,  //!< b-value at end of arc
+                        double CC_end,  //!< c-value at end of arc
                          double u, double v, double w, //!< values at end of arc
                         double offset1, //!< center, either abs or offset from current
                         double offset2)
@@ -595,7 +613,7 @@ int Interp::convert_arc2(int move,       //!< either G_2 (cw arc) or G_3 (ccw ar
   settings->u_current = u;
   settings->v_current = v;
   settings->w_current = w;
-  
+
   return INTERP_OK;
 }
 
@@ -616,7 +634,7 @@ Side effects:
 Called by: convert_arc.
 
 This function converts a helical or circular arc, generating only one
-arc. This is called when cutter radius compensation is on and this is 
+arc. This is called when cutter radius compensation is on and this is
 the first cut after the turning on.
 
 The arc which is generated is derived from a second arc which passes
@@ -626,11 +644,11 @@ tangent to the second arc throughout the move.
 
 */
 
-int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw arc)            
-                              block_pointer block,       //!< pointer to a block of RS274/NGC instructions    
-                              setup_pointer settings,    //!< pointer to machine settings                     
-                              double end_x,      //!< x-value at end of programmed (then actual) arc  
-                              double end_y,      //!< y-value at end of programmed (then actual) arc  
+int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw arc)
+                              block_pointer block,       //!< pointer to a block of RS274/NGC instructions
+                              setup_pointer settings,    //!< pointer to machine settings
+                              double end_x,      //!< x-value at end of programmed (then actual) arc
+                              double end_y,      //!< y-value at end of programmed (then actual) arc
                               double end_z,      //!< z-value at end of arc
                               double offset_x, double offset_y,
                               double AA_end,     //!< a-value at end of arc
@@ -658,7 +676,7 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
          _("Radius of cutter compensation entry arc is not greater than the tool radius"));
 
     if (block->r_flag) {
-        CHP(arc_data_comp_r(move, plane, side, tool_radius, cx, cy, end_x, end_y, 
+        CHP(arc_data_comp_r(move, plane, side, tool_radius, cx, cy, end_x, end_y,
                             block->r_number, block->p_flag? round_to_int(block->p_number): 1,
                             &center_x, &center_y, &turn, radius_tolerance));
     } else {
@@ -686,8 +704,8 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     comp_set_programmed(settings, end_x, end_y, end_z);
 
     // move endpoint to the compensated position.  This changes the radius and center.
-    end_x += tool_radius * cos(gamma); 
-    end_y += tool_radius * sin(gamma); 
+    end_x += tool_radius * cos(gamma);
+    end_y += tool_radius * sin(gamma);
 
     /* To find the new center:
        imagine a right triangle ABC with A being the endpoint of the
@@ -702,7 +720,7 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     double A_ang = atan2(cy - end_y, cx - end_x) - AB_ang;
 
     CHKS((fabs(cos(A_ang)) < TOLERANCE_EQUAL), NCE_TOOL_RADIUS_NOT_LESS_THAN_ARC_RADIUS_WITH_COMP);
-  
+
     double c_len = b_len/cos(A_ang);
 
     // center of the arc is c_len from end in direction AB
@@ -710,20 +728,20 @@ int Interp::convert_arc_comp1(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     center_y = end_y + c_len * sin(AB_ang);
 
     /* center to endpoint distances matched before - they still should. */
-    CHKS((fabs(hypot(center_x-end_x,center_y-end_y) - 
+    CHKS((fabs(hypot(center_x-end_x,center_y-end_y) -
               hypot(center_x-cx,center_y-cy)) > spiral_abs_tolerance),
         NCE_BUG_IN_TOOL_RADIUS_COMP);
 
     // need this move for lathes to move the tool origin first.  otherwise, the arc isn't an arc.
     if (settings->cutter_comp_orientation != 0 && settings->cutter_comp_orientation != 9) {
-        enqueue_STRAIGHT_FEED(settings, block->line_number, 
+        enqueue_STRAIGHT_FEED(settings, block->line_number,
                               0, 0, 0,
                               cx, cy, cz,
                               AA_end, BB_end, CC_end, u_end, v_end, w_end);
         set_endpoint(cx, cy);
     }
-    
-    enqueue_ARC_FEED(settings, block->line_number, 
+
+    enqueue_ARC_FEED(settings, block->line_number,
                      find_turn(cx, cy, center_x, center_y, turn, end_x, end_y),
                      end_x, end_y, center_x, center_y, turn, end_z,
                      AA_end, BB_end, CC_end, u_end, v_end, w_end);
@@ -776,12 +794,12 @@ their lengths.
 
 */
 
-int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw arc)          
-                              block_pointer block,       //!< pointer to a block of RS274/NGC instructions  
-                              setup_pointer settings,    //!< pointer to machine settings                   
+int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw arc)
+                              block_pointer block,       //!< pointer to a block of RS274/NGC instructions
+                              setup_pointer settings,    //!< pointer to machine settings
                               double end_x,      //!< x-value at end of programmed (then actual) arc
                               double end_y,      //!< y-value at end of programmed (then actual) arc
-                              double end_z,      //!< z-value at end of arc 
+                              double end_z,      //!< z-value at end of arc
                               double offset_x, double offset_y,
                               double AA_end,     //!< a-value at end of arc
                               double BB_end,     //!< b-value at end of arc
@@ -797,7 +815,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     double midx, midy;
     int side;
     double small = TOLERANCE_CONCAVE_CORNER;      /* angle for testing corners */
-    double opx, opy, opz;
+    double opx = 0, opy = 0, opz = 0;
     double theta;                 /* direction of tangent to last cut */
     double tool_radius;
     int turn;                     /* number of full or partial circles CCW */
@@ -855,7 +873,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
     new_end_x = end_x + tool_radius * cos(gamma);
     new_end_y = end_y + tool_radius * sin(gamma);
 
-    if (beta < -small || 
+    if (beta < -small ||
         beta > M_PIl + small ||
         // special detection for convex corner on tangent arc->arc (like atop the middle of "m" shape)
         // or tangent line->arc (atop "h" shape)
@@ -868,7 +886,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
             double toward_nominal;
             double dist_from_center;
             double angle_from_center;
-          
+
             if TOOL_INSIDE_ARC(side, turn) {
                 // tool is inside the arc
                 dist_from_center = arc_radius - tool_radius;
@@ -881,7 +899,7 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                     angle_from_center = theta - asin(l);
                 }
             } else {
-                dist_from_center = arc_radius + tool_radius; 
+                dist_from_center = arc_radius + tool_radius;
                 toward_nominal = cy - tool_radius;
                 double l = toward_nominal / dist_from_center;
                 CHKS((l > 1.0 || l < -1.0), _("Arc move in concave corner cannot be reached by the tool without gouging"));
@@ -890,8 +908,8 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                 } else {
                     angle_from_center = theta + M_PIl + asin(l);
                 }
-            }          
-          
+            }
+
             midx = centerx + dist_from_center * cos(angle_from_center);
             midy = centery + dist_from_center * sin(angle_from_center);
 
@@ -906,13 +924,13 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
             } else {
                 newrad = arc_radius + tool_radius;
             }
-              
+
             double arc_cc, pullback, cc_dir, a;
             arc_cc = hypot(prev.center2 - centery, prev.center1 - centerx);
 
             CHKS((oldrad == 0 || arc_cc == 0), _("Arc to arc motion is invalid because the arcs have the same center"));
             a = (SQ(oldrad) + SQ(arc_cc) - SQ(newrad)) / (2 * oldrad * arc_cc);
-            
+
             CHKS((a > 1.0 || a < -1.0), (_("Arc to arc motion makes a corner the compensated tool can't fit in without gouging")));
             pullback = acos(a);
             cc_dir = atan2(centery - prev.center2, centerx - prev.center1);
@@ -929,13 +947,13 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
                 else
                     dir = cc_dir + pullback;
             }
-          
+
             midx = prev.center1 + oldrad * cos(dir);
             midy = prev.center2 + oldrad * sin(dir);
-          
+
             CHP(move_endpoint_and_flush(settings, midx, midy));
         }
-        enqueue_ARC_FEED(settings, block->line_number, 
+        enqueue_ARC_FEED(settings, block->line_number,
                          find_turn(opx, opy, centerx, centery, turn, end_x, end_y),
                          new_end_x, new_end_y, centerx, centery, turn, end_z,
                          AA_end, BB_end, CC_end, u, v, w);
@@ -943,21 +961,21 @@ int Interp::convert_arc_comp2(int move,  //!< either G_2 (cw arc) or G_3 (ccw ar
         midx = opx + tool_radius * cos(delta);
         midy = opy + tool_radius * sin(delta);
         dequeue_canons(settings);
-        enqueue_ARC_FEED(settings, block->line_number, 
+        enqueue_ARC_FEED(settings, block->line_number,
                          0.0, // doesn't matter since we won't move this arc's endpoint
                          midx, midy, opx, opy, ((side == LEFT) ? -1 : 1),
                          cz,
                          AA_end, BB_end, CC_end, u, v, w);
         dequeue_canons(settings);
         set_endpoint(midx, midy);
-        enqueue_ARC_FEED(settings, block->line_number, 
+        enqueue_ARC_FEED(settings, block->line_number,
                          find_turn(opx, opy, centerx, centery, turn, end_x, end_y),
                          new_end_x, new_end_y, centerx, centery, turn, end_z,
                          AA_end, BB_end, CC_end, u, v, w);
     } else {                      /* convex, one arc needed */
         dequeue_canons(settings);
         set_endpoint(cx, cy);
-        enqueue_ARC_FEED(settings, block->line_number, 
+        enqueue_ARC_FEED(settings, block->line_number,
                          find_turn(opx, opy, centerx, centery, turn, end_x, end_y),
                          new_end_x, new_end_y, centerx, centery, turn, end_z,
                          AA_end, BB_end, CC_end, u, v, w);
@@ -1006,6 +1024,9 @@ are always used when motion is specified with respect to absolute
 distance mode using any of the nine coordinate systems (those designated
 by G54 - G59.3). Thus all nine coordinate systems are affected by G92.
 
+G92 and G52 offsets are relative to the current G5x offsets so they
+are applied after the G5x offsets and G10 R rotations are applied.
+
 Being in incremental distance mode has no effect on the action of G92
 in this implementation. [NCMS] is not explicit about this, but it is
 implicit in the second sentence of [Fanuc, page 61].
@@ -1036,8 +1057,8 @@ given in the parameters.
 */
 
 int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (must be in G_92 series)
-                                block_pointer block,    //!< pointer to a block of RS274/NGC instructions  
-                                setup_pointer settings) //!< pointer to machine settings                   
+                                block_pointer block,    //!< pointer to a block of RS274/NGC instructions
+                                setup_pointer settings) //!< pointer to machine settings
 {
   double *pars;                 /* short name for settings->parameters            */
 
@@ -1057,7 +1078,7 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
        block->c_number, 'C');
   pars = settings->parameters;
   if ((g_code == G_52) || (g_code == G_92)) {
-      pars[5210] = 1.0;
+      pars[G92_APPLIED] = 1.0;
 
       if (g_code == G_52) {
 	  if (block->x_flag) {
@@ -1193,15 +1214,15 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
     settings->v_axis_offset = 0.0;
     settings->w_axis_offset = 0.0;
     if (g_code == G_92_1) {
-      pars[5211] = 0.0;
-      pars[5212] = 0.0;
-      pars[5213] = 0.0;
-      pars[5214] = 0.0;
-      pars[5215] = 0.0;
-      pars[5216] = 0.0;
-      pars[5217] = 0.0;
-      pars[5218] = 0.0;
-      pars[5219] = 0.0;
+      pars[G92_X] = 0.0;
+      pars[G92_Y] = 0.0;
+      pars[G92_Z] = 0.0;
+      pars[G92_A] = 0.0;
+      pars[G92_B] = 0.0;
+      pars[G92_C] = 0.0;
+      pars[G92_U] = 0.0;
+      pars[G92_V] = 0.0;
+      pars[G92_W] = 0.0;
     }
   } else if (g_code == G_92_3) {
     pars[5210] = 1.0;
@@ -1253,6 +1274,7 @@ int Interp::convert_axis_offsets(int g_code,     //!< g_code being executed (mus
 
 int Interp::convert_param_comment(char *comment, char *expanded, int len)
 {
+    FORCE_LC_NUMERIC_C;
     int i;
     char param[LINELEN+1];
     int paramNumber;
@@ -1359,12 +1381,12 @@ int Interp::convert_param_comment(char *comment, char *expanded, int len)
                 int n = snprintf(valbuf, VAL_LEN, "%lf", pvalue);
                 bool fail = (n >= VAL_LEN || n < 0);
                 if(fail)
-                    strcpy(valbuf, "######");
+                    rtapi_strxcpy(valbuf, "######");
 
             }
             else
             {
-                strcpy(valbuf, "######");
+                rtapi_strxcpy(valbuf, "######");
             }
             logDebug("found:%d value:|%s|", found, valbuf);
 
@@ -1380,7 +1402,7 @@ int Interp::convert_param_comment(char *comment, char *expanded, int len)
         }
     }
     *expanded = 0; // the final nul
-    
+
     return INTERP_OK;
 }
 
@@ -1461,7 +1483,7 @@ int Interp::convert_comment(char *comment, bool enqueue)       //!< string with 
 	  MESSAGE(expanded);
       return INTERP_OK;
   }
-  else if (startswith(lc, PRINT_STR)) 
+  else if (startswith(lc, PRINT_STR))
   {
       convert_param_comment(comment+start+strlen(PRINT_STR), expanded,
                             EX_SIZE);
@@ -1549,11 +1571,13 @@ already in force.
 
 */
 
-int Interp::convert_control_mode(int g_code,     //!< g_code being executed (G_61, G61_1, || G_64)
-				double tolerance,    //tolerance for the path following in G64
-				double naivecam_tolerance,    //tolerance for the naivecam
-                                setup_pointer settings) //!< pointer to machine settings                 
+int Interp::convert_control_mode(
+    int g_code,                   // g_code being executed (G_61, G61_1, G_64)
+    double tolerance_in,          // tolerance for the path following in G64
+    double naivecam_tolerance_in, // tolerance for the naivecam
+    setup_pointer settings)       // pointer to machine settings
 {
+    double tolerance, naivecam_tolerance;
   CHKS((settings->cutter_comp_side),
        (_("Cannot change control mode with cutter radius compensation on")));
   if (g_code == G_61) {
@@ -1563,20 +1587,25 @@ int Interp::convert_control_mode(int g_code,     //!< g_code being executed (G_6
     SET_MOTION_CONTROL_MODE(CANON_EXACT_STOP, 0);
     settings->control_mode = CANON_EXACT_STOP;
   } else if (g_code == G_64) {
-	if (tolerance >= 0) {
-	    SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, tolerance);
-	} else {
-	    SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, 0);
-	}
-	if (naivecam_tolerance >= 0) {
-	    SET_NAIVECAM_TOLERANCE(naivecam_tolerance);
-	} else if (tolerance >= 0) {
-	    SET_NAIVECAM_TOLERANCE(tolerance);   // if no naivecam_tolerance specified use same for both
-	} else {
-	    SET_NAIVECAM_TOLERANCE(0);
-	}
-    settings->control_mode = CANON_CONTINUOUS;
-  } else 
+      if (tolerance_in >= 0)
+	  tolerance = tolerance_in;
+      else
+	  tolerance = 0;
+      settings->control_mode = CANON_CONTINUOUS;
+      settings->tolerance = tolerance;
+      SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, tolerance);
+
+      if (naivecam_tolerance_in >= 0)
+	  naivecam_tolerance = naivecam_tolerance_in;
+      else if (tolerance_in >= 0)
+	  // if no naivecam_tolerance specified use same for both
+	  naivecam_tolerance = tolerance_in;
+      else
+	  naivecam_tolerance = 0;
+      settings->naivecam_tolerance = naivecam_tolerance;
+      SET_NAIVECAM_TOLERANCE(naivecam_tolerance);
+
+  } else
     ERS(NCE_BUG_CODE_NOT_G61_G61_1_OR_G64);
   return INTERP_OK;
 }
@@ -1655,14 +1684,14 @@ nine coordinate systems. Axis offsets are initialized to zero.
 void Interp::rotate(double *x, double *y, double theta) {
     double xx, yy;
     double t = D2R(theta);
-    xx = *x * cos(t) - *y * sin(t); 
+    xx = *x * cos(t) - *y * sin(t);
     yy = *x * sin(t) + *y * cos(t);
     *x = xx;
     *y = yy;
 }
 
-int Interp::convert_coordinate_system(int g_code,        //!< g_code called (must be one listed above)     
-                                     setup_pointer settings)    //!< pointer to machine settings                  
+int Interp::convert_coordinate_system(int g_code,        //!< g_code called (must be one listed above)
+                                     setup_pointer settings)    //!< pointer to machine settings
 {
   int origin;
   double *parameters;
@@ -1781,9 +1810,9 @@ Called by: convert_g
 
 */
 
-int Interp::convert_cutter_compensation(int g_code,      //!< must be G_40, G_41, or G_42             
+int Interp::convert_cutter_compensation(int g_code,      //!< must be G_40, G_41, or G_42
                                        block_pointer block,     //!< pointer to a block of RS274 instructions
-                                       setup_pointer settings)  //!< pointer to machine settings             
+                                       setup_pointer settings)  //!< pointer to machine settings
 {
 
   if (g_code == G_40) {
@@ -1901,11 +1930,11 @@ static int is_near_int(int *result, double value) {
 }
 
 int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutter is on (LEFT or RIGHT)
-                                          block_pointer block,  //!< pointer to a block of RS274 instructions 
-                                          setup_pointer settings)       //!< pointer to machine settings              
+                                          block_pointer block,  //!< pointer to a block of RS274 instructions
+                                          setup_pointer settings)       //!< pointer to machine settings
 {
   double radius;
-  int pocket_number, orientation;
+  int idx, orientation;
 
   CHKS((settings->plane != CANON_PLANE_XY && settings->plane != CANON_PLANE_XZ),
       NCE_RADIUS_COMP_ONLY_IN_XY_OR_XZ);
@@ -1923,17 +1952,17 @@ int Interp::convert_cutter_compensation_on(int side,     //!< side of path cutte
       }
   } else {
       if(!block->d_flag) {
-          pocket_number = 0;
+          idx = 0;
       } else {
           int tool;
           CHKS(!is_near_int(&tool, block->d_number_float),
                   _("G%d requires D word to be a whole number"),
                    block->g_modes[GM_CUTTER_COMP]/10);
           CHKS((tool < 0), NCE_NEGATIVE_D_WORD_TOOL_RADIUS_INDEX_USED);
-          CHP((find_tool_pocket(settings, tool, &pocket_number)));
+          CHP((find_tool_index(settings, tool, &idx)));
       }
-      radius = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].diameter) / 2.0;
-      orientation = settings->tool_table[pocket_number].orientation;
+      radius = USER_TO_PROGRAM_LEN(settings->tool_table[idx].diameter) / 2.0;
+      orientation = settings->tool_table[idx].orientation;
       CHKS((settings->plane != CANON_PLANE_XZ && orientation != 0 && orientation != 9), _("G%d with lathe tool, but plane is not G18"), block->g_modes[7]/10);
   }
   if (radius < 0.0) { /* switch side & make radius positive if radius negative */
@@ -1982,7 +2011,7 @@ Called by: convert_g.
 // doesn't issue any CANONs
 
 int Interp::convert_distance_mode(int g_code,    //!< g_code being executed (must be G_90 or G_91)
-                                 setup_pointer settings)        //!< pointer to machine settings                 
+                                 setup_pointer settings)        //!< pointer to machine settings
 {
   if (g_code == G_90) {
     if (settings->distance_mode != MODE_ABSOLUTE) {
@@ -2029,7 +2058,7 @@ Called by: convert_g.
 // doesn't issue any CANONs except comments (and who cares where the comments are)
 
 int Interp::convert_ijk_distance_mode(int g_code,    //!< g_code being executed (must be G_90_1 or G_91_1)
-                                 setup_pointer settings)        //!< pointer to machine settings                 
+                                 setup_pointer settings)        //!< pointer to machine settings
 {
   if (g_code == G_90_1) {
     if (settings->ijk_distance_mode != MODE_ABSOLUTE) {
@@ -2086,7 +2115,7 @@ int Interp::convert_lathe_diameter_mode(int g_code,    //!< g_code being execute
           block->i_number /= 2;
           block->j_number /= 2;
           block->k_number /= 2;
-      }              
+      }
 #ifdef DEBUG_EMC
       COMMENT("interpreter: Lathe diameter mode changed to diameter");
 #endif
@@ -2102,7 +2131,7 @@ int Interp::convert_lathe_diameter_mode(int g_code,    //!< g_code being execute
           block->i_number *= 2;
           block->j_number *= 2;
           block->k_number *= 2;
-      }              
+      }
 #ifdef DEBUG_EMC
       COMMENT("interpreter: Lathe diameter mode changed to radius");
 #endif
@@ -2156,7 +2185,7 @@ Called by: execute_block.
 */
 
 int Interp::convert_feed_mode(int g_code,        //!< g_code being executed (must be G_93, G_94 or G_95)
-                             setup_pointer settings)    //!< pointer to machine settings                 
+                             setup_pointer settings)    //!< pointer to machine settings
 {
   if (g_code == G_93) {
 #ifdef DEBUG_EMC
@@ -2203,7 +2232,7 @@ This is called only if the feed mode is UNITS_PER_MINUTE or UNITS_PER_REVOLUTION
 */
 
 int Interp::convert_feed_rate(block_pointer block,       //!< pointer to a block of RS274 instructions
-                             setup_pointer settings)    //!< pointer to machine settings             
+                             setup_pointer settings)    //!< pointer to machine settings
 {
   settings->feed_rate = block->f_number;
   enqueue_SET_FEED_RATE(block->f_number);
@@ -2245,7 +2274,7 @@ any "g" codes in the block.
 Codes g93 and g94, which set the feed mode, are executed earlier by
 execute_block before reading the feed rate.
 
-G codes are are executed in the following order.
+G-codes are are executed in the following order.
 1.  mode 0, G4 only - dwell. Left here from earlier versions.
 2.  mode 2, one of (G17, G18, G19) - plane selection.
 3.  mode 6, one of (G20, G21) - length units.
@@ -2262,7 +2291,7 @@ G codes are are executed in the following order.
 13. mode 1, one of (G0, G1, G2, G3, G38.2, G80, G81 to G89, G33, G33.1, G76) - motion or cancel.
     G53 from mode 0 is also handled here, if present.
 
-Some mode 0 and most mode 1 G codes must be executed after the length units
+Some mode 0 and most mode 1 G-codes must be executed after the length units
 are set, since they use coordinate values. Mode 1 codes also must wait
 until most of the other modes are set.
 
@@ -2321,7 +2350,10 @@ int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS27
     if ((block->g_modes[GM_MODAL_0] != -1) && ONCE(STEP_MODAL_0)) {
       status = convert_modal_0(block->g_modes[GM_MODAL_0], block, settings);
       CHP(status);
-  }
+    }
+    if ((block->g_modes[GM_G92_IS_APPLIED] != -1) && ONCE(STEP_G92_IS_APPLIED)) {
+      status = convert_g92_is_applied(block->g_modes[GM_G92_IS_APPLIED], block, settings);
+    }
     if ((block->motion_to_be != -1)  && ONCE(STEP_MOTION)){
       status = convert_motion(block->motion_to_be, block, settings);
       CHP(status);
@@ -2329,15 +2361,34 @@ int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS27
   return INTERP_OK;
 }
 
+/*! convert_savehome
+
+Returned Value: int
+   Returns an error if cutter_comp_side is set or the routine is called
+   from a gcode other than G_28_1 or G_30_1
+
+Side effects:
+   None
+
+Called by: convert_modal_0
+
+Saves the absolute coordinates of the current point in parameters 5161-5169
+   for G28.1, or 5181-5189 for G30.1
+
+*/
+
 int Interp::convert_savehome(int code, block_pointer block, setup_pointer s) {
     double *p = s->parameters;
-    
+
     if(s->cutter_comp_side) {
         ERS(_("Cannot set reference point with cutter compensation in effect"));
     }
 
-    double x = PROGRAM_TO_USER_LEN(s->current_x + s->tool_offset.tran.x + s->origin_offset_x + s->axis_offset_x);
-    double y = PROGRAM_TO_USER_LEN(s->current_y + s->tool_offset.tran.y + s->origin_offset_y + s->axis_offset_y);
+    double x = s->current_x + s->axis_offset_x;
+    double y = s->current_y + s->axis_offset_y;
+    rotate(&x, &y, s->rotation_xy);
+    x = PROGRAM_TO_USER_LEN(x + s->tool_offset.tran.x + s->origin_offset_x);
+    y = PROGRAM_TO_USER_LEN(y + s->tool_offset.tran.y + s->origin_offset_y);
     double z = PROGRAM_TO_USER_LEN(s->current_z + s->tool_offset.tran.z + s->origin_offset_z + s->axis_offset_z);
     double a = PROGRAM_TO_USER_ANG(s->AA_current + s->tool_offset.a + s->AA_origin_offset + s->AA_axis_offset);
     double b = PROGRAM_TO_USER_ANG(s->BB_current + s->tool_offset.b + s->BB_origin_offset + s->BB_axis_offset);
@@ -2399,7 +2450,7 @@ Returned Value: int
       NCE_CANNOT_USE_G28_OR_G30_WITH_CUTTER_RADIUS_COMP
    2. The code is not G28 or G30: NCE_BUG_CODE_NOT_G28_OR_G30
 
-Side effects: 
+Side effects:
    This executes a straight traverse to the programmed point, using
    the current coordinate system, tool length offset, and motion mode
    to interpret the coordinate values. Then it executes a straight
@@ -2423,9 +2474,9 @@ Called by: convert_modal_0.
 
 */
 
-int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30            
+int Interp::convert_home(int move,       //!< G-code, must be G_28 or G_30
                         block_pointer block,    //!< pointer to a block of RS274 instructions
-                        setup_pointer settings) //!< pointer to machine settings             
+                        setup_pointer settings) //!< pointer to machine settings
 {
   double end_x;
   double end_y;
@@ -2449,7 +2500,7 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
 
   parameters = settings->parameters;
   CHP(find_ends(block, settings, &end_x, &end_y, &end_z,
-                &AA_end, &BB_end, &CC_end, 
+                &AA_end, &BB_end, &CC_end,
                 &u_end, &v_end, &w_end));
 
   CHKS((settings->cutter_comp_side),
@@ -2465,6 +2516,9 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
       issue_straight_index(4,settings->b_indexer_jnum, BB_end, block->line_number, settings);
   if (CC_end != settings->CC_current && (-1 != settings->c_indexer_jnum) )
       issue_straight_index(5,settings->c_indexer_jnum, CC_end, block->line_number, settings);
+
+  // Create a state tag and dump it to canon
+  write_canon_state_tag(block, settings);
 
   STRAIGHT_TRAVERSE(block->line_number, end_x, end_y, end_z,
                     AA_end, BB_end, CC_end,
@@ -2491,7 +2545,7 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
                     USER_TO_PROGRAM_LEN(parameters[5168]),
                     USER_TO_PROGRAM_LEN(parameters[5169]),
                     &end_x_home, &end_y_home, &end_z_home,
-                    &AA_end_home, &BB_end_home, &CC_end_home, 
+                    &AA_end_home, &BB_end_home, &CC_end_home,
                     &u_end_home, &v_end_home, &w_end_home, settings);
   } else if (move == G_30) {
       find_relative(USER_TO_PROGRAM_LEN(parameters[5181]),
@@ -2504,39 +2558,39 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
                     USER_TO_PROGRAM_LEN(parameters[5188]),
                     USER_TO_PROGRAM_LEN(parameters[5189]),
                     &end_x_home, &end_y_home, &end_z_home,
-                    &AA_end_home, &BB_end_home, &CC_end_home, 
+                    &AA_end_home, &BB_end_home, &CC_end_home,
                     &u_end_home, &v_end_home, &w_end_home, settings);
   } else
     ERS(NCE_BUG_CODE_NOT_G28_OR_G30);
-  
-  // if any axes are specified, home only those axes after the waypoint 
+
+  // if any axes are specified, home only those axes after the waypoint
   // (both fanuc & haas, contrary to emc historical operation)
 
-  if (block->x_flag) end_x = end_x_home;  
-  if (block->y_flag) end_y = end_y_home;  
-  if (block->z_flag) end_z = end_z_home;  
+  if (block->x_flag) end_x = end_x_home;
+  if (block->y_flag) end_y = end_y_home;
+  if (block->z_flag) end_z = end_z_home;
   if (block->a_flag) AA_end = AA_end_home;
   if (block->b_flag) BB_end = BB_end_home;
   if (block->c_flag) CC_end = CC_end_home;
-  if (block->u_flag) u_end = u_end_home;  
-  if (block->v_flag) v_end = v_end_home;  
-  if (block->w_flag) w_end = w_end_home;  
+  if (block->u_flag) u_end = u_end_home;
+  if (block->v_flag) v_end = v_end_home;
+  if (block->w_flag) w_end = w_end_home;
 
-  // but, if no axes are specified, home all of them 
+  // but, if no axes are specified, home all of them
   // (haas does this, emc historical did, throws an error in fanuc)
 
   if (!block->x_flag && !block->y_flag && !block->z_flag &&
       !block->a_flag && !block->b_flag && !block->c_flag &&
       !block->u_flag && !block->v_flag && !block->w_flag) {
-      end_x = end_x_home;  
-      end_y = end_y_home;  
-      end_z = end_z_home;  
+      end_x = end_x_home;
+      end_y = end_y_home;
+      end_z = end_z_home;
       AA_end = AA_end_home;
       BB_end = BB_end_home;
       CC_end = CC_end_home;
-      u_end = u_end_home;  
-      v_end = v_end_home;  
-      w_end = w_end_home;  
+      u_end = u_end_home;
+      v_end = v_end_home;
+      w_end = w_end_home;
   }
 
   // move indexers first, one at a time
@@ -2560,7 +2614,7 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
   settings->u_current = u_end;
   settings->v_current = v_end;
   settings->w_current = w_end;
-  
+
   return INTERP_OK;
 }
 
@@ -2571,7 +2625,7 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
 Returned Value: int
    If any of the following errors occur, this returns the error shown.
    Otherwise, it returns INTERP_OK.
-   1. The g_code argument isnt G_20 or G_21:
+   1. The g_code argument isn't G_20 or G_21:
       NCE_BUG_CODE_NOT_G20_OR_G21
    2. Cutter radius compensation is on:
       NCE_CANNOT_CHANGE_UNITS_WITH_CUTTER_RADIUS_COMP
@@ -2593,7 +2647,7 @@ offsets and feed rate that are in effect are converted by rereading them
 from the canon level.
 
 Cutter diameter is not converted because radius comp is not in effect
-when we are changing units.  
+when we are changing units.
 
 XXX Other distance items in the settings (such as the various parameters
 for cycles) need testing.
@@ -2601,7 +2655,7 @@ for cycles) need testing.
 */
 
 int Interp::convert_length_units(int g_code,     //!< g_code being executed (must be G_20 or G_21)
-                                setup_pointer settings) //!< pointer to machine settings                 
+                                setup_pointer settings) //!< pointer to machine settings
 {
   if (g_code == G_20) {
     USE_LENGTH_UNITS(CANON_UNITS_INCHES);
@@ -2642,6 +2696,9 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->tool_offset.v = GET_EXTERNAL_TOOL_LENGTH_VOFFSET();
       settings->tool_offset.w = GET_EXTERNAL_TOOL_LENGTH_WOFFSET();
       settings->feed_rate = GET_EXTERNAL_FEED_RATE();
+      settings->tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+      settings->naivecam_tolerance =
+	  GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
     }
   } else if (g_code == G_21) {
     USE_LENGTH_UNITS(CANON_UNITS_MM);
@@ -2682,6 +2739,9 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
       settings->tool_offset.v = GET_EXTERNAL_TOOL_LENGTH_VOFFSET();
       settings->tool_offset.w = GET_EXTERNAL_TOOL_LENGTH_WOFFSET();
       settings->feed_rate = GET_EXTERNAL_FEED_RATE();
+      settings->tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+      settings->naivecam_tolerance =
+	  GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
     }
   } else
     ERS(NCE_BUG_CODE_NOT_G20_OR_G21);
@@ -2690,43 +2750,49 @@ int Interp::convert_length_units(int g_code,     //!< g_code being executed (mus
 
 
 /*
- * given two double arrays representing interpreter settings as stored in
- * _setup.active_settings, construct a G-code sequence to synchronize their state.
+ * given two int arrays and two double arrays representing interpreter
+ * settings as stored in _setup.active_g_codes and
+ * _setup.active_settings, construct a G-code sequence to synchronize
+ * their state.
  */
-int Interp::gen_settings(double *current, double *saved, std::string &cmd)
+int Interp::gen_settings(
+    int *int_current, int *int_saved,            // G-codes
+    double *float_current, double *float_saved,  // S, F, other
+    std::string &cmd)                            // command buffer
 {
-    int i;
+    FORCE_LC_NUMERIC_C;
+    int i, val;
+    int g64_changed = 0;
     char buf[LINELEN];
+
+    // F, S
     for (i = 0; i < ACTIVE_SETTINGS; i++) {
-	if (saved[i] != current[i]) {
+	if (float_saved[i] != float_current[i]) {
 	    switch (i) {
-	    case 0: break; // sequence_number - no point in restoring
-	    case 1:
-		snprintf(buf,sizeof(buf)," F%.1f", saved[i]);
+	    case GM_FIELD_FLOAT_LINE_NUMBER:
+		// sequence_number - no point in restoring
+		break;
+	    case GM_FIELD_FLOAT_FEED:
+		snprintf(buf,sizeof(buf)," F%.1f", float_saved[i]);
                 cmd += buf;
 		break;
-	    case 2:
-		snprintf(buf,sizeof(buf)," S%.0f", saved[i]);
+	    case GM_FIELD_FLOAT_SPEED:
+		snprintf(buf,sizeof(buf)," S%.0f", float_saved[i]);
                 cmd += buf;
+		break;
+	    case GM_FIELD_FLOAT_PATH_TOLERANCE:
+	    case GM_FIELD_FLOAT_NAIVE_CAM_TOLERANCE:
+		// G64 special case; see below
+		g64_changed = 1;
 		break;
 	    }
 	}
     }
-    return INTERP_OK;
-}
 
-
-/*
- * given two int arrays representing interpreter settings as stored in
- * _setup.active_g_codes, construct a G-code sequence to synchronize their state.
- */
-int Interp::gen_g_codes(int *current, int *saved, std::string &cmd)
-{
-    int i, val;
-    char buf[LINELEN];
+    // G-codes
     for (i = 0; i < ACTIVE_G_CODES; i++) {
-	val = saved[i];
-	if (val != current[i]) {
+	val = int_saved[i];
+	if (val != int_current[i]) {
 
 	    switch (i) {
 	    case 0:
@@ -2750,10 +2816,10 @@ int Interp::gen_g_codes(int *current, int *saved, std::string &cmd)
 	    case 8: // - coordinate system
 	    case 9: // - tool offset (G43/G49)
 	    case 10: // - retract mode
-	    case 11: // - control mode
 	    case 13: // - spindle mode
 	    case 14: // - ijk distance mode
 	    case 15: // - lathe diameter mode
+            case 16: // - whether g92 is applied
 
 		if (val != -1) { // FIXME not sure if this is correct!
 		    // if this was set in sub, and unset in caller, it will
@@ -2766,12 +2832,50 @@ int Interp::gen_g_codes(int *current, int *saved, std::string &cmd)
                     cmd += buf;
 		} else {
 		    // so complain rather loudly
-		    MSG("------ gen_g_codes BUG: index %d = -1!!\n",i);
+		    MSG("------ gen_settings BUG: index %d = -1!!\n",i);
 		}
+		break;
+	    case 11: // - control mode
+		// Special case, since G64 requires P and Q flags
+		// FIXME what about when P or Q changes, even though still G64?
+		if (val == G_64)
+		    // G64 special case; see below
+		    g64_changed = 1;
+		else if (val == G_61) {
+		    snprintf(buf,sizeof(buf)," G61");
+		    cmd += buf;
+		} else if (val == G_61_1) {
+		    snprintf(buf,sizeof(buf)," G61.1");
+		    cmd += buf;
+		} else
+		    MSG("------ gen_settings BUG: index %d = -1!!\n",i);
 		break;
 	    }
 	}
     }
+
+
+    // Special case for restoring G64:  `cmd` may contain a `G64` if
+    // current int settings is `G61` or if current float settings
+    // contain different `G64 P* Q*` args; in these cases, only add a
+    // single `G64` command
+    if ((int_saved[11] == G_64) && g64_changed) {
+	if (float_saved[GM_FIELD_FLOAT_PATH_TOLERANCE] < 0)
+	    // No P, Q args
+	    snprintf(buf,sizeof(buf)," G64");
+	else if (
+	    float_saved[GM_FIELD_FLOAT_NAIVE_CAM_TOLERANCE] < 0)
+	    // Only P arg
+	    snprintf(buf,sizeof(buf)," G64 P%f",
+		     float_saved[GM_FIELD_FLOAT_PATH_TOLERANCE]);
+	else  // Both P, Q args
+	    snprintf(
+		buf,sizeof(buf)," G64 P%f Q%f",
+		float_saved[GM_FIELD_FLOAT_PATH_TOLERANCE],
+		float_saved[GM_FIELD_FLOAT_NAIVE_CAM_TOLERANCE]);
+	cmd += buf;
+    }
+
     return INTERP_OK;
 }
 
@@ -2784,6 +2888,7 @@ int Interp::gen_g_codes(int *current, int *saved, std::string &cmd)
  */
 int Interp::gen_m_codes(int *current, int *saved, std::string &cmd)
 {
+    FORCE_LC_NUMERIC_C;
     int i,val;
     char buf[LINELEN];
     for (i = 0; i < ACTIVE_M_CODES; i++) {
@@ -2820,6 +2925,61 @@ int Interp::gen_m_codes(int *current, int *saved, std::string &cmd)
     return INTERP_OK;
 }
 
+
+/**
+ * Create a G-code string to restore a modal state on program abort.
+ * Note: This is only designed to be called on program abort. It restores the
+ * modal state in the interpreter to the equivalent state at the most recent
+ * motion line, but does not restore M codes.
+ */
+int Interp::gen_restore_cmd(int *current_g,
+			    int *current_m,
+			    double *current_settings,
+			    StateTag const &saved,
+			    std::string &cmd)
+{
+    int res;
+    // A local copy of the saved settings, unpacked from a state tag
+    int saved_g[ACTIVE_G_CODES];
+    int saved_m[ACTIVE_M_CODES];
+    double saved_settings[ACTIVE_SETTINGS];
+
+    //Extract saved state to local vectors
+    // FIXME Use saved_settings to store state tag floats, incl. in
+    int res_unpack = active_modes(saved_g, saved_m, saved_settings, saved);
+    if (res_unpack != INTERP_OK) {
+	logStateTags("gen_restore_cmd() error %d:  failed to unpack state tag",
+		     res_unpack);
+        return INTERP_ERROR;
+    }
+
+    /* Now we clean up any G / M modes that should be reset when ending a
+     * program. Note that most of these mode states are based on logic in
+     * write_XXX functions.
+     */
+    // Force cancellation of tool compensation
+    saved_g[4] = G_40;
+
+    //Mimic the order of restoration commands used elsewhere
+    if (current_g[5] != saved_g[5]) {
+        char buf[LINELEN];
+        snprintf(buf,sizeof(buf), "G%d",saved_g[5]/10);
+        CHKS(execute(buf) != INTERP_OK, _("gen_restore G20/G21 failed: '%s'"),
+	     cmd.c_str());
+    }
+
+    if ((res = gen_settings(
+	     current_g, saved_g, current_settings, saved_settings, cmd))) {
+	logStateTags("gen_restore_cmd():  error restoring settings (%d)",
+		     res);
+        return INTERP_ERROR;
+    }
+    // M codes should not be restored during an abort with gen_m_codes()
+
+    return INTERP_OK;
+}
+
+
 int Interp::save_settings(setup_pointer settings)
 {
       // the state is sprinkled all over _setup
@@ -2827,6 +2987,7 @@ int Interp::save_settings(setup_pointer settings)
       write_g_codes((block_pointer) NULL, settings);
       write_m_codes((block_pointer) NULL, settings);
       write_settings(settings);
+      write_state_tag((block_pointer) NULL, settings, settings->state_tag);
 
       // save in the current call frame
       active_g_codes((int *)settings->sub_context[settings->call_level].saved_g_codes);
@@ -2876,9 +3037,16 @@ int Interp::restore_settings(setup_pointer settings,
 	snprintf(buf,sizeof(buf), "G%d",settings->sub_context[from_level].saved_g_codes[5]/10);
 	CHKS(execute(buf) != INTERP_OK, _("M7x: restore_settings G20/G21 failed: '%s'"), cmd.c_str());
     }
-    gen_settings((double *)settings->active_settings, (double *)settings->sub_context[from_level].saved_settings,cmd);
-    gen_m_codes((int *) settings->active_m_codes, (int *)settings->sub_context[from_level].saved_m_codes,cmd);
-    gen_g_codes((int *)settings->active_g_codes, (int *)settings->sub_context[from_level].saved_g_codes,cmd);
+    gen_settings(
+	(int *)settings->active_g_codes,
+	(int *)settings->sub_context[from_level].saved_g_codes,
+	(double *)settings->active_settings,
+	(double *)settings->sub_context[from_level].saved_settings,
+	cmd);
+    gen_m_codes(
+	(int *) settings->active_m_codes,
+	(int *)settings->sub_context[from_level].saved_m_codes,
+	cmd);
 
     if (!cmd.empty()) {
 	// the sequence can be multiline, separated by nl
@@ -2891,7 +3059,7 @@ int Interp::restore_settings(setup_pointer settings,
 	    int status = execute(s);
 	    if (status != INTERP_OK) {
 		char currentError[LINELEN+1];
-		strcpy(currentError,getSavedError());
+		rtapi_strxcpy(currentError,getSavedError());
 		CHKS(status, _("M7x: restore_settings failed executing: '%s': %s"), s, currentError);
 	    }
 	}
@@ -2903,6 +3071,77 @@ int Interp::restore_settings(setup_pointer settings,
     // TBD: any state deemed important to restore should be restored here
     // NB: some state changes might generate canon commands so do that here
     // if needed
+
+    return INTERP_OK;
+}
+
+
+/**
+ * Variation of restore_settings to pull state from a StateTag.
+ */
+int Interp::restore_from_tag(StateTag const &tag)
+{
+
+    if (!tag.is_valid() || !tag.flags[GM_FLAG_RESTORABLE]) {
+        //Invalid line implies a bad tag, don't restore
+	logStateTags("restore_from_tag() error:  Invalid tag");
+	print_state_tag(tag);
+        return INTERP_ERROR;
+    }
+
+    // clear queue buster sflags, otherwise the command won't be
+    // executed - Tormach *dpr 8/17/15
+    _setup.input_flag = false;
+    _setup.toolchange_flag = false;
+    _setup.probe_flag = false;
+
+    // linearize state
+    write_g_codes((block_pointer) NULL, &_setup);
+    write_m_codes((block_pointer) NULL, &_setup);
+    write_settings(&_setup);
+
+    std::string cmd;
+
+    // construct gcode from the state difference and execute
+    // this assures appropriate canon commands are generated if needed -
+    // just restoring interp variables is not enough
+
+    int res_unpack = gen_restore_cmd((int *) _setup.active_g_codes,
+				     (int *) _setup.active_m_codes,
+				     (double *) _setup.active_settings,
+				     tag,
+				     cmd);
+    if (res_unpack != INTERP_OK) {
+	logStateTags("restore_from_tag() failed to generate restore command");
+	print_state_tag(tag);
+        return res_unpack;
+    }
+
+    if (!cmd.empty()) {
+        // the sequence can be multiline, separated by nl
+        // so split and execute each line
+        char buf[cmd.size() + 1];
+        strncpy(buf, cmd.c_str(), sizeof(buf));
+        char *last = buf;
+        char *s;
+        while ((s = strtok_r(last, "\n", &last)) != NULL) {
+            int status = execute(s);
+            if (status != INTERP_OK) {
+                char currentError[LINELEN+1];
+                strcpy(currentError,getSavedError());
+                CHKS(status, _("Failed to restore interp state on abort "
+			       "'%s': %s"), s, currentError);
+            }
+        }
+        write_g_codes((block_pointer) NULL, &_setup);
+        write_m_codes((block_pointer) NULL, &_setup);
+        write_settings(&_setup);
+	logStateTags("Restored program pre-abort state from tag:  |%s|",
+		     cmd.c_str());
+    } else {
+	logStateTags("Program pre-abort state unchanged; not restoring:");
+	print_state_tag(tag);
+    }
 
     return INTERP_OK;
 }
@@ -2948,8 +3187,8 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
   /* The M62-65 commands are used for DIO */
   /* M62 sets a DIO synched with motion
      M63 clears a DIO synched with motion
-     M64 sets a DIO imediately
-     M65 clears a DIO imediately 
+     M64 sets a DIO immediately
+     M65 clears a DIO immediately
      M66 waits for an input
      M67 reads a digital input
      M68 reads an analog input*/
@@ -2991,30 +3230,31 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
     CHKS(((block->p_flag) && (block->e_flag)),
 	NCE_BOTH_DIGITAL_AND_ANALOG_INPUT_SELECTED);
 
-    // L-word not 0, and timeout <= 0 
+    // L-word not 0, and timeout <= 0
     CHKS(((block->q_number <= 0) && (block->l_flag) && (round_to_int(block->l_number) > 0)),
 	NCE_ZERO_TIMEOUT_WITH_WAIT_NOT_IMMEDIATE);
-	
+
     // E-word specified (analog input) and wait type not immediate
     CHKS(((block->e_flag) && (block->l_flag) && (round_to_int(block->l_number) != 0)),
 	NCE_ANALOG_INPUT_WITH_WAIT_NOT_IMMEDIATE);
 
     // missing P or E (or invalid = negative)
-    CHKS( ((block->p_flag) && (round_to_int(block->p_number) < 0)) || 
+    CHKS( ((block->p_flag) && (round_to_int(block->p_number) < 0)) ||
          ((block->e_flag) && (round_to_int(block->e_number) < 0)) ||
 	 ((!block->p_flag) && (!block->e_flag)) ,
 	NCE_INVALID_OR_MISSING_P_AND_E_WORDS_FOR_WAIT_INPUT);
 
+    write_canon_state_tag(block, settings);
     if (block->p_flag) { // got a digital input
 	if (round_to_int(block->p_number) < 0) // safety check for negative words
 	    ERS(_("invalid P-word with M66"));
-	    
+
 	if (block->l_flag) {
 	    type = round_to_int(block->l_number);
 	} else {
 	    type = WAIT_MODE_IMMEDIATE;
         }
-	    
+
 	if (block->q_number > 0) {
 	    timeout = block->q_number;
 	} else {
@@ -3043,7 +3283,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	    settings->input_index = round_to_int(block->e_number);
 	    settings->input_digital = false;
 	}
-    } 
+    }
   } else if ((block->m_modes[5] == 67) && ONCE_M(5)) {
 
     //E-word = analog channel
@@ -3071,7 +3311,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
       		  return convert_remapped_code(block,settings,
       					       STEP_M_6,
       					       'm',
-      					       block->m_modes[6]);  
+      					       block->m_modes[6]);
 	  } else {
 	      // the code was used in its very remap procedure -
 	      // the 'recursion case'; record the fact
@@ -3089,12 +3329,12 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	      toolno = round_to_int(block->q_number);
 	      // now also accept M61 Q0 - unload tool
 	      CHKS((toolno < 0), (_("Need non-negative Q-word to specify tool number with M61")));
-	      
-	      int pocket;
-	      
+
+	      int idx;
+
 	      // make sure selected tool exists
-	      CHP((find_tool_pocket(settings, toolno, &pocket)));
-	      settings->current_pocket = pocket;
+	      CHP((find_tool_index(settings, toolno, &idx)));
+	      settings->current_pocket = idx;
 	      settings->toolchange_flag = true;
 	      CHANGE_TOOL_NUMBER(settings->current_pocket);
 	      set_tool_parameters();
@@ -3109,20 +3349,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
       }
   }
 
-  // needs more testing.. once? test tool_change_flag!
-  //#ifdef DEBATABLE
   if (FEATURE(RETAIN_G43)) {
-    // I consider this useful, so make it configurable.
-    // Turn it on optionally . -mah
-
-    // I would like this, but it's a big change.  It changes the
-    // operation of legal ngc programs, but it could be argued that
-    // those programs are buggy or likely to be not what the author
-    // intended.
-
-    // It would allow you to turn on G43 after loading the first tool,
-    // and then not worry about it through the program.  When you
-    // finally unload the last tool, G43 mode is canceled.
 
       if ((settings->active_g_codes[9] == G_43) && ONCE(STEP_RETAIN_G43)) {
         if(settings->selected_pocket > 0) {
@@ -3138,49 +3365,64 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
         }
     }
   }
-  //#endif
 
  if (IS_USER_MCODE(block,settings,7) && ONCE_M(7)) {
     return convert_remapped_code(block, settings, STEP_M_7, 'm',
 				   block->m_modes[7]);
  } else if ((block->m_modes[7] == 3)  && ONCE_M(7)) {
      if (block->dollar_flag){
-        CHKS((block->dollar_number >= settings->num_spindles || block->dollar_number < 0),
+        CHKS((block->dollar_number >= settings->num_spindles || block->dollar_number < -1),
             (_("Spindle ($) number out of range in M3 Command\nnum_spindles =%i. $=%d\n")),settings->num_spindles,(int)block->dollar_number);
-        enqueue_START_SPINDLE_CLOCKWISE(block->dollar_number);
-        settings->spindle_turning[(int)block->dollar_number] = CANON_CLOCKWISE;
-     } else {
-         for (int i = 0; i < settings->num_spindles; i++){
-             enqueue_START_SPINDLE_CLOCKWISE(i);
-             settings->spindle_turning[i] = CANON_CLOCKWISE;
-         }
+        if (block->dollar_number == -1){ // all spindles
+            for (int i = 0; i < settings->num_spindles; i++){
+                enqueue_START_SPINDLE_CLOCKWISE(i);
+                settings->spindle_turning[i] = CANON_CLOCKWISE;
+            }
+        } else { // a specific spindle
+            enqueue_START_SPINDLE_CLOCKWISE(block->dollar_number);
+            settings->spindle_turning[(int)block->dollar_number] = CANON_CLOCKWISE;
+        }
+     } else { // the default spindle
+        enqueue_START_SPINDLE_CLOCKWISE(0);
+        settings->spindle_turning[0] = CANON_CLOCKWISE;
      }
  } else if ((block->m_modes[7] == 4) && ONCE_M(7)) {
      if (block->dollar_flag){
-        CHKS((block->dollar_number >= settings->num_spindles || block->dollar_number < 0),
-            (_("Spindle ($) number out of range in M4 Command")));
-        enqueue_START_SPINDLE_COUNTERCLOCKWISE(block->dollar_number);
-        settings->spindle_turning[(int)block->dollar_number] = CANON_COUNTERCLOCKWISE;
-     } else {
-         for (int i = 0; i < settings->num_spindles; i++){
-             enqueue_START_SPINDLE_COUNTERCLOCKWISE(i);
-             settings->spindle_turning[i] = CANON_COUNTERCLOCKWISE;
-         }
+        CHKS((block->dollar_number >= settings->num_spindles || block->dollar_number < -1),
+            (_("Spindle ($) number out of range in M4 Command\nnum_spindles =%i. $=%d\n")),settings->num_spindles,(int)block->dollar_number);
+        if (block->dollar_number == -1){ // all spindles
+            for (int i = 0; i < settings->num_spindles; i++){
+                 enqueue_START_SPINDLE_COUNTERCLOCKWISE(i);
+                 settings->spindle_turning[i] = CANON_COUNTERCLOCKWISE;
+             }
+         } else { // a specific spindle
+            enqueue_START_SPINDLE_COUNTERCLOCKWISE(block->dollar_number);
+            settings->spindle_turning[(int)block->dollar_number] = CANON_COUNTERCLOCKWISE;
+        }
+     } else { // default spindle
+         enqueue_START_SPINDLE_COUNTERCLOCKWISE(0);
+         settings->spindle_turning[0] = CANON_COUNTERCLOCKWISE;
      }
  } else if ((block->m_modes[7] == 5) && ONCE_M(7)){
-     if (block->dollar_flag){
-        CHKS((block->dollar_number >= settings->num_spindles || block->dollar_number < 0),
-           (_("Spindle ($) number out of range in M5 Command")));
-        enqueue_STOP_SPINDLE_TURNING(block->dollar_number);
-     } else {
-        for (int i = 0; i < settings->num_spindles; i++){
-        	settings->spindle_turning[i] = CANON_STOPPED;
-            enqueue_STOP_SPINDLE_TURNING(i);
+    if (block->dollar_flag){
+        CHKS((block->dollar_number >= settings->num_spindles || block->dollar_number < -1),
+            (_("Spindle ($) number out of range in M5 Command\nnum_spindles =%i. $=%d\n")),settings->num_spindles,(int)block->dollar_number);
+        if (block->dollar_number == -1){ // all spindles
+            for (int i = 0; i < settings->num_spindles; i++){
+                settings->spindle_turning[i] = CANON_STOPPED;
+                enqueue_STOP_SPINDLE_TURNING(i);
+            }
+        } else { // a specific spindle
+            settings->spindle_turning[block->dollar_number] = CANON_STOPPED;
+            enqueue_STOP_SPINDLE_TURNING(block->dollar_number);
         }
-	}
+    } else { // the default spindle
+        settings->spindle_turning[0] = CANON_STOPPED;
+        enqueue_STOP_SPINDLE_TURNING(0);
+    }
   } else if ((block->m_modes[7] == 19) && ONCE_M(7)) {
       for (int i = 0; i < settings->num_spindles; i++)
-    	  settings->spindle_turning[i] = CANON_STOPPED;
+          settings->spindle_turning[i] = CANON_STOPPED;
       if (block->dollar_flag){
          CHKS((block->dollar_number >= settings->num_spindles || block->dollar_number < 0),
              (_("Spindle ($) number out of range in M19 Command")));
@@ -3319,7 +3561,7 @@ if ((block->m_modes[9] == 51)  && ONCE_M(9)){
 		}
     }
   }
-  
+
 if ((block->m_modes[9] == 52)  && ONCE_M(9)){
     if (block->p_number != 0) {
         CHKS((settings->cutter_comp_side),
@@ -3333,7 +3575,7 @@ if ((block->m_modes[9] == 52)  && ONCE_M(9)){
 	settings->adaptive_feed = false;
     }
   }
-  
+
 if ((block->m_modes[9] == 53)  && ONCE_M(9)){
     if (block->p_number != 0) {
         CHKS((settings->cutter_comp_side),
@@ -3375,8 +3617,7 @@ Returned Value: int
       convert_setup
    If any of the following errors occur, this returns the error code shown.
    Otherwise, it returns INTERP_OK.
-   1. code is not G_4, G_10, G_28, G_30, G_52, G_53, G_92, G_92_1, G_92_2,
-          or G_92_3:
+   1. code is not G_4, G_10, G_28, G_30, G_52, G_53, G_92:
       NCE_BUG_CODE_NOT_G4_G10_G28_G30_G52_G53_OR_G92_SERIES
 
 Side effects: See below
@@ -3389,23 +3630,27 @@ G53) are executed elsewhere.
 
 */
 
-int Interp::convert_modal_0(int code,    //!< G code, must be from group 0                
+int Interp::convert_modal_0(int code,    //!< G-code, must be from group 0
                            block_pointer block, //!< pointer to a block of RS274/NGC instructions
-                           setup_pointer settings)      //!< pointer to machine settings                 
+                           setup_pointer settings)      //!< pointer to machine settings
 {
 
   if (code == G_10) {
       if(block->l_number == 1 || block->l_number == 10 || block->l_number == 11)
           CHP(convert_setup_tool(block, settings));
+      else if (block->l_number == 0) {
+          int tno = settings->tool_table[0].toolno;
+          if (tno > 0) { ERS("G10 L0 not allowed with loaded tool <%d>\n",tno); }
+          settings->toolchange_flag = true; // refresh actual pos, sync,etc
+          RELOAD_TOOLDATA(); // msg to io
+      }
       else
           CHP(convert_setup(block, settings));
   } else if ((code == G_28) || (code == G_30)) {
     CHP(convert_home(code, block, settings));
   } else if ((code == G_28_1) || (code == G_30_1)) {
     CHP(convert_savehome(code, block, settings));
-  } else if ((code == G_52) ||
-	     (code == G_92) || (code == G_92_1) ||
-             (code == G_92_2) || (code == G_92_3)) {
+  } else if ((code == G_52) || (code == G_92)) {
     CHP(convert_axis_offsets(code, block, settings));
   } else if (code == G_5_3) {
     CHP(convert_nurbs(code, block, settings));
@@ -3414,6 +3659,14 @@ int Interp::convert_modal_0(int code,    //!< G code, must be from group 0
     ERS(NCE_BUG_CODE_NOT_G4_G10_G28_G30_G52_G53_OR_G92_SERIES);
   return INTERP_OK;
 }
+
+int Interp::convert_g92_is_applied(int code, block_pointer block,
+                                   setup_pointer settings)
+{
+    CHP(convert_axis_offsets(code, block, settings));
+    return INTERP_OK;
+}
+
 
 /****************************************************************************/
 
@@ -3438,9 +3691,9 @@ Called by: convert_g.
 
 */
 
-int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cycle     
-                          block_pointer block,  //!< pointer to a block of RS274 instructions 
-                          setup_pointer settings)       //!< pointer to machine settings              
+int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cycle
+                          block_pointer block,  //!< pointer to a block of RS274 instructions
+                          setup_pointer settings)       //!< pointer to machine settings
 {
   int ai = block->a_flag && (-1 != settings->a_indexer_jnum);
   int bi = block->b_flag && (-1 != settings->b_indexer_jnum);
@@ -3476,7 +3729,7 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
     CHP(convert_straight(motion, block, settings));
   } else if ((motion == G_3) || (motion == G_2)) {
     CHP(convert_arc(motion, block, settings));
-  } else if (motion == G_38_2 || motion == G_38_3 || 
+  } else if (motion == G_38_2 || motion == G_38_3 ||
              motion == G_38_4 || motion == G_38_5) {
     CHP(convert_probe(block, motion, settings));
   } else if (motion == G_80) {
@@ -3487,11 +3740,21 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
   } else if (IS_USER_GCODE(motion)) {
       CHP(convert_remapped_code(block, settings, STEP_MOTION, 'g', motion));
   } else if (is_a_cycle(motion)) {
+
     CHP(convert_cycle(motion, block, settings));
   } else if ((motion == G_5) || (motion == G_5_1)) {
-    CHP(convert_spline(motion, block, settings));
+      write_canon_state_tag(block, settings);
+      CHP(convert_spline(motion, block, settings));
   } else if (motion == G_5_2) {
+    StateTag tag;
+    write_canon_state_tag(block, settings);
     CHP(convert_nurbs(motion, block, settings));
+  } else if (
+    motion == G_70 ||
+    motion == G_71 || motion == G_71_1 || motion == G_71_2 ||
+    motion == G_72 || motion == G_72_1 || motion == G_72_2
+  ) {
+    CHP(convert_g7x(motion, block, settings));
   } else {
     ERS(NCE_BUG_UNKNOWN_MOTION_CODE);
   }
@@ -3534,7 +3797,7 @@ current position by calls to get_external_position_x, etc.
 
 int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS274 instructions
                           int g_code,
-                          setup_pointer settings)        //!< pointer to machine settings             
+                          setup_pointer settings)        //!< pointer to machine settings
 {
   double end_x;
   double end_y;
@@ -3546,14 +3809,14 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
   double v_end;
   double w_end;
 
-  /* probe_type: 
+  /* probe_type:
      ~1 = error if probe operation is unsuccessful (ngc default)
      |1 = suppress error, report in # instead
      ~2 = move until probe trips (ngc default)
      |2 = move until probe clears */
 
   unsigned char probe_type = g_code - G_38_2;
-  
+
   CHKS((settings->cutter_comp_side),
       NCE_CANNOT_PROBE_WITH_CUTTER_RADIUS_COMP_ON);
   CHKS((settings->feed_rate == 0.0), NCE_CANNOT_PROBE_WITH_ZERO_FEED_RATE);
@@ -3562,14 +3825,14 @@ int Interp::convert_probe(block_pointer block,   //!< pointer to a block of RS27
   CHP(find_ends(block, settings, &end_x, &end_y, &end_z,
                 &AA_end, &BB_end, &CC_end,
                 &u_end, &v_end, &w_end));
-  CHKS(((!(probe_type & 1)) && 
+  CHKS(((!(probe_type & 1)) &&
         settings->current_x == end_x && settings->current_y == end_y &&
         settings->current_z == end_z && settings->AA_current == AA_end &&
         settings->BB_current == BB_end && settings->CC_current == CC_end &&
         settings->u_current == u_end && settings->v_current == v_end &&
         settings->w_current == w_end),
        NCE_START_POINT_TOO_CLOSE_TO_PROBE_POINT);
-       
+
   TURN_PROBE_ON();
   STRAIGHT_PROBE(block->line_number, end_x, end_y, end_z,
                  AA_end, BB_end, CC_end,
@@ -3603,7 +3866,7 @@ this function.
 */
 
 int Interp::convert_retract_mode(int g_code,     //!< g_code being executed (must be G_98 or G_99)
-                                setup_pointer settings) //!< pointer to machine settings                 
+                                setup_pointer settings) //!< pointer to machine settings
 {
   CHKS((settings->cutter_comp_side),
        (_("Cannot change retract mode with cutter radius compensation on")));
@@ -3626,41 +3889,41 @@ int Interp::convert_retract_mode(int g_code,     //!< g_code being executed (mus
 // G10 L10 P[tool number] R[radius] X[x offset] Z[z offset] Q[orientation]
 
 int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
-    int pocket = -1, toolno;
+    int idx = -1, toolno;
     int q;
     double tx, ty, tz, ta, tb, tc, tu, tv, tw;
     int direct = block->l_number == 1;
 
     is_near_int(&toolno, block->p_number);
 
-    CHP((find_tool_pocket(settings, toolno, &pocket)));
+    CHP((find_tool_index(settings, toolno, &idx)));
 
     CHKS(!(block->x_flag || block->y_flag || block->z_flag ||
-	   block->a_flag || block->b_flag || block->c_flag ||
-	   block->u_flag || block->v_flag || block->w_flag ||
-	   block->r_flag || block->q_flag || block->i_flag ||
+           block->a_flag || block->b_flag || block->c_flag ||
+           block->u_flag || block->v_flag || block->w_flag ||
+           block->r_flag || block->q_flag || block->i_flag ||
            block->j_flag),
-	 _("G10 L1 without offsets has no effect"));
+         _("G10 L1 without offsets has no effect"));
 
     if(direct) {
         if(block->x_flag)
-            settings->tool_table[pocket].offset.tran.x = PROGRAM_TO_USER_LEN(block->x_number);
+            settings->tool_table[idx].offset.tran.x = PROGRAM_TO_USER_LEN(block->x_number);
         if(block->y_flag)
-            settings->tool_table[pocket].offset.tran.y = PROGRAM_TO_USER_LEN(block->y_number);
-        if(block->z_flag) 
-            settings->tool_table[pocket].offset.tran.z = PROGRAM_TO_USER_LEN(block->z_number);
-        if(block->a_flag) 
-            settings->tool_table[pocket].offset.a = PROGRAM_TO_USER_ANG(block->a_number);
-        if(block->b_flag) 
-            settings->tool_table[pocket].offset.b = PROGRAM_TO_USER_ANG(block->b_number);
-        if(block->c_flag) 
-            settings->tool_table[pocket].offset.c = PROGRAM_TO_USER_ANG(block->c_number);
-        if(block->u_flag) 
-            settings->tool_table[pocket].offset.u = PROGRAM_TO_USER_LEN(block->u_number);
-        if(block->v_flag) 
-            settings->tool_table[pocket].offset.v = PROGRAM_TO_USER_LEN(block->v_number);
-        if(block->w_flag) 
-            settings->tool_table[pocket].offset.w = PROGRAM_TO_USER_LEN(block->w_number);
+            settings->tool_table[idx].offset.tran.y = PROGRAM_TO_USER_LEN(block->y_number);
+        if(block->z_flag)
+            settings->tool_table[idx].offset.tran.z = PROGRAM_TO_USER_LEN(block->z_number);
+        if(block->a_flag)
+            settings->tool_table[idx].offset.a = PROGRAM_TO_USER_ANG(block->a_number);
+        if(block->b_flag)
+            settings->tool_table[idx].offset.b = PROGRAM_TO_USER_ANG(block->b_number);
+        if(block->c_flag)
+            settings->tool_table[idx].offset.c = PROGRAM_TO_USER_ANG(block->c_number);
+        if(block->u_flag)
+            settings->tool_table[idx].offset.u = PROGRAM_TO_USER_LEN(block->u_number);
+        if(block->v_flag)
+            settings->tool_table[idx].offset.v = PROGRAM_TO_USER_LEN(block->v_number);
+        if(block->w_flag)
+            settings->tool_table[idx].offset.w = PROGRAM_TO_USER_LEN(block->w_number);
     } else {
         int to_fixture = block->l_number == 11;
         int destination_system = to_fixture? 9 : settings->origin_index; // maybe 9 (g59.3) should be user configurable?
@@ -3690,29 +3953,29 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
             tx -= block->x_number;
             ty -= block->y_number;
             rotate(&tx, &ty, settings->parameters[5210 + destination_system * 20]);
-            settings->tool_table[pocket].offset.tran.x = PROGRAM_TO_USER_LEN(tx);
-            settings->tool_table[pocket].offset.tran.y = PROGRAM_TO_USER_LEN(ty);
+            settings->tool_table[idx].offset.tran.x = PROGRAM_TO_USER_LEN(tx);
+            settings->tool_table[idx].offset.tran.y = PROGRAM_TO_USER_LEN(ty);
         } else if(block->x_flag) {
             // keep the component of the tool table's current setting that points
             // along our possibly-rotated Y axis
             double ox, oy;
-            ox = USER_TO_PROGRAM_LEN(settings->tool_table[pocket].offset.tran.x);
-            oy = USER_TO_PROGRAM_LEN(settings->tool_table[pocket].offset.tran.y);
+            ox = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.tran.x);
+            oy = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.tran.y);
             rotate(&ox, &oy, -settings->parameters[5210 + destination_system * 20]);
             ox = 0;
             rotate(&ox, &oy, settings->parameters[5210 + destination_system * 20]);
 
-            
+
             tx -= block->x_number;
             ty = 0;
             rotate(&tx, &ty, settings->parameters[5210 + destination_system * 20]);
 
-            settings->tool_table[pocket].offset.tran.x = PROGRAM_TO_USER_LEN(tx + ox);
-            settings->tool_table[pocket].offset.tran.y = PROGRAM_TO_USER_LEN(ty + oy);
+            settings->tool_table[idx].offset.tran.x = PROGRAM_TO_USER_LEN(tx + ox);
+            settings->tool_table[idx].offset.tran.y = PROGRAM_TO_USER_LEN(ty + oy);
         } else if(block->y_flag) {
             double ox, oy;
-            ox = USER_TO_PROGRAM_LEN(settings->tool_table[pocket].offset.tran.x);
-            oy = USER_TO_PROGRAM_LEN(settings->tool_table[pocket].offset.tran.y);
+            ox = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.tran.x);
+            oy = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.tran.y);
             rotate(&ox, &oy, -settings->parameters[5210 + destination_system * 20]);
             oy = 0;
             rotate(&ox, &oy, settings->parameters[5210 + destination_system * 20]);
@@ -3721,54 +3984,54 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
             tx = 0;
 
             rotate(&tx, &ty, settings->parameters[5210 + destination_system * 20]);
-            settings->tool_table[pocket].offset.tran.x = PROGRAM_TO_USER_LEN(tx + ox);
-            settings->tool_table[pocket].offset.tran.y = PROGRAM_TO_USER_LEN(ty + oy);
+            settings->tool_table[idx].offset.tran.x = PROGRAM_TO_USER_LEN(tx + ox);
+            settings->tool_table[idx].offset.tran.y = PROGRAM_TO_USER_LEN(ty + oy);
         }
 
 
-        if(block->z_flag) 
-            settings->tool_table[pocket].offset.tran.z = PROGRAM_TO_USER_LEN(tz - block->z_number);
-        if(block->a_flag) 
-            settings->tool_table[pocket].offset.a = PROGRAM_TO_USER_ANG(ta - block->a_number);
-        if(block->b_flag) 
-            settings->tool_table[pocket].offset.b = PROGRAM_TO_USER_ANG(tb - block->b_number);
-        if(block->c_flag) 
-            settings->tool_table[pocket].offset.c = PROGRAM_TO_USER_ANG(tc - block->c_number);
-        if(block->u_flag) 
-            settings->tool_table[pocket].offset.u = PROGRAM_TO_USER_LEN(tu - block->u_number);
-        if(block->v_flag) 
-            settings->tool_table[pocket].offset.v = PROGRAM_TO_USER_LEN(tv - block->v_number);
-        if(block->w_flag) 
-            settings->tool_table[pocket].offset.w = PROGRAM_TO_USER_LEN(tw - block->w_number);
+        if(block->z_flag)
+            settings->tool_table[idx].offset.tran.z = PROGRAM_TO_USER_LEN(tz - block->z_number);
+        if(block->a_flag)
+            settings->tool_table[idx].offset.a = PROGRAM_TO_USER_ANG(ta - block->a_number);
+        if(block->b_flag)
+            settings->tool_table[idx].offset.b = PROGRAM_TO_USER_ANG(tb - block->b_number);
+        if(block->c_flag)
+            settings->tool_table[idx].offset.c = PROGRAM_TO_USER_ANG(tc - block->c_number);
+        if(block->u_flag)
+            settings->tool_table[idx].offset.u = PROGRAM_TO_USER_LEN(tu - block->u_number);
+        if(block->v_flag)
+            settings->tool_table[idx].offset.v = PROGRAM_TO_USER_LEN(tv - block->v_number);
+        if(block->w_flag)
+            settings->tool_table[idx].offset.w = PROGRAM_TO_USER_LEN(tw - block->w_number);
     }
 
-    if(block->r_flag) settings->tool_table[pocket].diameter = PROGRAM_TO_USER_LEN(block->r_number) * 2.;
-    if(block->i_flag) settings->tool_table[pocket].frontangle = block->i_number;
-    if(block->j_flag) settings->tool_table[pocket].backangle = block->j_number;
+    if(block->r_flag) settings->tool_table[idx].diameter = PROGRAM_TO_USER_LEN(block->r_number) * 2.;
+    if(block->i_flag) settings->tool_table[idx].frontangle = block->i_number;
+    if(block->j_flag) settings->tool_table[idx].backangle = block->j_number;
     if(block->q_number != -1.0) {
         CHKS((!is_near_int(&q, block->q_number)), _("Q number in G10 is not an integer"));
         CHKS((q > 9), _("Invalid tool orientation"));
-        settings->tool_table[pocket].orientation = q;
+        settings->tool_table[idx].orientation = q;
     }
 
-    SET_TOOL_TABLE_ENTRY(pocket,
-                             settings->tool_table[pocket].toolno,
-                             settings->tool_table[pocket].offset,
-                             settings->tool_table[pocket].diameter,
-                             settings->tool_table[pocket].frontangle,
-                             settings->tool_table[pocket].backangle,
-                             settings->tool_table[pocket].orientation);
+    SET_TOOL_TABLE_ENTRY(idx,
+                         settings->tool_table[idx].toolno,
+                         settings->tool_table[idx].offset,
+                         settings->tool_table[idx].diameter,
+                         settings->tool_table[idx].frontangle,
+                         settings->tool_table[idx].backangle,
+                         settings->tool_table[idx].orientation);
 
     //
-    // On non-random tool changers we just updated the tool's "home pocket"
+    // On non-random tool changers we just updated the tool's "home index"
     // in the tool changer carousel, so now, if the tool is currently
     // loaded, we need to copy the new tool information to the spindle
-    // (pocket 0).  This is never needed on random tool changers because
-    // there tools don't have a home pocket, and instead we updated pocket
+    // (index 0).  This is never needed on random tool changers because
+    // there tools don't have a home index, and instead we updated index
     // 0 (the spindle) directly when modifying the loaded tool.
     //
-    if ((!settings->random_toolchanger) && (settings->current_pocket == pocket)) {
-       settings->tool_table[0] = settings->tool_table[pocket];
+    if ((!settings->random_toolchanger) && (settings->current_pocket == idx)) {
+        settings->tool_table[0] = settings->tool_table[idx];
     }
 
     //
@@ -3777,11 +4040,12 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
     // Unfortunately, random and nonrandom toolchangers use a different
     // number for "invalid tool number":  nonrandom uses 0, random uses -1.
     //
-    if (settings->random_toolchanger)
+    if (settings->random_toolchanger) {
         if (settings->tool_table[0].toolno >= 0) {
             settings->parameters[5400] = settings->tool_table[0].toolno;
         } else {
             settings->parameters[5400] = -1;
+        }
     } else {
         if (settings->tool_table[0].toolno > 0) {
             settings->parameters[5400] = settings->tool_table[0].toolno;
@@ -3805,17 +4069,17 @@ int Interp::convert_setup_tool(block_pointer block, setup_pointer settings) {
     settings->parameters[5413] = settings->tool_table[0].orientation;
 
     // if the modified tool is currently in the spindle, then copy its
-    // information to pocket 0 of the tool table (which signifies the
+    // information to index 0 of the tool table (which signifies the
     // spindle)
     if (   !_setup.random_toolchanger
-        && pocket == settings->current_pocket) {
+           && idx == settings->current_pocket) {
         SET_TOOL_TABLE_ENTRY(0,
-                             settings->tool_table[pocket].toolno,
-                             settings->tool_table[pocket].offset,
-                             settings->tool_table[pocket].diameter,
-                             settings->tool_table[pocket].frontangle,
-                             settings->tool_table[pocket].backangle,
-                             settings->tool_table[pocket].orientation);
+                             settings->tool_table[idx].toolno,
+                             settings->tool_table[idx].offset,
+                             settings->tool_table[idx].diameter,
+                             settings->tool_table[idx].frontangle,
+                             settings->tool_table[idx].backangle,
+                             settings->tool_table[idx].orientation);
     }
 
     return INTERP_OK;
@@ -3855,7 +4119,7 @@ See documentation of convert_coordinate_system for more information.
 */
 
 int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS274/NGC instructions
-                         setup_pointer settings)        //!< pointer to machine settings                 
+                         setup_pointer settings)        //!< pointer to machine settings
 {
   double x;
   double y;
@@ -3880,14 +4144,14 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
     p_int = settings->origin_index;
   }
 
-  CHKS((block->l_number == 20 && block->a_flag && settings->a_axis_wrapped && 
-        (block->a_number <= -360.0 || block->a_number >= 360.0)), 
+  CHKS((block->l_number == 20 && block->a_flag && settings->a_axis_wrapped &&
+        (block->a_number <= -360.0 || block->a_number >= 360.0)),
        (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), block->a_number, 'A');
-  CHKS((block->l_number == 20 && block->b_flag && settings->b_axis_wrapped && 
-        (block->b_number <= -360.0 || block->b_number >= 360.0)), 
+  CHKS((block->l_number == 20 && block->b_flag && settings->b_axis_wrapped &&
+        (block->b_number <= -360.0 || block->b_number >= 360.0)),
        (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), block->b_number, 'B');
-  CHKS((block->l_number == 20 && block->c_flag && settings->c_axis_wrapped && 
-        (block->c_number <= -360.0 || block->c_number >= 360.0)), 
+  CHKS((block->l_number == 20 && block->c_flag && settings->c_axis_wrapped &&
+        (block->c_number <= -360.0 || block->c_number >= 360.0)),
        (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), block->c_number, 'C');
 
   CHKS((settings->cutter_comp_side && p_int == settings->origin_index),
@@ -3915,7 +4179,7 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
 
       if (block->x_flag) {
           x = block->x_number;
-      }      
+      }
       if (block->y_flag) {
           y = block->y_number;
       }
@@ -4005,7 +4269,7 @@ int Interp::convert_setup(block_pointer block,   //!< pointer to a block of RS27
   if (p_int == settings->origin_index) {        /* system is currently used */
 
     rotate(&settings->current_x, &settings->current_y, settings->rotation_xy);
-      
+
     settings->current_x += settings->origin_offset_x;
     settings->current_y += settings->origin_offset_y;
     settings->current_z += settings->origin_offset_z;
@@ -4069,8 +4333,8 @@ Called by: convert_g.
 
 */
 
-int Interp::convert_set_plane(int g_code,        //!< must be G_17, G_18, or G_19 
-                             setup_pointer settings)    //!< pointer to machine settings 
+int Interp::convert_set_plane(int g_code,        //!< must be G_17, G_18, or G_19
+                             setup_pointer settings)    //!< pointer to machine settings
 {
   CHKS((settings->cutter_comp_side && g_code == G_17 && settings->plane != CANON_PLANE_XY),
         NCE_CANNOT_CHANGE_PLANES_WITH_CUTTER_RADIUS_COMP_ON);
@@ -4079,7 +4343,7 @@ int Interp::convert_set_plane(int g_code,        //!< must be G_17, G_18, or G_1
   CHKS((settings->cutter_comp_side && g_code == G_19 && settings->plane != CANON_PLANE_YZ),
         NCE_CANNOT_CHANGE_PLANES_WITH_CUTTER_RADIUS_COMP_ON);
 
-  CHKS((settings->cutter_comp_side && g_code == G_19), 
+  CHKS((settings->cutter_comp_side && g_code == G_19),
           NCE_RADIUS_COMP_ONLY_IN_XY_OR_XZ);
 
   if (g_code == G_17) {
@@ -4229,13 +4493,13 @@ settings. They occur on M2 or M30.
 */
 
 int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS274/NGC instructions
-                        setup_pointer settings) //!< pointer to machine settings                 
+                        setup_pointer settings) //!< pointer to machine settings
 {
   int index;
   char *line;
   int length;
 
-  double cx, cy, cz;
+  double cx = 0, cy = 0, cz = 0;
   comp_get_current(settings, &cx, &cy, &cz);
   CHP(move_endpoint_and_flush(settings, cx, cy));
   dequeue_canons(settings);
@@ -4264,6 +4528,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
             ) {   /* reset stuff here */
 
 /*1*/
+    rotate(&settings->current_x, &settings->current_y, settings->rotation_xy);
     settings->current_x += settings->origin_offset_x;
     settings->current_y += settings->origin_offset_y;
     settings->current_z += settings->origin_offset_z;
@@ -4273,7 +4538,6 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
     settings->u_current += settings->u_origin_offset;
     settings->v_current += settings->v_origin_offset;
     settings->w_current += settings->w_origin_offset;
-    rotate(&settings->current_x, &settings->current_y, settings->rotation_xy);
 
     settings->origin_index = 1;
     settings->parameters[5220] = 1.0;
@@ -4288,7 +4552,6 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
     settings->w_origin_offset = USER_TO_PROGRAM_LEN(settings->parameters[5229]);
     settings->rotation_xy = settings->parameters[5230];
 
-    rotate(&settings->current_x, &settings->current_y, -settings->rotation_xy);
     settings->current_x -= settings->origin_offset_x;
     settings->current_y -= settings->origin_offset_y;
     settings->current_z -= settings->origin_offset_z;
@@ -4298,6 +4561,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
     settings->u_current -= settings->u_origin_offset;
     settings->v_current -= settings->v_origin_offset;
     settings->w_current -= settings->w_origin_offset;
+    rotate(&settings->current_x, &settings->current_y, -settings->rotation_xy);
 
     SET_G5X_OFFSET(settings->origin_index,
                    settings->origin_offset_x,
@@ -4442,9 +4706,9 @@ the new longer or shorter straight move are taken at this feed.
 
 */
 
-int Interp::convert_straight(int move,   //!< either G_0 or G_1                       
+int Interp::convert_straight(int move,   //!< either G_0 or G_1
                             block_pointer block,        //!< pointer to a block of RS274 instructions
-                            setup_pointer settings)     //!< pointer to machine settings             
+                            setup_pointer settings)     //!< pointer to machine settings
 {
   double end_x;
   double end_y;
@@ -4480,6 +4744,9 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
                                  u_end, v_end, w_end,
                                  block, settings);
   }
+
+  // Create a state tag and dump it to canon
+  write_canon_state_tag(block, settings);
 
   if ((settings->cutter_comp_side) &&    /* ! "== true" */
       (settings->cutter_comp_radius > 0.0)) {   /* radius always is >= 0 */
@@ -4561,8 +4828,8 @@ int Interp::convert_straight(int move,   //!< either G_0 or G_1
     CHKS(((settings->spindle_turning[settings->active_spindle] != CANON_CLOCKWISE) &&
            (settings->spindle_turning[settings->active_spindle] != CANON_COUNTERCLOCKWISE)),
           _("Chosen spindle (%i) not turning in G76"), settings->active_spindle);
-    CHKS((settings->AA_current != AA_end || 
-         settings->BB_current != BB_end || 
+    CHKS((settings->AA_current != AA_end ||
+         settings->BB_current != BB_end ||
          settings->CC_current != CC_end ||
          settings->u_current != u_end ||
          settings->v_current != v_end ||
@@ -4618,10 +4885,11 @@ int Interp::convert_straight_indexer(int axis, int jnum, block_pointer block, se
 
 int Interp::issue_straight_index(int axis, int jnum, double target, int lineno, setup_pointer settings) {
     CANON_MOTION_MODE save_mode;
-    double save_tolerance;
+    double save_tolerance, save_cam_tolerance;
     // temporarily switch to exact stop mode for indexing move
     save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
     save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+    save_cam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
     if (save_mode != CANON_EXACT_PATH)
         SET_MOTION_CONTROL_MODE(CANON_EXACT_PATH, 0);
 
@@ -4637,8 +4905,10 @@ int Interp::issue_straight_index(int axis, int jnum, double target, int lineno, 
     LOCK_ROTARY(lineno, jnum);
 
     // restore path mode
-    if(save_mode != CANON_EXACT_PATH)
+    if(save_mode != CANON_EXACT_PATH) {
         SET_MOTION_CONTROL_MODE(save_mode, save_tolerance);
+	SET_NAIVECAM_TOLERANCE(save_cam_tolerance);
+    }
 
     settings->AA_current = AA_end;
     settings->BB_current = BB_end;
@@ -4650,11 +4920,11 @@ int Interp::issue_straight_index(int axis, int jnum, double target, int lineno, 
 #define AABBCC settings->AA_current, settings->BB_current, settings->CC_current, settings->u_current, settings->v_current, settings->w_current
 
 // make one threading pass.  only called from convert_threading_cycle.
-static void 
+static void
 threading_pass(setup_pointer settings, block_pointer block,
-	       int boring, double safe_x, double depth, double end_depth, 
+	       int boring, double safe_x, double depth, double end_depth,
 	       double start_y, double start_z, double zoff, double taper_dist,
-	       int entry_taper, int exit_taper, double taper_pitch, 
+	       int entry_taper, int exit_taper, double taper_pitch,
 	       double pitch, double full_threadheight, double target_z) {
     STRAIGHT_TRAVERSE(block->line_number, boring?
 		      safe_x + depth - end_depth:
@@ -4663,41 +4933,41 @@ threading_pass(setup_pointer settings, block_pointer block,
     if(taper_dist && entry_taper) {
 	DISABLE_FEED_OVERRIDE();
 	START_SPEED_FEED_SYNCH(settings->active_spindle, taper_pitch, 0);
-	STRAIGHT_FEED(block->line_number, boring? 
-		      safe_x + depth - full_threadheight: 
+	STRAIGHT_FEED(block->line_number, boring?
+		      safe_x + depth - full_threadheight:
 		      safe_x - depth + full_threadheight,
 		      start_y, start_z - zoff, AABBCC); //in
 	STRAIGHT_FEED(block->line_number, boring? safe_x + depth: safe_x - depth, //angled in
 		      start_y, start_z - zoff - taper_dist, AABBCC);
 	START_SPEED_FEED_SYNCH(settings->active_spindle, pitch, 0);
     } else {
-	STRAIGHT_TRAVERSE(block->line_number, boring? safe_x + depth: safe_x - depth, 
+	STRAIGHT_TRAVERSE(block->line_number, boring? safe_x + depth: safe_x - depth,
 			  start_y, start_z - zoff, AABBCC); //in
 	DISABLE_FEED_OVERRIDE();
 	START_SPEED_FEED_SYNCH(settings->active_spindle, pitch, 0);
     }
-        
+
     if(taper_dist && exit_taper) {
 	STRAIGHT_FEED(block->line_number, boring? safe_x + depth: safe_x - depth,  //over
 		      start_y, target_z - zoff + taper_dist, AABBCC);
 	START_SPEED_FEED_SYNCH(settings->active_spindle, taper_pitch, 0);
-	STRAIGHT_FEED(block->line_number, boring? 
-		      safe_x + depth - full_threadheight: 
-		      safe_x - depth + full_threadheight, 
+	STRAIGHT_FEED(block->line_number, boring?
+		      safe_x + depth - full_threadheight:
+		      safe_x - depth + full_threadheight,
 		      start_y, target_z - zoff, AABBCC); //angled out
     } else {
-	STRAIGHT_FEED(block->line_number, boring? safe_x + depth: safe_x - depth, 
+	STRAIGHT_FEED(block->line_number, boring? safe_x + depth: safe_x - depth,
 		      start_y, target_z - zoff, AABBCC); //over
     }
     STOP_SPEED_FEED_SYNCH();
-    STRAIGHT_TRAVERSE(block->line_number, boring? 
+    STRAIGHT_TRAVERSE(block->line_number, boring?
 		      safe_x + depth - end_depth:
 		      safe_x - depth + end_depth,
 		      start_y, target_z - zoff, AABBCC); //out
     ENABLE_FEED_OVERRIDE();
 }
 
-int Interp::convert_threading_cycle(block_pointer block, 
+int Interp::convert_threading_cycle(block_pointer block,
 				    setup_pointer settings,
 				    double end_x, double end_y, double end_z) {
 
@@ -4752,7 +5022,7 @@ int Interp::convert_threading_cycle(block_pointer block,
 
     double taper_dist = block->e_flag? block->e_number: 0.0;
     if(taper_dist < 0.0) taper_dist = 0.0;
-    double taper_pitch = taper_dist > 0.0? 
+    double taper_pitch = taper_dist > 0.0?
 	pitch * hypot(taper_dist, full_threadheight)/taper_dist: pitch;
 
     if(end_z > start_z) taper_dist = -taper_dist;
@@ -4771,21 +5041,21 @@ int Interp::convert_threading_cycle(block_pointer block,
     depth = start_depth;
     zoff = (depth - full_dia_depth) * tan(compound_angle);
     while (depth < end_depth) {
-	threading_pass(settings, block, boring, safe_x, depth, end_depth, start_y, 
-		       start_z, zoff, taper_dist, entry_taper, exit_taper, 
+	threading_pass(settings, block, boring, safe_x, depth, end_depth, start_y,
+		       start_z, zoff, taper_dist, entry_taper, exit_taper,
 		       taper_pitch, pitch, full_threadheight, target_z);
         depth = full_dia_depth + cut_increment * pow(++pass, 1.0/degression);
         zoff = (depth - full_dia_depth) * tan(compound_angle);
-    } 
+    }
     // full specified depth now
     depth = end_depth;
     zoff = (depth - full_dia_depth) * tan(compound_angle);
     // cut at least once -- more if spring cuts.
     for(int i = 0; i<spring_cuts+1; i++) {
-	threading_pass(settings, block, boring, safe_x, depth, end_depth, start_y, 
-		       start_z, zoff, taper_dist, entry_taper, exit_taper, 
+	threading_pass(settings, block, boring, safe_x, depth, end_depth, start_y,
+		       start_z, zoff, taper_dist, entry_taper, exit_taper,
 		       taper_pitch, pitch, full_threadheight, target_z);
-    } 
+    }
     STRAIGHT_TRAVERSE(block->line_number, end_x, end_y, end_z, AABBCC);
     settings->current_x = end_x;
     settings->current_y = end_y;
@@ -4830,15 +5100,15 @@ the destination point.
 
 */
 
-int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1                        
-                                   block_pointer block,  //!< pointer to a block of RS274 instructions 
-                                   setup_pointer settings,       //!< pointer to machine settings              
-                                   double px,    //!< X coordinate of end point                
-                                   double py,    //!< Y coordinate of end point                
-                                   double pz,    //!< Z coordinate of end point                
-                                   double AA_end,        //!< A coordinate of end point          
-                                   double BB_end,        //!< B coordinate of end point          
-                                   double CC_end,        //!< C coordinate of end point          
+int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
+                                   block_pointer block,  //!< pointer to a block of RS274 instructions
+                                   setup_pointer settings,       //!< pointer to machine settings
+                                   double px,    //!< X coordinate of end point
+                                   double py,    //!< Y coordinate of end point
+                                   double pz,    //!< Z coordinate of end point
+                                   double AA_end,        //!< A coordinate of end point
+                                   double BB_end,        //!< B coordinate of end point
+                                   double CC_end,        //!< C coordinate of end point
                                    double u_end, double v_end, double w_end)
 {
     double alpha;
@@ -4867,13 +5137,13 @@ int Interp::convert_straight_comp1(int move,     //!< either G_0 or G_1
     set_endpoint(cx, cy);
 
     if (move == G_0) {
-        enqueue_STRAIGHT_TRAVERSE(settings, block->line_number, 
-                                  cos(alpha), sin(alpha), 0, 
+        enqueue_STRAIGHT_TRAVERSE(settings, block->line_number,
+                                  cos(alpha), sin(alpha), 0,
                                   end_x, end_y, pz,
                                   AA_end, BB_end, CC_end, u_end, v_end, w_end);
     }
     else if (move == G_1) {
-        enqueue_STRAIGHT_FEED(settings, block->line_number, 
+        enqueue_STRAIGHT_FEED(settings, block->line_number,
                               cos(alpha), sin(alpha), 0,
                               end_x, end_y, pz,
                               AA_end, BB_end, CC_end, u_end, v_end, w_end);
@@ -4959,12 +5229,12 @@ move is the same as the end point for a G1 move, however.
 
 */
 
-int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1                        
-                                   block_pointer block,  //!< pointer to a block of RS274 instructions 
-                                   setup_pointer settings,       //!< pointer to machine settings              
-                                   double px,    //!< X coordinate of programmed end point     
-                                   double py,    //!< Y coordinate of programmed end point     
-                                   double pz,    //!< Z coordinate of end point                
+int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
+                                   block_pointer block,  //!< pointer to a block of RS274 instructions
+                                   setup_pointer settings,       //!< pointer to machine settings
+                                   double px,    //!< X coordinate of programmed end point
+                                   double py,    //!< Y coordinate of programmed end point
+                                   double pz,    //!< Z coordinate of end point
                                    double AA_end,        //!< A coordinate of end point
                                    double BB_end,        //!< B coordinate of end point
                                    double CC_end,        //!< C coordinate of end point
@@ -4978,7 +5248,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
     double radius;
     int side;
     double small = TOLERANCE_CONCAVE_CORNER;      /* radians, testing corners */
-    double opx, opy, opz;      /* old programmed beginning point */
+    double opx = 0, opy = 0, opz = 0;      /* old programmed beginning point */
     double theta;
     double cx, cy, cz;
     int concave;
@@ -4989,13 +5259,13 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
 
     if ((py == opy) && (px == opx)) {     /* no XY motion */
         if (move == G_0) {
-            enqueue_STRAIGHT_TRAVERSE(settings, block->line_number, 
-                                      px - opx, py - opy, pz - opz, 
+            enqueue_STRAIGHT_TRAVERSE(settings, block->line_number,
+                                      px - opx, py - opy, pz - opz,
                                       cx, cy, pz,
                                       AA_end, BB_end, CC_end, u_end, v_end, w_end);
         } else if (move == G_1) {
-            enqueue_STRAIGHT_FEED(settings, block->line_number, 
-                                  px - opx, py - opy, pz - opz, 
+            enqueue_STRAIGHT_FEED(settings, block->line_number,
+                                  px - opx, py - opy, pz - opz,
                                   cx, cy, pz, AA_end, BB_end, CC_end, u_end, v_end, w_end);
         } else
             ERS(NCE_BUG_CODE_NOT_G0_OR_G1);
@@ -5023,7 +5293,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
         end_y = (py + (radius * sin(alpha + gamma)));
         mid_x = (opx + (radius * cos(alpha + gamma)));
         mid_y = (opy + (radius * sin(alpha + gamma)));
-    
+
         if ((beta < -small) || (beta > (M_PIl + small))) {
             concave = 1;
         } else if (beta > (M_PIl - small) &&
@@ -5059,8 +5329,8 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                 // programmed one.  if nothing else, this will look a
                 // little less confusing in the preview.
                 enqueue_STRAIGHT_TRAVERSE(settings, block->line_number,
-                                          0.0, 0.0, 0.0, 
-                                          mid_x, mid_y, cz, 
+                                          0.0, 0.0, 0.0,
+                                          mid_x, mid_y, cz,
                                           AA_end, BB_end, CC_end,
                                           u_end, v_end, w_end);
                 dequeue_canons(settings);
@@ -5078,7 +5348,7 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                 // this should replace the endpoint of the previous move
                 mid_x = cx + retreat * cos(theta + gamma);
                 mid_y = cy + retreat * sin(theta + gamma);
-                // we actually want to move the previous line's endpoint here.  That's the same as 
+                // we actually want to move the previous line's endpoint here.  That's the same as
                 // discarding that line and doing this one instead.
                 CHP(move_endpoint_and_flush(settings, mid_x, mid_y));
             } else {
@@ -5134,10 +5404,10 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
             set_endpoint(cx, cy);
         }
         (move == G_0? enqueue_STRAIGHT_TRAVERSE: enqueue_STRAIGHT_FEED)
-            (settings, block->line_number, 
-             px - opx, py - opy, pz - opz, 
+            (settings, block->line_number,
+             px - opx, py - opy, pz - opz,
              end_x, end_y, pz,
-             AA_end, BB_end, CC_end, 
+             AA_end, BB_end, CC_end,
              u_end, v_end, w_end);
     }
 
@@ -5215,9 +5485,9 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
   if (settings->tool_change_quill_up) {
       double up_z;
       double discard;
-      find_relative(0., 0., 0., 0., 0., 0., 0., 0., 0., 
+      find_relative(0., 0., 0., 0., 0., 0., 0., 0., 0.,
                     &discard, &discard, &up_z,
-                    &discard, &discard, &discard, 
+                    &discard, &discard, &discard,
                     &discard, &discard, &discard,
                     settings);
       COMMENT("AXIS,hide");
@@ -5249,7 +5519,7 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
                     USER_TO_PROGRAM_LEN(settings->parameters[5188]),
                     USER_TO_PROGRAM_LEN(settings->parameters[5189]),
                     &end_x, &end_y, &end_z,
-                    &AA_end, &BB_end, &CC_end, 
+                    &AA_end, &BB_end, &CC_end,
                     &u_end, &v_end, &w_end, settings);
       COMMENT("AXIS,hide");
 
@@ -5281,7 +5551,7 @@ int Interp::convert_tool_change(setup_pointer settings)  //!< pointer to machine
 
   settings->current_pocket = settings->selected_pocket;
   // tool change can move the controlled point.  reread it:
-  settings->toolchange_flag = true; 
+  settings->toolchange_flag = true;
   set_tool_parameters();
   return INTERP_OK;
 }
@@ -5319,45 +5589,52 @@ integer when it was read, so that check does not need to be repeated.
 
 int Interp::convert_tool_length_offset(int g_code,       //!< g_code being executed (must be G_43 or G_49)
                                       block_pointer block,      //!< pointer to a block of RS274/NGC instructions
-                                      setup_pointer settings)   //!< pointer to machine settings                 
+                                      setup_pointer settings)   //!< pointer to machine settings
 {
-  int pocket_number;
+  int idx;
   EmcPose tool_offset;
   ZERO_EMC_POSE(tool_offset);
 
   CHKS((settings->cutter_comp_side),
        (_("Cannot change tool offset with cutter radius compensation on")));
   if (g_code == G_49) {
-    pocket_number = 0;
+    idx = 0;
   } else if (g_code == G_43) {
       logDebug("convert_tool_length_offset h_flag=%d h_number=%d toolchange_flag=%d current_pocket=%d\n",
 	      block->h_flag,block->h_number,settings->toolchange_flag,settings->current_pocket);
-      if(block->h_flag) {
-        CHP((find_tool_pocket(settings, block->h_number, &pocket_number)));
+    if(block->h_flag) {
+        CHP((find_tool_index(settings, block->h_number, &idx)));
+         //sequence:
+         //  t12m6
+         //  g43      should      use t12 offset
+         //  g43h12   should also use t12 offset
+        if (idx==0 && settings->random_toolchanger) {
+           idx=settings->current_pocket;
+        }
     } else if (settings->toolchange_flag) {
         // Tool change is in progress, so the "current tool" is in its
-        // original pocket still.
-        pocket_number = settings->current_pocket;
+        // original index still.
+        idx = settings->current_pocket;
     } else {
-        // Tool change is done so the current tool is in pocket 0 (aka the
+        // Tool change is done so the current tool is in index 0 (aka the
         // spindle).
-        pocket_number = 0;
+        idx = 0;
     }
     logDebug("convert_tool_length_offset: using index=%d spindle_toolno=%d pocket_toolno=%d",
-	     pocket_number, settings->tool_table[0].toolno,settings->tool_table[settings->current_pocket].toolno);
+	     idx, settings->tool_table[0].toolno,settings->tool_table[settings->current_pocket].toolno);
 
-    tool_offset.tran.x = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.x);
-    tool_offset.tran.y = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.y);
-    tool_offset.tran.z = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.z);
-    tool_offset.a = USER_TO_PROGRAM_ANG(settings->tool_table[pocket_number].offset.a);
-    tool_offset.b = USER_TO_PROGRAM_ANG(settings->tool_table[pocket_number].offset.b);
-    tool_offset.c = USER_TO_PROGRAM_ANG(settings->tool_table[pocket_number].offset.c);
-    tool_offset.u = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.u);
-    tool_offset.v = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.v);
-    tool_offset.w = USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.w);
+    tool_offset.tran.x = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.tran.x);
+    tool_offset.tran.y = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.tran.y);
+    tool_offset.tran.z = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.tran.z);
+    tool_offset.a = USER_TO_PROGRAM_ANG(settings->tool_table[idx].offset.a);
+    tool_offset.b = USER_TO_PROGRAM_ANG(settings->tool_table[idx].offset.b);
+    tool_offset.c = USER_TO_PROGRAM_ANG(settings->tool_table[idx].offset.c);
+    tool_offset.u = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.u);
+    tool_offset.v = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.v);
+    tool_offset.w = USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.w);
   } else if (g_code == G_43_1) {
     tool_offset = settings->tool_offset;
-    pocket_number = -1;
+    idx = -1;
     if(block->x_flag) tool_offset.tran.x = block->x_number;
     if(block->y_flag) tool_offset.tran.y = block->y_number;
     if(block->z_flag) tool_offset.tran.z = block->z_number;
@@ -5368,18 +5645,36 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     if(block->v_flag) tool_offset.v = block->v_number;
     if(block->w_flag) tool_offset.w = block->w_number;
   } else if (g_code == G_43_2) {
-    CHKS((!block->h_flag), (_("G43.2: H-word missing")));
-    CHP((find_tool_pocket(settings, block->h_number, &pocket_number)));
+    CHKS((block->h_flag && (block->x_flag || block->y_flag || block->z_flag
+         || block->a_flag || block->b_flag || block->c_flag || block->u_flag
+         || block->v_flag || block->w_flag)), (_("G43.2: Can not have both H and axis words")));
+    CHKS((!block->h_flag && !block->x_flag && !block->y_flag && !block->z_flag
+         && !block->a_flag &&!block->b_flag && !block->c_flag && !block->u_flag
+         && !block->v_flag && !block->w_flag), (_("G43.2: No axes specified and H word missing")));
+    CHP((find_tool_index(settings, block->h_number, &idx)));
     tool_offset = settings->tool_offset;
-    tool_offset.tran.x += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.x);
-    tool_offset.tran.y += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.y);
-    tool_offset.tran.z += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.tran.z);
-    tool_offset.a += USER_TO_PROGRAM_ANG(settings->tool_table[pocket_number].offset.a);
-    tool_offset.b += USER_TO_PROGRAM_ANG(settings->tool_table[pocket_number].offset.b);
-    tool_offset.c += USER_TO_PROGRAM_ANG(settings->tool_table[pocket_number].offset.c);
-    tool_offset.u += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.u);
-    tool_offset.v += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.v);
-    tool_offset.w += USER_TO_PROGRAM_LEN(settings->tool_table[pocket_number].offset.w);
+    if (block->h_flag){
+        CHP((find_tool_index(settings, block->h_number, &idx)));
+        tool_offset.tran.x += USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.tran.x);
+        tool_offset.tran.y += USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.tran.y);
+        tool_offset.tran.z += USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.tran.z);
+        tool_offset.a += USER_TO_PROGRAM_ANG(settings->tool_table[idx].offset.a);
+        tool_offset.b += USER_TO_PROGRAM_ANG(settings->tool_table[idx].offset.b);
+        tool_offset.c += USER_TO_PROGRAM_ANG(settings->tool_table[idx].offset.c);
+        tool_offset.u += USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.u);
+        tool_offset.v += USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.v);
+        tool_offset.w += USER_TO_PROGRAM_LEN(settings->tool_table[idx].offset.w);
+    } else {
+        if(block->x_flag) tool_offset.tran.x += block->x_number;
+        if(block->y_flag) tool_offset.tran.y += block->y_number;
+        if(block->z_flag) tool_offset.tran.z += block->z_number;
+        if(block->a_flag) tool_offset.a += block->a_number;
+        if(block->b_flag) tool_offset.b += block->b_number;
+        if(block->c_flag) tool_offset.c += block->c_number;
+        if(block->u_flag) tool_offset.u += block->u_number;
+        if(block->v_flag) tool_offset.v += block->v_number;
+        if(block->w_flag) tool_offset.w += block->w_number;
+    }
   } else {
     ERS("BUG: Code not G43, G43.1, G43.2, or G49");
   }
@@ -5432,14 +5727,19 @@ A zero t_number is allowed and means no tool should be selected.
 // OK to select tool in a concave corner, I think?
 
 int Interp::convert_tool_select(block_pointer block,     //!< pointer to a block of RS274 instructions
-                               setup_pointer settings)  //!< pointer to machine settings             
+                               setup_pointer settings)  //!< pointer to machine settings
 {
-  int pocket;
-  CHP((find_tool_pocket(settings, block->t_number, &pocket)));
-  SELECT_POCKET(pocket, block->t_number);
-  settings->selected_pocket = pocket;
+  int idx;
+  CHP((find_tool_index(settings, block->t_number, &idx)));
+  SELECT_TOOL(block->t_number);
+  settings->selected_pocket = idx;
   settings->selected_tool = block->t_number;
   return INTERP_OK;
 }
 
 
+int Interp::update_tag(StateTag &tag)
+{
+    UPDATE_TAG(tag);
+    return INTERP_OK;
+}

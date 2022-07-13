@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 '''
     This class is used to handle the dialogs from gmoccapy,
-    it is just a coppy of a class from gscreen and has been slighly modified
+    it is just a copy of a class from gscreen and has been slightly modified
 
     Copyright 2014 Norbert Schechner
     nieson@web.de
@@ -22,82 +22,83 @@
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 '''
-
-import gtk
+import gi
+gi.require_version("Gtk","3.0")
+from gi.repository import Gtk
+from gi.repository import GObject
+from gi.repository import GLib
+from gi.repository import Pango
 import gladevcp
-import pango
 
-import gobject
-
-class Dialogs(gobject.GObject):
+class Dialogs(GObject.GObject):
 
     __gtype_name__ = 'Dialogs'
 
     __gsignals__ = {
-                'play_sound': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
+                'play_sound': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
                }
 
     def __init__(self):
-        gobject.GObject.__init__(self)
+        GObject.GObject.__init__(self)
 
     # This dialog is for unlocking the system tab
     # The unlock code number is defined at the top of the page
     def system_dialog(self, caller):
-        dialog = gtk.Dialog(_("Enter System Unlock Code"),
+        dialog = Gtk.Dialog(_("Enter System Unlock Code"),
                    caller.widgets.window1,
-                   gtk.DIALOG_DESTROY_WITH_PARENT,
-                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-        label = gtk.Label(_("Enter System Unlock Code"))
-        label.modify_font(pango.FontDescription("sans 20"))
+                   Gtk.DialogFlags.DESTROY_WITH_PARENT)
+        label = Gtk.Label(_("Enter System Unlock Code"))
+        label.modify_font(Pango.FontDescription("sans 20"))
         calc = gladevcp.Calculator()
-        dialog.vbox.pack_start(label)
+        dialog.vbox.pack_start(label, False, False, 0)
         dialog.vbox.add(calc)
         calc.set_value("")
         calc.set_property("font", "sans 20")
         calc.set_editable(True)
-        calc.entry.connect("activate", lambda w : dialog.emit("response", gtk.RESPONSE_ACCEPT))
-        dialog.parse_geometry("400x400")
+        calc.integer_entry_only(True)
+        calc.num_pad_only(True)
+        calc.entry.connect("activate", lambda w : dialog.emit("response", Gtk.ResponseType.ACCEPT))
+        dialog.parse_geometry("360x400")
         dialog.set_decorated(True)
         dialog.show_all()
         self.emit("play_sound", "alert")
         response = dialog.run()
         code = calc.get_value()
         dialog.destroy()
-        if response == gtk.RESPONSE_ACCEPT:
+        if response == Gtk.ResponseType.ACCEPT:
             if code == int(caller.unlock_code):
                 return True
         return False
 
     def entry_dialog(self, caller, data = None, header = _("Enter value") , label = _("Enter the value to set"), integer = False):
-        dialog = gtk.Dialog(header,
+        dialog = Gtk.Dialog(header,
                    caller.widgets.window1,
-                   gtk.DIALOG_DESTROY_WITH_PARENT,
-                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-        label = gtk.Label(label)
-        label.modify_font(pango.FontDescription("sans 20"))
+                   Gtk.DialogFlags.DESTROY_WITH_PARENT)
+        label = Gtk.Label(label)
+        label.modify_font(Pango.FontDescription("sans 20"))
+        label.set_margin_top(15)
         calc = gladevcp.Calculator()
-        dialog.vbox.pack_start(label)
-        dialog.vbox.add(calc)
+        content_area = dialog.get_content_area()
+        content_area.pack_start(child=label, expand=False, fill=False, padding=0)
+        content_area.add(calc)
         if data != None:
             calc.set_value(data)
         else:
             calc.set_value("")
         calc.set_property("font", "sans 20")
         calc.set_editable(True)
-        calc.entry.connect("activate", lambda w : dialog.emit("response", gtk.RESPONSE_ACCEPT))
-        dialog.parse_geometry("400x400")
+        calc.entry.connect("activate", lambda w : dialog.emit("response", Gtk.ResponseType.ACCEPT))
+        dialog.parse_geometry("460x400")
         dialog.set_decorated(True)
         self.emit("play_sound", "alert")
         if integer: # The user is only allowed to enter integer values, we hide some button
-            calc.num_pad_only(True)
             calc.integer_entry_only(True)
+            calc.num_pad_only(True)            
         dialog.show_all()
         response = dialog.run()
         value = calc.get_value()
         dialog.destroy()
-        if response == gtk.RESPONSE_ACCEPT:
+        if response == Gtk.ResponseType.ACCEPT:
             if value != None:
                 if integer:
                     return int(value)
@@ -108,48 +109,88 @@ class Dialogs(gobject.GObject):
         return "CANCEL"
 
     # display warning dialog
-    def warning_dialog(self, caller, message, secondary = None, title = _("Operator Message"), sound = True):
-        dialog = gtk.MessageDialog(caller.widgets.window1,
-            gtk.DIALOG_DESTROY_WITH_PARENT,
-            gtk.MESSAGE_INFO, gtk.BUTTONS_OK, message)
+    def warning_dialog(self, caller, message, secondary = None, title = _("Operator Message"),\
+        sound = True, confirm_pin = 'warning-confirm', active_pin = None):
+        dialog = Gtk.MessageDialog(caller.widgets.window1,
+                                   Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                                   Gtk.MessageType.INFO, Gtk.ButtonsType.NONE, message)
         # if there is a secondary message then the first message text is bold
         if secondary:
             dialog.format_secondary_text(secondary)
+        ok_button = Gtk.Button.new_with_mnemonic("_Ok")
+        ok_button.set_size_request(-1, 56)
+        ok_button.connect("clicked",lambda w:dialog.response(Gtk.ResponseType.OK))
+        box = Gtk.HButtonBox()
+        box.add(ok_button)
+        dialog.action_area.add(box)
+        dialog.set_border_width(5)
         dialog.show_all()
         if sound:
             self.emit("play_sound", "alert")
         dialog.set_title(title)
-        responce = dialog.run()
+
+        def periodic():
+            if caller.halcomp[confirm_pin]:
+                dialog.response(Gtk.ResponseType.OK)
+                return False
+            if active_pin is not None:
+                if not caller.halcomp[active_pin]:
+                    dialog.response(Gtk.ResponseType.CANCEL)
+                    return False
+            return True
+        GLib.timeout_add(100, periodic)
+
+        response = dialog.run()
         dialog.destroy()
-        return responce == gtk.RESPONSE_OK
+        return response == Gtk.ResponseType.OK
 
     def yesno_dialog(self, caller, message, title = _("Operator Message")):
-        dialog = gtk.MessageDialog(caller.widgets.window1,
-                                   gtk.DIALOG_DESTROY_WITH_PARENT,
-                                   gtk.MESSAGE_QUESTION,
-                                   gtk.BUTTONS_YES_NO)
+        dialog = Gtk.MessageDialog(caller.widgets.window1,
+                                   Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                                   Gtk.MessageType.QUESTION,
+                                   Gtk.ButtonsType.NONE)
         if title:
             dialog.set_title(str(title))
         dialog.set_markup(message)
+        yes_button = Gtk.Button.new_with_mnemonic(_("_Yes"))
+        no_button = Gtk.Button.new_with_mnemonic(_("_No"))
+        yes_button.set_size_request(-1, 56)
+        no_button.set_size_request(-1, 56)
+        yes_button.connect("clicked",lambda w:dialog.response(Gtk.ResponseType.YES))
+        no_button.connect("clicked",lambda w:dialog.response(Gtk.ResponseType.NO))
+        box = Gtk.HButtonBox()
+        box.add(no_button)    
+        box.add(yes_button)
+        box.set_spacing(10)
+        box.set_layout(Gtk.ButtonBoxStyle.CENTER)
+        dialog.action_area.add(box)
+        dialog.set_border_width(5)
         dialog.show_all()
         self.emit("play_sound", "alert")
-        responce = dialog.run()
+        response = dialog.run()
         dialog.destroy()
-        return responce == gtk.RESPONSE_YES
+        return response == Gtk.ResponseType.YES
 
     def show_user_message(self, caller, message, title = _("Operator Message")):
-        dialog = gtk.MessageDialog(caller.widgets.window1,
-                                   gtk.DIALOG_DESTROY_WITH_PARENT,
-                                   gtk.MESSAGE_INFO,
-                                   gtk.BUTTONS_OK)
+        dialog = Gtk.MessageDialog(caller.widgets.window1,
+                                   Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                                   Gtk.MessageType.INFO,
+                                   Gtk.ButtonsType.NONE)
         if title:
             dialog.set_title(str(title))
         dialog.set_markup(message)
+        ok_button = Gtk.Button.new_with_mnemonic(_("_Ok"))
+        ok_button.set_size_request(-1, 56)
+        ok_button.connect("clicked",lambda w:dialog.response(Gtk.ResponseType.OK))
+        box = Gtk.HButtonBox()
+        box.add(ok_button)
+        dialog.action_area.add(box)
+        dialog.set_border_width(5)
         dialog.show_all()
         self.emit("play_sound", "alert")
-        responce = dialog.run()
+        response = dialog.run()
         dialog.destroy()
-        return responce == gtk.RESPONSE_OK
+        return response == Gtk.ResponseType.OK
 
     # dialog for run from line
     def restart_dialog(self, caller):
@@ -170,43 +211,44 @@ class Dialogs(gobject.GObject):
 
         # highlight the gcode of the entered line
         # used for run-at-line restart
-        def enter_button(widget, obj, calc):
+        def on_enter_button(widget, obj, calc):
             line = int(calc.get_value())
             obj.start_line = line
             obj.widgets.gcode_view.set_line_number(line)
 
-        restart_dialog = gtk.Dialog(_("Restart Entry"),
-                   caller.widgets.window1, gtk.DIALOG_DESTROY_WITH_PARENT,
-                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                     gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-        label = gtk.Label(_("Restart Entry"))
-        label.modify_font(pango.FontDescription("sans 20"))
-        restart_dialog.vbox.pack_start(label)
+        restart_dialog = Gtk.Dialog(_("Restart Entry"),
+                   caller.widgets.window1, Gtk.DialogFlags.DESTROY_WITH_PARENT)
+        label = Gtk.Label(_("Restart Entry"))
+        label.modify_font(Pango.FontDescription("sans 20"))
+        restart_dialog.vbox.pack_start(label, False, False, 0)
         calc = gladevcp.Calculator()
         restart_dialog.vbox.add(calc)
         calc.set_value("%d" % caller.widgets.gcode_view.get_line_number())
         calc.set_property("font", "sans 20")
         calc.set_editable(True)
-        calc.num_pad_only(True)
+        calc.entry.connect("activate", on_enter_button, caller, calc)
         calc.integer_entry_only(True)
-        calc.entry.connect("activate", enter_button, caller, calc)
-        box = gtk.HButtonBox()
-        upbutton = gtk.Button(label = _("Up"))
-        box.add(upbutton)
-        enterbutton = gtk.Button(label = _("Enter"))
-        box.add(enterbutton)
-        downbutton = gtk.Button(label = _("Down"))
-        box.add(downbutton)
-        calc.calc_box.pack_end(box, expand = False, fill = False, padding = 0)
+        calc.num_pad_only(True)
+        # add additional buttons
+        upbutton = Gtk.Button.new_with_mnemonic(_("_Up     "))
+        upbutton.set_image(Gtk.Image.new_from_icon_name("go-up", Gtk.IconSize.BUTTON))
+        downbutton = Gtk.Button.new_with_mnemonic(_("_Down"))
+        downbutton.set_image(Gtk.Image.new_from_icon_name("go-down", Gtk.IconSize.BUTTON))
+        enterbutton = Gtk.Button.new_with_mnemonic(_("_Jump to"))
+        enterbutton.set_image(Gtk.Image.new_from_icon_name("go-jump", Gtk.IconSize.BUTTON))
+        calc.table.attach(upbutton,3,4,1,2)
+        calc.table.attach(downbutton,3,4,2,3)
+        calc.table.attach(enterbutton,3,4,3,4)
         upbutton.connect("clicked", restart_up, caller, calc)
         downbutton.connect("clicked", restart_down, caller, calc)
-        enterbutton.connect("clicked", enter_button, caller, calc)
-        restart_dialog.parse_geometry("400x400+0+0")
+        enterbutton.connect("clicked", on_enter_button, caller, calc)
+
+        restart_dialog.parse_geometry("410x400+0+0")
         restart_dialog.show_all()
         self.emit("play_sound", "alert")
         result = restart_dialog.run()
         restart_dialog.destroy()
-        if result == gtk.RESPONSE_REJECT:
+        if result == Gtk.ResponseType.REJECT:
             line = 0
         else:
             line = int(calc.get_value())

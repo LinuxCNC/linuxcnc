@@ -25,12 +25,12 @@ on a typical lathe:
     AXIS graphical display can not be made to reflect this. 
 
 When using homing and / or limit switches
-EMC2 expects the HAL signals to be true when 
+LinuxCNC expects the HAL signals to be true when 
 the switch is being pressed / tripped.
 If the signal is wrong for a limit switch then
-EMC2 will think the machine is on end of limit
+LinuxCNC will think the machine is on end of limit
 all the time. If the home switch search logic is wrong
-EMC2 will seem to home in the wrong direction.
+LinuxCNC will seem to home in the wrong direction.
 What it actually is doing is trying to BACK off 
 the home switch.
 
@@ -43,9 +43,9 @@ the home switch.
     should be 'active low' on the machine. eg. power runs through
     the switches all the time - a loss of power (open switch) trips.
     While one could wire them the other way, this is fail safe.
-    This may need to be inverted so that the HAL signal in EMC
+    This may need to be inverted so that the HAL signal in LinuxCNC
     in 'active high' - a TRUE means the switch was tripped. When
-    starting EMC if you get an on-limit warning, and axis is NOT
+    starting LinuxCNC if you get an on-limit warning, and axis is NOT
     tripping the switch, inverting the signal is probably the
     solution. (use HALMETER to check the corresponding HAL signal  
     eg. axis.0.pos-lim-sw-in  X axis positive limit switch)
@@ -63,7 +63,7 @@ the home switch.
     course home and the index will be the actual home location.
 
 -Decide on the MACHINE ORIGIN position.
-    MACHINE ORIGIN is what EMC uses to reference all user coordinate
+    MACHINE ORIGIN is what LinuxCNC uses to reference all user coordinate
     systems from.
     I can think of little reason it would need to be in any particular
     spot. There are only a few G codes that can access the 
@@ -74,7 +74,7 @@ the home switch.
 
 -Decide on the (final) HOME POSITION.
     this just places the carriage at a consistent and convenient position 
-    after EMC figures out where the ORIGIN is.
+    after LinuxCNC figures out where the ORIGIN is.
 
 -Measure / calculate the positive / negative axis travel distances.
     Move the axis to the origin. Mark a reference on the movable
@@ -87,9 +87,9 @@ the home switch.
 (machine) ORIGIN:
     The Origin is the MACHINE zero point. (not
     the zero point you set your cutter / material at).
-    EMC2 uses this point to reference everything else
+    LinuxCNC uses this point to reference everything else
     from. It should be inside the software limits.
-    EMC uses the home switch location to calculate 
+    LinuxCNC uses the home switch location to calculate 
     the origin position (when using home switches
     or must be manually set if not using home switches.
 
@@ -160,7 +160,7 @@ Home latch Direction:
     or opposite of the search direction.
 
 Use Encoder Index For Home:
-    EMC2 will search for an encoder index pulse while in
+    LinuxCNC will search for an encoder index pulse while in
     the latch stage of homing.
 
 Use Compensation File:

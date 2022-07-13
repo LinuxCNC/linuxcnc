@@ -34,7 +34,7 @@ class Keycalls:
     def __setitem__(self, item, value):
         return setattr(self, item, value)
 
-# This holds/converts the actual keypress (keyname = gtk.gdk.keyval_name(event.keyval))
+# This holds/converts the actual keypress (keyname = gdk.keyval_name(event.keyval))
 # to a generic function keyword
 # you can add or change these.
 class Keybinding:
@@ -60,7 +60,7 @@ class Keybinding:
 
 # These is the public methods for key conversion to function call name.
 # get_call and get_binding are for confirmation of a call or binding entry.
-# convert() takes a key string (from gtk.gdk.keyval_name(event.keyval)) and converts it to a function call string or returns None
+# convert() takes a key string (from gdk.keyval_name(event.keyval)) and converts it to a function call string or returns None
 # add_call and add_binding allow adding or changing calls or bindings
 # add_conversion() does both at the same time
 class Keylookup:
@@ -72,14 +72,14 @@ class Keylookup:
         try:
             return self.keycall[binding]
         except:
-            print "No key function call"
+            print("No key function call")
             return None
 
     def get_binding(self,key):
         try:
             return self.keybinding[key]
         except:
-            print "No key binding"
+            print("No key binding")
             return None
 
     def convert(self,key):
@@ -93,13 +93,13 @@ class Keylookup:
         try:
             self.keybinding[key] = binding
         except:
-            print "Binding for key %s could not be added"% key
+            print("Binding for key %s could not be added"% key)
 
     def add_call(self,binding,function):
         try:
             self.keycall[binding] = function
         except:
-            print "Binding %s could not be added"% binding
+            print("Binding %s could not be added"% binding)
 
     def add_conversion(self,key,binding,function):
         self.add_binding(key,binding)

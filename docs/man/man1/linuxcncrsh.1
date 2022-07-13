@@ -111,7 +111,7 @@ insensitive. The exceptions are passwords, file paths and text strings.
 .P
 Requests to linuxcncrsh are terminated with line endings, any combination of
 one or more '\\r' and '\\n' characters.  Replies from linuxcncrsh are terminated
-with the sequence \'\\r\\n\'.
+with the sequence '\\r\\n'.
 .P
 The supported commands are as follows:
 .P
@@ -124,7 +124,7 @@ If a valid password was entered the server will respond with:
 \fIHELLO ACK <ServerName> <ServerVersion>\fR
 .RE
 .P
-If an invalid password or any other syntax error occurs then the server 
+If an invalid password or any other syntax error occurs then the server
 responds with:
 .RS
 \fIHELLO NAK\fR
@@ -164,7 +164,7 @@ The help command will return help information in text format over the
 connection. If no parameters are specified, it will itemize the available
 commands.  If a command is specified, it will provide usage information
 for the specified command. Help will respond regardless of whether a
-"Hello" has been successsfully negotiated.
+"Hello" has been successfully negotiated.
 .RE
 .SH "LinuxCNC Subcommands"
 .P
@@ -675,7 +675,7 @@ Bold items are typed by you, non-bold is machine output.  Default values  are sh
 The user connects to linuxcncrsh, handshakes with the server (hello), enables
 machine commanding from this session (set enable), brings the machine
 out of estop (set estop off) and turns it on (set machine on), homes all
-the axes, switches the machine to mdi mode, sends an MDI g-code command,
+the axes, switches the machine to mdi mode, sends an MDI G-code command,
 then disconnects and shuts down LinuxCNC.
 .P
 > \fBtelnet localhost 5007\fR

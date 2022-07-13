@@ -1,4 +1,4 @@
-/** This file, 'halsc_trig.c', contains the portion of halscope
+/** This file, 'scope_trig.c', contains the portion of halscope
     that deals with triggering
 */
 
@@ -28,7 +28,7 @@
     any responsibility for such compliance.
 
     This code was written as part of the EMC HAL project.  For more
-    information, go to www.linuxcnc.org.
+    information, go to https://linuxcnc.org.
 */
 
 #include "config.h"
@@ -60,6 +60,13 @@
 #define TRIG_LEVEL_RESOLUTION 100.0
 #define TRIG_POS_RESOLUTION 100.0
 
+/* Columns in the TreeView */
+enum TREEVIEW_COLUMN {
+    COL_CHAN,
+    COL_SOURCE,
+    NUM_COLS
+};
+
 /***********************************************************************
 *                  LOCAL FUNCTION PROTOTYPES                           *
 ************************************************************************/
@@ -67,8 +74,8 @@
 static void init_trigger_mode_window(void);
 static void init_trigger_info_window(void);
 
-static void trigger_selection_made(GtkWidget * clist, gint row, gint column,
-    GdkEventButton * event, dialog_generic_t * dptr);
+static void trigger_selection_made(GtkWidget *treeview, GdkEventButton *event,
+                                   GtkWidget *dialog);
 static void dialog_select_trigger_source(void);
 
 /* callback functions */
@@ -79,8 +86,6 @@ static void source_button_clicked(GtkWidget * widget, gpointer * gdata);
 static void edge_button_clicked(GtkWidget * widget, gpointer * gdata);
 static void level_changed(GtkAdjustment * adj, gpointer gdata);
 static void pos_changed(GtkAdjustment * adj, gpointer gdata);
-
-/* helper functions */
 
 /***********************************************************************
 *                       PUBLIC FUNCTIONS                               *
@@ -163,13 +168,13 @@ void refresh_trigger(void)
         gtk_widget_set_sensitive(GTK_WIDGET(trig->level_slider), 1);
     }
     gtk_label_set_text_if(trig->level_label, buf);
-    refresh_display();
+    redraw_window();
 }
 
 void write_trig_config(FILE *fp)
 {
     scope_trig_t *trig;
-    
+
     trig = &(ctrl_usr->trig);
     if (ctrl_shm->trig_chan > 0) {
 	fprintf(fp, "TSOURCE %d\n", ctrl_shm->trig_chan);
@@ -194,9 +199,8 @@ static void init_trigger_mode_window(void)
     ctrl_shm->auto_trig = 0;
     /* define the radio buttons */
     trig->normal_button = gtk_radio_button_new_with_label(NULL, _("Normal"));
-    trig->auto_button =
-	gtk_radio_button_new_with_label(gtk_radio_button_group
-	(GTK_RADIO_BUTTON(trig->normal_button)), _("Auto"));
+    trig->auto_button = gtk_radio_button_new_with_label_from_widget(
+        GTK_RADIO_BUTTON(trig->normal_button), _("Auto"));
     /* and a regular button */
     trig->force_button = gtk_button_new_with_label(_("Force"));
     /* now put them into the box */
@@ -207,12 +211,12 @@ static void init_trigger_mode_window(void)
     gtk_box_pack_start(GTK_BOX(ctrl_usr->trig_info_win),
 	trig->force_button, FALSE, FALSE, 0);
     /* hook callbacks to buttons */
-    gtk_signal_connect(GTK_OBJECT(trig->normal_button), "clicked",
-	GTK_SIGNAL_FUNC(normal_button_clicked), NULL);
-    gtk_signal_connect(GTK_OBJECT(trig->auto_button), "clicked",
-	GTK_SIGNAL_FUNC(auto_button_clicked), NULL);
-    gtk_signal_connect(GTK_OBJECT(trig->force_button), "clicked",
-	GTK_SIGNAL_FUNC(force_button_clicked), NULL);
+    g_signal_connect(trig->normal_button, "clicked",
+	G_CALLBACK(normal_button_clicked), NULL);
+    g_signal_connect(trig->auto_button, "clicked",
+	G_CALLBACK(auto_button_clicked), NULL);
+    g_signal_connect(trig->force_button, "clicked",
+	G_CALLBACK(force_button_clicked), NULL);
     /* and make them visible */
     gtk_widget_show(trig->normal_button);
     gtk_widget_show(trig->auto_button);
@@ -236,16 +240,17 @@ static void init_trigger_info_window(void)
     trig->level_adj =
 	gtk_adjustment_new(TRIG_LEVEL_RESOLUTION / 2, 0,
 	TRIG_LEVEL_RESOLUTION, 1, 1, 0);
-    trig->level_slider = gtk_vscale_new(GTK_ADJUSTMENT(trig->level_adj));
+    trig->level_slider = gtk_scale_new(
+            GTK_ORIENTATION_VERTICAL, GTK_ADJUSTMENT(trig->level_adj));
     gtk_scale_set_digits(GTK_SCALE(trig->level_slider), 0);
     gtk_scale_set_draw_value(GTK_SCALE(trig->level_slider), FALSE);
     gtk_box_pack_start(GTK_BOX(vbox), trig->level_slider, TRUE, TRUE, 0);
     /* set initial trigger level */
-    trig->level =
-	(GTK_ADJUSTMENT(trig->level_adj))->value / TRIG_LEVEL_RESOLUTION;
+    trig->level = gtk_adjustment_get_value(
+            GTK_ADJUSTMENT(trig->level_adj)) / TRIG_LEVEL_RESOLUTION;
     /* connect the slider to a function that re-sets the trigger level */
-    gtk_signal_connect(GTK_OBJECT(trig->level_adj), "value_changed",
-	GTK_SIGNAL_FUNC(level_changed), NULL);
+    g_signal_connect(trig->level_adj, "value_changed",
+	G_CALLBACK(level_changed), NULL);
     gtk_widget_show(trig->level_slider);
     /* box for the position slider */
     vbox = gtk_vbox_new_in_box(FALSE, 0, 0, hbox, TRUE, TRUE, 0);
@@ -253,16 +258,17 @@ static void init_trigger_info_window(void)
     trig->pos_adj =
 	gtk_adjustment_new(TRIG_POS_RESOLUTION / 2, 0, TRIG_POS_RESOLUTION, 1,
 	1, 0);
-    trig->pos_slider = gtk_vscale_new(GTK_ADJUSTMENT(trig->pos_adj));
+    trig->pos_slider = gtk_scale_new(
+            GTK_ORIENTATION_VERTICAL, GTK_ADJUSTMENT(trig->pos_adj));
     gtk_scale_set_digits(GTK_SCALE(trig->pos_slider), 0);
     gtk_scale_set_draw_value(GTK_SCALE(trig->pos_slider), FALSE);
     gtk_box_pack_start(GTK_BOX(vbox), trig->pos_slider, TRUE, TRUE, 0);
     /* set initial trigger position */
-    trig->position =
-	(GTK_ADJUSTMENT(trig->pos_adj))->value / TRIG_POS_RESOLUTION;
+    trig->position = gtk_adjustment_get_value(
+            GTK_ADJUSTMENT(trig->pos_adj)) / TRIG_POS_RESOLUTION;
     /* connect the slider to a function that re-sets trigger position */
-    gtk_signal_connect(GTK_OBJECT(trig->pos_adj), "value_changed",
-	GTK_SIGNAL_FUNC(pos_changed), NULL);
+    g_signal_connect(trig->pos_adj, "value_changed",
+	G_CALLBACK(pos_changed), NULL);
     gtk_widget_show(trig->pos_slider);
     /* level display */
     gtk_hseparator_new_in_box(ctrl_usr->trig_info_win, 3);
@@ -273,73 +279,70 @@ static void init_trigger_info_window(void)
     /* define a button to set the trigger edge */
     ctrl_shm->trig_edge = 1;
     trig->edge_button = gtk_button_new_with_label(_("Rising"));
-    trig->edge_label = (GTK_BIN(trig->edge_button))->child;
+    trig->edge_label = gtk_bin_get_child(GTK_BIN(trig->edge_button));
     gtk_box_pack_start(GTK_BOX(ctrl_usr->trig_info_win),
 	trig->edge_button, FALSE, FALSE, 0);
-    gtk_signal_connect(GTK_OBJECT(trig->edge_button), "clicked",
-	GTK_SIGNAL_FUNC(edge_button_clicked), NULL);
+    g_signal_connect(trig->edge_button, "clicked",
+	G_CALLBACK(edge_button_clicked), NULL);
     gtk_widget_show(trig->edge_button);
     /* define a button to set the trigger source */
     trig->source_button = gtk_button_new_with_label(_("Source\nNone"));
-    trig->source_label = (GTK_BIN(trig->source_button))->child;
+    trig->source_label = gtk_bin_get_child(GTK_BIN(trig->source_button));
     gtk_box_pack_start(GTK_BOX(ctrl_usr->trig_info_win),
 	trig->source_button, FALSE, FALSE, 0);
-    gtk_signal_connect(GTK_OBJECT(trig->source_button), "clicked",
-	GTK_SIGNAL_FUNC(source_button_clicked), NULL);
+    g_signal_connect(trig->source_button, "clicked",
+	G_CALLBACK(source_button_clicked), NULL);
     gtk_widget_show(trig->source_button);
 }
 
 static void dialog_select_trigger_source(void)
 {
-    dialog_generic_t dialog;
-    gchar *title, *msg;
-    int n, colwidth;
-    gchar *strs[2], *titles[2];
-    gchar buf[BUFLEN + 1];
-    GtkWidget *label, *button, *scrolled_window, *trig_list;
+    char *msg;
+    int n;
+    char *strs[2], *titles[NUM_COLS];
+    char buf[BUFLEN + 1];
+    GtkWidget *label, *scrolled_window, *trig_list;
+    GtkWidget *content_area;
+    GtkWidget *dialog;
 
     /* is acquisition in progress? */
     if (ctrl_shm->state != IDLE) { prepare_scope_restart(); }
-    title = _("Trigger Source");
     msg = _("Select a channel to use for triggering.");
-    /* create dialog window, disable resizing */
-    dialog.retval = 0;
-    dialog.window = gtk_dialog_new();
-    /* set initial height of window */
-    gtk_widget_set_usize(GTK_WIDGET(dialog.window), -2, 400);
-    /* allow user to grow but not shrink the window */
-    gtk_window_set_policy(GTK_WINDOW(dialog.window), FALSE, TRUE, FALSE);
-    /* set title */
-    gtk_window_set_title(GTK_WINDOW(dialog.window), title);
+
+    /* create dialog window, disable resizing, set size and title */
+    dialog= gtk_dialog_new_with_buttons(_("Trigger Source"),
+                                        NULL, GTK_DIALOG_MODAL,
+                                        _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                        NULL);
+    gtk_widget_set_size_request(GTK_WIDGET(dialog), -1, 400);
+    gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
+    content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+
     /* display message */
     label = gtk_label_new(msg);
-    gtk_misc_set_padding(GTK_MISC(label), 15, 5);
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->vbox), label, FALSE,
-	TRUE, 0);
+    gtk_widget_set_margin_start(label, 15);
+    gtk_widget_set_margin_end(label, 15);
+    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
+            label, FALSE, TRUE, 5);
+
     /* Create a scrolled window to display the list */
     scrolled_window = gtk_scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
 	GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->vbox),
-	scrolled_window, TRUE, TRUE, 5);
-    gtk_widget_show(scrolled_window);
+    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
+            scrolled_window, TRUE, TRUE, 5);
+
     /* create a list to hold the data */
     titles[0] = _("Chan");
     titles[1] = _("Source");
-    trig_list = gtk_clist_new_with_titles(2, titles);
-    gtk_clist_column_titles_passive(GTK_CLIST(trig_list));
-    /* set up a callback for when the user selects a line */
-    gtk_signal_connect(GTK_OBJECT(trig_list), "select_row",
-	GTK_SIGNAL_FUNC(trigger_selection_made), &dialog);
-    /* It isn't necessary to shadow the border, but it looks nice :) */
-    gtk_clist_set_shadow_type(GTK_CLIST(trig_list), GTK_SHADOW_OUT);
-    /* set list for single selection only */
-    gtk_clist_set_selection_mode(GTK_CLIST(trig_list), GTK_SELECTION_BROWSE);
-    /* put the list into the scrolled window */
+    trig_list = gtk_tree_view_new();
+    init_list(trig_list, titles, NUM_COLS);
     gtk_container_add(GTK_CONTAINER(scrolled_window), trig_list);
-    gtk_widget_show(trig_list);
+
+    g_signal_connect(trig_list, "button-press-event",
+            G_CALLBACK(trigger_selection_made), dialog);
+
     /* populate the trigger source list */
-    gtk_clist_clear(GTK_CLIST(trig_list));
     for (n = 0; n < 16; n++) {
 	snprintf(buf, BUFLEN, "%d", n + 1);
 	strs[0] = buf;
@@ -348,35 +351,20 @@ static void dialog_select_trigger_source(void)
 	} else {
 	    strs[1] = "----";
 	}
-	gtk_clist_append(GTK_CLIST(trig_list), strs);
+        add_to_list(trig_list, strs, NUM_COLS);
     }
-    /* set column width */
-    colwidth = gtk_clist_optimal_column_width(GTK_CLIST(trig_list), 1);
-    gtk_clist_set_column_min_width(GTK_CLIST(trig_list), 1,
-	(colwidth * 17) / 16);
+
     /* was a channel previously selected? */
     if (ctrl_shm->trig_chan > 0) {
 	/* yes, preselect appropriate line */
-	gtk_clist_select_row(GTK_CLIST(trig_list), ctrl_shm->trig_chan - 1,
-	    1);
+        mark_selected_row(trig_list, ctrl_shm->trig_chan - 1);
     }
-    /* set up a callback function when the window is destroyed */
-    gtk_signal_connect(GTK_OBJECT(dialog.window), "destroy",
-	GTK_SIGNAL_FUNC(dialog_generic_destroyed), &dialog);
-    /* make Cancel button */
-    button = gtk_button_new_with_label(_("Cancel"));
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog.window)->action_area),
-	button, TRUE, TRUE, 4);
-    gtk_signal_connect(GTK_OBJECT(button), "clicked",
-	GTK_SIGNAL_FUNC(dialog_generic_button2), &dialog);
-    /* make window transient and modal */
-    gtk_window_set_transient_for(GTK_WINDOW(dialog.window),
-	GTK_WINDOW(ctrl_usr->main_win));
-    gtk_window_set_modal(GTK_WINDOW(dialog.window), TRUE);
-    gtk_widget_show_all(dialog.window);
-    gtk_main();
+    gtk_widget_show_all(dialog);
+
+    gtk_dialog_run(GTK_DIALOG(dialog));
     /* we get here when the user makes a selection, hits Cancel, or closes
        the window */
+    gtk_widget_destroy(dialog);
     trig_list = NULL;
 }
 
@@ -392,30 +380,23 @@ int set_trigger_source(int chan_num)
 }
 
 /* If we come here, then the user has selected a row in the list. */
-static void trigger_selection_made(GtkWidget * clist, gint row, gint column,
-    GdkEventButton * event, dialog_generic_t * dptr)
+static void trigger_selection_made(GtkWidget *treeview, GdkEventButton *event,
+                                   GtkWidget *dialog)
 {
-    GdkEventType type;
+    if (event->type == GDK_BUTTON_PRESS && event->button == 1) {
+        GtkTreePath *path;
 
-    if ((event == NULL) || (clist == NULL)) {
-	/* We get spurious events when the lists are populated I don't know
-	   why.  If either clist or event is null, it's a bad one! */
-	return;
+        if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(treeview),
+                    (int) event->x, (int) event->y, &path, NULL, NULL, NULL)) {
+            int *row;
+
+            row = gtk_tree_path_get_indices(path);
+            set_trigger_source(row[0] + 1);
+
+            /* set return value of dialog and close window */
+            gtk_dialog_response(GTK_DIALOG(dialog), GTK_RESPONSE_ACCEPT);
+        }
     }
-    type = event->type;
-    if (type != 4) {
-	/* We also get bad callbacks if you drag the mouse across the list
-	   with the button held down.  They can be distinguished because
-	   their event type is 3, not 4. */
-	return;
-    }
-    /* If we get here, it should be a valid selection */
-    set_trigger_source(row + 1);
-    /* set return value of dialog */
-    dptr->retval = 1;
-    /* destroy window to cause dialog_generic_destroyed() to be called */
-    gtk_widget_destroy(dptr->window);
-    return;
 }
 
 int set_trigger_level(double setting)
@@ -440,7 +421,7 @@ int set_trigger_level(double setting)
 
 static void level_changed(GtkAdjustment * adj, gpointer gdata)
 {
-    set_trigger_level(adj->value / TRIG_LEVEL_RESOLUTION);
+    set_trigger_level(gtk_adjustment_get_value(adj) / TRIG_LEVEL_RESOLUTION);
 }
 
 int set_trigger_pos(double setting)
@@ -470,7 +451,7 @@ int set_trigger_pos(double setting)
 
 static void pos_changed(GtkAdjustment * adj, gpointer gdata)
 {
-    set_trigger_pos(adj->value / TRIG_POS_RESOLUTION);
+    set_trigger_pos(gtk_adjustment_get_value(adj) / TRIG_POS_RESOLUTION);
 }
 
 int set_trigger_polarity(int setting)

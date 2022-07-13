@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # vim: sts=4 sw=4 et
 
 """
@@ -34,7 +34,7 @@ class _ItemWrap(object):
     def __new__(cls, item):
         if not isinstance(item, _hal.item):
             raise TypeError("Constructor argument must be _hal.item: %s" % type(item))
-        self = object.__new__(cls)
+        self = super(_ItemWrap, cls).__new__(cls)
         return self._item_wrap(item)
 
     def _item_wrap(self, item):
@@ -69,3 +69,4 @@ class component(_hal.component):
 
     def getpin(self, *a, **kw): return Pin(_hal.component.getpin(self, *a, **kw))
     def getparam(self, *a, **kw): return Param(_hal.component.getparam(self, *a, **kw))
+    def getpins(self, *a, **kw): return _hal.component.getpins(self, *a, **kw)

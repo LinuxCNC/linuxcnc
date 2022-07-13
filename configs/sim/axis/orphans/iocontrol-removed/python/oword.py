@@ -73,8 +73,8 @@ def multiply(self, *args):
 def qdemo(self,*args,**kwargs):
     try:
         task.pytask.enqueue.demo(*args,**kwargs)
-        if debug(): print "enqueueing demo()",args,kwargs
-    except Exception,e:
+        if debug(): print("enqueueing demo()",args,kwargs)
+    except Exception as e:
         # self happens if called  with the UI context - no task there: harmless
         pass
 
@@ -83,9 +83,9 @@ def qdemo(self,*args,**kwargs):
 def show_emcstat(self,*args,**kwargs):
     try:
         task.pytask.enqueue.show_emcstat(*args,**kwargs)
-        if debug(): print "enqueueing show_emcstat()",args
-    except Exception,e:
-        if debug(): print "show_emcstat:",e,"pid=",os.getpid()
+        if debug(): print("enqueueing show_emcstat()",args)
+    except Exception as e:
+        if debug(): print("show_emcstat:",e,"pid=",os.getpid())
         pass
 
 
@@ -101,9 +101,9 @@ def set_named_pin(self,*args):
             self.set_errormsg("set_named_pin takes  a comment, which is the HAL pin name")
             return -1
         task.pytask.enqueue.set_named_pin(args[0], self.blocks[0].comment)
-        if debug(): print "enqueuing set_named_pin()",args
-    except Exception,e:
-        if debug(): print "set_named_pin:",e,"pid=",os.getpid()
+        if debug(): print("enqueuing set_named_pin()",args)
+    except Exception as e:
+        if debug(): print("set_named_pin:",e,"pid=",os.getpid())
         pass
 
 
@@ -121,8 +121,8 @@ def  wait_for_named_pin(self,*args):
             self.set_errormsg("wait_for_named_pin takes  a comment, which is the HAL pin name")
             return -1
         task.pytask.enqueue.wait_for_named_pin(args[0], self.blocks[0].comment)
-        if debug(): print "enqueuing wait_for_named_pin()",args
-    except Exception,e:
-        if debug(): print "wait_for_named_pin:",e,"pid=",os.getpid()
+        if debug(): print("enqueuing wait_for_named_pin()",args)
+    except Exception as e:
+        if debug(): print("wait_for_named_pin:",e,"pid=",os.getpid())
         pass
 

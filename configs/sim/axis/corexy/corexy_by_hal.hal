@@ -1,0 +1,57 @@
+# corexy_by_hal.hal
+
+# This halfile adapts a configuration using trvikins
+# to implement corexy kinematics using the hal
+# component: corexy_by_hal.
+
+# This corexy method allows home switches to operate
+# along the Cartesian X and Y coordinate motion.
+# By contrast, when using corexykins kinematics, home
+# switches operate according to motor positions for
+# joints 0 and 1.
+
+# show original signals for joints 0,1
+show sig j0pos-cmd j1pos-cmd
+show sig j0pos-fb  j1pos-fb
+
+# remove original signals that connect
+# pins for stepgens 0,1:
+delsig j0pos-cmd
+delsig j1pos-cmd
+delsig j0pos-fb
+delsig j1pos-fb
+
+# implement corexy kinematics with hal component:
+loadrt corexy_by_hal names=corexy_by_hal
+addf   corexy_by_hal servo-thread
+
+net :j0motor-cmd <= joint.0.motor-pos-cmd
+net :j0motor-cmd => corexy_by_hal.j0-motor-pos-cmd
+net :j0motor-cmd => j0home.cur-pos
+
+net :j1motor-cmd <= joint.1.motor-pos-cmd
+net :j1motor-cmd => corexy_by_hal.j1-motor-pos-cmd
+net :j1motor-cmd => j1home.cur-pos
+
+net :j0motor-fb <= corexy_by_hal.j0-motor-pos-fb
+net :j0motor-fb => joint.0.motor-pos-fb
+
+net :j1motor-fb <= corexy_by_hal.j1-motor-pos-fb
+net :j1motor-fb => joint.1.motor-pos-fb
+
+# new signals connecting pins for stepgens 0,1:
+net :alpha-cmd <= corexy_by_hal.alpha-cmd
+net :alpha-cmd => stepgen.0.position-cmd
+
+net :beta-cmd => corexy_by_hal.beta-cmd
+net :beta-cmd <= stepgen.1.position-cmd
+
+net :alpha-fb  <= stepgen.0.position-fb
+net :alpha-fb  => corexy_by_hal.alpha-fb
+
+net :beta-fb  <= stepgen.1.position-fb
+net :beta-fb  => corexy_by_hal.beta-fb
+
+# show new signals:
+show sig :*alpha*
+show sig :*beta*

@@ -1,8 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import sys, os
 import gettext
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
-gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
+
+gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"))
 
 import linuxcnc, hal
 
@@ -57,15 +58,17 @@ h.newpin("change_button", hal.HAL_BIT, hal.HAL_IN)
 h.newpin("changed", hal.HAL_BIT, hal.HAL_OUT)
 h.ready()
 
-import Tkinter, nf, rs274.options
+import nf, rs274.options
 
-app = Tkinter.Tk(className="AxisToolChanger")
+import tkinter
+
+app = tkinter.Tk(className="AxisToolChanger")
 app.wm_geometry("-60-60")
 app.wm_title(_("AXIS Manual Toolchanger"))
 rs274.options.install(app)
 nf.start(app); nf.makecommand(app, "_", _)
 app.wm_protocol("WM_DELETE_WINDOW", app.wm_withdraw)
-lab = Tkinter.Message(app, aspect=500, text = _("\
+lab = tkinter.Message(app, aspect=500, text = _("\
 This window is part of the AXIS manual toolchanger.  It is safe to close \
 or iconify this window, or it will close automatically after a few seconds."))
 lab.pack()

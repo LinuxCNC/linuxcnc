@@ -1,0 +1,98 @@
+= streamer(9)
+
+== NAME
+streamer - stream file data into HAL in real time
+
+== SYNOPSIS
+*loadrt streamer depth*=_depth1[,depth2...]_ *cfg*=_string1[,string2...]_
+
+== DESCRIPTION
+
+*streamer* and *halstreamer(1)* are used together to stream data
+from a file into the HAL in real time.  *streamer* is a realtime HAL
+component that exports HAL pins and creates a FIFO in shared memory.
+*hal_streamer* is a user space program that copies data from stdin into
+the FIFO, so that *streamer* can write it to the HAL pins.
+
+
+== OPTIONS
+
+*depth*=_depth1[,depth2...]_::
+
+    Sets the depth of the user->realtime FIFO that *streamer* creates
+    to receive data from *hal-streamer*.  Multiple values of _depth_
+    (separated by commas) can be specified if you need more than one
+    FIFO (for example if you want to stream data from two different
+    realtime threads).
+
+*cfg*=_string1[,string2...]_::
+
+    Defines the set of HAL pins that *streamer* exports and later writes
+    data to.  One _string_ must be supplied for each FIFO, separated by
+    commas.  *streamer* exports one pin for each character in _string_.
+    Legal characters are:
+
+        * *F*, *f* (float pin)
+        * *B*, *b* (bit pin)
+        * *S*, *s* (s32 pin)
+        * *U*, *u* (u32 pin)
+
+== FUNCTIONS
+*streamer*._N_::
+One function is created per FIFO, numbered from zero.
+
+== PINS
+
+*streamer*._N_.*pin*._M_ output::
+    Data from column _M_ of the data in FIFO _N_ appears on this pin.
+    The pin type depends on the config string.
+
+*streamer*._N_.*curr-depth* s32 output::
+    Current number of samples in the FIFO.  When this reaches zero,
+    new data will no longer be written to the pins.
+
+*streamer*._N_.*empty* bit output::
+    TRUE when the FIFO _N_ is empty, FALSE when valid data is available.
+
+*streamer*._N_.*enable* bit input::
+    When TRUE, data from FIFO _N_ is written to the HAL pins.  When false,
+    no data is transferred.  Defaults to TRUE.
+
+*streamer*._N_.*underruns* s32 read/write::
+    The number of times that *sampler* has tried to write data to the
+    HAL pins but found no fresh data in the FIFO.  It increments whenever
+    *empty* is true, and can be reset by the *setp* command.
+
+*streamer*._N_.*clock bit input::
+    Clock for data as specified by the clock-mode pin
+
+*streamer*._N_.*clock-mode s32 input::
+    Defines behavior of clock pin:
+
+      * 0 (*default*) free run at every iteration
+      * 1 clock on falling edge of clock pin
+      * 2 clock on rising edge of clock pin
+      * 3 clock on any edge of clock pin
+
+== SEE ALSO
+*halstreamer*(1) *sampler*(9) *halsampler*(1)
+
+
+== BUGS
+Should an enable HAL pin be added, to allow streaming to be turned on and off?
+
+
+== AUTHOR
+Original version by John Kasunich, as part of the LinuxCNC project.
+Improvements by several other members of the LinuxCNC development team.
+
+
+== REPORTING BUGS
+Report bugs to jmkasunich AT users DOT sourceforge DOT net
+
+
+== COPYRIGHT
+Copyright © 2006 John Kasunich.  This is free software; see the
+source for copying conditions.  There is NO warranty; not even for
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+

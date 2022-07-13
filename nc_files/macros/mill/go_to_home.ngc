@@ -1,0 +1,13 @@
+; MACROCOMMAND=
+; MACRODEFAULTS=
+; MACROIMAGE=go_to_home.svg,1,1
+
+O<go_to_home> sub
+
+ G0 G53
+ G28 Z0
+ G28 X0 Y0
+
+O<go_to_home> endsub
+
+M2

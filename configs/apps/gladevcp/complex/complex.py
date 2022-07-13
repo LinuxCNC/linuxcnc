@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # vim: sts=4 sw=4 et
 #    This is a component of LinuxCNC
 #    complex.py Copyright 2010 Michael Haberler
@@ -28,7 +28,9 @@ from gladevcp.persistence import IniFile,widget_defaults,set_debug,select_widget
 import hal
 import hal_glib
 import gtk
-import glib
+
+import gi
+from gi.repository import GLib
 
 debug = 0
 
@@ -45,7 +47,7 @@ class HandlerClass:
             user data passed if any - this is currently unused but
             the convention should be retained just in case
         '''
-        print "on_button_press()"
+        print("on_button_press()")
         self.nhits += 1
         halwidget.set_label("hits: %d" % self.nhits)
 
@@ -54,7 +56,7 @@ class HandlerClass:
         '''
         standard button-pressed callback. Parameter is the widget object instance.
         '''
-        print "on_toggle_button() HAL pin value: %s" %(str(hal_button.hal_pin.get()))
+        print("on_toggle_button() HAL pin value: %s" %(str(hal_button.hal_pin.get())))
 
     def _on_example_trigger_change(self,hal_pin,data=None):
         '''
@@ -63,7 +65,7 @@ class HandlerClass:
         handler through gladevcp since the name begins with an underscore (_) .
         Parameter is the HAL pin instance.
         '''
-        print "_on_example_trigger_change() - HAL pin value: %s" % (hal_pin.get())
+        print("_on_example_trigger_change() - HAL pin value: %s" % (hal_pin.get()))
 
     def on_led_pin_changed(self,hal_led,data=None):
         '''
@@ -72,7 +74,7 @@ class HandlerClass:
         just reacting to the changed HAL pin.
         the on_led_pin_changed signal is set in the complex.ui hal_led1 signals section
         '''
-        print "on_led_pin_changed() - HAL pin value:",hal_led.hal_pin.get()
+        print("on_led_pin_changed() - HAL pin value:",hal_led.hal_pin.get())
 
     def _on_timer_tick(self,userdata=None):
         '''
@@ -87,7 +89,7 @@ class HandlerClass:
 
 
     def on_unix_signal(self,signum,stack_frame):
-        print "on_unix_signal(): signal %d received, saving state" % (signum)
+        print("on_unix_signal(): signal %d received, saving state" % (signum))
         self.ini.save_state(self)
         gtk.main_quit()
         self.halcomp.exit()
@@ -97,7 +99,7 @@ class HandlerClass:
         gladevcp_demo.ui has a destroy callback set in the window1 Gobject
         note the widget tree is not safely accessible here any more
         '''
-        print "on_destroy() - saving state)"
+        print("on_destroy() - saving state)")
         self.ini.save_state(self)
 
     def on_restore_defaults(self,button,data=None):
@@ -106,7 +108,7 @@ class HandlerClass:
         self.builder.get_object('hal_button1').set_label("past hits: %d" % self.nhits)
 
     def on_save_settings(self,button,data=None):
-        print "on_save_settings() - saving state"
+        print("on_save_settings() - saving state")
         self.ini.save_state(self)
 
     def _hal_setup(self,halcomp, builder):
@@ -186,8 +188,8 @@ class HandlerClass:
 
         # demonstrate a slow background timer - granularity is one second
         # for a faster timer, use this:
-        # glib.timeout_add(5000,  self._on_timer_tick)
-        glib.timeout_add_seconds(1, self._on_timer_tick)
+        # GLib.timeout_add(5000,  self._on_timer_tick)
+        GLib.timeout_add_seconds(1, self._on_timer_tick)
 
 
 def get_handlers(halcomp,builder,useropts):
@@ -204,10 +206,10 @@ def get_handlers(halcomp,builder,useropts):
     #  -U debug=42 -U "print 'debug=%d' % debug"
     global debug
     for cmd in useropts:
-        exec cmd in globals()
+        exec(cmd, globals())
 
     set_debug(debug)
 
-    if debug: print "%s.get_handlers() called" % (__name__)
+    if debug: print("%s.get_handlers() called" % (__name__))
 
     return [HandlerClass(halcomp,builder,useropts)]

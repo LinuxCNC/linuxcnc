@@ -21,6 +21,7 @@
 
 
 #include "config.h"
+#include "emc/linuxcnc.h"
 #include "inifile.hh"
 
 #define MAX_EXTEND_LINES 20
@@ -204,7 +205,7 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
 
     char  eline [(LINELEN + 2) * (MAX_EXTEND_LINES + 1)];
     char* elineptr;
-    char* elinenext;
+    char* elinenext = eline;
     int   extend_ct = 0;
 
     // For exceptions.

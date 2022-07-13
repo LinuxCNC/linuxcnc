@@ -1,6 +1,6 @@
 /********************************************************************
 * Description: cms.cc
-*   C++ file for the  Communication Management System (CMS).
+*   C++ file for the Communication Management System (CMS).
 *   Includes member functions for class CMS.
 *   See cms_in.cc for the internal interface member functions and
 *   cms_up.cc for the update functions.
@@ -10,10 +10,10 @@
 * Author:
 * License: LGPL Version 2
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change: 
+* Last change:
 ********************************************************************/
 
 #include "rcsversion.h"
@@ -32,6 +32,8 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+#include <rtapi_string.h>
+#include "cms_cfg.hh"
 #include "cms.hh"		/* class CMS */
 #include "cms_up.hh"		/* class CMS_UPDATER */
 #include "cms_xup.hh"		/* class CMS_XDR_UPDATER */
@@ -119,15 +121,15 @@ CMS::CMS(long s)
     rcs_print_debug(PRINT_CMS_CONSTRUCTORS, "new CMS (%lu)", s);
 
     /* Init string buffers */
-    memset(BufferName, 0, CMS_CONFIG_LINELEN);
-    memset(BufferHost, 0, CMS_CONFIG_LINELEN);
-    memset(ProcessName, 0, CMS_CONFIG_LINELEN);
-    memset(BufferLine, 0, CMS_CONFIG_LINELEN);
-    memset(ProcessLine, 0, CMS_CONFIG_LINELEN);
-    memset(ProcessHost, 0, CMS_CONFIG_LINELEN);
-    memset(buflineupper, 0, CMS_CONFIG_LINELEN);
-    memset(proclineupper, 0, CMS_CONFIG_LINELEN);
-    memset(PermissionString, 0, CMS_CONFIG_LINELEN);
+    memset(BufferName, 0, LINELEN);
+    memset(BufferHost, 0, LINELEN);
+    memset(ProcessName, 0, LINELEN);
+    memset(BufferLine, 0, LINELEN);
+    memset(ProcessLine, 0, LINELEN);
+    memset(ProcessHost, 0, LINELEN);
+    memset(buflineupper, 0, LINELEN);
+    memset(proclineupper, 0, LINELEN);
+    memset(PermissionString, 0, LINELEN);
 
     /* save constructor args */
     free_space = size = s;
@@ -149,7 +151,7 @@ CMS::CMS(long s)
     disable_diag_store = 0;
     diag_offset = 0;
 
-    /* Initailize some variables. */
+    /* Initialize some variables. */
     read_permission_flag = 0;	/* Allow both read and write by default.  */
     write_permission_flag = 0;
     queuing_enabled = 0;
@@ -197,15 +199,15 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
     confirm_write = 0;
     disable_final_write_raw_for_dma = 0;
     /* Init string buffers */
-    memset(BufferName, 0, CMS_CONFIG_LINELEN);
-    memset(BufferHost, 0, CMS_CONFIG_LINELEN);
-    memset(ProcessName, 0, CMS_CONFIG_LINELEN);
-    memset(BufferLine, 0, CMS_CONFIG_LINELEN);
-    memset(ProcessLine, 0, CMS_CONFIG_LINELEN);
-    memset(ProcessHost, 0, CMS_CONFIG_LINELEN);
-    memset(buflineupper, 0, CMS_CONFIG_LINELEN);
-    memset(proclineupper, 0, CMS_CONFIG_LINELEN);
-    memset(PermissionString, 0, CMS_CONFIG_LINELEN);
+    memset(BufferName, 0, LINELEN);
+    memset(BufferHost, 0, LINELEN);
+    memset(ProcessName, 0, LINELEN);
+    memset(BufferLine, 0, LINELEN);
+    memset(ProcessLine, 0, LINELEN);
+    memset(ProcessHost, 0, LINELEN);
+    memset(buflineupper, 0, LINELEN);
+    memset(proclineupper, 0, LINELEN);
+    memset(PermissionString, 0, LINELEN);
 
     /* Initialize some variables. */
     read_permission_flag = 0;	/* Allow both read and write by default.  */
@@ -233,8 +235,8 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
     char *bufline = strdup(bufline_in);
     char *procline = strdup(procline_in);
 
-    convert2upper(buflineupper, bufline, CMS_CONFIG_LINELEN);
-    convert2upper(proclineupper, procline, CMS_CONFIG_LINELEN);
+    convert2upper(buflineupper, bufline, LINELEN);
+    convert2upper(proclineupper, procline, LINELEN);
 
     is_phantom = 0;
     max_message_size = 0;
@@ -269,8 +271,8 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
     remote_port_type = CMS_NO_REMOTE_PORT_TYPE;
 
     /* Store the bufline and procline for debugging later. */
-    strcpy(BufferLine, bufline);
-    strcpy(ProcessLine, procline);
+    rtapi_strxcpy(BufferLine, bufline);
+    rtapi_strxcpy(ProcessLine, procline);
 
     /* Get parameters from the buffer's line in the config file. */
     if (separate_words(word, 9, bufline) != 9) {
@@ -284,7 +286,7 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
 
     /* Use the words from the buffer line to initialize some class variables. 
      */
-    strcpy(BufferName, word[1]);
+    rtapi_strxcpy(BufferName, word[1]);
     rcs_print_debug(PRINT_CMS_CONSTRUCTORS, "new CMS (%s)\n", BufferName);
 
     /* Clear errno so we can determine if all of the parameters in the */
@@ -294,15 +296,15 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
     }
     char *realname = cms_check_for_host_alias(word[3]);
     if (realname == NULL) {
-	strcpy(BufferHost, word[3]);
+	rtapi_strxcpy(BufferHost, word[3]);
     } else {
-	strcpy(BufferHost, realname);
+	rtapi_strxcpy(BufferHost, realname);
     }
 
     buffer_type_name = word[2];
 
     /* strtol should allow us to use the C syntax for specifying the radix of 
-       the numbers in the configuration file. (i.e. 0x???? for hexidecimal,
+       the numbers in the configuration file. (i.e. 0x???? for hexadecimal,
        0??? for octal and ???? for decimal.) */
     size = (long) strtol(word[4], (char **) NULL, 0);
     neutral = (int) strtol(word[5], (char **) NULL, 0);
@@ -311,7 +313,7 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
     total_connections = strtol(word[8], (char **) NULL, 0);
     free_space = size;
 
-    /* Check errno to see if all of the strtol's were sucessful. */
+    /* Check errno to see if all of the strtol's were successful. */
     if (ERANGE == errno) {
 	rcs_print_error("CMS: Error in buffer line from config file.\n");
 	rcs_print_error("%s\n", bufline);
@@ -466,8 +468,8 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
 	errno = 0;
     }
 
-    strcpy(ProcessName, word[1]);
-    strcpy(ProcessHost, word[4]);
+    rtapi_strxcpy(ProcessName, word[1]);
+    rtapi_strxcpy(ProcessHost, word[4]);
 
     /* Clear errno so we can determine if all of the parameters in the */
     /* buffer line were in an acceptable form. */
@@ -476,7 +478,7 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
     }
 
     proc_type_name = word[3];
-    strcpy(PermissionString, word[5]);
+    rtapi_strxcpy(PermissionString, word[5]);
     spawn_server = atoi(word[6]);
 
     /* Compute timeout. */
@@ -502,7 +504,7 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
 	    return;
 	}
     }
-    /* Check errno to see if all of the strtol's were sucessful. */
+    /* Check errno to see if all of the strtol's were successful. */
     if (ERANGE == errno) {
 	rcs_print_error("CMS: Error in proc line from config file.\n");
 	rcs_print_error("%s\n", procline);
@@ -730,7 +732,7 @@ void CMS::open(void)
 	nfactor = updater->neutral_size_factor;
     }
 
-    /* Set some varaibles to let the user know how much space is left. */
+    /* Set some variables to let the user know how much space is left. */
     size_without_diagnostics = size;
     diag_offset = 0;
     if (enable_diagnostics) {
@@ -1520,7 +1522,7 @@ const char *CMS::status_string(int status_type)
 
     case CMS_NO_MASTER_ERROR:
 	return
-	    ("CMS_NO_MASTER_ERROR: An error occurred becouse the master was not started.");
+	    ("CMS_NO_MASTER_ERROR: An error occurred because the master was not started.");
 
     case CMS_CONFIG_ERROR:
 	return ("CMS_CONFIG_ERROR: There was an error in the configuration.");

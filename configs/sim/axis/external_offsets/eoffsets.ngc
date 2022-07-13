@@ -1,0 +1,35 @@
+  #<xmax> =    9
+  #<ymax> =    4
+#<zdepth> =    0
+  #<feed> =   20
+
+#<x1> = [0.25 * #<xmax>]
+#<y1> = [0.66 * #<ymax>]
+#<z1> = 0
+
+#<x2> = [0.50 * #<xmax>]
+#<y2> = 0
+#<z2> = -.5
+
+#<x3> = [0.75 * #<xmax>]
+#<y3> = 0
+#<z3> = 0
+
+#<x4> = #<x3>
+#<y4> = #<y1>
+#<z4> = 0
+
+m111 ;clear notifications
+g61
+g0x0y0z0
+
+f #<feed>
+g1 x #<x1>      y #<y1>    z #<z1>
+g1 x #<x2>      y #<y2>    z #<z2>
+g1 x #<x3>      y #<y3>    z #<z3>
+g1 x #<x4>      y #<y4>    z #<z4>
+g1 x #<xmax>    y #<ymax>
+g0x0y0z0
+
+m111 ;clear notifications
+m2

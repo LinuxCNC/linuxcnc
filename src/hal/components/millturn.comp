@@ -1,0 +1,205 @@
+component millturn "Switchable kinematics for a mill-turn machine";
+
+description
+"""
+.if \\n[.g] .mso www.tmac
+
+This is a switchable kinematics module using 3 cartesian linear joints (XYZ)
+and 1 angular joint (A). The module contains two kinematic models:
+
+type0 (default) is a mill (XYZA) configuration with A being a
+rotary axis.
+
+type1 is a turn (Z-YX) configuration with A configured to be a spindle.
+
+For an example configuration, run the sim config: 'configs/sim/axis/vismach/millturn/millturn.ini'.
+
+Further explanations can be found in the README in 'configs/sim/axis/vismach/millturn'.
+
+millturn.comp was constructed by modifying the template file:
+userkins.comp.
+
+For more information on how to modify userkins.comp run: $ man
+userkins.   Also, see additional information inside: 'userkins.comp'.
+
+For information on kinematics in general see the kinematics
+document chapter (docs/src/motion/kinematics.txt) and for
+switchable kinematics in particular see the switchkins document
+chapter (docs/src/motion/switchkins.txt)
+
+""";
+// The halcompile utility requires a pin definition but
+// the dummy pin is not accessible in kinematics functions.
+// Use the *_setup() function for actual pins and params.
+pin out bit dummy=1;
+license "GPL";
+;;
+
+#include "rtapi_math.h"
+#include "kinematics.h"
+
+static struct haldata {
+  // Example pin pointers:
+  hal_u32_t *in;
+  hal_u32_t *out;
+  // Example parameters:
+  hal_float_t param_rw;
+  hal_float_t param_ro;
+
+  //Declare hal pin pointers used for switchable kinematics
+  hal_bit_t   *kinstype_is_0;
+  hal_bit_t   *kinstype_is_1;
+} *haldata;
+
+static int millturn_setup(void) {
+#define HAL_PREFIX "millturn"
+    int res=0;
+    int comp_id;
+    // this name must be different than the component name:
+    comp_id = hal_init("millturndata");
+    if (comp_id < 0) goto error;
+    haldata = hal_malloc(sizeof(struct haldata));
+    if (!haldata) goto error;
+
+    // hal pin examples:
+    res += hal_pin_u32_newf(HAL_IN ,&(haldata->in) ,comp_id,"%s.in" ,HAL_PREFIX);
+    res += hal_pin_u32_newf(HAL_OUT,&(haldata->out),comp_id,"%s.out",HAL_PREFIX);
+    // hal parameter examples:
+    res += hal_param_float_newf(HAL_RW, &haldata->param_rw,comp_id,"%s.param-rw",HAL_PREFIX);
+    res += hal_param_float_newf(HAL_RO, &haldata->param_ro,comp_id,"%s.param-ro",HAL_PREFIX);
+
+    // hal pins required for switchable kinematics:
+    res += hal_pin_bit_new("kinstype.is-0", HAL_OUT, &(haldata->kinstype_is_0), comp_id);
+    res += hal_pin_bit_new("kinstype.is-1", HAL_OUT, &(haldata->kinstype_is_1), comp_id);
+
+    // define default kinematics at startup for switchable kinematics
+    *haldata->kinstype_is_0 = 1; //default at startup -> mill configuration
+    *haldata->kinstype_is_1 = 0; //-> turn configuration
+
+    if (res) goto error;
+    hal_ready(comp_id);
+    rtapi_print("*** %s setup ok\n",__FILE__);
+    return 0;
+error:
+    rtapi_print("\n!!! %s setup failed res=%d\n\n",__FILE__,res);
+    return -1;
+#undef HAL_PREFIX
+}
+
+EXPORT_SYMBOL(kinematicsType);
+EXPORT_SYMBOL(kinematicsSwitchable);
+EXPORT_SYMBOL(kinematicsSwitch);
+EXPORT_SYMBOL(kinematicsInverse);
+EXPORT_SYMBOL(kinematicsForward);
+
+static hal_u32_t switchkins_type;
+
+int kinematicsSwitchable() {return 1;}
+
+int kinematicsSwitch(int new_switchkins_type)
+{
+    switchkins_type = new_switchkins_type;
+    rtapi_print("kinematicsSwitch(): type=%d\n",switchkins_type);
+    // create case structure for switchable kinematics
+    switch (switchkins_type) {
+        case 0: rtapi_print_msg(RTAPI_MSG_INFO,
+                "kinematicsSwitch:TYPE0\n");
+                *haldata->kinstype_is_0 = 1;
+                *haldata->kinstype_is_1 = 0;
+                break;
+        case 1: rtapi_print_msg(RTAPI_MSG_INFO,
+                "kinematicsSwitch:TYPE1\n");
+                *haldata->kinstype_is_0 = 0;
+                *haldata->kinstype_is_1 = 1;
+                break;
+       default: rtapi_print_msg(RTAPI_MSG_ERR,
+                "kinematicsSwitch:BAD VALUE <%d>\n",
+                switchkins_type);
+                *haldata->kinstype_is_1 = 0;
+                *haldata->kinstype_is_0 = 0;
+                return -1; // FAIL
+    }
+    return 0; // ok
+}
+
+KINEMATICS_TYPE kinematicsType()
+{
+static bool is_setup=0;
+    if (!is_setup) millturn_setup();
+    return KINEMATICS_BOTH; // set as required
+           // Note: If kinematics are identity, using KINEMATICS_BOTH
+           //       may be used in order to allow a gui to display
+           //       joint values in preview prior to homing
+} // kinematicsType()
+
+static bool is_homed=0;
+int kinematicsForward(const double *j,
+                      EmcPose * pos,
+                      const KINEMATICS_FORWARD_FLAGS * fflags,
+                      KINEMATICS_INVERSE_FLAGS * iflags)
+{
+    static bool gave_msg;
+    // define forward kinematic models using case structure for
+    // for switchable kinematics
+    switch (switchkins_type) {
+        case 0:
+            pos->tran.x = j[0];
+            pos->tran.y = j[1];
+            pos->tran.z = j[2];
+            pos->a      = j[3];
+            break;
+        case 1:
+            pos->tran.x = j[2];
+            pos->tran.y = -j[1];
+            pos->tran.z = j[0];
+            pos->a      = j[3];
+            break;
+    }
+    // unused coordinates:
+    pos->b = 0;
+    pos->c = 0;
+    pos->u = 0;
+    pos->v = 0;
+    pos->w = 0;
+
+    if (*haldata->in && !is_homed && !gave_msg) {
+       rtapi_print_msg(RTAPI_MSG_ERR,
+                       "%s in pin not echoed until homed\n",
+                      __FILE__);
+       gave_msg=1;
+    }
+    return 0;
+} // kinematicsForward()
+
+int kinematicsInverse(const EmcPose * pos,
+                      double *j,
+                      const KINEMATICS_INVERSE_FLAGS * iflags,
+                      KINEMATICS_FORWARD_FLAGS * fflags)
+{
+    is_homed = 1; // Inverse is not called until homed
+
+    // Update the kinematic joints specified by the
+    // [KINS]JOINTS setting (4 required for this template).
+    // define forward kinematic models using case structure for
+    // for switchable kinematics
+    switch (switchkins_type) {
+        case 0:
+            j[0] = pos->tran.x;
+            j[1] = pos->tran.y;
+            j[2] = pos->tran.z;
+            j[3] = pos->a;
+            break;
+        case 1:
+            j[2] = pos->tran.x;
+            j[1] = -pos->tran.y;
+            j[0] = pos->tran.z;
+            j[3] = pos->a;
+            break;
+    }
+
+    //example hal pin update (homing reqd before kinematicsInverse)
+    *haldata->out = *haldata->in; //dereference
+    //read from param example: *haldata->out = haldata->param_rw;
+
+    return 0;
+} // kinematicsInverse()

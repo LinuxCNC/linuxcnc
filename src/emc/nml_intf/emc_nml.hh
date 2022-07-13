@@ -14,11 +14,13 @@
 ********************************************************************/
 #ifndef EMC_NML_HH
 #define EMC_NML_HH
+#include "linuxcnc.h"
 #include "emc.hh"
 #include "rcs.hh"
 #include "cmd_msg.hh"
 #include "stat_msg.hh"
 #include "emcpos.h"
+#include "modal_state.hh"
 #include "canon.hh"		// CANON_TOOL_TABLE, CANON_UNITS
 #include "rs274ngc.hh"		// ACTIVE_G_CODES, etc
 
@@ -49,7 +51,7 @@ class EMC_OPERATOR_ERROR:public RCS_CMD_MSG {
 
 /**
  * Send a textual information message to the operator.
- * This is similiar to EMC_OPERATOR_ERROR message except that the messages are
+ * This is similar to EMC_OPERATOR_ERROR message except that the messages are
  * sent in situations not necessarily considered to be errors.
  */
 class EMC_OPERATOR_TEXT:public RCS_CMD_MSG {
@@ -187,7 +189,7 @@ class EMC_JOINT_CMD_MSG:public RCS_CMD_MSG {
 
 /**
  * Set the joint type to linear or angular.
- * Similiar to the JOINT_TYPE field in the ".ini" file.
+ * Similar to the JOINT_TYPE field in the ".ini" file.
  */
 class EMC_JOINT_SET_JOINT:public EMC_JOINT_CMD_MSG {
   public:
@@ -302,6 +304,7 @@ class EMC_JOINT_SET_HOMING_PARAMS:public EMC_JOINT_CMD_MSG {
     double search_vel;
     double latch_vel;
     int use_index;
+    int encoder_does_not_reset;
     int ignore_limits;
     int is_shared;
     int home_sequence;
@@ -543,9 +546,12 @@ class EMC_JOINT_STAT:public EMC_JOINT_STAT_MSG {
 // EMC_TRAJ command base class
 class EMC_TRAJ_CMD_MSG:public RCS_CMD_MSG {
   public:
-    EMC_TRAJ_CMD_MSG(NMLTYPE t, size_t s):RCS_CMD_MSG(t, s) {
+    EMC_TRAJ_CMD_MSG(NMLTYPE t, size_t s): RCS_CMD_MSG(t, s),tag(){
     };
 
+    //NOTE this does NOT have a corresponding CMS update. This only works
+    //because motion commands don't actually go through NML.
+    StateTag tag;
     // For internal NML/CMS use only.
     void update(CMS * cms);
 };
@@ -843,7 +849,7 @@ class EMC_TRAJ_LINEAR_MOVE:public EMC_TRAJ_CMD_MSG {
     EmcPose end;		// end point
     double vel, ini_maxvel, acc;
     int feed_mode;
-    int indexrotary;
+    int indexer_jnum;
 };
 
 class EMC_TRAJ_CIRCULAR_MOVE:public EMC_TRAJ_CMD_MSG {
@@ -1070,6 +1076,7 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
     //bool spindle_override_enabled; moved to SPINDLE_STAT
     bool adaptive_feed_enabled;
     bool feed_hold_enabled;
+    StateTag tag;
 };
 
 // emc_MOTION is aggregate of all EMC motion-related status classes
@@ -1126,7 +1133,7 @@ class EMC_MOTION_SET_AOUT:public EMC_MOTION_CMD_MSG {
     unsigned char index;	// which to set
     double start;		// value at start
     double end;			// value at end
-    unsigned char now;		// wether command is imediate or synched with motion
+    unsigned char now;		// whether command is immediate or synched with motion
 };
 
 class EMC_MOTION_SET_DOUT:public EMC_MOTION_CMD_MSG {
@@ -1141,7 +1148,7 @@ class EMC_MOTION_SET_DOUT:public EMC_MOTION_CMD_MSG {
     unsigned char index;	// which to set
     unsigned char start;	// binary value at start
     unsigned char end;		// binary value at end
-    unsigned char now;		// wether command is imediate or synched with motion
+    unsigned char now;		// whether command is immediate or synched with motion
 };
 
 class EMC_MOTION_ADAPTIVE:public EMC_MOTION_CMD_MSG {
@@ -1191,6 +1198,7 @@ class EMC_SPINDLE_STAT:public EMC_SPINDLE_STAT_MSG {
     double spindle_scale;	// spindle over-ride
     double css_maximum;
     double css_factor;  // CSS Status
+    int state;
     int direction;		// 0 stopped, 1 forward, -1 reverse
     int brake;			// 0 released, 1 engaged
     int increasing;		// 1 increasing, -1 decreasing, 0 neither
@@ -1218,8 +1226,13 @@ class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
     int synch_do[EMCMOT_MAX_DIO];  // motion outputs queried by interp
     double analog_input[EMCMOT_MAX_AIO]; //motion analog inputs queried by interp
     double analog_output[EMCMOT_MAX_AIO]; //motion analog outputs queried by interp
+    int misc_error[EMCMOT_MAX_MISC_ERROR];
     int debug;			// copy of EMC_DEBUG global
     int on_soft_limit;
+    int external_offsets_applied;
+    EmcPose eoffset_pose;
+    int numExtraJoints;
+    bool jogging_active;
 };
 
 // declarations for EMC_TASK classes
@@ -1345,6 +1358,23 @@ class EMC_TASK_PLAN_PAUSE:public EMC_TASK_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 };
+
+class EMC_TASK_PLAN_REVERSE:public EMC_TASK_CMD_MSG {
+  public:
+    EMC_TASK_PLAN_REVERSE():EMC_TASK_CMD_MSG(EMC_TASK_PLAN_REVERSE_TYPE,
+					   sizeof(EMC_TASK_PLAN_REVERSE)) {
+    };
+
+};
+
+class EMC_TASK_PLAN_FORWARD:public EMC_TASK_CMD_MSG {
+  public:
+    EMC_TASK_PLAN_FORWARD():EMC_TASK_CMD_MSG(EMC_TASK_PLAN_FORWARD_TYPE,
+					   sizeof(EMC_TASK_PLAN_FORWARD)) {
+    };
+
+};
+
 
 class EMC_TASK_PLAN_STEP:public EMC_TASK_CMD_MSG {
   public:
@@ -1476,6 +1506,7 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
     bool input_timeout;		// has a timeout happened on digital input
     char file[LINELEN];
     char command[LINELEN];
+    char ini_filename[LINELEN];
     EmcPose g5x_offset;		// in user units, currently active
     int g5x_index;              // index of active g5x system
     EmcPose g92_offset;		// in user units, currently active
@@ -1484,7 +1515,7 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
     int activeGCodes[ACTIVE_G_CODES];
     int activeMCodes[ACTIVE_M_CODES];
     double activeSettings[ACTIVE_SETTINGS];
-    CANON_UNITS programUnits;	// CANON_UNITS_INCHES,MM,CM
+    CANON_UNITS programUnits;	// CANON_UNITS_INCHES, MM, CM
 
     int interpreter_errcode;	// return value from rs274ngc function 
     // (only useful for new interpreter.)
@@ -1544,7 +1575,6 @@ class EMC_TOOL_PREPARE:public EMC_TOOL_CMD_MSG {
 
     // For internal NML/CMS use only.
     void update(CMS * cms);
-    int pocket;
     int tool;
 };
 
@@ -1638,9 +1668,14 @@ class EMC_TOOL_STAT:public EMC_TOOL_STAT_MSG {
     void update(CMS * cms);
     EMC_TOOL_STAT operator =(EMC_TOOL_STAT s);	// need this for [] members
 
-    int pocketPrepped;		// pocket ready for loading from
+    int pocketPrepped;		// idx ready for loading from
     int toolInSpindle;		// tool loaded, 0 is no tool
+#ifdef TOOL_NML //{
     CANON_TOOL_TABLE toolTable[CANON_POCKETS_MAX];
+#else //}{
+    CANON_TOOL_TABLE toolTableCurrent; //current tool data
+#endif //}
+
 };
 
 // EMC_AUX type declarations
@@ -2078,7 +2113,7 @@ class EMC_IO_STAT:public EMC_IO_STAT_MSG {
     double cycleTime;
     int debug;			// copy of EMC_DEBUG global
     int reason;			// to communicate abort/fault cause
-    int fault;                  //  0 on succes, 1 on fault during M6
+    int fault;                  //  0 on success, 1 on fault during M6
     // aggregate of IO-related status classes
     EMC_TOOL_STAT tool;
     EMC_COOLANT_STAT coolant;

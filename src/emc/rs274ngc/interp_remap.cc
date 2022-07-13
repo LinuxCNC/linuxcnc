@@ -30,6 +30,7 @@ namespace bp = boost::python;
 #include "rs274ngc_return.hh"
 #include "rs274ngc_interp.hh"
 #include "interp_internal.hh"
+#include <rtapi_string.h>
 
 
 
@@ -164,7 +165,7 @@ int Interp::convert_remapped_code(block_pointer block,
 // also, generate a kwargs style dictionary of required and optional items
 // in case a Python prolog is called
 //
-// 1. add all requried and  present optional words.
+// 1. add all required and  present optional words.
 // 2. error on missing but required words.
 // 4. handle '>' as to require a positive feed.
 // 5. handle '^' as to require a positive speed.
@@ -223,10 +224,10 @@ int Interp::add_parameters(setup_pointer settings,
 	try {								\
 	    active_frame->pystuff.impl->kwargs[name] = value;		\
         }								\
-        catch (bp::error_already_set) {					\
+        catch (const bp::error_already_set&) {					\
 	    PyErr_Print();						\
 	    PyErr_Clear();						\
-	    ERS("add_parameters: cant add '%s' to args",name);		\
+	    ERS("add_parameters: can\'t add '%s' to args",name);		\
 	}								\
     }									\
     if (posarglist) {							\
@@ -288,13 +289,13 @@ int Interp::add_parameters(setup_pointer settings,
 
     s = missing;
     if (*s) {
-	strcat(tail," missing: ");
+	rtapi_strxcat(tail," missing: ");
     }
     while (*s) {
 	errored = true;
 	char c  = toupper(*s);
 	strncat(tail,&c,1);
-	if (*(s+1)) strcat(tail,",");
+	if (*(s+1)) rtapi_strxcat(tail,",");
 	s++;
     }
     // special cases:
@@ -308,7 +309,7 @@ int Interp::add_parameters(setup_pointer settings,
 	if (settings->feed_rate > 0.0) {
 	    STORE("f",settings->feed_rate);
 	} else {
-	    strcat(tail,"F>0,");
+	    rtapi_strxcat(tail,"F>0,");
 	    errored = true;
 	}
     }
@@ -318,7 +319,7 @@ int Interp::add_parameters(setup_pointer settings,
 	if (settings->speed[0] > 0.0) {
 	    STORE("s",settings->speed[0]);
 	} else {
-	    strcat(tail,"S>0,");
+	    rtapi_strxcat(tail,"S>0,");
 	    errored = true;
 	}
     }
@@ -362,7 +363,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
     memset((void *)&r, 0, sizeof(remap));
     r.modal_group = -1; // mark as unset, required param for m/g
     r.motion_code = INT_MIN;
-    strcpy(iniline, inistring);
+    rtapi_strxcpy(iniline, inistring);
     // strip trailing comments
     if ((s = strchr(iniline, '#')) != NULL) {
 	*s = '\0';
@@ -440,7 +441,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	}
 	if (!strncasecmp(kw,"ngc",kwlen)) {
 	    if (r.remap_py) {
-		Error("cant remap to an ngc file and a Python function: -  %d:REMAP = %s",
+		Error("can\'t remap to an ngc file and a Python function: -  %d:REMAP = %s",
 		      lineno,inistring);
 		errored = true;
 		continue;
@@ -450,21 +451,21 @@ int Interp::parse_remap(const char *inistring, int lineno)
 		r.remap_ngc = strstore(arg);
 		fclose(fp);
 	    } else {
-		Error("NGC file not found: ngc=%s - %d:REMAP = %s",
-		      arg, lineno,inistring);
+		Error("INTERP_REMAP: NGC file not found: ngc=%s\nREMAP INI Line:%d = %s\n",
+		      arg, lineno, inistring);
 		errored = true;
 	    }
 	    continue;
 	}
 	if (!strncasecmp(kw,"python",kwlen)) {
 	    if (r.remap_ngc ) {
-		Error("cant remap to an ngc file and a Python function: -  %d:REMAP = %s",
+		Error("can\'t remap to an ngc file and a Python function: -  %d:REMAP = %s",
 		      lineno,inistring);
 		errored = true;
 		continue;
 	    }
 	    if (!PYUSABLE) {
-		Error("Python plugin required for python=, but not available: %d:REMAP = %s",
+		Error("iNTERP_REMAP: Python plugin required for python=, but not available:\nREMAP INI line:%d = %s\n",
 		      lineno,inistring);
 		errored = true;
 		continue;
@@ -544,7 +545,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	}
 	if ( gcode == -1) {
 	    if (sscanf(code + 1, "%d", &gcode) != 1) {
-		Error("code '%s' : cant parse G-code : %d:REMAP = %s",
+		Error("code '%s' : can\'t parse G-code : %d:REMAP = %s",
 		      code, lineno, inistring);
 		goto fail;
 	    }

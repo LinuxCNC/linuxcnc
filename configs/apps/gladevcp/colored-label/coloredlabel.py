@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # vim: sts=4 sw=4 et
 #    This is a component of LinuxCNC
 #    complex.py Copyright 2011 Michael Haberler
@@ -23,13 +23,17 @@
 '''
 import sys
 import hal
-import gtk
+
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+from gi.repository import Gdk
 
 global red,green,white
 
-red    = gtk.gdk.color_parse("red")
-green  = gtk.gdk.color_parse("green")
-yellow = gtk.gdk.color_parse("yellow")
+red    = Gdk.color_parse("red")
+green  = Gdk.color_parse("green")
+yellow = Gdk.color_parse("yellow")
 
 # data for a table-driven HAL Label
 table = { 0: ("No Fault", green),
@@ -46,12 +50,12 @@ class HandlerClass:
     
     def colorize(self, w, state, color):
         ''' helper method: try to do the right thing when setting the color of a widget.
-        The GtkLabel, and hence HAL_Label widget doesnt take a color, so
+        The GtkLabel, and hence HAL_Label widget doesn't take a color, so
         it needs an enclosing Eventbox which can be colorized.'''
-        if isinstance(w,gtk.Label):
+        if isinstance(w,Gtk.Label):
             parent = w.get_parent()
-            if not isinstance(parent,gtk.EventBox):
-                print >> sys.stderr,"warning: the %s Label widget is not enclosed in an EventBox" % w.get_name()
+            if not isinstance(parent,Gtk.EventBox):
+                print("warning: the %s Label widget is not enclosed in an EventBox" % w.get_name(), file=sys.stderr)
             parent.modify_bg(state, color)
         else:
             # non-label widgets can be directly colorized
@@ -67,13 +71,13 @@ class HandlerClass:
         '''
         
         value = hal_widget.hal_pin.get()
-        if not table.has_key(value):
+        if value not in table:
             text = default_text + str(value)
             color = default_color
         else:
             (text,color) = table[value]
         hal_widget.set_label(text)
-        self.colorize(hal_widget, gtk.STATE_NORMAL, color)
+        self.colorize(hal_widget, Gtk.StateFlags.NORMAL, color)
 
     def __init__(self, halcomp,builder,useropts):
 

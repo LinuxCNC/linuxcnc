@@ -1,0 +1,227 @@
+.\" Copyright (c) 2020 andypugh
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+.\" USA.
+.\"
+.\"
+.\"
+.TH SCHEDRMT "1"  "2020-08-26" "LinuxCNC Documentation" "The Enhanced Machine Controller"
+.SH NAME
+schedrmt \- telnet based scheduler for LinuxCNC
+.SH SYNOPSIS
+.B schedrmt
+
+.SH DESCRIPTION
+
+
+  schedrmt {-- --port <port number> --name <server name> --connectpw <password>
+             --enablepw <password> --sessions <max sessions> --path <path>
+             -ini<inifile>}
+
+  With -- --port Waits for socket connections (Telnet) on specified socket, without port
+            uses default port 5007.
+  With -- --name <server name> Sets the server name to specified name for Hello.
+  With -- --connectpw <password> Sets the connection password to 'password'. Default EMC
+  With -- --enablepw <password> Sets the enable password to 'password'. Default EMCTOO
+  With -- --sessions <max sessions> Sets the maximum number of simultaneous connextions
+            to max sessions. Default is no limit (-1).
+  With -- --path Sets the base path to program (G-Code) files, default is "../../nc_files/".
+            Make sure to include the final slash (/).
+  With -- -ini <inifile>, uses inifile instead of emc.ini. 
+
+  There are six commands supported, Where the commands set and get contain EMC
+  specific sub-commands based on the commands supported by emcsh, but where the "emc_"
+  is omitted. Commands and most parameters are not case sensitive. The exceptions are 
+  passwords, file paths and text strings.
+  
+  The supported commands are as follows:
+  
+  ==> HELLO <==
+  
+  Hello <password> <client> <version>
+  If a valid password was entered the server will respond with
+  
+  HELLO ACK <Server Name> <Server Version>
+  
+  Where server name and server version are looked up from the implementation.
+  if an invalid password or any other syntax error occurs then the server 
+  responds with:
+  
+  HELLO NAK
+  
+  ==> Get <==
+  
+  The get command includes one of the emc sub-commands, described below and
+  zero or more additional parameters. 
+  
+  ==> Set <==
+  
+  The set command inclides one of the emc sub-commands, described below and
+  one or more additional parameters.
+  
+  ==> Quit <==
+  
+  The quit command disconnects the associated socket connection.
+  
+  ==> Shutdown <==
+  
+  The shutdown command tells EMC to shutdown before quitting the connection. This
+  command may only be issued if the Hello has been successfully negotiated and the
+  connection has control of the CNC (see enable sub-command below). This command
+  has no parameters.
+  
+  ==> Help <==
+  
+  The help command will return help information in text format over the telnet
+  connection. If no parameters are specified, it will itemize the available commands.
+  If a command is specified, it will provide usage information for the specified
+  command. Help will respond regardless of whether a "Hello" has been
+  successfully negotiated.
+  
+  
+  EMC sub-commands:
+  
+  echo on | off
+  With get will return the current echo state, with set, sets the echo
+  state. When echo is on, all commands will be echoed upon receipt. This
+  state is local to each connection.
+  
+  verbose on | off
+  With get will return the current verbose state, with set, sets the
+  verbose state. When in verbose mode is on, all set commands return
+  positive acknowledgement in the form SET <COMMAND> ACK. In addition,
+  text error messages will be issued when in verbose mode. This state
+  is local to each connection.
+  
+  enable <pwd> | off
+  With get will return On or Off to indicate whether the current connection
+  is enabled to perform control functions. With set and a valid password,
+  the current connection is enabled for control functions. "OFF" may not
+  be used as a password and disables control functions for this connection.
+  
+  config [TBD]
+  
+  comm_mode ascii | binary
+  With get, will return the current communications mode. With set, will
+  set the communications mode to the specified mode. The binary protocol 
+  is TBD.
+  
+  comm_prot <version no>
+  With get, returns the current protocol version used by the server,
+  with set, sets the server to use the specified protocol version,
+  provided it is lower than or equal to the highest version number
+  supported by the server implementation.
+
+  INIFILE
+  Returns the path and file name of the current configuration inifile.
+
+  plat
+  Returns the platform for which this was compiled, e.g., linux_2_0_36
+
+  ini <var> <section>
+  Returns the string value of <var> in section <section>, in EMC_INIFILE
+
+  debug {<new value>}
+  With get, returns the integer value of EMC_DEBUG, in the EMC. Note that
+  it may not be true that the local EMC_DEBUG variable here (in emcsh and
+  the GUIs that use it) is the same as the EMC_DEBUG value in the EMC. This
+  can happen if the EMC is started from one .ini file, and the GUI is started
+  with another that has a different value for DEBUG.
+  With set, sends a command to the EMC to set the new debug level,
+  and sets the EMC_DEBUG global here to the same value. This will make
+  the two values the same, since they really ought to be the same.
+
+  QMode <mode>
+  stop | run | pause | resume (Set only) | error (Get only)
+  With no arg, returns the program queue status as "stop", "run", "pause" or "error". Otherwise,
+  sends a command to set the current mode to "stop", "run" or "pause".
+
+  QStatus <Queue Size> <First Tag Id> <Last Tag Id> <Queue CRC>
+  Get only, returns then number of programs in queue (Queue Size), the Tag id of the first 
+  program in the queue, the Tag id of the last program in the queue, and the CRC of all
+  of the Tag Ids in the queue. The actual calculation of the CRC is not important, the
+  purpose is to be able to compare the current CRC with the previous CRC. If they
+  differ, then there has been a change to the size or order of the programs in queue.
+
+  AutoTagId <Start Id>
+  With get, returns the next autoincremented unique tag id to associate with a queue record.
+  With set, resets auto tag generation to begin at the specified value.
+
+  PgmAdd <priority> <tag id> <x> <y> <z> <zone> <file name> <feed override> <spindle override> <tool>
+  With set, adds a program to the queue with priority of the program, a unique tag identifying the 
+  program, the x, y and z offsets or zone for the origin of the program, the path + file name, the
+  feed and spindle overrides to apply, and the default tool to use. If tag id is zero, the tag id
+  will be generated automatically. If zone is zero, then the x, y, and z offsets will be used, 
+  otherwise zones 1 to 9 correspond to G54 to G59.3 respectively.
+
+  PgmById <tag id>
+  [priority] [tag id] [x] [y] [z] [zone] [file name] [feed override] [spindle override] [tool]
+  With get, returns the queue entry matching the specified tag id, including the priority,
+  tag id, x, y, and z coordinates, the zone, file name, feed and spindle overrides and the default
+  tool.
+
+  PgmByIndex <index>
+  [priority] [tag id] [x] [y] [z] [zone] [file name] [feed override] [spindle override] [tool]
+  With get, returns the queue entry matching the specified index into the queue, including the priority,
+  tag id, x, y, and z coordinates, the zone, file name, feed and spindle overrides and the default
+  tool.
+
+  PgmAll
+  With get, performs effectively a PgmByIndex for every entry in the queue. Each result will be
+  returned in the form: "PGMBYINDEX ..." with cr lf at the end of each record.
+
+  PriorityById <tag id> <priority>
+  With get, returns the priority of the queue entry matching the specified tag. With set, changes the 
+  priority of the queue entry to the specified priority.
+
+  PriorityByIndex <tag id> <priority>
+  With get, returns the priority of the queue entry matching the specified index into the queue. With 
+  set, changes the priority of the queue entry to the specified priority.
+
+  DeleteById <tag id>
+  With set, deletes the queue entry matching the specified tag id.
+
+  DeleteByIndex <index>
+  With set, deletes the queue entry matching the specified index into the queue.
+
+  PollRate <rate>
+  With set, sets the rate at which the scheduler polls for information. The default is 1.0 or one
+  second. With get, returns the current poll rate.
+
+.SH "SEE ALSO"
+\fBLinuxCNC(1)\fR
+
+Much more information about LinuxCNC and HAL is available in the LinuxCNC
+and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.
+
+.SH HISTORY
+
+.SH BUGS
+None known at this time. 
+.PP
+.SH AUTHOR
+This man page written by andypugh, as part of the LinuxCNC project.
+.SH REPORTING BUGS
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues
+.SH COPYRIGHT
+Copyright \(co 2020 andypugh.
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.

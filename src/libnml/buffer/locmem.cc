@@ -3,7 +3,7 @@
 *   Implements LOCMEM which is a derived class of CMS that serves
 *   primarily to provide addresses that match when matching buffer
 *   names are passed to the constructor. It is useful in allowing
-*   control modules to use the same inteface to communicate as would
+*   control modules to use the same interface to communicate as would
 *   be required if they were not running in the same process even
 *   though to use LOCMEM they must be.
 *
@@ -22,6 +22,7 @@
 #include "cms.hh"		// class CMS
 #include "linklist.hh"		// class LinkedList
 #include "rcs_print.hh"		// rcs_print_error()
+#include <rtapi_string.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -65,7 +66,7 @@ LOCMEM::LOCMEM(const char *bufline, const char *procline, int set_to_server,
 	    return;
 	}
 	my_node->size = size;
-	strcpy(my_node->name, BufferName);
+	rtapi_strxcpy(my_node->name, BufferName);
 	memset(my_node->addr, 0, size);
 	buffer_id = buffers_list->store_at_tail(my_node, sizeof(my_node), 0);
 	return;

@@ -8,6 +8,11 @@
 * Copyright (c) 2009 All rights reserved.
 *
 ********************************************************************/
+
+#ifndef INTERP_QUEUE_HH
+#define INTERP_QUEUE_HH
+
+#include <interp_internal.hh>
 #include <vector>
 
 enum queued_canon_type {QSTRAIGHT_TRAVERSE, QSTRAIGHT_FEED, QARC_FEED, QSET_FEED_RATE, QDWELL, QSET_FEED_MODE,
@@ -141,3 +146,5 @@ void set_endpoint_zx(double z, double x);
 int move_endpoint_and_flush(setup_pointer settings, double x, double y);
 void qc_reset(void);
 void qc_scale(double scale);
+
+#endif

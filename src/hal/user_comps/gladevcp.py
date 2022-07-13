@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # vim: sts=4 sw=4 et
 #    This is a component of EMC
 #    gladevcp Copyright 2010 Chris Morley
@@ -32,19 +32,30 @@
 
     -g option allows setting of the initial position of the panel
 """
+
 import sys, os, subprocess
 import traceback
+import warnings
 
 import hal
 from optparse import Option, OptionParser
-import gtk
-import gtk.glade
-import gobject
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+from gi.repository import Gdk
+
 import signal
+# Set up the base logger
+#   We have do do this before importing other modules because on import
+#   they set up their own loggers as children of the base logger.
+from qtvcp import logger
+LOG = logger.initBaseLogger('GladeVCP', log_file=None, log_level=logger.INFO)
 
 import gladevcp.makepins
 from gladevcp.gladebuilder import GladeBuilder
 from gladevcp import xembed
+from gladevcp.core import Status
+GSTAT = Status()
 
 options = [ Option( '-c', dest='component', metavar='NAME'
                   , help="Set component name to NAME. Default is basename of UI file")
@@ -58,11 +69,11 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
           , Option( '-m', dest='maximum', default=False, help="Force panel window to maxumize")
           , Option( '-r', dest='gtk_rc', default="",
                     help="read custom GTK rc file to set widget style")
-          , Option( '-R', dest='gtk_workaround', action='store_false',default=True,
-                    help="disable workaround for GTK bug to properly read ~/.gtkrc-2.0 gtkrc files")
           , Option( '-t', dest='theme', default="", help="Set gtk theme. Default is system theme")
           , Option( '-x', dest='parent', type=int, metavar='XID'
                   , help="Reparent gladevcp into an existing window XID instead of creating a new top level window")
+          , Option( '--xid', action='store_true', dest='push_XID'
+                  , help="reparent window into a plug add push the plug xid number to standardout")
           , Option( '-u', dest='usermod', action='append', default=[], metavar='FILE'
                   , help='Use FILEs as additional user defined modules with handlers')
           , Option( '-U', dest='useropts', action='append', metavar='USEROPT', default=[]
@@ -74,13 +85,13 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
 signal_func = 'on_unix_signal'
 
 gladevcp_debug = 0
-def dbg(str):
+def dbg(string):
     global gladevcp_debug
     if not gladevcp_debug: return
-    print str
+    print(string)
 
 def on_window_destroy(widget, data=None):
-        gtk.main_quit()
+        Gtk.main_quit()
 
 class Trampoline(object):
     def __init__(self,methods):
@@ -92,7 +103,7 @@ class Trampoline(object):
 
 def load_handlers(usermod,halcomp,builder,useropts):
     hdl_func = 'get_handlers'
-
+    mod = object = None
     def add_handler(method, f):
         if method in handlers:
             handlers[method].append(f)
@@ -107,41 +118,41 @@ def load_handlers(usermod,halcomp,builder,useropts):
             directory = '.'
         if directory not in sys.path:
             sys.path.insert(0,directory)
-            dbg('adding import dir %s' % directory)
+            LOG.debug('adding import dir %s' % directory)
 
         try:
             mod = __import__(basename)
-        except ImportError,msg:
-            print "module '%s' skipped - import error: %s" %(basename,msg)
-	    continue
-        dbg("module '%s' imported OK" % mod.__name__)
+        except ImportError as msg:
+            print("module '%s' skipped - import error: %s" %(basename,msg))
+            continue
+        LOG.debug("module '%s' imported OK" % mod.__name__)
         try:
             # look for 'get_handlers' function
             h = getattr(mod,hdl_func,None)
 
             if h and callable(h):
-                dbg("module '%s' : '%s' function found" % (mod.__name__,hdl_func))
+                LOG.debug("module '%s' : '%s' function found" % (mod.__name__,hdl_func))
                 objlist = h(halcomp,builder,useropts)
             else:
                 # the module has no get_handlers() callable.
                 # in this case we permit any callable except class Objects in the module to register as handler
-                dbg("module '%s': no '%s' function - registering only functions as callbacks" % (mod.__name__,hdl_func))
+                LOG.debug("module '%s': no '%s' function - registering only functions as callbacks" % (mod.__name__,hdl_func))
                 objlist =  [mod]
             # extract callback candidates
             for object in objlist:
-                dbg("Registering handlers in module %s object %s" % (mod.__name__, object))
+                LOG.debug("Registering handlers in module %s object %s" % (mod.__name__, object))
                 if isinstance(object, dict):
-                    methods = dict.items()
+                    methods = list(dict.items())
                 else:
-                    methods = map(lambda n: (n, getattr(object, n, None)), dir(object))
+                    methods = [(n, getattr(object, n, None)) for n in dir(object)]
                 for method,f in methods:
                     if method.startswith('_'):
                         continue
                     if callable(f):
-                        dbg("Register callback '%s' in %s" % (method, object))
+                        LOG.debug("Register callback '%s' in %s" % (method, object))
                         add_handler(method, f)
-        except Exception, e:
-            print "gladevcp: trouble looking for handlers in '%s': %s" %(basename, e)
+        except Exception as e:
+            print("gladevcp: trouble looking for handlers in '%s': %s" %(basename, e))
             traceback.print_exc()
 
     # Wrap lists in Trampoline, unwrap single functions
@@ -151,11 +162,11 @@ def load_handlers(usermod,halcomp,builder,useropts):
         else:
             handlers[n] = Trampoline(v)
 
-    return handlers
+    return handlers, mod, object
 
 def main():
     """ creates a HAL component.
-        parsees a glade XML file with gtk.builder or libglade
+        parsees a glade XML file with Gtk.builder or libglade
         calls gladevcp.makepins with the specified XML file
         to create pins and register callbacks.
         main window must be called "window1"
@@ -169,12 +180,15 @@ def main():
     parser.add_options(options)
 
     (opts, args) = parser.parse_args()
-
     if not args:
         parser.print_help()
         sys.exit(1)
 
     gladevcp_debug = debug = opts.debug
+    if opts.debug:
+        # Log level defaults to INFO, so set lower if in debug mode
+        logger.setGlobalLevel(logger.DEBUG)
+
     xmlname = args[0]
 
     #if there was no component name specified use the xml file name
@@ -183,17 +197,18 @@ def main():
 
     #try loading as a libglade project
     try:
-        builder = gtk.Builder()
+        builder = Gtk.Builder()
         builder.add_from_file(xmlname)
-    except:
+    except Exception as e:
         try:
-            # try loading as a gtk.builder project
-            dbg("**** GLADE VCP INFO:    Not a builder project, trying to load as a lib glade project")
-            builder = gtk.glade.XML(xmlname)
+            # try loading as a Gtk.builder project
+            LOG.debug("**** GLADE VCP INFO:    Not a builder project, trying to load as a lib glade project")
+            print(e)
+            builder = Gtk.glade.XML(xmlname)
             builder = GladeBuilder(builder)
 
-        except Exception,e:
-            print >> sys.stderr, "**** GLADE VCP ERROR:    With xml file: %s : %s" % (xmlname,e)
+        except Exception as e:
+            print("**** GLADE VCP ERROR:    With xml file: %s : %s" % (xmlname,e), file=sys.stderr)
             sys.exit(0)
 
     window = builder.get_object("window1")
@@ -203,20 +218,43 @@ def main():
     try:
         halcomp = hal.component(opts.component)
     except:
-        print >> sys.stderr, "*** GLADE VCP ERROR:    Asking for a HAL component using a name that already exists."
+        print("*** GLADE VCP ERROR:    Asking for a HAL component using a name that already exists.", file=sys.stderr)
         sys.exit(0)
 
     panel = gladevcp.makepins.GladePanel( halcomp, xmlname, builder, None)
 
     # at this point, any glade HL widgets and their pins are set up.
-    handlers = load_handlers(opts.usermod,halcomp,builder,opts.useropts)
+    handlers, mod, obj = load_handlers(opts.usermod,halcomp,builder,opts.useropts)
+
+    # so widgets can call handler functions - give them refeence to the handler object
+    panel.set_handler(obj)
 
     builder.connect_signals(handlers)
 
-    if opts.parent:
-        # block X errors since gdk error handling silently exits the
+    # This option puts the gladevcp panel into a plug and pushed the plug's
+    # X window id number to standard output - so it can be reparented exterally
+    # it also forwards events to qtvcp
+    if opts.push_XID:
+        if not opts.debug:
+            # suppress warnings when x window closes
+            warnings.filterwarnings("ignore")
+        # block X errors since Gdk error handling silently exits the
         # program without even the atexit handler given a chance
-        gtk.gdk.error_trap_push()
+        Gdk.error_trap_push()
+
+        forward = os.environ.get('QTVCP_FORWARD_EVENTS_TO', None)
+        if forward:
+            xembed.keyboard_forward(window, forward)
+
+    # This option reparents gladevcp in a given X window id.
+    # it also forwards keyboard events from gladevcp to AXIS
+    if opts.parent:
+        if not opts.debug:
+            # suppress warnings when x window closes
+            warnings.filterwarnings("ignore")
+        # block X errors since Gdk error handling silently exits the
+        # program without even the atexit handler given a chance
+        Gdk.error_trap_push()
 
         window = xembed.reparent(window, opts.parent)
 
@@ -234,7 +272,7 @@ def main():
             pos = j[2].partition("+")
             window.move( int(pos[0]), int(pos[2]) )
         except:
-            print >> sys.stderr, "**** GLADE VCP ERROR:    With window position data"
+            print("**** GLADE VCP ERROR:    With window position data", file=sys.stderr)
             parser.print_usage()
             sys.exit(1)
     if "x" in opts.geometry:
@@ -246,29 +284,18 @@ def main():
                 t = window_geometry.partition("x")
             window.resize( int(t[0]), int(t[2]) )
         except:
-            print >> sys.stderr, "**** GLADE VCP ERROR:    With window resize data"
+            print("**** GLADE VCP ERROR:    With window resize data", file=sys.stderr)
             parser.print_usage()
             sys.exit(1)
 
-    if opts.gtk_workaround:
-        # work around https://bugs.launchpad.net/ubuntu/+source/pygtk/+bug/507739
-        # this makes widget and widget_class matches in gtkrc and theme files actually work
-        dbg( "activating GTK bug workaround for gtkrc files")
-        for o in builder.get_objects():
-            if isinstance(o, gtk.Widget):
-                # retrieving the name works only for GtkBuilder files, not for
-                # libglade files, so be cautious about it
-                name = gtk.Buildable.get_name(o)
-                if name: o.set_name(name)
-
     if opts.gtk_rc:
-        dbg( "**** GLADE VCP INFO: %s reading gtkrc file '%s'" %(opts.component,opts.gtk_rc))
-        gtk.rc_add_default_file(opts.gtk_rc)
-        gtk.rc_parse(opts.gtk_rc)
+        LOG.debug( "**** GLADE VCP INFO: %s reading gtkrc file '%s'" %(opts.component,opts.gtk_rc))
+        Gtk.rc_add_default_file(opts.gtk_rc)
+        Gtk.rc_parse(opts.gtk_rc)
 
     if opts.theme:
-        dbg("**** GLADE VCP INFO:    Switching %s to '%s' theme" %(opts.component,opts.theme))
-        settings = gtk.settings_get_default()
+        LOG.debug("**** GLADE VCP INFO:    Switching %s to '%s' theme" %(opts.component,opts.theme))
+        settings = Gtk.Settings.get_default()
         settings.set_string_property("gtk-theme-name", opts.theme, "")
 
     # This needs to be done after geometry moves so on dual screens the window maxumizes to the actual used screen size.
@@ -283,29 +310,36 @@ def main():
             cmd = ["halcmd", "-f", opts.halfile]
         res = subprocess.call(cmd, stdout=sys.stdout, stderr=sys.stderr)
         if res:
-            print >> sys.stderr, "'%s' exited with %d" %(' '.join(cmd), res)
+            print("'%s' exited with %d" %(' '.join(cmd), res), file=sys.stderr)
             sys.exit(res)
 
     # User components are set up so report that we are ready
     halcomp.ready()
+    GSTAT.forced_update()
 
-    if handlers.has_key(signal_func):
-        dbg("Register callback '%s' for SIGINT and SIGTERM" %(signal_func))
+    # push the XWindow id number to standard out
+    if opts.push_XID or opts.parent:
+        w_id = window.get_property('window').get_xid()
+        print(w_id, file=sys.stdout)
+        sys.stdout.flush()
+
+    if signal_func in handlers:
+        LOG.debug("Register callback '%s' for SIGINT and SIGTERM" %(signal_func))
         signal.signal(signal.SIGTERM, handlers[signal_func])
         signal.signal(signal.SIGINT,  handlers[signal_func])
 
     try:
-        gtk.main()
+        Gtk.main()
     except KeyboardInterrupt:
         sys.exit(0)
     finally:
         halcomp.exit()
 
-    if opts.parent:
-        gtk.gdk.flush()
-        error = gtk.gdk.error_trap_pop()
-        if error:
-            print >> sys.stderr, "**** GLADE VCP ERROR:    X Protocol Error: %s" % str(error)
+    if opts.parent or opts.push_XID:
+        Gdk.flush()
+        error = Gdk.error_trap_pop()
+        if error and opts.debug:
+            print("**** GLADE VCP ERROR:    X Protocol Error: %s" % str(error), file=sys.stderr)
 
 
 if __name__ == '__main__':

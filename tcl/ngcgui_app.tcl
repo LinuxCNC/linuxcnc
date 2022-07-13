@@ -1,3 +1,4 @@
+#!/usr/bin/tclsh
 # read ini items, source ngcgui.tcl, create axis tabs
 # provide tcl package Ngcgui
 
@@ -26,13 +27,7 @@ proc ngcgui_app_init {} {
 from axis.py (LinuxCNC 2.5) or"] \[DISPLAY\]USER_COMMAND_FILE (LinuxCNC 2.4)"
   }
 
-  # DISPLAY:NGCGUI specifies the file normally named ngcgui.tcl
-  #                not required if tcl packages are used
-  #                but it could be specified for testing to
-  #                supersede the installed ngcgui.tcl
-  set ngcgui           [lindex [inifindall DISPLAY NGCGUI]           end]
-
-  # DIAPLAY:NGCGUI_*  expect these inifile items to be specified as a list
+  # DISPLAY:NGCGUI_*  expect these inifile items to be specified as a list
   set ngcgui_subfile   [inifindall DISPLAY NGCGUI_SUBFILE]
   # optional (expect single item, so take last item in list):
   set ngcgui_preamble  [lindex [inifindall DISPLAY  NGCGUI_PREAMBLE]  end]
@@ -43,18 +38,7 @@ from axis.py (LinuxCNC 2.5) or"] \[DISPLAY\]USER_COMMAND_FILE (LinuxCNC 2.4)"
   set subroutine_path  [lindex [inifindall RS274NGC SUBROUTINE_PATH]  end]
   set gcmc_include_path [lindex [inifindall DISPLAY GCMC_INCLUDE_PATH]  end]
 
-
-  # allow specification of DISPLAY:NGCGUI for:
-  #  1) compatibility with use of DISPLAY:USER_COMMAND_FILE
-  #  2) allow substitition of alternate for testing
-  set libngcgui [file join [file dirname [info script]] ngcgui.tcl]
-  if {"$ngcgui" == ""} {
-    set ngcgui $libngcgui ;# normally, use the library supplied ngcgui.tcl
-  } else {
-    if {"$ngcgui" != "$libngcgui"} {
-      puts stderr "ngcgui_app_init: [_ "Substituting"] $ngcgui [_ "for"] $libngcgui"
-    }
-  }
+  set ngcgui [file join [file dirname [info script]] ngcgui.tcl]
   if ![file readable $ngcgui] {
     return -code error "ngcgui_app.tcl: <$ngcgui> [_ "not readable"]"
   }
@@ -64,7 +48,7 @@ from axis.py (LinuxCNC 2.5) or"] \[DISPLAY\]USER_COMMAND_FILE (LinuxCNC 2.4)"
     # this can occur due to obsolete USER_COMMAND_FILE
     puts "[_ "Unexpected: multiple startups for ngcgui"] <$ngcgui>"
     puts "\n[_ LinuxCNC version"] = $::version"
-    puts "[_ "for linuxCNC 2.5.xxx, Do not include tkapp.py in the ini file"]\n"
+    puts "[_ "for LinuxCNC 2.5.xxx, Do not include tkapp.py in the ini file"]\n"
     return -code error "[_ "Unexpected: multiple startups for ngcgui"] <$ngcgui>"
   }
 

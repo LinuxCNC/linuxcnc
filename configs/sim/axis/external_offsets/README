@@ -1,0 +1,4 @@
+eoffset_demo.ini ----- Basic demo (XYZ)
+jwp_z.ini ------------ Jog while paused (Z) demo
+dynamic_offsets.ini -- Z offset waveforms demo
+opa.ini -------------- Offset per Angle (XZC) demo

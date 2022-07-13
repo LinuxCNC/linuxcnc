@@ -1,0 +1,172 @@
+= svd-ps_vfd(1)
+
+
+== NAME
+
+svd-ps_vfd - HAL userspace component for SVD-P(S) VFDs
+
+
+== SYNOPSIS
+
+*svd-ps_vfd* [_OPTIONS_]
+
+== DESCRIPTION
+
+The svd-ps_vfd component interfaces a Soyan Power SVD-P(S) VFD to the
+LinuxCNC HAL.  The VFD is connected via RS-485 to the LinuxCNC computer.
+
+The SVD-P(S) VFDs are also sold under the LAPOND brand.
+
+== Hardware setup
+
+The SVD-P(S) VFDs do not come with a Modbus daughterboard by default,
+it needs to be purchased separately.
+
+== Firmware setup
+
+The sad-ps_vfd component uses standard Modbus protocol communication
+which requires that one parameter be changed from the default settings:
+
+PD-05 = 1 (Standard Modbus protocol)
+
+The following settings have been tested successfully and are the
+default per Soyans documentation:
+
+PD-00 = 6005 (9600 baud)
+
+PD-01 = 0 (8N2)
+
+PD-02 = 1 (Slave address)
+
+PD-03 = 2 (Response delay)
+
+PD-04 = 0 (Communication timeout)
+
+PD-06 = 0 (Current resolution)
+
+== OPTIONS
+
+*-b*, *--bits* _N_::
+
+      (default 8) For Modbus communication.  Set number of data bits
+      to _N_.  _N_ must be between 5 and 8 inclusive.
+
+*-p*, *--parity* [Even,Odd,None]
+
+      (default None) For Modbus communication.  Set serial parity to Even,
+      Odd, or None.
+
+*-r*, *--rate* _N_::
+
+      (default 9600) For Modbus communication.  Set baud rate to _N_.
+      It is an error if the rate is not one of the following: 1200,
+      2400, 4800, 9600, 19200, 38400
+
+*-s*, *--stopbits* [1,2]::
+
+      (default 2) For Modbus communication.  Set serial stop bits to 1
+      or 2.
+
+*-t*, *--target* _N_::
+
+      (default 1) For Modbus communication.  Set Modbus target (slave)
+      number.  This must match the device number you set on the Huanyang
+      GT VFD.
+
+*-d*, *--device* _PATH_::
+
+      (default /dev/ttyS0) For Modbus communication.  Set the name of
+      the serial device node to use.
+
+*-v*, *--verbose*::
+
+      Turn on verbose mode.
+
+*-S*, *--motor-max-speed* _RPM_::
+
+    The motor's max speed in RPM.
+
+*-F*, *--max-frequency* _HZ_::
+
+    This is the maximum output frequency of the VFD in Hz. 
+
+*-f*, *--min-frequency* _HZ_::
+
+    This is the minimum output frequency of the VFD in Hz. 
+
+== PINS
+
+
+*svd-ps_vfd.period* (float, in)::
+
+      The period for the driver's update cycle, in seconds. This is
+      how frequently the driver will wake up, check its HAL pins, and
+      communicate with the VFD.  Must be between 0.001 and 2.000 seconds.
+      Default: 0.1 seconds.
+
+*svd-ps_vfd.speed-cmd* (float, in)::
+
+      The requested motor speed, in RPM.
+
+*svd-ps_vfd.speed-fb* (float, out)::
+
+      The motor's current speed, in RPM, reported by the VFD.
+
+*svd-ps_vfd.at-speed* (bit, out)::
+
+      True when the drive is on and at the commanded speed (within 2%),
+      False otherwise.
+
+*svd-ps_vfd.freq-cmd* (float, out)::
+
+      The requested output frequency, in Hz.  This is set from the
+      .speed-cmd value, and is just shown for debugging purposes.
+
+*svd-ps_vfd.freq-fb* (float, out)::
+
+      The current output frequency of the VFD, in Hz.  This is reported
+      from the VFD to the driver.
+
+*svd-ps_vfd.spindle-on* (bit, in)::
+
+      Set this pin True to command the spindle on, at the speed requested
+      on the .speed-cmd pin.  Set this pin False to command the spindle
+      off.
+
+*svd-ps_vfd.output-voltage* (float, out)::
+
+      The voltage that the VFD is current providing to the motor,
+      in Volts.
+
+*svd-ps_vfd.output-current* (float, out)::
+
+      The current that the motor is currently drawing from the VFD,
+      in Amperes.
+
+*hsvd-ps_vfd.output-power* (float, out)::
+
+      The power that the motor is currently drawing from the VFD,
+      in Watts.
+
+*svd-ps_vfd.dc-bus-voltage* (float, out)::
+
+      The current voltage of the VFD's internal DC power supply, in Volts.
+
+*svd-ps_vfd.modbus-errors* (u32, out)::
+
+      A count of the number of modbus communication errors between the
+      driver and the VFD.  The driver is resilient against communication
+      errors, but a large or growing number here indicates a problem
+      that should be investigated.
+
+*svd-ps_vfd.input-terminal* (float, out)::
+
+        The VFD's input terminal register.
+
+*svd-ps_vfd.AI1* (float, out)::
+
+        The VFD's AI1 register.
+
+*svd-ps_vfd.AI2* (float, out)::
+
+        The VFD's AI2 register.

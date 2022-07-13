@@ -236,7 +236,7 @@ error message.
 int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS274/NGC instructions
 			  setup_pointer settings) //!< pointer to machine settings
 {
-  int status;
+  int status = INTERP_EXIT;
 
   block->line_number = settings->sequence_number;
   if ((block->comment[0] != 0) && ONCE(STEP_COMMENT)) {
@@ -280,13 +280,18 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
         return (convert_remapped_code(block,settings,STEP_SET_SPINDLE_SPEED,'S'));
     } else {
         if (block->dollar_flag){
-            CHKS((block->dollar_number < 0 || block->dollar_number >= settings->num_spindles),
+            CHKS((block->dollar_number < -1 || block->dollar_number >= settings->num_spindles),
                 (_("Invalid spindle ($) number in Spindle speed command")));
-            settings->active_spindle = (int)block->dollar_number;
+            if (block->dollar_number == -1 ){
+                for (int i = 0; i < settings->num_spindles; status = convert_speed(i++, block, settings));
+            } else {
+                status = convert_speed(block->dollar_number, block, settings);
+            }
+        } else {
+            status = convert_speed(0, block, settings);
         }
-        status = convert_speed(settings->active_spindle, block, settings);
-        CHP(status);
-      }
+    CHP(status);
+    }
   }
   if ((block->t_flag) && ONCE(STEP_PREPARE)) {
       if (STEP_REMAPPED_IN_BLOCK(block, STEP_PREPARE)) {
@@ -320,6 +325,8 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
   if (settings->toolchange_flag)
       return (INTERP_EXECUTE_FINISH);
 
+  // All changes to settings are complete
+  write_canon_state_tag(block, settings);
   return INTERP_OK;
 }
 

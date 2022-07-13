@@ -20,8 +20,11 @@
 /* You should have received a copy of the GNU Lesser General Public */
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
-// Chris Morley (EMC2) Jan 08
+// Chris Morley (LinuxCNC) Jan 08
 
+#include <locale.h>
+#include <libintl.h>
+#define _(x) gettext(x)
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
 #include <stdio.h>
@@ -33,6 +36,7 @@
 #include "global.h"
 #include "classicladder_gtk.h"
 
+#include <rtapi_string.h>
 
 GdkPixmap *pixmap = NULL;
 GtkWidget *drawing_area = NULL;
@@ -129,7 +133,7 @@ void UpdateVScrollBar()
 			ScanRung = RungArray[ ScanRung ].NextRung;
 		}
 		if ( iSecurityBreak>=NBR_RUNGS )
-			printf("!!!error loop in UpdateVScrollBar()!\n");
+			printf(_("!!!error loop in UpdateVScrollBar()!\n"));
 //printf("Nbr rungs=%d , NumRung=%d\n", NbrRungs, NumCurrentRung);
 		AdjustVScrollBar->lower = 0;
 		AdjustVScrollBar->upper = NbrRungs * InfosGene->BlockHeight*RUNG_HEIGHT;
@@ -195,7 +199,7 @@ void ChoiceOfTheCurrentRung( int NbrOfRungsAfterTopRung )
 
 //printf("-> CurrentRung=%d , OffsetCurrentRungDisplayed=%d\n", InfosGene->CurrentRung, InfosGene->OffsetCurrentRungDisplayed);
 	if ( InfosGene->OffsetCurrentRungDisplayed<0 )
-		printf( "Error in ChoiceOfTheCurrentRung( %d ) with OffsetCurrentRungDisplayed=%d\n", NbrOfRungsAfterTopRung, InfosGene->OffsetCurrentRungDisplayed );
+		printf( _("Error in ChoiceOfTheCurrentRung( %d ) with OffsetCurrentRungDisplayed=%d\n"), NbrOfRungsAfterTopRung, InfosGene->OffsetCurrentRungDisplayed );
 	refresh_label_comment( );
 }
 
@@ -305,8 +309,8 @@ void clear_label_comment()
 
 void save_label_comment_edited()
 {
-	strcpy(EditDatas.Rung.Label,gtk_entry_get_text((GtkEntry *)entrylabel));
-	strcpy(EditDatas.Rung.Comment,gtk_entry_get_text((GtkEntry *)entrycomment));
+	rtapi_strxcpy(EditDatas.Rung.Label,gtk_entry_get_text((GtkEntry *)entrylabel));
+	rtapi_strxcpy(EditDatas.Rung.Comment,gtk_entry_get_text((GtkEntry *)entrycomment));
 }
 
 void autorize_prevnext_buttons(int Yes)
@@ -330,14 +334,14 @@ void ButtonRunStop_click()
 	if (InfosGene->LadderState==STATE_RUN)
 	{
 		InfosGene->LadderState = STATE_STOP;
-		gtk_label_set_text(GTK_LABEL(GTK_BIN(ButtonRunStop)->child),"Run");
-		MessageInStatusBar("Stopped ladder program - press run button to continue.");
+		gtk_label_set_text(GTK_LABEL(GTK_BIN(ButtonRunStop)->child),_("Run"));
+		MessageInStatusBar(_("Stopped ladder program - press run button to continue."));
 	}
 	else
 	{
 		InfosGene->LadderState = STATE_RUN;
-		gtk_label_set_text(GTK_LABEL(GTK_BIN(ButtonRunStop)->child),"Stop");
-		MessageInStatusBar("Started Ladder program - press stop to pause."); 
+		gtk_label_set_text(GTK_LABEL(GTK_BIN(ButtonRunStop)->child),_("Stop"));
+		MessageInStatusBar(_("Started Ladder program - press stop to pause.")); 
 	}
 }
 
@@ -366,7 +370,7 @@ char cForLoadingProject)
     if ( cForLoadingProject )
         VerifyDirectorySelected( TempDir );
     else
-        strcpy( InfosGene->CurrentProjectFileName, TempDir );
+        rtapi_strxcpy( InfosGene->CurrentProjectFileName, TempDir );
 }
 
 
@@ -387,10 +391,10 @@ void LoadNewLadder()
     InfosGene->LadderState = STATE_LOADING;
 	ProjectLoadedOk = LoadProjectFiles( InfosGene->CurrentProjectFileName );
 	if ( !ProjectLoadedOk )
-		ShowMessageBox( "Load Error", "Failed to load the project file...", "Ok" );
+		ShowMessageBox( _("Load Error"), _("Failed to load the project file..."), _("Ok") );
 	UpdateAllGtkWindows( );
         UpdateWindowTitleWithProjectName( );
-	MessageInStatusBar( ProjectLoadedOk?"Project loaded (stopped).":"Project failed to load...");
+	MessageInStatusBar( ProjectLoadedOk?_("Project loaded (stopped)."):_("Project failed to load..."));
 #ifndef RT_SUPPORT
         OpenHardware( 0 );
 //        ConfigHardware( );
@@ -402,7 +406,7 @@ void ButtonSave_click()
 {
 	if ( !SaveProjectFiles( InfosGene->CurrentProjectFileName ) )
 		{
-		ShowMessageBox( "Save Error", "Failed to save the project file...", "Ok" );
+		ShowMessageBox( _("Save Error"), _("Failed to save the project file..."), _("Ok") );
 	}else{ MessageInStatusBar(InfosGene->CurrentProjectFileName);}
 		
 
@@ -419,7 +423,7 @@ void SaveAsLadder(void)
 	
 	, FALSE/*cForLoadingProject*/);
 	if ( !SaveProjectFiles( InfosGene->CurrentProjectFileName ) )
-		ShowMessageBox( "Save Error", "Failed to save the project file...", "Ok" );
+		ShowMessageBox( _("Save Error"), _("Failed to save the project file..."), _("Ok") );
         UpdateWindowTitleWithProjectName( );
 }
 
@@ -427,7 +431,7 @@ void SaveAsLadder(void)
 void
 on_filechooserdialog_save_response(GtkDialog  *dialog,gint response_id,gpointer user_data)
 {
-	printf("SAVE %s %d\n",gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(FileSelector)),response_id);	
+	printf(_("SAVE %s %d\n"),gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(FileSelector)),response_id);	
 
 	if(response_id==GTK_RESPONSE_ACCEPT || response_id==GTK_RESPONSE_OK)
 		SaveAsLadder();
@@ -436,7 +440,7 @@ on_filechooserdialog_save_response(GtkDialog  *dialog,gint response_id,gpointer 
 void
 on_filechooserdialog_load_response(GtkDialog  *dialog,gint response_id,gpointer user_data)
 {
-	printf("LOAD %s %d\n",gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(FileSelector)),response_id);	
+	printf(_("LOAD %s %d\n"),gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(FileSelector)),response_id);	
 
 	if(response_id==GTK_RESPONSE_ACCEPT || response_id==GTK_RESPONSE_OK)
 		LoadNewLadder();
@@ -481,11 +485,11 @@ void CreateFileSelection(char * Prompt,int Save)
 	gtk_window_set_type_hint (GTK_WINDOW (FileSelector), GDK_WINDOW_TYPE_HINT_DIALOG);
 
 	FilterOldProjects = gtk_file_filter_new( );
-	gtk_file_filter_set_name( FilterOldProjects, "Old directories projects" );
+	gtk_file_filter_set_name( FilterOldProjects, _("Old directories projects") );
 	gtk_file_filter_add_pattern( FilterOldProjects, "*.csv" ); // old dir projects
 	gtk_file_chooser_add_filter( GTK_FILE_CHOOSER(FileSelector), FilterOldProjects );
 	FilterProjects = gtk_file_filter_new( );
-	gtk_file_filter_set_name( FilterProjects, "ClassicLadder projects" );
+	gtk_file_filter_set_name( FilterProjects, _("ClassicLadder projects") );
 	gtk_file_filter_add_pattern( FilterProjects, "*.clp" );
 	gtk_file_chooser_add_filter( GTK_FILE_CHOOSER(FileSelector), FilterProjects );
 	gtk_file_chooser_set_filter( GTK_FILE_CHOOSER(FileSelector), FilterProjects );
@@ -525,31 +529,31 @@ void DoNewProject( void )
 
 void ButtonNew_click()
 {
-	ShowConfirmationBox("New","Do you really want to clear all datas ?",DoNewProject);
+	ShowConfirmationBox(_("New"),_("Do you really want to clear all data ?"),DoNewProject);
 }
 void DoLoadProject()
 {
-	CreateFileSelection("Please select the project to load",FALSE);
+	CreateFileSelection(_("Please select the project to load"),FALSE);
 }
 
 void ButtonLoad_click()
 {
 	if ( InfosGene->AskConfirmationToQuit )
-		ShowConfirmationBox( "Sure?", "Do you really want to load another project ?\nIf not saved, all modifications on the current project will be lost  \n", DoLoadProject );
+		ShowConfirmationBox( _("Sure?"), _("Do you really want to load another project ?\nIf not saved, all modifications on the current project will be lost  \n"), DoLoadProject );
 	else
 		DoLoadProject( );
 }
 
 void ButtonSaveAs_click( )
 {
-	CreateFileSelection("Please select the project to save",TRUE);
+	CreateFileSelection(_("Please select the project to save"),TRUE);
 }
 
 void ButtonReset_click( )
 {
 if (InfosGene->LadderState==STATE_RUN)
 	{
-         ShowConfirmationBox("Warning!","Resetting a running program\ncan cause unexpected behavior\n Do you really want to reset?",DoReset);
+         ShowConfirmationBox(_("Warning!"),_("Resetting a running program\ncan cause unexpected behavior\n Do you really want to reset?"),DoReset);
         }else{
               DoReset();
              }
@@ -565,7 +569,7 @@ void DoReset()
 #ifdef MODBUS_IO_MASTER
 // if (modmaster) {    PrepareModbusMaster( );    }
 #endif
-	MessageInStatusBar("Reset ladder data ");
+	MessageInStatusBar(_("Reset ladder data "));
 }
 
 void ButtonConfig_click( )
@@ -583,13 +587,13 @@ void ButtonAbout_click( )
 						"Copyright (C) 2001-2008 Marc Le Douarain\nmarc . le - douarain /At\\ laposte \\DoT/ net\n"
 
 						"http://www.sourceforge.net/projects/classicladder\n"
-						"http://membres.lycos.fr/mavati/classicladder\n"
+						"https://github.com/MaVaTi56/classicladder\n"
 						"Released under the terms of the\nGNU Lesser General Public License v2.1\n"
-						"\nAs adapted to EMC2\n"
+						"\nAs adapted to LinuxCNC\n"
 						"(Chris Morley)\n"
 						"emc-users@lists.sourceforge.net");
 	gtk_label_set_justify( GTK_LABEL(label), GTK_JUSTIFY_CENTER );
-	okay_button = gtk_button_new_with_label("Okay");
+	okay_button = gtk_button_new_with_label(_("Okay"));
 	/* Ensure that the dialog box is destroyed when the user clicks ok. */
 	gtk_signal_connect_object (GTK_OBJECT (okay_button), "clicked",
 							GTK_SIGNAL_FUNC (gtk_widget_destroy), GTK_OBJECT(dialog));
@@ -642,12 +646,12 @@ void ShowConfirmationBoxWithChoiceOrNot(const char * title,const char * text,voi
 	label = gtk_label_new (text);
 	if ( HaveTheChoice )
 	{
-	yes_button = gtk_button_new_with_label("Yes");
-	no_button = gtk_button_new_with_label("No");
+	yes_button = gtk_button_new_with_label(_("Yes"));
+	no_button = gtk_button_new_with_label(_("No"));
 	}
 	else
 	{
-		yes_button = gtk_button_new_with_label("Ok");
+		yes_button = gtk_button_new_with_label(_("Ok"));
 	}
 	/* Ensure that the dialog box is destroyed when the user clicks ok. */
 	if ( HaveTheChoice )
@@ -688,13 +692,13 @@ void DoQuitGtkApplication( void )
 void ConfirmQuit( void )
 {
 	if ( InfosGene->AskConfirmationToQuit )
-		ShowConfirmationBox( "Warning!", "If not saved, all modifications will be lost.\nDo you really want to quit ?\n", DoQuitGtkApplication );
+		ShowConfirmationBox( _("Warning!"), _("If not saved, all modifications will be lost.\nDo you really want to quit ?\n"), DoQuitGtkApplication );
 	else{
              if (!modmaster)  
                 {  
-                 ShowConfirmationBox( "Confirm!", "Do you really want to quit ?\n", DoQuitGtkApplication );
+                 ShowConfirmationBox( _("Confirm!"), _("Do you really want to quit ?\n"), DoQuitGtkApplication );
                 }else{
-                      ShowConfirmationBox( "Warning!", "MODBUS will stop if you quit.\n Do you really want to quit ?\n", DoQuitGtkApplication );
+                      ShowConfirmationBox( _("Warning!"), _("MODBUS will stop if you quit.\n Do you really want to quit ?\n"), DoQuitGtkApplication );
                      }
             }
 }
@@ -724,7 +728,7 @@ void RungWindowInitGtk()
 	GtkTooltips * TooltipsEntryLabel, * TooltipsEntryComment;
 
 	RungWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title ((GtkWindow *)RungWindow, "Section Display");
+	gtk_window_set_title ((GtkWindow *)RungWindow, _("Section Display"));
 
 	vbox = gtk_vbox_new (FALSE, 0);
 	gtk_container_add (GTK_CONTAINER (RungWindow), vbox);
@@ -745,17 +749,17 @@ void RungWindowInitGtk()
 	gtk_entry_set_max_length((GtkEntry *)entrylabel,LGT_LABEL-1);
 	gtk_entry_prepend_text((GtkEntry *)entrylabel,"");
 	gtk_box_pack_start (GTK_BOX (hboxtop), entrylabel, FALSE, FALSE, 0);
-	gtk_tooltips_set_tip ( TooltipsEntryLabel, entrylabel, "Label of the current selected rung", NULL );
+	gtk_tooltips_set_tip ( TooltipsEntryLabel, entrylabel, _("Label of the current selected rung"), NULL );
 	gtk_widget_show(entrylabel);
 	TooltipsEntryComment = gtk_tooltips_new();
 	entrycomment = gtk_entry_new();
 	gtk_entry_set_max_length((GtkEntry *)entrycomment,LGT_COMMENT-1);
 	gtk_entry_prepend_text((GtkEntry *)entrycomment,"");
 	gtk_box_pack_start (GTK_BOX (hboxtop), entrycomment, TRUE, TRUE, 0);
-	gtk_tooltips_set_tip ( TooltipsEntryComment, entrycomment, "Comment of the current selected rung", NULL );
+	gtk_tooltips_set_tip ( TooltipsEntryComment, entrycomment, _("Comment of the current selected rung"), NULL );
 	gtk_widget_show(entrycomment);
 
-	CheckDispSymbols = gtk_check_button_new_with_label("Display symbols");
+	CheckDispSymbols = gtk_check_button_new_with_label(_("Display symbols"));
 	gtk_box_pack_start( GTK_BOX (hboxtop), CheckDispSymbols, FALSE, FALSE, 0 );
 	gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( CheckDispSymbols ), InfosGene->DisplaySymbols );
 	gtk_signal_connect( GTK_OBJECT(CheckDispSymbols), "toggled",
@@ -809,7 +813,7 @@ void RungWindowInitGtk()
 //	gtk_statusbar_set_has_resize_grip( GTK_STATUSBAR(StatusBar), FALSE );
     gtk_box_pack_start (GTK_BOX(vbox), StatusBar, FALSE, FALSE, 0);
     gtk_widget_show (StatusBar);
-    StatusBarContextId = gtk_statusbar_get_context_id( GTK_STATUSBAR(StatusBar), "Statusbar" );
+    StatusBarContextId = gtk_statusbar_get_context_id( GTK_STATUSBAR(StatusBar), _("Statusbar") );
 
 
 	hboxbottom = gtk_hbox_new (FALSE,0);
@@ -824,75 +828,75 @@ void RungWindowInitGtk()
 	gtk_box_set_child_packing(GTK_BOX(vbox), hboxbottom2,
 		/*expand*/ FALSE, /*fill*/ FALSE, /*pad*/ 0, GTK_PACK_START);
 
-	ButtonNew = gtk_button_new_with_label ("New");
+	ButtonNew = gtk_button_new_with_label (_("New"));
 	gtk_box_pack_start (GTK_BOX (hboxbottom), ButtonNew, TRUE, TRUE, 0);
 	gtk_signal_connect(GTK_OBJECT (ButtonNew), "clicked",
 						(GtkSignalFunc) ButtonNew_click, 0);
 	gtk_widget_show (ButtonNew);
-	ButtonLoad = gtk_button_new_with_label ("Load");
+	ButtonLoad = gtk_button_new_with_label (_("Load"));
 	gtk_box_pack_start (GTK_BOX (hboxbottom), ButtonLoad, TRUE, TRUE, 0);
 	gtk_signal_connect(GTK_OBJECT (ButtonLoad), "clicked",
 						(GtkSignalFunc) ButtonLoad_click, 0);
 	gtk_widget_show (ButtonLoad);
-	ButtonSave = gtk_button_new_with_label ("Save");
+	ButtonSave = gtk_button_new_with_label (_("Save"));
 	gtk_box_pack_start (GTK_BOX (hboxbottom), ButtonSave, TRUE, TRUE, 0);
 	gtk_signal_connect(GTK_OBJECT (ButtonSave), "clicked",
 						(GtkSignalFunc) ButtonSave_click, 0);
 	gtk_widget_show (ButtonSave);
-	ButtonSaveAs = gtk_button_new_with_label ("Save As");
+	ButtonSaveAs = gtk_button_new_with_label (_("Save As"));
 	gtk_box_pack_start (GTK_BOX (hboxbottom), ButtonSaveAs, TRUE, TRUE, 0);
 	gtk_signal_connect(GTK_OBJECT (ButtonSaveAs), "clicked",
 						(GtkSignalFunc) ButtonSaveAs_click, 0);
 	gtk_widget_show (ButtonSaveAs);
-	ButtonReset = gtk_button_new_with_label ("Reset");
+	ButtonReset = gtk_button_new_with_label (_("Reset"));
 	gtk_box_pack_start (GTK_BOX (hboxbottom), ButtonReset, TRUE, TRUE, 0);
 	gtk_signal_connect(GTK_OBJECT (ButtonReset), "clicked",
 						(GtkSignalFunc) ButtonReset_click, 0);
 	gtk_widget_show (ButtonReset);
-	ButtonRunStop = gtk_button_new_with_label ("Stop");
+	ButtonRunStop = gtk_button_new_with_label (_("Stop"));
 	gtk_box_pack_start (GTK_BOX (hboxbottom), ButtonRunStop, TRUE, TRUE, 0);
 	gtk_signal_connect(GTK_OBJECT (ButtonRunStop), "clicked",
 						(GtkSignalFunc) ButtonRunStop_click, 0);
 	gtk_widget_show (ButtonRunStop);
-	ButtonSpyVars = gtk_button_new_with_label ("Vars");
+	ButtonSpyVars = gtk_button_new_with_label (_("Vars"));
 	gtk_box_pack_start (GTK_BOX (hboxbottom), ButtonSpyVars, TRUE, TRUE, 0);
 	gtk_signal_connect(GTK_OBJECT (ButtonSpyVars), "clicked",
 						(GtkSignalFunc) OpenSpyVarsWindow, 0);
 	gtk_widget_show (ButtonSpyVars);
 
-	ButtonEdit = gtk_button_new_with_label ("Editor");
+	ButtonEdit = gtk_button_new_with_label (_("Editor"));
 	gtk_box_pack_start (GTK_BOX (hboxbottom2), ButtonEdit, TRUE, TRUE, 0);
 	gtk_signal_connect(GTK_OBJECT (ButtonEdit), "clicked",
 						(GtkSignalFunc) OpenEditWindow, 0);
 	gtk_widget_show (ButtonEdit);
-	ButtonSymbols = gtk_button_new_with_label ("Symbols");
+	ButtonSymbols = gtk_button_new_with_label (_("Symbols"));
 	gtk_box_pack_start (GTK_BOX (hboxbottom2), ButtonSymbols, TRUE, TRUE, 0);
 	gtk_signal_connect(GTK_OBJECT (ButtonSymbols), "clicked",
 						(GtkSignalFunc) OpenSymbolsWindow, 0);
 	gtk_widget_show (ButtonSymbols);
-	ButtonConfig = gtk_button_new_with_label ("Config");
+	ButtonConfig = gtk_button_new_with_label (_("Config"));
 	gtk_box_pack_start (GTK_BOX (hboxbottom2), ButtonConfig, TRUE, TRUE, 0);
 	gtk_signal_connect(GTK_OBJECT (ButtonConfig), "clicked",
 						(GtkSignalFunc) ButtonConfig_click, 0);
 	gtk_widget_show (ButtonConfig);
 #ifdef GNOME_PRINT_USE
-	ButtonPrintPreview = gtk_button_new_with_label ("Preview");
+	ButtonPrintPreview = gtk_button_new_with_label (_("Preview"));
 	gtk_box_pack_start (GTK_BOX (hboxbottom2), ButtonPrintPreview, TRUE, TRUE, 0);
 	gtk_signal_connect(GTK_OBJECT (ButtonPrintPreview), "clicked",
 						(GtkSignalFunc) PrintPreviewGnome, 0);
 	gtk_widget_show (ButtonPrintPreview);
-	ButtonPrint = gtk_button_new_with_label ("Print");
+	ButtonPrint = gtk_button_new_with_label (_("Print"));
 	gtk_box_pack_start (GTK_BOX (hboxbottom2), ButtonPrint, TRUE, TRUE, 0);
 	gtk_signal_connect(GTK_OBJECT (ButtonPrint), "clicked",
 						(GtkSignalFunc) PrintGnome, 0);
 	gtk_widget_show (ButtonPrint);
 #endif
-	ButtonAbout = gtk_button_new_with_label ("About");
+	ButtonAbout = gtk_button_new_with_label (_("About"));
 	gtk_box_pack_start (GTK_BOX (hboxbottom2), ButtonAbout, TRUE, TRUE, 0);
 	gtk_signal_connect(GTK_OBJECT (ButtonAbout), "clicked",
 						(GtkSignalFunc) ButtonAbout_click, 0);
 	gtk_widget_show (ButtonAbout);
-	ButtonQuit = gtk_button_new_with_label ("Quit");
+	ButtonQuit = gtk_button_new_with_label (_("Quit"));
 	gtk_box_pack_start (GTK_BOX (hboxbottom2), ButtonQuit, TRUE, TRUE, 0);
 //    gtk_signal_connect_object (GTK_OBJECT (ButtonQuit), "clicked",
 //                                GTK_SIGNAL_FUNC (gtk_widget_destroy),
@@ -931,7 +935,7 @@ static gint PeriodicUpdateDisplay(gpointer data)
 	{
 #if defined( RT_SUPPORT ) || defined( __XENO__ )
 		char TextBuffer[ 20 ];
-		sprintf(TextBuffer , "%d us", InfosGene->DurationOfLastScan/1000);
+		snprintf(TextBuffer, sizeof(TextBuffer) , _("%d µs"), InfosGene->DurationOfLastScan/1000);
 		gtk_entry_set_text(GTK_ENTRY(DurationOfLastScan),TextBuffer);
 #endif
 		ToggleManagerWindow();
@@ -953,7 +957,7 @@ static gint PeriodicUpdateDisplay(gpointer data)
 		DrawCurrentSection( );
 	if ( InfosGene->HardwareErrMsgToDisplay[ 0 ]!='\0' )
 	{
-		ShowMessageBox( "Config hardware error occurred!", InfosGene->HardwareErrMsgToDisplay, "Ok" );
+		ShowMessageBox( _("Config hardware error occurred!"), InfosGene->HardwareErrMsgToDisplay, _("Ok") );
 		InfosGene->HardwareErrMsgToDisplay[ 0 ] = '\0';
 	}
         CheckForErrors ( );
@@ -963,7 +967,7 @@ static gint PeriodicUpdateDisplay(gpointer data)
 
 void InitGtkWindows( int argc, char *argv[] )
 {
-	//printf( "Your GTK+ version is %d.%d.%d\n", gtk_major_version, gtk_minor_version,gtk_micro_version );
+	//printf( _("Your GTK+ version is %d.%d.%d\n"), gtk_major_version, gtk_minor_version,gtk_micro_version );
 //ProblemWithPrint	g_thread_init (NULL);
 //ProblemWithPrint	gdk_threads_init ();
     gtk_init (&argc, &argv);
@@ -977,7 +981,7 @@ void InitGtkWindows( int argc, char *argv[] )
 	ManagerInitGtk( );
 	SymbolsInitGtk( );
         IntConfigWindowGtk( );
-        ShowErrorMessage( "Error", "Failed MODBUS communications", "Ok" );
+        ShowErrorMessage( _("Error"), _("Failed MODBUS communications"), _("Ok") );
 	gtk_timeout_add( TIME_UPDATE_GTK_DISPLAY_MS, PeriodicUpdateDisplay, NULL );
 }
 
@@ -1003,7 +1007,7 @@ void UpdateWindowTitleWithProjectName( void )
 		while( ScanFileNameOnly>0 && InfosGene->CurrentProjectFileName [ScanFileNameOnly-1]!='/' && InfosGene->CurrentProjectFileName [ScanFileNameOnly-1]!='\\')
 			ScanFileNameOnly--;
 	}
-	sprintf( Buff, "Section Display of %s", &InfosGene->CurrentProjectFileName [ScanFileNameOnly] );
+	snprintf(Buff, sizeof(Buff), _("Section Display of %s"), &InfosGene->CurrentProjectFileName [ScanFileNameOnly] );
 	gtk_window_set_title ((GtkWindow *)RungWindow, Buff );
 }
 
@@ -1046,7 +1050,7 @@ void CheckForErrors (void)
         if ( (ReadVar( VAR_ERROR_BIT, 0 )==TRUE) && (temp==0))
            { 
              temp=1;
-             //ShowErrorMessage( "Error", "Failed MODBUS communications", "Ok" );
+             //ShowErrorMessage( _("Error"), _("Failed MODBUS communications"), _("Ok") );
              if ( !GTK_WIDGET_VISIBLE( dialog ) ) {  gtk_widget_show (dialog);  }
            }
         if ( ReadVar( VAR_ERROR_BIT, 0 )==FALSE) {    temp=0;  }

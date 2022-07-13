@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- encoding: utf-8 -*-
 #
 #    This is pncconf, a graphical configuration editor for LinuxCNC
@@ -40,11 +40,13 @@ class Private_Data:
                                 ['base',_('Base Information'),True,True],
                                 ['screen',_('Screen'),True,True],
                                 ['vcp',_('VCP'),True,True],
+                                ['ubuttons',_('User Buttons'),True,True],
                                 ['external',_('External Controls'),True,True],
                                 ['mesa0',_('Mesa Card 0'),False,True],
                                 ['mesa1',_('Mesa Card 1'),False,True],
-                                ['pport1',_('Parallel Port'),False,True],
-                                ['pport2',_('Parallel Port 2'),False,True],
+                                ['pport1',_('Parallel Port 0'),False,True],
+                                ['pport2',_('Parallel Port 1'),False,True],
+                                ['thcad',_('Mesa THCAD'),False,False],
                                 ['x_motor',_('X Motor'),True,True],
                                 ['x_axis',_('X Axis'),True,True],
                                 ['y_motor',_('Y Motor'),True,True],
@@ -64,6 +66,8 @@ class Private_Data:
         self._TKLINUXCNC = 2
         self._GMOCCAPY = 3
         self._TOUCHY = 4
+        self._QTDRAGON = 5
+        self._QTPLASMAC = 6
 
         self._SSCOMBOLEN = 60
         self._IMPERIAL = 0
@@ -109,10 +113,12 @@ class Private_Data:
              _("POT Output"),_("POT Enable"),_("POT Dir") ]
         (   self.GPIOI,self.GPIOO,self.GPIOD) = self.pintype_gpio = [
              _("GPIO Input"),_("GPIO Output"),_("GPIO O Drain") ]
-        (   self.ENCA,self.ENCB,self.ENCI,self.ENCM 
+        (   self.SSR0,) = self.pintype_ssr = [
+             _("SSR Output") ]
+        (   self.ENCA,self.ENCB,self.ENCI,self.ENCM
         ) = self.pintype_encoder = [
             _("Quad Enc-A"),_("Quad Enc-B"),_("Quad Enc-I"),_("Quad Enc-M") ]
-        ( self. MXE0,self.MXE1,self.MXEI,self.MXEM,self.MXES 
+        ( self. MXE0,self.MXE1,self.MXEI,self.MXEM,self.MXES
         ) = self.pintype_muxencoder = [
             _("Muxed Enc 0"),_("Muxed Enc 1"),_("muxed Enc I"),_("Muxed Enc M"),_("mux select") ]
         (   self.RES0,self.RES1,self.RES2,self.RES3,self.RES4,self.RES5,self.RESU
@@ -171,10 +177,11 @@ class Private_Data:
             S.Y_HALL1_OUT,S.Y_HALL2_OUT,S.Y_HALL3_OUT,S.Y_C1_OUT,S.Y_C2_OUT,S.Y_C4_OUT,S.Y_C8_OUT,
             S.Z_HALL1_OUT,S.Z_HALL2_OUT,S.Z_HALL3_OUT,S.Z_C1_OUT,S.Z_C2_OUT,S.Z_C4_OUT,S.Z_C8_OUT,
             S.A_HALL1_OUT,S.A_HALL2_OUT,S.A_HALL3_OUT,S.A_C1_OUT,S.A_C2_OUT,S.A_C4_OUT,S.A_C8_OUT,
-            S_HALL1_OUT,S.S_HALL2_OUT,S.S_HALL3_OUT,S.S_C1_OUT,S.S_C2_OUT,S.S_C4_OUT,S.S_C8_OUT
+            S.S_HALL1_OUT,S.S_HALL2_OUT,S.S_HALL3_OUT,S.S_C1_OUT,S.S_C2_OUT,S.S_C4_OUT,S.S_C8_OUT,
+            S.OHMIC_ENABLE,S.SCRIBE_ARM,S.SCRIBE_ON,S.TORCH_ON,S.LASER_ON
         ) = self.hal_output_names = [
-            "unused-output", 
-            "spindle-on", "spindle-cw", "spindle-ccw", "spindle-brake",
+            "unused-output",
+            "spindle-enable", "spindle-cw", "spindle-ccw", "spindle-brake",
             "coolant-mist", "coolant-flood", "estop-out", "machine-is-enabled",
             "x-enable", "y-enable", "z-enable", "a-enable",
             "charge-pump", "force-pin-true", "dout-00", "dout-01", "dout-02", "dout-03",
@@ -182,7 +189,8 @@ class Private_Data:
             "y-hall1-out","y-hall2-out","y-hall3-out","y-gray-c1-out","y-gray-c2-out","y-gray-C4-out","y-gray-C8-out",
             "z-hall1-out","z-hall2-out","z-hall3-out","z-gray-c1-out","z-gray-c2-out","z-gray-C4-out","z-gray-C8-out",
             "a-hall1-out","a-hall2-out","a-hall3-out","a-gray-c1-out","a-gray-c2-out","a-gray-C4-out","a-gray-C8-out",
-            "s-hall1-out","s-hall2-out","s-hall3-out","s-gray-c1-out","s-gray-c2-out","s-gray-C4-out","s-gray-C8-out", ]
+            "s-hall1-out","s-hall2-out","s-hall3-out","s-gray-c1-out","s-gray-c2-out","s-gray-C4-out","s-gray-C8-out",
+            "plasmac:ohmic-enable", "plasmac:scribe-arm", "plasmac:scribe-on", "plasmac:torch-on", "plasmac:laser-on"]
 
         ###
         (   S.UNUSED_INPUT,
@@ -213,7 +221,8 @@ class Private_Data:
             S.HOME_X2,S.HOME_Y2,S.HOME_Z2,S.HOME_A2,S.ALL_HOME,
             S.MIN_HOME_X2,S.MIN_HOME_Y2,S.MIN_HOME_Z2,S.MIN_HOME_A2,
             S.MAX_HOME_X2,S.MAX_HOME_Y2,S.MAX_HOME_Z2,S.MAX_HOME_A2,
-            S.BOTH_HOME_X2,S.BOTH_HOME_Y2,S.BOTH_HOME_Z2,S.BOTH_HOME_A2
+            S.BOTH_HOME_X2,S.BOTH_HOME_Y2,S.BOTH_HOME_Z2,S.BOTH_HOME_A2,
+            S.ARC_OK,S.OHMIC_SENSE,S.FLOAT_SWITCH,S.BREAKAWAY,S.MOVE_UP,S.MOVE_DOWN
         ) = self.hal_input_names = [
             "unused-input",
             "min-x", "min-y", "min-z", "min-a",
@@ -244,7 +253,9 @@ class Private_Data:
             "home-x2", "home-y2", "home-z2", "home-a2","all-home",
             "min-home-x2", "min-home-y2", "min-home-z2", "min-home-a2",
             "max-home-x2", "max-home-y2", "max-home-z2", "max-home-a2",
-            "both-home-x2", "both-home-y2", "both-home-z2", "both-home-a2"]
+            "both-home-x2", "both-home-y2", "both-home-z2", "both-home-a2",
+            "plasmac:arc-ok-in", "plasmac:ohmic-sense-in", "plasmac:float-switch",
+            "plasmac:breakaway", "plasmac:move-up", "plasmac:move-down"]
 
         (   S.UNUSED_PWM,
             S.X_PWM_PULSE,S.X_PWM_DIR,S.X_PWM_ENABLE,  S.Y_PWM_PULSE,S.Y_PWM_DIR,S.Y_PWM_ENABLE,
@@ -255,7 +266,7 @@ class Private_Data:
         ) = self.hal_pwm_output_names = [
             "unused-pwm",
             "x-pwm-pulse", "x-pwm-dir", "x-pwm-enable", "y-pwm-pulse", "y-pwm-dir", "y-pwm-enable",
-            "z-pwm-pulse", "z-pwm-dir", "z-pwm-enable", "a-pwm-pulse", "a-pwm-dir", "a-pwm-enable", 
+            "z-pwm-pulse", "z-pwm-dir", "z-pwm-enable", "a-pwm-pulse", "a-pwm-dir", "a-pwm-enable",
             "s-pwm-pulse", "s-pwm-dir", "s-pwm-enable",
             "x2-pwm-pulse", "x2-pwm-dir", "x2-pwm-enable", "y2-pwm-pulse", "y2-pwm-dir", "y2-pwm-enable",
             "z2-pwm-pulse", "z2-pwm-dir", "z2-pwm-enable", "a2-pwm-pulse", "a2-pwm-dir", "a2-pwm-enable"]
@@ -275,11 +286,12 @@ class Private_Data:
             S.Y2_ENCODER_A,S.Y2_ENCODER_B,S.Y2_ENCODER_I,S.Y2_ENCODER_M,
             S.Z2_ENCODER_A,S.Z2_ENCODER_B,S.Z2_ENCODER_I,S.Z2_ENCODER_M,
             S.A2_ENCODER_A,S.A2_ENCODER_B,S.A2_ENCODER_I,S.A2_ENCODER_M,
+            S.ARC_VOLT_ENC_A,S.ARC_VOLT_ENC_B,S.ARC_VOLT_ENC_I,S.ARC_VOLT_ENC_M,
         )  = self.hal_encoder_input_names = [
              "unused-encoder",
             "x-encoder-a", "x-encoder-b", "x-encoder-i", "x-encoder-m",
             "y-encoder-a", "y-encoder-b", "y-encoder-i", "y-encoder-m",
-            "z-encoder-a", "z-encoder-b", "z-encoder-i", "z-encoder-m", 
+            "z-encoder-a", "z-encoder-b", "z-encoder-i", "z-encoder-m",
             "a-encoder-a", "a-encoder-b", "a-encoder-i", "a-encoder-m",
             "s-encoder-a","s-encoder-b","s-encoder-i", "s-encoder-m",
             "x-mpg-a","x-mpg-b", "x-mpg-i", "x-mpg-m", "y-mpg-a", "y-mpg-b", "y-mpg-i", "y-mpg-m",
@@ -290,7 +302,9 @@ class Private_Data:
             "x2-encoder-a", "x2-encoder-b", "x2-encoder-i", "x2-encoder-m",
             "y2-encoder-a", "y2-encoder-b", "y2-encoder-i", "y2-encoder-m",
             "z2-encoder-a", "z2-encoder-b", "z2-encoder-i", "z2-encoder-m",
-            "a2-encoder-a", "a2-encoder-b", "a2-encoder-i", "a2-encoder-m",]
+            "a2-encoder-a", "a2-encoder-b", "a2-encoder-i", "a2-encoder-m",
+            "arc-volt-enc-a", "arc-volt-enc-b", "arc-volt-enc-i", "arc-volt-enc-m",
+            ]
 
         (   S.USED_RESOLVER,S.X_RESOLVER,S.Y_RESOLVER,
                 S.Z_RESOLVER,S.A_RESOLVER,S.S_RESOLVER
@@ -324,7 +338,7 @@ class Private_Data:
             S.CHARGE_PUMP_STEP,S.CHARGE_PUMP_DIR,S.CHARGE_PUMP_PHC,
             S.CHARGE_PUMP_PHD,S.CHARGE_PUMP_PHE,S.CHARGE_PUMP_PHF
         ) = self.hal_stepper_names =[
-            "unused-stepgen", 
+            "unused-stepgen",
             "x-stepgen-step", "x-stepgen-dir", "x-stepgen-phase-c",
             "x-stepgen-phase-d", "x-stepgen-phase-e", "x-stepgen-phase-f",
             "y-stepgen-step", "y-stepgen-dir", "y-stepgen-phase-c",
@@ -369,10 +383,10 @@ class Private_Data:
 
         (   S.UNUSED_SSERIAL, S.A8I20_T, S.A8I20_R, S.A8I20_E,
             S.I7I64_T, S.I7I64_R, S.I7I64_E, S.I7I69_T, S.I7I69_R, S.I7I69_E,
-            S.I7I70_T, S.I7I70_R, S.I7I70_E, S.I7I71_T, S.I7I71_R, S.I7I71_E, 
+            S.I7I70_T, S.I7I70_R, S.I7I70_E, S.I7I71_T, S.I7I71_R, S.I7I71_E,
             S.I7I76_M0_T, S.I7I76_M0_R, S.I7I76_M0_E, S.I7I76_M2_T, S.I7I76_M2_R, S.I7I76_M2_E,
             S.I7I77_M0_T, S.I7I77_M0_R, S.I7I77_M0_E, S.I7I77_M3_T, S.I7I77_M3_R, S.I7I77_M3_E,
-            S.I7I73_M0_T, S.I7I73_M0_R, S.I7I73_M0_E, S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E,
+            S.I7I73_M1_T, S.I7I73_M1_R, S.I7I73_M1_E, S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E,
             S.I7I84_M3_T, S.I7I84_M3_R, S.I7I84_M3_E,
         ) = self.hal_sserial_names = [
             "unused-sserial","8i20-t","8i20-r","8i20-e",
@@ -395,14 +409,14 @@ class Private_Data:
             [_("Y Minimum Limit + Home"),S.MIN_HOME_Y ], [_("Z Minimum Limit + Home"),S.MIN_HOME_Z ],
             [_("A Minimum Limit + Home"),S.MIN_HOME_A ],[_("X Maximum Limit + Home"),S.MAX_HOME_X ],
             [_("Y Maximum Limit + Home"),S.MAX_HOME_Y ], [_("Z Maximum Limit + Home"),S.MAX_HOME_Z ],
-            [_("A Maximum Limit + Home"),S.MAX_HOME_A ],[_("X Both Limit + Home"),S.BOTH_HOME_X ], 
+            [_("A Maximum Limit + Home"),S.MAX_HOME_A ],[_("X Both Limit + Home"),S.BOTH_HOME_X ],
             [_("Y Both Limit + Home"),S.BOTH_HOME_Y ], [_("Z Both Limit + Home"),S.BOTH_HOME_Z ],
             [_("A Both Limit + Home"),S.BOTH_HOME_A ], [_("All Limits + Home"),S.ALL_LIMIT_HOME ] ]
         home_limits_shared2 = [[_("X2 Minimum Limit + Home"),S.MIN_HOME_X2 ],
             [_("Y2 Minimum Limit + Home"),S.MIN_HOME_Y2 ], [_("Z2 Minimum Limit + Home"),S.MIN_HOME_Z2 ],
             [_("A2 Minimum Limit + Home"),S.MIN_HOME_A2 ],[_("X2 Maximum Limit + Home"),S.MAX_HOME_X2 ],
             [_("Y2 Maximum Limit + Home"),S.MAX_HOME_Y2 ], [_("Z2 Maximum Limit + Home"),S.MAX_HOME_Z2 ],
-            [_("A2 Maximum Limit + Home"),S.MAX_HOME_A2 ],[_("X2 Both Limit + Home"),S.BOTH_HOME_X2 ], 
+            [_("A2 Maximum Limit + Home"),S.MAX_HOME_A2 ],[_("X2 Both Limit + Home"),S.BOTH_HOME_X2 ],
             [_("Y2 Both Limit + Home"),S.BOTH_HOME_Y2 ], [_("Z2 Both Limit + Home"),S.BOTH_HOME_Z2 ],
             [_("A2 Both Limit + Home"),S.BOTH_HOME_A2 ], ]
 
@@ -441,23 +455,26 @@ class Private_Data:
             [_("X2 Maximum Limit"),S.MAX_X2 ], [_("Y2 Maximum Limit"),S.MAX_Y2 ], [_("Z2 Maximum Limit"),S.MAX_Z2 ], [_("A2 Maximum Limit"),S.MAX_A2 ],
             [_("X2 Both Limit"),S.BOTH_X2 ], [_("Y2 Both Limit"),S.BOTH_Y2 ], [_("Z2 Both Limit"),S.BOTH_Z2 ], [_("A2 Both Limit"), S.BOTH_A2], ]
 
-        blimits = [["Main Axis",limit],["Tandem Axis",limit2]]
-        bhome = [["Main Axis",home],["Tandem Axis",home2]]
-        bshared = [["Main Axis",home_limits_shared],["Tandem Axis",home_limits_shared2]]
+        blimits = [[_("Main Axis"),limit],[_("Tandem Axis"),limit2]]
+        bhome = [[_("Main Axis"),home],[_("Tandem Axis"),home2]]
+        bshared = [[_("Main Axis"),home_limits_shared],[_("Tandem Axis"),home_limits_shared2]]
+        plasma_in = [[_("Arc OK"),S.ARC_OK ], [_("Ohmic Contact"),S.OHMIC_SENSE ], [_("Float Switch"),S.FLOAT_SWITCH ],
+                     [_("Breakaway"),S.BREAKAWAY ], [_("Move Up"),S.MOVE_UP ], [_("Move Down"),S.MOVE_DOWN ] ]
+
         self.human_input_names = [ [_("Unused Input"),S.UNUSED_INPUT],[_("Limits"),blimits],
-            [_("Home"),bhome],[_("Limts/Home Shared"),bshared],
+            [_("home"),bhome],[_("Limits/Home Shared"),bshared],
             [_("Digital"),digital],[_("Axis Selection"),axis_select],[_("Overrides"),override],
             [_("Spindle"),spindle],[_("Operation"),operation],[_("External Control"),control],
             [_("Axis rapid"),rapid],[_("X BLDC Control"),xmotor_control],
             [_("Y BLDC Control"),ymotor_control],[_("Z BLDC Control"),zmotor_control],
-            [_("A BLDC Control"),amotor_control],
-            [_("S BLDC Control"),smotor_control],[_("Custom Signals"),[]] ]
+            [_("A BLDC Control"),amotor_control],[_("S BLDC Control"),smotor_control],
+            [_("Plasma"),plasma_in],[_("Custom Signals"),[]] ]
         #
         tpwm = [[_("X2 Tandem PWM"), S.X2_PWM_PULSE], [_("Y2 Tandem PWM"), S.Y2_PWM_PULSE],
              [_("Z2 Tandem PWM"), S.Z2_PWM_PULSE], [_("A2 Tandem PWM"), S.A2_PWM_PULSE]]
         mpwm =[[_("X Axis PWM"), S.X_PWM_PULSE],[_("Y Axis PWM"), S.Y_PWM_PULSE],
             [_("Z Axis PWM"), S.Z_PWM_PULSE],[_("A Axis PWM"), S.A_PWM_PULSE]]
-        tandem_pwm = [["Main Axis",mpwm],["Tandem Axis",tpwm]]
+        tandem_pwm = [[_("Main Axis"),mpwm],[_("Tandem Axis"),tpwm]]
         self.human_pwm_output_names =[ [_("Unused PWM Gen"), S.UNUSED_PWM],[_("Axis PWM"),
             tandem_pwm],[_("Spindle PWM"), S.SPINDLE_PWM_PULSE],
             [_("Custom Signals"),[]] ]
@@ -467,13 +484,13 @@ class Private_Data:
                 [_("A Axis StepGen"),S.A_STEPGEN_STEP] ]
         tandem_step = [ [_("X2 Tandem StepGen"),S.X2_STEPGEN_STEP],[_("Y2 Tandem StepGen"),S.Y2_STEPGEN_STEP],
                 [_("Z2 Tandem StepGen"),S.Z2_STEPGEN_STEP]]
-        bstep = [["Main Axis",main_step],["Tandem Axis",tandem_step]]
+        bstep = [[_("Main Axis"),main_step],[_("Tandem Axis"),tandem_step]]
         self.human_stepper_names = [ [_("Unused StepGen"),S.UNUSED_STEPGEN],
-            ["Axis",bstep],
+            [_("Axis"),bstep],
             [_("Charge Pump StepGen"), S.CHARGE_PUMP_STEP], [_("Spindle StepGen"), S.SPINDLE_STEPGEN_STEP],
             [_("Custom Signals"),[]] ]
         #
-        axis = [[_("X Encoder"), S.X_ENCODER_A], [_("Y Encoder"), S.Y_ENCODER_A], 
+        axis = [[_("X Encoder"), S.X_ENCODER_A], [_("Y Encoder"), S.Y_ENCODER_A],
                 [_("Z Encoder"), S.Z_ENCODER_A], [_("A Encoder"), S.A_ENCODER_A],
                 ]
         taxis = [[_("X2 Tandem Encoder"), S.X2_ENCODER_A], [_("Y2 Tandem Encoder"), S.Y2_ENCODER_A],
@@ -482,14 +499,15 @@ class Private_Data:
                  [_("Z Hand Wheel"), S.Z_MPG_A], [_("A Hand Wheel"), S.A_MPG_A],
                  [_("Multi Hand Wheel"), S.SELECT_MPG_A]]
         over = [[_("Feed Override"),  S.FO_MPG_A], [_("spindle Override"),  S.SO_MPG_A],[_("Max Vel Override"),  S.MVO_MPG_A]]
-        tandem_enc = [["Main Axis",axis],["Tandem Axis",taxis]]
+        thcad = [[_("Arc Voltage"), S.ARC_VOLT_ENC_A]]
+        tandem_enc = [[_("Main Axis"),axis],[_("Tandem Axis"),taxis]]
         self.human_encoder_input_names = [ [_("Unused Encoder"), S.UNUSED_ENCODER],[_("Axis Encoder"), tandem_enc],
-             [_("Spindle Encoder"), S.SPINDLE_ENCODER_A], [_("MPG Jog Controls"), mpg],[_("Override MPG control"), over],
-            [_("Custom Signals"),[]] ]
+            [_("Spindle Encoder"), S.SPINDLE_ENCODER_A], [_("MPG Jog Controls"), mpg],[_("Override MPG control"), over],
+            [_("Plasma Encoder"), thcad], [_("Custom Signals"),[]] ]
 
         # These have two levels of columns
         self.human_notused_names = [ [_("Unused Unused"),[] ] ]
-        spindle_output = [_("Spindle ON"),_("Spindle CW"), _("Spindle CCW"), _("Spindle Brake") ]
+        spindle_output = [_("Spindle Enable"),_("Spindle CW"), _("Spindle CCW"), _("Spindle Brake") ]
         coolant_output = [_("Coolant Mist"), _("Coolant Flood")]
         control_output = [_("ESTOP Out"), _("Machine Is Enabled"),_("X Amplifier Enable"),
             _("Y Amplifier Enable"),_("Z Amplifier Enable"), _("A Amplifier Enable"),
@@ -505,13 +523,14 @@ class Private_Data:
                 _("A Gray C1"),_("A Gray C2"),_("A Gray C4"),_("A Gray C8")]
         smotor_control = [_("S HALL 1"),_("S HALL 2"),_("S HALL 3"),
                 _("S Gray C1"),_("S Gray C2"),_("S Gray C4"),_("S Gray C8")]
+        plasma_out = [_("Ohmic Enable"), _("Scribe Arm"), _("Scribe On"), _("Torch On"), _("Laser On")]
 
         self.human_output_names = [ [_("Unused Output"),[]],[_("Spindle"),spindle_output],
             [_("Coolant"),coolant_output],[_("Control"),control_output],
             [_("Digital"),digital_output],[_("X BLDC Control"),xmotor_control],
             [_("Y BLDC Control"),ymotor_control],[_("Z BLDC Control"),zmotor_control],
             [_("A BLDC Control"),amotor_control],[_(" S BLDC Control"),smotor_control,],
-            [_("Custom Signals"),[]]  ]
+            [_("Plasma"),plasma_out],[_("Custom Signals"),[]]  ]
 
         self.human_8i20_input_names =[ [_("Unused 8I20"),[]],[_("X Axis"), []],[_("Y Axis"), []],[_("Z Axis"), []],
             [_("A Axis"), []],[_("Spindle"), []],[_("Custom Signals"),[]] ]
@@ -556,8 +575,8 @@ class Private_Data:
 # max smart serial, number of channels,
 # discovered sserial devices,
 # spare,spare,spare,spare,spare,spare,spare,
-# has watchdog, max GPIOI, 
-# low frequency rate , hi frequency rate, 
+# has watchdog, max GPIOI,
+# low frequency rate , hi frequency rate,
 # available connector numbers,  then list of component type and logical number
         self.MESA_INTERNAL_FIRMWAREDATA = [
     # 5i25 ####################
@@ -606,7 +625,7 @@ class Private_Data:
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
     ['5i25-Internal Data', '5i25', '7i77x2', '5i25', 'hm2_pci',
-        12,3, 0,0, 0,3, 0,0, 0,2, 1,6, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [3, 2], 
+        12,3, 0,0, 0,3, 0,0, 0,2, 1,6, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [3, 2],
         # TAB 3
         [S.TXEN2, 0],[S.TXDATA2, 0],[S.RXDATA2, 0],[S.SS7I77M1, 0],[S.RXDATA1, 0],[S.SS7I77M0, 0],[S.RXDATA0, 0],[S.MXES, 0],[S.MXE0, 0],[S.MXE1, 0],
         [S.MXEI, 0],[S.MXE0, 1],[S.MXE1, 1],[S.MXEI, 1],[S.MXE0, 2],[S.MXE1, 2],[S.MXEI, 2],
@@ -627,7 +646,7 @@ class Private_Data:
         [S.STEPA, 6],[S.STEPB, 6],[S.STEPA, 7],[S.STEPB, 7],[S.GPIOI, 0],[S.ENCA, 1],[S.ENCB, 1],[S.ENCI, 1],
         [S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],],
 
-    ['5i25-Internal Data', '5i25', 'G540x2', '5i25', 'hm2_pci', 2,3, 0,0, 2,1, 0,0, 10,2, 0,0, 0,0,0,0,0,0,0,0, 1, 34, 33, 200,[3, 2],
+    ['5i25-Internal Data', '5i25', 'G540x2', '5i25', 'hm2_pci', 2,3, 0,0, 2,1, 0,0, 10,2, 0,0, [],0,0,0,0,0,0,0, 1, 34, 33, 200,[3, 2],
         # TAB 3
         [S.GPIOI, 0],[S.PWMP, 0],[S.STEPA, 0],[S.GPIOI, 0],[S.STEPB, 0],[S.STEPA, 4],[S.STEPA, 1],[S.GPIOI, 0],[S.STEPB, 1],[S.STEPA, 2],
         [S.STEPB, 2],[S.STEPA, 3],[S.STEPB, 3],[S.ENCA, 0],[S.ENCB, 0],[S.ENCI, 0],[S.GPIOI, 0],
@@ -636,6 +655,17 @@ class Private_Data:
         [S.GPIOI, 0],[S.PWMP, 1],[S.STEPA, 5],[S.GPIOI, 0],[S.STEPB, 5],[S.STEPA, 9],[S.STEPA, 6],[S.GPIOI, 0],[S.STEPB, 6],[S.STEPA, 7],
         [S.STEPB, 7],[S.STEPA, 8],[S.STEPB, 8],[S.ENCA, 1],[S.ENCB, 1],[S.ENCI, 1],[S.GPIOI, 0],
         [S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],],
+
+    ["5i25-Internal Data", "5i25", "7i76x2pld", "5i25", "hm2_pci",
+         4,3, 0,0, 0,3, 0,0, 10,2, 1,4, [],0,0,0,0,0,0,0, 1, 34 , 33, 200, [3,2],
+        # TAB 3
+        [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],[S.STEPB,3],[S.STEPA,3],[S.STEPB,4],[S.STEPA,4],
+        [S.SS7I76M0,0],[S.RXDATA0,0],[S.TXDATA1,0],[S.RXDATA1,0],[S.ENCA,2],[S.ENCA,1],[S.ENCA,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 2
+        [S.STEPB,5],[S.STEPA,5],[S.STEPB,6],[S.STEPA,6],[S.STEPB,7],[S.STEPA,7],[S.STEPB,8],[S.STEPA,8],[S.STEPB,9],[S.STEPA,9],
+        [S.SS7I76M2,0],[S.RXDATA2,0],[S.TXDATA3,0],[S.RXDATA3,0],[S.ENCI,3],[S.ENCB,3],[S.ENCA,3],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
     # 5i20 #####################
     ["5i20", "5i20", "SV12", "5i20", "hm2_pci",
@@ -673,6 +703,78 @@ class Private_Data:
         [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
+    ['7i76e-Internal Data', '7i76e', '7i76e_7i76x1_Dpl', '7i76', 'hm2_eth',
+        3,1, 0,0, 0,3, 0,0, 5,2, 1,2, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [1, 2, 3],
+        # TAB 1
+        [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],[S.STEPB,3],[S.STEPA,3],[S.STEPB,4],[S.STEPA,4],
+        [S.SS7I76M0,0],[S.RXDATA0,0],[S.TXDATA1,0],[S.RXDATA1,0],[S.ENCA,2],[S.ENCA,1],[S.ENCA,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 2
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 3
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
+
+    # 7i80 #################
+    ["7i80DB-Internal Data", "7i80db", "7I76x2", "7i80DB", "hm2_eth",
+        2,3, 0,0, 0,0, 0,0, 10,2, 4,4, [],0,0,0,0,0,0,0, 1, 68, 33, 100, [1,2,3,4],
+        #TAB 1
+        [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],[S.STEPB,3],[S.STEPA,3],[S.STEPB,4],[S.STEPA,4],
+        [S.TXDATA0, 0],[S.RXDATA0, 0],[S.TXDATA1, 0],[S.RXDATA1, 0],[S.ENCI,0],[S.ENCB,0],[S.ENCA,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        #TAB 2
+        [S.STEPB,5],[S.STEPA,5],[S.STEPB,6],[S.STEPA,6],[S.STEPB,7],[S.STEPA,7],[S.STEPB,8],[S.STEPA,8],[S.STEPB,9],[S.STEPA,9],
+        [S.TXDATA2, 0],[S.RXDATA2, 0],[S.TXDATA3, 0],[S.RXDATA3, 0],[S.ENCI,1],[S.ENCB,1],[S.ENCA,1],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        #TAB 3
+        [S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
+        [S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        #TAB 4
+        [S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
+        [S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
+
+    ["7i80HD-Internal Data", "7i80hd", "SV12", "7i80HD", "hm2_eth",
+        12,3, 0,0, 12,3, 0,0, 0,0, 0,0, [],0,0,0,0,0,0,0, 1, 72 , 33, 100, [1,2,3],
+        # TAB 1
+        [S.ENCB,1],[S.ENCA,1],[S.ENCB,0],[S.ENCA,0],[S.ENCI,1],[S.ENCI,0],[S.PWMP,1],[S.PWMP,0],[S.PWMD,1],[S.PWMD,0],[S.PWME,1],[S.PWME,0],
+        [S.ENCB,3],[S.ENCA,3],[S.ENCB,2],[S.ENCA,2],[S.ENCI,3],[S.ENCI,2],[S.PWMP,3],[S.PWMP,2],[S.PWMD,3],[S.PWMD,2],[S.PWME,3],[S.PWME,2],
+        # TAB 2
+        [S.ENCB,5],[S.ENCA,5],[S.ENCB,4],[S.ENCA,4],[S.ENCI,5],[S.ENCI,4],[S.PWMP,5],[S.PWMP,4],[S.PWMD,5],[S.PWMD,4],[S.PWME,5],[S.PWME,4],
+        [S.ENCB,7],[S.ENCA,7],[S.ENCB,6],[S.ENCA,6],[S.ENCI,7],[S.ENCI,6],[S.PWMP,7],[S.PWMP,6],[S.PWMD,7],[S.PWMD,6],[S.PWME,7],[S.PWME,6],
+        # TAB 3
+        [S.ENCB,9],[S.ENCA,9],[S.ENCB,8],[S.ENCA,8],[S.ENCI,9],[S.ENCI,8],[S.PWMP,9],[S.PWMP,8],[S.PWMD,9],[S.PWMD,8],[S.PWME,9],[S.PWME,8],
+        [S.ENCB,11],[S.ENCA,11],[S.ENCB,10],[S.ENCA,10],[S.ENCI,11],[S.ENCI,10],[S.PWMP,11],[S.PWMP,10],[S.PWMD,11],[S.PWMD,10],[S.PWME,11],[S.PWME,10],],
+
+    ["7i80HD-Internal Data", "7i80hd", "SVST8_4", "7i80HD", "hm2_eth",
+        8,3, 0,0, 8,3, 0,0, 4,2, 0,0, [],0,0,0,0,0,0,0, 1, 72, 33, 100, [1,2,3],
+        # TAB 1
+        [S.ENCB,1],[S.ENCA,1],[S.ENCB,0],[S.ENCA,0],[S.ENCI,1],[S.ENCI,0],[S.PWMP,1],[S.PWMP,0],[S.PWMD,1],[S.PWMD,0],[S.PWME,1],[S.PWME,0],
+        [S.ENCB,3],[S.ENCA,3],[S.ENCB,2],[S.ENCA,2],[S.ENCI,3],[S.ENCI,2],[S.PWMP,3],[S.PWMP,2],[S.PWMD,3],[S.PWMD,2],[S.PWME,3],[S.PWME,2],
+        # TAB 2
+        [S.ENCB,5],[S.ENCA,5],[S.ENCB,4],[S.ENCA,4],[S.ENCI,5],[S.ENCI,4],[S.PWMP,5],[S.PWMP,4],[S.PWMD,5],[S.PWMD,4],[S.PWME,5],[S.PWME,4],
+        [S.ENCB,7],[S.ENCA,7],[S.ENCB,6],[S.ENCA,6],[S.ENCI,7],[S.ENCI,6],[S.PWMP,7],[S.PWMP,6],[S.PWMD,7],[S.PWMD,6],[S.PWME,7],[S.PWME,6],
+        # TAB 3
+        [S.STEPA,0],[S.STEPB,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.STEPA,1],[S.STEPB,1],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
+        [S.STEPA,2],[S.STEPB,2],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.STEPA,3],[S.STEPB,3],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0] ],
+
+    # 7i90 ####################
+    ["7i90HD-Internal Data", "7i90", "SVST1_4_2x7i47s", "7i90HD", "hm2_7i90",
+        8,3, 0,0, 2,3, 0,0, 8,2, 0,0, [],0,0,0,0,0,0,0, 1, 72, 33, 100, [1,2,3],
+        #TAB 1
+        [S.STEPA,0],[S.STEPB,0],[S.STEPA,1],[S.STEPB,1],[S.ENCA,0],[S.ENCA,2],[S.ENCB,0],[S.ENCB,2],[S.ENCI,0],[S.ENCI,2],[S.ENCA,1],[S.ENCA,3],
+        [S.ENCB,1],[S.ENCB,3],[S.ENCI,1],[S.ENCI,3],[S.NUSED,0],[S.PWMD,0],[S.PWME,0],[S.PWMP,0],[S.STEPA,2],[S.STEPB,2],[S.STEPA,3],[S.STEPB,3],
+        #TAB 2
+        [S.STEPA,4],[S.STEPB,4],[S.STEPA,5],[S.STEPB,5],[S.ENCA,4],[S.ENCA,6],[S.ENCB,4],[S.ENCB,6],[S.ENCI,4],[S.ENCI,6],[S.ENCA,5],[S.ENCA,7],
+        [S.ENCB,5],[S.ENCB,7],[S.ENCI,5],[S.ENCI,7],[S.NUSED,0],[S.PWMD,1],[S.PWME,1],[S.PWMP,1],[S.STEPA,6],[S.STEPB,6],[S.STEPA,7],[S.STEPB,7],
+        #TAB 3
+        [S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
+        [S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],],
+
     # 7i92 ####################
     ["7i92-Internal Data", "7i92", "7i76x2 with one 7i76 ", "7i92", "hm2_eth",
          1,3, 0,0, 0,3, 0,0, 5,2, 1,2, [],0,0,0,0,0,0,0, 1, 34 , 33, 200, [2,1],
@@ -697,7 +799,7 @@ class Private_Data:
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
     ['7i92-Internal Data', '7i92', '7i77x2 with on 7i77', '7i92', 'hm2_eth',
-        6,3, 0,0, 0,3, 0,0, 0,2, 1,3, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [2, 1], 
+        6,3, 0,0, 0,3, 0,0, 0,2, 1,3, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [2, 1],
         # TAB 2
         [S.TXEN2, 0],[S.TXDATA2, 0],[S.RXDATA2, 0],[S.SS7I77M1, 0],[S.RXDATA1, 0],[S.SS7I77M0, 0],[S.RXDATA0, 0],[S.MXES, 0],[S.MXE0, 0],[S.MXE1, 0],
         [S.MXEI, 0],[S.MXE0, 1],[S.MXE1, 1],[S.MXEI, 1],[S.MXE0, 2],[S.MXE1, 2],[S.MXEI, 2],
@@ -708,7 +810,7 @@ class Private_Data:
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
     ['7i92-Internal Data', '7i92', '7i77x2', '7i92', 'hm2_eth',
-        12,3, 0,0, 0,3, 0,0, 0,2, 1,6, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [2, 1], 
+        12,3, 0,0, 0,3, 0,0, 0,2, 1,6, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [2, 1],
         # TAB 2
         [S.TXEN2, 0],[S.TXDATA2, 0],[S.RXDATA2, 0],[S.SS7I77M1, 0],[S.RXDATA1, 0],[S.SS7I77M0, 0],[S.RXDATA0, 0],[S.MXES, 0],[S.MXE0, 0],[S.MXE1, 0],
         [S.MXEI, 0],[S.MXE0, 1],[S.MXE1, 1],[S.MXEI, 1],[S.MXE0, 2],[S.MXE1, 2],[S.MXEI, 2],
@@ -719,7 +821,7 @@ class Private_Data:
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
     ["7i92-Internal Data", "7i92", "7i77_7i76", "7i92", "hm2_eth",
-        6,3, 0,0, 0,3, 0,0, 5,2, 1,5, 0,0,0,0,0,0,0,0, 1, 34 , 33, 200, [2,1],
+        6,3, 0,0, 0,3, 0,0, 5,2, 1,5, [],0,0,0,0,0,0,0, 1, 34 , 33, 200, [2,1],
         # TAB 2
         [S.TXEN2, 0],[S.TXDATA2, 0],[S.RXDATA2, 0],[S.SS7I77M1, 0],[S.RXDATA1, 0],[S.SS7I77M0, 0],[S.RXDATA0, 0],[S.MXES, 0],[S.MXE0, 0],[S.MXE1, 0],
         [S.MXEI, 0],[S.MXE0, 1],[S.MXE1, 1],[S.MXEI, 1],[S.MXE0, 2],[S.MXE1, 2],[S.MXEI, 2],
@@ -729,24 +831,77 @@ class Private_Data:
         [S.SS7I76M3,0],[S.RXDATA3,0],[S.TXDATA4,0],[S.RXDATA4,0],[S.ENCI,0],[S.ENCB,0],[S.ENCA,0],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
-    # 7i80HD #################
-    ["7i80HD-Internal Data", "7i80", "SV12", "7i80HD", "hm2_eth",
-        12,3, 0,0, 12,3, 0,0, 0,0, 0,0, [],0,0,0,0,0,0,0, 1, 72 , 33, 100, [2,3,4],
-        [S.ENCB,1],[S.ENCA,1],[S.ENCB,0],[S.ENCA,0],[S.ENCI,1],[S.ENCI,0],[S.PWMP,1],[S.PWMP,0],[S.PWMD,1],[S.PWMD,0],[S.PWME,1],[S.PWME,0],
-        [S.ENCB,3],[S.ENCA,3],[S.ENCB,2],[S.ENCA,2],[S.ENCI,3],[S.ENCI,2],[S.PWMP,3],[S.PWMP,2],[S.PWMD,3],[S.PWMD,2],[S.PWME,3],[S.PWME,2],
-        [S.ENCB,5],[S.ENCA,5],[S.ENCB,4],[S.ENCA,4],[S.ENCI,5],[S.ENCI,4],[S.PWMP,5],[S.PWMP,4],[S.PWMD,5],[S.PWMD,4],[S.PWME,5],[S.PWME,4],
-        [S.ENCB,7],[S.ENCA,7],[S.ENCB,6],[S.ENCA,6],[S.ENCI,7],[S.ENCI,6],[S.PWMP,7],[S.PWMP,6],[S.PWMD,7],[S.PWMD,6],[S.PWME,7],[S.PWME,6],
-        [S.ENCB,9],[S.ENCA,9],[S.ENCB,8],[S.ENCA,8],[S.ENCI,9],[S.ENCI,8],[S.PWMP,9],[S.PWMP,8],[S.PWMD,9],[S.PWMD,8],[S.PWME,9],[S.PWME,8],
-        [S.ENCB,11],[S.ENCA,11],[S.ENCB,10],[S.ENCA,10],[S.ENCI,11],[S.ENCI,10],[S.PWMP,11],[S.PWMP,10],[S.PWMD,11],[S.PWMD,10],[S.PWME,11],[S.PWME,10],],
+   ['7i92-Internal Data', '7i92', 'G540x2', '7i92', 'hm2_eth', 2,3, 0,0, 2,1, 0,0, 10,2, 0,0, [],0,0,0,0,0,0,0, 1, 34, 33, 200,[2, 1],
+        # TAB 2
+        [S.GPIOI, 0],[S.PWMP, 0],[S.STEPA, 0],[S.GPIOI, 0],[S.STEPB, 0],[S.STEPA, 4],[S.STEPA, 1],[S.GPIOI, 0],[S.STEPB, 1],[S.STEPA, 2],
+        [S.STEPB, 2],[S.STEPA, 3],[S.STEPB, 3],[S.ENCA, 0],[S.ENCB, 0],[S.ENCI, 0],[S.GPIOI, 0],
+        [S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],
+        # TAB 1
+        [S.GPIOI, 0],[S.PWMP, 1],[S.STEPA, 5],[S.GPIOI, 0],[S.STEPB, 5],[S.STEPA, 9],[S.STEPA, 6],[S.GPIOI, 0],[S.STEPB, 6],[S.STEPA, 7],
+        [S.STEPB, 7],[S.STEPA, 8],[S.STEPB, 8],[S.ENCA, 1],[S.ENCB, 1],[S.ENCI, 1],[S.GPIOI, 0],
+        [S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],],
 
-    ["7i80HD-Internal Data", "7i80", "SVST8_4", "7i80HD", "hm2_eth",
-      8,3, 0,0, 8,3, 0,0, 4,2, 0,0, [],0,0,0,0,0,0,0, 1, 72, 33, 100, [2,3,4],
+    ["7i92-Internal Data", "7i92", "7i92_7i76x1dpl", "7i92", "hm2_eth",
+         3,1, 0,0, 0,3, 0,0, 5,2, 1,2, [],0,0,0,0,0,0,0, 1, 34 , 33, 200, [2,1],
+        # TAB 2
+        [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],[S.STEPB,3],[S.STEPA,3],[S.STEPB,4],[S.STEPA,4],
+        [S.SS7I76M0,0],[S.RXDATA0,0],[S.TXDATA1,0],[S.RXDATA1,0],[S.ENCA,2],[S.ENCA,1],[S.ENCA,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 1
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
+
+    # 7i93 ####################
+    ["7i93-Internal Data", "7i93", "justio", "7i93", "hm2_eth",
+        0,0, 0,0, 0,0, 0,0, 0,0, 0,0, [],0,0,0,0,0,0,0, 1, 48 , 33, 200, [2,1],
+        # TAB 2
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        # TAB 1
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],],
+
+    ["7i93-Internal Data", "7i93", "SVST4_4d", "7i93", "hm2_eth",
+        4,3, 0,0, 4,3, 0,0, 4,2, 0,0, [],0,0,0,0,0,0,0, 1, 48, 33, 100, [2,1],
       [S.ENCB,1],[S.ENCA,1],[S.ENCB,0],[S.ENCA,0],[S.ENCI,1],[S.ENCI,0],[S.PWMP,1],[S.PWMP,0],[S.PWMD,1],[S.PWMD,0],[S.PWME,1],[S.PWME,0],
       [S.ENCB,3],[S.ENCA,3],[S.ENCB,2],[S.ENCA,2],[S.ENCI,3],[S.ENCI,2],[S.PWMP,3],[S.PWMP,2],[S.PWMD,3],[S.PWMD,2],[S.PWME,3],[S.PWME,2],
-      [S.ENCB,5],[S.ENCA,5],[S.ENCB,4],[S.ENCA,4],[S.ENCI,5],[S.ENCI,4],[S.PWMP,5],[S.PWMP,4],[S.PWMD,5],[S.PWMD,4],[S.PWME,5],[S.PWME,4],
-      [S.ENCB,7],[S.ENCA,7],[S.ENCB,6],[S.ENCA,6],[S.ENCI,7],[S.ENCI,6],[S.PWMP,7],[S.PWMP,6],[S.PWMD,7],[S.PWMD,6],[S.PWME,7],[S.PWME,6],
-      [S.STEPA,0],[S.STEPB,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.STEPA,1],[S.STEPB,1],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
-      [S.STEPA,2],[S.STEPB,2],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.STEPA,3],[S.STEPB,3],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0] ],
+[S.STEPA,0],[S.STEPB,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.STEPA,1],[S.STEPB,1],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
+[S.STEPA,2],[S.STEPB,2],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.STEPA,3],[S.STEPB,3],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],],
+
+    # 7i96 ####################
+    ['7i96-Internal Data', '7i96', '7i96d', '7i96', 'hm2_eth',
+        1,3, 0,0, 0,3, 0,0, 5,2, 1,1, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [1, 2, 3],
+        # TAB 1
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.GPIOI, 0],[S.SSR0, 100],[S.SSR0, 101],[S.SSR0, 102],[S.SSR0, 103],[S.SSR0, 104],[S.SSR0, 105],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 2
+        [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],[S.STEPB,3],[S.STEPA,3],[S.STEPB,4],[S.STEPA,4],
+        [S.ENCA,0],[S.ENCB,0],[S.ENCI,0],[S.RXDATA0,0],[S.TXDATA0,0],[S.TXEN0,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 3
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
+
+    ['7i96-Internal Data', '7i96', '7i96dpl', '7i96', 'hm2_eth',
+        3,1, 0,0, 0,3, 0,0, 5,2, 1,1, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [1, 2, 3],
+        # TAB 1
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.GPIOI, 0],[S.SSR0, 100],[S.SSR0, 101],[S.SSR0, 102],[S.SSR0, 103],[S.SSR0, 104],[S.SSR0, 105],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 2
+        [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],[S.STEPB,3],[S.STEPA,3],[S.STEPB,4],[S.STEPA,4],
+        [S.ENCA,0],[S.ENCA,1],[S.ENCA,2],[S.RXDATA0,0],[S.TXDATA0,0],[S.TXEN0,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 3
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
+
     ]
 
         #**************************
@@ -914,7 +1069,7 @@ class Private_Data:
                             ["gecko210", _("Gecko 210"),  500, 4000, 20000, 1000],
                             ["gecko212", _("Gecko 212"),  500, 4000, 20000, 1000],
                             ["gecko320", _("Gecko 320"),  3500, 500, 200, 200],
-                            ["gecko540", _("Gecko 540"),  1000, 2000, 200, 200],
+                            ["gecko540", _("Gecko 540"),  5000, 5000, 10000, 10000],
                             ["l297", _("L297"), 500,  4000, 4000, 1000],
                             ["pmdx150", _("PMDX-150"), 1000, 2000, 1000, 1000],
                             ["sherline", _("Sherline"), 22000, 22000, 100000, 100000],
@@ -927,6 +1082,25 @@ class Private_Data:
 
         self.MESA_BOARDNAMES = []
 
+
+        self.MESA_BOARD_META = {
+        '5i20':{'DRIVER':'hm2_pci','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':3},
+        '5i22':{'DRIVER':'hm2_pci','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':4},
+        '5i23':{'DRIVER':'hm2_pci','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':3},
+        '5i24':{'DRIVER':'hm2_pci','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':3},
+        '5i25':{'DRIVER':'hm2_pci','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':2},
+        '7i43':{'DRIVER':'hm2_7i43','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':2},
+        '7i68':{'DRIVER':'hm2_pci','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':6},
+        '7i76e':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':3},
+        '7i80hd':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':3,'TAB_NUMS':[1,2,3],'TAB_NAMES':['P1','P2','P3']},
+        '7i80db':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':4,'TAB_NUMS':[1,2,3,4],'TAB_NAMES':['P1','P2','P3','P4']},
+        '7i90':{'DRIVER':'hm2_7i90','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':3,'TAB_NUMS':[1,2,3],'TAB_NAMES':['P1','P2','P3']},
+        '7i92':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':2,'TAB_NUMS':[1,2],'TAB_NAMES':['P1','P2']},
+        '7i93':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':2},
+        '7i96':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':3,'TAB_NUMS':[1,2,3],'TAB_NAMES':['TB3','TB1/TB2','P1']},
+        '7i98':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':3},
+        }
+
         self.MESS_START = _('Start')
         self.MESS_FWD = _('Forward')
         self.MESS_DONE = _('Done')
@@ -935,12 +1109,15 @@ class Private_Data:
         self.MESS_NO_ESTOP = _("You need to designate an E-stop input pin in the Parallel Port Setup page for this program.")
         self.MESS_PYVCP_REWRITE =_("OK to replace existing custom pyvcp panel and custom_postgui.hal file ?\nExisting custompanel.xml and custom_postgui.hal will be renamed custompanel_backup.xml and postgui_backup.hal.\nAny existing file named custompanel_backup.xml and custom_postgui.hal will be lost. ")
         self.MESS_ABORT = _("Quit PNCconf and discard changes?")
-        self.MESS_QUIT = _("The configuration has been built and saved.\nDo you want to quit?")
+        self.MESS_QUIT = _("Do you want to quit?")
+        self.MESS_FINISH_QUIT = _("The configuration has been built and saved.\nDo you want to quit?")
         self.MESS_NO_REALTIME = _("You are using a simulated-realtime version of LinuxCNC, so testing / tuning of hardware is unavailable.")
         self.MESS_KERNEL_WRONG = _("You are using a realtime version of LinuxCNC but didn't load a realtime kernel so testing / tuning of hardware is\
                  unavailable.\nThis is possibly because you updated the OS and it doesn't automatically load the RTAI kernel anymore.\n"+
-            "You are using the  %(actual)s  kernel.\nYou need to use kernel:")% {'actual':os.uname()[2]}
-
+            "You are using the {} kernel.\nYou need to use kernel:".format(os.uname()[2]))
+        self.MESS_REPLACE_RC_FILE = _("Ok to replace AXIS's .axisrc file?\n\
+ If you haven't added custom commands to this hidden file, outside of pncconf, then this should be fine.\n\
+Choosing no will mean AXIS options such as size/position and force maximum might not be as requested \n")
     def __getitem__(self, item):
         return getattr(self, item)
     def __setitem__(self, item, value):

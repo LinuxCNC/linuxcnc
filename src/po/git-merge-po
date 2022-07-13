@@ -6,7 +6,7 @@
 #  git config merge.pofile.name "Gettext merge driver"
 #  git config merge.pofile.driver "src/po/git-merge-po %O %A %B"
 #
-# - When merging branches, conflicts in PO files will be maked with "#-#-#-#"
+# - When merging branches, conflicts in PO files will be marked with "#-#-#-#"
 #
 set -x
 O="$1"

@@ -1,4 +1,5 @@
-component bldc "BLDC and AC-servo control component ";
+component bldc """BLDC and AC-servo control component 
+.B loadrt bldc cfg=qi6,aH\\fB""";
 // 1.3.2 (26/1/11 20:10)
 
 pin in bit hall1 if personality & 0x01 "Hall sensor signal 1";
@@ -279,13 +280,11 @@ This component is designed as an interface between the most common forms of
 three-phase motor feedback devices and the corresponding types of drive. However
 there is no requirement that the motor and drive should necessarily be of
 inherently compatible types.
-.SH SYNOPSIS
-(ignore the auto-generated SYNOPSIS above)
-.SH
-.HP
-.B loadrt bldc cfg=qi6,aH\\fB
+
 Each instance of the component is defined by a group of letters describing the
 input and output types. A comma separates individual instances of the component.
+For example \\fBloadrt bldc cfg=qi6,aH\\fR
+
 .SH Tags
 Input type definitions are all lower-case.
 

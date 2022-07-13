@@ -1,0 +1,54 @@
+
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
+
+loadrt charge_pump
+
+# we need a dir mask and an exclude mask
+#
+# ------------------outputs-----------------
+# i use GPIO 2,3,4 for xtep ystep zstep
+# i use GPIO 12 for spindle motor on
+# i use GPIO 14,15,18 for xdir ydir zdir
+
+# ------------------inputs-----------------
+# i use GPIO 17 27 22 for xlim ylim zlim ( used for + and - lims, used for home also )
+
+# gpio pins ( not rpi pins! )
+# 2 2 2 2 2 2 2 2 1 1 1 1 1 1 1 1 1 1
+# 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2  (gpio1& 0 not used )
+#
+# 0 0 0 0 0 0 0 0 0 1 0 0 1 1 0 1 0 0 0 0 0 0 0 1 1 1  dir     mask (0 means in   1 means out)      dec 78855
+# 0 1 1 1 1 1 0 1 1 0 0 1 0 0 1 0 1 1 1 1 1 1 1 0 0 0  exclude mask (0 means use  1 means dont use) dec 32918520
+
+loadrt hal_pi_gpio dir=78855 exclude=32918520
+
+# beware gpio 21 and 22 are still reversed, they control rpins 15&50 and are backwards almost everywhere in rpi docs
+# easy to see and check with 'show pins hal_pi_gpio*
+
+
+# tjp  chg to 3 step dir types,plan on using gekco G540
+# was  loadrt stepgen step_type=5 ctrl_type=v
+# make posn loop type
+loadrt stepgen step_type=0,0,0
+
+
+# --- begin addf s
+addf hal_pi_gpio.read  base-thread
+addf stepgen.make-pulses base-thread
+addf stepgen.capture-position servo-thread
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+addf stepgen.update-freq servo-thread
+addf hal_pi_gpio.write base-thread
+# --- end addf s
+
+
+# i use GPIO 2,3,4 for xtep ystep zstep, that's rpin 3,5,7 resp
+net xstep stepgen.0.step => hal_pi_gpio.pin-03-out
+net ystep stepgen.1.step => hal_pi_gpio.pin-05-out
+net zstep stepgen.2.step => hal_pi_gpio.pin-07-out
+
+# i use GPIO 14,15,18 for xdir ydir zdir, that's rpin
+net xdir  stepgen.0.dir  => hal_pi_gpio.pin-08-out
+net ydir  stepgen.1.dir  => hal_pi_gpio.pin-10-out
+net zdir  stepgen.2.dir  => hal_pi_gpio.pin-12-out

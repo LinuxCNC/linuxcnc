@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #    Copyright 2009 Alex Joni
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -18,10 +18,6 @@
 # graphic model of a Unimate Puma 560
 # according to the dimensions from: http://www.juve.ro/blog/puma/
 # the obj files can be downloaded there, and may be included in emc2 later
-
-# link description
-# link1 - stationary base
-# link2 .. link7 - the 6 moving parts of the robot, numbered form base to end effector
 
 from vismach import *
 import hal
@@ -59,8 +55,29 @@ tool = Capture()
 tooltip = Capture()
 tool = Collection([tooltip, tool])
 
-# link 7
-link7 = AsciiOBJ(filename="puma_link7.obj")
+# link description
+# link2 .. link7 - the 6 moving parts of the robot, numbered form base to end effector
+
+# link7
+# link6
+# link5: wrist
+# link4: arm, origin is in the joint3 location
+# link3: shoulder
+# link2
+# link1: stationary base
+try: # Expect files in working directory
+    link7 = AsciiOBJ(filename="puma_link7.obj")
+    link6 = AsciiOBJ(filename="puma_link6.obj")
+    link5 = AsciiOBJ(filename="puma_link5.obj")
+    link4 = AsciiOBJ(filename="puma_link4.obj")
+    link3 = AsciiOBJ(filename="puma_link3.obj")
+    link2 = AsciiOBJ(filename="puma_link2.obj")
+    link1 = AsciiOBJ(filename="puma_link1.obj");
+    puma_text = AsciiOBJ(filename="puma_text.obj")
+except Exception as detail:
+    print(detail)
+    raise SystemExit("puma560gui requires files: puma_link[1-7].obj,puma-text.obj")
+
 #move link7 to 0 pos. so, that tooltip matches
 link7 = Color([0.3,0.3,0.3,1],[link7])
 link7 = Translate([link7],0,0,-0.4)
@@ -69,8 +86,6 @@ link7 = Collection([link7, tool])
 link7 = Translate([link7],0,0,0.4)
 link7 = HalRotate([link7],c,"joint6",1,0,0,1)
 
-# link 6
-link6 = AsciiOBJ(filename="puma_link6.obj")
 # rotate and translate it so that the joint 6 is in origin
 link6 = Color([0.5,0.5,0.5,1],[link6])
 link6 = Rotate([link6],-90,0,1,0)
@@ -82,8 +97,6 @@ link6 = Translate([link6],0,0,1.8)
 #apply HAL DOF
 link6 = HalRotate([link6],c,"joint5",1,1,0,0)
 
-# link 5, wrist
-link5 = AsciiOBJ(filename="puma_link5.obj")
 link5 = Color([0.5,0.5,0.5,1],[link5])
 #translate it so joint 5 rotation in origin
 link5 = Translate([link5],0,0,-2.8)
@@ -94,8 +107,6 @@ link5 = Translate([link5],0,0,2.8)
 #apply HAL DOF
 link5 = HalRotate([link5],c,"joint4",1,0,0,1)
 
-# link4, arm, origin is in the joint3 location
-link4 = AsciiOBJ(filename="puma_link4.obj")
 # need to rotate it, and translate it so that joint 4 is in origin
 link4 = Rotate([link4],90,1,0,0)
 link4 = Rotate([link4],-90,0,1,0)
@@ -108,9 +119,6 @@ link4 = Translate([link4],1.85,0,14.25) #note: 14.25 as above, 1.85 = (9.2 - 5.5
 link4 = Rotate([link4],-90,1,0,0)
 link4 = HalRotate([link4],c,"joint3",1,1,0,0)
 
-# link 3, shoulder
-link3 = AsciiOBJ(filename="puma_link3.obj")
-puma_text = AsciiOBJ(filename="puma_text.obj")
 puma_text = Rotate([puma_text],180,0,0,1)
 puma_text = Translate([puma_text],9,1,4)
 puma_text = Color([0,0,1,1],[puma_text])
@@ -128,8 +136,6 @@ link3 = Translate([link3],0,0,17)
 link3 = Rotate([link3],-90,1,0,0)
 link3 = HalRotate([link3],c,"joint2",1,1,0,0)
 
-# link 2
-link2 = AsciiOBJ(filename="puma_link2.obj")
 link2 = Rotate([link2], -90,0,0,1)
 link2 = Rotate([link2], -90,0,1,0)
 link2 = Translate([link2], 11.2,0,0) #note: 11.2 = 4 + 7.2 (4 = distance from j1 to link2 side, 7.2 distance from j1 to j2)
@@ -142,7 +148,6 @@ link2 = HalRotate([link2],c,"joint1",1,0,0,1)
 #move link2 up
 link2 = Translate([link2], 0,0,23.45) #note: 23.45 = 26.45(drawing) - 3 (from j2 to J1 in Z)
 
-link1 = AsciiOBJ(filename="puma_link1.obj");
 link1 = Color([0.18,0.19,0.2,1],[link1])
 link1 = Rotate([link1], 180,0,0,1)
 
@@ -150,5 +155,4 @@ link1 = Rotate([link1], 180,0,0,1)
 puma = Collection([link2, link1])
 model = Collection([tooltip, puma, floor, work])
 
-
-main(model, tooltip, work,50)
+main(model, tooltip, work, size=50, lat=-65, lon=-45)

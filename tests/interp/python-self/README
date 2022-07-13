@@ -1,6 +1,6 @@
 Exercise the behaviour of 'self' in Interpreter Embedded Python.
 
-So far it wasnt possible to tack an attribute to self, and have it
+So far it wasn't possible to tack an attribute to self, and have it
 retained across several calls (basically using self.attr as extension
 of _setup on the Python side).
 

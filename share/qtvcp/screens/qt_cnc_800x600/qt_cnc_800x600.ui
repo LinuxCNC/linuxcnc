@@ -1,0 +1,1639 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>800</width>
+    <height>600</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>800</width>
+    <height>600</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">#centralwidget{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/bg_800x600.png) 0 0 0 0 stretch stretch;}</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <widget class="QFrame" name="frame_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>0</y>
+      <width>211</width>
+      <height>341</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QFrame{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QPushButton" name="button_estop">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>71</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>estop</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="button_machineon">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>10</y>
+       <width>71</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>machine 
+on</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="StateEnableGridLayout" name="state_enable_gridLayout_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>70</y>
+       <width>91</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="is_on_status" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="is_idle_status" stdset="0">
+      <bool>true</bool>
+     </property>
+     <widget class="QPushButton" name="button_home">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>93</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>home</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QSlider" name="rapid_slider">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>100</y>
+       <width>91</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="maximum">
+      <number>100</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>90</y>
+       <width>41</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Rapid</string>
+     </property>
+    </widget>
+    <widget class="QSlider" name="feed_slider">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>120</y>
+       <width>91</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="maximum">
+      <number>200</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+    <widget class="QSlider" name="jog_slider">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>140</y>
+       <width>91</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="maximum">
+      <number>60</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>110</y>
+       <width>41</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Feed</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_4">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>130</y>
+       <width>32</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Jog</string>
+     </property>
+    </widget>
+    <widget class="StateEnableGridLayout" name="state_enable_gridLayout_5">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>160</y>
+       <width>191</width>
+       <height>181</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QFrame{
+border-image: url(/home/chris/emc-dev/configs/sim/qtscreen/backgound_grey.png) 0 0 0 0 stretch stretch;}</string>
+     </property>
+     <property name="is_on_status" stdset="0">
+      <bool>true</bool>
+     </property>
+     <property name="is_idle_status" stdset="0">
+      <bool>true</bool>
+     </property>
+     <widget class="QFrame" name="button_frame">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>191</width>
+        <height>171</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QFrame{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0 0 0 0 stretch stretch;}</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QPushButton" name="jog_neg_z">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>110</y>
+         <width>51</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Z-</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="jog_pos_z">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>0</y>
+         <width>51</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Z+</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="jog_neg_y">
+       <property name="geometry">
+        <rect>
+         <x>70</x>
+         <y>100</y>
+         <width>41</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Y-</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="jog_pos_y">
+       <property name="geometry">
+        <rect>
+         <x>70</x>
+         <y>30</y>
+         <width>41</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Y+</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="jog_pos_x">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>60</y>
+         <width>41</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>X+</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="jog_neg_x">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>60</y>
+         <width>41</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>X-</string>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QFrame" name="frame">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>10</y>
+      <width>571</width>
+      <height>211</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">#frame{
+border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_blue.png) 0 0 0 0 stretch stretch;}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="DROLabel" name="drolabel">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>0</y>
+       <width>261</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(255, 255, 255);
+font: 75 40pt &quot;Bitstream Vera Sans Mono&quot;;</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="text">
+      <string>12.0000</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::AutoText</enum>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="DROLabel" name="drolabel_2">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>60</y>
+       <width>261</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">
+font: 75 40pt &quot;Bitstream Vera Sans Mono&quot;;
+color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="Qjoint_number" stdset="0">
+      <number>1</number>
+     </property>
+    </widget>
+    <widget class="DROLabel" name="drolabel_3">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>120</y>
+       <width>261</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">font: 75 40pt &quot;Bitstream Vera Sans Mono&quot;;
+color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="text">
+      <string>-0000.000</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="Qjoint_number" stdset="0">
+      <number>2</number>
+     </property>
+    </widget>
+    <widget class="GCodeGraphics" name="graphics">
+     <property name="geometry">
+      <rect>
+       <x>320</x>
+       <y>10</y>
+       <width>241</width>
+       <height>191</height>
+      </rect>
+     </property>
+     <property name="dro" stdset="0">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_18">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>0</y>
+       <width>72</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(255, 255, 255);
+font: 75 48pt &quot;Noto Sans&quot;;</string>
+     </property>
+     <property name="text">
+      <string>X</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_19">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>60</y>
+       <width>72</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(255, 255, 255);
+font: 75 48pt &quot;Noto Sans&quot;;</string>
+     </property>
+     <property name="text">
+      <string>Y</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_20">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>120</y>
+       <width>72</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(255, 255, 255);
+font: 75 48pt &quot;Noto Sans&quot;;</string>
+     </property>
+     <property name="text">
+      <string>Z</string>
+     </property>
+    </widget>
+    <widget class="StatusLabel" name="StatusLabel_7">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>170</y>
+       <width>191</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; font-weight:600; color:#ffff00;&quot;&gt;100.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::RichText</enum>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="textTemplate" stdset="0">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; font-weight:600; color:#ffff00;&quot;&gt;%3.1f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="feed_override_status" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="spindle_override_status" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="current_feedrate_status" stdset="0">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_11">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>170</y>
+       <width>111</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; font-weight:600; color:#ffffff;&quot;&gt;Velocity:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QLabel" name="label_5">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>390</y>
+      <width>81</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Machine On</string>
+    </property>
+   </widget>
+   <widget class="StateLED" name="state_led_2">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>390</y>
+      <width>31</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="diameter">
+     <number>15</number>
+    </property>
+    <property name="color">
+     <color>
+      <red>0</red>
+      <green>255</green>
+      <blue>0</blue>
+     </color>
+    </property>
+    <property name="flashing" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="is_on_status" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="is_idle_status" stdset="0">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>370</y>
+      <width>61</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Estop</string>
+    </property>
+   </widget>
+   <widget class="StateLED" name="state_led">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>370</y>
+      <width>31</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="diameter">
+     <number>20</number>
+    </property>
+    <property name="flashing" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="is_estopped_status" stdset="0">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>360</y>
+      <width>81</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Machine On</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>380</y>
+      <width>81</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Machine On</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_8">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>400</y>
+      <width>81</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Machine On</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_9">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>420</y>
+      <width>81</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Paused</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_10">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>440</y>
+      <width>121</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Homing Required</string>
+    </property>
+   </widget>
+   <widget class="StateLED" name="state_led_3">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>440</y>
+      <width>21</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="diameter">
+     <number>10</number>
+    </property>
+    <property name="flashing" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="invert_state_status" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="is_homed_status" stdset="0">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="StateLED" name="state_led_4">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>420</y>
+      <width>21</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="diameter">
+     <number>10</number>
+    </property>
+    <property name="flashing" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="is_paused_status" stdset="0">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="MDILine" name="mdi_line">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>550</y>
+      <width>211</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <italic>true</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+   </widget>
+   <widget class="StateEnableGridLayout" name="state_enable_gridLayout_3">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>490</y>
+      <width>91</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="is_on_status" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="is_idle_status" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="is_homed_status" stdset="0">
+     <bool>true</bool>
+    </property>
+    <widget class="QPushButton" name="button_run">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>30</y>
+       <width>93</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>run file</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="button_load">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>93</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>load file</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="StateEnableGridLayout" name="state_enable_gridLayout_4">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>440</y>
+      <width>91</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="is_on_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="is_idle_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="is_not_idle_status" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="is_homed_status" stdset="0">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="StateEnableGridLayout" name="state_enable_gridLayout_6">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>470</y>
+      <width>91</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="is_on_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="is_idle_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="is_not_idle_status" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="is_homed_status" stdset="0">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="StatusLabel" name="StatusLabel_6">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>510</y>
+      <width>251</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:36pt; color:#ffff00;&quot;&gt;100&lt;/span&gt;&lt;span style=&quot; font-size:36pt; color:#000000;&quot;&gt; RPM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::RichText</enum>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+    <property name="textTemplate" stdset="0">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:36pt; color:#ffff00;&quot;&gt;%d&lt;/span&gt;&lt;span style=&quot; font-size:36pt; color:#000000;&quot;&gt; RPM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="feed_override_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="spindle_override_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="requested_spindle_speed_status" stdset="0">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="StatusLabel" name="StatusLabel_5">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>470</y>
+      <width>61</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#ffff00;&quot;&gt;100.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::RichText</enum>
+    </property>
+    <property name="textTemplate" stdset="0">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#ffff00;&quot;&gt;%2.1f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="feed_override_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="spindle_override_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="jograte_status" stdset="0">
+     <bool>true</bool>
+    </property>
+    <property name="tool_number_status" stdset="0">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_13">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>480</y>
+      <width>72</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Jog Rate</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_14">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>480</y>
+      <width>61</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Jog Inc</string>
+    </property>
+   </widget>
+   <widget class="StatusLabel" name="StatusLabel_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>500</y>
+      <width>101</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::RichText</enum>
+    </property>
+    <property name="textTemplate" stdset="0">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;FO:&lt;/span&gt;  &lt;span style=&quot; font-weight:600; font-size:18pt; color:#ffff00;&quot;&gt;%3.f%%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
+   <widget class="StatusLabel" name="StatusLabel">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>500</y>
+      <width>101</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::RichText</enum>
+    </property>
+    <property name="textTemplate" stdset="0">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;RO:&lt;/span&gt;  &lt;span style=&quot; font-weight:600;font-size:18pt;  color:#ffff00;&quot;&gt;%3.f%%&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="feed_override_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="rapid_override_status" stdset="0">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="Line" name="line">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>500</y>
+      <width>241</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="StatusLabel" name="StatusLabel_8">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>490</y>
+      <width>51</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="midLineWidth">
+     <number>0</number>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ffff00;&quot;&gt;G100.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::RichText</enum>
+    </property>
+    <property name="textTemplate" stdset="0">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ffff00;&quot;&gt;G%s&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="feed_override_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="user_system_status" stdset="0">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="DROLabel" name="drolabel_z">
+    <property name="geometry">
+     <rect>
+      <x>380</x>
+      <y>480</y>
+      <width>131</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">
+color:rgb(0, 0, 0);
+font: 75 18pt &quot;Bitstream Vera Sans Mono&quot;;</string>
+    </property>
+    <property name="text">
+     <string>   0.5217</string>
+    </property>
+    <property name="textFormat">
+     <enum>Qt::PlainText</enum>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+    <property name="Qjoint_number" stdset="0">
+     <number>2</number>
+    </property>
+    <property name="Qreference_type" stdset="0">
+     <number>1</number>
+    </property>
+   </widget>
+   <widget class="DROLabel" name="drolabel_y">
+    <property name="geometry">
+     <rect>
+      <x>380</x>
+      <y>450</y>
+      <width>131</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color:rgb(0, 0, 0);
+font: 75 18pt &quot;Bitstream Vera Sans Mono&quot;;</string>
+    </property>
+    <property name="text">
+     <string>0.00000</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+    <property name="Qjoint_number" stdset="0">
+     <number>1</number>
+    </property>
+    <property name="Qreference_type" stdset="0">
+     <number>1</number>
+    </property>
+   </widget>
+   <widget class="DROLabel" name="drolabel_x">
+    <property name="geometry">
+     <rect>
+      <x>380</x>
+      <y>420</y>
+      <width>131</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color:rgb(0, 0, 0);
+font: 75 18pt &quot;Bitstream Vera Sans Mono&quot;;</string>
+    </property>
+    <property name="text">
+     <string>  -1.6994</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+    <property name="Qreference_type" stdset="0">
+     <number>1</number>
+    </property>
+   </widget>
+   <widget class="StatusLabel" name="StatusLabel">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>470</y>
+      <width>51</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#0000;&quot;&gt;Inch&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="true_textTemplate" stdset="0">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ffff00;&quot;&gt;MM&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="false_textTemplate" stdset="0">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#0000;&quot;&gt;Inch&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
+   <widget class="StatusLabel" name="StatusLabel_2">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>380</y>
+      <width>51</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="true_textTemplate" stdset="0">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ffff00;&quot;&gt;CSS&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="false_textTemplate" stdset="0">
+     <string/>
+    </property>
+    <property name="metric_mode_status" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="css_mode_status" stdset="0">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="button_pause">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>530</y>
+      <width>93</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>pause</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>500</y>
+      <width>93</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>stop </string>
+    </property>
+   </widget>
+   <widget class="GcodeEditor" name="gcode_editor">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>220</y>
+      <width>561</width>
+      <height>200</height>
+     </rect>
+    </property>
+   </widget>
+   <zorder>frame_2</zorder>
+   <zorder>frame</zorder>
+   <zorder>label_5</zorder>
+   <zorder>state_led_2</zorder>
+   <zorder>label_3</zorder>
+   <zorder>state_led</zorder>
+   <zorder>label_6</zorder>
+   <zorder>label_7</zorder>
+   <zorder>label_8</zorder>
+   <zorder>label_9</zorder>
+   <zorder>label_10</zorder>
+   <zorder>state_led_3</zorder>
+   <zorder>state_led_4</zorder>
+   <zorder>mdi_line</zorder>
+   <zorder>state_enable_gridLayout_3</zorder>
+   <zorder>state_enable_gridLayout_4</zorder>
+   <zorder>state_enable_gridLayout_6</zorder>
+   <zorder>StatusLabel_6</zorder>
+   <zorder>StatusLabel_5</zorder>
+   <zorder>label_13</zorder>
+   <zorder>label_14</zorder>
+   <zorder>StatusLabel_2</zorder>
+   <zorder>StatusLabel</zorder>
+   <zorder>line</zorder>
+   <zorder>StatusLabel_8</zorder>
+   <zorder>drolabel_z</zorder>
+   <zorder>drolabel_y</zorder>
+   <zorder>drolabel_x</zorder>
+   <zorder>StatusLabel</zorder>
+   <zorder>StatusLabel_2</zorder>
+   <zorder>button_pause</zorder>
+   <zorder>pushButton</zorder>
+   <zorder>button_pause</zorder>
+   <zorder>pushButton</zorder>
+   <zorder>gcode_editor</zorder>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>GCodeGraphics</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.gcode_graphics</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>MDILine</class>
+   <extends>QLineEdit</extends>
+   <header>qtvcp.widgets.mdi_line</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>LED</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.led_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>StateLED</class>
+   <extends>LED</extends>
+   <header>qtvcp.widgets.state_led</header>
+  </customwidget>
+  <customwidget>
+   <class>StateEnableGridLayout</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.container_widgets</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>StatusLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.status_label</header>
+  </customwidget>
+  <customwidget>
+   <class>DROLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.dro_widget</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>GcodeEditor</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.gcode_editor</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>button_estop</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>estop_toggled()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>69</x>
+     <y>15</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>243</x>
+     <y>6</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>button_machineon</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>machineon_toggled()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>139</x>
+     <y>35</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>475</x>
+     <y>8</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>button_home</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>home_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>108</x>
+     <y>79</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>398</x>
+     <y>15</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>button_load</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>loadfile_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>700</x>
+     <y>385</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>670</x>
+     <y>375</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>button_run</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>runfile_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>735</x>
+     <y>418</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>668</x>
+     <y>416</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>stopfile_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>741</x>
+     <y>456</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>671</x>
+     <y>448</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>button_pause</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>pausefile_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>709</x>
+     <y>483</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>667</x>
+     <y>483</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_pos_z</sender>
+   <signal>pressed()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>jog_pressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>185</x>
+     <y>184</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>228</x>
+     <y>140</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_pos_z</sender>
+   <signal>released()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>jog_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>165</x>
+     <y>170</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>226</x>
+     <y>131</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_neg_z</sender>
+   <signal>pressed()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>jog_pressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>62</x>
+     <y>294</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>229</x>
+     <y>308</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_neg_z</sender>
+   <signal>released()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>jog_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>64</x>
+     <y>291</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>233</x>
+     <y>288</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>change_jograte()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>59</x>
+     <y>144</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>227</x>
+     <y>92</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>feed_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>change_feedrate()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>70</x>
+     <y>128</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>225</x>
+     <y>68</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rapid_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>change_rapidrate()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>65</x>
+     <y>106</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>229</x>
+     <y>33</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_pos_y</sender>
+   <signal>pressed()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>jog_pressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>116</x>
+     <y>209</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>222</x>
+     <y>169</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_pos_y</sender>
+   <signal>released()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>jog_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>102</x>
+     <y>202</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>227</x>
+     <y>195</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_neg_y</sender>
+   <signal>pressed()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>jog_pressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>119</x>
+     <y>275</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>232</x>
+     <y>223</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_neg_y</sender>
+   <signal>released()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>jog_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>101</x>
+     <y>276</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>229</x>
+     <y>253</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_neg_x</sender>
+   <signal>pressed()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>jog_pressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>190</x>
+     <y>246</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>226</x>
+     <y>346</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_neg_x</sender>
+   <signal>released()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>jog_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>166</x>
+     <y>233</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>212</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_pos_x</sender>
+   <signal>pressed()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>jog_pressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>47</x>
+     <y>231</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>25</x>
+     <y>347</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>jog_pos_x</sender>
+   <signal>released()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>jog_released()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>49</x>
+     <y>236</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>52</x>
+     <y>352</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>estop_toggled()</slot>
+  <slot>machineon_toggled()</slot>
+  <slot>home_clicked()</slot>
+  <slot>loadfile_clicked()</slot>
+  <slot>runfile_clicked()</slot>
+  <slot>stopfile_clicked()</slot>
+  <slot>pausefile_clicked()</slot>
+  <slot>jog_pressed()</slot>
+  <slot>jog_released()</slot>
+  <slot>change_jograte()</slot>
+  <slot>change_feedrate()</slot>
+  <slot>change_rapidrate()</slot>
+ </slots>
+</ui>

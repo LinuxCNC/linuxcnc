@@ -1,0 +1,143 @@
+//
+// Copyright (C) 2020  Damian Wrobel <dwrobel@ertelnet.rybnik.pl>
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 2 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+
+component filter_kalman "Unidimensional Kalman filter, also known as linear quadratic estimation (LQE)";
+license "GPL-2.0-or-later";
+author "Dmian Wrobel <dwrobel@ertelnet.rybnik.pl>";
+
+description
+"""
+Useful for reducing input signal noise (e.g. from the voltage or temperature sensor).
+
+More information can be found at https://en.wikipedia.org/wiki/Kalman_filter.
+
+Adjusting \\fBQr\\fR and \\fBQk\\fR covariances:
+
+Default values of \\fBRk\\fR and \\fBQk\\fR are given for informational purpose only. The nature of the
+filter requires the parameters to be individually computed.
+
+One of the possible and quite practical method (probably far from being the best) of
+estimating the \\fBRk\\fR covariance is to collect the raw data from the sensor by
+either asserting the \\fBdebug\\fR pin or using \\fBhalscope\\fR and then compute the covariance
+using \\fBcov()\\fR function from \\fBOctave\\fR package. Ready to use script can be found at
+https://github.com/dwrobel/TrivialKalmanFilter/blob/master/examples/DS18B20Test/covariance.m.
+
+Adjusting \\fBQk\\fR covariance mostly depends on the required response time of the filter.
+There is a relationship between \\fBQk\\fR and response time of the filter that the lower
+the \\fBQk\\fR covariance is the slower the response of the filter is.
+
+Common practice is also to conservatively set \\fBRk\\fR and \\fBQk\\fR slightly larger then computed
+ones to get robustness.
+""";
+
+pin    in   bit  debug = FALSE             "When asserted, prints out measured and estimated values.";
+pin    in   bit  passthrough = FALSE       "When asserted, copies measured value into estimated value.";
+pin    in   bit  reset = FALSE
+"""When asserted, resets filter to its initial state and returns 0 as an estimated value (\\fBreset\\fR pin
+has higher priority than \\fBpassthrough\\fR pin).""";
+pin    in float     zk                     "Measured value.";
+pin   out float xk_out                     "Estimated value.";
+param  rw float     Rk = 1.17549e-38       "Estimation of the noise covariances (process).";
+param  rw float     Qk = 1.17549e-38       "Estimation of the noise covariances (observation).";
+
+option extra_setup yes;
+
+function _ "Update \\fBxk-out\\fR based on \\fBzk\\fR input.";
+
+variable float xk_last;
+variable float Pk_last;
+
+variable bool initialized = FALSE;
+variable int cidx = 0;
+
+;;
+#include <rtapi_math.h>
+
+typedef hal_float_t D; // to Keep code synchronized with C++ based TrivialKalmanFilter implementation.
+
+// Based on: https://github.com/dwrobel/TrivialKalmanFilter/blob/master/src/TrivialKalmanFilter.h
+// Assumes simplified model
+static const D k    = 1;
+static const D Bk   = 0;
+static const D uk   = 0;
+static const D Fk   = 1;
+static const D T    = 1;
+static const D Fk_T = 1; // pow(Fk, T);
+static const D Hk   = 1;
+static const D Hk_T = 1; // pow(Hk, T);
+static const D I    = 1;
+
+static void print_info(const int id, const D in_val, const D out_val) {
+    // TODO: add support for using component names when they will be more easily available.
+    rtapi_print_msg(RTAPI_MSG_ERR, "filter-kalman.%d %f %f\n", id, in_val, out_val);
+}
+
+EXTRA_SETUP() {
+    cidx = extra_arg; // Let us hope 'extra_arg' will forever contain component index.
+    return 0;
+}
+
+FUNCTION(_) {
+    if (reset || !initialized) {
+        xk_last      = 0;
+        Pk_last      = 1;
+
+        initialized = TRUE;
+
+        if (reset) {
+            xk_out = 0;
+
+            if (debug) {
+                print_info(cidx, zk, xk_out);
+            }
+
+            return;
+        }
+    }
+
+    if (passthrough) {
+        xk_out = zk;
+
+        if (debug) {
+            print_info(cidx, zk, xk_out);
+        }
+
+        return;
+    }
+
+    {
+        D xk       = (Fk * xk_last) + (Bk * uk); // Predicted (a priori) state estimate
+        D Pk       = (Fk * Pk_last * Fk_T) + Qk; // Predicted (a priori) error covariance
+        D yk       = zk - (Hk * xk);             // Innovation or measurement pre-fit residual
+        const D Sk = Rk + (Hk * Pk * Hk_T);      // Innovation (or pre-fit residual) covariance
+        const D Kk = (Pk * Hk_T) / Sk;           // Optimal Kalman gain
+        xk         = xk + (Kk * yk);             // Updated (a posteriori) state estimate
+        Pk         = (I - (Kk * Hk)) * Pk;       // Updated (a posteriori) estimate covariance (a.k.a Joseph form)
+
+#       if 0                                     // unused part
+            yk     = zk - (Hk_T * xk);           // Measurement post-fit residual
+#       endif
+
+        xk_last    = xk;
+        Pk_last    = Pk;
+        xk_out     = xk;
+
+        if (debug) {
+            print_info(cidx, zk, xk_out);
+        }
+    }
+}

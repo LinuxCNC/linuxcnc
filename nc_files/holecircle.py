@@ -62,7 +62,7 @@ def ui():
         g = Tkinter.Frame(f)
         w = Tkinter.Checkbutton(g, variable=var, text="Yes")
         w.pack(side="left")
-        return g, var 
+        return g, var
 
     def intscale(k, v, min=1, max = 100):
         var = Tkinter.IntVar(f)
@@ -88,7 +88,7 @@ def ui():
             v = 0
             opt = options[0]
 
-        var = Tkinter.IntVar(f)    
+        var = Tkinter.IntVar(f)
         var.set(v)
         svar = Tkinter.StringVar(f)
         svar.set(options[v])
@@ -106,42 +106,42 @@ def ui():
         ("units", lambda f, v: optionmenu(f, v, _("G20 (in)"), _("G21 (mm)"))),
         ("cx", floatentry),
         ("cy", floatentry),
-	("th0", floatentry),
-	("inc", floatentry),
-	("rad", posfloatentry),
-	("count", posintentry),
-	("feedrate", posfloatentry),
-	("depth", floatentry),
-	("dwell", posfloatentry),
-	("retract", floatentry),
+        ("th0", floatentry),
+        ("inc", floatentry),
+        ("rad", posfloatentry),
+        ("count", posintentry),
+        ("feedrate", posfloatentry),
+        ("depth", floatentry),
+        ("dwell", posfloatentry),
+        ("retract", floatentry),
     ]
 
     defaults = dict(
-	cx = 0,
-	cy = 0,
-	th0 = 0,
-	inc = 15,
-	count = 6,
-	feedrate = 8,
-	depth=-.1,
-	retract=.1,
-	units=0,
-	dwell=0,
-	rad=1
+        cx = 0,
+        cy = 0,
+        th0 = 0,
+        inc = 15,
+        count = 6,
+        feedrate = 8,
+        depth=-.1,
+        retract=.1,
+        units=0,
+        dwell=0,
+        rad=1
     )
 
     texts = dict(
         units=_("Units"),
-	rad=_("Radius"),
-	cx=_("Center X"),
-	cy=_("Center Y"),
-	th0=_("Start Angle"),
-	inc=_("Increment Angle"),
-	count=_("Hole Count"),
-	feedrate=_("Feed Rate"),
-	depth=_("Hole Depth"),
-	retract=_("Retract Height"),
-	dwell=("Dwell (0=no dwell)"),
+        rad=_("Radius"),
+        cx=_("Center X"),
+        cy=_("Center Y"),
+        th0=_("Start Angle"),
+        inc=_("Increment Angle"),
+        count=_("Hole Count"),
+        feedrate=_("Feed Rate"),
+        depth=_("Hole Depth"),
+        retract=_("Retract Height"),
+        dwell=("Dwell (0=no dwell)"),
     )
 
     try:
@@ -159,32 +159,32 @@ def ui():
         widgets[k].grid(row=j, column=1, sticky="ew")
 
     def update_preview(*args):
-	prev.delete("all")
-	try:
-	    count = vars['count'].get()
-	    th0 = vars['th0'].get()
-	    inc = vars['inc'].get()
-	except ValueError: return
-	for i in range(count):
-	    th = (th0 + i * inc) * math.pi / 180
-	    x = 100 + 75 * math.cos(th)
-	    y = 100 - 75 * math.sin(th)
-	    prev.create_oval((x-4,y-4,x+4,y+4), fill='black')
+        prev.delete("all")
+        try:
+            count = vars['count'].get()
+            th0 = vars['th0'].get()
+            inc = vars['inc'].get()
+        except ValueError: return
+        for i in range(count):
+            th = (th0 + i * inc) * math.pi / 180
+            x = 100 + 75 * math.cos(th)
+            y = 100 - 75 * math.sin(th)
+            prev.create_oval((x-4,y-4,x+4,y+4), fill='black')
 
     def update_ok(*args):
-	result = True
-	for i in vars.values():
-	    try:
-		i.get()
-	    except ValueError:
-		result = False
-		break
-	if result: bb.configure(state="normal")
-	else: bb.configure(state="disabled")
-	# This line creates an error when you load holecircle twice
-	# from inside linuxcnc eg. gladevcp filechooser or AXIS GUI
-	#print >>sys.stderr, "update_ok", args
-    
+        result = True
+        for i in vars.values():
+            try:
+                i.get()
+            except ValueError:
+                result = False
+                break
+        if result: bb.configure(state="normal")
+        else: bb.configure(state="disabled")
+        # This line creates an error when you load holecircle twice
+        # from inside linuxcnc eg. gladevcp filechooser or AXIS GUI
+        #print(("update_ok", args), file=sys.stderr)
+
     vars['count'].trace('w', update_preview)
     vars['inc'].trace('w', update_preview)
     vars['th0'].trace('w', update_preview)
@@ -198,7 +198,7 @@ def ui():
     bb.pack(side="left", padx=4, pady=4)
     bc = Tkinter.Button(b, text=_("Cancel"), command=lambda:status.set(-1), width=8, default="normal")
     bc.pack(side="left", padx=4, pady=4)
-    
+
     app.bind("<Escape>", lambda evt: bc.invoke())
     app.bind("<Return>", lambda evt: bb.invoke())
     app.wm_protocol("WM_DELETE_WINDOW", lambda: bc.invoke())
@@ -210,7 +210,7 @@ def ui():
     app.wait_variable(status)
 
     if status.get() == -1:
-	raise SystemExit(1)
+        raise SystemExit(1)
 
     for k, v in vars.items():
         defaults[k] = v.get()
@@ -223,8 +223,8 @@ def ui():
 
 unitcodes = ['G20', 'G21']
 u = ui()
-print unitcodes[u['units']]
-print "F%.1f" % u['feedrate']
+print(unitcodes[u['units']])
+print("F%.1f" % u['feedrate'])
 
 count = u['count']
 th0 = u['th0']
@@ -241,5 +241,5 @@ for i in range(count):
     th = (th0 + i * inc) * math.pi / 180
     x = cx + rad * math.cos(th)
     y = cy + rad * math.sin(th)
-    print "%s X% 8.4f Y% 8.4f Z% 8.4f R% 8.4f" % (cycle, x, y, depth, retract)
-print "M2"
+    print("%s X% 8.4f Y% 8.4f Z% 8.4f R% 8.4f" % (cycle, x, y, depth, retract))
+print("M2")

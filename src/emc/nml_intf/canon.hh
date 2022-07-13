@@ -20,6 +20,7 @@
 #include "emctool.h"
 #include "canon_position.hh"
 #include "emcmotcfg.h" // Just for EMCMOT_NUM_SPINDLES
+#include "modal_state.hh"
 
 /*
   This is the header file that all applications that use the
@@ -41,81 +42,83 @@
   ZX-plane of the machine.
 */
 
-#define OFF 0
-#define ON 1
+enum CanonBool {
+    OFF,
+    ON
+};
 
-typedef struct {          /* type for NURBS control points */
-      double X,                     
-             Y,
-             W;
-      } CONTROL_POINT;
+struct CONTROL_POINT {          /* type for NURBS control points */
+    double X,
+    Y,
+    W;
+};
 
-typedef struct {
-      double X,
-	     Y;
-      } PLANE_POINT;		
+struct PLANE_POINT
+{
+    double X,
+    Y;
+};
 
 
-typedef int CANON_PLANE;
-#define CANON_PLANE_XY 1
-#define CANON_PLANE_YZ 2
-#define CANON_PLANE_XZ 3
-#define CANON_PLANE_UV 4
-#define CANON_PLANE_VW 5
-#define CANON_PLANE_UW 6
+enum CANON_PLANE
+{
+    CANON_PLANE_XY = 1,
+    CANON_PLANE_YZ,
+    CANON_PLANE_XZ,
+    CANON_PLANE_UV,
+    CANON_PLANE_VW,
+    CANON_PLANE_UW,
+};
 
-typedef int CANON_UNITS;
-#define CANON_UNITS_INCHES 1
-#define CANON_UNITS_MM 2
-#define CANON_UNITS_CM 3
+enum CANON_UNITS
+{
+    CANON_UNITS_INCHES = 1,
+    CANON_UNITS_MM,
+    CANON_UNITS_CM,
+};
 
-typedef int CANON_MOTION_MODE;
-#define CANON_EXACT_STOP 1
-#define CANON_EXACT_PATH 2
-#define CANON_CONTINUOUS 3
+enum CANON_MOTION_MODE
+{
+    CANON_EXACT_STOP = 1,
+    CANON_EXACT_PATH,
+    CANON_CONTINUOUS,
+};
 
-typedef int CANON_SPEED_FEED_MODE;
-#define CANON_SYNCHED 1
-#define CANON_INDEPENDENT 2
+enum CANON_SPEED_FEED_MODE {
+    CANON_SYNCHED = 1,
+    CANON_INDEPENDENT,
+};
 
-typedef int CANON_DIRECTION;
-#define CANON_STOPPED 1
-#define CANON_CLOCKWISE 2
-#define CANON_COUNTERCLOCKWISE 3
+enum CANON_DIRECTION {
+    CANON_STOPPED = 1,
+    CANON_CLOCKWISE,
+    CANON_COUNTERCLOCKWISE,
+};
 
-typedef int CANON_FEED_REFERENCE;
-#define CANON_WORKPIECE 1
-#define CANON_XYZ 2
+enum CANON_FEED_REFERENCE {
+    CANON_WORKPIECE = 1,
+    CANON_XYZ,
+};
 
-typedef int CANON_SIDE;
-#define CANON_SIDE_RIGHT 1
-#define CANON_SIDE_LEFT 2
-#define CANON_SIDE_OFF 3
+enum CANON_SIDE
+{
+    CANON_SIDE_RIGHT = 1,
+    CANON_SIDE_LEFT,
+    CANON_SIDE_OFF,
+};
 
-typedef int CANON_AXIS;
-#define CANON_AXIS_X 1
-#define CANON_AXIS_Y 2
-#define CANON_AXIS_Z 3
-#define CANON_AXIS_A 4
-#define CANON_AXIS_B 5
-#define CANON_AXIS_C 6
-#define CANON_AXIS_U 7
-#define CANON_AXIS_V 8
-#define CANON_AXIS_W 9
-
-/* Currently using the typedefs above rather than the enums below
-typedef enum {CANON_PLANE_XY, CANON_PLANE_YZ, CANON_PLANE_XZ} CANON_PLANE;
-typedef enum {CANON_UNITS_INCHES, CANON_UNITS_MM, CANON_UNITS_CM} CANON_UNITS;
-typedef enum {CANON_EXACT_STOP, CANON_EXACT_PATH, CANON_CONTINUOUS}
-             CANON_MOTION_MODE;
-typedef enum {CANON_SYNCHED, CANON_INDEPENDENT} CANON_SPEED_FEED_MODE;
-typedef enum {CANON_STOPPED, CANON_CLOCKWISE, CANON_COUNTERCLOCKWISE}
-             CANON_DIRECTION;
-typedef enum {CANON_WORKPIECE, CANON_XYZ} CANON_FEED_REFERENCE;
-typedef enum {CANON_SIDE_RIGHT, CANON_SIDE_LEFT, CANON_SIDE_OFF} CANON_SIDE;
-typedef enum {CANON_AXIS_X, CANON_AXIS_Y, CANON_AXIS_Z, CANON_AXIS_A,
-              CANON_AXIS_B, CANON_AXIS_C} CANON_AXIS;
-*/
+enum CANON_AXIS
+{
+    CANON_AXIS_X = 1,
+    CANON_AXIS_Y,
+    CANON_AXIS_Z,
+    CANON_AXIS_A,
+    CANON_AXIS_B,
+    CANON_AXIS_C,
+    CANON_AXIS_U,
+    CANON_AXIS_V,
+    CANON_AXIS_W,
+};
 
 struct CANON_VECTOR {
     CANON_VECTOR() {
@@ -210,9 +213,9 @@ extern void SET_G92_OFFSET(double x, double y, double z,
 extern void SET_XY_ROTATION(double t);
 
 /* Offset the origin to the point with absolute coordinates x, y, z,
-a, b, and c. Values of x, y, z, a, b, and c are real numbers. The units
-are whatever length units are being used at the time this command is
-given. */
+a, b, c, u, v, and w. Values of x, y, z, a, b, c, u, v, and w are real 
+numbers. The units are whatever length units are being used at the time 
+this command is given. */
 
 extern void CANON_UPDATE_END_POINT(double x, double y, double z, 
 				   double a, double b, double c,
@@ -241,7 +244,7 @@ made. */
 
 extern void STRAIGHT_TRAVERSE(int lineno,
                               double x, double y, double z,
-			      double a, double b, double c,
+                              double a, double b, double c,
                               double u, double v, double w);
 /*
 
@@ -284,13 +287,22 @@ workpiece.
 
 2. If the feed_reference mode is CANON_XYZ:
 A. For motion including one rotational axis only: degrees per minute.
-B. For motion including two rotational axes only: degrees per minute
-   In this case, the rate applies to the axis with the larger angle
-   to cover, and the second rotational axis rotates so that it has
-   always completed the same proportion of its required motion as has
-   the rotational axis to which the feed rate applies.
-C. For motion involving one or more of the XYZ axes (with or without
-   simultaneous rotational axis motion): length units (inches or
+B. For motion of two or three rotational axes with X, Y, Z, U, V, and W 
+   axes not moving, the rate is applied as follows. Let dA, dB, and dC 
+   be the angles in degrees through which the A, B, and C axes, 
+   respectively, must move. Let D = sqrt(dA*dA + dB*dB + dC*dC). 
+   Conceptually, D is a measure of total angular motion, using the usual 
+   Euclidean metric. Let T be the amount of time required to move through 
+   D degrees at the current feed rate in degrees per minute. The 
+   rotational axes should be moved in coordinated linear motion so that 
+   the elapsed time from the start to the end of the motion is T plus any 
+   time required for acceleration or deceleration.
+C. For motion of secondary linear axes (U, V, and/or W) with X, Y, and Z 
+   axes not moving (with or without simultaneous rotational axis motion): 
+   length units (inches or millimeters according to the setting of 
+   CANON_UNITS) per minute in the UVW cartesian system.
+D. For motion involving one or more of the XYZ axes (with or without
+   simultaneous motion of other axes): length units (inches or
    millimeters according to the setting of CANON_UNITS) per minute
    along the programmed XYZ path.
 
@@ -580,11 +592,12 @@ a change_tool command, the select_tool command must have been given
 before the change_tool command, and the value of slot must be the slot
 number of the selected tool. */
 
-extern void SELECT_POCKET(int pocket, int tool);	/* pocket is pocket number, tool is tool number */
+extern void SELECT_TOOL(int tool);
 
 extern void CHANGE_TOOL_NUMBER(int number);
+extern void RELOAD_TOOLDATA(void);
 
-/* In extention to the comment above - for CHANGE_TOOL, sometimes on 
+/* In extension to the comment above - for CHANGE_TOOL, sometimes on 
 startup one would want to tell emc2 what tool it has loaded. As the last
 toolnumber before shutdown isn't currently written, there is no provision
 to allow emc2 to safely restart knowing what tool is in the spindle.
@@ -791,6 +804,9 @@ extern CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE();
 // Returns the current motion path-following tolerance
 extern double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
 
+// Returns the current motion naive CAM tolerance
+extern double GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
+
 /* The interpreter is not using these six GET_EXTERNAL_ORIGIN functions
 
 // returns the current a-axis origin offset
@@ -817,6 +833,8 @@ extern double GET_EXTERNAL_ORIGIN_Z();
 // the filename array, stopping at max_size if the name is longer
 // An empty string may be placed in filename.
 extern void GET_EXTERNAL_PARAMETER_FILE_NAME(char *filename, int max_size);
+
+extern void SET_PARAMETER_FILE_NAME(const char *name);
 
 // returns the currently active plane
 extern CANON_PLANE GET_EXTERNAL_PLANE();
@@ -888,9 +906,6 @@ extern double GET_EXTERNAL_TOOL_LENGTH_UOFFSET();
 extern double GET_EXTERNAL_TOOL_LENGTH_VOFFSET();
 extern double GET_EXTERNAL_TOOL_LENGTH_WOFFSET();
 
-// Returns number of slots in carousel
-extern int GET_EXTERNAL_POCKETS_MAX();
-
 // Returns the system value for the carousel slot in which the tool
 // currently in the spindle belongs. Return value zero means there is no
 // tool in the spindle.
@@ -933,10 +948,7 @@ extern double GET_EXTERNAL_ANALOG_INPUT(int index, double def);
 // Returns the mask of axes present in the system
 extern int GET_EXTERNAL_AXIS_MASK();
 
-extern FILE *_outfile;		/* where to print, set in main */
-extern CANON_TOOL_TABLE _tools[];	/* in canon.cc */
-extern int _pockets_max;		/* in canon.cc */
-extern char _parameter_file_name[];	/* in canon.cc */
+
 #define PARAMETER_FILE_NAME_LENGTH 100
 
 #define USER_DEFINED_FUNCTION_NUM 100
@@ -951,6 +963,10 @@ extern int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func,
  * last segment to be output, if it has been held to do segment merging */
 extern void FINISH(void);
 
+// to be called when there is an abort, to dump the last segment instead of adding
+// it to the interp list in certain cases
+extern void ON_RESET(void);
+
 // expose CANON_ERROR
 extern void CANON_ERROR(const char *fmt, ...) __attribute__((format(printf,1,2)));
 
@@ -960,5 +976,8 @@ extern void PLUGIN_CALL(int len, const char *call);
 
 // same for IoTask context
 extern void IO_PLUGIN_CALL(int len, const char *call);
+extern int     GET_EXTERNAL_OFFSET_APPLIED();
+extern EmcPose GET_EXTERNAL_OFFSETS();
+extern void UPDATE_TAG(StateTag tag);
 
 #endif				/* ifndef CANON_HH */

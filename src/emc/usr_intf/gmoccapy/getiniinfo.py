@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 '''
     This class is used to get information from a config.ini file,
-    It will return cleared informations, so the checks for valid values 
+    It will return cleared information, so the checks for valid values 
     is away from the GUI code
 
     Copyright 2014 Norbert Schechner
@@ -26,6 +26,7 @@
 
 from linuxcnc import ini
 import os
+import operator
 
 CONFIGPATH = os.environ['CONFIG_DIR']
 
@@ -50,9 +51,7 @@ class GetIniInfo:
             return 150
 
     def get_postgui_halfile(self):
-        postgui_halfile = self.inifile.find("HAL", "POSTGUI_HALFILE")
-        if not postgui_halfile:
-            postgui_halfile = None
+        postgui_halfile = self.inifile.findall("HAL", "POSTGUI_HALFILE") or None
         return postgui_halfile
 
     def get_preference_file_path(self):
@@ -93,39 +92,36 @@ class GetIniInfo:
             if axisletter in axis_list:
                 continue
             axis_list.append(axisletter)
+
+        # to much axes given, can only handle 9
+        if len(axis_list) > 9:
+            message = _("**** GMOCCAPY GETINIINFO : ****")
+            message += _("**** gmoccapy can only handle 9 axis, ****\n**** but you have given {0} through your INI file ****\n").format(len(axis_list))
+            message += _("**** gmoccapy will not start ****\n\n")
+            print(message)
+            #dialogs.warning_dialog(self, _("Very critical situation"), message, sound = False)
+            sys.exit()
+
         return axis_list
 
     def get_joint_axis_relation(self):
         # we will find out the relation between joint and axis.
-        # first we look if the kinematics module will be loaded with the coordinates parameter
         temp = self.inifile.find("KINS", "KINEMATICS").split()
-        print("found kinematics module", temp)
-
-        if temp[0].lower() != "trivkins":
-            print("\n**** GMOCCAPY GETINIINFO **** \n[KINS] KINEMATICS is not trivkins")
-            print("Will use mode to switch between Joints and World mode")
-            print("hopefully supported by the used <<%s>> module\n"%temp[0])
-            return None
 
         # follow the order given in $ man trivkins
-        # Joint numbers are assigned sequentialy according to  the  axis  letters
-        # specified with the coordinates= parameter.
+        # Joint numbers are assigned sequentially according to  the  axis  letters
+        # specified with the coordinates parameter.
         #
-        # If the coordinates= parameter is omitted, joint numbers are assigned
+        # If the coordinates parameter is omitted, joint numbers are assigned
         # sequentially to every known axis letter ("xyzabcuvw").
 
         joint_axis_dic = {}
         coordinates = None
         for entry in temp:
-            print("Entry =", entry )
+            print("Entry = {0}".format(entry))
             if "coordinates" in entry.lower():
                 coordinates = entry.split("=")[1].lower()
-                print("found the following coordinates", coordinates )
-            if "kinstype" in entry.lower():
-                print ("found kinstype", entry.split("=")[1])
-                # we will not take care of this one, because linuxcnc will take
-                # care about the differences between KINEMATICS_IDENTITY and others
-                # a additional check is done on some places within the gmoccapy code
+                print("found the following coordinates {0}".format(coordinates))
 
         if not coordinates:
             print("no coordinates found in [KINS] KINEMATICS, we will use order from")
@@ -134,8 +130,9 @@ class GetIniInfo:
 
         # at this point we should have the coordinates of the config, we will check if the amount of
         # coordinates does match the [KINS] JOINTS part
-        print("Number of joints = ", self.get_joints())
-        print("%s COORDINATES found = %s" %(len(coordinates), coordinates))
+        print("\n**** GMOCCAPY GETINIINFO **** ")
+        print("Number of joints = {0}".format(self.get_joints()))
+        print("{0} COORDINATES found = {1}".format(len(coordinates), coordinates))
 
         # let us check if there are double letters, as that would be a gantry machine
         double_axis_letter = []
@@ -144,16 +141,19 @@ class GetIniInfo:
                 # OK we have a special case here, we need to take care off
                 # i.e. a Gantry XYYZ config
                 double_axis_letter.append(axisletter)
-                print("Fount double letter ", double_axis_letter)
+                print("Found double letter ", double_axis_letter)
 
         if self.get_joints() == len(coordinates):
-            count = 0
+            prev_double_axis_leter = ""
             for joint, axisletter in enumerate(coordinates):
                 if axisletter in double_axis_letter:
+                    if axisletter != prev_double_axis_leter:
+                        count = 0
+                        prev_double_axis_leter = axisletter
                     axisletter = axisletter + str(count)
                     count += 1
-                joint_axis_dic[axisletter] = joint
-                print("axis %s = joint %s" %(axisletter, joint_axis_dic[axisletter]))
+                joint_axis_dic[joint] = axisletter
+                print("joint {0} = axis {1}".format(joint, joint_axis_dic[joint]))
         else:
             print("\n**** GMOCCAPY GETINIINFO **** ")
             print("Amount of joints from [KINS]JOINTS= is not identical with axisletters")
@@ -166,9 +166,33 @@ class GetIniInfo:
             print("to switch to MDI or AUTO Mode\n")
             for joint, axisletter in enumerate(["x", "y", "z", "a", "b", "c", "u", "v", "w"]):
                 if axisletter in coordinates:
-                    joint_axis_dic[axisletter] = joint
+                    joint_axis_dic[joint] = axisletter
+        print(joint_axis_dic)
+        #return sorted(joint_axis_dic, key=joint_axis_dic.get, reverse=False)
+        return joint_axis_dic, double_axis_letter
 
-        return joint_axis_dic
+    def get_trivial_kinematics(self):
+        temp = self.inifile.find("KINS", "KINEMATICS").split()
+        print("\n**** GMOCCAPY GETINIINFO **** \n")
+        print("[KINS] KINESTYPE is {0}".format(temp[0]))
+
+        if temp[0].lower() == "trivkins":
+            for element in temp:
+                if "BOTH" in element.upper():
+                    print("Found kinstype=BOTH but using trivkins")
+                    print("It is not recommended to do so!")
+                    print("Will use mode to switch between Joints and World mode")
+                    print("hopefully supported by the used <<{0}>> module\n".format(temp[0]))
+                    return False
+            return True
+        else:
+            print("Will use mode to switch between Joints and World mode")
+            print("hopefully supported by the used <<{0}>> module\n".format(temp[0]))
+            # I.e.
+            # pumakins = 6 axis XYZABC
+            # scarakins = 4 axis XYZA
+            # genhexkins = 6 axis XYZABC
+            return False
 
     def get_no_force_homing(self):
         temp = self.inifile.find("TRAJ", "NO_FORCE_HOMING")
@@ -205,7 +229,7 @@ class GetIniInfo:
 
     def get_jog_vel(self):
         # get default jog velocity
-        # must convert from INI's units per second to gscreen's units per minute
+        # must convert from INI's units per second to gmoccapy's units per minute
         temp = self.inifile.find("TRAJ", "DEFAULT_LINEAR_VELOCITY")
         if not temp:
             temp = self.inifile.find("TRAJ", "MAX_LINEAR_VELOCITY" )
@@ -219,12 +243,36 @@ class GetIniInfo:
 
     def get_max_jog_vel(self):
         # get max jog velocity
-        # must convert from INI's units per second to gscreen's units per minute
+        # must convert from INI's units per second to gmoccapy's units per minute
         temp = self.inifile.find("TRAJ", "MAX_LINEAR_VELOCITY")
         if not temp:
             temp = 10.0
             print("**** GMOCCAPY GETINIINFO **** \nNo MAX_LINEAR_VELOCITY entry found in [TRAJ] of INI file\nUsing default value of 600 units / min")
         return float(temp) * 60
+
+    def get_default_ang_jog_vel(self):
+        # get default angular jog velocity
+        temp = self.inifile.find("DISPLAY", "DEFAULT_ANGULAR_VELOCITY")
+        if not temp:
+            temp = 360.0
+            print("**** GMOCCAPY GETINIINFO **** \nNo DEFAULT_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file\nUsing default value of 360 degree / min")
+        return float(temp)
+
+    def get_max_ang_jog_vel(self):
+        # get max angular velocity
+        temp = self.inifile.find("DISPLAY", "MAX_ANGULAR_VELOCITY")
+        if not temp:
+            temp = 3600.0
+            print("**** GMOCCAPY GETINIINFO **** \nNo MAX_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file\nUsing default value of 3600 degree / min")
+        return float(temp)
+
+    def get_min_ang_jog_vel(self):
+        # get min angular velocity
+        temp = self.inifile.find("DISPLAY", "MIN_ANGULAR_VELOCITY")
+        if not temp:
+            temp = 0.1
+            print("**** GMOCCAPY GETINIINFO **** \nNo MIN_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file\nUsing default value of 0.1 degree / min")
+        return float(temp)
 
     def get_default_spindle_speed(self):
         # check for default spindle speed settings
@@ -413,5 +461,14 @@ class GetIniInfo:
                 if " " in element:
                     print("**** GMOCCAPY GETINIINFO **** \nERROR in user message setup \nPinname should not contain spaces")
                     return None
-            messages = zip(message_text, message_type, message_pinname)
+            messages = list(zip(message_text, message_type, message_pinname))
             return messages
+
+    def get_machine_units(self):
+        units = self.inifile.find("TRAJ", "LINEAR_UNITS")
+        if units == "mm" or units == "cm" or units == "inch":
+            return units
+        else:
+            print("**** GMOCCAPY GETINIINFO **** \nERROR getting machine units \n"
+                  "please check [TRAJ] LINEAR_UNITS for a valid entry, found {0}".format(units))
+            return None

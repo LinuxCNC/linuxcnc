@@ -61,6 +61,7 @@ extern "C"
 #endif
 
 
+#include <rtapi_string.h>
 #include "nml_mod.hh"
 #include "nml_oi.hh"		// NML_ERROR, NML_TEXT, NML_DISPLAY
 #include "rcs_print.hh"
@@ -420,21 +421,36 @@ NML_MODULE::setSubordinates (int number)
   // On NT we sometimes get a lame problem with realloc
   if (use_realloc)
     {
-      subs = (NML_SUBORDINATE_STRUCT **) realloc (subs,
+      NML_SUBORDINATE_STRUCT **subsNew = (NML_SUBORDINATE_STRUCT **) realloc (subs,
 						  number *
 						  sizeof
 						  (NML_SUBORDINATE_STRUCT *));
 
-      statusInData = (RCS_STAT_MSG **) realloc (statusInData,
+      RCS_STAT_MSG** statusInDataNew = (RCS_STAT_MSG **) realloc (statusInData,
 						number *
 						sizeof (RCS_STAT_MSG *));
 
-      commandOutData = (RCS_CMD_MSG **) realloc (statusInData,
+      RCS_CMD_MSG** commandOutDataNew = (RCS_CMD_MSG **) realloc (statusInData,
 						 number *
 						 sizeof (RCS_CMD_MSG *));
+
+      if (subsNew)           subs=subsNew;
+      if (statusInDataNew)   statusInData=statusInDataNew;
+      if (commandOutDataNew) commandOutData=commandOutDataNew;
+
+      if (!subsNew || !statusInDataNew ||!commandOutDataNew) {
+          free(subs);
+          free(statusInData);
+          free(commandOutData);
+          rcs_print_error ("Out of memory.\n");
+          rcs_exit (-1);
+      }
+    
     }
   else
     {
+
+
       NML_SUBORDINATE_STRUCT **old_subs = subs;
       RCS_STAT_MSG **old_statusInData = statusInData;
       RCS_CMD_MSG **old_commandOutData = commandOutData;
@@ -449,7 +465,7 @@ NML_MODULE::setSubordinates (int number)
 		  previousNumSubordinates *
 		  sizeof (NML_SUBORDINATE_STRUCT *));
 	}
-
+      free(old_subs); old_subs=NULL;
 
       statusInData =
 	(RCS_STAT_MSG **) malloc (number * sizeof (RCS_STAT_MSG *));
@@ -458,6 +474,7 @@ NML_MODULE::setSubordinates (int number)
 	  memcpy (statusInData, old_statusInData,
 		  previousNumSubordinates * sizeof (RCS_STAT_MSG *));
 	}
+      free(old_statusInData); old_statusInData=NULL;
 
       commandOutData =
 	(RCS_CMD_MSG **) malloc (number * sizeof (RCS_CMD_MSG *));
@@ -466,7 +483,13 @@ NML_MODULE::setSubordinates (int number)
 	  memcpy (commandOutData, old_commandOutData,
 		  previousNumSubordinates * sizeof (RCS_CMD_MSG *));
 	}
-
+      free(old_commandOutData); old_commandOutData=NULL;
+      
+      if (NULL == subs || NULL == statusInData || commandOutData)
+        {
+          rcs_print_error ("Out of memory.\n");
+          rcs_exit (-1);
+        }
 
     }
 /*! \todo Another #if 0 */
@@ -476,12 +499,6 @@ NML_MODULE::setSubordinates (int number)
   commandOutstanding = (int *) realloc (commandOutstanding,
 					number * sizeof (int));
 #endif
-
-  if (NULL == subs || NULL == statusInData)
-    {
-      rcs_print_error ("Out of memory.\n");
-      rcs_exit (-1);
-    }
 
 
   // initialize each NML channel in the new arrays to 0
@@ -529,7 +546,7 @@ NML_MODULE::logError (const char *fmt, ...)
   memset (error_msg.error, 0, NML_ERROR_LEN);
   if (log_line > 0 && log_src != NULL)
     {
-      sprintf (error_msg.error, "%s:%d ", log_src, log_line);
+      snprintf (error_msg.error, sizeof(error_msg.error), "%s:%d ", log_src, log_line);
     }
 
   // write args to NML message
@@ -627,7 +644,7 @@ NML_MODULE::requestDisplay (const char *display)
     return -1;
 
   // write args to NML message
-  strcpy (display_msg.display, display);
+  rtapi_strxcpy (display_msg.display, display);
 
   // force a NULL at the end for safety
   display_msg.display[NML_DISPLAY_LEN - 1] = 0;

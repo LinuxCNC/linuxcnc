@@ -21,7 +21,9 @@
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "rs274ngc_interp.hh"
-#include "interp_internal.hh"	// interpreter private definitions
+#include "interp_parameter_def.hh"
+
+using namespace interp_param_global;
 
 /* Interpreter global arrays for g_codes and m_codes. The nth entry
 in each array is the modal group number corresponding to the nth
@@ -56,7 +58,9 @@ group  0 = {g4,g10,g28,g30,g52,g53,g92,g92.1,g92.2,g92.3} - NON-MODAL
             dwell, setup, return to ref1, return to ref2,
             local coordinate system, motion in machine coordinates,
             set and unset axis offsets
-group  1 = {g0,g1,g2,g3,g33,g33.1,g38.2,g38.3,g38.4,g38.5,g73,g76,g80,
+group  1 = {g0,g1,g2,g3,g33,g33.1,g38.2,g38.3,g38.4,g38.5,
+	    g70,g71,g71.1,g71.2,g72,g72.1,g72.2,
+	    g73,g76,g80,
             g81,g82,g83,g84,g85,g86,g87,g88,g89} - motion
 group  2 = {g17,g17.1,g18,g18.1,g19,g19.1}   - plane selection
 group  3 = {g90,g91}       - distance mode
@@ -70,6 +74,7 @@ group 12 = {g54,g55,g56,g57,g58,g59,g59.1,g59.2,g59.3} - coordinate system
 group 13 = {g61,g61.1,g64} - control mode (path following)
 group 14 = {g96,g97}       - spindle speed mode
 group 15 = {G07,G08}       - lathe diameter mode
+group 16 = {g92.2,g92.3}   - whether g92 offset is applied
 */
 // This stops indent from reformatting the following code.
 // *INDENT-OFF*
@@ -110,8 +115,8 @@ const int Interp::_gees[] = {
 /* 640 */  13,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 /* 660 */  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 /* 680 */  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-/* 700 */  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-/* 720 */  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+/* 700 */   1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 1, 1, 1,-1,-1,-1,-1,-1,-1,-1,
+/* 720 */   1, 1, 1,-1,-1,-1,-1,-1,-1,-1, 1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 /* 740 */   1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 /* 760 */   1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 /* 780 */  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
@@ -121,7 +126,7 @@ const int Interp::_gees[] = {
 /* 860 */   1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 /* 880 */   1,-1,-1,-1,-1,-1,-1,-1,-1,-1, 1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 /* 900 */   3, 4,-1,-1,-1,-1,-1,-1,-1,-1, 3, 4,-1,-1,-1,-1,-1,-1,-1,-1,
-/* 920 */   0, 0, 0, 0,-1,-1,-1,-1,-1,-1, 5,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+/* 920 */   0,16,16,16,-1,-1,-1,-1,-1,-1, 5,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 /* 940 */   5,-1,-1,-1,-1,-1,-1,-1,-1,-1, 5,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 /* 960 */  14,-1,-1,-1,-1,-1,-1,-1,-1,-1,14,-1,-1,-1,-1,-1,-1,-1,-1,-1,
 /* 980 */  10,-1,-1,-1,-1,-1,-1,-1,-1,-1,10,-1,-1,-1,-1,-1,-1,-1,-1,-1};
@@ -316,6 +321,6 @@ const read_function_pointer Interp::default_readers[256] = {
 and _readers. */
 
 /* The notion of "global variables" is a misnomer - These last four should only
-   be accessable by the interpreter and not exported to the rest of emc */
+   be accessible by the interpreter and not exported to the rest of emc */
 
 

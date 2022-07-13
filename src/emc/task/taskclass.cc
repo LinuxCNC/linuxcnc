@@ -31,10 +31,9 @@
 #include "emc_nml.hh"
 #include "emcglb.h"		// EMC_INIFILE
 
-#include "initool.hh"
-
 #include "python_plugin.hh"
 #include "taskclass.hh"
+#include <rtapi_string.h>
 
 #define BOOST_PYTHON_MAX_ARITY 4
 #include <boost/python/dict.hpp>
@@ -268,7 +267,7 @@ int emcIoInit() { return task_methods->emcIoInit(); }
 int emcIoHalt() {
     try {
 	return task_methods->emcIoHalt();
-    } catch( bp::error_already_set ) {
+    } catch( bp::error_already_set &) {
 	std::string msg = handle_pyerror();
 	rcs_print("emcIoHalt(): %s\n", msg.c_str());
 	PyErr_Clear();
@@ -287,7 +286,7 @@ int emcCoolantFloodOn() { return task_methods->emcCoolantFloodOn(); }
 int emcCoolantFloodOff() { return task_methods->emcCoolantFloodOff(); }
 int emcLubeOn() { return task_methods->emcLubeOn(); }
 int emcLubeOff() { return task_methods->emcLubeOff(); }
-int emcToolPrepare(int p, int tool) { return task_methods->emcToolPrepare(p, tool); }
+int emcToolPrepare(int tool) { return task_methods->emcToolPrepare(tool); }
 int emcToolStartChange() { return task_methods->emcToolStartChange(); }
 int emcToolLoad() { return task_methods->emcToolLoad(); }
 int emcToolUnload()  { return task_methods->emcToolUnload(); }
@@ -304,10 +303,6 @@ static const char *instance_name = "task_instance";
 
 int emcTaskOnce(const char *filename)
 {
-    bp::object retval;
-    bp::tuple arg;
-    bp::dict kwarg;
-
     // initialize the Python plugin singleton
     // Interp is already instantiated but not yet fully configured
     // both Task and Interp use it - first to call configure() instantiates the Python part
@@ -315,7 +310,7 @@ int emcTaskOnce(const char *filename)
 
     extern struct _inittab builtin_modules[];
     if (!PythonPlugin::instantiate(builtin_modules)) {
-	rcs_print("emcTaskOnce: cant instantiate Python plugin\n");
+	rcs_print("emcTaskOnce: can\'t instantiate Python plugin\n");
 	goto no_pytask;
     }
     if (python_plugin->configure(filename, "PYTHON") == PLUGIN_OK) {
@@ -334,13 +329,13 @@ int emcTaskOnce(const char *filename)
 	    if (typetest.check()) {
 		task_methods = bp::extract< Task * >(result);
 	    } else {
-		rcs_print("cant extract a Task instance out of '%s'\n", instance_name);
+		rcs_print("can\'t extract a Task instance out of '%s'\n", instance_name);
 		task_methods = NULL;
 	    }
-	} catch( bp::error_already_set ) {
+	} catch(bp::error_already_set &) {
 	    std::string msg = handle_pyerror();
 	    if (emc_debug & EMC_DEBUG_PYTHON_TASK) {
-		// this really just means the task python backend wasnt configured.
+		// this really just means the task python backend wasn't configured.
 		rcs_print("emcTaskOnce: extract(%s): %s\n", instance_name, msg.c_str());
 	    }
 	    PyErr_Clear();
@@ -400,13 +395,13 @@ int return_int(const char *funcname, PyObject *retval)
 	return -1;
     }
     if ((retval != Py_None) &&
-	(PyInt_Check(retval))) {
-	return PyInt_AS_LONG(retval);
+    (PyLong_Check(retval))) {
+    return PyLong_AsLong(retval);
     } else {
 	emcOperatorError(0, "return_int(%s): expected int return value, got '%s' (%s)",
 			 funcname,
-			 PyString_AsString(retval),
-			 retval->ob_type->tp_name);
+            PyBytes_AsString(retval),
+            Py_TYPE(retval)->tp_name);
 	Py_XDECREF(retval);
 	return -1;
     }
@@ -428,26 +423,16 @@ int emcPluginCall(EMC_EXEC_PLUGIN_CALL *call_msg)
     }
 }
 
-// int emcAbortCleanup(int reason, const char *message)
-// {
-//     int status = interp.on_abort(reason,message);
-//     if (status > INTERP_MIN_ERROR)
-// 	print_interp_error(status);
-//     return status;
-// }
-
-extern "C" void initemctask();
-extern "C" void initinterpreter();
-extern "C" void initemccanon();
+extern "C" PyObject* PyInit_emctask(void);
+extern "C" PyObject* PyInit_interpreter(void);
+extern "C" PyObject* PyInit_emccanon(void);
 struct _inittab builtin_modules[] = {
-    { (char *) "interpreter", initinterpreter },
-    { (char *) "emccanon", initemccanon },
-    { (char *) "emctask", initemctask },
+    { "interpreter", PyInit_interpreter },
+    { "emccanon", PyInit_emccanon },
+    { "emctask", PyInit_emctask },
     // any others...
     { NULL, NULL }
 };
-
-
 
 Task::Task() : use_iocontrol(0), random_toolchanger(0) {
 
@@ -473,6 +458,83 @@ Task::Task() : use_iocontrol(0), random_toolchanger(0) {
 
 Task::~Task() {};
 
+// set the have_tool_change_position global
+static int readToolChange(IniFile *toolInifile)
+{
+    int retval = 0;
+    const char *inistring;
+
+    if (NULL !=
+	(inistring = toolInifile->Find("TOOL_CHANGE_POSITION", "EMCIO"))) {
+	/* found an entry */
+        if (9 == sscanf(inistring, "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
+                        &tool_change_position.tran.x,
+                        &tool_change_position.tran.y,
+                        &tool_change_position.tran.z,
+                        &tool_change_position.a,
+                        &tool_change_position.b,
+                        &tool_change_position.c,
+                        &tool_change_position.u,
+                        &tool_change_position.v,
+                        &tool_change_position.w)) {
+            have_tool_change_position=9;
+            retval=0;
+        } else if (6 == sscanf(inistring, "%lf %lf %lf %lf %lf %lf",
+                        &tool_change_position.tran.x,
+                        &tool_change_position.tran.y,
+                        &tool_change_position.tran.z,
+                        &tool_change_position.a,
+                        &tool_change_position.b,
+                        &tool_change_position.c)) {
+	    tool_change_position.u = 0.0;
+	    tool_change_position.v = 0.0;
+	    tool_change_position.w = 0.0;
+            have_tool_change_position = 6;
+            retval = 0;
+        } else if (3 == sscanf(inistring, "%lf %lf %lf",
+                               &tool_change_position.tran.x,
+                               &tool_change_position.tran.y,
+                               &tool_change_position.tran.z)) {
+	    /* read them OK */
+	    tool_change_position.a = 0.0;
+	    tool_change_position.b = 0.0;
+	    tool_change_position.c = 0.0;
+	    tool_change_position.u = 0.0;
+	    tool_change_position.v = 0.0;
+	    tool_change_position.w = 0.0;
+	    have_tool_change_position = 3;
+	    retval = 0;
+	} else {
+	    /* bad format */
+	    rcs_print("bad format for TOOL_CHANGE_POSITION\n");
+	    have_tool_change_position = 0;
+	    retval = -1;
+	}
+    } else {
+	/* didn't find an entry */
+	have_tool_change_position = 0;
+    }
+    return retval;
+}
+
+static int iniTool(const char *filename)
+{
+    int retval = 0;
+    IniFile toolInifile;
+
+    if (toolInifile.Open(filename) == false) {
+	return -1;
+    }
+    // read the tool change positions
+    if (0 != readToolChange(&toolInifile)) {
+	retval = -1;
+    }
+    // close the inifile
+    toolInifile.Close();
+
+    return retval;
+}
+
 // NML commands
 
 int Task::emcIoInit()
@@ -488,6 +550,7 @@ int Task::emcIoInit()
     if (0 != iniTool(emc_inifile)) {
 	return -1;
     }
+
     // send init command to emcio
     if (forceCommand(&ioInitMsg)) {
 	rcs_print_error("Can't forceCommand(ioInitMsg)\n");
@@ -614,11 +677,10 @@ int Task::emcLubeOff()
     return 0;
 }
 
-int Task::emcToolPrepare(int p, int tool)
+int Task::emcToolPrepare(int tool)
 {
     EMC_TOOL_PREPARE toolPrepareMsg;
 
-    toolPrepareMsg.pocket = p;
     toolPrepareMsg.tool = tool;
     sendCommand(&toolPrepareMsg);
 
@@ -658,7 +720,7 @@ int Task::emcToolLoadToolTable(const char *file)
 {
     EMC_TOOL_LOAD_TOOL_TABLE toolLoadToolTableMsg;
 
-    strcpy(toolLoadToolTableMsg.file, file);
+    rtapi_strxcpy(toolLoadToolTableMsg.file, file);
 
     sendCommand(&toolLoadToolTableMsg);
 
@@ -749,6 +811,3 @@ int Task::emcIoPluginCall(int len, const char *msg)
     }
     return 0;
 }
-
-
-

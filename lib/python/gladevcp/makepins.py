@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- encoding: utf-8 -*-
 #    GLADE_VCP
 #    Copyright 2010 Chris Morley
@@ -16,15 +16,18 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+import gi
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
+from gi.repository import GLib
+
 import sys
-import gtk
 import hal
-import gtk.glade
-import gobject
 import getopt
 
-from hal_widgets import _HalWidgetBase
-from led import HAL_LED
+from .hal_widgets import _HalWidgetBase
+from .led import HAL_LED
 from hal_glib import GComponent
 
 from gladevcp.gladebuilder import widget_name
@@ -40,6 +43,7 @@ class GladePanel():
         self.builder = builder
         self.hal = GComponent(halcomp)
         self.widgets = {}
+        self.extension_obj = None
 
         for widget in builder.get_objects():
             idname = widget_name(widget)
@@ -48,14 +52,19 @@ class GladePanel():
                 continue
 
             if isinstance(widget, _HalWidgetBase):
-                widget.hal_init(self.hal, idname)
+                widget.hal_init(self.hal, idname, self)
                 self.widgets[idname] = widget
 
-        self.timer = gobject.timeout_add(100, self.update)                  
-        
+        self.timer = GLib.timeout_add(100, self.update)   
+               
+    def get_handler_obj(self):
+        return self.extension_obj
+
+    def set_handler(self, data):
+        self.extension_obj = data
 
     def update(self):
-        for obj in self.widgets.values():
+        for obj in list(self.widgets.values()):
             obj.hal_update()
         return True
     def __getitem__(self, item):
@@ -64,8 +73,8 @@ class GladePanel():
         self.widgets[item] = value
     
 if __name__ == "__main__":
-    print "Gladevcp_make_pins cannot be run on its own"
-    print "It must be called by gladevcp or a python program"
-    print "that loads and displays the glade panel and creates a HAL component"
+    print("Gladevcp_make_pins cannot be run on its own")
+    print("It must be called by gladevcp or a python program")
+    print("that loads and displays the glade panel and creates a HAL component")
 
 # vim: sts=4 sw=4 et

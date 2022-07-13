@@ -1,0 +1,32 @@
+;grooving
+
+O<grooving> sub
+
+G8 ; Radius mode (easier maths)
+G18 ; XZ Plane
+G21 ; Metric Units
+G90 ; Absolute Distance
+G91.1 ; but not for arcs
+
+M6 T#4 G43
+
+#1 = [#1 / 2] ; because of radius mode
+
+#14 = [#<_x>] (starting X)
+
+G96 D1500 S#2 ; Constant Surface Speed Mode
+m3 ;Start Spindle
+g95 F#3 ; Feed-Per-Rev Mode
+
+O90 IF [#5 GT 0.5]
+    M8
+O90 ENDIF
+
+g4p1 ; Wait to reach speed
+G1 F#3 X#1
+G0 X#14
+M5 M9
+G7
+O<grooving> endsub
+
+M2

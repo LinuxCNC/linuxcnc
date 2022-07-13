@@ -14,6 +14,13 @@ to the following rule:
 Otherwise,
 \\fBout=FALSE\\fR""";
 function _ nofp;
+see_also """
+\\fBand2\\fR(9),
+\\fBlogic\\fR(9),
+\\fBlut5\\fR(9),
+\\fBnot\\fR(9),
+\\fBor2\\fR(9).
+""";
 license "GPL";
 ;;
 FUNCTION(_) {

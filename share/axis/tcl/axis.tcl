@@ -38,11 +38,11 @@ menu .menu.file \
 menu .menu.file.recent \
 	-tearoff 0
 menu .menu.machine \
-	-tearoff 0
+	-tearoff 1
 menu .menu.machine.home \
-	-tearoff 0
+	-tearoff 1
 menu .menu.machine.unhome \
-	-tearoff 0
+	-tearoff 1
 menu .menu.view \
 	-tearoff 0
 menu .menu.help \
@@ -83,11 +83,11 @@ setup_menu_accel .menu.file end [_ "_Properties..."]
 
 .menu.file add command \
     -command edit_tooltable
-setup_menu_accel .menu.file end [_ "Edit _tool table..."]
+setup_menu_accel .menu.file end [_ "Edit _tool data..."]
 
 .menu.file add command \
 	-command reload_tool_table
-setup_menu_accel .menu.file end [_ "Reload tool ta_ble"]
+setup_menu_accel .menu.file end [_ "Reload tool _data"]
 
 .menu.file add separator
 
@@ -380,6 +380,12 @@ setup_menu_accel .menu.view end [_ "Large coordinate fo_nt"]
 	-command clear_live_plot
 setup_menu_accel .menu.view end [_ "_Clear live plot"]
 
+.menu.view add checkbutton \
+	-variable show_pyvcppanel \
+	-accelerator [_ "Ctrl-E"] \
+	-command toggle_show_pyvcppanel
+setup_menu_accel .menu.view end [_ "Show pyVCP pan_el"]
+
 .menu.view add separator
 
 .menu.view add radiobutton \
@@ -510,7 +516,7 @@ setup_widget_accel .toolbar.file_open {}
 
 Button .toolbar.reload \
 	-command { reload_file } \
-	-helptext [_ "Reopen current file \[Control-R\]"] \
+	-helptext [_ "Reopen current file \[Ctrl-R\]"] \
 	-image [load_image tool_reload] \
 	-relief link \
 	-takefocus 0
@@ -871,7 +877,7 @@ for {set num 0} {$num < $::MAX_JOINTS} {incr num} {
 # grid for Joint select radiobuttons
 set jno 0
 set rows [expr $::MAX_JOINTS / 3]
-for {set row 0} {$row < 3} {incr row} {
+for {set row 0} {$row < [expr 1 + $rows]} {incr row} {
   for {set col 0} {$col < 3} {incr col} {
     grid $_tabs_manual.joints.joint$jno \
          -column $col -row $row -padx 4
@@ -1244,21 +1250,6 @@ setup_widget_accel $_tabs_mdi.go [_ Go]
 vspace $_tabs_mdi.vs2 \
 	-height 12
 
-label $_tabs_mdi.gcodel
-setup_widget_accel $_tabs_mdi.gcodel [_ "Active G-Codes:"]
-
-text $_tabs_mdi.gcodes \
-	-height 2 \
-	-width 40 \
-	-undo 0 \
-	-wrap word
-
-$_tabs_mdi.gcodes insert end {}
-$_tabs_mdi.gcodes configure -state disabled
-
-vspace $_tabs_mdi.vs3 \
-	-height 12
-
 # Grid widget $_tabs_mdi.command
 grid $_tabs_mdi.command \
 	-column 0 \
@@ -1270,19 +1261,6 @@ grid $_tabs_mdi.commandl \
 	-column 0 \
 	-row 3 \
 	-sticky w
-
-# Grid widget $_tabs_mdi.gcodel
-grid $_tabs_mdi.gcodel \
-	-column 0 \
-	-row 6 \
-	-sticky w
-
-# Grid widget $_tabs_mdi.gcodes
-grid $_tabs_mdi.gcodes \
-	-column 0 \
-	-row 7 \
-	-columnspan 2 \
-	-sticky new
 
 # Grid widget $_tabs_mdi.go
 grid $_tabs_mdi.go \
@@ -1312,10 +1290,6 @@ grid $_tabs_mdi.vs2 \
 	-column 0 \
 	-row 5
 
-# Grid widget $_tabs_mdi.vs3
-grid $_tabs_mdi.vs3 \
-	-column 0 \
-	-row 8
 grid columnconfigure $_tabs_mdi 0 -weight 1
 grid rowconfigure $_tabs_mdi 1 -weight 1
 
@@ -1407,15 +1381,27 @@ pack ${pane_bottom}.t.sb \
 	-fill y \
 	-side left
 
+label ${pane_top}.gcodel
+setup_widget_accel ${pane_top}.gcodel [_ "Active G-Codes:"]
+
+text ${pane_top}.gcodes \
+	-height 2 \
+	-width 40 \
+	-undo 0 \
+	-wrap word
+
+${pane_top}.gcodes insert end {}
+${pane_top}.gcodes configure -state disabled
+
 frame ${pane_top}.ajogspeed
 label ${pane_top}.ajogspeed.l0 -text [_ "Jog Speed:"]
 label ${pane_top}.ajogspeed.l1
 scale ${pane_top}.ajogspeed.s -bigincrement 0 -from .06 -to 1 -resolution .020 -showvalue 0 -variable ajog_slider_val -command update_ajog_slider_vel -orient h -takefocus 0
 label ${pane_top}.ajogspeed.l -textv jog_aspeed -width 6 -anchor e
 pack ${pane_top}.ajogspeed.l0 -side left
-pack ${pane_top}.ajogspeed.l -side left
-pack ${pane_top}.ajogspeed.l1 -side left
 pack ${pane_top}.ajogspeed.s -side right
+pack ${pane_top}.ajogspeed.l1 -side right
+pack ${pane_top}.ajogspeed.l -side right
 bind . <less> [regsub %W [bind Scale <Left>] ${pane_top}.ajogspeed.s]
 bind . <greater> [regsub %W [bind Scale <Right>] ${pane_top}.ajogspeed.s]
 
@@ -1426,9 +1412,9 @@ label ${pane_top}.jogspeed.l1
 scale ${pane_top}.jogspeed.s -bigincrement 0 -from .06 -to 1 -resolution .020 -showvalue 0 -variable jog_slider_val -command update_jog_slider_vel -orient h -takefocus 0
 label ${pane_top}.jogspeed.l -textv jog_speed -width 6 -anchor e
 pack ${pane_top}.jogspeed.l0 -side left
-pack ${pane_top}.jogspeed.l -side left
-pack ${pane_top}.jogspeed.l1 -side left
 pack ${pane_top}.jogspeed.s -side right
+pack ${pane_top}.jogspeed.l1 -side right
+pack ${pane_top}.jogspeed.l -side right
 bind . , [regsub %W [bind Scale <Left>] ${pane_top}.jogspeed.s]
 bind . . [regsub %W [bind Scale <Right>] ${pane_top}.jogspeed.s]
 
@@ -1438,9 +1424,9 @@ label ${pane_top}.maxvel.l1
 scale ${pane_top}.maxvel.s -bigincrement 0 -from .06 -to 1 -resolution .020 -showvalue 0 -variable maxvel_slider_val -command update_maxvel_slider_vel -orient h -takefocus 0
 label ${pane_top}.maxvel.l -textv maxvel_speed -width 6 -anchor e
 pack ${pane_top}.maxvel.l0 -side left
-pack ${pane_top}.maxvel.l -side left
-pack ${pane_top}.maxvel.l1 -side left
 pack ${pane_top}.maxvel.s -side right
+pack ${pane_top}.maxvel.l1 -side right
+pack ${pane_top}.maxvel.l -side right
 bind . <semicolon> [regsub %W [bind Scale <Left>] ${pane_top}.maxvel.s]
 bind . ' [regsub %W [bind Scale <Right>] ${pane_top}.maxvel.s]
 
@@ -1678,6 +1664,9 @@ grid ${pane_top}.maxvel \
 	-row 7 \
 	-sticky new
 
+grid ${pane_top}.gcodel -column 0 -row 8 -sticky nw
+grid ${pane_top}.gcodes -column 0 -row 9 -sticky new
+
 # Grid widget .info
 grid .info \
 	-column 0 \
@@ -1800,9 +1789,9 @@ proc update_state {args} {
         {.menu.machine "Skip lines with '_/'"} .toolbar.program_blockdelete
     state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE } \
         .toolbar.program_run {.menu.machine "_Run program"} \
-        {.menu.file "Reload tool ta_ble"}
+        {.menu.file "Reload tool _data"}
     state  {$interp_state == $INTERP_IDLE} \
-        {.menu.file "Edit _tool table..."}
+        {.menu.file "Edit _tool data..."}
 
     state  {$task_state == $STATE_ON && $interp_state == $INTERP_IDLE} \
         {.menu.machine "Homin_g" "_Unhoming" "_Zero coordinate system"}
@@ -2234,8 +2223,13 @@ proc update_recent {args} {
             -command [list open_file_name $f]
         incr i
     }
+    if {0 != [llength $args]} {
+        .menu.file.recent add separator
+        .menu.file.recent add command \
+                -command clear_recent_files
+        setup_menu_accel .menu.file.recent end [_ "_Clear Recents List"]
+    }
 }
-
 
 bind . <Configure> {
     if {"%W" == "."} {
@@ -2263,7 +2257,7 @@ DynamicHelp::add $_tabs_manual.flood -text [_ "Turn flood on or off \[F8\]"]
 DynamicHelp::add $_tabs_manual.mist -text [_ "Turn mist on or off \[F7\]"]
 DynamicHelp::add $_tabs_manual.jogf.zerohome.home -text [_ "Send active axis home \[Home\]"]
 DynamicHelp::add $_tabs_manual.jogf.zerohome.zero -text [_ "Set G54 offset for active axis \[End\]"]
-DynamicHelp::add $_tabs_manual.jogf.zerohome.tooltouch -text [_ "Set tool offset for loaded tool \[Control-End\]"]
+DynamicHelp::add $_tabs_manual.jogf.zerohome.tooltouch -text [_ "Set tool offset for loaded tool \[Ctrl-End\]"]
 DynamicHelp::add $_tabs_manual.axes.axisx -text [_ "Activate axis \[X\]"]
 DynamicHelp::add $_tabs_manual.axes.axisy -text [_ "Activate axis \[Y\]"]
 DynamicHelp::add $_tabs_manual.axes.axisz -text [_ "Activate axis \[Z\]"]

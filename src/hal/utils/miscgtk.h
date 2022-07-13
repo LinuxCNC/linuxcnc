@@ -4,12 +4,6 @@
 /** This file, 'miscgtk.h', contains declarations for generic
     code used by GTK based programs.  This includes new widgets
     and other items of a general nature.
-
-    It is also used for "compatibility code" needed to support
-    different versions of GTK.  Currently, GTK-1.2 is the oldest
-    version supported.  As GTK progresses and more version 1.2 APIs
-    are deprecated, support for pre-2.0 versions may eventually be
-    dropped.
 */
 
 /** Copyright (C) 2003 John Kasunich
@@ -38,25 +32,12 @@
     any responsibility for such compliance.
 
     This code was written as part of the EMC HAL project.  For more
-    information, go to www.linuxcnc.org.
+    information, go to https://linuxcnc.org.
 */
 
 /***********************************************************************
 *                      FUNCTIONS PROVIDED BY MISCGTK.C                 *
 ************************************************************************/
-
-/** these provide similar functionality to the corresponding gtk2.0+ functions
-*/
-#if !GTK_CHECK_VERSION(2,0,0)
-void gtk_widget_set_double_buffered( GtkWidget *widget, gboolean double_buffered);
-void gtk_widget_modify_fg( GtkWidget *widget, GtkStateType state, const GdkColor *color);
-void gtk_widget_modify_bg( GtkWidget *widget, GtkStateType state, const GdkColor *color);
-GdkFont* gtk_style_get_font(GtkStyle *style);
-#endif
-#if !GTK_CHECK_VERSION(2,8,0)
-void gtk_window_set_urgency_hint( GtkWindow *window, gboolean state );
-gboolean gtk_window_is_active( GtkWindow *window );
-#endif
 
 /** gtk_label_new_in_box() is used to create a label and pack it into
     a box.  It simply calls other GTK functions that do the real work.
@@ -108,35 +89,21 @@ void gtk_label_set_text_if(GtkWidget * label, const gchar * text);
 */
 void gtk_label_size_to_fit(GtkLabel * label, const gchar * str);
 
-/* generic dialog typedef */
-typedef struct {
-    GtkWidget *window;
-    int retval;
-    void *app_data;
-} dialog_generic_t;
+/* Initialize a TreeView. */
+void init_list(GtkWidget *list, char *titles[], const int num_cols);
 
-/** dialog_generic_msg() generates a modal dialog box with a message
-    and up two four buttons.  It returns an integer indicating which
-    button the user pressed, or zero if the dialog was closed.
-    'parent' is the parent window - may be NULL if there is no parent.
-    'title' is the title for the dialog - if NULL, "Dialog" will be
-    used.
-    'msg' is the message text, if NULL, no message will be displayed.
-    'button1' thru 'button4' are the text for the buttons.  Only
-    buttons that are not NULL will be displayed - for a two button
-    dialog, supply two valid pointers and two NULLs.
-*/
-int dialog_generic_msg(GtkWidget * parent, const gchar * title, const gchar * msg,
-    const gchar * button1, const gchar * button2, const gchar * button3, const gchar * button4);
+/* Add new row to a TreeView. */
+void add_to_list(GtkWidget *list, char *strs[], const int num);
 
-/** the following functions are used by the generic dialog functions,
-    but may also be useful for custom dialogs, so they are made public
-    here.
+/* Clears all elements from a TreeView list. */
+void clear_list(GtkWidget *list);
+
+/** If a row has  previously been selected, this function ensures that it
+    will be selected again.
 */
-void dialog_generic_button1(GtkWidget * widget, dialog_generic_t * dptr);
-void dialog_generic_button2(GtkWidget * widget, dialog_generic_t * dptr);
-void dialog_generic_button3(GtkWidget * widget, dialog_generic_t * dptr);
-void dialog_generic_button4(GtkWidget * widget, dialog_generic_t * dptr);
-void dialog_generic_destroyed(GtkWidget * widget, dialog_generic_t * dptr);
+void mark_selected_row(GtkWidget *list, const int row);
+
+/* Set a file filter for the open and save dialog boxes. */
+void set_file_filter(GtkFileChooser *chooser, const char *str, const char *ext);
 
 #endif /* MISCGTK_H */

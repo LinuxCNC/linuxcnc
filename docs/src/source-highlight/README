@@ -1,4 +1,4 @@
-source-highlighting EMC langues in HTML documents
+source-highlighting EMC languages in HTML documents
 =================================================
 
 I've created GNU source-highlight language definitions for G-code and
@@ -18,7 +18,7 @@ of the box.
 
 NB: source-highlight's mechanisms to find .lang and .map files is
 very inflexible which is why the complete source language definition
-directoy (/usr/share/source-highlight) needs to be replicated under 'local',
+directory (/usr/share/source-highlight) needs to be replicated under 'local',
 and a new lang.map generated in there (all language definitions are
 relative to this directory, and include each other).
 
@@ -36,7 +36,7 @@ Copy this to the top of your txt file:
 //[source,{ngc}]
 ----------------- snip ----------------
 
-Adding or changing a langauage definition (.lang) file
+Adding or changing a language definition (.lang) file
 ======================================================
 
 New language: just drop <name>.lang into this directory. The
@@ -48,9 +48,9 @@ might need a conditional like
 
 to prevent pdflatex formatting errors.
 
-Changing a language defintion: just edit the .lang file in this directory.
+Changing a language definition: just edit the .lang file in this directory.
 
-Overruling definitons in the source-highlight standard language definitions:
+Overruling definitions in the source-highlight standard language definitions:
 
 Copy the <language>.lang file from /usr/share/source-highlight into
 this directory and edit as needed. The right things should happen on
@@ -63,7 +63,7 @@ Building HTML examples in the this directory
 To produce pdf and html samples, type 'make examples' .
 
 This should produce {ini-demo,hal-demo,ngc-demo}.{pdf,html} files in
-the current directory, with proper highlighing of HTML only. PDF files
+the current directory, with proper highlighting of HTML only. PDF files
 come out properly but have no highlighting.
 
 --------------------------------------------

@@ -211,7 +211,7 @@ int main(int argc, char **argv)
 		goto out;
 	    }
 	    if ( errmsg == NULL ) {
-		/* no error yet, check for other possibilties */
+		/* no error yet, check for other possibilities */
 		/* whitespace separates fields, and there is a newline
 		   at the end... so if there is not space or newline at
 		   the end of a field, something is wrong. */
@@ -243,7 +243,7 @@ int main(int argc, char **argv)
 	}
 	line++;
     }
-    /* run was succesfull */
+    /* run was successful */
     exitval = 0;
 
 out:

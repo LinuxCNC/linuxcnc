@@ -1,0 +1,35 @@
+QtPlasmaC THCAD Setup Page
+
+Model:
+Select the model of the THCAD from one of 5, 10, or 300.
+
+F Jumper:
+Select the F jumper setting from one of 1, 32, 64, or 128.
+
+0V Frequency & Full Scale Frequency:
+Enter the zero volt frequency and the full scale frequency exactly as 
+displayed on the calibration sticker on the THCAD card.
+
+Divider Ratio:
+For the arc voltage encoder, the divider ratio may be entered as a divider
+ratio or as a series resistance.
+If using a plasma machine with a CNC port and it has an onboard divider with 
+a ratio of 20:1 then enter 20.
+If using the full arc voltage with a series resistance then enter the total 
+value of resistance in ohms. 2MegOhm would be entered as 2000000.
+
+Encoder:
+If the mesa card has standard firmware then only ENCA is able to be used so
+this restricts the use to arc voltage only.
+
+To use an additional encoder for ohmic sensing requires a firmware update to
+the mesa card. Use a mesa bit file with pl in the name.
+
+Currently supported firmwares are:
+  5i25_7i76x2pld.bit
+  7i76e_7i76x1_Dpl.bit
+  7i92_7i76x1dpl.bit
+  7i96dpl.bit
+
+This then enables three single encoders encoder.00, encoder.01, and encoder.02
+which are available for both arc voltage and ohmic sensing.

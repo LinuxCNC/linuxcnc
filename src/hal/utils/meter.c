@@ -1,6 +1,6 @@
 /** This file, 'meter.c', is a GUI program that serves as a simple
     meter to look at HAL signals.  It is a user space component and
-    uses GTK 1.2 for the GUI code.  It allows you to view one pin,
+    uses GTK 3 for the GUI code.  It allows you to view one pin,
     signal, or parameter, and updates its display about 10 times
     per second.  (It is not a realtime program, and heavy loading
     can temporarily slow or stop the update.)  Clicking on the 'Select'
@@ -11,7 +11,7 @@
     initially display the pin/signal/parameter <name>, otherwise it
     will initially display nothing.
 */
-/* Added ability to specify initial window positon on command line 
+/* Added ability to specify initial window position on command line 
     -g Xposition Yposiion    Chris Morley June 2009 
 */
 
@@ -41,7 +41,7 @@
     any responsibility for such compliance.
 
     This code was written as part of the EMC HAL project.  For more
-    information, go to www.linuxcnc.org.
+    information, go to https://linuxcnc.org.
 */
 
 #include "config.h"
@@ -64,7 +64,7 @@
 
 #include <gtk/gtk.h>
 #include "miscgtk.h"		/* generic GTK stuff */
-#include <gdk/gdkkeysyms.h>
+#include <rtapi_string.h>
 
 /***********************************************************************
 *                            TYPEDEFS                                  *
@@ -99,6 +99,12 @@ typedef struct {
 *                  GLOBAL VARIABLES DECLARATIONS                       *
 ************************************************************************/
 
+/* Columns in the TreeView */
+enum TREEVIEW_COLUMN {
+    LIST_ITEM,
+    NUM_COLS
+};
+
 int comp_id;			/* HAL component ID */
 
 GtkWidget *main_window;
@@ -131,12 +137,10 @@ static char *data_value(int type, void *valptr);
 
 static void create_probe_window(probe_t * probe);
 static void apply_selection(GtkWidget * widget, gpointer data);
-static void close_selection(GtkWidget * widget, gpointer data);
-static gboolean key_press(GtkWidget * clist, GdkEventKey *event, gpointer user_data);
-static void selection_made(GtkWidget * clist, gint row, gint column,
-    GdkEventButton * event, gpointer data);
-static void page_switched(GtkNotebook *notebook, GtkNotebookPage *page,
-		guint page_num, gpointer user_data);
+static void page_switched(GtkNotebook *notebook, GtkWidget *page,
+                          guint page_num, gpointer user_data);
+static void on_changed(GtkWidget *widget, gpointer data);
+
 /***********************************************************************
 *                        MAIN() FUNCTION                               *
 ************************************************************************/
@@ -172,7 +176,7 @@ int main(int argc, gchar * argv[])
             yposition =  atoi(argv[n]);
             n++;
             if ( argc > n ){
-                strcpy(buf,argv[n]);
+                rtapi_strxcpy(buf,argv[n]);
                 for (i=0; i< strlen(argv[n]); i++) {
                     if (isdigit(buf[i]) == 0) { break; } 
                 }
@@ -230,8 +234,6 @@ int main(int argc, gchar * argv[])
     signal(SIGINT, quit);
     signal(SIGTERM, quit);
 
-    /* create main window, set it's size, and lock the size */
-    main_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     /* ideally this wouldn't be fixed size in pixels */
     if ( small ) {
 	height = 22;
@@ -240,21 +242,22 @@ int main(int argc, gchar * argv[])
 	height = 80;
 	win_name = _("Hal Meter");
     }
-    gtk_widget_set_usize(GTK_WIDGET(main_window), width, height);
-    gtk_window_set_policy(GTK_WINDOW(main_window), FALSE, FALSE, FALSE);
+
+    /* create main window, set it's size, title, and lock the size */
+    main_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_widget_set_size_request(GTK_WIDGET(main_window), width, height);
+    gtk_window_set_resizable(GTK_WINDOW(main_window), FALSE);
     gtk_window_set_keep_above(GTK_WINDOW(main_window),TRUE);
-    /* set main window title */
     gtk_window_set_title(GTK_WINDOW(main_window), win_name);
+
     /* this makes the application exit when the window is closed */
-    gtk_signal_connect(GTK_OBJECT(main_window), "destroy",
-	GTK_SIGNAL_FUNC(gtk_main_quit), NULL);
+    g_signal_connect(main_window, "destroy",
+            G_CALLBACK(gtk_main_quit), NULL);
 
     /* a vbox to hold the displayed value and the pin/sig/param name */
-    vbox = gtk_vbox_new(FALSE, 3);
+    vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 3);
     gtk_container_set_border_width(GTK_CONTAINER(vbox), 2);
-    /* add the vbox to the main window */
     gtk_container_add(GTK_CONTAINER(main_window), vbox);
-    gtk_widget_show(vbox);
 
     /* create a meter object */
     meter = meter_new();
@@ -272,48 +275,41 @@ int main(int argc, gchar * argv[])
 
     /* add the meter's value label to the vbox */
     gtk_box_pack_start(GTK_BOX(vbox), meter->value_label, TRUE, TRUE, 0);
-    gtk_widget_show(meter->value_label);
 
     /* add the meter's name label to the vbox */
     if ( !small ) {
 	gtk_box_pack_start(GTK_BOX(vbox), meter->name_label, TRUE, TRUE, 0);
-	gtk_widget_show(meter->name_label);
     }
 
     /* arrange for periodic refresh of the value */
-    gtk_timeout_add(100, refresh_value, meter);
+    g_timeout_add(100, refresh_value, meter);
 
     /* an hbox to hold the select and exit buttons */
     if ( !small ) {
 	hbox = gtk_hbox_new_in_box(FALSE, 0, 0, vbox, FALSE, TRUE, 0);
 
 	/* create the buttons and add them to the hbox */
-	button_select = gtk_button_new_with_label(_("_Select"));
-	button_exit = gtk_button_new_with_label(_("E_xit"));
-	gtk_button_set_use_underline((GtkButton *)button_select, TRUE);
-	gtk_button_set_use_underline((GtkButton *)button_exit, TRUE);
+	button_select = gtk_button_new_with_mnemonic(_("_Select"));
+	button_exit = gtk_button_new_with_mnemonic(_("E_xit"));
 
 	gtk_box_pack_start(GTK_BOX(hbox), button_select, TRUE, TRUE, 4);
 	gtk_box_pack_start(GTK_BOX(hbox), button_exit, TRUE, TRUE, 4);
 
-	/* make the application exit when the 'exit' button is clicked */
-	gtk_signal_connect(GTK_OBJECT(button_exit), "clicked",
-	    GTK_SIGNAL_FUNC(gtk_main_quit), NULL);
+        /* make the application exit when the 'exit' button is clicked */
+        g_signal_connect(button_exit, "clicked",
+                G_CALLBACK(gtk_main_quit), NULL);
 
-	/* activate selection window when the 'select' button is clicked */
-	gtk_signal_connect(GTK_OBJECT(button_select), "clicked",
-	    GTK_SIGNAL_FUNC(popup_probe_window), meter->probe);
+        /* activate selection window when the 'select' button is clicked */
+        g_signal_connect(button_select, "clicked",
+                G_CALLBACK(popup_probe_window), meter->probe);
 
 	/* save reference to select button */
 	meter->button_select = button_select;
-
-	gtk_widget_show(button_select);
-	gtk_widget_show(button_exit);
     }
 
     /* The interface is now set up so we show the window and
        enter the gtk_main loop. */
-    gtk_widget_show(main_window);
+    gtk_widget_show_all(main_window);
     /* If the -g option was invoked: set position */
     if (geometryflag == 1) {
         gtk_window_move(GTK_WINDOW(main_window),xposition,yposition);
@@ -389,115 +385,95 @@ probe_t *probe_new(char *probe_name)
 void popup_probe_window(GtkWidget * widget, gpointer data)
 {
     probe_t *probe;
-    int next, row, match;
     hal_pin_t *pin;
     hal_sig_t *sig;
     hal_param_t *param;
-    gchar *name;
+
+    int next, row, match_row, tab, match_tab;
+    char *name[HAL_NAME_LEN + 1];
+
 
     /* get a pointer to the probe data structure */
     probe = (probe_t *) data;
 
     /* create window if needed */
     if (probe->window == NULL) {
-	create_probe_window(probe);
-    }else{
-    gtk_window_present(GTK_WINDOW(probe->window));
+        create_probe_window(probe);
+    } else {
+        gtk_window_present(GTK_WINDOW(probe->window));
     }
 
-    gtk_clist_clear(GTK_CLIST(probe->lists[0]));
-    gtk_clist_clear(GTK_CLIST(probe->lists[1]));
-    gtk_clist_clear(GTK_CLIST(probe->lists[2]));
+    /*
+     * This part clears the list, then add all items back into the list.
+     * If a pin, signal, or parameter is showing in the main window, that item
+     * should be selected in the "Select item to probe" window, when the window
+     * is displayed again.
+     *
+     * Changing the tab (page) and selecting the item (row) needs to be done after
+     * the window is displayed.
+     */
+    clear_list(probe->lists[0]);
+    clear_list(probe->lists[1]);
+    clear_list(probe->lists[2]);
+
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->pin_list_ptr;
-    row = 0; match = 0;
-    gtk_clist_freeze(GTK_CLIST(probe->lists[0]));
+    match_tab = 0;
+    match_row = 0;
+    row = 0;
+    tab = 0;
     while (next != 0) {
-	pin = SHMPTR(next);
-	name = pin->name;
-	gtk_clist_append(GTK_CLIST(probe->lists[0]), &name);
+        pin = SHMPTR(next);
+        *name = pin->name;
 
-	/* if we have a pin selected, and it matches the current one,
-	   mark this row) */
-	if ((probe->listnum == 0) && (probe->pin == pin)) {
-	    gtk_clist_select_row(GTK_CLIST(probe->lists[0]), row, 0);
-	    /* Get the text from the list */
-	    gtk_clist_get_text(GTK_CLIST(probe->lists[0]), row, 0,
-		&(probe->pickname));
-	    match = 1;
-	}
-	
-	next = pin->next_ptr;
-	row++;
+        add_to_list(probe->lists[tab], name, NUM_COLS);
+        if (probe->pin == pin) {
+            match_tab = tab;
+            match_row = row;
+        }
+        next = pin->next_ptr;
+        row++;
     }
-    gtk_clist_thaw(GTK_CLIST(probe->lists[0]));
-    // if no match, unselect the first row, otherwise it will stay selected
-    // and confuse the user
-    if (!match)
-    	gtk_clist_unselect_row(GTK_CLIST(probe->lists[0]), 0, 0);
-    
+
     next = hal_data->sig_list_ptr;
-    row = 0; match = 0;
-    gtk_clist_freeze(GTK_CLIST(probe->lists[1]));
+    row = 0;
+    tab = 1;
     while (next != 0) {
-	sig = SHMPTR(next);
-	name = sig->name;
-	gtk_clist_append(GTK_CLIST(probe->lists[1]), &name);
+        sig = SHMPTR(next);
+        *name = sig->name;
 
-	/* if we have a signal selected, and it matches the current
-	   one, mark this row) */
-	if ((probe->listnum == 1) && (probe->sig == sig)) {
-	    gtk_clist_select_row(GTK_CLIST(probe->lists[1]), row, 0);
-	    /* Get the text from the list */
-	    gtk_clist_get_text(GTK_CLIST(probe->lists[1]), row, 0,
-		&(probe->pickname));
-	    match = 1;
-	}
-
-	next = sig->next_ptr;
-	row++;
+        add_to_list(probe->lists[tab], name, NUM_COLS);
+        if (probe->sig == sig) {
+            match_tab = tab;
+            match_row = row;
+        }
+        next = sig->next_ptr;
+        row++;
     }
-    gtk_clist_thaw(GTK_CLIST(probe->lists[1]));
-    // if no match, unselect the first row, otherwise it will stay selected
-    // and confuse the user
-    if (!match)
-    	gtk_clist_unselect_row(GTK_CLIST(probe->lists[1]), 0, 0);
 
     next = hal_data->param_list_ptr;
-    row = 0; match = 0;
-    gtk_clist_freeze(GTK_CLIST(probe->lists[2]));
+    row = 0;
+    tab = 2;
     while (next != 0) {
-	param = SHMPTR(next);
-	name = param->name;
-	gtk_clist_append(GTK_CLIST(probe->lists[2]), &name);
+        param = SHMPTR(next);
+        *name = param->name;
 
-	/* if we have a param selected, and it matches the current
-	   one, mark this row) */
-	if ((probe->listnum == 2) && (probe->param == param)) {
-	    gtk_clist_select_row(GTK_CLIST(probe->lists[2]), row, 0);
-	    /* Get the text from the list */
-	    gtk_clist_get_text(GTK_CLIST(probe->lists[2]), row, 0,
-		&(probe->pickname));
-	    match = 1;
-	}
-	
-	next = param->next_ptr;
-	row++;
-    }
-    gtk_clist_thaw(GTK_CLIST(probe->lists[2]));
-    // if no match, unselect the first row, otherwise it will stay selected
-    // and confuse the user
-    if (!match)
-    	gtk_clist_unselect_row(GTK_CLIST(probe->lists[2]), 0, 0);
-
-    if (probe->listnum >= 0) {
-	gtk_notebook_set_page(GTK_NOTEBOOK(probe->notebook), probe->listnum);
-    } else { //nothing selected, select the first (pin page)
-	gtk_notebook_set_page(GTK_NOTEBOOK(probe->notebook), 0);
+        add_to_list(probe->lists[tab], name, NUM_COLS);
+        if (probe->param == param) {
+            match_tab = tab;
+            match_row = row;
+        }
+        next = param->next_ptr;
+        row++;
     }
 
     rtapi_mutex_give(&(hal_data->mutex));
     gtk_widget_show_all(probe->window);
+
+    if (probe->pickname != NULL) {
+        gtk_notebook_set_current_page(GTK_NOTEBOOK(probe->notebook), match_tab);
+        mark_selected_row(probe->lists[match_tab], match_row);
+    }
 }
 
 static void quit(int sig)
@@ -613,97 +589,73 @@ static char *data_value(int type, void *valptr)
 
 static void create_probe_window(probe_t * probe)
 {
-    GtkWidget *vbox, *hbox, *notebk;
+    GtkWidget *vbox, *hbox;
+    GtkWidget *label;
     GtkWidget *button_close;
     GtkWidget *scrolled_window;
-    gchar *tab_label_text[3];
-    gint n;
+    GtkTreeSelection *selection;
 
-    /* create window, set it's size */
+    char *tab_label_text[3];
+    int n;
+
+    /* create window, set size and title */
     probe->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_widget_set_usize(GTK_WIDGET(probe->window), -2, 400);
-    /* allow user to grow but not shrink the window */
-    gtk_window_set_policy(GTK_WINDOW(probe->window), FALSE, TRUE, FALSE);
-    /* set set_probe window title */
+    gtk_widget_set_size_request(GTK_WIDGET(probe->window), -1, 400);
     gtk_window_set_title(GTK_WINDOW(probe->window), probe->probe_name);
 
-    /* a vbox to hold everything */
-    vbox = gtk_vbox_new(FALSE, 3);
+    /* a box to hold everything, add it to window */
+    vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 3);
     gtk_container_set_border_width(GTK_CONTAINER(vbox), 2);
-    /* add the vbox to the window */
     gtk_container_add(GTK_CONTAINER(probe->window), vbox);
-    gtk_widget_show(vbox);
 
-    /* create a notebook to hold pin, signal, and parameter lists */
-    notebk = gtk_notebook_new();
-    /* remember the notebook so we can change the pages later */
-    probe->notebook = notebk;
-    /* add the notebook to the window */
-    gtk_box_pack_start(GTK_BOX(vbox), notebk, TRUE, TRUE, 0);
-    /* set overall notebook parameters */
-    gtk_notebook_set_homogeneous_tabs(GTK_NOTEBOOK(notebk), TRUE);
+    /* create a notebook to hold pin, signal, and parameter list */
+    probe->notebook = gtk_notebook_new();
+    gtk_box_pack_start(GTK_BOX(vbox), probe->notebook, TRUE, TRUE, 0);
+
     /* text for tab labels */
     tab_label_text[0] = _(" _Pins ");
     tab_label_text[1] = _(" _Signals ");
     tab_label_text[2] = _(" Para_meters ");
+
     /* loop to create three identical tabs */
     for (n = 0; n < 3; n++) {
-	/* Create a scrolled window to display the list */
-	scrolled_window = gtk_scrolled_window_new(NULL, NULL);
-	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
-	    GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
-	gtk_widget_show(scrolled_window);
-	/* create a list to hold the data */
-	probe->lists[n] = gtk_clist_new(1);
-	/* set up a callback for when the user selects a line */
-	gtk_signal_connect(GTK_OBJECT(probe->lists[n]), "select_row",
-	    GTK_SIGNAL_FUNC(selection_made), probe);
-	/* set up a callback for when the user presses a key */
-	gtk_signal_connect(GTK_OBJECT(probe->lists[n]), "key_press_event",
-	    GTK_SIGNAL_FUNC(key_press), probe );
-	/* It isn't necessary to shadow the border, but it looks nice :) */
-	gtk_clist_set_shadow_type(GTK_CLIST(probe->lists[n]), GTK_SHADOW_OUT);
-	/* set list for single selection only */
-	gtk_clist_set_selection_mode(GTK_CLIST(probe->lists[n]),
-	    GTK_SELECTION_BROWSE);
-	/* put the list into the scrolled window */
-	gtk_container_add(GTK_CONTAINER(scrolled_window), probe->lists[n]);
-	gtk_widget_show(probe->lists[n]);
-	/* create a box for the tab label */
-	hbox = gtk_hbox_new(TRUE, 0);
-	/* create a label for the page */
-	gtk_label_new_in_box(tab_label_text[n], hbox, TRUE, TRUE, 0);
-	gtk_widget_show(hbox);
-	/* add page to the notebook */
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebk), scrolled_window, hbox);
-	gtk_signal_connect(GTK_OBJECT(notebk), "switch-page",
-	    GTK_SIGNAL_FUNC(page_switched), probe);
-	/* set tab attributes */
-	gtk_notebook_set_tab_label_packing(GTK_NOTEBOOK(notebk), hbox,
-	    TRUE, TRUE, GTK_PACK_START);
+        /* Create a scrolled window to display the list */
+        scrolled_window = gtk_scrolled_window_new(NULL, NULL);
+        gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
+            GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
+
+        /* create and set tabs in notebook */
+        label = gtk_label_new_with_mnemonic(tab_label_text[n]);
+        gtk_widget_set_size_request(label, 70, -1);
+        gtk_notebook_append_page(GTK_NOTEBOOK(probe->notebook), scrolled_window, label);
+
+        /* create and initialize the list to hold the data */
+        probe->lists[n] = gtk_tree_view_new();
+        gtk_tree_view_set_headers_visible(
+                GTK_TREE_VIEW(probe->lists[n]), FALSE);
+        init_list(probe->lists[n], &tab_label_text[n], NUM_COLS);
+        selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(probe->lists[n]));
+        gtk_container_add(GTK_CONTAINER(scrolled_window), probe->lists[n]);
+
+        /* signals related to the lists */
+        g_signal_connect_swapped(probe->lists[n], "row-activated",
+                G_CALLBACK(gtk_widget_destroy), probe->window);
+        g_signal_connect(selection, "changed",
+                G_CALLBACK(on_changed), probe);
     }
-    /* this selects the page holding the current selected probe */
-    gtk_widget_show(notebk);
-    probe->listnum=0;
 
-    /* an hbox to hold the OK, apply, and cancel buttons */
+    /* create a box and a close button */
     hbox = gtk_hbox_new_in_box(TRUE, 0, 0, vbox, FALSE, TRUE, 0);
-
-    /* create the close button and add it to the hbox */
-    button_close = gtk_button_new_with_label(_("_Close"));
-    gtk_button_set_use_underline((GtkButton *)button_close, TRUE);
+    button_close = gtk_button_new_with_mnemonic(_("_Close"));
     gtk_box_pack_start(GTK_BOX(hbox), button_close, TRUE, TRUE, 4);
 
-    /* make the window disappear if 'close' button is clicked */
-    gtk_signal_connect(GTK_OBJECT(button_close), "clicked",
-	GTK_SIGNAL_FUNC(close_selection), probe);
-    gtk_widget_show(button_close);
-
-    /* set probe->window to NULL if window is destroyed */
-    gtk_signal_connect(GTK_OBJECT(probe->window), "destroy",
-	GTK_SIGNAL_FUNC(gtk_widget_destroyed), &(probe->window));
-
-    /* done */
+    /* signals */
+    g_signal_connect(probe->notebook, "switch-page",
+            G_CALLBACK(page_switched), probe);
+    g_signal_connect_swapped(button_close, "clicked",
+            G_CALLBACK(gtk_widget_destroy), probe->window);
+    g_signal_connect(probe->window, "destroy",
+            G_CALLBACK(gtk_widget_destroyed), &(probe->window));
 }
 
 static void apply_selection(GtkWidget * widget, gpointer data)
@@ -735,90 +687,31 @@ static void apply_selection(GtkWidget * widget, gpointer data)
        wish to display, or all three are NULL if the item doesn't exist */
 }
 
-static void close_selection(GtkWidget * widget, gpointer data)
+/* Keeps track of which tab was last used. */
+static void page_switched(GtkNotebook *notebook, GtkWidget *page,
+                          guint page_num, gpointer user_data)
 {
     probe_t *probe;
-
-    /* get a pointer to the probe data structure */
-    probe = (probe_t *) data;
-    /* destroy the window, hiding it causes problems when showing again */
-    // it wouldn't always switch to the same tab, which causes confusion
-    // we need to rebuild the lists anyways, 
-    // so rebuilding it doesn't take that longer
-    gtk_widget_destroy(probe->window);
-}
-
-static gboolean key_press(GtkWidget *clist, GdkEventKey *event, gpointer user_data)
-{
-    gchar *name, *key;
-    int row, data_good;
-    probe_t *probe;
-
-    /* get a pointer to the probe data structure */
     probe = (probe_t *) user_data;
-
-    /*printf("key pressed: %s\n",gdk_keyval_name(event->keyval) );*/
-    if (event->keyval) {
-        row = 0; data_good = 1;
-
-        while (data_good != 0) {
-            key = (gdk_keyval_name (event->keyval));
-            data_good = gtk_clist_get_text(GTK_CLIST(clist), row, 0, &name );
-            printf("check: %s %c\n",key,name[0]);
-
-            /* is keypress same as first letter of name? */
-            if (*key == name[0]) {
-                gtk_clist_moveto(GTK_CLIST(probe->lists[probe->listnum]), row, 0,.5,0);
-
-                /* This code would select the found name but didn't move
-                    the cursor position. So after jumping to the selected
-                    letter, if you cursored, it would jump back to the
-                    previous selection- I think too confusing - shame I preferred
-                    the behaivour */
-
-                /*gtk_clist_undo_selection (GTK_CLIST(probe->lists[probe->listnum]));
-                gtk_clist_select_row(GTK_CLIST(probe->lists[probe->listnum]), row, 0);
-                gtk_clist_get_text(GTK_CLIST(clist), row, 0, &(probe->pickname));
-                apply_selection(GTK_WIDGET(probe->window), probe);*/
-                return 0;
-            }
-            row++;
-        }
-    }
-    return 0;
+    probe->listnum=page_num;
 }
 
-/* If we come here, then the user has selected a row in the list. */
-static void selection_made(GtkWidget * clist, gint row, gint column,
-    GdkEventButton * event, gpointer data)
+/*
+ * This gets triggered with the "changed" event. Get the name of the selected
+ * row and updates probe->pickname.
+ *
+ * Calls the function apply_selection to update the label in the main window.
+ */
+static void on_changed(GtkWidget *widget,  gpointer data)
 {
     probe_t *probe;
-
-    /* get a pointer to the probe data structure */
     probe = (probe_t *) data;
 
-    if (clist == NULL) {
-	/* We get spurious events when the lists are populated I don't know
-	   why.  If clist is null, it's a bad one! */
-	return;
-    }
+    GtkTreeIter iter;
+    GtkTreeModel *model;
 
-    if (event) {
-        /* If we get here, it should be a valid selection */
-        /* Get the text from the list */
-        gtk_clist_get_text(GTK_CLIST(clist), row, 0, &(probe->pickname));
+    if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(widget), &model, &iter)) {
+        gtk_tree_model_get(model, &iter, LIST_ITEM, &(probe->pickname), -1);
         apply_selection(GTK_WIDGET(probe->window), probe);
-        if (event->type == GDK_2BUTTON_PRESS) {
-            close_selection(GTK_WIDGET(probe->window), probe);
-        }
-        return;
-    } 
-
-}
-
-static void page_switched(GtkNotebook *notebook, GtkNotebookPage *page,
-		guint page_num, gpointer user_data)
-{
-	// update the listnum in probe data, because 
-	((probe_t *)user_data)->listnum=page_num;
+    }
 }

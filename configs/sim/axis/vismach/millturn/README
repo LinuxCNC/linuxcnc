@@ -1,0 +1,49 @@
+Simulation of a Mill-Turn machine
+
+This shows the use of switchable kinematics for a machine with 3 linear cartesian joints (XYZ) and one rotary joint (A) where the rotary (A) can be used as an axis and as a spindle. Switching the kinematic between a mill configuration and a lathe configuration can be done using M-codes in MDI-mode or inside a GCODE-program (M428 for milling / M429 for turning).
+
+After loading the config and homing the configuration is set to milling (M428).
+
+SOFTLIMITS: Axis-Softlimits are defined in the usual [AXIS_n]-section of the INI file. 'MIN_LIMIT' and 'MAX_LIMIT' are used for the default kinematic (mill). For the alternative kinematic (turn) additional entries 'MIN_LIMIT_TURN' and 'MAX_LIMIT_TURN' are used for the required axis (x,y and z). Note that the 'set coords " "' entry in ./mcodes/M128 and ./mcodes/M129 has to contain the required axis (set coords "x y z"). Because the home position of the Y axis has been set up to be in the center of the axis, the softlimits for Y are identical for both kinematics so switching them is not strictly necessary in this case but has been included for the user to experiment.
+Also note that M128 and M129 are not meant to be called directly by the user but are called from inside M428/M429 codes and that because of the forced synchronization in M128/M129 the motion planner cannot "see" limit violations beyond the next kinematic switch. Only after the M128/M129 command has been executed will the following gcode (up to the next kinematic switch) be checked for limit violations.
+
+Note that, switching of velocity and acceleration settings can be handled in the same manner as the softlimits.
+
+VISMACH: Due to limitations of vismach, turning tools will only show correctly if tooloffset for X and Z are identical. Other offsets can be used and will be calculated correctly for the toolpath but the graphical tool representation will not be correct in vismach visualization. Also mill-bits are not shown cylindrical but as a triangle.
+
+M428 will:
+
+1. Set the kinematic to 'mill' - mode
+
+    x : joint0
+    y : joint1
+    z : joint2
+    a : joint3
+
+ so the gcode commands:
+   'g0x10' moves joint0
+   'g0z10' moves joint2
+
+2. Load the softlimits as defined in 'MIN_LIMIT' and 'MAX_LIMIT' of [AXIS_n]-section of the INI file (for AXIS_X and AXIS_Z)
+3. Set the G59.1 home offset to X-290 Y0 Z-160 A0 (this can be changed in ./remaps/428remap.ngc)
+4. Activate G59.1 offset
+5. Force a synchronization
+
+M428 will:
+
+1. Set the kinematic to 'turn' - mode
+
+    x :  joint2
+    y : -joint1
+    z :  joint0
+    a :  joint3
+
+   so the gcode commands:
+
+      'g0x10' moves joint2
+      'g0z10' moves joint0
+
+2. Load the softlimits as defined in 'MIN_LIMIT_TURN' and 'MAX_LIMIT_TURN' of [AXIS_n]-section of the INI file (for AXIS_X and AXIS_Z)
+3. Set the G59.2 home offset to X-160 Y0 Z-290 A0 (this can be changed in ./remaps/429remap.ngc)
+4. Activate G59.2 offset
+5. Force a synchronization

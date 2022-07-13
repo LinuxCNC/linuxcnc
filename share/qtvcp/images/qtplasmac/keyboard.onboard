@@ -1,0 +1,86 @@
+<?xml version="1.0" ?>
+<!--
+Copyright © 2020 Phillip A Carter. This file is part of LinuxCNC.
+LinuxCNC is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
+Onboard is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+<keyboard format="3.2" id="keyboard" section="system" summary="Keyboard for QtPlasmaC gcode editing">
+  <include file="key_defs.xml"/>
+  <box border="0.5" orientation="vertical" spacing="1.5">
+    <panel filename="keyboard.svg" layer="alpha">
+	  <key group="alphanumeric" id="AB01"/>
+	  <key group="alphanumeric" id="AE02"/>
+	  <key group="alphanumeric" id="AE03"/>
+	  <key group="alphanumeric" id="AD09"/>
+	  <key group="alphanumeric" id="AE01"/>
+	  <key group="alphanumeric" id="AE06"/>
+	  <key group="alphanumeric" id="AE07"/>
+	  <key group="alphanumeric" id="AE04"/>
+	  <key group="alphanumeric" id="AE05"/>
+	  <key group="alphanumeric" id="AD03"/>
+	  <key group="alphanumeric" id="AD02"/>
+	  <key group="alphanumeric" id="AD01"/>
+	  <key group="alphanumeric" id="AE09"/>
+	  <key group="alphanumeric" id="AD07"/>
+	  <key group="alphanumeric" id="AD06"/>
+	  <key group="alphanumeric" id="AD05"/>
+	  <key group="alphanumeric" id="AD04"/>
+	  <key group="alphanumeric" id="AB10"/>
+	  <key group="alphanumeric" id="AC11"/>
+	  <key group="alphanumeric" id="AC10"/>
+	  <key group="alphanumeric" id="TLDE"/>
+	  <key group="alphanumeric" id="LSGT"/>
+	  <key group="alphanumeric" id="BKSL"/>
+	  <key group="alphanumeric" id="AD10"/>
+	  <key group="alphanumeric" id="AD11"/>
+	  <key group="alphanumeric" id="AD12"/>
+	  <key group="alphanumeric" id="AB08"/>
+	  <key group="alphanumeric" id="AE11"/>
+	  <key group="alphanumeric" id="AE10"/>
+	  <key group="alphanumeric" id="AE12"/>
+	  <key group="alphanumeric" id="AC04"/>
+	  <key group="alphanumeric" id="AC05"/>
+	  <key group="alphanumeric" id="AC06"/>
+	  <key group="alphanumeric" id="AC07"/>
+	  <key group="alphanumeric" id="AB09"/>
+	  <key group="alphanumeric" id="AC01"/>
+	  <key group="alphanumeric" id="AC02"/>
+	  <key group="alphanumeric" id="AC03"/>
+	  <key group="alphanumeric" id="AB05"/>
+	  <key group="alphanumeric" id="AB04"/>
+	  <key group="alphanumeric" id="AE08"/>
+	  <key group="alphanumeric" id="AB06"/>
+	  <key group="alphanumeric" id="AC08"/>
+	  <key group="alphanumeric" id="AC09"/>
+	  <key group="alphanumeric" id="AB03"/>
+	  <key group="alphanumeric" id="AB02"/>
+	  <key group="alphanumeric" id="AD08"/>
+	  <key group="alphanumeric" id="AB07"/>
+	  <key group="misc" id="CAPS"/>
+	  <key group="shifts" id="LFSH"/>
+	  <key group="shifts" id="RTSH"/>
+	  <key group="bottomrow" id="LCTL"/>
+	  <key group="bottomrow" id="LALT"/>
+	  <key group="bottomrow" id="RALT"/>
+	  <key group="bottomrow" id="LWIN"/>
+	  <key group="bottomrow" id="SPCE"/>
+	  <key group="bottomrow" id="DELE.next-to-backspace"/>
+	  <key group="bottomrow" id="BKSP"/>
+	  <key group="bottomrow" id="move"/>
+	  <key group="misc" id="TAB"/>
+	  <key group="misc" id="RTRN" label_x_align="0.65"/>
+	  <key group="directions_alpha" id="LEFT"/>
+	  <key group="directions_alpha" id="RGHT"/>
+	  <key group="directions_alpha" id="UP"/>
+	  <key group="directions_alpha" id="DOWN"/>
+    </panel>
+  </box>
+</keyboard>

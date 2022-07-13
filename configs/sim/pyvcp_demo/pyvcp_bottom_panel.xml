@@ -1,0 +1,136 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+    <hbox>
+        <labelframe>
+            <bd>2</bd>
+            <relief>RAISED</relief> 
+            <hbox>
+                <dial>
+                    <size>100</size>
+                    <cpr>100</cpr>
+                    <min_>0</min_>
+                    <max_>100</max_>
+                    <text>"Dial 0"</text>
+                    <initval>5</initval>
+                    <resolution>1</resolution>
+                    <halpin>"dial0"</halpin>
+                    <dialcolor>"yellow"</dialcolor>
+                    <edgecolor>"green"</edgecolor>
+                    <dotcolor>"black"</dotcolor>
+                    <param_pin>1</param_pin>
+                </dial>
+                <scale>
+                    <width>"15"</width>
+                    <halpin>"scale0"</halpin>
+                    <resolution>1</resolution>
+                    <orient>VERTICAL</orient>
+                    <initval>20</initval>
+                    <min_>0</min_>
+                    <max_>100</max_>
+                    <param_pin>1</param_pin>
+                </scale>
+                </hbox>
+        </labelframe>
+        <label>
+            <text>"   "</text>
+        </label>
+        <labelframe>
+            <bd>2</bd>
+            <relief>RAISED</relief> 
+            <hbox>
+                <dial>
+                    <size>100</size>
+                    <cpr>100</cpr>
+                    <min_>0</min_>
+                    <max_>100</max_>
+                    <text>"Dial 1"</text>
+                    <initval>10</initval>
+                    <resolution>0.1</resolution>
+                    <halpin>"dial1"</halpin>
+                    <dialcolor>"green"</dialcolor>
+                    <edgecolor>"red"</edgecolor>
+                    <dotcolor>"black"</dotcolor>
+                    <param_pin>1</param_pin>
+                </dial>
+                <scale>
+                    <width>"15"</width>
+                    <halpin>"scale1"</halpin>            
+                    <resolution>0.1</resolution>
+                    <orient>VERTICAL</orient>
+                    <initval>10</initval>
+                    <min_>0</min_>
+                    <max_>100</max_>
+                    <param_pin>1</param_pin>
+                </scale>
+            </hbox>
+        </labelframe>
+        <label>
+            <text>"   "</text>
+        </label>
+        <labelframe>
+            <bd>2</bd>
+            <relief>RAISED</relief> 
+            <hbox>
+                <dial>
+                    <size>100</size>
+                    <cpr>100</cpr>
+                    <min_>0</min_>
+                    <max_>100</max_>
+                    <text>"Dial 2"</text>
+                    <initval>15</initval>
+                    <resolution>0.01</resolution>
+                    <halpin>"dial2"</halpin>
+                    <dialcolor>"yellow"</dialcolor>
+                    <edgecolor>"green"</edgecolor>
+                    <dotcolor>"black"</dotcolor>
+                    <param_pin>1</param_pin>
+                </dial>
+                <scale>
+                    <width>"15"</width>
+                    <halpin>"scale2"</halpin>
+                    <resolution>0.01</resolution>
+                    <orient>VERTICAL</orient>
+                    <initval>1</initval>
+                    <min_>0</min_>
+                    <max_>100</max_>
+                    <param_pin>1</param_pin>
+                </scale>
+            </hbox>
+        </labelframe>
+        <label>
+            <text>"   "</text>
+        </label>
+        <labelframe>
+            <bd>2</bd>
+            <relief>RAISED</relief> 
+            <hbox>
+                <dial>
+                    <size>100</size>
+                    <cpr>100</cpr>
+                    <min_>0</min_>
+                    <max_>100</max_>
+                    <text>"Dial 3"</text>
+                    <initval>20</initval>
+                    <resolution>0.001</resolution>
+                    <halpin>"dial3"</halpin>
+                    <dialcolor>"green"</dialcolor>
+                    <edgecolor>"red"</edgecolor>
+                    <dotcolor>"black"</dotcolor>
+                    <param_pin>1</param_pin>
+                </dial>
+                <scale>
+                    <width>"15"</width>
+                    <halpin>"scale3"</halpin>            
+                    <resolution>0.001</resolution>
+                    <orient>VERTICAL</orient>
+                    <initval>10</initval>
+                    <min_>0</min_>
+                    <max_>100</max_>
+                    <param_pin>1</param_pin>
+                </scale>
+            </hbox>
+        </labelframe>
+    </hbox>
+</pyvcp>
+
+

@@ -1,0 +1,5 @@
+
+The files in this directory are used for the transition away
+from a qtplasmac subdirectory in the machine config directory.
+
+This complete directory will be deleted in the future.

@@ -106,6 +106,9 @@ typedef struct {
     unsigned char Zmask;	/* u:rc c:s mask for oldZ, from index-ena */
     hal_bit_t *x4_mode;		/* u:r enables x4 counting (default) */
     hal_bit_t *counter_mode;	/* u:r enables counter mode */
+    hal_s32_t *missing_teeth;   /* u:r non-zero enables missing-teeth index */
+    hal_s32_t dt;              /* u:w most recent tooth space */
+    hal_s32_t limit_dt;         /* u:r c:w inter-count gap (nS) to define index */
     atomic buf[2];		/* u:w c:r double buffer for atomic data */
     volatile atomic *bp;	/* u:r c:w ptr to in-use buffer */
     hal_s32_t *raw_counts;	/* u:rw raw count value, in update() only */
@@ -128,6 +131,7 @@ typedef struct {
     hal_float_t *pos_interp;	/* c:w scaled and interpolated position (float) */
     hal_float_t *pos_latch;     /* c:w scaled latched position (floating point) */
     hal_float_t *vel;		/* c:w scaled velocity (floating point) */
+    hal_float_t *vel_rpm;   /* rps * 60 for convenience */
     hal_float_t *pos_scale;	/* c:r pin: scaling factor for pos */
     hal_bit_t old_latch;        /* value of latch on previous cycle */
     double old_scale;		/* c:rw stored scale value */
@@ -152,7 +156,7 @@ static counter_t *counter_array;
    down 1 after glitch), and on both inputs simultaneously (no count
    at all)  In theory, it can count once per cycle, in practice the
    maximum count rate should be at _least_ 10% below the sample rate,
-   and preferrable around half the sample rate.  It counts every
+   and preferable around half the sample rate.  It counts every
    edge of the quadrature waveform, 4 counts per complete cycle.
 */
 static const unsigned char lut_x4[16] = {
@@ -206,7 +210,7 @@ int rtapi_app_main(void)
     } else {
         howmany = 0;
         for (i = 0; i < MAX_CHAN; i++) {
-            if (names[i] == NULL) {
+            if ( (names[i] == NULL) || (*names[i] == 0) ){
                 break;
             }
             howmany = i + 1;
@@ -277,6 +281,7 @@ int rtapi_app_main(void)
 	*(cntr->pos) = 0.0;
 	*(cntr->pos_latch) = 0.0;
 	*(cntr->vel) = 0.0;
+	*(cntr->vel_rpm) = 0.0;
 	*(cntr->pos_scale) = 1.0;
 	cntr->old_scale = 1.0;
 	cntr->scale = 1.0;
@@ -324,7 +329,9 @@ static void update(void *arg, long period)
 
     cntr = arg;
     for (n = 0; n < howmany; n++) {
+	int gap = 0;
 	buf = (atomic *) cntr->bp;
+	cntr->dt += period;
 	/* get state machine current state */
 	state = cntr->state;
 	/* add input bits to state code */
@@ -344,10 +351,15 @@ static void update(void *arg, long period)
 	}
 	/* should we count? */
 	if (state & SM_CNT_UP_MASK) {
+		if (*(cntr->missing_teeth) && cntr->dt > cntr->limit_dt){
+			gap = 1;
+			(*cntr->raw_counts)+= *(cntr->missing_teeth);
+		}
 	    (*cntr->raw_counts)++;
 	    buf->raw_count = *(cntr->raw_counts);
 	    buf->timestamp = timebase;
 	    buf->count_detected = 1;
+	    cntr->dt = 0;
 	} else if (state & SM_CNT_DN_MASK) {
 	    (*cntr->raw_counts)--;
 	    buf->raw_count = *(cntr->raw_counts);
@@ -359,7 +371,7 @@ static void update(void *arg, long period)
 	/* get old phase Z state, make room for new bit value */
 	state = cntr->oldZ << 1;
 	/* add new value of phase Z */
-	if (*(cntr->phaseZ)) {
+	if (*(cntr->phaseZ) || gap) {
 	    state |= 1;
 	}
 	cntr->oldZ = state & 3;
@@ -469,13 +481,18 @@ static void capture(void *arg, long period)
 	    } else {
 		vel = (delta_counts * cntr->scale ) / (delta_time * 1e-9);
 		*(cntr->vel) = vel;
+		/* decide how many ns to detect missing-pulse index */
+		cntr->limit_dt *= 0.9;
+		cntr->limit_dt += 0.1 * ((*(cntr->missing_teeth) + 0.5) * (delta_time / delta_counts));
 	    }
 	} else {
 	    /* no count */
 	    if ( cntr->counts_since_timeout ) {
 		/* calc time since last count */
 		delta_time = timebase - cntr->timestamp;
-		if ( delta_time < 1e9 / ( *(cntr->min_speed) * cntr->scale )) {
+		if ( *(cntr->missing_teeth) && delta_time < 2 * cntr->limit_dt){
+			// dont update the velocity in the tooth gap
+		} else if ( delta_time < 1e9 / ( *(cntr->min_speed) * cntr->scale )) {
 		    /* not to long, estimate vel if a count arrived now */
 		    vel = ( cntr->scale ) / (delta_time * 1e-9);
 		    /* make vel positive, even if scale is negative */
@@ -498,6 +515,7 @@ static void capture(void *arg, long period)
 		*(cntr->vel) = 0;
 	    }
 	}
+	*(cntr->vel_rpm) = *(cntr->vel) * 60.0;
 	/* compute net counts */
 	*(cntr->count) = cntr->raw_count - cntr->index_count;
         *(cntr->count_latch) = cntr->latch_count - cntr->index_count;
@@ -623,6 +641,12 @@ static int export_encoder(counter_t * addr,char * prefix)
     if (retval != 0) {
 	return retval;
     }
+    /* export pin for scaled velocity captured by capture() */
+    retval = hal_pin_float_newf(HAL_OUT, &(addr->vel_rpm), comp_id,
+            "%s.velocity-rpm", prefix);
+    if (retval != 0) {
+	return retval;
+    }
     /* export pin for scaling */
     retval = hal_pin_float_newf(HAL_IO, &(addr->pos_scale), comp_id,
             "%s.position-scale", prefix);
@@ -638,6 +662,12 @@ static int export_encoder(counter_t * addr,char * prefix)
     /* export pin for counter mode */
     retval = hal_pin_bit_newf(HAL_IO, &(addr->counter_mode), comp_id,
             "%s.counter-mode", prefix);
+    if (retval != 0) {
+	return retval;
+    }
+    /* export pin for missing-tooth index */
+    retval = hal_pin_s32_newf(HAL_IN, &(addr->missing_teeth), comp_id,
+            "%s.missing-teeth", prefix);
     if (retval != 0) {
 	return retval;
     }

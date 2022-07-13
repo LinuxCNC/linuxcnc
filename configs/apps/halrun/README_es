@@ -1,0 +1,8 @@
+halrun:
+
+Iniciar halrun en un terminal xterm
+Primero ordene el comando 'help' para mostrar los comandos
+
+Nota:
+   Linuxcnc no debe estar ejecutándose.
+   Se terminará cualquier otra instancia de halrun.

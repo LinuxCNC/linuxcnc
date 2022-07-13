@@ -1,0 +1,2499 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1756</width>
+    <height>943</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="ScreenOptions" name="screen_options">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="close_overlay_color" stdset="0">
+       <color alpha="150">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </property>
+      <property name="calculatorDialog_option" stdset="0">
+       <bool>true</bool>
+      </property>
+      <property name="overlay_color" stdset="0">
+       <color alpha="186">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_31">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QTabWidget" name="tabWidget">
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <widget class="QWidget" name="tab">
+          <attribute name="title">
+           <string>Run</string>
+          </attribute>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_6">
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout">
+               <property name="sizeConstraint">
+                <enum>QLayout::SetDefaultConstraint</enum>
+               </property>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="0,1">
+                 <item>
+                  <widget class="QLabel" name="label_2">
+                   <property name="text">
+                    <string>File:  </string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="StatusLabel" name="program_name_label">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                   </property>
+                   <property name="filename_status" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <widget class="GcodeEditor" name="gcode_editor">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_6">
+                 <item>
+                  <widget class="ActionButton" name="actionbutton_15">
+                   <property name="text">
+                    <string>Abort</string>
+                   </property>
+                   <property name="abort_action" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="ActionButton" name="actionbutton_14">
+                   <property name="text">
+                    <string>Load</string>
+                   </property>
+                   <property name="load_dialog_action" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="ActionButton" name="actionbutton_13"/>
+                 </item>
+                 <item>
+                  <widget class="ActionButton" name="actionbutton_12"/>
+                 </item>
+                 <item>
+                  <widget class="ActionButton" name="actionbutton_11">
+                   <property name="text">
+                    <string>Pause</string>
+                   </property>
+                   <property name="checkable">
+                    <bool>true</bool>
+                   </property>
+                   <property name="pause_action" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="ActionButton" name="actionbutton_10">
+                   <property name="text">
+                    <string>Run</string>
+                   </property>
+                   <property name="checkable">
+                    <bool>true</bool>
+                   </property>
+                   <property name="run_action" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QProgressBar" name="progressBar">
+                   <property name="value">
+                    <number>0</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="StatusLabel" name="machine_state_label">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>100</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                   <property name="textTemplate" stdset="0">
+                    <string>Stopped %s</string>
+                   </property>
+                   <property name="machine_state_status" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QFrame" name="graphics_frame">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>200</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::StyledPanel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+               <layout class="QHBoxLayout" name="horizontalLayout_5">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <property name="leftMargin">
+                 <number>0</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_2">
+                  <item>
+                   <layout class="QVBoxLayout" name="verticalLayout_8">
+                    <item>
+                     <widget class="GCodeGraphics" name="gcodegraphics_2">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="background_color" stdset="0">
+                       <color alpha="0">
+                        <red>0</red>
+                        <green>0</green>
+                        <blue>0</blue>
+                       </color>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QFrame" name="frame_2">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <layout class="QHBoxLayout" name="horizontalLayout_12">
+                       <property name="topMargin">
+                        <number>5</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>5</number>
+                       </property>
+                      </layout>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                  <item>
+                   <widget class="QFrame" name="frame">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>100</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <layout class="QHBoxLayout" name="horizontalLayout_13">
+                     <property name="sizeConstraint">
+                      <enum>QLayout::SetFixedSize</enum>
+                     </property>
+                     <item>
+                      <layout class="QVBoxLayout" name="verticalLayout_2">
+                       <item>
+                        <widget class="ActionButton" name="actionbutton_20">
+                         <property name="text">
+                          <string>P</string>
+                         </property>
+                         <property name="checkable">
+                          <bool>true</bool>
+                         </property>
+                         <property name="view_change_action" stdset="0">
+                          <bool>true</bool>
+                         </property>
+                         <attribute name="buttonGroup">
+                          <string notr="true">buttonGroup</string>
+                         </attribute>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="ActionButton" name="actionbutton_21">
+                         <property name="text">
+                          <string>X</string>
+                         </property>
+                         <property name="checkable">
+                          <bool>true</bool>
+                         </property>
+                         <property name="view_change_action" stdset="0">
+                          <bool>true</bool>
+                         </property>
+                         <property name="view_type_string" stdset="0">
+                          <string>x</string>
+                         </property>
+                         <attribute name="buttonGroup">
+                          <string notr="true">buttonGroup</string>
+                         </attribute>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="ActionButton" name="actionbutton_22">
+                         <property name="text">
+                          <string>Y</string>
+                         </property>
+                         <property name="checkable">
+                          <bool>true</bool>
+                         </property>
+                         <property name="view_change_action" stdset="0">
+                          <bool>true</bool>
+                         </property>
+                         <property name="view_type_string" stdset="0">
+                          <string>y</string>
+                         </property>
+                         <attribute name="buttonGroup">
+                          <string notr="true">buttonGroup</string>
+                         </attribute>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="ActionButton" name="actionbutton_23">
+                         <property name="text">
+                          <string>Z</string>
+                         </property>
+                         <property name="checkable">
+                          <bool>true</bool>
+                         </property>
+                         <property name="view_change_action" stdset="0">
+                          <bool>true</bool>
+                         </property>
+                         <property name="view_type_string" stdset="0">
+                          <string>z</string>
+                         </property>
+                         <attribute name="buttonGroup">
+                          <string notr="true">buttonGroup</string>
+                         </attribute>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="ActionButton" name="actionbutton_24"/>
+                       </item>
+                       <item>
+                        <widget class="ActionButton" name="actionbutton_27"/>
+                       </item>
+                       <item>
+                        <widget class="ActionButton" name="actionbutton_26"/>
+                       </item>
+                       <item>
+                        <widget class="ActionButton" name="actionbutton_25">
+                         <property name="text">
+                          <string>Clear</string>
+                         </property>
+                         <property name="view_change_action" stdset="0">
+                          <bool>true</bool>
+                         </property>
+                         <property name="view_type_string" stdset="0">
+                          <string>clear</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="ActionButton" name="actionbutton_28"/>
+                       </item>
+                      </layout>
+                     </item>
+                    </layout>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="Line" name="line_8">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Plain</enum>
+             </property>
+             <property name="lineWidth">
+              <number>6</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QFrame" name="rightside_run_tab_frame">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>500</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_18">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QFrame" name="frame">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,0,0,0,0,0,0,0,0,0,0,0,0">
+                 <property name="spacing">
+                  <number>0</number>
+                 </property>
+                 <property name="sizeConstraint">
+                  <enum>QLayout::SetMinimumSize</enum>
+                 </property>
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="StatusAdjustmentBar" name="statusadjustmentbar_4">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="feed_rate" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="text_template" stdset="0">
+                    <string>Feed Override
+ %s</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="StatusAdjustmentBar" name="statusadjustmentbar_3">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="rapid_rate" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="feed_rate" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="text_template" stdset="0">
+                    <string>Rapid Override
+ %s</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="StatusAdjustmentBar" name="statusadjustmentbar_6">
+                   <property name="spindle_rate" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="show_toggle_button" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="text_template" stdset="0">
+                    <string>Spindle Override
+   %d</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="StatusAdjustmentBar" name="statusadjustmentbar_2">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="spindle_rate" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="jograte_rate" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="text_template" stdset="0">
+                    <string>Jog Rate
+%s</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="StatusAdjustmentBar" name="statusadjustmentbar_5">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="jograte_rate" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="jograte_angular_rate" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="text_template" stdset="0">
+                    <string>Rotary Rate
+%s</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="verticalSpacer">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>40</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_39">
+                   <item>
+                    <widget class="StatusLabel" name="jog_angular_inc_label">
+                     <property name="jogincr_status" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="StatusLabel" name="jog_inc_label">
+                     <property name="jogincr_status" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="joginct_angle_status" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_38">
+                   <item>
+                    <widget class="ActionButton" name="actionbutton_31">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="text">
+                      <string>Low</string>
+                     </property>
+                     <property name="checkable">
+                      <bool>true</bool>
+                     </property>
+                     <property name="indicator_option" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                     <property name="jog_incr_action" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                     <property name="incr_imperial_number" stdset="0">
+                      <double>0.001000000000000</double>
+                     </property>
+                     <property name="incr_mm_number" stdset="0">
+                      <double>0.010000000000000</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="ActionButton" name="actionbutton_32">
+                     <property name="text">
+                      <string>Med</string>
+                     </property>
+                     <property name="checkable">
+                      <bool>true</bool>
+                     </property>
+                     <property name="indicator_option" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                     <property name="jog_incr_action" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                     <property name="incr_mm_number" stdset="0">
+                      <double>0.100000000000000</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="ActionButton" name="actionbutton_30">
+                     <property name="text">
+                      <string>Hi</string>
+                     </property>
+                     <property name="checkable">
+                      <bool>true</bool>
+                     </property>
+                     <property name="indicator_option" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                     <property name="jog_incr_action" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                     <property name="incr_imperial_number" stdset="0">
+                      <double>0.100000000000000</double>
+                     </property>
+                     <property name="incr_mm_number" stdset="0">
+                      <double>1.000000000000000</double>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="ActionButton" name="actionbutton_29">
+                     <property name="text">
+                      <string>Cont</string>
+                     </property>
+                     <property name="checkable">
+                      <bool>true</bool>
+                     </property>
+                     <property name="indicator_option" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                     <property name="jog_incr_action" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                     <property name="incr_imperial_number" stdset="0">
+                      <double>0.000000000000000</double>
+                     </property>
+                     <property name="incr_mm_number" stdset="0">
+                      <double>0.000000000000000</double>
+                     </property>
+                     <property name="incr_angular_number" stdset="0">
+                      <double>0.000000000000000</double>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <widget class="Line" name="line_6">
+                   <property name="frameShadow">
+                    <enum>QFrame::Plain</enum>
+                   </property>
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_9">
+                   <item>
+                    <widget class="ActionButton" name="actionbutton_19">
+                     <property name="text">
+                      <string>SPDL -</string>
+                     </property>
+                     <property name="spindle_rev_action" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="spindle_down_action" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="ActionButton" name="actionbutton_33">
+                     <property name="text">
+                      <string>STOP</string>
+                     </property>
+                     <property name="spindle_stop_action" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="ActionButton" name="actionbutton_18">
+                     <property name="text">
+                      <string>SPDL +</string>
+                     </property>
+                     <property name="spindle_fwd_action" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="spindle_up_action" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <layout class="QVBoxLayout" name="verticalLayout_9">
+                   <property name="sizeConstraint">
+                    <enum>QLayout::SetFixedSize</enum>
+                   </property>
+                   <item>
+                    <widget class="ImageSwitcher" name="imageswitcher">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="minimumSize">
+                      <size>
+                       <width>0</width>
+                       <height>200</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize">
+                      <size>
+                       <width>250</width>
+                       <height>200</height>
+                      </size>
+                     </property>
+                     <property name="scaledContents">
+                      <bool>true</bool>
+                     </property>
+                     <property name="image_number" stdset="0">
+                      <number>0</number>
+                     </property>
+                     <property name="image_list" stdset="0">
+                      <stringlist>
+                       <string>/home/chris/emc-dev/share/qtvcp/images/no_tool.png</string>
+                       <string>/home/chris/emc-dev/share/qtvcp/images/tool_7-.png</string>
+                       <string>/home/chris/emc-dev/share/qtvcp/images/b4_endmill.png</string>
+                      </stringlist>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="StatusLabel" name="tool_description_label">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="tool_comment_status" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="StatusLabel" name="tool_diameter_label">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="textTemplate" stdset="0">
+                      <string>Diameter: %s</string>
+                     </property>
+                     <property name="tool_diameter_status" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                     <property name="tool_comment_status" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <spacer name="verticalSpacer_4">
+                     <property name="orientation">
+                      <enum>Qt::Vertical</enum>
+                     </property>
+                     <property name="sizeHint" stdset="0">
+                      <size>
+                       <width>20</width>
+                       <height>40</height>
+                      </size>
+                     </property>
+                    </spacer>
+                   </item>
+                   <item>
+                    <layout class="QVBoxLayout" name="verticalLayout_10">
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_32"/>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_22">
+                       <property name="sizeConstraint">
+                        <enum>QLayout::SetMinimumSize</enum>
+                       </property>
+                       <item>
+                        <widget class="ActionButton" name="actionbutton_34">
+                         <property name="text">
+                          <string>Flood</string>
+                         </property>
+                         <property name="checkable">
+                          <bool>true</bool>
+                         </property>
+                         <property name="flood_action" stdset="0">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <spacer name="horizontalSpacer_20">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>0</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item>
+                        <widget class="ActionButton" name="actionbutton_37">
+                         <property name="text">
+                          <string>Mist</string>
+                         </property>
+                         <property name="checkable">
+                          <bool>true</bool>
+                         </property>
+                         <property name="mist_action" stdset="0">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_25">
+                       <item>
+                        <widget class="ActionButton" name="actionbutton_45"/>
+                       </item>
+                       <item>
+                        <spacer name="horizontalSpacer_21">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>40</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item>
+                        <widget class="ActionButton" name="actionbutton_44"/>
+                       </item>
+                       <item>
+                        <spacer name="horizontalSpacer_22">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>40</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item>
+                        <widget class="ActionButton" name="actionbutton_43"/>
+                       </item>
+                      </layout>
+                     </item>
+                     <item>
+                      <layout class="QHBoxLayout" name="horizontalLayout_24"/>
+                     </item>
+                     <item>
+                      <spacer name="verticalSpacer_5">
+                       <property name="orientation">
+                        <enum>Qt::Vertical</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>20</width>
+                         <height>40</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <widget class="EntryDialog" name="entrydialog"/>
+                 </item>
+                 <item>
+                  <spacer name="verticalSpacer_3">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>10</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab_2">
+          <attribute name="title">
+           <string>File</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <item>
+            <widget class="FileManager" name="filemanager"/>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab_3">
+          <attribute name="title">
+           <string>Tool</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_7">
+           <item>
+            <widget class="OriginOffsetView" name="originoffsetview"/>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="groupBox_2">
+             <property name="title">
+              <string>Offsets Management</string>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_8">
+              <item>
+               <widget class="ActionButton" name="actionbutton">
+                <property name="text">
+                 <string>Zero G5x</string>
+                </property>
+                <property name="zero_g5x_action" stdset="0">
+                 <bool>true</bool>
+                </property>
+                <property name="template_label_option" stdset="0">
+                 <bool>false</bool>
+                </property>
+                <property name="joint_number" stdset="0">
+                 <number>0</number>
+                </property>
+                <property name="incr_imperial_number" stdset="0">
+                 <double>0.010000000000000</double>
+                </property>
+                <property name="incr_mm_number" stdset="0">
+                 <double>0.025000000000000</double>
+                </property>
+                <property name="incr_angular_number" stdset="0">
+                 <double>-1.000000000000000</double>
+                </property>
+                <property name="toggle_float_option" stdset="0">
+                 <bool>false</bool>
+                </property>
+                <property name="float_num" stdset="0">
+                 <double>100.000000000000000</double>
+                </property>
+                <property name="float_alt_num" stdset="0">
+                 <double>50.000000000000000</double>
+                </property>
+                <property name="view_type_string" stdset="0">
+                 <string>P</string>
+                </property>
+                <property name="command_text_string" stdset="0">
+                 <string/>
+                </property>
+                <property name="ini_mdi_number" stdset="0">
+                 <number>0</number>
+                </property>
+                <property name="textTemplate" stdset="0">
+                 <string>%1.3f in</string>
+                </property>
+                <property name="alt_textTemplate" stdset="0">
+                 <string>%1.2f mm</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_3">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="ActionButton" name="actionbutton_5">
+                <property name="text">
+                 <string>Zero Rotated Z</string>
+                </property>
+                <property name="zero_g5x_action" stdset="0">
+                 <bool>false</bool>
+                </property>
+                <property name="zero_zrot_action" stdset="0">
+                 <bool>true</bool>
+                </property>
+                <property name="template_label_option" stdset="0">
+                 <bool>false</bool>
+                </property>
+                <property name="joint_number" stdset="0">
+                 <number>0</number>
+                </property>
+                <property name="incr_imperial_number" stdset="0">
+                 <double>0.010000000000000</double>
+                </property>
+                <property name="incr_mm_number" stdset="0">
+                 <double>0.025000000000000</double>
+                </property>
+                <property name="incr_angular_number" stdset="0">
+                 <double>-1.000000000000000</double>
+                </property>
+                <property name="toggle_float_option" stdset="0">
+                 <bool>false</bool>
+                </property>
+                <property name="float_num" stdset="0">
+                 <double>100.000000000000000</double>
+                </property>
+                <property name="float_alt_num" stdset="0">
+                 <double>50.000000000000000</double>
+                </property>
+                <property name="view_type_string" stdset="0">
+                 <string>P</string>
+                </property>
+                <property name="command_text_string" stdset="0">
+                 <string/>
+                </property>
+                <property name="ini_mdi_number" stdset="0">
+                 <number>0</number>
+                </property>
+                <property name="textTemplate" stdset="0">
+                 <string>%1.3f in</string>
+                </property>
+                <property name="alt_textTemplate" stdset="0">
+                 <string>%1.2f mm</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_2">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="ActionButton" name="actionbutton_2">
+                <property name="text">
+                 <string>Zero G92</string>
+                </property>
+                <property name="zero_g92_action" stdset="0">
+                 <bool>true</bool>
+                </property>
+                <property name="template_label_option" stdset="0">
+                 <bool>false</bool>
+                </property>
+                <property name="joint_number" stdset="0">
+                 <number>0</number>
+                </property>
+                <property name="incr_imperial_number" stdset="0">
+                 <double>0.010000000000000</double>
+                </property>
+                <property name="incr_mm_number" stdset="0">
+                 <double>0.025000000000000</double>
+                </property>
+                <property name="incr_angular_number" stdset="0">
+                 <double>-1.000000000000000</double>
+                </property>
+                <property name="toggle_float_option" stdset="0">
+                 <bool>false</bool>
+                </property>
+                <property name="float_num" stdset="0">
+                 <double>100.000000000000000</double>
+                </property>
+                <property name="float_alt_num" stdset="0">
+                 <double>50.000000000000000</double>
+                </property>
+                <property name="view_type_string" stdset="0">
+                 <string>P</string>
+                </property>
+                <property name="command_text_string" stdset="0">
+                 <string/>
+                </property>
+                <property name="ini_mdi_number" stdset="0">
+                 <number>0</number>
+                </property>
+                <property name="textTemplate" stdset="0">
+                 <string>%1.3f in</string>
+                </property>
+                <property name="alt_textTemplate" stdset="0">
+                 <string>%1.2f mm</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_3">
+             <item>
+              <widget class="ToolOffsetView" name="tooloffsetview"/>
+             </item>
+             <item>
+              <widget class="QGroupBox" name="groupBox">
+               <property name="title">
+                <string>Tool File Management</string>
+               </property>
+               <layout class="QHBoxLayout" name="horizontalLayout_7">
+                <item>
+                 <widget class="PushButton" name="pushbutton">
+                  <property name="text">
+                   <string>Add</string>
+                  </property>
+                  <property name="python_command_option" stdset="0">
+                   <bool>true</bool>
+                  </property>
+                  <property name="true_python_cmd_string" stdset="0">
+                   <string>INSTANCE.tooloffsetview.add_tool()</string>
+                  </property>
+                  <property name="false_python_cmd_string" stdset="0">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="PushButton" name="pushbutton_2">
+                  <property name="text">
+                   <string>Delete</string>
+                  </property>
+                  <property name="python_command_option" stdset="0">
+                   <bool>true</bool>
+                  </property>
+                  <property name="true_python_cmd_string" stdset="0">
+                   <string>INSTANCE.tooloffsetview.delete_tools()</string>
+                  </property>
+                  <property name="false_python_cmd_string" stdset="0">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="rightside_frame">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_11">
+          <property name="spacing">
+           <number>6</number>
+          </property>
+          <property name="sizeConstraint">
+           <enum>QLayout::SetDefaultConstraint</enum>
+          </property>
+          <property name="leftMargin">
+           <number>9</number>
+          </property>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_19">
+            <item>
+             <widget class="StatusLabel" name="spindle_speed_label">
+              <property name="textTemplate" stdset="0">
+               <string>Spindle %d</string>
+              </property>
+              <property name="requested_spindle_speed_status" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="actual_spindle_speed_status" stdset="0">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="StatusLabel" name="spindle_override_label">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+              <property name="textTemplate" stdset="0">
+               <string>%d%%</string>
+              </property>
+              <property name="spindle_override_status" stdset="0">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="StateLabel" name="at_speed_label">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="true_textTemplate" stdset="0">
+               <string>At Speed</string>
+              </property>
+              <property name="false_textTemplate" stdset="0">
+               <string>Waiting</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="Line" name="line_4">
+            <property name="frameShadow">
+             <enum>QFrame::Plain</enum>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_20">
+            <item>
+             <widget class="StatusLabel" name="feedrate_label">
+              <property name="textTemplate" stdset="0">
+               <string>Feedrate: %3.2f</string>
+              </property>
+              <property name="current_feedrate_status" stdset="0">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="StatusLabel" name="feed_override_label">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+              <property name="textTemplate" stdset="0">
+               <string>%d%%</string>
+              </property>
+              <property name="feed_override_status" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="spindle_override_status" stdset="0">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="StatusLabel" name="tool_number_label">
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="textTemplate" stdset="0">
+               <string>Tool %s</string>
+              </property>
+              <property name="tool_number_status" stdset="0">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="Line" name="line_3">
+            <property name="frameShadow">
+             <enum>QFrame::Plain</enum>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_34"/>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_21">
+            <item>
+             <widget class="SystemToolButton" name="system_toolbutton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>Set User Coordinate system</string>
+              </property>
+              <property name="text">
+               <string>SYS</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_19">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="StatusLabel" name="user_system_label">
+              <property name="textTemplate" stdset="0">
+               <string>User System: G%s</string>
+              </property>
+              <property name="user_system_status" stdset="0">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="Line" name="line_7">
+            <property name="frameShadow">
+             <enum>QFrame::Plain</enum>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_16">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="AxisToolButton" name="axistoolbutton_3">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select Axis or push and hold&lt;/p&gt;&lt;p&gt; to Set Origin offset&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Z</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="joint_number" stdset="0">
+               <number>2</number>
+              </property>
+              <property name="axis_letter" stdset="0">
+               <string>Z</string>
+              </property>
+              <property name="dialog_code_string" stdset="0">
+               <string>CALCULATOR</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="blank_label_7">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>27</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="ActionButton" name="actionbutton_61">
+              <property name="text">
+               <string>Z-</string>
+              </property>
+              <property name="jog_joint_neg_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="jog_selected_pos_action" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="joint_number" stdset="0">
+               <number>2</number>
+              </property>
+              <property name="axis_letter" stdset="0">
+               <string>Z</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="blank_label_8">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>27</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="ActionButton" name="actionbutton_60">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Z+</string>
+              </property>
+              <property name="jog_joint_pos_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="jog_joint_neg_action" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="joint_number" stdset="0">
+               <number>2</number>
+              </property>
+              <property name="axis_letter" stdset="0">
+               <string>Z</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_29">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="DROLabel" name="dro_z">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>200</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="Qjoint_number" stdset="0">
+               <number>2</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_15">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="AxisToolButton" name="axistoolbutton_2">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select Axis or push and hold&lt;/p&gt;&lt;p&gt; to Set Origin offset&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Y</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="joint_number" stdset="0">
+               <number>1</number>
+              </property>
+              <property name="axis_letter" stdset="0">
+               <string>Y</string>
+              </property>
+              <property name="dialog_code_string" stdset="0">
+               <string>CALCULATOR</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="blank_label_5">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>27</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="ActionButton" name="actionbutton_57">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Y+</string>
+              </property>
+              <property name="jog_joint_pos_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="jog_joint_neg_action" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="joint_number" stdset="0">
+               <number>1</number>
+              </property>
+              <property name="axis_letter" stdset="0">
+               <string>Y</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="blank_label_9">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>27</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="ActionButton" name="actionbutton_56">
+              <property name="text">
+               <string>Y-</string>
+              </property>
+              <property name="jog_joint_neg_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="jog_selected_pos_action" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="joint_number" stdset="0">
+               <number>1</number>
+              </property>
+              <property name="axis_letter" stdset="0">
+               <string>Y</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_27">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="DROLabel" name="dro_y">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                <horstretch>1</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>101.0010</string>
+              </property>
+              <property name="Qjoint_number" stdset="0">
+               <number>1</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_14">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="AxisToolButton" name="axistoolbutton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select Axis or push and hold&lt;/p&gt;&lt;p&gt; to Set Origin offset&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>X</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="axis_letter" stdset="0">
+               <string>X</string>
+              </property>
+              <property name="dialog_code_string" stdset="0">
+               <string>CALCULATOR</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="blank_label_3">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="ActionButton" name="actionbutton_52">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>X+</string>
+              </property>
+              <property name="jog_joint_pos_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="jog_joint_neg_action" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="axis_letter" stdset="0">
+               <string>X</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="blank_label_4">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>27</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="ActionButton" name="actionbutton_53">
+              <property name="text">
+               <string>X-</string>
+              </property>
+              <property name="jog_joint_neg_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="jog_selected_pos_action" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="axis_letter" stdset="0">
+               <string>X</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_13">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="DROLabel" name="dro_x">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_17">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="AxisToolButton" name="axistoolbutton_4">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select Axis or push and hold&lt;/p&gt;&lt;p&gt; to Set Origin offset&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>A</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="joint_number" stdset="0">
+               <number>3</number>
+              </property>
+              <property name="axis_letter" stdset="0">
+               <string>A</string>
+              </property>
+              <property name="dialog_code_string" stdset="0">
+               <string>CALCULATOR</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="blank_label_1">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>27</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="ActionButton" name="actionbutton_4">
+              <property name="text">
+               <string>A-</string>
+              </property>
+              <property name="jog_joint_neg_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="joint_number" stdset="0">
+               <number>3</number>
+              </property>
+              <property name="axis_letter" stdset="0">
+               <string>A</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="blank_label_2">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>27</height>
+               </size>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="ActionButton" name="actionbutton_3">
+              <property name="text">
+               <string>A+</string>
+              </property>
+              <property name="jog_joint_pos_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="jog_joint_neg_action" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="jog_selected_pos_action" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="joint_number" stdset="0">
+               <number>3</number>
+              </property>
+              <property name="axis_letter" stdset="0">
+               <string>A</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_30">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="DROLabel" name="dro_a">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="Qjoint_number" stdset="0">
+               <number>3</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_26">
+            <item>
+             <widget class="ActionButton" name="actionbutton_46">
+              <property name="text">
+               <string>ABS</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+              <property name="dro_absolute_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">buttonGroup_2</string>
+              </attribute>
+             </widget>
+            </item>
+            <item>
+             <widget class="ActionButton" name="actionbutton_48">
+              <property name="text">
+               <string>REL</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+              <property name="dro_relative_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">buttonGroup_2</string>
+              </attribute>
+             </widget>
+            </item>
+            <item>
+             <widget class="ActionButton" name="actionbutton_47">
+              <property name="text">
+               <string>DTG</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="dro_dtg_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">buttonGroup_2</string>
+              </attribute>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="Line" name="line_5">
+            <property name="frameShadow">
+             <enum>QFrame::Plain</enum>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="StatusLabel" name="gcode_label">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::Box</enum>
+            </property>
+            <property name="scaledContents">
+             <bool>false</bool>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+            <property name="gcodes_status" stdset="0">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="StatusLabel" name="mcode_label">
+            <property name="mcodes_status" stdset="0">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QGridLayout" name="gridLayout_3" rowstretch="0,0,0,0,0,0,0" columnstretch="0,0,0">
+            <item row="0" column="2">
+             <spacer name="verticalSpacer_6">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="6" column="0">
+             <widget class="RoundButton" name="Roundbutton_2">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>100</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Estopped</string>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+              <property name="machine_on_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="image_path" stdset="0">
+               <pixmap>../../../gmoccapy/images/machine_on.png</pixmap>
+              </property>
+              <property name="false_image_path" stdset="0">
+               <pixmap>../../../gmoccapy/images/machine_off.png</pixmap>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="2" rowspan="3">
+             <widget class="RoundButton" name="Roundbutton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Estopped</string>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+              <property name="estop_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="image_path" stdset="0">
+               <pixmap>../../../gmoccapy/images/E-Stop.gif</pixmap>
+              </property>
+              <property name="false_image_path" stdset="0">
+               <pixmap>../../../gmoccapy/images/estopred.png</pixmap>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="1">
+             <widget class="ActionButton" name="actionbutton_39">
+              <property name="text">
+               <string>Home</string>
+              </property>
+              <property name="home_action" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="joint_number" stdset="0">
+               <number>-1</number>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" colspan="3">
+             <layout class="QHBoxLayout" name="horizontalLayout_35">
+              <item>
+               <widget class="ActionButton" name="actionbutton_35">
+                <property name="text">
+                 <string>Man</string>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
+                </property>
+                <property name="manual_action" stdset="0">
+                 <bool>true</bool>
+                </property>
+                <property name="spindle_rev_action" stdset="0">
+                 <bool>false</bool>
+                </property>
+                <property name="spindle_down_action" stdset="0">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="ActionButton" name="actionbutton_36">
+                <property name="text">
+                 <string>MDI</string>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
+                </property>
+                <property name="mdi_action" stdset="0">
+                 <bool>true</bool>
+                </property>
+                <property name="spindle_stop_action" stdset="0">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="ActionButton" name="actionbutton_38">
+                <property name="text">
+                 <string>Auto</string>
+                </property>
+                <property name="checkable">
+                 <bool>true</bool>
+                </property>
+                <property name="auto_action" stdset="0">
+                 <bool>true</bool>
+                </property>
+                <property name="spindle_fwd_action" stdset="0">
+                 <bool>false</bool>
+                </property>
+                <property name="spindle_up_action" stdset="0">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="0" colspan="3">
+             <layout class="QHBoxLayout" name="horizontalLayout_23">
+              <item>
+               <widget class="QLabel" name="label_4">
+                <property name="text">
+                 <string>MDI:</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="MDILine" name="mdiline">
+                <property name="soft_keyboard_option" stdset="0">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+      <widget class="FocusOverlay" name="focusoverlay">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>1771</width>
+         <height>921</height>
+        </rect>
+       </property>
+       <property name="state">
+        <bool>false</bool>
+       </property>
+       <property name="show_text" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="show_image_option" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="show_buttons_option" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="image_path" stdset="0">
+        <string>STD_IMAGE_DIR/lcnc_swoop.png</string>
+       </property>
+      </widget>
+     </widget>
+    </item>
+    <item>
+     <widget class="FileDialog" name="filedialog">
+      <property name="state">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="ToolDialog" name="tooldialog"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1756</width>
+     <height>27</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>GCodeGraphics</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.gcode_graphics</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>EntryDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>OriginOffsetView</class>
+   <extends>QTableView</extends>
+   <header>qtvcp.widgets.origin_offsetview</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>LcncDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>MDILine</class>
+   <extends>QLineEdit</extends>
+   <header>qtvcp.widgets.mdi_line</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>StateLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.state_label</header>
+  </customwidget>
+  <customwidget>
+   <class>AxisToolButton</class>
+   <extends>QToolButton</extends>
+   <header>qtvcp.widgets.axis_tool_button</header>
+  </customwidget>
+  <customwidget>
+   <class>FileDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>ScreenOptions</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.screen_options</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>StatusAdjustmentBar</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.adjustment_bar</header>
+  </customwidget>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>qtvcp.widgets.simple_widgets</header>
+  </customwidget>
+  <customwidget>
+   <class>StatusLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.status_label</header>
+  </customwidget>
+  <customwidget>
+   <class>ImageSwitcher</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.image_switcher</header>
+  </customwidget>
+  <customwidget>
+   <class>ToolOffsetView</class>
+   <extends>QTableView</extends>
+   <header>qtvcp.widgets.tool_offsetview</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>DROLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.dro_widget</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>RoundButton</class>
+   <extends>ActionButton</extends>
+   <header>qtvcp.widgets.action_button_round</header>
+  </customwidget>
+  <customwidget>
+   <class>FileManager</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.file_manager</header>
+  </customwidget>
+  <customwidget>
+   <class>SystemToolButton</class>
+   <extends>QToolButton</extends>
+   <header>qtvcp.widgets.system_tool_button</header>
+  </customwidget>
+  <customwidget>
+   <class>GcodeEditor</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.gcode_editor</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ToolDialog</class>
+   <extends>LcncDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>ActionButton</class>
+   <extends>QPushButton</extends>
+   <header>qtvcp.widgets.action_button</header>
+  </customwidget>
+  <customwidget>
+   <class>FocusOverlay</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.overlay_widget</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="blender.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>gcode_editor</sender>
+   <signal>percentDone(int)</signal>
+   <receiver>progressBar</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>589</x>
+     <y>234</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>661</x>
+     <y>399</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>percent(int)</slot>
+ </slots>
+ <buttongroups>
+  <buttongroup name="buttonGroup_2"/>
+  <buttongroup name="buttonGroup"/>
+ </buttongroups>
+</ui>

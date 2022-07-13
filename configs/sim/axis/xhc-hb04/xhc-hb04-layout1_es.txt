@@ -1,0 +1,40 @@
+xhc-hb04-layout1
+
+16 botones:
+
+---------------------------------------
+|RESET   |                            |
+---------------------------------------
+|Stop    |Start/Pause|Rewind |Probe-Z |
+---------------------------------------
+|GotoZero|   X2      |  Y2   |Safe-Z  |
+---------------------------------------
+|  X=0   |   Y=0     |  Z=0  |  Home  |
+---------------------------------------
+|STEP    | Mode      |Spindle|        |
+---------------------------------------
+|                                Off  |
+|                                  X  |
+|                                  Y  |
+|                 Rotary ------->  Z  |
+|                 Switch           A  |
+|                             Spindle |
+|                                Feed |
+---------------------------------------
+
+Button codes defined in LIB:xhc-hb04-layout1.cfg
+
+El botón Start/Pause se puede conectar para un comportamiento estándar con:
+  [XHC_HB04_BUTTON]start-pause = std_start_pause
+
+El botón STEP normalmente está conectado con:
+  [XHC_HB04_BUTTON]step = xhc-hb04.stepsize-up
+
+Los otros botones se pueden conectar a los pines hal, típicamente pines provistos de halui.
+
+Los comandos MDI se pueden ejecutar usando los pines halui.mdi-command-nn definidos en el archivo ini con entradas como: [HALUI]MDI_COMMAND = mdi_command 
+
+
+El interruptor giratorio selecciona el eje, el spindle.0 o el ajuste de velocidad para el control mediante la rueda.
+
+Las posiciones del interruptor (xyza) se pueden definir para cualquier eje disponible (xyzc, por ejemplo).

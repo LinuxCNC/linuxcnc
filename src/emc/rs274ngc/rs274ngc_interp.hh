@@ -18,6 +18,7 @@
 #define RS274NGC_INTERP_H
 #include "rs274ngc.hh"
 #include "interp_internal.hh"
+#include "interp_return.hh"
 
 class Interp : public InterpBase {
 
@@ -74,14 +75,23 @@ public:
    arguments to the function. These functions do not change the state of
    the interpreter. */
 
-// copy active G codes into array [0]..[15]
+// copy active G-codes into array [0]..[15]
  void active_g_codes(int *codes);
 
-// copy active M codes into array [0]..[9]
+// copy active M-codes into array [0]..[9]
  void active_m_codes(int *codes);
 
 // copy active F, S settings into array [0]..[2]
  void active_settings(double *settings);
+
+    // Update the state vectors from a state tag
+    int active_modes(int *g_codes,
+		     int *mcodes,
+		     double *settings,
+		     StateTag const &tag);
+
+    // Print contents of state tag for debugging
+    void print_state_tag(StateTag const &tag);
 
 // copy the text of the error message whose number is error_code into the
 // error_text array, but stop at max_size if the text is longer.
@@ -133,12 +143,14 @@ public:
  int add_named_param(const char *nameBuf, int attr = 0);
  int fetch_ini_param( const char *nameBuf, int *status, double *value);
  int fetch_hal_param( const char *nameBuf, int *status, double *value);
+ double inicheck();
 
     // common combination of add_named_param and store_named_param
     // int assign_named_param(const char *nameBuf, int attr = 0, double value = 0.0);
     remap_pointer remapping(const char *code);
     remap_pointer remapping(const char letter, int number = -1);
  int find_tool_pocket(setup_pointer settings, int toolno, int *pocket);
+ int find_tool_index(setup_pointer settings, int toolno, int *index);
 
     // private:
     //protected:  // for boost wrapper access
@@ -215,6 +227,7 @@ public:
  int close_and_downcase(char *line);
  int convert_nurbs(int move, block_pointer block, setup_pointer settings);
  int convert_spline(int move, block_pointer block, setup_pointer settings);
+ int convert_g7x(int move, block_pointer block, setup_pointer settings);
  int comp_get_current(setup_pointer settings, double *x, double *y, double *z);
  int comp_set_current(setup_pointer settings, double x, double y, double z);
  int comp_get_programmed(setup_pointer settings, double *x, double *y, double *z);
@@ -313,6 +326,7 @@ public:
     int convert_m(block_pointer block, setup_pointer settings);
  int convert_modal_0(int code, block_pointer block,
                            setup_pointer settings);
+ int convert_g92_is_applied(int code, block_pointer block, setup_pointer settings);
  int convert_motion(int motion, block_pointer block,
                           setup_pointer settings);
  int convert_probe(block_pointer block, int g_code, setup_pointer settings);
@@ -341,6 +355,7 @@ public:
  int convert_tool_length_offset(int g_code, block_pointer block,
                                       setup_pointer settings);
  int convert_tool_select(block_pointer block, setup_pointer settings);
+ int update_tag(StateTag &tag);
  int cycle_feed(block_pointer block, CANON_PLANE plane, double end1,
                 double end2, double end3);
  int cycle_traverse(block_pointer block, CANON_PLANE plane, double end1, double end2,
@@ -456,9 +471,17 @@ int read_dollar(char *line, int *counter, block_pointer block,
     int free_named_parameters(context_pointer frame);
  int save_settings(setup_pointer settings);
  int restore_settings(setup_pointer settings, int from_level);
- int gen_settings(double *current, double *saved, std::string &cmd);
- int gen_g_codes(int *current, int *saved, std::string &cmd);
+ int restore_from_tag(StateTag const &tag);
+ int gen_settings(
+     int *int_current, int *int_saved,
+     double *float_current, double *float_saved,
+     std::string &cmd);
  int gen_m_codes(int *current, int *saved, std::string &cmd);
+    int gen_restore_cmd(int *current_g,
+			int *current_m,
+			double *current_settings,
+			StateTag const &saved,
+			std::string &cmd);
  int read_name(char *line, int *counter, char *nameBuf);
  int read_named_parameter(char *line, int *counter, double *double_ptr,
                           double *parameters, bool check_exists);
@@ -505,6 +528,9 @@ int read_dollar(char *line, int *counter, block_pointer block,
  int write_g_codes(block_pointer block, setup_pointer settings);
  int write_m_codes(block_pointer block, setup_pointer settings);
  int write_settings(setup_pointer settings);
+ int write_state_tag(block_pointer block, setup_pointer settings,
+		     StateTag &state);
+ int write_canon_state_tag(block_pointer block, setup_pointer settings);
  int unwrap_rotary(double *, double, double, double, char);
  bool isreadonly(int index);
 
@@ -547,11 +573,11 @@ int read_dollar(char *line, int *counter, block_pointer block,
 
     //int call_fsm(setup_pointer settings, int event);
     //int execute_pycall(setup_pointer settings, const char *name, int call_phase);
- int execute_call(setup_pointer settings, context_pointer current_frame, int call_type);  
- int execute_return(setup_pointer settings,  context_pointer current_frame, int call_type);  
+ int execute_call(setup_pointer settings, context_pointer current_frame, int call_type);
+ int execute_return(setup_pointer settings,  context_pointer current_frame, int call_type);
  void loop_to_beginning(setup_pointer settings);
     //int execute_remap(setup_pointer settings, int call_phase);   // remap call state machine
-    int handler_returned( setup_pointer settings, 
+    int handler_returned( setup_pointer settings,
 			  context_pointer active_frame, const char *name, bool osub);
 int read_inputs(setup_pointer settings);
 
@@ -598,6 +624,7 @@ int read_inputs(setup_pointer settings);
      ((m > 0) && (m < 100) &&				\
       !M_BUILTIN(m)) ||					\
      (m == 6) ||					\
+     (m == 9) ||					\
      (m == 61) ||					\
      (m == 0) ||					\
      (m == 1) ||					\
@@ -624,7 +651,7 @@ int read_inputs(setup_pointer settings);
     ((M_REMAPPABLE((bp)->m_modes[mgroup])) && \
     (((bp)->m_modes[mgroup]) > -1) &&		\
      ((sp)->m_remapped[(bp)->m_modes[mgroup]]))
-    
+
     bool remap_in_progress(const char *code);
     int convert_remapped_code(block_pointer block,
 			       setup_pointer settings,
@@ -637,7 +664,7 @@ int read_inputs(setup_pointer settings);
 #define OWORD_MODULE "oword"
 #define REMAP_MODULE "remap"
 #define NAMEDPARAMS_MODULE "namedparams"
-    // describes intented use, and hence parameter and return value
+    // describes intended use, and hence parameter and return value
     // interpretation
     enum py_calltype { PY_OWORDCALL,
 		       PY_FINISH_OWORDCALL,
@@ -662,7 +689,7 @@ int read_inputs(setup_pointer settings);
 
     const char *getSavedError();
     // set error message text without going through printf format interpretation
-    int setSavedError(const char *msg); 
+    int setSavedError(const char *msg);
 
     int unwind_call(int status, const char *file, int line, const char *function);
 
@@ -696,6 +723,8 @@ int read_inputs(setup_pointer settings);
      AXIS_MASK_A =   8, AXIS_MASK_B =  16, AXIS_MASK_C =  32,
      AXIS_MASK_U =  64, AXIS_MASK_V = 128, AXIS_MASK_W = 256,
  };
+
+ InterpReturn check_g74_g84_spindle(GCodes motion, CANON_DIRECTION dir);
 };
 
 #endif

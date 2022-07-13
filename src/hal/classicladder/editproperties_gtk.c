@@ -20,6 +20,9 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
+#include <locale.h>
+#include <libintl.h>
+#define _(x) gettext(x)
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <string.h>
@@ -27,6 +30,7 @@
 #include "global.h"
 #include "editproperties_gtk.h"
 #include "edit.h"
+#include <rtapi_string.h>
 
 GtkWidget *PropertiesWindow;
 GtkWidget *PropLabelParam[NBR_PARAMS_PER_OBJ],*PropEntryParam[NBR_PARAMS_PER_OBJ];
@@ -101,13 +105,13 @@ char * GetProperty(int NumParam)
 	gtk_label_get(GTK_LABEL(PropLabelParam[NumParam]),&TxtParameter);
 	if (strcmp(TxtParameter,"Base")==0)
 	{
-		strcpy( ValTxtParameter , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)PropEntryBaseParam[NumParam])->entry) );
+		rtapi_strxcpy( ValTxtParameter , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)PropEntryBaseParam[NumParam])->entry) );
 	}
 	else
 	{
 		if (strcmp(TxtParameter,"TimerMode")==0)
 		{
-			strcpy( ValTxtParameter , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)PropEntryTimerModeParam[NumParam])->entry) );
+			rtapi_strxcpy( ValTxtParameter , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)PropEntryTimerModeParam[NumParam])->entry) );
 		}
 		else
 		{
@@ -161,7 +165,7 @@ void PropertiesInitGtk()
 	while(ScanTimerMode<NBR_TIMERSMODES);
 
 	PropertiesWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title ((GtkWindow *)PropertiesWindow, "Properties");
+	gtk_window_set_title ((GtkWindow *)PropertiesWindow, _("Properties"));
 
 	vbox = gtk_vbox_new (FALSE, 0);
 	gtk_container_add (GTK_CONTAINER (PropertiesWindow), vbox);
@@ -173,7 +177,7 @@ void PropertiesInitGtk()
 		gtk_container_add (GTK_CONTAINER (vbox), hbox[NumParam]);
 		gtk_widget_show (hbox[NumParam]);
 
-		PropLabelParam[NumParam] = gtk_label_new("Parameter");
+		PropLabelParam[NumParam] = gtk_label_new(_("Parameter"));
 		gtk_widget_set_usize((GtkWidget *)PropLabelParam[NumParam],85,0);
 		gtk_box_pack_start (GTK_BOX (hbox[NumParam]), PropLabelParam[NumParam], FALSE, FALSE, 0);
 		gtk_widget_show (PropLabelParam[NumParam]);
@@ -206,7 +210,7 @@ void PropertiesInitGtk()
 	gtk_container_add (GTK_CONTAINER (vbox), hbox[NumParam]);
 	gtk_widget_show (hbox[NumParam]);
 
-	ButtonApplyProperties = gtk_button_new_with_label("Apply");
+	ButtonApplyProperties = gtk_button_new_with_label(_("Apply"));
 	gtk_box_pack_start (GTK_BOX (hbox[NumParam]), ButtonApplyProperties, TRUE, FALSE, 0);
 	gtk_signal_connect(GTK_OBJECT (ButtonApplyProperties), "clicked",
 						(GtkSignalFunc) SaveElementProperties, 0);

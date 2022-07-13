@@ -65,12 +65,12 @@ def prepare_prolog(self, userdata,**words):
 # the prepare epilog looks at the return value from the NGC procedure
 # and does the right thing:
 def prepare_epilog(self, userdata, **words):
-	#print "prepare_epilog cl=",self.call_level, self._pocket
+	#print("prepare_epilog cl=",self.call_level, self._pocket)
 	retval = self.return_value
 	if retval >= 0:
 		self.selected_pocket = self._pocket
 		self.selected_tool = self._tool
-		emccanon.SELECT_POCKET( self._pocket, self._tool)
+		emccanon.SELECT_TOOL(self._tool)
 		return INTERP_OK
 	else:
 		self.set_errormsg("T%d: aborted (return code %.4f)" % (self._tool,retval))
@@ -91,7 +91,7 @@ def change_prolog(self, userdata,**words):
 		self.set_errormsg("Cannot change tools with cutter radius compensation on")
 		return INTERP_ERROR
 
-	# bug in interp_convert.cc: WONT WORK - isnt valid anymore
+	# bug in interp_convert.cc: WONT WORK - isn't valid anymore
 	## 	    settings->selected_pocket);
 	## 	    settings->tool_table[0].toolno, <--- BROKEN
 	## 	    block->t_number,
@@ -103,7 +103,7 @@ def change_prolog(self, userdata,**words):
 
 def change_epilog(self, userdata,**words):
 	retval = self.return_value
-	print "change_epilog retval=% selected_pocket=%d" %(retval,self.selected_pocket)
+	print("change_epilog retval=% selected_pocket=%d" %(retval,self.selected_pocket))
 	if retval > 0:
 		# commit change
 		#emccanon.CHANGE_TOOL(self.selected_pocket)
@@ -167,7 +167,7 @@ def test_reschedule(self, userdata,**words):
 	if userdata > 0:
 		# we were called post-sync():
 		pin_status = emccanon.GET_EXTERNAL_DIGITAL_INPUT(0,0);
-		print "pin status=",pin_status
+		print("pin status=",pin_status)
 		return INTERP_OK # done
 	else:
 		# wait for digital-input 00 to go hi for 5secs
@@ -197,11 +197,11 @@ def print_tool(self, userdata, **words):
 	n = 0
 	if words['p']:
 		n = int(words['p'])
-	print "tool %d:" % (n)
-	print "tool number:", self.tool_table[n].toolno
-	print "tool offset x:", self.tool_table[n].offset.tran.x
-	print "tool offset y:", self.tool_table[n].offset.tran.y
-	print "tool offset z:", self.tool_table[n].offset.tran.z
+	print("tool %d:" % (n))
+	print("tool number:", self.tool_table[n].toolno)
+	print("tool offset x:", self.tool_table[n].offset.tran.x)
+	print("tool offset y:", self.tool_table[n].offset.tran.y)
+	print("tool offset z:", self.tool_table[n].offset.tran.z)
 	return INTERP_OK
 
 def set_tool_zoffset(self, userdata, **words):
@@ -213,36 +213,36 @@ def set_tool_zoffset(self, userdata, **words):
 
 
 def printobj(b,header=""):
-	print "object ",header,":"
+	print("object ",header,":")
 	for a in dir(b):
 		if not a.startswith('_'):
 			if hasattr(b,a):
-				print a,getattr(b,a)
+				print(a,getattr(b,a))
 
 def introspect(args,**kwargs):
-	print "----- introspect:"
+	print("----- introspect:")
 	r = self.remap_level
-	print "call_level=",self.call_level, "remap_level=",self.remap_level
-	print "selected_pocket=",self.selected_pocket
-	print "blocks[r].comment=",self.blocks[r].comment
-	print "blocks[r].seq=",self.blocks[r].line_number
-	print "blocks[r].p_flag=",self.blocks[r].p_flag
-	print "blocks[r].p_number=",self.blocks[r].p_number
-	print "blocks[r].q_flag=",self.blocks[r].q_flag
-	print "blocks[r].q_number=",self.blocks[r].q_number
+	print("call_level=",self.call_level, "remap_level=",self.remap_level)
+	print("selected_pocket=",self.selected_pocket)
+	print("blocks[r].comment=",self.blocks[r].comment)
+	print("blocks[r].seq=",self.blocks[r].line_number)
+	print("blocks[r].p_flag=",self.blocks[r].p_flag)
+	print("blocks[r].p_number=",self.blocks[r].p_number)
+	print("blocks[r].q_flag=",self.blocks[r].q_flag)
+	print("blocks[r].q_number=",self.blocks[r].q_number)
 
 	#printobj(interp,"interp")
 	printobj(self.tool_offset,"tool_offset")
 	callstack()
 	for i in [5220,"_metric","_absolute","_tool_offset","_feed","_rpm"]:
-		print "param",i,"=",self.params[i]
-	print "blocks[r].executing_remap:",
-	print "name=",self.blocks[r].executing_remap.name
-	print "argspec=",self.blocks[r].executing_remap.argspec
-	print "prolog=",self.blocks[r].executing_remap.prolog_func
-	print "py=",self.blocks[r].executing_remap.remap_py
-	print "ngc=",self.blocks[r].executing_remap.remap_ngc
-	print "epilog=",self.blocks[r].executing_remap.epilog_func
+		print("param",i,"=",self.params[i])
+	print("blocks[r].executing_remap:", end=" ")
+	print("name=",self.blocks[r].executing_remap.name)
+	print("argspec=",self.blocks[r].executing_remap.argspec)
+	print("prolog=",self.blocks[r].executing_remap.prolog_func)
+	print("py=",self.blocks[r].executing_remap.remap_py)
+	print("ngc=",self.blocks[r].executing_remap.remap_ngc)
+	print("epilog=",self.blocks[r].executing_remap.epilog_func)
 
 	return INTERP_OK
 
@@ -252,11 +252,11 @@ def null(args,**kwargs):
 
 def callstack():
 	for i in range(len(self.sub_context)):
-		print "-------- call_level: ",i
-		print "position=",self.sub_context[i].position
-		print "sequence_number=",self.sub_context[i].sequence_number
-		print "filenameposition=",self.sub_context[i].filename
-		print "subname=",self.sub_context[i].subname
-		print "context_status=",self.sub_context[i].context_status
+		print("-------- call_level: ",i)
+		print("position=",self.sub_context[i].position)
+		print("sequence_number=",self.sub_context[i].sequence_number)
+		print("filenameposition=",self.sub_context[i].filename)
+		print("subname=",self.sub_context[i].subname)
+		print("context_status=",self.sub_context[i].context_status)
 	return INTERP_OK
 

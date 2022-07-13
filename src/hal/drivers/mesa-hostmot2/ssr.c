@@ -167,6 +167,14 @@ int hm2_ssr_parse_md(hostmot2_t *hm2, int md_index) {
                             r = -ENOMEM;
                             goto fail1;
                         }
+                        rtapi_snprintf(name, sizeof(name), "%s.ssr.%02d.invert-%02d", hm2->llio->name, i, ssr_number);
+                        r = hal_pin_bit_new(name, HAL_IN, &(hm2->ssr.instance[i].hal.pin.invert[ssr_number]), hm2->llio->comp_id);
+                        if (r < 0) {
+                            HM2_ERR("error adding pin '%s', aborting\n", name);
+                            r = -ENOMEM;
+                            goto fail1;
+                        }
+                        
                     }
                 }
             }
@@ -192,9 +200,9 @@ int hm2_ssr_parse_md(hostmot2_t *hm2, int md_index) {
             for (pin = 0; pin < 32; pin ++) {
                 if (hm2->ssr.instance[i].hal.pin.out[pin] != NULL) {
                     *hm2->ssr.instance[i].hal.pin.out[pin] = 0;
+                    *hm2->ssr.instance[i].hal.pin.invert[pin] = 0;
                 }
-            }
-
+            }		 
             hm2->llio->write(hm2->llio, hm2->ssr.rate_addr + (i * md->instance_stride), &zero, sizeof(zero));
             hm2->llio->write(hm2->llio, hm2->ssr.data_addr + (i * md->instance_stride), &zero, sizeof(zero));
         }
@@ -229,7 +237,7 @@ static void hm2_ssr_compute_rate_regs(hostmot2_t *hm2) {
             // the enable bit.
             reg = 0;
         } else {
-            float rate = *hm2->ssr.instance[i].hal.pin.rate;
+            double rate = *hm2->ssr.instance[i].hal.pin.rate;
 
             if (*hm2->ssr.instance[i].hal.pin.rate < 25000) {
                 rate = 25000;
@@ -279,6 +287,7 @@ void hm2_ssr_force_write(hostmot2_t *hm2) {
         for (pin = 0; pin < 32; pin ++) {
             if (hm2->ssr.instance[i].hal.pin.out[pin] != NULL) {
                 hm2->ssr.data_reg[i] |= *hm2->ssr.instance[i].hal.pin.out[pin] << pin;
+                hm2->ssr.data_reg[i] ^= *hm2->ssr.instance[i].hal.pin.invert[pin] << pin;
             }
         }
     }
@@ -322,6 +331,7 @@ void hm2_ssr_prepare_tram_write(hostmot2_t *hm2) {
         for (pin = 0; pin < 32; pin ++) {
             if (hm2->ssr.instance[i].hal.pin.out[pin] != NULL) {
                 hm2->ssr.data_reg[i] |= *hm2->ssr.instance[i].hal.pin.out[pin] << pin;
+                hm2->ssr.data_reg[i] ^= *hm2->ssr.instance[i].hal.pin.invert[pin] << pin;
             }
         }
         if (hm2->ssr.data_reg[i] != hm2->ssr.instance[i].written_data) {
@@ -333,8 +343,8 @@ void hm2_ssr_prepare_tram_write(hostmot2_t *hm2) {
 
 void hm2_ssr_print_module(hostmot2_t *hm2) {
     int i;
-    HM2_PRINT("SSRs: %d\n", hm2->ssr.num_instances);
     if (hm2->ssr.num_instances <= 0) return;
+    HM2_PRINT("SSRs: %d\n", hm2->ssr.num_instances);
     HM2_PRINT("    clock_frequency: %d Hz (%s MHz)\n", hm2->ssr.clock_freq, hm2_hz_to_mhz(hm2->ssr.clock_freq));
     HM2_PRINT("    version: %d\n", hm2->ssr.version);
     HM2_PRINT("    data_addr: 0x%04X\n", hm2->ssr.data_addr);

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-#ifndef BOOST_PYTHON_NAX_ARITY
+#ifndef BOOST_PYTHON_MAX_ARITY
 #define BOOST_PYTHON_MAX_ARITY 4
 #endif
 #include <string.h>
@@ -61,7 +61,7 @@ setup::setup() :
     blocks{},
     remap_level(0),
     blocktext{},
-    control_mode(0),
+    control_mode(CANON_EXACT_STOP),
     current_pocket(0),
 
     current_x (0.0),
@@ -89,7 +89,7 @@ setup::setup() :
     filename{},
     file_pointer(NULL),
     flood(0),
-    length_units(0),
+    length_units(CANON_UNITS_INCHES),
     line_length(0),
     linetext{},
     mist(0),
@@ -100,15 +100,15 @@ setup::setup() :
     origin_offset_z (0.0),
     rotation_xy (0.0),
 
-    parameters{},
+    parameters{0},
     parameter_occurrence(0),
-    parameter_numbers{},
-    parameter_values{},
+    parameter_numbers{0},
+    parameter_values{0},
     named_parameter_occurrence(0),
-    named_parameters{},
-    named_parameter_values{},
+    named_parameters{nullptr},
+    named_parameter_values{0},
     percent_flag(0),
-    plane(0),
+    plane(CANON_PLANE_XY),
     probe_flag(0),
     input_flag(0),
     toolchange_flag(0),
@@ -125,13 +125,12 @@ setup::setup() :
     sequence_number(0),
     speed {0.0},
     spindle_mode{CONSTANT_RPM},
-    speed_feed_mode{0},
-    speed_override{0},
-    spindle_turning{0},
+    speed_feed_mode{CANON_INDEPENDENT},
+    speed_override{false},
+    spindle_turning{CANON_STOPPED},
     stack{},
     stack_index(0),
     tool_offset{{0,0,0},0,0,0,0,0,0},
-    pockets_max(0),
     tool_table{},
     traverse_rate (0.0),
     orient_offset (0.0),
@@ -180,8 +179,9 @@ setup::setup() :
     disable_g92_persistence(0),
     pythis(),
     on_abort_command(NULL),
-    init_once(0)
+    init_once(CANON_STOPPED)
 {
+  std::fill(parameters, parameters + interp_param_global::RS274NGC_MAX_PARAMETERS, 0);
 }
 
 setup::~setup() {

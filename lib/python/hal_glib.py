@@ -1,30 +1,46 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # vim: sts=4 sw=4 et
 
-import _hal, hal, gobject
+import _hal, hal
 import linuxcnc
 import os
 import math
 
+from gi.repository import GObject
+from gi.repository import GLib
+
 # constants
 JOGJOINT  = 1
 JOGTELEOP = 0
+
+# add try for QtVCP Designer and probably GTK GLADE editor too
+# The INI file is not available then
 try:
     inifile = linuxcnc.ini(os.environ['INI_FILE_NAME'])
-    trajcoordinates = inifile.find("TRAJ", "COORDINATES").lower().replace(" ","")
-    jointcount = int(inifile.find("KINS","JOINTS"))
+    trajcoordinates = inifile.find("TRAJ", "COORDINATES").lower().replace(" ", "")
+    jointcount = int(inifile.find("KINS", "JOINTS"))
 except:
     pass
+try:
+    # get cycle time which could be in ms or seconds
+    # convert to ms - use this to set update time
+    ct = float(inifile.find('DISPLAY', 'CYCLE_TIME') or 100)
+    if ct < 1:
+        CYCLE_TIME = int(ct * 1000)
+    else:
+        CYCLE_TIME = int(ct)
+except:
+    CYCLE_TIME = 100
 
-class GPin(gobject.GObject, hal.Pin):
+class GPin(GObject.Object, hal.Pin):
     __gtype_name__ = 'GPin'
-    __gsignals__ = {'value-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ())}
+    __gsignals__ = {'value-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ())}
 
     REGISTRY = []
     UPDATE = False
 
     def __init__(self, *a, **kw):
-        gobject.GObject.__init__(self)
+        GObject.Object.__init__(self)
         hal.Pin.__init__(self, *a, **kw)
         self._item_wrap(self._item)
         self._prev = None
@@ -47,7 +63,7 @@ class GPin(gobject.GObject, hal.Pin):
                 p.update()
             except:
                 kill.append(p)
-                print "Error updating pin %s; Removing" % p
+                print("Error updating pin %s; Removing" % p)
         for p in kill:
             self.REGISTRY.remove(p)
         return self.UPDATE
@@ -57,7 +73,7 @@ class GPin(gobject.GObject, hal.Pin):
         if GPin.UPDATE:
             return
         GPin.UPDATE = True
-        gobject.timeout_add(timeout, self.update_all)
+        GLib.timeout_add(timeout, self.update_all)
 
     @classmethod
     def update_stop(self, timeout=100):
@@ -77,67 +93,122 @@ class GComponent:
     def __getitem__(self, k): return self.comp[k]
     def __setitem__(self, k, v): self.comp[k] = v
 
-class _GStat(gobject.GObject):
+class _GStat(GObject.GObject):
     '''Emits signals based on linuxcnc status '''
     __gsignals__ = {
-        'state-estop': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
-        'state-estop-reset': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
-        'state-on': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
-        'state-off': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        'periodic': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
+        'state-estop': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
+        'state-estop-reset': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
+        'state-on': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
+        'state-off': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
 
-        'homed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
-        'all-homed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
-        'not-all-homed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
-        'override_limits_changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
+        'homed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'unhomed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'all-homed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
+        'not-all-homed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'override-limits-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN, GObject.TYPE_PYOBJECT,)),
 
-        'mode-manual': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
-        'mode-auto': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
-        'mode-mdi': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        'hard-limits-tripped': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN, GObject.TYPE_PYOBJECT,)),
 
-        'interp-run': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
-        'interp-idle': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
-        'interp-paused': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
-        'interp-reading': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
-        'interp-waiting': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        'mode-manual': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
+        'mode-auto': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
+        'mode-mdi': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
 
-        'jograte-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
+        'command-running': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
+        'command-stopped': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
+        'command-error': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
 
-        'program-pause-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
-        'optional-stop-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
-        'block-delete-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
+        'interp-run': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
+        'interp-idle': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
+        'interp-paused': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
+        'interp-reading': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
+        'interp-waiting': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
 
-        'file-loaded': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
-        'reload-display': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
-        'line-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
+        'jograte-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'jograte-angular-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'jogincrement-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_FLOAT, GObject.TYPE_STRING)),
+        'jogincrement-angular-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_FLOAT, GObject.TYPE_STRING)),
 
-        'tool-in-spindle-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
-        'motion-mode-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
-        'spindle-control_changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,gobject.TYPE_INT)),
-        'current-feed-rate': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
-        'current-x-rel-position': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
-        'current-position': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,gobject.TYPE_PYOBJECT,
-                            gobject.TYPE_PYOBJECT,)),
-        'requested-spindle-speed-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
+        'joint-selection-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'axis-selection-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
 
-        'spindle-override-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
-        'feed-override-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
-        'rapid-override-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_FLOAT,)),
+        'program-pause-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'optional-stop-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'block-delete-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
 
-        'feed-hold-enabled-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
+        'file-loaded': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'reload-display': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
+        'line-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT,)),
 
-        'itime-mode': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
-        'fpm-mode': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
-        'fpr-mode': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
-        'css-mode': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
-        'rpm-mode': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
-        'radius-mode': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
-        'diameter-mode': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
+        'tool-in-spindle-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'tool-prep-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'tool-info-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
+        'current-tool-offset': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
 
-        'm-code-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
-        'g-code-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
+        'motion-mode-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'spindle-control-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE,
+             (GObject.TYPE_INT, GObject.TYPE_BOOLEAN, GObject.TYPE_INT, GObject.TYPE_BOOLEAN)),
+        'current-feed-rate': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'current-x-rel-position': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'current-position': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,GObject.TYPE_PYOBJECT,
+                            GObject.TYPE_PYOBJECT, GObject.TYPE_PYOBJECT,)),
+        'current-z-rotation': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'requested-spindle-speed-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'actual-spindle-speed-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'spindle-override-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'feed-override-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'rapid-override-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'max-velocity-override-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
 
-        'metric-mode-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_BOOLEAN,)),
-        'user-system-changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
+        'feed-hold-enabled-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+
+        'g90-mode': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'g91-mode': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'itime-mode': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'fpm-mode': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'fpr-mode': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'css-mode': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'rpm-mode': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'radius-mode': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'diameter-mode': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'flood-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'mist-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+
+        'm-code-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'g-code-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'f-code-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'blend-code-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT, GObject.TYPE_FLOAT)),
+
+        'metric-mode-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'user-system-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+
+        'mdi-line-selected': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING, GObject.TYPE_STRING)),
+        'gcode-line-selected': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'graphics-line-selected': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'graphics-loading-progress': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'graphics-gcode-error': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'graphics-gcode-properties': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
+        'graphics-view-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING, GObject.TYPE_PYOBJECT)),
+        'mdi-history-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
+        'machine-log-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
+        'update-machine-log': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING, GObject.TYPE_STRING)),
+        'move-text-lineup': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
+        'move-text-linedown': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
+        'dialog-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
+        'focus-overlay-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN, GObject.TYPE_STRING,
+                            GObject.TYPE_PYOBJECT)),
+        'play-sound': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'virtual-keyboard': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'dro-reference-change-request': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'system_notify_button_pressed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE,
+                                        (GObject.TYPE_STRING, GObject.TYPE_BOOLEAN)),
+        'show-preference': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
+        'shutdown': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
+        'error': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT, GObject.TYPE_STRING)),
+        'general': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
+        'forced-update': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
+        'progress': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT, GObject.TYPE_PYOBJECT)),
+        'following-error': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE,(GObject.TYPE_PYOBJECT,)),
         }
 
     STATES = { linuxcnc.STATE_ESTOP:       'state-estop'
@@ -157,52 +228,114 @@ class _GStat(gobject.GObject):
              , linuxcnc.INTERP_IDLE: 'interp-idle'
              }
 
+    TEMPARARY_MESSAGE = 255
+    OPERATOR_ERROR = linuxcnc.OPERATOR_ERROR
+    OPERATOR_TEXT = linuxcnc.OPERATOR_TEXT
+    NML_ERROR = linuxcnc.NML_ERROR
+    NML_TEXT = linuxcnc.NML_TEXT
+
+    MANUAL = linuxcnc.MODE_MANUAL
+    AUTO = linuxcnc.MODE_AUTO
+    MDI = linuxcnc.MODE_MDI
+
+    STATE_ESTOP = linuxcnc.STATE_ESTOP
+    STATE_ESTOP_RESET = linuxcnc.STATE_ESTOP_RESET
+    STATE_ON = linuxcnc.STATE_ON
+    STATE_OFF = linuxcnc.STATE_OFF
+
     def __init__(self, stat = None):
-        gobject.GObject.__init__(self)
+        GObject.Object.__init__(self)
         self.stat = stat or linuxcnc.stat()
         self.cmd = linuxcnc.command()
+        self._status_active = False
         self.old = {}
+        self.old['tool-prep-number'] = 0
         try:
             self.stat.poll()
             self.merge()
         except:
             pass
-        gobject.timeout_add(100, self.update)
-        self._current_jog_rate = 15
+
+        self.current_jog_rate = 15
+        self.current_angular_jog_rate = 360
+        self.current_jog_distance = 0
+        self.current_jog_distance_text =''
+        self.current_jog_distance_angular= 0
+        self.current_jog_distance_angular_text =''
+        self.selected_joint = -1
+        self.selected_axis = ''
         self._is_all_homed = False
+        self.set_timer()
+
+    # we put this in a function so qtvcp
+    # can override it to fix a seg fault
+    def set_timer(self):
+        GLib.timeout_add(CYCLE_TIME, self.update)
 
     def merge(self):
+        self.old['command-state'] = self.stat.state
         self.old['state'] = self.stat.task_state
         self.old['mode']  = self.stat.task_mode
         self.old['interp']= self.stat.interp_state
         # Only update file if call level is 0, which
         # means we are not executing a subroutine/remap
-        # This avoids emiting signals for bogus file names below
+        # This avoids emitting signals for bogus file names below
         if self.stat.call_level == 0:
             self.old['file']  = self.stat.file
         self.old['paused']= self.stat.paused
-        self.old['file']  = self.stat.file
         self.old['line']  = self.stat.motion_line
         self.old['homed'] = self.stat.homed
         self.old['tool-in-spindle'] = self.stat.tool_in_spindle
+        try:
+            if hal.get_value('iocontrol.0.tool-prepare'):
+                self.old['tool-prep-number'] = hal.get_value('iocontrol.0.tool-prep-number')
+        except RuntimeError:
+             self.old['tool-prep-number'] = -1
         self.old['motion-mode'] = self.stat.motion_mode
         self.old['spindle-or'] = self.stat.spindle[0]['override']
         self.old['feed-or'] = self.stat.feedrate
         self.old['rapid-or'] = self.stat.rapidrate
+        self.old['max-velocity-or'] = self.stat.max_velocity
         self.old['feed-hold']  = self.stat.feed_hold_enabled
         self.old['g5x-index']  = self.stat.g5x_index
         self.old['spindle-enabled']  = self.stat.spindle[0]['enabled']
         self.old['spindle-direction']  = self.stat.spindle[0]['direction']
         self.old['block-delete']= self.stat.block_delete
         self.old['optional-stop']= self.stat.optional_stop
-        self.old['spindle-speed']= self.stat.spindle[0]['speed']
+        try:
+            self.old['actual-spindle-speed'] = hal.get_value('spindle.0.speed-in') * 60
+        except RuntimeError:
+             self.old['actual-spindle-speed'] = 0
+        try:
+            self.old['spindle-at-speed'] = hal.get_value('spindle.0.at-speed')
+        except RuntimeError:
+            self.old['spindle-at-speed'] = False
+        self.old['flood']= self.stat.flood
+        self.old['mist']= self.stat.mist
+        self.old['current-z-rotation'] = self.stat.rotation_xy
+        self.old['current-tool-offset'] = self.stat.tool_offset
 
-        # override limits
+        # override limits / hard limits
         or_limit_list=[]
+        hard_limit_list = []
+        ferror = []
+        hard_limit = False
+        or_limit_set = False
         for j in range(0, self.stat.joints):
             or_limit_list.append( self.stat.joint[j]['override_limits'])
+            or_limit_set = or_limit_set or self.stat.joint[j]['override_limits']
+            min_hard_limit = self.stat.joint[j]['min_hard_limit']
+            max_hard_limit = self.stat.joint[j]['max_hard_limit']
+            hard_limit = hard_limit or min_hard_limit or max_hard_limit
+            hard_limit_list.append([min_hard_limit,max_hard_limit])
+            ferror.append(self.stat.joint[j]['ferror_current'])
         self.old['override-limits'] = or_limit_list
-        # active G codes
+        self.old['override-limits-set'] = bool(or_limit_set)
+        self.old['hard-limits-tripped'] = bool(hard_limit)
+        self.old['hard-limits-list'] = hard_limit_list
+        self.old['ferror-current'] = ferror
+
+        # active G-codes
         active_gcodes = []
         codes =''
         for i in sorted(self.stat.gcodes[1:]):
@@ -214,11 +347,13 @@ class _GStat(gobject.GObject):
         for i in active_gcodes:
             codes = codes +('%s '%i)
         self.old['g-code'] = codes
-        # extract specific G code modes
+        # extract specific G-code modes
         itime = fpm = fpr = css = rpm = metric = False
-        radius = diameter = False
+        radius = diameter = adm = idm = False
         for num,i in enumerate(active_gcodes):
-            if i == 'G93': itime = True
+            if i == 'G90': adm = True
+            elif i == 'G91': idm = True
+            elif i == 'G93': itime = True
             elif i == 'G94': fpm = True
             elif i == 'G95': fpr = True
             elif i == 'G96': css = True
@@ -226,6 +361,8 @@ class _GStat(gobject.GObject):
             elif i == 'G21': metric = True
             elif i == 'G7': diameter  = True
             elif i == 'G8': radius = True
+        self.old['g90'] = adm
+        self.old['g91'] = idm
         self.old['itime'] = itime
         self.old['fpm'] = fpm
         self.old['fpr'] = fpr
@@ -234,38 +371,71 @@ class _GStat(gobject.GObject):
         self.old['metric'] = metric
         self.old['radius'] = radius
         self.old['diameter'] = diameter
+        if css:
+            try:
+                self.old['spindle-speed']= hal.get_value('spindle.0.speed-out')
+            except RuntimeError:
+                self.old['spindle-speed']= self.stat.spindle[0]['speed']
+        else:
+            self.old['spindle-speed']= self.stat.spindle[0]['speed']
 
-        # active M codes
-        active_mcodes = ''
+        # active M-codes
+        active_mcodes = []
+        mcodes = ''
         for i in sorted(self.stat.mcodes[1:]):
             if i == -1: continue
-            active_mcodes = active_mcodes + ("M%s "%i)
+            active_mcodes.append("M%d"%i )
+        for i in active_mcodes:
+            mcodes = mcodes + ("%s "%i)
             #active_mcodes.append("M%s "%i)
-        self.old['m-code'] = active_mcodes
+        self.old['m-code'] = mcodes
+        self.old['tool-info']  = self.stat.tool_table[0]
+        settings = self.stat.settings
+        self.old['f-code'] = settings[1]
+        self.old['blend-tolerance-code'] = settings[3]
+        self.old['nativecam-tolerance-code'] = settings[4]
 
     def update(self):
         try:
             self.stat.poll()
         except:
+            self._status_active = False
+            # some things might not need linuxcnc status but do need periodic
+            self.emit('periodic')
             # Reschedule
             return True
+        self._status_active = True
         old = dict(self.old)
         self.merge()
+        cmd_state_old = old.get('command-state')
+        cmd_state_new = self.old['command-state']
+        if cmd_state_new != cmd_state_old:
+            if cmd_state_new == linuxcnc.RCS_EXEC:
+                self.emit('command-running')
+            elif cmd_state_new == linuxcnc.RCS_DONE:
+                self.emit('command-stopped')
+            elif cmd_state_new == linuxcnc.RCS_ERROR:
+                self.emit('command-error')
 
         state_old = old.get('state', 0)
         state_new = self.old['state']
-        if not state_old:
-            if state_new > linuxcnc.STATE_ESTOP:
-                self.emit('state-estop-reset')
-            else:
-                self.emit('state-estop')
-            self.emit('state-off')
-            self.emit('interp-idle')
-
         if state_new != state_old:
-            if state_old == linuxcnc.STATE_ON and state_new < linuxcnc.STATE_ON:
+
+            # set machine estop/clear
+            if state_old == linuxcnc.STATE_ESTOP and state_new == linuxcnc.STATE_ESTOP_RESET:
+                self.emit('state-estop-reset')
+                self.emit('interp-idle')
+            elif state_new == linuxcnc.STATE_ESTOP:
+                self.emit('state-estop')
+                self.emit('interp-idle')
+
+            # set machine on/off
+            if state_new == linuxcnc.STATE_ON:
+                self.emit('state-on')
+            elif state_old == linuxcnc.STATE_ON and state_new < linuxcnc.STATE_ON:
                 self.emit('state-off')
-            self.emit(self.STATES[state_new])
+
+            # reset modes/interpreter on machine on
             if state_new == linuxcnc.STATE_ON:
                 old['mode'] = 0
                 old['interp'] = 0
@@ -279,7 +449,6 @@ class _GStat(gobject.GObject):
         interp_new = self.old['interp']
         if interp_new != interp_old:
             if not interp_old or interp_old == linuxcnc.INTERP_IDLE:
-                print "Emit", "interp-run"
                 self.emit('interp-run')
             self.emit(self.INTERP[interp_new])
         # paused
@@ -293,7 +462,7 @@ class _GStat(gobject.GObject):
         if block_delete_new != block_delete_old:
             self.emit('block-delete-changed',block_delete_new)
         # optional_stop
-        optional_stop_old = old.get('optionaL-stop', None)
+        optional_stop_old = old.get('optional-stop', None)
         optional_stop_new = self.old['optional-stop']
         if optional_stop_new != optional_stop_old:
             self.emit('optional-stop-changed',optional_stop_new)
@@ -308,10 +477,12 @@ class _GStat(gobject.GObject):
             # still be emitted if aborting a program shortly after it ran an
             # external file subroutine, but that is fixed by not updating the
             # file name if call level != 0 in the merge() function above.
+            # do avoid that a signal is emitted in that case, causing
+            # a reload of the preview and sourceview widgets
             if self.stat.interp_state == linuxcnc.INTERP_IDLE:
                 self.emit('file-loaded', file_new)
 
-        #ToDo : Find a way to avoid signal when the line changed due to 
+        #ToDo : Find a way to avoid signal when the line changed due to
         #       a remap procedure, because the signal do highlight a wrong
         #       line in the code
         # current line
@@ -324,6 +495,10 @@ class _GStat(gobject.GObject):
         tool_new = self.old['tool-in-spindle']
         if tool_new != tool_old:
             self.emit('tool-in-spindle-changed', tool_new)
+        tool_num_old = old.get('tool-prep-number')
+        tool_num_new = self.old['tool-prep-number']
+        if tool_num_new != tool_num_old:
+            self.emit('tool-prep-changed', tool_num_new)
 
         motion_mode_old = old.get('motion-mode', None)
         motion_mode_new = self.old['motion-mode']
@@ -345,18 +520,27 @@ class _GStat(gobject.GObject):
                     homed_joints += 1
                     self.emit('homed', joint)
                 else:
+                    self.emit('unhomed', joint)
                     unhomed_joints += str(joint)
             if homed_joints == self.stat.joints:
-                self.emit('all-homed')
                 self._is_all_homed = True
+                self.emit('all-homed')
             else:
-                self.emit('not-all-homed', unhomed_joints)
                 self._is_all_homed = False
-        # override limts
+                self.emit('not-all-homed', unhomed_joints)
+
+        # override limits
         or_limits_old = old.get('override-limits', None)
         or_limits_new = self.old['override-limits']
+        or_limits_set_new = self.old['override-limits-set']
         if or_limits_new != or_limits_old:
-            self.emit('override-limits-changed',or_limits_new)
+            self.emit('override-limits-changed',or_limits_set_new, or_limits_new)
+        # hard limits tripped
+        t_list_old = old.get('hard-limits-list')
+        t_list_new = self.old['hard-limits-list']
+        if t_list_new != t_list_old:
+            hard_limits_tripped_new = self.old['hard-limits-tripped']
+            self.emit('hard-limits-tripped',hard_limits_tripped_new, t_list_new)
         # current velocity
         self.emit('current-feed-rate',self.stat.current_vel * 60.0)
         # X relative position
@@ -368,20 +552,32 @@ class _GStat(gobject.GObject):
 
         # calculate position offsets (native units)
         p,rel_p,dtg = self.get_position()
-        self.emit('current_position',p, rel_p, dtg)
+        self.emit('current-position',p, rel_p, dtg, self.stat.joint_actual_position)
+
+        # ferror
+        self.emit('following-error', self.old['ferror-current'])
 
         # spindle control
         spindle_enabled_old = old.get('spindle-enabled', None)
         spindle_enabled_new = self.old['spindle-enabled']
         spindle_direction_old = old.get('spindle-direction', None)
         spindle_direction_new = self.old['spindle-direction']
-        if spindle_enabled_new != spindle_enabled_old or spindle_direction_new != spindle_direction_old:
-            self.emit('spindle-control-changed', spindle_enabled_new, spindle_direction_new)
+        up_to_speed_old = old.get('spindle-at-speed',None)
+        up_to_speed_new = self.old['spindle-at-speed']
+        if up_to_speed_new != up_to_speed_old or \
+            spindle_enabled_new != spindle_enabled_old or \
+            spindle_direction_new != spindle_direction_old:
+                self.emit('spindle-control-changed', 0, spindle_enabled_new, spindle_direction_new, up_to_speed_new)
         # requested spindle speed
         spindle_spd_old = old.get('spindle-speed', None)
         spindle_spd_new = self.old['spindle-speed']
         if spindle_spd_new != spindle_spd_old:
             self.emit('requested-spindle-speed-changed', spindle_spd_new)
+        # actual spindle speed
+        act_spindle_spd_old = old.get('actual-spindle-speed', None)
+        act_spindle_spd_new = self.old['actual-spindle-speed']
+        if act_spindle_spd_new != act_spindle_spd_old:
+            self.emit('actual-spindle-speed-changed', act_spindle_spd_new)
         # spindle override
         spindle_or_old = old.get('spindle-or', None)
         spindle_or_new = self.old['spindle-or']
@@ -397,16 +593,69 @@ class _GStat(gobject.GObject):
         rapid_or_new = self.old['rapid-or']
         if rapid_or_new != rapid_or_old:
             self.emit('rapid-override-changed',rapid_or_new * 100)
+        # max-velocity override
+        max_velocity_or_old = old.get('max-velocity-or', None)
+        max_velocity_or_new = self.old['max-velocity-or']
+        if max_velocity_or_new != max_velocity_or_old:
+            # work around misconfigured config (missing MAX_LINEAR_VELOCITY in TRAJ)
+            if max_velocity_or_new != 1e99:
+                self.emit('max-velocity-override-changed',max_velocity_or_new * 60)
         # feed hold
         feed_hold_old = old.get('feed-hold', None)
         feed_hold_new = self.old['feed-hold']
         if feed_hold_new != feed_hold_old:
             self.emit('feed-hold-enabled-changed',feed_hold_new)
+        # mist
+        mist_old = old.get('mist', None)
+        mist_new = self.old['mist']
+        if mist_new != mist_old:
+            self.emit('mist-changed',mist_new)
+        # flood
+        flood_old = old.get('flood', None)
+        flood_new = self.old['flood']
+        if flood_new != flood_old:
+            self.emit('flood-changed',flood_new)
+        # rotation around Z
+        z_rot_old = old.get('current-z-rotation', None)
+        z_rot_new = self.old['current-z-rotation']
+        if z_rot_new != z_rot_old:
+            self.emit('current-z-rotation',z_rot_new)
+        # current tool offsets
+        tool_off_old = old.get('current-tool-offset', None)
+        tool_off_new = self.old['current-tool-offset']
+        if tool_off_new != tool_off_old:
+               self.emit('current-tool-offset',tool_off_new)
+        #############################
+        # Gcodes
+        #############################
+        # G-codes
+        g_code_old = old.get('g-code', None)
+        g_code_new = self.old['g-code']
+        if g_code_new != g_code_old:
+            self.emit('g-code-changed',g_code_new)
+        # metric mode g21
+        metric_old = old.get('metric', None)
+        metric_new = self.old['metric']
+        if metric_new != metric_old:
+            self.emit('metric-mode-changed',metric_new)
         # G5x (active user system)
         g5x_index_old = old.get('g5x-index', None)
         g5x_index_new = self.old['g5x-index']
         if g5x_index_new != g5x_index_old:
             self.emit('user-system-changed',g5x_index_new)
+
+        # absolute mode g90
+        g90_old = old.get('g90', None)
+        g90_new = self.old['g90']
+        if g90_new != g90_old:
+            self.emit('g90-mode',g90_new)
+
+        # incremental mode g91
+        g91_old = old.get('g91', None)
+        g91_new = self.old['g91']
+        if g91_new != g91_old:
+            self.emit('g91-mode',g91_new)
+
         # inverse time mode g93
         itime_old = old.get('itime', None)
         itime_new = self.old['itime']
@@ -442,41 +691,81 @@ class _GStat(gobject.GObject):
         diam_new = self.old['diameter']
         if diam_new != diam_old:
             self.emit('diameter-mode',diam_new)
-        # M codes
+        ####################################
+        # Mcodes
+        ####################################
+        # M-codes
         m_code_old = old.get('m-code', None)
         m_code_new = self.old['m-code']
         if m_code_new != m_code_old:
             self.emit('m-code-changed',m_code_new)
-        # G codes
-        g_code_old = old.get('g-code', None)
-        g_code_new = self.old['g-code']
-        if g_code_new != g_code_old:
-            self.emit('g-code-changed',g_code_new)
-        # metric mode g21
-        metric_old = old.get('metric', None)
-        metric_new = self.old['metric']
-        if metric_new != metric_old:
-            self.emit('metric-mode-changed',metric_new)
+        tool_info_old = old.get('tool-info', None)
+        tool_info_new = self.old['tool-info']
+        if tool_info_new != tool_info_old:
+            self.emit('tool-info-changed', tool_info_new)
+
+        #####################################
+        # settings
+        #####################################
+        # feed code
+        f_code_old = old.get('f-code', None)
+        f_code_new = self.old['f-code']
+        if f_code_new != f_code_old:
+            self.emit('f-code-changed',f_code_new)
+
+        # g53 blend code
+        blend_code_old = old.get('blend-tolerance-code', None)
+        blend_code_new = self.old['blend-tolerance-code']
+        cam_code_old = old.get('nativecam-tolerance-code', None)
+        cam_code_new = self.old['nativecam-tolerance-code']
+
+        if blend_code_new != blend_code_old or \
+           blend_code_new != blend_code_old:
+                self.emit('blend-code-changed',blend_code_new, cam_code_new)
+
         # AND DONE... Return true to continue timeout
+        self.emit('periodic')
         return True
 
     def forced_update(self):
-        print 'Gstat forced update!'
         try:
             self.stat.poll()
         except:
             # Reschedule
             return True
         self.merge()
+        cmd_state_new = self.old['command-state']
+        if cmd_state_new == linuxcnc.RCS_EXEC:
+            self.emit('command-running')
+        elif cmd_state_new == linuxcnc.RCS_DONE:
+            self.emit('command-stopped')
+        elif cmd_state_new == linuxcnc.RCS_ERROR:
+            self.emit('command-error')
 
-        # override limts
+        state_new = self.old['state']
+        if state_new > linuxcnc.STATE_ESTOP:
+            self.emit('state-estop-reset')
+        else:
+            self.emit('state-estop')
+        self.emit('state-off')
+        self.emit('interp-idle')
+        # override limits
         or_limits_new = self.old['override-limits']
-        self.emit('override-limits-changed',or_limits_new)
+        or_limits_set_new = self.old['override-limits-set']
+        self.emit('override-limits-changed',or_limits_set_new, or_limits_new)
+        # hard limits tripped
+        t_list_new = self.old['hard-limits-list']
+        hard_limits_tripped_new = self.old['hard-limits-tripped']
+        self.emit('hard-limits-tripped',hard_limits_tripped_new, t_list_new)
         # overrides
         feed_or_new = self.old['feed-or']
         self.emit('feed-override-changed',feed_or_new * 100)
         rapid_or_new = self.old['rapid-or']
         self.emit('rapid-override-changed',rapid_or_new  * 100)
+        max_velocity_or_new = self.old['max-velocity-or']
+        # work around misconfigured config (missing MAX_LINEAR_VELOCITY in TRAJ)
+        if max_velocity_or_new != 1e99:
+            self.emit('max-velocity-override-changed',max_velocity_or_new * 60)
         spindle_or_new = self.old['spindle-or']
         self.emit('spindle-override-changed',spindle_or_new  * 100)
 
@@ -486,6 +775,12 @@ class _GStat(gobject.GObject):
         rpm_new = self.old['rpm']
         self.emit('rpm-mode',rpm_new)
 
+        # absolute mode g90
+        g90_new = self.old['g90']
+        self.emit('g90-mode',g90_new)
+        # incremental mode g91
+        g91_new = self.old['g91']
+        self.emit('g91-mode',g91_new)
         # feed mode:
         itime_new = self.old['itime']
         self.emit('itime-mode',itime_new)
@@ -504,17 +799,29 @@ class _GStat(gobject.GObject):
         self.emit('optional-stop-changed',optional_stop_new)
         # user system G5x
         system_new = self.old['g5x-index']
-        self.emit('user_system_changed',system_new)
+        self.emit('user-system-changed',system_new)
         # radius mode g8
         radius_new = self.old['radius']
         self.emit('radius-mode',radius_new)
         # diameter mode g7
         diam_new = self.old['diameter']
         self.emit('diameter-mode',diam_new)
-        # M codes
+        # rotation around Z
+        z_rot_new = self.old['current-z-rotation']
+        self.emit('current-z-rotation',z_rot_new)
+        # current tool offsets
+        tool_off_new = self.old['current-tool-offset']
+        self.emit('current-tool-offset',tool_off_new)
+
+        # M-codes
         m_code_new = self.old['m-code']
         self.emit('m-code-changed',m_code_new)
-        # G codes
+        flood_new = self.old['flood']
+        self.emit('flood-changed',flood_new)
+        mist_new = self.old['mist']
+        self.emit('mist-changed',mist_new)
+
+        # G-codes
         g_code_new = self.old['g-code']
         self.emit('g-code-changed',g_code_new)
         # metric units G21
@@ -523,6 +830,57 @@ class _GStat(gobject.GObject):
         # tool in spindle
         tool_new = self.old['tool-in-spindle']
         self.emit('tool-in-spindle-changed', tool_new)
+        tool_num_new = self.old['tool-prep-number']
+        self.emit('tool-prep-changed', tool_num_new)
+
+        # feed code
+        f_code_new = self.old['f-code']
+        self.emit('f-code-changed',f_code_new)
+
+        # g53 blend code
+        blend_code_new = self.old['blend-tolerance-code']
+        cam_code_new = self.old['nativecam-tolerance-code']
+        self.emit('blend-code-changed',blend_code_new, cam_code_new)
+
+        # Trajectory Motion mode
+        motion_mode_new = self.old['motion-mode']
+        self.emit('motion-mode-changed', motion_mode_new)
+
+        # Spindle requested speed
+        spindle_spd_new = self.old['spindle-speed']
+        self.emit('requested-spindle-speed-changed', spindle_spd_new)
+        spindle_spd_new = self.old['actual-spindle-speed']
+        self.emit('actual-spindle-speed-changed', spindle_spd_new)
+        self.emit('spindle-control-changed', 0, False, 0, False)
+        self.emit('jograte-changed', self.current_jog_rate)
+        self.emit('jograte-angular-changed', self.current_angular_jog_rate)
+        self.emit('jogincrement-changed', self.current_jog_distance, self.current_jog_distance_text)
+        self.emit('jogincrement-angular-changed', self.current_jog_distance_angular, self.current_jog_distance_angular_text)
+        tool_info_new = self.old['tool-info']
+        self.emit('tool-info-changed', tool_info_new)
+
+        # homing
+        homed_joints = 0
+        unhomed_joints = ""
+        for joint in range(0, self.stat.joints):
+            if self.stat.homed[joint]:
+                homed_joints += 1
+                self.emit('homed', joint)
+            else:
+                self.emit('unhomed', joint)
+                unhomed_joints += str(joint)
+        if homed_joints == self.stat.joints:
+            self._is_all_homed = True
+            self.emit('all-homed')
+        else:
+            self._is_all_homed = False
+            self.emit('not-all-homed', unhomed_joints)
+
+        # ferror
+        self.emit('following-error', self.old['ferror-current'])
+
+        # update external objects
+        self.emit('forced-update')
 
     # ********** Helper function ********************
     def get_position(self):
@@ -547,39 +905,199 @@ class _GStat(gobject.GObject):
             x = xr
             y = yr
 
-        x -= self.stat.g92_offset[0] 
-        y -= self.stat.g92_offset[1] 
-        z -= self.stat.g92_offset[2] 
-        a -= self.stat.g92_offset[3] 
-        b -= self.stat.g92_offset[4] 
-        c -= self.stat.g92_offset[5] 
-        u -= self.stat.g92_offset[6] 
-        v -= self.stat.g92_offset[7] 
-        w -= self.stat.g92_offset[8] 
+        x -= self.stat.g92_offset[0]
+        y -= self.stat.g92_offset[1]
+        z -= self.stat.g92_offset[2]
+        a -= self.stat.g92_offset[3]
+        b -= self.stat.g92_offset[4]
+        c -= self.stat.g92_offset[5]
+        u -= self.stat.g92_offset[6]
+        v -= self.stat.g92_offset[7]
+        w -= self.stat.g92_offset[8]
 
         relp = [x, y, z, a, b, c, u, v, w]
         return p,relp,dtg
 
-    def set_jograte(self,upm):
-        self._current_jog_rate = upm
+    # check for required modes
+    # fail if mode is 0
+    # fail if machine is busy
+    # true if all ready in mode
+    # None if possible to change
+    def check_for_modes(self, *modes):
+        def running(s):
+            return s.task_mode == linuxcnc.MODE_AUTO and s.interp_state != linuxcnc.INTERP_IDLE
+        self.stat.poll()
+        premode = self.stat.task_mode
+        if not modes: return (None, premode)
+        try:
+            if  self.stat.task_mode in modes[0]: return (True, premode)
+        except:
+            if  self.stat.task_mode == modes[0]: return (True, premode)
+        if running( self.stat): return (None, premode)
+        return (False, premode)
+
+    def get_current_mode(self):
+        return self.old['mode']
+
+    # linear - in machine units
+    def set_jograte(self, upm):
+        self.current_jog_rate = upm
         self.emit('jograte-changed', upm)
 
     def get_jograte(self):
-        return self._current_jog_rate
+        return self.current_jog_rate
+
+    def set_jograte_angular(self,rate):
+        self.current_angular_jog_rate = rate
+        self.emit('jograte-angular-changed', rate)
+
+    def get_jograte_angular(self):
+        return self.current_angular_jog_rate
+
+    def get_jog_increment_angular(self):
+        return self.current_jog_distance_angular
+
+    def set_jog_increment_angular(self, distance, text):
+        try:
+            isinstance(float(distance), float)
+        except:
+            print('error converting angular jog increment ({}) to float: staying at {}'.format(distance,self.current_jog_distance_angular))
+            return
+        self.current_jog_distance_angular = distance
+        self.current_jog_distance_text_angular = text
+        self.emit('jogincrement-angular-changed', distance, text)
+
+    # should be in machine units
+    def set_jog_increments(self, distance, text):
+        try:
+            isinstance(float(distance), float)
+        except:
+            print('error converting jog increment ({}) to float: staying at {}'.format(distance,self.current_jog_distance))
+            return
+        self.current_jog_distance = distance
+        self.current_jog_distance_text = text
+        self.emit('jogincrement-changed', distance, text)
+
+    def get_jog_increment(self):
+        return self.current_jog_distance
+
+    def get_max_velocity(self):
+        return self.old['max-velocity-or'] * 60
+
+    def set_selected_joint(self, data):
+        self.selected_joint = int(data)
+        self.emit('joint-selection-changed', data)
+
+    def get_selected_joint(self):
+        return self.selected_joint
+
+    def set_selected_axis(self, data):
+        self.selected_axis = str(data)
+        self.emit('axis-selection-changed', data)
+
+    def get_selected_axis(self):
+        return self.selected_axis
+
+    def is_joint_homed(self, joint):
+        self.stat.poll()
+        return bool(self.stat.homed[joint])
 
     def is_all_homed(self):
         return self._is_all_homed
+
+    def is_homing(self):
+        for j in range(0, self.stat.joints):
+            if self.stat.joint[j].get('homing'):
+                return True
+        return False
 
     def machine_is_on(self):
         return self.old['state']  > linuxcnc.STATE_OFF
 
     def estop_is_clear(self):
-        return self.old['state'] > linuxcnc.STATE_ESTOP
+        self.stat.poll()
+        return self.stat.task_state > linuxcnc.STATE_ESTOP
+
+    def is_man_mode(self):
+        self.stat.poll()
+        return self.stat.task_mode  == linuxcnc.MODE_MANUAL
+
+    def is_mdi_mode(self):
+        self.stat.poll()
+        return self.stat.task_mode  == linuxcnc.MODE_MDI
 
     def is_auto_mode(self):
         self.stat.poll()
-        print self.old['mode']  , linuxcnc.MODE_AUTO
-        return self.old['state']  == linuxcnc.MODE_AUTO
+        return self.stat.task_mode  == linuxcnc.MODE_AUTO
+
+    def is_on_and_idle(self):
+        self.stat.poll()
+        return self.stat.task_state > linuxcnc.STATE_OFF and self.stat.interp_state == linuxcnc.INTERP_IDLE
+
+    def is_auto_running(self):
+        self.stat.poll()
+        return self.stat.task_mode == linuxcnc.MODE_AUTO and self.stat.interp_state != linuxcnc.INTERP_IDLE
+
+    def is_auto_paused(self):
+        return self.old['paused']
+
+    def is_interp_running(self):
+        self.stat.poll()
+        return self.stat.interp_state != linuxcnc.INTERP_IDLE
+
+    def is_interp_paused(self):
+        self.stat.poll()
+        return self.stat.interp_state == linuxcnc.INTERP_PAUSED
+
+    def is_interp_reading(self):
+        self.stat.poll()
+        return self.stat.interp_state == linuxcnc.INTERP_READING
+
+    def is_interp_waiting(self):
+        self.stat.poll()
+        return self.stat.interp_state == linuxcnc.INTERP_WAITING
+
+    def is_interp_idle(self):
+        self.stat.poll()
+        return self.stat.interp_state == linuxcnc.INTERP_IDLE
+
+    def is_file_loaded(self):
+        self.stat.poll()
+        if self.stat.file:
+            return True
+        else:
+            return False
+
+    def is_metric_mode(self):
+        return self.old['metric']
+
+    def is_spindle_on(self, num = 0):
+        self.stat.poll()
+        return self.stat.spindle[num]['enabled']
+
+    def get_spindle_speed(self, num):
+        self.stat.poll()
+        return self.stat.spindle[num]['speed']
+
+    def is_joint_mode(self):
+        try:
+            self.stat.poll()
+        except:
+            return None
+        return bool(self.stat.motion_mode == linuxcnc.TRAJ_MODE_FREE)
+
+    def is_status_valid(self):
+        return self._status_active
+
+    def is_limits_override_set(self):
+        return self.old['override-limits-set']
+
+    def is_hard_limits_tripped(self):
+        return self.old['hard-limits-tripped']
+
+    def get_current_tool(self):
+        self.stat.poll()
+        return self.stat.tool_in_spindle
 
     def set_tool_touchoff(self,tool,axis,value):
         premode = None
@@ -616,9 +1134,9 @@ class _GStat(gobject.GObject):
             self.cmd.jog(linuxcnc.JOG_STOP, jjogmode, j_or_a)
         else:
             if axisnum in (3,4,5):
-                rate = self.angular_jog_velocity
+                rate = self.current_angular_jog_rate
             else:
-                rate = self._current_jog_rate/60
+                rate = self.current_jog_rate/60
             if distance == 0:
                 self.cmd.jog(linuxcnc.JOG_CONTINUOUS, jjogmode, j_or_a, direction * rate)
             else:
@@ -630,17 +1148,17 @@ class _GStat(gobject.GObject):
             return JOGJOINT
         if self.stat.motion_mode == linuxcnc.TRAJ_MODE_TELEOP:
             return JOGTELEOP
-        print "commands.py: unexpected motion_mode",self.stat.motion_mode
+        print("commands.py: unexpected motion_mode",self.stat.motion_mode)
         return JOGTELEOP
 
     def jnum_for_axisnum(self,axisnum):
         if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-            print ("\n%s:\n  Joint jogging not supported for"
+            print("\n%s:\n  Joint jogging not supported for"
                    "non-identity kinematics"%__file__)
             return -1 # emcJogCont() et al reject neg joint/axis no.s
         jnum = trajcoordinates.index( "xyzabcuvw"[axisnum] )
         if jnum > jointcount:
-            print ("\n%s:\n  Computed joint number=%d for axisnum=%d "
+            print("\n%s:\n  Computed joint number=%d for axisnum=%d "
                    "exceeds jointcount=%d with trajcoordinates=%s"
                    %(__file__,jnum,axisnum,jointcount,trajcoordinates))
             # Note: primary gui should protect for this misconfiguration
@@ -653,6 +1171,33 @@ class _GStat(gobject.GObject):
         j_or_a = axisnum
         if jjogmode == JOGJOINT: j_or_a = self.jnum_for_axisnum(axisnum)
         return jjogmode,j_or_a
+
+    def get_probed_position_with_offsets(self) :
+        self.stat.poll()
+        probed_position=list(self.stat.probed_position)
+        coord=list(self.stat.probed_position)
+        g5x_offset=list(self.stat.g5x_offset)
+        g92_offset=list(self.stat.g92_offset)
+        tool_offset=list(self.stat.tool_offset)
+        for i in range(0, len(probed_position)-1):
+             coord[i] = probed_position[i] - g5x_offset[i] - g92_offset[i] - tool_offset[i]
+        angl=self.stat.rotation_xy
+        res=self._rott00_point(coord[0],coord[1],-angl)
+        coord[0]=res[0]
+        coord[1]=res[1]
+        return coord
+
+    # rotate around 0,0 point coordinates
+    def _rott00_point(self,x1=0.,y1=0.,a1=0.) :
+        coord = [x1,y1]
+        if a1 != 0:
+            t = math.radians(a1)
+            coord[0] = x1 * math.cos(t) - y1 * math.sin(t)
+            coord[1] = x1 * math.sin(t) + y1 * math.cos(t)
+        return coord
+
+    def shutdown(self):
+        self.emit('shutdown')
 
     def __getitem__(self, item):
         return getattr(self, item)

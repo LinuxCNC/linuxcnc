@@ -1,4 +1,4 @@
-/** This file, 'halsc_disp.c', contains the portion of halscope
+/** This file, 'scope_disp.c', contains the portion of halscope
     that actually displays waveforms.
 */
 
@@ -28,7 +28,7 @@
     any responsibility for such compliance.
 
     This code was written as part of the EMC HAL project.  For more
-    information, go to www.linuxcnc.org.
+    information, go to https://linuxcnc.org.
 */
 
 #include <math.h>
@@ -38,6 +38,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <rtapi_string.h>
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "hal.h"		/* HAL public API decls */
@@ -59,12 +60,12 @@
 
 static void init_display_window(void);
 static void clear_display_window(void);
+static void alloc_color(GdkRGBA *color, int red, int green, int blue);
 static void update_readout(void);
 static void draw_grid(void);
 static void draw_baseline(int chan_num, int highlight);
 static void draw_waveform(int chan_num, int highlight);
 static void draw_triggerline(int chan_num, int highlight);
-static void handle_window_expose(GtkWidget * widget, gpointer data);
 static int handle_click(GtkWidget *widget, GdkEventButton *event, gpointer data);
 static int handle_release(GtkWidget *widget, GdkEventButton *event, gpointer data);
 static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data);
@@ -72,6 +73,9 @@ static int handle_scroll(GtkWidget *widget, GdkEventScroll *event, gpointer data
 static void conflict_avoid(int *y, int h);
 static int conflict_avoid_dy(int y, int h, int dy);
 static void conflict_reset(int height);
+static void update_drawing_size(GtkWidget *widget, GdkEventConfigure *event,
+        gpointer data);
+static void create_context(void);
 
 /***********************************************************************
 *                       PUBLIC FUNCTIONS                               *
@@ -125,6 +129,17 @@ void request_display_refresh(int delay)
     ctrl_usr->display_refresh_timer = delay;
 }
 
+/*
+ * Redraws the oscilloscope window
+ */
+void redraw_window(void)
+{
+    scope_disp_t *disp;
+    disp = &(ctrl_usr->disp);
+
+    gtk_widget_queue_draw(disp->drawing);
+}
+
 static int motion_x = -1, motion_y = -1;
 
 static void calculate_offset(int chan_num) {
@@ -175,7 +190,6 @@ void refresh_display(void)
     scope_disp_t *disp;
     scope_vert_t *vert;
     scope_horiz_t *horiz;
-    int depth;
     double pixels_per_div, pixels_per_sec, overall_record_length;
     double screen_center_time, screen_start_time, screen_end_time;
 
@@ -185,21 +199,7 @@ void refresh_display(void)
     disp = &(ctrl_usr->disp);
     vert = &(ctrl_usr->vert);
     horiz = &(ctrl_usr->horiz);
-    /* get window pointer */
-    disp->win = disp->drawing->window;
-    if (disp->win == NULL) {
-	/* window isn't visible yet, do nothing */
-	printf("refresh_display(): win = NULL, bailing!\n");
-	return;
-    }
-    /* create drawing context if needed */
-    if (disp->context == NULL) {
-	disp->context = gdk_gc_new(disp->win);
-    }
 
-    /* get window dimensions */
-    gdk_window_get_geometry(disp->win, NULL, NULL, &(disp->width),
-	&(disp->height), &depth);
     /* calculate horizontal params that depend on width */
     pixels_per_div = disp->width * 0.1;
     pixels_per_sec = pixels_per_div / horiz->disp_scale;
@@ -216,13 +216,6 @@ void refresh_display(void)
     disp->end_sample = (screen_end_time / horiz->sample_period) + 1;
     if (disp->end_sample > ctrl_shm->rec_len - 1) {
 	disp->end_sample = ctrl_shm->rec_len - 1;
-    }
-
-    {
-        GdkRectangle rect = {0, 0, disp->width, disp->height};
-        GdkRegion *region = gdk_region_rectangle(&rect);
-        gdk_window_begin_paint_region(disp->drawing->window, region);
-        gdk_region_destroy(region);
     }
 
     DRAWING = 1;
@@ -266,38 +259,22 @@ void refresh_display(void)
     }
 
     update_readout();
-
-    gdk_window_end_paint(disp->drawing->window);
 }
 
 /***********************************************************************
 *                       LOCAL FUNCTIONS                                *
 ************************************************************************/
 
-gboolean alloc_color(GdkColor * color, GdkColormap * map,
-    unsigned char red, unsigned char green, unsigned char blue)
+static void alloc_color(GdkRGBA *color, int red, int green, int blue)
 {
-    int retval;
+    char buf[17];
 
-    color->red = ((unsigned long) red) << 8;
-    color->green = ((unsigned long) green) << 8;
-    color->blue = ((unsigned long) blue) << 8;
-    color->pixel =
-	((unsigned long) red) << 16 | ((unsigned long) green) << 8 |
-	((unsigned long) blue);
-    retval = gdk_colormap_alloc_color(map, color, FALSE, TRUE);
-    if (retval == 0) {
-	printf("alloc_color( %d, %d, %d ) failed\n", red, green, blue);
+    snprintf(buf, sizeof(buf), "rgb(%d,%d,%d)", red, green, blue);
+    if (!gdk_rgba_parse(color, buf)) {
+        fprintf(stderr, "%s: Failed to parse color, RGB(%d, %d, %d)\n",
+                __func__, red, green, blue);
     }
-    return retval;
 }
-
-#if 0 /* this will be needed if/when I allow user defined colors */
-static void free_color(GdkColor * color, GdkColormap * map)
-{
-    gdk_colormap_free_colors(map, color, 1);
-}
-#endif
 
 int normal_colors[16][3] = {
 	{204,   0,   0},
@@ -352,53 +329,53 @@ static void init_display_window(void)
     gtk_box_pack_start(GTK_BOX(ctrl_usr->waveform_win), disp->drawing, TRUE,
 	TRUE, 0);
     /* hook up a function to handle expose events */
-    gtk_signal_connect(GTK_OBJECT(disp->drawing), "expose_event",
-	GTK_SIGNAL_FUNC(handle_window_expose), NULL);
-    gtk_signal_connect(GTK_OBJECT(disp->drawing), "button_release_event",
-        GTK_SIGNAL_FUNC(handle_release), NULL);
-    gtk_signal_connect(GTK_OBJECT(disp->drawing), "button_press_event",
-        GTK_SIGNAL_FUNC(handle_click), NULL);
-    gtk_signal_connect(GTK_OBJECT(disp->drawing), "motion_notify_event",
-        GTK_SIGNAL_FUNC(handle_motion), NULL);
-    gtk_signal_connect(GTK_OBJECT(disp->drawing), "scroll_event",
-                GTK_SIGNAL_FUNC(handle_scroll), NULL);
+    g_signal_connect(disp->drawing, "size_allocate",
+        G_CALLBACK(update_drawing_size), NULL);
+    g_signal_connect(disp->drawing, "realize",
+        G_CALLBACK(create_context), NULL);
+    g_signal_connect(disp->drawing, "draw",
+	G_CALLBACK(refresh_display), NULL);
+    g_signal_connect(disp->drawing, "button_release_event",
+        G_CALLBACK(handle_release), NULL);
+    g_signal_connect(disp->drawing, "button_press_event",
+        G_CALLBACK(handle_click), NULL);
+    g_signal_connect(disp->drawing, "motion_notify_event",
+        G_CALLBACK(handle_motion), NULL);
+    g_signal_connect(disp->drawing, "scroll_event",
+                G_CALLBACK(handle_scroll), NULL);
     gtk_widget_add_events(GTK_WIDGET(disp->drawing),
             GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK
             | GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK
             | GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK
-            | GDK_BUTTON2_MOTION_MASK | GDK_BUTTON1_MOTION_MASK 
+            | GDK_BUTTON2_MOTION_MASK | GDK_BUTTON1_MOTION_MASK
             | GDK_SCROLL_MASK );
     gtk_widget_show(disp->drawing);
-    /* get color map */
-    disp->map = gtk_widget_get_colormap(disp->drawing);
+
     /* allocate colors */
-    alloc_color(&(disp->color_bg), disp->map, 0, 0, 0);
-    alloc_color(&(disp->color_grid), disp->map, 255, 255, 255);
-    alloc_color(&disp->color_baseline, disp->map, 128, 128, 128);
+    alloc_color(&disp->color_bg, 0, 0, 0);
+    alloc_color(&disp->color_grid, 255, 255, 255);
+    alloc_color(&disp->color_baseline, 128, 128, 128);
     for(i = 0; i<16; i++) {
-        alloc_color(&(disp->color_normal[i]), disp->map, normal_colors[i][0], normal_colors[i][1], normal_colors[i][2]);
-        alloc_color(&(disp->color_selected[i]), disp->map, selected_colors[i][0], selected_colors[i][1], selected_colors[i][2]);
+        alloc_color(&(disp->color_normal[i]), normal_colors[i][0],
+                    normal_colors[i][1], normal_colors[i][2]);
+        alloc_color(&(disp->color_selected[i]), selected_colors[i][0],
+                    selected_colors[i][1], selected_colors[i][2]);
     }
 
 }
 
-static void handle_window_expose(GtkWidget * widget, gpointer data)
-{
-    /* we don't want to react immediately - sometime we get a burst of expose 
-       events - instead we request a refresh for later */
-    request_display_refresh(2);
-}
-
-void clear_display_window(void)
+/*
+ * Paints the entire widget black.
+ * This is being used as background for the oscilloscope.
+ */
+static void clear_display_window(void)
 {
     scope_disp_t *disp;
 
     disp = &(ctrl_usr->disp);
-    /* set color to draw */
-    gdk_gc_set_foreground(disp->context, &(disp->color_bg));
-    /* draw a big rectangle to clear the screen */
-    gdk_draw_rectangle(disp->win, disp->context, TRUE, 0, 0, disp->width,
-	disp->height);
+
+    gdk_cairo_set_source_rgba(disp->context, &disp->color_bg);
+    cairo_paint(disp->context);
 }
 
 void draw_grid(void)
@@ -412,7 +389,7 @@ void draw_grid(void)
 
     disp = &(ctrl_usr->disp);
     /* set color to draw */
-    gdk_gc_set_foreground(disp->context, &(disp->color_grid));
+    gdk_cairo_set_source_rgba(disp->context, &disp->color_grid);
     /* calculate scale factors */
     xscale = disp->width - 1.0;
     yscale = disp->height - 1.0;
@@ -443,12 +420,14 @@ void draw_grid(void)
 	    /* draw the major division point */
 	    x = fx * xscale;
 	    y = fy * yscale;
-	    gdk_draw_point(disp->win, disp->context, x, y);
+            cairo_rectangle(disp->context, x, y, 1, 1);
+            cairo_fill(disp->context);
 	    /* draw minor divisions (vertical) */
 	    if (ny < 10) {
 		for (m = 1; m < yminor; m++) {
 		    y = (((0.1 * m) / yminor) + fy) * yscale;
-		    gdk_draw_point(disp->win, disp->context, x, y);
+                    cairo_rectangle(disp->context, x, y, 1, 1);
+                    cairo_fill(disp->context);
 		}
 	    }
 	    /* draw minor divisions (horizontal) */
@@ -456,7 +435,8 @@ void draw_grid(void)
 		y = fy * yscale;
 		for (m = 1; m < xminor; m++) {
 		    x = (((0.1 * m) / xminor) + fx) * xscale;
-		    gdk_draw_point(disp->win, disp->context, x, y);
+                    cairo_rectangle(disp->context, x, y, 1, 1);
+                    cairo_fill(disp->context);
 		}
 	    }
 	}
@@ -505,7 +485,7 @@ static void change_zoom(int dir, int x) {
     /* calculate horizontal params that depend on width */
     pixels_per_div = disp->width * 0.1;
     pixels_per_sec = pixels_per_div / horiz->disp_scale;
-    disp->pixels_per_sample = new_pixels_per_sample = 
+    disp->pixels_per_sample = new_pixels_per_sample =
         pixels_per_sec * horiz->sample_period;
 
     // how many samples away from the center of the window is this
@@ -529,7 +509,7 @@ static int handle_click(GtkWidget *widget, GdkEventButton *event, gpointer data)
     } else {
         int z = select_trace(event->x, event->y);
         int new_channel = z & 0xff;
-        int channel_part = z >> 8; 
+        int channel_part = z >> 8;
 
         disp->selected_part = channel_part;
 
@@ -563,7 +543,7 @@ static void middle_drag(int dx) {
     scope_horiz_t *horiz = &(ctrl_usr->horiz);
     double dt = (dx / disp->pixels_per_sample) / ctrl_shm->rec_len;
     set_horiz_pos(horiz->pos_setting + 5 * dt);
-    refresh_display();
+    redraw_window();
 }
 
 static double snap(int y) {
@@ -589,7 +569,7 @@ static void left_drag(int dy, int y, GdkModifierType state) {
         double new_position = snap(y);
         set_vert_pos(new_position);
         // chan->position = new_position;
-        refresh_display();
+        redraw_window();
         motion_y = y;
     } else {
         if(abs(dy) > 5) {
@@ -607,7 +587,8 @@ static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data
     GdkModifierType mod;
     int x, y;
 
-    gdk_window_get_pointer(disp->drawing->window, &x, &y, &mod);
+    gdk_window_get_device_position(gtk_widget_get_window(disp->drawing),
+            event->device, &x, &y, &mod);
     if(mod & GDK_BUTTON1_MASK) {
         left_drag(y-motion_y, y, event->state);
         return TRUE;
@@ -616,7 +597,7 @@ static int handle_motion(GtkWidget *widget, GdkEventButton *event, gpointer data
         middle_drag(motion_x - x);
     }
     motion_x = x;
-    refresh_display();
+    redraw_window();
     return TRUE;
 }
 
@@ -625,26 +606,20 @@ void update_readout(void) {
     scope_vert_t *vert = &(ctrl_usr->vert);
     scope_horiz_t *horiz = &(ctrl_usr->horiz);
     char tip[512];
-    GdkRectangle r = {vert->readout_label->allocation.x,
-            vert->readout_label->allocation.y,
-            vert->readout_label->allocation.width,
-            vert->readout_label->allocation.height};
+
     if(vert->selected != -1) {
         double t=0, p=0, v=0;
         int result = get_cursor_info(&t, &p, &v);
-        if(result > 0) { 
+        if(result > 0) {
             snprintf(tip, sizeof(tip), TIPFORMAT, t, v, (v - p)/horiz->sample_period);
-        } else { 
-	    strcpy(tip, "");
+        } else {
+	    rtapi_strxcpy(tip, "");
         }
     } else {
-            strcpy(tip, "");
+            rtapi_strxcpy(tip, "");
     }
 
     gtk_label_set_markup(GTK_LABEL(vert->readout_label), tip);
-
-    gtk_widget_draw(vert->readout_label, &r);
-
 }
 
 struct pt { double x, y; };
@@ -674,7 +649,9 @@ static double distance_point_line(int x, int y, int x1, int y1, int x2, int y2) 
 void line(int chan_num, int x1, int y1, int x2, int y2) {
     scope_disp_t *disp = &(ctrl_usr->disp);
     if(DRAWING) {
-        gdk_draw_line(disp->win, disp->context, COORDINATE_CLIP(x1), COORDINATE_CLIP(y1), COORDINATE_CLIP(x2), COORDINATE_CLIP(y2));
+        cairo_move_to(disp->context, COORDINATE_CLIP(x1), COORDINATE_CLIP(y1));
+        cairo_line_to(disp->context, COORDINATE_CLIP(x2), COORDINATE_CLIP(y2));
+        cairo_stroke(disp->context);
     } else {
         double dist = distance_point_line(select_x, select_y, x1, y1, x2, y2);
         if(dist < min_dist) {
@@ -686,10 +663,15 @@ void line(int chan_num, int x1, int y1, int x2, int y2) {
 
 void lines(int chan_num, GdkPoint points[], gint npoints) {
     double dist;
-
+    int n;
     scope_disp_t *disp = &(ctrl_usr->disp);
     if(DRAWING) {
-        gdk_draw_lines(disp->win, disp->context, points, npoints);
+        cairo_move_to(disp->context, points[0].x, points[0].y);
+        for (n = 1; n < npoints; n++) {
+            cairo_line_to(disp->context, points[n].x, points[n].y);
+        }
+        cairo_stroke(disp->context);
+
     } else {
         int x1 = points[0].x, y1 = points[0].y, x2, y2, i;
         for(i=1; i<npoints; i++) {
@@ -708,7 +690,6 @@ void lines(int chan_num, GdkPoint points[], gint npoints) {
 
 static
 void draw_triggerline(int chan_num, int highlight) {
-    static gint8 dashes[2] = {2,4};
     scope_disp_t *disp = &(ctrl_usr->disp);
     scope_chan_t *chan = &(ctrl_usr->chan[chan_num - 1]);
     scope_trig_t *trig = &(ctrl_usr->trig);
@@ -718,6 +699,9 @@ void draw_triggerline(int chan_num, int highlight) {
     double fp_level =
         chan->scale * ((chan->position - trig->level) * 10) +
 	chan->vert_offset;
+
+    const double dashes[2] = {2,4};
+    int ndash = sizeof(dashes) / sizeof(dashes[0]);
 
     int y1 = (fp_level-yfoffset) * yscale + ypoffset;
     double dx = hypot(disp->width, disp->height) * .01;
@@ -731,18 +715,18 @@ void draw_triggerline(int chan_num, int highlight) {
     if(ctrl_shm->trig_edge) dy = -dy;
 
     if(highlight) {
-	gdk_gc_set_foreground(disp->context, &(disp->color_selected[chan_num-1]));
+        gdk_cairo_set_source_rgba(disp->context, &disp->color_selected[chan_num - 1]);
     } else {
-	gdk_gc_set_foreground(disp->context, &(disp->color_normal[chan_num-1]));
+        gdk_cairo_set_source_rgba(disp->context, &disp->color_normal[chan_num - 1]);
     }
-    gdk_gc_set_dashes(disp->context, 0, dashes, 2);
-    gdk_gc_set_line_attributes(disp->context, 0, GDK_LINE_ON_OFF_DASH, GDK_CAP_BUTT, GDK_JOIN_MITER);
+    cairo_set_dash(disp->context, dashes, ndash, 0.0);
     line(chan_num | 0x200, 0, y1, disp->width, y1);
-    gdk_gc_set_line_attributes(disp->context, 0, GDK_LINE_SOLID, GDK_CAP_BUTT, GDK_JOIN_MITER);
+    /* setting ndash = 0 to disable dashing */
+    cairo_set_dash(disp->context, dashes, 0, 0.0);
     if(highlight) {
-        gdk_gc_set_foreground(disp->context, &(disp->color_grid));
+        gdk_cairo_set_source_rgba(disp->context, &disp->color_grid);
     } else {
-        gdk_gc_set_foreground(disp->context, &(disp->color_baseline));
+        gdk_cairo_set_source_rgba(disp->context, &disp->color_baseline);
     }
     line(chan_num | 0x300, 2*dx, y1, 2*dx, y1 + 2*dy);
     line(chan_num | 0x300, dx, y1+dy, 2*dx, y1 + 2*dy);
@@ -758,9 +742,9 @@ void draw_baseline(int chan_num, int highlight) {
     double yscale = disp->height / (-10.0 * chan->scale);
     int y1 = -yfoffset * yscale + ypoffset;;
     if(highlight) {
-        gdk_gc_set_foreground(disp->context, &(disp->color_grid));
+        gdk_cairo_set_source_rgba(disp->context, &disp->color_grid);
     } else {
-        gdk_gc_set_foreground(disp->context, &(disp->color_baseline));
+        gdk_cairo_set_source_rgba(disp->context, &disp->color_baseline);
     }
     line(chan_num | 0x100, 0, y1, disp->width, y1);
 }
@@ -809,9 +793,9 @@ void draw_waveform(int chan_num, int highlight)
 
     /* set color to draw */
     if (highlight) {
-	gdk_gc_set_foreground(disp->context, &(disp->color_selected[chan_num-1]));
+        gdk_cairo_set_source_rgba(disp->context, &disp->color_selected[chan_num - 1]);
     } else {
-	gdk_gc_set_foreground(disp->context, &(disp->color_normal[chan_num-1]));
+        gdk_cairo_set_source_rgba(disp->context, &disp->color_normal[chan_num - 1]);
     }
 
     x1 = y1 = 0;
@@ -878,8 +862,9 @@ void draw_waveform(int chan_num, int highlight)
             }
 	    if(first && highlight && DRAWING && x2 >= motion_x) {
 		    first = 0;
-		    gdk_draw_arc(disp->win, disp->context, TRUE,
-				x2-3, y2-3, 7, 7, 0, 360*64);
+                    cairo_arc(disp->context, x2, y2, 5, 0.0, 2.0 * M_PI);
+                    cairo_fill(disp->context);
+
                     cursor_prev_value = prev_fy;
                     cursor_value = fy;
                     cursor_time = (n - ctrl_shm->pre_trig)*horiz->sample_period;
@@ -919,7 +904,8 @@ void draw_waveform(int chan_num, int highlight)
                 y = ypoffset;
 
             conflict_avoid(&y, h);
-            gdk_draw_layout(disp->win, disp->context, 5, y, p);
+            cairo_move_to(disp->context, 5, y);
+            pango_cairo_show_layout(disp->context, p);
             g_object_unref(p);
         }
     }
@@ -950,6 +936,50 @@ void conflict_avoid(int *y, int h) {
     if(abs(yd-*y) < abs(yu-*y)) *y = yd;
     else *y = yu;
     memset(conflict_map+*y, 1, h);
+}
+
+/*
+ * Function gets called every time the window size changes. It updates the
+ * variables width and height, with the new size.
+ *
+ * This function gets called with GTK signal "size-allocate".
+ */
+static void update_drawing_size(GtkWidget *widget, GdkEventConfigure *event,
+        gpointer data)
+{
+    scope_disp_t *disp;
+    disp = &(ctrl_usr->disp);
+
+    disp->width = gtk_widget_get_allocated_width(widget);
+    disp->height = gtk_widget_get_allocated_height(widget);
+}
+
+/*
+ * Function gets called when the widget (disp->drawing) is going to
+ * be drawn. Destroys the surface if it exist, then creates a new surface
+ * with correct size.
+ *
+ * This function gets called with GTK signal "realize".
+ */
+static void create_context(void)
+{
+    scope_disp_t *disp;
+    disp = &(ctrl_usr->disp);
+
+    if (disp->surface) {
+        cairo_surface_destroy(disp->surface);
+    }
+
+    disp->surface = gdk_window_create_similar_surface(
+            gtk_widget_get_window(disp->drawing),
+            CAIRO_CONTENT_COLOR, disp->width, disp->height);
+
+    disp->context = cairo_create(disp->surface);
+
+    cairo_set_source_rgb(disp->context, 0.0, 0.0, 0.0);
+    cairo_paint(disp->context);
+
+    cairo_destroy(disp->context);
 }
 
 // vim:sts=4:sw=4:et

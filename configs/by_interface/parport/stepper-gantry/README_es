@@ -1,0 +1,5 @@
+Esta configuración es de tipo XYZ donde el eje Y es un sistema de estilo pórtico impulsado por dos motores.
+
+La configuración utiliza motores paso a paso con unidades métricas e incluye una bomba de carga. El conexionado es consistente con las placas breakout/combo de Bob Campbell.
+
+La configuración plasma-thc se basa en esta configuración pero tiene control de altura de antorcha y parada externa.

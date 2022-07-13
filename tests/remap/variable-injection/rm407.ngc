@@ -11,7 +11,7 @@ o70 endif
 o100 if [#<foo407> NE  42]
      (abort,rm407: foo407=#<foo407>)
 o100 endif
-; bump by 1 and check in epilog wether change is visible
+; bump by 1 and check in epilog whether change is visible
 #<foo407> = [#<foo407> + 1]
 o<rm407> endsub
 m2

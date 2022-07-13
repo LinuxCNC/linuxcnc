@@ -1,0 +1,85 @@
+(author: Chris P)
+(version: 0.1)
+(date: 04/25/19)
+
+(Probe Y Minus direction to locate edge, end at clearance distance)
+(Start probe position to the back side edge of stock)
+(inside the max xy distance with the probe tip below the stock top edge)
+(ensure all settings have been set properly according to help diagrams)
+
+o<probe_y_minus> sub
+
+  (uses NGCGUI style arg spec)
+  (number after "=" in comment is default value)
+  #<probe_tool_number> = #1
+  #<max_xy_distance> = #2
+  #<xy_clearance> = #3
+  #<probe_slow_fr> = #4
+  #<probe_fast_fr> = #5
+  #<calibration_offset> = #6
+
+  (Cancel G92 offsets)
+  G92.1
+
+  (Probe Tool Safety Check)
+  o<110> if [#5400 NE #<probe_tool_number>]
+  (MSG, Specified probe tool #<probe_tool_number> not in spindle, aborting)
+   o<probe_y_minus> return
+  o<110> endif
+
+  (Probe Diameter)
+  #<probe_diameter> = #5410
+
+  (Probe Radius)
+  #<probe_radius> = [#<probe_diameter> / 2]
+
+  (Probe Centerline Offset)
+  #<probe_center_offset> = [#<probe_radius> - #<calibration_offset>]
+
+  (Current Y Position including offsets in current program units)
+  #<y> = #5421
+
+  (Initiate Fast Y- Probe)
+  G91
+  F[#<probe_fast_fr>]
+  G38.2 y-[#<max_xy_distance>]
+  #<y_minus_probed> = #5062
+
+  (Probe Error check, #5070 will be 0 if failed)
+  o<120> if [#5070 EQ 0]
+    (back to start point and feed)
+    G90
+    G0 Y#<y>
+    F[#<probe_fast_fr>]
+    (return from sub)
+    o<probe_y_minus> return
+  o<120> endif
+
+  (Move to xy_clearance distance for slow probe)
+  G90
+  G0 Y[#<y_minus_probed> + #<xy_clearance>]
+
+  (Slow Probe Rule, if Slow Probe FR is set to 0, Slow Probe is Bypassed)
+  o<130> if [#<probe_slow_fr> GT 0]
+    (Initiate Slow Y- Probe)
+    G91
+    F[#<probe_slow_fr>]
+    G38.2 Y-[#<xy_clearance> * 2]
+    #<y_minus_probed> = #5062
+;    (debug, Probed Pos: #5062 Y Pos: #<_y>)
+    G90
+    G0 Y[#<y_minus_probed> + #<xy_clearance>]
+  o<130> endif
+
+  #<y_minus_zero_edge> = [#5062 - #<probe_center_offset>]
+
+  (defines the edge as y_probed_position for DRO reporting)
+  #<y_minus_probed_position> = #<y_minus_zero_edge>
+
+  (analog aio output to gui DRO "Y PROBED POSITION")
+  M68 E6 Q[#<y_minus_probed_position>]
+
+o<probe_y_minus> endsub [#<y_minus_zero_edge>]
+
+M2 (end program)
+

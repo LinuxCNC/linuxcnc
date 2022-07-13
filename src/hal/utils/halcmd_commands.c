@@ -2,7 +2,7 @@
  * Copyright (C) 2003 John Kasunich
  *                     <jmkasunich AT users DOT sourceforge DOT net>
  *
- *  Other contributers:
+ *  Other contributors:
  *                     Martin Kuhnle
  *                     <mkuhnle AT users DOT sourceforge DOT net>
  *                     Alex Joni
@@ -43,6 +43,7 @@
 #include "../hal_priv.h"	/* private HAL decls */
 #include "halcmd_commands.h"
 #include <rtapi_mutex.h>
+#include <rtapi_string.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -111,18 +112,16 @@ static int match(char **patterns, char *value) {
 
 int do_lock_cmd(char *command)
 {
-    int retval=0;
+	int retval = 0;
 
-    /* if command is blank or "all", want to lock everything */
-    if ((command == NULL) || (strcmp(command, "all") == 0)) {
-	retval = hal_set_lock(HAL_LOCK_ALL);
-    } else if (strcmp(command, "none") == 0) {
-	retval = hal_set_lock(HAL_LOCK_NONE);
-    } else if (strcmp(command, "tune") == 0) {
-	retval = hal_set_lock(HAL_LOCK_LOAD & HAL_LOCK_CONFIG);
-    } else if (strcmp(command, "all") == 0) {
-	retval = hal_set_lock(HAL_LOCK_ALL);
-    }
+	/* if command is blank or "all", want to lock everything */
+	if ((command == NULL) || (strcmp(command, "all") == 0)) {
+		retval = hal_set_lock(HAL_LOCK_ALL);
+	} else if (strcmp(command, "none") == 0) {
+		retval = hal_set_lock(HAL_LOCK_NONE);
+	} else if (strcmp(command, "tune") == 0) {
+		retval = hal_set_lock(HAL_LOCK_TUNE);
+	}
 
     if (retval == 0) {
 	/* print success message */
@@ -135,16 +134,16 @@ int do_lock_cmd(char *command)
 
 int do_unlock_cmd(char *command)
 {
-    int retval=0;
+	int retval = 0;
 
-    /* if command is blank or "all", want to unlock everything */
-    if ((command == NULL) || (strcmp(command, "all") == 0)) {
-	retval = hal_set_lock(HAL_LOCK_NONE);
-    } else if (strcmp(command, "all") == 0) {
-	retval = hal_set_lock(HAL_LOCK_NONE);
-    } else if (strcmp(command, "tune") == 0) {
-	retval = hal_set_lock(HAL_LOCK_LOAD & HAL_LOCK_CONFIG);
-    }
+	/* if command is blank or "all", want to unlock everything */
+	if ((command == NULL) || (strcmp(command, "all") == 0)) {
+		retval = hal_set_lock(HAL_LOCK_NONE);
+	} else if (strcmp(command, "none") == 0) {
+		retval = hal_set_lock(HAL_LOCK_NONE);
+	} else if (strcmp(command, "tune") == 0) {
+		retval = hal_set_lock(hal_get_lock() & ~HAL_LOCK_TUNE);
+	}
 
     if (retval == 0) {
 	/* print success message */
@@ -240,6 +239,15 @@ int do_unlinkp_cmd(char *pin)
         halcmd_error("unlink failed\n");
     }
     return retval;
+}
+
+int do_set_debug_cmd(char* level){
+    int new_level = atoi(level);
+    if (new_level < 0 || new_level > 5){
+        halcmd_error("Debug level must be >=0 and <= 5\n");
+        return -EINVAL;
+    }
+    return rtapi_set_msg_level(atoi(level));
 }
 
 int do_source_cmd(char *hal_filename) {
@@ -621,6 +629,8 @@ int do_newsig_cmd(char *name, char *type)
 	retval = hal_signal_new(name, HAL_U32);
     } else if (strcasecmp(type, "s32") == 0) {
 	retval = hal_signal_new(name, HAL_S32);
+    } else if (strcasecmp(type, "port") == 0) {
+	retval = hal_signal_new(name, HAL_PORT);
     } else {
 	halcmd_error("Unknown signal type '%s'\n", type);
 	retval = -EINVAL;
@@ -637,6 +647,7 @@ static int set_common(hal_type_t type, void *d_ptr, char *value) {
     double fval;
     long lval;
     unsigned long ulval;
+    unsigned uval;
     char *cp = value;
 
     switch (type) {
@@ -681,6 +692,20 @@ static int set_common(hal_type_t type, void *d_ptr, char *value) {
 	    *((hal_u32_t *) (d_ptr)) = ulval;
 	}
 	break;
+    case HAL_PORT:
+        uval = strtoul(value, &cp, 0);
+        if ((*cp != '\0') && (!isspace(*cp))) {
+            halcmd_error("value '%s' invalid for PORT\n", value);
+            retval = -EINVAL;
+        } else {
+            if((*((hal_port_t*)d_ptr) != 0) && (hal_port_buffer_size(*((hal_port_t*)d_ptr)) > 0)) {
+                halcmd_error("port is already allocated with %u bytes.\n", hal_port_buffer_size(*((hal_port_t*)d_ptr)));
+                retval = -EINVAL;
+        } else {
+            *((hal_port_t*) (d_ptr)) = hal_port_alloc(uval);
+        }
+    }
+    break;
     default:
 	/* Shouldn't get here, but just in case... */
 	halcmd_error("bad type %d\n", type);
@@ -751,6 +776,12 @@ int do_setp_cmd(char *name, char *value)
     }
     return retval;
 
+}
+
+int do_print_cmd(char *value)
+{
+    halcmd_error( "HALCMD MSG: %s\n",value );
+    return 0;
 }
 
 int do_ptype_cmd(char *name)
@@ -849,8 +880,8 @@ int do_sets_cmd(char *name, char *value)
 	halcmd_error("signal '%s' not found\n", name);
 	return -EINVAL;
     }
-    /* found it - does it have a writer? */
-    if (sig->writers > 0) {
+    /* found it - it have a writer? if it is a port we can set its buffer size */
+    if ((sig->type != HAL_PORT) && (sig->writers > 0)) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	halcmd_error("signal '%s' already has writer(s)\n", name);
 	return -EINVAL;
@@ -935,6 +966,7 @@ static int get_type(char ***patterns) {
     if(strcmp(typestr, "u32") == 0) return HAL_U32;
     if(strcmp(typestr, "signed") == 0) return HAL_S32;
     if(strcmp(typestr, "unsigned") == 0) return HAL_U32;
+    if(strcmp(typestr, "port") == 0) return HAL_PORT;
     return -1;
 }
 
@@ -1244,7 +1276,7 @@ int do_unloadusr_cmd(char *mod_name)
     next = hal_data->comp_list_ptr;
     while (next != 0) {
 	comp = SHMPTR(next);
-	if ( comp->type == 0 && comp->pid != ourpid) {
+	if ( comp->type == COMPONENT_TYPE_USER && comp->pid != ourpid) {
 	    /* found a userspace component besides us */
 	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
 		/* we want to unload this component, send it SIGTERM */
@@ -1276,7 +1308,7 @@ int do_unloadrt_cmd(char *mod_name)
     next = hal_data->comp_list_ptr;
     while (next != 0) {
 	comp = SHMPTR(next);
-	if ( comp->type == 1 ) {
+	if ( comp->type == COMPONENT_TYPE_REALTIME ) {
 	    /* found a realtime component */
 	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
 		/* we want to unload this component, remember its name */
@@ -1357,17 +1389,17 @@ int do_unload_cmd(char *mod_name) {
         return do_unloadrt_cmd(mod_name);
     } else {
         hal_comp_t *comp;
-        int type = -1;
+        component_type_t type = COMPONENT_TYPE_UNKNOWN;
         rtapi_mutex_get(&(hal_data->mutex));
         comp = halpr_find_comp_by_name(mod_name);
         if(comp) type = comp->type;
         rtapi_mutex_give(&(hal_data->mutex));
-        if(type == -1) {
+        if(type == COMPONENT_TYPE_UNKNOWN) {
             halcmd_error("component '%s' is not loaded\n",
                 mod_name);
             return -1;
         }
-        if(type == 1) return do_unloadrt_cmd(mod_name);
+        if(type == COMPONENT_TYPE_REALTIME) return do_unloadrt_cmd(mod_name);
         else return do_unloadusr_cmd(mod_name);
     }
 }
@@ -1572,7 +1604,7 @@ int do_waitusr_cmd(char *comp_name)
 	halcmd_info("component '%s' not found or already exited\n", comp_name);
 	return 0;
     }
-    if (comp->type != 0) {
+    if (comp->type != COMPONENT_TYPE_USER) {
 	rtapi_mutex_give(&(hal_data->mutex));
 	halcmd_error("'%s' is not a userspace component\n", comp_name);
 	return -EINVAL;
@@ -1612,16 +1644,16 @@ static void print_comp_info(char **patterns)
     while (next != 0) {
 	comp = SHMPTR(next);
 	if ( match(patterns, comp->name) ) {
-            if(comp->type == 2) {
+            if(comp->type == COMPONENT_TYPE_OTHER) {
                 hal_comp_t *comp1 = halpr_find_comp_by_id(comp->comp_id & 0xffff);
                 halcmd_output("    INST %s %s",
                         comp1 ? comp1->name : "(unknown)", 
                         comp->name);
             } else {
                 halcmd_output(" %5d  %-4s  %-*s",
-                    comp->comp_id, (comp->type ? "RT" : "User"),
+                    comp->comp_id, (comp->type == COMPONENT_TYPE_REALTIME) ? "RT" : "User",
                     HAL_NAME_LEN, comp->name);
-                if(comp->type == 0) {
+                if(comp->type == COMPONENT_TYPE_USER) {
                         halcmd_output(" %5d %s", comp->pid, comp->ready > 0 ?
                                 "ready" : "initializing");
                 } else {
@@ -1914,7 +1946,12 @@ static void print_thread_info(char **patterns)
             hal_sig_t *sig;
             void *dptr;
   
-            snprintf(name, sizeof(name), "%s.time",tptr->name);
+            size_t ret = snprintf(name, sizeof(name), "%s.time",tptr->name);
+            if (ret >=  sizeof(name)){
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                        "unexpected: pin name too long for buffer %s",tptr->name);
+            } else {
+
             pin = halpr_find_pin_by_name(name);
             if (pin) {
                 if (pin->signal != 0) {
@@ -1935,6 +1972,7 @@ static void print_thread_info(char **patterns)
             } else {
                 rtapi_print_msg(RTAPI_MSG_ERR,
                      "unexpected: cannot find time pin for %s thread",tptr->name);
+            }
             }
 
 
@@ -2179,6 +2217,9 @@ static const char *data_type(int type)
     case HAL_U32:
 	type_str = "u32  ";
 	break;
+    case HAL_PORT:
+	type_str = "port ";
+	break;
     default:
 	/* Shouldn't get here, but just in case... */
 	type_str = "undef";
@@ -2202,6 +2243,9 @@ static const char *data_type2(int type)
 	break;
     case HAL_U32:
 	type_str = "u32";
+	break;
+    case HAL_PORT:
+	type_str = "port";
 	break;
     default:
 	/* Shouldn't get here, but just in case... */
@@ -2321,6 +2365,10 @@ static char *data_value(int type, void *valptr)
 	snprintf(buf, 14, "  0x%08lX", (unsigned long)*((hal_u32_t *) valptr));
 	value_str = buf;
 	break;
+    case HAL_PORT:
+	snprintf(buf, 14, "  %10u", hal_port_buffer_size(*((hal_port_t*) valptr)));
+	value_str = buf;
+	break;
     default:
 	/* Shouldn't get here, but just in case... */
 	value_str = "   undef    ";
@@ -2354,6 +2402,11 @@ static char *data_value2(int type, void *valptr)
 	snprintf(buf, 14, "%ld", (unsigned long)*((hal_u32_t *) valptr));
 	value_str = buf;
 	break;
+    case HAL_PORT:
+	snprintf(buf, 14, "%u", hal_port_buffer_size(*((hal_port_t*) valptr)));
+	value_str = buf;
+	break;
+
     default:
 	/* Shouldn't get here, but just in case... */
 	value_str = "unknown_type";
@@ -2446,7 +2499,7 @@ static void save_comps(FILE *dst)
     next = hal_data->comp_list_ptr;
     while (next != 0) {
 	comp = SHMPTR(next);
-	if ( comp->type == 1 ) {
+	if ( comp->type == COMPONENT_TYPE_REALTIME ) {
             ncomps ++;
         }
 	next = comp->next_ptr;
@@ -2456,7 +2509,7 @@ static void save_comps(FILE *dst)
     next = hal_data->comp_list_ptr;
     while(next != 0)  {
 	comp = SHMPTR(next);
-	if ( comp->type == 1 ) {
+	if ( comp->type == COMPONENT_TYPE_REALTIME ) {
             *compptr++ = SHMPTR(next);
         }
 	next = comp->next_ptr;
@@ -2802,7 +2855,7 @@ int do_help_cmd(char *command)
     } else if (strcmp(command, "newsig") == 0) {
 	printf("newsig signame type\n");
 	printf("  Creates a new signal called 'signame'.  Type\n");
-	printf("  is 'bit', 'float', 'u32', or 's32'.\n");
+	printf("  is 'bit', 'float', 'port', 'u32', or 's32'.\n");
     } else if (strcmp(command, "delsig") == 0) {
 	printf("delsig signame\n");
 	printf("  Deletes signal 'signame'.  If 'signame is 'all',\n");
@@ -2825,7 +2878,9 @@ int do_help_cmd(char *command)
 #endif
     } else if (strcmp(command, "sets") == 0) {
 	printf("sets signame value\n");
-	printf("  Sets signal 'signame' to 'value' (if signal has no writers).\n");
+	printf("  Sets a non-port signal 'signame' to 'value' (if signal has no writers).\n");
+    printf("  If 'signame' is a port signal (that has not previously been allocated),\n");
+    printf("  then 'value' is the new maximum size in bytes of that port.\n");
     } else if (strcmp(command, "getp") == 0) {
 	printf("getp paramname\n");
 	printf("getp pinname\n");
@@ -2837,6 +2892,7 @@ int do_help_cmd(char *command)
     } else if (strcmp(command, "gets") == 0) {
 	printf("gets signame\n");
 	printf("  Gets the value of signal 'signame'.\n");
+    printf("  If signal 'signame' is a port, returns the buffer size of that port.\n");
     } else if (strcmp(command, "stype") == 0) {
 	printf("stype signame\n");
 	printf("  Gets the type of signal 'signame'\n");
@@ -2877,6 +2933,16 @@ int do_help_cmd(char *command)
 	printf("  'type' is 'lock', 'mem', or 'all'. \n");
 	printf("  If 'type' is omitted, it assumes\n");
 	printf("  'all'.\n");
+    } else if (strcmp(command, "debug")==0){
+    printf("debug [level]\n");
+    printf("   set the messaging level for the realtime API (calls rtapi_set_msg_level)\n");
+    printf("   levels are \n");
+    printf("   0 = None\n");
+	printf("   1 = Errors only (default)\n");
+	printf("   2 = Warnings and above\n");
+	printf("   3 = Info and above\n");
+	printf("   4 = Debug and above\n");
+	printf("   5 = All messages\n");
     } else if (strcmp(command, "save") == 0) {
 	printf("save [type] [filename]\n");
 	printf("  Prints HAL state to 'filename' (or stdout), as a series\n");
@@ -2925,7 +2991,11 @@ int do_help_cmd(char *command)
     } else if (strcmp(command, "unecho") == 0) {
         printf("unecho\n");
         printf("Turn off echo of commands from stdin to stdout\n");
-
+    } else if (strcmp(command, "print") == 0) {
+        printf("print [message]\n");
+        printf("This will print to the terminal the filename, line number and\n");
+        printf("an (optional) message. If the message has spaces, put it inside quotes.\n");
+        printf("Useful for debugging ie. confirming a HAL file is being run.\n");
     } else {
 	printf("No help for unknown command '%s'\n", command);
     }
@@ -2955,9 +3025,11 @@ static void print_help_commands(void)
     printf("  list                Display names of HAL objects\n");
     printf("  source              Execute commands from another .hal file\n");
     printf("  status              Display status information\n");
+    printf("  debug               Set the rtapi message level\n");
     printf("  save                Print config as commands\n");
     printf("  start, stop         Start/stop realtime threads\n");
     printf("  alias, unalias      Add or remove pin or parameter name aliases\n");
     printf("  echo, unecho        Echo commands from stdin to stderr\n");
+    printf("  print               print filename, line number and optional message to terminal\n");
     printf("  quit, exit          Exit from halcmd\n");
 }

@@ -111,7 +111,7 @@ net spindle-forward => pwmgen.0.enable
 # PID is not used to give closed-loop spindle speed control, because at the
 # highest speeds the software-based counter cannot keep up (note: with 'counter',
 # it can)
-# Instead, this offset and scale have been determined emperically
+# Instead, this offset and scale have been determined empirically
 # -- if these numbers are accurate, then top speed at this gearing is about
 # 1200 rpm
 #

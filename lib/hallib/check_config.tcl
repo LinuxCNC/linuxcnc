@@ -21,13 +21,15 @@ set ::DEFAULT_AXIS_MIN_LIMIT -1e99
 set ::DEFAULT_AXIS_MAX_LIMIT +1e99
 #----------------------------------------------------------------------
 proc warnings msg {
-  puts "\n$::progname: ($::kins(module) kinematics) WARNING:"
+  puts -nonewline "\n$::progname:\n"
+  catch {puts ($::kins(module) kinematics) WARNING:"}
   foreach m $msg {puts "  $m"}
   puts ""
 } ;# warnings
 
 proc err_exit msg {
-  puts "\n$::progname: ($::kins(module) kinematics) ERROR:"
+  puts -nonewline "\n$::progname:\n"
+  catch {puts ($::kins(module) kinematics) ERROR:"}
   foreach m $msg {puts "  $m"}
   puts ""
   exit 1
@@ -61,6 +63,24 @@ proc joints_for_trivkins {coords} {
      incr i
   }
 } ;# joints_for_trivkins
+
+proc consistent_coords_for_trivkins {trivcoords} {
+  set m {" " "" "\t" ""} ;# mapping to remove whitespace
+  set trivcoords [string map $m $trivcoords]
+  if {"$trivcoords" == "XYZABCUVW"} {
+     return ;# unspecified trivkins coordinates
+             # allows use of any coordinates
+  }
+  set trajcoords ""
+  if [info exists ::TRAJ(COORDINATES)] {
+    set trajcoords [string map $m [lindex $::TRAJ(COORDINATES) 0]]
+  }
+  if {[string toupper "$trivcoords"] != [string toupper "$trajcoords"]} {
+    lappend ::wmsg "INCONSISTENT coordinates specifications:
+               trivkins coordinates=$trivcoords
+               \[TRAJ\]COORDINATES=$trajcoords"
+  }
+} ;# consistent_coords_for_trivkins
 
 proc validate_identity_kins_limits {} {
   set emsg ""
@@ -118,6 +138,50 @@ proc validate_identity_kins_limits {} {
   }
   return $emsg
 } ;# validate_identity_kins_limits
+
+proc check_extrajoints {} {
+  if ![info exists ::EMCMOT(EMCMOT)] return
+  if {[string first motmod $::EMCMOT(EMCMOT)] <= 0} return
+  set mot [split [lindex $::EMCMOT(EMCMOT) 0]]
+  foreach item $mot {
+    set pair [split $item =]
+    set parm [lindex $pair 0]
+    set val  [lindex $pair 1]
+    if {"$parm" == "num_extrajoints"} {
+      set ::num_extrajoints $val
+    }
+  }
+  if [info exists ::num_extrajoints] {
+     lappend ::wmsg [format "Extra joints specified=%d\n \
+\[KINS\]JOINTS=%d must accommodate kinematic joints *plus* extra joints " \
+                     $::num_extrajoints $::KINS(JOINTS)]
+  }
+} ;#check_extrajoints
+
+proc warn_for_multiple_ini_values {} {
+  set sections [info globals]
+  set sections_to_check {JOINT_ AXIS_}
+
+  foreach section $sections {
+    set enforce 0
+    foreach csection $sections_to_check {
+      if {[string first $csection $section"] >= 0} {
+        set enforce 1
+        break
+      }
+    }
+    if !$enforce continue
+    foreach name [array names ::$section] {
+       set gsection ::$section
+       set val [set [set gsection]($name)]
+       set len [llength $val]
+       if {$len > 1} {
+         lappend ::wmsg "Unexpected multiple values \[$section\]$name: $val"
+       }
+    }
+  }
+} ;# warn_for_multiple_ini_values
+
 #----------------------------------------------------------------------
 # begin
 package require Linuxcnc ;# parse_ini
@@ -164,9 +228,12 @@ switch $::kins(module) {
     exit 0
   }
 }
+check_extrajoints
 
+warn_for_multiple_ini_values
 #parray ::kins
 set emsg [validate_identity_kins_limits]
+consistent_coords_for_trivkins $::kins(coordinates)
 if [info exists ::wmsg] {warnings $::wmsg}
 
 if {"$emsg" == ""} {exit 0}

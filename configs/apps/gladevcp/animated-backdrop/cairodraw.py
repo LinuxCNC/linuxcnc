@@ -8,15 +8,15 @@ pngfile = 'vortex.me.png'
 class HandlerClass:
 
     def on_expose(self,widget,data=None):
-        print "on_expose"
+        print("on_expose")
         cr = widget.window.cairo_create()
-        
-        # Sets the operator to clear which deletes everything below 
+
+        # Sets the operator to clear which deletes everything below
         # where an object is drawn
         cr.set_operator(cairo.OPERATOR_CLEAR)
         # Makes the mask fill the entire window
         cr.rectangle(0.0, 0.0, *widget.get_size())
-        # Deletes everything in the window (since the compositing 
+        # Deletes everything in the window (since the compositing
         # operator is clear and mask fills the entire window
         cr.fill()
         # Set the compositing operator back to the default
@@ -26,8 +26,8 @@ class HandlerClass:
             x, y, w, h = widget.allocation
             cr.scale(1.0 *w / self.width, 1.0*h/self.height)
 
-	cr.set_source_surface(self.img, 0, 0)
-	cr.paint()
+        cr.set_source_surface(self.img, 0, 0)
+        cr.paint()
 
 
 
@@ -35,7 +35,7 @@ class HandlerClass:
 
         self.builder = builder
         win = self.builder.get_object("window1")
-        
+
         #win.set_decorated(False)
 
         self.img = cairo.ImageSurface.create_from_png(pngfile)
@@ -51,7 +51,7 @@ class HandlerClass:
         screen = win.get_screen()
         rgba = screen.get_rgba_colormap()
         win.set_colormap(rgba)
-        
+
         # scaling the bitmap is possible by turning this on
         # however the fixed widget does NOT do proportional scaling
         self.scale = 1

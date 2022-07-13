@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #    Copyright 2007 John Kasunich and Jeff Epler
 #       
 # modified by Rudy du Preez to fit with the kinematics component pumakins.c
@@ -160,4 +160,4 @@ work = Capture()
 
 model = Collection([link0, floor, work])
 
-main(model, tooltip, work, 1500)
+main(model, tooltip, work, size=1500, lat=-45, lon=60)

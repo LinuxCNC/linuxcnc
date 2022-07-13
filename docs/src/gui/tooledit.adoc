@@ -1,0 +1,135 @@
+:lang: en
+:toc:
+
+[[cha:tooledit-gui]]
+= Tool Edit GUI
+
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
+== Overview
+
+[NOTE]
+The tooledit elements described here are available
+in version 2.5.1 and later. In version 2.5.0, the graphical interface
+interface does not allow these adjustments.
+
+.Tool Edit GUI - Overview
+image::images/tooledit.png["Tool Edit GUI - Overview",align="center",width="640"]
+
+The 'tooledit' program can update the tool table file with
+edited changes by using the SaveFile button.  The SaveFile button
+updates the system file but a separate action is required to
+update the tool table data used by a running LinuxCNC instance.
+With the axis GUI, both the file and the current tool table data
+used by LinuxCNC can be updated with the ReloadTable button.
+This button is enabled only when the machine is ON and IDLE.
+
+== Column Sorting
+
+The tool table display can be sorted on any column in ascending
+order by clicking on the column header.  A second click sorts
+in descending order.  Column sorting requires that the machine
+is configured with the default tcl version >= 8.5.
+
+.Tool Edit GUI - Column Sorting
+image::images/tooledit-sort.png["Tool Edit GUI - Column Sorting",align="center"]
+
+In Ubuntu Lucid 10.04 tcl/tk8.4 it is installed by default.
+The installation is performed as follows:
+
+----
+sudo apt-get install tcl8.5 tk8.5
+----
+
+Depending upon other applications installed on the system, it may be
+necessary to enable tcl/tk8.5 with the commands:
+
+----
+sudo update-alternatives --config tclsh  ;# select the option for tclsh8.5
+sudo update-alternatives --config wish   ;# select the option for wish8.5
+----
+
+== Columns Selection
+
+By default, the 'tooledit' program will display all possible
+tool table parameter columns. Since few machines use all
+parameters, the columns displayed can be limited with the
+following ini file setting:
+
+.Syntax of .INI file
+[source,{ini}]
+----
+[DISPLAY]
+TOOL_EDITOR = tooledit column_name column_name ...
+----
+
+.Example for Z and DIAM columns
+[source,{ini}]
+----
+[DISPLAY]
+TOOL_EDITOR = tooledit Z DIAM
+----
+
+.Tool Edit GUI - Columns Selection Example
+image::images/tooledit-columns.png["Tool Edit GUI - Columns Selection Example",align="center"]
+
+== Stand Alone Use
+
+The 'tooledit' program can also be invoked as a standalone
+program. For example, if the program is in the user PATH, typing
+'tooledit' will show the usage syntax:
+
+.Stand Alone
+----
+tooledit
+Usage:
+       tooledit filename
+       tooledit [column_1 ... column_n] filename
+
+Valid column names are: x y z a b c u v w diam front back orien
+----
+
+To synchronize a standalone 'tooledit' with a running LinuxCNC
+application, the filename must resolve to the same [EMCIO]TOOL_TABLE
+filename specified in the LinuxCNC ini file.
+
+When using the program 'tooledit' while LinuxCNC is running,
+gcode command execution or other programs may alter tool table
+data and the tool table file.  File changes are detected by
+'tooledit' and a message is displayed:
+
+----
+Warning: File changed by another process
+----
+
+The 'tooledit' tool table display can be updated to read the
+modified file with the ReRead button.
+
+The tool table is specified in the ini file with an entry:
+
+[source,{ini}]
+----
+[EMCIO]TOOL_TABLE = tool_table_filename
+----
+
+The tool table file can be edited with any simple text editor (not
+a word processor).
+
+The axis GUI can optionally use an ini file setting to specify the tool
+editor program:
+
+[source,{ini}]
+----
+[DISPLAY]TOOL_EDITOR = path_to_editor_program
+----
+
+By default, the program named 'tooledit' is used. This editor
+supports all tool table parameters, allows addition and deletion
+of tool entries, and performs a number of validity checks on
+parameter values.
+
+// vim: set syntax=asciidoc:

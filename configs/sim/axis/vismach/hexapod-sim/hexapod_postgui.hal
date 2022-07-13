@@ -1,10 +1,26 @@
-# This file adds joints values and iterations number to PyVCP panel.
+net :kinstype.is-0  <= kinstype.is-0  => pyvcp.multilabel.0.legend0
+net :kinstype.is-1  <= kinstype.is-1  => pyvcp.multilabel.0.legend1
+net :kinstype.is-2  <= kinstype.is-2  => pyvcp.multilabel.0.legend2
 
-net last-iter genhexkins.last-iterations pyvcp.last-iter
-net max-iter genhexkins.max-iterations pyvcp.max-iter
-net j0 pyvcp.joint0
-net j1 pyvcp.joint1
-net j2 pyvcp.joint2
-net j3 pyvcp.joint3
-net j4 pyvcp.joint4
-net j5 pyvcp.joint5
+net :type0-button   <= pyvcp.type0-button  => halui.mdi-command-00
+net :type1-button   <= pyvcp.type1-button  => halui.mdi-command-01
+net :type2-button   <= pyvcp.type2-button  => halui.mdi-command-02
+net :vismach-clear  <= pyvcp.vismach-clear => vismach.plotclear
+
+net :fwd-kins-fail  <= genhexkins.fwd-kins-fail   => pyvcp.fwd-kins-fail
+net :last-iter      <= genhexkins.last-iterations => pyvcp.last-iter
+net :max-iter       <= genhexkins.max-iterations  => pyvcp.max-iter
+
+net :j0 <= joint.0.pos-fb => pyvcp.joint0 => hexagui.joint.0
+net :j1 <= joint.1.pos-fb => pyvcp.joint1 => hexagui.joint.1
+net :j2 <= joint.2.pos-fb => pyvcp.joint2 => hexagui.joint.2
+net :j3 <= joint.3.pos-fb => pyvcp.joint3 => hexagui.joint.3
+net :j4 <= joint.4.pos-fb => pyvcp.joint4 => hexagui.joint.4
+net :j5 <= joint.5.pos-fb => pyvcp.joint5 => hexagui.joint.5
+
+net :gui.x <= skgui.x => hexagui.axis.x
+net :gui.y <= skgui.y => hexagui.axis.y
+net :gui.z <= skgui.z => hexagui.axis.z
+net :gui.a <= skgui.a => hexagui.axis.a
+net :gui.b <= skgui.b => hexagui.axis.b
+net :gui.c <= skgui.c => hexagui.axis.c

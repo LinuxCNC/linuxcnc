@@ -16,16 +16,16 @@ hal/user_comps/wj200_vfd/wj200_vfd.c: hal/user_comps/wj200_vfd/wj200_vfd.comp ..
 	$(ECHO) "Preprocessing wj200_vfd.comp"
 	$(Q)../bin/halcompile -U --preprocess $<
 
-../docs/man/man9/wj200_vfd.9: hal/user_comps/wj200_vfd/wj200_vfd.comp ../bin/halcompile
-	$(Q)../bin/halcompile -U --document $<
-	$(Q)install --mode=0644 hal/user_comps/wj200_vfd/wj200_vfd.9 $@
+../docs/man/man1/wj200_vfd.1: hal/user_comps/wj200_vfd/wj200_vfd.comp ../bin/halcompile
+	$(Q)../bin/halcompile -U -u --document $<
+	$(Q)install --mode=0644 hal/user_comps/wj200_vfd/wj200_vfd.1 $@
 
 clean: wj200_clean
 wj200_clean:
 	-rm -f hal/user_comps/wj200_vfd/wj200_vfd.c
-	-rm -f hal/user_comps/wj200_vfd/wj200_vfd.9
+	-rm -f hal/user_comps/wj200_vfd/wj200_vfd.1
 
 TARGETS += ../bin/wj200_vfd
-GENERATED_MANPAGES += ../docs/man/man9/wj200_vfd.9
+GENERATED_MANPAGES += ../docs/man/man1/wj200_vfd.1
 endif
 

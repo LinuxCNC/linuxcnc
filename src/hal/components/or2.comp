@@ -14,6 +14,9 @@ Otherwise,
 .RE"""
 ;
 function _ nofp;
+see_also """
+\\fBlogic\\fR(9)
+""";
 license "GPL";
 ;;
 FUNCTION(_) { out = in0 || in1; }

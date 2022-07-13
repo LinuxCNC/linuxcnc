@@ -7,7 +7,7 @@
  * This is the driver for the Vital Systems MOTENC-100 board.
  * The board includes 8 quadrature decoders, 8 analog inputs,
  * 8 analog outputs, 68 digital inputs, 32 digital outputs,
- * programable timer interrupts, a watch dog timer, and a hardware
+ * programmable timer interrupts, a watch dog timer, and a hardware
  * E-STOP circuit.
  *
  * Installation of the driver (realtime only):
@@ -416,10 +416,11 @@ Device_Init(Device *this, MotencRegMap *pCard)
 	this->numFpga = 1;
     } else {
 	// No idea what it is.
-	this->boardType = 0;
+	this->boardType = 2;
 	this->pTypeName = "unknown";
+	rtapi_print_msg(RTAPI_MSG_ERR, "MOTENC: unknown board type - %i\n", status);
 	this->numFpga = 0;
-	return -1;
+	//return -1;
     }
 
     // Extract board id from first FPGA. The user sets this via jumpers on the card.
@@ -888,7 +889,7 @@ Device_AdcRead(void *arg, long period)
 	}
 	break;
 
-    // Wait for second conversion, start conversion on fisrt 4 channels.
+    // Wait for second conversion, start conversion on first 4 channels.
     case 2:
 	if(Device_AdcRead4(this, 4)){
 	    this->adcState = 1;

@@ -20,11 +20,6 @@
 .\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
 .\" USA.
 .TH HM2_ETH "9" "2008-05-13" "LinuxCNC Documentation" "HAL Component"
-.de TQ
-.br
-.ns
-.TP \\$1
-..
 
 .SH NAME
 
@@ -46,7 +41,7 @@ hm2_eth is a device driver that interfaces Mesa's ethernet
 based Anything I/O boards (with the HostMot2 firmware) to the LinuxCNC
 HAL.
 
-The supported boards are: 7i76E, 7I80DB, 7I80HD, 7i92, 7i93, 7i96.
+The supported boards are: 7I76E, 7I80DB, 7I80HD, 7I92, 7I93, 7I94, 7I95, 7I96, 7I96S, 7I97, 7I98.
 
 The board must have its hardware loaded on the board by the mesaflash(1) program.
 
@@ -159,7 +154,7 @@ detected read or write errors, without going above packet\-error\-limit.
 
 .TP
 (s32, rw) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.packet\-error\-limit
-The level at which a detected read or write error is treated as a permament
+The level at which a detected read or write error is treated as a permanent
 error.  When this error level is reached, the board's \fIio\-error\fR pin
 becomes TRUE and the condition must be manually reset.
 

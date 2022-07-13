@@ -1,26 +1,87 @@
-# DISCLAIMER
 
-**THE AUTHORS OF THIS SOFTWARE ACCEPT ABSOLUTELY NO LIABILITY FOR ANY
-HARM OR LOSS RESULTING FROM ITS USE.**
+[![Badge GPL2]][License]
+[![Badge LGPL]][License]
 
-**IT IS _EXTREMELY_ UNWISE TO RELY ON SOFTWARE ALONE FOR SAFETY.**
+<div align = center>
 
-**Any machinery capable of harming persons must have provisions for
-completely removing power from all motors, etc, before persons enter
-any danger area.**
+<br>
+  
+# LinuxCNC
+  
+*Controlling CNC Machines*
 
-**All machinery must be designed to comply with local and national
-safety codes, and the authors of this software can not, and do not,
-take any responsibility for such compliance.**
+<br>
+  
+[![Badge Translation]][Translation]
+  
+<br>
+  
+---
 
+[<kbd> <br> Ｗｅｂｓｉｔｅ <br> </kbd>][Website] 
+[<kbd> <br> Ｉｎｓｔａｌｌ <br> </kbd>][Ｉｎｓｔａｌｌ] 
+[<kbd> <br> Ｂｕｉｌｄ <br> </kbd>][Ｂｕｉｌｄ] 
+[<kbd> <br> Ｄｏｃｕｍｅｎｔａｔｉｏｎ <br> </kbd>][Ｄｏｃｕｍｅｎｔａｔｉｏｎ]  
+  
+---
 
-This software is released under the GPLv2, with some parts under the LGPL.
-See the file COPYING for more details.
+<br>
+  
+It can drive milling machines, lathes, 3D printers, laser <br>
+cutters, plasma cutters, robot arms, hexapods, and more.
 
+LinuxCNC was initiated 25 years ago and evolved into a very <br>
+international project with contributions from all over the globe.
+  
+With release 2.9 of LinuxCNC we also transitioned the <br>
+documentation to the use of the public crowd translation <br>
+services [Weblate] and invite all our users to contribute.
+  
+The translations we expect to help attract practitioners <br>
+to the project and also helps educating enthusiasts of <br>
+all age groups on automated machining.
 
-# The Build Process
+<br>
 
-Refer to the file 'docs/src/code/building-linuxcnc.txt' for information
-about building and running the software, or look here:
+## DISCLAIMER
+  
+<br>
 
-http://linuxcnc.org/docs/devel/html/code/building-linuxcnc.html
+```
+  
+Ｔｈｅ ａｕｔｈｏｒｓ ｏｆ ｔｈｉｓ ｓｏｆｔｗａｒｅ ａｃｃｅｐｔ
+ａｂｓｏｌｕｔｅｌｙ ｎｏ ｌｉａｂｉｌｉｔｙ ｆｏｒ ａｎｙ
+ｈａｒｍ　ｏｒ ｌｏｓｓ ｒｅｓｕｌｔｉｎｇ ｆｒｏｍ ｉｔｓ ｕｓｅ．
+
+Ｉｔ ｉｓ ＥＸＴＲＥＭＥＬＹ ｕｎｗｉｓｅ ｔｏ　ｒｅｌｙ
+ｏｎ ｓｏｆｔｗａｒｅ ａｌｏｎｅ ｆｏｒ ｓａｆｅｔｙ．
+
+Any machinery capable of harming persons must have
+provisions for completely removing power from all
+motors, etc, before persons enter any danger area.
+
+All machinery must be designed to comply with local 
+and national safety codes, and the authors of this 
+software cannot and do not, take any responsibility 
+for such compliance.
+  
+```
+
+<br>
+  
+</div>
+
+<!----------------------------------------------------------------------------->
+
+[Badge Translation]: https://hosted.weblate.org/widgets/linuxcnc/-/svg-badge.svg
+[Badge GPL2]: https://img.shields.io/badge/Most-LGPL_3-blue.svg?style=for-the-badge 'The license this software is under'
+[Badge LGPL]: https://img.shields.io/badge/Some-GPL_2-blue.svg?style=for-the-badge 'Some parts are under this license'
+
+[Translation]: https://hosted.weblate.org/engage/linuxcnc/
+[Weblate]: https://hosted.weblate.org/projects/linuxcnc/
+[Website]: https://linuxcnc.org/
+
+[Ｄｏｃｕｍｅｎｔａｔｉｏｎ]: http://linuxcnc.org/docs/stable/html/
+[Ｉｎｓｔａｌｌ]: http://linuxcnc.org/docs/stable/html/getting-started/getting-linuxcnc.html
+[Ｂｕｉｌｄ]: http://linuxcnc.org/docs/stable/html/code/building-linuxcnc.html
+[License]: COPYING

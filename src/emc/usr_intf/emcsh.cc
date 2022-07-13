@@ -22,6 +22,7 @@
 #include <tcl.h>
 #include <tk.h>
 
+#include "emc/linuxcnc.h"
 #include "rcs.hh"
 #include "posemath.h"		// PM_POSE, TO_RAD
 #include "emc.hh"		// EMC NML
@@ -32,6 +33,7 @@
 #include "inifile.hh"		// INIFILE
 #include "rcs_print.hh"
 #include "timer.hh"
+#include <rtapi_string.h>
 
 #include "shcom.hh"
 
@@ -253,7 +255,7 @@
 
   emc_override_limit none | 0 | 1
   returns state of override, sets it or deactivates it (used to jog off hardware limit switches)
-  
+
   emc_optional_stop  none | 0 | 1
   returns state of optional setop, sets it or deactivates it (used to stop/continue on M1)
 
@@ -273,10 +275,10 @@
   1.000 is "mm", 0.1 is "cm", otherwise it's "custom".
   For angular joints, something close to 1.000 is deemed "deg",
   PI/180 is "rad", 100/90 is "grad", otherwise it's "custom".
- 
+
   emc_program_units
   emc_program_linear_units
-  Returns "inch", "mm", "cm", or "none", for the corresponding linear 
+  Returns "inch", "mm", "cm", or "none", for the corresponding linear
   units that are active in the program interpreter.
 
   emc_program_angular_units
@@ -299,7 +301,7 @@
   emc_display_linear_units
   emc_display_angular_units
   Returns "inch", "mm", "cm", or "deg", "rad", "grad", or "custom",
-  for the linear or angular units that are active in the display. 
+  for the linear or angular units that are active in the display.
   This is effectively the value of linearUnitConversion or
   angularUnitConversion, resp.
 
@@ -307,7 +309,7 @@
   With no args, returns the unit conversion active. With arg, sets the
   units to be displayed. If it's "auto", the units to be displayed match
   the program units.
- 
+
   emc_angular_unit_conversion {deg | rad | grad | auto}
   With no args, returns the unit conversion active. With arg, sets the
   units to be displayed. If it's "auto", the units to be displayed match
@@ -1730,10 +1732,10 @@ static int emc_mdi(ClientData clientdata,
 	return TCL_ERROR;
     }
     // bug-- check for string overflow
-    strcpy(string, Tcl_GetStringFromObj(objv[1], 0));
+    rtapi_strxcpy(string, Tcl_GetStringFromObj(objv[1], 0));
     for (t = 2; t < objc; t++) {
-	strcat(string, " ");
-	strcat(string, Tcl_GetStringFromObj(objv[t], 0));
+	rtapi_strxcat(string, " ");
+	rtapi_strxcat(string, Tcl_GetStringFromObj(objv[t], 0));
     }
 
     if (0 != sendMdiCmd(string)) {
@@ -2258,7 +2260,7 @@ static int emc_program_codes(ClientData clientdata,
     if (emcUpdateType == EMC_UPDATE_AUTO) {
 	updateStatus();
     }
-    // fill in the active G codes
+    // fill in the active G-codes
     codes_string[0] = 0;
     for (t = 1; t < ACTIVE_G_CODES; t++) {
 	code = emcStatus->task.activeGCodes[t];
@@ -2266,11 +2268,11 @@ static int emc_program_codes(ClientData clientdata,
 	    continue;
 	}
 	if (code % 10) {
-	    sprintf(string, "G%.1f ", (double) code / 10.0);
+	    snprintf(string, sizeof(string), "G%.1f ", (double) code / 10.0);
 	} else {
-	    sprintf(string, "G%d ", code / 10);
+	    snprintf(string, sizeof(string), "G%d ", code / 10);
 	}
-	strcat(codes_string, string);
+	rtapi_strxcat(codes_string, string);
     }
 
     // fill in the active M codes, settings too
@@ -2279,15 +2281,15 @@ static int emc_program_codes(ClientData clientdata,
 	if (code == -1) {
 	    continue;
 	}
-	sprintf(string, "M%d ", code);
-	strcat(codes_string, string);
+	snprintf(string, sizeof(string), "M%d ", code);
+	rtapi_strxcat(codes_string, string);
     }
 
     // fill in F and S codes also
-    sprintf(string, "F%.0f ", emcStatus->task.activeSettings[1]);
-    strcat(codes_string, string);
-    sprintf(string, "S%.0f", fabs(emcStatus->task.activeSettings[2]));
-    strcat(codes_string, string);
+    snprintf(string, sizeof(string), "F%.0f ", emcStatus->task.activeSettings[1]);
+    rtapi_strxcat(codes_string, string);
+    snprintf(string, sizeof(string), "S%.0f", fabs(emcStatus->task.activeSettings[2]));
+    rtapi_strxcat(codes_string, string);
 
     setresult(interp,codes_string);
     return TCL_OK;
@@ -2547,7 +2549,7 @@ static int emc_user_angular_units(ClientData clientdata,
 	return TCL_OK;
     }
 
-    /* else it's an abitrary number, so just return it */
+    /* else it's an arbitrary number, so just return it */
     setresult(interp,"custom");
     return TCL_OK;
 }
@@ -3113,7 +3115,7 @@ static int emc_joint_load_comp(ClientData clientdata,
 	return TCL_ERROR;
     }
     // copy objv[1] to file arg, to make sure it's not modified
-    strcpy(file, Tcl_GetStringFromObj(objv[2], 0));
+    rtapi_strxcpy(file, Tcl_GetStringFromObj(objv[2], 0));
 
     if (0 != Tcl_GetIntFromObj(0, objv[3], &type)) {
 	setresult(interp,"emc_joint_load_comp: <type> must be an int");
@@ -3388,10 +3390,10 @@ static int localint(ClientData clientdata,
 
     if (0 != Tcl_GetDoubleFromObj(0, objv[1], &val)) {
 	resstring[0] = 0;
-	strcat(resstring, "expected number but got \"");
+	rtapi_strxcat(resstring, "expected number but got \"");
 	strncat(resstring, Tcl_GetStringFromObj(objv[1], 0),
 		sizeof(resstring) - strlen(resstring) - 2);
-	strcat(resstring, "\"");
+	rtapi_strxcat(resstring, "\"");
 	setresult(interp, resstring);
 	return TCL_ERROR;
     }
@@ -3423,10 +3425,10 @@ static int localround(ClientData clientdata,
 
     if (0 != Tcl_GetDoubleFromObj(0, objv[1], &val)) {
 	resstring[0] = 0;
-	strcat(resstring, "expected number but got \"");
+	rtapi_strxcat(resstring, "expected number but got \"");
 	strncat(resstring, Tcl_GetStringFromObj(objv[1], 0),
 		sizeof(resstring) - strlen(resstring) - 2);
-	strcat(resstring, "\"");
+	rtapi_strxcat(resstring, "\"");
 	setresult(interp,resstring);
 	return TCL_ERROR;
     }
@@ -3546,16 +3548,16 @@ int emc_init(ClientData cd, Tcl_Interp *interp, int argc, const char **argv)
     return TCL_OK;
 }
 
-extern "C" 
+extern "C"
 int Linuxcnc_Init(Tcl_Interp * interp);
 int Linuxcnc_Init(Tcl_Interp * interp)
 {
-    if (Tcl_InitStubs(interp, "8.1", 0) == NULL) 
+    if (Tcl_InitStubs(interp, "8.1", 0) == NULL)
     {
         return TCL_ERROR;
     }
 
-    /* 
+    /*
      * Call Tcl_CreateCommand for application-specific commands, if
      * they weren't already created by the init procedures called above.
      */
@@ -3853,7 +3855,7 @@ int Linuxcnc_Init(Tcl_Interp * interp)
     Tcl_CreateObjCommand(interp, "multihead", multihead, (ClientData) NULL,
                          (Tcl_CmdDeleteProc*) NULL);
 
-    /* 
+    /*
      * Specify a user-specific startup file to invoke if the application
      * is run interactively.  Typically the startup file is "~/.apprc"
      * where "app" is the name of the application.  If this line is deleted

@@ -38,10 +38,13 @@ foreach class { Button Checkbutton Entry Label Listbox Menu Menubutton \
 }
 
 set ::EC(numjoints) [emc_ini "JOINTS" "KINS"]
+set ::EC(numspindles) 10 ;# currently 8 spindles allowed (0..7)
+                         ;# but legacy configs may have [SPINDLE_9]
+                         ;# so allow up to 10 (0..9)
 
 #--------------------------------------------------------------
 # Tuning stanzas
-set ::EC(stanzas)  [list TUNE JOINT_ AXIS_]
+set ::EC(stanzas)  [list TUNE JOINT_ AXIS_ SPINDLE_]
 
 # Specify a stanza for tuning with:
 # ::EC(stanza_name,howmany)  == number of allowed names
@@ -54,7 +57,7 @@ set ::EC(stanzas)  [list TUNE JOINT_ AXIS_]
 #               [JOINT_n]name=value
 #               where n is a suffix in {0 1 ...}
 #
-#  item==TUNE   using howmany==1 and items=="" specfies
+#  item==TUNE   using howmany==1 and items=="" specifies
 #               name/value pairs with no suffix like:
 #               [TUNE]name=value
 
@@ -66,6 +69,10 @@ for {set i 0} {$i < $::EC(JOINT_,howmany)} {incr i} {
   lappend ::EC(JOINT_,suffixes) $i
 }
 
+set ::EC(SPINDLE_,howmany) $::EC(numspindles)
+for {set i 0} {$i < $::EC(SPINDLE_,howmany)} {incr i} {
+  lappend ::EC(SPINDLE_,suffixes) $i
+}
 set ::EC(AXIS_,suffixes) {X Y Z A B C U V W}
 set ::EC(AXIS_,howmany)  [llength $::EC(AXIS_,suffixes)]
 #--------------------------------------------------------------
@@ -85,19 +92,9 @@ proc askKill {} {
     exit
 }
 
-# Wizard logo
-set lname $::env(LINUXCNC_HOME)/share/linuxcnc/linuxcnc-wizard.gif
-if { [file exists $lname] } {
-   set logo [image create photo -file $lname]
-} else {
-   set logo ""
-}
-
 wm title . [msgcat::mc "LinuxCNC Calibration"]
-set logo [label .logo -image $logo]
 set ::EC(main) [frame .main ]
 set ::EC(nbook) [NoteBook .main.top]
-pack $logo -side left -anchor nw
 pack $::EC(main) -side left -expand yes -fill both \
     -padx 18 -pady 18 -anchor n
 pack $::EC(nbook) -side top -fill both -expand yes
@@ -221,7 +218,7 @@ proc makeIniTune {} {
             set ::EC($tabno,stanza) $stanza ;# cross reference tabno-->stanza
             set itag [lindex $::EC($stanza,suffixes) $sfx]
 
-            if {$::EC($stanza,howmany) == 1} {
+            if {($::EC($stanza,howmany) == 1) && ($::EC($stanza,suffixes)=="")} {
                 set tablabel ${stanza}
             } else {
                 set tablabel ${stanza}$itag
@@ -298,11 +295,13 @@ proc incompatible_ini_file {} {
                Sections supported are:\n\
                \[JOINT_N\]name=value\n\
                \[AXIS_L\]name=value\n\
+               \[SPINDLE_S\]name=value\n\
                \[TUNE\]name=value\n\n\
                N is a  joint number\n\
-               L is an axis letter\n\n\
+               L is an axis letter\n\
+               S is a spindle number\n\n\
                A Halfile must include a setp\n\
-               for a suppored section item\n\n\
+               for a supported section item\n\n\
                Inifile example:\n\
                \[JOINT_0\]\n\
                PGAIN=1\n\
@@ -473,7 +472,7 @@ proc update_initext {stanza} {
                     default {
                         set tmpstr [$::EC(initext) get $ind.0 $ind.end]
                         set tmpvar [lindex [split $tmpstr "="] 0]
-                        set tmpvar [string trim $tmpvar]
+                        set tmpvar [string toupper [string trim $tmpvar]]
                         set tmpindx [lsearch $upvarnames $tmpvar]
                         if {$tmpindx != -1} {
                             set cmd [lindex $varcommands $tmpindx]

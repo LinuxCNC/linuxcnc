@@ -43,7 +43,7 @@ variable unsigned *AD7329_read[8];
 license "GPL";
 author "Andy Pugh / Cliff Blackburn";
 
-include "../../../hal/drivers/mesa-hostmot2/hostmot2.h";
+include <hostmot2-serial.h>;
 ;;
 
 // to parse the modparam
@@ -186,7 +186,8 @@ EXTRA_SETUP(){
     r += hm2_bspi_setup_chan(name, 9, 7, 8, 4, 0, 1, 1, 1, 1, 0);
 
     if (r < 0) {
-        HM2_ERR_NO_LL("There have been %i errors during channel setup, "
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                      "There have been %i errors during channel setup, "
                       "quitting\n", -r);
         return -EINVAL;
     }
@@ -200,7 +201,8 @@ EXTRA_SETUP(){
     r += hm2_bspi_write_chan(name, 3, 0x00009C18);
 
     if (r < 0) {
-        HM2_ERR_NO_LL("There have been %i errors during ADC setup, "
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                      "There have been %i errors during ADC setup, "
                       "quitting\n", -r);
         return -EINVAL;
     }
@@ -232,7 +234,8 @@ EXTRA_SETUP(){
     // r += hm2_bspi_set_write_function(name, &write, __comp_inst);
 
     if (r < 0) {
-        HM2_ERR_NO_LL("There have been %i errors during TRAM allocation setup, "
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                      "There have been %i errors during TRAM allocation setup, "
                       "quitting\n", -r);
         return -EINVAL;
     }

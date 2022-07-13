@@ -29,6 +29,9 @@
 #include "rs274ngc_interp.hh"
 #include "rtapi_math.h"
 #include <cmath>
+#include <rtapi_string.h>
+
+using namespace interp_param_global;
 
 /****************************************************************************/
 
@@ -1575,7 +1578,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	  } else
 	      CHKS((block->p_number - n) > 0.0001,
 		   NCE_NON_INTEGER_VALUE_FOR_INTEGER);
-	  sprintf(oNameBuf, "%d", n);
+	  snprintf(oNameBuf, sizeof(oNameBuf), "%d", n);
       } else if (oNumber == 99) {
 	  // Fanuc-style subroutine return: "m99"
 
@@ -1614,7 +1617,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	  {
 	      CHP(read_integer_value(line, counter, &oNumber,
 				     parameters));
-	      sprintf(oNameBuf, "%d", oNumber);
+	      snprintf(oNameBuf, sizeof(oNameBuf), "%d", oNumber);
 	  }
 
       // We stash the text the offset part of setup
@@ -1701,7 +1704,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	  subName = "";
 	  logDebug("not defining_sub:|%s|", subName);
 	}
-      sprintf(fullNameBuf, "%s#%s", subName, oNameBuf);
+      snprintf(fullNameBuf, sizeof(fullNameBuf), "%s#%s", subName, oNameBuf);
       block->o_name = strstore(fullNameBuf);
       logDebug("local case:|%s|", block->o_name);
     }
@@ -2005,7 +2008,7 @@ stored in parameter 2):
 
 Parameter setting is done in parallel, not sequentially. For example
 if #1 is 5 before the line "#1=10 #2=#1" is read, then after the line
-is is executed, #1 is 10 and #2 is 5. If parameter setting were done
+is executed, #1 is 10 and #2 is 5. If parameter setting were done
 sequentially, the value of #2 would be 10 after the line was executed.
 
 ADDED by K. Lerman
@@ -2044,7 +2047,7 @@ int Interp::read_parameter(
       CHP(read_integer_value(line, counter, &index, parameters));
       if(check_exists)
       {
-	  *double_ptr = index >= 1 && index < RS274NGC_MAX_PARAMETERS;
+      *double_ptr = index >= 1 && index < RS274NGC_MAX_PARAMETERS;
 	  return INTERP_OK;
       }
       CHKS(((index < 1) || (index >= RS274NGC_MAX_PARAMETERS)),
@@ -2481,7 +2484,7 @@ defined as a synonym for real_value, but in fact a constraint is added
 which cannot be readily written in a production language.  An
 integer_value is a real_value which is very close to an integer.
 Integer_values are needed for array and table indices and (when
-divided by 10) for the values of M codes and G codes. All numbers
+divided by 10) for the values of M-codes and G-codes. All numbers
 (including integers) are read as real numbers and stored as doubles.
 If an integer_value is required in some situation, a test for being
 close to an integer is applied to the number after it is read.
@@ -2580,7 +2583,7 @@ The manual provides that operations of the same precedence should be
 processed left to right.
 
 The first version of this function is commented out. It is suitable
-for when there are only two precendence levels. It is an improvement
+for when there are only two precedence levels. It is an improvement
 over the version used in interpreters before 2000, but not as general
 as the second version given here.
 
@@ -3150,7 +3153,7 @@ int Interp::read_text(
          index--) { // remove space at end of raw_line, especially CR & LF
       raw_line[index] = 0;
     }
-    strcpy(line, raw_line);
+    strncpy(line, raw_line, LINELEN);
     CHP(close_and_downcase(line));
     if ((line[0] == '%') && (line[1] == 0) && (_setup.percent_flag)) {
         FINISH();
@@ -3158,8 +3161,8 @@ int Interp::read_text(
     }
   } else {
     CHKS((strlen(command) >= LINELEN), NCE_COMMAND_TOO_LONG);
-    strcpy(raw_line, command);
-    strcpy(line, command);
+    strncpy(raw_line, command, LINELEN);
+    strncpy(line, command, LINELEN);
     CHP(close_and_downcase(line));
   }
 

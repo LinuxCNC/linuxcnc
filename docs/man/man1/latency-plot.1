@@ -1,0 +1,88 @@
+.\" Copyright (c) 2020 andypugh
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301,
+.\" USA.
+.\"
+.\"
+.\"
+.TH LATENCY-PLOT "1"  "2021-08-14" "LinuxCNC Documentation" "The Enhanced Machine Controller"
+.SH NAME
+latency-plot \- another way to view latency numbers
+.SH SYNOPSIS
+.B latency-plot
+.RB [ \-?|\-\-help ]
+.RB [ \-H|\-\-hal ]
+.RB [ \-b|\-\-base " " \fInS\fP ]
+.RB [ \-s|\-\-servo " " \fInS\fP ]
+.RB [ \-t|\-\-time " " \fImS\fP ]
+.RB [ \-\-relative ]
+.RB [ \-\-actual ]
+.SH DESCRIPTION
+.B latency-plot
+makes a strip chart recording for a base and a servo thread. It may be useful
+to see spikes in latency when other applications are started or used.
+Mainly superseded by latency-histogram.
+.PP
+LinuxCNC and Hal should not be running, stop with
+.IR "halrun \-U" .
+.PP
+More details:
+\%https://linuxcnc.org/docs/html/install/latency-test.html
+.SH OPTIONS
+.TP
+.BR \-? ", " \-\-help
+Show options and exit.
+.TP
+.BR \-H ", " \-\-hal
+.TP
+.BR \-b ", " \-\-base " " \fInS\fP
+base thread interval, default: 25000
+.TP
+.BR \-s ", " \-\-servo " " \fInS\fP
+servo thread interval, default: 1000000
+.TP
+.BR \-t ", " \-\-time " " \fImS\fP
+report interval, default: 1000, min: 100, max: 10000
+.TP
+.B \-\-relative
+relative clock time (default)
+.TP
+.B \-\-actual
+actual clock time
+.SH "SEE ALSO"
+.BR latency-histogram (1),
+.BR latency-test (1),
+.BR linuxcnc (1)
+.PP
+Much more information about LinuxCNC and HAL is available in the LinuxCNC
+and HAL User Manuals, found at
+.IR /usr/share/doc/linuxcnc/ .
+.SH BUGS
+None known at this time.
+.SH AUTHOR
+This man page written by andypugh, as part of the LinuxCNC project.
+.SH REPORTING BUGS
+Report bugs at
+\%https://github.com/LinuxCNC/linuxcnc/issues
+.SH COPYRIGHT
+Copyright \(co 2020 andypugh.
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.

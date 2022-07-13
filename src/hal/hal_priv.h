@@ -119,16 +119,6 @@ RTAPI_BEGIN_DECLS
 *            PRIVATE HAL DATA STRUCTURES AND DECLARATIONS              *
 ************************************************************************/
 
-/** HAL "data union" structure
- ** This structure may hold any type of hal data
-*/
-typedef union {
-    hal_bit_t b;
-    hal_s32_t s;
-    hal_u32_t u;
-    hal_float_t f;
-} hal_data_u;
-
 /** HAL "list element" data structure.
     This structure is used to implement generic double linked circular
     lists.  Such lists have the following characteristics:
@@ -195,6 +185,16 @@ typedef struct {
     unsigned char lock;         /* hal locking, can be one of the HAL_LOCK_* types */
 } hal_data_t;
 
+/** HAL 'component' type.
+    Assigned according to RTAPI and ULAPI definitions.
+ */
+typedef enum {
+    COMPONENT_TYPE_UNKNOWN = -1,
+    COMPONENT_TYPE_USER,
+    COMPONENT_TYPE_REALTIME,
+    COMPONENT_TYPE_OTHER
+} component_type_t;
+
 /** HAL 'component' data structure.
     This structure contains information that is unique to a HAL component.
     An instance of this structure is added to a linked list when the
@@ -204,7 +204,7 @@ typedef struct {
     rtapi_intptr_t next_ptr;		/* next component in the list */
     int comp_id;		/* component ID (RTAPI module id) */
     int mem_id;			/* RTAPI shmem ID used by this comp */
-    int type;			/* 1 if realtime, 0 if not */
+    component_type_t type;
     int ready;                  /* nonzero if ready, 0 if not */
     int pid;			/* PID of component (user components only) */
     void *shmem_base;		/* base of shmem for this component */
@@ -265,7 +265,7 @@ typedef struct {
 
     The following structures implement the function/thread portion
     of the HAL API.  There are two linked lists, one of functions,
-    sorted by name, and one of threads, sorted by execution freqency.
+    sorted by name, and one of threads, sorted by execution frequency.
     Each thread has a linked list of 'function entries', structs
     that identify the functions connected to that thread.
 */
@@ -325,12 +325,12 @@ typedef struct {
 
    The use of version codes  means that any subsequent changes to
    the structs will be fully protected, with a clean shutdown and
-   meaningfull error messages in case of a mismatch.
+   meaningful error messages in case of a mismatch.
 */
 
 #define HAL_KEY   0x48414C32	/* key used to open HAL shared memory */
-#define HAL_VER   0x0000000F	/* version code */
-#define HAL_SIZE  (85*4096)
+#define HAL_VER   0x00000010	/* version code */
+#define HAL_SIZE  (256*4096)
 #define HAL_PSEUDO_COMP_PREFIX "__" /* prefix to identify a pseudo component */
 
 /* These pointers are set by hal_init() to point to the shmem block
@@ -426,6 +426,15 @@ extern hal_funct_t *halpr_find_funct_by_owner(hal_comp_t * owner,
     the next matching pin.  If no match is found, it returns NULL
 */
 extern hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start);
+
+
+/** hal_port_alloc allocates a new empty hal_port having a buffer of size bytes. 
+    returns a negative value on failure or a hal_port_t which can be used with
+    all other hal_port functions.
+*/
+extern hal_port_t hal_port_alloc(unsigned size);
+
+
 
 #define HAL_STREAM_MAGIC_NUM		0x4649464F
 struct hal_stream_shm {

@@ -1,0 +1,24 @@
+corexy examples:
+
+corexy_by_kins.ini 
+  Demonstrates corexykins kinematics
+  (Note: using corexykins kinematics
+   on real hardware requires home
+   switches triggered by motor
+   positions)
+
+corexy_by_hal.ini
+  Demonstrates use of trivkins with
+  corexy kinematics implemented by a
+  hal component
+  (Notes: this method supports
+  home switches aligned with x,y
+  coordinates)
+
+Notes:
+ 1) The configurations share common ini
+    file settings from corey_base.inc
+ 2) Home switches are simulated
+ 3) stepgens are configured but no
+    connections to hardware are 
+    included.

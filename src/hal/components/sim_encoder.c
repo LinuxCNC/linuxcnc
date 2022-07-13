@@ -23,7 +23,7 @@
     The module exports two functions.  'sim-encoder.make-pulses', is
     responsible for actually generating the A, B, and Z signals.  It
     must be executed in a fast thread to reduce pulse jitter.  The 
-    other function, 'sim-encoder.update-speed', is is normally called
+    other function, 'sim-encoder.update-speed', is normally called
     from a much slower thread, and sets internal variables used by
     'make-pulses', based on the 'speed' input pin, and the 'ppr'
     parameter.
@@ -139,7 +139,7 @@ int rtapi_app_main(void)
     } else {
         howmany = 0;
         for (i = 0; i < MAX_CHAN; i++) {
-            if (names[i] == NULL) {
+            if ( (names[i] == NULL) || (*names[i] == 0) ){
                 break;
             }
             howmany = i + 1;

@@ -1,3 +1,8 @@
+/*misnomer: _setup.current_pocket,selected_pocket
+**          These are indexes to sequential tooldata entries
+**          but the names are not changed due to frequent
+**          legacy usage in py files used for remapping
+*/
 /********************************************************************
 * Description: interp_namedparams.cc
 *
@@ -12,6 +17,9 @@
 *
 * Last change: Juli 2011
 ********************************************************************/
+
+#include "config.h"
+
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
@@ -43,7 +51,6 @@ namespace bp = boost::python;
 
 // for HAL pin variables
 #include "hal.h"
-#include "hal/hal_priv.h"
 
 enum predefined_named_parameters {
     NP_LINE,
@@ -88,6 +95,12 @@ enum predefined_named_parameters {
     NP_U,
     NP_V,
     NP_W,
+    NP_ABS_X,
+    NP_ABS_Y,
+    NP_ABS_Z,
+    NP_ABS_A,
+    NP_ABS_B,
+    NP_ABS_C,
     NP_VALUE,
     NP_CALL_LEVEL,
     NP_REMAP_LEVEL,
@@ -199,7 +212,7 @@ int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
 	}
 	if (!inifile.Open(iniFileName)) {
 	    *status = 0;
-	    ERS(_("cant open ini file '%s'"), iniFileName);
+	    ERS(_("can\'t open ini file '%s'"), iniFileName);
 	}
 
 	char capName[LINELEN];
@@ -231,14 +244,15 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
 {
     static int comp_id;
     int retval;
-    int type = 0;
+    hal_type_t type = HAL_TYPE_UNINITIALIZED;
     hal_data_u* ptr;
-    char hal_name[LINELEN];
+    bool conn;
+    char hal_name[HAL_NAME_LEN];
 
     *status = 0;
     if (!comp_id) {
-	char hal_comp[LINELEN];
-	sprintf(hal_comp,"interp%d",getpid());
+	char hal_comp[HAL_NAME_LEN];
+	snprintf(hal_comp, sizeof(hal_comp),"interp%d",getpid());
 	comp_id = hal_init(hal_comp); // manpage says: NULL ok - which fails miserably
 	CHKS(comp_id < 0,_("fetch_hal_param: hal_init(%s): %d"), hal_comp,comp_id);
 	CHKS((retval = hal_ready(comp_id)), _("fetch_hal_param: hal_ready(): %d"),retval);
@@ -249,9 +263,6 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
 	((s = (char *) strchr(&nameBuf[5],']')) != NULL)) {
 
 	int closeBracket = s - nameBuf;
-	hal_pin_t *pin;
-	hal_sig_t *sig;
-	hal_param_t *param;
 
 	strncpy(hal_name, &nameBuf[5], closeBracket);
 	hal_name[closeBracket - 5] = '\0';
@@ -267,29 +278,17 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
 	// rtapi_mutex_get(&(hal_data->mutex)); 
         // rtapi_mutex_give(&(hal_data->mutex));
 
-	if ((pin = halpr_find_pin_by_name(hal_name)) != NULL) {
-            if (pin && !pin->signal) {
+        if (hal_get_pin_value_by_name(hal_name, &type, &ptr, &conn) == 0) {
+            if (!conn)
 		logOword("%s: no signal connected", hal_name);
-	    } 
-	    type = pin->type;
-	    if (pin->signal != 0) {
-		sig = (hal_sig_t *) SHMPTR(pin->signal);
-		ptr = (hal_data_u *) SHMPTR(sig->data_ptr);
-	    } else {
-		ptr = (hal_data_u *) &(pin->dummysig);
-	    }
 	    goto assign;
 	}
-	if ((sig = halpr_find_sig_by_name(hal_name)) != NULL) {
-	    if (!sig->writers) 
+        if (hal_get_signal_value_by_name(hal_name, &type, &ptr, &conn) == 0) {
+	    if (!conn)
 		logOword("%s: signal has no writer", hal_name);
-	    type = sig->type;
-	    ptr = (hal_data_u *) SHMPTR(sig->data_ptr);
 	    goto assign;
 	}
-	if ((param = halpr_find_param_by_name(hal_name)) != NULL) {
-	    type = param->type;
-	    ptr = (hal_data_u *) SHMPTR(param->data_ptr);
+        if (hal_get_param_value_by_name(hal_name, &type, &ptr) == 0) {
 	    goto assign;
 	}
 	*status = 0;
@@ -303,6 +302,7 @@ int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
     case HAL_U32: *value = (double) (ptr->u); break;
     case HAL_S32: *value = (double) (ptr->s); break;
     case HAL_FLOAT: *value = (double) (ptr->f); break;
+    default: return -1;
     }
     logOword("%s: value=%f", hal_name, *value);
     *status = 1;
@@ -371,13 +371,13 @@ int Interp::find_named_param(
 	       "named param - pycall(%s):\n%s", nameBuf,
 	       python_plugin->last_exception().c_str());
 	  CHKS(retval.ptr() == Py_None, "Python namedparams.%s returns no value", nameBuf);
-	  if (PyString_Check(retval.ptr())) {
+      if (PyUnicode_Check(retval.ptr())) {
 	      // returning a string sets the interpreter error message and aborts
 	      *status = 0;
 	      char *msg = bp::extract<char *>(retval);
 	      ERS("%s", msg);
 	  }
-	  if (PyInt_Check(retval.ptr())) { // widen
+      if (PyLong_Check(retval.ptr())) { // widen
 	      *value = (double) bp::extract<int>(retval);
 	      *status = 1;
 	      return INTERP_OK;
@@ -393,7 +393,7 @@ int Interp::find_named_param(
 	  Py_XDECREF(res_str);
 	  ERS("Python call %s.%s returned '%s' - expected double, int or string, got %s",
 	      NAMEDPARAMS_MODULE, nameBuf,
-	      PyString_AsString(res_str),
+          PyUnicode_AsUTF8(res_str),
 	      retval.ptr()->ob_type->tp_name);
       } else {
 	  *value = pv->value;
@@ -657,11 +657,26 @@ int Interp::lookup_named_param(const char *nameBuf,
 	break;
 
     case NP_SELECTED_POCKET:
-	*value = _setup.selected_pocket;
+    if(_setup.random_toolchanger){//random changers already report the real pocket number
+        *value = _setup.selected_pocket;
+    }
+    else{//non random get it from the tool table
+        if(_setup.tool_table[_setup.selected_pocket].pocketno == 0){//pocket 0 is special on non-random changers
+            *value = -1;
+        }
+        else{
+	        *value = _setup.tool_table[_setup.selected_pocket].pocketno;
+        }
+    }
 	break;
 
     case NP_CURRENT_POCKET:
-	*value = _setup.current_pocket;
+    if(_setup.random_toolchanger){//random changers already report the real pocket number
+	    *value = _setup.current_pocket;
+    }
+    else{//non random get it from the tool table
+        *value = _setup.tool_table[_setup.current_pocket].pocketno;
+    }
 	break;
 
     case NP_SELECTED_TOOL:
@@ -704,6 +719,45 @@ int Interp::lookup_named_param(const char *nameBuf,
 	*value = _setup.w_current;
 	break;
 
+    case NP_ABS_X:  // abs position
+        {
+            double x = _setup.current_x + _setup.axis_offset_x;
+            double y = _setup.current_y + _setup.axis_offset_y;
+            rotate(&x, &y, _setup.rotation_xy);
+	    *value = x + _setup.origin_offset_x + _setup.tool_offset.tran.x;
+        }
+	break;
+
+    case NP_ABS_Y:  // abs position
+        {
+            double x = _setup.current_x + _setup.axis_offset_x;
+            double y = _setup.current_y + _setup.axis_offset_y;
+            rotate(&x, &y, _setup.rotation_xy);
+	    *value = y + _setup.origin_offset_y + _setup.tool_offset.tran.y;
+        }
+	break;
+
+
+    case NP_ABS_Z:  // abs position
+	*value = _setup.current_z + _setup.axis_offset_z +
+                 _setup.origin_offset_z + _setup.tool_offset.tran.z;
+	break;
+
+    case NP_ABS_A:  // abs position
+	*value = _setup.AA_current + _setup.AA_axis_offset +
+                 _setup.AA_origin_offset + _setup.tool_offset.a;
+	break;
+
+    case NP_ABS_B:  // abs position
+	*value = _setup.BB_current + _setup.BB_axis_offset +
+                 _setup.BB_origin_offset + _setup.tool_offset.b;
+	break;
+
+    case NP_ABS_C:  // abs position
+	*value = _setup.CC_current + _setup.CC_axis_offset +
+                 _setup.CC_origin_offset + _setup.tool_offset.c;
+	break;
+
 	// o-word subs may optionally have an
 	// expression after endsub and return
 	// this 'function return value' is accessible as '_value'
@@ -728,7 +782,6 @@ int Interp::lookup_named_param(const char *nameBuf,
 	extern int _task;  // zero in gcodemodule, 1 in milltask
 	*value = _task;
 	break;
-
 
     default:
 	ERS(_("BUG: lookup_named_param(%s): unhandled index=%fn"),
@@ -766,11 +819,15 @@ int Interp::init_named_parameters()
   const char *pkgversion = PACKAGE_VERSION;  //examples: 2.4.6, 2.5.0~pre
   const char *version_major = "_vmajor";// named_parameter name (use lower case)
   const char *version_minor = "_vminor";// named_parameter name (use lower case)
-  double vmajor=0.0, vminor=0.0;
+  const char *metric_machine = "_metric_machine";// named_parameter name (use lower case)
+  double vmajor=0.0, vminor=0.0, munits = 1.0;
   sscanf(pkgversion, "%lf%lf", &vmajor, &vminor);
 
   init_readonly_param(version_major,vmajor,0);
   init_readonly_param(version_minor,vminor,0);
+
+  munits = inicheck();
+  init_readonly_param(metric_machine,munits,0);
 
   // params tagged with PA_USE_LOOKUP will call the lookup_named_param()
   // method. The value is used as a index for the switch() statement.
@@ -876,6 +933,14 @@ int Interp::init_named_parameters()
   init_readonly_param("_v", NP_V, PA_USE_LOOKUP);
   init_readonly_param("_w", NP_W, PA_USE_LOOKUP);
 
+  // current abs position, does not include any offset
+  init_readonly_param("_abs_x", NP_ABS_X, PA_USE_LOOKUP);
+  init_readonly_param("_abs_y", NP_ABS_Y, PA_USE_LOOKUP);
+  init_readonly_param("_abs_z", NP_ABS_Z, PA_USE_LOOKUP);
+  init_readonly_param("_abs_a", NP_ABS_A, PA_USE_LOOKUP);
+  init_readonly_param("_abs_b", NP_ABS_B, PA_USE_LOOKUP);
+  init_readonly_param("_abs_c", NP_ABS_C, PA_USE_LOOKUP);
+
   // last (optional) endsub/return value
   init_readonly_param("_value", NP_VALUE, PA_USE_LOOKUP);
 
@@ -890,4 +955,33 @@ int Interp::init_named_parameters()
   init_readonly_param("_remap_level", NP_REMAP_LEVEL, PA_USE_LOOKUP);
 
   return INTERP_OK;
+}
+
+double Interp::inicheck()
+{
+    IniFile inifile;
+    const char *filename;
+    const char *inistring;
+    double result = -1.0;
+
+	if ((filename = getenv("INI_FILE_NAME")) == NULL) {
+	    return -1.0;
+    }
+
+    // open it
+    if (inifile.Open(filename) == false) {
+	    return -1.0;
+    }
+
+    if (NULL != (inistring = inifile.Find("LINEAR_UNITS", "TRAJ"))) {
+        if (!strcmp(inistring, "inch")) {
+             result = 0.0;
+        } else {
+            result = 1.0;
+        }
+    }
+    // close it
+    inifile.Close();
+
+    return result;
 }

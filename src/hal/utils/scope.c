@@ -1,7 +1,7 @@
 /** This file, 'scope.c', is a GUI program that together with
     'scope_rt.c' serves as an oscilloscope to examine HAL pins,
     signals, and parameters.  It is a user space component and
-    uses GTK 1.2 or 2.0 for the GUI code.
+    uses GTK 3.0 for the GUI code.
 */
 
 static char *license = \
@@ -31,10 +31,9 @@ static char *license = \
 \n\
 \n\
     This code was written as part of the EMC HAL project.  For more\n\
-    information, go to www.linuxcnc.org.\n\
+    information, go to https://linuxcnc.org\n\
 ";
 
-#include "config.h"
 #include <locale.h>
 #include <libintl.h>
 #define _(x) gettext(x)
@@ -56,6 +55,7 @@ static char *license = \
 #include <gtk/gtk.h>
 #include "miscgtk.h"		/* generic GTK stuff */
 #include "scope_usr.h"		/* scope related declarations */
+#include <rtapi_string.h>
 
 /***********************************************************************
 *                         GLOBAL VARIABLES                             *
@@ -148,7 +148,7 @@ int main(int argc, gchar * argv[])
 
     if (!halpr_find_funct_by_name("scope.sample")) {
 	char buf[1000];
-	sprintf(buf, EMC2_BIN_DIR "/halcmd loadrt scope_rt num_samples=%d",
+	snprintf(buf, sizeof(buf), EMC2_BIN_DIR "/halcmd loadrt scope_rt num_samples=%d",
 		num_samples);
 	if(system(buf) != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR, "loadrt scope_rt failed\n");
@@ -190,10 +190,10 @@ int main(int argc, gchar * argv[])
     /* set main window */
     define_scope_windows();
     /* this makes the application exit when the window is closed */
-    gtk_signal_connect(GTK_OBJECT(ctrl_usr->main_win), "destroy",
-	GTK_SIGNAL_FUNC(main_window_closed), NULL);
-    gtk_signal_connect(GTK_OBJECT(ctrl_usr->main_win), "focus-in-event",
-	GTK_SIGNAL_FUNC(set_focus), NULL);
+    g_signal_connect(ctrl_usr->main_win, "destroy",
+	G_CALLBACK(main_window_closed), NULL);
+    g_signal_connect(ctrl_usr->main_win, "focus-in-event",
+	G_CALLBACK(set_focus), NULL);
     /* define menu windows */
     /* do next level of init */
     init_horiz();
@@ -211,7 +211,7 @@ int main(int argc, gchar * argv[])
     /* read the saved config file */
     read_config_file(ifilename);
     /* arrange for periodic call of heartbeat() */
-    gtk_timeout_add(100, heartbeat, NULL);
+    g_timeout_add(100, heartbeat, NULL);
     /* enter the main loop */
     gtk_main();
     write_config_file(ofilename);
@@ -246,7 +246,7 @@ static int heartbeat(gpointer data)
 	/* decrement timer, did it time out? */
 	if (--ctrl_usr->display_refresh_timer == 0) {
 	    /* yes, refresh the display */
-	    refresh_display();
+	    redraw_window();
 	}
     }
     if (ctrl_shm->state == DONE) {
@@ -371,7 +371,7 @@ void capture_copy_data(void) {
 void capture_cont()
 {
     capture_copy_data();
-    refresh_display();
+    redraw_window();
 }
 
 void capture_complete(void)
@@ -393,10 +393,10 @@ void capture_complete(void)
     default:
 	break;
     }
-	
+
 	//uncomment me to write log files
 	//write_log_file("scope.log");
-    refresh_display();
+    redraw_window();
 }
 
 /***********************************************************************
@@ -413,7 +413,7 @@ static void init_usr_control_struct(void *shmem)
     for (n = 0; n < sizeof(scope_usr_control_t); n++) {
 	cp[n] = 0;
     }
-     
+
     /* save pointer to shared control structure */
     ctrl_shm = shmem;
     /* round size of shared struct up to a multiple of 4 for alignment */
@@ -439,92 +439,79 @@ static void menuitem_response(gchar *string) {
     printf("%s\n", string);
 }
 
-static void about(int junk) {
+static void about(void) {
     gtk_show_about_dialog(GTK_WINDOW(ctrl_usr->main_win),
             "copyright", "Copyright (C) 2003 John Kasunich",
             "license", license,
-            "website", "http://www.linuxcnc.org/",
+            "website", "https://linuxcnc.org/",
             NULL);
 }
 
-static char *halscope_suffix(GtkFileSelection *fs) {
-    static char buf[256];
-    int len;
-    char *suffix;
-    strncpy(buf, gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)), 
-            sizeof(buf)-10);
-    len = strlen(buf);
-
-    suffix = strstr(buf, ".halscope");
-    if(!suffix || suffix != buf + len - 9) strcat(buf, ".halscope");
-    return buf;
-}    
-
-static void do_open_configuration(GtkWidget *w, GtkFileSelection *fs) {
+static void do_open_configuration(char *filename)
+{
     int n;
     for (n = 0; n < 16; n++) {
 	ctrl_usr->chan[n].data_source_type = -1;
         ctrl_usr->chan[n].data_len = 0;
         ctrl_usr->vert.data_offset[n] = -1;
     }
-    read_config_file(halscope_suffix(fs));
+    read_config_file(filename);
     channel_changed();
-    refresh_display();
+    redraw_window();
 }
 
-static void open_configuration(int junk) {
+static void open_configuration(GtkWindow *parent)
+{
     GtkWidget *filew;
-    filew = gtk_file_selection_new(_("Open Configuration File:"));
-    gtk_signal_connect (GTK_OBJECT (filew), "destroy",
-        (GtkSignalFunc) gtk_widget_destroy, &filew);
-    gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (filew)->ok_button),
-                        "clicked", (GtkSignalFunc) do_open_configuration, filew );
-    //link ok to destroy, otherwise the window stays open
-    gtk_signal_connect_object (GTK_OBJECT (GTK_FILE_SELECTION
-                                            (filew)->ok_button),
-                               "clicked", (GtkSignalFunc) gtk_widget_destroy,
-                               GTK_OBJECT (filew));
-    gtk_signal_connect_object (GTK_OBJECT (GTK_FILE_SELECTION
-                                            (filew)->cancel_button),
-                               "clicked", (GtkSignalFunc) gtk_widget_destroy,
-                               GTK_OBJECT (filew));
-    gtk_file_selection_set_select_multiple(GTK_FILE_SELECTION(filew), FALSE);
-    gtk_file_selection_hide_fileop_buttons (GTK_FILE_SELECTION(filew) );
-    gtk_file_selection_complete(GTK_FILE_SELECTION(filew), "*.halscope");
-    gtk_dialog_run(GTK_DIALOG(filew));
+    GtkFileChooser *chooser;
+
+    filew = gtk_file_chooser_dialog_new(_("Open Configuration File:"),
+                                          parent, GTK_FILE_CHOOSER_ACTION_OPEN,
+                                          _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                          _("_Open"), GTK_RESPONSE_ACCEPT, NULL);
+
+    chooser = GTK_FILE_CHOOSER(filew);
+    set_file_filter(chooser, "Halscope", "*.halscope");
+
+    if (gtk_dialog_run(GTK_DIALOG(filew)) == GTK_RESPONSE_ACCEPT) {
+        char *filename;
+
+        filename = gtk_file_chooser_get_filename(chooser);
+        do_open_configuration(filename);
+        g_free(filename);
+    }
+    gtk_widget_destroy(filew);
 }
 
-static void do_save_configuration(GtkWidget *w, GtkFileSelection *fs) {
-    write_config_file(halscope_suffix(fs));
-}
-
-
-static void save_configuration(int junk) {
+static void save_configuration(GtkWindow *parent)
+{
     GtkWidget *filew;
-    filew = gtk_file_selection_new(_("Open Configuration File:"));
-    gtk_signal_connect (GTK_OBJECT (filew), "destroy",
-        (GtkSignalFunc) gtk_widget_destroy, &filew);
-    gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (filew)->ok_button),
-                        "clicked", (GtkSignalFunc) do_save_configuration, filew );
-    //link ok to destroy, otherwise the window stays open
-    gtk_signal_connect_object (GTK_OBJECT (GTK_FILE_SELECTION
-                                            (filew)->ok_button),
-                               "clicked", (GtkSignalFunc) gtk_widget_destroy,
-                               GTK_OBJECT (filew));
-    gtk_signal_connect_object (GTK_OBJECT (GTK_FILE_SELECTION
-                                            (filew)->cancel_button),
-                               "clicked", (GtkSignalFunc) gtk_widget_destroy,
-                               GTK_OBJECT (filew));
-    gtk_file_selection_set_select_multiple(GTK_FILE_SELECTION(filew), FALSE);
-    gtk_file_selection_hide_fileop_buttons (GTK_FILE_SELECTION(filew) );
-    gtk_dialog_run(GTK_DIALOG(filew));
+    GtkFileChooser *chooser;
+
+    filew = gtk_file_chooser_dialog_new(_("Save Configuration File:"),
+                                        parent, GTK_FILE_CHOOSER_ACTION_SAVE,
+                                        _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                        _("_Save"), GTK_RESPONSE_ACCEPT, NULL);
+
+    chooser = GTK_FILE_CHOOSER(filew);
+    set_file_filter(chooser, "Halscope", "*.halscope");
+    gtk_file_chooser_set_do_overwrite_confirmation(chooser, TRUE);
+
+    if (gtk_dialog_run(GTK_DIALOG(filew)) == GTK_RESPONSE_ACCEPT) {
+        char *filename;
+
+        filename = gtk_file_chooser_get_filename(chooser);
+        write_config_file(filename);
+        g_free(filename);
+    }
+    gtk_widget_destroy(filew);
 }
 
 
 static void define_menubar(GtkWidget *vboxtop) {
     GtkWidget *file_rootmenu, *help_rootmenu;
-    GtkWidget *menubar, *filemenu, 
-              *fileopenconfiguration, *filesaveconfiguration, 
+    GtkWidget *menubar, *filemenu,
+              *fileopenconfiguration, *filesaveconfiguration,
               *fileopendatafile, *filesavedatafile,
               *filequit, *sep1, *sep2;
     GtkWidget *helpmenu, *helpabout;
@@ -536,46 +523,46 @@ static void define_menubar(GtkWidget *vboxtop) {
     sep2 = gtk_separator_menu_item_new();
 
     fileopenconfiguration = gtk_menu_item_new_with_mnemonic(_("_Open Configuration..."));
-    gtk_menu_append(GTK_MENU(filemenu), fileopenconfiguration);
-    gtk_signal_connect_object(GTK_OBJECT(fileopenconfiguration), "activate", 
-            GTK_SIGNAL_FUNC(open_configuration), 0);
+    gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), fileopenconfiguration);
+    g_signal_connect_swapped(fileopenconfiguration, "activate",
+            G_CALLBACK(open_configuration), 0);
     gtk_widget_show(fileopenconfiguration);
-    
+
     filesaveconfiguration = gtk_menu_item_new_with_mnemonic(_("_Save Configuration..."));
-    gtk_menu_append(GTK_MENU(filemenu), filesaveconfiguration);
-    gtk_signal_connect_object(GTK_OBJECT(filesaveconfiguration), "activate", 
-            GTK_SIGNAL_FUNC(save_configuration), 0);
+    gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), filesaveconfiguration);
+    g_signal_connect_swapped(filesaveconfiguration, "activate",
+            G_CALLBACK(save_configuration), 0);
     gtk_widget_show(filesaveconfiguration);
 
-    gtk_menu_append(GTK_MENU(filemenu), sep1);
+    gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), sep1);
     gtk_widget_show(sep1);
-    
-    fileopendatafile = gtk_menu_item_new_with_mnemonic(_("O_pen Data File..."));
-    gtk_menu_append(GTK_MENU(filemenu), fileopendatafile);
-    gtk_signal_connect_object(GTK_OBJECT(fileopendatafile), "activate", 
-            GTK_SIGNAL_FUNC(menuitem_response), "file/open datafile");
+
+    fileopendatafile = gtk_menu_item_new_with_mnemonic(_("O_pen Log File"));
+    gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), fileopendatafile);
+    g_signal_connect_swapped(fileopendatafile, "activate",
+            G_CALLBACK(menuitem_response), "file/open datafile");
     gtk_widget_set_sensitive(GTK_WIDGET(fileopendatafile), FALSE); // XXX
     gtk_widget_show(fileopendatafile);
-    
-    filesavedatafile = gtk_menu_item_new_with_mnemonic(_("S_ave Data File..."));
-    gtk_menu_append(GTK_MENU(filemenu), filesavedatafile);
-    gtk_signal_connect_object(GTK_OBJECT(filesavedatafile), "activate", 
-            GTK_SIGNAL_FUNC(log_popup), 0);
+
+    filesavedatafile = gtk_menu_item_new_with_mnemonic(_("S_ave Log File"));
+    gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), filesavedatafile);
+    g_signal_connect_swapped(filesavedatafile, "activate",
+            G_CALLBACK(save_log_cb), 0);
     gtk_widget_show(filesavedatafile);
-    
-    gtk_menu_append(GTK_MENU(filemenu), sep2);
+
+    gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), sep2);
     gtk_widget_show(sep2);
 
     filequit = gtk_menu_item_new_with_mnemonic(_("_Quit"));
-    gtk_menu_append(GTK_MENU(filemenu), filequit);
-    gtk_signal_connect_object(GTK_OBJECT(filequit), "activate", 
-            GTK_SIGNAL_FUNC(quit), 0);
+    gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), filequit);
+    g_signal_connect_swapped(filequit, "activate",
+            G_CALLBACK(quit), 0);
     gtk_widget_show(filequit);
 
     helpabout = gtk_menu_item_new_with_mnemonic(_("_About Halscope"));
-    gtk_menu_append(GTK_MENU(helpmenu), helpabout);
-    gtk_signal_connect_object(GTK_OBJECT(helpabout), "activate",
-            GTK_SIGNAL_FUNC(about), 0);
+    gtk_menu_shell_append(GTK_MENU_SHELL(helpmenu), helpabout);
+    g_signal_connect_swapped(helpabout, "activate",
+            G_CALLBACK(about), NULL);
     gtk_widget_show(helpabout);
 
     file_rootmenu = gtk_menu_item_new_with_mnemonic(_("_File"));
@@ -586,7 +573,7 @@ static void define_menubar(GtkWidget *vboxtop) {
     gtk_widget_show(help_rootmenu);
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(help_rootmenu),helpmenu);
 
-    vbox = gtk_vbox_new(FALSE, 0);
+    vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_container_add(GTK_CONTAINER(vboxtop), vbox);
     gtk_widget_show(vbox);
 
@@ -594,8 +581,8 @@ static void define_menubar(GtkWidget *vboxtop) {
     gtk_box_pack_start(GTK_BOX(vbox), menubar, FALSE, FALSE, 2);
     gtk_widget_show(menubar);
 
-    gtk_menu_bar_append(GTK_MENU_BAR(menubar), file_rootmenu);
-    gtk_menu_bar_append(GTK_MENU_BAR(menubar), help_rootmenu);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menubar), file_rootmenu);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menubar), help_rootmenu);
 }
 
 /** 'define_scope_windows()' defines the overall layout of the main
@@ -634,17 +621,13 @@ static void define_scope_windows(void)
 {
     GtkWidget *vbox, *hbox, *vboxtop, *vboxbottom, *vboxleft, *vboxright, *hboxright;
 
-    /* create main window, set its size */
+    /* create main window, set its minimum size and title */
     ctrl_usr->main_win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    /* set the minimum size */
-    gtk_widget_set_usize(GTK_WIDGET(ctrl_usr->main_win), 500, 350);
-    /* allow the user to expand it */
-    gtk_window_set_policy(GTK_WINDOW(ctrl_usr->main_win), FALSE, TRUE, FALSE);
-    /* set main window title */
+    gtk_widget_set_size_request(GTK_WIDGET(ctrl_usr->main_win), 650, 400);
     gtk_window_set_title(GTK_WINDOW(ctrl_usr->main_win), _("HAL Oscilloscope"));
 
     /* top level - big vbox, menu above, everything else below */
-    vbox = gtk_vbox_new(FALSE, 0);
+    vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_container_set_border_width(GTK_CONTAINER(vbox), 0);
     gtk_container_add(GTK_CONTAINER(ctrl_usr->main_win), vbox);
     gtk_widget_show(vbox);
@@ -653,7 +636,7 @@ static void define_scope_windows(void)
     vboxbottom = gtk_hbox_new_in_box(FALSE, 0, 0, vbox, TRUE, TRUE, 0);
 
     /* one big hbox for everything under the menu */
-    hbox = gtk_hbox_new(FALSE, 0);
+    hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_container_set_border_width(GTK_CONTAINER(hbox), 0);
     /* add the hbox to the main window */
     gtk_container_add(GTK_CONTAINER(vboxbottom), hbox);
@@ -674,6 +657,8 @@ static void define_scope_windows(void)
     /* horizontal row of select buttons */
     ctrl_usr->waveform_win =
 	gtk_vbox_new_in_box(FALSE, 0, 0, vboxleft, TRUE, TRUE, 0);
+    gtk_widget_set_vexpand(ctrl_usr->waveform_win, TRUE);
+    gtk_widget_set_hexpand(ctrl_usr->waveform_win, TRUE);
     ctrl_usr->chan_sel_win =
 	gtk_hbox_new_in_box(TRUE, 0, 0, vboxleft, FALSE, FALSE, 0);
     ctrl_usr->chan_info_win =
@@ -699,17 +684,14 @@ static void define_scope_windows(void)
 
 static void init_run_mode_window(void)
 {
-    /* define the radio buttons */
+    /* define the radio buttons and group them */
     ctrl_usr->rm_stop_button = gtk_radio_button_new_with_label(NULL, _("Stop"));
-    ctrl_usr->rm_normal_button =
-	gtk_radio_button_new_with_label(gtk_radio_button_group
-	(GTK_RADIO_BUTTON(ctrl_usr->rm_stop_button)), _("Normal"));
-    ctrl_usr->rm_single_button =
-	gtk_radio_button_new_with_label(gtk_radio_button_group
-	(GTK_RADIO_BUTTON(ctrl_usr->rm_stop_button)), _("Single"));
-    ctrl_usr->rm_roll_button =
-	gtk_radio_button_new_with_label(gtk_radio_button_group
-	(GTK_RADIO_BUTTON(ctrl_usr->rm_stop_button)), _("Roll"));
+    ctrl_usr->rm_normal_button = gtk_radio_button_new_with_label_from_widget(
+            GTK_RADIO_BUTTON(ctrl_usr->rm_stop_button), _("Normal"));
+    ctrl_usr->rm_single_button = gtk_radio_button_new_with_label_from_widget(
+            GTK_RADIO_BUTTON(ctrl_usr->rm_stop_button), _("Single"));
+    ctrl_usr->rm_roll_button = gtk_radio_button_new_with_label_from_widget(
+            GTK_RADIO_BUTTON(ctrl_usr->rm_stop_button), _("Roll"));
     /* now put them into the box */
     gtk_box_pack_start(GTK_BOX(ctrl_usr->run_mode_win),
 	ctrl_usr->rm_normal_button, FALSE, FALSE, 0);
@@ -720,14 +702,14 @@ static void init_run_mode_window(void)
     gtk_box_pack_start(GTK_BOX(ctrl_usr->run_mode_win),
 	ctrl_usr->rm_stop_button, FALSE, FALSE, 0);
     /* hook callbacks to buttons */
-    gtk_signal_connect(GTK_OBJECT(ctrl_usr->rm_normal_button), "clicked",
-	GTK_SIGNAL_FUNC(rm_normal_button_clicked), NULL);
-    gtk_signal_connect(GTK_OBJECT(ctrl_usr->rm_single_button), "clicked",
-	GTK_SIGNAL_FUNC(rm_single_button_clicked), NULL);
-    gtk_signal_connect(GTK_OBJECT(ctrl_usr->rm_roll_button), "clicked",
-	GTK_SIGNAL_FUNC(rm_roll_button_clicked), NULL);
-    gtk_signal_connect(GTK_OBJECT(ctrl_usr->rm_stop_button), "clicked",
-	GTK_SIGNAL_FUNC(rm_stop_button_clicked), NULL);
+    g_signal_connect(ctrl_usr->rm_normal_button, "clicked",
+            G_CALLBACK(rm_normal_button_clicked), NULL);
+    g_signal_connect(ctrl_usr->rm_single_button, "clicked",
+            G_CALLBACK(rm_single_button_clicked), NULL);
+    g_signal_connect(ctrl_usr->rm_roll_button, "clicked",
+            G_CALLBACK(rm_roll_button_clicked), NULL);
+    g_signal_connect(ctrl_usr->rm_stop_button, "clicked",
+            G_CALLBACK(rm_stop_button_clicked), NULL);
     /* and make them visible */
     gtk_widget_show(ctrl_usr->rm_normal_button);
     gtk_widget_show(ctrl_usr->rm_single_button);

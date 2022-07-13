@@ -1,0 +1,274 @@
+:lang: en
+:toc:
+
+[[cha:gladevcp-libraries]]
+= GladeVCP Libraries modules
+
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
+Libraries are prebuilt python modules that give added features to GladeVCP. +
+In this way you can select what features you want - yet don't have to build common ones yourself. +
+
+== Info
+
+Info is a library to collect and filters data from the INI file. +
+
+The available data and defaults:
+
+[source,{ini}]
+----
+LINUXCNC_IS_RUNNING
+LINUXCNC_VERSION
+INIPATH
+INI = linuxcnc.ini(INIPATH)
+MDI_HISTORY_PATH = '~/.axis_mdi_history'
+QTVCP_LOG_HISTORY_PATH = '~/qtvcp.log'
+MACHINE_LOG_HISTORY_PATH = '~/.machine_log_history'
+PREFERENCE_PATH = '~/.Preferences'
+SUB_PATH = None
+SUB_PATH_LIST = []
+self.MACRO_PATH = None
+MACRO_PATH_LIST = []
+INI_MACROS = self.INI.findall("DISPLAY", "MACRO")
+
+IMAGE_PATH = IMAGEDIR
+LIB_PATH = os.path.join(HOME, "share","qtvcp")
+
+PROGRAM_FILTERS = None
+PARAMETER_FILE = None
+MACHINE_IS_LATHE = False
+MACHINE_IS_METRIC = False
+MACHINE_UNIT_CONVERSION = 1
+MACHINE_UNIT_CONVERSION_9 = [1]*9
+TRAJ_COORDINATES =
+JOINT_COUNT = int(self.INI.find("KINS","JOINTS")or 0)
+AVAILABLE_AXES = ['X','Y','Z']
+AVAILABLE_JOINTS = [0,1,2]
+GET_NAME_FROM_JOINT = {0:'X',1:'Y',2:'Z'}
+GET_JOG_FROM_NAME = {'X':0,'Y':1,'Z':2}
+NO_HOME_REQUIRED = False
+HOME_ALL_FLAG
+JOINT_TYPE = self.INI.find(section, "TYPE") or "LINEAR"
+JOINT_SEQUENCE_LIST
+JOINT_SYNC_LIST
+
+JOG_INCREMENTS = None
+ANGULAR_INCREMENTS = None
+GRID_INCREMENTS
+
+DEFAULT_LINEAR_JOG_VEL = 15 units per minute
+MIN_LINEAR_JOG_VEL = 60 units per minute
+MAX_LINEAR_JOG_VEL = 300 units per minute
+
+DEFAULT_ANGULAR_JOG_VEL =
+MIN_ANGULAR_JOG_VEL =
+MAX_ANGULAR_JOG_VEL =
+
+MAX_FEED_OVERRIDE =
+MAX_TRAJ_VELOCITY =
+
+AVAILABLE_SPINDLES = int(self.INI.find("TRAJ", "SPINDLES") or 1)
+DEFAULT_SPINDLE_0_SPEED = 200
+MAX_SPINDLE_0_SPEED = 2500
+MAX_SPINDLE_0_OVERRIDE = 100
+MIN_SPINDLE_0_OVERRIDE = 50
+
+MAX_FEED_OVERRIDE = 1.5
+MAX_TRAJ_VELOCITY
+
+# user message dialog info
+USRMESS_BOLDTEXT = self.INI.findall("DISPLAY", "MESSAGE_BOLDTEXT")
+USRMESS_TEXT = self.INI.findall("DISPLAY", "MESSAGE_TEXT")
+USRMESS_TYPE = self.INI.findall("DISPLAY", "MESSAGE_TYPE")
+USRMESS_PINNAME = self.INI.findall("DISPLAY", "MESSAGE_PINNAME")
+USRMESS_DETAILS = self.INI.findall("DISPLAY", "MESSAGE_DETAILS")
+USRMESS_ICON = self.INI.findall("DISPLAY", "MESSAGE_ICON")
+ZIPPED_USRMESS =
+
+self.GLADEVCP = (self.INI.find("DISPLAY", "GLADEVCP")) or None
+
+# embedded program info
+TAB_NAMES = (self.INI.findall("DISPLAY", "EMBED_TAB_NAME")) or None
+TAB_LOCATION = (self.INI.findall("DISPLAY", "EMBED_TAB_LOCATION")) or []
+TAB_CMD = (self.INI.findall("DISPLAY", "EMBED_TAB_COMMAND")) or None
+ZIPPED_TABS =
+
+MDI_COMMAND_LIST =      (heading: [MDI_COMMAND_LIST], title: MDI_COMMAND")
+TOOL_FILE_PATH =        (heading: [EMCIO], title:TOOL_TABLE)
+POSTGUI_HALFILE_PATH =  (heading: [HAL], title: POSTGUI_HALFILE)
+----
+
+There are some 'helper functions' - mostly used for widget support
+
+----
+get_error_safe_setting(self, heading, detail, default=None)
+convert_metric_to_machine(data)
+convert_imperial_to_machine(data)
+convert_9_metric_to_machine(data)
+convert_9_imperial_to_machine(data)
+convert_units(data)
+convert_units_9(data)
+get_filter_program(fname)
+----
+
+To import this modules add this python code to your import section:
+
+[source,python]
+----
+############################
+# **** IMPORT SECTION **** #
+############################
+
+from gladevcp.core import Info
+----
+
+To instantiate the module so you can use it in a handler file add this python code to your instantiate section:
+
+[source,python]
+----
+###########################################
+# **** INSTANTIATE LIBRARIES SECTION **** #
+###########################################
+
+INFO = Info()
+----
+
+To access INFO data use this general syntax:
+
+[source,python]
+----
+home_state = INFO.NO_HOME_REQUIRED
+if INFO.MACHINE_IS_METRIC is True:
+    print('Metric based')
+----
+
+== Action
+
+This library is used to command LinuxCNC's motion controller. +
+It tries to hide incidental details and add convenience methods for developers. +
+
+To import this modules add this python code to your import section:
+
+[source,python]
+----
+############################
+# **** IMPORT SECTION **** #
+############################
+
+from gladevcp.core import Action
+----
+
+To instantiate the module so you can use it add this python code to your instantiate section:
+
+[source,python]
+----
+###########################################
+# **** INSTANTIATE LIBRARIES SECTION **** #
+###########################################
+
+ACTION = Action()
+----
+To access Action commands use general syntax such as these: +
+[source,python]
+----
+ACTION.SET_ESTOP_STATE(state)
+ACTION.SET_MACHINE_STATE(state)
+
+ACTION.SET_MACHINE_HOMING(joint)
+ACTION.SET_MACHINE_UNHOMED(joint)
+
+ACTION.SET_LIMITS_OVERRIDE()
+
+ACTION.SET_MDI_MODE()
+ACTION.SET_MANUAL_MODE()
+ACTION.SET_AUTO_MODE()
+
+ACTION.SET_LIMITS_OVERRIDE()
+
+ACTION.CALL_MDI(code)
+ACTION.CALL_MDI_WAIT(code)
+ACTION.CALL_INI_MDI(number)
+
+ACTION.CALL_OWORD()
+
+ACTION.OPEN_PROGRAM(filename)
+ACTION.SAVE_PROGRAM(text_source, fname):
+
+ACTION.SET_AXIS_ORIGIN(axis,value)
+ACTION.SET_TOOL_OFFSET(axis,value,fixture = False)
+
+ACTION.RUN()
+ACTION.ABORT()
+ACTION.PAUSE()
+
+ACTION.SET_MAX_VELOCITY_RATE(rate)
+ACTION.SET_RAPID_RATE(rate)
+ACTION.SET_FEED_RATE(rate)
+ACTION.SET_SPINDLE_RATE(rate)
+
+ACTION.SET_JOG_RATE(rate)
+ACTION.SET_JOG_INCR(incr)
+ACTION.SET_JOG_RATE_ANGULAR(rate)
+ACTION.SET_JOG_INCR_ANGULAR(incr, text)
+
+ACTION.SET_SPINDLE_ROTATION(direction = 1, rpm = 100, number = 0)
+ACTION.SET_SPINDLE_FASTER(number = 0)
+ACTION.SET_SPINDLE_SLOWER(number = 0)
+ACTION.SET_SPINDLE_STOP(number = 0)
+
+ACTION.SET_USER_SYSTEM(system)
+
+ACTION.ZERO_G92_OFFSET()
+ACTION.ZERO_ROTATIONAL_OFFSET()
+ACTION.ZERO_G5X_OFFSET(num)
+
+ACTION.RECORD_CURRENT_MODE()
+ACTION.RESTORE_RECORDED_MODE()
+
+ACTION.SET_SELECTED_AXIS(jointnum)
+
+ACTION.DO_JOG(jointnum, direction)
+ACTION.JOG(jointnum, direction, rate, distance=0)
+
+ACTION.TOGGLE_FLOOD()
+ACTION.SET_FLOOD_ON()
+ACTION.SET_FLOOD_OFF()
+
+ACTION.TOGGLE_MIST()
+ACTION.SET_MIST_ON()
+ACTION.SET_MIST_OFF()
+
+ACTION.RELOAD_TOOLTABLE()
+ACTION.UPDATE_VAR_FILE()
+
+ACTION.TOGGLE_OPTIONAL_STOP()
+ACTION.SET_OPTIONAL_STOP_ON()
+ACTION.SET_OPTIONAL_STOP_OFF()
+
+ACTION.TOGGLE_BLOCK_DELETE()
+ACTION.SET_BLOCK_DELETE_ON()
+ACTION.SET_BLOCK_DELETE_OFF()
+
+ACTION.RELOAD_DISPLAY()
+ACTION.SET_GRAPHICS_VIEW(view)
+
+ACTION.UPDATE_MACHINE_LOG(text, option=None):
+
+ACTION.SET_DISPLAY_MESSAGE(string)
+ACTION.SET_ERROR_MESSAGE(string)
+----
+
+There are some 'helper functions' - mostly used for this library's support
+
+[source,python]
+----
+get_jog_info (num)
+jnum_check(num)
+ensure_mode(modes)
+open_filter_program(filename, filter)
+----
+

@@ -1,0 +1,62 @@
+// Based on a forum posting by nbremond
+component corexy_by_hal "CoreXY kinematics";
+
+pin in float  alpha_fb"typ: feedback from alpha motor controller";
+pin in float  beta_fb "typ: feedback from beta  motor controller";
+
+pin in float  j0_motor_pos_cmd"typ: from joint.0.motor-pos-cmd";
+pin in float  j1_motor_pos_cmd"typ: from joint.1.motor-pos-cmd";
+
+pin out float j0_motor_pos_fb"typ: to joint.0.motor-pos-fb";
+pin out float j1_motor_pos_fb"typ: to joint.1.motor-pos-fb";
+
+pin out float alpha_cmd"typ: command to alpha motor";
+pin out float beta_cmd "typ: command to beta ts motor";
+
+function _;
+description """
+Implement \\fBCoreXY\\fR forward and inverse transformations
+\\fBin HAL\\fR.  This component provides an alternative
+method for implementing \\fBCoreXY\\fR kinematics.
+
+In the INI file, use:
+
+\\fB[KINS]KINEMATICS=trivkins coordinates=xyz kinstype=both\\fR
+
+This component accepts two joint (\\fBj0,j1\\fR) motor
+position commands for a trivkins coordinates=xyz configuration
+and computes equivalent \\fBCoreXY\\fR motor commands for
+two motors identified as \\fBalpha,beta\\fR.  Similarly,
+the component accepts feedback values for the
+\\fBalpha,beta\\fR motor controllers and converts to
+equivalent joint (\\fBj0,j1\\fR) motor position feedback values.
+
+Notes:
+
+1) Using \\fBtrivkins\\fR with this module allows home switches
+to trigger according to the \\fBCartesian x,y\\fR positions
+
+2) Joint pin names are based on \\fBcoordinates=xyz\\fR and
+the corresponding joint number assignments used by
+\\fBtrivkins\\fR so \\fBj0==x, j1==y\\fR
+(man trivkins for more information)
+
+3) \\fBCoreXY\\fR kinematics can also be implemented using
+the kinematics module named \\fBcorexykins\\fR with home
+switches triggered by the \\fB j0,j1 motor\\fR positions.
+(man kins for more information)
+""";
+
+license "GPL";
+;;
+
+FUNCTION(_) {
+
+    // forward kinematics (j0==x,j1==y from motor positions):
+    j0_motor_pos_fb = alpha_fb + beta_fb;
+    j1_motor_pos_fb = alpha_fb - beta_fb;
+
+    // inverse kinematics (motor positions from j0==x,j1==y):
+    alpha_cmd = 0.5*(j0_motor_pos_cmd + j1_motor_pos_cmd);
+    beta_cmd  = 0.5*(j0_motor_pos_cmd - j1_motor_pos_cmd);
+}

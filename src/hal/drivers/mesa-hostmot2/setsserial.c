@@ -93,7 +93,7 @@ int nv_access(rtapi_u32 type){
     rtapi_u32 buff = LBPNONVOL_flag + LBPWRITE;
     rtapi_print("buff = %x\n", buff);
     HM2WRITE(remote->reg_cs_addr, buff);
-    HM2WRITE(remote->reg_0_addr, type);
+    HM2WRITE(remote->rw_addr[0], type);
     return doit();
 }
 
@@ -105,7 +105,7 @@ int set_nvram_param(rtapi_u32 addr, rtapi_u32 value){
     if (nv_access(LBPNONVOLEEPROM) < 0) goto fail0;
     
     // value to set
-    HM2WRITE(remote->reg_0_addr, value);
+    HM2WRITE(remote->rw_addr[0], value);
     buff = WRITE_REM_WORD_CMD | addr; 
     HM2WRITE(remote->reg_cs_addr, buff);
     if (doit() < 0) goto fail0;
@@ -155,7 +155,7 @@ int setlocal(int addr, int val, int bytes){
 void sslbp_write_lbp(rtapi_u32 cmd, rtapi_u32 data){
     rtapi_u32 buff = LBPWRITE + cmd;
     HM2WRITE(remote->reg_cs_addr, buff);
-    HM2WRITE(remote->reg_0_addr, data);
+    HM2WRITE(remote->rw_addr[0], data);
     doit();
     buff = 0;
     HM2WRITE(remote->reg_cs_addr, buff);
@@ -169,7 +169,7 @@ int sslbp_read_cookie(void){
         HM2_ERR("Error in sslbp_read_cookie, trying to abort\n");
         return -1;
     }
-    HM2READ(remote->reg_0_addr, res);
+    HM2READ(remote->rw_addr[0], res);
     buff = 0;
     HM2WRITE(remote->reg_cs_addr, buff);
     return res;
@@ -183,7 +183,7 @@ rtapi_u8 sslbp_read_byte(rtapi_u32 addr){
         HM2_ERR("Error in sslbp_read_byte, trying to abort\n");
         return -1;
     }
-    HM2READ(remote->reg_0_addr, res);
+    HM2READ(remote->rw_addr[0], res);
     buff = 0;
     HM2WRITE(remote->reg_cs_addr, buff);
     return (rtapi_u8)res;
@@ -197,7 +197,7 @@ rtapi_u16 sslbp_read_word(rtapi_u32 addr){
         HM2_ERR("Error in sslbp_read_word, trying to abort\n");
         return -1;
     }
-    HM2READ(remote->reg_0_addr, res);
+    HM2READ(remote->rw_addr[0], res);
     buff = 0;
     HM2WRITE(remote->reg_cs_addr, buff);
     return (rtapi_u16)res;
@@ -211,7 +211,7 @@ rtapi_u32 sslbp_read_long(rtapi_u32 addr){
         HM2_ERR("Error in sslbp_read_long, trying to abort\n");
         return -1;
     }
-    HM2READ(remote->reg_0_addr, buff);
+    HM2READ(remote->rw_addr[0], buff);
     buff = 0;
     HM2WRITE(remote->reg_cs_addr, buff);
     return res;
@@ -225,10 +225,10 @@ rtapi_u64 sslbp_read_double(rtapi_u32 addr){
         HM2_ERR("Error in sslbp_read_double, trying to abort\n");
         return -1;
     }
-    HM2READ(remote->reg_1_addr, buff);
+    HM2READ(remote->rw_addr[1], buff);
     res = buff;
     res <<= 32;
-    HM2READ(remote->reg_0_addr, buff);
+    HM2READ(remote->rw_addr[0], buff);
     res += buff;
     buff = 0;
     HM2WRITE(remote->reg_cs_addr, buff);
@@ -238,7 +238,7 @@ rtapi_u64 sslbp_read_double(rtapi_u32 addr){
 int sslbp_write_byte(rtapi_u32 addr, rtapi_u32 data){
     rtapi_u32 buff = WRITE_REM_BYTE_CMD + addr;
     HM2WRITE(remote->reg_cs_addr, buff);
-    HM2WRITE(remote->reg_0_addr, data);
+    HM2WRITE(remote->rw_addr[0], data);
     if (doit() < 0){
         HM2_ERR("Error in sslbp_write_byte, trying to abort\n");
         return -1;
@@ -251,7 +251,7 @@ int sslbp_write_byte(rtapi_u32 addr, rtapi_u32 data){
 int sslbp_write_word(rtapi_u32 addr, rtapi_u32 data){
     rtapi_u32 buff = WRITE_REM_WORD_CMD + addr;
     HM2WRITE(remote->reg_cs_addr, buff);
-    HM2WRITE(remote->reg_0_addr, data);
+    HM2WRITE(remote->rw_addr[0], data);
     if (doit() < 0){
         HM2_ERR("Error in sslbp_write_word, trying to abort\n");
         return -1;
@@ -264,7 +264,7 @@ int sslbp_write_word(rtapi_u32 addr, rtapi_u32 data){
 int sslbp_write_long(rtapi_u32 addr, rtapi_u32 data){
     rtapi_u32 buff = WRITE_REM_LONG_CMD + addr;
     HM2WRITE(remote->reg_cs_addr, buff);
-    HM2WRITE(remote->reg_0_addr, data);
+    HM2WRITE(remote->rw_addr[0], data);
     if (doit() < 0){
         HM2_ERR("Error in sslbp_write_long, trying to abort\n");
         return -1;
@@ -277,8 +277,8 @@ int sslbp_write_long(rtapi_u32 addr, rtapi_u32 data){
 int sslbp_write_double(rtapi_u32 addr, rtapi_u32 data0, rtapi_u32 data1){
     rtapi_u32 buff = WRITE_REM_DOUBLE_CMD + addr;
     HM2WRITE(remote->reg_cs_addr, buff);
-    HM2WRITE(remote->reg_0_addr, data0);
-    HM2WRITE(remote->reg_1_addr, data1);
+    HM2WRITE(remote->rw_addr[0], data0);
+    HM2WRITE(remote->rw_addr[1], data1);
     if (doit() < 0){
         HM2_ERR("Error in sslbp_write_double, trying to abort\n");
         return -1;

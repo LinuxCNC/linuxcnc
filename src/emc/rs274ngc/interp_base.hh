@@ -15,13 +15,19 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+#ifndef INTERP_BASE_HH
+#define INTERP_BASE_HH
+
 #include <stdlib.h>
 #include <boost/noncopyable.hpp>
+#include <emcpos.h>
+#include <modal_state.hh>
 
 /* Size of certain arrays */
-#define ACTIVE_G_CODES 16
+#define ACTIVE_G_CODES 17
 #define ACTIVE_M_CODES 10
-#define ACTIVE_SETTINGS 3
+#define ACTIVE_SETTINGS 5
 
 class InterpBase : boost::noncopyable {
 public:
@@ -52,9 +58,17 @@ public:
     virtual void active_g_codes(int active_gcodes[ACTIVE_G_CODES]) = 0;
     virtual void active_m_codes(int active_mcodes[ACTIVE_M_CODES]) = 0;
     virtual void active_settings(double active_settings[ACTIVE_SETTINGS]) = 0;
+    virtual int active_modes(int g_codes[ACTIVE_G_CODES],
+            int m_codes[ACTIVE_M_CODES],
+            double settings[ACTIVE_SETTINGS],
+            StateTag const &tag) = 0;
+    virtual int restore_from_tag(StateTag const &tag) = 0;
+    virtual void print_state_tag(StateTag const &tag) = 0;
     virtual void set_loglevel(int level) = 0;
     virtual void set_loop_on_main_m99(bool state) = 0;
 };
 
 InterpBase *interp_from_shlib(const char *shlib);
 extern "C" InterpBase *makeInterp();
+
+#endif

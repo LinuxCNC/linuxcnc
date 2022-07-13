@@ -90,17 +90,17 @@ The following lists the input and output pins by the type setting used in the cf
 Reads physical input pins of all ports and updates HAL \-in and \-in\-not pins.
 .TP
 \fBparport.<p>.write (funct)
-Reads HAL \-out pins of port <p> and updates that port’s physical output pins.
+Reads HAL \-out pins of port <p> and updates that port's physical output pins.
 .TP
 \fBparport.write\-all (funct)
 Reads HAL \-out pins of all ports and updates all physical output pins.
 .TP
 \fBparport.<p>.reset (funct)
-Waits until \fIreset\-time \fRhas elapsed since the associated write, then resets pins to values indicated by \fI\-out\-reset \fRand \fI\-out\-invert \fRsettings. reset must be later in the same thread as write. 'If '\fI\-out\-reset \fRis TRUE, then the reset function will set the pin to the value of \fI\-out\-invert\fR. This can be used in conjunction with stepgen’s doublefreq to produce one step per period. The stepgen stepspace for that pin must be set to 0 to enable doublefreq.
+Waits until \fIreset\-time \fRhas elapsed since the associated write, then resets pins to values indicated by \fI\-out\-reset \fRand \fI\-out\-invert \fRsettings. reset must be later in the same thread as write. 'If '\fI\-out\-reset \fRis TRUE, then the reset function will set the pin to the value of \fI\-out\-invert\fR. This can be used in conjunction with stepgen's doublefreq to produce one step per period. The stepgen stepspace for that pin must be set to 0 to enable doublefreq.
 .SH USAGE
 The hal_parport component is a driver for the traditional PC parallel port. The port has a total of 25 physical pins of which 17 are used for signals. The original parallel port divided those pins into three groups: data, control, and status. The data group consists of 8 output pins, the control group consists of 4 output pins, and the status group consists of 5 input pins.
 
-In the early 1990’s, the bidirectional parallel port was introduced, which allows the data group to be used for output or input. The HAL driver supports the bidirectional port, and allows the user to set the data group as either input or output. If configured as \fIout\fR, a port provides a total of 12 outputs and 5 inputs. If configured as \fIin\fR, it provides 4 outputs and 13 inputs.
+In the early 1990's, the bidirectional parallel port was introduced, which allows the data group to be used for output or input. The HAL driver supports the bidirectional port, and allows the user to set the data group as either input or output. If configured as \fIout\fR, a port provides a total of 12 outputs and 5 inputs. If configured as \fIin\fR, it provides 4 outputs and 13 inputs.
 
 In some parallel ports, the control group pins are open collectors, which may also be driven low by an external gate. On a board with open collector control pins, if configured as \fIx\fR, it provides 8 outputs, and 9 inputs.
 
@@ -147,7 +147,7 @@ For each parallel port handled by the hal_parport driver, a type can optionally 
 
 If the type is not specified, the default is out.
 
-A type of epp is the same as out, but the hal_parport driver requests that the port switch into EPP mode. The hal_parport driver does not use the EPP bus protocol, but on some systems EPP mode changes the electrical characteristics of the port in a way that may make some marginal hardware work better. The Gecko G540’s charge pump is known to require this on some parallel ports.
+A type of epp is the same as out, but the hal_parport driver requests that the port switch into EPP mode. The hal_parport driver does not use the EPP bus protocol, but on some systems EPP mode changes the electrical characteristics of the port in a way that may make some marginal hardware work better. The Gecko G540's charge pump is known to require this on some parallel ports.
 
 See the Note above about mode x.
 .TP

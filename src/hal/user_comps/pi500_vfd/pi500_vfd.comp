@@ -1,0 +1,328 @@
+component pi500_vfd "Powtran PI500 modbus driver";
+param rw unsigned mbslaveaddr     "Modbus slave address";
+pin in float commanded_frequency  "Frequency of vfd";
+pin in bit run                    "run the vfd";
+pin in bit enable                 "1 to enable the vfd. 0 will remote trip the vfd, thereby disabling it.";
+pin out bit is_running            "1 when running";
+pin out bit is_at_speed           "1 when running at assigned frequency";
+pin out bit is_ready              "1 when vfd is ready to run";
+pin out bit is_alarm              "1 when vfd alarm is set";
+pin out float motor_current       "Output current in amps";
+pin out float heatsink_temp       "Temperature of drive heatsink";
+pin out bit watchdog_out          "Alternates between 1 and 0 after every update cycle. Feed into a watchdog component to ensure vfd driver is communicating with the vfd properly.";
+option userspace yes;
+option userinit yes;
+license "GPLv2 or greater";
+;;
+/*
+  Userspace HAL component to control a Powtran PI500 series VFD. There are several
+  VFDs which are based on the Powtran PI500, e.g., Sourcetronic ST500, Kinger Born PI500, etc.
+
+  Written by Jan Roters, based on code from Curtis Dutton, inspired by vfs11_vfd.c in linuxcnc
+
+  Copyright (C) 2021 Jan Roters
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation, version 2.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this program; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301-1307  USA.
+
+  see 'man pi500_vfd' and the PI500 section in the Drivers manual.
+*/
+#include<stdio.h>
+#include<errno.h>
+#include<getopt.h>
+#include<stdbool.h>
+#include<math.h>
+#include<modbus.h>
+#include<unistd.h>
+#include<ctype.h>
+
+typedef struct
+{
+        uint8_t running;
+        uint8_t ready;
+        uint8_t at_speed;
+        uint8_t alarm;
+		float output_current;
+		float sink_temp;
+        uint16_t frequency;
+        uint8_t freq_two_digits;
+} pi500_status;
+
+/*sets the operating frequency of the vfd*/
+bool pi500_setFrequency(modbus_t* ctx, uint16_t frequency) {
+        return modbus_write_register(ctx, 0xF001, frequency) > 0;
+}
+
+/*resets the trip status of the VFD*/
+bool pi500_reset(modbus_t* ctx)
+{
+        /*after the reset, the pi500 vfd seem to need a second
+        before it will reply to more modbus commands*/
+        int rc = modbus_write_register(ctx, 0x2000, 7);
+
+        sleep(1);
+
+        return rc > 0;
+}
+
+/*bool pi500_trip(modbus_t* ctx)
+{
+        return modbus_write_bit(ctx, 0x002, TRUE) > 0;
+}*/
+
+bool pi500_run(modbus_t* ctx, bool runBit)
+{
+		uint16_t status = (runBit ? 1 : 6);
+        return modbus_write_register(ctx, 0x2000, status) > 0;
+}
+
+
+bool pi500_getStatus(modbus_t* ctx, pi500_status* status)
+{
+	uint16_t running;
+	uint16_t speed_setting;
+	uint16_t two_digits;
+	uint16_t status_params[8];
+	uint16_t error_msg;
+
+	// read current speed set (register 0xF001)
+	if (modbus_read_registers(ctx, 0xF001, 1, &speed_setting) < 0) {
+		return false;
+	}
+	
+	if (modbus_read_registers(ctx, 0xF002, 1, &two_digits) < 0) {
+		return false;
+	}
+
+	// read run status (register 0x3000)
+	if (modbus_read_registers(ctx, 0x3000, 1, &running) < 0) {
+		return false;
+	}
+
+	// read other status flags (register 0x1000 following)
+	if (modbus_read_registers(ctx, 0x1000, 8, status_params) < 0) {
+		return false;
+	}
+	
+	// read error status (register 0x8000)
+	if (modbus_read_registers(ctx, 0x8000, 1, &error_msg) < 0) {
+		return false;
+	}
+		
+	status->running = (running == 1 || running == 2);
+	status->ready = (running == 3);
+	status->alarm = (error_msg != 0);
+	status->at_speed = 0;
+	status->frequency = status_params[1];
+	status->output_current = status_params[4];
+	status->sink_temp = 0;
+	status->freq_two_digits = (two_digits == 2);
+
+	return true;
+}
+
+void print_modbus_error(struct __comp_state *__comp_inst, const char* msg)
+{
+	fprintf(stderr, 
+		"Error: pi500_vfd slave(%d): %s - Modbus error (%d) -  %s\n",
+		mbslaveaddr,
+		msg,
+		errno,
+		modbus_strerror(errno));
+}
+
+
+/* modbus connection settings*/
+char *device = "/dev/ttyS0";
+int baud = 9600;
+char parity = 'N';
+int data_bits = 8;
+int stop_bits = 1;
+modbus_t *ctx;
+
+void userinit(int argc, char **argv)
+{
+	int opt_index = 0;
+	int c = 0;
+
+	static struct option options[] = {
+		{"baud",   required_argument, 0, 0 },
+		{"parity", required_argument, 0, 0 },
+		{"databits", required_argument, 0, 0 },
+		{"stopbits", required_argument, 0, 0 },
+		{"device", required_argument, 0, 0 },
+		{0, 0, 0, 0}
+	};	
+
+	while(1) {
+		c = getopt_long(argc, argv, "", options, &opt_index);
+
+		if(c == -1)
+			break;
+
+		switch(opt_index) {
+			case 0:
+				baud = atoi(optarg);
+
+				if(baud == 0)
+				{
+					fprintf(stderr, 
+						"Invalid argument: baud must be a number. Given '%s'\n", 
+						optarg);
+					exit(1);
+				}
+				break;
+
+			case 1:
+				parity = toupper(optarg[0]);
+
+				if(parity != 'E' && parity != 'O' && parity != 'N')
+				{
+					fprintf(stderr, 
+						"Invalid argument: parity must be 'e', 'o' or 'n'. Given '%s'\n", 
+						optarg);
+					exit(1);
+				}
+				break;
+
+			case 2:
+				data_bits = atoi(optarg);
+
+				if(data_bits == 0)
+				{
+					fprintf(stderr, 
+						"Invalid argument: databits must be a number. Given '%s'\n", 
+						optarg);
+					exit(1);
+				}
+				break;
+
+			case 3:
+				stop_bits = atoi(optarg);
+		
+				if(stop_bits == 0)
+				{
+					fprintf(stderr, 
+						"Invalid argument: stopbits must be a number. Given '%s'\n", 
+						optarg);
+					exit(1);
+				}
+				break;
+			case 4:
+				device = optarg;
+				break;
+
+
+			default:
+                fprintf(stderr, "internal error: invalid option index!\n");
+				exit(1);
+		}
+
+	}
+
+        if (optind < argc) {
+            fprintf(stderr, "WARNING: unhandled arguments to pi500_vfd driver:\n");
+            for (int i = optind; i < argc; i ++) {
+                fprintf(stderr, "    %s\n", argv[i]);
+            }
+        }
+
+	ctx = modbus_new_rtu(device, baud, parity, data_bits, stop_bits);
+
+	if (ctx == NULL) {
+		fprintf(stderr, 
+			"ERROR: pi500_vfd unable to create libmodbus context. - %s\n", 
+			modbus_strerror(errno));
+		fprintf(stderr, "Check your commandline!\n");
+		exit(1);	
+	}
+		
+	if (modbus_connect(ctx)) {
+		fprintf(stderr, 
+			"ERROR: pi500_vfd unable to create libmodbus connection. - %s\n", 
+			modbus_strerror(errno));
+		exit(1);
+	}
+}
+
+void user_mainloop(void) {
+	pi500_status status;
+	uint16_t calculated_frequency;
+
+	while(1) {
+	FOR_ALL_INSTS() {
+		/*
+                  until the params are set we just wait a bit
+		  and then skip to the next instance.
+
+		  if every instance does not get a slave address,
+                  this could cause bad behavior
+		*/
+		if(mbslaveaddr == 0) {
+			sleep(1);
+			continue; 
+		}
+
+		modbus_set_slave(ctx, mbslaveaddr);
+
+		/*
+                  for each slave, receive info from the slave,
+		  update our output pins based upon vfd status,
+		  then set the vfd according to our input pins
+
+		  if we hit an error we just re-loop. The watchdog
+		  pin won't change until we make it all the way through
+		  the loop.
+                */
+		if(!pi500_getStatus(ctx, &status)) {	
+			print_modbus_error(__comp_inst, "failed to get status");
+			continue;
+		}
+
+		is_running = status.running;
+		is_ready = status.ready;
+		is_alarm = status.alarm;
+
+		if(!status.alarm && !enable) { //  && !pi500_trip(ctx)
+			print_modbus_error(__comp_inst, "failed to trip");
+			continue;
+		}
+		else if(status.alarm && enable && !pi500_reset(ctx)) {
+			print_modbus_error(__comp_inst, "failed to reset");
+			continue;
+		}
+		else {
+			calculated_frequency = (uint16_t)(fabs(commanded_frequency) * 10 * (status.freq_two_digits ? 10 : 1));
+
+			is_at_speed = (commanded_frequency > 0 && calculated_frequency == status.frequency ? 1 : 0);
+			
+			if(commanded_frequency > 0 
+				&& calculated_frequency != status.frequency 
+				&& !pi500_setFrequency(ctx, calculated_frequency)) {
+				
+				print_modbus_error(__comp_inst, "failed to set frequency");
+				continue;
+			}
+			
+			if(status.running ^ run && !pi500_run(ctx, run)) {
+				print_modbus_error(__comp_inst, "failed to run");
+				continue;
+			}
+
+			watchdog_out = !watchdog_out;
+			motor_current = status.output_current / 100;
+			heatsink_temp = status.sink_temp / 10;
+		}
+	}
+	}
+}

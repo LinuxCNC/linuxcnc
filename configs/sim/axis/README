@@ -6,8 +6,6 @@ axis.ini             basic demo (in)
 axis_9axis.ini       9 axes
 axis_mm.ini          basic demo (mm)
 canterp.ini          demo for a non-gcode interpreter
-gantry.ini           gantry demo
-gantry_mm.ini        gantry demo (mm)
 histogram_demo.ini   hal-histogram examples
 historical_lathe.ini configured with 3 joints (XYZ with Y unused)
 ini_hal_demo.ini     ini hal pins demo

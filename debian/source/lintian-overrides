@@ -1,0 +1,5 @@
+# False positive - python3 is invoked in d/rules.
+linuxcnc source: python3-depends-but-no-python3-helper linuxcnc-uspace linuxcnc-uspace-dev
+
+# For the early versions of debhelper (<10) this is not unnecessary
+linuxcnc source: debian-rules-uses-unnecessary-dh-argument dh ... --parallel (line 32)

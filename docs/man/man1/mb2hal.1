@@ -1,4 +1,8 @@
-.\" Copyright (c) 2016 John Thornton <bjt128@gmail.com>
+.\" Copyright (c) 2016 Victor Rocco <victor_rocco AT hotmail DOT com>
+.\"
+.\" Victor Rocco, adapted from Les Newell's modbuscomms.c which is
+.\" Copyright (C) 2009-2012 Les Newell <les@sheetcam.com>
+.\" source code in http://wiki.linuxcnc.org/cgi-bin/wiki.pl?ContributedComponents
 .\"
 .\" This is free documentation; you can redistribute it and/or
 .\" modify it under the terms of the GNU General Public License as
@@ -22,19 +26,88 @@
 .\"
 .\"
 .\"
-.TH mb2hal "1" "January 1, 2016" "Modbus to HAL" "LinuxCNC Documentation"
+.TH mb2hal "1" "November 20, 2021" "Modbus to HAL" "LinuxCNC Documentation"
 .SH NAME
 \fBmb2hal\fR - HAL userspace component for Modbus
 .SH SYNOPSIS
-.B mb2hal
-.RI [OPTIONS]
+.TP
+Default component name:
+loadusr -W mb2hal config=config_file.ini
+.TP
+Custom component name: 
+loadusr -Wn mymodule mb2hal config=config_file.ini
+
 .br
 .SH DESCRIPTION
 MB2HAL is a generic userspace HAL component to communicate with one or more
-Modbus devices.
+Modbus devices. It supoorts Modbus RTU and Modbus TCP.
+
 .PP
-See the Documents for more information on mb2hal
+See 
+.UR http://linuxcnc.org/docs/html/drivers/mb2hal.html 
+.UE
+for more information.
+
+.SH PINS
+
+.SS fnct_01_read_coils:
+.TP
+.B mb2hal.m.n.bit\fR bit out
+.TQ
+.B mb2hal.m.n.bit-inv\fR bit out
+.SS fnct_02_read_discrete_inputs:
+.TP
+.B mb2hal.m.n.bit\fR bit out
+.TQ
+.B mb2hal.m.n.bit-inv\fR bit out
+.SS fnct_03_read_holding_registers:
+.TP
+.B mb2hal.m.n.float\fR float out
+.TQ
+.B mb2hal.m.n.int\fR s32 out
+.SS fnct_04_read_input_registers:
+.TP
+.B mb2hal.m.n.float\fR float out
+.TQ
+.B mb2hal.m.n.int\fR s32 out
+.SS fnct_05_write_single_coil:
+.TP
+.B mb2hal.m.n.bit\fR bit in
+ NELEMENTS needs to be 1 or PIN_NAMES must contain just one name.
+.SS fnct_06_write_single_register:
+.TP
+.B mb2hal.m.n.float\fR float in
+.TQ
+.B mb2hal.m.n.int\fR s32 in
+NELEMENTS needs to be 1 or PIN_NAMES must contain just one name.
+Both pin values are added and limited to 65535 (UINT16_MAX). Use one and let the other open (read as 0).
+.SS fnct_15_write_multiple_coils:
+.TP
+.B mb2hal.m.n.bit\fR bit in
+.SS fnct_16_write_multiple_registers:
+.TP
+.B mb2hal.m.n.float\fR float in
+.TQ
+.B mb2hal.m.n.int\fR s32 in
+Both pin values are added and limited to 65535 (UINT16_MAX). Use one and let the other open (read as 0).
+.RE
+
+.SS Each transaction
+.TQ
+.B mb2hal.m.num_errors\fR u32 in
+Error counter
+.RE
+
+.br
+m = HAL_TX_NAME or transaction number if not set, n = element number (NELEMENTS) 
+.br
+Example: 
+.br
+mb2hal.00.01.<type> (transaction=00, second register=01 (00 is the first one))
+.br
+mb2hal.TxName.01.<type> (HAL_TX_NAME=TxName, second register=01 (00 is the first one))
+
 .SH AUTHOR
-John Thornton
+Victor Rocco
 .SH LICENSE
 GPL

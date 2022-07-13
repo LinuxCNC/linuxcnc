@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # vim: sts=4 sw=4 et
 # GladeVcp actions
 #
@@ -14,37 +14,53 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+
+# Norberts comments
+# self.gstat ist nirgends festgelegt, auch wenn GStat importiert wurde
+
+
+
 import os, time
 
-import gobject, gtk
+import gi
+gi.require_version("Gtk","3.0")
+gi.require_version("Gdk","3.0")
+gi.require_version("GtkSource","3.0")
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import GObject
+from gi.repository import GtkSource
+from gi.repository import GLib
 
-from hal_widgets import _HalWidgetBase
+from .hal_widgets import _HalWidgetBase
 import linuxcnc
 from hal_glib import GStat
-from hal_actions import _EMC_ActionBase, _EMC_Action
-from hal_filechooser import _EMC_FileChooser
+from .hal_actions import _EMC_ActionBase, _EMC_Action
+from .hal_filechooser import _EMC_FileChooser
 
-import gtksourceview2 as gtksourceview
-
-class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
+class EMC_SourceView(GtkSource.View, _EMC_ActionBase):
     __gtype_name__ = 'EMC_SourceView'
+    __gsignals__ = {
+        'changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+    }
+
     __gproperties__ = {
-        'idle_line_reset' : ( gobject.TYPE_BOOLEAN, 'Reset Line Number when idle', 'Sets line number back to 0 when code is not running or paused',
-                    True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT)
+        'idle_line_reset' : ( GObject.TYPE_BOOLEAN, 'Reset Line Number when idle', 'Sets line number back to 0 when code is not running or paused',
+                    True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT)
     }
     def __init__(self, *a, **kw):
-        gtksourceview.View.__init__(self, *a, **kw)
+        GtkSource.View.__init__(self, *a, **kw)
         self.filename = None
         self.mark = None
         self.offset = 0
         self.program_length = 0
         self.idle_line_reset = True
-        self.buf = gtksourceview.Buffer()
+        self.buf = self.get_buffer()
         self.buf.set_max_undo_levels(20)
         self.buf.connect('changed', self.update_iter)
-        self.set_buffer(self.buf)
-        self.lm = gtksourceview.LanguageManager()
-        self.sm = gtksourceview.StyleSchemeManager()
+        self.buf.connect('modified-changed', self.modified_changed)
+        self.lm = GtkSource.LanguageManager()
+        self.sm = GtkSource.StyleSchemeManager()
         if 'EMC2_HOME' in os.environ:
             path = os.path.join(os.environ['EMC2_HOME'], 'share/gtksourceview-2.0/language-specs/')
             self.lm.set_search_path(self.lm.get_search_path() + [path])
@@ -53,26 +69,25 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         self.set_show_line_numbers(True)
         self.set_show_line_marks(True)
         self.set_highlight_current_line(True)
-        # This gets the 'selected text' color
-        # This is before the widget is realized so gives the system theme color
-        style = self.get_style()
-        selected_color = style.base[gtk.STATE_SELECTED].to_string()
 
-        self.set_mark_category_icon_from_icon_name('motion', 'gtk-forward')
-        self.set_mark_category_background('motion', gtk.gdk.Color(selected_color))
+        self.add_mark_category('error', '#ff7373')
+        self.add_mark_category('motion', '#c5c5c5')
+        self.add_mark_category('selected', '#96fef6')
 
-        self.found_text_tag = self.buf.create_tag(background = selected_color)
-        self.update_iter()
+        #TODO: how to set property background? but seems to work ok regardless.
+        # --> with 
+        # self.buf.create_tag(background_rgba=Gdk.RGBA(0.0, 0.0, 1.0, 1.0), 
+        #               background_set=True), but seems not to have any impact
+        self.found_text_tag = self.buf.create_tag()
+
         self.connect('button-release-event', self.button_pressed)
-        self.connect('realize', self.change_style)
 
-    def change_style(self, *a):
-        # This gets us the 'selected text' color after the theme is selected
-        style= self.get_style()
-        selected_color = style.base[gtk.STATE_SELECTED].to_string()
-        #print "- text",style.base[gtk.STATE_SELECTED].to_string()
-        self.set_mark_category_background('motion', gtk.gdk.Color(selected_color))
-        self.found_text_tag.set_property('background',selected_color)
+    def add_mark_category(self, category, bg_color):
+        att = GtkSource.MarkAttributes()
+        color = Gdk.RGBA()
+        color.parse(bg_color)
+        att.set_background(color)
+        self.set_mark_attributes(category, att, 1)
 
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
@@ -90,13 +105,13 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
 
     def _hal_init(self):
         _EMC_ActionBase._hal_init(self)
-        self.gstat.connect('file-loaded', lambda w, f: gobject.timeout_add(1, self.load_file, f))
+        self.gstat.connect('file-loaded', lambda w, f: GLib.timeout_add(1, self.load_file, f))
         self.gstat.connect('line-changed', self.highlight_line)
         if self.idle_line_reset:
             self.gstat.connect('interp_idle', lambda w: self.set_line_number(0))
 
     def set_language(self, lang, path = None):
-        # path = the search path for the langauage file
+        # path = the search path for the language file
         # if none, set to default
         # lang = the lang file to set
         if path == None:
@@ -117,8 +132,8 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
     # This load the file while not allowing undo buttons to unload the program.
     # It updates the iter because iters become invalid when anything changes.
     # We set the buffer-unmodified flag false after loading the file.
-    # Set the hilight line to the line linuxcnc is looking at.
-    # if one calls load_file without a filenname, We reload the exisiting file.
+    # Set the highlight line to the line linuxcnc is looking at.
+    # if one calls load_file without a filename, We reload the existing file.
     def load_file(self, fn=None):
         self.buf.begin_not_undoable_action()
         if fn == None:
@@ -133,7 +148,7 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         self.update_iter()
         self.highlight_line(self.gstat, self.gstat.stat.motion_line)
         self.offset = self.gstat.stat.motion_line
-        f = file(fn, 'r')
+        f = open(fn, 'r')
         p = f.readlines()
         f.close()
         self.program_length = len(p)
@@ -193,10 +208,15 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
     def update_iter(self,widget=None):
         self.start_iter =  self.buf.get_start_iter()
         self.end_iter = self.buf.get_end_iter()
+        # get iter at current insertion point (cursor)
         self.current_iter = self.buf.get_iter_at_mark(self.buf.get_insert())
         self.match_start = self.match_end = None
         start, end = self.buf.get_bounds()
         self.buf.remove_tag(self.found_text_tag, start, end)
+
+    def modified_changed(self, widget):
+        self.update_iter()
+        self.emit("changed", self.buf.get_modified())
 
     # This will search the buffer for a specified text string.
     # You can search forward or back, with mixed case or exact text.
@@ -204,20 +224,28 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
     # This will grab focus and set the cursor active, while highlighting the line.
     # It automatically scrolls if it must.
     # it primes self.match_start for replacing text 
-    def text_search(self,direction=True,mixed_case=True,text="t"):
+    def text_search(self,direction=True,mixed_case=True,text="t",wrap=True):
         CASEFLAG = 0
         if mixed_case:
-            CASEFLAG = gtksourceview.SEARCH_CASE_INSENSITIVE
+            CASEFLAG = Gtk.TextSearchFlags.CASE_INSENSITIVE
+        if self.buf.get_selection_bounds():
+            start, end = self.buf.get_selection_bounds()
+            if direction:
+                self.current_iter = end
+            else:
+                self.current_iter = start
         if direction:
-            if self.current_iter.is_end():
+            found = Gtk.TextIter.forward_search(self.current_iter,text,CASEFLAG, None)
+            if not found and wrap:                 
                 self.current_iter = self.start_iter.copy()
-            found = gtksourceview.iter_forward_search(self.current_iter,text,CASEFLAG, None)
+                found = Gtk.TextIter.forward_search(self.current_iter,text,CASEFLAG, None)
         else:
-            if self.current_iter.is_start():
+            found = Gtk.TextIter.backward_search(self.current_iter,text,CASEFLAG, None)
+            if not found and wrap:
                 self.current_iter = self.end_iter.copy()
-            found = gtksourceview.iter_backward_search(self.current_iter,text,CASEFLAG, None)
+                found = Gtk.TextIter.backward_search(self.current_iter,text,CASEFLAG, None)
         if found:
-            # erase any existing hilighting tags
+            # erase any existing highlighting tags
             try:
                 self.buf.remove_tag(self.found_text_tag, self.match_start, self.match_end)
             except:
@@ -233,8 +261,6 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
             self.scroll_to_iter(self.match_start, 0, True, 0, 0.5)
 
         else:
-            self.current_iter = self.start_iter.copy()
-
             self.match_start = self.match_end = None
 
     # check if we already have a match
@@ -244,17 +270,20 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
     # if we have gone to the end, stop searching
     # if not replace-all stop searching, otherwise start again
     def replace_text_search(self,direction=True,mixed_case=True,text="t",re_text="T",replace_all=False):
-        while True:
+        if not replace_all:
             if self.match_start:
-                if replace_all:
+                self.buf.delete_interactive(self.match_start, self.match_end,True)
+                self.buf.insert_interactive_at_cursor(re_text,-1,True)
+            self.text_search(direction,mixed_case,text)
+        else:
+            self.current_iter = self.buf.get_start_iter()
+            while True:
+                self.text_search(direction,mixed_case,text,False)
+                if self.match_start:
                     self.buf.delete(self.match_start, self.match_end)
                     self.buf.insert_at_cursor(re_text)
                 else:
-                    self.buf.delete_interactive(self.match_start, self.match_end,True)
-                    self.buf.insert_interactive_at_cursor(re_text,True)
-            self.text_search(direction,mixed_case,text)
-            if self.current_iter.is_start(): break
-            if not replace_all: break
+                    break
 
     # undo one level of changes
     def undo(self):
@@ -266,11 +295,11 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         if self.buf.can_redo():
             self.buf.redo()
 
-def safe_write(filename, data, mode=0644):
+def safe_write(filename, data, mode=0o644):
     import os, tempfile
     fd, fn = tempfile.mkstemp(dir=os.path.dirname(filename), prefix=os.path.basename(filename))
     try:
-        os.write(fd, data)
+        os.write(fd, data.encode())
         os.close(fd)
         fd = None
         os.rename(fn, filename)
@@ -284,7 +313,7 @@ def safe_write(filename, data, mode=0644):
 class EMC_Action_Save(_EMC_Action, _EMC_FileChooser):
     __gtype_name__ = 'EMC_Action_Save'
     __gproperties__ = { 'textview' : (EMC_SourceView.__gtype__, 'Textview',
-                    "Corresponding textview widget", gobject.PARAM_READWRITE),
+                    "Corresponding textview widget", GObject.ParamFlags.READWRITE),
     }
     def __init__(self, *a, **kw):
         _EMC_Action.__init__(self, *a, **kw)
@@ -301,7 +330,7 @@ class EMC_Action_Save(_EMC_Action, _EMC_FileChooser):
     def save(self, fn):
         b = self.textview.get_buffer()
         b.set_modified(False)
-        safe_write(fn, b.get_text(b.get_start_iter(), b.get_end_iter()))
+        safe_write(fn, b.get_text(b.get_start_iter(), b.get_end_iter(), False))
         self._load_file(fn)
 
     def do_set_property(self, property, value):
@@ -321,6 +350,9 @@ class EMC_Action_Save(_EMC_Action, _EMC_FileChooser):
 
 class EMC_Action_SaveAs(EMC_Action_Save):
     __gtype_name__ = 'EMC_Action_SaveAs'
+    __gsignals__ = {
+        'saved-as': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
+    }
 
     def __init__(self, *a, **kw):
         _EMC_Action.__init__(self, *a, **kw)
@@ -330,8 +362,8 @@ class EMC_Action_SaveAs(EMC_Action_Save):
     def on_activate(self, w):
         if not self.textview:
             return
-        dialog = gtk.FileChooserDialog(title="Save As",action=gtk.FILE_CHOOSER_ACTION_SAVE,
-                    buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_SAVE,gtk.RESPONSE_OK))
+        dialog = Gtk.FileChooserDialog(title="Save As",action=Gtk.FileChooserAction.SAVE,
+                    buttons=(Gtk.STOCK_CANCEL,Gtk.ResponseType.CANCEL,Gtk.STOCK_SAVE,Gtk.ResponseType.OK))
         dialog.set_do_overwrite_confirmation(True)
         dialog.set_current_folder(self.currentfolder)
         if self.textview.filename:
@@ -340,6 +372,7 @@ class EMC_Action_SaveAs(EMC_Action_Save):
         r = dialog.run()
         fn = dialog.get_filename()
         dialog.destroy()
-        if r == gtk.RESPONSE_OK:
+        if r == Gtk.ResponseType.OK:
             self.save(fn)
             self.currentfolder = os.path.dirname(fn)
+            self.emit('saved-as')

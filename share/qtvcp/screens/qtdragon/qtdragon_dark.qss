@@ -1,0 +1,453 @@
+QMainWindow {
+/*    background: url(images/brushed_metal.png);*/
+    background: #404040;
+}
+
+QStatusBar {
+    background-color: red;
+    font: 10pt "Lato Heavy";
+    color: black;
+}
+
+QPushButton,
+ActionButton,
+SystemToolButton,
+AxisToolButton,
+QToolButton {
+    background: qlineargradient(spread:reflect, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(120, 140, 180, 255),  stop:0.3 rgba(11, 22, 33, 255));
+    border: 1px solid brown;
+    border-radius: 4px;
+    font: 10pt "Lato Heavy";
+    color: white;
+}
+
+QToolButton:checked,
+QToolButton:pressed {
+    border-color: #00FF00;
+    color: #00FF00;
+}
+
+QPushButton:checked,
+QPushButton:pressed {
+    border-color: #00FF00;
+    color: #00FF00;
+}
+
+QPushButton:hover,
+ActionButton:hover,
+SystemToolButton:hover,
+AxisToolButton:hover {
+    border: 1px solid #00FF00;
+}
+
+QPushButton:disabled,
+ActionButton:disabled,
+AxisToolButton:disabled,
+SystemToolButton:disabled {
+    color: gray;
+}
+
+ActionButton#action_machine_on {
+/*    border: none;*/
+    color: #FF0000;
+}
+
+ActionButton#action_machine_on[isStateOn=true] {
+    color: #00FF00;
+}
+
+ActionButton#action_estop {
+    border-color: #00FF00;
+    color: #00FF00;
+}
+
+ActionButton#action_estop:checked {
+    border-color: #FF0000;
+    color: #FF0000;
+}
+
+QLabel {
+    font: 10pt "Lato Heavy";
+    color: white;
+}
+
+DROLabel, 
+QLabel#label_axis_x,
+QLabel#label_axis_y,
+QLabel#label_axis_z,
+QLabel#label_axis_a {
+    background: qlineargradient(spread:reflect, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(120, 140, 180, 255),  stop:0.3 rgba(11, 22, 33, 255));
+    border: 1px solid black;
+    border-radius: 4px;
+    font: 20pt "Lato Heavy";
+    color: #00FF00;
+}
+
+DROLabel[isHomed=false] {
+    color: red;
+}
+
+QLabel#lbl_cycle_start,
+QLabel#lbl_home_all {
+    font: 10pt "Lato Heavy";
+    color: white;
+}
+
+StatusLabel, StateLabel {
+    background: black;
+    border: 1px solid gray;
+    border-radius: 4px;
+    font: 10pt "Lato Heavy";
+    color: white;
+}
+
+QLineEdit {
+    background: black;
+    border: 1px solid gray;
+    border-radius: 4px;
+    font: 10pt "Lato Heavy";
+    color:white;
+}
+
+CalculatorDialog QLineEdit {
+    font: 16pt "Lato Heavy";
+}
+
+QLineEdit#mdiline{
+    background:  white;
+    color: black;
+}
+QLineEdit#lineEdit_statusbar{
+    background:  #404040;
+    color:  #00FF00;
+}
+
+QTextEdit {
+    background: rgb(250,250,250);
+    font: 10pt "Lato";
+}
+
+QCheckBox {
+    font: 10pt "Lato Heavy";
+    color: white;
+    margin: 4px;
+}
+
+QCheckBox::disabled {
+    height: 14px;
+    width: 14px;
+}
+
+QCheckBox::indicator:checked {
+    image: url(:/buttons/images/checked.png);
+    background-color: #404040;
+    height: 14px;
+    width: 14px;
+}
+
+QCheckBox::indicator:unchecked {
+    image: url(:/buttons/images/unchecked.png);
+    background-color: white;
+    height: 14px;
+    width: 14px;
+}
+
+QComboBox {
+    background: qlineargradient(spread:reflect, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(120, 140, 180, 255),  stop:0.3 rgba(11, 22, 33, 255));
+    border: 1px solid black;
+    padding-left: 4px;
+    padding-right: 4px;
+    min-width: 100px;
+    font: 10pt "Lato Heavy";
+    color: white;    
+}
+
+QComboBox QAbstractItemView {
+    background-color: #404040;
+    color: white;
+}
+
+QComboBox:drop-down {
+    subcontrol-origin: margin;
+    subcontrol-position: top right;
+    width: 20px;
+}
+
+QComboBox::item {
+    background-color: #404040;
+    font: 10pt "Lato Heavy";
+    color: white;
+}
+
+QComboBox::item:selected {
+    background-color: #303030;
+    color: #00FF00;
+}
+
+QComboBox::Indicator {
+    background-color: transparent;
+    color: transparent;
+}
+
+QGroupBox {
+    border: 1px solid black;
+    border-radius: 4px;
+    margin-top: 16px;
+    font: 10pt "Lato Heavy";
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    padding: 0 3px;
+    color: black;
+}
+
+QProgressBar {
+    background-color: rgb(250, 250, 250);
+    border: 1px solid black;
+    border-radius: 4px;
+    font: 9 pt "Lato Heavy";
+}
+
+QProgressBar::chunk {
+    background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,
+    stop: 0 #bbf, stop: 1 #55f);
+}
+
+.QFrame {
+    background: #505050;
+    border: 1px solid orange;
+}
+
+QFrame#frame_cycle_start,
+QFrame#frame_home_all {
+    background: qlineargradient(spread:reflect, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(120, 140, 180, 255),  stop:0.3 rgba(11, 22, 33, 255));
+    border: 1px solid black;
+    border-radius: 4px;
+    font: 10pt "Lato Heavy";
+    color: white;
+}
+
+QFrame#frame_cycle_start:hover,
+QFrame#frame_home_all:hover {
+    border: 1px solid #00FF00;
+}
+
+QHeaderView {
+    background-color: #B0B0D0;
+    border: 0px transparent #32414B;
+    padding: 0px;
+    margin: 0px;
+    border-radius: 0px;
+    font: 10pt "Lato Heavy";
+}
+
+QHeaderView::section::vertical::first,
+QHeaderView::section::vertical::only-one {
+    width: 60px;
+}
+
+OriginOffsetView, ToolOffsetView {
+    font: 10pt "Lato Heavy";
+}
+
+QSlider::groove:horizontal {
+    background: white;
+    height: 12px;
+    border-radius: 4px;
+}
+
+QSlider::groove:vertical {
+    background: white;
+    width: 12px;
+    border-radius: 4px;
+}
+
+QSlider::sub-page:horizontal {
+    background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1, stop: 0 #bbf, stop: 1 #55f);
+    border: 1px solid black;
+    height: 10px;
+    border-radius: 4px;
+}
+
+QSlider::sub-page:vertical {
+    background: white;
+    border: 1px solid black;
+    width: 10px;
+    border-radius: 4px;
+}
+
+QSlider::add-page:horizontal {
+    background: #fff;
+    border: 1px solid black;
+    height: 10px;
+    border-radius: 4px;
+}
+
+QSlider::add-page:vertical {
+    background: qlineargradient(x1: 0, y1: 0,    x2: 0, y2: 1, stop: 0 #66e, stop: 1 #bbf);
+    border: 1px solid black;
+    width: 10px;
+    border-radius: 4px;
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #eee, stop:1 #ccc);
+    border: 1px solid black;
+    width: 14px;
+    margin-top: -4px;
+    margin-bottom: -4px;
+    border-radius: 4px;
+}
+
+QSlider::handle:vertical {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #eee, stop:1 #ccc);
+    border: 1px solid black;
+    height: 14px;
+    margin-left: -4px;
+    margin-right: -4px;
+    border-radius: 4px;
+}
+
+QSlider::handle:horizontal:hover, QSlider::handle:vertical:hover  {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #fff, stop:1 #ddd);
+    border: 1px solid #444;
+    border-radius: 4px;
+}
+
+QSlider::sub-page:horizontal:disabled, QSlider::sub-page:vertical:disabled {
+    background: #bbb;
+    border-color: #999;
+}
+
+QSlider::add-page:horizontal:disabled,
+QSlider::add-page:vertical:disabled{
+    background: #eee;
+    border-color: #999;
+}
+
+QSlider::handle:horizontal:disabled,
+QSlider::handle:vertical:disabled{
+    background: #eee;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+}
+
+/* warning colors for overrides if out of normal range*/
+
+    #slider_spindle_ovr[alertState='over'] {
+        background: red;
+    }
+    #slider_feed_ovr[alertState='over'] {
+        background: red;
+    }
+    #slider_feed_ovr[alertState='under'] {
+        background: yellow;
+    }
+
+QDialog,
+LcncDialog,
+ToolDialog,
+CloseDialog,
+EntryDialog,
+CalculatorDialog {
+background-color: gray;
+}
+
+LcncDialog QPushButton,
+ToolDialog QPushButton {
+    width: 100px;
+    height: 40px;
+}
+
+RunFromLineDialog QPushButton,
+CalculatorDialog QPushButton,
+EntryDialog QPushButton,
+CloseDialog QPushButton {
+    width: 80px;
+    height: 40px;
+}
+
+
+QMenu {
+    background-color: #ABABAB; /* sets background of the menu */
+    border: 1px solid black;
+}
+
+QMenu::item {
+    /* sets background of menu item. set this to something non-transparent
+        if you want menu color and menu item color to be different */
+    background-color: gray;
+}
+
+QMenu::item:selected { /* when user selects item using mouse or keyboard */
+    background-color: darkblue;
+}
+
+QHeaderView::section {
+    background-color:  foregnd;
+    color: white;
+    border: 1px solid #6c6c6c;
+}
+
+QSpinBox {
+    padding-right: 15px; /* make room for the arrows */
+    border-width: 3px;
+    height: 40px;
+}
+
+QSpinBox::down-button {
+    width: 20px;
+    height: 20px;
+}
+
+QSpinBox::down-arrow {
+    width: 20px;
+    height: 20px;
+}
+
+QSpinBox::up-button {
+    width: 20px;
+    height: 20px;
+}
+
+QSpinBox::up-arrow {
+    width: 20px;
+    height: 20px;
+}
+/** Tab Widget **/
+QTabWidget::pane {
+  border: 1px solid gray;
+  top:-1px; 
+      background: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #606060, stop:1 #202020);
+}
+
+/* Style the tab using the tab sub-control. Note that
+    it reads QTabBar _not_ QTabWidget */
+QTabBar::tab {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                stop: 0 #E1E1E1, stop: 0.4 #DDDDDD,
+                                stop: 0.5 #D8D8D8, stop: 1.0 #D3D3D3);
+    border: 2px solid black;
+    border-bottom-color: black; /* same as the pane color */
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    min-width: 8ex;
+    min-height: 3.5ex;
+    padding: 2px;
+}
+
+QTabBar::tab:selected, QTabBar::tab:hover {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                stop: 0 #fafafa, stop: 0.4 #f4f4f4,
+                                stop: 0.5 #e7e7e7, stop: 1.0 #fafafa);
+}
+
+QTabBar::tab:selected {
+    border-color: #00FF00;
+    border-bottom-color: #00FF00;; /* same as pane color */
+}
+
+QTabBar::tab:!selected {
+    margin-top: 2px; /* make non-selected tabs look smaller */
+}

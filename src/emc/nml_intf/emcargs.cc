@@ -19,6 +19,7 @@
 #include "emcglb.h"		/* these decls */
 #include "emccfg.h"		/* their initial values */
 #include "rcs_print.hh"
+#include <rtapi_string.h>
 
 int emcGetArgs(int argc, char *argv[])
 {
@@ -35,7 +36,7 @@ int emcGetArgs(int argc, char *argv[])
                     fprintf(stderr, "    %s\n", argv[t+1]);
                     return -1;
                 }
-		strcpy(emc_inifile, argv[t + 1]);
+		rtapi_strxcpy(emc_inifile, argv[t + 1]);
 		t++;
 	    }
 	    continue;
@@ -60,7 +61,7 @@ int emcGetArgs(int argc, char *argv[])
 	    nmlSetHostAlias(qhost, "localhost");	/* If localhost
 							   appears in .nml
 							   file it will
-							   overriden by this
+							   overridden by this
 							   argument. */
 	    nmlForceRemoteConnection();
 	    /* The only good reason for aliasing the host that I know of is
@@ -78,7 +79,7 @@ int emcGetArgs(int argc, char *argv[])
 								   appears in 
 								   .nml file
 								   it will
-								   overriden
+								   overridden
 								   by this
 								   argument. */
 		nmlForceRemoteConnection();

@@ -34,6 +34,7 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+#include <rtapi_string.h>
 #include "cms.hh"		/* class CMS */
 #include "cms_cfg.hh"
 
@@ -104,7 +105,7 @@ int load_nml_config_file(const char *file)
 	loading_config_file = 0;
 	return -1;
     }
-    char line[CMS_CONFIG_LINELEN];	/* Temporary buffer for line from
+    char line[LINELEN];	/* Temporary buffer for line from
 					   file. */
 
     CONFIG_FILE_INFO *info = new CONFIG_FILE_INFO();
@@ -122,7 +123,7 @@ int load_nml_config_file(const char *file)
 	return -1;
     }
     while (!feof(fp)) {
-	if ((fgets(line, CMS_CONFIG_LINELEN, fp)) == NULL) {
+	if ((fgets(line, LINELEN, fp)) == NULL) {
 	    break;
 	}
 	int linelen = strlen(line);
@@ -131,11 +132,11 @@ int load_nml_config_file(const char *file)
 	}
 	while (line[linelen - 1] == '\\') {
 	    int pos = linelen - 2;
-	    if ((fgets(line + pos, CMS_CONFIG_LINELEN - pos, fp)) == NULL) {
+	    if ((fgets(line + pos, LINELEN - pos, fp)) == NULL) {
 		break;
 	    }
 	    linelen = strlen(line);
-	    if (linelen > CMS_CONFIG_LINELEN - 2) {
+	    if (linelen > LINELEN - 2) {
 		break;
 	    }
 	}
@@ -301,95 +302,6 @@ int cms_copy(CMS ** dest, CMS * src, int set_to_server, int set_to_master)
 	set_to_server, set_to_master);
 }
 
-extern char *get_buffer_line(const char *bufname, const char *filename)
-{
-    int line_len, line_number;
-    char linebuf[CMS_CONFIG_LINELEN];	/* Temporary buffer for line from
-					   file. */
-    char *line = linebuf;
-    FILE *fp = NULL;		/* FILE ptr to config file.  */
-    char *word[4];		/* array of pointers to words from line */
-
-    /* Open the configuration file. */
-    LinkedList *lines_list = NULL;
-    CONFIG_FILE_INFO *info = get_loaded_nml_config_file(filename);
-    if (NULL != info) {
-	lines_list = info->lines_list;
-	line = (char *) lines_list->get_head();
-    }
-
-    if (NULL == lines_list) {
-	fp = fopen(filename, "r");
-	if (fp == NULL) {
-	    rcs_print_error("cms_config: can't open '%s'. Error = %d -- %s\n",
-		filename, errno, strerror(errno));
-	    loading_config_file = 0;
-	    return NULL;
-	}
-    }
-
-    /* Read the configuration file line by line until the lines matching */
-    /* bufname and procname are found.  */
-    line_number = 0;
-    int first_line = 1;
-
-    while (1) {
-	if (NULL != lines_list) {
-	    if (!first_line) {
-		line = (char *) lines_list->get_next();
-	    }
-	    first_line = 0;
-	    if (NULL == line) {
-		break;
-	    }
-	} else {
-	    if (feof(fp)) {
-		break;
-	    }
-	    if ((fgets(line, CMS_CONFIG_LINELEN, fp)) == NULL) {
-		break;
-	    }
-	}
-
-	line_number++;
-	line_len = strlen(line);
-	while (line[line_len - 1] == '\\') {
-	    int pos = line_len - 2;
-	    if ((fgets(line + pos, CMS_CONFIG_LINELEN - pos, fp)) == NULL) {
-		break;
-	    }
-	    line_len = strlen(line);
-	    if (line_len > CMS_CONFIG_LINELEN - 2) {
-		break;
-	    }
-	    line_number++;
-	}
-	if (line_len > CMS_CONFIG_LINELEN) {
-	    rcs_print_error
-		("cms_cfg: Line length of line number %d in %s exceeds max length of %d",
-		line_number, filename, CMS_CONFIG_LINELEN);
-	}
-
-	/* Skip comment lines and lines starting with white space. */
-	if (line[0] == CMS_CONFIG_COMMENTCHAR ||
-	    strchr(" \t\n\r\0", line[0]) != NULL) {
-	    continue;
-	}
-
-	/* Separate out the first four strings in the line. */
-	if (separate_words(word, 4, line) != 4) {
-	    continue;
-	}
-
-	if (!strcmp(word[1], bufname) && line[0] == 'B') {
-	    /* Buffer line found, store the line and type. */
-	    return line;
-	}
-    }
-    fclose(fp);
-    return NULL;
-}
-
 enum CONFIG_SEARCH_ERROR_TYPE {
     CONFIG_SEARCH_ERROR_NOT_SET,
     CONFIG_SEARCH_OK,
@@ -409,10 +321,10 @@ struct CONFIG_SEARCH_STRUCT {
     const char *bufname_for_procline;
     const char *procname;
     const char *filename;
-    char buffer_line[CMS_CONFIG_LINELEN];	/* Line matching bufname. */
-    char proc_line[CMS_CONFIG_LINELEN];	/* Line matching procname & bufname. */
-    char buffer_type[CMS_CONFIG_LINELEN];	/* "SHMEM" or "GLOBMEM" */
-    char proc_type[CMS_CONFIG_LINELEN];	/* "REMOTE" or "LOCAL" */
+    char buffer_line[LINELEN];	/* Line matching bufname. */
+    char proc_line[LINELEN];	/* Line matching procname & bufname. */
+    char buffer_type[LINELEN];	/* "SHMEM" or "GLOBMEM" */
+    char proc_type[LINELEN];	/* "REMOTE" or "LOCAL" */
 };
 
 void find_proc_and_buffer_lines(CONFIG_SEARCH_STRUCT * s);
@@ -423,8 +335,8 @@ int cms_config(CMS ** cms, const char *bufname, const char *procname, const char
     int set_to_server, int set_to_master)
 {
     CONFIG_SEARCH_STRUCT search;
-    char buf[CMS_CONFIG_LINELEN];
-    char buf2[CMS_CONFIG_LINELEN];
+    char buf[LINELEN];
+    char buf2[LINELEN];
     char *default_ptr = 0;
 
     if (0 == bufname || 0 == procname || 0 == filename) {
@@ -450,16 +362,16 @@ int cms_config(CMS ** cms, const char *bufname, const char *procname, const char
 	find_proc_and_buffer_lines(&search);
 	if (search.error_type == CONFIG_SEARCH_OK) {
 	    default_ptr = 0;
-	    strncpy(buf, search.proc_line, CMS_CONFIG_LINELEN);
+	    strncpy(buf, search.proc_line, LINELEN);
 	    default_ptr = strstr(buf, "default");
 	    if (default_ptr) {
-		strcpy(buf2, default_ptr + 7);
+		rtapi_strxcpy(buf2, default_ptr + 7);
 		strcpy(default_ptr, bufname);
 		default_ptr += strlen(bufname);
 		strcpy(default_ptr, buf2);
-		strncpy(search.proc_line, buf, CMS_CONFIG_LINELEN);
+		strncpy(search.proc_line, buf, LINELEN);
 	    }
-	    strcat(search.proc_line, " defaultbuf");
+	    rtapi_strxcat(search.proc_line, " defaultbuf");
 	}
     }
     if (NO_PROCESS_LINE == search.error_type) {
@@ -467,23 +379,23 @@ int cms_config(CMS ** cms, const char *bufname, const char *procname, const char
 	search.procname = "default";
 	find_proc_and_buffer_lines(&search);
 	if (search.error_type == CONFIG_SEARCH_OK) {
-	    strncpy(buf, search.proc_line, CMS_CONFIG_LINELEN);
+	    strncpy(buf, search.proc_line, LINELEN);
 	    default_ptr = strstr(buf, "default");
 	    if (default_ptr) {
-		strcpy(buf2, default_ptr + 7);
+		rtapi_strxcpy(buf2, default_ptr + 7);
 		strcpy(default_ptr, procname);
 		default_ptr += strlen(procname);
 		strcpy(default_ptr, buf2);
 		default_ptr = strstr(buf, "default");
 	    }
 	    if (default_ptr) {
-		strcpy(buf2, default_ptr + 7);
+		rtapi_strxcpy(buf2, default_ptr + 7);
 		strcpy(default_ptr, bufname);
 		default_ptr += strlen(bufname);
 		strcpy(default_ptr, buf2);
-		strncpy(search.proc_line, buf, CMS_CONFIG_LINELEN);
+		strncpy(search.proc_line, buf, LINELEN);
 	    }
-	    strcat(search.proc_line, " defaultproc defaultbuf");
+	    rtapi_strxcat(search.proc_line, " defaultproc defaultbuf");
 	}
     }
     if (CONFIG_SEARCH_OK == search.error_type) {
@@ -601,7 +513,7 @@ void find_proc_and_buffer_lines(CONFIG_SEARCH_STRUCT * s)
 
     loading_config_file = 1;
     FILE *fp = NULL;		/* FILE ptr to config file.  */
-    char linebuf[CMS_CONFIG_LINELEN];	/* Temporary buffer for line from
+    char linebuf[LINELEN];	/* Temporary buffer for line from
 					   file. */
     char *line = linebuf;
     int line_len, line_number;
@@ -645,7 +557,7 @@ void find_proc_and_buffer_lines(CONFIG_SEARCH_STRUCT * s)
 	    if (feof(fp)) {
 		break;
 	    }
-	    if ((fgets(line, CMS_CONFIG_LINELEN, fp)) == NULL) {
+	    if ((fgets(line, LINELEN, fp)) == NULL) {
 		break;
 	    }
 	}
@@ -657,19 +569,19 @@ void find_proc_and_buffer_lines(CONFIG_SEARCH_STRUCT * s)
 	}
 	while (line[line_len - 1] == '\\') {
 	    int pos = line_len - 2;
-	    if ((fgets(line + pos, CMS_CONFIG_LINELEN - pos, fp)) == NULL) {
+	    if ((fgets(line + pos, LINELEN - pos, fp)) == NULL) {
 		break;
 	    }
 	    line_len = strlen(line);
-	    if (line_len > CMS_CONFIG_LINELEN) {
+	    if (line_len > LINELEN) {
 		break;
 	    }
 	    line_number++;
 	}
-	if (line_len > CMS_CONFIG_LINELEN) {
+	if (line_len > LINELEN) {
 	    rcs_print_error
 		("cms_cfg: Line length of line number %d in %s exceeds max length of %d",
-		line_number, s->filename, CMS_CONFIG_LINELEN);
+		line_number, s->filename, LINELEN);
 	}
 
 	/* Skip comment lines and lines starting with white space. */
@@ -686,8 +598,8 @@ void find_proc_and_buffer_lines(CONFIG_SEARCH_STRUCT * s)
 	if (!s->bufline_found && !strcmp(word[1], s->bufname) &&
 	    line[0] == 'B') {
 	    /* Buffer line found, store the line and type. */
-	    strncpy(s->buffer_line, line, CMS_CONFIG_LINELEN);
-	    convert2upper(s->buffer_type, word[2], CMS_CONFIG_LINELEN);
+	    strncpy(s->buffer_line, line, LINELEN);
+	    convert2upper(s->buffer_type, word[2], LINELEN);
 	    s->bufline_found = 1;
 	    s->bufline_number = line_number;
 	    rcs_print_debug(PRINT_CMS_CONFIG_INFO,
@@ -695,10 +607,10 @@ void find_proc_and_buffer_lines(CONFIG_SEARCH_STRUCT * s)
 	} else if (!s->procline_found && !strcmp(word[1], s->procname) &&
 	    line[0] == 'P' && !strcmp(word[2], s->bufname_for_procline)) {
 	    /* Procedure line found, store the line and type. */
-	    strncpy(s->proc_line, line, CMS_CONFIG_LINELEN);
+	    strncpy(s->proc_line, line, LINELEN);
 	    switch (cms_connection_mode) {
 	    case CMS_NORMAL_CONNECTION_MODE:
-		convert2upper(s->proc_type, word[3], CMS_CONFIG_LINELEN);
+		convert2upper(s->proc_type, word[3], LINELEN);
 		if (!strncmp(s->proc_type, "AUTO", 4)) {
 		    if (!s->bufline_found) {
 			rcs_print_error
@@ -710,19 +622,19 @@ void find_proc_and_buffer_lines(CONFIG_SEARCH_STRUCT * s)
 			return;
 		    }
 		    if (hostname_matches_bufferline(s->buffer_line)) {
-			strcpy(s->proc_type, "LOCAL");
+			rtapi_strxcpy(s->proc_type, "LOCAL");
 		    } else {
-			strcpy(s->proc_type, "REMOTE");
+			rtapi_strxcpy(s->proc_type, "REMOTE");
 		    }
 		}
 		break;
 
 	    case CMS_FORCE_LOCAL_CONNECTION_MODE:
-		strcpy(s->proc_type, "LOCAL");
+		rtapi_strxcpy(s->proc_type, "LOCAL");
 		break;
 
 	    case CMS_FORCE_REMOTE_CONNECTION_MODE:
-		strcpy(s->proc_type, "REMOTE");
+		rtapi_strxcpy(s->proc_type, "REMOTE");
 		break;
 	    }
 	    s->procline_found = 1;
@@ -766,8 +678,8 @@ int
 cms_create_from_lines(CMS ** cms, const char *buffer_line_in, const char *proc_line_in,
     int set_to_server, int set_to_master)
 {
-    char proc_type[CMS_CONFIG_LINELEN];
-    char buffer_type[CMS_CONFIG_LINELEN];
+    char proc_type[LINELEN];
+    char buffer_type[LINELEN];
     char *word[4];		/* array of pointers to words from line */
 
     char *proc_line = strdup(proc_line_in);
@@ -777,7 +689,7 @@ cms_create_from_lines(CMS ** cms, const char *buffer_line_in, const char *proc_l
 	return -1;
     }
 
-    convert2upper(proc_type, word[3], CMS_CONFIG_LINELEN);
+    convert2upper(proc_type, word[3], LINELEN);
 
     char *buffer_line = strdup(buffer_line_in);
     if (4 != separate_words(word, 4, buffer_line)) {
@@ -788,7 +700,7 @@ cms_create_from_lines(CMS ** cms, const char *buffer_line_in, const char *proc_l
 	return -1;
     }
 
-    convert2upper(buffer_type, word[2], CMS_CONFIG_LINELEN);
+    convert2upper(buffer_type, word[2], LINELEN);
 
     int result = (cms_create(cms, buffer_line, proc_line,
 	    buffer_type, proc_type, set_to_server, set_to_master));

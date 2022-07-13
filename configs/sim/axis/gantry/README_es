@@ -1,0 +1,12 @@
+Configuración Sim gui Axis para porticos
+usando 2 articulaciones en Y
+
+Usar trivkins coordinates=XYYZ kinstype=BOTH
+X: joint0
+Y: joint1 y joint2
+Z: joint3
+
+gantry.ini    Demo de portico básico (in)
+gantry_mm.ini Demo de portico basico (mm)
+
+gantry_jjog.ini demo para jog joint1 y joint3 (in)

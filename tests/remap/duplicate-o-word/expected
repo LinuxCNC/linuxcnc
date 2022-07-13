@@ -3,6 +3,7 @@
  N..... SET_G92_OFFSET(0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000)
  N..... SET_XY_ROTATION(0.0000)
  N..... SET_FEED_REFERENCE(CANON_XYZ)
+ N..... ON_RESET()
  N..... MESSAGE(" executing m207: run remapped m208 before o<problem>")
  N..... MESSAGE(" rm207 executing problem if")
  N..... MESSAGE(" rm207 within problem if")
@@ -14,3 +15,4 @@
  N..... MESSAGE(" rm207 within problem if")
  N..... MESSAGE(" rm207 done executing problem if")
  N..... FINISH()
+ N..... ON_RESET()

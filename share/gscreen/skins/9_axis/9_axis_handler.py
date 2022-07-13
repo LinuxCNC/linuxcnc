@@ -20,7 +20,7 @@
 # to load a completely custom glade screen
 # The only things that really matters is that it's saved as a GTK builder project,
 # the toplevel window is caller window1 (The default name) and you connect a destroy
-# window signal else you can't close down linuxcnc 
+# window signal else you can't close down linuxcnc
 class HandlerClass:
 
     # this will be pretty standard to gain access to everything
@@ -50,17 +50,17 @@ class HandlerClass:
     # In this way we can use this method on a bunch of widgets without knowing
     # their name ahead of time.
     def on_button_press(self,widget,data=None):
-        global nhits 
-        self.nhits += 1 
+        global nhits
+        self.nhits += 1
         widget.set_label("hits: %d" % self.nhits)
 
-    # This method is overriden from gscreen
+    # This method is overridden from gscreen
     # We selected this method name in the glade file as a callback.
     # Since this method name is the same as one in gscreen,
     # gscreen won't connect a callback to it's method.
     # Meaning this is the only one called.
     def on_estop_clicked(self,*args):
-        print "estop"
+        print("estop")
         if self.data.estopped:
             self.emc.estop_reset(1)
         else:
@@ -70,7 +70,7 @@ class HandlerClass:
         return True
 
     # This is a new method for our new button
-    # we selected this method name in the glade file as a callback 
+    # we selected this method name in the glade file as a callback
     def on_machine_state_clicked(self,*args):
         if self.data.estopped:
             return
@@ -93,7 +93,7 @@ class HandlerClass:
 
     # every 100 milli seconds this gets called
     # we add calls to the regular functions for the widgets we are using.
-    # and add any extra calls/code 
+    # and add any extra calls/code
     def periodic(self):
         self.gscreen.update_mdi_spindle_button()
         self.gscreen.update_spindle_bar()

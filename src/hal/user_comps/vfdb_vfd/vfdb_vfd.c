@@ -6,7 +6,6 @@
   Yishin Li, adapted from Michael Haberler's vfs11_vfd/.
 
   Copyright (C) 2007, 2008 Stephen Wille Padnos, Thoth Systems, Inc.
-  Copyright (C) 2009 John Thornton
   Copyright (C) 2009,2010,2011,2012 Michael Haberler
   Copyright (C) 2013 Yishin Li
   Copyright (C) 2013 Sebastian Kuzminsky
@@ -338,7 +337,7 @@ int read_ini(param_pointer p)
             return -1;
         p->parity = value;
     } else {
-        fprintf(stderr, "%s:cant open inifile '%s'\n",
+        fprintf(stderr, "%s:can not open inifile '%s'\n",
                 p->progname, p->inifile);
         return -1;
     }

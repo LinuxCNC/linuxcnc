@@ -1,0 +1,33 @@
+#<xmax>  =   9
+#<ymax>  =   4
+#<zmax>  =   3
+#<rct>   = 100
+#<feed>  = 100
+
+#<x1>    = #<xmax>
+#<y1>    = 0
+#<z1>    = [#<zmax> * 0.5]
+
+#<x2>    = #<xmax>
+#<y2>    = #<ymax>
+#<z2>    = 0
+
+#<x3>    = 0
+#<y3>    = #<ymax>
+#<z3>    = #<zmax>
+
+m111 ;clear notifications
+g61
+g0 x0 y0 z0
+
+o<rpt> repeat [#<rct>]
+f #<feed>
+g0 x 0          y 0        z 0
+g1 x #<x1>      y #<y1>    z #<z1>
+g1 x #<x2>      y #<y2>    z #<z2>
+g1 x #<x3>      y #<y3>    z #<z3>
+g1 x 0          y 0        z 0
+o<rpt> endrepeat
+
+m111 ;clear notifications
+m2

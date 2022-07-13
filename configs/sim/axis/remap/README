@@ -8,7 +8,7 @@ extend-builtins: demonstrates remapping builtins T,M6,M61,S,F. This could be a s
 
 manual-toolchange-with-tool-length-switch: extend M6 so it does a tool length probe after the change.
 
-rack-toolchange: this tries to mimick the racktoolchanger patch - without a patch, but with remapping codes
+rack-toolchange: this tries to mimic the racktoolchanger patch - without a patch, but with remapping codes
 
 cycles: a demo how new cycle codes can be created with O-word subroutines or in Python
 

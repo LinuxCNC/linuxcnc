@@ -51,7 +51,7 @@ Before tearing down the realtime environment, run an interactive halcmd.
 \fBhalrun\fR only.  If \fB\-I\fR is used, it must precede all other
 commandline arguments.
 .TP
-\fB\\-f\fR [\fIfile\fR]
+\fB\-f\fR [\fIfile\fR]
 Ignore commands on command line, take input from \fIfile\fR
 instead.  If \fIfile\fR is not specified, take input from
 \fIstdin\fR.
@@ -60,17 +60,17 @@ instead.  If \fIfile\fR is not specified, take input from
 Use variables from \fIinifile\fR for substitutions.  See \fBSUBSTITUTION\fR
 below.
 .TP
-\fB\\-k\fR
+\fB\-k\fR
 Keep going after failed command(s).  The default is to stop
 and return failure if any command fails.
 .TP
-\fB\\-q\fR
+\fB\-q\fR
 display errors only (default)
 .TP
-\fB\\-Q\fR
+\fB\-Q\fR
 display nothing, execute commands silently
 .TP
-\fB\\-s\fR
+\fB\-s\fR
 Script-friendly mode.  In this mode, \fIshow\fR will not output titles for the items
 shown.  Also, module names will be printed instead of ID codes in pin, param, and funct
 listings.  Threads are printed on a single line, with the thread period, FP usage and
@@ -82,13 +82,13 @@ a list of pins connected to the signal, showing both the direction and the pin n
 Release the HAL mutex.  This is useful for recovering when a HAL component has crashed
 while holding the HAL mutex.
 .TP
-\fB\\-v\fR
+\fB\-v\fR
 display results of each command
 .TP
-\fB\\-V\fR
+\fB\-V\fR
 display lots of debugging junk
 .TP
-\fB\\-h\fR [\fIcommand\fR]
+\fB\-h\fR [\fIcommand\fR]
 display a help screen and exit, displays extended help on \fIcommand\fR if specified
 .SH COMMANDS
 Commands tell \fBhalcmd\fR what to do.  Normally \fBhalcmd\fR
@@ -188,7 +188,7 @@ if \fIsigname\fR does not exist.
 .TP
 \fBlinkps\fR \fIpinname\fR [\fIarrow\fR] \fIsigname\fR
 (OBSOLETE - use \fBnet\fR instead) (\fIlink\fR \fIp\fRin to \fIs\fRignal)
-Establishs a link between a HAL component pin \fIpinname\fR and
+Establishes a link between a HAL component pin \fIpinname\fR and
 a HAL signal \fIsigname\fR.  Any previous link to \fIpinname\fR will be
 broken.  \fIarrow\fR can be "\fB=>\fR", "\fB<=\fR", "\fB<=>\fR",
 or omitted.  \fBhalcmd\fR ignores arrows, but they can be useful
@@ -344,6 +344,10 @@ name that can be used to refer to a pin or parameter, both the
 original name and the alias will work.
    "type" must be \fBpin\fR or \fBparam\fR.
    "name" must be an existing name or \fBalias\fR of the specified type.
+Note that the "show" command will only show the aliased name, but the
+original name is still valid to use in HAL. The original names can still
+be seen with "show all" or "show alias"
+Existing nets will be preserved when a pin name is aliased.
 .TP
 \fBunalias\fR \fItype\fR \fIalias\fR
 Removes any alias from the pin or parameter alias.
@@ -362,6 +366,10 @@ Removes any alias from the pin or parameter alias.
   are restricted to the given data type
   Names are printed on a single line, space separated.
 .TP
+\fBprint\fR [\fImessage\fR]
+  Prints the filename, linenumber and an optional message.
+  wrap the message in quotes if it has spaces.
+.TP
 \fBlock\fR [\fIall\fR|\fItune\fR|\fInone\fR]
   Locks HAL to some degree.
   none - no locking done.
@@ -377,6 +385,9 @@ Removes any alias from the pin or parameter alias.
   Prints status info about HAL.
   'type' is '\fBlock\fR', '\fBmem\fR', or '\fBall\fR'.
   If 'type' is omitted, it assumes '\fBall\fR'.
+.TP
+\fBdebug\fR [\fIlevel\fR]
+  Sets the rtapi messaging level (see man3 rtapi_set_msg_level)
 .TP
 \fBhelp\fR [\fIcommand\fR]
   Give help information for command.
@@ -397,6 +408,10 @@ halcmd \fB\-i\fR flag.  They have the following formats:
 \fB[SECTION]VAR\fR followed by end-of-line or whitespace
 .IP
 \fB[SECTION](VAR)\fR
+.SH LINE CONTINUATION
+The backslash character (\fB\\\fR) may be used to indicate the line
+is extended to the next line.  The backslash character must be the
+last character before the newline.
 .SH EXAMPLES
 .SH HISTORY
 .SH BUGS

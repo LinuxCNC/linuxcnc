@@ -1,0 +1,83 @@
+# gantry_panel.hal -- must be a postgui halfile since
+# ini.* hal pins are not available until milltask is
+# started.  Ref: $ man milltask
+
+# Joints 1 and 3 use a negative home_sequence to
+# synchronize the final home move.  This synchronization
+# disallows individual jogging of joints 1 and 3 in order
+# to prevent inadvertent racking of the gantry.
+
+# Joint jogging is enabled by an checkbox widget on the
+# pyvcp panel.  Setting the enable changes the home_sequence
+# for joints 1 and 3 from -1 (home syncing) to 1 (no
+# home syncing).  When the home_sequence is set to 1, these
+# joints can be jogged individually using the axis gui jog
+# buttons (racking hazard).  Non-synced homing is disabled
+# by asserting the motion.homing-inhibit pin.
+
+# Joints 1 and 3 can be jogged synchronously using the
+# facilities for realtime jogging provided for
+# Manual-Pulse-Generators (MPGs).  The pyvcp panel
+# provides controls to set jog counts and the scale
+# factor (machine-units per count).
+
+loadrt mux2           names=home_sequence_mux,jjog_counts_mux
+loadrt conv_float_s32 names=home_sequence_s32
+loadrt oneshot        names=pulse_on_jjdisable
+
+# synchronized homing, no joint1,3 jogging:
+setp home_sequence_mux.in0 -1
+# no synchronized homing, allow joint1,3 jogging:
+setp home_sequence_mux.in1  1
+
+# use oneshot to return jjog_counts to zero when changing
+# from enable to disable:
+setp jjog_counts_mux.in0    0
+setp jjog_counts_mux.in1    0.0000001
+# non-zero value needed to pulse the
+# pyvcp.scale.0.param_pin is ok since
+# the truncated s32 pin pyvcp.jj_counts-i
+# is used for joint.N.jog-counts pins
+
+setp pulse_on_jjdisable.rising        0
+setp pulse_on_jjdisable.falling       1
+setp pulse_on_jjdisable.retriggerable 0
+setp pulse_on_jjdisable.width         0.1
+
+addf home_sequence_mux  servo-thread
+addf jjog_counts_mux    servo-thread
+addf home_sequence_s32  servo-thread
+addf pulse_on_jjdisable servo-thread
+
+net home_seq_float   <= home_sequence_mux.out
+net home_seq_float   => home_sequence_s32.in
+
+net home_seq_s32     <= home_sequence_s32.out
+net home_seq_s32     => ini.1.home_sequence
+net home_seq_s32     => ini.3.home_sequence
+
+# set counts to zero using param_pin upon disable:
+net jjog_counts_value <= jjog_counts_mux.out
+net jjog_counts_value => pyvcp.scale.0.param_pin
+
+net jjog_counts_reset <= pulse_on_jjdisable.out
+net jjog_counts_reset => jjog_counts_mux.sel
+
+net hsequence_select <= pyvcp.jj_enable
+net hsequence_select => home_sequence_mux.sel
+net hsequence_select => joint.1.jog-enable
+net hsequence_select => joint.3.jog-enable
+net hsequence_select => motion.homing-inhibit
+net hsequence_select => pulse_on_jjdisable.in
+
+# counts for synchronized realtime MPG joint jogging:
+net j13counts <= pyvcp.jj_counts-i
+net j13counts => joint.1.jog-counts joint.3.jog-counts
+
+# MPG scaling:
+net  j13scale  <= pyvcp.jj_scale
+net  j13scale  => joint.1.jog-scale  joint.3.jog-scale
+
+# preferred jog-vel-mode:
+setp joint.1.jog-vel-mode 1
+setp joint.3.jog-vel-mode 1

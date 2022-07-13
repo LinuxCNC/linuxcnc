@@ -1,11 +1,6 @@
 \# Author Andy Pugh
 \# Issued under the terms of the GPL v2 License or any later version
 .TH SETSERIAL "9" "2012-10-28" "LinuxCNC Documentation" "HAL Component"
-.de TQ
-.br
-.ns
-.TP \\$1
-..
 
 .SH NAME
 setsserial - a utility for setting Smart Serial NVRAM parameters. 
@@ -72,7 +67,7 @@ The parameter changes will not show up until the drivers are reloaded.
 .B Flashing Firmware
 To flash new firmware to an FPGA card such as the 5i25 or 5i20 the "mesaflash" 
 utility should be used. Setsserial is only useful for changing/updating the
-firmare on smart-serial remote such as the 8i20. 
+firmware on smart-serial remote such as the 8i20. 
 The firmware should be placed somewhere in the /lib/firmware/hm2 tree, where the
 Linux firmware loading macros can find it. 
 

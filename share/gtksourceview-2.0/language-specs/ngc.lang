@@ -17,9 +17,13 @@
 		<start-regex>\(</start-regex>
 		<end-regex>\)</end-regex>
 	</block-comment>
-	
+
+	<pattern-item _name = "Line Comment" style = "Comment">
+		<regex>;.*</regex>
+	</pattern-item>
+
 	<pattern-item _name = "Variable" style = "Variable">
-		<regex>(#[0-9]*)|(#&lt;[a-zA-Z0-9_]*&gt;)</regex>
+		<regex>(#[0-9]+)|(#&lt;[a-zA-Z0-9_]+&gt;)</regex>
 	</pattern-item>
 	<keyword-list name = "Math Functions" style = "Function" case-sensitive="FALSE">
 		<keyword>sin</keyword>
@@ -89,7 +93,7 @@
 	<keyword-list _name = "O-Codes" style = "Preprocessor" case-sensitive="FALSE"
 		match-empty-string-at-beginning = "FALSE"
 		match-empty-string-at-end = "FALSE"		
-		beginning-regex = "^[ \t]*[o|O]([ \t]*[0-9])* ">
+		beginning-regex = "^[ \t]*[o|O]([ \t]*[0-9]|&lt;[a-zA-Z0-9_]+&gt;)* ">
 		<keyword>sub</keyword>
 		<keyword>endsub</keyword>
 		<keyword>while</keyword>

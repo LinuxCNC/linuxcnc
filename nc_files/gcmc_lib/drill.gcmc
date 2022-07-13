@@ -22,7 +22,7 @@ variables with defaults:
 
 variable with comment text:
 //ngcgui: zdepth=0 , z(neg typ)
-//ngcgui: verbose = 0; //preced ensure_units
+//ngcgui: verbose = 0; //precede ensure_units
 *******************************************************/
 include("ensure_units.gcmc"); //avoid preamble conflict
 

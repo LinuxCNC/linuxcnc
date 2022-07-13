@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="200"
+   height="180"
+   id="svg3391"
+   version="1.1"
+   inkscape:version="0.48.3.1 r9886"
+   sodipodi:docname="lathe-tool-pos-6.svg">
+  <defs
+     id="defs3393">
+    <marker
+       inkscape:stockid="Arrow1Lstart"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Lstart"
+       style="overflow:visible">
+      <path
+         id="path4203"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(0.8,0,0,0.8,10,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Lend"
+       style="overflow:visible">
+      <path
+         id="path4206"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)"
+         inkscape:connector-curvature="0" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="2.7647364"
+     inkscape:cx="48.877949"
+     inkscape:cy="79.769069"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer_Frame_grey"
+     showgrid="true"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:window-width="1280"
+     inkscape:window-height="930"
+     inkscape:window-x="0"
+     inkscape:window-y="31"
+     inkscape:window-maximized="1"
+     inkscape:snap-global="false"
+     inkscape:snap-bbox="true"
+     inkscape:bbox-paths="false"
+     inkscape:bbox-nodes="false"
+     inkscape:snap-bbox-edge-midpoints="false"
+     inkscape:snap-bbox-midpoints="true">
+    <inkscape:grid
+       type="xygrid"
+       id="grid4122"
+       empspacing="5"
+       visible="true"
+       enabled="true"
+       snapvisiblegridlinesonly="true"
+       spacingx="0.5px"
+       spacingy="0.5px"
+       originx="0px"
+       originy="0px" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata3396">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+        <cc:license
+           rdf:resource="" />
+        <dc:publisher>
+          <cc:Agent>
+            <dc:title>LinuxCNC</dc:title>
+          </cc:Agent>
+        </dc:publisher>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>tseufl</dc:title>
+          </cc:Agent>
+        </dc:creator>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:groupmode="layer"
+     id="layer_Draw_grey_6"
+     inkscape:label="Draw grey 6"
+     style="display:inline"
+     transform="translate(0,-7)"
+     sodipodi:insensitive="true">
+    <path
+       style="fill:#e6e6e6;stroke:#808080;stroke-width:0.38107812px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline"
+       d="m 62.723911,86.314496 0,-10.802212 -10.802216,-18.903875 0,0 c -0.695228,-1.084175 -1.66421,-2.484462 -2.700552,-2.700553 -0.450092,-0.06936 -0.900186,-0.133141 -1.350278,0 -1.017094,0.140264 -1.889595,1.220399 -2.700552,2.700556 l 0,0 -10.802216,18.903872 0,10.802216 z"
+       id="path3011-7"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccccccc" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer_Text_black_6"
+     inkscape:label="Text black 6"
+     style="display:inline"
+     sodipodi:insensitive="true">
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;line-height:150%;letter-spacing:1.5px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Sans;-inkscape-font-specification:Sans"
+       x="75.695435"
+       y="83.102715"
+       id="Text_black_6_Orientation"
+       sodipodi:linespacing="150%"><tspan
+         sodipodi:role="line"
+         x="75.695435"
+         y="83.102715"
+         id="tspan_Text_black_6_Orientation_1"
+         style="font-weight:bold;-inkscape-font-specification:Sans Bold">Tool</tspan><tspan
+         sodipodi:role="line"
+         x="75.695435"
+         y="101.10271"
+         id="tspan_Text_black_6_Orientation_2"
+         style="font-weight:bold;-inkscape-font-specification:Sans Bold">Orientation 6</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;line-height:150%;letter-spacing:1.5px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Sans;-inkscape-font-specification:Sans"
+       x="75.641403"
+       y="123.16543"
+       id="Text_black_6_CL_Deg"
+       sodipodi:linespacing="150%"><tspan
+         sodipodi:role="line"
+         x="75.641403"
+         y="123.16543"
+         id="tspan_Text_black_6_CL_Deg_1"
+         style="font-weight:bold;-inkscape-font-specification:Sans Bold">Tool</tspan><tspan
+         sodipodi:role="line"
+         x="75.641403"
+         y="141.16544"
+         id="tspan_Text_black_6_CL_Deg_2"
+         style="font-weight:bold;-inkscape-font-specification:Sans Bold">CL 90 deg</tspan></text>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer_Draw_green"
+     inkscape:label="Draw green"
+     style="display:inline"
+     transform="translate(0,-7)"
+     sodipodi:insensitive="true">
+    <path
+       style="fill:#00ff00;stroke:#00ff00;stroke-width:0.69999999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-start:url(#Arrow1Lstart)"
+       d="M 48.5,149.13239 C 48.613464,56.744865 48.5,48 48.5,48"
+       id="path4120"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer_Draw_blue"
+     inkscape:label="Draw blue"
+     style="display:inline"
+     transform="translate(0,-7)"
+     sodipodi:insensitive="true">
+    <path
+       style="fill:none;stroke:#0000ff;stroke-width:0.69999999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-start:url(#Arrow1Lstart)"
+       d="m 141.85534,53.550055 -98.607267,0 0,0"
+       id="path4143"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccc" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer_Text_green"
+     inkscape:label="Text green"
+     style="display:inline"
+     transform="translate(0,-7)"
+     sodipodi:insensitive="true">
+    <text
+       xml:space="preserve"
+       style="font-size:24px;font-style:normal;font-weight:normal;line-height:150%;letter-spacing:1.5px;word-spacing:0px;fill:#00ff00;fill-opacity:1;stroke:#00ff00;font-family:Sans;-inkscape-font-specification:Sans"
+       x="40.319248"
+       y="173.38261"
+       id="text3248"
+       sodipodi:linespacing="150%"><tspan
+         sodipodi:role="line"
+         id="tspan3250"
+         x="40.319248"
+         y="173.38261">X+</tspan></text>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer_Text_blue"
+     inkscape:label="Text blue"
+     style="display:inline"
+     transform="translate(0,-7)"
+     sodipodi:insensitive="true">
+    <text
+       xml:space="preserve"
+       style="font-size:24px;font-style:normal;font-weight:normal;line-height:150%;letter-spacing:1.5px;word-spacing:0px;fill:#0000ff;fill-opacity:1;stroke:#0000ff;font-family:Sans;-inkscape-font-specification:Sans"
+       x="146.97888"
+       y="62.319252"
+       id="text3252"
+       sodipodi:linespacing="150%"><tspan
+         sodipodi:role="line"
+         id="tspan3254"
+         x="146.97888"
+         y="62.319252">Z+</tspan></text>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer_Frame_grey"
+     inkscape:label="Frame grey"
+     style="display:inline"
+     sodipodi:insensitive="true">
+    <rect
+       style="fill:none;stroke:#808080;stroke-width:0.99838686;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;display:inline"
+       id="rect6397"
+       width="199.00162"
+       height="179.00162"
+       x="0.49919343"
+       y="0.49919343" />
+  </g>
+</svg>

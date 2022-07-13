@@ -7,6 +7,8 @@
 hm2_allocate_bspi_tram \- Allocate the TRAM regions for a BSPI channel
 
 .SH SYNTAX
+.nf
+.B #include <hostmot2-serial.h>
 .HP
 hm2_allocate_bspi_tram(char* name)
 

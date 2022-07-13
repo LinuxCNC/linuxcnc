@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # vim: sts=4 sw=4 et
 
 import os, sys
@@ -44,4 +44,4 @@ if len(sys.argv) > 3:
 
 l = sys.argv[2]
 if l in links:
-    print relpath(links[l] + '.html', path)
+    print(relpath(links[l] + '.html', path))

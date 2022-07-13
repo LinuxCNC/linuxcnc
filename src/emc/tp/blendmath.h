@@ -72,7 +72,7 @@ typedef struct {
     double tolerance;   /* Net blend tolerance (min of line 1 and 2) */
     double L1;          /* Available part of line 1 to blend over */
     double L2;          /* Available part of line 2 to blend over */
-    double v_req;       /* requsted velocity for the blend arc */
+    double v_req;       /* requested velocity for the blend arc */
     double a_max;       /* max acceleration allowed for blend */
 
     /* These fields are considered "output", and may be refactored into a
@@ -132,6 +132,8 @@ int clip_max(double * const x, double max);
 
 double saturate(double x, double max);
 
+double bisaturate(double x, double max, double min);
+
 int sat_inplace(double * const x, double max);
 
 int checkTangentAngle(PmCircle const * const circ, SphericalArc const * const arc, BlendGeom3 const * const geom, BlendParameters const * const param, double cycle_time, int at_end);
@@ -148,8 +150,16 @@ int findAccelScale(PmCartesian const * const acc,
         PmCartesian const * const bounds,
         PmCartesian * const scale);
 
-int pmCartCartParallel(PmCartesian const * const v1,
-        PmCartesian const * const v2, double tol);
+int pmUnitCartsColinear(PmCartesian const * const u1,
+        PmCartesian const * const u2);
+
+int pmCartCartParallel(PmCartesian const * const u1,
+        PmCartesian const * const u2,
+        double tol);
+
+int pmCartCartAntiParallel(PmCartesian const * const u1,
+        PmCartesian const * const u2,
+        double tol);
 
 int pmCircLineCoplanar(PmCircle const * const circ,
         PmCartLine const * const line, double tol);
@@ -229,17 +239,28 @@ int arcFromBlendPoints3(SphericalArc * const arc, BlendPoints3 const * const poi
 int blendGeom3Print(BlendGeom3 const * const geom);
 int blendParamPrint(BlendParameters const * const param);
 int blendPoints3Print(BlendPoints3 const * const points);
-double pmCircleActualMaxVel(PmCircle * const circle,
-        double * const acc_ratio,
-        double v_max,
-        double a_max,
-        int parabolic);
+
+double pmCartAbsMax(PmCartesian const * const v);
+
+typedef struct {
+    double v_max;
+    double acc_ratio;
+} PmCircleLimits;
+
+PmCircleLimits pmCircleActualMaxVel(const PmCircle *circle,
+        double v_max_nominal,
+        double a_max_nominal);
+
 int findSpiralArcLengthFit(PmCircle const * const circle,
         SpiralArcLengthFit * const fit);
 int pmCircleAngleFromProgress(PmCircle const * const circle,
         SpiralArcLengthFit const * const fit,
         double progress,
         double * const angle);
-double pmCircleEffectiveMinRadius(PmCircle const * const circle);
+double pmCircleEffectiveMinRadius(const PmCircle *circle);
 
+static inline double findVPeak(double a_t_max, double distance)
+{
+    return pmSqrt(a_t_max * distance);
+}
 #endif

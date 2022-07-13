@@ -1,5 +1,5 @@
-/** This file, 'halscope_rt.c', is a HAL component that together with
-    'halscope.c' provides an oscilloscope to view HAL pins, signals,
+/** This file, 'scope_rt.c', is a HAL component that together with
+    'scope.c' provides an oscilloscope to view HAL pins, signals,
     and parameters
 */
 
@@ -29,7 +29,7 @@
     any responsibility for such compliance.
 
     This code was written as part of the EMC HAL project.  For more
-    information, go to www.linuxcnc.org.
+    information, go to https://linuxcnc.org.
 */
 
 #include <rtapi.h>		/* RTAPI realtime OS API */

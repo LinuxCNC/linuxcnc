@@ -1,0 +1,19 @@
+%
+g10 l2 p2 x0 y0 z0 r45; g55
+g10 l2 p3 x0 y0 z0 r0; g56 
+g55
+(g55 to 1,1)
+g0 x1 y1
+(g53 + g55 to 1,1)
+g53 x1 y1
+g92 x0 y0
+(g55 + g92 to 1,1)
+g0 x1 y1
+(g53 + g55 + g92 to 1,1)
+g53 g0 x1 y1
+g56
+(g56 + g92 to cp)
+g0 a1
+(g53 + g56 + g92 to 1,1)
+g53 g0 x1 y1
+%

@@ -1,3 +1,9 @@
+/* misnomer: _setup.current_pocket,selected_pocket
+** These variables are actually indexes to sequential tool
+** data structs (not real pockets).
+** Future renaming will affect current usage in python remaps.
+*/
+
 /*    This is a component of LinuxCNC
  *    Copyright 2011, 2012, 2013 Michael Haberler <git@mah.priv.at>,
  *    Sebastian Kuzminsky <seb@highlab.com>
@@ -26,6 +32,7 @@
 #include <boost/python/exception_translator.hpp>
 #include <boost/python/module.hpp>
 #include <boost/python/suite/indexing/map_indexing_suite.hpp>
+#include <boost_pyenum_macros.hh>
 #include <map>
 
 namespace bp = boost::python;
@@ -152,9 +159,9 @@ public:
 	this->line_number = line_number;
 	this->line_text = line_text;
     }
-    const char *what() const throw() { return this->error_message.c_str();  }
+    const char *what() const noexcept { return this->error_message.c_str();  }
 
-    ~InterpreterException() throw()  {}
+    ~InterpreterException() noexcept  {}
     std::string get_error_message()  { return this->error_message;  }
     int get_line_number()    { return this->line_number;  }
     std::string get_line_text()      { return this->line_text; }
@@ -280,6 +287,12 @@ static inline bool get_mist (Interp &interp)  {
 }
 static inline void set_mist(Interp &interp, bool value)  {
     interp._setup.mist = value;
+}
+static inline bool get_flood (Interp &interp)  {
+    return interp._setup.flood;
+}
+static inline void set_flood(Interp &interp, bool value)  {
+    interp._setup.flood = value;
 }
 static inline bool get_percent_flag (Interp &interp)  {
     return interp._setup.percent_flag;
@@ -675,7 +688,7 @@ static inline int get_length_units (Interp &interp)  {
     return interp._setup.length_units;
 }
 static inline void set_length_units(Interp &interp, int value)  {
-    interp._setup.length_units = value;
+    interp._setup.length_units = static_cast<CANON_UNITS>(value);
 }
 static inline int get_loggingLevel (Interp &interp)  {
     return interp._setup.loggingLevel;
@@ -699,13 +712,7 @@ static inline int get_plane (Interp &interp)  {
     return interp._setup.plane;
 }
 static inline void set_plane(Interp &interp, int value)  {
-    interp._setup.plane = value;
-}
-static inline int get_pockets_max (Interp &interp)  {
-    return interp._setup.pockets_max;
-}
-static inline void set_pockets_max(Interp &interp, int value)  {
-    interp._setup.pockets_max = value;
+    interp._setup.plane = static_cast<CANON_PLANE>(value);
 }
 static inline int get_random_toolchanger (Interp &interp)  {
     return interp._setup.random_toolchanger;
@@ -747,7 +754,7 @@ static inline int get_speed_feed_mode (Interp &interp)  {
     return interp._setup.speed_feed_mode;
 }
 static inline void set_speed_feed_mode(Interp &interp, int value)  {
-    interp._setup.speed_feed_mode = value;
+    interp._setup.speed_feed_mode = static_cast<CANON_SPEED_FEED_MODE>(value);
 }
 static inline int get_spindle_mode (Interp &interp, int spindle)  {
     return interp._setup.spindle_mode[spindle];
@@ -755,11 +762,17 @@ static inline int get_spindle_mode (Interp &interp, int spindle)  {
 static inline void set_spindle_mode(Interp &interp, int spindle, SPINDLE_MODE value)  {
     interp._setup.spindle_mode[spindle] = value;
 }
+static inline int get_num_spindles (Interp &interp)  {
+    return interp._setup.num_spindles;
+}
+static inline void set_num_spindles(Interp &interp, int value)  {
+    interp._setup.num_spindles = value;
+}
 static inline int get_spindle_turning (Interp &interp, int spindle)  {
     return interp._setup.spindle_turning[spindle];
 }
 static inline void set_spindle_turning(Interp &interp, int spindle, int value)  {
-    interp._setup.spindle_turning[spindle] = value;
+    interp._setup.spindle_turning[spindle] = (CANON_DIRECTION)value;
 }
 static inline int get_stack_index (Interp &interp)  {
     return interp._setup.stack_index;
@@ -779,39 +792,71 @@ static inline int get_current_tool(Interp &interp)  {
 static inline void set_current_tool(Interp &interp, int value)  {
     interp._setup.tool_table[0].toolno = value;
 }
-
+static inline int get_tool_change_at_g30 (Interp &interp)  {
+    return interp._setup.tool_change_at_g30;
+}
+static inline void set_tool_change_at_g30(Interp &interp, int value)  {
+    interp._setup.tool_change_at_g30 = value;
+}
+static inline int get_tool_change_quill_up (Interp &interp)  {
+    return interp._setup.tool_change_quill_up;
+}
+static inline void set_tool_change_quill_up(Interp &interp, int value)  {
+    interp._setup.tool_change_quill_up = value;
+}
+static inline int get_tool_change_with_spindle_on (Interp &interp)  {
+    return interp._setup.tool_change_with_spindle_on;
+}
+static inline void set_tool_change_with_spindle_on(Interp &interp, int value)  {
+    interp._setup.tool_change_with_spindle_on = value;
+}
 
 BOOST_PYTHON_MODULE(interpreter) {
     using namespace boost::python;
-    using namespace boost;
 
     scope().attr("__doc__") =
         "Interpreter introspection\n"
         ;
     scope().attr("throw_exceptions") = throw_exceptions;
 
-    scope().attr("INTERP_OK") = INTERP_OK;
-    scope().attr("INTERP_EXIT") = INTERP_EXIT;
-    scope().attr("INTERP_EXECUTE_FINISH") = INTERP_EXECUTE_FINISH;
-    scope().attr("INTERP_ENDFILE") = INTERP_ENDFILE;
-    scope().attr("INTERP_FILE_NOT_OPEN") = INTERP_FILE_NOT_OPEN;
-    scope().attr("INTERP_ERROR") = INTERP_ERROR;
-    scope().attr("INTERP_MIN_ERROR") = INTERP_MIN_ERROR;
+    BOOST_PYENUM_(InterpReturn)
+            .BOOST_PYENUM_VAL(INTERP_OK)
+            .BOOST_PYENUM_VAL(INTERP_EXIT)
+            .BOOST_PYENUM_VAL(INTERP_EXECUTE_FINISH)
+            .BOOST_PYENUM_VAL(INTERP_ENDFILE)
+            .BOOST_PYENUM_VAL(INTERP_FILE_NOT_OPEN)
+            .BOOST_PYENUM_VAL(INTERP_ERROR)
+            .export_values();
+
+    scope().attr("INTERP_MIN_ERROR") = (int)INTERP_MIN_ERROR;
     scope().attr("TOLERANCE_EQUAL") = TOLERANCE_EQUAL;
 
-    scope().attr("MODE_ABSOLUTE") = (int) MODE_ABSOLUTE;
-    scope().attr("MODE_INCREMENTAL") = (int) MODE_INCREMENTAL;
-    scope().attr("R_PLANE") =  (int) R_PLANE;
-    scope().attr("OLD_Z") =  (int) OLD_Z;
+    BOOST_PYENUM_(DISTANCE_MODE)
+            .BOOST_PYENUM_VAL(MODE_ABSOLUTE)
+            .BOOST_PYENUM_VAL(MODE_INCREMENTAL)
+            .export_values();
 
-    scope().attr("UNITS_PER_MINUTE") =  (int) UNITS_PER_MINUTE;
-    scope().attr("INVERSE_TIME") =  (int) INVERSE_TIME;
-    scope().attr("UNITS_PER_REVOLUTION") =  (int) UNITS_PER_REVOLUTION;
+    BOOST_PYENUM_(RETRACT_MODE)
+            .BOOST_PYENUM_VAL(R_PLANE)
+            .BOOST_PYENUM_VAL(OLD_Z)
+            .export_values();
 
-    scope().attr("RIGHT") = RIGHT;
-    scope().attr("LEFT") = LEFT;
-    scope().attr("CONSTANT_RPM") =  (int) CONSTANT_RPM;
-    scope().attr("CONSTANT_SURFACE") =  (int) CONSTANT_SURFACE;
+    BOOST_PYENUM_(FEED_MODE)
+            .BOOST_PYENUM_VAL(UNITS_PER_MINUTE)
+            .BOOST_PYENUM_VAL(INVERSE_TIME)
+            .BOOST_PYENUM_VAL(UNITS_PER_REVOLUTION)
+            .export_values();
+
+    BOOST_PYENUM_(CUTTER_COMP_DIRECTION)
+            .BOOST_PYENUM_VAL(RIGHT)
+            .BOOST_PYENUM_VAL(LEFT)
+            .export_values();
+
+    BOOST_PYENUM_(SPINDLE_MODE)
+            .BOOST_PYENUM_VAL(CONSTANT_RPM)
+            .BOOST_PYENUM_VAL(CONSTANT_SURFACE)
+            .export_values();
+
 
     def("equal", &__equal);  // EMC's perception of equality of doubles
     def("is_near_int", &is_near_int);  // EMC's perception of closeness to an int
@@ -821,7 +866,7 @@ BOOST_PYTHON_MODULE(interpreter) {
     export_ParamClass();
     export_Internals();
     export_Block();
-    class_<InterpreterException>InterpreterExceptionClass("InterpreterException",							bp::init<std::string, int, std::string>());
+    bp::class_<InterpreterException>InterpreterExceptionClass("InterpreterException",	bp::init<std::string, int, std::string>());
     InterpreterExceptionClass
 	.add_property("error_message", &InterpreterException::get_error_message)
 	.add_property("line_number", &InterpreterException::get_line_number)
@@ -833,7 +878,7 @@ BOOST_PYTHON_MODULE(interpreter) {
     bp::register_exception_translator<InterpreterException>
 	(&translateInterpreterException);
 
-    class_< Interp, noncopyable >("Interp",no_init) 
+    bp::class_< Interp, boost::noncopyable >("Interp",bp::no_init)
 
 	.def("find_tool_pocket", &wrap_find_tool_pocket)
 	.def("load_tool_table", &Interp::load_tool_table)
@@ -866,6 +911,7 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.add_property("input_flag", &get_input_flag, &set_input_flag)
 	.add_property("mdi_interrupt", &get_mdi_interrupt, &set_mdi_interrupt)
 	.add_property("mist", &get_mist, &set_mist)
+	.add_property("flood", &get_flood, &set_flood)
 	.add_property("percent_flag", &get_percent_flag, &set_percent_flag)
 	.add_property("probe_flag", &get_probe_flag, &set_probe_flag)
 	.add_property("speed_override", &get_speed_override, &set_speed_override)
@@ -937,7 +983,6 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.add_property("motion_mode", &get_motion_mode, &set_motion_mode)
 	.add_property("origin_index", &get_origin_index, &set_origin_index)
 	.add_property("plane", &get_plane, &set_plane)
-	.add_property("pockets_max", &get_pockets_max, &set_pockets_max)
 	.add_property("random_toolchanger", &get_random_toolchanger, &set_random_toolchanger)
 	.add_property("remap_level", &get_remap_level, &set_remap_level)
 	.add_property("retract_mode", &get_retract_mode, &set_retract_mode)
@@ -946,11 +991,16 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.add_property("sequence_number", &get_sequence_number, &set_sequence_number)
 	.add_property("speed_feed_mode", &get_speed_feed_mode, &set_speed_feed_mode)
 	.add_property("spindle_mode", &get_spindle_mode, &set_spindle_mode)
+	.add_property("num_spindles", &get_num_spindles, &set_num_spindles)
 	.add_property("spindle_turning", &get_spindle_turning, &set_spindle_turning)
 	.add_property("stack_index", &get_stack_index, &set_stack_index)
 	.add_property("value_returned", &get_value_returned, &set_value_returned)
 
 	.add_property("current_tool", &get_current_tool, &set_current_tool)
+	.add_property("tool_change_at_g30", &get_tool_change_at_g30, &set_tool_change_at_g30)
+	.add_property("tool_change_quill_up", &get_tool_change_quill_up, &set_tool_change_quill_up)
+	.add_property("tool_change_with_spindle_on", &get_tool_change_with_spindle_on,
+             &set_tool_change_with_spindle_on)
 
 	.add_property( "params",
 		       bp::make_function( &param_wrapper,

@@ -33,6 +33,7 @@
 #include <pango/pango.h>
 #endif
 
+#include <rtapi_string.h>
 void DrawSeqStep(GdkPixmap * DrawPixmap,int x,int y,int Size,StrStep * pStep,char DrawingOption)
 {
 	char BufTxt[50];
@@ -66,7 +67,7 @@ void DrawSeqStep(GdkPixmap * DrawPixmap,int x,int y,int Size,StrStep * pStep,cha
 				Size-10, Size-10);
 	}
 	// step number
-	sprintf(BufTxt,"%d",pStep->StepNumber);
+	snprintf(BufTxt, sizeof(BufTxt),"%d",pStep->StepNumber);
 #ifndef GTK2
 	gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
 		x+SizeDiv3,y+SizeDiv2+4,BufTxt,strlen(BufTxt));
@@ -148,7 +149,7 @@ void DrawSeqTransition(GdkPixmap * DrawPixmap,int x,int y,int Size,StrTransition
 			x+Size-SizeDiv3, y+SizeDiv2);
 
 	// variable for transition
-	strcpy(BufTxt, CreateVarName( pTransi->VarTypeCondi, pTransi->VarNumCondi ) );
+	rtapi_strxcpy(BufTxt, CreateVarName( pTransi->VarTypeCondi, pTransi->VarNumCondi ) );
 #ifndef GTK2
 	gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
 		x+3*SizeDiv4,y+SizeDiv2+5,BufTxt,strlen(BufTxt));
@@ -248,7 +249,7 @@ void DrawSeqTransition(GdkPixmap * DrawPixmap,int x,int y,int Size,StrTransition
 					x+Size-SizeDiv3, y+Size-SizeDiv3, x+SizeDiv2, y+Size-SizeDiv3+SizeDiv4);
 				gdk_draw_line(DrawPixmap, DynaGcOff,
 					x+SizeDiv2, y+Size-SizeDiv3, x+SizeDiv2, y+Size-SizeDiv3+SizeDiv4);
-				sprintf( BufTxt, "%d", pStep->StepNumber );
+				snprintf(BufTxt, sizeof(BufTxt), "%d", pStep->StepNumber );
 #ifndef GTK2
 				gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
 					x+SizeDiv3,y+Size-SizeDiv3+SizeDiv4+11,BufTxt,strlen(BufTxt));
@@ -267,9 +268,9 @@ void DrawSeqTransition(GdkPixmap * DrawPixmap,int x,int y,int Size,StrTransition
 				gdk_draw_line(DrawPixmap, DynaGcOff,
 					StepX+SizeDiv2, StepY-SizeDiv4, StepX+SizeDiv2, StepY+1);
 				if ( pStep->OffDrawCrossStep==0 )
-					sprintf( BufTxt, "%d", pStep2->StepNumber );
+					snprintf(BufTxt, sizeof(BufTxt), "%d", pStep2->StepNumber );
 				else
-					sprintf( BufTxt, ";%d", pStep2->StepNumber );
+					snprintf(BufTxt, sizeof(BufTxt), ";%d", pStep2->StepNumber );
 #ifndef GTK2
 				gdk_draw_text(DrawPixmap, drawing_area->style->font, drawing_area->style->black_gc,
 					StepX+SizeDiv3+pStep->OffDrawCrossStep,StepY-SizeDiv4-9,BufTxt,strlen(BufTxt));

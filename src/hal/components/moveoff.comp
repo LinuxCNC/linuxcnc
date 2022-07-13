@@ -84,9 +84,13 @@ Use of the names= option for naming is \\fBrequired\\fR for compatibility
 with the gui provided as scripts/moveoff_gui:
   loadrt moveoff names=\\fBmv\\fR personality=number_of_joints
 
-\\fBman moveoff_gui\\fR for more information
+""";
 
-.SH EXAMPLES
+see_also """
+\\fBmoveoff_gui\\fR(1)
+""";
+
+examples """
 Example simulator configs that demonstrate the moveoff component and a simple gui
 (scripts/moveoff_gui) are located in configs/sim/axis/moveoff. The axis gui is
 used for the demonstrations and the configs can be adapted for other guis like
@@ -511,7 +515,7 @@ FUNCTION(read_inputs) {
 
 FUNCTION(write_outputs) {
     int r;
-    // move with limits on postion, velocity, acceleration
+    // move with limits on position, velocity, acceleration
     for (r = 0; r < personality; r++) {
         if (move_in_progress) {
             input.in = goal[r];

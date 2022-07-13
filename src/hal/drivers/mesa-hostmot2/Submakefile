@@ -1,0 +1,5 @@
+
+$(patsubst ./hal/drivers/mesa-hostmot2/%,../include/%,$(wildcard ./hal/drivers/mesa-hostmot2/*.h)): ../include/%.h: ./hal/drivers/mesa-hostmot2/%.h
+	cp $^ $@
+$(patsubst ./hal/drivers/mesa-hostmot2/%,../include/%,$(wildcard ./hal/drivers/mesa-hostmot2/*.hh)): ../include/%.hh: ./hal/drivers/mesa-hostmot2/%.hh
+	cp $^ $@

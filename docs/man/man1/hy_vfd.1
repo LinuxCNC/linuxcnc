@@ -98,6 +98,24 @@ communication, not ASCII.
 Consult the Huanyang instruction manual for details on using the face
 plate to program the VFDs registers, and alternative values for the
 above registers.
+.PP
+Access to devices such as /dev/ttyUSB0 is restricted to members of the
+"dialout" group. If you see error messages such as
+.br
+.B open: Permission denied
+.br
+.B ERROR Can't open the device /dev/ttyUSB0 (errno 13)
+.br
+Check your groups membership with the command
+.br
+.B groups
+.br
+Then add your user to the dialout group with
+.br
+.B sudo addgroup your-username dialout
+.br
+You will need to log out and back in again for this to take effect.
+
 .SH OPTIONS
 .B
 .IP \-d,\ \-\-device\ <path>
@@ -107,6 +125,10 @@ above registers.
 Turn on debug messages. Note that if there are serial errors, this may
 become annoying.  Debug mode will cause all serial communication messages
 to be printed in hex on the terminal.
+.B
+.B
+.IP \-y,\ \-\-regdump
+Print the current value of all registers as soon as the VFD is enabled.
 .B
 .IP \-n,\ \-\-name\ <string>
 (default hy_vfd) Set the name of the HAL module. The HAL comp name will be
@@ -171,6 +193,22 @@ that and the max frequency to compute the motor's max speed.
 number of poles in the motor.  If specified, this value is sent to the
 VFD's register PD143.  If not specified, the value is read from PD143
 and reported on the corresponding HAL pin.
+.B
+.IP \-x,\ \-\-register\ PDnnn=mmm\ <n>
+Set a specific register to a new value. Can be used to set up to 10
+registers. Parameters will "stick" (but only after hy_vfd.enable has
+been set true) so to set more than ten parameters it is possible to
+repeatedly load the driver with a set of registers to set then enable
+(setp hy_vfd.enable 1) and unload (unload hy_vfd) the driver at a
+halrun(1) prompt.
+For example:
+.br
+\fBloadusr -W hy_vfd -d /ttyUSB0 --register PD014=30 --register PD015=30 \fR
+.br
+Will set both ramp1 times to 3 seconds. The values should be scaled
+according to the manual data. The example above uses values with a
+resolution of 0.1 seconds, so the numbers are 10x larger than the required
+value.
 .B
 .SH PINS
 .B

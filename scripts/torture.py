@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #    Copyright (C) 2012 Jeff Epler <jepler@unpythonic.net>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -38,15 +38,15 @@ chance_lineaxis = .2
 def feed():
     "Half the time, change the feed rate"
     if random() < .5: return
-    print "F%d" % randrange(100, 1000, 10),
+    print("F%d" % randrange(100, 1000, 10), end=" ")
 
 def torture_arc(x, y, z, a, b, c, u, v, w):
     "Generate a random arc (helix)"
     plane = randrange(3)
-    print "G%d" % (plane+17),
+    print("G%d" % (plane+17), end=" ")
 
     direction = randrange(2)
-    print "G%d" % (direction+2),
+    print("G%d" % (direction+2), end=" ")
 
     feed()
 
@@ -55,11 +55,11 @@ def torture_arc(x, y, z, a, b, c, u, v, w):
     r = choice(radii)
     q = choice(distances)
 
-    print "(%d %d)" % (theta*180/pi, theta1*180/pi),
+    print("(%d %d)" % (theta*180/pi, theta1*180/pi), end=" ")
     if plane == 0: # XY plane
         ox = -cos(theta)*r
         oy = -sin(theta)*r
-        print "I%f J%f" % (ox, oy),
+        print("I%f J%f" % (ox, oy), end=" ")
 
         z = z + q
         x = x + ox + cos(theta1)*r
@@ -68,7 +68,7 @@ def torture_arc(x, y, z, a, b, c, u, v, w):
     elif plane == 1: # XZ plane
         ox = -cos(theta)*r
         oz = -sin(theta)*r
-        print "I%f K%f" % (ox, oz),
+        print("I%f K%f" % (ox, oz), end=" ")
 
         x = x + ox + sin(theta1)*r
         z = z + oz + cos(theta1)*r
@@ -77,7 +77,7 @@ def torture_arc(x, y, z, a, b, c, u, v, w):
     else: # YZ plane
         oy = -cos(theta)*r
         oz = -sin(theta)*r
-        print "J%f K%f" % (oy, oz),
+        print("J%f K%f" % (oy, oz), end=" ")
 
         x = x + q
         y = y + oy + cos(theta1)*r
@@ -85,29 +85,29 @@ def torture_arc(x, y, z, a, b, c, u, v, w):
 
     if random() < chance_angular_helix:
         a = a + choice(aangles)
-        print "A%f" % a,
+        print("A%f" % a, end=" ")
 
     if random() < chance_angular_helix:
         b = b + choice(aangles)
-        print "B%f" % b,
+        print("B%f" % b, end=" ")
 
     if random() < chance_angular_helix:
         c = c + choice(aangles)
-        print "C%f" % c,
+        print("C%f" % c, end=" ")
 
     if random() < chance_angular_helix:
         u = u + randrange(-500, 500)/100.
-        print "U%f" % u,
+        print("U%f" % u, end=" ")
 
     if random() < chance_angular_helix:
         v = v + randrange(-500, 500)/100.
-        print "V%f" % v,
+        print("V%f" % v, end=" ")
 
     if random() < chance_angular_helix:
         w = w + randrange(-500, 500)/100.
-        print "W%f" % w,
+        print("W%f" % w, end=" ")
 
-    print "X%f Y%f Z%f" % (x, y, z)
+    print("X%f Y%f Z%f" % (x, y, z))
 
     return x, y, z, a, b, c, u, v, w
 
@@ -155,7 +155,7 @@ def torture_line(x, y, z, a, b, c, u, v, w):
 
     if len(p) > 4:
         if kind == 1: feed()
-        print p
+        print(p)
 
     return x, y, z, a, b, c, u, v, w
 
@@ -166,16 +166,16 @@ def torture_main(runs):
     #funcs = [torture_arc]
     def R(x,l=-50, k=50): return x < l or x > k
 
-    print "g21"
+    print("g21")
     for i in range(runs):
         x = y = 0
         z = 20
         a = b = c = u = v = w = 0
         if chance_angular or chance_angular_helix:
-            print "G0 X0 Y0 A0 B0 C0 U0 V0 W0 Z20"
+            print("G0 X0 Y0 A0 B0 C0 U0 V0 W0 Z20")
         else:
-            print "G0 X0 Y0 Z20"
-        print "F100"
+            print("G0 X0 Y0 Z20")
+        print("F100")
 
         while 1:
             x, y, z, a, b, c, u, v, w = choice(funcs)(x, y, z, a, b, c, u, v, w)
@@ -186,4 +186,4 @@ def torture_main(runs):
 
 # Do ten runs then print m2
 torture_main(20)
-print "m2"
+print("m2")

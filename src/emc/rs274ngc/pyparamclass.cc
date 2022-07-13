@@ -37,8 +37,11 @@ extern int _task;  // zero in gcodemodule, 1 in milltask
 #include "rs274ngc_interp.hh"
 #include "paramclass.hh"
 
-#define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyString_Type))
-#define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
+#include <interp_parameter_def.hh>
+using namespace interp_param_global;
+
+#define IS_STRING(x) (PyUnicode_Check(x.ptr()))
+#define IS_INT(x) (PyLong_Check(x.ptr()))
 
 // access to named and numbered parameters via a pseudo-dictionary
 // either params["paramname"] or params[5400] is valid
@@ -72,17 +75,17 @@ double ParamClass::setitem(bp::object sub, double dvalue)
 	int status = interp.add_named_param(varname, varname[0] == '_' ? PA_GLOBAL :0);
 	status = interp.store_named_param(&interp._setup,varname, dvalue, 0);
 	if (status != INTERP_OK)
-	    throw std::runtime_error("cant assign value to parameter: " +
+	    throw std::runtime_error("can\'t assign value to parameter: " +
 				     std::string(varname));
 
     } else
 	if (IS_INT(sub)) {
 	    int index = bp::extract < int > (sub);
-	    if ((index < 0) || (index > RS274NGC_MAX_PARAMETERS -1)) {
+        if ((index < 0) || (index > RS274NGC_MAX_PARAMETERS -1)) {
 		std::stringstream sstr;
 		sstr << "params subscript out of range : "
 		     << index << " - must be between 0 and "
-		     << RS274NGC_MAX_PARAMETERS;
+             << RS274NGC_MAX_PARAMETERS;
 		throw std::runtime_error(sstr.str());
 	    }
 	    interp._setup.parameters[index] = dvalue;

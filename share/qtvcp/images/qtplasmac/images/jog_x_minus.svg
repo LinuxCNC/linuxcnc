@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   sodipodi:docname="jog_x_minus.svg"
+   width="40"
+   height="40"
+   viewBox="0 0 10.583333 10.583333"
+   version="1.1"
+   id="svg2193"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)">
+  <defs
+     id="defs2187">
+    <marker
+       inkscape:isstock="true"
+       style="overflow:visible"
+       id="Arrow1Lstart"
+       refX="0.0"
+       refY="0.0"
+       orient="auto"
+       inkscape:stockid="Arrow1Lstart">
+      <path
+         transform="scale(0.8) translate(12.5,0)"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         id="path1184" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     inkscape:snap-global="true"
+     inkscape:guide-bbox="true"
+     showguides="true"
+     inkscape:window-maximized="1"
+     inkscape:window-y="-8"
+     inkscape:window-x="1912"
+     inkscape:window-height="1027"
+     inkscape:window-width="1920"
+     inkscape:showpageshadow="false"
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="11.313709"
+     inkscape:cx="26.489034"
+     inkscape:cy="12.726701"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     inkscape:document-rotation="0"
+     showgrid="true"
+     units="px">
+    <inkscape:grid
+       id="grid830"
+       type="xygrid" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata2190">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+        <dc:date>2020, 2021, 2022</dc:date>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>Gregory D Carl/Phillip A Carter</dc:title>
+          </cc:Agent>
+        </dc:creator>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       sodipodi:open="true"
+       d="M 1.0618867,6.6486346 A 1.4552084,1.4552084 0 0 1 0.13311877,5.3407298 1.4552084,1.4552084 0 0 1 0.97163153,3.9732061"
+       sodipodi:arc-type="arc"
+       sodipodi:end="4.2753964"
+       sodipodi:start="1.9403448"
+       sodipodi:ry="1.4552084"
+       sodipodi:rx="1.4552084"
+       sodipodi:cy="5.2916665"
+       sodipodi:cx="1.5874999"
+       sodipodi:type="arc"
+       id="path1462"
+       style="opacity:0.999;fill:none;stroke:#000000;stroke-width:0.264583;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0" />
+    <path
+       d="M 8.3908165,0.26402485 A 1.4552084,1.4552084 0 0 1 9.7946483,0.37114207 1.4552084,1.4552084 0 0 1 10.450746,1.6168361"
+       sodipodi:arc-type="arc"
+       sodipodi:open="true"
+       sodipodi:end="0.020160862"
+       sodipodi:start="4.2836111"
+       sodipodi:ry="1.4552084"
+       sodipodi:rx="1.4552084"
+       sodipodi:cy="1.5874999"
+       sodipodi:cx="8.9958334"
+       sodipodi:type="arc"
+       style="opacity:0.999;fill:none;stroke:#000000;stroke-width:0.264583;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0"
+       id="path1462-1" />
+    <path
+       d="M 10.451041,8.9958334 A 1.4552079,1.4552079 0 0 1 9.7333467,10.250307 1.4552079,1.4552079 0 0 1 8.288183,10.267392"
+       sodipodi:arc-type="arc"
+       sodipodi:open="true"
+       sodipodi:end="2.0786331"
+       sodipodi:start="0"
+       sodipodi:ry="1.4552079"
+       sodipodi:rx="1.4552079"
+       sodipodi:cy="8.9958334"
+       sodipodi:cx="8.9958334"
+       sodipodi:type="arc"
+       id="path1462-1-5"
+       style="opacity:0.999;fill:none;stroke:#000000;stroke-width:0.264584;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0" />
+    <path
+       id="path1500"
+       d="M 0.97898438,3.9739233 8.4322811,0.24680003"
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 1.0583332,6.6476553 8.4666664,10.351823"
+       id="path1500-7" />
+    <path
+       id="path1517"
+       d="M 10.4515,9.0016797 V 1.5933465"
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    <text
+       id="text1521"
+       y="6.9924383"
+       x="4.1159511"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.58611px;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583"
+         y="6.9924383"
+         x="4.1159511"
+         id="tspan1519"
+         sodipodi:role="line">X-</tspan></text>
+  </g>
+</svg>
