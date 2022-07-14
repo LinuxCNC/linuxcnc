@@ -44,7 +44,6 @@ if inFile == 'rfl.ngc':
 # assume gui to be qtplasmac unless a specific gui selected
 if 'axis' in ini.find('DISPLAY', 'DISPLAY'):
     gui = 'plasmac'
-    materialFile = '{}.mats'.format(ini.find('EMC', 'MACHINE'))
     tmpPath = '/tmp/plasmac'
     cutTypePin = 'axisui.cut-type'
     matNumPin = 'axisui.material-change-number'
@@ -57,7 +56,6 @@ if 'axis' in ini.find('DISPLAY', 'DISPLAY'):
     notice  = 'The line numbers in the original file may differ from what is shown below.\n\n'
 else:
     gui = 'qtplasmac'
-    materialFile = '{}_material.cfg'.format(ini.find('EMC', 'MACHINE'))
     tmpPath = '/tmp/qtplasmac'
     cutTypePin = 'qtplasmac.cut_type'
     matNumPin = 'qtplasmac.material_change_number'
@@ -75,6 +73,7 @@ else:
     notice += 'will be highlighted. The line numbers may differ from what is shown below.\n\n'
 filteredBkp = '{}/filtered_bkp.ngc'.format(tmpPath)
 errorFile = '{}/gcode_errors.txt'.format(tmpPath)
+materialFile = '{}_material.cfg'.format(ini.find('EMC', 'MACHINE'))
 tmpMaterialFile = '{}/{}_material.gcode'.format(tmpPath, ini.find('EMC', 'MACHINE'))
 tmpMatNum = 1000000
 tmpMatNam = ''
