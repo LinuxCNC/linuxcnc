@@ -96,34 +96,35 @@ class SoftInputWidget(QtWidgets.QDialog):
 
         control_widget_list = []
 
-        button = MyFlatPushButton('Up')
+        button = MyFlatPushButton('LINE\nUP')
         button.setToolTip('Cursor Up')
         button.KEY_CHAR = QtCore.Qt.Key_Up
         control_widget_list.append(button)
-        control_widget_list.append('sep')
 
-        button = MyFlatPushButton('Down')
+        button = MyFlatPushButton('LINE\nDOWN')
         button.setToolTip('Cursor Down')
         button.KEY_CHAR = QtCore.Qt.Key_Down
         control_widget_list.append(button)
-        control_widget_list.append('sep')
+
+        # space
+        button = MyFlatPushButton('SPACE', min_size=(160, 50))
+        button.KEY_CHAR = QtCore.Qt.Key_Space
+        control_widget_list.append(button)
 
         # back space
-        button = MyFlatPushButton('<B')
+        button = MyFlatPushButton('BACK')
         button.setToolTip('Backspace')
         button.KEY_CHAR = QtCore.Qt.Key_Backspace
         control_widget_list.append(button)
-        control_widget_list.append('sep')
 
         # close
-        button = MyFlatPushButton('Close')
+        button = MyFlatPushButton('CLOSE')
         button.setToolTip('Close Keyboard')
         button.KEY_CHAR = QtCore.Qt.Key_Escape
         control_widget_list.append(button)
-        control_widget_list.append('sep')
 
         # enter
-        button = MyFlatPushButton('Enter', min_size=(100, 50))
+        button = MyFlatPushButton('ENTER', min_size=(105, 50))
         button.setToolTip('Enter Command')
         button.KEY_CHAR = QtCore.Qt.Key_Enter
         control_widget_list.append(button)
@@ -147,9 +148,6 @@ class SoftInputWidget(QtWidgets.QDialog):
         for widget in widget_list:
             if widget == 'new_row':
                 col = MAX_COL
-            elif widget == 'sep':
-                tlist.append(self.get_vline())
-                continue
             else:
                 tlist.append(widget)
                 widget.clicked.connect(self.signalMapper.map)
@@ -229,22 +227,6 @@ class SoftInputWidget(QtWidgets.QDialog):
 
         panelPos = widget.mapToGlobal(panelPos)
         self.move(panelPos)
-
-    def _get_line(self, vertical=True):
-        line = QtWidgets.QFrame()
-        line.setContentsMargins(0, 0, 0, 0)
-        if vertical is True:
-            line.setFrameShape(line.VLine)
-        else:
-            line.setFrameShape(line.HLine)
-        line.setFrameShadow(line.Sunken)
-        return line
-
-    def get_hline(self):
-        return self._get_line(vertical=False)
-
-    def get_vline(self):
-        return self._get_line()
 
 
 # a widget that calls our keyboard dialog
