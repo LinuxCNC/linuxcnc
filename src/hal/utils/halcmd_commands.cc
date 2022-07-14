@@ -2791,7 +2791,7 @@ static void save_unconnected_input_pin_values(FILE *dst)
 {
     hal_pin_t *pin;
     void *dptr;
-    int next;
+    SHMFIELD(hal_pin_t) next;
     fprintf(dst, "# unconnected pin values\n");
     for(next = hal_data->pin_list_ptr; next; next=pin->next_ptr)
     {
