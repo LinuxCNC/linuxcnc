@@ -132,7 +132,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.highlight_line = None
 
     def comment(self, arg):
-        if arg.startswith("AXIS,"):
+        if arg.startswith("AXIS,") or arg.startswith("PREVIEW,"):
             parts = arg.split(",")
             command = parts[1]
             if command == "stop": raise KeyboardInterrupt
