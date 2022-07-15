@@ -170,10 +170,14 @@ class StatCanon(glcanon.GLCanon, interpret.StatMixin):
     def next_line(self, st):
         glcanon.GLCanon.next_line(self, st)
         self.progress.update(self.lineno)
-        # not sure if this is used - copied from AXIS code
         if self.notify:
-            print("info",self.notify_message)
+            self.output_notify_message(self.notify_message)
             self.notify = 0
+
+    # this is class patched
+    # output the text from the magic comment eg: (PREVEIW,notify,The text)
+    def output_notify_message(self, message):
+        pass
 
 ###############################
 # widget for graphics plotting
@@ -344,6 +348,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
         lines = open(filename).readlines()
         progress = Progress(2, len(lines))
+        # monkey patch function to call ours
         progress.emit_percent = self.emit_percent
 
         code = []
@@ -371,6 +376,8 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                                 self.lathe_option,
                                 s, text, random, i,
                                 progress, arcdivision)
+            # monkey patched function to call ours
+            canon.output_notify_message = self.output_notify_message
             parameter = self.inifile.find("RS274NGC", "PARAMETER_FILE")
             temp_parameter = os.path.join(td, os.path.basename(parameter or "linuxcnc.var"))
             if parameter:
@@ -397,6 +404,11 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 pass
         self._redraw()
 
+    # monkey patched function from StatCanon class
+    def output_notify_message(self, message):
+        print("Preview Notify:", message)
+
+    # monkey patched function from Progess class
     def emit_percent(self, percent):
         self.percentLoaded.emit(percent)
 
