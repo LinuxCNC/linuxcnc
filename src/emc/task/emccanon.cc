@@ -1917,27 +1917,36 @@ void START_SPINDLE_COUNTERCLOCKWISE(int s, int wait_for_atspeed)
 
 void SET_SPINDLE_SPEED(int s, double r)
 {
-    // speed is in RPMs everywhere
+    // speed r is in RPMs everywhere
 
-	canon.spindle[s].speed = fabs(r); // interp will never send negative anyway ...
+    // Only update spindle speed and flush segments if the speed
+    // changed, to allow identical speed to be set on consecutive
+    // blocks (issue #1813).
+    // FIXME Figure out how this interact with the calls triggered by css_maximum
+    double newspeed = fabs(r); // interp will never send negative anyway ...
+    if(newspeed == canon.spindle[s].speed)
+        return;
 
     EMC_SPINDLE_SPEED emc_spindle_speed_msg;
 
     flush_segments();
 
+    canon.spindle[s].speed = newspeed;
     emc_spindle_speed_msg.spindle = s;
     if(canon.spindle[s].css_maximum) {
-		if(canon.lengthUnits == CANON_UNITS_INCHES){
-			canon.spindle[s].css_factor = 12 / (2 * M_PI) * canon.spindle[s].speed * TO_EXT_LEN(25.4);
-		} else {
-			canon.spindle[s].css_factor = 1000 / (2 * M_PI) * canon.spindle[s].speed * TO_EXT_LEN(1);
-		}
-		emc_spindle_speed_msg.speed =  canon.spindle[s].dir * canon.spindle[s].css_maximum;
-		emc_spindle_speed_msg.factor =  canon.spindle[s].dir * canon.spindle[s].css_factor;
-		emc_spindle_speed_msg.xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
+	if(canon.lengthUnits == CANON_UNITS_INCHES){
+	    canon.spindle[s].css_factor = 12 / (2 * M_PI) * canon.spindle[s].speed * TO_EXT_LEN(25.4);
 	} else {
-        emc_spindle_speed_msg.speed = canon.spindle[s].dir * canon.spindle[s].speed;
-		//   canon.css_numerator = 0; FIXME: Do we need this?
+	    canon.spindle[s].css_factor = 1000 / (2 * M_PI) * canon.spindle[s].speed * TO_EXT_LEN(1);
+	}
+	emc_spindle_speed_msg.speed = canon.spindle[s].dir * canon.spindle[s].css_maximum;
+	emc_spindle_speed_msg.factor = canon.spindle[s].dir * canon.spindle[s].css_factor;
+	emc_spindle_speed_msg.xoffset = TO_EXT_LEN(canon.g5xOffset.x
+						   + canon.g92Offset.x
+						   + canon.toolOffset.tran.x);
+    } else {
+	emc_spindle_speed_msg.speed = canon.spindle[s].dir * canon.spindle[s].speed;
+	// canon.css_numerator = 0; FIXME: Do we need this?
     }
     interp_list.append(emc_spindle_speed_msg);
 }
