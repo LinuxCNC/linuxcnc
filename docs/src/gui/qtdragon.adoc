@@ -176,6 +176,19 @@ EMBED_TAB_COMMAND = qtvcp vismach_mill_xyz
 EMBED_TAB_LOCATION = tabWidget_utilities
 ----
 
+=== Preview Control
+
+Magic comments can be used to control the gcode preview. +
+On very large programs the preview can take a long time to load. You can control 
+what is shown and what is hidden the the graphics screen by adding the appropriate 
+comments from this list:
+
+----
+(PREVIEW,stop)
+(PREVIEW,hide)
+(PREVIEW,show)
+----
+
 === Program Extensions/Filters
 
 You can control what programs are displayed in the filemanager window with
