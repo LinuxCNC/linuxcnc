@@ -3,9 +3,9 @@
 #export PATH=$PATH:$EMC2_HOME/tests/helpers
 #source $EMC2_HOME/tests/helpers/test-functions.sh
 
-emc motion-test.ini &
+linuxcnc motion-test.ini &
 
-# let emc come up
+# let linuxcnc come up
 sleep 4 
 
 (
@@ -26,20 +26,20 @@ sleep 4
     echo set home 1
     echo set home 2
 
-    # give emc a second to home
+    # give linuxcnc a second to home
     sleep 1.0
 
     echo set mode mdi
     echo set mdi g0x1
 
-    # give emc a half second to move
+    # give linuxcnc a half second to move
     sleep 0.5
 
     echo shutdown
 ) | nc localhost 5007
 
 
-# wait for emc to finish
+# wait for linuxcnc to finish
 wait
 
 exit 0
