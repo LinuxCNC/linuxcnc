@@ -1,11 +1,26 @@
-component logic "LinuxCNC HAL component providing configurable logic functions";
+component logic """LinuxCNC HAL component providing configurable logic functions
+
+.B loadrt logic
+.B [count=N|names=name1[,name2...]]
+.B personality=0xXXXX[,0xXXXX...]
+
+.TP
+\\fBcount\\fR The number of logical gates.
+.TP
+\\fBnames\\fR The named logical gates to create.
+.TP
+\\fBpersonality\\fR Comma separated list of hexadecimal number.
+Each number defines the behaviour of the individual logic gate.  The
+list must have the same number of personalities as the N count.
+
+""";
 pin in bit in-##[16 : personality & 0xff];
 pin out bit and if personality & 0x100;
 pin out bit or if personality & 0x200;
 pin out bit xor if personality & 0x400;
 pin out bit nand if personality & 0x800;
 pin out bit nor if personality & 0x1000;
-function _ nofp;
+function _ nofp "Read the inputs and toggle the output bit.";
 description """
 General `logic function' component.  Can perform `and', `or',
 `nand', `nor' and `xor' of up to 16 inputs.
@@ -27,6 +42,33 @@ The number of input pins, usually from 2 to 16
 .LP
 Outputs can be combined, for example 2 + 256 + 1024 = 1282 converted to hex
 would be 0x502 and would have two inputs and have both `xor' and `and' outputs.
+""";
+examples """
+.PP
+This is an OR circuit connected to three different signals, two inputs
+named sig-in-0 and sig-in-1, and one output named sig-out.  First the
+circuit is defined, then its function is connected to the servo real
+time thread, last, its pins are connected to the wanted signals.
+.IP
+.nf
+loadrt logic count=1 personality=0x202
+addf logic.0 servo-thread
+net sig-in-0 => logic.0.in-00
+net sig-in-1 => logic.0.in-01
+net sig-out  <= logic.0.or
+.fi
+
+.PP
+This is a named AND circuit with two inputs and one output.
+.IP
+.nf
+loadrt logic names=both personality=0x102
+addf both servo-thread
+net sig-in-0 => both.in-00
+net sig-in-1 => both.in-01
+net sig-out  <= both.and
+.fi
+
 """;
 see_also """
 \\fBand2\\fR(9),
