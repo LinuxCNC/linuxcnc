@@ -408,7 +408,7 @@ License: LGPL-2.1+
 
 Files: share/qtvcp/images/widgets/writer/icons
 Copyright: 2013 Yusuke Kamiyamane
-License: CC-3.0
+License: CC-BY-3.0
 
 Files: unit_tests/catch.hpp
 Copyright: 2019 Two Blue Cubes Ltd. All rights reserved.
@@ -576,14 +576,14 @@ License: BSD-3-Clause
  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  SUCH DAMAGE.
 
-License: CC-3.0
+License: CC-BY-3.0
  CREATIVE COMMONS CORPORATION IS NOT A LAW FIRM AND DOES NOT PROVIDE LEGAL
  SERVICES. DISTRIBUTION OF THIS LICENSE DOES NOT CREATE AN ATTORNEY-CLIENT
  RELATIONSHIP. CREATIVE COMMONS PROVIDES THIS INFORMATION ON AN "AS-IS"
  BASIS. CREATIVE COMMONS MAKES NO WARRANTIES REGARDING THE INFORMATION
  PROVIDED, AND DISCLAIMS LIABILITY FOR DAMAGES RESULTING FROM ITS USE.
  .
-License
+ License
  .
  THE WORK (AS DEFINED BELOW) IS PROVIDED UNDER THE TERMS OF THIS CREATIVE
  COMMONS PUBLIC LICENSE ("CCPL" OR "LICENSE"). THE WORK IS PROTECTED BY
@@ -867,6 +867,3 @@ License
     such additional rights are deemed to be included in the License;
     this License is not intended to restrict the license of any rights
     under applicable law.
-    announcement including an appropriate copyright notice and a
-a notice placed by the copyright holder saying it may be distributed
-certain countries either by patents or by copyrighted interfaces, the
