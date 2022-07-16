@@ -84,7 +84,6 @@ jobs:
         sudo dpkg -i po4a_0.66-1_all.deb
         codename=$(lsb_release -cs)
         dch --maintmaint --distribution $codename "GitHub test package."
-        eatmydata debian/configure
         eatmydata debuild -us -uc
         sudo apt-get install ../*.deb
         eatmydata ./scripts/runtests -p tests/
