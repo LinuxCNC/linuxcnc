@@ -1,0 +1,13 @@
+#<value> = 1.123456789
+
+(DEBUG, native value = #<value>)
+(DEBUG, Test round to integer: %d#<value>)
+(DEBUG, Test round to 4 decimals: %f#<value>)
+(DEBUG, Test format separate from param: %f The value is: #<value>)
+(DEBUG, Test round to 7 decimals: %.7f#<value>)
+
+#<value2> = 2.3456789
+(DEBUG, native value2 = #<value2>)
+(DEBUG, Test2 round all params in line to 4 decimals: %f The values are: #<value>,  #<value2>)
+(DEBUG, Test2 only round last value to integer: The values are: #<value>,  %d#<value2>)
+M2

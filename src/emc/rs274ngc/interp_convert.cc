@@ -1277,6 +1277,7 @@ int Interp::convert_param_comment(char *comment, char *expanded, int len)
     FORCE_LC_NUMERIC_C;
     int i;
     char param[LINELEN+1];
+    char format[5] = "%lf";
     int paramNumber;
     int stat;
     double value;
@@ -1286,7 +1287,65 @@ int Interp::convert_param_comment(char *comment, char *expanded, int len)
 
     while(*comment)
     {
-        if(*comment == '#')
+
+        if(*comment == '%')
+        {
+            // skip over the '%'
+            comment++;
+
+            // convenient integer looking
+            if(*comment == 'd')
+            {
+                comment++;
+                strcpy(format, "%.0f");
+            }
+            // convenient 4 position float
+            else if(*comment == 'f')
+            {
+                comment++;
+                strcpy(format, "%.4f");
+            }
+            // arbitrary 0-9 position float
+            else if(*comment == '.')
+            {
+                comment++;
+                if(isdigit(*comment))
+                {
+                    // forward to the (hopefully) letter f
+                    comment++;
+                    if(*comment == 'f')
+                    {
+                        // back up to get the digit into format
+                        comment--;
+                        format[0] = '%';
+                        format[1] = '.';
+                        format[2] = *comment;
+                        format[3] = 'f';
+                        format[4] = 0;
+                        comment++;
+                        comment++;
+                    }
+                    else
+                    {
+                        // not a format string so,
+                        // back up to the digit to continue processing
+                        comment--;
+                        *expanded++ = '.';
+
+                    }
+                }
+                else
+                {
+                    *expanded++ = '.';
+                }
+
+            }
+            else
+            {
+                *expanded++ = '%';
+            }
+        }
+        else if(*comment == '#')
         {
             found = 0;
             logDebug("a parameter");
@@ -1378,7 +1437,7 @@ int Interp::convert_param_comment(char *comment, char *expanded, int len)
             {
 		// avoid -0.0/0.0 issues
 		double pvalue = equal(value, 0.0) ? 0.0 : value;
-                int n = snprintf(valbuf, VAL_LEN, "%lf", pvalue);
+                int n = snprintf(valbuf, VAL_LEN, format, pvalue);
                 bool fail = (n >= VAL_LEN || n < 0);
                 if(fail)
                     rtapi_strxcpy(valbuf, "######");
