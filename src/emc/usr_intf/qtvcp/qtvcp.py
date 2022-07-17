@@ -15,7 +15,7 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 #   We have do do this before importing other modules because on import
 #   they set up their own loggers as children of the base logger.
 from qtvcp import logger
-LOG = logger.initBaseLogger('QTvcp', log_file=None, log_level=logger.INFO)
+LOG = logger.initBaseLogger('QTvcp', log_file=None, log_level=logger.WARNING)
 
 
 from qtvcp.core import Status, Info, Qhal, Path
@@ -53,6 +53,8 @@ example: -g 200x400+0+100. Values are in pixel units, XOFFSET/YOFFSET is referen
 use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just position.""")
           , Option( '-H', dest='halfile', metavar='FILE'
                   , help="execute HAL statements from FILE with halcmd after the component is set up and ready")
+          , Option( '-i', action='store_true', dest='info', default=False
+                  , help="Enable info output")
           , Option( '-m', action='store_true', dest='maximum', help="Force panel window to maximize")
           , Option( '-f', action='store_true', dest='fullscreen', help="Force panel window to fullscreen")
           , Option( '-t', dest='theme', default="", help="Set QT style. Default is system theme")
@@ -138,6 +140,9 @@ class QTVCP:
             # Log level defaults to INFO, so set lowest if in verbose mode
             logger.setGlobalLevel(logger.VERBOSE)
             LOG.verbose('VERBOSE DEBUGGING ON')
+        if opts.info:
+            logger.setGlobalLevel(logger.INFO)
+
 
         # a specific path has been set to load from or...
         # no path set but -ini is present: default qtvcp screen...or

@@ -73,17 +73,20 @@ Under the [DISPLAY] heading:
 ----
 DISPLAY = qtvcp <options> <screen_name>
   options:
-    -d debugging on
     -a set window always on top
     -c HAL component name. Default is to use the UI file name.
-    -g geometry: WIDTHxHEIGHT+XOFFSET+YOFFSET example: -g 200x400+0+100
-    -m maximize window
+    -d debugging on
     -f fullscreen the window
+    -g geometry: WIDTHxHEIGHT+XOFFSET+YOFFSET example: -g 200x400+0+100
+    -H execute HAL statements from FILE with halcmd after the component is set up and ready
+    -i set logging level to INFO
+    -m maximize window
+    -o pass a string to qtvcp's handler file under self.w.USEROPTIONS_ list variable. can be multiple -o
     -t theme. Default is system theme
+    -u file path of a substitute handler file
+    -v enable VERBOSE debug output
     -x embed into a X11 window that doesn't support embedding.
     --push_xid send qtvcp's X11 window id number to standard output; for embedding
-    -u file path of a substitute handler file
-    -o pass a string to qtvcp's handler file under self.w.USEROPTIONS_ list variable. can be multiple -o
 
     all <options> must be before <screen name>
     <screen_name> is the base name of the .ui and _handler.py files.
