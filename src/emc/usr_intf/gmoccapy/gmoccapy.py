@@ -722,7 +722,7 @@ class gmoccapy(object):
                 size=_DEFAULT_BB_SIZE,
                 image_name=f"img_ref_{elem}"
             )
-            btn.set_property("tooltip-text", _("Press to home {0} {1}").format(name_prefix_sg, elem.upper()))
+            btn.set_property("tooltip-text", _("Press to home {0} {1}").format(name_prefix_sg, str(elem).upper()))
             btn.connect("clicked", self._on_btn_home_clicked)
 
             self.widgets.hbtb_ref.pack_start(btn,True,True,0)
