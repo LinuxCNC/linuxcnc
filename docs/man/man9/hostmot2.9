@@ -86,8 +86,8 @@ For example, if your control computer has one 5i20 and one 5i23 you
 might load the hm2_pci driver with a HAL command (in halcmd) something
 like this:
 
-.B
 .nf
+.B
 loadrt hm2_pci config="firmware=hm2/5i20/SVST8_4.BIT num_encoders=3 num_pwmgens=3 num_stepgens=3,firmware=hm2/5i23/SVSS8_8.BIT sserial_port_0=0000 num_encoders=4"
 .fi
 
@@ -1118,7 +1118,7 @@ Maximum acceleration, in position units per second
 per second.  Defaults to 1.0.  If set to 0, the driver will not limit its
 acceleration at all - this requires that the position\-cmd or velocity\-cmd
 pin is driven in a way that does not exceed the machine's capabilities.
-This is probably what you want if you're going to be using the LinuxCNC
+This is probably what you want if you are going to be using the LinuxCNC
 trajectory planner to jog or run G-code.
 
 .TP
@@ -1244,7 +1244,7 @@ and have a restricted HAL interface.
 GPIOs have names like "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.gpio.\fI<IONum>\fR".
 IONum is a three-digit number.  The mapping from IONum to connector and
 pin-on-that-connector is written to the syslog when the driver loads,
-and it's documented in Mesa's manual for the Anything I/O boards.
+and it is documented in Mesa's manual for the Anything I/O boards.
 
 So, for example, the HAL pin that has the current inverted input value
 read from GPIO 012 of the second 7i43 board is: hm2_7i43.1.gpio.012.in\-not
