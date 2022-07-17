@@ -4065,7 +4065,7 @@ An effective and very reliable method of obtaining an Arc OK signal from a plasm
 
 This assembly will now act as a relay that will switch on when current is flowing through the work lead which only occurs when a cutting arc has been established.
 
-This will require that QtPlasmaC be operated in Mode 1 rather than Mode 0. See the <<qt_ini-mode, INI File>> and <<qt_mode, QtPlasmaC Modes>> sections for more information.
+This will require that QtPlasmaC be operated in Mode 1 rather than Mode 0. See the <<qt_mode, QtPlasmaC Modes>> sections for more information.
 
 image::images/qtplasmac_reed_arc_ok.png[width=600,align="center"]
 
