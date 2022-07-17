@@ -217,7 +217,7 @@ board. These are arranged in 1-4 ports of 1 to 8 channels.
 for example all inputs, or all outputs, or offering additional analogue input on
 some digital pins.
  To set the modes for port 0 use, for example \fBsserial_port_0=0120xxxx\fR
- A '0'in the string sets the corresponding port to mode 0, 1 to mode 1, and so
+ A "0" in the string sets the corresponding port to mode 0, 1 to mode 1, and so
 on up to mode 9. An "x" in any position disables that channel and makes the
 corresponding FPGA pins available as GPIO. 
  The string can be up to 8 characters long, and if it defines more
@@ -433,7 +433,7 @@ Parameters:
 
 .TP
 (float r/w) scale
-Converts from 'count' units to 'position' units.
+Converts from "count" units to "position" units.
 
 .TP
 (bit r/w) index\-invert
@@ -718,7 +718,7 @@ counts per rev (16777216 counts).
 .TP
 (s32, out) rawcounts
 This is identical to the counts pin, except it is not
-reset by the 'index' or 'reset' pins. This is the pin which would be linked to
+reset by the "index" or "reset" pins. This is the pin which would be linked to
 the bldc HAL component if the resolver was being used to commutate a motor.
 
 .TP
@@ -798,7 +798,7 @@ In conjunction with \fBjoint-pos-fb\fR (qv) emulate absolute encoders.
 pwmgens have names like
 "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.pwmgen.\fI<Instance>\fR".
 "Instance" is a two-digit number that corresponds to the HostMot2 pwmgen
-instance number.  There are 'num_pwmgens' instances, starting with 00.
+instance number.  There are "num_pwmgens" instances, starting with 00.
 
 So, for example, the HAL pin that enables output from the fourth pwmgen
 of the first 7i43 board is: hm2_7i43.0.pwmgen.03.enable (this assumes
@@ -819,7 +819,7 @@ Pins:
 .TP
 (bit input) enable
 If True, the pwmgen will set its Not\-Enable pin
-False and output its pulses.  If 'enable' is False, pwmgen will set its
+False and output its pulses.  If "enable" is False, pwmgen will set its
 Not\-Enable pin True and not output any signals.
 
 .TP
@@ -830,7 +830,7 @@ Parameters:
 
 .TP
 (float rw) scale
-Scaling factor to convert 'value' from arbitrary units
+Scaling factor to convert "value" from arbitrary units
 to duty cycle: dc = value / scale.  Duty cycle has an effective range
 of \-1.0 to +1.0 inclusive, anything outside that range gets clipped.
 The default scale is 1.0.
@@ -1004,7 +1004,7 @@ scale in degrees for 1-2 mS servos with a full motion range of 90 degrees
 stepgens have names like
 "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.stepgen.\fI<Instance>\fR".
 "Instance" is a two-digit number that corresponds to the HostMot2 stepgen
-instance number.  There are 'num_stepgens' instances, starting with 00.
+instance number.  There are "num_stepgens" instances, starting with 00.
 
 So, for example, the HAL pin that has the current position
 feedback from the first stepgen of the second 5i22 board is:
@@ -1338,7 +1338,7 @@ inms have names like
 "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.inm.\fI<Instance>\fR".
 inmuxes have names like "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.inmux.\fI<Instance>\fR".
 "Instance" is a two-digit number that corresponds to the HostMot2 inm or inmux
-instance number.  There are 'num_inms' or numx_inmuxs" instances, starting
+instance number.  There are "num_inms" or numx_inmuxs" instances, starting
 with 00.
 
 Each instance reads between 8 and 32 input pins. inm and inmux are identical except
@@ -1416,7 +1416,7 @@ the LED.
 SSRs have names like
 "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.ssr.\fI<Instance>\fR".
 "Instance" is a two-digit number that corresponds to the HostMot2 SSR
-instance number.  There are 'num_ssrs' instances, starting
+instance number.  There are "num_ssrs" instances, starting
 with 00.
 
 Each instance has a rate control pin and between 1 and 32 output pins.
@@ -1448,7 +1448,7 @@ pin is 0 and open when the out-NN pin is 1
 OutMs have names like
 "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.OutM.\fI<Instance>\fR".
 "Instance" is a two-digit number that corresponds to the HostMot2 OutM
-instance number.  There are 'num_outms' instances, starting
+instance number.  There are "num_outms" instances, starting
 with 00.
 
 Each instance has between 1 and 32 output pins.
