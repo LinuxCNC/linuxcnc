@@ -1,4 +1,4 @@
-qt_prefs-mode:lang: en
+:lang: en
 :toc:
 
 [[cha:qtplasmac]]
