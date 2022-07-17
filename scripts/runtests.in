@@ -141,6 +141,7 @@ run_tests () {
 	    fi
 	fi
 	NUM=$(($NUM+1))
+	export TEST_DIR=$(readlink -f $testdir)
 	echo "Running test: $testdir" 1>&2
         if test -n "$SYSTEM_BUILD"; then
             # Tell `halcompile` where to install comps

@@ -18,7 +18,7 @@ servo_period_ns = float(Popen(
         "-sec",
         "EMCMOT",
         "-ini",
-        "%s/tests/motion/g0/motion-test.ini" % os.getenv("EMC2_HOME")
+        "%s/motion-test.ini" % os.getenv("TEST_DIR")
     ],
     stdout=PIPE
 ).communicate()[0])
@@ -32,9 +32,9 @@ max_acceleration_ips2 = float(Popen(
         "-var",
         "MAX_ACCELERATION",
         "-sec",
-        "AXIS_0",
+        "AXIS_X",
         "-ini",
-        "%s/tests/motion/g0/motion-test.ini" % os.getenv("EMC2_HOME")
+        "%s/motion-test.ini" % os.getenv("TEST_DIR")
     ],
     stdout=PIPE
 ).communicate()[0])
@@ -50,9 +50,9 @@ max_velocity_ips = float(Popen(
         "-var",
         "MAX_VELOCITY",
         "-sec",
-        "AXIS_0",
+        "AXIS_X",
         "-ini",
-        "%s/tests/motion/g0/motion-test.ini" % os.getenv("EMC2_HOME")
+        "%s/motion-test.ini" % os.getenv("TEST_DIR")
     ],
     stdout=PIPE
 ).communicate()[0])
@@ -63,7 +63,9 @@ max_velocity_ipc = max_velocity_ips / cycles_per_second
 # read the samples file and turn it into an array, where index i is an
 # array of the floats found on line i of the samples file
 samples_filename = sys.argv[1] + ".halsamples"
-lines = file(samples_filename).readlines()
+with open(samples_filename) as f:
+    lines = f.readlines()
+
 samples = []
 for line in lines:
     s = [ float(x) for x in line.split() ]
@@ -105,7 +107,7 @@ for i in range(i, len(samples)):
 
     highest_seen_accel_ipc2 = max(accel_ipc2, highest_seen_accel_ipc2)
 
-    #print "line %d: X=%.6f, v=%.6f i/c (%.6f i/s), a=%.6f i/c^2 (%.6f i/s^2)" % (i, samples[i][1], new_v_ipc, (new_v_ipc * cycles_per_second), accel_ipc2, (accel_ipc2 * cycles_per_second * cycles_per_second))
+    #print("line %d: X=%.6f, v=%.6f i/c (%.6f i/s), a=%.6f i/c^2 (%.6f i/s^2)" % (i, samples[i][1], new_v_ipc, (new_v_ipc * cycles_per_second), accel_ipc2, (accel_ipc2 * cycles_per_second * cycles_per_second)))
 
     # i hate floating point
     if ((accel_ipc2 * cycles_per_second) - max_acceleration_ipspc) > 0.0000001: 
@@ -163,7 +165,7 @@ for i in range(i, len(samples)):
 
     highest_seen_accel_ipc2 = min(accel_ipc2, highest_seen_accel_ipc2)
 
-    #print "line %d: X=%.6f, v=%.6f i/c (%.6f i/s), a=%.6f i/c^2 (%.6f i/s^2)" % (i, samples[i][1], new_v_ipc, (new_v_ipc * cycles_per_second), accel_ipc2, (accel_ipc2 * cycles_per_second * cycles_per_second))
+    #print("line %d: X=%.6f, v=%.6f i/c (%.6f i/s), a=%.6f i/c^2 (%.6f i/s^2)" % (i, samples[i][1], new_v_ipc, (new_v_ipc * cycles_per_second), accel_ipc2, (accel_ipc2 * cycles_per_second * cycles_per_second)))
 
     # i hate floating point
     if ((accel_ipc2 * cycles_per_second) - max_acceleration_ipspc) > 0.0000001: 

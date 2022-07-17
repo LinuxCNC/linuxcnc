@@ -87,5 +87,5 @@ jobs:
         eatmydata debian/configure
         eatmydata debuild -us -uc
         sudo apt-get install ../*.deb
-        eatmydata ./scripts/runtests -p tests/
+        ./scripts/runtests -p tests/
         eatmydata lintian --info --display-info --pedantic --display-experimental ../*.deb
