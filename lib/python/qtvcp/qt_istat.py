@@ -109,7 +109,7 @@ class _IStat(object):
             self.MACRO_PATH = None
         self.INI_MACROS = self.INI.findall("DISPLAY", "MACRO")
         self.MACHINE_IS_LATHE = bool(self.INI.find("DISPLAY", "LATHE"))
-        self.MACHINE_IS_QTPLASMAC = (self.INI.find("QTPLASMAC", "MODE")) or None
+        self.MACHINE_IS_QTPLASMAC = 'qtplasmac' in self.INI.find("DISPLAY", "DISPLAY")
 
         extensions = self.INI.findall("FILTER", "PROGRAM_EXTENSION")
         self.PROGRAM_FILTERS = ([e.split(None, 1) for e in extensions]) or None

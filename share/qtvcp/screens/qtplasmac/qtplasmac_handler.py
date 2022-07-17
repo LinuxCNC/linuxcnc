@@ -1,4 +1,4 @@
-VERSION = '1.227.218'
+VERSION = '1.227.219'
 
 '''
 qtplasmac_handler.py
@@ -135,6 +135,14 @@ class HandlerClass:
         if self.units == 'inch':
             self.units = 'in'
             self.unitsPerMm = 0.03937
+        # try to open prefs file so we can use it for updates
+        # it will not exist prior to V1.222.170 2022/03/08
+        self.PREFS = None
+        try:
+            self.PREFS = Access(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs'))
+        except:
+            pass
+        self.updateIni = []
         self.update_check()
         self.PREFS = Access(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs'))
         self.STYLEEDITOR = SSE(widgets, paths)
@@ -218,7 +226,6 @@ class HandlerClass:
                            float(self.iniFile.find('AXIS_Z', 'OFFSET_AV_RATIO')) * 60
         self.maxHeight = self.zMax - self.zMin
         self.maxPidP = self.thcFeedRate / self.unitsPerMm * 0.1
-        self.mode = int(self.iniFile.find('QTPLASMAC', 'MODE')) or 0
         self.tmpPath = '/tmp/qtplasmac/'
         if not os.path.isdir(self.tmpPath):
             os.mkdir(self.tmpPath)
@@ -372,8 +379,8 @@ class HandlerClass:
         # set hal pins only after initialized__ has begun
         # some locales won't set pins before this phase
         self.thcFeedRatePin.set(self.thcFeedRate)
-        if self.iniFile.find('QTPLASMAC', 'PM_PORT'):
-            self.pmx485_startup(self.iniFile.find('QTPLASMAC', 'PM_PORT'))
+        if self.PREFS.getpref('Port', '', str, 'POWERMAX'):
+            self.pmx485_startup(self.PREFS.getpref('Port', '', str, 'POWERMAX'))
         else:
             self.w.gas_pressure.hide()
             self.w.gas_pressure_label.hide()
@@ -385,6 +392,8 @@ class HandlerClass:
         else:
             self.mdiLast = None
         self.w.mdihistory.MDILine.spindle_inhibit(True)
+        if self.updateIni:
+            self.update_iniwrite()
         if self.firstRun is True:
             self.firstRun = False
         self.startupTimer.start(250)
@@ -820,14 +829,16 @@ class HandlerClass:
             CALL(['halcmd', 'net', 'plasmac:feed-upm', 'motion.feed-upm', 'plasmac.feed-upm'])
 
     def init_preferences(self):
-        self.lastLoadedProgram = self.w.PREFS_.getpref('RecentPath_0', 'None', str,'BOOK_KEEPING')
+        self.mode = self.PREFS.getpref('Mode', 0, int,'GUI_OPTIONS')
+        self.autorepeat_skip = self.PREFS.getpref('Autorepeat all', False, bool, 'GUI_OPTIONS')
+        self.flash_error = self.PREFS.getpref('Flash error', False, bool,'GUI_OPTIONS')
         self.w.chk_keyboard_shortcuts.setChecked(self.PREFS.getpref('Use keyboard shortcuts', False, bool, 'GUI_OPTIONS'))
         self.w.chk_soft_keyboard.setChecked(self.PREFS.getpref('Use soft keyboard', False, bool, 'GUI_OPTIONS'))
         self.w.chk_overlay.setChecked(self.PREFS.getpref('Show materials', True, bool, 'GUI_OPTIONS'))
         self.w.chk_run_from_line.setChecked(self.PREFS.getpref('Run from line', False, bool, 'GUI_OPTIONS'))
         self.w.chk_tool_tips.setChecked(self.PREFS.getpref('Tool tips', True, bool, 'GUI_OPTIONS'))
         self.w.chk_exit_warning.setChecked(self.PREFS.getpref('Exit warning', True, bool, 'GUI_OPTIONS'))
-        self.exitMessage = self.PREFS.getpref('shutdown_msg_detail', '', str, 'SHUTDOWN_OPTIONS')
+        self.exitMessage = self.PREFS.getpref('Exit warning text', '', str, 'GUI_OPTIONS')
         self.w.cone_size.setValue(self.PREFS.getpref('Preview cone size', 0.5, float, 'GUI_OPTIONS'))
         self.w.grid_size.setValue(self.PREFS.getpref('Preview grid size', 0, float, 'GUI_OPTIONS'))
         self.w.table_zoom_scale.setValue(self.PREFS.getpref('T view zoom scale', 1, float, 'GUI_OPTIONS'))
@@ -841,6 +852,7 @@ class HandlerClass:
         self.w.color_estop.setStyleSheet('background-color: {}'.format(self.PREFS.getpref('Estop', '#ff0000', str, 'COLOR_OPTIONS')))
         self.w.color_disabled.setStyleSheet('background-color: {}'.format(self.PREFS.getpref('Disabled', '#b0b0b0', str, 'COLOR_OPTIONS')))
         self.w.color_preview.setStyleSheet('background-color: {}'.format(self.PREFS.getpref('Preview', '#000000', str, 'COLOR_OPTIONS')))
+        self.lastLoadedProgram = self.w.PREFS_.getpref('RecentPath_0', 'None', str,'BOOK_KEEPING')
         TOOLTIPS.tool_tips_changed(self.w)
         self.soft_keyboard()
         self.cone_size_changed(self.w.cone_size.value())
@@ -851,14 +863,14 @@ class HandlerClass:
         if not self.gui43:
             self.w.main_tab_widget.removeTab(3)
         for b in ['RUN', 'PAUSE', 'ABORT']:
-            if int(self.iniFile.find('QTPLASMAC', 'HIDE_{}'.format(b)) or 0):
+            if self.PREFS.getpref('Hide {}'.format(b.lower()), False, bool,'GUI_OPTIONS'):
                 self.w[b.lower()].hide()
                 if self.landscape:
                     self.w.machine_frame.setMaximumHeight(self.w.machine_frame.maximumHeight() - 44)
                     self.w.machine_frame.setMinimumHeight(self.w.machine_frame.maximumHeight())
 
     def init_widgets(self):
-        droPos = self.iniFile.find('QTPLASMAC', 'DRO_POSITION') or 'None'
+        droPos = self.PREFS.getpref('DRO position', 'bottom', str, 'GUI_OPTIONS')
         if droPos.lower() == 'top':
             #designer can change the layout name in the .ui file
             #this will find the name and move the dro to the top
@@ -943,7 +955,7 @@ class HandlerClass:
         self.w.conv_preview.inhibit_selection = True
         self.w.conv_preview.updateGL()
         self.w.conv_preview.setInhibitControls(True)
-        self.w.estopButton = int(self.iniFile.find('QTPLASMAC', 'ESTOP_TYPE') or 0)
+        self.w.estopButton = self.PREFS.getpref('Estop type', 0, int, 'GUI_OPTIONS')
         if self.w.estopButton == 0:
             self.w.estop.setEnabled(False)
         if self.w.estopButton == 1:
@@ -961,7 +973,6 @@ class HandlerClass:
         self.rflSelected = False
         self.fileOpened = False
         self.fileClear = False
-        self.flash_error = int(self.iniFile.find('QTPLASMAC', 'FLASH_ERROR') or 0)
         self.error_present = False
         self.laserButtonState = 'laser'
         self.camButtonState = 'markedge'
@@ -1006,74 +1017,41 @@ class HandlerClass:
         self.probeOffsetX = 0.0
         self.probeOffsetY = 0.0
         self.probeDelay = 0.0
-        head = _translate('HandlerClass', 'INI FILE ERROR')
-        inCode = self.iniFile.find('QTPLASMAC', 'LASER_TOUCHOFF') or '0'
-        msg0 = _translate('HandlerClass', 'Invalid entry for laser offset')
-        if inCode == '0':
+        head = _translate('HandlerClass', 'PREFS FILE ERROR')
+        # laser
+        try:
+            self.laserOffsetX = self.PREFS.getpref('X axis', 0, float, 'LASER_OFFSET')
+            self.laserOffsetY = self.PREFS.getpref('Y axis', 0, float, 'LASER_OFFSET')
+        except:
             self.w.laser.hide()
+            msg0 = _translate('HandlerClass', 'Invalid entry for laser offset')
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
+        if self.laserOffsetX or self.laserOffsetY:
+            self.idleHomedList.append('laser')
+            self.w.laser.setEnabled(False)
         else:
-            try:
-                parms = inCode.lower().split()
-                for parm in parms:
-                    if parm.startswith('x'):
-                        self.laserOffsetX = float(parms[0].replace('x', ''))
-                    elif parm.startswith('y'):
-                        self.laserOffsetY = float(parms[1].replace('y', ''))
-                    else:
-                        self.laserOffsetX = 0.0
-                        self.laserOffsetY = 0.0
-                        break
-            except:
-                self.w.laser.hide()
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
-            if self.laserOffsetX or self.laserOffsetY:
-                self.idleHomedList.append('laser')
-                self.w.laser.setEnabled(False)
-            else:
-                self.w.laser.hide()
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
-        inCode = self.iniFile.find('QTPLASMAC', 'CAMERA_TOUCHOFF') or '0'
-        msg0 = _translate('HandlerClass', 'Invalid entry for camera offset')
-        if inCode == '0':
+            self.w.laser.hide()
+        # camera
+        try:
+            self.camOffsetX = self.PREFS.getpref('X axis', 0, float, 'CAMERA_OFFSET')
+            self.camOffsetY = self.PREFS.getpref('Y axis', 0, float, 'CAMERA_OFFSET')
+        except:
             self.w.camera.hide()
+            msg0 = _translate('HandlerClass', 'Invalid entry for camera offset')
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
+        if self.camOffsetX or self.camOffsetY:
+            self.idleHomedList.append('camera')
+            self.w.camera.setEnabled(False)
         else:
-            try:
-                parms = inCode.lower().split()
-                for parm in parms:
-                    if parm.startswith('x'):
-                        self.camOffsetX = float(parms[0].replace('x', ''))
-                    elif parm.startswith('y'):
-                        self.camOffsetY = float(parms[1].replace('y', ''))
-                    else:
-                        self.camOffsetX = 0.0
-                        self.camOffsetY = 0.0
-                        break
-            except:
-                self.w.camera.hide()
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
-            if self.camOffsetX or self.camOffsetY:
-                self.idleHomedList.append('camera')
-                self.w.camera.setEnabled(False)
-            else:
-                self.w.camera.hide()
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
-        inCode = self.iniFile.find('QTPLASMAC', 'OFFSET_PROBING') or '0'
-        msg0 = _translate('HandlerClass', 'Invalid entry for probe offset')
-        if inCode != '0':
-            try:
-                parms = inCode.lower().split()
-                if len(parms) > 3:
-                    raise Exception()
-                for parm in parms:
-                    if parm.startswith('x'):
-                        self.probeOffsetX = float(parm.replace('x', ''))
-                    elif parm.startswith('y'):
-                        self.probeOffsetY = float(parm.replace('y', ''))
-                    else:
-                        self.probeDelay = float(parm)
-            except:
-                self.w.camera.hide()
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
+            self.w.camera.hide()
+        # probing
+        try:
+            self.probeOffsetX = self.PREFS.getpref('X axis', 0, float, 'OFFSET_PROBING')
+            self.probeOffsetY = self.PREFS.getpref('Y axis', 0, float, 'OFFSET_PROBING')
+            self.probeDelay = self.PREFS.getpref('Delay', 0, float, 'OFFSET_PROBING')
+        except:
+            msg0 = _translate('HandlerClass', 'Invalid entry for probe offset')
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
 
     def closing_cleanup__(self):
         # disconnect powermax
@@ -1092,7 +1070,7 @@ class HandlerClass:
         self.PREFS.putpref('Run from line', self.w.chk_run_from_line.isChecked(), bool, 'GUI_OPTIONS')
         self.PREFS.putpref('Tool tips', self.w.chk_tool_tips.isChecked(), bool, 'GUI_OPTIONS')
         self.PREFS.putpref('Exit warning', self.w.chk_exit_warning.isChecked(), bool, 'GUI_OPTIONS')
-        self.PREFS.putpref('shutdown_msg_detail', self.exitMessage, str, 'SHUTDOWN_OPTIONS')
+        self.PREFS.putpref('Exit warning text', self.exitMessage, str, 'GUI_OPTIONS')
         self.PREFS.putpref('Preview cone size', self.w.cone_size.value(), float, 'GUI_OPTIONS')
         self.PREFS.putpref('Preview grid size', self.w.grid_size.value(), float, 'GUI_OPTIONS')
         self.PREFS.putpref('T view zoom scale', self.w.table_zoom_scale.value(), float, 'GUI_OPTIONS')
@@ -1854,7 +1832,7 @@ class HandlerClass:
     def set_offsets_clicked(self):
         if self.developmentPin.get():
             reload(OFFSETS)
-        OFFSETS.dialog_show(self, self.w, INIPATH, STATUS, ACTION, TOOL, self.foreColor, self.backColor)
+        OFFSETS.dialog_show(self, self.w, self.PREFS, INIPATH, STATUS, ACTION, TOOL, self.foreColor, self.backColor)
 
     def feed_label_pressed(self):
         self.w.feed_slider.setValue(100)
@@ -2161,38 +2139,56 @@ class HandlerClass:
                 event.ignore()
 
     def update_check(self):
-    # newest update must be added last in this function
+        # newest update must be added last in this function
+        # if any writing to the ini file is required then that needs
+        # to be done later in the update_iniwrite function
         halfiles = self.iniFile.findall('HAL', 'HALFILE') or None
         machinePrefsFile = os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs')
         qtvcpPrefsFile = os.path.join(self.PATHS.CONFIGPATH, 'qtvcp.prefs')
-    # use qtplasmac_comp.hal for component connections (pre V1.221.154 2022/01/18)
+        # use qtplasmac_comp.hal for component connections (pre V1.221.154 2022/01/18)
         if halfiles and not [f for f in halfiles if 'plasmac.tcl' in f] and not \
             [f for f in halfiles if 'qtplasmac_comp.hal' in f]:
-            UPDATER.add_component_hal_file(self.PATHS.CONFIGPATH, INIPATH, halfiles)
-    # split out qtplasmac specific prefs into a separate file (pre V1.222.170 2022/03/08)
+            UPDATER.add_component_hal_file(self.PATHS.CONFIGPATH, halfiles)
+            self.updateIni.append(154)
+        # split out qtplasmac specific prefs into a separate file (pre V1.222.170 2022/03/08)
         if not os.path.isfile(machinePrefsFile):
             old = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac.prefs')
             if os.path.isfile(old):
                 UPDATER.split_prefs_file(old, qtvcpPrefsFile, machinePrefsFile)
-    # move conversational prefs from qtvcp.prefs to <machine_name>.prefs (pre V1.222.187 2022/05/03)
+        # move conversational prefs from qtvcp.prefs to <machine_name>.prefs (pre V1.222.187 2022/05/03)
         if os.path.isfile(qtvcpPrefsFile) and os.path.isfile(machinePrefsFile):
             with open(qtvcpPrefsFile, 'r') as inFile:
                 data = inFile.readlines()
                 if [line for line in data if '[CONVERSATIONAL]' in line]:
                     UPDATER.move_prefs(qtvcpPrefsFile, machinePrefsFile)
-    # change RS274 startup parameters from a subroutine (pre V1.224.207 2022/06/22)
+        # change RS274 startup parameters from a subroutine (pre V1.224.207 2022/06/22)
         startupCode = self.iniFile.find('RS274NGC', 'RS274NGC_STARTUP_CODE')
         if 'metric_startup' in startupCode or 'imperial_startup' in startupCode:
-            UPDATER.rs274ngc_startup_code(INIPATH)
-    # remove the qtplasmac link from the config directory (pre V1.225.208 2022/06/29)
+            self.updateIni.append(207)
+        # remove the qtplasmac link from the config directory (pre V1.225.208 2022/06/29)
         if os.path.exists(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac')):
-        # stage 1: set up for unlinking on the next run of qtplasmac
+            # stage 1: set up for unlinking on the next run of qtplasmac
             if 'code.py' in self.iniFile.find('FILTER', 'ngc'):
-                UPDATER.remove_qtplasmac_link(INIPATH)
-        # stage 2: remove the qtplasmac link
+                self.updateIni.append(208)
+            # stage 2: remove the qtplasmac link
             else:
                 if os.path.islink(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac')):
                     os.unlink(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'))
+        # move qtplasmac options from ini file to prefs file pre V1.227.219 2022/07/14)
+        if not self.PREFS.has_section('BUTTONS'):
+            UPDATER.move_options_to_prefs_file(self.iniFile, self.PREFS)
+            self.updateIni.append(219)
+
+    def update_iniwrite(self):
+        # this is for updates that write to the ini file
+        if 154 in self.updateIni:
+            UPDATER.add_component_hal_file_iniwrite(INIPATH)
+        if 207 in self.updateIni:
+            UPDATER.rs274ngc_startup_code_iniwrite(INIPATH)
+        if 208 in self.updateIni:
+            UPDATER.remove_qtplasmac_link_iniwrite(INIPATH)
+        if 219 in self.updateIni:
+            UPDATER.move_options_to_prefs_file_iniwrite(INIPATH)
 
     def motion_type_changed(self, value):
         if value == 0 and STATUS.is_mdi_mode():
@@ -3052,7 +3048,7 @@ class HandlerClass:
         self.w.material_selector.showPopup()
 
     def autorepeat_keys(self, state):
-        if not self.iniFile.find('QTPLASMAC', 'AUTOREPEAT_ALL') == 'ENABLE':
+        if not self.autorepeat_skip:
             if state:
                 ACTION.ENABLE_AUTOREPEAT_KEYS(' ')
             else:
@@ -3250,14 +3246,8 @@ class HandlerClass:
         head = _translate('HandlerClass', 'USER BUTTON ERROR')
         for bNum in range(1,21):
             self.w['button_{}'.format(str(bNum))].setEnabled(False)
-            bName = self.iniFile.find('QTPLASMAC', 'BUTTON_' + str(bNum) + '_NAME') or ''
-            bCode = self.iniFile.find('QTPLASMAC', 'BUTTON_' + str(bNum) + '_CODE') or ''
-            bNameDup = self.iniFile.find('QTPLASMAC', 'BUTTON_' + str(bNum) + '_NAME', 2)
-            bCodeDup = self.iniFile.find('QTPLASMAC', 'BUTTON_' + str(bNum) + '_CODE', 2)
-            if bNameDup or bCodeDup:
-                msg0 = _translate('HandlerClass', 'is already assigned')
-                msg1 = _translate('HandlerClass', 'Using first instance only of')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\nBUTTON_{} {}\n{} BUTTON_{}\n'.format(head, bNum, msg0, msg1, bNum))
+            bName = self.PREFS.getpref('{} Name'.format(bNum), '', str, 'BUTTONS')
+            bCode = self.PREFS.getpref('{} Code'.format(bNum), '', str, 'BUTTONS')
             if (bCode and not bName) or (not bCode and bName):
                 msg0 = _translate('HandlerClass', 'are both required')
                 msg1 = _translate('HandlerClass', 'only one has been specified for')
@@ -3265,7 +3255,7 @@ class HandlerClass:
                 self.w['button_{}'.format(str(bNum))].setText('')
                 self.iniButtonCodes.append('')
                 continue
-            if bCode == '':
+            if not bCode:
                 self.w['button_{}'.format(str(bNum))].setText('')
                 self.iniButtonCodes.append('')
                 continue
@@ -3288,7 +3278,7 @@ class HandlerClass:
                     bLabel += '\n{}'.format(bNames[name])
             self.w['button_{}'.format(str(bNum))].setText(bLabel)
             if 'change-consumables' in bCode:
-                self.ccParm = self.iniFile.find('QTPLASMAC','BUTTON_' + str(bNum) + '_CODE').replace('change-consumables','').replace(' ','').lower() or None
+                self.ccParm = bCode.replace('change-consumables','').replace(' ','').lower() or None
                 if self.ccParm != None and ('x' in self.ccParm or 'y' in self.ccParm) and 'f' in self.ccParm:
                     self.ccButton = 'button_{}'.format(str(bNum))
                     self.idleHomedList.append(self.ccButton)
@@ -3748,8 +3738,8 @@ class HandlerClass:
             if self.ccFeed == 'None' or self.ccFeed < 1:
                 head = _translate('HandlerClass', 'USER BUTTON ERROR')
                 msg0 = _translate('HandlerClass', 'Invalid feed rate for consumable change')
-                msg1 = _translate('HandlerClass', 'check .ini file settings')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\nBUTTON_{}_CODE\n'.format(head, msg0, msg1, str(button)))
+                msg1 = _translate('HandlerClass', 'check .prefs file settings')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n{} Code\n'.format(head, msg0, msg1, str(button)))
                 return
             else:
                 hal.set_p('plasmac.xy-feed-rate', str(float(self.ccFeed)))
@@ -4949,7 +4939,7 @@ class HandlerClass:
         if state:
             self.pmx485CommsError = False
             self.pmx485RetryTimer.stop()
-            if self.pmx485_load(self.iniFile.find('QTPLASMAC', 'PM_PORT')):
+            if self.pmx485_load(self.PREFS.getpref('Port', '', str, 'POWERMAX')):
                 return
             # if pins not connected then connect them
             if not hal.pin_has_writer('pmx485.enable'):
@@ -5281,9 +5271,9 @@ class HandlerClass:
 
     def set_color_styles(self):
         self.styleSheetFile = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac.qss')
-        ssFile = self.iniFile.find('QTPLASMAC', 'CUSTOM_STYLE') or ''
+        ssFile = self.PREFS.getpref('Custom style', 'None', str, 'GUI_OPTIONS')
         # if custom stylesheet try to use it
-        if ssFile:
+        if ssFile != 'None':
             COPY(ssFile, self.styleSheetFile)
             self.custom_stylesheet()
         # otherwise use the standard stylesheet

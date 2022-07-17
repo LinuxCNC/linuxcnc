@@ -198,9 +198,11 @@ class HAL:
         if SIG.FLOOD in outputs:
             print("net coolant-flood <= iocontrol.0.coolant-flood", file=file)
 
-        # do the qtplasmac connections
+        # do the qtplasmac connections and preferences file
         if self.d.select_qtplasmac:
             self.qtplasmac_connections(file, base)
+            prefsfile = os.path.join(base, self.d.machinename + ".prefs")
+            self.qtplasmac_prefs(prefsfile)
 
         if encoder:
             print(file=file)
@@ -769,33 +771,16 @@ class HAL:
             print(_("# This file will not be overwritten when you run stepconf again"), file=f1)
             print(file=f1)
             f1.close()
+        self.d.qtplasmacvscale = 1
+        self.d.qtplasmacvoffset = 0
         # if using thcad for arc voltage and not a sim config
         if self.d.thcadenc & 1 and not self.d.sim_hardware:
             if self.d.voltsrdiv < 150:
                 dratio = self.d.voltsrdiv
             else:
                 dratio = (self.d.voltsrdiv + 100000) / 100000
-            vscale = dratio / (((self.d.voltsfullf - self.d.voltszerof) * 1000) / int(self.d.voltsfjumper) / int(self.d.voltsmodel))
-            voffset = self.d.voltszerof * 1000 / int(self.d.voltsfjumper)
-            # arc voltage settings in prefs file
-            prefsfile = os.path.join(base, self.d.machinename + ".prefs")
-            # edit existing prefs file
-            if os.path.exists(prefsfile):
-                with open(prefsfile, "r") as f1:
-                    prefs = f1.readlines()
-                with open(prefsfile, "w") as f1:
-                    for line in prefs:
-                        if line.startswith("Arc Voltage Offset"):
-                            line = "Arc Voltage Offset = {:.3f}\n".format(voffset)
-                        elif line.startswith("Arc Voltage Scal"):
-                            line = "Arc Voltage Scale = {:.6f}\n".format(vscale)
-                        f1.write(line)
-            # create new prefs file
-            else:
-                with open(prefsfile, "w") as f1:
-                    print(("[PLASMA_PARAMETERS]"), file=f1)
-                    print("Arc Voltage Offset = %.3f" % voffset, file=f1)
-                    print("Arc Voltage Scale = %.6f" % vscale, file=f1)
+            self.d.qtplasmacvscale = dratio / (((self.d.voltsfullf - self.d.voltszerof) * 1000) / int(self.d.voltsfjumper) / int(self.d.voltsmodel))
+            self.d.qtplasmacvoffset = self.d.voltszerof * 1000 / int(self.d.voltsfjumper)
         # qtplasmac has a shutdown.hal
         sdfilename = os.path.join(base, "shutdown.hal")
         f1 = open(sdfilename, "w")
@@ -809,8 +794,7 @@ class HAL:
             f1 = open(spfilename, "w")
             print("# QTPLASMAC SIMULATOR PANEL", file=f1)
             print("\n# load the simulated torch", file=f1)
-            print("loadrt sim_torch", file=f1)
-            print("addf sim-torch servo-thread", file=f1)
+            print("loadusr -Wn sim-torch sim-torch", file=f1)
             print("\n# load the sim GUI", file=f1)
             print("loadusr -Wn qtplasmac_sim qtvcp qtplasmac_sim.ui", file=f1)
             print("\n# connect to existing plasmac connections", file=f1)
@@ -826,6 +810,33 @@ class HAL:
             print("net sim:move-up             qtplasmac_sim.move_up               =>  plasmac.move-up", file=f1)
             print("net sim:ohmic               qtplasmac_sim.sensor_ohmic          =>  db_ohmic.in", file=f1)
             f1.close()
+
+    def qtplasmac_prefs(self, prefsfile):
+        def putPrefs(prefs, file, section, option, value):
+            if prefs.has_section(section):
+                prefs.set(section, option, str(value))
+                prefs.write(open(prefsfile, "w"))
+            else:
+                prefs.add_section(section)
+                prefs.set(section, option, str(value))
+                prefs.write(open(prefsfile, "w"))
+        from configparser import RawConfigParser
+        prefs = RawConfigParser()
+        prefs.optionxform = str
+        putPrefs(prefs, prefsfile, 'PLASMA_PARAMETERS', 'Arc Voltage Offset', '{:.3f}'.format(self.d.qtplasmacvoffset))
+        putPrefs(prefs, prefsfile, 'PLASMA_PARAMETERS', 'Arc Voltage Scale', '{:.6f}'.format(self.d.qtplasmacvscale))
+        putPrefs(prefs, prefsfile, 'GUI_OPTIONS', 'Mode', self.d.qtplasmacmode)
+        putPrefs(prefs, prefsfile, 'GUI_OPTIONS', 'Estop type', self.d.qtplasmacestop)
+        dro = 'top' if self.d.qtplasmacdro else 'bottom'
+        putPrefs(prefs, prefsfile, 'GUI_OPTIONS', 'DRO position', dro)
+        putPrefs(prefs, prefsfile, 'GUI_OPTIONS', 'Flash error', self.d.qtplasmacerror)
+        putPrefs(prefs, prefsfile, 'GUI_OPTIONS', 'Hide run', self.d.qtplasmacstart)
+        putPrefs(prefs, prefsfile, 'GUI_OPTIONS', 'Hide pause', self.d.qtplasmacpause)
+        putPrefs(prefs, prefsfile, 'GUI_OPTIONS', 'Hide abort', self.d.qtplasmacstop)
+        for ub in range(1, 21):
+            putPrefs(prefs, prefsfile, 'BUTTONS', '{} Name'.format(ub), self.d.qtplasmac_bnames[ub-1])
+            putPrefs(prefs, prefsfile, 'BUTTONS', '{} Code'.format(ub), self.d.qtplasmac_bcodes[ub-1])
+        putPrefs(prefs, prefsfile, 'POWERMAX', 'Port', self.d.qtplasmacpmx)
 
     # Boiler code
     def __getitem__(self, item):

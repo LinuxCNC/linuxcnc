@@ -176,7 +176,7 @@ class Converter(QMainWindow, object):
         else:
             self.DIR = '{}'.format(os.path.expanduser('~'))
         self.display = 'DISPLAY                 = qtvcp qtplasmac\n'
-        self.estop = 'ESTOP_TYPE              = 0\n'
+        self.estop = 'Estop type = 0'
 
 # POPUP INFO DIALOG
     def dialog_ok(self, title, text):
@@ -221,17 +221,17 @@ class Converter(QMainWindow, object):
         elif self.aspectGroup.id(button) == 2:
             self.display = 'DISPLAY                 = qtvcp qtplasmac_4x3\n'
 
-# SET ESTOP DESCRIPTION
+# ESTOP CHANGED
     def estop_group_clicked(self, button):
         if self.estopGroup.id(button) == 0:
             self.estopLabel.setText('ESTOP IS AN INDICATOR ONLY')
-            self.estop = 'ESTOP_TYPE              = 0\n'
+            self.estop = 'Estop type = 0'
         elif self.estopGroup.id(button) == 1:
             self.estopLabel.setText('ESTOP IS HIDDEN')
-            self.estop = 'ESTOP_TYPE              = 1\n'
+            self.estop = 'Estop type = 1'
         elif self.estopGroup.id(button) == 2:
             self.estopLabel.setText('ESTOP IS A BUTTON')
-            self.estop = 'ESTOP_TYPE              = 2\n'
+            self.estop = 'Estop type = 2'
 
 # CLOSE PROGRAM
     def close_app(self):
@@ -265,7 +265,12 @@ class Converter(QMainWindow, object):
     # SET FILENAMES AND PATHS
         fName = os.path.basename(self.iniIn)
         newDir = os.path.dirname(self.iniIn)
-        oldDir = '{}_{}_{}'.format(os.path.dirname(self.iniIn), 'plasmac', str(time.time()).split('.')[0])
+        i = 1
+        while True:
+            oldDir = '{}.bkp{}'.format(os.path.dirname(self.iniIn), i)
+            if not os.path.exists(oldDir):
+                break
+            i += 1
         newIniFile = os.path.join(newDir, fName)
         oldIniFile = os.path.join(oldDir, fName)
     # CREATE NEW DIRECTORY AND BACKUPS DIRECTORY
@@ -357,31 +362,30 @@ class Converter(QMainWindow, object):
     # COPY TOOL TABLE
         if os.path.exists('{}/tool.tbl'.format(oldDir)):
             COPY('{}/tool.tbl'.format(oldDir), '{}/tool.tbl'.format(newDir))
-    # PARSE ORIGINAL INI FILE TO FIND BUTTONS
-        self.buttons = {}
-        for n in range(1, 20):
-            self.buttons[n] = None
-        numButton = 1
-        n0,n1,name,code = '','','',''
-        with open(oldIniFile, 'r') as inFile:
-            while(1):
-                line = inFile.readline()
-                if line.startswith('[PLASMAC]'):
-                    break
-            while(1):
-                line = inFile.readline()
-                if line.startswith('['):
-                    break
-                if line.startswith('BUTTON_') and '_NAME' in line:
-                    n0 = line.split('=')[0].strip().replace('BUTTON_','').replace('_NAME','')
-                    name = line.split('=')[1].strip()
-                if line.startswith('BUTTON_') and '_CODE' in line:
-                    n1 = line.split('=')[0].strip().replace('BUTTON_','').replace('_CODE','')
-                    code = line.split('=')[1].strip()
-                if n0 == n1 and name and code:
-                    self.buttons[numButton] = [name, code]
-                    n0,n1,name,code = '','','',''
-                    numButton += 1
+    # MAKE NEW PREFERENCES FILE
+        self.prefParms = []
+        self.read_ini_file(oldIniFile)
+        if os.path.isfile(os.path.join(oldDir, machineName + '_config.cfg')):
+            self.read_con_file(os.path.join(oldDir, machineName + '_config.cfg'))
+        else:
+            print('file not found, config parameters can not be converted.')
+        if os.path.isfile(os.path.join(oldDir, machineName + '_run.cfg')):
+            self.read_run_file(os.path.join(oldDir, machineName + '_run.cfg'))
+        else:
+            print('file not found, run parameters can not be converted.')
+        if os.path.isfile(os.path.join(oldDir, machineName + '_wizards.cfg')):
+            self.read_wiz_file(os.path.join(oldDir, machineName + '_wizards.cfg'))
+        else:
+            print('file not found, wizard parameters can not be converted.')
+        if os.path.isfile(os.path.join(oldDir, 'plasmac_stats.var')):
+            self.read_sta_file(os.path.join(oldDir, 'plasmac_stats.var'))
+        else:
+            print('file not found, statistics can not be converted.')
+        if os.path.isfile(os.path.join(oldDir, machineName + '_material.cfg')):
+            self.read_mat_file(os.path.join(oldDir, machineName + '_material.cfg'), newDir, machineName)
+        else:
+            print('file not found, materials can not be converted.')
+        self.write_prefs_files(newDir, machineName)
     # MAKE NEW INI FILE
         section = ''
         with open(newIniFile, 'w') as outFile:
@@ -394,7 +398,6 @@ class Converter(QMainWindow, object):
                         section = 'APPLICATIONS'
                     if line.startswith('[PLASMAC]'):
                         section = 'PLASMAC'
-                        line = '[QTPLASMAC]\n'
                     if line.startswith('[FILTER]'):
                         section = 'FILTER'
                     if line.startswith('[RS274NGC]'):
@@ -409,25 +412,6 @@ class Converter(QMainWindow, object):
                     if section == 'APPLICATIONS':
                         continue
                     if section == 'PLASMAC':
-                        omissions = ['LAST','CONF','FONT','MAXI','WIND','THEM','AXIS','CONE','BUTT','PAUS','TORC']
-                        if line.startswith('#') or line.startswith('PM_PR'):
-                            continue
-                        if line[:4] in omissions:
-                            continue
-                        if line.startswith('['):
-                            outFile.write('\n')
-                        if line.strip():
-                            if line.startswith('MODE'):
-                                outFile.write(line)
-                                outFile.write(self.estop)
-                                outFile.write('#LASER_TOUCHOFF          = X0.0 Y0.0\n')
-                                outFile.write('#CAMERA_TOUCHOFF         = X0.0 Y0.0\n')
-                                for n in range(1, 20):
-                                    if self.buttons[n]:
-                                        outFile.write('BUTTON_{}_NAME           = {}\n'.format(n, self.buttons[n][0]))
-                                        outFile.write('BUTTON_{}_CODE           = {}\n'.format(n, self.buttons[n][1]))
-                            else:
-                                outFile.write(line)
                         continue
                     elif section == 'FILTER':
                         if line.startswith('[FILTER]'):
@@ -499,28 +483,6 @@ class Converter(QMainWindow, object):
                             if 'marry this config' in line or 'sim testing panel' in line:
                                 continue
                             outFile.write(line)
-        self.prefParms = []
-        if os.path.isfile(os.path.join(oldDir, machineName + '_config.cfg')):
-            self.read_con_file(os.path.join(oldDir, machineName + '_config.cfg'))
-        else:
-            print('file not found, config parameters can not be converted.')
-        if os.path.isfile(os.path.join(oldDir, machineName + '_run.cfg')):
-            self.read_run_file(os.path.join(oldDir, machineName + '_run.cfg'))
-        else:
-            print('file not found, run parameters can not be converted.')
-        if os.path.isfile(os.path.join(oldDir, machineName + '_wizards.cfg')):
-            self.read_wiz_file(os.path.join(oldDir, machineName + '_wizards.cfg'))
-        else:
-            print('file not found, wizard parameters can not be converted.')
-        if os.path.isfile(os.path.join(oldDir, 'plasmac_stats.var')):
-            self.read_sta_file(os.path.join(oldDir, 'plasmac_stats.var'))
-        else:
-            print('file not found, statistics can not be converted.')
-        if os.path.isfile(os.path.join(oldDir, machineName + '_material.cfg')):
-            self.read_mat_file(os.path.join(oldDir, machineName + '_material.cfg'), newDir, machineName)
-        else:
-            print('file not found, materials can not be converted.')
-        self.write_prefs_file(newDir, machineName)
     # ADD A SIM POSTGUI IF A SIM CONFIG
         if simConfig:
             with open('{}/{}'.format(newDir, 'sim_postgui.tcl'), 'a') as outFile:
@@ -536,8 +498,51 @@ class Converter(QMainWindow, object):
         print(msg)
         sys.exit(0)
 
+# READ THE ORIGINAL INI FILE TO GET PLASMAC OPTIONS
+    def read_ini_file(self, oldIniFile):
+        self.buttons = {}
+        for n in range(1, 21):
+            self.buttons[n] = ['', '']
+        bNum = 1
+        n, name, c, code = None, None, None, None
+        with open(oldIniFile, 'r') as inFile:
+            while(1):
+                line = inFile.readline()
+                if not line or line.startswith('[PLASMAC]'):
+                    break
+            while(1):
+                line = inFile.readline()
+                if not line or line.startswith('['):
+                    break
+                if line.strip():
+                    if line.startswith('MODE'):
+                        self.prefParms.append('[GUI_OPTIONS]')
+                        value = line.split('=')[1].strip()
+                        self.prefParms.append('Mode = {}'.format(value))
+                        self.prefParms.append('{}\n'.format(self.estop))
+                    if line.startswith('BUTTON_'):
+                        if '_NAME' in line:
+                            n = line.split('_')[1].split('_')[0]
+                            name = line.split('=')[1].strip()
+                        if '_CODE' in line:
+                            if 'cut-recovery' in line:
+                                n, name, c, code = None, None, None, None
+                            else:
+                                c = line.split('_')[1].split('_')[0]
+                                code = line.split('=')[1].strip()
+                        if n == c and n and c:
+                            if name and code:
+                                self.buttons[bNum] = [name, code]
+                            n, name, c, code = None, None, None, None
+                            bNum += 1
+        if self.buttons:
+            self.prefParms.append('[BUTTONS]')
+            for n in range(1, 21):
+                self.prefParms.append('{} Name = {}'.format(n, self.buttons[n][0]))
+                self.prefParms.append('{} Code = {}'.format(n, self.buttons[n][1]))
+        self.prefParms.append('')
 
-# READ THE ORIGINAL <MACHINE>_CONFIG.CFG FILE
+# READ THE ORIGINAL <MACHINE_NAME>_CONFIG.CFG FILE
     def read_con_file(self, conFile):
         self.prefParms.append('[PLASMA_PARAMETERS]')
         with open(conFile) as inFile:
@@ -625,7 +630,7 @@ class Converter(QMainWindow, object):
                     self.prefParms.append('THC Threshold = {}'.format(value))
             self.prefParms.append('')
 
-# READ THE ORIGINAL <MACHINE>_RUN.CFG FILE
+# READ THE ORIGINAL <MACHINE_NAME>_RUN.CFG FILE
     def read_run_file(self, runFile):
         self.prefParms.append('[ENABLE_OPTIONS]')
         with open(runFile) as inFile:
@@ -697,7 +702,7 @@ class Converter(QMainWindow, object):
                     self.prefParms.append('Y length = {}'.format(value))
             self.prefParms.append('')
 
-# READ THE ORIGINAL <MACHINE>_WIZARDS.CFG FILE
+# READ THE ORIGINAL <MACHINE_NAME>_WIZARDS.CFG FILE
     def read_wiz_file(self, wizFile):
         self.prefParms.append('[CONVERSATIONAL]')
         with open(wizFile) as inFile:
@@ -753,7 +758,7 @@ class Converter(QMainWindow, object):
                     self.prefParms.append('Probe time = {}'.format(value))
             self.prefParms.append('')
 
-# READ THE ORIGINAL <MACHINE>_MATERIAL.CFG FILE
+# READ THE ORIGINAL <MACHINE_NAME>_MATERIAL.CFG FILE
     def read_mat_file(self, matFile, newDir, machineName):
         newFile = '{}/{}_material.cfg'.format(newDir, machineName)
         if os.path.isfile(newFile):
@@ -766,41 +771,40 @@ class Converter(QMainWindow, object):
                         continue
                     outFile.write(line)
 
-# WRITE THE NEW QTPLASMAC.PREFS FILE
-    def write_prefs_file(self, newDir, machineName):
-        prefsFile = '{}/{}.prefs'.format(newDir, machineName)
+# WRITE THE NEW QTVCP.PREFS & QTPLASMAC.PREFS FILES
+    def write_prefs_files(self, newDir, machineName):
+        prefsFile = '{}/qtvcp.prefs'.format(newDir)
         with open(prefsFile, 'w') as outFile:
             outFile.write(\
                 '[NOTIFY_OPTIONS]\n' \
                 'notify_start_greeting = False\n' \
                 'notify_start_title = Welcome To QtPlasmaC\n' \
-                'notify_start_detail = This option can be changed in {}\n' \
-                'notify_start_timeout = 5\n\n' \
-                .format(prefsFile))
+                'notify_start_detail = This option can be changed in qtvcp.prefs\n' \
+                'notify_start_timeout = 5\n\n')
+        prefsFile = '{}/{}.prefs'.format(newDir, machineName)
+        with open(prefsFile, 'w') as outFile:
             for item in self.prefParms:
                 outFile.write('{}\n'.format(item))
 
 # SIM CONFIG POSTGUI EXTRAS
     def sim_postgui(self):
-        sim  = '\n# SIMULATOR PANEL CONNECTIONS\n'
-        sim += 'loadusr -Wn qtplasmac_sim qtvcp qtplasmac_sim.ui\n'
-        sim += 'net plasmac:torch-on                                    =>  qtplasmac_sim.torch_on\n'
-        sim += 'net sim:arc-voltage-in  qtplasmac_sim.arc_voltage_out-f =>  plasmac.arc-voltage-in  qtplasmac_sim.arc_voltage_in\n'
-        sim += 'net sim:move-up         qtplasmac_sim.move_up           =>  plasmac.move-up\n'
-        sim += 'net sim:move-down       qtplasmac_sim.move_down         =>  plasmac.move-down\n'
-        sim += '# if no new dbounce then use old debounce component for legacy plasmac conversions\n'
-        sim += 'if {[hal list pin db_float.out] != {}} {\n'
-        sim += 'net sim:arc-ok          qtplasmac_sim.arc_ok            =>  db_arc-ok.in\n'
-        sim += 'net sim:breakaway       qtplasmac_sim.sensor_breakaway  =>  db_breakaway.in\n'
-        sim += 'net sim:float           qtplasmac_sim.sensor_float      =>  db_float.in\n'
-        sim += 'net sim:ohmic           qtplasmac_sim.sensor_ohmic      =>  db_ohmic.in\n'
-        sim += '} else {\n'
-        sim += '    puts "using old debounce component"\n'
-        sim += '    puts "it is recommended to convert to the new dbounce component\n"\n'
-        sim += 'net sim:breakaway       qtplasmac_sim.sensor_breakaway  =>  debounce.0.1.in\n'
-        sim += 'net sim:float           qtplasmac_sim.sensor_float      =>  debounce.0.0.in\n'
-        sim += 'net sim:ohmic           qtplasmac_sim.sensor_ohmic      =>  debounce.0.2.in\n'
-        sim += '}\n\n'
+        sim  = '# QTPLASMAC SIMULATOR PANEL\n\n'
+        sim += '# load the simulated torch\n'
+        sim += 'loadusr -Wn sim-torch sim-torch\n\n'
+        sim += '# load the sim GUI\n'
+        sim += 'loadusr -Wn qtplasmac_sim qtvcp qtplasmac_sim.ui\n\n'
+        sim += '# connect to existing plasmac connections\n'
+        sim += 'net plasmac:torch-on        =>  qtplasmac_sim.torch_on  sim-torch.start\n'
+        sim += 'net plasmac:cut-volts       =>  sim-torch.voltage-in\n\n'
+        sim += '# create new sim connections\n'
+        sim += 'net sim:arc-ok              qtplasmac_sim.arc_ok                =>  db_arc-ok.in\n'
+        sim += 'net sim:arc-voltage-in      sim-torch.voltage-out               =>  plasmac.arc-voltage-in\n'
+        sim += 'net sim:arc_voltage_offset  qtplasmac_sim.arc_voltage_offset-f  =>  sim-torch.offset-in\n'
+        sim += 'net sim:breakaway           qtplasmac_sim.sensor_breakaway      =>  db_breakaway.in\n'
+        sim += 'net sim:float               qtplasmac_sim.sensor_float          =>  db_float.in\n'
+        sim += 'net sim:move-down           qtplasmac_sim.move_down             =>  plasmac.move-down\n'
+        sim += 'net sim:move-up             qtplasmac_sim.move_up               =>  plasmac.move-up\n'
+        sim += 'net sim:ohmic               qtplasmac_sim.sensor_ohmic          =>  db_ohmic.in\n'
         return sim
 
 if __name__ == '__main__':

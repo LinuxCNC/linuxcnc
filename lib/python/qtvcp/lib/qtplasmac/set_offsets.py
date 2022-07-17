@@ -27,7 +27,7 @@ from PyQt5.QtGui import QIcon
 
 _translate = QCoreApplication.translate
 
-def dialog_show(P, W, iniPath, STATUS, ACTION, TOOL, foreColor, backColor):
+def dialog_show(P, W, prefs, iniPath, STATUS, ACTION, TOOL, foreColor, backColor):
     msg = QMessageBox()
     msg.setWindowIcon(QIcon(os.path.join(P.IMAGES, 'linuxcncicon.png')))
     msg.setWindowTitle(_translate('Offsets', 'SET PERIPHERAL OFFSET'))
@@ -50,7 +50,8 @@ def dialog_show(P, W, iniPath, STATUS, ACTION, TOOL, foreColor, backColor):
         if get_reply(P, STATUS, P.laserOffsetX, P.laserOffsetY):
             P.laserOffsetX = round(STATUS.get_position()[1][0], 4) + 0
             P.laserOffsetY = round(STATUS.get_position()[1][1], 4) + 0
-            do_ini_file(P, W, iniPath, P.laserOffsetX, P.laserOffsetY, '', 'LASER_TOUCHOFF', '# laser touchoff')
+            prefs.putpref('X axis', P.laserOffsetX, float, 'LASER_OFFSET')
+            prefs.putpref('Y axis', P.laserOffsetY, float, 'LASER_OFFSET')
             if P.laserOffsetX or P.laserOffsetY:
                 W.laser.show()
             else:
@@ -59,7 +60,8 @@ def dialog_show(P, W, iniPath, STATUS, ACTION, TOOL, foreColor, backColor):
         if get_reply(P, STATUS, P.camOffsetX, P.camOffsetY):
             P.camOffsetX = round(STATUS.get_position()[1][0], 4) + 0
             P.camOffsetY = round(STATUS.get_position()[1][1], 4) + 0
-            do_ini_file(P, W, iniPath, P.camOffsetX, P.camOffsetY, '', 'CAMERA_TOUCHOFF', '# camera touchoff')
+            prefs.putpref('X axis', P.camOffsetX, float, 'CAMERA_OFFSET')
+            prefs.putpref('Y axis', P.camOffsetY, float, 'CAMERA_OFFSET')
             if P.camOffsetX or P.camOffsetY:
                 W.camera.show()
             else:
@@ -110,7 +112,9 @@ def dialog_show(P, W, iniPath, STATUS, ACTION, TOOL, foreColor, backColor):
             P.probeOffsetX = round(STATUS.get_position()[1][0], 4) + 0
             P.probeOffsetY = round(STATUS.get_position()[1][1], 4) + 0
             P.probeDelay = new
-            do_ini_file(P, W, iniPath, P.probeOffsetX, P.probeOffsetY, P.probeDelay, 'OFFSET_PROBING', '# offset probing')
+            prefs.putpref('X axis', P.probeOffsetX, float, 'OFFSET_PROBING')
+            prefs.putpref('Y axis', P.probeOffsetY, float, 'OFFSET_PROBING')
+            prefs.putpref('Delay', P.probeDelay, float, 'OFFSET_PROBING')
             P.set_probe_offset_pins()
 
 def get_reply(P, STATUS, xOffset, yOffset, probe=False, delay=0.0, new=0.0):
@@ -139,58 +143,6 @@ def get_reply(P, STATUS, xOffset, yOffset, probe=False, delay=0.0, new=0.0):
         return True
     else:
         return False
-
-def do_ini_file(P, W, iniPath, xOffset, yOffset, pDelay, param, comment):
-    written = False
-    COPY(iniPath, '{}~'.format(iniPath))
-    inFile = open('{}~'.format(iniPath), 'r')
-    outFile = open(iniPath, 'w')
-    while 1:
-        line = inFile.readline()
-        if not line:
-            break
-        elif line.startswith('[QTPLASMAC]'):
-            outFile.write(line)
-            break
-        else:
-            outFile.write(line)
-    while 1:
-        line = inFile.readline()
-        if not line:
-            if not written:
-                outFile.write('{}\n'.format(comment))
-                if xOffset or yOffset:
-                    outFile.write('{} = X{:0.3f} Y{:0.3f} {}\n\n'.format(param, xOffset, yOffset, pDelay))
-                else:
-                    outFile.write('#{} = X0.000 Y0.000\n\n'.format(param))
-            break
-        elif line.startswith('['):
-            if not written:
-                outFile.write('{}\n'.format(comment))
-                if xOffset or yOffset:
-                    outFile.write('{} = X{:0.3f} Y{:0.3f} {}\n\n'.format(param, xOffset, yOffset, pDelay))
-                else:
-                    outFile.write('#{} = X0.000 Y0.000\n\n'.format(param))
-            outFile.write(line)
-            break
-        elif line.startswith('{}'.format(param)) or line.startswith('#{}'.format(param)):
-            if xOffset or yOffset:
-                outFile.write('{} = X{:0.3f} Y{:0.3f} {}\n'.format(param, xOffset, yOffset, pDelay))
-            else:
-                outFile.write('#{} = X0.000 Y0.000\n'.format(param))
-            written = True
-            break
-        else:
-            outFile.write(line)
-    while 1:
-        line = inFile.readline()
-        if not line:
-            break
-        else:
-            outFile.write(line)
-    inFile.close()
-    outFile.close()
-    os.remove('{}~'.format(iniPath))
 
 def do_tool_file(P, W, toolFile, xOffset, yOffset):
     written = False
