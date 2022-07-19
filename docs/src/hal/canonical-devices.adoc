@@ -108,7 +108,7 @@ of values. Examples are digital to analog converters or PWM generators.
 === Parameters(((HAL Analog Output Parameters)))
 
 (float) *offset*:: This will be added to the *value* before the
-  hardware is updated
+  hardware is updated.
 (float) *scale*:: This should be set so that an input of 1 on the
   *value* pin will cause the analog output pin to read 1 volt.
 (float) *high_limit* (optional):: When calculating the value to
@@ -118,7 +118,7 @@ of values. Examples are digital to analog converters or PWM generators.
   to the hardware, if *value* + *offset* is less than *low_limit*, then
   *low_limit* will be used instead.
 (float) *bit_weight* (optional):: The value of one least significant
-  bit (LSB), in volts (or mA, for current outputs)
+  bit (LSB), in volts (or mA, for current outputs).
 (float) *hw_offset*  (optional):: The actual voltage (or current)
   that will be output if 0 is written to the hardware.
 

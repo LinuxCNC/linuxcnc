@@ -144,9 +144,9 @@ timing of the step and direction signals. In the following figure
 the meaning of these parameters is shown. The
 parameters are in nanoseconds, but will be rounded up to an integer
 multiple of the thread period for the threaed that calls
-'make_pulses()'. For example, if 'make_pulses()' is called every 16 us,
+'make_pulses()'. For example, if 'make_pulses()' is called every 16 µs,
 and steplen is 20000, then the step pulses will
-be 2 x 16 = 32 us long. The default value for all four of the parameters
+be 2 x 16 = 32 µs long. The default value for all four of the parameters
 is 1ns, but the automatic rounding takes effect the first time the code
 runs. Since one step requires 'steplen' ns high and 'stepspace' ns
 low, the maximum frequency is 1,000,000,000 divided by
@@ -210,7 +210,7 @@ threads is not supported.
   feedback, updates latches and scales position.
 
 The high speed function 'stepgen.make-pulses' should be run in a very
-fast thread, from 10 to 50 us depending on the
+fast thread, from 10 to 50 µs depending on the
 capabilities of the computer. That thread's period determines the
 maximum step frequency, since 'steplen', 'stepspace', 'dirsetup',
 'dirhold', and 'dirdelay' are all rounded up to a integer multiple of
@@ -332,7 +332,7 @@ not supported.
 
 * '(funct) pwmgen.make-pulses' - High speed function to generate PWM waveforms
   (no floating point). The high speed function 'pwmgen.make-pulses' should be
-  run in the base (fastest) thread, from 10 to 50 us depending on the
+  run in the base (fastest) thread, from 10 to 50 µs depending on the
   capabilities of the computer. That thread's period determines the maximum PWM
   carrier frequency, as well as the resolution of the PWM or PDM signals. If
   the base thread is 50,000nS then every 50uS the module decides if it is time
@@ -355,10 +355,10 @@ rates of 10kHz to perhaps up to 50kHz.
 
 The base thread should be 1/2 count speed to allow for noise and timing
 variation. For example if you have a 100 pulse per revolution encoder on the
-spindle and your maximnum RPM is 3000 the maximum base thread should be 25 us.
+spindle and your maximnum RPM is 3000 the maximum base thread should be 25 µs.
 A 100 pulse per revolution encoder will have 400 counts. The spindle speed
 of 3000 RPM = 50 RPS (revolutions per second). 400 * 50 = 20,000 counts per
-second or 50 us between counts.
+second or 50 µs between counts.
 
 The Encoder Counter Block Diagram is a block diagram of one channel of an
 encoder counter.

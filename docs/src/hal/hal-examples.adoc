@@ -80,7 +80,7 @@ In this example it is assumed that you're 'rolling your own'
 configuration and wish to add the HAL Manual Toolchange window. The HAL
 Manual Toolchange is primarily useful if you have presettable tools and
 you store the offsets in the tool table. If you need to touch off for
-each tool change then it is best just to split up your g code. To use
+each tool change then it is best just to split up your G-code. To use
 the HAL Manual Toolchange window you basically have to load the
 hal_manualtoolchange component then send the iocontrol 'tool change' to
 the hal_manualtoolchange 'change' and send the hal_manualtoolchange
