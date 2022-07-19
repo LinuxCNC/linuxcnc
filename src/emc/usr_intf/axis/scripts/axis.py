@@ -77,7 +77,7 @@ if "AXIS_NO_HAL" in os.environ:
 else:
     hal_present = 1;
 
-if hal_present == 1 :
+if hal_present == 1:
     import hal
 
 import configparser
@@ -856,7 +856,7 @@ class LivePlotter:
         vupdate(vars.exec_state, self.stat.exec_state)
         vupdate(vars.interp_state, self.stat.interp_state)
         vupdate(vars.queued_mdi_commands, self.stat.queued_mdi_commands)
-        if hal_present == 1 :
+        if hal_present == 1:
             notifications_clear = comp["notifications-clear"]
             if self.notifications_clear != notifications_clear:
                  self.notifications_clear = notifications_clear
@@ -3890,14 +3890,15 @@ if hal_present == 1 :
 
     if vcp:
         import vcpparse
-        comp.setprefix("pyvcp")
         f = Tkinter.Frame(root_window)
         if inifile.find("DISPLAY", "PYVCP_POSITION") == "BOTTOM":
             f.grid(row=4, column=0, columnspan=6, sticky="nw", padx=4, pady=4)
         else:
             f.grid(row=0, column=4, rowspan=6, sticky="nw", padx=4, pady=4)
         vcpparse.filename = vcp
-        vcpparse.create_vcp(f, comp)
+        vcpcomp = hal.component("pyvcp")
+        vcpparse.create_vcp(f, vcpcomp)
+        vcpcomp.ready()
         vcp_frame = f
         root_window.bind("<Control-e>", commands.toggle_show_pyvcppanel)
         help2 += [("Ctrl-E", _("toggle PYVCP panel visibility"))]
@@ -4115,7 +4116,7 @@ commands.set_spindlerate(100)
 
 def forget(widget, *pins):
     if "AXIS_NO_AUTOCONFIGURE" in os.environ: return
-    if hal_present == 1 :
+    if hal_present == 1:
         for p in pins:
             if hal.pin_has_writer(p): return
     m = widget.winfo_manager()
