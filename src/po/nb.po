@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-07-09 16:34+0100\n"
-"PO-Revision-Date: 2022-07-18 05:09+0000\n"
+"PO-Revision-Date: 2022-07-19 02:35+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
@@ -18881,11 +18881,11 @@ msgstr ""
 
 #: lib/python/gladevcp/iconview.py:121
 msgid "Move to your home directory"
-msgstr "Flytt til din hjemmemappe"
+msgstr "Flytt til din hjemmekatalog"
 
 #: lib/python/gladevcp/iconview.py:130
 msgid "Move to parent directory"
-msgstr "Flytt til inneholdende mappe"
+msgstr "Flytt til omsluttende katalog"
 
 #: lib/python/gladevcp/iconview.py:139
 msgid "Select the previous file"

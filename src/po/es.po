@@ -7,9 +7,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-07-09 16:34+0100\n"
-"PO-Revision-Date: 2022-06-23 19:47+0000\n"
+"PO-Revision-Date: 2022-07-19 02:35+0000\n"
 "Last-Translator: Ulices <dev.n47os@aleeas.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/es/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.13.1-dev\n"
+"X-Generator: Weblate 4.14-dev\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -368,9 +368,9 @@ msgstr ""
 "activa"
 
 #: src/emc/rs274ngc/interp_convert.cc:2967
-#, fuzzy, c-format
+#, c-format
 msgid "gen_restore G20/G21 failed: '%s'"
-msgstr "M7x: ha fallado restore_settings G20 / G21: '%s'"
+msgstr "gen_restore G20/G21 falló: '%s'"
 
 #: src/emc/rs274ngc/interp_convert.cc:3017
 #, c-format
@@ -1312,7 +1312,6 @@ msgid "File name too long"
 msgstr "Nombre de archivo demasiado largo"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:83
-#, fuzzy
 msgid "G-code out of range"
 msgstr "Código G fuera de rango"
 
@@ -1349,9 +1348,9 @@ msgid "Left bracket missing after unary operation name"
 msgstr "Falta el corchete izquierdo después de nombre de operación unaria"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:92
-#, fuzzy, c-format
+#, c-format
 msgid "M-code greater than 199: M%d"
-msgstr "Código M mayor que 199: M%d"
+msgstr "Código M más grande que 199: M%d"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:93
 msgid "Mixed radius ijk format for arc"
@@ -1932,9 +1931,8 @@ msgid "_Cancel"
 msgstr "_Cancelar"
 
 #: src/hal/utils/scope.c:471
-#, fuzzy
 msgid "_Open"
-msgstr "Abrir"
+msgstr "_Abrir"
 
 #: src/hal/utils/scope.c:491
 msgid "Save Configuration File:"
@@ -2760,9 +2758,9 @@ msgid "Attempt to increase non-existent spindle <%d>"
 msgstr "Intento de aumentar revs. en husillo inexistente <%d>"
 
 #: src/emc/motion/command.c:1736
-#, fuzzy, c-format
+#, c-format
 msgid "Attempt to decrease non-existent spindle <%d>."
-msgstr "Intento de disminuir revs. en husillo inexistente <%d>"
+msgstr "Intento de disminuir husillo inexistente <%d>."
 
 #: src/emc/motion/command.c:1760
 #, c-format
@@ -2844,11 +2842,10 @@ msgid "MOTION: num_spindles is %d, must be between 0 and %d\n"
 msgstr "MOTION: nº husillos es %d, debe estar entre 0 y %d\n"
 
 #: src/emc/motion/motion.c:306
-#, fuzzy
 msgid "MOTION: Can't specify both names and number for digital pins\n"
 msgstr ""
 "MOVIMIENTO: no se pueden especificar ambos nombres y números para pines "
-"digitales"
+"digitales\n"
 
 #: src/emc/motion/motion.c:320
 #, c-format
@@ -2856,11 +2853,10 @@ msgid "MOTION: num_dio is %d, must be between 1 and %d\n"
 msgstr "MOTION: num_dio es %d, debe estar entre 1 y %d\n"
 
 #: src/emc/motion/motion.c:326
-#, fuzzy
 msgid "MOTION: Can't specify both names and number for analog pins\n"
 msgstr ""
 "MOVIMIENTO: no se pueden especificar ambos nombres y números para pines "
-"analógicos"
+"analógicos\n"
 
 #: src/emc/motion/motion.c:339
 #, c-format
@@ -2886,14 +2882,12 @@ msgid "MOTION: init_comm_buffers() failed\n"
 msgstr "MOTION: init_comm_buffers() falló\n"
 
 #: src/emc/motion/motion.c:380
-#, fuzzy
 msgid "MOTION: module_intfc() failed\n"
-msgstr "MOTION: el módulo module_intfc() falló\n"
+msgstr "MOTION: module_intfc() falló\n"
 
 #: src/emc/motion/motion.c:384
-#, fuzzy
 msgid "MOTION: tp_init() failed\n"
-msgstr "MOTION: el módulo tp_init() falló\n"
+msgstr "MOTION: tp_init() falló\n"
 
 #: src/emc/motion/motion.c:391
 msgid "MOTION: init_threads() failed\n"
@@ -2938,12 +2932,12 @@ msgid "MOTION: ejoint %d pin/param export failed\n"
 msgstr "MOTION: falló la exportación pin/param extrajoint %d\n"
 
 #: src/emc/motion/homing.c:188
-#, fuzzy, c-format
+#, c-format
 msgid "j%d hit limit in home state %d"
 msgstr "j%d alcanzó límite en estado home %d"
 
 #: src/emc/motion/homing.c:197
-#, fuzzy, c-format
+#, c-format
 msgid "j%d end of move in home state %d"
 msgstr "j%d finalizó movimiento en estado home %d"
 
@@ -11780,7 +11774,8 @@ msgstr "Opuesto"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
