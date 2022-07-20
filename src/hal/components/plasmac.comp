@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-1.227
+1.228
 
 .I SUMMARY:
 .br
@@ -825,7 +825,7 @@ FUNCTION(_) {
     puddle_jump_percent = puddle_jump_height == 0 ? 100:puddle_jump_height;
 
     /* set jog inhibit if required */
-    if(sensor_active && program_is_idle && !override_jog){
+    if(sensor_active && program_is_idle && !(override_jog || state == PROBE_DOWN || state == PROBE_UP)){
         jog_inhibit = TRUE;
     }else{
         jog_inhibit = FALSE;
