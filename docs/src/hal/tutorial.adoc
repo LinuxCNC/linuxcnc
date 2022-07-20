@@ -221,7 +221,7 @@ should probably disappear.]
 To actually run the code contained in the function 'siggen.0.update',
 we need a realtime thread. The component called 'threads' that is used
 to create a new thread. Lets create a thread called 'test-thread' with
-a period of 1 ms (1,000 us or 1,000,000 ns):
+a period of 1 ms (1,000 µs or 1,000,000 ns):
 
 ----
 halcmd: loadrt threads name1=test-thread period1=1000000
@@ -892,7 +892,7 @@ left click on the samples box.
 image::images/halscope-01.png["Realtime function not linked dialog",align="center"]
 
 This dialog is where you set the sampling rate for the oscilloscope.
-For now we want to sample once per millisecond, so click on the 989 us
+For now we want to sample once per millisecond, so click on the 989 µs
 thread 'slow' and leave the multiplier at 1. We will also leave the
 record length at 4000 samples, so that we can use up to four channels
 at one time. When you select a thread and then click 'OK', the dialog
@@ -1037,11 +1037,11 @@ position slider to determine which part of the zoomed waveform is
 visible. However, sometimes simply expanding the waveforms isn't enough
 and you need to increase the sampling rate. For example, we would like
 to look at the actual step pulses that are being generated in our
-example. Since the step pulses may be only 50 us long, sampling at 1KHz
+example. Since the step pulses may be only 50 µs long, sampling at 1KHz
 isn't fast enough. To change the sample rate, click on the button that
 displays the number of samples and sample rate to bring up the 'Select
 Sample Rate' dialog, figure . For this example, we will click on the
-50 us thread, 'fast', which gives us a sample rate of about 20KHz. Now
+50 µs thread, 'fast', which gives us a sample rate of about 20KHz. Now
 instead of displaying about 4 seconds worth of data, one record is 4000
 samples at 20KHz, or about 0.20 seconds.
 

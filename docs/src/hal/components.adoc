@@ -124,15 +124,15 @@ deadzone:: (((deadzone))) Return the center if within the threshold.
 
 hypot:: (((hypot))) Three-input hypotenuse (Euclidean distance) calculator.
 
-mult2:: (((mult2))) Product of two inputs.
+mult2:: (((mult2))) Product of two inputs (multiplexing).
 
-mux16:: (((mux16))) Select from one of sixteen input values.
+mux16:: (((mux16))) Select from one of sixteen input values (multiplexing).
 
-mux2:: (((mux2))) Select from one of two input values.
+mux2:: (((mux2))) Select from one of two input values (multiplexing).
 
-mux4:: (((mux4))) Select from one of four input values.
+mux4:: (((mux4))) Select from one of four input values (multiplexing).
 
-mux8:: (((mux8))) Select from one of eight input values.
+mux8:: (((mux8))) Select from one of eight input values (multiplexing).
 
 near:: (((near))) Determine whether two values are roughly equal.
 

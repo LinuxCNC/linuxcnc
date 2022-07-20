@@ -91,7 +91,7 @@ as focused as you need.
 
 .[yellow-background]#New in 2.9#
 * Selected text from the Show tab can be copied by right-click or CTRL-C.
-* The command entry provides now a bash-like history (only for the session) for executed commands.
+* The command entry provides now a BASH-like history (only for the session) for executed commands.
 
 If we take a closer look at the tree display we can see that the six
 major parts of a HAL can all be expanded at least one level. As these
@@ -136,7 +136,6 @@ to axis position so that we could see the rate of change in position, i.e.,
 acceleration. We first need to load a HAL component named ddt, add it to the 
 servo thread, then connect it to the position pin of a joint. Once that is 
 done we can find the output of the differentiator in halscope. So let's go. 
-(Yes, I looked this one up.
 
 [source,{hal}]
 ----

@@ -69,7 +69,7 @@ Owner   Type  Dir         Value  Name
     22  bit   OUT         FALSE  or2.0.out ==> led-1
 ----
 
-You can see from the hal command 'show pin or2' that the 'button-1' pin is
+You can see from the HAL command 'show pin or2' that the 'button-1' pin is
 connected to the 'or2.0.in0' pin and from the direction arrow you can see that
 the button is and output and the 'or2.0.in0' is an input. The output from or2
 goes to the input of the led.
@@ -80,7 +80,7 @@ In this example it is assumed that you're 'rolling your own'
 configuration and wish to add the HAL Manual Toolchange window. The HAL
 Manual Toolchange is primarily useful if you have presettable tools and
 you store the offsets in the tool table. If you need to touch off for
-each tool change then it is best just to split up your g code. To use
+each tool change then it is best just to split up your G-code. To use
 the HAL Manual Toolchange window you basically have to load the
 hal_manualtoolchange component then send the iocontrol 'tool change' to
 the hal_manualtoolchange 'change' and send the hal_manualtoolchange
@@ -268,7 +268,7 @@ example say you had a stepper driven device that all you need is to run a
 stepper motor. A simple 'Start/Stop' interface is all you need for your
 application so no need to load up and configure a full blown CNC application.
 
-In the following example we have created a simple GladeVCP panel with one
+In the following example we have created a simple GladeVCP panel with one stepper.
 
 .Basic Syntax
 ----
@@ -287,7 +287,7 @@ addf stepgen.capture-position slow
 addf parport.0.read fast
 addf parport.0.write fast
 
-# make hal connections
+# make HAL connections
 net winder-step parport.0.pin-02-out <= stepgen.0.step
 net winder-dir parport.0.pin-03-out <= stepgen.0.dir
 net run-stepgen stepgen.0.enable <= winder.start_button

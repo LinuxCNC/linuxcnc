@@ -103,7 +103,7 @@ def on_keycall_F12(self,event,state,shift,cntrl):
 
 == Request Dialog Entry
 
-Qtvcp uses STATUS messages to pop up and return information from dialogs. +
+QtVCP uses STATUS messages to pop up and return information from dialogs. +
 Prebuilt dialogs keep track of their last position and include options
 for focus shading and sound. +
 To get information back from the dialog requires using a STATUS general
@@ -261,7 +261,7 @@ In the 'IMPORT SECTION' add:
 from qtvcp.core import Qhal
 ----
 
-Loads the Qhal library for access to Qtvcp's hal component.
+Loads the Qhal library for access to QtVCP's hal component.
 
 in the 'INSTANTIATE LIBRARY' Section add:
 
@@ -487,7 +487,7 @@ def our_load(self,fname):
 
 In some situation it is only possible to add widgets with python code rather
 then using the Designer editor. +
-When adding Qtvcp widgets programmatically, sometimes there are extra steps to
+When adding QtVCP widgets programmatically, sometimes there are extra steps to
 be taken. +
 Here we are going to add a spindle speed indicator bar and up-to-speed LED to a
 tab widget corner. +
@@ -498,7 +498,7 @@ First we must import the libraries we need. +
 often these libraries are already imported in the handler file. +
 QtWidgets gives us access to the QProgress bar +
 QColor is for the LED color +
-StateLED is the Qtvcp library used to create the spindle-at-speed LED +
+StateLED is the QtVCP library used to create the spindle-at-speed LED +
 Status is used to catch linuxcnc status information. +
 Info gives us information about the machine configuration.
 
@@ -576,7 +576,7 @@ we must set the property that designates it as a  spindle-at-speed LED. +
 'self.w.led.setProperty("color",QColor(0,255,0,255))' this sets it as green
 when on. +
 'self.w.led.hal_init(HAL_NAME = "spindle_is_at_speed")' - this is the extra
-function call required with some Qtvcp widgets. +
+function call required with some QtVCP widgets. +
 If HAL_NAME is omitted it will use the widget objectName if there is one. +
 It gives the special widgets reference to:
 
@@ -665,7 +665,7 @@ In the 'IMPORT SECTION' add:
 from qtvcp.core import Qhal
 ----
 
-Loads the Qhal library for access to Qtvcp's hal component.
+Loads the Qhal library for access to QtVCP's hal component.
 
 in the 'INSTANTIATE LIBRARY' Section add:
 
@@ -702,7 +702,7 @@ def update_periodic(self):
 == external control with ZMQ messaging reading
 
 Sometimes you want to control the screen with a separate program. +
-Qtvcp can automatically set up ZMQ messaging to send and/or receive remote
+QtVCP can automatically set up ZMQ messaging to send and/or receive remote
 messages. +
 It uses ZMQ's publish/subscribe pattern of messages. +
 As always consider security before letting programs interface though
@@ -753,7 +753,7 @@ import json
 context = zmq.Context()
 socket = context.socket(zmq.PUB)
 socket.bind("tcp://127.0.0.1:5690")
-topic = b'Qtvcp'
+topic = b'QtVCP'
 
 # prebuild message 1
 # makes a dict of function to call plus any arguments
@@ -793,7 +793,7 @@ json converts python to bytes and will be converted back when received.
 == external control with ZMQ messaging writing
 
 You also my want to communicate with a separate program from the screen. +
-Qtvcp can automatically set up ZMQ messaging to send and/or receive remote
+QtVCP can automatically set up ZMQ messaging to send and/or receive remote
 messages. +
 It uses ZMQ's publish/subscribe pattern of messages. +
 As always consider security before letting programs interface though
@@ -940,7 +940,7 @@ def focusInChanged(self, widget):
 ----
 
 Notice we sometimes compare to 'widget', sometimes 'widget.parent()'. +
-This is because some Qtvcp widgets are built from multiple sub-widgets
+This is because some QtVCP widgets are built from multiple sub-widgets
 and the sub-widgets actually get the focus; so we need to check the parent
 of those sub-widgets. +
 Other times the main widget is what gets the focus; ie G-code display

@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:qtvcp-widgets]]
-= QTvcp Widgets
+= QtVCP Widgets
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -10,7 +10,7 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-Qtscreen uses QTvcp widgets for linuxcnc integration.
+Qtscreen uses QtVCP widgets for linuxcnc integration.
 Widget is the general name for the UI objects such as buttons and labels
 in QTpy.
 You are free to use any available widgets in the QTDesigner editor.
@@ -49,7 +49,7 @@ Allows one to adjust a HAL pins using a sliding pointer.
 === LED Widget
 
 .LED
-image::images/qtvcp_ledWidget.png["QTvcp led",scale="25%"]
+image::images/qtvcp_ledWidget.png["QtVCP led",scale="25%"]
 
 An indicator that optionally follows a HAL pin's logic.
 
@@ -91,7 +91,7 @@ It is based on pyQT's QRadioButton.
 === Round Gauge
 
 .Round Gauge
-image::images/qtvcp_round_gauge.png["QTvcp round gauge",scale="25%"]
+image::images/qtvcp_round_gauge.png["QtVCP round gauge",scale="25%"]
 
 Round Gauge can be used in a linuxcnc GUI to display an input parameter
 on the dial face.
@@ -153,7 +153,7 @@ The custom parameters are:
 === HALPad
 
 .HALPAD
-image::images/qtvcp_HALPad.png["QTvcp HAL button Joypad ",scale="25%"]
+image::images/qtvcp_HALPad.png["QtVCP HAL button Joypad ",scale="25%"]
 
 This widget looks and acts like a 5 button D-pad, with an LED ring
 Each button has an selectable type (Bit, S32 or Float) output HAL pin.
@@ -253,7 +253,7 @@ It also has other options:
 ==== LED indicator option
 
 .Indicated Action Button
-image::images/qtvcp_actionButton.png["QTvcp led Action Button",scale="25%"]
+image::images/qtvcp_actionButton.png["QtVCP led Action Button",scale="25%"]
 
 Indicator_option puts a 'LED' on the top of the button.
 It can be a triangle, circle, top bar or side bar.
@@ -404,7 +404,7 @@ It is based on pyQT's QpushButton.
 === Focus Overlay Widget
 
 .Focus overlay example for confirm close prompt
-image::images/qtvcp_focusOverlay.png["QTvcp foucus overlay",scale="25%"]
+image::images/qtvcp_focusOverlay.png["QtVCP foucus overlay",scale="25%"]
 
 This widget places a coloured overlay over the screen usually while a
 dialog is showing.
@@ -952,7 +952,7 @@ It is based on pyQT's QWidget which incorporates GcodeDisplay widget
 This Displays the current G-code in a graphical form.
 
 .Graphics Display
-image::images/qtvcp_gcodeGraphics.png["QTvcp G-code Graphics",scale="25%"]
+image::images/qtvcp_gcodeGraphics.png["QtVCP G-code Graphics",scale="25%"]
 
 Properties that can be set via stylesheets:
 
@@ -1292,13 +1292,13 @@ These states are selectable:
 * 'halpin status' +
   Shows the HAL pin output of a selected HAL pin
 * 'jograte_status' +
-  Shows the current QTvcp based Jog Rate
+  Shows the current QtVCP based Jog Rate
 * 'jograte_angular_status' +
-  Shows the current QTvcp based Angular Jog Rate
+  Shows the current QtVCP based Angular Jog Rate
 * 'jogincr_status' +
-  Shows the current QTvcp based Jog increment
+  Shows the current QtVCP based Jog increment
 * 'jogincr_angular_status' +
-  Shows the current QTvcp based Angular Jog increment
+  Shows the current QtVCP based Angular Jog increment
 * 'machine state_status' +
   Shows the current machine interpreter state using the text described
   from the state_list. +
@@ -1368,7 +1368,7 @@ Status image switcher will switch between images based on linuxcnc states.
 
 Here is an example of using it to display an icon of Z axis homing state:
 
-image::images/statusImageSwitcher.png["QTvcp Status Image Switcher",scale="25%"]
+image::images/statusImageSwitcher.png["QtVCP Status Image Switcher",scale="25%"]
 
 In the properties section notice that:
 
@@ -1428,11 +1428,11 @@ These properties can be set in designer, in python handler code or
 These include:
 
 * 'halCompBaseName': +
-  If left empty Qtvcp will use the screen's name as the HAL component's
+  If left empty QtVCP will use the screen's name as the HAL component's
   basename.
-  If set, Qtvcp will use this string as the HAL component's basename.
-  If the -c command line option is used when loading Qtvcp,
-  Qtvcp will use the name specified in the command line - it overrides
+  If set, QtVCP will use this string as the HAL component's basename.
+  If the -c command line option is used when loading QtVCP,
+  QtVCP will use the name specified in the command line - it overrides
   all above options.
   If you programmically set the basename in the handlerfile - it will
   override all above options.
@@ -1578,7 +1578,7 @@ qproperty-close_overlay_color: rgba(0, 255, 0, 0.75) }
 
 If the preference file option is selected, screenOption widget will make
 an INI based preference file.
-While other Qtvcp widgets will add to this list, the screenOptions widget
+While other QtVCP widgets will add to this list, the screenOptions widget
 will add these entries:
 
 
@@ -1801,7 +1801,7 @@ It is based on pyQT's QToolButton
 === MacroTab Widget
 
 .Macrotab
-image::images/qtvcp_macro.png["QTvcp led",scale="25%"]
+image::images/qtvcp_macro.png["QtVCP led",scale="25%"]
 
 This Widget allows a user to select and adjust special macro programs
 for doing small jobs.
@@ -1930,7 +1930,7 @@ MDI_HISTORY_FILE = '~/.axis_mdi_history'
 === MDITouchy
 
 .MDI Touchy
-image::images/qtvcp_mdiTouchy.png["QTvcp MDI Touchy",scale="25%"]
+image::images/qtvcp_mdiTouchy.png["QtVCP MDI Touchy",scale="25%"]
 
 This widget display button and entry lines for use with entering MDI
 commands.
@@ -2013,7 +2013,7 @@ G-code programs.
 === OriginOffsetView Widget
 
 .origin Offset View
-image::images/qtvcp_originoffsetview.png["QTvcp Origin Offset View"]
+image::images/qtvcp_originoffsetview.png["QtVCP Origin Offset View"]
 
 This widget allows one to modify User System origin offsets directly
 It will update linuxcnc's Parameter file for changes made or found.
@@ -2101,7 +2101,7 @@ It is based on pyQT's
 === FileManager
 
 .FileManager
-image::images/qtvcp_fileManager.png["QTvcp File Manager Widget",scale="25%"]
+image::images/qtvcp_fileManager.png["QtVCP File Manager Widget",scale="25%"]
 
 This widget is used to select files to load.
 It has a the ability to scroll the names with hardware such as a MPG.
@@ -2129,7 +2129,7 @@ It is based on pyQT's
 === ToolOffsetView
 
 .Tool Offset View
-image::images/qtvcp_tooloffsetview.png["QTvcp Tool Offset View"]
+image::images/qtvcp_tooloffsetview.png["QtVCP Tool Offset View"]
 
 This widget will display and allows one to modify tool offsets
 It will update linuxcnc's tool table for changes made or found.
@@ -2207,7 +2207,7 @@ self.w.tooloffsetview.set_all_unchecked()
 === BasicProbe
 
 .BasicProbe
-image::images/qtvcp_basicProbe.png["QTvcp basicProbe widget",scale="25%"]
+image::images/qtvcp_basicProbe.png["QtVCP basicProbe widget",scale="25%"]
 
 Widget for probing on a mill. Used by the QtDragon screen.
 
@@ -2295,7 +2295,7 @@ It is based on pyQT's QMessagebox.
 === Dialog Tool Change Widget
 
 .Manual Tool Change
-image::images/qtvcp_toolChange.png["QTvcp Manual Tool Change Dialog",scale="25%"]
+image::images/qtvcp_toolChange.png["QtVCP Manual Tool Change Dialog",scale="25%"]
 
 This is used as a manual tool change prompt.
 It has HAL pins to connect to the machine controller.
@@ -2309,7 +2309,7 @@ It is based on pyQT's QMessagebox.
 === Dialog File Chooser Widget
 
 .File Dialog
-image::images/qtvcp_fileDialog.png["QTvcp file dialog",scale="25%"]
+image::images/qtvcp_fileDialog.png["QtVCP file dialog",scale="25%"]
 
 This is used to load G-code files.
 If there is a Focus Overlay widget present, it will signal it to display.
@@ -2352,7 +2352,7 @@ It is based on pyQT's QMessagebox.
 === Dialog Origin Offset Widget
 
 .Offsets
-image::images/qtvcp_offsetpage.png["QTvcp origin Offset Page",scale="25%"]
+image::images/qtvcp_offsetpage.png["QtVCP origin Offset Page",scale="25%"]
 
 This widget allows one to modify User System origin offsets directly.
 It is in a dialog form.
@@ -2366,7 +2366,7 @@ It is based on pyQT's QDialog.
 === Dialog tool Offset Widget
 
 .Tool Offsets
-image::images/qtvcp_toolOffset.png["QTvcp Tool Offset Page",scale="25%"]
+image::images/qtvcp_toolOffset.png["QtVCP Tool Offset Page",scale="25%"]
 
 This widget allows one to modify Tool offsets directly.
 It is in a dialog form.
@@ -2406,7 +2406,7 @@ It is based on pyQT's QDialog
 === Dialog Calculator
 
 .Calculator
-image::images/qtvcp_calculator.png["QTvcp Calculator",scale="25%"]
+image::images/qtvcp_calculator.png["QtVCP Calculator",scale="25%"]
 
 This is a dialog to display a calculator for numeric entry, such as
 origin offset.
@@ -2420,7 +2420,7 @@ It is based on pyQT's QDialog.
 === Dialog Run From Line
 
 .Run-from-line Dialog
-image::images/qtvcp_runFromLine.png["QTvcp Run-from-line",scale="25%"]
+image::images/qtvcp_runFromLine.png["QtVCP Run-from-line",scale="25%"]
 
 Dialog to preset  spindle settings before running a program from a
 specific line.
@@ -2428,7 +2428,7 @@ specific line.
 === Dialog VersaProbe
 
 .Versa Probe Dialog
-image::images/qtvcp_versaProbe.png["QTvcp Versa Probe",scale="25%"]
+image::images/qtvcp_versaProbe.png["QtVCP Versa Probe",scale="25%"]
 
 This is a dialog to display A probing screen based on Versa Probe.
 It is based on pyQT's QDialog
@@ -2436,7 +2436,7 @@ It is based on pyQT's QDialog
 === Dialog MachineLogDialog
 
 .Machine Log Dialog
-image::images/qtvcp_machineLog.png["QTvcp MachineLog Dialog",scale="25%"]
+image::images/qtvcp_machineLog.png["QtVCP MachineLog Dialog",scale="25%"]
 
 This is a dialog to display the user machine log and qtvcp's debugging
 log.
@@ -2449,7 +2449,7 @@ Other available widgets
 === Nurbs Editor
 
 .Nurbs Editor
-image::images/qtvcp_nurbsEditor.png["QTvcp nurbs editor",scale="25%"]
+image::images/qtvcp_nurbsEditor.png["QtVCP nurbs editor",scale="25%"]
 
 The Nurbs editor allows you to manipulate a nurbs based geometry on
 screen and then
@@ -2578,7 +2578,7 @@ These can be set in stylesheets or python code to change it's properties.
   A file path or resource path to an image to display in the described
   button location.
   If the reset button is pressed in the Designer editor property, the
-  image will not be displayed. (allowing optionally text)
+  image will not be displayed (allowing optionally text).
 * 'left_text':
 * 'right_text':
 * 'center_text':
@@ -2618,7 +2618,7 @@ self.w.joypadename.setProperty('false_color','red')
 ----
 
 == Import only Widgets
-These widgets are usually the base class widget for other QTvcp widgets.
+These widgets are usually the base class widget for other QtVCP widgets.
 They are not available directly from the Designer editor but could be
 imported and manually inserted.
 They could also be subclassed to make a similar widget with new features.

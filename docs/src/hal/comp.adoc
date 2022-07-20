@@ -67,7 +67,7 @@ addf ddt.0 servo-thread
 ----
 
 More information on 'loadrt' and 'addf' can be found in the
-<<cha:basic-hal-reference,Hal Basics>>.
+<<cha:basic-hal-reference,HAL Basics>>.
 
 To test your component you can follow the examples in the
 <<cha:hal-tutorial,HAL Tutorial>>.
@@ -307,8 +307,8 @@ parameters, and functions for `prefix`.
   in the automatically defined 'rtapi_app_main'.
 
 * 'option userspace yes' - (default: no)
-  If specified, this file describes a userspace (ie, non-realtime) component, rather
-  than a regular (ie, realtime) one. A userspace component may not have functions
+  If specified, this file describes a userspace (i.e., non-realtime) component, rather
+  than a regular (i.e., realtime) one. A userspace component may not have functions
   defined by the 'function'  directive. Instead, after all the
   instances are constructed, the C function `void user_mainloop(void);`
   is called. When this function returns, the component exits.
@@ -358,8 +358,8 @@ The result of using any other option is undefined. +
   license "GPL"; // indicates GPL v2 or later
 +
 For additional information on the meaning of MODULE_LICENSE() and
-additional license identifiers, see '<linux/module.h>'. or the manual page
-'rtapi_module_param(3)'
+additional license identifiers, see '<linux/module.h>' or the manual page
+'rtapi_module_param(3)'.
 +
 This declaration is *required*.
 
@@ -456,7 +456,7 @@ when its 'condition' evaluated to a nonzero value.
 * 'variable_name' - For each variable 'variable_name'  there is a macro which allows the
   name to be used on its own to refer
   to the variable. When 'variable_name' is an array, the normal C-style
-  subscript is used: 'variable_name[idx]'
+  subscript is used: 'variable_name[idx]'.
 
 * 'data' - If "option data" is specified, this macro allows access to the
   instance data.
@@ -803,10 +803,10 @@ which creates the following pins:
 - 3-input AND and XOR gates: logic.2.and, logic.2.xor, logic.2.in-00,
   logic.2.in-01, logic.2.in-02
 
-=== general functions
+=== General Functions
 
-This example shows how to call functions from the main function. +
-it also shows how to pass reference of HAL pins to those functions. +
+This example shows how to call functions from the main function.
+It also shows how to pass reference of HAL pins to those functions.
 
 [source,c]
 ----
@@ -844,7 +844,7 @@ FUNCTION(_) {
 }
 ----
 
-This component uses two general function to manipulate a HAL bit pin referenced to it. +
+This component uses two general function to manipulate a HAL bit pin referenced to it.
 
 == Command Line Usage
 

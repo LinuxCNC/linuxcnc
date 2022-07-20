@@ -162,10 +162,10 @@ pin works not how it is handled in HAL.
 
 A pin can be connected to a signal if it obeys the following rules:
 
-* An IN pin can always be connected to a signal
-* An IO pin can be connected unless there's an OUT pin on the signal
+* An IN pin can always be connected to a signal.
+* An IO pin can be connected unless there's an OUT pin on the signal.
 * An OUT pin can be connected only if there are no other OUT or IO pins
-  on the signal
+  on the signal.
 
 The same 'signal-name' can be used in multiple net commands to connect
 additional pins, as long as the rules above are obeyed.
@@ -319,7 +319,7 @@ A 'float' is a floating point number. In other words the decimal point
 can move as needed.
 
 - float values = a 64 bit floating point value, with approximately 53 bits of
-  resolution and over 1000 bits of dynamic range.
+  resolution and over 2^10 (~ 1000) bits of dynamic range.
 
 For more information on floating point numbers see:
 
@@ -331,14 +331,14 @@ http://en.wikipedia.org/wiki/Floating_point[http://en.wikipedia.org/wiki/Floatin
 An 's32' number is a whole number that can have a negative or positive
 value.
 
-- s32 values = integer numbers -2147483648 to 2147483647
+- s32 values = integer numbers from -2147483648 to 2147483647
 
 [[sub:hal-u32]]
 === u32(((HAL u32,u32)))
 
 A 'u32' number is a whole number that is positive only.
 
-- u32 values = integer numbers 0 to 4294967295
+- u32 values = integer numbers from 0 to 4294967295
 
 [[sec:hal-files]]
 == HAL Files(((HAL Files)))
@@ -353,7 +353,7 @@ have up to three HAL files in your config directory.
   GUI is loaded.
 - 'custom_postgui.hal' This file is loaded after the GUI loads. This is
   where you put your custom HAL commands that you want loaded after the
-  GUI is loaded. Any HAL commands that use pyVCP widgets need to be
+  GUI is loaded. Any HAL commands that use PyVCP widgets need to be
   placed here.
 
 [[sec:hal-parameters]]

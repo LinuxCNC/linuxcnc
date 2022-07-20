@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:qtvcp-vcp-panels]]
-= Qtvcp Virtual Control Panels
+= QtVCP Virtual Control Panels
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -10,11 +10,11 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-Qtvcp is an infrastructure to display a custom CNC screen or control
+QtVCP is an infrastructure to display a custom CNC screen or control
 panel in LinuxCNC. +
 It displays a UI file built with the QTDesigner screen editor or combines
 this with python programming to create a VCP Panel. +
-Qtvcp is completely customizable - you can add different buttons and
+QtVCP is completely customizable - you can add different buttons and
 status LEDs etc. or add python code for even finer grain customization.
 
 == Builtin panels
@@ -24,7 +24,7 @@ in a  terminal type 'qtvcp list' <return> to see a list. +
 
 === copy
 
-used for copying qtvcp's builtin screen/panels/vismach code to a folder
+used for copying QtVCP's builtin screen/panels/vismach code to a folder
 so one can customize it.
 
 In a terminal:
@@ -34,7 +34,7 @@ In a terminal:
 qtvcp copy
 ----
 
-.copy Dialog - Copy Qtvcp's builtin Screen, Panel or Vismach code
+.copy Dialog - Copy QtVCP's builtin Screen, Panel or Vismach code
 image::images/qtvcp_copy_dialog.png["Copy Dialog",align="left"]
 
 === test_dial
@@ -91,7 +91,7 @@ image::images/test_panel.png["Test Panel",align="left"]
 
 - a camera display widget for rotational alignment
 
-.Qtvcp cam align- Camera based alignment panel
+.QtVCP cam align- Camera based alignment panel
 image::images/qtvcp-cam-align.png["Qt Camera Alignment",align="left"]
 
 === sim_panel
@@ -104,7 +104,7 @@ image::images/qtvcp-cam-align.png["Qt Camera Alignment",align="left"]
 loadusr qtvcp sim_panel
 ----
 
-.Qtvcp sim panel - Simulated controls for screen testing.
+.QtVCP sim panel - Simulated controls for screen testing.
 image::images/qtvcp_sim_panel.png["Sim Panel",align="left"]
 
 [[cha:qtvcp-vismach-panels]]
@@ -118,8 +118,8 @@ image::images/qtvcp_sim_panel.png["Sim Panel",align="left"]
 loadusr qtvcp vismach_mill_xyz
 ----
 
-.Qtvcp vismach- 3 Axis Mill panel
-image::images/qtvismach.png["Qtvcp Vismach Mill",align="left"]
+.QtVCP vismach- 3 Axis Mill panel
+image::images/qtvismach.png["QtVCP Vismach Mill",align="left"]
 
 === vismach_scara
 
@@ -130,8 +130,8 @@ image::images/qtvismach.png["Qtvcp Vismach Mill",align="left"]
 loadusr qtvcp vismach_scara
 ----
 
-.Qtvcp vismach- 3 Axis Mill panel
-image::images/qtvismach_scara.png["Qtvcp Vismach Scara",align="left"]
+.QtVCP vismach- 3 Axis Mill panel
+image::images/qtvismach_scara.png["QtVCP Vismach Scara",align="left"]
 
 === vismach_millturn
 
@@ -142,8 +142,8 @@ image::images/qtvismach_scara.png["Qtvcp Vismach Scara",align="left"]
 loadusr qtvcp vismach_millturn
 ----
 
-.Qtvcp vismach- 3 Axis Mill panel
-image::images/qtvismach_millturn.png["Qtvcp Vismach MillTurn",align="left"]
+.QtVCP vismach- 3 Axis Mill panel
+image::images/qtvismach_millturn.png["QtVCP Vismach MillTurn",align="left"]
 
 === vismach_mill_5axis_gantry
 
@@ -154,8 +154,8 @@ image::images/qtvismach_millturn.png["Qtvcp Vismach MillTurn",align="left"]
 loadusr qtvcp vismach_mill_5axis_gantry
 ----
 
-.Qtvcp vismach- 3 Axis Mill panel
-image::images/qtvismach_5axis_gantry.png["Qtvcp Vismach 5 Axis Gantry",align="left"]
+.QtVCP vismach- 3 Axis Mill panel
+image::images/qtvismach_5axis_gantry.png["QtVCP Vismach 5 Axis Gantry",align="left"]
 
 === vismach_fanuc_200f
 
@@ -166,8 +166,8 @@ image::images/qtvismach_5axis_gantry.png["Qtvcp Vismach 5 Axis Gantry",align="le
 loadusr qtvcp vismach_fanuc_200f
 ----
 
-.Qtvcp vismach- 6 Joint Robotic Arm
-image::images/qtvismach_fanuc_200f.png["Qtvcp 6 Joint Robotic Arm",align="left"]
+.QtVCP vismach- 6 Joint Robotic Arm
+image::images/qtvismach_fanuc_200f.png["QtVCP 6 Joint Robotic Arm",align="left"]
 
 
 === tool_dialog
@@ -185,7 +185,7 @@ Options:
 * -o audio_on -play sound on tool change
 * -o speak_on -speak announcement of tool change
 
-.Qtvcp tool dialog - Manual Tool Change Dialog
+.QtVCP tool dialog - Manual Tool Change Dialog
 image::images/qtvcp_toolChange.png["Tool Change Dialog",align="left"]
 
 == Custom Panels

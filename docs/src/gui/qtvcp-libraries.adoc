@@ -385,14 +385,14 @@ it will return True if there was an error. +
 === CONVERT_TO_WEAR_TYPE(toolarray)
 
 This function converts a LinuxCNC raw tool array to a qtvcp tool wear array. +
-Qtvcp's array includes entries for X and Z axis tool wear. +
+QtVCP's array includes entries for X and Z axis tool wear. +
 inuxcnc covers tool wear by adding tool wear information into tool entries above 10000. +
 This also requires remap code to add the wear offsets at tool change time. +
 
 === CONVERT_TO_STANDARD_TYPE(toolarray)
 
 This function converts qtvcp's tool array into a LinuxCNC raw tool array. +
-Qtvcp's array includes entries for X and Z axis tool wear. +
+QtVCP's array includes entries for X and Z axis tool wear. +
 LinuxCNC covers tool wear by adding tool wear information into tool entries above 10000. +
 This also requires remap code to add the wear offsets t tool change time. +
 
@@ -427,19 +427,19 @@ PATH.PREFS_FILENAME # The preference file path
 PATH.WORKINGDIR     # The directory qtvcp was launched from
 PATH.IS_SCREEN      # Is this a screen or a VCP?
 PATH.CONFIGPATH     # launched configuration folder
-PATH.RIPCONFIGDIR   # The Run-in-place config folder for Qtvcp screens
+PATH.RIPCONFIGDIR   # The Run-in-place config folder for QtVCP screens
 PATH.BASEDIR        # Base folder for LinuxCNC
 PATH.BASENAME       # The Designer files name (no ending)
-PATH.IMAGEDIR       # The Qtvcp image folder
-PATH.SCREENDIR      # The Qtvcp builtin Screen folder
-PATH.PANELDIR       # The Qtvcp builtin VCP folder
+PATH.IMAGEDIR       # The QtVCP image folder
+PATH.SCREENDIR      # The QtVCP builtin Screen folder
+PATH.PANELDIR       # The QtVCP builtin VCP folder
 PATH.HANDLER        # Handler file Path
-PATH.XML            # Qtvcp ui file path
-PATH.QSS            # Qtvcp Qss file path
+PATH.XML            # QtVCP UI file path
+PATH.QSS            # QtVCP Qss file path
 PATH.PYDIR          # Linuxcnc's python library
-PATH.LIBDIR         # The Qtvcp library folder
-PATH.WIDGET         # The Qtvcp widget folder
-PATH.PLUGIN         # The Qtvcp widget plugin folder
+PATH.LIBDIR         # The QtVCP library folder
+PATH.WIDGET         # The QtVCP widget folder
+PATH.PLUGIN         # The QtVCP widget plugin folder
 
 # Not currently used:
 PATH.LOCALEDIR      # Locale translation folder
@@ -722,8 +722,8 @@ from qtvcp.lib.audio_player import Player
 ----
 
 To instantiate the module so you can use it add this python code to your instantiated section: +
-_register_messages() function connects the audio player to the STATUS library for sounds can be played +
-with the STATUS message system. +
+_register_messages() function connects the audio player to the STATUS library for sounds can be played 
+with the STATUS message system.
 
 [source,python]
 ----
@@ -775,16 +775,15 @@ BEEP
 
 == virtual keyboard
 
-This library allows you to use STATUS messages to launch a virtual keyboard. +
-It uses Onboard or Matchbox library for the keyboard. +
+This library allows you to use STATUS messages to launch a virtual keyboard.
+It uses Onboard or Matchbox library for the keyboard.
 
 == TOOLBAR ACTIONS
 
-This library supplies prebuilt submenus and actions for toolbar menus and toolbar buttons. +
-Toolbuttons, menu and toolbar menus are built in designer and assigned actions/submenus in the handler file. +
+This library supplies prebuilt submenus and actions for toolbar menus and toolbar buttons.
+Toolbuttons, menu and toolbar menus are built in designer and assigned actions/submenus in the handler file.
 
-Actions:
-
+.Actions:
 ----
 estop
 power
@@ -903,8 +902,7 @@ a 3 axis mill with an A axis/spindle and a scara mill. +
 These samples, if loaded after a running linuxcnc configuration (including non-QTvcp based screens), +
 most will react to machine movement. Some require HAL pins to be connected for movement +
 
-from a terminal (pick one):
-
+.from a terminal (pick one):
 ----
 qtvcp vismach_mill_xyz
 qtvcp vismach_scara
@@ -918,13 +916,13 @@ This gives basic building blocks of a simulated machine.
 
 ==== Collection
 
-A collection is an object of individual machine parts. +
+A collection is an object of individual machine parts.
 This holds a hierarchical list of primitive shapes or STL objects that operations can be applied to.
 
 ==== Translate
 
-This object will perform an openGL translation calculation on a Collection object. +
-Translation refers to moving an object to a different position on screen. +
+This object will perform an openGL translation calculation on a Collection object.
+Translation refers to moving an object to a different position on screen.
 
 ==== Scale
 
@@ -932,9 +930,9 @@ This object will perform an openGL scale function on a collection object.
 
 ==== HalTranslate
 
-This object will perform an openGL translation calculation on a Collection object, offset by the HAL pin value. +
+This object will perform an openGL translation calculation on a Collection object, offset by the HAL pin value.
 Translation refers to moving an object to a different position on screen. +
-You can either read a pin from a component owned by the vismach object or, +
+You can either read a pin from a component owned by the vismach object or,
 if the component argument is set to None, read a HAL system pin directly.
 
 ==== Rotate
@@ -953,8 +951,7 @@ This object will build a CylinderZ object that will change size and length based
 loaded tool dimensition (from the tool table) +
 It reads the HAL pins: 'halui.tool.diameter' and 'motion.tooloffset.z'
 
-(from mill_xyz sample)
-
+.from mill_xyz sample
 ----
 toolshape = CylinderZ(0)
 toolshape = Color([1, .5, .5, .5], [toolshape])
@@ -966,41 +963,39 @@ tool = Collection([
 
 ==== Track
 
-move and rotate an object to point from one capture()'d coordinate system to another.
-
-
+Move and rotate an object to point from one capture()'d coordinate system to another.
 
 Base object to hold coordinates for primitive shapes.
 
 ==== CylinderX, CylinderY, CylinderZ
 
-build a cylinder on the X (or Y or Z) axis by giving endpoint X (or Y, or Z) and radii coordinates.
+Builds a cylinder on the X (or Y or Z) axis by giving endpoint X (or Y, or Z) and radii coordinates.
 
 ==== Sphere
 
-build a sphere from center and radius coordinates.
+Builds a sphere from center and radius coordinates.
 
 ==== TriangleXY TriangleXZ TriangleYZ
 
-build a triangle in the soecified plane by giving the corners Z coordinates for each side
+Builds a triangle in the soecified plane by giving the corners Z coordinates for each side.
 
 ==== ArcX
 
-build an arc by specifying
+Build an arc by specifying:
 
 ==== Box
 
-Build a box specified by the 6 coordinates
+Build a box specified by the 6 coordinates.
 
 ==== BoxCentered
 
-specify the width in X and Y, and the height in Z the box is centered on the origin
+Specify the width in X and Y, and the height in Z the box is centered on the origin.
 
 ==== BoxCenteredXY
 
 specify the width in X and Y, and the height in Z
 the box is centered in X and Y, and runs from Z=0 up
-(or down) to the specified Z value
+(or down) to the specified Z value.
 
 ==== Capture
 
@@ -1016,18 +1011,17 @@ and HUD.show("stuff") for one-shot things like error messages
 
 ==== Color
 
-Applies a color to the parts of a collection
+Applies a color to the parts of a collection.
 
 ==== AsciiSTL AsciiOBJ
 
-Loads a STL file/ STL data as a vismach part
+Loads a STL file/ STL data as a vismach part.
 
 === Importing and Initiating
 
-Here is how one might import the XYZ_mill simulation in a qtvcp panel or screen handler file. +
+Here is how one might import the XYZ_mill simulation in a qtvcp panel or screen handler file.
 
-Import the Mill library:
-
+.Import the Mill library:
 [source,python]
 ----
 ############################
@@ -1037,8 +1031,7 @@ Import the Mill library:
 import mill_xyz as MILL
 ----
 
-instantiate the simulation widget and add it to the screen's main layout:
-
+.Instantiate the simulation widget and add it to the screen's main layout:
 [source,python]
 ----
     ##########################################

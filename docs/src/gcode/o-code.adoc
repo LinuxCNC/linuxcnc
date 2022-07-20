@@ -44,9 +44,9 @@ change in the future.
 
 The behavior is undefined if:
 
-* The same number is used for more than one block
-* Other words are used on a line with an O- word
-* Comments are used on a line with an O-word
+* The same number is used for more than one block.
+* Other words are used on a line with an O- word.
+* Comments are used on a line with an O-word.
 
 [NOTE]
 Using the lower case 'o' makes it easier to distinguish from a 0
@@ -369,7 +369,7 @@ o[#101+2] call
 ----
 
 .Computing values in O-words
-For more information on computing values see the following sections
+For more information on computing values see the following sections:
 
 * <<sec:overview-parameters,Parameters>>
 * <<gcode:expressions,Expressions>>
@@ -381,7 +381,7 @@ For more information on computing values see the following sections
 
 To call a separate file with a subroutine name the file the same as
 your call and include a sub and endsub in the file. The file must be in the
-directory pointed to by 'PROGRAM_PREFIX' or 'SUBROUTINE_PATH' in the ini file.
+directory pointed to by 'PROGRAM_PREFIX' or 'SUBROUTINE_PATH' in the INI file.
 The file name can include *lowercase* letters, numbers, dash, and underscore
 only. A named subroutine file can contain only a single subroutine definition.
 
