@@ -303,7 +303,7 @@ assert(s.rapidrate == 1.0)
 assert(s.read_line == 0)
 assert(s.rotation_xy == 0.0)
 
-assert(s.settings == (0.0, 0.0, 0.0, 0.0, 0.0))
+assert(s.settings == (0.0, 0.0, 0.0, 0.001, 0.0))
 assert(s.spindle[0]['brake'] == 1)
 assert(s.spindle[0]['direction'] == 0)
 assert(s.spindle[0]['enabled'] == 0)
