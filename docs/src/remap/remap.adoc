@@ -2314,43 +2314,43 @@ All M-codes from `M200` to `M999` are available for remapping.
 
 === readahead time and execution time
 
-foo
+FIXME Write missing information
 
 === plugin/pickle hack
 
-foo
+FIXME Write missing information
 
 === Module, methods, classes, etc reference
 
-foo
+FIXME Write missing information
 
 == Introduction: Extending Task Execution
 
-foo
+FIXME Write missing information
 
 === Why would you want to change Task Execution?
 
-foo
+FIXME Write missing information
 
 === A diagram: task, interp, iocontrol, UI (??)
 
-foo
+FIXME Write missing information
 
 == Models of Task execution
 
-foo
+FIXME Write missing information
 
 === Traditional iocontrol/iocontrolv2 execution
 
-foo
+FIXME Write missing information
 
 === Redefining IO procedures
 
-foo
+FIXME Write missing information
 
 === Execution-time Python procedures
 
-foo
+FIXME Write missing information
 
 // setup examples
 
