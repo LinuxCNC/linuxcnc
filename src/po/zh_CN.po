@@ -6,10 +6,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: LinuxCNC EMC2.8.0\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-07-09 16:34+0100\n"
-"PO-Revision-Date: 2022-07-02 14:59+0000\n"
-"Last-Translator: Jeff Epler <jepler@gmail.com>\n"
+"PO-Revision-Date: 2022-07-20 00:40+0000\n"
+"Last-Translator: whatawhiz <pink0floyd@vip.qq.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/zh_Hans/>\n"
 "Language: zh_CN\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.13.1-dev\n"
+"X-Generator: Weblate 4.14-dev\n"
 "X-Poedit-Language: Chinese\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -11064,12 +11064,12 @@ msgstr "Gmoccapy"
 
 #: src/emc/usr_intf/stepconf/options.glade:54
 msgid "Qtdragon"
-msgstr ""
+msgstr "Qtdragon"
 
 #: src/emc/usr_intf/stepconf/options.glade:57
 #: src/emc/usr_intf/pncconf/screen.glade:145
 msgid "QtPlasmaC"
-msgstr ""
+msgstr "QtPlasmaC"
 
 #: src/emc/usr_intf/stepconf/options.glade:73
 msgid "Screen:  "
@@ -11479,7 +11479,8 @@ msgstr "反向"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -11758,7 +11759,6 @@ msgid "LinuxCNC 'PNCconf' configuration files"
 msgstr "LinuxCNC 'PNCconf' 配置文件"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:929
-#, fuzzy
 msgid ""
 "It seems data in this file is from too old of a version of PNCConf to "
 "continue."
