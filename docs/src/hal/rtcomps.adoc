@@ -12,8 +12,8 @@ response to position or velocity commands. In position mode, it has a
 built in pre-tuned position loop, so PID tuning is not required. In
 velocity mode, it drives a motor at the commanded speed, while obeying
 velocity and acceleration limits. It is a realtime component only, and
-depending on CPU speed, etc, is capable of maximum step rates of 10kHz
-to perhaps 50kHz. The step pulse generator block diagram shows three block
+depending on CPU speed, etc, is capable of maximum step rates of 10 kHz
+to perhaps 50 kHz. The step pulse generator block diagram shows three block
 diagrams, each is a single step pulse generator. The first diagram is for
 step type '0', (step and direction). The second is for step type '1'
 (up/down, or pseudo-PWM), and the third is for step types 2 through 14
@@ -225,7 +225,7 @@ This component provides software based generation of PWM (Pulse Width
 Modulation) and PDM (Pulse Density Modulation) waveforms. It is a
 realtime component only, and depending on CPU speed, etc, is capable of
 PWM frequencies from a few hundred Hertz at pretty good resolution, to
-perhaps 10KHz with limited resolution.
+perhaps 10 kHz with limited resolution.
 
 .Loading PWMgen
 ----
@@ -305,7 +305,7 @@ output type selected:
   from arbitrary units to duty cycle. For example if scale is set to 4000
   and the input value passed to the pwmgen.<chan>.value is 4000 then it will
   be 100% duty-cycle (always on). If the value is 2000 then it will be a 50%
-  25Hz square wave.
+  25 Hz square wave.
 * '(float) pwmgen.<chan>.pwm-freq' - Desired PWM frequency, in Hz.
   If 0.0, generates PDM instead of PWM. If set higher than internal limits,
   next call of 'update_freq()' will set it to the internal limit. If non-zero,
@@ -336,7 +336,7 @@ not supported.
   capabilities of the computer. That thread's period determines the maximum PWM
   carrier frequency, as well as the resolution of the PWM or PDM signals. If
   the base thread is 50,000nS then every 50uS the module decides if it is time
-  to change the state of the output. At 50% duty cycle and 25Hz PWM frequency
+  to change the state of the output. At 50% duty cycle and 25 Hz PWM frequency
   this means that the output changes state every (1 / 25) seconds / 50uS * 50% = 400
   iterations. This also means that you have a 800 possible duty cycle
   values (without dithering)
@@ -351,7 +351,7 @@ not supported.
 This component provides software based counting of signals from
 quadrature (or single-pulse) encoders. It is a realtime component only,
 and depending on CPU speed, latency, etc, is capable of maximum count
-rates of 10kHz to perhaps up to 50kHz.
+rates of 10 kHz to perhaps up to 50 kHz.
 
 The base thread should be 1/2 count speed to allow for noise and timing
 variation. For example if you have a 100 pulse per revolution encoder on the

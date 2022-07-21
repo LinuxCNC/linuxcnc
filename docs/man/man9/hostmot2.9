@@ -276,7 +276,7 @@ maximum variation between read times.  \-100 will suffice for most systems, and
 
 For serial encoders, the value also needs to include the time it takes to
 transfer the absolute encoder position.  For instance, if 50 bits must be read
-at 500kHz then subtract an additional 50/500kHz = 100uS to get a starting value
+at 500 kHz then subtract an additional 50/500 kHz = 100 µs to get a starting value
 of \-200.
 
 The xy2mod uses 2 DPLL timers, one for read and one for write. The read timer value
@@ -780,7 +780,7 @@ It is not appropriate to use this parameter for index-homing of axis drives.
 This pin sets the excitation frequency for
 the resolver. This pin is module-level rather than instance-level as all
 resolvers share the same excitation frequency.
- Valid values are 10 (~10kHz), 5 (~5kHz) and 2.5 (~2.5kHz). The
+ Valid values are 10 (~10 kHz), 5 (~5 kHz) and 2.5 (~2.5 kHz). The
 actual frequency depends on the FPGA frequency, and they correspond to 
 CLOCK_LOW/5000, CLOCK_LOW/10000 and CLOCK_LOW/20000 respectively. 
 The parameter will be set to the closest available of the three frequencies.
@@ -882,7 +882,7 @@ to 50% results in a 1 MHz square wave, identical to a 1 MHz PWM signal
 with 50% duty cycle.  The effective range of this parameter is from
 about 1525 Hz up to just under 200 MHz.  Note that the max frequency
 is determined by the ClockHigh frequency of the Anything IO board; the
-5i25 and 7i92 both have a 100 MHz clock, resulting in a 100 Mhz max
+5i25 and 7i92 both have a 100 MHz clock, resulting in a 100 MHz max
 PDM frequency.  Other boards may have different clocks, resulting in
 different max PDM frequencies.  If the user attempts to set the frequency
 too high, it will be clipped to the max supported frequency of the board.
@@ -963,8 +963,8 @@ that affects all instances
 
 .TP
 (u32 rw) frequency
-Sets the master PWM frequency. Maximum is approx 48kHz, minimum
-is 1kHz. Defaults to 20kHz.
+Sets the master PWM frequency. Maximum is approx 48 kHz, minimum
+is 1 kHz. Defaults to 20 kHz.
 
 .SS rcpwmgen
 The rcpwmgen is a simple PWM generator optimized for use with standard RC servos
@@ -980,7 +980,7 @@ Pins:
 
 .TP
 (float rw) rate
-Sets the master  RC PWM frequency. Maximum is 1 KHz, minimum
+Sets the master  RC PWM frequency. Maximum is 1 kHz, minimum
 is .01 Hz. Defaults to 50 Hz.
 
 .TP
@@ -1195,7 +1195,7 @@ reduces following errors.
 .SS Smart Serial Interface
 
 The Smart Serial Interface allows up to 32 different devices such as the Mesa
-8i20 2.2kW 3-phase drive or 7i64 48-way IO cards to be connected to a single
+8i20 2.2 kW 3-phase drive or 7i64 48-way IO cards to be connected to a single
 FPGA card.
 The driver auto-detects the connected hardware port, channel and device type.
 Devices can be connected in any order to any active channel of an active port.
@@ -1374,20 +1374,20 @@ Parameters:
 
 .TP
 (u32 in) scan_rate
-This sets the input scan rate in Hz. Default scan rate is 20 KHz
-(50 uS scan period).
+This sets the input scan rate in Hz. Default scan rate is 20 kHz
+(50 µs scan period).
 
 .TP
 (u32 in) fast_scans
 This sets the fast time constant for all input pins. This is the time constant 
 used when the input-slow pin for the corresponding input is False. The range is 0 to 
-63 scan periods and the default value is 5 = 250 uS at the default 20 Khz scan_rate.
+63 scan periods and the default value is 5 = 250 µs at the default 20 kHz scan_rate.
 
 .TP
 (u32 in) slow_scans
 This sets the slow time constant for all input pins. This is the time constant 
 used when the input-slow pin for the corresponding input is True. The range is 0 to 1023
-scan periods and the default value is 500 = 25 mS at the default 20 Khz scan_rate.
+scan periods and the default value is 500 = 25 ms at the default 20 kHz scan_rate.
 
 .TP
 (bit in) enc0_4xmode, enc1_4xmode, enc2_4xmode, and enc3_4xmode

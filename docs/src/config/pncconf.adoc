@@ -373,11 +373,11 @@ If using Mesa daughter boards the docs for the board should give recommendations
 It's important to follow these to avoid damage and get the best performance.
 
 ....
-The 7i33 requires PDM and a PDM base frequency of 6 mHz
-The 7i29 requires PWM and a PWM base frequency of 20 Khz
-The 7i30 requires PWM and a PWM base frequency of 20 Khz
-The 7i40 requires PWM and a PWM base frequency of 50 Khz
-The 7i48 requires UDM and a PWM base frequency of 24 Khz
+The 7i33 requires PDM and a PDM base frequency of 6 MHz
+The 7i29 requires PWM and a PWM base frequency of 20 kHz
+The 7i30 requires PWM and a PWM base frequency of 20 kHz
+The 7i40 requires PWM and a PWM base frequency of 50 kHz
+The 7i48 requires UDM and a PWM base frequency of 24 kHz
 ....
 
 Watchdog time out:: is used to set how long the MESA board will wait before

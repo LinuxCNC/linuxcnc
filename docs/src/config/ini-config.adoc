@@ -881,7 +881,7 @@ Basically, if a segment will complete in less time than 1 /
 ARC_BLEND_RAMP_FREQ, we don't bother with a trapezoidal velocity profile
 on that segment, and use constant acceleration. (Setting
 ARC_BLEND_RAMP_FREQ = 1000 is equivalent to always using trapezoidal
-acceleration, if the servo loop is 1kHz).
+acceleration, if the servo loop is 1 kHz).
 +
 You can characterize the worst-case loss of performance by comparing the
 velocity that a trapezoidal profile reaches vs. the ramp:
@@ -894,14 +894,14 @@ velocity that a trapezoidal profile reaches vs. the ramp:
 # f = cutoff frequency from INI
 ----
 +
-For the aforementioned machine, the ripple for a 20Hz cutoff frequency
+For the aforementioned machine, the ripple for a 20 Hz cutoff frequency
 is 100 / (4 * 20) = 1.25 IPS. This seems high, but keep in mind that it
 is only a worst-case estimate. In reality , the trapezoidal motion
 profile is limited by other factors, such as normal acceleration or
 requested velocity, and so the actual performance loss should be much
 smaller. Increasing the cutoff frequency can squeeze out more
 performance, but make the motion rougher due to acceleration
-discontinuities. A value in the range 20Hz to 200Hz should be reasonable
+discontinuities. A value in the range 20 Hz to 200 Hz should be reasonable
 to start.
 
 Finally, no amount of tweaking will speed up a toolpath with lots of

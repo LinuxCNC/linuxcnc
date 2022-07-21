@@ -613,12 +613,12 @@ component. Each pwmgen instance has the following pins and parameters:
   Each pulse (and space) in the PDM pulse train has a duration of
   1/pdm_frequency seconds.
   For example, setting the pdm_frequency to 2e6 (2 MHz) and the duty
-  cycle to   50% results in a 1 MHz square wave, identical to a 1 MHz
+  cycle to 50% results in a 1 MHz square wave, identical to a 1 MHz
   PWM signal with 50% duty cycle. The effective range of this parameter
   is from about 1525 Hz up to just under 100 MHz. Note that the max
   frequency is determined by the ClockHigh frequency of the Anything I/O
   board; the 5i20 and 7i43 both have a 100 MHz clock, resulting in a
-  100 Mhz max PDM frequency. Other boards may have different clocks,
+  100 MHz max PDM frequency. Other boards may have different clocks,
   resulting in different max PDM frequencies. If the user attempts to
   set the frequency too high, it will be clipped to the max supported
   frequency of the board.
@@ -627,9 +627,9 @@ component. Each pwmgen instance has the following pins and parameters:
   of all the pwmgen instances running in the PWM modes (modes 1 and 2).
   This is the
   frequency of the variable-duty-cycle wave. Its effective range is from
-  1 Hz up to 193 KHz. Note that the max frequency is determined by the
+  1 Hz up to 193 kHz. Note that the max frequency is determined by the
   ClockHigh frequency of the Anything I/O board; the 5i20 and 7i43 both
-  have a 100 MHz clock, resulting in a 193 KHz max PWM frequency. Other
+  have a 100 MHz clock, resulting in a 193 kHz max PWM frequency. Other
   boards may have different clocks, resulting in different max PWM
   frequencies. If the user attempts to set the frequency too high, it
   will be clipped to the max supported frequency of the board.

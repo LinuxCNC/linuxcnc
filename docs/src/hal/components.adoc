@@ -267,7 +267,7 @@ clarkeinv:: (((clarkeinv))) Inverse Clarke transform.
 === Other Components
 
 charge_pump:: (((charge_pump))) Creates a square-wave for the 'charge pump' input of some controller boards.
-  The 'Charge Pump' should be added to the base thread function. When enabled the output is on for one period and off for one period. To calculate the frequency of the output 1/(period time in seconds x 2) = hz. For example if you have a base period of 100,000ns that is 0.0001 seconds and the formula would be 1/(0.0001 x 2) = 5,000 hz or 5 Khz.
+  The 'Charge Pump' should be added to the base thread function. When enabled the output is on for one period and off for one period. To calculate the frequency of the output 1/(period time in seconds x 2) = Hz. For example if you have a base period of 100,000 ns that is 0.0001 seconds and the formula would be 1/(0.0001 x 2) = 5,000 Hz or 5 kHz.
 
 encoder_ratio:: (((encoder_ratio))) An electronic gear to synchronize two axes.
 

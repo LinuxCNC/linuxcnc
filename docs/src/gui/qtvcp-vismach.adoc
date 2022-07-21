@@ -208,7 +208,7 @@ response to the HAL pins as the model is animated.
   script, or could be created at this point if preferred eg
   `part1 = HalTranslate([Box(....)], ...)`. +
 ** The _HAL component_ is the next argument. +
-   In qtvcp if you are reading system pins directly then the component
+   In QtVCP if you are reading system pins directly then the component
    argument is set to 'None". +
 ** After that is the _name of the HAL pin_ that will animate the motion. +
    This needs to match an existing HAL pin that describes the joint
@@ -329,7 +329,7 @@ model = Collection([base, saddle, head, carousel])
   lat=0, lon=0)` +
   This is the command that makes it all happen, creates the display etc.
   if invoked directly from python3. +
-  Usually this file is imported by qtvcp and the window() object is
+  Usually this file is imported by QtVCP and the window() object is
   instantiated and embedded into another screen. +
 ** _model_ should be a collection that contains all the machine parts. +
 ** _tooltip_ and _work_ need to be created by Capture() to visualize

@@ -344,9 +344,9 @@ setp gm.0.stepgen.0.maxvel 0            # do not set maxvel for step
 setp gm.0.stepgen.0.maxaccel 0          # do not set max acceleration for
                                         # step generator, let interpolator control it.
 setp gm.0.stepgen.0.position-scale 1000 # 1000 step/position unit
-setp gm.0.stepgen.0.steplen 1000        # 1000 ns = 1 us
-setp gm.0.stepgen.0.stepspace1000       # 1000 ns = 1 us
-setp gm.0.stepgen.0.dirdelay 2000       # 2000 ns = 2 us
+setp gm.0.stepgen.0.steplen 1000        # 1000 ns = 1 µs
+setp gm.0.stepgen.0.stepspace1000       # 1000 ns = 1 µs
+setp gm.0.stepgen.0.dirdelay 2000       # 2000 ns = 2 µs
 ----
 
 Connect StepGen to axis 0 position reference and enable pins:
