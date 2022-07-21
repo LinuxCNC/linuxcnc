@@ -86,9 +86,13 @@ print("line 0: X starts at 0.000000")
 
 
 # find where X starts moving (X is the second column, column 1)
-i = 0
-while samples[i][1] == samples[i+1][1]:
-    i += 1
+for i in range(0, len(samples) - 1):
+    if samples[i][1] != samples[i+1][1]:
+        break
+
+if len(samples) == i+2:
+    print("error: no acceleration detected, did linuxcnc take too long to start moving?")
+    sys.exit(1)
 
 print("line %d: accel phase starts" % i)
 
@@ -100,7 +104,7 @@ print("line %d: accel phase starts" % i)
 highest_seen_accel_ipc2 = 0
 old_accel_ipc2 = 0
 old_v_ipc = 0
-for i in range(i, len(samples)):
+for i in range(i, len(samples) - 1):
 
     new_v_ipc = samples[i+1][1] - samples[i][1]
     accel_ipc2 = new_v_ipc - old_v_ipc
@@ -141,7 +145,7 @@ print("line %d: entering cruise phase, vel=%.6f i/s, max_accel = %.6f i/s^2" % (
 
 # now i is the first sample of the cruise phase
 # wait for vel to drop again
-for i in range(i, len(samples)):
+for i in range(i, len(samples) - 1):
     new_v_ipc = samples[i+1][1] - samples[i][1]
 
     if abs(new_v_ipc - old_v_ipc) > 0.0000001:
@@ -158,7 +162,7 @@ print("line %d: decel phase starting, old_v=%.6f i/s, new_v=%.6f i/s" % (i, old_
 # verify decel phase stops when vel == 0
 highest_seen_accel_ipc2 = 0
 old_accel_ipc2 = 0
-for i in range(i, len(samples)):
+for i in range(i, len(samples) - 1):
 
     new_v_ipc = samples[i+1][1] - samples[i][1]
     accel_ipc2 = new_v_ipc - old_v_ipc
