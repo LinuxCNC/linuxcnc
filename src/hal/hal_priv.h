@@ -162,7 +162,7 @@ public:
     const T *operator ->() const { return get(); }
     operator bool() const { return off; }
 private:
-    int off;
+    rtapi_intptr_t off;
 };
 
 template<class T>
@@ -170,13 +170,13 @@ hal_shmfield<T> hal_make_shmfield(T *t) {
     return hal_shmfield<T>(t);
 }
 
-static_assert(sizeof(hal_shmfield<void>) == sizeof(int), "hal_shmfield size matches");
+static_assert(sizeof(hal_shmfield<void>) == sizeof(rtapi_intptr_t), "hal_shmfield size matches");
 
 #define SHMFIELD(type) hal_shmfield<type>
 #define SHMPTR(arg) ((arg).get())
 #define SHMOFF(ptr) (hal_make_shmfield(ptr))
 #else
-#define SHMFIELD(type) int
+#define SHMFIELD(type) rtapi_intptr_t
 
 /* SHMPTR(offset) converts 'offset' to a void pointer. */
 #define SHMPTR(offset)  ( (void *)( hal_shmem_base + (offset) ) )
