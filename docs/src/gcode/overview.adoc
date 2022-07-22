@@ -1075,6 +1075,26 @@ are replaced by the value of the named parameter. Named parameters
 will have white space removed from them. So, '\#<named parameter>'
 will be converted to '#<namedparameter>'.
 
+Parameter numbers can be formatted. eg:
+
+----
+(DEBUG, value = %d#<some_value>)
+----
+will print the value rounded to an integer.
+
+* %lf is default if there is no formatting string
+* %d = 0 decimals
+* %f = four decimals
+* %.xf = x (0-9) number of decimals
+
+The formatting will be preformed on all parameters in the same line unless 
+changed. ie. multiple formatting is allowed in one line.
+
+The formatting string does not need to be right beside the parameter.
+
+If the formatting string is created with the wrong pattern it will be 
+printed as characters.
+
 [[gcode:file-requirements]]
 == File Requirements(((File Requirements)))
 
