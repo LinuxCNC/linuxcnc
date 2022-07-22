@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-07-09 16:34+0100\n"
-"PO-Revision-Date: 2022-07-19 02:35+0000\n"
+"PO-Revision-Date: 2022-07-21 03:05+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
@@ -675,8 +675,9 @@ msgid "Spindle state unknown for %s"
 msgstr "Ukjent spindelstatus for %s"
 
 #: src/emc/rs274ngc/interp_cycles.cc:724
+#, fuzzy
 msgid "Cannot feed with zero feed rate"
-msgstr ""
+msgstr "Kan ikke mate uten innmatingsfart"
 
 #: src/emc/rs274ngc/interp_cycles.cc:725
 msgid "Cannot use inverse time feed with canned cycles"
@@ -730,8 +731,9 @@ msgid "Invalid spindle ($) number in Spindle Mode command"
 msgstr "Ugyldig spindelnummer ($) i Spindelmodus-kommando"
 
 #: src/emc/rs274ngc/interp_execute.cc:260
+#, fuzzy
 msgid "Invalid spindle ($) number in Spindle Feed command"
-msgstr ""
+msgstr "Ugyldig spindelnummer (S) i spidelmatingskommando"
 
 #: src/emc/rs274ngc/interp_execute.cc:284
 msgid "Invalid spindle ($) number in Spindle speed command"
@@ -1104,16 +1106,18 @@ msgid "Cannot create backup file"
 msgstr "Kan ikke opprette backupfil"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:53
+#, fuzzy
 msgid "Cannot do g1 with zero feed rate"
-msgstr ""
+msgstr "Umulig å gjennomføre g1 med null matingsfart"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:54
 msgid "Cannot do zero repeats of cycle"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:55
+#, fuzzy
 msgid "Cannot make arc with zero feed rate"
-msgstr ""
+msgstr "Kan ikke gjøre sirkelbevegelse med null matingshastighet"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:56
 msgid "Cannot open backup file"
@@ -5606,12 +5610,14 @@ msgid "Set jog speed:"
 msgstr ""
 
 #: tcl/tklinuxcnc.tcl:1318
+#, fuzzy
 msgid "Set Feed Override"
-msgstr ""
+msgstr "Sett matingsoverstyring"
 
 #: tcl/tklinuxcnc.tcl:1324
+#, fuzzy
 msgid "Set feed override:"
-msgstr ""
+msgstr "Sett matingsoverstyring:"
 
 #: tcl/tklinuxcnc.tcl:1349
 msgid "Set Spindle Override"
@@ -5630,8 +5636,9 @@ msgid "Angular Jog Speed (deg)/min:"
 msgstr ""
 
 #: tcl/tklinuxcnc.tcl:1465 share/axis/tcl/axis.tcl:1491
+#, fuzzy
 msgid "Feed Override:"
-msgstr ""
+msgstr "Matingsoverstyring:"
 
 #: tcl/tklinuxcnc.tcl:1485
 msgid "Spindle speed Override:"
@@ -6825,6 +6832,8 @@ msgid ""
 "%s: Warning: Axis is running but the tool table file <%s> \n"
 "differs from the standalone startup file <%s>"
 msgstr ""
+"%s: Advarsel: Aksen beveger seg men verktøytabell-filen <%s> \n"
+"er ikke lik den frittstående oppstartfilen <%s>"
 
 #: tcl/tooledit.tcl:1004
 msgid "Must be On and Idle to reload tool table"
@@ -6888,8 +6897,9 @@ msgid "if joints radiobuttons visible"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:191
+#, fuzzy
 msgid "Set Feed Override from 0% to 100%"
-msgstr ""
+msgstr "Sett matingsoverstyring fra 0% til 100%"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:192
 msgid "if axes radiobuttons visible"
@@ -7323,8 +7333,9 @@ msgid "Rapid distance:"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1797
+#, fuzzy
 msgid "Feed distance:"
-msgstr ""
+msgstr "Matingsavstand:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1797
 msgid "Total distance:"
@@ -7777,8 +7788,9 @@ msgid "Tool Type"
 msgstr "Verktøytype"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:670
+#, fuzzy
 msgid "Feed Rate (units per minute)"
-msgstr ""
+msgstr "Matingsfart (enheter per minutt)"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:671
 msgid "Plunge Feed Rate (units per minute)"
@@ -8615,8 +8627,9 @@ msgstr ""
 
 #: src/emc/usr_intf/touchy/mdi.py:59 src/emc/usr_intf/touchy/mdi.py:60
 #: src/emc/usr_intf/gscreen/mdi.py:55 src/emc/usr_intf/gscreen/mdi.py:56
+#, fuzzy
 msgid "Straight feed"
-msgstr ""
+msgstr "Linærmating"
 
 #: src/emc/usr_intf/touchy/mdi.py:61 src/emc/usr_intf/touchy/mdi.py:62
 #: src/emc/usr_intf/gscreen/mdi.py:57 src/emc/usr_intf/gscreen/mdi.py:58
@@ -10264,7 +10277,7 @@ msgstr "Steg / mm"
 
 #: src/emc/usr_intf/stepconf/pages.py:963
 msgid "rev / in"
-msgstr ""
+msgstr "omdr / tomme"
 
 #: src/emc/usr_intf/stepconf/pages.py:967
 msgid "Steps / in"
@@ -10401,7 +10414,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:476
 msgid "# This is a generated file do not edit."
-msgstr ""
+msgstr "# Dette er en generert fil, ikke endre den."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:721
 #: src/emc/usr_intf/pncconf/build_HAL.py:1903
@@ -13091,8 +13104,9 @@ msgid "Max Vel Override incr D"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:431
+#, fuzzy
 msgid "Feed Override enable"
-msgstr ""
+msgstr "Aktiver matingsoverstyring"
 
 #: src/emc/usr_intf/pncconf/private_data.py:431
 msgid "Spindle Override enable"
@@ -13696,8 +13710,9 @@ msgid "Multi Hand Wheel"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:501
+#, fuzzy
 msgid "Feed Override"
-msgstr ""
+msgstr "Matingsoverstyring"
 
 #: src/emc/usr_intf/pncconf/private_data.py:501
 msgid "spindle Override"
@@ -14467,7 +14482,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa0.glade:577
 #: src/emc/usr_intf/pncconf/mesa1.glade:577
 msgid "Num of pwm generators:"
-msgstr ""
+msgstr "Antall PWM-generatorer:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:589
 #: src/emc/usr_intf/pncconf/mesa1.glade:589
@@ -14477,37 +14492,37 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa0.glade:601
 #: src/emc/usr_intf/pncconf/mesa1.glade:601
 msgid "Board name"
-msgstr ""
+msgstr "Bordnavn"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:608
 #: src/emc/usr_intf/pncconf/mesa1.glade:608
 msgid "Num of Smart Serial Ports:"
-msgstr ""
+msgstr "Antall smarte serieporter:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:663
 #: src/emc/usr_intf/pncconf/mesa1.glade:663
 msgid "7i29 daughter board"
-msgstr ""
+msgstr "7i29-datterkort"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:676
 #: src/emc/usr_intf/pncconf/mesa1.glade:676
 msgid "7i30 daughter board"
-msgstr ""
+msgstr "7i30-datterkort"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:689
 #: src/emc/usr_intf/pncconf/mesa1.glade:689
 msgid "7i33 daughter board"
-msgstr ""
+msgstr "7i33-datterkort"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:702
 #: src/emc/usr_intf/pncconf/mesa1.glade:702
 msgid "7i40 daughter board"
-msgstr ""
+msgstr "7i40-datterkort"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:715
 #: src/emc/usr_intf/pncconf/mesa1.glade:715
 msgid "7i48 daughter board"
-msgstr ""
+msgstr "7i48-datterkort"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:734
 #: src/emc/usr_intf/pncconf/mesa1.glade:734
@@ -14517,7 +14532,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa0.glade:766
 #: src/emc/usr_intf/pncconf/mesa1.glade:766
 msgid "Num of channels: "
-msgstr ""
+msgstr "Antall kanaler: "
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:778
 #: src/emc/usr_intf/pncconf/mesa1.glade:778
@@ -14637,7 +14652,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:48032
 #: src/emc/usr_intf/pncconf/mesa1.glade:48325
 msgid "Pin Type"
-msgstr ""
+msgstr "Pinnetype"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1138
 #: src/emc/usr_intf/pncconf/mesa0.glade:1197
@@ -15291,7 +15306,7 @@ msgstr "31:"
 #: src/emc/usr_intf/pncconf/mesa1.glade:46651
 #: src/emc/usr_intf/pncconf/mesa1.glade:49236
 msgid "function"
-msgstr ""
+msgstr "funksjon"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:2507
 #: src/emc/usr_intf/pncconf/mesa0.glade:4513
@@ -15312,7 +15327,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:16002
 #: src/emc/usr_intf/pncconf/mesa1.glade:17928
 msgid "Launch test panel"
-msgstr ""
+msgstr "Start testpanel"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:2859
 #: src/emc/usr_intf/pncconf/mesa0.glade:2872
@@ -15411,7 +15426,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:46289
 #: src/emc/usr_intf/pncconf/mesa1.glade:49403
 msgid "Num"
-msgstr ""
+msgstr "Antall"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:2892
 #: src/emc/usr_intf/pncconf/mesa1.glade:2892
@@ -15626,44 +15641,44 @@ msgstr "side 3"
 #: src/emc/usr_intf/pncconf/mesa0.glade:23539
 #: src/emc/usr_intf/pncconf/mesa1.glade:23541
 msgid "Smart Serial 0"
-msgstr ""
+msgstr "Smartseriell 0"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:28721
 #: src/emc/usr_intf/pncconf/mesa1.glade:28723
 msgid "Smart Serial 1"
-msgstr ""
+msgstr "Smartseriell 1"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:33903
 #: src/emc/usr_intf/pncconf/mesa1.glade:33905
 msgid "Smart Serial 2"
-msgstr ""
+msgstr "Smartseriell 2"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:39085
 #: src/emc/usr_intf/pncconf/mesa1.glade:39087
 msgid "Smart Serial 3"
-msgstr ""
+msgstr "Smartserial 3"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:44267
 #: src/emc/usr_intf/pncconf/mesa1.glade:44269
 msgid "Smart Serial 4"
-msgstr ""
+msgstr "Smartseriell 4"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:49449
 #: src/emc/usr_intf/pncconf/mesa1.glade:49451
 msgid "Smart Serial 5"
-msgstr ""
+msgstr "Smartseriell 5"
 
 #: src/emc/usr_intf/pncconf/start.glade:27
 msgid "Create a desktop launcher to start LinuxCNC with this configuration."
-msgstr ""
+msgstr "Lag et skrivebordsoppstartskript for LinuxCNC med dette oppsettet."
 
 #: src/emc/usr_intf/pncconf/start.glade:44
 msgid "Create a desktop shortcut (symlink) to configuration files."
-msgstr ""
+msgstr "Lag en skrivebordssnarvei (symlink) til oppsettfiler."
 
 #: src/emc/usr_intf/pncconf/start.glade:129
 msgid "Show Advanced Option Pages"
-msgstr ""
+msgstr "Vis sider for avanserte valg"
 
 #: src/emc/usr_intf/pncconf/start.glade:158
 msgid "Use INI substitution for Mesa board names."
@@ -15695,7 +15710,7 @@ msgstr "/dev/ttyS0"
 
 #: src/emc/usr_intf/pncconf/external.glade:389
 msgid "<b>Serial VFD</b>"
-msgstr ""
+msgstr "<b>Seriell frekvensomformer</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:431
 msgid "<b>External Button Jogging</b>"
@@ -15706,16 +15721,17 @@ msgid "<b>External MPG Jogging</b>"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:477
+#, fuzzy
 msgid "<b>External Feed Override</b>"
-msgstr ""
+msgstr "<b>Ekstern matingsoverstyring</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:500
 msgid "<b>Max Velocity Override</b>"
-msgstr ""
+msgstr "<b>Maks hastighetsoverstyring</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:523
 msgid "<b>Spindle Override</b>"
-msgstr ""
+msgstr "<b>Spindeloverstyring</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:546
 msgid "<b>USB Jogging</b>"
@@ -15730,27 +15746,27 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:738
 msgid "Add device rule"
-msgstr ""
+msgstr "Legg til enhetsregel"
 
 #: src/emc/usr_intf/pncconf/external.glade:752
 msgid "Test device"
-msgstr ""
+msgstr "Test enhet"
 
 #: src/emc/usr_intf/pncconf/external.glade:766
 msgid "Search for device rules"
-msgstr ""
+msgstr "Søk etter enhetsregler"
 
 #: src/emc/usr_intf/pncconf/external.glade:793
 msgid "Device Name:"
-msgstr ""
+msgstr "Enhetsnavn:"
 
 #: src/emc/usr_intf/pncconf/external.glade:867
 msgid "A +"
-msgstr ""
+msgstr "A +"
 
 #: src/emc/usr_intf/pncconf/external.glade:878
 msgid "A -"
-msgstr ""
+msgstr "A ="
 
 #: src/emc/usr_intf/pncconf/external.glade:918
 #: src/emc/usr_intf/pncconf/external.glade:931
@@ -15762,7 +15778,7 @@ msgstr "mm/min "
 
 #: src/emc/usr_intf/pncconf/external.glade:1034
 msgid " <b>ab)</b>"
-msgstr ""
+msgstr "<b>ab)</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:1048
 #: src/emc/usr_intf/pncconf/external.glade:2313
@@ -15770,7 +15786,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/external.glade:3696
 #: src/emc/usr_intf/pncconf/external.glade:4639
 msgid " <b>b)</b>"
-msgstr ""
+msgstr "<b>b)</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:1060
 #: src/emc/usr_intf/pncconf/external.glade:2301
@@ -15778,7 +15794,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/external.glade:3684
 #: src/emc/usr_intf/pncconf/external.glade:4627
 msgid " <b>a)</b>"
-msgstr ""
+msgstr " <b>a)</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:1073
 #: src/emc/usr_intf/pncconf/external.glade:2185
@@ -15790,49 +15806,49 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:1111
 msgid "Speed B"
-msgstr ""
+msgstr "Hastighet B"
 
 #: src/emc/usr_intf/pncconf/external.glade:1124
 msgid "X +"
-msgstr ""
+msgstr "X +"
 
 #: src/emc/usr_intf/pncconf/external.glade:1131
 msgid "Y +"
-msgstr ""
+msgstr "Y +"
 
 #: src/emc/usr_intf/pncconf/external.glade:1142
 msgid "Z +"
-msgstr ""
+msgstr "Z +"
 
 #: src/emc/usr_intf/pncconf/external.glade:1153
 msgid "X -"
-msgstr ""
+msgstr "X -"
 
 #: src/emc/usr_intf/pncconf/external.glade:1164
 msgid "Y -"
-msgstr ""
+msgstr "Y -"
 
 #: src/emc/usr_intf/pncconf/external.glade:1177
 msgid "Z -"
-msgstr ""
+msgstr "Z -"
 
 #: src/emc/usr_intf/pncconf/external.glade:1276
 msgid "Speed A"
-msgstr ""
+msgstr "Hastighet A"
 
 #: src/emc/usr_intf/pncconf/external.glade:1304
 msgid "Digital Control"
-msgstr ""
+msgstr "Digitalstyring"
 
 #: src/emc/usr_intf/pncconf/external.glade:1414
 #: src/emc/usr_intf/gscreen/gscreen.glade:502
 msgid "A"
-msgstr ""
+msgstr "A"
 
 #: src/emc/usr_intf/pncconf/external.glade:1425
 #: src/emc/usr_intf/gscreen/gscreen.glade:374
 msgid "Z"
-msgstr ""
+msgstr "Z"
 
 #: src/emc/usr_intf/pncconf/external.glade:1436
 #: src/emc/usr_intf/pncconf/screen.glade:1058
@@ -15842,15 +15858,15 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/vcp.glade:637
 #: src/emc/usr_intf/gscreen/gscreen.glade:244
 msgid "Y"
-msgstr ""
+msgstr "Y"
 
 #: src/emc/usr_intf/pncconf/external.glade:1447
 msgid "X "
-msgstr ""
+msgstr "X"
 
 #: src/emc/usr_intf/pncconf/external.glade:1456
 msgid "Analog Control"
-msgstr ""
+msgstr "Analogkontroll"
 
 #: src/emc/usr_intf/pncconf/external.glade:1475
 msgid "Joy Jog"
@@ -15858,11 +15874,11 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:1489
 msgid "shared buttons for all axis"
-msgstr ""
+msgstr "delte knapper for alle akser"
 
 #: src/emc/usr_intf/pncconf/external.glade:1504
 msgid "buttons for each axis"
-msgstr ""
+msgstr "knapper for hver akse"
 
 #: src/emc/usr_intf/pncconf/external.glade:1566
 msgid "B JOG"
@@ -15885,91 +15901,91 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/external.glade:4207
 #: src/emc/usr_intf/pncconf/external.glade:5150
 msgid " <b>d)</b>"
-msgstr ""
+msgstr " <b>d)</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:1699
 #: src/emc/usr_intf/pncconf/external.glade:3222
 #: src/emc/usr_intf/pncconf/external.glade:4165
 #: src/emc/usr_intf/pncconf/external.glade:5108
 msgid " abcd)"
-msgstr ""
+msgstr " abcd)"
 
 #: src/emc/usr_intf/pncconf/external.glade:1713
 #: src/emc/usr_intf/pncconf/external.glade:3236
 #: src/emc/usr_intf/pncconf/external.glade:4179
 #: src/emc/usr_intf/pncconf/external.glade:5122
 msgid " bcd)"
-msgstr ""
+msgstr " bcd)"
 
 #: src/emc/usr_intf/pncconf/external.glade:1727
 #: src/emc/usr_intf/pncconf/external.glade:3250
 #: src/emc/usr_intf/pncconf/external.glade:4193
 #: src/emc/usr_intf/pncconf/external.glade:5136
 msgid " acd)"
-msgstr ""
+msgstr " acd)"
 
 #: src/emc/usr_intf/pncconf/external.glade:1741
 #: src/emc/usr_intf/pncconf/external.glade:3319
 #: src/emc/usr_intf/pncconf/external.glade:4262
 #: src/emc/usr_intf/pncconf/external.glade:5205
 msgid " cd)"
-msgstr ""
+msgstr " cd)"
 
 #: src/emc/usr_intf/pncconf/external.glade:1755
 #: src/emc/usr_intf/pncconf/external.glade:3291
 #: src/emc/usr_intf/pncconf/external.glade:4234
 #: src/emc/usr_intf/pncconf/external.glade:5177
 msgid " bd)"
-msgstr ""
+msgstr " bd)"
 
 #: src/emc/usr_intf/pncconf/external.glade:1769
 #: src/emc/usr_intf/pncconf/external.glade:3277
 #: src/emc/usr_intf/pncconf/external.glade:4220
 #: src/emc/usr_intf/pncconf/external.glade:5163
 msgid " ad)"
-msgstr ""
+msgstr " ad)"
 
 #: src/emc/usr_intf/pncconf/external.glade:1783
 #: src/emc/usr_intf/pncconf/external.glade:2896
 #: src/emc/usr_intf/pncconf/external.glade:3839
 #: src/emc/usr_intf/pncconf/external.glade:4782
 msgid " abc)"
-msgstr ""
+msgstr " abc)"
 
 #: src/emc/usr_intf/pncconf/external.glade:1795
 #: src/emc/usr_intf/pncconf/external.glade:2860
 #: src/emc/usr_intf/pncconf/external.glade:3803
 #: src/emc/usr_intf/pncconf/external.glade:4746
 msgid " <b>c)</b>"
-msgstr ""
+msgstr " <b>c)</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:1974
 #: src/emc/usr_intf/pncconf/external.glade:2885
 #: src/emc/usr_intf/pncconf/external.glade:3828
 #: src/emc/usr_intf/pncconf/external.glade:4771
 msgid " bc)"
-msgstr ""
+msgstr " bc)"
 
 #: src/emc/usr_intf/pncconf/external.glade:1985
 #: src/emc/usr_intf/pncconf/external.glade:2873
 #: src/emc/usr_intf/pncconf/external.glade:3816
 #: src/emc/usr_intf/pncconf/external.glade:4759
 msgid " ac)"
-msgstr ""
+msgstr " ac)"
 
 #: src/emc/usr_intf/pncconf/external.glade:2325
 #: src/emc/usr_intf/pncconf/external.glade:2765
 #: src/emc/usr_intf/pncconf/external.glade:3708
 #: src/emc/usr_intf/pncconf/external.glade:4651
 msgid " ab)"
-msgstr ""
+msgstr " ab)"
 
 #: src/emc/usr_intf/pncconf/external.glade:2336
 #: src/emc/usr_intf/pncconf/external.glade:3305
 #: src/emc/usr_intf/pncconf/external.glade:4248
 #: src/emc/usr_intf/pncconf/external.glade:5191
 msgid " abd)"
-msgstr ""
+msgstr " abd)"
 
 #: src/emc/usr_intf/pncconf/external.glade:2401
 msgid "ignore all inputs false"
@@ -16052,15 +16068,15 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:5378
 msgid "Serial connected VFD"
-msgstr ""
+msgstr "Serielloppkoblet frekvensomformer"
 
 #: src/emc/usr_intf/pncconf/external.glade:5388
 msgid "Mitsubishi FR Spindle VFD"
-msgstr ""
+msgstr "Mitshubishi FR spindelfrekvensomformer"
 
 #: src/emc/usr_intf/pncconf/external.glade:5401
 msgid "GS2 Spindle VFD"
-msgstr ""
+msgstr "GS2 Spindelfrekvensomformer"
 
 #: src/emc/usr_intf/pncconf/external.glade:5429
 msgid "Deacceleration Time"
@@ -16076,7 +16092,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:5464
 msgid "Baud Rate"
-msgstr ""
+msgstr "Baudrate"
 
 #: src/emc/usr_intf/pncconf/external.glade:5476
 msgid "Device  Name"
@@ -16084,11 +16100,11 @@ msgstr "Enhetsnavn"
 
 #: src/emc/usr_intf/pncconf/external.glade:5577
 msgid "GS2"
-msgstr ""
+msgstr "GS2"
 
 #: src/emc/usr_intf/pncconf/external.glade:5599
 msgid "VFD"
-msgstr ""
+msgstr "Frekvensomformer"
 
 #: src/emc/usr_intf/pncconf/base.glade:18
 msgid "XZ Lathe"
@@ -16134,11 +16150,11 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/base.glade:490
 msgid "Mesa0 PCI/ Etho/ Parport Card:"
-msgstr ""
+msgstr "Mesa0 PCI/Etho/Parport-kort:"
 
 #: src/emc/usr_intf/pncconf/base.glade:575
 msgid "Mesa1 PCI/ Etho/ Parport Card:"
-msgstr ""
+msgstr "Mesa1 PCI/Etho/Parport-kort:"
 
 #: src/emc/usr_intf/pncconf/base.glade:593
 msgid "<b>I/O Control Ports/ Boards</b>"
@@ -16202,8 +16218,9 @@ msgstr "Minimum spindeloverstyring"
 
 #: src/emc/usr_intf/pncconf/screen.glade:510
 #: src/emc/usr_intf/pncconf/screen.glade:3811
+#, fuzzy
 msgid "Max Feed Override"
-msgstr ""
+msgstr "Maks matingsoverstyring"
 
 #: src/emc/usr_intf/pncconf/screen.glade:554
 msgid "xyzabc"
@@ -16251,7 +16268,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/screen.glade:911
 msgid "5mm 1mm .5mm .1mm .05mm .01mm .005mm"
-msgstr ""
+msgstr "5mm 1mm .5mm .1mm .05mm .01mm .005mm"
 
 #: src/emc/usr_intf/pncconf/screen.glade:926
 msgid "Max Angular velocity"
@@ -16261,7 +16278,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/screen.glade:970
 #: src/emc/usr_intf/pncconf/screen.glade:983
 msgid "Deg / min"
-msgstr ""
+msgstr "Grad / min"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1034
 #: src/emc/usr_intf/pncconf/screen.glade:1705
@@ -16269,7 +16286,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/vcp.glade:175
 #: src/emc/usr_intf/pncconf/vcp.glade:663
 msgid "size"
-msgstr ""
+msgstr "størrelse"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1043
 #: src/emc/usr_intf/pncconf/screen.glade:1692
@@ -16286,7 +16303,7 @@ msgstr "Posisjon"
 #: src/emc/usr_intf/pncconf/vcp.glade:609
 #: src/emc/usr_intf/gscreen/gscreen.glade:116
 msgid "X"
-msgstr ""
+msgstr "X"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1100
 #: src/emc/usr_intf/pncconf/screen.glade:1641
@@ -16295,7 +16312,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/vcp.glade:598
 #: src/emc/usr_intf/gscreen/gscreen.glade:1142
 msgid "W"
-msgstr ""
+msgstr "W"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1141
 #: src/emc/usr_intf/pncconf/screen.glade:1600
@@ -16303,7 +16320,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/vcp.glade:281
 #: src/emc/usr_intf/pncconf/vcp.glade:559
 msgid "H"
-msgstr ""
+msgstr "H"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1164
 msgid "Force Axis to Maximize"
@@ -16358,7 +16375,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/screen.glade:3757
 msgid "10 1 .1 .01 .001"
-msgstr ""
+msgstr "10 1 .1 .01 .001"
 
 #: src/emc/usr_intf/pncconf/screen.glade:3919
 msgid "QtPlasmaC Options"
@@ -16366,7 +16383,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/vcp.glade:26
 msgid "<b>Virtual Control Panel</b>"
-msgstr ""
+msgstr "<b>Virtuelt kontrollpanel</b>"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:113
 msgid "XYZ buttons (uses Halui)"
@@ -16378,15 +16395,15 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/vcp.glade:402
 msgid "Pyvcp Details"
-msgstr ""
+msgstr "Pyvcp-detaljer"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:486
 msgid "Sample display  "
-msgstr ""
+msgstr "Eksempelvisning"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:674
 msgid "Standalone Panel"
-msgstr ""
+msgstr "Frittstående panel"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:691
 msgid "Rightside Embedded"
@@ -16406,11 +16423,11 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/vcp.glade:831
 msgid "Max RPM"
-msgstr ""
+msgstr "Maks RPM"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:847
 msgid "Spindle Speed Indicator"
-msgstr ""
+msgstr "Spindelhastighetsmeter"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:862
 msgid "Spindle At Speed LED"
@@ -16418,19 +16435,19 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/vcp.glade:877
 msgid "Zero X Button"
-msgstr ""
+msgstr "Null X-knapp"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:892
 msgid "Zero Y Button"
-msgstr ""
+msgstr "Null Y-knapp"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:907
 msgid "Zero Z Button"
-msgstr ""
+msgstr "Null Z-knapp"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:922
 msgid "Zero A Button"
-msgstr ""
+msgstr "Null A-knapp"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:937
 msgid "Auto Z Touch Off Button"
@@ -17944,7 +17961,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:759
 msgid "No MAX_FEED_OVERRIDE entry found in [DISPLAY] of INI file"
-msgstr ""
+msgstr "Fant ingen MAX_FEED_OVERRIDE-oppføring i INI-filens [DISPLAY]"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:764
 msgid "This screen will be orientated for Lathe options"
@@ -18711,10 +18728,13 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3320
+#, fuzzy
 msgid ""
 "   Feed\n"
 "Override"
 msgstr ""
+"   Mating\n"
+"Overstyring"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3333
 msgid ""

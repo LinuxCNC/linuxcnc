@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: sk\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-07-09 16:34+0100\n"
-"PO-Revision-Date: 2022-07-18 05:09+0000\n"
+"PO-Revision-Date: 2022-07-19 19:30+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
 "Language: sk\n"
@@ -9706,14 +9706,12 @@ msgid "Home V"
 msgstr "Kalibrácia V"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:232
-#, fuzzy
 msgid "Home Tandem X"
-msgstr "Domov"
+msgstr "Kalibr. tandem X"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:232
-#, fuzzy
 msgid "Home Tandem Y"
-msgstr "Domov"
+msgstr "Kalibr. tandem Y"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:233
 msgid "Minimum Limit + Home X"
@@ -9806,12 +9804,12 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/stepconf.py:244
 #, fuzzy
 msgid "Both Limit + Home Tandem X"
-msgstr "Všetky súbory"
+msgstr "Limit osi + kalibr. tandem X"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:244
 #, fuzzy
 msgid "Both Limit + Home Tandem Y"
-msgstr "Všetky súbory"
+msgstr "Limit osi + kalibr. tandem Y"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:245
 msgid "Minimum Limit X"
@@ -9904,7 +9902,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/stepconf.py:256
 #, fuzzy
 msgid "Both Limit Tandem X"
-msgstr "Všetky súbory"
+msgstr "Oba limity tandem X"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:256
 #, fuzzy
@@ -9912,19 +9910,17 @@ msgid "Both Limit Tandem Y"
 msgstr "Všetky súbory"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:257
-#, fuzzy
 msgid "All limits"
-msgstr "Všetky súbory"
+msgstr "Všetky limity"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:257
 #, fuzzy
 msgid "All home"
-msgstr "Domov"
+msgstr "Všetko skalibrovať"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:257
-#, fuzzy
 msgid "All limits + homes"
-msgstr "Všetky súbory"
+msgstr "Všetky limity + kalibrácie"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:258
 #: src/emc/usr_intf/pncconf/private_data.py:423
@@ -9955,9 +9951,8 @@ msgid "Plasma Arc OK"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:259
-#, fuzzy
 msgid "Plasma Float Switch"
-msgstr "inch"
+msgstr "Plazmový plávajúci spínač"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:259
 msgid "Plasma Breakaway"
@@ -9972,13 +9967,11 @@ msgid "Plasma Move Up"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:260
-#, fuzzy
 msgid "Plasma Move Down"
-msgstr "Dole"
+msgstr "Plazma pohyb nadol"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:264
 #: src/emc/usr_intf/pncconf/private_data.py:1105
-#, fuzzy
 msgid "Forward"
 msgstr "Vreteno Dopredu"
 
@@ -10066,9 +10059,8 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:662
 #: src/emc/usr_intf/pncconf/data.py:903
-#, fuzzy
 msgid "Continue? "
-msgstr "Priebežný"
+msgstr "Pokračovať? "
 
 #: src/emc/usr_intf/stepconf/stepconf.py:663
 #: src/emc/usr_intf/pncconf/data.py:904
@@ -10164,15 +10156,13 @@ msgid "in / s²"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/pages.py:230
-#, fuzzy
 msgid "LinuxCNC 'stepconf' configuration files"
-msgstr "EMC2 Pomocník nastavenia"
+msgstr "LinuxCNC 'stepconf' konfiguračné súbory"
 
 #: src/emc/usr_intf/stepconf/pages.py:232
 #: src/emc/usr_intf/pncconf/pncconf.py:898
-#, fuzzy
 msgid "Modify Existing Configuration"
-msgstr "Moje konfigurácie"
+msgstr "Upraviť existujúcu konfiguráciu"
 
 #: src/emc/usr_intf/stepconf/pages.py:951
 msgid "degree / rev"
