@@ -338,7 +338,7 @@ bool axis_jog_abort_all(bool immediate)
     int n;
     bool aborted = 0;
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
-        aborted = aborted || axis_jog_abort(n, immediate);
+        if (axis_jog_abort(n, immediate)) {aborted = 1;}
     }
     return aborted;
 }
