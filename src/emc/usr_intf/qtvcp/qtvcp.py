@@ -295,9 +295,7 @@ Pressing cancel will close linuxcnc.""" % target)
 
         # title
         if INIPATH:
-            if (INITITLE == ""):
-                INITITLE='QTvcp-Screen-%s'% opts.component
-            title = INITITLE
+            title ='QTvcp-Screen-%s'% opts.component
         else:
             title = 'QTvcp-Panel-%s'% opts.component
         window.setWindowTitle(title)
@@ -407,6 +405,8 @@ Pressing cancel will close linuxcnc.""" % target)
             # if there is a valid INI based icon path, override the default icon.
             if INIICON !='' and os.path.exists(os.path.join(PATH.CONFIGPATH, INIICON)):
                 window.setWindowIcon(QtGui.QIcon(os.path.join(PATH.CONFIGPATH, INIICON)))
+            if (INITITLE !=''):
+                window.setWindowTitle(INITITLE)
 
         # catch control c and terminate signals
         signal.signal(signal.SIGTERM, self.shutdown)
