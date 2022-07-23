@@ -75,11 +75,19 @@ override_dh_auto_install-arch:
 
 	desktop-file-validate $(shell find debian/extras/ share/applications/ -name *.desktop);
 	
-	mkdir -p $(DESTDIR)/usr/share/doc/linuxcnc/examples
-	cd $(DESTDIR)/usr/share/doc/linuxcnc/examples && ln -sf ../../../linuxcnc/ncfiles ./nc_files
-
 	# some clean-up
-	rm -f $(DESTDIR)/usr/share/doc/linuxcnc/examples/sample-configs/*/*position*.txt
+	rm -f $(DESTDIR)/usr/share/doc/@MAIN_PACKAGE_NAME@/examples/sample-configs/*/*position*.txt
+
+override_dh_installdocs-arch:
+	# Sample configs go in `usr/share/doc/linuxcnc` (not
+	# `.../doc/@MAIN_PACKAGE_NAME@`) because that's where the
+	# `linuxcnc` launcher script looks for them, and that's
+	# inconvenient to change.
+	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=@MAIN_PACKAGE_NAME@
+	mkdir -p debian/@MAIN_PACKAGE_NAME@/usr/share/doc/linuxcnc
+	mv debian/@MAIN_PACKAGE_NAME@/usr/share/doc/@MAIN_PACKAGE_NAME@/examples debian/@MAIN_PACKAGE_NAME@/usr/share/doc/linuxcnc
+	
+	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=@MAIN_PACKAGE_NAME@-dev
 
 
 override_dh_auto_install-indep:
