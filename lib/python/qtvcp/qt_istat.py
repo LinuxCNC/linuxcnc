@@ -186,8 +186,12 @@ class _IStat(object):
                 av = self.INI.find('AXIS_%s' % letter.upper(), 'MAX_VELOCITY') or None
                 aa = self.INI.find('AXIS_%s' % letter.upper(), 'MAX_ACCELERATION') or None
                 if av is None or aa is None:
-                    log.critical(
-                        'MISSING [AXIS_{}] MAX VeLOCITY or MAX ACCELERATION entry in INI file.'.format(letter.upper()))
+                    # some lathe configs have dummy Y axis for axis rotation G code
+                    if letter == "Y" and self.MACHINE_IS_LATHE:
+                        pass
+                    else:
+                        log.critical(
+                            'MISSING [AXIS_{}] MAX VELOCITY or MAX ACCELERATION entry in INI file.'.format(letter.upper()))
 
         # convert joint number to axis index
         # used by dro_widget
