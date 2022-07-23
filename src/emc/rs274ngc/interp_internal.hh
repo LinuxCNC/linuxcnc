@@ -792,6 +792,8 @@ struct setup
   int tool_change_at_g30;
   int tool_change_quill_up;
   int tool_change_with_spindle_on;
+  double parameter_drill_cycle_chip_break_distance;
+  int parameter_g73_peck_till_clear_count;
   int a_axis_wrapped;
   int b_axis_wrapped;
   int c_axis_wrapped;

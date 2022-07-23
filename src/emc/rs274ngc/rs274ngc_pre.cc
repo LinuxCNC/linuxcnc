@@ -839,6 +839,8 @@ int Interp::init()
   _setup.tool_change_at_g30 = 0;
   _setup.tool_change_quill_up = 0;
   _setup.tool_change_with_spindle_on = 0;
+  _setup.parameter_drill_cycle_chip_break_distance = .010;
+  _setup.parameter_g73_peck_till_clear_count = 0;
   _setup.a_axis_wrapped = 0;
   _setup.b_axis_wrapped = 0;
   _setup.c_axis_wrapped = 0;
@@ -907,6 +909,11 @@ int Interp::init()
               _setup.c_indexer_jnum = atol(inistring);
           }
           inifile.Find(&_setup.orient_offset, "ORIENT_OFFSET", "RS274NGC");
+          inifile.Find(&_setup.parameter_drill_cycle_chip_break_distance, "PARAMETER_DRILL_CYCLE_CHIP_BREAK_DISTANCE", "RS274NGC");
+          if(NULL != (inistring = inifile.Find("PARAMETER_G73_PECK_TILL_CLEAR_COUNT", "RS274NGC")))
+          {
+              _setup.parameter_g73_peck_till_clear_count = atoi(inistring);
+          }
 
           inifile.Find(&_setup.debugmask, "DEBUG", "EMC");
 
