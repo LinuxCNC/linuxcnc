@@ -124,11 +124,11 @@ class _IStat(object):
             # first check the global settings
             units = self.INI.find("TRAJ", "LINEAR_UNITS")
             if units is None:
-                log.critical('Misssing LINEAR_UNITS in TRAJ, guessing units for machine from JOINT 0') 
+                log.critical('Missing LINEAR_UNITS in TRAJ, guessing units for machine from JOINT 0')
                 # else then guess; The joint 0 is usually X axis
                 units = self.INI.find("JOINT_0", "UNITS")
                 if units is None:
-                    log.critical('Misssing UNITS in JOINT_0, assuming metric based machine') 
+                    log.critical('Missing UNITS in JOINT_0, assuming metric based machine')
                     units = 'metric'
         except:
             units = "metric"
@@ -246,7 +246,7 @@ class _IStat(object):
         # This is a list of joints that are related to a joint.
         #ie. JOINT_RELATIONS_LIST(0) will give a list of joints that go with joint 0
         # to make an axis or else a list with just 0 in it.
-        # current use case is to find out what other joints should be unhomed if you unhome 
+        # current use case is to find out what other joints should be unhomed if you unhome
         # a combined joint axis.
         self.JOINT_RELATIONS_LIST = [None] * jointcount
         for j in range(jointcount):
