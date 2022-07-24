@@ -570,27 +570,27 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	    break;
 
 	case EMCMOT_JOINT_ABORT:
-	    /* abort one joint */
+	    /* abort one joint number or axis number */
 	    /* can happen at any time */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "JOINT_ABORT");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    if (GET_MOTION_TELEOP_FLAG()) {
-		/* tell teleop planner to stop */
-		if (axis != 0) axis->teleop_tp.enable = 0;
-		/* do nothing in teleop mode */
-	    } else if (GET_MOTION_COORD_FLAG()) {
-		/* do nothing in coord mode */
+	        /* tell teleop planner to stop */
+	        if (axis) {
+	             axis->teleop_tp.enable  = 0;
+	             axis->kb_ajog_active    = 0;
+	             axis->wheel_ajog_active = 0;
+	        }
 	    } else {
-		/* tell joint planner to stop */
-		if (joint != 0) joint->free_tp.enable = 0;
-		/* validate joint */
-		if (joint == 0) { break; }
-		/* stop homing if in progress */
-		if ( joint->home_state != HOME_IDLE ) {
-		    joint->home_state = HOME_ABORT;
-		}
-		/* update status flags */
-		SET_JOINT_ERROR_FLAG(joint, 0);
+	        if (joint == 0) { break; }
+	        /* tell joint planner to stop */
+	        joint->free_tp.enable    = 0;
+	        joint->kb_jjog_active    = 0;
+	        joint->wheel_jjog_active = 0;
+	        /* stop homing if in progress */
+	        if ( joint->home_state != HOME_IDLE ) {
+	            joint->home_state = HOME_ABORT;
+	        }
+	        /* update status flags */
+	        SET_JOINT_ERROR_FLAG(joint, 0);
 	    }
 	    break;
 
