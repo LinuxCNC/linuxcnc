@@ -75,26 +75,8 @@ override_dh_auto_install-arch:
 
 	desktop-file-validate $(shell find debian/extras/ share/applications/ -name *.desktop);
 	
-	# Move static libraries to the -dev package.
-	mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/lib
-	cp lib/*.a debian/$(DEV_PACKAGE_NAME)/usr/lib
-
 	mkdir -p $(DESTDIR)/usr/share/doc/linuxcnc/examples
 	cd $(DESTDIR)/usr/share/doc/linuxcnc/examples && ln -sf ../../../linuxcnc/ncfiles ./nc_files
-
-	# -dev
-	mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/include
-	mv -t debian/$(DEV_PACKAGE_NAME)/usr/include $(DESTDIR)/usr/include/linuxcnc
-
-	mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/lib
-	mv -t debian/$(DEV_PACKAGE_NAME)/usr/lib/ $(DESTDIR)/usr/lib/*.a $(DESTDIR)/usr/lib/*.so
-	mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/bin
-	mv -t debian/$(DEV_PACKAGE_NAME)/usr/bin $(DESTDIR)/usr/bin/halcompile
-	mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/share/man/man1
-	mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/man/man1  $(DESTDIR)/usr/share/man/man1/halcompile.1
-	mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/man $(DESTDIR)/usr/share/man/man3
-	mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/share/linuxcnc
-	mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/linuxcnc $(DESTDIR)/usr/share/linuxcnc/Makefile.modinc
 
 	# some clean-up
 	rm -f $(DESTDIR)/usr/share/doc/linuxcnc/examples/sample-configs/*/*position*.txt
