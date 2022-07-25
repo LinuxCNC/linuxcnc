@@ -61,6 +61,10 @@ class Converter(QMainWindow, object):
         self.setCentralWidget(wid)
         layout = QHBoxLayout()
         wid.setLayout(layout)
+        iconPath = 'share/qtvcp/images/qtplasmac/images/Chips_Plasma.png'
+        appPath = os.path.realpath(os.path.dirname(sys.argv[0]))
+        iconBase = '/usr' if appPath == '/bin' else appPath.replace('/bin', '')
+        self.setWindowIcon(QIcon(os.path.join(iconBase, iconPath)))
         self.setWindowTitle('PLASMAC2QT')
         vBox = QVBoxLayout()
         if self.mode == 'auto':

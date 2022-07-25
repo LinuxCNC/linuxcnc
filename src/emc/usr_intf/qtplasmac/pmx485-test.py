@@ -60,11 +60,10 @@ class App(QWidget):
             response.setText(msg)
             response.exec_()
             raise SystemExit
-        if os.path.isfile('/usr/share/linuxcnc/linuxcncicon.png'):
-            self.windowIcon = QIcon('/usr/share/linuxcnc/linuxcncicon.png')
-            self.setWindowIcon(self.windowIcon)
-        else:
-            self.windowIcon = None
+        iconPath = 'share/qtvcp/images/qtplasmac/images/Chips_Plasma.png'
+        appPath = os.path.realpath(os.path.dirname(sys.argv[0]))
+        iconBase = '/usr' if appPath == '/bin' else appPath.replace('/bin', '')
+        self.setWindowIcon(QIcon(os.path.join(iconBase, iconPath)))
         self.setWindowTitle('Powermax Communicator')
         qtRectangle = self.frameGeometry()
         centerPoint = QDesktopWidget().availableGeometry().center()

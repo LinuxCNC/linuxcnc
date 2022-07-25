@@ -51,7 +51,7 @@ class HandlerClass:
     def initialized__(self):
         self.w.setWindowTitle('QtPlasmaC Sim')
         self.images = os.path.join(self.paths.IMAGEDIR, 'qtplasmac/images/')
-        self.w.setWindowIcon(QIcon(os.path.join(self.images, 'linuxcncicon.png')))
+        self.w.setWindowIcon(QIcon(os.path.join(self.images, 'Chips_Plasma.png')))
         self.breakPin = self.hal.newpin('sensor_breakaway', hal.HAL_BIT, hal.HAL_OUT)
         self.floatPin = self.hal.newpin('sensor_float', hal.HAL_BIT, hal.HAL_OUT)
         self.ohmicPin = self.hal.newpin('sensor_ohmic', hal.HAL_BIT, hal.HAL_OUT)

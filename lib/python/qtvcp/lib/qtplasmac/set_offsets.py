@@ -29,7 +29,7 @@ _translate = QCoreApplication.translate
 
 def dialog_show(P, W, prefs, iniPath, STATUS, ACTION, TOOL, foreColor, backColor):
     msg = QMessageBox()
-    msg.setWindowIcon(QIcon(os.path.join(P.IMAGES, 'linuxcncicon.png')))
+    msg.setWindowIcon(QIcon(os.path.join(P.IMAGES, 'Chips_Plasma.png')))
     msg.setWindowTitle(_translate('Offsets', 'SET PERIPHERAL OFFSET'))
     msg0 = _translate('Offsets', 'Usage is as follows')
     msg1 = _translate('Offsets', 'Touchoff the torch to X0 Y0')

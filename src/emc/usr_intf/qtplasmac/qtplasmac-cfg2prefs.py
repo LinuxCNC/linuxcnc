@@ -46,6 +46,10 @@ class Cfg2Prefs(QMainWindow, object):
         self.setCentralWidget(wid)
         layout = QHBoxLayout()
         wid.setLayout(layout)
+        iconPath = 'share/qtvcp/images/qtplasmac/images/Chips_Plasma.png'
+        appPath = os.path.realpath(os.path.dirname(sys.argv[0]))
+        iconBase = '/usr' if appPath == '/bin' else appPath.replace('/bin', '')
+        self.setWindowIcon(QIcon(os.path.join(iconBase, iconPath)))
         self.setWindowTitle('QtPlasmaC Cfg2Prefs')
         vBox = QVBoxLayout()
         heading  = 'Convert Existing PlasmaC .cfg Files To A New QtPlasmaC .prefs File\n'
