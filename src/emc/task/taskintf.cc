@@ -686,13 +686,14 @@ int emcJointHalt(int joint)
     return 0;
 }
 
-int emcJointAbort(int joint)
+int emcJogAbort(int joint)
 {
     if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
-    emcmotCommand.command = EMCMOT_JOINT_ABORT;
+    emcmotCommand.command = EMCMOT_JOG_ABORT;
     emcmotCommand.joint = joint;
+    emcmotCommand.axis  = -1; //NA
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
@@ -881,7 +882,7 @@ int emcJogStop(int nr, int jjogmode)
         emcmotCommand.joint = -1; //NA
         emcmotCommand.axis = nr;
     }
-    emcmotCommand.command = EMCMOT_JOINT_ABORT;
+    emcmotCommand.command = EMCMOT_JOG_ABORT;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
@@ -1806,7 +1807,7 @@ int emcMotionAbort()
 
     r1 = -1;
     for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	if (0 == emcJointAbort(t)) {
+	if (0 == emcJogAbort(t)) {
 	    r1 = 0;		// at least one is okay
 	}
     }

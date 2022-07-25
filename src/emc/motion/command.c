@@ -530,7 +530,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	    emcmotStatus->paused = 0;
 	    break;
 
-	case EMCMOT_JOINT_ABORT:
+	case EMCMOT_JOG_ABORT:
 	    /* abort one joint number or axis number */
 	    /* can happen at any time */
 	    if (GET_MOTION_TELEOP_FLAG()) {

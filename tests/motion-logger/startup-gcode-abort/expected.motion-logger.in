@@ -76,22 +76,22 @@ SET_AXIS_VEL_LIMIT axis=2 vel=4
 SET_AXIS_ACC_LIMIT axis=2, acc=1000
 SET_AXIS_LOCKING_JOINT axis=2, locking_joint=-1
 
-JOINT_ABORT joint=0
-JOINT_ABORT joint=1
-JOINT_ABORT joint=2
-JOINT_ABORT joint=3
-JOINT_ABORT joint=4
-JOINT_ABORT joint=5
-JOINT_ABORT joint=6
-JOINT_ABORT joint=7
-JOINT_ABORT joint=8
-JOINT_ABORT joint=9
-JOINT_ABORT joint=10
-JOINT_ABORT joint=11
-JOINT_ABORT joint=12
-JOINT_ABORT joint=13
-JOINT_ABORT joint=14
-JOINT_ABORT joint=15
+JOG_ABORT joint=0
+JOG_ABORT joint=1
+JOG_ABORT joint=2
+JOG_ABORT joint=3
+JOG_ABORT joint=4
+JOG_ABORT joint=5
+JOG_ABORT joint=6
+JOG_ABORT joint=7
+JOG_ABORT joint=8
+JOG_ABORT joint=9
+JOG_ABORT joint=10
+JOG_ABORT joint=11
+JOG_ABORT joint=12
+JOG_ABORT joint=13
+JOG_ABORT joint=14
+JOG_ABORT joint=15
 ABORT
 SPINDLE_OFF
 DISABLE_AMPLIFIER
@@ -131,38 +131,38 @@ SET_LINE x=-1, y=-2, z=-3, a=0, b=0, c=0, u=0, v=0, w=0, id=2, motion_type=1, ve
 # The test UI immediately sent an Abort.
 #
 
-JOINT_ABORT joint=0
-JOINT_ABORT joint=1
-JOINT_ABORT joint=2
-JOINT_ABORT joint=3
-JOINT_ABORT joint=4
-JOINT_ABORT joint=5
-JOINT_ABORT joint=6
-JOINT_ABORT joint=7
-JOINT_ABORT joint=8
-JOINT_ABORT joint=9
-JOINT_ABORT joint=10
-JOINT_ABORT joint=11
-JOINT_ABORT joint=12
-JOINT_ABORT joint=13
-JOINT_ABORT joint=14
-JOINT_ABORT joint=15
+JOG_ABORT joint=0
+JOG_ABORT joint=1
+JOG_ABORT joint=2
+JOG_ABORT joint=3
+JOG_ABORT joint=4
+JOG_ABORT joint=5
+JOG_ABORT joint=6
+JOG_ABORT joint=7
+JOG_ABORT joint=8
+JOG_ABORT joint=9
+JOG_ABORT joint=10
+JOG_ABORT joint=11
+JOG_ABORT joint=12
+JOG_ABORT joint=13
+JOG_ABORT joint=14
+JOG_ABORT joint=15
 ABORT
-JOINT_ABORT joint=0
-JOINT_ABORT joint=1
-JOINT_ABORT joint=2
-JOINT_ABORT joint=3
-JOINT_ABORT joint=4
-JOINT_ABORT joint=5
-JOINT_ABORT joint=6
-JOINT_ABORT joint=7
-JOINT_ABORT joint=8
-JOINT_ABORT joint=9
-JOINT_ABORT joint=10
-JOINT_ABORT joint=11
-JOINT_ABORT joint=12
-JOINT_ABORT joint=13
-JOINT_ABORT joint=14
-JOINT_ABORT joint=15
+JOG_ABORT joint=0
+JOG_ABORT joint=1
+JOG_ABORT joint=2
+JOG_ABORT joint=3
+JOG_ABORT joint=4
+JOG_ABORT joint=5
+JOG_ABORT joint=6
+JOG_ABORT joint=7
+JOG_ABORT joint=8
+JOG_ABORT joint=9
+JOG_ABORT joint=10
+JOG_ABORT joint=11
+JOG_ABORT joint=12
+JOG_ABORT joint=13
+JOG_ABORT joint=14
+JOG_ABORT joint=15
 ABORT
 SPINDLE_OFF

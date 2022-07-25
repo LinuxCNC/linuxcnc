@@ -156,7 +156,7 @@ extern "C" {
 	EMCMOT_JOG_INCR,	/* incremental jog */
 	EMCMOT_JOG_ABS,		/* absolute jog */
 
-	EMCMOT_JOINT_ABORT,             /* abort one joint */
+	EMCMOT_JOG_ABORT,               /* abort one joint num or axis num */
 	EMCMOT_JOINT_ACTIVATE,          /* make joint active */
 	EMCMOT_JOINT_DEACTIVATE,        /* make joint inactive */
 	EMCMOT_JOINT_ENABLE_AMPLIFIER,  /* enable amp outputs */
