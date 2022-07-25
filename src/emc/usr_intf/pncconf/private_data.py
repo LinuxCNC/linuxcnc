@@ -115,6 +115,10 @@ class Private_Data:
              _("GPIO Input"),_("GPIO Output"),_("GPIO O Drain") ]
         (   self.SSR0,) = self.pintype_ssr = [
              _("SSR Output") ]
+        (   self.OUTM0,) = self.pintype_outm = [
+             _("OUTM Output") ]
+        (   self.INM0,) = self.pintype_inm = [
+             _("INM Input") ]
         (   self.ENCA,self.ENCB,self.ENCI,self.ENCM
         ) = self.pintype_encoder = [
             _("Quad Enc-A"),_("Quad Enc-B"),_("Quad Enc-I"),_("Quad Enc-M") ]
@@ -315,7 +319,7 @@ class Private_Data:
         ) = self.hal_8i20_input_names =[
             "unused-8i20","x-8i20","y-8i20","z-8i20","a-8i20","s-8i20"]
 
-        (   S.USED_POT,S_POT_OUT,S_POT_ENABLE  )= self.hal_pot_output_names = ["unused-pot",
+        (   S.USED_POT,S.POT_OUT,S.POT_ENABLE  )= self.hal_pot_output_names = ["unused-pot",
             "s-pot-output","s-pot-enable"]
 
         (   S.UNUSED_STEPGEN,
@@ -646,7 +650,8 @@ class Private_Data:
         [S.STEPA, 6],[S.STEPB, 6],[S.STEPA, 7],[S.STEPB, 7],[S.GPIOI, 0],[S.ENCA, 1],[S.ENCB, 1],[S.ENCI, 1],
         [S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],[S.NUSED, 0],],
 
-    ['5i25-Internal Data', '5i25', 'G540x2', '5i25', 'hm2_pci', 2,3, 0,0, 2,1, 0,0, 10,2, 0,0, [],0,0,0,0,0,0,0, 1, 34, 33, 200,[3, 2],
+    ['5i25-Internal Data', '5i25', 'G540x2', '5i25', 'hm2_pci',
+        2,3, 0,0, 2,1, 0,0, 10,2, 0,0, [],0,0,0,0,0,0,0, 1, 34, 33, 200,[3, 2],
         # TAB 3
         [S.GPIOI, 0],[S.PWMP, 0],[S.STEPA, 0],[S.GPIOI, 0],[S.STEPB, 0],[S.STEPA, 4],[S.STEPA, 1],[S.GPIOI, 0],[S.STEPB, 1],[S.STEPA, 2],
         [S.STEPB, 2],[S.STEPA, 3],[S.STEPB, 3],[S.ENCA, 0],[S.ENCB, 0],[S.ENCI, 0],[S.GPIOI, 0],
@@ -902,6 +907,45 @@ class Private_Data:
         [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
+    # 7i96s ####################
+    ['7i96s-Internal Data', '7i96s', '7i96s_d', '7i96s', 'hm2_eth',
+        1,3, 0,0, 1,3, 0,0, 5,2, 1,1, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [1, 2, 3],
+        # TAB 1
+        [S.INM0, 100],[S.INM0, 101],[S.INM0, 102],[S.INM0, 103],[S.INM0, 104],[S.INM0, 105],
+        [S.INM0, 106],[S.INM0, 107],[S.INM0, 108],[S.INM0, 109],[S.INM0, 110],
+        [S.SSR0, 100],[S.SSR0, 101],[S.SSR0, 102],[S.SSR0, 103],
+        [S.OUTM0, 104],[S.OUTM0, 105],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 2
+        [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],
+        [S.STEPB,3],[S.STEPA,3],[S.STEPB,4],[S.STEPA,4],[S.ENCA,0],[S.ENCB,0],[S.ENCI,0],
+        [S.RXDATA0,0],[S.TXDATA0,0],[S.TXEN0,0],[S.PWMP,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 3
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
+
+    ['7i96s-Internal Data', '7i96s', '7i96s_dpl', '7i96s', 'hm2_eth',
+        3,1, 0,0, 1,3, 0,0, 5,2, 1,1, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [1, 2, 3],
+        # TAB 1
+        [S.INM0, 100],[S.INM0, 101],[S.INM0, 102],[S.INM0, 103],[S.INM0, 104],[S.INM0, 105],
+        [S.INM0, 106],[S.INM0, 107],[S.INM0, 108],[S.INM0, 109],[S.INM0, 110],
+        [S.SSR0, 100],[S.SSR0, 101],[S.SSR0, 102],[S.SSR0, 103],
+        [S.OUTM0, 104],[S.OUTM0, 105],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 2
+        [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],
+        [S.STEPB,3],[S.STEPA,3],[S.STEPB,4],[S.STEPA,4],[S.ENCA,0],[S.ENCB,0],[S.ENCI,0],
+        [S.RXDATA0,0],[S.TXDATA0,0],[S.TXEN0,0],[S.PWMP,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 3
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
+
     ]
 
         #**************************
@@ -1098,6 +1142,7 @@ class Private_Data:
         '7i92':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':2,'TAB_NUMS':[1,2],'TAB_NAMES':['P1','P2']},
         '7i93':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':2},
         '7i96':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':3,'TAB_NUMS':[1,2,3],'TAB_NAMES':['TB3','TB1/TB2','P1']},
+        '7i96s':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':3,'TAB_NUMS':[1,2,3],'TAB_NAMES':['TB3','TB1/TB2','P1']},
         '7i98':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':3},
         }
 

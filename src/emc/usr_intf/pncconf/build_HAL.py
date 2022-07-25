@@ -1567,14 +1567,14 @@ class HAL:
 
         def write_pins(pname,p,i,t):
             # for input pins
-            if t == _PD.GPIOI:
+            if t in (_PD.GPIOI, _PD.INM0):
                 if not p == "unused-input":
                     pinname = self.a.make_pinname(pname, substitution = self.d.useinisubstitution)
                     print("\n# ---",p.upper(),"---", file=file)
                     if "parport" in pinname:
                         if i: print("net %s     <= %s-not" % (p, pinname), file=file)
                         else: print("net %s     <= %s" % (p, pinname), file=file)
-                    elif "sserial" in pname:
+                    elif "sserial" in pname or t == _PD.INM0:
                         if i: print("net %s     <=  "% (p)+pinname +"-not", file=file)
                         else: print("net %s     <=  "% (p)+pinname, file=file)
                     else:
@@ -1662,7 +1662,7 @@ class HAL:
 
         def write_pins(pname,p,i,t,boardnum,connector,port,channel,pin):
             # for output /open drain pins
-            if t in (_PD.GPIOO,_PD.GPIOD,_PD.SSR0):
+            if t in (_PD.GPIOO,_PD.GPIOD,_PD.SSR0,_PD.OUTM0):
                 if not p == "unused-output":
                     pinname = self.a.make_pinname(pname, substitution = self.d.useinisubstitution)
                     print("\n# ---",p.upper(),"---", file=file)
@@ -1676,9 +1676,9 @@ class HAL:
                             temp = pinname
                         # mainboard GPIOO require extra setup commands
                         else:
-                            if not t == _PD.SSR0: print("setp %s true"% (pinname + ".is_output"), file=file)
+                            if t not in (_PD.SSR0,_PD.OUTM0): print("setp %s true"% (pinname + ".is_output"), file=file)
                             if t == _PD.GPIOD: print("setp    "+pinname+".is_opendrain  true", file=file)
-                            if t == _PD.SSR0:
+                            if t in (_PD.SSR0,_PD.OUTM0):
                                 temp = pinname
                             else:
                                 temp = pinname + ".out"
