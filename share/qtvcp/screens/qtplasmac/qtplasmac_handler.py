@@ -312,8 +312,6 @@ class HandlerClass:
         self.DEBUG          = 27
 
     def initialized__(self):
-        self.w.setWindowTitle('{} - QtPlasmaC v{}, powered by QtVCP on LinuxCNC v{}'.format(self.machineName, VERSION, linuxcnc.version.split(':')[0]))
-        self.w.setWindowIcon(QIcon(os.path.join(self.IMAGES, 'Chips_Plasma.png')))
         # ensure we get all startup errors
         STATUS.connect('error', self.error_update)
         STATUS.connect('graphics-gcode-error', lambda o, e:self.error_update(o, linuxcnc.OPERATOR_ERROR, e))
@@ -397,6 +395,10 @@ class HandlerClass:
         if self.firstRun is True:
             self.firstRun = False
         self.startupTimer.start(250)
+
+    def before_loop__(self):
+        self.w.setWindowTitle('{} - QtPlasmaC v{}, powered by QtVCP on LinuxCNC v{}'.format(self.machineName, VERSION, linuxcnc.version.split(':')[0]))
+        self.w.setWindowIcon(QIcon(os.path.join(self.IMAGES, 'Chips_Plasma.png')))
 
 
 #########################################################################################################################
