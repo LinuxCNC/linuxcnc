@@ -80,7 +80,7 @@ struct hm2_lowlevel_io_struct {
     // examples), it is useful to divide the work of the bulk reads which occur
     // every servo cycle into up to three groups:
     //   * queuing the reads -- the buffer must point to storage which is stable
-    //     thrugh the eventual receive_queued_reads call
+    //     through the eventual receive_queued_reads call
     //   * actually requesting the queued reads
     //   * actually receiving the read result and storing it in the buffer given in the
     //     queue_read call

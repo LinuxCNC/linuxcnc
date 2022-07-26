@@ -693,7 +693,7 @@ static int doLinkpp(char *first_pin_name, char *second_pin_name, connectionRecTy
     rtapi_mutex_give(&(hal_data->mutex));
     
     /* check that both pins have the same type, 
-       don't want ot create a sig, which after that won't be useful */
+       don't want to create a sig, which after that won't be useful */
     if (first_pin->type != second_pin->type) {
       snprintf(errorStr, sizeof(errorStr), "HAL:%d: ERROR: pins '%s' and '%s' not of the same type", 
 	  linenumber, first_pin_name, second_pin_name);

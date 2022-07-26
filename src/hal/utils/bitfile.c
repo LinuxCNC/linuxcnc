@@ -252,7 +252,7 @@ static int write_chunk(int fd, struct bitfile_chunk *ch)
     /* write tag and length */
     rv = write(fd, hdrbuf, len_len+1);
     if ( rv != len_len+1 ) {
-	errmsg(__func__,"writing headerr: %s", ch->tag, strerror(errno));
+	errmsg(__func__,"writing header: %s", ch->tag, strerror(errno));
 	return -1;
     }
     /* write chunk content */

@@ -108,7 +108,7 @@ static int init_hal_data(void);
     This is done to improve realtime performance.  'shmalloc_up()'
     is used to allocate data that will be accessed by realtime
     code, while 'shmalloc_dn()' is used to allocate the much
-    larger structures that are accessed only occaisionally during
+    larger structures that are accessed only occasionally during
     init.  This groups all the realtime data together, improving
     cache performance.
 */
