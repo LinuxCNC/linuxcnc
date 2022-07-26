@@ -2,6 +2,8 @@ Package: linuxcnc-doc-en
 Provides: linuxcnc-doc
 Architecture: all
 Depends: ${misc:Depends}
+Breaks: linuxcnc-uspace (<= 2.9.0~pre0+git20220402.2500863908-4),
+Replaces: linuxcnc-uspace (<= 2.9.0~pre0+git20220402.2500863908-4)
 Recommends: xdg-utils
 Suggests: pdf-viewer
 Description: motion controller for CNC machines and robots (English documentation)
@@ -15,6 +17,8 @@ Package: linuxcnc-doc-fr
 Provides: linuxcnc-doc
 Architecture: all
 Depends: ${misc:Depends}
+Breaks: linuxcnc-uspace (<= 2.9.0~pre0+git20220402.2500863908-4)
+Replaces: linuxcnc-uspace (<= 2.9.0~pre0+git20220402.2500863908-4)
 Recommends: xdg-utils
 Suggests: pdf-viewer
 Description: motion controller for CNC machines and robots (French documentation)
@@ -28,6 +32,8 @@ Package: linuxcnc-doc-es
 Provides: linuxcnc-doc
 Architecture: all
 Depends: ${misc:Depends}
+Breaks: linuxcnc-uspace (<= 2.9.0~pre0+git20220402.2500863908-4)
+Replaces: linuxcnc-uspace (<= 2.9.0~pre0+git20220402.2500863908-4)
 Recommends: xdg-utils
 Suggests: pdf-viewer
 Description: controlador de movimiento para máquinas CNC y robots (Español).
