@@ -138,7 +138,7 @@ static void custom_read_homing_in_pins(int njoints)
         addr = &(custom_joint_home_data->custom_jhd[jno]);
         customH[jno].request_custom_homing = *(addr->request_custom_homing); // IN
 
-        // echo for verificaion:
+        // echo for verification:
         customH[jno].is_custom_homing = customH[jno].request_custom_homing;
     }
 }

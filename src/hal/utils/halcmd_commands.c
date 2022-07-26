@@ -2798,7 +2798,7 @@ int do_help_cmd(char *command)
     } else if (strcmp(command, "newinst") == 0) {
 	printf("newinst modname instname\n");
 	printf("  Creates another instance of previously loaded module\n" );
-	printf("  'modname', nameing it 'instname'.\n");
+	printf("  'modname', naming it 'instname'.\n");
 #endif
     } else if (strcmp(command, "unload") == 0) {
 	printf("unload compname\n");
