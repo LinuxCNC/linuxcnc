@@ -33,7 +33,7 @@ However it only works for whole numbers: 100/2 will become 50 but
 3.14149/2 is interpreted as 3 and 14 thousand halves so won't work.
 
 Notes on adding your own cycles:
-Greate a new G-code subroutine in the same format as the existing ones.
+Create a new G-code subroutine in the same format as the existing ones.
 In Glade add a new tab to the 'tabs1' notebook and give it a name matching
 the new cycle.
 Edit the action button (inside an eventbox) to call the new G-code sub.

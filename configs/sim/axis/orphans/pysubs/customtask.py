@@ -290,7 +290,7 @@ class CustomTask(emctask.Task,UserFuncs):
         self.io.tool.toolTable[pocket].backangle = backangle
         self.io.tool.toolTable[pocket].offset = offset
 
-        if debug(): print("new tool enttry: ",str(self.io.tool.toolTable[pocket]))
+        if debug(): print("new tool entry: ",str(self.io.tool.toolTable[pocket]))
 
         if self.io.tool.toolInSpindle  == toolno:
             self.io.tool.toolTable[0] = self.io.tool.toolTable[pocket]
