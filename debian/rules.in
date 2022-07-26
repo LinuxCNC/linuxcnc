@@ -48,7 +48,7 @@ override_dh_auto_configure:
 	    --disable-check-runtime-deps
 
 override_dh_auto_build-arch:
-	$(MAKE) PYTHON=/usr/bin/python3 -C src
+	$(MAKE) PYTHON=/usr/bin/python3 -C src build-software
 
 override_dh_auto_build-indep:
 ifneq "$(enable_build_documentation)" ""
