@@ -1,14 +1,11 @@
 .TH AT_PID "9" "2007-01-16" "LinuxCNC Documentation" "HAL Component"
 
 .SH NAME
-at_pid \- proportional/integral/derivative controller
+at_pid \- proportional/integral/derivative controller with automatic tuning support
 .SH SYNOPSIS
 \fBloadrt at_pid [num_chan=\fInum\fB | names=\fIname1\fB[,\fIname2...\fB]] [\fBdebug=\fIdbg\fR]
 
 .SH DESCRIPTION
-\fBNOTE:\fR The auto-tuning part of this component have seen
-no development since 2011.
-.P
 \fBat_pid\fR is a classic Proportional/Integral/Derivative controller,
 used to control position or speed feedback loops for servo motors and
 other closed-loop applications.
@@ -165,26 +162,38 @@ limit output to +/- maxoutput
 .fi
 
 .P
-This component has a built in auto tune mode. It works by setting up a limit
-cycle to characterize the process. From this, \fBPgain/Igain/Dgain\fR or
-\fBPgain/Igain/FF1\fR can be determined using Ziegler-Nichols. When using
-\fBFF1\fR, scaling must be set so that \fBoutput\fR is in user units per second.
+This component has a built in auto tune mode. It works by setting up a
+limit cycle to characterize the process.  This is called the Relay
+method and described in the 1984 Automation paper \fBAutomatic Tuning
+of Simple Regulators with Specifications on Phase and Amplitude
+Margins\fR by Karl Johan Åström and Tore Hägglund
+(doi:10.1016/0005-1098(84)90014-1),
+https://lup.lub.lu.se/search/ws/files/6340936/8509157.pdf. Using this
+method, \fBPgain/Igain/Dgain\fR or \fBPgain/Igain/FF1\fR can be
+determined using the Ziegler-Nichols algorithm.  When using \fBFF1\fR
+tuning, scaling must be set so that \fBoutput\fR is in user units per
+second.
+
 .P
-During auto tuning, the \fBcommand\fR input should not change. The limit
-cycle is setup around the commanded position. No initial tuning values are
-required to start auto tuning.  Only \fBtune\-cycles\fR, \fBtune\-effort\fR
-and \fBtune\-mode\fR need be set before starting auto tuning.  When auto tuning
-completes, the tuning parameters will be set. If running from LinuxCNC, the
-FERROR setting for the axis being tuned may need to be loosened up as it must
-be larger than the limit cycle amplitude in order to avoid a following error.
+During auto tuning, the \fBcommand\fR input should not change. The
+limit cycle is setup around the commanded position. No initial tuning
+values are required to start auto tuning.  Only \fBtune\-cycles\fR,
+\fBtune\-effort\fR and \fBtune\-mode\fR need be set before starting
+auto tuning.  Note that setting \fBtune\-mode\fR to true disable the
+control loop.  When auto tuning completes, the tuning parameters will
+be set, the output set to bias and the controller still be
+disabled. If running from LinuxCNC, the FERROR setting for the axis
+being tuned may need to be loosened up as it must be larger than the
+limit cycle amplitude in order to avoid a following error.
 .P
-To perform auto tuning, take the following steps.  Move the axis to be tuned,
-to somewhere near the center of it's travel.  Set \fBtune\-cycles\fR (the
-default value should be fine in most cases) and \fBtune\-mode\fR. Set
-\fBtune\-effort\fR to a small value. Set \fBenable\fR to true. Set
-\fBtune\-mode\fR to true. Set \fBtune\-start\fR to true. If no oscillation
-occurs, or the oscillation is too small, slowly increase \fBtune\-effort\fR.
-Auto tuning can be aborted at any time by setting \fBenable\fR or
+To perform auto tuning, take the following steps.  Move the axis to be
+tuned somewhere near the center of it's travel.  Set
+\fBtune\-cycles\fR (the default value should be fine in most cases)
+and \fBtune\-mode\fR. Set \fBtune\-effort\fR to a small value. Set
+\fBenable\fR to true. Set \fBtune\-mode\fR to true. Set
+\fBtune\-start\fR to true. If no oscillation occurs, or the
+oscillation is too small, slowly increase \fBtune\-effort\fR.  Auto
+tuning can be aborted at any time by setting \fBenable\fR or
 \fBtune\-mode\fR to false.
 
 .SH NAMING

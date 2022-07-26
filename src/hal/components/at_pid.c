@@ -154,6 +154,8 @@ RTAPI_MP_ARRAY_STRING(names, MAX_CHAN,"at_pid names");
 static int debug = 0;		/* flag to export optional params */
 RTAPI_MP_INT(debug, "enables optional params");
 
+#define NAME "AT_PID"
+
 #define AUTO_TUNER 1
 #ifdef AUTO_TUNER
 #include "rtapi_math.h"
@@ -296,7 +298,7 @@ int rtapi_app_main(void)
     /* test for number of channels */
     if ((howmany <= 0) || (howmany > MAX_CHAN)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "AT_PID: ERROR: invalid number of channels: %d\n", howmany);
+	    NAME ": ERROR: invalid number of channels: %d\n", howmany);
 	return -1;
     }
     /* have good config info, connect to the HAL */
@@ -308,7 +310,7 @@ int rtapi_app_main(void)
     /* allocate shared memory for pid loop data */
     pid_array = hal_malloc(howmany * sizeof(hal_pid_t));
     if (pid_array == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "AT_PID: ERROR: hal_malloc() failed\n");
+	rtapi_print_msg(RTAPI_MSG_ERR, NAME ": ERROR: hal_malloc() failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
@@ -326,12 +328,12 @@ int rtapi_app_main(void)
 
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"AT_PID: ERROR: loop %d var export failed\n", n);
+		NAME ": ERROR: loop %d var export failed\n", n);
 	    hal_exit(comp_id);
 	    return -1;
 	}
     }
-    rtapi_print_msg(RTAPI_MSG_INFO, "AT_PID: installed %d PID loops\n",
+    rtapi_print_msg(RTAPI_MSG_INFO, NAME ": installed %d PID loops\n",
 	howmany);
     hal_ready(comp_id);
     return 0;
@@ -444,22 +446,22 @@ Pid_AutoTune(hal_pid_t *pid, long period)
         if(pid->cycleCount < *(pid->tuneCycles))
             break;
 
-        // Calculate PID.
+        // Calculate PID using Relay (Åström-Hägglund) method
         *(pid->ultimateGain) = (4.0 * fabs(*(pid->tuneEffort)))/(PI * pid->avgAmplitude);
         *(pid->ultimatePeriod) = 2.0 * pid->totalTime / *(pid->tuneCycles);
         *(pid->ff0gain) = 0;
         *(pid->ff2gain) = 0;
 
         if(*(pid->tuneType) == TYPE_PID){
-            // PID.
+            // insert ultimate gain and period in Ziegler-Nichols PID method
             *(pid->pgain) = 0.6 * *(pid->ultimateGain);
-            *(pid->igain) = *(pid->pgain) / (*(pid->ultimatePeriod) / 2.0);
-            *(pid->dgain) = *(pid->pgain) * (*(pid->ultimatePeriod) / 8.0);
+            *(pid->igain) = 1.2 * *(pid->ultimateGain) / (*(pid->ultimatePeriod));
+            *(pid->dgain) = (3.0/40.0) * *(pid->ultimateGain) * *(pid->ultimatePeriod);
             *(pid->ff1gain) = 0;
         }else{
-            // PI FF1.
+            // insert ultimate gain and period in Ziegler-Nichols PI method
             *(pid->pgain) = 0.45 * *(pid->ultimateGain);
-            *(pid->igain) = *(pid->pgain) / (*(pid->ultimatePeriod) / 1.2);
+            *(pid->igain) = 0.54 * *(pid->ultimateGain) / (*(pid->ultimatePeriod));
             *(pid->dgain) = 0;
 
             // Scaling must be set so PID output is in user units per second.
@@ -470,8 +472,8 @@ Pid_AutoTune(hal_pid_t *pid, long period)
 
     case STATE_TUNE_ABORT:
     default:
-        // Force output to zero.
-        *pid->output = 0;
+        // Force output to bias.
+        *pid->output = *(pid->bias);
 
         // Abort any tuning cycle in progress.
         *pid->pTuneStart = 0;
@@ -693,8 +695,8 @@ static int export_pid(hal_pid_t * addr, char * prefix)
        logging if msg_level is at INFO or ALL. So we save the current value
        of msg_level and restore it later.  If you actually need to log this
        function's actions, change the second line below */
-//    msg = rtapi_get_msg_level();
-//    rtapi_set_msg_level(RTAPI_MSG_WARN);
+    msg = rtapi_get_msg_level();
+    rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* export pins */
     retval = hal_pin_bit_newf(HAL_IN, &(addr->enable), comp_id,
@@ -966,11 +968,11 @@ static int export_pid(hal_pid_t * addr, char * prefix)
 	hal_export_funct(buf, calc_pid, addr, 1, 0, comp_id);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "AT_PID: ERROR: do_pid_calcs funct export failed\n");
+	    NAME ": ERROR: do_pid_calcs funct export failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
     /* restore saved message level */
-   // rtapi_set_msg_level(msg);
+    rtapi_set_msg_level(msg);
     return 0;
 }
