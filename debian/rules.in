@@ -133,14 +133,8 @@ override_dh_auto_install:
 		mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/share/linuxcnc; \
 		mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/linuxcnc $(DESTDIR)/usr/share/linuxcnc/Makefile.modinc; \
 	fi
-	#mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/share/doc/
-	#mkdir -t debian/$(DEV_PACKAGE_NAME)/usr/share/doc/ $(DESTDIR)/usr/share/doc/linuxcnc-dev/
-	# not a package: drivers
-	#mkdir -p debian/drivers/usr/bin
-	#mv -t debian/drivers/usr/bin $(DESTDIR)/usr/bin/pci_write $(DESTDIR)/usr/bin/pci_read
 
 	# some clean-up
-	#rm -rf $(DESTDIR)/usr/share/doc/linuxcnc/html
 	rm -f $(DESTDIR)/usr/share/doc/linuxcnc/examples/sample-configs/*/*position*.txt
 
 override_dh_compress:
