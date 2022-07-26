@@ -5,3 +5,5 @@ usr/share/doc/linuxcnc/LinuxCNC_Integrator_es.pdf
 
 usr/share/doc/linuxcnc/asciidoc-markup_es.adoc
 usr/share/doc/linuxcnc/rtfaults_es.adoc
+
+docs/html/es/gcode.html
