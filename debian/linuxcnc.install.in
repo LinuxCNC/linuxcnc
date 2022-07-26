@@ -1,1 +1,10 @@
 debian/linuxcnc-uspace.metainfo.xml usr/share/metainfo
+
+debian/extras/etc /
+debian/extras/lib /
+
+debian/extras/usr/share/icons usr/share
+
+debian/extras/usr/share/desktop-directories/linuxcnc-cnc.directory usr/share/desktop-directories
+debian/extras/usr/share/desktop-directories/linuxcnc-doc.directory usr/share/desktop-directories
+debian/extras/usr/share/desktop-directories/linuxcnc-ref.directory usr/share/desktop-directories

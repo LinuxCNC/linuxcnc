@@ -73,10 +73,7 @@ override_dh_auto_install-arch:
 	DESTDIR=$(DESTDIR) $(MAKE) -C src install-software
 	py3clean .
 
-	# Install all desktop files, application-menu entries, and associated
-	# icons in DESTDIR.
 	desktop-file-validate $(shell find debian/extras/ share/applications/ -name *.desktop);
-	cd debian/extras && cp -a * $(DESTDIR)
 	
 	# Install G-code quick reference docs in DESTDIR.
 	# NOTE: This is arguably documentation, but it lives in the
