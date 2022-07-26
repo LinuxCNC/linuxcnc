@@ -75,12 +75,6 @@ override_dh_auto_install-arch:
 
 	desktop-file-validate $(shell find debian/extras/ share/applications/ -name *.desktop);
 	
-	# Install G-code quick reference docs in DESTDIR.
-	# NOTE: This is arguably documentation, but it lives in the
-	# architecture-dependent binary package for historical reasons.
-	mkdir -p $(DESTDIR)/usr/share/doc/linuxcnc
-	cp docs/html/gcode*.html $(DESTDIR)/usr/share/doc/linuxcnc/
-
 	# Move static libraries to the -dev package.
 	mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/lib
 	cp lib/*.a debian/$(DEV_PACKAGE_NAME)/usr/lib
@@ -110,6 +104,13 @@ override_dh_auto_install-indep:
 	DESTDIR=$(DESTDIR) $(MAKE) -C src install-docs install-doc
 
 override_dh_installdocs-indep:
+	# The G-code quick reference html docs are built as
+	# `docs/html/${LANG}/gcode.html`.  We install them
+	# into `/usr/share/doc/@MAIN_PACKAGE_NAME@/` in each
+	# linuxcnc-doc-${LANG} package, then rename them there (except
+	# for the English one) to include the language in the filename,
+	# so they don't collide when we install all the doc debs.
+	#
 	# Rename the "main" doc directories from
 	# `usr/share/doc/@MAIN_PACKAGE_NAME@` to `usr/share/doc/linuxcnc`,
 	# because that's where the `.desktop` files look for the docs.
@@ -117,12 +118,15 @@ override_dh_installdocs-indep:
 	mv debian/linuxcnc-doc-en/usr/share/doc/@MAIN_PACKAGE_NAME@ debian/linuxcnc-doc-en/usr/share/doc/linuxcnc
 	
 	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=linuxcnc-doc-es
+	mv debian/linuxcnc-doc-es/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode.html debian/linuxcnc-doc-es/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode_es.html
 	mv debian/linuxcnc-doc-es/usr/share/doc/@MAIN_PACKAGE_NAME@ debian/linuxcnc-doc-es/usr/share/doc/linuxcnc
 	
 	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=linuxcnc-doc-fr
+	mv debian/linuxcnc-doc-fr/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode.html debian/linuxcnc-doc-fr/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode_fr.html
 	mv debian/linuxcnc-doc-fr/usr/share/doc/@MAIN_PACKAGE_NAME@ debian/linuxcnc-doc-fr/usr/share/doc/linuxcnc
 	
 	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=linuxcnc-doc-zh-cn
+	mv debian/linuxcnc-doc-zh-cn/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode.html debian/linuxcnc-doc-zh-cn/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode_zh_CN.html
 	mv debian/linuxcnc-doc-zh-cn/usr/share/doc/@MAIN_PACKAGE_NAME@ debian/linuxcnc-doc-zh-cn/usr/share/doc/linuxcnc
 
 

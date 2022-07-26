@@ -10,3 +10,5 @@ usr/share/doc/linuxcnc/README.axis
 usr/share/doc/linuxcnc/axis_light_background
 usr/share/doc/linuxcnc/rtfaults.adoc
 usr/share/doc/linuxcnc/tklinuxcnc.adoc
+
+docs/html/gcode.html
