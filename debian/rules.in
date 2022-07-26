@@ -31,7 +31,7 @@ export TIME=$(shell LANG=C date --date='@$(TIMESTAMP)' '+%T')
 kernel_version = @KERNEL_VERSION@
 configure_realtime_arg = @CONFIGURE_REALTIME_ARG@
 enable_build_documentation = @ENABLE_BUILD_DOCUMENTATION@
-DESTDIR=$(CURDIR)/debian/@MAIN_PACKAGE_NAME@
+DESTDIR=$(CURDIR)/debian/tmp
 DEV_PACKAGE_NAME=@MAIN_PACKAGE_NAME@-dev
 
 %:
