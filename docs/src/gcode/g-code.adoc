@@ -1390,7 +1390,7 @@ G43 <H->
 
 * 'H' - tool number (optional)
 
-* 'G43' - enables tool length compensation. 
+* 'G43' - enables tool length compensation.
   G43 changes subsequent motions by offsetting the axis coordinates by
   the length of the offset. G43 does not cause any motion. The next time
   a compensated axis is moved, that axis's endpoint is the compensated
@@ -1497,10 +1497,10 @@ location.
 
 It is an error if:
 
-* 'H' is unspecified and no axis offsets are specified
-* 'H is specified and the given tool number does not exist in the tool
-  table
-* 'H' is specified and axes are also specified
+* 'H' is unspecified and no axis offsets are specified.
+* 'H' is specified and the given tool number does not exist in the tool
+  table.
+* 'H' is specified and axes are also specified.
 
 NOTE: G43.2 does not write to the tool table.
 
@@ -1590,7 +1590,7 @@ It is an error if:
 
 * selecting a coordinate system is used while cutter compensation is on.
 
-See the <<cha:coordinate-system,Coordinate System>> Section for an
+See the <<cha:coordinate-system,Coordinate System>> section for an
 overview of coordinate systems.
 
 [[gcode:g61]]
@@ -2066,7 +2066,7 @@ In addition, at the beginning of the first cycle and each repeat, the
 following one or two moves are made
 
 * A <<gcode:g0,rapid move>> parallel to the XY-plane to
-  the given XY-position,
+  the given XY-position.
 * The Z-axis make a rapid move to the R position, if it is
   not already at the R position.
 
@@ -2279,7 +2279,7 @@ The first preliminary move is a maximum rapid move along the Z axis to
 The first repeat consists of 3 moves.
 
 * A <<gcode:g0,rapid move>> parallel to the XY-plane to (X5, Y7)
-* Move parallel to the Z-axis at the <<sec:set-feed-rate,feed rate>> to 
+* Move parallel to the Z-axis at the <<sec:set-feed-rate,feed rate>> to
   (Z4.2)
 * A rapid move parallel to the Z-axis to (X5, Y7, Z4.8)
 
