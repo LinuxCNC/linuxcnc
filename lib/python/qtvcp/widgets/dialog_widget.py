@@ -528,7 +528,7 @@ class ToolDialog(LcncDialog, GeometryMixin):
             self.changed.set(False)
 
     # process callback for 'change-button' HAL pin
-    # hide the message dialog or destop notify message
+    # hide the message dialog or desktop notify message
     def external_acknowledge(self, state):
         #print('external acklnowledge: {}'.format(state))
         if state:
