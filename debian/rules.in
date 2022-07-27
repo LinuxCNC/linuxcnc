@@ -35,8 +35,7 @@ DESTDIR=$(CURDIR)/debian/tmp
 DEV_PACKAGE_NAME=@MAIN_PACKAGE_NAME@-dev
 
 %:
-	# With debhelper 10 the --parallel becomes the default
-	dh $@ --parallel
+	dh $@
 
 override_dh_auto_configure:
 	cd src && ./autogen.sh
