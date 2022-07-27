@@ -11,7 +11,7 @@ unset DISPLAY
 # Some of our tests emit locale-sensitive strings, so reset the locale
 # to a sane default.
 export LC_ALL=C
-
+export LANGUAGES=
 
 case "$0" in
 	*/*) MYDIR="${0%/*}" ;;
@@ -124,25 +124,31 @@ run_tests () {
 	| sort > $TMPDIR/alltests
 
     while read testname; do
-	testdir=$(dirname $testname)
+	# Copy test to writable directory
+	srctestdir=$(dirname $testname)
+	mkdir $TMPDIR/curtest
+	cp -rL $srctestdir/. $TMPDIR/curtest
+	testdir=$TMPDIR/curtest
 	if [ -e $testdir/skip ]; then
 	    if ! [ -x $testdir/skip ] || ! $testdir/skip; then
-		echo "Skipping disabled test: $testdir" 1>&2
+		echo "Skipping disabled test: $srctestdir" 1>&2
 		SKIP=$(($SKIP+1))
+		rm -rf $TMPDIR/curtest
 		continue
 	    fi
 	fi
 	if $NOSUDO && [ -e $testdir/control ] && \
 		grep Restrictions: $testdir/control | grep -q sudo; then
 	    if ! [ -x $testdir/skip ] || ! $testdir/skip; then
-		echo "Skipping sudo test: $testdir" 1>&2
+		echo "Skipping sudo test: $srctestdir" 1>&2
 		SKIP=$(($SKIP+1))
+		rm -rf $TMPDIR/curtest
 		continue
 	    fi
 	fi
 	NUM=$(($NUM+1))
 	export TEST_DIR=$(readlink -f $testdir)
-	echo "Running test: $testdir" 1>&2
+	echo "Running test: $srctestdir" 1>&2
         if test -n "$SYSTEM_BUILD"; then
             # Tell `halcompile` where to install comps
             USER_MODULE_DIR=$(readlink -f $testdir) \
@@ -180,7 +186,7 @@ run_tests () {
 	    fi
 	fi
 	if [ $exitcode -ne 0 ]; then
-	    echo "*** $testdir: XFAIL: $reason"
+	    echo "*** $srctestdir: XFAIL: $reason"
             if test $PRINT = 1; then
                 echo "************** result:"
                 tail -500 $testdir/result | sed 's/^/        /'
@@ -197,14 +203,14 @@ run_tests () {
 	    else
 		FAIL=$(($FAIL+1))
 		FAIL_NAMES="$FAIL_NAMES
-	$testdir"
+	$srctestdir"
 	    fi
             if test $STOP = 1; then
 	        break
 	    fi
 	else
 	    if [ -f $testdir/xfail ]; then
-		echo "*** $testdir: XPASS: Passed, but was expected to fail"
+		echo "*** $srctestdir: XPASS: Passed, but was expected to fail"
 	    else
 		if [ $NOCLEAN -eq 0 ]; then
 		    rm -f $testdir/stderr $testdir/result \
