@@ -343,7 +343,7 @@ class OffsetPage(Gtk.VBox):
         else:
             tmpl = lambda s: self.imperial_text_template % s
 
-        # allow 'name' columnn text to be arbitrarily changed
+        # allow 'name' column text to be arbitrarily changed
         if col == 10:
             self.store[row][14] = new_text
             return

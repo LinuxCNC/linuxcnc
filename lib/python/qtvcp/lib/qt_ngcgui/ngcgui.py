@@ -277,7 +277,7 @@ class SubFile():
                         self.flag_error("Parm {} exceeds maximum limit of {}".format(pparm, self.g_max_parm))
                     self.min_num = min
                     self.max_num = max
-                # blanks required for this, use original line not tranlated line
+                # blanks required for this, use original line not translated line
                 name, pnum, dvalue, comment = find_positional_parms(orig_line)
                 if name:
                     self.ndict[pnum] = (name, dvalue, comment)
@@ -742,13 +742,13 @@ class NgcGui(QtWidgets.QWidget):
         return(ct)
 
     def warp_info_frame(self, newLayout):
-        """ Convience function to move the info frame to another layout"""
+        """ Convenience function to move the info frame to another layout"""
         newLayout.addWidget(self.frame_info)
         # is this enough?
         self.frame_info.setMaximumWidth(500)
 
     def warp_tabs_frame(self, newLayout):
-        """ Convience function to move the tabs frame to another layout"""
+        """ Convenience function to move the tabs frame to another layout"""
         newLayout.addWidget(self.frame_tabs)
 
 ##################

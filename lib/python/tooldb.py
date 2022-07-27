@@ -139,7 +139,7 @@ def tooldb_tools(tool_list):
 
 def tooldb_loop():
     """Loop forever:
-       1) send startup acknowlegment
+       1) send startup acknowledgment
        2) read line from stdino
        3) parse line
              execute command if valid

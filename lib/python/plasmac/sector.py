@@ -78,10 +78,10 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
     if error:
         return error
     if radius == 0:
-        msg = _('RADIUS canot be zero')
+        msg = _('RADIUS cannot be zero')
         error += '{}\n\n'.format(msg)
     if sAngle == 0:
-        msg = _('SEC ANGLE canot be zero')
+        msg = _('SEC ANGLE cannot be zero')
         error += '{}\n\n'.format(msg)
     if error:
         return error
