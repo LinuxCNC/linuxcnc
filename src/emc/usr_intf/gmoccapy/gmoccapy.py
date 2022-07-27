@@ -3988,7 +3988,7 @@ class gmoccapy(object):
     def on_btn_back_clicked(self, widget, data=None):
         if self.widgets.ntb_button.get_current_page() == _BB_EDIT:  # edit mode, go back to auto_buttons
             if self.file_changed:
-                message = "Do you want to exit without saving the changes?"
+                message = _("Exit and discard changes?")
                 result = self.dialogs.yesno_dialog(self, message, _("Attention!!"))
                 if not result: # user says no, he want to save
                     return
