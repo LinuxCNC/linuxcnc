@@ -47,6 +47,6 @@ net jogSelecty        axis.y.jog-enable      woodpecker.jog.wheel.y
 net jogSelectz        axis.z.jog-enable      woodpecker.jog.wheel.z
 net jogSelecta        axis.a.jog-enable     woodpecker.jog.wheel.a
 
-net jogIncrement      woodpecker.jog.wheel.incement
+net jogIncrement      woodpecker.jog.wheel.increment
 net jogIncrement      axis.x.jog-scale       axis.y.jog-scale      axis.z.jog-scale
 
