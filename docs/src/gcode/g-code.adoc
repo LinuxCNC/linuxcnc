@@ -162,10 +162,10 @@ M2 (end program)
 
 If cutter compensation is active, the motion will differ from
 the above; see the <<sec:cutter-radius-compensation,Cutter Compensation>>
-Section.
+section.
 
 If 'G53' is programmed on the same line, the motion will also differ;
-see the <<gcode:g53,G53>> Section for more information.
+see the <<gcode:g53,G53>> section for more information.
 
 The path of a G0 rapid motion can be rounded at direction changes and
 depends on the <<sec:trajectory-control,trajectory control>> settings
@@ -212,10 +212,10 @@ M2 (end program)
 
 If cutter compensation is active, the motion will differ from
 the above; see the <<sec:cutter-radius-compensation,Cutter Compensation>>
-Section.
+section.
 
 If 'G53' is programmed on the same line, the motion will also differ;
-see the <<gcode:g53,G53>> Section for more information.
+see the <<gcode:g53,G53>> section for more information.
 
 It is an error if:
 
@@ -963,8 +963,8 @@ The UV, WU and VW planes do not support arcs.
 It is a good idea to include a plane selection in the preamble
 of each G-code file.
 
-The effects of having a plane selected are discussed in Section
-<<gcode:g2-g3,G2 G3 Arcs>> and Section <<gcode:g80-g89,G81 G89>>.
+The effects of having a plane selected are discussed in section
+<<gcode:g2-g3,G2 G3 Arcs>> and section <<gcode:g80-g89,G81 G89>>.
 
 [[gcode:g20-g21]]
 == G20, G21 Units(((G20 Units)))
@@ -1262,7 +1262,7 @@ A comment of the form '(PROBEOPEN filename.txt)' will open
 'filename.txt' and store the 9-number coordinate consisting of
 XYZABCUVW of each successful straight probe in it.
 The file must be closed with '(PROBECLOSE)'. For more information
-see the <<gcode:comments,Comments>> Section.
+see the <<gcode:comments,Comments>> section.
 
 An example file 'smartprobe.ngc' is included (in the examples directory)
 to demonstrate using probe moves to log to a file the coordinates of a
@@ -1349,7 +1349,7 @@ User M100-M199 commands are allowed when Cutter Compensation is on.
 
 The behavior of the machining center when cutter compensation
 is on is described in the <<sec:cutter-radius-compensation,Cutter Compensation>>
-Section along with code examples.
+section along with code examples.
 
 It is an error if:
 
@@ -1637,7 +1637,7 @@ G64 <P- <Q->>
   arc-line cases as well as line-line benefit from the 'naive cam
   detector'. This improves contouring performance by simplifying the
   path. It is OK to program for the mode that is already active. See
-  also the <<sec:trajectory-control,Trajectory Control>> Section for
+  also the <<sec:trajectory-control,Trajectory Control>> section for
   more information on these modes.
   If Q is not specified then it will have the same behavior as before
   and use the value of P-.
@@ -2029,7 +2029,7 @@ The height of the retract move at the end of each repeat (called
 'clear Z' in the descriptions below) is determined by the setting of
 the retract mode, either to the original Z position (if that is above
 the R position and the retract mode is 'G98', OLD_Z), or otherwise to
-the R position. See the <<gcode:g98-g99,G98 G99>> Section.
+the R position. See the <<gcode:g98-g99,G98 G99>> section.
 
 [[gcode:canned-cycle-errors]]
 === Canned Cycle Errors(((Canned Cycle Errors)))
@@ -2198,7 +2198,7 @@ N240 M2 (program end)
 ----
 
 [NOTE]
-Notice the z position change after the first four holes.
+Notice the Z position change after the first four holes.
 Also, this is one of the few places where line numbers have some value,
 being able to point a reader to a specific line of code.
 
@@ -2601,13 +2601,13 @@ program a G92.2 (to remove them - they are still stored).
 
 [NOTE]
 The 'G52' command can also be used to change this offset; see the
-<<sec:g52-and-g92-offsets,Offsets>> Section for more details about
+<<sec:g52-and-g92-offsets,Offsets>> section for more details about
 'G92' and 'G52' and how they interact.
 
-See the <<cha:coordinate-system,Coordinate System>> Section for an
+See the <<cha:coordinate-system,Coordinate System>> section for an
 overview of coordinate systems.
 
-See the <<sec:overview-parameters,Parameters>> Section for more
+See the <<sec:overview-parameters,Parameters>> section for more
 information.
 
 [[gcode:g92.1-g92.2]]
