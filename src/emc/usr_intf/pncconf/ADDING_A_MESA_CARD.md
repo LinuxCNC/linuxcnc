@@ -44,10 +44,12 @@ The remainder of the data structure consists of list entries specifying the indi
 
 Allocation of the order of I/O pins to connectors is done at the Mesa hardware level and in our case the Mesa manual for the `7i93` specifies `CONECTOR P2 I/O 0..23` and `CONNECTOR P1 I/O 24..47`.
 
-If logical number < 100 => GPIO can be changed to GPIOO or GPIOD at the start of linuxcnc, load time if you prefer (run time)
+If logical number < 100 => GPIO can be changed to GPIOO or GPIOD at the start of linuxcnc, load time if you prefer (or run time)
 If logical number > 100 => GPIO can NOT be changed to GPIOO or GPIOD at the start of linuxcnc, load time (always input or always output)
 Value of number or number-100 corresponds with HAL Pin of Hostmot2 component
-The number 0 or 100 can be repeated only for GPIO and the numbering is done automatically.
+The number 0 or 100 currentky only has meaning for GPIO, SSR, INM and OUTM components.
+With GPIO the numbering uses the position in the firmware, starting with the first found GPIO as 0.
+SSR encodes the logical number within the 1xx number. ie 100 = zero component, 101 the #1 component etc.
 
 The data structure from the code is replicated below.  Using the data above, you should be able to decode this information:
 
