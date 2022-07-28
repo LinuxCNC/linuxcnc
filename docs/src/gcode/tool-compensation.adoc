@@ -315,8 +315,8 @@ path without knowing the exact tool diameter. The only caveat is the
 programmer must program the lead in move to be at least as long as the
 largest tool radius that might be used.
 
-There are two possible paths the cutter can take while cutter
-compensation is on to the left or right side of a line when facing the
+There are two possible paths the cutter can take since the cutter
+compensation can be on to the left or right side of a line when facing the
 direction of cutter motion from behind the cutter. To visualize this
 imagine you were standing on the part walking behind the tool as it
 progresses across the part. G41 is your left side of the line and G42
