@@ -329,7 +329,7 @@ Copyright: 2008 Thomas Porschberg <thomas@randspringer.de>
            2008 Benjamin Kosnik <bkoz@redhat.com>
            2012 Zack Weinberg <zackw@panix.com>
            2013 Roy Stogner <roystgnr@ices.utexas.edu>
-License: custom
+License: GNU-All-Permissive
  Copying and distribution of this file, with or without modification, are
  permitted in any medium without royalty provided the copyright notice
  and this notice are preserved. This file is offered as-is, without any
@@ -424,7 +424,7 @@ License: MIT
 
 Files: unit_tests/greatest.h
 Copyright: 2011-2019 Scott Vokes <vokes.s@gmail.com>
-License: custom
+License: ISC
  Permission to use, copy, modify, and/or distribute this software for any
  purpose with or without fee is hereby granted, provided that the above
  copyright notice and this permission notice appear in all copies.
