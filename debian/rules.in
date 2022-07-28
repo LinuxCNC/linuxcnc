@@ -60,7 +60,7 @@ endif
 override_dh_auto_clean:
 	dh_auto_clean
 	py3clean .
-	if [ -r src/Makefile.inc -a -r src/config.status ]; then cd src && $(MAKE) clean -s; fi
+	if [ -r src/Makefile.inc -a -r src/config.status ]; then cd src && $(MAKE) clean modclean -s; fi
 	rm -f Makefile.inc
 	rm -f src/config.log src/config.status
 	rm -f $(for i in $(find . -name "*.in"); do basename $i .in; done)
