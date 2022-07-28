@@ -1,7 +1,7 @@
 .TH PID "9" "2007-01-16" "LinuxCNC Documentation" "HAL Component"
 
 .SH NAME
-pid \- proportional/integral/derivative controller
+pid \- proportional/integral/derivative controller with automatic tuning support
 .SH SYNOPSIS
 \fBloadrt pid [num_chan=\fInum\fB | names=\fIname1\fB[,\fIname2...\fB]] [\fBdebug=\fIdbg\fR]
 
@@ -160,6 +160,41 @@ output = bias + error * Pgain + errorI * Igain +
          commandDD * FF2 + commandDDD * FF3
 limit output to +/- maxoutput
 .fi
+
+.P
+This component has a built in auto tune mode. It works by setting up a
+limit cycle to characterize the process.  This is called the Relay
+method and described in the 1984 Automation paper \fBAutomatic Tuning
+of Simple Regulators with Specifications on Phase and Amplitude
+Margins\fR by Karl Johan Åström and Tore Hägglund
+(doi:10.1016/0005-1098(84)90014-1),
+https://lup.lub.lu.se/search/ws/files/6340936/8509157.pdf. Using this
+method, \fBPgain/Igain/Dgain\fR or \fBPgain/Igain/FF1\fR can be
+determined using the Ziegler-Nichols algorithm.  When using \fBFF1\fR
+tuning, scaling must be set so that \fBoutput\fR is in user units per
+second.
+
+.P
+During auto tuning, the \fBcommand\fR input should not change. The
+limit cycle is setup around the commanded position. No initial tuning
+values are required to start auto tuning.  Only \fBtune\-cycles\fR,
+\fBtune\-effort\fR and \fBtune\-mode\fR need be set before starting
+auto tuning.  Note that setting \fBtune\-mode\fR to true disable the
+control loop.  When auto tuning completes, the tuning parameters will
+be set, the output set to bias and the controller still be
+disabled. If running from LinuxCNC, the FERROR setting for the axis
+being tuned may need to be loosened up as it must be larger than the
+limit cycle amplitude in order to avoid a following error.
+.P
+To perform auto tuning, take the following steps.  Move the axis to be
+tuned somewhere near the center of it's travel.  Set
+\fBtune\-cycles\fR (the default value should be fine in most cases)
+and \fBtune\-mode\fR. Set \fBtune\-effort\fR to a small value. Set
+\fBenable\fR to true. Set \fBtune\-mode\fR to true. Set
+\fBtune\-start\fR to true. If no oscillation occurs, or the
+oscillation is too small, slowly increase \fBtune\-effort\fR.  Auto
+tuning can be aborted at any time by setting \fBenable\fR or
+\fBtune\-mode\fR to false.
 
 .SH NAMING
 The names for pins, parameters, and functions are prefixed as:
@@ -339,6 +374,40 @@ When true, the current PID output is saturated.  That is,
 \fBpid.\fIN\fB.saturated\-count\fR s32 out
 When true, the output of PID was continually saturated for this many seconds
 (\fBsaturated\-s\fR) or periods (\fBsaturated\-count\fR).
+
+.SS Additional auto tuning pins
+.TP
+\fBpid.\fIN\fB.tune\-mode\fR bit in
+When true, enables auto tune mode.  When false, normal PID calculations are
+performed.
+.TP
+\fBpid.\fIN\fB.tune\-start\fR bit io
+When set to true, starts auto tuning.  Cleared when the auto tuning completes.
+.TP
+\fBpid.\fIN\fB.tune\-type\fR u32 rw
+When set to 0, \fBPgain/Igain/Dgain\fR are calculated. When set to 1,
+\fBPgain/Igain/FF1\fR are calculated.
+.TP
+\fBpid.\fIN\fB.tune\-cycles\fR u32 rw
+Determines the number of cycles to run to characterize the process.
+\fBtune\-cycles\fR actually sets the number of half cycles. More cycles results
+in a more accurate characterization as the average of all cycles is used.
+.TP
+\fBpid.\fIN\fB.tune\-effort\fR float rw
+Determines the effort used in setting up the limit cycle in the process.
+\fBtune\-effort\fR should be set to a positive value less than \fBmaxoutput\fR.
+Start with something small and work up to a value that results in a good
+portion of the maximum motor current being used. The smaller the value, the
+smaller the amplitude of the limit cycle.
+.TP
+\fBpid.\fIN\fB.ultimate\-gain\fR float ro (only if debug=1)
+Determined from process characterization. \fBultimate\-gain\fR is the ratio of
+\fBtune\-effort\fR to the limit cycle amplitude multiplied by 4.0 divided by Pi.
+.TP
+\fBpid.\fIN\fB.ultimate\-period\fR float ro (only if debug=1)
+Determined from process characterization. \fBultimate\-period\fR is the period
+of the limit cycle.
+
 .SH PARAMETERS
 .TP
 \fBpid.\fIN\fB.errorI\fR float ro (only if debug=1)
@@ -371,6 +440,3 @@ situations that negative FF gains make sense, but in general all gains
 should be positive.  If some output is in the wrong direction, negating
 gains to fix it is a mistake; set the scaling correctly elsewhere
 instead.
-
-.SH SEE ALSO
-\fBat_pid\fR(9)
