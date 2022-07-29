@@ -316,7 +316,7 @@ default: $(INFILES)
 # is listed here.  Note that due to $(INCLUDE), defined above, the include
 # files in the source tree are the ones used when building linuxcnc.  The copy
 # in ../include is used when building external components of linuxcnc.
-HEADERS := \
+SRCHEADERS := \
     emc/linuxcnc.h \
     emc/ini/emcIniFile.hh \
     emc/ini/iniaxis.hh \
@@ -439,7 +439,7 @@ HEADERS := \
 
 # the "headers" target installs all the header files in ../include
 .PHONY: headers
-HEADERS := $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
+HEADERS := $(patsubst %,../include/%,$(foreach h,$(SRCHEADERS),$(notdir $h)))
 headers: $(HEADERS)
 
 # install header files as part of the build
@@ -503,7 +503,11 @@ pythonclean:
 	find . -name __pycache__ | xargs -r rm -r
 python: $(PYTARGETS)
 userspace: python
-clean: docclean pythonclean cscopeclean
+inclean:
+	$(RM) $(INFILES)
+headersclean:
+	$(RM) $(HEADERS)
+clean: docclean pythonclean cscopeclean inclean headersclean
 
 # This is the gateway into the crazy world of "kbuild", the linux 2.6 system
 # for building kernel modules.	Other kernel module build styles need to be
