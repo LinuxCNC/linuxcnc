@@ -56,14 +56,14 @@ G-code for more detailed explanations.
 The 'Tool Table' is a text file that contains information about each
 tool. The file is located in the same directory as your configuration
 and is called 'tool.tbl' by default.  A file name may be specified
-with the ini file [EMCIO]TOOL_TABLE setting.  The tools might be in a
+with the INI file [EMCIO]TOOL_TABLE setting.  The tools might be in a
 tool changer or just changed manually.  The file can be edited with a
 text editor or be updated using G10 L1. See the
 <<sec:lathe-tool-table,Lathe Tool Table>> Section for an example of
 the lathe tool table format. The maximum pocket number is 1000.
 
-The <<cha:tooledit-gui,Tool Editor>> or a text editor can be used to edit 
-the tool table. If you use a text editor make sure you reload the tool 
+The <<cha:tooledit-gui,Tool Editor>> or a text editor can be used to edit
+the tool table. If you use a text editor make sure you reload the tool
 table in the GUI.
 
 [[sub:tool-table-format]]
@@ -177,29 +177,29 @@ is used for all machines.
 
 The userspace program specified by *[EMCIO]EMCIO = io* is conventionally
 used for tool changer management (and other io functions for enabling
-LinuxCNC and the control of coolant/lube hardware).  The hal pins used for
-tool management are prefixed with *iocontrol.0.*
+LinuxCNC and the control of coolant/lube hardware).  The HAL pins used for
+tool management are prefixed with *iocontrol.0.*.
 
-A gcode *TN* command asserts the hal output pin *iocontrol.0.tool-prepare*.
-The hal input pin, *iocontrol.0.tool-prepared*, must be set by external
-hal logic to complete tool preparation leading to a subsequent reset of
+A G-code *T* command asserts the HAL output pin *iocontrol.0.tool-prepare*.
+The HAL input pin, *iocontrol.0.tool-prepared*, must be set by external
+HAL logic to complete tool preparation leading to a subsequent reset of
 the tool-prepare pin.
 
-A gcode *M6* command asserts the hal output pin *iocontrol.0.tool-change*.
-The related hal input pin, *iocontrol.0.tool-prepared*, must be set by
-external hal logic to indicate completion of the tool change leading
+A G-code *M6* command asserts the HAL output pin *iocontrol.0.tool-change*.
+The related HAL input pin, *iocontrol.0.tool-prepared*, must be set by
+external HAL logic to indicate completion of the tool change leading
 to a subsequent reset of the tool-change pin.
 
 Tooldata is accessed by an ordered index (idx) that depends on the
 type of toolchanger specified by *[EMCIO]RANDOM_TOOLCHANGER=type*.
 
 . For *RANDOM_TOOLCHANGER = 0*, (0 is default and specifies a non-random
-  toolchanger) idx is a number indicating the sequence in which tooldata was 
+  toolchanger) idx is a number indicating the sequence in which tooldata was
   loaded.
 . For *RANDOM_TOOLCHANGER = 1*, idx is the *current* pocket number
-  for the toolnumber specified by the gcode select tool command *Tn*.
+  for the toolnumber specified by the G-code select tool command *Tn*.
 
-The io program provides hal output pins to facilitate toolchanger management:
+The io program provides HAL output pins to facilitate toolchanger management:
 
 . *iocontrol.0.tool-prep-number*
 . *iocontrol.0.tool-prep-index*
@@ -207,26 +207,26 @@ The io program provides hal output pins to facilitate toolchanger management:
 
 ==== IO for non-random toolchanger
 
-. Tool number N==0 indicates no tool
+. Tool number n==0 indicates no tool
 . The pocket number for a tool is fixed when tooldata is loaded
-. At gcode *TN* (N != 0) command:
+. At G-code *Tn* (n != 0) command:
 .. *iocontrol.0.tool-prep-index*  = idx (index based on tooldata load sequence)
-.. *iocontrol.0.tool-prep-number* = N
-.. *iocontrol.0.tool-prep-pocket* = the fixed pocketno for N
-. At gcode *T0* (N == 0 remove) command:
+.. *iocontrol.0.tool-prep-number* = n
+.. *iocontrol.0.tool-prep-pocket* = the fixed pocketno for n
+. At G-code *T0* (n == 0 remove) command:
 .. *iocontrol.0.tool-prep-index*  = 0
 .. *iocontrol.0.tool-prep-number* = 0
 .. *iocontrol.0.tool-prep-pocket* = 0
 
 ==== IO for random toolchanger
 
-. Tool number N==0 is *not special*
-. Pocket number 0 is *special* as it indicates the *spindle*
-. The *current* pocket number for tool N is the tooldata index (idx) for tool N
-. At gcode command *TN*:
-.. *iocontrol.0.tool-prep-index*  = pocket number for tool N
-.. *iocontrol.0.tool-prep-number* = N
-.. *iocontrol.0.tool-prep-pocket* = pocket number for tool N
+. Tool number n==0 is *not special*.
+. Pocket number 0 is *special* as it indicates the *spindle*.
+. The *current* pocket number for tool N is the tooldata index (idx) for tool n.
+. At G-code command *Tn*:
+.. *iocontrol.0.tool-prep-index*  = pocket number for tool n
+.. *iocontrol.0.tool-prep-number* = n
+.. *iocontrol.0.tool-prep-pocket* = pocket number for tool n
 
 [[sub:tool-changers]]
 === Tool Changers(((Tool Changers)))
@@ -238,9 +238,9 @@ is in the <<sub:ini:sec:emcio,EMCIO Section>> of the INI chapter.
 .Manual Tool Changer
 Manual tool changer (you change the tool by hand) is treated like a
 fixed location tool changer.  Manual toolchanges can be aided by
-a hal configuration that employs the userspace program
-*hal_manualtoolchange* and is typically specified in an ini file
-with ini statements:
+a HAL configuration that employs the userspace program
+*hal_manualtoolchange* and is typically specified in an INI file
+with INI statements:
 
 [source,{ini}]
 ----
@@ -315,8 +315,8 @@ path without knowing the exact tool diameter. The only caveat is the
 programmer must program the lead in move to be at least as long as the
 largest tool radius that might be used.
 
-There are two possible paths the cutter can take while cutter
-compensation is on to the left or right side of a line when facing the
+There are two possible paths the cutter can take since the cutter
+compensation can be on to the left or right side of a line when facing the
 direction of cutter motion from behind the cutter. To visualize this
 imagine you were standing on the part walking behind the tool as it
 progresses across the part. G41 is your left side of the line and G42

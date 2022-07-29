@@ -58,7 +58,7 @@ working  on some versions of the Pi. You can experiment with removing
 this limit by editing the config-rt.txt file in the boot directory. If
 you can't boot after the change then the file can be edited back by
 mounting the SD card in a a different computer (maybe even a Pi with a
-USB card reader)
+USB card reader).
 
 === Download using zsync
 
@@ -128,7 +128,7 @@ https://help.ubuntu.com/community/HowToMD5SUM[How To MD5SUM]
 
 The Raspbery Pi image is a completes SD card image and should be
 written to an SD card in
-https://www.raspberrypi.org/documentation/installation/installing-images/README.md[the normal way]
+https://www.raspberrypi.org/documentation/installation/installing-images/README.md[the normal way].
 
 The LinuxCNC Live/Install ISO Image is a hybrid ISO image which can
 be written directly to a USB storage device (flash drive) or a DVD and
@@ -232,7 +232,7 @@ using the RTAI realtime kernel which will often give better latency.
 To install LinuxCNC from the LiveCD select 'Install (Graphical)' at
 bootup.
 
-== Updates to LinuxCNC (((Updates to LinuxCNC)))
+== Updates to LinuxCNC(((Updates to LinuxCNC)))
 
 With the normal install the Update Manager will notify you of updates
 to LinuxCNC when you go on line and allow you to easily upgrade with no
@@ -372,8 +372,8 @@ Alternate keyserver: keyserver.ubuntu.com
 . Add the apt repository:
 +
 ----
- echo deb http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
- echo deb-src http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
+echo deb http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
+echo deb-src http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
 ----
 
 . Update the package list from linuxcnc.org
@@ -416,8 +416,8 @@ sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
 . Add the apt repository:
 +
 ----
- echo deb http://linuxcnc.org/ buster base 2.8-rt | sudo tee /etc/apt/sources.list.d/linuxcnc.list
- echo deb-src http://linuxcnc.org/ buster base 2.8-rt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
+echo deb http://linuxcnc.org/ buster base 2.8-rt | sudo tee /etc/apt/sources.list.d/linuxcnc.list
+echo deb-src http://linuxcnc.org/ buster base 2.8-rt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
 ----
 
 . Update the package list from linuxcnc.org
@@ -461,7 +461,7 @@ sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
 . Add the apt repository:
 +
 -----
- echo deb http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee /etc/apt/sources.list.d/linuxcnc.list
+echo deb http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee /etc/apt/sources.list.d/linuxcnc.list
 -----
 
 . Update the package list from linuxcnc.org

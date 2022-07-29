@@ -15,10 +15,11 @@
 * LinuxCNC provides:
 ** easy discovery and testing without installation with the LiveCD
 ** easy installation from the Live CD
-** Easy to use graphical configuration wizards to rapidly create a configuration
+** easy to use graphical configuration wizards to rapidly create a configuration
    specific to the machine
+** directly offered with recent releases of Debian (since Bookworm) and Ubuntu (since Kinetic Kudu)
 ** a graphical user interface (actually several interfaces to choose from)
-** A graphical interface creation tool (Glade)
+** a graphical interface creation tool (Glade)
 ** an interpreter for 'G-code' (the RS-274 machine tool programming
    language)
 ** a realtime motion planning system with look-ahead

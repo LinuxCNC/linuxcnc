@@ -132,7 +132,7 @@ M5 $2
 ----
 
 If the $ is omitted then behaviour is exactly as normal for a single
-spindle machine
+spindle machine.
 
 It is OK to use 'M3' or 'M4' if the <<sec:set-spindle-speed,S>>
 spindle speed is set to zero. If this is done
