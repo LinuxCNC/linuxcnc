@@ -838,7 +838,7 @@ halcmd: setp stepgen.1.enable 1
 
 This velocity scaling means that when the pin 'stepgen.0.velocity-cmd'
 is 1.000, the step generator will generate 10000 pulses per second
-(10KHz). With the motor and leadscrew described above, that will result
+(10 kHz). With the motor and leadscrew described above, that will result
 in the axis moving at exactly 1.000 inches per second. This illustrates
 a key HAL concept - things like scaling are done at the lowest possible
 level, in this case in the step pulse generator. The internal signal
@@ -857,8 +857,8 @@ halcmd: start
 ----
 
 Although nothing appears to happen, inside the computer the step pulse
-generator is cranking out step pulses, varying from 10KHz forward to
-10KHz reverse and back again every second. Later in this tutorial we'll
+generator is cranking out step pulses, varying from 10 kHz forward to
+10 kHz reverse and back again every second. Later in this tutorial we'll
 see how to bring those internal signals out to run motors in the real
 world, but first we want to look at them and see what is happening.
 
@@ -1037,13 +1037,13 @@ position slider to determine which part of the zoomed waveform is
 visible. However, sometimes simply expanding the waveforms isn't enough
 and you need to increase the sampling rate. For example, we would like
 to look at the actual step pulses that are being generated in our
-example. Since the step pulses may be only 50 µs long, sampling at 1KHz
+example. Since the step pulses may be only 50 µs long, sampling at 1 kHz
 isn't fast enough. To change the sample rate, click on the button that
 displays the number of samples and sample rate to bring up the 'Select
 Sample Rate' dialog, figure . For this example, we will click on the
-50 µs thread, 'fast', which gives us a sample rate of about 20KHz. Now
+50 µs thread, 'fast', which gives us a sample rate of about 20 kHz. Now
 instead of displaying about 4 seconds worth of data, one record is 4000
-samples at 20KHz, or about 0.20 seconds.
+samples at 20 kHz, or about 0.20 seconds.
 
 [[fig:halscope-sample-rate-choice]]
 .Sample Rate Dialog

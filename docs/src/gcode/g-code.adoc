@@ -181,7 +181,7 @@ be organized so that each rotary axis makes less than one full turn.
 It is an error if:
 
 * An axis letter is without a real value.
-* An axis letter is used that is not configured
+* An axis letter is used that is not configured.
 
 [[gcode:g1]]
 == G1 Linear Move(((G1 Linear Move)))
@@ -384,9 +384,9 @@ to start:'
 === Center Format Examples
 
 Calculating arcs by hand can be difficult at times. One option is to
-draw the arc with a cad program to get the coordinates and offsets.
+draw the arc with a CAD program to get the coordinates and offsets.
 Keep in mind the tolerance mentioned above, you may have to change the
-precision of your cad program to get the desired results. Another
+precision of your CAD program to get the desired results. Another
 option is to calculate the coordinates and offset using formulas. As
 you can see in the following figures a triangle can be formed from the
 current position the end position and the arc center.
@@ -586,11 +586,11 @@ G5 P0 Q-3 X2 Y2
 
 It is an error if:
 
-* P and Q are not both specified
-* Just one of I or J are specified
-* I or J are unspecified in the first of a series of G5 commands
-* An axis other than X or Y is specified
-* The active plane is not G17
+* P and Q are not both specified.
+* Just one of I or J are specified.
+* I or J are unspecified in the first of a series of G5 commands.
+* An axis other than X or Y is specified.
+* The active plane is not G17.
 
 [[gcode:g5.1]]
 == G5.1 Quadratic Spline(((G5.1 Quadratic spline)))
@@ -1121,9 +1121,9 @@ M2 (end program)
 It is an error if:
 
 * All axis words are omitted.
-* The spindle is not turning when this command is executed
+* The spindle is not turning when this command is executed.
 * The requested linear motion exceeds machine velocity limits
-  due to the spindle speed
+  due to the spindle speed.
 
 [[gcode:g33.1]]
 == G33.1 Rigid Tapping(((G33.1 Rigid Tapping)))
@@ -2372,7 +2372,7 @@ G90 G82 G98 X4 Y5 Z1.5 R2.8 P2
 ----
 
 This will be similar to example 3 above, just with an added dwell of 2
-seconds at the bottom of the hole
+seconds at the bottom of the hole.
 
 [[gcode:g83]]
 == G83 Peck Drilling Cycle(((G83 Peck Drilling)))

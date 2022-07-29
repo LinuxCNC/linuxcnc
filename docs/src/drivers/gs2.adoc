@@ -26,29 +26,29 @@ The HAL `loadusr` command is described in the <<sub:hal-loadusr,loadusr>> chapte
 
 == Command Line Options
 
-* '-b' or '--bits <n>' (default 8) Set number of data bits to <n>, where n
-  must be from 5 to 8 inclusive
-* '-d' or '--device <path>' (default /dev/ttyS0) Set the name of the serial
-  device node to use
+* '-b' or '--bits <n>' (default: 8) Set number of data bits to <n>, where n
+  must be from 5 to 8 inclusive.
+* '-d' or '--device <path>' (default: /dev/ttyS0) Set the file path to the serial
+  device node to use.
 * '-g' or '--debug' Turn on debugging messages. This will also set the
   verbose flag. Debug mode will cause all modbus messages to be printed
   in hex on the terminal.
-* '-n' or '--name <string>' (default gs2_vfd) Set the name of the HAL
+* '-n' or '--name <string>' (default: gs2_vfd) Set the name of the HAL
   module. The HAL comp name will be set to <string>, and all pin and
   parameter names will begin with <string>.
-* '-p' or '--parity {even,odd,none}' (default odd) Set serial parity to
+* '-p' or '--parity {even,odd,none}' (default: odd) Set serial parity to
   even, odd, or none.
-* '-r' or '--rate <n>' (default 38400) Set baud rate to <n>. It is an error
+* '-r' or '--rate <n>' (default: 38400) Set baud rate to <n>. It is an error
   if the rate is not one of the following: 110, 300, 600, 1200, 2400,
-  4800, 9600, 19200, 38400, 57600, 115200
-* '-s' or '--stopbits {1,2}' (default 1) Set serial stop bits to 1 or 2
-* '-t' or '--target <n>' (default 1) Set MODBUS target (slave) number. This
+  4800, 9600, 19200, 38400, 57600, 115200.
+* '-s' or '--stopbits {1,2}' (default: 1) Set serial stop bits to 1 or 2
+* '-t' or '--target <n>' (default: 1) Set MODBUS target (slave) number. This
   must match the device number you set on the GS2.
 * '-v' or '--verbose' Turn on debug messages.
-* '-A' or '--accel-seconds' <n> (default 10.0) Seconds to accelerate the
-  spindle from 0 to Max RPM.
-* '-D' or '--decel-seconds' <n> (default 0.0) Seconds to decelerate the spindle
-  from Max RPM to 0. If set to 0.0 the spindle will be allowed to coast to a
+* '-A' or '--accel-seconds' <n> (default: 10.0) Seconds to accelerate the
+  spindle from 0 to max. RPM.
+* '-D' or '--decel-seconds' <n> (default: 0.0) Seconds to decelerate the spindle
+  from max. RPM to 0. If set to 0.0 the spindle will be allowed to coast to a
   stop without controlled deceleration.
 * '-R' or '--braking-resistor' This argument should be used when a braking
   resistor is installed on the GS2 VFD (see Appendix A of the GS2 manual).
@@ -65,7 +65,7 @@ may result in a flood of timeout errors.
 
 Where <n> is gs2_vfd or the name given during loading with the -n option.
 
-* '<n>.DC-bus-volts' (float, out) The DC bus voltage of the VFD
+* '<n>.DC-bus-volts' (float, out) DC bus voltage of the VFD
 * '<n>.at-speed' (bit, out) when drive is at commanded speed
 * '<n>.err-reset' (bit, in) reset errors sent to VFD
 * '<n>.firmware-revision' (s32, out) from the VFD
@@ -80,7 +80,7 @@ Where <n> is gs2_vfd or the name given during loading with the -n option.
 * '<n>.scale-frequency' (float, out) from the VFD
 * '<n>.speed-command' (float, in) speed sent to VFD in RPM
   It is an error to send a speed faster than the Motor Max RPM as set in
-  the VFD
+  the VFD.
 * '<n>.spindle-fwd' (bit, in) 1 for FWD and 0 for REV sent to VFD
 * '<n>.spindle-rev' (bit, in) 1 for REV and 0 if off
 * '<n>.spindle-on' (bit, in) 1 for ON and 0 for OFF sent to VFD
@@ -97,11 +97,11 @@ which means the drive is in the run mode is the sum of 3 (run) + 32
 Where <n> is gs2_vfd or the name given during loading with the -n option.
 
 * '<n>.error-count' (s32, RW)
-* '<n>.loop-time' (float, RW) how often the modbus is polled (default 0.1)
-* '<n>.nameplate-HZ' (float, RW) Nameplate Hz of motor (default 60)
-* '<n>.nameplate-RPM' (float, RW) Nameplate RPM of motor (default 1730)
+* '<n>.loop-time' (float, RW) how often the modbus is polled (default: 0.1)
+* '<n>.nameplate-HZ' (float, RW) Nameplate Hz of motor (default: 60)
+* '<n>.nameplate-RPM' (float, RW) Nameplate RPM of motor (default: 1730)
 * '<n>.retval' (s32, RW) the return value of an error in HAL
-* '<n>.tolerance' (s32, RW) speed tolerance (default 0.01)
+* '<n>.tolerance' (s32, RW) speed tolerance (default: 0.01)
 * '<n>.ack-delay' (s32, RW) number of read/write cycles before checking at-speed
   (default 2)
 

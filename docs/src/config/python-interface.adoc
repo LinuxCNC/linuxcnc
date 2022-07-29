@@ -751,12 +751,12 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 `spindle(direction: int, speed: float=0, spindle: int=0, wait_for_speed: int=0)`::
     - Direction: [SPINDLE_FORWARD, SPINDLE_REVERSE, SPINDLE_OFF, SPINDLE_INCREASE,
                 SPINDLE_DECREASE, or SPINDLE_CONSTANT]
-    - Speed: Speed in RPM, defaults to 0
-    - Spindle: Spindle number to command defaults to 0
+    - Speed: Speed in RPM, defaults to 0.
+    - Spindle: Spindle number to command defaults to 0.
     - Wait_for_speed: if 1 motion will wait for speed before continuing, defaults to not.
 
 [WARNING]
-MDI commands will ignore this. "S1000" after this will turn the spindle off
+MDI commands will ignore this. "S1000" after this will turn the spindle off.
 
 `text_msg(string)`::
   sends a operator text message to the screen. (max 254 characters)

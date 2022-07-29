@@ -95,7 +95,7 @@ option.
 * '<n>.max-rpm' (float, R)
   actual RPM limit based on maximum frequency the VFD may generate, and
   the motors nameplate values. For instance, if nameplate-HZ is 50, and
-  nameplate-RPM_ is 1410, but the VFD may generate up to 80Hz, then max-
+  nameplate-RPM_ is 1410, but the VFD may generate up to 80 Hz, then max-
   rpm would read as 2256 (80*1410/50). The frequency limit is read from
   the VFD at startup. To increase the upper frequency limit, the UL and
   FH parameters must be changed on the panel.  See the VF-S11 manual for
@@ -123,8 +123,8 @@ option.
 * '<n>.jog-mode' (bit, in)
   1 for ON and 0 for OFF, enables the VF-S11 'jog mode'. Speed control
   is disabled, and the output frequency is determined by register F262
-  (preset to 5Hz). This might be useful for spindle orientation. In
-  normal mode, the VFD shuts off if the frequency drops below 12Hz.
+  (preset to 5 Hz). This might be useful for spindle orientation. In
+  normal mode, the VFD shuts off if the frequency drops below 12 Hz.
 * '<n>.status' (s32, out)
   Drive Status of the VFD (see the TOSVERT VF-S11 Communications
   Function Instruction Manual, register FD01). A bitmap.

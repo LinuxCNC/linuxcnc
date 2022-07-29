@@ -11,15 +11,15 @@
 :ngc: {basebackend@docbook:'':ngc}
 
 The halcmd language excels in specifying components and connections but
-offers no computational capabilities.  As a result, ini files are limited in
+offers no computational capabilities.  As a result, INI files are limited in
 the clarity and brevity that is possible with higher level languages.
 
-The haltcl facility provides a means to use tcl scripting and its features for
-computation, looping, branching, procedures, etc. in ini files.  To use this
-functionality, you use the tcl language and the extension .tcl for halfiles.
+The haltcl facility provides a means to use Tcl scripting and its features for
+computation, looping, branching, procedures, etc. in INI files.  To use this
+functionality, you use the Tcl language and the extension .tcl for HAL files.
 
 The .tcl extension is understood by the main script (linuxcnc) that processes
-ini files.  Haltcl files are identified in the the HAL section of ini files
+INI files.  Haltcl files are identified in the the HAL section of INI files
 (just like .hal files).
 
 .Example
@@ -35,12 +35,12 @@ With appropriate care, .hal and .tcl files can be intermixed.
 == Compatibility
 
 The halcmd language used in .hal files has a simple syntax that is actually a
-subset of the more powerful general-purpose tcl scripting language.
+subset of the more powerful general-purpose Tcl scripting language.
 
 == Haltcl Commands
 
-Haltcl files use the tcl scripting language augmented with the specific
-commands of the LinuxCNC hardware abstraction layer (HAL).  The hal-specific
+Haltcl files use the Tcl scripting language augmented with the specific
+commands of the LinuxCNC hardware abstraction layer (HAL).  The HAL-specific
 commands are.
 
 [source,{hal}]
@@ -59,7 +59,7 @@ waitusr
 ----
 
 Two special cases occur for the 'gets' and 'list' commands due to
-conflicts with tcl builtin commands.  For haltcl, these
+conflicts with Tcl builtin commands.  For haltcl, these
 commands must be preceded with the keyword 'hal'.
 
 ----
@@ -69,12 +69,12 @@ gets     hal gets
 list     hal list
 ----
 
-== Haltcl Inifile variables
+== Haltcl INI-file variables
 
-Inifile variables are accessible by both halcmd and haltcl but with
+INI file variables are accessible by both halcmd and haltcl but with
 differing syntax.
 
-LinuxCNC ini files use SECTION and ITEM specifiers to identify
+LinuxCNC INI files use SECTION and ITEM specifiers to identify
 configuration items.
 
 [source,{ini}]
@@ -87,7 +87,7 @@ ITEM2 = value_2
 ...
 ----
 
-The ini file values are accessible by text substitution in .hal files using the
+The INI file values are accessible by text substitution in .hal files using the
 form.
 
 [source,{ini}]
@@ -95,14 +95,14 @@ form.
 [SECTION]ITEM
 ----
 
-The same ini file values are accessible in .tcl files using the form of a tcl
+The same INI file values are accessible in .tcl files using the form of a tcl
 global array variable.
 
 ----
 $::SECTION(ITEM)
 ----
 
-For example, an ini file item like:
+For example, an INI file item like:
 
 [source,{ini}]
 ----
@@ -113,7 +113,7 @@ MAX_VELOCITY = 4
 is expressed as   [JOINT_0]MAX_VELOCITY  in .hal files for halcmd +
 and as            $::JOINT_0(MAX_VELOCITY) in .tcl files for haltcl.
 
-Because inifiles can repat the same ITEM in the same SECTION multiple times,
+Because INI files can repat the same ITEM in the same SECTION multiple times,
 $::SECTION(ITEM) is actually a Tcl list of each individual value.
 
 When there is just one value and it is a simple value (all values that
@@ -127,7 +127,7 @@ values and the initial (and possibly only) value in the list.
 
 In Tcl, this is written `[lindex $::SECTION(ITEM) 0]`.
 
-For example: given the following ini values
+For example: given the following INI values
 
 [source,{ini}]
 ----
@@ -154,7 +154,7 @@ loadrt hm2_eth board_ip={"10.10.10.10"} config={"num_encoders=0 num_pwmgens=0 nu
 
 This fails because loadrt does not recognize the braces.
 
-So to get the values just as entered in the ini file, re-write the loadrt line like this:
+So to get the values just as entered in the INI file, re-write the loadrt line like this:
 
 [source,{hal}]
 ----
@@ -177,7 +177,7 @@ list          ---> hal list
 == Haltcl Notes
 
 In haltcl, the value argument for the 'sets' and 'setp' commands
-is implicitly treated as an expression in the tcl language.
+is implicitly treated as an expression in the Tcl language.
 
 .Example
 ----
@@ -194,7 +194,7 @@ setp scale.0.gain "6.28 / 360.0 * $::JOINT_0(radius) * 60.0"
 ----
 
 In other contexts, such as 'loadrt', you must explicitly use
-the tcl expr command ([expr {}]) for computational expressions.
+the Tcl expr command ([expr {}]) for computational expressions.
 
 .Example
 [source,{hal}]
@@ -206,7 +206,7 @@ loadrt motion base_period=[expr {500000000/$::TRAJ(MAX_PULSE_RATE)}]
 
 Consider the topic of 'stepgen headroom'.  Software stepgen runs best with an
 acceleration constraint that is "a bit higher" than the one used by the motion
-planner.  So, when using halcmd files, we force inifiles to have a manually
+planner.  So, when using halcmd files, we force INI files to have a manually
 calculated value.
 
 [source,{ini}]
@@ -216,8 +216,8 @@ MAXACCEL = 10.0
 STEPGEN_MAXACCEL = 10.5
 ----
 
-With haltcl, you can use tcl commands to do the computation and
-eliminate the STEPGEN_MAXACCEL inifile item altogether.
+With haltcl, you can use Tcl commands to do the computation and
+eliminate the STEPGEN_MAXACCEL INI file item altogether.
 
 [source,{hal}]
 ----
@@ -252,7 +252,7 @@ puts [show sig *acc]
 == Haltcl Interactive
 
 The halrun command recognizes haltcl files.  With the -T option,
-haltcl can be run interaactively as a tcl interpreter.  This
+haltcl can be run interaactively as a Tcl interpreter.  This
 capability is useful for testing and for standalone hal applications.
 
 .Example
@@ -262,9 +262,9 @@ $ halrun -T haltclfile.tcl
 
 == Haltcl Distribution Examples (sim)
 
-The configs/sim/axis/simtcl directory includes an ini file that uses a .tcl file
+The configs/sim/axis/simtcl directory includes an INI file that uses a .tcl file
 to demonstrate a haltcl configuration in conjunction with the usage of
-twopass processing.  The example shows the use of tcl procedures, looping, the
+twopass processing.  The example shows the use of Tcl procedures, looping, the
 use of comments, and output to the terminal.
 
 // vim: set syntax=asciidoc:

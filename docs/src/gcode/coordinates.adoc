@@ -55,7 +55,7 @@ your machine has an automatic tool changer. You can also use this command
 to clear the work area and access the workpiece in the vise.
 
 G53 is a non modal command. It must be used in every block where a move
-in machine coordinate system is desired
+in machine coordinate system is desired.
 
 == Coordinate Systems
 
