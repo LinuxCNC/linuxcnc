@@ -38,11 +38,18 @@ The expected data elements of the list are described programmatically in the `pr
 | 26 | max GPIO |
 | 27 | low frequency rate |
 | 28 | hi frequency rate |
-| 29 | available connector numbers | A list in the order they should appear.  This should match the physical labels on the Mesa card. 
+| 29 | available connector numbers | A list of component type and logical number in the order they should appear.  This should match the physical labels on the Mesa card. 
 
 The remainder of the data structure consists of list entries specifying the individual I/O pins of the card in order of how they will be allocated by the firmware.  For instance the first six pins are used to provision two encoders with a,b and index connections: `[S.ENCB,1],[S.ENCA,1],[S.ENCB,0],[S.ENCA,0],[S.ENCI,1],[S.ENCI,0]`.  The next two pins are two pwmgens: `[S.PWMP,1],[S.PWMP,0]`.  The order of these pins is not arbitrary, and must match what the specific firmware on the card is expecting.  This information is supplied from Mesa in the form of pin files, typically shipped with the firmware files.  In our case there are 48 entries because there are 48 I/O pins.
 
 Allocation of the order of I/O pins to connectors is done at the Mesa hardware level and in our case the Mesa manual for the `7i93` specifies `CONECTOR P2 I/O 0..23` and `CONNECTOR P1 I/O 24..47`.
+
+If logical number < 100 => GPIO can be changed to GPIOO or GPIOD at the start of linuxcnc, load time if you prefer (or run time)
+If logical number > 100 => GPIO can NOT be changed to GPIOO or GPIOD at the start of linuxcnc, load time (always input or always output)
+Value of number or number-100 corresponds with HAL Pin of Hostmot2 component
+The number 0 or 100 currentky only has meaning for GPIO, SSR, INM and OUTM components.
+With GPIO the numbering uses the position in the firmware, starting with the first found GPIO as 0.
+SSR encodes the logical number within the 1xx number. ie 100 = zero component, 101 the #1 component etc.
 
 The data structure from the code is replicated below.  Using the data above, you should be able to decode this information:
 
