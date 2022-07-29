@@ -595,6 +595,11 @@ EXE=$(INSTALL) -m 0755
 SETUID=$(INSTALL) -m 4755
 GLOB=$(wildcard $(1))
 
+XDGDESKTOP = \
+    ../share/applications/linuxcnc.desktop \
+    ../share/applications/linuxcnc-latency.desktop \
+    ../share/applications/linuxcnc-latency-histogram.desktop \
+
 ifeq ($(RUN_IN_PLACE),yes)
 define ERROR_MESSAGE
 You configured run-in-place, but are trying to install.
@@ -605,12 +610,8 @@ install:
 	$(error $(ERROR_MESSAGE))
 
 MENUS = ../share/menus/CNC.menu \
-    ../share/desktop-directories/cnc.directory \
-    ../share/applications/linuxcnc.desktop \
-    ../share/applications/linuxcnc-latency.desktop \
-    ../share/applications/linuxcnc-latency-histogram.desktop \
-
-install-menus install-menu: $(MENUS)
+    ../share/desktop-directories/cnc.directory
+install-menus install-menu: $(MENUS) $(XDGDESKTOP)
 	mkdir -p $(HOME)/.config/menus/applications-merged
 	cp $< $(HOME)/.config/menus/applications-merged
 else
@@ -628,6 +629,7 @@ install:
 	$(MAKE) install-docs || echo "Ignored."
 	$(MAKE) install-kernel-dep || echo "Ignored."
 	$(MAKE) install-kernel-indep || echo "Ignored."
+	$(MAKE) install-menu
 	$(ECHO) "Installed in DESTDIR='$(DESTDIR)' with prefix $(prefix)"
 
 install-docs:
@@ -833,6 +835,11 @@ CONF=../configs
 COMMON=$(CONF)/common
 CONFILES=$(addsuffix /$(1), $(filter-out $(COMMON) $(CONF),\
                                          ${shell find ${CONF} -type d -print}))
+install-menu: $(XDGDESKTOP)
+	$(DIR) $(DESTDIR)/usr/share/applications/
+	for d in $(XDGDESKTOP); do \
+	    $(FILE) $$d $(DESTDIR)/usr/share/applications/ ; \
+	done
 
 endif # userspace
 

@@ -75,7 +75,7 @@ override_dh_auto_install:
 	# (in Jessie and newer) can deal with multiple files specified
 	# on the command line.	Version 0.20 (in Wheezy) says it can,
 	# but can't.  So feed it the files one by one.
-	for F in $(shell find debian/extras/ -name *.desktop); do \
+	for F in $(shell find debian/extras/ share/applications/ -name *.desktop); do \
 		desktop-file-validate $$F; \
 	done
 	# Adding files that are Debian-specific
