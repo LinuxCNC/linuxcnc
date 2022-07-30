@@ -50,9 +50,6 @@ inline int round_to_int(T x) {
     return (int)std::nearbyint(x);
 }
 
-/* how far above hole bottom for rapid return, in inches */
-#define G83_RAPID_DELTA 0.010
-
 /* nested remap: a remapped code is found in the body of a subroutine
  * which is executing on behalf of another remapped code
  * example: a user G-code command executes a tool change
@@ -792,8 +789,8 @@ struct setup
   int tool_change_at_g30;
   int tool_change_quill_up;
   int tool_change_with_spindle_on;
-  double parameter_drill_cycle_chip_break_distance;
-  int parameter_g73_peck_till_clear_count;
+  double parameter_g73_peck_clearence;
+  double parameter_g83_peck_clearence;
   int a_axis_wrapped;
   int b_axis_wrapped;
   int c_axis_wrapped;

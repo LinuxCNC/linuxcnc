@@ -154,9 +154,7 @@ int Interp::convert_cycle_g83(block_pointer block,
      Thanks to Billy Singleton for pointing it out... */
   CHKS((delta <= 0.0), NCE_NEGATIVE_OR_ZERO_Q_VALUE_USED);
 
-  rapid_delta = _setup.parameter_drill_cycle_chip_break_distance;
-  if (_setup.length_units == CANON_UNITS_MM)
-    rapid_delta = (rapid_delta * 25.4);
+  rapid_delta = _setup.parameter_g83_peck_clearence;;
 
   for (current_depth = (r - delta);
        current_depth > bottom_z; current_depth = (current_depth - delta)) {
@@ -212,24 +210,16 @@ int Interp::convert_cycle_g73(block_pointer block,
 {
   double current_depth;
   double rapid_delta;
-  int count = 0;
   /* Moved the check for negative Q values here as a sign
      may be used with user defined M functions
      Thanks to Billy Singleton for pointing it out... */
   CHKS((delta <= 0.0), NCE_NEGATIVE_OR_ZERO_Q_VALUE_USED);
 
-  rapid_delta = _setup.parameter_drill_cycle_chip_break_distance;
-  if (_setup.length_units == CANON_UNITS_MM)
-    rapid_delta = (rapid_delta * 25.4);
+  rapid_delta = _setup.parameter_g73_peck_clearence;
 
   for (current_depth = (r - delta);
     current_depth > bottom_z; current_depth = (current_depth - delta)) {
-    count ++;
     cycle_feed(block, plane, x, y, current_depth);
-    if (count == _setup.parameter_g73_peck_till_clear_count) {
-        cycle_traverse(block, plane, x, y, r);
-        count = 0;
-    }
     cycle_traverse(block, plane, x, y, current_depth + rapid_delta);
   }
   cycle_feed(block, plane, x, y, bottom_z);
