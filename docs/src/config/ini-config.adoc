@@ -305,6 +305,7 @@ User Manual.
   If the update time is not set right the screen can become unresponsive or very jerky.
   A value of 100ms (0.1 seconds) is a common setting though a range of 50 - 200ms (.05 - .2 seconds) may be useable.
   An under powered CPU may see improvement with a longer setting. Usually the default is fine.
+* 'PREVIEW_TIMEOUT = 5' - Timeout (in seconds) for loading graphical preview of G-code. Currently AXIS only.
 
 [NOTE]
 The following [DISPLAY] items are used by GladeVCP, see the
