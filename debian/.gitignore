@@ -1,8 +1,5 @@
 linuxcnc-uspace
 files
-rules
-compat
-control
 tmp
 linuxcnc
 linuxcnc-dev
@@ -12,4 +9,3 @@ linuxcnc-doc-*/
 /linuxcnc*.install
 *.debhelper
 shlibs.local
-linuxcnc-uspace.lintian-overrides
