@@ -917,8 +917,8 @@ class Private_Data:
         [S.OUTM0, 104],[S.OUTM0, 105],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
         # TAB 2
-        [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],
-        [S.STEPB,3],[S.STEPA,3],[S.STEPB,4],[S.STEPA,4],[S.ENCA,0],[S.ENCB,0],[S.ENCI,0],
+        [S.STEPA,0],[S.STEPB,0],[S.STEPA,1],[S.STEPB,1],[S.STEPA,2],[S.STEPB,2],
+        [S.STEPA,3],[S.STEPB,3],[S.STEPA,4],[S.STEPB,4],[S.ENCA,0],[S.ENCB,0],[S.ENCI,0],
         [S.RXDATA0,0],[S.TXDATA0,0],[S.TXEN0,0],[S.PWMP,0],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
         # TAB 3
@@ -936,8 +936,8 @@ class Private_Data:
         [S.OUTM0, 104],[S.OUTM0, 105],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
         # TAB 2
-        [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],
-        [S.STEPB,3],[S.STEPA,3],[S.STEPB,4],[S.STEPA,4],[S.ENCA,0],[S.ENCB,0],[S.ENCI,0],
+        [S.STEPA,0],[S.STEPB,0],[S.STEPA,1],[S.STEPB,1],[S.STEPA,2],[S.STEPB,2],
+        [S.STEPA,3],[S.STEPB,3],[S.STEPA,4],[S.STEPB,4],[S.ENCA,0],[S.ENCB,0],[S.ENCI,0],
         [S.RXDATA0,0],[S.TXDATA0,0],[S.TXEN0,0],[S.PWMP,0],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
         # TAB 3
@@ -945,6 +945,21 @@ class Private_Data:
         [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
         [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
+
+    ['7i98-Internal Data', '7i98', '7i98_5abobx3', '7i98', 'hm2_eth',
+        3,3, 0,0, 3,1, 0,0, 12,2, 0,0, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [1, 2, 3],
+        # TAB 1
+        [S.PWMP, 0],[S.GPIOI, 0],[S.STEPA,0],[S.GPIOI, 0],[S.STEPB,0],[S.GPIOI, 0],[S.STEPA,1],[S.GPIOI, 0],
+        [S.STEPB,1],[S.STEPA,2],[S.STEPB,2],[S.STEPA,3],[S.STEPB,3],[S.GPIOI, 0],[S.ENCA,0],[S.ENCB,0],
+        [S.ENCI,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 2
+        [S.PWMP, 1],[S.GPIOI, 0],[S.STEPA,4],[S.GPIOI, 0],[S.STEPB,4],[S.GPIOI, 0],[S.STEPA,5],[S.GPIOI, 0],
+        [S.STEPB,5],[S.STEPA,6],[S.STEPB,6],[S.STEPA,7],[S.STEPB,7],[S.GPIOI, 0],[S.ENCA,1],[S.ENCB,1],
+        [S.ENCI,1],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 3
+        [S.PWMP, 2],[S.GPIOI, 0],[S.STEPA,8],[S.GPIOI, 0],[S.STEPB,8],[S.GPIOI, 0],[S.STEPA,9],[S.GPIOI, 0],
+        [S.STEPB,9],[S.STEPA,10],[S.STEPB,10],[S.STEPA,11],[S.STEPB,1],[S.GPIOI, 0],[S.ENCA,2],[S.ENCB,2],
+        [S.ENCI,2],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
     ]
 
@@ -1132,18 +1147,18 @@ class Private_Data:
         '5i22':{'DRIVER':'hm2_pci','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':4},
         '5i23':{'DRIVER':'hm2_pci','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':3},
         '5i24':{'DRIVER':'hm2_pci','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':3},
-        '5i25':{'DRIVER':'hm2_pci','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':2},
+        '5i25':{'DRIVER':'hm2_pci','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':2,'TAB_NUMS':[2,3],'TAB_NAMES':['P2','P3']},
         '7i43':{'DRIVER':'hm2_7i43','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':2},
         '7i68':{'DRIVER':'hm2_pci','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':6},
-        '7i76e':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':3},
+        '7i76e':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':3,'TAB_NUMS':[1,2,3],'TAB_NAMES':['TB2/TB3','P1','P2']},
         '7i80hd':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':3,'TAB_NUMS':[1,2,3],'TAB_NAMES':['P1','P2','P3']},
         '7i80db':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':4,'TAB_NUMS':[1,2,3,4],'TAB_NAMES':['P1','P2','P3','P4']},
         '7i90':{'DRIVER':'hm2_7i90','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':3,'TAB_NUMS':[1,2,3],'TAB_NAMES':['P1','P2','P3']},
         '7i92':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':2,'TAB_NUMS':[1,2],'TAB_NAMES':['P1','P2']},
-        '7i93':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':2},
+        '7i93':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':2,'TAB_NUMS':[1,2],'TAB_NAMES':['P1','P2']},
         '7i96':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':3,'TAB_NUMS':[1,2,3],'TAB_NAMES':['TB3','TB1/TB2','P1']},
         '7i96s':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':3,'TAB_NUMS':[1,2,3],'TAB_NAMES':['TB3','TB1/TB2','P1']},
-        '7i98':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':3},
+        '7i98':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':3,'TAB_NUMS':[1,2,3],'TAB_NAMES':['P1','P2','P3']},
         }
 
         self.MESS_START = _('Start')

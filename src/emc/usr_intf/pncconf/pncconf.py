@@ -1279,33 +1279,51 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
     def discover_mesacards(self):
         name, interface, address, readoption = self.get_discovery_meta()
         if name is None: return None
-
-        if not name:
-            name = '5i25'
-
+        # This is a HACK to pass info about the interface forward
+        # otherwise the driver info is blank in the discovered firmware
+        if interface == '--addr':
+            inter = 'ETH'
+        elif interface == '--epp':
+            inter = 'EPP'
+        else:
+            inter = 'PCI'
         if self.debugstate or readoption:
-            print('try to discover board by reading help text input:',name)
+            print('try to discover board by reading help window input tab')
             buf = self.widgets.textinput.get_buffer()
             info = buf.get_text(buf.get_start_iter(),
                         buf.get_end_iter(),
                         True)
-
-            # This is a HACK to pass info about the interface forward
-            # otherwise the driver info is blank in the discovered firmware
-            if interface == '--addr':
-                inter = 'ETH'
-            elif interface == '--epp':
-                inter = 'EPP'
-            else:
-                inter = 'PCI'
+            if not info:
+                text = [_('PIN file is empty:\n')]
+                text.append(_('To use PIN file discovery mode, the contents of the'))
+                text.append(_('cards PIN file needs to be pasted into the Input tab'))
+                text.append(_('of the Help window before clicking Board Discovery'))
+                self.warning_dialog("\n".join(text),True)
+                return None
             info = info + "\n {}".format(inter)
         else:
+            if not name:
+                self.warning_dialog('Card Name is required',True)
+                return None
+            elif inter == 'ETH' and not address:
+                self.warning_dialog(_('Address is required for ethernet card'),True)
+                return None
             info = self.call_mesaflash(name,interface,address)
         print('INFO:',info,'<-')
         if info is None: return None
         lines = info.splitlines()
         try:
-            if 'ERROR' in lines[0]:
+            if 'No' in lines[0] and 'board found' in lines[0]:
+                text = [_("%s board was not found"%name)]
+                if inter == 'ETH':
+                    text.append(_("Is the address correct?"))
+                self.warning_dialog("\n".join(text),True)
+                return None
+            elif 'Unsupported device' in lines[0]:
+                text = _("%s is an unsupported device"%name)
+                self.warning_dialog(text,True)
+                return None
+            elif 'ERROR' in lines[0]:
                 raise ValueError('Mesaflash Error')
             elif 'root' in info:
                 raise ValueError('Mesaflash Error')
@@ -1315,11 +1333,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             return None
         except Exception as e:
             print(e)
-            self.warning_dialog('Unspecified Error with Discovery option',True)
-            return
-        if 'No' in lines[0] and 'board found' in lines[0] :
-            text = _("No board was found\n")
-            self.warning_dialog(text,True)
+            self.warning_dialog(_('Unspecified Error with Discovery option'),True)
             return None
         return info
 
@@ -1409,180 +1423,192 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         sserial=[]
         ssflag = pinsflag = True
         dev7i77flag = dev7i76flag = False
-        for l_num,i in enumerate(lines):
-            i = i.lstrip()
-            temp2 = i.split(" ")
-            #print(i,temp2)
-            if 'BOARDNAME' in i:
-                BOARDNAME = temp2[2].lstrip('MESA').lower()
-                # 7i76e thinks it is a 7i76, set it straight
-                if BOARDNAME == '7i76' and 'ETH' in info:
-                    BOARDNAME = '7i76e'
-                # 7i96s thinks it is a 7i96, set it straight
-                if BOARDNAME == '7i96' and '20 KGATES' in info:
-                    BOARDNAME = '7i96s'
-                add_text(ELEMENT,'BOARDNAME',BOARDNAME)
-            if 'ETH' in i:
-                DRIVER = 'hm2_eth'
-            elif 'PCI' in i:
-                DRIVER = 'hm2_pci'
-            elif 'EPP' in i:
-                if '7i43' in BOARDNAME.lower():
-                    DRIVER = 'hm2_7i43'
-                else:
-                    DRIVER = 'hm2_7i90'
-            if 'DEVICE AT' in i:
-                if ssflag:
-                    n1 = add_element(ELEMENT,'SSERIALDEVICES')
-                    ssflag = False
-                for num,i in enumerate(temp2):
-                    if i =="CHANNEL":
-                        sserial.append((temp2[num+1].strip(':'),temp2[num+2]))
-                        n2 = add_element(n1,'SSERIALFUNCTION')
-                        add_text(n2,'PORT','0')
-                        add_text(n2,'CHANNEL',temp2[num+1].strip(':'))
-                        add_text(n2,'DEVICE',temp2[num+2])
-                        if '7I77' in(temp2[num+2]):
-                            dev7i77flag = True
-                        elif '7I76' in(temp2[num+2]):
-                            dev7i76flag = True
-            if 'SSLBP CHANNELS:' in i:
-                NUMSSCHANNELS = temp2[2]
-            if 'CLOCK LOW FREQUENCY: ' in i:
-                add_text(ELEMENT,'CLOCKLOW',str(int(float(temp2[3])*1000000)))
-            if 'CLOCK HIGH FREQUENCY:' in i:
-                add_text(ELEMENT,'CLOCKHIGH',str(int(float(temp2[3])*1000000)))
-            if 'NUMBER OF IO PORTS:' in i:
-                NUMCONS = temp2[4]
-                add_text(ELEMENT,'IOPORTS',NUMCONS)
-            if 'WIDTH OF ONE I/O PORT:' in i:
-                NUMCONPINS = temp2[5]
-                add_text(ELEMENT,'PORTWIDTH',NUMCONPINS)
-
-            if 'MODULES IN CONFIGURATION:' in i:
-                mod_ele = add_element(ELEMENT,'modules')
-                modflag = True
-            if 'MODULE: WATCHDOG' in i:
-                tline = lines[l_num+1].split(" ")
-                new = add_element(mod_ele,'module')
-                add_text(new,'tagname','WATCHDOG')
-                add_text(new,'numinstances',tline[4].lstrip())
-            if 'MODULE: QCOUNT' in i:
-                tline = lines[l_num+1].split(" ")
-                ENCODERS = tline[4].lstrip()
-                new = add_element(mod_ele,'module')
-                add_text(new,'tagname','QCOUNT')
-                add_text(new,'numinstances',tline[4].lstrip())
-
-            if 'MODULE: MUXEDQCOUNTSEL' in i:
-                continue
-            if 'MODULE: MUXEDQCOUNT' in i:
-                tline = lines[l_num+1].split(" ")
-                MUXENCODERS = tline[4].lstrip()
-                new = add_element(mod_ele,'module')
-                add_text(new,'tagname','MUXEDQCOUNT')
-                add_text(new,'numinstances',tline[4].lstrip())
-            if 'MODULE: SSERIAL' in i:
-                tline = lines[l_num+1].split(" ")
-                SSERIALPORTS = tline[4].lstrip()
-                new = add_element(mod_ele,'module')
-                add_text(new,'tagname','SSERIAL')
-                add_text(new,'numinstances',tline[4].lstrip())
-            if 'MODULE: RESOLVERMOD' in i:
-                tline = lines[l_num+1].split(" ")
-                RESOLVER = tline[4].lstrip()
-                new = add_element(mod_ele,'module')
-                add_text(new,'tagname','RESOLVERMOD')
-                add_text(new,'numinstances',tline[4].lstrip())
-            if 'MODULE: PWM' in i:
-                tline = lines[l_num+1].split(" ")
-                PWMGENS = tline[4].lstrip()
-                new = add_element(mod_ele,'module')
-                add_text(new,'tagname','PWMGEN')
-                add_text(new,'numinstances',tline[4].lstrip())
-            if 'MODULE: TPPWM' in i:
-                tline = lines[l_num+1].split(" ")
-                TPPWMGENS = tline[4].lstrip()
-                new = add_element(mod_ele,'module')
-                add_text(new,'tagname','TPPWMGEN')
-                add_text(new,'numinstances',tline[4].lstrip())
-            if 'MODULE: STEPGEN' in i:
-                tline = lines[l_num+1].split(" ")
-                STEPGENS = tline[4].lstrip()
-                new = add_element(mod_ele,'module')
-                add_text(new,'tagname','STEPGEN')
-                add_text(new,'numinstances',tline[4].lstrip())
-            if 'MODULE: LED' in i:
-                tline = lines[l_num+1].split(" ")
-                LEDS = tline[4].lstrip()
-                new = add_element(mod_ele,'module')
-                add_text(new,'tagname','LED')
-                add_text(new,'numinstances',tline[4].lstrip())
-            if 'MODULE: SSR' in i:
-                tline = lines[l_num+1].split(" ")
-                SSRS = tline[4].lstrip()
-                new = add_element(mod_ele,'module')
-                add_text(new,'tagname','SSR')
-                add_text(new,'numinstances',tline[4].lstrip())
-            if 'MODULE: OUTM' in i:
-                tline = lines[l_num+1].split(" ")
-                OUTMS = tline[4].lstrip()
-                new = add_element(mod_ele,'module')
-                add_text(new,'tagname','OUTM')
-                add_text(new,'numinstances',tline[4].lstrip())
-            if 'MODULE: INM' in i:
-                tline = lines[l_num+1].split(" ")
-                INMS = tline[4].lstrip()
-                new = add_element(mod_ele,'module')
-                add_text(new,'tagname','INM')
-                add_text(new,'numinstances',tline[4].lstrip())
-            if 'IO CONNECTIONS FOR' in i:
-                if pinsflag:
-                    n1 = add_element(ELEMENT,'pins')
-                    pinsflag = False
-                CON = temp2[3]
-                print(CON)
-                for num in range(l_num+3,l_num+3+int(NUMCONPINS)):
-                    CHAN = PINFNCTN = ''
-                    pin_line = ' '.join(lines[num].split()).split()
-                    PINNO = pin_line[0]
-                    IO = pin_line[1]
-                    SECFNCTN = pin_line[3]
-                    n2 = add_element(n1,'pin')
-                    add_text(n2,'index',IO)
-                    add_text(n2,'connector',CON)
-                    add_text(n2,'pinno',PINNO)
-                    add_text(n2,'secondarymodulename',SECFNCTN)
-                    if not SECFNCTN == 'NONE':
-                        CHAN = pin_line[4]
-                        PINFNCTN = pin_line[5]
-                        if PINFNCTN in("TXDATA1","TXDATA2","TXDATA3",
-                            "TXDATA4","TXDATA5","TXDATA6","TXDATA7","TXDATA8"):
-                            num = int(PINFNCTN[6])-1
-                            print(num)
-                            for idnum,dev in sserial:
-                                print(idnum,dev,num)
-                                if int(idnum) == num:
-                                    NEW_FNCTN = '%s-%d'% (dev,num)
-                                    add_text(n2,'foundsserialdevice',NEW_FNCTN)
-                        add_text(n2,'secondaryfunctionname',PINFNCTN)
-                        add_text(n2,'secondaryinstance',CHAN)
+        try:
+            for l_num,i in enumerate(lines):
+                i = i.lstrip()
+                temp2 = i.split(" ")
+                #print(i,temp2)
+                if 'BOARDNAME' in i:
+                    BOARDNAME = temp2[2].lstrip('MESA').lower()
+                    # 7i76e thinks it is a 7i76, set it straight
+                    if BOARDNAME == '7i76' and 'ETH' in info:
+                        BOARDNAME = '7i76e'
+                    # 7i96s thinks it is a 7i96, set it straight
+                    if BOARDNAME == '7i96' and '20 KGATES' in info:
+                        BOARDNAME = '7i96s'
+                    add_text(ELEMENT,'BOARDNAME',BOARDNAME)
+                if 'ETH' in i:
+                    DRIVER = 'hm2_eth'
+                elif 'PCI' in i:
+                    DRIVER = 'hm2_pci'
+                elif 'EPP' in i:
+                    if '7i43' in BOARDNAME.lower():
+                        DRIVER = 'hm2_7i43'
                     else:
-                        add_text(n2,'secondaryfunctionname','NOT USED')
+                        DRIVER = 'hm2_7i90'
+                if 'DEVICE AT' in i:
+                    if ssflag:
+                        n1 = add_element(ELEMENT,'SSERIALDEVICES')
+                        ssflag = False
+                    for num,i in enumerate(temp2):
+                        if i =="CHANNEL":
+                            sserial.append((temp2[num+1].strip(':'),temp2[num+2]))
+                            n2 = add_element(n1,'SSERIALFUNCTION')
+                            add_text(n2,'PORT','0')
+                            add_text(n2,'CHANNEL',temp2[num+1].strip(':'))
+                            add_text(n2,'DEVICE',temp2[num+2])
+                            if '7I77' in(temp2[num+2]):
+                                dev7i77flag = True
+                            elif '7I76' in(temp2[num+2]):
+                                dev7i76flag = True
+                if 'SSLBP CHANNELS:' in i:
+                    NUMSSCHANNELS = temp2[2]
+                if 'CLOCK LOW FREQUENCY: ' in i:
+                    add_text(ELEMENT,'CLOCKLOW',str(int(float(temp2[3])*1000000)))
+                if 'CLOCK HIGH FREQUENCY:' in i:
+                    add_text(ELEMENT,'CLOCKHIGH',str(int(float(temp2[3])*1000000)))
+                if 'NUMBER OF IO PORTS:' in i:
+                    NUMCONS = temp2[4]
+                    add_text(ELEMENT,'IOPORTS',NUMCONS)
+                if 'WIDTH OF ONE I/O PORT:' in i:
+                    NUMCONPINS = temp2[5]
+                    add_text(ELEMENT,'PORTWIDTH',NUMCONPINS)
 
-                    print('    I/O ',IO, ' function ',SECFNCTN,' CHANNEL:',CHAN,'PINFUNCTION:',PINFNCTN)
+                if 'MODULES IN CONFIGURATION:' in i:
+                    mod_ele = add_element(ELEMENT,'modules')
+                    modflag = True
+                if 'MODULE: WATCHDOG' in i:
+                    tline = lines[l_num+1].split(" ")
+                    new = add_element(mod_ele,'module')
+                    add_text(new,'tagname','WATCHDOG')
+                    add_text(new,'numinstances',tline[4].lstrip())
+                if 'MODULE: QCOUNT' in i:
+                    tline = lines[l_num+1].split(" ")
+                    ENCODERS = tline[4].lstrip()
+                    new = add_element(mod_ele,'module')
+                    add_text(new,'tagname','QCOUNT')
+                    add_text(new,'numinstances',tline[4].lstrip())
 
-        print('Sserial CARDS FOUND:',sserial)
-        print(NUMCONS,NUMCONPINS,ENCODERS,MUXENCODERS,SSERIALPORTS,NUMSSCHANNELS)
-        print(RESOLVERS,PWMGENS,LEDS,SSRS,OUTMS,INMS)
-        firmname = "~/mesa%d_discovered.xml"%boardnum
-        filename = os.path.expanduser(firmname)
-        DOC.writexml(open(filename, "w"), addindent="  ", newl="\n")
-        return DRIVER, BOARDNAME, firmname, filename
+                if 'MODULE: MUXEDQCOUNTSEL' in i:
+                    continue
+                if 'MODULE: MUXEDQCOUNT' in i:
+                    tline = lines[l_num+1].split(" ")
+                    MUXENCODERS = tline[4].lstrip()
+                    new = add_element(mod_ele,'module')
+                    add_text(new,'tagname','MUXEDQCOUNT')
+                    add_text(new,'numinstances',tline[4].lstrip())
+                if 'MODULE: SSERIAL' in i:
+                    tline = lines[l_num+1].split(" ")
+                    SSERIALPORTS = tline[4].lstrip()
+                    new = add_element(mod_ele,'module')
+                    add_text(new,'tagname','SSERIAL')
+                    add_text(new,'numinstances',tline[4].lstrip())
+                if 'MODULE: RESOLVERMOD' in i:
+                    tline = lines[l_num+1].split(" ")
+                    RESOLVER = tline[4].lstrip()
+                    new = add_element(mod_ele,'module')
+                    add_text(new,'tagname','RESOLVERMOD')
+                    add_text(new,'numinstances',tline[4].lstrip())
+                if 'MODULE: PWM' in i:
+                    tline = lines[l_num+1].split(" ")
+                    PWMGENS = tline[4].lstrip()
+                    new = add_element(mod_ele,'module')
+                    add_text(new,'tagname','PWMGEN')
+                    add_text(new,'numinstances',tline[4].lstrip())
+                if 'MODULE: TPPWM' in i:
+                    tline = lines[l_num+1].split(" ")
+                    TPPWMGENS = tline[4].lstrip()
+                    new = add_element(mod_ele,'module')
+                    add_text(new,'tagname','TPPWMGEN')
+                    add_text(new,'numinstances',tline[4].lstrip())
+                if 'MODULE: STEPGEN' in i:
+                    tline = lines[l_num+1].split(" ")
+                    STEPGENS = tline[4].lstrip()
+                    new = add_element(mod_ele,'module')
+                    add_text(new,'tagname','STEPGEN')
+                    add_text(new,'numinstances',tline[4].lstrip())
+                if 'MODULE: LED' in i:
+                    tline = lines[l_num+1].split(" ")
+                    LEDS = tline[4].lstrip()
+                    new = add_element(mod_ele,'module')
+                    add_text(new,'tagname','LED')
+                    add_text(new,'numinstances',tline[4].lstrip())
+                if 'MODULE: SSR' in i:
+                    tline = lines[l_num+1].split(" ")
+                    SSRS = tline[4].lstrip()
+                    new = add_element(mod_ele,'module')
+                    add_text(new,'tagname','SSR')
+                    add_text(new,'numinstances',tline[4].lstrip())
+                if 'MODULE: OUTM' in i:
+                    tline = lines[l_num+1].split(" ")
+                    OUTMS = tline[4].lstrip()
+                    new = add_element(mod_ele,'module')
+                    add_text(new,'tagname','OUTM')
+                    add_text(new,'numinstances',tline[4].lstrip())
+                if 'MODULE: INM' in i:
+                    tline = lines[l_num+1].split(" ")
+                    INMS = tline[4].lstrip()
+                    new = add_element(mod_ele,'module')
+                    add_text(new,'tagname','INM')
+                    add_text(new,'numinstances',tline[4].lstrip())
+                if 'IO CONNECTIONS FOR' in i:
+                    if pinsflag:
+                        n1 = add_element(ELEMENT,'pins')
+                        pinsflag = False
+                    CON = temp2[3]
+                    print(CON)
+                    for num in range(l_num+3,l_num+3+int(NUMCONPINS)):
+                        CHAN = PINFNCTN = ''
+                        pin_line = ' '.join(lines[num].split()).split()
+                        PINNO = pin_line[0]
+                        IO = pin_line[1]
+                        SECFNCTN = pin_line[3]
+                        n2 = add_element(n1,'pin')
+                        add_text(n2,'index',IO)
+                        add_text(n2,'connector',CON)
+                        add_text(n2,'pinno',PINNO)
+                        add_text(n2,'secondarymodulename',SECFNCTN)
+                        if not SECFNCTN == 'NONE':
+                            CHAN = pin_line[4]
+                            PINFNCTN = pin_line[5]
+                            if PINFNCTN in("TXDATA1","TXDATA2","TXDATA3",
+                                "TXDATA4","TXDATA5","TXDATA6","TXDATA7","TXDATA8"):
+                                num = int(PINFNCTN[6])-1
+                                print(num)
+                                for idnum,dev in sserial:
+                                    print(idnum,dev,num)
+                                    if int(idnum) == num:
+                                        NEW_FNCTN = '%s-%d'% (dev,num)
+                                        add_text(n2,'foundsserialdevice',NEW_FNCTN)
+                            add_text(n2,'secondaryfunctionname',PINFNCTN)
+                            add_text(n2,'secondaryinstance',CHAN)
+                        else:
+                            add_text(n2,'secondaryfunctionname','NOT USED')
+
+                        print('    I/O ',IO, ' function ',SECFNCTN,' CHANNEL:',CHAN,'PINFUNCTION:',PINFNCTN)
+
+            print('Sserial CARDS FOUND:',sserial)
+            print(NUMCONS,NUMCONPINS,ENCODERS,MUXENCODERS,SSERIALPORTS,NUMSSCHANNELS)
+            print(RESOLVERS,PWMGENS,LEDS,SSRS,OUTMS,INMS)
+            firmname = "~/mesa%d_discovered.xml"%boardnum
+            filename = os.path.expanduser(firmname)
+            DOC.writexml(open(filename, "w"), addindent="  ", newl="\n")
+            return DRIVER, BOARDNAME, firmname, filename
+        except:
+            #print('Invalid data in parse_discovery')
+            return None, None, None, None
 
     # update all the firmware/boardname arrays and comboboxes
     def discovery_selection_update(self, info, bdnum):
         driver, boardname, firmname, path = self.parse_discovery(info,boardnum=bdnum)
+        if not driver or not boardname or not firmname or not path:
+            text = ['Data is invalid:\n']
+            if self.widgets.discovery_read_option.get_active():
+                text.append(_('The pasted PIN file may be an invalid format'))
+            else:
+                text.append(_('The data returned from discovery is invalid'))
+            self.warning_dialog("\n".join(text),True)
+            return
         print(driver, boardname, firmname, path)
         boardname = 'Discovered:%s'% boardname
         firmdata = self.parse_xml( driver,boardname,firmname,path,bdnum)
