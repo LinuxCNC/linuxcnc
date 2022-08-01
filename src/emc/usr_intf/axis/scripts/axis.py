@@ -1069,6 +1069,15 @@ class AxisCanon(GLCanon, StatMixin):
         self.progress = progress
         self.aborted = False
         self.arcdivision = arcdivision
+        self.timeout_time = None
+
+    def set_timeout(self, timeout):
+        '''Abort loading of G-code if it takes more than timeout seconds from
+        the time this method was called. Set timeout to None to disable.'''
+        if timeout is None or timeout <= 0:
+            self.timeout_time = None
+        else:
+            self.timeout_time = time.time() + timeout
 
     def change_tool(self, pocket):
         GLCanon.change_tool(self, pocket)
@@ -1081,6 +1090,11 @@ class AxisCanon(GLCanon, StatMixin):
 
     def check_abort(self):
         root_window.update()
+
+        if self.timeout_time is not None and self.timeout_time < time.time():
+            notifications.add("info", _("G-code preview loading timed out"))
+            self.aborted = True
+
         if self.aborted: raise KeyboardInterrupt
 
     def next_line(self, st):
@@ -1216,6 +1230,10 @@ def open_file_guts(f, filtered=False, addrecent=True):
         if os.path.exists(parameter):
             shutil.copy(parameter, temp_parameter)
         canon.parameter_file = temp_parameter
+
+        timeout = inifile.find("DISPLAY", "PREVIEW_TIMEOUT") or ""
+        if timeout:
+            canon.set_timeout(float(timeout))
 
         initcode = inifile.find("EMC", "RS274NGC_STARTUP_CODE") or ""
         if initcode == "":
