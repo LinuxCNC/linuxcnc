@@ -37,13 +37,23 @@ For more information on INI file settings that can change how AXIS
 works see the <<sub:ini:sec:display,Display Section>> of the INI
 Configuration Chapter.
 
-Adjust the response rate of the GUI in milliseconds. Typical 100, useable range 50 - 200 +
+* 'CYCLE_TIME' - Adjust the response rate of the GUI in milliseconds. Typical 100, useable range 50 - 200 +
 (will accept time in seconds (.05 -.2) for legacy reasons - milliseconds preferred to match other screens).
-
++
 [source,{ini}]
 ----
 [DISPLAY]
 CYCLE_TIME = 100
+----
+
+* 'PREVIEW_TIMEOUT' - Set timeout in seconds for loading G-code preview.
+If parsing the G-code lasts longer than this, a notice is shown and only the initial part of the program
+is drawn in the graphical display. Specifying 0 or leaving the setting out results in no timeout.
++
+[source,{ini}]
+----
+[DISPLAY]
+PREVIEW_TIMEOUT = 5
 ----
 
 === A Typical Session
