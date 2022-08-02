@@ -696,9 +696,9 @@ false, and any non-zero number is equivalent to logical true.
 |====
 |Operators         | Precedence
 |**                | 'highest'
-|* / MOD           | 
-|+ -               | 
-|EQ NE GT GE LT LE | 
+|* / MOD           |
+|+ -               |
+|EQ NE GT GE LT LE |
 |AND OR XOR        | 'lowest'
 |====
 
@@ -853,7 +853,7 @@ position but it is cumulative.
 This can be confusing at first how this works in incremental mode.
 
 For example if you have the following program you might expect it to
-be a square pattern.
+be a square pattern:
 
 [source,{ngc}]
 ----
@@ -1002,7 +1002,7 @@ A comment introduced by a semicolon is by definition the last comment
 on that line, and will always be interpreted for active comment syntax.
 
 NOTE: Inline comments on O words should not be used see the O Code
-<<ocode:comments, comments>> section for more information.
+<<ocode:comments,comments>> section for more information.
 
 [[gcode:messages]]
 == Messages(((Messages)))

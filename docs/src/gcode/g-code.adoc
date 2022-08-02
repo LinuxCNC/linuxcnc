@@ -1929,17 +1929,17 @@ from the hole.
 
 It is an error if:
 
-* The active plane is not the ZX plane
-* Other axis words, such as X- or Y-, are specified
+* The active plane is not the ZX plane.
+* Other axis words, such as X- or Y-, are specified.
 * The 'R-' degression value is less than 1.0.
-* All the required words are not specified
-* 'P-', 'J-', 'K-' or 'H-' is negative
-* 'E-' is greater than half the drive line length
+* All the required words are not specified.
+* 'P-', 'J-', 'K-' or 'H-' is negative.
+* 'E-' is greater than half the drive line length.
 
 .HAL Connections
 The pins 'spindle.N.at-speed' and the 'encoder.n.phase-Z' for the
 spindle must be connected in your HAL file before G76 will work.
-See the <<sec:motion-pins, spindle>> pins in the Motion section for more
+See the <<sec:motion-pins,spindle>> pins in the Motion section for more
 information.
 
 .Technical Info
@@ -2063,7 +2063,7 @@ the Z axis does a <<gcode:g0,rapid move>> to the R position. This happens
 only once, regardless of the value of L.
 
 In addition, at the beginning of the first cycle and each repeat, the
-following one or two moves are made
+following one or two moves are made:
 
 * A <<gcode:g0,rapid move>> parallel to the XY-plane to
   the given XY-position.
@@ -2088,7 +2088,7 @@ it drill in the same order as the earlier example. But the program
 writing economy of a good canned cycle should be obvious.
 
 [NOTE]
-Line numbers are not needed but help clarify these examples
+Line numbers are not needed but help clarify these examples.
 
 .Eight Holes
 

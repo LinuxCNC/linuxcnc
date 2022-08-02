@@ -158,7 +158,7 @@ the <<sec:manual-tool-change,Manual Tool Change>> section.
 === Tool Changer
 
 To change a tool in the spindle from the tool currently in the spindle
-to the tool most recently selected (using a T word - see Section
+to the tool most recently selected (using a T word - see section
 <<sec:select-tool,Select Tool>>), program 'M6'.
 When the tool change is complete:
 
@@ -188,7 +188,7 @@ It is OK if there is no tool in the selected slot;
 in that case, the spindle will be empty after the tool change.
 If slot zero was last selected,
 there will definitely be no tool in the spindle after a tool change. The tool
-changer will have to be setup to perform the tool change in hal and possibly
+changer will have to be setup to perform the tool change in HAL and possibly
 classicladder.
 
 [[mcode:m7-m8-m9]]
@@ -264,7 +264,7 @@ spindle they operate on.
 
 It is OK to enable or disable the controls when
 they are already enabled or disabled.
-See the <<sub:feed-rate,Feed Rate>> Section for more details.
+See the <<sub:feed-rate,Feed Rate>> HAL for more details.
 
 They also can be be toggled individually using 'M50' and 'M51',
 see below.
@@ -290,7 +290,7 @@ and the motion will be executed at programmed feed rate.
 While disabled the spindle speed override will have
 no influence, and the spindle speed will have the
 exact program specified value of the S-word
-(described in <<sec:set-spindle-speed,Spindle Speed>> Section).
+(described in the <<sec:set-spindle-speed,Spindle Speed>> section).
 
 [[mcode:m52]]
 == M52 Adaptive Feed Control(((M52 Adaptive Feed Control)))
@@ -348,7 +348,7 @@ It is an error if:
 The P- word specifies the digital output number.
 The P-word ranges from 0 to a default value of 3. If needed the the
 number of I/O can be increased by using the num_dio parameter when loading
-the motion controller. See the <<sec:motion,Motion Section>> for more
+the motion controller. See the <<sec:motion,Motion>> section for more
 information.
 
 The M62 & M63 commands will be queued. Subsequent commands referring
@@ -367,7 +367,7 @@ break blending.
 
 [NOTE]
 M62-65 will not function unless the appropriate motion.digital-out-nn pins are
-connected in your hal file to outputs.
+connected in your HAL file to outputs.
 
 [[mcode:m66]]
 == M66 Wait on Input(((M66 Wait on Input)))
@@ -408,12 +408,12 @@ inputs are not monitored in real time and thus should not be used for
 timing-critical applications.
 
 The number of I/O can be increased by using the num_dio or num_aio parameter
-when loading the motion controller. See the <<sec:motion,Motion Section>>
+when loading the motion controller. See the <<sec:motion,Motion>> section
 for more information.
 
 [NOTE]
 M66 will not function unless the appropriate motion.digital-in-nn pins or
-motion.analog-in-nn pins are connected in your hal file to an input.
+motion.analog-in-nn pins are connected in your HAL file to an input.
 
 .Example HAL Connection
 ----
@@ -439,12 +439,12 @@ program a motion G-code (G0, G1, etc) right after the M67. M67 functions
 the same as M62-63.
 
 The number of I/O can be increased by using the num_dio or num_aio parameter
-when loading the motion controller. See the <<sec:motion,Motion Section>> for
+when loading the motion controller. See the <<sec:motion,Motion>> section for
 more information.
 
 [NOTE]
 M67 will not function unless the appropriate motion.analog-out-nn pins are
-connected in your hal file to outputs.
+connected in your HAL file to outputs.
 
 [[mcode:m68]]
 == M68 Analog Output, Immediate(((M68 Analog Output)))
@@ -463,12 +463,12 @@ controller. They are not synchronized with movement, and they will
 break blending. M68 functions the same as M64-65.
 
 The number of I/O can be increased by using the num_dio or num_aio parameter
-when loading the motion controller. See the <<sec:motion,Motion Section>> for
+when loading the motion controller. See the <<sec:motion,Motion>> section for
 more information.
 
 [NOTE]
 M68 will not function unless the appropriate motion.analog-out-nn pins are
-connected in your hal file to outputs.
+connected in your HAL file to outputs.
 
 [[mcode:m70]]
 == M70 Save Modal State(((M70 Save Modal State)))
@@ -696,10 +696,10 @@ found in directory pointed by '[DISPLAY] PROGRAM_PREFIX'
 parameter of the INI file) is executed with the optional P and Q values
 as its two arguments.
 
-Execution of the G code file pauses until the external program exits.
+Execution of the G-code file pauses until the external program exits.
 Any valid executable file can be used. The file must be located in the search
 path specified in the ini file configuration.
-See the <<sub:ini:sec:display,Display Section>> for more information on search paths.
+See the <<sub:ini:sec:display,Display>> section for more information on search paths.
 
 After creating a new M1nn program, the GUI should be restarted so that the
 new program is taken into account, otherwise a 'Unknown M-code' error will occur.
@@ -710,7 +710,7 @@ will leave unseen codes that will cause problems and may prevent a bash or
 python file from working. Use a text editor like Geany in Debian or Notepad++
 in other operating systems to create or edit the files.
 
-The error 'Unknown M code used' denotes one of the following:
+The error 'Unknown M-code used' denotes one of the following:
 
 * The specified User Defined Command does not exist
 * The file is not an executable file
