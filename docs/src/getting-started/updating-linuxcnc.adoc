@@ -37,10 +37,10 @@ removable media and performing a
 <<cha:getting-linuxcnc,clean install of a newer OS and LinuxCNC version>>
 as these releases were EOL in 2017 and 2018 respectively.
 If you are running on Ubuntu Lucid then you will have to do this, as
-Lucid is no longer supported by LinuxCNC (it was EOL in 2013)
+Lucid is no longer supported by LinuxCNC (it was EOL in 2013).
 
 To upgrade major versions like 2.7 to 2.8 when you have a network connection at
-the machine you need to disable the old linuxcnc.org apt sources and add a new
+the machine you need to disable the old linuxcnc.org apt sources in the file /etc/apt/sources.list  and add a new
 linuxcnc.org apt source for 2.7, then upgrade LinuxCNC.
 
 The details will depend on which platform you're running on.  Open a
@@ -153,12 +153,12 @@ Debian Wheezy and Stretch both use the Synaptic Package Manager.
 [[getting-started:update-no-network]]
 == Updating without Network
 
-To update without a network connection you need to download the deb then install
-it with dpkg. The debs can be found in http://linuxcnc.org/dists/
+To update without a network connection you need to download the .deb then install
+it with dpkg. The .debs can be found in http://linuxcnc.org/dists/ .
 
 You have to drill down from the above link to find the correct deb for your
 installation. Open a <<faq:terminal,terminal>> and type in 'lsb_release -ic'
-to find the name of your OS.
+to find the release name of your OS.
 
 ----
 > lsb_release -ic
@@ -169,7 +169,8 @@ Codename:       buster
 Pick the OS from the list then pick the major version you want like
 2.8-rt for RTAI or 2.8-rtpreempt for preempt-rt.
 
-Next pick the type of computer you have: binary-amd64 for any 64-bit x86, binary-i386 for 32 bit, binary-armhf for RaspBerry Pi.
+Next pick the type of computer you have: binary-amd64 for any 64-bit x86,
+binary-i386 for 32 bit, binary-armhf (32bit) or binary-arm64 (64bit) for Raspberry Pi.
 
 Next pick the version you want from the bottom of the list like
 'linuxcnc-uspace_2.8.0_amd64.deb' (choose the latest by date).
@@ -207,12 +208,12 @@ changes required for the joints_axes updates.
 
 === Automatic updates (update_ini script for joints_axes)
 
-Since the joints_axes updates require a number of changes to user ini files and
-their related halfiles, a script named update_ini is provided to automatically
+Since the joints_axes updates require a number of changes to user INI files and
+their related HAL files, a script named update_ini is provided to automatically
 convert user configurations.
 
 This script is invoked when a user starts an existing configuration for the
-first time after updating LinuxCNC. The script searches the user ini file for
+first time after updating LinuxCNC. The script searches the user INI file for
 a [EMC]VERSION item. If this item 1) does not exist, or 2) exists and is set
 to the historical CVS value "$Revision$", or is a numerical value less than
 1.1, then the update_ini script will popup a dialog to offer to edit the user
@@ -220,7 +221,7 @@ files to create an updated configuration. If the user accepts, the
 configuration will be updated.
 
 For example, if the user configuration is named bigmill.ini, the bigmill.ini file
-and its local associated hal files will be edited to incorporate joints_axes
+and its local associated HAL files will be edited to incorporate joints_axes
 changes. All files of the initial configuration will be saved in a new directory
 named after the original configuration with a ".old" suffix (bigmill.old in the
 example).
@@ -236,16 +237,16 @@ configurations include:
 * configurations using haltcl files
 
 The following subsections and the section for 'Hal Changes' list items that
-may require additional user edits to ini or hal files.
+may require additional user edits to INI or HAL files.
 
 === Multiple Spindle Support
 
-LinuxCNC now supports up to 8 spindles (and can be recompiled for more)
+LinuxCNC now supports up to 8 spindles (and can be recompiled for more).
 Existing G-code will run without modification and most configurations
 will default to single spindles. To specify more than one spindle
 set the [TRAJ]SPINDLES= entry in the INI file *and* include the num_spindles=
 parameter for the motion module (set with either [EMCMOT]EMCMOT = motmod num_spindles=
-or included in a halfile loadrt entry for motmod).
+or included in a HAL file loadrt entry for motmod).
 
 The motion module num_spindles= parameter and the [TRAJ]SPINDLES= settings
 *must* match.
@@ -305,7 +306,7 @@ was: loadrt gantrykins coordinates=xyyz
 See the trivkins man page for additional information ('$ man trivkins')
 
 Note: the most supported usage for specifying kinematics in joints_axes
-is to set values in the configuration ini file [KINS] section and then
+is to set values in the configuration INI file [KINS] section and then
 reference them within the specified [HAL]HALFILES ( .hal .tcl files). For
 example:
 
@@ -333,10 +334,10 @@ Historical lathe configurations used the default options for the trivkins
 kinematics module. These default options configure all axis letters
 (XYZABCUVW). With joints_axes incorporation, a more appropriate kinematics
 specification sets the coordinates to the exact ones used (XZ) and sets the
-number of joints accordingly to 2.  There is no need for an ini file [AXIS_Y]
+number of joints accordingly to 2.  There is no need for an INI file [AXIS_Y]
 section and only two [JOINT_N] sections need be defined.
 
-Example ini file items for a lathe (only sections relevant to kinematics
+Example INI file items for a lathe (only sections relevant to kinematics
 are shown):
 
 [source,{ini}]
@@ -437,13 +438,13 @@ Note: Custom kinematics modules that implement non-identity kinematics (like
 lineardeltakins) define machine-specific relationships between a set
 of coordinates and a set of joints.  Typically, custom kinematics modules
 compute the joints-axes relationships within the custom module but it is
-important to use consistent settings for the related ini items: '[KINS]JOINTS'
+important to use consistent settings for the related INI items: '[KINS]JOINTS'
 and '[TRAJ]COORDINATES'.  The details will usually be explained in the
 module man page (for example, '$ man lineardeltakins').
 
 === Home sequences
 
-*Negative* values may be used for the ini file items
+*Negative* values may be used for the INI file items
 named [JOINT_n]HOME_SEQUENCE.  Prior to joints_axes incorporation a value
 of -1 or the omission of the item indicated no sequence was applicable.
 Now, only omission of the item is used for that purpose.
@@ -457,14 +458,14 @@ but must also be unlocked from G-code.  This requires a one-to-one
 correspondence between a single joint and an axis.
 
 Specify the joint number that corresponds to a rotary axis (L = A,B, or C)
-with an ini file setting for the axis:
+with an INI file setting for the axis:
 
 [source,{ini}]
 ----
 [AXIS_L]LOCKING_INDEXER_JOINT = joint_number_for_indexer
 ----
 
-Specify that the joint is a locking indexer with an ini file setting
+Specify that the joint is a locking indexer with an INI file setting
 for the joint (N is the joint_number_for_indexer):
 
 [source,{ini}]
@@ -479,7 +480,7 @@ joint.N.unlock      (BIT output from Hal)
 joint.N.is-unlocked (BIT input  to   Hal)
 ----
 
-To create these hal pins for locking joints, specify all joints that
+To create these HAL pins for locking joints, specify all joints that
 are used as locking indexers with the 'unlock_joints_mask' parameter for
 the motmod module.  (bit0(LSB)==>joint0, bit1==>joint1, etc.)
 
@@ -495,7 +496,7 @@ with 0) are assigned consecutively to the coordinates specified (axis
 coordinate letters may be omitted).  For this example, X==>joint0, Y==>joint1,
 Z==>joint2, B==>joint3.  The mask to specify joint 3 is 000001000 (binary) == 0x08 (hexadecimal)
 
-The required ini file entries for this trivkins XYZB example are:
+The required INI file entries for this trivkins XYZB example are:
 
 [source,{ini}]
 ----
@@ -589,7 +590,7 @@ accelerations has not been implemented.
 === Wheel or MPG (manual pulse generator) jogging
 
 Prior to incorporation of joints_axes updates, wheel jogging was
-supported in joint mode only and controlled with hal pins:
+supported in joint mode only and controlled with HAL pins:
 
 ----
 bit   IN  axis.M.jog-enable
@@ -602,7 +603,7 @@ where 'M' is a number corresponding to an axis letter (0==>X, 1==>Y, etc.)
 
 With incorporation of joints_axes updates, wheel jogging is available
 for joints in joint mode and for each axis coordinate in teleop mode.  The
-controlling hal pins provided are:
+controlling HAL pins provided are:
 
 ----
 bit   IN  joint.N.jog-enable
@@ -620,7 +621,7 @@ where 'N' is a joint number and 'L' is an axis letter.
 
 To use an MPG in identity kins configurations where there is a one-to-one
 correspondence of a joint number and an axis letter, it may be convenient to
-connect the corresponding hal pins.  For example, if joint 1 corresponds
+connect the corresponding HAL pins.  For example, if joint 1 corresponds
 exactly to axis letter y:
 
 [source,{hal}]
@@ -645,7 +646,7 @@ Hal pins are created for ini file items for both joints ([JOINT_N]
 stanzas) and axes ([AXIS_L] stanzas):
 
   For N = 0 ... [KINS](JOINTS -1)
-  Ini File Item              hal pin name
+  Ini File Item              HAL pin name
   [JOINT_N]BACKLASH          ini.N.backlash
   [JOINT_N]FERROR            ini.N.ferror
   [JOINT_N]MIN_FERROR        ini.N.min_ferror
@@ -657,14 +658,14 @@ stanzas) and axes ([AXIS_L] stanzas):
   [JOINT_N]HOME_OFFSET       ini.N.home_offset
 
   For L = x y z a b c u v w:
-  Ini File Item              hal pin name
+  Ini File Item              HAL pin name
   [AXIS_L]MIN_LIMIT          ini.L.min_limit
   [AXIS_L]MAX_LIMIT          ini.L.max_limit
   [AXIS_L]MAX_VELOCITY       ini.L.max_velocity
   [AXIS_L]MAX_ACCELERATION   ini.L.max_acceleration
 
 NOTE: In prior versions of LinuxCNC (before joints_axes updates), the
-hal pin names 'ini.N.*' referred to axes with 0==>x, 1==>y, etc. (pins
+HAL pin names 'ini.N.*' referred to axes with 0==>x, 1==>y, etc. (pins
 were created for all 9 axes) See the man page ('$ man milltask') for
 more information
 
@@ -682,7 +683,7 @@ settable by a command line option -P|--personalities.
 
 === Parameter to Pin changes
 
-The following hal output pins were changed from parameters to pins
+The following HAL output pins were changed from parameters to pins
 so that they can be connected to signals:
 
 ----
@@ -831,7 +832,7 @@ for the joint selected by the halui.joint.N.select pins.
 
 ====  Additional pin renames
 
-The hal pins for 'selected' joints were renamed for consistency
+The HAL pins for 'selected' joints were renamed for consistency
 with related pins.
 
 ----
@@ -967,7 +968,7 @@ teleop mode.
 === `shuttlexpress` driver renamed to `shuttle`
 
 The HAL driver for the Contour Designs ShuttleXpress device has been
-renamed from "shuttlexpress" to just "shuttle".  If your hal files include
+renamed from "shuttlexpress" to just "shuttle".  If your HAL files include
 some variant of "loadusr shuttlexpress", replace "shuttlexpress" with
 "shuttle".
 
@@ -1042,9 +1043,9 @@ and documentation will be available in the git repository.
 
 === Pre-joints_axes
 
-Prior to joints_axes incorporation, the halfiles used in sim configs
+Prior to joints_axes incorporation, the HAL files used in sim configs
 typically supported a common milling machine -- a Cartesian system with
-trivial kinematics and three axes named 'X Y Z'.  Typical halfile
+trivial kinematics and three axes named 'X Y Z'.  Typical HAL file
 entries:
 
 [source,{ini}]
@@ -1056,15 +1057,15 @@ HALFILE = axis_manualtoolchange.hal
 HALFILE = simulated_home.hal
 ----
 
-Lathe configs often shared the same halfiles and used the expedient
+Lathe configs often shared the same HAL files and used the expedient
 method of specifying 3 axes with 'Y' unused.  More complex sim configs
-provided specific sets of halfiles according to the configuration
+provided specific sets of HAL files according to the configuration
 purpose.
 
 === Post-joints_axes
 
 With the incorporation of joints_axes functionality, many sims provided
-in the distribution now take advantage of a general purpose halfile that
+in the distribution now take advantage of a general purpose HAL file that
 supports numerous configurations automatically.  A typical sim config
 HALFILE specification is:
 
@@ -1087,14 +1088,14 @@ JOINTS = number_of_joints
 
 Functions supported include:
 
-. 'ddts' -- differentiator hal components are loaded and connected
+. 'ddts' -- differentiator HAL components are loaded and connected
   for each joint (and xy, xyz for trivkins machines)
-. 'simulated_home' -- a sim_home_switch hal component is loaded and connected for each joint.
+. 'simulated_home' -- a sim_home_switch HAL component is loaded and connected for each joint.
   The homing conditions are specified by the usual [JOINT_n]HOME_* ini file items.
 . 'use_hal_manualtoolchange' -- the user space hal_manualtoolchange
   component is loaded and connected.
 . 'sim_spindle' -- the sim_spindle component is loaded and connected to
-  additional loaded hal components to simulate the inertia of a rotating
+  additional loaded HAL components to simulate the inertia of a rotating
   spindle mass.
 
 The functions are activated by default but can be excluded using
@@ -1113,7 +1114,7 @@ functionality.
 
 ==== Equivalent Hal commands file
 
-When LIB:basic_sim.tcl is used, an equivalent halfile is created (in the
+When LIB:basic_sim.tcl is used, an equivalent HAL file is created (in the
 configuration directory) to show the halcmd commands issued.   The file
 name is based on the name of the inifile with '_cmds' appended to
 the basename and a conventional '.hal' file extension. Example:
@@ -1123,19 +1124,19 @@ inifilename:            example.ini
 equivalent_halfilename: example_cmds.hal
 ----
 
-The equivalent halfile file supersedes previous instances of files with
-the same filename.  Inifile variables substitutions specified in the
+The equivalent HAL file supersedes previous instances of files with
+the same filename.  INI file variables substitutions specified in the
 inifile and interpreted by halcmd are automatically substituted in the
-created halfile.  If there are [HAL]HALFILEs specified before
+created HAL file.  If there are [HAL]HALFILEs specified before
 LIB:basic_sim.tcl, their halcmd commands are included too.
 
-The equivalent halfile can be used to create a new configuration based on
+The equivalent HAL file can be used to create a new configuration based on
 the original configuration made with LIB:basic_sim.tcl with the
 following steps:
 
-. Run the simulator configuration to create a new equivalent halfile, for example: 'example_cmds.hal'.
-. To use this new equivalent halfile in the original simulator
-  configuration inifile (or a copy of it), edit to change:
+. Run the simulator configuration to create a new equivalent HAL file, for example: 'example_cmds.hal'.
+. To use this new equivalent HAL file in the original simulator
+  configuration INI file (or a copy of it), edit to change:
 +
 [source,{ini}]
 ----
@@ -1154,7 +1155,7 @@ HALFILE = ./example_cmds.hal
 ==== Notes
 
 All components and connections made by LIB:basic_sim.tcl can be viewed
-using halcmd.  The entire hal configuration (except for userspace
+using halcmd.  The entire HAL configuration (except for userspace
 components loaded with loadusr) can be saved to a file using:
 
 ----
@@ -1162,7 +1163,7 @@ $ halcmd save > hal.save
 ----
 
 Use of LIB:basic_sim.tcl reduces the effort needed to make a simulation
-config since it handles most of the required component loading and hal
+config since it handles most of the required component loading and HAL
 connections.
 
 The sim config 'Sample Configurations/sim/axis/minimal_xyz.ini'
@@ -1215,7 +1216,7 @@ enabled by the ANDing the pins: 'is-manual' and 'amux-enable'.  These two pins
 are typically connected to 'halui.mode.is-manual' and 'halui.mode.is-teleop'
 respectively.
 
-==== xhc_hb04.tcl (optional LIB configuration halfile)
+==== xhc_hb04.tcl (optional LIB configuration HAL file)
 
 Remove signal pendant:jogenable-off for removed pin 'pendant_util.jogenable-off'
 
@@ -1274,9 +1275,9 @@ The master branch is version-tagged with prerelease notation, typically
 === LinuxCNC startup
 
 The main script, *linuxcnc*, supports a new option (-H dirname) to
-specify an additional user-specified directory for Halfiles.  This
+specify an additional user-specified directory for HAL files.  This
 directory is searched before the usual search of 1) theini directory
-and 2)the system halfile library directory.
+and 2)the system HAL file library directory.
 
 === G-code changes
 G43.2 (additional offsets) now accepts transient offsets to be added by
@@ -1326,9 +1327,9 @@ to 16.  The axis gui now supports display of up to 16 joints.
 ==== Extra Joints
 
 A new motmod parameter (num_extrajoints) specifies joints that are
-homed by conventional joint homing methods but controlled by new hal
+homed by conventional joint homing methods but controlled by new HAL
 pins (joint.N.posthome-cmd) after homing.  Such joints may be
-managed by independent motion planner/controllers in hal and manipulated
+managed by independent motion planner/controllers in HAL and manipulated
 from G-code using custom M-codes.  See the motion man page for
 more info.
 
@@ -1342,7 +1343,7 @@ a user-customized homing.c file.
 
 The motion module supports kinematics modules that define new
 functions kinematicsSwitchable() and kinematicsSwitch() to switch
-their kinematics type.  A hal pin, motion.switchkins-type, is
+their kinematics type.  A HAL pin, motion.switchkins-type, is
 provided for use of such kinematics modules.
 
 Provided kinematics modules that implement kinematics switching
@@ -1404,7 +1405,7 @@ of a homing module that can be built with halcompile.
 lib/hallib/sim_lib.tcl: simulate encoder index if [JOINT_n]HOME_USE_INDEX
 is specified.
 
-lib/python/vismach.py: new hal pin vismach.plotclear
+lib/python/vismach.py: new HAL pin vismach.plotclear
 
 === HAL
 

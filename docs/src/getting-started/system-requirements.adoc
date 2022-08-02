@@ -14,7 +14,8 @@ Keep in mind that the Latency Test numbers are more important than the
 processor speed for software step generation. More information on the
 Latency Test is <<sec:latency-test,here>>.
 In addition LinuxCNC needs to be run on an operating system that uses a
-specially modified kernel. See <<sec:kernel_and_version_requirements,Kernel and Version Requirements>>
+specially modified kernel,
+see <<sec:kernel_and_version_requirements,Kernel and Version Requirements>>.
 
 Additional information is on the LinuxCNC Wiki site:
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Hardware_Requirements[Hardware Requirements]
@@ -49,7 +50,7 @@ machine hardware. It can, however run on a standard kernel in simulation
 mode for purposes such as checking G-code, testing config files and
 learning the system.
 To work with these kernel versions there are two versions of LinuxCNC
-distributed. The package names are "linuxcnc" and "linuxcnc-uspace"
+distributed. The package names are "linuxcnc" and "linuxcnc-uspace".
 
 The realtime kernel options are preempt-rt, RTAI and Xenomai.
 

@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:g-code-overview]]
-= G Code Overview
+= G-Code Overview
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
@@ -227,7 +227,7 @@ restored to their previous values when LinuxCNC is started again. Volatile
 numbered parameters are reset to zero.
 
 Intended Use::
-* user parameters:: numbered parameters in the range 31..5000, and named
+* user parameters - numbered parameters in the range 31..5000, and named
   global and local parameters except predefined parameters. These are
   available for general-purpose storage of floating-point values, like
   intermediate results, flags etc, throughout program execution. They
@@ -285,11 +285,11 @@ example '##2'  means the value of the parameter whose index is the
 * '5210' - 1 if "G52" or "G92" offset is currently applied, 0
   otherwise.  Volatile by default; persistent if
   'DISABLE_G92_PERSISTENCE = 1' in the '[RS274NGC]' section of the
-  '.ini' file.
+  INI file.
 * '5211-5219' - Shared "G52" and "G92" offset for X, Y, Z, A, B, C, U,
   V & W.  Volatile by default; persistent if
   'DISABLE_G92_PERSISTENCE = 1' in the '[RS274NGC]' section of the
-  '.ini' file.
+  INI file.
 * '5220' - Coordinate System number 1 - 9 for G54 - G59.3. Persistent.
 * '5221-5230' - Coordinate System 1, G54 for X, Y, Z, A, B, C, U, V, W & R.
   R denotes the XY rotation angle around the Z axis. Persistent.
@@ -439,7 +439,7 @@ can be added easily without changes to the source code.
 
 * '#<_vmajor>' - Major package version. If current version was 2.5.2 would return 2.5.
 * '#<_vminor>' - Minor package version. If current version was 2.6.2 it would return 0.2.
-* '#<_line>' - Sequence number. If running a G-Code file, this returns the current line number.
+* '#<_line>' - Sequence number. If running a G-code file, this returns the current line number.
 * '#<_motion_mode>' - Return the interpreter's current motion mode:
 
 [width="20%",options="header"]
@@ -614,7 +614,7 @@ interpreter. These parameters are read-only - assigning a value will
 cause a runtime error. The names are not case sensitive - they are
 converted to uppercase before consulting the INI file.
 
-* '#<_hal[Hal item]>'
+* '#<_hal[HAL item]>'
   Allows G-code programs to read the values of HAL pins Variable access is
   read-only, the only way to _set_ HAL pins from G-code remains M62-M65,
   M67, M68 and custom M100-M199 codes.
@@ -769,8 +769,8 @@ m2
 == Repeated Items
 
 A line may have any number of G words, but two G words from the same
-modal group may not appear on the
-same line See the <<gcode:modal-groups,Modal Groups>> Section for more information.
+modal group may not appear on the same line.
+See the <<gcode:modal-groups,Modal Groups>> section for more information.
 
 A line may have zero to four M words. Two M words from the same modal
 group may not appear on the same line.
@@ -909,7 +909,7 @@ in many modes at the same time, with one mode from each modal group
 being in effect. The modal groups are shown in the following Table.
 
 [[cap:modal-groups]]
-.G-Code Modal Groups(((Modal Groups: G-Codes)))
+.G-Code Modal Groups(((Modal Groups: G-codes)))
 [width="80%",cols="4,6",options="header"]
 |====
 |Modal Group Meaning                   | Member Words
@@ -931,7 +931,7 @@ being in effect. The modal groups are shown in the following Table.
 |====
 
 [[tbl:mcodes-modal-groups]]
-.M-Code Modal Groups(((Modal Groups: M-Codes)))
+.M-Code Modal Groups(((Modal Groups: M-codes)))
 [width="80%",cols="4,6",options="header"]
 |====
 |Modal Group Meaning           | Member Words
@@ -1026,7 +1026,7 @@ NOTE: Inline comments on O words should not be used see the O Code
   coordinate consisting of XYZABCUVW of each successful straight probe in it.
 * '(PROBECLOSE)' - will close the open probelog file.
 
-For more information on probing see the <<gcode:g38,G38>> Section.
+For more information on probing see the <<gcode:g38,G38>> section.
 
 [[gcode:logging]]
 == Logging(((Logging)))
@@ -1087,12 +1087,12 @@ will print the value rounded to an integer.
 * %f = four decimals
 * %.xf = x (0-9) number of decimals
 
-The formatting will be preformed on all parameters in the same line unless 
+The formatting will be preformed on all parameters in the same line unless
 changed. ie. multiple formatting is allowed in one line.
 
 The formatting string does not need to be right beside the parameter.
 
-If the formatting string is created with the wrong pattern it will be 
+If the formatting string is created with the wrong pattern it will be
 printed as characters.
 
 [[gcode:file-requirements]]
@@ -1131,7 +1131,7 @@ part programs. In Axis sections of the preview can be turned off using
 <<axis:preview-control,preview control>> comments.
 
 [[gcode:order-of-execution]]
-== G-Code Order of Execution(((G-Code Order of Execution)))
+== G-Code Order of Execution(((G-code Order of Execution)))
 
 The order of execution of items on a line is defined not by the
 position of each item on the line, but by the following list:
@@ -1166,7 +1166,7 @@ position of each item on the line, but by the following list:
 * Stop (M0, M1, M2, M30, M60).
 
 [[gcode:best-practices]]
-== G-Code Best Practices(((G-Code Best Practices)))
+== G-Code Best Practices(((G-code Best Practices)))
 
 .Use an appropriate decimal precision
 Use at least 3 digits after the decimal when milling in millimeters,
@@ -1207,7 +1207,7 @@ program at different scales. Other settings, such as the return mode in
 canned cycles may also be important.
 
 .Don't put too many things on one line
-Ignore everything in Section <<gcode:order-of-execution,Order of Execution>>, and instead
+Ignore everything in section <<gcode:order-of-execution,Order of Execution>>, and instead
 write no line of code that is the slightest bit ambiguous.
 
 .Don't set & use a parameter on the same line
@@ -1222,7 +1222,7 @@ the N-word value.
 
 .When several coordinate systems are moved
 
-Consider using the inverse time speed mode
+Consider using the inverse time speed mode.
 
 Because the meaning of an 'F' word in meters per minute varies depending on
 the type of axis to be moved and because the amount of removed material does
