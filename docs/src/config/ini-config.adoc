@@ -627,7 +627,7 @@ implemented and the results of using it are unpredictable.
 This section is a custom section and is not used by LinuxCNC directly. Most
 configurations use values from this section to load the motion controller. For
 more information on the motion controller see the <<sec:motion,Motion>>
-Section.
+section.
 
 * 'EMCMOT = motmod' - the motion controller name is typically used here.
 * 'BASE_PERIOD = 50000' - the 'Base' task period in nanoseconds.
