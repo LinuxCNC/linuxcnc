@@ -61,8 +61,7 @@ to stop after each line of input anyway.
 * 'M2' - end the program. Pressing `Cycle Start` ("R" in the Axis GUI)
   will restart the program at the beginning of the file.
 * 'M30' - exchange pallet shuttles and end the program.
-  Pressing `Cycle Start` will start the program
-  at the beginning of the file.
+  Pressing `Cycle Start` will start the program at the beginning of the file.
 
 Both of these commands have the following effects:
 
@@ -83,7 +82,7 @@ will start the program at the beginning of the file.
 
 [WARNING]
 Using % to wrap the G-code does not do the same thing as a 'Program End'.
-See <<gcode:file-requirements,File Requirements>> for more information
+See the section on <<gcode:file-requirements,File Requirements>> for more information
 on what using % does not do.
 
 [[mcode:m60]]
@@ -168,7 +167,7 @@ When the tool change is complete:
 * If the selected tool was not in the spindle before the tool change,
   the tool that was in the spindle (if there was one) will be placed
   back into the tool changer magazine.
-* If configured in the .ini file some axis positions may move when a M6
+* If configured in the INI file some axis positions may move when a M6
   is issued. See the <<sub:ini:sec:emcio,EMCIO section>> for more
   information on tool change options.
 * No other changes will be made. For example, coolant will continue to
@@ -176,7 +175,7 @@ When the tool change is complete:
 
 [NOTE]
 The 'T-' word is an integer number designating the tool pocket number in
-the carousel (not its index)
+the carousel (not its index).
 
 [WARNING]
 The tool length offset is not changed by 'M6', use '<<gcode:g43,G43>>' after the
@@ -602,7 +601,7 @@ The suggested use is at the beginning of a O-word subroutine as in the
 following example. Using 'M73' this way enables designing subroutines
 which need to modify modal state but will protect the calling program
 against inadvertent modal changes. Note the use of
-<<gcode:predefined-named-parameters, predefined named parameters>> in
+<<gcode:predefined-named-parameters,predefined named parameters>> in
 the 'showstate' subroutine.
 
 [source,{ngc}]
@@ -698,7 +697,7 @@ as its two arguments.
 
 Execution of the G-code file pauses until the external program exits.
 Any valid executable file can be used. The file must be located in the search
-path specified in the ini file configuration.
+path specified in the INI file configuration.
 See the <<sub:ini:sec:display,Display>> section for more information on search paths.
 
 After creating a new M1nn program, the GUI should be restarted so that the

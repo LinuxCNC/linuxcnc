@@ -157,7 +157,7 @@ loadusr classicladder
 ----
 
 NOTE: Only one .clp file can be loaded. If you need to divide your ladder
-use Sections.
+then use sections.
 
 To load a ladder file:
 
@@ -211,8 +211,8 @@ for call coils.
 
 === Section Display
 
-When you first start up ClassicLadder you get an empty Section
-Display window. Displayed is one empty rung.
+When you first start up ClassicLadder you get an empty Section Display window.
+Displayed is one empty rung.
 
 [[cap:section-display-default]]
 .Section Display Default Window
@@ -1145,14 +1145,14 @@ like the following. If not, use the Eraser to remove unwanted sections.
 .Section Display with Rung
 image::images/Section_Display_Build02.png["Section Display with Rung",align="center"]
 
-Now click on the OK button in the Editor window. Now your Section
-Display should look like this.
+Now click on the OK button in the Editor window.
+Now your Section Display should look like this:
 
 [[cap:section-display-finished]]
 .Section Display Finished
 image::images/Section_Display_Build03.png["Section Display Finished",align="center"]
 
-To save the new file select Save As and give it a name. The .clp
+To save the new file select 'Save As' and give it a name. The .clp
 extension will be added automatically. It should default to the running
 config directory as the place to save it.
 
