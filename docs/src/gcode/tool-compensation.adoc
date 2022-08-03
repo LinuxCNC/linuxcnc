@@ -20,9 +20,9 @@ Typical steps for updating the tool table:
 
 * After homing load a tool with 'Tn M6' where 'n' is the tool number.
 * Move tool to an established point using a gauge or take a test cut and
-   measure.
-* Click the "Touch Off" button in the Manual Control tab (or hit the
-   End button on your keyboard).
+  measure.
+* Click the 'Touch Off' button in the Manual Control tab (or hit the
+  'End' button on your keyboard).
 * Select 'Tool Table' in the Coordinate System drop down box.
 * Enter the gauge or measured dimension and select OK.
 
