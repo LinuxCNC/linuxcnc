@@ -152,7 +152,7 @@ configuration specific information in a text file named after
 a specific configuration (inifilename.txt).  That latter two
 files are displayed when using the Configuration Selector.
 
-The supplied sample configurations may specify HALFILEs
+The supplied sample configurations may specify HAL files
 (filename.hal) in the configuration INI file that are not present in the
 copied directory because they are found in the system
 HAL file library.  These files can be copied to the user
