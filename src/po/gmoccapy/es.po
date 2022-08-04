@@ -7,9 +7,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-07-09 22:04+0100\n"
-"PO-Revision-Date: 2022-06-20 23:38+0000\n"
+"PO-Revision-Date: 2022-08-02 15:21+0000\n"
 "Last-Translator: Ulices <dev.n47os@aleeas.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "gmocappy/es/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.13.1-dev\n"
+"X-Generator: Weblate 4.14-dev\n"
 "X-Poedit-Language: German\n"
 "X-Poedit-Country: GERMANY\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -53,22 +53,19 @@ msgstr "La ruta del archivo no debe contener espacios"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:673
 msgid "axis"
-msgstr ""
+msgstr "eje"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:674
-#, fuzzy
 msgid "axes"
-msgstr "deplazar eje"
+msgstr "ejes"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:679
-#, fuzzy
 msgid "joint"
-msgstr "desplazar motores"
+msgstr "articulación"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:680
-#, fuzzy
 msgid "joints"
-msgstr "desplazar motores"
+msgstr "articulaciones"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:696
 #, python-brace-format
@@ -1208,9 +1205,8 @@ msgid "Show keyboard on load file"
 msgstr "Mostrar teclado en carcar programa"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:83
-#, fuzzy
 msgid "<b>Virtual Keyboard</b>"
-msgstr "<b>Teclado</b>"
+msgstr "<b>Teclado virtual</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:84
 msgid "show preview"
@@ -1527,9 +1523,8 @@ msgid "Font"
 msgstr "Tipo letra"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:167
-#, fuzzy
 msgid "Max. messages"
-msgstr "Mensaje"
+msgstr "Mensajes máximos"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:168
 msgid "The font to use"
