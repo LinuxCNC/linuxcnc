@@ -8,144 +8,137 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-07-09 22:04+0100\n"
-"PO-Revision-Date: 2022-07-30 16:15+0000\n"
-"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
-"Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
-"linuxcnc/gmocappy/nb_NO/>\n"
-"Language: nb\n"
+"PO-Revision-Date: 2022-07-28 15:58+0000\n"
+"Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
+"Language-Team: none\n"
+"Language: sk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 "X-Generator: Weblate 4.14-dev\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:281
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:286
 msgid "**** GMOCCAPY INI Entry ****"
-msgstr "**** GMOCCAPY INI-oppføring ****"
+msgstr "**** Vstup GMOCCAPY INI ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:282
 msgid "user mode selected"
-msgstr "brukermodus valgt"
+msgstr "zvolený užívateľský režim"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:287
 #, python-brace-format
 msgid "logo entry found = {0}"
-msgstr "logo-oppføring funnet = {0}"
+msgstr "nájdený záznam loga = {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:292
 msgid "**** GMOCCAPY INI Entry Error ****"
-msgstr "**** GMOCCAPY feil i INI-oppføring ****"
+msgstr "**** Chyba vstupu GMOCCAPY INI ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:293
 msgid "Logofile entry found, but could not be converted to path."
-msgstr "Fant logofiloppføring, men kunne ikke omforme den til sti."
+msgstr "Položka súboru loga sa našla, ale nebolo ju možné konvertovať."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:294
 msgid "The file path should not contain any spaces"
-msgstr "Filstien bør ikke inneholde mellomrom"
+msgstr "Cesta k súboru by nemala obsahovať žiadne medzery"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:673
 msgid "axis"
-msgstr "akse"
+msgstr "os"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:674
 msgid "axes"
-msgstr "axer"
+msgstr "osi"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:679
 msgid "joint"
-msgstr ""
+msgstr "kĺb"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:680
 msgid "joints"
-msgstr ""
+msgstr "kĺby"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:696
 #, python-brace-format
 msgid "Press to home all {0}"
-msgstr "Trykk for å kjøre alle til utgangspunkt {0}"
+msgstr "Stlačením vykonáte kalibráciu {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:709
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:996
 msgid "Press to display previous homing button"
-msgstr "Trykk for å vise forrige utgangspunkt-knapp"
+msgstr "Stlačením zobrazíte tlačidlo predchádzajúcej kalibrácie"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:725
 #, python-brace-format
 msgid "Press to home {0} {1}"
-msgstr "Trykk for å sende til utgangspunkt {0} {1}"
+msgstr "Stlačením tlačidla skalibrujete {0} {1}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:742
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1025
 msgid "Press to display next homing button"
-msgstr "Trykk for å vise neste utgangspunkt-knapp"
+msgstr "Stlačením zobrazíte tlačidlo ďalšej kalibrácie"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:757
 #, python-brace-format
 msgid "Press to unhome all {0}"
-msgstr "Trykk for å sende alle ut av utgangspunkt {0}"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:766
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1070
 msgid "Press to return to main button list"
-msgstr "Trykk for å gå tilbake til hovedknappelisten"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:820
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1949
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2205
 msgid "**** GMOCCAPY ERROR ****\n"
-msgstr "**** GMOCCAPY-FEIL ****\n"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:821
 #, python-brace-format
 msgid "**** could not resolv the image path '{0}' given for button '{1}' ****"
-msgstr "**** klarte ikke forstå bildestien '{0}' oppgitt for knapp '{1}' ****"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:977
 msgid ""
 "edit\n"
 "offsets"
 msgstr ""
-"rediger\n"
-"forskyvninger"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:983
 msgid "Press to edit the offsets"
-msgstr "Trykk for å redigere forskyvningene"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1008
 #, python-brace-format
 msgid "Press to set touch off value for axis {0}"
-msgstr "Trykk for å sette berøringsverdi for akse {0}"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1041
 msgid "Press to reset all G92 offsets"
-msgstr "Trykk for å tilbakestille alle G92-forskyvninger"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1047
 msgid ""
 " Block\n"
 "Height"
 msgstr ""
-" Blokk\n"
-"Høyde"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1049
 msgid "Press to enter new value for block height"
-msgstr "Trykk for å skrive inn ny verdi for blokkhøyde"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1054
 msgid ""
 "set\n"
 "selected"
 msgstr ""
-"satt\n"
-"valgt"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1060
 msgid "Press to set the selected coordinate system to be the active one"
-msgstr "Trykk for å sette valgt koordinatsystem som aktivt"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1085
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1101
@@ -157,7 +150,7 @@ msgstr "Trykk for å sette valgt koordinatsystem som aktivt"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2123
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2126
 msgid "**** GMOCCAPY INFO ****"
-msgstr "**** GMOCCAPY-INFO ****"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1086
 msgid "**** no valid probe config in INI File ****"
@@ -165,7 +158,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1087
 msgid "**** disabled tool measurement ****"
-msgstr "**** utkoblet verktøymåling ****"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1102
 msgid "**** found valid probe config in INI File ****"
@@ -173,11 +166,11 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1103
 msgid "**** will use auto tool measurement ****"
-msgstr "**** vil bruke automatisk verktøymåling ****"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1118
 msgid "**** GMOCCAPY build_GUI INFO ****"
-msgstr "**** GMOCCAPY build_GUI INFO ****"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1119
 msgid "**** To many increments given in INI File for this screen ****"
@@ -185,11 +178,11 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1120
 msgid "**** Only the first 10 will be reachable through this screen ****"
-msgstr "**** Kun de 10 første vil være tilgjengelig på dette skjermbildet ****"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1129
 msgid "Continuous"
-msgstr "Kontinuerlig"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1248
 #, python-brace-format
@@ -208,62 +201,62 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1317
 msgid "**** GMOCCAPY INFO ****\n"
-msgstr "**** GMOCCAPY INFO ****\n"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1318
 msgid "**** found more than 16 macros, will use only the first 16 ****"
-msgstr "**** fant mer enn 16 makroer, vil kun bruke de 16 første ****"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1329
 msgid "Press to display previous macro button"
-msgstr "Trykk for å vise forrige makroknapp"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1348
 #, python-brace-format
 msgid "Press to run macro {0}"
-msgstr "Trykk for å kjøre makro {0}"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1359
 msgid "Press to display next macro button"
-msgstr "Trykk for å vise neste makro-knapp"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1379
 msgid "Press to display the virtual keyboard"
-msgstr "Trykk for å vise skjermtastaturet"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1476
 msgid "*****  GMOCCAPY ERROR  *****"
-msgstr "*****  GMOCCAPY-FEIL  *****"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1477
 msgid "this is not a lathe, as a lathe must have at least\n"
-msgstr "Dette er ikke en dreiebenk, siden en dreiebenk må ha minst\n"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1478
 msgid "an X and an Z axis\n"
-msgstr "en X- og en Y-akse\n"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1479
 msgid "Wrong lathe configuration, we will leave here"
-msgstr "Feil dreiebenkoppsett, vi avslutter her"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1480
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1952
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2208
 msgid "Very critical situation"
-msgstr "Svært kritisk situasjon"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1630
 msgid "*****  GMOCCAPY INFO  *****"
-msgstr "*****  GMOCCAPY INFO  *****"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1631
 msgid "this is not a usual config\n"
-msgstr "dette er ikke et vanlig oppsett\n"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1632
 msgid "we miss one of X , Y or Z axis\n"
-msgstr "En av aksene X, Y eller Z mangler\n"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1633
 msgid "We will use by axisletter ordered jog button"
@@ -272,45 +265,44 @@ msgstr ""
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1799
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2921
 msgid "mm/min"
-msgstr "mm/min"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1802
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2924
 msgid "inch/min"
-msgstr "tommer/min"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1827
 msgid "**** Invalid embedded tab configuration ****"
-msgstr "**** Ugyldig innbakt faneoppsett ****"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1828
 msgid "**** No tabs will be added! ****"
-msgstr "**** Ingen faner vil bli lagt til. ****"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1845
 msgid "ERROR, trying to initialize the user tabs or panels, check for typos"
 msgstr ""
-"FEIL, forøker nullstille brukerfaner eller paneler, sjekk etter skrivefeil"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1950
 msgid "**** Did not find a toolfile file in [EMCIO] TOOL_TABLE ****"
-msgstr "**** Fant ikke en verktøyfil i [EMCIO] TOOL_TABLE ****"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2036
 msgid "**** audio available! ****"
-msgstr "**** lyd tilgjengelig. ****"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2049
 msgid "**** no audio available! ****"
-msgstr "**** ingen lyd tilgjengelig. ****"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2050
 msgid "**** PYGST library not installed? ****"
-msgstr "**** er PYGST-biblioteket ikke installert? ****"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2051
 msgid "**** is python-gstX.XX installed? ****"
-msgstr "**** er python-gstX.XX installert? ****"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2059
 msgid "**** Entering init gremlin ****"
@@ -325,57 +317,57 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2124
 msgid "**** virtual keyboard program found : <onboard>"
-msgstr "**** fant virtuelt tastaturprogram : <onboard>"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2127
 msgid "**** No virtual keyboard installed, we checked for <onboard> ."
-msgstr "**** Intet virtuelt tastatur funnet, vi lette etter <onboard> ."
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2128
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2143
 msgid "**** try sudo apt-get install onboard"
-msgstr "**** forsøk «sudo apt-get install onboard»"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2140
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3372
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3382
 msgid "**** GMOCCAPY ERROR ****"
-msgstr "**** GMOCCAPY-FEIL ****"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2141
 msgid "**** Error with launching virtual keyboard,"
-msgstr "**** Feil ved oppstart av virtuelt tastatur,"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2142
 msgid "**** is onboard installed? ****"
-msgstr "**** er onboard installert? ****"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2175
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3051
 msgid "interrupt running macro"
-msgstr "bryt av kjørende makro"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2206
 msgid "**** Did not find a parameter file in [RS274NGC] PARAMETER_FILE ****"
-msgstr "**** Fant ikke parameterfil i [RS274NGC] PARAMETER_FILE ****"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2276
 msgid "Select the file you want to be loaded at program start"
-msgstr "Velg filen du ønsker å laste ved oppstart av program"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2310
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2334
 #, python-brace-format
 msgid "**** GMOCCAPY ERROR **** /n Message type {0} not supported"
-msgstr "**** GMOCCAPY-FEIL **** /n Ikke støtte for meldingstype {0}"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2453
 msgid "Unknown error type and no error text given"
-msgstr "Ukjent feiltype og ingen feiltekst oppgitt"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2467
 msgid "Important Warning"
-msgstr "Viktig advarsel"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2487
 msgid "External ESTOP is set, could not change state!"
@@ -387,7 +379,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2583
 msgid "No file loaded"
-msgstr "Ingen fil lastet"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2801
 msgid "It is not possible to change to MDI Mode at the moment"
@@ -404,30 +396,30 @@ msgstr ""
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3017
 #, python-brace-format
 msgid "Set parameter {0} to:"
-msgstr "Sett parameter {0} til:"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3019
 msgid "conversion error"
-msgstr "konverteringsfeil"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3020
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4983
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5006
 msgid "Conversion error !"
-msgstr "Konverteringsfeil!"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3049
 msgid "This button will show or hide the keyboard"
-msgstr "Denne knappen vil vise eller skjule tastaturet"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3157
 msgid "Mode change is only allowed if the interpreter is idle!"
-msgstr "Modusendring er kun tillat når kommandotolken ikke er aktiv!"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3373
 #, python-brace-format
 msgid "**** {0} ****"
-msgstr "**** {0} ****"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3383
 #, python-brace-format
@@ -437,12 +429,12 @@ msgstr ""
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3549
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:36
 msgid "No tool description available"
-msgstr "Mangler verktøybeskrivelse"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3689
 #, python-brace-format
 msgid "Halo, welcome to the test message {0}"
-msgstr "Hei, velkommen til testmeldingen {0}"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3800
 msgid "Hal Pin is low, Access denied"
@@ -450,16 +442,16 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3802
 msgid "wrong code entered, Access denied"
-msgstr "feil kode skrevet inn, tilgang nektet"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3803
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4451
 msgid "Just to warn you"
-msgstr "Kun til advarsel"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3957
 msgid "INFO:"
-msgstr "INFO:"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3958
 msgid "Classicladder real-time component not detected"
@@ -472,73 +464,70 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4184
 msgid "Do you really want to delete the MDI history?\n"
-msgstr "Slett MDI-historikken?\n"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4185
-#, fuzzy
 msgid "This will not delete the MDI History file, but will\n"
-msgstr "dette vil ikke slette MDI-historikkfilen, men vil\n"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4186
 msgid "delete the listbox entries for this session."
-msgstr "slett rullegardinsoppføringene for denne økten."
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4187
 msgid "Attention!!"
-msgstr "Følg med!!"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4244
 msgid "Exit and discard changes?"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4245
-#, fuzzy
 msgid "Attention!"
-msgstr "Følg med!!"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4327
 msgid "Enter value for diameter"
-msgstr "Skriv inn diameterverdi"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4328
 msgid "Set diameter to:"
-msgstr "Sett diameter til:"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4331
 msgid "Enter value for radius"
-msgstr "Skriv inn verdi for radius"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4332
 msgid "Set radius to:"
-msgstr "Sett radius til:"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4335
 #, python-brace-format
 msgid "Enter value for axis {0}"
-msgstr "Skriv inn verdi for {0}-aksen"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4336
 #, python-brace-format
 msgid "Set axis {0} to:"
-msgstr "Sett {0}-aksen til:"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4340
 msgid "Conversion error in btn_set_value"
-msgstr "Konverteringsfeil i btn_set-verdi"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4341
 msgid "Conversion error in btn_set_value!"
-msgstr "Konverteringsfeil i btn_set_value!"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4342
 msgid "Please enter only numerical values. Values have not been applied"
-msgstr "Kun skriv inn tall. Verdiene har ikke blitt anvendt"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4356
-#, fuzzy
 msgid ""
 "You did not select a system to be changed to, so nothing will be changed"
-msgstr "du valgte ikke et system å bytte til, så ingenting vil endres"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4357
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5012
@@ -546,32 +535,29 @@ msgstr "du valgte ikke et system å bytte til, så ingenting vil endres"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5030
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5045
 msgid "Important Warning!"
-msgstr "Viktig advarsel!"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4407
 msgid "Enter the block height"
-msgstr "Skriv inn blokkhøyden"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4408
-#, fuzzy
 msgid "Block height measured from base table"
-msgstr "Blokkhøyde målt fra grunnflaten"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4420
 msgid "Conversion error in btn_block_height!"
-msgstr "Konverteringsfeil i btn_block_height!"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4421
 msgid ""
 "Please enter only numerical values\n"
 "Values have not been applied"
 msgstr ""
-"Skriv kun inn numeriske verdier\n"
-"Verdier har ikke tatt effekt"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4900
 msgid "Please remove the mounted tool and press OK when done"
-msgstr "Fjern montert verktøy og trykk «OK» når du er ferdig"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4904
 #, python-brace-format
@@ -582,11 +568,6 @@ msgid ""
 "\n"
 " then click OK."
 msgstr ""
-"Endre verktøy\n"
-"\n"
-"# {0:d}     {1}\n"
-"\n"
-" og klikk deretter «OK»."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4906
 #, python-brace-format
@@ -600,37 +581,35 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4908
 msgid "Manual Tool change"
-msgstr "Manuell endring av verktøy"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4918
 msgid "Tool Change has been aborted!\n"
-msgstr "Endring av verktøy avbrutt.\n"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4919
 msgid "The old tool will remain set!"
-msgstr "Det gamle verktøyet vil forbli valgt!"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4927
 msgid "You are trying to delete the tool mounted in the spindle\n"
-msgstr "Du forsøker å slette verkøyet som er montert i spindelen\n"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4928
 msgid "This is not allowed, please change tool prior to delete it"
-msgstr "Dette er ikke tillatt. Bytt verktøy før du sletter det"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4929
 msgid "Warning Tool can not be deleted!"
-msgstr "Advarsel: Verktøy kan ikke slettes!"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4948
-#, fuzzy
 msgid "No or multiple tools selected in the tool table. "
-msgstr "Ingen eller flere enn ett verktøy valgt i verktøytabellen"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4949
-#, fuzzy
 msgid "Please select only one tool in the table!"
-msgstr "Velg kun et verktøy i tabellen"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4950
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4956
@@ -644,7 +623,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4955
 msgid "Your selection has been reset to the tool in spindle."
-msgstr "Ditt valg har blitt tilbakeført til verktøyet i spindelen."
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4962
 msgid ""
@@ -657,23 +636,22 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4972
 msgid "Real big error!"
-msgstr "Virkelig stor feil!"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4973
 msgid ""
 "You managed to come to a place that is not possible in on_btn_tool_touchoff"
 msgstr ""
-"Du klarte å komme til en plass som ikke er mulig i on_btn_tool_touchoff"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4977
 #, python-brace-format
 msgid "Enter value for axis {0} to set:"
-msgstr "Skriv inn verdi for akse {0} for å sette:"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4978
 #, python-brace-format
 msgid "Set parameter of tool {0:d} and axis {1} to:"
-msgstr "Sett parameter for verktøy {0:d} og akse {1} til:"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4982
 #, python-brace-format
@@ -682,36 +660,33 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5001
 msgid "Enter the tool number as integer "
-msgstr "Skriv inn verktøynummer som heltall "
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5002
 msgid "Select the tool to change"
-msgstr "Velg verktøyet å endre"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5004
-#, fuzzy
 msgid "Conversion error because of wrong entry for tool number.\n"
-msgstr "Konverteringsfeil som følge av feil oppføring for verktøynummer\n"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5005
-#, fuzzy
 msgid "Enter only integer numbers!"
-msgstr "kun skriv inn heltall"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5011
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5029
 msgid "Selected tool is already in spindle, no change needed."
-msgstr "Valgt verktøy er allerede i spindel, ingen endring nødvendig."
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5025
 msgid ""
 "you selected no or more than one tool, the tool selection must be unique"
-msgstr "du valgte intet eller mer enn ett verktøy. verktøyvalget må være unikt"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5044
-#, fuzzy
 msgid "Could not understand the entered tool number. Will not change anything!"
-msgstr "Klarte ikke forstå inntastede verktøynummer. Endrer ikke på noe"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5349
 msgid ""
@@ -731,30 +706,30 @@ msgstr ""
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5576
 #, python-brace-format
 msgid "Could not translate {0} to number"
-msgstr "Kunne ikke oversette {0} til et nummer"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5581
 msgid "no button here"
-msgstr "ingen knapper her"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5584
 msgid "the button is not sensitive"
-msgstr "knappen er ikke sensitiv"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5589
 #, python-brace-format
 msgid "Button {0} has been toggled"
-msgstr "{0}-knappen har endret stilling"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5593
 #, python-brace-format
 msgid "Button {0} has been pressed"
-msgstr "{0}-knappen har blitt trykket"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5596
 #, python-brace-format
 msgid "Button {0} has been clicked"
-msgstr "{0}-knappen har blitt trykket på"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5609
 msgid "got wrong location to locate the childs"
@@ -763,21 +738,21 @@ msgstr ""
 #: src/emc/usr_intf/gmoccapy/dialogs.py:47
 #: src/emc/usr_intf/gmoccapy/dialogs.py:50
 msgid "Enter System Unlock Code"
-msgstr "Skriv inn opplåsningskode for systemet"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:73
 msgid "Enter value"
-msgstr "Skriv inn verdi"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:73
 msgid "Enter the value to set"
-msgstr "Skriv inn verdi å sette"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:112
 #: src/emc/usr_intf/gmoccapy/dialogs.py:147
 #: src/emc/usr_intf/gmoccapy/dialogs.py:174
 msgid "Operator Message"
-msgstr "Operatørmelding"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:155
 msgid "_Yes"
@@ -789,28 +764,28 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:182
 msgid "_Ok"
-msgstr "_Ok"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:219
 #: src/emc/usr_intf/gmoccapy/dialogs.py:221
 msgid "Restart Entry"
-msgstr "Start oppføring på nytt"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:233
 msgid "_Up     "
-msgstr "_Opp     "
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:235
 msgid "_Down"
-msgstr "Ne_d"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:237
 msgid "_Jump to"
-msgstr "Hopp ti_l"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:98
 msgid "**** GMOCCAPY GETINIINFO : ****"
-msgstr "**** GMOCCAPY GETINIINFO : ****"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:99
 #, python-brace-format
@@ -818,20 +793,16 @@ msgid ""
 "**** gmoccapy can only handle 9 axis, ****\n"
 "**** but you have given {0} through your INI file ****\n"
 msgstr ""
-"**** gmoccapy kan bare håndtere 9 akser, ****\n"
-"**** men du har oppgitt {0} i din INI-fil ****\n"
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:100
 msgid ""
 "**** gmoccapy will not start ****\n"
 "\n"
 msgstr ""
-"**** gmoccapy kan ikke starte ****\n"
-"\n"
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:431
 msgid "**** GMOCCAPY GETINIINFO ****\n"
-msgstr "**** GMOCCAPY GETINIINFO ****\n"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:432
 msgid ""
@@ -841,19 +812,19 @@ msgstr ""
 #: src/emc/usr_intf/gmoccapy/notification.py:209
 #, python-brace-format
 msgid "Error trying to delete the message with number {0}"
-msgstr "Feil ved forsøk på å slette melding med nummer {0}"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:1
 msgid "pause the running program"
-msgstr "sett kjørende program på pause"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:2
 msgid "left rotate,  middle move,  right zoom"
-msgstr "venstre roterer, midten flytter, høyre forstørrer"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:3
 msgid "left zoom,  middle move,  right rotate"
-msgstr "venstre forstørrer, midten flytter, høyre roterer"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:4
 msgid "left move,  middle rotate,  right zoom"
@@ -877,12 +848,11 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:9
 msgid "No Program loaded"
-msgstr "Intet program lastet"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:10
-#, fuzzy
 msgid "blockheight = 0.0"
-msgstr "blokkhøyde = 0,0"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:11
 msgid "clear plot"
@@ -890,35 +860,35 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:12
 msgid "Zoom in"
-msgstr "Forstørr"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:13
 msgid "Zoom out"
-msgstr "Forminsk"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:14
 msgid "view perspective"
-msgstr "vis perspektiv"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:15
 msgid "view along the X axis from positive to negative"
-msgstr "se langs X-aksen fra positiv mot negativ"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:16
 msgid "view along the Y axis from positive to negative"
-msgstr "se langs Y-aksen fra positiv mot negativ"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:17
 msgid "view along the Z axis from positive to negative"
-msgstr "se langs Z-aksen fra positiv mot negativ"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:18
 msgid "Show or hide tool path"
-msgstr "Vis eller skjul verktøysti"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:19
 msgid "Show or hide dimensions"
-msgstr "Vis eller skjul dimensjoner"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:20
 msgid ""
@@ -928,19 +898,19 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:21
 msgid "Preview"
-msgstr "Forhåndsvis"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:22
 msgid "Offset Page"
-msgstr "Forskyvningsside"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:23
 msgid "Tooledit"
-msgstr "Verktøyredigering"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:24
 msgid "File Selection"
-msgstr "Valg av fil"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:25
 msgid "jog axes"
@@ -952,11 +922,11 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:27
 msgid "Logo"
-msgstr "Logo"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:28
 msgid "Ignore limits"
-msgstr "ignorer grenser"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:29
 msgid "<b>Jogging</b>"
@@ -964,19 +934,19 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:30
 msgid "Shows the code to execute"
-msgstr "Viser koden å kjøre"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:31
 msgid "Information over the tool in spindle"
-msgstr "informasjon om verktøyet i spindel"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:32
 msgid "Tool no."
-msgstr "Verktøy nr."
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:33
 msgid "Diameter"
-msgstr "Diameter"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:34
 msgid "offset z"
@@ -992,37 +962,35 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:38
 msgid "<b>Tool information</b>"
-msgstr "<b>Verktøyinfo</b>"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:39
 msgid "G and M code information as well as speed and feed"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:40
-#, fuzzy
 msgid "active_mcodes_label"
-msgstr "Aktive M-koder"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:41
-#, fuzzy
 msgid "active_gcodes_label"
-msgstr "Aktive G-koder"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:42
 msgid "<b>G-Code</b>"
-msgstr "<b>G-kode</b>"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:43
 msgid "<b>Cooling</b>"
-msgstr "<b>Kjøling</b>"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:44
 msgid "<b>Spindle [rpm]</b>"
-msgstr "<b>Spindel [rpm]</b>"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:45
 msgid "Vel."
-msgstr "Hast."
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:46
 msgid "Displays the current velocity"
@@ -1038,11 +1006,11 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:50
 msgid "reset feed override to 100 %"
-msgstr "nullstill matingsoverstyring til 100%"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:51
 msgid "<b>Feed Override</b>"
-msgstr "<b>Matingsoverstyring</b>"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:52
 msgid "Undo"
@@ -1134,7 +1102,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:77
 msgid "<b>Main Window</b>"
-msgstr "<b>Hovedvindu</b>"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:78
 msgid "Show keyboard on offset"
@@ -1145,22 +1113,20 @@ msgid "Show keyboard on tooledit"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:80
-#, fuzzy
 msgid "Show keyboard on MDI"
-msgstr "Vis tastatur i MDI-modus"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:81
 msgid "Show keyboard on EDIT"
-msgstr "Vis tastatur i redigeringsmodus"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:82
 msgid "Show keyboard on load file"
-msgstr "Vis tastatur ved innlasting av fil"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:83
-#, fuzzy
 msgid "<b>Virtual Keyboard</b>"
-msgstr "<b>Tastatur</b>"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:84
 msgid "show preview"
@@ -1196,11 +1162,11 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:92
 msgid "Size"
-msgstr "Størrelse"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:93
 msgid "Digits"
-msgstr "Siffer"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:94
 msgid ""
@@ -1210,51 +1176,49 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:96
 msgid "<b>DRO</b>"
-msgstr "<b>Digitalavleser</b>"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:97
 msgid "Grid size"
-msgstr "Rutenettstørrelse"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:98
 msgid "Show DRO"
-msgstr "Vis digitalavleser"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:99
 msgid "Show offsets"
-msgstr "Vis forskyvninger"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:100
 msgid "Show DTG"
-msgstr "Vis DTG"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:101
 msgid "<b>Mouse Button mode</b>"
-msgstr "<b>Musknappmodus</b>"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:102
 msgid "<b>Preview</b>"
-msgstr "<b>Forhåndsvis</b>"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:103
 msgid ""
 "current\n"
 "   file"
 msgstr ""
-"nåværende\n"
-"  fil"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:105
 msgid "none"
-msgstr "ingen"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:106
 msgid "<b>File to load on start</b>"
-msgstr "<b>Fil å laste inn ved oppstart</b>"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:107
 msgid "Select user dir"
-msgstr "Velg brukermappe"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:108
 msgid "<b>Select jump to dir</b>"
@@ -1262,27 +1226,27 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:109
 msgid "Themes"
-msgstr "Drakter"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:110
 msgid "Warning Audio"
-msgstr "Lydadvarsel"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:111
 msgid "Alert Audio"
-msgstr "Advarselslyd"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:112
 msgid "Icon Theme"
-msgstr "Ikondrakt"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:113
 msgid "<b>Themes and sound</b>"
-msgstr "<b>Drakter og lyder</b>"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:114
 msgid "Appearance"
-msgstr "Utseende"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:115
 msgid "Scale rapid override"
@@ -1294,11 +1258,11 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:117
 msgid "Scale feed override"
-msgstr "Skaler matingsoverstyring"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:118
 msgid "Scale spindle override"
-msgstr "Skaler spindeloverstyring"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:119
 msgid "<b>Hardware MPG Scale</b>"
@@ -1306,31 +1270,31 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:120
 msgid "Use keyboard shortcuts"
-msgstr "Bruk tastatursnarveier"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:121
 msgid "<b>Keyboard shortcuts</b>"
-msgstr "<b>Tastatursnarveier</b>"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:122
 msgid "Use unlock code"
-msgstr "Bruk opplåsningskode"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:123
 msgid "Do not use unlock code"
-msgstr "Uten bruk av opplåsingskode"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:124
 msgid "Use hal pin to unlock"
-msgstr "Bruk hal-pinne for å låse opp"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:125
 msgid "<b>Unlock settings</b>"
-msgstr "<b>Opplåsningsoppsett</b>"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:126
 msgid "Starting RPM"
-msgstr "Oppstartdreiehastighet"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:127
 msgid "Spindle bar min"
@@ -1342,7 +1306,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:129
 msgid "<b>Spindle</b>"
-msgstr "<b>Spindel</b>"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:130
 msgid "Hide turtle Jog Button"
@@ -1358,11 +1322,11 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:133
 msgid "Hardware"
-msgstr "Maskinvare"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:134
 msgid "Use auto tool measurement"
-msgstr "Bruk automatisk verktøymåling"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:135
 msgid "Probe Height"
@@ -1370,11 +1334,11 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:136
 msgid "0.000"
-msgstr "0,000"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:137
 msgid "Z Pos."
-msgstr "Z-pos."
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:138
 msgid "Max. Probe"
@@ -1386,7 +1350,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:140
 msgid "Search Vel."
-msgstr "Søkehast."
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:141
 msgid "Probe Vel."
@@ -1404,19 +1368,14 @@ msgid ""
 "the WIKI to check how\n"
 "to configure the settings."
 msgstr ""
-"Fant intet gyldig\n"
-"oppsett i INI-filen din.\n"
-"Ta en titt i WIKI-en for å\n"
-"se hvordan sette opp\n"
-"innstillingene."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:148
 msgid "<b>Tool Measurement</b>"
-msgstr "<b>Verktøymåling</b>"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:149
 msgid "Reload Tool on Start"
-msgstr "Last verktøy på nytt for å gå igang"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:150
 msgid ""
@@ -1433,13 +1392,10 @@ msgid ""
 "so the reload of a tool at start\n"
 "is not possible."
 msgstr ""
-"Du bruker NO_FORCE_HOMING,\n"
-"så det er ikke mulig å laste samme\n"
-"verktøy inn fra start."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:159
 msgid "<b>Reload Tool</b>"
-msgstr "<b>Last inn verktøy på nytt</b>"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:160
 msgid "Do not use run from line"
@@ -1455,99 +1411,87 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:163
 msgid "Use frames"
-msgstr "Bruk rammer"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:164
 msgid ""
 "If checked, the messages\n"
 "will be in a frame."
 msgstr ""
-"Hvis markert så vil meldinger\n"
-"være i en ramme."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:166
 msgid "Font"
-msgstr "Skrift"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:167
 msgid "Max. messages"
-msgstr "Maks meldinger"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:168
 msgid "The font to use"
-msgstr "Skrifttypen som brukes"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:169
 msgid "The maximum messages you want to be shown\t"
-msgstr "Maksimalt antall meldinger du ønsker vist\t"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:170
 msgid "The width of the messages"
-msgstr "Meldingsbredden"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:171
 msgid "X-position in pixel from top left corner of the screen"
-msgstr "X-posisjon i piksler fra øvre venstre hjørne på skjermen"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:172
 msgid "Y-position in pixel from top left corner of the screen"
-msgstr "Y-posisjon i piksler fra øvre venstre hjørne av skjermen"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:173
 msgid "Launch test message"
-msgstr "Kjør testmelding"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:174
 msgid ""
 "Push here to launch a test message\n"
 "to test your settings."
 msgstr ""
-"Trykk her for å teste innstillingene\n"
-"dine med en testmelding."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:176
 msgid ""
 "<b>      gmoccapy message\n"
 " behavior and appearance </b>"
 msgstr ""
-"<b>      gmoccapy-melding\n"
-" oppføring og utseende </b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:178
 msgid ""
 "Advanced\n"
 " Settings"
 msgstr ""
-"Avansert\n"
-" innstillinger"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:180
 msgid "Settings"
-msgstr "Innstillinger"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:181
 msgid "User tab 1"
-msgstr "Brukerfane 1"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:182
 msgid "User tabs"
-msgstr "Brukerfaner"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:183
 msgid ""
 "Estop the machine\n"
 "[F1]"
 msgstr ""
-"Nødstopp maskinen\n"
-"[F1]"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:185
 msgid ""
 "Turn the machine on/off\n"
 "[F2]"
 msgstr ""
-"Skru maskinen på/av\n"
-"[F2]"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:187
 msgid ""
@@ -1560,20 +1504,18 @@ msgid ""
 "enter MDI mode to launch G-code commands\n"
 "[F5]"
 msgstr ""
-"Aktiver MDI-modus for å sende inn G-kodekommandoer\n"
-"[F5]"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:191
 msgid "enter auto mode to run programs"
-msgstr "Aktiver automodus for å kjøre programmer"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:192
 msgid "Enter the settings page, the default code is \"123\""
-msgstr "Åpne oppsettsiden, forvalgt kode er «123»"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:193
 msgid "show user tabs"
-msgstr "vis brukerfaner"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:194
 msgid "open homing button list"
@@ -1585,7 +1527,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:196
 msgid "Open the tooleditor page"
-msgstr "Åpne verktøyredigeringssiden"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:197
 msgid ""
@@ -1601,40 +1543,37 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:201
 msgid "make the preview as large as possible"
-msgstr "gjør forhåndsvisningen så stor som mulig"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:202
 msgid "Close gmoccapy / leave the program"
-msgstr "Lukk gmoccapy/forlat programmet"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:203
 msgid "Load a new program"
-msgstr "Last inn et nytt program"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:204
 msgid "Run the loaded program"
-msgstr "Kjør innlastet program"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:205
 msgid "Stop the running program"
-msgstr "Stopp kjørende program"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:206
 msgid "Pause the running program"
-msgstr "Sett kjørende program på pause"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:207
 msgid "Run the  loaded program step by step"
-msgstr "Kjør innlastet program stegvist"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:208
-#, fuzzy
 msgid ""
 "run the program from a certain line, attention, that is dangerous, because "
 "the previous lines will not checked!"
 msgstr ""
-"kjør programmet fra en bestemt linje. Merk, dette er farlig, da de "
-"foregående linjene vil ikke bli sjekket!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:209
 msgid ""
@@ -1645,15 +1584,15 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:210
 msgid "Edit the loaded program"
-msgstr "Rediger innlastet program"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:211
 msgid "delete MDI"
-msgstr "slett MDI"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:212
 msgid "delete MDI history"
-msgstr "slett MDI-historikk"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:213
 msgid "Cl.-ladder"
@@ -1673,11 +1612,11 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:217
 msgid "Status"
-msgstr "Status"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:218
 msgid "launch linuxcnc status"
-msgstr "Start linuxcnc-status"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:219
 msgid "Hal Meter"
@@ -1689,15 +1628,15 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:221
 msgid "Calibration"
-msgstr "Kalibrering"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:222
 msgid "launch calibration"
-msgstr "kjør kalibrering"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:223
 msgid "Halshow"
-msgstr "Halshow"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:224
 msgid "opens the show hal tool"
@@ -1705,71 +1644,68 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:225
 msgid "save the file using the original name"
-msgstr "lagre filen med opprinnelig navn"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:226
 msgid "save the file with a new name"
-msgstr "lagre filen med et nytt navn"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:227
 msgid "clear the edit field and make a new file"
-msgstr "nullstill redigeringsfeltet og lag en ny fil"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:228
 msgid "Show or hide the virtual keyboard"
-msgstr "Vis eller skjul det virtuelle tastaturet"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:229
 msgid "Go back to main button list"
-msgstr "Gå tilbake til hovedknappliste"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:230
 msgid "Delete"
-msgstr "Slett"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:231
 msgid "delete selected tool or tools"
-msgstr "Slett valgte verktøy"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:232
 msgid "Add"
-msgstr "Legg til"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:233
 msgid "add a new tool to tool table"
-msgstr "legg inn nytt verktøy til verktøytabellen"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:234
 msgid "Reload"
-msgstr "Last inn igjen"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:235
 msgid "reload tool table from file"
-msgstr "Last verktøytabell fra fil"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:236
 msgid "Apply"
-msgstr "Bruk"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:237
-#, fuzzy
 msgid ""
 "apply the changes you made, G43 will be executed only if it is active G-code"
 msgstr ""
-"aktiver endringene du har gjort, G43 vil kun kjøres hvis det er en aktiv g-"
-"kode"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:238
 msgid "Select a tool by number"
-msgstr "Velg verktøy ved nummer"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:239
 msgid "change tool with the command M61 Q?, no machine move will be done"
-msgstr "bytt verktøy med M61 Q?-kommandoen, maskinen vil ikke bevege seg"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:240
 msgid "change tool to the selected one"
-msgstr "endre verktøy til det som er valgt"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:241
 msgid "touch off the tool and set the value to the tool table"
@@ -1789,56 +1725,36 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:246
 msgid "Move to your home directory"
-msgstr "Flytt til din hjemmemappe"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:247
 msgid "Move to parent directory"
-msgstr "Flytt til inneholdende mappe"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:248
 msgid "Select the previous file"
-msgstr "Velg forrige fil"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:249
 msgid "Select the next file"
-msgstr "Velg neste fil"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:250
 msgid "Jump to user defined directory"
-msgstr "Hopp til brukerbestemt katalog"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:251
 msgid "select the highlighted file and return the path"
-msgstr "velg den markerte filen og returner filbanen"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:252
 msgid "Close without returning a file path"
-msgstr "Lukk uten å returnere en filbane"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:253
 msgid "Load File"
-msgstr "Last inn fil"
+msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:254
 msgid "home joints"
 msgstr ""
-
-#~ msgid "max."
-#~ msgstr "maks"
-
-#, fuzzy
-#~| msgid ""
-#~| "zero\n"
-#~| " G92"
-#~ msgid ""
-#~ "zero\n"
-#~ "G92"
-#~ msgstr ""
-#~ "null\n"
-#~ " G92"
-
-#~ msgid "Up"
-#~ msgstr "Opp"
-
-#~ msgid "Enter"
-#~ msgstr "Skriv inn"

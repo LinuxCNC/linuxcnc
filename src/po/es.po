@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-07-09 16:34+0100\n"
-"PO-Revision-Date: 2022-07-19 02:35+0000\n"
+"PO-Revision-Date: 2022-08-04 01:59+0000\n"
 "Last-Translator: Ulices <dev.n47os@aleeas.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/es/>\n"
@@ -1939,9 +1939,8 @@ msgid "Save Configuration File:"
 msgstr "Guardar archivo de configuración:"
 
 #: src/hal/utils/scope.c:494 src/hal/utils/scope_horiz.c:809
-#, fuzzy
 msgid "_Save"
-msgstr "Guardar"
+msgstr "_Guardar"
 
 #: src/hal/utils/scope.c:525
 msgid "_Open Configuration..."
@@ -2132,9 +2131,8 @@ msgstr ""
 "Haga clic en 'Salir' para salir de HALSCOPE"
 
 #: src/hal/utils/scope_horiz.c:535 src/hal/utils/scope_vert.c:712
-#, fuzzy
 msgid "_OK"
-msgstr "Aceptar"
+msgstr "_Aceptar"
 
 #: src/hal/utils/scope_horiz.c:555
 msgid "Thread:"
@@ -2961,9 +2959,9 @@ msgid "Cannot unhome extrajoint <%d> with motion enabled"
 msgstr "No se puede deshacer el extrajoint <%d> con el movimiento habilitado"
 
 #: src/emc/motion/homing.c:366
-#, fuzzy, c-format
+#, c-format
 msgid "homing.c Unexpected joint=%d jseq=%d current_seq=%d\n"
-msgstr "homing.c Inesperado joint=%d jseq=%d current_seq=%d"
+msgstr "homing.c Inesperado joint=%d jseq=%d current_seq=%d\n"
 
 #: src/emc/motion/homing.c:482
 #, c-format
@@ -2971,29 +2969,29 @@ msgid "unknown state '%d' during homing sequence"
 msgstr "estado desconocido '%d' durante la secuencia homing"
 
 #: src/emc/motion/homing.c:576
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot unhome invalid joint %d (max %d)\n"
-msgstr "No se puede hacer unhome en articulacion inválida %d (max %d)"
+msgstr "No se puede hacer unhome en articulacion inválida %d (max %d)\n"
 
 #: src/emc/motion/homing.c:583
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot unhome extrajoint <%d> with motion enabled\n"
-msgstr "No se puede mover la articulación <%d> con el movimiento habilitado."
+msgstr "No se puede mover la articulación <%d> con el movimiento habilitado.\n"
 
 #: src/emc/motion/homing.c:590
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot unhome while homing, joint %d\n"
-msgstr "No se puede hacer unhome mientras se hace homing, articulación %d"
+msgstr "No se puede hacer unhome mientras se hace homing, articulación %d\n"
 
 #: src/emc/motion/homing.c:595
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot unhome while moving, joint %d\n"
-msgstr "No se puede hacer unhome mientras se mueve, articulacion %d"
+msgstr "No se puede hacer unhome mientras se mueve, articulacion %d\n"
 
 #: src/emc/motion/homing.c:601
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot unhome inactive joint %d\n"
-msgstr "No se puede hacer unhome en articulacion inactiva %d"
+msgstr "No se puede hacer unhome en articulacion inactiva %d\n"
 
 #: src/emc/motion/homing.c:757
 #, c-format
@@ -5354,7 +5352,6 @@ msgid "Commands may be tested here but they will NOT be saved"
 msgstr "Los comandos pueden probarse aquí pero NO se guardarán"
 
 #: tcl/bin/halshow.tcl:1257
-#, fuzzy
 msgid "Integer (disabled by \"--iformat\" argument)"
 msgstr "Entero (deshabilitado por el argumento \"--iformat\")"
 
@@ -6110,9 +6107,8 @@ msgid "expected"
 msgstr "esperado"
 
 #: tcl/ngcgui.tcl:739
-#, fuzzy
 msgid "no 'sub' found in file"
-msgstr "no se encontró sub en el archivo"
+msgstr "no se encontró 'sub' en el archivo"
 
 #: tcl/ngcgui.tcl:742
 msgid "no 'endsub' found in file"
@@ -8188,9 +8184,8 @@ msgid "Edit _tool data..."
 msgstr "Editar _datos de herramienta..."
 
 #: share/axis/tcl/axis.tcl:90
-#, fuzzy
 msgid "Reload tool _data"
-msgstr "Recargar ta_bla de herramientas"
+msgstr "Recargar tool_data"
 
 #: share/axis/tcl/axis.tcl:96
 msgid "_Ladder Editor..."
@@ -9735,7 +9730,6 @@ msgid "User Buttons"
 msgstr "Botones de usuario"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:146
-#, fuzzy
 msgid "QtPlasmaC THCAD"
 msgstr "QtPlasmaC THCAD"
 
@@ -9777,7 +9771,6 @@ msgstr "Casi hecho"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:155
 #: src/emc/usr_intf/pncconf/private_data.py:1066
-#, fuzzy
 msgid "Gecko 201"
 msgstr "Gecko 201"
 
@@ -10053,12 +10046,10 @@ msgid "Home V"
 msgstr "Home V"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:232
-#, fuzzy
 msgid "Home Tandem X"
 msgstr "Inicio Tándem X"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:232
-#, fuzzy
 msgid "Home Tandem Y"
 msgstr "Inicio Tándem Y"
 
@@ -10071,12 +10062,10 @@ msgid "Minimum Limit + Home Y"
 msgstr "Límite mínimo + Home Y"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:234
-#, fuzzy
 msgid "Minimum Limit + Home Tandem X"
 msgstr "Límite mínimo + Inicio Tándem X"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:234
-#, fuzzy
 msgid "Minimum Limit + Home Tandem Y"
 msgstr "Límite mínimo + Inicio Tándem Y"
 
@@ -10105,12 +10094,10 @@ msgid "Maximum Limit + Home Y"
 msgstr "Límite máximo + Home Y"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:238
-#, fuzzy
 msgid "Maximum Limit + Home Tandem X"
 msgstr "Límite máximo + Inicio Tándem X"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:238
-#, fuzzy
 msgid "Maximum Limit + Home Tandem Y"
 msgstr "Límite máximo + Inicio Tándem Y"
 
@@ -10155,12 +10142,10 @@ msgid "Both Limit + Home V"
 msgstr "Ambos límites + Home V"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:244
-#, fuzzy
 msgid "Both Limit + Home Tandem X"
 msgstr "Ambos límites + Inicio Tándem X"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:244
-#, fuzzy
 msgid "Both Limit + Home Tandem Y"
 msgstr "Ambos límites + Inicio Tándem Y"
 
@@ -10173,12 +10158,10 @@ msgid "Minimum Limit Y"
 msgstr "Límite mínimo Y"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:246
-#, fuzzy
 msgid "Minimum Limit Tandem X"
 msgstr "Límite mínimo Tándem X"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:246
-#, fuzzy
 msgid "Minimum Limit Tandem Y"
 msgstr "Límite mínimo Tándem Y"
 
@@ -10207,12 +10190,10 @@ msgid "Maximum Limit Y"
 msgstr "Límite máximo Y"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:250
-#, fuzzy
 msgid "Maximum Limit Tandem X"
 msgstr "Límite máximo Tándem X"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:250
-#, fuzzy
 msgid "Maximum Limit Tandem Y"
 msgstr "Límite máximo Tándem Y"
 
@@ -10257,12 +10238,10 @@ msgid "Both Limit V"
 msgstr "Ambos límites V"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:256
-#, fuzzy
 msgid "Both Limit Tandem X"
 msgstr "Ambos límites Tándem X"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:256
-#, fuzzy
 msgid "Both Limit Tandem Y"
 msgstr "Ambos límites Tándem Y"
 
@@ -10307,7 +10286,6 @@ msgid "Plasma Arc OK"
 msgstr "Arco Plasma OK"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:259
-#, fuzzy
 msgid "Plasma Float Switch"
 msgstr "Interruptor Flotante de Plasma"
 
@@ -10316,7 +10294,6 @@ msgid "Plasma Breakaway"
 msgstr "Plasma Ruptura"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:260
-#, fuzzy
 msgid "Plasma Ohmic Contact"
 msgstr "Habilitar contacto Plasma Ohmic"
 
@@ -10325,7 +10302,6 @@ msgid "Plasma Move Up"
 msgstr "Mover arriba Plasma"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:260
-#, fuzzy
 msgid "Plasma Move Down"
 msgstr "Mover abajo Plasma"
 
@@ -10617,13 +10593,11 @@ msgstr "# agregar comandos MDI halui aquí (máx. 64)"
 
 #: src/emc/usr_intf/stepconf/build_INI.py:403
 #: src/emc/usr_intf/pncconf/build_INI.py:565
-#, fuzzy
 msgid "# set the dro position ('top' or 'bottom')"
 msgstr "# ajuste la posición dro ('superior' o 'inferior')"
 
 #: src/emc/usr_intf/stepconf/build_INI.py:406
 #: src/emc/usr_intf/pncconf/build_INI.py:568
-#, fuzzy
 msgid "# error message flash (0=no, 1=yes)"
 msgstr "# mensaje de error flash (0=no, 1=sí)"
 
@@ -11355,9 +11329,8 @@ msgid "QtPlasmaC"
 msgstr "QtPlasmaC"
 
 #: src/emc/usr_intf/stepconf/options.glade:73
-#, fuzzy
 msgid "Screen:  "
-msgstr "Pantalla:  "
+msgstr "Pantalla:   "
 
 #: src/emc/usr_intf/stepconf/options.glade:127
 #: src/emc/usr_intf/pncconf/screen.glade:3281
@@ -11586,7 +11559,6 @@ msgstr "Subir"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:31
 #: src/emc/usr_intf/pncconf/ubuttons.glade:34
-#, fuzzy
 msgid "NUM"
 msgstr "NML"
 
@@ -11611,37 +11583,31 @@ msgstr "10"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:189
 #: src/emc/usr_intf/pncconf/ubuttons.glade:197
-#, fuzzy
 msgid "11"
 msgstr "11"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:201
 #: src/emc/usr_intf/pncconf/ubuttons.glade:210
-#, fuzzy
 msgid "12"
 msgstr "12"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:213
 #: src/emc/usr_intf/pncconf/ubuttons.glade:223
-#, fuzzy
 msgid "13"
 msgstr "13"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:225
 #: src/emc/usr_intf/pncconf/ubuttons.glade:236
-#, fuzzy
 msgid "14"
 msgstr "14"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:237
 #: src/emc/usr_intf/pncconf/ubuttons.glade:249
-#, fuzzy
 msgid "15"
 msgstr "15"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:249
 #: src/emc/usr_intf/pncconf/ubuttons.glade:262
-#, fuzzy
 msgid "16"
 msgstr "16"
 
@@ -11653,19 +11619,16 @@ msgstr "17"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:273
 #: src/emc/usr_intf/pncconf/ubuttons.glade:288
-#, fuzzy
 msgid "18"
 msgstr "18"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:285
 #: src/emc/usr_intf/pncconf/ubuttons.glade:301
-#, fuzzy
 msgid "19"
 msgstr "19"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:297
 #: src/emc/usr_intf/pncconf/ubuttons.glade:314
-#, fuzzy
 msgid "20"
 msgstr "20"
 
@@ -11684,14 +11647,12 @@ msgstr "IDX"
 #: src/emc/usr_intf/stepconf/thcad.glade:32
 #: src/emc/usr_intf/pncconf/thcad.glade:15
 #: src/emc/usr_intf/pncconf/thcad.glade:172
-#, fuzzy
 msgid "32"
 msgstr "32"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:35
 #: src/emc/usr_intf/pncconf/thcad.glade:18
 #: src/emc/usr_intf/pncconf/thcad.glade:173
-#, fuzzy
 msgid "64"
 msgstr "64"
 
@@ -11776,6 +11737,7 @@ msgstr "Opuesto"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
 msgid ""
 "_:"
+""
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -12059,13 +12021,12 @@ msgid "LinuxCNC 'PNCconf' configuration files"
 msgstr "Archivos de configuración LinuxCNC 'PNCconf'"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:929
-#, fuzzy
 msgid ""
 "It seems data in this file is from too old of a version of PNCConf to "
 "continue."
 msgstr ""
 "Parece que los datos en este archivo son demasiado antiguos de una versión "
-"de PNCConf paracontinuar.."
+"de PNCConf como para continuar."
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1292
 msgid "No board was found\n"
@@ -12476,21 +12437,19 @@ msgstr "# establecer el tipo de parada (0=indicador, 1=oculto, 2=botón)"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:574
 msgid "# laser touchoff"
-msgstr ""
+msgstr "# toque láser"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:576
 msgid "# camera touchoff"
-msgstr ""
+msgstr "# toque de cámara"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:578
-#, fuzzy
 msgid "# powermax communications"
-msgstr "Configuración de comunicación Modbus"
+msgstr "# comunicaciones powermax"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:583
-#, fuzzy
 msgid "# user buttons"
-msgstr "Botón Zero X"
+msgstr "# botones de usuario"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:351
 msgid "# ---Chargepump StepGen: 0.25 velocity = 10Khz square wave output---"
