@@ -471,6 +471,7 @@ class NgcGui(QtWidgets.QWidget):
         self.btn_finalize.pressed.connect(self.finalize_features)
         self.tabWidget.currentChanged.connect(lambda index: self.tab_changed(index))
         self.tabWidget.tabCloseRequested.connect(lambda index: self.close_tab(index))
+        self.add_configd_tabs()
 
     ###################################################################
     #Function to automatically add preconfigured NGCGUI files form the Linuxcnc INI as tabs in NGCGUI for QTVCP
@@ -481,20 +482,20 @@ class NgcGui(QtWidgets.QWidget):
         
     def add_configd_tabs(self):
         if INFO.NGC_SUB_PATH is None:
-            LOG.debug("UI Filename: {}".format(self.ui_file))("Didn't find a path NGCGUI files")
+            LOG.debug("UI Filename: {} Didn't find a path NGCGUI files".format(self.ui_file))
             return
         elif INFO.NGC_SUB is None:
-            LOG.debug("UI Filename: {}".format(self.ui_file))("Didn't find any configured NGCGUI files")
+            LOG.debug("Didn't find any configured NGCGUI files")
             return
         
         abs_ngc_sub_path = os.path.abspath(INFO.NGC_SUB_PATH)
-        LOG.debug("Path to NGCGUI files:",abs_ngc_sub_path )
-        LOG.debug("Found the following ngc_sub: ", INFO.NGC_SUB)
+        LOG.debug("Path to NGCGUI files:{}".format(abs_ngc_sub_path ))
+        LOG.debug("Found the following ngc_sub: {}".format(INFO.NGC_SUB))
 
         # sprt through sub list and add the pages.
         for curr_ngcfile in INFO.NGC_SUB:
            curr_fname = os.path.join(abs_ngc_sub_path,curr_ngcfile)
-           LOG.debug("Adding NGCGUI:",curr_fname)
+           LOG.debug("Adding NGCGUI:{}".format(curr_fname))
            self.add_page()
            mpage = self.tabWidget.currentWidget()
            mindex = self.tabWidget.currentIndex()

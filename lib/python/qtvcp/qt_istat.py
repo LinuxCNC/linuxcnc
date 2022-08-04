@@ -7,7 +7,7 @@ from . import logger
 
 log = logger.getLogger(__name__)
 # Force the log level for this module
-# log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+# log.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 try:
     LINUXCNCVERSION = os.environ['LINUXCNCVERSION']
@@ -110,8 +110,8 @@ class _IStat(object):
         self.INI_MACROS = self.INI.findall("DISPLAY", "MACRO")
 
         self.NGC_SUB_PATH = (self.INI.find("DISPLAY","NGCGUI_SUBFILE_PATH")) or None
-        if self.NGC_SUB_PATH is not None:
-            self.NGC_SUB_PATH = os.path.expanduser(temp)
+        if not self.NGC_SUB_PATH is None:
+            self.NGC_SUB_PATH = os.path.expanduser(self.NGC_SUB_PATH)
         self.NGC_SUB = (self.INI.findall("DISPLAY", "NGCGUI_SUBFILE")) or None
 
         self.MACHINE_IS_LATHE = bool(self.INI.find("DISPLAY", "LATHE"))
