@@ -6,13 +6,14 @@
 # root <aystarik@gmail.com>, 2009.
 # Juraj Adamkovic <stroje.hcnc@gmail.com>, 2022.
 # Дмитрий <krdima352@gmail.com>, 2022.
+# Nikita Shubin <nikita.shubin@maquefel.me>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: emc 2.2.8\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-07-09 16:34+0100\n"
-"PO-Revision-Date: 2022-07-23 19:20+0000\n"
-"Last-Translator: Дмитрий <krdima352@gmail.com>\n"
+"PO-Revision-Date: 2022-07-25 12:51+0000\n"
+"Last-Translator: Nikita Shubin <nikita.shubin@maquefel.me>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/ru/>\n"
 "Language: ru\n"
@@ -2924,7 +2925,7 @@ msgstr "неизвестное состояние '%d' в цикле поиск�
 #: src/emc/motion/homing.c:576
 #, c-format
 msgid "Cannot unhome invalid joint %d (max %d)\n"
-msgstr "Не могу сбросить начало, неверное положение %d (макс %d)"
+msgstr "Не могу сбросить начало, неверное положение %d (макс %d)\n"
 
 #: src/emc/motion/homing.c:583
 #, fuzzy, c-format
@@ -2934,17 +2935,17 @@ msgstr "Не могу сбросить начало экстра-сочлене�
 #: src/emc/motion/homing.c:590
 #, c-format
 msgid "Cannot unhome while homing, joint %d\n"
-msgstr "Не могу сбросить начало пока паркуюсь, положение %d"
+msgstr "Не могу сбросить начало пока паркуюсь, положение %d\n"
 
 #: src/emc/motion/homing.c:595
 #, c-format
 msgid "Cannot unhome while moving, joint %d\n"
-msgstr "Не могу сбросить начало пока двигаюсь, положение %d"
+msgstr "Не могу сбросить начало пока двигаюсь, положение %d\n"
 
 #: src/emc/motion/homing.c:601
 #, c-format
 msgid "Cannot unhome inactive joint %d\n"
-msgstr "Не могу сбросить начало у неактивного положения %d"
+msgstr "Не могу сбросить начало у неактивного положения %d\n"
 
 #: src/emc/motion/homing.c:757
 #, c-format
