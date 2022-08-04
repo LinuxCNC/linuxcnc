@@ -7,8 +7,8 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-07-09 16:34+0100\n"
-"PO-Revision-Date: 2022-08-04 01:59+0000\n"
-"Last-Translator: mk00002 <codo1983@gmail.com>\n"
+"PO-Revision-Date: 2022-08-04 07:50+0000\n"
+"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -11822,6 +11822,7 @@ msgstr "Entgegengesetzt"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
 msgid ""
 "_:"
+""
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -12104,14 +12105,12 @@ msgid "LinuxCNC 'PNCconf' configuration files"
 msgstr "LinuxCNC »PNCconf«-Konfigurationsdateien"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:929
-#, fuzzy
 msgid ""
 "It seems data in this file is from too old of a version of PNCConf to "
 "continue."
 msgstr ""
-"Es scheinen die Daten in dieser Datei von einer zu alten Version PNCConf zu "
-"sein um fortzufahren.\n"
-"."
+"Die Daten in dieser Datei scheinen von einer zu alten Version PNCConf zu "
+"sein um fortzufahren."
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1292
 msgid "No board was found\n"
@@ -16828,8 +16827,9 @@ msgstr "Gray-Code verwenden"
 #: src/emc/usr_intf/pncconf/external.glade:3412
 #: src/emc/usr_intf/pncconf/external.glade:4338
 #: src/emc/usr_intf/pncconf/external.glade:5281
+#, fuzzy
 msgid "ignore all-inputs false"
-msgstr "ignorieren aller Eingaben falsch"
+msgstr "ignorieren aller Eingänge falsch"
 
 #: src/emc/usr_intf/pncconf/external.glade:3458
 #: src/emc/usr_intf/pncconf/external.glade:4401
@@ -17541,7 +17541,7 @@ msgstr "Ausgang-Info"
 #: src/emc/usr_intf/pncconf/a_motor.glade:810
 #: src/emc/usr_intf/pncconf/s_motor.glade:817
 msgid "Step On-Time"
-msgstr ""
+msgstr "Schritt-Pulsdauer"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:859
 #: src/emc/usr_intf/pncconf/y_motor.glade:859
@@ -17549,7 +17549,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:824
 #: src/emc/usr_intf/pncconf/s_motor.glade:831
 msgid "Step Space"
-msgstr "Schrittweite"
+msgstr "Schritt-Pausendauer"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:911
 #: src/emc/usr_intf/pncconf/y_motor.glade:911
@@ -17557,7 +17557,7 @@ msgstr "Schrittweite"
 #: src/emc/usr_intf/pncconf/a_motor.glade:872
 #: src/emc/usr_intf/pncconf/s_motor.glade:881
 msgid "Direction Hold"
-msgstr "Zeit zwischen Schritt und Richtungswechsel"
+msgstr "Haltezeit Richtungssignal beim Richtungswechsel"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:925
 #: src/emc/usr_intf/pncconf/y_motor.glade:925
@@ -17565,7 +17565,7 @@ msgstr "Zeit zwischen Schritt und Richtungswechsel"
 #: src/emc/usr_intf/pncconf/a_motor.glade:886
 #: src/emc/usr_intf/pncconf/s_motor.glade:895
 msgid "Direction Setup"
-msgstr "Zeit zwischen Richtungswechsel und Schritt"
+msgstr "Zeit zwischen letztem Schritt und Änderung von Richtungs-Signal"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:977
 #: src/emc/usr_intf/pncconf/y_motor.glade:977
@@ -17906,7 +17906,7 @@ msgstr "Encoder Skala:"
 #: src/emc/usr_intf/pncconf/s_motor.glade:2223
 #, fuzzy
 msgid "Stepper Scale:"
-msgstr "Zeit zwischen zwei Schritten:"
+msgstr "Schrittmotor-Übersetzung"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:2298
 #: src/emc/usr_intf/pncconf/y_motor.glade:2292
@@ -18762,7 +18762,7 @@ msgstr ""
 #: src/emc/usr_intf/gscreen/gscreen.py:688
 msgid "No default angular jog increments entry found in [DISPLAY] of INI file"
 msgstr ""
-"Kein Ausgangswert für Jogging-Winkel-Schrittweite gefunden im Abschnitt "
+"Keinen Standardwert für Jogging-Winkel-Schrittweite gefunden im Abschnitt "
 "[DISPLAY] der INI-Datei"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:697
