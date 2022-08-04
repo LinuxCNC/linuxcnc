@@ -6,77 +6,79 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-07-09 22:04+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
+"PO-Revision-Date: 2022-07-28 15:58+0000\n"
+"Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: none\n"
 "Language: sk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"X-Generator: Weblate 4.14-dev\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:281
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:286
 msgid "**** GMOCCAPY INI Entry ****"
-msgstr ""
+msgstr "**** Vstup GMOCCAPY INI ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:282
 msgid "user mode selected"
-msgstr ""
+msgstr "zvolený užívateľský režim"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:287
 #, python-brace-format
 msgid "logo entry found = {0}"
-msgstr ""
+msgstr "nájdený záznam loga = {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:292
 msgid "**** GMOCCAPY INI Entry Error ****"
-msgstr ""
+msgstr "**** Chyba vstupu GMOCCAPY INI ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:293
 msgid "Logofile entry found, but could not be converted to path."
-msgstr ""
+msgstr "Položka súboru loga sa našla, ale nebolo ju možné konvertovať."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:294
 msgid "The file path should not contain any spaces"
-msgstr ""
+msgstr "Cesta k súboru by nemala obsahovať žiadne medzery"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:673
 msgid "axis"
-msgstr ""
+msgstr "os"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:674
 msgid "axes"
-msgstr ""
+msgstr "osi"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:679
 msgid "joint"
-msgstr ""
+msgstr "kĺb"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:680
 msgid "joints"
-msgstr ""
+msgstr "kĺby"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:696
 #, python-brace-format
 msgid "Press to home all {0}"
-msgstr ""
+msgstr "Stlačením vykonáte kalibráciu {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:709
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:996
 msgid "Press to display previous homing button"
-msgstr ""
+msgstr "Stlačením zobrazíte tlačidlo predchádzajúcej kalibrácie"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:725
 #, python-brace-format
 msgid "Press to home {0} {1}"
-msgstr ""
+msgstr "Stlačením tlačidla skalibrujete {0} {1}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:742
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1025
 msgid "Press to display next homing button"
-msgstr ""
+msgstr "Stlačením zobrazíte tlačidlo ďalšej kalibrácie"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:757
 #, python-brace-format
