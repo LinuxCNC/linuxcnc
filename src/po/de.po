@@ -4,10 +4,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-07-09 16:34+0100\n"
-"PO-Revision-Date: 2022-06-27 21:55+0000\n"
-"Last-Translator: Michael Stellmacher <michaelst78@gmail.com>\n"
+"PO-Revision-Date: 2022-08-04 01:59+0000\n"
+"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.13.1-dev\n"
+"X-Generator: Weblate 4.14-dev\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -11821,7 +11821,8 @@ msgstr "Entgegengesetzt"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -16828,9 +16829,8 @@ msgstr "Gray-Code verwenden"
 #: src/emc/usr_intf/pncconf/external.glade:3412
 #: src/emc/usr_intf/pncconf/external.glade:4338
 #: src/emc/usr_intf/pncconf/external.glade:5281
-#, fuzzy
 msgid "ignore all-inputs false"
-msgstr "ignorieren aller Eingänge falsch"
+msgstr "ignorieren aller Eingaben falsch"
 
 #: src/emc/usr_intf/pncconf/external.glade:3458
 #: src/emc/usr_intf/pncconf/external.glade:4401
