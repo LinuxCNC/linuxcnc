@@ -1,13 +1,14 @@
 # Steffen Möller <steffen_moeller@gmx.de>, 2022.
 # Hans U. <hansunzner@gmail.com>, 2022.
 # Michael Stellmacher <michaelst78@gmail.com>, 2022.
+# mk00002 <codo1983@gmail.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-07-09 16:34+0100\n"
 "PO-Revision-Date: 2022-08-04 01:59+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"Last-Translator: mk00002 <codo1983@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -3606,7 +3607,6 @@ msgid "1st Modbus Ele."
 msgstr "Erstes Modbus Ele."
 
 #: src/hal/classicladder/config_gtk.c:294
-#, fuzzy
 msgid "# of Ele"
 msgstr "# Ele"
 
@@ -11396,7 +11396,6 @@ msgstr "Skala %"
 
 #: src/emc/usr_intf/stepconf/options.glade:48
 #: src/emc/usr_intf/pncconf/private_data.py:489
-#, fuzzy
 msgid "Axis"
 msgstr "Achse"
 
@@ -16843,7 +16842,6 @@ msgid "FO"
 msgstr "FO"
 
 #: src/emc/usr_intf/pncconf/external.glade:4420
-#, fuzzy
 msgid "MVO"
 msgstr "MVO"
 
@@ -17551,7 +17549,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:824
 #: src/emc/usr_intf/pncconf/s_motor.glade:831
 msgid "Step Space"
-msgstr ""
+msgstr "Schrittweite"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:911
 #: src/emc/usr_intf/pncconf/y_motor.glade:911
@@ -18762,11 +18760,10 @@ msgstr ""
 "INI-Datei"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:688
-#, fuzzy
 msgid "No default angular jog increments entry found in [DISPLAY] of INI file"
 msgstr ""
-"Keine Standardeinstellung für Jogging-Winkel-Schrittweite gefunden im "
-"Abschnitt [DISPLAY] der INI-Datei"
+"Kein Ausgangswert für Jogging-Winkel-Schrittweite gefunden im Abschnitt "
+"[DISPLAY] der INI-Datei"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:697
 #, python-format
