@@ -108,6 +108,12 @@ class _IStat(object):
         else:
             self.MACRO_PATH = None
         self.INI_MACROS = self.INI.findall("DISPLAY", "MACRO")
+
+        self.NGC_SUB_PATH = (self.INI.find("DISPLAY","NGCGUI_SUBFILE_PATH")) or None
+        if self.NGC_SUB_PATH is not None:
+            self.NGC_SUB_PATH = os.path.expanduser(temp)
+        self.NGC_SUB = (self.INI.findall("DISPLAY", "NGCGUI_SUBFILE")) or None
+
         self.MACHINE_IS_LATHE = bool(self.INI.find("DISPLAY", "LATHE"))
         try:
             self.MACHINE_IS_QTPLASMAC = 'qtplasmac' in self.INI.find("DISPLAY", "DISPLAY")
