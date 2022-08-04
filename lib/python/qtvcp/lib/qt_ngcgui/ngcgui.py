@@ -472,6 +472,35 @@ class NgcGui(QtWidgets.QWidget):
         self.tabWidget.currentChanged.connect(lambda index: self.tab_changed(index))
         self.tabWidget.tabCloseRequested.connect(lambda index: self.close_tab(index))
 
+    ###################################################################
+    #Function to automatically add preconfigured NGCGUI files form the Linuxcnc INI as tabs in NGCGUI for QTVCP
+    #The funtion is called by the Ngcgui class constructor and relies on the following INI enteries
+    #NGCGUI_SUBFILE : name of the NGCGUI file (including extension) to be automatically loaded
+    #NGCGUI_SUBFILE_PATH : path of the directory where the files can be found, relative to the root of the launched Linuxcnc INI
+    ###################################################################
+        
+    def add_configd_tabs(self):
+        if INFO.NGC_SUB_PATH is None:
+            LOG.debug("UI Filename: {}".format(self.ui_file))("Didn't find a path NGCGUI files")
+            return
+        elif INFO.NGC_SUB is None:
+            LOG.debug("UI Filename: {}".format(self.ui_file))("Didn't find any configured NGCGUI files")
+            return
+        
+        abs_ngc_sub_path = os.path.abspath(INFO.NGC_SUB_PATH)
+        LOG.debug("Path to NGCGUI files:",abs_ngc_sub_path )
+        LOG.debug("Found the following ngc_sub: ", INFO.NGC_SUB)
+
+        # sprt through sub list and add the pages.
+        for curr_ngcfile in INFO.NGC_SUB:
+           curr_fname = os.path.join(abs_ngc_sub_path,curr_ngcfile)
+           LOG.debug("Adding NGCGUI:",curr_fname)
+           self.add_page()
+           mpage = self.tabWidget.currentWidget()
+           mindex = self.tabWidget.currentIndex()
+           mpage.update_onepage('sub', curr_fname)
+           self.tabWidget.setTabText(mindex, curr_ngcfile)    
+
     def add_page(self):
         page = OnePg(self, '', '', '') # create new blank page
         page.make_fileset()
@@ -649,7 +678,10 @@ class NgcGui(QtWidgets.QWidget):
                 self.textEdit_status.append('finalize_features: unknown return value')
         # make a unique filename
         # (avoids problems with gremlin ignoring new file with same name)
-        autoname = get_file_save("Select auto filename")
+        if not self.chk_save.isChecked() and INFO.LINUXCNC_IS_RUNNING:
+            autoname= "tmp"
+        else:
+            autoname = get_file_save("Select auto filename")
         if autoname is None:
             self.textEdit_status.append("Finalize features aborted")
             return
