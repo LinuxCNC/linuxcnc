@@ -247,6 +247,8 @@ class Status(GStat):
         super(GStat, self).__init__()
         self.current_jog_rate = INI.DEFAULT_LINEAR_JOG_VEL
         self.angular_jog_velocity = INI.DEFAULT_ANGULAR_JOG_VEL
+        # can only have ONE error channel instance in qtvcp
+        self.ERROR = linuxcnc.error_channel()
 
     # we override this function from hal_glib
     # TODO why do we need to do this with qt5 and not qt4?
