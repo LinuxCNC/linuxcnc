@@ -177,7 +177,7 @@ encoder:
         with the "quad filter" set to 15 clocks, the low-level input
         needs about 5 Msample/sec.
 
-        it's actually running at 50 MHz, so that shouldnt be a
+        it's actually running at 50 MHz, so that shouldn't be a
         problem...
 
         The firmware is storing the quadrature count in a 16-bit

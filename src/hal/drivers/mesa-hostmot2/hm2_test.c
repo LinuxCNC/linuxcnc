@@ -293,7 +293,7 @@ int rtapi_app_main(void) {
         // 
         // good IO Cookie, Config Name, and IDROM Type
         // the IDROM offset is the usual, 0x400, and there's a good IDROM type there
-        // good PortWidth, but IOPorts doesnt match what the llio said
+        // good PortWidth, but IOPorts doesn't match what the llio said
         // 
 
         case 8: {

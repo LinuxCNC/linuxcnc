@@ -139,43 +139,43 @@ static char *hm2_7i96_pin_names[] = {
     "internal",  /* SSerial TXEN */
     "internal",  /* SSR AC Reference pin */
 
-    "P1-01",
-    "P1-02",
-    "P1-03",
-    "P1-04",
-    "P1-05",
-    "P1-06",
-    "P1-07",
-    "P1-08",
-    "P1-09",
-    "P1-11",
-    "P1-13",
-    "P1-15",
-    "P1-17",
-    "P1-19",
-    "P1-21",
-    "P1-23",
-    "P1-25"
+    "P1-01/DB25-01", /* P1 parallel expansion */
+    "P1-02/DB25-14",
+    "P1-03/DB25-02",
+    "P1-04/DB25-15",
+    "P1-05/DB25-03",
+    "P1-06/DB25-16",
+    "P1-07/DB25-04",
+    "P1-08/DB25-17",
+    "P1-09/DB25-05",
+    "P1-11/DB25-06",
+    "P1-13/DB25-07",
+    "P1-15/DB25-08",
+    "P1-17/DB25-09",
+    "P1-19/DB25-10",
+    "P1-21/DB25-11",
+    "P1-23/DB25-12",
+    "P1-25/DB25-13",
 };
 
 static char *hm2_7i94_pin_names[] = {
-    "P2-01",
-    "P2-02",
-    "P2-03",
-    "P2-04",
-    "P2-05",
-    "P2-06",
-    "P2-07",
-    "P2-08",
-    "P2-09",
-    "P2-11",
-    "P2-13",
-    "P2-15",
-    "P2-17",
-    "P2-19",
-    "P2-21",
-    "P2-23",
-    "P2-25",
+    "P2-01/DB25-01", /* P2 parallel expansion */
+    "P2-02/DB25-14",
+    "P2-03/DB25-02",
+    "P2-04/DB25-15",
+    "P2-05/DB25-03",
+    "P2-06/DB25-16",
+    "P2-07/DB25-04",
+    "P2-08/DB25-17",
+    "P2-09/DB25-05",
+    "P2-11/DB25-06",
+    "P2-13/DB25-07",
+    "P2-15/DB25-08",
+    "P2-17/DB25-09",
+    "P2-19/DB25-10",
+    "P2-21/DB25-11",
+    "P2-23/DB25-12",
+    "P2-25/DB25-13",
     "J6-RX0",
     "J6-TX0",
     "J6-TXEN0",
@@ -247,23 +247,23 @@ static char *hm2_7i95_pin_names[] = {
     "TB5-23/TB5-24",
     "internal",
 
-    "P1-01", /* P1 parallel expansion */
-    "P1-02",
-    "P1-03",
-    "P1-04",
-    "P1-05",
-    "P1-06",
-    "P1-07",
-    "P1-08",
-    "P1-09",
-    "P1-11",
-    "P1-13",
-    "P1-15",
-    "P1-17",
-    "P1-19",
-    "P1-21",
-    "P1-23",
-    "P1-25"
+    "P1-01/DB25-01",  /* P1 parallel expansion */
+    "P1-02/DB25-14",
+    "P1-03/DB25-02",
+    "P1-04/DB25-15",
+    "P1-05/DB25-03",
+    "P1-06/DB25-16",
+    "P1-07/DB25-04",
+    "P1-08/DB25-17",
+    "P1-09/DB25-05",
+    "P1-11/DB25-06",
+    "P1-13/DB25-07",
+    "P1-15/DB25-08",
+    "P1-17/DB25-09",
+    "P1-19/DB25-10",
+    "P1-21/DB25-11",
+    "P1-23/DB25-12",
+    "P1-25/DB25-13",
 };
 
 static char *hm2_7i97_pin_names[] = {
@@ -302,23 +302,23 @@ static char *hm2_7i97_pin_names[] = {
     "TB4-17/TB4-18",
     "TB4-17/TB4-18",
 
-    "P1-01", /* P1 parallel expansion */
-    "P1-02",
-    "P1-03",
-    "P1-04",
-    "P1-05",
-    "P1-06",
-    "P1-07",
-    "P1-08",
-    "P1-09",
-    "P1-11",
-    "P1-13",
-    "P1-15",
-    "P1-17",
-    "P1-19",
-    "P1-21",
-    "P1-23",
-    "P1-25"
+    "P1-01/DB25-01",  /* P1 parallel expansion */
+    "P1-02/DB25-14",
+    "P1-03/DB25-02",
+    "P1-04/DB25-15",
+    "P1-05/DB25-03",
+    "P1-06/DB25-16",
+    "P1-07/DB25-04",
+    "P1-08/DB25-17",
+    "P1-09/DB25-05",
+    "P1-11/DB25-06",
+    "P1-13/DB25-07",
+    "P1-15/DB25-08",
+    "P1-17/DB25-09",
+    "P1-19/DB25-10",
+    "P1-21/DB25-11",
+    "P1-23/DB25-12",
+    "P1-25/DB25-13",
 };
 
 static char *hm2_Mc04_pin_names[] = {
@@ -461,7 +461,7 @@ static hm2_eth_t boards[MAX_ETH_BOARDS];
 static int eth_socket_send(int sockfd, const void *buffer, int len, int flags);
 static int eth_socket_recv(int sockfd, void *buffer, int len, int flags);
 
-#define IPTABLES "/sbin/iptables"
+#define IPTABLES "env \"PATH=/usr/sbin:/sbin:${PATH}\" iptables"
 #define CHAIN "hm2-eth-rules-output"
 
 static int shell(char *command) {
@@ -500,14 +500,14 @@ static int iptables_state = -1;
 static bool use_iptables() {
     if(iptables_state == -1) {
         if(!chain_exists()) {
-            int res = shell("/sbin/iptables -N " CHAIN);
+            int res = shell(IPTABLES " -N " CHAIN);
             if(res != EXIT_SUCCESS) {
                 LL_PRINT("ERROR: Failed to create iptables chain "CHAIN);
                 return (iptables_state = 0);
             }
         }
         // now add a jump to our chain at the start of the OUTPUT chain if it isn't in the chain already
-        int res = shell("/sbin/iptables -C OUTPUT -j " CHAIN " 2>/dev/null || /sbin/iptables -I OUTPUT 1 -j " CHAIN);
+        int res = shell(IPTABLES "-C OUTPUT -j " CHAIN " 2>/dev/null || /sbin/iptables -I OUTPUT 1 -j " CHAIN);
         if(res != EXIT_SUCCESS) {
             LL_PRINT("ERROR: Failed to insert rule in OUTPUT chain");
             return (iptables_state = 0);
@@ -1237,6 +1237,29 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.ioport_connector_name[3] = "TB3";
 
         board->llio.fpga_part_number = "6slx9tqg144";
+        board->llio.num_leds = 4;
+
+    } else if (strncmp(board_name, "7I96S", 8) == 0) {
+        strncpy(llio_name, board_name, 8);
+        llio_name[1] = tolower(llio_name[1]);
+        llio_name[4] = tolower(llio_name[4]);
+       board->llio.num_ioport_connectors = 3;
+        board->llio.pins_per_connector = 17;
+        board->llio.io_connector_pin_names = hm2_7i96_pin_names;
+
+        // DB25, 17 pins used, IO 34 to IO 50
+        board->llio.ioport_connector_name[0] = "P1";
+
+        // terminal block, 8 pins used, Step & Dir 0-3
+        board->llio.ioport_connector_name[1] = "TB1";
+
+        // terminal block, 7 pins used, Step & Dir 4, Enc A, B, Z, serial Rx/Tx, Spindle Analog
+        board->llio.ioport_connector_name[2] = "TB2";
+
+        // terminal block, 11 inputs, 6 SSR outputs
+        board->llio.ioport_connector_name[3] = "TB3";
+
+        board->llio.fpga_part_number = "t20f256";
         board->llio.num_leds = 4;
 
     } else if (strncmp(board_name, "7I97", 8) == 0) {

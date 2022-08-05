@@ -290,6 +290,38 @@ int hm2_inmux_parse_md(hostmot2_t *hm2, int md_index) {
                     goto fail1;
                 }
 
+                rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.enc0-reset", hm2->llio->name, i);
+                r = hal_pin_bit_new(name, HAL_IN, &(hm2->inmux.instance[i].hal.pin.enc0_reset), hm2->llio->comp_id);
+                if (r < 0) {
+                    HM2_ERR("error adding pin '%s', aborting\n", name);
+                    r = -ENOMEM;
+                    goto fail1;
+                }
+
+                rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.enc1-reset", hm2->llio->name, i);
+                r = hal_pin_bit_new(name, HAL_IN, &(hm2->inmux.instance[i].hal.pin.enc1_reset), hm2->llio->comp_id);
+                if (r < 0) {
+                    HM2_ERR("error adding pin '%s', aborting\n", name);
+                    r = -ENOMEM;
+                    goto fail1;
+                }
+
+                rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.enc2-reset", hm2->llio->name, i);
+                r = hal_pin_bit_new(name, HAL_IN, &(hm2->inmux.instance[i].hal.pin.enc2_reset), hm2->llio->comp_id);
+                if (r < 0) {
+                    HM2_ERR("error adding pin '%s', aborting\n", name);
+                    r = -ENOMEM;
+                    goto fail1;
+                }
+
+                rtapi_snprintf(name, sizeof(name), "%s.inmux.%02d.enc3-reset", hm2->llio->name, i);
+                r = hal_pin_bit_new(name, HAL_IN, &(hm2->inmux.instance[i].hal.pin.enc3_reset), hm2->llio->comp_id);
+                if (r < 0) {
+                    HM2_ERR("error adding pin '%s', aborting\n", name);
+                    r = -ENOMEM;
+                    goto fail1;
+                }
+
             }
 
         }
@@ -488,25 +520,33 @@ void hm2_inmux_process_tram_read(hostmot2_t *hm2) {
         hm2->inmux.instance[i].prev_enc0_count = hm2->inmux.instance[i].prev_enc0_count + count_diff;
         if (count_diff >  128) count_diff -= 256;
         if (count_diff < -128) count_diff += 256;
-	*hm2->inmux.instance[i].hal.pin.enc0_count = *hm2->inmux.instance[i].hal.pin.enc0_count + count_diff;
+	if (*hm2->inmux.instance[i].hal.pin.enc0_reset == 0) {
+	    *hm2->inmux.instance[i].hal.pin.enc0_count = *hm2->inmux.instance[i].hal.pin.enc0_count + count_diff;
+	    } else { *hm2->inmux.instance[i].hal.pin.enc0_count = 0;}
 	raw_count = (hm2->inmux.mpg_read_reg[i] >> 8) & 0x000000FF;	
         count_diff = (rtapi_s32)raw_count - hm2->inmux.instance[i].prev_enc1_count;
         hm2->inmux.instance[i].prev_enc1_count = hm2->inmux.instance[i].prev_enc1_count + count_diff;
         if (count_diff >  128) count_diff -= 256;
         if (count_diff < -128) count_diff += 256;
-	*hm2->inmux.instance[i].hal.pin.enc1_count = *hm2->inmux.instance[i].hal.pin.enc1_count + count_diff;
+	if (*hm2->inmux.instance[i].hal.pin.enc1_reset == 0) {
+	    *hm2->inmux.instance[i].hal.pin.enc1_count = *hm2->inmux.instance[i].hal.pin.enc1_count + count_diff;
+	    } else { *hm2->inmux.instance[i].hal.pin.enc1_count = 0;}
 	raw_count = (hm2->inmux.mpg_read_reg[i] >> 16) & 0x000000FF;	
         count_diff = (rtapi_s32)raw_count - hm2->inmux.instance[i].prev_enc2_count;
         hm2->inmux.instance[i].prev_enc2_count = hm2->inmux.instance[i].prev_enc2_count + count_diff;
         if (count_diff >  128) count_diff -= 256;
         if (count_diff < -128) count_diff += 256;
-	*hm2->inmux.instance[i].hal.pin.enc2_count = *hm2->inmux.instance[i].hal.pin.enc2_count + count_diff;
+	if (*hm2->inmux.instance[i].hal.pin.enc2_reset == 0) {
+	    *hm2->inmux.instance[i].hal.pin.enc2_count = *hm2->inmux.instance[i].hal.pin.enc2_count + count_diff;
+	    } else { *hm2->inmux.instance[i].hal.pin.enc2_count = 0;}
 	raw_count = (hm2->inmux.mpg_read_reg[i] >> 24) & 0x000000FF;	
         count_diff = (rtapi_s32)raw_count - hm2->inmux.instance[i].prev_enc3_count;
         hm2->inmux.instance[i].prev_enc3_count = hm2->inmux.instance[i].prev_enc3_count + count_diff;
         if (count_diff >  128) count_diff -= 256;
         if (count_diff < -128) count_diff += 256;
-	*hm2->inmux.instance[i].hal.pin.enc3_count = *hm2->inmux.instance[i].hal.pin.enc3_count + count_diff;
+	if (*hm2->inmux.instance[i].hal.pin.enc3_reset == 0) {
+	    *hm2->inmux.instance[i].hal.pin.enc3_count = *hm2->inmux.instance[i].hal.pin.enc3_count + count_diff;
+	    } else { *hm2->inmux.instance[i].hal.pin.enc3_count = 0;}
     }
 }
 
