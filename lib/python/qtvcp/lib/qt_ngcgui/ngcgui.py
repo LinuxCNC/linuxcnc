@@ -200,7 +200,7 @@ class SubFile():
         if os.path.splitext(self.sub_file)[-1] in ['.ngc','.NGC','.nc','.NC']:
             img_file = find_image(fname)
             if img_file is None:
-                img_file = os.path.join(PATH.WORKINGDIR, 'images/silver_dragon.png')
+                img_file = os.path.join(HERE, 'images/silver_dragon.png')
                 self.flag_error("No image found - using default")
             self.image = img_file
             self.read_ngc()
@@ -492,10 +492,10 @@ class NgcGui(QtWidgets.QWidget):
         LOG.debug("Path to NGCGUI files:{}".format(abs_ngc_sub_path ))
         LOG.debug("Found the following ngc_sub: {}".format(INFO.NGC_SUB))
 
-        # sprt through sub list and add the pages.
+        # sort through sub list and add the pages.
         for curr_ngcfile in INFO.NGC_SUB:
            curr_fname = os.path.join(abs_ngc_sub_path,curr_ngcfile)
-           LOG.debug("Adding NGCGUI:{}".format(curr_fname))
+           LOG.debug("Adding NGCGUI:[]".format(curr_fname))
            self.add_page()
            mpage = self.tabWidget.currentWidget()
            mindex = self.tabWidget.currentIndex()
