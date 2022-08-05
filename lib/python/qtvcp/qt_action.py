@@ -1,6 +1,6 @@
 import os
 import subprocess
-
+from time import sleep
 from PyQt5.QtWidgets import (QApplication, QTabWidget, QStackedWidget,
     QWidget, QGridLayout,QGraphicsBlurEffect, QGraphicsDropShadowEffect,
                 QGraphicsColorizeEffect)
@@ -194,10 +194,13 @@ class _Lcnc_Action(object):
             elif result == linuxcnc.RCS_ERROR:
                 LOG.debug('CALL_MDI_WAIT RCS error: {}'.format(time, result))
                 return -1
-            result = linuxcnc.error_channel().poll()
-            if result:
-                STATUS.emit('error', result[0], result[1])
-                LOG.error('CALL_MDI_WAIT Error: {}'.format(result[1]))
+            sleep(.5)
+            error = STATUS.ERROR.poll()
+            # next commented line just for debugging
+            #self.cmd.error_msg('returned:'+str(error))
+            if error:
+                STATUS.emit('error', error[0], error[1])
+                LOG.error('CALL_MDI_WAIT Error: {}'.format(error[1]))
                 return -1
         if mode_return:
             self.ensure_mode(premode)
