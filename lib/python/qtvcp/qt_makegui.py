@@ -87,7 +87,7 @@ class _VCPWindow(QtWidgets.QMainWindow):
         self.__class__._instanceNum += 1
 
         self.halcomp = halcomp
-        self.has_closing_handler = None
+        self.has_closing_handler = False
         self.setFocus(True)
         self.PATHS = path
         self.PREFS_ = None
