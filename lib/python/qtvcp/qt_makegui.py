@@ -222,7 +222,7 @@ Python Error:\n {}'''.format(str(e))
 
         # Check for Preference file specified qss
         if fname is None:
-            if self.PREFS_:
+            if not self.PREFS_ is None:
                 path = self.PREFS_.getpref('style_QSS_Path', 'DEFAULT', str, 'BOOK_KEEPING')
                 if path.lower() == 'none':
                     return
