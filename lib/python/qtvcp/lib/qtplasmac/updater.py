@@ -39,21 +39,26 @@ def move_options_to_prefs_file(inifile, prefs):
         prefs.putpref('DRO position', data, str, 'GUI_OPTIONS')
     data = inifile.find('QTPLASMAC', 'FLASH_ERROR') or None
     if data:
+        data = True if data.lower() in ('yes', 'y', 'true', 't', '1') else False
         prefs.putpref('Flash error', data, bool, 'GUI_OPTIONS')
     data = inifile.find('QTPLASMAC', 'HIDE_RUN') or None
     if data:
+        data = True if data.lower() in ('yes', 'y', 'true', 't', '1') else False
         prefs.putpref('Hide run', data, bool, 'GUI_OPTIONS')
     data = inifile.find('QTPLASMAC', 'HIDE_PAUSE') or None
     if data:
+        data = True if data.lower() in ('yes', 'y', 'true', 't', '1') else False
         prefs.putpref('Hide pause', data, bool, 'GUI_OPTIONS')
     data = inifile.find('QTPLASMAC', 'HIDE_ABORT') or None
     if data:
+        data = True if data.lower() in ('yes', 'y', 'true', 't', '1') else False
         prefs.putpref('Hide abort', data, bool, 'GUI_OPTIONS')
     data = inifile.find('QTPLASMAC', 'CUSTOM_STYLE') or None
     if data:
         prefs.putpref('Custom style', data, str, 'GUI_OPTIONS')
     data = inifile.find('QTPLASMAC', 'AUTOREPEAT_ALL') or None
     if data:
+        data = True if data.lower() in ('yes', 'y', 'true', 't', '1') else False
         prefs.putpref('Autorepeat all', data, bool, 'GUI_OPTIONS')
     data = inifile.find('QTPLASMAC', 'LASER_TOUCHOFF') or None
     if data:
