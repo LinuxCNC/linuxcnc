@@ -1,7 +1,7 @@
 [Desktop Entry]
 Version=1.0
 Type=Application
-Exec=/usr/bin/x-www-browser /usr/share/doc/linuxcnc/gcode_es.html
+Exec=xdg-open /usr/share/doc/linuxcnc/gcode_es.html
 Icon=linuxcnc_es
 X-GNOME-DocPath=
 Terminal=false
