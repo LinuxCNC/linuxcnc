@@ -138,7 +138,7 @@ self.SETTINGS_ = the Qsettings object
 ----
 
 When making a custom widget, import and sub class the
-'_HalWidgetBase' class for this behaivor:
+'_HalWidgetBase' class for this behavior:
 
 === Dialogs
 

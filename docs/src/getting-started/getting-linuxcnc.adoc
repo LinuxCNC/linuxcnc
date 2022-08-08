@@ -126,7 +126,7 @@ https://help.ubuntu.com/community/HowToMD5SUM[How To MD5SUM]
 
 == Write the image to a bootable device
 
-The Raspbery Pi image is a completes SD card image and should be
+The Raspberry Pi image is a completes SD card image and should be
 written to an SD card in
 https://www.raspberrypi.org/documentation/installation/installing-images/README.md[the normal way].
 

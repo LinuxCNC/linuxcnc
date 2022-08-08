@@ -354,8 +354,8 @@ might not be needed in your setup. The relative path specifier ../../nc_files/gl
 is constructed to work with directories copied by the configuration picker and when
 using a run-in-place setup.
 
-[[gladevcp:embeding-tab]]
-=== Embeding as a Tab
+[[gladevcp:embedding-tab]]
+=== Embedding as a Tab
 
 To do so, edit your .ini file and add to the DISPLAY and HAL sections of ini
 file as follows:
@@ -1383,7 +1383,7 @@ grid size::
   Defaults to 0
 use default mouse controls::
   This disables the default mouse controls. +
-  This is most useful when using a touchscreen as the default controls do not work well. You can programatically
+  This is most useful when using a touchscreen as the default controls do not work well. You can programmatically
   add controls using python and the handler file technique. +
   Default = true.
 view::

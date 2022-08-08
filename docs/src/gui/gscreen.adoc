@@ -137,7 +137,7 @@ Some will load the theme that is the same name in the config file. The sample
 Inside this folder is another folder call gtk-2.0, inside that is the theme 
 files. If you add this file, Gscreen will default to this theme on start up.
 gscreen-gaxis has a sample custom theme that looks for certain named widgets 
-and changes the visual behaivor of those specific widgets. The Estop and 
+and changes the visual behavior of those specific widgets. The Estop and 
 machine-on buttons use different colors then the rest of the buttons so that
 they stand out. This is done in the handler file by giving them specific names
 an by adding specific commands in the theme's gtkrc file.
@@ -529,7 +529,7 @@ MESSAGE_TYPE = yesnodialog
 MESSAGE_PINNAME = yndialogtest
 
 # This pops up a dialog that requires an ok response and it shows in the status bar and
-# the destop notify popup.
+# the desktop notify popup.
 MESSAGE_BOLDTEXT = This is the short text
 MESSAGE_TEXT = This is the longer text of the both type test. It can be longer then the status bar text
 MESSAGE_DETAILS = BOTH DETAILS

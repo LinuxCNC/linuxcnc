@@ -144,7 +144,7 @@ PREFERENCE_FILE_PATH = gmoccapy_preferences
 
 gmoccapy 3 does support the following command line options:
 
- * -user_mode : If set, the setup button will be disabled, so normal machine opperators are not able to edit the settings of the machine *
+ * -user_mode : If set, the setup button will be disabled, so normal machine operators are not able to edit the settings of the machine *
  * -logo <path to logo file> : If given, the logo will hide the jog button tab in manual mode, this is only useful for machines with hardware button for jogging and increment selection +
 
 The line PREFERENCE_FILE_PATH gives the location and name of the preferences file to be used.
@@ -1578,7 +1578,7 @@ Details about how exactly an IconTheme is built can be found at https://specific
 
 Start by creating an empty directory with the name of the icon theme. Place the directory in one of gmoccapy's IconTheme directories.
 Then we need a file called index.theme in the root folder of our icon theme which contains the required metadata for the theme.
-Thats a simple text file with at least the following sections:
+That's a simple text file with at least the following sections:
 
     [Icon Theme]
     Name=YOUR_THEME_NAME
@@ -1589,7 +1589,7 @@ Thats a simple text file with at least the following sections:
 * Name: The name of your icon theme
 * Comment: A description of your icon theme
 * Inherits: A icon theme can derive from another icon theme, the default is hicolor
-* Directories: A comma separted list of all the directories of your icon theme
+* Directories: A comma separated list of all the directories of your icon theme
 
 Each directory usually contains all the icons of the theme in a specific size, for example 16x16/actions should contain all icons with the category "actions" in the size 16x16 pixels as pixel-graphics (e.g. png files).
 A special case is the directory called "scalable/actions", this contains scalable icons not tied to a specific size (e.g. svg files).
@@ -1610,7 +1610,7 @@ Fo each directory we also have to write a section in the index.theme file:
     Context=Actions
 ----
 
-* Size: Nominal icon size in this direcotry
+* Size: Nominal icon size in this directory
 * Type: Fixed, Threshold or Scalable
 * Context: Intended "category" of icons
 

@@ -355,7 +355,7 @@ rates of 10 kHz to perhaps up to 50 kHz.
 
 The base thread should be 1/2 count speed to allow for noise and timing
 variation. For example if you have a 100 pulse per revolution encoder on the
-spindle and your maximnum RPM is 3000 the maximum base thread should be 25 µs.
+spindle and your maximum RPM is 3000 the maximum base thread should be 25 µs.
 A 100 pulse per revolution encoder will have 400 counts. The spindle speed
 of 3000 RPM = 50 RPS (revolutions per second). 400 * 50 = 20,000 counts per
 second or 50 µs between counts.

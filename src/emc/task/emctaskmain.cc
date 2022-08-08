@@ -115,7 +115,7 @@ static RCS_TIMER *timer = 0;
 static int emcTaskNoDelay = 0;
 // flag signifying that on the next loop, there should be no delay.
 // this is set when transferring trajectory data from userspace to kernel
-// space, annd reset otherwise.
+// space, and reset otherwise.
 static int emcTaskEager = 0;
 
 static int no_force_homing = 0; // forces the user to home first before allowing MDI and Program run

@@ -678,7 +678,7 @@ DISPLAY = qtvcp -f qtplasmac
 
 *[TRAJ]* Section
 
-This variable  is mandatory.
+This variable is mandatory.
 
 [source,{ini}]
 ----
@@ -728,7 +728,7 @@ The following sections will give a general overview of the QtPlasmaC layout.
 
 === Exiting QtPlasmaC
 
-Exiting or shuting down QtPlasmaC is done by either of:
+Exiting or shutting down QtPlasmaC is done by either:
 
 . Click the window shutdown button on the window title bar
 . Long press the *POWER* button on the MAIN Tab.
@@ -1649,11 +1649,11 @@ If an alignment laser has been set up then it is possible to use the laser durin
 
 Path tolerance is set with a G64 command and a following P value. The P value corresponds to the amount that the actual cut path followed by the machine may deviate from the programmed cut path.
 
-The default LinuxCNC path tolerence is set for maximum speed which will severely round corners when used with normal plasma cutting speeds.
+The default LinuxCNC path tolerance is set for maximum speed which will severely round corners when used with normal plasma cutting speeds.
 
 It is recommended that the path tolerance is set by placing the appropriate G64 command and P value in the header of each G-Code file.
 
-The provided G-Code filter program will test for the existance of a G64 Pn command prior to the first motion command. If no G64 command is found it will insert a G64 P0.1 command which sets the path tolerance to 0.1mm. For a imperial config the command will be G64 P0.004.
+The provided G-Code filter program will test for the existence of a G64 Pn command prior to the first motion command. If no G64 command is found it will insert a G64 P0.1 command which sets the path tolerance to 0.1mm. For a imperial config the command will be G64 P0.004.
 
 For Metric:
 [source,{ngc}]
@@ -2001,7 +2001,7 @@ M2 (end job)
 
 QtPlasmaC has the ability to automatically modify the G-Code to reduce the velocity and/or apply *Over cut* which can be useful when cutting holes.
 
-For valid hole sensing it is required that all values in the G2 or G3 G-Code line are explicit, an error dialog will be dispalyed if any values are mathematically calculated.
+For valid hole sensing it is required that all values in the G2 or G3 G-Code line are explicit, an error dialog will be displayed if any values are mathematically calculated.
 
 QtPlasmaC Hole Sensing is disabled by default. It can be enabled/disabled by using the following G-Code parameters to select the desired hole sensing mode:
 

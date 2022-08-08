@@ -174,7 +174,7 @@ make -C src translateddocs
 ```
 
 Once this is completed, the files in docs/po/ will be updated, and
-should be commited into git and pulled into Weblate.
+should be committed into git and pulled into Weblate.
 
 === How to add a new translation language
 

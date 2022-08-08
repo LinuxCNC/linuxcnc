@@ -2663,7 +2663,7 @@ class gmoccapy(object):
         self.macro_dic["keyboard"].set_sensitive(True)
 
     def on_hal_status_tool_in_spindle_changed(self, object, new_tool_no):
-        print("hal signal tool chnaged")
+        print("hal signal tool changed")
         # need to save the tool in spindle as preference, to be able to reload it on startup
         self.prefs.putpref("tool_in_spindle", new_tool_no, int)
         self._update_toolinfo(new_tool_no)
@@ -4429,7 +4429,7 @@ class gmoccapy(object):
         self.command.mode(linuxcnc.MODE_MANUAL)
         self.command.wait_complete()
 
-    # choose a theme to aply
+    # choose a theme to apply
     def on_theme_choice_changed(self, widget):
         return
         #TODO:
@@ -5557,9 +5557,9 @@ class gmoccapy(object):
 # =========================================================
 # The actions of the buttons
     def _button_pin_changed(self, pin):
-        # we check if the button is pressed ore release,
+        # we check if the button is pressed or released,
         # otherwise a signal will be emitted, if the button is released and
-        # the signal drob down to zero
+        # the signal drop down to zero
         if not pin.get():
             return
 

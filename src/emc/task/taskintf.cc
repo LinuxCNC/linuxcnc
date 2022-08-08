@@ -422,7 +422,7 @@ int emcJointSetMaxAcceleration(int joint, double acc)
     return retval;
 }
 
-/*! functions involving carthesian Axes (X,Y,Z,A,B,C,U,V,W) */
+/*! functions involving cartesian Axes (X,Y,Z,A,B,C,U,V,W) */
     
 int emcAxisSetMinPositionLimit(int axis, double limit)
 {

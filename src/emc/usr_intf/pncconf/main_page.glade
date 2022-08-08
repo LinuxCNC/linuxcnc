@@ -285,7 +285,7 @@ Data</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">This program creates configuration files (.ini and .hal) for milling machines and lathes connected to a Mesa Card.
 
-It is a recommended stategy to start with very basic axes options, get them functional then go back and add other options such as VFD spindle control  or advanced limit/home control etc.</property>
+It is a recommended strategy to start with very basic axes options, get them functional then go back and add other options such as VFD spindle control  or advanced limit/home control etc.</property>
                     <property name="wrap">True</property>
                   </object>
                   <packing>

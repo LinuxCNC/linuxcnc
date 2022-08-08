@@ -259,7 +259,7 @@ Using the buttons provided, jog the axis to near the center of travel.
 Take care because with a low acceleration value,
 it can take a surprising distance for the axis to decelerate to a stop.
 
-After gaging the amount of travel available,
+After gauging the amount of travel available,
 enter a safe distance in Test Area, keeping in mind that
 after a stall the motor may next start to move in an unexpected direction.
 Then click Run.
