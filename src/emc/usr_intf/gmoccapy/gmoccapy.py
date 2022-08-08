@@ -2679,7 +2679,8 @@ class gmoccapy(object):
             state = True
         if self.stat.task_state != linuxcnc.STATE_ON:
             state = False
-        self._sensitize_widgets(widgetlist, state)
+        if not self.widgets.tbtn_setup.get_active():
+            self._sensitize_widgets(widgetlist, state)
 
     def on_hal_status_metric_mode_changed(self, widget, metric_units):
         print("hal status metric mode changed")
