@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: sk\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-07-09 16:34+0100\n"
-"PO-Revision-Date: 2022-07-23 07:24+0000\n"
+"PO-Revision-Date: 2022-08-06 19:17+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
 "Language: sk\n"
@@ -1374,7 +1374,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:123
 msgid "Negative spindle speed used"
-msgstr "Použitá negatívna hodnota rýchlosti vretena"
+msgstr "Použitá negatívna hodnota rýchlosti vretena(použi M3 alebo M4)"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:124
 msgid "Negative tool id (tool not found)"
@@ -1825,7 +1825,7 @@ msgstr "_Zrušiť"
 
 #: src/hal/utils/scope.c:471
 msgid "_Open"
-msgstr "Otvoriť"
+msgstr "_Otvoriť"
 
 #: src/hal/utils/scope.c:491
 msgid "Save Configuration File:"
@@ -2196,7 +2196,7 @@ msgid ""
 "Offset\n"
 "----"
 msgstr ""
-"Offset\n"
+"Ofset\n"
 "----"
 
 #: src/hal/utils/scope_vert.c:648
@@ -2422,11 +2422,11 @@ msgstr ""
 
 #: src/emc/motion/command.c:215
 msgid "negative"
-msgstr "negatívne"
+msgstr "negatív"
 
 #: src/emc/motion/command.c:220
 msgid "positive"
-msgstr "Pozícia"
+msgstr "pozitív"
 
 #: src/emc/motion/command.c:237
 #, c-format
@@ -3073,7 +3073,7 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:699
 msgid "Confirm!"
-msgstr "Potvrdiť nové!"
+msgstr "Potvrdiť!"
 
 #: src/hal/classicladder/classicladder_gtk.c:699
 msgid "Do you really want to quit ?\n"
@@ -9802,12 +9802,10 @@ msgid "Both Limit + Home V"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:244
-#, fuzzy
 msgid "Both Limit + Home Tandem X"
 msgstr "Limit osi + kalibr. tandem X"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:244
-#, fuzzy
 msgid "Both Limit + Home Tandem Y"
 msgstr "Limit osi + kalibr. tandem Y"
 
@@ -9900,23 +9898,20 @@ msgid "Both Limit V"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:256
-#, fuzzy
 msgid "Both Limit Tandem X"
 msgstr "Oba limity tandem X"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:256
-#, fuzzy
 msgid "Both Limit Tandem Y"
-msgstr "Všetky súbory"
+msgstr "Oba limity tandem Y"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:257
 msgid "All limits"
 msgstr "Všetky limity"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:257
-#, fuzzy
 msgid "All home"
-msgstr "Všetko skalibrovať"
+msgstr "Kalibr. všetkého"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:257
 msgid "All limits + homes"
@@ -10396,9 +10391,8 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:749
 #: src/emc/usr_intf/pncconf/build_HAL.py:1929
-#, fuzzy
 msgid "# default = 6"
-msgstr "Použiť pôvodné"
+msgstr "# default = 6"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:751
 #: src/emc/usr_intf/pncconf/build_HAL.py:1931
@@ -12821,24 +12815,20 @@ msgid "All Home"
 msgstr "Kalibrácia všetkých osí"
 
 #: src/emc/usr_intf/pncconf/private_data.py:407
-#, fuzzy
 msgid "X2 Tandem Home"
-msgstr "Domov"
+msgstr "Kalibr. tandem X2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:407
-#, fuzzy
 msgid "Y2 Tandem Home"
-msgstr "Domov"
+msgstr "Kalibr. tandem Y2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:407
-#, fuzzy
 msgid "Z2 Tandem Home"
-msgstr "Domov"
+msgstr "Kalibr. tandem Z2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:407
-#, fuzzy
 msgid "A2 Tandem Home"
-msgstr "Domov"
+msgstr "Kalibr. tandem A2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:408
 msgid "X Minimum Limit + Home"
@@ -12889,9 +12879,8 @@ msgid "A Both Limit + Home"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:414
-#, fuzzy
 msgid "All Limits + Home"
-msgstr "Všetky súbory"
+msgstr "Všetky limity + kalibracia"
 
 #: src/emc/usr_intf/pncconf/private_data.py:415
 msgid "X2 Minimum Limit + Home"
@@ -12938,9 +12927,8 @@ msgid "Z2 Both Limit + Home"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:421
-#, fuzzy
 msgid "A2 Both Limit + Home"
-msgstr "Všetky súbory"
+msgstr "A2 oba limit + kalibrácia"
 
 #: src/emc/usr_intf/pncconf/private_data.py:424
 msgid "Joint select A"
