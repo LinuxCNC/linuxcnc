@@ -964,7 +964,7 @@ class Private_Data:
     ]
 
         #**************************
-        # mesa daugther board data
+        # mesa daughter board data
         #**************************
         self._NUM_CHANNELS = 6
         self._SUBBOARDNAME = 0; self._SUBFIRMNAME = 1; self._SUBMODE = 2;self._SUBCONLIST = 3;self._SUBSTARTOFDATA = 12 # 4-10 spare for now.

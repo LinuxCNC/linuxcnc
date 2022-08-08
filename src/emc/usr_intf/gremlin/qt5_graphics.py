@@ -175,7 +175,7 @@ class StatCanon(glcanon.GLCanon, interpret.StatMixin):
             self.notify = 0
 
     # this is class patched
-    # output the text from the magic comment eg: (PREVEIW,notify,The text)
+    # output the text from the magic comment eg: (PREVIEW,notify,The text)
     def output_notify_message(self, message):
         pass
 
@@ -408,7 +408,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def output_notify_message(self, message):
         print("Preview Notify:", message)
 
-    # monkey patched function from Progess class
+    # monkey patched function from Progress class
     def emit_percent(self, percent):
         self.percentLoaded.emit(percent)
 

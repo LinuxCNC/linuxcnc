@@ -138,7 +138,7 @@ Connector Tabs:
         8i20 amplifier ( untested )
         Linuxcnc supports 4 ports of 8 channels each of sserial
         PNCconf only configures 5 channels of port 0 (so max 5 sserial boards -
-        note that some 5i25 daugther boards use some of the sserial channels 
+        note that some 5i25 daughter boards use some of the sserial channels 
         internally.)
         Note that some daughter boards use multiple sserial channels.
 

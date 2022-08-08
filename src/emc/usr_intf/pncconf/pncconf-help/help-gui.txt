@@ -58,7 +58,7 @@ Virtual Control Panels:
             you can choose standalone panels for any frontend.
         - AXIS can have panels integrated on the side or in the center tab.
             side panels are always visible center tab panels are not always.
-        - TOUCHY can only have center tab intergation
+        - TOUCHY can only have center tab integration
         - pushing the display sample panel button will load a panel with
             the user chosen options, unless existing custom program radio
             button is active. It will then load the existing panel in the 

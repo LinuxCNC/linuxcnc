@@ -213,7 +213,7 @@ hal.connect("pinname","signal_name")
 
 === disconnect
 
-Disonnect a pin from a signal. +
+Disconnect a pin from a signal. +
 
 .Example
 ----

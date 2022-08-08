@@ -192,7 +192,7 @@ class Notification(Gtk.Window):
 
     # this will delete a message, if the user gives a valid number it will be deleted,
     # but the user must take care to use the correct number
-    # if you give a value of "-1" all messages will be deletet
+    # if you give a value of "-1" all messages will be deleted
     def del_message(self, messagenumber):
         '''del_message(messagenumber)
            delete the message with the given number

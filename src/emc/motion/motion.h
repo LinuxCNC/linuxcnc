@@ -564,7 +564,7 @@ Suggestion: Split this in to an Error and a Status flag register..
    memory, and it reports motion controller status to higher level
    code in user space.  For the most part, this structure contains
    higher level variables - low level stuff is made visible to the
-   HAL and troubleshooting, etc, is done using the HAL oscilliscope.
+   HAL and troubleshooting, etc, is done using the HAL oscilloscope.
 */
 
 /*! \todo FIXME - this struct is broken into two parts... at the top are

@@ -2193,7 +2193,7 @@ to add actions.
 * add_tool() - adds a blank dummy tool (99) that the user can edit to
   suit.
 * delete_tools() - deletes the currently checkbox selected tools
-* get_checked_list() - returns a list of tools selected by checkboxs.
+* get_checked_list() - returns a list of tools selected by checkboxes.
 * set_all_unchecked() - uncheck all selected tools.
 
 [source,python]

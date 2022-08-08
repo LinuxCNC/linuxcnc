@@ -319,7 +319,7 @@ proc ::combobox::SetClassBindings {} {
 #
 #    I'm not convinced these are the proper bindings. Ideally all
 #    bindings should be on "Combobox", but because of my juggling of
-#    bindtags I'm not convinced thats what I want to do. But, it all
+#    bindtags I'm not convinced that's what I want to do. But, it all
 #    seems to work, its just not as robust as it could be.
 #
 # Arguments:
