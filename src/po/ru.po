@@ -12,8 +12,8 @@ msgstr ""
 "Project-Id-Version: emc 2.2.8\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-07-09 16:34+0100\n"
-"PO-Revision-Date: 2022-07-25 12:51+0000\n"
-"Last-Translator: Nikita Shubin <nikita.shubin@maquefel.me>\n"
+"PO-Revision-Date: 2022-08-08 19:59+0000\n"
+"Last-Translator: Дмитрий <krdima352@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/ru/>\n"
 "Language: ru\n"
@@ -114,7 +114,6 @@ msgid "G4 not allowed with G2 or G3 because they both use P"
 msgstr "G4 не допустимо с G2 или G3, потому что они оба используют P"
 
 #: src/emc/rs274ngc/interp_check.cc:92
-#, fuzzy
 msgid "Line with G10 does not have L0, L1, L10, L11, L2, or L20"
 msgstr "Строка с G10 не имеет L1, L10, L11, L2 или L20"
 
@@ -1005,12 +1004,12 @@ msgstr ""
 #: src/emc/rs274ngc/interp_namedparams.cc:257
 #, c-format
 msgid "fetch_hal_param: hal_init(%s): %d"
-msgstr ""
+msgstr "fetch_hal_param: hal_init(%s): %d"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:258
 #, c-format
 msgid "fetch_hal_param: hal_ready(): %d"
-msgstr ""
+msgstr "fetch_hal_param: hal_ready(): %d"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:422
 #, c-format
@@ -2792,6 +2791,11 @@ msgid ""
 "           Total joints=%2d\n"
 "\n"
 msgstr ""
+"\n"
+"MOTION: кинематические соединения=%2d\n"
+"                дополнительные соединения = %2d\n"
+"                Всего соединений = %2d\n"
+"\n"
 
 #: src/emc/motion/motion.c:299
 #, c-format
@@ -2800,7 +2804,7 @@ msgstr "MOTION: num_spindles равно %d, должно быть между 0 �
 
 #: src/emc/motion/motion.c:306
 msgid "MOTION: Can't specify both names and number for digital pins\n"
-msgstr ""
+msgstr "MOTION: невозможно указать имена и номера для цифровых контактов.\n"
 
 #: src/emc/motion/motion.c:320
 #, c-format
@@ -2809,7 +2813,7 @@ msgstr "MOTION: num_dio равно %d, должно быть между 1 и %d\
 
 #: src/emc/motion/motion.c:326
 msgid "MOTION: Can't specify both names and number for analog pins\n"
-msgstr ""
+msgstr "MOTION: невозможно указать имена и номера для аналоговых выводов.\n"
 
 #: src/emc/motion/motion.c:339
 #, c-format
@@ -2818,7 +2822,7 @@ msgstr "MOTION: num_aio равно %d, должно быть между 1 и %d\
 
 #: src/emc/motion/motion.c:345
 msgid "MOTION: Can't specify both names and number for misc error\n"
-msgstr ""
+msgstr "MOTION: невозможно указать имена и номер для другой ошибки\n"
 
 #: src/emc/motion/motion.c:358
 #, c-format
@@ -3325,7 +3329,7 @@ msgstr "О программе"
 #: src/hal/classicladder/classicladder_gtk.c:938
 #, c-format
 msgid "%d µs"
-msgstr ""
+msgstr "%d мкс"
 
 #: src/hal/classicladder/classicladder_gtk.c:960
 msgid "Config hardware error occurred!"
@@ -3483,7 +3487,7 @@ msgstr "Сохранить как"
 
 #: src/hal/classicladder/config_gtk.c:294
 msgid "Request Type"
-msgstr ""
+msgstr "Тип запроса"
 
 #: src/hal/classicladder/config_gtk.c:294
 msgid "1st Modbus Ele."
@@ -3495,11 +3499,11 @@ msgstr ""
 
 #: src/hal/classicladder/config_gtk.c:294
 msgid "Logic"
-msgstr ""
+msgstr "Логика"
 
 #: src/hal/classicladder/config_gtk.c:294
 msgid "1st Variable mapped"
-msgstr ""
+msgstr "1-я переменная сопоставлена"
 
 #: src/hal/classicladder/config_gtk.c:385
 msgid "Inverted"
@@ -3877,7 +3881,7 @@ msgstr "Ошибка в выборе или невозможно..."
 #: src/hal/classicladder/edit_sequential.c:516
 #, c-format
 msgid "DO ACT/DESACT STEPS x1=%d, x2=%d, y=%d\n"
-msgstr ""
+msgstr "ВЫПОЛНИТЬ ДЕЙСТВИЕ/ОТМЕНА ШАГОВ x1=%d, x2=%d, y=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:536
 #, c-format
@@ -6167,31 +6171,31 @@ msgstr "Еще нет параметров"
 
 #: tcl/ngcgui.tcl:1718
 msgid "Missing value for parm"
-msgstr ""
+msgstr "Отсутствует значение параметра"
 
 #: tcl/ngcgui.tcl:1739
 msgid "Output file"
-msgstr ""
+msgstr "Выходной файл"
 
 #: tcl/ngcgui.tcl:1854
 msgid "Multiple Tabs with Features"
-msgstr ""
+msgstr "Несколько вкладок с функциями"
 
 #: tcl/ngcgui.tcl:1855
 msgid "Finalize all Tabs?"
-msgstr ""
+msgstr "Завершить все вкладки?"
 
 #: tcl/ngcgui.tcl:1855
 msgid "Order"
-msgstr ""
+msgstr "Заказ"
 
 #: tcl/ngcgui.tcl:1857
 msgid "No, just this page"
-msgstr ""
+msgstr "Нет, только эта страница"
 
 #: tcl/ngcgui.tcl:1871
 msgid "Axis is not responding"
-msgstr ""
+msgstr "Ось не отвечает"
 
 #: tcl/ngcgui.tcl:1872
 msgid "Error: "
@@ -6199,15 +6203,15 @@ msgstr "Ошибка: "
 
 #: tcl/ngcgui.tcl:1874
 msgid "Autosend disabled, Ctrl-A toggles autosend"
-msgstr ""
+msgstr "Автоотправка отключена, Ctrl-A переключает автоотправку"
 
 #: tcl/ngcgui.tcl:1876
 msgid "File saving enabled -- Finalize to save"
-msgstr ""
+msgstr "Сохранение файлов включено -- Завершить для сохранения"
 
 #: tcl/ngcgui.tcl:1892
 msgid "Require .ngc suffix for filename"
-msgstr ""
+msgstr "Требуется суффикс .ngc для имени файла"
 
 #: tcl/ngcgui.tcl:1902
 msgid "Disallowed overwrite of"
@@ -6215,27 +6219,27 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:1930
 msgid "FEATURE"
-msgstr ""
+msgstr "ОСОБЕННОСТИ"
 
 #: tcl/ngcgui.tcl:1937
 msgid "feature line added"
-msgstr ""
+msgstr "добавлена функциональная строка"
 
 #: tcl/ngcgui.tcl:1941
 msgid "remaining_features line added"
-msgstr ""
+msgstr "добавлена строка remaining_features"
 
 #: tcl/ngcgui.tcl:1953
 msgid "line added"
-msgstr ""
+msgstr "добавлена строка"
 
 #: tcl/ngcgui.tcl:1953
 msgid "activated"
-msgstr ""
+msgstr "активирован"
 
 #: tcl/ngcgui.tcl:1955
 msgid "restores"
-msgstr ""
+msgstr "восстанавливает"
 
 #: tcl/ngcgui.tcl:1994
 msgid "NOTREACHED mode"
@@ -6243,7 +6247,7 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:2010
 msgid "Positional parameters for"
-msgstr ""
+msgstr "Позиционные параметры для"
 
 #: tcl/ngcgui.tcl:2018
 msgid "expanded file"
