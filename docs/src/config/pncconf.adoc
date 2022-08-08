@@ -580,7 +580,7 @@ On a typical lathe::
 * that is the positive Z direction
 * when the TOOL moves toward the operator
 * that is the positive X direction. Some lathes have X
-  opposite (eg tool on back side), that will work fine but
+  opposite (e.g., tool on back side), that will work fine but
   AXIS graphical display can not be made to reflect this.
 
 When using homing and / or limit switches
@@ -596,11 +596,11 @@ the home switch.
 Decide on limit switch location::
 
 Limit switches are the back up for software limits in case
-something electrical goes wrong eg. servo runaway.
+something electrical goes wrong, e.g., in case of a servo runaway.
 Limit switches should be placed so that the machine does not
 hit the physical end of the axis movement. Remember the axis
 will coast past the contact point if moving fast. Limit switches
-should be 'active low' on the machine. eg. power runs through
+should be 'active low' on the machine, i.e., power runs through
 the switches all the time - a loss of power (open switch) trips.
 While one could wire them the other way, this is fail safe.
 This may need to be inverted so that the HAL signal in LinuxCNC
@@ -617,7 +617,7 @@ home switch. A separate home switch is useful if you have a long
 axis that in use is usually a long way from the limit switches or
 moving the axis to the ends presents problems of interference
 with material.
-eg a long shaft in a lathe makes it hard to home to limits with out
+Note, a long shaft in a lathe makes it hard to home to limits with out
 the tool hitting the shaft, so a separate home switch closer to the
 middle may be better.
 If you have an encoder with index then the home switch acts as a
@@ -628,9 +628,9 @@ Decide on the MACHINE ORIGIN position::
 MACHINE ORIGIN is what LinuxCNC uses to reference all user coordinate
 systems from.
 I can think of little reason it would need to be in any particular
-spot. There are only a few G codes that can access the
+spot. There are only a few G-codes that can access the
 MACHINE COORDINATE system.( G53, G30 and G28 )
-If using tool-change-at-G30 option having the Origin at the tool
+If using tool-change-at-G30 option having the origin at the tool
 change position may be convenient. By convention, it may be easiest
 to have the ORIGIN at the home switch.
 
@@ -709,8 +709,8 @@ Course home search velocity in units per minute.
 
 Home Search Direction::
 Sets the home switch search direction
-either negative (ie. towards negative limit switch)
-or positive (ie. towards positive limit switch).
+either negative (i.e., towards negative limit switch)
+or positive (i.e., towards positive limit switch).
 
 Home Latch Velocity::
 Fine Home search velocity in units per minute.
@@ -730,12 +730,12 @@ the latch stage of homing.
 Use Compensation File::
 Allows specifying a Comp filename and type.
 Allows sophisticated compensation. See <<sub:ini:sec:axis-letter,AXIS Section>>
-of the INI Chapter.
+of the INI chapter.
 
 Use Backlash Compensation::
 Allows setting of simple backlash compensation. Can
 not be used with Compensation File. See <<sub:ini:sec:axis-letter,AXIS Section>>
-of the INI Chapter.
+of the INI chapter.
 
 .AXIS Help Diagram
 image::images/pncconf-diagram-lathe.png["AXIS Help Diagram"]
