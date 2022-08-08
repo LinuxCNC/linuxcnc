@@ -114,6 +114,7 @@ $ man halui
 * 'halui.feed-override.counts' (s32, in) - counts * scale = FO percentage. Can be used with an encoder or 'direct-value'.
 * 'halui.feed-override.decrease' (bit, in) - pin for decreasing the FO (-=scale)
 * 'halui.feed-override.increase' (bit, in) - pin for increasing the FO (+=scale)
+* 'halui.feed-override.reset' (bit, in) - pin for resetting the FO (scale=1.0)
 * 'halui.feed-override.direct-value' (bit, in) - false when using encoder to change counts, true when setting counts directly.
 * 'halui.feed-override.scale' (float, in) - pin for setting the scale for increase and decrease of 'feed-override'.
 * 'halui.feed-override.value' (float, out) - current FO value
@@ -283,6 +284,7 @@ L = axis letter (xyzabcuvw)
 * 'halui.rapid-override.increase' (bit in) - pin for increasing the Rapid Override (+=scale)
 * 'halui.rapid-override.scale' (float in) - pin for setting the scale on changing the Rapid Override
 * 'halui.rapid-override.value' (float out) - current Rapid Override value
+* 'halui.rapid-override.reset' (bit, in) - pin for resetting the Rapid Override value (scale=1.0)
 
 === Spindle Override
 
@@ -293,6 +295,7 @@ L = axis letter (xyzabcuvw)
 * 'halui.spindle.N.override.increase' (bit, in) - pin for increasing the SO (+=scale)
 * 'halui.spindle.N.override.scale' (float, in) - pin for setting the scale on changing the SO
 * 'halui.spindle.N.override.value' (float, out) - current SO value
+* 'halui.spindle.N.override.reset' (bit, in) - pin for resetting the SO value (scale=1.0)
 
 === Spindle
 
