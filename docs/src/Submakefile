@@ -202,6 +202,10 @@ postatus::
 	    echo -n "$$p ";  msgfmt --statistics -o /dev/null $$p; \
 	done
 
+DOC_SRCS_DE = $(subst $(DOC_SRCDIR)/,, \
+	$(wildcard $(DOC_SRCDIR)/de/*.adoc) \
+	$(wildcard $(DOC_SRCDIR)/de/*/*.adoc))
+
 DOC_SRCS_ES = $(subst $(DOC_SRCDIR)/,, \
 	$(wildcard $(DOC_SRCDIR)/es/*.adoc) \
 	$(wildcard $(DOC_SRCDIR)/es/*/*.adoc))
@@ -222,9 +226,10 @@ DOC_SRCS_ZH_CN = $(subst $(DOC_SRCDIR)/,, \
 	$(wildcard $(DOC_SRCDIR)/zh_CN/*.adoc) \
 	$(wildcard $(DOC_SRCDIR)/zh_CN/*/*.adoc))
 
-DOC_SRCS = $(DOC_SRCS_EN) $(DOC_SRCS_FR) $(DOC_SRCS_ES) $(DOC_SRCS_HU) $(DOC_SRCS_NB) $(DOC_SRCS_ZH_CN)
+DOC_SRCS = $(DOC_SRCS_EN) $(DOC_SRCS_DE) $(DOC_SRCS_ES) $(DOC_SRCS_FR) $(DOC_SRCS_HU) $(DOC_SRCS_NB) $(DOC_SRCS_ZH_CN)
 
 DOC_SRCS_EN_SMALL = $(filter-out Master_%,$(DOC_SRCS_EN))
+DOC_SRCS_DE_SMALL = $(filter-out Master_%,$(DOC_SRCS_DE))
 DOC_SRCS_ES_SMALL = $(filter-out Master_%,$(DOC_SRCS_ES))
 DOC_SRCS_FR_SMALL = $(filter-out Master_%,$(DOC_SRCS_FR))
 DOC_SRCS_HU_SMALL = $(filter-out Master_%,$(DOC_SRCS_HU))
@@ -235,20 +240,22 @@ DOC_SRCS_HTML = $(patsubst %.adoc, %.html, $(foreach p, $(DOC_SRCS), $(if $(find
 DOC_TARGETS_HTML = $(addprefix $(DOC_DIR)/html/,$(DOC_SRCS_HTML)) #$(subst /,_,$(DOC_SRCS_HTML)))
 DOC_TARGETS_XML = $(patsubst $(DOC_DIR)/html/%.html, objects/%.xml, $(DOC_TARGETS_HTML))
 
+DOC_TARGETS_XML_DE = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /de/, $(p)), $p))
 DOC_TARGETS_XML_ES = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /es/, $(p)), $p))
 DOC_TARGETS_XML_FR = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /fr/, $(p)), $p))
 DOC_TARGETS_XML_HU = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /hu/, $(p)), $p))
 DOC_TARGETS_XML_NB = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /nb/, $(p)), $p))
 DOC_TARGETS_XML_VI = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /vi/, $(p)), $p))
 DOC_TARGETS_XML_ZH_CN = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /zh_CN/, $(p)), $p))
-DOC_TARGETS_XML_EN = $(filter-out $(DOC_TARGETS_XML_ES), $(filter-out $(DOC_TARGETS_XML_FR), $(filter-out $(DOC_TARGETS_XML_HU), $(filter-out $(DOC_TARGETS_XML_NB), $(filter-out $(DOC_TARGETS_XML_VI), $(filter-out $(DOC_TARGETS_XML_ZH_CN), $(DOC_TARGETS_XML)))))))
+DOC_TARGETS_XML_EN = $(filter-out $(DOC_TARGETS_XML_DE), $(filter-out $(DOC_TARGETS_XML_ES), $(filter-out $(DOC_TARGETS_XML_FR), $(filter-out $(DOC_TARGETS_XML_HU), $(filter-out $(DOC_TARGETS_XML_NB), $(filter-out $(DOC_TARGETS_XML_VI), $(filter-out $(DOC_TARGETS_XML_ZH_CN), $(DOC_TARGETS_XML))))))))
+DOC_TARGETS_HTML_DE = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /de/, $(p)), $p))
 DOC_TARGETS_HTML_ES = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /es/, $(p)), $p))
 DOC_TARGETS_HTML_FR = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /fr/, $(p)), $p))
 DOC_TARGETS_HTML_HU = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /hu/, $(p)), $p))
 DOC_TARGETS_HTML_NB = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /nb/, $(p)), $p))
 DOC_TARGETS_HTML_VI = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /vi/, $(p)), $p))
 DOC_TARGETS_HTML_ZH_CN = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /zh_CN/, $(p)), $p))
-DOC_TARGETS_HTML_EN = $(filter-out $(DOC_TARGETS_HTML_ES), $(filter-out $(DOC_TARGETS_HTML_FR), $(filter-out $(DOC_TARGETS_HTML_HU), $(filter-out $(DOC_TARGETS_HTML_NB), $(filter-out $(DOC_TARGETS_HTML_VI), $(filter-out $(DOC_TARGETS_HTML_ZH_CN), $(DOC_TARGETS_HTML)))))))
+DOC_TARGETS_HTML_EN = $(filter-out $(DOC_TARGETS_HTML_DE), $(filter-out $(DOC_TARGETS_HTML_ES), $(filter-out $(DOC_TARGETS_HTML_FR), $(filter-out $(DOC_TARGETS_HTML_HU), $(filter-out $(DOC_TARGETS_HTML_NB), $(filter-out $(DOC_TARGETS_HTML_VI), $(filter-out $(DOC_TARGETS_HTML_ZH_CN), $(DOC_TARGETS_HTML))))))))
 
 MAN_HTML_TARGETS = $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
 
@@ -256,6 +263,10 @@ PDF_TARGETS_EN := $(addprefix $(DOC_DIR)/, $(patsubst %.adoc,%.pdf, \
         $(subst Master_,LinuxCNC_, $(filter Master_%,$(DOC_SRCS_EN))))\
         LinuxCNC_Manual_Pages.pdf \
         ) \
+
+PDF_TARGETS_DE = $(addprefix $(DOC_DIR)/, $(subst de/,, \
+	$(patsubst %.adoc,%_de.pdf, \
+	$(subst Master_,LinuxCNC_, $(filter de/Master_%,$(DOC_SRCS_DE))))))
 
 PDF_TARGETS_ES = $(addprefix $(DOC_DIR)/, $(subst es/,, \
 	$(patsubst %.adoc,%_es.pdf, \
@@ -273,7 +284,7 @@ PDF_TARGETS_ZH_CN = $(addprefix $(DOC_DIR)/, $(subst zh_CN/,, \
 	$(patsubst %.adoc,%_zh_CN.pdf, \
 	$(subst Master_,LinuxCNC_, $(filter zh_CN/Master_%,$(DOC_SRCS_ZH_CN))))))
 
-PDF_TARGETS = $(PDF_TARGETS_EN) $(PDF_TARGETS_ES) $(PDF_TARGETS_FR) $(PDF_TARGETS_NB)
+PDF_TARGETS = $(PDF_TARGETS_EN) $(PDF_TARGETS_DE) $(PDF_TARGETS_ES) $(PDF_TARGETS_FR) $(PDF_TARGETS_NB)
 
 # Chinese PDFs only build with xetex, which is missing in stretch
 SHELL=/bin/bash
@@ -349,19 +360,22 @@ copy_asciidoc_files:
 	cp -f /etc/asciidoc/stylesheets/*.css $(DOC_DIR)/html
 	cp -f /etc/asciidoc/javascripts/*.js $(DOC_DIR)/html
 
-checkref: checkref_en checkref_es checkref_fr checkref_hu checkref_nb checkref_vi checkref_zh_CN
+checkref: checkref_en checkref_de checkref_es checkref_fr checkref_hu checkref_nb checkref_vi checkref_zh_CN
 
 checkref_en: $(DOC_TARGETS_HTML_EN) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/gcode.html .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref English $^
+
+checkref_de: $(DOC_TARGETS_HTML_DE) $(DOC_DIR)/html/de/gcode.html .htmldoc-stamp
+	@$(DOC_SRCDIR)/checkref German $^
+
+checkref_es: $(DOC_TARGETS_HTML_ES) $(DOC_DIR)/html/es/gcode.html .htmldoc-stamp
+	@$(DOC_SRCDIR)/checkref Spanish $^
 
 checkref_fr: $(DOC_TARGETS_HTML_FR) $(DOC_DIR)/html/fr/gcode.html .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref French $^
 
 checkref_hu: $(DOC_TARGETS_HTML_HU) .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref Hungarian $^
-
-checkref_es: $(DOC_TARGETS_HTML_ES) $(DOC_DIR)/html/es/gcode.html .htmldoc-stamp
-	@$(DOC_SRCDIR)/checkref Spanish $^
 
 checkref_nb: $(DOC_TARGETS_HTML_NB) .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref Norwegian $^
@@ -387,6 +401,8 @@ $(DOC_DIR)/LinuxCNC_Manual_Pages.pdf: $(MAN_SRCS) objects/var-PDF_MAN_ORDER
 
 $(DOC_DIR)/LinuxCNC_Getting_Started.pdf: $(DOC_SRCDIR)/Master_Getting_Started.pdf
 	@ln -f $< $@
+$(DOC_DIR)/LinuxCNC_Getting_Started_de.pdf: $(DOC_SRCDIR)/de/Master_Getting_Started.pdf
+	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Getting_Started_es.pdf: $(DOC_SRCDIR)/es/Master_Getting_Started.pdf
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf: $(DOC_SRCDIR)/fr/Master_Getting_Started.pdf
@@ -397,6 +413,8 @@ $(DOC_DIR)/LinuxCNC_Getting_Started_zh_CN.pdf: $(DOC_SRCDIR)/zh_CN/Master_Gettin
 	@ln -f $< $@
 
 $(DOC_DIR)/LinuxCNC_Documentation.pdf: $(DOC_SRCDIR)/Master_Documentation.pdf
+	@ln -f $< $@
+$(DOC_DIR)/LinuxCNC_Documentation_de.pdf: $(DOC_SRCDIR)/de/Master_Documentation.pdf
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Documentation_es.pdf: $(DOC_SRCDIR)/es/Master_Documentation.pdf
 	@ln -f $< $@
@@ -409,6 +427,8 @@ $(DOC_DIR)/LinuxCNC_Documentation_zh_CN.pdf: $(DOC_SRCDIR)/zh_CN/Master_Document
 
 $(DOC_DIR)/LinuxCNC_Integrator.pdf: $(DOC_SRCDIR)/Master_Integrator.pdf
 	@ln -f $< $@
+$(DOC_DIR)/LinuxCNC_Integrator_de.pdf: $(DOC_SRCDIR)/de/Master_Integrator.pdf
+	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Integrator_es.pdf: $(DOC_SRCDIR)/es/Master_Integrator.pdf
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Integrator_fr.pdf: $(DOC_SRCDIR)/fr/Master_Integrator.pdf
@@ -419,6 +439,8 @@ $(DOC_DIR)/LinuxCNC_Integrator_zh_CN.pdf: $(DOC_SRCDIR)/zh_CN/Master_Integrator.
 	@ln -f $< $@
 
 $(DOC_DIR)/LinuxCNC_Developer.pdf: $(DOC_SRCDIR)/Master_Developer.pdf
+	@ln -f $< $@
+$(DOC_DIR)/LinuxCNC_Developer_de.pdf: $(DOC_SRCDIR)/de/Master_Developer.pdf
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Developer_es.pdf: $(DOC_SRCDIR)/es/Master_Developer.pdf
 	@ln -f $< $@
@@ -525,6 +547,9 @@ objects/%.links: objects/%.links-stamp
 objects/xref_en.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_EN_SMALL))
 	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
 
+objects/xref_de.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_DE_SMALL))
+	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
+
 objects/xref_es.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_ES_SMALL))
 	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
 
@@ -621,6 +646,32 @@ $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_EN_SMALL)): $(DOC_SRCDIR)/%.ht
 		 -a stylesheet=linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
 
+$(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_DE_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_de.links $(LOC_LANG_MAP)
+	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
+		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
+		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
+		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
+		 -a linkcss \
+		 $(STYLES_SCRIPTS) \
+	         -a "scriptdir=$(DOC_SRCDIR)/" \
+	         -a "relindir=$(shell dirname $*)" \
+	         -a "linksfile=objects/xref_de.links" \
+		 -a stylesheet=linuxcnc.css \
+		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
+
+$(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ES_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_es.links $(LOC_LANG_MAP)
+	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
+		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
+		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
+		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
+		 -a linkcss \
+		 $(STYLES_SCRIPTS) \
+	         -a "scriptdir=$(DOC_SRCDIR)/" \
+	         -a "relindir=$(shell dirname $*)" \
+	         -a "linksfile=objects/xref_es.links" \
+		 -a stylesheet=linuxcnc.css \
+		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
+
 $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_FR_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_fr.links $(LOC_LANG_MAP)
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
@@ -644,19 +695,6 @@ $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_HU_SMALL)): $(DOC_SRCDIR)/%.ht
 	         -a "scriptdir=$(DOC_SRCDIR)/" \
 	         -a "relindir=$(shell dirname $*)" \
 	         -a "linksfile=objects/xref_hu.links" \
-		 -a stylesheet=linuxcnc.css \
-		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
-
-$(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ES_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_es.links $(LOC_LANG_MAP)
-	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
-		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
-		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
-		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
-		 -a linkcss \
-		 $(STYLES_SCRIPTS) \
-	         -a "scriptdir=$(DOC_SRCDIR)/" \
-	         -a "relindir=$(shell dirname $*)" \
-	         -a "linksfile=objects/xref_es.links" \
 		 -a stylesheet=linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
 
@@ -685,6 +723,14 @@ $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ZH_CN_SMALL)): $(DOC_SRCDIR)/%
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
 
 default: docs
+$(DOC_DIR)/html/de/xref.html: objects/xref_de.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
+	$(ECHO) Converting $< to HTML
+	@xsltproc --stringparam docname "xref_de" --stringparam language spanish --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
+
+$(DOC_DIR)/html/es/xref.html: objects/xref_es.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
+	$(ECHO) Converting $< to HTML
+	@xsltproc --stringparam docname "xref_es" --stringparam language spanish --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
+
 $(DOC_DIR)/html/fr/xref.html: objects/xref_fr.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/fr/docs.xml $(DOC_SRCDIR)/terms.xml
 	$(ECHO) Converting $< to HTML
 	@xsltproc --stringparam docname "xref_fr" --stringparam language french --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
@@ -692,10 +738,6 @@ $(DOC_DIR)/html/fr/xref.html: objects/xref_fr.xml $(DOC_SRCDIR)/xref.xsl $(DOC_S
 $(DOC_DIR)/html/hu/xref.html: objects/xref_hu.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
 	$(ECHO) Converting $< to HTML
 	@xsltproc --stringparam docname "xref_hu" --stringparam language hungarian --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
-
-$(DOC_DIR)/html/es/xref.html: objects/xref_es.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
-	$(ECHO) Converting $< to HTML
-	@xsltproc --stringparam docname "xref_es" --stringparam language spanish --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
 
 $(DOC_DIR)/html/nb/xref.html: objects/xref_nb.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
 	$(ECHO) Converting $< to HTML
