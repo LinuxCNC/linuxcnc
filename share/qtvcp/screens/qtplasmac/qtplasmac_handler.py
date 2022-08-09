@@ -1,4 +1,4 @@
-VERSION = '1.229.221'
+VERSION = '1.229.222'
 
 '''
 qtplasmac_handler.py
@@ -206,7 +206,7 @@ class HandlerClass:
         self.idleList = ['file_clear', 'file_open', 'file_reload']
         self.idleOnList = ['home_x', 'home_y', 'home_z', 'home_a', 'home_all']
         self.idleHomedList = ['touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_b', 'touch_xy', \
-                              'mdi_show', 'height_lower', 'height_raise', 'wcs_button']
+                              'mdi_show', 'height_lower', 'height_raise', 'wcs_button', 'set_offsets']
         self.pausedValidList= []
         self.jogButtonList = ['jog_x_plus', 'jog_x_minus', 'jog_y_plus', 'jog_y_minus', 'jog_z_plus', \
                               'jog_z_minus', 'jog_a_plus', 'jog_a_minus', 'jog_b_plus', 'jog_b_minus']
@@ -700,6 +700,8 @@ class HandlerClass:
         self.heightOverridePin = self.h.newpin('height_override', hal.HAL_FLOAT, hal.HAL_OUT)
         self.jogInhibited = self.h.newpin('jog_inhibited', hal.HAL_BIT, hal.HAL_IN)
         self.laserOnPin = self.h.newpin('laser_on', hal.HAL_BIT, hal.HAL_OUT)
+        self.offsetSetProbePin = self.h.newpin('offset_set_probe', hal.HAL_BIT, hal.HAL_OUT)
+        self.offsetSetScribePin = self.h.newpin('offset_set_scribe', hal.HAL_BIT, hal.HAL_OUT)
         self.laserRecStatePin = self.h.newpin('laser_recovery_state', hal.HAL_S32, hal.HAL_IN)
         self.materialChangePin = self.h.newpin('material_change', hal.HAL_S32, hal.HAL_IN)
         self.materialChangeNumberPin = self.h.newpin('material_change_number', hal.HAL_S32, hal.HAL_IN)
@@ -824,6 +826,8 @@ class HandlerClass:
         CALL(['halcmd', 'net', 'plasmac:state', 'plasmac.state-out', 'qtplasmac.plasmac_state'])
         CALL(['halcmd', 'net', 'plasmac:z-height', 'plasmac.z-height', 'qtplasmac.z_height'])
         CALL(['halcmd', 'net', 'plasmac:z-offset-counts', 'qtplasmac.z_offset_counts'])
+        CALL(['halcmd', 'net', 'plasmac:offset-set-probe', 'plasmac.offset-set-probe', 'qtplasmac.offset_set_probe'])
+        CALL(['halcmd', 'net', 'plasmac:offset-set-scribe', 'plasmac.offset-set-scribe', 'qtplasmac.offset_set_scribe'])
 
 # *** add system hal pin changes here that may affect existing configs ***
 # *** these may be removed after auto updating is implemented          ***
@@ -1834,7 +1838,11 @@ class HandlerClass:
     def set_offsets_clicked(self):
         if self.developmentPin.get():
             reload(OFFSETS)
-        OFFSETS.dialog_show(self, self.w, self.PREFS, INIPATH, STATUS, ACTION, TOOL, self.foreColor, self.backColor)
+        self.w.main_tab_widget.setCurrentIndex(0)
+        if STATUS.stat.rotation_xy:
+            ACTION.CALL_MDI_WAIT('G10 L2 P0 R0')
+            ACTION.SET_MANUAL_MODE()
+        OFFSETS.dialog_show(self, self.w, self.PREFS, INIPATH, STATUS, ACTION, TOOL)
 
     def feed_label_pressed(self):
         self.w.feed_slider.setValue(100)
@@ -2775,6 +2783,7 @@ class HandlerClass:
         msg.setIcon(icon)
         msg.setWindowTitle(title)
         msg.setText(error)
+        msg.setWindowFlag(Qt.Popup)
         msg.exec_()
         self.dialogError = False
         return msg
@@ -2790,6 +2799,7 @@ class HandlerClass:
         msg.setIcon(icon)
         msg.setWindowTitle(title)
         msg.setText(error)
+        msg.setWindowFlag(Qt.WindowStaysOnTopHint) if 'shutdown' in error else msg.setWindowFlag(Qt.Popup)
         choice = msg.exec_()
         if choice == QMessageBox.Yes:
             return True
@@ -2821,44 +2831,6 @@ class HandlerClass:
             self.vkb_show(False)
         out = input.textValue()
         return valid, out
-
-    def dialog_gcode(self, title, icon, text):
-        self.dlg = QDialog()
-        scroll = QScrollArea(self.dlg)
-        widget = QWidget()
-        vbox = QVBoxLayout()
-        label = QLabel()
-        vbox.addWidget(label)
-        widget.setLayout(vbox)
-        btn = QPushButton('OK', self.dlg)
-        self.dlg.setWindowTitle(title)
-        self.dlg.setWindowIcon(QIcon(self.dlg.style().standardIcon(icon)))
-        self.dlg.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.dlg.setModal(False)
-        self.dlg.setFixedWidth(600)
-        self.dlg.setFixedHeight(310)
-        self.dlg.setStyleSheet(' \
-                          QWidget {{ color: {0}; background: {1} }} \
-                          QScrollArea {{ color: {0}; background: {1}; border: 1px solid {0}; border-radius: 4px; padding: 4px }} \
-                          QPushButton {{ border: 2px solid {0}; border-radius: 4px; \
-                                         font: 12pt; width: 60px; height: 40px }} \
-                          QPushButton:pressed {{ border: 1px solid {0} }} \
-                          QScrollBar:vertical {{background: {2}; border: 0px; border-radius: 4px; margin: 0px; width: 20px }} \
-                          QScrollBar::handle:vertical {{ background: {0}; border: 2px solid {0}; border-radius: 4px; margin: 2px; min-height: 40px }} \
-                          QScrollBar::add-line:vertical {{ height: 0px }} \
-                          QScrollBar::sub-line:vertical {{ height: 0px }}'.format(self.foreColor, self.backColor, self.back1Color))
-        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        scroll.setWidgetResizable(True)
-        scroll.setWidget(widget)
-        scroll.setGeometry(5, 5, 590, 250)
-        btn.move(270,260)
-        btn.clicked.connect(self.dlg_ok_clicked)
-        label.setText(text)
-        self.dlg.exec()
-
-    def dlg_ok_clicked(self):
-        self.dlg.accept()
 
     def dialog_run_from_line(self):
         rFl = QDialog(self.w)
