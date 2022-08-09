@@ -28,7 +28,7 @@ Package: linuxcnc-doc-es
 Provides: linuxcnc-doc
 Architecture: all
 Depends: ${misc:Depends}
-Recommends: mailcap
+Recommends: xdg-utils
 Suggests: pdf-viewer
 Description: controlador de movimiento para máquinas CNC y robots (Español).
  LinuxCNC es EMC (controlador de máquina mejorado) que proporciona
