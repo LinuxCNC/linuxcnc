@@ -166,7 +166,7 @@ DOC_SRCS_EN := \
 	Master_Developer.adoc
 
 LANGUAGES := $(shell grep '\[po4a_langs\]' $(DOC_DIR)/po4a.cfg| cut -d" " -f2-)
-LANGUAGES_MATCH = $(subst $(LANGUAGES), ,|)
+LANGUAGES_MATCH := $(shell echo $(LANGUAGES) | tr " " "|")
 
 
 GENERATED_TRANSLATED = $(foreach l, $(LANGUAGES), \
