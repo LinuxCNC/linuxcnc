@@ -1037,8 +1037,9 @@ Modify your INI File to include the following:
 [source,{ini}]
 ----
 [RS274NGC]
-# Enables the reading of INI and HAL values from G-code
-FEATURES=12
+# Make sure INI_VARS and HAL_PIN_VARS are not set to 0. They are set to 1 by default.
+# LinuxCNC versions below 2.8 require the following line to be uncommented:
+# FEATURES = 12
 
 # is the sub, with is called when a error during tool change happens, not needed on every machine configuration
 ON_ABORT_COMMAND=O <on_abort> call
