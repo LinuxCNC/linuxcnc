@@ -126,6 +126,7 @@ run_tests () {
     while read testname; do
 	# Copy test to writable directory
 	srctestdir=$(dirname $testname)
+	if [ -e $TMPDIR/curtest ] ; then rm -rf $TMPDIR/curtest; fi
 	mkdir $TMPDIR/curtest
 	cp -rL $srctestdir/. $TMPDIR/curtest
 	testdir=$TMPDIR/curtest
