@@ -173,7 +173,7 @@ class HandlerClass:
         self.wheel_y = self.h.newpin('jog.wheel.y',hal.HAL_BIT, hal.HAL_OUT)
         self.wheel_z = self.h.newpin('jog.wheel.z',hal.HAL_BIT, hal.HAL_OUT)
         self.wheel_a = self.h.newpin('jog.wheel.a',hal.HAL_BIT, hal.HAL_OUT)
-        self.jog_increment = self.h.newpin('jog.wheel.incement',hal.HAL_FLOAT, hal.HAL_OUT)
+        self.jog_increment = self.h.newpin('jog.wheel.increment',hal.HAL_FLOAT, hal.HAL_OUT)
 
     def init_preferences(self):
         if not self.w.PREFS_:
