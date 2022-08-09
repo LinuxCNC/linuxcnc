@@ -416,6 +416,17 @@ any extra parameters present.
 Note that RS274NGC rules still apply - for instance you may use axis
 words (eg X,Y,Z) only in the context of a G-code.
 
+Axis words may also only be used if the axis is enabled.  If only XYZ
+are enabled, ABCUVW will not be available to be used in argspec.
+
+Words FST will have the normal functions but will be avaliable as 
+variables in the remapped function. F will set feedrate, S will set
+spindle RPM, T will trigger the tool prepare function.  Words FST 
+should not be used if this behavior is not desired.
+
+Words DEIJKPQR have no predefined function and are recommended for
+use as argspec parameters.
+
 `ABCDEFHIJKPQRSTUVWXYZ`::
   Defines a required word parameter: an uppercase letter specifies that
   the corresponding word *must*
