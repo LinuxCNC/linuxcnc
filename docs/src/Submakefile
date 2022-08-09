@@ -166,6 +166,8 @@ DOC_SRCS_EN := \
 	Master_Developer.adoc
 
 LANGUAGES := $(shell grep '\[po4a_langs\]' $(DOC_DIR)/po4a.cfg| cut -d" " -f2-)
+LANGUAGES_MATCH = $(subst $(LANGUAGES), ,|)
+
 
 GENERATED_TRANSLATED = $(foreach l, $(LANGUAGES), \
 	$(DOC_SRCDIR)/$(l) \
@@ -357,7 +359,7 @@ checkref_vi: $(DOC_TARGETS_HTML_VI) $(DOC_DIR)/html/vi/gcode.html .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref Vietnamese $^
 
 MAN_SRCS_NOSO = $(patsubst $(DOC_DIR)/man/%,%, \
-			$(shell grep -L '^\.so ' $(sort $(MAN_SRCS))))
+			$(shell grep -L '^\.so ' $(MAN_SRCS)))
 
 PDF_MAN_ORDER := man1/linuxcnc.1 $(filter-out %/linuxcnc.1, $(filter man1/%, $(MAN_SRCS_NOSO))) \
 	man3/intro.3hal $(filter-out %/undocumented.3hal %/intro.3hal, $(filter man3/%.3hal, $(MAN_SRCS_NOSO))) \
@@ -526,7 +528,7 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 		HTML_DIR=$$(basename $$(dirname $$HTML_FILE)); \
 		for IMAGE_FILE in $$(xsltproc --novalid --nonet $(DOC_SRCDIR)/html-images.xslt $$HTML_FILE); do \
 			IMAGE_DIR=$$(dirname $$IMAGE_FILE); \
-			IMAGE_PATH=$$(echo $(DOC_SRCDIR)/$$HTML_DIR/$$IMAGE_FILE | sed -E 's%/src/(es|fr|hu|vi|zh_CN)/%/src/%'); \
+			IMAGE_PATH=$$(echo $(DOC_SRCDIR)/$$HTML_DIR/$$IMAGE_FILE | sed -E 's%/src/($(LANGUAGES_MATCH))/%/src/%'); \
 			mkdir -p $(DOC_DIR)/html/$$HTML_DIR/$$IMAGE_DIR; \
 			cp -f $$IMAGE_PATH $(DOC_DIR)/html/$$HTML_DIR/$$IMAGE_FILE; \
 		done; \
@@ -542,7 +544,7 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 	cp -f hal/user_comps/mb2hal/mb2hal_HOWTO.ini $(DOC_DIR)/src/drivers/;\
 	mkdir -p $(DOC_DIR)/html/drivers/; \
 	cp -f hal/user_comps/mb2hal/mb2hal_HOWTO.ini $(DOC_DIR)/html/drivers/;\
-	for lang in es fr hu vi zh_CN; do \
+	for lang in $(LANGUAGES); do \
 		mkdir -p $(DOC_DIR)/src/$$lang/drivers/; \
 		mkdir -p $(DOC_DIR)/html/$$lang/drivers/; \
 		cp -f hal/user_comps/mb2hal/mb2hal_HOWTO.ini $(DOC_DIR)/src/$$lang/drivers/ ; \
@@ -557,7 +559,7 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 		echo Processing $$ADOC_FILE, dir $$ADOC_DIR; \
 		for IMAGE_FILE in $$(grep -E ^image:[^[:space:]] $$ADOC_FILE | sed -E "s/image:+([^[]+)\[/\nimage:\1\n/g" | grep image: | cut -d: -f2-); do \
 			IMAGE_DIR=$$(dirname $$IMAGE_FILE); \
-			IMAGE_PATH=$$(echo $(DOC_SRCDIR)/$$ADOC_DIR/$$IMAGE_FILE | sed -E 's%/src/(es|fr|hu|vi|zh_CN)/%/src/%'); \
+			IMAGE_PATH=$$(echo $(DOC_SRCDIR)/$$ADOC_DIR/$$IMAGE_FILE | sed -E 's%/src/($(LANGUAGES_MATCH))/%/src/%'); \
 			TIMAGE_PATH=$(DOC_DIR)/src/$$ADOC_DIR/$$IMAGE_FILE; \
 			HIMAGE_PATH=$(DOC_DIR)/html/$$ADOC_DIR/$$IMAGE_FILE; \
 			mkdir -p $(DOC_DIR)/src/$$ADOC_DIR/$$IMAGE_DIR; \
