@@ -13,6 +13,7 @@ unset DISPLAY
 export LC_ALL=C
 export LANGUAGES=
 
+
 case "$0" in
 	*/*) MYDIR="${0%/*}" ;;
 	*) MYDIR="`type -path $0`"; MYDIR="${MYDIR%/*}"
@@ -124,32 +125,25 @@ run_tests () {
 	| sort > $TMPDIR/alltests
 
     while read testname; do
-	# Copy test to writable directory
-	srctestdir=$(dirname $testname)
-	if [ -e $TMPDIR/curtest ] ; then rm -rf $TMPDIR/curtest; fi
-	mkdir $TMPDIR/curtest
-	cp -rL $srctestdir/. $TMPDIR/curtest
-	testdir=$TMPDIR/curtest
+	testdir=$(dirname $testname)
 	if [ -e $testdir/skip ]; then
 	    if ! [ -x $testdir/skip ] || ! $testdir/skip; then
-		echo "Skipping disabled test: $srctestdir" 1>&2
+		echo "Skipping disabled test: $testdir" 1>&2
 		SKIP=$(($SKIP+1))
-		rm -rf $TMPDIR/curtest
 		continue
 	    fi
 	fi
 	if $NOSUDO && [ -e $testdir/control ] && \
 		grep Restrictions: $testdir/control | grep -q sudo; then
 	    if ! [ -x $testdir/skip ] || ! $testdir/skip; then
-		echo "Skipping sudo test: $srctestdir" 1>&2
+		echo "Skipping sudo test: $testdir" 1>&2
 		SKIP=$(($SKIP+1))
-		rm -rf $TMPDIR/curtest
 		continue
 	    fi
 	fi
 	NUM=$(($NUM+1))
 	export TEST_DIR=$(readlink -f $testdir)
-	echo "Running test: $srctestdir" 1>&2
+	echo "Running test: $testdir" 1>&2
         if test -n "$SYSTEM_BUILD"; then
             # Tell `halcompile` where to install comps
             USER_MODULE_DIR=$(readlink -f $testdir) \
@@ -187,7 +181,7 @@ run_tests () {
 	    fi
 	fi
 	if [ $exitcode -ne 0 ]; then
-	    echo "*** $srctestdir: XFAIL: $reason"
+	    echo "*** $testdir: XFAIL: $reason"
             if test $PRINT = 1; then
                 echo "************** result:"
                 tail -500 $testdir/result | sed 's/^/        /'
@@ -204,14 +198,14 @@ run_tests () {
 	    else
 		FAIL=$(($FAIL+1))
 		FAIL_NAMES="$FAIL_NAMES
-	$srctestdir"
+	$testdir"
 	    fi
             if test $STOP = 1; then
 	        break
 	    fi
 	else
 	    if [ -f $testdir/xfail ]; then
-		echo "*** $srctestdir: XPASS: Passed, but was expected to fail"
+		echo "*** $testdir: XPASS: Passed, but was expected to fail"
 	    else
 		if [ $NOCLEAN -eq 0 ]; then
 		    rm -f $testdir/stderr $testdir/result \
