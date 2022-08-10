@@ -102,7 +102,7 @@ The three configurable parameters are:
 . *alpha* : positive or negative rotation (in radians) around the X-axis
   of the "current coordinate system"
 . *a* : positive distance, along X, between two joint axes specified in
-  'machine units' (mm or inch) defined in the system's ini file.
+  'machine units' (mm or inch) defined in the system's INI file.
 . *d* : positive or negative length along Z (also in 'machine units')
 
 The parameter sets are always derived in the same order and a set is

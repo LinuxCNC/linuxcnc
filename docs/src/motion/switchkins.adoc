@@ -25,16 +25,16 @@ specific kinematics calculations for most operations but can be
 switched to identity kinematics for control of individual joints
 after homing.
 
-The kinematics type is selected by a motion module hal pin that
+The kinematics type is selected by a motion module HAL pin that
 can be updated from a G-code program or by interactive MDI
 commands. The halui provisions for activating MDI commands can be
 used to allow buttons to select the kinematics type using
-hardware controls or a virtual panel (pyvcp,gladevcp, etc.).
+hardware controls or a virtual panel (PyVCP, gladevcp, etc.).
 
 When a kinematics type is changed, the G-code must also issue
 commands to *force synchronization* of the interpreter and motion
-parts of LinuxCNC. Typically, a hal pin 'read' command (M66 E0 L0) is
-used immediately after altering the controlling hal pin to force
+parts of LinuxCNC. Typically, a HAL pin 'read' command (M66 E0 L0) is
+used immediately after altering the controlling HAL pin to force
 synchronization.
 
 == Switchable Kinematic Modules
@@ -52,7 +52,7 @@ The following kinematics modules support switchable kinematics:
 The xyz[ab]c-trt-kins modules by default use type0==xyz[ab]c-trt-kins
 for backwards compatibility.  The provided sim configs alter the
 type0/type1 convention by forcing type0==identity kinematics using the
-module string parameter 'sparm' with an inifile setting like:
+module string parameter 'sparm' with an INI file setting like:
 
 [source,{ini}]
 ----
@@ -106,9 +106,9 @@ implementing their eponymous kinematics method.  If the the
 motion.switchkins-type pin is not connected -- as in legacy
 configurations -- only the default kinematics type is available.
 
-== Hal Pins
+== HAL Pins
 
-Kinematics switching is controlled by the motion module input hal
+Kinematics switching is controlled by the motion module input HAL
 pin *motion.switchkins-type*.  The floating point pin value is
 truncated to integer and used to select one of the provided
 kinematics types.  The zero startup value selects the type0
@@ -117,15 +117,15 @@ default kinematics type.
 [NOTE]
 The motion.switchkins-type input pin is floating point in order
 to facilitate connections to motion module output pins like
-motion.analog-out-0n that are controllable by standard Mcodes
+motion.analog-out-0n that are controllable by standard M-codes
 (typically M68EnL0).
 
-Output hal pins are provided to inform guis of the current
+Output HAL pins are provided to inform GUIs of the current
 kinematics type.  These pins can also be connected to digital
 inputs that are read by G-code programs to enable or disable
 program behavior in accordance with the active kinematics type.
 
-=== Hal Pin Summary
+=== HAL Pin Summary
 
 . *motion.switchkins-type*  Input  (float)
 . *kinstype.is-0*           Output (bit)
@@ -134,7 +134,7 @@ program behavior in accordance with the active kinematics type.
 
 == Usage
 
-=== Hal Connections
+=== HAL Connections
 
 Switchkins functionality is enabled by the pin
 *motion.switchkins-type*.  Typically, this pin is sourced by an
@@ -171,33 +171,33 @@ current value of this variable is needed for subsequent purposes, it
 should be copied to an additional variable before invoking M66.
 
 These G-code command sequences are typically implemented in G-code
-subroutines as remapped Mcodes or with conventional Mcode scripts.
+subroutines as remapped M-codes or with conventional M-code scripts.
 
 Suggested codes (as used in sim configs) are:
 
-Conventional User Mcodes:
+Conventional User M-codes:
 
 . M128 Select kinstype 0 (startup default kinematics)
 . M129 Select kinstype 1 (typically identity kinematics)
 . M130 Select kinstype 2 (user-provided kinematics)
 
-Remapped Mcodes:
+Remapped M-codes:
 
 . M428 Select kinstype 0 (startup default kinematics)
 . M429 Select kinstype 1 (typically identity kinematics)
 . M430 Select kinstype 2 (user-provided kinematics)
 
 [NOTE]
-Conventional user Mcodes (in the range M100-M199) are in modal
-group 10.  Remapped Mcodes (in the range M200 to M999) can
+Conventional user M-codes (in the range M100-M199) are in modal
+group 10.  Remapped M-codes (in the range M200 to M999) can
 specify a modalgroup.  See the remap documentation for additional
 information.
 
-=== Inifile Limit settings
+=== INI file limit settings
 
 LinuxCNC trajectory planning uses limits for position (min,max),
 velocity, and acceleration for each applicable coordinate letter
-specified in the configuration ini file.  Example for letter L
+specified in the configuration INI file.  Example for letter L
 (in the set 'XYZABCUVW'):
 
 [source,{ini}]
@@ -209,19 +209,19 @@ MAX_VELOCITY =
 MIN_ACCELERATION =
 ----
 
-The inifile limits specified apply to the type 0 default
+The INI file limits specified apply to the type 0 default
 kinematics type that is activated at startup.  These limits may
 *not* be applicable when switching to alternative kinematics.
 However, since an interpreter-motion synchronization is required
-when switching kinematics, ini-hal pins can be used to setup
+when switching kinematics, INI-HAL pins can be used to setup
 limits for a pending kinematics type.
 
 [NOTE]
-Ini-hal pins are typically not recognized during a G-code program
+INI-HAL pins are typically not recognized during a G-code program
 unless a synchronization (queue-buster) command is issued.  See
 the milltask manpage for more information ($ man milltask)
 
-The relevant ini-hal pins for a joint number (N) are:
+The relevant INI-HAL pins for a joint number (N) are:
 
 [source,{hal}]
 ----
@@ -231,7 +231,7 @@ ini.N.max_acceleration
 ini.N.max_velocity
 ----
 
-The relevant ini-hal pins for an axis coordinate (L) are:
+The relevant ini-HAL pins for an axis coordinate (L) are:
 
 [source,{hal}]
 ----
@@ -248,11 +248,11 @@ kinematics modules especially those that implement identity
 kinematics (trivkins).  See the kins man page for more
 information ($ man kins)
 
-A user-provided Mcode can alter any or all of the axis coordinate
+A user-provided M-code can alter any or all of the axis coordinate
 limits prior to changing the motion.switchkins-type pin and
 synchronizing the interpreter and motionparts of LinuxCNC.  As an
 example, a bash script invoking halcmd can be 'hardcoded' to set
-any number of hal pins:
+any number of HAL pins:
 
 ----
 #!/bin/bash
@@ -263,47 +263,47 @@ setp ini.x.max_limit  100
 EOF
 ----
 
-Scripts like this can be invoked as a user Mcode and used *prior*
-to the kins switching Mcode that updates the
-motion.switchkins-type hal pin and forces an interp-motion sync.
+Scripts like this can be invoked as a user M-code and used *prior*
+to the kins switching M-code that updates the
+motion.switchkins-type HAL pin and forces an interp-motion sync.
 Typically, separate scripts would be used for each kinstype
 (0,1,2).
 
 When identity kinematics are provided as a means to control
 individual joints, it may be convenient to set or restore limits
-as specified in the system ini file.  For example, a robot starts
+as specified in the system INI file.  For example, a robot starts
 with a complex (non-identity) kinematics (type0) after homing.
 The system is configured so that it can be switched to identity
 kinematics (type1) in order to manipulate individual joints using
-the conventional letters from the set 'XYZABCUVW'.  The ini file
+the conventional letters from the set 'XYZABCUVW'.  The INI file
 settings ([AXIS_L]) are *not* applicable when operating with
 identity (type1) kinematics.  To address this use case, the user
-Mcode scripts can be designed as follows:
+M-code scripts can be designed as follows:
 
 *M129* (Switch to identity type1)
 
-. read and parse ini file
-. hal: setp the ini-hal limit pins for each axis letter ([AXIS_L])
-  according to the 'identity-referenced' joint number ini file
+. read and parse INI file
+. HAL: setp the INI-HAL limit pins for each axis letter ([AXIS_L])
+  according to the 'identity-referenced' joint number INI file
   setting ([JOINT_N])
-. hal: setp motion.switchkins-type 1
-. mdi: execute a syncing G-code (M66E0L0)
+. HAL: setp motion.switchkins-type 1
+. MDI: execute a syncing G-code (M66E0L0)
 
 *M128* (restore robot default kinematics type 0)
 
-. read and parse ini file
-. hal: setp the ini-hal limit pins for each axis letter ([AXIS_L])
-  according to the appropriate inifile setting ([AXIS_L])
-. hal: setp motion.switchkins-type 0
-. mdi: execute a syncing G-code (M66E0L0)
+. read and parse INI file
+. HAL: setp the INI-HAL limit pins for each axis letter ([AXIS_L])
+  according to the appropriate INI file setting ([AXIS_L])
+. HAL: setp motion.switchkins-type 0
+. MDI: execute a syncing G-code (M66E0L0)
 
 [NOTE]
 The vismach simulation configurations for a puma robot demonstrate
-Mcode scripts (M128,M129,M130) for this example use case.
+M-code scripts (M128,M129,M130) for this example use case.
 
 === Offset considerations
 
-Like inifile limit settings, coordinate system offsets (G92,
+Like INI file limit settings, coordinate system offsets (G92,
 G10L2, G10L20, G43, etc) are generally applicable only for the
 type 0 default startup kinematics type.  When switching
 kinematics types, it may be *important* to either reset all offsets
@@ -314,7 +314,7 @@ requirements.
 
 Simulation configs (requiring no hardware) are provided with
 illustrative vismach displays in subdirectories of
-configs/sim/axis/vismach/
+configs/sim/axis/vismach/ .
 
 . 5axis/table-rotary-tilting/xyzac-trt.ini (xyzac-trt-kins)
 . 5axis/table-rotary-tilting/xyzbc-trt.ini (xyzac-trt-kins)
@@ -349,7 +349,7 @@ Unexpected behavior can result if a G-code program is inadvertently
 started with an incompatible kinematics type.  Unwanted behavior
 can be circumvented in G-code programs by:
 
-. Connecting appropriate kinstype.is.N hal pins to digital input
+. Connecting appropriate kinstype.is.N HAL pins to digital input
   pins (like motion.digital-in-0m).
 . Reading the digital input pin (M66 E0 Pm) at the start of the
   G-code program
@@ -364,7 +364,7 @@ display the current kinematics type.
 Switching kinematics can cause substantial operational changes
 requiring careful design, testing, and training for deployment.
 The management of coordinate offsets, tool compensation, and
-inifile limits may require complicated and non-standard operating
+INI file limits may require complicated and non-standard operating
 protocols.
 
 == Code Notes
@@ -382,10 +382,10 @@ each kinstype (0,1,2) and sets a number of configuration
 settings.
 
 After calling switchkinsSetup(), rtapi_app_main() checks the
-supplied parameters, creates a hal component, and then invokes
+supplied parameters, creates a HAL component, and then invokes
 the setup routine identified for each kinstype (0,1,2).
 
-Each kinstype (0,1,2) setup routine can (optionally) create hal
+Each kinstype (0,1,2) setup routine can (optionally) create HAL
 pins and set them to default values.  When all setup routines
 finish, rtapi_app_main() issues hal_ready() for the component
 to complete creation of the module.

@@ -285,13 +285,13 @@ Example xyzac-trt and xyzbc-trt simulation configurations are located
 in the Sample Configurations ('configs/sim/axis/vismach/5axis/table-rotary-tilting/')
 directory.
 
-The example configurations include the required ini files and an examples subdirectory
+The example configurations include the required INI files and an examples subdirectory
 with gode (.ngc) files. These sim configurations invoke a realistic 3-dimensional model
 using the LinuxCNC vismach facility.
 
 === Vismach Simulation Models
 
-Vismach is a library of python routines to display a dynamic simulation of a CNC machine on the PC screen. The python script for a particular machine is loaded in HAL and data passed by HAL pin connections.  The user-space vismach model is loaded by a hal command like:
+Vismach is a library of python routines to display a dynamic simulation of a CNC machine on the PC screen. The python script for a particular machine is loaded in HAL and data passed by HAL pin connections.  The user-space vismach model is loaded by a HAL command like:
 
 [source,{hal}]
 ----
@@ -305,7 +305,7 @@ net  :saddle-y  joint.1.pos-fb xyzac-trt-gui.saddle-y
 ...
 ----
 
-See the simulation ini files for details of the HAL connections used for the vismach model.
+See the simulation INI files for details of the HAL connections used for the vismach model.
 
 === Tool-Length Compensation
 
@@ -356,8 +356,8 @@ required to install it and you will be asked for your root password.  See the
 halcompile man page for more information (*\$ man halcompile*)
 
 Once it is compiled and installed you can reference it in your config setup of
-your machine. This is done in the ini file of your config directory. For
-example, the common ini specificaion:
+your machine. This is done in the INI file of your config directory. For
+example, the common INI specificaion:
 
 [source,{ini}]
 ----

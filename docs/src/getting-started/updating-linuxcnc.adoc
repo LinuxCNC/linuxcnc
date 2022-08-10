@@ -1209,7 +1209,7 @@ motion.homing-inhibit (see motion manpage)
 
 ==== xhc_hb04_util.comp (helper component)
 
-Remove unused pin 'jogenable-off'
+Remove unused pin 'jogenable-off'.
 
 Add pin 'amux-enable' so that the multiplexed acceleration reductions are now
 enabled by the ANDing the pins: 'is-manual' and 'amux-enable'.  These two pins
@@ -1218,7 +1218,7 @@ respectively.
 
 ==== xhc_hb04.tcl (optional LIB configuration HAL file)
 
-Remove signal pendant:jogenable-off for removed pin 'pendant_util.jogenable-off'
+Remove signal pendant:jogenable-off for removed pin 'pendant_util.jogenable-off'.
 
 Support new motion pins for reduced accelerations
 (axis.L.jog-accel-fraction, joint.N.jog-accel-fraction) for wheel jogging.
@@ -1266,13 +1266,13 @@ The master branch is version-tagged with prerelease notation, typically
 
 2.9 changed to Python3 and GTK3. This only affects you if you have custom glade or python handlers in your config.
 
-. run py3clean in your config directory to remove any temporary files.
-. run py3clean in your LinuxCNC source directory if you compile from source
-. run 2to3 -w on any .py files you have written
-. make sure the interpreter in the first line of the script is python3, not python2
-. open the ui file in glade, and save it. It should convert everything that can be converted automatically, and give you warnings.
+. Run py3clean in your config directory to remove any temporary files.
+. Run py3clean in your LinuxCNC source directory if you compile from source.
+. Run 2to3 -w on any .py files you have written.
+. Make sure the interpreter in the first line of the script is python3, not python2.
+. Open the ui file in glade, and save it. It should convert everything that can be converted automatically, and give you warnings.
 
-=== LinuxCNC startup
+=== LinuxCNC Startup
 
 The main script, *linuxcnc*, supports a new option (-H dirname) to
 specify an additional user-specified directory for HAL files.  This

@@ -11,9 +11,9 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-Most of LinuxCNC's screens have the ability to send loaded files through a 'filter program' or +
-use the filter program to make Gcode.
-This filter can do any desired task: Something as simple as making sure
+Most of LinuxCNC's screens have the ability to send loaded files through a
+'filter program' or use the filter program to make G-code.
+Such a filter can do any desired task: Something as simple as making sure
 the file ends with 'M2', or something as complicated as generating
 G-code from an image.
 

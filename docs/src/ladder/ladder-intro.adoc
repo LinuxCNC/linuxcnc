@@ -2,11 +2,11 @@
 :toc:
 
 [[cha:classicladder]]
-= Classicladder Introduction
+= ClassicLadder Introduction
 
 == History
 
-Classic Ladder is a free implementation of a ladder interpreter,
+ClassicLadder is a free implementation of a ladder interpreter,
 released under the LGPL. It was written by Marc Le Douarain.
 
 He describes the beginning of the project on his website:
@@ -27,10 +27,10 @@ with more complex elements: timer, multiples rungs, etc...
 Voila, here is this work... and more: I've continued to add features
 since then.
 
--- Marc Le Douarain, from "Genesis" at the Classic Ladder website
+-- Marc Le Douarain, from "Genesis" at the ClassicLadder website
 _____________________________________________________________________
 
-Classic Ladder has been adapted to work with LinuxCNC's HAL, and is
+ClassicLadder has been adapted to work with LinuxCNC's HAL, and is
 currently being distributed along with LinuxCNC. If there are
 issues/problems/bugs please report them to the Enhanced Machine
 Controller project.

@@ -2687,7 +2687,7 @@ G97 S- <$-> (RPM Mode)
 
 * 'G96 S- <D->' - selects constant surface speed of 'S':
 ** In feet per minute if G20 is in effect,
-** Or meters per minute if G21 is in effect.
+** or meters per minute if G21 is in effect.
 
 When using G96, ensure that X0 in
 the current coordinate system (including offsets and tool lengths) is
