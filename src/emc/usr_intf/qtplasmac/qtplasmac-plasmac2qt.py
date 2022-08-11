@@ -65,7 +65,7 @@ class Converter(QMainWindow, object):
         appPath = os.path.realpath(os.path.dirname(sys.argv[0]))
         iconBase = '/usr' if appPath == '/bin' else appPath.replace('/bin', '')
         self.setWindowIcon(QIcon(os.path.join(iconBase, iconPath)))
-        self.setWindowTitle('PLASMAC2QT')
+        self.setWindowTitle('PlasmaC2Qt')
         vBox = QVBoxLayout()
         if self.mode == 'auto':
             heading  = 'Plasmac is not available in LinuxCNC V2.9 and later\n\n'
@@ -249,14 +249,14 @@ class Converter(QMainWindow, object):
     # CHECK IF FULL PATH EXISTS
         if not os.path.dirname(self.iniIn):
             msg  = 'Missing path to a PlasmaC configuration\n'
-            self.dialog_ok('PATH ERROR', msg)
+            self.dialog_ok('Path Error', msg)
             self.fromFile.setFocus()
             return
     # CHECK IF VALID PLASMAC CONFIG
         if not os.path.exists('{}/plasmac'.format(os.path.dirname(self.iniIn))):
             msg  = '{}\n'.format(self.iniIn)
             msg += '\n is not a PlasmaC configuration\n'
-            self.dialog_ok('CONFIG ERROR', msg)
+            self.dialog_ok('Config Error', msg)
             self.fromFile.setFocus()
             return
     # CHECK IF SIM CONFIG
@@ -283,7 +283,7 @@ class Converter(QMainWindow, object):
             os.makedirs('{}/backups'.format(newDir))
         except:
             msg  = 'Could not create directory\n'.format(newDir)
-            self.dialog_ok('DIRECTORY ERROR', msg)
+            self.dialog_ok('Directory Error', msg)
             return
     # GET THE MACHINE NAME
         with open(oldIniFile) as inFile:
@@ -322,7 +322,7 @@ class Converter(QMainWindow, object):
                 if not line:
                     msg  = 'Could not get [HAL] section of ini file\n'
                     msg += '\nConversion cannot continue'
-                    self.dialog_ok('INI FILE ERROR', msg)
+                    self.dialog_ok('INI File Error', msg)
                     self.fromFile.setFocus()
                     return
             while(1):
@@ -498,7 +498,7 @@ class Converter(QMainWindow, object):
         else:
             msg += '\nStart LinuxCNC using the following ini file:\n'
         msg += '\n{}/{}.ini\n'.format(newDir, machineName)
-        self.dialog_ok('SUCCESS', msg)
+        self.dialog_ok('Success', msg)
         print(msg)
         sys.exit(0)
 
