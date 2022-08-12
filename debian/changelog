@@ -4,6 +4,45 @@ linuxcnc (1:2.9.0~pre0) UNRELEASED; urgency=medium
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Thu, 23 Sep 2021 20:56:25 +0200
 
+linuxcnc (2.9.0~pre0+git20220402.2500863908-4) unstable; urgency=medium
+
+  * Team upload.
+  * Fixing build-depends - also binary packages need asciidoc to build
+    (Closes: #969416).
+  * Please do not yet use this version in production environments. This
+    upload still aims technical issues to resolve for the next pre-release.
+
+ -- Steffen Moeller <meller@debian.org>  Wed, 06 Apr 2022 16:23:49 +0200
+
+linuxcnc (2.9.0~pre0+git20220402.2500863908-3) unstable; urgency=medium
+
+  * Team upload.
+  * Failed attempt to build indeps.
+
+ -- Steffen Moeller <meller@debian.org>  Wed, 06 Apr 2022 12:43:17 +0200
+
+linuxcnc (2.9.0~pre0+git20220402.2500863908-2) unstable; urgency=medium
+
+  * Team upload.
+  * Failed attempt to build indeps.
+
+ -- Steffen Moeller <meller@debian.org>  Sun, 03 Apr 2022 19:20:29 +0200
+
+linuxcnc (2.9.0~pre0+git20220402.2500863908-1) unstable; urgency=medium
+
+  * Team upload.
+  * First source-only upload to be built across architectures
+    - Update of Classic Ladder to 0.8.10
+    - Fixes for AppStream
+
+ -- Steffen Moeller <meller@debian.org>  Sun, 03 Apr 2022 16:57:36 +0200
+
+linuxcnc (2.9.0~pre0+git20220224.3ba0951743-1) unstable; urgency=medium
+
+  * Initial upload that was checked by FTPmasters
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Fri, 25 Feb 2022 18:40:12 +0100
+
 linuxcnc (1:2.8.3) buster; urgency=low
 
   * CraftsmanCNC: A new GUI written from scratch Intended for CNC router
