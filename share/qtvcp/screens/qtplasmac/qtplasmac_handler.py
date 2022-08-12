@@ -3547,10 +3547,7 @@ class HandlerClass:
             else:
                 self.w.preview_stack.setCurrentIndex(4)
                 self.button_active(self.ovButton)
-                buttonList = []
-                for button in self.idleHomedList:
-                    if button != self.ovButton:
-                        buttonList.append(button)
+                buttonList = [button for button in self.idleHomedList if button != self.ovButton]
                 self.set_buttons_state([self.idleList, self.idleOnList, buttonList], False)
                 self.w.run.setEnabled(False)
         elif 'latest-file' in commands.lower():
