@@ -1233,7 +1233,7 @@ if codeError or codeWarn:
         if warnChar:
             msg  = 'Invalid characters, line has been commented out.\n'
             warnText += message_set(warnChar, msg)
-    dialog_box('G-CODE ERRORS & WARNINGS', QStyle.SP_MessageBoxCritical, errorText, warnText)
+    dialog_box('G-Code Errors & Warnings', QStyle.SP_MessageBoxCritical, errorText, warnText)
 # create empty error file if no errors
 else:
     with open(errorFile, 'w') as errFile:

@@ -11,6 +11,7 @@ unset DISPLAY
 # Some of our tests emit locale-sensitive strings, so reset the locale
 # to a sane default.
 export LC_ALL=C
+export LANGUAGES=
 
 
 case "$0" in

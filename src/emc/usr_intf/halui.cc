@@ -178,6 +178,7 @@ static int axis_mask = 0;
     FIELD(hal_float_t,fo_value) /* current Feed Override value */ \
     FIELD(hal_bit_t,fo_increase) /* pin for increasing the FO (+=scale) */ \
     FIELD(hal_bit_t,fo_decrease) /* pin for decreasing the FO (-=scale) */ \
+    FIELD(hal_bit_t,fo_reset) /* pin for resetting Feed Override */ \
 \
     FIELD(hal_s32_t,ro_counts) /* pin for the Feed Override counting */ \
     FIELD(hal_bit_t,ro_count_enable) /* pin for the Feed Override counting enable */ \
@@ -186,6 +187,7 @@ static int axis_mask = 0;
     FIELD(hal_float_t,ro_value) /* current Feed Override value */ \
     FIELD(hal_bit_t,ro_increase) /* pin ror increasing the FO (+=scale) */ \
     FIELD(hal_bit_t,ro_decrease) /* pin for decreasing the FO (-=scale) */ \
+    FIELD(hal_bit_t,ro_reset) /* pin for resetting Feed Override */ \  
 \
     ARRAY(hal_s32_t,so_counts,EMCMOT_MAX_SPINDLES+1) /* pin for the Spindle Speed Override counting */ \
     ARRAY(hal_bit_t,so_count_enable,EMCMOT_MAX_SPINDLES+1) /* pin for the Spindle Speed Override counting enable */ \
@@ -194,6 +196,7 @@ static int axis_mask = 0;
     ARRAY(hal_float_t,so_value,EMCMOT_MAX_SPINDLES+1) /* current Spindle speed Override value */ \
     ARRAY(hal_bit_t,so_increase,EMCMOT_MAX_SPINDLES+1) /* pin for increasing the SO (+=scale) */ \
     ARRAY(hal_bit_t,so_decrease,EMCMOT_MAX_SPINDLES+1) /* pin for decreasing the SO (-=scale) */ \
+    ARRAY(hal_bit_t,so_reset,EMCMOT_MAX_SPINDLES+1) /* pin for resetting Spindle Speed Override */ \
 \
     FIELD(hal_bit_t,home_all) /* pin for homing all joints in sequence */ \
     FIELD(hal_bit_t,abort) /* pin for aborting */ \
@@ -662,6 +665,8 @@ int halui_hal_init(void)
 	    retval = hal_pin_bit_newf(HAL_IN,  &(halui_data->so_increase[spindle]), comp_id, "halui.spindle.%i.override.increase", spindle);
 	    if (retval < 0) return retval;
 	    retval = hal_pin_bit_newf(HAL_IN,  &(halui_data->so_decrease[spindle]), comp_id, "halui.spindle.%i.override.decrease", spindle);
+            if (retval < 0) return retval;
+            retval = hal_pin_bit_newf(HAL_IN,  &(halui_data->so_reset[spindle]), comp_id, "halui.spindle.%i.override.reset", spindle);
     }
 
     for (joint=0; joint < num_joints ; joint++) {
@@ -831,6 +836,8 @@ int halui_hal_init(void)
     if (retval < 0) return retval;
     retval = halui_export_pin_IN_bit(&(halui_data->fo_decrease), "halui.feed-override.decrease");
     if (retval < 0) return retval;
+    retval = halui_export_pin_IN_bit(&(halui_data->fo_reset), "halui.feed-override.reset");
+    if (retval < 0) return retval;
 
     retval = halui_export_pin_IN_s32(&(halui_data->ro_counts), "halui.rapid-override.counts");
     if (retval < 0) return retval;
@@ -846,6 +853,8 @@ int halui_hal_init(void)
     retval = halui_export_pin_IN_bit(&(halui_data->ro_increase), "halui.rapid-override.increase");
     if (retval < 0) return retval;
     retval = halui_export_pin_IN_bit(&(halui_data->ro_decrease), "halui.rapid-override.decrease");
+    if (retval < 0) return retval;
+    retval = halui_export_pin_IN_bit(&(halui_data->ro_reset), "halui.rapid-override.reset");
     if (retval < 0) return retval;
 
     if (have_home_all) {
@@ -1778,11 +1787,15 @@ static void check_hal_changes()
         sendFeedOverride(new_halui_data.fo_value + new_halui_data.fo_scale);
     if (check_bit_changed(new_halui_data.fo_decrease, old_halui_data.fo_decrease) != 0)
         sendFeedOverride(new_halui_data.fo_value - new_halui_data.fo_scale);
+    if (check_bit_changed(new_halui_data.fo_reset, old_halui_data.fo_reset) != 0)
+        sendFeedOverride( 1.0 );
 
     if (check_bit_changed(new_halui_data.ro_increase, old_halui_data.ro_increase) != 0)
         sendRapidOverride(new_halui_data.ro_value + new_halui_data.ro_scale);
     if (check_bit_changed(new_halui_data.ro_decrease, old_halui_data.ro_decrease) != 0)
         sendRapidOverride(new_halui_data.ro_value - new_halui_data.ro_scale);
+    if (check_bit_changed(new_halui_data.ro_reset, old_halui_data.ro_reset) != 0)
+        sendRapidOverride( 1.0 );
 
 	// spindle stuff
     for (int spindle = 0; spindle < num_spindles; spindle++){
@@ -1790,6 +1803,8 @@ static void check_hal_changes()
 			sendSpindleOverride(spindle, new_halui_data.so_value[spindle] + new_halui_data.so_scale[spindle]);
 		if (check_bit_changed(new_halui_data.so_decrease[spindle], old_halui_data.so_decrease[spindle]) != 0)
 			sendSpindleOverride(spindle, new_halui_data.so_value[spindle] - new_halui_data.so_scale[spindle]);
+                if (check_bit_changed(new_halui_data.so_reset[spindle], old_halui_data.so_reset[spindle]) != 0)
+                        sendSpindleOverride(spindle, 1.0 );
 
 		if (check_bit_changed(new_halui_data.spindle_start[spindle], old_halui_data.spindle_start[spindle]) != 0)
 		sendSpindleForward(spindle);

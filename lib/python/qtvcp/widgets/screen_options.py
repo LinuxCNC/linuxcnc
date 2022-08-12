@@ -76,7 +76,6 @@ def import_ZMQ():
 class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(ScreenOptions, self).__init__(parent)
-        self.error = linuxcnc.error_channel()
         self.catch_errors = True
         self.desktop_notify = True
         self.notify_max_msgs = 10
@@ -317,7 +316,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
     def on_periodic(self, w):
         try:
-            e = self.error.poll()
+            e = STATUS.poll_error()
             if e:
                 kind, text = e
                 STATUS.emit('error',kind,text)

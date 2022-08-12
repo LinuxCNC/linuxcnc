@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-07-09 16:34+0100\n"
-"PO-Revision-Date: 2022-07-21 03:05+0000\n"
+"PO-Revision-Date: 2022-08-06 19:17+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
@@ -355,16 +355,18 @@ msgstr "gen_restore G20/G21 feilet: '%s'"
 msgid ""
 "BUG: cannot restore from a lower call level (%d) to a higher call level (%d)"
 msgstr ""
+"FEIL: Kan ikke tilbakeføre fra et lavere kallnivå (%d) til et høyere "
+"kallnivå (%d)"
 
 #: src/emc/rs274ngc/interp_convert.cc:3018
 #, c-format
 msgid "BUG: restore from level %d !?"
-msgstr ""
+msgstr "FEIL: tilbakefør fra nivå %d !?"
 
 #: src/emc/rs274ngc/interp_convert.cc:3019
 #, c-format
 msgid "BUG: restore to level %d !?"
-msgstr ""
+msgstr "FEIL: tilbakefør til nivå %d !?"
 
 #: src/emc/rs274ngc/interp_convert.cc:3038
 #, c-format
@@ -8201,7 +8203,7 @@ msgstr "_Om AXIS"
 
 #: share/axis/tcl/axis.tcl:464
 msgid "Quick _Reference"
-msgstr "Hu_rtigoppslag"
+msgstr "Hu_rtigtaster"
 
 #: share/axis/tcl/axis.tcl:474
 msgid "_Machine"
@@ -8225,7 +8227,7 @@ msgstr "Åpne G-kodefil [O]"
 
 #: share/axis/tcl/axis.tcl:519
 msgid "Reopen current file [Control-R]"
-msgstr "Åpne gjeldende fil på nytt [Ctrl-R]"
+msgstr "Last inn gjeldende fil på nytt [Ctrl-R]"
 
 #: share/axis/tcl/axis.tcl:529
 msgid "Begin executing current file [R]"
@@ -8367,9 +8369,8 @@ msgid "Go"
 msgstr "Utfør"
 
 #: share/axis/tcl/axis.tcl:1302
-#, fuzzy
 msgid "DRO"
-msgstr "DRO"
+msgstr "Digitalavleser"
 
 #: share/axis/tcl/axis.tcl:1385
 msgid "Active G-Codes:"
@@ -8475,7 +8476,7 @@ msgstr "Om AXIS"
 
 #: share/axis/tcl/axis.tcl:1628
 msgid "AXIS Quick Reference"
-msgstr ""
+msgstr "AXIS hurtigtaster"
 
 #: share/axis/tcl/axis.tcl:1756
 msgid "AXIS $::version on $::machine"
@@ -8644,7 +8645,7 @@ msgstr ""
 #: src/emc/usr_intf/touchy/mdi.py:65 src/emc/usr_intf/touchy/mdi.py:66
 #: src/emc/usr_intf/gscreen/mdi.py:61 src/emc/usr_intf/gscreen/mdi.py:62
 msgid "Dwell"
-msgstr ""
+msgstr "Opphold"
 
 #: src/emc/usr_intf/touchy/mdi.py:67 src/emc/usr_intf/gscreen/mdi.py:63
 msgid "Setup"
@@ -8707,7 +8708,7 @@ msgstr ""
 
 #: src/emc/usr_intf/touchy/mdi.py:85 src/emc/usr_intf/gscreen/mdi.py:80
 msgid "Drill with dwell"
-msgstr ""
+msgstr "Bor med opphold"
 
 #: src/emc/usr_intf/touchy/mdi.py:86 src/emc/usr_intf/gscreen/mdi.py:81
 msgid "Peck drill"
@@ -9252,7 +9253,7 @@ msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:3019
 msgid "DRO Font:"
-msgstr ""
+msgstr "Digitalavleserskrifttype:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3033
 msgid "Error Font:"
@@ -9264,7 +9265,7 @@ msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:3069
 msgid "DRO Font"
-msgstr ""
+msgstr "Digitalavleserskrifttype"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3090
 msgid "Error Font"
@@ -10317,7 +10318,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/build_INI.py:403
 #: src/emc/usr_intf/pncconf/build_INI.py:565
 msgid "# set the dro position ('top' or 'bottom')"
-msgstr ""
+msgstr "# sett digitalavleserposisjon ('over' eller 'under')"
 
 #: src/emc/usr_intf/stepconf/build_INI.py:406
 #: src/emc/usr_intf/pncconf/build_INI.py:568
@@ -11076,7 +11077,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/options.glade:502
 #: src/emc/usr_intf/pncconf/screen.glade:3853
 msgid "DRO Position:"
-msgstr ""
+msgstr "Digitalavleserposisjon:"
 
 #: src/emc/usr_intf/stepconf/options.glade:515
 #: src/emc/usr_intf/pncconf/screen.glade:3866

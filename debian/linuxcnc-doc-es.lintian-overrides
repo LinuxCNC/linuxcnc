@@ -1,4 +1,3 @@
-#  mailcap providing /usr/bin/see was added as a recommendation to the package
-linuxcnc-doc-es: desktop-command-not-in-package usr/share/applications/linuxcnc-documentation_es.desktop usr/bin/see
-linuxcnc-doc-es: desktop-command-not-in-package usr/share/applications/linuxcnc-gcoderef_es.desktop usr/bin/x-www-browser
-linuxcnc-doc-es: desktop-command-not-in-package usr/share/applications/linuxcnc-gettingstarted_es.desktop usr/bin/see
+linuxcnc-doc-es: desktop-command-not-in-package usr/share/applications/linuxcnc-documentation_es.desktop xdg-open
+linuxcnc-doc-es: desktop-command-not-in-package usr/share/applications/linuxcnc-gettingstarted_es.desktop xdg-open
+linuxcnc-doc-es: desktop-command-not-in-package usr/share/applications/linuxcnc-gcoderef_es.desktop xdg-open

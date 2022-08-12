@@ -661,7 +661,7 @@ MESSAGE_TYPE = yesnodialog
 MESSAGE_PINNAME = yndialogtest
 
 # This pops up a dialog that requires an ok response and it shows in the status bar and
-# the destop notify popup.
+# the desktop notify popup.
 MESSAGE_BOLDTEXT = This is the short text
 MESSAGE_TEXT = This is the longer text of the both type test. It can be longer then the status bar text
 MESSAGE_DETAILS = BOTH DETAILS
@@ -694,7 +694,7 @@ This module allows one to load and save preference data permanently to storage m
 The screenoptions widget can automatically set up the preference system. +
 qtvcp searches for the screenoption widget first and if found calls `\_pref_init()`. +
 This will create the preference object and return it to qtvcp to pass to all the widgets and +
-add it to the window object attributes. In this case the preferences object would be accesable +
+add it to the window object attributes. In this case the preferences object would be accessible +
 from the handler file's initialized_ method as self.w.PREFS_ +
 Also all widgets can have access to a specific preference file at initialization time. +
 

@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-1.228
+1.229
 
 .I SUMMARY:
 .br
@@ -66,6 +66,8 @@ pin in  bit     homed                       "machine is homed";
 pin in  bit     ignore_arc_ok_0             "don't require arc ok for start or cutting";
 pin in  bit     ignore_arc_ok_1             "don't require arc ok for start or cutting";
 pin in  bit     override_jog                "override jog inhibit";
+pin in  bit     offset_set_probe            "deploy probe for setting offsets";
+pin in  bit     offset_set_scribe           "deploy scribe for setting offsets";
 pin in  s32     kerf_errors_max = 2         "allowable kerfcross threshold errors";
 pin in  bit     kerfcross_enable            "enable kerf crossing [mode 0 & mode 1]";
 pin in  float   kerfcross_override          "kerf crossing threshold override as a percentage";
@@ -754,7 +756,7 @@ FUNCTION(_) {
         /* synthesised from arc voltage */
         }else{
             /* push the current arc voltage to the buffer */
-            if(state_out > 6 && state_out < 12){
+            if(state > 6 && state < 12){
                 if (arcvolts_buff_count < arc_ok_samples) {
                     arcvolts_buff_count++;
                 }
@@ -830,6 +832,10 @@ FUNCTION(_) {
     }else{
         jog_inhibit = FALSE;
     }
+
+    /* probe and scribe deployment for setting offsets */
+    ohmic_enable = offset_set_probe && homed && program_is_idle && state == IDLE;
+    scribe_arm = offset_set_scribe && homed && program_is_idle && state == IDLE;
 
     if(!machine_is_on){
         /* if machine is off */

@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-07-09 22:04+0100\n"
-"PO-Revision-Date: 2022-07-12 22:15+0000\n"
+"PO-Revision-Date: 2022-07-30 16:15+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/gmocappy/nb_NO/>\n"
@@ -1022,7 +1022,7 @@ msgstr "<b>Spindel [rpm]</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:45
 msgid "Vel."
-msgstr ""
+msgstr "Hast."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:46
 msgid "Displays the current velocity"
@@ -1038,11 +1038,11 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:50
 msgid "reset feed override to 100 %"
-msgstr ""
+msgstr "nullstill matingsoverstyring til 100%"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:51
 msgid "<b>Feed Override</b>"
-msgstr ""
+msgstr "<b>Matingsoverstyring</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:52
 msgid "Undo"
@@ -1210,7 +1210,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:96
 msgid "<b>DRO</b>"
-msgstr ""
+msgstr "<b>Digitalavleser</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:97
 msgid "Grid size"
@@ -1218,7 +1218,7 @@ msgstr "Rutenettstørrelse"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:98
 msgid "Show DRO"
-msgstr "Vis DRO"
+msgstr "Vis digitalavleser"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:99
 msgid "Show offsets"
@@ -1294,7 +1294,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:117
 msgid "Scale feed override"
-msgstr ""
+msgstr "Skaler matingsoverstyring"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:118
 msgid "Scale spindle override"

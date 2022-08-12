@@ -14,7 +14,7 @@
 
 This is a userspace HAL program, written in python, to control VFD's from
 Mitsubishi. +
-Specifcally the A500 F500 E500 A500 D700 E700 F700 series - others may work. +
+Specifically the A500 F500 E500 A500 D700 E700 F700 series - others may work. +
 mitsub_vfd supports serial control using the RS485 protocol. +
 Conversion from USB or serial port to RS485 requires special hardware. +
 [NOTE]

@@ -77,6 +77,8 @@ include::gui/tklinuxcnc.adoc[]
 
 include::plasma/qtplasmac.adoc[]
 
+include::gui/mdro.adoc[]
+
 :leveloffset: 1
 
 = Programming

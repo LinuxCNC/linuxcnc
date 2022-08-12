@@ -678,7 +678,7 @@ DISPLAY = qtvcp -f qtplasmac
 
 *[TRAJ]* Section
 
-This variable  is mandatory.
+This variable is mandatory.
 
 [source,{ini}]
 ----
@@ -728,7 +728,7 @@ The following sections will give a general overview of the QtPlasmaC layout.
 
 === Exiting QtPlasmaC
 
-Exiting or shuting down QtPlasmaC is done by either of:
+Exiting or shutting down QtPlasmaC is done by either:
 
 . Click the window shutdown button on the window title bar
 . Long press the *POWER* button on the MAIN Tab.
@@ -1649,11 +1649,11 @@ If an alignment laser has been set up then it is possible to use the laser durin
 
 Path tolerance is set with a G64 command and a following P value. The P value corresponds to the amount that the actual cut path followed by the machine may deviate from the programmed cut path.
 
-The default LinuxCNC path tolerence is set for maximum speed which will severely round corners when used with normal plasma cutting speeds.
+The default LinuxCNC path tolerance is set for maximum speed which will severely round corners when used with normal plasma cutting speeds.
 
 It is recommended that the path tolerance is set by placing the appropriate G64 command and P value in the header of each G-Code file.
 
-The provided G-Code filter program will test for the existance of a G64 Pn command prior to the first motion command. If no G64 command is found it will insert a G64 P0.1 command which sets the path tolerance to 0.1mm. For a imperial config the command will be G64 P0.004.
+The provided G-Code filter program will test for the existence of a G64 Pn command prior to the first motion command. If no G64 command is found it will insert a G64 P0.1 command which sets the path tolerance to 0.1mm. For a imperial config the command will be G64 P0.004.
 
 For Metric:
 [source,{ngc}]
@@ -1863,7 +1863,7 @@ Offset Probing is the use of a probe that is offset from the torch. This method 
 
 The probe could be a mechanically deployed probe, a permanently mounted proximity sensor or even simply a stiff piece of wire extending about 0.5mm (0.2") below the torch tip. If the probe is mechanically deployed then it needs to extend/retract rather quickly to avoid excessive probing times and would commonly be pneumatically operated.
 
-To use this feature, the user must set the probes's offset from the torch center by following the procedure described in <<peripheral-offsets, Peripheral Offsets>>.
+To use this feature, the user must set the probe's offset from the torch center by following the procedure described in <<peripheral-offsets, Peripheral Offsets>>.
 
 To modify the offsets manually, the user could edit either or both the following lines in the [OFFSET_PROBING] section of the <machine_name>.prefs file:
 
@@ -2001,7 +2001,7 @@ M2 (end job)
 
 QtPlasmaC has the ability to automatically modify the G-Code to reduce the velocity and/or apply *Over cut* which can be useful when cutting holes.
 
-For valid hole sensing it is required that all values in the G2 or G3 G-Code line are explicit, an error dialog will be dispalyed if any values are mathematically calculated.
+For valid hole sensing it is required that all values in the G2 or G3 G-Code line are explicit, an error dialog will be displayed if any values are mathematically calculated.
 
 QtPlasmaC Hole Sensing is disabled by default. It can be enabled/disabled by using the following G-Code parameters to select the desired hole sensing mode:
 
@@ -3325,27 +3325,31 @@ n Code = latest-file /home/me/linuxcnc/nc_files/qtplasmac-test
 ----
 
 [[peripheral-offsets]]
-=== Peripheral Offsets (Laser, Camera, Scribe, Offset Probing)
+=== Peripheral Offsets (Laser, Camera, Scribe, Offset Probe)
 
 image::images/qtplasmac_peripheral_offsets.png[width=400,align="center"]
 
-Use the following sequence to set the offsets for a laser, camera, or scribe:
+Use the following sequence to set the offsets for a laser, camera, scribe, or offset probe:
 
 . Place a piece of scrap material under the torch.
+. The machine must be homed and idle before proceeding.
+. Open the <<qt_parameters-tab, PARAMETERS Tab>> (or SETTINGS tab for 4x3 GUI).
+. Click the SET OFFSETS button which opens the Set Peripheral Offsets dialog.
 . Click the X0Y0 button to set the torch position to zero.
 . Make a mark on the material by one of:
-.. jog the torch down to pierce height then pulse the torch on to make a dimple in the material.
-.. place marking dye on the torch shield then jog the torch down to mark the material.
+.. Jog the torch down to pierce height then pulse the torch on to make a dimple in the material.
+.. Place marking dye on the torch shield then jog the torch down to mark the material.
 . Raise the Z axis so the torch and peripheral are clear of the material
+. Jog the X/Y axes so that the peripheral is close to the mark from the torch.
+. Click the appropriate button to activate the peripheral.
 . Jog the X/Y axes so that the peripheral is centered in the mark from the torch.
-. Open the <<qt_parameters-tab, PARAMETERS Tab>> (or SETTINGS tab for 4x3 GUI).
-. Click the SET OFFSETS button which opens the OFFSET dialog.
-. Click the appropriate peripheral button and a confirmation dialog will open.
-. Click CONTINUE and the offsets will now be saved.
+. Click the GET OFFSETS button to get the offsets and a confirmation dialog will open.
+. Click SET OFFSETS and the offsets will now be saved.
 
-Cancelling may be done at any stage by pressing the CANCEL button which will close the dialog and no changes will be saved.
+Canceling may be done at any stage by pressing the CANCEL button which will close the dialog and no changes will be saved.
 
 [NOTE]
+It may be necessary to click the preview window to enable jogging.
 By following the above procedure the offsets are available for use immediately and no restart of LinuxCNC is required.
 
 === Keep Z Motion

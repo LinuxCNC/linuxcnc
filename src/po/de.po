@@ -1,13 +1,14 @@
 # Steffen Möller <steffen_moeller@gmx.de>, 2022.
 # Hans U. <hansunzner@gmail.com>, 2022.
 # Michael Stellmacher <michaelst78@gmail.com>, 2022.
+# mk00002 <codo1983@gmail.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-07-09 16:34+0100\n"
-"PO-Revision-Date: 2022-06-27 21:55+0000\n"
-"Last-Translator: Michael Stellmacher <michaelst78@gmail.com>\n"
+"PO-Revision-Date: 2022-08-04 07:50+0000\n"
+"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -15,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.13.1-dev\n"
+"X-Generator: Weblate 4.14-dev\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -3606,7 +3607,6 @@ msgid "1st Modbus Ele."
 msgstr "Erstes Modbus Ele."
 
 #: src/hal/classicladder/config_gtk.c:294
-#, fuzzy
 msgid "# of Ele"
 msgstr "# Ele"
 
@@ -11396,7 +11396,6 @@ msgstr "Skala %"
 
 #: src/emc/usr_intf/stepconf/options.glade:48
 #: src/emc/usr_intf/pncconf/private_data.py:489
-#, fuzzy
 msgid "Axis"
 msgstr "Achse"
 
@@ -11821,7 +11820,9 @@ msgstr "Entgegengesetzt"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
+""
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -12104,14 +12105,12 @@ msgid "LinuxCNC 'PNCconf' configuration files"
 msgstr "LinuxCNC »PNCconf«-Konfigurationsdateien"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:929
-#, fuzzy
 msgid ""
 "It seems data in this file is from too old of a version of PNCConf to "
 "continue."
 msgstr ""
-"Es scheinen die Daten in dieser Datei von einer zu alten Version PNCConf zu "
-"sein um fortzufahren.\n"
-"."
+"Die Daten in dieser Datei scheinen von einer zu alten Version PNCConf zu "
+"sein um fortzufahren."
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1292
 msgid "No board was found\n"
@@ -16843,7 +16842,6 @@ msgid "FO"
 msgstr "FO"
 
 #: src/emc/usr_intf/pncconf/external.glade:4420
-#, fuzzy
 msgid "MVO"
 msgstr "MVO"
 
@@ -17543,7 +17541,7 @@ msgstr "Ausgang-Info"
 #: src/emc/usr_intf/pncconf/a_motor.glade:810
 #: src/emc/usr_intf/pncconf/s_motor.glade:817
 msgid "Step On-Time"
-msgstr ""
+msgstr "Schritt-Pulsdauer"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:859
 #: src/emc/usr_intf/pncconf/y_motor.glade:859
@@ -17551,7 +17549,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:824
 #: src/emc/usr_intf/pncconf/s_motor.glade:831
 msgid "Step Space"
-msgstr ""
+msgstr "Schritt-Pausendauer"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:911
 #: src/emc/usr_intf/pncconf/y_motor.glade:911
@@ -17559,7 +17557,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:872
 #: src/emc/usr_intf/pncconf/s_motor.glade:881
 msgid "Direction Hold"
-msgstr "Zeit zwischen Schritt und Richtungswechsel"
+msgstr "Haltezeit Richtungssignal beim Richtungswechsel"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:925
 #: src/emc/usr_intf/pncconf/y_motor.glade:925
@@ -17567,7 +17565,7 @@ msgstr "Zeit zwischen Schritt und Richtungswechsel"
 #: src/emc/usr_intf/pncconf/a_motor.glade:886
 #: src/emc/usr_intf/pncconf/s_motor.glade:895
 msgid "Direction Setup"
-msgstr "Zeit zwischen Richtungswechsel und Schritt"
+msgstr "Zeit zwischen letztem Schritt und Änderung von Richtungs-Signal"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:977
 #: src/emc/usr_intf/pncconf/y_motor.glade:977
@@ -17908,7 +17906,7 @@ msgstr "Encoder Skala:"
 #: src/emc/usr_intf/pncconf/s_motor.glade:2223
 #, fuzzy
 msgid "Stepper Scale:"
-msgstr "Zeit zwischen zwei Schritten:"
+msgstr "Schrittmotor-Übersetzung"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:2298
 #: src/emc/usr_intf/pncconf/y_motor.glade:2292
@@ -18762,11 +18760,10 @@ msgstr ""
 "INI-Datei"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:688
-#, fuzzy
 msgid "No default angular jog increments entry found in [DISPLAY] of INI file"
 msgstr ""
-"Keine Standardeinstellung für Jogging-Winkel-Schrittweite gefunden im "
-"Abschnitt [DISPLAY] der INI-Datei"
+"Keinen Standardwert für Jogging-Winkel-Schrittweite gefunden im Abschnitt "
+"[DISPLAY] der INI-Datei"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:697
 #, python-format

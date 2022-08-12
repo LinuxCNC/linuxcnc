@@ -223,8 +223,8 @@
 #      in both "Numbered" (ex: o100) and "Named" (ex: o<l101>) forms.
 #      Support for the "Numbered" label format is included, but
 #      it would be clearer to limit ngcgui support to:
-#          Positional Parametrs --> #1, ..., #n   1<=n<=30
-#          Named Labels         --> o<label_name>
+#          Positional Parameters --> #1, ..., #n   1<=n<=30
+#          Named Labels          --> o<label_name>
 #      This seems consistent with the trajectory of LinuxCNC gcode and
 #      accommodation of earlier styles (numbered labels like
 #      #n+1 to #30) is a small matter of editing:).
@@ -315,7 +315,7 @@
 #      Alternatively, these files can be placed in a different
 #      directory specified in the ini file [WIZARD]WIZARD_ROOT
 
-# 16. Using a launcher (like ubuntu gnome destop launcher) doesn't
+# 16. Using a launcher (like ubuntu gnome desktop launcher) doesn't
 #     make it easy to pass in environmental variables like VISUAL.
 #     This works for a launcher: put ngcgui.tcl in a directory
 #     such as /home/yourname/bin and create script such as

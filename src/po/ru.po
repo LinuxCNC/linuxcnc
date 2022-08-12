@@ -5,13 +5,15 @@
 # , fuzzy
 # root <aystarik@gmail.com>, 2009.
 # Juraj Adamkovic <stroje.hcnc@gmail.com>, 2022.
+# Дмитрий <krdima352@gmail.com>, 2022.
+# Nikita Shubin <nikita.shubin@maquefel.me>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: emc 2.2.8\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-07-09 16:34+0100\n"
-"PO-Revision-Date: 2022-07-09 10:32+0000\n"
-"Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
+"PO-Revision-Date: 2022-08-08 19:59+0000\n"
+"Last-Translator: Дмитрий <krdima352@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/ru/>\n"
 "Language: ru\n"
@@ -20,7 +22,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.13.1-dev\n"
+"X-Generator: Weblate 4.14-dev\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -112,7 +114,6 @@ msgid "G4 not allowed with G2 or G3 because they both use P"
 msgstr "G4 не допустимо с G2 или G3, потому что они оба используют P"
 
 #: src/emc/rs274ngc/interp_check.cc:92
-#, fuzzy
 msgid "Line with G10 does not have L0, L1, L10, L11, L2, or L20"
 msgstr "Строка с G10 не имеет L1, L10, L11, L2 или L20"
 
@@ -1003,12 +1004,12 @@ msgstr ""
 #: src/emc/rs274ngc/interp_namedparams.cc:257
 #, c-format
 msgid "fetch_hal_param: hal_init(%s): %d"
-msgstr ""
+msgstr "fetch_hal_param: hal_init(%s): %d"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:258
 #, c-format
 msgid "fetch_hal_param: hal_ready(): %d"
-msgstr ""
+msgstr "fetch_hal_param: hal_ready(): %d"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:422
 #, c-format
@@ -1288,9 +1289,8 @@ msgid "File name too long"
 msgstr "Слишком длинное имя файла"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:83
-#, fuzzy
 msgid "G-code out of range"
-msgstr "G-код вне дипазона"
+msgstr "G-код вне диапазона"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:84
 msgid "I word given for arc in yz plane"
@@ -1924,14 +1924,12 @@ msgid "_Save Configuration..."
 msgstr "Сохранить конфигурацию..."
 
 #: src/hal/utils/scope.c:540
-#, fuzzy
 msgid "O_pen Log File"
-msgstr "Открыть файл данных..."
+msgstr "Открыть Лог файл"
 
 #: src/hal/utils/scope.c:547
-#, fuzzy
 msgid "S_ave Log File"
-msgstr "Сохранить в файл"
+msgstr "Сохранить Лог файл"
 
 #: src/hal/utils/scope.c:556 share/axis/tcl/axis.tcl:102
 msgid "_Quit"
@@ -2192,13 +2190,12 @@ msgstr ""
 "Нажмите \"Выход\" для выхода из HALSCOPE"
 
 #: src/hal/utils/scope_horiz.c:793
-#, fuzzy
 msgid "No channels selected"
-msgstr "Найти начало активной оси"
+msgstr "Каналы не выбраны"
 
 #: src/hal/utils/scope_horiz.c:796
 msgid "You need to choose at least one channel."
-msgstr ""
+msgstr "Вам нужно выбрать хотя бы один канал."
 
 #: src/hal/utils/scope_horiz.c:806
 msgid "Pick log file to write to:"
@@ -2599,7 +2596,7 @@ msgstr "Не могу двигать сочленение пока выключ�
 #: src/emc/motion/command.c:785 src/emc/motion/command.c:853
 #: src/emc/motion/command.c:932
 msgid "Cannot jog while jog-inhibit is active."
-msgstr ""
+msgstr "Перескок невозможен, пока включена блокировка перескока."
 
 #: src/emc/motion/command.c:789 src/emc/motion/command.c:936
 msgid "Can't jog any joints while homing."
@@ -2697,9 +2694,8 @@ msgstr ""
 "Не могу добавить движение жёсткого резьбонарезания в строке %d, код ошибки %d"
 
 #: src/emc/motion/command.c:1566
-#, fuzzy
 msgid "Attempt to configure non-existent spindle"
-msgstr "Попытка включить несуществующий шпиндель"
+msgstr "Попытка настроить несуществующий шпиндель"
 
 #: src/emc/motion/command.c:1584
 msgid "Attempt to start non-existent spindle"
@@ -2721,9 +2717,9 @@ msgid "Attempt to increase non-existent spindle <%d>"
 msgstr "Попытка ускорить несуществующий шпиндель <%d>"
 
 #: src/emc/motion/command.c:1736
-#, fuzzy, c-format
+#, c-format
 msgid "Attempt to decrease non-existent spindle <%d>."
-msgstr "Попытка замедлить несуществующий шпиндель <%d>"
+msgstr "Попытка замедлить несуществующий шпиндель <%d>."
 
 #: src/emc/motion/command.c:1760
 #, c-format
@@ -2795,6 +2791,11 @@ msgid ""
 "           Total joints=%2d\n"
 "\n"
 msgstr ""
+"\n"
+"MOTION: кинематические соединения=%2d\n"
+"                дополнительные соединения = %2d\n"
+"                Всего соединений = %2d\n"
+"\n"
 
 #: src/emc/motion/motion.c:299
 #, c-format
@@ -2803,7 +2804,7 @@ msgstr "MOTION: num_spindles равно %d, должно быть между 0 �
 
 #: src/emc/motion/motion.c:306
 msgid "MOTION: Can't specify both names and number for digital pins\n"
-msgstr ""
+msgstr "MOTION: невозможно указать имена и номера для цифровых контактов.\n"
 
 #: src/emc/motion/motion.c:320
 #, c-format
@@ -2812,7 +2813,7 @@ msgstr "MOTION: num_dio равно %d, должно быть между 1 и %d\
 
 #: src/emc/motion/motion.c:326
 msgid "MOTION: Can't specify both names and number for analog pins\n"
-msgstr ""
+msgstr "MOTION: невозможно указать имена и номера для аналоговых выводов.\n"
 
 #: src/emc/motion/motion.c:339
 #, c-format
@@ -2821,7 +2822,7 @@ msgstr "MOTION: num_aio равно %d, должно быть между 1 и %d\
 
 #: src/emc/motion/motion.c:345
 msgid "MOTION: Can't specify both names and number for misc error\n"
-msgstr ""
+msgstr "MOTION: невозможно указать имена и номер для другой ошибки\n"
 
 #: src/emc/motion/motion.c:358
 #, c-format
@@ -2837,23 +2838,20 @@ msgid "MOTION: init_comm_buffers() failed\n"
 msgstr "MOTION: init_comm_buffers() неудачно\n"
 
 #: src/emc/motion/motion.c:380
-#, fuzzy
 msgid "MOTION: module_intfc() failed\n"
-msgstr "MOTION: hal_init() неудачно\n"
+msgstr "MOTION: module_intfc() неудачно\n"
 
 #: src/emc/motion/motion.c:384
-#, fuzzy
 msgid "MOTION: tp_init() failed\n"
-msgstr "MOTION: hal_init() неудачно\n"
+msgstr "MOTION: tp_init() неудачно\n"
 
 #: src/emc/motion/motion.c:391
 msgid "MOTION: init_threads() failed\n"
 msgstr "MOTION: init_threads() неудачно\n"
 
 #: src/emc/motion/motion.c:401
-#, fuzzy
 msgid "MOTION: homing_init() failed\n"
-msgstr "MOTION: hal_init() неудачно\n"
+msgstr "MOTION: homing_init() неудачно\n"
 
 #: src/emc/motion/motion.c:426
 #, c-format
@@ -2890,14 +2888,14 @@ msgid "MOTION: ejoint %d pin/param export failed\n"
 msgstr "MOTION: ejoint %d контакт/параметр экспорт неудачен\n"
 
 #: src/emc/motion/homing.c:188
-#, fuzzy, c-format
+#, c-format
 msgid "j%d hit limit in home state %d"
-msgstr "выход за предел в состоянии начала %d"
+msgstr "j%d достиг предела в начальном положении %d"
 
 #: src/emc/motion/homing.c:197
-#, fuzzy, c-format
+#, c-format
 msgid "j%d end of move in home state %d"
-msgstr "конец движения в состоянии начала %d"
+msgstr "j%d закончил движение в начальном положении %d"
 
 #: src/emc/motion/homing.c:236
 msgid "HOMING: all_joints_home_data_t malloc failed\n"
@@ -2929,9 +2927,9 @@ msgid "unknown state '%d' during homing sequence"
 msgstr "неизвестное состояние '%d' в цикле поиска начала"
 
 #: src/emc/motion/homing.c:576
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot unhome invalid joint %d (max %d)\n"
-msgstr "Не могу сбросить начало у неверного сочленения %d (макс %d)"
+msgstr "Не могу сбросить начало, неверное положение %d (макс %d)\n"
 
 #: src/emc/motion/homing.c:583
 #, fuzzy, c-format
@@ -2939,19 +2937,19 @@ msgid "Cannot unhome extrajoint <%d> with motion enabled\n"
 msgstr "Не могу сбросить начало экстра-сочленение %d с разрешенным движением"
 
 #: src/emc/motion/homing.c:590
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot unhome while homing, joint %d\n"
-msgstr "Не могу сбросить начало пока ищу его, сочленение %d"
+msgstr "Не могу сбросить начало пока паркуюсь, положение %d\n"
 
 #: src/emc/motion/homing.c:595
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot unhome while moving, joint %d\n"
-msgstr "Не могу сбросить начало пока двигаюсь, сочленение %d"
+msgstr "Не могу сбросить начало пока двигаюсь, положение %d\n"
 
 #: src/emc/motion/homing.c:601
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot unhome inactive joint %d\n"
-msgstr "Не могу сбросить начало у неактивного сочленения %d"
+msgstr "Не могу сбросить начало у неактивного положения %d\n"
 
 #: src/emc/motion/homing.c:757
 #, c-format
@@ -2963,13 +2961,12 @@ msgid ""
 "invalid homing config: non-zero LATCH_VEL needs either SEARCH_VEL or "
 "USE_INDEX"
 msgstr ""
-"неверная конфигурация поиска начала: не нулевая LATCH_VEL требует SEARCH_VEL "
-"или USE_INDEX"
+"invalid homing config: не нулевая LATCH_VEL требует либо SEARCH_VEL либо "
+"USE_INDEX"
 
 #: src/emc/motion/homing.c:826
 msgid "invalid homing config: non-zero SEARCH_VEL needs LATCH_VEL"
-msgstr ""
-"неверная конфигурация поиска начала: не нулевая SEARCH_VEL требуетLATCH_VEL"
+msgstr "invalid homing config: не нулевая SEARCH_VEL требует LATCH_VEL"
 
 #: src/emc/motion/homing.c:974
 #, c-format
@@ -2977,12 +2974,12 @@ msgid "Home switch inactive before start of backoff move j=%d"
 msgstr "Датчик начала не активен при старте откатывания j=%d"
 
 #: src/emc/motion/homing.c:1022
-#, c-format
+#, c-format, fuzzy
 msgid "Home switch active before start of latch move j=%d"
 msgstr "Датчик начала активен при старте движения защелкивания j=%d"
 
 #: src/emc/motion/homing.c:1079
-#, c-format
+#, c-format, fuzzy
 msgid "Home switch inactive before start of latch move j=%d"
 msgstr "Датчик начала не активен при старте движения защелкивания j=%d"
 
@@ -2994,7 +2991,7 @@ msgstr "Выход за предел при поиске начала j=%d"
 #: src/emc/motion/homing.c:1361
 #, c-format
 msgid "unknown state '%d' during homing j=%d"
-msgstr "неизвестное состояние '%d' при поиске начала j=%d"
+msgstr "неизвестное состояние '%d' во время возврата в начальное положение j=%d"
 
 #: src/hal/classicladder/classicladder.c:194
 #, c-format
@@ -3008,8 +3005,8 @@ msgid ""
 "INFO CLASSICLADDER-   No ladder GUI requested-Realtime runs till HAL "
 "closes.\n"
 msgstr ""
-"INFO CLASSICLADDER- Не запрошен ladder GUI-модуль реального времени будет "
-"работать до закрытия HAL.\n"
+"INFO CLASSICLADDER- Модуль ladder GUI не запрошен. Модуль реального времени "
+"работает до закрытия HAL.\n"
 
 #: src/hal/classicladder/classicladder.c:275
 msgid "Project loaded and running"
@@ -3022,7 +3019,7 @@ msgstr "Ошибка загрузки проекта..."
 
 #: src/hal/classicladder/classicladder.c:286
 msgid "GUI reloaded with existing ladder program"
-msgstr "GUI перезагружен с текущей ladder-программой"
+msgstr "GUI перезапущен с текущей ladder-программой"
 
 #: src/hal/classicladder/classicladder.c:294
 msgid ""
@@ -3033,7 +3030,7 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder.c:300
 msgid "ERROR CLASSICLADDER-   Ladder memory allocation error\n"
-msgstr "ERROR CLASSICLADDER- Ошибка выделения памяти ladder\n"
+msgstr "ERROR CLASSICLADDER- Ошибка выделения памяти для Ladder\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:136
 #, c-format
@@ -3061,7 +3058,7 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:344
 msgid "Started Ladder program - press stop to pause."
-msgstr "Запущена ladder программа -- нажмите \"Остановить\" для паузы."
+msgstr "Запущена Ladder программа -- нажмите \"Остановить\" для паузы."
 
 #: src/hal/classicladder/classicladder_gtk.c:394
 msgid "Load Error"
@@ -3116,7 +3113,7 @@ msgstr "Да"
 
 #: src/hal/classicladder/classicladder_gtk.c:397
 msgid "Project loaded (stopped)."
-msgstr "Проект загружен(остановлен)."
+msgstr "Проект загружен (остановлен)."
 
 #: src/hal/classicladder/classicladder_gtk.c:409
 #: src/hal/classicladder/classicladder_gtk.c:426
@@ -3180,7 +3177,7 @@ msgstr "Выберите проект для сохранения"
 #: src/hal/classicladder/classicladder_gtk.c:695
 #: src/hal/classicladder/classicladder_gtk.c:701
 msgid "Warning!"
-msgstr "Осторожно!"
+msgstr "Внимание!"
 
 #: src/hal/classicladder/classicladder_gtk.c:556
 msgid ""
@@ -3188,13 +3185,13 @@ msgid ""
 "can cause unexpected behavior\n"
 " Do you really want to reset?"
 msgstr ""
-"Сброс работающей программы\n"
-"может привести к неожиданному поведению\n"
-"Действительно хотите сбросить?"
+"Сброс запущенной программы\n"
+"может вызвать неожиданное поведение\n"
+" Вы действительно хотите сбросить настройки?"
 
 #: src/hal/classicladder/classicladder_gtk.c:572
 msgid "Reset ladder data "
-msgstr "Сбросить данные Ladder "
+msgstr "Сброс данных Ladder "
 
 #: src/hal/classicladder/classicladder_gtk.c:596
 msgid "Okay"
@@ -3240,7 +3237,7 @@ msgid ""
 "If not saved, all modifications will be lost.\n"
 "Do you really want to quit ?\n"
 msgstr ""
-"Без сохранения, все изменения будут потеряны.\n"
+"Все не сохраненные изменения будут потеряны.\n"
 "Действительно хотите выйти?\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:699
@@ -3261,7 +3258,7 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:731
 msgid "Section Display"
-msgstr "Дисплей частей"
+msgstr "Раздел Дисплей"
 
 #: src/hal/classicladder/classicladder_gtk.c:752
 msgid "Label of the current selected rung"
@@ -3332,7 +3329,7 @@ msgstr "О программе"
 #: src/hal/classicladder/classicladder_gtk.c:938
 #, c-format
 msgid "%d µs"
-msgstr ""
+msgstr "%d мкс"
 
 #: src/hal/classicladder/classicladder_gtk.c:960
 msgid "Config hardware error occurred!"
@@ -3490,7 +3487,7 @@ msgstr "Сохранить как"
 
 #: src/hal/classicladder/config_gtk.c:294
 msgid "Request Type"
-msgstr ""
+msgstr "Тип запроса"
 
 #: src/hal/classicladder/config_gtk.c:294
 msgid "1st Modbus Ele."
@@ -3502,11 +3499,11 @@ msgstr ""
 
 #: src/hal/classicladder/config_gtk.c:294
 msgid "Logic"
-msgstr ""
+msgstr "Логика"
 
 #: src/hal/classicladder/config_gtk.c:294
 msgid "1st Variable mapped"
-msgstr ""
+msgstr "1-я переменная сопоставлена"
 
 #: src/hal/classicladder/config_gtk.c:385
 msgid "Inverted"
@@ -3884,7 +3881,7 @@ msgstr "Ошибка в выборе или невозможно..."
 #: src/hal/classicladder/edit_sequential.c:516
 #, c-format
 msgid "DO ACT/DESACT STEPS x1=%d, x2=%d, y=%d\n"
-msgstr ""
+msgstr "ВЫПОЛНИТЬ ДЕЙСТВИЕ/ОТМЕНА ШАГОВ x1=%d, x2=%d, y=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:536
 #, c-format
@@ -6174,31 +6171,31 @@ msgstr "Еще нет параметров"
 
 #: tcl/ngcgui.tcl:1718
 msgid "Missing value for parm"
-msgstr ""
+msgstr "Отсутствует значение параметра"
 
 #: tcl/ngcgui.tcl:1739
 msgid "Output file"
-msgstr ""
+msgstr "Выходной файл"
 
 #: tcl/ngcgui.tcl:1854
 msgid "Multiple Tabs with Features"
-msgstr ""
+msgstr "Несколько вкладок с функциями"
 
 #: tcl/ngcgui.tcl:1855
 msgid "Finalize all Tabs?"
-msgstr ""
+msgstr "Завершить все вкладки?"
 
 #: tcl/ngcgui.tcl:1855
 msgid "Order"
-msgstr ""
+msgstr "Заказ"
 
 #: tcl/ngcgui.tcl:1857
 msgid "No, just this page"
-msgstr ""
+msgstr "Нет, только эта страница"
 
 #: tcl/ngcgui.tcl:1871
 msgid "Axis is not responding"
-msgstr ""
+msgstr "Ось не отвечает"
 
 #: tcl/ngcgui.tcl:1872
 msgid "Error: "
@@ -6206,15 +6203,15 @@ msgstr "Ошибка: "
 
 #: tcl/ngcgui.tcl:1874
 msgid "Autosend disabled, Ctrl-A toggles autosend"
-msgstr ""
+msgstr "Автоотправка отключена, Ctrl-A переключает автоотправку"
 
 #: tcl/ngcgui.tcl:1876
 msgid "File saving enabled -- Finalize to save"
-msgstr ""
+msgstr "Сохранение файлов включено -- Завершить для сохранения"
 
 #: tcl/ngcgui.tcl:1892
 msgid "Require .ngc suffix for filename"
-msgstr ""
+msgstr "Требуется суффикс .ngc для имени файла"
 
 #: tcl/ngcgui.tcl:1902
 msgid "Disallowed overwrite of"
@@ -6222,27 +6219,27 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:1930
 msgid "FEATURE"
-msgstr ""
+msgstr "ОСОБЕННОСТИ"
 
 #: tcl/ngcgui.tcl:1937
 msgid "feature line added"
-msgstr ""
+msgstr "добавлена функциональная строка"
 
 #: tcl/ngcgui.tcl:1941
 msgid "remaining_features line added"
-msgstr ""
+msgstr "добавлена строка remaining_features"
 
 #: tcl/ngcgui.tcl:1953
 msgid "line added"
-msgstr ""
+msgstr "добавлена строка"
 
 #: tcl/ngcgui.tcl:1953
 msgid "activated"
-msgstr ""
+msgstr "активирован"
 
 #: tcl/ngcgui.tcl:1955
 msgid "restores"
-msgstr ""
+msgstr "восстанавливает"
 
 #: tcl/ngcgui.tcl:1994
 msgid "NOTREACHED mode"
@@ -6250,7 +6247,7 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:2010
 msgid "Positional parameters for"
-msgstr ""
+msgstr "Позиционные параметры для"
 
 #: tcl/ngcgui.tcl:2018
 msgid "expanded file"
@@ -11626,7 +11623,9 @@ msgstr "Обратное"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -12569,18 +12568,16 @@ msgid "pin# %(pinnum)d is connected to output signal:'%(data)s' %(mesag)s"
 msgstr "ножка# %(pinnum)d подключена к выходу сигнала:'%(data)s' %(mesag)s"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1243
-#, fuzzy
 msgid "#  SPINDLE"
-msgstr "Шпиндель?"
+msgstr "#ШПИНДЕЛЬ"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1253
 msgid "# -- BLDC setup --"
-msgstr ""
+msgstr "# -- настройка BLDC двигателя--"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1321
-#, fuzzy
 msgid "# ---TPPWM Generator signals/setup---"
-msgstr "#  --- Сигналы АВОСТ ---"
+msgstr "#  --- настройка TPPWM Генератора сигналов ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1323
 msgid "# six output 3pwg"
@@ -12604,9 +12601,8 @@ msgid "# ---digital potentiometer output signals/setup---"
 msgstr "#  --- Сигналы цифровых входов / выходов ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1356
-#, fuzzy
 msgid "# ---PWM Generator signals/setup---"
-msgstr "#  --- Сигналы АВОСТ ---"
+msgstr "#  --- настройка ШИМ Генератора сигналов ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1381
 msgid "# enable _all_ sserial pwmgens"
@@ -12626,56 +12622,57 @@ msgid "# ---closedloop stepper signals---"
 msgstr "#  --- Сигналы АВОСТ ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1458
-#, fuzzy
 msgid "# ---Encoder feedback signals/setup---"
-msgstr "#  ---сигналы управления подачей СОЖ---"
+msgstr "# --- Сигналы обратной связи энкодера/настройка---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1481
 #, fuzzy
 msgid "# ---Resolver feedback signals/setup---"
-msgstr "#  --- Сигналы АВОСТ ---"
+msgstr "# --- Сигналы обратной связи резольвера/настройка---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1500
 #, fuzzy
 msgid "# ---setup spindle control signals---"
-msgstr "#  --- Сигналы для управления движением ---"
+msgstr "# ---настройка сигналов управления шпинделем---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1516
-#, fuzzy
 msgid "# ---Setup spindle at speed signals---"
-msgstr "#  --- Сигналы АВОСТ ---"
+msgstr "# ---Настроить шпиндель на сигналы скорости---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1537
 msgid "#  Use ACTUAL spindle velocity from spindle encoder"
-msgstr "# Use ACTUAL spindle velocity from spindle encoder"
+msgstr ""
+"# Использовать ACTUAL скорость шпинделя, полученную от энкодера шпинделя"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1538
 msgid "#  spindle-velocity bounces around so we filter it with lowpass"
 msgstr ""
+"# скорость вращения шпинделя колеблется, поэтому мы фильтруем ее с помощью "
+"низких частот"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1539
 msgid ""
 "#  spindle-velocity is signed so we use absolute component to remove sign"
 msgstr ""
-"# spindle-velocity is signed so we use absolute component to remove sign"
+"# скорость шпинделя имеет знак, поэтому мы используем абсолютную "
+"составляющую для удаления знака"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1540
 msgid "#  ACTUAL velocity is in RPS not RPM so we scale it."
-msgstr "# ACTUAL velocity is in RPS not RPM so we scale it."
+msgstr "# ФАКТИЧЕСКАЯ скорость в об/сек, а не в об/мин, мы масштабируем её."
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1556
-#, fuzzy
 msgid "# ---setup home / limit switch signals---"
-msgstr "#  --- Сигналы ручной смены инструмента ---"
+msgstr "# ---настройка сигналов исходного/конечного выключателя---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1564
 #, fuzzy
 msgid "# external input signals"
-msgstr "#  --- Сигналы цифровых входов / выходов ---"
+msgstr "# внешние входные сигналы"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1659
 msgid "# external output signals"
-msgstr ""
+msgstr "# внешние выходные сигналы"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1820
 msgid ""

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>986</width>
+    <width>1028</width>
     <height>414</height>
    </rect>
   </property>
@@ -44,7 +44,7 @@
       <widget class="QFrame" name="frame_info">
        <property name="minimumSize">
         <size>
-         <width>300</width>
+         <width>350</width>
          <height>0</height>
         </size>
        </property>
@@ -73,7 +73,7 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <property name="spacing">
-           <number>4</number>
+           <number>2</number>
           </property>
           <property name="topMargin">
            <number>0</number>
@@ -131,6 +131,22 @@
             </property>
             <property name="text">
              <string>AUTOSEND</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="chk_save">
+            <property name="toolTip">
+             <string>Aways save when code is finalized</string>
+            </property>
+            <property name="text">
+             <string>Save?</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
             </property>
            </widget>
           </item>

@@ -1,5 +1,5 @@
 [Desktop Entry]
-Version=
+Version=1.0
 Type=Application
 Exec=@EMC2_LATENCY_HISTOGRAM_SCRIPT@
 Icon=@EMC2_ICON@

@@ -309,7 +309,7 @@ User Manual.
 
 [NOTE]
 The following [DISPLAY] items are used by GladeVCP, see the
-<<gladevcp:embeding-tab,embedding a tab>> section of the GladeVCP Chapter.
+<<gladevcp:embedding-tab,embedding a tab>> section of the GladeVCP Chapter.
 
 * 'EMBED_TAB_NAME=GladeVCP demo'
 * 'EMBED_TAB_COMMAND=halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x {XID} -u ./gladevcp/hitcounter.py ./gladevcp/manual-example.ui'

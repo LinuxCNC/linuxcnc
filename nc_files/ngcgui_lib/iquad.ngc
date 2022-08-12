@@ -86,7 +86,7 @@ o<line>  call [#<x2>][#<y2>][#<x3>][#<y3>]
          #<cos23>    = #<_line:cos>
          #<sin23>    = #<_line:sin>
 
-         (compute angles at line interesctions:)
+         (compute angles at line intersections:)
 o<dot>   call [#<x4>][#<y4>][#<x1>][#<y1>][#<x2>][#<y2>]
          #<ang412> = #<_dot:ang>
 o<dot>   call [#<x1>][#<y1>][#<x2>][#<y2>][#<x3>][#<y3>]

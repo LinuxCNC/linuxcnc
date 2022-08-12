@@ -50,7 +50,7 @@ P0.03::
 
 P0.04::
 
-    Set Upper Frequence Limit to the maximum frequency you want the VFD
+    Set Upper Frequency Limit to the maximum frequency you want the VFD
     to output, in Hz.  This should be the same as the value in P0.03.
 
 P0.05::
@@ -73,7 +73,7 @@ P2.02 = ???::
 P2.03 = ???::
 
     Set Motor Rated Speed to the motor's speed in RPM at its rated
-    maximum frequence.
+    maximum frequency.
 
 P2.04 = ???::
 

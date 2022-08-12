@@ -247,14 +247,32 @@ class Status(GStat):
         super(GStat, self).__init__()
         self.current_jog_rate = INI.DEFAULT_LINEAR_JOG_VEL
         self.angular_jog_velocity = INI.DEFAULT_ANGULAR_JOG_VEL
+        # can only have ONE error channel instance in qtvcp
+        self.ERROR = linuxcnc.error_channel()
+        self._block_polling = False
 
     # we override this function from hal_glib
-    # TODO why do we need to do this with qt5 and not qt4?
-    # seg fault without it
     def set_timer(self):
         GObject.threads_init()
         GObject.timeout_add(int(INI.CYCLE_TIME), self.update)
 
+    # error polling is usually set up by screen_option widget
+    # to call this function
+    # but when using MDI subprograms, the subprogram must be the only
+    # polling instance.
+    # this is done by blocking the main screen polling untill the
+    # subprogram is done.
+    def poll_error(self):
+        if self._block_polling: return None
+        return self.ERROR.poll()
+
+    def block_error_polling(self):
+        print('block')
+        self._block_polling = True
+
+    def unblock_error_polling(self):
+        print('unblock')
+        self._block_polling = False
 
 ################################################################
 # Lcnc_Action class

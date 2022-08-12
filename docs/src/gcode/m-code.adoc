@@ -289,7 +289,7 @@ and the motion will be executed at programmed feed rate.
 While disabled the spindle speed override will have
 no influence, and the spindle speed will have the
 exact program specified value of the S-word
-(described in <<sec:set-spindle-speed,Spindle Speed>> section).
+(described in the <<sec:set-spindle-speed,Spindle Speed>> section).
 
 [[mcode:m52]]
 == M52 Adaptive Feed Control(((M52 Adaptive Feed Control)))
@@ -695,7 +695,7 @@ found in directory pointed by '[DISPLAY] PROGRAM_PREFIX'
 parameter of the INI file) is executed with the optional P and Q values
 as its two arguments.
 
-Execution of the G code file pauses until the external program exits.
+Execution of the G-code file pauses until the external program exits.
 Any valid executable file can be used. The file must be located in the search
 path specified in the INI file configuration.
 See the <<sub:ini:sec:display,Display>> section for more information on search paths.
@@ -709,7 +709,7 @@ will leave unseen codes that will cause problems and may prevent a bash or
 python file from working. Use a text editor like Geany in Debian or Notepad++
 in other operating systems to create or edit the files.
 
-The error 'Unknown M code used' denotes one of the following:
+The error 'Unknown M-code used' denotes one of the following:
 
 * The specified User Defined Command does not exist
 * The file is not an executable file

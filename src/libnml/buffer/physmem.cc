@@ -114,7 +114,7 @@ int PHYSMEM_HANDLE::read(void *_to, long _read_size)
 	return (0);
     }
 
-    /* include platform specific ways of accessing phsical memory here. */
+    /* include platform specific ways of accessing physical memory here. */
     if (!(physmem_read_local_address_is_null_error_print_count % 100000)) {
 	rcs_print_error
 	    ("PHYSMEM_HANDLE: Cannot read from physical memory when local address is NULL.\n");
@@ -162,7 +162,7 @@ int PHYSMEM_HANDLE::write(void *_from, long _write_size)
 	return (0);
     }
 
-    /* include platform specific ways of accessing phsical memory here. */
+    /* include platform specific ways of accessing physical memory here. */
     if (!(physmem_write_local_address_is_null_error_print_count % 100000)) {
 	rcs_print_error
 	    ("PHYSMEM_HANDLE: Cannot write to physical memory when local address is NULL.\n");

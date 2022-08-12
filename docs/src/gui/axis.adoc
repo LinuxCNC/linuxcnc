@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:axis-gui]]
-= AXIS GUI(((Axis GUI)))
+= AXIS GUI(((AXIS GUI)))
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -83,18 +83,18 @@ then you might need to only run the program again. See the
 The AXIS window contains the following elements:
 
 * A display area that shows one of the following:
-** a preview of the loaded file (in this case,
+** A preview of the loaded file (in this case,
    'axis.ngc'), as well as the current location of the CNC
    machine's 'controlled point'. Later, this area will display the path
-   the CNC machine has moved through, called the 'backplot'
-** a large readout showing the current position and all offsets.
+   the CNC machine has moved through, called the 'backplot'.
+** A large readout showing the current position and all offsets.
 * A menu bar and toolbar that allow you to perform various actions
 * 'Manual Control Tab' - which allows you to make the
   machine move, turn the spindle on or off, and turn the coolant on or
   off if included in the INI file.
 * 'MDI Tab' - where G-code programs can be entered manually,
-  one line at a time. This also shows the 'Active G Codes' which shows
-  which modal G Codes are in effect.
+  one line at a time. This also shows the 'Active G-codes' which shows
+  which modal G-codes are in effect.
 * 'Feed Override' - which allows you to scale the speed of programmed motions.
   The default maximum is 120% and can be set to a different
   value in the INI file. See the <<sub:ini:sec:display,Display Section>> of the
@@ -104,7 +104,7 @@ The AXIS window contains the following elements:
   See the <<sub:ini:sec:display,Display Section>> of the INI file for more information.
 * 'Max Velocity' - which allows you to restrict the maximum velocity of all
   programmed motions (except spindle synchronized motion).
-* A text display area that shows the loaded G-Code.
+* A text display area that shows the loaded G-code.
 * A status bar which shows the state of the machine. In this screen
   shot, the machine is turned on, does not have a tool inserted, and the
   displayed position is 'Relative' (showing all offsets), and 'Actual'
@@ -118,15 +118,15 @@ file configured. For more information on configuration see the
 
 ==== File Menu
 
-* 'Open...' - Opens a standard dialog box to open a g code file to load in AXIS. If
+* 'Open...' - Opens a standard dialog box to open a G-code file to load in AXIS. If
   you have configured LinuxCNC to use a filter program you can also open it
   up. See the <<sub:ini:sec:filter,FILTER Section>> of the INI configuration
   for more information.
 * 'Recent Files' - Displays a list of recently opened files.
-* 'Edit...' - Open the current G code file for editing if you have an editor
+* 'Edit...' - Open the current G-code file for editing if you have an editor
   configured in your INI file. See the <<sub:ini:sec:display,DISPLAY Section>>
   for more information on specifying an editor to use.
-* 'Reload' - Reload the current g code file. If you edited it you must reload it
+* 'Reload' - Reload the current G-code file. If you edited it you must reload it
   for the changes to take affect. If you stop a file and want to start
   from the beginning then reload the file. The toolbar reload is the same
   as the menu.
@@ -153,7 +153,7 @@ file configured. For more information on configuration see the
   the line first then it will execute the rest of the code.
 
 [WARNING]
-Do not use 'Run From Selected Line' if your g code program contains subroutines.
+Do not use 'Run From Selected Line' if your G-code program contains subroutines.
 
 * 'Step' - Single step through a program.
 * 'Pause' - Pause a program.
@@ -178,18 +178,18 @@ Do not use 'Run From Selected Line' if your g code program contains subroutines.
 * 'Unhoming' - Unhome one or all axes.
 * 'Zero Coordinate System' - Set all offsets to zero in the coordinate system chosen.
 //[[sub:axis:tool-touch-off]]
-* Tool Touch Off(((Axis, Tool Touch Off)))
+* Tool Touch Off(((AXIS, Tool Touch Off)))
 ** 'Tool touch off to workpiece' - When performing Touch Off, the value
    entered is relative to the current workpiece ('G5x') coordinate system,
    as modified by the axis offset ('G92').  When the Touch Off is complete,
    the Relative coordinate for the chosen axis will become the value entered.
-   See <<gcode:g10-l10,G10 L10>> in the G code chapter.
+   See <<gcode:g10-l10,G10 L10>> in the G-code chapter.
 ** 'Tool touch off to fixture' - When performing Touch Off, the value entered
    is relative to the ninth ('G59.3') coordinate system, with the axis offset
    ('G92') ignored.  This is useful when there is a tool touch-off fixture at a
    fixed location on the machine, with the ninth ('G59.3') coordinate system set
    such that the tip of a zero-length tool is at the fixture's origin when the
-   Relative coordinates are 0.  See <<gcode:g10-l11,G10 L11>> in the G code chapter.
+   Relative coordinates are 0.  See <<gcode:g10-l11,G10 L11>> in the G-code chapter.
 
 ==== View Menu
 
@@ -231,32 +231,32 @@ So be familiar with your machine's design and interpret the display as needed.
 
 * 'Display Inches' - Set the AXIS display scaling for inches.
 * 'Display MM' - Set the AXIS display scaling for millimeters.
-* 'Show Program' - The preview display of the loaded G code program can be entirely disabled if desired.
-* 'Show Program Rapids' - The preview display of the loaded G code program will always show the
-  feedrate moves (G1,G2,G3) in white.
+* 'Show Program' - The preview display of the loaded G-code program can be entirely disabled if desired.
+* 'Show Program Rapids' - The preview display of the loaded G-code program will always show the
+  feed rate moves (G1,G2,G3) in white.
   But the display of rapid moves (G0) in cyan can be disabled if desired.
 * 'Alpha-blend Program' - This option makes the preview of complex programs easier to see, but
   may cause the preview to display more slowly.
 * 'Show Live Plot' - The highlighting of the feedrate paths (G1,G2,G3) as the tool moves can be disabled if desired.
 * 'Show Tool' - The display of the tool cone/cylinder can be disabled if desired.
-* 'Show Extents' - The display of the extents (maximum travel in each axis direction) of the loaded G code program can be disabled if desired.
+* 'Show Extents' - The display of the extents (maximum travel in each axis direction) of the loaded G-code program can be disabled if desired.
 * 'Show Offsets' - The selected fixture offset (G54-G59.3) origin location can be shown
   as a set of three orthogonal lines, one each of red, blue, and green.
   This offset origin (or fixture zero) display can be disabled if desired.
 * 'Show Machine Limits' - The machine's maximum travel limits for each axis, as set in the INI
   file, are shown as a rectangular box drawn in red dashed lines. This
-  is useful when loading a new G code program, or when checking for how
-  much fixture offset would be needed to bring the G code program within
+  is useful when loading a new G-code program, or when checking for how
+  much fixture offset would be needed to bring the G-code program within
   the travel limits of your machine. It can be shut off if not needed.
 * 'Show Velocity' - A display of velocity is sometimes useful to see how close your
   machine is running to its design velocities. It can be disabled if desired.
 * 'Show Distance to Go' - Distance to go is a very handy item to know when running an unknown
-  G code program for the first time. In combination with the rapid
+  G-code program for the first time. In combination with the rapid
   override and feedrate override controls, unwanted tool and machine damage can be avoided.
-  Once the G code program has been debugged and is running smoothly, the Distance to Go display can be disabled if desired.
+  Once the G-code program has been debugged and is running smoothly, the Distance to Go display can be disabled if desired.
 * 'Coordinates in large font...' - The coordinates of the axes and the speed
   in advance, will display in large font in the toolpath view.
-* 'Clear Live Plot' - As the tool travels in the Axis display, the G code path is highlighted.
+* 'Clear Live Plot' - As the tool travels in the AXIS display, the G-code path is highlighted.
   To repeat the program, or to better see an area of interest, the
   previously highlighted paths can be cleared.
 * 'Show Commanded Position' - This is the position that LinuxCNC will try to go to. Once motion
@@ -270,12 +270,12 @@ So be familiar with your machine's design and interpret the display as needed.
 
 ==== Help Menu
 
-* 'About Axis' - We all know what this is.
+* 'About AXIS' - We all know what this is.
 * 'Quick Reference' - Shows the keyboard shortcut keys.
 
 === Toolbar buttons
 
-From left to right in the Axis display, the toolbar buttons (keyboard shortcuts shown [in brackets]) are:
+From left to right in the AXIS display, the toolbar buttons (keyboard shortcuts shown [in brackets]) are:
 
 * image:images/tool_estop.png["Toggle Emergency Stop"] Toggle Emergency Stop [F1] (also called E-Stop)
 * image:images/tool_power.png["Toggle Machine Power"] Toggle Machine Power [F2]
@@ -376,7 +376,7 @@ red for straight moves at a feed rate,
 and magenta for circular moves at a feed rate.
 
 .Grid
-Axis can optionally display a grid when in orthogonal views.
+AXIS can optionally display a grid when in orthogonal views.
 Enable or disable the grid using the 'Grid' menu under 'View'.
 When enabled, the grid is shown in the top and rotated top views;
 when coordinate system is not rotated, the grid is shown in the front and side views as well.
@@ -437,7 +437,7 @@ If the environment variable 'AXIS_NO_AUTOCONFIGURE' is set,
 this behavior is disabled and all the items will appear.
 
 .The Axis group
-'Axis' allows you to manually move the machine.
+'AXIS' allows you to manually move the machine.
 This action is known as 'jogging'.
 First, select the axis to be moved by clicking it.
 Then, click and hold the '+' or '-' button
@@ -555,9 +555,9 @@ image::images/axis-mdi.png["MDI tab",align="center"]
 * 'History' - This shows MDI commands that have been typed earlier in this session.
 * 'MDI Command' - This allows you to enter a G-code command to be executed. Execute the
   command by pressing Enter or by clicking 'Go'.
-* 'Active G-Codes' - This shows the 'modal codes' that are active in the interpreter. For
+* 'Active G-codes' - This shows the 'modal codes' that are active in the interpreter. For
   instance, 'G54' indicates that the 'G54 offset' is applied to all
-  coordinates that are entered. When in Auto the Active G-Codes represent
+  coordinates that are entered. When in Auto the Active G-codes represent
   the codes after any read ahead by the interpreter.
 
 === Feed Override
@@ -610,7 +610,7 @@ axis 2. The remainder of the number keys will still set the Feed
 Override. When running a program '1234567890 will set the Feed Override
 to 0% - 100%.
 
-The most frequently used keyboard shortcuts are shown in the following Table:
+The most frequently used keyboard shortcuts are shown in the following table:
 
 [[tab:common-keyboard-shortcuts]]
 .Most Common Keyboard Shortcuts(((AXIS,Keyboard Shortcuts)))
@@ -696,14 +696,14 @@ commands to a running AXIS. The available commands are shown by running
 file ('--reload'), and making AXIS exit ('--quit').
 
 [[sec:manual-tool-change]]
-== Manual Tool Change(((Axis:Manual Tool Change)))
+== Manual Tool Change(((AXIS:Manual Tool Change)))
 
 LinuxCNC includes a userspace HAL component called 'hal_manualtoolchange',
 which shows a window prompt telling you what tool is expected when a
 'M6' command is issued. After the OK button is pressed, execution of
 the program will continue.
 
-The hal_manualtoolchange component includes a hal pin for a button that
+The hal_manualtoolchange component includes a HAL pin for a button that
 can be connected to a physical button to complete the tool change and
 remove the window prompt (hal_manualtoolchange.change_button).
 
@@ -722,11 +722,11 @@ To turn this feature off for the current tool change
 program a G1 with no move after the T<n>.
 
 [[fig:manual-toolchange-window]]
-.Manual Toolchange Window(((Axis:Manual Toolchange Window)))
+.Manual Toolchange Window(((AXIS:Manual Toolchange Window)))
 image::images/manual-tool-change.png["Manual Toolchange Window",align="center"]
 
 [[sec:axis-python-modules]]
-== Python modules(((Axis:Python Modules)))
+== Python modules(((AXIS:Python Modules)))
 
 AXIS includes several Python modules which may be useful to others. For more
 information on one of these modules, use 'pydoc <module name>' or read the
@@ -745,7 +745,7 @@ installed version of LinuxCNC, this should happen automatically. When
 running 'in-place', this can be done by using 'scripts/rip-environment'.
 
 [[sec:axis-lathe-mode]]
-== Using AXIS in Lathe Mode(((Axis:Lathe Mode)))
+== Using AXIS in Lathe Mode(((AXIS:Lathe Mode)))
 
 By including the line 'LATHE = 1'
 in the [DISPLAY] section of the INI file, AXIS selects lathe mode. The
@@ -755,8 +755,8 @@ the bottom of the screen, and several controls (such as those for
 preset views) are removed.  The coordinate readouts for X are replaced
 with diameter and radius.
 
-.Axis Lathe Mode
-image::images/axis-lathe.png["Axis Lathe Mode",align="center"]
+.AXIS Lathe Mode
+image::images/axis-lathe.png["AXIS Lathe Mode",align="center"]
 
 Pressing 'V' zooms out to show the entire file, if one is loaded.
 
@@ -803,7 +803,7 @@ works, see the << sub:ini:sec:display,Display Section>> of the INI configuration
 AXIS has the ability to send loaded files through a 'filter program'.
 This filter can do any desired task: Something as simple as making sure
 the file ends with 'M2', or something as complicated as generating
-G-Code from an image.
+G-code from an image.
 
 The '[FILTER]'  section of the INI file controls how filters work.
 First, for each type of file, write a 'PROGRAM_EXTENSION' line.
@@ -875,7 +875,7 @@ AXIS defaults, include the following line in your X Resources:
 
 // These asterisks are not for bold,
 ----
-*Axis*optionLevel: widgetDefault
+*AXIS*optionLevel: widgetDefault
 ----
 // in this case, we want the asterisks to actually appear.
 
@@ -884,20 +884,20 @@ this causes the built-in options to be created at the option level
 can override them.
 
 [[sub:axis-jogwheel]]
-=== Jogwheel(((Axis:Jogwheel)))
+=== Jogwheel(((AXIS:Jogwheel)))
 
-Pour accroître l'interaction d'AXIS avec une manivelle de jog
-physique, l'axe actif courant sélectionné dans l'interface graphique
-est aussi reporté sur une 'pin HAL' avec un nom comme 'axisui.jog.x'.
-Excepté pendant un court instant après que l'axe courant ait changé,
-une seule de ces pins à la fois est 'TRUE', les autres restent 'FALSE'.
+To improve the interaction of AXIS with a physical jogwheel, the current
+active axis selected in the GUI is also reported on a 'HAL pin' with a
+name like 'axisui.jog.x'.
+Except for a short time after the current axis has changed,
+only one of these pins at a time is 'TRUE', the others remain 'FALSE'.
 
-Après qu'AXIS ait créé ces 'HAL pins', il exécute le fichier hal
-déclaré avec: [HAL]POSTGUI_HALFILE. Ce qui diffère de [HAL]HALFILE,
-qui lui ne s'utilise qu'une seule fois.
+After AXIS has created these 'HAL pins', it runs the HAL file
+declared with: [HAL]POSTGUI_HALFILE. What differs from [HAL]HALFILE,
+which can only be used once.
 
 [[sub:axis-axisrc]]
-=== ~/.axisrc(((Axis:.axisrc)))
+=== ~/.axisrc(((AXIS:.axisrc)))
 
 If it exists, the contents of `~/.axisrc`  are executed as Python
 source code just before the AXIS GUI is
@@ -928,17 +928,17 @@ is specific to an INI file configuration not the user's home directory.
 
 === user_live_update()
 
-The axis gui includes a no-op (placeholder) function named
+The AXIS GUI includes a no-op (placeholder) function named
 'user_live_update()' that is executed at the conclusion of the update()
 function of its LivePlotter class.  This function may be implemented
 within a `~/.axisrc` python script or a '[DISPLAY]USER_COMMAND_FILE'
 python script to make custom, periodic actions.  The details of what may
-be accomplished in this function are dependent on the axis gui
+be accomplished in this function are dependent on the AXIS GUI
 implementation and subject to change during the development cycle.
 
 === user_hal_pins()
 
-The axis gui includes a no-op (placeholder) function named
+The AXIS GUI includes a no-op (placeholder) function named
 'user_hal_pins()'. +
 It is executed just after the .axisrc file is called and
 just before any gladevcp panels / embedded tabs are initialized. +
@@ -956,14 +956,14 @@ Useful values include EDITOR=gedit and EDITOR=gnome-terminal -e vim.
 For more information, see the <<sub:ini:sec:display,Display Section>>
 of the INI Configuration Chapter.
 
-=== Virtual Control Panel(((Axis: Virtual Control Panel)))
+=== Virtual Control Panel(((AXIS: Virtual Control Panel)))
 
 AXIS can display a custom virtual control panel in the right-hand
 pane. You can program buttons, indicators, data displays and more. For
 more information, see the <<cha:pyvcp,PyVCP>> and the <<cha:glade-vcp,GladeVCP>> chapters.
 
 [[axis:preview-control]]
-=== Preview Control(((Axis: Preview Control)))
+=== Preview Control(((AXIS: Preview Control)))
 
 Special comments can be inserted into the G-code file to control how
 the preview of AXIS behaves. In the case where you want to limit the
@@ -982,10 +982,10 @@ preview on certain parts that are already working OK).
 - (AXIS,stop) Stops the preview from here to the end of the file.
 - (AXIS,notify,the_text) Displays the_text as an info display
 
-This display can be useful in the Axis preview when (debug,message) comments are not displayed.
+This display can be useful in the AXIS preview when (debug,message) comments are not displayed.
 
 [[sec:axis-axisui-pins]]
-== Axisui(((Axis: axisui pins)))
+== Axisui(((AXIS: axisui pins)))
 
 To improve the interaction of AXIS with physical jog wheels, the axis
 currently selected in the GUI is also reported on a pin with a name
@@ -993,7 +993,7 @@ like 'axisui.jog.x'. One of these pins is 'TRUE' at one time, and the rest are
 'FALSE'. These are meant to control motion's jog-enable pins.
 
 .Axisui Pins
-Axis has Hal pins to indicate which jog radio button is selected in the 'Manual Control' tab.
+AXIS has HAL pins to indicate which jog radio button is selected in the 'Manual Control' tab.
 
 ----
 Type Dir  Name
@@ -1008,14 +1008,14 @@ bit  OUT  axisui.jog.v
 bit  OUT  axisui.jog.w
 ----
 
-Axis has a Hal pin to indicate the jog increment selected on the 'Manual Tab'.
+AXIS has a HAL pin to indicate the jog increment selected on the 'Manual Tab'.
 
 ----
 Type  Dir Name
 float OUT axisui.jog.increment
 ----
 
-Axis has a Hal output pin that indicates when an abort has occurred. The
+AXIS has a HAL output pin that indicates when an abort has occurred. The
 'axisui.abort' pin will be 'TRUE' and come back to 'FALSE' after 0.3ms.
 
 ----
@@ -1023,7 +1023,7 @@ Type  Dir    Name
 bit   OUT    axisui.abort
 ----
 
-Axis has a Hal output pin that indicates when an error has occurred. The
+AXIS has a HAL output pin that indicates when an error has occurred. The
 'axisui.error' pin will remain 'TRUE' until all error notifications have
 been dismissed.
 
@@ -1032,7 +1032,7 @@ Type  Dir    Name
 bit   OUT    axisui.error
 ----
 
-Axis has Hal input pins to clear the pop up notifications for errors and
+AXIS has HAL input pins to clear the pop up notifications for errors and
 information.
 
 ----
@@ -1042,16 +1042,16 @@ bit   IN     axisui.notifications-clear-error
 bit   IN     axisui.notifications-clear-info
 ----
 
-Axis has a Hal input pin that disables/enables the 'Pause/Resume' function.
+AXIS has a HAL input pin that disables/enables the 'Pause/Resume' function.
 
 ----
 Type  Dir    Name
 bit   IN     axisui.resume-inhibit
 ----
 
-== Axis Customization Hints
+== AXIS Customization Hints
 
-Axis is a fairly large and difficult-to-penetrate code base, this is helpful
+AXIS is a fairly large and difficult-to-penetrate code base, this is helpful
 To keep the code stable but makes it difficult to customize. +
 Here we will show code snippets to modify behaviours or visuals of the screen.
 Keep in mind the internal code of AXIS can change from time to time. +
@@ -1059,8 +1059,8 @@ these snippets are not guaranteed to continue to work - they may need adjustment
 
 === The update function
 
-There is a function in Axis named user_live_update that is called
-every time Axis updates itself. You can use this to update your own functions.
+There is a function in AXIS named user_live_update that is called
+every time AXIS updates itself. You can use this to update your own functions.
 
 [source,python]
 ----
@@ -1202,11 +1202,11 @@ print('value is a',type(value),'value of',value)
 
 [source,python]
 ----
-# hal pins from a GladeVCP panel will not be ready when user_live_update is run
+# HAL pins from a GladeVCP panel will not be ready when user_live_update is run
 # to read them you need to put them in a try/except block
 
 # the following example assumes 5 HAL buttons in a GladeVCP panel used to switch
-# the tabs in the Axis screen.
+# the tabs in the AXIS screen.
 # button names are 'manual-tab', 'mdi-tab', 'preview-tab', 'dro-tab', 'user0-tab'
 # the user_0 tab if it exists would be the first GladeVCP embedded tab
 
@@ -1246,7 +1246,7 @@ root_window.tk.call('button','.pane.top.tabs.fmanual.homey','-text','Home Y','-c
 # place the button
 root_window.tk.call('grid','.pane.top.tabs.fmanual.homey','-column','1','-row','7','-columnspan','2','-padx','4','-sticky','w')
 
-# any function called from tcl needs to be added to TclCommands
+# any function called from Tcl needs to be added to TclCommands
 TclCommands.goto_home = goto_home
 commands = TclCommands(root_window)
 ----
@@ -1279,7 +1279,7 @@ def mybutton_pressed():
 def mybutton_released():
     print('mybutton was released')
 
-# any function called from tcl needs to be added to TclCommands
+# any function called from Tcl needs to be added to TclCommands
 
 TclCommands.mybutton_clicked = mybutton_clicked
 TclCommands.mybutton_pressed = mybutton_pressed

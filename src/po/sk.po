@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: sk\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-07-09 16:34+0100\n"
-"PO-Revision-Date: 2022-07-19 19:30+0000\n"
+"PO-Revision-Date: 2022-08-06 19:17+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
 "Language: sk\n"
@@ -1374,7 +1374,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:123
 msgid "Negative spindle speed used"
-msgstr "Použitá negatívna hodnota rýchlosti vretena"
+msgstr "Použitá negatívna hodnota rýchlosti vretena(použi M3 alebo M4)"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:124
 msgid "Negative tool id (tool not found)"
@@ -1825,7 +1825,7 @@ msgstr "_Zrušiť"
 
 #: src/hal/utils/scope.c:471
 msgid "_Open"
-msgstr "Otvoriť"
+msgstr "_Otvoriť"
 
 #: src/hal/utils/scope.c:491
 msgid "Save Configuration File:"
@@ -2196,7 +2196,7 @@ msgid ""
 "Offset\n"
 "----"
 msgstr ""
-"Offset\n"
+"Ofset\n"
 "----"
 
 #: src/hal/utils/scope_vert.c:648
@@ -2422,11 +2422,11 @@ msgstr ""
 
 #: src/emc/motion/command.c:215
 msgid "negative"
-msgstr "negatívne"
+msgstr "negatív"
 
 #: src/emc/motion/command.c:220
 msgid "positive"
-msgstr "Pozícia"
+msgstr "pozitív"
 
 #: src/emc/motion/command.c:237
 #, c-format
@@ -3073,7 +3073,7 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:699
 msgid "Confirm!"
-msgstr "Potvrdiť nové!"
+msgstr "Potvrdiť!"
 
 #: src/hal/classicladder/classicladder_gtk.c:699
 msgid "Do you really want to quit ?\n"
@@ -9802,12 +9802,10 @@ msgid "Both Limit + Home V"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:244
-#, fuzzy
 msgid "Both Limit + Home Tandem X"
 msgstr "Limit osi + kalibr. tandem X"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:244
-#, fuzzy
 msgid "Both Limit + Home Tandem Y"
 msgstr "Limit osi + kalibr. tandem Y"
 
@@ -9900,23 +9898,20 @@ msgid "Both Limit V"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:256
-#, fuzzy
 msgid "Both Limit Tandem X"
 msgstr "Oba limity tandem X"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:256
-#, fuzzy
 msgid "Both Limit Tandem Y"
-msgstr "Všetky súbory"
+msgstr "Oba limity tandem Y"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:257
 msgid "All limits"
 msgstr "Všetky limity"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:257
-#, fuzzy
 msgid "All home"
-msgstr "Všetko skalibrovať"
+msgstr "Kalibr. všetkého"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:257
 msgid "All limits + homes"
@@ -10396,9 +10391,8 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:749
 #: src/emc/usr_intf/pncconf/build_HAL.py:1929
-#, fuzzy
 msgid "# default = 6"
-msgstr "Použiť pôvodné"
+msgstr "# default = 6"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:751
 #: src/emc/usr_intf/pncconf/build_HAL.py:1931
@@ -10440,18 +10434,16 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:761
 #: src/emc/usr_intf/pncconf/build_HAL.py:1941
-#, fuzzy
 msgid "# default = 2"
-msgstr "Použiť pôvodné"
+msgstr "# default = 2"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:768
 msgid "# Include your custom_postgui HAL commands here"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/import_mach.py:32
-#, fuzzy
 msgid "Mach configuration files"
-msgstr "Konfigurácia skopírovaná"
+msgstr "Mach konfiguračné súbory"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:23
 #: src/emc/usr_intf/pncconf/main_page.glade:35
@@ -10460,9 +10452,8 @@ msgid "±"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/main_page.glade:129
-#, fuzzy
 msgid "mm/s"
-msgstr "mm"
+msgstr "mm/s"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:337
 #: src/emc/usr_intf/pncconf/dialogs.glade:864
@@ -10485,9 +10476,8 @@ msgid "Acceleration:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/main_page.glade:425
-#, fuzzy
 msgid "Stepconf -Stepper Configuration Wizard"
-msgstr "Príklady konfigurácií"
+msgstr "Stepconf - Sprievodca konfiguráciou Stepper"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:519
 #: src/emc/usr_intf/pncconf/main_page.glade:143
@@ -10842,9 +10832,8 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/pport1.glade:1222
 #: src/emc/usr_intf/stepconf/pport2.glade:817
-#, fuzzy
 msgid "Parport _Number:"
-msgstr "Ďalšie číslo:"
+msgstr "Číslo par. portu:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:1273
 msgid "Output pinout presets:"
@@ -10854,17 +10843,15 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/base.glade:38
 #: src/emc/usr_intf/pncconf/pport1.glade:40
 #: src/emc/usr_intf/pncconf/pport2.glade:40
-#, fuzzy
 msgid "Out"
-msgstr "Vystrihnúť"
+msgstr "Výstup"
 
 #: src/emc/usr_intf/stepconf/pport2.glade:51
 #: src/emc/usr_intf/pncconf/base.glade:35
 #: src/emc/usr_intf/pncconf/pport1.glade:37
 #: src/emc/usr_intf/pncconf/pport2.glade:37
-#, fuzzy
 msgid "In"
-msgstr "Io port"
+msgstr "Vstup"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:29
 msgid "_PWM 1:"
@@ -10883,14 +10870,12 @@ msgid "PWM _Rate:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/spindle.glade:150
-#, fuzzy
 msgid "_Speed 1:"
-msgstr "Rýchlosť:"
+msgstr "Rýchlosť 1:"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:164
-#, fuzzy
 msgid "S_peed 2:"
-msgstr "Rýchlosť:"
+msgstr "Rýchlosť 2:"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:178
 msgid "Calibration:"
@@ -10909,9 +10894,8 @@ msgid "Speed display filter gain:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/spindle.glade:294
-#, fuzzy
 msgid "Use spindle-at-speed:"
-msgstr "Nastaviť zmenu rýchlosti vretena:"
+msgstr "Použitie spindle-at-speed:"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:313
 msgid "Scale %"
@@ -10919,7 +10903,6 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/options.glade:48
 #: src/emc/usr_intf/pncconf/private_data.py:489
-#, fuzzy
 msgid "Axis"
 msgstr "Os"
 
@@ -10987,9 +10970,8 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/options.glade:371
 #: src/emc/usr_intf/pncconf/screen.glade:3471
-#, fuzzy
 msgid "Top"
-msgstr "Krok"
+msgstr "Hore"
 
 #: src/emc/usr_intf/stepconf/options.glade:465
 #: src/emc/usr_intf/pncconf/screen.glade:3621
@@ -10998,9 +10980,8 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/options.glade:493
 #: src/emc/usr_intf/pncconf/screen.glade:3649
-#, fuzzy
 msgid "Mode:"
-msgstr "Príkaz:"
+msgstr "Mód:"
 
 #: src/emc/usr_intf/stepconf/options.glade:502
 #: src/emc/usr_intf/pncconf/screen.glade:3853
@@ -11038,9 +11019,8 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/options.glade:645
 #: src/emc/usr_intf/pncconf/vcp.glade:79
-#, fuzzy
 msgid "Blank program"
-msgstr "Program"
+msgstr "Prázdny program"
 
 #: src/emc/usr_intf/stepconf/options.glade:662
 #: src/emc/usr_intf/pncconf/vcp.glade:96
@@ -11140,9 +11120,8 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/options.glade:1281
-#, fuzzy
 msgid "Set Ladder Options"
-msgstr "Príklady konfigurácií"
+msgstr "Nastavte možnosti Ladder"
 
 #: src/emc/usr_intf/stepconf/options.glade:1297
 msgid "Include Halui user interface component"
@@ -11166,9 +11145,8 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:31
 #: src/emc/usr_intf/pncconf/ubuttons.glade:34
-#, fuzzy
 msgid "NUM"
-msgstr "NML"
+msgstr "NUM"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:41
 #: src/emc/usr_intf/pncconf/ubuttons.glade:43
@@ -11249,9 +11227,8 @@ msgid "ENCB"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/thcad.glade:18
-#, fuzzy
 msgid "IDX"
-msgstr "RÝCHLY"
+msgstr "IDX"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:32
 #: src/emc/usr_intf/pncconf/thcad.glade:15
@@ -11328,9 +11305,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/y_axis.glade:47
 #: src/emc/usr_intf/pncconf/z_axis.glade:47
 #: src/emc/usr_intf/pncconf/a_axis.glade:47
-#, fuzzy
 msgid "Opposite"
-msgstr "Typ polohy"
+msgstr "Opačný"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:166
 #: src/emc/usr_intf/stepconf/axisy.glade:166
@@ -11401,9 +11377,8 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisu.glade:485
 #: src/emc/usr_intf/stepconf/axisv.glade:482
 #: src/emc/usr_intf/stepconf/axisa.glade:481
-#, fuzzy
 msgid "_Leadscrew Pitch:"
-msgstr "Nahradiť týmto:"
+msgstr "Stúpanie skrutky:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:497
 #: src/emc/usr_intf/stepconf/axisy.glade:504
@@ -11513,9 +11488,8 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisu.glade:660
 #: src/emc/usr_intf/stepconf/axisv.glade:605
 #: src/emc/usr_intf/stepconf/axisa.glade:647
-#, fuzzy
 msgid "Axis SCALE:"
-msgstr "Rýchlosť osi:"
+msgstr "Mierka osí:"
 
 #: src/emc/usr_intf/stepconf/finished.glade:6
 msgid ""
@@ -11588,9 +11562,8 @@ msgid "Specific Help page is unavailable\n"
 msgstr "Konkrétna stránka pomocníka nie je k dispozícii\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:530
-#, fuzzy
 msgid "Help Pages"
-msgstr "Testovať"
+msgstr "Stránky pomoci"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:581
 #, python-format
@@ -11601,9 +11574,8 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:896
-#, fuzzy
 msgid "LinuxCNC 'PNCconf' configuration files"
-msgstr "EMC2 Pomocník nastavenia"
+msgstr "Konfiguračné súbory LinuxCNC 'PNCconf'"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:929
 msgid ""
@@ -11668,9 +11640,8 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3565
 #: src/emc/usr_intf/pncconf/private_data.py:551
-#, fuzzy
 msgid "Unused Channel"
-msgstr "Späť"
+msgstr "Nepoužitý kanál"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3839
 msgid "You can not have both steppers and pwm signals for spindle control\n"
@@ -11796,23 +11767,20 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/pncconf.py:4079
 #: src/emc/usr_intf/pncconf/pncconf.py:4080
 #: src/emc/usr_intf/pncconf/pncconf.py:4081
-#, fuzzy
 msgid " / min"
-msgstr "inch"
+msgstr "/min"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4070
 msgid " / sec²"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4073
-#, fuzzy
 msgid " / Step"
-msgstr "Krok"
+msgstr "/ Krok"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4074
-#, fuzzy
 msgid "Steps / "
-msgstr "Krok"
+msgstr "Kroky /"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4076
 msgid " / encoder pulse"
@@ -11827,9 +11795,8 @@ msgid "Resolver Scale:"
 msgstr "Mierka resolvera:"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4423
-#, fuzzy
 msgid "Spindle Scale Calculation"
-msgstr "Príklady konfigurácií"
+msgstr "Výpočet mierky vretena"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4535
 msgid "Axis Scale Calculation"
@@ -11850,9 +11817,8 @@ msgid "PCI search page is unavailable\n"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/pages.py:441
-#, fuzzy
 msgid "in / min"
-msgstr "inch"
+msgstr "in / min"
 
 #: src/emc/usr_intf/pncconf/pages.py:445
 #: src/emc/usr_intf/pncconf/screen.glade:799
@@ -12034,9 +12000,8 @@ msgid "# ---jogwheel signals to mesa encoder - %s axis MPG---"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:570
-#, fuzzy
 msgid "# connect selectable mpg jog increments "
-msgstr "Pričítať"
+msgstr "# pripojiť voliteľné inkrementy mpg jogov"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:594
 msgid "# ---feed override signals to mesa encoder - mpg---"
@@ -12067,14 +12032,12 @@ msgid "# ---spindle override signals to mesa encoder - mpg---"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:707
-#, fuzzy
 msgid "# connect spindle override increments - MPG"
-msgstr "Nastaviť zmenu vretena"
+msgstr "# pripojenie inkrementov posuvníka vretena - MPG"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:722
-#, fuzzy
 msgid "# connect spindle override increments "
-msgstr "Nastaviť zmenu vretena"
+msgstr "# pripojenie inkrementov vretena"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:741
 msgid "#  ---motion control signals---"
@@ -12446,9 +12409,8 @@ msgid "VCP"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:44
-#, fuzzy
 msgid "External Controls"
-msgstr "Manuál"
+msgstr "Externé ovládacie prvky"
 
 #: src/emc/usr_intf/pncconf/private_data.py:45
 msgid "Mesa Card 0"
@@ -12459,9 +12421,8 @@ msgid "Mesa Card 1"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:47
-#, fuzzy
 msgid "Parallel Port 0"
-msgstr "Vytlačiť nastavenia"
+msgstr "Paralelný port 0"
 
 #: src/emc/usr_intf/pncconf/private_data.py:49
 msgid "Mesa THCAD"
@@ -12473,9 +12434,8 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:51
 #: src/emc/usr_intf/pncconf/private_data.py:535
-#, fuzzy
 msgid "X Axis"
-msgstr "Os"
+msgstr "X os"
 
 #: src/emc/usr_intf/pncconf/private_data.py:52
 msgid "Y Motor"
@@ -12483,9 +12443,8 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:53
 #: src/emc/usr_intf/pncconf/private_data.py:535
-#, fuzzy
 msgid "Y Axis"
-msgstr "Os"
+msgstr "Y os"
 
 #: src/emc/usr_intf/pncconf/private_data.py:54
 msgid "Z Motor"
@@ -12493,9 +12452,8 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:55
 #: src/emc/usr_intf/pncconf/private_data.py:535
-#, fuzzy
 msgid "Z Axis"
-msgstr "Os"
+msgstr "Z os"
 
 #: src/emc/usr_intf/pncconf/private_data.py:56
 msgid "A Motor"
@@ -12503,14 +12461,12 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:57
 #: src/emc/usr_intf/pncconf/private_data.py:536
-#, fuzzy
 msgid "A Axis"
-msgstr "Os"
+msgstr "A os"
 
 #: src/emc/usr_intf/pncconf/private_data.py:58
-#, fuzzy
 msgid "Spindle Motor"
-msgstr "Vreteno vypni"
+msgstr "Vretenový motor"
 
 #: src/emc/usr_intf/pncconf/private_data.py:60
 msgid "Realtime"
@@ -12539,9 +12495,8 @@ msgid "POT Enable"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:113
-#, fuzzy
 msgid "POT Dir"
-msgstr "Vytlačiť nastavenia"
+msgstr "POT smer"
 
 #: src/emc/usr_intf/pncconf/private_data.py:115
 msgid "GPIO Input"
@@ -12556,9 +12511,8 @@ msgid "GPIO O Drain"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:117
-#, fuzzy
 msgid "SSR Output"
-msgstr "Vreteno vypni"
+msgstr "SSR výstup"
 
 #: src/emc/usr_intf/pncconf/private_data.py:120
 msgid "Quad Enc-A"
@@ -12621,9 +12575,8 @@ msgid "Resolver 5 Encoder"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:131
-#, fuzzy
 msgid "Step Gen-A"
-msgstr "Jedna medzera"
+msgstr "Krok Gen-A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:131
 msgid "Dir Gen-B"
@@ -12674,9 +12627,8 @@ msgid "UDM -Up"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:136
-#, fuzzy
 msgid "UDM-Down"
-msgstr "Dole"
+msgstr "UDM-Dole"
 
 #: src/emc/usr_intf/pncconf/private_data.py:136
 msgid "UDM-E"
@@ -12839,54 +12791,44 @@ msgid "7i77 Analog-SS4"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:164
-#, fuzzy
 msgid "Analog Input"
-msgstr "Manuál"
+msgstr "Analógový vstup"
 
 #: src/emc/usr_intf/pncconf/private_data.py:406
-#, fuzzy
 msgid "X Home"
-msgstr "Domov"
+msgstr "X kalibrácia"
 
 #: src/emc/usr_intf/pncconf/private_data.py:406
-#, fuzzy
 msgid "Y Home"
-msgstr "Domov"
+msgstr "Y kalibrácia"
 
 #: src/emc/usr_intf/pncconf/private_data.py:406
-#, fuzzy
 msgid "Z Home"
-msgstr "Domov"
+msgstr "Z kalibrácia"
 
 #: src/emc/usr_intf/pncconf/private_data.py:406
-#, fuzzy
 msgid "A Home"
-msgstr "Domov"
+msgstr "A kalibrácia"
 
 #: src/emc/usr_intf/pncconf/private_data.py:406
-#, fuzzy
 msgid "All Home"
-msgstr "Domov"
+msgstr "Kalibrácia všetkých osí"
 
 #: src/emc/usr_intf/pncconf/private_data.py:407
-#, fuzzy
 msgid "X2 Tandem Home"
-msgstr "Domov"
+msgstr "Kalibr. tandem X2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:407
-#, fuzzy
 msgid "Y2 Tandem Home"
-msgstr "Domov"
+msgstr "Kalibr. tandem Y2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:407
-#, fuzzy
 msgid "Z2 Tandem Home"
-msgstr "Domov"
+msgstr "Kalibr. tandem Z2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:407
-#, fuzzy
 msgid "A2 Tandem Home"
-msgstr "Domov"
+msgstr "Kalibr. tandem A2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:408
 msgid "X Minimum Limit + Home"
@@ -12937,9 +12879,8 @@ msgid "A Both Limit + Home"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:414
-#, fuzzy
 msgid "All Limits + Home"
-msgstr "Všetky súbory"
+msgstr "Všetky limity + kalibracia"
 
 #: src/emc/usr_intf/pncconf/private_data.py:415
 msgid "X2 Minimum Limit + Home"
@@ -12986,9 +12927,8 @@ msgid "Z2 Both Limit + Home"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:421
-#, fuzzy
 msgid "A2 Both Limit + Home"
-msgstr "Všetky súbory"
+msgstr "A2 oba limit + kalibrácia"
 
 #: src/emc/usr_intf/pncconf/private_data.py:424
 msgid "Joint select A"

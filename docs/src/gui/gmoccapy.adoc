@@ -57,11 +57,11 @@ axis. So it do support also gantry configs. if you use other versions, please
 inform about problems and / or solutions on the
 http://www.linuxcnc.org/index.php/english/forum/41-guis/26314-gmoccapy-a-new-screen-for-linuxcnc[LinuxCNC forum] or the
 http://www.cncecke.de/forum/showthread.php?t=78549[German CNC Ecke Forum] or
-https://lists.sourceforge.net/lists/listinfo/emc-users[LinuxCNC users mailing list]
+https://lists.sourceforge.net/lists/listinfo/emc-users[LinuxCNC users mailing list].
 
 The minimum screen resolution for gmoccapy, using it without side panels is
 *979 x 750 Pixel*, so it should fit to every standard screen. It is recommended to use
-screens with minimum resolution of 1024x748
+screens with minimum resolution of 1024x748.
 
 ==  How To Get gmoccapy
 
@@ -84,7 +84,7 @@ image::images/gmoccapy_3_axis.png[align="left"]
 There is really not to much to configure just to run gmoccapy, but there are some points
 you should take care off if you want to use all the features of the GUI.
 
-You will find a lot of simulation configurations (INI files) included, just to show the basics: +
+You will find a lot of simulation configurations (INI files) included, just to show the basics:
 
  * gmoccapy.ini
  * gmoccapy_4_axis.ini
@@ -114,7 +114,7 @@ If you want to use <<gmoccapy:macros,MACROS>>, don't forget to set the path to y
 subroutines folder as described below.
 
 So let us take a closer look to the the INI file and what you need to include
-to use gmoccapy on your machine: +
+to use gmoccapy on your machine.
 
 [[gmoccapy:display-section]]
 === The DISPLAY Section
@@ -144,7 +144,7 @@ PREFERENCE_FILE_PATH = gmoccapy_preferences
 
 gmoccapy 3 does support the following command line options:
 
- * -user_mode : If set, the setup button will be disabled, so normal machine opperators are not able to edit the settings of the machine *
+ * -user_mode : If set, the setup button will be disabled, so normal machine operators are not able to edit the settings of the machine *
  * -logo <path to logo file> : If given, the logo will hide the jog button tab in manual mode, this is only useful for machines with hardware button for jogging and increment selection +
 
 The line PREFERENCE_FILE_PATH gives the location and name of the preferences file to be used.
@@ -179,7 +179,7 @@ MIN_SPINDLE_OVERRIDE = 0.5
 Will allow you to change the spindle override within a limit from 50% to 120%.
 
 [NOTE]
-If no values are given, MAX will be set to 1.0 and MIN to 0.1
+If no values are given, MAX will be set to 1.0 and MIN to 0.1.
 
 [source,{ini}]
 ----
@@ -190,7 +190,9 @@ BACK_TOOL_LATHE = 1
 The first line set the screen layout to control a lathe.
 
 The second line is optional and will switch the X axis in a way you need for a
-back tool lathe. Also the keyboard shortcuts will react in a different way. It is allowed with gmoccapy to configuer a lathe also with additional axis, so you may use also a XZCW config for a lathe.
+back tool lathe. Also the keyboard shortcuts will react in a different way.
+It is allowed with gmoccapy to configuer a lathe also with additional axis,
+so you may use also a XZCW config for a lathe.
 
 [TIP]
 See also the <<gmoccapy:lathe-section,Lathe Specific Section>>
@@ -311,7 +313,7 @@ need to introduce some lines in the [DISPLAY] section of the INI file.
 
 Here is how to set up 3 user pop up message dialogs the messages support pango
 markup language. Detailed information about the markup language can be found at
-https://developer.gnome.org/pango/stable/PangoMarkupFormat.html[Pango Markup]
+https://developer.gnome.org/pango/stable/PangoMarkupFormat.html[Pango Markup].
 
 [source,{ini}]
 ----
@@ -359,7 +361,7 @@ SUBROUTINE_PATH = macros
 ----
 
 Sets the path to search for macros and other subroutines. If you want to use
-several subroutine paths, just separate them with ":"
+several subroutine paths, just separate them with ":".
 
 [[gmoccapy:macros]]
 === The MACRO Section
@@ -415,7 +417,8 @@ Gmoccapy will also accept macros asking for parameters like:
 go_to_position X-pos Y-pos Z-pos
 ----
 
-The parameters must be separated by spaces. This calls a file 'go_to_position.ngc' with the following content:
+The parameters must be separated by spaces.
+This calls a file 'go_to_position.ngc' with the following content:
 
 ----
 ; Test file go to position
@@ -448,7 +451,8 @@ values for '*X-pos Y-pos Z-pos*' and the macro will only run if all values
 have been given.
 
 [NOTE]
-If you would like to use a macro without any movement, see also the notes in <<sub:NOT_ENDING_MACROS,known problems>>
+If you would like to use a macro without any movement,
+see also the notes in <<sub:NOT_ENDING_MACROS,known problems>>
 
 image::images/gmoccapy_getting_macro_info.png[align="left"]
 
@@ -525,9 +529,9 @@ influences, the hardware buttons will activate different functions, and you
 don't have to take care about switching functions around in HAL, because that
 is done completely by gmoccapy!
 
-for a 3 axis XYZ machine the HAL pin will react as follows:
+For a 3 axis XYZ machine the HAL pin will react as follows.
 
-in manual mode:
+In manual mode:
 
 * gmoccapy.h-button.button-0 == open homing button
 * gmoccapy.h-button.button-1 == open touch off stuff
@@ -540,7 +544,7 @@ in manual mode:
 * gmoccapy.h-button.button-8 == full-size preview
 * gmoccapy.h-button.button-9 == exit if machine is off, otherwise no reaction
 
-in mdi mode:
+In mdi mode:
 
 * gmoccapy.h-button.button-0 == macro_0 or nothing
 * gmoccapy.h-button.button-1 == macro_1 or nothing
@@ -553,7 +557,7 @@ in mdi mode:
 * gmoccapy.h-button.button-8 == macro_8 or switch page to additional macros
 * gmoccapy.h-button.button-9 == open keyboard or abort if macro is running
 
-in auto mode
+In auto mode:
 
 * gmoccapy.h-button.button-0 == open file
 * gmoccapy.h-button.button-1 == reload program
@@ -566,7 +570,7 @@ in auto mode
 * gmoccapy.h-button.button-8 == full-size preview
 * gmoccapy.h-button.button-9 == edit code
 
-in settings mode:
+In settings mode:
 
 * gmoccapy.h-button.button-0 == delete MDI history
 * gmoccapy.h-button.button-1 ==
@@ -579,7 +583,7 @@ in settings mode:
 * gmoccapy.h-button.button-8 == open HAL calibration
 * gmoccapy.h-button.button-9 == open HAL show
 
-in homing mode:
+In homing mode:
 
 * gmoccapy.h-button.button-0 ==
 * gmoccapy.h-button.button-1 == home all
@@ -592,7 +596,7 @@ in homing mode:
 * gmoccapy.h-button.button-8 == unhome all
 * gmoccapy.h-button.button-9 == back
 
-in touch off mode:
+In touch off mode:
 
 * gmoccapy.h-button.button-0 == edit offsets
 * gmoccapy.h-button.button-1 == touch X
@@ -605,7 +609,7 @@ in touch off mode:
 * gmoccapy.h-button.button-8 == set selected
 * gmoccapy.h-button.button-9 == back
 
-in tool mode:
+In tool mode:
 
 * gmoccapy.h-button.button-0 == delete tool(s)
 * gmoccapy.h-button.button-1 == new tool
@@ -618,7 +622,7 @@ in tool mode:
 * gmoccapy.h-button.button-8 == touch of tool in Z
 * gmoccapy.h-button.button-9 == back
 
-in edit mode:
+In edit mode:
 
 * gmoccapy.h-button.button-0 ==
 * gmoccapy.h-button.button-1 == reload file
@@ -631,7 +635,7 @@ in edit mode:
 * gmoccapy.h-button.button-8 == show keyboard
 * gmoccapy.h-button.button-9 == back
 
-in select file mode:
+In select file mode:
 
 * gmoccapy.h-button.button-0 == go to home directory
 * gmoccapy.h-button.button-1 == one directory level up
@@ -959,7 +963,7 @@ image::images/gmoccapy_0_9_7_tool_info.png["Tool information",align="left"]
 Please take care, that this connections have to be done in the postgui HAL file!
 
 [NOTE]
-the tooloffset-x line is not needed on a mill,
+The tooloffset-x line is not needed on a mill,
 and will not be displayed on a mill with trivial kinematics.
 
 ----
@@ -1253,34 +1257,36 @@ The foreground color of the DRO can be selected with:
 * homed color   = green
 * unhomed color = red
 
-'show dro' +
-the DRO will be shown in the preview window + +
+Options on data to display:
 
-'show offsets' +
-the Offsets will be shown in the preview window + +
+show dro::
+  The DRO will be shown in the preview window
 
-'show DTG' +
-the distance to go will be shown in the preview window + +
+show offsets::
+  The Offsets will be shown in the preview window
+
+show DTG::
+  The distance to go will be shown in the preview window
 
 [NOTE]
 You can change through the DRO modes (absolute, relative, distance
 to go) by clicking on the DRO!  *if you click on the left side letter of the DRO a popup window will allow you to set the value of the axis, making it easier to set the value, as you will not need to go over the touch off bottom button. Clicking the numbers (right side of the DRO) will toggle through the DRO modes as described above.*
 
-'size' +
-allows to set the size of the DRO font, default is 28, if you use a bigger screen you may want to increase the size up to 56.
-If you do use 4 axis, the DRO font size will be 3/4 of the value, because of space reason. + +
+size::
+  Allows to set the size of the DRO font, default is 28, if you use a bigger screen you may want to increase the size up to 56.
+  If you do use 4 axis, the DRO font size will be 3/4 of the value, because of space reason.
 
-'digits' +
-sets the number of digits of the DRO from 1 to 5.
+digits::
+  Sets the number of digits of the DRO from 1 to 5.
 
 [NOTE]
 Imperial will show one digit more that metric.
 So if you are in imperial machine units and set the digit value to 1, you will get no digit at all in metric.
 
-'toggle DRO mode' +
-if not active, a mouse click on the DRO will not take any action. +
-By default this checkbox is active, so every click on any DRO will toggle the DRO readout from actual to relative to DTG (distance to go). +
-Neverthereless a click on the axis letter will open the popup dialog to set the axis value.
+toggle DRO mode::
+  If not active, a mouse click on the DRO will not take any action. +
+  By default this checkbox is active, so every click on any DRO will toggle the DRO readout from actual to relative to DTG (distance to go). +
+  Neverthereless a click on the axis letter will open the popup dialog to set the axis value.
 
 ==== Preview
 
@@ -1578,7 +1584,7 @@ Details about how exactly an IconTheme is built can be found at https://specific
 
 Start by creating an empty directory with the name of the icon theme. Place the directory in one of gmoccapy's IconTheme directories.
 Then we need a file called index.theme in the root folder of our icon theme which contains the required metadata for the theme.
-Thats a simple text file with at least the following sections:
+That's a simple text file with at least the following sections:
 
     [Icon Theme]
     Name=YOUR_THEME_NAME
@@ -1589,7 +1595,7 @@ Thats a simple text file with at least the following sections:
 * Name: The name of your icon theme
 * Comment: A description of your icon theme
 * Inherits: A icon theme can derive from another icon theme, the default is hicolor
-* Directories: A comma separted list of all the directories of your icon theme
+* Directories: A comma separated list of all the directories of your icon theme
 
 Each directory usually contains all the icons of the theme in a specific size, for example 16x16/actions should contain all icons with the category "actions" in the size 16x16 pixels as pixel-graphics (e.g. png files).
 A special case is the directory called "scalable/actions", this contains scalable icons not tied to a specific size (e.g. svg files).
@@ -1610,7 +1616,7 @@ Fo each directory we also have to write a section in the index.theme file:
     Context=Actions
 ----
 
-* Size: Nominal icon size in this direcotry
+* Size: Nominal icon size in this directory
 * Type: Fixed, Threshold or Scalable
 * Context: Intended "category" of icons
 

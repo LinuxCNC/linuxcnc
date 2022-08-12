@@ -1,4 +1,4 @@
-VERSION = '1.228.220'
+VERSION = '1.229.224'
 
 '''
 qtplasmac_handler.py
@@ -206,7 +206,7 @@ class HandlerClass:
         self.idleList = ['file_clear', 'file_open', 'file_reload']
         self.idleOnList = ['home_x', 'home_y', 'home_z', 'home_a', 'home_all']
         self.idleHomedList = ['touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_b', 'touch_xy', \
-                              'mdi_show', 'height_lower', 'height_raise', 'wcs_button']
+                              'mdi_show', 'height_lower', 'height_raise', 'wcs_button', 'set_offsets']
         self.pausedValidList= []
         self.jogButtonList = ['jog_x_plus', 'jog_x_minus', 'jog_y_plus', 'jog_y_minus', 'jog_z_plus', \
                               'jog_z_minus', 'jog_a_plus', 'jog_a_minus', 'jog_b_plus', 'jog_b_minus']
@@ -700,6 +700,8 @@ class HandlerClass:
         self.heightOverridePin = self.h.newpin('height_override', hal.HAL_FLOAT, hal.HAL_OUT)
         self.jogInhibited = self.h.newpin('jog_inhibited', hal.HAL_BIT, hal.HAL_IN)
         self.laserOnPin = self.h.newpin('laser_on', hal.HAL_BIT, hal.HAL_OUT)
+        self.offsetSetProbePin = self.h.newpin('offset_set_probe', hal.HAL_BIT, hal.HAL_OUT)
+        self.offsetSetScribePin = self.h.newpin('offset_set_scribe', hal.HAL_BIT, hal.HAL_OUT)
         self.laserRecStatePin = self.h.newpin('laser_recovery_state', hal.HAL_S32, hal.HAL_IN)
         self.materialChangePin = self.h.newpin('material_change', hal.HAL_S32, hal.HAL_IN)
         self.materialChangeNumberPin = self.h.newpin('material_change_number', hal.HAL_S32, hal.HAL_IN)
@@ -824,6 +826,8 @@ class HandlerClass:
         CALL(['halcmd', 'net', 'plasmac:state', 'plasmac.state-out', 'qtplasmac.plasmac_state'])
         CALL(['halcmd', 'net', 'plasmac:z-height', 'plasmac.z-height', 'qtplasmac.z_height'])
         CALL(['halcmd', 'net', 'plasmac:z-offset-counts', 'qtplasmac.z_offset_counts'])
+        CALL(['halcmd', 'net', 'plasmac:offset-set-probe', 'plasmac.offset-set-probe', 'qtplasmac.offset_set_probe'])
+        CALL(['halcmd', 'net', 'plasmac:offset-set-scribe', 'plasmac.offset-set-scribe', 'qtplasmac.offset_set_scribe'])
 
 # *** add system hal pin changes here that may affect existing configs ***
 # *** these may be removed after auto updating is implemented          ***
@@ -1019,7 +1023,7 @@ class HandlerClass:
         self.probeOffsetX = 0.0
         self.probeOffsetY = 0.0
         self.probeDelay = 0.0
-        head = _translate('HandlerClass', 'PREFS FILE ERROR')
+        head = _translate('HandlerClass', 'Prefs File Error')
         # laser
         try:
             self.laserOffsetX = self.PREFS.getpref('X axis', 0, float, 'LASER_OFFSET')
@@ -1439,7 +1443,7 @@ class HandlerClass:
             self.preRflFile = ''
         msgList, units, xMin, yMin, xMax, yMax = self.bounds_check('loaded', 0, 0)
         if self.boundsError['loaded']:
-            head = _translate('HandlerClass', 'AXIS LIMIT ERROR')
+            head = _translate('HandlerClass', 'Axis Limit Error')
             msgs = ''
             for n in range(0, len(msgList), 3):
                 if msgList[n + 1] == 'MAX':
@@ -1694,7 +1698,7 @@ class HandlerClass:
             self.rflSelected = False
             if self.developmentPin.get():
                 reload(RFL)
-            head = _translate('HandlerClass', 'GCODE ERROR')
+            head = _translate('HandlerClass', 'Gcode Error')
             data = RFL.run_from_line_get(self.lastLoadedProgram, self.startLine)
             # cannot do run from line within a subroutine or if using cutter compensation
             if data['error']:
@@ -1834,7 +1838,11 @@ class HandlerClass:
     def set_offsets_clicked(self):
         if self.developmentPin.get():
             reload(OFFSETS)
-        OFFSETS.dialog_show(self, self.w, self.PREFS, INIPATH, STATUS, ACTION, TOOL, self.foreColor, self.backColor)
+        self.w.main_tab_widget.setCurrentIndex(0)
+        if STATUS.stat.rotation_xy:
+            ACTION.CALL_MDI_WAIT('G10 L2 P0 R0')
+            ACTION.SET_MANUAL_MODE()
+        OFFSETS.dialog_show(self, self.w, self.PREFS, INIPATH, STATUS, ACTION, TOOL)
 
     def feed_label_pressed(self):
         self.w.feed_slider.setValue(100)
@@ -2078,7 +2086,7 @@ class HandlerClass:
                 self.overlayProgress.setValue(0)
                 ACTION.OPEN_PROGRAM(file)
             else:
-                head = _translate('HandlerClass', 'FILE ERROR')
+                head = _translate('HandlerClass', 'File Error')
                 msg0 = _translate('HandlerClass', 'does not exist')
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} {}\n'.format(head, file, msg0))
 
@@ -2613,7 +2621,7 @@ class HandlerClass:
             if 'coordinates' in kinematics:
                 self.coordinates = kinematics.split('coordinates')[1].lower()
         else:
-            head = _translate('HandlerClass', 'INI FILE ERROR')
+            head = _translate('HandlerClass', 'INI File Error')
             msg0  = _translate('HandlerClass', 'Error in [KINS]KINEMATICS in the ini file')
             msg1 = _translate('HandlerClass', 'reverting to default coordinates of xyz')
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
@@ -2775,6 +2783,7 @@ class HandlerClass:
         msg.setIcon(icon)
         msg.setWindowTitle(title)
         msg.setText(error)
+        msg.setWindowFlag(Qt.Popup)
         msg.exec_()
         self.dialogError = False
         return msg
@@ -2790,6 +2799,7 @@ class HandlerClass:
         msg.setIcon(icon)
         msg.setWindowTitle(title)
         msg.setText(error)
+        msg.setWindowFlag(Qt.WindowStaysOnTopHint) if 'shutdown' in error else msg.setWindowFlag(Qt.Popup)
         choice = msg.exec_()
         if choice == QMessageBox.Yes:
             return True
@@ -2822,47 +2832,9 @@ class HandlerClass:
         out = input.textValue()
         return valid, out
 
-    def dialog_gcode(self, title, icon, text):
-        self.dlg = QDialog()
-        scroll = QScrollArea(self.dlg)
-        widget = QWidget()
-        vbox = QVBoxLayout()
-        label = QLabel()
-        vbox.addWidget(label)
-        widget.setLayout(vbox)
-        btn = QPushButton('OK', self.dlg)
-        self.dlg.setWindowTitle(title)
-        self.dlg.setWindowIcon(QIcon(self.dlg.style().standardIcon(icon)))
-        self.dlg.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.dlg.setModal(False)
-        self.dlg.setFixedWidth(600)
-        self.dlg.setFixedHeight(310)
-        self.dlg.setStyleSheet(' \
-                          QWidget {{ color: {0}; background: {1} }} \
-                          QScrollArea {{ color: {0}; background: {1}; border: 1px solid {0}; border-radius: 4px; padding: 4px }} \
-                          QPushButton {{ border: 2px solid {0}; border-radius: 4px; \
-                                         font: 12pt; width: 60px; height: 40px }} \
-                          QPushButton:pressed {{ border: 1px solid {0} }} \
-                          QScrollBar:vertical {{background: {2}; border: 0px; border-radius: 4px; margin: 0px; width: 20px }} \
-                          QScrollBar::handle:vertical {{ background: {0}; border: 2px solid {0}; border-radius: 4px; margin: 2px; min-height: 40px }} \
-                          QScrollBar::add-line:vertical {{ height: 0px }} \
-                          QScrollBar::sub-line:vertical {{ height: 0px }}'.format(self.foreColor, self.backColor, self.back1Color))
-        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        scroll.setWidgetResizable(True)
-        scroll.setWidget(widget)
-        scroll.setGeometry(5, 5, 590, 250)
-        btn.move(270,260)
-        btn.clicked.connect(self.dlg_ok_clicked)
-        label.setText(text)
-        self.dlg.exec()
-
-    def dlg_ok_clicked(self):
-        self.dlg.accept()
-
     def dialog_run_from_line(self):
         rFl = QDialog(self.w)
-        rFl.setWindowTitle(_translate('HandlerClass', 'RUN FROM LINE'))
+        rFl.setWindowTitle(_translate('HandlerClass', 'Run From Line'))
         lbl1 = QLabel(_translate('HandlerClass', 'USE LEADIN:'))
         lbl2 = QLabel(_translate('HandlerClass', 'LEADIN LENGTH:'))
         lbl3 = QLabel(_translate('HandlerClass', 'LEADIN ANGLE:'))
@@ -3209,7 +3181,7 @@ class HandlerClass:
         except Exception as err:
             self.halPulsePins[halpin][3] = 0
             bNum = self.halPulsePins[halpin][4]
-            head = _translate('HandlerClass', 'HAL PIN ERROR')
+            head = _translate('HandlerClass', 'HAL Pin Error')
             msg0 = _translate('HandlerClass', 'Invalid code for user button')
             msg1 = _translate('HandlerClass', 'Failed to pulse HAL pin')
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n"{}" {}\n'.format(head, msg0, bNum, msg1, halpin, err))
@@ -3245,7 +3217,7 @@ class HandlerClass:
         self.single_cut_request = False
         self.oldFile = None
         singleCodes = ['change-consumables', 'cut-type', 'framing', 'manual-cut', 'offsets-view', 'ohmic-test', 'probe-test', 'single-cut', 'torch-pulse']
-        head = _translate('HandlerClass', 'USER BUTTON ERROR')
+        head = _translate('HandlerClass', 'User Button Error')
         for bNum in range(1,21):
             self.w['button_{}'.format(str(bNum))].setEnabled(False)
             bName = self.PREFS.getpref('{} Name'.format(bNum), '', str, 'BUTTONS')
@@ -3377,13 +3349,13 @@ class HandlerClass:
             elif 'load' in bCode:
                 self.idleOnList.append('button_{}'.format(str(bNum)))
             elif 'toggle-halpin' in bCode:
-                head = _translate('HandlerClass', 'HAL PIN ERROR')
+                head = _translate('HandlerClass', 'HAL Pin Error')
                 if len(bCode.split()) == 3 and 'runcritical' in bCode.lower():
                     critical = True
                 elif len(bCode.split()) == 2:
                     critical = False
                 else:
-                    head = _translate('HandlerClass', 'USER BUTTON ERROR')
+                    head = _translate('HandlerClass', 'User Button Error')
                     msg1 = _translate('HandlerClass', 'Check button code for invalid arguments')
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
                     continue
@@ -3420,14 +3392,14 @@ class HandlerClass:
                             code, halpin = bCode.lower().strip().split()
                             delay = '1.0'
                         except:
-                            head = _translate('HandlerClass', 'USER BUTTON ERROR')
+                            head = _translate('HandlerClass', 'User Button Error')
                             msg1 = _translate('HandlerClass', 'Check button code for invalid arguments')
                             code = halpin = delay = ''
                             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
                             continue
                     excludedHalPins = ('plasmac.torch-pulse-start', 'plasmac.ohmic-test', \
                                     'plasmac.probe-test', 'plasmac.consumable-change')
-                    head = _translate('HandlerClass', 'HAL PIN ERROR')
+                    head = _translate('HandlerClass', 'HAL Pin Error')
                     if halpin in excludedHalPins:
                         msg1 = _translate('HandlerClass', 'HAL pin')
                         msg2 = _translate('HandlerClass', 'must be pulsed')
@@ -3447,12 +3419,12 @@ class HandlerClass:
                     try:
                         self.halPulsePins[halpin] = ['button_{}'.format(str(bNum)), float(delay), bLabel, 0.0, bNum]
                     except:
-                        head = _translate('HandlerClass', 'USER BUTTON ERROR')
+                        head = _translate('HandlerClass', 'User Button Error')
                         msg1 = _translate('HandlerClass', 'Check button code for invalid seconds argument')
                         STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
                         continue
                 else:
-                    head = _translate('HandlerClass', 'USER BUTTON ERROR')
+                    head = _translate('HandlerClass', 'User Button Error')
                     msg1 = _translate('HandlerClass', 'Check button code for invalid arguments')
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
                     continue
@@ -3472,14 +3444,14 @@ class HandlerClass:
                         cmd = command.lstrip('%').lstrip(' ').split(' ', 1)[0]
                         reply = Popen('which {}'.format(cmd), stdout=PIPE, stderr=PIPE, shell=True).communicate()[0]
                         if not reply:
-                            head = _translate('HandlerClass', 'EXTERNAL CODE ERROR')
+                            head = _translate('HandlerClass', 'External Code Error')
                             msg1 = _translate('HandlerClass', 'External command')
                             msg2 = _translate('HandlerClass', 'does not exist')
                             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}" {}\n'.format(head, msg0, bNum, msg1, cmd, msg2))
                         else:
                             self.estopOnList.append('button_{}'.format(str(bNum)))
                     else:
-                        head = _translate('HandlerClass', 'CODE ERROR')
+                        head = _translate('HandlerClass', 'Code Error')
                         msg1 = self.w['button_{}'.format(str(bNum))].text().replace('\n',' ')
                         STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}: "{}"\n'.format(head, msg0, bNum, msg1, command))
                         if 'button_{}'.format(str(bNum)) in self.idleHomedList:
@@ -3526,7 +3498,7 @@ class HandlerClass:
                 else:
                     self.invert_pin_state(halpin)
             except Exception as err:
-                head = _translate('HandlerClass', 'HAL PIN ERROR')
+                head = _translate('HandlerClass', 'HAL Pin Error')
                 msg0 = _translate('HandlerClass', 'Invalid code for user button')
                 msg1 = _translate('HandlerClass', 'Failed to toggle HAL pin')
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n"{}" {}\n'.format(head, msg0, bNum, msg1, halpin, err))
@@ -3537,7 +3509,7 @@ class HandlerClass:
                 if command != 'toggle-laser':
                     self.user_button_command(command)
         elif 'pulse-halpin' in commands.lower():
-            head = _translate('HandlerClass', 'HAL PIN ERROR')
+            head = _translate('HandlerClass', 'HAL Pin Error')
             msg1 = _translate('HandlerClass', 'Failed to pulse HAL pin')
             try:
                 code, halpin, delay = commands.lower().strip().split()
@@ -3575,10 +3547,7 @@ class HandlerClass:
             else:
                 self.w.preview_stack.setCurrentIndex(4)
                 self.button_active(self.ovButton)
-                buttonList = []
-                for button in self.idleHomedList:
-                    if button != self.ovButton:
-                        buttonList.append(button)
+                buttonList = [button for button in self.idleHomedList if button != self.ovButton]
                 self.set_buttons_state([self.idleList, self.idleOnList, buttonList], False)
                 self.w.run.setEnabled(False)
         elif 'latest-file' in commands.lower():
@@ -3592,7 +3561,7 @@ class HandlerClass:
                 self.overlayProgress.setValue(0)
                 ACTION.OPEN_PROGRAM(latest)
             except:
-                head = _translate('HandlerClass', 'FILE ERROR')
+                head = _translate('HandlerClass', 'File Error')
                 msg0 = _translate('HandlerClass', 'Cannot open latest file from user button')
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n'.format(head, msg0, bNum))
         else:
@@ -3634,7 +3603,7 @@ class HandlerClass:
             command = command.lstrip('%').lstrip() + '&'
             msg = Popen(command, stdout=PIPE, stderr=PIPE, shell=True)
         else:
-            head = _translate('HandlerClass', 'CODE ERROR')
+            head = _translate('HandlerClass', 'Code Error')
             msg0 = _translate('HandlerClass', 'Invalid code for user button')
             msg1 = self.w['button_{}'.format(str(bNum))].text().replace('\n',' ')
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}: "{}"\n'.format(head, msg0, bNum, msg1, command))
@@ -3738,7 +3707,7 @@ class HandlerClass:
         else:
             self.consumable_change_setup()
             if self.ccFeed == 'None' or self.ccFeed < 1:
-                head = _translate('HandlerClass', 'USER BUTTON ERROR')
+                head = _translate('HandlerClass', 'User Button Error')
                 msg0 = _translate('HandlerClass', 'Invalid feed rate for consumable change')
                 msg1 = _translate('HandlerClass', 'check .prefs file settings')
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n{} Code\n'.format(head, msg0, msg1, str(button)))
@@ -3828,7 +3797,10 @@ class HandlerClass:
     def torch_pulse_states(self, state):
         self.set_tab_jog_states(state)
         if not STATUS.is_auto_paused():
-            self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], state)
+            if STATUS.is_on_and_idle() and STATUS.is_all_homed():
+                self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], state)
+            else:
+                self.set_buttons_state([self.idleList, self.idleOnList], state)
             if self.w.gcode_display.lines() > 1:
                 self.w.run.setEnabled(state)
         if state:
@@ -3843,14 +3815,14 @@ class HandlerClass:
 
     def ohmic_test(self, state):
         hal.set_p('plasmac.ohmic-test', '{}'.format(str(state)))
-        buttonList = []
-        for button in self.idleOnList:
-            if button != self.otButton:
-                buttonList.append(button)
+        buttonList = [button for button in self.idleOnList if button != self.otButton]
         if not STATUS.is_auto_paused():
+            if STATUS.is_on_and_idle() and STATUS.is_all_homed():
+                self.set_buttons_state([self.idleList, self.idleHomedList, buttonList], not state)
+            else:
+                self.set_buttons_state([self.idleList, buttonList], not state)
             if self.w.gcode_display.lines() > 1:
                 self.w.run.setEnabled(not state)
-            self.set_buttons_state([self.idleList, buttonList, self.idleHomedList], not state)
 
     def ext_frame_job(self, state):
         if self.frButton and self.w[self.frButton].isEnabled():
@@ -3904,7 +3876,7 @@ class HandlerClass:
     def single_cut(self):
         self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], False)
         sC = QDialog(self.w)
-        sC.setWindowTitle(_translate('HandlerClass', 'SINGLE CUT'))
+        sC.setWindowTitle(_translate('HandlerClass', 'Single Cut'))
         l1 = QLabel(_translate('HandlerClass', 'X LENGTH:'))
         xLength = QDoubleSpinBox()
         xLength.setAlignment(Qt.AlignRight)
@@ -3998,7 +3970,7 @@ class HandlerClass:
 #########################################################################################################################
     def vkb_check(self):
         if self.w.chk_soft_keyboard.isChecked() and not os.path.isfile('/usr/bin/onboard'):
-            head = _translate('HandlerClass', 'VIRTUAL KB ERROR')
+            head = _translate('HandlerClass', 'Virtual Keyboard Error')
             msg0  = _translate('HandlerClass', '"onboard" virtual keyboard is not installed')
             msg1 = _translate('HandlerClass', 'some keyboard functions are not available')
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
@@ -4273,7 +4245,7 @@ class HandlerClass:
         self.w.materials_box.setCurrentIndex(self.materialList.index(halpin))
 
     def material_change_timeout_pin_changed(self, halpin):
-        head = _translate('HandlerClass', 'MATERIALS ERROR')
+        head = _translate('HandlerClass', 'Materials Error')
         if halpin:
             # should we stop or pause the program if a timeout occurs???
             material = int(self.w.materials_box.currentText().split(': ', 1)[0])
@@ -4460,7 +4432,7 @@ class HandlerClass:
 
     def load_material_file(self):
         self.getMaterialBusy = 1
-        head = _translate('HandlerClass', 'MATERIALS ERROR')
+        head = _translate('HandlerClass', 'Materials Error')
         with open(self.materialFile, 'r') as f_in:
             firstpass = True
             material_error = False
@@ -4595,7 +4567,7 @@ class HandlerClass:
                     '#GAS_PRESSURE       = \n'\
                     '#CUT_MODE           = \n'\
                     '\n')
-            head = _translate('HandlerClass', 'MATERIALS SETUP')
+            head = _translate('HandlerClass', 'Materials Setup')
             msg0 = _translate('HandlerClass', 'Creating New Material File')
             STATUS.emit('error', linuxcnc.OPERATOR_DISPLAY, '{}:\n{}: {}\n'.format(head, msg0, self.materialFile))
 
@@ -4606,7 +4578,7 @@ class HandlerClass:
             if self.autoChange:
                 self.materialChangePin.set(-1)
                 self.materialChangeNumberPin.set(int(self.w.materials_box.currentText().split(': ', 1)[0]))
-                head = _translate('HandlerClass', 'MATERIALS ERROR')
+                head = _translate('HandlerClass', 'Materials Error')
                 msg0 = _translate('HandlerClass', 'Material #')
                 msg1 = _translate('HandlerClass', 'not in material list')
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{} {}\n'.format(head, msg0, int(material),msg1))
@@ -4672,7 +4644,7 @@ class HandlerClass:
         xPos = STATUS.get_position()[0][0] - self.laserOffsetX
         yPos = STATUS.get_position()[0][1] - self.laserOffsetY
         if xPos < self.xMin or xPos > self.xMax or yPos < self.yMin or yPos > self.yMax:
-            head = _translate('HandlerClass', 'LASER ERROR')
+            head = _translate('HandlerClass', 'Laser Error')
             msg0 = _translate('HandlerClass', 'Laser is outside the machine boundary')
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
             return
@@ -4690,7 +4662,7 @@ class HandlerClass:
             xPos = STATUS.get_position()[0][0] + self.laserOffsetX
             yPos = STATUS.get_position()[0][1] + self.laserOffsetY
             if xPos < self.xMin or xPos > self.xMax or yPos < self.yMin or yPos > self.yMax:
-                head = _translate('HandlerClass', 'LASER ERROR')
+                head = _translate('HandlerClass', 'Laser Error')
                 msg0 = _translate('HandlerClass', 'Torch cannot move outside the machine boundary')
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
                 return
@@ -4762,7 +4734,7 @@ class HandlerClass:
         xPos = STATUS.get_position()[0][0] - self.camOffsetX
         yPos = STATUS.get_position()[0][1] - self.camOffsetY
         if xPos < self.xMin or xPos > self.xMax or yPos < self.yMin or yPos > self.yMax:
-            head = _translate('HandlerClass', 'CAMERA ERROR')
+            head = _translate('HandlerClass', 'Camera Error')
             msg0 = _translate('HandlerClass', 'Camera is outside the machine boundary')
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
             return
@@ -4904,7 +4876,7 @@ class HandlerClass:
         self.w.pmx485_enable.setChecked(True)
 
     def pmx485_load(self, port):
-        head = _translate('HandlerClass', 'COMMS ERROR')
+        head = _translate('HandlerClass', 'Comms Error')
         msg0 = _translate('HandlerClass', 'PMX485 component is not able to be loaded,')
         msg1 = _translate('HandlerClass', 'Powermax communications are not available')
         err = '{}:\n{}\n{}\n'.format(head, msg0, msg1)
@@ -4948,7 +4920,7 @@ class HandlerClass:
                 self.pmx485_setup()
             # ensure valid parameters before trying to connect
             if self.w.cut_mode.value() == 0 or self.w.cut_amps.value() == 0:
-                head = _translate('HandlerClass', 'MATERIALS ERROR')
+                head = _translate('HandlerClass', 'Materials Error')
                 msg0 = _translate('HandlerClass', 'Invalid Cut Mode or Cut Amps,')
                 msg1 = _translate('HandlerClass', 'cannot connect to Powermax')
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
@@ -5037,7 +5009,7 @@ class HandlerClass:
         if self.pmx485Connected:
             faultRaw = '{:04.0f}'.format(fault)
             self.pmx485FaultCode = '{}-{}-{}'.format(faultRaw[0], faultRaw[1:3], faultRaw[3])
-            head = _translate('HandlerClass', 'POWERMAX ERROR')
+            head = _translate('HandlerClass', 'Powermax Error')
             code = _translate('HandlerClass', 'Fault Code')
             text = _translate('HandlerClass', 'Powermax error')
             if faultRaw == '0000':

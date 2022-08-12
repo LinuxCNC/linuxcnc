@@ -695,6 +695,7 @@ else
     EMC2_HOME=${prefix}
     EMC2_BIN_DIR=${prefix}/bin
     EMC2_LATENCY_SCRIPT=$EMC2_BIN_DIR/latency-test
+    EMC2_LATENCY_HISTOGRAM_SCRIPT=$EMC2_BIN_DIR/latency-histogram
     EMC2_SCRIPT=$EMC2_BIN_DIR/linuxcnc
     EMC2_SUFFIX=""
     EMC2_ICON=linuxcncicon
@@ -736,6 +737,7 @@ AC_SUBST([REALTIME])
 AC_SUBST([EMC2_IMAGE_DIR])
 AC_SUBST([EMC2_SCRIPT])
 AC_SUBST([EMC2_LATENCY_SCRIPT])
+AC_SUBST([EMC2_LATENCY_HISTOGRAM_SCRIPT])
 AC_SUBST([EMC2_SUFFIX])
 AC_SUBST([EMC2_ICON])
 AC_SUBST([HALLIB_DIR])
@@ -1702,6 +1704,8 @@ AC_CONFIG_FILES(../lib/python/nf.py)
 AC_CONFIG_FILES([../scripts/linuxcncmkdesktop], [chmod +x ../scripts/linuxcncmkdesktop])
 AC_CONFIG_FILES(../share/applications/linuxcnc-latency.desktop)
 AC_CONFIG_FILES(../share/applications/linuxcnc-latency-histogram.desktop)
+AC_CONFIG_FILES(../share/applications/linuxcnc-pncconf.desktop)
+AC_CONFIG_FILES(../share/applications/linuxcnc-stepconf.desktop)
 AC_CONFIG_FILES(../share/applications/linuxcnc.desktop)
 AC_CONFIG_FILES(../share/desktop-directories/linuxcnc-cnc.directory)
 AC_CONFIG_FILES(../share/desktop-directories/linuxcnc-ref.directory)

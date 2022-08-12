@@ -65,7 +65,7 @@ fi
 EXTRAS=extras
 
 if [ -n "$ENABLE_BUILD_DOCUMENTATION" ]; then
-    DOC_DEPENDS="asciidoc (>= 8.5),\n    dblatex (>= 0.2.12),\n    docbook-xsl,\n    dvipng,\n    ghostscript,\n    graphviz,\n    groff,\n    imagemagick,\n    inkscape,\n    python3-lxml,\n    source-highlight,\n    w3c-linkchecker,\n    xsltproc,\n    texlive-extra-utils,\n    texlive-font-utils,\n    texlive-fonts-recommended,\n    texlive-lang-cyrillic,\n    texlive-lang-french,\n    texlive-lang-german,\n    texlive-lang-polish,\n    texlive-lang-spanish,\n    texlive-latex-recommended,\n    asciidoc-dblatex"
+    DOC_DEPENDS="asciidoc (>= 8.5),\n    dblatex (>= 0.2.12),\n    docbook-xsl,\n    dvipng,\n    ghostscript,\n    graphviz,\n    groff,\n    imagemagick,\n    inkscape,\n    python3-lxml,\n    source-highlight,\n    w3c-linkchecker,\n    xsltproc,\n    texlive-extra-utils,\n    texlive-font-utils,\n    texlive-fonts-recommended,\n    texlive-lang-cyrillic,\n    texlive-lang-european,\n    texlive-lang-french,\n    texlive-lang-german,\n    texlive-lang-polish,\n    texlive-lang-spanish,\n    texlive-latex-recommended,\n    asciidoc-dblatex"
 
     case $DISTRIB_NAME in
 	Debian-9)

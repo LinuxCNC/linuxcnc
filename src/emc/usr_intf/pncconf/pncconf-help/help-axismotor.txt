@@ -84,7 +84,7 @@ Dac Max Output:
 
 Use BLDC Motor Commutation Control:
     Select this to use and configure the BLDC component.
-    You would use this with special daugther boards or odd situations.
+    You would use this with special daughter boards or odd situations.
     The BLDC component can be used to control brushless motors
     directly and for HALL sensor conversions. See the MAN pages.
     For HALL conversion one must select the HALL/GRAY signals

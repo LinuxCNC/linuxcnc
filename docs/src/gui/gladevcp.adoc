@@ -289,9 +289,9 @@ To just activate a container, execute the HAL command +setp gladevcp.<container-
 === Preparing the HAL command file
 
 The suggested way of linking HAL pins in a GladeVCP panel is to
-collect them in a separate file with extension +.hal+. This file is
+collect them in a separate file with extension '.hal'. This file is
 passed via the +POSTGUI_HALFILE=+ option in the +HAL+ section of your
-ini file.
+INI file.
 
 CAUTION: Do not add the GladeVCP HAL command file to the Axis +[HAL]HALFILE=+ ini
 section, this will not have the desired effect - see the following sections.
@@ -299,7 +299,7 @@ section, this will not have the desired effect - see the following sections.
 === Integrating into Axis, like PyVCP
 
 Place the GladeVCP panel in the righthand side panel by specifying the
-following in the ini file:
+following in the INI file:
 
 [source,{ini}]
 ----
@@ -344,7 +344,7 @@ halcmd loadusr -Wn example gladevcp -c example -x {XID} -u ./hitcounter.py ./man
 
 [NOTE]
 The file specifiers like ./hitcounter.py, ./manual-example.ui, etc. indicate that the files
-are located in the same directory as the ini file.  You might have to copy them to you
+are located in the same directory as the INI file.  You might have to copy them to you
 directory (alternatively, specify a correct absolute or relative path to the file(s))
 
 [NOTE]
@@ -354,10 +354,10 @@ might not be needed in your setup. The relative path specifier ../../nc_files/gl
 is constructed to work with directories copied by the configuration picker and when
 using a run-in-place setup.
 
-[[gladevcp:embeding-tab]]
-=== Embeding as a Tab
+[[gladevcp:embedding-tab]]
+=== Embedding as a Tab
 
-To do so, edit your .ini file and add to the DISPLAY and HAL sections of ini
+To do so, edit your .ini file and add to the DISPLAY and HAL sections of INI
 file as follows:
 
 [source,{ini}]
@@ -398,7 +398,7 @@ both the +GLADEVCP=+ and +EMBED_TAB_COMMAND=+ statements.
 
 === Integrating into Touchy
 
-To do add a GladeVCP tab to 'Touchy', edit your .ini file as follows:
+To do add a GladeVCP tab to 'Touchy', edit your INI file as follows:
 
 [source,{ini}]
 ----
@@ -414,7 +414,7 @@ SUBROUTINE_PATH = ../../nc_files/gladevcp_lib
 
 [NOTE]
 The file specifiers like ./hitcounter.py, ./manual-example.ui, etc. indicate that the files
-are located in the same directory as the ini file.  You might have to copy them to you
+are located in the same directory as the INI file.  You might have to copy them to you
 directory (alternatively, specify a correct absolute or relative path to the file(s))
 
 Note the following differences to the Axis tab setup:
@@ -422,7 +422,7 @@ Note the following differences to the Axis tab setup:
 - The HAL command file is slightly modified since 'Touchy' does not
   use the 'halui' components so its signals are not available and some
   shortcuts have been taken.
-- there is no 'POSTGUI_HALFILE=' ini option, but passing the HAL command file on the 'EMBED_TAB_COMMAND=' line is ok
+- there is no 'POSTGUI_HALFILE=' INI option, but passing the HAL command file on the 'EMBED_TAB_COMMAND=' line is ok
 - the 'halcmd loaduser -Wn ...' incantation is not needed.
 
 == GladeVCP command line options
@@ -450,7 +450,7 @@ Options:
     position
 
 -H FILE::
-    Execute hal statements from FILE with halcmd after the
+    Execute HAL statements from FILE with halcmd after the
     component is set up and ready
 
 -m MAXIMUM::
@@ -493,7 +493,7 @@ The introduction of gladeVCP brought the following issue:
 - however gladeVCP is also a HAL component, and creates HAL pins of its own.
 - as a consequence, all HAL plumbing involving gladeVCP HAL pins as source or destination must be run *after* the GUI has been set up
 
-This is the purpose of the `POSTGUI_HALFILE`. This ini option is
+This is the purpose of the `POSTGUI_HALFILE`. This INI option is
 inspected by the GUIs. If a GUI detects this option, it runs the
 corresponding HAl file after any embedded gladVCP panel is set
 up. However, it does not check whether a gladeVCP panel is actually
@@ -504,13 +504,13 @@ command file in `POSTGUI_HALFILE` will be executed too early. Assuming
 gladeVCP pins are referenced herein, this will fail with an error
 message indicating that the gladeVCP HAL component is not available.
 
-So, in case you run gladeVCP from a separate shell window (i.e. not
+So, in case you run gladeVCP from a separate shell window (i.e., not
 started by the GUI in an embedded fashion):
 
-- you cannot rely on the `POSTGUI_HALFILE` ini option causing the HAL
+- You cannot rely on the `POSTGUI_HALFILE` INI option causing the HAL
   commands being run 'at the right point in time', so comment that out
-  in the ini file
-- explicitly pass the HAL command file which refers to gladeVCP pins
+  in the INI file.
+- Explicitly pass the HAL command file which refers to gladeVCP pins
   to gladeVCP with the '-H <halcmd file>' option (see previous section).
 
 == HAL Widget reference
@@ -545,7 +545,7 @@ label your panel.
 - Widgets for file handling: <<gladevcp:iconview,IconView File Selection>>
 - Widgets for display/edit of all axes offsets: <<gladevcp:offsetpage,OffsetPage >>
 - Widgets for display/edit of all tool offsets: <<gladevcp:tooledit,Tooloffset editor >>
-- Widget for Gcode display and edit: <<gladevcp:hal-sourceview,HAL_Sourceview >>
+- Widget for G-code display and edit: <<gladevcp:hal-sourceview,HAL_Sourceview >>
 - Widget for MDI input and history display: <<gladevcp:mdi-history,MDI History >>
 
 === Widget and HAL pin naming
@@ -581,7 +581,7 @@ hal_pin::
   single pin type
 
 hal_pin_s, hal_pin_f::
-  the S32 and float pins of the 'HAL_Spinbutton' and
+  the s32 and float pins of the 'HAL_Spinbutton' and
   'HAL_ComboBox' widgets - note these widgets do not have a
   'hal_pin' attribute!
 
@@ -609,7 +609,7 @@ Note this defeats the purpose of an input pin in the first place - it
 should be linked to, and react to signals generated by other HAL
 components. While there is currently no write protection on writing to
 input pins in HAL Python, this doesn't make sense. You might use setp
-pinname value in the associated halfile for testing though.
+pinname value in the associated HAL file for testing though.
 
 It is perfectly OK to set an output HAL pin's value with
 +halcomp[pinname] = value+ provided this HAL pin is not associated with a
@@ -686,7 +686,7 @@ respectively.
 <widgetname>::
   out FLOAT pin
 <widgetname>-s::
-  out S32 pin
+  out s32 pin
 
 To make a scale useful in Glade, add an 'Adjustment'
 (General → Adjustment → New or existing adjustment) and edit the
@@ -705,7 +705,7 @@ HAL SpinButton is derived from GtkSpinButton and holds two pins:
 <widgetname>-f::
   out FLOAT pin
 <widgetname>-s::
-  out S32 pin
+  out s32 pin
 
 To be useful, Spinbuttons need an adjustment value like scales,
 see above.
@@ -730,10 +730,10 @@ By double clicking the left or right button the scale factor can be increased or
 
 ==== Pins
 
-`hal_dial` exports it's count value as hal pins:
+`hal_dial` exports it's count value as HAL pins:
 
 <widgetname>::
-  out S32 pin
+  out s32 pin
 <widgetname>-scaled::
   out FLOAT pin
 <widgetname>-delta-scaled::
@@ -759,7 +759,7 @@ center_color::
 count_type_shown::
   There are three counts available 0) Raw CPR counts 1) Scaled counts 2) Delta scaled counts. +
   default = 1
-  * count is based on the CPR selected - it will count positive and negative. It is available as a S32 pin. +
+  * count is based on the CPR selected - it will count positive and negative. It is available as a s32 pin. +
   * Scaled-count is CPR count times the scale - it can be positive and negative. +
     If you change the scale the output will immediately reflect the change. It is available as a FLOAT pin. +
   * Delta-scaled-count is cpr count CHANGE, times scale. +
@@ -842,10 +842,10 @@ It is recommended to use the mouse wheel, and only for very rough movements the 
 
 ==== Pins
 
-`jogwheel` exports it's count value as hal pin:
+`jogwheel` exports it's count value as HAL pin:
 
 <widgetname>-s::
-   out S32 pin
+   out s32 pin
 
 ==== Properties
 
@@ -897,7 +897,7 @@ as well as the time between two changes can be set using the widget properties.
 
 ==== Pins
 
-`speedcontrol` offers some hal pin:
+`speedcontrol` offers some HAL pin:
 
 <widgetname>-value::
   out float pin +
@@ -1018,7 +1018,7 @@ image::images/SpeedControl.png[align="center"]
 pin value in a user-defined format.
 
 label_pin_type::
-  The pin's HAL type  (0:S32, 1:float, 2:U32), see also the tooltip
+  The pin's HAL type  (0:s32, 1:float, 2:u32), see also the tooltip
   on 'General→HAL pin type '(note this is different from PyVCP which has
   three label widgets, one for each type).
 text_template::
@@ -1174,7 +1174,7 @@ value from a dropdown list.
 <widgetname>-f::
   Current value, type FLOAT
 <widgetname>-s::
-  Current value, type S32
+  Current value, type s32
 
 ==== Properties
 
@@ -1182,7 +1182,7 @@ value from a dropdown list.
 
 column::
   The column index. +
-  Type S32. +
+  Type s32. +
   Valid range from -1..100. +
   Defaults value -1.
 
@@ -1211,7 +1211,7 @@ representing float values.
 
 ==== Pins
 
-`HAL_Bar` and `HAL_VBar` each have one input FLOAT hal pin.
+`HAL_Bar` and `HAL_VBar` each have one input FLOAT HAL pin.
 
 ==== Properties
 
@@ -1277,7 +1277,7 @@ image::images/vscale.png[align="center"]
 
 ==== Pins
 
-`HAL_Meter` has one input FLOAT hal pin.
+`HAL_Meter` has one input FLOAT HAL pin.
 
 ==== Properties
 
@@ -1383,7 +1383,7 @@ grid size::
   Defaults to 0
 use default mouse controls::
   This disables the default mouse controls. +
-  This is most useful when using a touchscreen as the default controls do not work well. You can programatically
+  This is most useful when using a touchscreen as the default controls do not work well. You can programmatically
   add controls using python and the handler file technique. +
   Default = true.
 view::
@@ -1601,7 +1601,7 @@ toggle_readout::
 cycle_time::
   The time the DRO waits between two polls. +
   this setting should only be changed if you use more than 5 DRO at the
-  same time, i.e. on a 6 axis config, to avoid, that the DRO slows down
+  same time, i.e., on a 6 axis config, to avoid, that the DRO slows down
   the main application too much. +
   The value must be an integer in the range of 100 to 1000. FIXME unit=ms ? +
   Default is 150.
@@ -1625,7 +1625,7 @@ There are several python methods to control the widget:
   `state` = boolean (True or False) +
   Default is True
 * `[widget name].set_to_diameter(state)` +
-  If True the DRO will show the diameter not the radius, i.e. the axis
+  If True the DRO will show the diameter not the radius, i.e., the axis
   value multiplied by 2 (specially needed for lathes). +
   `state` = boolean (True or False) +
   Default is False
@@ -2448,7 +2448,7 @@ See the <<gladevcp:adding-hal-pins,Adding HAL pins>> section below for
 details.
 
 HAL widgets come with a pre-defined signal called 'hal-pin-changed'. +
-See the <<gladevcp:hal-pin-changed-signal,Hal Widgets section>> for details.
+See the <<gladevcp:hal-pin-changed-signal,HAL Widgets section>> for details.
 
 === Programming model
 
@@ -2615,7 +2615,7 @@ method.
 If you want to have a callback to execute at program start after it is
 safe to access HAL pins, then a connect a handler to the realize signal
 of the top level window1 (which might be its only real purpose). At
-this point GladeVCP is done with all setup tasks, the halfile has been
+this point GladeVCP is done with all setup tasks, the HAL file has been
 run, and GladeVCP is about to enter the Gtk main loop.
 
 === Multiple callbacks with the same name
@@ -2669,19 +2669,19 @@ GladeVCP has an easy-to-use mechanism to save and restore the state of
 HAL widgets, and program variables (in fact any instance attribute of
 type int, float, bool or string).
 
-This mechanism uses the popular '.ini' file format to save and reload
+This mechanism uses the popular ini file format to save and reload
 persistent attributes.
 
 .Persistence, program versions and the signature check
 
 Imagine renaming, adding or deleting widgets in Glade:
-an .ini file lying around from a previous program version, or an
+an .INI file lying around from a previous program version, or an
 entirely different user interface, would be not be able to restore the
 state properly since variables and types might have changed.
 
 GladeVCP detects this situation by a signature which depends on all
 object names and types which are saved and to be restored. In the case
-of signature mismatch, a new .ini file with default settings is
+of signature mismatch, a new INI file with default settings is
 generated.
 
 === Using persistent variables
@@ -2715,7 +2715,7 @@ def __init__(self, halcomp,builder,useropts):
     }
 ----
 
-Then associate an .ini file with this descriptor:
+Then associate an INI file with this descriptor:
 
 [source,python]
 ----
@@ -2736,7 +2736,7 @@ self.c = "a string"
 ----
 
 Note that types are saved and preserved on restore. This example
-assumes that the ini file didn't exist or had the default values from
+assumes that the INI file didn't exist or had the default values from
 self.defaults.
 
 After this incantation, you can use the following IniFil methods:
@@ -2807,12 +2807,12 @@ def on_unix_signal(self,signum,stack_frame):
     self.ini.save_state(self)
 ----
 
-=== Hand-editing .ini files
+=== Hand-editing INI (.ini) files
 
 You can do that, but note that the values in self.defaults override
 your edits if there is a syntax or type error in your edit. The error
 is detected, a console message will hint about that happened, and the
-bad inifile will be renamed to have the .BAD suffix. Subsequent bad ini
+bad inifile will be renamed to have the .BAD suffix. Subsequent bad INI
 files overwrite earlier .BAD files.
 
 [[gladevcp:adding-hal-pins]]
@@ -2870,7 +2870,7 @@ glib.timeout_add_seconds(1, self._on_timer_tick)
 
 With glade, widget properties are typically set fixed while editing.
 You can, however, set widget properties at runtime, for instance from
-ini file values, which  would typically be done in the handler
+INI file values, which  would typically be done in the handler
 initialization code. Setting properties from HAL pin values is
 possible, too.
 
@@ -2894,7 +2894,7 @@ class HandlerClass:
     def __init__(self, halcomp,builder,useropts):
   self.builder = builder
 
-        # hal pin with change callback.
+        # HAL pin with change callback.
         # When the pin's value changes the callback is executed.
         self.max_value = hal_glib.GPin(halcomp.newpin('max-value',  hal.HAL_FLOAT, hal.HAL_IN))
         self.max_value.connect('value-changed', self._on_max_value_change)

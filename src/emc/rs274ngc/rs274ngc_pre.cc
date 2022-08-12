@@ -2652,7 +2652,7 @@ int Interp::on_abort(int reason, const char *message)
 // spun out from interp_o_word so we can use it to test ngc file accessibility during
 // config file parsing (REMAP... ngc=<basename>)
 // Will expand ~ to user's home path
-// searchs this sequence until it finds a match:
+// searches this sequence until it finds a match:
 // 1) checks if path is already the full path
 // 2) tries adding the INI defined program prefix to path
 // 3) tries adding the INI defined subroutine prefix to path
