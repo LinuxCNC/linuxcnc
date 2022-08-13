@@ -390,21 +390,25 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             # system shutdown
             HANDLER = self.QTVCP_INSTANCE_.handler_instance
             if answer == QtWidgets.QMessageBox.DestructiveRole:
+                self.QTVCP_INSTANCE_.settings.sync()
+                self.QTVCP_INSTANCE_.shutdown()
+                self.QTVCP_INSTANCE_.panel_.shutdown()
+                STATUS.shutdown()
                 if 'system_shutdown_request__' in dir(HANDLER):
                     HANDLER.system_shutdown_request__()
                 else:
                     from qtvcp.core import Action
                     ACTION = Action()
                     ACTION.SHUT_SYSTEM_DOWN_PROMPT()
-                if '_hal_cleanup' in dir(HANDLER):
-                    HANDLER._hal_cleanup()
                 event.accept()
             # close linuxcnc
             elif answer:
                 if self.PREFS_ and self.play_sounds and self.shutdown_play_sound:
                     STATUS.emit('play-sound', self.shutdown_exit_sound_type)
-                if '_hal_cleanup' in dir(HANDLER):
-                    HANDLER._hal_cleanup()
+                self.QTVCP_INSTANCE_.settings.sync()
+                self.QTVCP_INSTANCE_.shutdown()
+                self.QTVCP_INSTANCE_.panel_.shutdown()
+                STATUS.shutdown()
                 event.accept()
             # cancel
             elif answer == False:
