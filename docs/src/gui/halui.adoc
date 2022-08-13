@@ -14,11 +14,11 @@
 
 Halui is a HAL based user interface for LinuxCNC, it connects HAL pins to
 NML commands. Most of the functionality (buttons, indicators etc.) that
-is provided by a traditional GUI (Axis, GMoccapy, QtDragon, etc.), is provided by HAL
+is provided by a traditional GUI (AXIS, GMoccapy, QtDragon, etc.), is provided by HAL
 pins in Halui.
 
 The easiest way to add halui is to add the following to the [HAL]
-section of the ini file:
+section of the INI file:
 
 [source,{ini}]
 ----
@@ -27,7 +27,7 @@ HALUI = halui
 ----
 
 An alternate way to invoke it (specially if you generate the configuration with StepConf) is to include the following in your `custom.hal` file. +
-Make sure you use the correct path to your ini file.
+Make sure you use the correct path to your INI file.
 
 [source,{hal}]
 ----
@@ -37,8 +37,8 @@ loadusr halui -ini /path/to/inifile.ini
 == MDI
 
 Sometimes the user wants to add more complicated tasks to be performed
-by the activation of a HAL pin. +
-This is possible by adding MDI commands to the ini file in the [HALUI] section. +
+by the activation of a HAL pin.
+This is possible by adding MDI commands to the INI file in the [HALUI] section.
 Example:
 
 [source,{ini}]
@@ -51,11 +51,11 @@ MDI_COMMAND = o<mysub>call
 ...
 ----
 
-When halui starts it will read the `MDI_COMMAND` fields in the ini and
-export pins from 00 to the number of `MDI_COMMAND` 's found in the ini, up
+When halui starts it will read the `MDI_COMMAND` fields in the INI and
+export pins from 00 to the number of `MDI_COMMAND` 's found in the INI, up
 to a maximum of 64 commands. These pins can be connected like any
-hal pins. A common method is to use buttons provided by virtual
-control panels. Example halfile connections:
+HAL pins. A common method is to use buttons provided by virtual
+control panels. Example HAL file connections:
 
 [source,{hal}]
 ----
@@ -81,7 +81,7 @@ Owner  Type  Dir Value  Name
 ----
 
 When a halui MDI pin is set (pulsed) true, halui will send the MDI
-command defined in the ini. +
+command defined in the INI.
 This will not always succeed depending on the current operating
 mode (e.g., while in AUTO halui can't successfully send MDI commands).
 
@@ -134,7 +134,7 @@ $ man halui
 === Homing
 
 * 'halui.home-all' (bit, in) - pin for requesting all axis to home. This
-  pin will only be there if HOME_SEQUENCE is set in the ini file.
+  pin will only be there if HOME_SEQUENCE is set in the INI file.
 
 === Lube
 
@@ -153,7 +153,7 @@ $ man halui
 === Max Velocity
 
 The maximum linear velocity can be adjusted from 0 to the MAX_VELOCITY
-that is set in the [TRAJ] section of the ini file.
+that is set in the [TRAJ] section of the INI file.
 
 * 'halui.max-velocity.count-enable' (bit, in) - must be true for 'counts' or 'direct-value' to work.
 * 'halui.max-velocity.counts' (s32, in) - counts * scale = MV percentage. Can be used with an encoder or 'direct-value'.
@@ -166,7 +166,7 @@ that is set in the [TRAJ] section of the ini file.
 === MDI
 
 * 'halui.mdi-command-<nn>' (bit, in) - halui will try to send the MDI
-  command defined in the ini. <nn> is a  two  digit number  starting  at 00. +
+  command defined in the INI. <nn> is a  two  digit number  starting  at 00. +
   If the command succeeds then it will place LinuxCNC in the MDI mode and then back to Manual mode. +
   If no [HALUI]MDI_COMMAND variables are set in the  ini  file, no halui.mdi-command-<nn> pins will be
   exported by halui.
@@ -204,16 +204,16 @@ N = joint number (0 ... num_joints-1)
 
 * 'halui.joint.jog-deadband' (float in) - pin for setting jog analog deadband (jog analog inputs smaller/slower than this - in absolute value - are ignored)
 * 'halui.joint.jog-speed' (float in) - pin for setting jog speed for plus/minus jogging.
-* 'halui.joint.N.analog' (float in) - pin for jogging the joint N using  an  float  value  (e.g.  joy-stick).   The value, typically set between 0.0 and ±1.0, is used as a jog-speed multiplier.
-* 'halui.joint.N.increment' (float in) - pin for setting the jog increment for joint N when using  increment-plus/minus
+* 'halui.joint.N.analog' (float in) - pin for jogging the joint N using a float  value  (e.g.  joy-stick).  The value, typically set between 0.0 and ±1.0, is used as a jog-speed multiplier.
+* 'halui.joint.N.increment' (float in) - pin for setting the jog increment for joint N when using increment-plus/minus
 * 'halui.joint.N.increment-minus' (bit in) - a  rising edge will will make joint N jog in the negative direction by the increment amount
-* 'halui.joint.N.increment-plus' (bit in) - a rising edge will will make joint N jog in the positive  direction by the increment amount
-* 'halui.joint.N.minus' (bit in) - pin   for   jogging   joint  N  in  negative  direction at the halui.joint.jog-speed velocity
-* 'halui.joint.N.plus' (bit in) - pin  for  jogging  joint  N  in  positive   direction at the halui.joint.jog-speed velocity
-* 'halui.joint.selected.increment' (float in) - pin  for  setting  the jog increment for the selected joint when using increment-plus/minus
+* 'halui.joint.N.increment-plus' (bit in) - a rising edge will will make joint N jog in the positive direction by the increment amount
+* 'halui.joint.N.minus' (bit in) - pin for jogging  joint N in negative direction at the halui.joint.jog-speed velocity
+* 'halui.joint.N.plus' (bit in) - pin for jogging joint N in positive direction at the halui.joint.jog-speed velocity
+* 'halui.joint.selected.increment' (float in) - pin for setting the jog increment for the selected joint when using increment-plus/minus
 * 'halui.joint.selected.increment-minus' (bit in) - a rising edge will will make the selected joint jog in the negative direction by the increment amount
 * 'halui.joint.selected.increment-plus' (bit in) - a rising edge will will make the selected joint jog in the positive direction by the increment amount
-* 'halui.joint.selected.minus' (bit in) - pin for jogging the selected joint in negative direction at  the halui.joint.jog-speed velocity
+* 'halui.joint.selected.minus' (bit in) - pin for jogging the selected joint in negative direction at the halui.joint.jog-speed velocity
 * 'halui.joint.selected.plus' (bit in) - pin for jogging the selected joint in positive direction at the halui.joint.jog-speed velocity
 
 === axis
@@ -251,11 +251,11 @@ L = axis letter (xyzabcuvw)
 * 'halui.mode.is-auto' (bit, out) - indicates auto mode is on
 * 'halui.mode.is-joint' (bit, out) - indicates joint by joint jog mode is on
 * 'halui.mode.is-manual' (bit, out) - indicates manual mode is on
-* 'halui.mode.is-mdi' (bit, out) - indicates mdi mode is on
+* 'halui.mode.is-mdi' (bit, out) - indicates MDI mode is on
 * 'halui.mode.is-teleop' (bit, out) - indicates coordinated jog mode is on
 * 'halui.mode.joint' (bit, in) - pin for requesting joint by joint jog mode
 * 'halui.mode.manual' (bit, in) - pin for requesting manual mode
-* 'halui.mode.mdi' (bit, in) - pin for requesting mdi mode
+* 'halui.mode.mdi' (bit, in) - pin for requesting MDI mode
 * 'halui.mode.teleop' (bit, in) - pin for requesting coordinated jog mode
 
 === Program

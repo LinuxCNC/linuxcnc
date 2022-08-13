@@ -30,7 +30,7 @@ This start type is widely employed, and has been around the longest. Although it
 
 === Blowback Start
 
-This start type uses air pressure supplied to the cutter to force a small piston or cartridge inside the torch head back to create a small spark between the inside surface of the consumable, ionising the air, and creating a small plasma flame. This also creates a "pilot arc" that provides a plasma flame that stays on, whether in contact with the metal or not. This is a very good start type that is now used by several manufacturers. It's advantage is that it requires somewhat less circuitry, is a fairly reliable and generates far less electrical noise
+This start type uses air pressure supplied to the cutter to force a small piston or cartridge inside the torch head back to create a small spark between the inside surface of the consumable, ionising the air, and creating a small plasma flame. This also creates a "pilot arc" that provides a plasma flame that stays on, whether in contact with the metal or not. This is a very good start type that is now used by several manufacturers. It's advantage is that it requires somewhat less circuitry, is a fairly reliable and generates far less electrical noise.
 
 For entry level air plasma CNC systems, the blowback style is much preferred to minimise electrical interference with electronics and standard PCs but the High frequency start still rules supreme in larger machines from 200 amps and up. These require industrial level PC's and electronics and even commercial manufacturers have had issues with faults because they have failed to account for electrical noise in their designs.
 

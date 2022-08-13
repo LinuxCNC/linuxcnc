@@ -17,7 +17,7 @@
 ** easy installation from the Live CD
 ** easy to use graphical configuration wizards to rapidly create a configuration
    specific to the machine
-** directly offered with recent releases of Debian (since Bookworm) and Ubuntu (since Kinetic Kudu)
+** directly available as regular packages of recent releases of Debian (since Bookworm) and Ubuntu (since Kinetic Kudu)
 ** a graphical user interface (actually several interfaces to choose from)
 ** a graphical interface creation tool (Glade)
 ** an interpreter for 'G-code' (the RS-274 machine tool programming

@@ -23,7 +23,7 @@
 GladeVCP is a LinuxCNC component which adds the ability to add a new user
 interface panel to LinuxCNC user interfaces like:
 
-* Axis
+* AXIS
 * Touchy
 * Gscreen
 * Gmoccapy
@@ -67,8 +67,8 @@ linked to a HAL pin, which in turn interfaces to the rest of LinuxCNC.
 
 GladeVCP panel windows may be run in three different setups:
 
-- always visible integrated into Axis at the right side, exactly like PyVCP panels
-- as a tab in Axis,Touchy, Gscreen, or Gmoccapy; in Axis this would create a third
+- always visible integrated into AXIS at the right side, exactly like PyVCP panels
+- as a tab in AXIS,Touchy, Gscreen, or Gmoccapy; in AXIS this would create a third
   tab besides the Preview and DRO tabs which must be raised explicitly
 - as a standalone toplevel window, which can be iconifyed/deiconified independent of the main window.
 
@@ -85,9 +85,9 @@ as shown.
 [NOTE]
 For the following commands to work on your git checkout you must first run
 'make' then run 'sudo make setuid' then run '. ./scripts/rip-environment'.
-More information about a git checkout is on the linuxcnc wiki page.
+More information about a git checkout is on the LinuxCNC wiki page.
 
-Run the sample GladeVCP panel integrated into Axis like PyVCP as follows:
+Run the sample GladeVCP panel integrated into AXIS like PyVCP as follows:
 
 ----
 $ cd configs/sim/axis/gladevcp
@@ -96,7 +96,7 @@ $ linuxcnc gladevcp_panel.ini
 
 image::images/example-panel-small.png[]
 
-Run the same panel, but as a tab inside Axis:
+Run the same panel, but as a tab inside AXIS:
 
 ----
 $ cd configs/sim/axis/gladevcp
@@ -106,8 +106,8 @@ $ linuxcnc gladevcp_tab.ini
 image::images/example-tabbed-small.png[]
 
 ////
-To run this panel as a standalone toplevel window besides Axis, just
-start Axis in the background and start GladeVCP as follows:
+To run this panel as a standalone toplevel window besides AXIS, just
+start AXIS in the background and start GladeVCP as follows:
 
 FIXME: I'm not sure how this is supposed to work with axis in one
 directory and GladeVCP in a different directory.
@@ -170,7 +170,7 @@ them as parameters to the Oword subroutine. The actual parameters
 received by the routine are displayed by '(DEBUG, )' commands - see
 '../../nc_files/oword.ngc' for the subroutine body.
 
-To see how the panel is integrated into Axis, see the
+To see how the panel is integrated into AXIS, see the
 '[DISPLAY]GLADEVCP' statement in configs/sim/axis/gladevcp/gladevcp_panel.ini, the
 '[DISPLAY]EMBED*' statement in configs/sim/axis/gladevcp/gladevcp_tab.ini
 and '[HAL]POSTGUI_HALFILE' statements in both configs/sim/axis/gladevcp/gladevcp_tab.ini
@@ -245,8 +245,8 @@ Either modify an existing UI component by running +glade <file>.ui+
 or start a new one by just running the +glade+ command from the shell.
 
 - If LinuxCNC was not installed from a package, the LinuxCNC shell environment needs to be set up with
-  +.<linuxcncdir>/scripts/rip-environment+, otherwise glade won't find the LinuxCNC-specific widgets.
-- When asked for unsaved Preferences, just accept the defaults and hit 'Close'.
+  +<linuxcncdir>/scripts/rip-environment+, otherwise glade won't find the LinuxCNC-specific widgets.
+- When asked for unsaved preferences, just accept the defaults and hit 'Close'.
 - From 'Toplevel' (left pane), pick 'Window' (first icon) as top level window, which
   by default will be named 'window1'. Do not change this name - GladeVCP relies on it.
 - In the left tab, scroll down and expand  'HAL Python' and 'VCP Actions'.
@@ -266,7 +266,7 @@ convention for GtkBuilder file extension is '.ui'.
 
 === Testing a panel
 
-You're now ready to give it a try (while LinuxCNC, e.g. Axis is running) it with:
+You're now ready to give it a try (while LinuxCNC, e.g. AXIS is running) it with:
 
 ----
 gladevcp myui.ui
@@ -274,7 +274,7 @@ gladevcp myui.ui
 
 GladeVCP creates a HAL component named like the basename of the UI
 file - 'myui' in this case - unless overridden by the +-c <component
-name>+ option.  If running Axis, just try 'Show HAL configuration' and
+name>+ option.  If running AXIS, just try 'Show HAL configuration' and
 inspect its pins.
 
 You might wonder why widgets contained a 'HAL_Hbox' or 'HAL_Table' appear
@@ -293,10 +293,10 @@ collect them in a separate file with extension '.hal'. This file is
 passed via the +POSTGUI_HALFILE=+ option in the +HAL+ section of your
 INI file.
 
-CAUTION: Do not add the GladeVCP HAL command file to the Axis +[HAL]HALFILE=+ ini
+CAUTION: Do not add the GladeVCP HAL command file to the AXIS +[HAL]HALFILE=+ ini
 section, this will not have the desired effect - see the following sections.
 
-=== Integrating into Axis, like PyVCP
+=== Integrating into AXIS, like PyVCP
 
 Place the GladeVCP panel in the righthand side panel by specifying the
 following in the INI file:
@@ -318,7 +318,7 @@ SUBROUTINE_PATH = ../../nc_files/gladevcp_lib
 
 The default HAL component name of a GladeVCP application started with the GLADEVCP option is:  +gladevcp+.
 
-The command line actually run by Axis in the above configuration is as follows:
+The command line actually run by AXIS in the above configuration is as follows:
 
 ----
 halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x {XID} -u ./hitcounter.py ./manual-example.ui
@@ -336,7 +336,7 @@ It is possible to create a custom HAL component name by adding the +-c+ option:
 GLADEVCP= -c example -u ./hitcounter.py ./manual-example.ui
 ----
 
-The command line actually run by Axis for the above is:
+The command line actually run by AXIS for the above is:
 
 ----
 halcmd loadusr -Wn example gladevcp -c example -x {XID} -u ./hitcounter.py ./manual-example.ui
@@ -381,16 +381,16 @@ assures that 'POSTGUI_HALFILE' will only be run after the HAL
 component is ready. In rare cases you might run a command here which
 uses a tab but does not have an associated HAL component. Such a
 command can be started without 'halcmd loadusr', and this signifies to
-Axis that it does not have to wait for a HAL component since there is
+AXIS that it does not have to wait for a HAL component since there is
 none.
 
 When changing the component name in the above example, note that the
 names used in +-Wn <component>+ and +-c <component>+ must be
 identical.
 
-Try it out by running Axis - there should be a new tab called
+Try it out by running AXIS - there should be a new tab called
 'GladeVCP demo' near the DRO tab. Select that tab, you should see the
-example panel nicely fit within Axis.
+example panel nicely fit within AXIS.
 
 [NOTE]
 Make sure the UI file is the last option passed to GladeVCP in
@@ -417,7 +417,7 @@ The file specifiers like ./hitcounter.py, ./manual-example.ui, etc. indicate tha
 are located in the same directory as the INI file.  You might have to copy them to you
 directory (alternatively, specify a correct absolute or relative path to the file(s))
 
-Note the following differences to the Axis tab setup:
+Note the following differences to the AXIS tab setup:
 
 - The HAL command file is slightly modified since 'Touchy' does not
   use the 'halui' components so its signals are not available and some
@@ -488,7 +488,7 @@ The normal LinuxCNC startup process does the following:
 
 The introduction of gladeVCP brought the following issue:
 
-- gladeVCP panels need to be embedded in a master GUI window setup, e.g. Axis, or Touchy, Gscreen, or Gmoccapy (embedded window or as an embedded tab)
+- gladeVCP panels need to be embedded in a master GUI window setup, e.g. AXIS, or Touchy, Gscreen, or Gmoccapy (embedded window or as an embedded tab)
 - this requires the master GUI to run before the gladeVCP window can be hooked into the master GUI
 - however gladeVCP is also a HAL component, and creates HAL pins of its own.
 - as a consequence, all HAL plumbing involving gladeVCP HAL pins as source or destination must be run *after* the GUI has been set up
@@ -905,7 +905,7 @@ as well as the time between two changes can be set using the widget properties.
 <widgetname>-scaled-value::
   out float pin +
   The shown value divided by the scale value, this is very useful, if the
-  velocity is shown in units / min, but linuxcnc expects it to be in units / second
+  velocity is shown in units / min, but LinuxCNC expects it to be in units / second
 <widgetname>-scale::
   in float pin +
   The scale to apply. +
@@ -1322,11 +1322,11 @@ This widget is for plotting values over time.
 [[gladevcp:hal-gremlin]]
 === Gremlin tool path preview for .ngc files
 
-Gremlin is a plot preview widget similar to the Axis preview window.
-It assumes a running LinuxCNC environment like Axis or Touchy. To connect to
+Gremlin is a plot preview widget similar to the AXIS preview window.
+It assumes a running LinuxCNC environment like AXIS or Touchy. To connect to
 it, inspects the INI_FILE_NAME environment variable. Gremlin displays
 the current .ngc file - it does monitor for changes and reloads the ngc
-file if the file name in Axis/Touchy changes. If you run it in a
+file if the file name in AXIS/Touchy changes. If you run it in a
 GladeVCP application when LinuxCNC is not running, you might get a traceback
 because the Gremlin widget can't find LinuxCNC status, like the current file
 name.
@@ -1687,7 +1687,7 @@ The widget will emit the following signals:
      The actual coordinate system.
      Will be one of G54 G55 G56 G57 G58 G59 G59.1 G59.2 G59.3 or Rel if
      non has been selected at all, what will only happen in Glade with
-     no linuxcnc running.
+     no LinuxCNC running.
 
 There are some information you can get through commands, which may be of interest for you:
 
@@ -2127,9 +2127,9 @@ are for use in simple buttons, menu entries or radio/check groups.
 This widget is used to execute small arbitrary python code. +
 The command string may use special keywords to access important functions.
 
-* `GSTAT` for access to the Gstat library that is used for linuxcnc status
-* `STAT` for access to linuxcnc's status via the linuxcnc python module
-* `CMD` for access to linuxcnc's commands via the linuxcnc python module
+* `GSTAT` for access to the Gstat library that is used for LinuxCNC status
+* `STAT` for access to LinuxCNC's status via the linuxcnc python module
+* `CMD` for access to LinuxCNC's commands via the linuxcnc python module
 * `EXT` for access to the handler file functions if available
 * `linuxcnc` for access to the linuxcnc python module
 * `self` for access to the widget instance
@@ -2204,10 +2204,10 @@ The `Action_MDI` widget does not wait for command completion as the
 `configs/apps/gladevcp/mdi-command-example/whoareyou.ui` is a Glade UI file which conveys the basics:
 
 Open it in Glade and study how it's done. +
-Start Axis, and then start this from a terminal window with `gladevcp whoareyou.ui`. +
+Start AXIS, and then start this from a terminal window with `gladevcp whoareyou.ui`. +
 See the `hal_action_mdi1` action and it's `MDI command` property - this just
 executes `(MSG, "Hi, I'm an VCP_Action_MDI")` so there should be a
-message popup in Axis like so:
+message popup in AXIS like so:
 
 .Action_MDI Simple Example
 image::images/whoareyou.png[align="center"]
@@ -2245,7 +2245,7 @@ It's perfectly OK to call an O-word subroutine in an MDI command, and
 pass HAL pin values as actual parameters. +
 An example UI file is in `configs/apps/gladevcp/mdi-command-example/owordsub.ui`.
 
-Place `nc_files/gladevcp_lib/oword.ngc` so Axis can find it, and run
+Place `nc_files/gladevcp_lib/oword.ngc` so AXIS can find it, and run
 `gladevcp owordsub.ui` from a terminal window. +
 This looks like so:
 
@@ -2330,7 +2330,7 @@ signals:
   - `interp-waiting`
   - `file-loaded`
   - `line-changed`
-* homing-related: emitted when linuxcnc is homed or not
+* homing-related: emitted when LinuxCNC is homed or not
   - `all-homed`
   - `not-all-homed`
 
@@ -2369,8 +2369,8 @@ There are three libraries of functions that can be used to help program
 GladeVCP.
 
 * 'Info': collects details from the INI file.
-* 'Action': A collection of functions to change linuxcnc states.
-* 'Status': Reports the state of linuxcnc. It wraps around 'Gstat'.
+* 'Action': A collection of functions to change LinuxCNC states.
+* 'Status': Reports the state of LinuxCNC. It wraps around 'Gstat'.
 
 Importing and instantiating the libraries:
 
@@ -2454,14 +2454,14 @@ See the <<gladevcp:hal-pin-changed-signal,HAL Widgets section>> for details.
 
 The overall approach is as follows:
 
-- design your UI with Glade, and set signal handlers where you want
-  actions associated with a widget
-- write a Python module which contains callable objects (see 'handler
-  models' below)
-- pass your module's path name to GladeVCP with the '-u <module>' option
+- Design your UI with Glade, and set signal handlers where you want
+  actions associated with a widget.
+- Write a Python module which contains callable objects (see 'handler
+  models' below).
+- Pass your module's path name to GladeVCP with the '-u <module>' option.
 - GladeVCP imports the module, inspects it for signal handlers and
-  connects them to the widget tree
-- the main event loop is run.
+  connects them to the widget tree.
+- The main event loop is run.
 
 ==== The simple handler model
 
@@ -2669,7 +2669,7 @@ GladeVCP has an easy-to-use mechanism to save and restore the state of
 HAL widgets, and program variables (in fact any instance attribute of
 type int, float, bool or string).
 
-This mechanism uses the popular ini file format to save and reload
+This mechanism uses the popular INI file format to save and reload
 persistent attributes.
 
 .Persistence, program versions and the signature check
@@ -2770,13 +2770,13 @@ def on_destroy(self,obj,data=None):
 ----
 
 This will save state and shutdown GladeVCP properly, regardless
-whether the panel is embedded in Axis, or a standalone window.
+whether the panel is embedded in AXIS, or a standalone window.
 
 [CAUTION]
 ====
 Do not use +window1+ (the toplevel window) to connect a
-+destroy+ event. Due to the way a GladeVCP panel interacts with Axis
-if a panel is embedded within Axis, *window1 will not receive destroy
++destroy+ event. Due to the way a GladeVCP panel interacts with AXIS
+if a panel is embedded within AXIS, *window1 will not receive destroy
 events properly*. However, since on shutdown all widgets are
 destroyed, anyone will do. Recommended: use a second-level widget -
 for instance, if you have a table container in your panel, use
@@ -2922,9 +2922,9 @@ I get an unexpected unmap event in my handler function right after startup. What
 
   This is a consequence of your Glade UI file
   having the window1 Visible property set to True, together with
-  re-parenting the GladeVCP window into Axis or touchy. The GladeVCP
+  re-parenting the GladeVCP window into AXIS or touchy. The GladeVCP
   widget tree is created, including a top level window, and then
-  'reparented into Axis', leaving that toplevel window laying around
+  'reparented into AXIS', leaving that toplevel window laying around
   orphaned. To avoid having this useless empty window hanging around, it
   is unmapped (made invisible), which is the cause of the unmap signal
   you get. Suggested fix: set window1.visible to False, and ignore an
@@ -2932,7 +2932,7 @@ I get an unexpected unmap event in my handler function right after startup. What
 
 My GladeVCP program starts, but no window appears where I expect it to be?::
 
-  The window Axis allocates for GladeVCP will obtain the 'natural
+  The window AXIS allocates for GladeVCP will obtain the 'natural
   size' of all its child widgets combined. It's the child widget's job to
   request a size (width and/or height). However, not all widgets do
   request a width greater than 0, for instance the Graph widget in its
@@ -2943,7 +2943,7 @@ My GladeVCP program starts, but no window appears where I expect it to be?::
   during re-parenting and hence its geometry will have no impact on
   layout (see above). The general rule is: if you manually run a UI file
   with 'gladevcp <uifile>' and its window has reasonable geometry, it
-  should come up in Axis properly as well.
+  should come up in AXIS properly as well.
 
 I want a blinking LED, but it wont blink::
 
@@ -2953,7 +2953,7 @@ I want a blinking LED, but it wont blink::
   type `gint'?  This seems to be a glade bug. Just type over the blink
   rate field, and save again - this works for me.
 
-My GladeVCP panel in Axis doesn't save state when I close Axis, although I defined an on_destroy handler linked to the window destroy signal::
+My GladeVCP panel in AXIS doesn't save state when I close AXIS, although I defined an on_destroy handler linked to the window destroy signal::
 
   Very likely this handler is linked to window1,
   which due to reparenting isn't usable for this purpose. Please link
@@ -2987,7 +2987,7 @@ I defined a `hal_spinbutton` widget in glade, and set a default `value` property
 - make sure you have the development version of LinuxCNC installed. You
   don't need the axisrc file any more, this was mentioned in the old
   GladeVcp wiki page.
-- run GladeVCP or Axis from a terminal window. If you get Python errors,
+- run GladeVCP or AXIS from a terminal window. If you get Python errors,
   check whether there's still a +/usr/lib/python2.6/dist-packages/hal.so+
   file lying around besides the newer
   +/usr/lib/python2.6/dist-packages/_hal.so+ (note underscore); if yes,
@@ -2999,29 +2999,29 @@ I defined a `hal_spinbutton` widget in glade, and set a default `value` property
   an HAL pin associated with it which is off by default. This pin
   controls whether these container's children are active or not.
 
-== Implementation note: Key handling in Axis
+== Implementation note: Key handling in AXIS
 
 We believe key handling works OK, but since it is new code, we're
 telling about it you so you can watch out for problems; please let us
 know of errors or odd behavior. This is the story:
 
-Axis uses the TkInter widget set. GladeVCP applications use Gtk
+AXIS uses the TkInter widget set. GladeVCP applications use Gtk
 widgets and run in a separate process context. They are hooked into
-Axis with the Xembed protocol. This allows a child application like
+AXIS with the Xembed protocol. This allows a child application like
 GladeVCP to properly fit in a parent's window, and - in theory - have
 integrated event handling.
 
 However, this assumes that both parent and child application properly
 support the Xembed protocol, which Gtk does, but TkInter doesn't. A
 consequence of this is that certain keys would not be forwarded from a
-GladeVCP panel to Axis properly under all circumstances. One of these
+GladeVCP panel to AXIS properly under all circumstances. One of these
 situations was the case when an Entry, or SpinButton widget had focus:
 in this case, for instance an Escape key would not have been forwarded
-to Axis and cause an abort as it should, with potentially disastrous
+to AXIS and cause an abort as it should, with potentially disastrous
 consequences.
 
 Therefore, key events in GladeVCP are explicitly handled, and
-selectively forwarded to Axis, to assure that such situations cannot
+selectively forwarded to AXIS, to assure that such situations cannot
 arise. For details, see the `keyboard_forward()` function in
 `lib/python/gladevcp/xembed.py`.
 

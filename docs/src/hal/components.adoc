@@ -59,11 +59,15 @@ or the link:../man/man9/[directory listing of man9].
 [[sec:core-realtime-components]]
 === Core LinuxCNC components
 
+This lists HAL components that are all written in lower case and should not be
+confused with other parts of LinuxCNC bearing the same name (AXIS, ClassicLadder,
+GladeVCP) that these components communicate with.
+
 motion:: (((motion))) Accepts NML motion commands, interacts with HAL in realtime.
 
 axis:: (((axis))) Accepts NML motion commands, interacts with HAL in realtime.
 
-classicladder:: (((classicladder))) Realtime software PLC based on ladder logic. See <<cha:classicladder,ClassicLadder>> chapter for more information.
+classicladder:: (((ClassicLadder))) Realtime software PLC based on ladder logic. See <<cha:classicladder,ClassicLadder>> chapter for more information.
 
 gladevcp:: (((gladevcp))) Displays Virtual Control Panels built with GTK/Glade.
 
