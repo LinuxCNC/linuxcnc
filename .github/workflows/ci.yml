@@ -88,4 +88,4 @@ jobs:
         eatmydata debuild -us -uc
         sudo apt-get install ../*.deb
         ./scripts/runtests -p tests/
-        eatmydata lintian --info --display-info --pedantic --display-experimental ../*.deb
+        eatmydata lintian --info --display-info --pedantic --display-experimental ../linuxcnc*.changes
