@@ -357,7 +357,7 @@ using a run-in-place setup.
 [[gladevcp:embedding-tab]]
 === Embedding as a Tab
 
-To do so, edit your .ini file and add to the DISPLAY and HAL sections of INI
+To do so, edit your .ini (INI) file and add to the DISPLAY and HAL sections of INI
 file as follows:
 
 [source,{ini}]
@@ -2739,13 +2739,13 @@ Note that types are saved and preserved on restore. This example
 assumes that the INI file didn't exist or had the default values from
 self.defaults.
 
-After this incantation, you can use the following IniFil methods:
+After this incantation, you can use the following IniFile methods:
 
 ini.save_state(obj)::
-  Saves objs's attributes as per `IniFil.vars` dictionary and the widget
+  Saves objs's attributes as per `IniFile.vars` dictionary and the widget
   state as described in `IniFile.widgets` in `self.defaults`.
 ini.create_default_ini()::
-  Create a .ini file with default values
+  Create an INI file with default values
 ini.restore_state(obj)::
   Restore HAL out pins and obj's attributes as
   saved/initialized to default as above
@@ -3049,7 +3049,7 @@ The system directory defined by LINUXCNC_AUX_GLADEVCP
 a GladeVCP-compatible python file(s) and related subdirectories.
 The python file is imported at GladeVCP startup and made
 available to subsequent GladeVCP applications including
-embedded usage in supporting guis.
+embedded usage in supporting GUIs.
 
 The system directory defined by LINUXCNC_AUX_EXAMPLES
 (/usr/share/linuxcnc/aux_examples) specifies the location
