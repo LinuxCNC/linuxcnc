@@ -137,9 +137,8 @@ file configured. For more information on configuration see the
 * 'Edit tool table...' - Same as Edit if you have defined an editor
   you can open the tool table and edit it.
 * 'Reload tool table' - After editing the tool table you must reload it.
-* 'Ladder editor' - If you have loaded Classic Ladder you can edit it from
-  here. See the <<cha:classicladder,Classicladder chapter>>
-  for more information.
+* 'Ladder editor' - If you have loaded ClassicLadder you can edit it from
+  here. See the <<cha:classicladder,ClassicLadder chapter>> for more information.
 * 'Quit' - Terminates the current LinuxCNC session.
 
 [[sub:axis-machine-menu]]
@@ -219,7 +218,7 @@ positive Z up. This is true for vertical mills, which is probably the most
 popular application, and also true for almost all EDM machines, and even
 vertical turret lathes, where the part is turning below the tool.
 
-The terms 'Top', 'Front', and 'Side' might be confusing however, in other
+The terms 'Top', 'Front', and 'Side' might be confusing in other
 CNC machines, such as a standard lathe, where the Z axis is horizontal, or
 a horizontal mill, again where the Z axis is horizontal, or even an inverted
 vertical turret lathe, where the part is turning above the tool, and the Z axis
@@ -664,7 +663,7 @@ shown on a red background.
 
 AXIS includes a program called `mdi` which allows text-mode entry of
 MDI commands to a running LinuxCNC session. You can run this program by
-opening a terminal and typing
+opening a terminal and typing:
 
 ----
 mdi
@@ -674,7 +673,7 @@ Once it is running, it displays the prompt 'MDI>'. When a blank line
 is entered, the machine's current position is shown.
 When a command is entered, it is sent to LinuxCNC to be executed.
 
-This is a sample session of mdi.
+This is a sample session of mdi:
 
 ----
 $ mdi
@@ -854,10 +853,10 @@ should be used by any filter that runs for a long time.
 The colors of most elements of the AXIS user interface can be
 customized through the X Resource Database. The sample file
 'axis_light_background' changes the colors of the backplot window to a
-'dark lines on white
-background' scheme, and also serves as a reference for the configurable
-items in the display area. The sample file 'axis_big_dro' changes the
-position readout to a larger size font. To use these files:
+'dark lines on white background' scheme,
+and also serves as a reference for the configurable items in the display area.
+The sample file 'axis_big_dro' changes the position readout to a larger size font.
+To use these files:
 
 ----
 xrdb -merge /usr/share/doc/emc2/axis_light_background

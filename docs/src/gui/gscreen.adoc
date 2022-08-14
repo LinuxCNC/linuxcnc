@@ -128,16 +128,16 @@ themes.
 There are many GTK themes available on the web.
 Themes can also be customized to modify visuals of particular named widgets.
 This ties the theme file to the glade file more tightly.
-Some of the sample screen skins allow the user to select any of the themes on 
+Some of the sample screen skins allow the user to select any of the themes on
 the system. The sample 'gscreen' is an example.
-Some will load the theme that is the same name in the config file. The sample 
+Some will load the theme that is the same name in the config file. The sample
 'gscreen-gaxis' is an example. This is done by putting the theme folder in the
  config folder that has the INI and HAL files and naming it: SCREENNAME_theme
 (SCREENNAME being the base name of the files eg. gaxis_theme)
-Inside this folder is another folder call gtk-2.0, inside that is the theme 
+Inside this folder is another folder call gtk-2.0, inside that is the theme
 files. If you add this file, Gscreen will default to this theme on start up.
-gscreen-gaxis has a sample custom theme that looks for certain named widgets 
-and changes the visual behavior of those specific widgets. The Estop and 
+gscreen-gaxis has a sample custom theme that looks for certain named widgets
+and changes the visual behavior of those specific widgets. The Estop and
 machine-on buttons use different colors then the rest of the buttons so that
 they stand out. This is done in the handler file by giving them specific names
 an by adding specific commands in the theme's gtkrc file.
@@ -251,7 +251,7 @@ means learning about handler files.
 == Handler file example
 
 There are special functions Gscreen checks the handler file for.
-If you add these in you handler file Gscreen will call them instead of gscreen's internal same-named functions. 
+If you add these in you handler file Gscreen will call them instead of gscreen's internal same-named functions.
 
 * initialize_preferences(self): You can install new preference routines.
 * initialize_keybindings(self) You can install new keybinding routines. In
@@ -269,7 +269,7 @@ If you add these in you handler file Gscreen will call them instead of gscreen's
 * initialize_widgets(self): You can use this to set up any widgets. Gscreen
   usually calls 'self.gscreen.initialize_widgets()' which actually calls
   many separate functions. If you wish to incorporate some of those widgets
-  then just call those functions directly. or add 
+  then just call those functions directly. or add
   self.gscreen.init_show_windows() so widgets are just shown. Then if
   desired, initialize/adjust your new widgets.
 * initialize_manual_toolchange(self): allows a complete revamp of the manual
@@ -444,7 +444,7 @@ interact with it.
 . Gscreen checks to see if there is a preference function call
   ('initialize_preferences(self)') in the handler file otherwise it uses the
   stock Gscreen one.
-. Gscreen checks for classicladder realtime component.
+. Gscreen checks for ClassicLadder realtime component.
 . Gscreen checks for the system wide GTK theme.
 . Gscreen collects the jogging increments from the INI file.
 . Gscreen collects the angular jogging increments from the INI file.
@@ -539,15 +539,15 @@ MESSAGE_PINNAME = bothtest
 
 === Copy the Stock Handler/Glade File For Modification
 
-If you wish to use a stock screen but modify it's handler file, you need to 
+If you wish to use a stock screen but modify it's handler file, you need to
 copy the stock file to your config file folder.
-Gscreen will see this and use the 
+Gscreen will see this and use the
 copied file.
-But where is the original file? If using a RIP linuxcnc the 
+But where is the original file? If using a RIP linuxcnc the
 sample skins are in /share/gscreen/skins/'SCREENNAME'
-Installed versions of linuxcnc have them in slightly different places depending 
+Installed versions of linuxcnc have them in slightly different places depending
 on the distribution used.
-An easy way to find the location is to open a terminal 
+An easy way to find the location is to open a terminal
 and start the sim screen you wish to use.
 In the terminal the file locations will be printed.
 It may help to add the -d switch t0 the gscreen load line in the INI.

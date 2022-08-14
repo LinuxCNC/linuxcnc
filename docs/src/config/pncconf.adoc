@@ -175,7 +175,7 @@ TOUCHY
 * Touchy was designed to be used with a touchscreen, some minimal physical switches and a MPG wheel.
 * requires cycle-start, abort, and single-step signals and buttons
 * It also requires shared axis MPG jogging to be selected.
-* is GTK based so integrates GLADE VCP (virtual control panels) naturally.
+* is GTK based so integrates GladeVCP (virtual control panels) naturally.
 * allows VCP panels integrated in the center Tab
 * has no graphical window
 * look can be changed with custom themes
@@ -270,7 +270,7 @@ VCP options::
 Virtual Control Panels allow one to add custom controls and displays to the
 screen. AXIS and Touchy can integrate these controls inside the screen in
 designated positions. There are two kinds of VCPs -
-pyVCP which uses 'Tkinter' to draw the screen and GLADE VCP that uses 'GTK' to
+PyVCP which uses 'Tkinter' to draw the screen and GladeVCP that uses 'GTK' to
 draw the screen.
 
 PyVCP::
@@ -292,21 +292,21 @@ You can use the geometry options to size and move the panel, for instance to
 move it to a second screen if the system is capable. If you press the 'Display
 sample panel' button the size and placement options will be honored.
 
-GLADE VCP::
-GLADE VCPs fit naturally inside of TOUCHY screen as they both use GTK to draw
-them, but by changing GLADE VCP's theme it can be made to blend pretty well in
+GladeVCP::
+GladeVCPs fit naturally inside of TOUCHY screen as they both use GTK to draw
+them, but by changing GladeVCP's theme it can be made to blend pretty well in
 AXIS (try Redmond).
 
 It uses a graphical editor to build its XML files.
 HAL pins are created for the user to connect to, inside of their custom HAL
 file.
 
-GLADE VCP also allows much more sophisticated (and complicated) programming
-interaction, which PnCconf currently doesn't leverage (see GLADE VCP in the
+GladeVCP also allows much more sophisticated (and complicated) programming
+interaction, which PnCconf currently doesn't leverage (see GladeVCP in the
 manual)
 
 PnCconf has sample panels for the user to use as-is or build on.
-With GLADE VCP PnCconf will allow you to select different options on your
+With GladeVCP PnCconf will allow you to select different options on your
 sample display.
 
 Under 'sample options' select which ones you would like.
@@ -326,7 +326,7 @@ the system is capable.
 You can select a GTK theme which sets the basic look and feel of the panel.
 You Usually want this to match the front-end screen.
 These options will be used if you press the 'Display sample button'.
-With GLADE VCP depending on the front-end screen, you can select where the panel will display.
+With GladeVCP depending on the front-end screen, you can select where the panel will display.
 
 You can force it to be stand-alone or with AXIS it can be in the center or on
 the right side, with Touchy it can be in the center.
@@ -791,20 +791,20 @@ There are some differences:
 
 == Advanced Options
 
-This allows setting of HALUI commands and loading of classicladder and sample
+This allows setting of HALUI commands and loading of ClassicLadder and sample
 ladder programs.
-If you selected GLADE VCP options such as for zeroing axis, there will be
+If you selected GladeVCP options such as for zeroing axis, there will be
 commands showing.
 See the <<cha:hal-user-interface,HALUI Chapter>> for more info on using custom
 halcmds.
 There are several ladder program options.
 The Estop program allows an external ESTOP switch or the GUI frontend to throw
 an Estop. It also has a timed lube pump signal.
-The Z auto touch-off is with a touch-off plate, the GLADE VCP touch-off button
+The Z auto touch-off is with a touch-off plate, the GladeVCP touch-off button
 and special HALUI commands to set the current user origin to zero and rapid
 clear.
 The serial modbus program is basically a blank template program that sets up
-classicladder for serial modbus. See the << cha:classicladder,Classicladder Chapter >>
+ClassicLadder for serial modbus. See the << cha:classicladder,Classicladder Chapter >>
 in the manual.
 
 .PnCConf, advanced options
@@ -916,7 +916,7 @@ There are four custom files that you can use to add HAL commands to:
   loads. It is run after the configuration-named HAL file.
 * custom_postgui.hal is for commands that must be run after AXIS loads or a
   standalone PyVCP display loads.
-* custom_gvcp.hal is for commands that must be run after glade VCP is loaded.
+* custom_gvcp.hal is for commands that must be run after GladeVCP is loaded.
 * shutdown.hal is for commands to run when LinuxCNC shuts down in a controlled manner.
 
 // vim: set syntax=asciidoc:

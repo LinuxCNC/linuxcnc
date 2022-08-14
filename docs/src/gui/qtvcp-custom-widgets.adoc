@@ -8,27 +8,27 @@
 
 Building custom widgets allows one to use the Qt Designer editor to place +
 a custom widget rather then doing it manually in a handler file. +
-A useful custom widgets would be a great way to contribute back to linuxcnc.
+A useful custom widgets would be a great way to contribute back to LinuxCNC.
 
 === Widgets
 
 Widget is the general name for the UI objects such as buttons and labels
 in pyQT. +
-There are also special widgets made for linuxcnc that make integration
+There are also special widgets made for LinuxCNC that make integration
 easier. +
 This widgets can be placed with qt Designer editor - allowing one to see
-the result before actually loading the panel in linuxcnc.
+the result before actually loading the panel in LinuxCNC.
 
 === Designer
 
 Qt Designer is a What You See is What You Get editor for placing pyQT
 widgets. +
 It's original intend was for building the graphic widgets for programs. +
-We leverage it to build screens and panels for linuxcnc. +
-In Qt Designer linuxcnc widgets are split in three heading on the left side
+We leverage it to build screens and panels for LinuxCNC. +
+In Qt Designer LinuxCNC widgets are split in three heading on the left side
 of the editor. +
 One is for HAL only widgets. +
-One is for Linuxcnc controller widgets +
+One is for LinuxCNC controller widgets +
 And one is for dialog widgets. +
  +
 For Designer to add custom widgets to it's editor it must have a plugin
@@ -103,17 +103,17 @@ class Lcnc_GridLayout(QtWidgets.QWidget, _HalSensitiveBase):
 === In the 'Imports' section
 
 This is where we import libraries that our widget class needs. +
-In this case we need access to pyqt's QtWidgets library, linuxcnc's hal
+In this case we need access to pyqt's QtWidgets library, LinuxCNC's HAL
 library and qtvcp's widget baseclass _HalSensitiveBase for automatic HAL
 pin setup and to disable/enable the widget (also known as input sensitivity). +
 There is also _HalToggleBase, and _HalScaleBase functions available in
-the library. +
+the library.
 
 === In the 'WIDGET' section
 
-Ok here is our custom widget based on pyQT's QGridLayout widget. +
-grid layout allows one to place objects in a grid fashion. +
-But this grid_layout also will enable and disable all widgets inside it +
+Ok, here is our custom widget based on pyQT's QGridLayout widget. +
+Grid layout allows one to place objects in a grid fashion. +
+But this grid_layout also will enable and disable all widgets inside it, +
 based on the state of a HAL pin. +
 Line by Line:
 
@@ -150,11 +150,11 @@ Pretty standard other the the widget name will change
 
 == Custom Controller Widgets using STATUS
 
-Widget that interact with linuxcnc's controller are only a little more
+Widget that interact with LinuxCNC's controller are only a little more
 complicated they require some extra libraries. +
 In this cut down example we will add properties that can be changed in
 Designer. +
-This LED indicator widget will respond to selectable linuxcnc controller
+This LED indicator widget will respond to selectable LinuxCNC controller
 states. +
 
 [source,python]
@@ -239,7 +239,7 @@ class StateLED(LED):
 This is where we import libraries that our widget class needs. +
 We import pyqtProperty so we can interact with the Designer editor. +
 we import LED because our custom widget is based on it. +
-We import Status because it gives us status messages from linuxcnc. +
+We import Status because it gives us status messages from LinuxCNC. +
 
 === In the 'Instantiate Libraries' section
 Typically we instantiated the libraries outside of the widget class so
@@ -288,7 +288,7 @@ The other attributes are for the selectable options of our widget.
             STATUS.connect('state-off', lambda w:self._flip_state(False))
 ----
 
-This function connects STATUS (linuxcnc status message library) to our
+This function connects STATUS (LinuxCNC status message library) to our
 widget so that the LED will on or off based on the selected state of the
 controller. We have two states we can choose from is_estopped or is_on. +
 Depending on which is active our widget get connected to the appropriate
@@ -356,24 +356,24 @@ and the function called looks like this:
 
 in which the widget and any data must be accepted by the function.
 
-==== In the  'Designer properties setter/getters/resetters' section
+==== In the 'Designer properties setter/getters/resetters' section
 
 This is how Designer sets the attributes of the widget. +
 This can also be called directly in the widget. +
 
 ==== In the 'Designer properties' section
 
-This is the registering of properties in Designer. +
-The property name is the text that is used in Designer. +
+This is the registering of properties in Qt Designer. +
+The property name is the text that is used in Qt Designer. +
 These property names cannot be the same as the attributes they represent. +
-These properties show in Designer in the order they appear here. +
+These properties show in Designer in the order they appear here.
 
 == Custom Controller Widgets with actions
 
 Here is an example of a widget that sets the user reference system. +
 It changes the machine controller state with the ACTION library. +
 It also uses the STATUS library to set whether the button can be clicked +
-or not. +
+or not.
 
 [source,python]
 ----
@@ -389,9 +389,9 @@ from qtvcp.widgets.dialog_widget import EntryDialog
 from qtvcp.core import Status, Action, Info
 
 # Instantiate the libraries with global reference
-# STATUS gives us status messages from linuxcnc
+# STATUS gives us status messages from LinuxCNC
 # INFO holds ini details
-# ACTION gives commands to linuxcnc
+# ACTION gives commands to LinuxCNC
 STATUS = Status()
 INFO = Info()
 ACTION = Action()
@@ -484,8 +484,8 @@ class SystemToolButton(QToolButton, _HalWidgetBase):
 It's possible to have widgets restyled when events change. +
 You must explicitly 'polish' the widget to have PyQt redo the style. +
 This is a relatively expensive function so should be used sparingly. +
-This example will set the property isHomed based on linuxcnc's homed state. +
-This property can be used in the stylesheet to change stylesheet properties. +
+This example will set the property isHomed based on LinuxCNC's homed state. +
+This property can be used in the stylesheet to change stylesheet properties.
 
 [source,python]
 ----
@@ -522,7 +522,7 @@ class HomeLabel(QLabel, _HalWidgetBase):
 
 Here is a sample stylesheet to change text color based on home state. +
 In this case any widget based on the HomeLabel widget above will change text color. +
-You would usually pick specific widgets using 'HomeLabel #specific_widget_name[homed=true]{' +
+You would usually pick specific widgets using 'HomeLabel #specific_widget_name[homed=true]{'
 
 ----
 HomeLabel[homed=true] {
@@ -564,8 +564,7 @@ qproperty-styleFont0: "Times,12,-1,0,90,0,0,0,0,0";
 We must register our custom widget for Designer to use them. +
 Here is a typical samples +
 they would need to be added to qtvcp/plugins/ +
-Then qtvcp/plugins/qtvcp_plugin.py would need to be adjusted +
-to import them. +
+Then qtvcp/plugins/qtvcp_plugin.py would need to be adjusted to import them.
 
 === Gridlayout example
 
@@ -596,7 +595,7 @@ class LcncGridLayoutPlugin(QPyDesignerCustomWidgetPlugin):
     def name(self):
         return "Lcnc_GridLayout"
     def group(self):
-        return "Linuxcnc - HAL"
+        return "LinuxCNC - HAL"
     def icon(self):
         return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('lcnc_gridlayout')))
     def toolTip(self):
@@ -641,7 +640,7 @@ class SystemToolButtonPlugin(QPyDesignerCustomWidgetPlugin):
     def name(self):
         return "SystemToolButton"
     def group(self):
-        return "Linuxcnc - Controller"
+        return "LinuxCNC - Controller"
     def icon(self):
         return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('systemtoolbutton')))
     def toolTip(self):
@@ -719,7 +718,7 @@ class ActionButtonPlugin(QPyDesignerCustomWidgetPlugin):
 
     # Returns the name of the group in Qt Designer's widget box
     def group(self):
-        return "Linuxcnc - Controller"
+        return "LinuxCNC - Controller"
 
     # Returns the icon
     def icon(self):

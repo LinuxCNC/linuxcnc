@@ -188,7 +188,7 @@ in that case, the spindle will be empty after the tool change.
 If slot zero was last selected,
 there will definitely be no tool in the spindle after a tool change. The tool
 changer will have to be setup to perform the tool change in HAL and possibly
-classicladder.
+ClassicLadder.
 
 [[mcode:m7-m8-m9]]
 == M7, M8, M9 Coolant Control(((M7, M8, M9 Coolant Control)))

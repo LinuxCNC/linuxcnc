@@ -14,17 +14,17 @@ all) use a common coordinate system called the Cartesian Coordinate
 System.
 
 The Cartesian Coordinate system is composed of three axes (X, Y, Z) each
-perpendicular to the other two. footnote:[The word "axes" is also
+perpendicular to the other two footnote:[The word "axes" is also
 commonly (and wrongly) used when talking about
-CNC machines, and referring to the moving directions of the machine.]
+CNC machines, and referring to the moving directions of the machine.].
 
 When we talk about a G-code program (RS274/NGC) we talk about a number
 of commands (G0, G1, etc.) which have positions as parameters (X- Y-
 Z-). These positions refer exactly to Cartesian positions. Part of the
 LinuxCNC motion controller is responsible for translating those positions
 into positions which correspond to the machine
-(((kinematics)))kinematics. footnote:[Kinematics: a two way function to
-transform from Cartesian space to joint space]
+(((kinematics)))kinematics footnote:[Kinematics: a two way function to
+transform from Cartesian space to joint space.].
 
 === Joints vs Axes
 
@@ -76,7 +76,7 @@ In LinuxCNC, the identity kinematics are implemented with the
 'trivkins' kinematics module and extended to 9 axes.  The default
 relationships between axis coordinates and joint numbers are:
 footnote:[If the machine (for example a lathe) is mounted with
-only the X, Z and A axes and the init file of LinuxCNC contains
+only the X, Z and A axes and the INI file of LinuxCNC contains
 only the definition of these 3 joints, then the previous assertion is false.
 Because we currently have (joint0=X, joint1=Z, joint2=A) which
 assumes that joint1=Y.
@@ -129,9 +129,9 @@ Use of the 'coordinates=' parameter is recommended for configurations that omit
 axis letters. footnote:[ Historically, the trivkins module did not support the
 'coordinates=' parameter so lathe configs were often configured as XYZ
 machines.  The unused Y axis was configured to 1) home immediately, 2) use a
-simple loopback to connect its position command hal pin to its position
-feedback hal pin, and 3) hidden in gui displays. Numerous sim configs use
-these methods in order to share common hal files.]
+simple loopback to connect its position command HAL pin to its position
+feedback HAL pin, and 3) hidden in gui displays. Numerous sim configs use
+these methods in order to share common HAL files.]
 
 The 'trivkins' kinematics module also allows the same coordinate to be specified
 for more than one joint.  This feature can be useful on machines like a gantry
@@ -301,7 +301,7 @@ Returns the kinematics type identifier, típicamente 'KINEMATICS_BOTH':
 . KINEMATICS_INVERSE_ONLY
 
 [NOTE]
-Guis may interpret KINEMATICS_IDENTITY to hide the distinctions
+GUIs may interpret KINEMATICS_IDENTITY to hide the distinctions
 between joint numbers and axis letters when in joint mode
 (typically prior to homing).
 
@@ -348,7 +348,7 @@ the HAL manual for more information.
 === Kinematics module using the userkins.comp template
 
 Another way to create a custom kinematics module is to adapt the
-hal component 'userkins'. This template component can be modified
+HAL component 'userkins'. This template component can be modified
 locally by a user and can be built using halcompile.
 
 See the userkins man pages for more information.

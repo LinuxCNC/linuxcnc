@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:classicladder-examples]]
-= Classicladder Examples
+= ClassicLadder Examples
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -42,11 +42,11 @@ image::images/extra-pulse-reject.png["Reject Extra Pulse",align="center"]
 == External E-Stop
 
 The External E-Stop example is in the /config/classicladder/cl-estop
-folder. It uses a pyVCP panel to simulate the external components.
+folder. It uses a PyVCP panel to simulate the external components.
 
 To interface an external E-Stop to LinuxCNC and have the external E-Stop
 work together with the internal E-Stop requires a couple of connections
-through Classic Ladder.
+through ClassicLadder.
 
 First we have to open the E-Stop loop in the main HAL file by
 commenting out by adding the pound sign as shown or removing the
@@ -58,7 +58,7 @@ following lines.
 # net estop-out => iocontrol.0.emc-enable-in
 ----
 
-Next we add Classic Ladder to our custom.hal file by adding these two
+Next we add ClassicLadder to our custom.hal file by adding these two
 lines:
 
 [source,{hal}]
@@ -86,10 +86,10 @@ loadusr classicladder --nogui estop.clp
 
 I/O assignments
 
-- %I0 = Input from the pyVCP panel simulated E-Stop (the checkbox)
+- %I0 = Input from the PyVCP panel simulated E-Stop (the checkbox)
 - %I1 = Input from LinuxCNC's E-Stop
 - %I2 = Input from LinuxCNC's E-Stop Reset Pulse
-- %I3 = Input from the pyVCP panel reset button
+- %I3 = Input from the PyVCP panel reset button
 - %Q0 = Output to LinuxCNC to enable
 - %Q1 = Output to external driver board enable pin (use a N/C output if
   your board had a disable pin)
@@ -98,22 +98,21 @@ Next we add the following lines to the custom_postgui.hal file
 
 [source,{hal}]
 ----
-# E-Stop example using pyVCP buttons to simulate external components
+# E-Stop example using PyVCP buttons to simulate external components
 
-# The pyVCP checkbutton simulates a normally closed external E-Stop
+# The PyVCP checkbutton simulates a normally closed external E-Stop
 net ext-estop classicladder.0.in-00 <= pyvcp.py-estop
 
 # Request E-Stop Enable from LinuxCNC
 net estop-all-ok iocontrol.0.emc-enable-in <= classicladder.0.out-00
 
-# Request E-Stop Enable from pyVCP or external source
+# Request E-Stop Enable from PyVCP or external source
 net ext-estop-reset classicladder.0.in-03 <= pyvcp.py-reset
 
 # This line resets the E-Stop from LinuxCNC
- net emc-reset-estop iocontrol.0.user-request-enable =>
-classicladder.0.in-02
+net emc-reset-estop iocontrol.0.user-request-enable => classicladder.0.in-02
 
-# This line enables LinuxCNC to unlatch the E-Stop in Classic Ladder
+# This line enables LinuxCNC to unlatch the E-Stop in ClassicLadder
 net emc-estop iocontrol.0.user-enable-out => classicladder.0.in-01
 
 # This line turns on the green indicator when out of E-Stop
@@ -179,7 +178,7 @@ This is a program for one type of tool turret. The turret has a home
 switch at tool position 1 and another switch to tell you when the
 turret is in a lockable position. To keep track of the actual tool
 number one must count how many positions past home you are. We will use
-Classic Ladder's counter block '$CO'.The counter is preset to 1 when
+ClassicLadder's counter block '$CO'.The counter is preset to 1 when
 RESET is true. The counter is increased by one on the rising edge of
 INDEX. We then 'COMPARE' the counter value (%C0.V) to the tool number
 we want (in the example only checks for tool 1 and 2 are shown). We
@@ -187,7 +186,7 @@ also 'OPERATE' the counter value to a word variable (%W0) that (you can
 assume) is mapped on to a s32 out HAL pin so you can let some other HAL
 component know what the current tool number is. In the real world
 another s32 (in) pin would be used to get the requested tool number
-from LinuxCNC.You would have to load Classic Ladder's real time module
+from LinuxCNC.You would have to load ClassicLadder's real time module
 specifying that you want s32 in and out pins. See 'loading options'
 above. [display turret sample]
 ///////////////////////////////////////////////////////////////////////////////

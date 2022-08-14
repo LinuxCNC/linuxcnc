@@ -93,8 +93,8 @@ and parameter direction.
 [width="100%",cols="<3s,4*<"]
 |==============================================================
 |Pin and Parameter Types: |HAL_BIT |HAL_FLOAT |HAL_S32 |HAL_U32
-|Pin Directions:          |HAL_IN  |HAL_OUT   |HAL_IO  | 
-|Parameter Directions:    |HAL_RO  |HAL_RW    |        | 
+|Pin Directions:          |HAL_IN  |HAL_OUT   |HAL_IO  |
+|Parameter Directions:    |HAL_RO  |HAL_RW    |        |
 |==============================================================
 
 The full pin or parameter name is formed by joining the prefix and the
@@ -177,7 +177,7 @@ One should call 'ready()' on the component after.
 
 === component_exists
 
-Does the specified component exist at this time. +
+Does the specified component exist at this time.
 
 .Example
 ----
@@ -186,7 +186,7 @@ hal.component_exists("testpanel")
 
 === component_is_ready
 
-Is the specified component ready at this time. +
+Is the specified component ready at this time.
 
 .Example
 ----
@@ -199,12 +199,12 @@ Get the current Realtime msg level.
 
 === set_msg_level
 
-Set the current Realtime msg level. +
+Set the current Realtime msg level.
 used for debugging information.
 
 === connect
 
-Connect a pin to a signal. +
+Connect a pin to a signal.
 
 .Example
 ----
@@ -213,7 +213,7 @@ hal.connect("pinname","signal_name")
 
 === disconnect
 
-Disconnect a pin from a signal. +
+Disconnect a pin from a signal.
 
 .Example
 ----
@@ -222,7 +222,7 @@ hal.disconnect("pinname")
 
 === get_value
 
-Read a pin, param, or signal directly. +
+Read a pin, param, or signal directly.
 
 .Example
 ----

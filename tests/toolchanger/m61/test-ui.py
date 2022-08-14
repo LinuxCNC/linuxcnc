@@ -75,7 +75,7 @@ def verify_stable_pin_values(pins, duration=1):
         for pin_name in list(pins.keys()):
             val = h[pin_name]
             if val != pins[pin_name]:
-                print("ERROR: pin %s = %f (expected %f)" % (pin_name, val, pin[pin_name]))
+                print("ERROR: pin %s = %f (expected %f)" % (pin_name, val, pins[pin_name]))
                 sys.exit(1)
         time.sleep(0.010)
 
