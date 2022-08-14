@@ -263,7 +263,7 @@ spindle they operate on.
 
 It is OK to enable or disable the controls when
 they are already enabled or disabled.
-See the <<sub:feed-rate,Feed Rate>> HAL for more details.
+See the <<sub:feed-rate,Feed Rate>> section for more details.
 
 They also can be be toggled individually using 'M50' and 'M51',
 see below.
