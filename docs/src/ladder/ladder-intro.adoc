@@ -32,8 +32,7 @@ _____________________________________________________________________
 
 ClassicLadder has been adapted to work with LinuxCNC's HAL, and is
 currently being distributed along with LinuxCNC. If there are
-issues/problems/bugs please report them to the Enhanced Machine
-Controller project.
+issues/problems/bugs please report them to the LinuxCNC project.
 
 == Introduction
 

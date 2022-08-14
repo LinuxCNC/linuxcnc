@@ -19,7 +19,7 @@ For standalone modules, add the same line just above the line:
 +
 and (re)build the component
 
-3. Run hal until the fault occurs. +
+3. Run hal until the following fault occurs:
    *DO NOT EXIT THE HAL SESSION YET*. +
    You must find the start of the module (step 5) first.
 

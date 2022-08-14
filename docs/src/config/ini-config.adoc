@@ -838,8 +838,8 @@ config:
 # t_c = servo period (seconds)
 ----
 +
-So, a machine with a maximum axis velocity of 10 IPS, a max acceleration
-of 100 IPS^2, and a servo period of 0.001 sec would need:
+So, a machine with a maximum axis velocity of 10&thinsp;IPS, a max acceleration
+of 100&thinsp;IPS^2^, and a servo period of 0.001&thinsp;s would need:
 +
 10 / (2.0 * 100 * 0.001) = 50 segments to always reach maximum velocity
 along the fastest axis.
@@ -906,17 +906,17 @@ velocity that a trapezoidal profile reaches vs. the ramp:
 # f = cutoff frequency from INI
 ----
 +
-For the aforementioned machine, the ripple for a 20 Hz cutoff frequency
-is 100 / (4 * 20) = 1.25 IPS. This seems high, but keep in mind that it
+For the aforementioned machine, the ripple for a 20&thinsp;Hz cutoff frequency
+is 100 / (4 * 20) = 1.25&thinsp;IPS. This seems high, but keep in mind that it
 is only a worst-case estimate. In reality , the trapezoidal motion
 profile is limited by other factors, such as normal acceleration or
 requested velocity, and so the actual performance loss should be much
 smaller. Increasing the cutoff frequency can squeeze out more
 performance, but make the motion rougher due to acceleration
-discontinuities. A value in the range 20 Hz to 200 Hz should be reasonable
+discontinuities. A value in the range 20&thinsp;Hz to 200&thinsp;Hz should be reasonable
 to start.
 
-Finally, no amount of tweaking will speed up a toolpath with lots of
+Finally, no amount of tweaking will speed up a tool path with lots of
 small, tight corners, since you're limited by cornering acceleration.
 
 * 'SPINDLES = 3' - The number of spindles to support. It is imperative that this
@@ -979,11 +979,9 @@ LinuxCNC will not know your joint travel limits when using 'NO_FORCE_HOMING = 1'
   The TPMOD variable is optional.  If specified, use a specified (user-built)
   module instead of the default (tpmod).  Module parameters (tp_parms) may be
   included if supported by the named module.  The setting may be overridden
-  from the command line using the -t option ($ linuxcnc -h)
-
-* 'NO_PROBE_JOG_ERROR = 0' - Allow to bypass probe tripped check when you jog manually
-
-* 'NO_PROBE_HOME_ERROR = 0' - Allow to bypass probe tripped check when homing is in progress
+  from the command line using the -t option ($ linuxcnc -h).
+* 'NO_PROBE_JOG_ERROR = 0' - Allow to bypass probe tripped check when you jog manually.
+* 'NO_PROBE_HOME_ERROR = 0' - Allow to bypass probe tripped check when homing is in progress.
 
 
 [[sub:ini:sec:kins]]
@@ -994,7 +992,7 @@ LinuxCNC will not know your joint travel limits when using 'NO_FORCE_HOMING = 1'
   A gantry machine with one motor on each of two of the axes, and two motors on the third axis, has 4 joints.
   (This config variable may be used by a GUI to set the number of joints (num_joints) specified to the motion module (motmod)).
 * 'KINEMATICS = trivkins' - Specify a kinematics module for the motion module.
-  Guis may use this variable to specify the loadrt line in .hal files for the motmod module.
+  Guis may use this variable to specify the loadrt line in HAL files for the motmod module.
   For more information on kinematics modules see the manpage: '$ man kins'
 
 [[sub:ini:sec:axis-letter]]
@@ -1328,7 +1326,7 @@ image::images/encoder-counts-math.png[align="center"]
 The value for scale can be obtained analytically by doing a unit
 analysis, i.e., units are [output SI units]/[actuator units]. For
 example, on a machine with a velocity mode amplifier such that
-1 volt results in 250 mm/sec velocity.
+1&thinsp;V results in 250&thinsp;mm/s velocity.
 
 image::images/scale-math.png[align="center"]
 
@@ -1378,7 +1376,7 @@ See the following table for an example of voltage measurements.
   The limit is applied before scaling to raw output units.
   The value is applied symmetrically to both the plus and the minus side.
 * 'INPUT_SCALE = 20000' - in Sample configs
-* 'ENCODER_SCALE = 20000' - in PNCconf built configs
+* 'ENCODER_SCALE = 20000' - in PnCconf built configs
 
 Specifies the number of pulses that corresponds to a move of one machine unit as set in the [TRAJ] section.
 For a linear joint one machine unit will be equal to the setting of LINEAR_UNITS.
@@ -1405,7 +1403,7 @@ custom INI file entries see the <<sub:ini:custom,Custom Sections and Variables>>
 The following items might be used by a stepgen component.
 
 * 'SCALE = 4000' - in Sample configs
-* 'STEP_SCALE = 4000' - in PNCconf built configs
+* 'STEP_SCALE = 4000' - in PnCconf built configs
 
 Specifies the number of pulses that corresponds to a move of one machine unit as set in the [TRAJ] section.
 For stepper systems, this is the number of step pulses issued per machine unit.
