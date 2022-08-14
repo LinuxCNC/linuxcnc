@@ -2585,27 +2585,27 @@ First, modules are imported and initialized in command line order.
 After successful import, `get_handlers()` is called in the following
 state:
 
-- the widget tree is created, but not yet realized (no toplevel
-  `window.show()` has been executed yet)
-- the halcomp HAL component is set up and all HAL widget's pins have
-  already been added to it
-- it is safe to add more HAL pins because `halcomp.ready()` has not yet
+- The widget tree is created, but not yet realized (no toplevel
+  `window.show()` has been executed yet).
+- The halcomp HAL component is set up and all HAL widget's pins have
+  already been added to it.
+- It is safe to add more HAL pins because `halcomp.ready()` has not yet
   been called at this point, so you may add your own pins, for instance
   in the class `__init__()` method.
 
 Once all modules have been imported and method names extracted, the
 following steps happen:
 
-- all qualifying method names will be connected to the widget tree with
+- All qualifying method names will be connected to the widget tree with
   `connect_signals()/signal_autoconnect()` (depending on the type of UI
   imported - GtkBuilder vs the old libglade format).
-- the HAL component is finalized with halcomp.ready()
-- if a window ID was passed as argument, the widget tree is re-parented
+- The HAL component is finalized with halcomp.ready().
+- If a window ID was passed as argument, the widget tree is re-parented
   to run in this window, and Glade's toplevel window1 is abandoned (see
-  FAQ)
-- if a HAL command file was passed with `-H halfile`, it is executed
-  with halcmd
-- the Gtk main loop is run.
+  FAQ).
+- If a HAL command file was passed with `-H halfile`, it is executed
+  with halcmd.
+- The Gtk main loop is run.
 
 So when your handler class is initialized, all widgets are existent
 but not yet realized (displayed on screen). And the HAL component isn't
@@ -2659,7 +2659,7 @@ This should set debug to 2 and confirm that your module actually did it.
 
 === Persistent variables in GladeVCP
 
-A annoying aspect of GladeVCP in its earlier form and pyvcp is the
+A annoying aspect of GladeVCP in its earlier form and PyVCP is the
 fact that you may change values and HAL pins through text entry,
 sliders, spin boxes, toggle buttons etc, but their settings are not
 saved and restored at the next run of LinuxCNC - they start at the default
@@ -2690,11 +2690,11 @@ If you want any of Gtk widget state, HAL widgets output pin's values
 and/or class attributes of your handler class to be retained across
 invocations, proceed as follows:
 
-- import the `gladevcp.persistence` module
-- decide which instance attributes, and their default values you want to
-  have retained, if any
-- decide which widgets should have their state retained
-- describe these decisions in your handler class' +__init__()+ method
+- Import the `gladevcp.persistence` module.
+- Decide which instance attributes, and their default values you want to
+  have retained, if any.
+- Decide which widgets should have their state retained.
+- Describe these decisions in your handler class' +__init__()+ method
   through a nested dictionary as follows:
 
 [source,python]
@@ -2745,21 +2745,21 @@ ini.save_state(obj)::
   Saves objs's attributes as per `IniFile.vars` dictionary and the widget
   state as described in `IniFile.widgets` in `self.defaults`.
 ini.create_default_ini()::
-  Create an INI file with default values
+  Create an INI file with default values.
 ini.restore_state(obj)::
   Restore HAL out pins and obj's attributes as
-  saved/initialized to default as above
+  saved/initialized to default as above.
 
 === Saving the state on GladeVCP shutdown
 
 To save the widget and/or variable state on exit, proceed as follows:
 
-- select some interior widget (type is not important, for instance a
+- Select some interior widget (type is not important, for instance a
   table).
-- in the 'Signals' tab, select 'GtkObject'. It should show a 'destroy'
+- In the 'Signals' tab, select 'GtkObject'. It should show a 'destroy'
   signal in the first column.
-- add the handler name, e.g. 'on_destroy' to the second column.
-- add a Python handler like below:
+- Add the handler name, e.g. 'on_destroy' to the second column.
+- Add a Python handler like below:
 
 [source,python]
 ----
