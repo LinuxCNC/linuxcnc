@@ -1,5 +1,3 @@
 #!/bin/bash
 
-linuxcnc -r motion-test.ini
-exit $?
-
+exec linuxcnc -r motion-test.ini
