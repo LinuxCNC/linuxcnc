@@ -4,10 +4,17 @@
 !terms.xml
 drivers/mb2hal_HOWTO.ini
 */drivers/mb2hal_HOWTO.ini
+# Ignore po4a-generated files for other languages
+de/*
 es/*
 fr/*
 hu/*
+it/*
 nb/*
+ru/*
+sk/*
+tr/*
+uk/*
 vi/*
 zh_CN/*
 index_*.tmpl
