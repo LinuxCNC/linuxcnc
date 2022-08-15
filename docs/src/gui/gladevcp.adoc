@@ -179,7 +179,7 @@ and configs/sim/axis/gladevcp/gladevcp_panel.ini.
 === Exploring the User Interface description
 
 The user interface is created with the glade UI editor - to explore
-it, you need to have <<gladevcp:prerequisites, glade installed>>. To
+it, you need to have <<gladevcp:prerequisites,glade installed>>. To
 edit the user interface, run the command
 
 ----
@@ -2659,7 +2659,7 @@ This should set debug to 2 and confirm that your module actually did it.
 
 === Persistent variables in GladeVCP
 
-A annoying aspect of GladeVCP in its earlier form and PyVCP is the
+An annoying aspect of GladeVCP in its earlier form and PyVCP is the
 fact that you may change values and HAL pins through text entry,
 sliders, spin boxes, toggle buttons etc, but their settings are not
 saved and restored at the next run of LinuxCNC - they start at the default
@@ -2986,7 +2986,7 @@ I defined a `hal_spinbutton` widget in glade, and set a default `value` property
 
 - make sure you have the development version of LinuxCNC installed. You
   don't need the axisrc file any more, this was mentioned in the old
-  GladeVcp wiki page.
+  GladeVCP wiki page.
 - run GladeVCP or AXIS from a terminal window. If you get Python errors,
   check whether there's still a +/usr/lib/python2.6/dist-packages/hal.so+
   file lying around besides the newer
@@ -3030,7 +3030,7 @@ arise. For details, see the `keyboard_forward()` function in
 The LinuxCNC Wiki has information on adding custom widgets to GladeVCP.
 link:http://wiki.linuxcnc.org/cgi-bin/wiki.pl?GladeVCP_Custom_Widgets[GladeVCP Custom Widgets]
 
-== Auxiliary Gladevcp Applications
+== Auxiliary GladeVCP Applications
 
 Support is provided for independently installed GladeVCP applications
 that conform to system directory placements as defined by the

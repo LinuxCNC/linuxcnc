@@ -24,7 +24,7 @@ image::images/ngcgui.png[align="center"]
 * 'PYNGCGUI' is an alternate, python implementation of ngcgui.
 * 'PYNGCGUI' can run as a standalone application or can be embedded as
   a tab page (with its own set of multiple subroutine tabs) in any
-  GUI that supports embedding of gladevcp applications axis, touchy, gscreen
+  GUI that supports embedding of GladeVCP applications axis, touchy, gscreen
   and gmoccapy.
 
 Using NGCGUI or PYNGCGUI:
@@ -60,7 +60,7 @@ These examples demonstrate both 3-axis (XYZ) cartesian configurations
 (like mills) and lathe (XZ) setups.  Some examples show the use of a
 pop up keyboard for touch screen systems and other examples demonstrate
 the use of files created for the gcmc (G-code Meta Compiler) application.
-The touchy examples also demonstrate incorporation of a gladevcp back plot
+The touchy examples also demonstrate incorporation of a GladeVCP back plot
 viewer (gremlin_view).
 
 The simplest application is found as:
@@ -333,7 +333,7 @@ that uses the application truetype-tracer.  The truetype-tracer application must
 be installed independently and located in the user PATH.
 ====
 
-=== Embedding PYNGCGUI as a gladevcp tab page in a gui
+=== Embedding PYNGCGUI as a GladeVCP tab page in a gui
 
 The following INI file items go in the [DISPLAY] section for use with the
 axis, gscreen, or touchy guis.  (See additional sections below for additional
@@ -341,7 +341,7 @@ items needed)
 
 .EMBED_ Items
 * `EMBED_TAB_NAME = Pyngcgui` - name to appear on embedded tab
-* `EMBED_TAB_COMMAND = gladevcp -x {XID} pyngcgui_axis.ui` - invokes gladevcp
+* `EMBED_TAB_COMMAND = gladevcp -x {XID} pyngcgui_axis.ui` - invokes GladeVCP
 * `EMBED_TAB_LOCATION = name_of_location` - where the embedded page is located
 
 [NOTE]
@@ -355,7 +355,7 @@ Configuration Chapter.
 
 [NOTE]
 ====
-The truetype tracer gui front-end is not currently available for gladevcp
+The truetype tracer gui front-end is not currently available for GladeVCP
 applications.
 ====
 

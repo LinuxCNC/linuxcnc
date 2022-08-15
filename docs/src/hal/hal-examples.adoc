@@ -298,7 +298,7 @@ start
 # comment out the following lines while testing and use the interactive
 # option halrun -I -f start.hal to be able to show pins etc.
 
-# wait until the gladevcp GUI named winder terminates
+# wait until the GladeVCP GUI named winder terminates
 waitusr winder
 
 # stop HAL threads

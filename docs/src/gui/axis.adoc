@@ -944,7 +944,7 @@ implementation and subject to change during the development cycle.
 The AXIS GUI includes a no-op (placeholder) function named
 'user_hal_pins()'. +
 It is executed just after the .axisrc file is called and
-just before any gladevcp panels / embedded tabs are initialized. +
+just before any GladeVCP panels / embedded tabs are initialized. +
 This function may be implemented
 within a `~/.axisrc` python script or a '[DISPLAY]USER_COMMAND_FILE'
 python script to make custom HAL pins that use the 'axisui.' prefix. +

@@ -29,7 +29,7 @@ The kinematics type is selected by a motion module HAL pin that
 can be updated from a G-code program or by interactive MDI
 commands. The halui provisions for activating MDI commands can be
 used to allow buttons to select the kinematics type using
-hardware controls or a virtual panel (PyVCP, gladevcp, etc.).
+hardware controls or a virtual panel (PyVCP, GladeVCP, etc.).
 
 When a kinematics type is changed, the G-code must also issue
 commands to *force synchronization* of the interpreter and motion

@@ -517,9 +517,11 @@ More information on contact switching load can be seen on page III of link:https
 
 [underline]*Calculations:*
 
-If using a Mesa card, the input resistance of a 7i96 is 4700Ω (always consult the product manual associated with the revision being used as these values sometimes vary between revisions), giving a contact current of 5.1mA assuming a supply voltage of 24V (I = V/R).
+If using a Mesa card, the input resistance of a 7i96 is 4700&#8239;Ω (always consult the product manual associated with the revision being used as these values sometimes vary between revisions), giving a contact current of 5.1&#8239;mA assuming a supply voltage of 24&#8239;V (I = V/R).
 
-As an example, the typical relay used in a Hypertherm Powermax 65 plasma cutter (link:https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Data+Sheet%7F1308242_T77%7F1011%7Fpdf%7FEnglish%7FENG_DS_1308242_T77_1011.pdf%7F1-1393194-0[TE T77S1D10-24]) requires a minimum contact load of 100mA @ 5VDC which will dissipate 0.5W (P = I * V). If using a 24VDC power supply this would then equate to a minimum current of 20.8mA. Because there is less current drawn by the Mesa input than is required by the relay there needs to be an increase in the current.
+As an example, the typical relay used in a Hypertherm Powermax 65 plasma cutter (link:https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Data+Sheet%7F1308242_T77%7F1011%7Fpdf%7FEnglish%7FENG_DS_1308242_T77_1011.pdf%7F1-1393194-0[TE T77S1D10-24]) requires a minimum contact load of 100&#8239;mA @ 5&#8239;VDC which will dissipate 0.5&#8239;W (P = I * V).
+If using a 24&#8239;VDC power supply this would then equate to a minimum current of 20.8&#8239;mA.
+Because there is less current drawn by the Mesa input than is required by the relay there needs to be an increase in the current.
 
 The resistance can be calculated using R = Vs / (Im - Ii) where:
 
@@ -528,7 +530,8 @@ The resistance can be calculated using R = Vs / (Im - Ii) where:
 - Im = minimum current required
 - Ii = input current
 
-Using a 7i96 with an input current of 5.1mA gives a calculated value of 1529Ω. (24 / (.0208 - .0051)). This could then be rounded down to a commonly available 1500Ω resistor giving a small safety margin.
+Using a 7i96 with an input current of 5.1&#8239;mA gives a calculated value of 1529&#8239;Ω. (24 / (.0208 - .0051)).
+This could then be rounded down to a commonly available 1500&#8239;Ω resistor giving a small safety margin.
 
 The power dissipation can by calculated using P = Vs^2^ / Rs where:
 
@@ -1747,7 +1750,7 @@ The maximum percentage allowed is 100%, values above this will be set to 100%.
 
 If the user intends to use this feature it would be prudent to add *M68 E3 Q0* to both the preamble and postamble of the G-code program so the machine starts and ends in a known state.
 
-IMPORTANT: *G-cODE THC* AND *VELOCITY BASED THC* ARE NOT ABLE TO BE USED IF *CUTTER COMPENSATION* IS IN EFFECT; AN ERROR MESSAGE WILL BE DISPLAYED.
+IMPORTANT: *G-CODE THC* AND *VELOCITY BASED THC* ARE NOT ABLE TO BE USED IF *CUTTER COMPENSATION* IS IN EFFECT; AN ERROR MESSAGE WILL BE DISPLAYED.
 
 WARNING: If Cut Feed Rate in the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>> is set to Zero then QtPlasmaC will use *motion.requested-velocity* (as set by a standard Feedrate call in the G-code) for the THC calculations. This is not recommended as it is not a reliable way of implementing velocity based THC.
 
@@ -1805,7 +1808,7 @@ To use cutter compensation the user will need to use G41.1, G42.1 and G40 with t
 * *G42.1 D#<_hal[plasmac_run.kerf-width-f]>* : offsets torch to the right of the programmed path
 * *G40* turns the cutter compensation off
 
-IMPORTANT: IF *CUTTER COMPENSATION* IS IN EFFECT *G-cODE THC*, *VELOCITY BASED THC* AND *OVER CUT* ARE NOT ABLE TO BE USED; AN ERROR MESSAGE WILL BE DISPLAYED.
+IMPORTANT: IF *CUTTER COMPENSATION* IS IN EFFECT *G-CODE THC*, *VELOCITY BASED THC* AND *OVER CUT* ARE NOT ABLE TO BE USED; AN ERROR MESSAGE WILL BE DISPLAYED.
 
 [[qt_ihs-skip]]
 === Initial Height Sense (IHS) Skip
