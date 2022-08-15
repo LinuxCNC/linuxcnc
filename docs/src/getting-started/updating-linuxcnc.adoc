@@ -267,6 +267,7 @@ the HAL pin changes.
 With incorporation of joints_axes functionality, some names were
 changed to clarify available functionality.
 
+[source,{ini}]
 ----
 was: [TRAJ]MAX_VELOCITY         is: [TRAJ]MAX_LINEAR_VELOCITY
 was: [TRAJ]DEFAULT_VELOCITY     is: [TRAJ]DEFAULT_LINEAR_VELOCITY
@@ -285,6 +286,7 @@ branches. To convert, it is necessary to change the name.
 
 HAL file examples:
 
+[source,{hal}]
 ----
 was: loadrt gentrivkins
  is: loadrt trivkins
@@ -298,6 +300,7 @@ kinstype= parameter set to BOTH (for KINEMATICS_BOTH).
 
 HAL file example:
 
+[source,{hal}]
 ----
 was: loadrt gantrykins coordinates=xyyz
  is: loadrt trivkins   coordinates=xyyz kinstype=BOTH
@@ -380,6 +383,7 @@ Examples:
 
 Three axis Cartesian machine using trivkins (KINEMATICS_IDENTITY):
 
+[source,{ini}]
 -----
 [KINS]KINEMATICS  = trivkins
 [KINS]JOINTS      = 3
@@ -389,6 +393,7 @@ Three axis Cartesian machine using trivkins (KINEMATICS_IDENTITY):
 Two axis lathe using trivkins (KINEMATICS_IDENTITY) with non-consecutive
 axis letters:
 
+[source,{ini}]
 -----
 [KINS]KINEMATICS  = trivkins coordinates=XZ
 [KINS]JOINTS      = 2
@@ -398,6 +403,7 @@ axis letters:
 Gantry using trivkins with duplicated axis letters and KINEMATICS_BOTH to
 allow individual joint positioning (for homing):
 
+[source,{ini}]
 -----
 [KINS]KINEMATICS  = trivkins coordinates=XYYZ kinstype=BOTH
 [KINS]JOINTS      = 4
@@ -407,6 +413,7 @@ allow individual joint positioning (for homing):
 Gantry using trivkins (KINEMATICS_BOTH) with duplicated axis letters
 and a rotary axis with skipped axis letters (A,B skipped):
 
+[source,{ini}]
 -----
 [KINS]KINEMATICS  = trivkins coordinates=XYYZC kinstype=BOTH
 [KINS]JOINTS      = 5
@@ -416,6 +423,7 @@ and a rotary axis with skipped axis letters (A,B skipped):
 Linear Delta Robot with non-identity kins (KINEMATICS_BOTH) working in Cartesian frame
 with an additional rotary coordinate:
 
+[source,{ini}]
 -----
 [KINS]KINEMATICS  = lineardeltakins
 [KINS]JOINTS      = 4
@@ -429,6 +437,7 @@ Joints are assigned to axis letters in a defined manner ('$ man trivkins').
 
 Note: For trivkins module loading, do not include spaces about the = sign or letters:
 
+[source,{ini}]
 ----
 This:     [KINS]KINEMATICS = trivkins coordinates=XZ
 NOT This: [KINS]KINEMATICS = trivkins coordinates = X Z
@@ -537,12 +546,14 @@ of the value, not a comment character.
 
 For example, lines like this will no longer be accepted:
 
+[source,{ini}]
 -----
 MAX_VELOCITY = 7.5 # This is the max velocity of the axis.
 -----
 
 They could be transformed into pairs of lines like this:
 
+[source,{ini}]
 -----
 # This is the max velocity of the axis.
 MAX_VELOCITY = 7.5
@@ -642,32 +653,40 @@ both joint and teleop (world) jogging.
 
 === INI HAL pins
 
-HAL pins are created for INI file items for both joints ([JOINT_N]
-stanzas) and axes ([AXIS_L] stanzas):
+HAL pins are created for INI file items for both joints ([JOINT_N]) and axes ([AXIS_L]):
 
-  For N = 0 ... [KINS](JOINTS -1)
-  INI File Item              HAL pin name
-  [JOINT_N]BACKLASH          ini.N.backlash
-  [JOINT_N]FERROR            ini.N.ferror
-  [JOINT_N]MIN_FERROR        ini.N.min_ferror
-  [JOINT_N]MIN_LIMIT         ini.N.min_limit
-  [JOINT_N]MAX_LIMIT         ini.N.max_limit
-  [JOINT_N]MAX_VELOCITY      ini.N.max_velocity
-  [JOINT_N]MAX_ACCELERATION  ini.N.max_acceleration
-  [JOINT_N]HOME              ini.N.home
-  [JOINT_N]HOME_OFFSET       ini.N.home_offset
+For N = 0 ... [KINS](JOINTS-1):
 
-  For L = x y z a b c u v w:
-  INI File Item              HAL pin name
-  [AXIS_L]MIN_LIMIT          ini.L.min_limit
-  [AXIS_L]MAX_LIMIT          ini.L.max_limit
-  [AXIS_L]MAX_VELOCITY       ini.L.max_velocity
-  [AXIS_L]MAX_ACCELERATION   ini.L.max_acceleration
+[source,{ini}]
+----
+INI file item              HAL pin name
+[JOINT_N]BACKLASH          ini.N.backlash
+[JOINT_N]FERROR            ini.N.ferror
+[JOINT_N]MIN_FERROR        ini.N.min_ferror
+[JOINT_N]MIN_LIMIT         ini.N.min_limit
+[JOINT_N]MAX_LIMIT         ini.N.max_limit
+[JOINT_N]MAX_VELOCITY      ini.N.max_velocity
+[JOINT_N]MAX_ACCELERATION  ini.N.max_acceleration
+[JOINT_N]HOME              ini.N.home
+[JOINT_N]HOME_OFFSET       ini.N.home_offset
+----
 
-NOTE: In prior versions of LinuxCNC (before joints_axes updates), the
+For L = x y z a b c u v w:
+
+[source,{ini}]
+----
+INI file item              HAL pin name
+[AXIS_L]MIN_LIMIT          ini.L.min_limit
+[AXIS_L]MAX_LIMIT          ini.L.max_limit
+[AXIS_L]MAX_VELOCITY       ini.L.max_velocity
+[AXIS_L]MAX_ACCELERATION   ini.L.max_acceleration
+----
+
+[NOTE]
+In prior versions of LinuxCNC (before joints_axes updates), the
 HAL pin names 'ini.N.*' referred to axes with 0==>x, 1==>y, etc. (pins
-were created for all 9 axes) See the man page ('$ man milltask') for
-more information
+were created for all 9 axes). See the man page of 'milltask' for
+more information.
 
 == HAL Changes (Other 2.8.x)
 
@@ -1104,6 +1123,7 @@ options: '-no_make_ddts', '-no_simulated_home', '-no_use_hal_manualtoolchange',
 
 For example, to omit creation of ddts:
 
+[source,{ini}]
 ----
 HALFILE = LIB:basic_sim.tcl -no_make_ddts
 ----
