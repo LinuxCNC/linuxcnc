@@ -35,9 +35,9 @@ rate of the thread. You cannot load a user space component into the
 real time space.
 
 .loadrt Syntax and Example
+[source,{hal}]
 ----
 loadrt <component> <options>
-
 loadrt mux4 count=1
 ----
 
@@ -93,15 +93,14 @@ Realtime Threads:
   and the motion command handler and supports floating point math.
 
 .addf Syntax and Example
+[source,{hal}]
 ----
 addf <function> <thread>
-
 addf mux4.0 servo-thread
 ----
 
 [NOTE]
-If the component requires a floating point thread that is usually the slower
-servo-thread.
+If the component requires a floating point thread that is usually the slower servo-thread.
 
 [[sub:hal-loadusr]]
 === loadusr(((HAL loadusr,loadusr)))
@@ -127,11 +126,10 @@ Flags may be one or more of the following:
 -n:: name a component when it is a valid option for that component.
 
 .loadusr Syntax and Examples
+[source,{hal}]
 ----
 loadusr <component> <options>
-
 loadusr halui
-
 loadusr -Wn spindle gs2_vfd -n spindle
 ----
 
@@ -148,9 +146,9 @@ a 'net' command line and are not used by the net command. The direction arrows
 must be separated by a space from the pin names.
 
 .net Syntax and Example
+[source,{hal}]
 ----
 net signal-name pin-name <optional arrow> <optional second pin-name>
-
 net home-x joint.0.home-sw-in <= parport.0.pin-11-in
 ----
 
@@ -212,9 +210,9 @@ Parameters can be set before use or while running as needed. You cannot
 use setp on a pin that is connected to a signal.
 
 .setp Syntax and Example
+[source,{hal}]
 ----
 setp <pin/parameter-name> <value>
-
 setp parport.0.pin-08-out TRUE
 ----
 
@@ -224,11 +222,10 @@ setp parport.0.pin-08-out TRUE
 The command 'sets' sets the value of a signal.
 
 .sets Syntax and Example:
+[source,{hal}]
 ----
 sets <signal-name> <value>
-
 net mysignal and2.0.in0 pyvcp.my-led
-
 sets mysignal 1
 ----
 
@@ -246,9 +243,9 @@ signal was connected to the pin prior running the command, nothing
 happens. The 'unlinkp' command is useful for trouble shooting.
 
 .unlinkp syntax and Example
+[source,{hal}]
 ----
 unlinkp <pin-name>
-
 unlinkp parport.0.pin-02-out
 ----
 
@@ -264,9 +261,9 @@ The command 'linksp' creates a 'connection' between a signal and one
 pin.
 
 .linksp Syntax and Example
+[source,{hal}]
 ----
 linksp <signal-name> <pin-name>
-
 linksp X-step parport.0.pin-02-out
 ----
 
@@ -278,9 +275,9 @@ The command 'linkps' creates a 'connection' between one pin and one
 signal. It is the same as linksp but the arguments are reversed.
 
 .linkps Syntax and Example
+[source,{hal}]
 ----
 linkps <pin-name> <signal-name>
-
 linkps parport.0.pin-02-out X-Step
 ----
 
@@ -293,9 +290,9 @@ and the data type of <type>. Type must be 'bit', 's32', 'u32' or
 'float'. Error if <signame> all ready exists.
 
 .newsig Syntax and Example
+[source,{hal}]
 ----
 newsig <signame> <type>
-
 newsig Xstep bit
 ----
 
@@ -389,17 +386,17 @@ or the man pages.
 The 'and2' component is a two input 'and' gate. The truth table below
 shows the output based on each combination of input.
 
-.and2 Syntax
+.Syntax
 ----
 and2 [count=N] | [names=name1[,name2...]]
 ----
 
-.and2 Functions
+.Functions
 ----
 and2.n
 ----
 
-.and2 Pins
+.Pins
 ----
 and2.N.in0 (bit, in)
 and2.N.in1 (bit, in)
@@ -421,18 +418,18 @@ and2.N.out (bit, out)
 
 The 'not' component is a bit inverter.
 
-.not Syntax
+.Syntax
 ----
 not [count=n] | [names=name1[,name2...]]
 ----
 
-.not Functions
+.Functions
 ----
 not.all
 not.n
 ----
 
-.not Pins
+.Pins
 ----
 not.n.in (bit, in)
 not.n.out (bit, out)
@@ -451,17 +448,17 @@ not.n.out (bit, out)
 
 The 'or2' component is a two input OR gate.
 
-.or2 Syntax
+.Syntax
 ----
 or2[count=n] | [names=name1[,name2...]]
 ----
 
-.or2 Functions
+.Functions
 ----
 or2.n
 ----
 
-.or2 Pins
+.Pins
 ----
 or2.n.in0 (bit, in)
 or2.n.in1 (bit, in)
@@ -483,17 +480,17 @@ or2.n.out (bit, out)
 
 The 'xor2' component is a two input XOR (exclusive OR) gate.
 
-.xor2 Syntax
+.Syntax
 ----
 xor2[count=n] | [names=name1[,name2...]]
 ----
 
-.xor2 Functions
+.Functions
 ----
 xor2.n
 ----
 
-.xor2 Pins
+.Pins
 ----
 xor2.n.in0 (bit, in)
 xor2.n.in1 (bit, in)
@@ -514,15 +511,12 @@ xor2.n.out (bit, out)
 == Logic Examples(((HAL Logic Examples)))
 
 .`and2` example connecting two inputs to one output
+[source,{hal}]
 ----
 loadrt and2 count=1
-
 addf and2.0 servo-thread
-
 net my-sigin1 and2.0.in0 <= parport.0.pin-11-in
-
 net my-sigin2 and2.0.in1 <= parport.0.pin-12-in
-
 net both-on parport.0.pin-14-out <= and2.0.out
 ----
 
@@ -545,6 +539,7 @@ to 'binary coded decimal' but with more options. The 'hold' bit interrupts the
 input processing, so that the 'sum' value no longer changes.
 
 .weighted_sum component loading syntax
+[source,{hal}]
 ----
 loadrt weighted_sum wsum_sizes=size[,size,...]
 ----
@@ -554,6 +549,7 @@ Creates groups of `weighted_sum`s, each with the given number of input bits (siz
 To update the `weighted_sum`, the `process_wsums` must be attached to a thread.
 
 .add `process_wsums` function
+[source,{hal}]
 ----
 addf process_wsums servo-thread
 ----
