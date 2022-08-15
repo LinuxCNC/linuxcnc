@@ -3,21 +3,24 @@
 # This file is distributed under the same license as the Emc2-axis package.
 # <>, 2006.
 # , fuzzy
-#  <>, 2006.
+# <>, 2006.
 #
 #
+# Bruno Lualdi <blibr68@gmail.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: Emc2-axis cvs-head to 2.1\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-08-14 10:55+0200\n"
-"PO-Revision-Date: 2010-05-15 16:56-0300\n"
-"Last-Translator: Matheus Degiovani <matheus@gigatron.com.br>\n"
+"PO-Revision-Date: 2022-08-15 16:24+0000\n"
+"Last-Translator: Bruno Lualdi <blibr68@gmail.com>\n"
 "Language-Team: Portuguese/Brazil <none>\n"
-"Language: \n"
+"Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 4.14-dev\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -141,10 +144,10 @@ msgstr ""
 "Entre códigos G5.2 e G5.3, apenas códigos adicionais G5.2 são permitidos"
 
 #: src/emc/rs274ngc/interp_check.cc:260
-#, fuzzy
 msgid ""
 "D word with no G41, G41.1, G42, G42.1, G71, G71.1, G71.2 or G96 to use it"
-msgstr "Parâmetro D sem G41, G41.1, G42, G42.2 ou G96 para usá-lo"
+msgstr ""
+"Parâmetro D sem G41, G41.1, G42, G42.2, G71, G71.1, G71.2 ou G96 para usá-lo"
 
 #: src/emc/rs274ngc/interp_check.cc:269
 #, fuzzy
@@ -2715,8 +2718,7 @@ msgstr "precisa estar em modo JOINT ou desabilitado para remover home"
 
 #: src/emc/motion/command.c:1420
 msgid "need to be enabled, in coord mode for probe move"
-msgstr ""
-"precisa estar habilitado, em modo coordenado para movimento de de probe"
+msgstr "precisa estar habilitado, em modo coordenado para movimento de procura"
 
 #: src/emc/motion/command.c:1430
 msgid "can't do probe move with limits exceeded"
@@ -2816,12 +2818,14 @@ msgid "MOTION: num_joints is %d, must be between 1 and %d\n"
 msgstr "MOTION: num_joints é %d, precisa ser entre 1 e %d\n"
 
 #: src/emc/motion/motion.c:282
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "\n"
 "MOTION: num_extrajoints is %d, must be between 0 and %d\n"
 "\n"
-msgstr "MOTION: num_joints é %d, precisa ser entre 1 e %d\n"
+msgstr ""
+"\n"
+"MOTION: num_joints é %d, precisa ser entre 1 e %d\n"
 
 #: src/emc/motion/motion.c:287
 msgid ""
@@ -3956,9 +3960,8 @@ msgstr ""
 
 #: src/hal/classicladder/edit_sequential.c:745
 #: src/hal/classicladder/edit_sequential.c:782
-#, fuzzy
 msgid "There is already an element!"
-msgstr "Um arquivo já está aberto"
+msgstr "Um arquivo já está aberto!"
 
 #: src/hal/classicladder/edit_sequential.c:751
 msgid "A step can't be placed on even lines"
@@ -5385,9 +5388,8 @@ msgid "ERROR: no configurations found in path '%s'"
 msgstr ""
 
 #: tcl/bin/pickconfig.tcl:625
-#, fuzzy
 msgid "Copy Configuration?"
-msgstr "Mostrar _Configuração Hal"
+msgstr "Copia Configuração?"
 
 #: tcl/bin/pickconfig.tcl:625
 #, tcl-format
@@ -7964,11 +7966,11 @@ msgstr ""
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:514
 #, python-format
 msgid "%s: Image to gcode"
-msgstr "%s: Image to gcode"
+msgstr "%s: Imagem para gcode"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:515
 msgid "Image to gcode"
-msgstr "Image to gcode"
+msgstr "Imagem para gcode"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:525
 #, fuzzy, python-format
@@ -8219,7 +8221,7 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:71
 msgid "_Reload"
-msgstr "_Reload"
+msgstr "_Recarrega"
 
 #: share/axis/tcl/axis.tcl:76
 msgid "_Save gcode as..."
@@ -8645,9 +8647,8 @@ msgid "Tool Touch Off"
 msgstr "Apalpador"
 
 #: share/axis/tcl/axis.tcl:1021
-#, fuzzy
 msgid "Spindle:"
-msgstr "Spindle:"
+msgstr "Fuso:"
 
 #: share/axis/tcl/axis.tcl:1068 src/emc/usr_intf/touchy/touchy.glade:949
 #: src/emc/usr_intf/stepconf/main_page.glade:29
@@ -8899,7 +8900,7 @@ msgstr "Refrigeração por ar/névoa ON ou OFF [F7]"
 
 #: share/axis/tcl/axis.tcl:2258
 msgid "Send active axis home [Home]"
-msgstr "Envia eixo ativo para Home [Home]"
+msgstr "Envia eixo ativo para home [Home]"
 
 #: share/axis/tcl/axis.tcl:2259
 msgid "Set G54 offset for active axis [End]"
@@ -9411,9 +9412,8 @@ msgid "Mist Off"
 msgstr "Ar/Névoa"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1361
-#, fuzzy
 msgid "<b>Coolant</b>"
-msgstr "Refrigeração:"
+msgstr "<b>Refrigeração<b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1418
 #, fuzzy
@@ -9452,9 +9452,8 @@ msgid "label26"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:1535
-#, fuzzy
 msgid "<b>Spindle</b>"
-msgstr "Spindle:"
+msgstr "<b>Fuso<b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1586
 msgid "file.ngc"
@@ -9704,9 +9703,8 @@ msgid "Fixture"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:3378
-#, fuzzy
 msgid "<b>Tool Setting</b>"
-msgstr "Refrigeração:"
+msgstr "<b>Configuração da ferramenta<b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3406
 msgid "Delete / lines"
@@ -11862,7 +11860,8 @@ msgstr "Positivo"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -16316,9 +16315,8 @@ msgid "/dev/ttyS0"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:389
-#, fuzzy
 msgid "<b>Serial VFD</b>"
-msgstr "Spindle:"
+msgstr "<b>Serial VFD<b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:431
 msgid "<b>External Button Jogging</b>"
@@ -18790,9 +18788,8 @@ msgid "Machine powered on"
 msgstr "Máquina"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2558
-#, fuzzy
 msgid "Machine Estopped!"
-msgstr "Mostra posição da máquina"
+msgstr "Mostra posição da máquina!"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2564
 #: lib/python/gladevcp/calculator.glade:33
