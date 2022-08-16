@@ -70,7 +70,7 @@ You can add '-c-' or '-v' for debug output to the terminal.
 DISPLAY = qtvcp qtdragon
 ----
 
-=== Preference
+=== Preferences
 
 To keep track of preferences, qtdragon looks for a preference text file.
 add the following entry under the '[DISPLAY]' heading.
@@ -208,7 +208,7 @@ This filter can do any desired task: Something as simple as making sure
 the file ends with 'M2', or something as complicated as generating
 G-Code from an image.
 
-The '[FILTER]'  section of the ini file controls how filters work.
+The '[FILTER]'  section of the INI file controls how filters work.
 First, for each type of file, write a 'PROGRAM_EXTENSION' line.
 Then, specify the program to execute for each type of file.
 This program is given the name of the input file as its first argument,
@@ -542,7 +542,7 @@ setting.
 QtDragon can be setup to do integrated auto tool measurement using the
 Versa Probe widget.
 To use this feature, you will need to do some additional settings and you may
-want to use the offered hal pin to get values in your own ngc remap procedure.
+want to use the offered HAL pin to get values in your own ngc remap procedure.
 
 [IMPORTANT]
 Before starting the first test, do not forget to enter the probe
@@ -714,9 +714,9 @@ The entries in the '[RS274NGC]' section dictate to linuxcnc what and where to
 look.
 The names and location quoted should be available in either system by default.
 
-=== Needed Hal Connections
+=== Needed HAL Connections
 
-Make sure to connect the tool probe input in your hal file:
+Make sure to connect the tool probe input in your HAL file:
 If connected properly, you should be able to toggle the probe LED in qtdragon
 if you press the probe stylus.
 

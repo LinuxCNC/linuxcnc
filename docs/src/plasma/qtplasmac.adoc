@@ -324,7 +324,7 @@ image::images/qtplasmac_heights_diagram.png[width=800,align="center"]
 
 Click on the <<qt_parameters-tab,Parameters Tab>> to view the *CONFIGURATION* section which shows the user settable parameters. It is necessary to ensure every one of these settings is tailored to the machine.
 
-To set the Z axis DRO relative to the Z axis MINIMUM_LIMIT, the user should perform the following steps. It is important to understand that in QtPlasmaC, touching off the Z axis DRO has no effect on the Z axis position while running a G-Code program. These steps simply allow the user to more easily set the probe height as after performing the steps, the displayed Z axis DRO value will be relative to Z axis MINIMUM_LIMIT.
+To set the Z axis DRO relative to the Z axis MINIMUM_LIMIT, the user should perform the following steps. It is important to understand that in QtPlasmaC, touching off the Z axis DRO has no effect on the Z axis position while running a G-code program. These steps simply allow the user to more easily set the probe height as after performing the steps, the displayed Z axis DRO value will be relative to Z axis MINIMUM_LIMIT.
 
 . The user should be familiar with the recommended <<qt_z-settings, Z Axis Settings>>.
 . Home the Z axis.
@@ -408,7 +408,7 @@ Leave this blank if it is not used/required.
 [width="100%",cols="4,10,6"]
 |===
 |*Field*|*Description*|*Examples*
-|Laser On Hal Pin|Power on a laser crosshair for sheet alignment.|*Parallel Port Example:* parport.0.pin-16-out +
+|Laser On HAL Pin|Power on a laser crosshair for sheet alignment.|*Parallel Port Example:* parport.0.pin-16-out +
     *Mesa 7i96 Example:* hm2_7i96.0.ssr.00.out-00
 |===
 
@@ -517,9 +517,11 @@ More information on contact switching load can be seen on page III of link:https
 
 [underline]*Calculations:*
 
-If using a Mesa card, the input resistance of a 7i96 is 4700Ω (always consult the product manual associated with the revision being used as these values sometimes vary between revisions), giving a contact current of 5.1mA assuming a supply voltage of 24V (I = V/R).
+If using a Mesa card, the input resistance of a 7i96 is 4700&#8239;Ω (always consult the product manual associated with the revision being used as these values sometimes vary between revisions), giving a contact current of 5.1&#8239;mA assuming a supply voltage of 24&#8239;V (I = V/R).
 
-As an example, the typical relay used in a Hypertherm Powermax 65 plasma cutter (link:https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Data+Sheet%7F1308242_T77%7F1011%7Fpdf%7FEnglish%7FENG_DS_1308242_T77_1011.pdf%7F1-1393194-0[TE T77S1D10-24]) requires a minimum contact load of 100mA @ 5VDC which will dissipate 0.5W (P = I * V). If using a 24VDC power supply this would then equate to a minimum current of 20.8mA. Because there is less current drawn by the Mesa input than is required by the relay there needs to be an increase in the current.
+As an example, the typical relay used in a Hypertherm Powermax 65 plasma cutter (link:https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Data+Sheet%7F1308242_T77%7F1011%7Fpdf%7FEnglish%7FENG_DS_1308242_T77_1011.pdf%7F1-1393194-0[TE T77S1D10-24]) requires a minimum contact load of 100&#8239;mA @ 5&#8239;VDC which will dissipate 0.5&#8239;W (P = I * V).
+If using a 24&#8239;VDC power supply this would then equate to a minimum current of 20.8&#8239;mA.
+Because there is less current drawn by the Mesa input than is required by the relay there needs to be an increase in the current.
 
 The resistance can be calculated using R = Vs / (Im - Ii) where:
 
@@ -528,7 +530,8 @@ The resistance can be calculated using R = Vs / (Im - Ii) where:
 - Im = minimum current required
 - Ii = input current
 
-Using a 7i96 with an input current of 5.1mA gives a calculated value of 1529Ω. (24 / (.0208 - .0051)). This could then be rounded down to a commonly available 1500Ω resistor giving a small safety margin.
+Using a 7i96 with an input current of 5.1&#8239;mA gives a calculated value of 1529&#8239;Ω. (24 / (.0208 - .0051)).
+This could then be rounded down to a commonly available 1500&#8239;Ω resistor giving a small safety margin.
 
 The power dissipation can by calculated using P = Vs^2^ / Rs where:
 
@@ -612,7 +615,7 @@ These variables are mandatory.
 
 [source,{ini}]
 ----
-PROGRAM_EXTENSION = .ngc,.nc,.tap G-Code File (*.ngc, *.nc, *.tap)
+PROGRAM_EXTENSION = .ngc,.nc,.tap G-code File (*.ngc, *.nc, *.tap)
 ngc               = qtplasmac_gcode
 nc                = qtplasmac_gcode
 tap               = qtplasmac_gcode
@@ -778,14 +781,14 @@ If ESTOP_TYPE = 2 in the <machine_name>.prefs file, this button will act as a GU
 If ESTOP_TYPE is omitted from the <machine_name>.prefs file, this button will default to being an indicator of the hardware ESTOP's status only.
 |POWER|This button turns the GUI on and allows QtPlasmaC/LinuxCNC to control the hardware. +
     Pressing and holding the *POWER* button for longer than two seconds will bring up a dialog to exit the QtPlasmaC application.
-|CYCLE START|This button starts the cycle for any loaded G-Code file.
-|CYCLE PAUSE|This button pauses the cycle for any loaded G-Code file. +
+|CYCLE START|This button starts the cycle for any loaded G-code file.
+|CYCLE PAUSE|This button pauses the cycle for any loaded G-code file. +
     If a cycle is paused, this button will display *CYCLE RESUME* and flash. +
     Pressing *CYCLE RESUME* will resume the cycle.
 |CYCLE STOP|This button stops any actively running or paused cycle. +
     This includes: +
-    - G-Code Programs +
-    - Torch pulse if the pulse was started during *CYCLE PAUSE* (this will cancel the paused G-Code program execution as well) +
+    - G-code Programs +
+    - Torch pulse if the pulse was started during *CYCLE PAUSE* (this will cancel the paused G-code program execution as well) +
     - Probe Test +
     - Framing +
     - Manual Cut
@@ -810,8 +813,8 @@ See <<qt_custom-user-buttons, custom user buttons>> for detailed information on 
 [width="100%",cols="4,16"]
 |===
 |*Name*|*Description*
-|EDIT|This button opens a G-Code editor for the currently loaded program.
-|MDI|This button places QtPlasmaC into Manual Data Input (MDI) mode which will display the MDI HISTORY and an entry box over top of the G-Code window. +
+|EDIT|This button opens a G-code editor for the currently loaded program.
+|MDI|This button places QtPlasmaC into Manual Data Input (MDI) mode which will display the MDI HISTORY and an entry box over top of the G-code window. +
     Once pressed, this button will display "MDI CLOSE". +
     Pressing *MDI CLOSE* will close the MDI. +
     Please see the <<qt_mdi, MDI>> section for additional MDI information.
@@ -940,7 +943,7 @@ During Paused Motion, this section will be shown on top of the JOGGING panel. Th
 |CLEAR|This button will clear the currently opened program. +
     The torch (T0) will be selected if it was not the active tool.
 |OPEN|This button will open a FILE OPEN panel over the PREVIEW WINDOW.
-|RELOAD|This button will reload the currently loaded G-Code File.
+|RELOAD|This button will reload the currently loaded G-code File.
 |===
 
 [underline]*DRO*
@@ -966,13 +969,13 @@ During Paused Motion, this section will be shown on top of the JOGGING panel. Th
 
 The QtPlasmaC preview screen has the ability to be switched between different views and displays, as well as zooming in and out, and panning horizontally and vertically.
 
-When QtPlasmaC is first started, the Z (top down) view will be selected as the default view for a loaded G-Code file, but the full table view will be displayed.
+When QtPlasmaC is first started, the Z (top down) view will be selected as the default view for a loaded G-code file, but the full table view will be displayed.
 
-When a G-Code file is loaded, the display will change to the selected view.
+When a G-code file is loaded, the display will change to the selected view.
 
-Whenever there is no G-Code file loaded, the full table will automatically be displayed irrespective of which view is currently selected (the highlighted button representing the currently selected view will not change).
+Whenever there is no G-code file loaded, the full table will automatically be displayed irrespective of which view is currently selected (the highlighted button representing the currently selected view will not change).
 
-If a full table is displayed due to no G-Code file being loaded and the user wishes to change the view orientation, then pressing either Z or P will change the display to the newly selected view. If the user then wishes to display the full table while maintaining the currently selected view as the default view for a loaded G-Code file, then pressing CLEAR will achieve this and allow the selected view orientation to prevail the next time a G-Code file is loaded.
+If a full table is displayed due to no G-code file being loaded and the user wishes to change the view orientation, then pressing either Z or P will change the display to the newly selected view. If the user then wishes to display the full table while maintaining the currently selected view as the default view for a loaded G-code file, then pressing CLEAR will achieve this and allow the selected view orientation to prevail the next time a G-code file is loaded.
 
 [[qt_conversational-tab]]
 === CONVERSATIONAL Tab
@@ -1183,7 +1186,7 @@ To return any of the color changes to their default values, see the <<qt_default
     Examples are:  Feed Rate, Pierce Height, Pierce Delay, and Cut Height. Cut Amps will be shown if PowerMax communications are enabled.
 |Exit Warning|This radio button allows the user to enable or disable whether a warning will always be displayed during shutdown.
 |Optional Stop|This radio button allows the user to enable or disable whether or not a running program will pause at an *M1* command.
-|Run From Line|This radio button allows the user to enable or disable <<qt_run-from-line, Run From Line>>. If enabled, the user can click on a line of G-Code and have the program start from that line.
+|Run From Line|This radio button allows the user to enable or disable <<qt_run-from-line, Run From Line>>. If enabled, the user can click on a line of G-code and have the program start from that line.
 |Override Limits|This radio button allows the user to temporarily Override the input from a Limit Switch in the event the limit switch becomes tripped during operation. This button can only be clicked when a limit switch is tripped.
 |Override Jog|This radio button will also allow jogging while jogging is inhibited due to a float switch, breakaway switch, or ohmic probe activation. This button can only be clicked when a jog is inhibited.
 |Optional Block|This radio button allows the user to enable or disable whether or not lines starting with "/" will be skipped if present in a running program.
@@ -1232,11 +1235,11 @@ image::images/qtplasmac_stats.png[width=800,align="center"]
 
 == Using QtPlasmaC
 
-Once QtPlasmaC is successfully installed, no Z axis motion is required to be part of the G-Code cut program. In fact, if any Z axis references are present in the cut program, the standard QtPlasmaC configuration will remove them during the program loading process.
+Once QtPlasmaC is successfully installed, no Z axis motion is required to be part of the G-code cut program. In fact, if any Z axis references are present in the cut program, the standard QtPlasmaC configuration will remove them during the program loading process.
 
 For reliable use of QtPlasmaC the user should *NOT* use any Z axis offsets other than the coordinate system offsets (G54-G59.3).
 
-QtPlasmaC will automatically add a line of G-Code to move the Z axis to the correct height at the beginning of every G-Code program.
+QtPlasmaC will automatically add a line of G-code to move the Z axis to the correct height at the beginning of every G-code program.
 
 *Version Information* - QtPlasmaC will display versioning information in the title of the main window. The information will be displayed as followed "QtPlasmaC vN.XXX.YYY - powered by QtVCP on LinuxCNC vZ.Z.Z" where N is the version of QtPlasmaC, XXX is the version of the hal component (PlasmaC.comp), YYY is the GUI version, and Z.Z.Z is the version of LinuxCNC.
 
@@ -1244,13 +1247,13 @@ QtPlasmaC will automatically add a line of G-Code to move the Z axis to the corr
 
 All settings and parameters in QtPlasmaC are required to be in the same units as specified in the ini file, being either metric or imperial.
 
-If the user is attempting to run a G-Code file that is in the "other" units system then all parameters including the material file parameters are still required to be in the native machines units. Any further conversions necessary to run the G-Code file will be handled automatically by the G-Code filter program.
+If the user is attempting to run a G-code file that is in the "other" units system then all parameters including the material file parameters are still required to be in the native machines units. Any further conversions necessary to run the G-code file will be handled automatically by the G-code filter program.
 
-For example: if a user had a metric machine and wished to run a G-Code file that was set up to cut 1/4" thick material using imperial units (inch - G20) then the user with the metric machine would need to ensure that either the material number in the G-Code file was set to the corresponding metric material to be cut, or that a new material is created with the correct metric parameters for the metric material to be cut. If the metric user wanted to cut the G-Code file using imperial material, then the new material parameters would need to be converted from imperial units to metric when they are entered.
+For example: if a user had a metric machine and wished to run a G-code file that was set up to cut 1/4" thick material using imperial units (inch - G20) then the user with the metric machine would need to ensure that either the material number in the G-code file was set to the corresponding metric material to be cut, or that a new material is created with the correct metric parameters for the metric material to be cut. If the metric user wanted to cut the G-code file using imperial material, then the new material parameters would need to be converted from imperial units to metric when they are entered.
 
 === Preamble and Postamble Codes
 
-The following stanzas are the minimum recommended codes to include in the preamble and postamble of any G-Code file to be run by QtPlasmaC:
+The following stanzas are the minimum recommended codes to include in the preamble and postamble of any G-code file to be run by QtPlasmaC:
 
 Metric:
 [source,{ngc}]
@@ -1264,13 +1267,13 @@ Imperial:
 G20 G40 G49 G64p0.004 G80 G90 G92.1 G94 G97
 ----
 
-A detailed explanation of each G-Code can be found in the docs link:../gcode/g-code.html[here].
+A detailed explanation of each G-code can be found in the docs link:../gcode/g-code.html[here].
 
 Note that throughout this user guide there are several additional recommendations for codes that are prudent to add to both the preamble and postamble depending on the features the user wishes to utilize.
 
 === Mandatory Codes
 
-Aside from the preamble code, postamble code, and X/Y motion code, the only mandatory G-Code syntax for QtPlasmaC to run a G-Code program using a torch for cutting is *M3 $0 S1* to begin a cut and *M5 $0* to end a cut.
+Aside from the preamble code, postamble code, and X/Y motion code, the only mandatory G-code syntax for QtPlasmaC to run a G-code program using a torch for cutting is *M3 $0 S1* to begin a cut and *M5 $0* to end a cut.
 
 For backwards compatibility it is permissible to use *M3 S1* in lieu of *M3 $0 S1* to begin a cutting job and *M5* in lieu of *M5 $0* to end a cutting job. Note that this applies to cutting jobs only, for scribe and spotting jobs the *$n* tool identifier is mandatory.
 
@@ -1294,7 +1297,7 @@ If the user intends to place the material randomly on the table then the user mu
 
 === Cut Feed Rate
 
-QtPlasmaC is able to read a material file to load all the required cut parameters. To enable to G-Code file to use the cut feed rate setting from the cut parameters use the following code in the G-Code file:
+QtPlasmaC is able to read a material file to load all the required cut parameters. To enable to G-code file to use the cut feed rate setting from the cut parameters use the following code in the G-code file:
 
 
 [source,{ngc}]
@@ -1302,23 +1305,23 @@ QtPlasmaC is able to read a material file to load all the required cut parameter
 F#<_hal[plasmac.cut-feed-rate]>
 ----
 
-It is possible to use the standard G-Code *F* word to set the cut feed rate as follows:
+It is possible to use the standard G-code *F* word to set the cut feed rate as follows:
 
 [source,{ngc}]
 ----
 F 1000
 ----
 
-If the *F* word is used and the *F* word value does not match the cut feed rate of the selected material then a warning dialog will indicate this during loading of the G-Code file.
+If the *F* word is used and the *F* word value does not match the cut feed rate of the selected material then a warning dialog will indicate this during loading of the G-code file.
 
 [[qt_material-handling]]
 === Material File
 
-Material handling uses a material file that was created for the machine configuration when the configuration wizard was ran and allows the user to conveniently store known material settings for easy recall either manually or automatically via G-Code. The resulting <<qt_material-file, material file>> is named *<machine_name>_material.cfg*.
+Material handling uses a material file that was created for the machine configuration when the configuration wizard was ran and allows the user to conveniently store known material settings for easy recall either manually or automatically via G-code. The resulting <<qt_material-file, material file>> is named *<machine_name>_material.cfg*.
 
-QtPlasmaC does not require the use of a material file. Instead, the user could change the cut parameters manually from the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>>. It is also not required to use the automatic material changes. If the user does not wish to use this feature they can simply omit the material change codes from the G-Code file.
+QtPlasmaC does not require the use of a material file. Instead, the user could change the cut parameters manually from the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>>. It is also not required to use the automatic material changes. If the user does not wish to use this feature they can simply omit the material change codes from the G-code file.
 
-It is also possible to not use the material file and <<qt_magic-comments, automatically load materials>> from within the G-Code file.
+It is also possible to not use the material file and <<qt_magic-comments, automatically load materials>> from within the G-code file.
 
 [[qt_material-file]]
 Material numbers in the materials file do not need to be consecutive nor do they need to be in numerical order.
@@ -1346,7 +1349,7 @@ The following variables are optional. If they are not detected or have no value 
 [NOTE]
 Material numbers 1000000 and above are reserved for temporary materials.
 
-WARNING: It is the responsibility of the operator to ensure that the variables are included if they are a requirement for the G-Code to be run.
+WARNING: It is the responsibility of the operator to ensure that the variables are included if they are a requirement for the G-code to be run.
 
 The material file uses the following format:
 
@@ -1375,7 +1378,7 @@ The material file may be edited with a text editor while LinuxCNC is running. Af
 
 === Manual Material Handling
 
-For manual material handling, the user would manually select the material from the materials list in the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>> before starting the G-Code program. In addition to selecting materials with materials list in the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>>, the user could use the MDI to change materials with the following command:
+For manual material handling, the user would manually select the material from the materials list in the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>> before starting the G-code program. In addition to selecting materials with materials list in the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>>, the user could use the MDI to change materials with the following command:
 
 [source,{ngc}]
 ----
@@ -1398,7 +1401,7 @@ Manual material handling will restrict the user to only one material for the ent
 
 === Automatic Material Handling
 
-For automatic material handling, the user would add commands to their G-Code file which will enable QtPlasmaC to change the material automatically.
+For automatic material handling, the user would add commands to their G-code file which will enable QtPlasmaC to change the material automatically.
 
 The following codes may be used to allow QtPlasmaC to automatically change materials:
 
@@ -1406,7 +1409,7 @@ The following codes may be used to allow QtPlasmaC to automatically change mater
 * *M66 P3 L3 Q1* - Adds a small delay (1 second in this example) to wait for QtPlasmaC to confirm that it successfully changed materials.
 * *F#<_hal[plasmac.cut-feed-rate]>* - Sets the cut feed rate to the feed rate shown in the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>>.
 
-For automatic material handling, the codes MUST be applied in the order shown. If a G-Code program is loaded which contains one or more material change commands then the first material will be displayed in the top header of the PREVIEW WINDOW on the <<qt_main-tab, MAIN Tab>> as the program is loading. The following code is the minimum code necessary to have a successful cut using the automatic material selection method:
+For automatic material handling, the codes MUST be applied in the order shown. If a G-code program is loaded which contains one or more material change commands then the first material will be displayed in the top header of the PREVIEW WINDOW on the <<qt_main-tab, MAIN Tab>> as the program is loading. The following code is the minimum code necessary to have a successful cut using the automatic material selection method:
 
 [source,{ngc}]
 ----
@@ -1420,15 +1423,15 @@ M5 $0
 ----
 
 [[qt_magic-comments]]
-=== Material Addition Via Magic Comments In G-Code
+=== Material Addition Via Magic Comments In G-code
 
-By using "magic comments" in a G-Code file it is possible to do the following:
+By using "magic comments" in a G-code file it is possible to do the following:
 
 - Add new materials to the <machine_name>_material.cfg file.
 - Edit existing materials in the <machine_name>_material.cfg file.
 - Use one or more temporary materials.
 
-Temporary materials are numbered automatically by QtPlasmaC and the material change will also be done by QtPlasmaC and should not be added to the G-Code file by CAM software or otherwise. The material numbers begin at 1000000 and are incremented for each temporary material. It is not possible to save a temporary material, however the user could create a new material while a temporary material is displayed and it will use the settings from the temporary material as the defaults.
+Temporary materials are numbered automatically by QtPlasmaC and the material change will also be done by QtPlasmaC and should not be added to the G-code file by CAM software or otherwise. The material numbers begin at 1000000 and are incremented for each temporary material. It is not possible to save a temporary material, however the user could create a new material while a temporary material is displayed and it will use the settings from the temporary material as the defaults.
 
 TIP: It is possible to use temporary materials only and have an empty <machine_name>_material.cfg file. This negates the need to keep the QtPlasmaC materials file updated with the CAM tool file.
 
@@ -1436,8 +1439,8 @@ TIP: It is possible to use temporary materials only and have an empty <machine_n
 - The beginning of the magic comment must be: *(o=*
 - The equals sign must immediately follow each parameter with no space.
 - The mandatory parameters must be in the magic comment (for option 0, *na* is optional and *nu* is not used).
-- There can be any number and type of magic comments in a G-Code file.
-- If option 0 is to be used in addition to option 1 and/or option 2 then all option 0 must appear after all option 1 or all option 2 in the G-Code file.
+- There can be any number and type of magic comments in a G-code file.
+- If option 0 is to be used in addition to option 1 and/or option 2 then all option 0 must appear after all option 1 or all option 2 in the G-code file.
 
 The options are:
 
@@ -1445,7 +1448,7 @@ The options are:
 |===
 |*Option*|*Description*
 |0|Creates a temporary default material. +
-    Material information added with this option will be discarded by a LinuxCNC restart or materials reload. They may also be overwritten by a new G-Code file that has temporary materials.
+    Material information added with this option will be discarded by a LinuxCNC restart or materials reload. They may also be overwritten by a new G-code file that has temporary materials.
 |1|Adds a new material if the number specified does not exist.
 |2|Overwrites an existing material if the number specified exists. +
     Adds a new material if the number specified does not exist.
@@ -1488,7 +1491,7 @@ A complete example:
 (o=0, nu=2, na=5mm Mild Steel 40A, ph=3.1, pd=0.1, ch=0.75, fr=3000, kw=0.5, th=1, ca=45, cv=110, pe=0.1, gp=5, cm=1, jh=0, jd=0)
 ----
 
-If a temporary material has been specified in a G-Code file then the material change line (M190...) and wait for change line (M66...) will be added by the G-Code filter and are not required in the G-Code file.
+If a temporary material has been specified in a G-code file then the material change line (M190...) and wait for change line (M66...) will be added by the G-code filter and are not required in the G-code file.
 
 === Material Converter
 
@@ -1651,9 +1654,9 @@ Path tolerance is set with a G64 command and a following P value. The P value co
 
 The default LinuxCNC path tolerance is set for maximum speed which will severely round corners when used with normal plasma cutting speeds.
 
-It is recommended that the path tolerance is set by placing the appropriate G64 command and P value in the header of each G-Code file.
+It is recommended that the path tolerance is set by placing the appropriate G64 command and P value in the header of each G-code file.
 
-The provided G-Code filter program will test for the existence of a G64 Pn command prior to the first motion command. If no G64 command is found it will insert a G64 P0.1 command which sets the path tolerance to 0.1mm. For a imperial config the command will be G64 P0.004.
+The provided G-code filter program will test for the existence of a G64 Pn command prior to the first motion command. If no G64 command is found it will insert a G64 P0.1 command which sets the path tolerance to 0.1mm. For a imperial config the command will be G64 P0.004.
 
 For Metric:
 [source,{ngc}]
@@ -1670,11 +1673,11 @@ G64 P0.004
 [[qt_paused-motion]]
 === Paused Motion
 
-QtPlasmaC has the ability to allow the repositioning of the X and Y axes along the current cut path while the G-Code program is paused.
+QtPlasmaC has the ability to allow the repositioning of the X and Y axes along the current cut path while the G-code program is paused.
 
 In order to use this feature, LinuxCNC's Adaptive Feed Control (M52) must be turned on (P1).
 
-To enable *Paused Motion* The preamble of the G-Code must contain the following line:
+To enable *Paused Motion* The preamble of the G-code must contain the following line:
 
 [source,{ngc}]
 ----
@@ -1698,7 +1701,7 @@ Using this feature will cause all motion to pause at the end of the cut while th
 [[qt_multi-tool]]
 === Multiple Tools
 
-QtPlasmaC has the ability to allow the use of more than one type of plasma tool by utilizing LinuxCNC spindles as a plasma tool when running a G-Code program.
+QtPlasmaC has the ability to allow the use of more than one type of plasma tool by utilizing LinuxCNC spindles as a plasma tool when running a G-code program.
 
 Valid plasma tools for use are:
 
@@ -1727,7 +1730,7 @@ In order to use a scribe, it is necessary for the user to add the X and Y axis o
 [[qt_velocity-reduction]]
 === Velocity Reduction
 
-There is a HAL pin available named *motion.analog-out-03* that can be changed in G-Code with the *M67 (Synchronized with Motion)/M68 (Immediate)* commands. This pin will reduce the velocity to the percentage specified in the command.
+There is a HAL pin available named *motion.analog-out-03* that can be changed in G-code with the *M67 (Synchronized with Motion)/M68 (Immediate)* commands. This pin will reduce the velocity to the percentage specified in the command.
 
 It is important to thoroughly understand the difference between *Synchronized with Motion* and *Immediate*:
 
@@ -1745,11 +1748,11 @@ The minimum percentage allowed is 10%, values below this will be set to 10%.
 
 The maximum percentage allowed is 100%, values above this will be set to 100%.
 
-If the user intends to use this feature it would be prudent to add *M68 E3 Q0* to both the preamble and postamble of the G-Code program so the machine starts and ends in a known state.
+If the user intends to use this feature it would be prudent to add *M68 E3 Q0* to both the preamble and postamble of the G-code program so the machine starts and ends in a known state.
 
 IMPORTANT: *G-CODE THC* AND *VELOCITY BASED THC* ARE NOT ABLE TO BE USED IF *CUTTER COMPENSATION* IS IN EFFECT; AN ERROR MESSAGE WILL BE DISPLAYED.
 
-WARNING: If Cut Feed Rate in the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>> is set to Zero then QtPlasmaC will use *motion.requested-velocity* (as set by a standard Feedrate call in the G-Code) for the THC calculations. This is not recommended as it is not a reliable way of implementing velocity based THC.
+WARNING: If Cut Feed Rate in the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>> is set to Zero then QtPlasmaC will use *motion.requested-velocity* (as set by a standard Feedrate call in the G-code) for the THC calculations. This is not recommended as it is not a reliable way of implementing velocity based THC.
 
 [NOTE]
 All references to CutFeedRate refer to the *Cut Feed Rate* value displayed in the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>>.
@@ -1759,7 +1762,7 @@ All references to CutFeedRate refer to the *Cut Feed Rate* value displayed in th
 
 The THC can be enabled or disabled from the THC frame of the <<qt_main-tab, MAIN Tab>>.
 
-The THC can also be enabled or disabled directly from the G-Code program.
+The THC can also be enabled or disabled directly from the G-code program.
 
 The THC does not become active until the velocity reaches 99.9% of the *CutFeedRate* and then the THC *Delay* time if any in the THC section of the <<qt_parameters-tab, PARAMETERS Tab>> has timed out. This is to allow the arc voltage to stabilize.
 
@@ -1768,9 +1771,9 @@ QtPlasmaC uses a control voltage which is dependent on the state of the *AUTO VO
 . If *Use Auto Volts* is checked then the actual cut voltage is sampled at the end of the THC *Delay* time and this is used as the target voltage to adjust the height of the torch.
 . If *Use Auto Volts* is not checked then the voltage displayed as Cut Volts in the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>> is used as the target voltage to adjust the height of the torch.
 
-[underline]*G-Code THC*
+[underline]*G-code THC*
 
-THC may be disabled and enabled directly from G-Code, provided the THC is not disabled in the THC Section of the <<qt_main-tab, MAIN Tab>>, by setting or resetting the *motion.digital-out-02* pin with the M-Codes M62-M65:
+THC may be disabled and enabled directly from G-code, provided the THC is not disabled in the THC Section of the <<qt_main-tab, MAIN Tab>>, by setting or resetting the *motion.digital-out-02* pin with the M-Codes M62-M65:
 
 * *M62 P2* will disable THC (Synchronized with Motion)
 * *M63 P2* will enable THC (Synchronized with Motion)
@@ -1797,7 +1800,7 @@ It is important to note that <<qt_velocity-reduction, Velocity Reduction>> affec
 [[qt_cutter-compensation]]
 === Cutter Compensation
 
-LinuxCNC (QtPlasmaC) has the ability to automatically adjust the cut path of the current program by the amount specified in Kerf Width of the selected material's Cut Parameters. This is helpful if the G-Code is programmed to the nominal cut path and the user will be running the program on different thickness materials to help ensure consistently sized parts.
+LinuxCNC (QtPlasmaC) has the ability to automatically adjust the cut path of the current program by the amount specified in Kerf Width of the selected material's Cut Parameters. This is helpful if the G-code is programmed to the nominal cut path and the user will be running the program on different thickness materials to help ensure consistently sized parts.
 
 To use cutter compensation the user will need to use G41.1, G42.1 and G40 with the kerf width HAL pin:
 
@@ -1889,13 +1892,13 @@ IMPORTANT: PROBE HEIGHT NEEDS TO BE SET ABOVE THE TOP OF THE MATERIAL FOR OFFSET
 
 QtPlasmaC allows two different cut modes:
 
-. *NORMAL CUT* - runs the loaded G-Code program to pierce then cut.
+. *NORMAL CUT* - runs the loaded G-code program to pierce then cut.
 . *PIERCE ONLY* - only pierces the material at each cut start position, useful prior to a *NORMAL CUT* on <<qt_thick-materials, thick materials>>
 
 There are two ways of enabling this feature:
 
 . Utilize the default <<qt_button-cut, custom user button>> to toggle between the cut types.
-. Adding the following line to the G-Code program before the first cut to enable *Pierce Only* mode for the current file:
+. Adding the following line to the G-code program before the first cut to enable *Pierce Only* mode for the current file:
 
 [source,{ngc}]
 ----
@@ -1910,7 +1913,7 @@ It is recommended that any holes to be cut have a diameter no less than one and 
 
 It is also recommended that holes with a diameter of less than 32mm (1.26") are cut at 60% of the feed rate used for profile cuts. This should also lock out THC due to velocity constraints.
 
-QtPlasmaC can utilize G-Code commands usually set by a CAM Post Processor (PP) to aid in hole cutting or if the user does not have a PP or the user's PP does not support these methods then QtPlasmaC can automatically adapt the G-Code to suit. This automatic mode is disabled by default.
+QtPlasmaC can utilize G-code commands usually set by a CAM Post Processor (PP) to aid in hole cutting or if the user does not have a PP or the user's PP does not support these methods then QtPlasmaC can automatically adapt the G-code to suit. This automatic mode is disabled by default.
 
 There are three methods available for improving the quality of small holes:
 
@@ -1925,7 +1928,7 @@ IMPORTANT: *OVER CUT* IS NOT ABLE TO BE USED IF CUTTER COMPENSATION IS IN EFFECT
 
 === Hole Cutting
 
-G-Code commands can be set up by either by a CAM Post Processor (PP) or by hand coding.
+G-code commands can be set up by either by a CAM Post Processor (PP) or by hand coding.
 
 [[qt_hole-cutting-velocity-reduction]]
 [underline]*Hole Cutting Velocity Reduction*
@@ -1960,9 +1963,9 @@ This method can be invoked by setting the <<qt_pause-at-end, Pause At End>> para
 [[qt_overcut]]
 [underline]*Over cut*
 
-The torch can be turned off at the end of the hole by setting the *motion.digital-out-03* pin with the M-Codes *M62 (Synchronized with Motion)* or *M64 (Immediate)*. After turning the torch off it is necessary to allow the torch to be turned on again before beginning the next cut by resetting the *motion.digital-out-03* pin with the M-Codes *M63* or *M65*, this will be done automatically by the QtPlasmaC G-Code parser if it reaches an M5 command without seeing a *M63 P3* or *M65 P3*.
+The torch can be turned off at the end of the hole by setting the *motion.digital-out-03* pin with the M-Codes *M62 (Synchronized with Motion)* or *M64 (Immediate)*. After turning the torch off it is necessary to allow the torch to be turned on again before beginning the next cut by resetting the *motion.digital-out-03* pin with the M-Codes *M63* or *M65*, this will be done automatically by the QtPlasmaC G-code parser if it reaches an M5 command without seeing a *M63 P3* or *M65 P3*.
 
-After the torch is turned off the hole path will be followed for a default length of 4mm (0.157"). This distance may be specified by adding *#<oclength> = n* to the G-Code file.
+After the torch is turned off the hole path will be followed for a default length of 4mm (0.157"). This distance may be specified by adding *#<oclength> = n* to the G-code file.
 
 * *M62 P3* will turn the torch off (Synchronized with Motion)
 * *M63 P3* will allow the torch to be turned on (Synchronized with Motion)
@@ -1999,11 +2002,11 @@ M2 (end job)
 [[qt_hole-cutting]]
 === Hole Cutting - Automatic
 
-QtPlasmaC has the ability to automatically modify the G-Code to reduce the velocity and/or apply *Over cut* which can be useful when cutting holes.
+QtPlasmaC has the ability to automatically modify the G-code to reduce the velocity and/or apply *Over cut* which can be useful when cutting holes.
 
-For valid hole sensing it is required that all values in the G2 or G3 G-Code line are explicit, an error dialog will be displayed if any values are mathematically calculated.
+For valid hole sensing it is required that all values in the G2 or G3 G-code line are explicit, an error dialog will be displayed if any values are mathematically calculated.
 
-QtPlasmaC Hole Sensing is disabled by default. It can be enabled/disabled by using the following G-Code parameters to select the desired hole sensing mode:
+QtPlasmaC Hole Sensing is disabled by default. It can be enabled/disabled by using the following G-code parameters to select the desired hole sensing mode:
 
 * *#<holes> = 0* - Causes QtPlasmaC to disable hole sensing if it was previously enabled.
 * *#<holes> = 1* - Causes QtPlasmaC to reduce the speed of holes less than 32mm (1.26") to 60% of *CutFeedRate*.
@@ -2011,11 +2014,11 @@ QtPlasmaC Hole Sensing is disabled by default. It can be enabled/disabled by usi
 * *#<holes> = 3* - Causes QtPlasmaC to reduce the speed of holes less than 32mm (1.26") and arcs less than 16mm (0.63") to 60% of *CutFeedRate*.
 * *#<holes> = 4* - Causes QtPlasmaC to <<qt_overcut, Over cut>> the hole in addition to the velocity change in setting 3.
 
-The default hole size for QtPlasmaC hole sensing is 32mm (1.26"). It is possible to change this value with the following command in a G-Code file:
+The default hole size for QtPlasmaC hole sensing is 32mm (1.26"). It is possible to change this value with the following command in a G-code file:
 
-* *#<h_diameter> = nn* - To set a diameter (nn) in the same units system as the rest of the G-Code file.
+* *#<h_diameter> = nn* - To set a diameter (nn) in the same units system as the rest of the G-code file.
 
-The default velocity for QtPlasmaC small holes is 60% of the current feed rate. It is possible to change this value with the following command in a G-Code file:
+The default velocity for QtPlasmaC small holes is 60% of the current feed rate. It is possible to change this value with the following command in a G-code file:
 
 * *#<h_velocity> = nn* - to set the percentage (nn) of the current feed rate required.
 
@@ -2023,13 +2026,13 @@ The default velocity for QtPlasmaC small holes is 60% of the current feed rate. 
 
 If Hole Sensing modes 2 or 4 are active, QtPlasmaC will over cut the hole in addition to the velocity changes associated with modes 1 and 3.
 
-The default over cut length for QtPlasmaC hole sensing is 4mm (0.157"). It is possible to change this value with the following command in a G-Code file:
+The default over cut length for QtPlasmaC hole sensing is 4mm (0.157"). It is possible to change this value with the following command in a G-code file:
 
-* *#<oclength> = nn* to specify an over cut length (nn) in the same units system as the rest of the G-Code file.
+* *#<oclength> = nn* to specify an over cut length (nn) in the same units system as the rest of the G-code file.
 
 [underline]*Arc Dwell (Pause At End)*
 
-This feature can be used in addition to setting the desired hole sensing mode via the appropriate G-Code parameter by setting the <<qt_pause-at-end, Pause At End>> parameter in the MATERIAL frame of the <<qt_parameters-tab, PARAMETERS Tab>>.
+This feature can be used in addition to setting the desired hole sensing mode via the appropriate G-code parameter by setting the <<qt_pause-at-end, Pause At End>> parameter in the MATERIAL frame of the <<qt_parameters-tab, PARAMETERS Tab>>.
 
 Sample code:
 
@@ -2051,11 +2054,11 @@ M2 (end job)
 ----
 
 [NOTE]
-It is OK to have multiple and mixed hole commands in a single G-Code file.
+It is OK to have multiple and mixed hole commands in a single G-code file.
 
 === Single Cut
 
-A single cut is a single unidirectional cutting move often used to cut a sheet into smaller pieces prior to running a G-Code program.
+A single cut is a single unidirectional cutting move often used to cut a sheet into smaller pieces prior to running a G-code program.
 
 The machine needs to be homed before commencing a single cut.
 
@@ -2114,7 +2117,7 @@ The are two functions built into QtPlasmaC to help alleviate these issues.
 
 [underline]*Pierce Only*
 
-*Pierce Only* mode converts the loaded G-Code program and then runs the program to pierce the material at the start position of each cut. Scribe and Spotting commands will be ignored and no pierce will take place in those locations.
+*Pierce Only* mode converts the loaded G-code program and then runs the program to pierce the material at the start position of each cut. Scribe and Spotting commands will be ignored and no pierce will take place in those locations.
 
 This mode is useful for thick materials which may produce enough dross on the material surface from piercing to interfere with the torch while cutting. The entire sheet can pierced and then cleaned off prior to cutting.
 
@@ -2153,7 +2156,7 @@ Both *Mesh Mode* and *Ignore Arc OK* can be enabled/disabled at any time during 
 This mode can be selected by:
 
 . Checking the *Ignore Arc OK* check button in the CONTROL section of the <<qt_main-tab, MAIN Tab>>. +
-. Setting HAL pin *motion.digital-out-01* to 1 via G-Code.
+. Setting HAL pin *motion.digital-out-01* to 1 via G-code.
 
 * *M62 P1* will enable *Ignore Arc OK* (Synchronized with Motion)
 * *M63 P1* will disable *Ignore Arc OK* (Synchronized with Motion)
@@ -2204,20 +2207,20 @@ IMPORTANT: PUDDLE JUMP IS DISABLED DURING CUT RECOVERY
 [[qt_run-from-line]]
 === Run From Line
 
-If the user has the Run From Line option enabled in the GUI SETTINGS section of the <<qt_parameters-tab, PARAMETERS Tab>> they will have the ability to start from any line in a G-Code program via the following methods:
+If the user has the Run From Line option enabled in the GUI SETTINGS section of the <<qt_parameters-tab, PARAMETERS Tab>> they will have the ability to start from any line in a G-code program via the following methods:
 
 . Clicking any line in the Preview Window
-. Clicking any line in the G-Code Window
+. Clicking any line in the G-code Window
 
 Note that the Run From Line function will run from the beginning of the selected line.
 
-It is important to note that G-Code programs can be run from any selected line using this method, however a leadin may not be possible depending on the line selected. In this case, an error message will be displayed to let the user know the leadin calculation was not possible.
+It is important to note that G-code programs can be run from any selected line using this method, however a leadin may not be possible depending on the line selected. In this case, an error message will be displayed to let the user know the leadin calculation was not possible.
 
 Once the user has selected the starting place, the *CYCLE START* button will blink *"SELECTED nn"* where nn is the corresponding line number selected. Clicking this button will bring up the following Run From Line dialog box:
 
 It is not possible to use Run From Line from within a subroutine. If the user selects a line within a subroutine and clicks *"SELECTED nn"* then an error message will be displayed that includes the O-Code name of the subroutine.
 
-It is not possible to use Run From Line if previous G-Code has set cutter compensation active. If the user selects a line while cutter compensation is active and clicks *"SELECTED nn"* then an error message will be displayed.
+It is not possible to use Run From Line if previous G-code has set cutter compensation active. If the user selects a line while cutter compensation is active and clicks *"SELECTED nn"* then an error message will be displayed.
 
 It is possible to select a new line while Run From Line is active.
 
@@ -2245,9 +2248,9 @@ After pressing *LOAD*, the blinking "SELECTED nn" button will change to *RUN FRO
 
 *Run From Line selections may be canceled in the following ways:*
 
-. Click the background of the preview window - this method will cancel a selection of either a cut line in the preview window, or a G-Code line in the G-Code window.
-. Click the text of the first line of the G-Code program in the G-Code display - this method will cancel a selection of either a cut line in the preview window, or a G-Code line in the G-Code window.
-. Clicking *RELOAD* in the G-Code window header - this method will cancel the Run From Line process if LOAD was clicked on the Run From Line dialog box and "rfl.ngc" is displayed as the loaded file name in the G-Code window header. This will return the user to the originally loaded file.
+. Click the background of the preview window - this method will cancel a selection of either a cut line in the preview window, or a G-code line in the G-code window.
+. Click the text of the first line of the G-code program in the G-code display - this method will cancel a selection of either a cut line in the preview window, or a G-code line in the G-code window.
+. Clicking *RELOAD* in the G-code window header - this method will cancel the Run From Line process if LOAD was clicked on the Run From Line dialog box and "rfl.ngc" is displayed as the loaded file name in the G-code window header. This will return the user to the originally loaded file.
 
 [[qt_scribe]]
 === Scribe
@@ -2258,13 +2261,13 @@ Using a scribe requires the use of the LinuxCNC tool table. Tool 0 is assigned t
 
 The plasma torch offsets for X and Y will always be zero. The tools are selected by the *Tn M6* command followed by a *G43 H0* command which is required to apply the offsets. The tool is then started with a *M3 $n S1* command. For *n*, use 0 for torch cutting or 1 for scribing.
 
-To stop the scribe, use the G-Code command *M5 $1*.
+To stop the scribe, use the G-code command *M5 $1*.
 
 If the user has not yet assigned the HAL pins for the scribe in the configuration wizard then they may do so by using the appropriate <<configuring, configuration wizard>> or by manually editing the hal file, see <<qt_modify-config, modifying QtPlasmaC>>.
 
 There are two HAL output pins used to operate the scribe, the first pin is used to arm the scribe which moves the scribe to the surface of the material. After the <<qt_scribe-config, Arm Delay>> has elapsed, the second pin is used to start the scribe. After the <<qt_scribe-config, On Delay>> has elapsed, motion will begin.
 
-Using QtPlasmaC after enabling the scribe requires the selection of either the torch or the scribe in each G-Code file as a LinuxCNC tool.
+Using QtPlasmaC after enabling the scribe requires the selection of either the torch or the scribe in each G-code file as a LinuxCNC tool.
 
 The first step is to set the offsets for the scribe by following the procedure described in <<peripheral-offsets, Peripheral Offsets>>.
 
@@ -2277,7 +2280,7 @@ Save the parameters in the Config tab.
 
 After the above directions are completed, the scribe may be tested manually by issuing a *M3 $1 S1* command in the MDI input. The user may find it helpful to use this method to scribe a small divot and then try to pulse the torch in the same location to align the offsets between the scribe and the torch.
 
-To use the scribe from G-Code:
+To use the scribe from G-code:
 
 [source,{ngc}]
 ----
@@ -2298,9 +2301,9 @@ M5 $-1 (end all)
 
 It is a good idea to switch back to the torch at the end of the program before the final rapid parking move so the machine is always in the same state at idle.
 
-The user can switch between the torch and the scribe any number of times during a program by using the appropriate G-Codes.
+The user can switch between the torch and the scribe any number of times during a program by using the appropriate G-codes.
 
-Issuing *M3 S1* (without $n) will cause the machine to behave as if an *M3 $0 S1* had been issued and issuing *M5* (without $n) will cause the machine to behave as if an *M5 $0* had been issued. This will control the torch firing by default in order to provide backward compatibility for previous G-Code files.
+Issuing *M3 S1* (without $n) will cause the machine to behave as if an *M3 $0 S1* had been issued and issuing *M5* (without $n) will cause the machine to behave as if an *M5 $0* had been issued. This will control the torch firing by default in order to provide backward compatibility for previous G-code files.
 
 WARNING: If there is an existing manual tool change parameter set in the <machine_name>.hal file then QtPlasmaC will convert it to an automatic tool change.
 
@@ -2314,15 +2317,15 @@ Spotting can be configured by following these steps:
 . Set the arc voltage *Threshold* in the Spotting section of the <<qt_parameters-tab, PARAMETERS Tab>>. Setting the voltage threshold to zero will cause the delay timer to begin immediately upon starting the torch. Setting the voltage threshold above zero will cause the delay timer to begin when the arc voltage reaches the threshold voltage.
 . Set the *Time On* in the Spotting section of the <<qt_parameters-tab, PARAMETERS Tab>>. When the *Time On* timer has elapsed, the torch will turn off. Times are adjustable from 0 to 9999 milliseconds.
 
-The torch is then turned on in G-Code with the *M3 $2 S1* command which selects the plasma torch as a spotting tool.
+The torch is then turned on in G-code with the *M3 $2 S1* command which selects the plasma torch as a spotting tool.
 
-To turn the torch off, use the G-Code command *M5 $2*.
+To turn the torch off, use the G-code command *M5 $2*.
 
 For more information on multiple tools, see <<qt_multi-tool, multiple tools>>.
 
 LinuxCNC (QtPlasmaC) requires some motion between any *M3* and *M5* commands. For this reason, a minimal movement at a high speed is required to be programmed.
 
-An example G-Code is:
+An example G-code is:
 
 [source,{ngc}]
 ----
@@ -2362,7 +2365,7 @@ The following two custom layouts are used for soft key support:
 
 image::images/qtplasmac_numpad.png[caption="", title="Number keypad - used for the CONVERSATIONAL Tab and the PARAMETERS Tab",width=240,align="center"]
 
-image::images/qtplasmac_keypad.png[caption="", title="Alpha-numeric keypad - used for G-Code editing and file management.",width=700,align="center"]
+image::images/qtplasmac_keypad.png[caption="", title="Alpha-numeric keypad - used for G-code editing and file management.",width=700,align="center"]
 
 If the virtual keyboard has been repositioned and on the next opening of a virtual keyboard it is not visible then clicking twice on the onboard icon in the system tray will reposition the virtual keyboard so the move handle is visible.
 
@@ -2455,12 +2458,12 @@ M3, M4, and M5 are not allowed in the QtPlasmaC MDI.
 
 image::images/qtplasmac_conversational.png[width=800,align="center"]
 
-The *Conversational Shape Library* consists of several basic shapes and functions to assist the user with generating quick G-Code at the machine to cut simple shapes quickly. This feature is found on the <<qt_conversational-tab, CONVERSATIONAL Tab>>.
+The *Conversational Shape Library* consists of several basic shapes and functions to assist the user with generating quick G-code at the machine to cut simple shapes quickly. This feature is found on the <<qt_conversational-tab, CONVERSATIONAL Tab>>.
 
 [NOTE]
 The Conversational Library is not meant to be a CAD/CAM replacement as there are limitations to what can be achieved.
 
-Blank entries in the shape input boxes will use the current setting at the time the G-Code was generated. For example, if *X start* was left blank then the current X axis position would be used.
+Blank entries in the shape input boxes will use the current setting at the time the G-code was generated. For example, if *X start* was left blank then the current X axis position would be used.
 
 All leadins and leadouts are arcs except for *Circles* and *Stars*:
 
@@ -2492,18 +2495,18 @@ The general functions are as follows:
 |Material Drop Down|Allows the user to select the desired material for cutting. +
     If "VIEW MATERIAL" is selected on the <<qt_parameters-tab, PARAMETERS Tab>>, a visual reference showing key material cut settings will be displayed on the Conversational Preview Window. +
     Examples are:  Feed Rate, Pierce Height, Pierce Delay, Cut Height, and Kerf Width (for Conversational only). Cut Amps will be shown if PowerMax communications are enabled.
-|NEW|Removes the current G-Code file and load a blank G-Code file.
-|SAVE|Opens a dialog box allowing the current shape to be saved as a G-Code file.
+|NEW|Removes the current G-code file and load a blank G-code file.
+|SAVE|Opens a dialog box allowing the current shape to be saved as a G-code file.
 |SETTINGS|Allows the changing of the global settings.
 |SEND|Loads the current shape into LinuxCNC (QtPlasmaC). If the last edit was not added then it will be discarded.
 |PREVIEW|Displays a preview of the current shape provided the required information is present.
 |CONTINUE|This button is used for lines and arcs only. Allows another segment to be added to the current segment/segments.
 |ADD|Stores the current shape into the current job.
 |UNDO|Reverts to the previously stored state. +
-|RELOAD|Reloads the original G-Code file or a blank file if none was loaded.
+|RELOAD|Reloads the original G-code file or a blank file if none was loaded.
 |===
 
-If there is a G-Code file loaded in LinuxCNC (QtPlasmaC) when the <<qt_conversational-tab, CONVERSATIONAL Tab>> is selected, that code will be imported into the conversational as the first shape of the job. If this code is not required then it can be removed by pressing the *NEW* button.
+If there is a G-code file loaded in LinuxCNC (QtPlasmaC) when the <<qt_conversational-tab, CONVERSATIONAL Tab>> is selected, that code will be imported into the conversational as the first shape of the job. If this code is not required then it can be removed by pressing the *NEW* button.
 
 If there is an added shape that is unsaved or unsent then it is not possible to switch tabs in the GUI. To re-enable switching tabs it is necessary to either *SAVE* the shape, *SEND* the shape, or press *NEW* to remove the shape.
 
@@ -2514,7 +2517,7 @@ All distances are in machine units relative to the current User Coordinate Syste
 
 === Conversational Settings
 
-Global settings for the shape library can be set by pressing the *SETTINGS* button in the <<qt_conversational-tab, CONVERSATIONAL Tab>>. This will display all of the available settings parameters that are used for G-Code program creation. These include:
+Global settings for the shape library can be set by pressing the *SETTINGS* button in the <<qt_conversational-tab, CONVERSATIONAL Tab>>. This will display all of the available settings parameters that are used for G-code program creation. These include:
 
 * *Preamble*
 * *Postamble*
@@ -2527,7 +2530,7 @@ Global settings for the shape library can be set by pressing the *SETTINGS* butt
 
 Any internal circle that has a diameter less than *Small hole diameter* is classified as a small hole and will have a straight leadin with a length that is the lesser of either the radius of the hole or the specified leadin length. It will also have its feed rate set to *Small hole speed*.
 
-Preamble and Postamble may be entered as a string of G-Codes and M-Codes separate by spaces. If the user wishes for the generated G-Code to have each code on an individual line then this is made possible by separating the codes with *\n*.
+Preamble and Postamble may be entered as a string of G-codes and M-Codes separate by spaces. If the user wishes for the generated G-code to have each code on an individual line then this is made possible by separating the codes with *\n*.
 
 This will place all codes on the same line:
 
@@ -2572,7 +2575,7 @@ To use lines and arcs:
 . Press *PREVIEW* to see the shape.
 . If satisfied with the shape press *CONTINUE*.
 . Change the line or arc type if needed and continue this procedure until the shape is complete.
-. Press *SEND* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting.
+. Press *SEND* to send the G-code file to LinuxCNC (QtPlasmaC) for cutting.
 
 If the user wishes to create a closed shape, they will need to create any required leadin as the first segment of the shape. If a leadout is required it will need to be the last segment of the shape.
 
@@ -2591,8 +2594,8 @@ To create a shape:
 . Choose the material from the MATERIAL drop down. If no material is chosen, the default material (00000) will be used.
 . Enter the appropriate values and press *PREVIEW* to display the shape.
 . If the shape is not correct, edit the values and press *PREVIEW* and the new shape will be displayed. Repeat until satisfied with the shape.
-. Press *ADD* to add the shape to the G-Code file.
-. Press *SEND* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting.
+. Press *ADD* to add the shape to the G-code file.
+. Press *SEND* to send the G-code file to LinuxCNC (QtPlasmaC) for cutting.
 
 For *CIRCLE*, the *OVER CUT* button will become valid when a CUT TYPE of INTERNAL is selected and the value entered in the DIAMETER field is less than the Small Hole Diameter parameter in the Conversational SETTINGS section.
 
@@ -2624,15 +2627,15 @@ To create a group of shapes:
 . If the user wishes to add another version of the same shape then edit the required parameters and press *ADD* when satisfied with the shape.
 . If the user wishes to add a different shape, select that shape and create it as in *Single Shape*.
 . Repeat until all the required shapes to complete the group have been added.
-. Press *SEND* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting.
+. Press *SEND* to send the G-code file to LinuxCNC (QtPlasmaC) for cutting.
 
 === Conversational Block
 
 image::images/qtplasmac_conv_block.png[width=100,align="left"]
 
-The Conversational Block feature allows block operations to be performed on the current shape or group of shapes displayed in the <<qt_conversational-tab, CONVERSATIONAL Tab>>. This can include a G-Code file not created using the Conversational Shape Library that has been previously loaded from the <<qt_main-tab, MAIN Tab>>.
+The Conversational Block feature allows block operations to be performed on the current shape or group of shapes displayed in the <<qt_conversational-tab, CONVERSATIONAL Tab>>. This can include a G-code file not created using the Conversational Shape Library that has been previously loaded from the <<qt_main-tab, MAIN Tab>>.
 
-A previously saved Block G-Code file may also be loaded from the <<qt_main-tab, MAIN Tab>> and then have any of its operations edited using the Conversational Block feature.
+A previously saved Block G-code file may also be loaded from the <<qt_main-tab, MAIN Tab>> and then have any of its operations edited using the Conversational Block feature.
 
 Block operations:
 
@@ -2644,12 +2647,12 @@ Block operations:
 
 To create a block:
 
-. Create a shape, a group, or use a previously loaded G-Code file.
+. Create a shape, a group, or use a previously loaded G-code file.
 . Click the *Block* icon to open the Block tab.
 . Enter the appropriate values in the Block tab and press *PREVIEW* to display the resulting changes.
 . If the result is not correct, edit the values and press *PREVIEW* and the new result will be shown. Repeat until satisfied with the result.
 . Press *ADD* to complete the procedure.
-. Press *SEND* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting, or *SAVE* to save the G-Code file.
+. Press *SEND* to send the G-code file to LinuxCNC (QtPlasmaC) for cutting, or *SAVE* to save the G-code file.
 
 COLUMNS & ROWS - specifies the number of duplicates of the original shape arranged in columns and rows as well as the offset distance from the original shape.
 
@@ -2669,7 +2672,7 @@ If the result is an array of shapes then the cut order of the result is from the
 
 === Conversational Saving A Job
 
-The current job displayed in the Preview Panel may be saved at any time by using the bottom *SAVE* button. If the G-Code has been sent to LinuxCNC (QtPlasmaC) and the user has left the <<qt_conversational-tab, CONVERSATIONAL Tab>>, the user may still save the G-Code file from the GUI. Alternatively, the user could click the <<qt_conversational-tab, CONVERSATIONAL Tab>> which will reload the job, at which time they can press the *SAVE* button.
+The current job displayed in the Preview Panel may be saved at any time by using the bottom *SAVE* button. If the G-code has been sent to LinuxCNC (QtPlasmaC) and the user has left the <<qt_conversational-tab, CONVERSATIONAL Tab>>, the user may still save the G-code file from the GUI. Alternatively, the user could click the <<qt_conversational-tab, CONVERSATIONAL Tab>> which will reload the job, at which time they can press the *SAVE* button.
 
 == Error Messages
 
@@ -2916,12 +2919,12 @@ The above colors are used for the following widgets. So any custom styling will 
     background of active conversational shape buttons
 |color2 (#16160e)|Background|background of latching user buttons +
     background of camera/laser buttons +
-    background of G-Code editor active line +
+    background of G-code editor active line +
     background of conversational shape buttons
 |color3 (#ffee06)|Highlight|background of active latching user buttons +
     background of active camera/laser buttons +
-    foreground of G-Code editor cursor
-|color4 (#36362e)|Alt Background|background of G-Code display active line
+    foreground of G-code editor cursor
+|color4 (#36362e)|Alt Background|background of G-code display active line
 |color5 (#b0b0b0)|foreground of disabled buttons
 |===
 
@@ -3001,7 +3004,7 @@ n Name = PIERCE\&&CUT
 Buttons can run the following:
 
 . <<qt_button-cmds, External commands>>
-. <<qt_button-code, G-Code commands>>
+. <<qt_button-code, G-code commands>>
 . <<qt_button-toggle, Toggle a HAL pin>>
 . <<qt_button-laser, Toggle the alignment laser HAL pin>>
 . <<qt_button-pulse, Pulse a HAL pin>>
@@ -3009,7 +3012,7 @@ Buttons can run the following:
 . <<qt_button-ohmic, Ohmic Test>>
 . <<qt_button-cut, Cut Type>>
 . <<qt_button-consumables, Change consumables>>
-. <<qt_button-load, Load a G-Code program>>
+. <<qt_button-load, Load a G-code program>>
 . <<qt_button-torch, Pulse the torch on>>
 . <<qt_button-single, Single unidirectional cut>>
 . <<qt_button-framing, Framing a job>>
@@ -3028,9 +3031,9 @@ n Code = %halshow
 ----
 
 [[qt_button-code]]
-[underline]*G-Code*
+[underline]*G-code*
 
-To run G-Code, just enter the code to be run.
+To run G-code, just enter the code to be run.
 
 [source,{ini}]
 ----
@@ -3059,7 +3062,7 @@ Multiple codes can be run by separating the codes with a \ symbol. The exception
 n Code = G0 X0 Y0 \ G1 X5 \ G1 Y5
 ----
 
-External commands and G-Code may be mixed on the same button.
+External commands and G-code may be mixed on the same button.
 
 [source,{ini}]
 ----
@@ -3082,7 +3085,7 @@ The button colors will follow the state of the hal pin.
 
 After setting the code, upon clicking, the button will invert colors and the HAL pin will invert pin state. The button will stay "latched" until the button is clicked again, which will return the button to the original colors and the HAL pin to the original pin state.
 
-There are three <<qt_ext-hal-pin, External HAL Pins>> that are available to toggle as an output, the pin names are qtplasmac.ext_out_0, qtplasmac.ext_out_1, and qtplasmac.ext_out_2. HAL connections to these HAL pins need to be specified in a postgui HAL file as the Hal pins are not available until the QtPlasmac GUI has loaded.
+There are three <<qt_ext-hal-pin, External HAL Pins>> that are available to toggle as an output, the pin names are qtplasmac.ext_out_0, qtplasmac.ext_out_1, and qtplasmac.ext_out_2. HAL connections to these HAL pins need to be specified in a postgui HAL file as the HAL pins are not available until the QtPlasmac GUI has loaded.
 
 It is possible for the user to mark a toggle-halpin button's associated hal pin as being required to be turned "ON" before *CYCLE START* can be pressed by adding "runcritical" after the hal pin in the button code.
 
@@ -3136,7 +3139,7 @@ After setting the code, upon clicking the button, the button will invert colors,
 
 An active pulse can be canceled by clicking the button again.
 
-There are three <<qt_ext-hal-pin, External HAL Pins>> that are available to pulse as an output, the pin names are qtplasmac.ext_out_0, qtplasmac.ext_out_1, and qtplasmac.ext_out_2. HAL connections to these HAL pins need to be specified in a postgui HAL file as the Hal pins are not available until the QtPlasmac GUI has loaded.
+There are three <<qt_ext-hal-pin, External HAL Pins>> that are available to pulse as an output, the pin names are qtplasmac.ext_out_0, qtplasmac.ext_out_1, and qtplasmac.ext_out_2. HAL connections to these HAL pins need to be specified in a postgui HAL file as the HAL pins are not available until the QtPlasmac GUI has loaded.
 
 [[qt_button-probe]]
 [underline]*Probe Test*
@@ -3151,7 +3154,7 @@ n Code = probe-test 6
 ----
 
 [NOTE]
-Enabling a user button as a Probe Test button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc. HAL connections to this HAL pin needs to be specified in a postgui HAL file as the Hal pin is not available until the QtPlasmac GUI has loaded.
+Enabling a user button as a Probe Test button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc. HAL connections to this HAL pin needs to be specified in a postgui HAL file as the HAL pin is not available until the QtPlasmac GUI has loaded.
 
 [[qt_button-ohmic]]
 [underline]*Ohmic Test*
@@ -3164,7 +3167,7 @@ n Code = ohmic-test
 ----
 
 [NOTE]
-Enabling a user button as an Ohmic Test button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc. HAL connections to this HAL pin needs to be specified in a postgui HAL file as the Hal pin is not available until the QtPlasmac GUI has loaded.
+Enabling a user button as an Ohmic Test button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc. HAL connections to this HAL pin needs to be specified in a postgui HAL file as the HAL pin is not available until the QtPlasmac GUI has loaded.
 
 [[qt_button-cut]]
 [underline]*Cut Type*
@@ -3197,23 +3200,23 @@ n Code = change-consumables X10 Y10 F1000
 ----
 
 [NOTE]
-Enabling a user button as a Change Consumables button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc. HAL connections to this HAL pin needs to be specified in a postgui HAL file as the Hal pin is not available until the QtPlasmac GUI has loaded.
+Enabling a user button as a Change Consumables button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc. HAL connections to this HAL pin needs to be specified in a postgui HAL file as the HAL pin is not available until the QtPlasmac GUI has loaded.
 
 [[qt_button-load]]
 [underline]*Load*
 
-Loading a G-Code program from the directory specified by the *PROGRAM_PREFIX* variable in the <machine_name>.ini file (usually ~/linuxcnc/nc_files) is possible by using the following format:
+Loading a G-code program from the directory specified by the *PROGRAM_PREFIX* variable in the <machine_name>.ini file (usually ~/linuxcnc/nc_files) is possible by using the following format:
 
 [source,{ini}]
 ----
-n Code = load G-Code.ngc
+n Code = load G-code.ngc
 ----
 
-If the user's G-Code file is located in a sub-directory of the *PROGRAM_PREFIX* directory, it would be accessed by adding the sub-directory name to the beginning of the G-Code file name. Example for a sub-directory named *plasma*:
+If the user's G-code file is located in a sub-directory of the *PROGRAM_PREFIX* directory, it would be accessed by adding the sub-directory name to the beginning of the G-code file name. Example for a sub-directory named *plasma*:
 
 [source,{ini}]
 ----
-n Code = load plasma/G-Code.ngc
+n Code = load plasma/G-code.ngc
 ----
 
 Note that the first "/" is not necessary as it will be added automatically.
@@ -3233,7 +3236,7 @@ n Code = torch-pulse 0.5
 ----
 
 [NOTE]
-Enabling a user button as a Torch Pulse button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc. HAL connections to this HAL pin needs to be specified in a postgui HAL file as the Hal pin is not available until the QtPlasmac GUI has loaded.
+Enabling a user button as a Torch Pulse button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc. HAL connections to this HAL pin needs to be specified in a postgui HAL file as the HAL pin is not available until the QtPlasmac GUI has loaded.
 
 [[qt_button-single]]
 [underline]*Single Cut*
@@ -3292,7 +3295,7 @@ or:
 n Code = framing usecurrentzheight F100
 ----
 
-Enabling a user button as a Framing button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc. HAL connections to this HAL pin needs to be specified in a postgui HAL file as the Hal pin is not available until the QtPlasmac GUI has loaded.
+Enabling a user button as a Framing button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc. HAL connections to this HAL pin needs to be specified in a postgui HAL file as the HAL pin is not available until the QtPlasmac GUI has loaded.
 
 [[qt_button-mancut]]
 [underline]*Manual Cut*
@@ -3354,21 +3357,21 @@ By following the above procedure the offsets are available for use immediately a
 
 === Keep Z Motion
 
-By default, QtPlasmaC will remove all Z motion from a loaded G-Code file and add an initial Z movement to bring the torch near the top of travel at the beginning of the file. If the user wishes to use their table with a marker, a drag knife, diamond scribe, etc. mounted in the torch holder, QtPlasmaC has the ability to retain the Z movements when executing a program by adding the following command in a G-Code file:
+By default, QtPlasmaC will remove all Z motion from a loaded G-code file and add an initial Z movement to bring the torch near the top of travel at the beginning of the file. If the user wishes to use their table with a marker, a drag knife, diamond scribe, etc. mounted in the torch holder, QtPlasmaC has the ability to retain the Z movements when executing a program by adding the following command in a G-code file:
 
 [source,{ngc}]
 ----
   #<keep-z-motion> = 1
 ----
 
-Omitting this command, or setting this value to anything but 1 will cause QtPlasmaC to revert to the default behavior of stripping all Z motion from a loaded G-Code file and making an initial Z movement to bring the torch near the top of travel at the beginning of the file.
+Omitting this command, or setting this value to anything but 1 will cause QtPlasmaC to revert to the default behavior of stripping all Z motion from a loaded G-code file and making an initial Z movement to bring the torch near the top of travel at the beginning of the file.
 
 [[qt_ext-hal-pin]]
 === External HAL Pins
 
 QtPlasmaC creates some HAL pins that may be used to connect a momentary external button or pendant etc.
 
-HAL connections to these HAL pins need to be specified in a postgui HAL file as the Hal pins are not available until the QtPlasmac GUI has loaded.
+HAL connections to these HAL pins need to be specified in a postgui HAL file as the HAL pins are not available until the QtPlasmac GUI has loaded.
 
 The following HAL bit pins are always created. The HAL pin has the identical behaviour of the related QtPlasmaC GUI button.
 
@@ -3376,12 +3379,12 @@ The following HAL bit pins are always created. The HAL pin has the identical beh
 |===
 |*User Button Function*|*HAL Pin*|*GUI Function
 |Toggle machine power|qtplasmac.ext_power|POWER
-|Run the loaded G-Code program|qtplasmac.ext_run|CYCLE START
-|Pause/Resume the loaded G-Code program|qtplasmac.ext_pause|CYCLE PAUSE
-|Abort the loaded G-Code program|qtplasmac.ext_abort|CYCLE STOP
+|Run the loaded G-code program|qtplasmac.ext_run|CYCLE START
+|Pause/Resume the loaded G-code program|qtplasmac.ext_pause|CYCLE PAUSE
+|Abort the loaded G-code program|qtplasmac.ext_abort|CYCLE STOP
 |Touchoff X & Y axes to zero|qtplasmac.ext_touchoff|X0Y0
 |Use a laser to set an origin with or without rotation|qtplasmac.ext_laser_touchoff|LASER
-|Run/Pause/Resume the loaded G-Code program|qtplasmac.ext_run_pause|CYCLE START, CYCLE PAUSE, CYCLE RESUME in sequence
+|Run/Pause/Resume the loaded G-code program|qtplasmac.ext_run_pause|CYCLE START, CYCLE PAUSE, CYCLE RESUME in sequence
 |Torch height override plus|qtplasmac.ext_height_ovr_plus|OVERRIDE +
 |Torch height override minus|qtplasmac.ext_height_ovr_minus|OVERRIDE -
 |Torch height override reset|qtplasmac.ext_height_ovr_reset|OVERRIDE RESET TO 0.00
@@ -3476,7 +3479,7 @@ setp plasmac.arc-lost-delay 0.1
 
 It is recommended that the user set this pin in the custom.hal file.
 
-This setting should only be used if the user experiences the above symptoms. It should also be noted that the user could use the appropriate <<qt_ignore-ok, Ignore Arc OK>> G-Code commands to achieve a similar result.
+This setting should only be used if the user experiences the above symptoms. It should also be noted that the user could use the appropriate <<qt_ignore-ok, Ignore Arc OK>> G-code commands to achieve a similar result.
 
 [[mode0-arcok]]
 === Tuning Mode 0 Arc OK
@@ -3754,9 +3757,9 @@ Each sample configuration includes a popup control panel to simulate various inp
 
 === NGC Samples
 
-There are some sample G-Code files in the ~/linuxcnc/nc_files/examples/plasmac directory.
+There are some sample G-code files in the ~/linuxcnc/nc_files/examples/plasmac directory.
 
-=== QtPlasmaC Specific G-Codes
+=== QtPlasmaC Specific G-codes
 
 [width="100%",cols="1,2"]
 |===
@@ -3811,12 +3814,12 @@ There are some sample G-Code files in the ~/linuxcnc/nc_files/examples/plasmac d
     over cut length = 4mm (0.157")
 |Specify <<qt_hole-cutting, hole>> diameter for +
  #<holes> = 1-4 |#<h_diameter> = n +
-    (n is the diameter, use the same units system as the rest of the G-Code file)
+    (n is the diameter, use the same units system as the rest of the G-code file)
 |Specify <<qt_hole-cutting, hole>> velocity for +
  #<holes>=1-4 |#<h_velocity> = n +
     (n is the percentage, set the percentage of the current feed rate)
 |Specify <<qt_overcut, over cut>> length |#<oclength> = n +
-    (n is the length, use the same units system as the rest of the G-Code file)
+    (n is the length, use the same units system as the rest of the G-code file)
 |Specify <<qt_cut-types, pierce-only>> mode |#<pierce-only> = n +
     (n is the mode, 0=normal cut mode, 1=pierce only mode)
 |Create or edit materials. +
@@ -3962,7 +3965,7 @@ There is a frequency divider jumper on each THCAD card which should be set accor
 This value is required to be entered into PNcConf during installation.
 
 [NOTE]
-If using a parallel port it may be necessary for the user to adjust the jumper setting and the subsequent scaling values on the <<qt_parameters-tab, Parameters Tab>> to achieve optimal results. Symptoms may include random torch raises or dives during otherwise stable cutting. Halscope plots may be useful in diagnosing these issues.
+If using a parallel port it may be necessary for the user to adjust the jumper setting and the subsequent scaling values on the <<qt_parameters-tab,Parameters Tab>> to achieve optimal results. Symptoms may include random torch raises or dives during otherwise stable cutting. Halscope plots may be useful in diagnosing these issues.
 
 [[qt_calibration-values]]
 Located on the rear of the THCAD is a calibration sticker showing:
@@ -4084,7 +4087,7 @@ A full description is at <<qt-contact-load, Contact Load>>
 
 === Keyboard Jogging
 
-There is a known issue with some combinations of hardware and keyboards that may affect the autorepeat feature of the keyboard and will then affect keyboard jogging by intermittent stopping and starting during jogging. This issue can be prevented by disabling the Operating System's autorepeat feature for all keys. QtPlasmaC uses this disabling feature by default for all keys only when the <<qt_main-tab, MAIN Tab>> is visible, with the following exceptions when autorepeat is allowed with the <<qt_main-tab, MAIN Tab>> visible:  G-Code editor is active, MDI is active. When QtPlasmaC is shut down, the Operating System's autorepeat feature will be enabled for all keys.
+There is a known issue with some combinations of hardware and keyboards that may affect the autorepeat feature of the keyboard and will then affect keyboard jogging by intermittent stopping and starting during jogging. This issue can be prevented by disabling the Operating System's autorepeat feature for all keys. QtPlasmaC uses this disabling feature by default for all keys only when the <<qt_main-tab, MAIN Tab>> is visible, with the following exceptions when autorepeat is allowed with the <<qt_main-tab, MAIN Tab>> visible:  G-code editor is active, MDI is active. When QtPlasmaC is shut down, the Operating System's autorepeat feature will be enabled for all keys.
 
 If the user wishes to prevent QtPlasmaC from changing the Operating System's autorepeat settings, enter the following in the [GUI_OPTIONS] section of the <machine_name>.prefs file:
 

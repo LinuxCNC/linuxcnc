@@ -47,29 +47,29 @@ linked to a HAL pin, which in turn interfaces to the rest of LinuxCNC.
 
 *PyVCP:*
 
-- widget set: uses TkInter widgets
-- user interface creation: "edit XML file / run result / evaluate looks" cycle
-- no support for embedding user-defined event handling
-- no LinuxCNC interaction beyond HAL pin I/O supported
+- Widget set: uses TkInter widgets.
+- User interface creation: "edit XML file / run result / evaluate looks" cycle.
+- No support for embedding user-defined event handling.
+- No LinuxCNC interaction beyond HAL pin I/O supported.
 
 *GladeVCP:*
 
-- widget set: relies on the  http://www.gtk.org/[GTK+] widget set.
-- user interface creation: uses the  http://glade.gnome.org/[Glade] WYSIWYG user interface editor
-- any HAL pin change may be directed to call back into a user-defined Python event handler
-- any GTK signal (key/button press, window, I/O, timer, network events) may be associated with user-defined handlers in Python
-- direct LinuxCNC interaction: arbitrary command execution, like initiating MDI
-  commands to call a G-code subroutine, plus support for status change operations through Action Widgets
-- several independent GladeVCP panels may be run in different tabs
-- separation of user interface appearance and functionality: change appearance without touching any code
+- Widget set: relies on the  http://www.gtk.org/[GTK+] widget set.
+- User interface creation: uses the  http://glade.gnome.org/[Glade] WYSIWYG user interface editor.
+- Any HAL pin change may be directed to call back into a user-defined Python event handler
+- Any GTK signal (key/button press, window, I/O, timer, network events) may be associated with user-defined handlers in Python.
+- Direct LinuxCNC interaction: arbitrary command execution, like initiating MDI
+  commands to call a G-code subroutine, plus support for status change operations through Action Widgets.
+- Several independent GladeVCP panels may be run in different tabs.
+- Separation of user interface appearance and functionality: change appearance without touching any code.
 
 == A Quick Tour with the Example Panel
 
 GladeVCP panel windows may be run in three different setups:
 
-- always visible integrated into AXIS at the right side, exactly like PyVCP panels
+- always visible integrated into AXIS at the right side, exactly like PyVCP panels,
 - as a tab in AXIS,Touchy, Gscreen, or Gmoccapy; in AXIS this would create a third
-  tab besides the Preview and DRO tabs which must be raised explicitly
+  tab besides the Preview and DRO tabs which must be raised explicitly,
 - as a standalone toplevel window, which can be iconifyed/deiconified independent of the main window.
 
 .Installed LinuxCNC
@@ -179,7 +179,7 @@ and configs/sim/axis/gladevcp/gladevcp_panel.ini.
 === Exploring the User Interface description
 
 The user interface is created with the glade UI editor - to explore
-it, you need to have <<gladevcp:prerequisites, glade installed>>. To
+it, you need to have <<gladevcp:prerequisites,glade installed>>. To
 edit the user interface, run the command
 
 ----
@@ -357,7 +357,7 @@ using a run-in-place setup.
 [[gladevcp:embedding-tab]]
 === Embedding as a Tab
 
-To do so, edit your .ini file and add to the DISPLAY and HAL sections of INI
+To do so, edit your INI file and add to the DISPLAY and HAL sections of INI
 file as follows:
 
 [source,{ini}]
@@ -435,10 +435,10 @@ Usage: gladevcp [options] myfile.ui
 Options:
 
 -h, --help::
-    Show this help message and exit
+    Show this help message and exit.
 
 -c NAME::
-    Set component name to NAME. Default is base name of UI file
+    Set component name to NAME. Default is base name of UI file.
 
 -d::
     Enable debug output
@@ -905,11 +905,11 @@ as well as the time between two changes can be set using the widget properties.
 <widgetname>-scaled-value::
   out float pin +
   The shown value divided by the scale value, this is very useful, if the
-  velocity is shown in units / min, but LinuxCNC expects it to be in units / second
+  velocity is shown in units / min, but LinuxCNC expects it to be in units / second.
 <widgetname>-scale::
   in float pin +
   The scale to apply. +
-  Default is 60
+  Default is 60.
 <widgetname>-increase::
   in bit pin +
   As long as the pin is true, the value will increase. +
@@ -969,7 +969,7 @@ template::
   String +
   Text template to display the value. Python formatting is used. +
   Any allowed format. +
-  Default is "%.1f"
+  Default is "%.1f".
 do_hide_button::
   Boolean +
   Whether to show or hide the increment an decrement button. +
@@ -1619,16 +1619,16 @@ There are several python methods to control the widget:
 * `[widget name].set_to_inch(state)` +
   Sets the DRO to show imperial units. +
   `state` = boolean (True or False) +
-  Default is FIXME
+  Default is FIXME.
 * `[widget name].set_auto_units(state)` +
   If True the DRO will change units according to active G-code (G20 / G21). +
   `state` = boolean (True or False) +
-  Default is True
+  Default is True.
 * `[widget name].set_to_diameter(state)` +
   If True the DRO will show the diameter not the radius, i.e., the axis
   value multiplied by 2 (specially needed for lathes). +
   `state` = boolean (True or False) +
-  Default is False
+  Default is False.
 * `[widget name].toggle_readout()` +
   Toggles the order of the DRO in the widget.
 * `[widget name].change_axisletter(letter)` +
@@ -2585,27 +2585,27 @@ First, modules are imported and initialized in command line order.
 After successful import, `get_handlers()` is called in the following
 state:
 
-- the widget tree is created, but not yet realized (no toplevel
-  `window.show()` has been executed yet)
-- the halcomp HAL component is set up and all HAL widget's pins have
-  already been added to it
-- it is safe to add more HAL pins because `halcomp.ready()` has not yet
+- The widget tree is created, but not yet realized (no toplevel
+  `window.show()` has been executed yet).
+- The halcomp HAL component is set up and all HAL widget's pins have
+  already been added to it.
+- It is safe to add more HAL pins because `halcomp.ready()` has not yet
   been called at this point, so you may add your own pins, for instance
   in the class `__init__()` method.
 
 Once all modules have been imported and method names extracted, the
 following steps happen:
 
-- all qualifying method names will be connected to the widget tree with
+- All qualifying method names will be connected to the widget tree with
   `connect_signals()/signal_autoconnect()` (depending on the type of UI
   imported - GtkBuilder vs the old libglade format).
-- the HAL component is finalized with halcomp.ready()
-- if a window ID was passed as argument, the widget tree is re-parented
+- The HAL component is finalized with halcomp.ready().
+- If a window ID was passed as argument, the widget tree is re-parented
   to run in this window, and Glade's toplevel window1 is abandoned (see
-  FAQ)
-- if a HAL command file was passed with `-H halfile`, it is executed
-  with halcmd
-- the Gtk main loop is run.
+  FAQ).
+- If a HAL command file was passed with `-H halfile`, it is executed
+  with halcmd.
+- The Gtk main loop is run.
 
 So when your handler class is initialized, all widgets are existent
 but not yet realized (displayed on screen). And the HAL component isn't
@@ -2659,7 +2659,7 @@ This should set debug to 2 and confirm that your module actually did it.
 
 === Persistent variables in GladeVCP
 
-A annoying aspect of GladeVCP in its earlier form and pyvcp is the
+An annoying aspect of GladeVCP in its earlier form and PyVCP is the
 fact that you may change values and HAL pins through text entry,
 sliders, spin boxes, toggle buttons etc, but their settings are not
 saved and restored at the next run of LinuxCNC - they start at the default
@@ -2690,11 +2690,11 @@ If you want any of Gtk widget state, HAL widgets output pin's values
 and/or class attributes of your handler class to be retained across
 invocations, proceed as follows:
 
-- import the `gladevcp.persistence` module
-- decide which instance attributes, and their default values you want to
-  have retained, if any
-- decide which widgets should have their state retained
-- describe these decisions in your handler class' +__init__()+ method
+- Import the `gladevcp.persistence` module.
+- Decide which instance attributes, and their default values you want to
+  have retained, if any.
+- Decide which widgets should have their state retained.
+- Describe these decisions in your handler class' +__init__()+ method
   through a nested dictionary as follows:
 
 [source,python]
@@ -2739,27 +2739,27 @@ Note that types are saved and preserved on restore. This example
 assumes that the INI file didn't exist or had the default values from
 self.defaults.
 
-After this incantation, you can use the following IniFil methods:
+After this incantation, you can use the following IniFile methods:
 
 ini.save_state(obj)::
-  Saves objs's attributes as per `IniFil.vars` dictionary and the widget
+  Saves objs's attributes as per `IniFile.vars` dictionary and the widget
   state as described in `IniFile.widgets` in `self.defaults`.
 ini.create_default_ini()::
-  Create a .ini file with default values
+  Create an INI file with default values.
 ini.restore_state(obj)::
   Restore HAL out pins and obj's attributes as
-  saved/initialized to default as above
+  saved/initialized to default as above.
 
 === Saving the state on GladeVCP shutdown
 
 To save the widget and/or variable state on exit, proceed as follows:
 
-- select some interior widget (type is not important, for instance a
+- Select some interior widget (type is not important, for instance a
   table).
-- in the 'Signals' tab, select 'GtkObject'. It should show a 'destroy'
+- In the 'Signals' tab, select 'GtkObject'. It should show a 'destroy'
   signal in the first column.
-- add the handler name, e.g. 'on_destroy' to the second column.
-- add a Python handler like below:
+- Add the handler name, e.g. 'on_destroy' to the second column.
+- Add a Python handler like below:
 
 [source,python]
 ----
@@ -2986,7 +2986,7 @@ I defined a `hal_spinbutton` widget in glade, and set a default `value` property
 
 - make sure you have the development version of LinuxCNC installed. You
   don't need the axisrc file any more, this was mentioned in the old
-  GladeVcp wiki page.
+  GladeVCP wiki page.
 - run GladeVCP or AXIS from a terminal window. If you get Python errors,
   check whether there's still a +/usr/lib/python2.6/dist-packages/hal.so+
   file lying around besides the newer
@@ -3030,7 +3030,7 @@ arise. For details, see the `keyboard_forward()` function in
 The LinuxCNC Wiki has information on adding custom widgets to GladeVCP.
 link:http://wiki.linuxcnc.org/cgi-bin/wiki.pl?GladeVCP_Custom_Widgets[GladeVCP Custom Widgets]
 
-== Auxiliary Gladevcp Applications
+== Auxiliary GladeVCP Applications
 
 Support is provided for independently installed GladeVCP applications
 that conform to system directory placements as defined by the
@@ -3049,7 +3049,7 @@ The system directory defined by LINUXCNC_AUX_GLADEVCP
 a GladeVCP-compatible python file(s) and related subdirectories.
 The python file is imported at GladeVCP startup and made
 available to subsequent GladeVCP applications including
-embedded usage in supporting guis.
+embedded usage in supporting GUIs.
 
 The system directory defined by LINUXCNC_AUX_EXAMPLES
 (/usr/share/linuxcnc/aux_examples) specifies the location
