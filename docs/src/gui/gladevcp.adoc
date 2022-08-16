@@ -357,7 +357,7 @@ using a run-in-place setup.
 [[gladevcp:embedding-tab]]
 === Embedding as a Tab
 
-To do so, edit your .ini (INI) file and add to the DISPLAY and HAL sections of INI
+To do so, edit your INI file and add to the DISPLAY and HAL sections of INI
 file as follows:
 
 [source,{ini}]
