@@ -35,6 +35,8 @@ extern "C" {
 extern "C" double etime(void);
 #endif
 
+#define MAX_PRINT_LINE (2^16)
+
 LinkedList *rcs_print_list = NULL;
 char **rcs_lines_table = NULL;
 void (*rcs_print_notify) () = NULL;
@@ -287,15 +289,29 @@ int separate_words(char **_dest, int _max, char *_src)
 
 int rcs_vprint(const char *_fmt, va_list _args, int save_string)
 {
-    static char temp_string[256];
+    char *temp_buffer = NULL;
+    int retval;
+    size_t size = 0;
+    va_list argscopy;
 
     if (NULL == _fmt) {
 	return (EOF);
     }
-    if (strlen(_fmt) > 200) {	/* Might overflow temp_string. */
-	return (EOF);
+    /* Figure out string size */
+    va_copy(argscopy, _args);
+    size_t n = vsnprintf(temp_buffer, size, _fmt, argscopy);
+    va_end(argscopy);
+    if (n < 0 || MAX_PRINT_LINE <= n) { /* avoid malloc() bomb */
+        return (EOF);
     }
-    if (EOF == (int) vsnprintf(temp_string, sizeof(temp_string), _fmt, _args)) {
+    temp_buffer = (char*)malloc(n+1);
+    if (!temp_buffer) {
+        return (EOF);
+    }
+    size = n + 1;
+
+    if (size != (size_t)vsnprintf(temp_buffer, size, _fmt, _args)) {
+        free(temp_buffer);
 	return (EOF);
     }
     if (save_string) {
@@ -308,9 +324,11 @@ int rcs_vprint(const char *_fmt, va_list _args, int save_string)
 	}
 	last_error_buf_filled++;
 	last_error_buf_filled %= 4;
-	strncpy(last_error_bufs[last_error_buf_filled], temp_string, 99);
+	rtapi_strlcpy(last_error_bufs[last_error_buf_filled], temp_buffer, 100);
     }
-    return (rcs_fputs(temp_string));
+    retval = rcs_fputs(temp_buffer);
+    free(temp_buffer);
+    return (retval);
 }
 
 int rcs_puts(const char *_str)
@@ -431,16 +449,36 @@ int set_rcs_print_file(char *_file_name)
 
 int rcs_print(const char *_fmt, ...)
 {
-    static char temp_buffer[400];
+    char *temp_buffer = NULL;
     int retval;
-    va_list args;
+    va_list args, argscopy;
+    size_t size = 0;
+
+    if (NULL == _fmt) {
+	return (EOF);
+    }
     va_start(args, _fmt);
-    retval = vsnprintf(temp_buffer, sizeof(temp_buffer), _fmt, args);
+
+    /* Figure out string size */
+    va_copy(argscopy, args);
+    size_t n = vsnprintf(temp_buffer, size, _fmt, argscopy);
+    va_end(argscopy);
+    if (n < 0 || MAX_PRINT_LINE <= n) { /* avoid malloc() bomb */
+        return (EOF);
+    }
+    temp_buffer = (char*)malloc(n+1);
+    if (!temp_buffer) {
+        return (EOF);
+    }
+    size = n + 1;
+    retval = vsnprintf(temp_buffer, size, _fmt, args);
     va_end(args);
-    if (retval == (EOF)) {
-	return EOF;
+    if (size != (size_t)retval) {
+        free(temp_buffer);
+	return (EOF);
     }
     retval = rcs_fputs(temp_buffer);
+    free(temp_buffer);
     return (retval);
 }
 
@@ -510,23 +548,34 @@ void clear_rcs_print_flag(long flag_to_clear)
 
 int rcs_print_sys_error(int error_source, const char *_fmt, ...)
 {
-    static char temp_string[256];
-    static char message_string[512];
-    va_list args;
-    int r;
+    static char *temp_buffer = NULL;
+    static char *message_string = NULL;
+    va_list args, argscopy;
+    size_t size = 0;
+    size_t msize = 0;
+    int retval;
 
     if (NULL == _fmt) {
 	return (EOF);
     }
-    if (strlen(_fmt) > 200) {	/* Might overflow temp_string. */
-	return (EOF);
-    }
-
     va_start(args, _fmt);
-    r = vsnprintf(temp_string, sizeof(temp_string), _fmt, args);
+
+    /* Figure out string size */
+    va_copy(argscopy, args);
+    retval = vsnprintf(temp_buffer, size, _fmt, argscopy);
+    va_end(argscopy);
+    if (retval < 0 || MAX_PRINT_LINE <= retval) { /* avoid malloc() bomb */
+        return (EOF);
+    }
+    temp_buffer = (char*)malloc(retval+1);
+    if (!temp_buffer) {
+        return (EOF);
+    }
+    size = retval + 1;
+    retval = vsnprintf(temp_buffer, size, _fmt, args);
     va_end(args);
 
-    if (r < 0) {
+    if (size != (size_t)retval) {
 	return EOF;
     }
 
@@ -537,22 +586,38 @@ int rcs_print_sys_error(int error_source, const char *_fmt, ...)
     rcs_errors_printed++;
     if (max_rcs_errors_to_print <= rcs_errors_printed &&
 	max_rcs_errors_to_print >= 0) {
+        free(temp_buffer);
 	return (EOF);
     }
 
     switch (error_source) {
     case ERRNO_ERROR_SOURCE:
-	snprintf(message_string, sizeof(message_string),
-	    "%s %d %s\n", temp_string, errno,
-	    strerror(errno));
-	rcs_puts(message_string);
-	break;
+        /* Figure out string size */
+        retval = snprintf(message_string, msize,
+			  "%s %d %s\n", temp_buffer, errno, strerror(errno));
+	if (retval < 0 || MAX_PRINT_LINE <= retval) { /* avoid malloc() bomb */
+	    return (EOF);
+	}
+	message_string = (char*)malloc(retval+1);
+	if (!message_string) {
+	    return (EOF);
+	}
+	msize = retval + 1;
+        retval = snprintf(message_string, msize,
+			  "%s %d %s\n", temp_buffer, errno, strerror(errno));
+	if (msize != (size_t)retval) {
+	    return EOF;
+	}
+        rcs_puts(message_string);
+	free(message_string);
+        break;
 
     default:
-	rcs_puts(temp_string);
+	rcs_puts(temp_buffer);
 	break;
     }
-    return (strlen(temp_string));
+    free(temp_buffer);
+    return (size - 1); /* string length without trailing NUL */
 }
 
 #ifdef rcs_print_error
