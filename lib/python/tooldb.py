@@ -1,4 +1,5 @@
 import sys
+import traceback
 
 # A python interface for LinuxCNC tool database usage
 
@@ -30,6 +31,7 @@ def currentline():
 
 def nak_reply(msg):
     theline = currentline()
+    if msg != "empty_line": sys.stderr.write(traceback.format_exc()+"\n")
     sys.stdout.write("NAK %s <%s>\n"%(msg,theline))
     sys.stdout.flush()
 
@@ -56,7 +58,7 @@ def get_cmd(cmd,params):
     for tno in tools:
         try: msg = get_tool(tno)
         except Exception as e:
-            nak_reply( "get_cmd():%s"%str(e))
+            nak_reply( "get_cmd():Exception:%s"%str(e))
             return
         try: do_reply(msg)
         except:
@@ -88,7 +90,7 @@ def put_cmds(cmd,params):
         elif cmd == "l": load_spindle(  toolno,toolline)
         elif cmd == "u": unload_spindle(toolno,toolline)
     except Exception as e:
-        nak_reply( "cmd=%s: %s"%(cmd,str(e)))
+        nak_reply( "cmd=%s: Exception:%s"%(cmd,str(e)))
         return
     do_reply("FINI (update recvd) %s"%params)
 
@@ -152,7 +154,7 @@ def tooldb_loop():
             line=sys.stdin.readline().strip()
 
             saveline(line)
-            if (line == ""): nak_reply("empty line")
+            if (line == ""): nak_reply("empty_line")
             else:            do_cmd(line)
         except BrokenPipeError: sys.stdout.close()
         except Exception as e:
