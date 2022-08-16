@@ -80,8 +80,8 @@ def conv_setup(P, W):
         conv_enable_tabs(P, W)
     else:
         conv_new_pressed(P, W, None)
-    P.xOrigin = STATUS.get_position()[0][0]
-    P.yOrigin = STATUS.get_position()[0][1]
+    P.xOrigin = STATUS.get_position()[1][0]
+    P.yOrigin = STATUS.get_position()[1][1]
     P.xSaved = '0.000'
     P.ySaved = '0.000'
     P.convBlock = [False, False]
