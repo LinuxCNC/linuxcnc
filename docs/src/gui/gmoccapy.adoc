@@ -1037,15 +1037,15 @@ Modify your INI File to include the following:
 [source,{ini}]
 ----
 [RS274NGC]
-# Enables the reading of INI and HAL values from G-code
-FEATURES=12
-
 # is the sub, with is called when a error during tool change happens, not needed on every machine configuration
 ON_ABORT_COMMAND=O <on_abort> call
 
 # The remap code
 REMAP=M6  modalgroup=6 prolog=change_prolog ngc=change epilog=change_epilog
 ----
+[NOTE]
+Make sure INI_VARS and HAL_PIN_VARS are not set to 0. They are set to 1 by default.
+
 
 .The Tool Sensor Section
 The position of the tool sensor and the start position of the probing movement,
