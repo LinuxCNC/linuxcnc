@@ -1,4 +1,4 @@
-VERSION = '1.229.224'
+VERSION = '1.229.225'
 
 '''
 qtplasmac_handler.py
@@ -219,8 +219,8 @@ class HandlerClass:
         self.yMax = float(self.iniFile.find('AXIS_Y', 'MAX_LIMIT'))
         self.zMin = float(self.iniFile.find('AXIS_Z', 'MIN_LIMIT'))
         self.zMax = float(self.iniFile.find('AXIS_Z', 'MAX_LIMIT'))
-        self.xLen = float(self.xMax - self.xMin)
-        self.yLen = float(self.yMax - self.yMin)
+        self.xLen = self.xMax - self.xMin
+        self.yLen = self.yMax - self.yMin
         self.thcFeedRate = float(self.iniFile.find('AXIS_Z', 'MAX_VELOCITY')) * \
                            float(self.iniFile.find('AXIS_Z', 'OFFSET_AV_RATIO')) * 60
         self.maxHeight = self.zMax - self.zMin
@@ -319,8 +319,6 @@ class HandlerClass:
         self.init_preferences()
         self.hide_widgets()
         self.init_widgets()
-        # hijack the qtvcp shutdown to our own close event
-        self.w.screen_options.QTVCP_INSTANCE_.closeEvent = self.closeEvent
         self.w.button_frame.installEventFilter(self.w)
         self.link_hal_pins()
         self.statistics_init()
@@ -2132,6 +2130,7 @@ class HandlerClass:
 # GENERAL FUNCTIONS #
 #########################################################################################################################
     def closeEvent(self, event):
+        O = self.w.screen_options
         if self.w.chk_exit_warning.isChecked() or not STATUS.is_interp_idle():
             icon = QMessageBox.Question if STATUS.is_interp_idle() else QMessageBox.Critical
             head = _translate('HandlerClass', 'Shutdown')
@@ -2144,9 +2143,22 @@ class HandlerClass:
                 msg0 += '{}\n\n'.format(self.exitMessage)
             msg0 += _translate('HandlerClass', 'Do you want to shutdown QtPlasmaC')
             if self.dialog_show_yesno(icon, head, '\n{}?\n'.format(msg0)):
+                if O.PREFS_ and O.play_sounds and O.shutdown_play_sound:
+                    STATUS.emit('play-sound', O.shutdown_exit_sound_type)
+                O.QTVCP_INSTANCE_.settings.sync()
+                O.QTVCP_INSTANCE_.shutdown()
+                O.QTVCP_INSTANCE_.panel_.shutdown()
+                STATUS.shutdown()
                 event.accept()
             else:
                 event.ignore()
+        else:
+            if O.PREFS_ and O.play_sounds and O.shutdown_play_sound:
+                STATUS.emit('play-sound', O.shutdown_exit_sound_type)
+            O.QTVCP_INSTANCE_.settings.sync()
+            O.QTVCP_INSTANCE_.shutdown()
+            O.QTVCP_INSTANCE_.panel_.shutdown()
+            STATUS.shutdown()
 
     def update_check(self):
         # newest update must be added last in this function
