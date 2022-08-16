@@ -303,6 +303,8 @@ INFILES = \
 	../share/applications/linuxcnc.desktop \
 	../share/applications/linuxcnc-latency.desktop \
 	../share/applications/linuxcnc-latency-histogram.desktop \
+	../share/applications/linuxcnc-pncconf.desktop \
+	../share/applications/linuxcnc-stepconf.desktop \
 	../scripts/linuxcnc_var \
 	../scripts/halcmd_twopass \
 	../scripts/runtests \
@@ -600,6 +602,8 @@ XDGDESKTOP = \
     ../share/applications/linuxcnc.desktop \
     ../share/applications/linuxcnc-latency.desktop \
     ../share/applications/linuxcnc-latency-histogram.desktop \
+    ../share/applications/linuxcnc-pncconf.desktop \
+    ../share/applications/linuxcnc-stepconf.desktop \
 
 ifeq ($(RUN_IN_PLACE),yes)
 define ERROR_MESSAGE
