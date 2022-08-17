@@ -603,8 +603,19 @@ The maximum number of USER_M_PATH directories is defined at compile time (typ: '
   If there is reason to disable Fanuc subroutines set it to 1.
 
 [NOTE]
+====
 The above six options were controlled by the 'FEATURES' bitmask
-in versions of LinuxCNC prior to 2.8. This INI tag will no longer work.
+in versions of LinuxCNC prior to 2.8. This INI tag will no longer work. +
+For reference:
+----
+FEATURES & 0x1  -> RETAIN_G43
+FEATURES & 0x2  -> OWORD_NARGS
+FEATURES & 0x4  -> INI_VARS
+FEATURES & 0x8  -> HAL_PIN_VARS
+FEATURES & 0x10 -> NO_DOWNCASE_OWORD
+FEATURES & 0x20 -> OWORD_WARNONLY
+----
+====
 
 [NOTE]
 [WIZARD]WIZARD_ROOT is a valid search path but the Wizard has not been fully
