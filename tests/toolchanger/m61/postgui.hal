@@ -8,4 +8,5 @@ net tool-changed <= python-ui.tool-changed
 net tool-number => python-ui.tool-number
 net tool-prep-number => python-ui.tool-prep-number
 net tool-prep-pocket => python-ui.tool-prep-pocket
+net tool-from-pocket => python-ui.tool-from-pocket
 

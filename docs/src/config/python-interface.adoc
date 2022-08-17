@@ -371,6 +371,9 @@ machine angular units per deg, reflects [TRAJ]ANGULAR_UNITS INI value.
 *tool_in_spindle*:: '(returns integer)' -
   current tool number.
 
+*tool_from_pocket*:: '(returns integer)' -
+  pocket number for the currently loaded tool (0 if no tool loaded).
+
 *tool_offset*:: '(returns tuple of floats)' -
   offset values of the current tool.
 

@@ -400,6 +400,10 @@ static PyMemberDef Stat_members[] = {
     {(char*)"tool_in_spindle", T_INT, O(io.tool.toolInSpindle), READONLY,
         (char*)"The tool number of the currently loaded tool, or 0 if no tool is loaded."
     },
+    {(char*)"tool_from_pocket", T_INT, O(io.tool.toolFromPocket), READONLY,
+        (char*)"The pocket number that the currently loaded tool was retrieved from,\n"
+        "or 0 if no tool is loaded."
+    },
 
 // EMC_COOLANT_STAT io.cooland
     {(char*)"mist", T_INT, O(io.coolant.mist), READONLY},

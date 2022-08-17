@@ -901,6 +901,7 @@ void EMC_TOOL_STAT::update(CMS * cms)
     EMC_TOOL_STAT_MSG::update(cms);
     cms->update(pocketPrepped); // idx
     cms->update(toolInSpindle);
+    cms->update(toolFromPocket);
 #ifdef TOOL_NML //{
     for (int i_toolTable = 0; i_toolTable < CANON_POCKETS_MAX; i_toolTable++)
 	CANON_TOOL_TABLE_update(cms, &(toolTable[i_toolTable]));

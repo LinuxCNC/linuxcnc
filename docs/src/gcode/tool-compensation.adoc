@@ -204,19 +204,23 @@ The io program provides HAL output pins to facilitate toolchanger management:
 . *iocontrol.0.tool-prep-number*
 . *iocontrol.0.tool-prep-index*
 . *iocontrol.0.tool-prep-pocket*
+. *iocontrol.0.tool-from-pocket*
 
 ==== IO for non-random toolchanger
 
 . Tool number n==0 indicates no tool
-. The pocket number for a tool is fixed when tooldata is loaded
+. The pocket number for a tool is set when tooldata is loaded/reloaded
+from its data source ([EMCIO]TOOL_TABLE or [EMCIO]DB_PROGRAM).
 . At G-code *Tn* (n != 0) command:
 .. *iocontrol.0.tool-prep-index*  = idx (index based on tooldata load sequence)
 .. *iocontrol.0.tool-prep-number* = n
-.. *iocontrol.0.tool-prep-pocket* = the fixed pocketno for n
+.. *iocontrol.0.tool-prep-pocket* = the pocketno for n
 . At G-code *T0* (n == 0 remove) command:
 .. *iocontrol.0.tool-prep-index*  = 0
 .. *iocontrol.0.tool-prep-number* = 0
 .. *iocontrol.0.tool-prep-pocket* = 0
+. At M-code *M6* (following iocontrol.0.tool-changed pin 0-->1):
+.. *iocontrol.0.tool-from-pocket* = pocket number used to retrieve tool
 
 ==== IO for random toolchanger
 
@@ -224,9 +228,16 @@ The io program provides HAL output pins to facilitate toolchanger management:
 . Pocket number 0 is *special* as it indicates the *spindle*.
 . The *current* pocket number for tool N is the tooldata index (idx) for tool n.
 . At G-code command *Tn*:
-.. *iocontrol.0.tool-prep-index*  = pocket number for tool n
+.. *iocontrol.0.tool-prep-index*  = tooldata index (idx) for tool n
 .. *iocontrol.0.tool-prep-number* = n
 .. *iocontrol.0.tool-prep-pocket* = pocket number for tool n
+. At M-code *M6* (following iocontrol.0.tool-changed pin 0-->1):
+.. *iocontrol.0.tool-from-pocket* = pocket number used to retrieve tool
+
+[NOTE]
+At startup, *iocontrol.0.tool-from-pocket* = 0.
+An M61Qn (n!=0) command does not change the *iocontrol.0.tool-from-pocket*.
+An M61Qn (n==0) command sets *iocontrol.0.tool-from-pocket* to 0.
 
 [[sub:tool-changers]]
 === Tool Changers(((Tool Changers)))
@@ -248,7 +259,7 @@ with INI statements:
 HALFILE = axis_manualtoolchange.hal
 ----
 
-.Fixed Location Tool Changers
+.Fixed Location Tool Changers 
 Fixed location tool changers always return the tools to a
 fixed position in the tool changer. This would also include
 designs like lathe turrets. When LinuxCNC is configured for a fixed
@@ -256,13 +267,25 @@ location tool changer the 'P' number is not used internally (but read, preserved
 and rewritten) by LinuxCNC, so you can use P for any bookkeeping number you
 want.
 
+[NOTE]
+When using [EMCIO]RANDOM_TOOLCHANGER = 0 (the default), the 'P'
+pocket number is a parameter of the tooldata that is retrieved from
+the tooldata source ([EMCIO]TOOL_TABLE or [EMCIO]DB_PROGRAM).  In many
+applications it is fixed but it may be changed by edits to the
+[EMCIO]TOOL_TABLE or programatically when the [EMCIO]DB_PROGRAM is
+used.  LinuxCNC pushes updates to the data source ([EMCIO]TOOL_TABLE
+or [EMCIO]DB_PROGRAM) for gcodes G10L1,G10L10,G10L11,M61.  LinuxCNC
+can pull tooldata updates from the data source by UI (user-interface)
+commands (python example: linuxcnc.command().load_tool_table()) or by
+the gcode: G10L0.
+
 .Random Location Tool Changers
-Random location tool changers swap the tool in the spindle with the
-one in the changer. With this type of tool changer the tool will
-always be in a different pocket after a tool change. When a tool is
-changed LinuxCNC rewrites the pocket number to keep track of where the tools
-are. T can be any number but P must be a number that makes sense for
-the machine.
+Random location tool changers ([EMCIO]RANDOM_TOOLCHANGER = 1) swap the
+tool in the spindle with the one in the changer. With this type of
+tool changer the tool will always be in a different pocket after a
+tool change. When a tool is changed LinuxCNC rewrites the pocket
+number to keep track of where the tools are. T can be any number but P
+must be a number that makes sense for the machine.
 
 
 == Tool Length Compensation(((Tool Length Compensation)))

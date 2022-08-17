@@ -128,6 +128,7 @@ h = hal.component("python-ui")
 h.newpin("tool-number", hal.HAL_S32, hal.HAL_IN)
 h.newpin("tool-prep-number", hal.HAL_S32, hal.HAL_IN)
 h.newpin("tool-prep-pocket", hal.HAL_S32, hal.HAL_IN)
+h.newpin("tool-from-pocket", hal.HAL_S32, hal.HAL_IN)
 
 h.newpin("tool-prepare", hal.HAL_BIT, hal.HAL_IN)
 h.newpin("tool-prepared", hal.HAL_BIT, hal.HAL_OUT)
@@ -230,7 +231,8 @@ verify_stable_pin_values(
         'tool-change': 0,
         'tool-prep-number': 0,
         'tool-prep-pocket': 0,
-        'tool-prepare': 0
+        'tool-prepare': 0,
+        'tool-from-pocket': 1
     },
     duration=1
 )

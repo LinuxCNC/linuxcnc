@@ -102,6 +102,7 @@ struct iocontrol_str {
     hal_bit_t *tool_prepare;        /* output, pin that notifies HAL it needs to prepare a tool */
     hal_s32_t *tool_prep_pocket;/* output, pin that holds the pocketno for the tool table entry matching the tool to be prepared,
                                    only valid when tool-prepare=TRUE */
+    hal_s32_t *tool_from_pocket;/* output, pin indicating pocket current load tool retrieved from*/
     hal_s32_t *tool_prep_index; /* output, pin for internal index (idx) of prepped tool above */
     hal_s32_t *tool_prep_number;/* output, pin that holds the tool number to be prepared, only valid when tool-prepare=TRUE */
     hal_s32_t *tool_number;     /* output, pin that holds the tool number currently in the spindle */
@@ -407,6 +408,16 @@ static int iocontrol_hal_init(void)
         hal_exit(comp_id);
         return -1;
     }
+    // tool-from-pocket
+    retval = hal_pin_s32_newf(HAL_OUT, &(iocontrol_data->tool_from_pocket), comp_id,
+                              "iocontrol.%d.tool-from-pocket", n);
+    if (retval < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "IOCONTROL: ERROR: iocontrol %d pin tool-from-pocket export failed with err=%i\n",
+                        n, retval);
+        hal_exit(comp_id);
+        return -1;
+    }
     // tool-prepared
     retval = hal_pin_bit_newf(HAL_IN, &(iocontrol_data->tool_prepared), comp_id,
                               "iocontrol.%d.tool-prepared", n);
@@ -483,6 +494,7 @@ static void hal_init_pins(void)
     *(iocontrol_data->tool_prepare)=0;       /* output, pin that notifies HAL it needs to prepare a tool */
     *(iocontrol_data->tool_prep_number)=0;   /* output, pin that holds the tool number to be prepared, only valid when tool-prepare=TRUE */
     *(iocontrol_data->tool_prep_pocket)=0;   /* output, pin that holds the pocketno for the tool to be prepared, only valid when tool-prepare=TRUE */
+    *(iocontrol_data->tool_from_pocket)=0;   /* output, always 0 at startup */
     *iocontrol_data->tool_prep_index=0;      /* output, pin that holds the internal index (idx) of the tool to be prepared, for debug */
     *(iocontrol_data->tool_change)=0;        /* output, notifies a tool-change should happen (emc should be in the tool-change position) */
 }
@@ -623,6 +635,7 @@ static int read_tool_inputs(void)
     if (*iocontrol_data->tool_change && *iocontrol_data->tool_changed) {
         if(!random_toolchanger && emcioStatus.tool.pocketPrepped == 0) {
             emcioStatus.tool.toolInSpindle = 0;
+            emcioStatus.tool.toolFromPocket  =  *(iocontrol_data->tool_from_pocket) = 0;
         } else {
             // the tool now in the spindle is the one that was prepared
             CANON_TOOL_TABLE tdata;
@@ -630,6 +643,10 @@ static int read_tool_inputs(void)
                 UNEXPECTED_MSG; return -1;
             }
             emcioStatus.tool.toolInSpindle = tdata.toolno;
+            emcioStatus.tool.toolFromPocket = *(iocontrol_data->tool_from_pocket) = tdata.pocketno;
+        }
+        if (emcioStatus.tool.toolInSpindle == 0) {
+             emcioStatus.tool.toolFromPocket =  *(iocontrol_data->tool_from_pocket) = 0;
         }
         *(iocontrol_data->tool_number) = emcioStatus.tool.toolInSpindle; //likewise in HAL
         load_tool(emcioStatus.tool.pocketPrepped);
@@ -1030,6 +1047,9 @@ int main(int argc, char *argv[])
                      , emcioStatus.tool.toolInSpindle, idx, tdata.toolno);
                 //likewise in HAL
                 *(iocontrol_data->tool_number) = emcioStatus.tool.toolInSpindle;
+                if (emcioStatus.tool.toolInSpindle == 0) {
+                    emcioStatus.tool.toolFromPocket =  *(iocontrol_data->tool_from_pocket) = 0; // no tool in spindle
+                }
             }
             break;
 
