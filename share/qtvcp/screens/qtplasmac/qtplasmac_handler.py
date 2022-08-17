@@ -1,4 +1,4 @@
-VERSION = '1.229.226'
+VERSION = '1.229.228'
 
 '''
 qtplasmac_handler.py
@@ -1610,7 +1610,6 @@ class HandlerClass:
 
     def update_gcode_properties(self, props):
         if props:
-            print('>>PROPS:', props)
             if 'qtplasmac_program_clear.ngc' in props['name']:
                 self.set_blank_gcodeprops()
             else:
