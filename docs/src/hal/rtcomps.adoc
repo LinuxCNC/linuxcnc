@@ -262,7 +262,7 @@ PWM generators starts at 0.
 unloadrt pwmgen
 ----
 
-=== PWMgen Output Types
+=== Output Types
 
 The PWM generator supports three different 'output types'.
 
@@ -279,7 +279,7 @@ The PWM generator supports three different 'output types'.
   commands, the PWM signal appears on the down output, and the up output
   remains false. Output type 2 is suitable for driving most H-bridges.
 
-=== PWMgen Pins
+=== Pins
 
 Each PWM generator will have the following pins:
 
@@ -299,7 +299,7 @@ output type selected:
 * '(bit) pwmgen.<chan>.down' - PWM/PDM output for negative input value
   (output type 2 only).
 
-=== PWMgen Parameters
+=== Parameters
 
 * '(float) pwmgen.<chan>.scale' - Scaling factor to convert 'value'
   from arbitrary units to duty cycle. For example if scale is set to 4000
@@ -324,7 +324,7 @@ output type selected:
 * '(float) pwmgen.<chan>.curr-dc' - Current duty cycle - after all
   limiting and rounding (read only).
 
-=== PWMgen Functions
+=== Functions
 
 The component exports two functions. Each function acts on all of the
 PWM generators - running different generators in different threads is
@@ -385,7 +385,7 @@ of a specific counter. The first counter is number 0.
 halcmd: unloadrt encoder
 ----
 
-=== Encoder Pins
+=== Pins
 
 * 'encoder.<chan>.counter-mode' (bit, I/O) (default: FALSE) - Enables
   counter mode. When true, the
@@ -463,14 +463,14 @@ halcmd: unloadrt encoder
   only counts once per full cycle. In counter-mode, this parameter is
   ignored. The 1x mode is useful for some jogwheels.
 
-=== Encoder Parameters
+=== Parameters
 
 * 'encoder.<chan>.capture-position.time (s32, RO)'
 * 'encoder.<chan>.capture-position.tmax (s32, RW)'
 * 'encoder.<chan>.update-counters.time (s32, RO)'
 * 'encoder.<chan>.update-counter.tmax (s32, RW)'
 
-=== Encoder Functions
+=== Functions
 
 The component exports two functions. Each function acts on all of the
 encoder counters - running different counters in different threads is
@@ -518,7 +518,7 @@ cluttering the pin list.
 halcmd: unloadrt pid
 ----
 
-=== PID Pins
+=== Pins
 
 The three most important pins are
 
@@ -588,7 +588,7 @@ additional pins will be exported:
 * '(float) pid.<loopnum>.commandD' - Derivative of the command.
 * '(float) pid.<loopnum>.commandDD' - 2nd derivative of the command.
 
-=== PID Functions
+=== Functions
 
 The component exports one function for each PID loop. This function
 performs all the calculations needed for the loop. Since each loop has
@@ -625,7 +625,7 @@ defined by MAX_CHAN in sim_encoder.c).
 halcmd: unloadrt sim-encoder
 ----
 
-=== Sim-encoder Pins
+=== Pins
 
 * '(float) sim-encoder.<chan-num>.speed' - The speed command for the
   simulated shaft.
@@ -635,7 +635,7 @@ halcmd: unloadrt sim-encoder
 
 When '.speed' is positive, '.phase-A' leads '.phase-B'.
 
-=== Sim-encoder Parameters
+=== Parameters
 
 * '(u32) sim-encoder.<chan-num>.ppr' - Pulses Per Revolution.
 * '(float) sim-encoder.<chan-num>.scale' - Scale Factor for 'speed'.
@@ -647,7 +647,7 @@ Note that pulses per revolution is not the same as counts per
 revolution. A pulse is a complete quadrature cycle. Most encoder
 counters will count four times during one complete cycle.
 
-=== Sim-encoder Functions
+=== Functions
 
 The component exports two functions. Each function affects all
 simulated encoders.
@@ -697,14 +697,14 @@ filter 0.
 halcmd: unloadrt debounce
 ----
 
-=== Debounce Pins
+=== Pins
 
 Each individual filter has two pins.
 
 * '(bit) debounce.<G>.<F>.in' - Input of filter '<F>' in group '<G>'.
 * '(bit) debounce.<G>.<F>.out' - Output of filter '<F>' in group '<G>'.
 
-=== Debounce Parameters
+=== Parameters
 
 Each group of filters has one parameterfootnote:[Each individual
 filter also has an internal state variable. There is a
@@ -720,7 +720,7 @@ doesn't filter anything. As 'delay' increases, longer and longer
 glitches are rejected. If 'delay' is 4, all glitches less than or
 equal to four thread periods will be rejected.
 
-=== Debounce Functions
+=== Functions
 
 Each group of filters has one function, which updates all the filters
 in that group 'simultaneously'. Different groups of filters can be
@@ -752,7 +752,7 @@ halcmd: loadrt siggen [num_chan=<chans>]
 halcmd: unloadrt siggen
 ----
 
-=== Siggen Pins
+=== Pins
 
 Each generator has five output pins.
 
@@ -778,13 +778,13 @@ For example, if 'siggen.0.amplitude' is 1.0 and 'siggen.0.offset' is
 is 2.5 and 'siggen.0.offset' is 10.0, then the outputs will swing from
 7.5 to 12.5.
 
-=== Siggen Parameters
+=== Parameters
 
 None. footnote:[Prior to version 2.1, frequency, amplitude, and offset
 were parameters. They were changed to pins to allow control by other
 components.]
 
-=== Siggen Functions
+=== Functions
 
 * '(funct) siggen.<chan>.update' - Calculates new values for all five outputs.
 
