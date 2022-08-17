@@ -4278,38 +4278,40 @@ class HandlerClass:
     def material_temp_pin_changed(self, halpin):
         if halpin:
             t_name = 'Temporary {}'.format(halpin)
-            t_item = 0
+            k_width, p_height, p_delay, pj_height, pj_delay, c_height, \
+            c_speed, c_amps, c_volts, pause, g_press, c_mode, t_item = \
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
             with open(self.tmpMaterialFileGCode, 'r') as f_in:
                 for line in f_in:
-                    if line.startswith('name'):
+                    if line.startswith('NAME'):
                         t_name = line.split('=')[1].strip()
-                    if line.startswith('kerf_width'):
+                    if line.startswith('KERF_WIDTH'):
                         k_width = float(line.split('=')[1].strip())
-                    elif line.startswith('pierce_height'):
+                    elif line.startswith('PIERCE_HEIGHT'):
                         p_height = float(line.split('=')[1].strip())
-                    elif line.startswith('pierce_delay'):
+                    elif line.startswith('PIERCE_DELAY'):
                         p_delay = float(line.split('=')[1].strip())
-                    elif line.startswith('puddle_jump_height'):
+                    elif line.startswith('PUDDLE_JUMP_HEIGHT'):
                         pj_height = float(line.split('=')[1].strip())
-                    elif line.startswith('puddle_jump_delay'):
+                    elif line.startswith('PUDDLE_JUMP_DELAY'):
                         pj_delay = float(line.split('=')[1].strip())
-                    elif line.startswith('cut_height'):
+                    elif line.startswith('CUT_HEIGHT'):
                         c_height = float(line.split('=')[1].strip())
-                    elif line.startswith('cut_speed'):
+                    elif line.startswith('CUT_SPEED'):
                         c_speed = float(line.split('=')[1].strip())
-                    elif line.startswith('cut_amps'):
+                    elif line.startswith('CUT_AMPS'):
                         c_amps = float(line.split('=')[1].strip())
-                    elif line.startswith('cut_volts'):
+                    elif line.startswith('CUT_VOLTS'):
                         c_volts = float(line.split('=')[1].strip())
-                    elif line.startswith('pause_at_end'):
+                    elif line.startswith('PAUSE_AT_END'):
                         pause = float(line.split('=')[1].strip())
-                    elif line.startswith('gas_pressure'):
+                    elif line.startswith('GAS_PRESSURE'):
                         g_press = float(line.split('=')[1].strip())
-                    elif line.startswith('cut_mode'):
+                    elif line.startswith('CUT_MODE'):
                         c_mode = float(line.split('=')[1].strip())
             self.write_materials(halpin, t_name, k_width, p_height, \
                                  p_delay, pj_height, pj_delay, c_height, c_speed, \
-                                 c_amps, c_volts, pause, g_press, c_mode, 0)
+                                 c_amps, c_volts, pause, g_press, c_mode, t_item)
             self.display_materials()
             self.change_material(0)
             self.w.materials_box.setCurrentIndex(0)
