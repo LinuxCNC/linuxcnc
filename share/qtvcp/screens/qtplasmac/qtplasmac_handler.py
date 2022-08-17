@@ -1,4 +1,4 @@
-VERSION = '1.229.225'
+VERSION = '1.229.226'
 
 '''
 qtplasmac_handler.py
@@ -147,7 +147,6 @@ class HandlerClass:
         self.PREFS = Access(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs'))
         self.STYLEEDITOR = SSE(widgets, paths)
         self.GCODES = GCodes(widgets)
-        self.valid = QDoubleValidator(0.0, 999.999, 3)
         self.IMAGES = os.path.join(self.PATHS.IMAGEDIR, 'qtplasmac/images/')
         self.landscape = True
         if os.path.basename(self.PATHS.XML) == 'qtplasmac_9x16.ui':
@@ -155,7 +154,6 @@ class HandlerClass:
         self.gui43 = False
         if os.path.basename(self.PATHS.XML) == 'qtplasmac_4x3.ui':
             self.gui43 = True
-        self.widgetsLoaded = 0
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         KEYBIND.add_call('Key_F9','on_keycall_F9')
         KEYBIND.add_call('Key_Plus', 'on_keycall_PLUS')
@@ -311,6 +309,7 @@ class HandlerClass:
         self.CUT_REC_OFF    = 26
         self.DEBUG          = 27
 
+# called by qtvcp.py
     def initialized__(self):
         # ensure we get all startup errors
         STATUS.connect('error', self.error_update)
@@ -333,7 +332,6 @@ class HandlerClass:
         self.offset_peripherals()
         self.set_probe_offset_pins()
         self.wcs_rotation('get')
-        self.widgetsLoaded = 1
         STATUS.connect('state-estop', lambda w:self.estop_state(True))
         STATUS.connect('state-estop-reset', lambda w:self.estop_state(False))
         STATUS.connect('state-on', lambda w:self.power_state(True))
@@ -394,6 +392,7 @@ class HandlerClass:
             self.firstRun = False
         self.startupTimer.start(250)
 
+# called by qtvcp.py, can override qtvcp settings or qtvcp allowed user options (via ini)
     def before_loop__(self):
         self.w.setWindowTitle('{} - QtPlasmaC v{}, powered by QtVCP on LinuxCNC v{}'.format(self.machineName, VERSION, linuxcnc.version.split(':')[0]))
         self.w.setWindowIcon(QIcon(os.path.join(self.IMAGES, 'Chips_Plasma.png')))
@@ -402,6 +401,7 @@ class HandlerClass:
 #########################################################################################################################
 # CLASS PATCHING SECTION #
 #########################################################################################################################
+# called by qtvcp.py
     def class_patch__(self):
         self.gcode_editor_patch()
         self.camview_patch()
@@ -1057,6 +1057,7 @@ class HandlerClass:
             msg0 = _translate('HandlerClass', 'Invalid entry for probe offset')
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
 
+# called by the modified closeEvent function in this handler
     def closing_cleanup__(self):
         # disconnect powermax
         self.w.pmx485_enable.setChecked(False)
@@ -1099,6 +1100,7 @@ class HandlerClass:
             with open(logName, 'w') as f:
                 f.write(text)
 
+# called by qt_makegui.py
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
         # so we catch and process the events directly.
@@ -1608,6 +1610,7 @@ class HandlerClass:
 
     def update_gcode_properties(self, props):
         if props:
+            print('>>PROPS:', props)
             if 'qtplasmac_program_clear.ngc' in props['name']:
                 self.set_blank_gcodeprops()
             else:
@@ -1804,7 +1807,7 @@ class HandlerClass:
             self.w.height_ovr_label.setText('{:.2f}'.format(self.heightOvr))
         self.old_ovr_counts = value
 
-    def height_ovr_scale_change (self,value):
+    def height_ovr_scale_change(self,value):
         if value:self.heightOvrScale = value
 
     def touch_xy_clicked(self):
@@ -2129,6 +2132,7 @@ class HandlerClass:
 #########################################################################################################################
 # GENERAL FUNCTIONS #
 #########################################################################################################################
+# called by ScreenOptions, this function overrides ScreenOption's closeEvent
     def closeEvent(self, event):
         O = self.w.screen_options
         if self.w.chk_exit_warning.isChecked() or not STATUS.is_interp_idle():
