@@ -1,5 +1,11 @@
 Package: @MAIN_PACKAGE_NAME@
-Conflicts: linuxcnc-sim, @OTHER_MAIN_PACKAGE_NAME@
+Conflicts:
+    linuxcnc-sim,
+    @OTHER_MAIN_PACKAGE_NAME@
+Breaks:
+    linuxcnc-doc-en (<= 2.9.0~pre0+git20220402.2500863908-4),
+    linuxcnc-doc-es (<= 2.9.0~pre0+git20220402.2500863908-4),
+    linuxcnc-doc-fr (<= 2.9.0~pre0+git20220402.2500863908-4)
 Architecture: any
 Depends:
     ${misc:Depends},

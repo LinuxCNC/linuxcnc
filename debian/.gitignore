@@ -9,7 +9,10 @@ linuxcnc-dev
 linuxcnc-uspace-dev
 linuxcnc-doc-*/
 *.substvars
-/linuxcnc*.install
+
+# generated from `.in` by debian/configure
+linuxcnc-uspace.install
+
 *.debhelper
 shlibs.local
 linuxcnc-uspace.lintian-overrides

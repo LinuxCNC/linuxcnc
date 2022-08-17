@@ -31,12 +31,11 @@ export TIME=$(shell LANG=C date --date='@$(TIMESTAMP)' '+%T')
 kernel_version = @KERNEL_VERSION@
 configure_realtime_arg = @CONFIGURE_REALTIME_ARG@
 enable_build_documentation = @ENABLE_BUILD_DOCUMENTATION@
-DESTDIR=$(CURDIR)/debian/@MAIN_PACKAGE_NAME@
+DESTDIR=$(CURDIR)/debian/tmp
 DEV_PACKAGE_NAME=@MAIN_PACKAGE_NAME@-dev
 
 %:
-	# With debhelper 10 the --parallel becomes the default
-	dh $@ --parallel
+	dh $@
 
 override_dh_auto_configure:
 	cd src && ./autogen.sh
@@ -48,7 +47,7 @@ override_dh_auto_configure:
 	    --disable-check-runtime-deps
 
 override_dh_auto_build-arch:
-	$(MAKE) PYTHON=/usr/bin/python3 -C src
+	$(MAKE) PYTHON=/usr/bin/python3 -C src build-software
 
 override_dh_auto_build-indep:
 ifneq "$(enable_build_documentation)" ""
@@ -66,89 +65,59 @@ override_dh_auto_clean:
 	rm -f $(for i in $(find . -name "*.in"); do basename $i .in; done)
 	dh_clean
 
-override_dh_auto_install:
-	# avoid installing into already existing directory
-	rm -rf $(DESTDIR)
-	# executing regular installation with regular prefix but unterneath the debian folder
-	DESTDIR=$(DESTDIR) $(MAKE) -C src install
-	# Version 0.22 and newer of the desktop-file-validate program
-	# (in Jessie and newer) can deal with multiple files specified
-	# on the command line.	Version 0.20 (in Wheezy) says it can,
-	# but can't.  So feed it the files one by one.
-	for F in $(shell find debian/extras/ share/applications/ -name *.desktop); do \
-		desktop-file-validate $$F; \
-	done
-	# Adding files that are Debian-specific
-	cd debian/@EXTRAS@ && cp -a * $(DESTDIR)
-	DESTDIR=$(DESTDIR) $(MAKE) -C src INSTALL=install
+
+override_dh_auto_install-arch:
+	# Install all architecture-dependent libraries and executables
+	# in DESTDIR (the staging dir for the main package).
+	DESTDIR=$(DESTDIR) $(MAKE) -C src install-software
 	py3clean .
-	# In case that only the indep packages are built
-	if ls lib|egrep -q "*.a$$"; then \
-		mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/lib ; \
-		cp lib/*.a debian/$(DEV_PACKAGE_NAME)/usr/lib ; \
-	fi
-	mkdir -p $(DESTDIR)/usr/share/doc/linuxcnc
-	cp docs/html/gcode*.html $(DESTDIR)/usr/share/doc/linuxcnc/
 
-	#  Moving all language-specific .desktop files to the respective -doc-$$lang package
-	for lang in zh_CN es fr; do \
-		p=$$(echo $$lang | tr _ - | tr A-Z a-z); \
-		d=debian/linuxcnc-doc-$$p/usr/share/applications/ ; \
-		mkdir -p $$d ; \
-		mv -t $$d $(DESTDIR)/usr/share/applications/*_$${lang}.desktop ; \
-	done
-	#  Moving all remaining .desktop files to the default documentation
-	d=debian/linuxcnc-doc-en/usr/share/applications/ ; \
-	mkdir -p $$d ; \
-	mv -t $$d $(DESTDIR)/usr/share/applications/linuxcnc-gettingstarted.desktop ; \
-	mv -t $$d $(DESTDIR)/usr/share/applications/linuxcnc-documentation.desktop ; \
-	mv -t $$d $(DESTDIR)/usr/share/applications/linuxcnc-integratorinfo.desktop ; \
-	mv -t $$d $(DESTDIR)/usr/share/applications/linuxcnc-manualpages.desktop
-
-	# Only the English developer documentation goes to the -dev package
-	# The translated developer documentation goes to the respective regular -doc package
-	# english documentation has no "en" suffix
-	if [ -r $(DESTDIR)/usr/share/doc/linuxcnc/LinuxCNC_Developer.pdf ]; then \
-		mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/share/doc/linuxcnc-dev; \
-		mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/doc/linuxcnc-dev/ $(DESTDIR)/usr/share/doc/linuxcnc/LinuxCNC_Developer.pdf; \
-		mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/doc/linuxcnc-dev/ $(DESTDIR)/usr/share/doc/linuxcnc/LinuxCNC_Developer_*.pdf; \
-		for lang in zh_CN es fr; do \
-			p=$$(echo $$lang | tr _ - | tr A-Z a-z); \
-			d=debian/linuxcnc-doc-$$p/usr/share/doc/linuxcnc ; \
-			mkdir -p $$d ; \
-			find $(DESTDIR)/usr/share/doc/linuxcnc -name "*_$${lang}.pdf" | xargs -r mv -t $$d ; \
-		done; \
-		d=debian/linuxcnc-doc-en/usr/share/doc/linuxcnc && mkdir -p $$d && mv -t $$d $(DESTDIR)/usr/share/doc/linuxcnc/*.pdf; \
-	fi
-
-	mkdir -p $(DESTDIR)/usr/share/doc/linuxcnc/examples 
-	cd $(DESTDIR)/usr/share/doc/linuxcnc/examples && ln -sf ../../../linuxcnc/ncfiles ./nc_files
-
-	# -dev
-	mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/include
-	mv -t debian/$(DEV_PACKAGE_NAME)/usr/include $(DESTDIR)/usr/include/linuxcnc
-
-	# In case that only the indep packages are built
-	if ls $(DESTDIR)/usr/lib/*.a $(DESTDIR)/usr/lib/*.so | egrep -q "*.(a|so)$$"; then \
-		mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/lib; \
-		mv -t debian/$(DEV_PACKAGE_NAME)/usr/lib/ $(DESTDIR)/usr/lib/*.a $(DESTDIR)/usr/lib/*.so; \
-		mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/bin; \
-		mv -t debian/$(DEV_PACKAGE_NAME)/usr/bin $(DESTDIR)/usr/bin/halcompile; \
-		mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/share/man/man1; \
-		mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/man/man1  $(DESTDIR)/usr/share/man/man1/halcompile.1; \
-		mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/man $(DESTDIR)/usr/share/man/man3; \
-		mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/share/linuxcnc; \
-		mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/linuxcnc $(DESTDIR)/usr/share/linuxcnc/Makefile.modinc; \
-	fi
-	#mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/share/doc/
-	#mkdir -t debian/$(DEV_PACKAGE_NAME)/usr/share/doc/ $(DESTDIR)/usr/share/doc/linuxcnc-dev/
-	# not a package: drivers
-	#mkdir -p debian/drivers/usr/bin
-	#mv -t debian/drivers/usr/bin $(DESTDIR)/usr/bin/pci_write $(DESTDIR)/usr/bin/pci_read
-
+	desktop-file-validate $(shell find debian/extras/ share/applications/ -name *.desktop);
+	
 	# some clean-up
-	#rm -rf $(DESTDIR)/usr/share/doc/linuxcnc/html
-	rm -f $(DESTDIR)/usr/share/doc/linuxcnc/examples/sample-configs/*/*position*.txt
+	rm -f $(DESTDIR)/usr/share/doc/@MAIN_PACKAGE_NAME@/examples/sample-configs/*/*position*.txt
+
+override_dh_installdocs-arch:
+	# Sample configs go in `usr/share/doc/linuxcnc` (not
+	# `.../doc/@MAIN_PACKAGE_NAME@`) because that's where the
+	# `linuxcnc` launcher script looks for them, and that's
+	# inconvenient to change.
+	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=@MAIN_PACKAGE_NAME@
+	mkdir -p debian/@MAIN_PACKAGE_NAME@/usr/share/doc/linuxcnc
+	mv debian/@MAIN_PACKAGE_NAME@/usr/share/doc/@MAIN_PACKAGE_NAME@/examples debian/@MAIN_PACKAGE_NAME@/usr/share/doc/linuxcnc
+	
+	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=@MAIN_PACKAGE_NAME@-dev
+
+
+override_dh_auto_install-indep:
+	DESTDIR=$(DESTDIR) $(MAKE) -C src install-docs install-doc
+
+override_dh_installdocs-indep:
+	# The G-code quick reference html docs are built as
+	# `docs/html/${LANG}/gcode.html`.  We install them
+	# into `/usr/share/doc/@MAIN_PACKAGE_NAME@/` in each
+	# linuxcnc-doc-${LANG} package, then rename them there (except
+	# for the English one) to include the language in the filename,
+	# so they don't collide when we install all the doc debs.
+	#
+	# Rename the "main" doc directories from
+	# `usr/share/doc/@MAIN_PACKAGE_NAME@` to `usr/share/doc/linuxcnc`,
+	# because that's where the `.desktop` files look for the docs.
+	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=linuxcnc-doc-en
+	mv debian/linuxcnc-doc-en/usr/share/doc/@MAIN_PACKAGE_NAME@ debian/linuxcnc-doc-en/usr/share/doc/linuxcnc
+	
+	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=linuxcnc-doc-es
+	mv debian/linuxcnc-doc-es/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode.html debian/linuxcnc-doc-es/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode_es.html
+	mv debian/linuxcnc-doc-es/usr/share/doc/@MAIN_PACKAGE_NAME@ debian/linuxcnc-doc-es/usr/share/doc/linuxcnc
+	
+	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=linuxcnc-doc-fr
+	mv debian/linuxcnc-doc-fr/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode.html debian/linuxcnc-doc-fr/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode_fr.html
+	mv debian/linuxcnc-doc-fr/usr/share/doc/@MAIN_PACKAGE_NAME@ debian/linuxcnc-doc-fr/usr/share/doc/linuxcnc
+	
+	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=linuxcnc-doc-zh-cn
+	mv debian/linuxcnc-doc-zh-cn/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode.html debian/linuxcnc-doc-zh-cn/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode_zh_CN.html
+	mv debian/linuxcnc-doc-zh-cn/usr/share/doc/@MAIN_PACKAGE_NAME@ debian/linuxcnc-doc-zh-cn/usr/share/doc/linuxcnc
+
 
 override_dh_compress:
 	dh_compress -X.pdf -X.txt -X.hal -X.ini -X.clp -X.var -X.nml -X.tbl -X.xml -Xsample-configs
