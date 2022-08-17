@@ -401,7 +401,8 @@ Device_DigitalOutWrite(void *arg, long period)
 {
     board_data_t			*pboard = (board_data_t *)arg;
     DigitalPinsParams			*pDigital;
-    int					i, j, portnum=0;
+    int					portnum=0;
+    unsigned int			i,j;
     unsigned long			pins, offset=DATA_WRITE_OFFSET_0,mask;
 
     // For each port.
@@ -421,22 +422,22 @@ Device_DigitalOutWrite(void *arg, long period)
 				       ( *(pDigital->pValue) &&  (pDigital->invert) ))
 					 {	pins |= mask;	    }
 				}
-	   			 mask <<=1; // shift mask
+	   			mask <<=1; // shift mask
 				
 			}
 
 			// CHECK LED PINS
 			pDigital = &pboard->port[portnum].io[23];//one before what we want to check
-			for (i = 0;i < 2;i++)
-				{
-			 		mask=1<<(31-i);
-					pDigital++;
+			for (i = 0; i < 2; i++)
+			{
+				mask = (unsigned int) 1 << (31-i);
+				pDigital++;
 				
-					if ( *(pDigital->pValue) ==0 ) {	pins |= mask;	    }	
-				}
+				if ( *(pDigital->pValue) == 0 ) {	pins |= mask;	    }	
+			}
 			// Write digital I/O register.
 			writel(pins,pboard->base + (offset));
-			portnum ++;
+			portnum++;
 			offset=DATA_WRITE_OFFSET_1; // set to port1 offset
    		 }
 }
