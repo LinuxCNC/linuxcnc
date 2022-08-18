@@ -306,8 +306,8 @@ static inline bool get_probe_flag (Interp &interp)  {
 static inline void set_probe_flag(Interp &interp, bool value)  {
     interp._setup.probe_flag = value;
 }
-static inline bool get_speed_override (Interp &interp)  {
-    return interp._setup.speed_override;
+static inline bool get_speed_override (Interp &interp, int spindle)  {
+    return interp._setup.speed_override[spindle];
 }
 static inline void set_speed_override(Interp &interp, int spindle, bool value)  {
     interp._setup.speed_override[spindle] = value;
