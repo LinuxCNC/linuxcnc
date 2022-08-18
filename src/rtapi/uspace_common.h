@@ -80,8 +80,15 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
   shmem = &shmem_array[i];
 
   /* now get shared memory block from OS */
+  int shmget_retries = 5;
+shmget_again:
   shmem->id = shmget((key_t) key, (int) size, IPC_CREAT | 0600);
   if (shmem->id == -1) {
+      // See below for explanation of why retry against -EPERM here
+      if(shmget_retries-- && errno == -EPERM) {
+          sched_yield();
+          goto shmget_again;
+      }
     rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_shmem_new failed due to shmget(key=0x%08x): %s\n", key, strerror(errno));
     return -errno;
   }
