@@ -773,7 +773,7 @@ static PyObject * pyhal_pin_new(halitem * pin, const char * name) {
 PyObject *pin_has_writer(PyObject *self, PyObject *args) {
     char *name;
     if(!PyArg_ParseTuple(args, "s", &name)) return NULL;
-    if(!SHMPTR(0)) {
+    if(!hal_shmem_base) {
 	PyErr_Format(PyExc_RuntimeError,
 		"Cannot call before creating component");
 	return NULL;
@@ -797,7 +797,7 @@ PyObject *pin_has_writer(PyObject *self, PyObject *args) {
 PyObject *component_exists(PyObject *self, PyObject *args) {
     char *name;
     if(!PyArg_ParseTuple(args, "s", &name)) return NULL;
-    if(!SHMPTR(0)) {
+    if(!hal_shmem_base) {
 	PyErr_Format(PyExc_RuntimeError,
 		"Cannot call before creating component");
 	return NULL;
@@ -809,7 +809,7 @@ PyObject *component_exists(PyObject *self, PyObject *args) {
 PyObject *component_is_ready(PyObject *self, PyObject *args) {
     char *name;
     if(!PyArg_ParseTuple(args, "s", &name)) return NULL;
-    if(!SHMPTR(0)) {
+    if(!hal_shmem_base) {
 	PyErr_Format(PyExc_RuntimeError,
 		"Cannot call before creating component");
 	return NULL;
@@ -824,7 +824,7 @@ PyObject *new_sig(PyObject *self, PyObject *args) {
     char *name;
     int type,retval;
     if(!PyArg_ParseTuple(args, "si", &name,&type)) return NULL;
-    if(!SHMPTR(0)) {
+    if(!hal_shmem_base) {
 	PyErr_Format(PyExc_RuntimeError,
 		"Cannot call before creating component");
 	return NULL;
@@ -853,7 +853,7 @@ PyObject *new_sig(PyObject *self, PyObject *args) {
 PyObject *connect(PyObject *self, PyObject *args) {
     char *signame,*pinname;
     if(!PyArg_ParseTuple(args, "ss", &pinname,&signame)) return NULL;
-    if(!SHMPTR(0)) {
+    if(!hal_shmem_base) {
 	PyErr_Format(PyExc_RuntimeError,
 		"Cannot call before creating component");
 	return NULL;
@@ -865,7 +865,7 @@ PyObject *connect(PyObject *self, PyObject *args) {
 PyObject *disconnect(PyObject *self, PyObject *args) {
     char *pinname;
     if(!PyArg_ParseTuple(args, "s", &pinname)) return NULL;
-    if(!SHMPTR(0)) {
+    if(!hal_shmem_base) {
 	PyErr_Format(PyExc_RuntimeError,
 		"Cannot call before creating component");
 	return NULL;
@@ -941,7 +941,7 @@ PyObject *set_p(PyObject *self, PyObject *args) {
     void *d_ptr;
     
     if(!PyArg_ParseTuple(args, "ss", &name,&value)) return NULL;
-    if(!SHMPTR(0)) {
+    if(!hal_shmem_base) {
 	PyErr_Format(PyExc_RuntimeError,
 		"Cannot call before creating component");
 	return NULL;
@@ -1008,7 +1008,7 @@ PyObject *get_value(PyObject *self, PyObject *args) {
     void *d_ptr;
 
     if(!PyArg_ParseTuple(args, "s", &name)) return NULL;
-    if(!SHMPTR(0)) {
+    if(!hal_shmem_base) {
 	PyErr_Format(PyExc_RuntimeError,
 		"Cannot call before creating component");
 	return NULL;
@@ -1085,7 +1085,7 @@ PyObject *get_value(PyObject *self, PyObject *args) {
 /*######################################*/
 /* Get a dict of pin info for all pins in system */
 PyObject *get_info_pins(PyObject *self, PyObject *args) {
-    int next;
+    SHMFIELD(hal_pin_t) next;
     int type;
     char str_n[] = "NAME";
     char str_v[] = "VALUE";
@@ -1099,7 +1099,7 @@ PyObject *get_info_pins(PyObject *self, PyObject *args) {
     PyObject* python_list = PyList_New(0);
     PyObject *obj;
 
-    if(!SHMPTR(0)) {
+    if(!hal_shmem_base) {
 	PyErr_Format(PyExc_RuntimeError,
 		"Cannot call before creating component");
 	return NULL;
@@ -1109,7 +1109,7 @@ PyObject *get_info_pins(PyObject *self, PyObject *args) {
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->pin_list_ptr;
     while (next != 0) {
-	    pin = (hal_pin_t*)SHMPTR(next);
+	    pin = SHMPTR(next);
         type = pin->type;
         if (pin->signal != 0) {
             sig = (hal_sig_t*)SHMPTR(pin->signal);
@@ -1174,7 +1174,7 @@ PyObject *get_info_pins(PyObject *self, PyObject *args) {
 /*######################################*/
 /* Get a dict of signal info for all signals in system */
 PyObject *get_info_signals(PyObject *self, PyObject *args) {
-    int next;
+    SHMFIELD(hal_sig_t) next;
     int type;
     char str_n[] = "NAME";
     char str_v[] = "VALUE";
@@ -1186,7 +1186,7 @@ PyObject *get_info_signals(PyObject *self, PyObject *args) {
     PyObject* python_list = PyList_New(0);
     PyObject *obj;
 
-    if(!SHMPTR(0)) {
+    if(!hal_shmem_base) {
 	PyErr_Format(PyExc_RuntimeError,
 		"Cannot call before creating component");
 	return NULL;
@@ -1196,7 +1196,7 @@ PyObject *get_info_signals(PyObject *self, PyObject *args) {
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->sig_list_ptr;
     while (next != 0) {
-	    sig = (hal_sig_t*)SHMPTR(next);
+	    sig = SHMPTR(next);
         type = sig->type;
         d_ptr = SHMPTR(sig->data_ptr);
 
@@ -1259,7 +1259,7 @@ PyObject *get_info_signals(PyObject *self, PyObject *args) {
 /*######################################*/
 /* Get a dict of parameter info for all parameters in system */
 PyObject *get_info_params(PyObject *self, PyObject *args) {
-    int next;
+    SHMFIELD(hal_param_t) next;
     int type;
     char str_n[] = "NAME";
     char str_v[] = "VALUE";
@@ -1269,7 +1269,7 @@ PyObject *get_info_params(PyObject *self, PyObject *args) {
     PyObject* python_list = PyList_New(0);
     PyObject *obj;
 
-    if(!SHMPTR(0)) {
+    if(!hal_shmem_base) {
 	PyErr_Format(PyExc_RuntimeError,
 		"Cannot call before creating component");
 	return NULL;
@@ -1279,7 +1279,7 @@ PyObject *get_info_params(PyObject *self, PyObject *args) {
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->param_list_ptr;
     while (next != 0) {
-	    param = (hal_param_t*)SHMPTR(next);
+	    param = SHMPTR(next);
         type = param->type;
         d_ptr = SHMPTR(param->data_ptr);
 
