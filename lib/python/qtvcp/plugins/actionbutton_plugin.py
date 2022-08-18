@@ -689,7 +689,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
         self.diam = QtWidgets.QWidget()
         hbox = QtWidgets.QHBoxLayout()
         hbox.setContentsMargins(0, 0, 0, 0)
-        label = QtWidgets.QLabel('Round Diamter')
+        label = QtWidgets.QLabel('Round Diameter')
         self.diamSpinBox = QtWidgets.QDoubleSpinBox()
         self.diamSpinBox.setRange(2, 100)
         self.diamSpinBox.setDecimals(1)
@@ -1108,7 +1108,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
             # set widget option
             formWindow.cursor().setProperty(winProperty + '_action',
                                             QtCore.QVariant(True))
-        # set status data fom combo box
+        # set status data from combo box
         # we read all data from combo and set each property to its
         # current dialog state (ie. selected is true, all others false)
         for i in range(1, self.statusCombo.count()):

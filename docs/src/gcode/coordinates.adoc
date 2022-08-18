@@ -55,7 +55,7 @@ your machine has an automatic tool changer. You can also use this command
 to clear the work area and access the workpiece in the vise.
 
 G53 is a non modal command. It must be used in every block where a move
-in machine coordinate system is desired
+in machine coordinate system is desired.
 
 == Coordinate Systems
 
@@ -304,7 +304,7 @@ By default, 'G92' offsets are restored after the machine is started.
 Programmers that wish for Fanuc behavior, where 'G92' offsets are
 cleared at machine start and after a reset or program end, may disable
 'G92' persistence by setting 'DISABLE_G92_PERSISTENCE = 1' in the
-'[RS274NGC]' section of the '.ini' file.
+'[RS274NGC]' section of the INI file.
 
 [NOTE]
 It is good practice to clear the 'G92' offsets at the end of their use
@@ -318,7 +318,7 @@ will be applied when an axis is homed.  See
 There are at least two ways to set G92 values:
 
 * With a right click on the position displays in tklinuxcnc, a window opens
-  where it is possible to enter a value
+  where it is possible to enter a value.
 * With the G92 command
 
 Both work from the current position of the axis that should be moved.
@@ -384,13 +384,13 @@ effect a startup will cause them to become active again.  As a
 safeguard, always have your preamble to set the environment as you
 expect it.  Additionally, 'G92' persistence may be disabled by setting
 'DISABLE_G92_PERSISTENCE = 1' in the '[RS274NGC]' section of the
-'.ini' file.
+INI file.
 
 [[sec:g92-g52-interaction-cautions]]
 === G92 and G52 Interaction Cautions
 
 'G52' and 'G92' share the same offset registers. Unless 'G92'
-persistence is disabled in the '.ini' file(see
+persistence is disabled in the INI file (see
 <<sec:g92-commands,G92 Commands>>),
 'G52' offsets will also persist after machine reset,
 'M02' or 'M30'.  Beware that a 'G52' offset in effect during a program

@@ -13,7 +13,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-# Action buttons are used to change linuxcnc behaivor do to button pushing.
+# Action buttons are used to change linuxcnc behavior do to button pushing.
 # By making the button 'checkable' in the designer editor,
 # the button will toggle.
 # In the designer editor, it is possible to select what the button will do.

@@ -7,7 +7,7 @@ from . import logger
 
 log = logger.getLogger(__name__)
 # Force the log level for this module
-# log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+# log.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 try:
     LINUXCNCVERSION = os.environ['LINUXCNCVERSION']
@@ -108,9 +108,17 @@ class _IStat(object):
         else:
             self.MACRO_PATH = None
         self.INI_MACROS = self.INI.findall("DISPLAY", "MACRO")
-        self.MACHINE_IS_LATHE = bool(self.INI.find("DISPLAY", "LATHE"))
-        self.MACHINE_IS_QTPLASMAC = (self.INI.find("QTPLASMAC", "MODE")) or None
 
+        self.NGC_SUB_PATH = (self.INI.find("DISPLAY","NGCGUI_SUBFILE_PATH")) or None
+        if not self.NGC_SUB_PATH is None:
+            self.NGC_SUB_PATH = os.path.expanduser(self.NGC_SUB_PATH)
+        self.NGC_SUB = (self.INI.findall("DISPLAY", "NGCGUI_SUBFILE")) or None
+
+        self.MACHINE_IS_LATHE = bool(self.INI.find("DISPLAY", "LATHE"))
+        try:
+            self.MACHINE_IS_QTPLASMAC = 'qtplasmac' in self.INI.find("DISPLAY", "DISPLAY")
+        except:
+            self.MACHINE_IS_QTPLASMAC = False
         extensions = self.INI.findall("FILTER", "PROGRAM_EXTENSION")
         self.PROGRAM_FILTERS = ([e.split(None, 1) for e in extensions]) or None
         self.PROGRAM_FILTERS_EXTENSIONS = self.get_filters_extensions()
@@ -122,11 +130,11 @@ class _IStat(object):
             # first check the global settings
             units = self.INI.find("TRAJ", "LINEAR_UNITS")
             if units is None:
-                log.critical('Misssing LINEAR_UNITS in TRAJ, guessing units for machine from JOINT 0') 
+                log.critical('Missing LINEAR_UNITS in TRAJ, guessing units for machine from JOINT 0')
                 # else then guess; The joint 0 is usually X axis
                 units = self.INI.find("JOINT_0", "UNITS")
                 if units is None:
-                    log.critical('Misssing UNITS in JOINT_0, assuming metric based machine') 
+                    log.critical('Missing UNITS in JOINT_0, assuming metric based machine')
                     units = 'metric'
         except:
             units = "metric"
@@ -184,8 +192,12 @@ class _IStat(object):
                 av = self.INI.find('AXIS_%s' % letter.upper(), 'MAX_VELOCITY') or None
                 aa = self.INI.find('AXIS_%s' % letter.upper(), 'MAX_ACCELERATION') or None
                 if av is None or aa is None:
-                    log.critical(
-                        'MISSING [AXIS_{}] MAX VeLOCITY or MAX ACCELERATION entry in INI file.'.format(letter.upper()))
+                    # some lathe configs have dummy Y axis for axis rotation G code
+                    if letter == "Y" and self.MACHINE_IS_LATHE:
+                        pass
+                    else:
+                        log.critical(
+                            'MISSING [AXIS_{}] MAX VELOCITY or MAX ACCELERATION entry in INI file.'.format(letter.upper()))
 
         # convert joint number to axis index
         # used by dro_widget
@@ -244,7 +256,7 @@ class _IStat(object):
         # This is a list of joints that are related to a joint.
         #ie. JOINT_RELATIONS_LIST(0) will give a list of joints that go with joint 0
         # to make an axis or else a list with just 0 in it.
-        # current use case is to find out what other joints should be unhomed if you unhome 
+        # current use case is to find out what other joints should be unhomed if you unhome
         # a combined joint axis.
         self.JOINT_RELATIONS_LIST = [None] * jointcount
         for j in range(jointcount):

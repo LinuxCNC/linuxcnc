@@ -11,6 +11,7 @@ Build-Depends:
     @MODUTILS_DEPENDS@,
     @EXTRA_BUILD@,
     autoconf,
+    automake,
     bwidget (>= 1.7),
     desktop-file-utils,
     gettext,

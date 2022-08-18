@@ -305,10 +305,11 @@ User Manual.
   If the update time is not set right the screen can become unresponsive or very jerky.
   A value of 100ms (0.1 seconds) is a common setting though a range of 50 - 200ms (.05 - .2 seconds) may be useable.
   An under powered CPU may see improvement with a longer setting. Usually the default is fine.
+* 'PREVIEW_TIMEOUT = 5' - Timeout (in seconds) for loading graphical preview of G-code. Currently AXIS only.
 
 [NOTE]
 The following [DISPLAY] items are used by GladeVCP, see the
-<<gladevcp:embeding-tab,embedding a tab>> section of the GladeVCP Chapter.
+<<gladevcp:embedding-tab,embedding a tab>> section of the GladeVCP Chapter.
 
 * 'EMBED_TAB_NAME=GladeVCP demo'
 * 'EMBED_TAB_COMMAND=halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x {XID} -u ./gladevcp/hitcounter.py ./gladevcp/manual-example.ui'
@@ -602,8 +603,19 @@ The maximum number of USER_M_PATH directories is defined at compile time (typ: '
   If there is reason to disable Fanuc subroutines set it to 1.
 
 [NOTE]
+====
 The above six options were controlled by the 'FEATURES' bitmask
-in versions of LinuxCNC prior to 2.8. This INI tag will no longer work.
+in versions of LinuxCNC prior to 2.8. This INI tag will no longer work. +
+For reference:
+----
+FEATURES & 0x1  -> RETAIN_G43
+FEATURES & 0x2  -> OWORD_NARGS
+FEATURES & 0x4  -> INI_VARS
+FEATURES & 0x8  -> HAL_PIN_VARS
+FEATURES & 0x10 -> NO_DOWNCASE_OWORD
+FEATURES & 0x20 -> OWORD_WARNONLY
+----
+====
 
 [NOTE]
 [WIZARD]WIZARD_ROOT is a valid search path but the Wizard has not been fully
@@ -626,7 +638,7 @@ implemented and the results of using it are unpredictable.
 This section is a custom section and is not used by LinuxCNC directly. Most
 configurations use values from this section to load the motion controller. For
 more information on the motion controller see the <<sec:motion,Motion>>
-Section.
+section.
 
 * 'EMCMOT = motmod' - the motion controller name is typically used here.
 * 'BASE_PERIOD = 50000' - the 'Base' task period in nanoseconds.
@@ -881,7 +893,7 @@ Basically, if a segment will complete in less time than 1 /
 ARC_BLEND_RAMP_FREQ, we don't bother with a trapezoidal velocity profile
 on that segment, and use constant acceleration. (Setting
 ARC_BLEND_RAMP_FREQ = 1000 is equivalent to always using trapezoidal
-acceleration, if the servo loop is 1kHz).
+acceleration, if the servo loop is 1 kHz).
 +
 You can characterize the worst-case loss of performance by comparing the
 velocity that a trapezoidal profile reaches vs. the ramp:
@@ -894,14 +906,14 @@ velocity that a trapezoidal profile reaches vs. the ramp:
 # f = cutoff frequency from INI
 ----
 +
-For the aforementioned machine, the ripple for a 20Hz cutoff frequency
+For the aforementioned machine, the ripple for a 20 Hz cutoff frequency
 is 100 / (4 * 20) = 1.25 IPS. This seems high, but keep in mind that it
 is only a worst-case estimate. In reality , the trapezoidal motion
 profile is limited by other factors, such as normal acceleration or
 requested velocity, and so the actual performance loss should be much
 smaller. Increasing the cutoff frequency can squeeze out more
 performance, but make the motion rougher due to acceleration
-discontinuities. A value in the range 20Hz to 200Hz should be reasonable
+discontinuities. A value in the range 20 Hz to 200 Hz should be reasonable
 to start.
 
 Finally, no amount of tweaking will speed up a toolpath with lots of

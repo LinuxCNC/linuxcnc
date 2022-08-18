@@ -15,7 +15,7 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 #   We have do do this before importing other modules because on import
 #   they set up their own loggers as children of the base logger.
 from qtvcp import logger
-LOG = logger.initBaseLogger('QTvcp', log_file=None, log_level=logger.INFO)
+LOG = logger.initBaseLogger('QTvcp', log_file=None, log_level=logger.WARNING)
 
 
 from qtvcp.core import Status, Info, Qhal, Path
@@ -53,6 +53,8 @@ example: -g 200x400+0+100. Values are in pixel units, XOFFSET/YOFFSET is referen
 use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just position.""")
           , Option( '-H', dest='halfile', metavar='FILE'
                   , help="execute HAL statements from FILE with halcmd after the component is set up and ready")
+          , Option( '-i', action='store_true', dest='info', default=False
+                  , help="Enable info output")
           , Option( '-m', action='store_true', dest='maximum', help="Force panel window to maximize")
           , Option( '-f', action='store_true', dest='fullscreen', help="Force panel window to fullscreen")
           , Option( '-t', dest='theme', default="", help="Set QT style. Default is system theme")
@@ -138,6 +140,9 @@ class QTVCP:
             # Log level defaults to INFO, so set lowest if in verbose mode
             logger.setGlobalLevel(logger.VERBOSE)
             LOG.verbose('VERBOSE DEBUGGING ON')
+        if opts.info:
+            logger.setGlobalLevel(logger.INFO)
+
 
         # a specific path has been set to load from or...
         # no path set but -ini is present: default qtvcp screen...or
@@ -285,11 +290,12 @@ Pressing cancel will close linuxcnc.""" % target)
         # actually build the widgets
         window.instance(filename=PATH.XML)
 
+        # add a default program icon - this might be overridden later
+        window.setWindowIcon(QtGui.QIcon(os.path.join(PATH.IMAGEDIR, 'linuxcncicon.png')))
+
         # title
         if INIPATH:
-            if (INITITLE == ""):
-                INITITLE='QTvcp-Screen-%s'% opts.component
-            title = INITITLE
+            title ='QTvcp-Screen-%s'% opts.component
         else:
             title = 'QTvcp-Panel-%s'% opts.component
         window.setWindowTitle(title)
@@ -396,27 +402,25 @@ Pressing cancel will close linuxcnc.""" % target)
         if INIPATH:
             self.postgui()
             self.postgui_cmd()
-            if (INIICON == ""):
-                window.setWindowIcon(QtGui.QIcon(os.path.join(PATH.IMAGEDIR, 'linuxcncicon.png')))
-            else:
+            # if there is a valid INI based icon path, override the default icon.
+            if INIICON !='' and os.path.exists(os.path.join(PATH.CONFIGPATH, INIICON)):
                 window.setWindowIcon(QtGui.QIcon(os.path.join(PATH.CONFIGPATH, INIICON)))
-        else:
-            window.setWindowIcon(QtGui.QIcon(os.path.join(PATH.IMAGEDIR, 'linuxcnc-wizard.gif')))
+            if (INITITLE !=''):
+                window.setWindowTitle(INITITLE)
 
         # catch control c and terminate signals
         signal.signal(signal.SIGTERM, self.shutdown)
         signal.signal(signal.SIGINT, self.shutdown)
 
+        # check for handler file and if it has 'before_loop' function
+        # last chance to change anything before event loop.
         if opts.usermod and "before_loop__" in dir(window.handler_instance):
             LOG.debug('''Calling the handler file's before_loop__ function''')
             window.handler_instance.before_loop__()
 
         LOG.info('Preference path: yellow<{}>'.format(PATH.PREFS_FILENAME))
         # start loop
-        APP.exec_()
-
-        # now shut it all down
-        self.shutdown()
+        APP.exec()
 
     # finds the postgui file name and INI file path
     def postgui(self):
@@ -445,6 +449,7 @@ Pressing cancel will close linuxcnc.""" % target)
     # call optional widget cleanup functions
     # shut down STATUS so no error is called
     # close out HAL pins
+    # there is similar code in screen_options
     def shutdown(self,signum=None,stack_frame=None):
         try:
             self.panel.window.shutdown()
@@ -460,7 +465,6 @@ Pressing cancel will close linuxcnc.""" % target)
             self.halcomp.exit()
         except:
             pass
-        sys.exit(0)
 
         # Throws up a dialog with debug info when an error is encountered
     def excepthook(self, exc_type, exc_obj, exc_tb):
@@ -505,4 +509,4 @@ Pressing cancel will close linuxcnc.""" % target)
 # starts Qtvcp
 if __name__ == "__main__":
         APP = QTVCP()
-
+        sys.exit(0)

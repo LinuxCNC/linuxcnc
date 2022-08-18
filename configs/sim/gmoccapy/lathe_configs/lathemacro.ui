@@ -2532,7 +2532,7 @@
                     <property name="height_request">20</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="tooltip_markup" translatable="yes">&lt;!--1084,672--&gt;Finish Diamter</property>
+                    <property name="tooltip_markup" translatable="yes">&lt;!--1084,672--&gt;Finish Diameter</property>
                     <property name="halign">start</property>
                     <property name="valign">start</property>
                     <property name="invisible_char">●</property>

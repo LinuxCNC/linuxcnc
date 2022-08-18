@@ -162,10 +162,10 @@ M2 (end program)
 
 If cutter compensation is active, the motion will differ from
 the above; see the <<sec:cutter-radius-compensation,Cutter Compensation>>
-Section.
+section.
 
 If 'G53' is programmed on the same line, the motion will also differ;
-see the <<gcode:g53,G53>> Section for more information.
+see the <<gcode:g53,G53>> section for more information.
 
 The path of a G0 rapid motion can be rounded at direction changes and
 depends on the <<sec:trajectory-control,trajectory control>> settings
@@ -181,7 +181,7 @@ be organized so that each rotary axis makes less than one full turn.
 It is an error if:
 
 * An axis letter is without a real value.
-* An axis letter is used that is not configured
+* An axis letter is used that is not configured.
 
 [[gcode:g1]]
 == G1 Linear Move(((G1 Linear Move)))
@@ -212,10 +212,10 @@ M2 (end program)
 
 If cutter compensation is active, the motion will differ from
 the above; see the <<sec:cutter-radius-compensation,Cutter Compensation>>
-Section.
+section.
 
 If 'G53' is programmed on the same line, the motion will also differ;
-see the <<gcode:g53,G53>> Section for more information.
+see the <<gcode:g53,G53>> section for more information.
 
 It is an error if:
 
@@ -384,9 +384,9 @@ to start:'
 === Center Format Examples
 
 Calculating arcs by hand can be difficult at times. One option is to
-draw the arc with a cad program to get the coordinates and offsets.
+draw the arc with a CAD program to get the coordinates and offsets.
 Keep in mind the tolerance mentioned above, you may have to change the
-precision of your cad program to get the desired results. Another
+precision of your CAD program to get the desired results. Another
 option is to calculate the coordinates and offset using formulas. As
 you can see in the following figures a triangle can be formed from the
 current position the end position and the arc center.
@@ -586,11 +586,11 @@ G5 P0 Q-3 X2 Y2
 
 It is an error if:
 
-* P and Q are not both specified
-* Just one of I or J are specified
-* I or J are unspecified in the first of a series of G5 commands
-* An axis other than X or Y is specified
-* The active plane is not G17
+* P and Q are not both specified.
+* Just one of I or J are specified.
+* I or J are unspecified in the first of a series of G5 commands.
+* An axis other than X or Y is specified.
+* The active plane is not G17.
 
 [[gcode:g5.1]]
 == G5.1 Quadratic Spline(((G5.1 Quadratic spline)))
@@ -963,8 +963,8 @@ The UV, WU and VW planes do not support arcs.
 It is a good idea to include a plane selection in the preamble
 of each G-code file.
 
-The effects of having a plane selected are discussed in Section
-<<gcode:g2-g3,G2 G3 Arcs>> and Section <<gcode:g80-g89,G81 G89>>.
+The effects of having a plane selected are discussed in section
+<<gcode:g2-g3,G2 G3 Arcs>> and section <<gcode:g80-g89,G81 G89>>.
 
 [[gcode:g20-g21]]
 == G20, G21 Units(((G20 Units)))
@@ -1121,9 +1121,9 @@ M2 (end program)
 It is an error if:
 
 * All axis words are omitted.
-* The spindle is not turning when this command is executed
+* The spindle is not turning when this command is executed.
 * The requested linear motion exceeds machine velocity limits
-  due to the spindle speed
+  due to the spindle speed.
 
 [[gcode:g33.1]]
 == G33.1 Rigid Tapping(((G33.1 Rigid Tapping)))
@@ -1262,7 +1262,7 @@ A comment of the form '(PROBEOPEN filename.txt)' will open
 'filename.txt' and store the 9-number coordinate consisting of
 XYZABCUVW of each successful straight probe in it.
 The file must be closed with '(PROBECLOSE)'. For more information
-see the <<gcode:comments,Comments>> Section.
+see the <<gcode:comments,Comments>> section.
 
 An example file 'smartprobe.ngc' is included (in the examples directory)
 to demonstrate using probe moves to log to a file the coordinates of a
@@ -1349,7 +1349,7 @@ User M100-M199 commands are allowed when Cutter Compensation is on.
 
 The behavior of the machining center when cutter compensation
 is on is described in the <<sec:cutter-radius-compensation,Cutter Compensation>>
-Section along with code examples.
+section along with code examples.
 
 It is an error if:
 
@@ -1390,7 +1390,7 @@ G43 <H->
 
 * 'H' - tool number (optional)
 
-* 'G43' - enables tool length compensation. 
+* 'G43' - enables tool length compensation.
   G43 changes subsequent motions by offsetting the axis coordinates by
   the length of the offset. G43 does not cause any motion. The next time
   a compensated axis is moved, that axis's endpoint is the compensated
@@ -1497,10 +1497,10 @@ location.
 
 It is an error if:
 
-* 'H' is unspecified and no axis offsets are specified
-* 'H is specified and the given tool number does not exist in the tool
-  table
-* 'H' is specified and axes are also specified
+* 'H' is unspecified and no axis offsets are specified.
+* 'H' is specified and the given tool number does not exist in the tool
+  table.
+* 'H' is specified and axes are also specified.
 
 NOTE: G43.2 does not write to the tool table.
 
@@ -1590,7 +1590,7 @@ It is an error if:
 
 * selecting a coordinate system is used while cutter compensation is on.
 
-See the <<cha:coordinate-system,Coordinate System>> Section for an
+See the <<cha:coordinate-system,Coordinate System>> section for an
 overview of coordinate systems.
 
 [[gcode:g61]]
@@ -1637,7 +1637,7 @@ G64 <P- <Q->>
   arc-line cases as well as line-line benefit from the 'naive cam
   detector'. This improves contouring performance by simplifying the
   path. It is OK to program for the mode that is already active. See
-  also the <<sec:trajectory-control,Trajectory Control>> Section for
+  also the <<sec:trajectory-control,Trajectory Control>> section for
   more information on these modes.
   If Q is not specified then it will have the same behavior as before
   and use the value of P-.
@@ -1929,17 +1929,17 @@ from the hole.
 
 It is an error if:
 
-* The active plane is not the ZX plane
-* Other axis words, such as X- or Y-, are specified
+* The active plane is not the ZX plane.
+* Other axis words, such as X- or Y-, are specified.
 * The 'R-' degression value is less than 1.0.
-* All the required words are not specified
-* 'P-', 'J-', 'K-' or 'H-' is negative
-* 'E-' is greater than half the drive line length
+* All the required words are not specified.
+* 'P-', 'J-', 'K-' or 'H-' is negative.
+* 'E-' is greater than half the drive line length.
 
 .HAL Connections
 The pins 'spindle.N.at-speed' and the 'encoder.n.phase-Z' for the
 spindle must be connected in your HAL file before G76 will work.
-See the <<sec:motion-pins, spindle>> pins in the Motion section for more
+See the <<sec:motion-pins,spindle>> pins in the Motion section for more
 information.
 
 .Technical Info
@@ -2029,7 +2029,7 @@ The height of the retract move at the end of each repeat (called
 'clear Z' in the descriptions below) is determined by the setting of
 the retract mode, either to the original Z position (if that is above
 the R position and the retract mode is 'G98', OLD_Z), or otherwise to
-the R position. See the <<gcode:g98-g99,G98 G99>> Section.
+the R position. See the <<gcode:g98-g99,G98 G99>> section.
 
 [[gcode:canned-cycle-errors]]
 === Canned Cycle Errors(((Canned Cycle Errors)))
@@ -2063,10 +2063,10 @@ the Z axis does a <<gcode:g0,rapid move>> to the R position. This happens
 only once, regardless of the value of L.
 
 In addition, at the beginning of the first cycle and each repeat, the
-following one or two moves are made
+following one or two moves are made:
 
 * A <<gcode:g0,rapid move>> parallel to the XY-plane to
-  the given XY-position,
+  the given XY-position.
 * The Z-axis make a rapid move to the R position, if it is
   not already at the R position.
 
@@ -2088,7 +2088,7 @@ it drill in the same order as the earlier example. But the program
 writing economy of a good canned cycle should be obvious.
 
 [NOTE]
-Line numbers are not needed but help clarify these examples
+Line numbers are not needed but help clarify these examples.
 
 .Eight Holes
 
@@ -2198,7 +2198,7 @@ N240 M2 (program end)
 ----
 
 [NOTE]
-Notice the z position change after the first four holes.
+Notice the Z position change after the first four holes.
 Also, this is one of the few places where line numbers have some value,
 being able to point a reader to a specific line of code.
 
@@ -2279,7 +2279,7 @@ The first preliminary move is a maximum rapid move along the Z axis to
 The first repeat consists of 3 moves.
 
 * A <<gcode:g0,rapid move>> parallel to the XY-plane to (X5, Y7)
-* Move parallel to the Z-axis at the <<sec:set-feed-rate,feed rate>> to 
+* Move parallel to the Z-axis at the <<sec:set-feed-rate,feed rate>> to
   (Z4.2)
 * A rapid move parallel to the Z-axis to (X5, Y7, Z4.8)
 
@@ -2372,7 +2372,7 @@ G90 G82 G98 X4 Y5 Z1.5 R2.8 P2
 ----
 
 This will be similar to example 3 above, just with an added dwell of 2
-seconds at the bottom of the hole
+seconds at the bottom of the hole.
 
 [[gcode:g83]]
 == G83 Peck Drilling Cycle(((G83 Peck Drilling)))
@@ -2601,13 +2601,13 @@ program a G92.2 (to remove them - they are still stored).
 
 [NOTE]
 The 'G52' command can also be used to change this offset; see the
-<<sec:g52-and-g92-offsets,Offsets>> Section for more details about
+<<sec:g52-and-g92-offsets,Offsets>> section for more details about
 'G92' and 'G52' and how they interact.
 
-See the <<cha:coordinate-system,Coordinate System>> Section for an
+See the <<cha:coordinate-system,Coordinate System>> section for an
 overview of coordinate systems.
 
-See the <<sec:overview-parameters,Parameters>> Section for more
+See the <<sec:overview-parameters,Parameters>> section for more
 information.
 
 [[gcode:g92.1-g92.2]]
@@ -2687,7 +2687,7 @@ G97 S- <$-> (RPM Mode)
 
 * 'G96 S- <D->' - selects constant surface speed of 'S':
 ** In feet per minute if G20 is in effect,
-** Or meters per minute if G21 is in effect.
+** or meters per minute if G21 is in effect.
 
 When using G96, ensure that X0 in
 the current coordinate system (including offsets and tool lengths) is

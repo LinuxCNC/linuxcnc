@@ -11,6 +11,7 @@ unset DISPLAY
 # Some of our tests emit locale-sensitive strings, so reset the locale
 # to a sane default.
 export LC_ALL=C
+export LANGUAGES=
 
 
 case "$0" in
@@ -46,6 +47,7 @@ export RUNTESTS="$(readlink -f $0)"
 NUM=0
 FAIL=0; FAIL_NAMES=""
 XFAIL=0
+SKIP=0
 VERBOSE=0
 
 clean () {
@@ -126,11 +128,21 @@ run_tests () {
 	testdir=$(dirname $testname)
 	if [ -e $testdir/skip ]; then
 	    if ! [ -x $testdir/skip ] || ! $testdir/skip; then
-		echo "Skipping test: $testdir" 1>&2
+		echo "Skipping disabled test: $testdir" 1>&2
+		SKIP=$(($SKIP+1))
+		continue
+	    fi
+	fi
+	if $NOSUDO && [ -e $testdir/control ] && \
+		grep Restrictions: $testdir/control | grep -q sudo; then
+	    if ! [ -x $testdir/skip ] || ! $testdir/skip; then
+		echo "Skipping sudo test: $testdir" 1>&2
+		SKIP=$(($SKIP+1))
 		continue
 	    fi
 	fi
 	NUM=$(($NUM+1))
+	export TEST_DIR=$(readlink -f $testdir)
 	echo "Running test: $testdir" 1>&2
         if test -n "$SYSTEM_BUILD"; then
             # Tell `halcompile` where to install comps
@@ -204,7 +216,7 @@ run_tests () {
     done < $TMPDIR/alltests
 
     SUCC=$((NUM-FAIL-XFAIL))
-    echo "Runtest: $NUM tests run, $SUCC successful, $FAIL failed + $XFAIL expected"
+    echo "Runtest: $NUM tests run, $SUCC successful, $FAIL failed + $XFAIL expected, $SKIP skipped"
     if [ $FAIL -ne 0 ]; then
 	echo "Failed: $FAIL_NAMES"
 	exit 1;
@@ -227,6 +239,10 @@ Usage:
     $P -c tests
 	Remove temporary files from an earlier test run.
 
+    $P -u
+        Only run tests that require normal user access.  Skip tests
+        requiring root or sudo.
+
     $P -v
         Show stdout and stderr (normally it's hidden).
 EOF
@@ -234,12 +250,14 @@ EOF
 
 CLEAN_ONLY=0
 NOCLEAN=0
+NOSUDO=false
 STOP=0
 PRINT=0
-while getopts cnvsph opt; do
+while getopts cnuvsph opt; do
     case "$opt" in
     c) CLEAN_ONLY=1 ;;
     n) NOCLEAN=1 ;;
+    u) NOSUDO=true ;;
     v) VERBOSE=1 ;;
     s) STOP=1 ;;
     p) PRINT=1 ;;

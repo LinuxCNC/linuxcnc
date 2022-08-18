@@ -1,5 +1,5 @@
 .\"
-.TH CLASSICLADDER "9" "2008-11-23" "LinuxCNC Documentation" "HAL Component" 
+.TH CLASSICLADDER "9" "2008-11-23" "LinuxCNC Documentation" "HAL Component"
 
 .SH NAME
 classicladder \- realtime software plc based on ladder logic
@@ -13,33 +13,33 @@ These pins and parameters are created by the realtime \fBclassicladder_rt\fR mod
 
 .TP
 \fBclassicladder.0.in\-\fINN\fB\fR IN bit
-These bit signal pins map to \fB%I\fINN\fR variables in classicladder
+These bit signal pins map to \fB%I\fINN\fR variables in classicladder.
 
 .TP
 \fBclassicladder.0.out\-\fINN\fB\fR OUT bit
-These bit signal pins map to \fB%Q\fINN\fR variables in classicladder
-Output from classicladder
+These bit signal pins map to \fB%Q\fINN\fR variables in classicladder.
+Output from classicladder.
 
 .TP
 \fBclassicladder.0.s32in\-\fINN\fB\fR IN s32
-Integer input from classicladder
-These s32 signal pins map to \fB%IW\fINN\fR variables in classicladder
+Integer input from classicladder.
+These s32 signal pins map to \fB%IW\fINN\fR variables in classicladder.
 
 .TP
 \fBclassicladder.0.s32out\-\fINN\fB\fR OUT s32
-Integer output from classicladder
-These s32 signal pins map to \fB%QW\fINN\fR variables in classicladder
+Integer output from classicladder.
+These s32 signal pins map to \fB%QW\fINN\fR variables in classicladder.
 
 .TP
 \fBclassicladder.0.floatin\-\fINN\fB\fR IN float
-Integer input from classicladder
-These float signal pins map to \fB%IF\fINN\fR variables in classicladder
-These are truncated to S32 values internally. eg 7.5 will be 7
+Integer input from classicladder.
+These float signal pins map to \fB%IF\fINN\fR variables in classicladder.
+These are truncated to S32 values internally. eg 7.5 will be 7.
 
 .TP
 \fBclassicladder.0.floatout\-\fINN\fB\fR OUT float
-Float output from classicladder
-These float signal pins map to \fB%QF\fINN\fR variables in classicladder
+Float output from classicladder.
+These float signal pins map to \fB%QF\fINN\fR variables in classicladder.
 
 .TP
 \fBclassicladder.0.hide_gui IN bit
@@ -51,27 +51,28 @@ code to run.
 
 .TP
 \fBclassicladder.0.refresh.time\fR RO s32
-Tells you how long the last refresh took
+Tells you how long the last refresh took.
 
 .TP
 \fBclassicladder.0.refresh.tmax\fR RW s32
-Tells you how long the longest refresh took
+Tells you how long the longest refresh took.
 
 .TP
 \fBclassicladder.0.ladder\-state\fR RO s32
 Tells you if the program is running or not
+
 .SH FUNCTIONS
 
 .TP
-\fBclassicladder.0.refresh\fR FP 
+\fBclassicladder.0.refresh\fR FP
 The rung update rate. Add this to the servo thread.
-You can added it to a faster thread but it
+You can added it to a faster thread but it.
 Will update no faster than once every 1 millisecond (1000000 ns).
 
 .SH BUGS
 See http://wiki.linuxcnc.org/cgi\-bin/wiki.pl?ClassicLadder_Ver_7.124 for the latest.
 
 .SH SEE ALSO
-\fIClassicladder\fR chapters in the LinuxCNC documentation for a full description of the \fBClassicladder\fR syntax and examples
+\fIClassicladder\fR chapters in the LinuxCNC documentation for a full description of the \fBClassicLadder\fR syntax and examples.
 
 http://wiki.linuxcnc.org/cgi\-bin/wiki.pl?ClassicLadder_Ver_7.124

@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:g-code-overview]]
-= G Code Overview
+= G-Code Overview
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
@@ -29,7 +29,7 @@ rate to the programmed end point', and 'X3' provides an argument
 value (the value of X should be 3 at the end of the move).
 Most LinuxCNC G-code commands start with either G or M (for
 General and Miscellaneous). The words for these commands are called 'G
-codes' and 'M-codes.'
+codes' and 'M-codes'.
 
 The LinuxCNC language has no indicator for the start of a program. The
 Interpreter, however, deals with files. A single program may be in a
@@ -227,7 +227,7 @@ restored to their previous values when LinuxCNC is started again. Volatile
 numbered parameters are reset to zero.
 
 Intended Use::
-* user parameters:: numbered parameters in the range 31..5000, and named
+* user parameters - numbered parameters in the range 31..5000, and named
   global and local parameters except predefined parameters. These are
   available for general-purpose storage of floating-point values, like
   intermediate results, flags etc, throughout program execution. They
@@ -273,7 +273,7 @@ value found in parameter 3. The '\#' character may be repeated; for
 example '##2'  means the value of the parameter whose index is the
 (integer) value of parameter 2.
 
-* '31-5000' - G code user parameters. These parameters are global in the G
+* '31-5000' - G-code user parameters. These parameters are global in the G
   code file, and available for general use. Volatile.
 * '5061-5069' - Coordinates of a <<gcode:g38,G38>> probe result (X, Y,
   Z, A, B, C, U, V & W).  Coordinates are in the coordinate system in
@@ -285,11 +285,11 @@ example '##2'  means the value of the parameter whose index is the
 * '5210' - 1 if "G52" or "G92" offset is currently applied, 0
   otherwise.  Volatile by default; persistent if
   'DISABLE_G92_PERSISTENCE = 1' in the '[RS274NGC]' section of the
-  '.ini' file.
+  INI file.
 * '5211-5219' - Shared "G52" and "G92" offset for X, Y, Z, A, B, C, U,
   V & W.  Volatile by default; persistent if
   'DISABLE_G92_PERSISTENCE = 1' in the '[RS274NGC]' section of the
-  '.ini' file.
+  INI file.
 * '5220' - Coordinate System number 1 - 9 for G54 - G59.3. Persistent.
 * '5221-5230' - Coordinate System 1, G54 for X, Y, Z, A, B, C, U, V, W & R.
   R denotes the XY rotation angle around the Z axis. Persistent.
@@ -439,7 +439,7 @@ can be added easily without changes to the source code.
 
 * '#<_vmajor>' - Major package version. If current version was 2.5.2 would return 2.5.
 * '#<_vminor>' - Minor package version. If current version was 2.6.2 it would return 0.2.
-* '#<_line>' - Sequence number. If running a G-Code file, this returns the current line number.
+* '#<_line>' - Sequence number. If running a G-code file, this returns the current line number.
 * '#<_motion_mode>' - Return the interpreter's current motion mode:
 
 [width="20%",options="header"]
@@ -585,7 +585,7 @@ to the values of INI file entries and HAL pins.
 * '#<_ini[section]name>' Returns the value of the corresponding item in
   the INI file.
 
-For example, if the ini file looks like so:
+For example, if the INI file looks like so:
 
 [source,{ini}]
 ---------------------------------------------------------------------
@@ -597,7 +597,7 @@ YPOS = 2.718
 you may refer to the named parameters `#<_ini[setup]xpos>` and
 `#<_ini[setup]ypos>` within G-code.
 
-`EXISTS` can be used to test for presence of a given ini file
+`EXISTS` can be used to test for presence of a given INI file
 variable:
 
 [source,{ngc}]
@@ -609,12 +609,12 @@ o100 else
 o100 endif
 ---------------------------------------------------------------------
 
-The value is read from the inifile once, and cached in the
+The value is read from the INI file once, and cached in the
 interpreter. These parameters are read-only - assigning a value will
 cause a runtime error. The names are not case sensitive - they are
-converted to uppercase before consulting the ini file.
+converted to uppercase before consulting the INI file.
 
-* '#<_hal[Hal item]>'
+* '#<_hal[HAL item]>'
   Allows G-code programs to read the values of HAL pins Variable access is
   read-only, the only way to _set_ HAL pins from G-code remains M62-M65,
   M67, M68 and custom M100-M199 codes.
@@ -696,9 +696,9 @@ false, and any non-zero number is equivalent to logical true.
 |====
 |Operators         | Precedence
 |**                | 'highest'
-|* / MOD           | 
-|+ -               | 
-|EQ NE GT GE LT LE | 
+|* / MOD           |
+|+ -               |
+|EQ NE GT GE LT LE |
 |AND OR XOR        | 'lowest'
 |====
 
@@ -769,8 +769,8 @@ m2
 == Repeated Items
 
 A line may have any number of G words, but two G words from the same
-modal group may not appear on the
-same line See the <<gcode:modal-groups,Modal Groups>> Section for more information.
+modal group may not appear on the same line.
+See the <<gcode:modal-groups,Modal Groups>> section for more information.
 
 A line may have zero to four M words. Two M words from the same modal
 group may not appear on the same line.
@@ -853,7 +853,7 @@ position but it is cumulative.
 This can be confusing at first how this works in incremental mode.
 
 For example if you have the following program you might expect it to
-be a square pattern.
+be a square pattern:
 
 [source,{ngc}]
 ----
@@ -909,7 +909,7 @@ in many modes at the same time, with one mode from each modal group
 being in effect. The modal groups are shown in the following Table.
 
 [[cap:modal-groups]]
-.G-Code Modal Groups(((Modal Groups: G-Codes)))
+.G-Code Modal Groups(((Modal Groups: G-codes)))
 [width="80%",cols="4,6",options="header"]
 |====
 |Modal Group Meaning                   | Member Words
@@ -931,7 +931,7 @@ being in effect. The modal groups are shown in the following Table.
 |====
 
 [[tbl:mcodes-modal-groups]]
-.M-Code Modal Groups(((Modal Groups: M-Codes)))
+.M-Code Modal Groups(((Modal Groups: M-codes)))
 [width="80%",cols="4,6",options="header"]
 |====
 |Modal Group Meaning           | Member Words
@@ -968,8 +968,7 @@ control.
 [[gcode:comments]]
 == Comments(((Comments)))
 
-Comments are purely informative and have no
-influence on machine behaviour
+Comments are purely informative and have no influence on machine behaviour.
 
 Comments can be added to lines of G-code to help clear up the
 intention of the programmer. Comments can be embedded in a line using
@@ -1002,7 +1001,7 @@ A comment introduced by a semicolon is by definition the last comment
 on that line, and will always be interpreted for active comment syntax.
 
 NOTE: Inline comments on O words should not be used see the O Code
-<<ocode:comments, comments>> section for more information.
+<<ocode:comments,comments>> section for more information.
 
 [[gcode:messages]]
 == Messages(((Messages)))
@@ -1026,7 +1025,7 @@ NOTE: Inline comments on O words should not be used see the O Code
   coordinate consisting of XYZABCUVW of each successful straight probe in it.
 * '(PROBECLOSE)' - will close the open probelog file.
 
-For more information on probing see the <<gcode:g38,G38>> Section.
+For more information on probing see the <<gcode:g38,G38>> section.
 
 [[gcode:logging]]
 == Logging(((Logging)))
@@ -1075,6 +1074,26 @@ are replaced by the value of the named parameter. Named parameters
 will have white space removed from them. So, '\#<named parameter>'
 will be converted to '#<namedparameter>'.
 
+Parameter numbers can be formatted, e.g.:
+
+----
+(DEBUG, value = %d#<some_value>)
+----
+will print the value rounded to an integer.
+
+* %lf is default if there is no formatting string.
+* %d = 0 decimals
+* %f = four decimals
+* %.xf = x (0-9) number of decimals
+
+The formatting will be preformed on all parameters in the same line unless
+changed, i.e., multiple formatting is allowed in one line.
+
+The formatting string does not need to be right beside the parameter.
+
+If the formatting string is created with the wrong pattern it will be
+printed as characters.
+
 [[gcode:file-requirements]]
 == File Requirements(((File Requirements)))
 
@@ -1111,7 +1130,7 @@ part programs. In Axis sections of the preview can be turned off using
 <<axis:preview-control,preview control>> comments.
 
 [[gcode:order-of-execution]]
-== G-Code Order of Execution(((G-Code Order of Execution)))
+== G-Code Order of Execution(((G-code Order of Execution)))
 
 The order of execution of items on a line is defined not by the
 position of each item on the line, but by the following list:
@@ -1146,7 +1165,7 @@ position of each item on the line, but by the following list:
 * Stop (M0, M1, M2, M30, M60).
 
 [[gcode:best-practices]]
-== G-Code Best Practices(((G-Code Best Practices)))
+== G-Code Best Practices(((G-code Best Practices)))
 
 .Use an appropriate decimal precision
 Use at least 3 digits after the decimal when milling in millimeters,
@@ -1187,7 +1206,7 @@ program at different scales. Other settings, such as the return mode in
 canned cycles may also be important.
 
 .Don't put too many things on one line
-Ignore everything in Section <<gcode:order-of-execution,Order of Execution>>, and instead
+Ignore everything in section <<gcode:order-of-execution,Order of Execution>>, and instead
 write no line of code that is the slightest bit ambiguous.
 
 .Don't set & use a parameter on the same line
@@ -1202,7 +1221,7 @@ the N-word value.
 
 .When several coordinate systems are moved
 
-Consider using the inverse time speed mode
+Consider using the inverse time speed mode.
 
 Because the meaning of an 'F' word in meters per minute varies depending on
 the type of axis to be moved and because the amount of removed material does
@@ -1222,11 +1241,11 @@ material removal rate.
 * 'G-code out of range' - A G-code greater than G99 was used, the scope of G
   codes in LinuxCNC is 0 - 99. Not every number between 0 and 99 is a valid
   G-code.
-* 'Unknown g code used' - A G-code was used that is not part of the LinuxCNC
+* 'Unknown G-code used' - A G-code was used that is not part of the LinuxCNC
   G-code language.
 * 'i,j,k word with no Gx to use it' - i, j and k words must be used on the same
   line as the G-code.
-* 'Cannot use axis values without a g code that uses them' - Axis values can
+* 'Cannot use axis values without a G-code that uses them' - Axis values can
   not be used on a line without either a modal G-code in effect or a G-code
   on the same line.
 * 'File ended with no percent sign or program end' - Every G-code file must

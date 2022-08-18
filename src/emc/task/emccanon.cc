@@ -2569,7 +2569,6 @@ void INIT_CANON()
     canon.g92Offset.w = 0.0;
     SELECT_PLANE(CANON_PLANE_XY);
     canonUpdateEndPoint(0, 0, 0, 0, 0, 0, 0, 0, 0);
-    SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, 0);
     SET_NAIVECAM_TOLERANCE(0);
     for (int s = 0; s < EMCMOT_MAX_SPINDLES; s++) {
         canon.spindle[s].speed = 0.0;
@@ -2598,6 +2597,12 @@ void INIT_CANON()
 	CANON_ERROR
 	    ("non-standard length units, setting interpreter to mm");
 	canon.lengthUnits = CANON_UNITS_MM;
+    }
+    /* Set blending tolerance default depending on units machine is based on*/
+    if (canon.lengthUnits == CANON_UNITS_INCHES) {
+        SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, .001);
+    } else {
+        SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS,  .001 * MM_PER_INCH);
     }
 }
 

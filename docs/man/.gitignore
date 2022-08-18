@@ -158,9 +158,15 @@ man9/wcomp.9
 man9/xhc_hb04_util.9
 man9/xor2.9
 # Ignore po4a-generated files for other languages
+de/*
 es/*
 fr/*
 hu/*
+it/*
 nb/*
+ru/*
+sk/*
+tr/*
+uk/*
 vi/*
 zh_CN/*

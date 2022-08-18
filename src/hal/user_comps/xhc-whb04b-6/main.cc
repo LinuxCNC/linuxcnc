@@ -85,7 +85,7 @@ static int printUsage(const char* programName, const char* deviceName, bool isEr
         << "MPG + jogwheel changes the feed override. Each tick will increment/decrement the feed override.\n"
         << "\n"
         << " -B, \n"
-        << "    Big Step modee: "
+        << "    Big Step mode: "
         << "Add 5mm and 10mm to feed selector.\n"
         << "\n"
 

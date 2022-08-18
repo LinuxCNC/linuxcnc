@@ -17,7 +17,7 @@ setup. The names of the available UARTs are printed to standard output during
 the driver loading process and take the form:
 hm2_<board name>.<board index>.uart.<index> For example hm2_5i23.0.uart.0
 The minimum bitrate is approximately 50bps, and the maximum around the FPGA 
-frequency, 48MHz for a 5i23. 
+frequency, 48 MHz for a 5i23. 
 The UART function allows different RX and TX bitrates, but that is not currently
 supported by this driver
 

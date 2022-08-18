@@ -105,6 +105,9 @@ static void set_namef(const char *fmt, ...) {
     va_end(ap);
 
     int res = pthread_setname_np(pthread_self(), buf);
+    if (res) {
+        fprintf(stderr, "pthread_setname_np() failed for %s: %d\n", buf, res);
+    }
     free(buf);
 }
 

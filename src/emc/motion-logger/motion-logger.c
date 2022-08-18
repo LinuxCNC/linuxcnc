@@ -306,8 +306,8 @@ int main(int argc, char* argv[]) {
                 log_print("ABORT\n");
                 break;
 
-            case EMCMOT_JOINT_ABORT:
-                log_print("JOINT_ABORT joint=%d\n", c->joint);
+            case EMCMOT_JOG_ABORT:
+                log_print("JOG_ABORT joint=%d\n", c->joint);
                 break;
 
             case EMCMOT_ENABLE:

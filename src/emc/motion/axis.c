@@ -7,7 +7,7 @@
 
 typedef struct {
     double pos_cmd;                 /* commanded axis position */
-    double teleop_vel_cmd;          /* comanded axis velocity */
+    double teleop_vel_cmd;          /* commanded axis velocity */
     double max_pos_limit;           /* upper soft limit on axis pos */
     double min_pos_limit;           /* lower soft limit on axis pos */
     double vel_limit;               /* upper limit of axis speed */
@@ -338,7 +338,7 @@ bool axis_jog_abort_all(bool immediate)
     int n;
     bool aborted = 0;
     for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
-        aborted = aborted || axis_jog_abort(n, immediate);
+        if (axis_jog_abort(n, immediate)) {aborted = 1;}
     }
     return aborted;
 }

@@ -320,7 +320,7 @@ does - that is determined by which functions are
 connected to it. The real distinction is simply how often a thread
 runs.
 
-In LinuxCNC you might have a 50 us thread and a 1 ms thread.
+In LinuxCNC you might have a 50 µs thread and a 1 ms thread.
 These would be created based on BASE_PERIOD and SERVO_PERIOD, the
 actual times depend on the values in your ini file.
 

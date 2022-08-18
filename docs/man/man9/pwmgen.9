@@ -107,7 +107,7 @@ Modulation.
 \fBpwmgen.\fIN\fB.dither\-pwm\fR bit in/out
 Because software-generated PWM uses a fairly slow timebase (several to many
 microseconds), it has limited resolution.  For example, if \fBmake\-pulses\fR
-is called at a 20KHz rate, and \fBpwm\-freq\fR is 2KHz, there are only 10
+is called at a 20 kHz rate, and \fBpwm\-freq\fR is 2 kHz, there are only 10
 possible duty cycles.  If \fBdither\-pwm\fR is false, the commanded duty cycle
 will be rounded to the nearest of those values.  Assuming \fBvalue\fR remains
 constant, the same output will repeat every PWM cycle.  If \fBdither\-pwm\fR is

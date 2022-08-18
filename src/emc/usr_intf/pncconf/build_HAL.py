@@ -363,9 +363,11 @@ class HAL:
             print(file=file)
             print("net x-enable                                 => " + steppinname +".enable", file=file)
 
-        # do the qtplasmac connection
+        # do the qtplasmac connections and preferences file
         if self.d.frontend == _PD._QTPLASMAC:
             self.qtplasmac_connections(file, base)
+            prefsfile = os.path.join(base, self.d.machinename + ".prefs")
+            self.qtplasmac_prefs(prefsfile)
 
         print(file=file)
         self.connect_output(file)
@@ -1565,14 +1567,14 @@ class HAL:
 
         def write_pins(pname,p,i,t):
             # for input pins
-            if t == _PD.GPIOI:
+            if t in (_PD.GPIOI, _PD.INM0):
                 if not p == "unused-input":
                     pinname = self.a.make_pinname(pname, substitution = self.d.useinisubstitution)
                     print("\n# ---",p.upper(),"---", file=file)
                     if "parport" in pinname:
                         if i: print("net %s     <= %s-not" % (p, pinname), file=file)
                         else: print("net %s     <= %s" % (p, pinname), file=file)
-                    elif "sserial" in pname:
+                    elif "sserial" in pname or t == _PD.INM0:
                         if i: print("net %s     <=  "% (p)+pinname +"-not", file=file)
                         else: print("net %s     <=  "% (p)+pinname, file=file)
                     else:
@@ -1660,7 +1662,7 @@ class HAL:
 
         def write_pins(pname,p,i,t,boardnum,connector,port,channel,pin):
             # for output /open drain pins
-            if t in (_PD.GPIOO,_PD.GPIOD,_PD.SSR0):
+            if t in (_PD.GPIOO,_PD.GPIOD,_PD.SSR0,_PD.OUTM0):
                 if not p == "unused-output":
                     pinname = self.a.make_pinname(pname, substitution = self.d.useinisubstitution)
                     print("\n# ---",p.upper(),"---", file=file)
@@ -1674,9 +1676,9 @@ class HAL:
                             temp = pinname
                         # mainboard GPIOO require extra setup commands
                         else:
-                            if not t == _PD.SSR0: print("setp %s true"% (pinname + ".is_output"), file=file)
+                            if t not in (_PD.SSR0,_PD.OUTM0): print("setp %s true"% (pinname + ".is_output"), file=file)
                             if t == _PD.GPIOD: print("setp    "+pinname+".is_opendrain  true", file=file)
-                            if t == _PD.SSR0:
+                            if t in (_PD.SSR0,_PD.OUTM0):
                                 temp = pinname
                             else:
                                 temp = pinname + ".out"
@@ -1854,6 +1856,8 @@ class HAL:
         print("net plasmac:scribe-arm       <= plasmac.scribe-arm", file=file)
         print("net plasmac:scribe-on        <= plasmac.scribe-on", file=file)
         # check for arc voltage encoder
+        self.d.qtplasmacvscale = 1
+        self.d.qtplasmacvoffset = 0
         pinname = self.a.make_pinname(self.a.findsignal("arc-volt-enc-a"), substitution = self.d.useinisubstitution)
         if pinname:
             ending = ""
@@ -1862,27 +1866,8 @@ class HAL:
                 dratio = self.d.voltsrdiv
             else:
                 dratio = (self.d.voltsrdiv + 100000) / 100000
-            vscale = dratio / (((self.d.voltsfullf - self.d.voltszerof) * 1000) / int(self.d.voltsfjumper) / int(self.d.voltsmodel))
-            voffset = self.d.voltszerof * 1000 / int(self.d.voltsfjumper)
-            # arc voltage settings in prefs file
-            prefsfile = os.path.join(base, self.d.machinename + ".prefs")
-            # edit existing prefs file
-            if os.path.exists(prefsfile):
-                with open(prefsfile, "r") as f1:
-                    prefs = f1.readlines()
-                with open(prefsfile, "w") as f1:
-                    for line in prefs:
-                        if line.startswith("Arc Voltage Offset"):
-                            line = "Arc Voltage Offset = {:.3f}\n".format(voffset)
-                        elif line.startswith("Arc Voltage Scal"):
-                            line = "Arc Voltage Scale = {:.6f}\n".format(vscale)
-                        f1.write(line)
-            # create new prefs file
-            else:
-                with open(prefsfile, "w") as f1:
-                    print(("[PLASMA_PARAMETERS]"), file=f1)
-                    print("Arc Voltage Offset = %.3f" % voffset, file=f1)
-                    print("Arc Voltage Scale = %.6f" % vscale, file=f1)
+            self.d.qtplasmacvscale = dratio / (((self.d.voltsfullf - self.d.voltszerof) * 1000) / int(self.d.voltsfjumper) / int(self.d.voltsmodel))
+            self.d.qtplasmacvoffset = self.d.voltszerof * 1000 / int(self.d.voltsfjumper)
             # arc voltage in hal file
             print(_("\n# ---ARC VOLTAGE ENCODER---"), file=file)
             print("net plasmac:arc-voltage-in <= %s%s"% (pinname, ending), file=file)
@@ -1956,6 +1941,33 @@ class HAL:
                     line = "setp db_ohmic.delay     0"
                 print(line.strip(), file=f1)
             self.plasmac_ohmic_sense(f1)
+
+    def qtplasmac_prefs(self, prefsfile):
+        def putPrefs(prefs, file, section, option, value):
+            if prefs.has_section(section):
+                prefs.set(section, option, str(value))
+                prefs.write(open(prefsfile, "w"))
+            else:
+                prefs.add_section(section)
+                prefs.set(section, option, str(value))
+                prefs.write(open(prefsfile, "w"))
+        from configparser import RawConfigParser
+        prefs = RawConfigParser()
+        prefs.optionxform = str
+        putPrefs(prefs, prefsfile, 'PLASMA_PARAMETERS', 'Arc Voltage Offset', '{:.3f}'.format(self.d.qtplasmacvoffset))
+        putPrefs(prefs, prefsfile, 'PLASMA_PARAMETERS', 'Arc Voltage Scale', '{:.6f}'.format(self.d.qtplasmacvscale))
+        putPrefs(prefs, prefsfile, 'GUI_OPTIONS', 'Mode', self.d.qtplasmacmode)
+        putPrefs(prefs, prefsfile, 'GUI_OPTIONS', 'Estop type', self.d.qtplasmacestop)
+        dro = 'top' if self.d.qtplasmacdro else 'bottom'
+        putPrefs(prefs, prefsfile, 'GUI_OPTIONS', 'DRO position', dro)
+        putPrefs(prefs, prefsfile, 'GUI_OPTIONS', 'Flash error', self.d.qtplasmacerror)
+        putPrefs(prefs, prefsfile, 'GUI_OPTIONS', 'Hide run', self.d.qtplasmacstart)
+        putPrefs(prefs, prefsfile, 'GUI_OPTIONS', 'Hide pause', self.d.qtplasmacpause)
+        putPrefs(prefs, prefsfile, 'GUI_OPTIONS', 'Hide abort', self.d.qtplasmacstop)
+        for ub in range(1, 21):
+            putPrefs(prefs, prefsfile, 'BUTTONS', '{} Name'.format(ub), self.d.qtplasmac_bnames[ub-1])
+            putPrefs(prefs, prefsfile, 'BUTTONS', '{} Code'.format(ub), self.d.qtplasmac_bcodes[ub-1])
+        putPrefs(prefs, prefsfile, 'POWERMAX', 'Port', self.d.qtplasmacpmx)
 
     def plasmac_ohmic_sense(self, f1):
         print(_("\n# ---OHMIC SENSE CONTACT DEBOUNCE---"), file=f1)

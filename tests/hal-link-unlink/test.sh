@@ -3,6 +3,4 @@
 $REALTIME start
 python3 hallink.py
 
-$REALTIME stop
-
-exit $?
+exec $REALTIME stop

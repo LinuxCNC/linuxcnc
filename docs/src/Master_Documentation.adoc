@@ -77,6 +77,8 @@ include::gui/tklinuxcnc.adoc[]
 
 include::plasma/qtplasmac.adoc[]
 
+include::gui/mdro.adoc[]
+
 :leveloffset: 1
 
 = Programming
@@ -144,8 +146,6 @@ include::config/ini-homing.adoc[]
 include::config/iov2.adoc[]
 
 include::config/lathe-config.adoc[]
-
-include::hal/haltcl.adoc[]
 
 include::remap/remap.adoc[]
 
@@ -292,6 +292,8 @@ include::hal/rtcomps.adoc[]
 include::hal/hal-examples.adoc[]
 
 include::hal/comp.adoc[]
+
+include::hal/haltcl.adoc[]
 
 include::hal/halmodule.adoc[]
 

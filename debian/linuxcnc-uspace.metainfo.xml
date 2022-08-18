@@ -10,10 +10,10 @@
       hexapods, and more.</p>
   </description>
   <provides>
-    <modalias>usb:v05F3p0240d**</modalias>
+    <modalias>usb:v05F3p0240d*</modalias>
     <modalias>usb:v10CEpEB70d*</modalias>
     <modalias>usb:v10CEpEB93d*</modalias>
-    <modalias>usb:v1B33p0020d**</modalias>
-    <modalias>usb:v1B33p0030d**</modalias>
+    <modalias>usb:v1B33p0020d*</modalias>
+    <modalias>usb:v1B33p0030d*</modalias>
   </provides>
 </component>

@@ -140,7 +140,7 @@ For using Classic Ladder as it is, you need :
    * Linux
    * Gtk version 2
 
-I personnaly used the following distribution : Mandriva 2006.
+I personally used the following distribution : Mandriva 2006.
 
 In a console :
 type make if you want to recompile the sources.

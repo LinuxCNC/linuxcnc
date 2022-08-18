@@ -3,9 +3,12 @@
 /.tmp_versions
 /Makefile.inc
 /Makefile.modinc
+/config.guess
 /config.h
 /config.log
 /config.status
+/config.sub
+/install-sh
 /objects
 /depends
 /autom4te.cache

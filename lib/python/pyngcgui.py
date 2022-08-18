@@ -391,7 +391,7 @@ def find_positional_parms(s):
                 dvalue = int(dvalue)
             if r.group(4): comment = r.group(4)
         if n > 4:
-            print('find_positional_parametrs unexpected n>4',s,)
+            print('find_positional_parameters unexpected n>4',s,)
             comment = r.group(4)
         if comment is None:
             print('find_positional_parameters:NOCOMMENT') # can't happen
@@ -3357,7 +3357,7 @@ class SaveSection():
                     # example: 246 chars observed for
                     #  qpex --> the call to qpocket uses many named parms
                     # hardcoded for # config.h.in #define LINELEN 255
-                    # hardcoded 252 empiracally determined
+                    # hardcoded 252 empirically determined
                     if len(theline) >= 252:
                         theline = line
                     self.sdata.append(theline)

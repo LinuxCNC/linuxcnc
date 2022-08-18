@@ -694,7 +694,7 @@ class ToolBarActions():
                 return
 
         # are we past 5 files? remove the lowest
-        # else update cuurrent number
+        # else update current number
         if self.recentNum > self.maxRecent:
             widget.removeAction(alist[self.maxRecent])
         else:

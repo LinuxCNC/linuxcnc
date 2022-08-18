@@ -77,7 +77,7 @@ if "AXIS_NO_HAL" in os.environ:
 else:
     hal_present = 1;
 
-if hal_present == 1 :
+if hal_present == 1:
     import hal
 
 import configparser
@@ -856,7 +856,7 @@ class LivePlotter:
         vupdate(vars.exec_state, self.stat.exec_state)
         vupdate(vars.interp_state, self.stat.interp_state)
         vupdate(vars.queued_mdi_commands, self.stat.queued_mdi_commands)
-        if hal_present == 1 :
+        if hal_present == 1:
             notifications_clear = comp["notifications-clear"]
             if self.notifications_clear != notifications_clear:
                  self.notifications_clear = notifications_clear
@@ -1069,6 +1069,15 @@ class AxisCanon(GLCanon, StatMixin):
         self.progress = progress
         self.aborted = False
         self.arcdivision = arcdivision
+        self.timeout_time = None
+
+    def set_timeout(self, timeout):
+        '''Abort loading of G-code if it takes more than timeout seconds from
+        the time this method was called. Set timeout to None to disable.'''
+        if timeout is None or timeout <= 0:
+            self.timeout_time = None
+        else:
+            self.timeout_time = time.time() + timeout
 
     def change_tool(self, pocket):
         GLCanon.change_tool(self, pocket)
@@ -1081,6 +1090,11 @@ class AxisCanon(GLCanon, StatMixin):
 
     def check_abort(self):
         root_window.update()
+
+        if self.timeout_time is not None and self.timeout_time < time.time():
+            notifications.add("info", _("G-code preview loading timed out"))
+            self.aborted = True
+
         if self.aborted: raise KeyboardInterrupt
 
     def next_line(self, st):
@@ -1216,6 +1230,10 @@ def open_file_guts(f, filtered=False, addrecent=True):
         if os.path.exists(parameter):
             shutil.copy(parameter, temp_parameter)
         canon.parameter_file = temp_parameter
+
+        timeout = inifile.find("DISPLAY", "PREVIEW_TIMEOUT") or ""
+        if timeout:
+            canon.set_timeout(float(timeout))
 
         initcode = inifile.find("EMC", "RS274NGC_STARTUP_CODE") or ""
         if initcode == "":
@@ -3890,14 +3908,15 @@ if hal_present == 1 :
 
     if vcp:
         import vcpparse
-        comp.setprefix("pyvcp")
         f = Tkinter.Frame(root_window)
         if inifile.find("DISPLAY", "PYVCP_POSITION") == "BOTTOM":
             f.grid(row=4, column=0, columnspan=6, sticky="nw", padx=4, pady=4)
         else:
             f.grid(row=0, column=4, rowspan=6, sticky="nw", padx=4, pady=4)
         vcpparse.filename = vcp
-        vcpparse.create_vcp(f, comp)
+        vcpcomp = hal.component("pyvcp")
+        vcpparse.create_vcp(f, vcpcomp)
+        vcpcomp.ready()
         vcp_frame = f
         root_window.bind("<Control-e>", commands.toggle_show_pyvcppanel)
         help2 += [("Ctrl-E", _("toggle PYVCP panel visibility"))]
@@ -4115,7 +4134,7 @@ commands.set_spindlerate(100)
 
 def forget(widget, *pins):
     if "AXIS_NO_AUTOCONFIGURE" in os.environ: return
-    if hal_present == 1 :
+    if hal_present == 1:
         for p in pins:
             if hal.pin_has_writer(p): return
     m = widget.winfo_manager()

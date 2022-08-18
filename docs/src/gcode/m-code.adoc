@@ -61,8 +61,7 @@ to stop after each line of input anyway.
 * 'M2' - end the program. Pressing `Cycle Start` ("R" in the Axis GUI)
   will restart the program at the beginning of the file.
 * 'M30' - exchange pallet shuttles and end the program.
-  Pressing `Cycle Start` will start the program
-  at the beginning of the file.
+  Pressing `Cycle Start` will start the program at the beginning of the file.
 
 Both of these commands have the following effects:
 
@@ -83,7 +82,7 @@ will start the program at the beginning of the file.
 
 [WARNING]
 Using % to wrap the G-code does not do the same thing as a 'Program End'.
-See <<gcode:file-requirements,File Requirements>> for more information
+See the section on <<gcode:file-requirements,File Requirements>> for more information
 on what using % does not do.
 
 [[mcode:m60]]
@@ -132,7 +131,7 @@ M5 $2
 ----
 
 If the $ is omitted then behaviour is exactly as normal for a single
-spindle machine
+spindle machine.
 
 It is OK to use 'M3' or 'M4' if the <<sec:set-spindle-speed,S>>
 spindle speed is set to zero. If this is done
@@ -158,7 +157,7 @@ the <<sec:manual-tool-change,Manual Tool Change>> section.
 === Tool Changer
 
 To change a tool in the spindle from the tool currently in the spindle
-to the tool most recently selected (using a T word - see Section
+to the tool most recently selected (using a T word - see section
 <<sec:select-tool,Select Tool>>), program 'M6'.
 When the tool change is complete:
 
@@ -168,7 +167,7 @@ When the tool change is complete:
 * If the selected tool was not in the spindle before the tool change,
   the tool that was in the spindle (if there was one) will be placed
   back into the tool changer magazine.
-* If configured in the .ini file some axis positions may move when a M6
+* If configured in the INI file some axis positions may move when a M6
   is issued. See the <<sub:ini:sec:emcio,EMCIO section>> for more
   information on tool change options.
 * No other changes will be made. For example, coolant will continue to
@@ -176,7 +175,7 @@ When the tool change is complete:
 
 [NOTE]
 The 'T-' word is an integer number designating the tool pocket number in
-the carousel (not its index)
+the carousel (not its index).
 
 [WARNING]
 The tool length offset is not changed by 'M6', use '<<gcode:g43,G43>>' after the
@@ -188,8 +187,8 @@ It is OK if there is no tool in the selected slot;
 in that case, the spindle will be empty after the tool change.
 If slot zero was last selected,
 there will definitely be no tool in the spindle after a tool change. The tool
-changer will have to be setup to perform the tool change in hal and possibly
-classicladder.
+changer will have to be setup to perform the tool change in HAL and possibly
+ClassicLadder.
 
 [[mcode:m7-m8-m9]]
 == M7, M8, M9 Coolant Control(((M7, M8, M9 Coolant Control)))
@@ -235,16 +234,16 @@ INI Settings in the [RS274NGC] section:
 * HAL Pins
 ** 'spindle.N.orient-angle' (out float)
    Desired spindle orientation for M19. Value of the M19 R word parameter
-   plus the value of the [RS274NGC]ORIENT_OFFSET ini parameter.
+   plus the value of the [RS274NGC]ORIENT_OFFSET INI parameter.
 ** 'spindle.N.orient-mode' (out s32)
-   Desired spindle rotation mode. Reflects M19 P parameter word, Default = 0
+   Desired spindle rotation mode. Reflects M19 P parameter word, default = 0.
 ** 'spindle.N.orient' (out bit)
    Indicates start of spindle orient cycle. Set by M19. Cleared by any of
    M3,M4,M5. If spindle-orient-fault is not zero during spindle-orient true, the
    M19 command fails with an error message.
 ** 'spindle.N.is-oriented' (in bit)
    Acknowledge pin for spindle-orient. Completes orient cycle. If
-   spindle-orient was true when spindle-is-orientedwas asserted, the spindle-orient
+   spindle-orient was true when spindle-is-oriented was asserted, the spindle-orient
    pin is cleared and the spindle-locked pin is asserted. Also, the spindle-brake
    pin is asserted.
 ** 'spindle.N.orient-fault' (in s32)
@@ -264,7 +263,7 @@ spindle they operate on.
 
 It is OK to enable or disable the controls when
 they are already enabled or disabled.
-See the <<sub:feed-rate,Feed Rate>> Section for more details.
+See the <<sub:feed-rate,Feed Rate>> section for more details.
 
 They also can be be toggled individually using 'M50' and 'M51',
 see below.
@@ -290,7 +289,7 @@ and the motion will be executed at programmed feed rate.
 While disabled the spindle speed override will have
 no influence, and the spindle speed will have the
 exact program specified value of the S-word
-(described in <<sec:set-spindle-speed,Spindle Speed>> Section).
+(described in the <<sec:set-spindle-speed,Spindle Speed>> section).
 
 [[mcode:m52]]
 == M52 Adaptive Feed Control(((M52 Adaptive Feed Control)))
@@ -348,7 +347,7 @@ It is an error if:
 The P- word specifies the digital output number.
 The P-word ranges from 0 to a default value of 3. If needed the the
 number of I/O can be increased by using the num_dio parameter when loading
-the motion controller. See the <<sec:motion,Motion Section>> for more
+the motion controller. See the <<sec:motion,Motion>> section for more
 information.
 
 The M62 & M63 commands will be queued. Subsequent commands referring
@@ -367,7 +366,7 @@ break blending.
 
 [NOTE]
 M62-65 will not function unless the appropriate motion.digital-out-nn pins are
-connected in your hal file to outputs.
+connected in your HAL file to outputs.
 
 [[mcode:m66]]
 == M66 Wait on Input(((M66 Wait on Input)))
@@ -408,12 +407,12 @@ inputs are not monitored in real time and thus should not be used for
 timing-critical applications.
 
 The number of I/O can be increased by using the num_dio or num_aio parameter
-when loading the motion controller. See the <<sec:motion,Motion Section>>
+when loading the motion controller. See the <<sec:motion,Motion>> section
 for more information.
 
 [NOTE]
 M66 will not function unless the appropriate motion.digital-in-nn pins or
-motion.analog-in-nn pins are connected in your hal file to an input.
+motion.analog-in-nn pins are connected in your HAL file to an input.
 
 .Example HAL Connection
 ----
@@ -439,12 +438,12 @@ program a motion G-code (G0, G1, etc) right after the M67. M67 functions
 the same as M62-63.
 
 The number of I/O can be increased by using the num_dio or num_aio parameter
-when loading the motion controller. See the <<sec:motion,Motion Section>> for
+when loading the motion controller. See the <<sec:motion,Motion>> section for
 more information.
 
 [NOTE]
 M67 will not function unless the appropriate motion.analog-out-nn pins are
-connected in your hal file to outputs.
+connected in your HAL file to outputs.
 
 [[mcode:m68]]
 == M68 Analog Output, Immediate(((M68 Analog Output)))
@@ -463,12 +462,12 @@ controller. They are not synchronized with movement, and they will
 break blending. M68 functions the same as M64-65.
 
 The number of I/O can be increased by using the num_dio or num_aio parameter
-when loading the motion controller. See the <<sec:motion,Motion Section>> for
+when loading the motion controller. See the <<sec:motion,Motion>> section for
 more information.
 
 [NOTE]
 M68 will not function unless the appropriate motion.analog-out-nn pins are
-connected in your hal file to outputs.
+connected in your HAL file to outputs.
 
 [[mcode:m70]]
 == M70 Save Modal State(((M70 Save Modal State)))
@@ -602,7 +601,7 @@ The suggested use is at the beginning of a O-word subroutine as in the
 following example. Using 'M73' this way enables designing subroutines
 which need to modify modal state but will protect the calling program
 against inadvertent modal changes. Note the use of
-<<gcode:predefined-named-parameters, predefined named parameters>> in
+<<gcode:predefined-named-parameters,predefined named parameters>> in
 the 'showstate' subroutine.
 
 [source,{ngc}]
@@ -696,10 +695,10 @@ found in directory pointed by '[DISPLAY] PROGRAM_PREFIX'
 parameter of the INI file) is executed with the optional P and Q values
 as its two arguments.
 
-Execution of the G code file pauses until the external program exits.
+Execution of the G-code file pauses until the external program exits.
 Any valid executable file can be used. The file must be located in the search
-path specified in the ini file configuration.
-See the <<sub:ini:sec:display,Display Section>> for more information on search paths.
+path specified in the INI file configuration.
+See the <<sub:ini:sec:display,Display>> section for more information on search paths.
 
 After creating a new M1nn program, the GUI should be restarted so that the
 new program is taken into account, otherwise a 'Unknown M-code' error will occur.
@@ -710,7 +709,7 @@ will leave unseen codes that will cause problems and may prevent a bash or
 python file from working. Use a text editor like Geany in Debian or Notepad++
 in other operating systems to create or edit the files.
 
-The error 'Unknown M code used' denotes one of the following:
+The error 'Unknown M-code used' denotes one of the following:
 
 * The specified User Defined Command does not exist
 * The file is not an executable file

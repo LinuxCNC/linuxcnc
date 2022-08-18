@@ -2,7 +2,101 @@ linuxcnc (1:2.9.0~pre0) UNRELEASED; urgency=medium
 
   * Master branch open for new features.
 
- -- Sebastian Kuzminsky <seb@highlab.com>  Thu, 23 Sep 2021 20:56:25 +0200
+ -- Sebastian Kuzminsky <seb@highlab.com>  Fri, 12 Aug 2022 20:56:25 +0200
+
+linuxcnc (2.9.0~pre0+git20220402.2500863908-4) unstable; urgency=medium
+
+  * Team upload.
+  * Fixing build-depends - also binary packages need asciidoc to build
+    (Closes: #969416).
+  * Please do not yet use this version in production environments. This
+    upload still aims technical issues to resolve for the next pre-release.
+
+ -- Steffen Moeller <meller@debian.org>  Wed, 06 Apr 2022 16:23:49 +0200
+
+linuxcnc (2.9.0~pre0+git20220402.2500863908-3) unstable; urgency=medium
+
+  * Team upload.
+  * Failed attempt to build indeps.
+
+ -- Steffen Moeller <meller@debian.org>  Wed, 06 Apr 2022 12:43:17 +0200
+
+linuxcnc (2.9.0~pre0+git20220402.2500863908-2) unstable; urgency=medium
+
+  * Team upload.
+  * Failed attempt to build indeps.
+
+ -- Steffen Moeller <meller@debian.org>  Sun, 03 Apr 2022 19:20:29 +0200
+
+linuxcnc (2.9.0~pre0+git20220402.2500863908-1) unstable; urgency=medium
+
+  * Team upload.
+  * First source-only upload to be built across architectures
+    - Update of Classic Ladder to 0.8.10
+    - Fixes for AppStream
+
+ -- Steffen Moeller <meller@debian.org>  Sun, 03 Apr 2022 16:57:36 +0200
+
+linuxcnc (2.9.0~pre0+git20220224.3ba0951743-1) unstable; urgency=medium
+
+  * Initial upload that was checked by FTPmasters
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Fri, 25 Feb 2022 18:40:12 +0100
+
+linuxcnc (1:2.8.3) buster; urgency=low
+
+  * CraftsmanCNC: A new GUI written from scratch Intended for CNC router
+      applications.
+  * Merge pull request #1706 from
+      hansu/gmoccapy-fix-buttonstate-settings-2.8
+  * pncconf: add 7i96s
+  * command.c: EMCMOT_JOINT_ABORT set joint jog inactive
+  * Several patches from zz912 to improve translations
+  * Gmoccapy - many updates
+  * PNCconf bug - bad arrow
+  * Update cpu_info.c for Raspberry revision 1.5
+  * qtvcp -file_manager: fix indent error
+  * task: disallow task mode change if jogging
+  * Fix the building of packages (broken by Japanese docs)
+  * carousel: Fix homing bug.
+  * qtvcp - many updates
+  * docs: added japanese PDF docs from MasaoSakai
+      (https://github.com/MasaoSakai/LinuxCNC)
+  * docs: many updates
+  * docs: make an index.html page for the PDF docs
+  * Merge pull request #1644 from alkabal/alkabal-2.8-xhc-whb04b-6
+  * Several pull requests from elovalvo/
+  * Update for new version of Rpi400
+  * mb2hal: added pins to manpage
+  * Merge pull request #1641 from JTrantow/2.8
+  * Change EDITOR = geany. Restore more generous dirhold and dirsetup
+      timing.
+  * Updated the gantry example 
+  * linuxcncrsh: check for errors when creating listening socket
+  * gscreen -fix error related to keyboard jogging and limit switch
+  * getting-linuxcnc.txt list alternate keyserver
+  * axis.py: stop continuous jogs if mdi tab     #1519
+  * mitsub_vfd docs: several updates
+  * improved german translation
+  * plasmac: many updates
+  * FIxed IRC webclient URL
+  * Update man-pages for latency-* scripts.
+  * Docs: Update RTAI install instructions.
+  * Merge pull request #1234 from LinuxCNC/fix-md5-sum
+  * Update getting-linuxcnc_es.txt
+  * Update getting-linuxcnc-cn.txt
+  * Fix MD5 / SHA256 sums
+  * docs: fix some minor glitches in INI config docs.
+  * Docs add axis lathe info and images
+  * pncconf: several updates
+  * pncconf -raise the stepper timing maximum to 50000
+  * Merge pull request #1199 from LinuxCNC/shuttle
+  * parport: Clarify messages when parport_pc has not found the device.
+  * Docs: Bump kernel version for RTAI in "Getting LinuxCNC"
+  * shuttle: driver and docs updates
+  * full update xhc-whb04b-6 for 2.8
+
+ -- andypugh <andy@bodgesoc.org>  Tue, 09 Aug 2022 22:13:13 +0100
 
 linuxcnc (1:2.8.2) buster; urgency=low
 

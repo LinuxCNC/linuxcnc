@@ -138,7 +138,7 @@ static void custom_read_homing_in_pins(int njoints)
         addr = &(custom_joint_home_data->custom_jhd[jno]);
         customH[jno].request_custom_homing = *(addr->request_custom_homing); // IN
 
-        // echo for verificaion:
+        // echo for verification:
         customH[jno].is_custom_homing = customH[jno].request_custom_homing;
     }
 }
@@ -155,11 +155,56 @@ static void custom_write_homing_out_pins(int njoints)
 
 static int custom_1joint_state_machine(int joint_num)
 {
-    // custom: always homed
-    H[joint_num].homing = 0;
-    H[joint_num].homed  = 1;
-    H[joint_num].home_state = HOME_IDLE;
-    return 0;
+typedef enum {
+    CUSTOM_IDLE = 0,
+    CUSTOM_1    = 1,
+    CUSTOM_2    = 2,
+    CUSTOM_3    = 3,
+    CUSTOM_4    = 4,
+    CUSTOM_FINI = 5,
+} custom_home_state_t;
+
+static custom_home_state_t chomestate[EMCMOT_MAX_JOINTS] = {0};
+       custom_home_state_t nextcstate;
+
+#define C_SHOW \
+    rtapi_print("H[%d].homed=%d,homing=%d,home_state=%d chomestate[%d]=%d next=%d\n" \
+      ,joint_num,H[joint_num].homed,H[joint_num].homing,H[joint_num].home_state \
+      ,joint_num,chomestate[joint_num],nextcstate);
+
+    if ( H[joint_num].home_state == HOME_IDLE) return 0; // nothing to do
+
+    if ((H[joint_num].home_state == HOME_START) && (chomestate[joint_num] == CUSTOM_IDLE) ) {
+        H[joint_num].homing = 1;
+        H[joint_num].homed  = 0;
+        chomestate[joint_num] = CUSTOM_1; // set first non-idle custom_home_state
+    }
+    // For this example, just walk thru custom_home_states with prints.
+    // Note: remains in the base home_state: HOME_START for all custom_home_states.
+    //       On completion, return to HOME_IDLE, CUSTOM_IDLE states.
+    switch (chomestate[joint_num]) {
+      case CUSTOM_1:
+                     // Each CUSTOM_* state should do something and/or check something
+                     // and set nexstcstate according to the design goals.
+                     // Halpin variables can be read and/or set for next write.
+                     nextcstate=CUSTOM_2;    C_SHOW; chomestate[joint_num] = nextcstate; break;
+      case CUSTOM_2: nextcstate=CUSTOM_3;    C_SHOW; chomestate[joint_num] = nextcstate; break;
+      case CUSTOM_3: nextcstate=CUSTOM_4;    C_SHOW; chomestate[joint_num] = nextcstate; break;
+      case CUSTOM_4: nextcstate=CUSTOM_FINI; C_SHOW; chomestate[joint_num] = nextcstate; break;
+      case CUSTOM_FINI:
+           H[joint_num].homing = 0;
+           H[joint_num].homed  = 1;
+           H[joint_num].home_state = HOME_IDLE;
+           nextcstate = CUSTOM_IDLE;
+           C_SHOW;
+           chomestate[joint_num] = nextcstate;
+           return 0; // finished custom_home_states
+           break;
+      case CUSTOM_IDLE:
+      default: rtapi_print("Unhandled custom_home_state: %d\n",chomestate[joint_num]);
+    }
+    return 1; // return 1 if busy
+#undef C_SHOW
 } // custom_1joint_state_machine()
 
 // api functions below augment base_*() functions with custom code

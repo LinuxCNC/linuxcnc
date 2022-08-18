@@ -59,11 +59,15 @@ or the link:../man/man9/[directory listing of man9].
 [[sec:core-realtime-components]]
 === Core LinuxCNC components
 
+This lists HAL components that are all written in lower case and should not be
+confused with other parts of LinuxCNC bearing the same name (AXIS, ClassicLadder,
+GladeVCP) that these components communicate with.
+
 motion:: (((motion))) Accepts NML motion commands, interacts with HAL in realtime.
 
 axis:: (((axis))) Accepts NML motion commands, interacts with HAL in realtime.
 
-classicladder:: (((classicladder))) Realtime software PLC based on ladder logic. See <<cha:classicladder,ClassicLadder>> chapter for more information.
+classicladder:: (((ClassicLadder))) Realtime software PLC based on ladder logic. See <<cha:classicladder,ClassicLadder>> chapter for more information.
 
 gladevcp:: (((gladevcp))) Displays Virtual Control Panels built with GTK/Glade.
 
@@ -124,15 +128,15 @@ deadzone:: (((deadzone))) Return the center if within the threshold.
 
 hypot:: (((hypot))) Three-input hypotenuse (Euclidean distance) calculator.
 
-mult2:: (((mult2))) Product of two inputs.
+mult2:: (((mult2))) Product of two inputs (multiplexing).
 
-mux16:: (((mux16))) Select from one of sixteen input values.
+mux16:: (((mux16))) Select from one of sixteen input values (multiplexing).
 
-mux2:: (((mux2))) Select from one of two input values.
+mux2:: (((mux2))) Select from one of two input values (multiplexing).
 
-mux4:: (((mux4))) Select from one of four input values.
+mux4:: (((mux4))) Select from one of four input values (multiplexing).
 
-mux8:: (((mux8))) Select from one of eight input values.
+mux8:: (((mux8))) Select from one of eight input values (multiplexing).
 
 near:: (((near))) Determine whether two values are roughly equal.
 
@@ -267,7 +271,7 @@ clarkeinv:: (((clarkeinv))) Inverse Clarke transform.
 === Other Components
 
 charge_pump:: (((charge_pump))) Creates a square-wave for the 'charge pump' input of some controller boards.
-  The 'Charge Pump' should be added to the base thread function. When enabled the output is on for one period and off for one period. To calculate the frequency of the output 1/(period time in seconds x 2) = hz. For example if you have a base period of 100,000ns that is 0.0001 seconds and the formula would be 1/(0.0001 x 2) = 5,000 hz or 5 Khz.
+  The 'Charge Pump' should be added to the base thread function. When enabled the output is on for one period and off for one period. To calculate the frequency of the output 1/(period time in seconds x 2) = Hz. For example if you have a base period of 100,000 ns that is 0.0001 seconds and the formula would be 1/(0.0001 x 2) = 5,000 Hz or 5 kHz.
 
 encoder_ratio:: (((encoder_ratio))) An electronic gear to synchronize two axes.
 

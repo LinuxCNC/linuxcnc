@@ -50,23 +50,18 @@ addf db_breakaway servo-thread
 addf db_arc-ok    servo-thread
 
 # ---Z JOINT CONNECTION---
-net plasmac:axis-position joint.${z-axis}.pos-fb  => plasmac.axis-z-position
+net plasmac:axis-position joint.${z-axis}.pos-fb => plasmac.axis-z-position
 
 # ---TOOL CHANGE PASSTHROUGH
 net sim:tool-number                                    <= iocontrol.0.tool-prep-number
-net sim:tool-change-loopback iocontrol.0.tool-change   => iocontrol.0.tool-changed
+net sim:tool-change-loopback  iocontrol.0.tool-change  => iocontrol.0.tool-changed
 net sim:tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 
 # ---ESTOP HANDLING---
 loadrt or2 names=estop_or
-loadrt not names=estop_not
-addf estop_or servo-thread
-addf estop_not servo-thread
+loadrt not names=estop_not,estop_not_1
+addf estop_or    servo-thread
+addf estop_not   servo-thread
+addf estop_not_1 servo-thread
 net sim:estop-raw estop_or.out  => estop_not.in
 net sim:estop-out estop_not.out => iocontrol.0.emc-enable-in
-if {$::QTPLASMAC(ESTOP_TYPE) == 2} {
-    loadrt not names=estop_not_1
-    addf estop_not_1 servo-thread
-    net sim:estop-1-raw iocontrol.0.user-enable-out => estop_not_1.in
-    net sim:estop-1-in  estop_not_1.out             => estop_or.in1
-}

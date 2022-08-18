@@ -14,7 +14,7 @@ or select it in the 'Applications -> CNC' menu.
 == Configuration Launcher(((Configuration Launcher)))
 
 When starting LinuxCNC (from the CNC menu or from the command line without
-specifying an .ini file) the Configuration Selector dialog starts.
+specifying an INI file) the Configuration Selector dialog starts.
 
 The Configuration Selector dialog allows the user to pick one of their
 existing configurations (My Configurations) or select a new one (from the Sample
@@ -140,30 +140,30 @@ available in other GUIs as well.
 The Configuration Selector copies all files needed
 for a configuration to a new subdirectory of ~/linuxcnc/configs
 (equivalently: /home/username/linuxcnc/configs).  Each
-created directory will include at least one ini file (iniflename.ini)
+created directory will include at least one INI file (iniflename.ini)
 that is used to describe a specific configuration.
 
 File resources within the copied directory will typically
-include one or more ini file (filename.ini) for related
+include one or more INI file (filename.ini) for related
 configurations and a tool table file (toolfilename.tbl).
-Additionally, resources may include halfiles (filename.hal,
+Additionally, resources may include HAL files (filename.hal,
 filename.tcl), a README file for describing the directory, and
 configuration specific information in a text file named after
 a specific configuration (inifilename.txt).  That latter two
 files are displayed when using the Configuration Selector.
 
-The supplied sample configurations may specify HALFILEs
-in the configuration ini file that are not present in the
+The supplied sample configurations may specify the parameter HALFILE
+(filename.hal) in the configuration INI file that are not present in the
 copied directory because they are found in the system
-Halfile library.  These files can be copied to the user
+HAL file library.  These files can be copied to the user
 configuration directory and altered as required by the
 user for modification or test.  Since the user configuration
-directory is searched first when finding Halfiles, local
+directory is searched first when finding HAL files, local
 modifications will then prevail.
 
 The Configuration selector makes a symbolic link in the
 user configuration directory (named hallib) that points to
-the system Halfile library.  This link simplifies copying
+the system HAL file library.  This link simplifies copying
 a library file.  For example, to copy the library core_sim.hal
 file in order to make local modifications:
 

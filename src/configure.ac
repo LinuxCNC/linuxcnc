@@ -695,6 +695,7 @@ else
     EMC2_HOME=${prefix}
     EMC2_BIN_DIR=${prefix}/bin
     EMC2_LATENCY_SCRIPT=$EMC2_BIN_DIR/latency-test
+    EMC2_LATENCY_HISTOGRAM_SCRIPT=$EMC2_BIN_DIR/latency-histogram
     EMC2_SCRIPT=$EMC2_BIN_DIR/linuxcnc
     EMC2_SUFFIX=""
     EMC2_ICON=linuxcncicon
@@ -736,6 +737,7 @@ AC_SUBST([REALTIME])
 AC_SUBST([EMC2_IMAGE_DIR])
 AC_SUBST([EMC2_SCRIPT])
 AC_SUBST([EMC2_LATENCY_SCRIPT])
+AC_SUBST([EMC2_LATENCY_HISTOGRAM_SCRIPT])
 AC_SUBST([EMC2_SUFFIX])
 AC_SUBST([EMC2_ICON])
 AC_SUBST([HALLIB_DIR])
@@ -1193,13 +1195,14 @@ if ( test "$BUILD_DOCS" = "yes" && test "$BUILD_DOCS_TRANSLATED_EXPLICIT" != "no
         # Version 0.62 correctly write UTF-8 into translated adocs
         # Version 0.65 support grouping several doc files into different POTs
         # Version 0.66 handle empty table cells in asciidoc
+        # Version 0.67 handle enforced linbreaks
         V=$(po4a --version| awk '/po4a version/ {print $3}')
-        if dpkg --compare-versions 0.62 gt "$V"; then
+        if dpkg --compare-versions 0.67 gt "$V"; then
             if test "$BUILD_DOCS_TRANSLATED_EXPLICIT" = "not_set"
             then
-                AC_MSG_WARN([po4a version too old, need version 0.62 or newer, not building translated docs])
+                AC_MSG_WARN([po4a version too old, need version 0.67 or newer, not building translated docs])
             else
-                AC_MSG_ERROR([po4a version too old, need version 0.62 or newer, not building translated docs])
+                AC_MSG_ERROR([po4a version too old, need version 0.67 or newer, not building translated docs])
             fi
 	    BUILD_DOCS_TRANSLATED=no
         fi
@@ -1702,6 +1705,8 @@ AC_CONFIG_FILES(../lib/python/nf.py)
 AC_CONFIG_FILES([../scripts/linuxcncmkdesktop], [chmod +x ../scripts/linuxcncmkdesktop])
 AC_CONFIG_FILES(../share/applications/linuxcnc-latency.desktop)
 AC_CONFIG_FILES(../share/applications/linuxcnc-latency-histogram.desktop)
+AC_CONFIG_FILES(../share/applications/linuxcnc-pncconf.desktop)
+AC_CONFIG_FILES(../share/applications/linuxcnc-stepconf.desktop)
 AC_CONFIG_FILES(../share/applications/linuxcnc.desktop)
 AC_CONFIG_FILES(../share/desktop-directories/linuxcnc-cnc.directory)
 AC_CONFIG_FILES(../share/desktop-directories/linuxcnc-ref.directory)

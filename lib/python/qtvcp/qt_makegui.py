@@ -87,7 +87,7 @@ class _VCPWindow(QtWidgets.QMainWindow):
         self.__class__._instanceNum += 1
 
         self.halcomp = halcomp
-        self.has_closing_handler = None
+        self.has_closing_handler = False
         self.setFocus(True)
         self.PATHS = path
         self.PREFS_ = None
@@ -222,7 +222,7 @@ Python Error:\n {}'''.format(str(e))
 
         # Check for Preference file specified qss
         if fname is None:
-            if self.PREFS_:
+            if not self.PREFS_ is None:
                 path = self.PREFS_.getpref('style_QSS_Path', 'DEFAULT', str, 'BOOK_KEEPING')
                 if path.lower() == 'none':
                     return

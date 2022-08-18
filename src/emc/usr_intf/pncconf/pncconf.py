@@ -411,7 +411,7 @@ class App:
         if result == Gtk.ResponseType.OK:
             itr = self.widgets.interface_combobox.get_active_iter()
             d = self.widgets.interface_combobox.get_model().get_value(itr, 1)
-            ppc = int(self.widgets.ppc_combobox.get_active_text())
+            ppc = int(self.widgets.ppc_combobox.get_model()[self.widgets.ppc_combobox.get_active()][0])
             tp = int(self.widgets.noc_spinbutton.get_value())
             _PD.MESA_BOARD_META[name] = {'DRIVER':d,'PINS_PER_CONNECTOR':ppc,'TOTAL_CONNECTORS':tp}
         meta = _PD.MESA_BOARD_META.get(name)
@@ -603,8 +603,15 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         # notused
         self.d._notusedliststore = Gtk.ListStore(str,int)
         self.d._notusedliststore.append([_PD.pintype_notused[0],0])
+        # ssr output
         self.d._ssrliststore = Gtk.ListStore(str,int)
         self.d._ssrliststore.append([_PD.pintype_ssr[0],0])
+        # outm output
+        self.d._outmliststore = Gtk.ListStore(str,int)
+        self.d._outmliststore.append([_PD.pintype_outm[0],0])
+        # inm input
+        self.d._inmliststore = Gtk.ListStore(str,int)
+        self.d._inmliststore.append([_PD.pintype_inm[0],0])
         # gpio
         self.d._gpioliststore = Gtk.ListStore(str,int)
         for number,text in enumerate(_PD.pintype_gpio):
@@ -1040,6 +1047,10 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                     l = modules[i].find("numinstances").text;#print(l,k)
                 elif k in ("ssr","SSR"):
                     l = modules[i].find("numinstances").text;#print(l,k)
+                elif k in ("out","OUTM"):
+                    l = modules[i].find("numinstances").text;#print(l,k)
+                elif k in ("inm","INM"):
+                    l = modules[i].find("numinstances").text;#print(l,k)
                 elif k in ("IOPort","AddrX","MuxedQCountSel"):
                     continue
                 else:
@@ -1159,19 +1170,32 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                             else: convertedname = pinconvertsserial[tempfunc]
                         else:
                             convertedname = pinconvertsserial[tempfunc]
-                    elif modulename in ('SSR','SSR'):
+                    elif modulename in ('ssr','SSR'):
                         if tempfunc == 'AC':
-                            convertedname = _PD.NUSED
+                            if '7i96s' in boardtitle:
+                                convertedname = _PD.PWMP
+                            else:
+                                convertedname = _PD.NUSED
                         elif 'OUT-' in tempfunc:
                             convertedname = _PD.SSR0
                             # ssr outputs encode the HAL number in the XML name
-                            # add it to 100 so it's not change from output
+                            # add it to 100 so it's not changed from output
                             iocode = 100 + int(tempfunc[4:])
+                    elif modulename in ('outm','OUTM'):
+                            convertedname = _PD.OUTM0
+                            # outm outputs encode the HAL number in the XML name
+                            # add it to 100 so it's not changed from output
+                            iocode = 100 + int(tempfunc[6:])
+                    elif modulename in ('inm','INM'):
+                            convertedname = _PD.INM0
+                            # inm inputs encode the HAL number in the XML name
+                            # add it to 100 so it's not changed from output
+                            iocode = 100 + int(tempfunc[5:])
                     elif modulename in ("None","NONE"):
                         iocode = 0
                         #convertedname = pinconvertnone[tempfunc]
                     else:
-                         print('unknon module - setting to unusable',modulename, tempfunc)
+                         print('unknown module - setting to unusable',modulename, tempfunc)
                          convertedname = _PD.NUSED
                 except:
                     iocode = 0
@@ -1183,13 +1207,18 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                     print(formatted_lines[-1])
 
                 if iocode == 0:
-                    # must be GPIO pins if there is no secondary module name
-                    # or if pinconvert fails eg. StepTable instance default to GPIO
+                    # must be GPIO if there is no secondary module name
+                    # or if pinconvert fails eg. StepTable instance defaults to GPIO
                     temppinunit.append(_PD.GPIOI)
                     temppinunit.append(0) # 0 signals to pncconf that GPIO can changed to be input or output
                 elif iocode and iocode >= 100:
-                    temppinunit.append(_PD.SSR0)
-                    temppinunit.append(iocode)
+                    if modulename in ('ssr','SSR'):
+                        temppinunit.append(_PD.SSR0)
+                    elif modulename in ('outm','OUTM'):
+                        temppinunit.append(_PD.OUTM0)
+                    if modulename in ('inm','INM'):
+                        temppinunit.append(_PD.INM0)
+                    temppinunit.append(iocode) # >= 100 signals to pncconf that SSR, OUTM, and INM can not be changed
                 else:
                     instance_num = int(pins[i].find("secondaryinstance").text)
                     # this is a workaround for the 7i77_7i776 firmware. it uses a mux encoder for the 7i76 but only uses half of it
@@ -1250,33 +1279,51 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
     def discover_mesacards(self):
         name, interface, address, readoption = self.get_discovery_meta()
         if name is None: return None
-
-        if not name:
-            name = '5i25'
-
+        # This is a HACK to pass info about the interface forward
+        # otherwise the driver info is blank in the discovered firmware
+        if interface == '--addr':
+            inter = 'ETH'
+        elif interface == '--epp':
+            inter = 'EPP'
+        else:
+            inter = 'PCI'
         if self.debugstate or readoption:
-            print('try to discover board by reading help text input:',name)
+            print('try to discover board by reading help window input tab')
             buf = self.widgets.textinput.get_buffer()
             info = buf.get_text(buf.get_start_iter(),
                         buf.get_end_iter(),
                         True)
-
-            # This is a HACK to pass info about the interface forward
-            # otherwise the driver info is blank in the discovered firmware
-            if interface == '--addr':
-                inter = 'ETH'
-            elif interface == '--epp':
-                inter = 'EPP'
-            else:
-                inter = 'PCI'
+            if not info:
+                text = [_('PIN file is empty:\n')]
+                text.append(_('To use PIN file discovery mode, the contents of the'))
+                text.append(_('cards PIN file needs to be pasted into the Input tab'))
+                text.append(_('of the Help window before clicking Board Discovery'))
+                self.warning_dialog("\n".join(text),True)
+                return None
             info = info + "\n {}".format(inter)
         else:
+            if not name:
+                self.warning_dialog('Card Name is required',True)
+                return None
+            elif inter == 'ETH' and not address:
+                self.warning_dialog(_('Address is required for ethernet card'),True)
+                return None
             info = self.call_mesaflash(name,interface,address)
         print('INFO:',info,'<-')
         if info is None: return None
         lines = info.splitlines()
         try:
-            if 'ERROR' in lines[0]:
+            if 'No' in lines[0] and 'board found' in lines[0]:
+                text = [_("%s board was not found"%name)]
+                if inter == 'ETH':
+                    text.append(_("Is the address correct?"))
+                self.warning_dialog("\n".join(text),True)
+                return None
+            elif 'Unsupported device' in lines[0]:
+                text = _("%s is an unsupported device"%name)
+                self.warning_dialog(text,True)
+                return None
+            elif 'ERROR' in lines[0]:
                 raise ValueError('Mesaflash Error')
             elif 'root' in info:
                 raise ValueError('Mesaflash Error')
@@ -1286,11 +1333,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             return None
         except Exception as e:
             print(e)
-            self.warning_dialog('Unspecified Error with Discovery option',True)
-            return
-        if 'No' in lines[0] and 'board found' in lines[0] :
-            text = _("No board was found\n")
-            self.warning_dialog(text,True)
+            self.warning_dialog(_('Unspecified Error with Discovery option'),True)
             return None
         return info
 
@@ -1355,6 +1398,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         WATCHDOG = NUMCONS = NUMCONPINS = ENCODERS = MUXENCODERS = 0
         RESOLVERS = NUMSSCHANNELS = SSERIALPORTS = 0
         PWMGENS = LEDS = STEPGENS = TPPWMGEN = 0
+        SSRS = OUTMS = INMS = 0
         NUMENCODERPINS = NUMPWMPINS = 3; NUMSTEPPERPINS = 2
         NUMTPPWMPINS = 0;NUMRESOLVERPINS = 10
 
@@ -1379,165 +1423,192 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         sserial=[]
         ssflag = pinsflag = True
         dev7i77flag = dev7i76flag = False
-        for l_num,i in enumerate(lines):
-            i = i.lstrip()
-            temp2 = i.split(" ")
-            #print(i,temp2)
-            if 'BOARDNAME' in i:
-                BOARDNAME = temp2[2].strip('MESA').lower()
-                # 7i76e thinks it is a 7i76, set it straight
-                if 'ETH' in info and BOARDNAME == '7i76':
-                    BOARDNAME = '7i76e'
-                add_text(ELEMENT,'BOARDNAME',BOARDNAME)
-            if 'ETH' in i:
-                DRIVER = 'hm2_eth'
-            elif 'PCI' in i:
-                DRIVER = 'hm2_pci'
-            elif 'EPP' in i:
-                if '7i43' in BOARDNAME.lower():
-                    DRIVER = 'hm2_7i43'
-                else:
-                    DRIVER = 'hm2_7i90'
-            if 'DEVICE AT' in i:
-                if ssflag:
-                    n1 = add_element(ELEMENT,'SSERIALDEVICES')
-                    ssflag = False
-                for num,i in enumerate(temp2):
-                    if i =="CHANNEL":
-                        sserial.append((temp2[num+1].strip(':'),temp2[num+2]))
-                        n2 = add_element(n1,'SSERIALFUNCTION')
-                        add_text(n2,'PORT','0')
-                        add_text(n2,'CHANNEL',temp2[num+1].strip(':'))
-                        add_text(n2,'DEVICE',temp2[num+2])
-                        if '7I77' in(temp2[num+2]):
-                            dev7i77flag = True
-                        elif '7I76' in(temp2[num+2]):
-                            dev7i76flag = True
-            if 'SSLBP CHANNELS:' in i:
-                NUMSSCHANNELS = temp2[2]
-            if 'CLOCK LOW FREQUENCY: ' in i:
-                add_text(ELEMENT,'CLOCKLOW',str(int(float(temp2[3])*1000000)))
-            if 'CLOCK HIGH FREQUENCY:' in i:
-                add_text(ELEMENT,'CLOCKHIGH',str(int(float(temp2[3])*1000000)))
-            if 'NUMBER OF IO PORTS:' in i:
-                NUMCONS = temp2[4]
-                add_text(ELEMENT,'IOPORTS',NUMCONS)
-            if 'WIDTH OF ONE I/O PORT:' in i:
-                NUMCONPINS = temp2[5]
-                add_text(ELEMENT,'PORTWIDTH',NUMCONPINS)
-
-            if 'MODULES IN CONFIGURATION:' in i:
-                mod_ele = add_element(ELEMENT,'modules')
-                modflag = True
-            if 'MODULE: WATCHDOG' in i:
-                tline = lines[l_num+1].split(" ")
-                new = add_element(mod_ele,'module')
-                add_text(new,'tagname','WATCHDOG')
-                add_text(new,'numinstances',tline[4].lstrip())
-            if 'MODULE: QCOUNT' in i:
-                tline = lines[l_num+1].split(" ")
-                ENCODERS = tline[4].lstrip()
-                new = add_element(mod_ele,'module')
-                add_text(new,'tagname','QCOUNT')
-                add_text(new,'numinstances',tline[4].lstrip())
-
-            if 'MODULE: MUXEDQCOUNTSEL' in i:
-                continue
-            if 'MODULE: MUXEDQCOUNT' in i:
-                tline = lines[l_num+1].split(" ")
-                MUXENCODERS = tline[4].lstrip()
-                new = add_element(mod_ele,'module')
-                add_text(new,'tagname','MUXEDQCOUNT')
-                add_text(new,'numinstances',tline[4].lstrip())
-            if 'MODULE: SSERIAL' in i:
-                tline = lines[l_num+1].split(" ")
-                SSERIALPORTS = tline[4].lstrip()
-                new = add_element(mod_ele,'module')
-                add_text(new,'tagname','SSERIAL')
-                add_text(new,'numinstances',tline[4].lstrip())
-            if 'MODULE: RESOLVERMOD' in i:
-                tline = lines[l_num+1].split(" ")
-                RESOLVER = tline[4].lstrip()
-                new = add_element(mod_ele,'module')
-                add_text(new,'tagname','RESOLVERMOD')
-                add_text(new,'numinstances',tline[4].lstrip())
-            if 'MODULE: PWM' in i:
-                tline = lines[l_num+1].split(" ")
-                PWMGENS = tline[4].lstrip()
-                new = add_element(mod_ele,'module')
-                add_text(new,'tagname','PWMGEN')
-                add_text(new,'numinstances',tline[4].lstrip())
-            if 'MODULE: TPPWM' in i:
-                tline = lines[l_num+1].split(" ")
-                TPPWMGENS = tline[4].lstrip()
-                new = add_element(mod_ele,'module')
-                add_text(new,'tagname','TPPWMGEN')
-                add_text(new,'numinstances',tline[4].lstrip())
-            if 'MODULE: STEPGEN' in i:
-                tline = lines[l_num+1].split(" ")
-                STEPGENS = tline[4].lstrip()
-                new = add_element(mod_ele,'module')
-                add_text(new,'tagname','STEPGEN')
-                add_text(new,'numinstances',tline[4].lstrip())
-            if 'MODULE: LED' in i:
-                tline = lines[l_num+1].split(" ")
-                LEDS = tline[4].lstrip()
-                new = add_element(mod_ele,'module')
-                add_text(new,'tagname','LED')
-                add_text(new,'numinstances',tline[4].lstrip())
-            if 'MODULE: SSR' in i:
-                tline = lines[l_num+1].split(" ")
-                LEDS = tline[4].lstrip()
-                new = add_element(mod_ele,'module')
-                add_text(new,'tagname','SSR')
-                add_text(new,'numinstances',tline[4].lstrip())
-            if 'IO CONNECTIONS FOR' in i:
-                if pinsflag:
-                    n1 = add_element(ELEMENT,'pins')
-                    pinsflag = False
-                CON = temp2[3]
-                print(CON)
-                for num in range(l_num+3,l_num+3+int(NUMCONPINS)):
-                    CHAN = PINFNCTN = ''
-                    pin_line = ' '.join(lines[num].split()).split()
-                    PINNO = pin_line[0]
-                    IO = pin_line[1]
-                    SECFNCTN = pin_line[3]
-                    n2 = add_element(n1,'pin')
-                    add_text(n2,'index',IO)
-                    add_text(n2,'connector',CON)
-                    add_text(n2,'pinno',PINNO)
-                    add_text(n2,'secondarymodulename',SECFNCTN)
-                    if not SECFNCTN == 'NONE':
-                        CHAN = pin_line[4]
-                        PINFNCTN = pin_line[5]
-                        if PINFNCTN in("TXDATA1","TXDATA2","TXDATA3",
-                            "TXDATA4","TXDATA5","TXDATA6","TXDATA7","TXDATA8"):
-                            num = int(PINFNCTN[6])-1
-                            print(num)
-                            for idnum,dev in sserial:
-                                print(idnum,dev,num)
-                                if int(idnum) == num:
-                                    NEW_FNCTN = '%s-%d'% (dev,num)
-                                    add_text(n2,'foundsserialdevice',NEW_FNCTN)
-                        add_text(n2,'secondaryfunctionname',PINFNCTN)
-                        add_text(n2,'secondaryinstance',CHAN)
+        try:
+            for l_num,i in enumerate(lines):
+                i = i.lstrip()
+                temp2 = i.split(" ")
+                #print(i,temp2)
+                if 'BOARDNAME' in i:
+                    BOARDNAME = temp2[2].lstrip('MESA').lower()
+                    # 7i76e thinks it is a 7i76, set it straight
+                    if BOARDNAME == '7i76' and 'ETH' in info:
+                        BOARDNAME = '7i76e'
+                    # 7i96s thinks it is a 7i96, set it straight
+                    if BOARDNAME == '7i96' and '20 KGATES' in info:
+                        BOARDNAME = '7i96s'
+                    add_text(ELEMENT,'BOARDNAME',BOARDNAME)
+                if 'ETH' in i:
+                    DRIVER = 'hm2_eth'
+                elif 'PCI' in i:
+                    DRIVER = 'hm2_pci'
+                elif 'EPP' in i:
+                    if '7i43' in BOARDNAME.lower():
+                        DRIVER = 'hm2_7i43'
                     else:
-                        add_text(n2,'secondaryfunctionname','NOT USED')
+                        DRIVER = 'hm2_7i90'
+                if 'DEVICE AT' in i:
+                    if ssflag:
+                        n1 = add_element(ELEMENT,'SSERIALDEVICES')
+                        ssflag = False
+                    for num,i in enumerate(temp2):
+                        if i =="CHANNEL":
+                            sserial.append((temp2[num+1].strip(':'),temp2[num+2]))
+                            n2 = add_element(n1,'SSERIALFUNCTION')
+                            add_text(n2,'PORT','0')
+                            add_text(n2,'CHANNEL',temp2[num+1].strip(':'))
+                            add_text(n2,'DEVICE',temp2[num+2])
+                            if '7I77' in(temp2[num+2]):
+                                dev7i77flag = True
+                            elif '7I76' in(temp2[num+2]):
+                                dev7i76flag = True
+                if 'SSLBP CHANNELS:' in i:
+                    NUMSSCHANNELS = temp2[2]
+                if 'CLOCK LOW FREQUENCY: ' in i:
+                    add_text(ELEMENT,'CLOCKLOW',str(int(float(temp2[3])*1000000)))
+                if 'CLOCK HIGH FREQUENCY:' in i:
+                    add_text(ELEMENT,'CLOCKHIGH',str(int(float(temp2[3])*1000000)))
+                if 'NUMBER OF IO PORTS:' in i:
+                    NUMCONS = temp2[4]
+                    add_text(ELEMENT,'IOPORTS',NUMCONS)
+                if 'WIDTH OF ONE I/O PORT:' in i:
+                    NUMCONPINS = temp2[5]
+                    add_text(ELEMENT,'PORTWIDTH',NUMCONPINS)
 
-                    print('    I/O ',IO, ' function ',SECFNCTN,' CHANNEL:',CHAN,'PINFUNCTION:',PINFNCTN)
+                if 'MODULES IN CONFIGURATION:' in i:
+                    mod_ele = add_element(ELEMENT,'modules')
+                    modflag = True
+                if 'MODULE: WATCHDOG' in i:
+                    tline = lines[l_num+1].split(" ")
+                    new = add_element(mod_ele,'module')
+                    add_text(new,'tagname','WATCHDOG')
+                    add_text(new,'numinstances',tline[4].lstrip())
+                if 'MODULE: QCOUNT' in i:
+                    tline = lines[l_num+1].split(" ")
+                    ENCODERS = tline[4].lstrip()
+                    new = add_element(mod_ele,'module')
+                    add_text(new,'tagname','QCOUNT')
+                    add_text(new,'numinstances',tline[4].lstrip())
 
-        print('Sserial CARDS FOUND:',sserial)
-        print(NUMCONS,NUMCONPINS,ENCODERS,MUXENCODERS,SSERIALPORTS,NUMSSCHANNELS)
-        print(RESOLVERS,PWMGENS,LEDS)
-        firmname = "~/mesa%d_discovered.xml"%boardnum
-        filename = os.path.expanduser(firmname)
-        DOC.writexml(open(filename, "w"), addindent="  ", newl="\n")
-        return DRIVER, BOARDNAME, firmname, filename
+                if 'MODULE: MUXEDQCOUNTSEL' in i:
+                    continue
+                if 'MODULE: MUXEDQCOUNT' in i:
+                    tline = lines[l_num+1].split(" ")
+                    MUXENCODERS = tline[4].lstrip()
+                    new = add_element(mod_ele,'module')
+                    add_text(new,'tagname','MUXEDQCOUNT')
+                    add_text(new,'numinstances',tline[4].lstrip())
+                if 'MODULE: SSERIAL' in i:
+                    tline = lines[l_num+1].split(" ")
+                    SSERIALPORTS = tline[4].lstrip()
+                    new = add_element(mod_ele,'module')
+                    add_text(new,'tagname','SSERIAL')
+                    add_text(new,'numinstances',tline[4].lstrip())
+                if 'MODULE: RESOLVERMOD' in i:
+                    tline = lines[l_num+1].split(" ")
+                    RESOLVER = tline[4].lstrip()
+                    new = add_element(mod_ele,'module')
+                    add_text(new,'tagname','RESOLVERMOD')
+                    add_text(new,'numinstances',tline[4].lstrip())
+                if 'MODULE: PWM' in i:
+                    tline = lines[l_num+1].split(" ")
+                    PWMGENS = tline[4].lstrip()
+                    new = add_element(mod_ele,'module')
+                    add_text(new,'tagname','PWMGEN')
+                    add_text(new,'numinstances',tline[4].lstrip())
+                if 'MODULE: TPPWM' in i:
+                    tline = lines[l_num+1].split(" ")
+                    TPPWMGENS = tline[4].lstrip()
+                    new = add_element(mod_ele,'module')
+                    add_text(new,'tagname','TPPWMGEN')
+                    add_text(new,'numinstances',tline[4].lstrip())
+                if 'MODULE: STEPGEN' in i:
+                    tline = lines[l_num+1].split(" ")
+                    STEPGENS = tline[4].lstrip()
+                    new = add_element(mod_ele,'module')
+                    add_text(new,'tagname','STEPGEN')
+                    add_text(new,'numinstances',tline[4].lstrip())
+                if 'MODULE: LED' in i:
+                    tline = lines[l_num+1].split(" ")
+                    LEDS = tline[4].lstrip()
+                    new = add_element(mod_ele,'module')
+                    add_text(new,'tagname','LED')
+                    add_text(new,'numinstances',tline[4].lstrip())
+                if 'MODULE: SSR' in i:
+                    tline = lines[l_num+1].split(" ")
+                    SSRS = tline[4].lstrip()
+                    new = add_element(mod_ele,'module')
+                    add_text(new,'tagname','SSR')
+                    add_text(new,'numinstances',tline[4].lstrip())
+                if 'MODULE: OUTM' in i:
+                    tline = lines[l_num+1].split(" ")
+                    OUTMS = tline[4].lstrip()
+                    new = add_element(mod_ele,'module')
+                    add_text(new,'tagname','OUTM')
+                    add_text(new,'numinstances',tline[4].lstrip())
+                if 'MODULE: INM' in i:
+                    tline = lines[l_num+1].split(" ")
+                    INMS = tline[4].lstrip()
+                    new = add_element(mod_ele,'module')
+                    add_text(new,'tagname','INM')
+                    add_text(new,'numinstances',tline[4].lstrip())
+                if 'IO CONNECTIONS FOR' in i:
+                    if pinsflag:
+                        n1 = add_element(ELEMENT,'pins')
+                        pinsflag = False
+                    CON = temp2[3]
+                    print(CON)
+                    for num in range(l_num+3,l_num+3+int(NUMCONPINS)):
+                        CHAN = PINFNCTN = ''
+                        pin_line = ' '.join(lines[num].split()).split()
+                        PINNO = pin_line[0]
+                        IO = pin_line[1]
+                        SECFNCTN = pin_line[3]
+                        n2 = add_element(n1,'pin')
+                        add_text(n2,'index',IO)
+                        add_text(n2,'connector',CON)
+                        add_text(n2,'pinno',PINNO)
+                        add_text(n2,'secondarymodulename',SECFNCTN)
+                        if not SECFNCTN == 'NONE':
+                            CHAN = pin_line[4]
+                            PINFNCTN = pin_line[5]
+                            if PINFNCTN in("TXDATA1","TXDATA2","TXDATA3",
+                                "TXDATA4","TXDATA5","TXDATA6","TXDATA7","TXDATA8"):
+                                num = int(PINFNCTN[6])-1
+                                print(num)
+                                for idnum,dev in sserial:
+                                    print(idnum,dev,num)
+                                    if int(idnum) == num:
+                                        NEW_FNCTN = '%s-%d'% (dev,num)
+                                        add_text(n2,'foundsserialdevice',NEW_FNCTN)
+                            add_text(n2,'secondaryfunctionname',PINFNCTN)
+                            add_text(n2,'secondaryinstance',CHAN)
+                        else:
+                            add_text(n2,'secondaryfunctionname','NOT USED')
+
+                        print('    I/O ',IO, ' function ',SECFNCTN,' CHANNEL:',CHAN,'PINFUNCTION:',PINFNCTN)
+
+            print('Sserial CARDS FOUND:',sserial)
+            print(NUMCONS,NUMCONPINS,ENCODERS,MUXENCODERS,SSERIALPORTS,NUMSSCHANNELS)
+            print(RESOLVERS,PWMGENS,LEDS,SSRS,OUTMS,INMS)
+            firmname = "~/mesa%d_discovered.xml"%boardnum
+            filename = os.path.expanduser(firmname)
+            DOC.writexml(open(filename, "w"), addindent="  ", newl="\n")
+            return DRIVER, BOARDNAME, firmname, filename
+        except:
+            #print('Invalid data in parse_discovery')
+            return None, None, None, None
 
     # update all the firmware/boardname arrays and comboboxes
     def discovery_selection_update(self, info, bdnum):
         driver, boardname, firmname, path = self.parse_discovery(info,boardnum=bdnum)
+        if not driver or not boardname or not firmname or not path:
+            text = ['Data is invalid:\n']
+            if self.widgets.discovery_read_option.get_active():
+                text.append(_('The pasted PIN file may be an invalid format'))
+            else:
+                text.append(_('The data returned from discovery is invalid'))
+            self.warning_dialog("\n".join(text),True)
+            return
         print(driver, boardname, firmname, path)
         boardname = 'Discovered:%s'% boardname
         firmdata = self.parse_xml( driver,boardname,firmname,path,bdnum)
@@ -2262,6 +2333,14 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                 elif pintype == _PD.SSR0:
                     ptypetree = self.d._ssrliststore
                     signaltocheck = _PD.hal_output_names
+                # type OUTM output
+                elif pintype == _PD.OUTM0:
+                    ptypetree = self.d._outmliststore
+                    signaltocheck = _PD.hal_output_names
+                # type INM input
+                elif pintype == _PD.INM0:
+                    ptypetree = self.d._inmliststore
+                    signaltocheck = _PD.hal_input_names
                 #type encoder
                 elif pintype in (_PD.ENCA,_PD.ENCB,_PD.ENCI,_PD.ENCM):
                     ptypetree = self.d._encoderliststore
@@ -2352,12 +2431,14 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                 widgetptype, index2 = ptypetree.get(ptiter,0,1)
                 #if not "serial" in p:
                 #    #print("ptypetree: ",widgetptype)
-                if pintype in (_PD.GPIOI,_PD.GPIOO,_PD.GPIOD,_PD.SSR0,_PD.MXE0,_PD.MXE1,_PD.RES1,_PD.RES2,_PD.RES3,_PD.RES4,_PD.RES5,_PD.RESU,_PD.SS7I76M0,
-                                _PD.SS7I76M2,_PD.SS7I76M3,_PD.SS7I77M0,_PD.SS7I77M1,_PD.SS7I77M3,_PD.SS7I77M4) or (index == 0):
+                if pintype in (_PD.GPIOI,_PD.GPIOO,_PD.GPIOD,_PD.SSR0,_PD.OUTM0,_PD.INM0,_PD.MXE0,_PD.MXE1,
+                               _PD.RES1,_PD.RES2,_PD.RES3,_PD.RES4,_PD.RES5,_PD.RESU,_PD.SS7I76M0,_PD.SS7I76M2,
+                               _PD.SS7I76M3,_PD.SS7I77M0,_PD.SS7I77M1,_PD.SS7I77M3,_PD.SS7I77M4) or (index == 0):
                     index2 = 0
-                elif pintype in ( _PD.TXDATA0,_PD.RXDATA0,_PD.TXEN0,_PD.TXDATA1,_PD.RXDATA1,_PD.TXEN1,_PD.TXDATA2,_PD.RXDATA2,
-                                   _PD.TXEN2,_PD.TXDATA3,_PD.RXDATA3,_PD.TXEN3,_PD.TXDATA4,_PD.RXDATA4,_PD.TXEN4,
-                                  _PD.TXDATA5,_PD.RXDATA5,_PD.TXEN5,_PD.TXDATA6,_PD.RXDATA6,_PD.TXEN6,_PD.TXDATA7,_PD.RXDATA7,_PD.TXEN7 ):
+                elif pintype in ( _PD.TXDATA0,_PD.RXDATA0,_PD.TXEN0,_PD.TXDATA1,_PD.RXDATA1,_PD.TXEN1,
+                                  _PD.TXDATA2,_PD.RXDATA2,_PD.TXEN2,_PD.TXDATA3,_PD.RXDATA3,_PD.TXEN3,
+                                  _PD.TXDATA4,_PD.RXDATA4,_PD.TXEN4,_PD.TXDATA5,_PD.RXDATA5,_PD.TXEN5,
+                                  _PD.TXDATA6,_PD.RXDATA6,_PD.TXEN6,_PD.TXDATA7,_PD.RXDATA7,_PD.TXEN7 ):
                     index2 = 0
                 #print(index,index2,signaltocheck[index+index2])
                 self.d[p] = signaltocheck[index+index2]
@@ -2990,7 +3071,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                 # check if firmptype is in GPIO family
                 # check if widget is already configured
                 # we now set everything in a known state.
-                if firmptype in (_PD.GPIOI,_PD.GPIOO,_PD.GPIOD,_PD.SSR0):
+                if firmptype in (_PD.GPIOI,_PD.GPIOO,_PD.GPIOD,_PD.SSR0,_PD.OUTM0,_PD.INM0):
                     if self.widgets[ptype].get_model():
                         widgettext = self.widgets[ptype].get_active_text()
                     else:
@@ -3013,14 +3094,14 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                             else:
                                 self.widgets[complabel].set_text("%02d:"%(concount*24+pin-24)) #sserial output
                     else:
-                        if firmptype == _PD.SSR0:
+                        if firmptype in (_PD.SSR0, _PD.OUTM0, _PD.INM0):
                             self.widgets[complabel].set_text("%02d:"%(compnum - 100))
                         else:
-                            self.widgets[complabel].set_text("%03d:"%(concount*ppc+pin))# mainboard GPIO
+                            self.widgets[complabel].set_text("%03d:"%(concount*ppc+pin))# mainboard GPIO or INM
 
                     if compnum >= 100 and widgettext == firmptype:
                         return
-                    elif not compnum >= 100 and (widgettext in (_PD.GPIOI,_PD.GPIOO,_PD.GPIOD)):
+                    elif compnum < 100 and (widgettext in (_PD.GPIOI,_PD.GPIOO,_PD.GPIOD)):
                         return
                     else:
                         #self.widgets[ptype].show()
@@ -3030,36 +3111,37 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                         self.widgets[ptype].set_sensitive(not compnum >= 100) # compnum = 100 means GPIO cannot be changed by user
                         if firmptype == _PD.SSR0:
                             self.widgets[ptype].set_model(self.d._ssrliststore)
+                        elif firmptype == _PD.OUTM0:
+                            self.widgets[ptype].set_model(self.d._outmliststore)
+                        elif firmptype == _PD.INM0:
+                            self.widgets[ptype].set_model(self.d._inmliststore)
                         else:
                             self.widgets[ptype].set_model(self.d._gpioliststore)
-                        if firmptype == _PD.GPIOI:
+                        if firmptype in (_PD.GPIOI, _PD.INM0):
                             # set pin treestore to gpioi signals
-                            if not self.widgets[p].get_model() == self.d._gpioisignaltree:
-                                self.widgets[p].set_model(self.d._gpioisignaltree)
-                                # set ptype gpioi
-                                self.widgets[ptype].set_active(0)
-                                # set p unused signal
-                                self.widgets[p].set_active(0)
-                                # set pinv unset
-                                self.widgets[pinv].set_active(False)
-                        elif firmptype == _PD.SSR0:
-                            if not self.widgets[p].get_model() == self.d._gpioosignaltree:
-                                self.widgets[p].set_model(self.d._gpioosignaltree)
-                                # set ptype gpioo
-                                self.widgets[ptype].set_active(0)
-                                # set p unused signal
-                                self.widgets[p].set_active(0)
-                                # set pinv unset
-                                self.widgets[pinv].set_active(False)
+                            self.widgets[p].set_model(self.d._gpioisignaltree)
+                            # set ptype gpioi
+                            self.widgets[ptype].set_active(0)
+                            # set p unused signal
+                            self.widgets[p].set_active(0)
+                            # set pinv unset
+                            self.widgets[pinv].set_active(False)
+                        elif firmptype in (_PD.SSR0, _PD.OUTM0):
+                            self.widgets[p].set_model(self.d._gpioosignaltree)
+                            # set ptype gpioo
+                            self.widgets[ptype].set_active(0)
+                            # set p unused signal
+                            self.widgets[p].set_active(0)
+                            # set pinv unset
+                            self.widgets[pinv].set_active(False)
                         else:
-                            if not self.widgets[p].get_model() == self.d._gpioosignaltree:
-                                self.widgets[p].set_model(self.d._gpioosignaltree)
-                                # set ptype gpioo
-                                self.widgets[ptype].set_active(1)
-                                # set p unused signal
-                                self.widgets[p].set_active(0)
-                                # set pinv unset
-                                self.widgets[pinv].set_active(False)
+                            self.widgets[p].set_model(self.d._gpioosignaltree)
+                            # set ptype gpioo
+                            self.widgets[ptype].set_active(1)
+                            # set p unused signal
+                            self.widgets[p].set_active(0)
+                            # set pinv unset
+                            self.widgets[pinv].set_active(False)
 
 
     def find_sig_name_iter(self,model, signal_name):
@@ -3135,7 +3217,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                 # type GPIO
                 # if compnum  = 100  then it means that the GPIO type can not
                 # be changed from what the firmware designates it as.
-                if widgetptype in (_PD.GPIOI,_PD.GPIOO,_PD.GPIOD,_PD.SSR0):
+                if widgetptype in (_PD.GPIOI,_PD.GPIOO,_PD.GPIOD,_PD.SSR0,_PD.OUTM0,_PD.INM0):
                         #print("data ptype index:",_PD.pintype_gpio.index(dataptype))
                         #self.debug_iter(0,p,"data to widget")
                         #self.debug_iter(0,ptype,"data to widget")
@@ -3143,20 +3225,21 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                         #print("compnum = ",compnum)
                         if compnum >= 100: dataptype = widgetptype
                         self.widgets[pinv].set_active(self.d[pinv])
-                        if widgetptype == _PD.SSR0:
+                        if widgetptype in (_PD.SSR0,_PD.OUTM0,_PD.INM0):
                             self.widgets[ptype].set_active(0)
                         else:
                             try:
                                 self.widgets[ptype].set_active( _PD.pintype_gpio.index(dataptype) )
                             except:
                                 self.widgets[ptype].set_active( _PD.pintype_gpio.index(widgetptype) )
-                        # if GPIOI or dataptype not in GPIO family force it GPIOI
-                        if dataptype == _PD.GPIOI or dataptype not in(_PD.GPIOO,_PD.GPIOI,_PD.GPIOD,_PD.SSR0):
+                        # if input family or not in output family force it to input
+                        if dataptype in (_PD.GPIOI,_PD.INM0) or dataptype not in \
+                                        (_PD.GPIOO,_PD.GPIOI,_PD.GPIOD,_PD.SSR0,_PD.OUTM0,_PD.INM0):
                             human = _PD.human_input_names
                             signal = _PD.hal_input_names
                             tree = self.d._gpioisignaltree
                         # signal names for GPIO OUTPUT and OPEN DRAIN OUTPUT
-                        elif dataptype in (_PD.GPIOO,_PD.GPIOD,_PD.SSR0):
+                        elif dataptype in (_PD.GPIOO,_PD.GPIOD,_PD.SSR0,_PD.OUTM0):
                             human = _PD.human_output_names
                             signal = _PD.hal_output_names
                             tree = self.d._gpioosignaltree
@@ -3443,7 +3526,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                                     _PD.PDMD,_PD.PDME,_PD.PWMD,_PD.PWME,_PD.UDMD,_PD.UDME,
                                     _PD.TPPWMB,_PD.TPPWMC,_PD.TPPWMAN,_PD.TPPWMBN,_PD.TPPWMCN,_PD.TPPWME,_PD.TPPWMF,
                                     _PD.RXDATA0,_PD.TXEN0,_PD.RXDATA1,_PD.TXEN1,_PD.RXDATA2,_PD.TXEN2,_PD.RXDATA3,_PD.TXEN3,
-                                    _PD.POTE,_PD.POTD, _PD.SSR0):
+                                    _PD.POTE,_PD.POTD, _PD.SSR0, _PD.OUTM0, _PD.INM0):
                     self.p.set_buttons_sensitive(1,1)
                     return
                 # for GPIO output
@@ -3699,8 +3782,9 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                 # This finds the pin type and component number of the pin that has changed
                 pinlist = []
                 # this components have no related pins - fake the list
-                if widgetptype in(_PD.GPIOI,_PD.GPIOO,_PD.GPIOD,_PD.SSR0,_PD.MXE0,_PD.MXE1,_PD.RES0,_PD.RES1,
-                                    _PD.RES2,_PD.RES3,_PD.RES4,_PD.RES5,_PD.AMP8I20,_PD.ANALOGIN):
+                if widgetptype in(_PD.GPIOI,_PD.GPIOO,_PD.GPIOD,_PD.SSR0,_PD.OUTM0,_PD.INM0,
+                                  _PD.MXE0,_PD.MXE1,_PD.RES0,_PD.RES1,_PD.RES2,_PD.RES3,
+                                  _PD.RES4,_PD.RES5,_PD.AMP8I20,_PD.ANALOGIN):
                     pinlist = [["%s"%p,boardnum,connector,channel,pin]]
                 else:
                     pinlist = self.list_related_pins(relatedsearch, boardnum, connector, channel, pin, 0)
@@ -5281,7 +5365,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
         halboardnum = 0
         if test == "None": return None
         elif 'mesa' in test:
-            type_name = { _PD.GPIOI:"gpio", _PD.GPIOO:"gpio", _PD.GPIOD:"gpio", _PD.SSR0:"ssr",
+            type_name = { _PD.GPIOI:"gpio",_PD.GPIOO:"gpio",_PD.GPIOD:"gpio",_PD.SSR0:"ssr",_PD.OUTM0:"outm",_PD.INM0:"inm",
                 _PD.ENCA:"encoder", _PD.ENCB:"encoder",_PD.ENCI:"encoder",_PD.ENCM:"encoder",
                 _PD.RES0:"resolver",_PD.RES1:"resolver",_PD.RES2:"resolver",_PD.RES3:"resolver",_PD.RES4:"resolver",_PD.RES5:"resolver",
                 _PD.MXE0:"encoder", _PD.MXE1:"encoder",
@@ -5322,7 +5406,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                     print("**** ERROR PNCCONF: pintype error in make_pinname: (sserial) ptype = ",ptype)
                     return None
                 # if gpionumber flag is true - convert to gpio pin name
-                if gpionumber or ptype in(_PD.GPIOI,_PD.GPIOO,_PD.GPIOD,_PD.SSR0):
+                if gpionumber or ptype in(_PD.GPIOI,_PD.GPIOO,_PD.GPIOD,_PD.SSR0,_PD.OUTM0,_PD.INM0):
                     if "7i77" in (subboardname) or "7i76" in(subboardname)or "7i84" in(subboardname):
                         if ptype in(_PD.GPIOO,_PD.GPIOD):
                             comptype = "output"
@@ -5386,11 +5470,17 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                     print("**** ERROR PNCCONF: pintype error in make_pinname: (mesa) ptype = ",ptype)
                     return None
                 # if gpionumber flag is true - convert to gpio pin name
-                if gpionumber or ptype in(_PD.GPIOI,_PD.GPIOO,_PD.GPIOD,_PD.SSR0):
-                    print('->',ptype,dummy,compnum,pin)
+                if gpionumber or ptype in(_PD.GPIOI,_PD.GPIOO,_PD.GPIOD,_PD.SSR0,_PD.OUTM0,_PD.INM0):
+                    #print('->',ptype,dummy,compnum,pin)
                     if ptype == _PD.SSR0:
                         compnum -= 100
                         return "%s."% (make_name(boardname,halboardnum)) + "ssr.00.out-%02d"% (compnum)
+                    elif ptype == _PD.OUTM0:
+                        compnum -= 100
+                        return "%s."% (make_name(boardname,halboardnum)) + "outm.00.out-%02d"% (compnum)
+                    elif ptype == _PD.INM0:
+                        compnum -= 100
+                        return "%s."% (make_name(boardname,halboardnum)) + "inm.00.input-%02d"% (compnum)
                     else:
                         compnum = int(pinnum)+(concount* num_of_pins )
                         return "%s."% (make_name(boardname,halboardnum)) + "gpio.%03d"% (compnum)

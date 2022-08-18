@@ -1,5 +1,3 @@
 #!/bin/bash
 
-linuxcnc -r lathe.ini
-exit $?
-
+exec linuxcnc -r lathe.ini

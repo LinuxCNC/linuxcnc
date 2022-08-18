@@ -1,5 +1,5 @@
 [Desktop Entry]
-Version=
+Version=1.0
 Type=Application
 Exec=@EMC2_LATENCY_SCRIPT@
 Icon=@EMC2_ICON@
@@ -8,4 +8,5 @@ Terminal=false
 Name=Latency Test@EMC2_SUFFIX@
 Comment=Determine your machine's latency
 StartupNotify=false
-Categories=Science;X-CNC;
+Categories=Science;Utility;Engineering;X-CNC-DOC;
+Keywords=cnc;linuxcnc;cncprog;benchmark;

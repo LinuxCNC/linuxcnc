@@ -22,7 +22,7 @@ import os                   # needed to get the paths and directories
 import hal_glib             # needed to make our own hal pins
 import gtk.glade
 import sys                  # handle system calls
-import linuxcnc             # to get our own error sytsem
+import linuxcnc             # to get our own error system
 import gladevcp
 import time
 import math
@@ -560,7 +560,7 @@ class ProbeScreenClass:
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found point
         s = "G1 X%f" % xres
         if self.gcode(s) == -1:
             return
@@ -589,7 +589,7 @@ class ProbeScreenClass:
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found point
         s = "G1 Y%f" % yres
         if self.gcode(s) == -1:
             return
@@ -618,7 +618,7 @@ class ProbeScreenClass:
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found point
         s = "G1 X%f" % xres
         if self.gcode(s) == -1:
             return
@@ -647,7 +647,7 @@ class ProbeScreenClass:
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found point
         s = "G1 Y%f" % yres
         if self.gcode(s) == -1:
             return
@@ -700,7 +700,7 @@ class ProbeScreenClass:
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found point
         s = "G1 X%f Y%f" % (xres,yres)
         if self.gcode(s) == -1:
             return
@@ -750,7 +750,7 @@ class ProbeScreenClass:
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found point
         s = "G1 X%f Y%f" % (xres,yres)
         if self.gcode(s) == -1:
             return
@@ -801,7 +801,7 @@ class ProbeScreenClass:
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found point
         s = "G1 X%f Y%f" % (xres,yres)
         if self.gcode(s) == -1:
             return
@@ -852,7 +852,7 @@ class ProbeScreenClass:
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found point
         s = "G1 X%f Y%f" % (xres,yres)
         if self.gcode(s) == -1:
             return
@@ -949,7 +949,7 @@ class ProbeScreenClass:
         ymres=float(a[1])-0.5*self.spbtn1_probe_diam.get_value()
         self.lb_probe_ym.set_text( "%.4f" % ymres )
         self.lenght_y()
-        # find, show and move to finded  point
+        # find, show and move to found point
         ycres=0.5*(ypres+ymres)
         self.lb_probe_yc.set_text( "%.4f" % ycres )
         diam=0.5*((xmres-xpres)+(ymres-ypres))
@@ -958,7 +958,7 @@ class ProbeScreenClass:
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found point
         s = "G1 Y%f" % ycres
         if self.gcode(s) == -1:
             return
@@ -1010,7 +1010,7 @@ class ProbeScreenClass:
         # move Z to start point
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found point
         s = "G1 X%f Y%f" % (xres,yres)
         if self.gcode(s) == -1:
             return
@@ -1056,7 +1056,7 @@ class ProbeScreenClass:
         # move Z to start point
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found point
         s = "G1 X%f Y%f" % (xres,yres)
         if self.gcode(s) == -1:
             return
@@ -1103,7 +1103,7 @@ class ProbeScreenClass:
         # move Z to start point
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found point
         s = "G1 X%f Y%f" % (xres,yres)
         if self.gcode(s) == -1:
             return
@@ -1149,7 +1149,7 @@ class ProbeScreenClass:
         # move Z to start point
         if self.z_clearance_up() == -1:
             return
-        # move to finded  point
+        # move to found point
         s = "G1 X%f Y%f" % (xres,yres)
         if self.gcode(s) == -1:
             return
@@ -1229,7 +1229,7 @@ class ProbeScreenClass:
         ypres=float(a[1])+0.5*self.spbtn1_probe_diam.get_value()
         self.lb_probe_yp.set_text( "%.4f" % ypres )
         self.lenght_y()
-        # find, show and move to finded  point
+        # find, show and move to found point
         ycres=0.5*(ymres+ypres)
         self.lb_probe_yc.set_text( "%.4f" % ycres )
         diam=0.5*((xpres-xmres)+(ypres-ymres))

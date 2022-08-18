@@ -25,5 +25,5 @@ Call only from within user or init/cleanup code, not from relatime tasks.
 
 .SH RETURN VALUE
 On success, returns a positive integer module ID, which is
-used for subsequent calls to hal and rtapi APIs.
+used for subsequent calls to HAL and rtapi APIs.
 On failure, returns a HAL error code.

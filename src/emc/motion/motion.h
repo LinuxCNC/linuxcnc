@@ -156,7 +156,7 @@ extern "C" {
 	EMCMOT_JOG_INCR,	/* incremental jog */
 	EMCMOT_JOG_ABS,		/* absolute jog */
 
-	EMCMOT_JOINT_ABORT,             /* abort one joint */
+	EMCMOT_JOG_ABORT,               /* abort one joint num or axis num */
 	EMCMOT_JOINT_ACTIVATE,          /* make joint active */
 	EMCMOT_JOINT_DEACTIVATE,        /* make joint inactive */
 	EMCMOT_JOINT_ENABLE_AMPLIFIER,  /* enable amp outputs */
@@ -564,7 +564,7 @@ Suggestion: Split this in to an Error and a Status flag register..
    memory, and it reports motion controller status to higher level
    code in user space.  For the most part, this structure contains
    higher level variables - low level stuff is made visible to the
-   HAL and troubleshooting, etc, is done using the HAL oscilliscope.
+   HAL and troubleshooting, etc, is done using the HAL oscilloscope.
 */
 
 /*! \todo FIXME - this struct is broken into two parts... at the top are

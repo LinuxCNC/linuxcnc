@@ -175,7 +175,7 @@ TOUCHY
 * Touchy was designed to be used with a touchscreen, some minimal physical switches and a MPG wheel.
 * requires cycle-start, abort, and single-step signals and buttons
 * It also requires shared axis MPG jogging to be selected.
-* is GTK based so integrates GLADE VCP (virtual control panels) naturally.
+* is GTK based so integrates GladeVCP (virtual control panels) naturally.
 * allows VCP panels integrated in the center Tab
 * has no graphical window
 * look can be changed with custom themes
@@ -270,7 +270,7 @@ VCP options::
 Virtual Control Panels allow one to add custom controls and displays to the
 screen. AXIS and Touchy can integrate these controls inside the screen in
 designated positions. There are two kinds of VCPs -
-pyVCP which uses 'Tkinter' to draw the screen and GLADE VCP that uses 'GTK' to
+PyVCP which uses 'Tkinter' to draw the screen and GladeVCP that uses 'GTK' to
 draw the screen.
 
 PyVCP::
@@ -292,21 +292,21 @@ You can use the geometry options to size and move the panel, for instance to
 move it to a second screen if the system is capable. If you press the 'Display
 sample panel' button the size and placement options will be honored.
 
-GLADE VCP::
-GLADE VCPs fit naturally inside of TOUCHY screen as they both use GTK to draw
-them, but by changing GLADE VCP's theme it can be made to blend pretty well in
+GladeVCP::
+GladeVCPs fit naturally inside of TOUCHY screen as they both use GTK to draw
+them, but by changing GladeVCP's theme it can be made to blend pretty well in
 AXIS (try Redmond).
 
 It uses a graphical editor to build its XML files.
 HAL pins are created for the user to connect to, inside of their custom HAL
 file.
 
-GLADE VCP also allows much more sophisticated (and complicated) programming
-interaction, which PnCconf currently doesn't leverage (see GLADE VCP in the
+GladeVCP also allows much more sophisticated (and complicated) programming
+interaction, which PnCconf currently doesn't leverage (see GladeVCP in the
 manual)
 
 PnCconf has sample panels for the user to use as-is or build on.
-With GLADE VCP PnCconf will allow you to select different options on your
+With GladeVCP PnCconf will allow you to select different options on your
 sample display.
 
 Under 'sample options' select which ones you would like.
@@ -326,7 +326,7 @@ the system is capable.
 You can select a GTK theme which sets the basic look and feel of the panel.
 You Usually want this to match the front-end screen.
 These options will be used if you press the 'Display sample button'.
-With GLADE VCP depending on the front-end screen, you can select where the panel will display.
+With GladeVCP depending on the front-end screen, you can select where the panel will display.
 
 You can force it to be stand-alone or with AXIS it can be in the center or on
 the right side, with Touchy it can be in the center.
@@ -373,11 +373,11 @@ If using Mesa daughter boards the docs for the board should give recommendations
 It's important to follow these to avoid damage and get the best performance.
 
 ....
-The 7i33 requires PDM and a PDM base frequency of 6 mHz
-The 7i29 requires PWM and a PWM base frequency of 20 Khz
-The 7i30 requires PWM and a PWM base frequency of 20 Khz
-The 7i40 requires PWM and a PWM base frequency of 50 Khz
-The 7i48 requires UDM and a PWM base frequency of 24 Khz
+The 7i33 requires PDM and a PDM base frequency of 6 MHz
+The 7i29 requires PWM and a PWM base frequency of 20 kHz
+The 7i30 requires PWM and a PWM base frequency of 20 kHz
+The 7i40 requires PWM and a PWM base frequency of 50 kHz
+The 7i48 requires UDM and a PWM base frequency of 24 kHz
 ....
 
 Watchdog time out:: is used to set how long the MESA board will wait before
@@ -580,7 +580,7 @@ On a typical lathe::
 * that is the positive Z direction
 * when the TOOL moves toward the operator
 * that is the positive X direction. Some lathes have X
-  opposite (eg tool on back side), that will work fine but
+  opposite (e.g., tool on back side), that will work fine but
   AXIS graphical display can not be made to reflect this.
 
 When using homing and / or limit switches
@@ -596,11 +596,11 @@ the home switch.
 Decide on limit switch location::
 
 Limit switches are the back up for software limits in case
-something electrical goes wrong eg. servo runaway.
+something electrical goes wrong, e.g., in case of a servo runaway.
 Limit switches should be placed so that the machine does not
 hit the physical end of the axis movement. Remember the axis
 will coast past the contact point if moving fast. Limit switches
-should be 'active low' on the machine. eg. power runs through
+should be 'active low' on the machine, i.e., power runs through
 the switches all the time - a loss of power (open switch) trips.
 While one could wire them the other way, this is fail safe.
 This may need to be inverted so that the HAL signal in LinuxCNC
@@ -617,7 +617,7 @@ home switch. A separate home switch is useful if you have a long
 axis that in use is usually a long way from the limit switches or
 moving the axis to the ends presents problems of interference
 with material.
-eg a long shaft in a lathe makes it hard to home to limits with out
+Note, a long shaft in a lathe makes it hard to home to limits with out
 the tool hitting the shaft, so a separate home switch closer to the
 middle may be better.
 If you have an encoder with index then the home switch acts as a
@@ -628,9 +628,9 @@ Decide on the MACHINE ORIGIN position::
 MACHINE ORIGIN is what LinuxCNC uses to reference all user coordinate
 systems from.
 I can think of little reason it would need to be in any particular
-spot. There are only a few G codes that can access the
+spot. There are only a few G-codes that can access the
 MACHINE COORDINATE system.( G53, G30 and G28 )
-If using tool-change-at-G30 option having the Origin at the tool
+If using tool-change-at-G30 option having the origin at the tool
 change position may be convenient. By convention, it may be easiest
 to have the ORIGIN at the home switch.
 
@@ -709,8 +709,8 @@ Course home search velocity in units per minute.
 
 Home Search Direction::
 Sets the home switch search direction
-either negative (ie. towards negative limit switch)
-or positive (ie. towards positive limit switch).
+either negative (i.e., towards negative limit switch)
+or positive (i.e., towards positive limit switch).
 
 Home Latch Velocity::
 Fine Home search velocity in units per minute.
@@ -730,12 +730,12 @@ the latch stage of homing.
 Use Compensation File::
 Allows specifying a Comp filename and type.
 Allows sophisticated compensation. See <<sub:ini:sec:axis-letter,AXIS Section>>
-of the INI Chapter.
+of the INI chapter.
 
 Use Backlash Compensation::
 Allows setting of simple backlash compensation. Can
 not be used with Compensation File. See <<sub:ini:sec:axis-letter,AXIS Section>>
-of the INI Chapter.
+of the INI chapter.
 
 .AXIS Help Diagram
 image::images/pncconf-diagram-lathe.png["AXIS Help Diagram"]
@@ -791,20 +791,20 @@ There are some differences:
 
 == Advanced Options
 
-This allows setting of HALUI commands and loading of classicladder and sample
+This allows setting of HALUI commands and loading of ClassicLadder and sample
 ladder programs.
-If you selected GLADE VCP options such as for zeroing axis, there will be
+If you selected GladeVCP options such as for zeroing axis, there will be
 commands showing.
 See the <<cha:hal-user-interface,HALUI Chapter>> for more info on using custom
 halcmds.
 There are several ladder program options.
 The Estop program allows an external ESTOP switch or the GUI frontend to throw
 an Estop. It also has a timed lube pump signal.
-The Z auto touch-off is with a touch-off plate, the GLADE VCP touch-off button
+The Z auto touch-off is with a touch-off plate, the GladeVCP touch-off button
 and special HALUI commands to set the current user origin to zero and rapid
 clear.
 The serial modbus program is basically a blank template program that sets up
-classicladder for serial modbus. See the << cha:classicladder,Classicladder Chapter >>
+ClassicLadder for serial modbus. See the << cha:classicladder,Classicladder Chapter >>
 in the manual.
 
 .PnCConf, advanced options
@@ -916,7 +916,7 @@ There are four custom files that you can use to add HAL commands to:
   loads. It is run after the configuration-named HAL file.
 * custom_postgui.hal is for commands that must be run after AXIS loads or a
   standalone PyVCP display loads.
-* custom_gvcp.hal is for commands that must be run after glade VCP is loaded.
+* custom_gvcp.hal is for commands that must be run after GladeVCP is loaded.
 * shutdown.hal is for commands to run when LinuxCNC shuts down in a controlled manner.
 
 // vim: set syntax=asciidoc:

@@ -770,7 +770,7 @@ struct setup
   int value_returned;                // the last NGC procedure did/did not return a value
   int call_level;                    // current subroutine level
   context sub_context[INTERP_SUB_ROUTINE_LEVELS];
-  int call_state;                  //  enum call_states - inidicate Py handler reexecution
+  int call_state;                  //  enum call_states - indicate Py handler reexecution
   offset_map_type offset_map;      // store label x name, file, line
 
   bool adaptive_feed;              // adaptive feed is enabled

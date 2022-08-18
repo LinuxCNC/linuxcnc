@@ -1246,6 +1246,16 @@ proc usage {} {
   exit 0
 }
 
+# Loading the settings from the file.
+# This overrides the default settings above.
+readIni
+if {$::ratio == 0} {
+    hideListview false
+}
+if {$::workmode == "watchhal"} {
+    $::nb raise pw  
+}
+
 if {[llength $::argv] > 0} {
   set idx 0
   while {$idx < [llength $::argv]} {
@@ -1278,15 +1288,6 @@ if {[llength $::argv] > 0} {
    }
 }
 
-# Loading the settings from the file.
-# This overrides the default settings above.
-readIni
-if {$::ratio == 0} {
-    hideListview false
-}
-if {$::workmode == "watchhal"} {
-    $::nb raise pw  
-}
 wm attributes . -topmost $::alwaysOnTop
 tkwait visibility .
 set ::initPhase false

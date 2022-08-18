@@ -23,7 +23,7 @@
 *		optional DAC or digital outs installed.
 *               timestamp works the same way, for UPC boards of rev 4
 *               or higher that have the timestamp feature.
-*               enc_clock specifes a 3-digit hex value, where the 1st is a
+*               enc_clock specifies a 3-digit hex value, where the 1st is a
 *               code of 1,2, 5 or 10 to indicate an encoder clock rate of 1, 2.5, 5 or 10 MHz.
 *               The following 2 digits work as above, bus and board address.
 *               Only rev 4 and above PPMC encoder boards have this clock select feature.
@@ -140,7 +140,7 @@ RTAPI_MP_ARRAY_INT(epp_dir, MAX_BUS, "EPP is commanded port direction");
                                 /* only available with rev 2 and above FPGA config */
 #define ENCLOAD     0x00	/* EPP address to write into first byte of preset */
 				/* register for channels 0 - 3 */
-// following regs for new UPC with encoder count timesamp feature
+// following regs for new UPC with encoder count timestamp feature
 #define ENCTS       0x10        /* timestamp low byte for axis 0 */
 #define ENCTS1      0x11        /* timestamp high byte for axis 0 */
 #define ENCTB       0x18        /* timebase low byte */

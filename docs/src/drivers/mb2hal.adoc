@@ -147,7 +147,7 @@ could become `mb2hal.plcin.01`. The name must not exceed 28 characters.
 *NOTE:* when using names be careful that
 you don't end up with two transactions using the same name.
 |`MAX_UPDATE_RATE`| Float | No | Maximum update rate in Hz. Defaults to
-0.0 (0.0 = as soon as available = infinit).
+0.0 (0.0 = as soon as available = infinite).
 *NOTE:* This is a maximum rate and the actual rate may be lower. If you
 want to calculate it in ms use (1000 / required_ms).
 Example: 100 ms = `MAX_UPDATE_RATE=10.0`,

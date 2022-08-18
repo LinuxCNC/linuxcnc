@@ -60,11 +60,10 @@ class App(QWidget):
             response.setText(msg)
             response.exec_()
             raise SystemExit
-        if os.path.isfile('/usr/share/linuxcnc/linuxcncicon.png'):
-            self.windowIcon = QIcon('/usr/share/linuxcnc/linuxcncicon.png')
-            self.setWindowIcon(self.windowIcon)
-        else:
-            self.windowIcon = None
+        iconPath = 'share/qtvcp/images/qtplasmac/images/Chips_Plasma.png'
+        appPath = os.path.realpath(os.path.dirname(sys.argv[0]))
+        iconBase = '/usr' if appPath == '/bin' else appPath.replace('/bin', '')
+        self.setWindowIcon(QIcon(os.path.join(iconBase, iconPath)))
         self.setWindowTitle('Powermax Communicator')
         qtRectangle = self.frameGeometry()
         centerPoint = QDesktopWidget().availableGeometry().center()
@@ -116,7 +115,7 @@ class App(QWidget):
                 pass
             result = self.dialog_ok(
                         QMessageBox.Warning,\
-                        'ERROR',\
+                        'Error',\
                         '\nCommunications device lost.\n'\
                         '\nA Port Scan is required.\n')
         if self.connected:
@@ -180,7 +179,7 @@ class App(QWidget):
                     self.usePanel.setChecked(True)
                     result = self.dialog_ok(
                                 QMessageBox.Warning,\
-                                'ERROR',\
+                                'Error',\
                                 '\nNo reply while writing to plasma unit.\n'\
                                 '\nCheck connections and retry when ready.\n')
                     return False
@@ -199,7 +198,7 @@ class App(QWidget):
             self.connected = False
             self.usePanel.setChecked(True)
             result = self.dialog_ok(QMessageBox.Warning,\
-                        'ERROR',\
+                        'Error',\
                         '\nNo reply while reading from plasma unit.\n'\
                         '\nCheck connections and retry when ready.\n')
             return None
@@ -300,7 +299,7 @@ class App(QWidget):
             if self.currentSet.value() == 0:
                 result = self.dialog_ok(
                         QMessageBox.Warning,\
-                        'ERROR',\
+                        'Error',\
                         '\nA value is required for Current.\n')
                 if result:
                     self.usePanel.setEnabled(True)
@@ -375,7 +374,7 @@ class App(QWidget):
         except:
             result = self.dialog_ok(
                     QMessageBox.Warning,\
-                    'ERROR',\
+                    'Error',\
                     '\nCould not open {}\n'.format(self.portName.currentText()))
             return
         self.usePanel.setEnabled(True)

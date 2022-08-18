@@ -678,10 +678,10 @@ static int strip_comments ( char *buf )
 
 */
 static int strlimcpy(char **dest, char *src, int srclen, int *destspace) {
-    if (*destspace < srclen) {
+    if (*destspace < srclen+1) {
 	return -1;
     } else {
-	strncpy(*dest, src, srclen);
+	strncpy(*dest, src, *destspace);
 	(*dest)[srclen] = '\0';
 	srclen = strlen(*dest);		/* use the actual number of bytes copied */
 	*destspace -= srclen;

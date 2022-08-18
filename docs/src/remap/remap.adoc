@@ -416,7 +416,7 @@ any extra parameters present.
 Note that RS274NGC rules still apply - for instance you may use axis
 words (eg X,Y,Z) only in the context of a G-code.
 
-`ABCDEFGHIJKMPQRSTUVWXYZ`::
+`ABCDEFHIJKPQRSTUVWXYZ`::
   Defines a required word parameter: an uppercase letter specifies that
   the corresponding word *must*
   be present in the current block. The word`s value will be
@@ -425,7 +425,7 @@ words (eg X,Y,Z) only in the context of a G-code.
   present in the argspec, it will be passed as positional
   parameter, see below.
 
-`abcdefghijkmpqrstuvwxyz`::
+`abcdefhijkpqrstuvwxyz`::
   Defines an optional word parameter: a lowercase letter specifies that
   the corresponding word *may* be present in the current block.
   If the word is present, the word's value will be
@@ -2314,43 +2314,43 @@ All M-codes from `M200` to `M999` are available for remapping.
 
 === readahead time and execution time
 
-foo
+FIXME Write missing information
 
 === plugin/pickle hack
 
-foo
+FIXME Write missing information
 
 === Module, methods, classes, etc reference
 
-foo
+FIXME Write missing information
 
 == Introduction: Extending Task Execution
 
-foo
+FIXME Write missing information
 
 === Why would you want to change Task Execution?
 
-foo
+FIXME Write missing information
 
 === A diagram: task, interp, iocontrol, UI (??)
 
-foo
+FIXME Write missing information
 
 == Models of Task execution
 
-foo
+FIXME Write missing information
 
 === Traditional iocontrol/iocontrolv2 execution
 
-foo
+FIXME Write missing information
 
 === Redefining IO procedures
 
-foo
+FIXME Write missing information
 
 === Execution-time Python procedures
 
-foo
+FIXME Write missing information
 
 // setup examples
 

@@ -76,7 +76,6 @@ def import_ZMQ():
 class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(ScreenOptions, self).__init__(parent)
-        self.error = linuxcnc.error_channel()
         self.catch_errors = True
         self.desktop_notify = True
         self.notify_max_msgs = 10
@@ -317,7 +316,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
     def on_periodic(self, w):
         try:
-            e = self.error.poll()
+            e = STATUS.poll_error()
             if e:
                 kind, text = e
                 STATUS.emit('error',kind,text)
@@ -391,21 +390,25 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             # system shutdown
             HANDLER = self.QTVCP_INSTANCE_.handler_instance
             if answer == QtWidgets.QMessageBox.DestructiveRole:
+                self.QTVCP_INSTANCE_.settings.sync()
+                self.QTVCP_INSTANCE_.shutdown()
+                self.QTVCP_INSTANCE_.panel_.shutdown()
+                STATUS.shutdown()
                 if 'system_shutdown_request__' in dir(HANDLER):
                     HANDLER.system_shutdown_request__()
                 else:
                     from qtvcp.core import Action
                     ACTION = Action()
                     ACTION.SHUT_SYSTEM_DOWN_PROMPT()
-                if '_hal_cleanup' in dir(HANDLER):
-                    HANDLER._hal_cleanup()
                 event.accept()
             # close linuxcnc
             elif answer:
                 if self.PREFS_ and self.play_sounds and self.shutdown_play_sound:
                     STATUS.emit('play-sound', self.shutdown_exit_sound_type)
-                if '_hal_cleanup' in dir(HANDLER):
-                    HANDLER._hal_cleanup()
+                self.QTVCP_INSTANCE_.settings.sync()
+                self.QTVCP_INSTANCE_.shutdown()
+                self.QTVCP_INSTANCE_.panel_.shutdown()
+                STATUS.shutdown()
                 event.accept()
             # cancel
             elif answer == False:

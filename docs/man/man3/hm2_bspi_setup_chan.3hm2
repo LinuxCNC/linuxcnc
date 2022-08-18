@@ -39,8 +39,8 @@ handling. (values 32 and below require no special handling)
 
 .IP mhz
 sets the chip communication rate. The maximum value for this is 
-half the FPGA base frequency, so for example with a 48MHz 5i23 the max SPI 
-frequency is 24Mhz. Values in excess of the max supported will be silently 
+half the FPGA base frequency, so for example with a 48 MHz 5i23 the max SPI 
+frequency is 24 MHz. Values in excess of the max supported will be silently 
 rounded down.
 
 .IP delay

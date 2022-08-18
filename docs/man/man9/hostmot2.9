@@ -86,8 +86,8 @@ For example, if your control computer has one 5i20 and one 5i23 you
 might load the hm2_pci driver with a HAL command (in halcmd) something
 like this:
 
-.B
 .nf
+.B
 loadrt hm2_pci config="firmware=hm2/5i20/SVST8_4.BIT num_encoders=3 num_pwmgens=3 num_stepgens=3,firmware=hm2/5i23/SVSS8_8.BIT sserial_port_0=0000 num_encoders=4"
 .fi
 
@@ -217,7 +217,7 @@ board. These are arranged in 1-4 ports of 1 to 8 channels.
 for example all inputs, or all outputs, or offering additional analogue input on
 some digital pins.
  To set the modes for port 0 use, for example \fBsserial_port_0=0120xxxx\fR
- A '0'in the string sets the corresponding port to mode 0, 1 to mode 1, and so
+ A "0" in the string sets the corresponding port to mode 0, 1 to mode 1, and so
 on up to mode 9. An "x" in any position disables that channel and makes the
 corresponding FPGA pins available as GPIO. 
  The string can be up to 8 characters long, and if it defines more
@@ -276,7 +276,7 @@ maximum variation between read times.  \-100 will suffice for most systems, and
 
 For serial encoders, the value also needs to include the time it takes to
 transfer the absolute encoder position.  For instance, if 50 bits must be read
-at 500kHz then subtract an additional 50/500kHz = 100uS to get a starting value
+at 500 kHz then subtract an additional 50/500 kHz = 100 µs to get a starting value
 of \-200.
 
 The xy2mod uses 2 DPLL timers, one for read and one for write. The read timer value
@@ -433,7 +433,7 @@ Parameters:
 
 .TP
 (float r/w) scale
-Converts from 'count' units to 'position' units.
+Converts from "count" units to "position" units.
 
 .TP
 (bit r/w) index\-invert
@@ -630,7 +630,7 @@ e: (Encoder):
  (float, r/w) hm2_XXXX.N.ssi.MM.<name>.scale: (float, r.w) The encoder scale in
 counts per machine unit.
  (u32, r/w) hm2_XXXX.N.ssi.MM.<name>.counts\-per\-rev (u32, r/w) Used to emulate
-the index behaviour of an incemental+index encoder. This would normally be set
+the index behaviour of an incremental+index encoder. This would normally be set
 to the actual counts per rev of the encoder, but can be any whole number of
 revs. Integer divisors or multipliers of the true PPR might be useful for 
 index-homing. Non-integer factors might be appropriate where there is a 
@@ -718,7 +718,7 @@ counts per rev (16777216 counts).
 .TP
 (s32, out) rawcounts
 This is identical to the counts pin, except it is not
-reset by the 'index' or 'reset' pins. This is the pin which would be linked to
+reset by the "index" or "reset" pins. This is the pin which would be linked to
 the bldc HAL component if the resolver was being used to commutate a motor.
 
 .TP
@@ -780,7 +780,7 @@ It is not appropriate to use this parameter for index-homing of axis drives.
 This pin sets the excitation frequency for
 the resolver. This pin is module-level rather than instance-level as all
 resolvers share the same excitation frequency.
- Valid values are 10 (~10kHz), 5 (~5kHz) and 2.5 (~2.5kHz). The
+ Valid values are 10 (~10 kHz), 5 (~5 kHz) and 2.5 (~2.5 kHz). The
 actual frequency depends on the FPGA frequency, and they correspond to 
 CLOCK_LOW/5000, CLOCK_LOW/10000 and CLOCK_LOW/20000 respectively. 
 The parameter will be set to the closest available of the three frequencies.
@@ -798,7 +798,7 @@ In conjunction with \fBjoint-pos-fb\fR (qv) emulate absolute encoders.
 pwmgens have names like
 "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.pwmgen.\fI<Instance>\fR".
 "Instance" is a two-digit number that corresponds to the HostMot2 pwmgen
-instance number.  There are 'num_pwmgens' instances, starting with 00.
+instance number.  There are "num_pwmgens" instances, starting with 00.
 
 So, for example, the HAL pin that enables output from the fourth pwmgen
 of the first 7i43 board is: hm2_7i43.0.pwmgen.03.enable (this assumes
@@ -819,7 +819,7 @@ Pins:
 .TP
 (bit input) enable
 If True, the pwmgen will set its Not\-Enable pin
-False and output its pulses.  If 'enable' is False, pwmgen will set its
+False and output its pulses.  If "enable" is False, pwmgen will set its
 Not\-Enable pin True and not output any signals.
 
 .TP
@@ -830,7 +830,7 @@ Parameters:
 
 .TP
 (float rw) scale
-Scaling factor to convert 'value' from arbitrary units
+Scaling factor to convert "value" from arbitrary units
 to duty cycle: dc = value / scale.  Duty cycle has an effective range
 of \-1.0 to +1.0 inclusive, anything outside that range gets clipped.
 The default scale is 1.0.
@@ -882,7 +882,7 @@ to 50% results in a 1 MHz square wave, identical to a 1 MHz PWM signal
 with 50% duty cycle.  The effective range of this parameter is from
 about 1525 Hz up to just under 200 MHz.  Note that the max frequency
 is determined by the ClockHigh frequency of the Anything IO board; the
-5i25 and 7i92 both have a 100 MHz clock, resulting in a 100 Mhz max
+5i25 and 7i92 both have a 100 MHz clock, resulting in a 100 MHz max
 PDM frequency.  Other boards may have different clocks, resulting in
 different max PDM frequencies.  If the user attempts to set the frequency
 too high, it will be clipped to the max supported frequency of the board.
@@ -963,8 +963,8 @@ that affects all instances
 
 .TP
 (u32 rw) frequency
-Sets the master PWM frequency. Maximum is approx 48kHz, minimum
-is 1kHz. Defaults to 20kHz.
+Sets the master PWM frequency. Maximum is approx 48 kHz, minimum
+is 1 kHz. Defaults to 20 kHz.
 
 .SS rcpwmgen
 The rcpwmgen is a simple PWM generator optimized for use with standard RC servos
@@ -980,7 +980,7 @@ Pins:
 
 .TP
 (float rw) rate
-Sets the master  RC PWM frequency. Maximum is 1 KHz, minimum
+Sets the master  RC PWM frequency. Maximum is 1 kHz, minimum
 is .01 Hz. Defaults to 50 Hz.
 
 .TP
@@ -1004,7 +1004,7 @@ scale in degrees for 1-2 mS servos with a full motion range of 90 degrees
 stepgens have names like
 "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.stepgen.\fI<Instance>\fR".
 "Instance" is a two-digit number that corresponds to the HostMot2 stepgen
-instance number.  There are 'num_stepgens' instances, starting with 00.
+instance number.  There are "num_stepgens" instances, starting with 00.
 
 So, for example, the HAL pin that has the current position
 feedback from the first stepgen of the second 5i22 board is:
@@ -1118,7 +1118,7 @@ Maximum acceleration, in position units per second
 per second.  Defaults to 1.0.  If set to 0, the driver will not limit its
 acceleration at all - this requires that the position\-cmd or velocity\-cmd
 pin is driven in a way that does not exceed the machine's capabilities.
-This is probably what you want if you're going to be using the LinuxCNC
+This is probably what you want if you are going to be using the LinuxCNC
 trajectory planner to jog or run G-code.
 
 .TP
@@ -1195,7 +1195,7 @@ reduces following errors.
 .SS Smart Serial Interface
 
 The Smart Serial Interface allows up to 32 different devices such as the Mesa
-8i20 2.2kW 3-phase drive or 7i64 48-way IO cards to be connected to a single
+8i20 2.2 kW 3-phase drive or 7i64 48-way IO cards to be connected to a single
 FPGA card.
 The driver auto-detects the connected hardware port, channel and device type.
 Devices can be connected in any order to any active channel of an active port.
@@ -1244,7 +1244,7 @@ and have a restricted HAL interface.
 GPIOs have names like "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.gpio.\fI<IONum>\fR".
 IONum is a three-digit number.  The mapping from IONum to connector and
 pin-on-that-connector is written to the syslog when the driver loads,
-and it's documented in Mesa's manual for the Anything I/O boards.
+and it is documented in Mesa's manual for the Anything I/O boards.
 
 So, for example, the HAL pin that has the current inverted input value
 read from GPIO 012 of the second 7i43 board is: hm2_7i43.1.gpio.012.in\-not
@@ -1338,7 +1338,7 @@ inms have names like
 "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.inm.\fI<Instance>\fR".
 inmuxes have names like "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.inmux.\fI<Instance>\fR".
 "Instance" is a two-digit number that corresponds to the HostMot2 inm or inmux
-instance number.  There are 'num_inms' or numx_inmuxs" instances, starting
+instance number.  There are "num_inms" or numx_inmuxs" instances, starting
 with 00.
 
 Each instance reads between 8 and 32 input pins. inm and inmux are identical except
@@ -1374,20 +1374,20 @@ Parameters:
 
 .TP
 (u32 in) scan_rate
-This sets the input scan rate in Hz. Default scan rate is 20 KHz
-(50 uS scan period).
+This sets the input scan rate in Hz. Default scan rate is 20 kHz
+(50 µs scan period).
 
 .TP
 (u32 in) fast_scans
 This sets the fast time constant for all input pins. This is the time constant 
 used when the input-slow pin for the corresponding input is False. The range is 0 to 
-63 scan periods and the default value is 5 = 250 uS at the default 20 Khz scan_rate.
+63 scan periods and the default value is 5 = 250 µs at the default 20 kHz scan_rate.
 
 .TP
 (u32 in) slow_scans
 This sets the slow time constant for all input pins. This is the time constant 
 used when the input-slow pin for the corresponding input is True. The range is 0 to 1023
-scan periods and the default value is 500 = 25 mS at the default 20 Khz scan_rate.
+scan periods and the default value is 500 = 25 ms at the default 20 kHz scan_rate.
 
 .TP
 (bit in) enc0_4xmode, enc1_4xmode, enc2_4xmode, and enc3_4xmode
@@ -1416,7 +1416,7 @@ the LED.
 SSRs have names like
 "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.ssr.\fI<Instance>\fR".
 "Instance" is a two-digit number that corresponds to the HostMot2 SSR
-instance number.  There are 'num_ssrs' instances, starting
+instance number.  There are "num_ssrs" instances, starting
 with 00.
 
 Each instance has a rate control pin and between 1 and 32 output pins.
@@ -1448,7 +1448,7 @@ pin is 0 and open when the out-NN pin is 1
 OutMs have names like
 "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.OutM.\fI<Instance>\fR".
 "Instance" is a two-digit number that corresponds to the HostMot2 OutM
-instance number.  There are 'num_outms' instances, starting
+instance number.  There are "num_outms" instances, starting
 with 00.
 
 Each instance has between 1 and 32 output pins.

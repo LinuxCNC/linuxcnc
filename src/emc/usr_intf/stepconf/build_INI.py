@@ -64,10 +64,6 @@ class INI:
         # will try to update for joints_axes if no VERSION is set
         print("VERSION = 1.1", file=file)
 
-        # write the qtplasmac section
-        if self.d.select_qtplasmac:
-            self.write_qtplasmac_section(file)
-
         print(file=file)
         print("[DISPLAY]", file=file)
         if self.d.select_axis:
@@ -391,38 +387,6 @@ class INI:
             return abs(.95 * 1e9 / self.d.ideal_period() / scale)
         else:
             return abs(.95 * .5 * 1e9 / self.d.ideal_period() / scale)
-
-    # write the qtplasmac section
-    def write_qtplasmac_section(self, file):
-        print(file=file)
-        print("[QTPLASMAC]", file=file)
-        print("# set the operating mode (default is 0)", file=file)
-        print("MODE = {}".format(self.d.qtplasmacmode), file=file)
-        print("# set the estop type (0=indicator, 1=hidden, 2=button)", file=file)
-        print("ESTOP_TYPE = {}".format(self.d.qtplasmacestop), file=file)
-        print(_("# set the dro position ('top' or 'bottom')"), file=file)
-        dro = 'top' if self.d.qtplasmacdro else 'bottom'
-        print("DRO_POSITION = {}".format(dro), file=file)
-        print(_("# error message flash (0=no, 1=yes)"), file=file)
-        print("FLASH_ERROR = {}".format(self.d.qtplasmacerror), file=file)
-        print(_("# hide buttons (0=no, 1=yes)"), file=file)
-        print("HIDE_RUN = {}".format(self.d.qtplasmacstart), file=file)
-        print("HIDE_PAUSE = {}".format(self.d.qtplasmacpause), file=file)
-        print("HIDE_ABORT = {}".format(self.d.qtplasmacstop), file=file)
-        print("# laser touchoff", file=file)
-        print("#LASER_TOUCHOFF = X0.0 Y0.0", file=file)
-        print("# camera touchoff", file=file)
-        print("#CAMERA_TOUCHOFF = X0.0 Y0.0 ", file=file)
-        print("# powermax communications", file=file)
-        if self.d.qtplasmacpmx:
-            print("PM_PORT = {}".format(self.d.qtplasmacpmx), file=file)
-        else:
-            print("#PM_PORT = /dev/ttyUSB0", file=file)
-        print("# user buttons", file=file)
-        for ub in range(1, 21):
-            if self.d.qtplasmac_bnames[ub-1]:
-                print("BUTTON_{}_NAME = {}".format(ub ,self.d.qtplasmac_bnames[ub-1]), file=file)
-                print("BUTTON_{}_CODE = {}".format(ub ,self.d.qtplasmac_bcodes[ub-1]), file=file)
 
     # Boiler code
     def __getitem__(self, item):

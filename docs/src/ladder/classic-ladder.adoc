@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:cl-programming]]
-= Classic Ladder Programming(((Classic Ladder Programming,CL Programming)))
+= ClassicLadder Programming(((ClassicLadder Programming,CL Programming)))
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -12,7 +12,7 @@
 
 == Ladder Concepts
 
-Classic Ladder is a type of programming language originally
+ClassicLadder is a type of programming language originally
 implemented on industrial PLCs (it's called Ladder Programming). It is
 based on the concept of relay contacts and coils, and can be used to
 construct logic checks and functions in a manner that is familiar to
@@ -40,20 +40,20 @@ output is set to.
 
 == Languages
 
-The most common language used when working with Classic Ladder is
-'ladder'. Classic Ladder also supports Sequential Function Chart
+The most common language used when working with ClassicLadder is
+'ladder'. ClassicLadder also supports Sequential Function Chart
 (Grafcet).
 
 == Components
 
-There are two components to Classic Ladder.
+There are two components to ClassicLadder.
 
 * The real time module classicladder_rt
 * The user space module (including a GUI) classicladder
 
 === Files
 
-Typically classic ladder components are placed in the custom.hal file
+Typically ClassicLadder components are placed in the custom.hal file
 if your working from a Stepconf generated configuration. These must not
 be placed in the custom_postgui.hal file or the Ladder Editor menu will
 be grayed out.
@@ -62,11 +62,11 @@ NOTE: Ladder files (.clp) must not contain any blank spaces in the name.
 
 === Realtime Module
 
-Loading the Classic Ladder real time module (classicladder_rt) is
+Loading the ClassicLadder real time module (classicladder_rt) is
 possible from a HAL file, or directly using a halcmd instruction. The
-first line loads real time the Classic Ladder module. The second line
+first line loads real time the ClassicLadder module. The second line
 adds the function classicladder.0.refresh to the servo thread. This
-line makes Classic Ladder update at the servo thread rate.
+line makes ClassicLadder update at the servo thread rate.
 
 [source,{hal}]
 ----
@@ -74,13 +74,13 @@ loadrt classicladder_rt
 addf classicladder.0.refresh servo-thread
 ----
 
-The speed of the thread that Classic Ladder is running in directly
+The speed of the thread that ClassicLadder is running in directly
 affects the responsiveness to inputs and outputs. If you can turn a
-switch on and off faster than Classic Ladder can notice it then you may
-need to speed up the thread. The fastest that Classic Ladder can update
+switch on and off faster than ClassicLadder can notice it then you may
+need to speed up the thread. The fastest that ClassicLadder can update
 the rungs is one millisecond. You can put it in a faster thread but it
 will not update any faster. If you put it in a slower than one
-millisecond thread then Classic Ladder will update the rungs slower.
+millisecond thread then ClassicLadder will update the rungs slower.
 The current scan time will be displayed on the section display, it is
 rounded to microseconds. If the scan time is longer than one
 millisecond you may want to shorten the ladder or put it in a slower
@@ -89,8 +89,8 @@ thread.
 === Variables
 
 It is possible to configure the number of each type of ladder object
-while loading the Classic Ladder real time module. If you do not
-configure the number of ladder objects Classic Ladder will use the
+while loading the ClassicLadder real time module. If you do not
+configure the number of ladder objects ClassicLadder will use the
 default values.
 
 [[cap:default-variable-count]]
@@ -142,11 +142,11 @@ To load the default number of objects:
 loadrt classicladder_rt
 ----
 
-== Loading the Classic Ladder user module
+== Loading the ClassicLadder user module
 
-Classic Ladder HAL commands must executed before the GUI loads or the
+ClassicLadder HAL commands must executed before the GUI loads or the
 menu item Ladder Editor will not function. If you used the Stepper
-Config Wizard place any Classic Ladder HAL commands in the custom.hal
+Config Wizard place any ClassicLadder HAL commands in the custom.hal
 file.
 
 To load the user module:
@@ -157,7 +157,7 @@ loadusr classicladder
 ----
 
 NOTE: Only one .clp file can be loaded. If you need to divide your ladder
-use Sections.
+then use sections.
 
 To load a ladder file:
 
@@ -166,7 +166,7 @@ To load a ladder file:
 loadusr classicladder myladder.clp
 ----
 
-Classic Ladder Loading Options
+ClassicLadder Loading Options
 
 * '--nogui' - (loads without the ladder editor) normally used after
   debugging is finished.
@@ -175,7 +175,7 @@ Classic Ladder Loading Options
   program at the same time or the TCP is default port.
 * '--modslave' - (initializes MODBUS slave) only TCP
 
-To use Classic Ladder with HAL without EMC:
+To use ClassicLadder with HAL without EMC:
 
 [source,{hal}]
 ----
@@ -183,22 +183,22 @@ loadusr -w classicladder
 ----
 
 The -w tells HAL not to close down the HAL environment
-until Classic Ladder is finished.
+until ClassicLadder is finished.
 
 If you first load ladder program with the '--nogui' option then load
-Classic Ladder again with no options the GUI
+ClassicLadder again with no options the GUI
 will display the last loaded ladder program.
 
 In AXIS you can load the GUI from File/Ladder Editor...
 
-== Classic Ladder GUI
+== ClassicLadder GUI
 
-If you load Classic Ladder with the GUI it will display two windows:
+If you load ClassicLadder with the GUI it will display two windows:
 section display, and section manager.
 
 === Sections Manager
 
-When you first start up Classic Ladder you get an empty Sections
+When you first start up ClassicLadder you get an empty Sections
 Manager window.
 
 [[cap:sections-manager-default]]
@@ -211,8 +211,8 @@ for call coils.
 
 === Section Display
 
-When you first start up Classic Ladder you get an empty Section
-Display window. Displayed is one empty rung.
+When you first start up ClassicLadder you get an empty Section Display window.
+Displayed is one empty rung.
 
 [[cap:section-display-default]]
 .Section Display Default Window
@@ -270,7 +270,7 @@ were 15 entries high,
 and you entered 5 at the top of the column, variables %B5 to %B19 would
 be displayed. The check boxes allow you to set and unset %B variables
 manually as long as the ladder program isn't setting them as outputs.
-Any Bits that are set as outputs by the program when Classic Ladder is
+Any Bits that are set as outputs by the program when ClassicLadder is
 running can not be changed and will be displayed as checked if on and
 unchecked if off.
 
@@ -662,7 +662,7 @@ placed at the rightmost position in the rung.
 
 Remember to change the label to the subroutine number you chose before.
 
-== Classic Ladder Variables
+== ClassicLadder Variables
 
 These Variables are used in COMPARE or OPERATE to get information
 about, or change specs of, ladder objects such as changing a counter
@@ -674,8 +674,8 @@ List of variables :
 * '%Wxxx' - Word memory xxx (32 bits signed integer)
 * '%IWxxx' - Word memory xxx (S32 in pin)
 * '%QWxxx' - Word memory xxx (S32 out pin)
-* '%IFxx' - Word memory xx (Float in pin) (*converted to S32 in Classic Ladder*)
-* '%QFxx' - Word memory xx (Float out pin) (*converted to S32 in Classic Ladder*)
+* '%IFxx' - Word memory xx (Float in pin) (*converted to S32 in ClassicLadder*)
+* '%QFxx' - Word memory xx (Float out pin) (*converted to S32 in ClassicLadder*)
 * '%Txx.R' - Timer xx running (Boolean, user read only)
 * '%Txx.D' - Timer xx done (Boolean, user read only)
 * '%Txx.V' - Timer xx current value (integer, user read only)
@@ -704,7 +704,7 @@ List of variables :
 
 [WARNING]
 This is probably the least used and most poorly understood
-feature of Classic Ladder.
+feature of ClassicLadder.
 Sequential programming is used to make sure a series of
 ladder events always happen in a prescribed order. Sequential programs
 do not work alone. There is always a ladder program as well that
@@ -778,19 +778,19 @@ Things to consider:
   heavily laden computer.
 * Modbus is not really suited to hard real time events such as position
   control of motors or to control E-stop.
-* The Classic Ladder GUI must be running for Modbus to be running.
+* The ClassicLadder GUI must be running for Modbus to be running.
 * Modbus is not fully finished so it does not do all modbus functions.
 
 To get MODBUS to initialize you must specify that when loading the
-Classic Ladder userspace program.
+ClassicLadder userspace program.
 
 .Loading Modbus
 ----
 loadusr -w classicladder --modmaster myprogram.clp
 ----
 
-The -w makes HAL wait until you close Classic Ladder before closing realtime
-session. Classic Ladder also loads a TCP modbus slave if you add '--modserver'
+The -w makes HAL wait until you close ClassicLadder before closing realtime
+session. ClassicLadder also loads a TCP modbus slave if you add '--modserver'
 on command line.
 
 .Modbus Functions
@@ -804,7 +804,7 @@ on command line.
 * '15' - write multiple coils
 * '16' - write multiple registers
 
-If you do not specify a '-- modmaster' when loading the Classic Ladder user
+If you do not specify a '-- modmaster' when loading the ClassicLadder user
 program this page will not be displayed.
 
 [[cap:config-io]]
@@ -859,15 +859,15 @@ meaning I can talk to 31 VFDs maximum on one system).
 
 The first line is set up for 8 input bits starting at the first
 register number (register 1). So register numbers 1-8 are mapped onto
-Classic Ladder's %B variables starting at %B1 and ending at %B8.
+ClassicLadder's %B variables starting at %B1 and ending at %B8.
 
 The second line is set for 2 output bits starting at the ninth
 register number (register 9) so register numbers 9-10 are mapped onto
-Classic Ladder's %Q variables starting at %Q9 ending at %Q10.
+ClassicLadder's %Q variables starting at %Q9 ending at %Q10.
 
 The third line is set to write 2 registers (16 bits each) starting at
 the 0th register number (register 0) so register numbers 0-1 are
-mapped onto Classic Ladder's %W variables starting at %W0 ending at %W1.
+mapped onto ClassicLadder's %W variables starting at %W0 ending at %W1.
 
 It's easy to make an off-by-one error as sometimes the modbus elements
 are referenced starting at one rather then 0 (actually by the standard
@@ -885,16 +885,16 @@ To use the echo function select the echo function and add the slave
 number you wish to test. You don't need to specify any variables.
 
 The number 257 will be sent to the slave number you specified and the
-slave should send it back. you will need to have Classic Ladder running
+slave should send it back. you will need to have ClassicLadder running
 in a terminal to see the message.
 
 == MODBUS Settings
 
 Serial:
 
-* Classic Ladder uses RTU protocol (not ASCII).
+* ClassicLadder uses RTU protocol (not ASCII).
 * 8 data bits, No parity is used, and 1 stop bit is also known as 8-N-1.
-* Baud rate must be the same for slave and master. Classic Ladder can
+* Baud rate must be the same for slave and master. ClassicLadder can
   only have one baud rate so all the slaves must be set to the same rate.
 * Pause inter frame is the time to pause after receiving an answer.
 * MODBUS_TIME_AFTER_TRANSMIT is the length of pause after sending a
@@ -903,7 +903,7 @@ Serial:
 
 === MODBUS Info
 
-* Classic Ladder can use distributed inputs/outputs on modules using the
+* ClassicLadder can use distributed inputs/outputs on modules using the
   modbus protocol ("master": polling slaves).
 * The slaves and theirs I/O can be configured in the config window.
 * 2 exclusive modes are available : ethernet using Modbus/TCP and serial
@@ -920,7 +920,7 @@ Serial:
 * Web links: http://www.modbus.org and this interesting one:
   http://www.iatips.com/modbus.html
 * MODBUS TCP SERVER INCLUDED
-* Classic Ladder has a Modbus/TCP server integrated. Default port is 9502.
+* ClassicLadder has a Modbus/TCP server integrated. Default port is 9502.
   (the previous standard 502 requires that the application must be
   launched with root privileges).
 * List of Modbus functions code supported are: 1, 2, 3, 4, 5, 6, 15 and 16.
@@ -940,34 +940,29 @@ error. A timer could be used to stop the machine if timed out, etc.
 
 == Debugging modbus problems
 
-A good reference for the protocol: +
-http://www.modbus.org/docs/Modbus_Application_Protocol_V1_1b.pdf +
-If you run linuxcnc/classocladder from a terminal, it will print
-the Modbus commands and slave responses. +
-
 A good reference for the protocol:
 http://www.modbus.org/docs/Modbus_Application_Protocol_V1_1b.pdf
 If you run linuxcnc/classocladder from a terminal, it will print
 the Modbus commands and slave responses.
 
-Here we set Classiclader to request slave 1,
-to read holding registers (function code 3) starting at address 8448 (0x2100)
-We ask for 1 (2 byte wide) data element to be returned
-We map it to a Classicladder variable starting at 2
+Here we set ClassicLadder to request slave 1,
+to read holding registers (function code 3) starting at address 8448 (0x2100).
+We ask for 1 (2 byte wide) data element to be returned.
+We map it to a ClassicLadder variable starting at 2.
 
 .Modbus I/O Register Setup
 image::images/modbus_register_setting.png["Config I/O Register Setting",align="center"]
 
-Note in this image we have set the debug level to 1 so modbus messages are printed to the terminal +
-We have mapped our read and written holding registers to classicladder's %W variables +
-so our returned data will be in %W2 as in the other image we mapped the data starting at the 2nd element +
+Note in this image we have set the debug level to 1 so modbus messages are printed to the terminal.
+We have mapped our read and written holding registers to ClassicLadder's %W variables
+so our returned data will be in %W2 as in the other image we mapped the data starting at the 2nd element.
 
 .Modbus Communication Setup
 image::images/modbus_com_setting.png["Communication Setting",align="center"]
 
 === Request
 
-Lets look at an example of reading one hold register at 8448 Decimal (0x2100 Hex)
+Lets look at an example of reading one hold register at 8448 Decimal (0x2100 Hex).
 
 Looking in the Modbus protocol reference:
 
@@ -1062,10 +1057,10 @@ meaning (Hex):
 * value of lowbyte = 0 (0x0) = high byte value of address 8448 (0x2100)
 * Checksum = (0xB844)
 
-(high and low bytes are combined to create a 16 bit value and then transferred to Classicladder's variable)
-Read Registers can be mapped to %W or %QW  (internal memory or HAL out pins)
-Write registers can be mapped from %W, %QW or %IW (internal memory, HAL out pins or HAL in pins)
-The variable number will start at the number entered in the modbus I/O registry setup page's column: 'First variable mapped'
+(high and low bytes are combined to create a 16 bit value and then transferred to ClassicLadder's variable.)
+Read Registers can be mapped to %W or %QW  (internal memory or HAL out pins).
+Write registers can be mapped from %W, %QW or %IW (internal memory, HAL out pins or HAL in pins).
+The variable number will start at the number entered in the modbus I/O registry setup page's column: 'First variable mapped'.
 If multiple registers are requested in one read/write then the variable number are sequential after the first one.
 
 === MODBUS Bugs
@@ -1073,7 +1068,7 @@ If multiple registers are requested in one read/write then the variable number a
 * In compare blocks the function %W=ABS(%W1-%W2) is accepted but does
   not compute properly. only %W0=ABS(%W1) is currently legal.
 * When loading a ladder program it will load Modbus info but will not
-  tell Classic Ladder to initialize Modbus. You must initialize Modbus
+  tell ClassicLadder to initialize Modbus. You must initialize Modbus
   when you first load the GUI by adding '--modmaster'.
 * If the section manager is placed on top of the section display, across
   the scroll bar and exit is clicked the user program crashes.
@@ -1081,22 +1076,22 @@ If multiple registers are requested in one read/write then the variable number a
   time or else only TCP will work.
 * reading/writing multiple registers in Modbus has checksum errors.
 
-== Setting up Classic Ladder
+== Setting up ClassicLadder
 
-In this section we will cover the steps needed to add Classic Ladder
+In this section we will cover the steps needed to add ClassicLadder
 to a Stepconf Wizard generated config. On the advanced Configuration
-Options page of Stepconf Wizard check off "Include Classic Ladder PLC".
+Options page of Stepconf Wizard check off "Include ClassicLadder PLC".
 
 [[cap:stepconf-classicladder]]
-.Stepconf Classic Ladder
-image::images/stepconf_ladder.png["Stepconf Classic Ladder",align="center"]
+.Stepconf ClassicLadder
+image::images/stepconf_ladder.png["Stepconf ClassicLadder",align="center"]
 
 === Add the Modules
 
-If you used the Stepconf Wizard to add Classic Ladder you can skip
+If you used the Stepconf Wizard to add ClassicLadder you can skip
 this step.
 
-To manually add Classic Ladder you must first add the modules. This is
+To manually add ClassicLadder you must first add the modules. This is
 done by adding a couple of lines to the custom.hal file.
 
 This line loads the real time module:
@@ -1106,7 +1101,7 @@ This line loads the real time module:
 loadrt classicladder_rt
 ----
 
-This line adds the Classic Ladder function to the servo thread:
+This line adds the ClassicLadder function to the servo thread:
 
 [source,{hal}]
 ----
@@ -1116,7 +1111,7 @@ addf classicladder.0.refresh servo-thread
 === Adding Ladder Logic
 
 Now start up your config and select "File/Ladder Editor" to open up
-the Classic Ladder GUI. You should see a blank Section Display and
+the ClassicLadder GUI. You should see a blank Section Display and
 Sections Manager window as shown above. In the Section Display window
 open the Editor. In the Editor window select Modify. Now a Properties
 window pops up and the Section Display shows a grid. The grid is one
@@ -1150,14 +1145,14 @@ like the following. If not, use the Eraser to remove unwanted sections.
 .Section Display with Rung
 image::images/Section_Display_Build02.png["Section Display with Rung",align="center"]
 
-Now click on the OK button in the Editor window. Now your Section
-Display should look like this.
+Now click on the OK button in the Editor window.
+Now your Section Display should look like this:
 
 [[cap:section-display-finished]]
 .Section Display Finished
 image::images/Section_Display_Build03.png["Section Display Finished",align="center"]
 
-To save the new file select Save As and give it a name. The .clp
+To save the new file select 'Save As' and give it a name. The .clp
 extension will be added automatically. It should default to the running
 config directory as the place to save it.
 
@@ -1165,7 +1160,7 @@ config directory as the place to save it.
 .Save As Dialog
 image::images/SaveAs.png["Save As Dialog",align="center"]
 
-Again if you used the Stepconf Wizard to add Classic Ladder you can
+Again if you used the Stepconf Wizard to add ClassicLadder you can
 skip this step.
 
 To manually add a ladder you need to add add a line to your custom.hal

@@ -97,18 +97,21 @@ The MDRO window contains the following elements:
 ** The current value
 ** A "z" button that zeros the value
 ** A "1/2" button that halves the value
-** A entry field that can be used to set a user-defined value. This field
-can be set from the keyboard or from the on-screen keypad.
+** A entry field that can be used to set a user-defined value. This
+   field can be set from the keyboard or from the on-screen keypad.
 ** A "I" button that starts an index operation (see below)
-* A keypad used to set values in the entry field via a mouse or touchscreen.
+* A keypad used to set values in the entry field via a mouse or
+  touchscreen.
 * Coordinate system selection buttons
-** The "mcs" button selects the machine coordinate system. These are the raw
-values from the encoders connected to the `mdro.axis.n` pins.
-**  The "cs1" - "cs4" buttons allow the user to select among one of four
-user-defined coordinate systems. If the program is started with the
-`MDRO_VAR_FILE =` option, the labels will be changed to "g54" - "g57" and
-the values from the specified .var file will be preloaded. Note that any
-changes to the values are not persistent: the .var file is never changed.
+** The "mcs" button selects the machine coordinate system. These are
+   the raw values from the encoders connected to the `mdro.axis.n`
+   pins.
+** The "cs1" - "cs4" buttons allow the user to select among one of
+   four user-defined coordinate systems. If the program is started
+   with the `MDRO_VAR_FILE =` option, the labels will be changed to
+   "g54" - "g57" and the values from the specified .var file will be
+   preloaded. Note that any changes to the values are not persistent:
+   the .var file is never changed.
 * Inch/Millimeter selection buttons.
 
 == Index operations

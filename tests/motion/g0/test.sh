@@ -3,16 +3,31 @@
 #export PATH=$PATH:$EMC2_HOME/tests/helpers
 #source $EMC2_HOME/tests/helpers/test-functions.sh
 
-emc motion-test.ini &
+wait_for_pin() {
+    pin="$1"
+    value="$2"
+    maxwait=10 # seconds
+    while [ 0 -lt $maxwait ] \
+      && [ "$value" != "$(halcmd -s show pin $pin | awk '{print $4}')" ]; do
+        sleep 1
+	maxwait=$(($maxwait -1))
+    done
+    if [ 0 -eq $maxwait ] ; then
+	echo "error: waiting for pin $pin timed out"
+	kill $linuxcncpid
+	kill $samplerpid
+	exit 1
+    fi
+}
 
-# let emc come up
-sleep 4 
+linuxcnc motion-test.ini &
+linuxcncpid=$!
 
-(
-    echo starting to capture data
-    halsampler -t -n 20000 >| result.halsamples
-    echo finished capturing data
-) &
+wait_for_pin motion.in-position TRUE
+
+echo starting to capture data
+halsampler -t >| result.halsamples &
+samplerpid=$!
 
 (
     echo hello EMC mt 1.0
@@ -26,21 +41,27 @@ sleep 4
     echo set home 1
     echo set home 2
 
-    # give emc a second to home
-    sleep 1.0
+    # Wait for homing to complete
+    wait_for_pin motion.is-all-homed TRUE
 
     echo set mode mdi
-    echo set mdi g0x1
+    dist=1
+    echo set mdi g0x$dist
 
-    # give emc a half second to move
-    sleep 0.5
+    # Wait for movement to complete
+    wait_for_pin joint.0.pos-fb $dist
+    wait_for_pin joint.0.in-position TRUE
+    wait_for_pin joint.1.in-position TRUE
 
     echo shutdown
 ) | nc localhost 5007
 
+kill $samplerpid
+wait $samplerpid
+echo finished capturing data
 
-# wait for emc to finish
-wait
+# wait for linuxcnc to finish
+wait $linuxcncpid
 
 exit 0
 

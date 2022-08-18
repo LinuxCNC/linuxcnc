@@ -46,6 +46,10 @@ class Cfg2Prefs(QMainWindow, object):
         self.setCentralWidget(wid)
         layout = QHBoxLayout()
         wid.setLayout(layout)
+        iconPath = 'share/qtvcp/images/qtplasmac/images/Chips_Plasma.png'
+        appPath = os.path.realpath(os.path.dirname(sys.argv[0]))
+        iconBase = '/usr' if appPath == '/bin' else appPath.replace('/bin', '')
+        self.setWindowIcon(QIcon(os.path.join(iconBase, iconPath)))
         self.setWindowTitle('QtPlasmaC Cfg2Prefs')
         vBox = QVBoxLayout()
         heading  = 'Convert Existing PlasmaC .cfg Files To A New QtPlasmaC .prefs File\n'
@@ -88,7 +92,7 @@ class Cfg2Prefs(QMainWindow, object):
         self.setStyleSheet( \
             'QWidget {color: #ffee06; background: #16160e} \
             QLabel {height: 20} \
-            QPushButton {border: 1 solid #ffee06; border-radius: 4; height: 40; width: 80} \
+            QPushButton {border: 1 solid #ffee06; border-radius: 4; height: 40; width: 80; max-width: 90} \
             QFileDialog QPushButton {border: 1 solid #ffee06; border-radius: 4; height: 30; margin: 6} \
             QPushButton:pressed {color: #16160e; background: #ffee06} \
             QLineEdit {border: 1 solid #ffee06; border-radius: 4; height: 40} \
@@ -189,15 +193,15 @@ class Cfg2Prefs(QMainWindow, object):
     def convert_pressed(self):
         if not self.fromFilePath:
             msg  = 'Missing path to PlasmaC configuration\n'
-            self.dialog_ok('PATH ERROR', msg)
+            self.dialog_ok('Path Error', msg)
             return
         if not self.toFilePath:
             msg  = 'Missing path to QtPlasmaC configuration\n'
-            self.dialog_ok('PATH ERROR', msg)
+            self.dialog_ok('Path Error', msg)
             return
         if self.toFilePath == self.fromFilePath:
             msg  = 'Cannot operate on one folder\n'
-            self.dialog_ok('FOLDER ERROR', msg)
+            self.dialog_ok('Folder Error', msg)
             return
         self.prefParms = []
         self.date = '{}-{:02d}-{:02d}'.format(time.localtime(time.time())[0], \
@@ -516,7 +520,7 @@ class Cfg2Prefs(QMainWindow, object):
         msg += 'file or an original material.cfg file may be deleted from '
         msg += 'the configuration folder when the result of the conversion '
         msg += 'has been confirmed.\n'
-        self.dialog_ok('SUCCESS', msg)
+        self.dialog_ok('Success', msg)
         sys.exit()
 
 if __name__ == '__main__':

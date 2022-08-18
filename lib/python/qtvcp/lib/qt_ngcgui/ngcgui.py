@@ -200,7 +200,7 @@ class SubFile():
         if os.path.splitext(self.sub_file)[-1] in ['.ngc','.NGC','.nc','.NC']:
             img_file = find_image(fname)
             if img_file is None:
-                img_file = os.path.join(PATH.WORKINGDIR, 'images/silver_dragon.png')
+                img_file = os.path.join(HERE, 'images/silver_dragon.png')
                 self.flag_error("No image found - using default")
             self.image = img_file
             self.read_ngc()
@@ -277,7 +277,7 @@ class SubFile():
                         self.flag_error("Parm {} exceeds maximum limit of {}".format(pparm, self.g_max_parm))
                     self.min_num = min
                     self.max_num = max
-                # blanks required for this, use original line not tranlated line
+                # blanks required for this, use original line not translated line
                 name, pnum, dvalue, comment = find_positional_parms(orig_line)
                 if name:
                     self.ndict[pnum] = (name, dvalue, comment)
@@ -471,6 +471,36 @@ class NgcGui(QtWidgets.QWidget):
         self.btn_finalize.pressed.connect(self.finalize_features)
         self.tabWidget.currentChanged.connect(lambda index: self.tab_changed(index))
         self.tabWidget.tabCloseRequested.connect(lambda index: self.close_tab(index))
+        self.add_configd_tabs()
+
+    ###################################################################
+    #Function to automatically add preconfigured NGCGUI files form the Linuxcnc INI as tabs in NGCGUI for QTVCP
+    #The funtion is called by the Ngcgui class constructor and relies on the following INI enteries
+    #NGCGUI_SUBFILE : name of the NGCGUI file (including extension) to be automatically loaded
+    #NGCGUI_SUBFILE_PATH : path of the directory where the files can be found, relative to the root of the launched Linuxcnc INI
+    ###################################################################
+        
+    def add_configd_tabs(self):
+        if INFO.NGC_SUB_PATH is None:
+            LOG.debug("UI Filename: {} Didn't find a path NGCGUI files".format(self.ui_file))
+            return
+        elif INFO.NGC_SUB is None:
+            LOG.debug("Didn't find any configured NGCGUI files")
+            return
+        
+        abs_ngc_sub_path = os.path.abspath(INFO.NGC_SUB_PATH)
+        LOG.debug("Path to NGCGUI files:{}".format(abs_ngc_sub_path ))
+        LOG.debug("Found the following ngc_sub: {}".format(INFO.NGC_SUB))
+
+        # sort through sub list and add the pages.
+        for curr_ngcfile in INFO.NGC_SUB:
+           curr_fname = os.path.join(abs_ngc_sub_path,curr_ngcfile)
+           LOG.debug("Adding NGCGUI:[]".format(curr_fname))
+           self.add_page()
+           mpage = self.tabWidget.currentWidget()
+           mindex = self.tabWidget.currentIndex()
+           mpage.update_onepage('sub', curr_fname)
+           self.tabWidget.setTabText(mindex, curr_ngcfile)    
 
     def add_page(self):
         page = OnePg(self, '', '', '') # create new blank page
@@ -649,7 +679,10 @@ class NgcGui(QtWidgets.QWidget):
                 self.textEdit_status.append('finalize_features: unknown return value')
         # make a unique filename
         # (avoids problems with gremlin ignoring new file with same name)
-        autoname = get_file_save("Select auto filename")
+        if not self.chk_save.isChecked() and INFO.LINUXCNC_IS_RUNNING:
+            autoname= "tmp"
+        else:
+            autoname = get_file_save("Select auto filename")
         if autoname is None:
             self.textEdit_status.append("Finalize features aborted")
             return
@@ -742,13 +775,13 @@ class NgcGui(QtWidgets.QWidget):
         return(ct)
 
     def warp_info_frame(self, newLayout):
-        """ Convience function to move the info frame to another layout"""
+        """ Convenience function to move the info frame to another layout"""
         newLayout.addWidget(self.frame_info)
         # is this enough?
         self.frame_info.setMaximumWidth(500)
 
     def warp_tabs_frame(self, newLayout):
-        """ Convience function to move the tabs frame to another layout"""
+        """ Convenience function to move the tabs frame to another layout"""
         newLayout.addWidget(self.frame_tabs)
 
 ##################

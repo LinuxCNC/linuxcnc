@@ -468,6 +468,15 @@ proc save_hal_cmds {savefilename {options ""} } {
       scan $line "%s %s %s" cmd arg1 remainder
       switch $cmd {
         setp    {puts $fd [format $setp_fmt $cmd $arg1 $remainder]}
+        loadrt  {
+                 if {   [string first tpmod   [list $line]] >= 0
+                     || [string first homemod [list $line]] >= 0
+                    } {
+                    puts $fd "#preloaded module: $line"
+                 } else {
+                    puts $fd $line
+                 }
+                }
         default {puts $fd $line}
       }
     }

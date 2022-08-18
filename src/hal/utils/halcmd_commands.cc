@@ -2839,7 +2839,7 @@ int do_help_cmd(char *command)
     } else if (strcmp(command, "newinst") == 0) {
 	printf("newinst modname instname\n");
 	printf("  Creates another instance of previously loaded module\n" );
-	printf("  'modname', nameing it 'instname'.\n");
+	printf("  'modname', naming it 'instname'.\n");
 #endif
     } else if (strcmp(command, "unload") == 0) {
 	printf("unload compname\n");
@@ -3052,12 +3052,16 @@ static void print_help_commands(void)
     printf("  loadusr             Start user space program\n");
     printf("  waitusr             Waits for userspace component to exit\n");
     printf("  unload              Unload realtime module or terminate userspace component\n");
+    printf("  unloadrt            Unload realtime module \n");
+    printf("  unloadusr           Unload userspace component\n");
     printf("  lock, unlock        Lock/unlock HAL behaviour\n");
-    printf("  linkps              Link pin to signal\n");
-    printf("  linksp              Link signal to pin\n");
+    printf("  linkpp              Link pin to pin (OBSOLETE)\n");
+    printf("  linkps              Link pin to signal (OBSOLETE)\n");
+    printf("  linksp              Link signal to pin (OBSOLETE)\n");
     printf("  net                 Link a number of pins to a signal\n");
     printf("  unlinkp             Unlink pin\n");
-    printf("  newsig, delsig      Create/delete a signal\n");
+    printf("  newsig              Create a signal (OBSOLETE)\n");
+    printf("  delsig              Delete a signal\n");
     printf("  getp, gets          Get the value of a pin, parameter or signal\n");
     printf("  ptype, stype        Get the type of a pin, parameter or signal\n");
     printf("  setp, sets          Set the value of a pin, parameter or signal\n");
