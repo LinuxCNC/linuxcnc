@@ -88,17 +88,23 @@ function setup_page(){
   <img src="linuxcnc-logo-chips.png" alt="LinuxCNC Logo" width="175"/>
 </div>
 
-<h3>LinuxCNC version <strong>@VERSION@</strong></h3>
+<!-- <h3 align="center">LinuxCNC version <strong>@VERSION@</strong></h3>
+<h2>Documentation</h2> -->
+<h2>LinuxCNC version <strong>@VERSION@</strong> Documentation</h2>
 
 <div style="margin-top: 0em; margin-bottom: 1em; line-height: 150%">
-<p><a href="http://linuxcnc.org">LinuxCNC Home Page</a>  *
-<a href="http://wiki.linuxcnc.org/cgi-bin/wiki.pl">Wiki Community</a>  *
+<p><a href="http://linuxcnc.org">LinuxCNC Home Page</a>  &bull;
+<a href="http://wiki.linuxcnc.org/cgi-bin/wiki.pl">Wiki</a> &bull;
+<a href="https://forum.linuxcnc.org">Forum</a> &bull;
+<a href="https://github.com/LinuxCNC/linuxcnc">Source</a> &bull;
 <a href="gcode.html">G-Code Quick Reference</a></p>
 </div>
 <p><input type="button" value="Expand Documents" id="docExpand" onclick="return toggle_section(this);"/>
    <input type="button" value="Collapse Documents" id="docCollapse" onclick="return toggle_section(this);"/></p>
-<p><a onclick="return toggle('sec0')"><img alt="plus" id="sec0_image" style="border:0; margin-right:5px; vertical-align:middle;" src="plus.png"/>Getting Started with LinuxCNC</a></p>
 
+<h3>Getting Started &amp; Configuration</h3>
+
+<p><a onclick="return toggle('sec0')"><img alt="plus" id="sec0_image" style="border:0; margin-right:5px; vertical-align:middle;" src="plus.png"/>Getting Started with LinuxCNC</a></p>
 <div id="sec0">
 	<ul>
 		<li><a href="getting-started/about-linuxcnc.html">About LinuxCNC</a></li>
@@ -107,14 +113,6 @@ function setup_page(){
 		<li><a href="getting-started/running-linuxcnc.html">Running LinuxCNC</a></li>
 		<li><a href="getting-started/updating-linuxcnc.html">Updating LinuxCNC</a></li>
 		<li><a href="common/linux-faq.html">Linux FAQ</a></li>
-	</ul>
-</div>
-
-<p><a onclick="return toggle('sec1')"><img src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" id="sec1_image" alt="plus"/>Configuration Wizards</a></p>
-<div id="sec1">
-	<ul>
-		<li><a href="config/stepconf.html" class="tooltips">Stepconf, Parallel Port Stepper Configurator</a></li>
-		<li><a href="config/pncconf.html" class="tooltips">Pncconf, Mesa Hardware Configurator</a></li>
 	</ul>
 </div>
 
@@ -130,6 +128,118 @@ function setup_page(){
 		<li><a href="plasma/plasma-cnc-primer.html">Plasma CNC Primer</a></li>
 	</ul>
 </div>
+
+<p><a onclick="return toggle('sec1')"><img src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" id="sec1_image" alt="plus"/>Configuration Wizards</a></p>
+<div id="sec1">
+	<ul>
+		<li><a href="config/stepconf.html" class="tooltips">Stepconf, Parallel Port Stepper Configurator</a></li>
+		<li><a href="config/pncconf.html" class="tooltips">Pncconf, Mesa Hardware Configurator</a></li>
+	</ul>
+</div>
+
+<p><a onclick="return toggle('sec5')"><img src="plus.png" alt="plus" style="border:0;margin-right:5px;vertical-align:middle;" id="sec5_image"/>Configuration</a></p>
+<div id="sec5">
+	<ul>
+		<li><a href="config/integrator-concepts.html">Integrator Concepts</a></li>
+		<li><a href="install/latency-test.html">Latency Test</a></li>
+		<li><a href="motion/tweaking-steppers.html">Stepper Tuning</a></li>
+		<li><a href="config/ini-config.html">INI Configuration</a></li>
+		<li><a href="config/ini-homing.html">Homing Configuration</a></li>
+		<li><a href="config/iov2.html">I/O Control V2</a></li>
+		<li><a href="config/lathe-config.html">Lathe Configuration</a></li>
+		<li><a href="config/stepper-quickstart.html">Stepper Quick Start</a></li>
+		<li><a href="config/stepper.html">Stepper Configuration</a></li>
+		<li><a href="config/stepper-diagnostics.html">Stepper Diagnostics</a></li>
+	</ul>
+</div>
+
+<p><a onclick="return toggle('sec11')"><img alt="plus" style="border:0;margin-right:5px;vertical-align:middle;" id="sec11_image" src="plus.png"/>HAL (Hardware Abstraction Layer)</a></p>
+<div id="sec11">
+	<ul>
+		<li><a href="hal/intro.html">HAL Introduction</a></li>
+		<li><a href="hal/basic-hal.html">HAL Basics</a></li>
+		<li><a href="hal/twopass.html">HAL Twopass</a></li>
+		<li><a href="hal/tutorial.html">HAL Tutorial</a></li>
+		<li><a href="hal/hal-examples.html">HAL Examples</a></li>
+		<li><a href="config/core-components.html">HAL Core Components</a></li>
+		<li><a href="hal/components.html">HAL Component List</a></li>
+		<li><a href="hal/rtcomps.html">HAL Component Descriptions</a></li>
+		<li><a href="hal/comp.html">HAL Component Generator</a></li>
+		<li><a href="hal/haltcl.html">HAL TCL Files</a></li>
+		<li><a href="hal/halmodule.html">Creating Userspace Python Components</a></li>
+		<li><a href="hal/canonical-devices.html">Canonical Device Interfaces</a></li>
+		<li><a href="hal/tools.html">HAL Tools</a></li>
+	</ul>
+</div>
+
+<p><a onclick="return toggle('sec8')"><img alt="plus" id="sec8_image" style="border:0;margin-right:5px;vertical-align:middle;" src="plus.png"/>Hardware Drivers</a></p>
+<div id="sec8">
+	<ul>
+		<li><a href="hal/parallel-port.html">Parallel Port Driver</a></li>
+		<li><a href="drivers/ax5214h.html">AX5214H Driver</a></li>
+		<li><a href="drivers/gm.html">General Mechatronics GM6-PCI Driver</a></li>
+		<li><a href="drivers/gs2.html">GS2 Driver</a></li>
+		<li><a href="drivers/hostmot2.html">Mesa HostMot2 Driver</a></li>
+		<li><a href="drivers/mb2hal.html">Modbus to HAL Driver</a></li>
+		<li><a href="drivers/mitsub-vfd.html">Mitsubishi VFD Driver</a></li>
+		<li><a href="drivers/motenc.html">Motenc Driver</a></li>
+		<li><a href="drivers/opto22.html">Opto22 Driver</a></li>
+		<li><a href="drivers/pico-ppmc.html">Pico Drivers</a></li>
+		<li><a href="drivers/pluto-p.html">Pluto P Driver</a></li>
+		<li><a href="drivers/pmx485.html">Powermax Modbus Driver</a></li>
+		<li><a href="drivers/servo-to-go.html">Servo To Go Driver</a></li>
+		<li><a href="drivers/shuttle.html">ShuttleXpress and ShuttlePRO Driver</a></li>
+		<li><a href="drivers/vfs11.html">VFS11 Driver</a></li>
+	</ul>
+</div>
+
+<p><a onclick="return toggle('sec10')"><img src="plus.png" alt="plus" style="border:0;margin-right:5px;vertical-align:middle;" id="sec10_image"/>Hardware Examples</a></p>
+<div id="sec10">
+	<ul>
+		<li><a href="examples/pci-parallel-port.html">PCI Parallel Port Example</a></li>
+		<li><a href="examples/spindle.html">Spindle Control Example</a></li>
+		<li><a href="examples/mpg.html">MPG Example</a></li>
+		<li><a href="examples/gs2-example.html">GS2 Example</a></li>
+	</ul>
+</div>
+
+<p><a onclick="return toggle('sec9')"><img alt="plus" style="border:0;margin-right:5px;vertical-align:middle;" id="sec9_image" src="plus.png"/>ClassicLadder</a></p>
+<div id="sec9">
+
+	<ul>
+		<li>ClassicLadder is a software PLC (Programmable Logic Controller) built into LinuxCNC.</li>
+		<li><a href="ladder/ladder-intro.html">ClassicLadder Introduction</a></li>
+		<li><a href="ladder/classic-ladder.html">ClassicLadder Programming</a></li>
+		<li><a href="ladder/ladder-examples.html">ClassicLadder Examples</a></li>
+	</ul>
+</div>
+
+<p><a onclick="return toggle('sec12')"><img alt="plus" id="sec12_image" style="border:0;margin-right:5px;vertical-align:middle;" src="plus.png"/>Advanced Topics</a></p>
+<div id="sec12">
+	<ul>
+		<li><a href="motion/kinematics.html">Kinematics</a></li>
+		<li><a href="motion/dh-parameters.html">DH Parameters</a></li>
+		<li><a href="motion/5-axis-kinematics.html">5-Axis-Kinematics</a></li>
+		<li><a href="motion/switchkins.html">Switchable Kinematics</a></li>
+		<li><a href="motion/pid-theory.html">PID theory</a></li>
+		<li><a href="remap/remap.html">Remap: Extending LinuxCNC</a></li>
+		<li><a href="config/moveoff.html">Moveoff Component</a></li>
+		<li><a href="code/rs274.html">Stand Alone Interpreter</a></li>
+		<li><a href="motion/external-offsets.html">External Offsets</a></li>
+		<li><a href="tooldatabase/tooldatabase.html">Tool Database Interface</a></li>
+	</ul>
+</div>
+
+<p><a onclick="return toggle('sec13')"><img src="plus.png" alt="plus" id="sec13_image" style="border:0;margin-right:5px;vertical-align:middle;"/>Integrator Information</a></p>
+<div id="sec13">
+	<ul>
+		<li><a href="integrator/steppers.html">Stepper Information</a></li>
+		<li><a href="integrator/stepper-timing.html">Stepper Drive Timing</a></li>
+		<li><a href="integrator/wiring.html">Best Wiring Practices</a></li>
+	</ul>
+</div>
+
+<h3>Usage</h3>
 
 <p><a onclick="return toggle('sec3')"><img alt="plus" id="sec3_image" style="border:0;margin-right:5px;vertical-align:middle;" src="plus.png"/>User Interfaces</a></p>
 <div id="sec3">
@@ -163,21 +273,7 @@ function setup_page(){
 	</ul>
 </div>
 
-<p><a onclick="return toggle('sec5')"><img src="plus.png" alt="plus" style="border:0;margin-right:5px;vertical-align:middle;" id="sec5_image"/>Configuration</a></p>
-<div id="sec5">
-	<ul>
-		<li><a href="config/integrator-concepts.html">Integrator Concepts</a></li>
-		<li><a href="install/latency-test.html">Latency Test</a></li>
-		<li><a href="motion/tweaking-steppers.html">Stepper Tuning</a></li>
-		<li><a href="config/ini-config.html">INI Configuration</a></li>
-		<li><a href="config/ini-homing.html">Homing Configuration</a></li>
-		<li><a href="config/iov2.html">I/O Control V2</a></li>
-		<li><a href="config/lathe-config.html">Lathe Configuration</a></li>
-		<li><a href="config/stepper-quickstart.html">Stepper Quick Start</a></li>
-		<li><a href="config/stepper.html">Stepper Configuration</a></li>
-		<li><a href="config/stepper-diagnostics.html">Stepper Diagnostics</a></li>
-	</ul>
-</div>
+<h3>Customization &amp; Development</h3>
 
 <p><a onclick="return toggle('sec6')"><img src="plus.png" alt="plus" id="sec6_image" style="border:0;margin-right:5px;vertical-align:middle;"/>Virtual Control Panels</a></p>
 <div id="sec6">
@@ -210,91 +306,6 @@ function setup_page(){
 	</ul>
 </div>
 
-<p><a onclick="return toggle('sec8')"><img alt="plus" id="sec8_image" style="border:0;margin-right:5px;vertical-align:middle;" src="plus.png"/>Hardware Drivers</a></p>
-<div id="sec8">
-	<ul>
-		<li><a href="hal/parallel-port.html">Parallel Port Driver</a></li>
-		<li><a href="drivers/ax5214h.html">AX5214H Driver</a></li>
-		<li><a href="drivers/gm.html">General Mechatronics GM6-PCI Driver</a></li>
-		<li><a href="drivers/gs2.html">GS2 Driver</a></li>
-		<li><a href="drivers/hostmot2.html">Mesa HostMot2 Driver</a></li>
-		<li><a href="drivers/mb2hal.html">Modbus to HAL Driver</a></li>
-		<li><a href="drivers/mitsub-vfd.html">Mitsubishi VFD Driver</a></li>
-		<li><a href="drivers/motenc.html">Motenc Driver</a></li>
-		<li><a href="drivers/opto22.html">Opto22 Driver</a></li>
-		<li><a href="drivers/pico-ppmc.html">Pico Drivers</a></li>
-		<li><a href="drivers/pluto-p.html">Pluto P Driver</a></li>
-		<li><a href="drivers/pmx485.html">Powermax Modbus Driver</a></li>
-		<li><a href="drivers/servo-to-go.html">Servo To Go Driver</a></li>
-		<li><a href="drivers/shuttle.html">ShuttleXpress and ShuttlePRO Driver</a></li>
-		<li><a href="drivers/vfs11.html">VFS11 Driver</a></li>
-	</ul>
-</div>
-
-<p><a onclick="return toggle('sec9')"><img alt="plus" style="border:0;margin-right:5px;vertical-align:middle;" id="sec9_image" src="plus.png"/>ClassicLadder</a></p>
-<div id="sec9">
-ClassicLadder is a software PLC (Programmable Logic Controller) built
-into LinuxCNC.
-	<ul>
-		<li><a href="ladder/ladder-intro.html">ClassicLadder Introduction</a></li>
-		<li><a href="ladder/classic-ladder.html">ClassicLadder Programming</a></li>
-		<li><a href="ladder/ladder-examples.html">ClassicLadder Examples</a></li>
-	</ul>
-</div>
-
-<p><a onclick="return toggle('sec10')"><img src="plus.png" alt="plus" style="border:0;margin-right:5px;vertical-align:middle;" id="sec10_image"/>Hardware Examples</a></p>
-<div id="sec10">
-	<ul>
-		<li><a href="examples/pci-parallel-port.html">PCI Parallel Port Example</a></li>
-		<li><a href="examples/spindle.html">Spindle Control Example</a></li>
-		<li><a href="examples/mpg.html">MPG Example</a></li>
-		<li><a href="examples/gs2-example.html">GS2 Example</a></li>
-	</ul>
-</div>
-
-<p><a onclick="return toggle('sec11')"><img alt="plus" style="border:0;margin-right:5px;vertical-align:middle;" id="sec11_image" src="plus.png"/>HAL (Hardware Abstraction Layer)</a></p>
-<div id="sec11">
-	<ul>
-		<li><a href="hal/intro.html">HAL Introduction</a></li>
-		<li><a href="hal/basic-hal.html">HAL Basics</a></li>
-		<li><a href="hal/twopass.html">HAL Twopass</a></li>
-		<li><a href="hal/tutorial.html">HAL Tutorial</a></li>
-		<li><a href="hal/hal-examples.html">HAL Examples</a></li>
-		<li><a href="config/core-components.html">HAL Core Components</a></li>
-		<li><a href="hal/components.html">HAL Component List</a></li>
-		<li><a href="hal/rtcomps.html">HAL Component Descriptions</a></li>
-		<li><a href="hal/comp.html">HAL Component Generator</a></li>
-		<li><a href="hal/haltcl.html">HAL TCL Files</a></li>
-		<li><a href="hal/halmodule.html">Creating Userspace Python Components</a></li>
-		<li><a href="hal/canonical-devices.html">Canonical Device Interfaces</a></li>
-		<li><a href="hal/tools.html">HAL Tools</a></li>
-	</ul>
-</div>
-
-<p><a onclick="return toggle('sec12')"><img alt="plus" id="sec12_image" style="border:0;margin-right:5px;vertical-align:middle;" src="plus.png"/>Advanced Topics</a></p>
-<div id="sec12">
-	<ul>
-		<li><a href="motion/kinematics.html">Kinematics</a></li>
-		<li><a href="motion/dh-parameters.html">DH Parameters</a></li>
-		<li><a href="motion/5-axis-kinematics.html">5-Axis-Kinematics</a></li>
-		<li><a href="motion/switchkins.html">Switchable Kinematics</a></li>
-		<li><a href="motion/pid-theory.html">PID theory</a></li>
-		<li><a href="remap/remap.html">Remap: Extending LinuxCNC</a></li>
-		<li><a href="config/moveoff.html">Moveoff Component</a></li>
-		<li><a href="code/rs274.html">Stand Alone Interpreter</a></li>
-		<li><a href="motion/external-offsets.html">External Offsets</a></li>
-		<li><a href="tooldatabase/tooldatabase.html">Tool Database Interface</a></li>
-	</ul>
-</div>
-
-<p><a onclick="return toggle('sec13')"><img src="plus.png" alt="plus" id="sec13_image" style="border:0;margin-right:5px;vertical-align:middle;"/>Integrator Information</a></p>
-<div id="sec13">
-	<ul>
-		<li><a href="integrator/steppers.html">Stepper Information</a></li>
-		<li><a href="integrator/stepper-timing.html">Stepper Drive Timing</a></li>
-		<li><a href="integrator/wiring.html">Best Wiring Practices</a></li>
-	</ul>
-</div>
 
 <p><a onclick="return toggle('sec14')"><img src="plus.png" id="sec14_image" style="border:0;margin-right:5px;vertical-align:middle;" alt="plus"/>Developer Information</a></p>
 <div id="sec14">
