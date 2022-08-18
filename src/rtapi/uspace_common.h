@@ -91,6 +91,18 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
   if(res < 0) perror("shmctl IPC_STAT");
 
 #ifdef RTAPI
+  /* At present, setuid rtapi_app runs with geteuid() == 0 at all times but the
+   * fsuid is ruid except when WITH_ROOT when it's 0.
+   *
+   * Filesystem operations such as creat() respect the fsuid, but as shmget is
+   * not a filesystem operation, it does not respect the fsuid. So, if
+   * rtapi_app has created the segment in question, its owning uid is root.
+   * Changing the permission here is racy, but it is the best alternative
+   * currently available.
+   *
+   * The race causes a low probability (<1/1000 in testing in a VM) chance of
+   * linuxcnc/halrun to fail to start
+   */
   /* ensure the segment is owned by user, not root */
   if(geteuid() == 0) {
     stat.shm_perm.uid = ruid;
