@@ -160,7 +160,7 @@ https://po4a.alioth.debian.org/man/man7/po4a.7.php[po4a(7)] manpage.
 As the po4a support for asciidoc has been rapidly improving since
 LinuxCNC started using it, based on bug reports from the LinuxCNC
 community, a very recent version of po4a is needed.  At the moment, at
-least version 0.66 is needed, available in Debian Bookworm.
+least version 0.67 is needed, available in Debian Bookworm.
 
 === When the master document (english) changes
 
