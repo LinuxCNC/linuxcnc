@@ -187,7 +187,7 @@ static int axis_mask = 0;
     FIELD(hal_float_t,ro_value) /* current Feed Override value */ \
     FIELD(hal_bit_t,ro_increase) /* pin ror increasing the FO (+=scale) */ \
     FIELD(hal_bit_t,ro_decrease) /* pin for decreasing the FO (-=scale) */ \
-    FIELD(hal_bit_t,ro_reset) /* pin for resetting Feed Override */ \  
+    FIELD(hal_bit_t,ro_reset) /* pin for resetting Feed Override */ \
 \
     ARRAY(hal_s32_t,so_counts,EMCMOT_MAX_SPINDLES+1) /* pin for the Spindle Speed Override counting */ \
     ARRAY(hal_bit_t,so_count_enable,EMCMOT_MAX_SPINDLES+1) /* pin for the Spindle Speed Override counting enable */ \
