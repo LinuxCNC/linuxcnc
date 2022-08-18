@@ -147,8 +147,6 @@ include::config/iov2.adoc[]
 
 include::config/lathe-config.adoc[]
 
-include::hal/haltcl.adoc[]
-
 include::remap/remap.adoc[]
 
 include::config/moveoff.adoc[]
@@ -294,6 +292,8 @@ include::hal/rtcomps.adoc[]
 include::hal/hal-examples.adoc[]
 
 include::hal/comp.adoc[]
+
+include::hal/haltcl.adoc[]
 
 include::hal/halmodule.adoc[]
 
