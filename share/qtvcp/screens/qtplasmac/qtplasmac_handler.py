@@ -135,13 +135,12 @@ class HandlerClass:
         if self.units == 'inch':
             self.units = 'in'
             self.unitsPerMm = 0.03937
-        # try to open prefs file so we can use it for updates
+        # open prefs file so we can use it for updates
         # it will not exist prior to V1.222.170 2022/03/08
-        self.PREFS = None
-        try:
+        if os.path.isfile(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs')):
             self.PREFS = Access(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs'))
-        except:
-            pass
+        else:
+            self.PREFS = None
         self.updateIni = []
         self.update_check()
         self.PREFS = Access(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs'))
@@ -2180,6 +2179,7 @@ class HandlerClass:
             old = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac.prefs')
             if os.path.isfile(old):
                 UPDATER.split_prefs_file(old, qtvcpPrefsFile, machinePrefsFile)
+            self.PREFS = Access(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs'))
         # move conversational prefs from qtvcp.prefs to <machine_name>.prefs (pre V1.222.187 2022/05/03)
         if os.path.isfile(qtvcpPrefsFile) and os.path.isfile(machinePrefsFile):
             with open(qtvcpPrefsFile, 'r') as inFile:

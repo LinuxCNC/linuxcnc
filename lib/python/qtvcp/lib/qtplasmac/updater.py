@@ -209,6 +209,7 @@ def split_prefs_file(old, new, prefs):
 
 # use qtplasmac_comp.hal for component connections (pre V1.221.154 2022/01/18)
 def add_component_hal_file(path, halfiles):
+    tmpFile = None
     pinsToCheck = ['PLASMAC COMPONENT INPUTS','plasmac.arc-ok-in','plasmac.axis-x-position',
                    'plasmac.axis-y-position','plasmac.breakaway','plasmac.current-velocity',
                    'plasmac.cutting-start','plasmac.cutting-stop','plasmac.feed-override',
@@ -231,7 +232,6 @@ def add_component_hal_file(path, halfiles):
             with open(halfile, 'r') as inFile:
                 if 'plasmac.cutting-start' in inFile.read():
                     inFile.seek(0)
-                    tmpFile = '{}~'.format(halfile)
                     COPY(halfile, tmpFile)
                     with open(tmpFile, 'r') as inFile:
                         with open(f, 'w') as outFile:
@@ -239,7 +239,7 @@ def add_component_hal_file(path, halfiles):
                                 if any(pin in line for pin in pinsToCheck):
                                     continue
                                 outFile.write(line)
-    if os.path.isfile(tmpFile):
+    if tmpFile and os.path.isfile(tmpFile):
         os.remove(tmpFile)
 
 def add_component_hal_file_iniwrite(inifile):
