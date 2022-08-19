@@ -2,17 +2,20 @@ db_ran.ini       random_toolchanger
 db_nonran.ini nonrandom_toolchanger
 
 Each config starts with:
-  tool    numbers 10--19
-  pockets numbers 11--20
+  tool numbers 10--19
 
-tool 10 in pocket 11
-tool 11 in pocket 12
-...
+A number of tools are set with identical
+tool diameters to demonstrate tool selection
+based on accrued tool time.
+
+The config runs separate tasks to
+  a) modify a tool parameter
+  b) add/remove tool numbers
 
 Usage (for db_nonran.ini):
 
 1) In a terminal, start as
-$ linuxcnc db_nonran.ini
+$ linuxcnc ./db_nonran.ini
 F1 --------- Estop off
 F2 --------- Machine On
 Ctrl-Home -- Home All
@@ -37,10 +40,11 @@ with each reload.
 
 To watch the tool data changes and tool usage time
 accrual, use the following command  in a separate
-terminal (source if rip_environment for RIP
-builds):
+terminal (source rip_environment for RIP builds):
 
 $ watch -n 0.2 cat /tmp/db_nonran_file
+or
+$ watch -n 0.2 cat /tmp/db_ran_file
 
 The M parameter in the /tmp/db_nonran_file
 accounts for tool time measured in minutes

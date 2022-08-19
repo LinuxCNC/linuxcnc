@@ -123,12 +123,14 @@ to the 6mm endmill with the fewest operating hours.  Then, when a
 LinuxCNC program requests tool 110, the database would specify the
 appropriate pocket based on tool usage history.
 
-By default, requests for tool data are made at startup only.  A database
-program may update tool usage data on a continuous basis so long-lived
-LinuxCNC applications may benefit by refreshing the tool data.  The
-G-code command *G10 L0* can be used to request a tool data reload ('g'
-command) from within G-code programs or by MDI.
-
+Tool data changes made within LinuxCNC ('p','u','l' commands) are
+pushed immediately to the *db_program* which is expected to
+synchronize its source data.  By default, LinuxCNC requests for tool
+data ('g' commands) are made at startup only.  A database program may
+update tool usage data on a continuous basis so long-lived LinuxCNC
+applications may benefit by refreshing the tool data provided by the
+*db_program*.  The G-code command *G10L0* can be used to request a
+tool data reload ('g' command) from within G-code programs or by MDI.
 A reload operation is also typically provided by a Graphical User
 Interface (GUI) so that on-demand reloads can be requested.  For
 example, a python GUI application can use:
@@ -139,6 +141,35 @@ example, a python GUI application can use:
 from  linuxcnc import command
 command().load_tool_table()
 ----
+
+Alternatively, a *db_program* may push its local data changes to
+synchronize its data with LinuxCNC by using the load_tool_table()
+interface command.  Commands which push changes to LinuxCNC may be
+rejected if the interpreter is running.  The interpreter state can be
+checked before issuing a load_tool_table() command.  Example:
+
+[source,python]
+----
+#! /usr/bin/env python3
+import linuxcnc
+s = linuxcnc.stat()
+s.poll()
+if s.interp_state == linuxcnc.INTERP_IDLE:
+    linuxcnc.command().load_tool_table()
+else: # defer until interp not idle
+   ...
+----
+
+If the database application adds or removes tools after
+initialization, a call to tooldb_tools() must be issued with an
+updated user_tools list.  The updated list of tools will
+be used on subsequent get commands or load_tool_table()
+requests.
+
+[NOTE]
+Removal of a tool number should only be done if the tool number
+is not currently loaded in spindle.
+
 
 ==== Debug Environmental Variables
 
@@ -230,6 +261,15 @@ The sim configs demonstrate the use of the python 'tooldb' interface
 module and implement a basic flat-file database that tracks tool time
 usage for multiple tools having equal diameters.  The database rules
 support selection of the tool having the lowest operating time.
+
+The sim configs use a primary task to monitor and respond to tool
+updates initiated from within LinuxCNC.  Separate, concurrent tasks
+show the code required when changes are initiated by the *db_program*
+and demonstrate methods for synchronizing LinuxCNC internal tooldata.
+Examples include:
+
+. updates of tool parameters
+. addition and removal of tool numbers
 
 === Notes
 
