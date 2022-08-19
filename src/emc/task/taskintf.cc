@@ -1021,7 +1021,6 @@ int emcTrajSetAxes(int axismask)
     for(int i=0; i<EMCMOT_MAX_AXIS; i++)
         if(axismask & (1<<i)) axes = i+1;
 
-    TrajConfig.DeprecatedAxes = axes;
     TrajConfig.AxisMask = axismask;
     
     if (emc_debug & EMC_DEBUG_CONFIG) {
@@ -1284,7 +1283,6 @@ int emcTrajInit()
     TrajConfig.Inited = 0;
     TrajConfig.Joints = 0;
     TrajConfig.MaxAccel = DBL_MAX;
-    TrajConfig.DeprecatedAxes = 0;
     TrajConfig.AxisMask = 0;
     TrajConfig.LinearUnits = 1.0;
     TrajConfig.AngularUnits = 1.0;
@@ -1545,7 +1543,6 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 
     stat->joints = TrajConfig.Joints;
     stat->spindles = TrajConfig.Spindles;
-    stat->deprecated_axes = TrajConfig.DeprecatedAxes;
     stat->axis_mask = TrajConfig.AxisMask;
     stat->linearUnits = TrajConfig.LinearUnits;
     stat->angularUnits = TrajConfig.AngularUnits;

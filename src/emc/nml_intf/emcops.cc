@@ -59,7 +59,6 @@ EMC_TRAJ_STAT_MSG(EMC_TRAJ_STAT_TYPE, sizeof(EMC_TRAJ_STAT)),
     angularUnits = 1.0;
     cycleTime = 0.0;
     joints = 1;
-    deprecated_axes = 1;
     axis_mask = 1;
     mode = EMC_TRAJ_MODE_FREE;
     enabled = OFF;

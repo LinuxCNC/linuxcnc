@@ -1519,13 +1519,8 @@ FIXME: `axis_mask` and `axes` overspecify the number of axes
   of 0x5, an XYZ machine would have 0x7, and an XYZB machine would
   have an `axis_mask` of 0x17.
 
-`status.motion.traj.axes` (deprecated)::
-  The value of this variable is one more than the index of the
-  highest-numbered axis present on the machine. As in the `axis_mask`,
-  the index of X in 0, Y is 1, etc.  An XZ machine has `axes` value
-  of 3, as does an XYZ machine.  An XYZW machine has `axes` value 9.
-  This variable is not terribly helpful, and its use is deprecated.
-  Use `axis_mask` instead.
+`status.motion.traj.axes` (removed)::
+  This value was removed in LinuxCNC version 2.9.  Use `axis_mask` instead.
 
 `status.motion.traj.joints`::
   A count of the number of joints the machine has. A normal lathe

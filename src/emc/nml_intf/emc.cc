@@ -2371,7 +2371,6 @@ void EMC_TRAJ_STAT::update(CMS * cms)
     cms->update(linearUnits);
     cms->update(angularUnits);
     cms->update(cycleTime);
-    cms->update(deprecated_axes);
     cms->update(axis_mask);
     cms->update((int *) &mode, 1);
     cms->update(enabled);
