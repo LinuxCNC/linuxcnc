@@ -39,8 +39,7 @@ PyObject *to_python(bool b) {
     return PyBool_FromLong(b);
 }
 
-PyObject *to_python(unsigned u) {
-    if(u < LONG_MAX) return PyLong_FromLong(u);
+PyObject *to_python(unsigned int u) {
     return PyLong_FromUnsignedLong(u);
 }
 
