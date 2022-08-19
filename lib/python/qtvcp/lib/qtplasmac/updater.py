@@ -232,6 +232,7 @@ def add_component_hal_file(path, halfiles):
             with open(halfile, 'r') as inFile:
                 if 'plasmac.cutting-start' in inFile.read():
                     inFile.seek(0)
+                    tmpFile = '{}~'.format(halfile)
                     COPY(halfile, tmpFile)
                     with open(tmpFile, 'r') as inFile:
                         with open(f, 'w') as outFile:
