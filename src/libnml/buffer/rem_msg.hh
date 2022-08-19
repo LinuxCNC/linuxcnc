@@ -23,6 +23,7 @@
 #define REM_MSG_HH
 
 
+class NML;
 class CMS_DIAGNOSTICS_INFO;
 struct CMS_HEADER;
 
@@ -82,7 +83,7 @@ struct REMOTE_BLOCKING_READ_REQUEST:public REMOTE_CMS_REQUEST {
     /* to this client */
     long timeout_millis;	/* Milliseconds for blocking_timeout or -1 to 
 				   wait forever */
-    void *_nml;
+    NML *_nml;
     void *_data;
     void *_reply;
 };
