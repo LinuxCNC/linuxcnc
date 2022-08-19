@@ -93,7 +93,6 @@ typedef struct TrajConfig_t {
     int Spindles;
     double MaxAccel;
     double MaxVel;
-    int DeprecatedAxes;
     int AxisMask;
     double LinearUnits;
     double AngularUnits;
