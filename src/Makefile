@@ -642,7 +642,7 @@ install install-software install-docs:
 
 MENUS = ../share/menus/CNC.menu \
     ../share/desktop-directories/cnc.directory
-install-menus install-menu: $(MENUS) $(XDGDESKTOP)
+rip-install-menus rip-install-menu: $(MENUS) $(XDGDESKTOP)
 	mkdir -p $(HOME)/.config/menus/applications-merged
 	cp $< $(HOME)/.config/menus/applications-merged
 else
