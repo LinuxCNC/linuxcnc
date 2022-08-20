@@ -183,7 +183,7 @@ the translation level raise to a sensible level (for example not 0%),
 build rules need to be added to use the generated translations to
 build HTML and PDF editions of the translation.
 
-Add the new language code to the proper place in docs/po4a.conf.
+Add the new language code to the proper place in docs/po4a.cfg.
 Update build rules for the new language in `docs/src/Submakefile`.
 
 Edit debian/control.in to add the new linuxcnc-doc-$NEWLANG package.
