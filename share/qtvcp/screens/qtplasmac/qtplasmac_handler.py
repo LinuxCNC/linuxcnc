@@ -1,4 +1,4 @@
-VERSION = '1.229.228'
+VERSION = '1.229.231'
 
 '''
 qtplasmac_handler.py
@@ -1732,7 +1732,7 @@ class HandlerClass:
                     if result['error']:
                         msg0 = _translate('HandlerClass', 'Unable to calculate a leadin for this cut')
                         msg1 = _translate('HandlerClass', 'Program will run from selected line with no leadin applied')
-                        status.emit('error', operror, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
                     # load rfl file
                     if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
                         self.preRflFile = ACTION.prefilter_path or self.lastLoadedProgram
@@ -3522,7 +3522,7 @@ class HandlerClass:
             for command in commands.split('\\'):
                 command = command.strip()
                 if command != 'toggle-laser':
-                    self.user_button_command(command)
+                    self.user_button_command(bNum, command)
         elif 'pulse-halpin' in commands.lower():
             head = _translate('HandlerClass', 'HAL Pin Error')
             msg1 = _translate('HandlerClass', 'Failed to pulse HAL pin')
@@ -3583,7 +3583,7 @@ class HandlerClass:
             self.reloadRequired = False
             for command in commands.split('\\'):
                 command = command.strip()
-                self.user_button_command(command)
+                self.user_button_command(bNum, command)
                 if command[0] == "%":
                     continue
                 while not STATUS.is_interp_idle():
@@ -3597,7 +3597,7 @@ class HandlerClass:
             ACTION.SET_MANUAL_MODE()
 
     # for G-code commands and external commands
-    def user_button_command(self, command):
+    def user_button_command(self, bNum, command):
         if command and command[0].lower() in 'xyzabgmfsto' and command.replace(' ','')[1] in '0123456789<':
             if '{' in command:
                 newCommand = subCommand = ''
@@ -3723,9 +3723,10 @@ class HandlerClass:
             self.consumable_change_setup()
             if self.ccFeed == 'None' or self.ccFeed < 1:
                 head = _translate('HandlerClass', 'User Button Error')
-                msg0 = _translate('HandlerClass', 'Invalid feed rate for consumable change')
-                msg1 = _translate('HandlerClass', 'check .prefs file settings')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n{} Code\n'.format(head, msg0, msg1, str(button)))
+                msg0 = _translate('HandlerClass', 'Feed rate for consumable change missing or less than 1')
+                msg1 = _translate('HandlerClass', 'Check arguments for "change-consumables" button code in')
+                msg2 = _translate('HandlerClass', '.prefs file')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n{}{}\n'.format(head, msg0, msg1, self.machineName, msg2))
                 return
             else:
                 hal.set_p('plasmac.xy-feed-rate', str(float(self.ccFeed)))
@@ -4479,10 +4480,10 @@ class HandlerClass:
                             t_item += 1
                             received = []
                         else:
-                            msg0 = _translate('HandlerClass', 'Material number')
+                            msg0 = _translate('HandlerClass', 'Line')
                             msg1 = _translate('HandlerClass', 'is invalid')
                             msg2 = _translate('HandlerClass', 'Material numbers need to be less than 1000000')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{} {}{}\n'.format(head, msg0, msg1, matnum, msg2))
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} "{}" {}\n{}\n'.format(head, msg0, line.strip(), msg1, msg2))
                             continue
                     elif line.startswith('NAME'):
                         if line.split('=')[1].strip():
@@ -4540,10 +4541,10 @@ class HandlerClass:
                         if line.split('=')[1].strip():
                             c_mode = float(line.split('=')[1].strip())
                 except:
-                    msg0 = _translate('Material file processing was aborted')
-                    msg1 = _translate('The following line in the material file')
-                    msg2 = _translate('contains an erroneous character')
-                    msg3 = _translate('Fix the line and reload the material file')
+                    msg0 = _translate('HandlerClass', 'Material file processing was aborted')
+                    msg1 = _translate('HandlerClass', 'The following line in the material file')
+                    msg2 = _translate('HandlerClass', 'contains an erroneous character')
+                    msg3 = _translate('HandlerClass', 'Fix the line and reload the material file')
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n{}:\n{}{}\n'.format(head, msg0, msg1, msg2, line, msg3))
                     material_error = True
                     break
