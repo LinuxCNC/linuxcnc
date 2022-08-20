@@ -199,7 +199,8 @@ extern "C" {
 extern int max_rcs_errors_to_print;
 extern int rcs_errors_printed;
 
-extern char last_error_bufs[4][100];
+enum { error_buf_size = 256 };
+extern char last_error_bufs[4][error_buf_size];
 extern int last_error_buf_filled;
 
 #endif
