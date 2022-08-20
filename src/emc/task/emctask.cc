@@ -217,13 +217,13 @@ int emcTaskHalt()
 
 int emcTaskStateRestore()
 {
-    int res;
+    int res = 0;
     // Do NOT restore on MDI command
     if (emcStatus->task.mode == EMC_TASK_MODE_AUTO) {
         // Validity of state tag checked within restore function
         res = pinterp->restore_from_tag(emcStatus->motion.traj.tag);
     }
-    return 0;
+    return res;
 }
 
 int emcTaskAbort()
