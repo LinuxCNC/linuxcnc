@@ -184,7 +184,7 @@ int emcTaskInit()
 		    // set the user_defined_fmt string with dirname
 		    // note the %%02d means 2 digits after the M code
 		    // and we need two % to get the literal %
-		    ret = snprintf(user_defined_fmt[dct], sizeof(user_defined_fmt[0]),
+		    ret = snprintf(user_defined_fmt[dct], sizeof(user_defined_fmt[dct]),
 			     "%s/M1%%02d", expanddir); // update global
 		    if(ret >= sizeof(user_defined_fmt[0])){
 			return -EMSGSIZE; // name truncated

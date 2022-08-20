@@ -1254,8 +1254,8 @@ int main(int argc, char *argv[])
     // process local command line args
     while((opt = getopt_long(argc, argv, "e:n:p:s:w:", longopts, NULL)) != -1) {
       switch(opt) {
-        case 'e': snprintf(enablePWD, sizeof(defaultPath), "%s", optarg); break;
-        case 'n': snprintf(serverName, sizeof(defaultPath), "%s", optarg); break;
+        case 'e': snprintf(enablePWD, sizeof(enablePWD), "%s", optarg); break;
+        case 'n': snprintf(serverName, sizeof(serverName), "%s", optarg); break;
         case 'p': sscanf(optarg, "%d", &port); break;
         case 's': sscanf(optarg, "%d", &maxSessions); break;
         case 'w': snprintf(pwd, sizeof(pwd), "%s", optarg); break;
