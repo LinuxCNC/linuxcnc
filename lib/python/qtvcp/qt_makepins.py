@@ -82,7 +82,9 @@ class QTPanel():
         if INFO.TAB_CMDS:
             for name, loc, cmd in INFO.ZIPPED_TABS:
                 # install a QTvcp panel instance
-                if 'qtvcp' in cmd:
+                # if 'loadusr' is present, it's assumed embedding into AXIS
+                # so ignore it.
+                if 'qtvcp' in cmd and not 'loadusr' in cmd:
                     cmd = cmd.split()[1]
                     LOG.info('green<QTVCP: Found external qtvcp {} panel to instantiate>'.format(cmd))
 
