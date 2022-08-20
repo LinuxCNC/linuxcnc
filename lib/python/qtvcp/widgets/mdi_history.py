@@ -39,8 +39,8 @@ LOG = logger.getLogger(__name__)
 class MDIHistory(QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(MDIHistory, self).__init__(parent)
-        self.setMinimumSize(QSize(200, 150))    
-        self.setWindowTitle("PyQt5 editor test example") 
+        self.setMinimumSize(QSize(200, 150))
+        self.setWindowTitle("PyQt5 editor test example")
 
         lay = QVBoxLayout()
         lay.setContentsMargins(0,0,0,0)
@@ -100,7 +100,7 @@ class MDIHistory(QWidget, _HalWidgetBase):
                 self.list.scrollToBottom()
                 self.MDILine.setText('')
         except:
-            LOG.debug('File path is not valid: {}'.format(fp))
+            LOG.debug('File path is not valid: {}'.format(self.fp))
 
     def selectionChanged(self,old, new):
         cmd = self.getSelected()

@@ -260,8 +260,8 @@ class FileManager(QWidget, _HalWidgetBase):
             if temp is not None:
                 self.updateDirectoryView(temp)
             else:
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'file jumopath: {} not valid'.format(data))
-                log.debug('file jumopath: {} not valid'.format(data))
+                STATUS.emit('error', OPERATOR_ERROR, 'file jumopath: {} not valid'.format(data))
+                LOG.debug('file jumopath: {} not valid'.format(data))
 
     # jump directly to a saved path from the menu
     def jumpTriggered(self, data):
@@ -301,7 +301,7 @@ class FileManager(QWidget, _HalWidgetBase):
             self.listClicked(row)
 
         fname = self.currentPath
-        if fname is None: 
+        if fname is None:
             return
         if fname:
             self.load(fname)
@@ -447,7 +447,7 @@ class FileManager(QWidget, _HalWidgetBase):
     # This can be class patched to do something else
     def recordBookKeeping(self):
         fname = self.currentPath
-        if fname is None: 
+        if fname is None:
             return
         if self.PREFS_:
             self.PREFS_.putpref('last_loaded_directory', self.model.rootPath(), str, 'BOOK_KEEPING')

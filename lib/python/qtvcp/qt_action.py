@@ -641,7 +641,7 @@ class _Lcnc_Action(object):
         try:
             a = command['NAME']
         except:
-            LOG.warning("Call Dialog command Dict not recogzied: {}".format(option))
+            LOG.warning("Call Dialog command Dict not recogzied: {}".format(command))
         STATUS.emit('dialog-request', command)
 
     def HIDE_POINTER(self, state):
@@ -746,7 +746,7 @@ class _Lcnc_Action(object):
                 widgetTo.setMaximumWidth(widget.maximumWidth())
                 widgetTo.addWidget(tw)
             else:
-                LOG.warning('Widget {} is not a Tab or stacked Widget - skipping'.format(loc))
+                LOG.warning('Widget {} is not a Tab or stacked Widget - skipping'.format(widgetTo))
                 return False
         except Exception as e:
             LOG.warning("problem inserting child into location: {},{}".format(widget,e))
@@ -797,7 +797,7 @@ class _Lcnc_Action(object):
 
     # In free (joint) mode we use the plain joint number.
     # In axis mode we convert the joint number to the equivalent
-    # axis number 
+    # axis number
     def get_jog_info(self, num):
         if STATUS.stat.motion_mode == linuxcnc.TRAJ_MODE_FREE:
             return True, self.jnum_check(num)
@@ -1042,7 +1042,7 @@ class FilterProgram:
 
     # request an error dialog box
     def error(self, exitcode, stderr):
-        message = '''The filter program '{}' that was filtering '{}' 
+        message = '''The filter program '{}' that was filtering '{}'
                         exited with an error'''.format(self.program_filter, self.filtered_program)
         if stderr != '':
             more = "The error messages it produced are shown below:"

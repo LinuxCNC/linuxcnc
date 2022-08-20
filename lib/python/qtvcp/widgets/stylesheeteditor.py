@@ -49,6 +49,8 @@ from PyQt5 import QtGui, QtCore
 
 from qtvcp.core import Info, Path
 from qtvcp.qt_makegui import VCPWindow
+from qtvcp import logger
+LOG = logger.getLogger(__name__)
 INFO = Info()
 PATH = Path()
 WIDGETS = VCPWindow()
@@ -115,7 +117,7 @@ class StyleSheetEditor(QDialog):
         except Exception as e:
             print(e)
 
-        # check for qss in the users's config folder 
+        # check for qss in the users's config folder
         localqss = PATH.CONFIGPATH
         try:
             fileNames= [f for f in os.listdir(localqss) if f.endswith('.qss')]

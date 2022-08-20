@@ -171,7 +171,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         return  CV.cvtColor(img, CV.COLOR_BGR2GRAY)
 
     def blur(self, img, B=7):
-        return CV.GaussingBlur(img, (b,b), CV.BORDER_DEFAULT)
+        return CV.GaussingBlur(img, (B,B), CV.BORDER_DEFAULT)
 
     def canny(self, img, x=125, y=175):
         return CV.Canny(img , x, y)
@@ -212,12 +212,12 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         return frame[ch-coh:ch+coh, cw-cow:cw+cow]
 
     # draw a circle around small holes
-    # 
+    #
     def findCircles(self,frame):
         # Our operations on the frame come here
         gray = CV.cvtColor(frame, CV.COLOR_BGR2GRAY)
         # Display the resulting frame
- 
+
         circles = CV.HoughCircles(gray,CV.cv.CV_HOUGH_GRADIENT,1,20,param1=50,param2=30,minRadius=10,maxRadius=15)
         # print circles
         if circles is not None:
@@ -235,27 +235,27 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         # Setup BlobDetector
         detector = CV.SimpleBlobDetector()
         params = CV.SimpleBlobDetector_Params()
-	 
+
         # Filter by Area.
         params.filterByArea = True
         params.minArea = 20000
         params.maxArea = 40000
-	 
+
         # Filter by Circularity
         params.filterByCircularity = True
         params.minCircularity = 0.5
- 
+
         # Filter by Convexity
         params.filterByConvexity = False
         #params.minConvexity = 0.87
-	 
+
         # Filter by Inertia
         params.filterByInertia = True
         params.minInertiaRatio = 0.8
 
         # Distance Between Blobs
         params.minDistBetweenBlobs = 200
-	 
+
         # Create a detector with the parameters
         self.detector = CV.SimpleBlobDetector(params)
 
@@ -266,9 +266,9 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
 
         keypoints = self.detector.detect(image)
         for k in keypoints:
-        	CV.circle(overlay, (int(k.pt[0]), int(k.pt[1])), int(k.size/2), (0, 0, 255), -1)
-        	CV.line(overlay, (int(k.pt[0])-20, int(k.pt[1])), (int(k.pt[0])+20, int(k.pt[1])), (0,0,0), 3)
-        	CV.line(overlay, (int(k.pt[0]), int(k.pt[1])-20), (int(k.pt[0]), int(k.pt[1])+20), (0,0,0), 3)
+            CV.circle(overlay, (int(k.pt[0]), int(k.pt[1])), int(k.size/2), (0, 0, 255), -1)
+            CV.line(overlay, (int(k.pt[0])-20, int(k.pt[1])), (int(k.pt[0])+20, int(k.pt[1])), (0,0,0), 3)
+            CV.line(overlay, (int(k.pt[0]), int(k.pt[1])-20), (int(k.pt[0]), int(k.pt[1])+20), (0,0,0), 3)
 
         opacity = 0.5
         CV.addWeighted(overlay, opacity, image, 1 - opacity, 0, image)
@@ -444,7 +444,7 @@ class WebcamVideoStream:
         dev_port = 0
         working_ports = []
         available_ports = []
-        while len(non_working_ports) < 6: # if there are more than 5 non working ports stop the testing. 
+        while len(non_working_ports) < 6: # if there are more than 5 non working ports stop the testing.
             camera = CV.VideoCapture(dev_port)
             if not camera.isOpened():
                 non_working_ports.append(dev_port)

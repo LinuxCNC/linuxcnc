@@ -147,7 +147,7 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
     # STATUS messages
     # adjust image path name at runtime
     def _hal_init(self):
-        STATUS.connect('focus-overlay-changed', lambda w, data, text, color: 
+        STATUS.connect('focus-overlay-changed', lambda w, data, text, color:
                         self._status_response(data, text, color))
         STATUS.connect('graphics-loading-progress',lambda w,f: self.updateProgress(f))
         if self.PREFS_:
@@ -327,7 +327,7 @@ class FocusOverlay(OverlayWidget, _HalWidgetBase):
         self.mb.setVisible(value)
     def getShowText(self):
         return self._show_text
-    def resetShowText(self):
+    def resetShowText(self, value):
         self._show_text = True
         self.mb.setVisible(value)
 
