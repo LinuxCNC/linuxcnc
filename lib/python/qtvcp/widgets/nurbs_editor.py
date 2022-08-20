@@ -300,7 +300,7 @@ if __name__ == '__main__':
     elif len(sys.argv) == 2:
         inifilename = sys.argv[1]
     else:
-        usage()
+        sys.exit(1)
     window = NurbsEditor(path = inifilename)
     window.load_dialog()
     sys.exit(app.exec_())
