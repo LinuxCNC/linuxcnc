@@ -328,11 +328,11 @@ docs: manpages
 manpages: $(GENERATED_MANPAGES)
 
 clean: clean-manpages clean-translated
+	find $(DOC_SRCDIR) -name index*db -delete
 clean-manpages:
 	-rm -f $(GENERATED_MANPAGES)
 clean-translated:
 	-$(RM) -r $(GENERATED_TRANSLATED)
-
 
 DOTFILES=$(shell find . -name "*.dot") $(shell find ../docs/src/ -name "*.dot")
 .PHONY: svgs_made_from_dots
