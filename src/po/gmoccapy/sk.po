@@ -6,9 +6,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-08-14 10:55+0200\n"
-"PO-Revision-Date: 2022-07-28 15:58+0000\n"
+"PO-Revision-Date: 2022-08-20 08:48+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: none\n"
 "Language: sk\n"
@@ -63,17 +63,18 @@ msgstr "kĺby"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:696
 #, python-brace-format
 msgid "Press to home all {0}"
-msgstr "Stlačením vykonáte kalibráciu {0}"
+msgstr "Kalibrácia všetkých osí {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:709
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:996
+#, fuzzy
 msgid "Press to display previous homing button"
-msgstr "Stlačením zobrazíte tlačidlo predchádzajúcej kalibrácie"
+msgstr "Stlačením zobrazíte predchádzajúce tlačidlo návratu do pôvodného stavu"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:725
 #, python-brace-format
 msgid "Press to home {0} {1}"
-msgstr "Stlačením tlačidla skalibrujete {0} {1}"
+msgstr "Stlačením skalibrujete {0} {1}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:742
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1025
@@ -83,62 +84,71 @@ msgstr "Stlačením zobrazíte tlačidlo ďalšej kalibrácie"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:757
 #, python-brace-format
 msgid "Press to unhome all {0}"
-msgstr ""
+msgstr "Rozkalibrovať všetky osi {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:766
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1070
 msgid "Press to return to main button list"
-msgstr ""
+msgstr "Návrat do hlavného zoznamu tlačidiel"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:820
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1949
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2205
 msgid "**** GMOCCAPY ERROR ****\n"
-msgstr ""
+msgstr "**** GMOCCAPY CHYBA ****\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:821
 #, python-brace-format
 msgid "**** could not resolv the image path '{0}' given for button '{1}' ****"
 msgstr ""
+"**** nepodarilo sa vyriešiť cestu k obrázku '{0}' pre dané tlačidlo '{1}' "
+"****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:977
 msgid ""
 "edit\n"
 "offsets"
 msgstr ""
+"upraviť\n"
+"ofsety"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:983
 msgid "Press to edit the offsets"
-msgstr ""
+msgstr "Úprava posunov"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1008
 #, python-brace-format
 msgid "Press to set touch off value for axis {0}"
-msgstr ""
+msgstr "Nastaviť hodnotu dotyku pre os {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1041
 msgid "Press to reset all G92 offsets"
-msgstr ""
+msgstr "Resetovať všetky G92 ofsety"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1047
+#, fuzzy
 msgid ""
 " Block\n"
 "Height"
 msgstr ""
+"Výška\n"
+"bloku"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1049
 msgid "Press to enter new value for block height"
-msgstr ""
+msgstr "Zadať novú hodnotu výšky bloku"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1054
 msgid ""
 "set\n"
 "selected"
 msgstr ""
+"nastaviť\n"
+"vybrané"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1060
 msgid "Press to set the selected coordinate system to be the active one"
-msgstr ""
+msgstr "Nastaviť vybraný súradnicový systém ako aktívny"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1085
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1101
@@ -150,117 +160,118 @@ msgstr ""
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2123
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2126
 msgid "**** GMOCCAPY INFO ****"
-msgstr ""
+msgstr "**** GMOCCAPY INFORMACIA ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1086
 msgid "**** no valid probe config in INI File ****"
-msgstr ""
+msgstr "**** žiadna platná konfigurácia sondy v súbore INI ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1087
 msgid "**** disabled tool measurement ****"
-msgstr ""
+msgstr "**** vypnuté meranie nástroja ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1102
 msgid "**** found valid probe config in INI File ****"
-msgstr ""
+msgstr "**** v súbore INI sa našla platná konfigurácia sondy ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1103
 msgid "**** will use auto tool measurement ****"
-msgstr ""
+msgstr "**** použiť automatické meranie nástroja ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1118
 msgid "**** GMOCCAPY build_GUI INFO ****"
-msgstr ""
+msgstr "**** GMOCCAPY nadstavba_GUI INFORMÁCIA ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1119
 msgid "**** To many increments given in INI File for this screen ****"
 msgstr ""
+"**** Príliš vela inkrementov uvedených v súbore INI pre túto obrazovku ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1120
 msgid "**** Only the first 10 will be reachable through this screen ****"
-msgstr ""
+msgstr "**** Pre túto obrazovku bude dostupných iba prvých 10 položiek ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1129
 msgid "Continuous"
-msgstr ""
+msgstr "Nepretržite"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1248
 #, python-brace-format
 msgid "unknown jog command {0}"
-msgstr ""
+msgstr "Neznámy príkaz pohybu {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1275
 #, python-brace-format
 msgid "Press to jog axis {0}"
-msgstr ""
+msgstr "Pohyb osi {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1294
 #, python-brace-format
 msgid "Press to jog joint {0}"
-msgstr ""
+msgstr "Pohyb kĺbu {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1317
 msgid "**** GMOCCAPY INFO ****\n"
-msgstr ""
+msgstr "**** GMOCCAPY INFORMÁCIA ****\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1318
 msgid "**** found more than 16 macros, will use only the first 16 ****"
-msgstr ""
+msgstr "**** nájdených viac ako 16 makier, použije sa iba prvých 16 ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1329
 msgid "Press to display previous macro button"
-msgstr ""
+msgstr "Zobraziť predchádzajúce makro"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1348
 #, python-brace-format
 msgid "Press to run macro {0}"
-msgstr ""
+msgstr "Spustiť makro {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1359
 msgid "Press to display next macro button"
-msgstr ""
+msgstr "Zobraziť ďalšie tlačidlo makra"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1379
 msgid "Press to display the virtual keyboard"
-msgstr ""
+msgstr "Zobraziť virtuálnu klávesnicu"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1476
 msgid "*****  GMOCCAPY ERROR  *****"
-msgstr ""
+msgstr "*****  GMOCCAPY CHYBA  *****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1477
 msgid "this is not a lathe, as a lathe must have at least\n"
-msgstr ""
+msgstr "toto nie je sústruh, keďže sústruh musí mať najmenej\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1478
 msgid "an X and an Z axis\n"
-msgstr ""
+msgstr "os X a Z\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1479
 msgid "Wrong lathe configuration, we will leave here"
-msgstr ""
+msgstr "Nesprávna konfigurácia sústruhu, na tomto mieste to opúšťame"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1480
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1952
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2208
 msgid "Very critical situation"
-msgstr ""
+msgstr "Veľmi kritická situácia"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1630
 msgid "*****  GMOCCAPY INFO  *****"
-msgstr ""
+msgstr "*****  GMOCCAPY INFORMÁCIA  *****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1631
 msgid "this is not a usual config\n"
-msgstr ""
+msgstr "toto nie je bežná konfigurácia\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1632
 msgid "we miss one of X , Y or Z axis\n"
-msgstr ""
+msgstr "chýba nám jedna z osi X, Y alebo Z\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1633
 msgid "We will use by axisletter ordered jog button"
-msgstr ""
+msgstr "Použijeme pomocou osového písmena príslušné tlačidlo jog"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1799
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2921
