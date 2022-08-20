@@ -1,3 +1,13 @@
+ver 3.1.3.8 (LinuxCNC 2.8.3 release)
+- fixed translation of some tooltips and a dialog message
+  Thanks to zz912
+
+- fixed detection of file change:
+  - A cursor change in the G-code editor was detected as a file change.
+  - After saving changes, a warning for unsaved changes still appeared.
+
+- fixed disabled save button after creating a new file and 'save as'
+
 ver 3.1.3.8
 - changed the hide command to be able to hide any element of the GUI
 
