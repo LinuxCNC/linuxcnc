@@ -327,10 +327,11 @@ endif
 docs: manpages
 manpages: $(GENERATED_MANPAGES)
 
-clean: clean-manpages clean-translated
-	find $(DOC_SRCDIR) -name index*db -delete
+clean: clean-manpages clean-mandb clean-translated
 clean-manpages:
 	-rm -f $(GENERATED_MANPAGES)
+clean-mandb:
+	find $(DOC_SRCDIR) -name index*db -delete
 clean-translated:
 	-$(RM) -r $(GENERATED_TRANSLATED)
 

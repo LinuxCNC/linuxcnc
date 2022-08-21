@@ -565,7 +565,8 @@ modclean:
 depclean:
 	-rm -rf depends
 
-clean: depclean modclean
+clean: genclean depclean modclean
+genclean:
 	find . -name '*.o' |xargs rm -f
 	-rm -rf objects
 	-rm -f $(TARGETS)
