@@ -33,23 +33,23 @@ def save(P, W, Conv):
     error = ''
     valid, P.leadIn = Conv.conv_is_float(W.liEntry.text())
     if not valid:
-        msg = _('Invalid LEAD IN entry detected')
+        msg = _translate('Conversational', 'Invalid LEAD IN entry detected')
         error += '{}\n\n'.format(msg)
     valid, P.leadOut = Conv.conv_is_float(W.loEntry.text())
     if not valid:
-        msg = _('Invalid LEAD OUT entry detected')
+        msg = _translate('Conversational', 'Invalid LEAD OUT entry detected')
         error += '{}\n\n'.format(msg)
     valid, P.holeDiameter = Conv.conv_is_float(W.shEntry.text())
     if not valid:
-        msg = _('Invalid DIAMETER entry detected')
+        msg = _translate('Conversational', 'Invalid DIAMETER entry detected')
         error += '{}\n\n'.format(msg)
     valid, P.holeSpeed = Conv.conv_is_float(W.hsEntry.text())
     if not valid:
-        msg = _('Invalid SPEED % entry detected')
+        msg = _translate('Conversational', 'Invalid SPEED % entry detected')
         error += '{}\n\n'.format(msg)
     valid, P.gridSize = Conv.conv_is_float(W.gsEntry.text())
     if not valid:
-        msg = _('Invalid GRID SIZE entry detected')
+        msg = _translate('Conversational', 'Invalid GRID SIZE entry detected')
         error += '{}\n\n'.format(msg)
     if error:
         P.dialogError = True

@@ -37,9 +37,9 @@ def preview(P, W, Conv):
     origin = W.centLeft.text() == 'CENTER'
     styles = [None, 'extRadius', 'extRadius', 'extRadius', 'extRadius']
     for n in range(1, 5):
-        if W['r{}Button'.format(n)].text().startswith(_('CHAMFER')):
+        if W['r{}Button'.format(n)].text().startswith(_translate('Conversational', 'CHAMFER')):
             styles[n] = 'chamfer'
-        elif W['r{}Button'.format(n)].text().startswith(_('iRADIUS')):
+        elif W['r{}Button'.format(n)].text().startswith(_translate('Conversational', 'iRADIUS')):
             styles[n] = 'intRadius'
     style1 = W.r1Button.text()
     style2 = W.r1Button.text()
