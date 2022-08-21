@@ -1,10 +1,10 @@
 [Desktop Entry]
 Version=1.0
-Name=LinuxCNC Manual Pages
-Comment=Integrator Information
+Name=Integrator Information - ES
+Comment=Documentation for the integrator of LinucCNC
 Type=Application
-Exec=xdg-open /usr/share/doc/linuxcnc/LinuxCNC_Manual_Pages.pdf
-Icon=linuxcncicon
+Exec=xdg-open /usr/share/doc/linuxcnc/LinuxCNC_Integrator_es.pdf
+Icon=linuxcnc_es
 X-GNOME-DocPath=
 Terminal=false
 StartupNotify=false

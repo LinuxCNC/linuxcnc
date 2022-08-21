@@ -1,10 +1,10 @@
 [Desktop Entry]
 Version=1.0
-Name=LinuxCNC Manual Pages
-Comment=Integrator Information
+Name=G-Code Quick Reference - zn_CN
+Comment=Quick reference for G, M and O codes in LinuxCNC
 Type=Application
-Exec=xdg-open /usr/share/doc/linuxcnc/LinuxCNC_Manual_Pages.pdf
-Icon=linuxcncicon
+Exec=xdg-open /usr/share/doc/linuxcnc/gcode_zn_CN.html
+Icon=linuxcnc_zn_CN
 X-GNOME-DocPath=
 Terminal=false
 StartupNotify=false

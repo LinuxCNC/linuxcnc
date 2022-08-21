@@ -1,11 +1,12 @@
 [Desktop Entry]
 Version=1.0
+Name=Latency Histogram@EMC2_SUFFIX@
+Comment=Show histogram of your machine's latency
 Type=Application
 Exec=@EMC2_LATENCY_HISTOGRAM_SCRIPT@
 Icon=@EMC2_ICON@
 X-GNOME-DocPath=
 Terminal=false
-Name=Latency Histogram@EMC2_SUFFIX@
-Comment=Show histogram of your machine's latency
 StartupNotify=false
-Categories=Science;X-CNC;
+Categories=Science;Utility;Engineering;X-CNC;
+Keywords=cnc;linuxcnc;cncprog;benchmark;

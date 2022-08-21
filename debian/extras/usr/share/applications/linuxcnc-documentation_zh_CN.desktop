@@ -1,10 +1,10 @@
 [Desktop Entry]
 Version=1.0
-Name=LinuxCNC Manual Pages
-Comment=Integrator Information
+Name=User Manual - zh_CN
+Comment=LinuxCNC Documentation
 Type=Application
-Exec=xdg-open /usr/share/doc/linuxcnc/LinuxCNC_Manual_Pages.pdf
-Icon=linuxcncicon
+Exec=xdg-open /usr/share/doc/linuxcnc/LinuxCNC_Documentation_zh_CN.pdf
+Icon=linuxcnc_zh_CN
 X-GNOME-DocPath=
 Terminal=false
 StartupNotify=false

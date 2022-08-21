@@ -1,12 +1,12 @@
 [Desktop Entry]
 Version=1.0
+Name=LinuxCNC Pncconf Wizard
+Comment=Configuration Wizard For Mesa I/O Cards
 Type=Application
 Exec=@EMC2_BIN_DIR@/pncconf
 Icon=linuxcncicon
 X-GNOME-DocPath=
 Terminal=false
-Comment=Configuration Wizard For Mesa I/O Cards
 StartupNotify=false
-Categories=Utility;Engineering;X-CNC;
-Name=LinuxCNC Pncconf Wizard
+Categories=Science;Utility;Engineering;X-CNC;
 Keywords=cnc;linuxcnc;cncprog;cncconfig;

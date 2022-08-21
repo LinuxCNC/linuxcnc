@@ -1,10 +1,10 @@
 [Desktop Entry]
 Version=1.0
-Name=Integrator Information - EN
+Name=Integrator Information - zh_CN
 Comment=Documentation for the integrator of LinucCNC
 Type=Application
-Exec=xdg-open /usr/share/doc/linuxcnc/LinuxCNC_Integrator.pdf
-Icon=linuxcnc_en
+Exec=xdg-open /usr/share/doc/linuxcnc/LinuxCNC_Integrator_zh_CN.pdf
+Icon=linuxcnc_zh_CN
 X-GNOME-DocPath=
 Terminal=false
 StartupNotify=false

@@ -1,12 +1,12 @@
 [Desktop Entry]
 Version=1.0
 Name=Getting Started Guide - ZH
+Comment=Information on how to download and install LinuxCNC
 Type=Application
 Exec=xdg-open /usr/share/doc/linuxcnc/LinuxCNC_Getting_Started_zh_CN.pdf
 Icon=linuxcnc_zh_CN
 X-GNOME-DocPath=
 Terminal=false
-Comment=Information on how to download and install LinuxCNC
 StartupNotify=false
-Categories=Science;X-CNC-DOC;
-Keywords=cnc;linuxcnc;
+Categories=Science;Engineering;X-CNC-DOC;
+Keywords=cnc;linuxcnc;cncdoc;
