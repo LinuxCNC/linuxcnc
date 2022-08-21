@@ -32,7 +32,7 @@ CLASSICLADDERSRCS := $(addprefix hal/classicladder/, \
 	vars_access.c \
         )
 	
-GTK2_CFLAGS += -DGTK_INTERFACE -DGTK2
+GTK2_CFLAGS += -DGTK_INTERFACE -DGTK2 -Wno-deprecated-declarations
 ifeq ($(HAVE_GNOMEPRINT),yes)
 CLASSICLADDERSRCS += hal/classicladder/print_gnome.c
 GTK2_CFLAGS += -DGNOME_PRINT_USE

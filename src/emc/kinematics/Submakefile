@@ -7,7 +7,7 @@ USERSRCS += $(GENSERKINSSRCS)
 
 DELTAMODULESRCS := emc/kinematics/lineardeltakins.cc
 PYSRCS += $(DELTAMODULESRCS)
-$(call TOOBJS, $(DELTAMODULESRCS)): CFLAGS += -x c++ -Wno-declaration-after-statement
+$(call TOOBJS, $(DELTAMODULESRCS)): EXTRAFLAGS += $(SILENCE_BOOST_INTERNAL_DIAGNOSTICS_FLAGS)
 
 DELTAMODULE := ../lib/python/lineardeltakins.so
 $(DELTAMODULE): $(call TOOBJS, $(DELTAMODULESRCS))
@@ -27,7 +27,7 @@ TARGETS += ../bin/genserkins
 
 RDELTAMODULESRCS := emc/kinematics/rotarydeltakins.cc
 PYSRCS += $(RDELTAMODULESRCS)
-$(call TOOBJS, $(RDELTAMODULESRCS)): CFLAGS += -x c++ -Wno-declaration-after-statement
+$(call TOOBJS, $(RDELTAMODULESRCS)): EXTRAFLAGS += $(SILENCE_BOOST_INTERNAL_DIAGNOSTICS_FLAGS)
 
 RDELTAMODULE := ../lib/python/rotarydeltakins.so
 $(RDELTAMODULE): $(call TOOBJS, $(RDELTAMODULESRCS))

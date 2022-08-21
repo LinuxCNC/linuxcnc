@@ -35,11 +35,9 @@ int main(int argc, char *argv[])
 {
     int t;
     int num = 1;
-    char _variable[LINELEN] = "";
-    char *variable = 0;
-    char _section[LINELEN] = "";
-    char *section = 0;
-    char path[LINELEN] = "emc.ini";
+    const char *variable = 0;
+    const char *section = 0;
+    const char *path = "emc.ini";
     const char *inistring;
     int retval;
     bool tildeexpand=false;
@@ -53,7 +51,7 @@ int main(int argc, char *argv[])
 		    "%s: ini file not specified after -ini\n", argv[0]);
 		exit(1);
 	    } else {
-		strncpy(path, argv[t + 1], LINELEN);
+		path = argv[t+1];
 		t++;		/* step over following arg */
 	    }
 	} else if (!strcmp(argv[t], "-var")) {
@@ -63,8 +61,7 @@ int main(int argc, char *argv[])
 		    "%s: variable name not specified after -var\n", argv[0]);
 		exit(1);
 	    } else {
-		strncpy(_variable, argv[t + 1], LINELEN);
-		variable = _variable;
+		variable = argv[t+1];
 		t++;		/* step over following arg */
 	    }
 	} else if (!strcmp(argv[t], "-sec")) {
@@ -74,8 +71,7 @@ int main(int argc, char *argv[])
 		    "%s: section name not specified after -sec\n", argv[0]);
 		exit(1);
 	    } else {
-		strncpy(_section, argv[t + 1], LINELEN);
-		section = _section;
+		section = argv[t+1];
 		t++;		/* step over following arg */
 	    }
 	} else if (!strcmp(argv[t], "-num")) {
@@ -97,7 +93,7 @@ int main(int argc, char *argv[])
 	} else{
 	    /* invalid argument */
 	    fprintf(stderr,
-		"%s: -var <variable> {-sec <section>} {<-ini inifile>} [-num <nth item>]\n",
+		"%s: -var <variable> {-tildeexpand} {-sec <section>} {<-ini inifile>} [-num <nth item>]\n",
 		argv[0]);
 	    exit(1);
 	}

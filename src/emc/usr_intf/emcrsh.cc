@@ -2939,12 +2939,12 @@ int main(int argc, char *argv[])
     while((opt = getopt_long(argc, argv, "he:n:p:s:w:d:", longopts, NULL)) != - 1) {
       switch(opt) {
         case 'h': usage(argv[0]); exit(1);
-        case 'e': strncpy(enablePWD, optarg, strlen(optarg) + 1); break;
-        case 'n': strncpy(serverName, optarg, strlen(optarg) + 1); break;
+        case 'e': snprintf(enablePWD, sizeof(enablePWD), "%s", optarg); break;
+        case 'n': snprintf(serverName, sizeof(serverName), "%s", optarg); break;
         case 'p': sscanf(optarg, "%d", &port); break;
         case 's': sscanf(optarg, "%d", &maxSessions); break;
-        case 'w': strncpy(pwd, optarg, strlen(optarg) + 1); break;
-        case 'd': strncpy(defaultPath, optarg, strlen(optarg) + 1);
+        case 'w': snprintf(pwd, sizeof(pwd), "%s", optarg); break;
+        case 'd': snprintf(defaultPath, sizeof(defaultPath), "%s", optarg); break;
         }
       }
 

@@ -47,7 +47,7 @@ long rcs_print_mode_flags = PRINT_RCS_ERRORS;
 FILE *rcs_print_file_stream = NULL;
 char rcs_print_file_name[80] = "rcs_out.txt";
 
-char last_error_bufs[4][100];
+char last_error_bufs[4][error_buf_size];
 int error_bufs_initialized = 0;
 int last_error_buf_filled = 0;
 
@@ -287,7 +287,7 @@ int separate_words(char **_dest, int _max, char *_src)
 
 int rcs_vprint(const char *_fmt, va_list _args, int save_string)
 {
-    static char temp_string[256];
+    static char temp_string[error_buf_size];
 
     if (NULL == _fmt) {
 	return (EOF);

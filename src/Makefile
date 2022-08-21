@@ -25,20 +25,6 @@ install: install-software install-docs
 
 install-software: install-kernel-dep install-kernel-indep install-menu
 
-
-# buster gcc (Debian 8.3.0-6) emits many warnings
-# use at your own risk
-ifeq ($(origin SUPPRESS_WARNINGS), undefined)
-else
-  QUIETFLAGS    ?=
-  QUIETFLAGS    += -Wno-unused-label
-  QUIETFLAGS    += -Wno-format-overflow
-  QUIETFLAGS    += -Wno-format-truncation
-  QUIETFLAGS    += -Wno-stringop-truncation
-  CXXQUIETFLAGS := $(QUIETFLAGS)
-  CXXQUIETFLAGS += -Wno-catch-value
-endif
-
 ifeq ($(origin KERNELRELEASE), undefined)
 MAKEFLAGS += --warn-undefined-variables
 endif
@@ -258,11 +244,17 @@ INCLUDE += $(LIBTIRPC_CFLAGS)
 # Compilation options.	Perhaps some of these should come from Makefile.inc? (CXXFLAGS now does)
 INTEGER_OVERFLOW_FLAGS := -fwrapv
 OPT := -Os $(INTEGER_OVERFLOW_FLAGS)
-DEBUG := $(DEBUG) -g -Wall
+DEBUG := $(DEBUG) -g -Wall -Wno-stringop-truncation
 CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DULAPI -std=gnu99 -fgnu89-inline -Werror=implicit-function-declaration $(CFLAGS) $(CPPFLAGS)
 CXXFLAGS := $(INCLUDE) $(EXTRA_DEBUG) -DULAPI $(DEBUG) $(OPT) -Woverloaded-virtual $(CXXFLAGS) $(CPPFLAGS)
 CXXFLAGS += $(call cxx-option, -Wno-psabi)
 CXXFLAGS += $(call cxx-option, -std=gnu++11, -std=gnu++0x)
+# In Debian 11, any inclusion of <boost/python.hpp> leads to several
+# diagnostics from included headers about deprecated features. LinuxCNC does
+# not directly use these deprecated features, but it does use boost::python.
+# Silence the warnings just when they occur in files using boost/python.hpp by
+# adding SILENCE_BOOST_INTERNAL_DIAGNOSTICS_FLAGS to the object's EXTRAFLAGS
+SILENCE_BOOST_INTERNAL_DIAGNOSTICS_FLAGS = -DBOOST_ALLOW_DEPRECATED_HEADERS=1 -DBOOST_BIND_GLOBAL_PLACEHOLDERS=1
 
 CFLAGS   += $(TOOL_NML_FLAG)
 CXXFLAGS += $(TOOL_NML_FLAG)
@@ -645,7 +637,7 @@ install install-software install-docs:
 
 MENUS = ../share/menus/CNC.menu \
     ../share/desktop-directories/cnc.directory
-install-menus install-menu: $(MENUS) $(XDGDESKTOP)
+rip-install-menus rip-install-menu: $(MENUS) $(XDGDESKTOP)
 	mkdir -p $(HOME)/.config/menus/applications-merged
 	cp $< $(HOME)/.config/menus/applications-merged
 else

@@ -163,7 +163,7 @@ retCode parse_pin_names(const char * names_string, mb_tx_t *this_mb_tx)
 retCode parse_transaction_section(const int mb_tx_num)
 {
     char *fnct_name = "parse_transaction_section";
-    char section[20];
+    char section[40];
     char *tag;
     const char *tmpstr;
     mb_tx_t *this_mb_tx;
