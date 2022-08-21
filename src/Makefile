@@ -25,18 +25,6 @@ install: install-software install-docs
 
 install-software: install-kernel-dep install-kernel-indep install-menu
 
-
-# buster gcc (Debian 8.3.0-6) emits many warnings
-# use at your own risk
-ifeq ($(origin SUPPRESS_WARNINGS), undefined)
-else
-  QUIETFLAGS    ?=
-  QUIETFLAGS    += -Wno-unused-label
-  QUIETFLAGS    += -Wno-format-overflow
-  CXXQUIETFLAGS := $(QUIETFLAGS)
-  CXXQUIETFLAGS += -Wno-catch-value
-endif
-
 ifeq ($(origin KERNELRELEASE), undefined)
 MAKEFLAGS += --warn-undefined-variables
 endif
