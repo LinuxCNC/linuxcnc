@@ -47,7 +47,7 @@ long rcs_print_mode_flags = PRINT_RCS_ERRORS;
 FILE *rcs_print_file_stream = NULL;
 char rcs_print_file_name[80] = "rcs_out.txt";
 
-char last_error_bufs[4][256];
+char last_error_bufs[4][error_buf_size];
 int error_bufs_initialized = 0;
 int last_error_buf_filled = 0;
 
