@@ -33,13 +33,15 @@ fi
 AC_PROG_CXX
 AC_PROG_INSTALL
 
-m4_include([m4/ax_cxx_compile_stdcxx_11.m4])
+m4_include([m4/ax_require_defined.m4])
+m4_include([m4/ax_cxx_compile_stdcxx.m4])
+m4_include([m4/ax_cxx_compile_stdcxx_17.m4])
 m4_include([m4/ax_python.m4])
 m4_include([m4/ax_python_devel.m4])
 m4_include([m4/ax_boost_base.m4])
 m4_include([m4/ax_boost_python.m4])
 # make this optional - it will likely only result in warnings
-AX_CXX_COMPILE_STDCXX_11(noext,optional)
+AX_CXX_COMPILE_STDCXX_17(ext,mandatory)
 
 AC_MSG_CHECKING(build toplevel)
 BUILD_TOPLEVEL="$(cd ..; pwd -P)"
