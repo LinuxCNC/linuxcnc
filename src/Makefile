@@ -249,6 +249,12 @@ CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DULAPI -std=gnu99 -fgnu89-i
 CXXFLAGS := $(INCLUDE) $(EXTRA_DEBUG) -DULAPI $(DEBUG) $(OPT) -Woverloaded-virtual $(CXXFLAGS) $(CPPFLAGS)
 CXXFLAGS += $(call cxx-option, -Wno-psabi)
 CXXFLAGS += $(call cxx-option, -std=gnu++11, -std=gnu++0x)
+# In Debian 11, any inclusion of <boost/python.hpp> leads to several
+# diagnostics from included headers about deprecated features. LinuxCNC does
+# not directly use these deprecated features, but it does use boost::python.
+# Silence the warnings just when they occur in files using boost/python.hpp by
+# adding SILENCE_BOOST_INTERNAL_DIAGNOSTICS_FLAGS to the object's EXTRAFLAGS
+SILENCE_BOOST_INTERNAL_DIAGNOSTICS_FLAGS = -DBOOST_ALLOW_DEPRECATED_HEADERS=1 -DBOOST_BIND_GLOBAL_PLACEHOLDERS=1
 
 CFLAGS   += $(TOOL_NML_FLAG)
 CXXFLAGS += $(TOOL_NML_FLAG)

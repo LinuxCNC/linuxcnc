@@ -23,7 +23,7 @@ MILLTASKSRCS := \
 	emc/task/taskclass.cc \
 	emc/task/backtrace.cc \
 
-$(call TOOBJSDEPS, emc/task/taskmodule.cc): EXTRAFLAGS += -DBOOST_ALLOW_DEPRECATED_HEADERS=1
+$(call TOOBJSDEPS, emc/task/taskmodule.cc): EXTRAFLAGS += $(SILENCE_BOOST_INTERNAL_DIAGNOSTICS_FLAGS)
 
 USERSRCS += $(MILLTASKSRCS)
 
