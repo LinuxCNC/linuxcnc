@@ -37,7 +37,7 @@ controller.
 Allows one to embed program into the widget.
 Only programs that utilize the xembed protocol will work such as:
 
-* gladevcp virtual control panels
+* GladeVCP virtual control panels
 * Onboard virtual keyboard
 * qtvcp virtual control panels
 * mplayer video player
