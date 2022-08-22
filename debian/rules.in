@@ -91,6 +91,9 @@ override_dh_installdocs-arch:
 
 override_dh_auto_install-indep:
 	DESTDIR=$(DESTDIR) $(MAKE) -C src install-docs install-doc
+	# Remove the docs we just built that we don't have debs for yet...
+	rm -f $(DESTDIR)/usr/share/doc/linuxcnc/*_de.pdf
+	rm -f $(DESTDIR)/usr/share/doc/linuxcnc/*_nb.pdf
 
 override_dh_installdocs-indep:
 	# The G-code quick reference html docs are built as
