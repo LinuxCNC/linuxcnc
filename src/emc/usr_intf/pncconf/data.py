@@ -1021,7 +1021,7 @@ If you have a REALLY large config that you wish to convert to this newer version
             templist = {"touchyabscolor":"abs_textcolor","touchyrelcolor":"rel_textcolor",
                         "touchydtgcolor":"dtg_textcolor","touchyerrcolor":"err_textcolor"}
             for key,value in templist.items():
-                prefs.putpref(value, self[key], str)
+                _APP.set_touchy_preference(value, self[key], str)
             if self.touchyposition[0] or self.touchysize[0]:
                     pos = size = ""
                     if self.touchyposition[0]:
@@ -1030,9 +1030,9 @@ If you have a REALLY large config that you wish to convert to this newer version
                         size = "%dx%d"% (self.touchysize[1],self.touchysize[2])
                     geo = "%s%s"%(size,pos)
             else: geo = "default"
-            prefs.putpref('window_geometry',geo, str)
-            prefs.putpref('gtk_theme',self.touchytheme, str)
-            prefs.putpref('window_force_max', self.touchyforcemax, bool)
+            _APP.set_touchy_preference('window_geometry',geo, str)
+            _APP.set_touchy_preference('gtk_theme',self.touchytheme, str)
+            _APP.set_touchy_preference('window_force_max', self.touchyforcemax, bool)
 
         # write AXIS rc file for geometry
         if self.frontend == _PD._AXIS and (self.axisposition[0] or self.axissize[0] or self.axisforcemax):
