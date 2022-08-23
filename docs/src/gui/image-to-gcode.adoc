@@ -19,7 +19,7 @@ corresponds to the depth (or height) of the object at each point.
 
 == Integrating image-to-gcode with the AXIS user interface
 
-Add the following lines to the '[FILTER]'  section of your .ini file
+Add the following lines to the '[FILTER]'  section of your INI file
 to make AXIS automatically invoke
 image-to-gcode when you open a .png, .gif, or .jpg image
 
@@ -44,9 +44,9 @@ image-to-gcode torus.png > torus.ngc
 ----
 
 Verify all the settings in the right-hand column, then press OK to
-create the gcode. Depending on the image size and options chosen, this
+create the G-code. Depending on the image size and options chosen, this
 may take from a few seconds to a few minutes. If you are loading the
-image in AXIS, the gcode will automatically be loaded and previewed
+image in AXIS, the G-code will automatically be loaded and previewed
 once image-to-gcode completes. In AXIS, hitting reload will show the
 image-to-gcode option screen again, allowing you to tweak them.
 
@@ -99,7 +99,7 @@ The feed rate for other parts of the path.
 
 === Spindle Speed (RPM)
 
-The spindle speed S code that should be put into the gcode file.
+The spindle speed S code that should be put into the G-code file.
 
 === Scan Pattern
 

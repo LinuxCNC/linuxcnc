@@ -83,7 +83,7 @@ motion controller to control wheel jogging:
 
 === Enabling Touchy
 
-To use Touchy, in the '[DISPLAY]' section of your ini file change the
+To use Touchy, in the '[DISPLAY]' section of your INI file change the
 display selector line to 'DISPLAY = touchy'
 
 === Preferences
@@ -102,7 +102,7 @@ All other font sizes can be changed on the Preferences tab.
 === Macros
 
 Touchy can invoke O-word macros using the MDI interface.  To configure
-this, in the '[TOUCHY]' section of the ini file, add one or more 'MACRO'
+this, in the '[TOUCHY]' section of the INI file, add one or more 'MACRO'
 lines.  Each should be of the format
 
 [source,{ini}]

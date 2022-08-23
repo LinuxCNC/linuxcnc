@@ -15,7 +15,7 @@
 Gscreen is an infrastructure to display a custom screen to control LinuxCNC.
 Gscreen borrows heavily from GladeVCP. GladeVCP uses the GTK widget editor
 GLADE to build virtual control panels (VCP) by point and click. Gscreen
-combines this with python programming to create a GUI screen for running a
+combines this with Python programming to create a GUI screen for running a
 CNC machine.
 
 Gscreen is customizable if you want different buttons and status LEDs. Gscreen
@@ -53,7 +53,7 @@ widgets.
 
 === PyGTK
 
-PyGTK is the python binding to GTK. GTK is the 'toolkit' of visual widgets,
+PyGTK is the Python binding to GTK. GTK is the 'toolkit' of visual widgets,
 it's programmed in C. PyGTK uses Python to 'bind' with GTK.
 
 == GladeVCP
@@ -62,21 +62,21 @@ it's programmed in C. PyGTK uses Python to 'bind' with GTK.
 LinuxCNC requires some special widgets so GladeVCP supplies them. Many are just
 HAL extensions to existing PyGTK widgets. GladeVCP creates the HAL pins for the
 special widgets described in the Glade file. GladeVCP also allows one to add
-python commands to interact with the widgets, to make them do things not
+Python commands to interact with the widgets, to make them do things not
 available in their default form If you can build a GladeVCP panel you can
 customize Gscreen!
 
 === Overview
 
 There are two files that can be used, individually or in combination to add
-customizations. Local glade files and handler files. Normally Gscreen uses
+customizations. Local Glade files and handler files. Normally Gscreen uses
 the stock Glade file and possibly a handler file (if using a sample 'skin')
 You can specify Gscreen to use 'local' Glade and handler files. Gscreen looks
 in the folder that holds all the configuration files for the configuration you
 selected.
 
 .Local Glade Files
-If present, local glade files in the configuration folder will be loaded instead
+If present, local Glade files in the configuration folder will be loaded instead
 of the stock Glade files. Local Glade files allow you to use your customized
 designs rather then the default screens. There is a switch in the INI file to
 set set the base name: -c name so Gscreen looks for MYNAME.glade and
@@ -95,14 +95,14 @@ is given and what method to call.
 
 .Modifying Stock Skins
 If you change the name of a widget, Gscreen might not be able to find it. If
-this widget is referenced to from python code, at best this makes the widget
+this widget is referenced to from Python code, at best this makes the widget
 not work anymore at worst it will cause an error when loading Gscreen's default
 screens don't use many signals defined in the editor, it defines them in the
-python code. If you move (cut and paste) a widget with signals, the signals
+Python code. If you move (cut and paste) a widget with signals, the signals
 will not be copied. You must add them again manually.
 
 .Handler Files
-A handler file is a file containing python code, which Gscreen adds to it's
+A handler file is a file containing Python code, which Gscreen adds to it's
 default routines. A handler file allows one to modify defaults, or add logic
 to a Gscreen skin without having to modify Gscreen proper. You can combine new
 functions with Gscreen's function to modify behavior as you like. You can
@@ -123,33 +123,28 @@ Gscreen uses the PyGTK toolkit to display the screen.
 Pygtk is the Python language binding to GTK.
 GTK supports 'themes'.
 Themes are a way to modify the look and feel of the widgets on the screen.
-For instance the color or size of buttons and sliders can be changed using
-themes.
+For instance the color or size of buttons and sliders can be changed using themes.
 There are many GTK themes available on the web.
 Themes can also be customized to modify visuals of particular named widgets.
-This ties the theme file to the glade file more tightly.
-Some of the sample screen skins allow the user to select any of the themes on
-the system. The sample 'gscreen' is an example.
-Some will load the theme that is the same name in the config file. The sample
-'gscreen-gaxis' is an example. This is done by putting the theme folder in the
- config folder that has the INI and HAL files and naming it: SCREENNAME_theme
-(SCREENNAME being the base name of the files eg. gaxis_theme)
-Inside this folder is another folder call gtk-2.0, inside that is the theme
-files. If you add this file, Gscreen will default to this theme on start up.
-gscreen-gaxis has a sample custom theme that looks for certain named widgets
-and changes the visual behavior of those specific widgets. The Estop and
-machine-on buttons use different colors then the rest of the buttons so that
-they stand out. This is done in the handler file by giving them specific names
-an by adding specific commands in the theme's gtkrc file.
-For some info on GTK theming (The sample theme uses the pixmap theme engine) See:
-
-https://wiki.gnome.org/Attic/GnomeArt/Tutorials/GtkThemes[GTK Themes]
-
-https://wiki.gnome.org/Attic/GnomeArt/Tutorials/GtkEngines/PixmapEngine[Pixmap Theme Engine]
+This ties the theme file to the Glade file more tightly.
+Some of the sample screen skins allow the user to select any of the themes on the system.
+The sample 'gscreen' is an example.
+Some will load the theme that is the same name in the config file.
+The sample 'gscreen-gaxis' is an example.
+This is done by putting the theme folder in the config folder that has the INI and HAL files and naming it:
+SCREENNAME_theme (SCREENNAME being the base name of the files eg. gaxis_theme).
+Inside this folder is another folder call gtk-2.0, inside that is the theme files.
+If you add this file, Gscreen will default to this theme on start up.
+gscreen-gaxis has a sample custom theme that looks for certain named widgets and changes the visual behavior of those specific widgets.
+The Estop and machine-on buttons use different colors then the rest of the buttons so that they stand out.
+This is done in the handler file by giving them specific names an by adding specific commands in the theme's gtkrc file.
+For some info on GTK theming (The sample theme uses the pixmap theme engine), see:
+https://wiki.gnome.org/Attic/GnomeArt/Tutorials/GtkThemes[GTK Themes], 
+https://wiki.gnome.org/Attic/GnomeArt/Tutorials/GtkEngines/PixmapEngine[Pixmap Theme Engine].
 
 === Build a GladeVCP Panel
 
-Gscreen is just a big complicated GladeVCP panel, with python code to control
+Gscreen is just a big complicated GladeVCP panel, with Python code to control
 it. To customize it we need the Glade file loaded in the Glade editor.
 
 .Installed LinuxCNC
@@ -179,14 +174,14 @@ When making changes it is far easier to add widgets then subtract widgets and
 still have the screen work properly making objects 'not visible' is one way to
 change the display without getting errors. This won't always work some widgets
 will be set visible again. Changing the names of Gscreen's regular widgets is
-probably not gonna work well without changing the python code, but moving a
+probably not gonna work well without changing the Python code, but moving a
 widget while keeping the name is usually workable.
 
-Gscreen leverages GladeVCP widgets as much as possible, to avoid adding python
+Gscreen leverages GladeVCP widgets as much as possible, to avoid adding Python
 code. Learning about <<cha:glade-vcp,GladeVCP>> widgets is a prerequisite.
-If the existing widgets give you the function you want or need then no python
+If the existing widgets give you the function you want or need then no Python
 code needs be added, just save the Glade file in your configuration folder.
-If you need something more custom then you must do some python programming.
+If you need something more custom then you must do some Python programming.
 The name of the parent window needs to be window1. Gscreen assumes this name.
 
 Remember, if you use a custom screen option YOU are responsible for fixing it
@@ -221,7 +216,7 @@ RIP package run it from a terminal after using . scripts/rip-environment ).
 image::images/tester_editor.png["Glade editor tester.glade",align="center"]
 
 In this screen we are using VCP_actions to communicate to LinuxCNC the actions
-we want. This allows us standard functions without adding python code in the
+we want. This allows us standard functions without adding Python code in the
 handler file. Let's link the estop toggle button to the estop action Select the
 estop toggle button and under the general tab look for 'Related Action' and
 click the button beside it. Now select the toggle estop action. Now the button
@@ -245,7 +240,7 @@ directly communicate with LinuxCNC you can still do useful things. If your
 screen needs are covered by the available special widgets then this is as far
 as you need to go to build a screen. If you want something more there are still
 many tricks available from just adding 'function calls' to get canned behaviour.
-To coding your own python code to customize exactly what you want. But that
+To coding your own Python code to customize exactly what you want. But that
 means learning about handler files.
 
 == Handler file example
@@ -307,6 +302,7 @@ But instead we are going to override the standard calls and add our own.
 
 Add these command to the handler file:
 
+[source,python]
 ----
 # override Gscreen Functions
 # keybinding calls
@@ -336,6 +332,7 @@ Lets add another key binding that loads halmeter when F4 is pressed.
 
 In the handler file under 'def initialize_widgets(self):' change to:
 
+[source,python]
 ----
   def initialize_widgets(self):
     self.gscreen.init_show_windows()
@@ -344,6 +341,7 @@ In the handler file under 'def initialize_widgets(self):' change to:
 
 Then add these functions under the 'HandlerClass' class:
 
+[source,python]
 ----
   def on_keycall_HALMETER(self,state,SHIFT,CNTRL,ALT):
     if state:
@@ -351,8 +349,8 @@ Then add these functions under the 'HandlerClass' class:
       return True
 ----
 
-This adds a keybinding conversion that directs gscreen to call on_keycall_HALMETER when F4 is pressed. +
-Then we add the function to the handle file to call a Gscreen builtin function to start halmeter. +
+This adds a keybinding conversion that directs gscreen to call on_keycall_HALMETER when F4 is pressed.
+Then we add the function to the handle file to call a Gscreen builtin function to start halmeter.
 
 === Linuxcnc State Status
 
@@ -362,6 +360,7 @@ As an example we will register to get 'file-loaded' messages when linuxcnc loads
 First we must import the module and instantiate it:
 In the import section of the handler file add:
 
+[source,python]
 ----
 from hal_glib import GStat
 GSTAT = GStat()
@@ -369,12 +368,14 @@ GSTAT = GStat()
 
 In the handler file under 'def \_\_init__(self):' add:
 
+[source,python]
 ----
 GSTAT.connect('file-loaded', self.update_filepath)
 ----
 
 Then in the 'HandlerClass', add the function:
 
+[source,python]
 ----
 self.update_filepath(self, obj, path):
     self.widgets.my_path_label.set_text(path)
@@ -385,9 +386,10 @@ In this example we update a label with that path name (assuming there is a label
 
 === Jogging Keys
 
-There are no special widgets to do screen-button jogging, so we must do it with python code.
+There are no special widgets to do screen-button jogging, so we must do it with Python code.
 Under the connect_signals function add this code:
 
+[source,python]
 ----
         for i in('x','y','z'):
             self.widgets[i+'neg'].connect("pressed", self['jog_'+i],0,True)
@@ -399,6 +401,7 @@ Under the connect_signals function add this code:
 
 Add these functions under the HandlerClass class:
 
+[source,python]
 ----
     def jog_x(self,widget,direction,state):
         self.gscreen.do_key_jog(_X,direction,state)
@@ -507,7 +510,7 @@ it requires no user intervention. +
 ok messages require the user to click ok to close the dialog. +
 ok messages have one HAL pin to launch the dialog and one to signify it's waiting for response. +
 yes/no messages require the user to select yes or no buttons to close the dialog. +
-yes/no messages have three hal pins - one to show the dialog, one for waiting, +
+yes/no messages have three HAL pins - one to show the dialog, one for waiting, +
 and one for the answer. +
 
 Here is a sample INI code. It would be under the [DISPLAY] heading.

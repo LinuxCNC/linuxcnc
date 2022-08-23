@@ -162,14 +162,6 @@ Use the first line as a summary of the intent of the change (almost
 like the subject line of an e-mail). Follow it with a blank line,
 then a longer message explaining the change. Example:
 
-====
-Get rid of RTAPI_SUCCESS, use 0 instead
-
-The test "retval < 0" should feel familiar; it's the same kind of
-test you use in userspace (returns -1 for error) and in kernel space
-(returns -ERRNO for error)
-====
-
 === Commit to the proper branch
 
 Bugfixes should go on the oldest applicable branch.  New features should
@@ -196,6 +188,13 @@ Make an effort to follow the prevailing indentation style of surrounding
 code. In particular, changes to whitespace make it harder for other
 developers to track changes over time. When reformatting code must be
 done, do it as a commit separate from any semantic changes.
+
+=== Get rid of RTAPI_SUCCESS, use 0 instead
+
+The test "retval < 0" should feel familiar; it's the same kind of
+test you use in userspace (returns -1 for error) and in kernel space
+(returns -ERRNO for error)
+
 
 === Simplify complicated history before sharing with fellow developers
 

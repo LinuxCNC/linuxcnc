@@ -17,7 +17,7 @@ LinuxCNC's version is adapted from Persei8's Github versions.
 It is primarily meant for 3/4 axes machines such as mills or routers.
 It works well with a touchscreen and/or mouse.
 QtDragon supports multiple ways to touch off tools and probing work pieces.
-You can use linuxcnc's external offsets capability to automatically raise the
+You can use LinuxCNC's external offsets capability to automatically raise the
 spindle during a pause.
 If you the VersaProbe option and remap code you can add auto tool length probing
 at tool changes.
@@ -178,7 +178,7 @@ EMBED_TAB_LOCATION = tabWidget_utilities
 
 === Preview Control
 
-Magic comments can be used to control the gcode preview. +
+Magic comments can be used to control the G-code preview. +
 On very large programs the preview can take a long time to load. You can control 
 what is shown and what is hidden the the graphics screen by adding the appropriate 
 comments from this list:
@@ -323,7 +323,7 @@ keyboard.
 == HAL Pins
 
 These pins are specific to the QtDragon screen, There are of course are many
-more HAL pins that must be connected for linuxcnc to function.
+more HAL pins that must be connected for LinuxCNC to function.
 
 If you need a manual tool change prompt, add these lines in your postgui file.
 
@@ -439,7 +439,7 @@ net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-num
 
 The screen is intended to interface to a VFD, but will still work without it.
 There are a number of VFD drivers included
-in the linuxcnc distribution. It is up to the end user to supply the appropriate
+in the LinuxCNC distribution. It is up to the end user to supply the appropriate
 driver and HAL file connections according to his own machine setup.
 
 == Auto Raise Z Axis
@@ -656,7 +656,7 @@ Z = -2
 
 ==== The Python Section
 
-The Python section sets up what files linuxcnc's python interpreter looks for.
+The Python section sets up what files LinuxCNC's python interpreter looks for.
 ie. 'toplevel.py' file in the 'python' folder in the configuration directory:
 
 [source,{ini}]
@@ -674,11 +674,11 @@ You must copy the following files to your config directory
 
 First create a folder named 'python' in your machine's configuration folder.
 
-If using a compiled RIP version of linuxcnc: +
+If using a compiled RIP version of LinuxCNC: +
 From 'YOUR-LINUXCNC-DIRECTORY/configs/sim/QtDragon/python', copy 'toplevel.py'
 and 'remap.py' to your configuration's new 'python' folder.
 
-if using an installed version of linuxcnc: +
+if using an installed version of LinuxCNC: +
 from '/usr/share/doc/linuxcnc/examples/sample-configs/sim/qtvcp_screens/qtdragon/python/'
 , copy 'toplevel.py' and 'remap.py' to your configuration's new 'python' folder.
 
@@ -706,11 +706,11 @@ In '~/linuxcnc/nc_files/examples/remap_lib/python_stdglue/' folder
 
 [NOTE]
 These file names and location could be different depending on installed verses
-development (RIP) version of linuxcnc.
+development (RIP) version of LinuxCNC.
 For instance '&ndash;/linuxcnc/nc_files/macros' is '&ndash;/linuxcnc/nc_files/examples/macros'
-in installed versions of linuxcnc.
+in installed versions of LinuxCNC.
 You could use customized versions of the same files or name them differently.
-The entries in the '[RS274NGC]' section dictate to linuxcnc what and where to
+The entries in the '[RS274NGC]' section dictate to LinuxCNC what and where to
 look.
 The names and location quoted should be available in either system by default.
 
@@ -776,7 +776,7 @@ Up to tens buttons can be defined in the INI.
 === File Tab
 
 You can use this tab to load or transfer programs. +
-Editing of Gcode programs can be selected from this tab.
+Editing of G-code programs can be selected from this tab.
 
 === Offsets Tab
 
@@ -810,22 +810,22 @@ overlayed with a cross-hair +
 such things as touchoff. +
 The underlying library uses openCV python module to connect to the webcam.
 
-=== Gcodes Tab
+=== G-codes Tab
 
-This tab will display a list of linuxcnc's gcode. +
+This tab will display a list of LinuxCNC's G-code. +
 if you click on a line, a description of the code will be displayed.
 
 === Setup Tab
 
 It's possible to load HTML or PDF file (.html / .pdf ending) with setup
-notes. +
-HTML/PDF docs will be displayed in the setup tab. +
-Some program, such as Fusion 360 and Aspire will create this files for
-you. +
+notes. 
+HTML/PDF docs will be displayed in the setup tab.
+Some program, such as Fusion 360 and Aspire will create these files for
+you.
 If you load a G-code program and there is an HTML/PDF file of the same
-name, it will load automatically. +
+name, it will load automatically.
 You can also write your own HTML docs with the included SetUp Writer
-button. +
+button.
 
 .qtdragon - Setup Tab Sample
 image::images/silverdragon_setup.png["QtDragon Setup Tab",scale="25%"]
@@ -837,13 +837,13 @@ offsets and load debugging external programs.
 
 === Utilities Tab
 
-This tabs will display another stab election of gcode utility programs. +
+This tabs will display another stab election of G-code utility programs. +
 
 * 'Facing': allows quick face milling of a definable area at angles of 0,45 and
   90 degrees
 * 'Hole Circle': allows quick setting of a program to drill a bolt circle of
   definable diameter and number of holes.
-* 'NgcGui': is a Qtvcp version of the popular gcode subroutine builder/selector.
+* 'NgcGui': is a Qtvcp version of the popular G-code subroutine builder/selector.
 
 == Styles
 

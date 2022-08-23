@@ -5,7 +5,7 @@
 = NML Messages
 
 List of NML messages. +
-For details see `src/emc/nml_intf/emc.hh`
+For details see `src/emc/nml_intf/emc.hh`.
 
 [[sec:nml-msg:operator]]
 == OPERATOR

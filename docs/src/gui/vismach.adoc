@@ -47,7 +47,7 @@ import sys
 
 == Create the HAL pins.
 
-Hal pins are created with the normal Python "hal" library, and are not
+HAL pins are created with the normal Python "hal" library, and are not
 specific to Vismach. Further details can be found in the
 <<cha:halmodule,Creating Userspace Components in Python>> section.
 A component should be created with a name that matches the script file

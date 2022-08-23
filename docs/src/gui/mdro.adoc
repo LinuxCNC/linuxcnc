@@ -28,7 +28,7 @@ image::images/mdro.png["MDRO Window",align="center"]
 == Getting Started
 
 If your configuration is not currently set up to use MDRO,
-you can change it by editing the .ini file. In the
+you can change it by editing the INI file. In the
 `[DISPLAY]` section, change the `DISPLAY =` line to read
 `DISPLAY = mdro`. MDRO defaults to XYZ for the axes but that can
 be changed.
@@ -84,8 +84,8 @@ show the data from the DRO scale connected to pin `mdro.axis.0`. The
 if the DRO supports them.
 
 The pins must be connected in the
-file specified in the `POSTGUI_HALFILE` entry of the .ini file when the
-program is started from a .ini file. They can be set directly after the
+file specified in the `POSTGUI_HALFILE` entry of the INI file when the
+program is started from an INI file. They can be set directly after the
 loadusr command if the program is started in a HAL file.
 
 == MDRO Window

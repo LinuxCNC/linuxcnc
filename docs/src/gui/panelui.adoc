@@ -10,14 +10,14 @@
 
 == Introduction
 
-Panelui is a userspace component to interface buttons to linuxcnc or HAL.
-It decodes MESA 7I73 style key-scan codes and calls the appropriate routine.
-It gets input from a realtime component - sampler.
-Sampler gets it's input from either the MESA 7i73 or sim_matrix_kb component.
-Panelui is configurable using an INI style text file to define button
-types, HAL pin types, and/or commands.
+Panelui is a userspace component to interface buttons to LinuxCNC or HAL:
+* It decodes MESA 7I73 style key-scan codes and calls the appropriate routine.
+* It gets input from a realtime component - sampler.
+  Sampler gets it's input from either the MESA 7i73 or sim_matrix_kb component.
+* Panelui is configurable using an INI style text file to define button
+  types, HAL pin types, and/or commands.
+* It can be extended using a Python based 'handler' file to add functions.
 
-It can be extended using a Python based 'handler' file to add functions.
 While actual input buttons are required to be momentary, Panelui will use this
 input to make toggle, radio, or momentary button output.
 

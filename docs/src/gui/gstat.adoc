@@ -6,21 +6,21 @@
 
 == Intro
 
-GStat is a python class used to send messages from LinuxCNC to other python programs. +
-It uses GObject to deliver messages, making it easy to listen for specific information. +
-This is referred to as event-driven programming, which is more efficient then every program +
-polling LinuxCNC at the same time. +
-GladeVCP, Gscreen, Gmoccapy and QtVCP use GStat extensively. +
+GStat is a python class used to send messages from LinuxCNC to other python programs.
+It uses GObject to deliver messages, making it easy to listen for specific information.
+This is referred to as event-driven programming, which is more efficient then every program
+polling LinuxCNC at the same time.
+GladeVCP, Gscreen, Gmoccapy and QtVCP use GStat extensively.
 GStat is in the `hal_glib` module.
 
-== Overview
+.Overview
+* First, a program imports the `hal_glib` module and instantiates GStat.
+* Then it 'connects' to the messages it wishes to monitor.
+* GStat checks LinuxCNC's status every 100ms and if there are differences from
+the last check, it will send a callback message to all the connected programs
+  with the current status.
+* When GStat calls the registered function, it sends the GStat object plus any return codes from the message.
 
-First a program imports the `hal_glib` module and instantiates GStat. +
-Then it 'connects' to the messages it wishes to monitor. +
-GStat checks LinuxCNC's status every 100ms and if there are differences from +
-the last check, it will send a callback message to all the connected programs +
-with the current status. +
-When GStat calls the registered function, it sends the GStat object plus any return codes from the message. +
 Typical code signatures:
 
 [source,python]
@@ -43,8 +43,8 @@ def FUNCTION_TO_CALL(return_codes):
 
 There are some basic patterns for using GStat, depending on what library +
 you are using them in. +
-If using GStat with GladeVCP, Gscreen, or Qtvcp, the gobject library is not needed as +
-those toolkits already set up Gobject.
+If using GStat with GladeVCP, Gscreen, or QtVCP, the GObject library is not needed as
+those toolkits already set up GObject.
 
 === Sample HAL component code pattern
 

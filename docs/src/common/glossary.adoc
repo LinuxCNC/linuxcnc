@@ -27,13 +27,12 @@ Axis(GUI)::
     the only open-source interface that displays the entire tool path as
     soon as a file is opened.
 
-Gmoccapy (GUI)::
+GMOCCAPY (GUI)::
      (((GUI))) A Graphical User Interfaces available to users of
     LinuxCNC. It features the use and feel of an industrial control and can
     be used with touch screen, mouse and keyboard. It support embedded tabs and
     hal driven user messages, it offers a lot of hal beens to be controlled with
-    hardware. Gmoccapy is highly customizable.
-
+    hardware. GMOCCAPY is highly customizable.
 
 Backlash::
      (((backlash))) The amount of "play" or lost motion that
@@ -153,7 +152,7 @@ Feed rate::
 
 Feedback::
      (((feedback))) A method (e.g., quadrature encoder signals)
-    by which LinuxCNC receives information about the position of motors
+    by which LinuxCNC receives information about the position of motors.
 
 Feedrate Override::
      (((feedrate override))) A manual, operator controlled

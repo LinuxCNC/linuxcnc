@@ -25,7 +25,7 @@ image::images/tkemc.png["TkLinuxCNC Window",align="center"]
 
 == Getting Started
 
-To select TkLinuxCNC as the front-end for LinuxCNC, edit the .ini file.
+To select TkLinuxCNC as the front-end for LinuxCNC, edit the INI file.
 In the section '[DISPLAY]' change the 'DISPLAY' line to read
 
 [source,{ini}]
@@ -33,7 +33,7 @@ In the section '[DISPLAY]' change the 'DISPLAY' line to read
 DISPLAY = tklinuxcnc
 ----
 
-Then, start LinuxCNC and select that ini file. The sample configuration
+Then, start LinuxCNC and select that INI file. The sample configuration
 'sim/tklinuxcnc/tklinuxcnc.ini' is already configured to use TkLinuxCNC
 as its front-end.
 
@@ -176,7 +176,7 @@ specific home location through use of 'home switches'. See the
 <<cha:homing-configuration,Homing Chapter>> for more information.
 +
 By pressing 'Override Limits', the machine will temporarily be
-permitted to jog outside the limits defined in the .ini file. (Note: if
+permitted to jog outside the limits defined in the INI file. (Note: if
 'Override Limits' is active the button will be displayed using a red
 color).
 
@@ -234,7 +234,7 @@ The spindle speed override slider works exactly like the feed override
 slider, but it controls to the spindle speed. If a program requested
 S500 (spindle speed 500 RPM), and the slider is set to 80%, then the
 resulting spindle speed will be 400 RPM. This slider has a minimum and
-maximum value defined in the ini file. If those are missing the slider
+maximum value defined in the INI file. If those are missing the slider
 is stuck at 100%. The text box with the number is clickable. Once
 clicked a popup window will appear, allowing for a number to be
 entered.
