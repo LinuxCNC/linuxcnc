@@ -5,11 +5,8 @@ Maintainer: LinuxCNC Developers <emc-developers@lists.sourceforge.net>
 Uploaders: Jeff Epler <jepler@gmail.com>, Sebastian Kuzminsky <seb@highlab.com>
 Build-Depends:
     @DEBHELPER@,
-    @PYTHON_PACKAGING_DEPENDS@,
-    @KERNEL_DEPENDS_BUILD@,
-    @KERNEL_HEADERS@,
-    @MODUTILS_DEPENDS@,
-    @EXTRA_BUILD@,
+    dh-python,
+    libudev-dev,
     asciidoc,
     ghostscript,
     imagemagick,
@@ -40,9 +37,9 @@ Build-Depends:
     python3-dev,
     python3-tk,
     python3-xlib,
-    tcl@TCLTK_VERSION@-dev,
+    tcl8.6-dev,
     tclx,
-    tk@TCLTK_VERSION@-dev,
+    tk8.6-dev,
     yapps2
 Build-Depends-Indep:
     @DOC_DEPENDS@,
@@ -56,11 +53,10 @@ Architecture: any
 Conflicts: linuxcnc-sim-dev, @OTHER_MAIN_PACKAGE_NAME@-dev
 Depends: ${misc:Depends},
          ${python3:Depends},
-         @KERNEL_HEADERS@,
          python3-serial,
          @MAIN_PACKAGE_NAME@ (= ${binary:Version}),
          udev,
-         @YAPPS_RUNTIME@
+         python3-yapps
 Section: devel
 Description: PC based motion controller for real-time Linux
  LinuxCNC is a fully-realised CNC machine controller that can interpret

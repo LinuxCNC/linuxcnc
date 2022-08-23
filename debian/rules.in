@@ -28,7 +28,7 @@ TIMESTAMP=$(shell dpkg-parsechangelog -S timestamp)
 export DATE=$(shell LANG=C date --date='@$(TIMESTAMP)' '+%d\ %b\ %Y')
 export TIME=$(shell LANG=C date --date='@$(TIMESTAMP)' '+%T')
 
-kernel_version = @KERNEL_VERSION@
+kernel_version = uspace
 configure_realtime_arg = @CONFIGURE_REALTIME_ARG@
 enable_build_documentation = @ENABLE_BUILD_DOCUMENTATION@
 DESTDIR=$(CURDIR)/debian/tmp

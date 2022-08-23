@@ -33,8 +33,6 @@ if [ "$1" == "-h" -o "$1" == "-help" -o "$1" == "--help" ]; then
     exit 0
 fi
 
-EXTRA_BUILD=
-PYTHON_VERSION_NEXT=$(python3 -c 'import sys; print (sys.version[:2] + str(1+int(sys.version[2])))')
 LIBREADLINE_DEV="libreadline-gplv2-dev | libreadline-dev"
 
 ENABLE_BUILD_DOCUMENTATION=--enable-build-documentation=pdf
@@ -78,14 +76,6 @@ else
     DOC_DEPENDS=''
 fi
 
-MODUTILS_DEPENDS=kmod
-PYTHON_PACKAGING_DEPENDS=dh-python
-PYTHON_GST=python3-gst-1.0,gstreamer1.0-plugins-base
-TCLTK_VERSION=8.6
-PYTHON_IMAGING=python3-pil
-PYTHON_IMAGING_TK=python3-pil.imagetk
-QTVCP_DEPENDS="python3-pyqt5,\n    python3-pyqt5.qsci,\n    python3-pyqt5.qtsvg,\n    python3-pyqt5.qtopengl,\n    python3-opencv,\n    python3-dbus,python3-espeak,\n    python3-dbus.mainloop.pyqt5,\n    python3-pyqt5.qtwebkit,\n    espeak-ng,\n    pyqt5-dev-tools,\n    gstreamer1.0-tools,espeak,\n    sound-theme-freedesktop"
-YAPPS_RUNTIME="python3-yapps"
 DEBHELPER="debhelper (>= 12)"
 COMPAT="12"
 
@@ -106,17 +96,9 @@ case $DISTRIB_NAME in
         ;;
 esac
 
-TARGET=uspace
 MAIN_PACKAGE_NAME=linuxcnc
 OTHER_MAIN_PACKAGE_NAME=linuxcnc-uspace
 EXTRA_RECOMMENDS=hostmot2-firmware-all
-MODULE_PATH=usr/lib/linuxcnc/modules
-MODULE_EXT=.so
-KERNEL_DEPENDS=libudev-dev,iptables
-KERNEL_DEPENDS_BUILD=libudev-dev
-KERNEL_HEADERS=
-KERNEL_VERSION=uspace
-MODUTILS_DEPENDS=
 DISTRIB_NAME=uspace-$DISTRIB_NAME
 MAIN_PACKAGE_NAME=linuxcnc-uspace
 OTHER_MAIN_PACKAGE_NAME=linuxcnc
@@ -130,30 +112,13 @@ sed \
     -e "s#@DEBHELPER@#$DEBHELPER#g" \
     -e "s#@DISTRIB_NAME@#$DISTRIB_NAME#g" \
     -e "s#@DOC_DEPENDS@#$DOC_DEPENDS#g" \
-    -e "s#@EXTRA_BUILD@#$EXTRA_BUILD#g" \
     -e "s#@EXTRA_RECOMMENDS@#$EXTRA_RECOMMENDS#g" \
-    -e "s#@KERNEL_DEPENDS@#$KERNEL_DEPENDS#g" \
-    -e "s#@KERNEL_DEPENDS_BUILD@#$KERNEL_DEPENDS_BUILD#g" \
-    -e "s#@KERNEL_HEADERS@#$KERNEL_HEADERS#g" \
-    -e "s#@KERNEL_VERSION@#$KERNEL_VERSION#g" \
     -e "s#@LIBREADLINE_DEV@#$LIBREADLINE_DEV#g" \
     -e "s#@MAIN_PACKAGE_NAME@#$MAIN_PACKAGE_NAME#g" \
-    -e "s#@MODULE_EXT@#$MODULE_EXT#g" \
-    -e "s#@MODULE_PATH@#$MODULE_PATH#g" \
-    -e "s#@MODUTILS_DEPENDS@#$MODUTILS_DEPENDS#g" \
     -e "s#@OTHER_MAIN_PACKAGE_NAME@#$OTHER_MAIN_PACKAGE_NAME#g" \
-    -e "s#@PYTHON_GST@#$PYTHON_GST#g" \
-    -e "s#@PYTHON_IMAGING@#$PYTHON_IMAGING#g" \
-    -e "s#@PYTHON_IMAGING_TK@#$PYTHON_IMAGING_TK#g" \
-    -e "s#@PYTHON_PACKAGING_DEPENDS@#$PYTHON_PACKAGING_DEPENDS#g" \
-    -e "s#@PYTHON_VERSION_NEXT@#$PYTHON_VERSION_NEXT#g" \
-    -e "s#@QTVCP_DEPENDS@#$QTVCP_DEPENDS#g" \
     -e "s#@RTAI_ARCHITECTURE@#$RTAI_ARCHITECTURE#g" \
-    -e "s#@TARGET@#$TARGET#g" \
     -e "s#@CONFIGURE_REALTIME_ARG@#$CONFIGURE_REALTIME_ARG#g" \
-    -e "s#@TCLTK_VERSION@#$TCLTK_VERSION#g" \
     -e "s#@XENOMAI_ARCHITECTURE@#$XENOMAI_ARCHITECTURE#g" \
-    -e "s|@YAPPS_RUNTIME@|$YAPPS_RUNTIME|g" \
     -e "s#@ENABLE_BUILD_DOCUMENTATION@#$ENABLE_BUILD_DOCUMENTATION#g" \
     -e '/^\s*,\s*$/d' \
     $*
