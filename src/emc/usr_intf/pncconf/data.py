@@ -879,28 +879,28 @@ If you have a REALLY large config that you wish to convert to this newer version
             m1 = md5sum(f)
             if m1 and m != m1:
                 warnings2.append(_("File %r was modified since it was written by PNCconf") % f)
+
+        # no warnings ? return to pncconf APP
         if not warnings and not warnings2: return
+
         if warnings2:
             warnings.append("")
             warnings.append(_("Saving this configuration file will discard configuration changes made outside PNCconf."))
         if warnings:
             warnings = warnings + warnings2
         self.pncconf_loaded_version = self._pncconf_version
-        if app:
-            dialog = gtk.MessageDialog(app.widgets.window1,
-                gtk.DIALOG_MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT,
-                gtk.MESSAGE_WARNING, gtk.ButtonsType.OK,
-                     "\n".join(warnings))
-            dialog.show_all()
-            dialog.run()
-            dialog.destroy()
+
+        # if we have a GUI running, pop a dialog
+        # else print to terminal
+        if not app is None:
+            _APP.warning_dialog("\n".join(warnings),  True)
         else:
             for para in warnings:
                 for line in textwrap.wrap(para, 78): print(line)
                 print()
             print()
             if force: return
-            response = input(_("Continue? "))
+            response = input(_("Continue? (y/n)"))
             if response[0] not in _("yY"): raise SystemExit(1)
 
     def add_md5sum(self, filename, mode="r"):
