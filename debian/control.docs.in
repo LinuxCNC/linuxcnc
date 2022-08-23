@@ -7,12 +7,23 @@ Breaks: linuxcnc-uspace (<= 2.9.0~pre0+git20220402.2500863908-4),
 Replaces: linuxcnc-uspace (<= 2.9.0~pre0+git20220402.2500863908-4)
 Recommends: xdg-utils
 Suggests: pdf-viewer
-Description: motion controller for CNC machines and robots (English documentation)
- LinuxCNC is the next-generation Enhanced Machine Controller which
- provides motion control for CNC machine tools and robotic
- applications (milling, cutting, routing, etc.).
+Description: Motion controller for CNC machines and robots (English documentation)
+ This package contains the documentation for LinuxCNC, formerly
+ named Enhanced Machine Controller (EMC). These documents describe how to
+ set up regular PCs to provide motion control and more for CNC machine tools and
+ robotic applications (milling, cutting, routing, etc.).
  .
- This package contains the documentation in English.
+ To many, these insights are valuable even if not owning any such device
+ themselves as the described technology is transferable to arbitrary automated
+ setups from temperature control via garage doors to whatever level of
+ computational processing of sensory input and actuator control may be required.
+ .
+ The documentation was recently prepared for computer-aided translations to all
+ other languages on Weblate
+ (https://hosted.weblate.org/projects/linuxcnc/linuxcnc-docs/).
+ We notably need help for Spanish and French translations to complete the
+ automated transition of the previous translation, for which a passive
+ understanding of either language is sufficient. Please help if you can.
 
 Package: linuxcnc-doc-fr
 Provides: linuxcnc-doc
@@ -23,12 +34,26 @@ Breaks: linuxcnc-uspace (<= 2.9.0~pre0+git20220402.2500863908-4)
 Replaces: linuxcnc-uspace (<= 2.9.0~pre0+git20220402.2500863908-4)
 Recommends: xdg-utils
 Suggests: pdf-viewer
-Description: motion controller for CNC machines and robots (French documentation)
- LinuxCNC is the next-generation Enhanced Machine Controller which
- provides motion control for CNC machine tools and robotic
- applications (milling, cutting, routing, etc.).
+Description: Contrôleur pour machines CNC et robots (Documentation française)
+ Ce paquet contient la documentation française de LinuxCNC, anciennement nommé
+ Enhanced Machine Controller (EMC). Ces documents décrivent comment configurer
+ des PC ordinaires pour fournir un contrôle de mouvement pour des
+ machines-outils CNC et des applications robotiques (fraisage, découpe, routage,
+ etc.).
  .
- This package contains the documentation in French.
+ Pour beaucoup, ces informations sont utiles même s'ils ne possèdent pas
+ eux-mêmes une tel équipement car la technologie décrite est également
+ utilisable pour des configurations automatisées quelconques, allant du contrôle
+ de la température par des portes de garage à n'importe quel niveau de
+ traitement automatisé des entrées de capteurs et du contrôle d'actionneurs.
+ .
+ La documentation a été récemment apprêtée pour des traductions assistées par
+ ordinateur vers toutes les autres langues sur Weblate
+ (https://hosted.weblate.org/projects/linuxcnc/linuxcnc-docs/).
+ Nous avons besoin d'aide pour la confirmation manuelle de la transition
+ automatique de la précédente version de la traduction française manuelle, pour
+ laquelle une compréhension passive de la langue est suffisante.
+ S'il vous plaît aidez si vous le pouvez.
 
 Package: linuxcnc-doc-es
 Provides: linuxcnc-doc
@@ -39,12 +64,26 @@ Breaks: linuxcnc-uspace (<= 2.9.0~pre0+git20220402.2500863908-4)
 Replaces: linuxcnc-uspace (<= 2.9.0~pre0+git20220402.2500863908-4)
 Recommends: xdg-utils
 Suggests: pdf-viewer
-Description: controlador de movimiento para máquinas CNC y robots (Español).
- LinuxCNC es EMC (controlador de máquina mejorado) que proporciona
- control de movimiento para máquinas herramientas CNC (fresado,
- torneado, ruteado, etc.) y aplicaciones de robótica.
+Description: Controlador de movimiento para máquinas CNC y robots (Español).
+ Este paquete contiene la documentación en español de LinuxCNC, antes
+ llamado Enhanced Machine Controller (EMC). Estos documentos describen cómo
+ configurar PCs normales para proporcionar control de movimiento para
+ máquinas-herramienta CNC y aplicaciones robóticas (fresado, torneado, ruteado,
+ etc.).
  .
- Este paquete contiene la documentación en español.
+ Para muchos, estos conocimientos son valiosos incluso si no poseen ningún
+ dispositivo de este tipo, ya que la tecnología descrita es transferible a
+ configuraciones automatizadas arbitrarias, desde el control de la temperatura
+ a través de puertas de garaje hasta cualquier nivel de procesamiento
+ computacional de la entrada sensorial y el control de los actuadores que sea
+ necesario.
+ .
+ La documentación se preparó recientemente para su traducción asistida por
+ computadora a todos los demás idiomas en Weblate
+ (https://hosted.weblate.org/projects/linuxcnc/linuxcnc-docs/).
+ Necesitamos ayuda con la confirmación manual de la transición automatizada de
+ la traducción manual anterior al español, para lo cual una comprensión pasiva
+ del idioma es suficiente. Por favor ayuda si puedes.
 
 Package: linuxcnc-doc-zh-cn
 Provides: linuxcnc-doc
@@ -55,11 +94,18 @@ Recommends: xdg-utils
 Suggests: pdf-viewer
 Conflicts: linuxcnc-doc-cn
 Replaces: linuxcnc-doc-cn
-Description: motion controller for CNC machines and robots (Chinese
- documentation)
- LinuxCNC is the next-generation Enhanced Machine Controller which
- provides motion control for CNC machine tools and robotic
+Description: Motion controller for CNC machines and robots (Chinese documentation)
+ This package contains the Chinese documentation for LinuxCNC, formerly
+ named Enhanced Machine Controller (EMC). These documents describe how to
+ set up regular PCs to provides motion control for CNC machine tools and robotic
  applications (milling, cutting, routing, etc.).
  .
- This package contains the documentation in Chinese.
-
+ To many, these insights are valuable even if not owning any such device themselves
+ as the described technology is transferable to arbitrary automated setups from
+ temperature control via garage doors to whatever level of computational processing of
+ sensory input and actuator control may be required.
+ .
+ The documentation was recently prepared for computer-aided translations to all
+ other languages on Weblate
+ (https://hosted.weblate.org/projects/linuxcnc/linuxcnc-docs/).
+ The Chinese documentation needs help. Please join the effort if you can.
