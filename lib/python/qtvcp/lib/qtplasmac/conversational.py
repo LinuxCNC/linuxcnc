@@ -24,7 +24,7 @@ from shutil import copy as COPY
 from importlib import reload
 from PyQt5.QtCore import Qt, QCoreApplication
 from PyQt5.QtWidgets import QFileDialog, QMessageBox, QPushButton, QLabel, QLineEdit
-from PyQt5.QtWidgets import QRadioButton, QButtonGroup, QComboBox, QCheckBox, QGroupBox
+from PyQt5.QtWidgets import QComboBox
 from qtvcp.core import Status, Action
 from qtvcp.lib.qtplasmac import conv_settings as CONVSET
 from qtvcp.lib.qtplasmac import conv_line as CONVLINE
@@ -388,7 +388,7 @@ def conv_entry_changed(P, W, widget, circleType=False):
         if value in ['', '.', '-', '-.']:
             return True
         try:
-            a = float(value)
+            float(value)
             reply = False
         except:
             head = _translate('HandlerClass', 'Numeric Entry Error')

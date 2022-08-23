@@ -21,7 +21,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import os
 import sys
-import math
 import numpy
 import gettext
 

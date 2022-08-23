@@ -2,7 +2,7 @@
 tooltips.py
 
 Copyright (C) 2021  Phillip A Carter
-Copyright (C) 2021  Gregory D Carl
+Copyright (C) 2021, 2022  Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -19,7 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
-from PyQt5.QtCore import Qt, QCoreApplication
+from PyQt5.QtCore import QCoreApplication
 
 _translate = QCoreApplication.translate
 

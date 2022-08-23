@@ -1,4 +1,4 @@
-VERSION = '1.230.232'
+VERSION = '1.230.233'
 
 '''
 qtplasmac_handler.py
@@ -21,21 +21,19 @@ with this program; if not, write to the Free Software Foundation, Inc
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
-import os, sys
+import os
 from shutil import copy as COPY
 from shutil import move as MOVE
-from shutil import rmtree as RMTREE
 from subprocess import Popen, PIPE
 from subprocess import run as RUN
 from subprocess import call as CALL
-from subprocess import check_output as CHKOP
 from importlib import reload
 import time
 import tarfile
 import math
 import glob
 import linuxcnc
-import hal, hal_glib
+import hal
 from OpenGL.GL import glTranslatef
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import *
@@ -2626,11 +2624,11 @@ class HandlerClass:
 
     def set_axes_and_joints(self):
         kinematics = self.iniFile.find('KINS', 'KINEMATICS').lower().replace('=','').replace('trivkins','').replace(' ','') or None
-        kinstype = None
+        #kinstype = None
         self.coordinates = 'xyz'
         if kinematics:
             if 'kinstype' in kinematics:
-                kinstype = kinematics.lower().replace(' ','').split('kinstype')[1]
+                #kinstype = kinematics.lower().replace(' ','').split('kinstype')[1]
                 if 'coordinates' in kinematics:
                     kinematics = kinematics.lower().replace(' ','').split('kinstype')[0]
             if 'coordinates' in kinematics:
@@ -3385,7 +3383,7 @@ class HandlerClass:
                     continue
                 else:
                     try:
-                        pinstate = hal.get_value(halpin)
+                        hal.get_value(halpin)
                         self.idleOnList.append('button_{}'.format(str(bNum)))
                     except:
                         msg1 = _translate('HandlerClass', 'HAL pin')
@@ -3423,7 +3421,7 @@ class HandlerClass:
                         continue
                     else:
                         try:
-                            pinstate = hal.get_value(halpin)
+                            hal.get_value(halpin)
                             self.idleOnList.append('button_{}'.format(str(bNum)))
                         except:
                             msg1 = _translate('HandlerClass', 'HAL pin')
@@ -3616,7 +3614,7 @@ class HandlerClass:
             ACTION.CALL_MDI(command)
         elif command and command[0] == '%':
             command = command.lstrip('%').lstrip() + '&'
-            msg = Popen(command, stdout=PIPE, stderr=PIPE, shell=True)
+            Popen(command, stdout=PIPE, stderr=PIPE, shell=True)
         else:
             head = _translate('HandlerClass', 'Code Error')
             msg0 = _translate('HandlerClass', 'Invalid code for user button')
@@ -4458,15 +4456,11 @@ class HandlerClass:
             required = ['PIERCE_HEIGHT', 'PIERCE_DELAY', 'CUT_HEIGHT', 'CUT_SPEED']
             received = []
             for line in f_in:
-
-
-
                 try:
                     if line.startswith('#'):
                         continue
                     elif line.startswith('[MATERIAL_NUMBER_') and line.strip().endswith(']'):
                         if int(line.rsplit('_', 1)[1].strip().strip(']')) < 1000000:
-                            newMaterial = True
                             if not firstpass:
                                 self.write_materials(t_number,t_name,k_width,p_height,p_delay,pj_height,pj_delay,c_height,c_speed,c_amps,c_volts,pause,g_press,c_mode,t_item)
                                 for item in required:

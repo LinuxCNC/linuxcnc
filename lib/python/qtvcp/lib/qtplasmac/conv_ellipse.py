@@ -21,7 +21,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 from PyQt5.QtCore import Qt, QCoreApplication
 from PyQt5.QtWidgets import QLabel, QMessageBox
-from PyQt5.QtGui import QPixmap
 from importlib import reload
 from plasmac import ellipse as ELLIPSE
 

@@ -21,7 +21,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 from PyQt5.QtCore import Qt, QCoreApplication
 from PyQt5.QtWidgets import QLabel, QMessageBox
-from PyQt5.QtGui import QPixmap
 from importlib import reload
 from plasmac import circle as CIRCLE
 
@@ -156,7 +155,6 @@ def widgets(P, W, Conv):
         W.entries.addWidget(W.overcut, 7, 1)
         W.entries.addWidget(W.ocLabel, 8, 0)
         W.entries.addWidget(W.ocEntry, 8, 1)
-        from PyQt5.QtWidgets import QSizePolicy
         for r in [9,10,11]:
             W['s{}'.format(r)] = QLabel('')
             W['s{}'.format(r)].setFixedHeight(24)

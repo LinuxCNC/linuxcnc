@@ -21,7 +21,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import os
 from shutil import copy as COPY
-from PyQt5.QtCore import QCoreApplication, Qt
+from PyQt5.QtCore import QCoreApplication
 from PyQt5.QtWidgets import QDialog, QMessageBox, QPushButton, QGridLayout, QLabel
 from PyQt5.QtGui import QIcon
 

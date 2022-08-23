@@ -21,7 +21,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 from PyQt5.QtCore import Qt, QCoreApplication
 from PyQt5.QtWidgets import QLabel, QMessageBox
-from PyQt5.QtGui import QPixmap
 from importlib import reload
 from plasmac import rectangle as RECTANGLE
 
@@ -41,10 +40,6 @@ def preview(P, W, Conv):
             styles[n] = 'chamfer'
         elif W['r{}Button'.format(n)].text().startswith(_translate('Conversational', 'iRADIUS')):
             styles[n] = 'intRadius'
-    style1 = W.r1Button.text()
-    style2 = W.r1Button.text()
-    style3 = W.r1Button.text()
-    style4 = W.r1Button.text()
     error = RECTANGLE.preview(Conv, P.fTmp, P.fNgc, P.fNgcBkp, \
             int(W.conv_material.currentText().split(':')[0]), \
             W.conv_material.currentText().split(':')[1].strip(), \
@@ -81,7 +76,7 @@ def auto_preview(P, W, Conv, button=False):
         preview(P, W, Conv)
 
 def entry_changed(P, W, Conv, widget):
-    error = Conv.conv_entry_changed(P, W, widget)
+    Conv.conv_entry_changed(P, W, widget)
 
 def rad_button_pressed(P, W, Conv, button, value):
     if button.text().split()[0] == _translate('Conversational', 'RADIUS'):

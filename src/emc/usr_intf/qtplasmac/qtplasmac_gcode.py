@@ -26,8 +26,7 @@ import math
 import shutil
 import time
 from subprocess import run as RUN
-from PyQt5 import QtCore, QtGui
-from PyQt5.QtCore import Qt, QRect
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QDialog, QScrollArea, QWidget, QVBoxLayout, QLabel, QPushButton, QStyle, QFrame
 
@@ -473,7 +472,7 @@ def do_material_change():
         c = line.split(';', 1)[0]
     else:
         c = line
-    a, b = c.split('p', 1)
+    b = c.split('p', 1)[1]
     m = ''
     # get the material number
     for mNum in b.strip():

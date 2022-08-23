@@ -20,8 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 '''
 
 from PyQt5.QtCore import Qt, QCoreApplication
-from PyQt5.QtWidgets import QLabel, QMessageBox
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QMessageBox
 from importlib import reload
 from plasmac import triangle as TRIANGLE
 
@@ -73,7 +72,7 @@ def auto_preview(P, W, Conv, button=False):
         preview(P, W, Conv)
 
 def entry_changed(P, W, Conv, widget):
-    error = Conv.conv_entry_changed(P, W, widget)
+    Conv.conv_entry_changed(P, W, widget)
 
 def widgets(P, W, Conv):
     if P.developmentPin.get():
