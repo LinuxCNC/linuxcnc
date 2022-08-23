@@ -19,11 +19,9 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 import os
-import sys
-import errno
 import hashlib
 import xml.dom.minidom
-
+import textwrap
 import subprocess
 
 def md5sum(filename):

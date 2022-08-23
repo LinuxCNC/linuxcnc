@@ -41,7 +41,6 @@ import pickle
 import shutil
 import math
 from optparse import Option, OptionParser
-import textwrap
 import locale
 import copy
 import fnmatch
