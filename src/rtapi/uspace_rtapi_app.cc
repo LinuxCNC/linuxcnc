@@ -523,14 +523,14 @@ int main(int argc, char **argv) {
                 "    sudo env RTAPI_UID=`id -u` RTAPI_FIFO_PATH=$HOME/.rtapi_fifo gdb " EMC2_BIN_DIR "/rtapi_app\n");
             exit(1);
         }
-        setreuid(fallback_uid, 0);
+        if (setreuid(fallback_uid, 0) != 0) { perror("setreuid"); abort(); }
         fprintf(stderr,
             "Running with fallback_uid.  getuid()=%d geteuid()=%d\n",
             getuid(), geteuid());
     }
     ruid = getuid();
     euid = geteuid();
-    setresuid(euid, euid, ruid);
+    if (setresuid(euid, euid, ruid) != 0) { perror("setresuid"); abort(); }
 #ifdef __linux__
     setfsuid(ruid);
 #endif
