@@ -85,7 +85,7 @@ linuxcnc or 2) demonstrations of applications that can be used with
 linuxcnc:
 
 * info - creates a file with system information that may be useful for problem diagnosis.
-* gladevcp - Example gladevcp applications.
+* gladevcp - Example GladeVCP applications.
 * halrun  - Starts halrun in an <<faq:terminal,terminal>>.
 * latency - Applications to investigate latency
 ** latency-test - standard test

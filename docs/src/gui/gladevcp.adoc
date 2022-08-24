@@ -472,46 +472,48 @@ Options:
     pass USEROPTs to Python modules
 ----
 
-== Understanding the gladeVCP startup process
+== Understanding the GladeVCP startup process
 
 The integration steps outlined above look a bit tricky, and they
 are. It does therefore help to understand the startup process of
-LinuxCNC and how this relates to gladeVCP.
+LinuxCNC and how this relates to GladeVCP.
 
 The normal LinuxCNC startup process does the following:
 
-- the realtime environment is started
-- all HAL components are loaded
-- the HAL components are linked together through the .hal cmd scripts
-- task, iocontrol and eventually the user interface is started
-- pre-gladeVCP the assumption was: by the time the UI starts, all of HAL is loaded, plumbed and ready to go
+- The realtime environment is started.
+- All HAL components are loaded.
+- The HAL components are linked together through the .hal cmd scripts.
+- Task, iocontrol and eventually the user interface is started.
+- Pre-GladeVCP the assumption was: by the time the UI starts, all of HAL is loaded, plumbed and ready to go.
 
-The introduction of gladeVCP brought the following issue:
+The introduction of GladeVCP brought the following issue:
 
-- gladeVCP panels need to be embedded in a master GUI window setup, e.g. AXIS, or Touchy, Gscreen, or Gmoccapy (embedded window or as an embedded tab)
-- this requires the master GUI to run before the gladeVCP window can be hooked into the master GUI
-- however gladeVCP is also a HAL component, and creates HAL pins of its own.
-- as a consequence, all HAL plumbing involving gladeVCP HAL pins as source or destination must be run *after* the GUI has been set up
+- GladeVCP panels need to be embedded in a master GUI window setup,
+  e.g., AXIS, or Touchy, Gscreen, or Gmoccapy (embedded window or as an embedded tab).
+- This requires the master GUI to run before the GladeVCP window can be hooked into the master GUI.
+- However, GladeVCP is also a HAL component, and creates HAL pins of its own.
+- As a consequence, all HAL plumbing involving GladeVCP HAL pins as source
+  or destination must be run *after* the GUI has been set up.
 
 This is the purpose of the `POSTGUI_HALFILE`. This INI option is
 inspected by the GUIs. If a GUI detects this option, it runs the
-corresponding HAl file after any embedded gladVCP panel is set
-up. However, it does not check whether a gladeVCP panel is actually
+corresponding HAl file after any embedded GladeVCP panel is set
+up. However, it does not check whether a GladeVCP panel is actually
 used, in which case the HAL cmd file is just run normally. So if you
-do NOT start gladeVCP through `GLADEVCP` or `EMBED_TAB` etc, but later
+do NOT start GladeVCP through `GLADEVCP` or `EMBED_TAB` etc, but later
 in a separate shell window or some other mechanism, a HAL
 command file in `POSTGUI_HALFILE` will be executed too early. Assuming
-gladeVCP pins are referenced herein, this will fail with an error
-message indicating that the gladeVCP HAL component is not available.
+GladeVCP pins are referenced herein, this will fail with an error
+message indicating that the GladeVCP HAL component is not available.
 
-So, in case you run gladeVCP from a separate shell window (i.e., not
+So, in case you run GladeVCP from a separate shell window (i.e., not
 started by the GUI in an embedded fashion):
 
 - You cannot rely on the `POSTGUI_HALFILE` INI option causing the HAL
   commands being run 'at the right point in time', so comment that out
   in the INI file.
-- Explicitly pass the HAL command file which refers to gladeVCP pins
-  to gladeVCP with the '-H <halcmd file>' option (see previous section).
+- Explicitly pass the HAL command file which refers to GladeVCP pins
+  to GladeVCP with the '-H <halcmd file>' option (see previous section).
 
 == HAL Widget reference
 
@@ -602,7 +604,7 @@ As a general rule, if you need to set a HAL output widget's value from
 Python code, do so by calling the underlying Gtk 'setter' (e.g.
 +set_active()+, +set_value()+) - do not try to set the associated pin's
 value by +halcomp[pinname] = value+ directly because the widget will not
-take notice of the change!.
+take notice of the change!
 
 It might be tempting to 'set HAL widget input pins' programmatically.
 Note this defeats the purpose of an input pin in the first place - it
@@ -669,7 +671,7 @@ image::images/button.png[]
 ====
 Defining radio button groups in Glade:
 
-- Decide on default active button
+- Decide on default active button.
 - In the other button's 'General→Group' select the default active
   button's name in the 'Choose a Radio Button in this project' dialog.
 ====
@@ -759,9 +761,9 @@ center_color::
 count_type_shown::
   There are three counts available 0) Raw CPR counts 1) Scaled counts 2) Delta scaled counts. +
   default = 1
-  * count is based on the CPR selected - it will count positive and negative. It is available as a s32 pin. +
+  * count is based on the CPR selected - it will count positive and negative. It is available as a s32 pin.
   * Scaled-count is CPR count times the scale - it can be positive and negative. +
-    If you change the scale the output will immediately reflect the change. It is available as a FLOAT pin. +
+    If you change the scale the output will immediately reflect the change. It is available as a FLOAT pin.
   * Delta-scaled-count is cpr count CHANGE, times scale. +
     If you change the scale, only the counts after that change will be scaled and then added to the current value. +
     It is available as a FLOAT pin.
@@ -829,8 +831,8 @@ image::images/Hal_Dial.png[align="center"]
 === Jog Wheel
 
 The `jogwheel` widget simulates a real jogwheel.
-It can be operated with the mouse. You can just use the mouse wheel, while the mouse cursor is over the JogWheel widget, +
-or you push the left mouse button and move the cursor in circular direction to increase or degrease the counts. +
+It can be operated with the mouse. You can just use the mouse wheel, while the mouse cursor is over the JogWheel widget,
+or you push the left mouse button and move the cursor in circular direction to increase or degrease the counts.
 
 * Counterclockwise = reduce counts
 * Clockwise        = increase counts
@@ -860,7 +862,9 @@ cpr::
 show_counts::
   Set this to False, if you want to hide the counts display in the middle of the widget.
 label::
-  Set the content of the label which may be shown over the counts value. The purpose is to give the user an idea about the usage of that jogwheel. If the label given is longer than 12 Characters, it will be cut to 12 Characters.
+  Set the content of the label which may be shown over the counts value.
+  The purpose is to give the user an idea about the usage of that jogwheel.
+  If the label given is longer than 12 Characters, it will be cut to 12 Characters.
 
 ==== Direct program control
 
@@ -940,7 +944,7 @@ min::
   Default is 0.0. +
   If you change this value, the increment will be reset to default, so it might be necessary to set afterwards a new increment.
 max::
-  Float
+  Float +
   The max allowed value. +
   Allowed values are 0.001 to 99999.0. +
   Default is 100.0. +
@@ -956,7 +960,7 @@ inc_speed::
   Allowed values are 20 to 300. +
   Default is 100.
 unit::
-  String
+  String +
   Sets the unit to be shown in the bar after the value. +
   Any string is allowed. +
   Default is "".
@@ -997,7 +1001,7 @@ There are also python methods to modify the widget:
 
 You can assign a existing adjustment to the control, that way it is easy to replace
 existing sliders without many code changes. Be aware, that after changing the adjustment
-you may need to set a new increment, as it will be reset to its default (100 steps from MIN to MAX)
+you may need to set a new increment, as it will be reset to its default (100 steps from MIN to MAX):
 
 * `[widget name].get_value()` +
   Will return the counts value as float
