@@ -3,9 +3,6 @@ GMOCCAPY_MODULES = dialogs getiniinfo notification player preferences widgets
 PYTARGETS += ../bin/gmoccapy ../lib/python/gmoccapy/__init__.py $(patsubst %,../lib/python/gmoccapy/%.py,$(GMOCCAPY_MODULES)) \
 	../share/gmoccapy/gmoccapy.glade 
 
-#PYI18NSRCS += emc/usr_intf/gmoccapy/gmoccapy.py $(patsubst %,emc/usr_intf/gmoccapy/%.py,$(GMOCCAPY_MODULES)) \
-#	emc/usr_intf/gmoccapy/gmoccapy.glade 
-
 ../lib/python/gmoccapy/__init__.py:
 	@mkdir -p ../lib/python/gmoccapy
 	@touch $@
