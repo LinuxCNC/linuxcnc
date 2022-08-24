@@ -103,10 +103,13 @@ CheckConfig(){
         MODULES_UNLOAD="$MOD $MODULES_UNLOAD"
     done
     case $RTPREFIX in
-    *rtai*)
+    (*rtai*)
         MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/rtapi$MODULE_EXT $RTLIB_DIR/hal_lib$MODULE_EXT"
-        MODULES_UNLOAD="hal_lib rtapi $MODULES_UNLOAD"
+        MODULES_UNLOAD="hal_lib rtapi"
         SHM_DEV=/dev/rtai_shm
+	;;
+    (*)
+        MODULES_UNLOAD=
     esac
 }
 
@@ -161,7 +164,9 @@ CheckMem(){
 Load(){
     CheckKernel
     for MOD in $MODULES_LOAD ; do
-        $INSMOD $MOD || return $?
+	if ! [ -d /sys/module/`basename $MOD .ko` ]; then
+		$INSMOD $MOD || return $?
+	fi
     done
     if [ "$DEBUG" != "" ] && [ -w /proc/rtapi/debug ] ; then
         echo "$DEBUG" > /proc/rtapi/debug
