@@ -157,12 +157,14 @@ image::5-axis-figures/equation__17.png[align="center"]
 .vismach model of xyzac-trt with rotational axis offsets (positive)
 image::5-axis-figures/Figure-5.png[align="center"]
 
-We deal here with a extended configuration in which the tilting axis and rotary axis do not intersect at a point but have an offset D~y~. Furthermore, there is also an z-offset between the two coordinate systems 'O~ws~' and 'O~wp~' of Fig. 2, called D~z~. A vismach model is shown in Fig. 5 and the offsets are shown in Fig. 6 (positive offsets in this example). To simplify the configuration, the offsets L~x~, L~y~, L~z~ of the previous case
- are not included. They are probably not necessary if one uses the G54 offsets in LinuxCNC by means of the "touch of" facility.
+We deal here with a extended configuration in which the tilting axis and rotary axis do not intersect at a point but have an offset D~y~.
+Furthermore, there is also an z-offset between the two coordinate systems 'O~ws~' and 'O~wp~' of Fig. 2, called D~z~.
+A vismach model is shown in Fig. 5 and the offsets are shown in Fig. 6 (positive offsets in this example).
+To simplify the configuration, the offsets L~x~, L~y~, L~z~ of the previous case are not included.
+They are probably not necessary if one uses the G54 offsets in LinuxCNC by means of the "touch of" facility.
 
 .Table tilting/rotary xyzac-trt configuration, with axis offsets
 image::5-axis-figures/Figure-6.png[align="center",height=350]
-
 
 ==== Forward Transformation
 
@@ -220,7 +222,9 @@ image::5-axis-figures/equation__27.png[align="center"]
 .vismach model of xyzbc-trt with rotational axis offsets (negative)
 image::5-axis-figures/Figure-7.png[align="center"]
 
-We deal here again with a extended configuration in which the tilting axis (about the y-axis) and rotary axis do not intersect at a point but have an offset D~x~. Furthermore, there is also an z-offset between the two coordinate systems 'O~ws~' and 'O~wp~' of Fig. 2, called D~z~. A vismach model is shown in Fig. 7 (negative offsets in this example) and the positive offsets are shown in Fig. 8.
+We deal here again with a extended configuration in which the tilting axis (about the y-axis) and rotary axis do not intersect at a point but have an offset D~x~.
+Furthermore, there is also an z-offset between the two coordinate systems 'O~ws~' and 'O~wp~' of Fig. 2, called D~z~.
+A vismach model is shown in Fig. 7 (negative offsets in this example) and the positive offsets are shown in Fig. 8.
 
 .Table tilting/rotary xyzbc-trt configuration, with axis offsets
 image::5-axis-figures/Figure-8.png[align="center",height=350]
@@ -235,13 +239,15 @@ with the matrices built up as follows:
 
 image::5-axis-figures/equation__29.png[align="center"]
 
-In these equations D~x~, D~z~ defines the offsets of the pivot point of the rotary axes B  relative to the workpiece coordinate system origin. Furthermore, P~x~, P~y~, P~z~ are the relative  distances of the pivot point to the cutter tip position, which can also be called the "joint coordinates" of the pivot point. The pivot point is on the B rotary axis.
+In these equations D~x~, D~z~ defines the offsets of the pivot point of the rotary axes B relative to the workpiece coordinate system origin.
+Furthermore, P~x~, P~y~, P~z~ are the relative  distances of the pivot point to the cutter tip position, which can also be called the "joint coordinates" of the pivot point.
+The pivot point is on the B rotary axis.
 
 When multiplied in accordance with (29), we obtain:
 
 image::5-axis-figures/equation__30.png[align="center"]
 
-We can now equate the third column of this matrix with our given tool orientation vector K, ie.:
+We can now equate the third column of this matrix with our given tool orientation vector K, i.e.:
 
 image::5-axis-figures/equation__31.png[align="center"]
 
@@ -267,7 +273,9 @@ which is the 'forward transformation' of the kinematics.
 
 ==== Inverse Transformation
 
-We can solve for P from  equation (37) as 'P = (^Q^A~P~)^-1^ * Q'.  With the same approach as before, we obtain:
+We can solve for P from  equation (37) as 'P = (^Q^A~P~)^-1^ * Q'.
+
+With the same approach as before, we obtain:
 
 image::5-axis-figures/equation__36.png[align="center"]
 
@@ -299,6 +307,7 @@ loadusr -W xyzac-trt-gui
 ----
 
 and connections are made using HAL commands like:
+
 ----
 net  :table-x   joint.0.pos-fb xyzac-trt-gui.table-x
 net  :saddle-y  joint.1.pos-fb xyzac-trt-gui.saddle-y
