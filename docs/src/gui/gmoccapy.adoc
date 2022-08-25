@@ -23,7 +23,7 @@ It offers the possibility to display up to 9 axis, support a lathe mode for
 normal and back tool lathe and can be adapted to nearly every need, because
 GMOCCAPY supports embedded tabs and side panels.
 As a good example for that see
-http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[gmoccapy_plasma]
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[gmoccapy_plasma].
 
 * GMOCCAPY 3 does support up to 9 axis and 9 joints. As GMOCCAPY 3 has been
   changed in code to support the joint / axis changes in LinuxCNC it does not
@@ -452,7 +452,7 @@ have been given.
 
 [NOTE]
 If you would like to use a macro without any movement,
-see also the notes in <<sub:NOT_ENDING_MACROS,known problems>>
+see also the notes in <<sub:NOT_ENDING_MACROS,known problems>>.
 
 image::images/gmoccapy_getting_macro_info.png[align="left"]
 
@@ -1244,9 +1244,9 @@ The main window of the auxiliary screen must be named 'window2'.
 ==== DRO Options
 
 You have the option to select the background colors of the different DRO states.
-So users suffering from protanopia (red/green weakness) are able to select proper colors
+So users suffering from protanopia (red/green weakness) are able to select proper colors.
 
-By default the backgrounds are:
+By default, the backgrounds are:
 
 * Relative mode  = black
 * Absolute mode  = blue
@@ -1260,13 +1260,13 @@ The foreground color of the DRO can be selected with:
 Options on data to display:
 
 show dro::
-  The DRO will be shown in the preview window
+  The DRO will be shown in the preview window.
 
 show offsets::
-  The Offsets will be shown in the preview window
+  The offsets will be shown in the preview window.
 
 show DTG::
-  The distance to go will be shown in the preview window
+  The distance to go will be shown in the preview window.
 
 [NOTE]
 You can change through the DRO modes (absolute, relative, distance

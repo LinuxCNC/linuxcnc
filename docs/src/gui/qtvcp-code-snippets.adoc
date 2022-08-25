@@ -2,18 +2,17 @@
 :toc:
 
 [[cha:qtvcp-code]]
-= QTvcp Handler file code snippets
+= QtVCP Handler file code snippets
 
 Here are bits of ideas to put in the handler file.
 
 == Preference file loading/saving
 
-Here is how to load and save at closing time a number and some text: +
+Here is how to load and save at closing time a number and some text:
 You must have included a preference file option in the screenoptions
-widget. +
-The preference file path is set in the INI.
+widget. The preference file path is set in the INI.
 
-under the 'def initialized__(self):' function add:
+Under the 'def initialized__(self):' function add:
 
 [source,python]
 ----
@@ -23,7 +22,7 @@ if self.w.PREFS_:
     self.string_value = self.w.PREFS_.getpref('String_value', 'on', str, 'CUSTOM_FORM_ENTRIES')
 ----
 
-under the 'def closing_cleanup__(self):' function add:
+Under the 'def closing_cleanup__(self):' function add:
 
 [source,python]
 ----
@@ -107,7 +106,7 @@ QtVCP uses STATUS messages to pop up and return information from dialogs. +
 Prebuilt dialogs keep track of their last position and include options
 for focus shading and sound. +
 To get information back from the dialog requires using a STATUS general
-message. +
+message.
 
 In the 'IMPORT SECTION' make sure there is an entry similar to this:
 
@@ -253,7 +252,8 @@ The function to be called if the actionMyFunction button is pressed.
 
 == Add HAL Pins that call functions
 
-In this way you don't need to poll the state of input pins. +
+In this way you don't need to poll the state of input pins.
+
 In the 'IMPORT SECTION' add:
 
 [source,python]
@@ -261,9 +261,9 @@ In the 'IMPORT SECTION' add:
 from qtvcp.core import Qhal
 ----
 
-Loads the Qhal library for access to QtVCP's hal component.
+Loads the Qhal library for access to QtVCP's HAL component.
 
-in the 'INSTANTIATE LIBRARY' Section add:
+In the 'INSTANTIATE LIBRARY' Section add:
 
 [source,python]
 ----
@@ -275,7 +275,7 @@ Under the initialised__ function, make sure there is an entry similar to this:
 [source,python]
 ----
 ##########################################
-# Special Functions called from QTVCP
+# Special Functions called from QtVCP
 ##########################################
 
 # at this point:
@@ -286,12 +286,14 @@ def initialized__(self):
     self.pin_cycle_start_in.value_changed.connect(lambda s: self.cycleStart(s))
 ----
 
-Add a function that gets called when the pin state changes. +
-This function assumes there is a Tab widget named 'mainTab' +
-that has tabs with the names 'tab_auto', 'tab_graphics', +
-'tab_filemanager' and 'tab_mdi'. In this way the cycle start +
-button works differently depending on what tab is showing. +
-This is simplified - checking state and error trapping might +
+Add a function that gets called when the pin state changes.
+This function assumes there is a Tab widget named 'mainTab'
+that has tabs with the names 'tab_auto', 'tab_graphics',
+'tab_filemanager' and 'tab_mdi'.
+
+In this way, the cycle start
+button works differently depending on what tab is showing.
+This is simplified - checking state and error trapping might
 be helpful.
 
 In the 'GENERAL FUNCTIONS SECTION' add:
@@ -318,9 +320,9 @@ def cycleStart(self, state):
 Some times you want to build a widget to do something not built in. +
 The built in Max velocity slider acts on units per minute, here we show how to do percent: +
 The STATUS command makes sure the slider adjusts if linuxcnc changes the current max velocity. +
-valueChanged.connect() calls a function when the slider is moved. +
+valueChanged.connect() calls a function when the slider is moved.
 
-In Designer add a QSlider widget called 'mvPercent'
+In Designer add a QSlider widget called 'mvPercent'.
 Then add the code to the handler file.
 
 [source,python]
@@ -344,16 +346,17 @@ def setMVPercentValue(self, value):
 
 == Toggle Continuous Jog On and Off
 
-Generally selecting continuous jogging is a momentary button, that requires you to select +
-the previous jog increment after. We will build a button that toggles between continuous jog and whatever +
+Generally selecting continuous jogging is a momentary button, that requires you to select
+the previous jog increment after. We will build a button that toggles between continuous jog and whatever
 increment that was already selected.
 
-In Designer: +
-use an action button with no action. call it 'btn_toggle_continuous' +
-set the AbstractButton property 'checkable' true +
-set the ActionButton properties 'incr_imperial_number' and 'incr_mm_number' to 0 +
-Use designer's slot editor to use the button signal 'clicked(bool)' to call form's handler function 'toggle_continuous_clicked()' +
-<<cha:designer-slots,Using Designer to add slots>>
+In Designer:
+- Use an action button with no action, call it 'btn_toggle_continuous'.
+- Set the AbstractButton property 'checkable' true.
+- Set the ActionButton properties 'incr_imperial_number' and 'incr_mm_number' to 0.
+
+Use designer's slot editor to use the button signal 'clicked(bool)' to call form's handler function 'toggle_continuous_clicked()', see
+<<cha:designer-slots,Using Designer to add slots>>.
 
 Then add this code snippets to the handler file: +
 Under the initialized__ function, make sure there is an entry similar to this:
@@ -409,9 +412,9 @@ def toggle_continuous_clicked(self, state):
 [NOTE]
 Class patching (monkey patching) is a little like black magic - so use it only if needed.
 
-The File manager widget is designed to load a selected program in linuxcnc. +
-But maybe you want to print the file name first. +
-We can 'class patch' the library to redirect the function call. +
+The File manager widget is designed to load a selected program in LinuxCNC.
+But maybe you want to print the file name first.
+We can 'class patch' the library to redirect the function call.
 
 In the 'IMPORT SECTION' add:
 
@@ -420,13 +423,13 @@ In the 'IMPORT SECTION' add:
 from qtvcp.widgets.file_manager import FileManager as FM
 ----
 
-Here we are going to keep a reference to the original function, so we can still call it +
+Here we are going to keep a reference to the original function, so we can still call it.
 Then we redirect the class to call our custom function in the handler file instead.
 
 [source,python]
 ----
 ##########################################
-# Special Functions called from QTVCP
+# Special Functions called from QtVCP
 ##########################################
 
 # For changing functions in widgets we can 'class patch'.
@@ -436,11 +439,11 @@ def class_patch__(self):
     FM.load = self.our_load # redirect function to our handle file function
 ----
 
-Ok Now we write a custom function to replace the original. +
-This function must have the same signature as the original function. +
-In this example we are still going to call the original function by using the +
-reference to it we recorded earlier. It requires the first argument to be the widget instance +
-which in this case is self.w.filemanager (the name given in the designer editor)
+Ok Now we write a custom function to replace the original.
+This function must have the same signature as the original function.
+In this example we are still going to call the original function by using the
+reference to it we recorded earlier. It requires the first argument to be the widget instance
+which in this case is self.w.filemanager (the name given in the designer editor).
 
 [source,python]
 ----
@@ -453,19 +456,19 @@ def our_load(self,fname):
     self.old_load(self.w.filemanager,fname)
 ----
 
-Now our custom function will print the file path to the terminal before loading the file. +
+Now our custom function will print the file path to the terminal before loading the file.
 Obviously boring but shows the principle.
 
-There is another slightly different way to do this that can have advantages. +
-You can store the reference to the original function in the original class. +
-the trick here is to make sure the function name you use to store it, is not already +
-used in the class. 'super__' added to the function name would be a good choice +
-We won't use that in built in qtvcp widgets.
+There is another slightly different way to do this that can have advantages.
+You can store the reference to the original function in the original class.
+the trick here is to make sure the function name you use to store it, is not already
+used in the class. 'super__' added to the function name would be a good choice.
+We won't use that in built in QtVCP widgets.
 
 [source,python]
 ----
 ##########################################
-# Special Functions called from QTVCP
+# Special Functions called from QtVCP
 ##########################################
 
 # For changing functions in widgets we can 'class patch'.
@@ -486,21 +489,21 @@ def our_load(self,fname):
 == Adding widgets Programmatically
 
 In some situation it is only possible to add widgets with python code rather
-then using the Designer editor. +
+then using the Designer editor.
 When adding QtVCP widgets programmatically, sometimes there are extra steps to
-be taken. +
+be taken.
 Here we are going to add a spindle speed indicator bar and up-to-speed LED to a
-tab widget corner. +
-Designer does not support adding corner widgets to tabs but PyQt does. +
+tab widget corner.
+Qt Designer does not support adding corner widgets to tabs but PyQt does.
 This is a cut down example from Qtaxis screen's handler file.
 
-First we must import the libraries we need. +
-often these libraries are already imported in the handler file. +
-QtWidgets gives us access to the QProgress bar +
-QColor is for the LED color +
-StateLED is the QtVCP library used to create the spindle-at-speed LED +
-Status is used to catch linuxcnc status information. +
-Info gives us information about the machine configuration.
+First we must import the libraries we need.
+Often these libraries are already imported in the handler file:
+- QtWidgets gives us access to the QProgress bar.
+- QColor is for the LED color.
+- StateLED is the QtVCP library used to create the spindle-at-speed LED.
+- Status is used to catch LinuxCNC status information.
+- Info gives us information about the machine configuration.
 
 [source,python]
 ----
@@ -515,7 +518,7 @@ from qtvcp.core import Status, Info
 ----
 
 STATUS and INFO are initialized outside the handler class so as to be a global
-reference (no self. in front) +
+reference (no self. in front).
 
 [source,python]
 ----
@@ -527,16 +530,16 @@ STATUS = Status()
 INFO = Info()
 ----
 
-For the spindle speed indicator we need to know the current spindle speed: +
+For the spindle speed indicator we need to know the current spindle speed:
 We register with STATUS to catch the 'actual-spindle-speed-changed' signal to
-call a function named: 'self.update_spindle()' +
+call a function named: 'self.update_spindle()'.
 
 [source,python]
 ----
 ########################
 # **** INITIALIZE **** #
 ########################
-# widgets allows access to  widgets from the qtvcp files
+# widgets allows access to  widgets from the QtVCP files
 # at this point the widgets and hal pins are not instantiated
 def __init__(self, halcomp,widgets,paths):
     self.hal = halcomp
@@ -580,7 +583,7 @@ function call required with some QtVCP widgets. +
 If HAL_NAME is omitted it will use the widget objectName if there is one. +
 It gives the special widgets reference to:
 
-* self.HAL_GCOMP_ - The HAL component wrapped in qtvcp's core QComponent
+* self.HAL_GCOMP_ - The HAL component wrapped in QtVCP's core QComponent
 * self.HAL_NAME_ -The HAL widget name
 * self.QT_OBJECT_ -the  actual object
 * self.QTVCP_INSTANCE_- The window object
@@ -681,7 +684,7 @@ Now add/modify these sections to include code that is similar to this:
 ########################
 # **** INITIALIZE **** #
 ########################
-# widgets allows access to  widgets from the qtvcp files
+# widgets allows access to  widgets from the QtVCP files
 # at this point the widgets and hal pins are not instantiated
 def __init__(self, halcomp,widgets,paths):
     self.hal = halcomp
@@ -718,7 +721,7 @@ We assume the screenoption widget is called 'screen_options' in designer:
 ########################
 # **** INITIALIZE **** #
 ########################
-# widgets allows access to  widgets from the qtvcp files
+# widgets allows access to  widgets from the QtVCP files
 # at this point the widgets and hal pins are not instantiated
 def __init__(self, halcomp,widgets,paths):
     # directly select ZMQ message receiving
@@ -809,7 +812,7 @@ We assume the screenoption widget is called 'screen_options' in designer: +
 ########################
 # **** INITIALIZE **** #
 ########################
-# widgets allows access to  widgets from the qtvcp files
+# widgets allows access to  widgets from the QtVCP files
 # at this point the widgets and hal pins are not instantiated
 def __init__(self, halcomp,widgets,paths):
     # directly select ZMQ message sending
