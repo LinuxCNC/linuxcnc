@@ -3,9 +3,10 @@ import os
 import subprocess
 import threading
 import time
-from qtvcp.core import Action
+from qtvcp.core import Action, Path
 
 ACTION = Action()
+PATH = Path()
 
 # path to TCL for external programs eg. halshow
 try:
@@ -23,6 +24,12 @@ class Aux_program_loader:
     def load_ladder(self, *args):
         if hal.component_exists('classicladder_rt'):
             p = os.popen("classicladder  &", "w")
+
+    def load_gcode_ripper(self,*args):
+        if args:
+            pass
+        else:
+            p = os.popen('python3 {}'.format(os.path.join(PATH.LIBDIR, 'ripper/gcode_ripper.py')))
 
     # opens halshow
     def load_halshow(self, *args):
