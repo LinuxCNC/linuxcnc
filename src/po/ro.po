@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-14 10:55+0200\n"
+"POT-Creation-Date: 2022-08-27 23:51+0200\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
@@ -1912,7 +1912,7 @@ msgstr ""
 #: src/hal/classicladder/classicladder_gtk.c:856 share/axis/tcl/axis.tcl:144
 #: share/axis/tcl/axis.tcl:1044 src/emc/usr_intf/gscreen/gscreen.py:4481
 #: src/emc/usr_intf/gscreen/gscreen.py:4482
-#: src/emc/usr_intf/gscreen/gscreen.glade:2649
+#: src/emc/usr_intf/gscreen/gscreen.glade:2685
 #, fuzzy
 msgid "Stop"
 msgstr "Pas"
@@ -1930,7 +1930,7 @@ msgstr "Spatiu simplu"
 msgid "Roll"
 msgstr ""
 
-#: src/hal/utils/scope_horiz.c:139 src/emc/usr_intf/gscreen/gscreen.glade:3454
+#: src/hal/utils/scope_horiz.c:139 src/emc/usr_intf/gscreen/gscreen.glade:3515
 #, fuzzy
 msgid "Zoom"
 msgstr "Mareste vedere"
@@ -2913,7 +2913,7 @@ msgstr ""
 #: src/hal/classicladder/classicladder_gtk.c:337 tcl/tklinuxcnc.tcl:1547
 #: src/emc/usr_intf/stepconf/main_page.glade:292
 #: src/emc/usr_intf/pncconf/dialogs.glade:3714
-#: src/emc/usr_intf/gscreen/gscreen.glade:2660
+#: src/emc/usr_intf/gscreen/gscreen.glade:2696
 msgid "Run"
 msgstr "Ruleaza"
 
@@ -3662,7 +3662,7 @@ msgstr "Modifica"
 #: src/emc/usr_intf/stepconf/main_page.glade:475
 #: src/emc/usr_intf/pncconf/main_page.glade:101
 #: src/emc/usr_intf/pncconf/dialogs.glade:576
-#: src/emc/usr_intf/gscreen/gscreen.glade:4027
+#: src/emc/usr_intf/gscreen/gscreen.glade:4099
 msgid "Cancel"
 msgstr "Anulare"
 
@@ -4037,7 +4037,7 @@ msgstr ""
 
 #: src/hal/classicladder/manager_gtk.c:71
 #: src/hal/classicladder/manager_gtk.c:229
-#: src/emc/usr_intf/gscreen/gscreen.glade:2373
+#: src/emc/usr_intf/gscreen/gscreen.glade:2409
 msgid "Ladder"
 msgstr ""
 
@@ -4654,7 +4654,7 @@ msgstr "Salveaza ca..."
 msgid "Exit"
 msgstr "Iesire"
 
-#: tcl/bin/genedit.tcl:91 src/emc/usr_intf/gscreen/gscreen.glade:2720
+#: tcl/bin/genedit.tcl:91 src/emc/usr_intf/gscreen/gscreen.glade:2759
 #: lib/python/gladevcp/offsetpage.glade:488
 msgid "Edit"
 msgstr "Editare"
@@ -5427,8 +5427,8 @@ msgid "NC files"
 msgstr "Fisiere NC"
 
 #: tcl/tklinuxcnc.tcl:630 tcl/tklinuxcnc.tcl:1152 tcl/tklinuxcnc.tcl:1156
-#: src/emc/usr_intf/gscreen/gscreen.glade:1574
-#: src/emc/usr_intf/gscreen/gscreen.glade:1586
+#: src/emc/usr_intf/gscreen/gscreen.glade:1597
+#: src/emc/usr_intf/gscreen/gscreen.glade:1609
 msgid "continuous"
 msgstr "continuu"
 
@@ -5554,7 +5554,7 @@ msgstr "Estop oprit"
 msgid "Machine on"
 msgstr "Masina pornita"
 
-#: tcl/tklinuxcnc.tcl:848 src/emc/usr_intf/gscreen/gscreen.glade:2487
+#: tcl/tklinuxcnc.tcl:848 src/emc/usr_intf/gscreen/gscreen.glade:2524
 msgid "Machine off"
 msgstr "Masina oprita"
 
@@ -5713,7 +5713,7 @@ msgid "  -  Status: "
 msgstr "  -  Stare: "
 
 #: tcl/tklinuxcnc.tcl:1548 src/emc/usr_intf/pncconf/dialogs.glade:3631
-#: src/emc/usr_intf/gscreen/gscreen.glade:2673
+#: src/emc/usr_intf/gscreen/gscreen.glade:2709
 msgid "Pause"
 msgstr "Pauza"
 
@@ -6022,7 +6022,7 @@ msgstr ""
 msgid "Reread"
 msgstr ""
 
-#: tcl/ngcgui.tcl:1313 src/emc/usr_intf/gscreen/gscreen.glade:4014
+#: tcl/ngcgui.tcl:1313 src/emc/usr_intf/gscreen/gscreen.glade:4086
 msgid "Restart"
 msgstr "Restart"
 
@@ -6432,9 +6432,9 @@ msgstr ""
 msgid "move"
 msgstr ""
 
-#: tcl/ngcgui.tcl:3725 src/emc/usr_intf/pncconf/pncconf.py:4023
-#: src/emc/usr_intf/pncconf/pncconf.py:4129
-#: src/emc/usr_intf/pncconf/pncconf.py:4293
+#: tcl/ngcgui.tcl:3725 src/emc/usr_intf/pncconf/pncconf.py:4025
+#: src/emc/usr_intf/pncconf/pncconf.py:4131
+#: src/emc/usr_intf/pncconf/pncconf.py:4295
 #, fuzzy
 msgid "Custom"
 msgstr "Decupare"
@@ -7552,10 +7552,10 @@ msgid "generated from %s"
 msgstr "generat din %s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2038
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "%(size)s bytes\n"
-"%(lines)s gcode lines"
+"%(lines)s G-code lines"
 msgstr ""
 "%(size)s bytes\n"
 "%(lines)s linii g-cod"
@@ -7699,7 +7699,7 @@ msgstr "articulatie"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3559
 #: src/emc/usr_intf/touchy/touchy.glade:584
-#: src/emc/usr_intf/gscreen/gscreen.glade:2968
+#: src/emc/usr_intf/gscreen/gscreen.glade:3009
 #, fuzzy
 msgid "Home All"
 msgstr "Salveaza tot"
@@ -7769,7 +7769,7 @@ msgstr "Ruleaza de aici"
 msgid "toggle PYVCP panel visibility"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3924 share/axis/tcl/axis.tcl:387
+#: src/emc/usr_intf/axis/scripts/axis.py:3924
 msgid "Show pyVCP pan_el"
 msgstr ""
 
@@ -7819,12 +7819,13 @@ msgstr ""
 "inchisalinistit, sau minimizata. Se va inchide automat dupa cateva secunde."
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:514
-#, python-format
-msgid "%s: Image to gcode"
+#, fuzzy, python-format
+msgid "%s: Image to G-code"
 msgstr "%s: Imagine in gcode"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:515
-msgid "Image to gcode"
+#, fuzzy
+msgid "Image to G-code"
 msgstr "Imagine in gcode"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:525
@@ -8091,7 +8092,7 @@ msgstr "_Reincarca"
 
 #: share/axis/tcl/axis.tcl:76
 #, fuzzy
-msgid "_Save gcode as..."
+msgid "_Save G-code as..."
 msgstr "Salveaza g-cod ca si"
 
 #: share/axis/tcl/axis.tcl:80
@@ -8346,6 +8347,10 @@ msgstr "Sterge vedere curenta"
 msgid "Ctrl-E"
 msgstr "Ctrl-R"
 
+#: share/axis/tcl/axis.tcl:387
+msgid "Show PyVCP pan_el"
+msgstr ""
+
 #: share/axis/tcl/axis.tcl:396
 #, fuzzy
 msgid "Show commanded position"
@@ -8500,7 +8505,7 @@ msgstr "MDI [F5]"
 msgid "Axis:"
 msgstr "Axa"
 
-#: share/axis/tcl/axis.tcl:932 src/emc/usr_intf/gscreen/gscreen.glade:2979
+#: share/axis/tcl/axis.tcl:932 src/emc/usr_intf/gscreen/gscreen.glade:3020
 msgid "Home Axis"
 msgstr "Pozitie 0 Axa"
 
@@ -8524,7 +8529,7 @@ msgstr "Freza oprita"
 #: src/emc/usr_intf/pncconf/dialogs.glade:889
 #: src/emc/usr_intf/pncconf/dialogs.glade:3259
 #: src/emc/usr_intf/pncconf/dialogs.glade:3427
-#: src/emc/usr_intf/gscreen/gscreen.glade:4108
+#: src/emc/usr_intf/gscreen/gscreen.glade:4180
 msgid "-"
 msgstr "-"
 
@@ -8532,7 +8537,7 @@ msgstr "-"
 #: src/emc/usr_intf/pncconf/main_page.glade:38
 #: src/emc/usr_intf/pncconf/dialogs.glade:3256
 #: src/emc/usr_intf/pncconf/dialogs.glade:3454
-#: src/emc/usr_intf/gscreen/gscreen.glade:4097
+#: src/emc/usr_intf/gscreen/gscreen.glade:4169
 msgid "+"
 msgstr "+"
 
@@ -8546,7 +8551,7 @@ msgstr "Frana pornita"
 msgid "Coolant:"
 msgstr "Comanda:"
 
-#: share/axis/tcl/axis.tcl:1139
+#: share/axis/tcl/axis.tcl:1139 src/emc/usr_intf/gscreen/gscreen.glade:1493
 #, fuzzy
 msgid "Mist"
 msgstr "Vapori porniti"
@@ -8812,8 +8817,8 @@ msgid "Temporarily allow jogging outside machine limits [L]"
 msgstr "Permite temporar miscarea in afara limitelor [L]"
 
 #: src/emc/usr_intf/touchy/touchy.py:144
-#: src/emc/usr_intf/pncconf/pncconf.py:1818
-#: src/emc/usr_intf/pncconf/pncconf.py:1821
+#: src/emc/usr_intf/pncconf/pncconf.py:1820
+#: src/emc/usr_intf/pncconf/pncconf.py:1823
 #: src/emc/usr_intf/gscreen/gscreen.py:1339
 msgid "Follow System Theme"
 msgstr ""
@@ -9011,15 +9016,15 @@ msgid "zd"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:141
-#: src/emc/usr_intf/gscreen/gscreen.glade:85
-#: src/emc/usr_intf/gscreen/gscreen.glade:213
-#: src/emc/usr_intf/gscreen/gscreen.glade:343
-#: src/emc/usr_intf/gscreen/gscreen.glade:471
-#: src/emc/usr_intf/gscreen/gscreen.glade:599
-#: src/emc/usr_intf/gscreen/gscreen.glade:727
-#: src/emc/usr_intf/gscreen/gscreen.glade:855
-#: src/emc/usr_intf/gscreen/gscreen.glade:983
-#: src/emc/usr_intf/gscreen/gscreen.glade:1111
+#: src/emc/usr_intf/gscreen/gscreen.glade:86
+#: src/emc/usr_intf/gscreen/gscreen.glade:217
+#: src/emc/usr_intf/gscreen/gscreen.glade:349
+#: src/emc/usr_intf/gscreen/gscreen.glade:478
+#: src/emc/usr_intf/gscreen/gscreen.glade:609
+#: src/emc/usr_intf/gscreen/gscreen.glade:739
+#: src/emc/usr_intf/gscreen/gscreen.glade:870
+#: src/emc/usr_intf/gscreen/gscreen.glade:1001
+#: src/emc/usr_intf/gscreen/gscreen.glade:1132
 msgid "DTG"
 msgstr ""
 
@@ -9115,7 +9120,7 @@ msgstr "Estop pornit"
 #: src/emc/usr_intf/stepconf/pport2.glade:26
 #: src/emc/usr_intf/pncconf/pport1.glade:26
 #: src/emc/usr_intf/pncconf/pport2.glade:26
-#: src/emc/usr_intf/gscreen/gscreen.glade:2477
+#: src/emc/usr_intf/gscreen/gscreen.glade:2514
 #, fuzzy
 msgid "Estop"
 msgstr "Testeaza"
@@ -9572,7 +9577,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/base.glade:54
 #: src/emc/usr_intf/gscreen/gscreen.py:4647
 #: src/emc/usr_intf/gscreen/gscreen.py:4648
-#: src/emc/usr_intf/gscreen/gscreen.glade:3707
+#: src/emc/usr_intf/gscreen/gscreen.glade:3777
 msgid "Inch"
 msgstr ""
 
@@ -9617,17 +9622,17 @@ msgid "<b>Program Options</b>"
 msgstr "Pozitie 0"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3490
-#: src/emc/usr_intf/gscreen/gscreen.glade:2235
+#: src/emc/usr_intf/gscreen/gscreen.glade:2269
 msgid "Preferences"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:3525
-#: src/emc/usr_intf/gscreen/gscreen.glade:1425
+#: src/emc/usr_intf/gscreen/gscreen.glade:1448
 msgid "FO: 100%"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:3540
-#: src/emc/usr_intf/gscreen/gscreen.glade:1437
+#: src/emc/usr_intf/gscreen/gscreen.glade:1460
 msgid "SO: 100%"
 msgstr ""
 
@@ -9719,7 +9724,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/main_page.glade:229
 #: src/emc/usr_intf/gscreen/gscreen.py:4479
 #: src/emc/usr_intf/gscreen/gscreen.py:4480
-#: src/emc/usr_intf/gscreen/gscreen.glade:4084
+#: src/emc/usr_intf/gscreen/gscreen.glade:4156
 #, fuzzy
 msgid "Start"
 msgstr "Restart"
@@ -10503,18 +10508,17 @@ msgstr ""
 "de stepconf."
 
 #: src/emc/usr_intf/stepconf/stepconf.py:662
-#: src/emc/usr_intf/pncconf/data.py:903
 #, fuzzy
 msgid "Continue? "
 msgstr "continuu"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:663
-#: src/emc/usr_intf/pncconf/data.py:904
+#: src/emc/usr_intf/pncconf/data.py:902
 msgid "yY"
 msgstr "yY"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:748
-#: src/emc/usr_intf/pncconf/data.py:1084
+#: src/emc/usr_intf/pncconf/data.py:1082
 #, python-format
 msgid "launch %s"
 msgstr "lanseaza %s"
@@ -10608,7 +10612,7 @@ msgid "LinuxCNC 'stepconf' configuration files"
 msgstr "Selector configuratii EMC2"
 
 #: src/emc/usr_intf/stepconf/pages.py:232
-#: src/emc/usr_intf/pncconf/pncconf.py:905
+#: src/emc/usr_intf/pncconf/pncconf.py:904
 #, fuzzy
 msgid "Modify Existing Configuration"
 msgstr "Configuratiile mele"
@@ -10952,9 +10956,9 @@ msgstr "Configuratii model"
 #: src/emc/usr_intf/pncconf/dialogs.glade:4850
 #: src/emc/usr_intf/pncconf/dialogs.glade:4863
 #: src/emc/usr_intf/pncconf/dialogs.glade:4876
-#: src/emc/usr_intf/gscreen/gscreen.glade:1342
-#: src/emc/usr_intf/gscreen/gscreen.glade:1360
-#: src/emc/usr_intf/gscreen/gscreen.glade:1378
+#: src/emc/usr_intf/gscreen/gscreen.glade:1365
+#: src/emc/usr_intf/gscreen/gscreen.glade:1383
+#: src/emc/usr_intf/gscreen/gscreen.glade:1401
 #: lib/python/gladevcp/gladevcp-test.glade:80
 #: lib/python/gladevcp/gladevcp-test.glade:94
 #, fuzzy
@@ -12042,7 +12046,7 @@ msgstr ""
 msgid " Simulator: will not run hardware "
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:97
+#: src/emc/usr_intf/pncconf/pncconf.py:96
 #, fuzzy, python-format
 msgid ""
 "PNCconf encountered an error.  The following information may be useful in "
@@ -12055,48 +12059,48 @@ msgstr ""
 "depanare:\n"
 "\n"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:173
+#: src/emc/usr_intf/pncconf/pncconf.py:172
 msgid "PnCconf is setting up"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:265
+#: src/emc/usr_intf/pncconf/pncconf.py:264
 msgid "**** PNCCONF ERROR:    custom firmware loading error"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:268
+#: src/emc/usr_intf/pncconf/pncconf.py:267
 msgid "**** PNCCONF INFO:    Found extra firmware in file"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:360
+#: src/emc/usr_intf/pncconf/pncconf.py:359
 msgid "Discovery metadata update"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:404
+#: src/emc/usr_intf/pncconf/pncconf.py:403
 #, python-format
 msgid "%s metadata update"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:424
+#: src/emc/usr_intf/pncconf/pncconf.py:423
 msgid "PnCconf setup"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:444
+#: src/emc/usr_intf/pncconf/pncconf.py:443
 msgid ""
 "\n"
 "**** Debug Pause! ****"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:528
+#: src/emc/usr_intf/pncconf/pncconf.py:527
 #, fuzzy
 msgid "Specific Help page is unavailable\n"
 msgstr "Nu exista detalii."
 
-#: src/emc/usr_intf/pncconf/pncconf.py:530
+#: src/emc/usr_intf/pncconf/pncconf.py:529
 #, fuzzy
 msgid "Help Pages"
 msgstr "Imagine de adancime"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:581
+#: src/emc/usr_intf/pncconf/pncconf.py:580
 #, python-format
 msgid ""
 "You have no hostmot2 firmware downloaded in folder:\n"
@@ -12104,56 +12108,56 @@ msgid ""
 "PNCconf will use internal firmware data"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:903
+#: src/emc/usr_intf/pncconf/pncconf.py:902
 #, fuzzy
 msgid "LinuxCNC 'PNCconf' configuration files"
 msgstr "Selector configuratii EMC2"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:936
+#: src/emc/usr_intf/pncconf/pncconf.py:935
 msgid ""
 "It seems data in this file is from too old of a version of PNCConf to "
 "continue."
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1297
+#: src/emc/usr_intf/pncconf/pncconf.py:1296
 msgid "PIN file is empty:\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1298
+#: src/emc/usr_intf/pncconf/pncconf.py:1297
 msgid "To use PIN file discovery mode, the contents of the"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1299
+#: src/emc/usr_intf/pncconf/pncconf.py:1298
 msgid "cards PIN file needs to be pasted into the Input tab"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1300
+#: src/emc/usr_intf/pncconf/pncconf.py:1299
 msgid "of the Help window before clicking Board Discovery"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1309
+#: src/emc/usr_intf/pncconf/pncconf.py:1308
 msgid "Address is required for ethernet card"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1317
+#: src/emc/usr_intf/pncconf/pncconf.py:1316
 #, python-format
 msgid "%s board was not found"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1319
+#: src/emc/usr_intf/pncconf/pncconf.py:1318
 msgid "Is the address correct?"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1323
+#: src/emc/usr_intf/pncconf/pncconf.py:1322
 #, python-format
 msgid "%s is an unsupported device"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1336
+#: src/emc/usr_intf/pncconf/pncconf.py:1335
 msgid "Unspecified Error with Discovery option"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1378
+#: src/emc/usr_intf/pncconf/pncconf.py:1377
 #, python-format
 msgid ""
 "Discovery has an error,\n"
@@ -12163,42 +12167,42 @@ msgid ""
 " %s"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1392
+#: src/emc/usr_intf/pncconf/pncconf.py:1391
 #, fuzzy
 msgid "Discovery is  unavailable\n"
 msgstr "Nu exista detalii."
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1607
+#: src/emc/usr_intf/pncconf/pncconf.py:1606
 msgid "The pasted PIN file may be an invalid format"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1609
+#: src/emc/usr_intf/pncconf/pncconf.py:1608
 msgid "The data returned from discovery is invalid"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1682
+#: src/emc/usr_intf/pncconf/pncconf.py:1681
 msgid "USB device Info Search"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1696
+#: src/emc/usr_intf/pncconf/pncconf.py:1695
 #, fuzzy
 msgid "USB device  page is unavailable\n"
 msgstr "Nu exista detalii."
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1769
+#: src/emc/usr_intf/pncconf/pncconf.py:1768
 #: src/emc/usr_intf/pncconf/tests.py:90
 msgid "Pin names are unavailable\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1792
+#: src/emc/usr_intf/pncconf/pncconf.py:1791
 msgid "Device names are unavailable\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1795
+#: src/emc/usr_intf/pncconf/pncconf.py:1794
 msgid "No Pncconf made device rules were found\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1840
+#: src/emc/usr_intf/pncconf/pncconf.py:1842
 #, fuzzy
 msgid ""
 "OK to replace existing glade panel ?\n"
@@ -12211,7 +12215,7 @@ msgstr ""
 "Fisierul existent Custom.clp va fi redenumit custom_backup.clp.\n"
 "Daca exista deja un fisier -custom_backup.clp- acesta va fi pierdut. "
 
-#: src/emc/usr_intf/pncconf/pncconf.py:1847
+#: src/emc/usr_intf/pncconf/pncconf.py:1849
 #, fuzzy
 msgid ""
 "OK to replace existing custom pyvcp panel?\n"
@@ -12222,178 +12226,178 @@ msgstr ""
 "Fisierul existent Custom.clp va fi redenumit custom_backup.clp.\n"
 "Daca exista deja un fisier -custom_backup.clp- acesta va fi pierdut. "
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3648
+#: src/emc/usr_intf/pncconf/pncconf.py:3650
 #: src/emc/usr_intf/pncconf/private_data.py:555
 #, fuzzy
 msgid "Unused Channel"
 msgstr "Nefolosit"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3923
+#: src/emc/usr_intf/pncconf/pncconf.py:3925
 msgid "You can not have both steppers and pwm signals for spindle control\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3927
+#: src/emc/usr_intf/pncconf/pncconf.py:3929
 #, python-format
 msgid "You forgot to designate a stepper or pwm signal for axis %s\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3930
+#: src/emc/usr_intf/pncconf/pncconf.py:3932
 #, python-format
 msgid "You forgot to designate an encoder /resolver signal for axis %s servo\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3933
+#: src/emc/usr_intf/pncconf/pncconf.py:3935
 #, python-format
 msgid "You forgot to designate a pwm signal or stepper signal for axis %s\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3936
+#: src/emc/usr_intf/pncconf/pncconf.py:3938
 #, python-format
 msgid "You can not have both steppers and pwm signals for axis %s\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3939
+#: src/emc/usr_intf/pncconf/pncconf.py:3941
 #, python-format
 msgid ""
 "If using a tandem axis stepper, you must select a master stepgen for axis "
 "%s\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3947
+#: src/emc/usr_intf/pncconf/pncconf.py:3949
 msgid "Touchy require an external cycle start signal\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3950
+#: src/emc/usr_intf/pncconf/pncconf.py:3952
 msgid "Touchy require an external abort signal\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3953
+#: src/emc/usr_intf/pncconf/pncconf.py:3955
 msgid "Touchy require an external single-step signal\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3956
+#: src/emc/usr_intf/pncconf/pncconf.py:3958
 msgid ""
 "Touchy require an external multi handwheel MPG encoder signal on the mesa "
 "page\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3959
+#: src/emc/usr_intf/pncconf/pncconf.py:3961
 msgid ""
 "Touchy require 'external mpg jogging' to be selected on the external control "
 "page\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3962
+#: src/emc/usr_intf/pncconf/pncconf.py:3964
 msgid ""
 "Touchy require the external mpg to be in 'shared mpg' mode on the external "
 "controls page\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3965
+#: src/emc/usr_intf/pncconf/pncconf.py:3967
 msgid ""
 "Touchy require selectable increments to be unchecked on the external "
 "controls page\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3978
+#: src/emc/usr_intf/pncconf/pncconf.py:3980
 msgid ""
 "The 7i29 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3981
+#: src/emc/usr_intf/pncconf/pncconf.py:3983
 msgid ""
 "The 7i30 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3984
+#: src/emc/usr_intf/pncconf/pncconf.py:3986
 msgid ""
 "The 7i33 daughter board requires PDM type generators and a PDM base "
 "frequency of 6 Mhz\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3987
+#: src/emc/usr_intf/pncconf/pncconf.py:3989
 msgid ""
 "The 7i40 daughter board requires PWM type generators and a PWM base "
 "frequency of 50 khz\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:3990
+#: src/emc/usr_intf/pncconf/pncconf.py:3992
 msgid ""
 "The 7i48 daughter board requires UDM type generators and a PWM base "
 "frequency of 24 khz\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4138
+#: src/emc/usr_intf/pncconf/pncconf.py:4140
 msgid "Gearbox Reduction Ratio"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4141
+#: src/emc/usr_intf/pncconf/pncconf.py:4143
 msgid "Reduction Ratio"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4144
+#: src/emc/usr_intf/pncconf/pncconf.py:4146
 #, fuzzy
 msgid "Leadscrew Pitch"
 msgstr "Pas surub:"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4147
+#: src/emc/usr_intf/pncconf/pncconf.py:4149
 #: src/emc/usr_intf/pncconf/dialogs.glade:1985
 #: src/emc/usr_intf/pncconf/dialogs.glade:2350
 #, fuzzy
 msgid "Leadscrew TPI"
 msgstr "Pas surub:"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4151
-#: src/emc/usr_intf/pncconf/pncconf.py:4152
+#: src/emc/usr_intf/pncconf/pncconf.py:4153
+#: src/emc/usr_intf/pncconf/pncconf.py:4154
 msgid "("
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4153
-#: src/emc/usr_intf/pncconf/pncconf.py:4163
-#: src/emc/usr_intf/pncconf/pncconf.py:4164
+#: src/emc/usr_intf/pncconf/pncconf.py:4155
 #: src/emc/usr_intf/pncconf/pncconf.py:4165
+#: src/emc/usr_intf/pncconf/pncconf.py:4166
+#: src/emc/usr_intf/pncconf/pncconf.py:4167
 #, fuzzy
 msgid " / min"
 msgstr "mm / s"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4154
+#: src/emc/usr_intf/pncconf/pncconf.py:4156
 #, fuzzy
 msgid " / sec²"
 msgstr "mm / sÂ²"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4157
+#: src/emc/usr_intf/pncconf/pncconf.py:4159
 #, fuzzy
 msgid " / Step"
 msgstr "Pas"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4158
+#: src/emc/usr_intf/pncconf/pncconf.py:4160
 #, fuzzy
 msgid "Steps / "
 msgstr "Pasi / mm"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4160
+#: src/emc/usr_intf/pncconf/pncconf.py:4162
 #, fuzzy
 msgid " / encoder pulse"
 msgstr "grade / tura"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4161
+#: src/emc/usr_intf/pncconf/pncconf.py:4163
 #, fuzzy
 msgid "Encoder pulses / "
 msgstr "mm / tura"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4169
+#: src/emc/usr_intf/pncconf/pncconf.py:4171
 #, fuzzy
 msgid "Resolver Scale:"
 msgstr "Spatiu simplu"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4507
+#: src/emc/usr_intf/pncconf/pncconf.py:4509
 #, fuzzy
 msgid "Spindle Scale Calculation"
 msgstr "Configuratii model"
 
-#: src/emc/usr_intf/pncconf/pncconf.py:4619
+#: src/emc/usr_intf/pncconf/pncconf.py:4621
 msgid "Axis Scale Calculation"
 msgstr ""
 
@@ -14885,12 +14889,12 @@ msgid ""
 "Do you wish to continue the test?"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/data.py:112
+#: src/emc/usr_intf/pncconf/data.py:110
 #, fuzzy
 msgid "my_LinuxCNC_machine"
 msgstr "masina"
 
-#: src/emc/usr_intf/pncconf/data.py:875
+#: src/emc/usr_intf/pncconf/data.py:873
 msgid ""
 "This configuration was saved with an earlier version of pncconf which may be "
 "incompatible.\n"
@@ -14900,12 +14904,12 @@ msgid ""
 "version of PNConf - ask on the LinuxCNC forum - it may be possible.."
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/data.py:881
+#: src/emc/usr_intf/pncconf/data.py:879
 #, fuzzy, python-format
 msgid "File %r was modified since it was written by PNCconf"
 msgstr "Fisierul %r a fost modificat decand a fost generat de stepconf"
 
-#: src/emc/usr_intf/pncconf/data.py:885
+#: src/emc/usr_intf/pncconf/data.py:886
 #, fuzzy
 msgid ""
 "Saving this configuration file will discard configuration changes made "
@@ -14914,7 +14918,12 @@ msgstr ""
 "Salvarea aceste configuratii va supascrie orice modificari facute in afara "
 "de stepconf."
 
-#: src/emc/usr_intf/pncconf/data.py:1088
+#: src/emc/usr_intf/pncconf/data.py:901
+#, fuzzy
+msgid "Continue? (y/n)"
+msgstr "continuu"
+
+#: src/emc/usr_intf/pncconf/data.py:1086
 #, fuzzy
 msgid "Desktop Launcher for LinuxCNC config made by PNCconf"
 msgstr "Dekstop Launcher pentru EMC creat de Stepconf"
@@ -16586,13 +16595,13 @@ msgid "Digital Control"
 msgstr "Iesire digitala 0"
 
 #: src/emc/usr_intf/pncconf/external.glade:1414
-#: src/emc/usr_intf/gscreen/gscreen.glade:502
+#: src/emc/usr_intf/gscreen/gscreen.glade:511
 #, fuzzy
 msgid "A"
 msgstr "_A"
 
 #: src/emc/usr_intf/pncconf/external.glade:1425
-#: src/emc/usr_intf/gscreen/gscreen.glade:374
+#: src/emc/usr_intf/gscreen/gscreen.glade:381
 #, fuzzy
 msgid "Z"
 msgstr "_Z"
@@ -16603,7 +16612,7 @@ msgstr "_Z"
 #: src/emc/usr_intf/pncconf/screen.glade:2878
 #: src/emc/usr_intf/pncconf/vcp.glade:201
 #: src/emc/usr_intf/pncconf/vcp.glade:637
-#: src/emc/usr_intf/gscreen/gscreen.glade:244
+#: src/emc/usr_intf/gscreen/gscreen.glade:250
 #, fuzzy
 msgid "Y"
 msgstr "yY"
@@ -17088,7 +17097,7 @@ msgstr "Tip pozitie"
 #: src/emc/usr_intf/pncconf/screen.glade:2849
 #: src/emc/usr_intf/pncconf/vcp.glade:229
 #: src/emc/usr_intf/pncconf/vcp.glade:609
-#: src/emc/usr_intf/gscreen/gscreen.glade:116
+#: src/emc/usr_intf/gscreen/gscreen.glade:119
 #, fuzzy
 msgid "X"
 msgstr "_X"
@@ -17098,7 +17107,7 @@ msgstr "_X"
 #: src/emc/usr_intf/pncconf/screen.glade:2838
 #: src/emc/usr_intf/pncconf/vcp.glade:242
 #: src/emc/usr_intf/pncconf/vcp.glade:598
-#: src/emc/usr_intf/gscreen/gscreen.glade:1142
+#: src/emc/usr_intf/gscreen/gscreen.glade:1165
 msgid "W"
 msgstr ""
 
@@ -17131,7 +17140,7 @@ msgid "GTK Theme"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/screen.glade:1859
-#: src/emc/usr_intf/gscreen/gscreen.glade:1892
+#: src/emc/usr_intf/gscreen/gscreen.glade:1919
 msgid "Absolute Text Color"
 msgstr ""
 
@@ -19078,7 +19087,7 @@ msgid " Zero Origin"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3695
-#: src/emc/usr_intf/gscreen/gscreen.glade:2573
+#: src/emc/usr_intf/gscreen/gscreen.glade:2610
 #, fuzzy
 msgid "Offset Origin"
 msgstr "Informatii Ofset"
@@ -19249,627 +19258,631 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:48
 #: src/emc/usr_intf/gscreen/gscreen.glade:59
-#: src/emc/usr_intf/gscreen/gscreen.glade:135
-#: src/emc/usr_intf/gscreen/gscreen.glade:176
-#: src/emc/usr_intf/gscreen/gscreen.glade:187
-#: src/emc/usr_intf/gscreen/gscreen.glade:264
-#: src/emc/usr_intf/gscreen/gscreen.glade:306
-#: src/emc/usr_intf/gscreen/gscreen.glade:317
-#: src/emc/usr_intf/gscreen/gscreen.glade:393
-#: src/emc/usr_intf/gscreen/gscreen.glade:434
-#: src/emc/usr_intf/gscreen/gscreen.glade:445
-#: src/emc/usr_intf/gscreen/gscreen.glade:521
-#: src/emc/usr_intf/gscreen/gscreen.glade:562
-#: src/emc/usr_intf/gscreen/gscreen.glade:573
-#: src/emc/usr_intf/gscreen/gscreen.glade:649
-#: src/emc/usr_intf/gscreen/gscreen.glade:690
+#: src/emc/usr_intf/gscreen/gscreen.glade:138
+#: src/emc/usr_intf/gscreen/gscreen.glade:179
+#: src/emc/usr_intf/gscreen/gscreen.glade:190
+#: src/emc/usr_intf/gscreen/gscreen.glade:270
+#: src/emc/usr_intf/gscreen/gscreen.glade:312
+#: src/emc/usr_intf/gscreen/gscreen.glade:323
+#: src/emc/usr_intf/gscreen/gscreen.glade:400
+#: src/emc/usr_intf/gscreen/gscreen.glade:441
+#: src/emc/usr_intf/gscreen/gscreen.glade:452
+#: src/emc/usr_intf/gscreen/gscreen.glade:530
+#: src/emc/usr_intf/gscreen/gscreen.glade:571
+#: src/emc/usr_intf/gscreen/gscreen.glade:582
+#: src/emc/usr_intf/gscreen/gscreen.glade:660
 #: src/emc/usr_intf/gscreen/gscreen.glade:701
-#: src/emc/usr_intf/gscreen/gscreen.glade:777
-#: src/emc/usr_intf/gscreen/gscreen.glade:818
-#: src/emc/usr_intf/gscreen/gscreen.glade:829
-#: src/emc/usr_intf/gscreen/gscreen.glade:905
-#: src/emc/usr_intf/gscreen/gscreen.glade:946
-#: src/emc/usr_intf/gscreen/gscreen.glade:957
-#: src/emc/usr_intf/gscreen/gscreen.glade:1033
-#: src/emc/usr_intf/gscreen/gscreen.glade:1074
-#: src/emc/usr_intf/gscreen/gscreen.glade:1085
-#: src/emc/usr_intf/gscreen/gscreen.glade:1161
+#: src/emc/usr_intf/gscreen/gscreen.glade:712
+#: src/emc/usr_intf/gscreen/gscreen.glade:791
+#: src/emc/usr_intf/gscreen/gscreen.glade:832
+#: src/emc/usr_intf/gscreen/gscreen.glade:843
+#: src/emc/usr_intf/gscreen/gscreen.glade:922
+#: src/emc/usr_intf/gscreen/gscreen.glade:963
+#: src/emc/usr_intf/gscreen/gscreen.glade:974
+#: src/emc/usr_intf/gscreen/gscreen.glade:1053
+#: src/emc/usr_intf/gscreen/gscreen.glade:1094
+#: src/emc/usr_intf/gscreen/gscreen.glade:1105
+#: src/emc/usr_intf/gscreen/gscreen.glade:1184
 msgid "0000.0000"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:73
-#: src/emc/usr_intf/gscreen/gscreen.glade:201
-#: src/emc/usr_intf/gscreen/gscreen.glade:331
-#: src/emc/usr_intf/gscreen/gscreen.glade:459
-#: src/emc/usr_intf/gscreen/gscreen.glade:587
-#: src/emc/usr_intf/gscreen/gscreen.glade:715
-#: src/emc/usr_intf/gscreen/gscreen.glade:843
-#: src/emc/usr_intf/gscreen/gscreen.glade:971
-#: src/emc/usr_intf/gscreen/gscreen.glade:1099
+#: src/emc/usr_intf/gscreen/gscreen.glade:204
+#: src/emc/usr_intf/gscreen/gscreen.glade:337
+#: src/emc/usr_intf/gscreen/gscreen.glade:466
+#: src/emc/usr_intf/gscreen/gscreen.glade:596
+#: src/emc/usr_intf/gscreen/gscreen.glade:726
+#: src/emc/usr_intf/gscreen/gscreen.glade:857
+#: src/emc/usr_intf/gscreen/gscreen.glade:988
+#: src/emc/usr_intf/gscreen/gscreen.glade:1119
 msgid "REL"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:99
-#: src/emc/usr_intf/gscreen/gscreen.glade:227
-#: src/emc/usr_intf/gscreen/gscreen.glade:357
-#: src/emc/usr_intf/gscreen/gscreen.glade:485
-#: src/emc/usr_intf/gscreen/gscreen.glade:613
-#: src/emc/usr_intf/gscreen/gscreen.glade:741
-#: src/emc/usr_intf/gscreen/gscreen.glade:869
-#: src/emc/usr_intf/gscreen/gscreen.glade:997
-#: src/emc/usr_intf/gscreen/gscreen.glade:1125
+#: src/emc/usr_intf/gscreen/gscreen.glade:101
+#: src/emc/usr_intf/gscreen/gscreen.glade:232
+#: src/emc/usr_intf/gscreen/gscreen.glade:364
+#: src/emc/usr_intf/gscreen/gscreen.glade:493
+#: src/emc/usr_intf/gscreen/gscreen.glade:624
+#: src/emc/usr_intf/gscreen/gscreen.glade:754
+#: src/emc/usr_intf/gscreen/gscreen.glade:885
+#: src/emc/usr_intf/gscreen/gscreen.glade:1016
+#: src/emc/usr_intf/gscreen/gscreen.glade:1147
 msgid "ABS"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:630
+#: src/emc/usr_intf/gscreen/gscreen.glade:641
 #, fuzzy
 msgid "B"
 msgstr "_B"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:758
+#: src/emc/usr_intf/gscreen/gscreen.glade:772
 #, fuzzy
 msgid "C"
 msgstr "_C"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:886
+#: src/emc/usr_intf/gscreen/gscreen.glade:903
 #, fuzzy
 msgid "U"
 msgstr "Sus"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:1014
+#: src/emc/usr_intf/gscreen/gscreen.glade:1034
 msgid "V"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:1298
+#: src/emc/usr_intf/gscreen/gscreen.glade:1321
 #, fuzzy
 msgid "G-code"
 msgstr "End"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:1392
+#: src/emc/usr_intf/gscreen/gscreen.glade:1415
 #, fuzzy
 msgid "<b>G-Codes Active</b>"
 msgstr "Pozitie 0"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:1451
+#: src/emc/usr_intf/gscreen/gscreen.glade:1474
 msgid "MV:100%"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:1470
+#: src/emc/usr_intf/gscreen/gscreen.glade:1504
 #, fuzzy
-msgid " Mist"
-msgstr "Vapori porniti"
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:1481
-#, fuzzy
-msgid " Flood "
+msgid "Flood "
 msgstr "Lichid pornit"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:1533
+#: src/emc/usr_intf/gscreen/gscreen.glade:1556
 #, fuzzy
-msgid " At Speed "
+msgid "At Speed "
 msgstr "Seteaza depasire viteza"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:1546
+#: src/emc/usr_intf/gscreen/gscreen.glade:1569
 #, fuzzy
-msgid " Jog mode"
+msgid "Jog mode"
 msgstr "Mod articulatii"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:1600
+#: src/emc/usr_intf/gscreen/gscreen.glade:1623
 msgid "10 DPM"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:1616
+#: src/emc/usr_intf/gscreen/gscreen.glade:1639
 msgid "10 Ipm"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:1690
+#: src/emc/usr_intf/gscreen/gscreen.glade:1713
 #, fuzzy
 msgid "<b>Status</b>"
 msgstr "Pozitie 0"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:1715
+#: src/emc/usr_intf/gscreen/gscreen.glade:1738
+#, fuzzy
 msgid ""
 "Search\n"
-"  Text:"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:1743
-#, fuzzy
-msgid ""
-"Replace\n"
-"  Text:"
+"Text:"
 msgstr "Inlocuieste cu:"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:1762
+#: src/emc/usr_intf/gscreen/gscreen.glade:1767
 #, fuzzy
 msgid ""
 "Replace\n"
-"   All"
+"Text:"
+msgstr "Inlocuieste cu:"
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:1787
+#, fuzzy
+msgid ""
+"Replace\n"
+"All"
 msgstr "Inlocuieste toate"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:1775
+#: src/emc/usr_intf/gscreen/gscreen.glade:1801
+#, fuzzy
 msgid ""
 "Ignore\n"
-" Case"
-msgstr ""
+"Case"
+msgstr "Toate fisierele"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:1801
+#: src/emc/usr_intf/gscreen/gscreen.glade:1828
 #, fuzzy
 msgid "<b>Mode</b>"
 msgstr "Pozitie 0"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:1817
+#: src/emc/usr_intf/gscreen/gscreen.glade:1844
 msgid "Main Level"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:1858
+#: src/emc/usr_intf/gscreen/gscreen.glade:1885
 msgid "Themes"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:1882
+#: src/emc/usr_intf/gscreen/gscreen.glade:1909
 #, fuzzy
 msgid "Relative Text Color"
 msgstr "Pozitie relativa"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:1930
+#: src/emc/usr_intf/gscreen/gscreen.glade:1957
 msgid "DTG Text Color"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:1951
+#: src/emc/usr_intf/gscreen/gscreen.glade:1978
 msgid "Warning Audio"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:1961
+#: src/emc/usr_intf/gscreen/gscreen.glade:1988
 msgid "Alert Audio"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:1982
+#: src/emc/usr_intf/gscreen/gscreen.glade:2009
 #, fuzzy
 msgid "Grid Size"
 msgstr "Dimensiune"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2021
+#: src/emc/usr_intf/gscreen/gscreen.glade:2048
 #, fuzzy
 msgid "Starting RPM"
 msgstr "Setari"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2050
-msgid "Metric\n"
+#: src/emc/usr_intf/gscreen/gscreen.glade:2077
+msgid "Metric"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2065
+#: src/emc/usr_intf/gscreen/gscreen.glade:2091
+#, fuzzy
 msgid ""
-"   Display\n"
+"Display\n"
 "Aux Screen"
-msgstr ""
+msgstr "Afisaj in _inchi"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2080
+#: src/emc/usr_intf/gscreen/gscreen.glade:2107
 #, fuzzy
 msgid ""
 "Diameter\n"
-"   Mode"
+"Mode"
 msgstr "Diametru:"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2097
-#: src/emc/usr_intf/gscreen/gscreen.glade:3131
+#: src/emc/usr_intf/gscreen/gscreen.glade:2125
+#: src/emc/usr_intf/gscreen/gscreen.glade:3180
 #, fuzzy
 msgid ""
-" Show\n"
+"Show\n"
 "Offsets"
 msgstr "Arata restart"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2114
+#: src/emc/usr_intf/gscreen/gscreen.glade:2143
 #, fuzzy
 msgid ""
 "Show\n"
 "DTG"
 msgstr "Arata"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2131
+#: src/emc/usr_intf/gscreen/gscreen.glade:2161
 msgid ""
-" Gscreen\n"
+"Gscreen\n"
 "Fullscreen"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2153
+#: src/emc/usr_intf/gscreen/gscreen.glade:2184
 msgid ""
-" On M7 Use\n"
+"On M7 Use\n"
 "Aux Coolant"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2166
+#: src/emc/usr_intf/gscreen/gscreen.glade:2198
 msgid ""
-" On M8 Use\n"
+"On M8 Use\n"
 "Aux Coolant"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2179
+#: src/emc/usr_intf/gscreen/gscreen.glade:2212
 msgid "Hide Pointer"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2191
+#: src/emc/usr_intf/gscreen/gscreen.glade:2224
+#, fuzzy
 msgid ""
-"  Desktop\n"
+"Desktop\n"
 "Notification"
-msgstr ""
+msgstr "Configuratii model"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2263
-#: src/emc/usr_intf/gscreen/gscreen.glade:2403
+#: src/emc/usr_intf/gscreen/gscreen.glade:2297
+#: src/emc/usr_intf/gscreen/gscreen.glade:2439
 #, fuzzy
 msgid "Debug"
 msgstr "Depanare..."
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2298
+#: src/emc/usr_intf/gscreen/gscreen.glade:2332
 #, fuzzy
 msgid "Alarm History"
 msgstr "Istoric"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2316
+#: src/emc/usr_intf/gscreen/gscreen.glade:2350
+#, fuzzy
 msgid ""
-" Launch\n"
+"Launch\n"
 "Halshow"
-msgstr ""
+msgstr "Hal Scope"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2328
+#: src/emc/usr_intf/gscreen/gscreen.glade:2363
 #, fuzzy
 msgid "Calibration"
 msgstr "Calibrare..."
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2339
+#: src/emc/usr_intf/gscreen/gscreen.glade:2374
 #, fuzzy
 msgid "Halmeter"
 msgstr "Hal Meter"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2350
+#: src/emc/usr_intf/gscreen/gscreen.glade:2385
+#, fuzzy
 msgid ""
-"linuxcnc\n"
-"  Status"
-msgstr ""
+"LinuxCNC\n"
+"Status"
+msgstr "Arata setari"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2362
+#: src/emc/usr_intf/gscreen/gscreen.glade:2398
 #, fuzzy
 msgid "Halscope"
 msgstr "Hal Scope"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2421
+#: src/emc/usr_intf/gscreen/gscreen.glade:2457
 #, fuzzy
 msgid "Tooleditor"
 msgstr "Editor _ladder"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2439
+#: src/emc/usr_intf/gscreen/gscreen.glade:2475
 #, fuzzy
 msgid ""
 "Offset\n"
-" Page"
+"Page"
 msgstr "Valoare Ofset"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2562
+#: src/emc/usr_intf/gscreen/gscreen.glade:2599
 msgid "Zero Origin"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2607
-#: src/emc/usr_intf/gscreen/gscreen.glade:2784
-#: src/emc/usr_intf/gscreen/gscreen.glade:3191
-msgid "\n"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:2619
+#: src/emc/usr_intf/gscreen/gscreen.glade:2655
 #, fuzzy
 msgid "Tool Setting"
 msgstr "Pozitie 0"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2683
+#: src/emc/usr_intf/gscreen/gscreen.glade:2719
 #, fuzzy
 msgid ""
 "Single\n"
-" Step"
+"Step"
 msgstr "Spatiu simplu"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2696
+#: src/emc/usr_intf/gscreen/gscreen.glade:2733
 #, fuzzy
 msgid ""
 "Run At\n"
-"  Line"
+"Line"
 msgstr "Timp miscare"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2708
+#: src/emc/usr_intf/gscreen/gscreen.glade:2746
 msgid ""
 "Change \n"
-"  View"
+"View"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2795
+#: src/emc/usr_intf/gscreen/gscreen.glade:2823
+#: src/emc/usr_intf/gscreen/gscreen.glade:3241
+msgid "\n"
+msgstr ""
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:2834
 #, fuzzy
-msgid "Homing\n"
+msgid "Homing"
 msgstr "Anulare poz.0"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2816
+#: src/emc/usr_intf/gscreen/gscreen.glade:2854
 #, fuzzy
 msgid ""
 "Ignore\n"
 "Limits"
 msgstr "Toate fisierele"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2845
+#: src/emc/usr_intf/gscreen/gscreen.glade:2884
 #, fuzzy
 msgid ""
-"    Set\n"
+"Set\n"
 "Override"
 msgstr "Seteaza depasire viteza"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2859
-msgid "Graphics\n"
+#: src/emc/usr_intf/gscreen/gscreen.glade:2899
+msgid "Graphics"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2873
+#: src/emc/usr_intf/gscreen/gscreen.glade:2912
 #, fuzzy
 msgid ""
 "Menu\n"
 "Level"
 msgstr "nivel debug"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2886
+#: src/emc/usr_intf/gscreen/gscreen.glade:2926
 msgid ""
-"  Launch\n"
+"Launch\n"
 "Keyboard"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2903
+#: src/emc/usr_intf/gscreen/gscreen.glade:2944
 #, fuzzy
 msgid "<b>Select Buttons</b>"
 msgstr "Pozitie 0"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:2990
+#: src/emc/usr_intf/gscreen/gscreen.glade:3031
 #, fuzzy
 msgid ""
 "Unhome \n"
-"    All"
+"All"
 msgstr "Anuleaza pozitie 0 toate axele"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3002
+#: src/emc/usr_intf/gscreen/gscreen.glade:3044
 #, fuzzy
 msgid ""
 "Unhome\n"
-"   Axis"
+"Axis"
 msgstr "Anuleaza pozitie 0 axa _%s"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3014
-#: src/emc/usr_intf/gscreen/gscreen.glade:3119
+#: src/emc/usr_intf/gscreen/gscreen.glade:3057
+#: src/emc/usr_intf/gscreen/gscreen.glade:3167
 #, fuzzy
 msgid ""
 "Toggle\n"
 "Readout"
 msgstr "Lichid On/Off"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3039
+#: src/emc/usr_intf/gscreen/gscreen.glade:3083
 msgid ""
 "Jogging\n"
-"  Mode"
+"Mode"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3051
+#: src/emc/usr_intf/gscreen/gscreen.glade:3096
 #, fuzzy
 msgid ""
 "coordinate\n"
-"  System"
+"System"
 msgstr "Fereastra sistem control coordinate"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3095
+#: src/emc/usr_intf/gscreen/gscreen.glade:3141
+#, fuzzy
 msgid ""
 "Index\n"
-" Tool"
-msgstr ""
+"Tool"
+msgstr "Adauga scula suplimentara"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3107
+#: src/emc/usr_intf/gscreen/gscreen.glade:3154
 #, fuzzy
 msgid ""
 "Spindle\n"
 "Controls"
 msgstr "Ctrl-M"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3230
+#: src/emc/usr_intf/gscreen/gscreen.glade:3280
 #, fuzzy
 msgid "Open"
 msgstr "Deschide..."
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3240
+#: src/emc/usr_intf/gscreen/gscreen.glade:3290
 #, fuzzy
 msgid ""
-" Block\n"
+"Block\n"
 "Delete"
 msgstr "Sterge"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3252
+#: src/emc/usr_intf/gscreen/gscreen.glade:3303
 #, fuzzy
 msgid ""
 "Optional\n"
-"   Stop"
+"Stop"
 msgstr "Stop optional"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3264
+#: src/emc/usr_intf/gscreen/gscreen.glade:3316
+#, fuzzy
 msgid ""
-" Full\n"
+"Full\n"
 "View"
-msgstr ""
+msgstr "Vizualizare"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3300
+#: src/emc/usr_intf/gscreen/gscreen.glade:3353
 #, fuzzy
 msgid ""
 "Next\n"
-" Tab"
+"Tab"
 msgstr "Urmatoarea valoare"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3320
+#: src/emc/usr_intf/gscreen/gscreen.glade:3374
 #, fuzzy
 msgid ""
-"   Feed\n"
+"Feed\n"
 "Override"
 msgstr "Depasire viteza:"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3333
+#: src/emc/usr_intf/gscreen/gscreen.glade:3388
 #, fuzzy
 msgid ""
 "Spindle\n"
 "Override"
 msgstr "Seteaza depasire freza"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3346
+#: src/emc/usr_intf/gscreen/gscreen.glade:3402
 #, fuzzy
 msgid ""
-"  Rapid\n"
+"Rapid\n"
 "Override"
 msgstr "Seteaza depasire freza"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3367
+#: src/emc/usr_intf/gscreen/gscreen.glade:3424
 #, fuzzy
 msgid ""
-"   Jog\n"
+"Jog\n"
 "Speed"
 msgstr "Seteaza viteza jog"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3380
+#: src/emc/usr_intf/gscreen/gscreen.glade:3438
 #, fuzzy
 msgid ""
-"      Jog\n"
+"Jog\n"
 "Increments"
 msgstr "Increment"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3396
+#: src/emc/usr_intf/gscreen/gscreen.glade:3455
 msgid ""
 "Adjust\n"
 "Rotary"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3418
+#: src/emc/usr_intf/gscreen/gscreen.glade:3478
 msgid ""
 "Change\n"
 "  View"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3466
+#: src/emc/usr_intf/gscreen/gscreen.glade:3527
 msgid ""
-"   Pan\n"
+"Pan\n"
 "Vertical"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3479
-msgid ""
-"     Pan\n"
-"Horizontal"
-msgstr ""
-
-#: src/emc/usr_intf/gscreen/gscreen.glade:3492
+#: src/emc/usr_intf/gscreen/gscreen.glade:3541
 #, fuzzy
 msgid ""
-"  Rotate\n"
+"Pan\n"
+"Horizontal"
+msgstr "Pozitie 0:"
+
+#: src/emc/usr_intf/gscreen/gscreen.glade:3555
+#, fuzzy
+msgid ""
+"Rotate\n"
 "Horiontal"
 msgstr "Pozitie 0:"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3505
+#: src/emc/usr_intf/gscreen/gscreen.glade:3569
+#, fuzzy
 msgid ""
-" Rotate\n"
+"Rotate\n"
 "Vertical"
-msgstr ""
+msgstr "Pozitie 0:"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3526
+#: src/emc/usr_intf/gscreen/gscreen.glade:3591
 msgid ""
 "Search\n"
-"  Bwd"
+"Bwd"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3538
+#: src/emc/usr_intf/gscreen/gscreen.glade:3604
 msgid ""
 "Search\n"
-"  Fwd"
+"Fwd"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3550
+#: src/emc/usr_intf/gscreen/gscreen.glade:3617
 msgid "Undo"
 msgstr "Anulare"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3561
+#: src/emc/usr_intf/gscreen/gscreen.glade:3628
 msgid "Redo"
 msgstr "Repetare"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3596
+#: src/emc/usr_intf/gscreen/gscreen.glade:3663
 #, fuzzy
 msgid ""
-" Reload\n"
+"Reload\n"
 "Program"
 msgstr "Executa program"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3609
+#: src/emc/usr_intf/gscreen/gscreen.glade:3677
 #, fuzzy
 msgid ""
 "Replace\n"
-"  Text"
+"Text"
 msgstr "Inlocuieste asta"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3647
+#: src/emc/usr_intf/gscreen/gscreen.glade:3716
 msgid ""
-" Clear\n"
+"Clear\n"
 "status"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3677
+#: src/emc/usr_intf/gscreen/gscreen.glade:3747
 msgid "G54"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3693
+#: src/emc/usr_intf/gscreen/gscreen.glade:3763
 msgid "calc"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3768
+#: src/emc/usr_intf/gscreen/gscreen.glade:3838
 msgid "test"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3771
+#: src/emc/usr_intf/gscreen/gscreen.glade:3841
 msgid "test2"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3821
+#: src/emc/usr_intf/gscreen/gscreen.glade:3891
 msgid "Data Entry"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3847
+#: src/emc/usr_intf/gscreen/gscreen.glade:3917
 #, fuzzy
 msgid "<b>Calculator Entry</b>"
 msgstr "Pozitie 0"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3936
+#: src/emc/usr_intf/gscreen/gscreen.glade:4006
 #, fuzzy
 msgid "Program Restart"
 msgstr "Arata restart"
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3950
+#: src/emc/usr_intf/gscreen/gscreen.glade:4020
 msgid ""
 "Highlighting the run-at-line with the\n"
 "up / down buttons or entering the line\n"
 "directly."
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3964
+#: src/emc/usr_intf/gscreen/gscreen.glade:4034
 msgid ""
 "Line\n"
-" Up"
+"Up"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:3987
+#: src/emc/usr_intf/gscreen/gscreen.glade:4058
 msgid ""
-" Line\n"
+"Line\n"
 "Down"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:4069
+#: src/emc/usr_intf/gscreen/gscreen.glade:4141
 msgid "S 1000"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:4139
-msgid " FWD"
+#: src/emc/usr_intf/gscreen/gscreen.glade:4211
+msgid "FWD"
 msgstr ""
 
-#: src/emc/usr_intf/gscreen/gscreen.glade:4174
-msgid " REV"
+#: src/emc/usr_intf/gscreen/gscreen.glade:4246
+msgid "REV"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen2.glade:35
@@ -20135,6 +20148,40 @@ msgstr "Anulare"
 #, fuzzy
 msgid "_Ok"
 msgstr "OK"
+
+#, fuzzy
+#~ msgid " Mist"
+#~ msgstr "Vapori porniti"
+
+#, fuzzy
+#~ msgid ""
+#~ "Replace\n"
+#~ "   All"
+#~ msgstr "Inlocuieste toate"
+
+#, fuzzy
+#~ msgid ""
+#~ "Unhome \n"
+#~ "    All"
+#~ msgstr "Anuleaza pozitie 0 toate axele"
+
+#, fuzzy
+#~ msgid ""
+#~ "Optional\n"
+#~ "   Stop"
+#~ msgstr "Stop optional"
+
+#, fuzzy
+#~ msgid ""
+#~ "   Feed\n"
+#~ "Override"
+#~ msgstr "Depasire viteza:"
+
+#, fuzzy
+#~ msgid ""
+#~ "      Jog\n"
+#~ "Increments"
+#~ msgstr "Increment"
 
 #~ msgid "Control-M"
 #~ msgstr "Ctrl-M"
