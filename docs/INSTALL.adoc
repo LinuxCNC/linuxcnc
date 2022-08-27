@@ -49,10 +49,10 @@ The runtime script is called *linuxcnc*, thus allowing you on an
 installed system to just type `linuxcnc` and get it running.
 
 On a run-in-place system (e.g. the one you just got out of git), the
-runscript is `scripts/linuxcnc`. +
+runscript is `scripts/linuxcnc`.
 When you just checked out a fresh copy of LinuxCNC, you'll see there is
 no `scripts/linuxcnc`, just a `scripts/linuxcnc.in`. By running
-`configure` that one will get changed to `scripts/linuxcnc`. +
+`configure` that one will get changed to `scripts/linuxcnc`.
 `configure` will also replace some default values for your system
 (folders, paths, etc).
 
@@ -75,7 +75,7 @@ those values to create:
   Containing compiler output (useful mainly for debugging `configure`).
 
 The *`configure.ac`* file is used by the `autogen.sh` script, from the
-`autoconf` package, to create the `configure` script. +
+`autoconf` package, to create the `configure` script.
 You only need `configure.in` if you want to change `configure`, or
 regenerate it using a newer version of `autoconf`.
 
@@ -107,20 +107,20 @@ If you don't want to generate the documentation from source use
 
 `--cache-file=FILE`::
   Use and save the results of the tests in FILE instead of
-  `./config.cache`. +
+  `./config.cache`.
   Set FILE to `/dev/null` to disable caching, for debugging `configure`.
 
 `--help`::
   Print a summary of the options to `configure`, and exit.
 
 `--quiet` | `--silent` | `-q`::
-  Do not print messages saying which checks are being made. +
+  Do not print messages saying which checks are being made.
   To suppress all normal output, redirect it to `/dev/null` (any error
   messages will still be shown).
 
 `--srcdir=DIR`::
-  Look for the package's source code in directory DIR. +
-  Usually `configure' can determine that directory automatically.
+  Look for the package's source code in directory DIR.
+  Usually `configure` can determine that directory automatically.
 
 `--version`::
   Print the version of _Autoconf_ used to generate the `configure'

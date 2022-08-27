@@ -36,7 +36,7 @@ motion.
 [source,{hal}]
 ----
 loadrt motmod base_period_nsec=['period'] servo_period_nsec=['period']
-              traj_period_nsec=['period'] num_joints=['0-9'] 
+              traj_period_nsec=['period'] num_joints=['0-9']
               num_dio=['1-64'] num_aio=['1-16'] unlock_joints_mask=['0xNN']
               num_spindles=['1-8']
 ----
@@ -76,10 +76,10 @@ of the low level motion planner.
 
 === Options
 
-If the number of digital I/O needed is more than the default of 4 you can 
+If the number of digital I/O needed is more than the default of 4 you can
 add up to 64 digital I/O by using the num_dio option when loading 'motmod'.
 
-If the number of analog I/O needed is more than the default of 4 you can add 
+If the number of analog I/O needed is more than the default of 4 you can add
 up to 16 analog I/O by using the num_aio option when loading 'motmod'.
 
 The unlock_joints_mask parameter is used to create pins for a joint used
@@ -340,7 +340,7 @@ synchronized i/o provided by <<sec:motion,motion>> instead.
 
 == INI settings
 
-A number of INI settings are made available as hal input pins.
+A number of INI settings are made available as HAL input pins.
 
 === Pins (((INI settings (HAL pins))))
 

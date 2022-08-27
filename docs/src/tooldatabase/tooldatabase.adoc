@@ -13,9 +13,7 @@
 Tool data is conventionally described by a tool table file specified
 by an inifile setting: [EMCIO]TOOL_TABLE=tooltable_filename.  A tool
 table file consists of a text line for each available tool describing
-the tool's parameters.
-
-See: <<sec:tool-table,Tool Table Format>>
+the tool's parameters, see <<sec:tool-table,Tool Table Format>>.
 
 The tool database interface provides an alternative method for
 obtaining tool data via a separate program that manages a database of
@@ -23,9 +21,9 @@ tools.
 
 ==  Interface
 
-=== Ini file Settings
+=== INI file Settings
 
-Ini file settings enable the (optional) operation of a user-provided
+INI file settings enable the (optional) operation of a user-provided
 tool database program:
 
 [source,{ini}]
@@ -38,7 +36,7 @@ The optional *db_program* specifies the path to a user-provided
 executable program that provides tool data.
 
 [NOTE]
-Ini file settings for [EMCIO]TOOL_TABLE are ignored when a *db_program*
+INI file settings for [EMCIO]TOOL_TABLE are ignored when a *db_program*
 is specified.
 
 [NOTE]
@@ -46,7 +44,7 @@ The *db_program* may be implemented in any language currently
 supported in LinuxCNC (e.g., bash scripts, python or tcl scripts,
 c/c++ programs) as long as it conforms to the interface messages
 received on stdin and replied on stdout.  A *db_program* could
-manage data from a flat file, a relational database (sqlite for
+manage data from a flat file, a relational database (SQLite for
 example), or other data sources.
 
 === *db_program* operation (v2.0)
@@ -70,9 +68,9 @@ When a *db_progam* is specified, operation is as follows:
 . The *db_program* then enters an event wait loop to receive commands
   that indicate that tool data has been changed by LinuxCNC.  Tool data
   changes include:
-  * a) spindle loading(Tn M6)/unloading(T0 M6)
-  * b) tool parameter changes (G10L1Pn for example)
-  * c) tool substitutions (M61Qn).
+  * a) spindle loading(T__n__ M6)/unloading(T0 M6)
+  * b) tool parameter changes (G10L1P__n__ for example)
+  * c) tool substitutions (M61Q__n__).
 
 When a tool data change occurs, LinuxCNC sends a command to the
 *db_program* consisting of an identifying command letter followed by a
@@ -98,17 +96,17 @@ The commands issued for tool data changes are:
 [NOTE]
 When a NON_RANDOM tool changer is specified using
 [EMCIO]RANDOM_TOOL_CHANGER=0 (the default), the spindle_load command
-issued for TnM6 (or M61Qn) is: 'l Tn P0' (pocket '0' is the spindle).
+issued for T__n__M6 (or M61Q__n__) is: 'l T__n__ P0' (pocket 0 is the spindle).
 The spindle_unload command issued for T0M6 is 'u T0 P0'.
 
 [NOTE]
 When a RANDOM tool changer is specified using
 [EMCIO]RANDOM_TOOL_CHANGER=1, a pair of spindle_unload/spindle_load
 commands are issued at each tool exchange.  The pair of commands
-issued for TnM6 (or M61Qn) are 'u Tu Pm' followed by 'l Tn P0' where
-'u' is the current tool to be sent to pocket 'm' and 'n' is the new
+issued for T__n__M6 (or M61Q__n__) are 'u T__u__ P__m__' followed by 'l T__n__ P0' where
+__u__ is the current tool to be sent to pocket __m__ and __n__ is the new
 tool to load in the spindle (pocket '0').  By convention, a tool
-number of '0' is used to specify an empty tool,
+number of 0 is used to specify an empty tool,
 
 === Usage
 
@@ -117,9 +115,9 @@ provides support for new database functionality for tool management.
 
 For example, a *db_program* database application can maintain the
 operating hours for all tools by tracking each load/unload of a tool.
-A machine could then have three 6mm endmills in pockets 111,112, and
+A machine could then have three 6&thinsp;mm endmills in pockets 111, 112, and
 113 with the database application programmed to assign tool number 110
-to the 6mm endmill with the fewest operating hours.  Then, when a
+to the 6&thinsp;mm endmill with the fewest operating hours.  Then, when a
 LinuxCNC program requests tool 110, the database would specify the
 appropriate pocket based on tool usage history.
 

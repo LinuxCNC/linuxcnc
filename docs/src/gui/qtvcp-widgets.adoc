@@ -10,11 +10,11 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-Qtscreen uses QtVCP widgets for linuxcnc integration.
+Qtscreen uses QtVCP widgets for LinuxCNC integration.
 Widget is the general name for the UI objects such as buttons and labels
 in QTpy.
 You are free to use any available widgets in the QTDesigner editor.
-There are also special widgets made for linuxcnc that make integration
+There are also special widgets made for LinuxCNC that make integration
 easier.
 This are split in two heading on the right side of the editor.
 One is for HAL only widgets.
@@ -79,21 +79,21 @@ LED #name_0f_led{
 
 This widget allows the user to check a box to set a HAL pin true or false.
 
-It is based on pyQT's QCheckButton
+It is based on PyQt's QCheckButton
 
 === Radio Button Widget
 
 This widget allows a user to set HAL pins true or false.
 Only one widget of a group can be true at a time.
 
-It is based on pyQT's QRadioButton.
+It is based on PyQt's QRadioButton.
 
 === Round Gauge
 
 .Round Gauge
 image::images/qtvcp_round_gauge.png["QtVCP round gauge",scale="25%"]
 
-Round Gauge can be used in a linuxcnc GUI to display an input parameter
+Round Gauge can be used in a LinuxCNC GUI to display an input parameter
 on the dial face.
 There are several properties that are user settable in order to customize
 the appearance of the gauge.
@@ -259,7 +259,7 @@ Indicator_option puts a 'LED' on the top of the button.
 It can be a triangle, circle, top bar or side bar.
 The size and position can be adjusted
 It will indicated the current state of the button, the state of a HAL
-pin or linuxcnc status.
+pin or LinuxCNC status.
 Use properties to customized the indicator (not all are applicable to
 every LED shape).
 
@@ -304,7 +304,7 @@ Indicator_HAL_pin_option will add a halpin, using the button name +
 '-led', that controls the button indicator state.
 
 indicator_status_option will make the LED indicate the state of these
-selectable linuxcnc status:
+selectable LinuxCNC status:
 
 ----
 Is Estopped
@@ -328,15 +328,15 @@ On Limits
 
 The some indicator_status_options holds a property that can be used with
 a stylesheet to change the color of the button based on the state of the
-property in linuxcnc.
+property in LinuxCNC.
 Currently these status options can be used to auto style buttons:
 is_estopped_status indicated buttons change the property 'isEstopped'
 is_on_status indicated buttons change the property 'isStateOn'
 manual,mdi,auto _status indicated buttons change the properties
-'isManual, isMDI, isAuto'
+'isManual, isMDI, isAuto'.
 
 Here is a sample stylesheet entry.
-It sets the background of mode button widgets when linuxcnc is in that
+It sets the background of mode button widgets when LinuxCNC is in that
 mode.
 
 ----
@@ -386,20 +386,20 @@ from the push of a button, with out having to edit the handler file.
 When using the command_string properties.
 
 * 'true_python_cmd_string' - a python command that will be called when
-  the button is toggled true 
+  the button is toggled true
 * 'false_python_cmd_string' - a python command that will be called when
   the button is toggled false
 
 The capitalized word 'INSTANCE' will give access to the widgets instances
-and handler functions. eg. 'INSTANCE.my_handler_function_call(True)' +
+and handler functions. eg. 'INSTANCE.my_handler_function_call(True)'. +
 The capitalized word 'ACTION' will give access to qtvcp's ACTION library.
-eg. 'ACTION.TOGGLE_FLOOD()' +
+eg. 'ACTION.TOGGLE_FLOOD()'. +
 The capitalized word 'PROGRAM_LOADER' will give access to qtvcp's
-PROGRAM_LOADER library. eg. 'PROGRAM_LOADER.load_halshow()' +
+PROGRAM_LOADER library. eg. 'PROGRAM_LOADER.load_halshow()'. +
 The capitalized word 'HAL' will give access to HAL's python module.
-eg. 'HAL.set_p('motion.probe-input','1')'
+eg. 'HAL.set_p('motion.probe-input','1')'.
 
-It is based on pyQT's QpushButton.
+It is based on PyQt's QpushButton.
 
 === Focus Overlay Widget
 
@@ -420,7 +420,7 @@ This widget controls if the widgets inside it are enabled or disabled.
 disabled widgets are typically a different colour and do not respond to
 actions.
 
-It is based on pyQT's QGridLayout.
+It is based on PyQt's QGridLayout.
 
 === HAL Label Widget
 This widget displays values sent to it from HAL pins, programically or a
@@ -450,7 +450,7 @@ There are function calls to display values:
 * [HALLabelName].setProperty(textTemplate,"%d") - set the template of
   the display.
 
-It is based on pyQT's QLabel
+It is based on PyQt's QLabel
 
 === LCD Number Widget
 
@@ -479,7 +479,7 @@ display the largest number.
   eg '{:.2f}' will display a float rounded to 2 numbers after the decimal.
   A blank setting will allow the decimal to move as required.
 
-It is based on pyQT's QLCDNumber.
+It is based on PyQt's QLCDNumber.
 
 === DoubleScale Widget
 This widget is a spin button entry widget.
@@ -504,13 +504,13 @@ Camview was built with precise visual positioning in mind.
 
 === GeneralHALInput Widget
 
-This widget is used to connect an arbitrary QT widget to HAL using
+This widget is used to connect an arbitrary Qt widget to HAL using
 signals/slots.
 It is used for widgets that should respond to HAL pin changes.
 
 === GeneralHALOutput Widget
 
-This widget is used to connect an arbitrary QT widget to HAL using
+This widget is used to connect an arbitrary Qt widget to HAL using
 signals/slots.
 It is used for widgets that should control HAL pins.
 
@@ -623,7 +623,7 @@ You can select one of these actions:
 * 'dro absolute'
 * 'dro relative'
 * 'dro dtg'
-* 'exit screen' Closes down linuxcnc
+* 'exit screen' Closes down LinuxCNC
 * 'Override limits' Temporarily override hard limits
 * 'launch dialogs' pops up dialogs if they are included in ui file.
 * 'set DRO to relative'
@@ -674,7 +674,7 @@ Indicator_option puts a 'LED' on the top of the button.
 It can be a triangle, circle, top bar or side bar.
 The size and position can be adjusted
 It will indicated the current state of the button, the state of a HAL
-pin or linuxcnc status.
+pin or LinuxCNC status.
 Use properties to customized the indicator (not all are applicable to
 every LED shape).
 
@@ -719,7 +719,7 @@ Indicator_HAL_pin_option will add a halpin, using the button name +
 '-led', that controls the button indicator state.
 
 indicator_status_option will make the LED indicate the state of these
-selectable linuxcnc status:
+selectable LinuxCNC status:
 
 ----
 Is Estopped
@@ -779,7 +779,7 @@ The capitalized word 'PROGRAM_LOADER' will give access to qtvcp's
 PROGRAM_LOADER library. eg. 'PROGRAM_LOADER.load_halshow()' +
 The capitalized word 'HAL' will give access to HAL's python module.
 eg. 'HAL.set_p('motion.probe-input','1')'+
-Indicated PushButtons and Actionbuttons are based on pyQT's QPushButton
+Indicated PushButtons and Actionbuttons are based on PyQt's QPushButton
 
 === ActionToolButton
 
@@ -789,7 +789,7 @@ holding the button till the option menu pops up.
 
 Currently there is only one option - user view.
 
-It is based on pyQT's QToolButton.
+It is based on PyQt's QToolButton.
 
 ==== User View
 
@@ -832,7 +832,7 @@ If you press and hold the button a pop up menu will show allowing one to:
 You select the axis by setting the joint number
 You can select a halpin option that is set true when the axis is selected
 
-It is based on pyQT's QToolButton
+It is based on PyQt's QToolButton
 
 === Camview Widget
 
@@ -853,7 +853,7 @@ This will display the current position of an axis.
 The DRO_Label widget holds a property 'isHomed' that can be used with a
 stylesheet
 to change the color of the DRO_Label based on home state of the joint
-number in linuxcnc.
+number in LinuxCNC.
 
 Here is a sample stylesheet entry.
 It sets the font of all DRO_Label widgets.
@@ -886,13 +886,13 @@ DROLabel #dr0_x_axis [isHomed=false] {
 }
 ----
 
-It is based on pyQT's QLabel
+It is based on PyQt's QLabel
 
 === GcodeDisplay
 This displays G-code in text form. It will highlight the currently
 running line.
-This can also display MDI history when linuxcnc is in MDI mode.
-This can also display log entries when linuxcnc is in MANUAL mode.
+This can also display MDI history when LinuxCNC is in MDI mode.
+This can also display log entries when LinuxCNC is in MANUAL mode.
 This will also display preference file entries if you enter 'PREFERENCE'
 in capitals into the MDILine widget.
 It has a signal percentDone(int) that that can be connected to a slot
@@ -938,14 +938,14 @@ Font definitions:
 "style name, size, -1, 0, bold setting (0-99), italics (0-1), underline
 (0-1),0,0,0"
 
-It is based on pyQT's QsciScintilla
+It is based on PyQt's QsciScintilla
 
 === GcodeEditor Widget
 
 This is an extension of the gcodeDisplay widget that adds editing
 convenience.
 
-It is based on pyQT's QWidget which incorporates GcodeDisplay widget
+It is based on PyQt's QWidget which incorporates GcodeDisplay widget
 
 === GCodeGraphics Widget
 
@@ -1221,7 +1221,7 @@ Z2
 * `ACTION.ADJUST_ROTATE(X,Y)` - directly set the relative rotation of
   view in x and y direction
 
-It is based on pyQT's opengl widget.
+It is based on PyQt's opengl widget.
 
 == StateLabel Widget
 
@@ -1251,7 +1251,7 @@ Other Properties:
   Typical template for metric mode in false state, might be: 'Imperial
   Mode'
 
-It is based on pyQT's QLabel.
+It is based on PyQt's QLabel.
 
 === StatusLabel Widget
 
@@ -1353,11 +1353,11 @@ Other Properties:
   Typical template used for formatting metric float to text
   eg. '%10.3f' or '%10.3f mm'
 
-It is based on pyQT's QLabel
+It is based on PyQt's QLabel
 
 === StatusImageSwicher Widget
 
-Status image switcher will switch between images based on linuxcnc states.
+Status image switcher will switch between images based on LinuxCNC states.
 
 * 'watch spindle' would toggle between 3 images ( stop, fwd, revs)
 * 'watch axis homed' would toggle between 2 images ( axis not homed,
@@ -1399,12 +1399,12 @@ This is for test display only and will be ignored outside of Designer.
 
 === StatusStacked
 
-This widget displays one of three panels based on linuxcnc's mode.
+This widget displays one of three panels based on LinuxCNC's mode.
 This allows you to automatically display different widgets on Manual,
 MDI and Auto modes.
 
 .todo
-It is based on pyQT's QStacked widget.
+It is based on PyQt's QStacked widget.
 
 === Jog Increments Widget
 
@@ -1415,7 +1415,7 @@ This will be available to all widgets through STATUS.
 You can select linear or angular increments by the property 'linear_option'
 in Designer property editor.
 
-It is based on pyQT's combobox
+It is based on PyQt's combobox
 
 === ScreenOption widget
 
@@ -1446,7 +1446,7 @@ These include:
 * 'close_overlay_color': +
   Color of transparent layer shown when quitting.
 * 'catch_error_option': +
-  monitoring the linuxcnc error channel. This also sends the message +
+  monitoring the LinuxCNC error channel. This also sends the message +
   through  STATUS to anything that registers
 * 'play_sounds_option': +
   playing sounds using 'beep', 'espeak' and the system sound
@@ -1670,7 +1670,7 @@ If the Espeak module (python3-espeak) is install you can use the entry
 
 === StatusSlider Widget
 
-This widget allow the user to adjust linuxcnc setting via a slide.
+This widget allow the user to adjust LinuxCNC setting via a slide.
 
 .The widget can adjust:
 * Jog rate
@@ -1721,11 +1721,11 @@ ie. In style sheets:
     }
 ----
 
-It is based on pyQT's QSlider
+It is based on PyQt's QSlider
 
 === State LED Widget
 
-This widget gives status on the selected linuxcnc state.
+This widget gives status on the selected LinuxCNC state.
 
 The state options are:
 
@@ -1751,7 +1751,7 @@ The state options are:
 There are properties that can be changed:
 
 * halpin_option - Adds an output pin that reflects selected state
-* invert_state_status - Invert the LED state compared to the linuxcnc
+* invert_state_status - Invert the LED state compared to the LinuxCNC
   state.
 * diameter -Diameter of the LED
 * color - Color of the LED when on.
@@ -1788,7 +1788,7 @@ set the levels.
 * Spindle override rate
 * Rapid override rate
 
-It is based on pyQT's QProgressBar
+It is based on PyQt's QProgressBar
 
 === SystemToolButton
 This widget allows you to manually select a user system by pressing and
@@ -1796,7 +1796,7 @@ holding.
 If you don't set the button text it will automatically update to the
 current system.
 
-It is based on pyQT's QToolButton
+It is based on PyQt's QToolButton
 
 === MacroTab Widget
 
@@ -1911,7 +1911,7 @@ program or access the feature:
 Note that the MDILine function "spindle_inhibit" can be used by a GUI's
 handler file to inhibit M3, M4, and M5 spindle commands if necessary.
 
-It is based on pyQT's QLineEdit.
+It is based on PyQt's QLineEdit.
 
 === MDIHistory
 
@@ -2016,11 +2016,11 @@ G-code programs.
 image::images/qtvcp_originoffsetview.png["QtVCP Origin Offset View"]
 
 This widget allows one to modify User System origin offsets directly
-It will update linuxcnc's Parameter file for changes made or found.
-The settings can only be changed in linuxcnc after homing and
+It will update LinuxCNC's Parameter file for changes made or found.
+The settings can only be changed in LinuxCNC after homing and
 when the motion controller is idle.
 The display and entry will change between metric and imperial based
-on linuxcnc's current G20/G21 setting.
+on LinuxCNC's current G20/G21 setting.
 The current in-use user system will be highlighted
 Extra actions can be integrated to manipulate settings.
 These actions depend on extra code added either to a combined widget
@@ -2030,9 +2030,9 @@ Clicking on the columns and rows allows one to adjust the settings.
 A dialog can be made to popup for data or text entry.
 The comments section will be recorded in the preference file.
 
-It is based on pyQT's QTableView, QAbstractTableModel, and
+It is based on PyQt's QTableView, QAbstractTableModel, and
 ItemEditorFactory.
-Properties, functions and styles of the pyQT base objects are always
+Properties, functions and styles of the PyQt base objects are always
 available.
 
 ==== Properties
@@ -2068,7 +2068,7 @@ OriginOffsetView{
 
 This is a container that other widgets can be placed in.
 It will 'grey-out' (disable) the widgets inside it depending on
-linuxcnc's current state.
+LinuxCNC's current state.
 It can selectably react to:
 
 * machine on
@@ -2076,19 +2076,19 @@ It can selectably react to:
 * estop off
 * all-homed
 
-It is based on pyQT's QGridLayout
+It is based on PyQt's QGridLayout
 
 === MachineLog
 
-It is based on pyQT's
+It is based on PyQt's
 
 === JointEnableWidget
 
-It is based on pyQT's
+It is based on PyQt's
 
 === StatusImageSwitcher
 
-This widget will display images based on linuxcnc status.
+This widget will display images based on LinuxCNC status.
 You can watch:
 
 * the state of the spindle.
@@ -2096,7 +2096,7 @@ You can watch:
 * the state of a certain axis homed
 * the state of hard limits
 
-It is based on pyQT's
+It is based on PyQt's
 
 === FileManager
 
@@ -2120,11 +2120,11 @@ if temp[1]:
     print('Is a file')
 ----
 
-It is based on pyQT's
+It is based on PyQt's
 
 === RadioAxisSelector
 
-It is based on pyQT's
+It is based on PyQt's
 
 === ToolOffsetView
 
@@ -2132,11 +2132,11 @@ It is based on pyQT's
 image::images/qtvcp_tooloffsetview.png["QtVCP Tool Offset View"]
 
 This widget will display and allows one to modify tool offsets
-It will update linuxcnc's tool table for changes made or found.
-The tool settings can only be changed in linuxcnc after homing and
+It will update LinuxCNC's tool table for changes made or found.
+The tool settings can only be changed in LinuxCNC after homing and
 when the motion controller is idle.
 The display and entry will change between metric and imperial based
-on linuxcnc's current G20/G21 setting.
+on LinuxCNC's current G20/G21 setting.
 The current in-use tool will be highlighted
 The current selected tool will be highlighted in a different color.
 The checkbox beside each tool can be used to select a tool(s) for an
@@ -2152,9 +2152,9 @@ If using a lathe configuration, there can be columns for X and Z wear.
 To use these columns to adjust the tool for wear, requires a remapped
 tool change routine.
 
-It is based on pyQT's QTableView, QAbstractTableModel, and
+It is based on PyQt's QTableView, QAbstractTableModel, and
 ItemEditorFactory.
-Properties, functions and styles of the pyQT base objects are always
+Properties, functions and styles of the PyQt base objects are always
 available.
 
 ==== Properties
@@ -2290,7 +2290,7 @@ be added to the message dict.
 When using STATUS's 'request-dialog' function, the default launch name
 is 'MESSAGE'.
 
-It is based on pyQT's QMessagebox.
+It is based on PyQt's QMessagebox.
 
 === Dialog Tool Change Widget
 
@@ -2304,7 +2304,7 @@ works the same.
 the tool change dialog can only be launched by HAL pins.
 If there is a Focus Overlay widget present, it will signal it to display.
 
-It is based on pyQT's QMessagebox.
+It is based on PyQt's QMessagebox.
 
 === Dialog File Chooser Widget
 
@@ -2347,7 +2347,7 @@ mess = {'NAME':'SAVE','ID':'_MY_DIALOG_',
 ACTION.CALL_DIALOG(mess)
 ----
 
-It is based on pyQT's QMessagebox.
+It is based on PyQt's QMessagebox.
 
 === Dialog Origin Offset Widget
 
@@ -2361,7 +2361,7 @@ display.
 When using STATUS's 'request-dialog' function, the default launch name
 is 'ORIGINOFFSET'.
 
-It is based on pyQT's QDialog.
+It is based on PyQt's QDialog.
 
 === Dialog tool Offset Widget
 
@@ -2374,7 +2374,7 @@ If there is an Focus Overlay widget present, it will signal it to display.
 When using STATUS's 'request-dialog' function, the default launch name
 is 'TOOLOFFSET'.
 
-It is based on pyQT's QDialog.
+It is based on PyQt's QDialog.
 
 === Dialog MacroTab
 
@@ -2389,7 +2389,7 @@ is 'MACROTAB'.
 This is a dialog to display the camview object for Webcam part alignment.
 When using STATUS's 'request-dialog' function, the default launch name
 is 'CAMVIEW'.
-It is based on pyQT's QDialog.
+It is based on PyQt's QDialog.
 
 === Dialog entry
 
@@ -2401,7 +2401,7 @@ code.
 When using STATUS's 'request-dialog' function, the default launch name
 is 'ENTRY'.
 
-It is based on pyQT's QDialog
+It is based on PyQt's QDialog
 
 === Dialog Calculator
 
@@ -2415,7 +2415,7 @@ The DICT contains at minimum, the name of the dialog requested and an
 id code.
 When using STATUS's 'request-dialog' function, the default launch name
 is 'CALCULATOR'.
-It is based on pyQT's QDialog.
+It is based on PyQt's QDialog.
 
 === Dialog Run From Line
 
@@ -2431,7 +2431,7 @@ specific line.
 image::images/qtvcp_versaProbe.png["QtVCP Versa Probe",scale="25%"]
 
 This is a dialog to display A probing screen based on Versa Probe.
-It is based on pyQT's QDialog
+It is based on PyQt's QDialog
 
 === Dialog MachineLogDialog
 
@@ -2440,7 +2440,7 @@ image::images/qtvcp_machineLog.png["QtVCP MachineLog Dialog",scale="25%"]
 
 This is a dialog to display the user machine log and qtvcp's debugging
 log.
-It is based on pyQT's QDialog
+It is based on PyQt's QDialog
 
 == Other
 

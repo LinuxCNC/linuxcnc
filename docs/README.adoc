@@ -79,18 +79,18 @@ to be converted to PostScript manually as follows:
     ratio of the drawing.
 - File → Print Preview +
   Click the "Fit to page" button on the toolbar (last button on the
-  right - at least on version 2.0.4.0 of QCAD)
+  right - at least on version 2.0.4.0 of QCAD).
 - File → Print
-  * Select "Print to file"
-  * Set the path to point to the same directory as the source .dxf file
+  * Select "Print to file".
+  * Set the path to point to the same directory as the source .dxf file.
   * Set the name to be the same as the source file, but .ps instead
-    of .dxf
-  * Click "OK"
+    of .dxf.
+  * Click "OK".
 
 The makers of QCAD also have a GPL'ed format converter called vec2web,
 which can do dxf to postscript conversion from the command-line. It
 is not available as a pre-compiled package, but available in source
-form from https://github.com/Seablade/vec2web
+form from https://github.com/Seablade/vec2web.
 
 vec2web depends on Qt 3 development packages to compile, so it should
 not be a dependency for building the LinuxCNC docs. But if configure can
@@ -112,7 +112,7 @@ Then run the build script:
 ```
 
 There is no install step, the executable gets dumped into the build
-directory. +
+directory.
 There is also no man page, but running it with no args prints the
 following usage instructions:
 
@@ -137,9 +137,9 @@ the LinuxCNC community.
 
 === Drawings from QCAD
 
-- Save as .dxf to the same directory as the image
-- Set line thickness to 0.50mm
-- Export the  image as 480 x 480 Resolution Auto .png
+- Save as .dxf to the same directory as the image.
+- Set line thickness to 0.50&thinsp;mm.
+- Export the  image as 480 x 480 Resolution Auto .png.
 
 == Provide translated documentation
 

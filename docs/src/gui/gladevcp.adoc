@@ -1380,7 +1380,7 @@ show tool::
 show program::
   TODO
 use joints mode::
-  Used in non trivialkins machines (eg robots). +
+  Used in non trivialkins machines (e.g., robots). +
   Default = false.
 grid size::
   Sets the size of the grid (only visible in the X, Y and Z views). +
@@ -1989,9 +1989,9 @@ There are python methods to control the widget:
 * `[widget name].set_highlight_color("violet")`
 * `[widget name].set_foreground_color("yellow")`
 * `[widget name].mark_active("G55")` +
-  Allows you to directly set a row to highlight. +
-  Eg in case you wish to use your own navigation controls. +
-  See <<cha:gmoccapy,Gmoccapy Chapter>>.
+  Allows you to directly set a row to highlight,
+  e.g., in case you wish to use your own navigation controls.
+  See the chapter on <<cha:gmoccapy,Gmoccapy>>.
 * `[widget name].selection_mask = ("Tool","Rot","G5x")` +
   These rows are NOT selectable in edit mode.
 * `[widget name].set_names([['G54','Default'],["G55","Vice1"],['Rot','Rotational']])` +
@@ -2009,8 +2009,8 @@ image::images/offsetpage.png[align="center"]
 [[gladevcp:hal-sourceview]]
 === HAL_sourceview widget
 
-This is for displaying and simple editing of G-code. +
-It looks for `.ngc` highlighting specs in `~/share/gtksourceview-2.0/language-specs/`. +
+This is for displaying and simple editing of G-code.
+It looks for `.ngc` highlighting specs in `~/share/gtksourceview-2.0/language-specs/`.
 The current running line will be highlighted.
 
 With external python glue code it can:
@@ -2083,7 +2083,7 @@ Using goobject to set the above listed properties:
 
 For some applications it might be desirable to have a background image -
 like a functional diagram - and position widgets at appropriate places
-in that image. +
+in that image.
 A good combination is setting a bitmap background
 image, like from a .png file, making the GladeVCP window fixed-size,
 and use the glade Fixed widget to position widgets on this image.
@@ -2096,7 +2096,8 @@ image::images/small-screenshot.png[align="center"]
 == Action Widgets Reference
 
 GladeVcp includes a collection of "canned actions" called **VCP Action Widgets**
-for the Glade user interface editor. +
+for the Glade user interface editor.
+[NOTE]
 Other than HAL widgets, which interact with HAL pins, VCP Actions interact
 with LinuxCNC and the G-code interpreter.
 
@@ -2107,7 +2108,7 @@ The Action widget in a nutshell:
 - is an object available in Glade
 - has no visual appearance by itself
 - it's purpose: associate a visible, sensitive UI component like menu,
-  toolbutton, button with a command. +
+  toolbutton, button with a command.
   See these widget's 'General→Related→Action' property.
 - the "canned action" will be executed when the associated UI component
   is triggered (button press, menu click..)
@@ -2128,7 +2129,7 @@ are for use in simple buttons, menu entries or radio/check groups.
 
 === VCP Action python
 
-This widget is used to execute small arbitrary python code. +
+This widget is used to execute small arbitrary python code.
 The command string may use special keywords to access important functions.
 
 * `GSTAT` for access to the Gstat library that is used for LinuxCNC status
@@ -2138,8 +2139,10 @@ The command string may use special keywords to access important functions.
 * `linuxcnc` for access to the linuxcnc python module
 * `self` for access to the widget instance
 
-There are options to select when the widget will be active. +
-There are options to set the mode before the command is executed.
+There are options to
+
+- select when the widget will be active,
+- set the mode before the command is executed.
 
 Example command to just print a message to the terminal:
 
@@ -2173,9 +2176,9 @@ print('Set Machine Off');CMD.state(linuxcnc.STATE_OFF)
 
 These are **bi-modal** widgets. They implement two actions or use a second
 (usually `pressed`) state to indicate that currently an action is
-running. +
+running.
 Toggle actions are aimed for use in `ToggleButtons`, `ToggleToolButtons`
-or toggling menu items. +
+or toggling menu items.
 A simplex example is the `ESTOP` toggle button.
 
 Currently the following widgets are available:
@@ -2207,25 +2210,25 @@ The `Action_MDI` widget does not wait for command completion as the
 
 `configs/apps/gladevcp/mdi-command-example/whoareyou.ui` is a Glade UI file which conveys the basics:
 
-Open it in Glade and study how it's done. +
-Start AXIS, and then start this from a terminal window with `gladevcp whoareyou.ui`. +
-See the `hal_action_mdi1` action and it's `MDI command` property - this just
-executes `(MSG, "Hi, I'm an VCP_Action_MDI")` so there should be a
-message popup in AXIS like so:
+. Open it in Glade and study how it's done.
+. Start AXIS, and then start this from a terminal window with `gladevcp whoareyou.ui`.
+. See the `hal_action_mdi1` action and it's `MDI command` property - this just
+  executes `(MSG, "Hi, I'm an VCP_Action_MDI")` so there should be a
+  message popup in AXIS like so:
 
 .Action_MDI Simple Example
 image::images/whoareyou.png[align="center"]
 
 You'll notice that the button associated with the Action_MDI action is
-grayed out if the machine is off, in E-Stop or if the interpreter is running. +
+grayed out if the machine is off, in E-Stop or if the interpreter is running.
 It will automatically become active when the machine is turned on and
 out of E-Stop, and the program is idle.
 
 === Parameter passing with Action_MDI and ToggleAction_MDI widgets
 
 Optionally, `MDI command` strings may have parameters substituted
-before they are passed to the interpreter. +
-Parameters currently may be names of HAL pins in the GladeVCP component. +
+before they are passed to the interpreter.
+Parameters currently may be names of HAL pins in the GladeVCP component.
 This is how it works:
 
 - assume you have a 'HAL SpinBox' named +speed+, and you want to pass it's
@@ -2237,7 +2240,7 @@ This is how it works:
 - for the above HAL SpinBox, we could use `(MSG, "The speed is: ${speed-f}")`
   just to show what's happening.
 
-The example UI file is `configs/apps/gladevcp/mdi-command-example/speed.ui`. +
+The example UI file is `configs/apps/gladevcp/mdi-command-example/speed.ui`.
 Here's what you get when running it:
 
 .Action_MDI Parameter Passing Example
@@ -2246,11 +2249,11 @@ image::images/speed.png[align="center"]
 === An advanced example: Feeding parameters to an O-word subroutine
 
 It's perfectly OK to call an O-word subroutine in an MDI command, and
-pass HAL pin values as actual parameters. +
+pass HAL pin values as actual parameters.
 An example UI file is in `configs/apps/gladevcp/mdi-command-example/owordsub.ui`.
 
 Place `nc_files/gladevcp_lib/oword.ngc` so AXIS can find it, and run
-`gladevcp owordsub.ui` from a terminal window. +
+`gladevcp owordsub.ui` from a terminal window.
 This looks like so:
 
 .Action_MDI Advanced Example
@@ -2258,9 +2261,9 @@ image::images/oword.png[align="center"]
 
 === Preparing for an MDI Action, and cleaning up afterwards
 
-The LinuxCNC G-Code interpreter has a single global set of variables, like
-feed, spindle speed, relative/absolute mode and others. If you use G
-code commands or O-word subs, some of these variables might get changed
+The LinuxCNC G-code interpreter has a single global set of variables, like
+feed, spindle speed, relative/absolute mode and others. If you use G-code
+commands or O-word subs, some of these variables might get changed
 by the command or subroutine - for example, a probing subroutine will
 very likely set the feed value quite low. With no further precautions,
 your previous feed setting will be overwritten by the probing
@@ -2447,12 +2450,12 @@ expired, or the change of a HAL pin's value, generates a callback and
 is handled by the same orthogonal mechanism.
 
 For user-defined HAL pins not associated with a particular HAL widget,
-the signal name is 'value-changed'. +
+the signal name is 'value-changed'.
 See the <<gladevcp:adding-hal-pins,Adding HAL pins>> section below for
 details.
 
-HAL widgets come with a pre-defined signal called 'hal-pin-changed'. +
-See the <<gladevcp:hal-pin-changed-signal,HAL Widgets section>> for details.
+HAL widgets come with a pre-defined signal called 'hal-pin-changed'.
+See the <<gladevcp:hal-pin-changed-signal,HAL Widgets>> section for details.
 
 === Programming model
 
@@ -2524,7 +2527,7 @@ widget tree.
 
 ==== GladeVCP-specific signals
 
-For GladevCP panel which respond to HAL inputs it may be important that the handler
+For GladeVCP panel which respond to HAL inputs it may be important that the handler
 code can tell that the GladeVCP panel is currently active and displayed. For
 example a panel inside the Touchy interface might well need to perform an action
 when the switch connected to touchy.cycle-start is operated (in the same way

@@ -821,33 +821,28 @@ image::images/Config-com.png["Config Coms",align="center"]
   4800, 9600, 19200, 38400, 57600, 115200 are supported.
 * 'PAUSE AFTER TRANSMIT' - Pause (milliseconds) after transmit and before receiving answer,
   some devices need more time (e.g., USB-to-serial converters).
-* 'PAUSE INTER-FRAME' - Pause (milliseconds) after receiving answer from slave. This sets
-  the duty cycle of requests (it's a pause for EACH request).
+* 'PAUSE INTER-FRAME' - Pause (milliseconds) after receiving answer from slave.
+  This sets the duty cycle of requests (it's a pause for EACH request).
 * 'REQUEST TIMEOUT LENGTH' - Length (milliseconds) of time before we decide that the slave didn't
   answer.
 * 'MODBUS ELEMENT OFFSET' - used to offset the element numbers by 1 (for manufacturers numbering
   differences).
-* 'DEBUG LEVEL' - Set this to 0-3 (0 to stop printing debug info besides no-response
-  errors).
+* 'DEBUG LEVEL' - Set this to 0-3 (0 to stop printing debug info besides no-response errors).
 * 'READ COILS/INPUTS MAP TO' - Select what variables that read coils/inputs will update. (B or Q).
-* 'WRITE COILS MAP TO' - Select what variables that write coils will updated.from (B,Q,or I).
-* 'READ REGISTERS/HOLDING' - Select what variables that read registers will update. (W or QW).
-* 'WRITE REGISTERS MAP TO' - Select what variables that read registers will updated from. (W, QW,
-  or IW).
+* 'WRITE COILS MAP TO' - Select what variables that write coils will updated from (B,Q,or I).
+* 'READ REGISTERS/HOLDING' - Select what variables that read registers will update (W or QW).
+* 'WRITE REGISTERS MAP TO' - Select what variables that read registers will updated from (W, QW, or IW).
 * 'SLAVE ADDRESS' - For serial the slaves ID number usually settable on the slave device
-  (usually 1-256) For IP the slave IP address plus optionally the port
-  number.
-* 'TYPE ACCESS' - This selects the MODBUS function code to send to the slave (eg what
-  type of request).
+  (usually 1-256) For IP the slave IP address plus optionally the port number.
+* 'TYPE ACCESS' - This selects the MODBUS function code to send to the slave (eg what type of request).
 * 'COILS / INPUTS' - Inputs and Coils (bits) are read from/written to I, B, or Q variables (user selects).
 * 'REGISTERS (WORDS)' - Registers (Words/Numbers) map to IW, W, or QW variables (user selects).
-* '1st MODBUS ELEMENT' - The address (or register number) of the first element in a group.
+* '1st MODBUS ELEMENT' - The address (or register number) of the first element in a group
   (remember to set MODBUS ELEMENT OFFSET properly).
 * 'NUMBER OF ELEMENTS' - The number of elements in this group.
 * 'LOGIC' - You can invert the logic here.
 * '1st%I%Q IQ WQ MAPPED' - This is the starting number of %B, %I, %Q, %W, %IW, or %QW variables
-  that are mapped onto/from the modbus element group (starting at the
-  first modbus element number).
+  that are mapped onto/from the modbus element group (starting at the first modbus element number).
 
 In the example above: Port number - for my computer /dev/ttyS0 was my
 serial port.

@@ -54,17 +54,17 @@ This will load the hal_manualtoolchange userspace component waiting for the comp
 When an M6 code is run, motion sets \fI iocontrol.0.tool\-change \fR to high indicating a tool change.  This pin should be netted to \fI hal_manualtoolchange.change\fR.  This causes the Tool change dialog to be displayed on screen and wait for the user to either click the continue button on the dialog or press an externally connected button.
 .TP
 .B net tool\-changed iocontrol.0.tool\-changed <= hal_manualtoolchange.changed
-When the Tool change dialog's continue button is pressed, it will set the 
+When the Tool change dialog's continue button is pressed, it will set the
 .I hal_manualtoolchange.changed
-pin to high, this should be netted to the 
+pin to high, this should be netted to the
 .I iocontrol.0.tool\-changed
 pin, indicating to the motion controller that the tool change has been completed and can continue with the execution of the G-code program.
 .TP
 .B net tool\-number iocontrol.0.tool\-prep\-number => hal_manualtoolchange.number
-When a T\- command is executed in a G-code program, the tool number will held in the 
-.I iocontrol.0.tool\-prep\-number\fR.  \fR 
-This pin should be netted to 
-.I hal_manualtoolchange.number\fR.  \fR 
+When a T\- command is executed in a G-code program, the tool number will held in the
+.I iocontrol.0.tool\-prep\-number\fR.  \fR
+This pin should be netted to
+.I hal_manualtoolchange.number\fR.  \fR
 The value of this pin, the tool number is displayed in the Tool change dialog to let the user know which tool should be loaded.
 .TP
 .B net tool\-prepare\-loopback iocontrol.0.tool\-prepare => iocontrol.0.tool\-prepared
@@ -74,4 +74,4 @@ If you wish to use an external button to signal the hal_manualtoolchange compone
 .PP
 .B net tool\-changed\-btn hal_manualtoolchange.change_button <= parport.0.pin\-15\-in
 .SH SEE ALSO
-motion(1) iocontrol(1) halcmd(1)
+motion(1), iocontrol(1), halcmd(1).

@@ -208,7 +208,7 @@ you prefer.
 Shortcut for \fBlinkps\fR that creates the signal (named like the
 first pin), then links them both to that signal.  \fBhalcmd\fR treats
 this just as if it were:
-   \fBhalcmd\fR \fBnewsig\fR pinname1 
+   \fBhalcmd\fR \fBnewsig\fR pinname1
    \fBhalcmd\fR \fBlinksp\fR pinname1 pinname1
    \fBhalcmd\fR \fBlinksp\fR pinname1 pinname2
 .TP
@@ -319,8 +319,8 @@ parameter.
 "\fBthread\fR" generates one \fBaddf\fR command for each function
 in each realtime thread.
 
-"\fBunconnectedinpins\fR generates a setp command for each unconnected
-hal input pin.
+"\fBunconnectedinpins\fR" generates a setp command for each unconnected
+HAL input pin.
 
 If \fIitem\fR is \fBallu\fR), \fBsave\fR does the
 equivalent of \fBcomp\fR, \fBalias\fR, \fBsigu\fR, \fBnetla\fR, \fBparam\fR,
@@ -384,11 +384,11 @@ Removes any alias from the pin or parameter alias.
   If 'type' is omitted, it assumes '\fBall\fR'.
 .TP
 \fBdebug\fR [\fIlevel\fR]
-  Sets the rtapi messaging level (see man3 rtapi_set_msg_level)
+  Sets the rtapi messaging level (see man3 rtapi_set_msg_level).
 .TP
 \fBhelp\fR [\fIcommand\fR]
   Give help information for command.
-  If 'command' is omitted, list command and brief description
+  If 'command' is omitted, list command and brief description.
 .SH SUBSTITUTION
 After a command is read but before it is executed, several types of variable
 substitution take place.
@@ -398,8 +398,8 @@ Environment variables have the following formats:
 \fB$ENVVAR\fR followed by end-of-line or whitespace
 .IP
 \fB$(ENVVAR)\fR
-.SS Inifile Variables
-Inifile variables are available only when an inifile was specified with the
+.SS INI file variables
+INI file variables are available only when an INI file was specified with the
 halcmd \fB\-i\fR flag.  They have the following formats:
 .IP
 \fB[SECTION]VAR\fR followed by end-of-line or whitespace
