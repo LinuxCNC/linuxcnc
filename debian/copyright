@@ -215,9 +215,9 @@ Files:
  src/emc/nml_intf/*
  src/emc/kinematics/*
  src/emc/motion/*
- src/emc/canterp/canterp.cc:* License: GPL Version 2
- src/emc/sai/driver.cc:* License: GPL Version 2
- src/emc/sai/saicanon.cc:* License: GPL Version 2
+ src/emc/canterp/canterp.cc
+ src/emc/sai/driver.cc
+ src/emc/sai/saicanon.cc
  src/emc/linuxcnc.h
  src/emc/usr_intf/*
  src/emc/tp/*
@@ -352,7 +352,7 @@ Comment: The origin of this subtree is the Classic Ladder Project
  http://membres.lycos.fr/mavati/classicladder/ 
  http://www.sourceforge.net/projects/classicladder
 
-Files: qtvcp/screens/woodpecker/images/QTvcp Widgets_files/asciidoc.js
+Files: "share/qtvcp/screens/woodpecker/images/QTvcp Widgets_files/asciidoc.js"
 Copyright:      2002 Mihai Bazon
  modified by
                 2006 Troy D. Hanson
@@ -382,7 +382,7 @@ Copyright: The LinuxCNC developers derived this work from
 License: GPL-2
 
 Files: 
- lib/python/gladevcp/iconview.py:    the original code is under the BSD license
+ lib/python/gladevcp/iconview.py
 Copyright: 2012 Norbert Schechner <nieson@web.de>
 Comment: based on a tutorial from ZetCode PyGTK tutorial
  the original code is under the BSD license
