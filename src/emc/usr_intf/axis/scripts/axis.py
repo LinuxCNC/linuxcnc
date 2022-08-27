@@ -2035,7 +2035,7 @@ class TclCommands(nf.TclCommands):
 
             size = os.stat(loaded_file).st_size
             lines = int(widgets.text.index("end").split(".")[0])-2
-            props['size'] = _("%(size)s bytes\n%(lines)s gcode lines") % {'size': size, 'lines': lines}
+            props['size'] = _("%(size)s bytes\n%(lines)s G-code lines") % {'size': size, 'lines': lines}
 
             if vars.metric.get():
                 conv = 1

@@ -73,7 +73,7 @@ setup_menu_accel .menu.file end [_ "_Reload"]
 .menu.file add command \
         -accelerator [_ "Ctrl-S"] \
         -command save_gcode
-setup_menu_accel .menu.file end [_ "_Save gcode as..."]
+setup_menu_accel .menu.file end [_ "_Save G-code as..."]
 
 .menu.file add command \
         -command gcode_properties
@@ -384,7 +384,7 @@ setup_menu_accel .menu.view end [_ "_Clear live plot"]
 	-variable show_pyvcppanel \
 	-accelerator [_ "Ctrl-E"] \
 	-command toggle_show_pyvcppanel
-setup_menu_accel .menu.view end [_ "Show pyVCP pan_el"]
+setup_menu_accel .menu.view end [_ "Show PyVCP pan_el"]
 
 .menu.view add separator
 
