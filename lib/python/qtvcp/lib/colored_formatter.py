@@ -21,7 +21,6 @@
 #  SOFTWARE.
 
 import re
-import time
 from copy import copy
 from logging import Formatter
 
@@ -58,7 +57,7 @@ def COLORIZE(text, color=None):
 
 
 # Matches only the first `color<text>` occurrence
-# ^(.*?)<([^)]+)> 
+# ^(.*?)<([^)]+)>
 
 # Matches all `color<text>` occurrences, both take the same number of steps
 # ([^<\s]+)<([^>]+)>

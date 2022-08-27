@@ -16,7 +16,7 @@
 
 import time
 import os
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore
 
 from qtvcp import logger
 from qtvcp.widgets.simple_widgets import ScaledLabel

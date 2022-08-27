@@ -15,7 +15,6 @@
 ###############################################################################
 
 import os
-import time
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 import linuxcnc
@@ -61,7 +60,7 @@ def import_ZMQ():
     try:
         import zmq
     except:
-        LOG.warning('Problem importing zmq - Is python-zmg installed?')
+        LOG.warning('Problem importing zmq - Is python3-zmq installed?')
         # nope no messaging for you
         return False
     else:
@@ -287,7 +286,6 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             self.init_zmq_publish()
         if self.add_receive_zmq:
             self.init_zmg_subscribe()
-            
 
     # This is called early by qt_makegui.py for access to
     # be able to pass the preference object to the widgets
@@ -558,7 +556,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         w.focusOverlay_.hal_init(HAL_NAME='')
 
     def init_focus_effect(self):
-        STATUS.connect('focus-overlay-changed', lambda w, data, text, color: 
+        STATUS.connect('focus-overlay-changed', lambda w, data, text, color:
                         self.effect(data, text, color))
 
     def init_keyboard_dialog(self):

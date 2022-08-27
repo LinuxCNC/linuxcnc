@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 
-import sip
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin, \
     QPyDesignerTaskMenuExtension, QExtensionFactory, \
-    QDesignerFormWindowInterface, QPyDesignerMemberSheetExtension
+    QDesignerFormWindowInterface
 from qtvcp.widgets.action_button import ActionButton
 from qtvcp.widgets.action_button_round import RoundButton
 from qtvcp.widgets.qtvcp_icons import Icon
@@ -1124,7 +1123,7 @@ class ActionButtonDialog(QtWidgets.QDialog):
                                         QtCore.QVariant(self.invertCheckBox.isChecked()))
 
         #####################
-        # set related data 
+        # set related data
         #####################
         formWindow.cursor().setProperty('joint_number',
                                         QtCore.QVariant(self.JNumSpinBox.value()))
@@ -1201,8 +1200,6 @@ class ActionButtonTaskMenuFactory(QExtensionFactory):
             return None
         if iid == Q_TYPEID['QDesignerTaskMenuExtension']:
             return ActionButtonMenuEntry(obj, parent)
-        elif iid == Q_TYPEID['QDesignerMemberSheetExtension']:
-            return ActionButtonMemberSheet(obj, parent)
         return None
 
 

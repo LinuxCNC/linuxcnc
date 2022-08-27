@@ -14,9 +14,8 @@
 # GNU General Public License for more details.
 ###############################################################################
 
-import os
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore
 
 from qtvcp.widgets.simple_widgets import ScaledLabel
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase

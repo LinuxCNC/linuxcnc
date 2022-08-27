@@ -18,7 +18,7 @@ from PyQt5.QtWidgets import QWidget
 
 import hal
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from PyQt5.QtCore import pyqtSignal, pyqtSlot, pyqtProperty
+from PyQt5.QtCore import pyqtSlot, pyqtProperty
 from qtvcp import logger
 
 # Instantiate the libraries with global reference

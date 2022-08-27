@@ -16,7 +16,6 @@
 
 import sys
 import os
-import locale
 import operator
 
 from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtProperty, QSize, pyqtSlot
@@ -141,7 +140,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         hh = self.horizontalHeader()
         # auto adjust to contents
         hh.setSectionResizeMode(3)
-        
+
         hh.setStretchLastSection(True)
         hh.setSortIndicator(1,Qt.AscendingOrder)
 
@@ -419,13 +418,13 @@ class MyTableModel(QAbstractTableModel):
     # When the parent is valid it means that rowCount is
     # returning the number of children of parent.
     #
-    # Note: When implementing a table based model, rowCount() 
+    # Note: When implementing a table based model, rowCount()
     # should return 0 when the parent is valid.
     def rowCount(self, parent):
         return len(self.arraydata)
 
     # Returns the number of columns for the children of the given parent.
-    # Note: When implementing a table based model, columnCount() should 
+    # Note: When implementing a table based model, columnCount() should
     # return 0 when the parent is valid.
     def columnCount(self, parent):
         if len(self.arraydata) > 0:
@@ -483,7 +482,7 @@ class MyTableModel(QAbstractTableModel):
                     return QColor(self._selectedcolor)
                 else:
                     return QVariant()
-            
+
         elif role == Qt.CheckStateRole:
             if index.column() == 0:
                 # print(">>> data() row,col = %d, %d" % (index.row(), index.column()))
@@ -562,7 +561,7 @@ class MyTableModel(QAbstractTableModel):
         return True
 
     # Returns the data for the given role and section in the header with the specified orientation.
-    # For horizontal headers, the section number corresponds to the column number. 
+    # For horizontal headers, the section number corresponds to the column number.
     # Similarly, for vertical headers, the section number corresponds to the row number.
     def headerData(self, col, orientation, role):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:

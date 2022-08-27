@@ -7,12 +7,12 @@ from collections import OrderedDict
 
 from PyQt5.QtWidgets import (QApplication, QFileSystemModel,
                  QWidget, QVBoxLayout, QHBoxLayout, QListView,
-                 QComboBox, QPushButton, QToolButton, QSizePolicy,
-                 QMenu, QAction, QLineEdit, QLabel, QFrame,
+                 QComboBox, QToolButton, QSizePolicy,
+                 QMenu, QAction, QLineEdit, QFrame,
                     QTableView, QHeaderView)
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import (QModelIndex, QDir, Qt, pyqtSlot,
-                    QItemSelectionModel, QEvent, QItemSelection)
+                    QItemSelectionModel, QItemSelection)
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info

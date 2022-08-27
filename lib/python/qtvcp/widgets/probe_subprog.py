@@ -15,7 +15,6 @@
 # This subprogram is used by both versa_probe and basic_probe widgets
 
 import sys
-import os
 import time
 import json
 

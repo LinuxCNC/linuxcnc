@@ -40,11 +40,10 @@
 ###########################################################################
 
 import os
-import sys
 from PyQt5 import uic
-from PyQt5.QtCore import pyqtSlot, QFile, QRegExp, Qt, QTextStream, QUrl
-from PyQt5.QtWidgets import (QApplication, QDialog, QFileDialog, QMessageBox,
-        QStyleFactory, QWidget, QColorDialog)
+from PyQt5.QtCore import pyqtSlot, QFile, QTextStream, QUrl
+from PyQt5.QtWidgets import (QDialog, QFileDialog, QMessageBox,
+        QColorDialog)
 from PyQt5 import QtGui, QtCore
 
 from qtvcp.core import Info, Path

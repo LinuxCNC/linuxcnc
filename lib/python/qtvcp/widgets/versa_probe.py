@@ -21,10 +21,9 @@ import hal
 import json
 
 from PyQt5 import QtGui, QtCore, QtWidgets, uic
-from PyQt5.QtCore import QProcess, QByteArray, QEvent
+from PyQt5.QtCore import QProcess, QEvent
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.widgets.simple_widgets import PushButton
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
 # Instantiate the libraries with global reference
@@ -354,7 +353,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         for key in ['allow_auto_zero', 'allow_auto_skew']:
             val = '1' if self[key].isChecked() else '0'
             self.send_dict.update( {key: val} )
-        
+
     def check_probe(self):
         self.led_probe_function_chk.setState(hal.get_value('motion.probe-input'))
 

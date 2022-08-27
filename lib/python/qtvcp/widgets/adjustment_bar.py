@@ -14,11 +14,9 @@
 # GNU General Public License for more details.
 ###############################################################################
 
-import os
-
-from PyQt5.QtWidgets import QWidget, QProgressBar, QToolButton, QHBoxLayout,QLabel, QMenu, QAction, QSizePolicy
-from PyQt5.QtCore import Qt, QEvent, pyqtProperty, QBasicTimer, pyqtSignal
-from PyQt5.QtGui import QColor, QPainter, QFont, QIcon
+from PyQt5.QtWidgets import QWidget, QProgressBar, QToolButton, QHBoxLayout, QMenu, QAction
+from PyQt5.QtCore import Qt, pyqtProperty, QBasicTimer, pyqtSignal
+from PyQt5.QtGui import QPainter, QFont, QIcon
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info

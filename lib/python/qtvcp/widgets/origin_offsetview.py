@@ -21,7 +21,6 @@ import locale
 from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtProperty
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QTableView, QAbstractItemView
-import linuxcnc
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
@@ -503,16 +502,6 @@ class MyTableModel(QAbstractTableModel):
         if orientation != Qt.Horizontal and role == Qt.DisplayRole:
             return QVariant(self.Vheaderdata[col])
         return QVariant()
-
-    def sort(self, Ncol, order):
-        """
-        Sort table by given column number.
-        """
-        self.emit(SIGNAL("layoutAboutToBeChanged()"))
-        self.arraydata = sorted(self.arraydata, key=operator.itemgetter(Ncol))
-        if order == Qt.DescendingOrder:
-            self.arraydata.reverse()
-        self.emit(SIGNAL("layoutChanged()"))
 
 if __name__ == "__main__":
     from PyQt5.QtWidgets import QApplication

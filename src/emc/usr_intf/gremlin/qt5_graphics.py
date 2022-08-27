@@ -3,15 +3,14 @@
 import sys
 import math
 
-import warnings
 
 # Set up logging
 from qtvcp import logger
 LOG = logger.getLogger(__name__)
 
-from PyQt5.QtCore import pyqtProperty, pyqtSignal, QPoint, QSize, Qt, QTimer
+from PyQt5.QtCore import pyqtProperty, pyqtSignal, QSize, Qt, QTimer
 from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QMessageBox, QSlider,
+from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QSlider,
         QWidget)
 try:
     from PyQt5.QtOpenGL import QGLWidget
@@ -34,7 +33,6 @@ from rs274 import interpret
 import linuxcnc
 import gcode
 
-import time
 import re
 import tempfile
 import shutil

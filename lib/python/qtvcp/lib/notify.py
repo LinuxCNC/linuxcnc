@@ -1,4 +1,3 @@
-import sys
 # try to add a notify system so messages use the
 # nice integrated pop-ups
 # Ubuntu kinda wrecks this be not following the

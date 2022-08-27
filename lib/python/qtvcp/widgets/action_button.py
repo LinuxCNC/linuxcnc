@@ -19,7 +19,7 @@
 # In the designer editor, it is possible to select what the button will do.
 ###############################################################################
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore
 import linuxcnc
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -170,7 +170,7 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
     # other entities change linuxcnc's state
     # also some buttons are disabled/enabled based on
     # linuxcnc state / possible actions
-    # 
+    #
     # super()._hal_init() initializes parent classes
     ###################################################
     def _hal_init(self):

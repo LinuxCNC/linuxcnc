@@ -15,7 +15,7 @@
 ###############################################################################
 import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt, QPoint, QPointF, QLineF, QRect, QRectF, QSize, QSizeF, QEvent, Q_ENUM
+from PyQt5.QtCore import Qt, QPoint, QPointF, QRect, QRectF, QSize, QSizeF, QEvent, Q_ENUM
 from PyQt5.QtGui import QPainter, QPainterPath, QPen, QBrush, QColor, QFont, QPixmap, QRadialGradient
 
 import hal
@@ -641,7 +641,7 @@ class HALPad(JoyPad, _HalWidgetBase, HALPinType):
     #############################
 if __name__ == "__main__":
     import sys
-    from PyQt5.QtWidgets import QWidget, QVBoxLayout, QApplication
+    from PyQt5.QtWidgets import QWidget
     app = QtWidgets.QApplication(sys.argv)
     w = QWidget()
     w.setGeometry(100, 100, 600, 400)

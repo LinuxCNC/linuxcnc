@@ -15,7 +15,7 @@
 ###############################################################################
 import os
 
-from PyQt5.QtWidgets import QPlainTextEdit, QWidget, QVBoxLayout, QListView
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QListView
 from PyQt5.QtCore import pyqtProperty, QSize, QModelIndex, QItemSelectionModel, QItemSelection, QPoint
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 

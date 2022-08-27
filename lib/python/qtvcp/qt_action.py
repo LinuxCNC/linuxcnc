@@ -7,7 +7,6 @@ from PyQt5.QtWidgets import (QApplication, QTabWidget, QStackedWidget,
 from PyQt5.QtCore import Qt, QProcess
 
 import linuxcnc
-import hal
 
 # Set up logging
 from . import logger
@@ -979,7 +978,7 @@ class Progress:
 ###########################################
 # Filter Class
 ########################################################################
-import os, sys, time, select, re
+import os, sys, select, re
 import tempfile, atexit, shutil
 
 # slightly reworked code from gladevcp

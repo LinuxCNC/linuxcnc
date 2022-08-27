@@ -17,7 +17,6 @@
 # It enables the probe routines to run without blocking the main GUI.
 
 import sys
-import os
 import json
 
 from PyQt5.QtCore import QObject
@@ -59,7 +58,7 @@ class TouchOffSubprog(QObject):
                           'pos_x2',
                           'pos_y2',
                           'pos_z2']
-                          
+
         self.process()
 
     def process(self):
@@ -100,7 +99,7 @@ class TouchOffSubprog(QObject):
             parms = json.loads(cmd[1])
             self.update_data(parms)
             error = self.probe_z()
-            return error                
+            return error
         else:
             return 0
 
@@ -139,7 +138,7 @@ class TouchOffSubprog(QObject):
         self.status_z2 = float(pos[2])
         if ACTION.CALL_MDI_WAIT("G0 Z{}".format(self.z_safe_travel), 10) == -1: return 0
         return 1
-        
+
     def probe_down(self):
         ACTION.CALL_MDI("G91")
         cmd = "G38.2 Z-{} F{}".format(self.max_probe, self.search_vel)

@@ -15,7 +15,6 @@
 ###############################################################################
 
 import os
-import sys
 import hashlib
 
 from PyQt5.QtWidgets import QTextEdit

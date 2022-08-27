@@ -207,7 +207,7 @@ class StateLED(LED):
 
         Args:
             data (bool): combined limits state.
-            group (list): list of all joints negative 
+            group (list): list of all joints negative
             and positive hard limits state.
         '''
 
@@ -510,7 +510,7 @@ class StateLED(LED):
 if __name__ == "__main__":
 
     import sys
-    from PyQt4.QtGui import QApplication
+    from PyQt5.QtGui import QApplication
     app = QApplication(sys.argv)
     led = StateLED()
     led.show()

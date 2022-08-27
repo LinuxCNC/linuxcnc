@@ -13,7 +13,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-from PyQt5.QtWidgets import (QTabWidget, QTabBar, QPushButton)
+from PyQt5.QtWidgets import (QTabWidget, QTabBar)
 from PyQt5.QtCore import pyqtProperty, QSize
 
 class TabWidget(QTabWidget):
