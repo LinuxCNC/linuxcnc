@@ -1,4 +1,4 @@
-VERSION = '1.230.233'
+VERSION = '1.230.234'
 
 '''
 qtplasmac_handler.py
@@ -315,6 +315,8 @@ class HandlerClass:
         self.init_preferences()
         self.hide_widgets()
         self.init_widgets()
+        # hijack the qtvcp shutdown to our own close event
+        self.w.screen_options.QTVCP_INSTANCE_.closeEvent = self.closeEvent
         self.w.button_frame.installEventFilter(self.w)
         self.link_hal_pins()
         self.statistics_init()
