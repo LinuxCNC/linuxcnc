@@ -24,7 +24,7 @@ image::images/ngcgui.png[align="center"]
 * 'PYNGCGUI' is an alternate, python implementation of ngcgui.
 * 'PYNGCGUI' can run as a standalone application or can be embedded as
   a tab page (with its own set of multiple subroutine tabs) in any
-  GUI that supports embedding of GladeVCP applications AXIS, Touchy, GScreen
+  GUI that supports embedding of GladeVCP applications AXIS, Touchy, gscreen
   and GMOCCAPY.
 
 Using NGCGUI or PYNGCGUI:
@@ -55,7 +55,7 @@ A number of demonstration configurations are located in the sim directory
 of the Sample Configurations offered by the LinuxCNC configuration picker. The
 configuration picker is on the system's main menu: Applications > CNC > LinuxCNC
 
-Examples are included for the AXIS, Touchy, GScreen, and GMOCCAPY.
+Examples are included for the AXIS, Touchy, gscreen, and GMOCCAPY.
 These examples demonstrate both 3-axis (XYZ) cartesian configurations
 (like mills) and lathe (XZ) setups.  Some examples show the use of a
 pop up keyboard for touch screen systems and other examples demonstrate
@@ -336,7 +336,7 @@ be installed independently and located in the user PATH.
 === Embedding PYNGCGUI as a GladeVCP tab page in a GUI
 
 The following INI file items go in the [DISPLAY] section for use with the
-AXIS, GScreen, or Touchy GUIs.  (See additional sections below for additional
+AXIS, gscreen, or Touchy GUIs.  (See additional sections below for additional
 items needed)
 
 .EMBED_ Items
