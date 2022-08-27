@@ -3,38 +3,34 @@
 :date: {sys: LANG=C date --date="@$(dpkg-parsechangelog --file ../debian/changelog -S timestamp)" '+%d %b %Y'}
 :ascii-ids:
 :masterdir: {indir}
-:revdate: 2021-10-28
+:revdate: 2021-10-28 
 LinuxCNC V{lversion}, {date}
 ============================
 
-= Contents
-
 :leveloffset: 0
-
-= About LinuxCNC
+= Getting Started & Configuration
 
 :leveloffset: 1
-
-= Introduction
-
-image::common/images/emc2-intro.png[]
-
-include::common/overleaf.adoc[]
-
-= LinuxCNC History
-
-include::common/emc-history.adoc[]
-
-:leveloffset: 0
-
-= Using LinuxCNC
-
-:leveloffset: 1
-
-= General Info
+= Getting Started with LinuxCNC
 
 :leveloffset: 2
+include::getting-started/about-linuxcnc.adoc[]
 
+include::getting-started/system-requirements.adoc[]
+
+include::getting-started/getting-linuxcnc.adoc[]
+
+include::getting-started/running-linuxcnc.adoc[]
+
+include::getting-started/updating-linuxcnc.adoc[]
+
+include::common/linux-faq.adoc[]
+
+
+:leveloffset: 1
+= General User Information
+
+:leveloffset: 2
 include::user/user-foreword.adoc[]
 
 include::user/user-intro.adoc[]
@@ -45,33 +41,179 @@ include::user/starting-linuxcnc.adoc[]
 
 include::gcode/machining-center.adoc[]
 
-include::getting-started/running-linuxcnc.adoc[]
-
-include::config/stepconf.adoc[]
-
-include::config/pncconf.adoc[]
-
-include::common/linux-faq.adoc[]
-
 include::lathe/lathe-user.adoc[]
 
 include::plasma/plasma-cnc-primer.adoc[]
 
-:leveloffset: 1
 
+:leveloffset: 1
+= Configuration Wizards
+
+:leveloffset: 2
+include::config/stepconf.adoc[]
+
+include::config/pncconf.adoc[]
+
+
+:leveloffset: 1
+= Configuration
+
+:leveloffset: 2
+include::config/integrator-concepts.adoc[]
+
+include::install/latency-test.adoc[]
+
+include::motion/tweaking-steppers.adoc[]
+
+include::config/ini-config.adoc[]
+
+include::config/ini-homing.adoc[]
+
+include::config/iov2.adoc[]
+
+include::config/lathe-config.adoc[]
+
+include::config/stepper-quickstart.adoc[]
+
+include::config/stepper.adoc[]
+
+include::config/stepper-diagnostics.adoc[]
+
+
+:leveloffset: 1
+= HAL (Hardware Abstraction Layer)
+
+:leveloffset: 2
+include::hal/intro.adoc[]
+
+include::hal/basic-hal.adoc[]
+
+include::hal/twopass.adoc[]
+
+include::hal/tutorial.adoc[]
+
+include::hal/hal-examples.adoc[]
+
+include::config/core-components.adoc[]
+
+include::hal/components.adoc[]
+
+include::hal/rtcomps.adoc[]
+
+include::hal/comp.adoc[]
+
+include::hal/haltcl.adoc[]
+
+include::hal/halmodule.adoc[]
+
+include::hal/canonical-devices.adoc[]
+
+include::hal/tools.adoc[]
+
+
+:leveloffset: 1
+= Hardware Drivers
+
+:leveloffset: 2
+include::hal/parallel-port.adoc[]
+
+include::drivers/ax5214h.adoc[]
+
+include::drivers/gm.adoc[]
+
+include::drivers/gs2.adoc[]
+
+include::drivers/hostmot2.adoc[]
+
+include::drivers/mb2hal.adoc[]
+
+include::drivers/mitsub-vfd.adoc[]
+
+include::drivers/motenc.adoc[]
+
+include::drivers/opto22.adoc[]
+
+include::drivers/pico-ppmc.adoc[]
+
+include::drivers/pluto-p.adoc[]
+
+include::drivers/pmx485.adoc[]
+
+include::drivers/servo-to-go.adoc[]
+
+include::drivers/shuttle.adoc[]
+
+include::drivers/vfs11.adoc[]
+
+
+:leveloffset: 1
+= Hardware Examples
+
+:leveloffset: 2
+include::examples/pci-parallel-port.adoc[]
+
+include::examples/spindle.adoc[]
+
+include::examples/mpg.adoc[]
+
+include::examples/gs2-example.adoc[]
+
+
+
+:leveloffset: 1
+= ClassicLadder
+
+:leveloffset: 2
+include::ladder/ladder-intro.adoc[]
+
+include::ladder/classic-ladder.adoc[]
+
+include::ladder/ladder-examples.adoc[]
+
+
+:leveloffset: 1
+= Advanced Topics
+
+:leveloffset: 2
+include::motion/kinematics.adoc[]
+
+include::motion/dh-parameters.adoc[]
+
+include::motion/5-axis-kinematics.adoc[]
+
+include::motion/switchkins.adoc[]
+
+include::motion/pid-theory.adoc[]
+
+include::remap/remap.adoc[]
+
+include::config/moveoff.adoc[]
+
+include::code/rs274.adoc[]
+
+include::motion/external-offsets.adoc[]
+
+include::tooldatabase/tooldatabase.adoc[]
+
+
+:leveloffset: 0
+= Usage
+
+:leveloffset: 1
 = User Interfaces
 
 :leveloffset: 2
-
 include::gui/axis.adoc[]
 
 include::gui/gmoccapy.adoc[]
 
-include::gui/ngcgui.adoc[]
-
 include::gui/touchy.adoc[]
 
 include::gui/gscreen.adoc[]
+
+include::gui/qtdragon.adoc[]
+
+include::gui/ngcgui.adoc[]
 
 include::gui/tklinuxcnc.adoc[]
 
@@ -79,13 +221,16 @@ include::plasma/qtplasmac.adoc[]
 
 include::gui/mdro.adoc[]
 
-:leveloffset: 1
 
-= Programming
+:leveloffset: 1
+= G-code Programming
 
 :leveloffset: 2
-
 include::gcode/coordinates.adoc[]
+
+include::gcode/tool-compensation.adoc[]
+
+include::gui/tooledit.adoc[]
 
 include::gcode/overview.adoc[]
 
@@ -99,75 +244,24 @@ include::gcode/other-code.adoc[]
 
 include::examples/gcode.adoc[]
 
-include::gcode/rs274ngc.adoc[]
-
 include::gui/image-to-gcode.adoc[]
 
-:leveloffset: 1
+include::gcode/rs274ngc.adoc[]
 
-= Tool Compensation
-
-:leveloffset: 2
-
-include::gcode/tool-compensation.adoc[]
-
-include::gui/tooledit.adoc[]
-
-:leveloffset: 0
-
-= Configuration
 
 :leveloffset: 1
-
-= General Info
-
-:leveloffset: 2
-
-include::config/integrator-concepts.adoc[]
-
-include::install/latency-test.adoc[]
-
-include::motion/tweaking-steppers.adoc[]
-
-include::config/stepper-diagnostics.adoc[]
-
-:leveloffset: 1
-
-= Configuration
+= Virtual Control Panels
 
 :leveloffset: 2
-
-include::config/stepper-quickstart.adoc[]
-
-include::config/ini-config.adoc[]
-
-include::config/ini-homing.adoc[]
-
-include::config/iov2.adoc[]
-
-include::config/lathe-config.adoc[]
-
-include::remap/remap.adoc[]
-
-include::config/moveoff.adoc[]
-
-include::config/stepper.adoc[]
-
-:leveloffset: 1
-
-= Control Panels
-
-:leveloffset: 2
-
 include::gui/pyvcp.adoc[]
 
 include::gui/pyvcp-examples.adoc[]
 
 include::gui/gladevcp.adoc[]
 
-include::gui/qtvcp.adoc[]
+include::gui/gladevcp-libraries.adoc[]
 
-:leveloffset: 3
+include::gui/qtvcp.adoc[]
 
 include::gui/qtvcp-vcp-panels.adoc[]
 
@@ -183,149 +277,46 @@ include::gui/qtvcp-code-snippets.adoc[]
 
 include::gui/qtvcp-development.adoc[]
 
-:leveloffset: 1
 
-= User Interfaces
+:leveloffset: 1
+= User Interface Programming
 
 :leveloffset: 2
-
 include::gui/panelui.adoc[]
+
+include::gui/filter-programs.adoc[]
 
 include::gui/halui.adoc[]
 
 include::hal/halui-examples.adoc[]
 
-include::gui/vismach.adoc[]
-
 include::config/python-interface.adoc[]
 
 include::gui/gstat.adoc[]
 
-:leveloffset: 1
-
-= Drivers
-
-:leveloffset: 2
-
-include::hal/parallel-port.adoc[]
-
-include::drivers/ax5214h.adoc[]
-
-include::drivers/gs2.adoc[]
-
-include::drivers/hostmot2.adoc[]
-
-include::drivers/motenc.adoc[]
-
-include::drivers/mb2hal.adoc[]
-
-include::drivers/opto22.adoc[]
-
-include::drivers/pico-ppmc.adoc[]
-
-include::drivers/pluto-p.adoc[]
-
-include::drivers/pmx485.adoc[]
-
-include::drivers/servo-to-go.adoc[]
-
-include::drivers/shuttle.adoc[]
-
-include::drivers/gm.adoc[]
-
-include::drivers/vfs11.adoc[]
-
-:leveloffset: 1
-
-= Driver Examples
-
-:leveloffset: 2
-
-include::examples/pci-parallel-port.adoc[]
-
-include::examples/spindle.adoc[]
-
-include::examples/mpg.adoc[]
-
-include::examples/gs2-example.adoc[]
-
-:leveloffset: 1
-
-= PLC
-
-:leveloffset: 2
-
-include::ladder/ladder-intro.adoc[]
-
-include::ladder/classic-ladder.adoc[]
-
-include::ladder/ladder-examples.adoc[]
-
-:leveloffset: 1
-
-= HAL
-
-:leveloffset: 2
-
-include::hal/intro.adoc[]
-
-include::hal/basic-hal.adoc[]
-
-include::hal/twopass.adoc[]
-
-include::hal/tutorial.adoc[]
-
-include::hal/general-ref.adoc[]
-
-include::config/core-components.adoc[]
-
-include::hal/canonical-devices.adoc[]
-
-include::hal/tools.adoc[]
-
-include::hal/halshow.adoc[]
-
-include::hal/components.adoc[]
-
-include::hal/rtcomps.adoc[]
-
-include::hal/hal-examples.adoc[]
-
-include::hal/comp.adoc[]
-
-include::hal/haltcl.adoc[]
-
-include::hal/halmodule.adoc[]
+include::gui/vismach.adoc[]
 
 
 :leveloffset: 0
-
-= Advanced Topics
+= Glossary, Copyright & History
 
 :leveloffset: 1
+= Overleaf
+include::common/overleaf.adoc[]
 
-include::motion/kinematics.adoc[]
-
-include::motion/dh-parameters.adoc[]
-
-include::motion/5-axis-kinematics.adoc[]
-
-include::motion/switchkins.adoc[]
-
-include::motion/pid-theory.adoc[]
-
-include::motion/external-offsets.adoc[]
-
-include::tooldatabase/tooldatabase.adoc[]
-
-include::code/rs274.adoc[]
-
-:leveloffset: 0
-
+:leveloffset: 1
 include::common/glossary.adoc[]
 
+:leveloffset: 1
+= Copyright
+
+:leveloffset: 2
 include::common/gpld-copyright.adoc[]
 
-// = Index
+:leveloffset: 1
+= LinuxCNC History
+
+:leveloffset: 2
+include::common/emc-history.adoc[]
 
 // vim: set syntax=asciidoc:
