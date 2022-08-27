@@ -5211,7 +5211,7 @@ class gmoccapy(object):
         self.widgets.tbtn_setup.set_sensitive(False)
 
     def on_gcode_view_changed(self, widget, state):
-        print("gcode view changed (modified: {})".format(state))
+        print("G-code view changed (modified: {})".format(state))
         self.file_changed = state
 
     # Search and replace handling in edit mode
