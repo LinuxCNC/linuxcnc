@@ -224,11 +224,11 @@ Limit its slew rate to less than maxv per second. Limit its second derivative to
 | link:../man/man9/maj3.9.html[maj3] | Compute the majority of 3 inputs. | |
 | link:../man/man9/minmax.9.html[minmax] | Track the minimum and maximum values of the input to the outputs. ||
 | link:../man/man9/mult2.9.html[mult2] | Product of two inputs. | |
-| link:../man/man9/mux16.9.html[mux16] | Select from one of sixteen input values. | |
-| link:../man/man9/mux2.9.html[mux2] | Select from one of two input values. | |
-| link:../man/man9/mux4.9.html[mux4] | Select from one of four input values. | |
-| link:../man/man9/mux8.9.html[mux8] | Select from one of eight input values. | |
-| link:../man/man9/mux_generic.9.html[mux_generic] |choose one from several input values||
+| link:../man/man9/mux16.9.html[mux16] | Select from one of 16 input values (multiplexer). | |
+| link:../man/man9/mux2.9.html[mux2] | Select from one of two input values (multiplexer). | |
+| link:../man/man9/mux4.9.html[mux4] | Select from one of four input values (multiplexer). | |
+| link:../man/man9/mux8.9.html[mux8] | Select from one of eight input values (multiplexer). | |
+| link:../man/man9/mux_generic.9.html[mux_generic] | Select one from several input values (multiplexer).||
 | link:../man/man9/near.9.html[near] | Determine whether two values are roughly equal. | |
 | link:../man/man9/offset.9.html[offset] | Adds an offset to an input, and subtracts it from the feedback value. | |
 | link:../man/man9/sample_hold.9.html[sample_hold] | Sample and Hold. ||
@@ -307,8 +307,8 @@ Limit its slew rate to less than maxv per second. Limit its second derivative to
 | link:../man/man9/threads.9.html[threads] | Creates hard realtime HAL threads. ||
 | link:../man/man9/charge_pump.9.html[charge_pump] | Creates a square-wave for the 'charge pump' input of some controller boards.
 The 'Charge Pump' should be added to the base thread function. When enabled the output is on for one period and off for one period. 
-To calculate the frequency of the output 1/(period time in seconds x 2) = hz. For example if you have a base period of 100,000ns that 
-is 0.0001 seconds and the formula would be 1/(0.0001 x 2) = 5,000 hz or 5 Khz. ||
+To calculate the frequency of the output 1/(period time in seconds x 2) = Hz. For example if you have a base period of 100,000 ns that 
+is 0.0001 seconds and the formula would be 1/(0.0001 x 2) = 5,000 Hz or 5 kHz. ||
 | link:../man/man9/encoder_ratio.9.html[encoder_ratio] | An electronic gear to synchronize two axes. ||
 | link:../man/man9/feedcomp.9.html[feedcomp] | Multiply the input by the ratio of current velocity to the feed rate. ||
 | link:../man/man9/gladevcp.9.html[gladevcp (Realtime)] |displays Virtual control Panels built with GTK / GLADE||
