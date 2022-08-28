@@ -316,7 +316,7 @@ sections below for additional items needed)
   it is only added once.
 * 'NGCGUI_SUBFILE = simp.ngc' - Creates a tab from the named subroutine.
 //FIXME * 'NGCGUI_SUBFILE = "" - Creates a custom tab ?
-* 'NGCGUI_SUBFILE = "" - Creates a custom tab
+* 'NGCGUI_SUBFILE = ""' - Creates a custom tab
 * '#NGCGUI_OPTIONS = opt1 opt2 ...' - Ngcgui options:
 ** 'nonew'    -- Prohibits creation of new custom tab
 ** 'noremove' -- Prohibits deleting a tab page
@@ -371,10 +371,10 @@ that embeds either ngcgui or pyngcgui.
   is only added once.  For mm-based machines, use mm_std.ngc
 * 'NGCGUI_SUBFILE = filename1.ngc' - creates a tab from the filename1 subroutine
 * 'NGCGUI_SUBFILE = filename2.ngc' - creates a tab from the filename2 subroutine
-* '... etc'
+* '... etc.'
 * 'NGCGUI_SUBFILE = gcmcname1.gcmc' - creates a tab from the gcmcname1 file
 * 'NGCGUI_SUBFILE = gcmcname2.gcmc' - creates a tab from the gcmcname2 file
-* '... etc'
+* '... etc.'
 * 'NGCGUI_SUBFILE = ""' - creates a custom tab that can open any subroutine in the search path
 * 'NGCGUI_OPTIONS = opt1 opt2 ...' - NGCGUI options
 ** 'nonew' - disallow making a new custom tab

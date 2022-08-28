@@ -354,9 +354,9 @@ Then we add the function to the handle file to call a Gscreen builtin function t
 
 === Linuxcnc State Status
 
-The module 'Gstat' polls linuxcnc's state every 100ms and sends callback messages to user functions when state changes.
+The module 'Gstat' polls LinuxCNC's state every 100ms and sends callback messages to user functions when state changes.
 You can register messages to act on specific state changes.
-As an example we will register to get 'file-loaded' messages when linuxcnc loads a new file.
+As an example we will register to get 'file-loaded' messages when LinuxCNC loads a new file.
 First we must import the module and instantiate it:
 In the import section of the handler file add:
 
@@ -381,7 +381,7 @@ self.update_filepath(self, obj, path):
     self.widgets.my_path_label.set_text(path)
 ----
 
-When linuxcnc loads a new file, Gstat will send a callback message to the function 'update_filepath'.
+When LinuxCNC loads a new file, Gstat will send a callback message to the function 'update_filepath'.
 In this example we update a label with that path name (assuming there is a label nammed 'my_path_label') in the GLADE file.
 
 === Jogging Keys
@@ -546,9 +546,9 @@ If you wish to use a stock screen but modify it's handler file, you need to
 copy the stock file to your config file folder.
 Gscreen will see this and use the
 copied file.
-But where is the original file? If using a RIP linuxcnc the
+But where is the original file? If using a RIP LinuxCNC the
 sample skins are in /share/gscreen/skins/'SCREENNAME'
-Installed versions of linuxcnc have them in slightly different places depending
+Installed versions of LinuxCNC have them in slightly different places depending
 on the distribution used.
 An easy way to find the location is to open a terminal
 and start the sim screen you wish to use.

@@ -179,7 +179,7 @@ GUI other than AXIS.
   to name the panel.
 * 'pyvcp < -g> < -c> panel.xml' -
   builds the panel with the optional geometry and/or panelname from the
-  xml panel file. The panel.xml can be any name that ends in .xml. The
+  XML panel file. The panel.xml can be any name that ends in .xml. The
   .xml file is the file that describes how to build the panel. You must
   add the path name if the panel is not in the directory that the HAL
   script is in.
@@ -200,7 +200,7 @@ To load a 'stand alone' PyVCP panel without LinuxCNC use this command:
 loadusr -Wn mypanel pyvcp -g 250x500+800+0 -c mypanel mypanel.xml
 ----
 
-The minimum command to load a pyvcp panel is:
+The minimum command to load a PyVCP panel is:
 
 [source,{hal}]
 ----
@@ -334,12 +334,12 @@ the 'net' command see the <<sec:hal-commands,HAL Commands>> section.
 
 A label is a way to add text to your panel.
 
-* '<label></label>' - creates a label
+* '<label></label>' - creates a label.
 * '<text>"text"</text>' - the text to put in your label, a blank label can be
   used as a spacer to align other objects.
-* '<font>("Helvetica",20)</font>' - specify the font and size of the text
+* '<font>("Helvetica",20)</font>' - specify the font and size of the text.
 * '<relief>FLAT</relief>' - specify the border around the label ('FLAT',
-  'RAISED', 'SUNKEN') default is 'FLAT'
+  'RAISED', 'SUNKEN') default is 'FLAT'.
 * '<bd>n</bd>' - where 'n' is the border width when 'RAISED' or 'SUNKEN' borders
   are used.
 * '<padx>n</padx>' - where 'n' is the amount of extra horizontal extra space.
@@ -408,18 +408,16 @@ will be on_color when the halpin is true, and off_color otherwise.
 
 * '<led></led>' - makes a round LED
 * '<rectled></rectled>' - makes a rectangle LED
-* '<halpin>name</halpin>' - 'name' of the pin, default is 'led.n', where
-  n is an integer that is incremented for each LED.
-* '<size>n</size>' - 'n' is the size of the led in pixels, default is 20
-* '<on_color>color</on_color>' - sets the color of the LED when the pin is true.
-  default is 'green'. See <<pyvcp:colors,colors>> for more info.
-* '<off_color>color</off_color>' - sets the color of the LED when the pin is
+* '<halpin>__name__</halpin>' - _name_ of the pin, default is 'led.__n__', where _n_ is an integer that is incremented for each LED.
+* '<size>__n__</size>' - _n_ is the size of the led in pixels, default is 20.
+* '<on_color>__color__</on_color>' - sets the color of the LED to _color_ when the pin is true.
+  default is 'green'. See section on <<pyvcp:colors,colors>> for more info.
+* '<off_color>__color__</off_color>' - sets the color of the LED to _color_ when the pin is
   false. default is 'red'
-* '<height>n</height>' - sets the height of the LED in pixels
-* '<width>n</width>' - sets the width of the LED in pixels
+* '<height>__n__</height>' - sets the height of the LED in pixels.
+* '<width>__n__</width>' - sets the width of the LED in pixels.
 * '<disable_pin>false</disable_pin>' - when true adds a disable pin to the led.
-* '<disabled_color>color</disabled_color>' - sets the color of the LED when the
-  pin is disabled.
+* '<disabled_color>__color__</disabled_color>' - sets the color of the LED to _color_ when the pin is disabled.
 
 .Round LED
 
@@ -469,11 +467,11 @@ A button is used to control a BIT pin. The pin will be set True when
 the button is pressed and held down, and will be set False when the
 button is released. Buttons can use the following optional options.
 
-* '<padx>n</padx>' - where 'n' is the amount of extra horizontal extra space.
-* '<pady>n</pady>' - where 'n' is the amount of extra vertical extra space.
-* '<activebackground>"color"</activebackground>' - the cursor over color.
-* '<fg> "color"</fg>' - the foreground color.
-* '<bg>"color"</bg>' - the background color.
+* '<padx>__n__</padx>' - where _n_ is the amount of extra horizontal extra space.
+* '<pady>__n__</pady>' - where _n_ is the amount of extra vertical extra space.
+* '<activebackground>"__color__"</activebackground>' - the cursor over color set to _color_.
+* '<fg>"__color__"</fg>' - the foreground color set to _color_.
+* '<bg>"__color__"</bg>' - the background color set to _color_.
 * '<disable_pin>True</disable_pin>' - disable pin.
 
 .Text Button
@@ -643,22 +641,16 @@ them to the same color).
 * <halpin>"my-bar"</halpin> text, sets the pin name, pyvcp.my-bar
 * <min_>0</min_> number, sets the minimum scale
 * <max_>140</max_> number, sets the maximum scale
-* <format>"3.1f"</format> text, sets the number format using python number
-  formatting
+* <format>"3.1f"</format> text, sets the number format using Python number formatting
 * <bgcolor>"grey"</bgcolor> text, sets the background color
 * <fillcolor>"red"</fillcolor> text, sets the fill color
-* <range1>0,100,"green"</range1> number, number, text, sets the first range and
-  color
-* <range2>101,135,"orange"</range2> number, number, text, sets the first range
-  and color
-* <range3>136, 150,"red"</range3> number, number, text, sets the first range and
-  color
+* <range1>0,100,"green"</range1> number, number, text, sets the first range and color
+* <range2>101,135,"orange"</range2> number, number, text, sets the first range and color
+* <range3>136, 150,"red"</range3> number, number, text, sets the first range and color
 * <canvas_width>200</canvas_width> number, sets the overall width
 * <canvas_height>50</canvas_height> number, sets the overall height
-* <bar_height>30</bar_height> number, sets the bar height, must be less than
-  canvas_height
-* <bar_width>150</bar_width> number, sets the bar width, must be less than
-  canvas_width
+* <bar_height>30</bar_height> number, sets the bar height, must be less than canvas_height
+* <bar_width>150</bar_width> number, sets the bar width, must be less than canvas_width
 
 [source,xml]
 ----
@@ -713,8 +705,7 @@ image::images/pyvcp_meter.png[]
 === Number Inputs
 
 .Spinbox
-
-Spinbox controls a FLOAT pin. You increase or decrease the value of the pin by
+A spinbox controls a FLOAT pin. You increase or decrease the value of the pin by
 either pressing on the arrows, or pointing at the spinbox and rolling your
 mouse-wheel. If the param_pin field is set TRUE(1), a pin will be created that
 can be used to set the spinbox to an initial value and to remotely alter its
@@ -740,8 +731,7 @@ The above code produced this example:
 image::images/pyvcp_spinbox.png[]
 
 .Scale
-
-Scale controls a float or a s32 pin. You increase or decrease the
+A scale controls a float or a s32 pin. You increase or decrease the
 value of the pin be either dragging the slider, or pointing at the
 scale and rolling your mouse-wheel. The 'halpin' will have both '-f'
 and '-i' added to it to form the float and s32 pins. Width is the width
@@ -787,7 +777,6 @@ greater than "max", unless "min" is negative.
 ====
 
 .Dial
-
 The Dial outputs a HAL float and reacts to both mouse wheel and
 dragging. Double left click to increase the resolution and double right
 click to reduce the resolution by one digit. The output is capped by
@@ -1070,7 +1059,6 @@ The above code produced this example:
 image::images/pyvcp_labelframe.png[]
 
 .Table
-
 A table is a container that allows layout in a grid of rows and
 columns. Each row is started by a '<tablerow/>' tag. A contained
 widget may span rows or columns through the use of
