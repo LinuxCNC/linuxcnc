@@ -11,9 +11,7 @@ LOC_HL_DIR=../docs/src/source-highlight
 LOC_LANG_MAP=$(LOC_HL_DIR)/local/lang.map
 
 GENERATED_MANPAGES += ../docs/man/man1/linuxcnc.1
-ifeq ($(BUILD_DOCS),yes)
 GENERATED_MANPAGES += $(patsubst ../docs/src/man/%.adoc, ../docs/man/%, $(wildcard ../docs/src/man/*/*.adoc))
-endif
 
 MAN_SRCS = $(sort \
 	$(wildcard $(DOC_DIR)/man/man1/*.1) \
@@ -325,7 +323,6 @@ Makefile: $(patsubst %.adoc, depends/%.d, $(DOC_SRCS))
 endif
 
 docs: manpages
-manpages: $(GENERATED_MANPAGES)
 
 clean: clean-manpages clean-mandb clean-translated
 clean-manpages:
@@ -826,6 +823,18 @@ endif
 %.ps:; $(error Required image file $@ does not exist)
 %.eps:; $(error Required image file $@ does not exist)
 
+else
+:
+	@:
+
+docs:
+	$(error Cannot build documents, missing AsciiDoc or some other required program, or explicitly disabled in configure)
+
+endif
+
+manpages: $(GENERATED_MANPAGES)
+TARGETS += manpages
+
 # make manpages from all the asciidoc manpage-sources
 # Note that in some versions of asciidoc, including the one in Debian Jessie,
 # a2x spuriously warns that this --destination-dir is ignored.  It is *NOT*
@@ -841,12 +850,3 @@ $(DOC_DIR)/man/%: $(DOC_DIR)/src/man/%.adoc
 		-a mansource=LinuxCNC \
 		-a manmanual='LinuxCNC Documentation' \
 		$<
-
-else
-:
-	@:
-
-docs:
-	$(error Cannot build documents, missing AsciiDoc or some other required program, or explicitly disabled in configure)
-
-endif
