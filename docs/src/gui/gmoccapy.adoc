@@ -272,7 +272,7 @@ window.
 gladevcp -c gladevcp -u hitcounter.py -H manual-example.hal manual-example.ui
 ----
 +
-will add a the panel manual-example.ui, include a custom python handler,
+will add a the panel manual-example.ui, include a custom Python handler,
 hitcounter.py and make all connections after realizing the panel according to
 manual-example.hal.
 +
@@ -1709,7 +1709,7 @@ offset and the tool table is showing all lathe relevant information.
 image::images/gmoccapy_plasma.png["Plasma GUI",align="left"]
 
 There is a very good WIKI, which is actually growing, maintained by Marius
-see http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[Plasma wiki page]
+see http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[Plasma wiki page].
 
 == Videos On YouTube
 
@@ -1759,7 +1759,7 @@ image::images/strange_numbers.png["Strange numbers",align="left"]
 
 You have made your config file using an older version of StepConfWizard.
 It has made a wrong entry in the INI file under the [TRAJ] named
-MAX_LINEAR_VELOCITY = xxx. Change that entry to MAX_VELOCITY = xxx
+MAX_LINEAR_VELOCITY = xxx. Change that entry to MAX_VELOCITY = xxx.
 
 [[sub:NOT_ENDING_MACROS]]
 === Not ending macro
