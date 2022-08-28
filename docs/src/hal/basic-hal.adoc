@@ -377,7 +377,7 @@ follow a 'Truth Table' that states what the output is for any given
 input. Typically these are bit manipulators and follow electrical logic
 gate truth tables.
 
-For further components see <<sec:realtime-components,Realtime Components List>>
+For further components see <<sec:hal-components,HAL Components List>>
 or the man pages.
 
 [[sub:hal-and2]]
