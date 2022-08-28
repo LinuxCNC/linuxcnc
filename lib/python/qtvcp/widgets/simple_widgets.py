@@ -657,8 +657,8 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
 
             # circle
             elif self._shape == 1:
-                x = self.width() - self._diameter - self._right_edge_offset
-                y = 0 + self._top_edge_offset
+                x = int(self.width() - self._diameter - self._right_edge_offset)
+                y = int(0 + self._top_edge_offset)
                 gradient = QtGui.QRadialGradient(x + self._diameter / 2, y + self._diameter / 2,
                                    self._diameter * 0.4, self._diameter * 0.4, self._diameter * 0.4)
                 gradient.setColorAt(0, QtCore.Qt.white)
