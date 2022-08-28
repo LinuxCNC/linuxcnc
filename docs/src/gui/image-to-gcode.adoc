@@ -115,18 +115,18 @@ Possible scan patterns are:
 Possible scan directions are:
 
 - Positive: Start milling at a low X or Y axis value, and move towards a
-  high X or Y axis value
+  high X or Y axis value.
 - Negative: Start milling at a high X or Y axis value, and move towards
-  a low X or Y axis value
+  a low X or Y axis value.
 - Alternating: Start on the same end of the X or Y axis travel that the
-  last move ended on. This reduces the amount of traverse movements
-- Up Milling: Start milling at low points, moving towards high points
-- Down Milling: Start milling at high points, moving towards low points
+  last move ended on. This reduces the amount of traverse movements.
+- Up Milling: Start milling at low points, moving towards high points.
+- Down Milling: Start milling at high points, moving towards low points.
 
 === Depth (units)
 
-The top of material is always at 'Z=0'. The deepest cut into the
-material is 'Z=-depth.'
+The top of material is always at 'Z&hairsp;=&hairsp;0'. The deepest cut into the
+material is 'Z&hairsp;=&hairsp;-depth.'
 
 === Step Over (pixels)
 
@@ -134,7 +134,7 @@ The distance between adjacent rows or columns. To find the number of
 pixels for a given units distance, compute 'distance/pixel size' and
 round to the nearest whole number. For example, if 'pixel size=.006'
 and the desired step over 'distance=.015', then use a Step Over of 2 or
-3 pixels, because '.015/.006=2.5''.'
+3 pixels, because '.015/.006=2.5'.
 
 === Tool Diameter
 
@@ -176,7 +176,7 @@ are considered to be weak slopes.
 
 === Roughing offset and depth per pass
 
-Image-to-gcode can optionally perform rouging passes. The depth of
+Image-to-gcode can optionally perform roughing passes. The depth of
 successive roughing passes is given by 'Roughing depth per pass'. For
 instance, entering 0.2 will perform the first roughing pass with a
 depth of 0.2, the second roughing pass with a depth of 0.4, and so on
