@@ -18,9 +18,6 @@ To view the information in the man page, in a terminal window type:
 man axis (or perhaps 'man <n> axis' if your system requires it. n = 1 for userspace and 9 for realtime components)
 ----
 
-[[sec:realtime-components]]
-
-
 [NOTE]
 See also the 'Man Pages' section of the link:../index.html[docs main page] or the
 link:../man/[directory listing].
@@ -109,7 +106,6 @@ instance||
 | link:../man/man1/xhc-whb04b-6.1.html[xhc-whb04b-6] |Userspace jog dial HAL component for the wireless XHC WHB04B-6 USB device&.||
 |=======================
 
-[[sec:Realtime-Components-pilotes]]
 === Mesa and other I/O Cards (Realtime)
 [{tab_options}]
 |=======================
@@ -194,7 +190,6 @@ Smart-serial remote parameters can now be set in the HAL file in the normal way.
 | link:../man/man9/xor2.9.html[xor2] | Two-input XOR (exclusive OR) gate ||
 |=======================
 
-[[sec:Realtime-Components-flottant]]
 ==== Arithmetic and float
 [{tab_options}]
 |=======================
@@ -260,7 +255,6 @@ Limit its slew rate to less than maxv per second. Limit its second derivative to
 | link:../man/man9/gray2bin.9.html[gray2bin] |Convert a gray-code input to binary||
 |=======================
 
-[[sec:Realtime-Components-cinematiques]]
 === Kinematics (Realtime)
 [{tab_options}]
 |=======================
