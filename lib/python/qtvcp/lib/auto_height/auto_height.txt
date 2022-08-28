@@ -1,0 +1,39 @@
+This program probes 2 user specified locations in the Z axis and calculates the difference in heights.
+
+Enable Probe Position Set Buttons
+    - when checked, the SET buttons are enabled
+    - this allows the user to automatically fill in the X, Y and Z parameters with the current position as displayed on the DROs.
+
+Autofill Workpiece Height on Main Screen
+    - when checked, the calculated height is automatically transferred to the Workpice Height field in the main screen.
+    - otherwise, the main screen is not affected
+
+Workpiece Probe At
+    - the X, Y and Z coordinates specify where the first probing routine should start, in current WCS
+
+Machine Probe At
+    - the X, Y and Z coordinates specify where the second probing routine should start, in current WCS
+
+Z Safe Travel Height
+    - the machine is raised to the Z safe travel height before jogging to the X and Y coordinates
+    - the spindle then lowers to the specified Z coordinate
+    - it should be selected so that the tool clears all obstructions while jogging
+
+START button
+    - the machine will jog to the first location and then probe down
+    - the machine then jogs to the second location and probes down again
+    - the difference in probed values is reported as Calculated Workpiece Height
+    - the parameters for search velocity, probe velocity, maximum probe distance and return distance are read from the main GUI Settings page.
+
+ABORT button
+    - causes all jog and probe routines currently executing to stop
+
+HELP button
+    - displays this help file
+
+* NOTE: Any 2 points within the machine operating volume can be specified.
+        If the first point is higher than the second, the calculated height will be a positive number.
+        If the first point is lower than the second, the calculated height will be a negative number.
+        Units are irrelevant in this program. The probed values are not saved and only the difference is reported.
+
+* CAUTION: Setting incorrect values can lead to crashes into fixtures on the machine work surface. Initial testing with no tool and safe heights is recommended.
