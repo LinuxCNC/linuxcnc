@@ -11,12 +11,14 @@ from qtvcp.lib.writer import writer
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.gcodes import GCodes
 from qtvcp.lib.qt_pdf import PDFViewer
+from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp.core import Status, Action, Info, Path, Qhal
 from qtvcp import logger
 from shutil import copyfile
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
+AUX_PRGM = Aux_program_loader()
 STATUS = Status()
 INFO = Info()
 ACTION = Action()
@@ -139,6 +141,7 @@ class HandlerClass:
         self.w.page_buttonGroup.buttonClicked.connect(self.main_tab_changed)
         self.w.filemanager.onUserClicked()    
         self.w.filemanager_usb.onMediaClicked()
+        self.w.widget_zaxis_offset.hide()
 
     # hide widgets for A axis if not present
         if "A" not in INFO.AVAILABLE_AXES:
@@ -202,6 +205,9 @@ class HandlerClass:
         QHAL.newpin("eoffset-count", QHAL.HAL_S32, QHAL.HAL_OUT)
         pin = QHAL.newpin("eoffset-value", QHAL.HAL_FLOAT, QHAL.HAL_IN)
         pin.value_changed.connect(self.eoffset_changed)
+        pin = QHAL.newpin("comp-count", Qhal.HAL_S32, Qhal.HAL_IN)
+        pin.value_changed.connect(self.comp_count_changed)
+        QHAL.newpin("comp-on", Qhal.HAL_BIT, Qhal.HAL_OUT)
 
     def init_preferences(self):
         if not self.w.PREFS_:
@@ -478,6 +484,10 @@ class HandlerClass:
         eoffset = "{:2.3f}".format(self.h['eoffset-value'])
         self.w.lbl_eoffset_value.setText(eoffset)
 
+    def comp_count_changed(self):
+        if self.w.btn_enable_comp.isChecked():
+            self.h['eoffset-count'] = self.h['comp-count']
+
     def dialog_return(self, w, message):
         rtn = message.get('RETURN')
         name = message.get('NAME')
@@ -645,6 +655,12 @@ class HandlerClass:
             fval = float(self.w.lineEdit_eoffset_count.text())
             self.h['eoffset-count'] = int(fval)
             self.h['spindle-inhibit'] = True
+            self.w.btn_enable_comp.setChecked(False)
+            self.w.widget_zaxis_offset.hide()
+            if not QHAL.hal.component_exists("compensation"):
+                self.add_status("Z level compensation HAL component not loaded", CRITICAL)
+                return
+            self.h['comp-on'] = False
         else:
             self.h['eoffset-count'] = 0
             self.h['eoffset-clear'] = True
@@ -654,7 +670,34 @@ class HandlerClass:
                 info = "Wait for spindle at speed signal before resuming"
                 mess = {'NAME':'MESSAGE', 'ICON':'WARNING', 'ID':'_wait_resume_', 'MESSAGE':'CAUTION', 'MORE':info, 'TYPE':'OK'}
                 ACTION.CALL_DIALOG(mess)
-        
+
+    def btn_enable_comp_clicked(self, state):
+        if state:
+            self.w.btn_pause_spindle.setChecked(False)
+            fname = os.path.join(PATH.CONFIGPATH, "probe_points.txt")
+            if not os.path.isfile(fname):
+                self.add_status(fname + " not found", CRITICAL)
+                self.w.btn_enable_comp.setChecked(False)
+                return
+            if not QHAL.hal.component_exists("compensation"):
+                self.add_status("Z level compensation HAL component not loaded", CRITICAL)
+                self.w.btn_enable_comp.setChecked(False)
+                return
+            self.h['comp-on'] = True
+            self.h['eoffset-scale'] = 0.001
+            self.h['eoffset-count'] = self.h['comp-count']
+            self.add_status("Z level compensation ON")
+            self.w.widget_zaxis_offset.show()
+        else:
+            self.w.widget_zaxis_offset.hide()
+            if not QHAL.hal.component_exists("compensation"):
+                self.add_status("Z level compensation HAL component not loaded", CRITICAL)
+                return
+            self.h['comp-on'] = False
+            self.h['eoffset-count'] = 0
+            self.add_status("Z level compensation OFF", WARNING)
+
+
     # offsets frame
     def btn_goto_location_clicked(self):
         dest = self.w.sender().property('location')
@@ -895,6 +938,9 @@ class HandlerClass:
             self.w.stackedWidget.setCurrentIndex(PAGE_NGCGUI)
         else:
             self.w.stackedWidget.setCurrentIndex(PAGE_GCODE)
+
+    def btn_gripper_clicked(self):
+        AUX_PRGM.load_gcode_ripper()
 
     #####################
     # GENERAL FUNCTIONS #

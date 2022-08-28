@@ -977,7 +977,7 @@
                  <enum>QFrame::Raised</enum>
                 </property>
                 <property name="currentIndex">
-                 <number>8</number>
+                 <number>0</number>
                 </property>
                 <widget class="QWidget" name="main_tab_widgetPage1">
                  <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -2821,7 +2821,7 @@ FILE</string>
                           <string/>
                          </property>
                          <property name="icon">
-                          <iconset resource="../qtdragon/qtdragon.qrc">
+                          <iconset resource="qtdragon_hd.qrc">
                            <normaloff>:/buttons/images/Right_arrow.png</normaloff>:/buttons/images/Right_arrow.png</iconset>
                          </property>
                          <property name="iconSize">
@@ -2859,7 +2859,7 @@ FILE</string>
                           <string/>
                          </property>
                          <property name="icon">
-                          <iconset resource="../qtdragon/qtdragon.qrc">
+                          <iconset resource="qtdragon_hd.qrc">
                            <normaloff>:/buttons/images/Left_arrow.png</normaloff>:/buttons/images/Left_arrow.png</iconset>
                          </property>
                          <property name="iconSize">
@@ -2882,6 +2882,72 @@ FILE</string>
                           </size>
                          </property>
                         </spacer>
+                       </item>
+                       <item>
+                        <widget class="IndicatedPushButton" name="btn_gcode_edit_2">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>80</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>80</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="toolTip">
+                          <string>Progran to do auto probe leveling</string>
+                         </property>
+                         <property name="text">
+                          <string>LOAD
+GCODE
+RIPPER</string>
+                         </property>
+                         <property name="checkable">
+                          <bool>false</bool>
+                         </property>
+                         <property name="indicator_option" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="indicator_status_option" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="python_command_option" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="true_python_cmd_string" stdset="0">
+                          <string/>
+                         </property>
+                         <property name="false_python_cmd_string" stdset="0">
+                          <string/>
+                         </property>
+                         <property name="is_on_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_homed_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="isStateOn" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="isAllHomedSensitive" stdset="0">
+                          <bool>true</bool>
+                         </property>
+                         <property name="isOnSensitive" stdset="0">
+                          <bool>true</bool>
+                         </property>
+                         <property name="isIdleSensitive" stdset="0">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
                        </item>
                        <item>
                         <widget class="IndicatedPushButton" name="btn_gcode_edit">
@@ -6732,10 +6798,10 @@ TO FILE</string>
                  <bool>true</bool>
                 </property>
                 <property name="image_path" stdset="0">
-                 <pixmap>:/buttons/images/Estop.png</pixmap>
+                 <pixmap resource="qtdragon_hd.qrc">:/buttons/images/Estop.png</pixmap>
                 </property>
                 <property name="false_image_path" stdset="0">
-                 <pixmap>:/buttons/images/Estop_reset.png</pixmap>
+                 <pixmap resource="qtdragon_hd.qrc">:/buttons/images/Estop_reset.png</pixmap>
                 </property>
                </widget>
               </item>
@@ -7751,7 +7817,7 @@ OFF</string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_29">
             <property name="spacing">
-             <number>4</number>
+             <number>2</number>
             </property>
             <property name="leftMargin">
              <number>4</number>
@@ -7864,6 +7930,18 @@ LINE 0</string>
                   <bool>true</bool>
                  </property>
                  <property name="is_idle_status" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="isAllHomedSensitive" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="isIdleSensitive" stdset="0">
+                  <bool>true</bool>
+                 </property>
+                 <property name="isManSensitive" stdset="0">
+                  <bool>false</bool>
+                 </property>
+                 <property name="isAutoSensitive" stdset="0">
                   <bool>true</bool>
                  </property>
                 </widget>
@@ -8016,7 +8094,7 @@ LINE 0</string>
                 <number>0</number>
                </property>
                <item>
-                <widget class="QPushButton" name="btn_reload_file">
+                <widget class="IndicatedPushButton" name="btn_reload_file">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -8039,10 +8117,57 @@ LINE 0</string>
                   <enum>Qt::NoFocus</enum>
                  </property>
                  <property name="toolTip">
-                  <string>Reload last loaded program</string>
+                  <string>Load Last Recorded File</string>
                  </property>
                  <property name="text">
-                  <string>RELOAD</string>
+                  <string>RELOAD
+FILE</string>
+                 </property>
+                 <property name="checkable">
+                  <bool>false</bool>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                 <property name="pin_name" stdset="0">
+                  <string/>
+                 </property>
+                 <property name="indicator_option" stdset="0">
+                  <bool>false</bool>
+                 </property>
+                 <property name="indicator_HAL_pin_option" stdset="0">
+                  <bool>false</bool>
+                 </property>
+                 <property name="checked_state_text_option" stdset="0">
+                  <bool>false</bool>
+                 </property>
+                 <property name="on_color" stdset="0">
+                  <color>
+                   <red>255</red>
+                   <green>0</green>
+                   <blue>0</blue>
+                  </color>
+                 </property>
+                 <property name="shape_option" stdset="0">
+                  <number>1</number>
+                 </property>
+                 <property name="indicator_size" stdset="0">
+                  <double>0.200000000000000</double>
+                 </property>
+                 <property name="right_edge_offset" stdset="0">
+                  <number>6</number>
+                 </property>
+                 <property name="top_edge_offset" stdset="0">
+                  <number>6</number>
+                 </property>
+                 <property name="true_state_string" stdset="0">
+                  <string/>
+                 </property>
+                 <property name="false_state_string" stdset="0">
+                  <string/>
+                 </property>
+                 <property name="isManSensitive" stdset="0">
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
@@ -8511,7 +8636,7 @@ SPINDLE</string>
                   <string/>
                  </property>
                  <property name="indicator_option" stdset="0">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="indicator_HAL_pin_option" stdset="0">
                   <bool>false</bool>
@@ -8584,8 +8709,8 @@ SPINDLE</string>
                   <property name="bottomMargin">
                    <number>0</number>
                   </property>
-                  <item alignment="Qt::AlignHCenter">
-                   <widget class="QLabel" name="label_43">
+                  <item>
+                   <widget class="IndicatedPushButton" name="btn_enable_comp">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -8594,41 +8719,13 @@ SPINDLE</string>
                     </property>
                     <property name="minimumSize">
                      <size>
-                      <width>0</width>
-                      <height>20</height>
+                      <width>90</width>
+                      <height>50</height>
                      </size>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>80</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                    <property name="text">
-                     <string>EOFFSET</string>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignCenter</set>
-                    </property>
-                   </widget>
-                  </item>
-                  <item alignment="Qt::AlignHCenter">
-                   <widget class="QLineEdit" name="lbl_eoffset_value">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="minimumSize">
-                     <size>
-                      <width>0</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                    <property name="maximumSize">
-                     <size>
-                      <width>80</width>
+                      <width>100</width>
                       <height>16777215</height>
                      </size>
                     </property>
@@ -8636,19 +8733,56 @@ SPINDLE</string>
                      <enum>Qt::NoFocus</enum>
                     </property>
                     <property name="toolTip">
-                     <string>External offset value</string>
+                     <string>Use Z Axis Compensation file</string>
                     </property>
                     <property name="text">
-                     <string>000</string>
+                     <string>ENABLE
+Z COMP</string>
                     </property>
-                    <property name="maxLength">
-                     <number>10</number>
-                    </property>
-                    <property name="alignment">
-                     <set>Qt::AlignCenter</set>
-                    </property>
-                    <property name="readOnly">
+                    <property name="checkable">
                      <bool>true</bool>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                    <property name="pin_name" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="indicator_option" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="indicator_HAL_pin_option" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                    <property name="checked_state_text_option" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="on_color" stdset="0">
+                     <color>
+                      <red>0</red>
+                      <green>255</green>
+                      <blue>0</blue>
+                     </color>
+                    </property>
+                    <property name="shape_option" stdset="0">
+                     <number>1</number>
+                    </property>
+                    <property name="indicator_size" stdset="0">
+                     <double>0.200000000000000</double>
+                    </property>
+                    <property name="right_edge_offset" stdset="0">
+                     <number>6</number>
+                    </property>
+                    <property name="top_edge_offset" stdset="0">
+                     <number>6</number>
+                    </property>
+                    <property name="true_state_string" stdset="0">
+                     <string>Z COMP
+ENABLED</string>
+                    </property>
+                    <property name="false_state_string" stdset="0">
+                     <string>ENABLE
+Z COMP</string>
                     </property>
                    </widget>
                   </item>
@@ -8659,43 +8793,184 @@ SPINDLE</string>
              </widget>
             </item>
             <item>
-             <widget class="QProgressBar" name="progressBar">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>30</height>
-               </size>
-              </property>
+             <widget class="QWidget" name="widget_zaxis_offset_2" native="true">
               <property name="maximumSize">
                <size>
                 <width>16777215</width>
-                <height>30</height>
+                <height>25</height>
                </size>
               </property>
-              <property name="autoFillBackground">
-               <bool>false</bool>
+              <layout class="QHBoxLayout" name="horizontalLayout_66">
+               <property name="spacing">
+                <number>4</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>6</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="label_46">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>EOFFSET</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="lbl_eoffset_value">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>80</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::NoFocus</enum>
+                 </property>
+                 <property name="toolTip">
+                  <string>External offset value</string>
+                 </property>
+                 <property name="text">
+                  <string>000</string>
+                 </property>
+                 <property name="maxLength">
+                  <number>10</number>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QWidget" name="widget_zaxis_offset" native="true">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>25</height>
+               </size>
               </property>
-              <property name="maximum">
-               <number>99</number>
-              </property>
-              <property name="value">
-               <number>0</number>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-              <property name="invertedAppearance">
-               <bool>false</bool>
-              </property>
-              <property name="format">
-               <string>PROGRESS %p%</string>
-              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_33">
+               <property name="spacing">
+                <number>4</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>6</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="label_25">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Z AXIS COMP</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="lineEdit_eoffset">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>80</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>80</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="maxLength">
+                  <number>10</number>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </widget>
             </item>
            </layout>
@@ -8774,7 +9049,7 @@ SPINDLE</string>
                <string/>
               </property>
               <property name="pixmap">
-               <pixmap resource="../qtdragon/qtdragon.qrc">:/images/images/atc_spindle_tool.png</pixmap>
+               <pixmap resource="qtdragon_hd.qrc">:/images/images/atc_spindle_tool.png</pixmap>
               </property>
               <property name="alignment">
                <set>Qt::AlignBottom|Qt::AlignHCenter</set>
@@ -9050,6 +9325,56 @@ SPINDLE</string>
               </item>
              </layout>
             </item>
+            <item>
+             <widget class="QProgressBar" name="progressBar">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>90</width>
+                <height>24</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>241</width>
+                <height>24</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <family>Lato</family>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="autoFillBackground">
+               <bool>false</bool>
+              </property>
+              <property name="inputMethodHints">
+               <set>Qt::ImhNone</set>
+              </property>
+              <property name="maximum">
+               <number>99</number>
+              </property>
+              <property name="value">
+               <number>0</number>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+              <property name="textVisible">
+               <bool>true</bool>
+              </property>
+              <property name="invertedAppearance">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
            </layout>
           </widget>
          </item>
@@ -9102,7 +9427,7 @@ SPINDLE</string>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_28">
                <property name="spacing">
-                <number>4</number>
+                <number>2</number>
                </property>
                <property name="leftMargin">
                 <number>4</number>
@@ -9114,7 +9439,7 @@ SPINDLE</string>
                 <number>4</number>
                </property>
                <property name="bottomMargin">
-                <number>4</number>
+                <number>0</number>
                </property>
                <item>
                 <widget class="QLabel" name="spacer_3">
@@ -9160,7 +9485,7 @@ SPINDLE</string>
                    <property name="minimumSize">
                     <size>
                      <width>120</width>
-                     <height>30</height>
+                     <height>35</height>
                     </size>
                    </property>
                    <property name="toolTip">
@@ -12965,7 +13290,7 @@ ZERO</string>
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="../qtdragon/qtdragon.qrc">
+                    <iconset resource="qtdragon_hd.qrc">
                      <normaloff>:/buttons/images/a_plus_jog_button.png</normaloff>:/buttons/images/a_plus_jog_button.png</iconset>
                    </property>
                    <property name="iconSize">
@@ -13009,7 +13334,7 @@ ZERO</string>
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="../qtdragon/qtdragon.qrc">
+                    <iconset resource="qtdragon_hd.qrc">
                      <normaloff>:/buttons/images/y_minus_jog_button.png</normaloff>:/buttons/images/y_minus_jog_button.png</iconset>
                    </property>
                    <property name="iconSize">
@@ -13089,7 +13414,7 @@ ZERO</string>
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="../qtdragon/qtdragon.qrc">
+                    <iconset resource="qtdragon_hd.qrc">
                      <normaloff>:/buttons/images/y_plus_jog_button.png</normaloff>:/buttons/images/y_plus_jog_button.png</iconset>
                    </property>
                    <property name="iconSize">
@@ -13169,7 +13494,7 @@ ZERO</string>
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="../qtdragon/qtdragon.qrc">
+                    <iconset resource="qtdragon_hd.qrc">
                      <normaloff>:/buttons/images/x_minus_jog_button.png</normaloff>:/buttons/images/x_minus_jog_button.png</iconset>
                    </property>
                    <property name="iconSize">
@@ -13249,7 +13574,7 @@ ZERO</string>
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="../qtdragon/qtdragon.qrc">
+                    <iconset resource="qtdragon_hd.qrc">
                      <normaloff>:/buttons/images/z_plus_jog_button.png</normaloff>:/buttons/images/z_plus_jog_button.png</iconset>
                    </property>
                    <property name="iconSize">
@@ -13293,7 +13618,7 @@ ZERO</string>
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="../qtdragon/qtdragon.qrc">
+                    <iconset resource="qtdragon_hd.qrc">
                      <normaloff>:/buttons/images/z_minus_jog_button.png</normaloff>:/buttons/images/z_minus_jog_button.png</iconset>
                    </property>
                    <property name="iconSize">
@@ -13337,7 +13662,7 @@ ZERO</string>
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="../qtdragon/qtdragon.qrc">
+                    <iconset resource="qtdragon_hd.qrc">
                      <normaloff>:/buttons/images/x_plus_jog_button.png</normaloff>:/buttons/images/x_plus_jog_button.png</iconset>
                    </property>
                    <property name="iconSize">
@@ -13417,7 +13742,7 @@ ZERO</string>
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset resource="../qtdragon/qtdragon.qrc">
+                    <iconset resource="qtdragon_hd.qrc">
                      <normaloff>:/buttons/images/a_minus_jog_button.png</normaloff>:/buttons/images/a_minus_jog_button.png</iconset>
                    </property>
                    <property name="iconSize">
@@ -14171,7 +14496,7 @@ ANGULAR</string>
                         <string>Turn on counter clockwise</string>
                        </property>
                        <property name="icon">
-                        <iconset>
+                        <iconset resource="qtdragon_hd.qrc">
                          <normaloff>:/buttons/images/spindle_rev.png</normaloff>:/buttons/images/spindle_rev.png</iconset>
                        </property>
                        <property name="pin_name" stdset="0">
@@ -14231,7 +14556,7 @@ ANGULAR</string>
                         </size>
                        </property>
                        <property name="icon">
-                        <iconset>
+                        <iconset resource="qtdragon_hd.qrc">
                          <normaloff>:/buttons/images/spindle_stop.png</normaloff>:/buttons/images/spindle_stop.png</iconset>
                        </property>
                        <property name="indicator_option" stdset="0">
@@ -14291,7 +14616,7 @@ ANGULAR</string>
                         <string>Turn on clockwise</string>
                        </property>
                        <property name="icon">
-                        <iconset>
+                        <iconset resource="qtdragon_hd.qrc">
                          <normaloff>:/buttons/images/spindle_fwd.png</normaloff>:/buttons/images/spindle_fwd.png</iconset>
                        </property>
                        <property name="pin_name" stdset="0">
@@ -14630,7 +14955,7 @@ ANGULAR</string>
                <number>2</number>
               </property>
               <property name="text">
-               <string>01:11:47 PM</string>
+               <string>03:46:01 PM</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -14848,6 +15173,7 @@ ANGULAR</string>
  </customwidgets>
  <resources>
   <include location="qtdragon_hd.qrc"/>
+  <include location="../qtdragon/qtdragon.qrc"/>
  </resources>
  <connections>
   <connection>
@@ -14857,8 +15183,8 @@ ANGULAR</string>
    <slot>btn_load_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>990</x>
-     <y>107</y>
+     <x>594</x>
+     <y>106</y>
     </hint>
     <hint type="destinationlabel">
      <x>1059</x>
@@ -14873,8 +15199,8 @@ ANGULAR</string>
    <slot>btn_gcode_edit_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>991</x>
-     <y>548</y>
+     <x>594</x>
+     <y>106</y>
     </hint>
     <hint type="destinationlabel">
      <x>1088</x>
@@ -14889,8 +15215,8 @@ ANGULAR</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>991</x>
-     <y>318</y>
+     <x>594</x>
+     <y>116</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -14905,8 +15231,8 @@ ANGULAR</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>991</x>
-     <y>384</y>
+     <x>594</x>
+     <y>116</y>
     </hint>
     <hint type="destinationlabel">
      <x>471</x>
@@ -14921,8 +15247,8 @@ ANGULAR</string>
    <slot>btn_clear_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>650</x>
-     <y>116</y>
+     <x>594</x>
+     <y>106</y>
     </hint>
     <hint type="destinationlabel">
      <x>1039</x>
@@ -14937,8 +15263,8 @@ ANGULAR</string>
    <slot>btn_save_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>650</x>
-     <y>126</y>
+     <x>594</x>
+     <y>106</y>
     </hint>
     <hint type="destinationlabel">
      <x>1098</x>
@@ -14953,8 +15279,8 @@ ANGULAR</string>
    <slot>chk_override_limits_checked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>764</x>
-     <y>88</y>
+     <x>614</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -14985,8 +15311,8 @@ ANGULAR</string>
    <slot>chk_use_virtual_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>764</x>
-     <y>83</y>
+     <x>614</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>565</x>
@@ -15001,8 +15327,8 @@ ANGULAR</string>
    <slot>chk_alpha_mode_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>764</x>
-     <y>74</y>
+     <x>614</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>708</x>
@@ -15017,8 +15343,8 @@ ANGULAR</string>
    <slot>btn_m61_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>650</x>
-     <y>125</y>
+     <x>594</x>
+     <y>106</y>
     </hint>
     <hint type="destinationlabel">
      <x>1770</x>
@@ -15033,8 +15359,8 @@ ANGULAR</string>
    <slot>disable_spindle_pause()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>764</x>
-     <y>76</y>
+     <x>614</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>678</x>
@@ -15049,8 +15375,8 @@ ANGULAR</string>
    <slot>chk_use_sensor_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>764</x>
-     <y>84</y>
+     <x>614</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>563</x>
@@ -15065,8 +15391,8 @@ ANGULAR</string>
    <slot>chk_use_camera_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>764</x>
-     <y>87</y>
+     <x>614</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>623</x>
@@ -15081,8 +15407,8 @@ ANGULAR</string>
    <slot>cam_zoom_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>605</x>
-     <y>187</y>
+     <x>544</x>
+     <y>176</y>
     </hint>
     <hint type="destinationlabel">
      <x>1784</x>
@@ -15097,8 +15423,8 @@ ANGULAR</string>
    <slot>cam_dia_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>605</x>
-     <y>194</y>
+     <x>544</x>
+     <y>176</y>
     </hint>
     <hint type="destinationlabel">
      <x>1703</x>
@@ -15113,8 +15439,8 @@ ANGULAR</string>
    <slot>cam_rot_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>605</x>
-     <y>202</y>
+     <x>544</x>
+     <y>176</y>
     </hint>
     <hint type="destinationlabel">
      <x>1737</x>
@@ -15145,8 +15471,8 @@ ANGULAR</string>
    <slot>percent_loaded_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1243</x>
-     <y>86</y>
+     <x>1698</x>
+     <y>143</y>
     </hint>
     <hint type="destinationlabel">
      <x>1524</x>
@@ -15161,8 +15487,8 @@ ANGULAR</string>
    <slot>chk_run_from_line_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>764</x>
-     <y>81</y>
+     <x>614</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>-17</x>
@@ -15283,30 +15609,14 @@ ANGULAR</string>
    </hints>
   </connection>
   <connection>
-   <sender>btn_reload_file</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_reload_file_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>98</x>
-     <y>811</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-52</x>
-     <y>820</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>chk_use_touchplate</sender>
    <signal>stateChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>chk_use_touchplate_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>764</x>
-     <y>85</y>
+     <x>614</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>635</x>
@@ -15321,8 +15631,8 @@ ANGULAR</string>
    <slot>slow_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1670</x>
-     <y>928</y>
+     <x>1726</x>
+     <y>978</y>
     </hint>
     <hint type="destinationlabel">
      <x>1674</x>
@@ -15369,8 +15679,8 @@ ANGULAR</string>
    <slot>btn_goto_location_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>452</x>
-     <y>866</y>
+     <x>507</x>
+     <y>919</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -15385,8 +15695,8 @@ ANGULAR</string>
    <slot>btn_goto_location_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>588</x>
-     <y>717</y>
+     <x>605</x>
+     <y>765</y>
     </hint>
     <hint type="destinationlabel">
      <x>576</x>
@@ -15401,8 +15711,8 @@ ANGULAR</string>
    <slot>btn_touchoff_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>468</x>
-     <y>813</y>
+     <x>507</x>
+     <y>867</y>
     </hint>
     <hint type="destinationlabel">
      <x>959</x>
@@ -15417,8 +15727,8 @@ ANGULAR</string>
    <slot>btn_touchoff_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>566</x>
-     <y>813</y>
+     <x>605</x>
+     <y>867</y>
     </hint>
     <hint type="destinationlabel">
      <x>959</x>
@@ -15433,8 +15743,8 @@ ANGULAR</string>
    <slot>btn_ref_laser_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>566</x>
-     <y>767</y>
+     <x>605</x>
+     <y>815</y>
     </hint>
     <hint type="destinationlabel">
      <x>959</x>
@@ -15449,8 +15759,8 @@ ANGULAR</string>
    <slot>btn_ref_camera_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>566</x>
-     <y>860</y>
+     <x>605</x>
+     <y>919</y>
     </hint>
     <hint type="destinationlabel">
      <x>959</x>
@@ -15529,8 +15839,8 @@ ANGULAR</string>
    <slot>chk_inhibit_selection_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>764</x>
-     <y>75</y>
+     <x>614</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>959</x>
@@ -15545,12 +15855,76 @@ ANGULAR</string>
    <slot>tab_utilities_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1652</x>
-     <y>258</y>
+     <x>610</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>1924</x>
      <y>179</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_gcode_edit</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_gripper_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>594</x>
+     <y>106</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1463</x>
+     <y>-6</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_gcode_edit_2</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_gripper_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>594</x>
+     <y>106</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1420</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_reload_file</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_reload_file_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>27</x>
+     <y>806</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-4</x>
+     <y>781</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_enable_comp</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_enable_comp_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>145</x>
+     <y>968</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>856</y>
     </hint>
    </hints>
   </connection>
@@ -15627,9 +16001,11 @@ ANGULAR</string>
   <slot>chk_use_touchplate_changed()</slot>
   <slot>chk_inhibit_selection_changed()</slot>
   <slot>tab_utilities_changed()</slot>
+  <slot>btn_gripper_clicked()</slot>
+  <slot>btn_enable_comp_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>
