@@ -6,7 +6,18 @@ classicladder \- realtime software plc based on ladder logic
 .SH SYNOPSIS
 \fBloadrt classicladder_rt  [numRungs=\fIN\fB] [numBits=\fIN\fB] [numWords=\fIN\fB] [numTimers=\fIN\fB] [numMonostables=\fIN\fB] [numCounters=\fIN\fB] [numPhysInputs=\fIN\fB] [numPhysOutputs=\fIN\fB] [numArithmExpr=\fIN\fB] [numSections=\fIN\fB] [numSymbols=\fIN\fB] [numS32in=\fIN\fB] [numS32out=\fIN\fB] [numFloatIn=\fIN\fB] [numFloatOut=\fIN\fB]
 
+\fBloadusr classicladder <file name> [--nogui]
+
 .SH DESCRIPTION
+This component consist of a realtime part and a non-realtime part
+(often called 'userspace' in the LinuxCNC documentation).  The
+non-realtime part loads the programmable ladder description, while the
+realtime part provides the pins.  The file name of the configuration
+can be changed using an argument to the non-realtime part.  By default
+the non-realtime part provides a graphical visualisation of the loaded
+ladder, which can be disabled using the '--nogui' option to the
+non-realtime part.
+.P
 These pins and parameters are created by the realtime \fBclassicladder_rt\fR module. Each period (minimum 1000000 ns), classicladder reads the inputs, evaluates the ladder logic defined in the GUI, and then writes the outputs.
 
 .SH PINS
