@@ -712,7 +712,7 @@ motion.servo.last-period_ns (kernel-dependent availability)
 
 == Interface changes for joints_axes 2.8.x
 
-=== python linuxcnc module
+=== Python LinuxCNC module
 
 The jog() interface includes a 'joint-flag' to specify joint (True)
 or teleop (False) jogging:
@@ -898,7 +898,7 @@ The AXIS GUI supports configurations using non-identity kinematics with:
 . Key binding ('$') to toggle joint or teleop mode
 . Preview Tab display of joints or axes according to joint or teleop mode
 . Preview Tab display of 'Home' and 'Limit' icons in joint mode
-. Preview Tab display of 'All-homed' and 'Any-limit icons in teleop mode
+. Preview Tab display of 'All-homed' and 'Any-limit' icons in teleop mode
 . DRO Tab display of joint or axes according to joint or teleop mode
 . Jogging is supported in both joint and teleop motion modes.
 . External changes to the joint/teleop motion mode are detected.
@@ -1284,12 +1284,12 @@ The master branch is version-tagged with prerelease notation, typically
 
 === Python3 and GTK3
 
-2.9 changed to Python3 and GTK3. This only affects you if you have custom glade or python handlers in your config.
+2.9 changed to Python3 and GTK3. This only affects you if you have custom glade or Python handlers in your config.
 
 . Run py3clean in your config directory to remove any temporary files.
 . Run py3clean in your LinuxCNC source directory if you compile from source.
 . Run 2to3 -w on any .py files you have written.
-. Make sure the interpreter in the first line of the script is python3, not python2.
+. Make sure the interpreter in the first line of the script is Python 3, not Python 2.
 . Open the ui file in glade, and save it. It should convert everything that can be converted automatically, and give you warnings.
 
 === LinuxCNC Startup
@@ -1325,7 +1325,7 @@ been clarified but legacy variable names persist for *selected_pocket*
 and *current_pocket*.  Variables with these names refer to the
 sequential index for internal tooldata not an actual pocket number.
 These variable names may be renamed in the future and require changes
-to user-fielded python remap applications that modify tool handling.
+to user-fielded Python remap applications that modify tool handling.
 
 A new optional interface is provided to support management of
 tool data by an external database application.
@@ -1337,7 +1337,7 @@ the next release.
 ==== Reverse Run
 
 Support added for reverse run in the trajectory planner, the task, and
-motion modules, the python interface, the AXIS GUI, and the test suite.
+motion modules, the Python interface, the AXIS GUI, and the test suite.
 
 ==== Number of Joints
 

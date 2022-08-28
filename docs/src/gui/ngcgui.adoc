@@ -25,7 +25,7 @@ image::images/ngcgui.png[align="center"]
 * 'PYNGCGUI' can run as a standalone application or can be embedded as
   a tab page (with its own set of multiple subroutine tabs) in any
   GUI that supports embedding of GladeVCP applications AXIS, Touchy, gscreen
-  and gmoccapy.
+  and GMOCCAPY.
 
 Using NGCGUI or PYNGCGUI:
 
@@ -398,8 +398,8 @@ The G-code-meta-compiler (gcmc) can include statements like:
 include("filename.inc.gcmc");
 ----
 
-By default, gcmc includes the current directory which, for LinuxCNC,  will be
-the directory containing the LinuxCNC INI file.  Additional directories can be
+By default, gcmc includes the current directory which, for LinuxCNC, will be
+the directory containing the LinuxCNC INI file. Additional directories can be
 prepended to the gcmc search order with the GCMC_INCLUDE_PATH item.
 
 .Sample AXIS-GUI-based INI
@@ -519,7 +519,7 @@ specifies a path starting in username's home directory.
 
 Relative paths are based on the startup directory which is the directory
 containing the INI file.  Using relative paths can facilitate relocation of
-configurations but requires a good understanding of linux path specifiers.
+configurations but requires a good understanding of Linux path specifiers.
 
 * `./d0`        is the same as d0, e.g., a directory named d0 in the startup directory
 * `../d1`       refers to a directory d1 in the parent directory
@@ -533,7 +533,7 @@ for multiple directories and shows the use of relative and absolute paths.
 .Multiple Directories Example:
 [source,{ini}]
 ----
-[RS274NGC]SUBROUTINE_PATH = ../../nc_files/ngcgui_lib:../../nc_files/ngcgui_lib/utilitysubs:/tmp/tmpngc`
+[RS274NGC]SUBROUTINE_PATH = ../../nc_files/ngcgui_lib:../../nc_files/ngcgui_lib/utilitysubs:/tmp/tmpngc
 ----
 
 This is one long line, do not continue on multiple lines.  When LinuxCNC and/or
@@ -576,7 +576,7 @@ ngcgui will reject them automatically with a relevant message.
 
 [RS274NGC]USER_M_PATH = dirname1:dirname2:dirname3 ...::
   _Example_: `[RS274NGC]USER_M_PATH = ../../nc_files/ngcgui_lib/mfiles` +
-  _Note_:    Optional, needed to locate custom user mfiles.
+  _Note_:    Optional, needed to locate custom user M-files.
 
 [DISPLAY]EMBED_TAB_NAME = name to display on embedded tab page::
   _Example_: `[DISPLAY]EMBED_TAB_NAME = Pyngcgui` +
@@ -642,7 +642,7 @@ ngcgui will reject them automatically with a relevant message.
                4) an image frame (iframe) is made available to display
                   an image for the subfile (if an image is provided); +
                5) the ngcgui result file sent to LinuxCNC is terminated with
-                  an m2 (and incurs m2 side-effects). +
+                  an M2 (and incurs M2 side-effects). +
 +
 The options `nonew`, `noremove`, `noauto`, `noiframe`, `nom2` respectively
 disable these default behaviors.
@@ -660,14 +660,10 @@ are always available with special keys: +
   `Ctrl-k` lists all keys and functions. +
 +
 If `noiframe` is specified and an image file is found,
-the image is displayed in a separate window and
-all functions are available on the tab page.
+the image is displayed in a separate window and all functions are available on the tab page.
 +
-The `NGCGUI_OPTIONS` apply to all ngcgui tabs except that the
-`nonew`, `noremove`, and `noiframe` options are not applicable
-for "Custom" tabs.  Do not use "Custom" tabs if you want
-to limit the user's ability to select subfiles or create
-additional tab pages.
+The `NGCGUI_OPTIONS` apply to all ngcgui tabs except that the `nonew`, `noremove`, and `noiframe` options are not applicable for "Custom" tabs.
+Do not use "Custom" tabs if you want to limit the user's ability to select subfiles or create additional tab pages.
 
 [DISPLAY]GCMC_INCLUDE_PATH = dirname1:dirname2:...::
   _Example_: `[DISPLAY]GCMC_INCLUDE_PATH = /home/myname/gcmc_includes:/home/myname/gcmc_includes2` +

@@ -378,9 +378,9 @@ ActionButton #action_aux{
 }
 ----
 
-==== Call python commands on state
+==== Call Python commands on state
 
-The python_command_option allow small snippets of python code to be run
+The python_command_option allow small snippets of Python code to be run
 from the push of a button, with out having to edit the handler file.
 (though it can call functions in the handler file)
 When using the command_string properties.
@@ -396,10 +396,10 @@ The capitalized word 'ACTION' will give access to qtvcp's ACTION library.
 eg. 'ACTION.TOGGLE_FLOOD()'. +
 The capitalized word 'PROGRAM_LOADER' will give access to qtvcp's
 PROGRAM_LOADER library. eg. 'PROGRAM_LOADER.load_halshow()'. +
-The capitalized word 'HAL' will give access to HAL's python module.
-eg. 'HAL.set_p('motion.probe-input','1')'.
+The capitalized word 'HAL' will give access to HAL's python module,
+e.g., 'HAL.set_p('motion.probe-input','1')'.
 
-It is based on PyQt's QpushButton.
+It is based on PyQt's QPushButton.
 
 === Focus Overlay Widget
 
@@ -473,7 +473,7 @@ display the largest number.
 * 'float_pin_type':
   Selects the input pin as type FLOAT.
 * 'floatTemplate':
-  A string that will be used as a python3 format template to tailor the
+  A string that will be used as a Python 3 format template to tailor the
   LCD display.
   Only used when a FLOAT pin is selected.
   eg '{:.2f}' will display a float rounded to 2 numbers after the decimal.
@@ -759,16 +759,16 @@ Indicated_PushButton #auxiliary {
 }
 ----
 
-==== Call python commands on state
+==== Call Python commands on state
 
-The python_command_option allow small snippets of python code to be run
+The python_command_option allow small snippets of Python code to be run
 from the push of a button, with out having to edit the handler file.
 (though it can call functions in the handler file)
 When using the command_string properties.
 
-* 'true_python_cmd_string' - a python command that will be called when
+* 'true_python_cmd_string' - a Python command that will be called when
   the button is toggled true
-* 'false_python_cmd_string' - a python command that will be called when
+* 'false_python_cmd_string' - a Python command that will be called when
   the button is toggled false
 
 The capitalized word 'INSTANCE' will give access to the widgets instances
@@ -777,7 +777,7 @@ The capitalized word 'ACTION' will give access to qtvcp's ACTION library.
 eg. 'ACTION.TOGGLE_FLOOD()' +
 The capitalized word 'PROGRAM_LOADER' will give access to qtvcp's
 PROGRAM_LOADER library. eg. 'PROGRAM_LOADER.load_halshow()' +
-The capitalized word 'HAL' will give access to HAL's python module.
+The capitalized word 'HAL' will give access to HAL's Python module.
 eg. 'HAL.set_p('motion.probe-input','1')'+
 Indicated PushButtons and Actionbuttons are based on PyQt's QPushButton
 
@@ -1317,7 +1317,7 @@ These states are selectable:
 * 'timestamp_status' +
   Shows the time based on the system settings. +
   An example of a useful textTemplate setting: '%I:%M:%S %p' see the
-  python time module for more info
+  Python time module for more info
 * 'tool comment_status' +
   returns the comment text from the current loaded tool
 * 'tool diameter_status' +
@@ -1339,7 +1339,7 @@ Other Properties:
 * 'halpin_names' +
   Name of the halpin to monitor (including HAL component basename).
 * 'textTemplate' +
-  This uses python formatting rules to set the text output.
+  This uses Python formatting rules to set the text output.
   This is usually used for imperial (G20) or angular numerical settings,
   though not every option has imperial/metric conversion.
   One can use %s for no conversion, %d for integer conversion, %f for
@@ -1348,7 +1348,7 @@ Other Properties:
   Typical template used for formatting imperial float numbers to text
   eg. '%9.4f' or '%9.4f inch'
 * 'alt_textTemplate' +
-  This uses python formatting rules to set the text output.
+  This uses Python formatting rules to set the text output.
   This is usual used for metric (G21) numerical settings.
   Typical template used for formatting metric float to text
   eg. '%10.3f' or '%10.3f mm'
@@ -1422,7 +1422,7 @@ It is based on PyQt's combobox
 This widget doesn't add anything visually to a screen but sets up important
 options. This is the preferred way to use these options
 
-These properties can be set in designer, in python handler code or
+These properties can be set in designer, in Python handler code or
 (if appropriate) in stylesheets.
 
 These include:
@@ -1681,7 +1681,7 @@ This widget allow the user to adjust LinuxCNC setting via a slide.
 
 ==== Properties
 
-StatusSlider has properties that can be set in designer, in python
+StatusSlider has properties that can be set in designer, in Python
 handler code or (if appropriate) in stylesheets.
 
 * halpin_option - sets option to make a HAL float pin that reflects
@@ -1945,7 +1945,7 @@ press 'Next' for the next line.
 'Clear' clears th ecurrent entry.
 'Back' allows you to change previous line entries.
 
-The widget requires an explicied call to MDITouchu's python code to
+The widget requires an explicied call to MDITouchu's Python code to
 actually run the MDI command
 For handler file code: if the widget was named mditouchy in designer,
 this command would
@@ -1957,7 +1957,7 @@ self.w.mditouchy.run_command()
 ----
 
 For action button use: if the widget was named mditouchy in designer,
-use the action button's 'Call python commands' option and enter:
+use the action button's 'Call Python commands' option and enter:
 
 [source,python]
 ----
@@ -2037,7 +2037,7 @@ available.
 
 ==== Properties
 
-OriginOfsetView has properties that can be set in designer, in python
+OriginOffsetView has properties that can be set in designer, in Python
 handler code or (if appropriate) in stylesheets.
 
 * dialog_code_string - sets which dialog will pop up with numerical
@@ -2109,7 +2109,7 @@ It has a the ability to scroll the names with hardware such as a MPG.
 one can class patch the function 'load(self,fname):' to customize file
 loading.
 
-the function 'getCurrentSelected()' will return a python tuple,
+the function 'getCurrentSelected()' will return a Python tuple,
 containing the file path and whether it's a file.
 
 [source,python]
@@ -2159,7 +2159,7 @@ available.
 
 ==== Properties
 
-ToolOfsetView has properties that can be set in designer, in python
+ToolOfsetView has properties that can be set in designer, in Python
 handler code or (if appropriate) in stylesheets.
 
 * dialog_code_string - sets which dialog will pop up with numerical entry.
@@ -2220,7 +2220,7 @@ The typical used dialogs can be loaded using the screenoptions widget.
 You can also add them directly to the ui - but each dialog must have a
 unique launch name or you will see multiple dialogs displayed, one after
 another.
-You can show dialogs directly with python code but a safer way is to use
+You can show dialogs directly with Python code but a safer way is to use
 STATUS messages to request the dialog to launch and to return the
 gathered information.
 
@@ -2323,7 +2323,7 @@ be added to the message dict.
 * FILENAME
 * DIRECTORY
 
-An example python call, for a load dialog:
+An example Python call, for a load dialog:
 
 [source,python]
 ----
@@ -2395,7 +2395,7 @@ It is based on PyQt's QDialog.
 
 This is a dialog to display an edit line for information entry, such as
 origin offset.
-It returns the entry via STATUS messages using a python DICT.
+It returns the entry via STATUS messages using a Python dict.
 The DICT contains at minimum, the name of the dialog requested and an id
 code.
 When using STATUS's 'request-dialog' function, the default launch name
@@ -2410,7 +2410,7 @@ image::images/qtvcp_calculator.png["QtVCP Calculator",scale="25%"]
 
 This is a dialog to display a calculator for numeric entry, such as
 origin offset.
-It returns the entry via STATUS messages using a python DICT.
+It returns the entry via STATUS messages using a Python dict.
 The DICT contains at minimum, the name of the dialog requested and an
 id code.
 When using STATUS's 'request-dialog' function, the default launch name
@@ -2469,7 +2469,7 @@ There are also input slots to change the color of the indicator(s).
 
 There are enumerated constants used to reference indicator positions.
 They are used in the Designer editor's property editor or used if using
-python code.
+Python code.
 
 ----
 NONE
@@ -2482,7 +2482,7 @@ LEFTRIGHT
 TOPBOTTOM
 ----
 
-For python handler code, you use the widget Designer name plus the
+For Python handler code, you use the widget Designer name plus the
 reference constant.
 
 [source,python]
@@ -2528,7 +2528,7 @@ def _releasedOutput(self, btncode):
 ==== signals
 
 These signals will be sent when buttons are pressed.
-They can be connected to in the Designer editor or python code.
+They can be connected to in the Designer editor or Python code.
 The first two output a string the indicates the button pressed.
 
 ----
@@ -2548,7 +2548,7 @@ joy_b_released = QtCore.pyqtSignal(bool)
 
 ==== slots
 
-Slots can be connected to in the Designer editor or python code.
+Slots can be connected to in the Designer editor or Python code.
 
 ----
 set_colorStateTrue()
@@ -2564,7 +2564,7 @@ set_false_color(qcolor)
 
 ==== Properties
 
-These can be set in stylesheets or python code to change it's properties.
+These can be set in stylesheets or Python code to change it's properties.
 
 * 'highlightPosition': +
   Set the indicator position.

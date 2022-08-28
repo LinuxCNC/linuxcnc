@@ -19,13 +19,13 @@ but can also be used on normal screens with a mouse or hardware buttons and MPG
 wheels, as it presents HAL Pins for the most common needs. Please find more
 information in the following.
 
-It offers the possibility to display up to 9 axis, support a lathe mode for
+It offers the possibility to display up to 9 axes, support a lathe mode for
 normal and back tool lathe and can be adapted to nearly every need, because
 GMOCCAPY supports embedded tabs and side panels.
 As a good example for that see
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[gmoccapy_plasma].
 
-* GMOCCAPY 3 does support up to 9 axis and 9 joints. As GMOCCAPY 3 has been
+* GMOCCAPY 3 does support up to 9 axes and 9 joints. As GMOCCAPY 3 has been
   changed in code to support the joint / axis changes in LinuxCNC it does not
   work on 2.7 or 2.6 branch!
 
@@ -252,8 +252,7 @@ All you have to take care of, is that you include for every tab or side panel th
 [NOTE]
 See also the included sample INI files to see the differences.
 
-* EMBED_TAB_COMMAND = The command to execute, i.e.
-+
+* EMBED_TAB_COMMAND = The command to execute, i.e. +
 ----
 gladevcp -x {XID} dro.glade
 ----
@@ -323,14 +322,14 @@ MESSAGE_PINNAME = is the name of the HAL pin group to be created
 ----
 
 * 'status' : Will just display a message as pop up window, using the messaging
-  system of GMOCCAPY
+  system of GMOCCAPY.
 * 'okdialog' : Will hold focus on the message dialog and will activate a
-  "-waiting" Hal_Pin OUT. Closing the message will reset the waiting pin
+  "-waiting" Hal_Pin OUT. Closing the message will reset the waiting pin.
 * 'yesnodialog' : Will hold focus on the message dialog and will activate
   a "-waiting" Hal_Pin bit OUT it will also give access to an "-response"
   Hal_Pin Bit Out, this pin will hold 1 if the user clicks OK, and in all
   other states it will be 0 Closing the message will reset the waiting pin
-  The response HAL Pin will remain 1 until the dialog is called again
+  The response Hal_Pin will remain 1 until the dialog is called again.
 
 .Example
 ----
@@ -395,12 +394,12 @@ line. So the macro '*i_am_lost*' will call the file '*i_am_lost.ngc*'.
 
 The macro ngc files must follow some rules:
 
-* the name of the file need to be exactly the same as the name mentioned in the macro
-  line, just with the ngc extension (case sensitive)
+* The name of the file need to be exactly the same as the name mentioned in the macro
+  line, just with the ngc extension (case sensitive).
 * The file must contain a subroutine like so: '*O<i_am_lost> sub*', the name
-  of the sub must match exactly (*case sensitive*) the name of the macro
-* the file must end with an endsub '*O<i_am_lost> endsub*' followed by an '*M2*' command
-* the files need to be placed in a folder specified in your INI file in the
+  of the sub must match exactly (*case sensitive*) the name of the macro.
+* The file must end with an endsub '*O<i_am_lost> endsub*' followed by an '*M2*' command.
+* The files need to be placed in a folder specified in your INI file in the
   <<gmocappy:rs274ngc,RS274NGC section>>.
 
 The code in between sub and endsub will be executed by pushing the
@@ -481,13 +480,13 @@ without mouse or keyboard.
 [NOTE]
 You will have to do all connections to GMOCCAPY pins in your postgui.hal file.
 When GMOCCAPY is started it creates the HAL pins for the GUI then it executes
-the HAL file named  in the INI file: '[HAL]POSTGUI_HALFILE=<filename>'. +
+the HAL file named in the INI file: '[HAL]POSTGUI_HALFILE=<filename>'. +
 Typically '<filename>' would be the configs base name + '_postgui' + '.hal'
 eg. 'lathe_postgui.hal', but can be any legal filename. +
 These commands are executed after the screen is built, guaranteeing the widget's HAL
 pins are available. +
 You can have multiple line of 'POSTGUI_HALFILE=<filename>' in the INI. +
-Each will be run one after the other in the order they appear. +
+Each will be run one after the other in the order they appear.
 
 See <<gmoccapy:configuration-of-tabs-and-side-panels,Tabs and side panels>> for details.
 
@@ -498,8 +497,9 @@ bottom. The right handed buttons will not change during operation, but the
 bottom button list will change very often. The buttons are count from up to
 down and from left to right beginning with "0".
 
-[NOTE]
-the pin name for *GMOCCAPY2* has changed to order them better:
+=== Pin names have changed
+
+The pin name for *GMOCCAPY2* has changed to order them in a better way.
 
 In hal_show you will see the right (vertical) buttons are:
 
@@ -529,7 +529,7 @@ influences, the hardware buttons will activate different functions, and you
 don't have to take care about switching functions around in HAL, because that
 is done completely by GMOCCAPY!
 
-For a 3 axis XYZ machine the HAL pin will react as follows.
+For a 3 axes XYZ machine the HAL pin will react as follows.
 
 In manual mode:
 
@@ -820,7 +820,7 @@ jog-inc-0 is unchangeable and will represent continuous jogging.
 * gmoccapy.jog.jog-inc-5
 * gmoccapy.jog.jog-inc-6
 
-GMOCCAPY offers also a HAL pint to output the selected jog increment
+GMOCCAPY offers also a HAL pin to output the selected jog increment:
 
 * gmoccapy.jog.jog-increment
 
@@ -846,8 +846,10 @@ be stopped. It will be reset with the pin gmoccapy.delete-message. gmoccapy.dele
 delete the first error and reset the gmoccapy.error pin to False after the last error has been cleared.
 
 [NOTE]
+====
 Messages or user infos will not affect the gmoccapy.error pin, but the gmoccapy.delete-message
 pin will delete the last message if no error is shown!
+====
 
 [[gmoccapy:user-created-message]]
 === User Created Message HAL Pins
@@ -902,7 +904,7 @@ For more information on HAL files and the net command see the
 
 === Spindle Feedback Pins
 
-There are two pins for spindle feedback
+There are two pins for spindle feedback:
 
 * gmoccapy.spindle_feedback_bar
 * gmoccapy.spindle_at_speed_led
@@ -912,7 +914,7 @@ There are two pins for spindle feedback
 
 === Pins To Indicate Program Progress Information
 
-There are three pins giving information over the program progress
+There are three pins giving information over the program progress:
 
 * gmoccapy.program.length HAL_S32 showing the total number of lines of the program
 * gmoccapy.program.current-line HAL_S32 indicating the current working line of the program
@@ -967,12 +969,12 @@ The tooloffset-x line is not needed on a mill,
 and will not be displayed on a mill with trivial kinematics.
 
 ----
- net tooloffset-x gmoccapy.tooloffset-x <= motion.tooloffset.x
- net tooloffset-z gmoccapy.tooloffset-z <= motion.tooloffset.z
+net tooloffset-x gmoccapy.tooloffset-x <= motion.tooloffset.x
+net tooloffset-z gmoccapy.tooloffset-z <= motion.tooloffset.z
 ----
 
 Please note, that GMOCCAPY takes care of its own to update the offsets,
-sending an G43 after any tool change, *but not in auto mode!*
+sending an G43 after any tool change, *but not in auto mode*!
 
 [IMPORTANT]
 So writing a program makes you responsible to include an G43 after
@@ -991,18 +993,18 @@ height and probe velocities on the settings page! See
 <<gmoccapy:tool-measurement,Settings Page Tool Measurement>>
 
 It might be also a good idea to take a look at the tool measurement video:
-see <<gmoccapy:tool-measurement-videos,tool measurement related videos>>
+see <<gmoccapy:tool-measurement-videos,tool measurement related videos>>.
 
 Tool Measurement in GMOCCAPY is done a little bit different to many other GUI.
 You should follow these steps:
 
-* touch of you workpiece in X and Y
-* measure the height of your block from the base where your tool switch is
-  located, to the upper face of the block (including chuck etc.)
-* Push the button block height and enter the measured value
-* Go to auto mode and start your program
+* Touch-off your workpiece in X and Y.
+* Measure the height of your block from the base where your tool switch is
+  located, to the upper face of the block (including chuck etc.).
+* Push the button block height and enter the measured value.
+* Go to auto mode and start your program.
 
-here is a small sketch:
+Here is a small sketch:
 
 .Tool measurement data
 image::images/sketch_auto_tool_measurement.png[align="left"]
@@ -1012,10 +1014,12 @@ be set automatically to fit the block height. The advantage of the GMOCCAPY
 way is, that you do not need a reference tool.
 
 [NOTE]
+====
 Your program must contain a tool change at the beginning! The tool will be
 measured, even it has been used before, so there is no danger, if the block
 height has changed. There are several videos showing the way to do that on
-you tube.
+YouTube.
+====
 
 
 === Tool Measurement Pins
@@ -1127,7 +1131,7 @@ net probe  motion.probe-input <= <your_input_pin>
 The line might look like this:
 
 -------
- net probe  motion.probe-input <= parport.0.pin-15-in
+net probe  motion.probe-input <= parport.0.pin-15-in
 -------
 
 In your postgui.hal file add:
@@ -1173,12 +1177,11 @@ You have three options:
 
 * start as full screen
 * start maximized
-* start as window::
+* start as window +
   If you select start as window the spinboxes to set the position and size will get active.
   One time set, the GUI will start every time on the place and with the size selected.
   Nevertheless the user can change the size and position using the mouse, but that will
   not have any influence on the settings.
-
 * 'hide the cursor*' does allow to hide the cursor, what is very useful if you use a touch screen.
 
 ==== Keyboard
@@ -1235,8 +1238,9 @@ any case.
 
 ==== Show Auxiliary Screen (Is this still valid?)
 
-Clicking this button will open an additional window. This button is only sensitive if a file named 'Gmoccapy 3.glade' is in your configuration folder.
-is in your configuration folder. You can build the Aux screen using Glade.
+Clicking this button will open an additional window.
+This button is only sensitive if a file named 'Gmoccapy 3.glade' is in your configuration folder.
+You can build the Aux screen using Glade.
 
 [WARNING]
 The main window of the auxiliary screen must be named 'window2'.
@@ -1261,10 +1265,8 @@ Options on data to display:
 
 show dro::
   The DRO will be shown in the preview window.
-
 show offsets::
   The offsets will be shown in the preview window.
-
 show DTG::
   The distance to go will be shown in the preview window.
 
@@ -1275,14 +1277,14 @@ to go) by clicking on the DRO!  *if you click on the left side letter of the DRO
 size::
   Allows to set the size of the DRO font, default is 28, if you use a bigger screen you may want to increase the size up to 56.
   If you do use 4 axis, the DRO font size will be 3/4 of the value, because of space reason.
-
 digits::
   Sets the number of digits of the DRO from 1 to 5.
-
+  +
 [NOTE]
+====
 Imperial will show one digit more that metric.
 So if you are in imperial machine units and set the digit value to 1, you will get no digit at all in metric.
-
+====
 toggle DRO mode::
   If not active, a mouse click on the DRO will not take any action. +
   By default this checkbox is active, so every click on any DRO will toggle the DRO readout from actual to relative to DTG (distance to go). +
@@ -1290,41 +1292,46 @@ toggle DRO mode::
 
 ==== Preview
 
-'Grid Size' Sets the grid size of the preview window.
-Unfortunately the size *has to be set in inches*, even if your machine units are metric.
-We do hope to fix that in a future release.
+'Grid Size'::
+  Sets the grid size of the preview window.
+  Unfortunately the size *has to be set in inches*, even if your machine units are metric.
+  We do hope to fix that in a future release.
 
+NOTE: The grid will not be shown in perspective view.
+
+Show DRO::
+  Will show the a DRO also in the preview window, it will be shown automatically in fullsize preview
+Show DTG::
+  Will show also the DTG (direct distance to end point) in the
+  preview, only if Show DRO is active and not full size preview.
+Show Offsets::
+  Will show the offsets in the preview window.
+  +
 [NOTE]
-The grid will not be shown in perspective view.
-
-'Show DRO' Will show the a DRO also in the preview window, it will be shown automatically in fullsize preview
-
-'Show DTG' will show also the DTG (direct distance to end point) in the
-preview, only if Show DRO is active and not full size preview.
-
-'Show Offsets' will show the offsets in the preview window.
-
-[NOTE]
+====
 If you only check this option and leave the others unchecked, you will
 get in full size preview a offset page
-
-'Mouse Button Mode' this combobox you can select the button behavior of the
-mouse to rotate, move or zoom within the preview:
-
+====
+Mouse Button Mode::
+  This combobox you can select the button behavior of the
+  mouse to rotate, move or zoom within the preview:
++
 * left rotate, middle move, right zoom
 * left zoom, middle move, right rotate
 * left move, middle rotate, right zoom
 * left zoom, middle rotate, right move
 * left move, middle zoom, right rotate
 * left rotate, middle zoom, right move
-
++
 Default is left move, middle zoom, right rotate.
 
 The mouse wheel will still zoom the preview in every mode.
 
 [TIP]
+====
 If you select an element in the preview, the selected element will be
 taken as rotation center point and in auto mode the corresponding code line will be highlighted.
+====
 
 ==== File to load on start up
 
@@ -1445,7 +1452,7 @@ MAX = 6000
 
 [[gmoccapy:turtle-jog]]
 Turtle Jog:: [[sub:turtle_jog]]
-This settings will have influence on the jog velocities.
+  This settings will have influence on the jog velocities.
 
 * 'hide turtle jog button' will hide the button right of the jog velocity
   slider, if you hide this button, please take care that it shows the rabbit
@@ -1506,11 +1513,11 @@ DRO and all other buttons related to that axis.
 
 You can do that by marking the checkbox, which will hide:
 
-* 4th axis DRO
-* 4th axis jog button
-* 4th axis homing button
-* 4th axis column on the offset page.
-* 4th axis column in the tool editor.
+* 4^th^ axis DRO
+* 4^th^ axis jog button
+* 4^th^ axis homing button
+* 4^th^ axis column on the offset page.
+* 4^th^ axis column in the tool editor.
 
 [[gmoccapy:reload-tool-on-start]]
 If checked, the tool in spindle will be saved on each change in the preference
@@ -1538,7 +1545,7 @@ You are able to set some options:
 * max = The maximum messages you want to see at ones, if you set this to 10,
   the 11th message will delete the first one, so you will only see the last 10
   ones.
-* Font = The font and size you want to use to display the messages
+* Font = The font and size you want to use to display the messages.
 * use frames = If you activate the checkbox, each message will be displayed
   in a frame, so it is much easier to distinguish the messages. But you will
   need a little bit more space.

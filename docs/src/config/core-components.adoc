@@ -146,7 +146,7 @@ module.
   The value on this pin does not reflect the feed override or any other adjustments.
 * 'motion.teleop-mode' - (bit, out) TRUE when motion is in 'teleop mode', as opposed to 'coordinated mode'
 * 'motion.tooloffset.x ... motion.tooloffset.w' - (float, out, one per axis) shows the tool offset in effect;
-  it could come from the tool table ('G43' active), or it could come from the gcode ('G43.1' active)
+  it could come from the tool table ('G43' active), or it could come from the G-code ('G43.1' active)
 
 * 'motion.on-soft-limit' -
   (bit, out) TRUE when the machine is on a soft limit.
