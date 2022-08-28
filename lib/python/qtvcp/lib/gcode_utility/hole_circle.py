@@ -42,9 +42,9 @@ class Preview(QtWidgets.QWidget):
         w = size.width()
         h = size.height()
         center = QPoint(w/2, h/2)
-        diameter = min(w, h) - 70
+        radius = int((min(w, h) - 70)/2)
         qp.setPen(QPen(Qt.black, 1))
-        qp.drawEllipse(center, diameter/2, diameter/2)
+        qp.drawEllipse(center, radius, radius)
 
     def draw_crosshair(self, event, qp):
         size = self.size()

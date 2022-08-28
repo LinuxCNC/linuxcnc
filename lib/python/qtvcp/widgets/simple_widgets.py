@@ -884,7 +884,7 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
     shape_option = QtCore.pyqtProperty(int, get_shape, set_shape, reset_shape)
     off_color = QtCore.pyqtProperty(QtGui.QColor, get_off_color, set_off_color)
     indicator_size = QtCore.pyqtProperty(float, get_indicator_size, set_indicator_size, reset_indicator_size)
-    circle_diameter = QtCore.pyqtProperty(float, get_circle_diameter, set_circle_diameter, reset_circle_diameter)
+    circle_diameter = QtCore.pyqtProperty(int, get_circle_diameter, set_circle_diameter, reset_circle_diameter)
     right_edge_offset = QtCore.pyqtProperty(int, get_right_edge_offset, set_right_edge_offset, reset_right_edge_offset)
     top_edge_offset = QtCore.pyqtProperty(int, get_top_edge_offset, set_top_edge_offset, reset_top_edge_offset)
     corner_radius = QtCore.pyqtProperty(float, get_corner_radius, set_corner_radius, reset_corner_radius)

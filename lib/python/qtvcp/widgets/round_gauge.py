@@ -66,7 +66,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
         rect = QRect()
         rect.setSize(QSize(w, w))
         rect.moveCenter(center)
-        fp = QPoint(center.x() - w/4, center.y() - w/4)
+        fp = QPoint(int(center.x() - w/4), int(center.y() - w/4))
         bg = QRadialGradient(center, w/2, fp)
         bg.setColorAt(0, QColor(180, 180, 180))
         bg.setColorAt(1, QColor(40, 40, 40))
