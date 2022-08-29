@@ -60,17 +60,15 @@ it's programmed in C. PyGTK uses Python to 'bind' with GTK.
 
 <<cha:glade-vcp,GladeVCP>> binds LinuxCNC, HAL, PyGTK and Glade all together.
 LinuxCNC requires some special widgets so GladeVCP supplies them. Many are just
-HAL extensions to existing PyGTK widgets. GladeVCP creates the HAL pins for the
-special widgets described in the Glade file. GladeVCP also allows one to add
-Python commands to interact with the widgets, to make them do things not
-available in their default form If you can build a GladeVCP panel you can
-customize Gscreen!
+HAL extensions to existing PyGTK widgets. GladeVCP creates the HAL pins for the special widgets described in the Glade file.
+GladeVCP also allows one to add Python commands to interact with the widgets, to make them do things not available in their default form.
+If you can build a GladeVCP panel you can customize Gscreen!
 
 === Overview
 
 There are two files that can be used, individually or in combination to add
 customizations. Local Glade files and handler files. Normally Gscreen uses
-the stock Glade file and possibly a handler file (if using a sample 'skin')
+the stock Glade file and possibly a handler file (if using a sample 'skin').
 You can specify Gscreen to use 'local' Glade and handler files. Gscreen looks
 in the folder that holds all the configuration files for the configuration you
 selected.
@@ -120,7 +118,7 @@ the basics to GladeVCP handler files. Gscreen uses a very similar technique.
 
 .Themes
 Gscreen uses the PyGTK toolkit to display the screen.
-Pygtk is the Python language binding to GTK.
+PyGTK is the Python language binding to GTK.
 GTK supports 'themes'.
 Themes are a way to modify the look and feel of the widgets on the screen.
 For instance the color or size of buttons and sliders can be changed using themes.
@@ -294,9 +292,11 @@ would add a signal to a widget to call your function.
 
 Our tester example would be more useful if it responded to keyboard commands.
 There is a function called keybindings() that tries to set this up.
-While you can override it completely, we didn't - but it assumes some things.
-It assumes the estop toggle button is call 'button_estop' and that F1 key controls it.
-It assumes the power button is called 'button_machine_on' and the F2 key controls it.
+While you can override it completely, we didn't - but it assumes some things:
+
+- It assumes the estop toggle button is call 'button_estop' and that F1 key controls it.
+- It assumes the power button is called 'button_machine_on' and the F2 key controls it.
+
 These are easily fixed by renaming the buttons in the Glade editor to match.
 But instead we are going to override the standard calls and add our own.
 
@@ -415,7 +415,7 @@ Add these functions under the HandlerClass class:
 
 Finally add two buttons to the GLADE file for each axis - one for positive, one for negative direction jogging.
 Name these buttons xneg, xpos, yneg, ypos zneg, zpos respectively.
-add a SpeedControl widget to the GLADE file and name it jog_speed
+add a SpeedControl widget to the GLADE file and name it jog_speed.
 
 == Gscreen Start Up
 
@@ -469,7 +469,7 @@ interact with it.
   ('initialize_connect_signals(self)') or else use Gscreen stock one.
 . Gscreen checka the handler file for widgets function
   ('initialize_widgets(self)') or else use Gscreen stock one.
-. Gscreen seta up messages specified in the INI file.
+. Gscreen set up messages specified in the INI file.
 . Gscreen tells HAL the Gscreen HAL component is finished making pins and is
   ready. If there is a terminal widget in the screen it will print all the
   Gscreen pins to it.
@@ -499,19 +499,25 @@ skin folder.
 == User Dialog Messages
 
 This function is used to display pop up dialog messages on the screen.
-These are defined in the INI file and controlled by HAL pins. +
-'Boldtext' is generally a title. +
-'text' is below that and usually longer. +
-'Detail' is hidden unless clicked on. +
-'pinname' is the basename of the HAL pins. +
-'type' specifies whether its a yes/no, ok, or status message. +
-Status messages will be shown in the status bar and the notify dialog.
-it requires no user intervention. +
-ok messages require the user to click ok to close the dialog. +
-ok messages have one HAL pin to launch the dialog and one to signify it's waiting for response. +
-yes/no messages require the user to select yes or no buttons to close the dialog. +
-yes/no messages have three HAL pins - one to show the dialog, one for waiting, +
-and one for the answer. +
+These are defined in the INI file and controlled by HAL pins:
+
+MESSAGE_BOLDTEXT:: is generally a title.
+MESSAGE_TEXT:: is below that and usually longer.
+MESSAGE_DETAILS:: is hidden unless clicked on.
+MESSAGE_PINNAME:: is the basename of the HAL pins.
+MESSAGE_TYPE:: specifies whether its a yes/no, ok, or status message
+  * Status messages
+    - will be shown in the status bar and the notify dialog,
+    - require no user intervention.
+  * ok messages
+    - require the user to click ok to close the dialog.
+    - have one HAL pin to launch the dialog and one to signify it's waiting for response.
+  * yes/no messages
+    - require the user to select yes or no buttons to close the dialog.
+    - have three HAL pins
+      . one to show the dialog,
+      . one for waiting, and
+      . one for the answer.
 
 Here is a sample INI code. It would be under the [DISPLAY] heading.
 
@@ -553,7 +559,7 @@ on the distribution used.
 An easy way to find the location is to open a terminal
 and start the sim screen you wish to use.
 In the terminal the file locations will be printed.
-It may help to add the -d switch t0 the gscreen load line in the INI.
+It may help to add the -d switch to the gscreen load line in the INI.
 
 Here is a sample:
 
@@ -584,7 +590,7 @@ The line:
 **** GSCREEN INFO: handler file path: ['/home/chris/emc-dev/share/gscreen/skins/industrial/industrial_handler.py']
 ----
 
-shows where the stock file lives. Copy this file to your config folder. +
+shows where the stock file lives. Copy this file to your config folder.
 This works the same for the Glade file.
 
 // vim: set syntax=asciidoc:

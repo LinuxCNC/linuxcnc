@@ -34,7 +34,7 @@ jpg = image-to-gcode
 The standard 'sim/axis.ini' configuration file is already configured
 this way.
 
-== Using image-to-gcode
+== Using `image-to-gcode`
 
 Start image-to-gcode either by opening an image file in AXIS, or by
 invoking image-to-gcode from the terminal, as follows:
@@ -99,7 +99,7 @@ The feed rate for other parts of the path.
 
 === Spindle Speed (RPM)
 
-The spindle speed S code that should be put into the G-code file.
+The spindle speed S-code that should be put into the G-code file.
 
 === Scan Pattern
 
