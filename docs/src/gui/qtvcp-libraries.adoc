@@ -434,17 +434,28 @@ PATH.IMAGEDIR       # The QtVCP image folder
 PATH.SCREENDIR      # The QtVCP builtin Screen folder
 PATH.PANELDIR       # The QtVCP builtin VCP folder
 PATH.HANDLER        # Handler file Path
+PATH.HANDLERDIR     # Directory where the python handler file was found
 PATH.XML            # QtVCP UI file path
+PATH.HANDLERDIR     # Directory where the .ui file was found
 PATH.QSS            # QtVCP Qss file path
 PATH.PYDIR          # Linuxcnc's Python library
 PATH.LIBDIR         # The QtVCP library folder
 PATH.WIDGET         # The QtVCP widget folder
 PATH.PLUGIN         # The QtVCP widget plugin folder
+PATH.VISMACHDIR     # Directory where prebuilt Vismach files are found
 
 # Not currently used:
 PATH.LOCALEDIR      # Locale translation folder
 PATH.DOMAIN         # Translation domain
 
+----
+
+There are some helper functions available:
+[source,python]
+----
+file_list = PATH.find_vismach_files()
+directory_list = PATH.find_screen_dirs()
+directory_list = PATH.find_panel_dirs()
 ----
 
 == VCPWindow
