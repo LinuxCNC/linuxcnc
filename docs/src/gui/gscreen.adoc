@@ -501,11 +501,11 @@ skin folder.
 This function is used to display pop up dialog messages on the screen.
 These are defined in the INI file and controlled by HAL pins:
 
-Boldtext:: is generally a title.
-text:: is below that and usually longer.
-Detail:: is hidden unless clicked on.
-pinname:: is the basename of the HAL pins.
-type:: specifies whether its a yes/no, ok, or status message
+MESSAGE_BOLDTEXT:: is generally a title.
+MESSAGE_TEXT:: is below that and usually longer.
+MESSAGE_DETAILS:: is hidden unless clicked on.
+MESSAGE_PINNAME:: is the basename of the HAL pins.
+MESSAGE_TYPE:: specifies whether its a yes/no, ok, or status message
   * Status messages
     - will be shown in the status bar and the notify dialog,
     - require no user intervention.
