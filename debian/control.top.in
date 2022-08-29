@@ -47,6 +47,7 @@ Build-Depends:
 Build-Depends-Indep:
     @DOC_DEPENDS@,
 Standards-Version: 4.6.0
+Homepage: https://linuxcnc.org/
 Vcs-Browser: https://github.com/LinuxCNC/linuxcnc
 Vcs-Git: https://github.com/LinuxCNC/linuxcnc.git
 Rules-Requires-Root: binary-targets
