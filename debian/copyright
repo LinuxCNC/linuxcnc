@@ -218,7 +218,6 @@ Files:
  src/emc/canterp/canterp.cc
  src/emc/sai/driver.cc
  src/emc/sai/saicanon.cc
- src/emc/linuxcnc.h
  src/emc/usr_intf/*
  src/emc/tp/*
  src/emc/ini/*
@@ -235,8 +234,6 @@ Files:
  src/rtapi/rtai_ulapi.c
  src/hal/classicladder/README.txt
  src/hal/hal.h
- src/hal/hal_lib.c
- src/hal/hal_priv.h
  src/hal/utils/bitfile.c
  src/hal/utils/bitfile.h
  src/hal/utils/halcmd.c
@@ -372,7 +369,9 @@ Copyright: The LinuxCNC developers derived this work from
 License: LGPL-2
 
 Files: src/libnml/inifile/*
-       src/libnml/nml/*
+       src/libnml/nml/nml_mod.cc
+       src/libnml/nml/nml_mod.hh
+       src/libnml/nml/nml_type.hh
        src/libnml/buffer/tcpmem.cc
        src/libnml/buffer/tcpmem.hh
        src/libnml/buffer/shmem.cc
