@@ -1,10 +1,10 @@
 [Desktop Entry]
 Version=1.0
-Name=G-Code Quick Reference - zn_CN
+Name=G-Code Quick Reference - zh_CN
 Comment=Quick reference for G, M and O codes in LinuxCNC
 Type=Application
-Exec=x-www-browser /usr/share/doc/linuxcnc/gcode_zn_CN.html
-Icon=linuxcnc_zn_CN
+Exec=x-www-browser /usr/share/doc/linuxcnc/gcode_zh_CN.html
+Icon=linuxcnc_zh_CN
 X-GNOME-DocPath=
 Terminal=false
 StartupNotify=false
