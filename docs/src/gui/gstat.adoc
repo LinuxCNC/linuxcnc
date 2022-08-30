@@ -6,7 +6,7 @@
 
 == Intro
 
-GStat is a python class used to send messages from LinuxCNC to other python programs.
+GStat is a Python class used to send messages from LinuxCNC to other Python programs.
 It uses GObject to deliver messages, making it easy to listen for specific information.
 This is referred to as event-driven programming, which is more efficient then every program
 polling LinuxCNC at the same time.
@@ -81,17 +81,16 @@ GSTAT.forced_update()
 
 # loop till exit
 try:
-        GLib.MainLoop().run()
+    GLib.MainLoop().run()
 except KeyboardInterrupt:
     raise SystemExit
 ----
 
-This would be loaded with 'loadusr python PATH-TO-FILE/FILENAME.py' +
-or if you need to wait for the pins to be made before continuing: +
-'loadusr python -Wn metric_status PATH-TO-FILE/FILENAME.py' +
+This would be loaded with 'loadusr python PATH-TO-FILE/FILENAME.py' or if you need to wait for the pins to be made before continuing: +
+`loadusr python -Wn metric_status PATH-TO-FILE/FILENAME.py` +
 The pins would be: 'metric_status.g20' and 'metric_status.g21'.
 
-=== GladeVCP python extension code pattern
+=== GladeVCP Python extension code pattern
 
 This file assumes there are three GTK labels named:
 
@@ -134,9 +133,9 @@ def get_handlers(halcomp,builder,useropts):
     return [HandlerClass(halcomp,builder,useropts)]
 ----
 
-=== QTVCP python extension code pattern
+=== QtVCP Python extension code pattern
 
-Qtvcp extends GStat, so must be loaded differently but all the messages are available in Qtvcp. +
+QtVCP extends GStat, so must be loaded differently but all the messages are available in QtVCP. +
 This handler file assumes there are three QLabels named:
 
 * 'state_label'
@@ -290,10 +289,10 @@ Linuxcnc does not update this for every type of line.
 *tool-in-spindle-changed* :: '(returns integer)' -
 Sent when the tool has changed.
 
-*tool-info-changed* :: '(returns python object)' -
+*tool-info-changed* :: '(returns Python object)' -
 Sent when current tool info changes.
 
-*current-tool-offset* :: '(returns python object)' -
+*current-tool-offset* :: '(returns Python object)' -
 Sent when the current tool offsets change.
 
 *motion-mode-changed* :: '(returns integer)' -
@@ -413,7 +412,7 @@ This depends on the widget/libraries used. +
 intended to be sent when G-code is loaded. +
 This depends on the widget/libraries used. +
 
-*graphics-view-changed* :: '(returns string, python Dict or None)' -
+*graphics-view-changed* :: '(returns string, Python dict or None)' -
 intended to be sent when graphics view is changed. +
 This depends on the widget/libraries used. +
 
@@ -437,16 +436,16 @@ This depends on the widget/libraries used. +
 intended to be sent when moving the cursor one line down in G-code display. +
 This depends on the widget/libraries used. +
 
-*dialog-request* :: '(returns python dict)' -
+*dialog-request* :: '(returns Python dict)' -
 intended to be sent when requesting a gui dialog. +
-It uses a python dict for communication. +
+It uses a Python dict for communication. +
 The dict must include the following keyname pair: +
 * NAME: 'requested dialog name' +
   The dict usually has several keyname pairs - it depends on the dialog. +
   dialogs return information using a general message +
   This depends on the widget/libraries used. +
 
-*focus-overlay-changed* :: '(returns bool, string, python object)' -
+*focus-overlay-changed* :: '(returns bool, string, Python object)' -
 intended to be sent when requesting an overlay to be put over the display. +
 This depends on the widget/libraries used. +
 
@@ -477,24 +476,24 @@ integer represents the kind of error. ERROR, TEXT or DISPLAY +
 string is the actual error message. +
 This depends on the widget/libraries used. +
 
-*general* :: '(returns python dict)' -
+*general* :: '(returns Python dict)' -
 intended to be sent when message must be sent that is not covered by a more specific message. +
 General message should be used a sparsely as reasonable because all object connected to it will have to parse it. +
-It uses a python dict for communication. +
+It uses a Python dict for communication. +
 The dict should include and be checked for a unique id  keyname pair: +
 * ID: 'UNIQUE_ID_CODE' +
-  The dict usually has more keyname pair - it depends on implementation. +
+The dict usually has more keyname pair - it depends on implementation. +
 
 *forced-update* :: '(returns None)' -
 intended to be sent when one wishes to initialize or arbitrarily update an object. +
 This depends on the widget/libraries used. +
 
-*progress* :: '(returns integer, python object)'
+*progress* :: '(returns integer, Python object)' -
 intended to be sent to indicate the progress of a filter program. +
 This depends on the widget/libraries used. +
 
-*following-error* :: '(returns python list)'
-returns a list of all joints current following error +
+*following-error* :: '(returns Python list)' -
+returns a list of all joints current following error. +
 
 == Functions
 
@@ -553,7 +552,7 @@ You must be in the proper mode to jog.
 
 *check_for_modes* :: '(mode)' -
 This function checks for required LinuxCNC mode. +
-It returns a python tuple (state, mode) +
+It returns a Python tuple (state, mode) +
 mode will be set the mode the system is in +
 state will set to: +
 false if mode is 0 +
@@ -602,8 +601,7 @@ returns string representing the internal selected axis letter. +
 
 == Known Issues
 
-Some status points are reported wrongly during a running program. +
-This is because the interpreter runs ahead of the current position of a running program. +
-This will hopefully be resolved with the merge of state-tags branch. +
+Some status points are reported wrongly during a running program because the interpreter runs ahead of the current position of a running program.
+This will hopefully be resolved with the merge of state-tags branch.
 
 // vim: set syntax=asciidoc:
