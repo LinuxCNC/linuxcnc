@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-27 23:51+0200\n"
+"POT-Creation-Date: 2022-08-29 13:49+0200\n"
 "PO-Revision-Date: 2022-07-04 12:42+0000\n"
 "Last-Translator: Trần Ngọc Quân <vnwildman@gmail.com>\n"
 "Language-Team: none\n"
@@ -7607,8 +7607,9 @@ msgstr "Chạy từ đây"
 msgid "toggle PYVCP panel visibility"
 msgstr "bật/tắt hiển thị bảng PYVCP"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3924
-msgid "Show pyVCP pan_el"
+#: src/emc/usr_intf/axis/scripts/axis.py:3924 share/axis/tcl/axis.tcl:387
+#, fuzzy
+msgid "Show PyVCP pan_el"
 msgstr "Hiển thị pyVCP pan_el"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:4195
@@ -8141,11 +8142,6 @@ msgstr "_Xóa phần vết di chuyển"
 #: share/axis/tcl/axis.tcl:385
 msgid "Ctrl-E"
 msgstr "Ctrl-E"
-
-#: share/axis/tcl/axis.tcl:387
-#, fuzzy
-msgid "Show PyVCP pan_el"
-msgstr "Hiển thị pyVCP pan_el"
 
 #: share/axis/tcl/axis.tcl:396
 msgid "Show commanded position"
@@ -19193,6 +19189,9 @@ msgstr "_Thôi_"
 #: lib/python/gladevcp/calculator.glade:393
 msgid "_Ok"
 msgstr "Đồn_g ý"
+
+#~ msgid "Show pyVCP pan_el"
+#~ msgstr "Hiển thị pyVCP pan_el"
 
 #~ msgid " Mist"
 #~ msgstr " Phun mù"

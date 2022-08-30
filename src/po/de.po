@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-27 23:51+0200\n"
+"POT-Creation-Date: 2022-08-29 13:49+0200\n"
 "PO-Revision-Date: 2022-08-04 07:50+0000\n"
 "Last-Translator: Hans U. <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
@@ -7933,8 +7933,9 @@ msgstr "Ab hier ausführen"
 msgid "toggle PYVCP panel visibility"
 msgstr "Wechsel PyVCP Panel Sichtbarkeit"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3924
-msgid "Show pyVCP pan_el"
+#: src/emc/usr_intf/axis/scripts/axis.py:3924 share/axis/tcl/axis.tcl:387
+#, fuzzy
+msgid "Show PyVCP pan_el"
 msgstr "Zeige pyVCP pan_el"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:4195
@@ -8472,11 +8473,6 @@ msgstr "Werkzeugpfad _löschen"
 #: share/axis/tcl/axis.tcl:385
 msgid "Ctrl-E"
 msgstr "Strg-E"
-
-#: share/axis/tcl/axis.tcl:387
-#, fuzzy
-msgid "Show PyVCP pan_el"
-msgstr "Zeige pyVCP pan_el"
 
 #: share/axis/tcl/axis.tcl:396
 msgid "Show commanded position"
@@ -20149,6 +20145,9 @@ msgstr "_Abbr."
 #: lib/python/gladevcp/calculator.glade:393
 msgid "_Ok"
 msgstr "_Ok"
+
+#~ msgid "Show pyVCP pan_el"
+#~ msgstr "Zeige pyVCP pan_el"
 
 #~ msgid " Mist"
 #~ msgstr " Kühlnebel"

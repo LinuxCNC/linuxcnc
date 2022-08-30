@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-27 23:51+0200\n"
+"POT-Creation-Date: 2022-08-29 13:49+0200\n"
 "PO-Revision-Date: 2022-08-04 01:59+0000\n"
 "Last-Translator: Ulices <dev.n47os@aleeas.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
@@ -7869,8 +7869,9 @@ msgstr "Ejecutar desde aquí"
 msgid "toggle PYVCP panel visibility"
 msgstr "alternar la visibilidad del panel PYVCP"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3924
-msgid "Show pyVCP pan_el"
+#: src/emc/usr_intf/axis/scripts/axis.py:3924 share/axis/tcl/axis.tcl:387
+#, fuzzy
+msgid "Show PyVCP pan_el"
 msgstr "Mostrar pyVCP pan_el"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:4195
@@ -8405,11 +8406,6 @@ msgstr "Limpiar plot en vivo (_C)"
 #: share/axis/tcl/axis.tcl:385
 msgid "Ctrl-E"
 msgstr "Ctrl-E"
-
-#: share/axis/tcl/axis.tcl:387
-#, fuzzy
-msgid "Show PyVCP pan_el"
-msgstr "Mostrar pyVCP pan_el"
 
 #: share/axis/tcl/axis.tcl:396
 msgid "Show commanded position"
@@ -20014,6 +20010,9 @@ msgstr "Cancelar"
 #, fuzzy
 msgid "_Ok"
 msgstr "Aceptar"
+
+#~ msgid "Show pyVCP pan_el"
+#~ msgstr "Mostrar pyVCP pan_el"
 
 #~ msgid " Mist"
 #~ msgstr "Niebla"

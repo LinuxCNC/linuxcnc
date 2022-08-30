@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: LinuxCNC EMC2.8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-27 23:51+0200\n"
+"POT-Creation-Date: 2022-08-29 13:49+0200\n"
 "PO-Revision-Date: 2022-07-20 00:40+0000\n"
 "Last-Translator: whatawhiz <pink0floyd@vip.qq.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
@@ -7661,8 +7661,9 @@ msgstr "从这里运行"
 msgid "toggle PYVCP panel visibility"
 msgstr "显示/隐藏PYVCP面板"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3924
-msgid "Show pyVCP pan_el"
+#: src/emc/usr_intf/axis/scripts/axis.py:3924 share/axis/tcl/axis.tcl:387
+#, fuzzy
+msgid "Show PyVCP pan_el"
 msgstr "显示pyVCP面板"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:4195
@@ -8197,11 +8198,6 @@ msgstr "清除走刀轨迹"
 #: share/axis/tcl/axis.tcl:385
 msgid "Ctrl-E"
 msgstr "Ctrl+E"
-
-#: share/axis/tcl/axis.tcl:387
-#, fuzzy
-msgid "Show PyVCP pan_el"
-msgstr "显示pyVCP面板"
 
 #: share/axis/tcl/axis.tcl:396
 msgid "Show commanded position"
@@ -19620,6 +19616,9 @@ msgstr "_取消_"
 #: lib/python/gladevcp/calculator.glade:393
 msgid "_Ok"
 msgstr "_确定"
+
+#~ msgid "Show pyVCP pan_el"
+#~ msgstr "显示pyVCP面板"
 
 #~ msgid " Mist"
 #~ msgstr "冷却气"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: AXIS\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-27 23:51+0200\n"
+"POT-Creation-Date: 2022-08-29 13:49+0200\n"
 "PO-Revision-Date: 2008-04-27 13:20+0200\n"
 "Last-Translator: Bojin Marinkovic <ir.micro.business@gmail.com>\n"
 "Language-Team: Serbian Translation <emc-developers@lists.sourceforge.net>\n"
@@ -7721,8 +7721,8 @@ msgstr ""
 msgid "toggle PYVCP panel visibility"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3924
-msgid "Show pyVCP pan_el"
+#: src/emc/usr_intf/axis/scripts/axis.py:3924 share/axis/tcl/axis.tcl:387
+msgid "Show PyVCP pan_el"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:4195
@@ -8290,10 +8290,6 @@ msgstr "Obrisi _prikaz"
 #, fuzzy
 msgid "Ctrl-E"
 msgstr "Ctrl-R"
-
-#: share/axis/tcl/axis.tcl:387
-msgid "Show PyVCP pan_el"
-msgstr ""
 
 #: share/axis/tcl/axis.tcl:396
 #, fuzzy

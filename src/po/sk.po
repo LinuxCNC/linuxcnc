@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sk\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-27 23:51+0200\n"
+"POT-Creation-Date: 2022-08-29 13:49+0200\n"
 "PO-Revision-Date: 2022-08-06 19:17+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
@@ -7551,8 +7551,8 @@ msgstr ""
 msgid "toggle PYVCP panel visibility"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3924
-msgid "Show pyVCP pan_el"
+#: src/emc/usr_intf/axis/scripts/axis.py:3924 share/axis/tcl/axis.tcl:387
+msgid "Show PyVCP pan_el"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:4195
@@ -8080,10 +8080,6 @@ msgstr ""
 #: share/axis/tcl/axis.tcl:385
 msgid "Ctrl-E"
 msgstr "Ctrl-E"
-
-#: share/axis/tcl/axis.tcl:387
-msgid "Show PyVCP pan_el"
-msgstr ""
 
 #: share/axis/tcl/axis.tcl:396
 msgid "Show commanded position"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-27 23:51+0200\n"
+"POT-Creation-Date: 2022-08-29 13:49+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -7497,8 +7497,8 @@ msgstr ""
 msgid "toggle PYVCP panel visibility"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3924
-msgid "Show pyVCP pan_el"
+#: src/emc/usr_intf/axis/scripts/axis.py:3924 share/axis/tcl/axis.tcl:387
+msgid "Show PyVCP pan_el"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:4195
@@ -8023,10 +8023,6 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:385
 msgid "Ctrl-E"
-msgstr ""
-
-#: share/axis/tcl/axis.tcl:387
-msgid "Show PyVCP pan_el"
 msgstr ""
 
 #: share/axis/tcl/axis.tcl:396

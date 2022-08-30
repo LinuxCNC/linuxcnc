@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-27 23:51+0200\n"
+"POT-Creation-Date: 2022-08-29 13:49+0200\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
@@ -7769,8 +7769,8 @@ msgstr "Ruleaza de aici"
 msgid "toggle PYVCP panel visibility"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3924
-msgid "Show pyVCP pan_el"
+#: src/emc/usr_intf/axis/scripts/axis.py:3924 share/axis/tcl/axis.tcl:387
+msgid "Show PyVCP pan_el"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:4195
@@ -8346,10 +8346,6 @@ msgstr "Sterge vedere curenta"
 #, fuzzy
 msgid "Ctrl-E"
 msgstr "Ctrl-R"
-
-#: share/axis/tcl/axis.tcl:387
-msgid "Show PyVCP pan_el"
-msgstr ""
 
 #: share/axis/tcl/axis.tcl:396
 #, fuzzy

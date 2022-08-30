@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-27 23:51+0200\n"
+"POT-Creation-Date: 2022-08-29 13:49+0200\n"
 "PO-Revision-Date: 2022-06-23 14:19+0000\n"
 "Last-Translator: nicolas <nicolas.camil@libertysurf.fr>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
@@ -8060,8 +8060,9 @@ msgstr "Démarrer depuis ici"
 msgid "toggle PYVCP panel visibility"
 msgstr "activer la visibilité du panneau PYVCP"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3924
-msgid "Show pyVCP pan_el"
+#: src/emc/usr_intf/axis/scripts/axis.py:3924 share/axis/tcl/axis.tcl:387
+#, fuzzy
+msgid "Show PyVCP pan_el"
 msgstr "Afficher le panel pyVCP"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:4195
@@ -8601,11 +8602,6 @@ msgstr "Rafraîchir le parcours d'outil"
 #, fuzzy
 msgid "Ctrl-E"
 msgstr "Ctrl+R"
-
-#: share/axis/tcl/axis.tcl:387
-#, fuzzy
-msgid "Show PyVCP pan_el"
-msgstr "Afficher le panel pyVCP"
 
 #: share/axis/tcl/axis.tcl:396
 msgid "Show commanded position"
@@ -20394,6 +20390,9 @@ msgstr "Annuler"
 #, fuzzy
 msgid "_Ok"
 msgstr "Ok"
+
+#~ msgid "Show pyVCP pan_el"
+#~ msgstr "Afficher le panel pyVCP"
 
 #, fuzzy
 #~ msgid " Mist"
