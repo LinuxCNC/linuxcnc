@@ -57,6 +57,7 @@ usr/bin/melfagui
 usr/bin/milltask
 usr/bin/millturngui
 usr/bin/mitsub_vfd
+usr/bin/z_level_compensation
 usr/bin/monitor-xhc-hb04
 usr/bin/motion-logger
 usr/bin/moveoff_gui
