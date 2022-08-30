@@ -1,4 +1,5 @@
 # Ignore po4a-generated files for other languages
+cs/*
 de/*
 es/*
 fr/*

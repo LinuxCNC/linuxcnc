@@ -5,6 +5,7 @@
 drivers/mb2hal_HOWTO.ini
 */drivers/mb2hal_HOWTO.ini
 # Ignore po4a-generated files for other languages
+cs/*
 de/*
 es/*
 fr/*
