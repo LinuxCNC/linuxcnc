@@ -1,0 +1,13 @@
+#!/bin/sh
+
+set -e
+
+rs274 -g rs274.ngc > $AUTOPKGTEST_TMP/rs274.out 2>&1
+
+if ! diff -u $AUTOPKGTEST_TMP/rs274.out rs274.res ; then
+    echo "error: rs274 output do not match rs274.res"
+    exit 1
+else
+    echo "success: rs274 output matches rs274.res"
+fi
+exit 0

@@ -1,3 +1,7 @@
-Tests: runtests
+Tests: linuxcnc-test
+Depends: @
+Restrictions: allow-stderr
+
+Tests: rs274-test
 Depends: @
 Restrictions:

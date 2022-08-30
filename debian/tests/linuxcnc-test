@@ -1,0 +1,5 @@
+#!/bin/bash -e
+#
+# Based on tests/single-step/
+
+linuxcnc -r linuxcnc-test.ini
