@@ -175,6 +175,9 @@ class _Lcnc_Action(object):
 
     def CALL_MDI(self, code):
         LOG.debug('CALL_MDI Command: {}'.format(code))
+        if STATUS.is_auto_running():
+            LOG.error('Can not run MDI command:{} when linuxcnc is running in auto mode'.format(code))
+            return -1
         self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi('%s' % code)
 
