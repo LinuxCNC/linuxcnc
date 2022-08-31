@@ -206,8 +206,8 @@ linuxcnc/nc_files and then the users home directory.
 
 [[gmoccapy:configuration-of-tabs-and-side-panels]]
 ==== Configuration of Embedded Tabs and Panels
-You can add embedded programs to GMOCCAPY like you can do in axis, touchy and
-gscreen. All is done by GMOCCAPY automatically if you include a few lines in
+You can add embedded programs to GMOCCAPY like you can do in AXIS, Touchy and
+Gscreen. All is done by GMOCCAPY automatically if you include a few lines in
 your INI file in the DISPLAY section.
 
 If you have never used a glade panel, I recommend to read the excellent documentation:
@@ -933,7 +933,7 @@ large remap procedures, also loops will cause different values.
 
 .Tool Change Pins
 These pins are provided to use GMOCCAPY's internal tool change dialog, similar to
-the one known from axis, but with several modifications. So you will not only
+the one known from AXIS, but with several modifications. So you will not only
 get the message to change to 'tool number 3', but also the description of that
 tool like '7.5 mm 3 flute cutter'. The information is taken from the tool
 table, so it is up to you what to display.
@@ -1281,11 +1281,11 @@ show DTG::
 
 [NOTE]
 You can change through the DRO modes (absolute, relative, distance
-to go) by clicking on the DRO!  *if you click on the left side letter of the DRO a popup window will allow you to set the value of the axis, making it easier to set the value, as you will not need to go over the touch off bottom button. Clicking the numbers (right side of the DRO) will toggle through the DRO modes as described above.*
+to go) by clicking on the DRO!  *if you click on the left side letter of the DRO a popup window will allow you to set the value of the axes, making it easier to set the value, as you will not need to go over the touch off bottom button. Clicking the numbers (right side of the DRO) will toggle through the DRO modes as described above.*
 
 size::
   Allows to set the size of the DRO font, default is 28, if you use a bigger screen you may want to increase the size up to 56.
-  If you do use 4 axis, the DRO font size will be 3/4 of the value, because of space reason.
+  If you do use 4 axes, the DRO font size will be 3/4 of the value, because of space reason.
 digits::
   Sets the number of digits of the DRO from 1 to 5.
   +
@@ -1531,7 +1531,7 @@ You can do that by marking the checkbox, which will hide:
 [[gmoccapy:reload-tool-on-start]]
 If checked, the tool in spindle will be saved on each change in the preference
 file, making it possible to reload the last mounted tool on start up.
-The tool will be loaded after all axis are homed, because before it is not
+The tool will be loaded after all axes are homed, because before it is not
 allowed to execute MDI commands. If you use NO_FORCE_HOMING you can not use
 this feature, because the needed all_homed_signal will never be emitted.
 
