@@ -70,7 +70,8 @@ jobs:
       run: echo "$GITHUB_CONTEXT"
     - uses: actions/checkout@v2
       with:
-        submodules: true
+        # "fetch-depth: 0" fetches all of history, this is needed by
+        # our build system to determine the version from tags
         fetch-depth: 0
     - name: Build Debian package
       run: |
