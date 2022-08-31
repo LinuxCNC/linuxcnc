@@ -27,24 +27,24 @@ QtDragon and QtVcp are relatively new programs added into LinuxCNC. +
 Bugs and oddities are possible. Please test carefully when using a
 dangerous machine. Please forward reports to the forum or maillist.
 
-=== Qtdragon
+=== QtDragon
 
-.qtdragon - 3 or 4 Axis Sample (1440x860) in silver theme
+.QtDragon - 3 or 4 Axes Sample (1440x860) in silver theme
 image::images/silverdragon.png["QTDragon Router",scale="25%"]
 
-Qtdragon has a resolution of 1440x900 and is not resizable. +
+QtDragon has a resolution of 1440x900 and is not resizable. +
 It will work in window mode on any monitor with higher resolution but not
 on monitors with lower resolution.
 
-=== Qtdragon_hd
+=== QtDragon_hd
 
-.qtdragon_hd - 3 or 4 Axis Sample for larger monitors (1920x1056) in dark theme
+.QtDragon_hd - 3 or 4 Axis Sample for larger monitors (1920x1056) in dark theme
 image::images/qtdragon_hd.png["QTDragon_hd",scale="25%"]
 
-Qtdragon_hd is a similar design as Qtdragon but modified to utilize the extra
+QtDragon_hd is a similar design as QtDragon but modified to utilize the extra
 space of modern larger monitors. +
 There are some small differences in layout and utility. +
-Qtdragon_hd has a resolution of 1920x1056 and is not realizable. +
+QtDragon_hd has a resolution of 1920x1056 and is not realizable. +
 It will work in window mode on any monitor with higher resolution but not on
 monitors with lower resolution.
 
@@ -72,7 +72,7 @@ DISPLAY = qtvcp qtdragon
 
 === Preferences
 
-To keep track of preferences, qtdragon looks for a preference text file.
+To keep track of preferences, QtDragon looks for a preference text file.
 add the following entry under the '[DISPLAY]' heading.
 This will save the file in the config folder of the launch screen.
 (other options are possible see the qtvcp's screenoption widget docs.)
@@ -203,7 +203,7 @@ You can add multiple lines for different selections in the combo box
 PROGRAM_EXTENSION = .ngc,.nc,.tap G-Code File (*.ngc,*.nc,*.tap)
 ----
 
-Qtdragon has the ability to send loaded files through a 'filter program'.
+QtDragon has the ability to send loaded files through a 'filter program'.
 This filter can do any desired task: Something as simple as making sure
 the file ends with 'M2', or something as complicated as generating
 G-Code from an image.
@@ -215,7 +215,7 @@ This program is given the name of the input file as its first argument,
 and must write rs274ngc code to standard output. This output is what
 will be displayed in the text area, previewed in the display area, and
 executed by LinuxCNC when 'Run'. The following lines add support for the
-'image-to-gcode' converter included with LinuxCNC and running python based
+'image-to-gcode' converter included with LinuxCNC and running Python based
 filter programs:
 
 [source,{ini}]
@@ -418,7 +418,7 @@ qtdragon.versaprobe-searchvel
 == HAL files
 
 The HAL files supplied are for simulation only. A real machine needs its own
-custom HAL files. The Qtdragon screen works with 3 or 4 axes with one joint per
+custom HAL files. The QtDragon screen works with 3 or 4 axes with one joint per
 axis or 3 or 4 axes in a gantry configuration. (2 joints on 1 axis)
 
 == Manual Tool Changes
@@ -489,7 +489,7 @@ opportunity to watch the DROs and stop the routine at any time.
 [NOTE]
 Probing is very unforgiving to mistakes; be sure to check settings before using.
 
-.qtdragon - Probe Sample
+.QtDragon - Probe Sample
 image::images/silverdragon_probe.png["QtDragon Probe",scale="25%"]
 
 QtDragon has 2 possible methods for setting Z0. The first is a touchplate, where
@@ -511,7 +511,7 @@ for the tool setter.
 
 == Touch plate
 
-.qtdragon - Touch Plate
+.QtDragon - Touch Plate
 image::images/qtdragon_touchplate.png["QtDragon Touch Plate",scale="25%"]
 
 You can use a conductive touch plate or equivalent to auto touch off (zero the
@@ -525,7 +525,7 @@ When using a conductive plate the search and probe velocity should be the same
 and slow.
 If using a tool setter that has spring loaded travel then you can set search
 velocity faster.
-Linuxcnc ramps speed down at the maximum acceleration rate, so there can be
+LinuxCNC ramps speed down at the maximum acceleration rate, so there can be
 travel after the probe trip if the speed is set to high.
 
 Place the plate on top of the surface you wish to zero Z on.
@@ -619,7 +619,7 @@ SUBROUTINE_PATH = ~/linuxcnc/nc_files/remap-subroutines:~/linuxcnc/nc_files/rema
 # is the sub, with is called when a error during tool change happens, not needed on every machine configuration
 ON_ABORT_COMMAND=O <on_abort> call
 
-# The remap code for Qtvcp's versaprobe's automatic tool probe of Z
+# The remap code for QtVCP's versaprobe's automatic tool probe of Z
 REMAP=M6  modalgroup=6 prolog=change_prolog ngc=qt_auto_probe_tool epilog=change_epilog
 ----
 
@@ -644,7 +644,7 @@ MAXPROBE =  -20
 This is not named TOOL_CHANGE_POSITION  on purpose - *canon uses that name and
 will interfere otherwise.* The position to move the machine before giving the
 change tool command. All values are in absolute coordinates.
-All values are in machine native units
+All values are in machine native units.
 
 [source,{ini}]
 ----
@@ -656,7 +656,7 @@ Z = -2
 
 ==== The Python Section
 
-The Python section sets up what files LinuxCNC's python interpreter looks for.
+The Python section sets up what files LinuxCNC's Python interpreter looks for.
 ie. 'toplevel.py' file in the 'python' folder in the configuration directory:
 
 [source,{ini}]
@@ -682,7 +682,7 @@ if using an installed version of LinuxCNC: +
 from '/usr/share/doc/linuxcnc/examples/sample-configs/sim/qtvcp_screens/qtdragon/python/'
 , copy 'toplevel.py' and 'remap.py' to your configuration's new 'python' folder.
 
-alternately, You can make new files in your 'python' folder that you made in your configuration folder,
+Alternately, you can make new files in your 'python' folder that you made in your configuration folder,
 with a text editor.
 
 One named 'remap.py' saved with this text: 
@@ -697,7 +697,7 @@ One named 'toplevel.py' saved with this text:
 import remap
 ----
 
-Make a system link or copy the following files into the 'python' folder
+Make a symbolic link or copy the following files into the 'python' folder
 described above.
 
 In '~/linuxcnc/nc_files/examples/remap_subroutine/' folder
@@ -717,7 +717,7 @@ The names and location quoted should be available in either system by default.
 === Needed HAL Connections
 
 Make sure to connect the tool probe input in your HAL file:
-If connected properly, you should be able to toggle the probe LED in qtdragon
+If connected properly, you should be able to toggle the probe LED in QtDragon
 if you press the probe stylus.
 
 [source,{hal}]
@@ -737,9 +737,9 @@ button.
 The run from line feature can be disabled in the settings page.
 
 [NOTE]
-Linuxcnc's run-from-line is not very user friendly. eg. It does not start the
+LinuxCNC's run-from-line is not very user friendly. E.g., it does not start the
 spindle or confirm the proper tool.
-It does not handle subroutines well. If used it is best to start on a rapid
+Also, it does not handle subroutines well. If used it is best to start on a rapid
 move.
 
 == Laser buttons
@@ -770,7 +770,7 @@ The side buttons will control the display.
 * '+', '-': Zoom controls
 * 'C': Clear graphics of tool movement lines
 
-In Qtdragon_hd there are also macro buttons available on the right side. +
+In QtDragon_hd there are also macro buttons available on the right side. +
 Up to tens buttons can be defined in the INI.
 
 === File Tab
@@ -800,7 +800,7 @@ help in debugging problems.
 Probing routines options are displayed on this tab. Depending on INI options,
 this could be +
 VersaProbe or BasicProbe style. They are functionally similar. +
-Qtdragon_hd will also show a smaller graphics display window.
+QtDragon_hd will also show a smaller graphics display window.
 
 === Camview Tab
 
@@ -808,7 +808,7 @@ If the recognized webcam is connected, this tab will display the video image
 overlayed with a cross-hair +
 , circle and degree readout. This can be adjusted to suit a part feature for
 such things as touchoff. +
-The underlying library uses openCV python module to connect to the webcam.
+The underlying library uses openCV Python module to connect to the webcam.
 
 === G-codes Tab
 
@@ -827,7 +827,7 @@ name, it will load automatically.
 You can also write your own HTML docs with the included SetUp Writer
 button.
 
-.qtdragon - Setup Tab Sample
+.QtDragon - Setup Tab Sample
 image::images/silverdragon_setup.png["QtDragon Setup Tab",scale="25%"]
 
 === Settings Tab
@@ -843,17 +843,17 @@ This tabs will display another stab election of G-code utility programs. +
   90 degrees
 * 'Hole Circle': allows quick setting of a program to drill a bolt circle of
   definable diameter and number of holes.
-* 'NgcGui': is a Qtvcp version of the popular G-code subroutine builder/selector.
+* 'NgcGui': is a QtVCP version of the popular G-code subroutine builder/selector.
 
 == Styles
 
-Nearly all aspects of the GUI appearance are configurable via the qtdragon.qss
+Nearly all aspects of the GUI appearance are configurable via the QtDragon.qss
 stylesheet file. The file can be edited manually or
 through the stylesheet dialog widget in the GUI. To call up the dialog, press
 F12 on the main window. New styles can be applied
 temporarily and then saved to a new qss file, or overwrite the current qss file.
 
-.qtdragon - Two Style Examples
+.QtDragon - Two Style Examples
 image::images/style-comparison.png["QtDragon styles",scale="25%"]
 
 == Customization
@@ -888,18 +888,18 @@ qproperty-false_state_string: "Air\\nOff";
 }
 ----
 
-=== QtDesigner and python code
+=== Qt Designer and Python code
 
 All aspects of the GUI are fully customization through Qt Designer and/or
-python code.
-This capability is included with the Qtvcp development environment.
-The extensive use of Qtvcp widgets keeps the amount of required python code to
+Python code.
+This capability is included with the QtVCP development environment.
+The extensive use of QtVCP widgets keeps the amount of required Python code to
 a minimum, allowing relatively easy modifications.
 The LinuxCNC website has extensive documentation on the installation and use of
-Qtvcp libraries.
+QtVCP libraries.
 <<cha:qtvcp,QtVCP Overview>> for more information
 
-.qtdragon - Customized QtDragon
+.QtDragon - Customized QtDragon
 image::images/silverdragon_custom.png["QtDragon customized",scale=25]
 
 // vim: set syntax=asciidoc:
