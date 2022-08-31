@@ -14,7 +14,7 @@
 
 LinuxCNC 2.5 supports TWOPASS processing of LinuxCNC configuration files
 that can help in the modularization and readability of LinuxCNC files.
-(LinuxCNC files are specified in an LinuxCNC ini file in the LinuxCNC stanza
+(LinuxCNC files are specified in an LinuxCNC INI file in the LinuxCNC stanza
 as [LinuxCNC]HALFILE=filename).
 
 Normally, a set of one or more LinuxCNC configuration files must use a single,
@@ -45,7 +45,7 @@ and their names since when you add (or remove) a component, you
 must find and update the single loadrt directive applicable to
 the component.
 
-TWOPASS processing is enabled by including an ini file parameter in
+TWOPASS processing is enabled by including an INI file parameter in
 the [HAL] section:
 
 [source,{ini}]
@@ -67,8 +67,9 @@ loadrt and2 names=ab,ac
 loadrt and2 names=ad
 ----
 
-These commands can appear in different HALFILES.  The HALFILES
-are processed in the order of their appearance in the ini file.
+These commands can appear in different HAL files. The HAL files
+are processed in the order of their appearance in the INI file,
+in multiple HALFILE assignments.
 
 The TWOPASS option can be specified with options to add output for
 debugging (verbose) and to prevent deletion of temporary files (nodelete).
@@ -134,7 +135,7 @@ encoder_ratio, pid, siggen, and sim_encoder.
 
 Two-step processing occurs before the GUI is loaded. When using a
 [HAL]POSTGUI_HALFILE, it is convenient to place all the [HAL]POSTGUI_HALFILE
-loadrt declarations for the necessary components in a preloaded halfile.
+loadrt declarations for the necessary components in a preloaded HAL file.
 
 .Example of a HAL section when using a POSTGUI_HALFILE
 [source,{ini}]
@@ -154,10 +155,10 @@ HALUI = halui
 
 == Post GUI
 
-Some GUIs support halfiles that are processed after the GUI is started in order
-to connect LinuxCNC pins that are created by the GUI.  When using a postgui halfile with
-TWOPASS processing, include all loadrt items for components added by postgui halfiles
-in a separate halfile that is processed before the GUI.  The addf commands can also
+Some GUIs support HAL files that are processed after the GUI is started in order
+to connect LinuxCNC pins that are created by the GUI.  When using a postgui HAL file with
+TWOPASS processing, include all loadrt items for components added by postgui HAL files
+in a separate HAL file that is processed before the GUI.  The addf commands can also
 be included in the file.
 
 .Example
