@@ -9,6 +9,7 @@ on:
     types: [rerequested]
 
 jobs:
+
   rip-and-test:
     runs-on: ubuntu-20.04
     steps:
@@ -33,7 +34,7 @@ jobs:
         eatmydata make -O -j$((1+$(nproc))) default pycheck V=1
         # Note that the package build covers html docs
         ../scripts/rip-environment runtests -p
-    
+
   htmldocs:
     runs-on: ubuntu-20.04
     steps:
