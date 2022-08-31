@@ -2134,12 +2134,16 @@ This widget is used to execute small arbitrary python code.
 
 The command string may use special keywords to access important functions.
 
-* `GSTAT` for access to the Gstat library that is used for LinuxCNC status
-* `STAT` for access to LinuxCNC's status via the LinuxCNC Python module
-* `CMD` for access to LinuxCNC's commands via the LinuxCNC Python module
-* `EXT` for access to the handler file functions if available
-* `linuxcnc` for access to the LinuxCNC Python module
-* `self` for access to the widget instance
+* 'ACTION' for access to the ACTION command library.
+* `GSTAT` for access to the Gstat status message library.
+* 'INFO' for access to collected data from the INI file. 
+* 'HAL' for access to the HAL linuxcnc Python module
+* `STAT` for access to LinuxCNC's raw status via the LinuxCNC Python module.
+* `CMD` for access to LinuxCNC's commands via the LinuxCNC Python module.
+* `EXT` for access to the handler file functions if available.
+* `linuxcnc` for access to the LinuxCNC Python module.
+* `self` for access to the widget instance.
+* 'dir' for access to the handlers list of attributes.
 
 There are options to
 
@@ -2173,6 +2177,11 @@ You can use a semicolon to separate multiple commands:
 ----
 print('Set Machine Off');CMD.state(linuxcnc.STATE_OFF)
 ----
+
+More information on INFO and ACTION can be found here: 
+<<cha:gladevcp-libraries,GladeVCP Libraries modules>>
+
+More information on GStat can be found here: <<cha:gstat,GStat>>
 
 === VCP ToggleAction widgets
 
@@ -2398,6 +2407,12 @@ using the library functions:
 print(INFO.MACHINE_IS_METRIC)
 ACTION.SET_ERROR_MESSAGE('Something went wrong')
 ----
+
+More information can be found here: <<cha:gladevcp-libraries,GladeVCP Libraries modules>>
+There is a sample configuration that demonstrates using the core library
+with gladevcp's action python widgets and with a python handler file.
+Try loading 'sim/axis/gladevcp/gladevcp_panel_tester'
+
 
 === An example: adding custom user callbacks in Python
 
