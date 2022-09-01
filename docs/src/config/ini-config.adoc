@@ -69,20 +69,20 @@ name and end at the next section name.
 
 The following sections are used by LinuxCNC:
 
-* `<<sub:ini:sec:emc,[EMC]>>` general information
-* `<<sub:ini:sec:display,[DISPLAY]>>` settings related to the graphical user interface
-* `<<sub:ini:sec:filter,[FILTER]>>` settings input filter programs
-* `<<sub:ini:sec:rs274ngc,[RS274NGC]>>` settings used by the G-code interpreter
-* `<<sub:ini:sec:emcmot,[EMCMOT]>>` settings used by the real time motion controller
-* `<<sub:ini:sec:task,[TASK]>>` settings used by the task controller
-* `<<sub:ini:sec:hal,[HAL]>>` specifies .hal files
-* `<<sub:ini:sec:halui,[HALUI]>>` MDI commands used by HALUI
-* `<<sub:ini:sec:applications,[APPLICATIONS]>>` Other applications to be started by LinuxCNC
-* `<<sub:ini:sec:traj,[TRAJ]>>` additional settings used by the real time motion controller
-* `<<sub:ini:sec:joint-num,[JOINT_n]>>` individual joint variables
-* `<<sub:ini:sec:axis-letter,[AXIS_l]>>` individual axis variables
-* `<<sub:ini:sec:kins,[KINS]>>` kinematics variables
-* `<<sub:ini:sec:emcio,[EMCIO]>>` settings used by the I/O Controller
+* <<sub:ini:sec:emc,[EMC]>> general information
+* <<sub:ini:sec:display,[DISPLAY]>> settings related to the graphical user interface
+* <<sub:ini:sec:filter,[FILTER]>> settings input filter programs
+* <<sub:ini:sec:rs274ngc,[RS274NGC]>> settings used by the G-code interpreter
+* <<sub:ini:sec:emcmot,[EMCMOT]>> settings used by the real time motion controller
+* <<sub:ini:sec:task,[TASK]>> settings used by the task controller
+* <<sub:ini:sec:hal,[HAL]>> specifies .hal files
+* <<sub:ini:sec:halui,[HALUI]>> MDI commands used by HALUI
+* <<sub:ini:sec:applications,[APPLICATIONS]>> Other applications to be started by LinuxCNC
+* <<sub:ini:sec:traj,[TRAJ]>> additional settings used by the real time motion controller
+* <<sub:ini:sec:joint-num,[JOINT_n]>> individual joint variables
+* <<sub:ini:sec:axis-letter,[AXIS_l]>> individual axis variables
+* <<sub:ini:sec:kins,[KINS]>> kinematics variables
+* <<sub:ini:sec:emcio,[EMCIO]>> settings used by the I/O Controller
 
 [[sub:ini:variables]]
 === Variables(((INI File,Components,Variables)))
@@ -94,6 +94,7 @@ spaces in string symbols if you want to or need to. A variable name is
 often called a keyword.
 
 .Variable Example
+[source,{ini}]
 ----
 MACHINE = My Machine
 ----
@@ -105,6 +106,7 @@ whitespace following the trailing backslash character.
 Section identifiers may not be extended to multiple lines.
 
 .Variable with Line extends Example
+[source,{ini}]
 ----
 APP = sim_pin \
 ini.0.max_acceleration \
@@ -186,6 +188,7 @@ G10 L20 P0 Z#<_ini[probe]z_offset>
 An INI file may include the contents of another file by using a #INCLUDE directive.
 
 .#INCLUDE Format
+[source,{ini}]
 ----
 #INCLUDE filename
 ----
@@ -200,6 +203,7 @@ The filename can be specified as:
 Multiple #INCLUDE directives are supported.
 
 .#INCLUDE Examples
+[source,{ini}]
 ----
 #INCLUDE joint_0.inc
 #INCLUDE ../parallel/joint_1.inc
@@ -312,8 +316,8 @@ The following [DISPLAY] items are used by GladeVCP, see the
 <<gladevcp:embedding-tab,embedding a tab>> section of the GladeVCP Chapter.
 
 * 'EMBED_TAB_NAME=GladeVCP demo'
-* 'EMBED_TAB_COMMAND=halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x {XID} -u ./gladevcp/hitcounter.py ./gladevcp/manual-example.ui'
-
+* 'EMBED_TAB_COMMAND=halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x \{XID\} -u ./gladevcp/hitcounter.py ./gladevcp/manual-example.ui'
++
 [NOTE]
 ====
 Different user interface programs use different options, and not every
@@ -392,6 +396,7 @@ See <<cha:gmoccapy,gmoccapy>> document for Gmoccapy details.
   A future version may define what ";" means, but if it does "XY;UV"
   will mean the same as the current foam default.
 
++
 [NOTE]
 If no [DISPLAY]GEOMETRY is included in the INI file, a default is provided
 by the [DISPLAY]DISPLAY GUI program (typically "XYZABCUVW")
@@ -410,7 +415,7 @@ by the [DISPLAY]DISPLAY GUI program (typically "XYZABCUVW")
   If unspecified, the default is determined from the [TRAJ]COORDINATES, [DISPLAY]LATHE and [DISPLAY]FOAM values.
 * 'JOG_INVERT =' - For each axis letter, the jog direction is inverted.
   The default is "X" for lathes and blank otherwise.
-
++
 [NOTE]
 The settings for 'JOG_AXES' and 'JOG_INVERT' apply to world mode jogging by axis coordinate letter
 and are in effect while in world mode after successful homing.
@@ -573,6 +578,7 @@ A search is made for each possible user defined function, typically
 . Then search each directory in the list [RS274NGC]USER_M_PATH
 +
 The first executable M1xx found in the search is used for each M1xx.
+
 +
 [NOTE]
 The maximum number of USER_M_PATH directories is defined at compile time (typ: 'USER_DEFINED_FUNCTION_MAX_DIRS == 5').
@@ -673,27 +679,29 @@ section.
 === [HAL] section(((INI File,Sections,[HAL] Section)))
 
 * 'HALFILE = example.hal' - Execute the file 'example.hal' at start up.
-  If 'HALFILE' is specified multiple times, the files are executed in the order they appear in the INI file.
-  Almost all configurations will have at least one 'HALFILE', and stepper
-  systems typically have two such files, one which specifies the generic
-  stepper configuration ('core_stepper.hal') and one which specifies
-  the machine pin out ('xxx_pinout.hal').
++
+--
+If 'HALFILE' is specified multiple times, the files are executed in the order they appear in the INI file.
+Almost all configurations will have at least one 'HALFILE', and stepper
+systems typically have two such files, one which specifies the generic
+stepper configuration ('core_stepper.hal') and one which specifies
+the machine pin out ('xxx_pinout.hal').
 
-  HALFILES are found using a search.
-  If the named file is found in the directory containing the INI file, it is used.
-  If the named file is not found in this INI file directory, a search is made using a system library of HAL files.
+HALFILES are found using a search.
+If the named file is found in the directory containing the INI file, it is used.
+If the named file is not found in this INI file directory, a search is made using a system library of HAL files.
 
-  If LinuxCNC is started with the linuxcnc script using the "-H dirname" option,
-  the specified dirname is prepended to the search described above so that
-  "dirname" is searched first.  The "-H dirname" option may be specified more
-  than once, directories are prepended in order.
+If LinuxCNC is started with the linuxcnc script using the "-H dirname" option,
+the specified dirname is prepended to the search described above so that
+"dirname" is searched first.  The "-H dirname" option may be specified more
+than once, directories are prepended in order.
 
-  A HALFILE may also be specified as an absolute path (when the name starts with
-  a '/' character).  Absolute paths are not recommended as their use may limit
-  relocation of configurations.
-
+A HALFILE may also be specified as an absolute path (when the name starts with
+a '/' character).  Absolute paths are not recommended as their use may limit
+relocation of configurations.
+--
 * 'HALFILE = texample.tcl [arg1 [arg2] ...]' - Execute the tcl file 'texample.tcl'
-  at start up with arg1, arg2, etc as ::argv list.  Files with a .tcl suffix are
+  at start up with arg1, arg2, etc as argv list.  Files with a .tcl suffix are
   processed as above but use haltcl for processing  See the
   <<cha:haltcl,HALTCL Chapter>> for more information.
 * 'HALFILE = LIB:sys_example.hal' - Execute the system library file 'sys_example.hal' at start up.
@@ -1251,11 +1259,13 @@ The following items might be used by a PID component and the assumption is
 that the output is volts.
 
 * 'DEADBAND = 0.000015' - How close is close enough to consider the motor in position, in <<sub:ini:sec:traj,machine units>>.
-  This is often set to a distance equivalent to 1, 1.5, 2, or 3 encoder counts, but there are no strict rules.
-  Looser (larger) settings allow less servo 'hunting' at the expense of lower accuracy.
-  Tighter (smaller) settings attempt higher accuracy at the expense of more servo 'hunting'.
-  Is it really more accurate if it's also more uncertain?
-  As a general rule, it's good to avoid, or at least limit, servo 'hunting' if you can.
++
+--
+This is often set to a distance equivalent to 1, 1.5, 2, or 3 encoder counts, but there are no strict rules.
+Looser (larger) settings allow less servo 'hunting' at the expense of lower accuracy.
+Tighter (smaller) settings attempt higher accuracy at the expense of more servo 'hunting'.
+Is it really more accurate if it's also more uncertain?
+As a general rule, it's good to avoid, or at least limit, servo 'hunting' if you can.
 
 Be careful about going below 1 encoder count, since you may create a condition where
 there is no place that your servo is happy. This can go beyond 'hunting' (slow) to
@@ -1275,6 +1285,7 @@ latexmath:[ \frac{X\, inches}{1\, encoder\, count} =
 ////////////////////////////////////////////////////////////////////////
 
 image::images/encoder-counts-math.png[align="center"]
+--
 
 * 'BIAS = 0.000' - This is used by hm2-servo and some others.
   Bias is a constant amount that is added to the output.
@@ -1312,14 +1323,18 @@ image::images/encoder-counts-math.png[align="center"]
   The units on the FF2 gain are volts per machine unit per second per second, e.g., image:images/ff2.png[height=25]
 // latexmath:[$\frac{volt}{mu\, s^{2}}$].
 * 'OUTPUT_SCALE = 1.000'
-* 'OUTPUT_OFFSET = 0.000' - These two values are the scale and offset factors for the joint output to the motor amplifiers.
-  The second value (offset) is subtracted from the computed output (in volts), and divided by the first value (scale
-  factor), before being written to the D/A converters.
-  The units on the scale value are in true volts per DAC output volts.
-  The units on the offset value are in volts.
-  These can be used to linearize a DAC.
-  Specifically, when writing outputs, the LinuxCNC first converts the desired output in quasi-SI units to raw actuator values, e.g., volts for an amplifier DAC.
-  This scaling looks like: image:images/output-offset.png[]
+* 'OUTPUT_OFFSET = 0.000'
++
+--
+These two values are the scale and offset factors for the joint output to the motor amplifiers.
+
+The second value (offset) is subtracted from the computed output (in volts), and divided by the first value (scale
+factor), before being written to the D/A converters.
+The units on the scale value are in true volts per DAC output volts.
+The units on the offset value are in volts.
+These can be used to linearize a DAC.
+Specifically, when writing outputs, the LinuxCNC first converts the desired output in quasi-SI units to raw actuator values, e.g., volts for an amplifier DAC.
+This scaling looks like: image:images/output-offset.png[]
 
 // latexmath:[raw=\frac{output-offset}{scale}]
 
@@ -1370,6 +1385,7 @@ See the following table for an example of voltage measurements.
 |  9 |  9.87
 | 10 | 10.87
 |==============
+--
 
 * 'MAX_OUTPUT = 10' - The maximum value for the output of the PID compensation that is written to the motor amplifier, in volts.
   The computed output value is clamped to this limit.
@@ -1425,7 +1441,7 @@ image::images/stepper-scale.png[align="center"]
 [NOTE]
 Old INI and HAL files used `INPUT_SCALE` for this value.
 
-* 'ENCODER_SCALE = 20000' (Optionally used in PNCconf built configs) -
+* 'ENCODER_SCALE = 20000' (Optionally used in PnCconf built configs) -
   Specifies the number of pulses that
   corresponds to a move of one machine unit as set in the [TRAJ] section.
   For a linear joint one machine unit will be equal to the setting of LINEAR_UNITS.
