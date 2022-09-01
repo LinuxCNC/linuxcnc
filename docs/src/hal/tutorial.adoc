@@ -221,7 +221,7 @@ should probably disappear.]
 To actually run the code contained in the function 'siggen.0.update',
 we need a realtime thread. The component called 'threads' that is used
 to create a new thread. Lets create a thread called 'test-thread' with
-a period of 1 ms (1,000 µs or 1,000,000 ns):
+a period of 1&thinsp;ms (1,000&thinsp;µs or 1,000,000&thinsp;ns):
 
 ----
 halcmd: loadrt threads name1=test-thread period1=1000000
@@ -456,8 +456,8 @@ Two windows will appear. The selection window is the largest and includes
 three tabs:
 
 * One lists all the pins currently defined in HAL,
-* One lists all the signals,
-* One lists all the parameters.
+* one lists all the signals,
+* one lists all the parameters.
 
 Click on a tab, then click on one of the items to select it. The small
 window will show the name and value of the selected item.
@@ -520,8 +520,7 @@ This dialog has three tabs. The first tab displays all of the HAL pins
 in the system. The second one displays all the signals, and the third
 displays all the parameters. We would like to look at the pin
 'siggen.0.cosine' first, so click on it then click the 'Close' button.
-The probe
-selection dialog will close, and the meter looks something like the
+The probe selection dialog will close, and the meter looks something like the
 following figure.
 
 .Halmeter Window
@@ -781,7 +780,7 @@ The two threads were created when we loaded 'threads'. The first one,
 'slow', runs every millisecond, and is capable of running floating
 point functions. We will use it for 'siggen.0.update' and
 'stepgen.update_freq'. The second thread is 'fast', which runs every
-50 microseconds, and does not support floating point.
+50 microseconds (µs), and does not support floating point.
 We will use it for 'stepgen.make_pulses'. To connect the
 functions to the proper thread, we use the 'addf' command.
 We specify the function first, followed by the thread.
@@ -818,7 +817,7 @@ signals that swing from +1 to -1. For our example that is fine, we want
 the table speed to vary from +1 to -1 inches per second. However the
 scaling of the step pulse generator isn't quite right. By default, it
 generates an output frequency of 1 step per second with an input of
-1.000. It is unlikely that one step per second will give us one inch
+1.0. It is unlikely that one step per second will give us one inch
 per second of table movement. Let's assume instead that we have a 5
 turn per inch leadscrew, connected to a 200 step per rev stepper with
 10x microstepping. So it takes 2000 steps for one revolution of the
@@ -837,9 +836,9 @@ halcmd: setp stepgen.1.enable 1
 ----
 
 This velocity scaling means that when the pin 'stepgen.0.velocity-cmd'
-is 1.000, the step generator will generate 10000 pulses per second
+is 1.0, the step generator will generate 10000 pulses per second
 (10 kHz). With the motor and leadscrew described above, that will result
-in the axis moving at exactly 1.000 inches per second. This illustrates
+in the axis moving at exactly 1.0 inches per second. This illustrates
 a key HAL concept - things like scaling are done at the lowest possible
 level, in this case in the step pulse generator. The internal signal
 'X-vel' is the velocity of the table in inches per second, and other
