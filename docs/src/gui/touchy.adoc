@@ -43,23 +43,23 @@ For more information on HAL files and the net command see the
 Touchy has several output pins that are meant to be connected to the
 motion controller to control wheel jogging:
 
-- 'touchy.jog.wheel.increment', which is to be connected to the 'axis.N.jog-scale' pin of each axis N.
-- 'touchy.jog.wheel.N', which is to be connected to 'axis.N.jog-enable' for each axis N.
+- 'touchy.jog.wheel.increment', which is to be connected to the 'axis._N_.jog-scale' pin of each axis _N_.
+- 'touchy.jog.wheel._N_', which is to be connected to 'axis._N_.jog-enable' for each axis _N_.
 
 [NOTE]
 'N' represents the axis number 0-8.
 
 - In addition to being connected to 'touchy.wheel-counts', the wheel counts
-  should also be connected to 'axis.N.jog-counts' for
-  each axis N.  If you use HAL component 'ilowpass' to smooth wheel jogging, be
-  sure to smooth only 'axis.N.jog-counts' and not 'touchy.wheel-counts'.
+  should also be connected to 'axis._N_.jog-counts' for
+  each axis _N_.  If you use HAL component 'ilowpass' to smooth wheel jogging, be
+  sure to smooth only 'axis._N_.jog-counts' and not 'touchy.wheel-counts'.
 
 .Required controls
 
-- Abort button (momentary contact) connected to the HAL pin 'touchy.abort'
-- Cycle start button (momentary contact) connected to 'touchy.cycle-start'
-- Wheel/MPG, connected to 'touchy.wheel-counts' and motion pins as described above
-- Single block (toggle switch) connected to 'touchy.single-block'
+- Abort button (momentary contact) connected to the HAL pin 'touchy.abort'.
+- Cycle start button (momentary contact) connected to 'touchy.cycle-start'.
+- Wheel/MPG, connected to 'touchy.wheel-counts' and motion pins as described above.
+- Single block (toggle switch) connected to 'touchy.single-block'.
 
 .Optional controls
 
@@ -71,7 +71,7 @@ motion controller to control wheel jogging:
 
 .Optional panel lamps
 
-- 'touchy.jog.active' shows when the panel jogging controls are live
+- 'touchy.jog.active' shows when the panel jogging controls are live.
 - 'touchy.status-indicator' is on when the machine is executing G-code,
   and flashes when the machine is executing but is in pause/feedhold.
 
@@ -84,7 +84,7 @@ motion controller to control wheel jogging:
 === Enabling Touchy
 
 To use Touchy, in the '[DISPLAY]' section of your INI file change the
-display selector line to 'DISPLAY = touchy'
+display selector line to 'DISPLAY = touchy'.
 
 === Preferences
 
@@ -103,7 +103,7 @@ All other font sizes can be changed on the Preferences tab.
 
 Touchy can invoke O-word macros using the MDI interface.  To configure
 this, in the '[TOUCHY]' section of the INI file, add one or more 'MACRO'
-lines.  Each should be of the format
+lines.  Each should be of the following format:
 
 [source,{ini}]
 ----
@@ -144,6 +144,6 @@ the left.
 This macro capability is useful for edge/hole probing and other setup
 tasks, as well as perhaps hole milling or other simple operations
 that can be done from the panel without requiring specially-written
-gcode programs.
+G-code programs.
 
 // vim: set syntax=asciidoc:
