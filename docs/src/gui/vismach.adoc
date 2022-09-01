@@ -13,8 +13,8 @@ image::images/vismach.png["Vismach displays the model in a 3D viewport",align="c
 
 The Vismach viewport view can be manipulated as follows:
 
-* *zoom* by scroll wheel or right button drag
-* *pan* by left button drag
+* *zoom* by scroll wheel or right button drag,
+* *pan* by left button drag,
 * *rotate* by middle-button drag or shift-drag.
 
 A Vismach model takes the form of a Python script and can use standard
@@ -24,10 +24,10 @@ simplest and most basic of them.
 
 The basic sequence in creating the Vismach model is
 
-* Create the HAL pins that control the motion
-* Create the parts
-* Define how they move
-* Assemble into movement groups
+* Create the HAL pins that control the motion.
+* Create the parts.
+* Define how they move.
+* Assemble into movement groups.
 
 == Start the script
 
@@ -72,7 +72,7 @@ function tells loadusr it's ready.
 It is probably easiest to create geometry in a CAD package and *import*
 into the model script with the `AsciiSTL()` or `AsciiOBJ()` functions.
 Both functions can take one of two named arguments, either a filename
-or raw data
+or raw data:
 
 * `part = AsciiSTL(filename="path/to/file.stl") +
   part = AsciiSTL(data="solid part1 facet normal ....") +
@@ -84,7 +84,7 @@ or raw data
 
 Alternatively parts can be created inside the model script from a range
 of *shape primitives*. Many shapes are created at the origin and need to
-be moved to the required location after creation.
+be moved to the required location after creation:
 
 * `cylinder = CylinderX(x1, r1, x2, r2) +
   cylinder = CylinderY(y1, r1, y2, r2) +
@@ -124,7 +124,7 @@ part4 = Collection([part1, part2])
 
 Parts may need to be moved in the Vismach space to assemble the model.
 They may also need to be moved to create the animation as the animation
-rotation axis is created at the origin (but moves with the Part).
+rotation axis is created at the origin (but moves with the Part):
 
 * `part1 = Translate([part1], x, y, z)` +
   Move part1 the specified distances in x, y and z.
@@ -140,7 +140,7 @@ an assembly they need to have their HAL motions defined before being
 assembled with the "Collection" command. The rotation axis and
 translation vector move with the part as it is moved by the vismach
 script during model assembly, or as it moves in response to the HAL pins
-as the model is animated.
+as the model is animated:
 
 * `part = HalTranslate([part], comp, "hal_pin", xs, ys, zs)` +
   The function arguments are:
@@ -182,9 +182,9 @@ you would:
 * Create the spindle at the origin.
 * Define the rotation.
 * Move the head to the spindle or spindle to the head.
-* Create the draw bar
-* Define the motion of the draw bar
-* Assemble the three parts into a head assembly
+* Create the draw bar.
+* Define the motion of the draw bar.
+* Assemble the three parts into a head assembly.
 * Define the motion of the head assembly.
 
 In this example the spindle rotation is indicated by rotation of a set
@@ -245,7 +245,7 @@ model = Collection([base, saddle, head, carousel])
 * `part = Color([colorspec], [part])` +
   Sets the display color of the part. Note that unlike the other
   functions the part definition comes second in this case. +
-  The colorspec consists of the three RGB values and an opacity. +
+  The colorspec consists of the three RGB values and an opacity.
   For example [1,0,0,0.5] for a 50% opacity red.
 * `myhud = Hud()` +
   Creates a heads-up display in the Vismach GUI to display such items as
