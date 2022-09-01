@@ -349,12 +349,15 @@ alias pin hm2_7i92.0.stepgen.00.position-fb h.00.position-fb
 ----
 
 [NOTE]
-Questionable component function detection may occur for 1)
-unsupported (deprecated) components, 2) user-created components
-that use multiple functions or unconventional function naming, or 3)
-gui-created userspace components that lack distinguishing
-characteristics such as a prefix based on the gui program name.
+====
+Questionable component function detection may occur for
+
+. unsupported (deprecated) components,
+. user-created components that use multiple functions or unconventional function naming, or
+. GUI-created userspace components that lack distinguishing characteristics such as a prefix based on the GUI program name.
+
 Questionable functions are tagged with a question mark "?".
+====
 
 [NOTE]
 Component pins that cannot be associated with a known thread
