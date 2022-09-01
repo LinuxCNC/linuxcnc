@@ -1,7 +1,7 @@
 Tests: linuxcnc-test
 Depends: @
-Restrictions: allow-stderr
+Restrictions: allow-stderr flaky
 
 Tests: rs274-test
 Depends: @
-Restrictions:
+Restrictions: flaky
