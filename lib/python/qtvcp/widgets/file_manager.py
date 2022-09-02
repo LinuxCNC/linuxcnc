@@ -5,11 +5,9 @@ import os
 import shutil
 from collections import OrderedDict
 
-from PyQt5.QtWidgets import (QApplication, QFileSystemModel,
-                 QWidget, QVBoxLayout, QHBoxLayout, QListView,
-                 QComboBox, QToolButton, QSizePolicy,
-                 QMenu, QAction, QLineEdit, QFrame,
-                    QTableView, QHeaderView)
+from PyQt5.QtWidgets import (QApplication, QFileSystemModel, QWidget, QVBoxLayout, QHBoxLayout,
+                             QListView, QComboBox, QPushButton, QToolButton, QSizePolicy,
+                             QMenu, QAction, QLineEdit, QCheckBox, QTableView, QHeaderView)
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import (QModelIndex, QDir, Qt, pyqtSlot,
                     QItemSelectionModel, QItemSelection)
@@ -53,39 +51,50 @@ class FileManager(QWidget, _HalWidgetBase):
         self._jumpList = OrderedDict(temp)
         self.currentPath = None
         self.currentFolder = None
+        self.jump_delete = []
         self.PREFS_ = None
         self.initUI()
-
 
     def initUI(self):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
 
-        pasteBox = QHBoxLayout()
+        line_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        button_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        box_policy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+
         self.textLine = QLineEdit()
         self.textLine.setToolTip('Current Director/selected File')
-        self.pasteButton = QToolButton()
+        self.textLine.setSizePolicy(line_policy)
+        self.textLine.setMinimumHeight(40)
+        self.pasteButton = QPushButton()
+        self.pasteButton.setSizePolicy(button_policy)
+        self.pasteButton.setMinimumSize(80, 40)
         self.pasteButton.setEnabled(False)
         self.pasteButton.setText('Paste')
         self.pasteButton.setToolTip('Copy file from copy path to current directory/file')
         self.pasteButton.clicked.connect(self.paste)
         self.pasteButton.hide()
+        pasteBox = QHBoxLayout()
         pasteBox.addWidget(self.textLine)
         pasteBox.addWidget(self.pasteButton)
 
-        self.copyBox = QFrame()
-        hbox = QHBoxLayout()
-        hbox.setContentsMargins(0,0,0,0)
         self.copyLine = QLineEdit()
+        self.copyLine.setSizePolicy(line_policy)
         self.copyLine.setToolTip('File path to copy from, when pasting')
-        self.copyButton = QToolButton()
+        self.copyLine.setMinimumHeight(40)
+        self.copyLine.setReadOnly(True)
+        self.copyButton = QPushButton()
+        self.copyButton.setSizePolicy(button_policy)
+        self.copyButton.setMinimumSize(80, 40)
         self.copyButton.setText('Copy')
         self.copyButton.setToolTip('Record current file as copy path')
         self.copyButton.clicked.connect(self.recordCopyPath)
-        hbox.addWidget(self.copyButton)
-        hbox.addWidget(self.copyLine)
-        self.copyBox.setLayout(hbox)
-        self.copyBox.hide()
+        self.copyBox = QHBoxLayout()
+        self.copyBox.addWidget(self.copyButton)
+        self.copyBox.addWidget(self.copyLine)
+        self.copyLine.hide()
+        self.copyButton.hide()
 
         self.model = QFileSystemModel()
         self.model.setRootPath(QDir.currentPath())
@@ -122,35 +131,58 @@ class FileManager(QWidget, _HalWidgetBase):
         self.cb = QComboBox()
         self.cb.currentIndexChanged.connect(self.filterChanged)
         self.fillCombobox(INFO.PROGRAM_FILTERS_EXTENSIONS)
-        self.cb.setMinimumSize(200,30)
+        self.cb.setMinimumSize(200,40)
         self.cb.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
 
-        self.button2 = QToolButton()
-        self.button2.setText('User')
-        self.button2.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
-        self.button2.setMinimumSize(60, 30)
-        self.button2.setToolTip('Jump to User directory.\nLong press for Options.')
-        self.button2.clicked.connect(self.onJumpClicked)
+        self.jumpButton = QToolButton()
+        self.jumpButton.setText('User')
+        self.jumpButton.setSizePolicy(button_policy)
+        self.jumpButton.setMinimumSize(80, 40)
+        self.jumpButton.setToolTip('Jump to User directory.\nLong press for Options.')
+        self.jumpButton.clicked.connect(self.onJumpClicked)
 
-        self.button3 = QToolButton()
-        self.button3.setText('Add Jump')
-        self.button3.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
-        self.button3.setMinimumSize(60, 30)
-        self.button3.setToolTip('Add current directory to jump button list')
-        self.button3.clicked.connect(self.onActionClicked)
+        self.addButton = QPushButton()
+        self.addButton.setText('Add Jump')
+        self.addButton.setSizePolicy(button_policy)
+        self.addButton.setMinimumSize(80, 40)
+        self.addButton.setToolTip('Add current directory to jump button list')
+        self.addButton.clicked.connect(self.onActionClicked)
 
+        self.delButton = QPushButton()
+        self.delButton.setText('Del Jump')
+        self.delButton.setSizePolicy(button_policy)
+        self.delButton.setMinimumSize(80, 40)
+        self.delButton.setToolTip('Delete current directory from jump button list')
+        self.delButton.clicked.connect(self.onActionClicked)
+
+        self.loadButton = QPushButton()
+        self.loadButton.setText('Load')
+        self.loadButton.setSizePolicy(button_policy)
+        self.loadButton.setMinimumSize(80, 40)
+        self.loadButton.setToolTip('Load selected file')
+        self.loadButton.clicked.connect(self._getPathActivated)
+
+        self.copy_control = QCheckBox()
+        self.copy_control.setText('Show Copy Controls')
+        self.copy_control.setSizePolicy(box_policy)
+        self.copy_control.setMinimumSize(80, 40)
+        self.copy_control.stateChanged.connect(lambda state: self.showCopyControls(state))
+        
         self.settingMenu = QMenu(self)
-        self.button2.setMenu(self.settingMenu)
+        self.jumpButton.setMenu(self.settingMenu)
 
         hbox = QHBoxLayout()
-        hbox.addWidget(self.button2)
-        hbox.addWidget(self.button3)
-        hbox.insertStretch (2, stretch = 0)
+        hbox.addWidget(self.jumpButton)
+        hbox.addWidget(self.addButton)
+        hbox.addWidget(self.delButton)
+        hbox.addWidget(self.loadButton)
+        hbox.addWidget(self.copy_control)
+        hbox.insertStretch (4, stretch = 0)
         hbox.addWidget(self.cb)
 
         windowLayout = QVBoxLayout()
         windowLayout.addLayout(pasteBox)
-        windowLayout.addWidget(self.copyBox)
+        windowLayout.addLayout(self.copyBox)
         windowLayout.addWidget(self.list)
         windowLayout.addWidget(self.table)
         windowLayout.addLayout(hbox)
@@ -165,7 +197,6 @@ class FileManager(QWidget, _HalWidgetBase):
                 self.updateDirectoryView(last_path)
             else:
                 self.updateDirectoryView(self.user_path)
-
 
             # get all the saved jumplist paths
             temp = self.PREFS_.getall('FILEMANAGER_JUMPLIST')
@@ -191,6 +222,8 @@ class FileManager(QWidget, _HalWidgetBase):
     # record jump list paths
     def _hal_cleanup(self):
         if self.PREFS_:
+            for opt in self.jump_delete:
+                self.PREFS_.removepref(opt, 'FILEMANAGER_JUMPLIST')
             for i, key in enumerate(self._jumpList):
                 if i in(0,1):
                     continue
@@ -250,45 +283,55 @@ class FileManager(QWidget, _HalWidgetBase):
 
     # jump directly to a saved path shown on the button
     def onJumpClicked(self):
-        data = self.button2.text()
+        data = self.jumpButton.text()
         if data.upper() == 'MEDIA':
             self.showMediaDir()
         elif data.upper() == 'USER':
             self.showUserDir()
-        else:
-            temp = self._jumpList.get(data)
+        elif data in self._jumpList:
+            temp = self._jumpList[data]
             if temp is not None:
                 self.updateDirectoryView(temp)
             else:
-                STATUS.emit('error', OPERATOR_ERROR, 'file jumopath: {} not valid'.format(data))
-                LOG.debug('file jumopath: {} not valid'.format(data))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'file jumppath: {} not valid'.format(data))
+                log.debug('file jumopath: {} not valid'.format(data))
+        else:
+            self.jumpButton.setText('User')
 
     # jump directly to a saved path from the menu
     def jumpTriggered(self, data):
+        name = data
+        self.jumpButton.setText(name)
         if data.upper() == 'MEDIA':
-            self.button2.setText('{}'.format(data))
-            self.button2.setToolTip('Jump to Media directory.\nLong press for Options.')
+            self.jumpButton.setToolTip('Jump to Media directory.\nLong press for Options.')
             self.showMediaDir()
         elif data.upper() == 'USER':
-            self.button2.setText('{}'.format(data))
-            self.button2.setToolTip('Jump to User directory.\nLong press for Options.')
+            self.jumpButton.setToolTip('Jump to User directory.\nLong press for Options.')
             self.showUserDir()
         else:
-            self.button2.setText('{}'.format(data))
-            self.button2.setToolTip('Jump to directory:\n{}'.format(self._jumpList.get(data)))
-            self.updateDirectoryView(self._jumpList.get(data))
+            self.jumpButton.setToolTip('Jump to directory:\n{}'.format(self._jumpList.get(name)))
+            self.updateDirectoryView(self._jumpList.get(name))
 
-    # add a jump list path
+    # add or remove a jump list path
     def onActionClicked(self):
-        i = self.currentFolder
-        try:
-            self._jumpList[i] = i
-        except Exception as e:
-            print(e)
-        button = QAction(QIcon.fromTheme('user-home'), i, self)
-        # weird lambda i=i to work around 'function closure'
-        button.triggered.connect(lambda state, i=i: self.jumpTriggered(i))
-        self.settingMenu.addAction(button)
+        name = os.path.basename(self.currentFolder)
+        btn = self.sender()
+        if btn == self.addButton:
+            try:
+                self._jumpList[name] = self.currentFolder
+                self.addAction(name)
+            except Exception as e:
+                print(e)
+        elif btn == self.delButton:
+            try:
+                self.jump_delete.append(name)
+                self._jumpList.pop(name)
+                self.settingMenu.clear()
+                for key in self._jumpList:
+                    self.addAction(key)
+                self.jumpButton.setText('User')
+            except Exception as e:
+                print(e)
 
     # get current selection and update the path
     # then if the path is good load it into linuxcnc
@@ -301,7 +344,7 @@ class FileManager(QWidget, _HalWidgetBase):
             self.listClicked(row)
 
         fname = self.currentPath
-        if fname is None:
+        if fname is None: 
             return
         if fname:
             self.load(fname)
@@ -327,10 +370,10 @@ class FileManager(QWidget, _HalWidgetBase):
     ########################
 
     def addAction(self, i):
-        axisButton = QAction(QIcon.fromTheme('user-home'), i, self)
+        action = QAction(QIcon.fromTheme('user-home'), i, self)
         # weird lambda i=i to work around 'function closure'
-        axisButton.triggered.connect(lambda state, i=i: self.jumpTriggered(i))
-        self.settingMenu.addAction(axisButton)
+        action.triggered.connect(lambda state, i=i: self.jumpTriggered(i))
+        self.settingMenu.addAction(action)
 
     def showList(self, state=True):
         if state:
@@ -345,10 +388,12 @@ class FileManager(QWidget, _HalWidgetBase):
 
     def showCopyControls(self, state):
         if state:
-            self.copyBox.show()
+            self.copyLine.show()
+            self.copyButton.show()
             self.pasteButton.show()
         else:
-            self.copyBox.hide()
+            self.copyLine.hide()
+            self.copyButton.hide()
             self.pasteButton.hide()
 
     def showMediaDir(self, quiet = False):
@@ -447,7 +492,7 @@ class FileManager(QWidget, _HalWidgetBase):
     # This can be class patched to do something else
     def recordBookKeeping(self):
         fname = self.currentPath
-        if fname is None:
+        if fname is None: 
             return
         if self.PREFS_:
             self.PREFS_.putpref('last_loaded_directory', self.model.rootPath(), str, 'BOOK_KEEPING')
@@ -457,6 +502,5 @@ if __name__ == "__main__":
     import sys
     app = QApplication(sys.argv)
     gui = FileManager()
-    gui.showCopyControls(True)
     gui.show()
     sys.exit(app.exec_())
