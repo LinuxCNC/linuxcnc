@@ -7,9 +7,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-08-29 13:49+0200\n"
-"PO-Revision-Date: 2022-08-04 01:59+0000\n"
+"PO-Revision-Date: 2022-09-02 09:55+0000\n"
 "Last-Translator: Ulices <dev.n47os@aleeas.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/es/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.14-dev\n"
+"X-Generator: Weblate 4.14.1-dev\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -7480,6 +7480,7 @@ msgstr "Herramienta %(tool)d, zo %(zo)g, xo %(xo)g, dia %(dia)g"
 #: src/emc/usr_intf/axis/scripts/axis.py:1095
 msgid "G-code preview loading timed out"
 msgstr ""
+"Se agotó el tiempo de espera de la carga de la vista previa del código G"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1122
 msgid "Filtering..."
@@ -11705,7 +11706,8 @@ msgstr "Opuesto"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -11998,15 +12000,15 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1296
 msgid "PIN file is empty:\n"
-msgstr ""
+msgstr "El archivo PIN está vacío:\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1297
 msgid "To use PIN file discovery mode, the contents of the"
-msgstr ""
+msgstr "Para utilizar el modo de detección de archivos PIN, el contenido de las"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1298
 msgid "cards PIN file needs to be pasted into the Input tab"
-msgstr ""
+msgstr "tarjetas PIN el archivo necesita ser pegado en la ficha Input"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1299
 msgid "of the Help window before clicking Board Discovery"
