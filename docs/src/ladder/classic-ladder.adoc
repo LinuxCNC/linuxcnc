@@ -605,20 +605,23 @@ digit number eg. %Q3, or %B123. Q coils control HAL out pins, e.g. if
 %Q15 is energized then HAL pin classicladder.0.out-15 will be true. B
 coils are internal coils used to control program flow.
 
-* 'N.O. COIL' - (a relay coil.) When coil is energized it's N.O. contact
-  will be closed (on, true, etc)
-* 'N.C. COIL' - (a relay coil that inverses its contacts.) When coil is
-  energized it"s N.O. contact will be open (off, false, etc)
-* 'SET COIL' - (a relay coil with latching contacts) When coil is energized
-  it's N.O. contact will be latched closed.
-* 'RESET COIL' - (a relay coil with latching contacts) When coil is
-  energized It's N.0. contact will be latched open.
-* 'JUMP COIL' - (a 'goto' coil) when coil is energized ladder program jumps
-  to a rung (in the CURRENT section) -jump points are designated by a
-  rung label. (Add rung labels in the section display, top left label
-  box)
-* 'CALL COIL' - (a 'gosub' coil) when coil is energized program jumps to a
-  subroutine section designated by a subroutine number -subroutines are
+* 'N.O. COIL' - A relay coil: When coil is energized, then its contact
+  that is normally open (short: N.O.) will be closed (turned on, true,
+  etc.) and the current may pass.
+* 'N.C. COIL' - A relay coil that inverses its contacts: When coil is
+  energized, then its contact that is normally closed (short: N.C.) will be opened
+  (turned off, false, etc) and the current flow is interrupted.
+* 'SET COIL' - A relay coil with latching contacts: When coil is energized
+  then its N.O. contact will be latched closed.
+* 'RESET COIL' - A relay coil with latching contacts: When coil is
+  energized then its N.O. contact will be latched open.
+* 'JUMP COIL' - A 'goto' coil: When coil is energized then the
+  ladder program jumps
+  to a rung (in the CURRENT section) - jump points are designated by a
+  rung label. (Add rung labels in the section display, top left label box.)
+* 'CALL COIL' - A 'gosub' coil: When coil is energized then the program
+  jumps to a
+  subroutine section designated by a subroutine number - subroutines are
   designated SR0 to SR9 (designate them in the section manager)
 
 [WARNING]
