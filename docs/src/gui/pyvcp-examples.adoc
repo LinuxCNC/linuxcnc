@@ -15,10 +15,10 @@ To create a PyVCP panel to use with the AXIS interface that is
 attached to the right of AXIS you need to do the following basic
 things.
 
-* Create an .xml file that contains your panel description and put it in
+* Create an XML file that contains your panel description and put it in
   your config directory.
-* Add the PyVCP entry to the [DISPLAY] section of the ini file with your .xml file name.
-* Add the POSTGUI_HALFILE entry to the [HAL] section of the ini file
+* Add the PyVCP entry to the [DISPLAY] section of the INI file with your XML file name.
+* Add the POSTGUI_HALFILE entry to the [HAL] section of the INI file
   with the name of your postgui HAL file name.
 * Add the links to HAL pins for your panel in the postgui.hal file to
   'connect' your PyVCP panel to LinuxCNC.
@@ -28,9 +28,9 @@ things.
 To create floating PyVCP panels that can be used with any interface
 you need to do the following basic things.
 
-* Create an .xml file that contains your panel description and put it in
+* Create an XML file that contains your panel description and put it in
   your config directory.
-* Add a loadusr line to your .hal file to load each panel.
+* Add a loadusr line to your HAL file to load each panel.
 * Add the links to HAL pins for your panel in the postgui.hal file to
   'connect' your PyVCP panel to LinuxCNC.
 
@@ -47,9 +47,9 @@ The -Wn makes HAL 'Wait for name' to be loaded before proceeding.
 
 The pyvcp -c makes PyVCP name the panel.
 
-The HAL pins from panel1.xml will be named btnpanel.<pin name>
+The HAL pins from panel1.xml will be named btnpanel.<_pin name_>.
 
-The HAL pins from panel2.xml will be named sppanel.<pin name>
+The HAL pins from panel2.xml will be named sppanel.<_pin name_>.
 
 Make sure the loadusr line is before any nets that make use of the
 PyVCP pins.
@@ -304,7 +304,7 @@ The following figure shows what a complete panel might look like.
 
 image::images/ptest-final.png["Port Tester Complete Image"]
 
-To add the rest of the parallel port pins just modify the .xml and .hal files.
+To add the rest of the parallel port pins just modify the XML and HAL files.
 
 To show the pins after running the HAL script use the following
 command at the halcmd prompt:
@@ -355,7 +355,7 @@ on the GS2 example in the Hardware Examples section this manual.
 
 === The Panel
 
-To create the panel we add the following to the .xml file.
+To create the panel we add the following to the XML file.
 
 ----
 <pyvcp>
@@ -483,7 +483,7 @@ PyVCP panel.
 
 image::images/pyvcp-rth.png[align="center"]
 
-In your configuration directory create the .xml file. In this example it's named
+In your configuration directory create the XML file. In this example it's named
 'rth.xml'. In the 'rth.xml' file add the following code to create the button.
 
 ----
@@ -496,7 +496,7 @@ In your configuration directory create the .xml file. In this example it's named
 </pyvcp>
 ----
 
-Open your .ini file with a text editor and in the [DISPLAY] section add the
+Open your INI file with a text editor and in the [DISPLAY] section add the
 following line. This is what loads the PyVCP panel.
 
 [source,{ini}]
@@ -504,7 +504,7 @@ following line. This is what loads the PyVCP panel.
 PYVCP = rth.xml
 ----
 
-If you don't have a [HALUI] section in the ini file create it and add the
+If you don't have a [HALUI] section in the INI file create it and add the
 following MDI command.
 
 [source,{ini}]
@@ -514,7 +514,7 @@ MDI_COMMAND = G53 G0 X0 Y0 Z0
 
 [NOTE]
 ====
-Information about <<gcode:g53,G53>> and <<gcode:g0,G0>> G-codes
+Information about <<gcode:g53,G53>> and <<gcode:g0,G0>> G-codes.
 ====
 
 In the [HAL] section if you don't have a post gui file add the following and
