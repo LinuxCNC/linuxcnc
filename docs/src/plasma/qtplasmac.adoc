@@ -1096,13 +1096,23 @@ Setup Speed has no effect on THC speed which is capable of the velocity displaye
 
 [underline]*CONFIGURATION - THC*
 
+Two methods of THC activation are available and are selected with the *Auto Activation* checkbutton. Both methods begin their calculations when the current velocity of the torch matches the cut feed rate specified for the selected material:
+
+. Delay Activation (the default) is selected when *Auto Activation* is unchecked. This method uses a time delay set with the *Delay* parameter.
+. Auto Activation is selected when *Auto Activation* is checked. This method determines that the arc voltage is stable by using the *Sample Counts* and *Sample Threshold* parameters.
+
 [width="100%",cols="4,2,14",options="header"]
 |===
 |Name|Modes|Description
 |Delay|0, 1, 2|This sets the delay (in seconds) measured from the time the Arc OK signal is received until Torch Height Controller (THC) activates.
-|Threshold|0, 1, 2|This sets the voltage variation allowed from the target voltage before for THC makes movements to correct the torch height.
-|Speed (PID-P)|0, 1|This sets the Proportional gain for the THC PID loop. This roughly equates to how quickly the THC attempts to correct changes in height.
-|VAD Threshold|0, 1|(Velocity Anti Dive) This sets the percentage of the current cut feed rate the machine can slow to before locking the THC to prevent torch dive.
+    This is only available when Auto THC is not enabled.
+|Sample Counts|0, 1|This sets the number of consecutive arc voltage readings within THC Sample Threshold required to activate the Torch Height Controller (THC).
+    This is only available when Auto THC is enabled.
+|Sample Threshold|0, 1|This sets the maximum voltage deviation allowed for THC Sample Counts.
+    This is only available when Auto THC is enabled.
+|Threshold|0, 1|This sets the voltage variation allowed from the target voltage before for THC makes movements to correct the torch height.
+|Speed (PID-P)|0, 1, 2|This sets the Proportional gain for the THC PID loop. This roughly equates to how quickly the THC attempts to correct changes in height.
+|VAD Threshold|0, 1, 2|(Velocity Anti Dive) This sets the percentage of the current cut feed rate the machine can slow to before locking the THC to prevent torch dive.
 |Void Override|0, 1|This sets the size of the change in cut voltage necessary to lock the THC to prevent torch dive (higher values need greater voltage change to lock THC).
 |PID-I|0, 1|This sets the Integral gain for the THC PID loop. Integral gain is associated with the sum of errors in the system over time and is not always needed.
 |PID-D|0, 1|This sets the Derivative gain for the THC PID loop. Derivative gain works to dampen the system and reduce over correction oscillations and is not always needed.

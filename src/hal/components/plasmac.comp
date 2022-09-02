@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-1.230
+1.231
 
 .I SUMMARY:
 .br
@@ -34,6 +34,7 @@ pin in  s32     arc_max_starts              "maximum attempts at starting the ar
 pin in  float   arc_voltage_in              "arc voltage input [mode 0 & mode 1] see Notes above";
 pin in  float   arc_voltage_offset          "offset to set arc voltage to 0 at 0 volts";
 pin in  float   arc_voltage_scale           "scale to convert arc_voltage input to actual volts";
+pin in  bit     thc_auto                    "enable automatic thc activation";
 pin in  float   axis_x_max_limit            "axis x maximum limit, connect to ini.x.max-limit";
 pin in  float   axis_x_min_limit            "axis x minimum limit, connect to ini.x.min-limit";
 pin in  float   axis_x_position             "current x axis position, connect to axis.x.pos-cmd";
@@ -96,6 +97,8 @@ pin in  bit     ohmic_probe                 "ohmic probe input, from ohmic-sense
 pin in  bit     ohmic_probe_enable          "enable ohmic probe";
 pin in  float   ohmic_probe_offset          "Z axis offset for ohmic probe (machine units)";
 pin in  bit     ohmic_test                  "test for shorted torch";
+pin in  s32     ok_sample_counts = 10       "arc_ok number of valid samples required [mode 0]";
+pin in  float   ok_sample_threshold = 10    "arc_ok maximum arc voltage deviation allowed [mode 0]";
 pin in  float   pause_at_end                "time to pause at end of cut";
 pin in  float   paused_motion_speed         "multiplier for speed of motion when paused, from -1 to 1";
 pin in  float   pid_d_gain                  "derivative gain input [mode 0 & mode 1]";
@@ -126,10 +129,12 @@ pin in  float   skip_ihs_distance           "skip IHS if less than this distance
 pin in  bit     spotting_start              "start a new spot, connect to spindle.2.on";
 pin in  float   spotting_threshold          "threshold voltage to start spotting delay";
 pin in  float   spotting_time               "torch off delay after spotting threshold reached";
-pin in  float   thc_delay                   "delay from cut feed rate reached to THC enable (seconds)";
+pin in  float   thc_delay                   "delay from cut feed rate reached to THC activate (seconds) [non auto THC]";
 pin in  bit     thc_disable                 "thc disable";
 pin in  bit     thc_enable                  "enable/disable thc and set the IHS skip type";
 pin in  float   thc_feed_rate               "maximum feed rate for thc (machine units per minute)";
+pin in  s32     thc_sample_counts = 50      "thc number of valid samples required [auto THC]";
+pin in  float   thc_sample_threshold = 1    "thc maximum arc voltage deviation allowed [auto THC]";
 pin in  float   thc_threshold               "thc threshold (volts), changes below this have no effect";
 pin in  bit     torch_enable                "enable torch";
 pin in  bit     torch_off                   "turn torch off";
@@ -147,9 +152,7 @@ pin in  float   zero_window = 0.1           "sets window that voltage fluctuatio
 
 /* OUTPUT PINS */
 pin out float   adaptive_feed               "for reverse-run, connect to motion.adaptive-feed";
-pin in  s32     arc_ok_counts = 10          "arc ok number of valid samples required [mode 0]";
 pin out bit     arc_ok_out                  "arc ok output";
-pin in  float   arc_ok_threshold = 10       "arc ok maximum arc voltage deviation allowed [mode 0]";
 pin out float   arc_voltage_out             "arc voltage output [mode 0 & mode 1]";
 pin out bit     consumable_changing         "consumables are being changed";
 pin out bit     cornerlock_is_locked        "corner locked indicator";
@@ -195,16 +198,20 @@ pin out s32     z_offset_counts             "z offset for height control, connec
 pin out bit     z_offset_enable             "enable z offsets, connect to axis.z.eoffset-enable";
 pin out float   z_relative                  "distance of Z from last probed height";
 
+// temp for auto-thc testing
+// check when we at "at speed"
+pin out float   current_feed_rate           "current feed rate per minute";
+pin out float   requested_feed_rate         "requested feed rate";
+
 /* VARIABLES */
 variable double angle_x_y;                  /* angle for x/y velocity calcs in radians*/
 variable float  arc_fail_timer;             /* arc failure timer */
 variable float  arc_lost_timer;             /* arc lost timer */
-variable int    arc_ok_samples;             /* required number of arc ok samples [mode0] */
 variable int    arc_starts;                 /* number of attempts to start torch */
 variable float  arc_valid_timer;            /* timer to wait for valid arc_voltage_in */
 variable float  arc_voltage_raw;            /* filtered arc voltage to be scaled */
-variable int    arcvolts_buff_count;        /* current number of stored values in arc voltage buffer */
-variable int    arcvolts_buff_index;        /* arc voltage buffer write index */
+variable int    arc_voltage_buffer_index;   /* arc voltage sampler write index */
+variable int    ok_sampler_samples;         /* required number of arc ok samples [mode0] */
 variable bool   auto_cut;                   /* auto cut mode is active */
 variable float  axis_x_finish;              /* axis x position at end of cut */
 variable float  axis_x_start;               /* axis x position at start of cut */
@@ -266,7 +273,9 @@ variable int    puddle_jump_percent;        /* puddle jump height as percentage 
 variable int    puddle_jump_target;         /* puddle jump height target offset */
 variable float  puddle_jump_timer;          /* puddle jump delay timer */
 variable float  recovery_velocity;          /* cut recovery step velocity */
-variable float  requested_feed_rate;        /* requested feed rate */
+// temp for auto-thc testing
+// created a out pin @ L204 to check when we at "at speed"
+//variable float  requested_feed_rate;        /* requested feed rate */
 variable int    res;                        /* resolution of offset move*/
 variable float  restart_timer;              /* time between torch on attempts*/
 variable int    safe_alarm;                 /* warn if safe_available falls below this value during a cut */
@@ -287,7 +296,8 @@ variable float  target_total;               /* total voltage of samples for sett
 //variable float  target_volts;               /* target voltage for thc, set by arc voltage at cut height */
 variable bool   thc_activated;              /* thc was activated */
 variable float  thc_activated_timer;        /* timer to reset thc_activated - end of cut is detected from userspace :( */
-variable float  thc_delay_timer;            /* thc delay timer */
+variable float  thc_delay_timer;            /* thc delay timer [non auto THC] */
+variable int    thc_sampler_samples;        /* required number of thc samples  [auto THC] */
 variable int    thc_velocity;               /* velocity for thc moves */
 variable float  torch_off_timer;            /* arc off delay timer */
 variable float  torch_pulse_timer;          /* torch pulse timer */
@@ -384,28 +394,37 @@ tool_t tool = EMPTY;
 laser_recovery_state_t laser_recovery = OFF;
 
 /* setup the arc voltage ring buffer */
-#define MAXBUFFSIZE 100
-float arcvolts_buff[MAXBUFFSIZE];
+#define BUFFERSIZE 1000
+#define READ_OK 0
+#define READ_THC 1
+float arc_voltage_buffer[BUFFERSIZE];
 
-/* read the arc voltage ring buffer and return the number of errors */
-int arc_v_buffer(int size, int index, float threshold, float target){
+/* read the arc voltage buffer */
+float read_arc_voltage_buffer(int caller, int size, int index, float target, float threshold){
     int reads = 0;
+    double sum = 0;
     int errors = 0;
-    if(!target){
-        target = arcvolts_buff[index];
-    }
     while(reads < size){
-        if (arcvolts_buff[index] < target - threshold || arcvolts_buff[index] > target + threshold){
-            errors ++;
+        if (arc_voltage_buffer[index] < target - threshold || arc_voltage_buffer[index] > target + threshold){
+            if(caller == READ_THC){
+                return 0;
+            }else{
+                errors++;
+            }
         }
-        if (index == size -1) {
-            index = 0;
-        } else {
-            index ++;
+        sum += arc_voltage_buffer[index];
+        if(index == 0){
+            index = BUFFERSIZE;
+        }else{
+            index--;
         }
-        reads ++;
+        reads++;
     }
-    return(errors);
+    if(caller == READ_THC){
+        return(sum / reads);
+    }else{
+        return(errors);
+    }
 }
 
 /* set an axis eoffset position at a set velocity */
@@ -429,14 +448,25 @@ FUNCTION(_) {
         rtapi_set_msg_level(3);
     }
 
-    /* validate arc ok sample size for mode 0 */
+    /* validate ok sample size for mode 0 */
     if(mode == 0){
-        if(arc_ok_counts < 1){
-            arc_ok_samples = 1;
-        }else if(arc_ok_counts > 100){
-            arc_ok_samples = 100;
+        if(ok_sample_counts < 1){
+            ok_sampler_samples = 1;
+        }else if(ok_sample_counts > BUFFERSIZE){
+            ok_sampler_samples = BUFFERSIZE;
         }else{
-            arc_ok_samples = arc_ok_counts;
+            ok_sampler_samples = ok_sample_counts;
+        }
+    }
+
+    /* validate thc sample size */
+    if(mode < 2){
+        if(thc_sample_counts < 1){
+            thc_sampler_samples = 1;
+        }else if(thc_sample_counts > BUFFERSIZE){
+            thc_sampler_samples = BUFFERSIZE;
+        }else{
+            thc_sampler_samples = thc_sample_counts;
         }
     }
 
@@ -485,12 +515,32 @@ FUNCTION(_) {
         sensor_active = FALSE;
     }
 
+
+// I don't recall why z_relative was originally created!!!
+// commit # b29d1af 24 Oct 2019
+//    /* output the relative Z height */
+//    if(zero_target){
+//        z_relative = z_offset_current - zero_target * offset_scale;
+//    }else{
+//        z_relative = axis_z_position - axis_z_min_limit;
+//    }
+
+// this height calculation is really only the target z height, we may not have reached the target yet
+    /* output current z height */
+//    z_height = (z_offset_counts - zero_target) * offset_scale;
+
+// this is probably more correct
+// we don't use z_relative anywhere so we could probably just rename it to z_height and remove the z_relative pin.
     /* output the relative Z height */
     if(zero_target){
-        z_relative = z_offset_current - zero_target * offset_scale;
+        z_height = z_offset_current - (zero_target * offset_scale);
     }else{
-        z_relative = axis_z_position - axis_z_min_limit;
+        z_height = axis_z_position - axis_z_min_limit;
     }
+
+// temp for auto-thc testing
+//  check when we at "at speed"
+    current_feed_rate = current_velocity * 60;
 
     /* convert feed rates to velocity */
     setup_velocity = setup_feed_rate * velocity_scale;
@@ -743,6 +793,13 @@ FUNCTION(_) {
      * if using arc ok input, set arc_ok_low_in and/or arc_ok_high_in to 0 */
     if(torch_on){
         torch_time += fperiod;
+        /* add the current arc voltage to the arc voltage buffer */
+        arc_voltage_buffer[arc_voltage_buffer_index] = arc_voltage_out;
+        if (arc_voltage_buffer_index == BUFFERSIZE) {
+            arc_voltage_buffer_index = 0;
+        }else{
+            arc_voltage_buffer_index++;
+        }
         /* set from arc ok input */
         if(mode > 0){
             if(arc_ok_in){
@@ -755,28 +812,17 @@ FUNCTION(_) {
             }
         /* synthesised from arc voltage */
         }else{
-            /* push the current arc voltage to the buffer */
-            if(state > 6 && state < 12){
-                if (arcvolts_buff_count < arc_ok_samples) {
-                    arcvolts_buff_count++;
-                }
-                arcvolts_buff[arcvolts_buff_index] = arc_voltage_out;
-                arcvolts_buff_index ++;
-                if (arcvolts_buff_index >= arc_ok_samples) {
-                    arcvolts_buff_index = 0;
-                }
-            }
             /* stable voltages required to set arc_ok */
             if(!arc_ok_out){
                 if(arc_voltage_out >= arc_ok_low &&
                    arc_voltage_out <= arc_ok_high &&
-                   !arc_v_buffer(arc_ok_samples, arcvolts_buff_index, arc_ok_threshold, 0)){
+                    !read_arc_voltage_buffer(READ_OK, ok_sampler_samples, arc_voltage_buffer_index - 1, arc_voltage_out, ok_sample_threshold)){
                 arc_ok_out = TRUE;
                 arc_lost_timer = arc_lost_delay;
                 }
             /* stable voltages required to maintain arc_ok */
             }else if((arc_voltage_out < arc_ok_low || arc_voltage_out > arc_ok_high) &&
-                    arc_v_buffer(arc_ok_samples, arcvolts_buff_index, arc_ok_threshold, target_volts) >= arc_ok_samples){
+                    read_arc_voltage_buffer(READ_OK, ok_sampler_samples, arc_voltage_buffer_index - 1, target_volts, ok_sample_threshold) >= ok_sampler_samples){
                 if(arc_lost_timer <= 0){
                     arc_ok_out = FALSE;
                 }else{
@@ -789,9 +835,6 @@ FUNCTION(_) {
         arc_lost_timer = arc_lost_delay;
         arc_ok_out = FALSE;
     }
-
-    /* output current z height */
-    z_height = (z_offset_counts - zero_target) * offset_scale;
 
     /* reset program states */
     if(program_is_idle){
@@ -1266,7 +1309,7 @@ FUNCTION(_) {
                         safe_target = offset_max;
                             axis_x_start = axis_x_position;
                             axis_y_start = axis_y_position;
-                            state = PIERCE_HEIGHT;
+                            state = ZERO_HEIGHT;
                     }else if(safe_min > offset_max && !probe_testing){
                         safe_target = offset_max;
                         rtapi_print_msg(RTAPI_MSG_ERR, "material is too high for safe traverse.\n"
@@ -1289,19 +1332,26 @@ FUNCTION(_) {
                         }
                         axis_x_start = axis_x_position;
                         axis_y_start = axis_y_position;
-                        state = PIERCE_HEIGHT;
+                        state = ZERO_HEIGHT;
                     }else{
                         safe_target = safe_preferred;
                         axis_x_start = axis_x_position;
                         axis_y_start = axis_y_position;
-                        state = PIERCE_HEIGHT;
+                        state = ZERO_HEIGHT;
                     }
                 }
                 probe_time += fperiod;
                 break;
             case ZERO_HEIGHT:
-                /* this case is not used at present */
-                rtapi_print_msg(RTAPI_MSG_ERR, "ZERO_HEIGHT is not a valid state.\n");
+                /* this case is not used at present it is just a waypoint*/
+                if(z_offset_counts == zero_target){
+                    if((int)(z_offset_current * offset_res) == (int)(zero_target * offset_scale * offset_res)){
+                        state = PIERCE_HEIGHT;
+                    }
+                /* move to zero height at setup velocity*/
+                }else{
+                    z_offset_counts = offset_move(z_offset_counts, setup_velocity, zero_target);
+                }
                 break;
             case PIERCE_HEIGHT:
                 z_offset_enable = TRUE;
@@ -1388,8 +1438,8 @@ FUNCTION(_) {
                             pierce_count += 1;
                         }
                         spotting = FALSE;
-                        /* clear arc voltage ring buffer */
-                        memset(arcvolts_buff, 0, arc_ok_samples * sizeof(*arcvolts_buff));
+                        /* clear arc voltage buffer */
+                        memset(arc_voltage_buffer, 0, BUFFERSIZE * sizeof(*arc_voltage_buffer));
                         state = ARC_OK;
                     }
                 }
@@ -1520,22 +1570,32 @@ FUNCTION(_) {
                         cornerlock_is_locked = TRUE;
                         /* wait until velocity reaches 99.9% of requested velocity */
                         if(current_velocity * 60 > requested_feed_rate * 0.999){
-                            /* wait until thc delay is completed before setting target voltage */
-                            if(thc_delay_timer <= 0){
-                                if(use_auto_volts){
-                                    count += 1;
-                                    target_total += arc_voltage_out;
-                                    if(count == target_samples){
-                                        target_volts = target_total / target_samples;
-                                        last_arc_voltage = target_volts;
-                                        count = 0;
-                                        target_total = 0;
-                                    }
-                                }else{
-                                    target_volts = cut_volts;
+                            if(thc_auto && use_auto_volts){
+                                /* test the arc voltage buffer for a stable voltage */
+                                double target = read_arc_voltage_buffer(READ_THC, thc_sampler_samples, arc_voltage_buffer_index - 1, arc_voltage_out, thc_sample_threshold);
+                                if(target){
+// should we use average voltage or current voltage???
+//                                    target_volts = arc_voltage_out; // current voltage
+                                    target_volts = target;            // average voltage
                                 }
                             }else{
-                                thc_delay_timer -= fperiod;
+                                /* wait until thc delay is completed before setting target voltage */
+                                if(thc_delay_timer <= 0){
+                                    if(use_auto_volts){
+                                        count += 1;
+                                        target_total += arc_voltage_out;
+                                        if(count == target_samples){
+                                            target_volts = target_total / target_samples;
+                                            last_arc_voltage = target_volts;
+                                            count = 0;
+                                            target_total = 0;
+                                        }
+                                    }else{
+                                        target_volts = cut_volts;
+                                    }
+                                }else{
+                                    thc_delay_timer -= fperiod;
+                                }
                             }
                         }
                     /* height override setup*/

@@ -58,8 +58,8 @@ def clear_tool_tips(W):
     'ohmic_probe_enable','pmx485_enable']
 
     main_thc_widgets = [
-    'led_float_switch','led_ohmic_probe','led_breakaway_switch','thc_enable',
-    'led_thc_up','led_thc_enabled','led_thc_down','led_thc_active']
+    'led_float_switch','led_ohmic_probe','led_breakaway_switch','thc_auto',
+    'thc_enable','led_thc_up','led_thc_enabled','led_thc_down','led_thc_active']
 
     main_jog_widgets = [
     'jogincrements','jog_slow','jog_z_minus','jog_z_plus','jog_x_minus',
@@ -236,6 +236,7 @@ def set_tool_tips(W):
     W.led_breakaway_switch.setToolTip(_translate('ToolTips', 'Shows the breakaway switch status'))
 
     # main_thc_widgets
+    W.thc_auto.setToolTip(_translate('ToolTips', 'Toggles the type of automatic THC activation'))
     W.thc_enable.setToolTip(_translate('ToolTips', 'Toggles the use of torch height control'))
     W.led_thc_up.setToolTip(_translate('ToolTips', 'Shows the THC is moving the Z axis up'))
     W.led_thc_enabled.setToolTip(_translate('ToolTips', 'Shows the THC status'))
@@ -351,6 +352,8 @@ def set_tool_tips(W):
     W.arc_ok_high.setToolTip(_translate('ToolTips', 'Voltage value below which Arc OK is valid'))
     W.arc_ok_low.setToolTip(_translate('ToolTips', 'Voltage value above which Arc OK is valid'))
     W.thc_delay.setToolTip(_translate('ToolTips', 'Delay between Arc OK and THC activation (seconds)'))
+    W.thc_sample_counts.setToolTip(_translate('ToolTips', 'Number of consecutive arc voltage readings within the sample threshold required to activate THC'))
+    W.thc_sample_threshold.setToolTip(_translate('ToolTips', 'Maximum voltage deviation allowed for THC Sample Counts'))
     W.thc_threshold.setToolTip(_translate('ToolTips', 'Deviation from target voltage before THC attempts correction'))
     W.pid_p_gain.setToolTip(_translate('ToolTips', 'Proportional gain for the THC PID loop'))
     W.cornerlock_threshold.setToolTip(_translate('ToolTips', 'Percentage of cut feed rate reduction before THC locks'))

@@ -368,7 +368,7 @@ QCheckBox::indicator:checked:pressed {
 /****** CHECK BOX CONTROL ************/
 #torch_enable, #cornerlock_enable, #kerfcross_enable,
 #use_auto_volts, #ohmic_probe_enable, #mesh_enable,
-#ignore_arc_ok, #pmx485_enable, #thc_enable {
+#ignore_arc_ok, #pmx485_enable, #thc_auto, #thc_enable {
     border: none;
     spacing: 0px }
 
@@ -380,6 +380,7 @@ QCheckBox::indicator:checked:pressed {
 #mesh_enable::indicator,
 #ignore_arc_ok::indicator,
 #pmx485_enable::indicator,
+#thc_auto::indicator,
 #thc_enable::indicator {
     background: backgnd;
     border: 1px solid foregnd;
@@ -395,6 +396,7 @@ QCheckBox::indicator:checked:pressed {
 #mesh_enable::indicator:checked,
 #ignore_arc_ok::indicator:checked,
 #pmx485_enable::indicator:checked,
+#thc_auto::indicator:checked,
 #thc_enable::indicator:checked {
     background: highlight;
     border-color: foregnd }
@@ -407,6 +409,7 @@ QCheckBox::indicator:checked:pressed {
 #mesh_enable::indicator:!checked,
 #ignore_arc_ok::indicator:!checked,
 #pmx485_enable::indicator:!checked,
+#thc_auto::indicator:!checked,
 #thc_enable::indicator:!checked {
     background: backgnd;
     border-color: foregnd }
@@ -419,6 +422,7 @@ QCheckBox::indicator:checked:pressed {
 #mesh_enable::indicator:pressed,
 #ignore_arc_ok::indicator:pressed,
 #pmx485_enable::indicator:pressed,
+#thc_auto::indicator:pressed,
 #thc_enable::indicator:pressed {
     background: highlight }
 
@@ -430,6 +434,7 @@ QCheckBox::indicator:checked:pressed {
 #mesh_enable::indicator:checked:pressed,
 #ignore_arc_ok::indicator:checked:pressed,
 #pmx485_enable::indicator:checked:pressed,
+#thc_auto::indicator:checked:pressed,
 #thc_enable::indicator:checked:pressed {
     background: backgnd }
 

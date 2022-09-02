@@ -74,7 +74,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="ScreenOptions" name="screen_options" native="true">
+     <widget class="ScreenOptions" name="screen_options">
       <property name="styleSheet">
        <string notr="true"/>
       </property>
@@ -496,7 +496,7 @@
                          <number>0</number>
                         </property>
                         <item>
-                         <widget class="GCodeGraphics" name="gcodegraphics" native="true">
+                         <widget class="GCodeGraphics" name="gcodegraphics">
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                             <horstretch>0</horstretch>
@@ -946,7 +946,7 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="FileManager" name="filemanager" native="true">
+                      <widget class="FileManager" name="filemanager">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                          <horstretch>0</horstretch>
@@ -1178,7 +1178,7 @@
                       </widget>
                      </item>
                      <item>
-                      <widget class="GcodeEditor" name="gcode_editor" native="true">
+                      <widget class="GcodeEditor" name="gcode_editor">
                        <property name="auto_show_mdi_status" stdset="0">
                         <bool>false</bool>
                        </property>
@@ -1518,7 +1518,7 @@ EDGE</string>
                          </widget>
                         </item>
                         <item>
-                         <widget class="CamView" name="camview" native="true"/>
+                         <widget class="CamView" name="camview"/>
                         </item>
                        </layout>
                       </widget>
@@ -1978,10 +1978,10 @@ EDGE</string>
                        <double>10.000000000000000</double>
                       </property>
                       <property name="right_edge_offset" stdset="0">
-                       <double>0.000000000000000</double>
+                       <number>0</number>
                       </property>
                       <property name="top_edge_offset" stdset="0">
-                       <double>0.000000000000000</double>
+                       <number>0</number>
                       </property>
                       <property name="corner_radius" stdset="0">
                        <double>5.000000000000000</double>
@@ -3249,7 +3249,7 @@ EDGE</string>
                            </widget>
                           </item>
                           <item>
-                           <widget class="LED" name="led_arc_ok" native="true">
+                           <widget class="LED" name="led_arc_ok">
                             <property name="minimumSize">
                              <size>
                               <width>0</width>
@@ -3262,7 +3262,7 @@ EDGE</string>
                               <height>16777215</height>
                              </size>
                             </property>
-                            <property name="color" stdset="0">
+                            <property name="color">
                              <color>
                               <red>252</red>
                               <green>233</green>
@@ -3691,7 +3691,7 @@ EDGE</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="LED" name="led_torch_on" native="true">
+                        <widget class="LED" name="led_torch_on">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -3704,7 +3704,7 @@ EDGE</string>
                            <height>16777215</height>
                           </size>
                          </property>
-                         <property name="color" stdset="0">
+                         <property name="color">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -3975,7 +3975,7 @@ EDGE</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="LED" name="led_kerf_lock" native="true">
+                        <widget class="LED" name="led_kerf_lock">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -3988,7 +3988,7 @@ EDGE</string>
                            <height>16777215</height>
                           </size>
                          </property>
-                         <property name="color" stdset="0">
+                         <property name="color">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -4209,7 +4209,7 @@ EDGE</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="LED" name="led_corner_lock" native="true">
+                        <widget class="LED" name="led_corner_lock">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -4222,7 +4222,7 @@ EDGE</string>
                            <height>16777215</height>
                           </size>
                          </property>
-                         <property name="color" stdset="0">
+                         <property name="color">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -4462,7 +4462,7 @@ EDGE</string>
                         <number>4</number>
                        </property>
                        <item row="0" column="0">
-                        <widget class="LED" name="led_float_switch" native="true">
+                        <widget class="LED" name="led_float_switch">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -4475,7 +4475,7 @@ EDGE</string>
                            <height>16777215</height>
                           </size>
                          </property>
-                         <property name="color" stdset="0">
+                         <property name="color">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -4507,7 +4507,7 @@ EDGE</string>
                         </widget>
                        </item>
                        <item row="1" column="0">
-                        <widget class="LED" name="led_ohmic_probe" native="true">
+                        <widget class="LED" name="led_ohmic_probe">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -4520,7 +4520,7 @@ EDGE</string>
                            <height>16777215</height>
                           </size>
                          </property>
-                         <property name="color" stdset="0">
+                         <property name="color">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -4552,7 +4552,7 @@ EDGE</string>
                         </widget>
                        </item>
                        <item row="2" column="0">
-                        <widget class="LED" name="led_breakaway_switch" native="true">
+                        <widget class="LED" name="led_breakaway_switch">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -4565,7 +4565,7 @@ EDGE</string>
                            <height>16777215</height>
                           </size>
                          </property>
-                         <property name="color" stdset="0">
+                         <property name="color">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -4769,7 +4769,7 @@ EDGE</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="LED" name="led_thc_up" native="true">
+                        <widget class="LED" name="led_thc_up">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -4782,7 +4782,7 @@ EDGE</string>
                            <height>16777215</height>
                           </size>
                          </property>
-                         <property name="color" stdset="0">
+                         <property name="color">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -4849,7 +4849,7 @@ EDGE</string>
                         </widget>
                        </item>
                        <item>
-                        <widget class="LED" name="led_thc_enabled" native="true">
+                        <widget class="LED" name="led_thc_enabled">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -4862,7 +4862,7 @@ EDGE</string>
                            <height>16777215</height>
                           </size>
                          </property>
-                         <property name="color" stdset="0">
+                         <property name="color">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -4906,7 +4906,7 @@ EDGE</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="LED" name="led_thc_down" native="true">
+                        <widget class="LED" name="led_thc_down">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -4919,7 +4919,7 @@ EDGE</string>
                            <height>16777215</height>
                           </size>
                          </property>
-                         <property name="color" stdset="0">
+                         <property name="color">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -4986,7 +4986,7 @@ EDGE</string>
                         </widget>
                        </item>
                        <item>
-                        <widget class="LED" name="led_thc_active" native="true">
+                        <widget class="LED" name="led_thc_active">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -4999,7 +4999,7 @@ EDGE</string>
                            <height>16777215</height>
                           </size>
                          </property>
-                         <property name="color" stdset="0">
+                         <property name="color">
                           <color>
                            <red>252</red>
                            <green>233</green>
@@ -6596,7 +6596,7 @@ MOVE</string>
                             <number>0</number>
                            </property>
                            <item>
-                            <widget class="MDIHistory" name="mdihistory" native="true">
+                            <widget class="MDIHistory" name="mdihistory">
                              <property name="soft_keyboard_option" stdset="0">
                               <bool>false</bool>
                              </property>
@@ -7629,10 +7629,10 @@ HOME</string>
                        <double>10.000000000000000</double>
                       </property>
                       <property name="right_edge_offset" stdset="0">
-                       <double>0.000000000000000</double>
+                       <number>0</number>
                       </property>
                       <property name="top_edge_offset" stdset="0">
-                       <double>0.000000000000000</double>
+                       <number>0</number>
                       </property>
                       <property name="corner_radius" stdset="0">
                        <double>5.000000000000000</double>
@@ -8808,7 +8808,7 @@ HOME ALL</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="GCodeGraphics" name="conv_preview" native="true"/>
+                        <widget class="GCodeGraphics" name="conv_preview"/>
                        </item>
                       </layout>
                      </widget>
@@ -9083,7 +9083,7 @@ HOME ALL</string>
                             </property>
                             <property name="minimumSize">
                              <size>
-                              <width>110</width>
+                              <width>116</width>
                               <height>0</height>
                              </size>
                             </property>
@@ -9671,8 +9671,58 @@ HOME ALL</string>
                           <property name="verticalSpacing">
                            <number>8</number>
                           </property>
-                          <item row="0" column="0">
-                           <widget class="DoubleScale" name="thc_delay">
+                          <item row="4" column="1">
+                           <widget class="QLabel" name="thc_sample_threshold_lbl">
+                            <property name="sizePolicy">
+                             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                              <horstretch>0</horstretch>
+                              <verstretch>0</verstretch>
+                             </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                             <size>
+                              <width>110</width>
+                              <height>0</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>150</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="text">
+                             <string>Sample Threshold</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item row="2" column="1">
+                           <widget class="QLabel" name="thc_delay_lbl">
+                            <property name="sizePolicy">
+                             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                              <horstretch>0</horstretch>
+                              <verstretch>0</verstretch>
+                             </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                             <size>
+                              <width>110</width>
+                              <height>0</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>150</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="text">
+                             <string>Delay</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item row="10" column="0">
+                           <widget class="DoubleScale" name="pid_d_gain">
                             <property name="sizePolicy">
                              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                               <horstretch>0</horstretch>
@@ -9704,45 +9754,17 @@ HOME ALL</string>
                              <bool>true</bool>
                             </property>
                             <property name="decimals">
-                             <number>2</number>
+                             <number>0</number>
                             </property>
                             <property name="maximum">
-                             <double>9.000000000000000</double>
-                            </property>
-                            <property name="singleStep">
-                             <double>0.010000000000000</double>
+                             <double>1000.000000000000000</double>
                             </property>
                             <property name="value">
                              <double>0.000000000000000</double>
                             </property>
                            </widget>
                           </item>
-                          <item row="0" column="1">
-                           <widget class="QLabel" name="thc_delay_lbl">
-                            <property name="sizePolicy">
-                             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                              <horstretch>0</horstretch>
-                              <verstretch>0</verstretch>
-                             </sizepolicy>
-                            </property>
-                            <property name="minimumSize">
-                             <size>
-                              <width>110</width>
-                              <height>0</height>
-                             </size>
-                            </property>
-                            <property name="maximumSize">
-                             <size>
-                              <width>150</width>
-                              <height>16777215</height>
-                             </size>
-                            </property>
-                            <property name="text">
-                             <string>Delay</string>
-                            </property>
-                           </widget>
-                          </item>
-                          <item row="1" column="0">
+                          <item row="5" column="0">
                            <widget class="DoubleScale" name="thc_threshold">
                             <property name="sizePolicy">
                              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -9791,33 +9813,8 @@ HOME ALL</string>
                             </property>
                            </widget>
                           </item>
-                          <item row="1" column="1">
-                           <widget class="QLabel" name="thc_threshold_lbl">
-                            <property name="sizePolicy">
-                             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                              <horstretch>0</horstretch>
-                              <verstretch>0</verstretch>
-                             </sizepolicy>
-                            </property>
-                            <property name="minimumSize">
-                             <size>
-                              <width>110</width>
-                              <height>0</height>
-                             </size>
-                            </property>
-                            <property name="maximumSize">
-                             <size>
-                              <width>150</width>
-                              <height>16777215</height>
-                             </size>
-                            </property>
-                            <property name="text">
-                             <string>Threshold</string>
-                            </property>
-                           </widget>
-                          </item>
-                          <item row="2" column="0">
-                           <widget class="DoubleScale" name="pid_p_gain">
+                          <item row="8" column="0">
+                           <widget class="DoubleScale" name="kerfcross_override">
                             <property name="sizePolicy">
                              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                               <horstretch>0</horstretch>
@@ -9848,6 +9845,43 @@ HOME ALL</string>
                             <property name="accelerated">
                              <bool>true</bool>
                             </property>
+                            <property name="suffix">
+                             <string notr="true"> %</string>
+                            </property>
+                            <property name="decimals">
+                             <number>0</number>
+                            </property>
+                            <property name="minimum">
+                             <double>1.000000000000000</double>
+                            </property>
+                            <property name="maximum">
+                             <double>1000.000000000000000</double>
+                            </property>
+                           </widget>
+                          </item>
+                          <item row="3" column="0">
+                           <widget class="DoubleScale" name="thc_sample_counts">
+                            <property name="sizePolicy">
+                             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                              <horstretch>0</horstretch>
+                              <verstretch>0</verstretch>
+                             </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                             <size>
+                              <width>136</width>
+                              <height>0</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>176</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="alignment">
+                             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                            </property>
                             <property name="decimals">
                              <number>0</number>
                             </property>
@@ -9855,12 +9889,12 @@ HOME ALL</string>
                              <double>1000.000000000000000</double>
                             </property>
                             <property name="value">
-                             <double>0.000000000000000</double>
+                             <double>50.000000000000000</double>
                             </property>
                            </widget>
                           </item>
-                          <item row="2" column="1">
-                           <widget class="QLabel" name="pid_p_gain_lbl">
+                          <item row="10" column="1">
+                           <widget class="QLabel" name="pid_d_gain_lbl">
                             <property name="sizePolicy">
                              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
                               <horstretch>0</horstretch>
@@ -9880,11 +9914,48 @@ HOME ALL</string>
                              </size>
                             </property>
                             <property name="text">
-                             <string>Speed (PID-P)</string>
+                             <string>PID-D</string>
                             </property>
                            </widget>
                           </item>
-                          <item row="3" column="0">
+                          <item row="4" column="0">
+                           <widget class="DoubleScale" name="thc_sample_threshold">
+                            <property name="sizePolicy">
+                             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                              <horstretch>0</horstretch>
+                              <verstretch>0</verstretch>
+                             </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                             <size>
+                              <width>136</width>
+                              <height>0</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>176</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="alignment">
+                             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                            </property>
+                            <property name="suffix">
+                             <string> V</string>
+                            </property>
+                            <property name="accelerated">
+                             <bool>true</bool>
+                            </property>
+                            <property name="maximum">
+                             <double>99.000000000000000</double>
+                            </property>
+                            <property name="singleStep">
+                             <double>0.010000000000000</double>
+                            </property>
+                           </widget>
+                          </item>
+                          <item row="7" column="0">
                            <widget class="DoubleScale" name="cornerlock_threshold">
                             <property name="sizePolicy">
                              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -9933,7 +10004,57 @@ HOME ALL</string>
                             </property>
                            </widget>
                           </item>
-                          <item row="3" column="1">
+                          <item row="1" column="1">
+                           <widget class="QLabel" name="thc_auto_lbl">
+                            <property name="sizePolicy">
+                             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                              <horstretch>0</horstretch>
+                              <verstretch>0</verstretch>
+                             </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                             <size>
+                              <width>110</width>
+                              <height>0</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>150</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="text">
+                             <string>Auto Activate</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item row="6" column="1">
+                           <widget class="QLabel" name="pid_p_gain_lbl">
+                            <property name="sizePolicy">
+                             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                              <horstretch>0</horstretch>
+                              <verstretch>0</verstretch>
+                             </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                             <size>
+                              <width>116</width>
+                              <height>0</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>150</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="text">
+                             <string>Speed (PID-P)</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item row="7" column="1">
                            <widget class="QLabel" name="label_41">
                             <property name="sizePolicy">
                              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
@@ -9958,8 +10079,58 @@ HOME ALL</string>
                             </property>
                            </widget>
                           </item>
-                          <item row="4" column="0">
-                           <widget class="DoubleScale" name="kerfcross_override">
+                          <item row="5" column="1">
+                           <widget class="QLabel" name="thc_threshold_lbl">
+                            <property name="sizePolicy">
+                             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                              <horstretch>0</horstretch>
+                              <verstretch>0</verstretch>
+                             </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                             <size>
+                              <width>110</width>
+                              <height>0</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>150</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="text">
+                             <string>Threshold</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item row="8" column="1">
+                           <widget class="QLabel" name="kerfcross_override_lbl">
+                            <property name="sizePolicy">
+                             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                              <horstretch>0</horstretch>
+                              <verstretch>0</verstretch>
+                             </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                             <size>
+                              <width>110</width>
+                              <height>0</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>150</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="text">
+                             <string>Void Override</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item row="6" column="0">
+                           <widget class="DoubleScale" name="pid_p_gain">
                             <property name="sizePolicy">
                              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                               <horstretch>0</horstretch>
@@ -9990,22 +10161,19 @@ HOME ALL</string>
                             <property name="accelerated">
                              <bool>true</bool>
                             </property>
-                            <property name="suffix">
-                             <string notr="true"> %</string>
-                            </property>
                             <property name="decimals">
                              <number>0</number>
-                            </property>
-                            <property name="minimum">
-                             <double>1.000000000000000</double>
                             </property>
                             <property name="maximum">
                              <double>1000.000000000000000</double>
                             </property>
+                            <property name="value">
+                             <double>0.000000000000000</double>
+                            </property>
                            </widget>
                           </item>
-                          <item row="4" column="1">
-                           <widget class="QLabel" name="kerfcross_override_lbl">
+                          <item row="9" column="1">
+                           <widget class="QLabel" name="pid_i_gain_lbl">
                             <property name="sizePolicy">
                              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
                               <horstretch>0</horstretch>
@@ -10025,11 +10193,36 @@ HOME ALL</string>
                              </size>
                             </property>
                             <property name="text">
-                             <string>Void Override</string>
+                             <string>PID-I</string>
                             </property>
                            </widget>
                           </item>
-                          <item row="5" column="0">
+                          <item row="3" column="1">
+                           <widget class="QLabel" name="thc_sample_counts_lbl">
+                            <property name="sizePolicy">
+                             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                              <horstretch>0</horstretch>
+                              <verstretch>0</verstretch>
+                             </sizepolicy>
+                            </property>
+                            <property name="minimumSize">
+                             <size>
+                              <width>110</width>
+                              <height>0</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>150</width>
+                              <height>16777215</height>
+                             </size>
+                            </property>
+                            <property name="text">
+                             <string>Sample Counts</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item row="9" column="0">
                            <widget class="DoubleScale" name="pid_i_gain">
                             <property name="sizePolicy">
                              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -10072,33 +10265,8 @@ HOME ALL</string>
                             </property>
                            </widget>
                           </item>
-                          <item row="5" column="1">
-                           <widget class="QLabel" name="pid_i_gain_lbl">
-                            <property name="sizePolicy">
-                             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                              <horstretch>0</horstretch>
-                              <verstretch>0</verstretch>
-                             </sizepolicy>
-                            </property>
-                            <property name="minimumSize">
-                             <size>
-                              <width>110</width>
-                              <height>0</height>
-                             </size>
-                            </property>
-                            <property name="maximumSize">
-                             <size>
-                              <width>150</width>
-                              <height>16777215</height>
-                             </size>
-                            </property>
-                            <property name="text">
-                             <string>PID-I</string>
-                            </property>
-                           </widget>
-                          </item>
-                          <item row="6" column="0">
-                           <widget class="DoubleScale" name="pid_d_gain">
+                          <item row="2" column="0">
+                           <widget class="DoubleScale" name="thc_delay">
                             <property name="sizePolicy">
                              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                               <horstretch>0</horstretch>
@@ -10130,38 +10298,23 @@ HOME ALL</string>
                              <bool>true</bool>
                             </property>
                             <property name="decimals">
-                             <number>0</number>
+                             <number>2</number>
                             </property>
                             <property name="maximum">
-                             <double>1000.000000000000000</double>
+                             <double>9.000000000000000</double>
+                            </property>
+                            <property name="singleStep">
+                             <double>0.010000000000000</double>
                             </property>
                             <property name="value">
                              <double>0.000000000000000</double>
                             </property>
                            </widget>
                           </item>
-                          <item row="6" column="1">
-                           <widget class="QLabel" name="pid_d_gain_lbl">
-                            <property name="sizePolicy">
-                             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                              <horstretch>0</horstretch>
-                              <verstretch>0</verstretch>
-                             </sizepolicy>
-                            </property>
-                            <property name="minimumSize">
-                             <size>
-                              <width>110</width>
-                              <height>0</height>
-                             </size>
-                            </property>
-                            <property name="maximumSize">
-                             <size>
-                              <width>150</width>
-                              <height>16777215</height>
-                             </size>
-                            </property>
-                            <property name="text">
-                             <string>PID-D</string>
+                          <item row="1" column="0">
+                           <widget class="CheckBox" name="thc_auto">
+                            <property name="layoutDirection">
+                             <enum>Qt::RightToLeft</enum>
                             </property>
                            </widget>
                           </item>
@@ -11500,122 +11653,109 @@ HOME ALL</string>
                       </property>
                      </spacer>
                     </item>
+                    <item>
+                     <widget class="QFrame" name="config_grid">
+                      <property name="frameShape">
+                       <enum>QFrame::NoFrame</enum>
+                      </property>
+                      <property name="frameShadow">
+                       <enum>QFrame::Raised</enum>
+                      </property>
+                      <layout class="QHBoxLayout" name="horizontalLayout_10">
+                       <property name="leftMargin">
+                        <number>4</number>
+                       </property>
+                       <property name="topMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="rightMargin">
+                        <number>4</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
+                       <item>
+                        <spacer name="horizontalSpacer_18">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>40</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item>
+                        <widget class="PushButton" name="save_plasma">
+                         <property name="minimumSize">
+                          <size>
+                           <width>80</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>80</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>SAVE</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <spacer name="horizontalSpacer_34">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>40</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item>
+                        <widget class="PushButton" name="reload_plasma">
+                         <property name="minimumSize">
+                          <size>
+                           <width>80</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>80</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>RELOAD</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <spacer name="horizontalSpacer_35">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>40</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                      </layout>
+                     </widget>
+                    </item>
                    </layout>
                   </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <spacer name="verticalSpacer_2">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QFrame" name="config_grid">
-                <property name="frameShape">
-                 <enum>QFrame::NoFrame</enum>
-                </property>
-                <property name="frameShadow">
-                 <enum>QFrame::Raised</enum>
-                </property>
-                <layout class="QHBoxLayout" name="horizontalLayout_10">
-                 <property name="leftMargin">
-                  <number>4</number>
-                 </property>
-                 <property name="topMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>4</number>
-                 </property>
-                 <property name="bottomMargin">
-                  <number>0</number>
-                 </property>
-                 <item>
-                  <spacer name="horizontalSpacer_18">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                 <item>
-                  <widget class="PushButton" name="save_plasma">
-                   <property name="minimumSize">
-                    <size>
-                     <width>80</width>
-                     <height>40</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>80</width>
-                     <height>40</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>SAVE</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer_34">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                 <item>
-                  <widget class="PushButton" name="reload_plasma">
-                   <property name="minimumSize">
-                    <size>
-                     <width>80</width>
-                     <height>40</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>80</width>
-                     <height>40</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>RELOAD</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer_35">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
                  </item>
                 </layout>
                </widget>
