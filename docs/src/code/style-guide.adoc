@@ -3,23 +3,21 @@
 
 = Coding Style
 
-LinuxCNC is developed in C/C++, Python, BASH and Tcl/TK.
-Documentation is written in asciidoc, which includes parts of the
-UNIX man pages.
+LinuxCNC is developed in C/C++, Python, BASH and Tcl/Tk.
+Documentation is written in asciidoc, which includes the
+UNIX man pages written in Groff.
 
-These computer languages are not completely independent from each other.
-So is C/C++ used to extend the functionality of the other scripting
-languages. And executables implemented in any of these languages
-may be called from anywhere, mostly from the scripting languages.
+These programming languages are not completely independent from each other.
+So do the scripting languages extend the LinuxCNC core written in C/C++ for easier adaption of user interfaces.
 
-Every computer language is its very own syntax and customs to be structured,
+Every programming language has its very own syntax and customs to be structured,
 and many flavours with every developer being very opinionated about
 their very own being the best. And while the exact style does not matter
 too much, it is important for the eye to see the source code formatted
 consistently.
 
 This chapter hence describes the source code style preferred by the
-LinuxCNC team. This shall improve our overall efficiency and avoid
+LinuxCNC team. This shall improve the readability of source code and documentation and shall avoid
 intensive discussions (aka bike-shedding) about how to style it best.
 
 == General comments
@@ -351,12 +349,13 @@ of .c and .h are reserved for plain C. Headers are for class, method,
 and structure declarations, not code (unless the functions are declared
 inline).
 
-=== Python coding standards
+
+== Python coding standards
 
 Use the http://www.python.org/dev/peps/pep-0008/[PEP 8] style for
 Python code.
 
-=== Comp coding standards
+== Comp coding standards
 
 In the declaration portion of a .comp file, begin each declaration at
 the first column. Insert extra blank lines when they help group related
@@ -364,57 +363,58 @@ items.
 
 In the code portion of a .comp file, follow normal C coding style.
 
-== Code describing the functionality for the human
+== Style for the Documentation
 
 This is a very recent (1/2022) part of this document. Please help shaping it if you are familiar with asciidoc.
 
-After the website, and maybe the one or other YouTube Video, the
-LinuxCNC documentation is likely the first point of contact for any new
-user. The talent to get the documentation right is mostly disjunct from
-computationally orchestrating all the moving parts of a mill or lathe,
-though. Still, we need this to shine if we want LinuxCNC to shine and
-for a transfer of our knowledge for the next generation - this seems
-fair to say for a project that was started in the last millenium and few
-individuals buying their own mills/lathes before their hair turns gray.
+// After looking at the website, and maybe watching the one or other YouTube Video, the
+// LinuxCNC documentation is likely the first point of contact for any new
+// user. The talent to get the documentation right is mostly disjunct from
+// computationally orchestrating all the moving parts of a mill or lathe,
+// though. Still, we need this to shine if we want LinuxCNC to shine and
+// for a transfer of our knowledge for the next generation - this seems
+// fair to say for a project that was started in the last millenium and few
+// individuals buying their own mills/lathes before their hair turns gray.
 
-=== Overall structure of documentation
+// not really related to the style guide IMHO
+// == Overall structure of documentation
 
-There are two basic documents, i.e. the
- * Users' Guide and the
- * Developers' Guide
+// There are two basic documents, i.e. the
+//  * Users' Guide and the
+//  * Developers' Guide
 
-All documents created belong to either of these "parental documents"
-and are included from the respective document, either directly or that
-included file includes it.
+// All documents created belong to either of these "parental documents"
+// and are included from the respective document, either directly or that
+// included file includes it.
 
-=== Common challenges
 
  * header tags block like toc etc
-
-   Every file should start with a header. This is typically
-   ----
-   :lang: en
-   ----
-   and longer documents may also chose to set
-   ----
-   :toc:
-   ----
-   This should be followed by an anchor for that section or chapter that is
-   represented in that file, like
-   ----
-   [[cha:filename]]
-   ----
-   If the file has a language-extension like _fr then this extension shall not become part of the anchor.
-   For a better consistency, and maintainability, the anchors need to be the same for all langages.
-   If the page needs extras, e.g. for the syntax-highlighting, then such lines may then follow.
-
++
+--
+Every file should start with a header. This is typically
+----
+:lang: en
+----
+and longer documents may also chose to set
+----
+:toc:
+----
+This should be followed by an anchor for that section or chapter that is
+represented in that file, like
+----
+[[cha:filename]]
+----
+If the file has a language-extension like _fr then this extension shall not become part of the anchor.
+For a better consistency, and maintainability, the anchors need to be the same for all langages.
+If the page needs extras, e.g. for the syntax-highlighting, then such lines may then follow.
+--
  * anchors for titles and other blocks
-
-   If a chapter/section header shall be granted the option to be
-   referenced from another part of the documentation then it needs an achor.
-   The anchor shall be a combination of an indicator of the kind
-   of block that is referenced (cha,sec,fig,tab,...) together with a
-   short name identifying the object.
++
+If a chapter/section header shall be granted the option to be
+referenced from another part of the documentation then it needs an achor.
+The anchor shall be a combination of an indicator of the kind
+of block that is referenced (cha,sec,fig,tab,...) together with a
+short name identifying the object.
 
  * index entries for titles and other blocks
 
