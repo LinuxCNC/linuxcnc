@@ -365,7 +365,7 @@ In the code portion of a .comp file, follow normal C coding style.
 
 == Style for the Documentation
 
-This is a very recent (1/2022) part of this document. Please help shaping it if you are familiar with asciidoc.
+This is a very recent (09/2022) part of this document. Please help shaping it if you are familiar with asciidoc.
 
 // After looking at the website, and maybe watching the one or other YouTube Video, the
 // LinuxCNC documentation is likely the first point of contact for any new
@@ -388,9 +388,8 @@ This is a very recent (1/2022) part of this document. Please help shaping it if 
 // included file includes it.
 
 
- * header tags block like toc etc
-+
---
+=== Header, tags, toc, anchors etc.
+
 Every file should start with a header. This is typically
 ----
 :lang: en
@@ -400,79 +399,226 @@ and longer documents may also chose to set
 :toc:
 ----
 This should be followed by an anchor for that section or chapter that is
-represented in that file, like
+represented in that file like
 ----
-[[cha:filename]]
+[[cha:<file-title>]]
 ----
-If the file has a language-extension like _fr then this extension shall not become part of the anchor.
-For a better consistency, and maintainability, the anchors need to be the same for all langages.
-If the page needs extras, e.g. for the syntax-highlighting, then such lines may then follow.
---
- * anchors for titles and other blocks
-+
+// For a better consistency, and maintainability, the anchors need to be the same for all langages.
+// If the page needs extras, e.g. for the syntax-highlighting, then such lines may then follow.
+
+// .Anchors for titles and other blocks
+
 If a chapter/section header shall be granted the option to be
-referenced from another part of the documentation then it needs an achor.
+referenced from another part of the documentation then it needs an anchor.
 The anchor shall be a combination of an indicator of the kind
-of block that is referenced (cha,sec,fig,tab,...) together with a
+of block that is referenced (cha, sec, fig ,tab, ...) together with a
 short name identifying the object.
 
- * index entries for titles and other blocks
 
-   ?
+//  * index entries for titles and other blocks
 
- * lists formatting
+//    ?
 
-   ?
+=== Lists
 
- * usage of lists vs titles
+I think we should not define whether we should have a dot at the end of list items or not
 
-   ?
+=== Sections and subsections
 
- * use of bold and italic
- * structure/page splitting guidance
-   - avoid 2k+ char long lines
- * table formatting
+The depth of sections shall not exceed 3 levels. If more structure is needed,
+subheadings can be inserted like this:
+----
+= Chapter
+== Section
+=== Subsection
+.Subheading
+----
 
-   Tables can be presented with a series of options.
+=== Code blocks
 
-   - header
+Asciidoc supports syntax highlighting for several languages.
+The most common used in LinuxCNC are: _c, python, sh, tcl, xml_. +
+They are used like this:
+----
+ [source,c]
+ ----
+ // some code
+ ----
+----
+It also exists some LinuxCNC-specific syntax highlighting
+for _hal, ini, ngc_. +
+To use those, following lines need to be inserted:
+----
+// these attributes must come after the document title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+----
 
-     With the header-option set, the fist line will be interpreted accordingly.
+The keywords for those need to be surrounded by curly braces:
+----
+ [source,{ini}]
+ ----
+ // some code
+ ----
+----
 
-   - column width
+=== Pin listings
 
-     in ideal column, the column is constituted only by its data. No
-     vertical separators should be required. The horizontal alignment will
-     also not be required since the writing itself is horizontal enough.
 
-     If individual fields have too much text then a line-break within that
-     field should be provoked.
+.Compact Form
 
-   - what lines are visible
+----
+* **comp.group.**_N_**.pin** '(type, direction)' - Functional description
+----
 
-     As motivated above, there should be no grid lines.
-     The top and bottom lines should separate the table from the surrounding text.
-     Another line could be motivated between the header and the main body.
+Example:
+====
+* **halui.joint.**_N_**.select** '(bit, in)' - Pin for selecting joint N
+* **halui.joint.**_N_**.is-selected** '(bit, out)' - Status pin that joint N is selected
+* **halui.joint.**_N_**.has-fault** '(bit, out)' - Status pin telling that joint N has a fault
+====
+Where _N_ is the instance number of the component. If it's a componemt/module that can only be loaded once, a zero could/should replace the _N_:
 
-   - captions
+====
+* *iocontrol.0.coolant-flood* '(Bit, Out)' TRUE when flood coolant is requested
 
-     Asciidoc makes it difficult to nicely prepare captions. At the same time,
-     captions are the only bit of the whole document that even with the first flick
-     through the document will not escape the reader's attention.
-     ----
-     Instruction needs to be added
-     ----
+* *iocontrol.0.coolant-mist* '(Bit, Out)' TRUE when mist coolant is requested
 
-    - reference
+* *iocontrol.0.emc-enable-in* '(Bit, In)' Should be driven FALSE when an external
+  estop condition exists.
+====
 
- * figure formatting (captions)
-   - reference
-   - caption
-     ----
-     Instruction needs to be added
-     ----
- * footnotes
- * comments
- * interaction with other media like videos
+[NOTE]
+(Bit, In) or (bit, in) ?
+
+.Expanded (extended, enlarged?) Form, variant 1
+
+----
+* **comp.group.**_N_**.pin**:: '(type, direction)' - Functional description
+----
+
+Example:
+====
+**pid.**_N_**.Pgain**:: '(float, in)' - Proportional gain. Results in a contribution to the output that is the error multiplied by Pgain.
+
+**pid.**_N_**.Igain**:: '(float, in)' - Integral gain. Results in a contribution to the output that is the integral of the error multiplied by Igain. For example an error of 0.02 that lasted 10 seconds would result in an integrated error '(errorI)' of 0.2, and if Igain is 20, the integral term would add 4.0 to the output.
+
+**pid.**_N_**.Dgain**:: '(float, in)'- Derivative gain. Results in a contribution to the output that is the rate of change (derivative) of the error multiplied by Dgain. For example an error that changed from 0.02 to 0.03 over 0.2 seconds would result in an error derivative (errorD) of of 0.05, and if Dgain is 5, the derivative term would add 0.25 to the output.
+====
+
+.Expanded (extended, enlarged?) Form, variant 2
+----
+* **comp.group.**_N_**.pin** '(type, direction)':: Functional description
+----
+
+Example:
+====
+**pid.**_N_**.Pgain** '(float, in)':: Proportional gain. Results in a contribution to the output that is the error multiplied by Pgain.
+
+**pid.**_N_**.Igain** '(float, in)':: Integral gain. Results in a contribution to the output that is the integral of the error multiplied by Igain. For example an error of 0.02 that lasted 10 seconds would result in an integrated error (`errorI`) of 0.2, and if Igain is 20, the integral term would add 4.0 to the output.
+
+**pid.**_N_**.Dgain** '(float, in)':: Derivative gain. Results in a contribution to the output that is the rate of change (derivative) of the error multiplied by Dgain. For example an error that changed from 0.02 to 0.03 over 0.2 seconds would result in an error derivative (errorD) of of 0.05, and if Dgain is 5, the derivative term would add 0.25 to the output.
+====
+
+=== Listings of Commands/Messages
+
+.Panelui
+====
+.*home_selected*
+* required argument: axis number (int)
+
+.*unhome_selected*
+* required argument: axis number (int)
+
+.*override_limits*
+
+.*spindle_forward_adjust*
+* optional argument: starting RPM (int) - default 100
+* Description: If the spindle is stopped it will start in the forward direction.
+  If it is already running it will increase or decrease the rpm depending on
+  what direction the spindle is running in.
+
+.*spindle_forward*
+* optional argument: starting RPM (int) - default 100
+
+====
+
+
+.GStat
+====
+*motion-mode-changed* :: '(returns integer)' -
+Sent when motion's mode has changed
+
+*spindle-control-changed* :: '(returns integer, bool, integer, bool)' -
+(spindle num, spindle on state, requested spindle direction & rate, at-speed state) +
+Sent when spindle direction or running status changes or at-speed changes.
+
+*current-feed-rate* :: '(returns float)' -
+Sent when the current feed rate changes.
+
+*current-x-rel-position* :: '(returns float)' -
+Sent every 100ms.
+
+*current-position* :: '(returns pyobject, pyobject, pyobject, pyobject)' -
+Sent every 100ms. +
+returns tuples of position, relative position, distance-to-go and +
+the joint actual position. Before homing, on multi-joint axes, only joint +
+position is valid.
+====
+
+
+
+=== Values and Units
+
+Between a value and its unit shall be always a space, preferably a thin space (\&thinsp;). +
+Example: `100\&thinsp;kHz` -> 100&thinsp;kHz
+
+
+
+* usage of lists vs titles +
+?
+
+* use of bold and italic
+* structure/page splitting guidance
+  - avoid 2k+ char long lines
+
+=== Table Formatting
+Tables can be presented with a series of options.
+
+- header +
+With the header-option set, the fist line will be interpreted accordingly.
+
+- column width +
+in ideal column, the column is constituted only by its data. No
+vertical separators should be required. The horizontal alignment will
+also not be required since the writing itself is horizontal enough.
++
+If individual fields have too much text then a line-break within that
+field should be provoked.
+
+- what lines are visible +
+As motivated above, there should be no grid lines.
+The top and bottom lines should separate the table from the surrounding text.
+Another line could be motivated between the header and the main body.
+
+- captions +
+Asciidoc makes it difficult to nicely prepare captions. At the same time,
+captions are the only bit of the whole document that even with the first flick
+through the document will not escape the reader's attention.
+----
+Instruction needs to be added
+----
+
+- reference
+* figure formatting (captions)
+  - reference
+  - caption
+    ----
+    Instruction needs to be added
+    ----
+* footnotes
+* comments
+* interaction with other media like videos
 
 // vim: set syntax=asciidoc:
