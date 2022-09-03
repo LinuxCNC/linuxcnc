@@ -193,8 +193,7 @@ done, do it as a commit separate from any semantic changes.
 
 The test "retval < 0" should feel familiar; it's the same kind of
 test you use in userspace (returns -1 for error) and in kernel space
-(returns -ERRNO for error)
-
+(returns -ERRNO for error).
 
 === Simplify complicated history before sharing with fellow developers
 

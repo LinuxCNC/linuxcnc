@@ -388,7 +388,7 @@ a relay with multiple contacts). E.g. if HAL pin classicladder.0.in-00
 is true then %I0 N.O. contact would be on (closed, true, whatever you
 like to call it). If %B7 coil is 'energized' (on, true, etc) then %B7
 N.O. contact would be on. If %Q1 coil is 'energized' then %Q1 N.O.
-contact would be on (and HAL pin classicladder.0.out-01 would be true.)
+contact would be on (and HAL pin classicladder.0.out-01 would be true).
 
 * 'N.O. Contact' -  image:images/ladder_action_load.png["Normally Open Contact"] (Normally Open)
   When the variable is false the switch is off.
