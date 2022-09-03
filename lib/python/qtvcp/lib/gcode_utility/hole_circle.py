@@ -8,7 +8,7 @@ import atexit
 import shutil
 
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
-from PyQt5.QtCore import QPoint, QLine, QRect, QFile, Qt, QEvent
+from PyQt5.QtCore import QPoint, QPointF, QLine, QRect, QFile, Qt, QEvent
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from PyQt5.QtGui import QPainter, QBrush, QPen, QColor
 
@@ -39,31 +39,29 @@ class Preview(QtWidgets.QWidget):
 
     def draw_main_circle(self, event, qp):
         size = self.size()
-        w = size.width()
-        h = size.height()
-        center = QPoint(w/2, h/2)
-        radius = int((min(w, h) - 70)/2)
+        w = size.width()/2
+        h = size.height()/2
+        center = QPointF(w, h)
+        radius = min(w, h) - 35
         qp.setPen(QPen(Qt.black, 1))
         qp.drawEllipse(center, radius, radius)
 
     def draw_crosshair(self, event, qp):
         size = self.size()
-        w = size.width()
-        h = size.height()
-        L = min(w, h) - 50
-        cx = int(w/2)
-        cy = int(h/2)
+        cx = int(size.width()/2)
+        cy = int(size.height()/2)
+        L = min(cx, cy) - 25
         qp.setPen(QPen(Qt.black, 1))
-        p1 = QPoint(cx + L/2, cy)
-        p2 = QPoint(cx, cy - L/2)
-        p3 = QPoint(cx - L/2, cy)
-        p4 = QPoint(cx, cy + L/2)
+        p1 = QPoint(cx + L, cy)
+        p2 = QPoint(cx, cy - L)
+        p3 = QPoint(cx - L, cy)
+        p4 = QPoint(cx, cy + L)
         qp.drawLine(p1, p3)
         qp.drawLine(p2, p4)
-        br1 = QRect(cx + L/2, cy-6, 30, 12)
-        br2 = QRect(cx-15, cy - L/2 - 12, 30, 12)
-        br3 = QRect(cx - L/2 - 30, cy-6, 30, 12)
-        br4 = QRect(cx-15, cy + L/2, 30, 12)
+        br1 = QRect(cx + L, cy-6, 30, 12)
+        br2 = QRect(cx-15, cy - L - 12, 30, 12)
+        br3 = QRect(cx - L - 30, cy-6, 30, 12)
+        br4 = QRect(cx-15, cy + L, 30, 12)
         qp.drawText(br1, Qt.AlignHCenter|Qt.AlignVCenter, "0")
         qp.drawText(br2, Qt.AlignHCenter|Qt.AlignVCenter, "90")
         qp.drawText(br3, Qt.AlignHCenter|Qt.AlignVCenter, "180")
@@ -73,19 +71,18 @@ class Preview(QtWidgets.QWidget):
         size = self.size()
         w = size.width()
         h = size.height()
-        center = QPoint(w/2, h/2)
-        diameter = min(w, h) - 70
+        center = QPointF(w/2, h/2)
+        r = (min(w, h) - 70)/2
         qp.setPen(QPen(Qt.red, 2))
         for i in range(self.num_holes):
             if i ==1:
                 qp.setPen(QPen(Qt.black, 2))
-            r = diameter/2
             theta = ((360.0/self.num_holes) * i) + self.first_angle
             x = r * math.cos(math.radians(theta))
             y = r * math.sin(math.radians(theta))
             x = round(x, 3)
             y = -round(y, 3) # need this to make it go CCW
-            p = QPoint(x, y) + center
+            p = QPointF(x, y) + center
             qp.drawEllipse(p, 6, 6)
 
     def set_num_holes(self, num):
