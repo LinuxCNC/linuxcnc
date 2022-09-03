@@ -1,4 +1,4 @@
-VERSION = '1.231.234'
+VERSION = '1.231.236'
 
 '''
 qtplasmac_handler.py
@@ -929,8 +929,8 @@ class HandlerClass:
         self.w.lbl_mcodes.setObjectName('lbl_mcodes')
         text = _translate('HandlerClass', 'MOVE')
         self.w.cut_rec_move_label.setText('{}\n{}'.format(text, self.w.kerf_width.text()))
-        self.w.filemanager.button2.setText(_translate('HandlerClass', 'USER'))
-        self.w.filemanager.button3.setText(_translate('HandlerClass', 'ADD JUMP'))
+        #self.w.filemanager.jumpButton.setText(_translate('HandlerClass', 'USER'))
+        #self.w.filemanager.addButton.setText(_translate('HandlerClass', 'ADD JUMP'))
         # for copy/paste control if required
         #self.w.filemanager.copyButton.setText(_translate('HandlerClass', 'COPY'))
         #self.w.filemanager.pasteButton.setText(_translate('HandlerClass', 'PASTE'))
