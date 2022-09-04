@@ -24,7 +24,7 @@ try:
     from scipy.interpolate import griddata
 except Exception as e:
     print(e,'Is python3-scipy installed?')
-from enum import Enum, unique
+from enum import Enum, IntEnum, unique
 import linuxcnc
 import hal
 
@@ -39,7 +39,8 @@ class States(Enum):
     RESET = 5
     STOP = 6
 
-class Methods(Enum):
+@unique
+class Methods(IntEnum):
     CUBIC = 0
     LINEAR = 1
     NEAREST = 2
@@ -69,15 +70,16 @@ class Compensation:
         self.y = np.linspace(self.yMin, self.yMax, self.ySteps)
         self.xi, self.yi = np.meshgrid(self.x, self.y)
 
-        if self.h.method == Methods.CUBIC:
+        if self.h.method == int(Methods.CUBIC):
             method = 'cubic'
-        elif self.h.method == Methods.LINEAR:
+        elif self.h.method == int(Methods.LINEAR):
             method = 'linear'
-        elif self.h.method == Methods.NEAREST:
+        elif self.h.method == int(Methods.NEAREST):
             method = 'nearest'
         else:
             method = 'cubic'
-            print("ERROR: HAL pin interpolation method not recognised (outside 0-2). Defaulting to cubic(0).")
+            print("ERROR: z_level_compensation: HAL pin interpolation \
+method {} not recognised (outside 0-2). Defaulting to cubic(0).".format(self.h.method))
         # interpolate, zi has all the offset values but need to be transposed
         self.zi = griddata((self.x_data, self.y_data), self.z_data, (self.xi, self.yi), method = method)
         self.zi = np.transpose(self.zi)
@@ -104,7 +106,7 @@ class Compensation:
         return compensation
 
     def run(self):
-        self.h = hal.component("compensate")
+        self.h = hal.component("z_level_compensation")
         self.h.newpin("enable-in", hal.HAL_BIT, hal.HAL_IN)
         self.h.newpin("scale", hal.HAL_FLOAT, hal.HAL_OUT)
         self.h.newpin("counts", hal.HAL_S32, hal.HAL_OUT)
