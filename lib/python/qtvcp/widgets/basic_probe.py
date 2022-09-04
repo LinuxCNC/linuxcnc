@@ -173,7 +173,8 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             return
         self.start_process()
         string_to_send = cmd + '$' + json.dumps(self.send_dict) + '\n'
-#        print("String to send ", string_to_send)
+        #print("String to send ", string_to_send)
+        STATUS.block_error_polling()
         self.proc.writeData(bytes(string_to_send, 'utf-8'))
 
     def process_started(self):
@@ -198,11 +199,14 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         if "INFO" in line:
             print(line)
         elif "ERROR" in line:
-            print(line)
+            #print(line)
+            STATUS.unblock_error_polling()
+            ACTION.SET_ERROR_MESSAGE('Basic Probe process finished  in error')
         elif "DEBUG" in line:
             print(line)
         elif "COMPLETE" in line:
-            LOG.info("Probing routine completed without errors")
+            STATUS.unblock_error_polling()
+            LOG.info("Basic Probing routine completed without errors")
             return_data = line.rstrip().split('$')
             data = json.loads(return_data[1])
             self.show_results(data)

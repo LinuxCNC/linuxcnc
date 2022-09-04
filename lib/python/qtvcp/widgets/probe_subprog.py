@@ -19,18 +19,13 @@ import time
 import json
 
 from PyQt5.QtCore import QObject
-from qtvcp.core import Status, Action, Info
-from qtvcp import logger
+from qtvcp.core import Status, Action
 from qtvcp.widgets.probe_routines import ProbeRoutines
 
 # Instantiate the libraries with global reference
 # STATUS gives us status messages from linuxcnc
-# LOG is for running code logging
 STATUS = Status()
 ACTION = Action()
-INFO = Info()
-LOG = logger.getLogger(__name__)
-
 
 class ProbeSubprog(QObject, ProbeRoutines):
     def __init__(self):
@@ -126,6 +121,7 @@ class ProbeSubprog(QObject, ProbeRoutines):
                 try:
                     error = self.process_command(cmd)
                     # error = 1 means success, error = None means ignore, anything else is an error
+                    STATUS.block_error_polling()
                     if error is not None:
                         if error != 1:
                             sys.stdout.write("ERROR Probe routine returned with error\n")
@@ -151,12 +147,13 @@ class ProbeSubprog(QObject, ProbeRoutines):
             if not STATUS.is_on_and_idle(): return None
             parms = json.loads(cmd[1])
             self.update_data(parms)
+            STATUS.unblock_error_polling()
             error = self[cmd[0]]()
             if error != 1 and STATUS.is_on_and_idle():
                 ACTION.CALL_MDI("G90")
             return error
         else:
-            return 0
+            return None
 
     def update_data(self, parms):
         for key in parms:
