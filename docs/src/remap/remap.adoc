@@ -14,8 +14,8 @@
 
 By 'remapping codes' we mean one of the following:
 
-. define the semantics of new - that is, currently unallocated - M- or G-codes
-. redefine the semantics of a - currently limited - set of existing codes.
+. Define the semantics of new - that is, currently unallocated - M- or G-codes
+. Redefine the semantics of a - currently limited - set of existing codes.
 
 === Why would you want to extend the RS274NGC Interpreter?
 
@@ -24,7 +24,7 @@ interpreter is fixed and cannot be extended by configuration options.
 
 In particular, some of these codes implement a fixed sequence of steps
 to be executed. While some of these, like M6, can be moderately
-configured by activating or skipping some of these steps through ini
+configured by activating or skipping some of these steps through INI
 file options, overall the behavior is fairly rigid. So - if your
 are happy with this situation, then this manual section is not for you.
 
@@ -38,7 +38,7 @@ might make their way into the main LinuxCNC distribution, the result of
 this approach is a hodge-podge of special-case solutions.
 
 A good example for this deficiency is tool change support in LinuxCNC:
-while random tool changers are well supported, it is next to impossible
+While random tool changers are well supported, it is next to impossible
 to reasonably define a configuration for a manual-tool change machine
 with, for example, an automatic tool length offset switch being
 visited after a tool change, and offsets set accordingly. Also, while a
@@ -52,15 +52,15 @@ instead. While possible, it is cumbersome - it requires source-editing
 of NGC programs, replacing all calls to the deficient code by a an
 O-word procedure call.
 
-In it's simplest form a remapped code isn't much more than a
+In its simplest form, a remapped code isn't much more than a
 spontaneous call to an O-word procedure. This happens behind the scenes -
 the procedure is visible at the configuration level, but not at the
 NGC program level.
 
 Generally, the behavior of a remapped code may be defined in the following ways:
 
-- you define a O-word subroutine which implements the desired behavior
-- alternatively, you may employ a Python function which extends the interpreter's behavior.
+- You define a O-word subroutine which implements the desired behavior
+- Alternatively, you may employ a Python function which extends the interpreter's behavior.
 
 .How to glue things together
 M- and G-codes, and O-words subroutine calls have some fairly different syntax.
@@ -104,11 +104,10 @@ glue issue is addressed as follows:
 Embedded Python functions in the Interpreter started out as glue code,
 but turned out very useful well beyond that. Users familiar with
 Python will likely find it easier to write remapped codes, glue,
-O-word procedures etc in pure Python, without resorting to the
+O-word procedures, etc. in pure Python, without resorting to the
 somewhat cumbersome RS274NGC language at all.
 
 .A Word on Embedded Python
-
 Many people are familiar with 'extending' the Python interpreter by
 'C/C\+\+' modules, and this is heavily used in LinuxCNC to access Task,
 HAL and Interpreter internals from Python scripts. 'Extending
@@ -129,38 +128,39 @@ functions through a similar extension module method.
 
 Defining a code involves the following steps:
 
-- pick a code - either use an unallocated code, or redefine an existing code
-- deciding how parameters are handled
-- decide if and how results are handled
-- decide about the execution sequencing.
+- Pick a code - either use an unallocated code, or redefine an existing code.
+- Decide how parameters are handled.
+- Decide if and how results are handled.
+- Decide about the execution sequence.
 
 === Builtin Remaps
 
 Please note that currently only some existing codes can be redefined,
 while there are many 'free' codes that may be available for
 remapping. When developing redefined existing code, it is a good idea to
-start with an unassigned G or M code, so that you can use both
+start with an unassigned G- or M- code, so that you can use both
 an existing behavior as well as a new one. When you're done, redefine
 the existing code to use your remapping configuration.
 
-- The current set of unused M codes, available for user definition, can
+- The current set of unused M-codes, available for user definition, can
   be found in the <<remap:unallocated-m-codes,unallocated M-codes section>>,
 - For G-codes, see the <<remap:unallocated-g-codes,unallocated G-codes list>>.
 - Existing codes that can be reassigned are listed in the
   <<remap:remappable-codes,remappable codes section>>.
 
-There are currently two complete python-only remaps that are available
-in stdglue.py. +
+There are currently two complete Python-only remaps that are available
+in stdglue.py:
 
 * ignore_m6
 * index_lathe_tool_with_wear
 
-These are meant for use with lathe. +
-Lathes don't use M6 to index the tools, they use the T command. +
+These are meant for use with lathe.
+Lathes don't use M6 to index the tools, they use the T command.
+
 This remap also adds wear offsets to the tool offset, ie. T201 would
-index to tool 2 (with tool 2's tool offset) and adds wear offset 1. +
+index to tool 2 (with tool 2's tool offset) and adds wear offset 1.
 In the tool table, tools numbers above 10000 are wear offsets, ie in the
-tool table, tool 10001 would be wear offset 1. +
+tool table, tool 10001 would be wear offset 1.
 
 Here is what you need in the INI to use them:
 
@@ -176,7 +176,7 @@ REMAP=M6 python=ignore_m6
 # code specific for this configuration
 PATH_PREPEND=./
 
-# generic support code - make sure this actually points to python-stdglue
+# generic support code - make sure this actually points to Python-stdglue
 PATH_APPEND=../../nc_files/remap_lib/python-stdglue/
 
 # import the following Python module
@@ -186,7 +186,7 @@ TOPLEVEL=toplevel.py
 LOG_LEVEL = 0
 ----
 
-You must also add the required python file in your configuration folder. +
+You must also add the required Python file in your configuration folder.
 
 <<remap:upgrading-an-existing,Upgrade an existing configuration>>
 
@@ -215,18 +215,18 @@ procedure:
 // . <<remap:extracting-words,extracting words from the current block>>
 . extracting words from the current block  and pass them to the
   procedure as parameters (like `X22.34` or `P47`)
-. referring to <<gcode:ini-hal-params,ini file variables>>
+. referring to <<gcode:ini-hal-params,INI file variables>>
 . referring to global variables (like `#2200 = 47.11` or
   `#<_global_param> = 315.2`)
 
-The first method is preferred for parameters of dynamic nature, , like
+The first method is preferred for parameters of dynamic nature, like
 positions. You need to define which words on the current block have
 any meaning for your new code, and specify how that is passed to the
 NGC procedure. Any easy way is to use the
 <<sub:argspec-parameter,argspec statement>>. A custom prolog might
 provide better error messages.
 
-Using to ini file variables is most useful for referring to setup
+Using to INI file variables is most useful for referring to setup
 information for your machine, for instance a fixed position like a
 tool-length sensor position. The advantage of this method is that the
 parameters are fixed for your configuration regardless which NGC file
@@ -268,7 +268,7 @@ execute in.
 
 To give you an idea how the pieces fit together, let's explore a
 fairly minimal but complete remapped code definition. We choose an
-unallocated M-code and add the following option to the ini file:
+unallocated M-code and add the following option to the INI file:
 
 [source,{ini}]
 ---------------------------------------------------------------------
@@ -303,7 +303,7 @@ section below.
 === The REMAP statement
 
 To remap a code, define it using the `REMAP` option in
-`RS274NG` section of your ini file. Use one `REMAP` line per remapped code.
+`RS274NG` section of your INI file. Use one `REMAP` line per remapped code.
 
 The syntax of the `REMAP` is:
 
@@ -655,7 +655,7 @@ configurations.
 The minimal prerequisites for using `REMAP` statements are as follows:
 
 - the Python plug in must be activated by specifying a
-  `[PYTHON]TOPLEVEL=<path-to-toplevel-script>` in the ini file.
+  `[PYTHON]TOPLEVEL=<path-to-toplevel-script>` in the INI file.
 - the toplevel script needs to import the `remap` module, which can be
   initially empty, but the import needs to be in place.
 - The Python interpreter needs to find the remap.py module above, so
@@ -667,7 +667,7 @@ The minimal prerequisites for using `REMAP` statements are as follows:
   needed. Depending on your installation the path to `stdglue.py` might
   vary.
 
-Assuming your configuration lives under `/home/user/xxx` and the ini
+Assuming your configuration lives under `/home/user/xxx` and the INI
 file is `/home/user/xxx/xxx.ini`, execute the following commands.
 
 [source,sh]
@@ -713,17 +713,17 @@ of the interpreter.
 So our remapped code will need to do a bit more
 than just generating some commands to move the machine as we like - it
 will also need to replicate those steps from this sequence which are
-needed to keep the interpreter and task happy.
+needed to keep the interpreter and `task` happy.
 
 However, this does *not* affect the processing of
-tool change-related commands in task and iocontrol. This means when we
+tool change-related commands in `task` and `iocontrol`. This means when we
 execute <<remap:send-tool-load-msg,step 6b>> this will still cause
 <<remap:iocontrol-action-on-load,iocontrol to do its thing>>.
 
 Decisions, decisions:
 
 - Do we want to use an O-word procedure or do it all in Python code?
-- Is the iocontrol HAL sequence (tool-prepare/tool-prepared and
+- Is the `iocontrol` HAL sequence (tool-prepare/tool-prepared and
   tool-change/tool-changed pins) good enough or do we need a different kind
   of HAL interaction for our tool changer (for example: more HAL pins
   involved with a  different interaction sequence)?
@@ -733,11 +733,11 @@ Depending on the answer, we have four different scenarios:
 - When using an O-word procedure, we need prolog and epilog functions
 - if using all Python code and no O-word procedure, a Python function
   is enough
-- when using the iocontrol pins, our O-word procedure or Python code
+- when using the `iocontrol` pins, our O-word procedure or Python code
   will contain mostly moves
-- when we need a more complex interaction than offered by iocontrol,
+- when we need a more complex interaction than offered by `iocontrol`,
   we need to completely define our own interaction, using `motion.digital*` and
-  `motion.analog*` pins, and essentially ignore the iocontrol pins by
+  `motion.analog*` pins, and essentially ignore the `iocontrol` pins by
   looping them.
 
 NOTE: If you hate O-word procedures and love Python, you're free to do it
@@ -750,34 +750,34 @@ So the overall approach for our first example will be:
 
 . we'd like to do as much as possible with G-code in an O-word
   procedure for flexibility. That includes all HAL interaction which
-  would normally be handled by iocontrol - because we rather would want to do
+  would normally be handled by `iocontrol` - because we rather would want to do
   clever things with moves, probes, HAL pin I/O and so forth.
 
 . we'll try to minimize Python code to the extent needed  to keep the interpreter happy,
-  and cause task to actually do anything. That will go into the
+  and cause `task` to actually do anything. That will go into the
   `prolog` and `epilog` Python functions.
 
-=== Understanding the role of iocontrol with remapped tool change codes
+=== Understanding the role of `iocontrol` with remapped tool change codes
 
-Iocontrol provides two HAL interaction sequences we might or might not
+`iocontrol` provides two HAL interaction sequences we might or might not
 use:
 
 - when the NML message queued by a SELECT_TOOL() canon command is
   executed, this triggers the "raise tool-prepare and wait for
-  tool-prepared to become high" HAL sequence in iocontrol, besides
+  tool-prepared to become high" HAL sequence in `iocontrol`, besides
   setting the XXXX pins
 - when the NML message queued by the CHANGE_TOOL() canon command is
   executed, this triggers the  "raise tool-change and wait for
-  tool-changed to become high" HAL sequence in iocontrol, besides
+  tool-changed to become high" HAL sequence in `iocontrol`, besides
   setting the XXXX pins
 
-What you need to decide is whether the existing iocontrol HAL sequences
+What you need to decide is whether the existing `iocontrol` HAL sequences
 are sufficient to drive your changer. Maybe you need a different
 interaction sequence - for instance more HAL  pins, or maybe a more
 complex interaction. Depending on the answer, we might continue to use the existing
-iocontrol HAL sequences, or define our own ones.
+`iocontrol` HAL sequences, or define our own ones.
 
-For the sake of documentation, we'll disable these  iocontrol
+For the sake of documentation, we'll disable these `iocontrol`
 sequences, and roll our own - the result will look and feel like the
 existing interaction, but now we have complete control over them
 because they are executed in our own O-word procedure.
@@ -785,13 +785,13 @@ because they are executed in our own O-word procedure.
 So what we'll do is use some `motion.digital-*` and `motion.analog-*`
 pins, and the associated `M62` .. `M68` commands to do our own HAL
 interaction in our O-word procedure, and those will effectively
-replace the iocontrol 'tool-prepare/tool-prepared' and
+replace the `iocontrol` 'tool-prepare/tool-prepared' and
 'tool-change/tool-changed' sequences. So we'll define our pins
-replacing existing iocontrol pins functionally, and go ahead and make
-the iocontrol interactions a loop. We'll use the following
+replacing existing `iocontrol` pins functionally, and go ahead and make
+the `iocontrol` interactions a loop. We'll use the following
 correspondence in our example:
 
-Iocontrol pin correspondence in the examples
+`iocontrol` pin correspondence in the examples
 
 [width="60%",cols="2"]
 [frame="topbot",grid="none"]
@@ -832,12 +832,12 @@ Going through the <<remap:interpreter-action-on-m6,steps>>, we find:
 . if TOOL_CHANGE_AT_G30 was set:
 .. move the A, B and C indexers if applicable - *can be done in NGC*
 .. generate rapid move to the G30 position - *can be done in NGC*
-. send a CHANGE_TOOL Canon command to task  - *execute in Python epilog*
+. send a CHANGE_TOOL Canon command to `task`  - *execute in Python epilog*
 . set the numberer parameters 5400-5413 according to the new tool - *execute in Python epilog*
-. signal to task to stop calling the interpreter for readahead until
+. signal to `task` to stop calling the interpreter for readahead until
   tool change complete - *execute in Python epilog*
 
-So we need a prolog, and an epilog. Lets assume our ini file incantation of the M6 remap looks as follows:
+So we need a prolog, and an epilog. Lets assume our INI file incantation of the M6 remap looks as follows:
 
 ----
 REMAP=M6   modalgroup=6  prolog=change_prolog ngc=change epilog=change_epilog
@@ -883,7 +883,7 @@ Our first iteration of the O-word procedure is unexciting - just
 verify we got parameters right, and signal success by returning a
 positive value; steps 3-5 would eventually be covered here (see
 <<gcode:ini-hal-params,here>> for the variables referring
-to ini file settings):
+to INI file settings):
 
 [source,{ngc}]
 ---------------------------------------------------------------------
@@ -926,7 +926,7 @@ Again, most epilogs have a common scheme: first, determine whether
 things went right in the remap procedure, then do any commit and cleanup
 actions which can't be done in NGC code.
 
-=== Configuring iocontrol with a remapped M6
+=== Configuring `iocontrol` with a remapped M6
 
 Note that the sequence of operations has changed: we do everything
 required in the O-word procedure - including any HAL pin
@@ -935,13 +935,13 @@ change - likely with `motion.digital-*` and `motion-analog-*` IO
 pins. When we finally execute the `CHANGE_TOOL()` command, all
 movements and HAL interactions are already completed.
 
-Normally only now iocontrol would do its thing as outlined
+Normally only now `iocontrol` would do its thing as outlined
 <<remap:iocontrol-action-on-load,here>>. However, we don't need the
-HAL pin wiggling anymore - all iocontrol is left to do is to accept
+HAL pin wiggling anymore - all `iocontrol` is left to do is to accept
 we're done with prepare and change.
 
-This means that the corresponding iocontrol pins have no function any
-more. Therefore, we configure iocontrol to immediately acknowledge a
+This means that the corresponding `iocontrol` pins have no function any
+more. Therefore, we configure `iocontrol` to immediately acknowledge a
 change by configuring like so:
 
 [source,{hal}]
@@ -950,7 +950,7 @@ change by configuring like so:
 net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
 ---------------------------------------------------------------------
 If you for some reason want to remap `Tx` (prepare), the corresponding
-iocontrol pins need to be looped as well.
+`iocontrol` pins need to be looped as well.
 
 === Writing the change and prepare O-word procedures
 
@@ -1029,7 +1029,7 @@ What you could do, for instance, is:
 - in the corresponding remapped M6, wait for the "tool-prepared" at
   the very beginning of the O-word procedure.
 
-Again, the iocontrol tool-prepare/tool-prepared pins would be unused
+Again, the `iocontrol` tool-prepare/tool-prepared pins would be unused
 and replaced by `motion.*` pins, so those would pins must be looped:
 
 [source,{hal}]
@@ -1060,7 +1060,7 @@ def prepare_prolog(self,**words):
         else:
             pocket = -1 # this is a T0 - tool unload
 
-        # these variables will be visible in the ngc oword sub
+        # these variables will be visible in the ngc O-word sub
         # as #<tool> and #<pocket> local variables, and can be
         # modified there - the epilog will retrieve the changed
         # values
@@ -1121,8 +1121,8 @@ very likely want to have any modal motion canceled when the remap is
 aborted.
 
 The way to do this is by using the `[RS274NGC]ON_ABORT_COMMAND`
-feature. This ini option specifies a O-word procedure call which is
-executed if task for some reason aborts program execution.
+feature. This INI option specifies a O-word procedure call which is
+executed if `task` for some reason aborts program execution.
 `on_abort` receives a single parameter indicating 
 the cause for calling the abort procedure,
 which might be used for conditional cleanup.
@@ -1208,7 +1208,7 @@ occurred, do not use `M2` to end your handler - see above:
 
 If displaying an operator error message and stopping the current program is
 good enough, use the `(abort, <message>)` feature to terminate the handler with an
-error message. Note that you can substitute numbered, named, ini and
+error message. Note that you can substitute numbered, named, INI and
 HAL parameters in the text like
 in this example (see also `tests/interp/abort-hot-comment/test.ngc`):
 
@@ -1219,7 +1219,7 @@ o100 if [..] (some error condition)
 o100 endif
 ---------------------------------------------------------------------
 
-NOTE: ini and HAL variable expansion is optional and can be disabled in
+NOTE: INI and HAL variable expansion is optional and can be disabled in
 the <<sub:ini:sec:rs274ngc,INI file>>
 
 If more fine grained recovery action is needed, use the idiom
@@ -1272,13 +1272,13 @@ A G-code cycle as used here is meant to behave as follows:
   parameters changed accordingly.
 
 An example: Assume you have `G84.3` defined as remapped G-code cycle
-with the following ini segment (see <<remap:cycle-stdglue,here>> for
+with the following INI segment (see <<remap:cycle-stdglue,here>> for
 a detailed description of +cycle_prolog+ and +cycle_epilog+):
 
 [source,{ini}]
 ---------------------------------------------------------------------
 [RS274NGC]
-# A cycle with an oword procedure: G84.3 <X- Y- Z- Q- P->
+# A cycle with an O-word procedure: G84.3 <X- Y- Z- Q- P->
 REMAP=G84.3 argspec=xyzabcuvwpr prolog=cycle_prolog ngc=g843 epilog=cycle_epilog modalgroup=1
 ---------------------------------------------------------------------
 
@@ -1313,10 +1313,10 @@ and a cycle example using just Python.
 [[remap:embedded-python]]
 == Configuring  Embedded Python
 
-The Python plugin serves both the interpreter, and task if so
-configured, and hence has its own section `PYTHON` in the ini file.
+The Python plugin serves both the interpreter, and `task` if so
+configured, and hence has its own section `PYTHON` in the INI file.
 
-=== Python plugin : ini file configuration
+=== Python plugin : INI file configuration
 
 `[PYTHON]`::
   `TOPLEVEL =` <filename>;;
@@ -1403,7 +1403,7 @@ parameter `self` which can be used to access internals.
 === The Interpreter `__init__` and `__delete__` functions
 
 If the `TOPLEVEL`  module defines a function `__init__`, it will be
-called once the interpreter is fully configured (ini file read, and
+called once the interpreter is fully configured (INI file read, and
 state synchronized with the world model).
 
 If the `TOPLEVEL`  module defines a function `__delete__`, it will be
@@ -1579,7 +1579,7 @@ operation' (tool change, probe, HAL pin reading) it is supposed
 to suspend execution with the following statement:
 
 `yield INTERP_EXECUTE_FINISH`::
-  This signals task to stop read ahead, execute all
+  This signals `task` to stop read ahead, execute all
   queued operations, execute the 'queue-buster' operation,
   synchronize interpreter state with machine state, and then signal
   the interpreter to continue. At this point the function is
@@ -2103,7 +2103,7 @@ preview. See
 'configs/sim/axis/remap/manual-toolchange-with-tool-length-switch/nc_subroutines/manual_change.ngc'
 for a complete usage example.
 
-Within Embedded Python, the task instance can be checked for by
+Within Embedded Python, the `task` instance can be checked for by
 testing 'self.task' - this will be 1 in the milltask instance, and 0
 in the preview instance(s).
 
@@ -2124,7 +2124,7 @@ The current set of *existing* codes open to redefinition is:
 - S  (set spindle speed)
 - F  (set feed)
 
-Note that the use of M61 currently requires the use of iocontrol-v2.
+Note that the use of M61 currently requires the use of `iocontrol-v2`.
 
 [[remap:unallocated-g-codes]]
 === Currently unallocated G-codes:
@@ -2135,7 +2135,7 @@ the current implementation of LinuxCNC and may *not* be used to remap new
 G-codes. (Developers who add new G-codes to LinuxCNC are encouraged to also
 add their new G-codes to these tables.)
 
-.Table_of_Allocated_G-codes_00-09
+.Table of Allocated G-codes 00-09
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
 |==============================================================
 |#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
@@ -2151,7 +2151,7 @@ add their new G-codes to these tables.)
 |09 |    |     |     |     |     |     |     |     |     | 
 |==============================================================
 
-.Table_of_Allocated_G-codes_10-19
+.Table of Allocated G-codes 10-19
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
 |==============================================================
 |#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
@@ -2167,7 +2167,7 @@ add their new G-codes to these tables.)
 |19 |G19 |G19.1|     |     |     |     |     |     |     | 
 |==============================================================
 
-.Table_of_Allocated_G-codes_20-29
+.Table of Allocated G-codes 20-29
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
 |==============================================================
 |#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
@@ -2183,7 +2183,7 @@ add their new G-codes to these tables.)
 |29 |    |     |     |     |     |     |     |     |     | 
 |==============================================================
 
-.Table_of_Allocated_G-codes_30-39
+.Table of Allocated G-codes 30-39
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
 |==============================================================
 |#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
@@ -2199,7 +2199,7 @@ add their new G-codes to these tables.)
 |39 |    |     |     |     |     |     |     |     |     | 
 |==============================================================
 
-.Table_of_Allocated_G-codes_40-49
+.Table of Allocated G-codes 40-49
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
 |==============================================================
 |#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
@@ -2215,7 +2215,7 @@ add their new G-codes to these tables.)
 |49 |G40 |     |     |     |     |     |     |     |     | 
 |==============================================================
 
-.Table_of_Allocated_G-codes_50-59
+.Table of Allocated G-codes 50-59
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
 |==============================================================
 |#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
@@ -2231,7 +2231,7 @@ add their new G-codes to these tables.)
 |59 |G59 |G59.1|G59.2|G59.3|     |     |     |     |     | 
 |==============================================================
 
-.Table_of_Allocated_G-codes_60-69
+.Table of Allocated G-codes 60-69
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
 |==============================================================
 |#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
@@ -2247,7 +2247,7 @@ add their new G-codes to these tables.)
 |69 |    |     |     |     |     |     |     |     |     | 
 |==============================================================
 
-.Table_of_Allocated_G-codes_70-79
+.Table of Allocated G-codes 70-79
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
 |==============================================================
 |#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
@@ -2263,7 +2263,7 @@ add their new G-codes to these tables.)
 |79 |    |     |     |     |     |     |     |     |     | 
 |==============================================================
 
-.Table_of_Allocated_G-codes_80-89
+.Table of Allocated G-codes 80-89
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
 |==============================================================
 |#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
@@ -2279,7 +2279,7 @@ add their new G-codes to these tables.)
 |89 |G89 |     |     |     |     |     |     |     |     | 
 |==============================================================
 
-.Table_of_Allocated_G-codes_90-99
+.Table of Allocated G-codes 90-99
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
 |==============================================================
 |#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
@@ -2302,7 +2302,7 @@ These M-codes are currently undefined in the current implementation of LinuxCNC
 and may be used to define new M-codes. (Developers who define new M-codes in
 LinuxCNC are encouraged to remove them from this table.)
 
-.Table_of_Unallocated_M-codes_00-99
+.Table of Unallocated M-codes 00-99
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
 |==============================================================
 |#     |Mx0 |Mx1 |Mx2 |Mx3 |Mx4 |Mx5 |Mx6 |Mx7 |Mx8 |Mx9
@@ -2343,7 +2343,7 @@ FIXME Write missing information
 
 FIXME Write missing information
 
-=== A diagram: task, interp, iocontrol, UI (??)
+=== A diagram: `task`, `interp`, `iocontrol`, `UI` (??)
 
 FIXME Write missing information
 
@@ -2351,7 +2351,7 @@ FIXME Write missing information
 
 FIXME Write missing information
 
-=== Traditional iocontrol/iocontrolv2 execution
+=== Traditional `iocontrol`/`iocontrolv2` execution
 
 FIXME Write missing information
 
@@ -2368,38 +2368,38 @@ FIXME Write missing information
 == A short survey of LinuxCNC program execution
 
 To understand remapping of codes it might be helpful to survey the
-execution  of task and interpreter as far as it relates to remapping.
+execution of `task` and interpreter as far as it relates to remapping.
 
 === Interpreter state
 
 Conceptually, the interpreter's state consist of variables which fall into
 the following categories:
 
-1. configuration information (typically from INI file)
-2. the 'World model' - a representation of actual machine state
-3. modal state and settings +
+1. _Configuration information_ (typically from INI file)
+2. _The 'World model'_  - a representation of actual machine state
+3. _Modal state and settings_ -
    Refers to state which is 'carried over' between executing
    individual NGC codes - for instance, once the spindle is turned on and
    the speed is set, it remains at this setting until turned off. The
    same goes for many codes, like feed, units, motion modes (feed or
-   rapid)  and so forth. +
-4. interpreter execution state +
+   rapid)  and so forth.
+4. _Interpreter execution state_ -
    Holds information about the block currently executed, whether we
-   are in a subroutine, interpreter variables etc. +
+   are in a subroutine, interpreter variables, etc. .
    Most of this state is aggregated in a - fairly unsystematic -
    `structure _setup` (see interp_internals.hh).
 
 === Task and Interpreter interaction, Queuing and Read-Ahead
 
-The task part of LinuxCNC is responsible for coordinating actual machine
+The `task` part of LinuxCNC is responsible for coordinating actual machine
 commands - movement, HAL interactions and so forth. It does not by
-itself handle the RS274NGC language. To do so, task calls upon the
+itself handle the RS274NGC language. To do so, `task` calls upon the
 interpreter to parse and execute the next command - either from MDI or
 the current file.
 
 The interpreter execution generates canonical machine operations, which
 actually move something. These are, however, not immediately executed but
-put on a queue. The actual execution of these codes happens in the task
+put on a queue. The actual execution of these codes happens in the `task`
 part of LinuxCNC: canon commands are pulled off that interpreter queue,
 and executed resulting in actual machine movements.
 
@@ -2463,9 +2463,9 @@ executed.
 So, some operations are incompatible with further read-ahead. These
 are called 'queue busters', and they are:
 
-- reading a HAL pin's value with M66: value of HAL pin not predictable
-- loading a new tool with M6: tool geometry not predictable
-- executing a probe with G38.n: final position and success/failure not predictable
+- Reading a HAL pin's value with M66: value of HAL pin not predictable.
+- Loading a new tool with M6: tool geometry not predictable.
+- Executing a probe with G38.n: final position and success/failure not predictable.
 
 === How queue-busters are dealt with
 
@@ -2473,18 +2473,18 @@ Whenever the interpreter encounters a queue-buster, it needs to stop
 read ahead and wait until the relevant result is available. The way
 this works is:
 
-- when such a code is encountered, the interpreter returns a
-  special return code to task ('INTERP_EXECUTE_FINISH').
-- this return code signals to task to stop read ahead for now, execute
+- When such a code is encountered, the interpreter returns a
+  special return code to `task` ('INTERP_EXECUTE_FINISH').
+- This return code signals to `task` to stop read ahead for now, execute
   all queued canonical commands built up so far (including the last one,
   which is the queue buster), and then 'synchronize
   the interpreter state with the world model'. Technically, this means
   updating internal variables to reflect HAL pin values, reload tool
   geometries after an M6, and convey results of a probe.
-- The interpreter's 'synch()' method is called by task and does just
+- The interpreter's 'synch()' method is called by `task` and does just
   that - read all the world model 'actual' values which are relevant for
   further execution.
-- at this point, task goes ahead and calls the interpreter for more
+- At this point, `task` goes ahead and calls the interpreter for more
   read ahead - until either the program ends or another queue-buster is encountered.
 
 === Word order and execution order
@@ -2514,12 +2514,12 @@ here the different items are handled according to execution order.
 If a "queue buster" is found, a corresponding flag is set in the
 interpreter state (toolchange_flag, input_flag, probe_flag) and the
 interpreter returns an INTERP_EXECUTE_FINISH return value, signaling
-'stop readahead for now, and resynch' to the caller ('task').
+'stop readahead for now, and resynch' to the caller ('`task`').
 If no queue busters are found
 after all items are executed, INTERP_OK is returned, signalling that
 read-ahead may continue.
 
-When read ahead continues after the synch, task starts executing
+When read ahead continues after the synch, `task` starts executing
 interpreter read() operations again.  During the next read operation,
 the above mentioned flags are checked and corresponding variables are
 set (because the a synch() was just executed, the values are now
@@ -2550,7 +2550,7 @@ interpreter which together result in a complete replacement of the
 existing code. The prolog and epilog code is the place to do this.
 
 .How tool information is communicated
-Several processes are 'interested' in tool information: task and its
+Several processes are 'interested' in tool information: `task` and its
 interpreter, as well as the user interface. Also, the 'halui' process.
 
 Tool information is held in the 'emcStatus' structure, which is
@@ -2590,37 +2590,33 @@ results.
 
 [[remap:interpreter-action-on-t]]
 .Interpreter action on a Tx command
-
 All the interpreter does is evaluate the toolnumber parameter, looks up
 its corresponding tooldata index, remembers it in the `selected_pocket`
-variable for later, and  queues a canon command
-(SELECT_TOOL). See 'Interp::convert_tool_select' in 'src/emc/rs274/interp_execute.cc'.
+variable for later, and queues a canon command (SELECT_TOOL).
+See 'Interp::convert_tool_select' in 'src/emc/rs274/interp_execute.cc'.
 
 
 .Task action on SELECT_TOOL
-
-When task gets around to handle a SELECT_TOOL, it sends a
-EMC_TOOL_PREPARE message to the iocontrol process, which handles most
+When `task` gets around to handle a SELECT_TOOL, it sends a
+EMC_TOOL_PREPARE message to the `iocontrol` process, which handles most
 tool-related actions in LinuxCNC.
 
-In the current implementation, task actually waits for iocontrol to
+In the current implementation, `task` actually waits for `iocontrol` to
 complete the changer positioning operation, which is not necessary IMO
 since it defeats the idea that changer preparation and code execution can
 proceed in parallel.
 
 .Iocontrol action on EMC_TOOL_PREPARE
-
-When iocontrol sees the select pocket command, it does the related HAL
+When `iocontrol` sees the select pocket command, it does the related HAL
 pin wiggling - it sets the "tool-prep-number" pin to indicate which
 tool is next, raises the "tool-prepare" pin, and waits for the
 "tool-prepared" pin to go high.
 
 When the changer responds by asserting "tool-prepared", it considers
-the prepare phase to be completed and signals task to
+the prepare phase to be completed and signals `task` to
 continue. (again, this 'wait' istn strictly necessary IMO)
 
 .Building the prolog and epilog for Tx
-
 See the Python functions `prepare_prolog` and `prepare_epilog` in
 `configs/sim/axis/remap/toolchange/python/toolchange.py`.
 
@@ -2647,24 +2643,24 @@ When the interpreter sees an M6, it:
   prepared -Txx- for toolchange' message if not.
 . check for cutter compensation being active, and fail with 'Cannot
   change tools with cutter radius compensation on' if so.
-. stop the spindle except if the "TOOL_CHANGE_WITH_SPINDLE_ON" ini
+. stop the spindle except if the "TOOL_CHANGE_WITH_SPINDLE_ON" INI
   option is set.
-. generate a rapid 'Z up' move if if the "TOOL_CHANGE_QUILL_UP" ini
+. generate a rapid 'Z up' move if if the "TOOL_CHANGE_QUILL_UP" INI
   option is set.
 . if TOOL_CHANGE_AT_G30 was set:
 .. move the A, B and C indexers if applicable
 .. generate rapid move to the G30 position
 . execute a CHANGE_TOOL canon command,with the selected pocket as
   parameter. CHANGE_TOOL will:
-.. generate a rapid move to TOOL_CHANGE_POSITION if so set in ini
-.. enqueue an EMC_TOOL_LOAD NML message to task.
+.. generate a rapid move to TOOL_CHANGE_POSITION if so set in INI
+.. enqueue an EMC_TOOL_LOAD NML message to `task`.
 . set the numberer parameters 5400-5413 according to the new tool
-. signal to task to stop calling the interpreter for readahead by
+. signal to `task` to stop calling the interpreter for readahead by
   returning INTERP_EXECUTE_FINISH since M6 is a queue buster.
 
-.What task does when it sees a CHANGE_TOOL command
-Again, not much more than passing the buck to iocontrol by sending it
-an EMC_TOOL_LOAD message, and waiting until iocontrol has done its
+.What `task` does when it sees a CHANGE_TOOL command
+Again, not much more than passing the buck to `iocontrol` by sending it
+an EMC_TOOL_LOAD message, and waiting until `iocontrol` has done its
 thing.
 
 [[remap:iocontrol-action-on-load]]
@@ -2676,21 +2672,18 @@ thing.
 .. set "tool-prep-number" and "tool-prep-pocket" pins to zero
 .. execute the 'load_tool()' function with the pocket as parameter.
 
-The last step actually sets the tooltable entries in the 'emcStatus'
-structure. The actual action taken depends on whether the
-RANDOM_TOOLCHANGER ini option was set, but at the end of the process
+The last step actually sets the tooltable entries in the 'emcStatus' structure.
+The actual action taken depends on whether the
+RANDOM_TOOLCHANGER INI option was set, but at the end of the process
 'toolTable[0]' reflects the tool currently in the spindle.
 
 When that has happened:
 
-. iocontrol signals task to go ahead
-. task tells the interpreter to execute a 'synch()' operation, to see
-  what has changed
-. the interpreter 'synch()' pulls all information from the world model
-  needed, among it the changed tool table.
+. `iocontrol` signals `task` to go ahead.
+. `task` tells the interpreter to execute a 'synch()' operation, to see what has changed.
+. The interpreter 'synch()' pulls all information from the world model needed, among it the changed tool table.
 
-From there on, the interpreter has complete  knowledge of the world
-model and continues with read ahead.
+From there on, the interpreter has complete knowledge of the world model and continues with read ahead.
 
 .Building the prolog and epilog for M6
 See the Python functions `change_prolog` and `change_epilog` in
@@ -2698,8 +2691,8 @@ See the Python functions `change_prolog` and `change_epilog` in
 
 === How M61 (Change tool number) works
 
-M61 requires a non-negative `Q`parameter (tool number). If zero, this
-means 'unload tool', else 'set current tool number to Q'.
+M61 requires a non-negative `Q`parameter (tool number).
+If zero, this means 'unload tool', else 'set current tool number to Q'.
 
 .Building the replacement for M61
 An example Python redefinition for M61 can be found in the
@@ -2709,8 +2702,9 @@ An example Python redefinition for M61 can be found in the
 
 ==  Status
 
-. the RELOAD_ON_CHANGE feature is fairly broken.  Restart after changing a Python file.
-. M61 (remapped or not) is broken in iocontrol and requires iocontrol-v2 to actually work.
+. The RELOAD_ON_CHANGE feature is fairly broken.
+  Restart after changing a Python file.
+. M61 (remapped or not) is broken in `iocontrol` and requires `iocontrol-v2` to actually work.
 
 // A short survey of LinuxCNC execution
 // Interpreter internals access - Python view
@@ -2719,15 +2713,14 @@ An example Python redefinition for M61 can be found in the
 == Changes
 
 - the method to return error messages and fail used to be
-  'self.set_errormsg(text)' followed by 'return INTERP_ERROR'. This
-  has been replaced by merely returning a string from a Python handler
-  or oword subroutine. This sets the error message and aborts the
-  program. Previously there was no clean way to abort a Python oword
+  'self.set_errormsg(text)' followed by 'return INTERP_ERROR'.
+  This has been replaced by merely returning a string from a Python handler or oword subroutine.
+  This sets the error message and aborts the program. Previously there was no clean way to abort a Python oword
   subroutine.
 
 == Debugging
 
-In the '[EMC]' section of the ini file the 'DEBUG' parameter can be changed to
+In the '[EMC]' section of the INI file the 'DEBUG' parameter can be changed to
 get various levels of debug messages when LinuxCNC is started from a terminal.
 
 ----
