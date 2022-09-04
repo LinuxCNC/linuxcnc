@@ -426,12 +426,10 @@ class _IStat(object):
         self.NATIVE_EMBED = []
         if self.TAB_CMDS is not None:
             for i in self.TAB_CMDS:
-                print(i)
                 if i.split()[0].lower() == 'qtvcp':
                     self.NATIVE_EMBED.append(True)
                 else:
                     self.NATIVE_EMBED.append(False)
-            print   (self.NATIVE_EMBED)
         # users can specify a label for the MDI action button by adding ',Some\nText'
         # to the end of the MDI command
         # here we separate them to two lists
