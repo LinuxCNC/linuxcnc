@@ -3737,7 +3737,7 @@ class gmoccapy(object):
         else:
             speed = self.stat.spindle[0]['speed']
         self.widgets.active_speed_label.set_label("{0:.0f}".format(abs(speed)))
-        self.widgets.lbl_spindle_act.set_text("S {0}".format(int(speed * self.spindle_override)))
+        self.widgets.lbl_spindle_act.set_text("S {0}".format(int(round(speed * self.spindle_override))))
 
     def _update_vc(self):
         if self.stat.spindle[0]['direction'] != 0:
@@ -3864,11 +3864,11 @@ class gmoccapy(object):
                 speed = abs(self.stat.spindle[0]['speed'])
             spindle_override = value / 100
             real_spindle_speed = speed * spindle_override
-            if real_spindle_speed > self.max_spindle_rev:
-                value_to_set = value / (real_spindle_speed / self.max_spindle_rev)
+            if abs(real_spindle_speed) > self.max_spindle_rev:
+                value_to_set = value / (abs(real_spindle_speed) / self.max_spindle_rev)
                 real_spindle_speed = self.max_spindle_rev
-            elif real_spindle_speed < self.min_spindle_rev:
-                value_to_set = value / (real_spindle_speed / self.min_spindle_rev)
+            elif abs(real_spindle_speed) < self.min_spindle_rev:
+                value_to_set = value / (abs(real_spindle_speed) / self.min_spindle_rev)
                 real_spindle_speed = self.min_spindle_rev
             else:
                 value_to_set = spindle_override * 100
