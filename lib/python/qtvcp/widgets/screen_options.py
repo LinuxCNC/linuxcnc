@@ -315,6 +315,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def on_periodic(self, w):
         try:
             e = STATUS.poll_error()
+            #if not e is None:print ('error stat',e)
             if e:
                 kind, text = e
                 STATUS.emit('error',kind,text)
