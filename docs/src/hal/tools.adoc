@@ -13,10 +13,9 @@
 [[sec:halcmd]]
 == Halcmd
 
-Halcmd is a command line tool for manipulating the HAL. There is a
-rather complete man page for link:../man/man1/halcmd.1.html[halcmd], which will be installed if you
-have installed LinuxCNC from either source or a package. The manpage
-provides usage info:
+Halcmd is a command line tool for manipulating the HAL.
+There is a rather complete man page for link:../man/man1/halcmd.1.html[halcmd], which will be installed if you have installed LinuxCNC from either source or a package.
+The manpage provides usage info:
 
 ----
 man halcmd
@@ -39,7 +38,7 @@ usage, and is a good tutorial for halcmd.
 
 Halmeter is a 'voltmeter' for the HAL. It lets you look at a pin,
 signal, or parameter, and displays the current value of that item. It
-is pretty simple to use. Start it by typing *halmeter* in an X
+is pretty simple to use. Start it by typing `halmeter` in an X
 windows shell. Halmeter is a GUI application. It will pop up
 a small window, with two buttons labeled 'Select' and 'Exit'. Exit is
 easy - it shuts down the program. Select pops up a larger window, with
@@ -55,13 +54,11 @@ convenient if you want to look at a number of different items quickly.
 
 You can have many halmeters running at the same time, if you want to
 monitor several items. If you want to launch a halmeter without tying
-up a shell window, type 'halmeter &' to run it in the background.
-You can also make halmeter start
-displaying a specific item immediately, by adding 'pin|sig|par[am]
-<name>' to the command line. It will display the pin, signal, or
-parameter
-<name> as soon as it starts. (If there is no such item, it will simply
-start normally.) And finally, if you specify an item to display, you
+up a shell window, type `halmeter &` to run it in the background.
+You can also make halmeter start displaying a specific item immediately, by adding 'pin|sig|par[am] <name>' to the command line.
+It will display the pin, signal, or parameter <name> as soon as it starts -
+if there is no such item, it will simply start normally.
+And finally, if you specify an item to display, you
 can add '-s' before the pin|sig|param to tell halmeter to use a small
 window. The item name will be displayed in the title bar instead of
 under the value, and there will be no buttons. Useful when you want a
@@ -82,7 +79,7 @@ For example:
 loadusr halmeter pin hm2.0.stepgen.00.velocity-fb -g 0 500
 ----
 
-See the man page for more options. See section <<sec:halmeter,Halmeter>>.
+See the man page for more options and the section <<sec:halmeter,Halmeter>>.
 
 .Halmeter selection window
 image::images/hal-meter01.png["Halmeter selection window"]
@@ -95,10 +92,11 @@ image::images/hal-meter02.png["Halmeter watch window"]
 Halshow (<<cha:halshow,complete usage description>>)
 can be started from the command line to show details for selected
 components, pins, parameters, signals, functions, and threads of a running HAL.
-The WATCH tab provides a continuous display of selected pin, parameters, and
-signal items.  The File menu provides buttons to 1) save the watch items to
-a watch list and to load and existing watch list.  The watch list items can
-also be loaded automatically on startup.  For command line usage:
+The WATCH tab provides a continuous display of selected pin, parameters, and signal items.
+The File menu provides buttons to 1) save the watch items to
+a watch list and to load and existing watch list.
+The watch list items can also be loaded automatically on startup.
+For command line usage:
 
 ----
 halshow --help
@@ -240,7 +238,8 @@ or
    hal-histogram [Options] [pinname]
 
 .Options:
-[width="90%",options="header",grid=false,frame=false]
+[width="90%",options="header"]
+//[grid=false,frame=false]
 |===
 |Option    |Value   |Description
 |--minvalue|minvalue|minimum bin, default: 0
@@ -342,8 +341,7 @@ SIG:    motor-cmd-0
             (=hm2_7i92.0.stepgen.00.velocity-cmd)
 ----
 
-In the example above, the HALFILE uses halcmd aliases to simplify pin names
-for an hostmot2 fpga board with commands like:
+In the example above, the HALFILE uses halcmd aliases to simplify pin names for an hostmot2 FPGA board with commands like:
 
 [source,{hal}]
 ----
