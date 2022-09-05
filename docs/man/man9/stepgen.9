@@ -131,9 +131,10 @@ The position in counts, as updated by \fBmake\-pulses\fR.  (Note: this is update
 \fBstepgen.\fIN\fB.steplen\fR u32 rw
 The length of the step pulses, in nanoseconds.  Measured from rising edge to falling edge.
 .TP
-\fBstepgen.\fIN\fB.stepspace\fR u32 rw (step types 0 and 1 only) The minimum
-space between step pulses, in nanoseconds.  Measured from falling edge to
-rising edge.  The actual time depends on the step rate and can be much longer.
+\fBstepgen.\fIN\fB.stepspace\fR u32 rw (step types 0 and 1 only)
+The minimum space between step pulses, in nanoseconds.
+Measured from falling edge to rising edge.
+The actual time depends on the step rate and can be much longer.
 If \fBstepspace\fR is 0, then \fBstep\fR can be asserted every period.    This
 can be used in conjunction with \fBhal_parport\fR's auto-resetting pins to
 output one step pulse per period.  In this mode, \fBsteplen\fR must be set for
