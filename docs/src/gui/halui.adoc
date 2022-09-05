@@ -67,7 +67,7 @@ net call-mysub     <= pyvcp.callmysub
 net call-mysub     => halui.mdi-command-02
 ----
 
-.These nets connect the `halui.mdi-command-NN` pins provided by halui:
+.Nets connecting the `halui.mdi-command-NN` pins provided by halui.
 ----
 $ halcmd show pin halui.mdi
 Component Pins:
