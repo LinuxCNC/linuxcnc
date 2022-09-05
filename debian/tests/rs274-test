@@ -2,7 +2,12 @@
 
 set -e
 
-rs274 -g rs274.ngc > $AUTOPKGTEST_TMP/rs274.out 2>&1
+cd $(dirname $0)
+
+if rs274 -g rs274.ngc > $AUTOPKGTEST_TMP/rs274.out 2>&1 ; then
+    echo "error: failed to run rs274"
+    exit 1
+fi
 
 if ! diff -u $AUTOPKGTEST_TMP/rs274.out rs274.res ; then
     echo "error: rs274 output do not match rs274.res"
