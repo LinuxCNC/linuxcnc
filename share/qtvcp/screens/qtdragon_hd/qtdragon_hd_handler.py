@@ -141,7 +141,6 @@ class HandlerClass:
         self.w.page_buttonGroup.buttonClicked.connect(self.main_tab_changed)
         self.w.filemanager.onUserClicked()    
         self.w.filemanager_usb.onMediaClicked()
-        self.w.widget_zaxis_offset.hide()
 
     # hide widgets for A axis if not present
         if "A" not in INFO.AVAILABLE_AXES:
@@ -202,10 +201,13 @@ class HandlerClass:
         # external offset control pins
         QHAL.newpin("eoffset-enable", QHAL.HAL_BIT, QHAL.HAL_OUT)
         QHAL.newpin("eoffset-clear", QHAL.HAL_BIT, QHAL.HAL_OUT)
+        QHAL.newpin("eoffset-spindle-count", QHAL.HAL_S32, QHAL.HAL_OUT)
         QHAL.newpin("eoffset-count", QHAL.HAL_S32, QHAL.HAL_OUT)
-        pin = QHAL.newpin("eoffset-value", QHAL.HAL_FLOAT, QHAL.HAL_IN)
+
+        pin = QHAL.newpin("eoffset-value", QHAL.HAL_S32, QHAL.HAL_IN)
         pin.value_changed.connect(self.eoffset_changed)
-        pin = QHAL.newpin("comp-count", Qhal.HAL_S32, Qhal.HAL_IN)
+
+        pin = QHAL.newpin("eoffset-zlevel-count", QHAL.HAL_S32, QHAL.HAL_IN)
         pin.value_changed.connect(self.comp_count_changed)
         QHAL.newpin("comp-on", Qhal.HAL_BIT, Qhal.HAL_OUT)
 
@@ -481,12 +483,11 @@ class HandlerClass:
         self.w.lbl_mb_errors.setText(str(errors))
 
     def eoffset_changed(self, data):
-        eoffset = "{:2.3f}".format(self.h['eoffset-value'])
-        self.w.lbl_eoffset_value.setText(eoffset)
+        self.w.z_comp_eoffset_value.setText(format(data*.001, '.3f'))
 
     def comp_count_changed(self):
         if self.w.btn_enable_comp.isChecked():
-            self.h['eoffset-count'] = self.h['comp-count']
+            self.h['eoffset-count'] = self.h['eoffset-zlevel-count']
 
     def dialog_return(self, w, message):
         rtn = message.get('RETURN')
@@ -653,48 +654,46 @@ class HandlerClass:
         # set external offsets to lift spindle
             self.h['eoffset-enable'] = self.w.chk_eoffsets.isChecked()
             fval = float(self.w.lineEdit_eoffset_count.text())
-            self.h['eoffset-count'] = int(fval)
+            self.h['eoffset-spindle-count'] = int(fval)
+            self.w.spindle_eoffset_value.setText(self.w.lineEdit_eoffset_count.text())
             self.h['spindle-inhibit'] = True
-            self.w.btn_enable_comp.setChecked(False)
-            self.w.widget_zaxis_offset.hide()
-            if not QHAL.hal.component_exists("compensation"):
+            #self.w.btn_enable_comp.setChecked(False)
+            #self.w.widget_zaxis_offset.hide()
+            if not QHAL.hal.component_exists("z_level_compensation"):
                 self.add_status("Z level compensation HAL component not loaded", CRITICAL)
                 return
-            self.h['comp-on'] = False
+            #self.h['comp-on'] = False
         else:
-            self.h['eoffset-count'] = 0
-            self.h['eoffset-clear'] = True
+            self.h['eoffset-spindle-count'] = 0
+            self.w.spindle_eoffset_value.setText('0')
+            #self.h['eoffset-clear'] = True
             self.h['spindle-inhibit'] = False
             if STATUS.is_auto_running():
             # instantiate warning box
                 info = "Wait for spindle at speed signal before resuming"
-                mess = {'NAME':'MESSAGE', 'ICON':'WARNING', 'ID':'_wait_resume_', 'MESSAGE':'CAUTION', 'MORE':info, 'TYPE':'OK'}
+                mess = {'NAME':'MESSAGE', 'ICON':'WARNING',
+                        'ID':'_wait_resume_', 'MESSAGE':'CAUTION',
+                        'NONBLOCKING':'True', 'MORE':info, 'TYPE':'OK'}
                 ACTION.CALL_DIALOG(mess)
 
     def btn_enable_comp_clicked(self, state):
         if state:
-            self.w.btn_pause_spindle.setChecked(False)
             fname = os.path.join(PATH.CONFIGPATH, "probe_points.txt")
             if not os.path.isfile(fname):
                 self.add_status(fname + " not found", CRITICAL)
                 self.w.btn_enable_comp.setChecked(False)
                 return
-            if not QHAL.hal.component_exists("compensation"):
+            if not QHAL.hal.component_exists("z_level_compensation"):
                 self.add_status("Z level compensation HAL component not loaded", CRITICAL)
                 self.w.btn_enable_comp.setChecked(False)
                 return
             self.h['comp-on'] = True
-            self.h['eoffset-scale'] = 0.001
-            self.h['eoffset-count'] = self.h['comp-count']
             self.add_status("Z level compensation ON")
-            self.w.widget_zaxis_offset.show()
         else:
-            self.w.widget_zaxis_offset.hide()
-            if not QHAL.hal.component_exists("compensation"):
+            if not QHAL.hal.component_exists("z_level_compensation"):
                 self.add_status("Z level compensation HAL component not loaded", CRITICAL)
                 return
             self.h['comp-on'] = False
-            self.h['eoffset-count'] = 0
             self.add_status("Z level compensation OFF", WARNING)
 
 
@@ -993,7 +992,7 @@ class HandlerClass:
                 self.add_status("Loaded PDF file : {}".format(fname))
 
     def disable_spindle_pause(self):
-        self.h['eoffset-count'] = 0
+        self.h['eoffset-spindle-count'] = 0
         self.h['spindle-inhibit'] = False
         if self.w.btn_pause_spindle.isChecked():
             self.w.btn_pause_spindle.setChecked(False)
@@ -1058,7 +1057,7 @@ class HandlerClass:
         else:
             self.add_status("Machine OFF")
         self.w.btn_pause_spindle.setChecked(False)
-        self.h['eoffset-count'] = 0
+        self.h['eoffset-spindle-count'] = 0
         for widget in self.onoff_list:
             self.w[widget].setEnabled(state)
 
