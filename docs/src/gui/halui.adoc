@@ -56,7 +56,7 @@ to a maximum of 64 commands. These pins can be connected like any
 HAL pins. A common method is to use buttons provided by virtual
 control panels.
 
-.Example HAL file connections:
+.Example HAL file connections
 [source,{hal}]
 ----
 net quill-up       <= pyvcp.quillup
