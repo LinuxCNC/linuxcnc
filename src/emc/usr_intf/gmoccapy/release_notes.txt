@@ -184,7 +184,7 @@ ver 3.0.6
   leading to the need of less resources and a quicker start of the GUI
 - gmoccapy now supports 9 axis and 9 joints
 - configuration of joint axis relation are now applied as given in the
-  ini file, allowing also strange configs like XZCW lathe configs or
+  INI file, allowing also strange configs like XZCW lathe configs or
   scara or 6 axis robot arms
 - Display of cutting speed is now correct, even on a lathe with
   constant surface speed
@@ -359,7 +359,7 @@ ver 2.3.0
   gmoccapy. I have passed a lot of code over to get_ini_info.
 - all config files have been changed to support the new behavior. I tried to make
   all the code compatible with older configs. Some might need the not used axis
-  to be included in homing entries in the ini files.
+  to be included in homing entries in the INI files.
 
 ver 2.2.5.2
 - if the GUI tries to reload a tool on restart and that tool was not found in 
@@ -610,7 +610,7 @@ ver. 2.0.13
 
 ver. 2.0.12
 - bug in touchscreen slider if machine units and display units not equal
-- corrected some strange entries in ini files
+- corrected some strange entries in INI files
 
 ver. 2.0.11
 - some small changes in INI configs
@@ -1057,7 +1057,7 @@ ver. 1.1.5.8
 
 ver. 1.1.5.7
 - init dynamic tab now in try except to avoid python exception
-  on user typos in ini file
+  on user typos in INI file
 - loading a tool using remap, led to an error if no file has been 
   loaded before the change, we do check for that now to avoid the error
 
@@ -1373,7 +1373,7 @@ ver. 0.9.9.9.1
 
 ver. 0.9.9.9
 - gmoccapy is now able to do auto tool measurement after an manual tool change
-- introduced a ini config to simulate that
+- introduced a INI config to simulate that
 - still to do: If user click on abort while the tool change message window is still open
   or he closes the window with the small X on the right upper corner, the hal pin will
   not be rested properly
@@ -1540,7 +1540,7 @@ ver. 0.9.8.4
 - tool info only with three digits in imperial mode, now 4 digits
 - active feed and active vel label not in machine units, if in imperial mode, fixed
 - cosmetic changes to gmoccapy_lathe.ini
-- introduced a imperial lathe ini
+- introduced an imperial lathe INI
 
 ver 0.9.8.3
 - BUG: forget to update the coordinate system after changing the error system,
@@ -1644,7 +1644,7 @@ ver. 0.9.7
 - corrected some align values in glade file
 - removed units from max_vel_label (glade file)
 - corrected hardware button behavior
-- added again a sim hardware ini file
+- added again a sim hardware INI file
 - uniform usage of "" instead of sometime '' (just to clear python style)
 - user can select on settings page, if he want the offsettab or the preview tab 
   to be displayed as default, the ntb_tabs are shown, so changing is possible at any time
@@ -1690,7 +1690,7 @@ ver. 0.9.5
 - cleared the code a lot
 - settings page, it is possible to select if you want to use the onbord keyboard also in tooledit page 
   and in offset page editing
-- deleted the hardware button simulation ini, because it will not work as it should and I was not able
+- deleted the hardware button simulation INI, because it will not work as it should and I was not able
   to find a solution. 
 
 ver. 0.9.4

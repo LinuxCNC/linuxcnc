@@ -20,7 +20,7 @@
   Using halrmt:
 
   halrmt {-- --port <port number> --name <server name> --connectpw <password>
-             --enablepw <password> --sessions <max sessions> -ini<inifile>}
+             --enablepw <password> --sessions <max sessions> -ini <INI file>}
 
   With -- --port Waits for socket connections (Telnet) on specified socket, without port
             uses default port 5006. (note: linuxcncrsh uses 5007 as default)
@@ -29,7 +29,7 @@
   With -- --enablepw <password> Sets the enable password to 'password'. Default EMCTOO
   With -- --sessions <max sessions> Sets the maximum number of simultaneous connextions
             to max sessions. Default is no limit (-1).
-  With -- -ini <inifile>, uses inifile instead of emc.ini. 
+  With -- -ini <INI file>, uses specified INI file instead of default emc.ini. 
 
   There are six commands supported, Where the commands set and get contain HAL
   specific sub-commands based on the commands supported by halcmd. Commands and 
@@ -2347,7 +2347,7 @@ static int do_help_cmd(char *command)
 	printf("  using the syntax '$name'./n");
 #else
 	printf("  using the syntax '$name'.  If option -i was given,\n");
-	printf("  'value' may also be a reference to an ini file entry\n");
+	printf("  'value' may also be a reference to an INI file entry\n");
 	printf("  using the syntax '[section]name'.\n");
 #endif
     } else if (strcmp(command, "sets") == 0) {
@@ -2431,8 +2431,8 @@ static void print_help_general(int showR)
     printf("  -f [filename]  Read commands from 'filename', not command\n");
     printf("                 line.  If no filename, read from stdin.\n");
 #ifndef NO_INI
-    printf("  -i filename    Open .ini file 'filename', allow commands\n");
-    printf("                 to get their values from ini file.\n");
+    printf("  -i filename    Open INI file 'filename', allow commands\n");
+    printf("                 to get their values from INI file.\n");
 #endif
     printf("  -q             Quiet - print errors only (default).\n");
     printf("  -Q             Very quiet - print nothing.\n");
@@ -3549,7 +3549,7 @@ int main(int argc, char **argv)
 		break;
 #ifndef NO_INI
 	    case 'i':
-		/* -i = allow reading 'setp' values from an ini file */
+		/* -i = allow reading 'setp' values from an INI file */
 		if (inifile == NULL) {
 		    /* it's the first -i (ignore repeats) */
 		    if ((n < argc) && (argv[n][0] != '-')) {
@@ -3558,7 +3558,7 @@ int main(int argc, char **argv)
 			inifile = fopen(filename, "r");
 			if (inifile == NULL) {
 			    fprintf(stderr,
-				"Could not open ini file '%s'\n",
+				"Could not open INI file '%s'\n",
 				filename);
 			    exit(-1);
 			}
@@ -3568,7 +3568,7 @@ int main(int argc, char **argv)
 		    } else {
 			/* no filename followed -i option, error */
 			fprintf(stderr,
-			    "No missing ini filename for -i option\n");
+			    "No missing INI filename for -i option\n");
 			exit(-1);
 		    }
 		}

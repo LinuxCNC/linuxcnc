@@ -853,7 +853,7 @@ int Interp::init()
   _setup.num_spindles = 1;
 
   // default arc radius tolerances
-  // we'll try to override these from the ini file below
+  // we'll try to override these from the INI file below
   _setup.center_arc_radius_tolerance_inch = CENTER_ARC_RADIUS_TOLERANCE_INCH;
   _setup.center_arc_radius_tolerance_mm = CENTER_ARC_RADIUS_TOLERANCE_MM;
 
@@ -1033,7 +1033,7 @@ int Interp::init()
 	      n++;
 	  }
 
-          // if exist and within bounds, apply ini file arc tolerances
+          // if exist and within bounds, apply INI file arc tolerances
           // limiting figures are defined in interp_internal.hh
 
           r = inifile.Find(
@@ -1044,7 +1044,7 @@ int Interp::init()
               "RS274NGC"
           );
           if ((r != IniFile::ERR_NONE) && (r != IniFile::ERR_TAG_NOT_FOUND)) {
-              Error("invalid [RS274NGC]CENTER_ARC_RADIUS_TOLERANCE_INCH in ini file\n");
+              Error("invalid [RS274NGC]CENTER_ARC_RADIUS_TOLERANCE_INCH in INI file\n");
           }
 
           r = inifile.Find(
@@ -1055,15 +1055,15 @@ int Interp::init()
               "RS274NGC"
           );
           if ((r != IniFile::ERR_NONE) && (r != IniFile::ERR_TAG_NOT_FOUND)) {
-              Error("invalid [RS274NGC]CENTER_ARC_RADIUS_TOLERANCE_MM in ini file\n");
+              Error("invalid [RS274NGC]CENTER_ARC_RADIUS_TOLERANCE_MM in INI file\n");
           }
 
-	  // ini file g52/g92 offset persistence default setting
+	  // INI file g52/g92 offset persistence default setting
 	  inifile.Find(&_setup.disable_g92_persistence,
 		       "DISABLE_G92_PERSISTENCE",
 		       "RS274NGC");
 
-	  // ini file m98/m99 subprogram default setting
+	  // INI file m98/m99 subprogram default setting
 	  inifile.Find(&_setup.disable_fanuc_style_sub,
 		       "DISABLE_FANUC_STYLE_SUB",
 		       "RS274NGC");
@@ -1110,7 +1110,7 @@ int Interp::init()
                  _setup.v_origin_offset ,
                  _setup.w_origin_offset);
 
-  // Restore G92 offset if DISABLE_G92_PERSISTENCE not set in .ini file.
+  // Restore G92 offset if DISABLE_G92_PERSISTENCE not set in INI file.
   // This can't be done with the static _required_parameters[], where
   // the .vars file contents would reflect that setting, so instead
   // edit the restored parameters here.

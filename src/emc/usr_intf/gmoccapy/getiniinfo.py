@@ -396,7 +396,7 @@ class GetIniInfo:
         return xpos, ypos, zpos, maxprobe
 
     def get_macros(self):
-        # lets look in the ini File, if there are any entries
+        # lets look in the INI file, if there are any entries
         macros = self.inifile.findall("MACROS", "MACRO")
         # If there are no entries we will return False
         if not macros:
@@ -429,7 +429,7 @@ class GetIniInfo:
         subroutines_paths = self.inifile.find("RS274NGC", "SUBROUTINE_PATH")
         if not subroutines_paths:
             message = _( "**** GMOCCAPY GETINIINFO ****\n" )
-            message += _( "**** No subroutine folder or program prefix is given in the ini file **** \n" )
+            message += _( "**** No subroutine folder or program prefix is given in the INI file **** \n" )
             print( message )
             subroutines_paths = self.get_program_prefix()
         if not subroutines_paths:

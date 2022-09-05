@@ -13,7 +13,7 @@
 #ifndef EMCMOTCFG_H
 #define EMCMOTCFG_H
 
-/* default name of EMCMOT ini file */
+/* default name of EMCMOT INI file */
 #define DEFAULT_EMCMOT_INIFILE "emc.ini"	/* same as for EMC-- we're in 
 						   touch */
 

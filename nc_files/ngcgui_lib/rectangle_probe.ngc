@@ -2,7 +2,7 @@
 ( adapted for ngcgui-compatibility from smartprobe.ngc written by Chris Radek )
 ( This program repeatedly probes a regular XY grid and writes the )
 ( probed locations to the file 'rectangle_probe_result.txt' in the same directory )
-( as the .ini file )
+( as the INI file )
 
 ( Requires a probe connected to motion.probe-input )
 ( or use scripts/simulate_probe )

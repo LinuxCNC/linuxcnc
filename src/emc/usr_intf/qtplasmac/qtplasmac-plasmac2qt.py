@@ -205,7 +205,7 @@ class Converter(QMainWindow, object):
         options |= QFileDialog.DontUseNativeDialog
         name, _ = QFileDialog.getOpenFileName(
                     parent=self,
-                    caption=self.tr("Select a ini file"),
+                    caption=self.tr("Select an INI file"),
                     filter=self.tr('INI files (*.ini);;INI files (*.[iI][nN][iI])'),
                     directory=self.DIR,
                     options=options
@@ -290,14 +290,14 @@ class Converter(QMainWindow, object):
             while(1):
                 line = inFile.readline()
                 if not line:
-                    print('cannot find [EMC] section in ini file')
+                    print('cannot find [EMC] section in INI file')
                     return
                 if line.startswith('[EMC]'):
                     break
             while(1):
                 line = inFile.readline()
                 if not line:
-                    print('cannot find MACHINE variable in ini file')
+                    print('cannot find MACHINE variable in INI file')
                     return
                 if line.startswith('MACHINE'):
                     machineName = line.split('=')[1].strip().lower()
@@ -320,7 +320,7 @@ class Converter(QMainWindow, object):
                 if line.startswith('[HAL]'):
                     break
                 if not line:
-                    msg  = 'Could not get [HAL] section of ini file\n'
+                    msg  = 'Could not get [HAL] section of INI file\n'
                     msg += '\nConversion cannot continue'
                     self.dialog_ok('INI File Error', msg)
                     self.fromFile.setFocus()
@@ -494,9 +494,9 @@ class Converter(QMainWindow, object):
     # WE GOT THIS FAR SO IT MAY HAVE WORKED
         msg  = 'Conversion appears successful.\n'
         if self.mode == 'automatic':
-            msg += '\nRestart LinuxCNC using the following ini file:\n'
+            msg += '\nRestart LinuxCNC using the following INI file:\n'
         else:
-            msg += '\nStart LinuxCNC using the following ini file:\n'
+            msg += '\nStart LinuxCNC using the following INI file:\n'
         msg += '\n{}/{}.ini\n'.format(newDir, machineName)
         self.dialog_ok('Success', msg)
         print(msg)

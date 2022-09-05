@@ -44,16 +44,16 @@
   Using emcsh:
 
   % package require Linuxcnc
-  % emc_init -ini inifilename # to start with an inifile
+  % emc_init -ini <INI file> # to start with an INI file
   or
   % emc_init # to start with the default inifilename (emc.ini)
 
   With filename, it opens NML buffers to the EMC, runs the script, closes
   the buffers, and quits.
 
-  With -ini <inifile>, uses inifile instead of emc.ini.
+  With -ini <INI file>, uses specified INI file instead of default emc.ini.
 
-  Commands in the Linuxcnc package are all prefixed with "emc_", which makes them
+  Commands in the LinuxCNC package are all prefixed with "emc_", which makes them
   somewhat inconvenient for typing but avoids name conflicts, e.g., open.
 
   Some commands take 0 or more arguments. 0 arguments means they return
@@ -75,7 +75,7 @@
   With no arg, returns the integer value of EMC_DEBUG, in the EMC. Note that
   it may not be true that the local EMC_DEBUG variable here (in emcsh and
   the GUIs that use it) is the same as the EMC_DEBUG value in the EMC. This
-  can happen if the EMC is started from one .ini file, and the GUI is started
+  can happen if the EMC is started from one INI file, and the GUI is started
   with another that has a different value for DEBUG.
   With an arg, sends a command to the EMC to set the new debug level,
   and sets the EMC_DEBUG global here to the same value. This will make

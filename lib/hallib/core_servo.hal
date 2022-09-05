@@ -3,7 +3,7 @@
 # first load the core RT modules that will be needed
 # kinematics
 loadrt [KINS]KINEMATICS
-# motion controller, get name and thread periods from ini file
+# motion controller, get name and thread periods from INI file
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 # PID module, for three PID loops
 loadrt pid num_chan=3
@@ -30,9 +30,9 @@ setp pid.0.maxoutput [JOINT_0]MAX_VELOCITY
 setp pid.1.maxoutput [JOINT_1]MAX_VELOCITY
 setp pid.2.maxoutput [JOINT_2]MAX_VELOCITY
 
-# set PID loop gains from inifile
+# set PID loop gains from INI file
 
-# the values below come from the ini
+# the values below come from the INI
 setp pid.0.Pgain [JOINT_0]P
 setp pid.0.Igain [JOINT_0]I
 setp pid.0.Dgain [JOINT_0]D

@@ -329,7 +329,7 @@ class HAL:
         if self.d.classicladder:
             print(file=file)
             if self.d.modbus:
-                print(_("# Load Classicladder with modbus master included (GUI must run for Modbus)"), file=file)
+                print(_("# Load Classicladder with Modbus master included (GUI must run for Modbus)"), file=file)
                 print("loadusr classicladder --modmaster custom.clp", file=file)
             else:
                 print(_("# Load Classicladder without GUI (can reload LADDER GUI in AXIS GUI"), file=file)

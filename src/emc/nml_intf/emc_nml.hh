@@ -189,7 +189,7 @@ class EMC_JOINT_CMD_MSG:public RCS_CMD_MSG {
 
 /**
  * Set the joint type to linear or angular.
- * Similar to the JOINT_TYPE field in the ".ini" file.
+ * Similar to the JOINT_TYPE field in the INI file.
  */
 class EMC_JOINT_SET_JOINT:public EMC_JOINT_CMD_MSG {
   public:

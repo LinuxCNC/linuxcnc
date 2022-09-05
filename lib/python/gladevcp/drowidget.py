@@ -65,7 +65,7 @@ class HAL_DRO(Gtk.Label):
 
         try:
             self.inifile = self.emc.ini(INIPATH)
-            # check the ini file if UNITS are set to mm"
+            # check the INI file if UNITS are set to mm"
             # first check the global settings
             units=self.inifile.find("TRAJ","LINEAR_UNITS")
             if units==None:

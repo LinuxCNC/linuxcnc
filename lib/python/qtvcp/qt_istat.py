@@ -126,7 +126,7 @@ class _IStat(object):
 
         self.PARAMETER_FILE = (self.INI.find("RS274NGC", "PARAMETER_FILE")) or None
         try:
-            # check the ini file if UNITS are set to mm"
+            # check the INI file if UNITS are set to mm"
             # first check the global settings
             units = self.INI.find("TRAJ", "LINEAR_UNITS")
             if units is None:

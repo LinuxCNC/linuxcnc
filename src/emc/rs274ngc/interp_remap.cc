@@ -98,7 +98,7 @@ int Interp::convert_remapped_code(block_pointer block,
     // remapped handlers may use Python code to
     // setup environment before, and finish work after doing theirs.
     // That's what prolog and epilog functions are for.
-    // These are described in the remap descriptor as read from ini.
+    // These are described in the remap descriptor as read from INI.
 
     // Since a remap is always executed in the context of a controlling block,
     // this block now contains fields which hold dynamic remap information, like

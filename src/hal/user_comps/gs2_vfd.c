@@ -78,7 +78,7 @@
 #define GS2_REG_OVER_VOLTAGE_STALL_PREVENTION__DISABLE  1
 
 
-/* modbus slave data struct */
+/* Modbus slave data struct */
 typedef struct {
 	int slave;		/* slave address */
 	int read_reg_start;	/* starting read register number */
@@ -415,7 +415,7 @@ void usage(int argc, char **argv) {
     "-v or --verbose\n"
     "    Turn on verbose mode.\n"
     "-g or --debug\n"
-    "    Turn on debug mode.  This will cause all modbus messages to be\n"
+    "    Turn on debug mode.  This will cause all Modbus messages to be\n"
     "    printed in hex on the terminal.\n"
     "-n or --name <string> (default gs2_vfd)\n"
     "    Set the name of the HAL module.  The HAL comp name will be set to <string>, and all pin\n"
@@ -438,7 +438,7 @@ void usage(int argc, char **argv) {
     "-R, --braking-resistor\n"
     "    This argument should be used when a braking resistor is installed on the\n"
     "    GS2 VFD (see Appendix A of the GS2 manual).  It disables deceleration\n"
-    "    over-voltage stall prevention (see GS2 modbus Parameter 6.05), allowing\n"
+    "    over-voltage stall prevention (see GS2 Modbus Parameter 6.05), allowing\n"
     "    the VFD to keep braking even in situations where the motor is regenerating\n"
     "    high voltage.  The regenerated voltage gets safely dumped into the\n"
     "    braking resistor.\n"
@@ -640,7 +640,7 @@ int main(int argc, char **argv)
     /* Assume 38.4k O-8-1 serial settings, device 1 */
     mb_ctx = modbus_new_rtu(device, baud, parity, bits, stopbits);
     if (mb_ctx == NULL) {
-        printf("%s: ERROR: couldn't open modbus serial device: %s\n", modname, modbus_strerror(errno));
+        printf("%s: ERROR: couldn't open Modbus serial device: %s\n", modname, modbus_strerror(errno));
         goto out_noclose;
     }
 

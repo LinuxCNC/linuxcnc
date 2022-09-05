@@ -14,7 +14,7 @@
 #ifndef INITRAJ_HH
 #define INITRAJ_HH
 
-/* initializes traj module from ini file */
+/* initializes traj module from INI file */
 extern int iniTraj(const char *filename);
 
 #endif

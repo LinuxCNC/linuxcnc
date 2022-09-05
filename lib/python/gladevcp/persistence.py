@@ -124,7 +124,7 @@ def widget_defaults(widgets):
 
 class IniFile(object):
 
-    # well known section and variable names in .ini files
+    # well known section and variable names in INI files
     vars = 'vars'
     widgets = 'widgets'
     ini = 'ini'
@@ -151,7 +151,7 @@ class IniFile(object):
 
     def restore_state(self,obj):
         '''
-        restore attributes from ini file 'vars' section as obj attributes,
+        restore attributes from INI file 'vars' section as obj attributes,
         as well as any widget state in 'widgets' section
         '''
         dbg(1, "restore_state() from %s" % (self.filename))
@@ -180,7 +180,7 @@ class IniFile(object):
 
     def save_state(self, obj):
         '''
-        save obj attributes as listed in ini file 'IniFile.vars' section and
+        save obj attributes as listed in INI file 'IniFile.vars' section and
         widget state to 'widgets' section
         '''
         if IniFile.vars in self.defaults:
@@ -199,7 +199,7 @@ class IniFile(object):
 
     def create_default_ini(self):
         '''
-        create a default ini file with defaults derived from configspec
+        create a default INI file with defaults derived from configspec
         '''
         self.config = ConfigObj(self.filename, interpolation=False,
                                 configspec=self.spec)
@@ -214,7 +214,7 @@ class IniFile(object):
     def read_ini(self):
         '''
         make sure current file validates OK, this will also type-convert values
-        recreate default ini file if bad things happen
+        recreate default INI file if bad things happen
         '''
         retries = 2
         while True:

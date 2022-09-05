@@ -1090,7 +1090,7 @@ static PyObject *brake(pyCommandChannel *s, PyObject *o) {
 
 static PyObject *load_tool_table(pyCommandChannel *s, PyObject *o) {
     EMC_TOOL_LOAD_TOOL_TABLE m;
-    m.file[0] = '\0'; // don't override the ini file
+    m.file[0] = '\0'; // don't override the INI file
     emcSendCommand(s, m);
     Py_INCREF(Py_None);
     return Py_None;

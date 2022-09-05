@@ -25,7 +25,7 @@ HALUI:
 Classicladder software PLC
     Click the Classicladder checkbox.
     Choose the number of available pins.
-    Choose whether modbus is activated.
+    Choose whether Modbus is activated.
     Choose a sample ladder program or a blank program.
     sample Z autotouch off requires a probe input and 
         GladeVCP Z autotouch option

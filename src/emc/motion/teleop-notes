@@ -76,11 +76,11 @@ with that info.  But what?
 
 Thinking only about the single axis planners for now...
 
-I don't really see any reason to have axis vel and accel limits in the ini file.  The
+I don't really see any reason to have axis vel and accel limits in the INI file.  The
 machine's mechanical limits are related to the joints, not the axes.  So the axes should
 simply limiit themselves to whatever will keep the joints happy.
 
-If the limits for the single axis planners aren't in the ini file, we need to derive
+If the limits for the single axis planners aren't in the INI file, we need to derive
 them somehow.  That is the root problem.
 
 Suppose we are already moving at some velocity Vx in the single axis X planner.  That

@@ -138,7 +138,7 @@ class OffsetPage(Gtk.VBox):
         window = self.wTree.get_object("offsetpage_box")
         window.reparent(self)
 
-        # check the ini file if UNITS are set to mm
+        # check the INI file if UNITS are set to mm
         # first check the global settings
         # if not available then the X axis units
         try:

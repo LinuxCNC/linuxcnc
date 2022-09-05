@@ -447,8 +447,8 @@ G28 uses the values stored in parameters 5161-5169
 as the X Y Z A B C U V W final point to move to.
 The parameter values are absolute machine
 coordinates in the native machine units as
-specified in the ini file. All axes defined in the
-ini file will be moved when a G28 is issued. If no
+specified in the INI file. All axes defined in the
+INI file will be moved when a G28 is issued. If no
 positions are stored with G28.1 then all axes will
 go to the machine origin.
 
@@ -472,14 +472,14 @@ G30 uses the values stored in parameters 5181-5189
 as the X Y Z A B C U V W final point to move to.
 The parameter values are absolute machine
 coordinates in the native machine units as
-specified in the ini file. All axes defined in the
-ini file will be moved when a G28 is issued. If no
+specified in the INI file. All axes defined in the
+INI file will be moved when a G28 is issued. If no
 positions are stored with G28.1 then all axes will
 go to the machine origin.
 
 G30 parameters will be used to move the tool when
 a M6 is programmed if TOOL_CHANGE_AT_G30=1 is in
-the [EMCIO] section of the ini file.
+the [EMCIO] section of the INI file.
 
 G30 - makes a rapid move from the current position
 to the absolute position of the values in
