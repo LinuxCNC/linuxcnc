@@ -107,7 +107,7 @@ PC.02 = 0::
 
 PC.03 = 1::
 
-    Set Communication Delay Time to 1 ms.  This is expected by the
+    Set Communication Delay Time to 1&thinsp;ms.  This is expected by the
     hy_gt_vfd driver.
 
 
@@ -166,8 +166,6 @@ PC.03 = 1::
     This is the minimum output frequency of the VFD in Hz.  It should
     correspond to the minimum output frequency configured in VFD
     register P0.05.
-
-
 
 
 == PINS
@@ -262,8 +260,6 @@ PC.03 = 1::
 *hy_gt_vfd.fault-info* (float, out)::
 
         The VFD's fault info register.
-
-
 
 
 == ISSUES
