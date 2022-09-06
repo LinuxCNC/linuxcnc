@@ -4,17 +4,17 @@
 
 Details of the filter can be found in `./doc/source-highlight-filter.txt`.
 
-// for now, PDF's can't have highlighted ini,hal or ngc files
-// for brave souls: extend /usr/share/texmf-texlive/tex/latex/listings/lstlang1.sty
-// and make it a local copy in the current directory
-// HTML works fine
+// For now, PDF's can't have highlighted INI, HAL or ngc files.
+// For brave souls: extend /usr/share/texmf-texlive/tex/latex/listings/lstlang1.sty
+// and make it a local copy in the current directory.
+// HTML works fine.
 
 // these attributes must come after the document title, to work around a bug in asciidoc 8.6.6
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-// begin a listing of ini/hal/ngc files like so:
+// Begin a listing of INI/HAL/ngc files like so:
 //[source,{ini}]
 //[source,{hal}]
 //[source,{ngc}]
@@ -25,7 +25,7 @@ Details of the filter can be found in `./doc/source-highlight-filter.txt`.
 # EMC controller parameters for a simulated machine.
 
 # General note: Comments can either be preceded with a # or ; - either is
-# acceptable, although # is in keeping with most linux config files.
+# acceptable, although # is in keeping with most Linux config files.
 
 # General section -------------------------------------------------------------
 [EMC]
@@ -115,7 +115,7 @@ SERVO_PERIOD =               1000000
 # files, and then to execute any individual HALCMD commands.
 #
 
-# list of hal config files to run through halcmd
+# list of HAL config files to run through halcmd
 # files are executed in the order in which they appear
 HALFILE =                    core_sim.hal
 HALFILE =		     axis_manualtoolchange.hal
