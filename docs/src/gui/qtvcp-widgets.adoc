@@ -2473,12 +2473,11 @@ Currently these status options can be used to auto style buttons:
 * 'is_estopped_status' will toggle the property 'isEstop'
 * 'is_on_status' will toggle the property 'isStateOn'
 * 'is_manual_status,is_mdi_status,is_auto_status' will toggle the
-'isManual, isMDI, isAuto'  properties.
+  'isManual, isMDI, isAuto'  properties.
 * 'is_homed_status' will toggle the 'isAllHomed' property
 
 Here is a sample stylesheet entry.
-It sets the background of mode button widgets when LinuxCNC is in that
-mode.
+It sets the background of mode button widgets when LinuxCNC is in that mode.
 
 ----
 ActionButton[isManual=true] {
@@ -2537,8 +2536,8 @@ ActionButton #action_aux{
 ==== Call Python commands on state
 
 The python_command_option allow small snippets of Python code to be run
-from the push of a button, with out having to edit the handler file.
-(though it can call functions in the handler file)
+from the push of a button, with out having to edit the handler file
+(though it can call functions in the handler file).
 When using the command_string properties.
 
 * 'true_python_cmd_string' - a python command that will be called when
@@ -2546,15 +2545,12 @@ When using the command_string properties.
 * 'false_python_cmd_string' - a python command that will be called when
   the button is toggled false
 
-The capitalized word 'INSTANCE' will give access to the widgets instances
-and handler functions. eg. 'INSTANCE.my_handler_function_call(True)'. +
-The capitalized word 'ACTION' will give access to qtvcp's ACTION library.
-eg. 'ACTION.TOGGLE_FLOOD()'. +
-The capitalized word 'PROGRAM_LOADER' will give access to qtvcp's
-PROGRAM_LOADER library. eg. 'PROGRAM_LOADER.load_halshow()'. +
-The capitalized word 'HAL' will give access to HAL's python module,
-e.g., 'HAL.set_p('motion.probe-input','1')'.
+The capitalized words
 
+INSTANCE:: will give access to the widgets instances and handler functions, e.g.. 'INSTANCE.my_handler_function_call(True)'.
+ACTION:: will give access to qtvcp's ACTION library, e.g., 'ACTION.TOGGLE_FLOOD()'.
+PROGRAM_LOADER:: will give access to QtVCP's PROGRAM_LOADER library, e.g., 'PROGRAM_LOADER.load_halshow()'.
+HAL:: will give access to HAL's python module, e.g., 'HAL.set_p('motion.probe-input','1')'.
 
 == Import only Widgets
 These widgets are usually the base class widget for other QtVCP widgets.
@@ -2562,26 +2558,13 @@ They are not available directly from the Designer editor but could be
 imported and manually inserted in the handler file.
 They could also be subclassed to make a similar widget with new features.
 
-=== Auto Height
-Widget for measuring two heights with a probe. For setup
-
-=== Gcode Utility
-Widgets for preforming common machining processes.
-
-=== Facing
-Slab or face a definable area with different strategies
-
-=== Hole Cicle
-Drill multiple holes on a bolt hole circle
-
-=== Qt NGCGUI
-QtVcp's version of NGC subroutine selector.
-
-=== Qt PDF
-Allows adding loadable PDFs to a screen
-
-=== Qt Vismach
-Use this to build/add OpenGl simulated machines
+Auto Height:: Widget for measuring two heights with a probe. For setup
+Gcode Utility:: Widgets for preforming common machining processes.
+Facing::Slab or face a definable area with different strategies
+Hole Cicle:: Drill multiple holes on a bolt hole circle
+Qt NGCGUI:: QtVcp's version of NGC subroutine selector.
+Qt PDF:: Allows adding loadable PDFs to a screen
+Qt Vismach:: Use this to build/add OpenGl simulated machines
 
 
 // vim: set syntax=asciidoc:
