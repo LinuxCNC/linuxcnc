@@ -1,3 +1,5 @@
+# vim: sw=2
+
 name: Build CI
 
 on:
