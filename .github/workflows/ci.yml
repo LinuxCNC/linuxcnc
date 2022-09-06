@@ -1,8 +1,3 @@
-# po4a Version 0.57 in ubuntu 20 do not write translated adoc as
-# UTF-8.  Need at least version 0.62 to fix it.
-# Motivations to update:
-#   0.66 to also get fix for empty asciidoc table cells.
-#   0.67 for hard newlines ( +\n) in paragraphs
 name: Build CI
 
 on:
@@ -14,6 +9,7 @@ on:
     types: [rerequested]
 
 jobs:
+
   rip-and-test:
     runs-on: ubuntu-20.04
     steps:
@@ -38,7 +34,7 @@ jobs:
         eatmydata make -O -j$((1+$(nproc))) default pycheck V=1
         # Note that the package build covers html docs
         ../scripts/rip-environment runtests -p
-    
+
   htmldocs:
     runs-on: ubuntu-20.04
     steps:
@@ -65,34 +61,133 @@ jobs:
         eatmydata make -O -j$((1+$(nproc))) docs
         # Note that the package build covers html docs
 
-  package:
-    runs-on: ubuntu-20.04
+  package-arch:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image: ["debian:testing", "debian:unstable"]
+    container:
+      image: ${{ matrix.image }}
+      # IPC_OWNER is needed for shmget IPC_CREAT
+      # SYS_ADMIN is needed for shmctl IPC_SET
+      options: --cpus=2 --cap-add=IPC_OWNER --cap-add=SYS_ADMIN
     steps:
     - name: Dump GitHub context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       run: echo "$GITHUB_CONTEXT"
-    - uses: actions/checkout@v2
-      with:
-        submodules: true
-        fetch-depth: 0
-    - name: Build Debian package
+    - name: Install pre-dependencies
+      env:
+        DEBIAN_FRONTEND: noninteractive
       run: |
+        set -e
         set -x
-        git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc refs/tags/*:refs/tags/*
-        ./scripts/travis-install-build-deps.sh
-        sudo apt-get install -y eatmydata
-        curl -O https://snapshot.debian.org/archive/debian/20220716T154603Z/pool/main/p/po4a/po4a_0.67-2_all.deb
-        sudo apt install ./po4a_0.67-2_all.deb
-        codename=$(lsb_release -cs)
-        dch --maintmaint --distribution $codename "GitHub test package."
-        eatmydata debian/configure
-        eatmydata debuild -us -uc
-        sudo apt-get install ../*.deb
-        ./scripts/runtests -p tests/
-        eatmydata lintian --info --display-info --pedantic --display-experimental ../linuxcnc*.changes
-        mkdir built-debs
-        cp ../linuxcnc*_* built-debs/
+        apt-get --quiet update
+        apt-get --yes --quiet install --no-install-suggests git lsb-release python3 devscripts
+    - uses: actions/checkout@v3
+      with:
+        # "fetch-depth: 0" fetches all of history, this is needed by
+        # our build system to determine the version from tags
+        fetch-depth: 0
+    - name: Build architecture-specific Debian packages
+      env:
+        DEBEMAIL: emc-developers@lists.sourceforge.net
+        DEBFULLNAME: LinuxCNC Github CI Robot
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        set -e
+        set -x
+        git config --global --add safe.directory "${PWD}"
+        debian/configure
+        debian/update-dch-from-git
+        scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
+        git diff
+        apt-get --yes --quiet build-dep --arch-only .
+        apt-get --yes --quiet install eatmydata
+        eatmydata debuild -us -uc --build=any
+    - name: Test debian packages
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        set -e
+        set -x
+        apt-get --yes --quiet install ../*.deb
+        apt-get --yes --quiet install sudo # some tests run sudo...
+        adduser --disabled-password --gecos "" testrunner
+        passwd -d testrunner
+        adduser testrunner sudo
+        chmod 0777 $(find tests/ -type d) # make test dirs world-writable for the testrunner
+        su -c "./scripts/runtests -p ./tests" testrunner
+    - name: Stage debs for archiving
+      run: |
+        set -e
+        set -x
+        mkdir -p built-debs/$(lsb_release -cs)
+        cp ../linuxcnc*_* built-debs/$(lsb_release -cs)
+    - name: Archive generated Debian packages
+      uses: actions/upload-artifact@v3
+      with:
+        name: debs
+        retention-days: 7
+        path: built-debs/*
+
+  package-indep:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image: ["debian:testing", "debian:unstable"]
+    container:
+      image: ${{ matrix.image }}
+      # IPC_OWNER is needed for shmget IPC_CREAT
+      # SYS_ADMIN is needed for shmctl IPC_SET
+      options: --cpus=2 --cap-add=IPC_OWNER --cap-add=SYS_ADMIN
+    steps:
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: echo "$GITHUB_CONTEXT"
+    - name: Install pre-dependencies
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        set -e
+        set -x
+        apt-get --quiet update
+        apt-get --yes --quiet install --no-install-suggests git lsb-release python3 devscripts
+    - uses: actions/checkout@v3
+      with:
+        # "fetch-depth: 0" fetches all of history, this is needed by
+        # our build system to determine the version from tags
+        fetch-depth: 0
+    - name: Build architecture-independent Debian packages
+      env:
+        DEBEMAIL: emc-developers@lists.sourceforge.net
+        DEBFULLNAME: LinuxCNC Github CI Robot
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        set -e
+        set -x
+        git config --global --add safe.directory "${PWD}"
+        debian/configure
+        debian/update-dch-from-git
+        scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
+        git diff
+        apt-get --yes --quiet build-dep --indep-only .
+        apt-get --yes --quiet install eatmydata
+        eatmydata debuild -us -uc --build=all
+    - name: Test install debian packages
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        set -e
+        set -x
+        apt-get --yes --quiet install ../*.deb
+    - name: Stage debs for archiving
+      run: |
+        set -e
+        set -x
+        mkdir -p built-debs/$(lsb_release -cs)
+        cp ../linuxcnc*_* built-debs/$(lsb_release -cs)
     - name: Archive generated PDF files
       uses: actions/upload-artifact@v3
       with:
