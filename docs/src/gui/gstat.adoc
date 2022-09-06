@@ -16,8 +16,8 @@ GStat is in the `hal_glib` module.
 .Overview
 * First, a program imports the `hal_glib` module and instantiates GStat.
 * Then it 'connects' to the messages it wishes to monitor.
-* GStat checks LinuxCNC's status every 100ms and if there are differences from
-the last check, it will send a callback message to all the connected programs
+* GStat checks LinuxCNC's status every 100&thinsp;ms and if there are differences from
+  the last check, it will send a callback message to all the connected programs
   with the current status.
 * When GStat calls the registered function, it sends the GStat object plus any return codes from the message.
 
@@ -41,8 +41,8 @@ def FUNCTION_TO_CALL(return_codes):
 
 == Sample GStat Code
 
-There are some basic patterns for using GStat, depending on what library +
-you are using them in. +
+There are some basic patterns for using GStat,
+depending on what library you are using them in.
 If using GStat with GladeVCP, Gscreen, or QtVCP, the GObject library is not needed as
 those toolkits already set up GObject.
 
@@ -184,16 +184,16 @@ def get_handlers(halcomp,builder,useropts):
 sent every 100 ms.
 
 *state-estop* :: '(returns nothing)' -
-Sent when linuxcnc is goes into estop.
+Sent when LinuxCNC is goes into estop.
 
 *state-estop-reset*:: '(returns nothing)' -
-Sent when linuxcnc comes out of estop.
+Sent when LinuxCNC comes out of estop.
 
 *state-on* :: '(returns nothing)' -
-Sent when linuxcnc is in machine on state.
+Sent when LinuxCNC is in machine on state.
 
 *state-off*:: '(returns nothing)' -
-Sent when linuxcnc is in machine off state.
+Sent when LinuxCNC is in machine off state.
 
 *homed* :: '(returns string)' -
 Sent as each joint is homed.
@@ -205,20 +205,20 @@ Sent when all defined joints are homed.
 Sends a list of joints not currently homed.
 
 *override_limits_changed* :: '(returns string)' -
-Sent if linuxcnc has been directed to override it's limits.
+Sent if LinuxCNC has been directed to override it's limits.
 
 *hard-limits-tripped* :: '(returns bool, Python List)' -
 Sent when any hard limit is tripped.
 bool indicates if any limit is tripped, the list shows all available joint's current limit values.
 
 *mode-manual* :: '(returns nothing)' -
-Sent when linuxcnc switches to manual mode.
+Sent when LinuxCNC switches to manual mode.
 
 *mode-mdi* :: '(returns nothing)' -
-Sent when linuxcnc switches to mdi mode.
+Sent when LinuxCNC switches to MDI mode.
 
 *mode-auto* :: '(returns nothing)' -
-Sent when linuxcnc switches to auto mode.
+Sent when LinuxCNC switches to auto mode.
 
 *command-running* :: '(returns nothing)' -
 Sent when running a program or MDI
@@ -230,19 +230,19 @@ Sent when a program or MDI stopped
 Sent when there is a command error
 
 *interp-run* :: '(returns nothing)' -
-Sent when linuxcnc's interpreter is running an MDI or program.
+Sent when LinuxCNC's interpreter is running an MDI or program.
 
 *interp-idle* :: '(returns nothing)' -
-Sent when linuxcnc's interpreter idle.
+Sent when LinuxCNC's interpreter idle.
 
 *interp-paused* :: '(returns nothing)' -
-Sent when linuxcnc's interpreter is paused.
+Sent when LinuxCNC's interpreter is paused.
 
 *interp-reading* :: '(returns nothing)' -
-Sent when linuxcnc's interpreter is reading.
+Sent when LinuxCNC's interpreter is reading.
 
 *interp-waiting* :: '(returns nothing)' -
-Sent when linuxcnc's interpreter is waiting.
+Sent when LinuxCNC's interpreter is waiting.
 
 *jograte-changed* :: '(returns float)' -
 Sent when jog rate has changed. +
@@ -278,13 +278,13 @@ Sent when optional stop is set/unset
 sent when block delete is set/unset.
 
 *file-loaded* :: '(returns string)' -
-Sent when linuxcnc has loaded a file
+Sent when LinuxCNC has loaded a file
 
 *reload-display* :: '(returns nothing)' -
 Sent when there is a request to reload the display
 
 *line-changed* :: '(returns integer)' -
-Sent when linuxcnc has read a new line. +
+Sent when LinuxCNC has read a new line. +
 Linuxcnc does not update this for every type of line.
 
 *tool-in-spindle-changed* :: '(returns integer)' -
@@ -468,7 +468,7 @@ intended to be sent when requesting the screen preferences to be displayed. +
 This depends on the widget/libraries used. +
 
 *shutdown* :: '(returns None)' -
-intended to be sent when requesting linuxcnc to shutdown. +
+intended to be sent when requesting LinuxCNC to shutdown. +
 This depends on the widget/libraries used. +
 
 *error* :: '(returns integer, string)' -
@@ -552,17 +552,17 @@ This will jog an axis continuously or at a set distance. +
 You must be in the proper mode to jog.
 
 *check_for_modes* :: '(mode)' -
-This function checks for required linuxcnc mode. +
+This function checks for required LinuxCNC mode. +
 It returns a python tuple (state, mode) +
 mode will be set the mode the system is in +
 state will set to: +
 false if mode is 0 +
 false if machine is busy +
-true if linuxcnc is in the requested mode +
+true if LinuxCNC is in the requested mode +
 None if possible to change, but not in requested mode +
 
 *get_current_mode* :: '(nothing)' -
-returns integer: the current linuxcnc mode. +
+returns integer: the current LinuxCNC mode. +
 
 *set_selected_joint* :: '(integer)' -
 records the selected joint number internally. +
