@@ -1,5 +1,6 @@
 :lang: en
 :toc:
+:example-caption: Example
 
 [[cha:hal-user-interface]]
 = HAL User Interface
@@ -54,20 +55,21 @@ When halui starts it will read the `MDI_COMMAND` fields in the INI and
 export pins from 00 to the number of `MDI_COMMAND` 's found in the INI, up
 to a maximum of 64 commands. These pins can be connected like any
 HAL pins. A common method is to use buttons provided by virtual
-control panels.
+control panels like shown in the example <<code:Example-HAL-file-connections, Example for MDI_COMMAND connections>>.
 
-.Example HAL file connections
+
+[[code:Example-HAL-file-connections]]
+.Example for MDI_COMMAND connections
+====
+.HAL file
 [source,{hal}]
 ----
-net quill-up       <= pyvcp.quillup
-net quill-up       => halui.mdi-command-00
-net reference-pos  <= pyvcp.referencepos
-net reference-pos  => halui.mdi-command-01
-net call-mysub     <= pyvcp.callmysub
-net call-mysub     => halui.mdi-command-02
+net quill-up      halui.mdi-command-00 <= pyvcp.quillup
+net reference-pos halui.mdi-command-01 <= pyvcp.referencepos
+net call-mysub    halui.mdi-command-02 <= pyvcp.callmysub
 ----
-
 .Nets connecting the `halui.mdi-command-NN` pins provided by halui.
+[source,sh]
 ----
 $ halcmd show pin halui.mdi
 Component Pins:
@@ -77,6 +79,7 @@ Owner  Type  Dir Value  Name
    10  bit   IN  FALSE  halui.mdi-command-02 <== call-mysub
     ...
 ----
+====
 
 When a halui MDI pin is set (pulsed) true, halui will send the MDI
 command defined in the INI.
@@ -92,6 +95,7 @@ is included in the distribution.
 
 All halui pins are also documented in the halui man page:
 
+[source,sh]
 ----
 $ man halui
 ----
