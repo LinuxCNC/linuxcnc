@@ -997,7 +997,7 @@ ShuttleXpress, so the old driver name is no longer accurate.
 === linuxcncrsh
 
 "Home All" is now supported with the set home subcommand
-by using -1 for the joint number
+by using -1 for the joint number.
 
 The jogging commands have been altered to accommodate both joint (free)
 and teleop (world) jogging.
@@ -1414,8 +1414,8 @@ creating a module using halcompile.
 
 ==== Homing
 
-Homing functions are now implemented by a loadable module
-(default:homemod).  An alternate (user-built) planner can be loaded using
+Homing functions are now implemented by a loadable module (default:homemod).
+An alternate (user-built) planner can be loaded using
 INI setting [EMCMOT]HOMEMOD=modulename or the 'linuxcnc -m modulename' option.
 The example file src/hal/components/homecomp.comp is a minimal example
 of a homing module that can be built with halcompile.

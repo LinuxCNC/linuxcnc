@@ -514,7 +514,7 @@ MESSAGE_TYPE:: specifies whether its a yes/no, ok, or status message
     - have one HAL pin to launch the dialog and one to signify it's waiting for response.
   * yes/no messages
     - require the user to select yes or no buttons to close the dialog.
-    - have three HAL pins
+    - have three HAL pins:
       . one to show the dialog,
       . one for waiting, and
       . one for the answer.
