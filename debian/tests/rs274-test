@@ -6,6 +6,7 @@ cd $(dirname $0)
 
 if rs274 -g rs274.ngc > $AUTOPKGTEST_TMP/rs274.out 2>&1 ; then
     echo "error: failed to run rs274"
+    cat $AUTOPKGTEST_TMP/rs274.out
     exit 1
 fi
 
