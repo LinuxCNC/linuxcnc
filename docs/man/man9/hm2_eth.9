@@ -45,7 +45,7 @@ The supported boards are: 7I76E, 7I80DB, 7I80HD, 7I92, 7I93, 7I94, 7I95, 7I96, 7
 
 The board must have its hardware loaded on the board by the mesaflash(1) program.
 
-hm2_eth is only available when linuxcnc is configured with "uspace" realtime.
+hm2_eth is only available when LinuxCNC is configured with "uspace" realtime.
 
 .SH INTERFACE CONFIGURATION
 
@@ -71,7 +71,7 @@ Private IPv4 address space.
 .UE
 One common alternative is PC address 10.10.10.1, hostmot2 address 10.10.10.10.
 
-Use of the dedicated ethernet interface while linuxcnc is running can cause
+Use of the dedicated ethernet interface while LinuxCNC is running can cause
 violation of realtime guarantees.  hm2_eth will automatically mitigate most
 accidental causes of interference.
 

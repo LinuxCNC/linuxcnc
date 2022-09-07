@@ -11,15 +11,16 @@ iocontrol \- interacts with HAL or G-code in userspace
 
 .SH DESCRIPTION
 
-I/O control handles I/O tasks like coolant, toolchange, e-stop and lube. The signals are turned on and off in userspace with G-code or in the case of e-stop in hal. 
+I/O control handles I/O tasks like coolant, toolchange, E-stop and lube.
+The signals are turned on and off in userspace with G-code or in the case of E-stop in HAL. 
 
 The following pins are created by the userspace IO controller, usually found in $LINUXCNC_HOME/bin/io
 .P
 iocontrol is a userspace process - if you have strict timing requirements
-or simply need more i/o, consider using the realtime synchronized i/o
+or simply need more I/O, consider using the realtime synchronized I/oO
 provided by \fBmotion\fR(9) instead.
 .P
-The inifile is searched for in the directory from which halcmd was run,
+The INI file is searched for in the directory from which halcmd was run,
 unless an absolute path is specified.
 
 .SH PINS
@@ -34,7 +35,7 @@ unless an absolute path is specified.
 
 .TP
 \fBiocontrol.0.emc\-enable\-in 
-(Bit, In) Should be driven FALSE when an external estop condition exists.
+(Bit, In) Should be driven FALSE when an external E-stop condition exists.
 
 .TP
 \fBiocontrol.0.lube 
@@ -78,11 +79,11 @@ mechanism) of the tool requested by the most recent T-word.
 
 .TP
 \fBiocontrol.0.user\-enable\-out 
-(Bit, Out) FALSE when an internal estop condition exists.
+(Bit, Out) FALSE when an internal E-stop condition exists.
 
 .TP
 \fBiocontrol.0.user\-request\-enable 
-(Bit, Out) TRUE when the user has requested that estop be cleared.
+(Bit, Out) TRUE when the user has requested that E-stop be cleared.
 
 .TP
 \fBiocontrol.0.tool\-prep\-index

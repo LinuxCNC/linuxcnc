@@ -250,10 +250,10 @@ Each sim config simulates a *db_program* implementing a database
 with 10 tools numbered 10--19.
 
 The *db_program* is provided by a single script (db.py) and symbolic
-links to it for alternative uses: db_ran.py and db_nonran.py.   (By
-default, the script implements random_toolchanger functionality.
+links to it for alternative uses: db_ran.py and db_nonran.py.
+By default, the script implements random_toolchanger functionality.
 Nonrandom toolchanger functions are substituted if the link name
-includes the text "'nonran'").
+includes the text "'nonran'".
 
 The sim configs demonstrate the use of the python 'tooldb' interface
 module and implement a basic flat-file database that tracks tool time

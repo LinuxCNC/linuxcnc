@@ -50,7 +50,7 @@ The supported boards are: 7I90HD.
 The board must have a compatible firmware loaded on the board by the
 mesaflash(1) program.
 
-hm2_spi is only available when linuxcnc is configured with "uspace" realtime.
+hm2_spi is only available when LinuxCNC is configured with "uspace" realtime.
 
 .SH INTERFACE CONFIGURATION
 
@@ -62,7 +62,7 @@ shared with any other slaves.
 .SH REALTIME PERFORMANCE OF LINUX SPIDEV DRIVERS
 
 As of kernel 3.8, most or all kernel SPI drivers do not achieve the high
-realtime response rate required for a typical linuxcnc configuration.  The
+realtime response rate required for a typical LinuxCNC configuration.  The
 driver was tested with a modified version of the spi\-s3c64xx SPI driver on the
 Odroid U3 platform.  The patched kernel resides
 .UR https://github.com/jepler/odroid\-linux/tree/odroid\-3.8.13\-rt

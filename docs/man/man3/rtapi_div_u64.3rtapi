@@ -42,7 +42,8 @@ pointer.  If the remainder is not desired, call \fBrtapi_div_u64\fR or
 Perform integer division (and optionally compute the remainder) with a 64-bit dividend and 32-bit divisor.
 
 .SH RETURN VALUE
-The result of integer division of \fIdividend / divisor\fR.  In versions with the \fIremainder\fR argument, the remainder is stored in the pointed-to location.
+The result of integer division of \fIdividend / divisor\fR.
+In versions with the \fIremainder\fR argument, the remainder is stored in the pointed-to location.
 
 .SH NOTES
 If the result of the division does not fit in the return type, the result is
