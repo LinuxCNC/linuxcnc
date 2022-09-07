@@ -34,7 +34,7 @@ halrmt \- short description
 .SH USAGE
 
   halrmt {-- --port <port number> --name <server name> --connectpw <password>
-             --enablepw <password> --sessions <max sessions> -ini<inifile>}
+             --enablepw <password> --sessions <max sessions> -ini <INI file>}
 
   With -- --port Waits for socket connections (telnet) on specified socket, without port
             uses default port 5006. (note: linuxcncrsh uses 5007 as default)
@@ -43,7 +43,7 @@ halrmt \- short description
   With -- --enablepw <password> Sets the enable password to 'password'. Default EMCTOO
   With -- --sessions <max sessions> Sets the maximum number of simultaneous connextions
             to max sessions. Default is no limit (-1).
-  With -- -ini <inifile>, uses INI file instead of emc.ini. 
+  With -- -ini \fI<INI file>\fR, uses the specified \fIINI file\fR instead of the default emc.ini. 
 
   There are six commands supported, Where the commands set and get contain HAL
   specific sub-commands based on the commands supported by halcmd. Commands and 

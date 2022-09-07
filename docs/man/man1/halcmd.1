@@ -51,13 +51,13 @@ Before tearing down the realtime environment, run an interactive halcmd.
 \fBhalrun\fR only.  If \fB\-I\fR is used, it must precede all other
 commandline arguments.
 .TP
-\fB\-f\fR [\fIfile\fR]
+\fB\-f\fR [\fI<file>\fR]
 Ignore commands on command line, take input from \fIfile\fR
 instead.  If \fIfile\fR is not specified, take input from
 \fIstdin\fR.
 .TP
-\fB\-i \fIinifile\fR
-Use variables from \fIinifile\fR for substitutions.  See \fBSUBSTITUTION\fR
+\fB\-i \fI<INI file>\fR
+Use variables from \fIINI file\fR for substitutions.  See \fBSUBSTITUTION\fR
 below.
 .TP
 \fB\-k\fR
@@ -88,7 +88,7 @@ display results of each command
 \fB\-V\fR
 display lots of debugging junk
 .TP
-\fB\-h\fR [\fIcommand\fR]
+\fB\-h\fR [\fI<command>\fR]
 display a help screen and exit, displays extended help on \fIcommand\fR if specified
 .SH COMMANDS
 Commands tell \fBhalcmd\fR what to do.  Normally \fBhalcmd\fR

@@ -33,7 +33,7 @@ haltcl \- manipulate the LinuxCNC HAL from the command line using a Tcl
 interpreter.
 
 .SH SYNOPSIS
-.B haltcl [\fI\-i inifile\fR] [\fIfilename\fR\]
+.B haltcl [\fI\-i <INI file>\fR] [\fIfilename\fR\]
 .PP
 
 .SH DESCRIPTION
@@ -44,12 +44,12 @@ complex HAL configurations to be set up with a single command.
 
 .SH OPTIONS
 .TP
-\fB\-i\fR \fIinifile\fR
+\fB\-i\fR \fI<INI file>\fR
 If specified, the INI file is read and used to create Tcl global variable
-arrays.  An array is created for each SECTION of the inifile with
+arrays.  An array is created for each SECTION of the INI file with
 elements for each ITEM in the section.
 .P
-       For example, if the inifile contains:
+       For example, if the INI file contains:
        [SECTION_A]ITEM_1 =  1
        [SECTION_A]ITEM_2 =  2
        [SECTION_B]ITEM_1 = 10
@@ -59,7 +59,7 @@ elements for each ITEM in the section.
        SECTION_A(ITEM_2) =  2
        SECTION_B(ITEM_1) = 10
 .TP
-\fB\-ini\fR \fIinifile\fR -- declining usage, use \fB\-i\fR \fIinifile\fR
+\fB\-ini\fR \fI<INI file>\fR -- declining usage, use \fB\-i\fR \fI<INI file>\fR
 .TP
 \fBfilename\fR
 If specified, the Tcl commands of \fBfilename\fR are executed.  If no filename
