@@ -237,7 +237,7 @@ Files:
  src/hal/utils/bitfile.c
  src/hal/utils/bitfile.h
  src/hal/utils/halcmd.c
- src/hal/utils/halcmd_commands.c
+ src/hal/utils/halcmd_commands.cc
  src/hal/utils/halcmd_commands.h
  src/hal/utils/halcmd_completion.c
  src/hal/utils/halcmd_completion.h
