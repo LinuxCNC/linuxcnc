@@ -1,3 +1,6 @@
+- fixed bug in tooltip text for non-trivial or gantry configuration
+
+  Thanks to chili023/TRothfelder for reporting/fixing
 
 - bug in spindle speed override: The override value wasn't applied
   when spindle turning in reverse direction

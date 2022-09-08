@@ -661,7 +661,7 @@ class gmoccapy(object):
 
             name = "home_{0}_{1}".format(name_prefix, elem)
             btn = self._get_button_with_image(name, filepath, None)
-            btn.set_property("tooltip-text", _("Press to home {0} {1}").format(name_prefix_sg, elem.upper()))
+            btn.set_property("tooltip-text", _("Press to home {0} {1}").format(name_prefix_sg, str(elem).upper()))
             btn.connect("clicked", self._on_btn_home_clicked)
 
             self.widgets.hbtb_ref.pack_start(btn)
@@ -904,7 +904,7 @@ class gmoccapy(object):
             filepath = os.path.join(IMAGEDIR, file)
             name = "touch_{0}".format(elem)
             btn = self._get_button_with_image(name, filepath, None)
-            btn.set_property("tooltip-text", _("Press to set touch off value for axis {0}").format(elem.upper()))
+            btn.set_property("tooltip-text", _("Press to set touch off value for axis {0}").format(str(elem).upper()))
             btn.connect("clicked", self._on_btn_set_value_clicked)
 
             #print("Touch button Name = ",name)
