@@ -693,7 +693,7 @@
                      <number>4</number>
                     </property>
                     <property name="topMargin">
-                     <number>0</number>
+                     <number>2</number>
                     </property>
                     <property name="rightMargin">
                      <number>4</number>
@@ -2969,10 +2969,10 @@ HOME</string>
                  <item>
                   <layout class="QGridLayout" name="button_grid" rowstretch="1,1,1,1,1,1,1,1,1,1,1">
                    <property name="leftMargin">
-                    <number>4</number>
+                    <number>5</number>
                    </property>
                    <property name="rightMargin">
-                    <number>4</number>
+                    <number>5</number>
                    </property>
                    <property name="bottomMargin">
                     <number>0</number>
@@ -4960,13 +4960,13 @@ EDGE</string>
                             <number>4</number>
                            </property>
                            <property name="leftMargin">
-                            <number>0</number>
+                            <number>2</number>
                            </property>
                            <property name="topMargin">
-                            <number>0</number>
+                            <number>2</number>
                            </property>
                            <property name="rightMargin">
-                            <number>0</number>
+                            <number>2</number>
                            </property>
                            <property name="bottomMargin">
                             <number>0</number>
@@ -6805,7 +6805,7 @@ MOVE</string>
                            <number>4</number>
                           </property>
                           <property name="topMargin">
-                           <number>0</number>
+                           <number>2</number>
                           </property>
                           <property name="rightMargin">
                            <number>4</number>
@@ -6818,13 +6818,13 @@ MOVE</string>
                             <property name="minimumSize">
                              <size>
                               <width>90</width>
-                              <height>44</height>
+                              <height>42</height>
                              </size>
                             </property>
                             <property name="maximumSize">
                              <size>
                               <width>90</width>
-                              <height>44</height>
+                              <height>42</height>
                              </size>
                             </property>
                             <property name="font">
@@ -7481,7 +7481,7 @@ MOVE</string>
                            <number>4</number>
                           </property>
                           <property name="topMargin">
-                           <number>0</number>
+                           <number>2</number>
                           </property>
                           <property name="rightMargin">
                            <number>4</number>

@@ -2461,10 +2461,10 @@ EDGE</string>
                  <item>
                   <layout class="QGridLayout" name="button_grid">
                    <property name="leftMargin">
-                    <number>4</number>
+                    <number>5</number>
                    </property>
                    <property name="rightMargin">
-                    <number>4</number>
+                    <number>5</number>
                    </property>
                    <property name="bottomMargin">
                     <number>0</number>
@@ -3123,7 +3123,7 @@ EDGE</string>
                         <number>4</number>
                        </property>
                        <property name="topMargin">
-                        <number>0</number>
+                        <number>2</number>
                        </property>
                        <property name="rightMargin">
                         <number>4</number>
@@ -5122,7 +5122,7 @@ EDGE</string>
                          <number>0</number>
                         </property>
                         <property name="topMargin">
-                         <number>0</number>
+                         <number>2</number>
                         </property>
                         <property name="rightMargin">
                          <number>0</number>

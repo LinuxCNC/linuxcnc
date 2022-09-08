@@ -356,13 +356,13 @@
                     <number>4</number>
                    </property>
                    <property name="leftMargin">
-                    <number>4</number>
+                    <number>5</number>
                    </property>
                    <property name="topMargin">
                     <number>0</number>
                    </property>
                    <property name="rightMargin">
-                    <number>4</number>
+                    <number>5</number>
                    </property>
                    <property name="bottomMargin">
                     <number>0</number>
@@ -5027,7 +5027,7 @@ HOME</string>
                                   <number>0</number>
                                  </property>
                                  <property name="topMargin">
-                                  <number>0</number>
+                                  <number>2</number>
                                  </property>
                                  <property name="rightMargin">
                                   <number>0</number>
@@ -6838,7 +6838,7 @@ MOVE</string>
                               <number>4</number>
                              </property>
                              <property name="topMargin">
-                              <number>0</number>
+                              <number>2</number>
                              </property>
                              <property name="rightMargin">
                               <number>4</number>

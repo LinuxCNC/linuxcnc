@@ -567,16 +567,20 @@ QHeaderView::section {
 
 #filemanager QComboBox {
     height: 40px;
-    font: 11pt }
+    padding-right: 6px}
 
 #filemanager QLineEdit {
     height: 40px;
     font: 11pt }
 
 #filemanager QToolButton {
-    font: 11pt;
-    height: 40px;
-    margin: 0px }
+    height: 40px }
+
+#filemanager QPushButton {
+    height: 40px }
+
+#file_buttons_2 QPushButton {
+    height: 40px }
 
 /****** ORIGIN OFFSET VIEW ************/
 /* this also uses QHeaderView from FILEMANAGER */

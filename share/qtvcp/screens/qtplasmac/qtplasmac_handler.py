@@ -1,4 +1,4 @@
-VERSION = '1.231.236'
+VERSION = '1.231.237'
 
 '''
 qtplasmac_handler.py
@@ -929,12 +929,12 @@ class HandlerClass:
         self.w.lbl_mcodes.setObjectName('lbl_mcodes')
         text = _translate('HandlerClass', 'MOVE')
         self.w.cut_rec_move_label.setText('{}\n{}'.format(text, self.w.kerf_width.text()))
-        #self.w.filemanager.jumpButton.setText(_translate('HandlerClass', 'USER'))
-        #self.w.filemanager.addButton.setText(_translate('HandlerClass', 'ADD JUMP'))
+        self.w.filemanager.windowLayout.setContentsMargins(4,0,4,0)
+        self.w.filemanager.windowLayout.setSpacing(4)
+        # hide load button (redundant to select button)
+        self.w.filemanager.loadButton.hide()
         # for copy/paste control if required
-        #self.w.filemanager.copyButton.setText(_translate('HandlerClass', 'COPY'))
-        #self.w.filemanager.pasteButton.setText(_translate('HandlerClass', 'PASTE'))
-        #self.w.filemanager.showCopyControls(True)
+        self.w.filemanager.copy_control.hide()
         self.w.gcode_display.set_margin_width(3)
         self.w.gcode_display.setBraceMatching(False)
         self.w.gcode_display.setCaretWidth(0)
