@@ -30,7 +30,7 @@ image::images/qt_cnc.png["QTscreen Mill",align="left"]
 .QtAxis - Self Adjusting Axis Sample
 image::images/qtaxis.png["QTscreen Qtaxis",align="left"]
 
-.Blender - 4 Axis Sample
+.Blender - 4 Axes Sample
 image::images/blender.png["QTscreen Blender",align="left"]
 
 .X1mill - 4 Axis Sample
@@ -1018,7 +1018,7 @@ In this way you can:
 
 * You _create the slot's functions_ defined in Qt Designer.
 
-[[cha:designer-slots]]
+[[sub:qtvcp:designer-slots]]
 === Using Qt Designer To Add Slots
 
 When you have loaded your screen into Qt Designer, add a plain
