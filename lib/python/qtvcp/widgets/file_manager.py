@@ -167,7 +167,7 @@ class FileManager(QWidget, _HalWidgetBase):
         self.copy_control.setSizePolicy(box_policy)
         self.copy_control.setMinimumSize(80, 40)
         self.copy_control.stateChanged.connect(lambda state: self.showCopyControls(state))
-        
+
         self.settingMenu = QMenu(self)
         self.jumpButton.setMenu(self.settingMenu)
 
@@ -180,13 +180,13 @@ class FileManager(QWidget, _HalWidgetBase):
         hbox.insertStretch (4, stretch = 0)
         hbox.addWidget(self.cb)
 
-        windowLayout = QVBoxLayout()
-        windowLayout.addLayout(pasteBox)
-        windowLayout.addLayout(self.copyBox)
-        windowLayout.addWidget(self.list)
-        windowLayout.addWidget(self.table)
-        windowLayout.addLayout(hbox)
-        self.setLayout(windowLayout)
+        self.windowLayout = QVBoxLayout()
+        self.windowLayout.addLayout(pasteBox)
+        self.windowLayout.addLayout(self.copyBox)
+        self.windowLayout.addWidget(self.list)
+        self.windowLayout.addWidget(self.table)
+        self.windowLayout.addLayout(hbox)
+        self.setLayout(self.windowLayout)
         self.show()
 
     def _hal_init(self):
@@ -344,7 +344,7 @@ class FileManager(QWidget, _HalWidgetBase):
             self.listClicked(row)
 
         fname = self.currentPath
-        if fname is None: 
+        if fname is None:
             return
         if fname:
             self.load(fname)
@@ -492,7 +492,7 @@ class FileManager(QWidget, _HalWidgetBase):
     # This can be class patched to do something else
     def recordBookKeeping(self):
         fname = self.currentPath
-        if fname is None: 
+        if fname is None:
             return
         if self.PREFS_:
             self.PREFS_.putpref('last_loaded_directory', self.model.rootPath(), str, 'BOOK_KEEPING')
