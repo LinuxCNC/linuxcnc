@@ -1,4 +1,5 @@
 component sum2 "Sum of two inputs (each with a gain) and an offset";
+see_also "scaled_s32_sums(9), weighted_sum(9)";
 pin in float in0;
 pin in float in1;
 param rw float gain0 = 1.0;

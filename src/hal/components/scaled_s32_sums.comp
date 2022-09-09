@@ -1,4 +1,5 @@
 component scaled_s32_sums "Sum of four inputs (each with a scale)";
+see_also "sum2(9), weighted_sum(9)";
 pin in s32 in0;
 pin in s32 in1;
 pin in s32 in2;
