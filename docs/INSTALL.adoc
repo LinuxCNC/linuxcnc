@@ -76,7 +76,7 @@ those values to create:
 
 The *`configure.ac`* file is used by the `autogen.sh` script, from the
 `autoconf` package, to create the `configure` script.
-You only need `configure.in` if you want to change `configure`, or
+You only need `configure.ac` if you want to change `configure`, or
 regenerate it using a newer version of `autoconf`.
 
 ==== Optional Features
