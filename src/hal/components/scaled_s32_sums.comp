@@ -1,0 +1,17 @@
+component scaled_s32_sums "Sum of four inputs (each with a scale)";
+pin in s32 in0;
+pin in s32 in1;
+pin in s32 in2;
+pin in s32 in3;
+pin in float scale0 = 1.0;
+pin in float scale1 = 1.0;
+pin in float scale2 = 1.0;
+pin in float scale3 = 1.0;
+pin out s32 out_s;
+pin out float out_f "out-s = out-f = (in0 * scale0) + (in1 * scale1) + (in2 * scale2) + (in3 * scale3)";
+function _;
+license "GPL";
+;;
+FUNCTION(_) {
+    out_s = out_f = in0 * scale0 + in1 * scale1 + in2 * scale2 + in3 * scale3;
+}
