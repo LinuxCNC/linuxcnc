@@ -63,8 +63,11 @@ class StateLED(LED):
         self.is_neg_limit_tripped = False
         self.is_pos_limit_tripped = False
         self.is_limits_tripped = False
+        self._halpin_option = True
+        self._follow_halpin = False
 
         self.joint_number = 0
+        self._halpin_name = 'None'
 
         self._override = 1
         self._at_speed_percent = .1
@@ -119,6 +122,8 @@ class StateLED(LED):
              self.is_pos_limit_tripped or \
              self.is_limits_tripped:
             STATUS.connect('hard-limits-tripped', lambda w, data, group: self.switch_on_hard_limits(data, group))
+        elif self._follow_halpin:
+            STATUS.connect('periodic', lambda w: self._set_halpin_text())
 
     def _flip_state(self, data):
             if self.invert_state:
@@ -218,6 +223,13 @@ class StateLED(LED):
             data = pair[0]+pair[1]
         self._flip_state(data)
 
+    def _set_halpin_text(self):
+        try:
+            state = bool(self.HAL_GCOMP_.hal.get_value(self._halpin_name))
+        except Exception as e:
+            return
+        self._flip_state(state)
+
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
@@ -232,7 +244,7 @@ class StateLED(LED):
                 'is_joint_homed', 'is_limits_overridden','is_manual',
                 'is_mdi', 'is_auto', 'is_spindle_stopped', 'is_spindle_fwd',
                 'is_spindle_rev','is_spindle_at_speed','neg_hard_limit_state',
-                'pos_hard_limit_state','hard_limits_state')
+                'pos_hard_limit_state','hard_limits_state','followhalpin')
 
         for i in data:
             if not i == picked:
@@ -462,6 +474,15 @@ class StateLED(LED):
     def reset_limits_tripped(self):
         self.is_limits_tripped = False
 
+    def set_follow_pin(self, data):
+        self._follow_halpin = data
+        if data:
+            self._toggle_properties('follow_halpin')
+    def get_follow_pin(self):
+        return self._follow_halpin
+    def reset_follow_pin(self):
+        self._follow_halpin = False
+
     # Non bool
 
     # machine_joint_number status
@@ -471,6 +492,13 @@ class StateLED(LED):
         return self.joint_number
     def reset_joint_number(self):
         self.joint_number = 0
+
+    def set_halpin_name(self, data):
+        self._halpin_name = data
+    def get_halpin_name(self):
+        return self._halpin_name
+    def reset_halpin_name(self):
+        self._halpin_name = ''
 
     # designer will show these properties in this order:
     # BOOL
@@ -497,9 +525,11 @@ class StateLED(LED):
     neg_hard_limit_state = pyqtProperty(bool, get_neg_limit_tripped, set_neg_limit_tripped, reset_neg_limit_tripped)
     pos_hard_limit_state = pyqtProperty(bool, get_pos_limit_tripped, set_pos_limit_tripped, reset_pos_limit_tripped)
     hard_limits_state = pyqtProperty(bool, get_limits_tripped, set_limits_tripped, reset_limits_tripped)
+    follow_halpin_state = pyqtProperty(bool, get_follow_pin, set_follow_pin, reset_follow_pin)
 
     # NON BOOL
     joint_number_status = pyqtProperty(int, get_joint_number, set_joint_number, reset_joint_number)
+    halpin_name = pyqtProperty(str, get_halpin_name, set_halpin_name, reset_halpin_name)
 
     # boilder code
     def __getitem__(self, item):
