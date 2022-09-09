@@ -469,32 +469,3 @@ int rtapi_vsnprintf(char *buf, unsigned long size, const char *fmt, va_list args
     /* the trailing null byte doesn't count towards the total * ++str; */
     return str - buf;
 }
-
-#ifdef MODULE
-/**
- * strsep - Split a string into tokens
- * @s: The string to be searched
- * @ct: The characters to search for
- *
- * strsep() updates @s to point after the token, ready for the next call.
- *
- * It returns empty tokens, too, behaving exactly like the libc function
- * of that name. It is reentrant and should be faster) than strtok.
- * Use only strsep() in new code, please.
- * Taken from 2.4 kernel file by Ingo Oeser <ioe@informatik.tu-chemnitz.de>
- */
-char *strsep(char **s, const char *ct)
-{
-    char *sbegin = *s, *end;
-
-    if (!sbegin)
-	return (char*)0;
-
-    end = strpbrk(sbegin, ct);
-    if (end)
-	*end++ = '\0';
-    *s = end;
-
-    return sbegin;
-}
-#endif

@@ -1,5 +1,5 @@
 ifneq ($(KERNELRELEASE),)
-COMPS := $(patsubst $(BASEPWD)/%,%,$(wildcard $(BASEPWD)/hal/components/*.comp $(BASEPWD)/hal/drivers/*.comp))
+COMPS := $(filter-out %/tpcomp.comp, $(patsubst $(BASEPWD)/%,%,$(wildcard $(BASEPWD)/hal/components/*.comp $(BASEPWD)/hal/drivers/*.comp)))
 include $(patsubst %.comp, $(BASEPWD)/objects/%.mak, $(COMPS))
 else
 CONVERTERS :=  \
