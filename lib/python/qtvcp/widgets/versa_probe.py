@@ -361,7 +361,10 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.send_dict.update( {key: val} )
 
     def check_probe(self):
-        self.led_probe_function_chk.setState(hal.get_value('motion.probe-input'))
+        try:
+            self.led_probe_function_chk.setState(hal.get_value('motion.probe-input'))
+        except:
+            pass
 
     def show_results(self, line):
         for key in self.status_list:
