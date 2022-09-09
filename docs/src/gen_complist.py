@@ -33,7 +33,7 @@ def generate_complist(complist_path):
                         print('gen_complist: Broken link:', link, file=sys.stderr)
                         miss_in_man.add(comp_man.split(".")[0])
                 else:
-                    print("gen_complist: Component", splitted[1], "without link")
+                    print("gen_complist: Component \"" + splitted[1].strip() + "\" without link")
                     miss_in_man.add(splitted[1])
     file1.close()
     miss_in_list = man_files.difference(complist_doc)
@@ -55,7 +55,7 @@ def generate_complist(complist_path):
     file2.close()
 
     generate_links(gen_filename, False, True)
-    print('gen_complist: Added {} uncategorized and {} obsolete entries to hal component list'.format(len(miss_in_list), len(miss_in_man)))
+    print('gen_complist: Added {} uncategorized and {} potentially obsolete entrie(s) to hal component list'.format(len(miss_in_list), len(miss_in_man)))
 
 
 def generate_links(filename, create_backup=True, add_descr=False):
@@ -69,7 +69,7 @@ def generate_links(filename, create_backup=True, add_descr=False):
             if 'link:' in splitted[1]:
                 link = re.search('(?<=link:).*(?=\[)', splitted[1]).group()
                 if not os.path.isfile(os.path.join('../docs/html/hal',link)):
-                    print('gen_complist_link: Broken link:', link)
+                    print('gen_complist: Broken link:', link)
             else:
                 comp_man = splitted[1].strip(' ')
                 if comp_man in man_files:
@@ -91,7 +91,7 @@ def generate_links(filename, create_backup=True, add_descr=False):
         for line in file_links:
             file.write(line)
         file.close()
-        print('gen_complist_links: Added {} link(s) to {}'.format(links_added, filename))
+        print('gen_complist: Added {} link(s) to {}'.format(links_added, filename))
 
 
 def extract_descr(filename):
