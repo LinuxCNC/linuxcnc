@@ -49,6 +49,8 @@ position.txt
 *-new_??.po
 # Ignore stamp files
 *.*-stamp
+# Ignore VSCode settings
+.vscode/settings.json
 # Ignore po4a-generated files for other languages
 docs/help/es/*
 docs/help/fr/*
