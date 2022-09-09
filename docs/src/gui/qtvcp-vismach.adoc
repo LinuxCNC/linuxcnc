@@ -1,7 +1,7 @@
 :lang: en
 :toc:
 
-[[cha:qtvcp-vismach]]
+[[cha:qtvcp:vismach]]
 = QT Vismach
 
 Vismach is a set of Python functions that can be used to create and animate
@@ -407,6 +407,6 @@ if __name__ == '__main__':
 ----
 
 == Builtin Vismach Sample Panels 
-<<cha:qtvcp-vismach-panels,QtVCP builtin Vismach Panels>>
+<<cha:qtvcp:vismach-panels,QtVCP builtin Vismach Panels>>
 
 // vim: set syntax=asciidoc:

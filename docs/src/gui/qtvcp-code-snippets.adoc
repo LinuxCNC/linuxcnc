@@ -1,7 +1,7 @@
 :lang: en
 :toc:
 
-[[cha:qtvcp-code]]
+[[cha:qtvcp:code]]
 = QtVCP Handler File Code Snippets
 
 Here are bits of ideas to put in the handler file.

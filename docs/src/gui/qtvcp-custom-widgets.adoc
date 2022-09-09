@@ -1,7 +1,7 @@
 :lang: en
 :toc:
 
-[[cha:qtvcp-custom-widgets]]
+[[cha:qtvcp:custom-widgets]]
 = QtVCP Building Custom Widgets
 
 == Overview

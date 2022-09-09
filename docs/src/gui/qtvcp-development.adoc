@@ -1,7 +1,7 @@
 :lang: en
 :toc:
 
-[[cha:qtvcp-development]]
+[[cha:qtvcp:devel]]
 = QTvcp Development
 
 The intention of QtVCP is to supply an infrastructure to support

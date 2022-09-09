@@ -1,7 +1,7 @@
 :lang: en
 :toc:
 
-[[cha:qtvcp-libraries]]
+[[cha:qtvcp:libraries]]
 = QtVCP Libraries modules
 
 // Custom lang highlight
@@ -1330,6 +1330,6 @@ layout:
 === More Information
 
 More information on how to build a custom machine simulation in the
-<<cha:qtvcp-vismach,QtVCP Vismach>> chapter.
+<<cha:qtvcp:vismach,QtVCP Vismach>> chapter.
 
 // vim: set syntax=asciidoc:
