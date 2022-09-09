@@ -25,19 +25,19 @@ status LEDs etc. or add python code for even finer grain customization.
 
 Few examples of QtVCP built screens and virtual control panels:
 
-.QtDragon - 3 or 4 Axes Sample
+.QtDragon - 3/4-Axis Sample
 image::images/silverdragon.png["QtDragon Router",align="center"]
 
-.QtDefault - 3 Axes Sample
+.QtDefault - 3-Axis Sample
 image::images/qt_cnc.png["Qtscreen Mill",align="center"]
 
 .QtAxis - Self Adjusting Axis Sample
 image::images/qtaxis.png["Qtscreen QtAxis",align="center"]
 
-.Blender - 4 Axes Sample
+.Blender - 4-Axis Sample
 image::images/blender.png["Qtscreen Blender",align="center"]
 
-.X1mill - 4 Axes Sample
+.X1mill - 4-Axis Sample
 image::images/x1mill.png["Qtscreen x1mill",align="center"]
 
 .cam_align - Camera Alignment VCP
@@ -338,10 +338,10 @@ image::images/qtvcp_test_panel.png["QtVCP HAL Test Builtin Panel",align="center"
 image::images/qtvcp_sim_panel.png["QtVCP Sim Builtin Panel",align="center"]
 
 *`vismach_mill_xyz`*::
-  3D openGL view of a 3 axis milling machine.
+  3D openGL view of a 3-Axis milling machine.
 +
-.QtVismach - 3 Axes Mill Builtin Panel
-image::images/qtvismach.png["QtVismach - 3 Axes Mill Builtin Panel",align="center"]
+.QtVismach - 3-Axis Mill Builtin Panel
+image::images/qtvismach.png["QtVismach - 3-Axis Mill Builtin Panel",align="center"]
 
 //FIXME to be added to HAL config file ? Where in there ?
 [source,{hal}]

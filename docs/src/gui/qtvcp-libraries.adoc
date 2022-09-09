@@ -1153,9 +1153,9 @@ The Qt version _allows embedding the simulation in other screens_.
 
 There are included _sample panels_ in QtVCP for:
 
-* a 3 axis XYZ mill,
-* a 5 axis gantry mill,
-* a 3 axis mill with an A axis/spindle, and
+* a 3-Axis XYZ mill,
+* a 5-Axis gantry mill,
+* a 3-Axis mill with an A axis/spindle, and
 * a scara mill.
 
 Most of these samples, if loaded after a running LinuxCNC configuration
