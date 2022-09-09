@@ -381,6 +381,7 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
         self._is_on_sensitive = False
         self._is_idle_sensitive = False
         self._is_run_sensitive = False
+        self._is_auto_pause_sensitive = False
         self._is_manual_sensitive = False
         self._is_mdi_sensitive = False
         self._is_auto_sensitive = False
@@ -428,6 +429,10 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
             STATUS.connect('interp-run', lambda w: enable_logic_check(True))
             STATUS.connect('interp-paused', lambda w: self.setEnabled(False))
             STATUS.connect('interp-idle', lambda w: self.setEnabled(False))
+        elif self._is_auto_pause_sensitive:
+            STATUS.connect('interp-run', lambda w: enable_logic_check(False))
+            STATUS.connect('interp-paused', lambda w: self.setEnabled(True))
+            STATUS.connect('interp-idle', lambda w: self.setEnabled(False))
         if self._is_manual_sensitive or self._is_mdi_sensitive or self._is_auto_sensitive:
             STATUS.connect('mode-manual', lambda w: enable_logic_check(self._is_manual_sensitive))
             STATUS.connect('mode-mdi', lambda w: enable_logic_check(self._is_mdi_sensitive))
@@ -437,7 +442,7 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
         if not (self._is_idle_sensitive or self._is_run_sensitive or \
                 self._is_on_sensitive or self._is_all_homed_sensitive or \
                 self._is_manual_sensitive or self._is_mdi_sensitive or \
-                self._is_auto_sensitive):
+                self._is_auto_sensitive or self._is_auto_pause_sensitive):
             STATUS.connect('state-estop-reset', lambda w: self.setEnabled(True))
 
         # check for multiple selected enabled requests
@@ -446,6 +451,8 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
                 temp = True
                 if self._is_run_sensitive:
                     temp = temp and STATUS.is_interp_running()
+                if self._is_auto_pause_sensitive:
+                    temp = temp and STATUS.is_auto_paused()
                 if self._is_on_sensitive:
                     temp = temp and STATUS.machine_is_on()
                 if self._is_all_homed_sensitive:
@@ -1196,6 +1203,12 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
     def getisRunSensitive(self):
         return self._is_run_sensitive
     isRunSensitive = QtCore.pyqtProperty(bool, getisRunSensitive, setisRunSensitive)
+
+    def setisAutoPauseSensitive(self, data):
+        self._is_auto_pause_sensitive = data
+    def getisAutoPauseSensitive(self):
+        return self._is_auto_pause_sensitive
+    isAutoPauseSensitive = QtCore.pyqtProperty(bool, getisAutoPauseSensitive, setisAutoPauseSensitive)
 
     def setisManSensitive(self, data):
         self._is_manual_sensitive = data
