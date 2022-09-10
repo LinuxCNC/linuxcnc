@@ -224,7 +224,7 @@ If using a parallel port, use the <<cha:stepconf-wizard,StepConf wizard>> (enter
 stepconf
 ----
 
-If using a Mesa Electronics board, use the <<cha:pncconf-wizard, PnCConf wizard>> (enter the following command into a terminal window):
+If using a Mesa Electronics board, use the <<cha:pncconf-wizard, PnCconf wizard>> (enter the following command into a terminal window):
 
 ----
 pncconf
@@ -239,7 +239,7 @@ There are Linuxcnc forum sections available for these wizards:
 
 https://forum.linuxcnc.org/16-stepconf-wizard()[StepConf Wizard]
 
-https://forum.linuxcnc.org/39-pncconf[PnCConf Wizard]
+https://forum.linuxcnc.org/39-pncconf[PnCconf Wizard]
 
 Fill in the required entries to suit the machine wiring/breakout board configuration.
 
@@ -249,11 +249,11 @@ QtPlasmaC specific parameters, the two pages are QtPlasmaC options and
 QtPlasmaC page to suit the machine that is being configured and the user
 button requirements.
 
-Note that PnCConf options allow user selection of Feed Override, Linear
+Note that PnCconf options allow user selection of Feed Override, Linear
 Velocity, and Jog Increments whereas in StepConf these are automatically
 calculated and set.
 
-*PnCConf QtPlasmaC Options:*
+*PnCconf QtPlasmaC Options:*
 
 image::images/qtplasmac_pncconf_screen.png[width=600,align="center"]
 
@@ -1426,7 +1426,7 @@ For automatic material handling, the user would add commands to their G-code fil
 
 The following codes may be used to allow QtPlasmaC to automatically change materials:
 
-* *M190 Pn* - Changes the currently displayed material to material number n.
+* *M190 P__n__* - Changes the currently displayed material to material number n.
 * *M66 P3 L3 Q1* - Adds a small delay (1 second in this example) to wait for QtPlasmaC to confirm that it successfully changed materials.
 * *F#<_hal[plasmac.cut-feed-rate]>* - Sets the cut feed rate to the feed rate shown in the MATERIAL section of the <<qt_parameters-tab,PARAMETERS Tab>>.
 
@@ -1683,7 +1683,7 @@ The default LinuxCNC path tolerance is set for maximum speed which will severely
 
 It is recommended that the path tolerance is set by placing the appropriate G64 command and P value in the header of each G-code file.
 
-The provided G-code filter program will test for the existence of a G64 Pn command prior to the first motion command. If no G64 command is found it will insert a G64 P0.1 command which sets the path tolerance to 0.1mm. For a imperial config the command will be G64 P0.004.
+The provided G-code filter program will test for the existence of a G64 P__n__ command prior to the first motion command. If no G64 command is found it will insert a G64 P0.1 command which sets the path tolerance to 0.1 mm. For a imperial config the command will be G64 P0.004.
 
 For Metric:
 [source,{ngc}]
@@ -2911,7 +2911,7 @@ There are two ways to modify an existing QtPlasmaC configuration:
 . Running the appropriate <<configuring,configuration wizard>> and loading the conf file saved by the wizard.
 . Manually edit the .ini and/or the .hal file of the configuration.
 
-IMPORTANT: Any manual modification to the <machine_name>.ini and <machine_name>.hal files will not be registered in PnCConf or StepConf.
+IMPORTANT: Any manual modification to the <machine_name>.ini and <machine_name>.hal files will not be registered in PnCconf or StepConf.
 
 [NOTE]
 If unsure of the HAL pin's full name, the user may start LinuxCNC and run *HalShow* for a full listing of all HAL pins.
@@ -3899,7 +3899,7 @@ There are some sample G-code files in the ~/linuxcnc/nc_files/examples/plasmac d
 |Begin <<qt_spotting,center spot>> |M3 $2 S1
 |End <<qt_spotting,center spot>> |M5 $2
 |End all the above |M5 $-1
-|Select a <<qt_material-handling,material>> |M190 Pn +
+|Select a <<qt_material-handling,material>> |M190 P__n__ +
     n denotes the material number
 |Wait for <<qt_material-handling,material>> change confirmation |M66 P3 L3 Qn +
     n is delay time (in seconds) +

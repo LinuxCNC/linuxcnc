@@ -34,12 +34,12 @@ The three first radio buttons are self-explanatory:
 * 'Create New' - Creates a fresh configuration.
 * 'Modify' - Modify an existing configuration.
   After selecting this a file picker pops up so you can select the .stepconf file for modification.
-  If you made any modifications to the main .hal or the .ini file these will be lost.
+  If you made any modifications to the main HAL or the INI file these will be lost.
   Modifications to custom.hal and custom_postgui.hal will not be changed by the StepConf Wizard.
   StepConf will highlight the lastconf that was built.
-* 'Import' - Import a Mach configuration file and attempt to convert it to a linuxcnc config file.
+* 'Import' - Import a Mach configuration file and attempt to convert it to a LinuxCNC config file.
   After the import, you will go though the pages of StepConf to confirm/modify the entries.
-  The original mach xml file will not be changed.
+  The original mach XML file will not be changed.
 
 These next options will be recorded in a preference file for the next run of StepConf.
 
@@ -339,7 +339,7 @@ These signals are:
 If 'Spindle Phase A' and 'Spindle Index' appear 
 on the pinout, the following information should be entered:
 
-* 'Use Spindle-At-Speed' - With encoder feedback one can choose to have linuxcnc
+* 'Use Spindle-At-Speed' - With encoder feedback one can choose to have LinuxCNC
   wait for the spindle to reach the commanded speed before feed moves. Select this
   option and set the 'close enough' scale.
 * 'Speed Display Filter Gain' - Setting for adjusting the stability of the visual spindle speed display.

@@ -731,7 +731,7 @@ jog(linuxcnc.JOG_INCREMENT, joint-flag, axis-or-joint-number, velocity, distance
 
 With incorporation of joints_axes updates, LinuxCNC enforces the
 distinctions of joints and axes (coordinate letters) -- but some
-GUIs (like the axis GUI) may hide some of the distinctions for
+GUIs (like the AXIS GUI) may hide some of the distinctions for
 simple machines.
 
 In most cases, you can think of joints as 'motors'.

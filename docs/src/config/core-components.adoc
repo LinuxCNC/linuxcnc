@@ -27,7 +27,7 @@ Optionally the number of Digital I/O is set with 'num_dio'.
 The number of Analog I/O is set with 'num_aio', default is 4 each.
 The number of Spindles is set with 'num_spindles', default is 1.
 
-Pin and parameter names starting with 'axis.L' and 'joint.N' are read and
+Pin and parameter names starting with 'axis.__L__' and 'joint.__N__' are read and
 updated by the motion-controller function.
 
 Motion is loaded with the motmod command. A kins should be loaded before
@@ -209,12 +209,12 @@ order shown.
 
 LinuxCNC can control upto eight spindles.
 Motion will produce the following pins:
-The 'N' (integer between 0 and 7) substitutes the spindle number.
+The '__N__' (integer between 0 and 7) substitutes the spindle number.
 
 [[sec:spindle-pins]]
 === Pins(((spindle (HAL pins))))
 
-* 'spindle.N.at-speed' - (bit, in)
+* 'spindle.__N__.at-speed' - (bit, in)
   Motion will pause until this pin is TRUE, under the following conditions:
 ** before the first feed move after each spindle start or speed change;
 ** before the start of every chain of spindle-synchronized moves;
@@ -226,43 +226,43 @@ The 'N' (integer between 0 and 7) substitutes the spindle number.
    Many VFDs have an 'at speed' output.
    Otherwise, it is easy to generate this signal with the 'HAL near'
    component, by comparing requested and actual spindle speeds.
-* 'spindle.N.brake' - (bit, out) TRUE when the spindle brake should be applied.
-* 'spindle.N.forward' - (bit, out) TRUE when the spindle should rotate forward.
-* 'spindle.N.index-enable' - (bit, I/O) For correct operation of spindle synchronized moves, this
+* 'spindle.__N__.brake' - (bit, out) TRUE when the spindle brake should be applied.
+* 'spindle.__N__.forward' - (bit, out) TRUE when the spindle should rotate forward.
+* 'spindle.__N__.index-enable' - (bit, I/O) For correct operation of spindle synchronized moves, this
   pin must be hooked to the index-enable pin of the spindle encoder.
-* 'spindle.N.inhibit' - (bit, in) When this bit is TRUE, the spindle speed is set to 0.
-* 'spindle.N.on' - (bit, out) TRUE when spindle should rotate.
-* 'spindle.N.reverse' - (bit, out) TRUE when the spindle should rotate backward
-* 'spindle.N.revs' - (float, in) For correct operation of spindle synchronized moves, this
+* 'spindle.__N__.inhibit' - (bit, in) When this bit is TRUE, the spindle speed is set to 0.
+* 'spindle.__N__.on' - (bit, out) TRUE when spindle should rotate.
+* 'spindle.__N__.reverse' - (bit, out) TRUE when the spindle should rotate backward
+* 'spindle.__N__.revs' - (float, in) For correct operation of spindle synchronized moves, this
   signal must be hooked to the position pin of the spindle encoder. The
   spindle encoder position should be scaled such that spindle-revs
   increases by 1.0 for each rotation of the spindle in the clockwise ('M3') direction.
-* 'spindle.N.speed-in' - (float, in) Feedback of actual spindle speed in rotations per second.
+* 'spindle.__N__.speed-in' - (float, in) Feedback of actual spindle speed in rotations per second.
   This is used by feed-per-revolution motion ('G95').
   If your spindle encoder driver does not have a velocity output, you can generate
   a suitable one by sending the spindle position through a 'ddt' component.
-  If you do not have a spindle encoder, you can loop back 'spindle.N.speed-out-rps'.
-* 'spindle.N.speed-out' - (float, out) Commanded spindle speed in rotations per minute. Positive
+  If you do not have a spindle encoder, you can loop back 'spindle.__N__.speed-out-rps'.
+* 'spindle.__N__.speed-out' - (float, out) Commanded spindle speed in rotations per minute. Positive
   for spindle forward ('M3'), negative for spindle reverse ('M4').
-* 'spindle.N.speed-out-abs' - (float, out) Commanded spindle speed in rotations per minute. This will
+* 'spindle.__N__.speed-out-abs' - (float, out) Commanded spindle speed in rotations per minute. This will
   always be a positive number.
-* 'spindle.N.speed-out-rps' - (float, out) Commanded spindle speed in rotations per second. Positive
+* 'spindle.__N__.speed-out-rps' - (float, out) Commanded spindle speed in rotations per second. Positive
   for spindle forward ('M3'), negative for spindle reverse ('M4').
-* 'spindle.N.speed-out-rps-abs' - (float, out) Commanded spindle speed in rotations per second. This will
+* 'spindle.__N__.speed-out-rps-abs' - (float, out) Commanded spindle speed in rotations per second. This will
   always be a positive number.
-* 'spindle.N.orient-angle' - (float,out) Desired spindle orientation for M19. Value of the
+* 'spindle.__N__.orient-angle' - (float,out) Desired spindle orientation for M19. Value of the
   M19 R word parameter plus the value of the [RS274NGC]ORIENT_OFFSET INI parameter.
-* 'spindle.N.orient-mode' - (s32,out) Desired spindle rotation mode M19. Default 0.
-* 'spindle.N.orient' - (out,bit)
+* 'spindle.__N__.orient-mode' - (s32,out) Desired spindle rotation mode M19. Default 0.
+* 'spindle.__N__.orient' - (out,bit)
   Indicates start of spindle orient cycle. Set by M19. Cleared by any of M3, M4, or M5.
   If spindle-orient-fault is not zero during spindle-orient
   true, the M19 command fails with an error message.
-* 'spindle.N.is-oriented' - (in, bit) Acknowledge pin for spindle-orient. Completes orient cycle.
+* 'spindle.__N__.is-oriented' - (in, bit) Acknowledge pin for spindle-orient. Completes orient cycle.
   If spindle-orient was true when spindle-is-oriented was asserted, the spindle-orient pin is cleared and the
   spindle-locked pin is asserted. Also, the spindle-brake pin is asserted.
-* 'spindle.N.orient-fault' - (s32, in) Fault code input for orient cycle. Any value other
+* 'spindle.__N__.orient-fault' - (s32, in) Fault code input for orient cycle. Any value other
   than zero  will cause the orient cycle to abort.
-* 'spindle.N.lock' - (bit, out) Spindle orient complete pin. Cleared by any of M3, M4, or M5.
+* 'spindle.__N__.lock' - (bit, out) Spindle orient complete pin. Cleared by any of M3, M4, or M5.
 
 .HAL pin usage for M19 orient spindle
 Conceptually the spindle is in one of the following modes:
@@ -272,20 +272,20 @@ Conceptually the spindle is in one of the following modes:
 - orientation complete mode.
 
 When an M19 is executed, the spindle changes to 'searching for desired
-orientation', and the `spindle.N.orient` HAL pin is asserted.
-The desired target position is specified by the `spindle.N.orient-angle`
-and `spindle.N.orient-fwd` pins and driven by the M19 R and P parameters.
+orientation', and the `spindle.__N__.orient` HAL pin is asserted.
+The desired target position is specified by the `spindle.__N__.orient-angle`
+and `spindle.__N__.orient-fwd` pins and driven by the M19 R and P parameters.
 
-The HAL support logic is expected to react to `spindle.N.orient` by
+The HAL support logic is expected to react to `spindle.__N__.orient` by
 moving the spindle to the desired position. When this is complete, the
-HAL logic is expected to acknowledge this by asserting the `spindle.N.is-oriented` pin.
+HAL logic is expected to acknowledge this by asserting the `spindle.__N__.is-oriented` pin.
 
-Motion then acknowledges this by deasserting the `spindle.N.orient` pin
-and asserts the `spindle.N.locked` pin to indicate 'orientation complete' mode.
-It also raises the `spindle.N.brake` pin. The spindle now is in 'orientation complete' mode.
+Motion then acknowledges this by deasserting the `spindle.__N__.orient` pin
+and asserts the `spindle.__N__.locked` pin to indicate 'orientation complete' mode.
+It also raises the `spindle.__N__.brake` pin. The spindle now is in 'orientation complete' mode.
 
-If, during `spindle.N.orient` being true, and `spindle.N.is-oriented` not
-yet asserted the `spindle.N.orient-fault` pin has a value other than
+If, during `spindle.__N__.orient` being true, and `spindle.__N__.is-oriented` not
+yet asserted the `spindle.__N__.orient-fault` pin has a value other than
 zero, the M19 command is aborted, a message including the fault code
 is displayed, and the motion queue is flushed.
 The spindle reverts to rotation mode.
@@ -344,22 +344,22 @@ A number of INI settings are made available as HAL input pins.
 
 === Pins (((INI settings (HAL pins))))
 
-N refers to a joint number, L refers to an axis letter
+_N_ refers to a joint number, _L_ refers to an axis letter.
 
-* 'ini.N.ferror' - (float, in) [JOINT_N]FERROR
-* 'ini.N.min_ferror' - (float, in) [JOINT_N]MIN_FERROR
-* 'ini.N.backlash' - (float, in) [JOINT_N]BACKLASH
-* 'ini.N.min_limit' - (float, in) [JOINT_N]MIN_LIMIT
-* 'ini.N.max_limit' - (float, in) [JOINT_N]MAX_LIMIT
-* 'ini.N.max_velocity' - (float, in) [JOINT_N]MAX_VELOCITY
-* 'ini.N.max_acceleration' - (float, in) [JOINT_N]MAX_ACCELERATION
-* 'ini.N.home' - (float, in) [JOINT_N]HOME
-* 'ini.N.home_offset' - (float, in) [JOINT_N]HOME_OFFSET
-* 'ini.N.home_offset' - (s32, in) [JOINT_N]HOME_SEQUENCE
-* 'ini.L.min_limit' - (float, in) [AXIS_L]MIN_LIMIT
-* 'ini.L.max_limit' - (float, in) [AXIS_L]MAX_LIMIT
-* 'ini.L.max_velocity' - (float, in) [AXIS_L]MAX_VELOCITY
-* 'ini.L.max_acceleration' - (float, in) [AXIS_L]MAX_ACCELERATION
+* 'ini.__N__.ferror' - (float, in) [JOINT_N]FERROR
+* 'ini.__N__.min_ferror' - (float, in) [JOINT_N]MIN_FERROR
+* 'ini.__N__.backlash' - (float, in) [JOINT_N]BACKLASH
+* 'ini.__N__.min_limit' - (float, in) [JOINT_N]MIN_LIMIT
+* 'ini.__N__.max_limit' - (float, in) [JOINT_N]MAX_LIMIT
+* 'ini.__N__.max_velocity' - (float, in) [JOINT_N]MAX_VELOCITY
+* 'ini.__N__.max_acceleration' - (float, in) [JOINT_N]MAX_ACCELERATION
+* 'ini.__N__.home' - (float, in) [JOINT_N]HOME
+* 'ini.__N__.home_offset' - (float, in) [JOINT_N]HOME_OFFSET
+* 'ini.__N__.home_offset' - (s32, in) [JOINT_N]HOME_SEQUENCE
+* 'ini.__L__.min_limit' - (float, in) [AXIS_L]MIN_LIMIT
+* 'ini.__L__.max_limit' - (float, in) [AXIS_L]MAX_LIMIT
+* 'ini.__L__.max_velocity' - (float, in) [AXIS_L]MAX_VELOCITY
+* 'ini.__L__.max_acceleration' - (float, in) [AXIS_L]MAX_ACCELERATION
 
 [NOTE]
 The per-axis min_limit and max_limit pins are honored continuously after homing.

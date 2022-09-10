@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:g-code-overview]]
-= G-Code Overview
+= G-code Overview
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
@@ -909,7 +909,7 @@ in many modes at the same time, with one mode from each modal group
 being in effect. The modal groups are shown in the following Table.
 
 [[cap:modal-groups]]
-.G-Code Modal Groups(((Modal Groups: G-codes)))
+.G-code Modal Groups(((Modal Groups: G-codes)))
 [width="80%",cols="4,6",options="header"]
 |====
 |Modal Group Meaning                   | Member Words
@@ -931,7 +931,7 @@ being in effect. The modal groups are shown in the following Table.
 |====
 
 [[tbl:mcodes-modal-groups]]
-.M-Code Modal Groups(((Modal Groups: M-codes)))
+.M-code Modal Groups(((Modal Groups: M-codes)))
 [width="80%",cols="4,6",options="header"]
 |====
 |Modal Group Meaning           | Member Words
@@ -1000,7 +1000,7 @@ comment will in effect disable the active comment. For example, '(foo)
 A comment introduced by a semicolon is by definition the last comment
 on that line, and will always be interpreted for active comment syntax.
 
-NOTE: Inline comments on O words should not be used see the O Code
+NOTE: Inline comments on O-words should not be used see the O-code
 <<ocode:comments,comments>> section for more information.
 
 [[gcode:messages]]
@@ -1130,7 +1130,7 @@ part programs. In Axis sections of the preview can be turned off using
 <<axis:preview-control,preview control>> comments.
 
 [[gcode:order-of-execution]]
-== G-Code Order of Execution(((G-code Order of Execution)))
+== G-code Order of Execution(((G-code Order of Execution)))
 
 The order of execution of items on a line is defined not by the
 position of each item on the line, but by the following list:
@@ -1165,7 +1165,7 @@ position of each item on the line, but by the following list:
 * Stop (M0, M1, M2, M30, M60).
 
 [[gcode:best-practices]]
-== G-Code Best Practices(((G-code Best Practices)))
+== G-code Best Practices(((G-code Best Practices)))
 
 .Use an appropriate decimal precision
 Use at least 3 digits after the decimal when milling in millimeters,
