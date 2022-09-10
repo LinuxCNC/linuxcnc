@@ -135,6 +135,7 @@ errors  = 'The following errors will affect the process.\n'
 errors += 'Errors must be fixed before reloading this file.\n'
 errorMath = []
 errorMissMat = []
+errorNoMat = []
 errorTempMat = []
 errorNewMat = []
 errorEditMat = []
@@ -465,19 +466,31 @@ def check_math(axis):
     return False
 # do material change
 def do_material_change():
-    global lineNum, lineNumOrg, errorLines, firstMaterial, codeError, errorMissMat
+    global lineNum, lineNumOrg, errorLines, firstMaterial, codeError, errorMissMat, errorNoMat
     if '(' in line:
         c = line.split('(', 1)[0]
     elif ';' in line:
         c = line.split(';', 1)[0]
     else:
         c = line
+    if 'p' not in line:
+        codeError = True
+        errorNoMat.append(lineNum)
+        errorLines.append(lineNumOrg)
+        gcodeList.append(';{}'.format(line))
+        return True
     b = c.split('p', 1)[1]
     m = ''
     # get the material number
     for mNum in b.strip():
         if mNum in '0123456789':
             m += mNum
+    if not m:
+        codeError = True
+        errorNoMat.append(lineNum)
+        errorLines.append(lineNumOrg)
+        gcodeList.append(';{}'.format(line))
+        return True
     material[0] = int(m)
     material[1] = True
     if material[0] not in materialDict and material[0] < 1000000:
@@ -1181,6 +1194,9 @@ if codeError or codeWarn:
         if errorMissMat:
             msg  = 'The Material selected is missing from the material file.\n'
             errorText += message_set(errorMissMat, msg)
+        if errorNoMat:
+            msg  = 'A Material was not specified after M190.\n'
+            errorText += message_set(errorNoMat, msg)
         if errorTempMat:
             msg  = 'Error attempting to add a temporary material.\n'
             errorText += message_set(errorTempMat, msg)
