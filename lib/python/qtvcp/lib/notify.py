@@ -292,8 +292,6 @@ class Notify:
                     self.lastnum = 0
 
     def external_close(self):
-        for num, i in enumerate(self.alarmpage):
-            print(num, i)
         if self.critical_message is not None:
             n = self.critical_message
             n.body = ''
