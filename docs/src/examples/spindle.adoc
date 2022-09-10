@@ -23,12 +23,12 @@ If your spindle speed is controlled by an analog signal,
 you're using a DAC card like the m5i20 to output the control signal:
 
 First you need to figure the scale of spindle speed to control signal, i.e. the voltage.
-For this example the spindle top speed of 5000 RPM is equal to 10 volts.
+For this example the spindle top speed of 5000 RPM is equal to 10 Volts.
 
 image::images/spindle-math.png[align="center"]
 
 We have to add a scale component to the HAL file to scale the
-spindle.N.speed-out to the 0 to 10 needed by the VFD if your DAC
+spindle._N_.speed-out to the 0 to 10 needed by the VFD if your DAC
 card does not do scaling.
 
 [source,{hal}]
@@ -43,7 +43,7 @@ net spindle-speed-DAC scale.0.out => <your DAC pin name>
 == PWM Spindle Speed(((PWM Spindle Speed Example)))
 
 If your spindle can be controlled by a PWM signal,
-use the pwmgen component to create the signal:
+use the `pwmgen` component to create the signal:
 
 [source,{hal}]
 ----
@@ -78,8 +78,8 @@ net spindle-enable spindle.0.on => parport.0.pin-14-out
 == Spindle Direction(((Spindle Direction Example)))
 
 If you have direction control of your spindle, then the HAL pins
-'spindle.N.forward' and 'spindle.N.reverse' are controlled by the G-codes
-M3 and M4. Spindle speed 'Sn' must be set to a positive non-zero value for
+'spindle._N_.forward' and 'spindle._N_.reverse' are controlled by the G-codes
+M3 and M4. Spindle speed S__n__ must be set to a positive non-zero value for
 M3/M4 to turn on spindle motion.
 
 To link these pins to a parallel port pin, put something like the
@@ -96,13 +96,13 @@ net spindle-rev spindle.0.reverse => parport.0.pin-17-out
 
 If you need to ramp your spindle speed command and your control does
 not have that feature it can be done in HAL. Basically you need to
-hijack the output of spindle.N.speed-out and run it through a
+hijack the output of spindle._N_.speed-out and run it through a
 limit2 component with the scale set so it will ramp the rpm from
-spindle.N.speed-out to your device that receives the rpm.
+spindle._N_.speed-out to your device that receives the rpm.
 The second part is to let LinuxCNC know when the spindle is at speed so
 motion can begin.
 
-In the 0-10 volt example the line
+In the 0-10 Volt example the line
 
 [source,{hal}]
 ----
@@ -219,7 +219,7 @@ net spindle-index encoder.3.phase-Z <= parport.0.pin-11-in
 === Spindle At Speed(((Spindle At Speed Example)))
 
 To enable LinuxCNC to wait for the spindle to be at speed before executing
-a series of moves, the spindle.N.at-speed needs to turn true at the moment
+a series of moves, the spindle._N_.at-speed needs to turn true at the moment
 the spindle is at the commanded speed. To achieve this you need spindle
 feedback from an encoder. Since the feedback and the commanded speed
 are not usually 'exactly' the same you should to use the 'near'
@@ -228,7 +228,7 @@ component to determine that the two numbers are close enough.
 The connections needed are from the spindle
 velocity command signal to near.n.in1 and from the spindle velocity
 from the encoder to near.n.in2. Then the near.n.out is connected to
-spindle.N.at-speed. The near.n.scale needs to be set to say how
+spindle._N_.at-speed. The near.n.scale needs to be set to say how
 close the two numbers must be before turning on the output. Depending
 on your setup you may need to adjust the scale to work with your
 hardware.

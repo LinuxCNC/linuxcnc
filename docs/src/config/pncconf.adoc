@@ -13,7 +13,7 @@ parallel port driven systems).
 
 PnCconf is still in a development stage (Beta) so there are some bugs and
 lacking features.
-Please report bugs and suggestions to the LinuxCNC forum page or mail-list.
+Please report bugs and suggestions to the LinuxCNC forum page or mailing list.
 
 There are two trains of thought when using PnCconf:
 
@@ -36,17 +36,17 @@ details.
 
 == Step by Step Instructions
 
-.PnCConf Splash
-image::images/pncconf-splash.png["PnCConf Configuration Wizard"]
+.PnCconf Splash
+image::images/pncconf-splash.png["PnCconf Configuration Wizard"]
 
 == Create or Edit
 
 This allows you to select a previously saved configuration or create a new one.
 If you pick 'Modify a configuration' and then press 'Next' a file selection box
-will show. PnCConf preselects your last saved file. Choose the config you
-wish to edit. If you made any changes to the main HAL or INI files *PnCConf will
+will show. PnCconf preselects your last saved file. Choose the config you
+wish to edit. If you made any changes to the main HAL or INI files *PnCconf will
 over write* those files and those changes will be lost. Some files will not be
-over written and PnCConf places a note in those files. It also allows you to
+over written and PnCconf places a note in those files. It also allows you to
 select desktop shortcut / launcher options. A desktop shortcut will place a
 folder icon on the desktop that points to your new configuration files.
 Otherwise you would have to look in your home folder under linuxcnc/configs.
@@ -57,8 +57,8 @@ Selector 'LinuxCNC' found in CNC menu and selecting your config name.
 
 == Basic Machine Information
 
-.PnCConf Basic
-image::images/pncconf-basic.png["PnCConf Basic machine information"]
+.PnCconf Basic
+image::images/pncconf-basic.png["PnCconf Basic machine information"]
 
 Machine Basics::
 If you use a name with spaces PnCconf will replace the spaces with underscore
@@ -155,8 +155,7 @@ GUI Front-end list::
 This specifies the graphical display screens LinuxCNC will use.
 Each one has different option.
 
-AXIS
-
+.AXIS
 * fully supports lathes.
 * is the most developed and used front-end
 * is designed to be used with mouse and keyboard
@@ -164,14 +163,12 @@ AXIS
 * has a 3D graphical window.
 * allows VCP integrated on the side or in center tab
 
-TkLinuxCNC
-
+.TkLinuxCNC
 * hi contrast bright blue screen
 * separate graphics window
 * no VCP integration
 
-TOUCHY
-
+.Touchy
 * Touchy was designed to be used with a touchscreen, some minimal physical switches and a MPG wheel.
 * requires cycle-start, abort, and single-step signals and buttons
 * It also requires shared axis MPG jogging to be selected.
@@ -180,8 +177,7 @@ TOUCHY
 * has no graphical window
 * look can be changed with custom themes
 
-QtPlasmaC
-
+.QtPlasmaC
 * fully featured plasmac configuration based on the QtVCP infrastructure.
 * mouse/keyboard operation or touchscreen operation
 * no VCP integration
@@ -293,7 +289,7 @@ move it to a second screen if the system is capable. If you press the 'Display
 sample panel' button the size and placement options will be honored.
 
 GladeVCP::
-GladeVCPs fit naturally inside of TOUCHY screen as they both use GTK to draw
+GladeVCPs fit naturally inside of Touchy screen as they both use GTK to draw
 them, but by changing GladeVCP's theme it can be made to blend pretty well in
 AXIS (try Redmond).
 
@@ -807,8 +803,8 @@ The serial modbus program is basically a blank template program that sets up
 ClassicLadder for serial modbus. See the << cha:classicladder,Classicladder Chapter >>
 in the manual.
 
-.PnCConf, advanced options
-image::images/pncconf-advanced.png["PnCConf Advanced Options"]
+.PnCconf, advanced options
+image::images/pncconf-advanced.png["PnCconf Advanced Options"]
 
 == HAL Components
 

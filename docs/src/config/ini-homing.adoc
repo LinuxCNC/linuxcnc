@@ -204,7 +204,7 @@ from the encoder.n.index-enable.
 
 === HOME_INDEX_NO_ENCODER_RESET(((HOME INDEX NO ENCODER RESET)))
 
-Default is NO.   Use YES if the encoder used for this joint does not
+Default is NO. Use YES if the encoder used for this joint does not
 reset its counter when an index pulse is detected after assertion
 of the joint index_enable HAL pin.
 Applicable only for HOME_USE_INDEX = YES.

@@ -8,14 +8,14 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-This documentation describes the 'linuxcnc' python module, which provides
-a python API for talking to LinuxCNC.
+This documentation describes the `linuxcnc` python module, which provides
+a Python API for talking to LinuxCNC.
 
 ////
 constants are located in src/emc/usr_intf/axis/extensions/emcmodule.cc
 ////
 
-== The linuxcnc Python module
+== The `linuxcnc` Python module
 
 User interfaces control LinuxCNC activity by sending
 NML messages to the LinuxCNC task controller, and monitor results by
@@ -796,7 +796,7 @@ c.spindle.(linuxcnc.SPINDLE_OFF, 0)
   Set the machine state. Machine state should be STATE_ESTOP, STATE_ESTOP_RESET, STATE_ON, or STATE_OFF.
 
 `task_plan_sync()`::
-  On completion of this call, the var file on disk is updated with
+  On completion of this call, the VAR file on disk is updated with
   live values from the interpreter.
 
 `teleop_enable(int)`::
