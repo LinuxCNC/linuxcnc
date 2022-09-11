@@ -196,8 +196,8 @@ If enabled by the number of [KINS]JOINTS= specified, JOINT_3,4,5,6,7,8 correspon
 
 .SS genhexkins \- Hexapod Kinematics
 Gives six degrees of freedom in position and orientation (XYZABC).  The
-location of base and platform joints is defined by hal parameters.  The
-forward kinematics iteration is controlled by hal pins.
+location of base and platform joints is defined by HAL parameters.  The
+forward kinematics iteration is controlled by HAL pins.
 (See switchkins documentation for more info)
 .TP
 .B genhexkins.base.\fIN\fB.x
@@ -305,7 +305,7 @@ angular joints.
 The kinematics use Denavit-Hartenberg definition for the joint and
 links. The DH definitions are the ones used by John J Craig in
 "Introduction to Robotics: Mechanics and Control" The parameters for the
-manipulator are defined by hal pins.
+manipulator are defined by HAL pins.
 Note that this uses a convention sometimes known as "Modified DH Parameters"
 and this must be borne in mind when setting up the system. 
 https://w.wiki/NcY
@@ -329,8 +329,8 @@ may be a useful starting point for other 5-axis systems.
 
 .SS pentakins \- Pentapod Kinematics
 Gives five degrees of freedom in position and orientation (XYZAB).  The
-location of base and effector joints is defined by hal parameters.  The
-forward kinematics iteration is controlled by hal pins.
+location of base and effector joints is defined by HAL parameters.  The
+forward kinematics iteration is controlled by HAL pins.
 .TP
 .B pentakins.base.\fIN\fB.x
 .br
@@ -496,7 +496,7 @@ agree with the default ordering expected by it (XYZBCW
 .SH SEE ALSO
 \fIKinematics\fR section in the LinuxCNC documentation
 
-The hal component \fBuserkins.comp\fR is a template for making
+The HAL component \fBuserkins.comp\fR is a template for making
 kinematic modules using the halcompile tool.  The unmodified
 template supports an identity xyz configuration that uses
 3 joints.  See the \fBuserkins\fR man page for more info.

@@ -19,7 +19,7 @@ process and take the form:
 hm2_<board name>.<board index>.uart.<index> For example hm2_5i23.0.uart.0
 
 This function reads a variable number of bytes from the the specified 
-channel.It should be used inside a realtime HAL component registered with the 
+channel. It should be used inside a realtime HAL component registered with the 
 main hostmot2 driver using the function hm2_uart_set_read_function in the setup
 code. 
 

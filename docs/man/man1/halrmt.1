@@ -34,16 +34,16 @@ halrmt \- short description
 .SH USAGE
 
   halrmt {-- --port <port number> --name <server name> --connectpw <password>
-             --enablepw <password> --sessions <max sessions> -ini<inifile>}
+             --enablepw <password> --sessions <max sessions> -ini <INI file>}
 
-  With -- --port Waits for socket connections (Telnet) on specified socket, without port
+  With -- --port Waits for socket connections (telnet) on specified socket, without port
             uses default port 5006. (note: linuxcncrsh uses 5007 as default)
   With -- --name <server name> Sets the server name to specified name for Hello.
   With -- --connectpw <password> Sets the connection password to 'password'. Default EMC
   With -- --enablepw <password> Sets the enable password to 'password'. Default EMCTOO
   With -- --sessions <max sessions> Sets the maximum number of simultaneous connextions
             to max sessions. Default is no limit (-1).
-  With -- -ini <inifile>, uses inifile instead of emc.ini. 
+  With -- -ini \fI<INI file>\fR, uses the specified \fIINI file\fR instead of the default emc.ini. 
 
   There are six commands supported, Where the commands set and get contain HAL
   specific sub-commands based on the commands supported by halcmd. Commands and 
@@ -67,12 +67,12 @@ halrmt \- short description
   
   ==> Get <==
   
-  The get command includes one of the hal sub-commands, described below and
+  The get command includes one of the HAL sub-commands, described below and
   zero or more additional parameters. 
   
   ==> Set <==
   
-  The set command inclides one of the hal sub-commands, described below and
+  The set command inclides one of the HAL sub-commands, described below and
   one or more additional parameters.
   
   ==> Quit <==
@@ -81,7 +81,7 @@ halrmt \- short description
   
   ==> Shutdown <==
   
-  The shutdown command tells EMC to shutdown before quitting the connection. This
+  The shutdown command tells LinuxCNC to shut down before quitting the connection. This
   command may only be issued if the Hello has been successfully negotiated and the
   connection has control of the CNC (see enable sub-command below). This command
   has no parameters.

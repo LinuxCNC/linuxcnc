@@ -33,22 +33,27 @@ The hal_parport component supports up to \fB8 \fRphysical parallel ports.
 .TP
 .B cfg="port_addr [type] [[port_addr [type] ...]"
 
-The cfg string tells hal_parport the address(es) of the parallel port(s) and whether the port(s) is/are used as an input or output port(s).  Up to eight parallel ports are supported by the component.
+The cfg string tells hal_parport the address(es) of the parallel port(s) and whether the port(s) is/are used as an input or output port(s).
+Up to eight parallel ports are supported by the component.
 
-The \fBport_addr \fRparameter of the configuration string may be either the physical base address of a parallel port or specified as the detected parallel port via Linux parport_pc driver.  In which case, a \fBport_addr \fRof \fI0 \fRis the first parallel port detected on the system, \fI1 \fRis the next, and so on.
+The \fBport_addr \fRparameter of the configuration string may be either the physical base address of a parallel port or specified as the detected parallel port via Linux parport_pc driver.
+In which case, a \fBport_addr \fRof \fI0 \fRis the first parallel port detected on the system, \fI1 \fRis the next, and so on.
 
-The \fBtype \fRparameter of the configuration string determines how the I/O bits of the port are used.  There are four possible options and if none is specified will default to out.
+The \fBtype \fRparameter of the configuration string determines how the I/O bits of the port are used.
+There are four possible options and if none is specified will default to out.
 
-\fIin \fR\- Sets the 8 bits of the data port to input.  In this mode the parallel port has a total of 13 input pins and 4 output pins.
+\fIin \fR\- Sets the 8 bits of the data port to input.
+In this mode the parallel port has a total of 13 input pins and 4 output pins.
 
-\fIout \fR\- Sets the 8 bits of the data port to output.  In this mode the parallel port has a total of 5 input pins and 12 output pins.
+\fIout \fR\- Sets the 8 bits of the data port to output.
+In this mode the parallel port has a total of 5 input pins and 12 output pins.
 
-\fIepp \fR\- This option is the same as setting to out, but can cause the computer to change the electrical characteristics of the port. (\fISee USAGE below\fR.)
+\fIepp \fR\- This option is the same as setting to out, but can cause the computer to change the electrical characteristics of the port, see USAGE below.
 
-\fIx \fR\- The option allows ports with open collectorts on the control group pins to be configured as inputs resulting in 8 output pins and 9 input pins. (\fISee USAGE below\fR.)
+\fIx \fR\- The option allows ports with open collectorts on the control group pins to be configured as inputs resulting in 8 output pins and 9 input pins, see USAGE below.
 .SH PINS
 .TP
-The pins created by the hal_parport component depends on how it is configured in the \fBcfg="" \fRstring passed to it.  (\fISee OPTIONS\fR.)
+The pins created by the hal_parport component depends on how it is configured in the \fBcfg="" \fRstring passed to it, see OPTIONS.
 
 \fBparport.<p>.pin\-<n>\-out (bit) \fRDrives a physical output pin.
 
@@ -96,20 +101,35 @@ Reads HAL \-out pins of port <p> and updates that port's physical output pins.
 Reads HAL \-out pins of all ports and updates all physical output pins.
 .TP
 \fBparport.<p>.reset (funct)
-Waits until \fIreset\-time \fRhas elapsed since the associated write, then resets pins to values indicated by \fI\-out\-reset \fRand \fI\-out\-invert \fRsettings. reset must be later in the same thread as write. 'If '\fI\-out\-reset \fRis TRUE, then the reset function will set the pin to the value of \fI\-out\-invert\fR. This can be used in conjunction with stepgen's doublefreq to produce one step per period. The stepgen stepspace for that pin must be set to 0 to enable doublefreq.
+Waits until \fIreset\-time \fRhas elapsed since the associated write, then resets pins to values indicated by \fI\-out\-reset \fRand \fI\-out\-invert \fRsettings. 
+Reset must be later in the same thread as write. 'If '\fI\-out\-reset \fRis TRUE, then the reset function will set the pin to the value of \fI\-out\-invert\fR.
+This can be used in conjunction with stepgen's doublefreq to produce one step per period.
+The stepgen stepspace for that pin must be set to 0 to enable doublefreq.
 .SH USAGE
-The hal_parport component is a driver for the traditional PC parallel port. The port has a total of 25 physical pins of which 17 are used for signals. The original parallel port divided those pins into three groups: data, control, and status. The data group consists of 8 output pins, the control group consists of 4 output pins, and the status group consists of 5 input pins.
+The hal_parport component is a driver for the traditional PC parallel port.
+The port has a total of 25 physical pins of which 17 are used for signals.
+The original parallel port divided those pins into three groups: data, control, and status.
+The data group consists of 8 output pins, the control group consists of 4 output pins, and the status group consists of 5 input pins.
 
-In the early 1990's, the bidirectional parallel port was introduced, which allows the data group to be used for output or input. The HAL driver supports the bidirectional port, and allows the user to set the data group as either input or output. If configured as \fIout\fR, a port provides a total of 12 outputs and 5 inputs. If configured as \fIin\fR, it provides 4 outputs and 13 inputs.
+In the early 1990's, the bidirectional parallel port was introduced, which allows the data group to be used for output or input.
+The HAL driver supports the bidirectional port, and allows the user to set the data group as either input or output.
+If configured as \fIout\fR, a port provides a total of 12 outputs and 5 inputs.
+If configured as \fIin\fR, it provides 4 outputs and 13 inputs.
 
-In some parallel ports, the control group pins are open collectors, which may also be driven low by an external gate. On a board with open collector control pins, if configured as \fIx\fR, it provides 8 outputs, and 9 inputs.
+In some parallel ports, the control group pins are open collectors, which may also be driven low by an external gate.
+On a board with open collector control pins, if configured as \fIx\fR, it provides 8 outputs, and 9 inputs.
 
 In some parallel ports, the control group has push-pull drivers and cannot be used as an input.
 .TP
 \fBNote: HAL and Open Collectors
-HAL cannot automatically determine if the x mode bidirectional pins are actually open collectors (OC). If they are not, they cannot be used as inputs, and attempting to drive them LOW from an external source can damage the hardware.
+HAL cannot automatically determine if the x mode bidirectional pins are actually open collectors (OC).
+If they are not, they cannot be used as inputs, and attempting to drive them LOW from an external source can damage the hardware.
 
-To determine whether your port has open collector pins, load hal_parport in x mode. With no device attached, HAL should read the pin as TRUE. Next, insert a 470 ohm resistor from one of the control pins to GND. If the resulting voltage on the control pin is close to 0V, and HAL now reads the pin as FALSE, then you have an OC port. If the resulting voltage is far from 0V, or HAL does not read the pin as FALSE, then your port cannot be used in x mode.
+To determine whether your port has open collector pins, load hal_parport in x mode.
+With no device attached, HAL should read the pin as TRUE.
+Next, insert a 470 ohm resistor from one of the control pins to GND.
+If the resulting voltage on the control pin is close to 0V, and HAL now reads the pin as FALSE, then you have an OC port.
+If the resulting voltage is far from 0V, or HAL does not read the pin as FALSE, then your port cannot be used in x mode.
 
 The external hardware that drives the control pins should also use open collector gates (e.g., 74LS05).
 
@@ -117,17 +137,22 @@ On some computers, BIOS settings may affect whether x mode can be used. SPP mode
 .PP
 No other combinations are supported, and a port cannot be changed from input to output once the driver is installed.
 
-The parport driver can control up to 8 ports (defined by MAX_PORTS in hal_parport.c). The ports are numbered starting at zero.
+The parport driver can control up to 8 ports (defined by MAX_PORTS in hal_parport.c).
+The ports are numbered starting at zero.
 .TP
 \fBLoading the hal_parport component
 
-The hal_parport driver is a real time component so it must be loaded into the real time thread with loadrt. The configuration string describes the parallel ports to be used, and (optionally) their types. If the configuration string does not describe at least one port, it is an error.
+The hal_parport driver is a real time component so it must be loaded into the real time thread with loadrt.
+The configuration string describes the parallel ports to be used, and (optionally) their types.
+If the configuration string does not describe at least one port, it is an error.
 
 \fBloadrt hal_parport cfg="port [type] [port [type] ...]"
 .TP
 \fBSpecifying the Port
 
-Numbers below 16 refer to parallel ports detected by the system. This is the simplest way to configure the hal_parport driver, and cooperates with the Linux parport_pc driver if it is loaded. A port of 0 is the first parallel port detected on the system, 1 is the next, and so on.
+Numbers below 16 refer to parallel ports detected by the system.
+This is the simplest way to configure the hal_parport driver, and cooperates with the Linux parport_pc driver if it is loaded.
+A port of 0 is the first parallel port detected on the system, 1 is the next, and so on.
 .TP
 \fBBasic configuration
 
@@ -147,7 +172,9 @@ For each parallel port handled by the hal_parport driver, a type can optionally 
 
 If the type is not specified, the default is out.
 
-A type of epp is the same as out, but the hal_parport driver requests that the port switch into EPP mode. The hal_parport driver does not use the EPP bus protocol, but on some systems EPP mode changes the electrical characteristics of the port in a way that may make some marginal hardware work better. The Gecko G540's charge pump is known to require this on some parallel ports.
+A type of epp is the same as out, but the hal_parport driver requests that the port switch into EPP mode.
+The hal_parport driver does not use the EPP bus protocol, but on some systems EPP mode changes the electrical characteristics of the port in a way that may make some marginal hardware work better.
+The Gecko G540's charge pump is known to require this on some parallel ports.
 
 See the Note above about mode x.
 .TP
@@ -171,8 +198,12 @@ You can direct LinuxCNC to ruin the read and write functions for all the attache
       \fBaddf parport.0.read base\-thread
       \fBaddf parport.0.write base\-thread
 
-\fRThe individual functions are provided for situations where one port needs to be updated in a very fast thread, but other ports can be updated in a slower thread to save CPU time. It is probably not a good idea to use both an \-all function and an individual function at the same time.
+\fRThe individual functions are provided for situations where one port needs to be updated in a very fast thread, but other ports can be updated in a slower thread to save CPU time.
+It is probably not a good idea to use both an \-all function and an individual function at the same time.
 .SH SEE ALSO
-Parallel Port Driver (Hardware Drivers Section of LinuxCNC Docs)   PCI Parallel Port Example (Hardware Examples Section of LinuxCNC Docs)
+Parallel Port Driver (Hardware Drivers Section of LinuxCNC Docs),
+.BR PCI Parallel Port Example (Hardware Examples Section of LinuxCNC Docs)
 .SH AUTHOR
-This man page written by Joe Hildreth as part of the LinuxCNC project. Most of this information was taken from the parallel-port docs located in the Hardware Drivers section of the documentation.  To the best of my knowledge that documentation was written by Sebastian Kuzminsky and Chris Radek.
+This man page written by Joe Hildreth as part of the LinuxCNC project.
+Most of this information was taken from the parallel-port docs located in the Hardware Drivers section of the documentation.
+To the best of my knowledge that documentation was written by Sebastian Kuzminsky and Chris Radek.

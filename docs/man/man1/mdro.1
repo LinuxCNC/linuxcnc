@@ -77,19 +77,19 @@ Finally, buttons on the screen allow the selection of inch or mm data display.
 
 .SH USAGE
 \fBmdro\fR is normally started from the \fI[DISPLAY]\fR entry in a dedicated
-\fBmdro.ini\fR file.  The .ini file and the associated HAL files  should
+\fBmdro.ini\fR file.  The INI file and the associated HAL files should
 include the pins and signals that support the DRO scales. The HAL connections
-to \fBmdro\fR must be done in the \fIPOSTGUI_HALFILE\fR referenced in the .ini
+to \fBmdro\fR must be done in the \fIPOSTGUI_HALFILE\fR referenced in the INI
 file.
 .TP
 Other \fI[DISPLAY]\fR section options:
 .TP
 \fIGEOMETRY\fR = \fIaxes\fR
 Names the coordinate axes used in the program. For example,  "XYZ" for a 3
-axis mill or "XZ" for a lathe, Default is "XYZ"
+axis mill or "XZ" for a lathe, Default is "XYZ".
 .TP
 \fIMDRO_VAR_FILE\fR = \fIfile.var\fR
-Preload a .var file. This is typically the .var file used by the operational
+Preload a VAR file. This is typically the VAR file used by the operational
 code.
 .TP
 \fIPOINT_SIZE\fR = \fIn\fR

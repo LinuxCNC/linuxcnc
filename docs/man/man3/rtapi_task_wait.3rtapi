@@ -12,7 +12,7 @@ void rtapi_task_wait()
 period.  The task must be periodic.  If not, the result is undefined.
 
 .SH REALTIME CONSIDERATIONS
-Call only from within a periodic realtime task
+Call only from within a periodic realtime task.
 
 .SH RETURN VALUE
 None

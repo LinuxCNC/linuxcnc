@@ -115,12 +115,12 @@ amps, alarm and status bits are not useful.
 .br
 \fB[VFD NAME].monitor\fR (bit, in)::
       set monitor mode pin
-      If false request-status command will not be sent to vfd.
+      If false request-status command will not be sent to VFD.
       Status, amps, power, motor-feedback, and alarm would then not 
         be useful.
 .br
 \fB[VFD NAME].estop\fR (bit, in)::
-      set estop mode pin
+      set E-stop mode pin
 .br
       This will stop the VFD. 
       Restarting requires the run pin to cycle.
@@ -138,7 +138,7 @@ amps, alarm and status bits are not useful.
 .br
 
 \fB[VFD NAME].motor-fb\fR (float, out)::
-      The motor feedback speed (from vfd) in hertz
+      The motor feedback speed (from VFD) in Hertz (Hz)
 .br
 \fB[VFD NAME].motor-amps\fR (float, out)::
       The motor current, in amps
@@ -212,7 +212,7 @@ setp spindle.monitor 1
 .br
 net spindle-speed-indicator spindle.motor-fb
 .br
-# *************** Coolant vfd setup slave 1 *****************
+# *************** Coolant VFD setup slave 1 *****************
 .br
 net coolant-flood                         coolant.run
 .br
@@ -237,6 +237,6 @@ net estop-out                     coolant.estop
 .SH ISSUES
 
 some models (eg E500) cannot monitor status, so set the 
-monitor pin to false In this case pins such as up-to-speed,
+monitor pin to false. In this case, pins such as up-to-speed,
 amps, alarm and status bits are not useful.
 

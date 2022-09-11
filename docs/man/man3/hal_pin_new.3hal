@@ -1,7 +1,7 @@
 .TH hal_pin_new "3hal" "2006-10-12" "LinuxCNC Documentation" "HAL"
 .SH NAME
 
-hal_pin_new \- Create a HAL pin
+hal_pin_new \- creates a HAL pin
 
 .SH SYNTAX
 
@@ -40,7 +40,7 @@ hal_pin_new \- Create a HAL pin
 
 .SH  ARGUMENTS
 .IP \fIname\fR
-The name of the pin
+name of the pin
 .IP \fIdir\fR
 
 The direction of the pin, from the viewpoint of the component.  It may be one
@@ -55,10 +55,10 @@ The address of the pointer-to-data, which must lie within memory allocated by
 \fBhal_malloc\fR.
 
 .IP \fIcomp_id\fR
-A HAL component identifier returned by an earlier call to \fBhal_init\fR.
+HAL component identifier returned by an earlier call to \fBhal_init\fR.
 
 .IP \fIfmt, ...\fR
-A printf-style format string and arguments
+printf-style format string and arguments
 
 .IP \fItype\fR
 The type of the param, as specified in \fBhal_type_t(3hal)\fR.

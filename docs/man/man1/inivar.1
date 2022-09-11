@@ -26,7 +26,7 @@
 .SH NAME
 inivar \- Query an INI file
 .SH SYNOPSIS
-.B inivar -var <variable> {-sec <section>} {<-ini inifile>}
+.B inivar -var <variable> {-sec \fI<section>\fR} {-ini \fI<INI file>\fR}
 
 .SH DESCRIPTION
 \fBinivar\fR does stuff for LinuxCNC
@@ -34,7 +34,7 @@ inivar \- Query an INI file
 Prints to stdout the INI file result of a variable-in-section
 search, useful for scripts that want to pick things out of INI files.
 
-syntax:  inivar -var <variable> {-sec <section>} {<-ini inifile>}
+syntax:  inivar -var <variable> {-sec <section>} {-ini \fI<INI file>\fR}
 
 Uses emc.ini as default. <variable> needs to be supplied. If <section>
 is omitted, first instance of <variable> will be looked for in any

@@ -75,7 +75,7 @@ One function is created per FIFO, numbered from zero.
       * 3 clock on any edge of clock pin
 
 == SEE ALSO
-*halstreamer*(1) *sampler*(9) *halsampler*(1)
+*halstreamer*(1), *sampler*(9), *halsampler*(1)
 
 
 == BUGS

@@ -24,7 +24,7 @@ kernel or RTOS function.  Of course, times measured in CPU clocks
 are not as convenient, but for relative measurements this works
 fine.  Its absolute value means nothing, but it is monotonically
 increasing and can be used to schedule future events, or to time
-the duration of some activity.  (on SMP machines, the two TSC's
+the duration of some activity.  (On SMP machines, the two TSC's
 may get out of sync, so if a task reads the TSC, gets swapped to
 the other CPU, and reads again, the value may decrease.  RTAPI
 tries to force all RT tasks to run on one CPU.)
@@ -57,7 +57,7 @@ gives the duration measured in milliseconds.  Computing
 	deltat = (end_clocks \- start_clocks) * 1000000 / cpu_khz:
 .RE
 gives the duration measured in nanoseconds for deltas less than about 9
-trillion clocks (e.g., 3000 seconds at 3GHz).
+trillion clocks (e.g., 3000 seconds at 3 GHz).
 
 .SH REALTIME CONSIDERATIONS
 May be called from init/cleanup code and from within realtime tasks.

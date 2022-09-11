@@ -37,7 +37,8 @@ and
 .BR halsampler (1)
 are used together to sample HAL data in real time and store it in a file.
 .B sampler
-is a realtime HAL component that exports HAL pins and creates a FIFO in shared memory.  It then begins sampling data from the HAL and storing it to the FIFO.
+is a realtime HAL component that exports HAL pins and creates a FIFO in shared memory.
+It then begins sampling data from the HAL and storing it to the FIFO.
 .B halsampler
 is a user space program that copies data from the FIFO to stdout, where it can
 be redirected to a file or piped to some other program.
@@ -135,9 +136,8 @@ option. (see
 .BR halstreamer (1)
 
 .SH AUTHOR
-Original version by John Kasunich, as part of the LinuxCNC
-project.  Improvements by several other members of
-the LinuxCNC development team.
+Original version by John Kasunich, as part of the LinuxCNC project.
+Improvements by several other members of the LinuxCNC development team.
 .SH REPORTING BUGS
 Report bugs to jmkasunich AT users DOT sourceforge DOT net
 .SH COPYRIGHT

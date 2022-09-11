@@ -119,36 +119,36 @@ The following tables list all in-/output pins and state which signals they are m
 
 Signals utilized for moving axis.
 
-*<N>*  ... denotes the axis number, which is of {x, y, z, a, b, c}
+*_<N>_*  ... denotes the axis number, which is of {x, y, z, a, b, c}
 
 *whb.halui.home-all* (bit,out)::
   connect to *halui.home-all*, driven by M-Home Pin for requesting all axis
   to home. See also *whb.button.m-home*.
-*whb.halui.axis.<N>.select* (bit,out)::
- connect to *halui.axis.<N>.select* Pin to select axis.
-*whb.axis.<N>.jog-counts* (s32,out)::
- connect to *axis.<N>.jog-counts* The count pin of the jogwheel.
-*whb.axis.<N>.jog-enable* (bit,out)::
- connect to *axis.<N>.jog-enable* If true (and in manual mode), any
+*whb.halui.axis._<N>_.select* (bit,out)::
+ connect to *halui.axis._<N>_.select* Pin to select axis.
+*whb.axis._<N>_.jog-counts* (s32,out)::
+ connect to *axis._<N>_.jog-counts* The count pin of the jogwheel.
+*whb.axis._<N>_.jog-enable* (bit,out)::
+ connect to *axis._<N>_.jog-enable* If true (and in manual mode), any
  change to "jog-counts" will result in motion. If false, "jog-counts"
  is ignored.
-*whb.axis.<N>.jog-scale* (float,out)::
- connect to *axis.<N>.jog-scale* The distance to move for each count on
+*whb.axis._<N>_.jog-scale* (float,out)::
+ connect to *axis._<N>_.jog-scale* The distance to move for each count on
  "jog-counts", in machine units.
-*whb.axis.<N>.jog-vel-mode* (bit,out)::
- connect to *axis.<N>.jog-jog-vel-mode* If false the jogwheel operates
+*whb.axis._<N>_.jog-vel-mode* (bit,out)::
+ connect to *axis._<N>_.jog-jog-vel-mode* If false the jogwheel operates
  in position mode. The axis will move exactly jog-scale units for each count, regardless of how long that might take. If true, the jogwheel operates in velocity mode - motion stops when the wheel stops, even if that means the commanded motion is not completed.
 *whb.halui.max-velocity.value* (float,in)::
  connect to *halui.max-velocity.value* The maximum allowable velocity,
- in units per second (<N> is two digit '0'-padded).
+ in units per second (_<N>_ is two digit '0'-padded).
 *whb.halui.feed-override.scale* (float,in)::
  connect to *halui.feed-override.scale* The scaling for feed override
  value.
-*whb.halui.axis.<N>.pos-feedback* (float,in)::
- connect to *halui.axis.<N>.pos-feedback* Feedback axis position in
+*whb.halui.axis._<N>_.pos-feedback* (float,in)::
+ connect to *halui.axis._<N>_.pos-feedback* Feedback axis position in
  machine coordinates to be displayed.
-*whb.halui.axis.<N>.pos-relative* (float,in)::
- connect to *halui.axis.<N>.pos-relative* Commanded axis position in
+*whb.halui.axis._<N>_.pos-relative* (float,in)::
+ connect to *halui.axis._<N>_.pos-relative* Commanded axis position in
  relative coordinates to be displayed.
 
 ==== Machine
@@ -383,7 +383,7 @@ MDI_COMMAND=(debug,macro16)
  reserved for toggle DRO Abs/rel. True on Macro-10 button down, false
  otherwise. Switches the display coordinates to relative coordinates.On
  display the axis are denoted then as X1, Y1, Z1, A1, B1 and C1.
- See also *whb.halui.axis.<N>.pos-relative*.
+ See also *whb.halui.axis._<N>_.pos-relative*.
 *whb.button.macro-11* (bit,out)::
  connect to *halui.mdi-command-*<M> True on Macro-11 button down
  (Fn + RESET), false otherwise.

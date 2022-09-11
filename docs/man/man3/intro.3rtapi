@@ -19,7 +19,6 @@ realtime and ULAPI for non-realtime.
 The file \fRrtapi_math.h\fR defines floating-point functions and constants.
 It should be used instead of \fR<math.h>\fR in rtapi real-time components.
 
-
 .SS rtapi_string.h
 The file \fRrtapi_string.h\fR defines string-related functions.
 It should be used instead of \fR<string.h>\fR in rtapi real-time components.

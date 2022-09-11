@@ -76,14 +76,14 @@ Turn on Modbus debugging messages. This will cause all Modbus messages to
 be printed in hex on the terminal.  Also toggled by sending a USR2 signal
 to the vfdb_vfd process.
 .B
-.IP \-I\ \-\-ini\ <inifilename>
-take configuration from this ini
-file. Defaults to environment variable INI_FILE_NAME.  Most vfdb_vfd
-configuration comes from the ini file, not from command-line arguments.
+.IP \-I\ \-\-ini\ \fI<INI file>\fR
+take configuration from this \fIINI file\fR.
+Defaults to environment variable INI_FILE_NAME.
+Most vfdb_vfd configuration comes from the INI file, not from command-line arguments.
 .B
 .IP \-S\ \-\-section\ <section\ name>
 take configuration from this
-section in the ini file. Defaults to 'VFD-B'.
+section in the INI file. Defaults to 'VFD-B'.
 .B
 .IP \-r\ \-\-report\-device
 report device propertiers on console at startup
