@@ -867,7 +867,7 @@ proc watchHAL {which} {
     set ::watchlist_len [llength $::watchlist]
     set i $::watchlist_len
     set label [lindex [split $which +] end]
-
+    set labelcolor black
      # check if pin or param is writable
      # var writable: 1=yes, 0=no, -1=writable but connected to signal
     set writable 0
@@ -887,16 +887,18 @@ proc watchHAL {which} {
         if {[lindex $showret 8] == "RW"} {
             set writable 1
         }
+        set labelcolor #6e3400
     } elseif {$vartype == "sig"} {
         # puts stderr "return $showret, found: [string first "<==" $showret 0]"
         # check if signal has no writers
         if {[string first "<==" $showret 0] < 0} {
             set writable 1
         }
+        set labelcolor blue3
     }
 
     $::cisp create text $::col1_width [expr $i * 20 + 13] -text $label \
-            -anchor w -tag $label
+            -anchor w -tag $label -fill $labelcolor
     set canvaswidth [winfo width $::cisp]
     if {$type == "bit"} {
         $::cisp create oval 10 [expr $i * 20 + 5] 25 [expr $i * 20 + 20] \
