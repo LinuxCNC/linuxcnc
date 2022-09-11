@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-08-29 13:49+0200\n"
-"PO-Revision-Date: 2022-09-02 09:55+0000\n"
+"PO-Revision-Date: 2022-09-10 23:35+0000\n"
 "Last-Translator: Ulices <dev.n47os@aleeas.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/es/>\n"
@@ -11708,6 +11708,7 @@ msgstr "Opuesto"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
 msgid ""
 "_:"
+""
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -12012,11 +12013,11 @@ msgstr "tarjetas PIN el archivo necesita ser pegado en la ficha Input"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1299
 msgid "of the Help window before clicking Board Discovery"
-msgstr ""
+msgstr "de la ventana de ayuda antes de hacer clic en Board Discovery"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1308
 msgid "Address is required for ethernet card"
-msgstr ""
+msgstr "La dirección es necesaria para la tarjeta Ethernet"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1316
 #, fuzzy, python-format
@@ -12025,16 +12026,16 @@ msgstr "No se encontró ninguna placa\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1318
 msgid "Is the address correct?"
-msgstr ""
+msgstr "¿Es correcta la dirección?"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1322
 #, python-format
 msgid "%s is an unsupported device"
-msgstr ""
+msgstr "%s es un dispositivo no compatible"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1335
 msgid "Unspecified Error with Discovery option"
-msgstr ""
+msgstr "Error no especificado con la opción Discovery"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1377
 #, python-format
@@ -12061,7 +12062,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1608
 msgid "The data returned from discovery is invalid"
-msgstr ""
+msgstr "Los datos devueltos por la detección no son válidos"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1681
 msgid "USB device Info Search"
