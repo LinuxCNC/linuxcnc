@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-1.231
+1.232
 
 .I SUMMARY:
 .br
@@ -66,6 +66,7 @@ pin in  float   height_per_volt             "torch height change per volt (machi
 pin in  bit     homed                       "machine is homed";
 pin in  bit     ignore_arc_ok_0             "don't require arc ok for start or cutting";
 pin in  bit     ignore_arc_ok_1             "don't require arc ok for start or cutting";
+pin in  float   kerf_width                  "placeholder for better gcode portability between gui's";
 pin in  bit     override_jog                "override jog inhibit";
 pin in  bit     offset_set_probe            "deploy probe for setting offsets";
 pin in  bit     offset_set_scribe           "deploy scribe for setting offsets";

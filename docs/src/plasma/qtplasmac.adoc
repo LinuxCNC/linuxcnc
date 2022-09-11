@@ -1838,8 +1838,8 @@ LinuxCNC (QtPlasmaC) has the ability to automatically adjust the cut path of the
 
 To use cutter compensation the user will need to use G41.1, G42.1 and G40 with the kerf width HAL pin:
 
-* *G41.1 D#<_hal[plasmac_run.kerf-width-f]>* : offsets torch to the left of the programmed path
-* *G42.1 D#<_hal[plasmac_run.kerf-width-f]>* : offsets torch to the right of the programmed path
+* *G41.1 D#<_hal[plasmac.kerf-width]>* : offsets torch to the left of the programmed path
+* *G42.1 D#<_hal[plasmac.kerf-width]>* : offsets torch to the right of the programmed path
 * *G40* turns the cutter compensation off
 
 IMPORTANT: IF *CUTTER COMPENSATION* IS IN EFFECT *G-CODE THC*, *VELOCITY BASED THC* AND *OVER CUT* ARE NOT ABLE TO BE USED; AN ERROR MESSAGE WILL BE DISPLAYED.
@@ -3924,8 +3924,8 @@ There are some sample G-code files in the ~/linuxcnc/nc_files/examples/plasmac d
     10 is the minimum, below this will be set to 100% +
     100 is the maximum, above this will be set to 100% +
     *It is recommended to have M68 E3 Q0 in both the preamble and postamble*
-|Cutter <<qt_cutter-compensation,compensation>> - left of path |G41.1 D#<_hal[plasmac_run.kerf-width-f]>
-|Cutter <<qt_cutter-compensation,compensation>> - right of path |G42.1 D#<_hal[plasmac_run.kerf-width-f]>
+|Cutter <<qt_cutter-compensation,compensation>> - left of path |G41.1 D#<_hal[plasmac.kerf-width]>
+|Cutter <<qt_cutter-compensation,compensation>> - right of path |G42.1 D#<_hal[plasmac.kerf-width]>
 |Cutter <<qt_cutter-compensation,compensation>> off |G40 +
     *Note that M62 through M68 are invalid while cutter compensation is on*
 |Cut <<qt_hole-cutting,holes>> at 60% feed rate |#<holes> = 1 +
