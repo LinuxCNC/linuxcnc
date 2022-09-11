@@ -44,14 +44,6 @@ if {[info exists ::env(CONFIG_DIR)]} {
 }
 # puts stderr "Halshow inifile: $::INIFILE"
 
-# This overwrites the default error message dialog to be able to set it on top
-proc bgerror {message} {
-    tk_messageBox -title "Application Error" -message [msgcat::mc "Error"] \
-    -detail $message -icon error -type ok 
-    wm attributes . -topmost $::alwaysOnTop
-}
-
-
 proc readIni {} {
     # check that the file is readable
     if { ![file readable $::INIFILE]} {
@@ -67,10 +59,11 @@ proc readIni {} {
 
 set ::initPhase true
 set ::autoSaveWatchlist 1
+set ::use_prefs true
 proc saveIni {} {
     # The flag 'initPhase' prevents saving on the first FocusIn event
-    if {!$::initPhase} {
-        # open the file for writin0g (truncates if file exists)
+    if {!$::initPhase && $::use_prefs} {
+        # open the file for writing (truncates if file exists)
         if { [catch {set fc [open $::INIFILE w]}] } {
             puts stder "\[halshow\] Unable to save settings to \"$INIFILE\"."
         } else {
@@ -98,6 +91,13 @@ proc saveIni {} {
             close $fc
         }
     }
+}
+
+# This overwrites the default error message dialog to be able to set it on top
+proc bgerror {message} {
+    tk_messageBox -title "Application Error" -message [msgcat::mc "Error"] \
+    -detail $message -icon error -type ok 
+    wm attributes . -topmost $::alwaysOnTop
 }
 
 #----------start toplevel----------
@@ -737,10 +737,10 @@ proc makeSettings {} {
             wm attributes . -topmost $::alwaysOnTop
             reloadWatch
             }] -side right -padx 5 -pady 10
-    set infotext [text $f1.infotext -bd 0 -bg grey85 -wrap word -font [list "" 10]]
-    $infotext insert end "([msgcat::mc "Settings stored in: "] $::INIFILE)"
-    $infotext config -state disabled
-    pack $infotext -pady {20 0} -side left
+    set ::infotext [text $f1.infotext -bd 0 -bg grey85 -wrap word -font [list "" 10]]
+    $::infotext insert end "([msgcat::mc "Settings stored in: "] $::INIFILE)"
+    $::infotext config -state disabled
+    pack $::infotext -pady {20 0} -side left
 }
 
 # showmode handles the tab selection of mode
@@ -1239,53 +1239,73 @@ proc usage {} {
   puts "           --help    (this help)"
   puts "           --fformat format_string_for_float"
   puts "           --iformat format_string_for_int"
+  puts "           --noprefs don't use preference file so save settings"
   puts ""
   puts "Notes:"
-  puts "       Create watchfile in halshow using: 'File/Save Watch List'"
-  puts "       linuxcnc must be running for standalone usage"
+  puts "       Create watchfile in halshow using: 'File/Save Watch List'."
+  puts "       LinuxCNC must be running for standalone usage."
   exit 0
+}
+
+if {[llength $::argv] > 0} {
+    set idx 0
+    while {$idx < [llength $::argv]} {
+        switch [lindex $::argv $idx] {
+            "--help" {
+                incr idx; usage
+            }
+            "--iformat" {
+                incr idx;
+                set ::ifmt [lindex $::argv $idx]
+                incr idx
+                $::ifmt_setting.label configure -text "    [msgcat::mc "Integer (disabled by \"--iformat\" argument)"]"
+                $::ifmt_setting.entry configure -state disabled
+            }
+            "--fformat" {
+                incr idx;
+                set ::ffmt [lindex $::argv $idx]
+                incr idx
+                $::ffmt_setting.label configure -text "    [msgcat::mc "Float (disabled by \"--fformat\" argument)"]"
+                $::ffmt_setting.entry configure -state disabled
+            }
+            "--noprefs" {
+                set ::use_prefs false
+                $::infotext configure -fg red
+                $::infotext config -state normal
+                $::infotext replace 0.0 end  "[msgcat::mc "\"--noprefs\" option set. Settings will not be saved!"]"
+                $::infotext config -state disabled
+                incr idx
+            }
+            default {
+                set watchfile [lindex $::argv $idx]
+                incr idx
+            }
+        }
+    }
 }
 
 # Loading the settings from the file.
 # This overrides the default settings above.
-readIni
-if {$::ratio == 0} {
-    hideListview false
-}
-if {$::workmode == "watchhal"} {
-    $::nb raise pw  
+if {$::use_prefs} {
+    readIni
+    if {$::ratio == 0} {
+        hideListview false
+    }
+    if {$::workmode == "watchhal"} {
+        $::nb raise pw
+    }
 }
 
-if {[llength $::argv] > 0} {
-  set idx 0
-  while {$idx < [llength $::argv]} {
-     switch [lindex $::argv $idx] {
-       "--help"    {incr idx; usage}
-       "--iformat" {incr idx;
-                    set ::ifmt [lindex $::argv $idx]
-                    incr idx
-                    $::ifmt_setting.label configure -text "    [msgcat::mc "Integer (disabled by \"--iformat\" argument)"]"
-                    $::ifmt_setting.entry configure -state disabled
-                   }
-       "--fformat" {incr idx;
-                    set ::ffmt [lindex $::argv $idx]
-                    incr idx
-                    $::ffmt_setting.label configure -text "    [msgcat::mc "Float (disabled by \"--fformat\" argument)"]"
-                    $::ffmt_setting.entry configure -state disabled
-                   }
-       default { set watchfile [lindex $::argv $idx]
-                 if [file readable $watchfile] {
-                    loadwatchlist $watchfile
-                    set ::last_watchfile_tail [file tail    $watchfile]
-                    set ::last_watchfile_dir  [file dirname $watchfile]
-                 } else {
-                    puts "\nCannot read file <$watchfile>\n"
-                    usage
-                 }
-                 incr idx
-               }
-     }
-   }
+# Load watchlist from file
+if {[info exists watchfile]} {
+    if [file readable $watchfile] {
+        loadwatchlist $watchfile
+        set ::last_watchfile_tail [file tail    $watchfile]
+        set ::last_watchfile_dir  [file dirname $watchfile]
+    } else {
+        puts "\nCannot read file <$watchfile>\n"
+        usage
+    }
 }
 
 wm attributes . -topmost $::alwaysOnTop
