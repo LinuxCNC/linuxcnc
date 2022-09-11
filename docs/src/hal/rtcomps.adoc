@@ -567,14 +567,14 @@ advanced tuning possibilities.
 * '(float) pid.<loopnum>.FF1' - First order feedforward - output
   proportional to derivative of command (velocity).
 * '(float) pid.<loopnum>.FF2' - Second order feedforward - output
-  proportional to 2nd derivative
+  proportional to 2^nd^ derivative
   of command (acceleration).
 * '(float) pid.<loopnum>.deadband' - Amount of error that will be ignored
 * '(float) pid.<loopnum>.maxerror' - Limit on error
 * '(float) pid.<loopnum>.maxerrorI' - Limit on error integrator
 * '(float) pid.<loopnum>.maxerrorD' - Limit on error derivative
 * '(float) pid.<loopnum>.maxcmdD' - Limit on command derivative
-* '(float) pid.<loopnum>.maxcmdDD' - Limit on command 2nd derivative
+* '(float) pid.<loopnum>.maxcmdDD' - Limit on command 2^nd^ derivative
 * '(float) pid.<loopnum>.maxoutput' - Limit on output value
 
 All _max*_ limits are implemented so that if the value of this parameter
@@ -586,7 +586,7 @@ additional pins will be exported:
 * '(float) pid.<loopnum>.errorI' - Integral of error.
 * '(float) pid.<loopnum>.errorD' - Derivative of error.
 * '(float) pid.<loopnum>.commandD' - Derivative of the command.
-* '(float) pid.<loopnum>.commandDD' - 2nd derivative of the command.
+* '(float) pid.<loopnum>.commandDD' - 2^nd^ derivative of the command.
 
 === Functions
 
@@ -743,8 +743,8 @@ halcmd: loadrt siggen [num_chan=<chans>]
   If 'numchan' is not specified, one signal generator will be installed.
   The maximum
   number of generators is 16 (as defined by MAX_CHAN in siggen.c). Each
-  generator is completely independent. In the following descriptions,
-<chan>:: is the number of a specific signal generator (the numbers
+  generator is completely independent. In the following descriptions is
+<chan>:: the number of a specific signal generator (the numbers
   start at 0).
 
 .Unloading siggen
