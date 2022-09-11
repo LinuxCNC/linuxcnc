@@ -1938,7 +1938,7 @@ program or access the feature:
 
 *`HALMETER`*::
   Starts LinuxCNC
-  link:../hal/tools.html#sec:halmeter[`halmeter`]utility.
+  link:../hal/tools.html#sec:halmeter[`halmeter`] utility.
 *`HALSHOW`*::
   Starts LinuxCNC
   link:../hal/halshow.html#cha:halshow[`halshow`] utility.
@@ -1958,7 +1958,7 @@ program or access the feature:
   _ClassicLadder realtime HAL component_ was loaded by the machine's config
   files.
 *`PREFERENCE`*::
-  _Loads the preference file_ into the `gcodeEditor`.
+  _Loads the preference file_ into the `GcodeEditor`.
 *`CLEAR HISTORY`*::
   _Clears the MDI History_.
 *`net`*::
@@ -3046,16 +3046,16 @@ _Special capitalized words_ will give access to the following:
 
 *`INSTANCE`*::
   Will give access to the widgets instances and handler functions. +
-  Eg. `INSTANCE.my_handler_function_call(True)`
+  E.g., `INSTANCE.my_handler_function_call(True)`
 *`ACTION`*::
   Will give access to QtVCP's `ACTION` library. +
-  Eg. `ACTION.TOGGLE_FLOOD()`
+  E.g., `ACTION.TOGGLE_FLOOD()`
 *`PROGRAM_LOADER`*::
   Will give access to QtVCP's `PROGRAM_LOADER` library. +
-  Eg. `PROGRAM_LOADER.load_halshow()`
+  E.g., `PROGRAM_LOADER.load_halshow()`
 *`HAL`*::
   Will give access to HAL's Python module. +
-  Eg. `HAL.set_p('motion.probe-input','1')`
+  E.g., `HAL.set_p('motion.probe-input','1')`
 
 [[sec:qtvcp:widgets:import-only]]
 == Import Only Widgets
@@ -3074,7 +3074,7 @@ Widget for measuring two heights with a probe. +
 For setup.
 
 [[sub:qtvcp:widgets:gcode-utility]]
-=== Gcode Utility
+=== G-code Utility
 
 Widgets for preforming common machining processes.
 
@@ -3084,7 +3084,7 @@ Widgets for preforming common machining processes.
 Slab or face a definable area with different strategies.
 
 [[sub:qtvcp:widgets:hole-circle]]
-=== Hole Cicle
+=== Hole Circle
 
 Drill multiple holes on a bolt hole circle.
 

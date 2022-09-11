@@ -279,10 +279,10 @@ When the attribute-based syntax is used, the following rules are used
 to turn the attributes value into a Python value:
 
 . If the first character of the attribute is one of the following, it is
-  evaluated as a Python expression: '{(["''
-. If the string is accepted by int(), the value is treated as an integer
+  evaluated as a Python expression: `{(["'` .
+. If the string is accepted by int(), the value is treated as an integer.
 . If the string is accepted by float(), the value is treated as
-  floating-point
+  floating-point.
 . Otherwise, the string is accepted as a string.
 
 When the tag-based syntax is used, the text within the tag is always
@@ -340,10 +340,10 @@ A label is a way to add text to your panel.
 * '<font>("Helvetica",20)</font>' - specify the font and size of the text.
 * '<relief>FLAT</relief>' - specify the border around the label ('FLAT',
   'RAISED', 'SUNKEN') default is 'FLAT'.
-* '<bd>n</bd>' - where 'n' is the border width when 'RAISED' or 'SUNKEN' borders
+* '<bd>_n_</bd>' - where _n_ is the border width when 'RAISED' or 'SUNKEN' borders
   are used.
-* '<padx>n</padx>' - where 'n' is the amount of extra horizontal extra space.
-* '<pady>n</pady>' - where 'n' is the amount of extra vertical extra space.
+* '<padx>_n_</padx>' - where _n_ is the amount of extra horizontal extra space.
+* '<pady>_n_</pady>' - where _n_ is the amount of extra vertical extra space.
 
 The label has an optional disable pin that is created when you add
 '<disable_pin>True</disable_pin>'.
@@ -413,7 +413,7 @@ will be on_color when the halpin is true, and off_color otherwise.
 * '<on_color>__color__</on_color>' - sets the color of the LED to _color_ when the pin is true.
   default is 'green'. See section on <<pyvcp:colors,colors>> for more info.
 * '<off_color>__color__</off_color>' - sets the color of the LED to _color_ when the pin is
-  false. default is 'red'
+  false. default is 'red'.
 * '<height>__n__</height>' - sets the height of the LED in pixels.
 * '<width>__n__</width>' - sets the width of the LED in pixels.
 * '<disable_pin>false</disable_pin>' - when true adds a disable pin to the led.
@@ -567,11 +567,11 @@ Use this tag `<orient>HORIZONTAL</orient>` to display horizontally.
 
 Number displays can use the following formatting options
 
-* <font>("Font Name",n)</font> where 'n' is the font size
-* <width>n</width> where 'n' is the overall width of the space used
-* <justify>pos</justify> where 'pos' is LEFT, CENTER, or RIGHT (doesn't work)
-* <padx>n</padx> where 'n' is the amount of extra horizontal extra space
-* <pady>n</pady> where 'n' is the amount of extra vertical extra space
+* `<font>("Font Name",n)</font>`, where _n_ is the font size.
+* `<width>_n_</width>`, where _n_ is the overall width of the space used.
+* `<justify>_pos_</justify>`, where _pos_ is LEFT, CENTER, or RIGHT (doesn't work).
+* `<padx>_n_</padx>`, where _n_ is the amount of extra horizontal extra space.
+* `<pady>_n_</pady>`, where _n_ is the amount of extra vertical extra space.
 
 .Number
 
@@ -591,7 +591,7 @@ The above code produced this example:
 .Simple Number Example
 image::images/pyvcp_number.png[]
 
-* '<font>' - is a Tkinter font type and size specification. One font that
+* _<font>_ - is a Tkinter font type and size specification. One font that
   will show up to at least size 200 is 'courier 10 pitch', so for a
   really big Number widget you could specify:
 
@@ -600,11 +600,10 @@ image::images/pyvcp_number.png[]
 <font>("courier 10 pitch",100)</font>
 ----
 
-* '<format>' - is a 'C-style' format specified that determines how
+* _<format>_ - is a 'C-style' format specified that determines how
   the number is displayed.
 
 .s32 Number
-
 The s32 number widget displays the value of a s32 number. The syntax
 is the same as 'number' except the name which is <s32>. Make sure the
 width is wide enough to cover the largest number you expect to use.
@@ -625,12 +624,10 @@ The above code produced this example:
 image::images/pyvcp_s32.png[]
 
 .u32 Number
-
 The u32 number widget displays the value of a u32 number. The syntax
 is the same as 'number' except the name which is <u32>.
 
 .Bar
-
 A bar widget displays the value of a FLOAT signal both graphically
 using a bar display and numerically.
 The color of the bar can be set as one color throughout its range (default
@@ -638,19 +635,19 @@ using fillcolor) or set to change color dependent upon the value of the halpin
 (range1, range2 range3 must all be set, if you only want 2 ranges, set 2 of
 them to the same color).
 
-* <halpin>"my-bar"</halpin> text, sets the pin name, pyvcp.my-bar
-* <min_>0</min_> number, sets the minimum scale
-* <max_>140</max_> number, sets the maximum scale
-* <format>"3.1f"</format> text, sets the number format using Python number formatting
-* <bgcolor>"grey"</bgcolor> text, sets the background color
-* <fillcolor>"red"</fillcolor> text, sets the fill color
-* <range1>0,100,"green"</range1> number, number, text, sets the first range and color
-* <range2>101,135,"orange"</range2> number, number, text, sets the first range and color
-* <range3>136, 150,"red"</range3> number, number, text, sets the first range and color
-* <canvas_width>200</canvas_width> number, sets the overall width
-* <canvas_height>50</canvas_height> number, sets the overall height
-* <bar_height>30</bar_height> number, sets the bar height, must be less than canvas_height
-* <bar_width>150</bar_width> number, sets the bar width, must be less than canvas_width
+* `<halpin>"my-bar"</halpin>` (text), derives and sets the pin name: `pyvcp.my-bar`.
+* `<min_>0</min_>` (number), sets the minimum scale.
+* `<max_>140</max_>` (number), sets the maximum scale.
+* `<format>"3.1f"</format>` (text), sets the number format using Python number formatting.
+* `<bgcolor>"grey"</bgcolor>` (text), sets the background color.
+* `<fillcolor>"red"</fillcolor>` (text), sets the fill color.
+* `<range1>0,100,"green"</range1>` (number, number, text), sets the first range and color.
+* `<range2>101,135,"orange"</range2>` (number, number, text), sets the first range and color.
+* `<range3>136, 150,"red"</range3>` number, number, text), sets the first range and color.
+* `<canvas_width>200</canvas_width>` (number), sets the overall width.
+* `<canvas_height>50</canvas_height>` (number), sets the overall height.
+* `<bar_height>30</bar_height>` (number), sets the bar height, must be less than canvas_height.
+* `<bar_width>150</bar_width>` (number), sets the bar width, must be less than canvas_width.
 
 [source,xml]
 ----
@@ -677,7 +674,6 @@ The above code produced this example:
 image::images/pyvcp_bar.png[]
 
 .Meter
-
 Meter displays the value of a FLOAT signal using a traditional dial indicator.
 
 [source,xml]
@@ -910,11 +906,11 @@ Container borders are specified with two tags used together. The
 <relief> tag specifies the type of border and the <bd> specifies the
 width of the border.
 
-'<relief>type</relief>'::
-  Where 'type' is FLAT, SUNKEN, RAISED, GROOVE, or RIDGE
+'<relief>_type_</relief>'::
+  Where _type_ is FLAT, SUNKEN, RAISED, GROOVE, or RIDGE.
 
-'<bd>n</bd>'::
-  Where 'n' is the width of the border.
+'<bd>_n_</bd>'::
+  Where _n_ is the width of the border.
 
 [source,xml]
 ----

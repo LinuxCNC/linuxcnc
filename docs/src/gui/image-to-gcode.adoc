@@ -20,8 +20,8 @@ corresponds to the depth (or height) of the object at each point.
 == Integrating image-to-gcode with the AXIS user interface
 
 Add the following lines to the '[FILTER]'  section of your INI file
-to make AXIS automatically invoke
-image-to-gcode when you open a .png, .gif, or .jpg image
+to make AXIS automatically invoke image-to-gcode when you open a
+PNG, GIF, or JPEG image:
 
 [source,{ini}]
 ----
@@ -31,7 +31,7 @@ gif = image-to-gcode
 jpg = image-to-gcode
 ----
 
-The standard 'sim/axis.ini' configuration file is already configured
+The standard 'sim/axis.ini' configuration file is already prepared
 this way.
 
 == Using `image-to-gcode`
@@ -126,7 +126,7 @@ Possible scan directions are:
 === Depth (units)
 
 The top of material is always at 'Z&hairsp;=&hairsp;0'. The deepest cut into the
-material is 'Z&hairsp;=&hairsp;-depth.'
+material is _Z&hairsp;=&hairsp;-depth_.
 
 === Step Over (pixels)
 

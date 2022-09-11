@@ -237,15 +237,17 @@ is .inc.  Do not use a file extension of .ini for included files.
 
 Different user interface programs use different options, and not every
 option is supported by every user interface. There are several interfaces,
-like Axis, Gmoccapy, Touchy, QtVCP's QtDragon and Gscreen.
+like AXIS, GMOCCAPY, Touchy, QtVCP's QtDragon and Gscreen.
 Axis is an interface for use with normal
-computer and monitor, Touchy is for use with touch screens. Gmoccapy
+computer and monitor, Touchy is for use with touch screens. GMOCCAPY
 can be used both ways and offers also many connections for hardware controls.
 Descriptions of the interfaces are in the Interfaces section of the
 User Manual.
 
-* 'DISPLAY = axis' - The name of the user interface to use. Valid options
-  may include: 'axis', 'touchy', 'gmoccapy', 'gscreen', 'tklinuxcnc', 'qtvcp'
+* 'DISPLAY = axis' - The file name of the executable providing the user
+  interface to use. Prominent valid options are (all in lower case):
+  'axis', 'touchy', 'gmoccapy', 'gscreen', 'tklinuxcnc', 'qtvcp',
+  'qtvcp-qtdragon' or 'qtvcp-qtplasmac'.
 * 'POSITION_OFFSET = RELATIVE' - The coordinate system (RELATIVE or MACHINE)
   to show on the DRO when the user interface starts. The RELATIVE coordinate
   system reflects the G92 and G5x coordinate offsets currently in effect.
@@ -691,9 +693,9 @@ HALFILES are found using a search.
 If the named file is found in the directory containing the INI file, it is used.
 If the named file is not found in this INI file directory, a search is made using a system library of HAL files.
 
-If LinuxCNC is started with the linuxcnc script using the "-H dirname" option,
+If LinuxCNC is started with the `linuxcnc` script using the "`-H dirname`" option,
 the specified dirname is prepended to the search described above so that
-"dirname" is searched first.  The "-H dirname" option may be specified more
+"dirname" is searched first.  The "`-H dirname`" option may be specified more
 than once, directories are prepended in order.
 
 A HALFILE may also be specified as an absolute path (when the name starts with
@@ -788,7 +790,7 @@ GUI-dependent actions (like creating GUI-specific HAL pins).
 APP = sim_pin motion.probe-input halui.abort motion.analog-in-00
 ----
 ** Invoke halshow with a previuosly saved watchlist.
-   Since linuxcnc sets the working directory to the directory for the INI file,
+   Since LinuxCNC sets the working directory to the directory for the INI file,
    you can refer to files in that directory (example: my.halshow):
 +
 [source,{ini}]
@@ -1215,7 +1217,7 @@ These parameters are Homing related, for a better explanation read the
   If the encoder used for this joint has an index pulse, and the motion
   card has provision for this signal you may set it to yes.
   When it is yes, it will affect the kind of home pattern used.
-  Currently, you can't home to index with steppers unless you're using stepgen in velocity mode and PID.
+  Currently, you can't home to index with steppers unless you're using StepGen in velocity mode and PID.
 * 'HOME_INDEX_NO_ENCODER_RESET = NO' -
   Use YES if the encoder used for this joint does not reset its counter when
   an index pulse is detected after assertion of the joint index_enable HAL pin.
@@ -1416,7 +1418,7 @@ or a wizard generated file. These are not used by the LinuxCNC software. They
 are only there to put all the settings in one place. For more information on
 custom INI file entries see the <<sub:ini:custom,Custom Sections and Variables>> subsection.
 
-The following items might be used by a stepgen component.
+The following items might be used by a StepGen component.
 
 * 'SCALE = 4000' - in Sample configs
 * 'STEP_SCALE = 4000' - in PnCconf built configs
@@ -1459,14 +1461,14 @@ image::images/encoder-scale.png[align="center"]
 * 'STEPGEN_MAXACCEL = 21.0' -  Acceleration limit for the step generator.
   This should be 1% to 10%
   larger than the joint MAX_ACCELERATION. This value improves the tuning
-  of stepgen's "position loop". If you have added backlash compensation
+  of StepGen's "position loop". If you have added backlash compensation
   to an joint then this should be 1.5 to 2 times greater than
   MAX_ACCELERATION.
 * 'STEPGEN_MAXVEL = 1.4' - Older configuration files have a velocity limit for
   the step
   generator as well. If specified, it should also be 1% to 10% larger
   than the joint MAX_VELOCITY. Subsequent testing has shown that use of
-  STEPGEN_MAXVEL does not improve the tuning of stepgen's position loop.
+  STEPGEN_MAXVEL does not improve the tuning of StepGen's position loop.
 
 [[sub:ini:sec:spindle-num]]
 === [SPINDLE_<num>] Section(s)(((INI File,Sections,[SPINDLE_<num>] Section(s))))

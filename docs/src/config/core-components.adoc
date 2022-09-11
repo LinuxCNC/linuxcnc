@@ -209,7 +209,7 @@ order shown.
 
 LinuxCNC can control upto eight spindles.
 Motion will produce the following pins:
-The '__N__' (integer between 0 and 7) substitutes the spindle number.
+The __N__ (integer between 0 and 7) substitutes the spindle number.
 
 [[sec:spindle-pins]]
 === Pins(((spindle (HAL pins))))

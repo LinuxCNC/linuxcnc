@@ -466,7 +466,7 @@ With joints_axes, an indexer is a joint that can be homed (joint mode)
 but must also be unlocked from G-code.  This requires a one-to-one
 correspondence between a single joint and an axis.
 
-Specify the joint number that corresponds to a rotary axis (L = A,B, or C)
+Specify the joint number that corresponds to a rotary axis (_L_ = A,B, or C)
 with an INI file setting for the axis:
 
 [source,{ini}]
@@ -475,7 +475,7 @@ with an INI file setting for the axis:
 ----
 
 Specify that the joint is a locking indexer with an INI file setting
-for the joint (N is the joint_number_for_indexer):
+for the joint (_N_ is the joint_number_for_indexer):
 
 [source,{ini}]
 ----
@@ -628,7 +628,7 @@ s32   IN  axis.L.jog-counts
 bit   IN  axis.L.jog-vel-mode
 ----
 
-where 'N' is a joint number and 'L' is an axis letter.
+where _N_ is a joint number and _L_ is an axis letter.
 
 To use an MPG in identity kins configurations where there is a one-to-one
 correspondence of a joint number and an axis letter, it may be convenient to
@@ -655,7 +655,7 @@ both joint and teleop (world) jogging.
 
 HAL pins are created for INI file items for both joints ([JOINT_N]) and axes ([AXIS_L]):
 
-For N = 0 ... [KINS](JOINTS-1):
+For _N_ = 0 ... [KINS](JOINTS-1):
 
 [source,{ini}]
 ----
@@ -671,7 +671,7 @@ INI file item              HAL pin name
 [JOINT_N]HOME_OFFSET       ini.N.home_offset
 ----
 
-For L = x y z a b c u v w:
+For _L_ = x y z a b c u v w:
 
 [source,{ini}]
 ----
@@ -684,7 +684,7 @@ INI file item              HAL pin name
 
 [NOTE]
 In prior versions of LinuxCNC (before joints_axes updates), the
-HAL pin names 'ini.N.*' referred to axes with 0==>x, 1==>y, etc. (pins
+HAL pin names `ini._N_.*` referred to axes with 0==>x, 1==>y, etc. (pins
 were created for all 9 axes). See the man page of 'milltask' for
 more information.
 
@@ -829,9 +829,9 @@ new: halui.axis.L.minus
       ... etc.
 ----
 
-where 'L' is a letter corresponding to one of the axis letters specified by
+where _L_ is a letter corresponding to one of the axis letters specified by
 [TRAJ]COORDINATES or 'selected' for the axis selected by the
-halui.axis.L.select pins.
+halui.axis._L_.select pins.
 
 ==== Joint jogging
 
@@ -846,8 +846,8 @@ was: halui.jog.N.minus        is: halui.joint.N.minus
       ...  etc.                    ... etc.
 ----
 
-where 'N' is a joint number (0 ... num_noints-1) or 'selected'
-for the joint selected by the halui.joint.N.select pins.
+where _N_ is a joint number (0 ... _num_noints_-1) or 'selected'
+for the joint selected by the halui.joint._N_.select pins.
 
 ====  Additional pin renames
 
@@ -966,21 +966,21 @@ Commands now using a coordinate letter argument are:
 . emc_tool_offset
 . emc_probed_pos
 
-=== touchy
+=== Touchy
 
-The touchy GUI continues to support the identity kinematics configurations
+The Touchy GUI continues to support the identity kinematics configurations
 that it supported prior to joints_axes incorporation.  Jogging is done in
 teleop mode.
 
-=== gscreen
+=== Gscreen
 
-The gscreen GUI continues to support the identity kinematics configurations
+The Gscreen GUI continues to support the identity kinematics configurations
 that it supported prior to joints_axes incorporation.  Jogging is done in
 teleop mode.
 
-=== gmoccapy
+=== GMOCCAPY
 
-The gmoccapy GUI continues to support the identity kinematics configurations
+The GMOCCAPY GUI continues to support the identity kinematics configurations
 that it supported prior to joints_axes incorporation.  Jogging is done in
 teleop mode.
 
@@ -1034,9 +1034,9 @@ The calibration/tuning tool now supports stanzas:
 
   [JOINT_N], [AXIS_L], [SPINDLE_S], [TUNE]
 
-where N is a joint number (0 .. ([KINS]JOINTS-1) ),
-L is an axis coordinate letter (X,Y,Z,A,B,C,U,V,W),
-and S is a spindle number (0 .. 9).
+where _N_ is a joint number (0 .. ([KINS]JOINTS-1) ),
+_L_ is an axis coordinate letter (X,Y,Z,A,B,C,U,V,W),
+and _S_ is a spindle number (0 .. 9).
 
 [NOTE]
 The number of allowed spindles is 8 but legacy configurations
@@ -1241,7 +1241,7 @@ respectively.
 Remove signal pendant:jogenable-off for removed pin 'pendant_util.jogenable-off'.
 
 Support new motion pins for reduced accelerations
-(axis.L.jog-accel-fraction, joint.N.jog-accel-fraction) for wheel jogging.
+(axis._L_.jog-accel-fraction, joint._N_.jog-accel-fraction) for wheel jogging.
 The use of [APPLICATIONS]APP=xhc-hb04-accels is no longer supported.
 Reduced accels are applied for wheel jogging only (not for nml commands
 issued by GUIs).
@@ -1348,7 +1348,7 @@ to 16.  The AXIS GUI now supports display of up to 16 joints.
 
 A new motmod parameter (num_extrajoints) specifies joints that are
 homed by conventional joint homing methods but controlled by new HAL
-pins (joint.N.posthome-cmd) after homing.  Such joints may be
+pins (joint._N_.posthome-cmd) after homing.  Such joints may be
 managed by independent motion planner/controllers in HAL and manipulated
 from G-code using custom M-codes.  See the motion man page for
 more info.
