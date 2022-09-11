@@ -832,11 +832,11 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         self.toolBar.addWidget(self.label)
 
         # create a frame for buttons
-        box = QHBoxLayout()
-        box.addWidget(self.toolBar)
+        self.topBox = QHBoxLayout()
+        self.topBox.addWidget(self.toolBar)
 
         self.topMenu = QFrame()
-        self.topMenu.setLayout(box)
+        self.topMenu.setLayout(self.topBox)
 
         # add widgets
         lay.addWidget(self.topMenu)
@@ -894,12 +894,12 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         caseAction.triggered.connect(self.caseCall)
         toolBar.addAction(caseAction)
 
-        box = QHBoxLayout()
-        box.addWidget(toolBar)
-        box.addWidget(self.searchText)
-        box.addWidget(self.replaceText)
-        box.addStretch(1)
-        self.bottomMenu.setLayout(box)
+        self.bottomBox = QHBoxLayout()
+        self.bottomBox.addWidget(toolBar)
+        self.bottomBox.addWidget(self.searchText)
+        self.bottomBox.addWidget(self.replaceText)
+        self.bottomBox.addStretch(1)
+        self.bottomMenu.setLayout(self.bottomBox)
 
         return self.bottomMenu
 
