@@ -2446,44 +2446,18 @@ In order to utilize them, *KB Shortcuts* must be enabled in the *GUI SETTINGS* s
 |F2|Toggles the GUI power button.
 |F9|Toggles the "Cutting" command, used to begin or end a manual cut.
 |F12|Show stylesheet editor.
-|ALT + RETURN|Places QtPlasmaC into Manual Data Input (MDI) mode. +
+|ALT+RETURN|Places QtPlasmaC into Manual Data Input (MDI) mode. +
     Note that ALT + ENTER will achieve the same result. +
     In addition, pressing RETURN (or ENTER) with no entry in the MDI will close the MDI window.
-|1|Changes jog speed to 10% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
-|2|Changes jog speed to 20% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
-|3|Changes jog speed to 30% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
-|4|Changes jog speed to 40% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
-|5|Changes jog speed to 50% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
-|6|Changes jog speed to 60% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
-|7|Changes jog speed to 70% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
-|8|Changes jog speed to 80% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
-|9|Changes jog speed to 90% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
-|0|Changes jog speed to 100% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
-|SHIFT+1|Changes rapid speed to 10%.
-|SHIFT+2|Changes rapid speed to 20%.
-|SHIFT+3|Changes rapid speed to 30%.
-|SHIFT+4|Changes rapid speed to 40%.
-|SHIFT+5|Changes rapid speed to 50%.
-|SHIFT+6|Changes rapid speed to 60%.
-|SHIFT+7|Changes rapid speed to 70%.
-|SHIFT+8|Changes rapid speed to 80%.
-|SHIFT+9|Changes rapid speed to 90%.
-|SHIFT+0|Changes rapid speed to 100%.
-|CTRL+1|Changes feed rate to 10%.
-|CTRL+2|Changes feed rate to 20%.
-|CTRL+3|Changes feed rate to 30%.
-|CTRL+4|Changes feed rate to 40%.
-|CTRL+5|Changes feed rate to 50%.
-|CTRL+6|Changes feed rate to 60%.
-|CTRL+7|Changes feed rate to 70%.
-|CTRL+8|Changes feed rate to 80%.
-|CTRL+9|Changes feed rate to 90%.
-|CTRL+0|Changes feed rate to 100%.
-|CTRL+H or HOME|Homes all axes if they are not yet homed and have a homing sequence set in the <machine_name>.ini file. If they are already homed, they will no longer be homed.
+|`,1-9,0|Changes jog speed to 0%, 10%-90%, 100% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
+|SHIFT+`,1-9,0|Changes rapid speed to 0%, 10%-90%, 100%.
+|CTRL+1-9,0|Changes feed rate to 10%-90%, 100%.
+|CTRL+HOME|Homes all axes if they are not yet homed and have a homing sequence set in the <machine_name>.ini file. If they are already homed, they will no longer be homed.
 |CTRL+R|Cycle Start if the program is not already running. Cycle Resume if the program is paused.
 |END|Touches off X and Y to 0.
 |DEL|Allows the user to use a laser to set an origin with or without rotation. See the <<qt_laser,LASER section>> for detailed instructions.
-|SPACE BAR|Pause motion.
+|SPACE BAR|Pauses motion.
+|CTRL+SPACE BAR|Clears notifications.
 |O|Opens a new program.
 |L|Loads the previously opened program if no program is loaded. Reloads the current program if there is a program loaded.
 |→|Jogs the X axis positive.
@@ -2497,8 +2471,8 @@ In order to utilize them, *KB Shortcuts* must be enabled in the *GUI SETTINGS* s
 |.|Jogs the B axis positive.
 |,|Jogs the B axis negative.
 |SHIFT (+ Jog Key)|The shift key is used with any jog key to invoke a rapid jog.
-|+ (+ Jog Key)|The plus key can be used with any jog key to invoke a rapid jog (behaves the same as SHIFT).
-|- (+ Jog Key)|The minus key can be used with any jog key to invoke a slow jog (10% of the displayed jog speed) +
+|+ (+Jog Key)|The plus key can be used with any jog key to invoke a rapid jog (behaves the same as SHIFT).
+|- (+Jog Key)|The minus key can be used with any jog key to invoke a slow jog (10% of the displayed jog speed) +
                If SLOW jogging is already active, the axis will jog at the displayed jog speed.
 |===
 

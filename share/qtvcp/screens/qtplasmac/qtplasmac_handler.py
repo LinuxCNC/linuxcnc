@@ -1,4 +1,4 @@
-VERSION = '1.232.240'
+VERSION = '1.232.241'
 
 '''
 qtplasmac_handler.py
@@ -155,7 +155,6 @@ class HandlerClass:
         KEYBIND.add_call('Key_F9','on_keycall_F9')
         KEYBIND.add_call('Key_Plus', 'on_keycall_PLUS')
         KEYBIND.add_call('Key_Minus', 'on_keycall_MINUS')
-        KEYBIND.add_call('Key_H', 'on_keycall_HOME')
         KEYBIND.add_call('Key_R', 'on_keycall_RUN')
         KEYBIND.add_call('Key_Any', 'on_keycall_PAUSE')
         KEYBIND.add_call('Key_o', 'on_keycall_OPEN')
@@ -191,6 +190,8 @@ class HandlerClass:
         KEYBIND.add_call('Alt+Key_Enter', 'on_keycall_ALTRETURN')
         KEYBIND.add_call('Key_Return', 'on_keycall_RETURN')
         KEYBIND.add_call('Key_Enter', 'on_keycall_RETURN')
+        KEYBIND.add_call('Key_QuoteLeft', 'on_keycall_QUOTELEFT')
+        KEYBIND.add_call('Key_AsciiTilde', 'on_keycall_QUOTELEFT')
         self.axisList = [x.lower() for x in INFO.AVAILABLE_AXES]
         self.systemList = ['G53','G54','G55','G56','G57','G58','G59','G59.1','G59.2','G59.3']
         self.slowJogFactor = 10
@@ -5459,23 +5460,27 @@ class HandlerClass:
             self.abort_pressed()
 
     def on_keycall_HOME(self, event, state, shift, cntrl):
-        if self.key_is_valid(event, state) and not shift and not self.w.main_tab_widget.currentIndex() and STATUS.is_on_and_idle() and self.w.home_all.isEnabled():
+        if self.key_is_valid(event, state) and cntrl and not shift and not self.w.main_tab_widget.currentIndex() and STATUS.is_on_and_idle() and self.w.home_all.isEnabled():
             if STATUS.is_all_homed():
                 ACTION.SET_MACHINE_UNHOMED(-1)
             else:
                 ACTION.SET_MACHINE_HOMING(-1)
 
     def on_keycall_RUN(self, event, state, shift, cntrl):
-        if self.key_is_valid(event, state) and not shift and not self.w.main_tab_widget.currentIndex():
+        if self.key_is_valid(event, state) and cntrl and not shift and not self.w.main_tab_widget.currentIndex():
             if self.w.run.isEnabled():
                 self.run_clicked()
             elif self.w.pause.isEnabled():
                 ACTION.PAUSE()
 
     def on_keycall_PAUSE(self, event, state, shift, cntrl):
-        if self.key_is_valid(event, state) and not self.w.main_tab_widget.currentIndex() and \
-           self.w.pause.isEnabled() and not STATUS.stat.interp_state == linuxcnc.INTERP_PAUSED:
-            ACTION.PAUSE()
+        if self.key_is_valid(event, state) and not shift and not self.w.main_tab_widget.currentIndex():
+            if cntrl:
+                if self.w.screen_options.desktop_notify:
+                    self.w.screen_options.QTVCP_INSTANCE_._NOTICE.external_close()
+                self.error_status(False)
+            elif self.w.pause.isEnabled() and STATUS.stat.interp_state != linuxcnc.INTERP_PAUSED:
+                ACTION.PAUSE()
 
     def on_keycall_OPEN(self, event, state, shift, cntrl):
         if self.key_is_valid(event, state) and not self.w.main_tab_widget.currentIndex() and \
@@ -5630,6 +5635,17 @@ class HandlerClass:
     def on_keycall_RETURN(self, event, state, shift, cntrl):
         if self.key_is_valid(event, state) and not cntrl and not shift and not self.w.main_tab_widget.currentIndex() and self.w.gcode_stack.currentIndex() and self.w.mdi_show.isEnabled():
             self.mdi_show_clicked()
+
+    def on_keycall_QUOTELEFT(self, event, state, shift, cntrl):
+        if self.key_is_valid(event, state) and not self.w.main_tab_widget.currentIndex():
+            if shift and cntrl:
+                pass
+            elif cntrl and not shift:
+                pass
+            elif shift and not cntrl:
+                self.w.rapid_slider.setValue(0)
+            else:
+                self.w.jog_slider.setValue(0)
 
 #########################################################################################################################
 # required class boiler code #
