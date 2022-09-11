@@ -36,10 +36,13 @@ catch {set linuxcnc_process [exec ps -e -o stat,command | grep "^S" | grep -o "l
     set config_path [string trim $config_path]
 }
 if {[info exists ::env(CONFIG_DIR)]} {
+    set ::INIDIR "$::env(CONFIG_DIR)"
     set ::INIFILE "$::env(CONFIG_DIR)/halshow.preferences"
 } elseif {[file isdirectory $config_path]} {
+    set ::INIDIR "${config_path}"
     set ::INIFILE "${config_path}halshow.preferences"
 } else {
+    set ::INIDIR "~"
     set ::INIFILE "~/.halshow_preferences"
 }
 # puts stderr "Halshow inifile: $::INIFILE"
@@ -820,9 +823,8 @@ set ::last_watchfile_tail my.halshow
 set ::last_watchfile_dir  [pwd]
 set ::filetypes { {{HALSHOW} {.halshow}}\
                   {{TXT}     {.txt}}\
-                  {{ANY}     {.*}}\
+                  {{ANY}     {*}}\
                 }
-
 set ::watchlist ""
 set ::watchstring ""
 set ::canvaswidth 438
@@ -1183,10 +1185,15 @@ proc loadwatchlist {filename} {
   set ::last_watchfile_dir  [file dirname $filename]
   wm title . "$::last_watchfile_tail - $::titlename"
   if {"$wl" == ""} return
+
+  # Backup auto-saved watchlist
+  set backupFile [string map {"//" "/"} $::INIDIR/.halshow_watchlist_backup]
+  writeWatchlist $backupFile multiline
+
   watchReset all
   $::nb raise pw
   foreach item $wl { watchHAL $item }
-  setStatusbar  "$::last_watchfile_tail [msgcat::mc "loaded"]"
+  setStatusbar  "$::last_watchfile_tail [msgcat::mc "loaded"], [msgcat::mc "saved backup for old watchlist in"] $backupFile"
 }
 
 proc savewatchlist { {fmt oneline} } {
@@ -1199,21 +1206,25 @@ proc savewatchlist { {fmt oneline} } {
             -initialfile $::last_watchfile_tail\
             -title       [msgcat::mc "Save current watch list"]\
             ]
-  if {"$sfile" == ""} return
-  set f [open $sfile w]
-  switch $fmt {
-    multiline {
-      puts $f "# halshow watchlist created [clock format [clock seconds]]\n"
-      foreach line $::watchlist {
-        puts $f $line
-      }
-    }
-    default {puts $f $::watchlist}
-  }
-  close $f
+  writeWatchlist $sfile $fmt
   set ::last_watchfile_tail [file tail    $sfile]
   set ::last_watchfile_dir  [file dirname $sfile]
   wm title . "$::last_watchfile_tail - $::titlename"
+}
+
+proc writeWatchlist {sfile fmt} {
+    if {"$sfile" == ""} return
+    set f [open $sfile w]
+    switch $fmt {
+        multiline {
+            puts $f "# halshow watchlist created [clock format [clock seconds]]\n"
+            foreach line $::watchlist {
+            puts $f $line
+            }
+        }
+        default {puts $f $::watchlist}
+    }
+    close $f
 }
 
 #----------start up the displays----------
