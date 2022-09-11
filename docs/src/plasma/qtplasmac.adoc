@@ -3040,9 +3040,9 @@ The text that appears on the button is set the following way:
 n Name = HAL Show
 ----
 
-Where n is the button number and *HAL Show* is the text.
+Where _n_ is the button number and *HAL Show* is the text.
 
-For text on multiple lines, split the text with a \
+For text on multiple lines, split the text with a \ (backslash):
 
 [source,{ini}]
 ----
@@ -3112,7 +3112,8 @@ n Code = G0 X{JOINT_0 HOME} Y1
 n Code = G53 G0 Z[{AXIS_Z MAX_LIMIT} - 1.001]
 ----
 
-Multiple codes can be run by separating the codes with a \ symbol. The exception is the special commands which are required to be a single command per button.
+Multiple codes can be run by separating the codes with a \ symbol.
+The exception is the special commands which are required to be a single command per button.
 
 [source,{ini}]
 ----
@@ -3140,7 +3141,8 @@ This code is required to be used as a single command and may only control one HA
 
 The button colors will follow the state of the HAL pin.
 
-After setting the code, upon clicking, the button will invert colors and the HAL pin will invert pin state. The button will stay "latched" until the button is clicked again, which will return the button to the original colors and the HAL pin to the original pin state.
+After setting the code, upon clicking, the button will invert colors and the HAL pin will invert pin state.
+The button will stay "latched" until the button is clicked again, which will return the button to the original colors and the HAL pin to the original pin state.
 
 There are three <<qt_ext-hal-pin,External HAL Pins>> that are available to toggle as an output, the pin names are qtplasmac.ext_out_0, qtplasmac.ext_out_1, and qtplasmac.ext_out_2. HAL connections to these HAL pins need to be specified in a postgui HAL file as the HAL pins are not available until the QtPlasmac GUI has loaded.
 
@@ -3196,14 +3198,17 @@ After setting the code, upon clicking the button, the button will invert colors,
 
 An active pulse can be canceled by clicking the button again.
 
-There are three <<qt_ext-hal-pin,External HAL Pins>> that are available to pulse as an output, the pin names are qtplasmac.ext_out_0, qtplasmac.ext_out_1, and qtplasmac.ext_out_2. HAL connections to these HAL pins need to be specified in a postgui HAL file as the HAL pins are not available until the QtPlasmac GUI has loaded.
+There are three <<qt_ext-hal-pin,External HAL Pins>> that are available to pulse as an output, the pin names are qtplasmac.ext_out_0, qtplasmac.ext_out_1, and qtplasmac.ext_out_2.
+HAL connections to these HAL pins need to be specified in a postgui HAL file as the HAL pins are not available until the QtPlasmac GUI has loaded.
 
 [[qt_button-probe]]
 [underline]*Probe Test*
 
-QtPlasmaC will begin a probe and when the material is detected, the Z axis will rise to the Pierce Height currently displayed in the MATERIAL section of the <<qt_parameters-tab,PARAMETERS Tab>>. If the user has "View Material" selected in the GUI SETTINGS section of the <<qt_parameters-tab, PARAMETERS Tab>>, this value will be displayed in the top left corner of the PREVIEW Window next to *PH:*.
+QtPlasmaC will begin a probe and when the material is detected, the Z axis will rise to the Pierce Height currently displayed in the MATERIAL section of the <<qt_parameters-tab,PARAMETERS Tab>>.
+If the user has "View Material" selected in the GUI SETTINGS section of the <<qt_parameters-tab, PARAMETERS Tab>>, this value will be displayed in the top left corner of the PREVIEW Window next to *PH:*.
 
-QtPlasmaC will then wait in this state for the time specified (rounded to no decimal places) before returning the Z axis to the starting position. An example of a 6 second delay is below. If there is no time specified then the probe time will default to 10 seconds.
+QtPlasmaC will then wait in this state for the time specified (rounded to no decimal places) before returning the Z axis to the starting position.
+An example of a 6 second delay is below. If there is no time specified then the probe time will default to 10 seconds.
 
 [source,{ini}]
 ----
@@ -3211,7 +3216,8 @@ n Code = probe-test 6
 ----
 
 [NOTE]
-Enabling a user button as a Probe Test button will add an <<qt_ext-hal-pin,external HAL pin>> that may be connected from a pendant etc. HAL connections to this HAL pin needs to be specified in a postgui HAL file as the HAL pin is not available until the QtPlasmac GUI has loaded.
+Enabling a user button as a Probe Test button will add an <<qt_ext-hal-pin,external HAL pin>> that may be connected from a pendant etc.
+HAL connections to this HAL pin needs to be specified in a postgui HAL file as the HAL pin is not available until the QtPlasmac GUI has loaded.
 
 [[qt_button-ohmic]]
 [underline]*Ohmic Test*
