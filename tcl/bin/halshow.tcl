@@ -145,8 +145,6 @@ wm minsize . 230 240
 
 # save settings after switching to another window
 bind . <FocusOut> {saveIni}
-# save settings after resize (occurs also after start)
-bind . <FocusIn> {checkSizeChanged %W}
 
 # trap mouse click on window manager delete and ask to save
 wm protocol . WM_DELETE_WINDOW askKill
@@ -199,14 +197,14 @@ proc checkSizeChanged {w} {
     } else {
         return
     }
-    saveIni
+    if {$::watchlist_len > 20} reloadWatch
     set ::geometryOld [wm geometry .]
 }
 
 set ::ratioOld $::ratio
 proc checkRatioChanged {} {
     if {$::ratio != $::ratioOld} {
-        saveIni
+        if {$::watchlist_len > 20} reloadWatch
     }
     set ::ratioOld $::ratio
 }
@@ -378,7 +376,6 @@ proc hideListview {resizeWindow} {
         set y [expr [winfo y .] - 61]
         wm geometry . "${new_w}x[winfo height .]+$new_x+$y"
         tkwait visibility $::fs
-        saveIni
    }
 }
 
@@ -395,7 +392,6 @@ proc showListview {} {
     set y [expr [winfo y .] - 61]
     wm geometry . "${new_w}x[winfo height .]+$new_x+$y"
     tkwait visibility $::tf
-    saveIni
 }
 
 # scale left and right frame while dragging
@@ -688,6 +684,7 @@ proc makeShow {} {
     bind $::disp <Button-3> {popupmenu_text %X %Y}
     bind . <Control-KeyPress-c> {copySelection 0}
     bind $f2.show.grip <ButtonRelease-1> {checkSizeChanged %W}
+    bind . <FocusIn> {checkSizeChanged %W}
 }
 
 proc copySelection {clear} {
@@ -702,10 +699,9 @@ proc makeWatch {} {
     set ::cisp [canvas $::watchhal.c -yscrollcommand [list $::watchhal.s set]]
     scrollbar $::watchhal.s -command [list $::cisp yview] -orient v
     pack $::watchhal.s -side right -fill y -expand no
-    pack $::cisp -side right -fill both -expand yes  
+    pack $::cisp -side right -fill both -expand yes
     bind $::cisp <Configure> {
-        set ::canvaswidth %w
-        reloadWatch
+        if {$::watchlist_len <= 20} reloadWatch
     }
 }
 
@@ -826,8 +822,8 @@ set ::filetypes { {{HALSHOW} {.halshow}}\
                   {{ANY}     {*}}\
                 }
 set ::watchlist ""
+set ::watchlist_len 0
 set ::watchstring ""
-set ::canvaswidth 438
 set ::col1_width 100
 proc watchHAL {which} {
     if {$which == "zzz"} {
@@ -868,7 +864,8 @@ proc watchHAL {which} {
     }
 
     lappend ::watchlist $which
-    set i [llength $::watchlist]
+    set ::watchlist_len [llength $::watchlist]
+    set i $::watchlist_len
     set label [lindex [split $which +] end]
 
      # check if pin or param is writable
@@ -891,18 +888,19 @@ proc watchHAL {which} {
 
     $::cisp create text $::col1_width [expr $i * 20 + 13] -text $label \
             -anchor w -tag $label
+    set canvaswidth [winfo width $::cisp]
     if {$type == "bit"} {
         $::cisp create oval 10 [expr $i * 20 + 5] 25 [expr $i * 20 + 20] \
             -fill lightgray -tag oval$i
         if {$writable == 1} {
-            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] \
+            canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 48] \
                 [expr {$i * 20 + 4}] 24 17 "Set" [list hal_setp $label 1] 1
-            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 20] \
+            canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 20] \
                 [expr {$i * 20 + 4}] 24 17 "Clr" [list hal_setp $label 0] 1
         } elseif {$writable == -1} {
-            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] \
+            canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 48] \
                 [expr $i * 20 + 4] 24 17 "Set" [list hal_setp $label 1] 0
-            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 20] \
+            canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 20] \
                 [expr $i * 20 + 4] 24 17 "Clr" [list hal_setp $label 0] 0
         }
     } else {
@@ -910,14 +908,14 @@ proc watchHAL {which} {
             -anchor w -tag text$i
 
         if {$writable == 1} {
-            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] \
+            canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 48] \
                 [expr $i * 20 + 4] 52 17 "Set val" [list setValue $label] 1
         } elseif {$writable == -1} {
-            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] \
+            canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 48] \
                 [expr $i * 20 + 4] 52 17 "Set val" [list setValue $label] 0
         }
     }
-    if {$i > 1} {$::cisp create line 10 [expr $i * 20 + 3] [expr $::canvaswidth - 52] \
+    if {$i > 1} {$::cisp create line 10 [expr $i * 20 + 3] [expr $canvaswidth - 52] \
         [expr $i * 20 + 3] -fill grey70}
     $::cisp bind $label <Button-3> [list popupmenu_watch $vartype $label $i $writable $which %X %Y]
     $::cisp configure -scrollregion [$::cisp bbox all]
