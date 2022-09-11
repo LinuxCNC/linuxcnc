@@ -1215,7 +1215,7 @@ in this example (see also `tests/interp/abort-hot-comment/test.ngc`):
 [source,{ngc}]
 ---------------------------------------------------------------------
 o100 if [..] (some error condition)
-     (abort, Bad Things! p42=#42 q=#<q> ini=#<_ini[a]x> pin=#<_hal[component.pin])
+     (abort, Bad Things! p42=#42 q=#<q> INI=#<_ini[a]x> pin=#<_hal[component.pin])
 o100 endif
 ---------------------------------------------------------------------
 
@@ -2673,9 +2673,8 @@ thing.
 .. execute the 'load_tool()' function with the pocket as parameter.
 
 The last step actually sets the tooltable entries in the 'emcStatus' structure.
-The actual action taken depends on whether the
-RANDOM_TOOLCHANGER INI option was set, but at the end of the process
-'toolTable[0]' reflects the tool currently in the spindle.
+The actual action taken depends on whether the RANDOM_TOOLCHANGER INI option was set,
+but at the end of the process 'toolTable[0]' reflects the tool currently in the spindle.
 
 When that has happened:
 
