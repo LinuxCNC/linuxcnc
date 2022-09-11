@@ -1,4 +1,4 @@
-VERSION = '1.231.239'
+VERSION = '1.232.240'
 
 '''
 qtplasmac_handler.py
@@ -2210,6 +2210,11 @@ class HandlerClass:
         if not self.PREFS.has_section('BUTTONS'):
             UPDATER.move_options_to_prefs_file(self.iniFile, self.PREFS)
             self.updateIni.append(219)
+        # move port info from [GUI_OPTIONS] section (if it was moved via V1.227.219 update) to [POWERMAX] section
+        with open(machinePrefsFile, 'r') as inFile:
+            data = inFile.read()
+            if data.count('Port') > 1:
+                UPDATER.move_port(self.PREFS)
 
     def update_iniwrite(self):
         # this is for updates that write to the ini file
