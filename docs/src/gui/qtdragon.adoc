@@ -712,6 +712,7 @@ Z Safe Travel Height
 * it should be selected so that the tool clears all obstructions while jogging
 
 START button
+
 * the machine will jog to the first location and then probe down
 * the machine then jogs to the second location and probes down again
 * the difference in probed values is reported as Calculated Workpiece Height
