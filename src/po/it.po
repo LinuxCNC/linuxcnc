@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: it_rs274_err\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-29 13:49+0200\n"
+"POT-Creation-Date: 2022-09-11 20:43+0200\n"
 "PO-Revision-Date: 2022-04-01 14:13+0000\n"
 "Last-Translator: elovalvoc047faba7aa1427f <ernesto.lovalvo@unipa.it>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/linuxcnc/"
@@ -3415,7 +3415,7 @@ msgstr "Si è verificato un errore hardware di configurazione!"
 #: src/hal/classicladder/spy_vars_gtk.c:379
 #: src/hal/classicladder/symbols_gtk.c:122
 #: src/hal/classicladder/symbols_gtk.c:138
-#: src/hal/classicladder/symbols_gtk.c:140 tcl/bin/halshow.tcl:49
+#: src/hal/classicladder/symbols_gtk.c:140 tcl/bin/halshow.tcl:101
 #: tcl/tklinuxcnc.tcl:1885 tcl/tooledit.tcl:889
 msgid "Error"
 msgstr "Errore"
@@ -4024,11 +4024,11 @@ msgstr "DO_MANY_TRANSITIONS:nbr fa clic su 2!!!, TypeBak %d, TypeNow%d\n"
 msgid "Properties"
 msgstr "Proprietà"
 
-#: src/hal/classicladder/editproperties_gtk.c:180 tcl/bin/halshow.tcl:267
+#: src/hal/classicladder/editproperties_gtk.c:180 tcl/bin/halshow.tcl:268
 msgid "Parameter"
 msgstr "Parametro"
 
-#: src/hal/classicladder/editproperties_gtk.c:213 tcl/bin/halshow.tcl:735
+#: src/hal/classicladder/editproperties_gtk.c:213 tcl/bin/halshow.tcl:734
 #: lib/python/gladevcp/tooledit_gtk.glade:340
 msgid "Apply"
 msgstr "Applica"
@@ -4740,7 +4740,7 @@ msgid "Save To File"
 msgstr "Salvare su File"
 
 #: tcl/bin/emccalib.tcl:119 tcl/bin/genedit.tcl:77 tcl/bin/halconfig.tcl:151
-#: tcl/bin/halshow.tcl:220 tcl/tklinuxcnc.tcl:748 tcl/ngcgui.tcl:493
+#: tcl/bin/halshow.tcl:221 tcl/tklinuxcnc.tcl:748 tcl/ngcgui.tcl:493
 msgid "File"
 msgstr "File"
 
@@ -4842,7 +4842,7 @@ msgstr "Apri..."
 msgid "Save As..."
 msgstr "Salva come..."
 
-#: tcl/bin/genedit.tcl:87 tcl/bin/halconfig.tcl:165 tcl/bin/halshow.tcl:230
+#: tcl/bin/genedit.tcl:87 tcl/bin/halconfig.tcl:165 tcl/bin/halshow.tcl:231
 #: tcl/tklinuxcnc.tcl:763 tcl/ngcgui.tcl:1335 tcl/ngcgui.tcl:3853
 msgid "Exit"
 msgstr "Esci"
@@ -5032,7 +5032,7 @@ msgstr "Non Salvare"
 msgid "Show"
 msgstr "Mostra"
 
-#: tcl/bin/halconfig.tcl:133 tcl/bin/halshow.tcl:260
+#: tcl/bin/halconfig.tcl:133 tcl/bin/halshow.tcl:261
 msgid "Watch"
 msgstr "Vista"
 
@@ -5064,19 +5064,19 @@ msgstr "Espandi Albero"
 msgid "Collapse Tree"
 msgstr "Chiudi albero"
 
-#: tcl/bin/halconfig.tcl:175 tcl/bin/halshow.tcl:249
+#: tcl/bin/halconfig.tcl:175 tcl/bin/halshow.tcl:250
 msgid "Expand Pins"
 msgstr "Espandi Pins"
 
-#: tcl/bin/halconfig.tcl:177 tcl/bin/halshow.tcl:251
+#: tcl/bin/halconfig.tcl:177 tcl/bin/halshow.tcl:252
 msgid "Expand Parameters"
 msgstr "Espandi parametri"
 
-#: tcl/bin/halconfig.tcl:179 tcl/bin/halshow.tcl:253
+#: tcl/bin/halconfig.tcl:179 tcl/bin/halshow.tcl:254
 msgid "Expand Signals"
 msgstr "Espandi Segnali"
 
-#: tcl/bin/halconfig.tcl:182 tcl/bin/halshow.tcl:271
+#: tcl/bin/halconfig.tcl:182 tcl/bin/halshow.tcl:272
 msgid "Erase Watch"
 msgstr "Cancella Vista"
 
@@ -5084,7 +5084,7 @@ msgstr "Cancella Vista"
 msgid "Enter HAL command :"
 msgstr "Digitare comando HAL :"
 
-#: tcl/bin/halconfig.tcl:479 tcl/bin/halconfig.tcl:528 tcl/bin/halshow.tcl:674
+#: tcl/bin/halconfig.tcl:479 tcl/bin/halconfig.tcl:528 tcl/bin/halshow.tcl:673
 msgid "Execute"
 msgstr "Esegui"
 
@@ -5106,11 +5106,11 @@ msgstr ""
 " è cambiato. \n"
 "Uscire veramente?"
 
-#: tcl/bin/halconfig.tcl:943 tcl/bin/halshow.tcl:779
+#: tcl/bin/halconfig.tcl:943 tcl/bin/halshow.tcl:778
 msgid "Select a node to show."
 msgstr "Seleziona un nodo da visualizzare."
 
-#: tcl/bin/halconfig.tcl:968 tcl/bin/halshow.tcl:833
+#: tcl/bin/halconfig.tcl:968 tcl/bin/halshow.tcl:831
 msgid "<-- Select a Leaf.  Click on its name."
 msgstr "<-- Selezionare un Ramo.  Cliccare sul nome."
 
@@ -5151,121 +5151,121 @@ msgstr ""
 "This script is not for the faint hearted and carries no warranty or "
 "liability for its use to the extent allowed by law."
 
-#: tcl/bin/halshow.tcl:105
+#: tcl/bin/halshow.tcl:108
 msgid "Halshow"
 msgstr "HalShow"
 
-#: tcl/bin/halshow.tcl:176
+#: tcl/bin/halshow.tcl:177
 msgid " SHOW "
 msgstr " MOSTRA "
 
-#: tcl/bin/halshow.tcl:177
+#: tcl/bin/halshow.tcl:178
 msgid " WATCH "
 msgstr " VISTA "
 
-#: tcl/bin/halshow.tcl:178
+#: tcl/bin/halshow.tcl:179
 msgid " SETTINGS "
 msgstr " IMPOSTAZIONI"
 
-#: tcl/bin/halshow.tcl:222
+#: tcl/bin/halshow.tcl:223
 msgid "Load Watch List"
 msgstr "Carica Lista Controllo"
 
-#: tcl/bin/halshow.tcl:224
+#: tcl/bin/halshow.tcl:225
 msgid "Save Watch List"
 msgstr "Salva Lista Watch"
 
-#: tcl/bin/halshow.tcl:225
+#: tcl/bin/halshow.tcl:226
 msgid "Save Watch List (multiline)"
 msgstr "Salva Watch List (multiline)"
 
-#: tcl/bin/halshow.tcl:242 tcl/bin/halshow.tcl:363
+#: tcl/bin/halshow.tcl:243 tcl/bin/halshow.tcl:364
 msgid "Tree View"
 msgstr "Vista ad albero"
 
-#: tcl/bin/halshow.tcl:244
+#: tcl/bin/halshow.tcl:245
 msgid "Expand All"
 msgstr "Espandi tutto"
 
-#: tcl/bin/halshow.tcl:246
+#: tcl/bin/halshow.tcl:247
 msgid "Collapse All"
 msgstr "Comprimi tutto"
 
-#: tcl/bin/halshow.tcl:256
+#: tcl/bin/halshow.tcl:257
 #, fuzzy
 msgid "Reload tree view"
 msgstr "Ruota vista"
 
-#: tcl/bin/halshow.tcl:262
+#: tcl/bin/halshow.tcl:263
 msgid "Add pin"
 msgstr "Aggiungi pin"
 
-#: tcl/bin/halshow.tcl:263
+#: tcl/bin/halshow.tcl:264
 msgid "Pin"
 msgstr "Pin"
 
-#: tcl/bin/halshow.tcl:264
+#: tcl/bin/halshow.tcl:265
 msgid "Add signal"
 msgstr "Aggiungi segnale"
 
-#: tcl/bin/halshow.tcl:265
+#: tcl/bin/halshow.tcl:266
 msgid "Signal"
 msgstr "Segnale"
 
-#: tcl/bin/halshow.tcl:266
+#: tcl/bin/halshow.tcl:267
 msgid "Add parameter"
 msgstr "Aggiungi parametro"
 
-#: tcl/bin/halshow.tcl:269
+#: tcl/bin/halshow.tcl:270
 msgid "Reload Watch"
 msgstr "Ricarica Attesa"
 
-#: tcl/bin/halshow.tcl:274
+#: tcl/bin/halshow.tcl:275
 msgid "Watchlist cleared"
 msgstr "Lista di controllo cancellata"
 
-#: tcl/bin/halshow.tcl:280
+#: tcl/bin/halshow.tcl:281
 msgid "Add to watch"
 msgstr "Aggiungi per guardare"
 
-#: tcl/bin/halshow.tcl:283
+#: tcl/bin/halshow.tcl:284
 msgid "added"
 msgstr "aggiunto"
 
-#: tcl/bin/halshow.tcl:331
+#: tcl/bin/halshow.tcl:332
 msgid "Full path (regex)"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:335 tcl/bin/halshow.tcl:348
+#: tcl/bin/halshow.tcl:336 tcl/bin/halshow.tcl:349
 #, fuzzy
 msgid "Filter tree"
 msgstr "Filtro fallito"
 
-#: tcl/bin/halshow.tcl:664
+#: tcl/bin/halshow.tcl:663
 msgid "HAL command :"
 msgstr "Comando HAL :"
 
-#: tcl/bin/halshow.tcl:724
+#: tcl/bin/halshow.tcl:723
 msgid "Update interval (in ms)"
 msgstr "Intervallo di aggiornamento (in ms)"
 
-#: tcl/bin/halshow.tcl:725
+#: tcl/bin/halshow.tcl:724
 msgid "Column width for value in watch tab"
 msgstr "Larghezza colonna per valore nella scheda Watch"
 
-#: tcl/bin/halshow.tcl:726
+#: tcl/bin/halshow.tcl:725
 msgid "Override format string (leave empty for default)"
 msgstr "Sovrascrivere la stringa di formato (lasciare vuoto per default)"
 
-#: tcl/bin/halshow.tcl:728
+#: tcl/bin/halshow.tcl:727
 msgid "Float"
 msgstr "Float"
 
-#: tcl/bin/halshow.tcl:729
+#: tcl/bin/halshow.tcl:728
 msgid "Integer"
 msgstr "Numero intero"
 
-#: tcl/bin/halshow.tcl:732
+#: tcl/bin/halshow.tcl:731
 msgid ""
 "Always on top\n"
 "(Note: May not working with all desktop environments)"
@@ -5273,15 +5273,15 @@ msgstr ""
 "Sempre in alto\n"
 "(Nota: potrebbe non funzionare con tutti gli ambienti desktop)"
 
-#: tcl/bin/halshow.tcl:734
+#: tcl/bin/halshow.tcl:733
 msgid "Remember watchlist"
 msgstr "Ricorda la watchlist"
 
-#: tcl/bin/halshow.tcl:741
+#: tcl/bin/halshow.tcl:740
 msgid "Settings stored in: "
 msgstr "Impostazioni memorizzate in: "
 
-#: tcl/bin/halshow.tcl:845
+#: tcl/bin/halshow.tcl:843
 msgid "already in list"
 msgstr "già nella lista"
 
@@ -5343,25 +5343,34 @@ msgstr "rimosso dalla lista"
 msgid "Load a watch list"
 msgstr "Carica una lista di controllo"
 
-#: tcl/bin/halshow.tcl:1189
+#: tcl/bin/halshow.tcl:1194
 msgid "loaded"
 msgstr "caricato"
 
-#: tcl/bin/halshow.tcl:1200
+#: tcl/bin/halshow.tcl:1194
+#, fuzzy
+msgid "saved backup for old watchlist in"
+msgstr "Salva la lista controllo corrente"
+
+#: tcl/bin/halshow.tcl:1205
 msgid "Save current watch list"
 msgstr "Salva la lista controllo corrente"
 
-#: tcl/bin/halshow.tcl:1232
+#: tcl/bin/halshow.tcl:1241
 msgid "Commands may be tested here but they will NOT be saved"
 msgstr "Possono essere provati i comandi ma essi NON saranno salvati"
 
-#: tcl/bin/halshow.tcl:1267
+#: tcl/bin/halshow.tcl:1270
 msgid "Integer (disabled by \"--iformat\" argument)"
 msgstr "Integer (disabilitato dall'argomento \"--iformat\")"
 
-#: tcl/bin/halshow.tcl:1273
+#: tcl/bin/halshow.tcl:1277
 msgid "Float (disabled by \"--fformat\" argument)"
 msgstr "Float (disabilitato dall'argomento \"--fformat\")"
+
+#: tcl/bin/halshow.tcl:1284
+msgid "\"--noprefs\" option set. Settings will not be saved!"
+msgstr ""
 
 #: tcl/bin/pickconfig.tcl:99
 msgid ""

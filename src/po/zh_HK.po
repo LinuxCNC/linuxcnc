@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-29 13:49+0200\n"
+"POT-Creation-Date: 2022-09-11 20:43+0200\n"
 "PO-Revision-Date: 2012-03-11 12:55+0200\n"
 "Last-Translator: k.t. chan <eddie692962@netvigator.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -3267,7 +3267,7 @@ msgstr ""
 #: src/hal/classicladder/spy_vars_gtk.c:379
 #: src/hal/classicladder/symbols_gtk.c:122
 #: src/hal/classicladder/symbols_gtk.c:138
-#: src/hal/classicladder/symbols_gtk.c:140 tcl/bin/halshow.tcl:49
+#: src/hal/classicladder/symbols_gtk.c:140 tcl/bin/halshow.tcl:101
 #: tcl/tklinuxcnc.tcl:1885 tcl/tooledit.tcl:889
 msgid "Error"
 msgstr "故障"
@@ -3882,12 +3882,12 @@ msgstr ""
 msgid "Properties"
 msgstr "屬性(_P)......"
 
-#: src/hal/classicladder/editproperties_gtk.c:180 tcl/bin/halshow.tcl:267
+#: src/hal/classicladder/editproperties_gtk.c:180 tcl/bin/halshow.tcl:268
 #, fuzzy
 msgid "Parameter"
 msgstr "參數"
 
-#: src/hal/classicladder/editproperties_gtk.c:213 tcl/bin/halshow.tcl:735
+#: src/hal/classicladder/editproperties_gtk.c:213 tcl/bin/halshow.tcl:734
 #: lib/python/gladevcp/tooledit_gtk.glade:340
 msgid "Apply"
 msgstr ""
@@ -4578,7 +4578,7 @@ msgid "Save To File"
 msgstr "保存到文件"
 
 #: tcl/bin/emccalib.tcl:119 tcl/bin/genedit.tcl:77 tcl/bin/halconfig.tcl:151
-#: tcl/bin/halshow.tcl:220 tcl/tklinuxcnc.tcl:748 tcl/ngcgui.tcl:493
+#: tcl/bin/halshow.tcl:221 tcl/tklinuxcnc.tcl:748 tcl/ngcgui.tcl:493
 msgid "File"
 msgstr "文件"
 
@@ -4680,7 +4680,7 @@ msgstr "打開..."
 msgid "Save As..."
 msgstr "另存為..."
 
-#: tcl/bin/genedit.tcl:87 tcl/bin/halconfig.tcl:165 tcl/bin/halshow.tcl:230
+#: tcl/bin/genedit.tcl:87 tcl/bin/halconfig.tcl:165 tcl/bin/halshow.tcl:231
 #: tcl/tklinuxcnc.tcl:763 tcl/ngcgui.tcl:1335 tcl/ngcgui.tcl:3853
 msgid "Exit"
 msgstr "退出"
@@ -4865,7 +4865,7 @@ msgstr "不保存"
 msgid "Show"
 msgstr "展示"
 
-#: tcl/bin/halconfig.tcl:133 tcl/bin/halshow.tcl:260
+#: tcl/bin/halconfig.tcl:133 tcl/bin/halshow.tcl:261
 msgid "Watch"
 msgstr "監視"
 
@@ -4897,19 +4897,19 @@ msgstr "樹狀 擴張"
 msgid "Collapse Tree"
 msgstr "樹狀 收縮"
 
-#: tcl/bin/halconfig.tcl:175 tcl/bin/halshow.tcl:249
+#: tcl/bin/halconfig.tcl:175 tcl/bin/halshow.tcl:250
 msgid "Expand Pins"
 msgstr "展開 針"
 
-#: tcl/bin/halconfig.tcl:177 tcl/bin/halshow.tcl:251
+#: tcl/bin/halconfig.tcl:177 tcl/bin/halshow.tcl:252
 msgid "Expand Parameters"
 msgstr "展開 參數"
 
-#: tcl/bin/halconfig.tcl:179 tcl/bin/halshow.tcl:253
+#: tcl/bin/halconfig.tcl:179 tcl/bin/halshow.tcl:254
 msgid "Expand Signals"
 msgstr "展開 信號"
 
-#: tcl/bin/halconfig.tcl:182 tcl/bin/halshow.tcl:271
+#: tcl/bin/halconfig.tcl:182 tcl/bin/halshow.tcl:272
 msgid "Erase Watch"
 msgstr "清徐 監視"
 
@@ -4917,7 +4917,7 @@ msgstr "清徐 監視"
 msgid "Enter HAL command :"
 msgstr "输入 HAL 指令 :"
 
-#: tcl/bin/halconfig.tcl:479 tcl/bin/halconfig.tcl:528 tcl/bin/halshow.tcl:674
+#: tcl/bin/halconfig.tcl:479 tcl/bin/halconfig.tcl:528 tcl/bin/halshow.tcl:673
 msgid "Execute"
 msgstr "執行"
 
@@ -4939,11 +4939,11 @@ msgstr ""
 " 已經改變. \n"
 " 真的退出?"
 
-#: tcl/bin/halconfig.tcl:943 tcl/bin/halshow.tcl:779
+#: tcl/bin/halconfig.tcl:943 tcl/bin/halshow.tcl:778
 msgid "Select a node to show."
 msgstr "選定要展示的節點."
 
-#: tcl/bin/halconfig.tcl:968 tcl/bin/halshow.tcl:833
+#: tcl/bin/halconfig.tcl:968 tcl/bin/halshow.tcl:831
 msgid "<-- Select a Leaf.  Click on its name."
 msgstr "<-- 選定一葉. 點擊它的名字."
 
@@ -4975,146 +4975,146 @@ msgid ""
 "allowed by law."
 msgstr ""
 
-#: tcl/bin/halshow.tcl:105
+#: tcl/bin/halshow.tcl:108
 #, fuzzy
 msgid "Halshow"
 msgstr "HAL 顯示器"
 
-#: tcl/bin/halshow.tcl:176
+#: tcl/bin/halshow.tcl:177
 msgid " SHOW "
 msgstr "展示"
 
-#: tcl/bin/halshow.tcl:177
+#: tcl/bin/halshow.tcl:178
 msgid " WATCH "
 msgstr "監視 "
 
-#: tcl/bin/halshow.tcl:178
+#: tcl/bin/halshow.tcl:179
 msgid " SETTINGS "
 msgstr ""
 
-#: tcl/bin/halshow.tcl:222
+#: tcl/bin/halshow.tcl:223
 msgid "Load Watch List"
 msgstr "加載觀察名單"
 
-#: tcl/bin/halshow.tcl:224
+#: tcl/bin/halshow.tcl:225
 #, fuzzy
 msgid "Save Watch List"
 msgstr "加載觀察名單"
 
-#: tcl/bin/halshow.tcl:225
+#: tcl/bin/halshow.tcl:226
 msgid "Save Watch List (multiline)"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:242 tcl/bin/halshow.tcl:363
+#: tcl/bin/halshow.tcl:243 tcl/bin/halshow.tcl:364
 msgid "Tree View"
 msgstr "樹狀觀看"
 
-#: tcl/bin/halshow.tcl:244
+#: tcl/bin/halshow.tcl:245
 #, fuzzy
 msgid "Expand All"
 msgstr "展開 針"
 
-#: tcl/bin/halshow.tcl:246
+#: tcl/bin/halshow.tcl:247
 #, fuzzy
 msgid "Collapse All"
 msgstr "樹狀 收縮"
 
-#: tcl/bin/halshow.tcl:256
+#: tcl/bin/halshow.tcl:257
 #, fuzzy
 msgid "Reload tree view"
 msgstr "旋轉 視圖"
 
-#: tcl/bin/halshow.tcl:262
+#: tcl/bin/halshow.tcl:263
 msgid "Add pin"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:263
+#: tcl/bin/halshow.tcl:264
 #, fuzzy
 msgid "Pin"
 msgstr "針"
 
-#: tcl/bin/halshow.tcl:264
+#: tcl/bin/halshow.tcl:265
 #, fuzzy
 msgid "Add signal"
 msgstr " 信號​​(_S) "
 
-#: tcl/bin/halshow.tcl:265
+#: tcl/bin/halshow.tcl:266
 #, fuzzy
 msgid "Signal"
 msgstr "信號"
 
-#: tcl/bin/halshow.tcl:266
+#: tcl/bin/halshow.tcl:267
 #, fuzzy
 msgid "Add parameter"
 msgstr "參數"
 
-#: tcl/bin/halshow.tcl:269
+#: tcl/bin/halshow.tcl:270
 #, fuzzy
 msgid "Reload Watch"
 msgstr "加載觀察名單"
 
-#: tcl/bin/halshow.tcl:274
+#: tcl/bin/halshow.tcl:275
 msgid "Watchlist cleared"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:280
+#: tcl/bin/halshow.tcl:281
 msgid "Add to watch"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:283
+#: tcl/bin/halshow.tcl:284
 msgid "added"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:331
+#: tcl/bin/halshow.tcl:332
 msgid "Full path (regex)"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:335 tcl/bin/halshow.tcl:348
+#: tcl/bin/halshow.tcl:336 tcl/bin/halshow.tcl:349
 #, fuzzy
 msgid "Filter tree"
 msgstr "篩選 失敗"
 
-#: tcl/bin/halshow.tcl:664
+#: tcl/bin/halshow.tcl:663
 #, fuzzy
 msgid "HAL command :"
 msgstr "測試 HAL 指令 ："
 
-#: tcl/bin/halshow.tcl:724
+#: tcl/bin/halshow.tcl:723
 msgid "Update interval (in ms)"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:725
+#: tcl/bin/halshow.tcl:724
 msgid "Column width for value in watch tab"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:726
+#: tcl/bin/halshow.tcl:725
 msgid "Override format string (leave empty for default)"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:728
+#: tcl/bin/halshow.tcl:727
 msgid "Float"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:729
+#: tcl/bin/halshow.tcl:728
 #, fuzzy
 msgid "Integer"
 msgstr "解释程序"
 
-#: tcl/bin/halshow.tcl:732
+#: tcl/bin/halshow.tcl:731
 msgid ""
 "Always on top\n"
 "(Note: May not working with all desktop environments)"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:734
+#: tcl/bin/halshow.tcl:733
 msgid "Remember watchlist"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:741
+#: tcl/bin/halshow.tcl:740
 msgid "Settings stored in: "
 msgstr ""
 
-#: tcl/bin/halshow.tcl:845
+#: tcl/bin/halshow.tcl:843
 msgid "already in list"
 msgstr ""
 
@@ -5181,25 +5181,34 @@ msgstr ""
 msgid "Load a watch list"
 msgstr "加載觀察名單"
 
-#: tcl/bin/halshow.tcl:1189
+#: tcl/bin/halshow.tcl:1194
 #, fuzzy
 msgid "loaded"
 msgstr "重新載入(_R)"
 
-#: tcl/bin/halshow.tcl:1200
+#: tcl/bin/halshow.tcl:1194
+#, fuzzy
+msgid "saved backup for old watchlist in"
+msgstr "保存當前觀察名單"
+
+#: tcl/bin/halshow.tcl:1205
 msgid "Save current watch list"
 msgstr "保存當前觀察名單"
 
-#: tcl/bin/halshow.tcl:1232
+#: tcl/bin/halshow.tcl:1241
 msgid "Commands may be tested here but they will NOT be saved"
 msgstr "指令可以在這兒測試但不會被保存"
 
-#: tcl/bin/halshow.tcl:1267
+#: tcl/bin/halshow.tcl:1270
 msgid "Integer (disabled by \"--iformat\" argument)"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:1273
+#: tcl/bin/halshow.tcl:1277
 msgid "Float (disabled by \"--fformat\" argument)"
+msgstr ""
+
+#: tcl/bin/halshow.tcl:1284
+msgid "\"--noprefs\" option set. Settings will not be saved!"
 msgstr ""
 
 #: tcl/bin/pickconfig.tcl:99
