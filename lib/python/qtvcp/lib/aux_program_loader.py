@@ -64,6 +64,19 @@ class Aux_program_loader:
     def load_tooledit(self, filepath):
         p = os.popen("tooledit %s" % (filepath))
 
+    def load_test_button(self, *args):
+        if args:
+            self.load_haltool_args('halscope', args)
+            p = os.popen("qtvcp {} test_button".format(args), "w")
+        else:
+            p = os.popen("qtvcp test_button", "w")
+
+    def load_test_led(self, *args):
+        if args:
+            p = os.popen("qtvcp {} test_led".format(args), "w")
+        else:
+            p = os.popen("qtvcp test_led", "w")
+
     def keyboard_onboard(self, args="", width="", height=""):
         try:
             self.ob = subprocess.Popen(["onboard", args, width, height],

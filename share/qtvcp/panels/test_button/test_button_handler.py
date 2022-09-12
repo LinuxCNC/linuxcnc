@@ -7,8 +7,9 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from qtvcp.core import Status
 from qtvcp.widgets.hal_selectionbox import HALSelectionBox
-from qtvcp.widgets.led_widget import LED
+from qtvcp.widgets.simple_widgets import PushButton
 from qtvcp.lib.aux_program_loader import Aux_program_loader
+
 ###########################################
 # **** instantiate libraries section **** #
 ###########################################
@@ -28,8 +29,8 @@ class HandlerClass:
     def __init__(self, halcomp,widgets,paths):
         self.w = widgets
         self.h = halcomp
-        self.ledDict = dict()
-        STATUS.connect('periodic', lambda w: self.watch_halpin())
+        self.buttonDict = dict()
+
     ##########################################
     # Special Functions called from QTVCP
     ##########################################
@@ -46,12 +47,12 @@ class HandlerClass:
             try:
                 num = int(self.w.USEROPTIONS_[0])
             except:
-                print('Error with test_led number selection - not a number - using 1')
+                print('Error with test_button number selection - not a number - using 1')
                 num = 1
 
             if num >1:
                 for i in range(num-1):
-                    self.addLED()
+                    self.addButton()
                     # make window taller now
                     x = self.w.geometry().x()
                     y = self.w.geometry().y()
@@ -60,12 +61,12 @@ class HandlerClass:
                     self.w.setGeometry(x,y,w,h)
                     self.w.setMinimumHeight(h)
 
-        self.addLED()
+        self.addButton()
         self.w.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.w.setWindowTitle('{}'.format(self.h.comp.getprefix()))
 
-    # build a LED/controls line
-    def addLED(self):
+    # build a button/controls line
+    def addButton(self):
 
         # new toolbar added to window
         toolbar = QToolBar(self.w)
@@ -77,39 +78,37 @@ class HandlerClass:
         hbox = QHBoxLayout(w)
         hbox.setContentsMargins(0,0,0,0)
 
-        # for led name
+        # for button name
         le = QLineEdit()
         le.setText(self.h.comp.getprefix())
-        # speak text when return pressed
-        le.returnPressed.connect(lambda : self.announceText(le))
 
-        # LED to display state
-        led = LED()
-        led._halpin_option = False
-        led.hal_init('led')
-        led.setMaximumWidth(30)
+        # HAL button to display state
+        button = PushButton()
+        button.setProperty('indicator_option',True)
+        button._halpin_option = False
+        button.hal_init('button')
+        button.setMaximumWidth(30)
 
-        hbox.addWidget(led)
+        hbox.addWidget(button)
         hbox.addWidget(le)
 
         # menu for controls
         menu = QMenu()
         menu.setMinimumWidth(259)
 
-        # sound option checkbutton
-        actionSound = QAction('Sound',menu)
-        actionSound.setCheckable(True)
-        actionSound.triggered.connect(lambda b: self.actionTriggered('Sound',None))
-
-        # remember signal watched, line edit widget, led widget and last state
-        self.ledDict[led] = [None,le,actionSound,led,False]
+        # Check option checkbutton
+        actionCheck = QAction('Set Checkable',menu)
+        actionCheck.setCheckable(True)
+        actionCheck.triggered.connect(lambda w, b=(actionCheck,button): self.actionTriggered('Checkable',b))
+        menu.addAction(actionCheck)
 
         # color option launch button
-        actionColor = QAction('Color',menu)
-        actionColor.triggered.connect(lambda b: self.actionTriggered('Color', led))
-
-        menu.addAction(actionSound)
+        actionColor = QAction('Set Indicator Color',menu)
+        actionColor.triggered.connect(lambda w, b=(actionColor,button): self.actionTriggered('Color',b))
         menu.addAction(actionColor)
+
+        # remember signal watched, line edit widget, button widget and last state
+        self.buttonDict[button] = [None,le,None,button,False]
 
         # button to pop menu
         btn = QPushButton('Opt')
@@ -124,20 +123,25 @@ class HandlerClass:
         cb.setPinTypes([cb.HAL_BIT])
         cb.setSignalTypes([cb.HAL_BIT], driven = [False,True])
         cb.hal_init()
-        cb.selectionUpdated.connect(lambda w: self.signalSelected(w,led))
+        cb.selectionUpdated.connect(lambda w: self.signalSelected(w,button))
 
         # wrap combobox so as to add it to menu
         action = QWidgetAction(menu)
         action.setDefaultWidget(cb)
-        menu.addAction(action)
+        #menu.addAction(action)
 
-        # Button option launch button
-        actionButton = QAction('Load Test Button',menu)
-        actionButton.triggered.connect(lambda w, b=(actionButton,led): self.actionTriggered('Button',b))
-        menu.addAction(actionButton)
+        # HalMeter option launch button
+        actionHalMeter = QAction('Load HalMeter',menu)
+        actionHalMeter.triggered.connect(lambda w, b=(actionHalMeter,button): self.actionTriggered('HalMeter',b))
+        menu.addAction(actionHalMeter)
 
-        # button to add another LED toolbar
-        actionAdd = QAction('Add LED',menu)
+        # Led option launch button
+        actionLed = QAction('Load Test Led',menu)
+        actionLed.triggered.connect(lambda w, b=(actionLed,button): self.actionTriggered('Led',b))
+        menu.addAction(actionLed)
+
+        # button to add another button toolbar
+        actionAdd = QAction('Add Button',menu)
         actionAdd.triggered.connect(lambda b: self.actionTriggered('Add', None))
         menu.addAction(actionAdd)
 
@@ -151,15 +155,12 @@ class HandlerClass:
     # callbacks from form #
     #######################
 
-    def actionTriggered(self, widget,led):
-        if widget == 'Color':
-            # Get a color from the text dialog
-            color = QColorDialog.getColor()
-            led.setProperty('color',color)
-
-        elif widget == 'Add':
-            # add a toolbar with LED and controls
-            self.addLED()
+    def actionTriggered(self, widget,b=None):
+        # b[0] is action button
+        # b[1] is main button
+        if widget == 'Add':
+            # add a toolbar with button and controls
+            self.addButton()
             # make window taller now
             x = self.w.geometry().x()
             y = self.w.geometry().y()
@@ -167,18 +168,20 @@ class HandlerClass:
             h = self.w.geometry().height() + 37
             self.w.setGeometry(x,y,w,h)
             self.w.setMinimumHeight(h)
-
-        elif widget == 'Button':
-            EXTPROG.load_test_button()
-
-    def announceLEDText(self,ledstate,linetext,sound):
-        # speak led label contents on state change, if checked
-        if sound.isChecked():
-            name = linetext.text()
-            STATUS.emit('play-sound', 'SPEAK {} {}'.format(name,ledstate))
-
-    def announceText(self, widget):
-        STATUS.emit('play-sound', 'SPEAK {}'.format(widget.text()))
+        elif widget == 'Checkable':
+            b[1].setCheckable(b[0].isChecked())
+            # kill existing signals - we need to change signal type
+            b[1].disconnectSignals()
+            # add new signals back
+            b[1].connectSignals()
+        elif widget == 'Color':
+            # Get a color from the text dialog
+            color = QColorDialog.getColor()
+            b[1].setProperty('on_color',color)
+        elif widget == 'HalMeter':
+            EXTPROG.load_halmeter()
+        elif widget == 'Led':
+            EXTPROG.load_test_led()
 
     #####################
     # general functions #
@@ -187,33 +190,11 @@ class HandlerClass:
     def updateLabel(self,v):
         self.w.hallabel.setDisplay(v)
 
-    def signalSelected(self, sig,led):
-        #print('Watching:',sig)
+    def signalSelected(self, sig,button):
+        print('Watching:',sig)
         if sig != '':
-            self.ledDict[led][0] = sig
+            self.buttonDict[button][0] = sig
         return
-
-    def watch_halpin(self):
-        for i in self.ledDict:
-            sig = self.ledDict[i][0]
-            if sig is not None:
-                try:
-                    state = self.h.hal.get_value(sig)
-                except:
-                    return
-                lastState = self.ledDict[i][4]
-                if state != lastState:
-                    lineEdit = self.ledDict[i][1]
-                    actionSound = self.ledDict[i][2]
-                    led =  self.ledDict[i][3]
-                    if actionSound:
-                        self.announceLEDText(state,lineEdit,actionSound)
-                    led.change_state(state)
-                    self.ledDict[i][4] = state
-            else:
-                state = 'None'
-
-            #print(self.ledDict[i][0],state)
 
     #####################
     # KEY BINDING CALLS #
