@@ -210,7 +210,7 @@ The io program provides HAL output pins to facilitate toolchanger management:
 
 . Tool number _n_==0 indicates no tool
 . The pocket number for a tool is set when tooldata is loaded/reloaded
-from its data source ([EMCIO]TOOL_TABLE or [EMCIO]DB_PROGRAM).
+  from its data source ([EMCIO]TOOL_TABLE or [EMCIO]DB_PROGRAM).
 . At G-code *T__n__* (_n_ != 0) command:
 .. *iocontrol.0.tool-prep-index*  = idx (index based on tooldata load sequence)
 .. *iocontrol.0.tool-prep-number* = _n_
