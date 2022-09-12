@@ -71,6 +71,7 @@ velocity will drop immediately from HOME_SEARCH_VEL to zero, with no limit on
 acceleration.
 """;
 license "GPL";
+author "Charles Steinkuehler";
 variable float offset[7] = 0.0;
 variable float prev_cmd = 0.0;
 variable int   fb_joint = 0;

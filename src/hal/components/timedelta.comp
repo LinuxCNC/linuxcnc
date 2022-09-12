@@ -10,6 +10,7 @@ function _ nofp;
 variable rtapi_s64 last=0;
 variable int first=1;
 license "GPL";
+author "Jeff Epler";
 ;;
 #undef max
 #define max(a,b) ((a)>(b)?(a):(b))

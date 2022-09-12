@@ -5,6 +5,7 @@ pin out float max_;
 pin out float min_;
 function _;
 license "GPL";
+author "Jeff Epler";
 ;;
 FUNCTION(_) {
     if(reset) { max_ = min_ = in; }

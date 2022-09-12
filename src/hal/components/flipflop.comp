@@ -9,6 +9,7 @@ option data flipflop_data;
 
 function _ nofp;
 license "GPL";
+author "John Kasunich";
 ;;
 
 typedef struct { int oldclk; } flipflop_data;

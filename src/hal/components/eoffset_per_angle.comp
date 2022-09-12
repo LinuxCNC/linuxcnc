@@ -101,6 +101,7 @@ option data the_data;
 
 function _;
 license "GPL";
+author "Dewey Garrett";
 ;;
 
 #include <rtapi_math.h>

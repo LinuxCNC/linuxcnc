@@ -45,6 +45,7 @@ All values can be adjusted for each instance separately.
 
 function _;
 license "GPL";
+author "Paul Willutzki";
 ;;
 #include <rtapi_math.h>
 

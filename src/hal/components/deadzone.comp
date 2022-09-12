@@ -7,6 +7,7 @@ pin out float out;
 function _ "Update \\fBout\\fR based on \\fBin\\fR and the parameters.";
 
 license "GPL";
+author "Jeff Epler";
 ;;
 FUNCTION(_) {
     double th2 = threshold / 2;

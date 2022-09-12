@@ -28,6 +28,7 @@ variable int in_old; // Value of in on last cycle, for rising edge detection
 
 function _ fp "Update the timer";
 license "GPL";
+author "Chad Woitas";
 ;;
 FUNCTION(_) {
         if(pt < 0) {

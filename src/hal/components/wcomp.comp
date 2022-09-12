@@ -9,6 +9,7 @@ notes "If \\fBmax\\fR <= \\fBmin\\fR then the behavior is undefined.";
 
 function _;
 license "GPL";
+author "Jeff Epler";
 ;;
 FUNCTION(_) { 
   double tmp = in;

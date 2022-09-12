@@ -5,6 +5,7 @@ pin in float offset;
 pin out float out "out = in * gain + offset";
 function _;
 license "GPL";
+author "Jeff Epler";
 ;;
 FUNCTION(_) {
     out = in * gain + offset;

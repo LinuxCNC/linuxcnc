@@ -160,6 +160,7 @@ function read_inputs "Read all inputs";
 function write_outputs "Write computed offset outputs\n(offset-current-M, pos-plusoffset-M, fb-minusoffset-M).\nAll other outputs are updated by read-inputs()";
 
 license "GPL";
+author "Dewey Garrett and Andy Pugh";
 ;;
 
 #include "rtapi_math.h"
