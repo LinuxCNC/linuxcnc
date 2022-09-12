@@ -52,6 +52,29 @@ loadusr qtvcp test_dial
 .test dial - Test Dial VCP
 image::images/qtvcp_test_dial.png["Test Dial",align="left"]
 
+=== test_button
+
+- This panel has a button that will set a HAL pin. +
+- the button can be selected as a momentary or a toggle button +
+- The button's indicator color can be adjusted from a drop down menu. +
+- You can add more buttons from the drop down menu. +
+- You can load a HalMeter from the drop down menu. +
+- You can load a test LED from the drop down menu. +
+- The button can be detached from the main windows.
+
+Here is how to load test_button from a HAL script. +
+The '-o' switch sets how many buttons the panel starts with. +
+(If loading directly from a terminal omit the 'loadusr')
+
+[source,{hal}]
+----
+loadusr qtvcp test_button
+loadusr qtvcp -o 4 test_button
+----
+
+.test dial - Test Dial VCP
+image::images/qtvcp_test_button.png["Test Button",align="left"]
+
 === test_led
 
 - This panel has an LED that can selected to watch HAL bit pins/signals. +
@@ -59,7 +82,7 @@ image::images/qtvcp_test_dial.png["Test Dial",align="left"]
 - The text box and state can be output as speech if sound is selected. +
 - A combobox can be used to automatically select and connect to a pin/signal. +
 - You can add more LEDs from the drop down menu. +
-- The LED can be detached from the main windows.
+- The LED can be dtached from the main windows.
 
 Here is how to load test_led from a HAL script. +
 The '-o' switch sets how many LEDs the panel starts with. +
