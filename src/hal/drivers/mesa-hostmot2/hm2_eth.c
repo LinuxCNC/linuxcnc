@@ -746,19 +746,23 @@ static int init_board(hm2_eth_t *board, const char *board_ip) {
 }
 
 static int close_board(hm2_eth_t *board) {
-
+    int ret;
     board->llio.reset(&board->llio);
 
     if(use_iptables()) clear_iptables();
 
     if(board->req.arp_flags & ATF_PERM) {
-        int ret = ioctl_siocdarp(board);
+        ret = ioctl_siocdarp(board);
         if(ret < 0) perror("ioctl SIOCDARP");
     }
-    int ret = shutdown(board->sockfd, SHUT_RDWR);
-    if (ret < 0)
+    ret = shutdown(board->sockfd, SHUT_RDWR);
+    if (ret == -1)
+        LL_PRINT("ERROR: can't shutdown socket: %s\n", strerror(errno));
+    
+    ret = close(board->sockfd);
+    if (ret == -1)
         LL_PRINT("ERROR: can't close socket: %s\n", strerror(errno));
-
+    
     return ret < 0 ? -errno : 0;
 }
 
