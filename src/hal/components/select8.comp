@@ -4,6 +4,7 @@ pin in s32 sel "The number of the output to set TRUE.  All other outputs well be
 pin out bit out#[8] "Output bits.  If enable is set and the sel input is between 0 and 7, then the corresponding output bit will be set true";
 function _ nofp;
 license "GPL";
+author "Stephen Wille Padnos";
 ;;
 FUNCTION(_) {
 	hal_s32_t temp_sel;

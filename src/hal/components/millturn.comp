@@ -33,6 +33,7 @@ chapter (docs/src/motion/switchkins.txt)
 // Use the *_setup() function for actual pins and params.
 pin out bit dummy=1;
 license "GPL";
+author "David Mueller";
 ;;
 
 #include "rtapi_math.h"

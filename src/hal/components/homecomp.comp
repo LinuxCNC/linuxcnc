@@ -44,6 +44,7 @@ https://github.com/LinuxCNC/linuxcnc/blob/BRANCHNAME/src/hal/components/homecomp
 pin out bit is_module=1; //one pin is required to use halcompile)
 
 license "GPL";
+author "Dewey Garrett";
 option  homemod;
 option  extra_setup;
 ;;

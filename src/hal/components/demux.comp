@@ -18,7 +18,7 @@ option default_personality 32;
 param rw bit bargraph = 0;
 
 license "GPL 2+";
-author "andypugh";
+author "Andy Pugh";
 
 function _;
 

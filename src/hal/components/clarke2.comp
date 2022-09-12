@@ -17,6 +17,7 @@ pin out float x;
 pin out float y "cartesian components of output";
 function _;
 license "GPL";
+author "John Kasunich";
 ;;
 
 /* for the details, google "clarke transform", or see section 3 of

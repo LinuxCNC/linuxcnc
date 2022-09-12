@@ -18,6 +18,7 @@ variable int last[64];
 
 function _;
 license "GPL";
+author "Chris S Morley";
 ;;
 FUNCTION(_) {
     int num = 0;

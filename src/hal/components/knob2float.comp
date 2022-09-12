@@ -29,6 +29,7 @@ option data knob2float_data;
 
 function _;
 license "GPL";
+author "John Kasunich";
 ;;
 
 typedef struct {

@@ -10,6 +10,7 @@ if their absolute difference is no greater than \\fBdifference\\fR (i.e.,
 |in1-in2| <= difference).  \\fBout\\fR is false otherwise.""";
 function _;
 license "GPL";
+author "Chris Radek";
 ;;
 #include "rtapi_math.h"
 FUNCTION(_) {

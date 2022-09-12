@@ -35,6 +35,7 @@ https://github.com/LinuxCNC/linuxcnc/blob/BRANCHNAME/src/hal/components/tpcomp.c
 pin out bit is_module=1; //one pin is required to use halcompile)
 
 license "GPL";
+author "Dewey Garrett";
 option  tpmod;
 option  extra_setup;
 ;;

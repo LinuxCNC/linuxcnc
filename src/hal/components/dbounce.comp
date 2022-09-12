@@ -11,6 +11,7 @@ pin in  u32 delay = 5;
 variable int state;
 function _ nofp;
 license "GPL";
+author "Dewey Garrett";
 ;;
 FUNCTION(_) {
 

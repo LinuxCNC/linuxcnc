@@ -12,6 +12,7 @@ option data toggle_data;
 
 function _ nofp;
 license "GPL";
+author "John Kasunich";
 ;;
 
 typedef struct {

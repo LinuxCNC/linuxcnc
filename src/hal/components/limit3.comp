@@ -21,6 +21,7 @@ variable double in_pos_old;
 variable double out_old;
 function _;
 license "GPL";
+author "John Kasunich";
 ;;
 
 #include "rtapi_math.h"

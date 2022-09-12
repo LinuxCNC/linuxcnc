@@ -142,7 +142,7 @@ option count_function;
 option extra_setup;
 
 license "GPL";
-author "andy pugh";
+author "Andy Pugh";
 
 variable int inst_sense;
 variable int inst_dir;

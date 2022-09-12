@@ -20,6 +20,7 @@ param r float elapsed "Current value of the internal timer";
 variable int timer_on;
 function update;
 license "GPL";
+author "Chris S Morley";
 ;;
 extern double fabs(double);
 

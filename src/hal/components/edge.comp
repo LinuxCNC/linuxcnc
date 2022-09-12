@@ -30,6 +30,7 @@ variable int first = 1;
 
 function _ nofp "Produce output pulses from input edges";
 license "GPL";
+author "Jeff Epler";
 ;;
 
 FUNCTION(_){ 

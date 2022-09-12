@@ -5,6 +5,7 @@ pin in float min_=-1e20;
 pin in float max_=1e20;
 function _;
 license "GPL";
+author "Jeff Epler";
 ;;
 FUNCTION(_) {
     double tmp = in;

@@ -31,6 +31,7 @@ pin out float current-vel "velocity commanded at this moment in time.";
 pin out bit active "if active is true, the planner is requesting movement.";
 function update;
 license "GPL";
+author "Chris S Morley";
 ;;
 #include "rtapi_math.h"
 FUNCTION(update) {

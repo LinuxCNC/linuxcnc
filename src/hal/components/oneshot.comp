@@ -40,6 +40,7 @@ option extra_setup yes;
 
 function _ "Produce output pulses from input edges";
 license "GPL";
+author "John Kasunich";
 ;;
 
 typedef struct {

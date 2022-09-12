@@ -27,6 +27,7 @@ param rw bit invert;
 function _ nofp;
 
 license "GPL";
+author "Jeff Epler";
 ;;
 
 MODULE_AUTHOR("Jeff Epler");

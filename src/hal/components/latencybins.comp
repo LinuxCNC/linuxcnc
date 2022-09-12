@@ -60,6 +60,7 @@ variable rtapi_u64 sum;
 variable rtapi_u64 sq_sum;
 
 license "GPL";
+author "Dewey Garrett";
 ;;
 
 rtapi_s64     now = rtapi_get_time();

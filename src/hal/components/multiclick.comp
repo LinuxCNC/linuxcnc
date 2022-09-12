@@ -22,6 +22,7 @@
 
 component multiclick "Single-, double-, triple-, and quadruple-click detector";
 license "GPL";
+author "Sebastian Kuzminsky";
 
 pin in  bit in "The input line, this is where we look for clicks.";
 

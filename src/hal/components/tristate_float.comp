@@ -6,6 +6,7 @@ pin in bit enable "When TRUE, copy in to out";
 
 function _  "If \\fBenable\\fR is TRUE, copy \\fBin\\fR to \\fBout\\fR.";
 license "GPL";
+author "Jeff Epler";
 ;;
 
 FUNCTION(_) { if(enable) out = in_; }
