@@ -124,7 +124,7 @@ net clear-errors parport.0.pin.00.in sendkeys.0.trigger-00 sendkeys.0.trigger-01
 
 == AUTHOR
 
-andypugh
+Andy Pugh
 
 == LICENSE
 
