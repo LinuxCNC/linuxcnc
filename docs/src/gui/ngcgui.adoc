@@ -288,9 +288,9 @@ Notes:
       A set of files is comprised of a preamble, subfile, postamble.
       The preamble and postamble are optional.
       One set of files can be specified from cmdline.
-      Multiple sets of files can be specified from an inifile.
+      Multiple sets of files can be specified from an INI file.
       If --ini is NOT specified:
-         search for a running LinuxCNC and use its inifile
+         search for a running LinuxCNC and use its INI file
 ----
 
 [NOTE]
