@@ -25,31 +25,25 @@ pin out bit is_negative "true if input is negative, false if input is 0 or posit
 
 function _ nofp;
 license "GPL";
+author "ArcEye based on code from Sebastian Kuzminsky";
 ;;
 FUNCTION(_)
 {
-hal_s64_t tmp = in;
-
-    if ( tmp >= 0 )
-        {
+    if ( in >= 0 ) {
         sign = false;
-        out = tmp;
-        }
-    else
-        {
+        out = in;
+    } else {
         sign = true;
-        out = -tmp;
-        }
+        out = -in;
+    }
 
-    if (tmp > 0)
+    if (in > 0)
         is_positive = true;
     else
         is_positive = false;
 
-    if (tmp < 0)
+    if (in < 0)
         is_negative = true;
     else
         is_negative = false;
-
-    return 0;
 }
