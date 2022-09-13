@@ -36,7 +36,7 @@
  *
  ******************************************************************************/
 
-component reset "Resets a IO signal";
+component reset "Resets an IO signal";
 pin in  bit     trigger             "Trigger input";
 pin io  u32     out_u32      = 0    "Unsigned 32 bit integer output value";
 pin in  u32     reset_u32    = 0    "Unsigned 32 bit integer reset value";
@@ -52,6 +52,11 @@ pin in  bit     falling       = false "Trigger on falling edge";
 function _  fp "Update the output value";
 description """
 Component to reset IO signals.
+
+This function works like a conditional sets - it is fed with a float
+and/or bit/s32/u32 pins that are I/O, but are save the value only if
+the "trigger" pin is set. The values assigned to those signals are
+passed via the input pins reset_float/s32/u32/bit.
 """;
 license "GPL";
 author "Alexander Rössler";
