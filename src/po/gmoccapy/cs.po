@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-13 10:51+0200\n"
-"PO-Revision-Date: 2022-07-13 20:55+0200\n"
+"POT-Creation-Date: 2022-09-13 07:38+0200\n"
+"PO-Revision-Date: 2022-09-13 12:04+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: cs\n"
@@ -281,12 +281,12 @@ msgid "We will use by axisletter ordered jog button"
 msgstr "použije se písmeno osy přiřazené k manuálnímu (jog) tlačítku"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1678
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2717
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2718
 msgid "mm/min"
 msgstr "mm/min"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1681
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2720
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2721
 msgid "inch/min"
 msgstr "palců/min"
 
@@ -327,7 +327,7 @@ msgid "**** Entering init gremlin ****"
 msgstr "**** Inicializace komponenty gremlin ****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1912
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4813
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4814
 msgid ""
 " Joint\n"
 "mode"
@@ -352,8 +352,8 @@ msgstr ""
 "a <matchbox-keyboard>."
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1984
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3161
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3171
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3162
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3172
 msgid "**** GMOCCAPY ERROR ****"
 msgstr "**** GMOCCAPY CHYBA ****"
 
@@ -366,7 +366,7 @@ msgid "**** is onboard or matchbox-keyboard installed? ****"
 msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:2018
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2841
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2842
 msgid "interrupt running macro"
 msgstr "přerušení běžícího makra"
 
@@ -412,159 +412,163 @@ msgstr "V tento moment není možné nastavit MDI mód"
 msgid "It is not possible to change to Auto Mode at the moment"
 msgstr "V tento moment není možné nastavit Auto mód"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2800
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2801
 msgid "Enter value:"
 msgstr "Vlož hodnotu:"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2801
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2802
 #, python-brace-format
 msgid "Set parameter {0} to:"
 msgstr "Nastav parametr {0}:"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2803
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2804
 msgid "conversion error"
 msgstr ""
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2804
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4506
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4529
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2805
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4507
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4530
 msgid "Conversion error !"
 msgstr ""
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2839
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2840
 msgid "This button will show or hide the keyboard"
 msgstr "Toto tlačítko zobrazí nebo skryje klávesnici"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:2947
+#: emc/usr_intf/gmoccapy/gmoccapy.py:2948
 msgid "Mode change is only allowed if the interpreter is idle!"
-msgstr ""
+msgstr "Změna módu je povolena pouze v případě, že interpretr nepracuje!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3162
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3163
 #, python-brace-format
 msgid "**** {0} ****"
 msgstr "**** {0} ****"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3172
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3173
 #, python-brace-format
 msgid "**** No widget named: {0} to sensitize ****"
 msgstr ""
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3334
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3335
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:33
 msgid "No tool description available"
 msgstr "Informace o nástroji není dostupná"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3475
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3476
 #, python-brace-format
 msgid "Halo, welcome to the test message {0}"
 msgstr "Ahoooj, vítám Tě u testu zprávy {0}"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3571
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3572
 msgid "Hal Pin is low, Access denied"
 msgstr "Hardwerový klíč zamknut, přístup zamítnut"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3573
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3574
 msgid "wrong code entered, Access denied"
 msgstr "Zadán špatný kód, přístup zamítnut"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3574
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3575
 msgid "Just to warn you"
 msgstr "Jen abych tě varoval"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3714
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3715
 msgid "INFO:"
 msgstr "INFO:"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3715
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3716
 msgid "Classicladder real-time component not detected"
 msgstr ""
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3830
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3831
 #, python-brace-format
 msgid "Something went wrong, we have an unknown spindle widget {0}"
 msgstr ""
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3941
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3942
 msgid "Do you really want to delete the MDI history?\n"
 msgstr "Skutečně smazat MDI historii?\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3942
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3943
 msgid "this will not delete the MDI History file, but will\n"
 msgstr "Nebude smazán soubor MDI historie,\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3943
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3944
 msgid "delete the listbox entries for this session"
 msgstr "ale bude smazán seznam příkazů pro tuto relaci."
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3944
-#: emc/usr_intf/gmoccapy/gmoccapy.py:3992
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3945
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3993
 msgid "Attention!!"
 msgstr "Pozor!!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4069
+#: emc/usr_intf/gmoccapy/gmoccapy.py:3992
+msgid "Exit and discard changes?"
+msgstr "Ukončit a zahodit změny?"
+
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4070
 msgid "Enter value for diameter"
 msgstr "Vložení hodnoty pro průměr"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4070
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4071
 msgid "Set diameter to:"
 msgstr "Nastav průměr:"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4073
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4074
 msgid "Enter value for radius"
 msgstr "Vložení hodnoty pro rádius"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4074
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4075
 msgid "Set radius to:"
 msgstr "Nastav rádius:"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4077
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4078
 #, python-brace-format
 msgid "Enter value for axis {0}"
 msgstr "Vložení hodnoty pro osu {0}"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4078
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4079
 #, python-brace-format
 msgid "Set axis {0} to:"
 msgstr "Nastav osu {0} :"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4082
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4083
 msgid "Conversion error in btn_set_value"
 msgstr "Konverzní chyba v btn_set_value"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4083
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4084
 msgid "Conversion error in btn_set_value!"
 msgstr "Konverzní chyba v btn_set_value!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4084
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4085
 msgid "Please enter only numerical values. Values have not been applied"
 msgstr "Používejte prosím jen číselné hodnoty. Hodnota nebyla použita."
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4098
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4099
 msgid ""
 "you did not selected a system to be changed to, so nothing will be changed"
 msgstr "nebyl vybrán systém ke změně, takže se ni nestane"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4099
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4535
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4549
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4553
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4568
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4100
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4536
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4550
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4554
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4569
 msgid "Important Warning!"
 msgstr "Důležité varování!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4149
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4150
 msgid "Enter the block height"
 msgstr "Zadat výšku bloku"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4150
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4151
 msgid "Block height measured from base table"
 msgstr "Výška bloku měřena od základny stolu"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4162
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4163
 msgid "Conversion error in btn_block_height!"
 msgstr "Konverzní chyba v btn_block_height!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4163
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4164
 msgid ""
 "Please enter only numerical values\n"
 "Values have not been applied"
@@ -572,11 +576,11 @@ msgstr ""
 "Používejte prosím jen číselné hodnoty\n"
 "Hodnota nebyla použita."
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4428
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4429
 msgid "Please remove the mounted tool and press OK when done"
 msgstr "Prosím výjměnte nástroj z vřetene a až budete hotoví stiskněte OK"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4431
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4432
 #, python-brace-format
 msgid ""
 "Please change to tool\n"
@@ -591,161 +595,161 @@ msgstr ""
 "\n"
 " a poté stiskněte OK."
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4432
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4433
 msgid "Manual Tool change"
 msgstr "Manuální výměna nástroje"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4441
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4442
 msgid "Tool Change has been aborted!\n"
 msgstr "Výměna nástroje byla zrušena!\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4442
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4443
 msgid "The old tool will remain set!"
 msgstr "Starý nástroj zůstane nastavený!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4450
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4451
 msgid "You are trying to delete the tool mounted in the spindle\n"
 msgstr "Pokoušíte se smazat nástroj upnutý ve vřeteni\n"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4451
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4452
 msgid "This is not allowed, please change tool prior to delete it"
 msgstr "Toto není povoleno, vyměňte nástroj před jeho odstraněním"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4452
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4453
 msgid "Warning Tool can not be deleted!"
 msgstr "Varování - nástroj nemůže být smazán!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4471
-msgid "No or more than one tool selected in tool table"
-msgstr "Vybrán žádný nebo více jak jeden nástroj"
-
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4472
-msgid "Please select only one tool in the table"
-msgstr "Vyberte prosím pouze jeden nástroj v tabulce"
+msgid "No or more than one tool selected in tool table"
+msgstr "Vybrán žádný nebo více jak jeden nástroj. "
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4473
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4479
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4487
+msgid "Please select only one tool in the table"
+msgstr "Vyberte prosím pouze jeden nástroj v tabulce."
+
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4474
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4480
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4488
 msgid "Warning Tool Touch off not possible!"
 msgstr "Varování - dotyk nástroje není možný!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4477
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4478
 msgid "you can not touch of a tool, witch is not mounted in the spindle"
 msgstr "nemůžete realizovat dotyk nástroje, který není upnut ve vřeteni"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4478
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4479
 msgid "your selection has been reseted to the tool in spindle"
 msgstr "váš výběr byl resetován na nástroj upnutý ve vřeteni"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4485
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4486
 msgid ""
 "Tool touch off is not possible with cutter radius compensation switched on!\n"
 msgstr ""
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4486
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4487
 msgid "Please emit an G40 before tool touch off"
 msgstr ""
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4495
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4496
 msgid "Real big error!"
 msgstr "Skutečná velká chyba!"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4496
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4497
 msgid ""
 "You managed to come to a place that is not possible in on_btn_tool_touchoff"
 msgstr ""
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4500
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4501
 #, python-brace-format
 msgid "Enter value for axis {0} to set:"
 msgstr "Vložit hodnotu pro osu {0}:"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4501
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4502
 #, python-brace-format
 msgid "Set parameter of tool {0:d} and axis {1} to:"
 msgstr "Nastavit parametr nástroje {0:d} a osy {1}:"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4505
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4506
 #, python-brace-format
 msgid "Conversion error because of wrong entry for touch off axis {0}"
 msgstr ""
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4524
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4525
 msgid "Enter the tool number as integer "
 msgstr "Formát čísla nástroje musí být celočíselný"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4525
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4526
 msgid "Select the tool to change"
 msgstr "Vybrat nástroj pro výměnu"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4527
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4528
 msgid "Conversion error because of wrong entry for tool number\n"
 msgstr ""
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4528
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4529
 msgid "enter only integer numbers"
 msgstr "vložit jen celočíselná čísla"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4534
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4552
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4535
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4553
 msgid "Selected tool is already in spindle, no change needed."
 msgstr "Zvolený nástroj je již ve vřeteni. Výměna nástroje nenastane."
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4548
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4549
 msgid ""
 "you selected no or more than one tool, the tool selection must be unique"
 msgstr ""
 "Vybrán žádný nebo více jak jeden nástroj. Musí být vybrán pouze jen jeden "
 "nástroj."
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4567
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4568
 msgid "Could not understand the entered tool number. Will not change anything"
 msgstr "Nerozpoznáno číslo nástroje. Výměna nástroje nenastane."
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:4818
+#: emc/usr_intf/gmoccapy/gmoccapy.py:4819
 msgid ""
 "World\n"
 "mode"
 msgstr ""
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:5004
+#: emc/usr_intf/gmoccapy/gmoccapy.py:5005
 msgid "Axis jogging is only allowed in world mode, but you are in joint mode!"
 msgstr ""
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:5040
+#: emc/usr_intf/gmoccapy/gmoccapy.py:5041
 #, python-brace-format
 msgid "Recieved a not clasified signal from pin {0}"
 msgstr ""
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:5045
+#: emc/usr_intf/gmoccapy/gmoccapy.py:5046
 #, python-brace-format
 msgid "Could not translate {0} to number"
 msgstr "Není možné převést {0} na číslo"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:5050
+#: emc/usr_intf/gmoccapy/gmoccapy.py:5051
 msgid "no button here"
 msgstr "není zde žádné tlačítko"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:5053
+#: emc/usr_intf/gmoccapy/gmoccapy.py:5054
 msgid "the button is not sensitive"
 msgstr "tlačítko není citlivé"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:5058
+#: emc/usr_intf/gmoccapy/gmoccapy.py:5059
 #, python-brace-format
 msgid "Button {0} has been toggled"
 msgstr "Přepnutí tlačítka {0}"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:5062
+#: emc/usr_intf/gmoccapy/gmoccapy.py:5063
 #, python-brace-format
 msgid "Button {0} has been pressed"
 msgstr "Stisknutí tlačítka {0}"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:5065
+#: emc/usr_intf/gmoccapy/gmoccapy.py:5066
 #, python-brace-format
 msgid "Button {0} has been clicked"
 msgstr "Kliknutí na tlačítko {0}"
 
-#: emc/usr_intf/gmoccapy/gmoccapy.py:5078
+#: emc/usr_intf/gmoccapy/gmoccapy.py:5079
 msgid "got wrong location to locate the childs"
 msgstr ""
 
