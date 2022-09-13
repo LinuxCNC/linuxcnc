@@ -10,6 +10,7 @@ Build-Depends:
     @KERNEL_HEADERS@,
     @MODUTILS_DEPENDS@,
     @EXTRA_BUILD@,
+    docbook-xsl,
     asciidoc,
     ghostscript,
     imagemagick,

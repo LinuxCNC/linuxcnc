@@ -1,3 +1,5 @@
+# vim: sw=2
+
 name: Build CI
 
 on:
@@ -65,7 +67,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image: ["debian:testing", "debian:unstable"]
+        image: ["debian:buster", "debian:bullseye", "debian:bookworm", "debian:sid"]
     container:
       image: ${{ matrix.image }}
       # IPC_OWNER is needed for shmget IPC_CREAT
@@ -83,12 +85,27 @@ jobs:
         set -e
         set -x
         apt-get --quiet update
+        # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
         apt-get --yes --quiet install --no-install-suggests git lsb-release python3 devscripts
+
     - uses: actions/checkout@v3
       with:
         # "fetch-depth: 0" fetches all of history, this is needed by
         # our build system to determine the version from tags
         fetch-depth: 0
+
+    - name: Add linuxcnc.org deb archive
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        set -e
+        set -x
+        apt-get --yes --quiet install --no-install-recommends gpg software-properties-common
+        gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
+        DIST=$(echo ${{matrix.image}} | cut -d : -f 2)
+        add-apt-repository "deb http://linuxcnc.org $DIST base"
+        apt-get --quiet update
+
     - name: Build architecture-specific Debian packages
       env:
         DEBEMAIL: emc-developers@lists.sourceforge.net
@@ -135,7 +152,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image: ["debian:testing", "debian:unstable"]
+        image: ["debian:buster", "debian:bullseye", "debian:bookworm", "debian:sid"]
     container:
       image: ${{ matrix.image }}
       # IPC_OWNER is needed for shmget IPC_CREAT
@@ -146,6 +163,7 @@ jobs:
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       run: echo "$GITHUB_CONTEXT"
+
     - name: Install pre-dependencies
       env:
         DEBIAN_FRONTEND: noninteractive
@@ -153,12 +171,27 @@ jobs:
         set -e
         set -x
         apt-get --quiet update
+        # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
         apt-get --yes --quiet install --no-install-suggests git lsb-release python3 devscripts
+
     - uses: actions/checkout@v3
       with:
         # "fetch-depth: 0" fetches all of history, this is needed by
         # our build system to determine the version from tags
         fetch-depth: 0
+
+    - name: Add linuxcnc.org deb archive
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        set -e
+        set -x
+        apt-get --yes --quiet install gpg software-properties-common
+        gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
+        DIST=$(echo ${{matrix.image}} | cut -d : -f 2)
+        add-apt-repository "deb http://linuxcnc.org $DIST base"
+        apt-get --quiet update
+
     - name: Build architecture-independent Debian packages
       env:
         DEBEMAIL: emc-developers@lists.sourceforge.net

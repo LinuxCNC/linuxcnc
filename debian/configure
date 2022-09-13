@@ -62,7 +62,7 @@ elif [ -f /etc/lsb-release ]; then
 fi
 
 if [ -n "$ENABLE_BUILD_DOCUMENTATION" ]; then
-    DOC_DEPENDS="dblatex (>= 0.2.12),\n    docbook-xsl,\n    dvipng,\n    graphviz,\n    groff,\n    inkscape,\n    python3-lxml,\n    w3c-linkchecker,\n    xsltproc,\n    texlive-extra-utils,\n    texlive-font-utils,\n    texlive-fonts-recommended,\n    texlive-lang-cyrillic,\n    texlive-lang-european,\n    texlive-lang-french,\n    texlive-lang-german,\n    texlive-lang-polish,\n    texlive-lang-spanish,\n    texlive-latex-recommended,\n    fonts-dejavu"
+    DOC_DEPENDS="dblatex (>= 0.2.12),\n    dvipng,\n    graphviz,\n    groff,\n    inkscape,\n    python3-lxml,\n    w3c-linkchecker,\n    xsltproc,\n    texlive-extra-utils,\n    texlive-font-utils,\n    texlive-fonts-recommended,\n    texlive-lang-cyrillic,\n    texlive-lang-european,\n    texlive-lang-french,\n    texlive-lang-german,\n    texlive-lang-polish,\n    texlive-lang-spanish,\n    texlive-latex-recommended,\n    fonts-dejavu"
 
     case $DISTRIB_NAME in
 	Debian-9)
