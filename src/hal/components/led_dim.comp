@@ -45,10 +45,12 @@ Component for LED dimming according to human perception of brightness of light.
 The output is calculated using the CIE 1931 formula.
 """;
 license "GPL";
+author "Alexander Rössler";
 variable hal_float_t last_in = 0.0;
 ;;
-#include <runtime/rtapi_math.h>
+#include "rtapi_math.h"
 #define MIN(x,y) (x < y ? x : y)
+#define MAX(x,y) (x > y ? x : y)
 
 FUNCTION(_) {
     if (last_in != in)
@@ -63,11 +65,9 @@ FUNCTION(_) {
         }
         else
         {
-            out = rtapi_pow((input + 0.16) / 1.16, 3.0);
+            out = pow((input + 0.16) / 1.16, 3.0);
         }
 
         last_in = in;
     }
-
-    return 0;
 }
