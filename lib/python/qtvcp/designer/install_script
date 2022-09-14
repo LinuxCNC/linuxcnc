@@ -107,6 +107,6 @@ fi
 #clear
 echo -e '\nInstallation complete, designer can be started with:'
 echo -e '\ndesigner -qt=5\n'
-if [ $response -eq 1 ]; then
+if [ $response -eq 2 ]; then
     echo -e 'After setting the rip-environment\n'
 fi
