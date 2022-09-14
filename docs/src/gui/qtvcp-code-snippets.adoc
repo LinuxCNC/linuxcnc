@@ -4,8 +4,6 @@
 [[cha:qtvcp:code]]
 = QtVCP Handler File Code Snippets
 
-Here are bits of ideas to put in the handler file.
-
 == Preference File Loading/Saving
 
 Here is how to *load and save preferences at launch and closing time*.
@@ -27,7 +25,7 @@ if self.w.PREFS_:
 ----
 
 .Writing preferences at close time
-Under the *`def closing_cleanup__(self):`* function add:
+In the *`closing_cleanup__()`* function, add:
 
 [source,python]
 ----
@@ -206,7 +204,7 @@ STATUS.emit('play-alert','SPEAK Please remember to oil the ways.')
 
 *`SPEAK`* is a keyword: _everything after it will be pronounced_.
 
-== ToolBar Functions.
+== ToolBar Functions
 
 Toolbar buttons and submenus are added in Qt Designer but the code to
 make them do something is added in the handler file.

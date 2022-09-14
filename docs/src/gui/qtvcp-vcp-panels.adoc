@@ -139,65 +139,6 @@ loadusr qtvcp sim_panel
 .QtVCP `sim_panel` - Simulated Controls Panel For Screen Testing.
 image::images/qtvcp_sim_panel.png["QtVCP sim_panel - Simulated Controls Panel For Screen Testing",align="center"]
 
-[[sub:qtvcp:panels:vismach]]
-=== `vismach_*` Panels
-
-.`vismach_mill_xyz`
-3D OpenGL view of a _3-Axis milling machine_.
-
-[source,{hal}]
-----
-loadusr qtvcp vismach_mill_xyz
-----
-
-.QtVCP `vismach_mill_xyz` - 3-Axis Mill 3D View Panel
-image::images/qtvismach.png["QtVCP vismach_mill_xyz - 3-Axis Mill 3D View Panel",align="center"]
-
-.`vismach_scara`
-3D OpenGL view of a _SCARA based milling machine_.
-
-[source,{hal}]
-----
-loadusr qtvcp vismach_scara
-----
-
-.QtVCP `vismach_scara` - SCARA Mill 3D View Panel
-image::images/qtvismach_scara.png["QtVCP vismach_scara - SCARA Mill 3D View Panel",align="center"]
-
-.`vismach_millturn`
-3D OpenGL view of a _3-Axis milling machine with an A axis/spindle_.
-
-[source,{hal}]
-----
-loadusr qtvcp vismach_millturn
-----
-
-.QtVCP `vismach_millturn` - 4 Axis MillTurn 3D View Panel
-image::images/qtvismach_millturn.png["QtVCP vismach_millturn - 4 Axis MillTurn 3D View Panel",align="center"]
-
-.`vismach_mill_5axis_gantry`
-3D OpenGL view of a _5-Axis gantry type milling machine_.
-
-[source,{hal}]
-----
-loadusr qtvcp vismach_mill_5axis_gantry
-----
-
-.QtVCP `vismach_mill_5axis_gantry` - 5-AxIs Gantry Mill 3D View Panel
-image::images/qtvismach_5axis_gantry.png["QtVCP vismach_mill_5axis_gantry - 5-Axis Gantry Mill 3D View Panel",align="center"]
-
-.`vismach_fanuc_200f`
-3D openGL view of a _6 joint robotic arm_.
-
-[source,{hal}]
-----
-loadusr qtvcp vismach_fanuc_200f
-----
-
-.QtVCP `vismach_fanuc_200f` - 6 Joint Robotic Arm
-image::images/qtvismach_fanuc_200f.png["QtVCP vismach_fanuc_200f - 6 Joint Robotic Arm",align="left"]
-
-
 [[sub:qtvcp:panels:tool-dialog]]
 === `tool_dialog`
 
@@ -217,6 +158,71 @@ Options:
 
 .QtVCP `tool_dialog` - Manual Tool Change Dialog
 image::images/qtvcp_toolChange.png["QtVCP tool_dialog - Manual Tool Change Dialog",align="center"]
+
+
+[[sub:qtvcp:panels:vismach]]
+== `vismach_*` 3D Simulation Panels
+
+=== QtVCP `vismach_mill_xyz`
+
+3D OpenGL view of a _3-Axis milling machine_.
+
+[source,{hal}]
+----
+loadusr qtvcp vismach_mill_xyz
+----
+
+.QtVCP `vismach_mill_xyz` - 3-Axis Mill 3D View Panel
+image::images/qtvismach.png["QtVCP vismach_mill_xyz - 3-Axis Mill 3D View Panel",align="center"]
+
+=== QtVCP `vismach_scara`
+
+3D OpenGL view of a _SCARA based milling machine_.
+
+[source,{hal}]
+----
+loadusr qtvcp vismach_scara
+----
+
+.QtVCP `vismach_scara` - SCARA Mill 3D View Panel
+image::images/qtvismach_scara.png["QtVCP vismach_scara - SCARA Mill 3D View Panel",align="center"]
+
+=== QtVCP `vismach_millturn`
+
+3D OpenGL view of a _3-Axis milling machine with an A axis/spindle_.
+
+[source,{hal}]
+----
+loadusr qtvcp vismach_millturn
+----
+
+.QtVCP `vismach_millturn` - 4 Axis MillTurn 3D View Panel
+image::images/qtvismach_millturn.png["QtVCP vismach_millturn - 4 Axis MillTurn 3D View Panel",align="center"]
+
+=== QtVCP `vismach_mill_5axis_gantry`
+
+3D OpenGL view of a _5-Axis gantry type milling machine_.
+
+[source,{hal}]
+----
+loadusr qtvcp vismach_mill_5axis_gantry
+----
+
+.QtVCP `vismach_mill_5axis_gantry` - 5-AxIs Gantry Mill 3D View Panel
+image::images/qtvismach_5axis_gantry.png["QtVCP vismach_mill_5axis_gantry - 5-Axis Gantry Mill 3D View Panel",align="center"]
+
+=== QtVCP `vismach_fanuc_200f`
+
+3D openGL view of a _6 joint robotic arm_.
+
+[source,{hal}]
+----
+loadusr qtvcp vismach_fanuc_200f
+----
+
+.QtVCP `vismach_fanuc_200f` - 6 Joint Robotic Arm
+image::images/qtvismach_fanuc_200f.png["QtVCP vismach_fanuc_200f - 6 Joint Robotic Arm",align="left"]
+
 
 [[sec:qtvcp:panels:custom]]
 == Custom Virtual Control Panels
@@ -239,7 +245,7 @@ loadrt classicladder_rt
 
 # load user space programs
 loadusr classicladder
-loadusr -Wn my_panel qtvcp my_panel.ui  <1>
+loadusr -Wn my_panel qtvcp my_panel.ui  # <1>
 
 # add components to thread
 addf classicladder.0.refresh thread1

@@ -702,9 +702,10 @@ such as keyboard jogging etc.
 
 === Usage
 
-*  *Import `Keylookup` module* +
-  To import this modules add this Python code to your import section:
-+
+.Import `Keylookup` module
+
+To import this modules add this Python code to your import section:
+
 [source,python]
 ----
 ############################
@@ -714,10 +715,11 @@ such as keyboard jogging etc.
 from qtvcp.lib.keybindings import Keylookup
 ----
 
-*  *Instantiate `Keylookup` module* +
-  To instantiate `Keylookup` module* so you can use it, add this
-  Python code to your instantiate section:
-+
+.Instantiate `Keylookup` module
+
+To instantiate `Keylookup` module* so you can use it, add this
+Python code to your instantiate section:
+
 [source,python]
 ----
 ###########################################
@@ -727,22 +729,22 @@ from qtvcp.lib.keybindings import Keylookup
 KEYBIND = Keylookup()
 ----
 
-* *Add Key Bindings*
-+
+.Add Key Bindings
+
 NOTE: `Keylookup` requires code under the `processed_key_event` function
   to call `KEYBIND.call()`. +
   Most handler files already have this code.
-+
+
 In the handler file, under the _initialized function_ use this general
 syntax to *create keybindings*:
-+
+
 [source,python]
 ----
 KEYBIND.add_call("DEFINED_KEY","FUNCTION TO CALL", USER DATA)
 ----
-+
+
 Here we add a keybinding for `F10`, `F11` and `F12`:
-+
+
 [source,python]
 ----
 ##########################################
@@ -757,10 +759,10 @@ def initialized__(self):
     KEYBIND.add_call('Key_F11','on_keycall_override',10)
     KEYBIND.add_call('Key_F12','on_keycall_override',20)
 ----
-+
+
 And then we need to *add the functions that get called*. +
 In the handler file, under the `KEY BINDING CALLS` section, add this:
-+
+
 [source,python]
 ----
 #####################
@@ -1330,6 +1332,6 @@ layout:
 === More Information
 
 More information on how to build a custom machine simulation in the
-<<cha:qtvcp:vismach,QtVCP Vismach>> chapter.
+<<cha:qtvcp:vismach,Qt Vismach>> chapter.
 
 // vim: set syntax=asciidoc:

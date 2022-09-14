@@ -4,6 +4,8 @@
 [[cha:qtvcp:devel]]
 = QtVCP Development
 
+== Overview
+
 The intention of QtVCP is to *supply an infrastructure to support
 screen and VCP panel building for LinuxCNC*.
 
@@ -14,8 +16,6 @@ rather than continuous re-invention.
 By using the same toolkit across many screens/panels users should have
 an easier time customizing/creating these, and developers should find it
 easier to help trouble shoot with less effort.
-
-== Overview
 
 QtVCP uses a *Qt Designer built `.ui` file* and a *Python handler file*
 to *load and control a screen/panel that displays Qt widgets* to *control
@@ -70,7 +70,7 @@ This also initiates the `+_init_hal()+` function of the widgets.
 . The `STATUS` library is forced to update.
 . HAL component is set ready at this point.
 . A variety of optional switch arguments are set, including calling a
-  POSTGUI HAL file (if a screen).
+  `POSTGUI` HAL file (if a screen).
 . Terminate signals are trapped and QtVCP now polls for events.
 
 === QtVCP Shutdown
@@ -119,8 +119,8 @@ _Errors are then *sent to other objects* via_ *`STATUS`* _signals_.
 
 === Jog Rate
 
-*LinuxCNC has no internal record of jog rate*: *you must specify it at
-the time of jogging*.
+*LinuxCNC has no internal record of jog rate*: _you must specify it at
+the time of jogging_.
 
 QtVCP uses the `STATUS` library to _keep track of the latest linear and
 angular jog rates_.

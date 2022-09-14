@@ -98,15 +98,17 @@ details to be selected rather then be coded in the handler file.
 
 //FIXME unclear
 If you are using QtVCP to make a CNC control screen, in the INI file,
-under the `[DISPLAY]` heading, add a line with the following pattern:
+in the `[DISPLAY]` section, add a line with the following pattern:
 
 [source,{ini}]
 ----
 DISPLAY = qtvcp <options> <screen_name>
 ----
 
-.Options And Parameters
+[NOTE]
 All `<options>` must appear before `<screen_name>`.
+
+.Options
 
 * `-d` Debugging on
 * `-a` Set window always on top
@@ -133,7 +135,7 @@ QtVCP will first search the LinuxCNC configuration directory that was
 launched for the files, then in the system skin folder holding standard
 screens.
 
-.Cycles Rates
+.Cycle Times
 
 [source,{ini}]
 ----
@@ -204,10 +206,11 @@ using themes.
 The _Windows theme_ is default for screens. +
 The _System theme_ is default for panels.
 
-To see available themes load with:
+To see available themes, they can be loaded by running the following
+command in a terminal:
 
 ----
-qtvcp -d -t SHOWTHEMES
+qtvcp -d -t <theme_name>
 ----
 
 QtVCP can also be customized with _Qt stylesheets (QSS)_ using CSS.
@@ -369,7 +372,7 @@ loadrt classicladder_rt
 
 # load user space programs
 loadusr classicladder
-loadusr -Wn my_panel qtvcp my_panel.ui  <1>
+loadusr -Wn my_panel qtvcp my_panel.ui  # <1>
 
 # add components to thread
 addf classicladder.0.refresh thread1
@@ -447,7 +450,7 @@ Necesitará privilegios de superusuario para copiar el archivo en la
 carpeta.
 ////
 
-.Add `qtvcp_plugin.py` link Qt Designer Search Path
+.Add `qtvcp_plugin.py` link to the Qt Designer Search Path
 Then you must add a link to the `qtvcp_plugin.py` in one of the folders
 that Qt Designer will search into.
 
@@ -1010,7 +1013,7 @@ def closeEvent(self, event):
 NOTE: It is usually better to use the special `closing_cleanup__`
   function.
 
-== Connecting Widgets To Python Code
+== Connecting Widgets to Python Code
 
 It is possible to connect widgets to Python code using *signals and slots*.
 
@@ -1031,7 +1034,7 @@ In this way you can:
 * You _create the slot's functions_ defined in Qt Designer.
 
 [[sub:qtvcp:designer-slots]]
-=== Using Qt Designer To Add Slots
+=== Using Qt Designer to add Slots
 
 When you have loaded your screen into Qt Designer, add a plain
 `PushButton` to the screen. +
@@ -1063,7 +1066,7 @@ There are two ways to edit connections - This is the graphical way.
 .Qt Designer Signal/Slot Selection
 image::images/designer_slots.png["Qt Designer Signal/Slot Selection",align="center"]
 
-=== Handler File Changes
+=== Python Handler Changes
 
 Now you must *add the function to the handler file*.
 

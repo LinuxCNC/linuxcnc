@@ -7,6 +7,11 @@
 *Vismach* is a set of *Python functions that can be used to create and
 animate models of machines*.
 
+This chapter is about the Qt embedded version of <<cha:vismach,Vismach>>.
+
+[[sec:qtvcp:vismach:intro]]
+== Introduction
+
 Vismach displays the model in a *3D viewport* and the *model parts are
 animated as the values of associated HAL pins change*.
 
@@ -33,11 +38,12 @@ The basic sequence in creating the Vismach model is:
 . Define how they move
 . Assemble into movement groups
 
+[[sec:qtvcp:vismach:hierarchy]]
 == Hierarchy of Machine Design
 
 The model follows *logical tree design*.
 
-Picture the tree, with root/trunc, branches and smaller branches off it.
+Picture the tree, with root/trunk, branches and smaller branches off it.
 If you move the larger branch, smaller branches will move with it, but
 if you move smaller branch larger will not.
 
@@ -47,7 +53,7 @@ Taking the mill shown in the 3D Viewport picture above for example:
 
 * if you move X, it can move on its own,
 * but if you move Y, it will also move X assembly, as it is attached to
-  Y assembly. +
+  Y assembly.
 
 So for this machine, tree looks like this:
 
@@ -102,6 +108,7 @@ example and you will see that it starts with tip and adds to larger part
 of arm then it finally groups with base.
 
 
+[[sec:qtvcp:vismach:start]]
 == Start the script
 
 It is useful for testing to include the `#!/usr/bin/env python3` shebang
@@ -120,6 +127,7 @@ import sys
 from qtvcp.lib.qt_vismach.qt_vismach import *
 ----
 
+[[sec:qtvcp:vismach:hal]]
 == HAL pins.
 
 Originally the vismach library required creating a component and
@@ -136,8 +144,10 @@ c.newpin("joint1", hal.HAL_FLOAT, hal.HAL_IN)
 c.ready()
 ----
 
+[[sec:qtvcp:vismach:parts]]
 == Creating Parts
 
+[[sub:qtvcp:vismach:import]]
 === Import STL or OBJ Files
 
 It is probably easiest to:
@@ -162,6 +172,7 @@ The parts will be created in the Vismach space in the _same locations as
 they occupy in the STL or OBJ space_, meaning it may be possible to
 assemble the model in the CAD package.
 
+[[sub:qtvcp:vismach:primitives]]
 === Build from Geometric Primitives
 
 Alternatively parts can be _created inside the model script from a range
@@ -204,6 +215,7 @@ part3 = Collection([part2, TriangleXY(10,10,20,10,15,20,100,101)])
 part4 = Collection([part1, part2])
 ----
 
+[[sec:qtvcp:vismach:move]]
 == Moving Model Parts
 
 Parts may need to be moved in the Vismach space to assemble the model.
@@ -212,11 +224,13 @@ Parts may need to be moved in the Vismach space to assemble the model.
 They may also need to be moved to create the animation as the animation
 rotation axis is created at the origin (but moves with the Part).
 
+[[sub:qtvcp:vismach:translate]]
 === Translating Model parts
 
 *`part1 = Translate([part1], x, y, z)`*::
   Move part1 the specified distances in x, y and z.
 
+[[sub:qtvcp:vismach:rotate]]
 === Rotating Model Parts
 
 //FIXME angle unit ?
@@ -224,6 +238,7 @@ rotation axis is created at the origin (but moves with the Part).
   Rotate the part by angle theta about an axis between the origin and
   x, y, z.
 
+[[sec:qtvcp:vismach:animate]]
 == Animating Parts
 
 //FIXME 2 or 3 functions ? HalToolCylinder not documented here ?
@@ -238,6 +253,7 @@ The *rotation axis and translation vector move with the part*:
 * as it is moved by the Vismach script during model assembly, or
 * as it moves in response to the HAL pins as the model is animated.
 
+[[sub:qtvcp:vismach:haltranslate]]
 === `HalTranslate`
 
 *`part = HalTranslate([part], hal_comp, hal_pin, xs, ys, zs)`*::
@@ -270,6 +286,7 @@ that component would be specified.
     inches, this could be fixed at this point by using 0.3937
     (1cm /2.54in) as the scale.
 
+[[sub:qtvcp:vismach:halrotate]]
 === `HalRotate`
 
 *`part = HalRotate([part], hal_comp, hal_pin, angle_scale, x, y, z)`*::
@@ -284,6 +301,7 @@ that component would be specified.
   `angle_scale`;; _Rotation angles_ are in degrees, so for a rotary
     joint with a 0-1 scaling you would need to use an angle scale of 360.
 
+[[sec:qtvcp:vismach:assembly]]
 == Assembling the model
 
 In order for parts to move together they need to be assembled with the
@@ -358,6 +376,7 @@ Whereas a VMC model with separate parts moving on the base might have
 model = Collection([base, saddle, head, carousel])
 ----
 
+[[sec:qtvcp:vismach:functions]]
 == Other functions
 
 *`part = Color([_colorspec_], [_part_])`*::
@@ -393,7 +412,8 @@ model = Collection([base, saddle, head, carousel])
     It is advisable to do as the default initial viewpoint is rather
     unhelpfully from immediately overhead.
 
-== Basic structure of a QtVismach script
+[[sec:qtvcp:vismach:structure]]
+== Basic structure of a `QtVismach` script
 
 [source,python]
 ----
@@ -457,6 +477,7 @@ if __name__ == '__main__':
     main(model, tooltip, work, size=600, hud=None, lat=-75, lon=215)
 ----
 
+[[sec:qtvcp:vismach:panels]]
 == Builtin Vismach Sample Panels
 
 <<sub:qtvcp:panels:vismach,QtVCP builtin Vismach Panels>>
