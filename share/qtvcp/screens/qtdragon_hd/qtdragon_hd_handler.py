@@ -15,6 +15,7 @@ from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp.core import Status, Action, Info, Path, Qhal
 from qtvcp import logger
 from shutil import copyfile
+from math import dist, ceil
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -79,7 +80,7 @@ class HandlerClass:
         self.reload_tool = 0
         self.last_loaded_program = ""
         self.first_turnon = True
-        self.unit_label_list = ["ts_height", "tp_height", "zoffset_units", "max_probe_units"]
+        self.unit_label_list = ["ts_height", "tp_height", "zoffset_units", "max_probe_units", "retract_dist_units", "z_safe_travel_units"]
         self.lineedit_list = ["work_height", "touch_height", "sensor_height", "laser_x", "laser_y",
                               "sensor_x", "sensor_y", "camera_x", "camera_y",
                               "search_vel", "probe_vel", "max_probe", "eoffset_count"]
@@ -708,13 +709,11 @@ class HandlerClass:
             y = float(self.w.lineEdit_sensor_y.text())
         else:
             return
-        if not STATUS.is_metric_mode():
-            x = x / 25.4
-            y = y / 25.4
+
         ACTION.CALL_MDI("G90")
         ACTION.CALL_MDI_WAIT("G53 G0 Z0")
         command = "G53 G0 X{:3.4f} Y{:3.4f}".format(x, y)
-        ACTION.CALL_MDI_WAIT(command, 10)
+        ACTION.CALL_MDI_WAIT(command, self.calc_mdi_move_wait_time(x,y))
  
     def btn_ref_laser_clicked(self):
         x = float(self.w.lineEdit_laser_x.text())
@@ -743,9 +742,11 @@ class HandlerClass:
         if not STATUS.is_all_homed():
             self.add_status("Must be homed to perform tool touchoff", WARNING)
             return
-        # instantiate dialog box
+         
+         # instantiate dialog box   
+        unit = "mm" if INFO.MACHINE_IS_METRIC else "in"
         sensor = self.w.sender().property('sensor')
-        info = "Ensure tooltip is within {} mm of tool sensor and click OK".format(self.w.lineEdit_max_probe.text())
+        info = "Ensure tooltip is within {}{} of tool sensor and click OK".format(self.w.lineEdit_max_probe.text(), unit)
         mess = {'NAME':'MESSAGE', 'ID':sensor, 'MESSAGE':'TOOL TOUCHOFF', 'MORE':info, 'TYPE':'OKCANCEL'}
         ACTION.CALL_DIALOG(mess)
         
@@ -1198,6 +1199,14 @@ class HandlerClass:
             self.add_status("Cannot switch pages while in AUTO mode", WARNING)
             self.w.main_tab_widget.setCurrentIndex(0)
             self.w.btn_main.setChecked(True)
+    
+    # calc wait time for mdi move based on dist and rapid speed, return seconds to wait
+    def calc_mdi_move_wait_time(self, dest_x, dest_y, wait_buffer_secs=1):
+        move_speed = (STATUS.stat.rapidrate * STATUS.get_max_velocity()) / 60
+        pos_cur,pos_rel,dtg, = STATUS.get_position()
+        move_dist = dist([pos_cur[0],pos_cur[1]], [dest_x,dest_y])
+        return ceil(move_dist / move_speed) + wait_buffer_secs
+
 
     #####################
     # KEY BINDING CALLS #
