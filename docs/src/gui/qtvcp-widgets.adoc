@@ -1837,10 +1837,10 @@ Here is a sample for the first four lines in an _O-word file_:
 
 .`MACROCOMMAND`
 
-This is the _first line_ in the Oword file.
+This is the _first line_ in the O-word file.
 
 It is a *comma separated list of text to display above an entry*. +
-There will be *one for every variable required* in the Oword function.
+There will be *one for every variable required* in the O-word function.
 
 If the macro does not require variables, leave it empty:
 
@@ -1851,17 +1851,17 @@ If the macro does not require variables, leave it empty:
 
 .`MACRODEFAULTS`
 
-This must be the _second line_ in the Oword file.
+This must be the _second line_ in the O-word file.
 
 It is a *comma separated list of the default values for each variable*
-in the Oword function.
+in the O-word function.
 
 If you use the word `true` or `false` in the list, a `*checkbutton*`
 will be shown.
 
 .`MACROIMAGE`
 
-This must be the _third line_ in the Oword file.
+This must be the _third line_ in the O-word file.
 
 * *SVG Images* +
   If using SVG image files, they must end with the `.svg` extension. +
@@ -1880,7 +1880,7 @@ With:
 +
 *`_filename_.svg`*::
   SVG image file name as first field. +
-  It is assumed to be in the same folder as the Oword file.
+  It is assumed to be in the same folder as the O-word file.
 *`*macro_layer_name`*::
   Macro image layer name as second field.
 *`icon_layer_name`*::
@@ -1912,7 +1912,7 @@ be used.
 
 .`MACROOPTIONS`
 
-This _optional line must be the fourth_ line in the Oword file.
+This _optional line must be the fourth_ line in the O-word file.
 
 It is a comma separated list of keyword and data:
 

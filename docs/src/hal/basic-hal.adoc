@@ -316,7 +316,7 @@ A 'float' is a floating point number. In other words the decimal point
 can move as needed.
 
 - float values = a 64 bit floating point value, with approximately 53 bits of
-  resolution and over 2^10 (~ 1000) bits of dynamic range.
+  resolution and over 2^10^ (~ 1000) bits of dynamic range.
 
 For more information on floating point numbers see:
 
