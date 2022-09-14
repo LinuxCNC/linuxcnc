@@ -1,3 +1,4 @@
+
 '''
 plasmac_gcode.py
 
@@ -136,6 +137,7 @@ errors += 'Errors must be fixed before reloading this file.\n'
 errorMath = []
 errorMissMat = []
 errorNoMat = []
+errorBadMat = []
 errorTempMat = []
 errorNewMat = []
 errorEditMat = []
@@ -466,33 +468,36 @@ def check_math(axis):
     return False
 # do material change
 def do_material_change():
-    global lineNum, lineNumOrg, errorLines, firstMaterial, codeError, errorMissMat, errorNoMat
+    global lineNum, lineNumOrg, errorLines, firstMaterial, codeError, errorMissMat, errorNoMat, errorBadMat
     if '(' in line:
-        c = line.split('(', 1)[0]
+        a = line.split('(', 1)[0]
     elif ';' in line:
-        c = line.split(';', 1)[0]
+        a = line.split(';', 1)[0]
     else:
-        c = line
-    if 'p' not in line:
+        a = line
+    b = a.replace('m190', '').strip()
+    # check for missing p or material
+    if not len(b) or b[0] != 'p' or b == 'p':
         codeError = True
         errorNoMat.append(lineNum)
         errorLines.append(lineNumOrg)
         gcodeList.append(';{}'.format(line))
         return True
-    b = c.split('p', 1)[1]
+    c = b.split('p', 1)[1]
     m = ''
     # get the material number
-    for mNum in b.strip():
+    for mNum in c.strip():
         if mNum in '0123456789':
             m += mNum
-    if not m:
-        codeError = True
-        errorNoMat.append(lineNum)
-        errorLines.append(lineNumOrg)
-        gcodeList.append(';{}'.format(line))
-        return True
+        else:
+            codeError = True
+            errorBadMat.append(lineNum)
+            errorLines.append(lineNumOrg)
+            gcodeList.append(';{}'.format(line))
+            return True
     material[0] = int(m)
     material[1] = True
+    # check if material exists
     if material[0] not in materialDict and material[0] < 1000000:
         codeError = True
         errorMissMat.append(lineNum)
@@ -1197,6 +1202,9 @@ if codeError or codeWarn:
         if errorNoMat:
             msg  = 'A Material was not specified after M190.\n'
             errorText += message_set(errorNoMat, msg)
+        if errorBadMat:
+            msg  = 'An invalid Material was specified after M190 P.\n'
+            errorText += message_set(errorBadMat, msg)
         if errorTempMat:
             msg  = 'Error attempting to add a temporary material.\n'
             errorText += message_set(errorTempMat, msg)
