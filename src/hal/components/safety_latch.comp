@@ -37,7 +37,7 @@
  ******************************************************************************/
 component safety_latch "latch for error signals";
 description """
-HAL component that implements a safety latch for error singnals
+HAL component that implements a safety latch for error signals
 with customizable harm, healing and latching features.
 
 When the component is not enabled the error input value is
@@ -69,9 +69,10 @@ variable hal_bit_t last_reset = false;
 
 function _ nofp;
 license "GPL";
-author "Alexander Roessler";
+author "Alexander Rössler";
 ;;
 #define MIN(x,y) (x < y ? x : y)
+#define MAX(x,y) (x > y ? x : y)
 
 FUNCTION(_)
 {
