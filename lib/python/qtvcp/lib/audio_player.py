@@ -68,6 +68,13 @@ except:
         LOG.warning('Text to speech output not available. ')
 
 
+def speak_synth_callback(*args):
+    # when sentences ends, start the next one, until there are none.
+    if args[0] == espeak.event_MSG_TERMINATED:
+        if not esQueue.empty():
+            espeak.synth(esQueue.get())
+
+
 # the player class does the work of playing the audio hints
 # http://pygstdocs.berlios.de/pygst-tutorial/introduction.html
 class Player:
@@ -81,7 +88,7 @@ class Player:
             bus.add_signal_watch()
             bus.connect("message", self.on_message)
         try:
-            espeak.set_SynthCallback(self.speak_finished)
+            espeak.set_SynthCallback(speak_synth_callback)
         except Exception as e:
             pass
 
@@ -253,12 +260,6 @@ class Player:
                 # fallback call the system espeak - no queue used
                 os.system('''espeak -s 160 -v m3 -p 1 "%s" &''' % cmd)
 
-    # when sentences ends, start the next one, until there are none.
-    def speak_finished(self, *args):
-        if args[0] == espeak.event_MSG_TERMINATED:
-            if not esQueue.empty():
-                espeak.synth(esQueue.get())
-
     def speak_cancel(self):
         espeak.cancel()
 
@@ -273,13 +274,17 @@ class Player:
         return setattr(self, item, value)
 
 
+
 if __name__ == "__main__":
     import gi
     from gi.repository import GLib
     try:
         test = Player()
         test.play_error()
+        test.os_speak("hello world")
+        test.os_speak("goodbye")
         print('done')
+
         G = GLib.MainLoop()
         G.run()
 
