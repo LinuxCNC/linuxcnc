@@ -231,6 +231,7 @@ class EditorBase(QsciScintilla):
     _styleBackgroundColor = QColor("#000000")
     _styleSelectionForegroundColor = QColor("#ffffff")
     _styleSelectionBackgroundColor = QColor("#000000")
+    _styleMarkerBackgroundColor = QColor("yellow")
 
     def __init__(self, parent=None):
         super(EditorBase, self).__init__(parent)
@@ -262,7 +263,7 @@ class EditorBase(QsciScintilla):
         # Gcode highlight line
         self.currentHandle = self.markerDefine(QsciScintilla.Background,
                           self.CURRENT_MARKER_NUM)
-        self.setMarkerBackgroundColor(QColor("yellow"),
+        self.setMarkerBackgroundColor(self.markerBackgroundColor(),
                                       self.CURRENT_MARKER_NUM)
 
         # user Highlight line
@@ -327,6 +328,9 @@ class EditorBase(QsciScintilla):
 
     def backgroundColor(self):
         return self._styleBackgroundColor
+
+    def markerBackgroundColor(self):
+        return self._styleMarkerBackgroundColor
 
     # must set lexer paper background color _and_ editor background color it seems
     def set_background_color(self, color):
@@ -500,6 +504,13 @@ class EditorBase(QsciScintilla):
     def setColorBackground(self, value):
         self.setBackgroundColor(value)
     styleColorBackground = pyqtProperty(QColor, getColorBackground, setColorBackground)
+
+    def getColorMarkerBackground(self):
+        return self.markerBackgroundColor()
+    def setColorMarkerBackground(self, value):
+        self.setMarkerBackgroundColor(QColor(value), self.CURRENT_MARKER_NUM)
+        self._styleMarkerBackgroundColor = QColor(value)
+    styleColorMarkerBackground = pyqtProperty(QColor, getColorMarkerBackground, setColorMarkerBackground)
 
     def getFont0(self):
         return self.lexer.font(0)
