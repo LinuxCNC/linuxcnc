@@ -332,11 +332,6 @@ class EditorBase(QsciScintilla):
     def markerBackgroundColor(self):
         return self._styleMarkerBackgroundColor
 
-#    def set_markerBackgroundColor(self):
-#        self._styleMarkerBackgroundColor = color
-#        self.setMarkerBackgroundColor(QColor(color), self.CURRENT_MARKER_NUM)
-
-
     # must set lexer paper background color _and_ editor background color it seems
     def set_background_color(self, color):
         self.SendScintilla(QsciScintilla.SCI_STYLESETBACK, QsciScintilla.STYLE_DEFAULT, QColor(color))
