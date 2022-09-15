@@ -6,9 +6,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-09-11 20:43+0200\n"
-"PO-Revision-Date: 2022-08-06 19:17+0000\n"
+"PO-Revision-Date: 2022-09-12 23:47+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.14-dev\n"
+"X-Generator: Weblate 4.14.1-dev\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -270,7 +270,7 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:402
 #: src/emc/rs274ngc/interp_convert.cc:4789
 msgid "Cannot feed with zero spindle speed in feed per rev mode"
-msgstr ""
+msgstr "Kan ikke mate uten spindehastighet i mating per omdreiningsmodus"
 
 #: src/emc/rs274ngc/interp_convert.cc:413
 #: src/emc/rs274ngc/interp_convert.cc:419
@@ -8598,17 +8598,17 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/private_data.py:514
 #: src/emc/usr_intf/gscreen/mdi.py:47
 msgid "Spindle CW"
-msgstr ""
+msgstr "Spindelrot. med urviseren"
 
 #: src/emc/usr_intf/touchy/mdi.py:51 src/emc/usr_intf/stepconf/stepconf.py:222
 #: src/emc/usr_intf/pncconf/private_data.py:514
 #: src/emc/usr_intf/gscreen/mdi.py:48
 msgid "Spindle CCW"
-msgstr ""
+msgstr "Spindelrot. mot urviseren"
 
 #: src/emc/usr_intf/touchy/mdi.py:53
 msgid "Set tool number"
-msgstr ""
+msgstr "Sett verktøynummer"
 
 #: src/emc/usr_intf/touchy/mdi.py:54 src/emc/usr_intf/gscreen/mdi.py:50
 msgid "Input control"
@@ -11389,7 +11389,9 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -11672,9 +11674,9 @@ msgid "Address is required for ethernet card"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1316
-#, fuzzy, python-format
+#, python-format
 msgid "%s board was not found"
-msgstr " - ikke funnet.\n"
+msgstr "fant ikke %s-bordet"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1318
 msgid "Is the address correct?"
@@ -14447,7 +14449,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa0.glade:300
 #: src/emc/usr_intf/pncconf/mesa1.glade:300
 msgid "Firmware:"
-msgstr ""
+msgstr "Fastvare:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:339
 #: src/emc/usr_intf/pncconf/mesa1.glade:339
@@ -14457,7 +14459,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa0.glade:367
 #: src/emc/usr_intf/pncconf/mesa1.glade:367
 msgid "Total number of pins:"
-msgstr ""
+msgstr "Antall pinner totalt:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:391
 #: src/emc/usr_intf/pncconf/mesa1.glade:391
@@ -14465,6 +14467,8 @@ msgid ""
 "Accept  components\n"
 "          Changes"
 msgstr ""
+"Godta  komponenter\n"
+"          Endringer"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:408
 #: src/emc/usr_intf/pncconf/mesa1.glade:408
@@ -18440,18 +18444,20 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1767
-#, fuzzy
 msgid ""
 "Replace\n"
 "Text:"
-msgstr "Erstatt:"
+msgstr ""
+"Erstatt\n"
+"tekst:"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1787
-#, fuzzy
 msgid ""
 "Replace\n"
 "All"
-msgstr "Erstatt alle"
+msgstr ""
+"Erstatt\n"
+"alle"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1801
 #, fuzzy
@@ -18508,11 +18514,12 @@ msgid ""
 msgstr "Vis _tommer"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2107
-#, fuzzy
 msgid ""
 "Diameter\n"
 "Mode"
-msgstr "Diameter"
+msgstr ""
+"Diameter\n"
+"modus"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2125
 #: src/emc/usr_intf/gscreen/gscreen.glade:3180
@@ -18582,11 +18589,12 @@ msgid "Halmeter"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2385
-#, fuzzy
 msgid ""
 "LinuxCNC\n"
 "Status"
-msgstr "LinuxCNC-status"
+msgstr ""
+"LinuxCNC-\n"
+"status"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2398
 msgid "Halscope"
@@ -18850,18 +18858,20 @@ msgid "Redo"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3663
-#, fuzzy
 msgid ""
 "Reload\n"
 "Program"
-msgstr "Last program på nytt"
+msgstr ""
+"Last program\n"
+"på nytt"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3677
-#, fuzzy
 msgid ""
 "Replace\n"
 "Text"
-msgstr "Erstatt:"
+msgstr ""
+"Erstatt\n"
+"tekst"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3716
 msgid ""

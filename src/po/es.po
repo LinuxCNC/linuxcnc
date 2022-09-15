@@ -7,9 +7,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-09-11 20:43+0200\n"
-"PO-Revision-Date: 2022-09-10 23:35+0000\n"
+"PO-Revision-Date: 2022-09-13 06:15+0000\n"
 "Last-Translator: Ulices <dev.n47os@aleeas.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/es/>\n"
@@ -1586,7 +1586,7 @@ msgstr "Dos códigos g utilizados del mismo grupo modal"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:151
 msgid "Two m codes used from same modal group"
-msgstr "Dos códigos m usados ​​del mismo grupo modal"
+msgstr "Dos códigos m usados del mismo grupo modal"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:152
 #, c-format
@@ -11715,7 +11715,9 @@ msgstr "Opuesto"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
+""
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -12028,9 +12030,9 @@ msgid "Address is required for ethernet card"
 msgstr "La dirección es necesaria para la tarjeta Ethernet"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1316
-#, fuzzy, python-format
+#, python-format
 msgid "%s board was not found"
-msgstr "No se encontró ninguna placa\n"
+msgstr "No se encontró la placa %s"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1318
 msgid "Is the address correct?"
@@ -12494,9 +12496,9 @@ msgid "#  ---mpg signals---"
 msgstr "# --- señales mpg ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:540
-#, fuzzy, python-format
+#, python-format
 msgid "#       for axis %s MPG"
-msgstr "Voltaje para RPM máx .:"
+msgstr "#       para el eje %s MPG"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:553
 #, python-format
@@ -14021,7 +14023,6 @@ msgstr "Control S BLDC"
 
 #: src/emc/usr_intf/pncconf/private_data.py:475
 #: src/emc/usr_intf/pncconf/private_data.py:537
-#, fuzzy
 msgid "Plasma"
 msgstr "Plasma"
 
@@ -18362,7 +18363,7 @@ msgstr "Dientes de polea (codificador: tornillo prisionero):"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2650
 msgid "                    "
-msgstr ""
+msgstr "                    "
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2691
 msgid "encoder pulses per unit:"
@@ -18431,20 +18432,20 @@ msgstr "Actual"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:3921
 msgid "P:"
-msgstr ""
+msgstr "P:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:3932
 msgid "I:"
-msgstr ""
+msgstr "I:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:3943
 msgid "D:"
-msgstr ""
+msgstr "D:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:3997
 #: src/emc/usr_intf/pncconf/dialogs.glade:4741
 msgid "Original"
-msgstr ""
+msgstr "Original"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:4205
 msgid "DeadBand"
@@ -18966,7 +18967,6 @@ msgid "Ready to Restart program from line %d"
 msgstr "Listo para reiniciar el programa desde la línea %d"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3862
-#, fuzzy
 msgid "Invalid embedded tab configuration"
 msgstr "Configuración de pestaña embebida no válida"
 
@@ -19136,12 +19136,10 @@ msgid "V"
 msgstr "V"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1321
-#, fuzzy
 msgid "G-code"
 msgstr "Código G"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1415
-#, fuzzy
 msgid "<b>G-Codes Active</b>"
 msgstr "<b>Códigos G activos</b>"
 
@@ -19150,17 +19148,14 @@ msgid "MV:100%"
 msgstr "MV: 100%"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1504
-#, fuzzy
 msgid "Flood "
-msgstr "Inundación"
+msgstr "Inundación "
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1556
-#, fuzzy
 msgid "At Speed "
-msgstr "A velocidad"
+msgstr "A velocidad "
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1569
-#, fuzzy
 msgid "Jog mode"
 msgstr "Modo Jog"
 
@@ -19177,29 +19172,28 @@ msgid "<b>Status</b>"
 msgstr "<b>Estado</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1738
-#, fuzzy
 msgid ""
 "Search\n"
 "Text:"
 msgstr ""
 "Buscar\n"
-"  Texto:"
+"Texto:"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1767
-#, fuzzy
 msgid ""
 "Replace\n"
 "Text:"
 msgstr ""
 "Reemplazar\n"
-"  Texto:"
+"Texto:"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1787
-#, fuzzy
 msgid ""
 "Replace\n"
 "All"
-msgstr "Reemplazar todo"
+msgstr ""
+"Reemplazar\n"
+"todo"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1801
 #, fuzzy
@@ -19415,7 +19409,7 @@ msgstr ""
 #: src/emc/usr_intf/gscreen/gscreen.glade:2823
 #: src/emc/usr_intf/gscreen/gscreen.glade:3241
 msgid "\n"
-msgstr ""
+msgstr "\n"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2834
 #, fuzzy
@@ -19796,9 +19790,8 @@ msgid "Close without returning a file path"
 msgstr "Cerrar sin devolver una ruta de archivo"
 
 #: lib/python/gladevcp/hal_mdihistory.py:89
-#, fuzzy
 msgid "Command"
-msgstr "Comando:"
+msgstr "Comando"
 
 #: lib/python/gladevcp/hal_mdihistory.py:271
 msgid "ERROR loading halshow"
@@ -19861,9 +19854,8 @@ msgid "checkbutton"
 msgstr "Botón de rueda"
 
 #: lib/python/gladevcp/gladevcp-test.glade:183
-#, fuzzy
 msgid "button"
-msgstr "sin botón aquí"
+msgstr "botón"
 
 #: lib/python/gladevcp/gladevcp-test.glade:194
 #, fuzzy
@@ -19872,9 +19864,8 @@ msgstr "Conmutar envío automático"
 
 #: lib/python/gladevcp/offsetpage.glade:40
 #: lib/python/gladevcp/offsetpage.glade:54
-#, fuzzy
 msgid "Tool"
-msgstr "Herramienta:"
+msgstr "Herramienta"
 
 #: lib/python/gladevcp/offsetpage.glade:74
 msgid "Rot"
@@ -19920,9 +19911,8 @@ msgstr "Selección"
 #: lib/python/gladevcp/tooledit_gtk.glade:93
 #: lib/python/gladevcp/tooledit_gtk.glade:402
 #: lib/python/gladevcp/tooledit_gtk.glade:624
-#, fuzzy
 msgid "Tool#"
-msgstr "Herramienta:"
+msgstr "Herramienta#"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:109
 #: lib/python/gladevcp/tooledit_gtk.glade:413
