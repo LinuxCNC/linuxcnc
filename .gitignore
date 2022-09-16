@@ -13,6 +13,7 @@ build-stamp
 .tmp*
 # Ignore generated html files, 
 /docs/src/*/*.html
+docs/src/hal/components_gen.adoc
 # docs/html/.gitignore is for the html directory
 debian/*.debhelper.log
 rtlib/Module.symvers
