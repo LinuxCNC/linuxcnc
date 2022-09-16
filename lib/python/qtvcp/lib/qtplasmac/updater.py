@@ -22,6 +22,15 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 import os
 from shutil import copy as COPY
 
+# move port from [GUI_OPTIONS] to [POWERMAX]
+def move_port(prefs):
+    if not prefs.getpref('Port', '', str, 'POWERMAX'):
+        data = prefs.getpref('Port', '', str, 'GUI_OPTIONS')
+        prefs.putpref('Port', data, str, 'POWERMAX')
+    prefs.removepref('Port', 'GUI_OPTIONS')
+    prefs.write(open(prefs.fn, "w"))
+    update_notify('V1.232.240')
+
 # move qtplasmac options from ini file to prefs file pre V1.227.219 2022/07/14)
 def move_options_to_prefs_file(inifile, prefs):
     text = prefs.getpref('shutdown_msg_detail', '', str, 'SHUTDOWN_OPTIONS')
@@ -78,7 +87,7 @@ def move_options_to_prefs_file(inifile, prefs):
         prefs.putpref('Delay', d, float, 'OFFSET_PROBING')
     data = inifile.find('QTPLASMAC', 'PM_PORT') or None
     if data:
-        prefs.putpref('Port', data, str, 'GUI_OPTIONS')
+        prefs.putpref('Port', data, str, 'POWERMAX')
     for bNum in range(1,21):
         bName = inifile.find('QTPLASMAC', 'BUTTON_{}_NAME'.format(bNum)) or None
         bCode = inifile.find('QTPLASMAC', 'BUTTON_{}_CODE'.format(bNum)) or None

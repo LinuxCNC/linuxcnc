@@ -15,10 +15,10 @@ This chapter will provide information specific to lathes.
 == Lathe Mode
 
 If your CNC machine is a lathe, there are some specific changes you
-will probably want to make to your ini file in order to get the
+will probably want to make to your INI file in order to get the
 best results from LinuxCNC.
 
-If you are using the AXIS display, have Axis display your lathe tools properly.
+If you are using the AXIS display, have AXIS display your lathe tools properly.
 See the <<cha:ini-configuration,INI Configuration>> section for more details.
 
 To set up AXIS for Lathe Mode.
@@ -27,13 +27,13 @@ To set up AXIS for Lathe Mode.
 ----
 [DISPLAY]
 
-# Tell the Axis Display our machine is a lathe.
+# Tell the AXIS GUI our machine is a lathe.
 LATHE = TRUE
 ----
 
-Lathe Mode in Axis does not set your default plane to G18 (XZ). You
+Lathe Mode in AXIS does not set your default plane to G18 (XZ). You
 must program that in the preamble of each G-code file or
-(better) add it to your ini file, like this:
+(better) add it to your INI file, like this:
 
 [source,{ini}]
 ----
@@ -45,7 +45,7 @@ RS274NGC_STARTUP_CODE = G18 G20 G90
 ----
 
 If your using Gmoccapy then see the
-<<gmoccapy:lathe-section,the Gmoccapy Lathe section>>.
+<<gmoccapy:lathe-section,the Gmoccapy Lathe>> section.
 
 [[sec:lathe-tool-table]]
 == Lathe Tool Table(((Lathe Tool Table)))
@@ -55,7 +55,7 @@ The file is located in the same directory as your configuration and is
 called "tool.tbl" by default.
 The tools might be in a tool changer or just changed manually.
 The file can be edited with a text editor or be updated using G10 L1,L10,L11.
-There is also a built-in tool table editor in the Axis display.
+There is also a built-in tool table editor in the AXIS display.
 The maximum number of entries in the tool table is 56.
 The maximum tool and pocket number is 99999.
 
@@ -101,8 +101,8 @@ table using the Touch Off window. If you have a tool turret you normally
 have 'Touch off to fixture' selected when setting up your turret. When
 setting the material Z zero you have 'Touch off to material' selected.
 For more information on the G-codes used for tools see
-<<mcode:m6,M6>>, <<sec:select-tool,Tn>>, and <<gcode:g43,G43>>.
-For more information on tool touch off options in Axis see
+<<mcode:m6,M6>>, <<sec:select-tool,T__n__>>, and <<gcode:g43,G43>>.
+For more information on tool touch off options in AXIS see
 <<sub:axis-machine-menu,Tool Touch Off>>.
 
 === X Touch Off
@@ -123,7 +123,7 @@ is the current offset.
 A typical session might be:
 
 . Home each axis if not homed.
-. Set the current tool with 'Tn M6 G43' where 'n' is the tool number.
+. Set the current tool with 'T__n__ M6 G43' where _n_ is the tool number.
 . Select the X axis in the 'Manual Control window'.
 . Move the X to a known position or take a test cut and measure the diameter.
 . Select Touch Off and pick Tool Table then enter the position or the diameter.
@@ -134,7 +134,7 @@ Note: if you are in Radius Mode you must enter the radius, not the diameter.
 === Z Touch Off
 
 The Z axis offsets can be a bit confusing at first
-ecause there are two elements to the Z offset.
+because there are two elements to the Z offset.
 There is the tool table offset, and the machine coordinate offset.
 First we will look at the tool table offsets.
 One method is to use a fixed point on your lathe and
@@ -147,7 +147,7 @@ A typical session might be:
 
 . Home each axis if not homed.
 . Make sure no offsets are in effect for the current coordinate system.
-. Set the current tool with 'Tn M6 G43' where 'n' is the tool number.
+. Set the current tool with 'T__n__ M6 G43' where _n_ is the tool number.
 . Select the Z axis in the Manual Control window.
 . Bring the tool close to the control surface.
 . Using a cylinder move the Z away from the control surface until the
@@ -173,7 +173,7 @@ using the machine coordinate system.
 A typical session might be:
 
 . Home each axis if not homed.
-. Set the current tool with "Tn M6" where "n" is the tool number.
+. Set the current tool with 'T__n__ M6' where _n_ is the tool number.
 . Issue a G43 so the current tool offset is in effect.
 . Bring the tool to the work piece and set the machine Z offset.
 
@@ -211,7 +211,7 @@ Calculating arcs can be mind challenging enough without considering
 radius and diameter mode on lathes as well as machine coordinate system
 orientation. The following applies to center format arcs. On a lathe
 you should include G18 in your preamble as the default is G17 even if
-you're in lathe mode, in the user interface Axis. Arcs in G18 XZ plane
+you're in lathe mode, in the user interface AXIS. Arcs in G18 XZ plane
 use I (X axis) and K (Z axis) offsets.
 
 === Arcs and Lathe Design

@@ -30,11 +30,11 @@
 import sys
 import os
 
-from PyQt5.QtCore import pyqtProperty, pyqtSignal, QSize, QObject
-from PyQt5.QtGui import QFont, QFontMetrics, QColor, QIcon, QPalette
-from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QAction,\
-         QVBoxLayout,QToolBar,QGroupBox,QLineEdit, QHBoxLayout,QMessageBox, \
-            QFileDialog, QFrame, QLabel, QStyleOption
+from PyQt5.QtCore import pyqtProperty, pyqtSignal, QSize
+from PyQt5.QtGui import QFont, QFontMetrics, QColor, QIcon
+from PyQt5.QtWidgets import QWidget, QAction,\
+         QVBoxLayout, QToolBar, QLineEdit, QHBoxLayout, QMessageBox, \
+            QFrame, QLabel
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Info, Action
@@ -231,6 +231,7 @@ class EditorBase(QsciScintilla):
     _styleBackgroundColor = QColor("#000000")
     _styleSelectionForegroundColor = QColor("#ffffff")
     _styleSelectionBackgroundColor = QColor("#000000")
+    _styleMarkerBackgroundColor = QColor("yellow")
 
     def __init__(self, parent=None):
         super(EditorBase, self).__init__(parent)
@@ -262,7 +263,7 @@ class EditorBase(QsciScintilla):
         # Gcode highlight line
         self.currentHandle = self.markerDefine(QsciScintilla.Background,
                           self.CURRENT_MARKER_NUM)
-        self.setMarkerBackgroundColor(QColor("yellow"),
+        self.setMarkerBackgroundColor(self.markerBackgroundColor(),
                                       self.CURRENT_MARKER_NUM)
 
         # user Highlight line
@@ -327,6 +328,9 @@ class EditorBase(QsciScintilla):
 
     def backgroundColor(self):
         return self._styleBackgroundColor
+
+    def markerBackgroundColor(self):
+        return self._styleMarkerBackgroundColor
 
     # must set lexer paper background color _and_ editor background color it seems
     def set_background_color(self, color):
@@ -500,6 +504,13 @@ class EditorBase(QsciScintilla):
     def setColorBackground(self, value):
         self.setBackgroundColor(value)
     styleColorBackground = pyqtProperty(QColor, getColorBackground, setColorBackground)
+
+    def getColorMarkerBackground(self):
+        return self.markerBackgroundColor()
+    def setColorMarkerBackground(self, value):
+        self.setMarkerBackgroundColor(QColor(value), self.CURRENT_MARKER_NUM)
+        self._styleMarkerBackgroundColor = QColor(value)
+    styleColorMarkerBackground = pyqtProperty(QColor, getColorMarkerBackground, setColorMarkerBackground)
 
     def getFont0(self):
         return self.lexer.font(0)
@@ -755,8 +766,8 @@ class GcodeEditor(QWidget, _HalWidgetBase):
 
         self.isCaseSensitive = 0
 
-        self.setMinimumSize(QSize(300, 200))    
-        self.setWindowTitle("PyQt5 editor test example") 
+        self.setMinimumSize(QSize(300, 200))
+        self.setWindowTitle("PyQt5 editor test example")
 
         lay = QVBoxLayout()
         lay.setContentsMargins(0,0,0,0)
@@ -777,7 +788,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         ################################
 
         # Create new action
-        self.newAction = QAction(QIcon.fromTheme('document-new'), 'New', self)       
+        self.newAction = QAction(QIcon.fromTheme('document-new'), 'New', self)
         self.newAction.setShortcut('Ctrl+N')
         self.newAction.setStatusTip('New document')
         self.newAction.triggered.connect(self.newCall)
@@ -832,11 +843,11 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         self.toolBar.addWidget(self.label)
 
         # create a frame for buttons
-        box = QHBoxLayout()
-        box.addWidget(self.toolBar)
+        self.topBox = QHBoxLayout()
+        self.topBox.addWidget(self.toolBar)
 
         self.topMenu = QFrame()
-        self.topMenu.setLayout(box)
+        self.topMenu.setLayout(self.topBox)
 
         # add widgets
         lay.addWidget(self.topMenu)
@@ -890,16 +901,16 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         # create case action
         caseAction = QAction(QIcon.fromTheme('edit-case'), 'Aa', self)
         caseAction.setStatusTip('Toggle between any case and match case')
-        caseAction.setCheckable(1)      
+        caseAction.setCheckable(1)
         caseAction.triggered.connect(self.caseCall)
         toolBar.addAction(caseAction)
 
-        box = QHBoxLayout()
-        box.addWidget(toolBar)
-        box.addWidget(self.searchText)
-        box.addWidget(self.replaceText)
-        box.addStretch(1)
-        self.bottomMenu.setLayout(box)
+        self.bottomBox = QHBoxLayout()
+        self.bottomBox.addWidget(toolBar)
+        self.bottomBox.addWidget(self.searchText)
+        self.bottomBox.addWidget(self.replaceText)
+        self.bottomBox.addStretch(1)
+        self.bottomMenu.setLayout(self.bottomBox)
 
         return self.bottomMenu
 

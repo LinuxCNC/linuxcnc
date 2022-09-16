@@ -12,6 +12,7 @@ pin out float b;
 pin out float c "three phase output vector";
 function _;
 license "GPL";
+author "John Kasunich";
 ;;
 #include <rtapi_math.h>
 

@@ -460,6 +460,7 @@ EditorBase {
     qproperty-styleColorMarginText: #00aaff; /* margin line numbers */
     qproperty-styleFontMargin: "Lato Heavy, 10 ";
     qproperty-styleColorBackground: #202020;
+    qproperty-styleColorMarkerBackground: #505050;	/* Current Line Marker Background */
     qproperty-styleColor0: #e0e0e0; /* digit characters */
     qproperty-styleColor1: #00eeee; /* comments */
     qproperty-styleColor2: #e0e0e0; /* alphabetic characters */

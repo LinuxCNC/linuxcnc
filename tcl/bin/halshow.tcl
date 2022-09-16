@@ -36,21 +36,16 @@ catch {set linuxcnc_process [exec ps -e -o stat,command | grep "^S" | grep -o "l
     set config_path [string trim $config_path]
 }
 if {[info exists ::env(CONFIG_DIR)]} {
+    set ::INIDIR "$::env(CONFIG_DIR)"
     set ::INIFILE "$::env(CONFIG_DIR)/halshow.preferences"
 } elseif {[file isdirectory $config_path]} {
+    set ::INIDIR "${config_path}"
     set ::INIFILE "${config_path}halshow.preferences"
 } else {
+    set ::INIDIR "~"
     set ::INIFILE "~/.halshow_preferences"
 }
 # puts stderr "Halshow inifile: $::INIFILE"
-
-# This overwrites the default error message dialog to be able to set it on top
-proc bgerror {message} {
-    tk_messageBox -title "Application Error" -message [msgcat::mc "Error"] \
-    -detail $message -icon error -type ok 
-    wm attributes . -topmost $::alwaysOnTop
-}
-
 
 proc readIni {} {
     # check that the file is readable
@@ -67,10 +62,11 @@ proc readIni {} {
 
 set ::initPhase true
 set ::autoSaveWatchlist 1
+set ::use_prefs true
 proc saveIni {} {
     # The flag 'initPhase' prevents saving on the first FocusIn event
-    if {!$::initPhase} {
-        # open the file for writin0g (truncates if file exists)
+    if {!$::initPhase && $::use_prefs} {
+        # open the file for writing (truncates if file exists)
         if { [catch {set fc [open $::INIFILE w]}] } {
             puts stder "\[halshow\] Unable to save settings to \"$INIFILE\"."
         } else {
@@ -98,6 +94,13 @@ proc saveIni {} {
             close $fc
         }
     }
+}
+
+# This overwrites the default error message dialog to be able to set it on top
+proc bgerror {message} {
+    tk_messageBox -title "Application Error" -message [msgcat::mc "Error"] \
+    -detail $message -icon error -type ok 
+    wm attributes . -topmost $::alwaysOnTop
 }
 
 #----------start toplevel----------
@@ -142,8 +145,6 @@ wm minsize . 230 240
 
 # save settings after switching to another window
 bind . <FocusOut> {saveIni}
-# save settings after resize (occurs also after start)
-bind . <FocusIn> {checkSizeChanged %W}
 
 # trap mouse click on window manager delete and ask to save
 wm protocol . WM_DELETE_WINDOW askKill
@@ -196,14 +197,14 @@ proc checkSizeChanged {w} {
     } else {
         return
     }
-    saveIni
+    if {$::watchlist_len > 20} reloadWatch
     set ::geometryOld [wm geometry .]
 }
 
 set ::ratioOld $::ratio
 proc checkRatioChanged {} {
     if {$::ratio != $::ratioOld} {
-        saveIni
+        if {$::watchlist_len > 20} reloadWatch
     }
     set ::ratioOld $::ratio
 }
@@ -375,7 +376,6 @@ proc hideListview {resizeWindow} {
         set y [expr [winfo y .] - 61]
         wm geometry . "${new_w}x[winfo height .]+$new_x+$y"
         tkwait visibility $::fs
-        saveIni
    }
 }
 
@@ -392,7 +392,6 @@ proc showListview {} {
     set y [expr [winfo y .] - 61]
     wm geometry . "${new_w}x[winfo height .]+$new_x+$y"
     tkwait visibility $::tf
-    saveIni
 }
 
 # scale left and right frame while dragging
@@ -685,6 +684,7 @@ proc makeShow {} {
     bind $::disp <Button-3> {popupmenu_text %X %Y}
     bind . <Control-KeyPress-c> {copySelection 0}
     bind $f2.show.grip <ButtonRelease-1> {checkSizeChanged %W}
+    bind . <FocusIn> {checkSizeChanged %W}
 }
 
 proc copySelection {clear} {
@@ -699,10 +699,9 @@ proc makeWatch {} {
     set ::cisp [canvas $::watchhal.c -yscrollcommand [list $::watchhal.s set]]
     scrollbar $::watchhal.s -command [list $::cisp yview] -orient v
     pack $::watchhal.s -side right -fill y -expand no
-    pack $::cisp -side right -fill both -expand yes  
+    pack $::cisp -side right -fill both -expand yes
     bind $::cisp <Configure> {
-        set ::canvaswidth %w
-        reloadWatch
+        if {$::watchlist_len <= 20} reloadWatch
     }
 }
 
@@ -737,10 +736,10 @@ proc makeSettings {} {
             wm attributes . -topmost $::alwaysOnTop
             reloadWatch
             }] -side right -padx 5 -pady 10
-    set infotext [text $f1.infotext -bd 0 -bg grey85 -wrap word -font [list "" 10]]
-    $infotext insert end "([msgcat::mc "Settings stored in: "] $::INIFILE)"
-    $infotext config -state disabled
-    pack $infotext -pady {20 0} -side left
+    set ::infotext [text $f1.infotext -bd 0 -bg grey85 -wrap word -font [list "" 10]]
+    $::infotext insert end "([msgcat::mc "Settings stored in: "] $::INIFILE)"
+    $::infotext config -state disabled
+    pack $::infotext -pady {20 0} -side left
 }
 
 # showmode handles the tab selection of mode
@@ -820,12 +819,11 @@ set ::last_watchfile_tail my.halshow
 set ::last_watchfile_dir  [pwd]
 set ::filetypes { {{HALSHOW} {.halshow}}\
                   {{TXT}     {.txt}}\
-                  {{ANY}     {.*}}\
+                  {{ANY}     {*}}\
                 }
-
 set ::watchlist ""
+set ::watchlist_len 0
 set ::watchstring ""
-set ::canvaswidth 438
 set ::col1_width 100
 proc watchHAL {which} {
     if {$which == "zzz"} {
@@ -866,13 +864,16 @@ proc watchHAL {which} {
     }
 
     lappend ::watchlist $which
-    set i [llength $::watchlist]
+    set ::watchlist_len [llength $::watchlist]
+    set i $::watchlist_len
     set label [lindex [split $which +] end]
-
+    set labelcolor black
      # check if pin or param is writable
+     # var writable: 1=yes, 0=no, -1=writable but connected to signal
     set writable 0
     set showret [join [hal show $vartype $label] " "]
     if {$vartype == "pin"} {
+        # check if pin is input
         if {[string index [lindex $showret 9] 0] == "I"} {
             # check if signals are connected to pin
             if {[string first "==" [lindex $showret 12] 0] < 0} {
@@ -882,40 +883,62 @@ proc watchHAL {which} {
             }
         }
     } elseif {$vartype == "param"} {
+        # check if parameter is writable
         if {[lindex $showret 8] == "RW"} {
             set writable 1
         }
+        set labelcolor #6e3400
+    } elseif {$vartype == "sig"} {
+        # puts stderr "return $showret, found: [string first "<==" $showret 0]"
+        # check if signal has no writers
+        if {[string first "<==" $showret 0] < 0} {
+            set writable 1
+        }
+        set labelcolor blue3
     }
 
     $::cisp create text $::col1_width [expr $i * 20 + 13] -text $label \
-            -anchor w -tag $label
+            -anchor w -tag $label -fill $labelcolor
+    set canvaswidth [winfo width $::cisp]
     if {$type == "bit"} {
         $::cisp create oval 10 [expr $i * 20 + 5] 25 [expr $i * 20 + 20] \
             -fill lightgray -tag oval$i
         if {$writable == 1} {
-            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] \
-                [expr {$i * 20 + 4}] 24 17 "Set" [list hal_setp $label 1] 1
-            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 20] \
-                [expr {$i * 20 + 4}] 24 17 "Clr" [list hal_setp $label 0] 1
+            if {$vartype == "sig"} {
+                canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 48] \
+                    [expr {$i * 20 + 4}] 24 17 "Set" [list hal_sets $label 1] 1
+                canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 20] \
+                    [expr {$i * 20 + 4}] 24 17 "Clr" [list hal_sets $label 0] 1
+            } else {
+                canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 48] \
+                    [expr {$i * 20 + 4}] 24 17 "Set" [list hal_setp $label 1] 1
+                canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 20] \
+                    [expr {$i * 20 + 4}] 24 17 "Clr" [list hal_setp $label 0] 1
+            }
         } elseif {$writable == -1} {
-            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] \
-                [expr $i * 20 + 4] 24 17 "Set" [list hal_setp $label 1] 0
-            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 20] \
-                [expr $i * 20 + 4] 24 17 "Clr" [list hal_setp $label 0] 0
+            canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 48] \
+                [expr $i * 20 + 4] 24 17 "Set" [] 0
+            canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 20] \
+                [expr $i * 20 + 4] 24 17 "Clr" [] 0
         }
     } else {
         $::cisp create text 10 [expr $i * 20 + 12] -text "" \
             -anchor w -tag text$i
 
         if {$writable == 1} {
-            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] \
-                [expr $i * 20 + 4] 52 17 "Set val" [list setValue $label] 1
+            if {$vartype == "sig"} {
+                canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 48] \
+                    [expr $i * 20 + 4] 52 17 "Set val" [list setsValue $label] 1
+            } else {
+                canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 48] \
+                    [expr $i * 20 + 4] 52 17 "Set val" [list setpValue $label] 1
+            }
         } elseif {$writable == -1} {
-            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] \
-                [expr $i * 20 + 4] 52 17 "Set val" [list setValue $label] 0
+            canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 48] \
+                [expr $i * 20 + 4] 52 17 "Set val" [] 0
         }
     }
-    if {$i > 1} {$::cisp create line 10 [expr $i * 20 + 3] [expr $::canvaswidth - 52] \
+    if {$i > 1} {$::cisp create line 10 [expr $i * 20 + 3] [expr $canvaswidth - 52] \
         [expr $i * 20 + 3] -fill grey70}
     $::cisp bind $label <Button-3> [list popupmenu_watch $vartype $label $i $writable $which %X %Y]
     $::cisp configure -scrollregion [$::cisp bbox all]
@@ -988,16 +1011,28 @@ proc hal_setp {label val} {
     eval hal "setp $label $val"
 }
 
+proc hal_sets {label val} {
+    eval hal "sets $label $val"
+}
+
 proc copyName {label} {
     clipboard clear
     clipboard append $label
 }
 
-proc setValue {label} {
+proc setpValue {label} {
     set val [eval hal "getp $label"]
     set val [entrybox $val [msgcat::mc "Set"] $label]
     if {$val != "cancel"} {
         eval hal "setp $label $val"
+    }
+}
+
+proc setsValue {label} {
+    set val [eval hal "gets $label"]
+    set val [entrybox $val [msgcat::mc "Set"] $label]
+    if {$val != "cancel"} {
+        eval hal "sets $label $val"
     }
 }
 
@@ -1183,10 +1218,15 @@ proc loadwatchlist {filename} {
   set ::last_watchfile_dir  [file dirname $filename]
   wm title . "$::last_watchfile_tail - $::titlename"
   if {"$wl" == ""} return
+
+  # Backup auto-saved watchlist
+  set backupFile [string map {"//" "/"} $::INIDIR/.halshow_watchlist_backup]
+  writeWatchlist $backupFile multiline
+
   watchReset all
   $::nb raise pw
   foreach item $wl { watchHAL $item }
-  setStatusbar  "$::last_watchfile_tail [msgcat::mc "loaded"]"
+  setStatusbar  "$::last_watchfile_tail [msgcat::mc "loaded"], [msgcat::mc "saved backup for old watchlist in"] $backupFile"
 }
 
 proc savewatchlist { {fmt oneline} } {
@@ -1199,21 +1239,25 @@ proc savewatchlist { {fmt oneline} } {
             -initialfile $::last_watchfile_tail\
             -title       [msgcat::mc "Save current watch list"]\
             ]
-  if {"$sfile" == ""} return
-  set f [open $sfile w]
-  switch $fmt {
-    multiline {
-      puts $f "# halshow watchlist created [clock format [clock seconds]]\n"
-      foreach line $::watchlist {
-        puts $f $line
-      }
-    }
-    default {puts $f $::watchlist}
-  }
-  close $f
+  writeWatchlist $sfile $fmt
   set ::last_watchfile_tail [file tail    $sfile]
   set ::last_watchfile_dir  [file dirname $sfile]
   wm title . "$::last_watchfile_tail - $::titlename"
+}
+
+proc writeWatchlist {sfile fmt} {
+    if {"$sfile" == ""} return
+    set f [open $sfile w]
+    switch $fmt {
+        multiline {
+            puts $f "# halshow watchlist created [clock format [clock seconds]]\n"
+            foreach line $::watchlist {
+            puts $f $line
+            }
+        }
+        default {puts $f $::watchlist}
+    }
+    close $f
 }
 
 #----------start up the displays----------
@@ -1239,53 +1283,73 @@ proc usage {} {
   puts "           --help    (this help)"
   puts "           --fformat format_string_for_float"
   puts "           --iformat format_string_for_int"
+  puts "           --noprefs don't use preference file so save settings"
   puts ""
   puts "Notes:"
-  puts "       Create watchfile in halshow using: 'File/Save Watch List'"
-  puts "       linuxcnc must be running for standalone usage"
+  puts "       Create watchfile in halshow using: 'File/Save Watch List'."
+  puts "       LinuxCNC must be running for standalone usage."
   exit 0
+}
+
+if {[llength $::argv] > 0} {
+    set idx 0
+    while {$idx < [llength $::argv]} {
+        switch [lindex $::argv $idx] {
+            "--help" {
+                incr idx; usage
+            }
+            "--iformat" {
+                incr idx;
+                set ::ifmt [lindex $::argv $idx]
+                incr idx
+                $::ifmt_setting.label configure -text "    [msgcat::mc "Integer (disabled by \"--iformat\" argument)"]"
+                $::ifmt_setting.entry configure -state disabled
+            }
+            "--fformat" {
+                incr idx;
+                set ::ffmt [lindex $::argv $idx]
+                incr idx
+                $::ffmt_setting.label configure -text "    [msgcat::mc "Float (disabled by \"--fformat\" argument)"]"
+                $::ffmt_setting.entry configure -state disabled
+            }
+            "--noprefs" {
+                set ::use_prefs false
+                $::infotext configure -fg red
+                $::infotext config -state normal
+                $::infotext replace 0.0 end  "[msgcat::mc "\"--noprefs\" option set. Settings will not be saved!"]"
+                $::infotext config -state disabled
+                incr idx
+            }
+            default {
+                set watchfile [lindex $::argv $idx]
+                incr idx
+            }
+        }
+    }
 }
 
 # Loading the settings from the file.
 # This overrides the default settings above.
-readIni
-if {$::ratio == 0} {
-    hideListview false
-}
-if {$::workmode == "watchhal"} {
-    $::nb raise pw  
+if {$::use_prefs} {
+    readIni
+    if {$::ratio == 0} {
+        hideListview false
+    }
+    if {$::workmode == "watchhal"} {
+        $::nb raise pw
+    }
 }
 
-if {[llength $::argv] > 0} {
-  set idx 0
-  while {$idx < [llength $::argv]} {
-     switch [lindex $::argv $idx] {
-       "--help"    {incr idx; usage}
-       "--iformat" {incr idx;
-                    set ::ifmt [lindex $::argv $idx]
-                    incr idx
-                    $::ifmt_setting.label configure -text "    [msgcat::mc "Integer (disabled by \"--iformat\" argument)"]"
-                    $::ifmt_setting.entry configure -state disabled
-                   }
-       "--fformat" {incr idx;
-                    set ::ffmt [lindex $::argv $idx]
-                    incr idx
-                    $::ffmt_setting.label configure -text "    [msgcat::mc "Float (disabled by \"--fformat\" argument)"]"
-                    $::ffmt_setting.entry configure -state disabled
-                   }
-       default { set watchfile [lindex $::argv $idx]
-                 if [file readable $watchfile] {
-                    loadwatchlist $watchfile
-                    set ::last_watchfile_tail [file tail    $watchfile]
-                    set ::last_watchfile_dir  [file dirname $watchfile]
-                 } else {
-                    puts "\nCannot read file <$watchfile>\n"
-                    usage
-                 }
-                 incr idx
-               }
-     }
-   }
+# Load watchlist from file
+if {[info exists watchfile]} {
+    if [file readable $watchfile] {
+        loadwatchlist $watchfile
+        set ::last_watchfile_tail [file tail    $watchfile]
+        set ::last_watchfile_dir  [file dirname $watchfile]
+    } else {
+        puts "\nCannot read file <$watchfile>\n"
+        usage
+    }
 }
 
 wm attributes . -topmost $::alwaysOnTop

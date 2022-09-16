@@ -61,7 +61,7 @@ pins).
 Then edit the HAL file to assign a key event to each scancode. For
 example:
 
-setp sendkeys.0.scan-event-21 34
+  setp sendkeys.0.scan-event-21 34
 
 To set a button to type the letter "G" The key events related to each
 physical key need to be set up prior to the component activating, but
@@ -124,7 +124,7 @@ net clear-errors parport.0.pin.00.in sendkeys.0.trigger-00 sendkeys.0.trigger-01
 
 == AUTHOR
 
-andypugh
+Andy Pugh
 
 == LICENSE
 

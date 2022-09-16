@@ -88,17 +88,23 @@ function setup_page(){
   <img src="linuxcnc-logo-chips.png" alt="LinuxCNC Logo" width="175"/>
 </div>
 
-<h3>LinuxCNC version <strong>@VERSION@</strong></h3>
+<!-- <h3 align="center">LinuxCNC version <strong>@VERSION@</strong></h3>
+<h2>Documentation</h2> -->
+<h2>LinuxCNC version <strong>@VERSION@</strong> Documentation</h2>
 
 <div style="margin-top: 0em; margin-bottom: 1em; line-height: 150%">
-<p><a href="http://linuxcnc.org">LinuxCNC Home Page</a>  *
-<a href="http://wiki.linuxcnc.org/cgi-bin/wiki.pl">Wiki Community</a>  *
+<p><a href="http://linuxcnc.org">LinuxCNC Home Page</a>  &bull;
+<a href="http://wiki.linuxcnc.org/cgi-bin/wiki.pl">Wiki</a> &bull;
+<a href="https://forum.linuxcnc.org">Forum</a> &bull;
+<a href="https://github.com/LinuxCNC/linuxcnc">Source</a> &bull;
 <a href="gcode.html">G-Code Quick Reference</a></p>
 </div>
 <p><input type="button" value="Expand Documents" id="docExpand" onclick="return toggle_section(this);"/>
    <input type="button" value="Collapse Documents" id="docCollapse" onclick="return toggle_section(this);"/></p>
-<p><a onclick="return toggle('sec0')"><img alt="plus" id="sec0_image" style="border:0; margin-right:5px; vertical-align:middle;" src="plus.png"/>Getting Started with LinuxCNC</a></p>
 
+<h3>Getting Started &amp; Configuration</h3>
+
+<p><a onclick="return toggle('sec0')"><img alt="plus" id="sec0_image" style="border:0; margin-right:5px; vertical-align:middle;" src="plus.png"/>Getting Started with LinuxCNC</a></p>
 <div id="sec0">
 	<ul>
 		<li><a href="getting-started/about-linuxcnc.html">About LinuxCNC</a></li>
@@ -107,14 +113,6 @@ function setup_page(){
 		<li><a href="getting-started/running-linuxcnc.html">Running LinuxCNC</a></li>
 		<li><a href="getting-started/updating-linuxcnc.html">Updating LinuxCNC</a></li>
 		<li><a href="common/linux-faq.html">Linux FAQ</a></li>
-	</ul>
-</div>
-
-<p><a onclick="return toggle('sec1')"><img src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" id="sec1_image" alt="plus"/>Configuration Wizards</a></p>
-<div id="sec1">
-	<ul>
-		<li><a href="config/stepconf.html" class="tooltips">Stepconf, Parallel Port Stepper Configurator</a></li>
-		<li><a href="config/pncconf.html" class="tooltips">Pncconf, Mesa Hardware Configurator</a></li>
 	</ul>
 </div>
 
@@ -131,35 +129,11 @@ function setup_page(){
 	</ul>
 </div>
 
-<p><a onclick="return toggle('sec3')"><img alt="plus" id="sec3_image" style="border:0;margin-right:5px;vertical-align:middle;" src="plus.png"/>User Interfaces</a></p>
-<div id="sec3">
+<p><a onclick="return toggle('sec1')"><img src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" id="sec1_image" alt="plus"/>Configuration Wizards</a></p>
+<div id="sec1">
 	<ul>
-		<li><a href="gui/axis.html">Axis, Keyboard GUI</a></li>
-		<li><a href="gui/gmoccapy.html">Gmoccapy, Touchscreen GUI</a></li>
-		<li><a href="gui/touchy.html">Touchy, Touchscreen GUI</a></li>
-		<li><a href="gui/gscreen.html">Gscreen, Customizable Touchscreen GUI</a></li>
-		<li><a href="gui/qtdragon.html">QtDragon, Customizable QT based GUI</a></li>
-		<li><a href="gui/ngcgui.html">NGCGUI, Subroutine GUI</a></li>
-		<li><a href="gui/tklinuxcnc.html">TkLinuxCNC, (no opengl) GUI</a></li>
-		<li><a href="plasma/qtplasmac.html">QtPlasmaC, A Complete Plasma Cutting Configuration</a></li>
-		<li><a href="gui/mdro.html">MDRO, A Display for Digital Read Out scales</a></li>
-	</ul>
-</div>
-
-<p><a onclick="return toggle('sec4')"><img src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" id="sec4_image" alt="plus"/>G-code Programming</a></p>
-<div id="sec4">
-	<ul>
-		<li><a href="gcode/coordinates.html">Coordinate System</a></li>
-		<li><a href="gcode/tool-compensation.html">Tool Compensation</a></li>
-		<li><a href="gui/tooledit.html">Tool Table Editor</a></li>
-		<li><a href="gcode/overview.html">G-Code Overview</a></li>
-		<li><a href="gcode/g-code.html">G-Codes</a></li>
-		<li><a href="gcode/m-code.html">M-Codes</a></li>
-		<li><a href="gcode/o-code.html">O-Codes</a></li>
-		<li><a href="gcode/other-code.html">Other Codes</a></li>
-		<li><a href="examples/gcode.html">G-Code Examples</a></li>
-		<li><a href="gui/image-to-gcode.html">Image to G-Code</a></li>
-		<li><a href="gcode/rs274ngc.html">RS274/NGC Differences</a></li>
+		<li><a href="config/stepconf.html" class="tooltips">Stepconf, Parallel Port Stepper Configurator</a></li>
+		<li><a href="config/pncconf.html" class="tooltips">Pncconf, Mesa Hardware Configurator</a></li>
 	</ul>
 </div>
 
@@ -179,34 +153,22 @@ function setup_page(){
 	</ul>
 </div>
 
-<p><a onclick="return toggle('sec6')"><img src="plus.png" alt="plus" id="sec6_image" style="border:0;margin-right:5px;vertical-align:middle;"/>Virtual Control Panels</a></p>
-<div id="sec6">
+<p><a onclick="return toggle('sec11')"><img alt="plus" style="border:0;margin-right:5px;vertical-align:middle;" id="sec11_image" src="plus.png"/>HAL (Hardware Abstraction Layer)</a></p>
+<div id="sec11">
 	<ul>
-		<li><a href="gui/pyvcp.html">Python Virtual Control Panel (PyVCP)</a></li>
-		<li><a href="gui/pyvcp-examples.html">PyVCP Examples</a></li>
-		<li><a href="gui/gladevcp.html">Glade Virtual Control Panel (GladeVCP)</a></li>
-		<li><a href="gui/gladevcp-libraries.html">GladeVCP Libraries</a></li>
-		<li><a href="gui/qtvcp.html">QTvcp</a></li>
-		<li><a href="gui/qtvcp-vcp-panels.html">QTvcp -VCP Panels</a></li>
-		<li><a href="gui/qtvcp-widgets.html">QTvcp -widgets</a></li>
-		<li><a href="gui/qtvcp-libraries.html">QTvcp -libraries</a></li>
-		<li><a href="gui/qtvcp-vismach.html">QTvcp -Vismach</a></li>
-		<li><a href="gui/qtvcp-custom-widgets.html">QTvcp -Custom Widgets</a></li>
-		<li><a href="gui/qtvcp-code-snippets.html">QTvcp -Code Snippets</a></li>
-		<li><a href="gui/qtvcp-development.html">QTvcp -Development</a></li>
-	</ul>
-</div>
-
-<p><a onclick="return toggle('sec7')"><img src="plus.png" alt="plus" style="border:0;margin-right:5px;vertical-align:middle;" id="sec7_image"/>User Interface Programming</a></p>
-<div id="sec7">
-	<ul>
-		<li><a href="gui/panelui.html">Panelui</a></li>
-		<li><a href="gui/filter-programs.html">Filter Programs</a></li>
-		<li><a href="gui/halui.html" class="tooltips">HALUI, Hardware Abstract Layer User Interface</a></li>
-		<li><a href="hal/halui-examples.html">HALUI Examples</a></li>
-		<li><a href="config/python-interface.html">Python Interface</a></li>
-		<li><a href="gui/gstat.html">GStat Module</a></li>
-		<li><a href="gui/vismach.html">Vismach Virtual Machines</a></li>
+		<li><a href="hal/intro.html">HAL Introduction</a></li>
+		<li><a href="hal/basic-hal.html">HAL Basics</a></li>
+		<li><a href="hal/twopass.html">HAL Twopass</a></li>
+		<li><a href="hal/tutorial.html">HAL Tutorial</a></li>
+		<li><a href="hal/hal-examples.html">HAL Examples</a></li>
+		<li><a href="config/core-components.html">HAL Core Components</a></li>
+		<li><a href="hal/components.html">HAL Component List</a></li>
+		<li><a href="hal/rtcomps.html">HAL Component Descriptions</a></li>
+		<li><a href="hal/comp.html">HAL Component Generator</a></li>
+		<li><a href="hal/haltcl.html">HAL TCL Files</a></li>
+		<li><a href="hal/halmodule.html">Creating Userspace Python Components</a></li>
+		<li><a href="hal/canonical-devices.html">Canonical Device Interfaces</a></li>
+		<li><a href="hal/tools.html">HAL Tools</a></li>
 	</ul>
 </div>
 
@@ -231,17 +193,6 @@ function setup_page(){
 	</ul>
 </div>
 
-<p><a onclick="return toggle('sec9')"><img alt="plus" style="border:0;margin-right:5px;vertical-align:middle;" id="sec9_image" src="plus.png"/>ClassicLadder</a></p>
-<div id="sec9">
-ClassicLadder is a software PLC (Programmable Logic Controller) built
-into LinuxCNC.
-	<ul>
-		<li><a href="ladder/ladder-intro.html">ClassicLadder Introduction</a></li>
-		<li><a href="ladder/classic-ladder.html">ClassicLadder Programming</a></li>
-		<li><a href="ladder/ladder-examples.html">ClassicLadder Examples</a></li>
-	</ul>
-</div>
-
 <p><a onclick="return toggle('sec10')"><img src="plus.png" alt="plus" style="border:0;margin-right:5px;vertical-align:middle;" id="sec10_image"/>Hardware Examples</a></p>
 <div id="sec10">
 	<ul>
@@ -252,22 +203,14 @@ into LinuxCNC.
 	</ul>
 </div>
 
-<p><a onclick="return toggle('sec11')"><img alt="plus" style="border:0;margin-right:5px;vertical-align:middle;" id="sec11_image" src="plus.png"/>HAL (Hardware Abstraction Layer)</a></p>
-<div id="sec11">
+<p><a onclick="return toggle('sec9')"><img alt="plus" style="border:0;margin-right:5px;vertical-align:middle;" id="sec9_image" src="plus.png"/>ClassicLadder</a></p>
+<div id="sec9">
+
 	<ul>
-		<li><a href="hal/intro.html">HAL Introduction</a></li>
-		<li><a href="hal/basic-hal.html">HAL Basics</a></li>
-		<li><a href="hal/twopass.html">HAL Twopass</a></li>
-		<li><a href="hal/tutorial.html">HAL Tutorial</a></li>
-		<li><a href="hal/hal-examples.html">HAL Examples</a></li>
-		<li><a href="config/core-components.html">HAL Core Components</a></li>
-		<li><a href="hal/components.html">HAL Component List</a></li>
-		<li><a href="hal/rtcomps.html">HAL Component Descriptions</a></li>
-		<li><a href="hal/comp.html">HAL Component Generator</a></li>
-		<li><a href="hal/haltcl.html">HAL TCL Files</a></li>
-		<li><a href="hal/halmodule.html">Creating Userspace Python Components</a></li>
-		<li><a href="hal/canonical-devices.html">Canonical Device Interfaces</a></li>
-		<li><a href="hal/tools.html">HAL Tools</a></li>
+		<li>ClassicLadder is a software PLC (Programmable Logic Controller) built into LinuxCNC.</li>
+		<li><a href="ladder/ladder-intro.html">ClassicLadder Introduction</a></li>
+		<li><a href="ladder/classic-ladder.html">ClassicLadder Programming</a></li>
+		<li><a href="ladder/ladder-examples.html">ClassicLadder Examples</a></li>
 	</ul>
 </div>
 
@@ -296,6 +239,74 @@ into LinuxCNC.
 	</ul>
 </div>
 
+<h3>Usage</h3>
+
+<p><a onclick="return toggle('sec3')"><img alt="plus" id="sec3_image" style="border:0;margin-right:5px;vertical-align:middle;" src="plus.png"/>User Interfaces</a></p>
+<div id="sec3">
+	<ul>
+		<li><a href="gui/axis.html">AXIS, Keyboard GUI</a></li>
+		<li><a href="gui/gmoccapy.html">GMOCCAPY, Touchscreen GUI</a></li>
+		<li><a href="gui/touchy.html">Touchy, Touchscreen GUI</a></li>
+		<li><a href="gui/gscreen.html">Gscreen, Customizable Touchscreen GUI</a></li>
+		<li><a href="gui/qtdragon.html">QtDragon, Customizable Qt based GUI</a></li>
+		<li><a href="gui/ngcgui.html">NGCGUI, Subroutine GUI</a></li>
+		<li><a href="gui/tklinuxcnc.html">TkLinuxCNC, (no opengl) GUI</a></li>
+		<li><a href="plasma/qtplasmac.html">QtPlasmaC, A Complete Plasma Cutting Configuration</a></li>
+		<li><a href="gui/mdro.html">MDRO, A Display for Digital Read Out scales</a></li>
+	</ul>
+</div>
+
+<p><a onclick="return toggle('sec4')"><img src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" id="sec4_image" alt="plus"/>G-code Programming</a></p>
+<div id="sec4">
+	<ul>
+		<li><a href="gcode/coordinates.html">Coordinate System</a></li>
+		<li><a href="gcode/tool-compensation.html">Tool Compensation</a></li>
+		<li><a href="gui/tooledit.html">Tool Table Editor</a></li>
+		<li><a href="gcode/overview.html">G-Code Overview</a></li>
+		<li><a href="gcode/g-code.html">G-Codes</a></li>
+		<li><a href="gcode/m-code.html">M-Codes</a></li>
+		<li><a href="gcode/o-code.html">O-Codes</a></li>
+		<li><a href="gcode/other-code.html">Other Codes</a></li>
+		<li><a href="examples/gcode.html">G-Code Examples</a></li>
+		<li><a href="gui/image-to-gcode.html">Image to G-Code</a></li>
+		<li><a href="gcode/rs274ngc.html">RS274/NGC Differences</a></li>
+	</ul>
+</div>
+
+<h3>Customization &amp; Development</h3>
+
+<p><a onclick="return toggle('sec6')"><img src="plus.png" alt="plus" id="sec6_image" style="border:0;margin-right:5px;vertical-align:middle;"/>Virtual Control Panels</a></p>
+<div id="sec6">
+	<ul>
+		<li><a href="gui/pyvcp.html">Python Virtual Control Panel (PyVCP)</a></li>
+		<li><a href="gui/pyvcp-examples.html">PyVCP Examples</a></li>
+		<li><a href="gui/gladevcp.html">Glade Virtual Control Panel (GladeVCP)</a></li>
+		<li><a href="gui/gladevcp-libraries.html">GladeVCP Libraries</a></li>
+		<li><a href="gui/qtvcp.html">QtVCP</a></li>
+		<li><a href="gui/qtvcp-vcp-panels.html">QtVCP -VCP Panels</a></li>
+		<li><a href="gui/qtvcp-widgets.html">QtVCP -widgets</a></li>
+		<li><a href="gui/qtvcp-libraries.html">QtVCP -libraries</a></li>
+		<li><a href="gui/qtvcp-vismach.html">QtVCP -Vismach</a></li>
+		<li><a href="gui/qtvcp-custom-widgets.html">QtVCP -Custom Widgets</a></li>
+		<li><a href="gui/qtvcp-code-snippets.html">QtVCP -Code Snippets</a></li>
+		<li><a href="gui/qtvcp-development.html">QtVCP -Development</a></li>
+	</ul>
+</div>
+
+<p><a onclick="return toggle('sec7')"><img src="plus.png" alt="plus" style="border:0;margin-right:5px;vertical-align:middle;" id="sec7_image"/>User Interface Programming</a></p>
+<div id="sec7">
+	<ul>
+		<li><a href="gui/panelui.html">Panelui</a></li>
+		<li><a href="gui/filter-programs.html">Filter Programs</a></li>
+		<li><a href="gui/halui.html" class="tooltips">HALUI, Hardware Abstract Layer User Interface</a></li>
+		<li><a href="hal/halui-examples.html">HALUI Examples</a></li>
+		<li><a href="config/python-interface.html">Python Interface</a></li>
+		<li><a href="gui/gstat.html">GStat Module</a></li>
+		<li><a href="gui/vismach.html">Vismach Virtual Machines</a></li>
+	</ul>
+</div>
+
+
 <p><a onclick="return toggle('sec14')"><img src="plus.png" id="sec14_image" style="border:0;margin-right:5px;vertical-align:middle;" alt="plus"/>Developer Information</a></p>
 <div id="sec14">
 	<ul>
@@ -308,6 +319,8 @@ into LinuxCNC.
 		<li><a href="code/building-linuxcnc.html">Building LinuxCNC</a></li>
 	</ul>
 </div>
+
+<h3>General Information</h3>
 
 <p><a onclick="return toggle('sec15')"><img src="plus.png" alt="plus" id="sec15_image" style="border:0;margin-right:5px;vertical-align:middle;"/>Glossary, Copyright, History &amp; Overview</a></p>
 	<div id="sec15">

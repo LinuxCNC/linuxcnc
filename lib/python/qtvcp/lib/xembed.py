@@ -46,7 +46,6 @@ def reparent_qt_to_x11(window, parent):
 
 
 # forward events to an X11 window id
-from PyQt5.QtCore import Qt
 try:
     from Xlib.protocol import event
     from Xlib import display, X

@@ -1,6 +1,0 @@
-#!/bin/sh
-
-set -e
-
-# Run the tests that do not need sudo access
-exec scripts/runtests -u tests

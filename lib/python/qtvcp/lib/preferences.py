@@ -82,3 +82,9 @@ class Access(cp):
             self.add_section(section)
             self.set(section, option, type(value))
         self.write(open(self.fn, "w"))
+
+    def removepref(self, option, section):
+        try:
+            self.remove_option(section, option)
+        except configparser.NoSectionError:
+            print('Section {} does not exist'.format(section))

@@ -51,13 +51,13 @@ Turn on debugging messages. Also toggled by sending a USR1 signal to the vfs11_v
 Turn on Modbus debugging messages. This will cause all Modbus messages to be printed in hex on the terminal.
 Also toggled by sending a USR2 signal to the vfs11_vfd process.
 .B
-.IP \-I\ \-\-ini\ <inifilename>
-take configuration from this ini
-file. Defaults to environment variable INI_FILE_NAME.
+.IP \-I\ \-\-ini\ <INI file>
+takes configuration from this INI file.
+Defaults to environment variable INI_FILE_NAME.
 .B
 .IP \-S\ \-\-section\ <section\ name>
 take configuration from this
-section in the ini file. Defaults to 'VFS11'.
+section in the INI file. Defaults to 'VFS11'.
 .B
 .IP \-r\ \-\-report\-device
 report device propertiers on console at startup
@@ -65,10 +65,12 @@ report device propertiers on console at startup
 .SH PINS
 .B
 .IP <name>.acceleration\-pattern\ (bit,\ in)
-when true, set acceleration and deceleration times as defined in registers F500 and F501 respectively. Used in PID loops to choose shorter ramp times to avoid oscillation.
+when true, set acceleration and deceleration times as defined in registers F500 and F501 respectively.
+Used in PID loops to choose shorter ramp times to avoid oscillation.
 .B
 .IP <name>.alarm\-code\ (s32,\ out)
-non-zero if drive is in alarmed state. Bitmap describing alarm information (see register FC91 description). Use
+non-zero if drive is in alarmed state. Bitmap describing alarm information (see register FC91 description).
+Use
 .I err\-reset
 (see below) to clear the alarm.
 .B
@@ -85,10 +87,12 @@ reported from the VFD
 engage the DC brake. Also turns off spindle\-on.
 .B
 .IP <name>.enable\ (bit,\ in)
-enable the VFD. If false, all operating parameters are still read but control is released and  panel control is enabled (subject to VFD setup).
+enable the VFD.
+If false, all operating parameters are still read but control is released and panel control is enabled (subject to VFD setup).
 .B
 .IP <name>.err\-reset\ (bit,\ in)
-reset errors (alarms a.k.a Trip and e-stop status). Resetting the VFD may cause a 2-second delay until it's rebooted and Modbus is up again.
+reset errors (alarms a.k.a Trip and e-stop status).
+Resetting the VFD may cause a 2-second delay until it's rebooted and Modbus is up again.
 .B
 .IP <name>.estop\ (bit,\ in)
 put the VFD into emergency-stopped status. No operation possible until cleared with
@@ -97,7 +101,7 @@ err\-reset
 or powercycling.
 .B
 .IP <name>.frequency\-command\ (float,\ out)
-current target frequency in HZ as set through speed\-command (which is in RPM), from the VFD
+current target frequency in Hz as set through speed\-command (which is in RPM), from the VFD
 .B
 .IP <name>.frequency\-out\ (float,\ out)
 current output frequency of the VFD
@@ -106,7 +110,8 @@ current output frequency of the VFD
 current load report from VFD
 .B
 .IP <name>.is\-e\-stopped\ (bit,\ out)
-the VFD is in emergency stop status (blinking "E" on panel). Use
+the VFD is in emergency stop status (blinking "E" on panel).
+Use
 .I
 err\-reset
 to reboot the VFD and clear the e\-stop status.
@@ -115,10 +120,13 @@ to reboot the VFD and clear the e\-stop status.
 true when the VFD reports 0 Hz output
 .B
 .IP <name>.jog\-mode\ (bit,\ in)
-1 for ON and 0 for OFF, enables the VF-S11 'jog mode'. Speed control is disabled, and the output frequency is determined by register F262 (preset to 5Hz). This might be useful for spindle orientation.
+1 for ON and 0 for OFF, enables the VF-S11 'jog mode'.
+Speed control is disabled, and the output frequency is determined by register F262 (preset to 5 Hz).
+This might be useful for spindle orientation.
 .B
 .IP <name>.max\-rpm\ (float,\ R)
-actual RPM limit based on maximum frequency the VFD may generate, and the motors nameplate values. For instance, if
+actual RPM limit based on maximum frequency the VFD may generate, and the motors nameplate values.
+For instance, if
 .I nameplate\-HZ
 is 50, and
 .I nameplate\-RPM_
@@ -144,7 +152,8 @@ from the VFD
 from the VFD
 .B
 .IP <name>.speed\-command\ (float,\ in)
-speed sent to VFD in RPM. It is an error to send a speed faster than the Motor Max RPM as set in the VFD
+speed sent to VFD in RPM.
+It is an error to send a speed faster than the Motor Max RPM as set in the VFD
 .B
 .IP <name>.spindle\-fwd\ (bit,\ in)
 1 for FWD and 0 for REV, sent to VFD
@@ -158,8 +167,8 @@ speed sent to VFD in RPM. It is an error to send a speed faster than the Motor M
 
 .IP <name>.max\-speed\ (bit,\ in)
 ignore the loop\-time parameter and run Modbus at maximum
-speed, at the expense of higher CPU usage. Suggested use
-during spindle positioning.
+speed, at the expense of higher CPU usage.
+Suggested use during spindle positioning.
 .B
 .IP <name>.status\ (s32,\ out)
 Drive Status of the VFD (see the TOSVERT VF-S11 Communications Function Instruction Manual, register FD01). A bitmap.
@@ -180,7 +189,8 @@ upper limit read from VFD setup.
 how often the Modbus is polled (default interval 0.1 seconds)
 .B
 .IP <name>.nameplate\-HZ\ (float,\ RW)
-Nameplate Hz of motor (default 50). Used to calculate target frequency (together with
+Nameplate Hz of motor (default 50).
+Used to calculate target frequency (together with
 .I nameplate\-RPM
 ) for a target RPM value as given by speed\-command.
 .B

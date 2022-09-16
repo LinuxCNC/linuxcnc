@@ -3979,7 +3979,7 @@ class gmoccapy(object):
         else:
             speed = self.stat.spindle[0]['speed']
         self.widgets.active_speed_label.set_label("{0:.0f}".format(abs(speed)))
-        self.widgets.lbl_spindle_act.set_text("S {0}".format(int(speed * self.spindle_override)))
+        self.widgets.lbl_spindle_act.set_text("S {0}".format(int(round(speed * self.spindle_override))))
 
     def _update_vc(self):
         if self.stat.spindle[0]['direction'] != 0:
@@ -4094,9 +4094,10 @@ class gmoccapy(object):
             return
         # this is in a try except, because on initializing the window the values are still zero
         # so we would get an division / zero error
-        real_spindle_speed = 0
-        value = widget.get_value()
+        spindle_speed_out = 0
+        widget_value = widget.get_value()
         try:
+            # get the current spindle speed
             if not abs(self.stat.settings[2]):
                 if self.widgets.rbt_forward.get_active() or self.widgets.rbt_reverse.get_active():
                     speed = self.stat.spindle[0]['speed']
@@ -4104,19 +4105,20 @@ class gmoccapy(object):
                     speed = 0
             else:
                 speed = abs(self.stat.spindle[0]['speed'])
-            spindle_override = value / 100
-            real_spindle_speed = speed * spindle_override
-            if real_spindle_speed > self.max_spindle_rev:
-                value_to_set = value / (real_spindle_speed / self.max_spindle_rev)
-                real_spindle_speed = self.max_spindle_rev
-            elif real_spindle_speed < self.min_spindle_rev:
-                value_to_set = value / (real_spindle_speed / self.min_spindle_rev)
-                real_spindle_speed = self.min_spindle_rev
+            spindle_override_in = widget_value / 100
+            spindle_speed_out = speed * spindle_override_in
+
+            # back calculation of override value if speed limit is hit
+            if abs(spindle_speed_out) > self.max_spindle_rev:
+                spindle_override_command = spindle_override_in * self.max_spindle_rev / abs(spindle_speed_out)
+            elif abs(spindle_speed_out) < self.min_spindle_rev:
+                spindle_override_command = spindle_override_in * self.min_spindle_rev / abs(spindle_speed_out)
             else:
-                value_to_set = spindle_override * 100
-            widget.set_value(value_to_set)
-            self.spindle_override = value_to_set / 100
-            self.command.spindleoverride(value_to_set / 100)
+                spindle_override_command = spindle_override_in
+
+            widget.set_value(spindle_override_command * 100.0)
+            self.spindle_override_in = spindle_override_command
+            self.command.spindleoverride(spindle_override_command)
         except:
             pass
 
@@ -5211,7 +5213,7 @@ class gmoccapy(object):
         self.widgets.tbtn_setup.set_sensitive(False)
 
     def on_gcode_view_changed(self, widget, state):
-        print("gcode view changed (modified: {})".format(state))
+        print("G-code view changed (modified: {})".format(state))
         self.file_changed = state
 
     # Search and replace handling in edit mode

@@ -9,7 +9,7 @@ hal_init \- Sets up HAL and RTAPI
 
 .SH ARGUMENTS
 .IP \fImodname\fR
-The name of this hal module
+The name of this HAL module
 
 .SH DESCRIPTION
 

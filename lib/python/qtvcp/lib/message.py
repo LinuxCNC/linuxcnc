@@ -36,10 +36,10 @@ class Message:
     def message_setup(self, hal_comp, window=None):
         self.HAL_GCOMP_ = hal_comp
         if INFO.ZIPPED_USRMESS:
-            for bt, t, d, style, name, icon in (INFO.ZIPPED_USRMESS):
-                if not ("status" in style)\
-                and not ("dialog" in style):
-                    log.info('invalid message type {} in INI File [DISPLAY] section'.format(C))
+            for boldtext, text, pinname, details, name, icon in (INFO.ZIPPED_USRMESS):
+                if not ("status" in details)\
+                and not ("dialog" in details):
+                    log.info('invalid message type {} in INI File [DISPLAY] section'.format(details))
                     continue
 
                 if icon.upper() == 'CRITICAL': icon = QMessageBox.Critical
@@ -54,17 +54,17 @@ class Message:
                     D.pinname = name
 
                     # this is how we make a pin that can be connected to a callback
-                    if ("none" in style):
+                    if ("none" in details):
                         D._halpin = self.HAL_GCOMP_.newpin(name, hal.HAL_BIT, hal.HAL_IN)
                     else:
                         D._halpin = self.HAL_GCOMP_.newpin(name, hal.HAL_BIT, hal.HAL_IO)
 
                     D._halpin.value_changed.connect(self.dummy(self['dialog-{}'.format(name)],
-                                                D._halpin, name, bt, t, d, style, icon))
+                                                D._halpin, name, boldtext, text, pinname, details, icon))
 
-                    if ("dialog" in style) and not ("nonedialog" in style):
+                    if ("dialog" in details) and not ("nonedialog" in details):
                         self.HAL_GCOMP_.newpin(name + "-waiting", hal.HAL_BIT, hal.HAL_OUT)
-                        if not ("ok" in style):
+                        if not ("ok" in details):
                             self.HAL_GCOMP_.newpin(name + "-response", hal.HAL_BIT, hal.HAL_OUT)
                             self.HAL_GCOMP_.newpin(name + "-response-s32", hal.HAL_S32, hal.HAL_OUT)
                             self.HAL_GCOMP_[name + "-response-s32"] = -1 # undetermined
@@ -74,16 +74,16 @@ class Message:
     # add user data - it seems you only get the last set added
     # found this closure technique hack on the web
     # truly weird black magic
-    def dummy(self, dialog, pin, name, bt, t, d, c, i):
+    def dummy(self, dialog, pin, pinname, boldtext, text, details, type, icon):
         def calluser():
-            self.on_printmessage(dialog, pin, name, bt, t, d, c, i)
+            self.on_printmessage(dialog, pin, pinname, boldtext, text, details, type, icon)
         return calluser
 
     # This is part of the user message system
     # There is status that prints to the status bar
     # There is Okdialog that prints a dialog that the user must acknowledge
     # there is yes/no dialog where the user must choose between yes or no
-    # you can combine status and dialog messages so they print to the status bar 
+    # you can combine status and dialog messages so they print to the status bar
     # and pop a dialog
     # This gets called as the HAL pin changes state
     def on_printmessage(self, dialog, pin, pinname, boldtext, text, details, type, icon):

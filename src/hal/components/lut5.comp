@@ -142,6 +142,7 @@ see_also """
 \\fBxor2\\fR(9).
 """;
 license "GPL";
+author "Jeff Epler";
 ;;
 
 FUNCTION(_) {

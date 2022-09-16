@@ -30,6 +30,7 @@ have a base period of 100,000ns that is 0.0001 seconds and the formula would be
 1/(0.0001 x 2) = 5,000 hz or 5 Khz. Two additional outputs are provided that run
 a factor of 2 and 4 slower for hardware that requires a lower frequency.""";
 license "GPL";
+author "Jeff Epler";
 ;;
 FUNCTION(_) {
     static int acc;

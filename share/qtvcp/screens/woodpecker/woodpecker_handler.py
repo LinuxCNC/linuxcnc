@@ -1,17 +1,21 @@
 import os
 import linuxcnc
 import hal
-import time
-from PyQt5 import QtCore, QtWidgets, QtGui
+import sys
+from PyQt5.QtWidgets import QMessageBox
+from PyQt5 import QtCore, QtWidgets, QtGui, uic
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOL_TABLE
 from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFSET_VIEW
-from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
+from qtvcp.widgets.stylesheeteditor import StyleSheetEditor as SSE
+from qtvcp.widgets.file_manager import FileManager as FM
+from qtvcp.lib.writer import writer
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.gcodes import GCodes
-from qtvcp.lib.toolbar_actions import ToolBarActions
-from qtvcp.core import Status, Action, Info
+from qtvcp.lib.qt_pdf import PDFViewer 
+from qtvcp.widgets.simple_widgets import DoubleScale as PARAMETER
+from qtvcp.core import Status, Action, Info, Path, Qhal
 from qtvcp import logger
 from shutil import copyfile
 
@@ -20,8 +24,11 @@ KEYBIND = Keylookup()
 STATUS = Status()
 INFO = Info()
 ACTION = Action()
-TOOLBAR = ToolBarActions()
+PATH = Path()
 STYLEEDITOR = SSE()
+WRITER = writer.Main()
+QHAL = Qhal()
+SUBPROGRAM = os.path.join(PATH.LIBDIR, 'touchoff_subprogram.py')
 
 # constants for tab pages
 TAB_MAIN = 0
@@ -30,13 +37,24 @@ TAB_OFFSETS = 2
 TAB_TOOL = 3
 TAB_STATUS = 4
 TAB_PROBE = 5
-TAB_MACRO = 6
-TAB_SETTINGS = 7
-TAB_CAMERA = 8
-TAB_SETUP = 9
-TAB_MDI_TOUCHY = 10
-TAB_GCODES = 11
-TAB_ACCESSORIES = 12
+TAB_CAMERA = 6
+TAB_GCODES = 7
+TAB_SETUP = 8
+TAB_SETTINGS = 9
+TAB_UTILITIES = 10
+TAB_MDI_TOUCHY = 11
+
+# constants for (left side) stacked widget
+PAGE_UNCHANGED = -1
+PAGE_GCODE = 3
+PAGE_FILE = 4
+PAGE_OFFSET = 5
+PAGE_TOOL = 6
+PAGE_NGCGUI = 7
+
+DEFAULT = 0
+WARNING = 1
+CRITICAL = 2
 
 class HandlerClass:
     def __init__(self, halcomp, widgets, paths):
@@ -45,48 +63,54 @@ class HandlerClass:
         self.PATHS = paths
         self.gcodes = GCodes(widgets)
         self._last_count = 0
-        self.degree = u"\N{DEGREE SIGN}".encode('utf-8')
         self.valid = QtGui.QDoubleValidator(-999.999, 999.999, 3)
         self.styleeditor = SSE(widgets, paths)
+        KEYBIND.add_call('Key_F10','on_keycall_F10')
+        KEYBIND.add_call('Key_F11','on_keycall_F11')
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         KEYBIND.add_call('Key_Pause', 'on_keycall_pause')
+
+        INIPATH = os.environ.get('INI_FILE_NAME', '/dev/null')
+        self.iniFile = linuxcnc.ini(INIPATH)
+
+        self.unitsPerMm = 1
+        self.units = self.iniFile.find('TRAJ', 'LINEAR_UNITS')
+        if self.units == 'inch':
+            self.unitsPerMm = 0.03937
                 
         # some global variables
+        self.probe = None
+        self.default_setup = os.path.join(PATH.CONFIGPATH, "default_setup.html")
+        self.docs = os.path.join(PATH.SCREENDIR, PATH.BASEPATH,'docs/getting_started.html')
         self.start_line = 0
         self.run_time = 0
         self.time_tenths = 0
-        self.timerOn = False
+        self.timer_on = False
         self.home_all = False
+        self.run_color = QtGui.QColor('green')
+        self.stop_color = QtGui.QColor('red')
+        self.pause_color = QtGui.QColor('yellow')
+        #self.default_setup = os.path.join(PATH.CONFIGPATH, "help_files/about.html")
         self.min_spindle_rpm = INFO.MIN_SPINDLE_SPEED
         self.max_spindle_rpm = INFO.MAX_SPINDLE_SPEED
-        self.max_linear_velocity = INFO.MAX_TRAJ_VELOCITY
         self.system_list = ["G54","G55","G56","G57","G58","G59","G59.1","G59.2","G59.3"]
+        self.tab_index_code = (0, 1, 2, 3, 0, 0, 2, 0, 0, 0, 0, 0)
         self.slow_jog_factor = 10
         self.reload_tool = 0
         self.last_loaded_program = ""
         self.first_turnon = True
-        self.lineedit_list = ["work_height", "touch_height", "sensor_height",
-                              "laser_x", "laser_y", "sensor_x", "sensor_y",
+        self.source_file = ""
+        self.tool_icons = {}
+        self.lineedit_list = ["work_height", "touch_height", "sensor_height", "laser_x", "laser_y",
+                              "sensor_x", "sensor_y", "camera_x", "camera_y",
                               "search_vel", "probe_vel", "max_probe", "eoffset_count"]
-        self.onoff_list = ["frame_dro"]
+        self.onoff_list = ["frame_tool", "frame_dro", "frame_override", "frame_status"]
         self.auto_list = ["chk_eoffsets", "cmb_gcode_history"]
         self.axis_a_list = ["label_axis_a", "dro_axis_a", "action_zero_a", "axistoolbutton_a",
-                            "action_home_a", "slider_jog_angular", "btn_jog_a_slow", "widget_increments_angular",
-                            "btn_jog_pos_a", "btn_jog_neg_a", "status_label_jog_angular"]
-        self.html = """<html>
-<head>
-<title>Test page for the download:// scheme</title>
-</head>
-<body>
-<h1>Setup Tab</h1>
-<p>If you select a file with .html as a file ending, it will be shown here..</p>
-<img src="file://%s" alt="lcnc_swoop" />
-<hr />
-
-<a href="http://www.linuxcnc.org/docs/2.8/html/gui/qtdragon.html">QtDragon Documentation link</a>
-</body>
-</html>
-""" %(os.path.join(paths.IMAGEDIR,'lcnc_swoop.png'))
+                            "action_home_a", "widget_jog_angular", "widget_increments_angular",
+                            "a_plus_jogbutton", "a_minus_jogbutton"]
+        self.button_response_list = ["btn_start", "btn_home_all", "btn_home_x", "btn_home_y",
+                            "btn_home_z", "action_home_a", "btn_reload_file"]
 
         STATUS.connect('general', self.dialog_return)
         STATUS.connect('state-on', lambda w: self.enable_onoff(True))
@@ -94,39 +118,60 @@ class HandlerClass:
         STATUS.connect('mode-manual', lambda w: self.enable_auto(True))
         STATUS.connect('mode-mdi', lambda w: self.enable_auto(True))
         STATUS.connect('mode-auto', lambda w: self.enable_auto(False))
+        STATUS.connect('interp-run', lambda w: self.set_button_response_state(True))
+        STATUS.connect('interp-idle', lambda w: self.set_button_response_state(False))
         STATUS.connect('gcode-line-selected', lambda w, line: self.set_start_line(line))
-        STATUS.connect("metric-mode-changed", lambda w, d: self.mode_changed(d))
+        STATUS.connect('graphics-line-selected', lambda w, line: self.set_start_line(line))
         STATUS.connect('hard-limits-tripped', self.hard_limit_tripped)
-        STATUS.connect('interp-idle', lambda w: self.set_start_line(0))
-        STATUS.connect('program-pause-changed', lambda w, state: self.w.spindle_pause.setEnabled(state))
-        STATUS.connect('user-system-changed', self.user_system_changed)
+        STATUS.connect('program-pause-changed', lambda w, state: self.w.btn_spindle_pause.setEnabled(state))
+        STATUS.connect('actual-spindle-speed-changed', lambda w, speed: self.update_rpm(speed))
+        STATUS.connect('user-system-changed', lambda w, data: self.user_system_changed(data))
+        STATUS.connect('metric-mode-changed', lambda w, mode: self.metric_mode_changed(mode))
+        STATUS.connect('tool-in-spindle-changed', lambda w, tool: self.tool_changed(tool))
         STATUS.connect('file-loaded', self.file_loaded)
-        STATUS.connect('homed', self.homed)
         STATUS.connect('all-homed', self.all_homed)
         STATUS.connect('not-all-homed', self.not_all_homed)
         STATUS.connect('periodic', lambda w: self.update_runtimer())
-        STATUS.connect('command-running', lambda w: self.start_timer())
         STATUS.connect('command-stopped', lambda w: self.stop_timer())
+        STATUS.connect('progress', lambda w,p,t: self.updateProgress(p,t))
+        STATUS.connect('override-limits-changed', lambda w, state, data: self._check_override_limits(state, data))       
         self._block_signal = False
+
+        self.html = """<html>
+<head>
+<title>Test page for the download:// scheme</title>
+</head>
+<body>
+<h1>Setup Tab</h1>
+<p>If you select a file with .html as a file ending, it will be shown here..</p>
+<li><a href="http://linuxcnc.org/docs/devel/html/">Documents online</a></li>
+<li><a href="file://">Local files</a></li>
+<img src="file://%s" alt="lcnc_swoop" />
+<hr />
+</body>
+</html>
+""" %(os.path.join(paths.IMAGEDIR,'lcnc_swoop.png'))
+
+
+    def class_patch__(self):
+        self.old_fman = FM.load
+        FM.load = self.load_code
 
     def initialized__(self):
         self.w.pushbutton_metric.clicked[bool].connect(self.change_mode)
         self.init_pins()
-        self.init_utils()
         self.init_preferences()
         self.init_widgets()
-        self.w.stackedWidget_log.setCurrentIndex(0)
-        self.w.stackedWidget_3.setCurrentIndex(0)
-        self.w.stackedWidget_4.setCurrentIndex(0)
-        self.w.stackedWidget_0.setCurrentIndex(0)
+        self.init_probe()
+        self.init_utils()
+        self.w.stackedWidget_log.setCurrentIndex(0)        
+        self.w.stackedWidget_dro.setCurrentIndex(0)
         self.w.stackedWidget_2.setCurrentIndex(0)
-        self.w.spindle_pause.setEnabled(False)
+        self.w.btn_spindle_pause.setEnabled(False)
         self.w.btn_dimensions.setChecked(True)
-        self.w.btn_touch_sensor.setEnabled
         self.w.page_buttonGroup.buttonClicked.connect(self.main_tab_changed)
-        self.chk_run_from_line_checked(self.w.chk_run_from_line.isChecked())
-        self.chk_use_camera_changed(self.w.chk_use_camera.isChecked())
-       
+        self.w.filemanager_usb.showMediaDir(quiet = True)
+
         STATUS.connect('feed-override-changed', lambda w, data: self.w.pushbutton_fo.setText('FO {0:.0f}%'.format(data)))
         STATUS.connect('rapid-override-changed', lambda w, data: self.w.pushbutton_ro.setText('RO {0:.0f}%'.format(data)))
         STATUS.connect('spindle-override-changed', lambda w, data: self.w.pushbutton_so.setText('SO {0:.0f}%'.format(data)))
@@ -141,32 +186,81 @@ class HandlerClass:
         for val in self.lineedit_list:
             self.w['lineEdit_' + val].setValidator(self.valid)
     # check for default setup html file
-        fname = os.path.join(os.path.expanduser('~'), 'linuxcnc/configs/qtdragon/default_setup.html')
-        if os.path.exists(fname):
-            self.w.setup_webView.load(QtCore.QUrl.fromLocalFile(fname))
+        try:
+            # web view widget for SETUP page
+            if self.w.web_view:
+                self.toolBar = QtWidgets.QToolBar(self.w)
+                self.w.tabWidget_setup.setCornerWidget(self.toolBar)
 
+                self.backBtn = QtWidgets.QPushButton(self.w)
+                self.backBtn.setEnabled(True)
+                self.backBtn.setIconSize(QtCore.QSize(56, 34))
+                self.backBtn.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/left-32.png'))
+                self.backBtn.clicked.connect(self.back)
+                self.toolBar.addWidget(self.backBtn)
+
+                self.forBtn = QtWidgets.QPushButton(self.w)
+                self.forBtn.setEnabled(True)
+                self.forBtn.setIconSize(QtCore.QSize(56, 34))
+                self.forBtn.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/right-32.png'))
+                self.forBtn.clicked.connect(self.forward)
+                self.toolBar.addWidget(self.forBtn)
+
+                self.writeBtn = QtWidgets.QPushButton('SetUp\n Writer',self.w)
+                self.writeBtn.setMinimumSize(64,40)
+                self.writeBtn.setEnabled(True)
+                self.writeBtn.clicked.connect(self.writer)
+                self.toolBar.addWidget(self.writeBtn)
+
+                self.w.layout_HTML.addWidget(self.w.web_view)
+                if os.path.exists(self.default_setup):
+                    self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.default_setup))
+                else:
+                    self.w.web_view.setHtml(self.html)
+        except Exception as e:
+            print("No default setup file found - {}".format(e))
+
+        # PDF setup page
+        self.PDFView = PDFViewer.PDFView()
+        self.w.layout_PDF.addWidget(self.PDFView)
+        self.PDFView.loadSample('setup_tab')
+
+    def init_utils(self):
+        from qtvcp.lib.gcode_utility.facing import Facing
+        self.facing = Facing()
+        self.w.layout_facing.addWidget(self.facing)
+
+        from qtvcp.lib.gcode_utility.hole_circle import Hole_Circle
+        self.hole_circle = Hole_Circle()
+        self.w.layout_hole_circle.addWidget(self.hole_circle)
+
+        # load the NgcGui widget into the utilities tab
+        # then move (warp) the info tab from it to the left tab widget
+        from qtvcp.lib.qt_ngcgui.ngcgui import NgcGui
+        self.ngcgui = NgcGui()
+        self.w.layout_ngcgui.addWidget(self.ngcgui)
+        self.ngcgui.warp_info_frame(self.w.ngcGuiLeftLayout)
 
     #############################
     # SPECIAL FUNCTIONS SECTION #
     #############################
     def init_pins(self):
-        # spindle control pins 
-        pin = self.h.newpin("spindle_amps", hal.HAL_FLOAT, hal.HAL_IN)
+        # spindle control pins
+        pin = QHAL.newpin("spindle-amps", QHAL.HAL_FLOAT, QHAL.HAL_IN)
         pin.value_changed.connect(self.spindle_pwr_changed)
-        pin = self.h.newpin("spindle_volts", hal.HAL_FLOAT, hal.HAL_IN)
+        pin = QHAL.newpin("spindle-volts", QHAL.HAL_FLOAT, QHAL.HAL_IN)
         pin.value_changed.connect(self.spindle_pwr_changed)
-        pin = self.h.newpin("spindle_fault", hal.HAL_U32, hal.HAL_IN)
+        pin = QHAL.newpin("spindle-fault", QHAL.HAL_U32, QHAL.HAL_IN)
         pin.value_changed.connect(self.spindle_fault_changed)
-        pin = self.h.newpin("modbus-errors", hal.HAL_U32, hal.HAL_IN)
+        pin = QHAL.newpin("spindle-modbus-errors", QHAL.HAL_U32, QHAL.HAL_IN)
         pin.value_changed.connect(self.mb_errors_changed)
-       # self.h.newpin("spindle_pause", hal.HAL_BIT, hal.HAL_OUT)
+        QHAL.newpin("spindle-inhibit", QHAL.HAL_BIT, QHAL.HAL_OUT)
         # external offset control pins
-        self.h.newpin("eoffset_enable", hal.HAL_BIT, hal.HAL_OUT)
-        self.h.newpin("eoffset_clear", hal.HAL_BIT, hal.HAL_OUT)
-        self.h.newpin("eoffset_count", hal.HAL_S32, hal.HAL_OUT)
-        pin = self.h.newpin("eoffset_value", hal.HAL_FLOAT, hal.HAL_IN)
-        pin.value_changed.connect(self.eoffset_changed)
-        
+        QHAL.newpin("eoffset-enable", QHAL.HAL_BIT, QHAL.HAL_OUT)
+        QHAL.newpin("eoffset-clear", QHAL.HAL_BIT, QHAL.HAL_OUT)
+        QHAL.newpin("eoffset-count", QHAL.HAL_S32, QHAL.HAL_OUT)
+        pin = QHAL.newpin("eoffset-value", QHAL.HAL_FLOAT, QHAL.HAL_IN)
+
         self.pin_mpg_in = self.h.newpin('mpg-in',hal.HAL_S32, hal.HAL_IN)
         self.pin_mpg_in.value_changed.connect(lambda s: self.external_mpg(s))
         self.wheel_x = self.h.newpin('jog.wheel.x',hal.HAL_BIT, hal.HAL_OUT)
@@ -185,11 +279,11 @@ class HandlerClass:
         self.w.lineEdit_laser_y.setText(str(self.w.PREFS_.getpref('Laser Y', -20, float, 'CUSTOM_FORM_ENTRIES')))
         self.w.lineEdit_sensor_x.setText(str(self.w.PREFS_.getpref('Sensor X', 10, float, 'CUSTOM_FORM_ENTRIES')))
         self.w.lineEdit_sensor_y.setText(str(self.w.PREFS_.getpref('Sensor Y', 10, float, 'CUSTOM_FORM_ENTRIES')))
+        self.w.lineEdit_camera_x.setText(str(self.w.PREFS_.getpref('Camera X', 10, float, 'CUSTOM_FORM_ENTRIES')))
+        self.w.lineEdit_camera_y.setText(str(self.w.PREFS_.getpref('Camera Y', 10, float, 'CUSTOM_FORM_ENTRIES')))
         self.w.lineEdit_work_height.setText(str(self.w.PREFS_.getpref('Work Height', 20, float, 'CUSTOM_FORM_ENTRIES')))
         self.w.lineEdit_touch_height.setText(str(self.w.PREFS_.getpref('Touch Height', 40, float, 'CUSTOM_FORM_ENTRIES')))
         self.w.lineEdit_sensor_height.setText(str(self.w.PREFS_.getpref('Sensor Height', 40, float, 'CUSTOM_FORM_ENTRIES')))
-        self.w.lineEdit_camera_x.setText(str(self.w.PREFS_.getpref('Camera X', 10, float, 'CUSTOM_FORM_ENTRIES')))
-        self.w.lineEdit_camera_y.setText(str(self.w.PREFS_.getpref('Camera Y', 10, float, 'CUSTOM_FORM_ENTRIES')))
         self.w.lineEdit_search_vel.setText(str(self.w.PREFS_.getpref('Search Velocity', 40, float, 'CUSTOM_FORM_ENTRIES')))
         self.w.lineEdit_probe_vel.setText(str(self.w.PREFS_.getpref('Probe Velocity', 10, float, 'CUSTOM_FORM_ENTRIES')))
         self.w.lineEdit_max_probe.setText(str(self.w.PREFS_.getpref('Max Probe', 10, float, 'CUSTOM_FORM_ENTRIES')))
@@ -201,12 +295,27 @@ class HandlerClass:
         self.w.chk_run_from_line.setChecked(self.w.PREFS_.getpref('Run from line', False, bool, 'CUSTOM_FORM_ENTRIES'))
         self.w.chk_use_virtual.setChecked(self.w.PREFS_.getpref('Use virtual keyboard', False, bool, 'CUSTOM_FORM_ENTRIES'))
         self.w.chk_use_tool_sensor.setChecked(self.w.PREFS_.getpref('Use tool sensor', False, bool, 'CUSTOM_FORM_ENTRIES'))
-        self.w.PREFS_.putpref('Use camera', self.w.chk_use_camera.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
-                
+        self.w.chk_use_camera.setChecked(self.w.PREFS_.getpref('Use camera', False, bool, 'CUSTOM_FORM_ENTRIES'))
+        self.w.chk_alpha_mode.setChecked(self.w.PREFS_.getpref('Use alpha display mode', False, bool, 'CUSTOM_FORM_ENTRIES'))
+        self.w.chk_inhibit_selection.setChecked(self.w.PREFS_.getpref('Inhibit display mouse selection', True, bool, 'CUSTOM_FORM_ENTRIES'))
+        self.w.cone_size.setValue(self.w.PREFS_.getpref('Preview cone size', 0.5, float, 'GUI_OPTIONS'))
+        self.w.grid_size.setValue(self.w.PREFS_.getpref('Preview grid size', 0, float, 'GUI_OPTIONS'))
+        self.cone_size_changed(self.w.cone_size.value())
+        self.grid_size_changed(self.w.grid_size.value())
+        # read tool icon text file
+        fname = os.path.join(PATH.SCREENDIR,PATH.BASENAME, "tool_icons/tool_icons.txt")
+        if os.path.isfile(fname):
+            with open(fname) as file:
+                for line in file:
+                    line = line.rstrip()
+                    (key, val) = line.split(':')
+                    self.tool_icons[int(key)] = val        
+        
     def closing_cleanup__(self):
         if not self.w.PREFS_: return
-        self.w.PREFS_.putpref('last_loaded_directory', os.path.dirname(self.last_loaded_program), str, 'BOOK_KEEPING')
-        self.w.PREFS_.putpref('last_loaded_file', self.last_loaded_program, str, 'BOOK_KEEPING')
+        if self.last_loaded_program is not None:
+            self.w.PREFS_.putpref('last_loaded_directory', os.path.dirname(self.last_loaded_program), str, 'BOOK_KEEPING')
+            self.w.PREFS_.putpref('last_loaded_file', self.last_loaded_program, str, 'BOOK_KEEPING')
         self.w.PREFS_.putpref('Tool to load', STATUS.get_current_tool(), int, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Laser X', self.w.lineEdit_laser_x.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Laser Y', self.w.lineEdit_laser_y.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
@@ -229,69 +338,111 @@ class HandlerClass:
         self.w.PREFS_.putpref('Use virtual keyboard', self.w.chk_use_virtual.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Use tool sensor', self.w.chk_use_tool_sensor.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Use camera', self.w.chk_use_camera.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
+        self.w.PREFS_.putpref('Use alpha display mode', self.w.chk_alpha_mode.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
+        self.w.PREFS_.putpref('Inhibit display mouse selection', self.w.chk_inhibit_selection.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
+        self.w.PREFS_.putpref('Preview grid size', self.w.grid_size.value(), float, 'GUI_OPTIONS')
+        # save tool table icons
+        path = os.path.join(PATH.SCREENDIR,PATH.BASENAME, "tool_icons")
+        if os.path.isdir(path):
+            fname = os.path.join(path, "tool_icons.txt")
+            f = open(fname, "w")
+            for key in self.tool_icons:
+                f.write(str(key) + ":" + self.tool_icons[key] + "\n")        
 
     def init_widgets(self):
-        self.w.main_tab_widget.setCurrentIndex(0)
+        self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
         self.w.chk_override_limits.setChecked(False)
         self.w.chk_override_limits.setEnabled(False)
         self.w.lbl_maxv_percent.setText("100 %")
-        self.w.lbl_max_rapid.setText(str(self.max_linear_velocity))       
         self.w.lbl_home_x.setText(INFO.get_error_safe_setting('JOINT_0', 'HOME',"50"))
         self.w.lbl_home_y.setText(INFO.get_error_safe_setting('JOINT_1', 'HOME',"50"))
         self.w.cmb_gcode_history.addItem("No File Loaded")
         self.w.cmb_gcode_history.wheelEvent = lambda event: None
         self.w.jogincrements_linear.wheelEvent = lambda event: None
         self.w.jogincrements_angular.wheelEvent = lambda event: None
-        #self.w.spindle_rpm.setValue(0)
         self.w.gcode_editor.hide()
-        self.w.mdihistory.list.setAlternatingRowColors(False)
         self.w.filemanager.list.setAlternatingRowColors(False)
-        self.w.runFromLineEdit.setValidator( QtGui.QIntValidator())
-    
-        #set up gcode list
-        self.gcodes.setup_list()
-
-        # clickable frames
-        self.w.frame_cycle_start.mousePressEvent = self.btn_start_clicked
-        self.w.frame_home_all.mousePressEvent = self.btn_home_all_clicked
-   
-        # web view widget for SETUP page
-        self.w.verticalLayout_setup.addWidget(self.w.web_view)
-        self.w.web_view.setHtml(self.html)
-        # check for virtual keyboard enabled
-        if self.w.chk_use_virtual.isChecked():
-            self.w.btn_keyboard.show()
+        self.w.filemanager_usb.list.setAlternatingRowColors(False)
+        self.w.filemanager_usb.showList()
+        #tool icons
+        self.w.cmb_tool_icons.addItem("SELECT\nICON")
+        self.w.cmb_tool_icons.view().setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+        path = os.path.join(PATH.SCREENDIR,PATH.BASENAME, "tool_icons")
+        if os.path.isdir(path):
+            icons = os.listdir(path)
+            for item in icons:
+                if not item.endswith(".txt"):
+                    self.w.cmb_tool_icons.addItem(item)
+            self.w.cmb_tool_icons.addItem("undefined")
+            self.w.cmb_tool_icons.setCurrentIndex(0)
         else:
-            self.w.btn_keyboard.hide()
-        TOOLBAR.configure_statusbar(self.w.statusbar,'message_recall')
+            pass
+
+        # set calculator mode for menu buttons
+        for i in ("x", "y", "z", "a"):
+            self.w["axistoolbutton_" + i].set_dialog_code('CALCULATOR')
+
+        # disable mouse wheel events on comboboxes
+        self.w.cmb_gcode_history.wheelEvent = lambda event: None
+        self.w.cmb_stylesheet.wheelEvent = lambda event: None        
+        self.w.jogincrements_linear.wheelEvent = lambda event: None
+        self.w.jogincrements_angular.wheelEvent = lambda event: None
+        self.w.gcode_editor.hide()
+        # turn off table grids
+        self.w.filemanager.table.setShowGrid(False)
+        self.w.filemanager_usb.table.setShowGrid(False)
+        self.w.tooloffsetview.setShowGrid(False)
+        self.w.offset_table.setShowGrid(False)
 
         if not INFO.MACHINE_IS_METRIC:
-            self.w.lbl_jog_linear.setText('JOG RATE\nINCH/MIN')
             self.w.lbl_tool_sensor_B2W.setText('INCH')
             self.w.lbl_tool_sensor_B2S.setText('INCH')
             self.w.lbl_touchheight_units.setText('INCH')
+            self.w.lbl_max_probe_units.setText('INCH')
+            self.w.lbl_search_vel_units.setText('INCH/<sup> MIN</sup>')
+            self.w.lbl_probe_vel_units.setText('INCH/<sup> MIN</sup>')
+            self.w.lbl_z_ext_offset.setText('INCH')
+            self.w.lbl_tool_sensor_loc.setText('INCH')
+            self.w.lbl_laser_offset.setText('INCH')
+            self.w.lbl_camera_offset.setText('INCH')
+            self.w.lbl_touchheight_units.setText('INCH')
 
-    def init_utils(self):
-        from qtvcp.lib.gcode_utility.facing import Facing
-        self.facing = Facing()
-        self.w.layout_facing.addWidget(self.facing)
-        from qtvcp.lib.gcode_utility.hole_circle import Hole_Circle
-        self.hole_circle = Hole_Circle()
-        self.w.layout_hole_circle.addWidget(self.hole_circle)
-        from  qtvcp.widgets.calculator import Calculator
-        self.calculator = Calculator()
-        self.w.layout_calculator.addWidget(self.calculator)
-        self.calculator.bBox.setHidden(True)
-       
+        # populate stylesheet combobox - basically a copy of styleeditor combobox
+        for i in range(self.styleeditor.styleSheetCombo.count()):
+            item = self.styleeditor.styleSheetCombo.itemText(i)
+            self.w.cmb_stylesheet.addItem(item)
+
+        #set up gcode list
+        self.gcodes.setup_list()
+
+    def init_probe(self):
+        probe = INFO.get_error_safe_setting('PROBE', 'USE_PROBE', 'none').lower()
+        if probe == 'versaprobe':
+            LOG.info("Using Versa Probe")
+            from qtvcp.widgets.versa_probe import VersaProbe
+            self.probe = VersaProbe()
+            self.probe.setObjectName('versaprobe')
+        elif probe == 'basicprobe':
+            LOG.info("Using Basic Probe")
+            from qtvcp.widgets.basic_probe import BasicProbe
+            self.probe = BasicProbe()
+            self.probe.setObjectName('basicprobe')
+        else:
+            LOG.info("No valid probe widget specified")
+            self.w.btn_probe.hide()
+            return
+        self.w.probe_layout.addWidget(self.probe)
+        self.probe.hal_init()
+
     def processed_focus_event__(self, receiver, event):
         if not self.w.chk_use_virtual.isChecked() or STATUS.is_auto_mode(): return
         if isinstance(receiver, QtWidgets.QLineEdit):
             if not receiver.isReadOnly():
-                self.w.btn_keyboard.setChecked(True)
+                self.w.stackedWidget_dro.setCurrentIndex(1)
         elif isinstance(receiver, QtWidgets.QTableView):
-            self.w.stackedWidget_2.setCurrentIndex(1)
-        elif isinstance(receiver, QtWidgets.QCommonStyle):
-            return
+            self.w.stackedWidget_dro.setCurrentIndex(1)
+#        elif isinstance(receiver, QtWidgets.QCommonStyle):
+#            return
     
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -304,6 +455,7 @@ class HandlerClass:
             # then check if it's one we want the keypress events to go to
             flag = False
             receiver2 = receiver
+
             while receiver2 is not None and not flag:
                 if isinstance(receiver2, QtWidgets.QDialog):
                     flag = True
@@ -323,13 +475,16 @@ class HandlerClass:
                 if isinstance(receiver2, OFFSET_VIEW):
                     flag = True
                     break
+                if isinstance(receiver2, writer.Main):
+                    flag = True
+                    break
                 receiver2 = receiver2.parent()
 
             if flag:
                 if isinstance(receiver2, GCODE):
                     # if in manual or in readonly mode do our keybindings - otherwise
                     # send events to gcode widget
-                    if STATUS.is_man_mode() == False or not receiver2.editor.isReadOnly():
+                    if STATUS.is_man_mode() == False or not receiver2.isReadOnly():
                         if is_pressed:
                             receiver.keyPressEvent(event)
                             event.accept()
@@ -341,40 +496,36 @@ class HandlerClass:
                 else:
                     event.accept()
                     return True
+
         if event.isAutoRepeat():return True
-        # ok if we got here then try keybindings
-        try:
-            KEYBIND.call(self,event,is_pressed,shift,cntrl)
-            event.accept()
-            return True
-        except NameError as e:
-            if is_pressed:
-                LOG.debug('Exception in KEYBINDING: {}'.format (e))
-                self.add_status('Exception in KEYBINDING: {}'.format (e))
-        except Exception as e:
-            if is_pressed:
-                LOG.debug('Exception in KEYBINDING:', exc_info=e)
-                print('Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key))
-        event.accept()
-        return True
+
+        # ok if we got here then try keybindings function calls
+        # KEYBINDING will call functions from handler file as
+        # registered by KEYBIND.add_call(KEY,FUNCTION) above
+        return KEYBIND.manage_function_calls(self,event,is_pressed,key,shift,cntrl)
 
     #########################
     # CALLBACKS FROM STATUS #
     #########################
+
+    def update_tool_image(self, toolnumber):
+     command1 = "[{00}]".format(toolnumber)
+     self.w.lbl_tool_image.setPixmap(QtGui.QPixmap(":/images/images/" + str(command1) + ".png"))
+
     def updateIncrementPin(self, incr):
         self.jog_increment.set(incr)
-    
+
     def spindle_pwr_changed(self, data):
         # this calculation assumes the voltage is line to neutral
         # and that the synchronous motor spindle has a power factor of 0.9
-        power = self.h['spindle_volts'] * self.h['spindle_amps'] * 2.7 # 3 x V x I x PF
-        amps = "{:1.1f}".format(self.h['spindle_amps'])
+        power = self.h['spindle-volts'] * self.h['spindle-amps'] * 2.7 # 3 x V x I x PF
+        amps = "{:1.1f}".format(self.h['spindle-amps'])
         pwr = "{:1.1f}".format(power)
         self.w.lbl_spindle_amps.setText(amps)
         self.w.lbl_spindle_power.setText(pwr)
 
     def spindle_fault_changed(self, data):
-        fault = hex(self.h['spindle_fault'])
+        fault = hex(self.h['spindle-fault'])
         self.w.lbl_spindle_fault.setText(fault)
 
     def spindle_faster(self):
@@ -386,12 +537,8 @@ class HandlerClass:
             ACTION.SET_SPINDLE_SLOWER(0) 
 
     def mb_errors_changed(self, data):
-        errors = self.h['modbus-errors']
+        errors = self.h['spindle-modbus-errors']
         self.w.lbl_mb_errors.setText(str(errors))
-
-    def eoffset_changed(self, data):
-        eoffset = "{:2.3f}".format(self.h['eoffset_value'])
-        self.w.lbl_eoffset_value.setText(eoffset)
 
     def dialog_return(self, w, message):
         rtn = message.get('RETURN')
@@ -399,35 +546,59 @@ class HandlerClass:
         plate_code = bool(message.get('ID') == '_touchplate_')
         sensor_code = bool(message.get('ID') == '_toolsensor_')
         wait_code = bool(message.get('ID') == '_wait_resume_')
+        unhome_code = bool(message.get('ID') == '_unhome_')
+        overwrite = bool(message.get('ID') == '_overwrite_')
         if plate_code and name == 'MESSAGE' and rtn is True:
             self.touchoff('touchplate')
         elif sensor_code and name == 'MESSAGE' and rtn is True:
             self.touchoff('sensor')
         elif wait_code and name == 'MESSAGE':
-            self.h['eoffset_clear'] = False
+            self.h['eoffset-clear'] = False
+        elif unhome_code and name == 'MESSAGE' and rtn is True:
+            ACTION.SET_MACHINE_UNHOMED(-1)
+        elif overwrite and name == 'MESSAGE':
+            if rtn is True:
+                self.do_file_copy()
+            else:
+                self.add_status("File not copied")
 
-    def user_system_changed(self, obj, data):
+    def user_system_changed(self, data):
         sys = self.system_list[int(data) - 1]
         self.w.offset_table.selectRow(int(data) + 3)
         self.w.actionbutton_rel.setText(sys)
 
     def metric_mode_changed(self, mode):
+        rate = (float(self.w.slider_rapid_ovr.value()) / 100)
         if mode is False:
-            self.w.lbl_jog_linear.setText('JOG RATE\nIN/MIN')
-            maxvel = float(self.max_linear_velocity) / 25.4
+            self.w.lbl_jog_linear.setText('INCH/<sup>MIN</sup>')
+            self.factor = INFO.convert_machine_to_imperial(INFO.MAX_TRAJ_VELOCITY)
         else:
-            self.w.lbl_jog_linear.setText('JOG RATE\nMM/MIN')
-            maxvel = float(self.max_linear_velocity)
-        self.w.lbl_max_rapid.setText("{:4.0f}".format(maxvel))
+            self.w.lbl_jog_linear.setText('MM/<sup>MIN</sup>')
+            self.factor = INFO.convert_machine_to_metric(INFO.MAX_TRAJ_VELOCITY)
+        self.w.lbl_max_rapid.setText("{:4.0f}".format(rate * self.factor))
+        self.w.lbl_max_rapid_2.setText("{:4.0f}".format(rate * self.factor))
+
+    def tool_changed(self, tool):
+        if tool in self.tool_icons and self.tool_icons[tool] != "undefined":
+            img_path = self.tool_icons[tool]
+            img = os.path.join(PATH.SCREENDIR,PATH.BASENAME, "tool_icons/" + img_path)
+            self.w.lbl_tool_image.setPixmap(QtGui.QPixmap(img))
+        else:
+            self.w.lbl_tool_image.clear()
+            self.w.lbl_tool_image.setText("NO\nTOOL\nICON")
+            self.add_status("No icon selected for this tool")
 
     def file_loaded(self, obj, filename):
+        if os.path.basename(filename).count('.') > 1:
+            self.last_loaded_program = ""
+            return
         if filename is not None:
             self.add_status("Loaded file {}".format(filename))
             self.w.progressBar.setValue(0)
             self.last_loaded_program = filename
             self.w.lbl_runtime.setText("00:00:00")
         else:
-            self.add_status("Filename not valid")      
+            self.add_status("Filename not valid", CRITICAL)
 
     def runFromLineClicked(self):
         text = self.w.runFromLineEdit.text()
@@ -437,73 +608,77 @@ class HandlerClass:
     def btn_start_macro_clicked(self):
         if STATUS.is_mdi_mode():
             self.w.mditouchy.run_command()
-            return
 
-    def homed(self, obj, joint):
-        i = int(joint)
-        axis = INFO.GET_NAME_FROM_JOINT.get(i).lower()
-        try:
-            self.w["dro_axis_{}".format(axis)].setProperty('homed', True)
-            self.w["dro_axis_{}".format(axis)].setStyle(self.w["dro_axis_{}".format(axis)].style())
-        except:
-            pass
+    def updateProgress(self, p,text):
+        if p <0:
+            self.w.progressBar.setValue(0)
+            self.w.progressBar.setFormat('PROGRESS')
+        else:
+            self.w.progressBar.setValue(p)
+            self.w.progressBar.setFormat('{}: {}%'.format(text, p))
+
+    def percent_loaded_changed(self, fraction):
+        if fraction <0:
+            self.w.progressBar.setValue(0)
+            self.w.progressBar.setFormat('PROGRESS')
+        else:
+            self.w.progressBar.setValue(fraction)
+            self.w.progressBar.setFormat('LOADING: {}%'.format(fraction))
+
+    def percent_done_changed(self, fraction):
+        self.w.progressBar.setValue(fraction)
+        if fraction <0:
+            self.w.progressBar.setValue(0)
+            self.w.progressBar.setFormat('PROGRESS')
+        else:
+            self.w.progressBar.setFormat('COMPLETE: {}%'.format(fraction))
 
     def all_homed(self, obj):
         self.home_all = True
-        self.w.lbl_home_all.setText("ALL\nHOMED")
+        self.w.btn_home_all.setText("ALL HOMED")
         if self.first_turnon is True:
             self.first_turnon = False
             if self.w.chk_reload_tool.isChecked():
-                command = "M61 Q{}".format(self.reload_tool)
+                command = "M61 Q{} G43".format(self.reload_tool)
                 ACTION.CALL_MDI(command)
+                command1 = "[{}]".format(self.reload_tool)
+                if not os.path.exists("/usr/share/qtvcp/screens/qtdragon/images/" + str(command1) + ".png"):
+                     command1 = '[00]'
+                self.w.lbl_tool_image.setPixmap(QtGui.QPixmap(":/images/images/" + str(command1) + ".png"))
             if self.last_loaded_program is not None and self.w.chk_reload_program.isChecked():
                 if os.path.isfile(self.last_loaded_program):
                     self.w.cmb_gcode_history.addItem(self.last_loaded_program)
                     self.w.cmb_gcode_history.setCurrentIndex(self.w.cmb_gcode_history.count() - 1)
+                    self.w.cmb_gcode_history.setToolTip(self.last_loaded_program)
                     ACTION.OPEN_PROGRAM(self.last_loaded_program)
         ACTION.SET_MANUAL_MODE()
         self.w.manual_mode_button.setChecked(True)
 
     def not_all_homed(self, obj, list):
         self.home_all = False
-        self.w.lbl_home_all.setText("HOME\nALL")
-        for i in INFO.AVAILABLE_JOINTS:
-            if str(i) in list:
-                axis = INFO.GET_NAME_FROM_JOINT.get(i).lower()
-                try:
-                    self.w["dro_axis_{}".format(axis)].setProperty('homed', False)
-                    self.w["dro_axis_{}".format(axis)].setStyle(self.w["dro_axis_{}".format(axis)].style())
-                except:
-                    pass
-
+        self.w.btn_home_all.setText("HOME ALL")
 
     def hard_limit_tripped(self, obj, tripped, list_of_tripped):
-        self.add_status("Hard limits tripped")
+        self.add_status("Hard limits tripped", CRITICAL)
         self.w.chk_override_limits.setEnabled(tripped)
         if not tripped:
             self.w.chk_override_limits.setChecked(False)
 
-    def update_runtimer(self):
-        if self.timerOn is False or STATUS.is_auto_paused(): return
-        self.time_tenths += 1
-        if self.time_tenths == 10:
-            self.time_tenths = 0
-            self.run_time += 1
-            hours, remainder = divmod(self.run_time, 3600)
-            minutes, seconds = divmod(remainder, 60)
-            self.w.lbl_runtime.setText("{:02d}:{:02d}:{:02d}".format(hours, minutes, seconds))
+    # keep check button in synch of external changes
+    def _check_override_limits(self,state,data):
+        if 0 in data:
+            self.w.chk_override_limits.setChecked(False)
+        else:
+            self.w.chk_override_limits.setChecked(True)
 
-    def start_timer(self):
-        if STATUS.is_auto_running():
-            self.run_time = 0
-            self.timerOn = True
-
-    def stop_timer(self):
-        self.timerOn = False
+    def set_button_response_state(self, state):
+        for i in (self.button_response_list):
+            self.w[i].setEnabled(not state)
 
     #######################
     # CALLBACKS FROM FORM #
     #######################
+
     def updateJogState(self):
         state = self.w.pushbutton_jog.isChecked()
         selected = None
@@ -515,7 +690,7 @@ class HandlerClass:
                 self['wheel_{}'.format(temp.lower())].set(state)
             else:
                 self['wheel_{}'.format(temp.lower())].set(False)
-    
+
     def full_screen(self, state):
         if state:
             self.w.stackedWidget_0.setCurrentIndex(1)
@@ -527,45 +702,54 @@ class HandlerClass:
     def switch(self, state):
         #print state
         if state:
-            self.w.stackedWidget_4.setCurrentIndex(6)
+            self.w.stackedWidget_2.setCurrentIndex(8)
             self.w.widgetswitcher_2.show_id_widget(1)           
         elif state == 0:
             self.w.widgetswitcher_2.show_id_widget(0)
             self.w.main_tab_widget.setCurrentIndex(0)
-       #main button bar
+
+    # main button bar
     def main_tab_changed(self, btn):
-        if STATUS.is_auto_mode():
+        index = btn.property("index")
+        if index == self.w.main_tab_widget.currentIndex():
+            self.w.stackedWidget_dro.setCurrentIndex(0)
+        if index is None: return
+        # if in automode still allow settings to show so override linits can be used
+        if STATUS.is_auto_mode() and index != 9:
             self.add_status("Cannot switch pages while in AUTO mode")
+            # make sure main page is showing
+            self.w.main_tab_widget.setCurrentIndex(0)
             self.w.btn_main.setChecked(True)
             return
-        index = btn.property("index")
-        if index is None: return
         self.w.main_tab_widget.setCurrentIndex(index)
-        if index == TAB_MAIN:
-            self.w.btn_keyboard.setChecked(False)
-            self.w.stackedWidget_2.setCurrentIndex(0)
-            self.w.stackedWidget_4.setCurrentIndex(0)
-        elif index == TAB_FILE:
-            self.w.stackedWidget_4.setCurrentIndex(3)
-        elif index == TAB_OFFSETS:
-            self.w.stackedWidget_4.setCurrentIndex(4)
-        elif index == TAB_TOOL:
-            self.w.stackedWidget_4.setCurrentIndex(5)
-        elif index == TAB_PROBE:
-            self.w.stackedWidget_4.setCurrentIndex(6)
-        elif index == TAB_MACRO:
-            self.w.stackedWidget_4.setCurrentIndex(6)
-        elif index == TAB_CAMERA:
-            self.w.stackedWidget_4.setCurrentIndex(4)
-        elif index == TAB_MDI_TOUCHY:
-            self.w.stackedWidget_4.setCurrentIndex(6)
+        self.w.stackedWidget_2.setCurrentIndex(self.tab_index_code[index])
+        if index == TAB_SETUP:
+            self.w.stackedWidget_2.hide()
         else:
-            self.w.stackedWidget_4.setCurrentIndex(0)
+            self.w.stackedWidget_2.show()
+        if index == TAB_MAIN:
+            self.w.stackedWidget_dro.setCurrentIndex(0)
+            self.w.stackedWidget_2.setCurrentIndex(0)
+        if index == TAB_FILE:
+            self.w.stackedWidget_2.setCurrentIndex(4)
+        if index == TAB_OFFSETS:
+            self.w.stackedWidget_2.setCurrentIndex(5)
+        if index == TAB_TOOL:
+            self.w.stackedWidget_2.setCurrentIndex(6)
+        if index == TAB_MDI_TOUCHY:
+            self.w.stackedWidget_2.setCurrentIndex(8)
+        if index == TAB_PROBE:
+            self.w.stackedWidget_2.setCurrentIndex(8)
+        # show ngcgui info tab if utilities tab is selected
+        # but only if the utilities tab has ngcgui selected
+        if index == TAB_UTILITIES:
+            if self.w.tabWidget_utilities.currentIndex() == 2:
+                self.w.stackedWidget_2.setCurrentIndex(7)
 
     # gcode frame
     def cmb_gcode_history_clicked(self):
         if self.w.cmb_gcode_history.currentIndex() == 0: return
-        filename = self.w.cmb_gcode_history.currentText().encode('utf-8')
+        filename = self.w.cmb_gcode_history.currentText()
         if filename == self.last_loaded_program:
             self.add_status("Selected program is already loaded")
         else:
@@ -573,37 +757,32 @@ class HandlerClass:
 
     # program frame
     def btn_start_clicked(self, obj):
-        if self.w.main_tab_widget.currentIndex() != 0:
+        if not STATUS.is_all_homed():
+           self.add_status("Machine must be is homed", CRITICAL)
+           return
+        if not  os.path.exists(self.last_loaded_program):
+            self.add_status("No program to execute", WARNING)
             return
         if not STATUS.is_auto_mode():
-            self.add_status("Must be in AUTO mode to run a program")
+            self.add_status("Must be in AUTO mode to run a program", WARNING)
             return
-        start_line = int(self.w.lbl_start_line.text().encode('utf-8'))
-        self.add_status("Started program from line {}".format(start_line))
+        if self.w.main_tab_widget.currentIndex() != 0:
+            self.add_status("Switch view mode to MAIN", WARNING)
+            return
+        if STATUS.is_auto_running():
+            self.add_status("Program is already running", WARNING)
+            return
         self.run_time = 0
-        if start_line == 1:
-            ACTION.RUN(start_line)
+        self.w.lbl_runtime.setText("00:00:00")
+        if self.start_line <= 1:
+            ACTION.RUN(self.start_line)
         else:
-            # instantiate preset dialog
-            info = '<b>Running from Line: {} <\b>'.format(start_line)
-            mess = {'NAME':'RUNFROMLINE', 'TITLE':'Preset Dialog', 'ID':'_RUNFROMLINE', 'MESSAGE':info, 'LINE':start_line}
+            # instantiate run from line preset dialog
+            info = '<b>Running From Line: {} <\b>'.format(self.start_line)
+            mess = {'NAME':'RUNFROMLINE', 'TITLE':'Preset Dialog', 'ID':'_RUNFROMLINE', 'MESSAGE':info, 'LINE':self.start_line}
             ACTION.CALL_DIALOG(mess)
-
-    def percentLoaded(self, fraction):
-        if fraction <1:
-            self.w.progressBar.setValue(0)
-            self.w.progressBar.setFormat('')
-        else:
-            self.w.progressBar.setValue(fraction)
-            self.w.progressBar.setFormat('Loading: {}%'.format(fraction))
-
-    def percentCompleted(self, fraction):
-        self.w.progressBar.setValue(fraction)
-        if fraction <1:
-            self.w.progressBar.setFormat('')
-        else:
-            self.w.progressBar.setFormat('Completed: {}%'.format(fraction))
-
+        self.add_status("Started program from line {}".format(self.start_line))
+        self.timer_on = True
 
     def btn_reload_file_clicked(self):
         if self.last_loaded_program:
@@ -620,12 +799,11 @@ class HandlerClass:
             info = "Unhome All Axes?"
             mess = {'NAME':'MESSAGE', 'ID':'_unhome_', 'MESSAGE':'UNHOME ALL', 'MORE':info, 'TYPE':'OKCANCEL'}
             ACTION.CALL_DIALOG(mess)
-            ACTION.SET_MACHINE_UNHOMED(-1)
 
     def btn_home_clicked(self):
-        joint = self.w.sender().property('joint')
-        axis = INFO.GET_NAME_FROM_JOINT.get(joint).lower()
-        if self.w["dro_axis_{}".format(axis)].property('homed') is True:
+        axisnum = self.w.sender().property('joint')
+        joint = INFO.get_jnum_from_axisnum(axisnum)
+        if STATUS.is_joint_homed(joint) == True:
             ACTION.SET_MACHINE_UNHOMED(joint)
         else:
             ACTION.SET_MACHINE_HOMING(joint)
@@ -636,23 +814,19 @@ class HandlerClass:
         self.w.action_step.setEnabled(not state)
         if state:
         # set external offsets to lift spindle
-            self.h['eoffset_enable'] = self.w.chk_eoffsets.isChecked()
+            self.h['eoffset-enable'] = self.w.chk_eoffsets.isChecked()
             fval = float(self.w.lineEdit_eoffset_count.text())
-            self.h['eoffset_count'] = int(fval)
-            self.h['spindle_pause'] = True
+            self.h['eoffset-count'] = int(fval)
+            self.h['spindle-inhibit'] = True
         else:
-            self.h['eoffset_count'] = 0
-            self.h['eoffset_clear'] = True
-            self.h['spindle_pause'] = False
+            self.h['eoffset-count'] = 0
+            self.h['eoffset-clear'] = True
+            self.h['spindle-inhibit'] = False
         # instantiate warning box
             info = "Wait for spindle at speed signal before resuming"
             mess = {'NAME':'MESSAGE', 'ICON':'WARNING', 'ID':'_wait_resume_', 'MESSAGE':'CAUTION', 'MORE':info, 'TYPE':'OK'}
             ACTION.CALL_DIALOG(mess)
-    def btn_go_home_clicked(self):
-        ACTION.CALL_MDI_WAIT("G53 G0 Z0")
-        command = "G53 G0 X{} Y{}".format(self.w.lbl_home_x.text(), self.w.lbl_home_y.text())
-        ACTION.CALL_MDI_WAIT(command, 10)
-
+        
     # override frame
     def slow_button_clicked(self, state):
         slider = self.w.sender().property('slider')
@@ -670,12 +844,19 @@ class HandlerClass:
             self.w[slider].setPageStep(100)
 
     def slider_maxv_changed(self, value):
-        maxpc = (float(value) / self.max_linear_velocity) * 100
+        maxpc = (float(value) / INFO.MAX_LINEAR_JOG_VEL) * 100
         self.w.lbl_maxv_percent.setText("{:3.0f} %".format(maxpc))
 
     def slider_rapid_changed(self, value):
-        rapid = (float(value) / 100) * self.max_linear_velocity
+        rapid = (float(value) / 100) * self.factor
         self.w.lbl_max_rapid.setText("{:4.0f}".format(rapid))
+        self.w.lbl_max_rapid_2.setText("{:4.0f}".format(rapid))
+
+    def btn_maxv_100_clicked(self):
+        self.w.slider_maxv_ovr.setValue(INFO.MAX_LINEAR_JOG_VEL)
+
+    def btn_maxv_50_clicked(self):
+        self.w.slider_maxv_ovr.setValue(INFO.MAX_LINEAR_JOG_VEL / 2)
 
     # file tab
     def btn_gcode_edit_clicked(self, state):
@@ -683,10 +864,12 @@ class HandlerClass:
             return
         if state:
             self.w.filemanager.hide()
+            self.w.widget_file_copy.hide()
             self.w.gcode_editor.show()
             self.w.gcode_editor.editMode()
         else:
             self.w.filemanager.show()
+            self.w.widget_file_copy.show()
             self.w.gcode_editor.hide()
             self.w.gcode_editor.readOnlyMode()
 
@@ -694,6 +877,31 @@ class HandlerClass:
         fname = self.w.filemanager.getCurrentSelected()
         if fname[1] is True:
             self.load_code(fname[0])
+
+    def btn_copy_file_clicked(self):
+        if self.w.btn_gcode_edit.isChecked(): return
+        if self.w.sender() == self.w.btn_copy_right:
+            source = self.w.filemanager_usb.getCurrentSelected()
+            target = self.w.filemanager.getCurrentSelected()
+        elif self.w.sender() == self.w.btn_copy_left:
+            source = self.w.filemanager.getCurrentSelected()
+            target = self.w.filemanager_usb.getCurrentSelected()
+        else:
+            return
+        if source[1] is False:
+            self.add_status("Specified source is not a file", WARNING)
+            return
+        self.source_file = source[0]
+        if target[1] is True:
+            self.destination_file = os.path.join(os.path.dirname(target[0]), os.path.basename(source[0]))
+        else:
+            self.destination_file = os.path.join(target[0], os.path.basename(source[0]))
+        if os.path.isfile(self.destination_file):
+            info = "{} already exists in destination directory".format(self.destination_file)
+            mess = {'NAME':'MESSAGE', 'ICON':'WARNING', 'ID':'_overwrite_', 'MESSAGE':'OVERWRITE FILE?', 'MORE':info, 'TYPE':'YESNO','NONBLOCKING':True}
+            ACTION.CALL_DIALOG(mess)
+        else:
+            self.do_file_copy()
 
     # offsets tab
     def btn_goto_sensor_clicked(self):
@@ -716,7 +924,7 @@ class HandlerClass:
         self.add_status("Laser offsets set")
         command = "G10 L20 P0 X{:3.4f} Y{:3.4f}".format(x, y)
         ACTION.CALL_MDI(command)
-
+    
     def btn_ref_camera_clicked(self):
         x = float(self.w.lineEdit_camera_x.text())
         y = float(self.w.lineEdit_camera_y.text())
@@ -731,19 +939,42 @@ class HandlerClass:
     def btn_m61_clicked(self):
         checked = self.w.tooloffsetview.get_checked_list()
         if len(checked) > 1:
-            self.add_status("Select only 1 tool to load")
+            self.add_status("Select only 1 tool to load", WARNING)
         elif checked:
             self.add_status("Loaded tool {}".format(checked[0]))
-            ACTION.CALL_MDI("M61 Q{}".format(checked[0]))
+            ACTION.CALL_MDI("M61 Q{} G43".format(checked[0]))
+            if not os.path.exists("/usr/share/qtvcp/screens/qtdragon/images/" + str(checked) + ".png"):
+                checked = '[00]'
+            self.w.lbl_tool_image.setPixmap(QtGui.QPixmap(":/images/images/" + str(checked) + ".png"))
         else:
-            self.add_status("No tool selected")
+            self.add_status("No tool selected", CRITICAL)
+
+    def cmb_tool_icons_clicked(self, index):
+        if index == 0: return
+        checked = self.w.tooloffsetview.get_checked_list()
+        if not checked:
+            self.add_status("No tool has been checked")
+        else:
+            icon = self.w.cmb_tool_icons.currentText()
+            tool = checked[0]
+            self.tool_icons[tool] = icon
+            img = os.path.join(PATH.SCREENDIR,PATH.BASENAME, "tool_icons/" + icon)
+            self.w.lbl_tool_image.setPixmap(QtGui.QPixmap(img))
+        self.w.cmb_tool_icons.setCurrentIndex(0)
+
+    def on_keycall_F10(self,event,state,shift,cntrl):
+        self.w.showNormal()
+
+    def on_keycall_F11(self,event,state,shift,cntrl):
+#        if self.w.isFullScreen() == False:
+             self.w.showFullScreen()
 
     def btn_touchoff_clicked(self):
         if STATUS.get_current_tool() == 0:
-            self.add_status("Cannot touchoff with no tool loaded")
+            self.add_status("Cannot touchoff with no tool loaded", CRITICAL)
             return
         if not STATUS.is_all_homed():
-            self.add_status("Must be homed to perform tool touchoff")
+            self.add_status("Must be homed to perform tool touchoff", CRITICAL)
             return
         # instantiate dialog box
         sensor = self.w.sender().property('sensor')
@@ -757,7 +988,7 @@ class HandlerClass:
 
     def btn_save_status_clicked(self):
         text = self.w.machinelog.toPlainText()
-        filename = self.w.lbl_clock.text().encode('utf-8')
+        filename = self.w.lbl_clock.text()
         filename = 'status_' + filename.replace(' ','_') + '.txt'
         self.add_status("Saving Status file to {}".format(filename))
         with open(filename, 'w') as f:
@@ -765,7 +996,7 @@ class HandlerClass:
 
     def btn_dimensions_clicked(self, state):
         self.w.gcodegraphics.show_extents_option = state
-        self.w.gcodegraphics.updateGL()
+        self.w.gcodegraphics.clear_live_plotter()
 
     # DRO
     def btn_setdro_clicked(self, state):
@@ -773,14 +1004,7 @@ class HandlerClass:
         self.w.gcodegraphics.setoverlay(state)
     def getdro(self):
         return self.enable_dro
-
-    # show Offsets
-    def btn_show_offset_clicked(self, state):
-        self.w.gcodegraphics.setShowOffsets(state)
-        self.w.gcodegraphics.setoverlay(state)
-    def getShowOffsets(self):
-        return self.show_offsets
-
+        
     # camview tab
     def cam_zoom_changed(self, value):
         self.w.camview.scale = float(value) / 10
@@ -789,46 +1013,68 @@ class HandlerClass:
         self.w.camview.diameter = value
 
     def cam_rot_changed(self, value):
-        self.w.camview.rotation = float(value) / 10 
+        self.w.camview.rotation = float(value) / 10
+
+    def grid_size_changed(self, data):
+      # grid size is in inches
+        grid = data / self.unitsPerMm / 25.4
+        self.w.gcodegraphics.grid_size = grid
+
+    def cone_size_changed(self, data):
+        self.w.gcodegraphics.set_cone_basesize(data)
 
     # settings tab
-    def chk_use_virtual_changed(self, state):
-        if state:
-            self.w.btn_keyboard.show()
-        else:
-            self.w.btn_keyboard.hide()   
-        
     def chk_override_limits_checked(self, state):
-        if state:
-            print("Override limits set")
-            ACTION.SET_LIMITS_OVERRIDE()
-        else:
-            print("Override limits not set")
+        # only toggle override if it's not in synch with the button
+        if state and not STATUS.is_limits_override_set():
+            self.add_status("Override limits set", WARNING)
+            ACTION.TOGGLE_LIMITS_OVERRIDE()
+        elif not state and STATUS.is_limits_override_set():
+            error = ACTION.TOGGLE_LIMITS_OVERRIDE()
+            # if override can't be released set the check button to reflect this
+            if error == False:
+                self.w.chk_override_limits.blockSignals(True)
+                self.w.chk_override_limits.setChecked(True)
+                self.w.chk_override_limits.blockSignals(False)
+            else:
+                self.add_status("Override limits not set")
 
     def chk_run_from_line_checked(self, state):
-        if not state:
-            self.w.lbl_start_line.setText('1')
+        self.w.btn_start.setText("START\n1") if state else self.w.btn_start.setText("CYCLE\nSTART")
+
+    def chk_alpha_mode_changed(self, state):
+        self.w.gcodegraphics.set_alpha_mode(state)
+
+    def chk_inhibit_selection_changed(self, state):
+        self.w.gcodegraphics.set_inhibit_selection(state)
 
     def chk_use_camera_changed(self, state):
         self.w.btn_ref_camera.setEnabled(state)
-        if state :
-            self.w.btn_camera.show()
-        else:
-            self.w.btn_camera.hide()
+        self.w.btn_camera.show() if state else self.w.btn_camera.hide()
 
-    def chk_use_tool_sensor_changed(self, state):
+    def chk_use_sensor_changed(self, state):
         self.w.btn_touch_sensor.setEnabled(state)
 
-    def chk_alpha_mode_clicked(self, state):
-        self.w.gcodegraphics.set_alpha_mode(state)
+    def chk_use_virtual_changed(self, state):
+        if not state:
+            self.w.stackedWidget_dro.setCurrentIndex(0)
 
-    def chk_inhibit_display_selection_clicked(self, state):
-        self.w.gcodegraphics.set_inhibit_selection(state)
-           
+    # show ngcgui info tab (in the stackedWidget) if ngcgui utilites
+    # tab is selected
+    def tab_utilities_changed(self, num):
+        if num == 2:
+            self.w.stackedWidget_2.setCurrentIndex(7)
+        else:
+            self.w.stackedWidget_2.setCurrentIndex(0)
+
+    def apply_stylesheet_clicked(self, index):
+        if self.w.cmb_stylesheet.currentText() == "As Loaded": return
+        self.styleeditor.styleSheetCombo.setCurrentIndex(index)
+        self.styleeditor.on_applyButton_clicked()
+
     #####################
     # GENERAL FUNCTIONS #
-    #####################    
-
+    #####################
     def mode_changed(self,data):
         self._block_signal = True
         self.w.pushbutton_metric.setChecked(data)
@@ -847,27 +1093,69 @@ class HandlerClass:
     def load_code(self, fname):
         if fname is None: return
         filename, file_extension = os.path.splitext(fname)
-        if not fname.endswith(".html"):
+
+        # loading ngc then HTML/PDF
+
+        if not file_extension in (".html", '.pdf'):
             if not (INFO.program_extension_valid(fname)):
-                self.add_status("Unknown or invalid filename extension {}".format(file_extension))
+                self.add_status("Unknown or invalid filename extension {}".format(file_extension), CRITICAL)
                 return
             self.w.cmb_gcode_history.addItem(fname)
             self.w.cmb_gcode_history.setCurrentIndex(self.w.cmb_gcode_history.count() - 1)
+            self.w.cmb_gcode_history.setToolTip(fname)
             ACTION.OPEN_PROGRAM(fname)
             self.add_status("Loaded program file : {}".format(fname))
-            self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
-        elif fname.endswith(".html"):
-            self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
-            self.add_status("Loaded HTML file : {}".format(fname))
-            self.w.main_tab_widget.setCurrentIndex(TAB_SETUP)
-            self.w.btn_setup.setChecked(True)
-        else:
-            self.add_status("Unknown or invalid filename")
+            self.adjust_stacked_widgets(TAB_MAIN)
+            self.w.filemanager.recordBookKeeping()
 
+            # adjust ending to check for related HTML setup files
+            fname = filename+'.html'
+            if os.path.exists(fname):
+                self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
+                self.add_status("Loaded HTML file : {}".format(fname), CRITICAL)
+            else:
+                self.w.web_view.setHtml(self.html)
+
+            # look for PDF setup files
+            # load it with system program
+            fname = filename+'.pdf'
+            if os.path.exists(fname):
+                self.PDFView.loadView(fname)
+                self.add_status("Loaded PDF file : {}".format(fname))
+            else:
+                self.PDFView.loadSample('setup_tab')
+
+            return
+
+        # loading HTML/PDF directly
+
+        if file_extension == ".html":
+            try:
+                self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
+                self.add_status("Loaded HTML file : {}".format(fname))
+                self.w.main_tab_widget.setCurrentIndex(TAB_SETUP)
+                self.w.stackedWidget_2.setCurrentIndex(3)
+                self.w.btn_setup.setChecked(True)
+                self.w.tabWidget_setup.setCurrentIndex(0)
+                self.w.stackedWidget_2.hide()
+                
+            except Exception as e:
+                print("Error loading HTML file : {}".format(e))
+        else:
+            if os.path.exists(fname):
+                self.PDFView.loadView(fname)
+                self.add_status("Loaded PDF file : {}".format(fname))
+                self.w.main_tab_widget.setCurrentIndex(TAB_SETUP)
+                self.w.stackedWidget_2.setCurrentIndex(3)
+                self.w.btn_setup.setChecked(True)
+                self.w.tabWidget_setup.setCurrentIndex(1)
+                #self.w.stackedWidget_2.hide()
+                
     def disable_spindle_pause(self):
-        self.h['eoffset_count'] = 0
-        if self.w.spindle_pause.isChecked():
-            self.w.spindle_pause.setChecked(False)
+        self.h['eoffset-count'] = 0
+        self.h['spindle-inhibit'] = False
+        if self.w.btn_spindle_pause.isChecked():
+            self.w.btn_spindle_pause.setChecked(False)
 
     def touchoff(self, selector):
         if selector == 'touchplate':
@@ -875,36 +1163,19 @@ class HandlerClass:
         elif selector == 'sensor':
             z_offset = float(self.w.lineEdit_sensor_height.text()) - float(self.w.lineEdit_work_height.text())
         else:
-            self.add_alarm("Unknown touchoff routine specified")
+            self.add_status("Unknown touchoff routine specified", CRITICAL)
             return
         self.add_status("Touchoff to {} started".format(selector))
         max_probe = self.w.lineEdit_max_probe.text()
         search_vel = self.w.lineEdit_search_vel.text()
         probe_vel = self.w.lineEdit_probe_vel.text()
-        ACTION.CALL_MDI("G21 G49")
-        ACTION.CALL_MDI("G10 L20 P0 Z0")
-        ACTION.CALL_MDI("G91")
-        command = "G38.2 Z-{} F{}".format(max_probe, search_vel)
-        if ACTION.CALL_MDI_WAIT(command, 10) == -1:
-            ACTION.CALL_MDI("G90")
-            return
-        if ACTION.CALL_MDI_WAIT("G1 Z4.0"):
-            ACTION.CALL_MDI("G90")
-            return
-        ACTION.CALL_MDI("G4 P0.5")
-        command = "G38.2 Z-4.4 F{}".format(probe_vel)
-        if ACTION.CALL_MDI_WAIT(command, 10) == -1:
-            ACTION.CALL_MDI("G90")
-            return
-        command = "G10 L20 P0 Z{}".format(z_offset)
-        ACTION.CALL_MDI_WAIT(command)
-        command = "G1 Z10 F{}".format(search_vel)
-        ACTION.CALL_MDI_WAIT(command)
-        ACTION.CALL_MDI("G90")
+        rtn = ACTION.TOUCHPLATE_TOUCHOFF(search_vel, probe_vel, max_probe, z_offset)
+        if rtn == 0:
+            self.add_status("Touchoff routine is already running", CRITICAL)
 
     def kb_jog(self, state, joint, direction, fast = False, linear = True):
         if not STATUS.is_man_mode() or not STATUS.machine_is_on():
-            self.add_status('Machine must be ON and in Manual mode to jog')
+            self.add_status('Machine must be ON and in Manual mode to jog', CRITICAL)
             return
         if linear:
             distance = STATUS.get_jog_increment()
@@ -919,45 +1190,46 @@ class HandlerClass:
         else:
             ACTION.JOG(joint, 0, 0, 0)
 
-    def add_status(self, message):
-        self._m = message
-        print (message)
-        self.w.statusbar.showMessage(self._m, 5000)
-        STATUS.emit('update-machine-log', self._m, 'TIME')
+    def add_status(self, message, alertLevel = DEFAULT):
+        if alertLevel==DEFAULT:
+            self.set_style_default()
+        elif alertLevel==WARNING:
+            self.set_style_warning()
+        else:
+            self.set_style_critical()
+        self.w.lineEdit_statusbar.setText(message)
+        STATUS.emit('update-machine-log', message, 'TIME')
 
     def enable_auto(self, state):
         for widget in self.auto_list:
             self.w[widget].setEnabled(state)
         if state is True:
-            self.w.jogging_frame.show()
-            if self.w.chk_use_virtual.isChecked():
-                self.w.btn_keyboard.show()
+            if self.w.main_tab_widget.currentIndex() != TAB_SETUP:               
+                self.w.stackedWidget_2.show()
         else:
-            self.w.jogging_frame.hide()
-            self.w.btn_main.setChecked(True)
-            self.w.btn_keyboard.setChecked(False)
-            self.w.btn_keyboard.hide()
-            self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
-            self.w.stackedWidget_4.setCurrentIndex(3)
-
+            if self.w.main_tab_widget.currentIndex() != TAB_PROBE:
+                self.w.stackedWidget_2.setCurrentIndex(8)
+                self.w.btn_main.setChecked(True)
+                self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
+                self.w.stackedWidget_2.setCurrentIndex(3)
+                self.w.stackedWidget_dro.setCurrentIndex(0)
 
     def enable_onoff(self, state):
         if state:
             self.add_status("Machine ON")
         else:
             self.add_status("Machine OFF")
-        self.w.spindle_pause.setChecked(False)
-        self.h['eoffset_count'] = 0
+        self.w.btn_spindle_pause.setChecked(False)
+        self.h['eoffset-count'] = 0
         for widget in self.onoff_list:
             self.w[widget].setEnabled(state)
 
     def set_start_line(self, line):
-        if line == 0:
-            self.w.lbl_start_line.setText('1')
-        elif self.w.chk_run_from_line.isChecked():
-            self.w.lbl_start_line.setText(str(line))
+        if self.w.chk_run_from_line.isChecked():
+            self.start_line = line
+            self.w.btn_start.setText("START\n{}".format(self.start_line))
         else:
-            self.w.lbl_start_line.setText('1')
+            self.start_line = 1
 
     def use_keyboard(self):
         if self.w.chk_use_keyboard.isChecked():
@@ -966,22 +1238,130 @@ class HandlerClass:
             self.add_status('Keyboard shortcuts are disabled')
             return False
 
-    def update_rpm(self, speed):
-        if int(speed) == 0:
-            in_range = True
-            at_speed = True
-        else:
-            in_range = (self.min_spindle_rpm <= int(speed) <= self.max_spindle_rpm)
-            at_speed = self.h['led_atspeed']
-        widget = self.w.label_spindle_set
-        widget.setProperty('in_range', in_range)
-        widget.style().unpolish(widget)
-        widget.style().polish(widget)
-        widget = self.w.status_rpm
-        widget.setProperty('at_speed', at_speed)
-        widget.style().unpolish(widget)
-        widget.style().polish(widget)
+    def do_file_copy(self):
+        try:
+            copyfile(self.source_file, self.destination_file)
+            self.add_status("Copied file from {} to {}".format(self.source_file, self.destination_file))
+        except Exception as e:
+            self.add_status("Unable to copy file. %s" %e)
 
+    def update_rpm(self, speed):
+        if self.max_spindle_rpm < int(speed) < self.min_spindle_rpm:
+            if STATUS.is_spindle_on():
+                self.w.lbl_spindle_set.setProperty('in_range', False)
+                self.w.lbl_spindle_set.style().unpolish(self.w.lbl_spindle_set)
+                self.w.lbl_spindle_set.style().polish(self.w.lbl_spindle_set)
+        else:
+            self.w.lbl_spindle_set.setProperty('in_range', True)
+            self.w.lbl_spindle_set.style().unpolish(self.w.lbl_spindle_set)
+            self.w.lbl_spindle_set.style().polish(self.w.lbl_spindle_set)
+
+    def update_runtimer(self):
+        if self.timer_on is False or STATUS.is_auto_paused(): return
+        self.time_tenths += 1
+        if self.time_tenths == 10:
+            self.time_tenths = 0
+            self.run_time += 1
+            hours, remainder = divmod(self.run_time, 3600)
+            minutes, seconds = divmod(remainder, 60)
+            self.w.lbl_runtime.setText("{:02d}:{:02d}:{:02d}".format(hours, minutes, seconds))
+
+    def stop_timer(self):
+        self.timer_on = False
+        if STATUS.is_auto_mode():
+            self.add_status("Run timer stopped at {}".format(self.w.lbl_runtime.text()))
+
+    def back(self):
+        if os.path.exists(self.default_setup):
+            self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.default_setup))
+        else:
+            self.w.web_view.setHtml(self.html)
+        #self.w.web_view.page().triggerAction(QWebEnginePage.Back)
+
+    def forward(self):
+        self.w.web_view.load(QtCore.QUrl.fromLocalFile(self.docs))
+        #self.w.web_view.page().triggerAction(QWebEnginePage.Forward)
+
+    def writer(self):
+        WRITER.show()
+
+    # change Status bar text color
+    def set_style_default(self):
+        self.w.lineEdit_statusbar.setStyleSheet("background-color: rgb(252, 252, 252);color: rgb(0,0,0)")  #default white
+    def set_style_warning(self):
+        self.w.lineEdit_statusbar.setStyleSheet("background-color: rgb(242, 246, 103);color: rgb(0,0,0)")  #yelow
+    def set_style_critical(self):
+        self.w.lineEdit_statusbar.setStyleSheet("background-color: rgb(255, 144, 0);color: rgb(0,0,0)")   #orange
+
+    def adjust_stacked_widgets(self,requestedIndex):
+        IGNORE = -1
+        SHOW_DRO = 0
+        mode = STATUS.get_current_mode()
+        if mode == STATUS.AUTO:
+            seq = {TAB_MAIN: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
+                    TAB_FILE: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
+                    TAB_OFFSETS: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
+                    TAB_TOOL: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
+                    TAB_STATUS: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
+                    TAB_PROBE: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
+                    TAB_CAMERA: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
+                    TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
+                    TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
+                    TAB_SETTINGS: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO),
+                    TAB_UTILITIES: (TAB_MAIN,PAGE_GCODE,False,SHOW_DRO) }
+        else:
+            seq = {TAB_MAIN: (requestedIndex,PAGE_GCODE,True,SHOW_DRO),
+                    TAB_FILE: (requestedIndex,PAGE_FILE,True,IGNORE),
+                    TAB_OFFSETS: (requestedIndex,PAGE_OFFSET,True,IGNORE),
+                    TAB_TOOL: (requestedIndex,PAGE_TOOL,True,IGNORE),
+                    TAB_STATUS: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO),
+                    TAB_PROBE: (requestedIndex,PAGE_GCODE,True,SHOW_DRO),
+                    TAB_CAMERA: (requestedIndex,PAGE_UNCHANGED,True,IGNORE),
+                    TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
+                    TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,False,IGNORE),
+                    TAB_SETTINGS: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO),
+                    TAB_UTILITIES: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO) }
+
+        rtn =  seq.get(requestedIndex)
+        # if not found (None) use defaults
+        if rtn is None:
+            main_index = requestedIndex
+            stacked_index = 0
+            show_JogControls = True
+            show_dro = 0
+        else:
+            main_index,stacked_index,show_JogControls,show_dro = rtn
+
+        if show_JogControls:
+            self.w.jogging_frame.show()
+        else:
+            self.w.jogging_frame.hide()
+
+        # show DRO rather then keyboard.
+        if show_dro > IGNORE:
+            self.w.stackedWidget_dro.setCurrentIndex(0)
+
+        # show ngcgui info tab if utilities tab is selected
+        # but only if the utilities tab has ngcgui selected
+        if main_index == TAB_UTILITIES:
+            if self.w.tabWidget_utilities.currentIndex() == 2:
+                self.w.stackedWidget_2.setCurrentIndex(PAGE_NGCGUI)
+            else:
+                self.w.stackedWidget_2.setCurrentIndex(PAGE_GCODE)
+        # adjust the stacked widget
+        if stacked_index > PAGE_UNCHANGED:
+            self.w.stackedWidget_2.setCurrentIndex(stacked_index)
+
+        # set main tab to adjusted index
+        self.w.main_tab_widget.setCurrentIndex(main_index)
+
+        # if indexes don't match then request is dusallowed
+        # give a warning and reset the button check
+        if main_index != requestedIndex and not main_index in(TAB_CAMERA,TAB_GCODES,TAB_SETUP):
+            self.add_status("Cannot switch pages while in AUTO mode", WARNING)
+            self.w.main_tab_widget.setCurrentIndex(0)
+            self.w.btn_main.setChecked(True)
+    
     def external_mpg(self, count):
         diff = count - self._last_count
         if self.w.pushbutton_fo.isChecked():
@@ -1026,35 +1406,35 @@ class HandlerClass:
             ACTION.PAUSE()
 
     def on_keycall_XPOS(self,event,state,shift,cntrl):
-        if self.use_keyboard() and not self.w.btn_keyboard.isChecked():
+        if self.use_keyboard():
             self.kb_jog(state, 0, 1, shift)
 
     def on_keycall_XNEG(self,event,state,shift,cntrl):
-        if self.use_keyboard() and not self.w.btn_keyboard.isChecked():
+        if self.use_keyboard():
             self.kb_jog(state, 0, -1, shift)
 
     def on_keycall_YPOS(self,event,state,shift,cntrl):
-        if self.use_keyboard() and not self.w.btn_keyboard.isChecked():
+        if self.use_keyboard():
             self.kb_jog(state, 1, 1, shift)
 
     def on_keycall_YNEG(self,event,state,shift,cntrl):
-        if self.use_keyboard() and not self.w.btn_keyboard.isChecked():
+        if self.use_keyboard():
             self.kb_jog(state, 1, -1, shift)
 
     def on_keycall_ZPOS(self,event,state,shift,cntrl):
-        if self.use_keyboard() and not self.w.btn_keyboard.isChecked():
+        if self.use_keyboard():
             self.kb_jog(state, 2, 1, shift)
 
     def on_keycall_ZNEG(self,event,state,shift,cntrl):
-        if self.use_keyboard() and not self.w.btn_keyboard.isChecked():
+        if self.use_keyboard():
             self.kb_jog(state, 2, -1, shift)
     
     def on_keycall_APOS(self,event,state,shift,cntrl):
-        if self.use_keyboard() and not self.w.btn_keyboard.isChecked():
+        if self.use_keyboard():
             self.kb_jog(state, 3, 1, shift, False)
 
     def on_keycall_ANEG(self,event,state,shift,cntrl):
-        if self.use_keyboard() and not self.w.btn_keyboard.isChecked():
+        if self.use_keyboard():
             self.kb_jog(state, 3, -1, shift, False)
 
     def on_keycall_F12(self,event,state,shift,cntrl):

@@ -224,7 +224,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
 
                         # layout holds label and entry for one line
                         hbox2 = QtWidgets.QHBoxLayout()
-                        # make a label 
+                        # make a label
                         l = QtWidgets.QLabel(name[0])
 
                         # make appropriate entries:
@@ -241,7 +241,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                         hbox2.addWidget(l)
                         hbox2.addWidget(self['%s%d' % (tName, n)])
 
-                        # add label/entry layout to vertical layout fr this tab 
+                        # add label/entry layout to vertical layout fr this tab
                         vbox.addLayout(hbox2)
 
                     #add the SVG/image pic layer
@@ -362,7 +362,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                         # check if they have the magic comments
                         if 'MACROCOMMAND' in first_line and \
                                 'MACRODEFAULT' in second_line and \
-                                ('MACROSVG' in third_line or 
+                                ('MACROSVG' in third_line or
                                     'MACROIMAGE' in third_line):
                             name = os.path.splitext(f)[0]
                             # yes, now keep everything after '='
@@ -532,7 +532,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                 line =  '%s,%s,    %s\n'%( widgetname, str(data), i[0])
                 QtCore.QTextStream(file) << line
         else:
-            QMessageBox.information(self, "Unable to open file",
+            QtWidgets.QMessageBox.information(self, "Unable to open file",
                     file.errorString())
 
     # we do this instead of directly so the dialog version's title changes

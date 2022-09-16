@@ -267,7 +267,7 @@ class TouchInterface(QtWidgets.QWidget):
 ## testing ##
 if __name__ == '__main__':
     import sys
-    from PyQt5.QtWidgets import QWidget, QVBoxLayout, QApplication
+    from PyQt5.QtWidgets import QWidget
     app = QtWidgets.QApplication([])
     w = QWidget()
     w.setGeometry(100, 100, 200, 100)

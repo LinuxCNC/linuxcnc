@@ -25,7 +25,7 @@ complete system:
 * a Graphical User Interface (GUI), which forms the basic interface between the operator, the software
   and the CNC machine itself;
 * the <<cha:hal-introduction,Hardware Abstraction Layer>> (HAL), which provides a method of linking all
-  the various internal virtual signals generated and received by LinuxCNC with the outside world; and,
+  the various internal virtual signals generated and received by LinuxCNC with the outside world, and
 * the high level controllers that coordinate the generation and execution of motion control of the CNC
   machine, namely the motion controller (EMCMOT), the discrete input/output controller (EMCIO) and the
   task executor (EMCTASK).
@@ -187,7 +187,7 @@ machine. Becoming an experienced operator takes a lot of time and requires
 a lot of work. An author once said, _We learn by experience, if one possesses it all_.
 Broken tools, vices attacked and the scars are evidence of the lessons
 learned. A beautiful finish, tight tolerances and caution during the work
-are evidence of lessons learned. No machine, none program can replace
+are evidence of lessons learned. No machine nor program can replace
 human experience.
 
 Now that you start working with the LinuxCNC software, you have to put
@@ -206,8 +206,8 @@ way that the LinuxCNC control behaves. There are specific things that can be don
 be done in another. An operator can home an axis in manual mode but not in auto or MDI modes. An operator
 can cause the machine to execute a whole file full of G-codes in the auto mode but not in manual or MDI.
 
-In manual mode, each command is entered separately. In human terms a manual command might be turn on
-coolant or jog X at 25 inches per minute. These are roughly equivalent to flipping a switch or turning the
+In manual mode, each command is entered separately. In human terms a manual command might be "turn on
+coolant" or "jog X at 25 inches per minute". These are roughly equivalent to flipping a switch or turning the
 hand wheel for an axis. These commands are normally handled on one of the graphical interfaces by pressing
 a button with the mouse or holding down a key on the keyboard. In auto mode, a similar button or key press
 might be used to load or start the running of a whole program of G-code that is stored in a file. In the

@@ -107,8 +107,8 @@ int init(int argc, char* argv[]){
                     v1 = realloc(codes, (index + 1) * sizeof(int));
                     v2 = realloc(pins, (index + 1) * sizeof(int));
                     if (!v1 || !v2) {
-                        free(codes);
-                        free(pins);
+                        free(v1 ? v1 : codes);
+                        free(v2 ? v2 : pins);
                         rtapi_print_msg(RTAPI_MSG_ERR, "sendkeys.N.keycode error\n");
                         return -ENOMEM;
                     } else {

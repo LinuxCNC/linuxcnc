@@ -89,14 +89,14 @@ a while and are impossible to troubleshoot.
 The simplest way to avoid this problem is to choose a BASE_PERIOD that
 is the sum of the longest timing requirement of your drive, and the
 worst case latency of your computer. This is not always the best choice.
-For example, if you are running a drive with a 20 us  direction signal hold time
+For example, if you are running a drive with a 20&thinsp;µs  direction signal hold time
 requirement, and your latency test said you have a maximum latency of
-11 us , then if you set the BASE_PERIOD to 20+11 = 31 us  you get a
+11&thinsp;µs , then if you set the BASE_PERIOD to 20+11 = 31&thinsp;µs  you get a
 not-so-nice 32,258 steps per second in one mode and 16,129 steps per
 second in another mode.
 
-The problem is with the 20 us  hold time requirement. That plus the 11 us
-latency is what forces us to use a slow 31 us  period. But the LinuxCNC
+The problem is with the 20&thinsp;µs  hold time requirement. That plus the 11&thinsp;µs
+latency is what forces us to use a slow 31&thinsp;µs  period. But the LinuxCNC
 software step generator has some parameters that let you increase the
 various times from one period to several. For example, if 'steplen' footnote:[steplen
 refers to a parameter that adjusts the performance of LinuxCNC's built-in step generator,
@@ -108,19 +108,19 @@ refers to a parameter that adjusts the length of the direction hold time.] is
 changed from 1 to 3, there will be at least three periods between the step
 pulse and a change of the direction pin.
 
-If we can use 'dirhold' to meet the 20 us  hold time requirement, then the
-next longest time is the 4.5 us  high time. Add the 11 us  latency to the
-4.5 us  high time, and you get a minimum period of 15.5 us . When you try
-15.5 us , you find that the computer is sluggish, so you settle on 16 us .
+If we can use 'dirhold' to meet the 20&thinsp;µs  hold time requirement, then the
+next longest time is the 4.5&thinsp;µs  high time. Add the 11&thinsp;µs  latency to the
+4.5&thinsp;µs  high time, and you get a minimum period of 15.5&thinsp;µs . When you try
+15.5&thinsp;µs , you find that the computer is sluggish, so you settle on 16&thinsp;µs .
 If we leave 'dirhold' at 1 (the default), then the minimum time between
-step and direction is the 16 us  period minus the 11 us  latency = 5 us ,
-which is not enough. We need another 15 us . Since the period is 16 us , we
+step and direction is the 16&thinsp;µs  period minus the 11&thinsp;µs  latency = 5&thinsp;µs ,
+which is not enough. We need another 15&thinsp;µs . Since the period is 16&thinsp;µs , we
 need one more period. So we change 'dirhold' from 1 to 2. Now the minimum
 time from the end of the step pulse to the changing direction pin is
-5+16=21 us , and we don't have to worry about the drive stepping the
+5+16=21&thinsp;µs , and we don't have to worry about the drive stepping the
 wrong direction because of latency.
 
-For more information on stepgen see the <<sec:stepgen,stepgen section>>. 
+For more information on stepgen see the <<sec:stepgen,stepgen section>>.
 
 === Step Timing
 
@@ -222,7 +222,7 @@ a deviation in the other direction).
 === Derivative term
 
 The rate of change of the process error is calculated by determining
-the slope of the error over time (i.e. its first derivative with
+the slope of the error over time (i.e., its first derivative with
 respect to time) and multiplying this rate of change by the derivative
 gain.
 
@@ -236,7 +236,7 @@ controller-process stability.
 
 If the PID controller parameters (the gains of the proportional,
 integral and derivative terms) are chosen incorrectly, the controlled
-process input can be unstable, i.e. its output diverges, with or
+process input can be unstable, i.e., its output diverges, with or
 without oscillation, and is limited only by saturation or mechanical
 breakage. Tuning a control loop is the adjustment of its control
 parameters (gain/proportional band, integral gain/reset, derivative

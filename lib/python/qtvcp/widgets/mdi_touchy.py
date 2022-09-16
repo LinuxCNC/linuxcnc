@@ -16,9 +16,8 @@
 # touchy style MDI based heavily from Touchy code
 
 import os
-import math
 
-from PyQt5 import QtGui, QtCore, QtWidgets, uic
+from PyQt5 import QtCore, QtWidgets, uic
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
@@ -110,7 +109,7 @@ class mdi:
 
     def get_description(self, gcode):
         return self.codes[gcode][0]
-    
+
     def get_words(self, gcode):
         self.gcode = gcode
         try:
@@ -242,7 +241,7 @@ class MDITouchy(QtWidgets.QWidget, _HalWidgetBase):
     def clearClicked(self):
         t = self.get_text()
         self.set_text(t.rstrip("0123456789.-"))
-        
+
     def backClicked(self):
         t = self.get_text()
         if t[-1:] in "0123456789.-":
@@ -345,7 +344,7 @@ class MDITouchy(QtWidgets.QWidget, _HalWidgetBase):
         else:
             j = 0
         self.update(ocodes[j])
-        self.nextClicked()            
+        self.nextClicked()
 
     def set_tool(self, tool, g10l11):
         self.update()

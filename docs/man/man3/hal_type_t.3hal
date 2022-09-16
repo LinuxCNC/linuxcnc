@@ -56,8 +56,8 @@ if(b != 0)
 .RE
 
 It is often useful to refer to a type that can represent all the values as a
-hal type, but without the volatile qualifier.  The following types correspond
-with the hal types:
+HAL type, but without the volatile qualifier.  The following types correspond
+with the HAL types:
 .RS
 .IP hal_bit_t 16
 int

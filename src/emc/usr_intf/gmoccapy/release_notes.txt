@@ -7,6 +7,23 @@ ver 3.1.3.9
   button sensitive states in AUTO mode correct
   This fixes issue #1177
 
+ver 3.1.3.8 (LinuxCNC 2.8.4 (not yet released))
+
+- bug in spindle speed override: The override value wasn't applied
+  when spindle turning in reverse direction
+
+  Thanks Reinhard for reporting
+
+ver 3.1.3.8 (LinuxCNC 2.8.3 release)
+- fixed translation of some tooltips and a dialog message
+  Thanks to zz912
+
+- fixed detection of file change:
+  - A cursor change in the G-code editor was detected as a file change.
+  - After saving changes, a warning for unsaved changes still appeared.
+
+- fixed disabled save button after creating a new file and 'save as'
+
 ver 3.1.3.8
 - changed the hide command to be able to hide any element of the GUI
 

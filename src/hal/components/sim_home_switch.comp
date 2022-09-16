@@ -21,6 +21,7 @@ variable double index_timer_ms;
 
 function _ fp;
 license "GPL";
+author "Dewey Garrett";
 ;;
 
 FUNCTION(_) {

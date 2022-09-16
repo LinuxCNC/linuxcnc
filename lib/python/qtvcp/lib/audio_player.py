@@ -45,7 +45,6 @@ except Exception as e:
         GST_LIB_GOOD = False
 
 from qtvcp.core import Status
-from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 
 # Instaniate the libraries with global reference
 # STATUS gives us status messages from linuxcnc
@@ -276,7 +275,6 @@ class Player:
 
 if __name__ == "__main__":
     import gi
-    from gi.repository import GObject as gobject
     from gi.repository import GLib
     try:
         test = Player()

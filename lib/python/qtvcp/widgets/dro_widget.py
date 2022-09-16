@@ -15,10 +15,8 @@
 # GNU General Public License for more details.
 
 import linuxcnc
-import sys
-import os
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore
 
 from qtvcp.widgets.simple_widgets import ScaledLabel
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -105,7 +103,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         # Joint mode
         elif mode == linuxcnc.TRAJ_MODE_FREE:
             self._mode = False
-        # axis 
+        # axis
         elif mode == linuxcnc.TRAJ_MODE_TELEOP:
             self._mode = True
 
@@ -196,7 +194,6 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
     # _toggle_properties makes it so we can only select one option
     ########################################################################
 
- 
     def _toggle_properties(self, picked):
         data = ('always_display_diameter','always_display_radius',
         'display_as_per_m7m8')

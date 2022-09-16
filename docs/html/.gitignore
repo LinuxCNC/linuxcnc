@@ -23,6 +23,8 @@ motion
 remap
 user
 # Ignore po4a-generated files for other languages
+cs/*
+da/*
 de/*
 es/*
 fr/*
@@ -30,6 +32,7 @@ hu/*
 it/*
 ka/*
 nb/*
+pt_BR/*
 ru/*
 sk/*
 tr/*

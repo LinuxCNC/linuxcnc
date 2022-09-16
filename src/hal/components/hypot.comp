@@ -5,6 +5,7 @@ pin in float in2;
 pin out float out "out = sqrt(in0^2 + in1^2 + in2^2)";
 function _;
 license "GPL";
+author "Jeff Epler";
 ;;
 #include <rtapi_math.h>
 FUNCTION(_) {

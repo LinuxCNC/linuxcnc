@@ -277,7 +277,7 @@ driver.
 
 Each HAL component is a piece of software with well-defined inputs,
 outputs, and behavior, that can be installed and interconnected as
-needed. The section <<sec:realtime-components,Realtime Components List>>
+needed. The section <<sec:hal-components,HAL Components List>>
 lists all available components and a brief description of what each does.
 
 [[sec:hal-timing-issues]]
@@ -320,12 +320,12 @@ does - that is determined by which functions are
 connected to it. The real distinction is simply how often a thread
 runs.
 
-In LinuxCNC you might have a 50 µs thread and a 1 ms thread.
+In LinuxCNC you might have a 50&thinsp;µs thread and a 1&thinsp;ms thread.
 These would be created based on BASE_PERIOD and SERVO_PERIOD, the
-actual times depend on the values in your ini file.
+actual times depend on the values in your INI file.
 
 The next step is to decide what each thread needs to do. Some of those
-decisions are the same in (nearly) any LinuxCNC system--For instance,
+decisions are the same in (nearly) any LinuxCNC system. For instance,
 motion-command-handler is always added to servo-thread.
 
 Other connections would be made by the integrator. These might include

@@ -43,10 +43,8 @@ import os
 import sys
 import traceback
 from PyQt5 import uic
-from PyQt5.QtCore import pyqtSlot, QFile, QRegExp, Qt, QTextStream
-from PyQt5.QtWidgets import (QApplication, QDialog, QFileDialog, QMessageBox,
-        QStyleFactory, QWidget, QColorDialog)
-from PyQt5 import QtGui, QtCore
+from PyQt5.QtCore import pyqtSlot, QFile, QTextStream
+from PyQt5.QtWidgets import (QApplication, QDialog)
 
 import gcode
 from qt5_graphics import Lcnc_3dGraphics

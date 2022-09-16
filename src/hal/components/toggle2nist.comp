@@ -22,6 +22,7 @@ variable int old_in;
 variable int to_state=0;
 function _ nofp;
 license "GPL";
+author "Anders Wallin";
 ;;
 FUNCTION(_)  {
 if (in!=old_in) /* a toggle has occurred */ {

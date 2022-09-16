@@ -266,12 +266,12 @@ class Status(GStat):
         if self._block_polling: return None
         return self.ERROR.poll()
 
-    def block_error_polling(self):
-        print('block')
+    def block_error_polling(self, name=''):
+        if name: print(name,'block')
         self._block_polling = True
 
-    def unblock_error_polling(self):
-        print('unblock')
+    def unblock_error_polling(self,name=''):
+        if name: print(name,'unblock')
         self._block_polling = False
 
 ################################################################

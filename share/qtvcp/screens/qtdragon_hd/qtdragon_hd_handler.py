@@ -6,16 +6,20 @@ from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOL_TABLE
 from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFSET_VIEW
 from qtvcp.widgets.stylesheeteditor import StyleSheetEditor as SSE
 from qtvcp.widgets.file_manager import FileManager as FM
+from qtvcp.lib.auto_height.auto_height import Auto_Measure
 from qtvcp.lib.writer import writer
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.gcodes import GCodes
 from qtvcp.lib.qt_pdf import PDFViewer
+from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp.core import Status, Action, Info, Path, Qhal
 from qtvcp import logger
 from shutil import copyfile
+from math import dist, ceil
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
+AUX_PRGM = Aux_program_loader()
 STATUS = Status()
 INFO = Info()
 ACTION = Action()
@@ -76,7 +80,7 @@ class HandlerClass:
         self.reload_tool = 0
         self.last_loaded_program = ""
         self.first_turnon = True
-        self.unit_label_list = ["ts_height", "tp_height", "zoffset_units", "max_probe_units"]
+        self.unit_label_list = ["ts_height", "tp_height", "zoffset_units", "max_probe_units", "retract_dist_units", "z_safe_travel_units"]
         self.lineedit_list = ["work_height", "touch_height", "sensor_height", "laser_x", "laser_y",
                               "sensor_x", "sensor_y", "camera_x", "camera_y",
                               "search_vel", "probe_vel", "max_probe", "eoffset_count"]
@@ -198,9 +202,15 @@ class HandlerClass:
         # external offset control pins
         QHAL.newpin("eoffset-enable", QHAL.HAL_BIT, QHAL.HAL_OUT)
         QHAL.newpin("eoffset-clear", QHAL.HAL_BIT, QHAL.HAL_OUT)
+        QHAL.newpin("eoffset-spindle-count", QHAL.HAL_S32, QHAL.HAL_OUT)
         QHAL.newpin("eoffset-count", QHAL.HAL_S32, QHAL.HAL_OUT)
-        pin = QHAL.newpin("eoffset-value", QHAL.HAL_FLOAT, QHAL.HAL_IN)
+
+        pin = QHAL.newpin("eoffset-value", QHAL.HAL_S32, QHAL.HAL_IN)
         pin.value_changed.connect(self.eoffset_changed)
+
+        pin = QHAL.newpin("eoffset-zlevel-count", QHAL.HAL_S32, QHAL.HAL_IN)
+        pin.value_changed.connect(self.comp_count_changed)
+        QHAL.newpin("comp-on", Qhal.HAL_BIT, Qhal.HAL_OUT)
 
     def init_preferences(self):
         if not self.w.PREFS_:
@@ -220,6 +230,8 @@ class HandlerClass:
         self.w.lineEdit_search_vel.setText(str(self.w.PREFS_.getpref('Search Velocity', 40, float, 'CUSTOM_FORM_ENTRIES')))
         self.w.lineEdit_probe_vel.setText(str(self.w.PREFS_.getpref('Probe Velocity', 10, float, 'CUSTOM_FORM_ENTRIES')))
         self.w.lineEdit_max_probe.setText(str(self.w.PREFS_.getpref('Max Probe', 10, float, 'CUSTOM_FORM_ENTRIES')))
+        self.w.lineEdit_retract_distance.setText(str(self.w.PREFS_.getpref('Retract Distance', 10, float, 'CUSTOM_FORM_ENTRIES')))
+        self.w.lineEdit_z_safe_travel.setText(str(self.w.PREFS_.getpref('Z Safe Travel', 10, float, 'CUSTOM_FORM_ENTRIES')))
         self.w.lineEdit_eoffset_count.setText(str(self.w.PREFS_.getpref('Eoffset count', 0, int, 'CUSTOM_FORM_ENTRIES')))
         self.w.chk_eoffsets.setChecked(self.w.PREFS_.getpref('External offsets', False, bool, 'CUSTOM_FORM_ENTRIES'))
         self.w.chk_reload_program.setChecked(self.w.PREFS_.getpref('Reload program', False, bool,'CUSTOM_FORM_ENTRIES'))
@@ -251,6 +263,8 @@ class HandlerClass:
         self.w.PREFS_.putpref('Search Velocity', self.w.lineEdit_search_vel.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Probe Velocity', self.w.lineEdit_probe_vel.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Max Probe', self.w.lineEdit_max_probe.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
+        self.w.PREFS_.putpref('Retract Distance', self.w.lineEdit_retract_distance.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
+        self.w.PREFS_.putpref('Z Safe Travel', self.w.lineEdit_z_safe_travel.text().encode('utf-8'), float, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Eoffset count', self.w.lineEdit_eoffset_count.text().encode('utf-8'), int, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('External offsets', self.w.chk_eoffsets.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Reload program', self.w.chk_reload_program.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
@@ -356,14 +370,20 @@ class HandlerClass:
         from qtvcp.lib.gcode_utility.facing import Facing
         self.facing = Facing()
         self.w.layout_facing.addWidget(self.facing)
+
         from qtvcp.lib.gcode_utility.hole_circle import Hole_Circle
         self.hole_circle = Hole_Circle()
         self.w.layout_hole_circle.addWidget(self.hole_circle)
+
         LOG.info("Using NGCGUI utility")
         from qtvcp.lib.qt_ngcgui.ngcgui import NgcGui
         self.ngcgui = NgcGui()
         self.w.layout_ngcgui.addWidget(self.ngcgui)
         self.ngcgui.warp_info_frame(self.w.ngcGuiLeftLayout)
+
+        self.auto_measure = Auto_Measure(self.w)
+        self.w.layout_workpiece.addWidget(self.auto_measure)
+        self.auto_measure._hal_init()
 
     def processed_focus_event__(self, receiver, event):
         if not self.w.chk_use_virtual.isChecked() or STATUS.is_auto_mode(): return
@@ -464,8 +484,11 @@ class HandlerClass:
         self.w.lbl_mb_errors.setText(str(errors))
 
     def eoffset_changed(self, data):
-        eoffset = "{:2.3f}".format(self.h['eoffset-value'])
-        self.w.lbl_eoffset_value.setText(eoffset)
+        self.w.z_comp_eoffset_value.setText(format(data*.001, '.3f'))
+
+    def comp_count_changed(self):
+        if self.w.btn_enable_comp.isChecked():
+            self.h['eoffset-count'] = self.h['eoffset-zlevel-count']
 
     def dialog_return(self, w, message):
         rtn = message.get('RETURN')
@@ -632,18 +655,49 @@ class HandlerClass:
         # set external offsets to lift spindle
             self.h['eoffset-enable'] = self.w.chk_eoffsets.isChecked()
             fval = float(self.w.lineEdit_eoffset_count.text())
-            self.h['eoffset-count'] = int(fval)
+            self.h['eoffset-spindle-count'] = int(fval)
+            self.w.spindle_eoffset_value.setText(self.w.lineEdit_eoffset_count.text())
             self.h['spindle-inhibit'] = True
+            #self.w.btn_enable_comp.setChecked(False)
+            #self.w.widget_zaxis_offset.hide()
+            if not QHAL.hal.component_exists("z_level_compensation"):
+                self.add_status("Z level compensation HAL component not loaded", CRITICAL)
+                return
+            #self.h['comp-on'] = False
         else:
-            self.h['eoffset-count'] = 0
-            self.h['eoffset-clear'] = True
+            self.h['eoffset-spindle-count'] = 0
+            self.w.spindle_eoffset_value.setText('0')
+            #self.h['eoffset-clear'] = True
             self.h['spindle-inhibit'] = False
             if STATUS.is_auto_running():
             # instantiate warning box
                 info = "Wait for spindle at speed signal before resuming"
-                mess = {'NAME':'MESSAGE', 'ICON':'WARNING', 'ID':'_wait_resume_', 'MESSAGE':'CAUTION', 'MORE':info, 'TYPE':'OK'}
+                mess = {'NAME':'MESSAGE', 'ICON':'WARNING',
+                        'ID':'_wait_resume_', 'MESSAGE':'CAUTION',
+                        'NONBLOCKING':'True', 'MORE':info, 'TYPE':'OK'}
                 ACTION.CALL_DIALOG(mess)
-        
+
+    def btn_enable_comp_clicked(self, state):
+        if state:
+            fname = os.path.join(PATH.CONFIGPATH, "probe_points.txt")
+            if not os.path.isfile(fname):
+                self.add_status(fname + " not found", CRITICAL)
+                self.w.btn_enable_comp.setChecked(False)
+                return
+            if not QHAL.hal.component_exists("z_level_compensation"):
+                self.add_status("Z level compensation HAL component not loaded", CRITICAL)
+                self.w.btn_enable_comp.setChecked(False)
+                return
+            self.h['comp-on'] = True
+            self.add_status("Z level compensation ON")
+        else:
+            if not QHAL.hal.component_exists("z_level_compensation"):
+                self.add_status("Z level compensation HAL component not loaded", CRITICAL)
+                return
+            self.h['comp-on'] = False
+            self.add_status("Z level compensation OFF", WARNING)
+
+
     # offsets frame
     def btn_goto_location_clicked(self):
         dest = self.w.sender().property('location')
@@ -655,13 +709,11 @@ class HandlerClass:
             y = float(self.w.lineEdit_sensor_y.text())
         else:
             return
-        if not STATUS.is_metric_mode():
-            x = x / 25.4
-            y = y / 25.4
+
         ACTION.CALL_MDI("G90")
         ACTION.CALL_MDI_WAIT("G53 G0 Z0")
         command = "G53 G0 X{:3.4f} Y{:3.4f}".format(x, y)
-        ACTION.CALL_MDI_WAIT(command, 10)
+        ACTION.CALL_MDI_WAIT(command, self.calc_mdi_move_wait_time(x,y))
  
     def btn_ref_laser_clicked(self):
         x = float(self.w.lineEdit_laser_x.text())
@@ -690,9 +742,11 @@ class HandlerClass:
         if not STATUS.is_all_homed():
             self.add_status("Must be homed to perform tool touchoff", WARNING)
             return
-        # instantiate dialog box
+         
+         # instantiate dialog box   
+        unit = "mm" if INFO.MACHINE_IS_METRIC else "in"
         sensor = self.w.sender().property('sensor')
-        info = "Ensure tooltip is within {} mm of tool sensor and click OK".format(self.w.lineEdit_max_probe.text())
+        info = "Ensure tooltip is within {}{} of tool sensor and click OK".format(self.w.lineEdit_max_probe.text(), unit)
         mess = {'NAME':'MESSAGE', 'ID':sensor, 'MESSAGE':'TOOL TOUCHOFF', 'MORE':info, 'TYPE':'OKCANCEL'}
         ACTION.CALL_DIALOG(mess)
         
@@ -885,6 +939,9 @@ class HandlerClass:
         else:
             self.w.stackedWidget.setCurrentIndex(PAGE_GCODE)
 
+    def btn_gripper_clicked(self):
+        AUX_PRGM.load_gcode_ripper()
+
     #####################
     # GENERAL FUNCTIONS #
     #####################
@@ -936,7 +993,7 @@ class HandlerClass:
                 self.add_status("Loaded PDF file : {}".format(fname))
 
     def disable_spindle_pause(self):
-        self.h['eoffset-count'] = 0
+        self.h['eoffset-spindle-count'] = 0
         self.h['spindle-inhibit'] = False
         if self.w.btn_pause_spindle.isChecked():
             self.w.btn_pause_spindle.setChecked(False)
@@ -953,7 +1010,10 @@ class HandlerClass:
         max_probe = self.w.lineEdit_max_probe.text()
         search_vel = self.w.lineEdit_search_vel.text()
         probe_vel = self.w.lineEdit_probe_vel.text()
-        rtn = ACTION.TOUCHPLATE_TOUCHOFF(search_vel, probe_vel, max_probe, z_offset)
+        retract = self.w.lineEdit_retract_distance.text()
+        safe_z = self.w.lineEdit_z_safe_travel.text()
+        rtn = ACTION.TOUCHPLATE_TOUCHOFF(search_vel, probe_vel, max_probe, 
+                z_offset, retract, safe_z)
         if rtn == 0:
             self.add_status("Touchoff routine is already running", WARNING)
 
@@ -998,7 +1058,7 @@ class HandlerClass:
         else:
             self.add_status("Machine OFF")
         self.w.btn_pause_spindle.setChecked(False)
-        self.h['eoffset-count'] = 0
+        self.h['eoffset-spindle-count'] = 0
         for widget in self.onoff_list:
             self.w[widget].setEnabled(state)
 
@@ -1139,6 +1199,14 @@ class HandlerClass:
             self.add_status("Cannot switch pages while in AUTO mode", WARNING)
             self.w.main_tab_widget.setCurrentIndex(0)
             self.w.btn_main.setChecked(True)
+    
+    # calc wait time for mdi move based on dist and rapid speed, return seconds to wait
+    def calc_mdi_move_wait_time(self, dest_x, dest_y, wait_buffer_secs=1):
+        move_speed = (STATUS.stat.rapidrate * STATUS.get_max_velocity()) / 60
+        pos_cur,pos_rel,dtg, = STATUS.get_position()
+        move_dist = dist([pos_cur[0],pos_cur[1]], [dest_x,dest_y])
+        return ceil(move_dist / move_speed) + wait_buffer_secs
+
 
     #####################
     # KEY BINDING CALLS #

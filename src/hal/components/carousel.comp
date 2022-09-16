@@ -131,10 +131,11 @@ pin out bit    motor-rev "Indicates the motor should run reverse.";
 pin out bit    parity-error "Indicates a parity error";
 pin out signed current-position "This pin indicates the current position feedback";
 pin out float  motor-vel "The duty-cycle or velocity to drive a DC motor or stepgen";
+pin out bit    homed = 0 "Shows that homing is complete. Only used in index and edge modes";
+pin in  bit    unhome = 0 "Should only really be necessary for testing";
 
 param r  signed state = 0 "Current component state";
 param r  bit    homing  = 0 "Shows that homing is in progress. Only used for index mode";
-param rw  bit    homed = 0 "Shows that homing is complete. Only used in index and edge modes";
 param r  float  timer "Shows the value of the internal timer";
 param r signed motor-dir "Internal tag for search direction";
 
@@ -142,7 +143,7 @@ option count_function;
 option extra_setup;
 
 license "GPL";
-author "andy pugh";
+author "Andy Pugh";
 
 variable int inst_sense;
 variable int inst_dir;
@@ -152,6 +153,7 @@ variable int inst_parity;
 variable int old_index = 0;
 variable int base_counts = 0;
 variable int target;
+variable int old_unhome = 0;
 function _ ;
 
 include "rtapi_math.h";
@@ -285,6 +287,10 @@ FUNCTION(_){
     // mod is odd with negatives, so just in case
     if (mod_pocket < 1) mod_pocket = 1;
     if (mod_pocket > inst_pockets) mod_pocket = inst_pockets;
+
+    if (unhome && ! old_unhome) homed = 0;
+    old_unhome = unhome;
+
     switch (state){
     case 0: // waiting at start
         motor_dir = 0;
@@ -459,6 +465,7 @@ FUNCTION(_){
         break; // So that we don't see the tool1 pulse twice
     case 20: //jogging fwd/rev
         if (current_position != target) return;
+        if (align_dc != 0 && ! align_pin) return;
         motor_fwd = 0;
         motor_rev = 0;
         motor_vel = hold_dc;

@@ -158,7 +158,7 @@ class Notification(object):
     def setUrgency(self, value):
         """Set the freedesktop.org notification urgency level"""
         if value not in list(range(3)):
-            raise ValueError("Unknown urgency level '%s' specified" % level)
+            raise ValueError("Unknown urgency level '%s' specified" % value)
         self.hints['urgency'] = dbus.Byte(value)
 
     def setSoundFile(self, sound_file):

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtGui
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.versa_probe import VersaProbe
 from qtvcp.widgets.qtvcp_icons import Icon

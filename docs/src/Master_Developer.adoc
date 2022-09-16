@@ -14,13 +14,22 @@ include::common/overleaf.adoc[]
 
 :leveloffset: 1
 
+include::hal/general-ref.adoc[]
+
 include::code/code-notes.adoc[]
+
 include::code/nml-messages.adoc[]
+
 include::code/style-guide.adoc[]
+
 include::code/building-linuxcnc.adoc[]
+
 include::code/adding-configs.adoc[]
+
 include::code/contributing-to-linuxcnc.adoc[]
+
 include::common/glossary.adoc[]
+
 include::common/gpld-copyright.adoc[]
 
 // vim: set syntax=asciidoc:

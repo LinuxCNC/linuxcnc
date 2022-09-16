@@ -6,21 +6,21 @@
 
 == Intro
 
-GStat is a python class used to send messages from LinuxCNC to other python programs. +
-It uses GObject to deliver messages, making it easy to listen for specific information. +
-This is referred to as event-driven programming, which is more efficient then every program +
-polling LinuxCNC at the same time. +
-GladeVCP, Gscreen, Gmoccapy and QtVCP use GStat extensively. +
+GStat is a Python class used to send messages from LinuxCNC to other Python programs.
+It uses GObject to deliver messages, making it easy to listen for specific information.
+This is referred to as event-driven programming, which is more efficient then every program
+polling LinuxCNC at the same time.
+GladeVCP, Gscreen, Gmoccapy and QtVCP use GStat extensively.
 GStat is in the `hal_glib` module.
 
-== Overview
+.Overview
+* First, a program imports the `hal_glib` module and instantiates GStat.
+* Then it 'connects' to the messages it wishes to monitor.
+* GStat checks LinuxCNC's status every 100&thinsp;ms and if there are differences from
+  the last check, it will send a callback message to all the connected programs
+  with the current status.
+* When GStat calls the registered function, it sends the GStat object plus any return codes from the message.
 
-First a program imports the `hal_glib` module and instantiates GStat. +
-Then it 'connects' to the messages it wishes to monitor. +
-GStat checks LinuxCNC's status every 100ms and if there are differences from +
-the last check, it will send a callback message to all the connected programs +
-with the current status. +
-When GStat calls the registered function, it sends the GStat object plus any return codes from the message. +
 Typical code signatures:
 
 [source,python]
@@ -41,10 +41,10 @@ def FUNCTION_TO_CALL(return_codes):
 
 == Sample GStat Code
 
-There are some basic patterns for using GStat, depending on what library +
-you are using them in. +
-If using GStat with GladeVCP, Gscreen, or Qtvcp, the gobject library is not needed as +
-those toolkits already set up Gobject.
+There are some basic patterns for using GStat,
+depending on what library you are using them in.
+If using GStat with GladeVCP, Gscreen, or QtVCP, the GObject library is not needed as
+those toolkits already set up GObject.
 
 === Sample HAL component code pattern
 
@@ -81,17 +81,16 @@ GSTAT.forced_update()
 
 # loop till exit
 try:
-        GLib.MainLoop().run()
+    GLib.MainLoop().run()
 except KeyboardInterrupt:
     raise SystemExit
 ----
 
-This would be loaded with 'loadusr python PATH-TO-FILE/FILENAME.py' +
-or if you need to wait for the pins to be made before continuing: +
-'loadusr python -Wn metric_status PATH-TO-FILE/FILENAME.py' +
+This would be loaded with 'loadusr python PATH-TO-FILE/FILENAME.py' or if you need to wait for the pins to be made before continuing: +
+`loadusr python -Wn metric_status PATH-TO-FILE/FILENAME.py` +
 The pins would be: 'metric_status.g20' and 'metric_status.g21'.
 
-=== GladeVCP python extension code pattern
+=== GladeVCP Python extension code pattern
 
 This file assumes there are three GTK labels named:
 
@@ -134,9 +133,9 @@ def get_handlers(halcomp,builder,useropts):
     return [HandlerClass(halcomp,builder,useropts)]
 ----
 
-=== QTVCP python extension code pattern
+=== QtVCP Python extension code pattern
 
-Qtvcp extends GStat, so must be loaded differently but all the messages are available in Qtvcp. +
+QtVCP extends GStat, so must be loaded differently but all the messages are available in QtVCP. +
 This handler file assumes there are three QLabels named:
 
 * 'state_label'
@@ -184,16 +183,16 @@ def get_handlers(halcomp,builder,useropts):
 sent every 100 ms.
 
 *state-estop* :: '(returns nothing)' -
-Sent when linuxcnc is goes into estop.
+Sent when LinuxCNC is goes into estop.
 
 *state-estop-reset*:: '(returns nothing)' -
-Sent when linuxcnc comes out of estop.
+Sent when LinuxCNC comes out of estop.
 
 *state-on* :: '(returns nothing)' -
-Sent when linuxcnc is in machine on state.
+Sent when LinuxCNC is in machine on state.
 
 *state-off*:: '(returns nothing)' -
-Sent when linuxcnc is in machine off state.
+Sent when LinuxCNC is in machine off state.
 
 *homed* :: '(returns string)' -
 Sent as each joint is homed.
@@ -205,20 +204,20 @@ Sent when all defined joints are homed.
 Sends a list of joints not currently homed.
 
 *override_limits_changed* :: '(returns string)' -
-Sent if linuxcnc has been directed to override it's limits.
+Sent if LinuxCNC has been directed to override it's limits.
 
 *hard-limits-tripped* :: '(returns bool, Python List)' -
 Sent when any hard limit is tripped.
 bool indicates if any limit is tripped, the list shows all available joint's current limit values.
 
 *mode-manual* :: '(returns nothing)' -
-Sent when linuxcnc switches to manual mode.
+Sent when LinuxCNC switches to manual mode.
 
 *mode-mdi* :: '(returns nothing)' -
-Sent when linuxcnc switches to mdi mode.
+Sent when LinuxCNC switches to MDI mode.
 
 *mode-auto* :: '(returns nothing)' -
-Sent when linuxcnc switches to auto mode.
+Sent when LinuxCNC switches to auto mode.
 
 *command-running* :: '(returns nothing)' -
 Sent when running a program or MDI
@@ -230,19 +229,19 @@ Sent when a program or MDI stopped
 Sent when there is a command error
 
 *interp-run* :: '(returns nothing)' -
-Sent when linuxcnc's interpreter is running an MDI or program.
+Sent when LinuxCNC's interpreter is running an MDI or program.
 
 *interp-idle* :: '(returns nothing)' -
-Sent when linuxcnc's interpreter idle.
+Sent when LinuxCNC's interpreter idle.
 
 *interp-paused* :: '(returns nothing)' -
-Sent when linuxcnc's interpreter is paused.
+Sent when LinuxCNC's interpreter is paused.
 
 *interp-reading* :: '(returns nothing)' -
-Sent when linuxcnc's interpreter is reading.
+Sent when LinuxCNC's interpreter is reading.
 
 *interp-waiting* :: '(returns nothing)' -
-Sent when linuxcnc's interpreter is waiting.
+Sent when LinuxCNC's interpreter is waiting.
 
 *jograte-changed* :: '(returns float)' -
 Sent when jog rate has changed. +
@@ -278,22 +277,22 @@ Sent when optional stop is set/unset
 sent when block delete is set/unset.
 
 *file-loaded* :: '(returns string)' -
-Sent when linuxcnc has loaded a file
+Sent when LinuxCNC has loaded a file
 
 *reload-display* :: '(returns nothing)' -
 Sent when there is a request to reload the display
 
 *line-changed* :: '(returns integer)' -
-Sent when linuxcnc has read a new line. +
+Sent when LinuxCNC has read a new line. +
 Linuxcnc does not update this for every type of line.
 
 *tool-in-spindle-changed* :: '(returns integer)' -
 Sent when the tool has changed.
 
-*tool-info-changed* :: '(returns python object)' -
+*tool-info-changed* :: '(returns Python object)' -
 Sent when current tool info changes.
 
-*current-tool-offset* :: '(returns python object)' -
+*current-tool-offset* :: '(returns Python object)' -
 Sent when the current tool offsets change.
 
 *motion-mode-changed* :: '(returns integer)' -
@@ -413,7 +412,7 @@ This depends on the widget/libraries used. +
 intended to be sent when G-code is loaded. +
 This depends on the widget/libraries used. +
 
-*graphics-view-changed* :: '(returns string, python Dict or None)' -
+*graphics-view-changed* :: '(returns string, Python dict or None)' -
 intended to be sent when graphics view is changed. +
 This depends on the widget/libraries used. +
 
@@ -437,16 +436,16 @@ This depends on the widget/libraries used. +
 intended to be sent when moving the cursor one line down in G-code display. +
 This depends on the widget/libraries used. +
 
-*dialog-request* :: '(returns python dict)' -
+*dialog-request* :: '(returns Python dict)' -
 intended to be sent when requesting a gui dialog. +
-It uses a python dict for communication. +
+It uses a Python dict for communication. +
 The dict must include the following keyname pair: +
 * NAME: 'requested dialog name' +
   The dict usually has several keyname pairs - it depends on the dialog. +
   dialogs return information using a general message +
   This depends on the widget/libraries used. +
 
-*focus-overlay-changed* :: '(returns bool, string, python object)' -
+*focus-overlay-changed* :: '(returns bool, string, Python object)' -
 intended to be sent when requesting an overlay to be put over the display. +
 This depends on the widget/libraries used. +
 
@@ -468,7 +467,7 @@ intended to be sent when requesting the screen preferences to be displayed. +
 This depends on the widget/libraries used. +
 
 *shutdown* :: '(returns None)' -
-intended to be sent when requesting linuxcnc to shutdown. +
+intended to be sent when requesting LinuxCNC to shutdown. +
 This depends on the widget/libraries used. +
 
 *error* :: '(returns integer, string)' -
@@ -477,24 +476,24 @@ integer represents the kind of error. ERROR, TEXT or DISPLAY +
 string is the actual error message. +
 This depends on the widget/libraries used. +
 
-*general* :: '(returns python dict)' -
+*general* :: '(returns Python dict)' -
 intended to be sent when message must be sent that is not covered by a more specific message. +
 General message should be used a sparsely as reasonable because all object connected to it will have to parse it. +
-It uses a python dict for communication. +
+It uses a Python dict for communication. +
 The dict should include and be checked for a unique id  keyname pair: +
 * ID: 'UNIQUE_ID_CODE' +
-  The dict usually has more keyname pair - it depends on implementation. +
+The dict usually has more keyname pair - it depends on implementation. +
 
 *forced-update* :: '(returns None)' -
 intended to be sent when one wishes to initialize or arbitrarily update an object. +
 This depends on the widget/libraries used. +
 
-*progress* :: '(returns integer, python object)'
+*progress* :: '(returns integer, Python object)' -
 intended to be sent to indicate the progress of a filter program. +
 This depends on the widget/libraries used. +
 
-*following-error* :: '(returns python list)'
-returns a list of all joints current following error +
+*following-error* :: '(returns Python list)' -
+returns a list of all joints current following error. +
 
 == Functions
 
@@ -552,17 +551,17 @@ This will jog an axis continuously or at a set distance. +
 You must be in the proper mode to jog.
 
 *check_for_modes* :: '(mode)' -
-This function checks for required linuxcnc mode. +
-It returns a python tuple (state, mode) +
+This function checks for required LinuxCNC mode. +
+It returns a Python tuple (state, mode) +
 mode will be set the mode the system is in +
 state will set to: +
 false if mode is 0 +
 false if machine is busy +
-true if linuxcnc is in the requested mode +
+true if LinuxCNC is in the requested mode +
 None if possible to change, but not in requested mode +
 
 *get_current_mode* :: '(nothing)' -
-returns integer: the current linuxcnc mode. +
+returns integer: the current LinuxCNC mode. +
 
 *set_selected_joint* :: '(integer)' -
 records the selected joint number internally. +
@@ -602,8 +601,7 @@ returns string representing the internal selected axis letter. +
 
 == Known Issues
 
-Some status points are reported wrongly during a running program. +
-This is because the interpreter runs ahead of the current position of a running program. +
-This will hopefully be resolved with the merge of state-tags branch. +
+Some status points are reported wrongly during a running program because the interpreter runs ahead of the current position of a running program.
+This will hopefully be resolved with the merge of state-tags branch.
 
 // vim: set syntax=asciidoc:

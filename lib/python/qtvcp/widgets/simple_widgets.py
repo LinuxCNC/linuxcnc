@@ -17,12 +17,13 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from qtvcp.widgets.widget_baseclass import (_HalWidgetBase,
         _HalToggleBase, _HalSensitiveBase, _HalScaleBase)
 from qtvcp.lib.aux_program_loader import Aux_program_loader as _loader
-from qtvcp.core import Action, Status
+from qtvcp.core import Action, Status, Info
 import hal
 
 AUX_PRGM = _loader()
 ACTION = Action()
 STATUS = Status()
+INFO = Info()
 
 # Set up logging
 from qtvcp import logger
@@ -372,6 +373,18 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
         self._isAutoProp = False
         self._isEstopProp = False
         self._isStateOnProp = False
+        self._isAllHomed = False
+        self._isHomed = False
+
+        # button enabled states
+        self._is_all_homed_sensitive = False
+        self._is_on_sensitive = False
+        self._is_idle_sensitive = False
+        self._is_run_sensitive = False
+        self._is_auto_pause_sensitive = False
+        self._is_manual_sensitive = False
+        self._is_mdi_sensitive = False
+        self._is_auto_sensitive = False
 
     # Override setText function so we can toggle displayed text
     def setText(self, text):
@@ -402,6 +415,74 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
                                  'PROGRAM_LOADER':AUX_PRGM, 'ACTION':ACTION, 'HAL':hal, 'print':print}
         self._localsParameter = {'dir': dir, 'True':True, 'False':False}
 
+        if self._is_on_sensitive:
+            STATUS.connect('state-off', lambda w: self.setEnabled(False))
+            STATUS.connect('state-on', lambda w: enable_logic_check(True))
+        if self._is_all_homed_sensitive:
+            STATUS.connect('all-homed', lambda w: enable_logic_check(True))
+            STATUS.connect('not-all-homed', lambda w, axis: self.setEnabled(False))
+        if self._is_idle_sensitive:
+            STATUS.connect('interp-run', lambda w: self.setEnabled(False))
+            STATUS.connect('interp-paused', lambda w: self.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: enable_logic_check(True))
+        elif self._is_run_sensitive:
+            STATUS.connect('interp-run', lambda w: enable_logic_check(True))
+            STATUS.connect('interp-paused', lambda w: self.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: self.setEnabled(False))
+        elif self._is_auto_pause_sensitive:
+            STATUS.connect('interp-run', lambda w: enable_logic_check(False))
+            STATUS.connect('interp-paused', lambda w: self.setEnabled(True))
+            STATUS.connect('interp-idle', lambda w: self.setEnabled(False))
+        if self._is_manual_sensitive or self._is_mdi_sensitive or self._is_auto_sensitive:
+            STATUS.connect('mode-manual', lambda w: enable_logic_check(self._is_manual_sensitive))
+            STATUS.connect('mode-mdi', lambda w: enable_logic_check(self._is_mdi_sensitive))
+            STATUS.connect('mode-auto', lambda w: enable_logic_check(self._is_auto_sensitive))
+
+        # if nothing selected make estop reset sensitive
+        if not (self._is_idle_sensitive or self._is_run_sensitive or \
+                self._is_on_sensitive or self._is_all_homed_sensitive or \
+                self._is_manual_sensitive or self._is_mdi_sensitive or \
+                self._is_auto_sensitive or self._is_auto_pause_sensitive):
+            STATUS.connect('state-estop-reset', lambda w: self.setEnabled(True))
+
+        # check for multiple selected enabled requests
+        def enable_logic_check(state):
+            if state:
+                temp = True
+                if self._is_run_sensitive:
+                    temp = temp and STATUS.is_interp_running()
+                if self._is_auto_pause_sensitive:
+                    temp = temp and STATUS.is_auto_paused()
+                if self._is_on_sensitive:
+                    temp = temp and STATUS.machine_is_on()
+                if self._is_all_homed_sensitive:
+                    temp = temp and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED)
+                if self._is_manual_sensitive:
+                    temp = temp and STATUS.is_man_mode()
+                if self._is_mdi_sensitive:
+                    temp = temp and STATUS.is_mdi_mode()
+                if self._is_auto_sensitive:
+                    temp = temp and STATUS.is_auto_mode()
+                if self._is_idle_sensitive:
+                    temp = temp and STATUS.is_interp_idle()
+                self.setEnabled(temp)
+            else:
+                self.setEnabled(False)
+            self.connectSignals()
+
+    # Disconnect our standard signals
+    def disconnectSignals(self):
+        try:
+            self.toggled.disconnect()
+        except Exception: pass
+        try:
+            self.pressed.disconnect()
+            self.released.disconnect()
+        except Exception: pass
+
+    # done so we can adjust 'checkable' signals at run time
+    # ie delete all signals an re apply them
+    def connectSignals(self):
         def _update(state):
             self.setChecked(state)
             if self._HAL_pin is False:
@@ -435,8 +516,8 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
             STATUS.connect('state-on', lambda w: self._flip_state(True, prop ='isStateOn'))
             STATUS.connect('state-off', lambda w: self._flip_state(False, prop ='isStateOn'))
         elif self._is_homed:
-            STATUS.connect('all-homed', lambda w: self._flip_state(True))
-            STATUS.connect('not-all-homed', lambda w, axis: self._flip_state(False))
+            STATUS.connect('all-homed', lambda w: self._flip_state(True, prop = 'isAllHomed'))
+            STATUS.connect('not-all-homed', lambda w, axis: self._flip_state(False, prop = 'isAllHomed'))
         elif self._is_idle:
             STATUS.connect('interp-idle', lambda w: self._flip_state(True))
             STATUS.connect('interp-run', lambda w: self._flip_state(False))
@@ -472,11 +553,11 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
 
     def _j_homed(self, joint):
         if int(joint) == self._joint_number:
-            self._flip_state(True)
+            self._flip_state(True, prop = 'isHomed')
 
     def _j_unhomed(self, jlist):
         if str(self._joint_number) in jlist:
-            self._flip_state(False)
+            self._flip_state(False, prop = 'isHomed')
 
     def _check_override_limits(self, w, state, data):
         for i in data:
@@ -597,8 +678,8 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
 
             # circle
             elif self._shape == 1:
-                x = self.width() - self._diameter - self._right_edge_offset
-                y = 0 + self._top_edge_offset
+                x = int(self.width() - self._diameter - self._right_edge_offset)
+                y = int(0 + self._top_edge_offset)
                 gradient = QtGui.QRadialGradient(x + self._diameter / 2, y + self._diameter / 2,
                                    self._diameter * 0.4, self._diameter * 0.4, self._diameter * 0.4)
                 gradient.setColorAt(0, QtCore.Qt.white)
@@ -824,7 +905,7 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
     shape_option = QtCore.pyqtProperty(int, get_shape, set_shape, reset_shape)
     off_color = QtCore.pyqtProperty(QtGui.QColor, get_off_color, set_off_color)
     indicator_size = QtCore.pyqtProperty(float, get_indicator_size, set_indicator_size, reset_indicator_size)
-    circle_diameter = QtCore.pyqtProperty(float, get_circle_diameter, set_circle_diameter, reset_circle_diameter)
+    circle_diameter = QtCore.pyqtProperty(int, get_circle_diameter, set_circle_diameter, reset_circle_diameter)
     right_edge_offset = QtCore.pyqtProperty(int, get_right_edge_offset, set_right_edge_offset, reset_right_edge_offset)
     top_edge_offset = QtCore.pyqtProperty(int, get_top_edge_offset, set_top_edge_offset, reset_top_edge_offset)
     corner_radius = QtCore.pyqtProperty(float, get_corner_radius, set_corner_radius, reset_corner_radius)
@@ -1100,6 +1181,67 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
         return self._isStateOnProp
     isStateOn = QtCore.pyqtProperty(bool, getisStateOn, setisStateOn)
 
+    def setisHomed(self, data):
+        self._isHomed = data
+    def getisHomed(self):
+        return self._isHomed
+    isHomed = QtCore.pyqtProperty(bool, getisHomed, setisHomed)
+
+    def setisAllHomed(self, data):
+        self._isAllHomed = data
+    def getisAllHomed(self):
+        return self._isAllHomed
+    isAllHomed = QtCore.pyqtProperty(bool, getisAllHomed, setisAllHomed)
+
+# properties for enable/disable button on status state
+    def setisAllHomedSensitive(self, data):
+        self._is_all_homed_sensitive = data
+    def getisAllHomedSensitive(self):
+        return self._is_all_homed_sensitive
+    isAllHomedSensitive = QtCore.pyqtProperty(bool, getisAllHomedSensitive, setisAllHomedSensitive)
+
+    def setisOnSensitive(self, data):
+        self._is_on_sensitive = data
+    def getisOnSensitive(self):
+        return self._is_on_sensitive
+    isOnSensitive = QtCore.pyqtProperty(bool, getisOnSensitive, setisOnSensitive)
+
+    def setisIdleSensitive(self, data):
+        self._is_idle_sensitive = data
+    def getisIdleSensitive(self):
+        return self._is_idle_sensitive
+    isIdleSensitive = QtCore.pyqtProperty(bool, getisIdleSensitive, setisIdleSensitive)
+
+    def setisRunSensitive(self, data):
+        self._is_run_sensitive = data
+    def getisRunSensitive(self):
+        return self._is_run_sensitive
+    isRunSensitive = QtCore.pyqtProperty(bool, getisRunSensitive, setisRunSensitive)
+
+    def setisAutoPauseSensitive(self, data):
+        self._is_auto_pause_sensitive = data
+    def getisAutoPauseSensitive(self):
+        return self._is_auto_pause_sensitive
+    isAutoPauseSensitive = QtCore.pyqtProperty(bool, getisAutoPauseSensitive, setisAutoPauseSensitive)
+
+    def setisManSensitive(self, data):
+        self._is_manual_sensitive = data
+    def getisManSensitive(self):
+        return self._is_manual_sensitive
+    isManSensitive = QtCore.pyqtProperty(bool, getisManSensitive, setisManSensitive)
+
+    def setisMDISensitive(self, data):
+        self._is_mdi_sensitive = data
+    def getisMDISensitive(self):
+        return self._is_mdi_sensitive
+    isMDISensitive = QtCore.pyqtProperty(bool, getisMDISensitive, setisMDISensitive)
+
+    def setisAutoSensitive(self, data):
+        self._is_auto_sensitive = data
+    def getisAutoSensitive(self):
+        return self._is_auto_sensitive
+    isAutoSensitive = QtCore.pyqtProperty(bool, getisAutoSensitive, setisAutoSensitive)
+
     # boilder code
     def __getitem__(self, item):
         return getattr(self, item)
@@ -1120,7 +1262,22 @@ class PushButton(IndicatedPushButton, _HalWidgetBase):
         else:
             pname = self._pin_name_
         self.hal_pin = self.HAL_GCOMP_.newpin(str(pname), hal.HAL_BIT, hal.HAL_OUT)
+        self.connectSignals()
 
+    # Disconnect our standard signals
+    def disconnectSignals(self):
+        try:
+            self.toggled.disconnect()
+        except Exception: pass
+        try:
+            self.pressed.disconnect()
+            self.released.disconnect()
+        except Exception: pass
+
+    # done so we can adjust 'checkable' signals at run time
+    # ie delete all signals an re apply them
+    def connectSignals(self):
+        super().connectSignals()
         def _update(state):
             self.hal_pin.set(state)
 

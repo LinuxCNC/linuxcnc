@@ -106,6 +106,10 @@ class _PStat(object):
             else:
                 self.HANDLER = None
                 LOG.info("No handler file found.")
+        if not self.HANDLER is None:
+            self.HANDLERDIR = os.path.dirname(self.HANDLER)
+        else:
+            self.HANDLERDIR = None
 
         # look for custom ui file
         ui_fn = "{}.ui".format(self.BASEPATH)
@@ -138,6 +142,11 @@ class _PStat(object):
                     print(('{}'.format(i)))
                 print('')
                 return True # error
+        self.XMLDIR = os.path.dirname(self.HANDLER)
+        if not self.HANDLER is None:
+            self.XMLDIR = os.path.dirname(self.HANDLER)
+        else:
+            self.XMLDIR = None
 
         # check for qss file
         qss_fn = "{}.qss".format(self.BASEPATH)

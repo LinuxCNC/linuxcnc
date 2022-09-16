@@ -10,3 +10,4 @@ Terminal=false
 StartupNotify=false
 Categories=Science;Engineering;X-CNC-DOC;
 Keywords=cnc;linuxcnc;cncdoc;
+X-AppStream-Ignore=true

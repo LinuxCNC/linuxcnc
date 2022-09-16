@@ -38,16 +38,20 @@ class Facing(QtWidgets.QWidget):
         self.mb.setText(help_text)
         self.mb.setStandardButtons(QMessageBox.Ok)
 
+        
         # Initial values
         self._tmp = None
         self.unit_code = "G21"
-        self.rpm = 500
+        if not STATUS.is_metric_mode():
+            self.unit_code = "G20"
+            self.rbtn_inch.click()
+        self.rpm = INFO.get_error_safe_setting("DISPLAY", "DEFAULT_SPINDLE_0_SPEED", 500)
         self.size_x = 100
         self.size_y = 100
         self.feedrate = 0
-        self.stepover = 5
-        self.tool_dia = 10
-        self.safe_z = 20.0
+        self.stepover = 5 if STATUS.is_metric_mode() else 0.5
+        self.tool_dia = 10 if STATUS.is_metric_mode() else 1
+        self.safe_z = 20.0 if STATUS.is_metric_mode() else 1
         self.valid = True
         self.units_text = ''
 

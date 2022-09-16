@@ -28,13 +28,13 @@
 linuxcnc \- LinuxCNC (The Enhanced Machine Controller)
 .SH SYNOPSIS
 .B linuxcnc
-[\fI-v\fR] [\fI-d\fR] [\fIINIFILE\fR]
+[\fI-v\fR] [\fI-d\fR] [\fIINI file\fR]
 .SH DESCRIPTION
 \fBlinuxcnc\fR is used to start LinuxCNC (The Enhanced Machine Controller). It
 starts the realtime system and then initializes a number of LinuxCNC
 components (IO, Motion, GUI, HAL, etc).  The most important parameter
-is \fIINIFILE\fR, which specifies the configuration name you would like
-to run. If \fIINIFILE\fR is not specified, the \fBlinuxcnc\fR script presents
+is \fIINI file\fR, which specifies the configuration name you would like
+to run. If \fIINI file\fR is not specified, the \fBlinuxcnc\fR script presents
 a graphical wizard to let you choose one.
 .SH OPTIONS
 .TP
@@ -52,7 +52,7 @@ Use the last-used INI file without prompting. This is often a good choice
 for a shortcut command or startup item.
 .TP
 \fBINIFILE\fR
-The ini file is the main piece of an LinuxCNC configuration. It is not the
+The INI file is the main piece of a LinuxCNC configuration. It is not the
 entire configuration; there are various other files that go with it
 (NML files, HAL files, TBL files, VAR files). It is, however, the most
 important one, because it is the file that holds the configuration
@@ -61,7 +61,7 @@ together. It can adjust a lot of parameters itself, but it also tells
 
 There are several ways to specify which config to use:
 
-Specify the absolute path to an ini, e.g.
+Specify the absolute path to an INI, e.g.,
 .br
 \fBlinuxcnc\fR \fI/usr/local/linuxcnc/configs/sim/sim.ini\fR
 
@@ -70,10 +70,10 @@ Specify a relative path from the current directory, e.g.
 \fBlinuxcnc\fR \fIconfigs/sim/sim.ini\fR
 
 Otherwise, in the case where the \fBINIFILE\fR is not specified,
-the behavior will depend on whether you configured linuxcnc with
-\fB--enable-run-in-place\fR.  If so, the linuxcnc config chooser will search
+the behavior will depend on whether you configured LinuxCNC with
+\fB--enable-run-in-place\fR.  If so, the LinuxCNC config chooser will search
 only the configs directory in your source tree.  If not (or if you are
-using a packaged version of linuxcnc), it may search several directories.
+using a packaged version of LinuxCNC), it may search several directories.
 The config chooser is currently set to search the path:
 
 .nf

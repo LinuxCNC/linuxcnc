@@ -78,6 +78,7 @@ see_also """
 \\fBxor2\\fR(9)
 """;
 license "GPL";
+author "Jeff Epler";
 ;;
 FUNCTION(_) {
     int i, a=1, o=0, x=0;

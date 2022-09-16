@@ -31,6 +31,7 @@ pin in float motor1-fb "position feedback from motor1";
 
 function _;
 license "GPL";
+author "Sebastian Kuzminsky";
 
 ;;
 

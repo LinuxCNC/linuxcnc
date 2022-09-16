@@ -83,7 +83,7 @@ from tooldb import tooldb_loop      # main loop
 prog = sys.argv[0]         # this program
 tools = dict()             # tools[tno]: dict of text toollines
 toollist = []              # list of tool numbers
-restore_pocket = dict()    # for nonran toolchanger
+nonran_from_pocket = dict()# use to restore pocket in db
 p0tool = -1                # nonran:-1, ran:-1|0 ==> no tool in spindle
 start_time = 0             # 0 ==> indeterminate
 elapsed_time = 0           # tool time usage
@@ -193,7 +193,7 @@ def save_tools_to_file(fname,comment=""):
     history.append(comment)
     if len(history) > history_max_ct: history=history[1:]
     if len(history):
-        f.write("\n;Recent (last %d) db history:\n"%history_max_ct)
+        f.write("\n; Recent (last %d) db history:\n"%history_max_ct)
         for i in range(len(history)):
             f.write("; %s\n"%history[i])
     f.close()
@@ -201,6 +201,15 @@ def save_tools_to_file(fname,comment=""):
 def nonran_pno(tno): # simulation rule:
     return tno+pocket_offset # make startup pocket number different than tool number
                              # to avoid assumptions about tno and pno
+
+def nonran_restore_pocket(tno):
+    D = toolline_to_dict(tools[tno],all_letters)
+    D['P'] = nonran_from_pocket[tno]
+    tools[tno] = dict_to_toolline(D,all_letters)
+    if not tno in nonran_from_pocket:
+        umsg("nonran_restore_pocket tno=%d not in dict: %s"%(tno,nonran_from_pocket))
+    #msg("Restore pocket tno:%d pno %s"%(tno,int(D['P'])))
+    del nonran_from_pocket[tno]
 
 def assign_pocket(tno):
     global available_pockets
@@ -355,8 +364,10 @@ def handle_disconnect(fname):
     global disconnect_evt
     if p0tool > 0:
         stop_tool_timer(p0tool)
-        save_tools_to_file(fname,"tno:%3d in spindle at termination"%p0tool)
         msg("!!!Stopped with loaded tool: %d"%p0tool)
+        if not random_toolchanger:
+            nonran_restore_pocket(p0tool)
+        save_tools_to_file(fname,"tno:%3d in spindle at termination"%p0tool)
     msg("disconnected")
     disconnect_evt.set()
 
@@ -389,14 +400,11 @@ def stop_tool_timer(tno):
 
 def update_tool(tno,update_line):
     D = toolline_to_dict(tools[tno],all_letters)
-    savep = D['P']
     for item in toolline_to_list(update_line):
         for l in tletters:
             if l in item: D[l]=item.lstrip(l) #supersede by update_line
-    if not random_toolchanger:
-        if D['P'] != savep and D['P'] != 0:
-             umsg("update_tool(): reject pocket change %s (is:%s)"%(D['P'],savep))
-        D['P'] = savep # nonran handle p0 case
+    if not random_toolchanger and p0tool == tno:
+        D['P'] = '0' # unload uses nonran_from_pocket[]
     tools[tno] = dict_to_toolline(D,all_letters)
 
 def apply_db_rules():
@@ -481,15 +489,14 @@ def user_load_spindle_nonran_tc(tno,params):
     if TMP['P'] != "0": umsg("user_load_spindle_nonran_tc P=%s"%TMP['P'])
     if tno      ==  0:  umsg("user_load_spindle_nonran_tc tno=%d"%tno)
 
-    # save restore_pocket as pocket may have been altered by apply_db_rules()
     D = toolline_to_dict(tools[tno],all_letters)
-    if tno != p0tool: restore_pocket[tno] = D['P'] # avoid reset if redundant load
+
+    # save nonran_from_pocket as pocket may have been altered by apply_db_rules()
+    if tno != p0tool: nonran_from_pocket[tno] = D['P'] # avoid reset if redundant load
 
     if p0tool != -1:  # accrue time for prior tool:
         stop_tool_timer(p0tool)
-        RESTORE = toolline_to_dict(tools[p0tool],all_letters)
-        RESTORE['P'] = restore_pocket[p0tool]
-        tools[p0tool] = dict_to_toolline(RESTORE,all_letters)
+        nonran_restore_pocket(p0tool)
 
     p0tool = tno
     D['T'] = str(tno)
@@ -501,7 +508,7 @@ def user_load_spindle_nonran_tc(tno,params):
 def user_unload_spindle_nonran_tc(tno,params):
     global p0tool
     #msg("user_unload_spindle_nonran_tc p0tool=%d restore=%s'u %s'"%
-    #    (p0tool,restore_pocket,params))
+    #    (p0tool,nonran_from_pocket,params))
     check_params(tno,params)
 
     if p0tool == -1: return # ignore
@@ -510,17 +517,14 @@ def user_unload_spindle_nonran_tc(tno,params):
     if TMP['P']  != "0": umsg("user_unload_spindle_nonran_tc P=%s"%TMP['P'])
 
     stop_tool_timer(p0tool)
-    D = toolline_to_dict(tools[p0tool],all_letters)
-    D['T'] = str(p0tool)
-    D['P'] = restore_pocket[p0tool]
-    tools[p0tool] = dict_to_toolline(D,all_letters)
-
+    nonran_restore_pocket(p0tool)
     p0tool = -1
+
     save_tools_to_file(db_savefile,"tno:%3d (unload from spindle)(empty)"%tno)
 
 def user_load_spindle_ran_tc(tno,params):
     global p0tool
-    #msg("user_load_spindle_ran_tc   'l %s'"%params)
+    #msg("user_load_spindle_ran_tc   'l %s' (p0tool=%d)"%(params,p0tool))
     check_params(tno,params)
 
     D   = toolline_to_dict(tools[tno],all_letters)
@@ -537,26 +541,24 @@ def user_load_spindle_ran_tc(tno,params):
     tools[tno] = dict_to_toolline(D,all_letters)
 
     pno = int(D['P'])
-    msg = "tno:%3d --> pno:%3d (  load to   spindle)"%(tno,pno)
+    txt = "tno:%3d --> pno:%3d (  load to   spindle)"%(tno,pno)
     if tno==0 and pno==0:
-        msg = "tno:%3d --> pno:%3d (  load t0   spindle)(empty)"%(tno,pno)
-    save_tools_to_file(db_savefile,msg)
+        txt = "tno:%3d --> pno:%3d (  load t0   spindle)(empty)"%(tno,pno)
+    save_tools_to_file(db_savefile,txt)
 
 def user_unload_spindle_ran_tc(tno,params):
     global p0tool
-    #msg("user_unload_spindle_ran_tc 'u %s'"%params)
+    #msg("user_unload_spindle_ran_tc 'u %s' (p0tool=%d)"%(params,p0tool))
     check_params(tno,params)
     TMP = toolline_to_dict(params,['T','P'])
     if p0tool == -1:
+        if tno != 0:
+            umsg("user_unload_spindle_ran_tc p0tool=%d tno=%d"%(p0tool,tno))
         D = dict()
         D['T'] = TMP['T']
         D['P'] = TMP['P']
         tools[0] = dict_to_toolline(D,['T','P'])
-        #msg("user_unload_spindle_ran_tc: ignoring for no p0tool")
-        pass
     else:
-        if p0tool == 0:
-            pass
         stop_tool_timer(p0tool)
         D = toolline_to_dict(tools[p0tool],all_letters)
         D['T'] = TMP['T']
@@ -565,10 +567,10 @@ def user_unload_spindle_ran_tc(tno,params):
         p0tool = -1
 
     pno = int(D['P'])
-    msg="tno:%3d --> pno:%3d (unload from spindle)"%(tno,pno)
+    txt="tno:%3d --> pno:%3d (unload from spindle)"%(tno,pno)
     if tno==0:
-        msg="tno:%3d --> pno:%3d (unload from spindle)(notool)"%(tno,pno)
-    save_tools_to_file(db_savefile,msg)
+        txt="tno:%3d --> pno:%3d (unload from spindle)(notool)"%(tno,pno)
+    save_tools_to_file(db_savefile,txt)
 
 #-----------------------------------------------------------
 # begin interface to LinuxCNC

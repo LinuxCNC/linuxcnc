@@ -26,6 +26,7 @@ param rw float pt "Delay time in seconds";
 
 function _ fp "Update the timer";
 license "GPL";
+author "Chad Woitas";
 ;;
 FUNCTION(_) {
         if(pt < 0) {

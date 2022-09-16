@@ -11,7 +11,7 @@
 :ngc: {basebackend@docbook:'':ngc}
 
 This chapter covers important user concepts that should be understood
-before attempting to run a CNC machine with g code.
+before attempting to run a CNC machine with G-code.
 
 [[sec:trajectory-control]]
 == Trajectory Control(((Trajectory Control)))
@@ -37,24 +37,24 @@ stop again. Sometimes part of the move is done at F10, but for many
 moves, especially short ones, the specified feed rate is never reached
 at all. Having short moves in your G-code can cause your machine to
 slow down and speed up for the longer moves if the 'naive cam detector'
-is not employed with G64 Pn.
+is not employed with G64 P__n__.
 
 The basic acceleration and deceleration described above is not complex
 and there is no compromise to be made. In the INI file the specified
 machine constraints such as maximum axis velocity and axis acceleration
 must be obeyed by the trajectory planner.
 
-For more information on the Trajectory Panner ini options see the
+For more information on the Trajectory Planner INI options see the
 <<sub:ini:sec:traj,Trajectory Section>> in the INI chapter.
 
 [[sub:path-following]]
 === Path Following(((Trajectory Planning:Path Following)))
 
 A less straightforward problem is that of path following. When you
-program a corner in G Code, the trajectory planner can do several
+program a corner in G-code, the trajectory planner can do several
 things, all of which are right in some cases:
 
-* it can decelerate to a stop exactly at the coordinates of the corner,
+* It can decelerate to a stop exactly at the coordinates of the corner,
   and then accelerate in the new direction.
 * It can also do what is called blending,
   which is to keep the feed rate up while going through the corner,
@@ -103,8 +103,8 @@ The trajectory control commands are as follows:
   following compromise. The blend tolerance can be changed throughout the
   program as necessary. Beware that a specification of G64 P0 has the
   same effect as G64 alone (above), which is necessary for backward
-  compatibility for old G Code programs. See the <<gcode:g64,G64 section>>
-  of the G code chapter.
+  compatibility for old G-code programs. See the <<gcode:g64,G64 section>>
+  of the G-code chapter.
 
 Blending without tolerance:: The controlled point will touch each specified
   movement at at least one point. The machine will never move at such a speed

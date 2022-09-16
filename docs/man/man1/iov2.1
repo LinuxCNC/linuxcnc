@@ -33,7 +33,7 @@ iov2 \- interacts with HAL or G-code in userspace
 
 .SH DESCRIPTION
 
-I/O control handles I/O tasks like coolant, toolchange, e-stop and lube. The signals are turned on and off in userspace with G-code or in the case of e-stop in hal. 
+I/O control handles I/O tasks like coolant, toolchange, E-stop and lube. The signals are turned on and off in userspace with G-code or in the case of E-stop in HAL. 
 .br
 I/O Control V2 (iov2) adds more toolchager support for communication with the toolchanger.
 
@@ -108,10 +108,12 @@ mechanism) of the tool requested by the most recent T-word.
 (BIT,OUT) Signals emc\-originated abort to toolchanger.
 .TP
 \fBiocontrol.0.emc\-abort\-ack
-(BIT,IN) Acknowledge line from toolchanger for previous signal, or jumpered to abort\-tool\-change if not used in toolchanger. NB: after signaling an emc\-abort, iov2 will block until emc\-abort\-ack is raised. 
+(BIT,IN) Acknowledge line from toolchanger for previous signal, or jumpered to abort\-tool\-change if not used in toolchanger.
+NB: after signaling an emc\-abort, iov2 will block until emc\-abort\-ack is raised. 
 .TP
 \fBiocontrol.0.emc\-reason
-(S32,OUT) Convey cause for EMC\-originated abort to toolchanger. Usage: UI informational. Valid during emc\-abort True. 
+(S32,OUT) Convey cause for EMC\-originated abort to toolchanger.
+Usage: UI informational. Valid during emc\-abort True. 
 .TP
 \fBiocontrol.0.start\-change
 (BIT,OUT) Asserted at the very beginning of an M6 operation, before any spindle\-off, quill\-up, or move\-to\-toolchange\-position oeprations are executed.
@@ -120,19 +122,25 @@ mechanism) of the tool requested by the most recent T-word.
 (BIT,IN) Acknowledgment line for start\-change.
 .TP
 \fBiocontrol.0.toolchanger\-fault
-(BIT,IN) Toolchanger signals fault. This line is contionuously monitored. A fault toggles a flag in iocontrol which is reflected in the toolchanger\-faulted pin.
+(BIT,IN) Toolchanger signals fault.
+This line is contionuously monitored.
+A fault toggles a flag in iocontrol which is reflected in the toolchanger\-faulted pin.
 .TP
 \fBiocontrol.0.toolchanger\-fault\-ack
-(BIT,OUT) Handshake line for above signal. will be set by iov2 after above fault line True is recognized and deasserted when toolchanger\-fault drops. Toolchanger is free to interpret the ack; reading the \-ack lines assures fault has been received and acted upon.
+(BIT,OUT) Handshake line for above signal.
+Will be set by iov2 after above fault line True is recognized and deasserted when toolchanger\-fault drops.
+Toolchanger is free to interpret the ack; reading the \-ack lines assures fault has been received and acted upon.
 .TP
 \fBiocontrol.0.toolchanger\-reason
 (S32,IN) Convey reason code for toolchanger\-originated fault to iov2. Usage
 .TP
 \fBiocontrol.0.toolchanger\-faulted
-(BIT,OUT) Signals toolchanger\-notify line has toggled and toolchanger\-reason\-code was in the fault range. Next M6 will abort.
+(BIT,OUT) Signals toolchanger\-notify line has toggled and toolchanger\-reason\-code was in the fault range.
+Next M6 will abort.
 .TP
 \fBiocontrol.0.toolchanger\-clear\-fault
-(BIT,IN) Resets TC fault condition. Deasserts toolchanger\-faulted if toolchanger\-notify is line False. Usage. UI \- e.g. clear fault condition button.
+(BIT,IN) Resets TC fault condition. Deasserts toolchanger\-faulted if toolchanger\-notify is line False.
+Usage: UI \- e.g. clear fault condition button.
 .TP
 \fBiocontrol.0.state
 (S32,OUT) Debugging pin reflecting internal state.

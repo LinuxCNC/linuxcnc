@@ -7,7 +7,7 @@ linuxcncrsh [OPTIONS] [\-\- LINUXCNC_OPTIONS]
 .br
 .SH DESCRIPTION
 \fBlinuxcncrsh\fP is a user interface for LinuxCNC.  Instead of popping up a GUI
-window like axis(1) and touchy(1) do, it processes text-mode commands
+window like AXIS(1) and Touchy(1) do, it processes text-mode commands
 that it receives via the network.  A human (or a program) can interface
 with \fBlinuxcncrsh\fP using telnet(1) or nc(1) or similar programs.
 .P
@@ -58,13 +58,13 @@ special LINUXCNC_OPTION at the end:
 .B
 \-ini LINUXCNC_INI_FILE
 .RS
-LinuxCNC .ini file to use.  The \-ini option \fBmust\fP be preceded by two
+LinuxCNC INI file to use.  The \-ini option \fBmust\fP be preceded by two
 dashes: "\-\-".  Defaults to emc.ini if omitted.
 .RE
 .SH Starting linuxcncrsh
 .P
-To use linuxcncrsh instead of a normal LinuxCNC GUI like axis or touch, specify
-it in your .ini file like this:
+To use linuxcncrsh instead of a normal LinuxCNC GUI like AXIS or Touchy, specify
+it in your INI file like this:
 .RS
 .P
 .B [DISPLAY]
@@ -73,9 +73,9 @@ it in your .ini file like this:
 .RE
 .P
 To use linuxcncrsh in addition to a normal GUI, you can either start it
-at the end of your .hal file, or run it by hand in a terminal window.
+at the end of your HAL file, or run it by hand in a terminal window.
 .P
-To start it from hal, add a line like this to the end of your .hal file:
+To start it from hal, add a line like this to the end of your HAL file:
 .RS
 .P
 .B loadusr linuxcncrsh [OPTIONS] [\-\- LINUXCNC_OPTIONS]
@@ -234,7 +234,7 @@ With get, returns the string "Linux".
 \fBini <var> <section>\fR
 .RS
 Not currently implemented, do not use!  Should return the string value
-of <var> in section <section> of the ini file.
+of <var> in section <section> of the INI file.
 .RE
 .P
 \fBdebug <value>\fR
@@ -301,7 +301,7 @@ starting time depends on the platform.
 \fBestop {on|off}\fR
 .RS
 With get, ignores any parameters and returns the current estop setting
-as "on" or "off".  With set, sets the estop as specified.  Estop "on"
+as "on" or "off".  With set, sets the estop as specified.  E-stop "on"
 means the machine is in the estop state and won't run.
 .RE
 .P
@@ -489,7 +489,7 @@ With set, initializes the program interpreter.
 .RS
 With set, opens the named file.  The <filename> is opened by linuxcnc,
 so it should either be an absolute path or a relative path starting in
-the linuxcnc working directory (the directory of the active .ini file).
+the LinuxCNC working directory (the directory of the active INI file).
 .RE
 .P
 \fBrun [<StartLine>]\fR
@@ -674,7 +674,7 @@ Bold items are typed by you, non-bold is machine output.  Default values  are sh
 .P
 The user connects to linuxcncrsh, handshakes with the server (hello), enables
 machine commanding from this session (set enable), brings the machine
-out of estop (set estop off) and turns it on (set machine on), homes all
+out of E-stop (set estop off) and turns it on (set machine on), homes all
 the axes, switches the machine to mdi mode, sends an MDI G-code command,
 then disconnects and shuts down LinuxCNC.
 .P

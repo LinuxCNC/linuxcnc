@@ -4,6 +4,7 @@ pin in bit hold;
 pin out s32 out;
 function _ nofp;
 license "GPL";
+author "Stephen Wille Padnos";
 ;;
 FUNCTION(_) { 
 	if (!hold) {

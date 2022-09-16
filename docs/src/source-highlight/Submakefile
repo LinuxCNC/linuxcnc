@@ -1,21 +1,21 @@
-# the source-highlight language defs and lang.map dir
+# The source-highlight language defs and lang.map dir
 HL_DIR=/usr/share/source-highlight
 
 LOC_HL_DIR=../docs/src/source-highlight
 LOC_LANG_MAP=$(LOC_HL_DIR)/local/lang.map
 
-# languages for which we provide our own .lang files
-# this includes overriding languages listed in HL_DIR
+# Languages for which we provide our own .lang files.
+# This includes overriding languages listed in HL_DIR.
 EMCLANGS=$(wildcard $(LOC_HL_DIR)/*.lang)
 
-# grep arg to suppress user defined langs already in lang.map
+# Grep arg to suppress user defined langs already in lang.map
 GREPARG= $(patsubst %, -e %,$(EMCLANGS))
 
-# examples
+# Examples
 SOURCE_HIGHLIGHT_PDF_TARGETS := $(patsubst %.adoc, %.pdf, $(wildcard $(LOC_HL_DIR)/*.txt))
 SOURCE_HIGHLIGHT_HTML_TARGETS := $(patsubst %.adoc, %.html ,$(wildcard $(LOC_HL_DIR)/*.txt))
 
-# tests with HTML output without going through asciidoc
+# Tests with HTML output without going through asciidoc
 TEST_SRCS := hal-test.hal ini-test.ini ngc-test.ngc
 TEST_TARGETS := hal-test.html ini-test.html ngc-test.html
 

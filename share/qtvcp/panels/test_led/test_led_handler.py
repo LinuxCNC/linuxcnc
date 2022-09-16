@@ -8,10 +8,12 @@ from PyQt5.QtWidgets import *
 from qtvcp.core import Status
 from qtvcp.widgets.hal_selectionbox import HALSelectionBox
 from qtvcp.widgets.led_widget import LED
+from qtvcp.lib.aux_program_loader import Aux_program_loader
 ###########################################
 # **** instantiate libraries section **** #
 ###########################################
 STATUS = Status()
+EXTPROG = Aux_program_loader()
 ###################################
 # **** HANDLER CLASS SECTION **** #
 ###################################
@@ -129,6 +131,11 @@ class HandlerClass:
         action.setDefaultWidget(cb)
         menu.addAction(action)
 
+        # Button option launch button
+        actionButton = QAction('Load Test Button',menu)
+        actionButton.triggered.connect(lambda w, b=(actionButton,led): self.actionTriggered('Button',b))
+        menu.addAction(actionButton)
+
         # button to add another LED toolbar
         actionAdd = QAction('Add LED',menu)
         actionAdd.triggered.connect(lambda b: self.actionTriggered('Add', None))
@@ -160,6 +167,9 @@ class HandlerClass:
             h = self.w.geometry().height() + 37
             self.w.setGeometry(x,y,w,h)
             self.w.setMinimumHeight(h)
+
+        elif widget == 'Button':
+            EXTPROG.load_test_button()
 
     def announceLEDText(self,ledstate,linetext,sound):
         # speak led label contents on state change, if checked

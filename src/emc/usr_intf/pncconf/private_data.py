@@ -937,7 +937,7 @@ class Private_Data:
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
         # TAB 2
         [S.STEPA,0],[S.STEPB,0],[S.STEPA,1],[S.STEPB,1],[S.STEPA,2],[S.STEPB,2],
-        [S.STEPA,3],[S.STEPB,3],[S.STEPA,4],[S.STEPB,4],[S.ENCA,0],[S.ENCB,0],[S.ENCI,0],
+        [S.STEPA,3],[S.STEPB,3],[S.STEPA,4],[S.STEPB,4],[S.ENCA,0],[S.ENCA,1],[S.ENCA,2],
         [S.RXDATA0,0],[S.TXDATA0,0],[S.TXEN0,0],[S.PWMP,0],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
         # TAB 3

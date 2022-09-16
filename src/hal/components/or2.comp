@@ -18,5 +18,6 @@ see_also """
 \\fBlogic\\fR(9)
 """;
 license "GPL";
+author "Jeff Epler";
 ;;
 FUNCTION(_) { out = in0 || in1; }

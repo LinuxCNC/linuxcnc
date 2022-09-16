@@ -10,6 +10,7 @@ import linuxcnc
 from qtvcp.core import Status, Action
 from qtvcp import logger
 LOG = logger.getLogger(__name__)
+
 ACTION = Action()
 STATUS = Status()
 
@@ -128,25 +129,14 @@ class ProbeRoutines():
             try:
                 # give a chance for the error message to get to stdin
                 time.sleep(.1)
-                error = line = False
-                # no blocking if no error to read
-                while sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
-                    line = sys.stdin.readline()
-                if line:
-                    cmd = line.rstrip().split(' ')
-                    error = bool(cmd[0] =='_ErroR_')
-                # check for abort state error
-                STATUS.stat.poll()
-                error = error or bool(STATUS.stat.state == 2)
+                error = STATUS.ERROR.poll()
+                if not error is None:
+                    LOG.error('MDI_COMMAND_WAIT Error channel: {}'.format(error))
+                    ACTION.ABORT()
+                    return -1
             except Exception as e:
                 sys.stdout.write("[ERROR] Command exception: {}\n".format(e))
                 sys.stdout.flush()
-                ACTION.ABORT()
-                return -1
-            if error:
-                if line is False:
-                    line = 'Aborted command'
-                LOG.error('MDI_COMMAND_WAIT Error channel: {}'.format(line))
                 ACTION.ABORT()
                 return -1
         return 0

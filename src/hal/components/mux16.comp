@@ -41,6 +41,7 @@ variable int lastnum;
 variable int running;
 function _;
 license "GPL";
+author "Chris S Morley";
 ;;
 FUNCTION(_) {
     int i,num = 0;

@@ -26,6 +26,7 @@ param rw bit open "If true, select values outside the range 0.0 to 1.0 give valu
 
 function _;
 license "GPL";
+author "Jeff Epler";
 
 ;;
 

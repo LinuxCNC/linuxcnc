@@ -28,7 +28,7 @@ image::images/mdro.png["MDRO Window",align="center"]
 == Getting Started
 
 If your configuration is not currently set up to use MDRO,
-you can change it by editing the .ini file. In the
+you can change it by editing the INI file. In the
 `[DISPLAY]` section, change the `DISPLAY =` line to read
 `DISPLAY = mdro`. MDRO defaults to XYZ for the axes but that can
 be changed.
@@ -84,8 +84,8 @@ show the data from the DRO scale connected to pin `mdro.axis.0`. The
 if the DRO supports them.
 
 The pins must be connected in the
-file specified in the `POSTGUI_HALFILE` entry of the .ini file when the
-program is started from a .ini file. They can be set directly after the
+file specified in the `POSTGUI_HALFILE` entry of the INI file when the
+program is started from an INI file. They can be set directly after the
 loadusr command if the program is started in a HAL file.
 
 == MDRO Window
@@ -93,16 +93,16 @@ loadusr command if the program is started in a HAL file.
 The MDRO window contains the following elements:
 
 * A row for each axis. Each row includes:
-** The name of the axis
-** The current value
-** A "z" button that zeros the value
-** A "1/2" button that halves the value
-** A entry field that can be used to set a user-defined value. This
+** the name of the axis,
+** the current value,
+** a "z" button that zeros the value,
+** a "1/2" button that halves the value,
+** a entry field that can be used to set a user-defined value. This
    field can be set from the keyboard or from the on-screen keypad.
-** A "I" button that starts an index operation (see below)
-* A keypad used to set values in the entry field via a mouse or
-  touchscreen.
-* Coordinate system selection buttons
+** A "I" button that starts an index operation (see below),
+* a keypad used to set values in the entry field via a mouse or
+  touchscreen,
+* coordinate system selection buttons:
 ** The "mcs" button selects the machine coordinate system. These are
    the raw values from the encoders connected to the `mdro.axis.n`
    pins.

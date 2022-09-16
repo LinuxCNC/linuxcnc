@@ -60,7 +60,7 @@ $ xhc\-hb04 [options]
 .TP
 \fB\-x\fR    wait for pendant detection before creating HAL pins.
 .TP
-\fB\-s n\fR  n is one of the following stepsize sequences
+\fB\-s \fI  n\fR  \fIn\fR is one of the following stepsize sequences
 .PP
       1: 1,10,100,1000 (default)
       2: 1,5,10,20
@@ -83,7 +83,7 @@ or for a RIP build:
 layout1 describes the 16 button pendant,
 layout2 describes the more common 18 button pendant.
 
-The button configuration file follows the same format as ini files
+The button configuration file follows the same format as INI files
 but should use a file suffix of .cfg.
 
 .nf
@@ -98,7 +98,7 @@ File format:
 XN is the code reported for a button press and button\-thenameN
 is the name to be assigned to the pin created for the button.
 
-.SH Hal Usage
+.SH HAL Usage
 Use the \-H option to specify HAL mode and other options as required:
 
 \fIloadusr \-W \fR \fBxhc\-hb04\fR \fI\-H [Options]\fR
@@ -165,12 +165,12 @@ selector switch is in the OFF position or when the pendant is sleeping.
 selector switch is in the [xyza] position and not sleeping.
 .TP
 (bit out) \fIxhc\-hb04.enable\-spindle\-override\fR True when the pendant
-rotary selector switch is in the Spindle position and not sleeping.
-(typically connect to: halui.spindle\-override\-count\-enable)
+rotary selector switch is in the Spindle position and not sleeping
+(typically connect to: halui.spindle\-override\-count\-enable).
 .TP
 (bit out) \fIxhc\-hb04.enable\-feed\-override\fR True when the pendant rotary
-selector switch is in the Feed position and not sleeping.
-(typically connect to: halui.feed\-override\-count\-enable)
+selector switch is in the feed position and not sleeping
+(typically connect to: halui.feed\-override\-count\-enable).
 .TP
 (bit out) \fIxhc\-hb04.connected\fR True when connection to the pendant
 is established over the USB interface.
@@ -184,15 +184,15 @@ as controlled by the stepsize\-up and/or stepsize\-down pins.
 .SH Output Pins (for jogging using axis.N.jog\-counts)
 .TP
 (s32 out) \fIxhc\-hb04.jog.counts\fR Number of counts of the wheel since
-start\-up (50 counts per wheel revolution).
-(typically connect to axis.N.jog\-counts (lowpass filtering may be helpful))
+start\-up (50 counts per wheel revolution)
+(typically connect to axis.N.jog\-counts (lowpass filtering may be helpful)).
 .TP
 (s32 out) \fIxhc\-hb04.jog.counts\-neg\fR The value of the
 xhc\-hb04.jog.counts multiplied by \-1.
 .TP
 (float out) \fIxhc\-hb04.jog.scale\fR  Value is the current stepsize
-multiplied by 0.001.
-(typically connect to axis.N.jog\-scale)
+multiplied by 0.001
+(typically connect to axis.N.jog\-scale).
 
 .SH Experimental: Pins for halui plus/minus jogging
 These pins provide some support for non\-trivkins, world mode jogging.
@@ -269,7 +269,7 @@ or for a RIP build:
 .PP
 These configurations use a distribution-provided script (xhc\-hb04.tcl)
 to configure the pendant and make necessary HAL connections according
-to a number of ini file settings.  The script uses an additional
+to a number of INI file settings.  The script uses an additional
 HAL component (xhc_hb04_util) to provide common functionality and
 includes support for a standard method for the start-pause button.
 .PP
@@ -307,6 +307,6 @@ script:
   halcmd show sig pendant:       (show all pendant signals)
 .fi
 
-.SH Author
+.SH AUTHOR
 Frederick Rible (frible@teaser.fr)
 

@@ -15,7 +15,6 @@
 
 import os
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtGui import QIcon
 from qtvcp.core import Status, Action, Info
 from qtvcp.qt_makegui import VCPWindow
 from qtvcp.lib.aux_program_loader import Aux_program_loader
@@ -360,7 +359,7 @@ class ToolBarActions():
         elif option == 'message_close':
             self.addMessageControlsClose(widget)
         else:
-            LOG.warning('Unrecogzied statusbar command: {}'.format(submenu))
+            LOG.warning('Unrecogzied statusbar command: {}'.format(option))
 
     #########################################################
     # Standard Actions
@@ -496,7 +495,7 @@ class ToolBarActions():
             WIDGETS.system_shutdown_request__()
             # make sure to close qtvcp/linuxcnc properly
             # screenoptions widget redirects the close function to add a prompt
-            # now we re-redirect to remove the prompt 
+            # now we re-redirect to remove the prompt
             WIDGETS.closeEvent = WIDGETS.originalCloseEvent_
             WIDGETS.close()
         else:

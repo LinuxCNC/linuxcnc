@@ -14,9 +14,7 @@
 # GNU General Public License for more details.
 ###############################################################################
 
-import hal
-
-from PyQt5.QtWidgets import QWidget, QToolButton, QMenu, QAction
+from PyQt5.QtWidgets import QToolButton, QMenu, QAction
 from PyQt5.QtCore import pyqtProperty
 from PyQt5.QtGui import QIcon
 

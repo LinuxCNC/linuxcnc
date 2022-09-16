@@ -4,6 +4,42 @@ linuxcnc (1:2.9.0~pre0) UNRELEASED; urgency=medium
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Fri, 12 Aug 2022 20:56:25 +0200
 
+linuxcnc (2.9.0~pre0+git20220906.02744cdef6-1) unstable; urgency=medium
+
+  * New upstream version 2.9.0~pre0+git20220906.02744cdef6
+  * Fix RPC linking (changed in glibc 2.34-1).
+  * Improve docs.
+  * QtVCP: add API function to remove keybinding.
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 06 Sep 2022 16:49:06 -0600
+
+linuxcnc (2.9.0~pre0+git20220905.b2e28a88c3-1) unstable; urgency=medium
+
+  * New upstream version 2.9.0~pre0+git20220905.b2e28a88c3
+    (Closes: #1019212).
+  * deadzone comp: fix a typo in a HAL pin name.
+  * Misc updates to QtVCP.
+  * Minor fixes to docs.
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Mon, 05 Sep 2022 17:38:14 -0600
+
+linuxcnc (2.9.0~pre0+git20220903.c8c4c539b1-1) unstable; urgency=medium
+
+  * New upstream version 2.9.0~pre0+git20220903.c8c4c539b1
+  * regenerate debian/* files using d/configure
+  * Update docs & translations.
+  * QtVCP fixes & improvements.
+  * Work around autopkgtest failure.
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sat, 03 Sep 2022 16:29:26 -0600
+
+linuxcnc (2.9.0~pre0+git20220827.f7d1c37ffd-1) unstable; urgency=medium
+
+  * Improved translation infrastructure.
+  * Misc bug fixes and new features.
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sat, 27 Aug 2022 17:50:53 -0600
+
 linuxcnc (2.9.0~pre0+git20220402.2500863908-4) unstable; urgency=medium
 
   * Team upload.

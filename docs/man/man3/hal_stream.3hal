@@ -67,7 +67,8 @@ Create the given stream, initializing the \fIstream\fR which is passed by
 reference.  It is an undiagnosed error if a stream has already been created with the same \fIkey\fR.
 
 .SS \fBhal_stream_destroy\fR
-Destroy the given stream.  It is an undiagnosed error if the stream is still attached by another component.  It is an undiagnosed error if the stream was attached with
+Destroy the given stream.  It is an undiagnosed error if the stream is still attached by another component.
+It is an undiagnosed error if the stream was attached with
 .B hal_stream_attach
 rather than created with
 .BR hal_stream_create .
@@ -83,7 +84,8 @@ typestring the stream was created with.  If the typestring argument is NULL,
 then any typestring is accepted.
 
 .SS \fBhal_stream_detach\fR
-Detach the given stream.  It is an undiagnosed error if the stream was created with
+Detach the given stream.
+It is an undiagnosed error if the stream was created with
 .B hal_stream_create
 rather than attached with
 .BR hal_stream_attach .
@@ -192,7 +194,7 @@ terminated in the case of a signal.
 In the source tree under
 .IR src/hal/components ,
 .BR sampler.c " and " streamer.c
-are realtime components that read and write hal streams.
+are realtime components that read and write HAL streams.
 
 .SH REALTIME CONSIDERATIONS
 .BR hal_stream_read ", " hal_stream_readable ", " hal_stream_write ", " hal_stream_writable ", " hal_stream_element_count ", " hal_tream_pin_type ", " hal_stream_depth ", " hal_stream_maxdepth ", " hal_stream_num_underruns ", " hal_stream_number_overruns

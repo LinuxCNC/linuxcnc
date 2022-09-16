@@ -365,7 +365,7 @@ controller. They are not synchronized with movement, and they will
 break blending.
 
 [NOTE]
-M62-65 will not function unless the appropriate motion.digital-out-nn pins are
+M62-65 will not function unless the appropriate motion.digital-out-_nn_ pins are
 connected in your HAL file to outputs.
 
 [[mcode:m66]]
@@ -411,8 +411,8 @@ when loading the motion controller. See the <<sec:motion,Motion>> section
 for more information.
 
 [NOTE]
-M66 will not function unless the appropriate motion.digital-in-nn pins or
-motion.analog-in-nn pins are connected in your HAL file to an input.
+M66 will not function unless the appropriate motion.digital-in-_nn_ pins or
+motion.analog-in-_nn_ pins are connected in your HAL file to an input.
 
 .Example HAL Connection
 ----
@@ -442,7 +442,7 @@ when loading the motion controller. See the <<sec:motion,Motion>> section for
 more information.
 
 [NOTE]
-M67 will not function unless the appropriate motion.analog-out-nn pins are
+M67 will not function unless the appropriate motion.analog-out-_nn_ pins are
 connected in your HAL file to outputs.
 
 [[mcode:m68]]
@@ -466,7 +466,7 @@ when loading the motion controller. See the <<sec:motion,Motion>> section for
 more information.
 
 [NOTE]
-M68 will not function unless the appropriate motion.analog-out-nn pins are
+M68 will not function unless the appropriate motion.analog-out-_nn_ pins are
 connected in your HAL file to outputs.
 
 [[mcode:m70]]

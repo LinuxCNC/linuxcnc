@@ -14,11 +14,10 @@
 # GNU General Public License for more details.
 ###############################################################################
 
-from PyQt5.QtWidgets import QLabel
 
 import hal
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from PyQt5.QtCore import pyqtSignal, pyqtProperty, pyqtSlot
+from PyQt5.QtCore import pyqtProperty, pyqtSlot
 from qtvcp.widgets.simple_widgets import ScaledLabel
 from qtvcp import logger
 
@@ -62,7 +61,7 @@ class HALLabel(ScaledLabel, _HalWidgetBase):
         self.setText(tmpl(data))
 
     # one can connect signals to this widget to
-    # feed an input that gets scaled by this widget. 
+    # feed an input that gets scaled by this widget.
     @pyqtSlot(float)
     @pyqtSlot(int)
     @pyqtSlot(bool)

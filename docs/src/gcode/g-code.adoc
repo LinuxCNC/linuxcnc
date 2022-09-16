@@ -56,12 +56,11 @@ as the 'L number', and so on for any other letter.
 == G-Code Quick Reference Table(((G-Code Table)))
 
 [width="75%",options="header",cols="2^,5<"]
-|====================================================================
+|===
 |Code                               |Description
 |<<gcode:g0,G0>>                    |Coordinated Motion at Rapid Rate
 |<<gcode:g1,G1>>                    |Coordinated Motion at Feed Rate
-|<<gcode:g2-g3,G2 G3>>              |Coordinated Helical Motion at Feed
-                                     Rate
+|<<gcode:g2-g3,G2 G3>>              |Coordinated Helical Motion at Feed Rate
 |<<gcode:g4,G4>>                    |Dwell
 |<<gcode:g5,G5>>                    |Cubic Spline
 |<<gcode:g5.1,G5.1>>                |Quadratic B-Spline
@@ -70,12 +69,10 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g8,G8>>                    |Radius Mode (lathe)
 |<<gcode:g10-l0,G10 L0>>            |Reload Tool Table Data
 |<<gcode:g10-l1,G10 L1>>            |Set Tool Table Entry
-|<<gcode:g10-l10,G10 L10>>          |Set Tool Table, Calculated,
-                                     Workpiece
+|<<gcode:g10-l10,G10 L10>>          |Set Tool Table, Calculated, Workpiece
 |<<gcode:g10-l11,G10 L11>>          |Set Tool Table, Calculated, Fixture
 |<<gcode:g10-l2,G10 L2>>            |Coordinate System Origin Setting
-|<<gcode:g10-l20,G10 L20>>          |Coordinate System Origin Setting
-                                     Calculated
+|<<gcode:g10-l20,G10 L20>>          |Coordinate System Origin Setting Calculated
 |<<gcode:g17-g19.1,G17 - G19.1>>    |Plane Select
 |<<gcode:g20-g21,G20 G21>>          |Set Units of Measure
 |<<gcode:g28-g28.1,G28 - G28.1>>    |Go to Predefined Position
@@ -86,8 +83,7 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g40,G40>>                  |Cancel Cutter Compensation
 |<<gcode:g41-g42,G41 G42>>          |Cutter Compensation
 |<<gcode:g41.1-g42.1,G41.1 G42.1>>  |Dynamic Cutter Compensation
-|<<gcode:g43,G43>>                  |Use Tool Length Offset from Tool
-                                     Table
+|<<gcode:g43,G43>>                  |Use Tool Length Offset from Tool Table
 |<<gcode:g43.1,G43.1>>              |Dynamic Tool Length Offset
 |<<gcode:g43.2,G43.2>>              |Apply additional Tool Length Offset
 |<<gcode:g49,G49>>                  |Cancel Tool Length Offset
@@ -96,8 +92,7 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g54-g59.3,G54-G59.3>>      |Select Coordinate System (1 - 9)
 |<<gcode:g61,G61>>                  |Exact Path Mode
 |<<gcode:g61.1,G61.1>>              |Exact Stop Mode
-|<<gcode:g64,G64>>                  |Path Control Mode with Optional
-                                     Tolerance
+|<<gcode:g64,G64>>                  |Path Control Mode with Optional Tolerance
 |<<gcode:g70,G70>>                  |Lathe finishing cycle
 |<<gcode:g71-g72,G71-G72>>          |Lathe roughing cycle
 |<<gcode:g73,G73>>                  |Drilling Cycle with Chip Breaking
@@ -110,10 +105,8 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g84,G84>>                  |Right-hand Tapping Cycle with Dwell
 |<<gcode:g85,G85>>                  |Boring Cycle, No Dwell, Feed Out
 |<<gcode:g86,G86>>                  |Boring Cycle, Stop, Rapid Out
-|<<gcode:g87,G87>>                  |Back-borring Cycle'(not yet
-                                     implemented)'
-|<<gcode:g88,G88>>                  |Boring Cycle, Stop, Manual Out
-                                     '(not yet implemented)'
+|<<gcode:g87,G87>>                  |Back-boring Cycle '(not yet implemented)'
+|<<gcode:g88,G88>>                  |Boring Cycle, Stop, Manual Out '(not yet implemented)'
 |<<gcode:g89,G89>>                  |Boring Cycle, Dwell, Feed Out
 |<<gcode:g90-g91,G90 G91>>          |Distance Mode
 |<<gcode:g90.1-g91.1,G90.1 G91.1>>  |Arc Distance Mode
@@ -122,10 +115,9 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g92.3,G92.3>>              |Restore G92 Offsets
 |<<gcode:g93-g94-g95,G93 G94 G95>>  |Feed Modes
 |<<gcode:g96-g97,G96 G97>>          |Spindle Control Mode, Constant
-                                     Surface vs Rotation Speed (IPM or
-                                     m/min vs RPM)
+  Surface vs Rotation Speed (IPM or m/min vs RPM)
 |<<gcode:g98-g99,G98 G99>>          |Canned Cycle Z Retract Mode
-|====================================================================
+|===
 
 [[gcode:g0]]
 == G0 Rapid Move(((G0 Rapid Move)))

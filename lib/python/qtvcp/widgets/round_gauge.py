@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import sys
 import math
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt, QPoint, QPointF, QLine, QRect, QSize, QEvent, pyqtSlot, pyqtProperty
-from PyQt5.QtGui import QPainter, QBrush, QPen, QFont, QColor, QPixmap, QConicalGradient, QRadialGradient
+from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtCore import Qt, QPoint, QPointF, QLine, QRect, QSize, pyqtSlot, pyqtProperty
+from PyQt5.QtGui import QPainter, QBrush, QPen, QFont, QColor, QRadialGradient
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase, hal
 
 class Gauge(QtWidgets.QWidget, _HalWidgetBase):
@@ -59,14 +59,14 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
         self.draw_center(painter, event, w)
         self.draw_readout(painter, event, w)
         painter.end()
-        
+
     def draw_background(self, qp, event, w):
         w -= 6
         center = event.rect().center()
         rect = QRect()
         rect.setSize(QSize(w, w))
         rect.moveCenter(center)
-        fp = QPoint(center.x() - w/4, center.y() - w/4)
+        fp = QPoint(int(center.x() - w/4), int(center.y() - w/4))
         bg = QRadialGradient(center, w/2, fp)
         bg.setColorAt(0, QColor(180, 180, 180))
         bg.setColorAt(1, QColor(40, 40, 40))
@@ -282,13 +282,13 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
 
     def get_bezel_color(self):
         return self._bezel_color
-        
+
     def reset_bezel_color(self):
         self._bezel_color = QColor("gray")
 
     def sizeHint(self):
         return QtCore.QSize(200, 200)
-        
+
     def set_halpin_option(self, value):
         self._halpin_option = value
 
@@ -313,7 +313,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
     #############################
 if __name__ == "__main__":
     import sys
-    from PyQt5.QtWidgets import QSlider, QWidget, QPushButton, QVBoxLayout, QApplication
+    from PyQt5.QtWidgets import QSlider, QWidget, QVBoxLayout
     app = QtWidgets.QApplication(sys.argv)
     w = QWidget()
     w.setGeometry(100, 100, 400, 400)

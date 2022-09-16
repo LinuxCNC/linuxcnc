@@ -18,7 +18,7 @@
 import sys
 import os
 import json
-from PyQt5.QtCore import QProcess, QByteArray
+from PyQt5.QtCore import QProcess
 from PyQt5 import QtGui, QtWidgets, uic
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Action, Status, Info
@@ -104,7 +104,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         # define validators for all lineEdit widgets
         for i in self.parm_list:
             self['lineEdit_' + i].setValidator(self.valid)
-        
+
     def _hal_init(self):
         def homed_on_status():
             return (STATUS.machine_is_on() and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
@@ -163,7 +163,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.proc.readyReadStandardError.connect(self.read_stderror)
         self.proc.finished.connect(self.process_finished)
         self.proc.start('python3 {}'.format(SUBPROGRAM))
-            
+
     def start_probe(self, cmd):
         if self.proc is not None:
             LOG.info("Probe Routine processor is busy")
@@ -173,7 +173,8 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             return
         self.start_process()
         string_to_send = cmd + '$' + json.dumps(self.send_dict) + '\n'
-#        print("String to send ", string_to_send)
+        #print("String to send ", string_to_send)
+        STATUS.block_error_polling()
         self.proc.writeData(bytes(string_to_send, 'utf-8'))
 
     def process_started(self):
@@ -198,11 +199,14 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         if "INFO" in line:
             print(line)
         elif "ERROR" in line:
-            print(line)
+            #print(line)
+            STATUS.unblock_error_polling()
+            ACTION.SET_ERROR_MESSAGE('Basic Probe process finished  in error')
         elif "DEBUG" in line:
             print(line)
         elif "COMPLETE" in line:
-            LOG.info("Probing routine completed without errors")
+            STATUS.unblock_error_polling()
+            LOG.info("Basic Probing routine completed without errors")
             return_data = line.rstrip().split('$')
             data = json.loads(return_data[1])
             self.show_results(data)
@@ -285,7 +289,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.status_yp.setText('0')
         self.status_yc.setText('0')
         self.status_ly.setText('0')
-        
+
     def clear_all(self):
         self.clear_x()
         self.clear_y()
@@ -294,7 +298,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.status_delta.setText('0')
         self.status_a.setText('0')
 
-# Helper functions       
+# Helper functions
     def get_parms(self):
         self.send_dict = {key: self['lineEdit_' + key].text() for key in (self.parm_list)}
         for key in ['allow_auto_zero', 'allow_auto_skew', 'cal_avg_error', 'cal_x_error', 'cal_y_error']:

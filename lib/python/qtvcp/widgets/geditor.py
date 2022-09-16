@@ -28,13 +28,12 @@
 # https://qscintilla.com/simple-example/
 
 import sys
-import os
 
-from PyQt5.QtCore import pyqtProperty, pyqtSignal, QSize, QObject, QEvent, Qt, QByteArray, QVariant
-from PyQt5.QtGui import QFont, QFontMetrics, QColor, QIcon, QPalette
-from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QAction,\
-         QVBoxLayout,QToolBar,QGroupBox,QLineEdit, QHBoxLayout,QMessageBox, \
-            QFileDialog, QFrame, QLabel, QStyleOption
+from PyQt5.QtCore import pyqtProperty, pyqtSignal, QSize, QEvent, Qt, QByteArray, QVariant
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QMainWindow, QAction,\
+         QToolBar, QLineEdit, QHBoxLayout, QMessageBox, \
+            QFrame, QLabel
 
 from qtvcp.widgets.gcode_editor import GcodeDisplay
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -71,8 +70,8 @@ class GEditor(QMainWindow, _HalWidgetBase):
 
         self.isCaseSensitive = 0
 
-        self.setMinimumSize(QSize(300, 200))    
-        self.setWindowTitle("PyQt5 editor test example") 
+        self.setMinimumSize(QSize(300, 200))
+        self.setWindowTitle("PyQt5 editor test example")
 
         # make editor
         self.editor = GcodeDisplay(self)
@@ -140,7 +139,7 @@ class GEditor(QMainWindow, _HalWidgetBase):
 
     def createActions(self):
         # Create new action
-        self.newAction = QAction(QIcon.fromTheme('document-new'), 'New', self)       
+        self.newAction = QAction(QIcon.fromTheme('document-new'), 'New', self)
         self.newAction.setShortcut('Ctrl+N')
         self.newAction.setStatusTip('New document')
         self.newAction.triggered.connect(self.newCall)
@@ -216,7 +215,7 @@ class GEditor(QMainWindow, _HalWidgetBase):
         self.caseAction = QAction(QIcon.fromTheme('edit-case'), 'Aa', self)
         self.caseAction.setToolTip('Toggle Match Case')
         self.caseAction.setStatusTip('Toggle between any case and match case')
-        self.caseAction.setCheckable(1)      
+        self.caseAction.setCheckable(1)
         self.caseAction.triggered.connect(self.caseCall)
 
     # catch focusIn event to pop keyboard dialog

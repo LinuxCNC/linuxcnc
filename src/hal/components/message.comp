@@ -74,6 +74,7 @@ option extra_setup yes;
  
 function _ nofp "Display a message";
 license "GPL v2";
+author "Les Newell";
 ;;
  
 char *messages[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};

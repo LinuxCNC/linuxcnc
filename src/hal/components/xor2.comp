@@ -22,6 +22,7 @@ see_also """
 \\fBor2\\fR(9).
 """;
 license "GPL";
+author "John Kasunich";
 ;;
 FUNCTION(_) {
     if (( in0 && !in1 ) || ( in1 && !in0 )) {

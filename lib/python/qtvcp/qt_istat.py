@@ -130,11 +130,13 @@ class _IStat(object):
             # first check the global settings
             units = self.INI.find("TRAJ", "LINEAR_UNITS")
             if units is None:
-                log.critical('Missing LINEAR_UNITS in TRAJ, guessing units for machine from JOINT 0')
+                if self.LINUXCNC_IS_RUNNING:
+                    log.critical('Missing LINEAR_UNITS in TRAJ, guessing units for machine from JOINT 0')
                 # else then guess; The joint 0 is usually X axis
                 units = self.INI.find("JOINT_0", "UNITS")
                 if units is None:
-                    log.critical('Missing UNITS in JOINT_0, assuming metric based machine')
+                    if self.LINUXCNC_IS_RUNNING:
+                        log.critical('Missing UNITS in JOINT_0, assuming metric based machine')
                     units = 'metric'
         except:
             units = "metric"
@@ -361,7 +363,8 @@ class _IStat(object):
 
         self.MAX_FEED_OVERRIDE = float(self.get_error_safe_setting("DISPLAY", "MAX_FEED_OVERRIDE", 1.5)) * 100
         if self.INI.find("TRAJ", "MAX_LINEAR_VELOCITY") is None:
-            log.critical('INI Parsing Error, No MAX_LINEAR_VELOCITY Entry in TRAJ')
+            if self.LINUXCNC_IS_RUNNING:
+                log.critical('INI Parsing Error, No MAX_LINEAR_VELOCITY Entry in TRAJ')
         self.MAX_TRAJ_VELOCITY = float(self.get_error_safe_setting("TRAJ", "MAX_LINEAR_VELOCITY",
                                             self.get_error_safe_setting("AXIS_X", "MAX_VELOCITY", 5))) * 60
 
@@ -423,12 +426,10 @@ class _IStat(object):
         self.NATIVE_EMBED = []
         if self.TAB_CMDS is not None:
             for i in self.TAB_CMDS:
-                print(i)
                 if i.split()[0].lower() == 'qtvcp':
                     self.NATIVE_EMBED.append(True)
                 else:
                     self.NATIVE_EMBED.append(False)
-            print   (self.NATIVE_EMBED)
         # users can specify a label for the MDI action button by adding ',Some\nText'
         # to the end of the MDI command
         # here we separate them to two lists

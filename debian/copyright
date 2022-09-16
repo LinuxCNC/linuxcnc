@@ -215,10 +215,9 @@ Files:
  src/emc/nml_intf/*
  src/emc/kinematics/*
  src/emc/motion/*
- src/emc/canterp/canterp.cc:* License: GPL Version 2
- src/emc/sai/driver.cc:* License: GPL Version 2
- src/emc/sai/saicanon.cc:* License: GPL Version 2
- src/emc/linuxcnc.h
+ src/emc/canterp/canterp.cc
+ src/emc/sai/driver.cc
+ src/emc/sai/saicanon.cc
  src/emc/usr_intf/*
  src/emc/tp/*
  src/emc/ini/*
@@ -235,12 +234,10 @@ Files:
  src/rtapi/rtai_ulapi.c
  src/hal/classicladder/README.txt
  src/hal/hal.h
- src/hal/hal_lib.c
- src/hal/hal_priv.h
  src/hal/utils/bitfile.c
  src/hal/utils/bitfile.h
  src/hal/utils/halcmd.c
- src/hal/utils/halcmd_commands.c
+ src/hal/utils/halcmd_commands.cc
  src/hal/utils/halcmd_commands.h
  src/hal/utils/halcmd_completion.c
  src/hal/utils/halcmd_completion.h
@@ -352,7 +349,7 @@ Comment: The origin of this subtree is the Classic Ladder Project
  http://membres.lycos.fr/mavati/classicladder/ 
  http://www.sourceforge.net/projects/classicladder
 
-Files: qtvcp/screens/woodpecker/images/QTvcp Widgets_files/asciidoc.js
+Files: "share/qtvcp/screens/woodpecker/images/QTvcp Widgets_files/asciidoc.js"
 Copyright:      2002 Mihai Bazon
  modified by
                 2006 Troy D. Hanson
@@ -372,7 +369,9 @@ Copyright: The LinuxCNC developers derived this work from
 License: LGPL-2
 
 Files: src/libnml/inifile/*
-       src/libnml/nml/*
+       src/libnml/nml/nml_mod.cc
+       src/libnml/nml/nml_mod.hh
+       src/libnml/nml/nml_type.hh
        src/libnml/buffer/tcpmem.cc
        src/libnml/buffer/tcpmem.hh
        src/libnml/buffer/shmem.cc
@@ -382,7 +381,7 @@ Copyright: The LinuxCNC developers derived this work from
 License: GPL-2
 
 Files: 
- lib/python/gladevcp/iconview.py:    the original code is under the BSD license
+ lib/python/gladevcp/iconview.py
 Copyright: 2012 Norbert Schechner <nieson@web.de>
 Comment: based on a tutorial from ZetCode PyGTK tutorial
  the original code is under the BSD license

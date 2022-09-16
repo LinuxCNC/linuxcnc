@@ -7,7 +7,6 @@ from PyQt5.QtWidgets import (QApplication, QTabWidget, QStackedWidget,
 from PyQt5.QtCore import Qt, QProcess
 
 import linuxcnc
-import hal
 
 # Set up logging
 from . import logger
@@ -176,6 +175,9 @@ class _Lcnc_Action(object):
 
     def CALL_MDI(self, code):
         LOG.debug('CALL_MDI Command: {}'.format(code))
+        if STATUS.is_auto_running():
+            LOG.error('Can not run MDI command:{} when linuxcnc is running in auto mode'.format(code))
+            return -1
         self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi('%s' % code)
 
@@ -717,7 +719,8 @@ class _Lcnc_Action(object):
     def SET_ERROR_MESSAGE(self, msg):
         self.cmd.error_msg(msg)
 
-    def TOUCHPLATE_TOUCHOFF(self, search_vel, probe_vel, max_probe, z_offset):
+    def TOUCHPLATE_TOUCHOFF(self, search_vel, probe_vel, max_probe,
+            z_offset, retract_distance, z_safe_travel):
         if self.proc is not None:
             return 0
         self.proc = QProcess()
@@ -728,10 +731,14 @@ class _Lcnc_Action(object):
         self.proc.finished.connect(self.touchoff_finished)
         self.proc.start('python3 {}'.format(TOUCHPLATE_SUBPROGRAM))
         # probe
-        string_to_send = "probe_down${}${}${}${}\n".format(str(search_vel),
+        string_to_send = "touchoff${}${}${}${}${}${}\n".format(str(search_vel),
                                         str(probe_vel),
                                         str(max_probe),
+                                        str(retract_distance),
+                                        str(z_safe_travel),
                                         str(z_offset))
+        #print(string_to_send)
+        STATUS.block_error_polling()
         self.proc.writeData(bytes(string_to_send, 'utf-8'))
         return 1
 
@@ -902,11 +909,13 @@ class _Lcnc_Action(object):
     def parse_line(self, line):
         line = line.decode("utf-8")
         if "COMPLETE" in line:
+            STATUS.unblock_error_polling()
             self.SET_DISPLAY_MESSAGE("Touchplate touchoff routine returned successfully")
         elif "DEBUG" in line: # must set DEBUG level on LOG in top of this file
             LOG.debug(line[line.find('DEBUG')+6:])
         # This also gets error text sent from logging of ACTION library in the subprogram
         elif "ERROR" in line:
+            STATUS.unblock_error_polling()
             # remove preceding text
             s = line[line.find('ERROR')+6:]
             s = s[s.find(']')+1:]
@@ -972,7 +981,7 @@ class Progress:
 ###########################################
 # Filter Class
 ########################################################################
-import os, sys, time, select, re
+import os, sys, select, re
 import tempfile, atexit, shutil
 
 # slightly reworked code from gladevcp

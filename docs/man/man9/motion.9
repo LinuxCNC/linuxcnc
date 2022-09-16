@@ -44,9 +44,9 @@ These pins and parameters are created by the realtime \fBmotmod\fR module. This 
 The optional \fBnum_extrajoints\fR parameter specifies a quantity of joints
 that participate in homing but are not used by kinematics transformations.
 After homing, control of an 'extra' joint is transferred to a posthome command
-hal pin (joint.N.posthome-cmd) and the motor feedback value is ignored.  'Extra'
+HAL pin (joint.N.posthome-cmd) and the motor feedback value is ignored.  'Extra'
 joints must be managed by independent motion planners/controllers (typically
-using limit3 hal components).  Extra joints maybe unhomed only when motion is
+using limit3 HAL components).  Extra joints maybe unhomed only when motion is
 disabled.
 
 The maximum \fBnum_extrajoints\fR value is equal to the \fBnum_joints\fR value.
@@ -55,7 +55,7 @@ coordinates).  The \fBnum_joints\fR value must be equal to the sum of the
 number of joints used for kinematics calculations plus the number of 'extra'
 joints.
 
-The \fBnum_joints\fR parameter is conventionally set using the ini file
+The \fBnum_joints\fR parameter is conventionally set using the INI file
 setting \fB[KINS]JOINTS=\fRvalue.  The \fBnum_extrajoints\fR is set by
 the additional motmod parameter \fB[EMCMOT]motmod num_extrajoints=\fRvalue.
 Hal pin numbering for all joints is zero based [\fB0 ... num_joints-1\fR].
@@ -235,7 +235,7 @@ the commanded position).
 .TP
 \fBmotion.misc\-error\-\fINN\fR IN BIT
 Extra error inputs for faults such as over-temperature sensors, low coolant
-warnings, custom hal component errors. If driven TRUE this will disable a
+warnings, custom HAL component errors. If driven TRUE this will disable a
 machine. Similar to spindle.amp-fault-in
 
 .TP
@@ -333,7 +333,7 @@ to zero before restarting.
 
 .TP
 \fBaxis.\fIL\fB.eoffset-enable\fR IN BIT
-Enable for external offset (also requires ini file
+Enable for external offset (also requires INI file
 setting for [AXIS_L]OFFSET_AV_RATIO)
 
 .TP
@@ -346,7 +346,7 @@ Scale for external offset.
 
 .TP
 \fBaxis.\fIL\fB.jog\-accel\-fraction\fR IN FLOAT
-Sets acceleration for wheel jogging to a fraction of the ini max_acceleration for
+Sets acceleration for wheel jogging to a fraction of the INI max_acceleration for
 the axis. Values greater than 1 or less than zero are ignored.
 
 .TP
@@ -491,7 +491,7 @@ Indicates joint is unlocked (see JOINT UNLOCK PINS).
 
 .TP
 \fBjoint.\fIN\fB.jog\-accel\-fraction\fR IN FLOAT
-Sets acceleration for wheel jogging to a fraction of the ini max_acceleration for
+Sets acceleration for wheel jogging to a fraction of the INI max_acceleration for
 the joint.  Values greater than 1 or less than zero are ignored.
 
 .TP
@@ -563,7 +563,7 @@ The joint's commanded velocity
 \fBjoint.\fIN\fB.wheel\-jog\-active\fR OUT BIT \fB(DEBUG)\fR
 
 .SH JOINT posthome pins
-Each joint designated as an 'extra' joint is provided with a hal pin
+Each joint designated as an 'extra' joint is provided with a HAL pin
 \fBjoint.N.posthome-cmd\fR.  The pin value is ignored prior to homing.
 After homing, the pin value is augmented by the motor offset value
 and routed to the \fBjoint.N.motor-pos-cmd\fR.
@@ -630,7 +630,7 @@ If spindle\-orient\-fault is not zero during spindle\-orient true, the M19 comma
 
 .TP
 \fBspindle.M.orient\-angle\fR OUT FLOAT
-Desired spindle orientation for M19. Value of the M19 R word parameter plus the value of the [RS274NGC]ORIENT_OFFSET ini parameter.
+Desired spindle orientation for M19. Value of the M19 R word parameter plus the value of the [RS274NGC]ORIENT_OFFSET INI parameter.
 
 .TP
 \fBspindle.M.orient\-fault\fR IN S32

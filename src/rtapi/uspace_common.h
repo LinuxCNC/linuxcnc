@@ -80,8 +80,15 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
   shmem = &shmem_array[i];
 
   /* now get shared memory block from OS */
+  int shmget_retries = 5;
+shmget_again:
   shmem->id = shmget((key_t) key, (int) size, IPC_CREAT | 0600);
   if (shmem->id == -1) {
+      // See below for explanation of why retry against -EPERM here
+      if(shmget_retries-- && errno == -EPERM) {
+          sched_yield();
+          goto shmget_again;
+      }
     rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_shmem_new failed due to shmget(key=0x%08x): %s\n", key, strerror(errno));
     return -errno;
   }
@@ -91,6 +98,18 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
   if(res < 0) perror("shmctl IPC_STAT");
 
 #ifdef RTAPI
+  /* At present, setuid rtapi_app runs with geteuid() == 0 at all times but the
+   * fsuid is ruid except when WITH_ROOT when it's 0.
+   *
+   * Filesystem operations such as creat() respect the fsuid, but as shmget is
+   * not a filesystem operation, it does not respect the fsuid. So, if
+   * rtapi_app has created the segment in question, its owning uid is root.
+   * Changing the permission here is racy, but it is the best alternative
+   * currently available.
+   *
+   * The race causes a low probability (<1/1000 in testing in a VM) chance of
+   * linuxcnc/halrun to fail to start
+   */
   /* ensure the segment is owned by user, not root */
   if(geteuid() == 0) {
     stat.shm_perm.uid = ruid;
