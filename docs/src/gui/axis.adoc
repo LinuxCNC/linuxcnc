@@ -799,7 +799,7 @@ You can have multiple line of 'POSTGUI_HALFILE=<filename>' in the INI.
 Each will be run one after the other in the order they appear.
 
 For more information on the INI file settings that can change the way AXIS
-works, see the << sub:ini:sec:display,Display Section>> of the INI configuration chapter.
+works, see the <<sub:ini:sec:display,Display Section>> of the INI configuration chapter.
 
 === Program Filters
 

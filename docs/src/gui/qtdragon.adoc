@@ -10,7 +10,7 @@
 
 == Introduction
 
-QtDragon and QtDragon_hd are built with the QTVCP framework.
+QtDragon and QtDragon_hd are built with the QtVCP framework.
 It is the creative vision of forum personality Persei8.
 Much of it is based on the excellent work of others in the LinuxCNC community.
 LinuxCNC's version is adapted from Persei8's Github versions.
@@ -30,7 +30,7 @@ dangerous machine. Please forward reports to the forum or maillist.
 === QtDragon
 
 .QtDragon - 3 or 4 Axes Sample (1440x860) in silver theme
-image::images/silverdragon.png["QTDragon Router",scale="25%"]
+image::images/silverdragon.png["QtDragon Router",scale="25%"]
 
 QtDragon has a resolution of 1440x900 and is not resizable. +
 It will work in window mode on any monitor with higher resolution but not
@@ -39,7 +39,7 @@ on monitors with lower resolution.
 === QtDragon_hd
 
 .QtDragon_hd - 3 or 4 Axis Sample for larger monitors (1920x1056) in dark theme
-image::images/qtdragon_hd.png["QTDragon_hd",scale="25%"]
+image::images/qtdragon_hd.png["QtDragon_hd",scale="25%"]
 
 QtDragon_hd is a similar design as QtDragon but modified to utilize the extra
 space of modern larger monitors. +
@@ -162,7 +162,7 @@ MESSAGE_PINNAME = oktest
 
 === Embed Custom VCP Panels
 
-You can embed QTVCP Virtual Control Panels into the QtDragon or QtDragon_hd screen. +
+You can embed QtVCP Virtual Control Panels into the QtDragon or QtDragon_hd screen. +
 These panels can be either user built or builtin <<cha:qtvcp-vcp-panels,QtVCP Panels>>. +
 The TAB_NAME entry will used as the title for the new tab. + 
 Tab TAB_LOCATION options include: 'tabWidget_utilities' and 'tabWidget_setup' +
@@ -507,7 +507,7 @@ button.
 === Using G-code Ripper for Z level Compensation
 
 .QtDragon_hd showing G-code Ripper
-image::images/qtdragon_hd_gcoderipper.png["QTDragon G-code Ripper"]
+image::images/qtdragon_hd_gcoderipper.png["QtDragon G-code Ripper"]
 
 [NOTE]
 G-code Ripper offers many functions that we will not go in to here.
@@ -786,7 +786,7 @@ REMAP=M6  modalgroup=6 prolog=change_prolog ngc=qt_auto_probe_tool epilog=change
 The position of the tool sensor and the start position of the probing movement,
 all values are absolute (G53) coordinates, except MAXPROBE, what must be given
 in relative movement.
-All values are in machine native units
+All values are in machine native units.
 
 [source,{ini}]
 ----

@@ -31,7 +31,7 @@ man halcmd
 ----
 
 The <<cha:hal-tutorial,HAL Tutorial>> has a number of examples of halcmd
-usage, and is a good tutorial for halcmd.
+usage, and is a good tutorial for `halcmd`.
 
 [[sec:halmeter]]
 == Halmeter(((Halmeter)))

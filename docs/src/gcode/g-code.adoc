@@ -105,8 +105,8 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g84,G84>>                  |Right-hand Tapping Cycle with Dwell
 |<<gcode:g85,G85>>                  |Boring Cycle, No Dwell, Feed Out
 |<<gcode:g86,G86>>                  |Boring Cycle, Stop, Rapid Out
-|<<gcode:g87,G87>>                  |Back-boring Cycle '(not yet implemented)'
-|<<gcode:g88,G88>>                  |Boring Cycle, Stop, Manual Out '(not yet implemented)'
+|<<gcode:g87,G87>>                  |Back-boring Cycle _(not yet implemented)_
+|<<gcode:g88,G88>>                  |Boring Cycle, Stop, Manual Out _(not yet implemented)_
 |<<gcode:g89,G89>>                  |Boring Cycle, Dwell, Feed Out
 |<<gcode:g90-g91,G90 G91>>          |Distance Mode
 |<<gcode:g90.1-g91.1,G90.1 G91.1>>  |Arc Distance Mode
@@ -114,8 +114,7 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g92.1-g92.2,G92.1 G92.2>>  |Cancel G92 Offsets
 |<<gcode:g92.3,G92.3>>              |Restore G92 Offsets
 |<<gcode:g93-g94-g95,G93 G94 G95>>  |Feed Modes
-|<<gcode:g96-g97,G96 G97>>          |Spindle Control Mode, Constant
-  Surface vs Rotation Speed (IPM or m/min vs RPM)
+|<<gcode:g96-g97,G96 G97>>          |Spindle Control Mode, Constant Surface vs Rotation Speed (IPM or m/min vs RPM)
 |<<gcode:g98-g99,G98 G99>>          |Canned Cycle Z Retract Mode
 |===
 

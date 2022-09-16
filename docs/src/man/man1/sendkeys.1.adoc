@@ -33,17 +33,23 @@ which is not available by default. To give access:
 
 Create the uinput group and add the LinuxCNC user to it:
 
-    sudo groupadd -f uinput
-    sudo gpasswd -a username uinput
+----
+sudo groupadd -f uinput
+sudo gpasswd -a username uinput
+----
 
 Create a new entry in .B/etc/udev/rules.d/99-input.rules
 
-    sudo echo KERNEL=="uinput", GROUP="uinput", MODE:="0660" | sudo tee /etc/udev/rules.d/88-input.rules
+----
+sudo echo KERNEL=="uinput", GROUP="uinput", MODE:="0660" | sudo tee /etc/udev/rules.d/88-input.rules
+----
 
 Then reboot the machine. You can test that is has worked:
 
-    ls -l /dev/uinput
-    crw-rw---- 1 root uinput 10, 223 Nov 11 15:35 /dev/uinput
+----
+ls -l /dev/uinput
+crw-rw---- 1 root uinput 10, 223 Nov 11 15:35 /dev/uinput
+----
 
 It is possible to link the 7i73 codes to both the matrix_kb comp and
 this comp, so that some codes operate HAL pins and some send
@@ -61,7 +67,9 @@ pins).
 Then edit the HAL file to assign a key event to each scancode. For
 example:
 
-  setp sendkeys.0.scan-event-21 34
+----
+setp sendkeys.0.scan-event-21 34
+----
 
 To set a button to type the letter "G" The key events related to each
 physical key need to be set up prior to the component activating, but

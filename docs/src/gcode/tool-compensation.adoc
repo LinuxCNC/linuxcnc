@@ -197,7 +197,7 @@ type of toolchanger specified by *[EMCIO]RANDOM_TOOLCHANGER=type*.
   toolchanger) idx is a number indicating the sequence in which tooldata was
   loaded.
 . For *RANDOM_TOOLCHANGER = 1*, idx is the *current* pocket number
-  for the toolnumber specified by the G-code select tool command *T__n__*.
+  for the tool number specified by the G-code select tool command *T__n__*.
 
 The io program provides HAL output pins to facilitate toolchanger management:
 
@@ -208,7 +208,7 @@ The io program provides HAL output pins to facilitate toolchanger management:
 
 ==== IO for non-random toolchanger
 
-. Tool number _n_==0 indicates no tool
+. Tool number _n_==0 indicates no tool.
 . The pocket number for a tool is set when tooldata is loaded/reloaded
   from its data source ([EMCIO]TOOL_TABLE or [EMCIO]DB_PROGRAM).
 . At G-code *T__n__* (_n_ != 0) command:
@@ -236,8 +236,8 @@ The io program provides HAL output pins to facilitate toolchanger management:
 
 [NOTE]
 At startup, *iocontrol.0.tool-from-pocket* = 0.
-An M61Qn (_n_!=0) command does not change the *iocontrol.0.tool-from-pocket*.
-An M61Qn (_n_==0) command sets *iocontrol.0.tool-from-pocket* to 0.
+An M61Q__n__ (_n_!=0) command does not change the *iocontrol.0.tool-from-pocket*.
+An M61Q0 (_n_==0) command sets *iocontrol.0.tool-from-pocket* to 0.
 
 [[sub:tool-changers]]
 === Tool Changers(((Tool Changers)))
