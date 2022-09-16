@@ -1,3 +1,5 @@
+- jogging with max speed (with shift-key pressed) was reduced by halui setting
+
 - fixed bug in tooltip text for non-trivial or gantry configuration
 
   Thanks to chili023/TRothfelder for reporting/fixing
