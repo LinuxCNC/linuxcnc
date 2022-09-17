@@ -867,11 +867,13 @@ proc watchHAL {which} {
     set ::watchlist_len [llength $::watchlist]
     set i $::watchlist_len
     set label [lindex [split $which +] end]
-
+    set labelcolor black
      # check if pin or param is writable
+     # var writable: 1=yes, 0=no, -1=writable but connected to signal
     set writable 0
     set showret [join [hal show $vartype $label] " "]
     if {$vartype == "pin"} {
+        # check if pin is input
         if {[string index [lindex $showret 9] 0] == "I"} {
             # check if signals are connected to pin
             if {[string first "==" [lindex $showret 12] 0] < 0} {
@@ -881,38 +883,59 @@ proc watchHAL {which} {
             }
         }
     } elseif {$vartype == "param"} {
+        # check if parameter is writable
         if {[lindex $showret 8] == "RW"} {
             set writable 1
         }
+        set labelcolor #6e3400
+    } elseif {$vartype == "sig"} {
+        # puts stderr "return $showret, found: [string first "<==" $showret 0]"
+        # check if signal has no writers
+        if {[string first "<==" $showret 0] < 0} {
+            set writable 1
+        }
+        set labelcolor blue3
     }
 
     $::cisp create text $::col1_width [expr $i * 20 + 13] -text $label \
-            -anchor w -tag $label
+            -anchor w -tag $label -fill $labelcolor
     set canvaswidth [winfo width $::cisp]
     if {$type == "bit"} {
         $::cisp create oval 10 [expr $i * 20 + 5] 25 [expr $i * 20 + 20] \
             -fill lightgray -tag oval$i
         if {$writable == 1} {
-            canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 48] \
-                [expr {$i * 20 + 4}] 24 17 "Set" [list hal_setp $label 1] 1
-            canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 20] \
-                [expr {$i * 20 + 4}] 24 17 "Clr" [list hal_setp $label 0] 1
+            if {$vartype == "sig"} {
+                canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 48] \
+                    [expr {$i * 20 + 4}] 24 17 "Set" [list hal_sets $label 1] 1
+                canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 20] \
+                    [expr {$i * 20 + 4}] 24 17 "Clr" [list hal_sets $label 0] 1
+            } else {
+                canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 48] \
+                    [expr {$i * 20 + 4}] 24 17 "Set" [list hal_setp $label 1] 1
+                canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 20] \
+                    [expr {$i * 20 + 4}] 24 17 "Clr" [list hal_setp $label 0] 1
+            }
         } elseif {$writable == -1} {
             canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 48] \
-                [expr $i * 20 + 4] 24 17 "Set" [list hal_setp $label 1] 0
+                [expr $i * 20 + 4] 24 17 "Set" [] 0
             canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 20] \
-                [expr $i * 20 + 4] 24 17 "Clr" [list hal_setp $label 0] 0
+                [expr $i * 20 + 4] 24 17 "Clr" [] 0
         }
     } else {
         $::cisp create text 10 [expr $i * 20 + 12] -text "" \
             -anchor w -tag text$i
 
         if {$writable == 1} {
-            canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 48] \
-                [expr $i * 20 + 4] 52 17 "Set val" [list setValue $label] 1
+            if {$vartype == "sig"} {
+                canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 48] \
+                    [expr $i * 20 + 4] 52 17 "Set val" [list setsValue $label] 1
+            } else {
+                canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 48] \
+                    [expr $i * 20 + 4] 52 17 "Set val" [list setpValue $label] 1
+            }
         } elseif {$writable == -1} {
             canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 48] \
-                [expr $i * 20 + 4] 52 17 "Set val" [list setValue $label] 0
+                [expr $i * 20 + 4] 52 17 "Set val" [] 0
         }
     }
     if {$i > 1} {$::cisp create line 10 [expr $i * 20 + 3] [expr $canvaswidth - 52] \
@@ -988,16 +1011,28 @@ proc hal_setp {label val} {
     eval hal "setp $label $val"
 }
 
+proc hal_sets {label val} {
+    eval hal "sets $label $val"
+}
+
 proc copyName {label} {
     clipboard clear
     clipboard append $label
 }
 
-proc setValue {label} {
+proc setpValue {label} {
     set val [eval hal "getp $label"]
     set val [entrybox $val [msgcat::mc "Set"] $label]
     if {$val != "cancel"} {
         eval hal "setp $label $val"
+    }
+}
+
+proc setsValue {label} {
+    set val [eval hal "gets $label"]
+    set val [entrybox $val [msgcat::mc "Set"] $label]
+    if {$val != "cancel"} {
+        eval hal "sets $label $val"
     }
 }
 

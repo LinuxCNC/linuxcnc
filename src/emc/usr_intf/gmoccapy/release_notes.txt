@@ -8,6 +8,11 @@ ver 3.1.3.9
   This fixes issue #1177
 
 ver 3.1.3.8 (LinuxCNC 2.8.4 (not yet released))
+- jogging with max speed (with shift-key pressed) was reduced by halui setting
+
+- fixed bug in tooltip text for non-trivial or gantry configuration
+
+  Thanks to chili023/TRothfelder for reporting/fixing
 
 - bug in spindle speed override: The override value wasn't applied
   when spindle turning in reverse direction

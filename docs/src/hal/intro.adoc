@@ -277,7 +277,7 @@ driver.
 
 Each HAL component is a piece of software with well-defined inputs,
 outputs, and behavior, that can be installed and interconnected as
-needed. The section <<sec:realtime-components,Realtime Components List>>
+needed. The section <<sec:hal-components,HAL Components List>>
 lists all available components and a brief description of what each does.
 
 [[sec:hal-timing-issues]]
