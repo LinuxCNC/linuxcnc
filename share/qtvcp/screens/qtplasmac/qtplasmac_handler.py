@@ -1,4 +1,4 @@
-VERSION = '1.232.242'
+VERSION = '1.232.243'
 
 '''
 qtplasmac_handler.py
@@ -941,6 +941,8 @@ class HandlerClass:
         self.w.gcode_display.setBraceMatching(False)
         self.w.gcode_display.setCaretWidth(0)
         self.w.gcode_display.setCornerWidget(QLabel())
+        self.w.gcode_editor.topBox.setContentsMargins(4,4,4,4)
+        self.w.gcode_editor.bottomBox.setContentsMargins(4,4,4,4)
         self.w.gcode_editor.set_margin_width(3)
         self.w.gcode_editor.editor.setBraceMatching(False)
         self.w.gcode_editor.editor.setCaretWidth(4)

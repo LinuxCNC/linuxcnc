@@ -788,6 +788,9 @@ EditorBase {
 #gcode_editor QToolBar {
     spacing: 4 }
 
+#gcode_editor QToolBar::separator {
+    width: 8 }
+
 #gcode_editor QToolButton {
     width: 40px;
     height: 37px }
@@ -795,6 +798,7 @@ EditorBase {
 #gcode_editor QLineEdit {
     border: 1px solid foregnd;
     border-radius: 4px;
+    width: 94px;
     height: 40px }
 
 /****** MESSAGE BOX ************/
