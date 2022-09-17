@@ -741,19 +741,19 @@ Depending on the answer, we have four different scenarios:
   looping them.
 
 NOTE: If you hate O-word procedures and love Python, you're free to do it
-all in Python, in which case you would just have a `python=<function>`
+all in Python, in which case you would just have a `python=_<function>_`
 spec in the REMAP statement. But assuming most folks would be interested in
 using O-word procedures because they are more familiar with that, we'll do
-that as the  first example.
+that as the first example.
 
 So the overall approach for our first example will be:
 
-. we'd like to do as much as possible with G-code in an O-word
+. We'd like to do as much as possible with G-code in an O-word
   procedure for flexibility. That includes all HAL interaction which
   would normally be handled by `iocontrol` - because we rather would want to do
   clever things with moves, probes, HAL pin I/O and so forth.
 
-. we'll try to minimize Python code to the extent needed  to keep the interpreter happy,
+. We'll try to minimize Python code to the extent needed  to keep the interpreter happy,
   and cause `task` to actually do anything. That will go into the
   `prolog` and `epilog` Python functions.
 
@@ -762,11 +762,11 @@ So the overall approach for our first example will be:
 `iocontrol` provides two HAL interaction sequences we might or might not
 use:
 
-- when the NML message queued by a SELECT_TOOL() canon command is
+- When the NML message queued by a SELECT_TOOL() canon command is
   executed, this triggers the "raise tool-prepare and wait for
   tool-prepared to become high" HAL sequence in `iocontrol`, besides
   setting the XXXX pins
-- when the NML message queued by the CHANGE_TOOL() canon command is
+- When the NML message queued by the CHANGE_TOOL() canon command is
   executed, this triggers the  "raise tool-change and wait for
   tool-changed to become high" HAL sequence in `iocontrol`, besides
   setting the XXXX pins
@@ -949,7 +949,7 @@ change by configuring like so:
 # loop change signals when remapping M6
 net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
 ---------------------------------------------------------------------
-If you for some reason want to remap `Tx` (prepare), the corresponding
+If you for some reason want to remap `T__x__` (prepare), the corresponding
 `iocontrol` pins need to be looped as well.
 
 === Writing the change and prepare O-word procedures
@@ -965,11 +965,11 @@ are set up in the respective prolog, and inspected in the epilog. They
 can be changed in the remap procedure and the change will be picked up
 in the epilog. The exposed parameters for remappable built in codes are:
 
-- `T` (prepare_prolog): `#<tool>` , `#<pocket>`
-- `M6` (change_prolog): `#<tool_in_spindle>`, `#<selected_tool>`, `#<current_pocket>`, `#<selected_pocket>`
-- `M61` (settool_prolog): `#<tool>` , `#<pocket>`
-- `S` (setspeed_prolog):  `#<speed>`
-- `F` (setfeed_prolog):  `#<feed>`
+- `T` (prepare_prolog): `#__<tool>__` , `#__<pocket>__`
+- `M6` (change_prolog): `#__<tool_in_spindle>__`, `#__<selected_tool>__`, `#__<current_pocket>__`, `#__<selected_pocket>__`
+- `M61` (settool_prolog): `#__<tool>__` , `#__<pocket>__`
+- `S` (setspeed_prolog):  `#__<speed>__`
+- `F` (setfeed_prolog):  `#__<feed>__`
 
 If you have specific needs for extra parameters to be made visible,
 that can simply be added to the prolog - practically all of the
@@ -1131,17 +1131,17 @@ The reasons are defined in nml_intf/emc.hh
 
 [source,{ini}]
 ---------------------------------------------------------------------
-	EMC_ABORT_TASK_EXEC_ERROR = 1,
-	EMC_ABORT_AUX_ESTOP = 2,
-	EMC_ABORT_MOTION_OR_IO_RCS_ERROR = 3,
-	EMC_ABORT_TASK_STATE_OFF = 4,
-	EMC_ABORT_TASK_STATE_ESTOP_RESET = 5,
-	EMC_ABORT_TASK_STATE_ESTOP = 6,
-	EMC_ABORT_TASK_STATE_NOT_ON = 7,
-	EMC_ABORT_TASK_ABORT = 8,
-	EMC_ABORT_INTERPRETER_ERROR = 9,	// interpreter failed during readahead
-	EMC_ABORT_INTERPRETER_ERROR_MDI = 10,	// interpreter failed during MDI execution
-	EMC_ABORT_USER = 100  // user-defined abort codes start here
+EMC_ABORT_TASK_EXEC_ERROR = 1,
+EMC_ABORT_AUX_ESTOP = 2,
+EMC_ABORT_MOTION_OR_IO_RCS_ERROR = 3,
+EMC_ABORT_TASK_STATE_OFF = 4,
+EMC_ABORT_TASK_STATE_ESTOP_RESET = 5,
+EMC_ABORT_TASK_STATE_ESTOP = 6,
+EMC_ABORT_TASK_STATE_NOT_ON = 7,
+EMC_ABORT_TASK_ABORT = 8,
+EMC_ABORT_INTERPRETER_ERROR = 9,	// interpreter failed during readahead
+EMC_ABORT_INTERPRETER_ERROR_MDI = 10,	// interpreter failed during MDI execution
+EMC_ABORT_USER = 100  // user-defined abort codes start here
 ---------------------------------------------------------------------
 
 
@@ -1485,10 +1485,10 @@ def mysub(self, *args):
 
 .Return values of O-word Python subroutines
 Just as NGC procedures may return values, so do O-word Python
-subroutines. They are expected to either:
+subroutines. They are expected to either return
 
-- return no value (no `return` statement or the value `None`)
-- a float or int value
+- no value (no `return` statement or the value `None`),
+- a float or int value,
 - a string, this  means 'this is an error message, abort the program'. Works like `(abort, msg)`.
 
 Any other return value type will raise a Python exception.
@@ -1496,11 +1496,11 @@ Any other return value type will raise a Python exception.
 In a calling NGC environment, the following predefined named parameters
 are available:
 
-`#<_value>`::
+`#__<_value>__`::
   value returned by the last procedure called. Initialized
   to 0.0 on startup. Exposed in Interp as `self.return_value` (float).
 
-`#<_value_returned>`::
+`#__<_value_returned>__`::
   indicates the last procedure called did `return`or
   `endsub` with an explicit value. 1.0 if true. Set to 0.0 on each `call`. Exposed
   in Interp was  `self.value_returned` (int).
@@ -1620,9 +1620,9 @@ apply to the usage of 'yield INTERP_EXECUTE_FINISH':
 
 === Calling conventions: Python to NGC
 
-NGC code is executed from Python when:
+NGC code is executed from Python when
 
-- the method `self.execute(<NGC code>[,<line number>])` is executed
+- the method `self.execute(<NGC code>[,<line number>])` is executed, or
 - during execution of a remapped code, if a `prolog=` function is
   defined, the NGC procedure given in `ngc=` is executed immediately
   thereafter.
@@ -1909,9 +1909,9 @@ Then, the following parameters are exported to the NGC procedure:
   interpreter aborts.
 * If parameter 5600 (fault indicator) is greater than zero, this indicates a Toolchanger
   fault, which is handled as follows (`iocontrol-v2`-only):
-** if parameter 5601 (error code) is negative, this indicates a hard
+** If parameter 5601 (error code) is negative, this indicates a hard
    fault and the epilog aborts with an error message.
-** if parameter 5601 (error code) is greater equal zero, this indicates a soft
+** If parameter 5601 (error code) is greater equal zero, this indicates a soft
    fault. An informational message is displayed and the epilog continues.
 * In case the NGC procedure executed the M6 command (which then refers
   to the built in M6 behavior), no further action is taken. This can be
@@ -1922,7 +1922,7 @@ Then, the following parameters are exported to the NGC procedure:
   interpreter's `current_pocket` variable. Again, the
   procedure could change this value, and the epilog takes the
   changed value in account.
-* then, the Canon command `CHANGE_TOOL(#<selected_pocket>)` is
+* Then, the Canon command `CHANGE_TOOL(#<selected_pocket>)` is
   executed.
 * The new tool parameters (offsets, diameter etc) are set.
 
@@ -1954,22 +1954,22 @@ axis words give in the block, see below.
 .Actions of +cycle_prolog+
 * Determine whether the words passed in from the current block fulfill
   the conditions outlined under <<gcode:canned-cycle-errors,Canned Cycle Errors>>.
-** export the axis words as +<x>+, +#<y>+ etc; fail if axis words from
+** Export the axis words as +<x>+, +#<y>+ etc; fail if axis words from
    different groups (XYZ) (UVW) are used together, or any of (ABC) is given.
-** export 'L-' as +#<l>+; default to 1 if not given.
-** export 'P-' as +#<p>+; fail if p less than 0.
-** export 'R-' as +#<r>+; fail if r not given, or less equal 0 if given.
-** fail if feed rate is zero, or inverse time feed or cutter
+** Export 'L-' as +#<l>+; default to 1 if not given.
+** Export 'P-' as +#<p>+; fail if p less than 0.
+** Export 'R-' as +#<r>+; fail if r not given, or less equal 0 if given.
+** Fail if feed rate is zero, or inverse time feed or cutter
    compensation is on.
 * Determine whether this is the first invocation of a cycle G-code, if so:
 ** Add the words passed in (as per argspec) into a set of sticky
    parameters, which is retained across several invocations.
-* If not (a continuation line with new parameters):
+* If not (a continuation line with new parameters) then
 ** merge the words passed in into the existing set of sticky parameters.
-* export the set of sticky parameters to the NGC procedure.
+* Export the set of sticky parameters to the NGC procedure.
 
 .Actions of +cycle_epilog+
-* Determine if the current code was in fact a cycle, if so:
+* Determine if the current code was in fact a cycle, if so, then
 ** retain the current motion mode so a continuation line without a
    motion code will execute the same motion code.
 
@@ -1994,7 +1994,7 @@ This scheme is very limiting in particular in the presence of optional
 parameters. Therefore, the calling convention has been extended to use
 something remotely similar to the Python keyword arguments model.
 
-see  LINKTO gcode/main Subroutines: sub, endsub, return, call.
+see LINKTO gcode/main Subroutines: sub, endsub, return, call.
 
 === Nested remapped codes
 
@@ -2039,16 +2039,16 @@ feature].
 
 To use this approach:
 
-- install Eclipse via the the 'Ubuntu Software Center' (choose first selection)
-- install the PyDev plug in from the http://pydev.org/updates[Pydev Update Site]
-- setup the LinuxCNC source tree as an Eclipse project
-- start the Pydev Debug Server in Eclipse
-- make sure the embedded Python code can find the `pydevd.py` module
+- Install Eclipse via the the 'Ubuntu Software Center' (choose first selection).
+- Install the PyDev plug in from the http://pydev.org/updates[Pydev Update Site].
+- Setup the LinuxCNC source tree as an Eclipse project.
+- Start the Pydev Debug Server in Eclipse.
+- Make sure the embedded Python code can find the `pydevd.py` module
   which comes with that plug in - it's buried somewhere deep under the
   Eclipse install directory. Set the the `pydevd` variable in `util.py`
   to reflect this directory location.
-- `import pydevd` in your Python module - see example `util.py` and `remap.py`
-- call `pydevd.settrace()` in your module at some point to connect to
+- Add `import pydevd` to your Python module - see example `util.py` and `remap.py`.
+- Call `pydevd.settrace()` in your module at some point to connect to
   the Eclipse Python debug server - here you can set breakpoints in your
   code, inspect variables, step etc as usual.
 
@@ -2077,9 +2077,9 @@ are similar):
 First, note that there are *two* independent interpreter instances
 involved:
 
-- one instance in the milltask program, which executes a program when
-  you hit the 'Start' button, and actually makes the machine move
-- a second instance in the user interface whose primary purpose is to
+- One instance in the milltask program, which executes a program when
+  you hit the 'Start' button, and actually makes the machine move.
+- A second instance in the user interface whose primary purpose is to
   generate the tool path preview. This one 'executes' a program once it
   is loaded, but it doesn't actually cause machine movements.
 
@@ -2115,7 +2115,7 @@ in the preview instance(s).
 
 The current set of *existing* codes open to redefinition is:
 
-- Tx (Prepare)
+- T__x__ (Prepare)
 - M6 (Change tool)
 - M61 (Set tool number)
 - M0 (pause a running program temporarily)
@@ -2137,87 +2137,87 @@ add their new G-codes to these tables.)
 
 .Table of Allocated G-codes 00-09
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
-|==============================================================
-|#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
-|00 |G00 |     |     |     |     |     |     |     |     | 
-|01 |G01 |     |     |     |     |     |     |     |     | 
-|02 |G02 |     |     |     |     |     |     |     |     | 
-|03 |G03 |     |     |     |     |     |     |     |     | 
-|04 |G04 |     |     |     |     |     |     |     |     | 
-|05 |G05 |G05.1|G05.2|G05.3|     |     |     |     |     | 
-|06 |    |     |     |     |     |     |     |     |     | 
-|07 |G07 |     |     |     |     |     |     |     |     | 
-|08 |G08 |     |     |     |     |     |     |     |     | 
-|09 |    |     |     |     |     |     |     |     |     | 
-|==============================================================
+|===
+|#  |Gxx |Gxx.1 |Gxx.2 |Gxx.3 |Gxx.4 |Gxx.5 |Gxx.6 |Gxx.7 |Gxx.8 |Gxx.9
+|00 |G00 |      |      |      |      |      |      |      |      | 
+|01 |G01 |      |      |      |      |      |      |      |      | 
+|02 |G02 |      |      |      |      |      |      |      |      | 
+|03 |G03 |      |      |      |      |      |      |      |      | 
+|04 |G04 |      |      |      |      |      |      |      |      | 
+|05 |G05 |G05.1 |G05.2 |G05.3 |      |      |      |      |      | 
+|06 |    |      |      |      |      |      |      |      |      | 
+|07 |G07 |      |      |      |      |      |      |      |      | 
+|08 |G08 |      |      |      |      |      |      |      |      | 
+|09 |    |      |      |      |      |      |      |      |      | 
+|===
 
 .Table of Allocated G-codes 10-19
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
-|==============================================================
-|#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
-|10 |G10 |     |     |     |     |     |     |     |     | 
-|11 |    |     |     |     |     |     |     |     |     | 
-|12 |    |     |     |     |     |     |     |     |     | 
-|13 |    |     |     |     |     |     |     |     |     | 
-|14 |    |     |     |     |     |     |     |     |     | 
-|15 |    |     |     |     |     |     |     |     |     | 
-|16 |    |     |     |     |     |     |     |     |     | 
-|17 |G17 |G17.1|     |     |     |     |     |     |     | 
-|18 |G18 |G18.1|     |     |     |     |     |     |     | 
-|19 |G19 |G19.1|     |     |     |     |     |     |     | 
-|==============================================================
+|===
+|#  |Gxx |Gxx.1 |Gxx.2 |Gxx.3 |Gxx.4 |Gxx.5 |Gxx.6 |Gxx.7 |Gxx.8 |Gxx.9
+|10 |G10 |      |      |      |      |      |      |      |      | 
+|11 |    |      |      |      |      |      |      |      |      | 
+|12 |    |      |      |      |      |      |      |      |      | 
+|13 |    |      |      |      |      |      |      |      |      | 
+|14 |    |      |      |      |      |      |      |      |      | 
+|15 |    |      |      |      |      |      |      |      |      | 
+|16 |    |      |      |      |      |      |      |      |      | 
+|17 |G17 |G17.1 |      |      |      |      |      |      |      | 
+|18 |G18 |G18.1 |      |      |      |      |      |      |      | 
+|19 |G19 |G19.1 |      |      |      |      |      |      |      | 
+|===
 
 .Table of Allocated G-codes 20-29
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
-|==============================================================
-|#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
-|20 |G20 |     |     |     |     |     |     |     |     | 
-|21 |G21 |     |     |     |     |     |     |     |     | 
-|22 |    |     |     |     |     |     |     |     |     | 
-|23 |    |     |     |     |     |     |     |     |     | 
-|24 |    |     |     |     |     |     |     |     |     | 
-|25 |    |     |     |     |     |     |     |     |     | 
-|26 |    |     |     |     |     |     |     |     |     | 
-|27 |    |     |     |     |     |     |     |     |     | 
-|28 |G28 |G28.1|     |     |     |     |     |     |     | 
-|29 |    |     |     |     |     |     |     |     |     | 
-|==============================================================
+|===
+|#  |Gxx |Gxx.1 |Gxx.2 |Gxx.3 |Gxx.4 |Gxx.5 |Gxx.6 |Gxx.7 |Gxx.8 |Gxx.9
+|20 |G20 |      |      |      |      |      |      |      |      | 
+|21 |G21 |      |      |      |      |      |      |      |      | 
+|22 |    |      |      |      |      |      |      |      |      | 
+|23 |    |      |      |      |      |      |      |      |      | 
+|24 |    |      |      |      |      |      |      |      |      | 
+|25 |    |      |      |      |      |      |      |      |      | 
+|26 |    |      |      |      |      |      |      |      |      | 
+|27 |    |      |      |      |      |      |      |      |      | 
+|28 |G28 |G28.1 |      |      |      |      |      |      |      | 
+|29 |    |      |      |      |      |      |      |      |      | 
+|===
 
 .Table of Allocated G-codes 30-39
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
-|==============================================================
-|#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
-|30 |G30 |G30.1|     |     |     |     |     |     |     | 
-|31 |    |     |     |     |     |     |     |     |     | 
-|32 |    |     |     |     |     |     |     |     |     | 
-|33 |G30 |G30.1|     |     |     |     |     |     |     | 
-|34 |    |     |     |     |     |     |     |     |     | 
-|35 |    |     |     |     |     |     |     |     |     | 
-|36 |    |     |     |     |     |     |     |     |     | 
-|37 |    |     |     |     |     |     |     |     |     | 
-|38 |    |     |     |     |     |     |     |     |     | 
-|39 |    |     |     |     |     |     |     |     |     | 
-|==============================================================
+|===
+|#  |Gxx |Gxx.1 |Gxx.2 |Gxx.3 |Gxx.4 |Gxx.5 |Gxx.6 |Gxx.7 |Gxx.8 |Gxx.9
+|30 |G30 |G30.1 |      |      |      |      |      |      |      | 
+|31 |    |      |      |      |      |      |      |      |      | 
+|32 |    |      |      |      |      |      |      |      |      | 
+|33 |G30 |G30.1 |      |      |      |      |      |      |      | 
+|34 |    |      |      |      |      |      |      |      |      | 
+|35 |    |      |      |      |      |      |      |      |      | 
+|36 |    |      |      |      |      |      |      |      |      | 
+|37 |    |      |      |      |      |      |      |      |      | 
+|38 |    |      |      |      |      |      |      |      |      | 
+|39 |    |      |      |      |      |      |      |      |      | 
+|===
 
 .Table of Allocated G-codes 40-49
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
-|==============================================================
-|#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
-|40 |G40 |     |     |     |     |     |     |     |     | 
-|41 |G41 |G41.1|     |     |     |     |     |     |     | 
-|42 |G42 |G42.1|     |     |     |     |     |     |     | 
-|43 |G43 |G43.1|     |     |     |     |     |     |     | 
-|44 |    |     |     |     |     |     |     |     |     | 
-|45 |    |     |     |     |     |     |     |     |     | 
-|46 |    |     |     |     |     |     |     |     |     | 
-|47 |    |     |     |     |     |     |     |     |     | 
-|48 |    |     |     |     |     |     |     |     |     | 
-|49 |G40 |     |     |     |     |     |     |     |     | 
-|==============================================================
+|===
+|#  |Gxx |Gxx.1 |Gxx.2 |Gxx.3 |Gxx.4 |Gxx.5 |Gxx.6 |Gxx.7 |Gxx.8 |Gxx.9
+|40 |G40 |      |      |      |      |      |      |      |      | 
+|41 |G41 |G41.1 |      |      |      |      |      |      |      | 
+|42 |G42 |G42.1 |      |      |      |      |      |      |      | 
+|43 |G43 |G43.1 |      |      |      |      |      |      |      | 
+|44 |    |      |      |      |      |      |      |      |      | 
+|45 |    |      |      |      |      |      |      |      |      | 
+|46 |    |      |      |      |      |      |      |      |      | 
+|47 |    |      |      |      |      |      |      |      |      | 
+|48 |    |      |      |      |      |      |      |      |      | 
+|49 |G40 |      |      |      |      |      |      |      |      | 
+|===
 
 .Table of Allocated G-codes 50-59
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
-|==============================================================
+|===
 |#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
 |50 |    |     |     |     |     |     |     |     |     | 
 |51 |    |     |     |     |     |     |     |     |     | 
@@ -2229,71 +2229,71 @@ add their new G-codes to these tables.)
 |57 |G57 |     |     |     |     |     |     |     |     | 
 |58 |G58 |     |     |     |     |     |     |     |     | 
 |59 |G59 |G59.1|G59.2|G59.3|     |     |     |     |     | 
-|==============================================================
+|===
 
 .Table of Allocated G-codes 60-69
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
-|==============================================================
-|#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
-|60 |G60 |     |     |     |     |     |     |     |     | 
-|61 |G61 |G61.1|     |     |     |     |     |     |     | 
-|62 |    |     |     |     |     |     |     |     |     | 
-|63 |    |     |     |     |     |     |     |     |     | 
-|64 |G64 |     |     |     |     |     |     |     |     | 
-|65 |    |     |     |     |     |     |     |     |     | 
-|66 |    |     |     |     |     |     |     |     |     | 
-|67 |    |     |     |     |     |     |     |     |     | 
-|68 |    |     |     |     |     |     |     |     |     | 
-|69 |    |     |     |     |     |     |     |     |     | 
-|==============================================================
+|===
+|#  |Gxx |Gxx.1 |Gxx.2 |Gxx.3 |Gxx.4 |Gxx.5 |Gxx.6 |Gxx.7 |Gxx.8 |Gxx.9
+|60 |G60 |      |      |      |      |      |      |      |      | 
+|61 |G61 |G61.1 |      |      |      |      |      |      |      | 
+|62 |    |      |      |      |      |      |      |      |      | 
+|63 |    |      |      |      |      |      |      |      |      | 
+|64 |G64 |      |      |      |      |      |      |      |      | 
+|65 |    |      |      |      |      |      |      |      |      | 
+|66 |    |      |      |      |      |      |      |      |      | 
+|67 |    |      |      |      |      |      |      |      |      | 
+|68 |    |      |      |      |      |      |      |      |      | 
+|69 |    |      |      |      |      |      |      |      |      | 
+|===
 
 .Table of Allocated G-codes 70-79
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
-|==============================================================
-|#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
-|70 |G70 |     |     |     |     |     |     |     |     | 
-|71 |G71 |G71.1|G71.2|     |     |     |     |     |     | 
-|72 |G72 |G72.1|G72.2|     |     |     |     |     |     | 
-|73 |    |     |     |     |     |     |     |     |     | 
-|74 |    |     |     |     |     |     |     |     |     | 
-|75 |    |     |     |     |     |     |     |     |     | 
-|76 |G76 |     |     |     |     |     |     |     |     | 
-|77 |    |     |     |     |     |     |     |     |     | 
-|78 |    |     |     |     |     |     |     |     |     | 
-|79 |    |     |     |     |     |     |     |     |     | 
-|==============================================================
+|===
+|#  |Gxx |Gxx.1 |Gxx.2 |Gxx.3 |Gxx.4 |Gxx.5 |Gxx.6 |Gxx.7 |Gxx.8 |Gxx.9
+|70 |G70 |      |      |      |      |      |      |      |      | 
+|71 |G71 |G71.1 |G71.2 |      |      |      |      |      |      | 
+|72 |G72 |G72.1 |G72.2 |      |      |      |      |      |      | 
+|73 |    |      |      |      |      |      |      |      |      | 
+|74 |    |      |      |      |      |      |      |      |      | 
+|75 |    |      |      |      |      |      |      |      |      | 
+|76 |G76 |      |      |      |      |      |      |      |      | 
+|77 |    |      |      |      |      |      |      |      |      | 
+|78 |    |      |      |      |      |      |      |      |      | 
+|79 |    |      |      |      |      |      |      |      |      | 
+|===
 
 .Table of Allocated G-codes 80-89
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
-|==============================================================
-|#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
-|80 |G80 |     |     |     |     |     |     |     |     | 
-|81 |G81 |     |     |     |     |     |     |     |     | 
-|82 |G82 |     |     |     |     |     |     |     |     | 
-|83 |G83 |     |     |     |     |     |     |     |     | 
-|84 |G84 |     |     |     |     |     |     |     |     | 
-|85 |G85 |     |     |     |     |     |     |     |     | 
-|86 |G86 |     |     |     |     |     |     |     |     | 
-|87 |G87 |     |     |     |     |     |     |     |     | 
-|88 |G88 |     |     |     |     |     |     |     |     | 
-|89 |G89 |     |     |     |     |     |     |     |     | 
-|==============================================================
+|===
+|#  |Gxx |Gxx.1 |Gxx.2 |Gxx.3 |Gxx.4 |Gxx.5 |Gxx.6 |Gxx.7 |Gxx.8 |Gxx.9
+|80 |G80 |      |      |      |      |      |      |      |      | 
+|81 |G81 |      |      |      |      |      |      |      |      | 
+|82 |G82 |      |      |      |      |      |      |      |      | 
+|83 |G83 |      |      |      |      |      |      |      |      | 
+|84 |G84 |      |      |      |      |      |      |      |      | 
+|85 |G85 |      |      |      |      |      |      |      |      | 
+|86 |G86 |      |      |      |      |      |      |      |      | 
+|87 |G87 |      |      |      |      |      |      |      |      | 
+|88 |G88 |      |      |      |      |      |      |      |      | 
+|89 |G89 |      |      |      |      |      |      |      |      | 
+|===
 
 .Table of Allocated G-codes 90-99
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
-|==============================================================
-|#  |Gxx |Gxx.1|Gxx.2|Gxx.3|Gxx.4|Gxx.5|Gxx.6|Gxx.7|Gxx.8|Gxx.9
-|90 |G90 |G90.1|     |     |     |     |     |     |     | 
-|91 |G91 |G91.1|     |     |     |     |     |     |     | 
-|92 |G92 |G92.1|G92.2|G92.3|     |     |     |     |     | 
-|93 |G93 |     |     |     |     |     |     |     |     | 
-|94 |G94 |     |     |     |     |     |     |     |     | 
-|95 |G95 |     |     |     |     |     |     |     |     | 
-|96 |G96 |     |     |     |     |     |     |     |     | 
-|97 |G97 |     |     |     |     |     |     |     |     | 
-|98 |G98 |     |     |     |     |     |     |     |     | 
-|99 |G99 |     |     |     |     |     |     |     |     | 
-|==============================================================
+|===
+|#  |Gxx |Gxx.1 |Gxx.2 |Gxx.3 |Gxx.4 |Gxx.5 |Gxx.6 |Gxx.7 |Gxx.8 |Gxx.9
+|90 |G90 |G90.1 |      |      |      |      |      |      |      | 
+|91 |G91 |G91.1 |      |      |      |      |      |      |      | 
+|92 |G92 |G92.1 |G92.2 |G92.3 |      |      |      |      |      | 
+|93 |G93 |      |      |      |      |      |      |      |      | 
+|94 |G94 |      |      |      |      |      |      |      |      | 
+|95 |G95 |      |      |      |      |      |      |      |      | 
+|96 |G96 |      |      |      |      |      |      |      |      | 
+|97 |G97 |      |      |      |      |      |      |      |      | 
+|98 |G98 |      |      |      |      |      |      |      |      | 
+|99 |G99 |      |      |      |      |      |      |      |      | 
+|===
 
 [[remap:unallocated-m-codes]]
 === Currently unallocated M-codes:
@@ -2304,7 +2304,7 @@ LinuxCNC are encouraged to remove them from this table.)
 
 .Table of Unallocated M-codes 00-99
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
-|==============================================================
+|===
 |#     |Mx0 |Mx1 |Mx2 |Mx3 |Mx4 |Mx5 |Mx6 |Mx7 |Mx8 |Mx9
 |00-09 |    |    |    |    |    |    |    |    |    | 
 |10-19 |M10 |M11 |M12 |M13 |M14 |M15 |M16 |M17 |M18 | 
@@ -2316,7 +2316,7 @@ LinuxCNC are encouraged to remove them from this table.)
 |70-79 |    |    |    |    |M74 |M75 |M76 |M77 |M78 |M79
 |80-89 |M80 |M81 |M82 |M83 |M84 |M85 |M86 |M87 |M88 |M89
 |90-99 |M90 |M91 |M92 |M93 |M94 |M95 |M96 |M97 |M98 |M99
-|==============================================================
+|===
 
 All M-codes from `M100` to `M199` are user-defined M-codes already,
 and should not be remapped.
@@ -2420,13 +2420,13 @@ imply that the outcome of the next move relies on the position of the
 previous one:
 
 [source,{ngc}]
----------------------------------------------------------------------
+----
 N10 G91
 N20 G0 X10 Y-5 Z20
 N30 G1 Y20 Z-5
 N40 G0 Z30
 N50 M2
----------------------------------------------------------------------
+----
 
 Here the interpreter can clearly predict machine positions for each line:
 
@@ -2442,7 +2442,7 @@ interpreter can predict the position impact for *every* line in the
 program in advance. Let's look at a modified example:
 
 [source,{ngc}]
----------------------------------------------------------------------
+----
 N10 G91
 N20 G0 X10 Y-5 Z20
 N30 G38.3 Z-10
@@ -2453,7 +2453,7 @@ N70    G0 Z30
 N80 O100 endif
 N90 G1 Z10
 N95 M2
----------------------------------------------------------------------
+----
 
 To pre-compute the move in N90, the interpreter would need to know
 where the machine is after line N80 - and that depends on whether the
@@ -2465,7 +2465,7 @@ are called 'queue busters', and they are:
 
 - Reading a HAL pin's value with M66: value of HAL pin not predictable.
 - Loading a new tool with M6: tool geometry not predictable.
-- Executing a probe with G38.n: final position and success/failure not predictable.
+- Executing a probe with G38._n_: final position and success/failure not predictable.
 
 === How queue-busters are dealt with
 

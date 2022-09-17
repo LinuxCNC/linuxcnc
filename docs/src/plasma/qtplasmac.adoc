@@ -1296,7 +1296,7 @@ Note that throughout this user guide there are several additional recommendation
 
 Aside from the preamble code, postamble code, and X/Y motion code, the only mandatory G-code syntax for QtPlasmaC to run a G-code program using a torch for cutting is *M3 $0 S1* to begin a cut and *M5 $0* to end a cut.
 
-For backwards compatibility it is permissible to use *M3 S1* in lieu of *M3 $0 S1* to begin a cutting job and *M5* in lieu of *M5 $0* to end a cutting job. Note that this applies to cutting jobs only, for scribe and spotting jobs the *$n* tool identifier is mandatory.
+For backwards compatibility it is permissible to use *M3 S1* in lieu of *M3 $0 S1* to begin a cutting job and *M5* in lieu of *M5 $0* to end a cutting job. Note that this applies to cutting jobs only, for scribe and spotting jobs the *$_n_* tool identifier is mandatory.
 
 === Coordinates
 
@@ -1429,7 +1429,7 @@ For automatic material handling, the user would add commands to their G-code fil
 
 The following codes may be used to allow QtPlasmaC to automatically change materials:
 
-* *M190 P__n__* - Changes the currently displayed material to material number n.
+* *M190 P__n__* - Changes the currently displayed material to material number _n_.
 * *M66 P3 L3 Q1* - Adds a small delay (1 second in this example) to wait for QtPlasmaC to confirm that it successfully changed materials.
 * *F#<_hal[plasmac.cut-feed-rate]>* - Sets the cut feed rate to the feed rate shown in the MATERIAL section of the <<qt_parameters-tab,PARAMETERS Tab>>.
 
@@ -1598,7 +1598,7 @@ X axis = n.n
 Y axis = n.n
 ----
 
-where n.n is distance from the center line of the torch to the camera's cross hairs.
+where _n.n_ is distance from the center line of the torch to the camera's cross hairs.
 
 *To set the origin with zero rotation:*
 
@@ -1639,7 +1639,7 @@ X axis = n.n
 Y axis = n.n
 ----
 
-where n.n is distance from the center line of the torch to the laser's cross hairs.
+where _n.n_ is distance from the center line of the torch to the laser's cross hairs.
 
 Additionally, the laser can be tied to any available output to turn the laser on and off via a HAL pin with the following name:
 
@@ -1744,7 +1744,7 @@ Valid plasma tools for use are:
 |Plasma Torch|2     |Used for spotting (creating dimples to aid in drilling).
 |===
 
-A LinuxCNC spindle number (designated by $n) is required to be in the starting command and also the end command to be able to start and stop the correct plasma tool.
+A LinuxCNC spindle number (designated by $_n_) is required to be in the starting command and also the end command to be able to start and stop the correct plasma tool.
 Examples:
 
 * *M3 $0 S1* will select and start the plasma cutting tool.
@@ -1755,10 +1755,10 @@ Examples:
 * *M5 $1* will stop the scribe.
 * *M5 $2* will stop the plasma spotting tool.
 
-It is permissible to use *M5 $-1* in lieu of the M5 $n codes above to stop all tools.
+It is permissible to use *M5 $-1* in lieu of the M5 $_n_ codes above to stop all tools.
 
 In order to use a scribe, it is necessary for the user to add the X and Y axis offsets to the LinuxCNC tool table.
-Tool 0 is assigned to the Plasma Torch and Tool 1 is assigned to the scribe. Tools are selected with a *Tn M6* command, and then a *G43 H0* command is required to apply the offsets for the selected tool.
+Tool 0 is assigned to the Plasma Torch and Tool 1 is assigned to the scribe. Tools are selected with a *T__n__ M6* command, and then a *G43 H0* command is required to apply the offsets for the selected tool.
 It is important to note that the LinuxCNC tool table and tool commands only come into play if the user is using a <<qt_scribe,scribe>> in addition to a plasma torch.
 For more information, see <<qt_scribe,scribe>>.
 
@@ -1888,7 +1888,7 @@ Some float switches can exhibit a large switching hysteresis which shows up in t
 setp plasmac.probe-final-speed n
 ----
 
-where n is a value from 1-10. It is recommended to keep this value as low as possible.
+where _n_ is a value from 1-10. It is recommended to keep this value as low as possible.
 
 Using this feature will change the final height slightly and will require thorough probe testing to confirm the final height.
 
@@ -1920,7 +1920,7 @@ Y axis = n.n
 Delay = t.t
 ----
 
-where n.n is the offset of the probe from the torch center in machine units for the X and Y axes and t.t is the time in seconds to allow for any mechanical deployment of the probe if required.
+where _n.n_ is the offset of the probe from the torch center in machine units for the X and Y axes and _t.t_ is the time in seconds to allow for any mechanical deployment of the probe if required.
 
 Each of these parameters is optional and also may appear in any order. If a parameter is not detected then the default is 0.0. There can be no space after the X or Z, lower case is permissible.
 
@@ -2013,7 +2013,7 @@ This method can be invoked by setting the <<qt_pause-at-end,Pause At End>> param
 The torch can be turned off at the end of the hole by setting the *motion.digital-out-03* pin with the M-Codes *M62 (Synchronized with Motion)* or *M64 (Immediate)*.
 After turning the torch off it is necessary to allow the torch to be turned on again before beginning the next cut by resetting the *motion.digital-out-03* pin with the M-Codes *M63* or *M65*, this will be done automatically by the QtPlasmaC G-code parser if it reaches an M5 command without seeing a *M63 P3* or *M65 P3*.
 
-After the torch is turned off the hole path will be followed for a default length of 4mm (0.157"). This distance may be specified by adding *#<oclength> = n* to the G-code file.
+After the torch is turned off the hole path will be followed for a default length of 4mm (0.157"). This distance may be specified by adding *#<oclength> = _n_* to the G-code file.
 
 * *M62 P3* will turn the torch off (Synchronized with Motion)
 * *M63 P3* will allow the torch to be turned on (Synchronized with Motion)
@@ -2318,8 +2318,8 @@ A scribe may be operated by QtPlasmaC in addition to the plasma torch.
 
 Using a scribe requires the use of the LinuxCNC tool table. Tool 0 is assigned to the plasma torch and Tool 1 is assigned to the scribe. The scribe X and Y axes offsets from the plasma torch need to be entered into the LinuxCNC tool table. This is done by editing the tool table via the main GUI, or by editing the *tool.tbl* file in the *<machine_name>* configuration directory. This will be done after the scribe can move to the work piece to help determine the appropriate offset.
 
-The plasma torch offsets for X and Y will always be zero. The tools are selected by the *Tn M6* command followed by a *G43 H0* command which is required to apply the offsets.
-The tool is then started with a *M3 $n S1* command. For *n*, use 0 for torch cutting or 1 for scribing.
+The plasma torch offsets for X and Y will always be zero. The tools are selected by the *T__n__ M6* command followed by a *G43 H0* command which is required to apply the offsets.
+The tool is then started with a *M3 $_n_ S1* command. For _n_, use 0 for torch cutting or 1 for scribing.
 
 To stop the scribe, use the G-code command *M5 $1*.
 
@@ -2365,7 +2365,7 @@ It is a good idea to switch back to the torch at the end of the program before t
 
 The user can switch between the torch and the scribe any number of times during a program by using the appropriate G-codes.
 
-Issuing *M3 S1* (without $n) will cause the machine to behave as if an *M3 $0 S1* had been issued and issuing *M5* (without $n) will cause the machine to behave as if an *M5 $0* had been issued. This will control the torch firing by default in order to provide backward compatibility for previous G-code files.
+Issuing *M3 S1* (without $_n_) will cause the machine to behave as if an *M3 $0 S1* had been issued and issuing *M5* (without $_n_) will cause the machine to behave as if an *M5 $0* had been issued. This will control the torch firing by default in order to provide backward compatibility for previous G-code files.
 
 WARNING: If there is an existing manual tool change parameter set in the <machine_name>.hal file then QtPlasmaC will convert it to an automatic tool change.
 
@@ -2794,8 +2794,8 @@ One of these values in MATERIAL section of the <<qt_parameters-tab,PARAMETERS Ta
 
 No arc has been detected after attempting to start the number of times indicated by *Max Starts* in the ARC frame of the CONFIGURATION section of the <<qt_parameters-tab,PARAMETERS Tab>>:
 
-* *no arc detected after <n>d start attempts program is paused*
-* *no arc detected after <n>d start attempts manual cut is stopped*
+* *no arc detected after __<n>__d start attempts program is paused*
+* *no arc detected after __<n>__d start attempts manual cut is stopped*
 
 THC has caused the bottom limit to be reached while cutting:
 
@@ -3883,9 +3883,9 @@ There are some sample G-code files in the ~/linuxcnc/nc_files/examples/plasmac d
 |End <<qt_spotting,center spot>> |M5 $2
 |End all the above |M5 $-1
 |Select a <<qt_material-handling,material>> |M190 P__n__ +
-    n denotes the material number
+    _n_ denotes the material number
 |Wait for <<qt_material-handling,material>> change confirmation |M66 P3 L3 Qn +
-    n is delay time (in seconds) +
+    _n_ is delay time (in seconds) +
     This value may need to be increased for very
     large material files
 |Set feed rate from <<qt_material-handling,material>> |F#<_hal[plasmac.cut-feed-rate]>
@@ -3903,7 +3903,7 @@ There are some sample G-code files in the ~/linuxcnc/nc_files/examples/plasmac d
     M65 P3 (immediate)
 |Set <<qt_velocity_thc,velocity>> to a percentage of feed rate |M67 E3 Qn (synchronized with motion) +
     M68 E3 Qn (immediate) +
-    n is the percentage to set +
+    _n_ is the percentage to set +
     10 is the minimum, below this will be set to 100% +
     100 is the maximum, above this will be set to 100% +
     *It is recommended to have M68 E3 Q0 in both the preamble and postamble*
@@ -3924,15 +3924,15 @@ There are some sample G-code files in the ~/linuxcnc/nc_files/examples/plasmac d
     for arcs less than 16 mm (0.63") radius +
     over cut length = 4 mm (0.157")
 |Specify <<qt_hole-cutting,hole>> diameter for +
- #<holes> = 1-4 |#<h_diameter> = n +
-    (n is the diameter, use the same units system as the rest of the G-code file)
+ #<holes> = 1-4 |#<h_diameter> = _n_ +
+    (_n_ is the diameter, use the same units system as the rest of the G-code file)
 |Specify <<qt_hole-cutting,hole>> velocity for +
- #<holes>=1-4 |#<h_velocity> = n +
-    (n is the percentage, set the percentage of the current feed rate)
-|Specify <<qt_overcut,over cut>> length |#<oclength> = n +
-    (n is the length, use the same units system as the rest of the G-code file)
-|Specify <<qt_cut-types,pierce-only>> mode |#<pierce-only> = n +
-    (n is the mode, 0=normal cut mode, 1=pierce only mode)
+ #<holes>=1-4 |#<h_velocity> = _n_ +
+    (_n_ is the percentage, set the percentage of the current feed rate)
+|Specify <<qt_overcut,over cut>> length |#<oclength> = _n_ +
+    (_n_ is the length, use the same units system as the rest of the G-code file)
+|Specify <<qt_cut-types,pierce-only>> mode |#<pierce-only> = _n_ +
+    (_n_ is the mode, 0=normal cut mode, 1=pierce only mode)
 |Create or edit materials. +
  options: +
  0 - Create temporary default +
