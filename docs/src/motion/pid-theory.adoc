@@ -150,12 +150,12 @@ loop tuning usually overshoots slightly to reach the set point more
 quickly; however, some systems cannot accept overshoot.
 
 [width="90%",options="header",cols="^,4*<"]
-|=========================================================================
+|===
 |Parameter | Rise Time    | Overshoot | Settling Time | Steady State Error
 |P         | Decrease     | Increase  | Small Change  | Decrease
 |I         | Decrease     | Increase  | Increase      | Eliminate
 |D         | Small Change | Decrease  | Decrease      | Small Change
-|=========================================================================
+|===
 
 Effects of increasing parameters
 
@@ -176,12 +176,12 @@ the oscillation period of the output (P~c~). Then adjust the P, I and
 D controls as the table shows:
 
 [width="90%",options="header",cols="4*^"]
-|==========================================
+|===
 |Control type | P       | I        | D
 |P            | .5K~c~  |          | 
 |PI           | .45K~c~ | P~c~/1.2 | 
 |PID          | .6K~c~  | P~c~/2   | P~c~/8
-|==========================================
+|===
 
 .Final Steps
 After tuning the axis check the following error with Halscope to make

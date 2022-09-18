@@ -123,26 +123,26 @@ optionally be specified.  The type is one of 'in', 'out', 'epp', or 'x'.
 
 .Parallel Port Direction
 [cols=">1,3*^2",width="50%",options="header"]
-|===========================
-|Pin|in |out/epp|x
-|  1|out|out    |in
-|  2|in |out    |out
-|  3|in |out    |out
-|  4|in |out    |out
-|  5|in |out    |out
-|  6|in |out    |out
-|  7|in |out    |out
-|  8|in |out    |out
-|  9|in |out    |out
-| 10|in |in     |in
-| 11|in |in     |in
-| 12|in |in     |in
-| 13|in |in     |in
-| 14|out|out    |in
-| 15|in |in     |in
-| 16|out|out    |in
-| 17|out|out    |in
-|===========================
+|===
+|Pin |in  |out/epp |x
+|  1 |out |out     |in
+|  2 |in  |out     |out
+|  3 |in  |out     |out
+|  4 |in  |out     |out
+|  5 |in  |out     |out
+|  6 |in  |out     |out
+|  7 |in  |out     |out
+|  8 |in  |out     |out
+|  9 |in  |out     |out
+| 10 |in  |in      |in
+| 11 |in  |in      |in
+| 12 |in  |in      |in
+| 13 |in  |in      |in
+| 14 |out |out     |in
+| 15 |in  |in      |in
+| 16 |out |out     |in
+| 17 |out |out     |in
+|===
 
 If the type is not specified, the default is 'out'.
 

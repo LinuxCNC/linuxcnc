@@ -1376,7 +1376,7 @@ See the following table for an example of voltage measurements.
 
 .Output Voltage Measurements
 [width="50%",cols="2*^",options="header"]
-|==============
+|===
 |Raw | Measured
 |-10 | -9.93
 | -9 | -8.83
@@ -1384,7 +1384,7 @@ See the following table for an example of voltage measurements.
 |  1 |  0.96
 |  9 |  9.87
 | 10 | 10.87
-|==============
+|===
 --
 
 * 'MAX_OUTPUT = 10' - The maximum value for the output of the PID compensation that is written to the motor amplifier, in volts.

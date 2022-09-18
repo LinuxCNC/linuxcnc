@@ -675,7 +675,7 @@ This change has been done as many user ask for that.
 To connect 'encoders' the following pin are exported:
 
 [{pin_tab_options}]
-|====
+|===
 |                   PIN                           |  TYPE   |  FUNCTION
 | gmoccapy.jog.jog-velocity.counts                | HAL_S32 | Jog velocity
 | gmoccapy.jog.jog-velocity.count-enable          | HAL_BIT | Must be True, to enable counts
@@ -687,12 +687,12 @@ To connect 'encoders' the following pin are exported:
 | gmoccapy.spindle.reset-spindle-override         | HAL_BIT | reset the spindle override to 100%
 | gmoccapy.rapid.rapid-override.counts            | HAL_S32 | Maximal Velocity of the machine
 | gmoccapy.rapid.rapid-override.count-enable      | HAL_BIT | Must be True, to enable counts
-|====
+|===
 
 To connect 'potentiometers', use the following HAL pin:
 
 [{pin_tab_options}]
-|====
+|===
 |                   PIN                           |  TYPE     |  FUNCTION
 | gmoccapy.jog.jog-velocity.direct-value          | HAL_FLOAT | To adjust the jog velocity slider
 | gmoccapy.jog.jog-velocity.analog-enable         | HAL_BIT   | Must be True, to allow analog inputs
@@ -702,40 +702,40 @@ To connect 'potentiometers', use the following HAL pin:
 | gmoccapy.spindle.spindle-override.analog-enable | HAL_BIT   | Must be True, to allow analog inputs
 | gmoccapy.rapid.rapid-override.direct-value      | HAL_FLOAT | To adjust the max velocity slider
 | gmoccapy.rapid.rapid-override.analog-enable     | HAL_BIT   | Must be True, to allow analog inputs
-|====
+|===
 
 In addition GMOCCAPY 3 offers additional HAL pin to control the new slider widgets with momentary switches.
 The values how fast the increase or decrease will be, must be set in the glade file.
 In a future release it will be integrated in the settings page.
 
 [{pin_tab_options}]
-|====
-|               PIN                 |  TYPE         |  FUNCTION
-| SPEED                             |               |
-| gmoccapy.spc_jog_vel.increase     | HAL_BIT IN    | as long as True the value of the slider will increase
-| gmoccapy.spc_jog_vel.decrease     | HAL_BIT IN    | as long as True the value of the slider will decrease
-| gmoccapy.spc_jog_vel.scale        | HAL_FLOAT IN  | A value to scale the output value (Handy to change units/min to units/sec
-| gmoccapy.spc_jog_vel.value        | HAL_FLOAT OUT | value of the widget
-| gmoccapy.spc_jog_vel.scaled-value | HAL_FLOAT OUT | scaled value of the widget
-| FEED                              |               |
-| gmoccapy.spc_feed.increase        | HAL_BIT IN    | as long as True the value of the slider will increase
-| gmoccapy.spc_feed.decrease        | HAL_BIT IN    | as long as True the value of the slider will decrease
-| gmoccapy.spc_feed.scale           | HAL_FLOAT IN  | A value to scale the output value (Handy to change units/min to units/sec
-| gmoccapy.spc_feed.value           | HAL_FLOAT OUT | value of the widget
-| gmoccapy.spc_feed.scaled-value    | HAL_FLOAT OUT | scaled value of the widget
-| SPINDLE                           |               |
-| gmoccapy.spc_spindle.increase     | HAL_BIT IN    | as long as True the value of the slider will increase
-| gmoccapy.spc_spindle.decrease     | HAL_BIT IN    | as long as True the value of the slider will decrease
-| gmoccapy.spc_spindle.scale        | HAL_FLOAT IN  | A value to scale the output value (Handy to change units/min to units/sec
-| gmoccapy.spc_spindle.value        | HAL_FLOAT OUT | value of the widget
-| gmoccapy.spc_spindle.scaled-value | HAL_FLOAT OUT | scaled value of the widget
-| RAPIDS                            |               |
-| gmoccapy.spc_rapid.increase       | HAL_BIT IN    | as long as True the value of the slider will increase
-| gmoccapy.spc_rapid.decrease       | HAL_BIT IN    | as long as True the value of the slider will decrease
-| gmoccapy.spc_rapid.scale          | HAL_FLOAT IN  | A value to scale the output value (Handy to change units/min to units/sec)
-| gmoccapy.spc_rapid.value          | HAL_FLOAT OUT | value of the widget
-| gmoccapy.spc_rapid.scaled-value   | HAL_FLOAT OUT | scaled value of the widget
-|====
+|===
+|              PIN                 | TYPE         | FUNCTION
+|SPEED                             |              |
+|gmoccapy.spc_jog_vel.increase     |HAL_BIT IN    |as long as True the value of the slider will increase
+|gmoccapy.spc_jog_vel.decrease     |HAL_BIT IN    |as long as True the value of the slider will decrease
+|gmoccapy.spc_jog_vel.scale        |HAL_FLOAT IN  |A value to scale the output value (Handy to change units/min to units/sec
+|gmoccapy.spc_jog_vel.value        |HAL_FLOAT OUT |value of the widget
+|gmoccapy.spc_jog_vel.scaled-value |HAL_FLOAT OUT |scaled value of the widget
+|FEED                              |              |
+|gmoccapy.spc_feed.increase        |HAL_BIT IN    |as long as True the value of the slider will increase
+|gmoccapy.spc_feed.decrease        |HAL_BIT IN    |as long as True the value of the slider will decrease
+|gmoccapy.spc_feed.scale           |HAL_FLOAT IN  |A value to scale the output value (Handy to change units/min to units/sec
+|gmoccapy.spc_feed.value           |HAL_FLOAT OUT |value of the widget
+|gmoccapy.spc_feed.scaled-value    |HAL_FLOAT OUT |scaled value of the widget
+|SPINDLE                           |              |
+|gmoccapy.spc_spindle.increase     |HAL_BIT IN    |as long as True the value of the slider will increase
+|gmoccapy.spc_spindle.decrease     |HAL_BIT IN    |as long as True the value of the slider will decrease
+|gmoccapy.spc_spindle.scale        |HAL_FLOAT IN  |A value to scale the output value (Handy to change units/min to units/sec
+|gmoccapy.spc_spindle.value        |HAL_FLOAT OUT |value of the widget
+|gmoccapy.spc_spindle.scaled-value |HAL_FLOAT OUT |scaled value of the widget
+|RAPIDS                            |              |
+|gmoccapy.spc_rapid.increase       |HAL_BIT IN    |as long as True the value of the slider will increase
+|gmoccapy.spc_rapid.decrease       |HAL_BIT IN    |as long as True the value of the slider will decrease
+|gmoccapy.spc_rapid.scale          |HAL_FLOAT IN  |A value to scale the output value (Handy to change units/min to units/sec)
+|gmoccapy.spc_rapid.value          |HAL_FLOAT OUT |value of the widget
+|gmoccapy.spc_rapid.scaled-value   |HAL_FLOAT OUT |scaled value of the widget
+|===
 
 The float pin do accept values from 0.0 to 1.0, being the percentage value
 you want to set the slider value.

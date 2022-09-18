@@ -523,23 +523,23 @@ As an example, the typical relay used in a Hypertherm Powermax 65 plasma cutter 
 If using a 24&#8239;VDC power supply this would then equate to a minimum current of 20.8&#8239;mA.
 Because there is less current drawn by the Mesa input than is required by the relay there needs to be an increase in the current.
 
-The resistance can be calculated using R = Vs / (Im - Ii) where:
+The resistance can be calculated using R = U__s__ / (I__m__ - I__i__) where:
 
 - R = calculated resistance
-- Vs = supply voltage
-- Im = minimum current required
-- Ii = input current
+- U__s__ = supply voltage
+- I__m__ = minimum current required
+- I__i__ = input current
 
-Using a 7i96 with an input current of 5.1&#8239;mA gives a calculated value of 1529&#8239;Ω. (24 / (.0208 - .0051)).
-This could then be rounded down to a commonly available 1500&#8239;Ω resistor giving a small safety margin.
+Using a 7i96 with an input current of 5.1&#8239;mA gives a calculated value of 1529&#8239;Ω ( = 24&#8239;V / (.0208 - .0051)&#8239;A).
+This could then be rounded down to a commonly available 1500&#8239;Ω resistor, giving a small safety margin.
 
-The power dissipation can by calculated using P = Vs^2^ / Rs where:
+The power dissipation can by calculated using P = U__s__^2^ / R__s__ where:
 
 - P = power
-- Vs = supply voltage
-- Rs = selected resistance
+- U__s__ = supply voltage
+- R__s__ = selected resistance
 
-This gives a value of 0.38W. This could then be rounded up to 1W, giving a good safety margin. The final selection would be a 1500Ω 1W resistor.
+This gives a value of 0.38&#8239;W. This could then be rounded up to 1&#8239;W, giving a good safety margin. The final selection would be a 1500&#8239;Ω 1&#8239;W resistor.
 
 === Desktop Launcher
 
@@ -591,12 +591,12 @@ Custom commands are allowed in custom.hal and the custom_postgui.hal files as th
 
 After running a new configuration for the first time the following files will be created in the configuration directory:
 
-[width="100%",cols="1,2"]
+[width="100%",cols="1,2",options="header"]
 |===
-|*Filename*|*Function*
-|<machine_name>_material.cfg|A file for storing the material settings from the MATERIAL section of the <<qt_parameters-tab,PARAMETERS Tab>>.
-|qtvcp.prefs|A file containing the QtVCP preferences.
-|qtplasmac.qss|This file is used to store the stylesheet for the currently loaded session of QtPlasmaC.
+|Filename                    |Function
+|<machine_name>_material.cfg |A file for storing the material settings from the MATERIAL section of the <<qt_parameters-tab,PARAMETERS Tab>>.
+|qtvcp.prefs                 |A file containing the QtVCP preferences.
+|qtplasmac.qss               |This file is used to store the stylesheet for the currently loaded session of QtPlasmaC.
 |===
 
 [NOTE]

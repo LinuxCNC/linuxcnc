@@ -265,7 +265,7 @@ kernel flavors, etc), new installs are supported on following platforms:
 run on any 64-bit x86 system)
 
 [options="header"]
-|====
+|===
 | Distribution   | Architecture  | kernel     | package name    | Typical use
 | Debian Buster  | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
 | Debian Buster  | amd64 & armhf | preemp-rt  | linuxcnc-uspace | machine control & simulation
@@ -276,7 +276,7 @@ run on any 64-bit x86 system)
 | Debian Wheezy  | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
 | Ubuntu Precise | i386          | RTAI       | linuxcnc        | machine control & simulation
 | Ubuntu Precise | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
-|====
+|===
 
 NOTE: LinuxCNC v2.8 is not supported on Ubuntu Lucid or older.
 

@@ -355,11 +355,11 @@ on the pinout, the following information should be entered:
 
 Enter the following values in the Spindle Configuration page:
 
-[width="80%",options="header",cols="^,^,^,^"]
-|============================
+[width="80%",cols="^,^,^,^"]
+|===
 |Speed 1: | 0    | PWM 1: | 0
 |Speed 2: | 1000 | PWM 2: | 1
-|============================
+|===
 
 Finish the remaining steps of the configuration process,
 then launch LinuxCNC with your configuration.

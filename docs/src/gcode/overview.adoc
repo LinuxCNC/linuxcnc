@@ -110,7 +110,7 @@ not have the corresponding axis.
 
 .Words and their meanings
 [width="75%",options="header",cols="^1,<5"]
-|====
+|===
 |Letter | Meaning
 |A | A axis of machine
 |B | B axis of machine
@@ -138,7 +138,7 @@ not have the corresponding axis.
 |X | X axis of machine
 |Y | Y axis of machine
 |Z | Z axis of machine
-|====
+|===
 
 [[gcode:numbers]]
 === Numbers(((Numbers)))
@@ -362,11 +362,11 @@ is written.
 [[gcode:format-parameter-file]]
 .Parameter File Format
 [width="90%",options="header"]
-|====
+|===
 |Parameter Number | Parameter Value
 |5161 | 0.0
 |5162 | 0.0
-|====
+|===
 
 [[sub:subroutine-parameters]]
 === Subroutine Parameters(((Subroutine Parameters)))
@@ -443,7 +443,7 @@ can be added easily without changes to the source code.
 * '#<_motion_mode>' - Return the interpreter's current motion mode:
 
 [width="20%",options="header"]
-|====
+|===
 |Motion mode | return value
 |      G1    | 10
 |      G2    | 20
@@ -466,12 +466,12 @@ can be added easily without changes to the source code.
 |      G87   | 870
 |      G88   | 880
 |      G89   | 890
-|====
+|===
 
 * '#<_plane>' - returns the value designating the current plane:
 
 [width="20%",options="header"]
-|====
+|===
 | Plane | return value
 | G17   | 170
 | G18   | 180
@@ -479,12 +479,12 @@ can be added easily without changes to the source code.
 | G17.1 | 171
 | G18.1 |  181
 | G19.1 | 191
-|====
+|===
 
 * '#<_ccomp>' - Status of cutter compensation. Return values:
 
 [width="20%",options="header"]
-|====
+|===
 | Mode  | return value
 | G40   | 400
 | G41   | 410
@@ -492,7 +492,7 @@ can be added easily without changes to the source code.
 | G41   | 410
 | G42   | 420
 | G42.1 | 421
-|====
+|===
 
 * '#<_metric>' - Return 1 if G21 is on, else 0.
 * '#<_imperial>' - Return 1 if G20 is on, else 0.
@@ -506,7 +506,7 @@ can be added easily without changes to the source code.
   550.000000 and if your in G59.1 the return value is 591.000000.
 
 [width="20%",options="header"]
-|====
+|===
 | Mode  | return value
 | G54   | 540
 | G55   | 550
@@ -517,7 +517,7 @@ can be added easily without changes to the source code.
 | G59.1 | 591
 | G59.2 | 592
 | G59.3 | 593
-|====
+|===
 
 * '#<_tool_offset>' - Return 1 if tool offset (G43) is on, else 0.
 * '#<_retract_r_plane>' - Return 1 if G98 is set, else 0.
@@ -693,14 +693,14 @@ false, and any non-zero number is equivalent to logical true.
 [[gcode:operators-precedence]]
 .Operators Precedence(((Operators Precedence)))
 [width="60%",options="header",cols="2*^"]
-|====
+|===
 |Operators         | Precedence
 |**                | 'highest'
 |* / MOD           |
 |+ -               |
 |EQ NE GT GE LT LE |
 |AND OR XOR        | 'lowest'
-|====
+|===
 
 == Equality and floating-point values
 
@@ -721,7 +721,7 @@ degrees. Values returned by unary operations which return angle measures
 
 .G-code Functions
 [width="75%",options="header",cols="^,<"]
-|====
+|===
 |Function Name    | Function result
 |ATAN[arg]/[arg]  | Four quadrant inverse tangent
 |ABS[arg]         | Absolute value
@@ -737,7 +737,7 @@ degrees. Values returned by unary operations which return angle measures
 |SQRT[arg]        | Square Root
 |TAN[arg]         | Tangent
 |EXISTS[arg]      | Check named Parameter
-|====
+|===
 
 The 'FIX' function rounds towards the left (less positive or more negative)
 on a number line, so that 'FIX[2.8] =2' and 'FIX[-2.8] = -3'.
@@ -911,29 +911,29 @@ being in effect. The modal groups are shown in the following Table.
 [[cap:modal-groups]]
 .G-code Modal Groups(((Modal Groups: G-codes)))
 [width="80%",cols="4,6",options="header"]
-|====
-|Modal Group Meaning                   | Member Words
-|Non-modal codes (Group 0)             | G4, G10 G28, G30, G52, G53, G92, G92.1, G92.2, G92.3,
-.2+|Motion (Group 1)                   | G0, G1, G2, G3, G33, G38.n, G73, G76, G80, G81
-                                       | G82, G83, G84, G85, G86, G87, G88, G89
-|Plane selection (Group 2)             | G17, G18, G19, G17.1, G18.1, G19.1
-|Distance Mode (Group 3)               | G90, G91
-|Arc IJK Distance Mode (Group 4)       | G90.1, G91.1
-|Feed Rate Mode (Group 5)              | G93, G94, G95
-|Units (Group 6)                       | G20, G21
-|Cutter Diameter Compensation (Group 7)| G40, G41, G42, G41.1, G42.1
-|Tool Length Offset (Group 8)          | G43, G43.1, G49
-|Canned Cycles Return Mode (Group 10)  | G98, G99
-|Coordinate System (Group 12)          | G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3
-|Control Mode (Group 13)               | G61, G61.1, G64
-|Spindle Speed Mode (Group 14)         | G96, G97
-|Lathe Diameter Mode (Group 15)        | G7, G8
-|====
+|===
+|Modal Group Meaning                    | Member Words
+|Non-modal codes (Group 0)              | G4, G10 G28, G30, G52, G53, G92, G92.1, G92.2, G92.3,
+.2+|Motion (Group 1)                    | G0, G1, G2, G3, G33, G38.n, G73, G76, G80, G81
+                                        | G82, G83, G84, G85, G86, G87, G88, G89
+|Plane selection (Group 2)              | G17, G18, G19, G17.1, G18.1, G19.1
+|Distance Mode (Group 3)                | G90, G91
+|Arc IJK Distance Mode (Group 4)        | G90.1, G91.1
+|Feed Rate Mode (Group 5)               | G93, G94, G95
+|Units (Group 6)                        | G20, G21
+|Cutter Diameter Compensation (Group 7) | G40, G41, G42, G41.1, G42.1
+|Tool Length Offset (Group 8)           | G43, G43.1, G49
+|Canned Cycles Return Mode (Group 10)   | G98, G99
+|Coordinate System (Group 12)           | G54, G55, G56, G57, G58, G59, G59.1, G59.2, G59.3
+|Control Mode (Group 13)                | G61, G61.1, G64
+|Spindle Speed Mode (Group 14)          | G96, G97
+|Lathe Diameter Mode (Group 15)         | G7, G8
+|===
 
 [[tbl:mcodes-modal-groups]]
 .M-code Modal Groups(((Modal Groups: M-codes)))
 [width="80%",cols="4,6",options="header"]
-|====
+|===
 |Modal Group Meaning           | Member Words
 |Stopping (Group 4)            | M0, M1, M2, M30, M60
 |On/Off I/O ('Group 5')        | FIXME M6 Tn
@@ -942,7 +942,7 @@ being in effect. The modal groups are shown in the following Table.
 |Coolant (Group 8)             | (M7 M8 can both be on), M9
 |Override Switches (Group 9)   | M48, M49
 |User Defined (Group 10)       | M100-M199
-|====
+|===
 
 For several modal groups, when a machining center is ready to accept
 commands, one member of the group must be in effect. There are default
