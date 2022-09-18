@@ -737,7 +737,8 @@ Exiting or shutting down QtPlasmaC is done by either:
 . Click the window shutdown button on the window title bar
 . Long press the *POWER* button on the MAIN Tab.
 
-A shutdown warning can be displayed on every shutdown by checking the *Exit
+A shutdown warning can be displayed on every shutdown by checking the *Exit Warning* checkbox on the <<qt_parameters-tab,PARAMETERS Tab>>.
+
 [[qt_main-tab]]
 === MAIN Tab
 
@@ -870,7 +871,7 @@ See <<qt_custom-user-buttons,custom user buttons>> for detailed information on c
     For more information see <<qt_ignore-ok,Ignore Arc Ok>>.
 |OHMIC PROBE|0, 1, 2|This box enables or disables the ohmic probe input. +
     If the Ohmic Probe input is disabled, the Ohmic Probe LED will still show the status of the probe input, but the Ohmic Probe results will be ignored.
-|RS485|0, 1, 2|This box will enable or disable the communications to a PowerMax. This button is only visible if a PM_PORT is configured in the [POWERMAX] section of the <machine_name>.prefs file.
+|RS485|0, 1, 2|This box will enable or disable the communications to a PowerMax. This button is only visible if a PM_PORT is configured in the *[POWERMAX]* section of the <machine_name>.prefs file.
 |Status|0, 1, 2|When PowerMax communications are enabled, this will display one of the following: +
     *CONNECTING*, *CONNECTED*, *COMMS ERROR*, or a *Fault Code*. +
     For more information, see the <<qt_pm_comms,PowerMax Communications>> section.
@@ -906,7 +907,7 @@ During Paused Motion, this section will become <<qt_cut-recovery,CUT RECOVERY>>
 [width="100%",cols="4,16",options="header"]
 |===
 |Name      |Description
-|CONTINUOUS|This drop down button will change the jog increment. Options are determined by the values in the [DISPLAY] section of the <machine_name>.ini file and begin with the label "INCREMENTS =".
+|CONTINUOUS|This drop down button will change the jog increment. Options are determined by the values in the *[DISPLAY]* section of the <machine_name>.ini file and begin with the label "INCREMENTS =".
 |FAST      |This button will toggle between FAST which is the default linear velocity in the <machine_name>.ini file or SLOW which is 10% of the default value.
 |Y+        |This button moves the Y axis in the positive direction.
 |Y-        |This button moves the Y axis in the negative direction.
@@ -1198,7 +1199,9 @@ To return any of the color changes to their default values, see the <<qt_default
     In addition to the standard jog keys, a list of the additional shortcuts is available in the <<qt_keyboard-shortcuts,keyboard shortcuts>> section.
 |View Material|This radio button allows the user to enable or disable the addition of a visual reference showing key material cut settings to the Preview Windows of the <<qt_main-tab,MAIN>> and <<qt_conversational-tab,CONVERSATIONAL>> tabs. +
     Examples are:  Feed Rate, Pierce Height, Pierce Delay, and Cut Height. Cut Amps will be shown if PowerMax communications are enabled.
-|Exit Warning|This radio button allows the user to enable or disable whether a warning will always be displayed during shutdown.
+|Exit Warning|This radio button allows the user to enable or disable whether a warning will always be displayed during shutdown. +
+It is possible to add a custom message to the warning by adding the message to the *Exit warning text* option in the *[GUI_OPTIONS]* section of the <machine_name>.prefs file. +
+The custom message can be made multi-line by adding a "\" between lines.
 |Optional Stop|This radio button allows the user to enable or disable whether or not a running program will pause at an *M1* command.
 |Run From Line|This radio button allows the user to enable or disable <<qt_run-from-line,Run From Line>>. If enabled, the user can click on a line of G-code and have the program start from that line.
 |Override Limits|This radio button allows the user to temporarily Override the input from a Limit Switch in the event the limit switch becomes tripped during operation. This button can only be clicked when a limit switch is tripped.
@@ -1587,7 +1590,7 @@ QtPlasmaC has the ability to use a USB camera to set the origin with or without 
 
 To use this feature, the user must set the camera's offset from the torch center by following the procedure described in <<peripheral-offsets,Peripheral Offsets>>.
 
-To modify the offsets manually, the user could edit either or both the following lines in the [CAMERA_OFFSET] section of the <machine_name>.prefs file:
+To modify the offsets manually, the user could edit either or both the following lines in the *[CAMERA_OFFSET]* section of the <machine_name>.prefs file:
 
 [source,{ini}]
 ----
@@ -1628,7 +1631,7 @@ QtPlasmaC has the ability to use a laser to set the origin with or without rotat
 
 To use this feature, the user must set the laser's offset from the torch center by following the procedure described in <<peripheral-offsets,Peripheral Offsets>>.
 
-To modify the offsets manually, the user could edit either or both the following lines in the [LASER_OFFSET] section of the <machine_name>.prefs file:
+To modify the offsets manually, the user could edit either or both the following lines in the *[LASER_OFFSET]* section of the <machine_name>.prefs file:
 
 [source,{ini}]
 ----
@@ -1908,7 +1911,7 @@ If the probe is mechanically deployed then it needs to extend/retract rather qui
 
 To use this feature, the user must set the probe's offset from the torch center by following the procedure described in <<peripheral-offsets,Peripheral Offsets>>.
 
-To modify the offsets manually, the user could edit either or both the following lines in the [OFFSET_PROBING] section of the <machine_name>.prefs file:
+To modify the offsets manually, the user could edit either or both the following lines in the *[OFFSET_PROBING]* section of the <machine_name>.prefs file:
 
 [source,{ini}]
 ----
@@ -2449,9 +2452,9 @@ In order to utilize them, *KB Shortcuts* must be enabled in the *GUI SETTINGS* s
 |ALT+RETURN|Places QtPlasmaC into Manual Data Input (MDI) mode. +
     Note that ALT + ENTER will achieve the same result. +
     In addition, pressing RETURN (or ENTER) with no entry in the MDI will close the MDI window.
-|`,1-9,0|Changes jog speed to 0%, 10%-90%, 100% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
-|SHIFT+`,1-9,0|Changes rapid speed to 0%, 10%-90%, 100%.
-|CTRL+1-9,0|Changes feed rate to 10%-90%, 100%.
+|`, 1-9, 0|Changes jog speed to 0%, 10%-90%, 100% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the *[DISPLAY]* section of the <machine_name>.ini file.
+|SHIFT+`, 1-9, 0|Changes rapid speed to 0%, 10%-90%, 100%.
+|CTRL+1-9, 0|Changes feed rate to 10%-90%, 100%.
 |CTRL+HOME|Homes all axes if they are not yet homed and have a homing sequence set in the <machine_name>.ini file. If they are already homed, they will no longer be homed.
 |CTRL+R|Cycle Start if the program is not already running. Cycle Resume if the program is paused.
 |END|Touches off X and Y to 0.
@@ -2744,7 +2747,7 @@ desktop_notify
 [NOTE]
 <machine_name>.prefs must be edited with QtPlasmaC closed or any changes will be overwritten on exit.
 
-Additionally, it is possible for *ERROR SENT TO MACHINE LOG* to flash to get the user's attention by adding or editing the following line in the [GUI_OPTIONS] section of the <machine_name>.prefs file:
+Additionally, it is possible for *ERROR SENT TO MACHINE LOG* to flash to get the user's attention by adding or editing the following line in the *[GUI_OPTIONS]* section of the <machine_name>.prefs file:
 
 [source,{ini}]
 ----
@@ -2926,7 +2929,7 @@ This would be done with the following code in qtplasmac_custom.qss:
 
 === Create A New Style
 
-Custom stylesheets are enable by a setting in the [GUI_OPTIONS] section of the <machine_name>.prefs file giving the filename of the stylesheet.
+Custom stylesheets are enable by a setting in the *[GUI_OPTIONS]* section of the <machine_name>.prefs file giving the filename of the stylesheet.
 
 [source,{ini}]
 ----
@@ -2994,8 +2997,8 @@ The user may return to the default styling at any time by following the followin
 . Delete qtplasmac.qss from the machine config directory.
 . Delete qtplasmac_custom.qss from the machine config directory (if it exists).
 . Open <machine_name>.prefs file.
-. Delete the "[COLOR_OPTIONS]" section.
-. Delete the Custom style line from the '[GUI_OPTIONS]" section.
+. Delete the *[COLOR_OPTIONS]* section.
+. Delete the Custom style line from the *[GUI_OPTIONS]* section.
 . Save the file.
 
 The next time QtPlasmaC is loaded all custom styling will be removed and the default styling will return.
@@ -3029,7 +3032,7 @@ The number of user buttons varies by display type and resolution as follows:
 
 The user will need to run QtPlasmaC at the desired screen size to determine how many user buttons are available for use.
 
-All <machine_name>.prefs file settings for the buttons are found in the [BUTTONS] section.
+All <machine_name>.prefs file settings for the buttons are found in the *[BUTTONS]* section.
 
 .Button Names
 
@@ -3521,7 +3524,7 @@ The following HAL bit output pins are always created and can be used by either t
 === Hide Program Buttons
 
 If the user has external buttons and/or a pendant that emulates any of the program buttons, CYCLE START, CYCLE PAUSE, or CYCLE STOP
-then it is possible to hide any or all of these GUI program buttons by adding the following code to the [GUI_OPTIONS] section of the <machine_name>.prefs file:
+then it is possible to hide any or all of these GUI program buttons by adding the following code to the *[GUI_OPTIONS]* section of the <machine_name>.prefs file:
 
 [source,{ini}]
 ----
@@ -3705,8 +3708,8 @@ Changing the cutting mode will set the gas pressure to zero causing the machine 
 The maximum and minimum values of these parameters are read from the plasma cutter and the related spin-buttons in the Cut Parameters are then limited by these values.
 Gas pressure cannot be changed from zero until communications have been established.
 
-This feature is enabled by setting the correct port name for the PM_PORT variable in the [POWERMAX] section of the <machine_name>.prefs file.
-If the PM_PORT variable is not set in the <machine_name>.prefs file then the widgets associated with this feature will not be visible.
+This feature is enabled by setting the correct port name for the PM_PORT option in the *[POWERMAX]* section of the <machine_name>.prefs file.
+If the PM_PORT option is not set in the <machine_name>.prefs file then the widgets associated with this feature will not be visible.
 
 Example showing enabling the Hypertherm PowerMax Communications on USB0:
 
@@ -4206,7 +4209,7 @@ QtPlasmaC uses this disabling feature by default for all keys only when the <<qt
 with the following exceptions when autorepeat is allowed with the <<qt_main-tab,MAIN Tab>> visible:
 G-code editor is active, MDI is active. When QtPlasmaC is shut down, the Operating System's autorepeat feature will be enabled for all keys.
 
-If the user wishes to prevent QtPlasmaC from changing the Operating System's autorepeat settings, enter the following in the [GUI_OPTIONS] section of the <machine_name>.prefs file:
+If the user wishes to prevent QtPlasmaC from changing the Operating System's autorepeat settings, enter the following in the *[GUI_OPTIONS]* section of the <machine_name>.prefs file:
 
 [source,{ini}]
 ----

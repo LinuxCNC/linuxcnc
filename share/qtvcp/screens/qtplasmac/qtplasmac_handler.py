@@ -1,4 +1,4 @@
-VERSION = '1.232.243'
+VERSION = '1.232.244'
 
 '''
 qtplasmac_handler.py
@@ -2152,7 +2152,10 @@ class HandlerClass:
             else:
                 msg0 = ''
             if self.exitMessage:
-                msg0 += '{}\n\n'.format(self.exitMessage)
+                exitLines = self.exitMessage.split('\\')
+                for line in exitLines:
+                    msg0 += '{}\n'.format(line)
+                msg0 += '\n'
             msg0 += _translate('HandlerClass', 'Do you want to shutdown QtPlasmaC')
             if self.dialog_show_yesno(icon, head, '\n{}?\n'.format(msg0)):
                 if O.PREFS_ and O.play_sounds and O.shutdown_play_sound:
