@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: it_rs274_err\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-11 20:43+0200\n"
+"POT-Creation-Date: 2022-09-18 08:05+0200\n"
 "PO-Revision-Date: 2022-04-01 14:13+0000\n"
 "Last-Translator: elovalvoc047faba7aa1427f <ernesto.lovalvo@unipa.it>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/linuxcnc/"
@@ -4856,7 +4856,7 @@ msgstr "Modifica"
 msgid "Cut"
 msgstr "Taglia"
 
-#: tcl/bin/genedit.tcl:94 tcl/bin/halshow.tcl:934 tcl/bin/halshow.tcl:952
+#: tcl/bin/genedit.tcl:94 tcl/bin/halshow.tcl:957 tcl/bin/halshow.tcl:975
 msgid "Copy"
 msgstr "Copia"
 
@@ -5285,90 +5285,90 @@ msgstr "Impostazioni memorizzate in: "
 msgid "already in list"
 msgstr "già nella lista"
 
-#: tcl/bin/halshow.tcl:936
+#: tcl/bin/halshow.tcl:959
 msgid "Set to .."
 msgstr "Impostare su .."
 
-#: tcl/bin/halshow.tcl:939
+#: tcl/bin/halshow.tcl:962
 msgid "Unlink pin"
 msgstr "Scollega pin"
 
-#: tcl/bin/halshow.tcl:941
+#: tcl/bin/halshow.tcl:964
 #, fuzzy
 msgid "Show in Tree"
 msgstr "Mostra puntatore"
 
-#: tcl/bin/halshow.tcl:942
+#: tcl/bin/halshow.tcl:965
 msgid "Remove"
 msgstr "Rimuovi"
 
-#: tcl/bin/halshow.tcl:953
+#: tcl/bin/halshow.tcl:976
 msgid "Add as Pin(s)"
 msgstr "Aggiungi come Pin(s)"
 
-#: tcl/bin/halshow.tcl:954
+#: tcl/bin/halshow.tcl:977
 msgid "Add as Signal(s)"
 msgstr "Aggiungi come Segnale(i)"
 
-#: tcl/bin/halshow.tcl:955
+#: tcl/bin/halshow.tcl:978
 msgid "Add as Param(s)"
 msgstr "Aggiungi come parametro(i)"
 
-#: tcl/bin/halshow.tcl:966
+#: tcl/bin/halshow.tcl:989
 #, fuzzy
 msgid "Add all sub-items to watch"
 msgstr "Aggiungi per guardare"
 
-#: tcl/bin/halshow.tcl:998 tcl/bin/halshow.tcl:1066
+#: tcl/bin/halshow.tcl:1025 tcl/bin/halshow.tcl:1033 tcl/bin/halshow.tcl:1101
 msgid "Set"
 msgstr "Imposta"
 
-#: tcl/bin/halshow.tcl:1018
+#: tcl/bin/halshow.tcl:1053
 msgid "User input"
 msgstr "Input dell'utente"
 
-#: tcl/bin/halshow.tcl:1067
+#: tcl/bin/halshow.tcl:1102
 msgid "Update interval for this session (ms)"
 msgstr "Intervallo di aggiornamento per questa sessione (ms)"
 
-#: tcl/bin/halshow.tcl:1069
+#: tcl/bin/halshow.tcl:1104
 msgid "Value out of range"
 msgstr "Valore fuori range"
 
-#: tcl/bin/halshow.tcl:1137
+#: tcl/bin/halshow.tcl:1172
 msgid "removed from list"
 msgstr "rimosso dalla lista"
 
-#: tcl/bin/halshow.tcl:1167
+#: tcl/bin/halshow.tcl:1202
 msgid "Load a watch list"
 msgstr "Carica una lista di controllo"
 
-#: tcl/bin/halshow.tcl:1194
+#: tcl/bin/halshow.tcl:1229
 msgid "loaded"
 msgstr "caricato"
 
-#: tcl/bin/halshow.tcl:1194
+#: tcl/bin/halshow.tcl:1229
 #, fuzzy
 msgid "saved backup for old watchlist in"
 msgstr "Salva la lista controllo corrente"
 
-#: tcl/bin/halshow.tcl:1205
+#: tcl/bin/halshow.tcl:1240
 msgid "Save current watch list"
 msgstr "Salva la lista controllo corrente"
 
-#: tcl/bin/halshow.tcl:1241
+#: tcl/bin/halshow.tcl:1276
 msgid "Commands may be tested here but they will NOT be saved"
 msgstr "Possono essere provati i comandi ma essi NON saranno salvati"
 
-#: tcl/bin/halshow.tcl:1270
+#: tcl/bin/halshow.tcl:1305
 msgid "Integer (disabled by \"--iformat\" argument)"
 msgstr "Integer (disabilitato dall'argomento \"--iformat\")"
 
-#: tcl/bin/halshow.tcl:1277
+#: tcl/bin/halshow.tcl:1312
 msgid "Float (disabled by \"--fformat\" argument)"
 msgstr "Float (disabilitato dall'argomento \"--fformat\")"
 
-#: tcl/bin/halshow.tcl:1284
+#: tcl/bin/halshow.tcl:1319
 msgid "\"--noprefs\" option set. Settings will not be saved!"
 msgstr ""
 

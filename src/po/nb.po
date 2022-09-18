@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
-"POT-Creation-Date: 2022-09-11 20:43+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-09-18 08:05+0200\n"
 "PO-Revision-Date: 2022-09-16 09:23+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
@@ -4639,7 +4639,7 @@ msgstr "Rediger"
 msgid "Cut"
 msgstr "Klipp"
 
-#: tcl/bin/genedit.tcl:94 tcl/bin/halshow.tcl:934 tcl/bin/halshow.tcl:952
+#: tcl/bin/genedit.tcl:94 tcl/bin/halshow.tcl:957 tcl/bin/halshow.tcl:975
 msgid "Copy"
 msgstr "Kopier"
 
@@ -5063,89 +5063,89 @@ msgstr ""
 msgid "already in list"
 msgstr "finnes allerede i listen"
 
-#: tcl/bin/halshow.tcl:936
+#: tcl/bin/halshow.tcl:959
 msgid "Set to .."
 msgstr "Sett til .."
 
-#: tcl/bin/halshow.tcl:939
+#: tcl/bin/halshow.tcl:962
 msgid "Unlink pin"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:941
+#: tcl/bin/halshow.tcl:964
 #, fuzzy
 msgid "Show in Tree"
 msgstr "Vis peker"
 
-#: tcl/bin/halshow.tcl:942
+#: tcl/bin/halshow.tcl:965
 msgid "Remove"
 msgstr "Fjern"
 
-#: tcl/bin/halshow.tcl:953
+#: tcl/bin/halshow.tcl:976
 #, fuzzy
 msgid "Add as Pin(s)"
 msgstr "Legg til signal"
 
-#: tcl/bin/halshow.tcl:954
+#: tcl/bin/halshow.tcl:977
 msgid "Add as Signal(s)"
 msgstr "Legg til som signal(er)"
 
-#: tcl/bin/halshow.tcl:955
+#: tcl/bin/halshow.tcl:978
 msgid "Add as Param(s)"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:966
+#: tcl/bin/halshow.tcl:989
 msgid "Add all sub-items to watch"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:998 tcl/bin/halshow.tcl:1066
+#: tcl/bin/halshow.tcl:1025 tcl/bin/halshow.tcl:1033 tcl/bin/halshow.tcl:1101
 msgid "Set"
 msgstr "Sett"
 
-#: tcl/bin/halshow.tcl:1018
+#: tcl/bin/halshow.tcl:1053
 msgid "User input"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:1067
+#: tcl/bin/halshow.tcl:1102
 msgid "Update interval for this session (ms)"
 msgstr "Oppdateringsintervall for denne sesjonen (ms)"
 
-#: tcl/bin/halshow.tcl:1069
+#: tcl/bin/halshow.tcl:1104
 msgid "Value out of range"
 msgstr "Verdi er utenfor gyldig område"
 
-#: tcl/bin/halshow.tcl:1137
+#: tcl/bin/halshow.tcl:1172
 msgid "removed from list"
 msgstr "fjernet fra listen"
 
-#: tcl/bin/halshow.tcl:1167
+#: tcl/bin/halshow.tcl:1202
 msgid "Load a watch list"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:1194
+#: tcl/bin/halshow.tcl:1229
 msgid "loaded"
 msgstr "Lastet inn"
 
-#: tcl/bin/halshow.tcl:1194
+#: tcl/bin/halshow.tcl:1229
 msgid "saved backup for old watchlist in"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:1205
+#: tcl/bin/halshow.tcl:1240
 msgid "Save current watch list"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:1241
+#: tcl/bin/halshow.tcl:1276
 msgid "Commands may be tested here but they will NOT be saved"
 msgstr "Kommandoer kan testes her, men de kan IKKE lagres"
 
-#: tcl/bin/halshow.tcl:1270
+#: tcl/bin/halshow.tcl:1305
 msgid "Integer (disabled by \"--iformat\" argument)"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:1277
+#: tcl/bin/halshow.tcl:1312
 msgid "Float (disabled by \"--fformat\" argument)"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:1284
+#: tcl/bin/halshow.tcl:1319
 msgid "\"--noprefs\" option set. Settings will not be saved!"
 msgstr ""
 
@@ -11389,9 +11389,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid ""
-"_:"
-""
+msgid "_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249

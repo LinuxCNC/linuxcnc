@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: LinuxCNC EMC2.8.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-11 20:43+0200\n"
+"POT-Creation-Date: 2022-09-18 08:05+0200\n"
 "PO-Revision-Date: 2022-07-20 00:40+0000\n"
 "Last-Translator: whatawhiz <pink0floyd@vip.qq.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
@@ -4682,7 +4682,7 @@ msgstr "编辑"
 msgid "Cut"
 msgstr "剪切"
 
-#: tcl/bin/genedit.tcl:94 tcl/bin/halshow.tcl:934 tcl/bin/halshow.tcl:952
+#: tcl/bin/genedit.tcl:94 tcl/bin/halshow.tcl:957 tcl/bin/halshow.tcl:975
 msgid "Copy"
 msgstr "复制"
 
@@ -5106,88 +5106,88 @@ msgstr "设置保存在： "
 msgid "already in list"
 msgstr "已经在列表中"
 
-#: tcl/bin/halshow.tcl:936
+#: tcl/bin/halshow.tcl:959
 msgid "Set to .."
 msgstr "设置为 .."
 
-#: tcl/bin/halshow.tcl:939
+#: tcl/bin/halshow.tcl:962
 msgid "Unlink pin"
 msgstr "未连接引脚"
 
-#: tcl/bin/halshow.tcl:941
+#: tcl/bin/halshow.tcl:964
 msgid "Show in Tree"
 msgstr "在树中显示"
 
-#: tcl/bin/halshow.tcl:942
+#: tcl/bin/halshow.tcl:965
 msgid "Remove"
 msgstr "移除"
 
-#: tcl/bin/halshow.tcl:953
+#: tcl/bin/halshow.tcl:976
 msgid "Add as Pin(s)"
 msgstr "添加为引脚"
 
-#: tcl/bin/halshow.tcl:954
+#: tcl/bin/halshow.tcl:977
 msgid "Add as Signal(s)"
 msgstr "添加为信号"
 
-#: tcl/bin/halshow.tcl:955
+#: tcl/bin/halshow.tcl:978
 msgid "Add as Param(s)"
 msgstr "添加为参数"
 
-#: tcl/bin/halshow.tcl:966
+#: tcl/bin/halshow.tcl:989
 msgid "Add all sub-items to watch"
 msgstr "添加所有子项目至监视"
 
-#: tcl/bin/halshow.tcl:998 tcl/bin/halshow.tcl:1066
+#: tcl/bin/halshow.tcl:1025 tcl/bin/halshow.tcl:1033 tcl/bin/halshow.tcl:1101
 msgid "Set"
 msgstr "设置"
 
-#: tcl/bin/halshow.tcl:1018
+#: tcl/bin/halshow.tcl:1053
 msgid "User input"
 msgstr "用户输入"
 
-#: tcl/bin/halshow.tcl:1067
+#: tcl/bin/halshow.tcl:1102
 msgid "Update interval for this session (ms)"
 msgstr "为当前会话更新间隔时间（毫秒）"
 
-#: tcl/bin/halshow.tcl:1069
+#: tcl/bin/halshow.tcl:1104
 msgid "Value out of range"
 msgstr "数值超出范围"
 
-#: tcl/bin/halshow.tcl:1137
+#: tcl/bin/halshow.tcl:1172
 msgid "removed from list"
 msgstr "从列表中移除"
 
-#: tcl/bin/halshow.tcl:1167
+#: tcl/bin/halshow.tcl:1202
 msgid "Load a watch list"
 msgstr "加载监视列表"
 
-#: tcl/bin/halshow.tcl:1194
+#: tcl/bin/halshow.tcl:1229
 msgid "loaded"
 msgstr "已加载"
 
-#: tcl/bin/halshow.tcl:1194
+#: tcl/bin/halshow.tcl:1229
 #, fuzzy
 msgid "saved backup for old watchlist in"
 msgstr "保存当前监视列表"
 
-#: tcl/bin/halshow.tcl:1205
+#: tcl/bin/halshow.tcl:1240
 msgid "Save current watch list"
 msgstr "保存当前监视列表"
 
-#: tcl/bin/halshow.tcl:1241
+#: tcl/bin/halshow.tcl:1276
 msgid "Commands may be tested here but they will NOT be saved"
 msgstr "指令可以在这里测试，但不会被保存"
 
-#: tcl/bin/halshow.tcl:1270
+#: tcl/bin/halshow.tcl:1305
 msgid "Integer (disabled by \"--iformat\" argument)"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:1277
+#: tcl/bin/halshow.tcl:1312
 msgid "Float (disabled by \"--fformat\" argument)"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:1284
+#: tcl/bin/halshow.tcl:1319
 msgid "\"--noprefs\" option set. Settings will not be saved!"
 msgstr ""
 

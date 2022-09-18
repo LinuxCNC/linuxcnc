@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
-"POT-Creation-Date: 2022-09-11 20:43+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-09-18 08:05+0200\n"
 "PO-Revision-Date: 2022-09-13 06:15+0000\n"
 "Last-Translator: Ulices <dev.n47os@aleeas.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
@@ -4856,7 +4856,7 @@ msgstr "Editar"
 msgid "Cut"
 msgstr "Cortar"
 
-#: tcl/bin/genedit.tcl:94 tcl/bin/halshow.tcl:934 tcl/bin/halshow.tcl:952
+#: tcl/bin/genedit.tcl:94 tcl/bin/halshow.tcl:957 tcl/bin/halshow.tcl:975
 msgid "Copy"
 msgstr "Copiar"
 
@@ -5283,88 +5283,88 @@ msgstr "Ajustes guardados en:"
 msgid "already in list"
 msgstr "ya está en la lista"
 
-#: tcl/bin/halshow.tcl:936
+#: tcl/bin/halshow.tcl:959
 msgid "Set to .."
 msgstr "Establecer en .."
 
-#: tcl/bin/halshow.tcl:939
+#: tcl/bin/halshow.tcl:962
 msgid "Unlink pin"
 msgstr "Desenlazar pin"
 
-#: tcl/bin/halshow.tcl:941
+#: tcl/bin/halshow.tcl:964
 msgid "Show in Tree"
 msgstr "Mostrar en Árbol"
 
-#: tcl/bin/halshow.tcl:942
+#: tcl/bin/halshow.tcl:965
 msgid "Remove"
 msgstr "Eliminar"
 
-#: tcl/bin/halshow.tcl:953
+#: tcl/bin/halshow.tcl:976
 msgid "Add as Pin(s)"
 msgstr "Agregar como Pin(es)"
 
-#: tcl/bin/halshow.tcl:954
+#: tcl/bin/halshow.tcl:977
 msgid "Add as Signal(s)"
 msgstr "Agregar como señal(es)"
 
-#: tcl/bin/halshow.tcl:955
+#: tcl/bin/halshow.tcl:978
 msgid "Add as Param(s)"
 msgstr "Agregar como Parámetro(s)"
 
-#: tcl/bin/halshow.tcl:966
+#: tcl/bin/halshow.tcl:989
 msgid "Add all sub-items to watch"
 msgstr "Agregue todos los sub-elementos para ver"
 
-#: tcl/bin/halshow.tcl:998 tcl/bin/halshow.tcl:1066
+#: tcl/bin/halshow.tcl:1025 tcl/bin/halshow.tcl:1033 tcl/bin/halshow.tcl:1101
 msgid "Set"
 msgstr "Juego"
 
-#: tcl/bin/halshow.tcl:1018
+#: tcl/bin/halshow.tcl:1053
 msgid "User input"
 msgstr "Entrada de usuario"
 
-#: tcl/bin/halshow.tcl:1067
+#: tcl/bin/halshow.tcl:1102
 msgid "Update interval for this session (ms)"
 msgstr "Intervalo de actualización para esta sesión (ms)"
 
-#: tcl/bin/halshow.tcl:1069
+#: tcl/bin/halshow.tcl:1104
 msgid "Value out of range"
 msgstr "Valor fuera de rango"
 
-#: tcl/bin/halshow.tcl:1137
+#: tcl/bin/halshow.tcl:1172
 msgid "removed from list"
 msgstr "Removido de la lista"
 
-#: tcl/bin/halshow.tcl:1167
+#: tcl/bin/halshow.tcl:1202
 msgid "Load a watch list"
 msgstr "Cargar una lista de vigilancia"
 
-#: tcl/bin/halshow.tcl:1194
+#: tcl/bin/halshow.tcl:1229
 msgid "loaded"
 msgstr "cargado"
 
-#: tcl/bin/halshow.tcl:1194
+#: tcl/bin/halshow.tcl:1229
 #, fuzzy
 msgid "saved backup for old watchlist in"
 msgstr "Guardar lista de vigilancia actual"
 
-#: tcl/bin/halshow.tcl:1205
+#: tcl/bin/halshow.tcl:1240
 msgid "Save current watch list"
 msgstr "Guardar lista de vigilancia actual"
 
-#: tcl/bin/halshow.tcl:1241
+#: tcl/bin/halshow.tcl:1276
 msgid "Commands may be tested here but they will NOT be saved"
 msgstr "Los comandos pueden probarse aquí pero NO se guardarán"
 
-#: tcl/bin/halshow.tcl:1270
+#: tcl/bin/halshow.tcl:1305
 msgid "Integer (disabled by \"--iformat\" argument)"
 msgstr "Entero (deshabilitado por el argumento \"--iformat\")"
 
-#: tcl/bin/halshow.tcl:1277
+#: tcl/bin/halshow.tcl:1312
 msgid "Float (disabled by \"--fformat\" argument)"
 msgstr "Flotante (deshabilitado por el argumento \"--fformat\")"
 
-#: tcl/bin/halshow.tcl:1284
+#: tcl/bin/halshow.tcl:1319
 msgid "\"--noprefs\" option set. Settings will not be saved!"
 msgstr ""
 
@@ -11715,9 +11715,7 @@ msgstr "Opuesto"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid ""
-"_:"
-""
+msgid "_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
