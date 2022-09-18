@@ -39,7 +39,10 @@ class HandlerClass:
         self.w.filemanager.showList(True)
         self.w.filemanager.model.setNameFilters([''])
         self.w.filemanager.cb.hide()
-        self.w.filemanager.button3.hide()
+        self.w.filemanager.addButton.hide()
+        self.w.filemanager.delButton.hide()
+        self.w.filemanager.loadButton.hide()
+        self.w.filemanager.copy_control.hide()
         self.w.filemanager.user_path = os.path.expanduser('~/linuxcnc/configs')
         if os.path.exists(self.paths.RIPCONFIGDIR):
             self.w.filemanager._jumpList.update([('RIP',self.paths.RIPCONFIGDIR)])
