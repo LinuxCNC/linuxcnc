@@ -9,7 +9,7 @@ from qtvcp.widgets.widget_baseclass import _HalWidgetBase, hal
 class Gauge(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(Gauge, self).__init__(parent)
-        self._threshold = 0.0
+        self._threshold = 0
         self._setpoint = QPointF(0, 0)
         self._num_ticks = 11
         self._max_value = 100
