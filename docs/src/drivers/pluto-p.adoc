@@ -160,37 +160,37 @@ image::images/pluto-pinout.png["Pluto-Servo Pinout",align="center"]
 
 .Pluto-Servo Alternate Pin Functions
 [width="90%",options="header"]
-|========================================
-|Primary function | Alternate Function | Behavior if both functions used
-|*UP0* | PWM0  | When pwm-0-pwmdir is TRUE, this pin is the PWM output
-|      | OUT10 | XOR'd with UP0 or PWM0
-|*UP1* | PWM1  | When pwm-1-pwmdir is TRUE, this pin is the PWM output
-|      | OUT12 | XOR'd with UP1 or PWM1
-|*UP2* | PWM2  | When pwm-2-pwmdir is TRUE, this pin is the PWM output
-|      | OUT14 | XOR'd with UP2 or PWM2
-|*UP3* | PWM3  | When pwm-3-pwmdir is TRUE, this pin is the PWM output
-|      | OUT16 | XOR'd with UP3 or PWM3
-|*DN0* | DIR0  | When pwm-0-pwmdir is TRUE, this pin is the DIR output
-|      | OUT11 | XOR'd with DN0 or DIR0
-|*DN1* | DIR1  | When pwm-1-pwmdir is TRUE, this pin is the DIR output
-|      | OUT13 | XOR'd with DN1 or DIR1
-|*DN2* | DIR2  | When pwm-2-pwmdir is TRUE, this pin is the DIR output
-|      | OUT15 | XOR'd with DN2 or DIR2
-|*DN3* | DIR3  | When pwm-3-pwmdir is TRUE, this pin is the DIR output
-|      | OUT17 | XOR'd with DN3 or DIR3
-|*QZ0* | IN8   | Read same value
-|*QZ1* | IN9   | Read same value
-|*QZ2* | IN10  | Read same value
-|*QZ3* | IN11  | Read same value
-|*QA0* | IN12  | Read same value
-|*QA1* | IN13  | Read same value
-|*QA2* | IN14  | Read same value
-|*QA3* | IN15  | Read same value
-|*QB0* | IN16  | Read same value
-|*QB1* | IN17  | Read same value
-|*QB2* | IN18  | Read same value
-|*QB3* | IN19  | Read same value
-|========================================
+|===
+|Primary function |Alternate Function |Behavior if both functions used
+s|UP0 | PWM0  | When pwm-0-pwmdir is TRUE, this pin is the PWM output
+s|    | OUT10 | XOR'd with UP0 or PWM0
+s|UP1 | PWM1  | When pwm-1-pwmdir is TRUE, this pin is the PWM output
+s|    | OUT12 | XOR'd with UP1 or PWM1
+s|UP2 | PWM2  | When pwm-2-pwmdir is TRUE, this pin is the PWM output
+s|    | OUT14 | XOR'd with UP2 or PWM2
+s|UP3 | PWM3  | When pwm-3-pwmdir is TRUE, this pin is the PWM output
+s|    | OUT16 | XOR'd with UP3 or PWM3
+s|DN0 | DIR0  | When pwm-0-pwmdir is TRUE, this pin is the DIR output
+s|    | OUT11 | XOR'd with DN0 or DIR0
+s|DN1 | DIR1  | When pwm-1-pwmdir is TRUE, this pin is the DIR output
+s|    | OUT13 | XOR'd with DN1 or DIR1
+s|DN2 | DIR2  | When pwm-2-pwmdir is TRUE, this pin is the DIR output
+s|    | OUT15 | XOR'd with DN2 or DIR2
+s|DN3 | DIR3  | When pwm-3-pwmdir is TRUE, this pin is the DIR output
+s|    | OUT17 | XOR'd with DN3 or DIR3
+s|QZ0 | IN8   | Read same value
+s|QZ1 | IN9   | Read same value
+s|QZ2 | IN10  | Read same value
+s|QZ3 | IN11  | Read same value
+s|QA0 | IN12  | Read same value
+s|QA1 | IN13  | Read same value
+s|QA2 | IN14  | Read same value
+s|QA3 | IN15  | Read same value
+s|QB0 | IN16  | Read same value
+s|QB1 | IN17  | Read same value
+s|QB2 | IN18  | Read same value
+s|QB3 | IN19  | Read same value
+|===
 
 === Input latching and output updating
 

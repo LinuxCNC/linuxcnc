@@ -11,32 +11,32 @@
 == M-Code Quick Reference Table
 
 [width="60%",options="header",cols="2^,5<"]
-|========================================
-|Code                                | Description
-|<<mcode:m0-m1,M0 M1>>               | Program Pause
-|<<mcode:m2-m30,M2 M30>>             | Program End
-|<<mcode:m60, M60>>                  | Pallet Change Pause
-|<<mcode:m3-m4-m5,M3 M4 M5>>         | Spindle Control
-|<<mcode:m6,M6>>                     | Tool Change
-|<<mcode:m7-m8-m9,M7 M8 M9>>         | Coolant Control
-|<<mcode:m19,M19>>                   | Orient Spindle
-|<<mcode:m48-m49,M48 M49>>           | Feed & Spindle Overrides Enable/Disable
-|<<mcode:m50,M50>>                   | Feed Override Control
-|<<mcode:m51,M51>>                   | Spindle Override Control
-|<<mcode:m52,M52>>                   | Adaptive Feed Control
-|<<mcode:m53,M53>>                   | Feed Stop Control
-|<<mcode:m61,M61>>                   | Set Current Tool Number
-|<<mcode:m62-m65,m62-m65>>           | Output Control
-|<<mcode:m66,M66>>                   | Input Control
-|<<mcode:m67,M67>>                   | Analog Output Control
-|<<mcode:m68,M68>>                   | Analog Output Control
-|<<mcode:m70,M70>>                   | Save Modal State
-|<<mcode:m71,M71>>                   | Invalidate Stored Modal State
-|<<mcode:m72,M72>>                   | Restore Modal State
-|<<mcode:m73,M73>>                   | Save Autorestore Modal State
-|<<mcode:m98-m99,M98 M99>>           | Call and Return From Subprogram
-|<<mcode:m100-m199,M100-M199>>       | User Defined M-Codes
-|========================================
+|===
+|Code                           | Description
+|<<mcode:m0-m1,M0 M1>>          | Program Pause
+|<<mcode:m2-m30,M2 M30>>        | Program End
+|<<mcode:m60, M60>>             | Pallet Change Pause
+|<<mcode:m3-m4-m5,M3 M4 M5>>    | Spindle Control
+|<<mcode:m6,M6>>                | Tool Change
+|<<mcode:m7-m8-m9,M7 M8 M9>>    | Coolant Control
+|<<mcode:m19,M19>>              | Orient Spindle
+|<<mcode:m48-m49,M48 M49>>      | Feed & Spindle Overrides Enable/Disable
+|<<mcode:m50,M50>>              | Feed Override Control
+|<<mcode:m51,M51>>              | Spindle Override Control
+|<<mcode:m52,M52>>              | Adaptive Feed Control
+|<<mcode:m53,M53>>              | Feed Stop Control
+|<<mcode:m61,M61>>              | Set Current Tool Number
+|<<mcode:m62-m65,m62-m65>>      | Output Control
+|<<mcode:m66,M66>>              | Input Control
+|<<mcode:m67,M67>>              | Analog Output Control
+|<<mcode:m68,M68>>              | Analog Output Control
+|<<mcode:m70,M70>>              | Save Modal State
+|<<mcode:m71,M71>>              | Invalidate Stored Modal State
+|<<mcode:m72,M72>>              | Restore Modal State
+|<<mcode:m73,M73>>              | Save Autorestore Modal State
+|<<mcode:m98-m99,M98 M99>>      | Call and Return From Subprogram
+|<<mcode:m100-m199,M100-M199>>  | User Defined M-Codes
+|===
 
 [[mcode:m0-m1]]
 == M0, M1 Program Pause(((M0, M1 Program Pause)))(((M0 Mandatory Program Pause)))(((M1 Optional Program Pause)))

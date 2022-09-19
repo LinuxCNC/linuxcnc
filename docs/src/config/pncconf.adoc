@@ -495,7 +495,7 @@ DAC units, etc. To do this, follow this procedure:
 
 .Output Voltage Measurements
 [cols="^,^",width="50%",options="header"]
-|====
+|===
 | Raw | Measured
 | -10 | *-9.93*
 |  -9 | *-8.83*
@@ -503,7 +503,7 @@ DAC units, etc. To do this, follow this procedure:
 |   1 | *-0.03*
 |   9 | *9.87*
 |  10 | *10.07*
-|====
+|===
 
 * Do a least-squares linear fit to get coefficients a, b such that meas=a*raw+b
 * Note that we want raw output such that our measured result is

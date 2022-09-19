@@ -91,11 +91,11 @@ and parameter direction.
 
 .HAL Option Names
 [width="100%",cols="<3s,4*<"]
-|==============================================================
+|===
 |Pin and Parameter Types: |HAL_BIT |HAL_FLOAT |HAL_S32 |HAL_U32
 |Pin Directions:          |HAL_IN  |HAL_OUT   |HAL_IO  |
 |Parameter Directions:    |HAL_RO  |HAL_RW    |        |
-|==============================================================
+|===
 
 The full pin or parameter name is formed by joining the prefix and the
 suffix with a ".", so in the example the pin created is called

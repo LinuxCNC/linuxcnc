@@ -57,66 +57,65 @@ as the 'L number', and so on for any other letter.
 
 [width="75%",options="header",cols="2^,5<"]
 |===
-|Code                               |Description
-|<<gcode:g0,G0>>                    |Coordinated Motion at Rapid Rate
-|<<gcode:g1,G1>>                    |Coordinated Motion at Feed Rate
-|<<gcode:g2-g3,G2 G3>>              |Coordinated Helical Motion at Feed Rate
-|<<gcode:g4,G4>>                    |Dwell
-|<<gcode:g5,G5>>                    |Cubic Spline
-|<<gcode:g5.1,G5.1>>                |Quadratic B-Spline
-|<<gcode:g5.2-g5.3,G5.2,G5.3>>      |NURBS, add control point
-|<<gcode:g7,G7>>                    |Diameter Mode (lathe)
-|<<gcode:g8,G8>>                    |Radius Mode (lathe)
-|<<gcode:g10-l0,G10 L0>>            |Reload Tool Table Data
-|<<gcode:g10-l1,G10 L1>>            |Set Tool Table Entry
-|<<gcode:g10-l10,G10 L10>>          |Set Tool Table, Calculated, Workpiece
-|<<gcode:g10-l11,G10 L11>>          |Set Tool Table, Calculated, Fixture
-|<<gcode:g10-l2,G10 L2>>            |Coordinate System Origin Setting
-|<<gcode:g10-l20,G10 L20>>          |Coordinate System Origin Setting Calculated
-|<<gcode:g17-g19.1,G17 - G19.1>>    |Plane Select
-|<<gcode:g20-g21,G20 G21>>          |Set Units of Measure
-|<<gcode:g28-g28.1,G28 - G28.1>>    |Go to Predefined Position
-|<<gcode:g30-g30.1,G30 - G30.1>>    |Go to Predefined Position
-|<<gcode:g33,G33>>                  |Spindle Synchronized Motion
-|<<gcode:g33.1,G33.1>>              |Rigid Tapping
-|<<gcode:g38,G38.2 - G38.5>>        |Probing
-|<<gcode:g40,G40>>                  |Cancel Cutter Compensation
-|<<gcode:g41-g42,G41 G42>>          |Cutter Compensation
-|<<gcode:g41.1-g42.1,G41.1 G42.1>>  |Dynamic Cutter Compensation
-|<<gcode:g43,G43>>                  |Use Tool Length Offset from Tool Table
-|<<gcode:g43.1,G43.1>>              |Dynamic Tool Length Offset
-|<<gcode:g43.2,G43.2>>              |Apply additional Tool Length Offset
-|<<gcode:g49,G49>>                  |Cancel Tool Length Offset
-|<<gcode:g52,G52>>                  |Local Coordinate System Offset
-|<<gcode:g53,G53>>                  |Move in Machine Coordinates
-|<<gcode:g54-g59.3,G54-G59.3>>      |Select Coordinate System (1 - 9)
-|<<gcode:g61,G61>>                  |Exact Path Mode
-|<<gcode:g61.1,G61.1>>              |Exact Stop Mode
-|<<gcode:g64,G64>>                  |Path Control Mode with Optional Tolerance
-|<<gcode:g70,G70>>                  |Lathe finishing cycle
-|<<gcode:g71-g72,G71-G72>>          |Lathe roughing cycle
-|<<gcode:g73,G73>>                  |Drilling Cycle with Chip Breaking
-|<<gcode:g74,G74>>                  |Left-hand Tapping Cycle with Dwell
-|<<gcode:g76,G76>>                  |Multi-pass Threading Cycle (Lathe)
-|<<gcode:g80,G80>>                  |Cancel Motion Modes
-|<<gcode:g81,G81>>                  |Drilling Cycle
-|<<gcode:g82,G82>>                  |Drilling Cycle with Dwell
-|<<gcode:g83,G83>>                  |Drilling Cycle with Peck
-|<<gcode:g84,G84>>                  |Right-hand Tapping Cycle with Dwell
-|<<gcode:g85,G85>>                  |Boring Cycle, No Dwell, Feed Out
-|<<gcode:g86,G86>>                  |Boring Cycle, Stop, Rapid Out
-|<<gcode:g87,G87>>                  |Back-boring Cycle '(not yet implemented)'
-|<<gcode:g88,G88>>                  |Boring Cycle, Stop, Manual Out '(not yet implemented)'
-|<<gcode:g89,G89>>                  |Boring Cycle, Dwell, Feed Out
-|<<gcode:g90-g91,G90 G91>>          |Distance Mode
-|<<gcode:g90.1-g91.1,G90.1 G91.1>>  |Arc Distance Mode
-|<<gcode:g92,G92>>                  |Coordinate System Offset
-|<<gcode:g92.1-g92.2,G92.1 G92.2>>  |Cancel G92 Offsets
-|<<gcode:g92.3,G92.3>>              |Restore G92 Offsets
-|<<gcode:g93-g94-g95,G93 G94 G95>>  |Feed Modes
-|<<gcode:g96-g97,G96 G97>>          |Spindle Control Mode, Constant
-  Surface vs Rotation Speed (IPM or m/min vs RPM)
-|<<gcode:g98-g99,G98 G99>>          |Canned Cycle Z Retract Mode
+|Code                              |Description
+|<<gcode:g0,G0>>                   |Coordinated Motion at Rapid Rate
+|<<gcode:g1,G1>>                   |Coordinated Motion at Feed Rate
+|<<gcode:g2-g3,G2 G3>>             |Coordinated Helical Motion at Feed Rate
+|<<gcode:g4,G4>>                   |Dwell
+|<<gcode:g5,G5>>                   |Cubic Spline
+|<<gcode:g5.1,G5.1>>               |Quadratic B-Spline
+|<<gcode:g5.2-g5.3,G5.2,G5.3>>     |NURBS, add control point
+|<<gcode:g7,G7>>                   |Diameter Mode (lathe)
+|<<gcode:g8,G8>>                   |Radius Mode (lathe)
+|<<gcode:g10-l0,G10 L0>>           |Reload Tool Table Data
+|<<gcode:g10-l1,G10 L1>>           |Set Tool Table Entry
+|<<gcode:g10-l10,G10 L10>>         |Set Tool Table, Calculated, Workpiece
+|<<gcode:g10-l11,G10 L11>>         |Set Tool Table, Calculated, Fixture
+|<<gcode:g10-l2,G10 L2>>           |Coordinate System Origin Setting
+|<<gcode:g10-l20,G10 L20>>         |Coordinate System Origin Setting Calculated
+|<<gcode:g17-g19.1,G17 - G19.1>>   |Plane Select
+|<<gcode:g20-g21,G20 G21>>         |Set Units of Measure
+|<<gcode:g28-g28.1,G28 - G28.1>>   |Go to Predefined Position
+|<<gcode:g30-g30.1,G30 - G30.1>>   |Go to Predefined Position
+|<<gcode:g33,G33>>                 |Spindle Synchronized Motion
+|<<gcode:g33.1,G33.1>>             |Rigid Tapping
+|<<gcode:g38,G38.2 - G38.5>>       |Probing
+|<<gcode:g40,G40>>                 |Cancel Cutter Compensation
+|<<gcode:g41-g42,G41 G42>>         |Cutter Compensation
+|<<gcode:g41.1-g42.1,G41.1 G42.1>> |Dynamic Cutter Compensation
+|<<gcode:g43,G43>>                 |Use Tool Length Offset from Tool Table
+|<<gcode:g43.1,G43.1>>             |Dynamic Tool Length Offset
+|<<gcode:g43.2,G43.2>>             |Apply additional Tool Length Offset
+|<<gcode:g49,G49>>                 |Cancel Tool Length Offset
+|<<gcode:g52,G52>>                 |Local Coordinate System Offset
+|<<gcode:g53,G53>>                 |Move in Machine Coordinates
+|<<gcode:g54-g59.3,G54-G59.3>>     |Select Coordinate System (1 - 9)
+|<<gcode:g61,G61>>                 |Exact Path Mode
+|<<gcode:g61.1,G61.1>>             |Exact Stop Mode
+|<<gcode:g64,G64>>                 |Path Control Mode with Optional Tolerance
+|<<gcode:g70,G70>>                 |Lathe finishing cycle
+|<<gcode:g71-g72,G71-G72>>         |Lathe roughing cycle
+|<<gcode:g73,G73>>                 |Drilling Cycle with Chip Breaking
+|<<gcode:g74,G74>>                 |Left-hand Tapping Cycle with Dwell
+|<<gcode:g76,G76>>                 |Multi-pass Threading Cycle (Lathe)
+|<<gcode:g80,G80>>                 |Cancel Motion Modes
+|<<gcode:g81,G81>>                 |Drilling Cycle
+|<<gcode:g82,G82>>                 |Drilling Cycle with Dwell
+|<<gcode:g83,G83>>                 |Drilling Cycle with Peck
+|<<gcode:g84,G84>>                 |Right-hand Tapping Cycle with Dwell
+|<<gcode:g85,G85>>                 |Boring Cycle, No Dwell, Feed Out
+|<<gcode:g86,G86>>                 |Boring Cycle, Stop, Rapid Out
+|<<gcode:g87,G87>>                 |Back-boring Cycle _(not yet implemented)_
+|<<gcode:g88,G88>>                 |Boring Cycle, Stop, Manual Out _(not yet implemented)_
+|<<gcode:g89,G89>>                 |Boring Cycle, Dwell, Feed Out
+|<<gcode:g90-g91,G90 G91>>         |Distance Mode
+|<<gcode:g90.1-g91.1,G90.1 G91.1>> |Arc Distance Mode
+|<<gcode:g92,G92>>                 |Coordinate System Offset
+|<<gcode:g92.1-g92.2,G92.1 G92.2>> |Cancel G92 Offsets
+|<<gcode:g92.3,G92.3>>             |Restore G92 Offsets
+|<<gcode:g93-g94-g95,G93 G94 G95>> |Feed Modes
+|<<gcode:g96-g97,G96 G97>>         |Spindle Control Mode, Constant Surface vs Rotation Speed (IPM or m/min vs RPM)
+|<<gcode:g98-g99,G98 G99>>         |Canned Cycle Z Retract Mode
 |===
 
 [[gcode:g0]]
@@ -770,7 +769,7 @@ Program P0 to P9 to specify which coordinate system to change.
 
 .Coordinate System
 [width="50%",options="header",cols="^,^,^"]
-|========================================
+|===
 |P Value |Coordinate System |G-code
 |0 |Active |n/a
 |1 |1 |G54
@@ -782,7 +781,7 @@ Program P0 to P9 to specify which coordinate system to change.
 |7 |7 |G59.1
 |8 |8 |G59.2
 |9 |9 |G59.3
-|========================================
+|===
 
 Optionally program R to indicate the rotation of the XY axis around the
 Z axis.
@@ -1230,13 +1229,13 @@ place, whichever occurs first.
 [[gcode:probing-codes]]
 .Probing G-Codes
 [width="90%",options="header"]
-|==========================================================
+|===
 |Code  | Target State    | Move orientation | Error Signal
 |G38.2 | Touched         | Toward piece     | Yes
 |G38.3 | Touched         | Toward piece     | No
 |G38.4 | Untouched       | From piece       | Yes
 |G38.5 | Untouched       | From piece       | No
-|==========================================================
+|===
 
 After successful probing, parameters #5061 to #5069 will be set to the
 X, Y, Z, A, B, C, U, V, W coordinates of the location of the controlled
@@ -1565,18 +1564,18 @@ around the Z axis in the parameters shown in the following table.
 
 .Coordinate System Parameters
 [width="80%",options="header",cols="<,11*^"]
-|============================================================
-|Select|CS|X   |Y   |Z   |A   |B   |C   |U   |V   |W   |R
-|G54   |1 |5221|5222|5223|5224|5225|5226|5227|5228|5229|5230
-|G55   |2 |5241|5242|5243|5244|5245|5246|5247|5248|5249|5250
-|G56   |3 |5261|5262|5263|5264|5265|5266|5267|5268|5269|5270
-|G57   |4 |5281|5282|5283|5284|5285|5286|5287|5288|5289|5290
-|G58   |5 |5301|5302|5303|5304|5305|5306|5307|5308|5309|5310
-|G59   |6 |5321|5322|5323|5324|5325|5326|5327|5328|5329|5330
-|G59.1 |7 |5341|5342|5343|5344|5345|5346|5347|5348|5349|5350
-|G59.2 |8 |5361|5362|5363|5364|5365|5366|5367|5368|5369|5370
-|G59.3 |9 |5381|5382|5383|5384|5385|5386|5387|5388|5389|5390
-|============================================================
+|===
+|Select |CS |X    |Y    |Z    |A    |B    |C    |U    |V    |W    |R
+|G54    |1  |5221 |5222 |5223 |5224 |5225 |5226 |5227 |5228 |5229 |5230
+|G55    |2  |5241 |5242 |5243 |5244 |5245 |5246 |5247 |5248 |5249 |5250
+|G56    |3  |5261 |5262 |5263 |5264 |5265 |5266 |5267 |5268 |5269 |5270
+|G57    |4  |5281 |5282 |5283 |5284 |5285 |5286 |5287 |5288 |5289 |5290
+|G58    |5  |5301 |5302 |5303 |5304 |5305 |5306 |5307 |5308 |5309 |5310
+|G59    |6  |5321 |5322 |5323 |5324 |5325 |5326 |5327 |5328 |5329 |5330
+|G59.1  |7  |5341 |5342 |5343 |5344 |5345 |5346 |5347 |5348 |5349 |5350
+|G59.2  |8  |5361 |5362 |5363 |5364 |5365 |5366 |5367 |5368 |5369 |5370
+|G59.3  |9  |5381 |5382 |5383 |5384 |5385 |5386 |5387 |5388 |5389 |5390
+|===
 
 It is an error if:
 

@@ -618,37 +618,37 @@ The most frequently used keyboard shortcuts are shown in the following table:
 [[tab:common-keyboard-shortcuts]]
 .Most Common Keyboard Shortcuts(((AXIS,Keyboard Shortcuts)))
 [width="80%",options="header",cols="^,<,^"]
-|====================================================================
-|Keystroke        | Action Taken                              | Mode
-|F1               | Toggle Emergency Stop                     | Any
-|F2               | Turn machine on/off                       | Any
-|`, 1 .. 9, 0     | Set feed override from 0% to 100%         | Varies
-|X, `             | Activate first axis                       | Manual
-|Y, 1             | Activate second axis                      | Manual
-|Z, 2             | Activate third axis                       | Manual
-|A, 3             | Activate fourth axis                      | Manual
-|I                | Select jog increment                      | Manual
-|C                | Continuous jog                            | Manual
-|Control-Home     | Perform homing sequence                   | Manual
-|End              | Touch off: Set G5x offset for active axis | Manual
-|Left, Right      | Jog first axis                            | Manual
-|Up, Down         | Jog second axis                           | Manual
-|Pg Up, Pg Dn     | Jog third axis                            | Manual
-|[, ]             | Jog fourth axis                           | Manual
-|O                | Open File                                 | Manual
-|Control-R        | Reload File                               | Manual
-|R                | Run file                                  | Manual
-|P                | Pause execution                           | Auto
-|S                | Resume Execution                          | Auto
-|ESC              | Stop execution                            | Auto
-|Control-K        | Clear backplot                            | Auto/Manual
-|V                | Cycle among preset views                  | Auto/Manual
-|Shift-Left,Right | Rapid X Axis                              | Manual
-|Shift-Up,Down    | Rapid Y Axis                              | Manual
-|Shift-PgUp, PgDn | Rapid Z Axis                              | Manual
-|@                | toggle Actual/Commanded                   | Any
-|#                | toggle Relative/Machine                   | Any
-|====================================================================
+|===
+|Keystroke        |Action Taken                              |Mode
+|F1               |Toggle Emergency Stop                     |Any
+|F2               |Turn machine on/off                       |Any
+|`, 1 .. 9, 0     |Set feed override from 0% to 100%         |Varies
+|X, `             |Activate first axis                       |Manual
+|Y, 1             |Activate second axis                      |Manual
+|Z, 2             |Activate third axis                       |Manual
+|A, 3             |Activate fourth axis                      |Manual
+|I                |Select jog increment                      |Manual
+|C                |Continuous jog                            |Manual
+|Control-Home     |Perform homing sequence                   |Manual
+|End              |Touch off: Set G5x offset for active axis |Manual
+|Left, Right      |Jog first axis                            |Manual
+|Up, Down         |Jog second axis                           |Manual
+|Pg Up, Pg Dn     |Jog third axis                            |Manual
+|[, ]             |Jog fourth axis                           |Manual
+|O                |Open File                                 |Manual
+|Control-R        |Reload File                               |Manual
+|R                |Run file                                  |Manual
+|P                |Pause execution                           |Auto
+|S                |Resume Execution                          |Auto
+|ESC              |Stop execution                            |Auto
+|Control-K        |Clear backplot                            |Auto/Manual
+|V                |Cycle among preset views                  |Auto/Manual
+|Shift-Left,Right |Rapid X Axis                              |Manual
+|Shift-Up,Down    |Rapid Y Axis                              |Manual
+|Shift-PgUp, PgDn |Rapid Z Axis                              |Manual
+|@                |Toggle Actual/Commanded                   |Any
+|#                |Toggle Relative/Machine                   |Any
+|===
 
 == Show LinuxCNC Status (linuxcnctop)
 
@@ -799,7 +799,7 @@ You can have multiple line of 'POSTGUI_HALFILE=<filename>' in the INI.
 Each will be run one after the other in the order they appear.
 
 For more information on the INI file settings that can change the way AXIS
-works, see the << sub:ini:sec:display,Display Section>> of the INI configuration chapter.
+works, see the <<sub:ini:sec:display,Display Section>> of the INI configuration chapter.
 
 === Program Filters
 

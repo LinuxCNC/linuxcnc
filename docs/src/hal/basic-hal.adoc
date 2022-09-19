@@ -405,13 +405,13 @@ and2.N.out (bit, out)
 
 .and2 Truth Table
 [width="90%",options="header"]
-|======================
+|===
 |in0   | in1   | out
 |False | False | False
 |True  | False | False
 |False | True  | False
 |True  | True  | True
-|======================
+|===
 
 [[sub:hal-not]]
 === not(((HAL not,not)))
@@ -437,11 +437,11 @@ not.n.out (bit, out)
 
 .not Truth Table
 [width="90%",options="header"]
-|=============
+|===
 |in    | out
 |True  | False
 |False | True
-|=============
+|===
 
 [[sub:hal-or2]]
 === or2(((HAL or2,or2)))
@@ -467,13 +467,13 @@ or2.n.out (bit, out)
 
 .or2 Truth Table
 [width="90%",options="header"]
-|=====================
+|===
 |in0   | in1   | out
 |True  | False | True
 |True  | True  | True
 |False | True  | True
 |False | False | False
-|=====================
+|===
 
 [[sub:hal-xor2]]
 === xor2(((HAL xor2,xor2)))
@@ -499,13 +499,13 @@ xor2.n.out (bit, out)
 
 .xor2 Truth Table
 [width="90%",options="header"]
-|=====================
+|===
 |in0   | in1   | out
 |True  | False | True
 |True  | True  | False
 |False | True  | True
 |False | False | False
-|=====================
+|===
 
 [[sec:hal-logic-examples]]
 == Logic Examples(((HAL Logic Examples)))

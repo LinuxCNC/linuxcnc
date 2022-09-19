@@ -288,29 +288,29 @@ check there too.
 So far, all firmware is available in all gate sizes.)
 
 [width="90%",options="header"]
-|====================================================================
-|Firmware         | Encoder | PWMGen | StepGen | GPIO
-|SV24             | 24      | 24     | 0       | 0
-|SVST16_24        | 16      | 16     | 24      | 0
-|====================================================================
+|===
+|Firmware   | Encoder | PWMGen | StepGen | GPIO
+|SV24       | 24      | 24     | 0       | 0
+|SVST16_24  | 16      | 16     | 24      | 0
+|===
 
 5i22 (4-port PCI) Default Configurations (The 5i22 comes in 1M and 1.5M
 gate versions.
 So far, all firmware is available in all gate sizes.)
 
 [width="90%",options="header"]
-|====================================================================
-|Firmware         | Encoder | PWM | StepGen | GPIO
-|SV16             | 16      | 16  | 0       | 0
-|SVST2_4_7I47     | 4       | 2   | 4       | 72
-|SVST8_8          | 8       | 8   | 8       | 0
-|SVST8_24         | 8       | 8   | 24      | 0
-|====================================================================
+|===
+|Firmware     | Encoder | PWM | StepGen | GPIO
+|SV16         | 16      | 16  | 0       | 0
+|SVST2_4_7I47 | 4       | 2   | 4       | 72
+|SVST8_8      | 8       | 8   | 8       | 0
+|SVST8_24     | 8       | 8   | 24      | 0
+|===
 
 5i23 (3-port PCI) Default Configurations (The 5i23 has 400k gates.)
 
 [width="90%",options="header"]
-|====================================================================
+|===
 |Firmware         | Encoder  | PWM        | StepGen  | GPIO
 |SV12             | 12       | 12         | 0        | 0
 |SVST2_8          | 2        | 2          | 8 (tbl5) | 12
@@ -322,12 +322,12 @@ So far, all firmware is available in all gate sizes.)
 |SVST8_4IM2       | 8 (+IM)  | 8          | 4        | 8
 |SVST8_8IM2       | 8 (+IM)  | 8          | 8        | 0
 |SVTP6_7I39       | 6        | 0 (6 BLDC) | 0        | 0
-|====================================================================
+|===
 
 5i20 (3-port PCI) Default Configurations (The 5i20 has 200k gates.)
 
 [width="90%",options="header"]
-|====================================================================
+|===
 |Firmware         | Encoder  | PWM        | StepGen  | GPIO
 |SV12             | 12       | 12         | 0        | 0
 |SVST2_8          | 2        | 2          | 8 (tbl5) | 12
@@ -336,54 +336,54 @@ So far, all firmware is available in all gate sizes.)
 |SV12IM_2X7I48_72 | 12 (+IM) | 12         | 0        | 12
 |SVST8_4          | 8        | 8          | 4 (tbl5) | 0
 |SVST8_4IM2       | 8 (+IM)  | 8          | 4        | 8
-|====================================================================
+|===
 
 4i68 (3-port PC/104) Default Configurations (The 4i68 has 400k gates.)
 
 [width="90%",options="header"]
-|====================================================================
-|Firmware         | Encoder  | PWM        | StepGen  | GPIO
-|SV12             | 12       | 12         | 0        | 0
-|SVST2_4_7I47     | 4        | 2          | 4        | 48
-|SVST4_8          | 4        | 4          | 8        | 0
-|SVST8_4          | 8        | 8          | 4        | 0
-|SVST8_4IM2       | 8 (+IM)  | 8          | 4        | 8
-|SVST8_8IM2       | 8 (+IM)  | 8          | 8        | 0
-|====================================================================
+|===
+|Firmware     | Encoder  | PWM        | StepGen  | GPIO
+|SV12         | 12       | 12         | 0        | 0
+|SVST2_4_7I47 | 4        | 2          | 4        | 48
+|SVST4_8      | 4        | 4          | 8        | 0
+|SVST8_4      | 8        | 8          | 4        | 0
+|SVST8_4IM2   | 8 (+IM)  | 8          | 4        | 8
+|SVST8_8IM2   | 8 (+IM)  | 8          | 8        | 0
+|===
 
 
 4i65 (3-port PC/104) Default Configurations (The 4i65 has 200k gates.)
 
 [width="90%",options="header"]
-|====================================================================
-|Firmware         | Encoder  | PWM        | StepGen  | GPIO
-|SV12             | 12       | 12         | 0        | 0
-|SVST8_4          | 8        | 8          | 4        | 0
-|SVST8_4IM2       | 8 (+IM)  | 8          | 4        | 8
-|====================================================================
+|===
+|Firmware   | Encoder  | PWM        | StepGen  | GPIO
+|SV12       | 12       | 12         | 0        | 0
+|SVST8_4    | 8        | 8          | 4        | 0
+|SVST8_4IM2 | 8 (+IM)  | 8          | 4        | 8
+|===
 
 7i43 (2-port parallel) 400k gate versions, Default Configurations
 
 [width="90%",options="header"]
-|====================================================================
-|Firmware         | Encoder  | PWM        | StepGen  | GPIO
-|SV8              | 8        | 8          | 0        | 0
-|SVST4_4          | 4        | 4          | 4 (tbl5) | 0
-|SVST4_6          | 4        | 4          | 6 (tbl3) | 0
-|SVST4_12         | 4        | 4          | 12       | 0
-|SVST2_4_7I47     | 4        | 2          | 4        | 24
-|====================================================================
+|===
+|Firmware     | Encoder  | PWM        | StepGen  | GPIO
+|SV8          | 8        | 8          | 0        | 0
+|SVST4_4      | 4        | 4          | 4 (tbl5) | 0
+|SVST4_6      | 4        | 4          | 6 (tbl3) | 0
+|SVST4_12     | 4        | 4          | 12       | 0
+|SVST2_4_7I47 | 4        | 2          | 4        | 24
+|===
 
 7i43 (2-port parallel) 200k gate versions, Default Configurations
 
 [width="90%",options="header"]
-|====================================================================
-|Firmware         | Encoder  | PWM        | StepGen  | GPIO
-|SV8              | 8        | 8          | 0        | 0
-|SVST4_4          | 4        | 4          | 4 (tbl5) | 0
-|SVST4_6          | 4        | 4          | 6 (tbl3) | 0
-|SVST2_4_7I47     | 4        | 2          | 4        | 24
-|====================================================================
+|===
+|Firmware     | Encoder  | PWM        | StepGen  | GPIO
+|SV8          | 8        | 8          | 0        | 0
+|SVST4_4      | 4        | 4          | 4 (tbl5) | 0
+|SVST4_6      | 4        | 4          | 6 (tbl3) | 0
+|SVST2_4_7I47 | 4        | 2          | 4        | 24
+|===
 
 Even though several cards may have the same named .BIT file you cannot use
 a .BIT file that is not for that card. Different cards have different

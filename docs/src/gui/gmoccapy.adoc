@@ -140,8 +140,8 @@ PREFERENCE_FILE_PATH = GMOCCAPY_preferences
 
 GMOCCAPY 3 supports the following command line options:
 
- * '-user_mode' : If set, the setup button will be disabled, so normal machine opperators are not able to edit the settings of the machine
- * '-logo <path to logo file>' : If given, the logo will hide the jog button tab in manual mode, this is only useful for machines with hardware buttons for jogging and increment selection
+ * '-user_mode' : If set, the setup button will be disabled, so normal machine operators are not able to edit the settings of the machine.
+ * '-logo <path to logo file>' : If given, the logo will hide the jog button tab in manual mode, this is only useful for machines with hardware buttons for jogging and increment selection.
 
 The line PREFERENCE_FILE_PATH gives the location and name of the preferences file to be used.
 In most cases this line will not be needed, it is used by GMOCCAPY to store your settings of the GUI,
@@ -164,7 +164,7 @@ Sets the maximum feed override, in the example given, you will be allowed to
 override the feed by 150%.
 
 [NOTE]
-If no value is given, it will be set to 1.0
+If no value is given, it will be set to 1.0.
 
 [source,{ini}]
 ----
@@ -198,10 +198,10 @@ See also the <<gmoccapy:lathe-section,Lathe Specific Section>>.
 PROGRAM_PREFIX = ../../nc_files/
 ----
 
-Is the entry to tell LinuxCNC/GMOCCAPY where to look for the ngc files.
+Is the entry to tell LinuxCNC/GMOCCAPY where to look for the NGC files.
 
 [NOTE]
-If not specified GMOCCAPY will look in the following order for ngc files:
+If not specified GMOCCAPY will look in the following order for NGC files:
 linuxcnc/nc_files and then the users home directory.
 
 [[gmoccapy:configuration-of-tabs-and-side-panels]]
@@ -370,7 +370,7 @@ several subroutine paths, just separate them with ":".
 === The MACRO Section
 
 You can add macros to GMOCCAPY, similar to Touchy's way. A macro is nothing
-else than a ngc-file. You are able to execute complete CNC programs in MDI
+else than an NGC file. You are able to execute complete CNC programs in MDI
 mode, by just pushing one button. To do so, you first have to add a section like this:
 
 .Configuration of five macros in the INI fileto MDI button list
@@ -384,10 +384,10 @@ MACRO = increment xinc yinc
 MACRO = go_to_position X-pos Y-pos Z-pos
 ----
 
-Then you have to provide the corresponding ngc files which have to follow these rules:
+Then you have to provide the corresponding NGC files which have to follow these rules:
 
 * The name of the file need to be exactly the same as the name mentioned in the macro
-  line, just with the ngc extension (case sensitive).
+  line, just with the ".ngc" extension (case sensitive).
 * The file must contain a subroutine like '*O<i_am_lost> sub*', the name
   of the sub must match exactly (case sensitive) the name of the macro.
 * The file must end with an endsub '*O<i_am_lost> endsub*' followed by an '*M2*' command.
@@ -675,7 +675,7 @@ This change has been done as many user ask for that.
 To connect 'encoders' the following pin are exported:
 
 [{pin_tab_options}]
-|====
+|===
 |                   PIN                           |  TYPE   |  FUNCTION
 | gmoccapy.jog.jog-velocity.counts                | HAL_S32 | Jog velocity
 | gmoccapy.jog.jog-velocity.count-enable          | HAL_BIT | Must be True, to enable counts
@@ -687,12 +687,12 @@ To connect 'encoders' the following pin are exported:
 | gmoccapy.spindle.reset-spindle-override         | HAL_BIT | reset the spindle override to 100%
 | gmoccapy.rapid.rapid-override.counts            | HAL_S32 | Maximal Velocity of the machine
 | gmoccapy.rapid.rapid-override.count-enable      | HAL_BIT | Must be True, to enable counts
-|====
+|===
 
 To connect 'potentiometers', use the following HAL pin:
 
 [{pin_tab_options}]
-|====
+|===
 |                   PIN                           |  TYPE     |  FUNCTION
 | gmoccapy.jog.jog-velocity.direct-value          | HAL_FLOAT | To adjust the jog velocity slider
 | gmoccapy.jog.jog-velocity.analog-enable         | HAL_BIT   | Must be True, to allow analog inputs
@@ -702,40 +702,40 @@ To connect 'potentiometers', use the following HAL pin:
 | gmoccapy.spindle.spindle-override.analog-enable | HAL_BIT   | Must be True, to allow analog inputs
 | gmoccapy.rapid.rapid-override.direct-value      | HAL_FLOAT | To adjust the max velocity slider
 | gmoccapy.rapid.rapid-override.analog-enable     | HAL_BIT   | Must be True, to allow analog inputs
-|====
+|===
 
 In addition GMOCCAPY 3 offers additional HAL pin to control the new slider widgets with momentary switches.
 The values how fast the increase or decrease will be, must be set in the glade file.
 In a future release it will be integrated in the settings page.
 
 [{pin_tab_options}]
-|====
-|               PIN                 |  TYPE         |  FUNCTION
-| SPEED                             |               |
-| gmoccapy.spc_jog_vel.increase     | HAL_BIT IN    | as long as True the value of the slider will increase
-| gmoccapy.spc_jog_vel.decrease     | HAL_BIT IN    | as long as True the value of the slider will decrease
-| gmoccapy.spc_jog_vel.scale        | HAL_FLOAT IN  | A value to scale the output value (Handy to change units/min to units/sec
-| gmoccapy.spc_jog_vel.value        | HAL_FLOAT OUT | value of the widget
-| gmoccapy.spc_jog_vel.scaled-value | HAL_FLOAT OUT | scaled value of the widget
-| FEED                              |               |
-| gmoccapy.spc_feed.increase        | HAL_BIT IN    | as long as True the value of the slider will increase
-| gmoccapy.spc_feed.decrease        | HAL_BIT IN    | as long as True the value of the slider will decrease
-| gmoccapy.spc_feed.scale           | HAL_FLOAT IN  | A value to scale the output value (Handy to change units/min to units/sec
-| gmoccapy.spc_feed.value           | HAL_FLOAT OUT | value of the widget
-| gmoccapy.spc_feed.scaled-value    | HAL_FLOAT OUT | scaled value of the widget
-| SPINDLE                           |               |
-| gmoccapy.spc_spindle.increase     | HAL_BIT IN    | as long as True the value of the slider will increase
-| gmoccapy.spc_spindle.decrease     | HAL_BIT IN    | as long as True the value of the slider will decrease
-| gmoccapy.spc_spindle.scale        | HAL_FLOAT IN  | A value to scale the output value (Handy to change units/min to units/sec
-| gmoccapy.spc_spindle.value        | HAL_FLOAT OUT | value of the widget
-| gmoccapy.spc_spindle.scaled-value | HAL_FLOAT OUT | scaled value of the widget
-| RAPIDS                            |               |
-| gmoccapy.spc_rapid.increase       | HAL_BIT IN    | as long as True the value of the slider will increase
-| gmoccapy.spc_rapid.decrease       | HAL_BIT IN    | as long as True the value of the slider will decrease
-| gmoccapy.spc_rapid.scale          | HAL_FLOAT IN  | A value to scale the output value (Handy to change units/min to units/sec)
-| gmoccapy.spc_rapid.value          | HAL_FLOAT OUT | value of the widget
-| gmoccapy.spc_rapid.scaled-value   | HAL_FLOAT OUT | scaled value of the widget
-|====
+|===
+|              PIN                 | TYPE         | FUNCTION
+|SPEED                             |              |
+|gmoccapy.spc_jog_vel.increase     |HAL_BIT IN    |as long as True the value of the slider will increase
+|gmoccapy.spc_jog_vel.decrease     |HAL_BIT IN    |as long as True the value of the slider will decrease
+|gmoccapy.spc_jog_vel.scale        |HAL_FLOAT IN  |A value to scale the output value (Handy to change units/min to units/sec
+|gmoccapy.spc_jog_vel.value        |HAL_FLOAT OUT |value of the widget
+|gmoccapy.spc_jog_vel.scaled-value |HAL_FLOAT OUT |scaled value of the widget
+|FEED                              |              |
+|gmoccapy.spc_feed.increase        |HAL_BIT IN    |as long as True the value of the slider will increase
+|gmoccapy.spc_feed.decrease        |HAL_BIT IN    |as long as True the value of the slider will decrease
+|gmoccapy.spc_feed.scale           |HAL_FLOAT IN  |A value to scale the output value (Handy to change units/min to units/sec
+|gmoccapy.spc_feed.value           |HAL_FLOAT OUT |value of the widget
+|gmoccapy.spc_feed.scaled-value    |HAL_FLOAT OUT |scaled value of the widget
+|SPINDLE                           |              |
+|gmoccapy.spc_spindle.increase     |HAL_BIT IN    |as long as True the value of the slider will increase
+|gmoccapy.spc_spindle.decrease     |HAL_BIT IN    |as long as True the value of the slider will decrease
+|gmoccapy.spc_spindle.scale        |HAL_FLOAT IN  |A value to scale the output value (Handy to change units/min to units/sec
+|gmoccapy.spc_spindle.value        |HAL_FLOAT OUT |value of the widget
+|gmoccapy.spc_spindle.scaled-value |HAL_FLOAT OUT |scaled value of the widget
+|RAPIDS                            |              |
+|gmoccapy.spc_rapid.increase       |HAL_BIT IN    |as long as True the value of the slider will increase
+|gmoccapy.spc_rapid.decrease       |HAL_BIT IN    |as long as True the value of the slider will decrease
+|gmoccapy.spc_rapid.scale          |HAL_FLOAT IN  |A value to scale the output value (Handy to change units/min to units/sec)
+|gmoccapy.spc_rapid.value          |HAL_FLOAT OUT |value of the widget
+|gmoccapy.spc_rapid.scaled-value   |HAL_FLOAT OUT |scaled value of the widget
+|===
 
 The float pin do accept values from 0.0 to 1.0, being the percentage value
 you want to set the slider value.
@@ -991,7 +991,7 @@ each tool change!
 
 GMOCCAPY offers an integrated auto tool measurement. To use this feature, you
 will need to do some additional settings and you may want to use the
-offered HAL pin to get values in your own ngc remap procedure.
+offered HAL pin to get values in your own NGC remap procedure.
 
 [IMPORTANT]
 Before starting the first test, do not forget to enter the probe
@@ -1352,7 +1352,7 @@ be set by pressing the current button to avoid that any program is loaded at
 start up, just press the None button.
 
 The file selection screen will use the filters you have set in the INI file,
-if there aren't any filters given, you will only see *ngc* files. The path
+if there aren't any filters given, you will only see *NGC* files. The path
 will be set according to the INI settings in [DISPLAY] PROGRAM_PREFIX.
 
 ==== Jump to dir

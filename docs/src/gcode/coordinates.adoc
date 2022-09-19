@@ -98,7 +98,7 @@ directly edit the file so that G55 will take the following values:
 
 .Example of G55 parameters
 [width="40%",cols="^,^,^",options="header"]
-|====
+|===
 |Axis | Variable |    Value
 | X   | 5241     |  2.000000
 | Y   | 5242     |  1.000000
@@ -109,7 +109,7 @@ directly edit the file so that G55 will take the following values:
 | U   | 5247     |  0.000000
 | V   | 5248     |  0.000000
 | W   | 5249     |  0.000000
-|====
+|===
 
 You should read this as moving the zero positions of G55 to X = 2
 units, Y= 1 unit, and Z = -2 units away from the absolute zero position.

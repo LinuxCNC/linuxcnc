@@ -100,7 +100,7 @@ realtime. See below for the LinuxCNC version to install.
   slightly different on the different platforms:
 
 [options="header"]
-|====
+|===
 | Platform                | apt source line
 | Debian Stretch          | `deb http://linuxcnc.org stretch base 2.8-rtpreempt`
 | Debian Wheezy           | `deb http://linuxcnc.org wheezy base 2.8-rt`
@@ -109,7 +109,7 @@ realtime. See below for the LinuxCNC version to install.
 | Debian Jessie - RTAI    | `deb http://linuxcnc.org jessie base 2.8-rt`
 | Debian Buster - preempt | `deb http://linuxcnc.org buster base 2.8-rtpreempt`
 | Debian Buster - RTAI    | `deb http://linuxcnc.org buster base 2.8-rt`
-|====
+|===
 
 image::images/upgrading-to-2.8.png["Setting apt sources",align="center"]
 

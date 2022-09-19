@@ -57,24 +57,22 @@ Set `HAL_MODULE_NAME=mymodule` (default `HAL_MODULE_NAME=mb2hal`)
 `[MB2HAL_INIT]`
 
 [options="header",cols="14,8,13,67"]
-|=======================
+|===
 |Value | Type | Required | Description
-|`INIT_DEBUG`| Integer | No | Debug level of init and INI file parsing. +
+m|INIT_DEBUG | Integer | No | Debug level of init and INI file parsing. +
 0 = silent +
 1 = error messages (default) +
 2 = OK confirmation messages +
 3 = debugging messages +
 4 = maximum debugging messages (only in transactions) +
-|`HAL_MODULE_NAME` | String | No | HAL module (component) name. Defaults
+m|HAL_MODULE_NAME | String | No | HAL module (component) name. Defaults
 to "mb2hal".
-|`SLOWDOWN` | Float | No | Insert a delay of "FLOAT seconds" between
-transactions in order to not to have a lot of logging 
-and facilitate the debugging.
-Useful when using `DEBUG=3` (NOT `INIT_DEBUG=3`). It affects ALL
-transactions. Use "0.0" for normal activity.
-| `TOTAL_TRANSACTIONS` | Integer | Yes | The number of total Modbus
-transactions. There is no maximum.
-|=======================
+m|SLOWDOWN | Float | No | Insert a delay of "FLOAT seconds" between
+transactions in order to not to have a lot of logging and facilitate the debugging.
+Useful when using `DEBUG=3` (NOT `INIT_DEBUG=3`).
+It affects ALL transactions. Use "0.0" for normal activity.
+m|TOTAL_TRANSACTIONS | Integer | Yes | The number of total Modbus transactions. There is no maximum.
+|===
 
 
 === Transaction Sections
@@ -87,42 +85,42 @@ Warning: Any OPTIONAL parameter not specified are copied from the
 previous transaction.
 
 [options="header",cols="14,8,13,67"]
-|=======================
+|===
 |Value            | Type | Required | Description
-|`LINK_TYPE`      | String | Yes | You must specify either a "serial" or
+m|LINK_TYPE       | String | Yes | You must specify either a "serial" or
 "tcp" link for the first transaction.
 Later transactions will use the previous transaction link if not
 specified.
-|`TCP_IP`         | IP address | If `LINK_TYPE=tcp` | The Modbus slave
+m|TCP_IP          | IP address | If `LINK_TYPE=tcp` | The Modbus slave
 device IP address. Ignored if `LINK_TYPE=serial`.
-|`TCP_PORT`       | Integer | No | The Modbus slave device TCP port.
+m|TCP_PORT        | Integer | No | The Modbus slave device TCP port.
 Defaults to 502.  Ignored if `LINK_TYPE=serial`.
-|`SERIAL_PORT`    | String | If `LINK_TYPE=serial` | The serial port.
+m|SERIAL_PORT     | String | If `LINK_TYPE=serial` | The serial port.
 For example "/dev/ttyS0". Ignored if `LINK_TYPE=tcp`.
-|`SERIAL_BAUD`    | Integer | If `LINK_TYPE=serial` | The baud rate.
+m|SERIAL_BAUD     | Integer | If `LINK_TYPE=serial` | The baud rate.
 Ignored if `LINK_TYPE=tcp`.
-|`SERIAL_BITS`    | Integer | If `LINK_TYPE=serial` | Data bits.
+m|SERIAL_BITS     | Integer | If `LINK_TYPE=serial` | Data bits.
 One of 5, 6, 7, 8. Ignored if `LINK_TYPE=tcp`.
-|`SERIAL_PARITY`  | String | If `LINK_TYPE=serial` | Data parity.
+m|SERIAL_PARITY   | String | If `LINK_TYPE=serial` | Data parity.
 One of: even, odd, none. Ignored if `LINK_TYPE=tcp`.
-|`SERIAL_STOP`    | Integer | If `LINK_TYPE=serial` | Stop bits.
+m|SERIAL_STOP     | Integer | If `LINK_TYPE=serial` | Stop bits.
 One of 1, 2. Ignored if `LINK_TYPE=tcp`.
-|`SERIAL_DELAY_MS`| Integer | If `LINK_TYPE=serial` | Serial port delay
+m|SERIAL_DELAY_MS | Integer | If `LINK_TYPE=serial` | Serial port delay
 between transactions of this section only.
 In ms. Defaults to 0. Ignored if `LINK_TYPE=tcp`.
-|`MB_SLAVE_ID`    | Integer | Yes | Modbus slave number.
-|`FIRST_ELEMENT`  | Integer | Yes | The first element address.
-|`NELEMENTS`      | Integer | Unless `PIN_NAMES` is specified | The
+m|MB_SLAVE_ID     | Integer | Yes | Modbus slave number.
+m|FIRST_ELEMENT   | Integer | Yes | The first element address.
+m|NELEMENTS       | Integer | Unless `PIN_NAMES` is specified | The
 number of elements. It is an error to specify both `NELEMENTS` and
 `PIN_NAMES`. The pin names will be sequential numbers
 e.g. `mb2hal.plcin.01`
-|`PIN_NAMES`      | List | Unless `NELEMENTS` is specified | A list of
+m|PIN_NAMES       | List | Unless `NELEMENTS` is specified | A list of
 element names.
 These names will be used for the pin names, e.g.
 mb2hal.plcin.cycle_start. +
 *NOTE:* There must be no white space characters in the list. Example:
 `PIN_NAMES=cycle_start,stop,feed_hold`
-|`MB_TX_CODE`     | String | Yes | 
+m|MB_TX_CODE      | String | Yes | 
 
 Modbus transaction function code (see link:https://modbus.org/specs.php[specifications]):
 
@@ -135,27 +133,26 @@ Modbus transaction function code (see link:https://modbus.org/specs.php[specific
 • fnct_15_write_multiple_coils +
 • fnct_16_write_multiple_registers +
 
-|`MB_RESPONSE_TIMEOUT_MS`| Integer | No | 
+m|MB_RESPONSE_TIMEOUT_MS | Integer | No | 
 Response timeout for this transaction. In ms. Defaults to 500 ms. This
 is how much to wait for 1st byte before raise an error.
-|`MB_BYTE_TIMEOUT_MS`    | Integer | No | Byte timeout for this
+m|MB_BYTE_TIMEOUT_MS     | Integer | No | Byte timeout for this
 transaction. In ms. Defaults to 500 ms. This is how much to wait from
 byte to byte before raise an error.
-|`HAL_TX_NAME`    | String | No | Instead of giving the transaction
+m|HAL_TX_NAME            | String | No | Instead of giving the transaction
 number, use a name. Example: `mb2hal.00.01`
 could become `mb2hal.plcin.01`. The name must not exceed 28 characters.
 *NOTE:* when using names be careful that
 you don't end up with two transactions using the same name.
-|`MAX_UPDATE_RATE`| Float | No | Maximum update rate in Hz. Defaults to
+m|MAX_UPDATE_RATE        | Float | No | Maximum update rate in Hz. Defaults to
 0.0 (0.0 = as soon as available = infinite).
 *NOTE:* This is a maximum rate and the actual rate may be lower. If you
 want to calculate it in ms use (1000 / required_ms).
 Example: 100 ms = `MAX_UPDATE_RATE=10.0`,
 because 1000.0 ms / 100.0 ms = 10.0 Hz.
-|`DEBUG`          | String | No | Debug level for this transaction only.
+m|DEBUG                  | String | No | Debug level for this transaction only.
 See `INIT_DEBUG` parameter above.
-
-|=======================
+|===
 
 === Error codes
 

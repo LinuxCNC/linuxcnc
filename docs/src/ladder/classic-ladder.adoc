@@ -97,25 +97,25 @@ default values.
 .Default Variable Count
 
 [width="90%",options="header",cols="<8,<4,<2"]
-|========================================
-|Object Name                      | Variable Name   | Default Value
-|Number of rungs                  | (numRungs)      | 100
-|Number of bits                   | (numBits)       | 20
-|Number of word variables         | (numWords)      | 20
-|Number of timers                 | (numTimers)     | 10
-|Number of timers IEC             | (numTimersIec)  | 10
-|Number of monostables            | (numMonostables)| 10
-|Number of counters               | (numCounters)   | 10
-|Number of HAL inputs bit pins    | (numPhysInputs) | 15
-|Number of HAL output bit pins    | (numPhysOutputs)| 15
-|Number of arithmetic expressions | (numArithmExpr) | 50
-|Number of Sections               | (numSections)   | 10
-|Number of Symbols                | (numSymbols)    | Auto
-|Number of S32 inputs             | (numS32in)      | 10
-|Number of S32 outputs            | (numS32out)     | 10
-|Number of Float inputs           | (numFloatIn)    | 10
-|Number of Float outputs          | (numFloatOut)   | 10
-|========================================
+|===
+|Object Name                      | Variable Name    | Default Value
+|Number of rungs                  | (numRungs)       | 100
+|Number of bits                   | (numBits)        | 20
+|Number of word variables         | (numWords)       | 20
+|Number of timers                 | (numTimers)      | 10
+|Number of timers IEC             | (numTimersIec)   | 10
+|Number of monostables            | (numMonostables) | 10
+|Number of counters               | (numCounters)    | 10
+|Number of HAL inputs bit pins    | (numPhysInputs)  | 15
+|Number of HAL output bit pins    | (numPhysOutputs) | 15
+|Number of arithmetic expressions | (numArithmExpr)  | 50
+|Number of Sections               | (numSections)    | 10
+|Number of Symbols                | (numSymbols)     | Auto
+|Number of S32 inputs             | (numS32in)       | 10
+|Number of S32 outputs            | (numS32out)      | 10
+|Number of Float inputs           | (numFloatIn)     | 10
+|Number of Float outputs          | (numFloatOut)    | 10
+|===
 
 Objects of most interest are numPhysInputs, numPhysOutputs, numS32in,
 and numS32out.
