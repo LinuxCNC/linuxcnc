@@ -490,7 +490,7 @@ The introduction of GladeVCP brought the following issue:
 
 - GladeVCP panels need to be embedded in a master GUI window setup,
 - GladeVCP panels need to be embedded in a master GUI window setup,
-  e.g., AXIS, or Touchy, Gscreen, or GMOCCAPY (embedded window or as an embedded tab)
+  e.g., AXIS, or Touchy, Gscreen, or GMOCCAPY (embedded window or as an embedded tab).
 - This requires the master GUI to run before the GladeVCP window can be hooked into the master GUI.
 - However, GladeVCP is also a HAL component, and creates HAL pins of its own.
 - As a consequence, all HAL plumbing involving GladeVCP HAL pins as source
