@@ -210,8 +210,8 @@ You can add embedded programs to GMOCCAPY like you can do in AXIS, Touchy and
 Gscreen. All is done by GMOCCAPY automatically if you include a few lines in
 your INI file in the DISPLAY section.
 
-If you have never used a glade panel, I recommend to read the excellent documentation:
-http://www.linuxcnc.org/docs/html/gui/gladevcp.html[Glade VCP]
+If you have never used a glade panel, I recommend to read the excellent documentation
+on http://www.linuxcnc.org/docs/html/gui/gladevcp.html[Glade VCP].
 
 .Embedded Tab Example
 
@@ -332,7 +332,7 @@ The following three dialog types are available:
 * *yesnodialog* - Will hold focus on the message dialog and will activate
   a `-waiting` HAL pin and provide a `-response` HAL pin.
 
-For more detailed information of the pins see <<gmoccapy:user-created-message,User Created Message HAL Pins>>
+For more detailed information of the pins see <<gmoccapy:user-created-message,User Created Message HAL Pins>>.
 
 .Example of User Message Configuration
 [source,{ini}]

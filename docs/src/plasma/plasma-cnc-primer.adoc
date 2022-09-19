@@ -302,7 +302,7 @@ F#<_hal[plasmac.cut-feed-rate]>
 M3 S1
 ----
 
-NOTE: Users with a very large number of entries in the QtPlasmaC Materials Table may need to increase the Q1 parameter (eg Q2)
+NOTE: Users with a very large number of entries in the QtPlasmaC Materials Table may need to increase the Q1 parameter (eg Q2).
 
 === Enable/Disable THC Operation:
 

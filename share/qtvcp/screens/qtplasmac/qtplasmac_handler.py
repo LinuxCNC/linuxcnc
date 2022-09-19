@@ -1,4 +1,4 @@
-VERSION = '1.232.244'
+VERSION = '1.232.245'
 
 '''
 qtplasmac_handler.py
@@ -1945,11 +1945,12 @@ class HandlerClass:
             clearFile = '{}qtplasmac_program_clear.ngc'.format(self.tmpPath)
             with open(clearFile, 'w') as outFile:
                 outFile.write('m2')
-            if 'single_cut' in ACTION.prefilter_path:
-                self.preClearFile = self.oldFile
-            else:
-                if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
-                    self.preClearFile = ACTION.prefilter_path or self.lastLoadedProgram
+            if ACTION.prefilter_path:
+                if 'single_cut' in ACTION.prefilter_path:
+                    self.preClearFile = self.oldFile
+                else:
+                    if self.lastLoadedProgram != 'None':
+                        self.preClearFile = ACTION.prefilter_path or self.lastLoadedProgram
             ACTION.OPEN_PROGRAM(clearFile)
             ACTION.prefilter_path = self.preClearFile
             self.w.material_selector.setCurrentIndex(0)

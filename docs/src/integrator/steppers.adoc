@@ -90,9 +90,9 @@ The other factor to consider is the current rating of the power supply. This is 
 current ratings and whether the motor windings are wired in series or parallel, both of which should be listed in
 the motor's datasheet. A good rule of thumb is to size the power supply current rating at 2/3 of the rated phase
 current of the stepper motor if the windings are in parallel, or 1/3 of the rated current if wired in series.
-Thus, for a stepper motor rated at 4A wired in parallel, the power supply needs to have a current rating of at
-least 2.7A, or 1.3A if wired in series. The total current rating of the complete system is then the sum of all
-stepper motors' current requirements.
+Thus, for a stepper motor rated at 4&thinsp;A wired in parallel, the power supply needs to have a current rating of at
+least 2.7&thinsp;A, or 1.3&thinsp;A if wired in series.
+The total current rating of the complete system is then the sum of all stepper motors' current requirements.
 
 == Resonance
 
