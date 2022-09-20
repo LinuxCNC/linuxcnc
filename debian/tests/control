@@ -1,6 +1,6 @@
 Tests: linuxcnc-test
 Depends: linuxcnc-uspace
-Restrictions: allow-stderr flaky
+Restrictions: allow-stderr
 
 Tests: rs274-test
 Depends: linuxcnc-uspace

@@ -10,4 +10,6 @@ if ! linuxcnc -r linuxcnc-test.ini ; then
     echo "error: failed to execute linuxcnc"
     exit 1
 fi
+
+echo "success: linuxcnc ran successfully."
 exit 0
