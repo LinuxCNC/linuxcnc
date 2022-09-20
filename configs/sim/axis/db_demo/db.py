@@ -8,11 +8,20 @@
 # Demonstrate LinuxCNC interface for a database of tools
 # with tool time usage monitoriing
 
+db_ran_savefile    = "/tmp/db_ran_file"     # db flatfile
+db_nonran_savefile = "/tmp/db_nonran_file"  # db flatfile
+
 #-----------------------------------------------------------
 import sys
 import time
-db_ran_savefile    = "/tmp/db_ran_file"     # db flatfile
-db_nonran_savefile = "/tmp/db_nonran_file"  # db flatfile
+import signal
+import threading
+import linuxcnc
+#-----------------------------------------------------------
+# LinuxCNC tooldb module for low-level interface:
+from tooldb import tooldb_callbacks # functions (g,p,l,u)
+from tooldb import tooldb_tools     # list of tool numbers
+from tooldb import tooldb_loop      # main loop
 
 #-----------------------------------------------------------
 # Notes
@@ -45,13 +54,21 @@ db_nonran_savefile = "/tmp/db_nonran_file"  # db flatfile
 #     to the primary task that executes tooldb_loop().
 #     to illustrate methods for db_program guis that
 #     update and synchronize tooldata with LinuxCNC.
-#  7) Monitor tool data updates by using shell watch
+#  7) A single mutex is used to protect all activity
+#     than can read/write tools[] and db_*_savefile
+#     The mutex is acquired and held by
+#        a) each tooldb interface routine specified
+#           by the call to tooldb_callbacks()
+#        b) each worker demonstration task:
+#           tool_modify_task()
+#           tool_update_task()
+#  8) Monitor tool data updates by using shell watch
 #     command in a terminal. Examples:
 #     $ watch -d -n 1 cat /tmp/db_ran_file
 #     $ watch -d -n 1 cat /tmp/db_nonran_file
-#  8) export environmental variables DB_SHOW, DB_DEBUG
+#  9) export environmental variables DB_SHOW, DB_DEBUG
 #     to print operational details from LinuxCNC
-#  9) If LinuxCNC is not running, use is limited to basic
+# 10) If LinuxCNC is not running, use is limited to basic
 #     command line testing for commands g,p,l,u.
 #     Use Ctrl-C to exit
 #     Example (simple non random toolchanger):
@@ -66,17 +83,11 @@ db_nonran_savefile = "/tmp/db_nonran_file"  # db flatfile
 #     $ g             (g: get all tools)
 #     $ u t0  p114    (u: first  of pair to load t14)
 #     $ l t14 p0      (l: second of pair to load t14)
-# 10) problem: unexpected termination (like a power
+# 11) problem: unexpected termination (like a power
 #     failure) is not detected by LinuxCNC so tool
 #     time data and tool-in-spindle status may be
 #     corrupted for such events.  A database application
 #     may be able to detect and notify for some anomalies.
-
-#-----------------------------------------------------------
-# LinuxCNC tooldb module for low-level interface:
-from tooldb import tooldb_callbacks # functions (g,p,l,u)
-from tooldb import tooldb_tools     # list of tool numbers
-from tooldb import tooldb_loop      # main loop
 
 #-----------------------------------------------------------
 # globals
@@ -92,6 +103,8 @@ sync_fail_reason = ""      # why sync failed
 cmdline_only = 0           # 1: for cmdline debugging
 history = [];              # history logging
 history_max_ct = 10        # history logging
+mutex = threading.Lock()           # lock for all threads
+disconnect_evt = threading.Event() # set at disconnect
 
 # tletters: interface to LinuxCNC
 tletters = ['T','P', 'D','X','Y','Z','A','B','C','U','V','W','I','J','Q']
@@ -109,7 +122,6 @@ def umsg(txt): msg("UNEXPECTED: %s"%txt) # debug usage
 
 #-----------------------------------------------------------
 # LinuxCNC interface for status & syncing
-import linuxcnc
 linuxcnc_stat      = linuxcnc.stat()
 linuxcnc_tool_sync = linuxcnc.command().load_tool_table
 try: linuxcnc_stat.poll() # test if LinuxCNC running
@@ -119,7 +131,6 @@ except Exception as e:
     cmdline_only = 1
 
 #-----------------------------------------------------------
-import signal
 def ctrlc_handler(signo, frame):
     sys.stderr.write(" Caught signo=%d Ctrl-C bye\n"%signo)
     sys.exit(0)
@@ -203,11 +214,11 @@ def nonran_pno(tno): # simulation rule:
                              # to avoid assumptions about tno and pno
 
 def nonran_restore_pocket(tno):
+    if not tno in nonran_from_pocket:
+        umsg("nonran_restore_pocket tno=%d not in dict: %s"%(tno,nonran_from_pocket))
     D = toolline_to_dict(tools[tno],all_letters)
     D['P'] = nonran_from_pocket[tno]
     tools[tno] = dict_to_toolline(D,all_letters)
-    if not tno in nonran_from_pocket:
-        umsg("nonran_restore_pocket tno=%d not in dict: %s"%(tno,nonran_from_pocket))
     #msg("Restore pocket tno:%d pno %s"%(tno,int(D['P'])))
     del nonran_from_pocket[tno]
 
@@ -465,6 +476,7 @@ def check_params(tno,params):
 
 #   user_get_tool: host requests tool data
 def user_get_tool(tno):
+    mutex.acquire() # blocking
     # detect tool data reload (gui or with G10L0) and apply db rules:
     if tno == toollist[0]: apply_db_rules()
     if debug: msg("@@user_get_tool: %s"%tools[tno])
@@ -472,15 +484,19 @@ def user_get_tool(tno):
     for item in toolline_to_list(tools[tno]):
         for l in tletters:
             if l in item: ans = ans + " " + item
+    mutex.release()
     return ans.strip()
 
 #   user_put_tool: host updates tool data:
 def user_put_tool(tno,params):
+    mutex.acquire() # blocking
     check_params(tno,params)
     update_tool(tno,params.upper() )
     save_tools_to_file(db_savefile,"tno:%3d updated (user_put_tool)"%tno)
+    mutex.release()
 
 def user_load_spindle_nonran_tc(tno,params):
+    mutex.acquire() # blocking
     global p0tool
     #msg("user_load_spindle_nonran_tc 'l %s'"%params)
     check_params(tno,params)
@@ -494,7 +510,7 @@ def user_load_spindle_nonran_tc(tno,params):
     # save nonran_from_pocket as pocket may have been altered by apply_db_rules()
     if tno != p0tool: nonran_from_pocket[tno] = D['P'] # avoid reset if redundant load
 
-    if p0tool != -1:  # accrue time for prior tool:
+    if p0tool != -1 and p0tool != tno:  # accrue time for prior tool:
         stop_tool_timer(p0tool)
         nonran_restore_pocket(p0tool)
 
@@ -504,25 +520,31 @@ def user_load_spindle_nonran_tc(tno,params):
     start_tool_timer(p0tool)
     tools[tno] = dict_to_toolline(D,all_letters)
     save_tools_to_file(db_savefile,"tno:%3d (  load to   spindle)"%tno)
+    mutex.release()
 
 def user_unload_spindle_nonran_tc(tno,params):
+    mutex.acquire() # blocking
     global p0tool
     #msg("user_unload_spindle_nonran_tc p0tool=%d restore=%s'u %s'"%
     #    (p0tool,nonran_from_pocket,params))
     check_params(tno,params)
 
-    if p0tool == -1: return # ignore
-    TMP = toolline_to_dict(params,['T','P'])
-    if tno       !=  0:  umsg("user_unload_spindle_nonran_tc tno=%d"%tno)
-    if TMP['P']  != "0": umsg("user_unload_spindle_nonran_tc P=%s"%TMP['P'])
+    if p0tool == -1:
+        pass # ignore
+    else:
+        TMP = toolline_to_dict(params,['T','P'])
+        if tno       !=  0:  umsg("user_unload_spindle_nonran_tc tno=%d"%tno)
+        if TMP['P']  != "0": umsg("user_unload_spindle_nonran_tc P=%s"%TMP['P'])
 
-    stop_tool_timer(p0tool)
-    nonran_restore_pocket(p0tool)
-    p0tool = -1
+        stop_tool_timer(p0tool)
+        nonran_restore_pocket(p0tool)
+        p0tool = -1
 
-    save_tools_to_file(db_savefile,"tno:%3d (unload from spindle)(empty)"%tno)
+        save_tools_to_file(db_savefile,"tno:%3d (unload from spindle)(empty)"%tno)
+    mutex.release()
 
 def user_load_spindle_ran_tc(tno,params):
+    mutex.acquire() # blocking
     global p0tool
     #msg("user_load_spindle_ran_tc   'l %s' (p0tool=%d)"%(params,p0tool))
     check_params(tno,params)
@@ -545,8 +567,10 @@ def user_load_spindle_ran_tc(tno,params):
     if tno==0 and pno==0:
         txt = "tno:%3d --> pno:%3d (  load t0   spindle)(empty)"%(tno,pno)
     save_tools_to_file(db_savefile,txt)
+    mutex.release()
 
 def user_unload_spindle_ran_tc(tno,params):
+    mutex.acquire() # blocking
     global p0tool
     #msg("user_unload_spindle_ran_tc 'u %s' (p0tool=%d)"%(params,p0tool))
     check_params(tno,params)
@@ -571,6 +595,7 @@ def user_unload_spindle_ran_tc(tno,params):
     if tno==0:
         txt="tno:%3d --> pno:%3d (unload from spindle)(notool)"%(tno,pno)
     save_tools_to_file(db_savefile,txt)
+    mutex.release()
 
 #-----------------------------------------------------------
 # begin interface to LinuxCNC
@@ -592,8 +617,7 @@ tooldb_tools(toollist)
 
 #-----------------------------------------------------------
 # begin start task threads
-import threading
-disconnect_evt = threading.Event()
+
 active_threads=[]
 def start_thread(tname):
     name = tname.__name__
@@ -651,7 +675,11 @@ def tool_update_task(fini):
         if fini.is_set(): return # end task
         time.sleep(delta_secs); waited += delta_secs
         if waited < wait_secs: continue
+        if not mutex.acquire(timeout=1):
+            msg("tool_update_task ct=%d waiting for mutex"%ct)
+            continue
         demo_add_or_rm_dbtool(tno)
+        mutex.release()
         ct += 1; waited = 0
         tno = begin_tno + ct%n_extra_pockets
     active_threads.remove('tool_update_task')
@@ -660,7 +688,7 @@ def tool_update_task(fini):
 # tool_modify_task: demonstrate changing a tool parameter
 def tool_modify_task(fini):
     ct_max = 2
-    wait_secs = 5 # interval between adds/removes
+    wait_secs = 5 # interval between tool modifications
     letter = 'A'
     modify_tnos = [15,16]
 
@@ -679,6 +707,9 @@ def tool_modify_task(fini):
         if not sync_allowed():
             msg("tool_modify_task: DISALLOWED tno=%d (%s)"%(tno,sync_fail_reason))
             continue
+        if not mutex.acquire(timeout=1):
+            msg("tool_modify_task ct=%d waiting for mutex"%ct)
+            continue
         D = toolline_to_dict(tools[tno],all_letters)
         if p0tool != tno:
             D[letter] = "0.1%02d"%ct # modify letter parameter
@@ -689,6 +720,7 @@ def tool_modify_task(fini):
             ct += 1
         else:
             msg("tool_modify_task: DISALLOWED tno=%d (%s)"%(tno,"tool is loaded"))
+        mutex.release()
     active_threads.remove('tool_modify_task')
     msg("**End tool_modify_task ct=%d"%ct)
 

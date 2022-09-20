@@ -262,12 +262,17 @@ support selection of the tool having the lowest operating time.
 
 The sim configs use a primary task to monitor and respond to tool
 updates initiated from within LinuxCNC.  Separate, concurrent tasks
-show the code required when changes are initiated by the *db_program*
-and demonstrate methods for synchronizing LinuxCNC internal tooldata.
+are implemented as threads to demonstrate the code required when changes
+are initiated by the *db_program* and demonstrate methods for synchronizing
+LinuxCNC internal tooldata.
 Examples include:
 
 . updates of tool parameters
 . addition and removal of tool numbers
+
+A mutual exclusion lock is used to protect data from inconsistencies due
+to race conditions between LinuxCNC tooldata updates and the database
+application updates.
 
 === Notes
 
