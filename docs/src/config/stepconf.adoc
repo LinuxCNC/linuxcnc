@@ -6,7 +6,7 @@
 
 == Introduction
 
-LinuxCNC is capable of controlling a wide range of machinery 
+LinuxCNC is capable of controlling a wide range of machinery
 using many different hardware interfaces.
 
 StepConf is a program that generates configuration files for LinuxCNC
@@ -131,7 +131,7 @@ pulses. The lower the latency, the faster you can run the heartbeat,
 and the faster and smoother the step pulses will be.
 
 Latency is far more important than CPU speed. The CPU isn't the only
-factor in determining latency. Motherboards, video cards, USB ports, 
+factor in determining latency. Motherboards, video cards, USB ports,
 SMI issues, and a number of other things can hurt the latency.
 
 .Troubleshooting SMI Issues (LinuxCNC.org Wiki)
@@ -142,18 +142,18 @@ http://wiki.linuxcnc.org/cgi-bin/wiki.pl?FixingSMIIssues
 ************************************************************
 
 The important numbers are the 'max jitter'. In the example above 9075
-nanoseconds, or 9.075 microseconds (µs), is the highest jitter. 
+nanoseconds (ns), or 9.075 microseconds (µs), is the highest jitter.
 Record this number, and enter it in the Base Period Maximum Jitter box.
 
-If your Max Jitter number is less than about 15-20 microseconds
-(15000-20000 nanoseconds), the computer should give very nice results
-with software stepping. If the max latency is more like 30-50
-microseconds, you can still get good results, but your maximum step
+If your Max Jitter number is less than about 15-20&thinsp;µs
+(15000-20000&thinsp;ns), the computer should give very nice results
+with software stepping. If the max latency is more like 30-50&thinsp;µs,
+you can still get good results, but your maximum step
 rate might be a little disappointing, especially if you use
 microstepping or have very fine pitch leadscrews. If the numbers are
-100 µs  or more (100,000 nanoseconds), then the PC is not a good
-candidate for software stepping. Numbers over 1 millisecond (1,000,000
-nanoseconds) mean the PC is not a good candidate for LinuxCNC, regardless of
+100&thinsp;µs or more (100,000&thinsp;ns), then the PC is not a good
+candidate for software stepping. Numbers over 1 millisecond (1,000,000&thinsp;ns)
+mean the PC is not a good candidate for LinuxCNC, regardless of
 whether you use software stepping or not.
 
 == Parallel Port Setup
@@ -163,7 +163,7 @@ image::images/stepconf-parallel-1_en.png["Parallel Port 1 Setup Page",align="cen
 
 You may specify the address as a hexadecimal (often 0x378) or as linux's default port number (probably 0)
 
-For each pin, choose the signal which matches your parallel port pinout. 
+For each pin, choose the signal which matches your parallel port pinout.
 Turn on the 'invert' check box if the signal is inverted (0V for true/active, 5V for false/inactive).
 
 * 'Output pinout presets' - Automatically set pins 2 through 9 according to
@@ -324,7 +324,7 @@ If 'Spindle PWM' appears on the pinout, the following information should be ente
 
 === Spindle-synchronized motion(((Spindle-synchronized motion)))
 
-When the appropriate signals from a spindle encoder are connected to 
+When the appropriate signals from a spindle encoder are connected to
 LinuxCNC via HAL, LinuxCNC supports lathe threading.
 These signals are:
 
@@ -335,7 +335,7 @@ These signals are:
   an offset from Spindle Phase A. The advantages to using both A and B are
   direction sensing, increased noise immunity, and increased resolution.
 
-If 'Spindle Phase A' and 'Spindle Index' appear 
+If 'Spindle Phase A' and 'Spindle Index' appear
 on the pinout, the following information should be entered:
 
 * 'Use Spindle-At-Speed' - With encoder feedback one can choose to have LinuxCNC
@@ -399,7 +399,7 @@ image::images/stepconf-options_en.png["Advanced Options Configuration",align="ce
 
 == Complete Machine Configuration(((Complete Machine Configuration)))
 
-Click 'Apply' to write the configuration files. 
+Click 'Apply' to write the configuration files.
 Later, you can re-run this program and tweak the settings you entered before.
 
 == Axis Travels and Homes
@@ -426,14 +426,14 @@ If a MDI command or G-code program would pass the soft limit, it is not executed
 If a jog would pass the soft limit, it is terminated at the soft limit.
 
 The 'home switch' can be placed anywhere within the travel (between hard stops).
-As long as external hardware does not deactivate the motor amplifiers 
+As long as external hardware does not deactivate the motor amplifiers
 when the limit switch is reached, one of the limit switches
 can be used as a home switch.
 
 The 'zero position' is the location on the axis that is 0 in
 the machine coordinate system.
 Usually the 'zero position' will be within the 'soft limits'.
-On lathes, constant surface speed mode requires that machine 'X=0' 
+On lathes, constant surface speed mode requires that machine 'X=0'
 correspond to the center of spindle rotation when no tool offset is in effect.
 
 The 'home position' is the location within travel that the axis will
@@ -468,17 +468,14 @@ while there are as many as 9 switches on a 3-axis machine.
 Instead, multiple switches are wired together in various
 ways so that a smaller number of inputs are required.
 
-The figures below show the general idea of wiring multiple switches 
-to a single input pin.
-In each case, when one switch is actuated,
-the value seen on INPUT goes from logic HIGH to LOW.
-However, LinuxCNC expects a TRUE value when a switch is closed,
-so the corresponding 'Invert' box
+The figures below show the general idea of wiring multiple switches to a single input pin.
+In each case, when one switch is actuated, the value seen on INPUT goes from logic HIGH to LOW.
+However, LinuxCNC expects a TRUE value when a switch is closed, so the corresponding 'Invert' box
 must be checked on the pinout configuration page.
 The pull up resistor show in the diagrams pulls the input high
 until the connection to ground is made and then the input goes low.
 Otherwise the input might float between on and off when the circuit is open.
-Typically for a parallel port you might use 47k.
+Typically for a parallel port you might use 47&thinsp;kΩ;.
 
 .Normally Closed Switches (N/C) wiring in series (simplified diagram)
 image::images/switch-nc-series_en.svg["Normally Closed Switches",align="center"]
