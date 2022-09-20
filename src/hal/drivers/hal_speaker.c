@@ -73,7 +73,7 @@
 #ifdef FASTIO
 #define rtapi_inb inb
 #define rtapi_outb outb
-#include <asm/io.h>
+#include <sys/io.h>
 #endif
 
 /* module information */
@@ -108,6 +108,8 @@ static int num_ports;		/* number of ports configured */
 * REALTIME PORT WRITE FUNCTION                                *
 **************************************************************/
 
+#define SPEAKER_PORT 0x61
+
 static void write_port(void *arg, long period)
 {
     uint8_t v = 0;
@@ -121,12 +123,12 @@ static void write_port(void *arg, long period)
     }
 
     /* write it to the hardware */
-    oldval = rtapi_inb(0x61) & 0xfc;
+    oldval = rtapi_inb(SPEAKER_PORT) & 0xfc;
 
     if(v != port->last) {
-        rtapi_outb(oldval | 2, 0x61);
+        rtapi_outb(oldval | 2, SPEAKER_PORT);
     } else {
-        rtapi_outb(oldval, 0x61);
+        rtapi_outb(oldval, SPEAKER_PORT);
     }
 
     port->last = v;
@@ -150,6 +152,14 @@ int rtapi_app_main(void)
     if (comp_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SPEAKER: ERROR: hal_init() failed\n");
+	return -1;
+    }
+
+    /* STEP 1.1: get access to port */
+    if (ioperm(SPEAKER_PORT, 1, 1) < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "SPEAKER: ERROR: ioperm() failed\n");
+	hal_exit(comp_id);
 	return -1;
     }
 
