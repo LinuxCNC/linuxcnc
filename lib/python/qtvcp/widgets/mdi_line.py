@@ -94,6 +94,12 @@ class MDI(QLineEdit):
             AUX_PRGM.load_halscope()
         elif text == 'CALIBRATION':
             AUX_PRGM.load_calibration()
+        elif text == 'TESTLED':
+            AUX_PRGM.load_test_led()
+        elif text == 'TESTBUTTON':
+            AUX_PRGM.load_test_button()
+        elif text == 'TESTDIAL':
+            AUX_PRGM.load_test_dial()
         elif text == 'PREFERENCE':
             STATUS.emit('show-preference')
         elif text == 'CLEAR HISTORY':
