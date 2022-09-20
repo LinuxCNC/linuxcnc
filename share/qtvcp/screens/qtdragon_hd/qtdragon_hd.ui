@@ -7314,10 +7314,10 @@ OFF</string>
                    </size>
                   </property>
                   <property name="pin_name" stdset="0">
-                   <string>led-spindle-at-speed</string>
+                   <string/>
                   </property>
                   <property name="halpin_option" stdset="0">
-                   <bool>false</bool>
+                   <bool>true</bool>
                   </property>
                   <property name="color">
                    <color>
@@ -7335,6 +7335,9 @@ OFF</string>
                   </property>
                   <property name="is_spindle_at_speed_status" stdset="0">
                    <bool>true</bool>
+                  </property>
+                  <property name="halpin_name" stdset="0">
+                   <string>spindle-is-at-speed</string>
                   </property>
                  </widget>
                 </item>
@@ -15048,7 +15051,7 @@ ANGULAR</string>
                <number>2</number>
               </property>
               <property name="text">
-               <string>06:50:09 PM</string>
+               <string>08:11:11 PM</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -16098,7 +16101,7 @@ ANGULAR</string>
   <slot>btn_enable_comp_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>

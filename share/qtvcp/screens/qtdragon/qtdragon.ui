@@ -7421,7 +7421,7 @@ TO FILE</string>
                            <double>0.300000000000000</double>
                           </property>
                           <property name="circle_diameter" stdset="0">
-                           <double>10.000000000000000</double>
+                           <number>10</number>
                           </property>
                           <property name="right_edge_offset" stdset="0">
                            <number>0</number>
@@ -9749,7 +9749,7 @@ BLOCK</string>
                     <double>0.200000000000000</double>
                    </property>
                    <property name="circle_diameter" stdset="0">
-                    <double>10.000000000000000</double>
+                    <number>10</number>
                    </property>
                    <property name="right_edge_offset" stdset="0">
                     <number>6</number>
@@ -14222,7 +14222,7 @@ ZERO</string>
                   <double>0.300000000000000</double>
                  </property>
                  <property name="circle_diameter" stdset="0">
-                  <double>10.000000000000000</double>
+                  <number>10</number>
                  </property>
                  <property name="right_edge_offset" stdset="0">
                   <number>6</number>
@@ -14436,7 +14436,7 @@ ZERO</string>
                   <double>0.300000000000000</double>
                  </property>
                  <property name="circle_diameter" stdset="0">
-                  <double>10.000000000000000</double>
+                  <number>10</number>
                  </property>
                  <property name="right_edge_offset" stdset="0">
                   <number>6</number>
@@ -14648,7 +14648,7 @@ ZERO</string>
                   <double>0.300000000000000</double>
                  </property>
                  <property name="circle_diameter" stdset="0">
-                  <double>10.000000000000000</double>
+                  <number>10</number>
                  </property>
                  <property name="right_edge_offset" stdset="0">
                   <number>6</number>
@@ -14811,11 +14811,8 @@ ZERO</string>
                  <property name="toolTip">
                   <string>Spindle at speed</string>
                  </property>
-                 <property name="pin_name" stdset="0">
-                  <string/>
-                 </property>
                  <property name="halpin_option" stdset="0">
-                  <bool>false</bool>
+                  <bool>true</bool>
                  </property>
                  <property name="diameter">
                   <number>15</number>
@@ -14829,6 +14826,9 @@ ZERO</string>
                  </property>
                  <property name="is_spindle_at_speed_status" stdset="0">
                   <bool>true</bool>
+                 </property>
+                 <property name="halpin_name" stdset="0">
+                  <string>spindle-is-at-speed</string>
                  </property>
                 </widget>
                </item>
@@ -15376,7 +15376,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>07:26:30 PM</string>
+            <string>07:46:35 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -16325,7 +16325,7 @@ ZERO</string>
   <slot>tab_utilities_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>
