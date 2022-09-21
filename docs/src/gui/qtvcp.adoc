@@ -2,100 +2,140 @@
 :toc:
 
 [[cha:qtvcp]]
-= Qtvcp
+= QtVCP
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
+:css: {basebackend@docbook:'':css}
 
-Qtvcp is an infrastructure to display a custom CNC screen or control panel in
-LinuxCNC.
-It displays a UI file built with the QTDesigner screen editor or combines this
-with python programming to create a GUI screen for running a CNC machine.
-Qtvcp is completely customizable - you can add different buttons and status
-LEDs etc. or add python code for even finer grain customization.
+QtVCP is an *infrastructure to build custom CNC screens or control
+panels for LinuxCNC*.
 
-.qtdragon - 3 or 4 Axes Sample
-image::images/silverdragon.png["QTDragon Router",align="left"]
-.qtdefault - 3 Axis Sample
-image::images/qt_cnc.png["QTscreen Mill",align="left"]
-.Qtaxis - Self Adjusting Axis Sample
-image::images/qtaxis.png["QTscreen Qtaxis",align="left"]
-.Blender - 4 Axes Sample
-image::images/blender.png["QTscreen Blender",align="left"]
-.X1mill - 4 Axes Sample
-image::images/x1mill.png["QTscreen x1mill",align="left"]
-.cam_align - Camera alignment VCP
-image::images/qtvcp-cam-align.png["QTscreen x1mill",align="left"]
-.test panel - Test Panel VCP
-image::images/test_panel.png["Test Panel",align="left"]
+It displays a _`.ui` file built with Qt Designer_ screen editor and
+combines this with _Python programming_ to create a GUI screen for
+running a CNC machine.
+
+QtVCP is completely _customizable_: you can add different buttons and
+status LEDs etc. or add python code for even finer grain customization.
+
+== Showcase
+
+Few examples of QtVCP built screens and virtual control panels:
+
+.QtDragon - 3/4-Axis Sample
+image::images/silverdragon.png["QtDragon Router",align="center"]
+
+.QtDefault - 3-Axis Sample
+image::images/qt_cnc.png["Qtscreen Mill",align="center"]
+
+.QtAxis - Self Adjusting Axis Sample
+image::images/qtaxis.png["Qtscreen QtAxis",align="center"]
+
+.Blender - 4-Axis Sample
+image::images/blender.png["Qtscreen Blender",align="center"]
+
+.X1mill - 4-Axis Sample
+image::images/x1mill.png["Qtscreen x1mill",align="center"]
+
+.cam_align - Camera Alignment VCP
+image::images/qtvcp-cam-align.png["Qtscreen x1mill",align="center"]
+
+.test_panel - Test Panel VCP
+image::images/test_panel.png["Test Panel",align="center"]
 
 [[sec:qtvcp-overview]]
-== Overview(((QtVcp Overview)))
+== Overview(((QtVCP Overview)))
 
-There are two files that can be used, individually or in combination to add
-customization.
-A UI file that is made with QT's Designer graphical editor.
-A handler file which is a text file with python code.
-Normally qtvcp uses the stock UI and handler file.
-You can specify qtvcp to use 'local' UI and handler files.
-A 'local' file is one that is in the configuration folder that defines the
-rest of the machine's requirements.
-One is not restricted to adding a custom panel on the right or a custom tab.
-qtvcp leverages 'QT Designer' (the editor) and 'PyQT5' (the widget toolkit).
-QTvcp has some special widgets and actions added just for LinuxCNC.
-There are special widgets to bridge third party widgets to HAL pins.
-It's possible to create widget responses by connecting signals  to python
-code in the handler file. 
+_Two files are used, individually or in combination_, to
+add customizations:
 
-=== QTvcp Widgets
+* A *UI file* that is a _XML_ file made with _Qt Designer_ graphical editor.
+* A *handler file* which is a _Python_ code text file.
 
-Qtvcp uses the PyQt5 toolkit's widgets for linuxcnc integration.
-Widget is the general name for objects such as buttons and labels in PyQT5.
-You are free to use any available widgets in the QTDesigner editor.
-There are also special widgets made for linuxcnc that make integration easier.
-This are split in three heading on the left side of the editor.
-One is for HAL only widgets.
-One is for cnc control widgets.
-One is for dialog widgets.
-you are free to mix them in any way on your panel.
-A very important widget for CNC control is the screenoptions widget.
-It does not add anything visually to the screen.
-But allows important details to be selected rather then be coded in the handler file.
+Normally QtVCP uses the stock UI and handler file, but you can specify
+QtVCP to use 'local' UI and handler files. +
+A *'local' file* is one that is in the _configuration folder_ that defines
+the rest of the machine's requirements.
+
+One is not restricted to adding a custom panel on the right or a custom
+tab as QtVCP leverages _Qt Designer_ (the editor) and _PyQT5_ (the
+widget toolkit).
+
+QtVCP has some added *special LinuxCNC widgets and actions*. +
+There are special widgets to bridge third party widgets to HAL pins. +
+It's possible to create widget responses by connecting signals to
+Python code in the handler file.
+
+=== QtVCP Widgets
+
+QtVCP uses the *PyQt5 toolkit's widgets* for LinuxCNC integration.
+
+*Widget* is the _general name for user interface objects_ such as buttons
+and labels in PyQT5.
+
+You are free to use any available *default widgets* in the Qt Designer
+editor.
+
+There are also *special widgets* made for LinuxCNC that make integration
+easier. +
+These are split in three heading on the left side of the editor:
+
+//TODO Add links to sections of QtVCP Widgets chapter
+* One is for _HAL only widgets_;
+* One is for _CNC control widgets_;
+* One is for _Dialog widgets_.
+
+You are free to mix them in any way on your panel.
+
+A very important widget for CNC control is the *`ScreenOptions` widget*:
+it does not add anything visually to the screen but, allows important
+details to be selected rather then be coded in the handler file.
 
 === INI Settings
 
-If you are using this to make a CNC control screen:
-Under the [DISPLAY] heading:
+//FIXME unclear
+If you are using QtVCP to make a CNC control screen, in the INI file,
+in the `[DISPLAY]` section, add a line with the following pattern:
 
+[source,{ini}]
 ----
 DISPLAY = qtvcp <options> <screen_name>
-  options:
-    -a set window always on top
-    -c HAL component name. Default is to use the UI file name.
-    -d debugging on
-    -f fullscreen the window
-    -g geometry: WIDTHxHEIGHT+XOFFSET+YOFFSET example: -g 200x400+0+100
-    -H execute HAL statements from FILE with halcmd after the component is set up and ready
-    -i set logging level to INFO
-    -m maximize window
-    -o pass a string to qtvcp's handler file under self.w.USEROPTIONS_ list variable. can be multiple -o
-    -t theme. Default is system theme
-    -u file path of a substitute handler file
-    -v enable VERBOSE debug output
-    -x embed into a X11 window that doesn't support embedding.
-    --push_xid send qtvcp's X11 window id number to standard output; for embedding
-
-    all <options> must be before <screen name>
-    <screen_name> is the base name of the .ui and _handler.py files.
-    If <screen_name> is missing the default screen will be loaded.
 ----
 
-Qtvcp assumes the UI file and the handler file use this same base name.
-Qtvcp will search the LinuxCNC configuration file that was launched first for the files, 
-then in the system skin folder. (The skin folders holds standard screens.)
+[NOTE]
+All `<options>` must appear before `<screen_name>`.
+
+.Options
+
+* `-d` Debugging on
+* `-a` Set window always on top
+* `-c` HAL component name. Default is to use the UI file name.
+* `-g` Geometry: WIDTHxHEIGHT+XOFFSET+YOFFSET. Example:
+  `-g 200x400+0+100`
+* `-m` Maximize window
+* `-f` Fullscreen the window
+* `-t` Theme. Default is system theme
+* `-x` Embed into a X11 window that doesn't support embedding.
+* `--push_xid` Send QtVCP's X11 window id number to standard output; for
+  embedding.
+* `-u` File path of a substitute handler file
+* `-o` Pass a string to QtVCP's handler file under `self.w.USEROPTIONS_`
+  list variable. can be multiple -o
+
+.<screen_name>
+`<screen_name>` is the _base name of the .ui and _handler.py files_. +
+If `<screen_name>` is missing, the default screen will be loaded.
+
+QtVCP assumes the UI file and the handler file use the *same base name*.
+
+QtVCP will first search the LinuxCNC configuration directory that was
+launched for the files, then in the system skin folder holding standard
+screens.
+
+.Cycle Times
 
 [source,{ini}]
 ----
@@ -105,33 +145,45 @@ GRAPHICS_CYCLE_TIME = 100
 HALPIN_CYCLE = 100
 ----
 
-Adjust the response rate of the GUI updates in milli seconds. Defaults to 100, useable range 50 - 200
+Adjusts the response rate of the GUI updates in milliseconds. +
+Defaults to 100, useable range 50 - 200.
+
 The widgets, graphics and HAL pin update can be set separately.
-If the update time is not set right the screen can become unresponsive or very jerky.
 
-=== QTDesigner UI File
+If the update time is not set right the screen can become unresponsive
+or very jerky.
 
-A designer file is a text file organized in the XML standard that describes the
-layout and the widgets of the screen. Pyqt5 uses this file to build the display
-and react to those widgets. The QTDesigner editor makes it relatively easy to build
-and edit this file.
+=== Qt Designer UI File
+
+A Qt Designer file is a text file organized in the _XML_ standard that
+describes the *layout and widgets* of the screen.
+
+_PyQt5_ uses this file to build the display and react to those widgets.
+
+The Qt Designer editor makes it relatively easy to build and edit this
+file.
 
 === Handler Files
 
-A handler file is a file containing python code, which qtvcp adds to it's
-default routines. A handler file allows one to modify defaults, or add logic
-to a qtvcp skin without having to modify qtvcp's core code.
-In this way you can have custom behaviour.
-If present a handler file will be loaded.
-Only one file is allowed.
+A handler file is a file containing _Python_ code, which *adds to QtVCP
+default routines*.
 
-=== Libraries modules
+A handler file allows one to _modify defaults_, or _add logic_ to a
+QtVCP screen without having to modify QtVCP's core code. In this way you
+can have *custom behaviors*.
 
-Qtvcp as built does little more then display the screen and react to widgets.
-For more prebuilt behaviours there are available libraries.
-(found in lib/python/qtvcp/lib in RIP linuxcnc install)
-libraries are prebuilt python modules that give added features to Qtvcp.
-In this way you can select what features you want - yet don't have to build common ones yourself.
+If present a handler file will be loaded. +
+*Only one file* is allowed.
+
+=== Libraries Modules
+
+QtVCP, as built, does little more than display the screen and react to
+widgets. For more *prebuilt behaviors* there are available libraries
+(found in `lib/python/qtvcp/lib` in RIP LinuxCNC install).
+
+*Libraries* are prebuilt _Python modules_ that *add features* to QtVCP.
+In this way you can select what features you want - yet don't have to
+build common ones yourself. +
 Such libraries include:
 
 * `audio_player`
@@ -145,111 +197,182 @@ Such libraries include:
 
 === Themes
 
-Themes are a way to modify the look and feel of the widgets on the screen.
-For instance the color or size of buttons and sliders can be changed using
-themes.
-The Windows theme is default for screens. System theme is default for panels.
-to see available themes load qtvcp with -d -t SHOWTHEMES .
+Themes are a way to modify the *look and feel* of the widgets on the
+screen.
 
-qtvcp can also be customized with Qt stylesheets using css.
+For instance the _color_ or _size_ of buttons and sliders can be changed
+using themes.
+
+The _Windows theme_ is default for screens. +
+The _System theme_ is default for panels.
+
+To see available themes, they can be loaded by running the following
+command in a terminal:
+
+----
+qtvcp -d -t <theme_name>
+----
+
+QtVCP can also be customized with _Qt stylesheets (QSS)_ using CSS.
 
 === Local Files
 
-If present, local UI files in the configuration folder will be loaded instead
-of the stock UI files. Local UI files allow you to use your customized
-designs rather then the default screens.
-QTVCP will look for a folder name MYNAME (in the launched configuration folder that holds the INI file).
-In that folder QTVCP will load any of the available files; MYNAME.ui, MYNAME_handler.py and MYNAME.qss.
+//FIXME Does that applies to .ui files only or handler.py and qss too ?
+//FIXME How does overriding/inheritance actually works ?
+
+If present, local UI files in the configuration folder will be loaded
+instead of the stock UI files.
+
+Local UI files allow you to use your customized designs rather than the
+default screens.
+
+QtVCP will look for a folder named <screen_name> (in the launched
+configuration folder that holds the INI file).
+
+In that folder, QtVCP will load any of the available following files:
+
+* `<screen_name>.ui`,
+* `<screen_name>_handler.py`, and
+* `<screen_name>.qss`.
 
 === Modifying Stock Screens
 
-Ther are three ways to customize a screen/panel.
+There are _three ways_ to customize a screen/panel.
 
-.Minor StyleSheet changes:
-StyleSheets can be used to set Qt properties.
-If a widget uses properties they usually can be modified by stylesheets.
+.Minor StyleSheet Changes
+Stylesheets can be used to *set Qt properties*. +
+If a widget uses properties they usually can be modified by stylesheets. +
 ie:
 
+[source,{css}]
 ----
-State_LED #name_0f_led{
-qproperty-color: red;
-qproperty-diameter: 20;
-qproperty-flashRate: 150;
-}
+State_LED #name_of_led{
+  qproperty-color: red;
+  qproperty-diameter: 20;
+  qproperty-flashRate: 150;
+  }
 ----
 
-.Minor python code changes:
-A file can be added to add commands to the screen, after the handlerfile is parsed.
-In the INI file under the [DISPLAY] heading add USER_COMMAND_FILE = _PATH_
-_PATH_ can be any valid path, it can use '~' for home directory or 'WORKINGDIRECTORY' or
-'CONFIGDIRECTORY' to represent Qtvcp's idea of those directories.
+.Minor Python Code Changes
+Another Python file can be used to *add commands* to the screen, after
+the handler file is parsed.
+
+In the _INI file_ under the `[DISPLAY]` heading add
+*`USER_COMMAND_FILE = _PATH_`* +
+
+_PATH_ can be any valid path. It can use `~` for home directory or
+`WORKINGDIRECTORY` or `CONFIGDIRECTORY` to represent QtVCP's idea of
+those directories. +
 ie:
 
 [source,{ini}]
 ----
 [DISPLAY]
-USER_COMMAND_FILE = CONFIGDIRECTORY/qtdragon_added_commands
+USER_COMMAND_FILE = CONFIGDIRECTORY/<screen_name_added_commands>
 ----
 
-If no entry is found in the INI, Qtvcp will look in the default path.
-The default path is in the configuration directory as a hidden file using the screen basename and rc.
-ie: CONFIGDIRECTORY/.qtdragonrc
+If no entry is found in the _INI_, QtVCP will look in the *default path*. +
+The default path is in the configuration directory as a hidden file
+using the screen basename and rc, ie: *`CONFIGDIRECTORY/.<screen_name>rc`*
 
-This file will be read and executed as python code in context of the handler file.
-Only local functions and local attributes can be referenced.
-Global libraries can not be referenced. (usual seen as all capital words with no preceding self.)
+This file will be read and executed as Python code in the
+*handler file context*.
+
+*Only local functions and local attributes* can be referenced. +
+Global libraries can not be referenced. (usualy seen as all capital
+words with no preceding self.) +
+
 What can be used can vary by screen and development cycle.
 
-.valid example:
+For a valid example:
+
 [source,python]
 ----
 self.w.setWindowTitle('My Title Test')
 ----
 
+.Full Creative Control
+If you wish to *modify a stock screen* with full control, _copy it's UI
+and handler file to your configuration folder_.
 
-.Full creative control:
-If you wish to modify a stock screen with full control, copy it's UI and handler file to your configuration folder.
-There is a QtVCP panel to help with this.
-Open a terminal and type 'qtvcp copy_dialog' and a dialog will show to select the screen and
-destination folder. This will copy all the file - delete the ones you don't wish to modify so
-that the original files will be used.
-It you wish to name your screen differently then the builtin screen's default name -
-change the basename in the edit box.
+There is a QtVCP panel to help with this:
 
+* Open a terminal and run the following command:
++
+----
+qtvcp copy_dialog
+----
+
+* Select the screen and destination folder in the dialog
+* If you wish to *name your screen* differently than the builtin screen's
+  default name, change the _basename_ in the edit box.
+* Validate to copy all the files
+* Delete the files you don't wish to modifyso that the original files
+  will be used.
+
+[[sec:qtvcp:vcp-panels]]
 == VCP Panels
-Qtvcp can be used to create control panels that interface with HAL.
 
-=== Builtin panels
+//FIXME Duplicate with qtvcp-vcp-panels.adoc content
+//  @silopolis thinks: remove from here as this file should be split anyway
+QtVCP can be used to create control panels that interface with *HAL*.
 
-There are several builtin HAL panels available.
-in a  terminal type 'qtvcp' <return> to see a list.
+=== Builtin Panels
 
-* test_panel - collect of useful widgets for testing HAL component. Including speech of LED state.
-* cam_align - a camera display widget for rotational alignment
-* sim_panel - a small control panel to simulate MPG jogging controls etc. for simulated configurations
-* vismach_mill_xyz - 3d openGL view of a 3 axis milling machine
+There are several *builtin HAL panels* available.
 
-.qtvismach- 3 Axis Mill Builtin panel
-image::images/qtvismach.png["QtVismach Mill",align="left"]
+In a terminal type `qtvcp <return>` to see a list:
 
+*`test_panel`*::
+  Collection of useful widgets for testing HAL components, including
+  speech of LED state.
++
+.QtVCP HAL Test Builtin Panel
+image::images/qtvcp_test_panel.png["QtVCP HAL Test Builtin Panel",align="center"]
+
+*`cam_align`*::
+  A camera display widget for rotational alignment.
+//FIXME Add cam_align VCP capture
+*`sim_panel`*::
+  A small control panel to simulate MPG jogging controls etc. +
+  For simulated configurations.
++
+.QtVCP Sim Builtin Panel
+image::images/qtvcp_sim_panel.png["QtVCP Sim Builtin Panel",align="center"]
+
+*`vismach_mill_xyz`*::
+  3D openGL view of a 3-Axis milling machine.
++
+.QtVismach - 3-Axis Mill Builtin Panel
+image::images/qtvismach.png["QtVismach - 3-Axis Mill Builtin Panel",align="center"]
+
+//FIXME to be added to HAL config file ? Where in there ?
 [source,{hal}]
 ----
 loadusr qtvcp test_panel
 ----
 
-You can of course make your own panel and load it.
-If you made a ui file named 'my_panel.ui' and name the following HAL file, 'my_panel.hal'
-You would then load this from a terminal with halrun -I -f my_panel.hal
+=== Custom Panels
 
+You can of course *make your own panel and load it*.
+
+If you made a UI file named `my_panel.ui` and a HAL file named
+`my_panel.hal`, you would then load this from a terminal with:
+
+----
+halrun -I -f my_panel.hal
+----
+
+.Example HAL file loading a QtVCP panel
 [source,{hal}]
 ----
 # load realtime components
-loadrt threads 
+loadrt threads
 loadrt classicladder_rt
 
 # load user space programs
 loadusr classicladder
-loadusr -Wn my_panel qtvcp my_panel.ui
+loadusr -Wn my_panel qtvcp my_panel.ui  # <1>
 
 # add components to thread
 addf classicladder.0.refresh thread1
@@ -267,197 +390,276 @@ net s32-in1        test_panel.doublescale_1-s   classicladder.0.s32in-00
 start
 ----
 
-In this case we load qtvcp using -Wn; which waits for the panel to finish loading before
-continuing to run the next HAL command. This is so the HAL pins from the panel are finished
-in case the are used in the rest of the file.
+<1> In this case we load `qtvcp` using *`-Wn`* which waits for the panel
+    to finish loading before continuing to run the next HAL command. +
+    This is to _ensure that the panel created HAL pins are actually done_
+    in case they are used in the rest of the file.
 
-== Build a simple clean-sheet custom screen
+== Build A Simple Clean-sheet Custom Screen
 
-.Ugly custom screen
-image::images/qtvcp_tester.png["QTscreen Mill",align="left"]
+.QtVCP Ugly custom screen
+image::images/qtvcp_tester.png["QtVCP Ugly custom screen",align="center"]
 
 === Overview
 
-To build a panel or screen use QTDesigner to build a design you like.
-Save this design to your configuration folder with a name of your choice, ending with .ui
-modify the configurations INI file to load qtvcp with your new .ui file.
-Then connect any required HAL pins in a HAL file
+To build a panel or screen:
 
-=== Get Designer to include linuxcnc widgets
+* Use Qt Designer to build a design you like and save it to your
+  configuration folder with a name of your choice, ending with `.ui`
+* Modify the configuration INI file to load QtVCP using your new `.ui`
+  file.
+* Then connect any required HAL pins in a HAL file.
 
-You must have designer installed; These commands should add it:
-Or use your package manager to install the same:
+=== Get Qt Designer To Include LinuxCNC Widgets
+
+//TODO Create a Qt Designer install section, or chapter (maybe in docs/src/code)
+//TODO Convert https://github.com/LinuxCNC/linuxcnc/blob/master/lib/python/qtvcp/designer/README.txt to AsciiDoc and include it directly in install section/chapter
+//TODO Upgrade install to document use of https://github.com/LinuxCNC/linuxcnc/blob/master/lib/python/qtvcp/designer/install_script
+
+.Install Qt Designer
+First you must have the *Qt Designer installed*. +
+The following commands should add it to your system, or use your package
+manager to do the same:
 
 ----
 sudo apt-get install qttools5-dev-tools qttools5-dev libpython3-dev
 ----
 
 ////
+FIXME Do we need to keep this ?
 Luego necesita agregar la biblioteca de carga del módulo python.
-Qtvcp usa QT5 con python2. Esta combinación normalmente no está disponible
-desde repositorios. Puede compilarlo usted mismo, o hay versiones precompiladas
-disponible para sistemas comunes.
-En 'lib/python/qtvcp/designer' hay carpetas basadas en arquitecturas de sistema
-y luego la versión QT.
-Debe elegir la carpeta de arquitectura de la CPU y luego elegir la serie; 5.5,
-5.7 o 5.9 de Qt.
-Actualmente el estiramiento de Debian usa 5.7, Mint 12 usa 5.5, Mint 19 usa 5.9.
+QtVCP usa QT5 con python2. Esta combinación normalmente no está
+disponible desde repositorios. Puede compilarlo usted mismo, o hay
+versiones precompiladas disponible para sistemas comunes.
+En 'lib/python/qtvcp/designer' hay carpetas basadas en arquitecturas de
+sistema y luego la versión QT.
+Debe elegir la carpeta de arquitectura de la CPU y luego elegir la
+serie; 5.5, 5.7 o 5.9 de Qt.
+Actualmente el estiramiento de Debian usa 5.7, Mint 12 usa 5.5, Mint 19
+usa 5.9.
 En caso de duda, verifique la versión de QT5 en el sistema.
 
 Debe descomprimir el archivo y luego copiar esa versión adecuada de
 'libpyqt5_py2.so' a esta carpeta
 '/usr/lib/x86_64-linux-gnu/qt5/plugins/designer'.
 
-(x86_64-linux-gnu podría llamarse algo ligeramente diferente en diferentes
-sistemas)
+(x86_64-linux-gnu podría llamarse algo ligeramente diferente en
+diferentes sistemas)
 
-Necesitará privilegios de superusuario para copiar el archivo en la carpeta.
+Necesitará privilegios de superusuario para copiar el archivo en la
+carpeta.
 ////
 
-Then you must add a link to the `qtvcp_plugin.py` to the folder that designer will search.
+.Add `qtvcp_plugin.py` link to the Qt Designer Search Path
+Then you must add a link to the `qtvcp_plugin.py` in one of the folders
+that Qt Designer will search into.
 
-In a RIP version of linuxcnc `qtvcp_plugin.py` will be in:
+In a _RIP_ version of LinuxCNC `qtvcp_plugin.py` will be:
 
   '~/LINUXCNC_PROJECT_NAME/lib/python/qtvcp/plugins/qtvcp_plugin.py'
 
-Package installed version should be:
+For a _Package installed_ version it should be:
 
   'usr/lib/python2.7/qtvcp/plugins/qtvcp_plugin.py' or
   'usr/lib/python2.7/dist-packages/qtvcp/plugins/qtvcp_plugin.py'
 
-Make a link file to the above file and move it to one of the places
-Designer searches in:
+Make a symbolic link to the above file and move it to one of the places
+Qt Designer searches in.
 
-Designer searches in these two place for links (pick one):
-This can be:
+Qt Designer searches in these two place for links (pick one):
 
   '/usr/lib/x86_64-linux-gnu/qt5/plugins/designer/python' or
   '~/.designer/plugins/python'
 
-You may need to add the plugins/python folders
+You may need to create the `plugins/python` folder.
 
-To start Designer:
+.Start Qt Designer:
 
-for a RIP installed:
-open a terminal, set the environment for linuxcnc with the command: '. scripts/rip-environment'
-then load designer with : 'designer -qt=5'
+* For a _RIP install_: +
+  Open a terminal, set the environment for LinuxCNC <1>, then load
+  Qt Designer <2> with :
++
+----
+. scripts/rip-environment   <1>
+designer -qt=5              <2>
+----
 
-otherwise for an installed version, open a terminal and type 'designer -qt=5'
+* For a _package install_: +
+  Open a terminal and type:
++
+----
+designer -qt=5
+----
 
-If all goes right you will see the selectable linuxcnc widgets on the left hand side
+If all goes right, Qt Designer will launch and you will see the
+selectable LinuxCNC widgets on the left hand side.
 
-=== build the screen .ui file
+=== Build The Screen `.ui` File
 
-When Designer is first started there is a 'New Form' dialog displayed.
-Pick 'Main Window' and press the 'create' button.
-Do not rename this window - Qtvcp requires the name to be 'MainWindow'
+.Create `MainWindow` Widget
+When Qt Designer is first started there is a _'New Form' dialog_
+displayed. +
+Pick _'Main Window'_ and press the _'Create'_ button. +
+A _`MainWindow` widget_ is displayed.
 
-A MainWindow widget is Displayed. Grab the corner of the window and resize to
-an appropriate size say 1000x600. right click on the window and click
-set minimum size. Do it again and set maximum size.Our sample widget will
-now not be resizable.
+WARNING: *Do not rename this window !* +
+  QtVCP requires the name to be `MainWindow`.
 
-Drag and drop the screenoption widget onto the main window (anywhere).
-This widget doesn't add anything visually but sets up some common options.
-It's recommended to always add this widget before any other.
-Right click on the main window (not the screenoptions widget)
-and set the layout as vertical. The screenoption widget will now be fullsized.
+.Set `MainWindow` Minimum and Maximum Size
+* Grab the corner of the window and resize to an appropriate size,
+  say 1000x600. +
+* Right click on the window and click set _minimum size_.
+* Do it again and set _maximum size_.
 
-On the right hand side there is a panel with tabs for a Property editor and
-an object inspector. On the Object inspector click on the screenoption. then
-switch to the property Editor. Under the heading 'ScreenOptions' toggle
-'filedialog_option'.
+//FIXME Is that mandatory ?
+Our sample widget will now not be resizable.
 
-Drag and drop a GCodeGraphics widget and a GcodeEditor widget.
+.Add the `ScreenOptions` Widget
+Drag and drop the `ScreenOptions` widget anywhere onto the main window.
+
+This widget doesn't add anything visually but sets up some
+*common options*.
+
+It's recommended to always _add this widget before any other_.
+
+Right click on the main window, not the `ScreenOptions` widget, and set
+the _layout_ as vertical to make the `ScreenOptions` fullsized.
+
+.Add Panel Content
+On the right hand side there is a panel with tabs for a _Property editor_
+and an _Object inspector_.
+
+On the Object inspector click on the _ScreenOptions_. +
+Then switch to the Property Editor and, under the _ScreenOptions_
+heading, toggle *`filedialog_option`*.
+//TODO Explain what this FileDialo_option does
+
+Drag and drop a *`GCodeGraphics`* _widget_ and a *`GcodeEditor`*
+_widget_. +
 Place and resize them as you see fit leaving some room for buttons.
 
-Now we will add action buttons.
-Add 7 action buttons on to the main window. If you double click the button, you
-can add text. Edit the button labels for 'Estop', 'Machine On', 'Home', 'Load',
-'Run', 'Pause' and 'stop'.
-Action buttons default to no action so we must change the properties for defined functions.
-You can edit the properties directly in the property editor on the right side of designer.
-A convenient alternating is left double clicking on the button This will launch a Dialog
-that allows selecting actions while only display relevant data to the action.
+.Add Action Buttons
+Add 7 action buttons on to the main window.
+
+If you double click the button, you can add text. +
+Edit the button labels for 'Estop', 'Machine On', 'Home', 'Load', 'Run',
+'Pause' and 'stop'.
+
+Action buttons _default to no action_ so we must change the properties
+for defined functions. You can edit the properties:
+
+* directly in the _property editor_ on the right side of Qt Designer, or
+* conveniently, left double clicking on the button to launch a
+  _properties dialog_ that allows selecting actions while only displaying
+  relevant data to the action.
 
 We will describe the convenient way first:
 
-- Right click the 'Machine On' button and select 'Set Actions'. When the Dialog displays,
-  use the combobox to navigate to 'MACHINE CONTROLS - Machine On'. In this case there there
-  is no option for this action so select ok. Now the button will turn the machine on when pressed
+* Right click the 'Machine On' button and select _Set Actions_.
+* When the dialog displays, use the combobox to navigate to
+  `MACHINE CONTROLS - Machine On`.
+* In this case there is no option for this action so select 'OK'. +
 
-And now the direct way with Designer's property editor
+Now the button will turn the machine on when pressed.
 
-- Select the 'Machine On' button. Now go to the 'Property Editor' on the right
-  side of Designer. Scroll down until you find the 'ActionButton' heading.
-  You will see a list of properties and values. find the 'machine on action' and
-  click the checkbox. the button will now control machine on/off.
+And now the direct way with Qt Designer's property editor:
+
+* Select the 'Machine On' button.
+* Go to the Property Editor on the right side of Qt Designer.
+* Scroll down until you find the _ActionButton_ heading.
+* Click  the `machine_on` action checkbox you will see in the list of
+  properties and values.
+
+The button will now control machine on/off.
 
 Do the same for all the other button with the addition of:
 
-- With the 'Home' button we must also change the joint_number property to -1,
-  Which tells the controller to home all the axes rather then a specific axis.
+* With the 'Home' button we must also change the `joint_number` property
+  to `-1`. +
+  This tells the controller to _home all the axes_ rather then a
+  specific axis.
+* With the 'Pause' button:
+** Under the `Indicated_PushButton` heading check the `indicator_option`.
+** Under the `QAbstactButton` heading check `checkable`.
 
-- With the 'Pause' button under the heading 'Indicated_PushButton' check the
-  'indicator_option' and under the 'QAbstactButton' heading check 'checkable'
+.Qt Designer: Selecting Pause Button's Properties
+image::images/designer_button_property.png["Qt Designer: Selecting Pause Button's Properties",align="center"]
 
-.Qt Designer - Selecting Pause button's properties
-image::images/designer_button_property.png["designer button property",align="left"]
+.Save The `.ui` File
+We then need to save this design as `tester.ui` in the `sim/qtvcp`
+folder.
 
-We then need to save this design as 'tester.ui' in the sim/qtvcp folder
-We are saving it as tester as that is a file name that qtvcp recognizes and
-will use a built in handler file to display it.
+We are saving it as _tester_ as that is a file name that qtvcp
+recognizes and will use a built in handler file to display it.
 
 === Handler file
 
-a handler file is required. It allows customizations to be written in python.
-For instance keyboard controls are usually written in the handler file.
+A handler file is *required*.
 
-In this example the built in file 'tester_handler.py' is automatically used.
-It does the minimum required to display the tester.ui defined screen and do
-basic keyboard jogging.
+It allows customizations to be written in Python.
 
-=== INI
+For instance, _keyboard controls_ are usually written in the handler
+file.
 
-If you are using qtvcp to make a CNC control screen:
-Under the '[DISPLAY]' heading:
+In this example, the built in file `tester_handler.py` is automatically
+used: it does the minimum required to display the `tester.ui` defined
+screen and do basic keyboard jogging.
 
-  'DISPLAY = qtvcp <screen_name>'
+=== INI Configuration
 
-'<screen_name>' is the base name of the .ui and _handler.py files.
+.[DISPLAY] Section
 
-In our example there is already a sim configuration called tester, that we
-will use to display our test screen.
+If you are using QtVCP to make a CNC control screen, under the _INI file_
+`[DISPLAY]` heading, set:
 
-=== HAL
+[source,{ini}]
+----
+DISPLAY = qtvcp <screen_name>
+----
 
-If your screen used widgets with HAL pins, then you must connect them in a HAL file.
-Qtvcp looks in the INI file, under the heading '[HAL]' for the entry 'POSTGUI_HALFILE=<filename>'
-Typically '<filename>' would be the screens base name '_postgui' + '.hal' +
-eg. 'qtvcp_postgui.hal', but can be any legal filename.
-These commands are executed after the screen is built, guaranteeing the widget HAL
-pins are available.
-You can have multiple line of 'POSTGUI_HALFILE=<filename>' in the INI.
-Each will be run one after the other in the order they appear.
+`<screen_name>` is the _base name_ of the `.ui` and `_handler.py` files.
 
-Qtvcp also looks in the INI file, under the heading '[HAL]' for the entry 'POSTGUI_HALCMD=<command>'
-'<command>' would be any valid HAL command.
-These commands are executed after the screen is built, after all the POSTGUI_HALFILEs are run,
-guaranteeing the widget HAL pins are available.
-You can have multiple line of 'POSTGUI_HALCMD=<command>' in the INI.
-Each will be run one after the other in the order they appear.
+In our example there is already a sim configuration called tester, that
+we will use to display our test screen.
 
-In our example there are no HAl pins to connect.
+.[HAL] Section
 
-== Handler file in detail
+If your screen used _widgets with HAL pins_, then you must
+*connect them in a HAL file*.
 
-handler files are used to create custom controls using python.
+QtVCP looks in the _INI file_, under the `[HAL]` heading for the entries
+below:
+
+*`POSTGUI_HALFILE=<filename>`*::
+  Typically `<filename>` would be `+<screen_name>_postgui.hal+`, but can
+  be any legal filename. +
+  You can have _multiple `POSTGUI_HALFILE` lines_ in the INI: each will
+  be run one after the other in the order they appear. +
+  These commands are _executed after the screen is built_, guaranteeing
+  the widget HAL pins are available.
+
+*`POSTGUI_HALCMD=<command>`*::
+  `<command>` would be _any valid HAL command_. +
+  You can have _multiple `POSTGUI_HALCMD` lines_ in the INI: each will
+  be run one after the other in the order they appear. +
+  To guaranty the widget HAL pins are available, these commands are
+  executed:
+  * _after the screen is built_,
+  * _after all the POSTGUI_HALFILEs are run_.
+
+In our example there are no HAL pins to connect.
+
+== Handler File In Detail
+
+Handler files are used to _create custom controls using Python_.
 
 === Overview
 
 Here is a sample handler file.
+
 It's broken up in sections for ease of discussion.
 
+//TODO Move this to a sample_handler.py include
 [source,python]
 ----
 ############################
@@ -497,7 +699,7 @@ class HandlerClass:
     ########################
     # **** INITIALIZE **** #
     ########################
-    # widgets allows access to  widgets from the qtvcp files
+    # widgets allows access to  widgets from the QtVCP files
     # at this point the widgets and hal pins are not instantiated
     def __init__(self, halcomp,widgets,paths):
         self.hal = halcomp
@@ -669,176 +871,208 @@ def get_handlers(halcomp,widgets,paths):
      return [HandlerClass(halcomp,widgets,paths)]
 ----
 
-=== IMPORT SECTION
+=== IMPORT Section
 
-This section is for importing library modules required for your screen.
-It would be typical to import qtvcp's keybinding, Status and action
+This section is for *importing required library modules* for your screen.
+
+It would be typical to import QtVCP's _keybinding_, _Status_ and _Action_
 libraries.
 
-=== INSTANTIATE LIBRARIES SECTION
+=== INSTANTIATE LIBRARIES Section
 
-By instantiating the libraries here we create global reference.
-You can note this by the commands that don't have 'self.' in front of them.
-By convention we capitalize the names of global referenced libraries.
+By instantiating the libraries here we *create global reference*.
 
-=== HANDLER CLASS section 
+You can note this by the commands that don't have `self.` in front of
+them.
 
-The custom code is placed in a class so qtvcp can utilize it.
-This is the definitions on the handler class.
+By convention we _capitalize the names of globaly referenced libraries_.
 
-=== INITIALIZE section
+=== HANDLER CLASS Section
 
-Like all python libraries the __init__ function is called when the library
-is first instantiated. You can set defaults and reference variables here.
+The *custom code* is placed _in a class so QtVCP can utilize it_.
+
+This is the definitions of the handler class.
+
+=== INITIALIZE Section
+
+Like all Python libraries the *`+__init__+` function* is called when the
+library is _first instantiated_.
+
+This is where you would set up _defaults_, as well as _reference variables_
+and _global variables_.
+
 The widget references are not available at this point.
-The variables halcomp, widgets and paths give access to qtvcp's HAL component,
-widgets, and path info respectably.
-This is where you would set up global variables.
-Widgets are not actually accessible at this point.
 
-=== SPECIAL FUNCTIONS section
+The variables `halcomp`, `widgets` and `paths` give access to QtVCP's
+HAL component, widgets, and path info respectively.
 
-There are several special functions that qtvcp looks for in the handler file.
-If qtvcp finds these it will call them, if not it will silently ignore them.
+=== SPECIAL FUNCTIONS Section
 
-==== initialized__(self):
+There are several _special functions_ that QtVCP looks for in the handler
+file.
 
-This function is called after the widgets and HAL pins are built
-You can manipulate the widgets and HAL pins or add more HAL pins here.
-Typically preferences can be checked and set, styles applied to 
-widgets or status of linuxcnc be connected to functions.
-This is also where keybindings would be added.
+If QtVCP finds these it will call them, if not it will silently ignore
+them.
 
-==== class_patch__(self):
+*`initialized__(self):`*::
+  This function is _called after the widgets and HAL pins are built_. +
+  You can manipulate the widgets and HAL pins or add more HAL pins here. +
+  Typically there can be
+  * preferences checked and set,
+  * styles applied to widgets,
+  * status of LinuxCNC connected to functions.
+  * keybindings would be added.
 
-Class patching allow you to override function calls in an imported module.
-Class patching must be done before the module is instantiated and it modifies
-all instances made after that.
-An example might be patching button calls from the G-code editor to call functions
-in the handler file instead.
-Class patching is also known as monkey patching.
+*`class_patch__(self):`*::
+  _Class patching_, also known as _monkey patching_, allows to
+  *override function calls in an imported module*. +
+  Class patching must be done _before the module is instantiated_, and it
+  _modifies all instances_ made after that. +
+  An example might be patching button calls from the G-code editor to
+  call functions in the handler file instead. +
 
-==== processed_key_event__(self, receiver,event,is_pressed,key,code,shift,cntrl):
+*`processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):`*::
+  This function is called to facilitate _keyboard jogging_ etc. +
+  By using the _`keybinding` library_ this can be used to easily add
+  functions bound to keypresses.
 
-This function is called to facilitate keyboard jogging etc.
-By using the keybindings library this can be used to easily add
-functions bound to keypresses.
+*`keypress_event__(self,receiver, event):`*::
+  This function gives *raw key press events*. +
+  It takes _precedence over_ the `processed_key_event`.
 
-==== keypress_event__(self,receiver, event):
+*`keyrelease_event__(receiver, event):`*::
+  This function gives *raw key release events*. +
+  It takes _precedence over_ the `processed_key_event`.
 
-This function gives raw key press events. It takes presidence over
-the processed_key_event.
+*`before_loop__(self):`*::
+  This function is _called just before the Qt event loop is entered_.
+  At that point, all widgets/libraries/initialization code has completed
+  and the screen is already displayed.
 
-==== keyrelease_event__(receiver, event):
+*`system_shutdown_request__(self):`*::
+  If present, this function *overrides the normal function called for
+  total system shutdown*. +
+  It could be used to do _pre-shutdown housekeeping_. +
+//TODO Example(s) of good practice cleaning
+//FIXME The following two sentences feel contradictory ?!
+  The _system will not shutdown if using this function_, you will have
+  to do that yourself. +
+  QtVCP/LinuxCNC will shutdown without a prompt after this function
+  returns.
 
-This function gives raw key release events. It takes presidence over
-the processed_key_event.
+*`closing_cleanup__(self):`*::
+  This function is _called just before the screen closes_.
+  It can be used to do cleanup before closing.
 
-==== before_loop__(self):
+//TODO Are there/what are relations b/w system_shutdown_request__() and clocing_cleanup__()
 
-This function is called just before the Qt event loop is entered.
-At the point all widgets/libraries/initialization code has completed and the screen is already displayed.
+=== STATUS CALLBACKS Section
 
-==== system_shutdown_request__(self):
+By convention this is where you would put functions that are
+*callbacks from STATUS definitions*.
 
-If present, this function overrides the normal function called when a user selects a total system shutdown.
-It could be used to do pre-shutdown housekeeping. The system will not shutdown if using this function, you will
-have to do that yourself. qtvcp/linuxcnc will shutdown without a prompt after this function returns
+=== CALLBACKS FROM FORM Section
 
-==== closing_cleanup__(self):
+By convention this is where you would put functions that are
+*callbacks from the widgets connected to the MainWindow* in the Qt
+Designer editor.
 
-This function is called just before the screen closes. It can be used
-to do cleanup before closing.
+=== GENERAL FUNCTIONS Section
 
-=== STATUS CALLBACKS section
+By convention this is where you put your *general functions*.
 
-By convention this is where you would put functions that are callbacks
-from STATUS definitions.
+=== KEY BINDING Section
 
-=== CALLBACKS FROM FORM section
+If you are _using the `keybinding` library_ this is where you place your
+*custom key call routines*.
 
-By convention this is where you would put functions that are callbacks
-from the widgets that you have connected to the MainWindow with the
-designer editor.
-
-=== GENERAL FUNCTIONS section
-
-By convention this is where you put your general functions
-
-=== KEY BINDING section
-If you are using the keybinding library this is where you place your
-custom key call routines.
 The function signature is:
 
 [source,python]
 ----
-    def on_keycall_KEY(self,event,state,shift,cntrl):
-        if state:
-            self.do_something_function()
+def on_keycall_KEY(self,event,state,shift,cntrl):
+    if state:
+        self.do_something_function()
 ----
 
-'KEY' being the code (from the keybindings library) for the desired key.
+`KEY` being the code (from the keybindings library) for the desired key.
 
-=== CLOSING EVENT section
+=== CLOSING EVENT Section
 
-Putting the close event function here will catch closing events.
-This replaces any predefined closeEvent function from qtvcp
-It's usually better to use the special closing_cleanup__ function.
+Putting the *`closeEvent` function here will catch closing events*.
+
+This _replaces any predefined `closeEvent`_ function from QtVCP.
 
 [source,python]
 ----
-    def closeEvent(self, event):
-        self.do_something()
-        event.accept()
+def closeEvent(self, event):
+    self.do_something()
+    event.accept()
 ----
 
-== Connecting widgets to python code
+NOTE: It is usually better to use the special `closing_cleanup__`
+  function.
 
-It's possible to connect widgets to python code using signals and slots.
-In this way you can give new functions to linuxcnc widgets or utilize
-standard widgets to control linuxcnc.
+== Connecting Widgets to Python Code
+
+It is possible to connect widgets to Python code using *signals and slots*.
+
+In this way you can:
+
+* _Give new functions to LinuxCNC widgets_, or
+* _Utilize standard Qt widgets to control LinuxCNC_.
 
 === Overview
 
-In the Designer editor you would create user function slots and connect
-them to widgets using signals.
-In the handler file you would create the slot's functions defined in Designer.
+*In the Qt Designer editor*:
 
-[[cha:designer-slots]]
-=== Using Designer to add slots
+* You _create user function slots_
+* You _connect the slots to widgets using signals_.
 
-When you have loaded your screen into designer add a plain PushButton to the screen.
-You could change the name of the button to something interesting like 'test_button'
-There are two ways to edit connections - This is the graphical way
-There is a button in the top tool bar of designer for editing signals.
-After pushing it, if you click-and-hold on the button it will show a arrow
-(looks like a ground signal from electrical schematic)
-Slide this arrow to a part of the main window that does not have widgets on it.
-A 'Configure Connections' dialog will pop up.
-The list on the left are the available signals from the widget.
-The list on the right is the available slots on the main window and you can add to it.
+*In the handler file*:
 
-Pick the signal 'clicked()' - this makes the slots side available.
-click 'edit' on the slots list.
-A 'Slots/Signals of MainWindow' dialog will pop up.
-On the slots list at the top there is a plus icon - click it.
-you can now edit a new slot name.
-Erase the default name 'slot()' and change it to test_button()
-press the ok button.
-You'll be back to the 'Configure Connections' dialog.
-now you can select your new slot in the slot list.
-then press ok and save the file.
+* You _create the slot's functions_ defined in Qt Designer.
 
-.Designer signal/slot selection
-image::images/designer_slots.png["QTvcp",align="left"]
+[[sub:qtvcp:designer-slots]]
+=== Using Qt Designer to add Slots
 
-=== Handler file changes
+When you have loaded your screen into Qt Designer, add a plain
+`PushButton` to the screen. +
+You could change the name of the button to something interesting like
+'test_button'.
 
-Now you must add the function to the handler file.
-The function signature is 'def slotname(self):'
-We will add some code to print the widget name.
+There are two ways to edit connections - This is the graphical way.
 
-So for our example:
+* There is a button in the top tool bar of Qt Designer for editing signals.
+  After pushing it, if you click-and-hold on the button it will show an
+  arrow (looks like a ground signal from electrical schematic).
+* Slide this arrow to a part of the main window that does not have widgets
+  on it.
+* A 'Configure Connections' dialog will pop up.
+** The list on the left are the available signals from the widget.
+** The list on the right are the available slots on the main window and
+   you can add to it.
+* Pick the signal `clicked()` - this makes the slots side available.
+* Click 'Edit' on the slots list.
+* A 'Slots/Signals of MainWindow' dialog will pop up.
+* On the slots list at the top there is a '+' icon - click it.
+* You can now edit a new slot name.
+* Erase the default name `slot()` and change it to `test_button()`
+* Press the 'OK' button.
+* You'll be back to the 'Configure Connections' dialog.
+* Now you can select your new slot in the slot list.
+* Then press 'OK' and save the file.
+
+.Qt Designer Signal/Slot Selection
+image::images/designer_slots.png["Qt Designer Signal/Slot Selection",align="center"]
+
+=== Python Handler Changes
+
+Now you must *add the function to the handler file*.
+
+The function signature is *`def slot_name(self):`*.
+
+For our example, we will add some code to print the widget name:
 
 [source,python]
 ----
@@ -849,26 +1083,36 @@ def test_button(self):
 
 Add this code under the section named:
 
-  #######################
-  # callbacks from form #
-  #######################
+[source,python]
+----
+#######################
+# callbacks from form #
+#######################
+----
 
 In fact it doesn't matter where in the handler class you put the commands
 but by convention this is where to put it.
+
 Save the handler file.
-Now when you load your screen and press the button it should print the name
-of the button in the terminal.
 
-=== More Information
+Now when you load your screen and press the button it should print the
+name of the button in the terminal.
 
-<<cha:qtvcp-widgets,QtVCP Widgets>>
+== More Informations
 
-<<cha:qtvcp-libraries,QtVCP Libraries>>
+<<cha:qtvcp:panels,QtVCP Builtin Virtual Control Panels>>
 
-<<cha:qtvcp-code,QtVCP Handler File Code Snippets>>
+<<cha:qtvcp:widgets,QtVCP Widgets>>
 
-<<cha:qtvcp-development,QtVCP Development>>
+<<cha:qtvcp:libraries,QtVCP Libraries>>
 
-<<cha:qtvcp-custom-widgets,QtVCP Custom Designer Widgets>>
+<<cha:qtvcp:vismach,Qt Vismach>>
+
+<<cha:qtvcp:code,QtVCP Handler File Code Snippets>>
+
+<<cha:qtvcp:devel,QtVCP Development>>
+
+<<cha:qtvcp:custom-widgets,QtVCP Custom Qt Designer Widgets>>
+
 
 // vim: set syntax=asciidoc:

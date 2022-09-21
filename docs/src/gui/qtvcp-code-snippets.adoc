@@ -1,18 +1,20 @@
 :lang: en
 :toc:
 
-[[cha:qtvcp-code]]
-= QtVCP Handler file code snippets
+[[cha:qtvcp:code]]
+= QtVCP Handler File Code Snippets
 
-Here are bits of ideas to put in the handler file.
+== Preference File Loading/Saving
 
-== Preference file loading/saving
+Here is how to *load and save preferences at launch and closing time*.
 
-Here is how to load and save at closing time a number and some text:
-You must have included a preference file option in the screenoptions
-widget. The preference file path is set in the INI.
+.Prerequisites
 
-Under the 'def initialized__(self):' function add:
+* _Preference file option must be set_ in the `ScreenOptions` widget.
+* _Preference file path must be set_ in the `INI` configuration.
+
+.Reading preferences at launch time
+Under the *`def initialized__(self):`* function add:
 
 [source,python]
 ----
@@ -22,7 +24,8 @@ if self.w.PREFS_:
     self.string_value = self.w.PREFS_.getpref('String_value', 'on', str, 'CUSTOM_FORM_ENTRIES')
 ----
 
-Under the 'def closing_cleanup__(self):' function add:
+.Writing preferences at close time
+In the *`closing_cleanup__()`* function, add:
 
 [source,python]
 ----
@@ -32,23 +35,30 @@ if self.w.PREFS_:
     self.w.PREFS_.putpref('String_value', self.string_value, str, 'CUSTOM_FORM_ENTRIES')
 ----
 
-== use QSettings to read/save variable
+== Use `QSettings` To Read/Save Variables
 
-Here is how to load and save variables using Pyqt's QSettings functions:
+Here is how to *load and save variables using PyQt's `QSettings`*
+functions:
 
-* The file is actually saved in ~/.config/QtVcp
-* You can set a Group name to help keep names organsized and unique.
-* When reading a setting, if there is no entry, it will return None.
-* You should set a default to cover the first time it is run.
+.Good practices
 
+* _Use `Group` to keep names organized and unique_.
+* _Account for `none` value_ returned when reading a setting which has
+  no entry.
+* _Set defaults to cover the first time it is run_ using the
+  `or _<default_value>_` syntax.
+
+NOTE: The file is actually saved in `~/.config/QtVcp`
+
+.Example
 In this example:
 
-* We added 'or 20' and 'or 2.5' as defaults.
-* The names 'MyGroupName', 'int_value', 'float_value', 'myInteger', and
-  'myFloat' are user defined.
+* We add `or 20` and `or 2.5` as defaults.
+* The names `MyGroupName`, `int_value`, `float_value`, `myInteger`, and
+  `myFloat` are user defined.
 
-Under the 'def initialized__(self):' function add:
-
+* Under the *`def initialized__(self):`* function add:
++
 [source,python]
 ----
 # set recorded columns sort settings
@@ -58,8 +68,8 @@ self.float_value = self.SETTINGS_.value('myFloat', type = float) or 2.5
 self.SETTINGS_.endGroup()
 ----
 
-Under the 'def closing_cleanup__(self):' function add:
-
+* Under the *`def closing_cleanup__(self):`* function add:
++
 [source,python]
 ----
 # save values with QSettings
@@ -69,30 +79,31 @@ self.SETTINGS_.setValue('myFloat', self.float_value)
 self.SETTINGS_.endGroup()
 ----
 
-== Add a basic style editor
+== Add A Basic Style Editor
 
-Being able to edit a style on a running screen is convienant.
+Being able to *edit a style on a running screen* is convenient.
 
-In the 'IMPORT SECTION':
-
+.Import `StyleSheetEditor` module in the `IMPORT SECTION`:
 [source,python]
 ----
 from qtvcp.widgets.stylesheeteditor import StyleSheetEditor as SSE
+----
 
+.Instantiate `StyleSheetEditor` module in the `INSTANTIATE SECTION`:
+[source,python]
+----
 STYLEEDITOR = SSE()
 ----
 
-In the 'INITIALIZE SECTION', under the
-`\_\_init__.(self, halcomp, widgets, paths):` function:
+.Create a `keybinding` in the `INITIALIZE SECTION`:
+Under the `+__init__.(self, halcomp, widgets, paths):+` function add:
 
 [source,python]
 ----
 KEYBIND.add_call('Key_F12','on_keycall_F12')
 ----
 
-Finally lets make `F12` launch it. +
-In the *`KEYBINDING SECTION`* add:
-
+.Create the key bound function in the `KEYBINDING SECTION`:
 [source,python]
 ----
 def on_keycall_F12(self,event,state,shift,cntrl):
@@ -102,35 +113,35 @@ def on_keycall_F12(self,event,state,shift,cntrl):
 
 == Request Dialog Entry
 
-QtVCP uses STATUS messages to pop up and return information from dialogs. +
+QtVCP uses `STATUS` messages to *pop up and return information from dialogs*.
+
 Prebuilt dialogs keep track of their last position and include options
-for focus shading and sound. +
-To get information back from the dialog requires using a STATUS general
-message.
+for focus shading and sound.
 
-In the 'IMPORT SECTION' make sure there is an entry similar to this:
+To _get information back from the dialog_ requires using a `STATUS`
+*`general`* message.
 
+.Import and Instantiate the `Status` module in the `IMPORT SECTION`
 [source,python]
 ----
 from qtvcp.core import Status
 STATUS = Status()
 ----
 
-This loads and initializes the STATUS library.
+This loads and initializes the `Status` library.
 
-In the 'INITIALIZE SECTION'
-Under the '\_\_init__.(self, halcomp, widgets, paths):' function
+.Register function for `STATUS general` messages in the 'INITIALIZE SECTION'
+Under the `+__init__.(self, halcomp, widgets, paths)+` function:
 
 [source,python]
 ----
 STATUS.connect('general',self.return_value)
 ----
 
-This registers STATUS to call the function 'self.return_value' when a
+This registers `STATUS` to call the function `self.return_value` when a
 general message is sent.
 
-In the 'GENERAL FUNCTIONS SECTION'
-
+.Add entry dialog request function in the `GENERAL FUNCTIONS SECTION`
 [source,python]
 ----
 def request_number(self):
@@ -138,20 +149,24 @@ def request_number(self):
     STATUS.emit('dialog-request', mess)
 ----
 
-This is the function to request an entry dialog. +
-NAME needs to be set to the dialogs unique launch name. +
-ID needs to be set to a unique name that the function supplies +
-It creates a python dict. The NAME sets which dialog to request -
-'ENTRY' or 'CALCULATOR' allows entering numbers. +
-The ID should be a unique key. TITLE sets the dialog title. You can also
-add arbitrary data to the dict -+
-the dialog will ignore them but send them back to the return code. +
+The function:
 
-In the 'CALLBACKS FROM STATUS SECTION'
+* Creates a Python `dict` with:
+** *`NAME`* - needs to be set to the _dialogs unique launch name_. +
+  `NAME` sets which dialog to request. +
+  `ENTRY` or `CALCULATOR` allows entering numbers.
+//FIXME Is that a user defined unique name or a dialog type ?
+** *`ID`* - needs to be set to a _unique name that the function supplies_. +
+  `ID` should be a unique key.
+** *`TITLE`* sets the dialog title.
+** *Arbitrary data* can be added to the `dict`. +
+  The dialog will ignore them but send them back to the return code.
+* Sends the `dict` as a *`dialog-request`* `STATUS` message
 
+.Add message data processing function in the `CALLBACKS FROM STATUS SECTION`
 [source,python]
 ----
-# process the STATUS return message from set-tool-offset
+# Process the STATUS return message from set-tool-offset
 def return_value(self, w, message):
     num = message.get('RETURN')
     id_code = bool(message.get('ID') == 'FORM__NUMBER')
@@ -160,75 +175,82 @@ def return_value(self, w, message):
         print('The {} number from {} was: {}'.format(name, id_code, num))
 ----
 
-This catches all general messages so must check the dialog type and id
-code to confirm it's our dialog. +
-In this case we had requested an 'ENTRY' dialog and our unique id was
-'ENTRY_NUMBER', so now we know the message is for us. +
-Entry or Calculator dialogs return a float number.
+This catches all general messages so it must _check the dialog type and
+id code_ to confirm it's our dialog.
+
+In this case we had requested an `ENTRY` dialog and our unique id was
+`FORM_NUMBER`, so now we know the message is for us.
+
+`ENTRY` or `CALCULATOR` dialogs return a float number.
 
 == Speak a Startup Greeting
 
-This requires the 'espeak' library installed on the system.
+This requires the `espeak` library installed on the system.
 
-In the 'IMPORT SECTION' make sure there is an entry similar to this:
-
+.Import and Instantiate the `Status` in the `IMPORT SECTION`
 [source,python]
 ----
 from qtvcp.core import Status
 STATUS = Status()
 ----
 
-In the 'INITIALIZE SECTION'
-Under the '\_\_init__.(self, halcomp, widgets, paths):' function
+.Emit spoken message in the `INITIALIZE SECTION`
+Under the '+__init__.(self, halcomp, widgets, paths)+' function:
 
 [source,python]
 ----
 STATUS.emit('play-alert','SPEAK Please remember to oil the ways.')
 ----
 
-'SPEAK' is a key work, everything after it will be pronounced
+*`SPEAK`* is a keyword: _everything after it will be pronounced_.
 
-== ToolBar Functions.
+== ToolBar Functions
 
-Toolbar buttons and submenus are added in Designer but the code to make
-them do something is added in the handler file. +
-In this example we assume you added a tool bar with one submenu and
-three actions. +
-These will be configure to create a recent file selection menu, an about
-pop up dialog action, a quit program action and a user defined function
-action. +
-You can add submenus in designer by adding an qaction (by typing in the
-toolbar column) then clicking the 'plus' icon on the right. +
-This will ad a sub column that you need to type a name into. Now the
-original Qaction will be a Qmenu instead. +
-Now erase the Qaction you added to that Qmenu - the menu will stay as a
-menu.
+Toolbar buttons and submenus are added in Qt Designer but the code to
+make them do something is added in the handler file.
 
-The objectName of the toolbar button is used to identify the button when
-configuring it - descriptive names help. +
-Using the action editor menu, right click and select edit. Edit the
-object name, text, and button type for an appropriate action. +
-In this example the submenu name must be : 'menuRecent'. The actions
-must be 'actionAbout', 'actionQuit', 'actionMyFunction'
+To *add a submenus* in Qt Designer:
 
-In the 'IMPORT SECTION' add:
+* Add a `Qaction` by typing in the toolbar column then clicking the
+  '+' icon on the right.
+* This will add a sub column that you need to type a name into.
+* Now the original `Qaction` will be a `Qmenu` instead.
+* Now erase the `Qaction` you added to that `Qmenu`, the menu will stay as
+  a menu.
 
+In this example we assume you added a toolbar with one submenu and
+three actions. These actions will be configured to create:
+
+* a recent file selection menu,
+* an about pop up dialog action,
+* a quit program action, and
+* a user defined function action.
+
+The `objectName` of the toolbar button is used to identify the button
+when configuring it - _descriptive names help_.
+
+Using the action editor menu, right click and select edit. +
+Edit the object name, text, and button type for an appropriate action.
+
+In this example the:
+
+* submenu name must be `menuRecent`,
+* actions names must be `actionAbout`, `actionQuit`, `actionMyFunction`
+
+.Loads the `toolbar_actions` library in the `IMPORT SECTION`
 [source,python]
 ----
 from qtvcp.lib.toolbar_actions import ToolBarActions
 ----
 
-Loads the toolbar library.
-
-in the 'INSTANTIATE LIBRARY' Section add:
-
+.Instantiate `ToolBarActions` module in the `INSTANTIATE LIBRARY SECTION`
 [source,python]
 ----
 TOOLBAR = ToolBarActions()
 ----
 
-In the 'SPECIAL FUNCTIONS SECTION'
-Under the 'def initialized__(self):' function add:
+.Configure submenus and actions in the `SPECIAL FUNCTIONS SECTION`
+Under the `def initialized__(self)` function add:
 
 [source,python]
 ----
@@ -238,39 +260,35 @@ TOOLBAR.configure_action(self.w.actionQuit, 'Quit', lambda d:self.w.close())
 TOOLBAR.configure_action(self.w.actionMyFunction, 'My Function', self.my_function)
 ----
 
-Configures the action.
-
-In the 'GENERAL FUNCTIONS SECTION' ADD:
-
+.Define the user function in the `GENERAL FUNCTIONS SECTION`
 [source,python]
 ----
 def my_function(self, widget, state):
     print('My function State = ()'.format(state))
 ----
 
-The function to be called if the actionMyFunction button is pressed.
+The function to be called if the action "My Function" button is pressed.
 
-== Add HAL Pins that call functions
+== Add HAL Pins That Call Functions
 
-In this way you don't need to poll the state of input pins.
+In this way you _don't need to poll the state of input pins_.
 
-In the 'IMPORT SECTION' add:
-
+.Loads the `Qhal` library in the `IMPORT SECTION`
 [source,python]
 ----
 from qtvcp.core import Qhal
 ----
 
-Loads the Qhal library for access to QtVCP's HAL component.
+This is to allow access to *QtVCP's HAL component*.
 
-In the 'INSTANTIATE LIBRARY' Section add:
-
+.Instantiate `Qhal` in the `INSTANTIATE LIBRARY SECTION`
 [source,python]
 ----
 QHAL = Qhal()
 ----
 
-Under the initialised__ function, make sure there is an entry similar to this:
+.Add a function that gets called when the pin state changes
+Under the `initialised__` function, make sure there is an entry similar to this:
 
 [source,python]
 ----
@@ -286,18 +304,7 @@ def initialized__(self):
     self.pin_cycle_start_in.value_changed.connect(lambda s: self.cycleStart(s))
 ----
 
-Add a function that gets called when the pin state changes.
-This function assumes there is a Tab widget named 'mainTab'
-that has tabs with the names 'tab_auto', 'tab_graphics',
-'tab_filemanager' and 'tab_mdi'.
-
-In this way, the cycle start
-button works differently depending on what tab is showing.
-This is simplified - checking state and error trapping might
-be helpful.
-
-In the 'GENERAL FUNCTIONS SECTION' add:
-
+.Define the function called by pin state change in the `GENERAL FUNCTIONS SECTION`
 [source,python]
 ----
 #####################
@@ -315,15 +322,29 @@ def cycleStart(self, state):
             self.w.mditouchy.run_command()
 ----
 
-== Add a special Max Velocity Slider based on percent
+This function assumes there is a Tab widget, named `mainTab`, that has
+tabs with the names `tab_auto`, `tab_graphics`, `tab_filemanager` and
+`tab_mdi`.
 
-Some times you want to build a widget to do something not built in. +
-The built in Max velocity slider acts on units per minute, here we show how to do percent: +
-The STATUS command makes sure the slider adjusts if linuxcnc changes the current max velocity. +
-valueChanged.connect() calls a function when the slider is moved.
+In this way the cycle start button works differently depending on what
+tab is shown.
 
-In Designer add a QSlider widget called 'mvPercent'.
-Then add the code to the handler file.
+This is simplified - _checking state and error trapping might be helpful_.
+
+== Add A Special Max Velocity Slider Based On Percent
+
+Some times you want to *build a widget to do something not built in*.
+
+The built in Max velocity slider acts on units per minute, here we show
+how to do on percent.
+
+The *`STATUS`* command makes sure the slider adjusts if LinuxCNC changes
+the current max velocity.
+
+*`valueChanged.connect()`* _calls a function when the slider is moved_.
+
+In Qt Designer add a *`QSlider`* widget called `mvPercent`, then add the
+following code to the handler file:
 
 [source,python]
 ----
@@ -333,7 +354,11 @@ Then add the code to the handler file.
 
 def initialized__(self):
     self.w.mvPercent.setMaximum(100)
-    STATUS.connect('max-velocity-override-changed', lambda w, data: self.w.mvPercent.setValue((data / INFO.MAX_TRAJ_VELOCITY)*100))
+    STATUS.connect('max-velocity-override-changed', \
+        lambda w, data: self.w.mvPercent.setValue( \
+            (data / INFO.MAX_TRAJ_VELOCITY)*100 \
+            )
+        )
     self.w.mvPercent.valueChanged.connect(self.setMVPercentValue)
 
 #####################
@@ -346,20 +371,26 @@ def setMVPercentValue(self, value):
 
 == Toggle Continuous Jog On and Off
 
-Generally selecting continuous jogging is a momentary button, that requires you to select
-the previous jog increment after. We will build a button that toggles between continuous jog and whatever
+Generally selecting continuous jogging is a momentary button, that
+requires you to select the previous jog increment after.
+
+We will build a button that toggles between continuous jog and whatever
 increment that was already selected.
 
-In Designer:
-- Use an action button with no action, call it 'btn_toggle_continuous'.
-- Set the AbstractButton property 'checkable' true.
-- Set the ActionButton properties 'incr_imperial_number' and 'incr_mm_number' to 0.
+In Qt Designer:
 
-Use designer's slot editor to use the button signal 'clicked(bool)' to call form's handler function 'toggle_continuous_clicked()', see
-<<cha:designer-slots,Using Designer to add slots>>.
+* Add an `ActionButton` with no action
+* Call it `btn_toggle_continuous`.
+* Set the `AbstractButton` property `checkable` to `True`.
+* Set the `ActionButton` properties `incr_imperial_number` and
+  `incr_mm_number` to `0`.
+* Use Qt Designer's slot editor to use the button signal `clicked(bool)`
+  to call form's handler function `toggle_continuous_clicked()`. +
+  See <<sub:qtvcp:designer-slots,Using Qt Designer To Add Slots>>
+  section for more informations.
 
-Then add this code snippets to the handler file: +
-Under the initialized__ function, make sure there is an entry similar to this:
+Then add this code snippets to the handler file under the `initialized__`
+function:
 
 [source,python]
 ----
@@ -367,18 +398,20 @@ Under the initialized__ function, make sure there is an entry similar to this:
 # the widgets are instantiated.
 # the HAL pins are built but HAL is not set ready
 def initialized__(self):
-    STATUS.connect('jogincrement-changed', lambda w, d, t: self.record_jog_incr(d,t))
+    STATUS.connect('jogincrement-changed', \
+        lambda w, d, t: self.record_jog_incr(d,t) \
+        )
     # set a default increment to toggle back to
     self.L_incr = 0.01
     self.L_text = "0.01in"
 ----
 
-In the 'GENERAL FUNCTIONS SECTION' ADD:
+In the `GENERAL FUNCTIONS SECTION` add:
 
 [source,python]
 ----
 #####################
-# general functions #
+# GENERAL FUNCTIONS #
 #####################
 
 # if it isn't continuous, record the latest jog increment
@@ -390,7 +423,7 @@ def record_jog_incr(self,d, t):
         self.w.btn_toggle_continuous.safecheck(False)
 ----
 
-In the 'CALLBACKS FROM FORM SECTION' ADD:
+In the `CALLBACKS FROM FORM SECTION` add:
 
 [source,python]
 ----
@@ -407,44 +440,52 @@ def toggle_continuous_clicked(self, state):
         ACTION.SET_JOG_INCR(self.L_incr, self.L_text)
 ----
 
-== Class Patch the file manager widget
+== Class Patch The File Manager Widget
 
 [NOTE]
-Class patching (monkey patching) is a little like black magic - so use it only if needed.
+Class patching (monkey patching) is a little like _black magic_ - so use
+it _only if needed_.
 
-The File manager widget is designed to load a selected program in LinuxCNC.
-But maybe you want to print the file name first.
-We can 'class patch' the library to redirect the function call.
+The File manager widget is designed to load a selected program in
+LinuxCNC. But maybe you want to print the file name first.
 
-In the 'IMPORT SECTION' add:
+We can "class patch" the library to _redirect the function call_.
+
+In the `IMPORT SECTION` add:
 
 [source,python]
 ----
 from qtvcp.widgets.file_manager import FileManager as FM
 ----
 
-Here we are going to keep a reference to the original function, so we can still call it.
-Then we redirect the class to call our custom function in the handler file instead.
+Here we are going to:
 
+. _Keep a reference to the original function_ (1) so we can still call
+  it
+. _Redirect the class to call our custom function_ (2) in the handler
+  file instead.
++
 [source,python]
 ----
 ##########################################
-# Special Functions called from QtVCP
+# Special Functions called from QtVCP    #
 ##########################################
 
 # For changing functions in widgets we can 'class patch'.
 # class patching must be done before the class is instantiated.
 def class_patch__(self):
-    self.old_load = FM.load # keep a reference of the old function
-    FM.load = self.our_load # redirect function to our handle file function
+    self.old_load = FM.load # keep a reference of the old function <1>
+    FM.load = self.our_load # redirect function to our handle file function <2>
 ----
-
-Ok Now we write a custom function to replace the original.
-This function must have the same signature as the original function.
-In this example we are still going to call the original function by using the
-reference to it we recorded earlier. It requires the first argument to be the widget instance
-which in this case is self.w.filemanager (the name given in the designer editor).
-
++
+. _Write a custom function to replace the original_: +
+  This function must have the *same signature as the original function*. +
+  In this example we are still going to call the original function by
+  using the reference to it we recorded earlier. +
+  It _requires the first argument to be the widget instance_, which in
+  this case is `self.w.filemanager` (the name given in the Qt Designer
+  editor).
++
 [source,python]
 ----
 #####################
@@ -456,13 +497,18 @@ def our_load(self,fname):
     self.old_load(self.w.filemanager,fname)
 ----
 
-Now our custom function will print the file path to the terminal before loading the file.
+Now our custom function will print the file path to the terminal before
+loading the file. +
 Obviously boring but shows the principle.
 
-There is another slightly different way to do this that can have advantages.
-You can store the reference to the original function in the original class.
-the trick here is to make sure the function name you use to store it, is not already
-used in the class. 'super__' added to the function name would be a good choice.
+[NOTE]
+====
+There is another slightly different way to do this that can have
+advantages: you can _store the reference to the original function in the
+original class_. +
+The trick here is to make sure the function name you use to store it is
+not already used in the class. +
+`super__` added to the function name would be a good choice. +
 We won't use that in built in QtVCP widgets.
 
 [source,python]
@@ -486,24 +532,31 @@ def our_load(self,fname):
     self.w.filemanager.super__load(fname)
 ----
 
-== Adding widgets Programmatically
+====
 
-In some situation it is only possible to add widgets with python code rather
-then using the Designer editor.
-When adding QtVCP widgets programmatically, sometimes there are extra steps to
-be taken.
-Here we are going to add a spindle speed indicator bar and up-to-speed LED to a
-tab widget corner.
+== Adding Widgets Programmatically
+
+In some situation it is only possible to *add widgets with Python code*
+rather then using the Qt Designer editor.
+
+When adding QtVCP widgets programmatically, sometimes there are _extra
+steps_ to be taken.
+
+Here we are going to add a spindle speed indicator bar and up-to-speed
+LED to a tab widget corner. +
 Qt Designer does not support adding corner widgets to tabs but PyQt does.
-This is a cut down example from Qtaxis screen's handler file.
 
-First we must import the libraries we need.
-Often these libraries are already imported in the handler file:
-- QtWidgets gives us access to the QProgress bar.
-- QColor is for the LED color.
-- StateLED is the QtVCP library used to create the spindle-at-speed LED.
-- Status is used to catch LinuxCNC status information.
-- Info gives us information about the machine configuration.
+This is a cut down example from QtAxis screen's handler file.
+
+.Import required libraries
+First we must import the libraries we need, if they're not already
+imported in the handler file:
+
+* `QtWidgets` gives us access to the `QProgressBar`,
+* `QColor` is for the _LED color_,
+* `StateLED` is the QtVCP library used to _create the spindle-at-speed LED_,
+* `Status` is used to _catch LinuxCNC status information_,
+* `Info` gives us _information about the machine configuration_.
 
 [source,python]
 ----
@@ -517,8 +570,9 @@ from qtvcp.widgets.state_led import StateLED as LED
 from qtvcp.core import Status, Info
 ----
 
-STATUS and INFO are initialized outside the handler class so as to be a global
-reference (no self. in front).
+.Instantiate `Status` and `Info` channels
+`STATUS` and `INFO` are initialized outside the handler class so as to
+be _global references_ (no self. in front):
 
 [source,python]
 ----
@@ -530,9 +584,13 @@ STATUS = Status()
 INFO = Info()
 ----
 
-For the spindle speed indicator we need to know the current spindle speed:
-We register with STATUS to catch the 'actual-spindle-speed-changed' signal to
-call a function named: 'self.update_spindle()'.
+.Register `STATUS` monitoring function
+For the spindle speed indicator we need to know the current spindle
+speed. +
+For this we _register_ with `STATUS` to:
+
+* _Catch_ the `actual-spindle-speed-changed` _signal_
+* _Call_ the `self.update_spindle()` _function_
 
 [source,python]
 ----
@@ -541,23 +599,26 @@ call a function named: 'self.update_spindle()'.
 ########################
 # widgets allows access to  widgets from the QtVCP files
 # at this point the widgets and hal pins are not instantiated
-def __init__(self, halcomp,widgets,paths):
+def __init__(self,halcomp,widgets,paths):
     self.hal = halcomp
     self.w = widgets
     self.PATHS = paths
 
-    STATUS.connect('actual-spindle-speed-changed', lambda w,speed: self.update_spindle(speed))
+    STATUS.connect('actual-spindle-speed-changed', \
+        lambda w,speed: self.update_spindle(speed))
 ----
 
-We need to make sure the Designer widgets are already built before we try to
-add to them. +
-We add a function call 'self.make_corner_widgets()' to build our extra widgets
-at the right time. +
+.Add the widgets to the tab
+We need to _make sure the Qt Designer widgets are already built_ before
+we try to add to them. +
+For this, we add a call to `self.make_corner_widgets()` function to
+build our extra widgets at the right time, i.e. under the
+`initialized__()` function:
 
 [source,python]
 ----
 ##########################################
-# Special Functions called from QTSCREEN
+# Special Functions called from QtScreen #
 ##########################################
 
 # at this point:
@@ -567,41 +628,13 @@ def initialized__(self):
     self.make_corner_widgets()
 ----
 
+.Create the widgets building functions
 Ok let's code the function to build the widgets and add them in the tab
 widget. +
 We are assuming there is a tab widget built with Designer called 'rightTab'.
 
-'self.w.led = LED()' - this initializes the basic StateLed widget and uses
-self.w.led as the reference from then on. +
-'self.w.led.setProperty("is_spindle_at_speed_status",True)' - since the state
-LED can be used for many indications +
-we must set the property that designates it as a  spindle-at-speed LED. +
-'self.w.led.setProperty("color",QColor(0,255,0,255))' this sets it as green
-when on. +
-'self.w.led.hal_init(HAL_NAME = "spindle_is_at_speed")' - this is the extra
-function call required with some QtVCP widgets. +
-If HAL_NAME is omitted it will use the widget objectName if there is one. +
-It gives the special widgets reference to:
-
-* self.HAL_GCOMP_ - The HAL component wrapped in QtVCP's core QComponent
-* self.HAL_NAME_ -The HAL widget name
-* self.QT_OBJECT_ -the  actual object
-* self.QTVCP_INSTANCE_- The window object
-* self.PATHS_ -the path library
-* self.PREFS_ -the preference object.
-
-'self.w.rpm_bar = QtWidgets.QProgressBar()' - initialize a PyQt5 QProgress
-bar. +
-'self.w.rpm_bar.setRange(0, INFO.MAX_SPINDLE_SPEED)' - set the max range of the
-Progress bar to the max specified in the INI.
-
-Since you can only add one widget to the tab corner and we have two we want
-there, we must add the two into a container. +
-We create a QWidget and add a QHBoxLayout to the QWidget. +
-The we add our QProgress bar and LED to the layout.
-
-'self.w.rightTab.setCornerWidget(w)' - finally we add the QWidget (with our
-QProgress bar and LED in it) to the tab widget's corner.
+We are assuming there is a tab widget built with Qt Designer called
+`rightTab`.
 
 [source,python]
 ----
@@ -611,37 +644,62 @@ QProgress bar and LED in it) to the tab widget's corner.
 
 def make_corner_widgets(self):
     # make a spindle-at-speed green LED
-    self.w.led = LED()
-    self.w.led.setProperty('is_spindle_at_speed_status',True)
-    self.w.led.setProperty('color',QColor(0,255,0,255))
-    self.w.led.hal_init(HAL_NAME = 'spindle_is_at_speed')
+    self.w.led = LED()                                        # <1>
+    self.w.led.setProperty('is_spindle_at_speed_status',True) # <2>
+    self.w.led.setProperty('color',QColor(0,255,0,255))       # <3>
+    self.w.led.hal_init(HAL_NAME = 'spindle_is_at_speed')     # <4>
 
     # make a spindle speed bar
-    self.w.rpm_bar = QtWidgets.QProgressBar()
-    self.w.rpm_bar.setRange(0, INFO.MAX_SPINDLE_SPEED)
+    self.w.rpm_bar = QtWidgets.QProgressBar()                 # <5>
+    self.w.rpm_bar.setRange(0, INFO.MAX_SPINDLE_SPEED)        # <6>
 
     # container
-    w = QtWidgets.QWidget()
+    w = QtWidgets.QWidget()                                   # <7>
     w.setContentsMargins(0,0,0,6)
     w.setMinimumHeight(40)
 
     # layout
-    hbox = QtWidgets.QHBoxLayout()
-    hbox.addWidget(self.w.rpm_bar)
-    hbox.addWidget(self.w.led)
+    hbox = QtWidgets.QHBoxLayout()                            # <8>
+    hbox.addWidget(self.w.rpm_bar)                            # <9>
+    hbox.addWidget(self.w.led)                                # <9>
     w.setLayout(hbox)
 
     # add the container to the corner of the right tab widget
-    self.w.rightTab.setCornerWidget(w)
+    self.w.rightTab.setCornerWidget(w)                        # <10>
 ----
 
-Now we build the function to actually update out QProgressBar when STATUS
-updates the spindle speed. +
-'self.w.rpm_bar.setInvertedAppearance()' - In this case we chose to display
-left-to-right or right-to-left depending if we are turning clockwise or
-anticlockwise. +
-'self.w.rpm_bar.setFormat()' - This formats the writing in the bar. +
-'self.w.rpm_bar.setValue()' - This sets the length of the colored bar.
+<1> This initializes the basic StateLed widget and uses `self.w.led` as
+    the reference from then on.
+<2> Since the state LED can be used for many indications, we must set
+    the property that designates it as a spindle-at-speed LED.
+<3> This sets it as green when on.
+<4> This is the extra function call required with some QtVCP widgets. +
+    If `HAL_NAME` is omitted it will use the widget's `objectName` if
+    there is one. +
+    It gives the special widgets reference to:
++
+*`self.HAL_GCOMP`*:: the _HAL component_ instance
+*`self.HAL_NAME`*:: This _widget's name_ as a string
+*`self.QT_OBJECT_`*:: This _widget's PyQt object instance_
+*`self.QTVCP_INSTANCE_`*:: The _very top level parent_ of the screen
+*`self.PATHS_`*:: The _instance of QtVCP's path_ library
+*`self.PREFS_`*:: the _instance of an optional preference file_
+*`self.SETTINGS_`*:: the `Qsettings` _object_
+
+<5> Initializes a PyQt5 `QProgressBar`.
+<6> Sets the max range of the progress bar to the max specified in the
+    `INI`.
+<7> We create a QWidget +
+    Since you can only add one widget to the tab corner and we want two
+    there, we must add both into a *container*.
+<8> add a QHBoxLayout to the QWidget. +
+<9> Then we add our QProgress bar and LED to the layout.
+<10> Finally we add the QWidget (with our
+QProgress bar and LED in it) to the tab widget's corner.
+
+.Create the `STATUS` monitoring function
+Now we build the function to actually update out the `QProgressBar` when
+`STATUS` updates the spindle speed:
 
 [source,python]
 ----
@@ -649,28 +707,35 @@ anticlockwise. +
 # callbacks from STATUS #
 ########################
 def update_spindle(self, data):
-    self.w.rpm_bar.setInvertedAppearance(bool(data<0))
-    self.w.rpm_bar.setFormat('{0:d} RPM'.format(int(data)))
-    self.w.rpm_bar.setValue(abs(data))
+    self.w.rpm_bar.setInvertedAppearance(bool(data<0))       # <1>
+    self.w.rpm_bar.setFormat('{0:d} RPM'.format(int(data)))  # <2>
+    self.w.rpm_bar.setValue(abs(data))                       # <3>
 ----
+
+<1> In this case we chose to display left-to-right or right-to-left,
+    depending if we are turning clockwise or anticlockwise.
+<2> This formats the writing in the bar.
+<3> This sets the length of the colored bar.
 
 == Update/Read Objects Periodically
 
-Sometimes you need to update a widget or read a value regularly that
-isn't covered by normal libraries. +
-Here we update an LED based on a watched HAL pin every 100ms. +
-We assume there is an LED named 'led' in the designer .ui file.
+Sometimes you need to *update a widget or read a value regularly* that
+isn't covered by normal libraries.
 
-In the 'IMPORT SECTION' add:
+Here we update an LED based on a watched HAL pin every 100ms.
+
+We assume there is an LED named `led` in the Qt Designer UI file.
+
+.Load the `Qhal` library for access to QtVCP's HAL component
+In the `IMPORT SECTION` add:
 
 [source,python]
 ----
 from qtvcp.core import Qhal
 ----
 
-Loads the Qhal library for access to QtVCP's hal component.
-
-in the 'INSTANTIATE LIBRARY' Section add:
+.Instantiate `Qhal`
+In the `INSTANTIATE LIBRARY SECTION` add:
 
 [source,python]
 ----
@@ -679,21 +744,28 @@ QHAL = Qhal()
 
 Now add/modify these sections to include code that is similar to this:
 
+.Register a function to be called at `CYCLE_TIME` period
+This is usually every 100ms
+
 [source,python]
 ----
 ########################
 # **** INITIALIZE **** #
 ########################
-# widgets allows access to  widgets from the QtVCP files
+# widgets allows access to widgets from the QtVCP files
 # at this point the widgets and hal pins are not instantiated
-def __init__(self, halcomp,widgets,paths):
+def __init__(self,halcomp,widgets,paths):
     self.hal = halcomp
     self.w = widgets
     self.PATHS = paths
 
     # register a function to be called at CYCLE_TIME period (usually every 100ms)
     STATUS.connect('periodic', lambda w: self.update_periodic())
+----
 
+.Create the custom function to be called periodically
+[source,python]
+----
 #####################
 # general functions #
 #####################
@@ -702,48 +774,60 @@ def update_periodic(self):
     self.w.led.setState(data)
 ----
 
-== external control with ZMQ messaging reading
+== External Control With ZMQ
 
-Sometimes you want to control the screen with a separate program. +
-QtVCP can automatically set up ZMQ messaging to send and/or receive remote
-messages. +
-It uses ZMQ's publish/subscribe pattern of messages. +
-As always consider security before letting programs interface though
-messaging. +
-In the screenoptions widget, you can select the property
-'use_receive_zmq_option' +
-You could also set this property directly in the handler file (as in
-this sample). +
-We assume the screenoption widget is called 'screen_options' in designer:
+_QtVCP can automatically set up_ *ZMQ messaging* _to send and/or receive
+remote messages from external programs_.
+
+It uses ZMQ's *publish/subscribe messaging pattern*.
+
+As always, consider *security* before letting programs interface though
+messaging.
+
+=== ZMQ Messages Reading
+
+Sometimes you want to *control the screen with a separate program*.
+
+.Enable reception of ZMQ messages
+In the `ScreenOptions` widget, you can select the property
+*`use_receive_zmq_option`*. +
+You can also set this property directly _in the handler file_, as in
+this sample.
+
+We assume the `ScreenOptions` widget is called `screen_options` in Qt
+Designer:
 
 [source,python]
 ----
 ########################
 # **** INITIALIZE **** #
 ########################
-# widgets allows access to  widgets from the QtVCP files
+# widgets allows access to widgets from the QtVCP files
 # at this point the widgets and hal pins are not instantiated
-def __init__(self, halcomp,widgets,paths):
+def __init__(self,halcomp,widgets,paths):
     # directly select ZMQ message receiving
     self.w.screen_options.setProperty('use_receive_zmq_option',True)
 ----
 
-This allows an external program to call functions in the handler file. +
+This *allows an external program to call functions in the handler file*.
+
+.Add a function to be called on ZMQ message reception
 Let's add a specific function for testing. +
-You will need to run linuxcnc from a terminal to see the printed text.
+You will need to run LinuxCNC from a terminal to see the printed text.
 
 [source,python]
 ----
-    #####################
-    # general functions #
-    #####################
-    def test_zmq_function(self, arg1, arg2):
-        print('zmq test function called:',arg1, arg2)
+#####################
+# general functions #
+#####################
+def test_zmq_function(self, arg1, arg2):
+    print('zmq_test_function called: ', arg1, arg2)
 ----
 
-Here is a sample program to call a function. +
+.Create an external program sending ZMQ messages that will trigger function call
+Here is a sample external program to call a function. +
 It alternates between two data sets every second. +
-Run this in a separate terminal from linuxcnc to see the sent messages.
+Run this in a separate terminal from LinuxCNC to see the sent messages.
 
 [source,python]
 ----
@@ -758,9 +842,9 @@ socket = context.socket(zmq.PUB)
 socket.bind("tcp://127.0.0.1:5690")
 topic = b'QtVCP'
 
-# prebuild message 1
+# prebuilt message 1
 # makes a dict of function to call plus any arguments
-x = {
+x = {                               # <1>
   "FUNCTION": "test_zmq_function",
   "ARGS": [True,200]
 }
@@ -768,7 +852,7 @@ x = {
 m1 = json.dumps(x)
 
 # prebuild message 2
-x = {
+x = {                               # <1>
   "FUNCTION": "test_zmq_function",
   "ARGS": [False,0],
 }
@@ -786,27 +870,27 @@ if __name__ == '__main__':
         sleep(ms(1000))
 ----
 
-Note the line 'x = {"FUNCTION": "test_zmq_function", "ARGS": [True,200]}'
-sets the function to call and the arguments to send to that function. +
-you will need to know the signature of the function you wish to call. +
-Also note that the message is converted to a json object. +
-This is because ZMQ sends byte messages not python objects. +
-json converts python to bytes and will be converted back when received.
+<1> Set the *function to call* and the *arguments to send* to that function.
 
-== external control with ZMQ messaging writing
+You will need to know the _signature_ of the function you wish to call. +
+Also note that the _message is converted to a json object_. +
+This is because ZMQ sends byte messages not Python objects. +
+`json` converts Python objects to bytes and will be converted back when
+received.
 
-You also my want to communicate with a separate program from the screen. +
-QtVCP can automatically set up ZMQ messaging to send and/or receive remote
-messages. +
-It uses ZMQ's publish/subscribe pattern of messages. +
-As always consider security before letting programs interface though
-messaging. +
-In the screenoptions widget, you can select the property
-'use_send_zmq_message' +
-You could also set this property directly in the handler file (as in this
-sample). +
-We assume the screenoption widget is called 'screen_options' in designer: +
+=== ZMQ Messages Writing
 
+You may also want to *communicate with an external program from the screen*.
+
+In the `ScreenOptions` widget, you can select the property
+*`use_send_zmq_message`*. +
+You can also set this property directly _in the handler file_, as in this
+sample.
+
+We assume the `ScreenOptions` widget is called `screen_options` in Qt
+Designer: +
+
+.Enable sending of ZMQ messages
 [source,python]
 ----
 ########################
@@ -820,11 +904,13 @@ def __init__(self, halcomp,widgets,paths):
 ----
 
 This allows sending messages to a separate program. +
-The message sent will depend on what the external program is expecting. +
+The message sent will depend on what the external program is expecting.
+
+.Create a function to send ZMQ messages
 Let's add a specific function for testing. +
-You will need to run linuxcnc from a terminal to see the printed text. +
-We assume the screenoption widget is called 'screen_options' in designer: +
-You need to add something to call this function, such as a button click. +
+You will need to run LinuxCNC from a terminal to see the printed text. +
+Also, something needs to be added to call this function, such as a
+button click.
 
 [source,python]
 ----
@@ -832,13 +918,14 @@ You need to add something to call this function, such as a button click. +
 # general functions #
 #####################
 def send_zmq_message(self):
-    # This could be any python object json can convert
+    # This could be any Python object json can convert
     message = {"name": "John", "age": 30}
     self.w.screen_options.send_zmq_message(message)
 ----
 
-Here is a sample program that will receive the message and print it to the
-terminal. +
+.Use or create a program that will receive ZMQ messages
+Here is a sample program that will receive the message and print it to
+the terminal:
 
 [source,python]
 ----
@@ -862,43 +949,50 @@ while True:
 
 ----
 
-== Sending messages to status bar or desktop notify dialogs
-There several ways to report information to the user. +
-A statusbar is used for short information to show the user. +
-+
-Not all screens have a statusbar. This is how you would use it. +
-'timeout' is seconds. 'statusbar' is the designer set name. +
+== Sending Messages To Status Bar Or Desktop Notify Dialogs
 
+There are several ways to *report information to the user*.
+
+A *status bar* is used for _short information_ to show the user. +
+
+NOTE: Not all screens have a status bar.
+
+.Status bar usage example
 [source,python]
 ----
 self.w.statusbar.showMessage(message, timeout * 1000)
 ----
 
-You can use the STATUS Library to send a message to the notify Library +
-if it is enabled (usually set in screen options widget). +
-This will send the message to the statusbar and the desktop notify dialog. +
-The messages are also recorded until the user erases them using controls. +
-The users can recall any recorded messages. +
- +
-There are several options. TEMPARAY will show the message for a short
-time only. +
-----
-STATUS.TEMPARARY_MESSAGE
-STATUS.OPERATOR_ERROR
-STATUS.OPERATOR_TEXT
-STATUS.NML_ERROR
-STATUS.NML_TEXT
-----
+`timeout` is in seconds and we assume `statusbar` is the Qt Designer set
+name of the widget.
 
-Here is an example of sending an operator message:
+You can also use the `Status` library to send a message to the `notify`
+library if it is enabled (usually set in `ScreenOptions` widget): this
+will send the message to the statusbar and the *desktop notify dialog*.
+
+The messages are also recorded until the user erases them using controls. +
+The users can recall any recorded messages.
+
+There are several options:
+
+
+*`STATUS.TEMPORARY_MESSAGE`*::
+    Show the message for a short time only.
+*`STATUS.OPERATOR_ERROR`*::
+*`STATUS.OPERATOR_TEXT`*::
+*`STATUS.NML_ERROR`*::
+*`STATUS.NML_TEXT`*::
+// end definition list
+
+.Example of sending an operator message:
 [source,python]
 ----
 STATUS.emit('error', STATUS.OPERATOR_ERROR, 'message')
 ----
 
-You can send messages thru linuxcnc's operator message functions. +
-This are usually caught by the notify system, so are equal to above. +
-They would be printed to the terminal as well. +
+You can send messages thru LinuxCNC's operator message functions. +
+These are usually caught by the notify system, so are equal to above. +
+They would be printed to the terminal as well.
 
 [source,python]
 ----
@@ -908,19 +1002,18 @@ ACTION.SET_ERROR_MESSAGE('MESSAGE')
 
 == Catch Focus Changes
 
-Focus is used to direct user action such as keyboard entry to the proper
-widget. +
-We may want to know what widget currently has focus: +
+Focus is used to *direct user action* such as keyboard entry to the proper
+widget.
 
+.Get currently focused widget
 [source,python]
 ----
 fwidget = QtWidgets.QApplication.focusWidget()
 if fwidget is not None:
-    print("focus widget class: {} name: {} ".format( fwidget, fwidget.objectName()))
+    print("focus widget class: {} name: {} ".format(fwidget, fwidget.objectName()))
 ----
 
-Or we may want to know what widget has focus right when focus changes:
-
+.Get focused widget when focus changes
 [source,python]
 ----
 # at this point:
@@ -942,13 +1035,15 @@ def focusInChanged(self, widget):
         print('MDI History')
 ----
 
-Notice we sometimes compare to 'widget', sometimes 'widget.parent()'. +
-This is because some QtVCP widgets are built from multiple sub-widgets
-and the sub-widgets actually get the focus; so we need to check the parent
-of those sub-widgets. +
+Notice we sometimes compare to `widget`, sometimes to `widget.parent()`.
+
+This is because _some QtVCP widgets are built from multiple_
+*_sub-widgets_* and the latter actually get the focus; so we need to
+*check the parent* of those sub-widgets.
+
 Other times the main widget is what gets the focus; ie G-code display
-widget can be set to accept focus and in that case there are no sub-widgets
-in it so comparing to the widget.parent() would get you the container
-that holds the G-code widget.
+widget can be set to accept focus and in that case there are no
+sub-widgets in it so comparing to the `widget.parent()` would get you
+the container that holds the G-code widget.
 
 // vim: set syntax=asciidoc:

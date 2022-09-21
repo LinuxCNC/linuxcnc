@@ -154,7 +154,7 @@ MESSAGE_TYPE can be 'okdialog' or 'yesnodialog'.
 ----
 [DISPLAY]
 MESSAGE_BOLDTEXT = This is the short text
-MESSAGE_TEXT = This is the longer text of the both type test. It can be longerthen the status bar text
+MESSAGE_TEXT = This is the longer text of the both type test. It can be longer than the status bar text
 MESSAGE_DETAILS = BOTH DETAILS
 MESSAGE_TYPE = okdialog
 MESSAGE_PINNAME = oktest
@@ -163,11 +163,12 @@ MESSAGE_PINNAME = oktest
 === Embed Custom VCP Panels
 
 You can embed QtVCP Virtual Control Panels into the QtDragon or QtDragon_hd screen. +
-These panels can be either user built or builtin <<cha:qtvcp-vcp-panels,QtVCP Panels>>. +
-The TAB_NAME entry will used as the title for the new tab. + 
-Tab TAB_LOCATION options include: 'tabWidget_utilities' and 'tabWidget_setup' +
+These panels can be either user built or builtin <<cha:qtvcp:panels,QtVCP Panels>>. +
+The `TAB_NAME` entry will used as the title for the new tab. +
+Tab `TAB_LOCATION` options include: `tabWidget_utilities` and `tabWidget_setup`.
 
-This sample adds a builtin panel; a graphical animated machine using the vismach library. 
+This sample adds a builtin panel; a graphical animated machine using the vismach library.
+
 [source,{ini}]
 ----
 [DISPLAY]
@@ -179,8 +180,8 @@ EMBED_TAB_LOCATION = tabWidget_utilities
 === Preview Control
 
 Magic comments can be used to control the G-code preview. +
-On very large programs the preview can take a long time to load. You can control 
-what is shown and what is hidden the the graphics screen by adding the appropriate 
+On very large programs the preview can take a long time to load. You can control
+what is shown and what is hidden the the graphics screen by adding the appropriate
 comments from this list into your gcode:
 
 ----

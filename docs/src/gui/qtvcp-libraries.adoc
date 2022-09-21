@@ -1,8 +1,8 @@
 :lang: en
 :toc:
 
-[[cha:qtvcp-libraries]]
-= QTvcp Libraries modules
+[[cha:qtvcp:libraries]]
+= QtVCP Libraries modules
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -10,20 +10,28 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-Libraries are prebuilt Python modules that give added features to QTvcp.
-In this way you can select what features you want - yet don't have to build common ones yourself.
+Libraries are *prebuilt Python modules that give added features to QtVCP*. +
+In this way you can select what features you want - yet don't have to
+build common ones yourself. +
 
-== STATUS
+== `Status`
 
-STATUS is a library that sends GObject messages based on LinuxCNC's current state. +
-It is an extension of gladevcp's GStat object. <<cha:gstat,GStats>>
+*`Status`* is a library that *sends GObject messages based on LinuxCNC's
+current state*. +
+It is an _extension of GladeVCP's <<cha:gstat,GStat>> object_.
 
-It also has some functions to give status on such things as internal jog rate. +
-You connect a function call to the STATUS message you are interested in. +
-QTvcp will call this function when the message is sent from STATUS. +
+It also has some functions to report status on such things as internal
+jog rate.
 
-To import this modules add this Python code to your import section:
+You _connect a function_ call to the `STATUS` message you are interested
+in, and QtVCP will call this function when the message is sent from
+`STATUS`.
 
+=== Usage
+
+* *Import `Status` modules* +
+  Add this Python code to your import section:
++
 [source,python]
 ----
 ############################
@@ -33,49 +41,62 @@ To import this modules add this Python code to your import section:
 from qtvcp.core import Status
 ----
 
-To instantiate the module so you can use it add this Python code to your instantiate section:
-
+* *Instantiate `Status` module* +
+  Add this Python code to your instantiate section:
++
 [source,python]
 ----
 STATUS = Status()
 ----
 
-To connect to messages use GObject syntax. For example to catch machine on and off messages,
+* *Connect to `STATUS` messages* +
+  Use _GObject syntax_.
+//FIXME explicit GObject syntax
+
+=== Example
+
+For example, you can catch machine on and off messages.
 
 [NOTE]
-This example shows the two common ways of connecting signals. +
-Notice one uses lambda. lambda is used to strip off or manipulate arguments from the status message +
-before calling the function. +
-You can see the difference in the called function signature. the one that uses lambda +
-does not accept the status object - lambda did not pass it to the function.
+The example below shows the _two common ways of connecting signals_,
+one of them _using lambda_. +
+*`lambda`* is _used to strip off or manipulate arguments_ from the status
+message before calling the function. +
+You can see the difference in the called function signature: the one
+that uses lambda does not accept the status object - lambda did not pass
+it to the function.
 
-place these commands into the INITIALIZE section:
-
+* Place these commands into the `[INITIALIZE]` section of the Python
+handler file:
++
 [source,python]
 ----
-        STATUS.connect('state-on', self.on_state_on)
-        STATUS.connect('state-off', lambda: w, self.on_state_off())
+STATUS.connect('state-on', self.on_state_on)
+STATUS.connect('state-off', lambda: w, self.on_state_off())
 ----
++
+In this example code, when LinuxCNC is in _"machine on" state_ the
+function `self.on_state_on` will be called. +
+When LinuxCNC is in _"machine off" state_ the function `self.on_state_off`
+will be called. +
 
-These would call functions that looks like these:
-
+* These would call functions that looks like these:
++
 [source,python]
 ----
-        def on_state_on(self, status_object):
-            print('Linuxcnc machine is on')
-        def on_state_off(self):
-            print('Linuxcnc machine is off')
+def on_state_on(self, status_object):
+    print('LinuxCNC machine is on')
+def on_state_off(self):
+    print('LinuxCNC machine is off')
 ----
 
-In this example code when LinuxCNC is in 'machine on'-state the function self.on_state_on will be called. +
-When LinuxCNC is in 'machine off'-state the function self.on_state_off will be called.
+== `Info`
 
-== INFO
+*`Info`* is a library to *collect and filter data from the INI file*. +
 
-INFO is a library to collect and filters data from the INI file.
+=== Available data and defaults
 
-The available data and defaults:
-
+//TODO convert to definition list ?
 ----
 LINUXCNC_IS_RUNNING
 LINUXCNC_VERSION
@@ -135,8 +156,12 @@ MIN_SPINDLE_0_OVERRIDE = 50
 
 MAX_FEED_OVERRIDE = 1.5
 MAX_TRAJ_VELOCITY
+----
 
-# user message dialog info
+=== User message dialog info
+
+//TODO convert to definition list ?
+----
 USRMESS_BOLDTEXT = self.INI.findall("DISPLAY", "MESSAGE_BOLDTEXT")
 USRMESS_TEXT = self.INI.findall("DISPLAY", "MESSAGE_TEXT")
 USRMESS_TYPE = self.INI.findall("DISPLAY", "MESSAGE_TYPE")
@@ -146,8 +171,12 @@ USRMESS_ICON = self.INI.findall("DISPLAY", "MESSAGE_ICON")
 ZIPPED_USRMESS =
 
 self.GLADEVCP = (self.INI.find("DISPLAY", "GLADEVCP")) or None
+----
 
-# embedded program info
+=== Embedded program info
+
+//TODO convert to definition list ?
+----
 TAB_NAMES = (self.INI.findall("DISPLAY", "EMBED_TAB_NAME")) or None
 TAB_LOCATION = (self.INI.findall("DISPLAY", "EMBED_TAB_LOCATION")) or []
 TAB_CMD = (self.INI.findall("DISPLAY", "EMBED_TAB_COMMAND")) or None
@@ -158,22 +187,26 @@ TOOL_FILE_PATH =        (heading: [EMCIO], title:TOOL_TABLE)
 POSTGUI_HALFILE_PATH =  (heading: [HAL], title: POSTGUI_HALFILE)
 ----
 
-There are some 'helper functions' - mostly used for widget support:
+=== Helpers
 
-----
-get_error_safe_setting(self, heading, detail, default=None)
-convert_metric_to_machine(data)
-convert_imperial_to_machine(data)
-convert_9_metric_to_machine(data)
-convert_9_imperial_to_machine(data)
-convert_units(data)
-convert_units_9(data)
-get_filter_program(fname)
-get_qt_filter_extensions()
-----
+There are some _helper functions_ - mostly used for widget support:
 
-To import this modules add this Python code to your import section:
+*`get_error_safe_setting(_self_, _heading_, _detail_, default=_None_)`*::
+*`convert_metric_to_machine(_data_)`*::
+*`convert_imperial_to_machine(_data_)`*::
+*`convert_9_metric_to_machine(_data_)`*::
+*`convert_9_imperial_to_machine(_data_)`*::
+*`convert_units(_data_)`*::
+*`convert_units_9(_data_)`*::
+*`get_filter_program(_fname_)`*::
+*`get_qt_filter_extensions()`*::
+    Get filter extensions in Qt format.
 
+=== Usage
+
+* *Import `Info` module* +
+  Add this Python code to your import section:
++
 [source,python]
 ----
 ############################
@@ -183,8 +216,9 @@ To import this modules add this Python code to your import section:
 from qtvcp.core import Info
 ----
 
-To instantiate the module so you can use it in a handler file add this Python code to your instantiate section:
-
+* *Instantiate `Info` module* +
+  Add this Python code to your instantiate section:
++
 [source,python]
 ----
 ###########################################
@@ -194,8 +228,9 @@ To instantiate the module so you can use it in a handler file add this Python co
 INFO = Info()
 ----
 
-To access INFO data use this general syntax:
-
+* *Access `INFO` data*
+  Use this general syntax:
++
 [source,python]
 ----
 home_state = INFO.NO_HOME_REQUIRED
@@ -203,13 +238,31 @@ if INFO.MACHINE_IS_METRIC is True:
     print('Metric based')
 ----
 
-== Action
+== `Action`
 
-This library is used to command LinuxCNC's motion controller.
-It tries to hide incidental details and add convenience methods for developers.
+*`Action`* library is used to *command LinuxCNC's motion controller*.
 
-To import this modules add this Python code to your import section:
+It tries to hide incidental details and add convenience methods for
+developers.
 
+// TODO Document available actions
+
+=== Helpers
+
+There are some *helper functions*, mostly used for this library's
+support:
+
+*`get_jog_info (_num_)`*::
+*`jnum_check(_num_)`*::
+*`ensure_mode(_modes_)`*::
+*`open_filter_program(_filename_, _filter_)`*::
+  Open G-code filter program.
+
+=== Usage
+
+* *Import `Action` module* +
+  Add this Python code to your import section:
++
 [source,python]
 ----
 ############################
@@ -219,8 +272,9 @@ To import this modules add this Python code to your import section:
 from qtvcp.core import Action
 ----
 
-To instantiate the module so you can use it add this Python code to your instantiate section:
-
+* *Instantiate `Action` module* +
+  Add this Python code to your instantiate section:
++
 [source,python]
 ----
 ###########################################
@@ -229,7 +283,10 @@ To instantiate the module so you can use it add this Python code to your instant
 
 ACTION = Action()
 ----
-To access Action commands use general syntax such as these: +
+
+* *Access `ACTION` commands* +
+  Use general syntax such as these:
++
 [source,python]
 ----
 ACTION.SET_ESTOP_STATE(state)
@@ -336,80 +393,161 @@ ACTION.SET_DISPLAY_MESSAGE(string)
 ACTION.SET_ERROR_MESSAGE(string)
 ----
 
-There are some 'helper functions' - mostly used for this library's support
+== `Tool`
+
+This library *handles tool offset file changes*.
+
+//TODO Tool: Usage
+
+WARNING: *LinuxCNC doesn't handle third party manipulation of the tool
+  file well.*
+
+//FIXME Tools: Objets properties ?
+
+=== Helpers
+
+*`GET_TOOL_INFO(_toolnumber_)`*::
+  This will return a Python *list of information on the requested tool number*. +
+
+*`GET_TOOL_ARRAY()`*::
+  This return a single Python *list of Python lists of tool information*.
++
+This is a raw list formed _from the system tool file_.
+
+*`ADD_TOOL(_newtool_ = [_-99, 0,'0','0','0','0','0','0','0','0','0','0','0','0', 0,'New Tool'_])`*::
+  This will return a Python *tuple of two Python lists of Python lists of
+tool information*:
++
+* *`[0]`* will be _real tools informations_
+* *`[1]`* will be _wear tools informations_ (tool numbers will be over
+  10000; Fanuc style tool wear)
+
++
+By default, adds a blanck tool entry with tool number -99. +
+You can preload the `newtool` array with tool information.
+
+*`DELETE_TOOLS(_toolnumber_)`*::
+  *Delete the numbered tool*.
+
+*`SAVE_TOOLFILE(_toolarray_)`*::
+  This will *parse the `toolarray` and save it to the tool file* specified
+  in the _INI file_ as the tool path.
++
+This tool _array must contain all the available tools information_.
++
+This array is expected to use the LinuxCNC _raw tool array_, i.e.
+doesn't have tool wear entries.
++
+//FIXME Really ??
+It will return True if there was an error.
+
+*`CONVERT_TO_WEAR_TYPE(_toolarray_)`*::
+  This function *converts a LinuxCNC raw tool array to a QtVCP tool array*.
++
+_QtVCP's tool array includes entries for X and Z axis tool wear_.
++
+_LinuxCNC supports tool wear_ by adding *tool wear information into tool
+entries above 10000*.
++
+NOTE: This also *requires remap code to add the wear offsets at tool
+  change time*.
+
+*`CONVERT_TO_STANDARD_TYPE(_toolarray_)`*::
+  This function *converts QtVCP's tool array into a LinuxCNC raw tool array*.
++
+_QtVCP's array includes entries for X and Z axis tool wear_.
++
+_LinuxCNC supports tool wear_ by adding *tool wear information into tool
+entries above 10000*.
++
+NOTE: This also *requires remap code to add the wear offsets t tool
+  change time*.
+
+//TODO Tools: Usage
+
+== `Path`
+
+*`Path`* module gives *reference to important files paths*.
+
+=== Referenced Paths
+
+*`PATH.PREFS_FILENAME`*::
+  The preference file path.
+*`PATH.WORKINGDIR`*::
+  The directory QtVCP was launched from.
+*`PATH.IS_SCREEN`*::
+  Is this a screen or a VCP ?
+*`PATH.CONFIGPATH`*::
+  Launched configuration folder.
+*`PATH.RIPCONFIGDIR`*::
+  The Run-in-place config folder for QtVCP screens.
+*`PATH.BASEDIR`*::
+  Base folder for LinuxCNC.
+*`PATH.BASENAME`*::
+  The Qt Designer files name (no ending).
+*`PATH.IMAGEDIR`*::
+  The QtVCP image folder.
+*`PATH.SCREENDIR`*::
+  The QtVCP builtin Screen folder.
+*`PATH.PANELDIR`*::
+  The QtVCP builtin VCP folder.
+*`PATH.HANDLER`*::
+  Handler file Path.
+*`PATH.HANDLERDIR`*::
+  Directory where the Python handler file was found.
+*`PATH.XML`*::
+  QtVCP UI file path.
+//FIXME PATH.HANDLERDIR for both handler and ui files ?
+*`PATH.HANDLERDIR`*::
+  Directory where the UI file was found.
+*`PATH.QSS`*::
+  QtVCP QSS file path.
+*`PATH.PYDIR`*::
+  LinuxCNC's Python library.
+*`PATH.LIBDIR`*::
+  The QtVCP library folder.
+*`PATH.WIDGET`*::
+  The QtVCP widget folder.
+*`PATH.PLUGIN`*::
+  The QtVCP widget plugin folder.
+*`PATH.VISMACHDIR`*::
+  Directory where prebuilt Vismach files are found.
+
+Not currently used:
+
+*`PATH.LOCALEDIR`*::
+  Locale translation folder.
+*`PATH.DOMAIN`*::
+  Translation domain.
+
+=== Helpers
+
+There are some helper functions available:
 
 [source,python]
 ----
-get_jog_info (num)
-jnum_check(num)
-ensure_mode(modes)
-open_filter_program(filename, filter)
+file_list = PATH.find_vismach_files()
+directory_list = PATH.find_screen_dirs()
+directory_list = PATH.find_panel_dirs()
 ----
 
-== TOOL
+=== Usage
 
-This library handles tool offset file changes. +
-Linuxcnc doesn't handle third party manipulation of the tool file well. +
-
-=== GET_TOOL_INFO(toolnumber)
-
-This will return a Python list of information on the requested tool number. +
-
-=== GET_TOOL_ARRAY()
-
-This return a single Python list of Python lists of tool information. +
-This is a raw list formed from the system tool file. +
-
-=== GET_TOOL_MODELS()
-
-This will return a Python tuple of two Python lists of Python lists of tool information. +
-[0] will be real tools information +
-[1] will be wear tool information (tool numbers will be over 10000; Fanuc style tool wear) +
-
-=== ADD_TOOL(newtool = [-99, 0,'0','0','0','0','0','0','0','0','0','0','0','0', 0,'New Tool'])
-
-This will by default, add a black tool entry with tool number -99. +
-You can preload the 'newtool' array with tool information. +
-
-=== DELETE_TOOLS(tool)
-
-Delete the numbered tool
-
-=== SAVE_TOOLFILE(toolarray)
-
-This will parse the toolarray and save it to the file specified in the INI as the tool path. +
-This tool array must contain all the available tools information. +
-This array is expected to use the LinuxCNC raw tool array - (doesn't have tool wear entries) +
-it will return True if there was an error. +
-
-=== CONVERT_TO_WEAR_TYPE(toolarray)
-
-This function converts a LinuxCNC raw tool array to a qtvcp tool wear array. +
-QtVCP's array includes entries for X and Z axis tool wear. +
-inuxcnc covers tool wear by adding tool wear information into tool entries above 10000. +
-This also requires remap code to add the wear offsets at tool change time. +
-
-=== CONVERT_TO_STANDARD_TYPE(toolarray)
-
-This function converts qtvcp's tool array into a LinuxCNC raw tool array. +
-QtVCP's array includes entries for X and Z axis tool wear. +
-LinuxCNC covers tool wear by adding tool wear information into tool entries above 10000. +
-This also requires remap code to add the wear offsets t tool change time. +
-
-== Path
-
-This module give reference to important file paths. +
-To import this modules add this Python code to your import section:
-
+* *Import `Path` module* +
+  Add this Python code to your import section:
++
 [source,python]
 ----
 ############################
 # **** IMPORT SECTION **** #
 ############################
 
-from qtvcp,core import Path
+from qtvcp.core import Path
 ----
-To instantiate the module so you can use it add this Python code to your instantiated section: +
+
+* *Instantiate `Path` module* +
+  Add this Python code to your instantiate section:
++
 [source,python]
 ----
 ###########################################
@@ -419,53 +557,19 @@ To instantiate the module so you can use it add this Python code to your instant
 PATH = Path()
 ----
 
-=== Here is a list of the variables:
+== `VCPWindow`
 
-[source,python]
-----
-PATH.PREFS_FILENAME # The preference file path
-PATH.WORKINGDIR     # The directory qtvcp was launched from
-PATH.IS_SCREEN      # Is this a screen or a VCP?
-PATH.CONFIGPATH     # launched configuration folder
-PATH.RIPCONFIGDIR   # The Run-in-place config folder for QtVCP screens
-PATH.BASEDIR        # Base folder for LinuxCNC
-PATH.BASENAME       # The Designer files name (no ending)
-PATH.IMAGEDIR       # The QtVCP image folder
-PATH.SCREENDIR      # The QtVCP builtin Screen folder
-PATH.PANELDIR       # The QtVCP builtin VCP folder
-PATH.HANDLER        # Handler file Path
-PATH.HANDLERDIR     # Directory where the python handler file was found
-PATH.XML            # QtVCP UI file path
-PATH.HANDLERDIR     # Directory where the .ui file was found
-PATH.QSS            # QtVCP Qss file path
-PATH.PYDIR          # Linuxcnc's Python library
-PATH.LIBDIR         # The QtVCP library folder
-PATH.WIDGET         # The QtVCP widget folder
-PATH.PLUGIN         # The QtVCP widget plugin folder
-PATH.VISMACHDIR     # Directory where prebuilt Vismach files are found
+*`VCPWindow`* module gives *reference to the `MainWindow` and widgets*.
 
-# Not currently used:
-PATH.LOCALEDIR      # Locale translation folder
-PATH.DOMAIN         # Translation domain
+Typically this would be used for a library (eg, toolbar library uses
+it) as the widgets get a reference to the `MainWindow` from the
+`_hal_init()` function.
 
-----
+=== Usage
 
-There are some helper functions available:
-[source,python]
-----
-file_list = PATH.find_vismach_files()
-directory_list = PATH.find_screen_dirs()
-directory_list = PATH.find_panel_dirs()
-----
-
-== VCPWindow
-
-This module give reference to the Main window and widgets. +
-Typically this would be used for a library (eg, toolbar library uses it.) as +
-the widgets get a reference to the main window from the _hal_init() function. +
-
-To import this modules add this Python code:
-
+* *Import `VCPWindow` module* +
+  Add this Python code to your import section:
++
 [source,python]
 ----
 ############################
@@ -475,8 +579,9 @@ To import this modules add this Python code:
 from qtvcp.qt_makegui import VCPWindow
 ----
 
-To instantiate the module so you can use it add this Python code:
-
+* *Instantiate `VCPWindow` module*+
+  Add this Python code to your instantiate section:
++
 [source,python]
 ----
 ###########################################
@@ -486,10 +591,83 @@ To instantiate the module so you can use it add this Python code:
 WIDGETS = VCPWindow()
 ----
 
-== aux_program_loader
+== `Aux_program_loader`
 
-This module allows an easy way to load auxiliary programs LinuxCNC often uses. +
-To import this modules add this Python code to your import section:
+//FIXME Aux_program_loader: load (into QtVCP) or launch ?
+*`Aux_program_loader`* module allows an easy way to
+*load auxiliary programs LinuxCNC often uses*.
+
+=== Helpers
+
+*`load_halmeter()`*::
+  _Halmeter_ is used to *display one HAL pin data*. +
+  Load a `halmeter` with:
++
+[source,python]
+----
+AUX_PRGM.load_halmeter()
+----
+
+*`load_ladder()`*::
+  Load _ClassicLadder_ PLC program:
++
+[source,python]
+----
+AUX_PRGM.load_ladder()
+----
+
+*`load_status()`*::
+  Load LinuxCNC `status` program:
++
+[source,python]
+----
+AUX_PRGM.load_status()
+----
+
+*`load_halshow()`*::
+  Load _HALshow_, configure display program:
++
+[source,python]
+----
+AUX_PRGM.load_halshow()
+----
+
+*`load_halscope()`*::
+  Load _HALscope_ program:
++
+[source,python]
+----
+AUX_PRGM.load_halscope()
+----
+
+*`load_tooledit()`*::
+  Load _Tooledit_ program:
++
+[source,python]
+----
+AUX_PRGM.load_tooledit(<TOOLEFILE_PATH>)
+----
+
+*`load_calibration()`*::
+  Load _Calibration_ program:
++
+[source,python]
+----
+AUX_PRGM.load_calibration()
+----
+
+*`keyboard_onboard()`*::
+  Load _onboard/Matchbox keyboard_
++
+[source,python]
+----
+AUX_PRGM.keyboard_onboard(<ARGS>)
+----
+
+=== Usage
+
+* *Import `Aux_program_loader` module* +
+  Add this Python code to your import section:
 
 [source,python]
 ----
@@ -500,7 +678,8 @@ To import this modules add this Python code to your import section:
 from qtvcp.lib.aux_program_loader import Aux_program_loader
 ----
 
-To instantiate the module so you can use it add this Python code to your instantiated section:
+* *Instantiate `Aux_program_loader` module* +
+  Add this Python code to your instantiate section:
 
 [source,python]
 ----
@@ -511,63 +690,19 @@ To instantiate the module so you can use it add this Python code to your instant
 AUX_PRGM = Aux_program_loader()
 ----
 
-=== HALmeter
+== `Keylookup`
 
-Halmeter is used to display one HAL pin data.
-load a halmeter with:
+//FIXME Shouldn't it be Keylookup ?!
 
-----
-AUX_PRGM.load_halmeter()
-----
+*`Keylookup`* module is used to *allow keypresses to control behaviors*
+such as jogging.
 
-=== classicladder user program
+It's used inside the handler file to facilitate creation of *key bindings*
+such as keyboard jogging etc.
 
-----
-AUX_PRGM.load_ladder()
-----
+=== Usage
 
-=== LinuxCNC status program
-
-----
-AUX_PRGM.load_status()
-----
-
-=== HALshow configure display program
-
-----
-AUX_PRGM.load_halshow()
-----
-
-==== HALscope program
-
-----
-AUX_PRGM.load_halscope()
-----
-
-=== tooledit program
-
-----
-AUX_PRGM.load_tooledit(TOOLEFILE_PATH)
-----
-
-=== calibration
-
-----
-AUX_PRGM.load_calibration()
-----
-
-=== onboard/matchbox keyboard
-
-----
-AUX_PRGM.keyboard_onboard(ARGS)
-----
-
-== Keybindings
-
-This module is used to allow each keypress to control a behavior such as jogging. +
-It's used inside the handler file to facilitate keyboard jogging etc. +
-
-===  Importing and Initiating
+.Import `Keylookup` module
 
 To import this modules add this Python code to your import section:
 
@@ -579,7 +714,12 @@ To import this modules add this Python code to your import section:
 
 from qtvcp.lib.keybindings import Keylookup
 ----
-To instantiate the module so you can use it add this Python code to your instantiate section: +
+
+.Instantiate `Keylookup` module
+
+To instantiate `Keylookup` module* so you can use it, add this
+Python code to your instantiate section:
+
 [source,python]
 ----
 ###########################################
@@ -589,90 +729,127 @@ To instantiate the module so you can use it add this Python code to your instant
 KEYBIND = Keylookup()
 ----
 
-=== adding key bindings
+.Add Key Bindings
 
-Note keybindings require code under the _processed_key_event_ function +
-to call _KEYBIND.call()_ - most handler file already have this code. +
-In the handler file, under the _initialed_ function use this general syntax: +
+NOTE: `Keylookup` requires code under the `processed_key_event` function
+  to call `KEYBIND.call()`. +
+  Most handler files already have this code.
 
-`KEYBINDING.add_call("DEFINED_KEY","FUNCTION TO CALL", USER DATA)`
-
-Here we add a keybinding for F10, 11 and 12
-
-[source,python]
-----
-    ##########################################
-    # Special Functions called from QTVCP
-    ##########################################
-
-    # at this point:
-    # the widgets are instantiated.
-    # the HAL pins are built but HAL is not set ready
-    def initialized__(self):
-        KEYBIND.add_call('Key_F10','on_keycall_F10',None)
-        KEYBIND.add_call('Key_F11','on_keycall_override',10)
-        KEYBIND.add_call('Key_F12','on_keycall_override',20)
-----
-
-And then need to add functions that get called: +
-In the handler file, under the 'KEY BINDING CALLS' +
-section add this:
+In the handler file, under the _initialized function_ use this general
+syntax to *create keybindings*:
 
 [source,python]
 ----
-    #####################
-    # KEY BINDING CALLS #
-    #####################
-
-    def on_keycall_F12(self,event,state,shift,cntrl,value):
-        if state:
-            print('F12 pressed')
-
-    def on_keycall_override(self,event,state,shift,cntrl,value):
-        if state:
-            print('value = {}'.format(value))
+KEYBIND.add_call("DEFINED_KEY","FUNCTION TO CALL", USER DATA)
 ----
 
-== Messages
+Here we add a keybinding for `F10`, `F11` and `F12`:
 
-This modules is used to display pop up dialog messages on the screen. +
-These are defined in the INI file and controlled by HAL pins. +
-'Boldtext' is generally a title. +
-'text' is below that and usually longer. +
-'Detail' is hidden unless clicked on. +
-'pinname' is the basename of the HAL pins. +
-'type' specifies whether its a yes/no, ok, or status message. +
-Status messages will be shown in the status bar and the notify dialog. +
-it requires no user intervention. +
-ok messages require the user to click ok to close the dialog. +
-ok messages have one HAL pin to launch the dialog and one to signify it's waiting
-for response. +
-yes/no messages require the user to select yes or no buttons to close the dialog. +
-yes/no messages have three hal pins - one to show the dialog, one for waiting, +
-and one for the answer. +
-By default it will send STATUS messages for focus_overlay anf alert sound. +
-These will silently fail if those options are not set up. +
+[source,python]
+----
+##########################################
+# Special Functions called from QtVCP
+##########################################
 
-Here is a sample INI code. It would be under the [DISPLAY] heading. +
+# at this point:
+# the widgets are instantiated.
+# the HAL pins are built but HAL is not set ready
+def initialized__(self):
+    KEYBIND.add_call('Key_F10','on_keycall_F10',None)
+    KEYBIND.add_call('Key_F11','on_keycall_override',10)
+    KEYBIND.add_call('Key_F12','on_keycall_override',20)
+----
 
+And then we need to *add the functions that get called*. +
+In the handler file, under the `KEY BINDING CALLS` section, add this:
+
+[source,python]
+----
+#####################
+# KEY BINDING CALLS #
+#####################
+
+def on_keycall_F12(self,event,state,shift,cntrl,value):
+    if state:
+        print('F12 pressed')
+
+def on_keycall_override(self,event,state,shift,cntrl,value):
+    if state:
+        print('value = {}'.format(value))
+----
+
+== `Messages`
+
+*`Messages`* module is used to *display pop up dialog messages on the screen*.
+
+These messages are:
+
+* _defined in the INI file under the `[DISPLAY]` heading_, and
+* _controlled by HAL pins_.
+
+=== Properties
+
+*`_BOLDTEXT`*::
+  Generally is a title.
+*`_TEXT`*::
+  Text below title, and usually longer.
+*`_DETAIL`*::
+  Text hidden unless clicked on.
+*`_PINNAME`*::
+  Basename of the HAL pin(s).
+*`_TYPE`*::
+  Specifies whether it is a:
+  * *Status message* - shown in the _status bar and the notify dialog_. +
+    Requires no user intervention.
+  * *OK message* - _requiring the user to click OK to close the dialog_. +
+    OK messages have _two HAL pins_:
+  ** One HAL pin to launch the dialog, and
+  ** One to signify it's waiting for response.
+  * *Yes/No message* - _requiring the user to select yes or no buttons to close
+    the dialog_. +
+    Yes/No messages have _three hal pins_:
+  ** One to show the dialog,
+  ** One for waiting, and
+  ** one for the answer.
+
+//FIXME Messages: means STATUS messages will be generated each
+//  time a focus_overlay is called or an alert sound emitted ?
+By default it will send `STATUS` messages for `focus_overlay` and alert
+sound. +
+
+//FIXME Messages: Usage
+
+=== Examples
+
+Here are sample INI message definition code blocks that would be found
+under the `[DISPLAY]` heading:
+
+* Status bar and desktop notify pop up message:
++
 [source,{ini}]
 ----
-# This just shows in the status bar and desktop notify popup.
 MESSAGE_BOLDTEXT = NONE
 MESSAGE_TEXT = This is a statusbar test
 MESSAGE_DETAILS = STATUS DETAILS
 MESSAGE_TYPE = status
 MESSAGE_PINNAME = statustest
+----
 
-# This will pop up a dialog that asks a yes no question
+* Pop up dialog asking a Yes/No question:
++
+[source,{ini}]
+----
 MESSAGE_BOLDTEXT = NONE
 MESSAGE_TEXT = This is a yes no dialog test
 MESSAGE_DETAILS = Y/N DETAILS
 MESSAGE_TYPE = yesnodialog
 MESSAGE_PINNAME = yndialogtest
+----
 
-# This pops up a dialog that requires an ok response and it shows in the status bar and
-# the desktop notify popup.
+* Pop up dialog asking an OK answer + Status bar and desktop notification:
++
+[source,{ini}]
+----
 MESSAGE_BOLDTEXT = This is the short text
 MESSAGE_TEXT = This is the longer text of the both type test. It can be longer then the status bar text
 MESSAGE_DETAILS = BOTH DETAILS
@@ -680,49 +857,113 @@ MESSAGE_TYPE = okdialog status
 MESSAGE_PINNAME = bothtest
 ----
 
-The screenoptions widget can automatically set up the message system.
+The `ScreenOptions` widget can automatically set up the message system.
 
-== notify
+== `Notify`
 
-This module is used to send messages that are integrated into the desktop. +
-it uses the pynotify library. +
+*`Notify`* module is used to *send messages that are integrated into the
+desktop*.
 
-Ubuntu/Mint does not follow the standard - you can't set how long the message stays up for. +
-I suggest fixing this with a PPA off the net +
-https://launchpad.net/~leolik/+archive/leolik?field.series_filter=lucid
+It uses the `pynotify` library.
 
-you can set the title, message, icon, and timeout. +
-Notify keeps a list of all the alarm messages since starting in self.alarmpage. +
-If you click 'show all messages' in the notify popup, it will print then to the terminal. +
+Ubuntu/Mint does not follow the standard so you can't set how long the
+message stays up for. +
+I suggest fixing this with the `notify-osd` package available from
+https://launchpad.net/~leolik/+archive/leolik?field.series_filter=lucid[this PPA]
+(DISCONTINUED due to move of Ubuntu to Gnome).
 
-The screenoptions widget can automatically set up the notify system. +
-Typically STATUS messages are used to sent notify messages. +
+Notify _keeps a list of all the alarm messages since starting_ in
+*`self.alarmpage`*. +
+If you click _'Show all messages'_ in the notify popup, it will print
+them to the terminal.
 
-== preferences
+The `ScreenOptions` widget can automatically set up the notify system.
 
-This module allows one to load and save preference data permanently to storage media. +
+Typically `STATUS` _messages_ are used to sent notify messages. +
 
-The screenoptions widget can automatically set up the preference system. +
-qtvcp searches for the screenoption widget first and if found calls `\_pref_init()`. +
-This will create the preference object and return it to qtvcp to pass to all the widgets and +
-add it to the window object attributes. In this case the preferences object would be accessible +
-from the handler file's initialized_ method as self.w.PREFS_ +
-Also all widgets can have access to a specific preference file at initialization time. +
+=== Properties
 
-The screenoptions widget can automatically set up the preference file. +
+You can set the:
 
-== audio player
+*`title`*::
+  Notification message title text.
+*`message`*::
+  Notification message content text.
+*`icon`*::
+  Notification message icon.
+*`timeout`*::
+  How long the message stays up for.
 
-This module allows playing sounds using gstreamer, beep and espeak +
-It can play sounds/music files using 'gstreamer' (non blocking) +
-It can play sounds using the 'beep' library (currently blocks while beeping) +
-It can speak using the 'espeak' library (non blocks while speaking) +
-There are default alert sounds using Mint or freedesktop default sounds. +
-You can play arbitrary sounds or even songs by specifying the path. +
-STATUS has messages to control this module. +
-The screenoptions widget can automatically set up the audio system. +
-Or to import this modules manually add this Python code to your import section:
+//TODO Notify: Usage
 
+== `Preferences`
+
+*`Preferences`* module allows one to *load and save preference data
+permanently to storage media*.
+
+The `ScreenOptions` widget can automatically set up the preference system.
+
+QtVCP searches for the `ScreenOptions` widget first and, if found, calls
+*`+_pref_init()+`*. +
+This will _create the preferences object_ and return it to QtVCP to pass
+to all the widgets and add it to the window object attributes. +
+In this case the preferences object would be accessable from the handler
+file's `initialized_` method as *`self.w.PREFS_`*.
+
+//FIXME Global or per widget prefs file ?
+Also all widgets can have access to a specific preferences file at
+initialization time.
+
+// FIXME Preference file vs preference system ?
+The `ScreenOptions` widget can automatically set up the preference file.
+
+//FIXME So ScreenOptions set prefs are automatically saved and loaded to/from prefs file(s) ?
+
+//TODO: Preferences: Usage
+
+== `Player`
+
+This module *allows playing sounds using Gstreamer, beep and Espeak*.
+
+It can:
+
+* *play sound/music files* using _Gstreamer_ (non blocking),
+* *play sounds* using the `beep` library (currently blocks while beeping),
+* *speak words* using the `espeak` library (non blocking while speaking).
+
+There are _default alert sounds_ using Mint or FreeDesktop default sounds.
+
+You can play arbitrary sounds or even songs by specifying the path.
+
+`STATUS` has _messages to control `Player` module_.
+
+The `ScreenOptions` widget can automatically set up the audio system.
+
+=== Sounds
+
+.Alerts
+There are default *alerts* to choose from:
+
+* `ERROR`
+* `READY`
+* `ATTENTION`
+* `RING`
+* `DONE`
+* `LOGIN`
+* `LOGOUT`
+
+.Beeps
+There are three *beeps*:
+
+* `BEEP_RING`
+* `BEEP_START`
+* `BEEP`
+
+=== Usage
+
+* *Import `Player` module* +
+  Add this Python code to your import section:
++
 [source,python]
 ----
 ############################
@@ -732,10 +973,9 @@ Or to import this modules manually add this Python code to your import section:
 from qtvcp.lib.audio_player import Player
 ----
 
-To instantiate the module so you can use it add this Python code to your instantiated section: +
-_register_messages() function connects the audio player to the STATUS library for sounds can be played 
-with the STATUS message system.
-
+* *Instantiate `Player` module* +
+  Add this Python code to your instantiated section:
++
 [source,python]
 ----
 ###########################################
@@ -745,109 +985,105 @@ with the STATUS message system.
 SOUND = Player()
 SOUND._register_messages()
 ----
++
+*`_register_messages()`* function connects the audio player to the
+`STATUS` library so sounds can be played with the `STATUS` message
+system.
 
-To play sounds using STATUS messages use these general syntax:
+=== Example
+
+
+To play sounds uppon `STATUS` messages, use these general syntaxes:
 
 [source,python]
 ----
 STATUS.emit('play-alert','LOGOUT')
 STATUS.emit('play-alert','BEEP')
-STATUS.emit('play-alert','SPEAK This is a test screen for Qt V C P')
+STATUS.emit('play-alert','SPEAK This is a test screen for Q t V C P')
 STATUS.emit('play-sound', 'PATH TO SOUND')
 ----
 
-There are default alerts to choose from:
+== Virtual Keyboard
 
-----
-ERROR
+This library allows you to *use `STATUS` messages to launch a virtual keyboard*.
 
-READY
+It uses https://launchpad.net/onboard[`Onboard`] or
+https://git.yoctoproject.org/matchbox-keyboard/[`Matchbox`] libraries
+for the keyboard.
 
-ATTENTION
+//TODO Virtual Keyboard: usage
 
-RING
+//TODO Virtual Keyboard: What about other VKB alternatives like:
+//  * kvkbd https://github.com/KDE/kvkbd
+//  * Florence http://florence.sourceforge.net/
+//  * Maliit https://maliit.github.io/, https://github.com/maliit/keyboard
+//    which seems to have interesting contextual features.
 
-DONE
+//TODO VKB: Usage
 
-LOGIN
+== Toolbar Actions
 
-LOGOUT
-----
+This library supplies *prebuilt submenus and actions for toolbar menus
+and toolbar buttons*.
 
-There are three beeps:
+Toolbuttons, menu and toolbar menus are:
 
-----
-BEEP_RING
+* _built in Qt Designer_, and
+* _assigned actions/submenus in the handler file_.
 
-BEEP_START
+=== Actions
 
-BEEP
-----
+*`estop`*::
+*`power`*::
+*`load`*::
+*`reload`*::
+*`gcode_properties`*::
+*`run`*::
+*`pause`*::
+*`abort`*::
+*`block_delete`*::
+*`optional_stop`*::
+*`touchoffworkplace`*::
+*`touchofffixture`*::
+*`runfromline`*::
+*`load_calibration`*::
+*`load_halmeter`*::
+*`load_halshow`*::
+*`load_status`*::
+*`load_halscope`*::
+*`about`*::
+*`zoom_in`*::
+*`zoom_out`*::
+*`view_x`*::
+*`view_y`*::
+*`view_y2`*::
+*`view_z`*::
+*`view_z2`*::
+*`view_p`*::
+*`view_clear`*::
+*`show_offsets`*::
+*`quit`*::
+*`system_shutdown`*::
+*`tooloffsetdialog`*::
+*`originoffsetdialog`*::
+*`calculatordialog`*::
+*`alphamode`*::
+*`inhibit_selection`*::
+*`show_dimensions`*::
+  Toggles dimensions display.
 
-== virtual keyboard
+=== Submenus
 
-This library allows you to use STATUS messages to launch a virtual keyboard.
-It uses Onboard or Matchbox library for the keyboard.
+*`recent_submenu`*::
+*`home_submenu`*::
+*`unhome_submenu`*::
+*`zero_systems_submenu`*::
+*`grid_size_submenu`*::
+  Menu to set graphic grid size
 
-== TOOLBAR ACTIONS
+=== Usage
 
-This library supplies prebuilt submenus and actions for toolbar menus and toolbar buttons.
-Toolbuttons, menu and toolbar menus are built in designer and assigned actions/submenus in the handler file.
-
-.Actions:
-----
-estop
-power
-load
-reload
-gcode_properties
-run
-pause
-abort
-block_delete
-optional_stop
-touchoffworkplace
-touchofffixture
-runfromline
-load_calibration
-load_halmeter
-load_halshow
-load_status
-load_halscope
-about
-zoom_in
-zoom_out
-view_x
-view_y
-view_y2
-view_z
-view_z2
-view_p
-view_clear
-show_offsets
-quit
-system_shutdown
-tooloffsetdialog
-originoffsetdialog
-calculatordialog
-alphamode
-inhibit_selection
-show_dimensions
-----
-
-Submenus:
-
-----
-recent_submenu
-home_submenu
-unhome_submenu
-zero_systems_submenu
-grid_size_submenu
-----
-
-=== Importing and Initiating
-
-Here is the typical code to add to the relevant handler file sections.
+Here is the typical code to add to the relevant _handler file_ sections:
 
 [source,python]
 ----
@@ -864,56 +1100,72 @@ from qtvcp.lib.toolbar_actions import ToolBarActions
 TOOLBAR = ToolBarActions()
 ----
 
-=== Assigning tool actions to toolbar buttons
+=== Examples
 
+* Assigning Tool Actions To Toolbar Buttons
++
 [source,python]
 ----
-    ##########################################
-    # Special Functions called from QTVCP
-    ##########################################
+##########################################
+# Special Functions called from QtVCP
+##########################################
 
-    # at this point:
-    # the widgets are instantiated.
-    # the HAL pins are built but HAL is not set ready
-    def initialized__(self):
-        TOOLBAR.configure_submenu(self.w.menuHoming, 'home_submenu')
-        TOOLBAR.configure_action(self.w.actionEstop, 'estop')
-        TOOLBAR.configure_action(self.w.actionQuit, 'quit', lambda d:self.w.close())
-        TOOLBAR.configure_action(self.w.actionEdit, 'edit', self.edit)
-        # Add a custom function
-        TOOLBAR.configure_action(self.w.actionMyFunction, 'my_Function', self.my_function)
+# At this point:
+#   * the widgets are instantiated,
+#   * the HAL pins are built but HAL is not set ready.
+def initialized__(self):
+    TOOLBAR.configure_submenu(self.w.menuHoming, 'home_submenu')
+    TOOLBAR.configure_action(self.w.actionEstop, 'estop')
+    TOOLBAR.configure_action(self.w.actionQuit, 'quit', lambda d:self.w.close())
+    TOOLBAR.configure_action(self.w.actionEdit, 'edit', self.edit)
+    # Add a custom function
+    TOOLBAR.configure_action(self.w.actionMyFunction, 'my_Function', self.my_function)
 ----
 
-=== Add a custom toolbar function:
-
-In the 'GENERAL FUNCTIONS SECTION' ADD:
-
+* Add a custom toolbar function:
++
 [source,python]
 ----
-    #####################
-    # general functions #
-    #####################
+#####################
+# GENERAL FUNCTIONS #
+#####################
 
-   def my_function(self, widget, state):
-        print('My function State = ()'.format(state))
+def my_function(self, widget, state):
+    print('My function State = ()'.format(state))
 ----
 
-== QT Vismach Machine Graphics library
+== Qt Vismach Machine Graphics library
 
-Qt_vismach is a set of Python functions that can be used to create and animate models of machines. +
-Vismach displays the model in a 3D viewport and the model parts are animated as the values of associated +
-HAL pins change. +
-This is the Qt based version of the library, there is also a tkinter version available in linuxcnc. +
-the Qt version allows embedding the simulation in other screens. +
+//FIXME Remove from here and merge in qtvcp-vismach.adoc
+
+*`Qt_vismach`* is a _set of Python functions_ that can be
+*used to create and animate models of machines*.
+
+_Vismach_:
+
+* _displays the model_ in a *3D viewport*
+* _animates the model parts_ as the values of associated HAL pins change.
+
+This is the _Qt based version_ of the library, there is also a tkinter
+version available in LinuxCNC.
+
+The Qt version _allows embedding the simulation in other screens_.
 
 === Builtin Samples
 
-There are included sample panels in QTvcp for a 3 axis XYZ mill, a 5 axis gantry +
-a 3 axis mill with an A axis/spindle and a scara mill. +
-These samples, if loaded after a running linuxcnc configuration (including non-QTvcp based screens), +
-most will react to machine movement. Some require HAL pins to be connected for movement +
+There are included _sample panels_ in QtVCP for:
 
-.from a terminal (pick one):
+* a 3-Axis XYZ mill,
+* a 5-Axis gantry mill,
+* a 3-Axis mill with an A axis/spindle, and
+* a scara mill.
+
+Most of these samples, if loaded after a running LinuxCNC configuration
+(including non-QtVCP based screens), will react to machine movement. +
+Some require HAL pins to be connected for movement.
+
+From a terminal (pick one):
+
 ----
 qtvcp vismach_mill_xyz
 qtvcp vismach_scara
@@ -923,46 +1175,62 @@ qtvcp vismach_5axis_gantry
 
 === Primitives Library
 
-This gives basic building blocks of a simulated machine.
+Provides the *basic building blocks of a simulated machine*.
 
-==== Collection
+*`Collection`*::
+  A `collection` is an *object of individual machine parts*.
++
+This holds a *hierarchical list* of primitive shapes or _STL objects_
+that operations can be applied to.
+//TODO Can't a collection hold other collections ?
 
-A collection is an object of individual machine parts.
-This holds a hierarchical list of primitive shapes or STL objects that operations can be applied to.
+*`Translate`*::
+  This object will perform an *OpenGL translation* calculation
+  _on a Collection object_.
+//TODO Not on primitives ?
++
+Translation refers to _moving an object in straight line_ to a different
+position on screen.
 
-==== Translate
+*`Scale`*::
+  This object will perform an *OpenGL scale* function _on a collection object_.
 
-This object will perform an openGL translation calculation on a Collection object.
-Translation refers to moving an object to a different position on screen.
+*`HalTranslate`*::
+  This object will perform an *OpenGL translation* calculation
+  _on a Collection object_, *offset by the HAL pin value*.
++
+Translation refers to moving an object in straight line to a different
+position on screen.
++
+You can either:
++
+* _read a pin from a component owned by the Vismach object_, or
+* _read a HAL system pin directly_ if the component argument is set to
+  `None`.
 
-==== Scale
+*`Rotate`*::
+  This object will perform an *OpenGL rotation* calculation
+  _on a Collection object_.
 
-This object will perform an openGL scale function on a collection object.
+*`HalRotate`*::
+  This object will perform an *OpenGL rotation* calculation
+  _on a Collection object_, *offset by the HAL pin value*.
++
+You can either:
++
+* _read a pin from a component owned by the vismach_ object, or
+* _read a HAL system pin directly_ if the component argument is set to
+  `None`.
 
-==== HalTranslate
-
-This object will perform an openGL translation calculation on a Collection object, offset by the HAL pin value.
-Translation refers to moving an object to a different position on screen. +
-You can either read a pin from a component owned by the vismach object or,
-if the component argument is set to None, read a HAL system pin directly.
-
-==== Rotate
-
-This object will perform an openGL rotation calculation on a Collection object,
-
-==== HalRotate
-
-This object will perform an openGL rotation calculation on a Collection object, offset by the HAL pin value. +
-You can either read a pin from a component owned by the vismach object or, +
-if the component argument is set to None, read a HAL system pin directly.
-
-=== HalToolCylinder
-
-This object will build a CylinderZ object that will change size and length based on
-loaded tool dimensition (from the tool table) +
-It reads the HAL pins: 'halui.tool.diameter' and 'motion.tooloffset.z'
-
-.from mill_xyz sample
+*`HalToolCylinder`*::
+  This object will build a _CylinderZ object_ that will *change size and
+  length based on loaded tool dimensition* (from the tool table) +
++
+It reads the `halui.tool.diameter` and `motion.tooloffset.z` _HAL pins_.
++
+Example from mill_xyz sample:
++
+[source,python]
 ----
 toolshape = CylinderZ(0)
 toolshape = Color([1, .5, .5, .5], [toolshape])
@@ -972,67 +1240,68 @@ tool = Collection([
 ])
 ----
 
-==== Track
+*`Track`*::
+  *Move and rotate an object to point from one `capture()` 'd coordinate
+  system to another*.
++
+Base object to _hold coordinates for primitive shapes_.
 
-Move and rotate an object to point from one capture()'d coordinate system to another.
+*`CylinderX`, `CylinderY`, `CylinderZ`*::
+  *Build a cylinder on the X, Y or Z axis* by giving _endpoint_ (X, Y, or Z)
+  and _radii_ coordinates.
 
-Base object to hold coordinates for primitive shapes.
+*`Sphere`*::
+  *Build a sphere* from _center_ and _radius_ coordinates.
 
-==== CylinderX, CylinderY, CylinderZ
+//FIXME Vismach: Triangle: Don't coordinates need 2 axes and not be limited to Z !?
+*`TriangleXY`, `TriangleXZ`, `TriangleYZ`*::
+  *Build a triangle* in the _specified plane_ by giving the
+  _corners Z coordinates_ for each side
 
-Builds a cylinder on the X (or Y or Z) axis by giving endpoint X (or Y, or Z) and radii coordinates.
+//FIXME Vismach: Arc: how to specify ?
+*`ArcX`*::
+  *Build an arc* by specifying
 
-==== Sphere
+*`Box`*::
+  *Build a box* specified by the _6 vertex coordinates_.
 
-Builds a sphere from center and radius coordinates.
+*`BoxCentered`*::
+  *Build a box centered on origin* by specifying the _width in X and Y_,
+  and the _height in Z_.
 
-==== TriangleXY TriangleXZ TriangleYZ
+*`BoxCenteredXY`*::
+  *Build a box centered in X and Y, and running from Z=0*, by specifying
+  the _width in X and Y_, and running up or down to the specified
+  _height in Z_.
 
-Builds a triangle in the soecified plane by giving the corners Z coordinates for each side.
+*`Capture`*::
+  *Capture current transformation matrix of a collection*.
++
+NOTE: This _transforms from the current coordinate system to the
+  viewport system_, NOT to the world system.
 
-==== ArcX
+*`Hud`*::
+  *Heads up display* draws a _semi-transparent text box_.
++
+Use:
++
+* `HUD.strs` for things that must be _updated constantly_,
+* `HUD.show("stuff")` for one-shot things like error messages.
 
-Build an arc by specifying:
+//FIXME: Vismach: Color: can it be applied to a primitive ?
+*`Color`*::
+  *Applies a color* to the _parts of a collection_.
 
-==== Box
+//FIXME: Vismach: Ascii(STL|OJ): is a "part" a collection ?
+*`AsciiSTL`, `AsciiOBJ`*::
+  *Loads a STL or OBJ data file* as a _Vismach part_.
 
-Build a box specified by the 6 coordinates.
+=== Usage
 
-==== BoxCentered
+.Import a simulation
+Here is how one might import the XYZ_mill simulation in a QtVCP panel
+or screen handler file.
 
-Specify the width in X and Y, and the height in Z the box is centered on the origin.
-
-==== BoxCenteredXY
-
-specify the width in X and Y, and the height in Z
-the box is centered in X and Y, and runs from Z=0 up
-(or down) to the specified Z value.
-
-==== Capture
-
-capture current transformation matrix of a collection. +
-note that this transforms from the current coordinate system to the viewport system, NOT to the world system
-
-==== Hud
-
-heads up display +
-draws a semi-transparent text box. +
-use HUD.strs for things that must be updated constantly, +
-and HUD.show("stuff") for one-shot things like error messages
-
-==== Color
-
-Applies a color to the parts of a collection.
-
-==== AsciiSTL AsciiOBJ
-
-Loads a STL file/ STL data as a vismach part.
-
-=== Importing and Initiating
-
-Here is how one might import the XYZ_mill simulation in a qtvcp panel or screen handler file.
-
-.Import the Mill library:
 [source,python]
 ----
 ############################
@@ -1042,16 +1311,19 @@ Here is how one might import the XYZ_mill simulation in a qtvcp panel or screen 
 import mill_xyz as MILL
 ----
 
-.Instantiate the simulation widget and add it to the screen's main layout:
+.Instantiate and use the simulation widget
+Instantiate the simulation widget and add it to the screen's main
+layout:
+
 [source,python]
 ----
     ##########################################
-    # Special Functions called from QTVCP
+    # Special Functions called from QtVCP
     ##########################################
 
-    # at this point:
-    # the widgets are instantiated.
-    # the HAL pins are built but HAL is not set ready
+    # At this point:
+    #   * the widgets are instantiated,
+    #   * the HAL pins are built but HAL is not set ready.
     def initialized__(self):
         machine = MILL.Window()
         self.w.mainLayout.addWidget(machine)
@@ -1059,7 +1331,7 @@ import mill_xyz as MILL
 
 === More Information
 
-More information on how to build a custom machine simulation.
-<<cha:qtvcp-vismach,QtVCP Vismach>>
+More information on how to build a custom machine simulation in the
+<<cha:qtvcp:vismach,Qt Vismach>> chapter.
 
 // vim: set syntax=asciidoc:

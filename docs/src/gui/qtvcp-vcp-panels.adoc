@@ -1,7 +1,7 @@
 :lang: en
 :toc:
 
-[[cha:qtvcp-vcp-panels]]
+[[cha:qtvcp:panels]]
 = QtVCP Virtual Control Panels
 
 // Custom lang highlight
@@ -10,61 +10,61 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-QtVCP is an infrastructure to display a custom CNC screen or control
-panel in LinuxCNC. +
-It displays a UI file built with the QTDesigner screen editor or combines
-this with python programming to create a VCP Panel. +
-QtVCP is completely customizable - you can add different buttons and
-status LEDs etc. or add python code for even finer grain customization.
+QtVCP can be used to *create control panels* that interface with _HAL_.
 
-== Builtin panels
+[[sec:qtvcp:panels:builtin]]
+== Builtin Virtual Control Panels
 
-There are several builtin HAL panels available. +
-in a  terminal type 'qtvcp list' <return> to see a list. +
+There are several *builtin HAL panels* available.
 
-=== copy
+In a terminal type `qtvcp list` to see a list.
 
-used for copying QtVCP's builtin screen/panels/vismach code to a folder
-so one can customize it.
+//TODO Add list output
 
-In a terminal:
+[[sub:qtvcp:panels:copy]]
+=== `copy`
+
+Used for *copying QtVCP's builtin Screens/VCP Panels/QtVismach code to
+a folder* so one can _customize_ it.
+
+In a terminal run:
 
 [source,{hal}]
 ----
 qtvcp copy
 ----
 
-.copy Dialog - Copy QtVCP's builtin Screen, Panel or Vismach code
-image::images/qtvcp_copy_dialog.png["Copy Dialog",align="left"]
+.QtVCP `copy` Dialog - Screen, VCP Panel or QtVismach Code Copy Panel
+image::images/qtvcp_copy_dialog.png["QtVCP copy Dialog - Screen, Panel or Vismach Code Copy Panel",align="center"]
 
-=== test_dial
+[[sub:qtvcp:panels:test-dial]]
+=== `test_dial`
 
-- This panel has a dial that adjusts S32 and Float HAL output pins. +
-- The dial's range can be adjusted from a drop down menu. +
-- The output can be scaled with the spinbox. +
-- A combobox can be used to automatically select and connect to a signal.
+- This panel has a *dial that adjusts S32 and Float HAL output pins*.
+- The dial's range can be adjusted from a drop down menu.
+- The output can be scaled with the `spinbox`.
+- A `combobox` can be used to automatically select and connect to a
+  signal.
 
 [source,{hal}]
 ----
 loadusr qtvcp test_dial
 ----
 
-.test dial - Test Dial VCP
-image::images/qtvcp_test_dial.png["Test Dial",align="left"]
+.QtVCP `test_dial` Panel - Test Dial VCP
+image::images/qtvcp_test_dial.png["QtVCP test_dial Panel - Test Dial VCP",align="center"]
 
 === test_button
 
-- This panel has a button that will set a HAL pin. +
-- the button can be selected as a momentary or a toggle button +
-- The button's indicator color can be adjusted from a drop down menu. +
-- You can add more buttons from the drop down menu. +
-- You can load a HalMeter from the drop down menu. +
-- You can load a test LED from the drop down menu. +
+- This panel has a *button that will set a HAL pin*.
+- The button can be selected as a _momentary_ or a _toggle_ button.
+- The button's _indicator color_ can be adjusted from a drop down menu.
+- You can add more buttons from the drop down menu.
+- You can load a Halmeter from the drop down menu.
+- You can load a test LED from the drop down menu.
 - The button can be detached from the main windows.
 
-Here is how to load test_button from a HAL script. +
-The '-o' switch sets how many buttons the panel starts with. +
-(If loading directly from a terminal omit the 'loadusr')
+Here is how to load `test_button` from a HAL script:
 
 [source,{hal}]
 ----
@@ -72,21 +72,24 @@ loadusr qtvcp test_button
 loadusr qtvcp -o 4 test_button
 ----
 
-.test dial - Test Dial VCP
-image::images/qtvcp_test_button.png["Test Button",align="left"]
+The `-o` switch sets how many buttons the panel starts with. +
+If loading directly from a terminal omit the `loadusr`.
 
-=== test_led
+.QtVCP `test_button` - Test Button VCP
+image::images/qtvcp_test_button.png["QtVCP test_button - Test Button VCP",align="center"]
 
-- This panel has an LED that can selected to watch HAL bit pins/signals. +
-- The LED's color can be adjusted from a drop down menu. +
-- The text box and state can be output as speech if sound is selected. +
-- A combobox can be used to automatically select and connect to a pin/signal. +
-- You can add more LEDs from the drop down menu. +
-- The LED can be dtached from the main windows.
+[[sub:qtvcp:panels:test-led]]
+=== `test_led`
 
-Here is how to load test_led from a HAL script. +
-The '-o' switch sets how many LEDs the panel starts with. +
-(If loading directly from a terminal omit the 'loadusr')
+- This panel has an *LED that can selected to watch HAL bit pins/signals*.
+- The LED's color can be adjusted from a drop down menu.
+- The text box and state can be output as speech if sound is selected.
+- A `combobox` can be used to automatically select and connect to a
+  pin/signal.
+- You can add more LEDs from the drop down menu.
+- The LED can be detached from the main windows.
+
+Here is how to load `test_led` from a HAL script:
 
 [source,{hal}]
 ----
@@ -94,108 +97,52 @@ loadusr qtvcp test_led
 loadusr qtvcp -o 4 test_led
 ----
 
-.test dial - Test Dial VCP
-image::images/qtvcp_test_led.png["Test LED",align="left"]
+The `-o` switch sets how many LEDs the panel starts with. +
+If loading directly from a terminal omit the 'loadusr'.
 
-=== test_panel
+.QtVCP `test_dial` Panel - Test LED VCP
+image::images/qtvcp_test_led.png["QtVCP test_dial Panel - Test LED VCP",align="center"]
 
-- collect of useful widgets for testing HAL component. Including speech
-  of LED state.
+[[sub:qtvcp:panels:test-panel]]
+=== `test_panel`
+
+*Collection of useful widgets for testing HAL component*, including
+speech of LED state.
 
 [source,{hal}]
 ----
 loadusr qtvcp test_panel
 ----
 
-.test panel - Test Panel VCP
-image::images/test_panel.png["Test Panel",align="left"]
+.QtVCP `test_panel` - HAL Component Testing Panel
+image::images/test_panel.png["QtVCP test_panel - HAL Component Testing Panel",align="center"]
 
-=== cam_align
+[[sub:qtvcp:panels:cam-align]]
+=== `cam_align`
 
-- a camera display widget for rotational alignment
+A *camera display widget for rotational alignment*.
 
-.QtVCP cam align- Camera based alignment panel
-image::images/qtvcp-cam-align.png["Qt Camera Alignment",align="left"]
+.QtVCP `cam_align` Panel - Camera Based Alignment Panel
+image::images/qtvcp-cam-align.png["QtVCP cam_align Panel - Camera Based Alignment Panel",align="center"]
 
-=== sim_panel
+[[sub:qtvcp:panels:sim-panel]]
+=== `sim_panel`
 
-- a small control panel to simulate MPG jogging controls etc. for
-  simulated configurations
+Small control panel to *simulate MPG jogging controls etc*. +
+For simulated configurations
 
 [source,{hal}]
 ----
 loadusr qtvcp sim_panel
 ----
 
-.QtVCP sim panel - Simulated controls for screen testing.
-image::images/qtvcp_sim_panel.png["Sim Panel",align="left"]
+.QtVCP `sim_panel` - Simulated Controls Panel For Screen Testing.
+image::images/qtvcp_sim_panel.png["QtVCP sim_panel - Simulated Controls Panel For Screen Testing",align="center"]
 
-[[cha:qtvcp-vismach-panels]]
+[[sub:qtvcp:panels:tool-dialog]]
+=== `tool_dialog`
 
-=== vismach_mill_xyz
-
-- 3d openGL view of a 3 axis milling machine
-
-[source,{hal}]
-----
-loadusr qtvcp vismach_mill_xyz
-----
-
-.QtVCP vismach- 3 Axis Mill panel
-image::images/qtvismach.png["QtVCP Vismach Mill",align="left"]
-
-=== vismach_scara
-
-- 3d openGL view of a scara based milling machine
-
-[source,{hal}]
-----
-loadusr qtvcp vismach_scara
-----
-
-.QtVCP vismach- 3 Axis Mill panel
-image::images/qtvismach_scara.png["QtVCP Vismach Scara",align="left"]
-
-=== vismach_millturn
-
-- 3d openGL view of a 3 axis milling machine with an A axis/spindle
-
-[source,{hal}]
-----
-loadusr qtvcp vismach_millturn
-----
-
-.QtVCP vismach- 3 Axis Mill panel
-image::images/qtvismach_millturn.png["QtVCP Vismach MillTurn",align="left"]
-
-=== vismach_mill_5axis_gantry
-
-- 3d openGL view of a 5 axis gantry type milling machine
-
-[source,{hal}]
-----
-loadusr qtvcp vismach_mill_5axis_gantry
-----
-
-.QtVCP vismach- 3 Axis Mill panel
-image::images/qtvismach_5axis_gantry.png["QtVCP Vismach 5 Axis Gantry",align="left"]
-
-=== vismach_fanuc_200f
-
-- 3d openGL view of a 6 joint robotic arm.
-
-[source,{hal}]
-----
-loadusr qtvcp vismach_fanuc_200f
-----
-
-.QtVCP vismach- 6 Joint Robotic Arm
-image::images/qtvismach_fanuc_200f.png["QtVCP 6 Joint Robotic Arm",align="left"]
-
-
-=== tool_dialog
-
-- manual toolchange dialog that gives tool description.
+*Manual tool change dialog* that gives tool description.
 
 [source,{hal}]
 ----
@@ -204,29 +151,101 @@ loadusr -Wn tool_dialog qtvcp -o speak_on -o audio_on tool_dialog
 
 Options:
 
-* -o notify_on -use desktop notify dialogs instead of qtvcp native ones.
-* -o audio_on -play sound on tool change
-* -o speak_on -speak announcement of tool change
+* `-o notify_on` - _use desktop notify_ dialogs instead of QtVCP native
+  ones.
+* `-o audio_on` - _play sound on tool change_
+* `-o speak_on` - _speak announcement of tool change_
 
-.QtVCP tool dialog - Manual Tool Change Dialog
-image::images/qtvcp_toolChange.png["Tool Change Dialog",align="left"]
+.QtVCP `tool_dialog` - Manual Tool Change Dialog
+image::images/qtvcp_toolChange.png["QtVCP tool_dialog - Manual Tool Change Dialog",align="center"]
 
-== Custom Panels
 
-You can of course make your own panel and load it. +
-If you made a ui file named 'my_panel.ui' and name the following HAL
-file, 'my_panel.hal' +
-You would then load this from a terminal with halrun -I -f my_panel.hal +
+[[sub:qtvcp:panels:vismach]]
+== `vismach_*` 3D Simulation Panels
+
+=== QtVCP `vismach_mill_xyz`
+
+3D OpenGL view of a _3-Axis milling machine_.
 
 [source,{hal}]
 ----
+loadusr qtvcp vismach_mill_xyz
+----
+
+.QtVCP `vismach_mill_xyz` - 3-Axis Mill 3D View Panel
+image::images/qtvismach.png["QtVCP vismach_mill_xyz - 3-Axis Mill 3D View Panel",align="center"]
+
+=== QtVCP `vismach_scara`
+
+3D OpenGL view of a _SCARA based milling machine_.
+
+[source,{hal}]
+----
+loadusr qtvcp vismach_scara
+----
+
+.QtVCP `vismach_scara` - SCARA Mill 3D View Panel
+image::images/qtvismach_scara.png["QtVCP vismach_scara - SCARA Mill 3D View Panel",align="center"]
+
+=== QtVCP `vismach_millturn`
+
+3D OpenGL view of a _3-Axis milling machine with an A axis/spindle_.
+
+[source,{hal}]
+----
+loadusr qtvcp vismach_millturn
+----
+
+.QtVCP `vismach_millturn` - 4 Axis MillTurn 3D View Panel
+image::images/qtvismach_millturn.png["QtVCP vismach_millturn - 4 Axis MillTurn 3D View Panel",align="center"]
+
+=== QtVCP `vismach_mill_5axis_gantry`
+
+3D OpenGL view of a _5-Axis gantry type milling machine_.
+
+[source,{hal}]
+----
+loadusr qtvcp vismach_mill_5axis_gantry
+----
+
+.QtVCP `vismach_mill_5axis_gantry` - 5-AxIs Gantry Mill 3D View Panel
+image::images/qtvismach_5axis_gantry.png["QtVCP vismach_mill_5axis_gantry - 5-Axis Gantry Mill 3D View Panel",align="center"]
+
+=== QtVCP `vismach_fanuc_200f`
+
+3D openGL view of a _6 joint robotic arm_.
+
+[source,{hal}]
+----
+loadusr qtvcp vismach_fanuc_200f
+----
+
+.QtVCP `vismach_fanuc_200f` - 6 Joint Robotic Arm
+image::images/qtvismach_fanuc_200f.png["QtVCP vismach_fanuc_200f - 6 Joint Robotic Arm",align="left"]
+
+
+[[sec:qtvcp:panels:custom]]
+== Custom Virtual Control Panels
+
+You can of course *make your own panel and load it*.
+
+If you made a UI file named `my_panel.ui` and a HAL file named
+`my_panel.hal`, you would then load this from a terminal with:
+
+----
+halrun -I -f my_panel.hal
+----
+
+.Example HAL file loading a QtVCP panel
+[source,{hal}]
+----
 # load realtime components
-loadrt threads 
+loadrt threads
 loadrt classicladder_rt
 
 # load user space programs
 loadusr classicladder
-loadusr -Wn my_panel qtvcp my_panel.ui
+loadusr -Wn my_panel qtvcp my_panel.ui  # <1>
 
 # add components to thread
 addf classicladder.0.refresh thread1
@@ -244,22 +263,9 @@ net s32-in1        test_panel.doublescale_1-s   classicladder.0.s32in-00
 start
 ----
 
-In this case we load qtvcp using -Wn; which waits for the panel to
-finish loading before continuing to run the next HAL command. This is so
-the HAL pins from the panel are finished in case the are used in the
-rest of the file.
-
-
-== More Information
-
-<<cha:qtvcp-widgets,QtVCP Widgets>>
-
-<<cha:qtvcp-libraries,QtVCP Libraries>>
-
-<<cha:qtvcp-code,QtVCP Handler File Code Snippets>>
-
-<<cha:qtvcp-development,QtVCP Development>>
-
-<<cha:qtvcp-custom-widgets,QtVCP Custom Designer Widgets>>
+<1> In this case we load `qtvcp` using *`-Wn`* which waits for the panel
+    to finish loading before continuing to run the next HAL command. +
+    This is to _ensure that the panel created HAL pins are actually done_
+    in case they are used in the rest of the file.
 
 // vim: set syntax=asciidoc:

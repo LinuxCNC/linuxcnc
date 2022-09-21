@@ -1,7 +1,7 @@
 :lang: en
 :toc:
 
-[[cha:qtvcp-widgets]]
+[[cha:qtvcp:widgets]]
 = QtVCP Widgets
 
 // Custom lang highlight
@@ -9,64 +9,85 @@
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
+:css: {basebackend@docbook:'':css}
 
-Qtscreen uses QtVCP widgets for LinuxCNC integration.
-Widget is the general name for the UI objects such as buttons and labels
-in QTpy.
-You are free to use any available widgets in the QTDesigner editor.
-There are also special widgets made for LinuxCNC that make integration
-easier.
-This are split in two heading on the right side of the editor.
-One is for HAL only widgets.
-The other is for CNC control widgets.
+*`Qtscreen`* uses _QtVCP widgets_ for LinuxCNC integration.
+
+*Widget* is the general name for the _UI objects_ such as buttons and
+labels in PyQt.
+
+You are free to use any available *default widgets* in the _Qt Designer_ editor.
+
+There are also *special widgets* made for LinuxCNC that make integration
+easier. These are split in two heading on the right side of the editor:
+
+* One is for *HAL only widgets*.
+* The other is for *CNC control widgets*.
+
 You are free to mix them in any way on your panel.
 
 [NOTE]
 This description of widget properties can easily be out of date due to
 further development and lack of people to write docs (a good way to give
 back to the project).
-The definitive descriptions are found by looking in the source code.
+The definitive descriptions are found by looking in the
+https://github.com/LinuxCNC/linuxcnc/tree/master/lib/python/qtvcp/widgets[source code].
 
+
+[[sec:qtvcp:widgets:hal]]
 == HAL Only Widgets
 
-These Widgets usually have HAL pins and don't react to the machine
-controller.
+These widgets usually have _HAL pins_ and *don't react to the machine controller*.
 
-=== XEmbed Widget
+[[sub:qtvcp:widgets:xembed]]
+=== `XEmbed` - Program Embedding Widget
 
-Allows one to embed program into the widget.
-Only programs that utilize the xembed protocol will work such as:
+Allows one to *embed a program into the widget*.
+
+Only programs that utilize the `xembed` protocol will work such as:
 
 * GladeVCP virtual control panels
 * Onboard virtual keyboard
-* qtvcp virtual control panels
+* QtVCP virtual control panels
 * mplayer video player
 
-=== Slider Widget
+[[sub:qtvcp:widgets:slider]]
+=== `Slider` - HAL Pin Value Adjusting Widget
 
-Allows one to adjust a HAL pins using a sliding pointer.
+//TODO QtVCP slider widget capture
 
-=== LED Widget
+Allows one to *adjust a HAL pin value using a sliding pointer*.
 
-.LED
-image::images/qtvcp_ledWidget.png["QtVCP led",scale="25%"]
+[[sub:qtvcp:widgets:led]]
+=== `LED` - Indicator Widget
 
-An indicator that optionally follows a HAL pin's logic.
+.QtVCP `LED`: LED Indicator Widget
+image::images/qtvcp_ledWidget.png["QtVCP LED: LED Indicator Widget",scale="25%",align="center"]
 
-* halpin_option -selects if the LED follows an input HAL pin or program
-  state.
-* diameter -diameter of the LED
-* color - Color of the LED when on.
-* off_color - Color of the LED when off.
-* alignment - Qt Alignment hint.
-* state -current state of LED
-* flashing -turns flashing option on and off.
-* flashRate -sets the flash rate.
+A *LED like indicator* that optionally follows a HAL pin's logic.
 
-The LED properties can be defined in a stylesheet with the following
-code added to the .qss file.
-The name_of_led would be the name defined Designer's editor.
+*`halpin_option`*::
+  Selects if the LED follows an input HAL pin or program state.
+*`diameter`*::
+  Diameter of the LED
+*`color`*::
+  Color of the LED when on.
+*`off_color`*::
+  Color of the LED when off.
+*`alignment`*::
+  Qt alignment hint.
+*`state`*::
+  Current state of LED
+*`flashing`*::
+  Turns flashing option on and off.
+*`flashRate`*::
+  Sets the flash rate.
 
+The `LED` properties can be defined in a _stylesheet_ with the following
+code added to the `.qss` file, `name_of_led` being the widget name
+defined in Qt Designer's editor:
+
+[source,{css}]
 ----
 LED #name_0f_led{
   qproperty-color: red;
@@ -75,168 +96,175 @@ LED #name_0f_led{
 }
 ----
 
-=== Checkbox Widget
+[[sub:qtvcp:widgets:checkbox]]
+=== `CheckBox` Widget
 
-This widget allows the user to check a box to set a HAL pin true or false.
+//TODO QtVCP checkbox widget capture
 
-It is based on PyQt's QCheckButton
+This widget allows the user to *check a box to set a HAL pin true or false*.
 
-=== Radio Button Widget
+It is based on PyQt's _QCheckButton_.
 
-This widget allows a user to set HAL pins true or false.
-Only one widget of a group can be true at a time.
+[[sub:qtvcp:widgets:radio]]
+=== `RadioButton` Widget
 
-It is based on PyQt's QRadioButton.
+//TODO QtVCP radio button widget capture
+//FIXME Is that one HAL pin per button ?
+This widget allows a user to *set HAL pins true or false*.
+Only one `RadioButton` widget of a group can be true at a time.
 
-=== Round Gauge
+It is based on PyQt's _QRadioButton_.
 
-.Round Gauge
-image::images/qtvcp_round_gauge.png["QtVCP round gauge",scale="25%"]
+[[sub:qtvcp:widgets:gauge]]
+=== `Gauge` - Round Dial Gauge Widget
 
-Round Gauge can be used in a LinuxCNC GUI to display an input parameter
+.QtVCP `Gauge`: Round Dial Gauge Widget
+image::images/qtvcp_round_gauge.png["QtVCP `Gauge`: Round Dial Gauge Widget",scale="25%",align="center"]
+
+Round Gauge can be used in a LinuxCNC GUI to *display an input parameter*
 on the dial face.
+
+.Customizable Parameters
 There are several properties that are user settable in order to customize
-the appearance of the gauge.
-
-There are 2 inputs that are not customizable. They can be set via HAL
-pins, programmatically or via signals from other widgets.
-The non customizable parameters are:
-
-* 'Value' -
-  This is the input value that will be displayed with the gauge needle
-  and in the digital readout.
-  It must be set to a value between 0 and the maximum value.
-* 'Setpoint' -
-  This is a value that determines the location of a small marker on the
-  gauge face.
-  It must be set to a value between 0 and the maximum value.
+the _appearance of the gauge_.
 
 The following parameters can be set either programmatically or via the
-designer property editor.
-The custom parameters are:
+Qt Designer property editor.
 
-* 'halpin_option' -
-  Setting this True will create 2 HAL pins. One is for setting the value
-  input and the other is for setting the setpoint.
-  If this option is not set, then value and setpoint must be connected
-  programmatically, ie., in the handler file.
-* 'max_reading' -
-  This value determines the highest number that will be displayed on the
-  gauge face.
-* 'max_value' -
-  This is the maximum expected value of the value input signal. In other
-  words, it is the full scale input.
-* 'num_ticks' -
-  This is the number of ticks, or gauge readings that will be displayed
-  on the gauge face.
+*`halpin_option`*::
+  Setting this to `True` will _create 2 HAL pins_:
+  ** One is for setting the `value` input
+  ** The other is for setting the `setpoint`.
+
++
+If this option is not set, then `value` and `setpoint` must be
+connected programmatically, ie., in the handler file.
+*`max_reading`*::
+  This value determines the _highest number displayed_ on the gauge face.
+*`max_value`*::
+  This is the _maximum expected value of the value input signal_. +
+  In other words, it is the full scale input.
+*`num_ticks`*::
+  This is the _number of ticks/gauge readings_ on the gauge face. +
   It should be set to a number that ensures the text readings around the
-  gauge face are readable.
+  gauge face are readable. +
   The minimum allowed value is 2.
-* 'zone1_color' -
-  Zone1 extends from the maximum reading to the threshold point. It can
-  be set to any RGB color.
-* 'zone2_color' -
-  Zone2 extends from the threshold point to the minimum reading, which
-  is 0. It can be set to any RGB color.
-* 'bezel_color' -
-  This is the color of the outer ring of the gauge.
-* 'threshold' -
-  The threshold is the transition point between the zones. It should be
-  set to a value between 0 and the maximum value.
-  The maximum allowed value is set to the gauge maximum value and minimum
-  value is 0.
-* 'gauge_label' -
-  This is the text that appears below the value readout, near the bottom
-  of the gauge.
+*`zone1_color`*::
+  Zone1 extends _from the maximum reading to the threshold point_. +
+  It can be set to any RGB color.
+*`zone2_color`*::
+  Zone2 extends _from the threshold point to the minimum reading_, which
+  is 0. +
+  It can be set to any RGB color.
+*`bezel_color`*::
+  This is the color of the _outer ring of the gauge_.
+*`threshold`*::
+  The threshold is the _transition point between the zones_. +
+  It should be set to a value between 0 and the maximum value. +
+  The maximum allowed value is set to the gauge's `max_value` and
+  minimum value is 0.
+*`gauge_label`*::
+  This is the _text below the value readout_, near the bottom
+  of the gauge. +
   The function of the gauge is then easily visible.
 
-=== HALPad
+.Non Customizable Parameters
+There are 2 inputs that are not customizable. They can be set via HAL
+pins, programmatically or via signals from other widgets:
 
-.HALPAD
-image::images/qtvcp_HALPad.png["QtVCP HAL button Joypad ",scale="25%"]
+*`value`*::
+  This is the _actual input value_ that will be displayed with the gauge
+  needle and in the digital readout. +
+  It must be set to a value between 0 and `max_value` maximum value.
+*`setpoint`*::
+  This is a value that determines the location of a small
+  _marker on the gauge face_.
+  It must be set to a value between 0 and the maximum value.
 
-This widget looks and acts like a 5 button D-pad, with an LED ring
+[[sub:qtvcp:widgets:halpad]]
+=== `HALPad` - HAL Buttons Joypad
+
+.QtVCP `HALPad`: HAL Buttons Joypad
+image::images/qtvcp_HALPad.png["QtVCP HALPad: HAL Buttons Joypad ",scale="25%"]
+
+This widget looks and acts like a *5 buttons D-pad*, with an LED ring.
+
 Each button has an selectable type (Bit, S32 or Float) output HAL pin.
-The LED center ring has selectable colors for off and on and is controlled
-by a Bit HAL pin.
 
-==== ENUMS
+The LED center ring has selectable colors for off and on and is
+controlled by a Bit HAL pin.
 
-There are enumerated constants used to reference indicator positions.
+.`HALPad` `ENUMS`
+There are _enumerated constants_ used:
 
-----
-    NONE
-    LEFT
-    RIGHT
-    CENTER
-    TOP
-    BOTTOM
-    LEFTRIGHT
-    TOPBOTTOM
-----
+* To reference *indicator positions*:
+** `NONE`
+** `LEFT`
+** `RIGHT`
+** `CENTER`
+** `TOP`
+** `BOTTOM`
+** `LEFTRIGHT`
+** `TOPBOTTOM`
 
-There are constants for HAL pin type:
+* For *HAL pins type*:
+** `NONE`
+** `BIT`
+** `S32`
+** `FLOAT`
 
-----
-    NONE
-    BIT
-    S32
-    FLOAT
-----
-
-You use the widget Designer name plus the reference constant.
+You use the widget name in Qt Designer plus the reference constant:
 
 [source,python]
 ----
 self.w.halpadname.set_highlight(self.w.halpadname.LEFTRIGHT)
 ----
 
-==== Properties
-
-* 'pin_name':
-  Optional name to use for the HAL pins basename. If left blank, the
-  designer widget name will be used.
-* 'pin_type':
-  Select the HAL output pin type.
+.`HALPad` Properties
+*`pin_name`*::
+  Optional name to use for the _HAL pins basename_. +
+  If left blank, the Qt Designer widget name will be used.
+*`pin_type`*::
+  Select the _HAL output pin type_.
   This property is only used at startup.
-  Selection can be set in Designer:
+  Selection can be set in Qt Designer:
 +
-----
-NONE
-BIT
-S32
-FlOAT
-----
-+
-* 'left_image_path':
-* 'right_image_path':
-* 'center_image_path':
-* 'top_image_path':
-* 'bottom_image_path': +
-  A file path or resource path to an image to display in the described
-  button location.
-  If the reset button is pressed in the Designer editor property, the
-  image will not be displayed. (allowing optionally text)
-* 'left_text':
-* 'right_text':
-* 'center_text':
-* 'top_text':
-* 'bottom_text': +
-  A text string to be displayed in the described button location.
+** `NONE`
+** `BIT`
+** `S32`
+** `FlOAT`
+
+//FIXME Does this really need to be repeated ?
+
+*`left_image_path`*::
+*`right_image_path`*::
+*`center_image_path`*::
+*`top_image_path`*::
+*`bottom_image_path`*::
+  File or resource path to an image to display in the described
+  button location. +
+  If the reset button is pressed in the Qt Designer editor property, the
+  image will not be displayed. (allowing optional text)
+*`left_text`*::
+*`right_text`*::
+*`center_text`*::
+*`top_text`*::
+*`bottom_text`*::
+  A text string to be displayed in the described button location. +
   If left blank an image can be designated to be displayed.
-* 'true_color':
-* 'false_color': +
+*`true_color`*::
+*`false_color`*::
   Color selection for the center LED ring to be displayed when the
-  'BASENAME.light.center' HAL pin is True or False.
-* 'text_color': +
+  `<BASENAME>.light.center` HAL pin is `True` or `False`.
+*`text_color`*::
   Color selection for the button text.
-* 'text_font': +
-  Font slelection for the button text.
+*`text_font`*::
+  Font selection for the button text.
 
-==== StyleSheets
+.`HALPad` Styles
+The above properties could be set in _styles sheets_.
 
-The above properties could be set in styles sheets.
-
+[source,{css}]
 ----
 HALPad{
     qproperty-on_color: #000;
@@ -244,374 +272,500 @@ HALPad{
 }
 ----
 
-=== Push Button Widget
+[[sub:qtvcp:widgets:pushbutton]]
+=== `PushButton` - HAL Pin Toggle Widget
 
-This widget allows a user to set a HAL pin true or false.
-as an option it can be a toggle button.
-It also has other indicating options:
+This widget allows a user to *set a HAL pin true or false* with the push
+of a button.
 
-==== LED indicator option
+As an option it can be a _toggle button_.
 
-.Indicated Action Button
-image::images/qtvcp_actionButton.png["QtVCP led Action Button",scale="25%"]
-See 'IndicatedPushButton' below for more info
+For  a _LED Indicator Option_, see
+<<sub:qtvcp:widgets:indicatedpushbutton>>[IndicatedPushButton] below
+for more info.
 
+It also has other options.
 
-It is based on PyQt's QPushButton.
+It is based on PyQt's _QPushButton_.
 
-=== Focus Overlay Widget
+[[sub:qtvcp:widgets:focus-ovelay]]
+=== `focusOverlay` - Focus Overlay Widget
+
+This widget places a *colored overlay over the screen*, usually while a
+dialog is showing.
 
 .Focus overlay example for confirm close prompt
-image::images/qtvcp_focusOverlay.png["QtVCP foucus overlay",scale="25%"]
+image::images/qtvcp_focusOverlay.png["QtVCP focus overlay",scale="25%"]
 
-This widget places a coloured overlay over the screen usually while a
-dialog is showing.
 Used to create a 'focused' feel and to draw attention to critical
 information.
-It can also show a translucent image.
+
+It can also show a translucent image. +
 It can also display message text and buttons.
-This widget can be controller with STATUS messages.
 
-=== Grid Layout Widget
+This widget _can be controlled with `STATUS` messages_.
 
-This widget controls if the widgets inside it are enabled or disabled.
-disabled widgets are typically a different colour and do not respond to
+[[sub:qtvcp:widgets:grid-layout]]
+=== `gridLayout` - Grid Layout Widget
+
+This widget *controls if the widgets inside it are enabled or disabled*.
+
+Disabled widgets typically have a different color and do not respond to
 actions.
 
-It is based on PyQt's QGridLayout.
+It is based on PyQt's `QGridLayout`.
 
-=== HAL Label Widget
-This widget displays values sent to it from HAL pins, programically or a
-QtSignal.
-The input pin can be selected as Bit, S32, Float or no pin selected.
-There is a text Template property to set the rich text and/or to format
-the text.
-Basic formatting might be, for bool: %r, for integer: %d, for float: %0.4f.
+[[sub:qtvcp:widgets:hal-label]]
+=== `hal_label` - HAL Label Widget
+
+This widget *displays values sent to it*.
+
+Values can be sent from:
+
+* _HAL pins_ +
+  The input pin can be selected as Bit, S32, Float or no pin selected
+* _Programmatically_
+* _A `QtSignal`_
+
+There is a `textTemplate` property to set the rich text and/or to format
+the text. +
+Basic formatting might be:
+
+* `%r` for booleans
+* `%d` for integers
+* `%0.4f` for floats.
+
 A rich text example might be:
 
 [source,python]
 ----
 self.w.my_hal_label.setProperty(textTemplate,"""
-<html><head/><body><p><span style=" font-size:12pt;
-font-weight:600; color:#f40c11;">%0.4f</span></p></body></html>
-""")
-
+<html>
+<head/>
+<body>
+  <p><span style="font-size:12pt;font-weight:600;color:#f40c11;">%0.4f</span></p>
+</body>
+</html>
+"""
+)
 ----
 
-The 'setDisplay' slot can be connected to a integer, float or bool signal.
-If the property 'pin_name' is not set the widget name will be used.
+The `setDisplay` slot can be connected to an integer, a float or a bool
+signal.
+
+If the property `pin_name` is not set the widget name will be used.
 
 There are function calls to display values:
 
-* [HALLabelName].setDisplay(some_value) can be used to set the display
-  if no HAL pin is selected.
-* [HALLabelName].setProperty(textTemplate,"%d") - set the template of
-  the display.
+*`[HALLabelName].setDisplay(some_value)`*::
+  Can be used to set the display if no HAL pin is selected.
+*`[HALLabelName].setProperty(textTemplate,"%d")`*::
+  Sets the template of the display.
 
-It is based on PyQt's QLabel
+It is based on PyQt's _QLabel_.
 
-=== LCD Number Widget
+[[sub:qtvcp:widgets:lcdnumber]]
+=== `LCDNumber` - LCD Style Number Readout Widget
 
-This widget displays HAL float/s32/bit values in a LCD looking way.
+//TODO MCDNumber widget capture
+
+This widget _displays HAL float/s32/bit values in a LCD looking way_.
+
 It can display numbers in decimal, hexadecimal, binary and octal formats
-by setting the property 'mode'.
+by setting the *`mode`* property.
+
 When using floats you can set a formatting string.
-You must set the property 'digitCount' to an appropriate setting to
+
+You must set the *`digitCount`* property to an appropriate setting to
 display the largest number.
 
-==== Properties
-
-* 'pin_name':
-  Option string to be used as the HAL pin name. If set to an empty string
-  the widget name will be used.
-* 'bit_pin_type':
+.Properties
+*`pin_name`*::
+  Option string to be used as the HAL pin name. +
+  If set to an empty string the widget name will be used.
+*`bit_pin_type`*::
   Selects the input pin as type BIT.
-* 's32_pin_type':
+*`s32_pin_type`*::
   Selects the input pin as type S32.
-* 'float_pin_type':
-  Selects the input pin as type FLOAT.
-* 'floatTemplate':
-  A string that will be used as a Python 3 format template to tailor the
-  LCD display.
-  Only used when a FLOAT pin is selected.
-  eg '{:.2f}' will display a float rounded to 2 numbers after the decimal.
+*`float_pin_type`*::
+  Select the input pin as type `FLOAT`.
+*`floatTemplate`*::
+  A string that will be used as a Python3 format template to tailor the
+  LCD display. +
+  Only used when a `FLOAT` pin is selected. +
+  eg `{:.2f}` will display a float rounded to 2 numbers after the
+  decimal. +
   A blank setting will allow the decimal to move as required.
 
-It is based on PyQt's QLCDNumber.
+It is based on PyQt's _QLCDNumber_.
 
-=== DoubleScale Widget
-This widget is a spin button entry widget.
-used for setting a s32 and float HAL pin.
-It has an internal scale factor, set to a default of 1, that can be set
+[[sub:qtvcp:widgets:doublescale]]
+=== `DoubleScale` - Spin Button Entry Widget
+
+//TODO DoubleScale widget capture
+
+This widget is a *spin button entry* widget used for _setting a s32 and
+float HAL pin_.
+
+It has an internal _scale factor_, set to a default of 1, that can be set
 programmatically or using a QtSignal.
-The scale defaults to 1
-he 'setInput' slot can be connected to a integer, or float signal.
 
-There is a function call to change the internal scaling factor:
+The `setInput` slot can be connected to a integer, or float signal.
 
-* [HALLabelName].setInput(some_value)
+*`[HALLabelName].setInput(some_value)`*::
+  This is a function call to change the internal scaling factor.
 
-The HAL pins will be set to the value of the internal scale times the
-widget displayed value.
+The HAL pins will be set to the value of the
+_internal scale times the widget displayed value_.
 
-=== CamView Widget
+[[sub:qtvcp:widgets:generalhalinput]]
+=== `GeneralHALInput` - General Signals/Slots Input Connection Widget
 
-This widget displays a image from a web camera.
-It overlays an adjustable circular and cross hair target over the image.
-Camview was built with precise visual positioning in mind.
+This widget is used to *connect an arbitrary Qt widget to HAL using
+signals/slots*.
 
-=== GeneralHALInput Widget
+It is used _for widgets that should *respond* to HAL pin changes_.
 
-This widget is used to connect an arbitrary Qt widget to HAL using
-signals/slots.
-It is used for widgets that should respond to HAL pin changes.
+[[sub:qtvcp:widgets:generalhaloutput]]
+=== `GeneralHALOutput` - General Signals/Slots Output Connection Widget
 
-=== GeneralHALOutput Widget
+This widget is used to *connect an arbitrary Qt widget to HAL using
+signals/slots*.
 
-This widget is used to connect an arbitrary Qt widget to HAL using
-signals/slots.
-It is used for widgets that should control HAL pins.
+It is used _for widgets that should *control* HAL pins_.
 
-=== WidgetSwitcher Widget
+[[sub:qtvcp:widgets:widgetswitche]]
+=== `WidgetSwitcher` - Multi-widget Layout View Switcher Widget
 
-This is used to switch the view of a multi-widget layout to  show just
-one widget.
-This might be used to flip between a large view of a widget or a smaller
-multi widget view.
-I'ts different from a stacked widget as it can pull a widget from anywhere
-in the screen and
-place it in it's page with a different layout then it originally had.
-The original widget must be in a layout for switcher to put it back.
+//TODO WidgetSwitcher widget capture
 
-In Designer you will add the widgetswitcher widget on screen.
-Right click the widgetswitcher and add a page,
-then populate it with widgets/layouts you wish to see in a default form.
-Then add as many pages as there are views to switch to.
-on each page add a layout widget.
-After adding the layout you must right click the widget switcher again
-and set the layout option.
-click on the widgetswitcher widget and then scroll to the bottom of the
-property editor.
-you are looking for the dynamic property 'widget_list'.
-double click the to the right of the widget_list property.
-A dialog will pop up allowing you to add the names of the widgets to move
-to the pages you added to the widgetswitcher.
+This is used to switch the view of a multi-widget layout to show just
+one widget, ie to *flip between a large view of a widget and a smaller
+multi widget view*.
 
-There are function calls to display specific widgets:
+It is _different from a stacked widget_ as it can pull a widget from
+anywhere in the screen and place it in it's page with a different layout
+than it originally had.
 
-* [WidgetSwitcherName].show_id_widget(number)
-* [WidgetSwitcherName].show_named_widget(widget_name)
-* [WidgetSwitcherName].show_default()
-* [WidgetSwitcherName].show_next()
+The _original widget must be in a layout_ for switcher to put it back.
 
-By calling one of these functions, you control what widget
-is currently displayed. show_default() shows the page 0
-layout, and puts all other widgets back to where they were as initially
-built in Designer.
+In Qt Designer you will:
+
+//FIXME Add an entry about widget numbering
+* Add the `WidgetSwitcher` widget on screen.
+* Right click the `WidgetSwitcher` and add a page.
+* Populate it with the widgets/layouts you wish to see in a default form.
+* Add as many pages as there are views to switch to.
+* On each page, add a layout widget. +
+  After adding the layout you must right click the widget switcher again
+  and set the layout option.
+* Click on the `WidgetSwitcher` widget and then scroll to the bottom of
+  the property editor.
+* Look for the dynamic property `widget_list` and double click to the
+  right of it.
+* A dialog pops up allowing you to add the names of the widgets to move
+  to the pages you added to the `WidgetSwitcher`.
+
+There are _function calls_ to display specific widgets. +
+By calling one of these functions, you control what widget is currently
+displayed:
+
+*`[_WidgetSwitcherName_].show_id_widget(_number_)`*::
+*`[_WidgetSwitcherName_].show_named_widget(_widget_name_)`*::
+*`[_WidgetSwitcherName_].show_default()`*::
+  This shows the `page 0` layout, and puts all other widgets back to
+  where they were as initially built in Qt Designer.
+*`[_WidgetSwitcherName_].show_next()`*::
+  Show next widget.
+
+It is based on the _QStack_ widget.
 
 
-It is based on the QStack widget.
-
+[[sec:qtvcp:widgets:machine-controller]]
 == Machine Controller Widgets
 
-These widgets interact to the Machine Controller state.
+These widgets *interact with the Machine Controller state*.
 
-=== Action Button Widget
+[[sub:qtvcp:widgets:actionbutton]]
+=== `ActionButton` - Machine Controller Action Control Widget
 
-These buttons are used to control action of the machine controller.
-They are built on top of indicator_buttons so can have LEDs overlaid.
-They can change text on state, call python code and be enabled/disabled 
-by linuxcnc state.
+//TODO ActionButton widget captures/examples
+
+These buttons are used for *control actions on the machine controller*.
+
+They are built on top of `IndicatedPushButton` so can have LEDs
+overlaid.
 
 [NOTE]
-If you left double click on this widget you can launch a dialog
-to set any of these action. The dialogs will help to set the
-right related data to the selected action.
+If you left double click on this widget you can launch a dialog to set
+any of these actions. +
+The dialogs will help to set the right related data to the selected
+action. +
 You can also change these properties directly in the property editor.
 
-You can select one of these actions:
+.Actions
+You can select one of these:
 
-* 'Estop'
-* 'Machine On'
-* 'Auto'
-* 'mdi'
-* 'manual'
-* 'run'
-* 'run_from_line status' (gets line number from STATUS message
-  gcode-line-selected)
-* 'run_from_line slot' (gets line number from designer int/str slot
-  setRunFromLine)
-* 'abort'
-* 'pause'
-* 'load dialog' (requires a dialog widget present)
-* 'Camview dialog' (requires camview dialog widget present)
-* 'origin offset dialog' (requires origin offset dialog widget present)
-* 'macro dialog' (requires macro dialog widget present)
-* 'Launch Halmeter'
-* 'Launch Status'
-* 'Launch Halshow'
-* 'Home' (set the joint number to -1 for all-home)
-* 'Unhome' (set the joint number to -1 for all-unhome)
-* 'Home Selected' Homes the joint/axis selected by STATUS
-* 'Unhome Selected' Unhomes the joint/axis selected by STATUS
-* 'zero axis'
-* 'zero G5X' zeros the current user coordinate system offsets
-* 'zero G92' zeros the optional G92 offsets
-* 'zero Z rotational' zeros the rotation offset
-* 'jog joint positive' (set the joint number)
-* 'jog joint negative' (set the joint number)
-* 'jog selected positive' (selected with a different widget or STATUS)
-* 'jog selected negative' (selected with a different widget or STATUS)
-* 'jog increment' (set metric/imperial/angular numbers)
-* 'jog rate' (set the float/alt float number)
-* 'feed override' (set the float/alt float number)
-* 'rapid override' (set the float/alt float number)
-* 'spindle override' (set the float/alt float number)
-* 'spindle fwd'
-* 'spindle backward'
-* 'spindle stop'
-* 'spindle up'
-* 'spindle down'
-* 'view change' (set view_type_string)
-* 'limits override'
-* 'flood'
-* 'mist'
-* 'block delete'
-* 'optional stop'
-* 'mdi command' - calls a hard code MDI command (set command_string)
-* 'INI mdi number' calls an INI based MDI command (set ini_mdi_number)
-* 'dro absolute'
-* 'dro relative'
-* 'dro dtg'
-* 'exit screen' Closes down LinuxCNC
-* 'Override limits' Temporarily override hard limits
-* 'launch dialogs' pops up dialogs if they are included in ui file.
-* 'set DRO to relative'
-* 'set DRO to absolute'
-* 'set DRO to distance-to-go'
+//FIXME are capitalization and "underscoring" OK ?
+*`Estop`*::
+*`Machine On`*::
+*`Auto`*::
+*`mdi`*::
+*`manual`*::
+*`run`*::
+*`run_from_line status`*::
+  Gets line number from `STATUS` message `gcode-line-selected`.
+*`run_from_line slot`*::
+  Gets line number from Qt Designer int/str slot `setRunFromLine`.
+*`abort`*::
+*`pause`*::
+*`load dialog`*::
+  Requires a dialog widget present.
+*`Camview dialog`*::
+  Requires `camview` dialog widget present.
+*`origin offset dialog`*::
+  Requires origin offset dialog widget present.
+*`macro dialog`*::
+  Requires macro dialog widget present.
+*`Launch Halmeter`*::
+*`Launch Status`*::
+*`Launch Halshow`*::
+*`Home`*::
+  Set the joint number to -1 for `all-home`.
+*`Unhome`*::
+  Set the joint number to -1 for `all-unhome`.
+*`Home Selected`*::
+  Homes the joint/axis selected by `STATUS`.
+*`Unhome Selected`*::
+  Unhomes the joint/axis selected by `STATUS`.
+*`zero axis`*::
+*`zero G5X`*::
+  Zeros the current user coordinate system offsets.
+*`zero G92`*::
+  Zeros the optional `G92` offsets.
+*`zero Z rotational`*::
+  Zeros the rotation offset.
+*`jog joint positive`*::
+  Set the joint number.
+*`jog joint negative`*::
+  Set the joint number.
+*`jog selected positive`*::
+  Selected with a different widget or `STATUS`.
+*`jog selected negative`*::
+  Selected with a different widget or `STATUS`.
+*`jog increment`*::
+  Set metric/imperial/angular numbers.
+*`jog rate`*::
+  Set the float/alt float number.
+*`feed override`*::
+  Set the float/alt float number.
+*`rapid override`*::
+  Set the float/alt float number.
+*`spindle override`*::
+  Set the float/alt float number.
+*`spindle fwd`*::
+*`spindle backward`*::
+*`spindle stop`*::
+*`spindle up`*::
+*`spindle down`*::
+*`view change`*::
+  Set `view_type_string`.
+*`limits override`*::
+*`flood`*::
+*`mist`*::
+*`block delete`*::
+*`optional stop`*::
+*`mdi command`*::
+  Set `command_string`, ie calls a hard coded MDI command
+*`INI mdi number`*::
+  Set `ini_mdi_number`, ie calls an INI based MDI command
+*`dro absolute`*::
+*`dro relative`*::
+*`dro dtg`*::
+*`exit screen`*::
+  Closes down LinuxCNC
+*`Override limits`*::
+  Temporarily override hard limits
+*`launch dialogs`*::
+  Pops up dialogs if they are included in ui file.
+*`set DRO to relative`*::
+*`set DRO to absolute`*::
+*`set DRO to distance-to-go`*::
+// end definition list
 
-These set attributes of the selected action. Availability depends on the
-widget.
+.Attributes
+These set _attributes_ of the selected action (availability depends on
+the widget):
 
-* 'toggle float option' - allows jog rate and overrides to toggle
-  between two rates
-* 'joint number' - selects the joint/axis that the button controls
-* 'incr imperial number' - sets the imperial jog increment (set negative
-  to ignore)
-* 'incr mm number' -sets the metric jog increment (set negative to
-  ignore)
-* 'incr angular number' -sets the angular jog increment (set negative
-  to ignore)
-* 'float number' - used for jograte and overrides
-* 'float alternate number' -for jograte and overrides that can toggle
-  between two float numbers
-* 'view type string' - can be p, x, y, y2, z, z2, clear, zoom-in,
-  zoom-out, pan-up, pan-down,
-  pan-left, pan-right, rotate-up, rotate-down, rotate-cw, rotate-ccw
-* 'command string' - MDI command string that will be invoked if the MDI
-  command action is selected.
-* 'ini_mdi_number' - a reference to the INI file [MDI_COMMAND_LIST]
-  section.
-  Set an integer of select one line under the INI's MDI_COMMAND line
-  starting at 0.
-  Then in the INI file, under the heading '[MDI_COMMAND_LIST]' add
-  appropriate lines.
-  The commands are separated by the ';'
-  The label is set after the comma. The symbols '\n' adds a line break.
+*`toggle float option`*::
+  Allows jog rate and overrides to toggle between two rates.
+*`joint number`*::
+  Selects the joint/axis that the button controls.
+*`incr imperial number`*::
+  Sets the imperial jog increment (set negative to ignore).
+*`incr mm number`*::
+  Sets the metric jog increment (set negative to ignore).
+*`incr angular number`*::
+  Sets the angular jog increment (set negative to ignore).
+*`float number`*::
+  Used for `jograte` and overrides.
+*`float alternate number`*::
+  For `jograte` and overrides that can toggle between two float numbers.
+*`view type string`*::
+  Can be:
+  * `p`,
+  * `x`, `y`, `y2`, `z`, `z2`,
+  * `zoom-in`, `zoom-out`,
+  * `pan-up`, `pan-down`, `pan-left`, `pan-right`,
+  * `rotate-up`, `rotate-down`, `rotate-cw`, `rotate-ccw`
+  * `clear`.
+*`command string`*::
+  MDI command string that will be invoked if the MDI command action is
+  selected.
+*`ini_mdi_number`*::
+  A reference to the _INI file_ `[MDI_COMMAND_LIST]` section. +
+  Set an integer of select one line under the INI`s `[MDI_COMMAND]` line
+  starting at 0. +
+  Then in the INI file, under the heading `[MDI_COMMAND_LIST]` add
+  appropriate lines. +
+  The commands are separated by the `;`. +
+  The `label` is set after the comma, and `\n` symbol adds a line break.
+//FIXME Space after comma or not ?
 
 [source,{ini}]
 ----
 [MDI_COMMAND_LIST]
 MDI_COMMAND = G0 Z25;X0 Y0;Z0, Goto\nUser\nZero
-MDI_COMMAND = G53 G0 Z0;G53 G0 X0 Y0,Goto\nMachn\nZero
+MDI_COMMAND = G53 G0 Z0;G53 G0 X0 Y0, Goto\nMachn\nZero
 ----
 
-Action buttons are subclasssed from indicated_PushButton
-See 'IndicatedPushButtons' below for more details.
+//FIXME add link to Indicated_PushButton section
+Action buttons are subclassed from
+<<sub:qtvcp:widgets:indicatedpushbutton>>[`IndicatedPushButton`]. +
+See the following sections for more informations about:
 
-==== Development Info
-IndicatedPushButtons and ActionButtons are based on PyQt's QPushButton +
-The code is found in action_button.py and simple_widgets.py
+* <<sub:qtvcp:widgets:indicatedpushbutton:led,LED Indicator option>>
+* <<sub:qtvcp:widgets:indicatedpushbutton:state-enabled,Enabled on State>>
+* <<sub:qtvcp:widgets:indicatedpushbutton:state-text,Text Changes On State>>
+* <<sub:qtvcp:widgets:indicatedpushbutton:python-command,Call Python Command On State>>
 
-=== ActionToolButton
+[[sub:qtvcp:widgets:actiontoolbutton]]
+=== `ActionToolButton` - Optional Actions Menu Button Widget
 
-Action tool  buttons are similar in concept to action buttons, but they
-use QToolButtons to allow optional actions to be selected by pushing and
-holding the button till the option menu pops up.
+//TODO ActionToolButton widget capture
 
-Currently there is only one option - user view.
+*`ActionToolButton`* buttons are similar in concept to action buttons,
+but they use _QToolButtons_ to allow for *optional actions* to be
+selected by pushing and holding the button till the option menu pops up.
 
-It is based on PyQt's QToolButton.
+//FIXME meaning only one ActionToolButton, right ?
+Currently there is only one option: `userView`.
 
-==== User View
+It is based on PyQt's _QToolButton_.
 
-User view tool button allows a user to record and return to a arbitrary
-graphics view.
-Press and hold the button to have the menu pop up and press 'record view'.
-This records the currently displayed graphics view.
-click the button normally to return to the last recorded position.
+[[sub:qtvcp:widgets:userview]]
+.`userView` Record and Set User View Widget
 
-The position recorded position will be remembered at shutdown if a
-preference file option is set up.
+//TODO userView widget capture
+
+User View tool button allows to *record and return to an arbitrary
+graphics view*.
+
+Press and hold the button to have the menu pop up and press _record view_
+to record the currently displayed graphics view.
+
+Click the button normally to return to the last recorded position.
+
+The recorded position will be remembered at shutdown if a preference
+file option is set up.
 
 [NOTE]
-Do to programming limitations, the recorded position may not show exactly
-the same,
-Particularly if you pan zoomed out and pan again zoomed in while setting
-the desired view.
-Best practice is to select a main view, modify as desired, record, then
-immediately click the button to 'return' to the recorded position. If it
+Due to programming limitations, the recorded position may not show
+exactly the same. Particularly, if you pan zoomed out and pan zoomed in
+again while setting the desired view. +
+_Best practice_ is to select a main view, modify as desired, record, then
+immediately click the button to switch to the recorded position. If it
 is not as you like, modify it's existing position and re-record.
 
-=== RoundButton
+[[sub:qtvcp:widgets:roundbutton]]
+=== `RoundButton` - Round Shapped `ActionButton` Widget
 
-Round buttons work the same as ActionButtons other then the button is
+//TODO RoundButton widget capture/example
+
+Round buttons work the same as _ActionButtons_ other than the button is
 cropped round.
+
 They are intended only to be visually different.
-They have two path properties for displaying images on true and false.
 
-=== Axis Tool Button
+They have _two path properties_ for displaying *images on true and false*.
 
-This allows one to select and set an AXIS.
+[[sub:qtvcp:widgets:axistoolbutton]]
+=== `AxisToolButton` - Select and Set Axis Widget
+
+//TODO AxisToolButton widget capture/example
+
+This allows one to *select and set an axis*.
+
 If the button is set checkable, it will indicate which axis is selected.
+
 If you press and hold the button a pop up menu will show allowing one to:
 
 * Zero the axis
-* divide the axis by 2
-* set the axis arbitrarily
-* reset the axis to the last number recorded
+* Divide the axis by 2
+* Set the axis arbitrarily
+* Reset the axis to the last number recorded
 
-You select the axis by setting the joint number
-You can select a halpin option that is set true when the axis is selected
+You select the axis by setting the joint number.
 
-It is based on PyQt's QToolButton
+You can select a `halpin` option that is set true when the axis is
+selected.
 
-=== Camview Widget
+It is based on PyQt's _QToolButton_.
 
-This is used to align the work piece or zero part features using a webcam.
-It uses opencv vision library.
+[[sub:qtvcp:widgets:camview]]
+=== `CamView` - Workpiece Alignment and Origin Setting Widget
 
-=== DRO_Label Widget
+//TODO CamView widget capture/example
 
-This will display the current position of an axis.
+This widget *displays a image from a web camera*.
 
-* Qjoint_number - joint number of offset to display (10 will specify
-  rotational offset)
-* Qreference_type - actual, relative or distance to go (0,1,2)
-* metric_template - format of display ie '%10.3f'
-* imperial_template - format of display ie '%9.4f'
-* angular_template  - format of display ie '%Rotational: 10.1f'
+It _overlays an adjustable circular and cross hair target_ over the image.
 
-The DRO_Label widget holds a property 'isHomed' that can be used with a
-stylesheet
-to change the color of the DRO_Label based on home state of the joint
-number in LinuxCNC.
+CamView was built with precise visual positioning in mind.
 
-Here is a sample stylesheet entry.
-It sets the font of all DRO_Label widgets.
-It sets the text template (to set resolution) of the DRO
-Then sets the text color based on the Qt 'isHomed' Property.
+This is used to *align the work piece or zero part features using a webcam*.
 
+It uses _OpenCV_ vision library.
+
+[[sub:qtvcp:widgets:drolabel]]
+=== `DROLabel` - Axis Position Display Widget
+
+//TODO DROLabel widget capture/example
+
+This will *display the current position of an axis*.
+
+*`Qjoint_number`*::
+  Joint number of offset to display (10 will specify rotational offset).
+*`Qreference_type`*::
+  Actual, relative or distance to go (0,1,2).
+*`metric_template`*::
+  Format of display ie `%10.3f`.
+*`imperial_template`*::
+  format of display ie `%9.4f`.
+*`angular_template `*::
+  Format of display ie `%Rotational: 10.1f`.
+
+The `DROLabel` widget holds a property *`isHomed`* that can be used
+with a stylesheet to change the _color of the `DRO_Label` based on
+homing state of the joint_ number in LinuxCNC.
+
+Here is a sample stylesheet entry that:
+
+* Sets the font of all `DRO_Label` widgets,
+* Sets the text template (to set resolution) of the DRO,
+* Then sets the text color based on the Qt `isHomed` property.
+
+[source,{css}]
 ----
 DROLabel {
     font: 25pt "Lato Heavy";
@@ -629,36 +783,45 @@ DROLabel[isHomed=true] {
 }
 ----
 
-Here is how you specify a particular widget - by it's objectName in
-designer.
+Here is how you specify a particular widget by it's `objectName` in
+Qt Designer.
 
+[source,{css}]
 ----
 DROLabel #dr0_x_axis [isHomed=false] {
     color: yellow;
 }
 ----
 
-It is based on PyQt's QLabel
+It is based on PyQt's _QLabel_.
 
-=== GcodeDisplay
-This displays G-code in text form. It will highlight the currently
+[[sub:qtvcp:widgets:gcodedisplay]]
+=== `GcodeDisplay` - G-code Text Display Widget
+
+//TODO GcodeDisplay capture/example
+
+This *displays G-code in text form*, highlighting the currently
 running line.
-This can also display MDI history when LinuxCNC is in MDI mode.
-This can also display log entries when LinuxCNC is in MANUAL mode.
-This will also display preference file entries if you enter 'PREFERENCE'
-in capitals into the MDILine widget.
-It has a signal percentDone(int) that that can be connected to a slot
-(such as a progressBar to display percent run)
 
+This can also display:
 
-* auto_show_mdi_status +
-  Set true to have the widget switch to MDI history when in MDI mode
-* auto_show_manual_status +
-  Set true to have the widget switch to machine log when in Manual mode
+* *MDI history* when LinuxCNC is in `MDI` mode.
+* *Log entries* when LinuxCNC is in `MANUAL` mode.
+* *Preference file entries* if you enter `PREFERENCE` in capitals into
+  the `MDILine` widget.
 
-The GcodeDisplay properties can be set in a stylesheet with the following
+It has a _signal_ *`percentDone(int)`* that can be connected to a slot
+(such as a `progressBar` to display percent run).
+
+*`auto_show_mdi_status`*::
+  Set true to have the widget switch to MDI history when in MDI mode.
+*`auto_show_manual_status`*::
+  Set true to have the widget switch to machine log when in Manual mode.
+
+The `GcodeDisplay` properties can be set in a stylesheet with the following
 code added to the .qss file.
 
+[source,{css}]
 ----
 EditorBase{
     qproperty-styleColorBackground: lightblue;
@@ -678,235 +841,213 @@ EditorBase{
 }
 ----
 
-For gcodeDisplay widget's default G-code lexer:
+For `GcodeDisplay` widget's _default G-code lexer_:
 
-* styleColor0 = Default = digit characters
-* styleColor1 = Comments = characters inside of 'msg()'
-* styleColor2 = Key = alphabetic characters
-* styleColor3 = Assignment = ('%', '<', '>', '#', '=')
-* styleColor4 = Value = ('[', ']')
+* *styleColor0 = Default*: digit characters
+* *styleColor1 = Comments*: characters inside of 'msg()'
+* *styleColor2 = Key*: alphabetic characters
+* *styleColor3 = Assignment*: ('%', '<', '>', '#', '=')
+* *styleColor4 = Value*: ('[', ']')
 
-Font definitions:
-"style name, size, -1, 0, bold setting (0-99), italics (0-1), underline
-(0-1),0,0,0"
+//FIXME Explain/explicit
+_Font definitions_:
 
-It is based on PyQt's QsciScintilla
+  "style name, size, -1, 0, bold setting (0-99), italics (0-1),
+  underline (0-1),0,0,0"
 
-=== GcodeEditor Widget
+It is based on PyQt's _QsciScintilla_.
 
-This is an extension of the gcodeDisplay widget that adds editing
-convenience.
+[[sub:qtvcp:widgets:gcodeeditor]]
+=== `GcodeEditor` - G-code Program Editor Widget
 
-It is based on PyQt's QWidget which incorporates GcodeDisplay widget
+//TODO GcodeEditor widget capture
 
-=== GCodeGraphics Widget
+This is an extension of the `GcodeDisplay` widget that *adds editing
+convenience*.
 
-This Displays the current G-code in a graphical form.
+It is based on PyQt's _QWidget_ which incorporates `GcodeDisplay` widget.
 
-.Graphics Display
-image::images/qtvcp_gcodeGraphics.png["QtVCP G-code Graphics",scale="25%"]
+[[sub:qtvcp:widgets:gcodegraphics]]
+=== `GCodeGraphics` - G-code Graphic Backplot Widget
 
-Properties that can be set via stylesheets:
+//TODO Replace GCodeGraphics capture with one with a G-code path ?
+.QtVCP GcodeGraphics: G-code Graphic Backplot Widget
+image::images/qtvcp_gcodeGraphics.png["QtVCP GcodeGraphics: G-code Graphic Backplot Widget",scale="25%",align="center"]
 
-* '_view'
-* '_dro'
-* '_dtg'
-* '_metric'
-* '_overlay'
-* '_offsets'
-* '_small_origin'
-* 'overlay_color'
-* 'background_color'
-* '_use_gradient_background'
-* 'jog_color'
-* 'Feed_color'
-* 'Rapid_color'
-* 'InhibitControls'
-* 'MouseButtonMode'
-* 'MouseWheelInvertZoom'
+This *displays the current G-code in a graphical form*.
 
-'''
+.Stylesheets Properties
 
-*_view* Expects a string. The following shows an example of how to set this property:
-
+*`+_view+`* _(string)_::
+  Sets the _default view orientation_ on GUI load. +
+  Valid choices for a lathe are p, y, y2. For other screens, valid
+  choices are p, x, y, z, z2. +
+  The following shows an example of how to set this property:
++
+[source,{css}]
 ----
 #gcodegraphics{
-    qproperty-_view:z;
+    qproperty-_view: z;
 }
 ----
 
-Setting this property sets the default view on GUI load. Valid choices for a lathe are p, y, y2. For other screens, valid choices are p, x, y, z, z2.
-
-'''
-
-*_dro* Expects a boolean. The following shows an example of how to set this property:
-
+*`+_dro+`* _(bool)_::
+  Determines whether or not to _show the DRO_. +
+  The following shows an example of how to set this property:
++
+[source,{css}]
 ----
 #gcodegraphics{
-    qproperty-_dro:False;
+    qproperty-_dro: False;
 }
 ----
 
-Setting this property will determine whether or not to show the DRO.
-
-'''
-
-*_dtg* Expects a boolean. The following shows an example of how to set this property:
-
+*`+_dtg+`* _(bool)_::
+  Determine whether or not to _show the Distance To Go_. +
+  The following shows an example of how to set this property:
++
+[source,{css}]
 ----
 #gcodegraphics{
-    qproperty-_dtg:False;
+    qproperty-_dtg: False;
 }
 ----
 
-Setting this property will determine whether or not to show the Distance To Go.
-
-'''
-
-*_metric* Expects a boolean. The following shows an example of how to set this property:
-
+*`+_metric+`* _(bool)_::
+  Determines whether or not to _show the units in metric by default_. +
+  The following shows an example of how to set this property:
++
+[source,{css}]
 ----
 #gcodegraphics{
-    qproperty-_metric:False;
+    qproperty-_metric: False;
 }
 ----
 
-Setting this property will determine whether or not to show the units in metric by default.
-
-'''
-
-*_overlay* Expects a boolean. The following shows an example of how to set this property:
-
+*`+_overlay+`* _(bool)_::
+  Determines whether or not to _show the overlay by default_. +
+  The following shows an example of how to set this property:
++
+[source,{css}]
 ----
 #gcodegraphics{
-    qproperty-_overlay:False;
+    qproperty-_overlay: False;
 }
 ----
 
-Setting this property will determine whether or not to show the overlay by default.
-
-'''
-
-*_offsets* Expects a boolean. The following shows an example of how to set this property:
-
+*`+_offsets+`* _(bool)_::
+  Determines whether or not to _show the offsets by default_. +
+  The following shows an example of how to set this property:
++
+[source,{css}]
 ----
 #gcodegraphics{
-    qproperty-_offsets:False;
+    qproperty-_offsets: False;
 }
 ----
 
-Setting this property will determine whether or not to show the offsets by default.
-
-'''
-
-*_small_origin* Expects a boolean. The following shows an example of how to set this property:
-
+*`+_small_origin+`* _(bool)_::
+  Determines whether or not to _show the small origin by default_. +
+  The following shows an example of how to set this property:
++
+[source,{css}]
 ----
 #gcodegraphics{
-    qproperty-_small_origin:False;
+    qproperty-_small_origin: False;
 }
 ----
 
-Setting this property will determine whether or not to show the small origin by default.
-
-'''
-
-*overlay_color* Expects a primary, secondary, or RGBA formatted color. The following shows an example of how to set this property:
-
+*`overlay_color`* _(primary, secondary, or RGBA formatted color)_::
+  Sets the _default overlay color_. +
+  The following shows an example of how to set this property:
++
+[source,{css}]
 ----
 #gcodegraphics{
-    qproperty-overlay_color:blue;
+    qproperty-overlay_color: blue;
 }
 ----
 
-Setting this property will set the default overlay color.
-
-'''
-
-*background_color* Expects a primary, secondary, or RGBA formatted color. The following shows an example of how to set this property:
-
+*`background_color`* _(primary, secondary, or RGBA formatted color)_::
+  Sets the _default background color_. +
+  The following shows an example of how to set this property:
++
+[source,{css}]
 ----
 #gcodegraphics{
-    qproperty-background_color:blue;
+    qproperty-background_color: blue;
 }
 ----
 
-Setting this property will set the default background color.
-
-'''
-
-*_use_gradient_background* Expects a boolean. The following shows an example of how to set this property:
-
+*`+_use_gradient_background+`* _(bool)_::
+  Determines whether or not _use a gradient background by default_. +
+  The following shows an example of how to set this property:
++
+[source,{css}]
 ----
 #gcodegraphics{
-    qproperty-_use_gradient_background:False;
+    qproperty-_use_gradient_background: False;
 }
 ----
 
-Setting this property will determine whether or not use a gradient background by default.
-
-'''
-
-*jog_color* Expects a primary, secondary, or RGBA formatted color. The following shows an example of how to set this property:
-
+*`jog_color`* _(primary, secondary, or RGBA formatted color)_::
+  Sets the _default jog color_. +
+  The following shows an example of how to set this property:
++
+[source,{css}]
 ----
 #gcodegraphics{
-    qproperty-jog_color:red;
+    qproperty-jog_color: red;
 }
 ----
 
-Setting this property will set the default jog color.
-
-'''
-
-*Feed_color* Expects a primary, secondary, or RGBA formatted color. The following shows an example of how to set this property:
-
+*`Feed_color`* _(primary, secondary, or RGBA formatted color)_::
+  Sets the _default feed color_. +
+  The following shows an example of how to set this property:
++
+[source,{css}]
 ----
 #gcodegraphics{
-    qproperty-Feed_color:green;
+    qproperty-Feed_color: green;
 }
 ----
 
-Setting this property will set the default feed color.
-
-'''
-
-*Rapid_color* Expects a primary, secondary, or RGBA formatted color. The following shows an example of how to set this property:
-
+*`Rapid_color`* _(primary, secondary, or RGBA formatted color)_::
+  Sets the _default rapid color_. +
+  The following shows an example of how to set this property:
++
+[source,{css}]
 ----
 #gcodegraphics{
     qproperty-Rapid_color: rgba(0, 0, 255, .5);
 }
 ----
 
-Setting this property will set the default rapid color.
-
-'''
-
-*InhibitControls* Expects a boolean. The following shows an example of how to set this property:
-
+*`InhibitControls`* _(bool)_::
+  Determines whether or not to _inhibit external controls by default_. +
+  The following shows an example of how to set this property:
++
+[source,{css}]
 ----
 #gcodegraphics{
     qproperty-InhibitControls:True;
 }
 ----
 
-Setting this property will determine whether or not to inhibit external controls by default.
-
-'''
-
-*MouseButtonMode* Expects an integer. The following shows an example of how to set this property:
-
+*`MouseButtonMode`* _(int)_::
+  Changes the _mouse button behavior_ to rotate, move or zoom within
+  the preview. +
+  The following shows an example of how to set this property:
++
+[source,{css}]
 ----
 #gcodegraphics{
-    qproperty-MouseButtonMode:1;
+    qproperty-MouseButtonMode: 1;
 }
 ----
-
-Setting this property changes the button behavior of the mouse to rotate, move or zoom within the preview.
-
++
 There are 12 valid modes:
-
++
 [width="50%",cols="1,1,1,1"]
 |===
 |*Mode*|*Move*|*Zoom*|*Rotate*
@@ -917,9 +1058,10 @@ There are 12 valid modes:
 |4|Right|Left|Middle
 |5|Right|Middle|Left
 |===
-
-Modes 6-11 are intended for Machines that only require a 2D preview such as plasma or some Lathes and have no rotate button assigned.
-
++
+Modes 6-11 are intended for machines that only require a 2D preview such
+as plasma or some Lathes and have no rotate button assigned.
++
 [width="50%",cols="1,1,1"]
 |===
 |*Mode*|*Move*|*Zoom*
@@ -931,389 +1073,430 @@ Modes 6-11 are intended for Machines that only require a 2D preview such as plas
 |11|Right|Middle
 |===
 
-'''
-
-*MouseWheelInvertZoom* Expects a boolean. The following shows an example of how to set this property:
-
+*`MouseWheelInvertZoom`* _(bool)_::
+  Determines wether or not to _invert the zoom direction_ when zooming
+  with the mouse wheel. +
+  The following shows an example of how to set this property:
++
+[source,{css}]
 ----
 #gcodegraphics{
     qproperty-MouseWheelInvertZoom:True;
 }
 ----
 
-Setting this property to True will invert the zoom direction when zooming with the mouse wheel.
+.`ACTION` functions
 
-==== ACTION functions
+The `ACTION` library can control the G-code graphics widget.
 
-The ACTION library can control the G-code graphics widget.
+*`ACTION.RELOAD_DISPLAY()`*::
+  Reload the current program which recalculates the origin/offsets.
+*`ACTION.SET_GRAPHICS_VIEW(_view_)`*::
+  The following `view` commands can be sent:
+  * `clear`
+  * `zoom-in`
+  * `zoom-out`
+  * `pan-up`
+  * `pan-down`
+  * `pan-right`
+  * `pan-left`
+  * `rotate-cw`
+  * `rotate-ccw`
+  * `rotate-up`
+  * `rotate-down`
+  * `overlay-dro-on`
+  * `overlay-dro-off`
+  * `overlay-offsets-on`
+  * `overlay-offsets-off`
+  * `alpha-mode-on`
+  * `alpha-mode-off`
+  * `inhibit-selection-on`
+  * `inhibit-selection-off`
+  * `dimensions-on`
+  * `dimensions-off`
+  * `grid-size`
+  * `record-view`
+  * `set-recorded-view`
+  * `P`
+  * `X`
+  * `Y`
+  * `Y2`
+  * `Z`
+  * `Z2`
+*`ACTION.ADJUST_PAN(_X,Y_)`*::
+  Directly set the relative pan of view in x and y direction.
+*`ACTION.ADJUST_ROTATE(_X,Y_)`*::
+  Directly set the relative rotation of view in x and y direction.
 
-* `ACTION.RELOAD_DISPLAY()` - reload the current program which recalculates
-  the origin/offsets.
-* `ACTION.SET_GRAPHICS_VIEW(view)` The following commands can be sent:
-+
-----
-clear
-zoom-in
-zoom-out
-pan-up
-pan-down
-pan-right
-pan-left
-rotate-cw
-rotate-ccw
-rotate-up
-rotate-down
-overlay-dro-on
-overlay-dro-off
-overlay-offsets-on
-overlay-offsets-off
-alpha-mode-on
-alpha-mode-off
-inhibit-selection-on
-inhibit-selection-off
-dimensions-on
-dimensions-off
-grid-size
-record-view
-set-recorded-view
-P
-X
-Y
-Y2
-Z
-Z2
-----
-+
-* `ACTION.ADJUST_PAN(X,Y)` - directly set the relative pan of view in x
-  and y direction
-* `ACTION.ADJUST_ROTATE(X,Y)` - directly set the relative rotation of
-  view in x and y direction
+It is based on PyQt's _OpenGL_ widget.
 
-It is based on PyQt's opengl widget.
+[[sub:qtvcp:widgets:statelabel]]
+=== `StateLabel` - Controller Modes State Label Display Widget
 
-== StateLabel Widget
+//TODO StateLabel widget capture/example
 
-This will display a label based on true/false states of the machine
-controller.
-You can select different text based on true or false.
-These states are selectable via these properties:
+This will *display a label based on the machine controller modes true/false states*.
 
-* 'css_mode_status' +
-  When true machine is in G96 Constant Surface Speed Mode
-* 'diameter_mode_status' +
-  When true machine is in G7 Lathe Diameter Mode
-* 'fpr_mode_status' +
-  When true machine is in G95 Feed per revolution Mode
-* 'metric_mode_status' +
-  When true machine is in G21 Metric Mode
+You can select between different texts based on true or false.
 
-Other Properties:
+.States Selection Properties
+The states are selectable via these properties:
 
-* 'true_textTemplate' +
-  This will be the text set when the option is true.
-  You can use Qt rich text code for different fonts/colours etc.
-  Typical template for metric mode in true state, might be: 'Metric Mode'
-* 'false_textTemplate' +
-  This will be the text set when the option is true.
-  You can use Qt rich text code for different fonts/colours etc.
-  Typical template for metric mode in false state, might be: 'Imperial
-  Mode'
+*`css_mode_status`*::
+  `True` when machine is in `G96` _Constant Surface Speed Mode_.
+*`diameter_mode_status`*::
+  `True` when machine is in `G7` _Lathe Diameter Mode_.
+*`fpr_mode_status`*::
+  `True` when machine is in `G95` _Feed per revolution Mode_.
+*`metric_mode_status`*::
+  `True` when machine is in `G21` _Metric Mode_.
 
-It is based on PyQt's QLabel.
+.Text templates properties
 
-=== StatusLabel Widget
+*`true_textTemplate`*::
+  This will be the text set when the option is `True`. +
+  You can use _Qt rich text_ code for different fonts/colors etc. +
+  Typical template for metric mode in true state, might be: _Metric Mode_
+*`false_textTemplate`*::
+  This will be the text set when the option is `False`. +
+  You can use _Qt rich text_ code for different fonts/colors etc. +
+  Typical template for metric mode in false state, might be:
+  _Imperial Mode_.
 
-This will display a label based on variable states of the machine
-controller.
-You can change how the state will be display by substituting
-You can use Rich text for different fonts/colors etc.
+It is based on PyQt's _QLabel_.
+
+[[sub:qtvcp:widgets:statuslabel]]
+=== `StatusLabel` - Controller Variables State Label Display Widget
+
+//TODO StatusLabel widget capture/example
+
+This will *display a label based on variable status of the machine controller*.
+
+//FIXME Clarify "substituting": what ? where ?
+You can change how the state will be displayed by substituting.
+
+You can use rich text for different fonts/colors etc.
+
+.Selectable States
 These states are selectable:
 
-* 'actual_spindle_speed_status' +
-  Used to display the actual spindle speed as reported from the HAL pin
-  spindle.0.speed-i
-  It's converted to RPM. Typically would use a textTemplate of %d
-* 'actual surface speed_status' +
+*`actual_spindle_speed_status`*::
+  Used to display the actual spindle speed as _reported from the HAL pin_
+  `spindle.0.speed-i`. +
+  It's converted to _RPM_. +
+  A `textTemplate` of `%d` would typically be used.
+*`actual_surface_speed_status`*::
   Used to display the actual cutting surface speed on a lathe based on X
-  axis and spindle speed.
-  It's converted to distance per minute.
-  Typically would use a textTemplate of %4.1f (feet per minute)
-  and altTextTemplate of %d (meters per minute)
-* 'blendcode_status' +
-  Shows the current g64 setting
-* 'current_feedrate_status' +
-  Shows the current actual feedrate
-* 'current_FPU_status' +
-  Shows the current actual feed per unit
-* 'fcode_status' +
-  Shows the current programmed F Code setting
-* 'feed_override_status' +
-  Shows the current feed override setting in percent
-* 'filename_status' +
-  Shows the last loaded file name
-* 'filepath_status' +
-  Shows the last loade full file path name
-* 'gcode_status' +
-  Shows all active G-codes
-* 'gcode selected_status' +
-  Show the current selected G-code line
-* 'halpin status' +
-  Shows the HAL pin output of a selected HAL pin
-* 'jograte_status' +
-  Shows the current QtVCP based Jog Rate
-* 'jograte_angular_status' +
-  Shows the current QtVCP based Angular Jog Rate
-* 'jogincr_status' +
-  Shows the current QtVCP based Jog increment
-* 'jogincr_angular_status' +
-  Shows the current QtVCP based Angular Jog increment
-* 'machine state_status' +
-  Shows the current machine interpreter state using the text described
+  axis and spindle speed. +
+  It's converted to distance per minute. +
+  A `textTemplate` of `%4.1f` (feet per minute) and `altTextTemplate` of
+  `%d` (meters per minute) would typically be used.
+*`blendcode_status`*::
+  Shows the current `G64` setting.
+*`current_feedrate_status`*::
+  Shows the current actual feedrate.
+*`current_FPU_status`*::
+  Shows the current actual feed per unit.
+*`fcode_status`*::
+  Shows the current programmed `F` code setting.
+*`feed_override_status`*::
+  Shows the current feed override setting in percent.
+*`filename_status`*::
+  Shows the last loaded file name.
+*`filepath_status`*::
+  Shows the last loaded full file path name.
+*`gcode_status`*::
+  Shows all active G-codes.
+*`gcode_selected_status`*::
+  Show the current selected G-code line.
+*`halpin_status`*::
+  Shows the HAL pin output of a selected HAL pin.
+*`jograte_status`*::
+  Shows the current QtVCP based Jog Rate.
+*`jograte_angular_status`*::
+  Shows the current QtVCP based Angular Jog Rate.
+*`jogincr_status`*::
+  Shows the current QtVCP based Jog increment.
+*`jogincr_angular_status`*::
+  Shows the current QtVCP based Angular Jog increment.
+*`machine_state_status`*::
+  Shows the current _machine interpreter state_ using the text described
   from the state_list. +
-  The interpreter states are: Estopped, Running, Stopped, Paused,
-  Waiting, Reading
-* 'max_velocity_override_status' +
-  Shows the current max axis velocity override setting
-* 'mcode_status' +
-  Shows all active M-codes
-* 'requested_spindle_speed_status' +
+  The interpreter states are:
+  * `Estopped`
+  * `Running`
+  * `Stopped`
+  * `Paused`
+  * `Waiting`
+  * `Reading`
+*`max_velocity_override_status`*::
+  Shows the current max axis velocity override setting.
+*`mcode_status`*::
+  Shows _all active M-codes_.
+*`requested_spindle_speed_status`*::
   Shows the requested spindle speed - actual may be different.
-* 'rapid_override_status' +
-  Shows the current rapid override setting in (0-100) percent
-* 'spindle_override_status' +
-  Shows the current spindle override setting in percent
-* 'timestamp_status' +
+*`rapid_override_status`*::
+  Shows the current rapid override setting in (0-100) percent.
+*`spindle_override_status`*::
+  Shows the current spindle override setting in percent.
+*`timestamp_status`*::
   Shows the time based on the system settings. +
-  An example of a useful textTemplate setting: '%I:%M:%S %p' see the
-  Python time module for more info
-* 'tool comment_status' +
-  returns the comment text from the current loaded tool
-* 'tool diameter_status' +
-  returns the diameter from the current loaded tool
-* 'tool_number_status' +
-  returns the tool number of the current loaded tool
-* 'tool_offset_status' +
-  returns the offset of the current loaded tool, indexed by 'index_number'
+  An example of a useful `textTemplate` setting: `%I:%M:%S %p`. +
+  See the Python time module for more info
+*`tool comment_status`*::
+  Returns the comment text from the current loaded tool.
+*`tool diameter_status`*::
+  Returns the diameter from the current loaded tool.
+*`tool_number_status`*::
+  Returns the tool number of the current loaded tool.
+*`tool_offset_status`*::
+  Returns the offset of the current loaded tool, indexed by `index_number`
   to select axis (0=x,1=y,etc)
-* 'user_system_status' +
-  Shows the active user coordinate system (G5x setting)
+*`user_system_status`*::
+  Shows the _active user coordinate system_ (`G5x` setting).
 
-Other Properties:
+.Other Properties
 
-* 'index_number' +
+*`index_number`*::
   Integer that specifies the tool status index to display.
-* 'state_label_list' +
+*`state_label_list`*::
   List of labels used for different machine states.
-* 'halpin_names' +
+*`halpin_names`*::
+//FIXME Single or several ?
   Name of the halpin to monitor (including HAL component basename).
-* 'textTemplate' +
-  This uses Python formatting rules to set the text output.
-  This is usually used for imperial (G20) or angular numerical settings,
-  though not every option has imperial/metric conversion.
-  One can use %s for no conversion, %d for integer conversion, %f for
-  float conversion. etc
-  You can also use Qt rich text code.
+*`textTemplate`*::
+  This is usually used for *imperial (`G20`) or angular numerical settings*,
+  though not every option has imperial/metric conversion. +
+  This uses _Python formatting rules_ to set the text output. +
+  One can use `%s` for no conversion, `%d` for integer conversion, `%f`
+  for float conversion, etc. +
+  You can also use _Qt rich text_ code. +
   Typical template used for formatting imperial float numbers to text
-  eg. '%9.4f' or '%9.4f inch'
-* 'alt_textTemplate' +
-  This uses Python formatting rules to set the text output.
-  This is usual used for metric (G21) numerical settings.
-  Typical template used for formatting metric float to text
-  eg. '%10.3f' or '%10.3f mm'
+  would be `%9.4f` or `%9.4f inch`.
+*`alt_textTemplate`*::
+  This is usually used for *metric (`G21`) numerical settings*. +
+  This uses _Python formatting rules_ to set the text output. +
+  Typical template used for formatting metric float to text would be
+  `%10.3f` or `%10.3f mm`.
 
-It is based on PyQt's QLabel
+It is based on PyQt's _QLabel_.
 
-=== StatusImageSwicher Widget
+[[sub:qtvcp:widgets:gcodegraphics:statusimageswitcher]]
+=== `StatusImageSwitcher` - Controller Status Image Switcher
 
-Status image switcher will switch between images based on LinuxCNC states.
+Status image switcher will *switch between images based on LinuxCNC states*.
 
-* 'watch spindle' would toggle between 3 images ( stop, fwd, revs)
-* 'watch axis homed' would toggle between 2 images ( axis not homed,
-  axis homed)
-* 'watch all homed' would toggle between 2 images ( not all homed, all
-  homed)
-* 'watch hard limits' would toggle between 2 images or one per joint
+*`watch_spindle`::
+  Toggles between _3 images_: `stop`, `fwd`, `revs`.
+*`watch_axis_homed`::
+  Toggles between _2 images_: `axis not homed`, `axis homed`.
+*`watch_all_homed`::
+  Would toggle between _2 images_: `not all homed`, `all homed`.
+*`watch_hard_limits`::
+  Would toggle between _2 images or one per joint_.
 
 Here is an example of using it to display an icon of Z axis homing state:
 
-image::images/statusImageSwitcher.png["QtVCP Status Image Switcher",scale="25%"]
+.QtVCP `StatusImageSwitcher`: Controller Status Image Switcher
+image::images/statusImageSwitcher.png["QtVCP StatusImageSwitcher: Controller Status Image Switcher",scale="25%",align="center"]
 
 In the properties section notice that:
 
-* 'watch axis homed' is checked
-* 'axis letter' is set to Z
+* `watch_axis_homed` is checked
+* `axis_letter` is set to Z
 
-If you double click the 'image list' a dialog will show and allow you to
+If you double click the `image_list` a dialog will show and allow you to
 add image paths to.
-If you have one image as an icon and one clear image then that will look
-like it shows and hides the icon.
 
-Selecting image paths can be done by selecting the 'pixmap' property and
+If you have one image as an icon and one _clear image_ then that will look
+like it shows and _hides the icon_.
+
+Selecting image paths can be done by selecting the `pixmap` property and
 selecting an image.
-Note: The pixmap setting is for test display only and will be ignored
-outside of Designer.
-Right click the image name and you should see 'copy path'
-Click 'copy path'
-Now double click the 'image list' property so the dialog shows.
-Click the 'New' button
-Paste the image path in the entry box
-Do that again for the next image - use a clear image to represent a
-hidden icon.
 
-You can test display the images from the image list by changing the
-'image number'
-In this case 0 is unhomed 1 would be homed
-This is for test display only and will be ignored outside of Designer.
+NOTE: The `pixmap` setting is for test display only and will be ignored
+outside of Qt Designer.
 
-=== StatusStacked
+* Right click the image name and you should see 'Copy path'
+* Click 'Copy path'
+* Now double click the 'image list' property so the dialog shows.
+* Click the 'New' button
+* Paste the image path in the entry box
 
-This widget displays one of three panels based on LinuxCNC's mode.
-This allows you to automatically display different widgets on Manual,
-MDI and Auto modes.
+Do that again for the next image. +
+_Use a clear image to represent a hidden icon._
 
-.todo
-It is based on PyQt's QStacked widget.
+You can _test the images display_ from the image list by changing the
+`image number`. In this case `0` is unhomed and `1` would be homed. +
+This is for test display only and will be ignored outside of Qt Designer.
 
-=== Jog Increments Widget
+[[sub:qtvcp:widgets:statusstacked]]
+=== `StatusStacked` - Mode Status Display Switching Widget
 
-This widget allows the user to select jog increment values for jogging.
-The jogging values come from the INI file under: '[DISPLAY]', 'INCREMENTS'
-or '[DISPLAY]', 'ANGULAR_INCREMENTS'
-This will be available to all widgets through STATUS.
-You can select linear or angular increments by the property 'linear_option'
-in Designer property editor.
+//TODO StatusStacked widget capture/example
 
-It is based on PyQt's combobox
+This widget *displays one of three panels based on LinuxCNC's mode*.
 
-=== ScreenOption widget
+This allows you to automatically display different widgets on _Manual_,
+_MDI_ and _Auto_ modes.
 
-This widget doesn't add anything visually to a screen but sets up important
-options. This is the preferred way to use these options
+//TODO StatusStacked widget documentation
+.TODO
 
-These properties can be set in designer, in Python handler code or
+It is based on PyQt's _QStacked_ widget.
+
+[[sub:qtvcp:widgets:jogincrements]]
+=== `JogIncrements` - Jog Increments Value Selection Widget
+
+//TODO JogIncrements widget capture/example
+
+This widget allows the user to *select jog increment values for jogging*.
+
+The jogging values come from the _INI file_ under:
+
+* `[DISPLAY]INCREMENTS`, or
+* `[DISPLAY]ANGULAR_INCREMENTS`
+
+This will be _available to all widgets_ through `STATUS`.
+
+You can select linear or angular increments by the property
+*`linear_option`* in Qt Designer property editor.
+
+It is based on PyQt's _ComboBox_.
+
+[[sub:qtvcp:widgets:screenoption]]
+=== `ScreenOption` - General Options Setting widget
+
+This widget doesn't add anything visually to a screen but
+*sets up important options*.
+
+This is the _preferred way to use these options_.
+
+.Properties
+These properties can be set in Qt Designer, in Python handler code or
 (if appropriate) in stylesheets.
 
 These include:
 
-* 'halCompBaseName': +
+*`halCompBaseName`*::
   If left empty QtVCP will use the screen's name as the HAL component's
-  basename.
-  If set, QtVCP will use this string as the HAL component's basename.
-  If the -c command line option is used when loading QtVCP,
-  QtVCP will use the name specified in the command line - it overrides
-  all above options.
-  If you programmically set the basename in the handlerfile - it will
-  override all above options.
+  basename. +
+  If set, QtVCP will use this string as the HAL component's basename. +
+  If the `-c` command line option is used when loading QtVCP, it will
+  use the name specified on the command line - it overrides
+  all above options. +
+//FIXME Does handler set basename also overrides CLI option ? Else, it's better be placed the line above it
+  If you programmatically set the basename in the `handlerfile` - it
+  will override all above options. +
   This option cannot be set in stylesheets.
-* 'notify_option': +
-  Hooking into the desktop notification bubbles for error and messages
-* 'notify_max_messages': +
+*`notify_option`*::
+  Hooking into the desktop notification bubbles for error and messages.
+*`notify_max_messages`*::
   Number of messages shown on screen at one time.
-* 'catch_close_option': +
-  Catching the close event to pop up a 'are you sure' prompt
-* 'close_overlay_color': +
+*`catch_close_option`*::
+  Catching the close event to pop up a _'are you sure' prompt_.
+*`close_overlay_color`*::
   Color of transparent layer shown when quitting.
-* 'catch_error_option': +
-  monitoring the LinuxCNC error channel. This also sends the message +
-  through  STATUS to anything that registers
-* 'play_sounds_option': +
-  playing sounds using 'beep', 'espeak' and the system sound
-* 'use_pref_file_option': +
-  setting up a preference filepath.
-  Using the magic word 'WORKINGFOLDER' in the preference file path will
-  be replaced with
-  the launched configuration path ie. WORKINFOLDER/my_preferences
-* 'use_send_zmq_option': +
-  Used to initiate ZMQ based outgoing messages.
-* 'use_receive_zmq_messages': +
-  Used to initiate ZMQ based in coming messages.
-  These messages can be used to call functions in the handler file.
-  Allowing external programs to intergrate tightly with qtvcp based
+*`catch_error_option`*::
+  _Monitoring of the LinuxCNC error channel_. +
+  This also sends the message through `STATUS` to anything that
+  registers.
+*`play_sounds_option`*::
+  Playing sounds using `beep`, `espeak` and the system sound.
+*`use_pref_file_option`*::
+  Setting up a _preferences file path_. +
+  Using the magic word `WORKINGFOLDER` in the preference file path will
+  be replaced with the launched configuration path,
+  ie. `WORKINFOLDER/my_preferences`.
+*`use_send_zmq_option`*::
+  Used to initiate _ZMQ based outgoing messages_.
+*`use_receive_zmq_messages`*::
+  Used to initiate _ZMQ based in coming messages_. +
+  These messages _can be used to call functions in the handler file_,
+  allowing *external programs to integrate tightly with QtVCP* based
   screens.
-* 'embedded_program_option': +
-  Embed programs defined in the INI.
-* 'default_emebed_tab' +
-  This is the property for a default location to embed external programs.
-  It would be set to the designer name of a tab page widget.
-* 'focusOverlay_option': +
+*`embedded_program_option`*::
+  Embed programs defined in the _INI_.
+*`default_embed_tab`*::
+  This is the property for a _default location to embed external programs_. +
+  It should be set to name of a tab page widget in Qt Designer.
+*`focusOverlay_option`*::
   Focus_overlay will put a transparent image or colored panel over the
   main screen to emphasize focus to an external event - typically a
   dialog.
-* 'messageDialog_option': +
-  sets up the message dialog - used for general messages
-* 'message_overlay_color': +
+*`messageDialog_option`*::
+  Sets up the message dialog - used for general messages.
+*`message_overlay_color`*::
   Color of transparent layer shown when the message dialog is shown.
-* 'closeDialog_option': +
-  sets up the standard close screen prompt dialog
-* 'entryDialog_option': +
-  sets up the numerical entry dialog
-* 'entryDialogSoftKey_option': +
-  sets up a floating software keyboard when entry dialog is focused.
-* 'entry_overlay_color': +
+*`closeDialog_option`*::
+  Sets up the standard close screen prompt dialog.
+*`entryDialog_option`*::
+  Sets up the numerical entry dialog.
+*`entryDialogSoftKey_option`*::
+  Sets up a floating software keyboard when entry dialog is focused.
+*`entry_overlay_color`*::
   Color of transparent layer shown when the entry dialog is shown.
-* 'toolDialog_option': +
-  sets up the manual tool change dialog, including HAL pin.
-* 'tool_overlay_color': +
+*`toolDialog_option`*::
+  Sets up the manual tool change dialog, including HAL pin.
+*`tool_overlay_color`*::
   Color of transparent layer shown when the tool dialog is shown.
-* 'ToolUseDesktopNotify': +
-  option to use desktop notify dialogs for manual tool change dialog. +
-* 'ToolFramesless': +
-  Framesless dialogs can not be easily moved by users. +
-* 'fileDialog_option': +
-  sets up the file choosing dialog.
-* 'file_overlay_color': +
+*`ToolUseDesktopNotify`*::
+  Option to use desktop notify dialogs for manual tool change dialog.
+*`ToolFrameless`*::
+  Frameless dialogs can not be easily moved by users.
+*`fileDialog_option`*::
+  Sets up the file choosing dialog.
+*`file_overlay_color`*::
   Color of transparent layer shown when the file dialog is shown.
-* 'keyboardDialog_option': +
-  sets up a keyboard entry widget. +
-* 'keyboard_overlay_color': +
+*`keyboardDialog_option`*::
+  Sets up a keyboard entry widget.
+*`keyboard_overlay_color`*::
   Color of transparent layer shown when the keyboard dialog is shown.
-* 'vesaProbe_option': +
-  sets up the versa style probe dialog
-* 'versaProbe_overlay_color': +
-  Color of transparent layer shown when the versaProbe dialog is shown.
-* 'macroTabeDialog_option': +
-  sets up the macro selection dialog
-* 'macoTab_overlay_color': +
-  Color of transparent layer shown when the macroTab dialog is shown.
-* 'camViewDialog_option': +
-  sets up the camera alignment dialog
-* 'camView_overlay_color': +
-  Color of transparent layer shown when the camView dialog is shown.
-* 'toolOffset_option': +
-  sets up the tool offset display/editor dialog
-* 'toolOffset_overlay_color': +
-  Color of transparent layer shown when the toolOffset dialog is shown.
-* 'originOffset_option': +
-  sets up the origin display/editor dialog
-* 'originOffset_overlay_color': +
-  Color of transparent layer shown when the originOffset dialog is shown.
-* 'calculatorDialog_option': +
-  sets up the calcylatory entry dialog
-* 'calculator_overlay_color': +
+*`vesaProbe_option`*::
+  Sets up the Versa style probe dialog.
+*`versaProbe_overlay_color`*::
+  Color of transparent layer shown when the `versaProbe` dialog is shown.
+*`macroTabDialog_option`*::
+  Sets up the macro selection dialog.
+*`macroTab_overlay_color`*::
+  Color of transparent layer shown when the `macroTab` dialog is shown.
+*`camViewDialog_option`*::
+  Sets up the camera alignment dialog.
+*`camView_overlay_color`*::
+  Color of transparent layer shown when the `camView` dialog is shown.
+*`toolOffset_option`*::
+  Sets up the tool offset display/editor dialog.
+*`toolOffset_overlay_color`*::
+  Color of transparent layer shown when the `toolOffset` dialog is shown.
+*`originOffset_option`*::
+  Sets up the origin display/editor dialog.
+*`originOffset_overlay_color`*::
+  Color of transparent layer shown when the `originOffset` dialog is
+  shown.
+*`calculatorDialog_option`*::
+  Sets up the calculator entry dialog.
+*`calculator_overlay_color`*::
   Color of transparent layer shown when the calculator dialog is shown.
-* 'machineLogDialog_option': +
-  sets up a dialog to display logs from the machine and qtvcp
-* 'machineLog_overlay_color': +
-  Color of transparent layer shown when the machineLog dialog is shown.
-* 'runFromLineDialog_option': +
-  sets up a dialog to display starting options when starting machine
-  execution from a arbitrary line. +
-* 'runFromLine_overlay_color': +
-  Color of transparent layer shown when the runFromLine dialog is shown.
+*`machineLogDialog_option`*::
+  Sets up a dialog to display logs from the machine and QtVCP.
+*`machineLog_overlay_color`*::
+  Color of transparent layer shown when the `machineLog` dialog is shown.
+*`runFromLineDialog_option`*::
+  Sets up a dialog to display starting options when starting machine
+  execution from a arbitrary line.
+*`runFromLine_overlay_color`*::
+  Color of transparent layer shown when the `runFromLine` dialog is shown.
 
-==== Setting Properties Programically
+.Setting Properties Programmatically
+The screen designer chooses the *default settings of the `screenOptions`
+widget*.
 
-The screen designer chooses the default settings of the screenOptions
-widget.
-Once chosen, most won't ever need to be changed.
-but if needed some can be changed in the handler file or in stylesheets.
-Some settings are only checked on startup so will not cause changes
-after startup.
-In these cases you would need to make the changes in Qtdesigner only.
+Once chosen, most won't ever need to be changed. But if needed, some can
+be changed in the handler file or in stylesheets.
 
-ie. in the handler file
-Here we reference the widget by the QtDesigner user defined name:
-
+* *In the handler file*: +
+  Here we reference the widget by the Qt Designer user defined name:
++
 [source,python]
 ----
 # red,green,blue,alpha 0-255
@@ -1322,153 +1505,173 @@ self.w.screen_options.setProperty('close_overlay_color', color)
 self.w.screen_options.setProperty('play_sounds_option',False)
 ----
 
-ie. In style sheets
-Here we can reference the widget by QtDesigner user defined name
-or by widget class name.
-
+* *In style sheets*: +
+  Here we can reference the widget by Qt Designer user defined name
+  or by widget class name.
++
+[source,{css}]
 ----
 /* red, green, blue 0-255, alpha 0-100% or 0.0 to 1.0 */
-/* the # sign is used to refer to QtDesigner defined widget name */
+/* the # sign is used to refer to Qt Designer defined widget name */
 /* matches/applied to only this named widget */
-
 #screen_options {
-qproperty-close_overlay_color: rgba(0, 255, 0, 0.75) }
+  qproperty-close_overlay_color: rgba(0, 255, 0, 0.75)
+}
 ----
++
+[source,{css}]
 ----
 /* red, green, blue 0-255, alpha 0-100% or 0.0 to 1.0 */
-/* use widget class name - matches/applied to all widgets of this class*/
-
+/* use widget class name */
+/* matches/applied to all widgets of this class */
 ScreenOptions {
-qproperty-close_overlay_color: rgba(0, 255, 0, 0.75) }
+  qproperty-close_overlay_color: rgba(0, 255, 0, 0.75)
+}
 ----
 
-==== Preference File Entries
+*Some settings are only checked on startup* so will not cause changes
+after startup. In these cases you would need to _make the changes in Qt
+Designer only_.
 
-If the preference file option is selected, screenOption widget will make
-an INI based preference file.
-While other QtVCP widgets will add to this list, the screenOptions widget
-will add these entries:
+.Preference File Entries
 
+If the _preference file option is selected_, `screenOption` widget will make
+an *INI based preference file*.
 
-Under the heading: 'SCREEN_OPTIONS':
+While _other QtVCP widgets will add to this list_, the `screenOptions`
+widget will add these entries under the following headings:
 
-* 'catch_errors =' -True or False
-* 'desktop_notify =' -True or False (whether to display errors/messages
-  in the system's notification mechanism)
-* 'notify_max_msgs =' -Integer (number of displayed errors at one time)
-* 'shutdown_check =' -True or False (whether to pop a confirmation dialog)
-* 'sound_player_on =' -True or False (turns all sounds on or off)
+*`[SCREEN_OPTIONS]`*::
+  *`catch_errors`* _(bool)_;;
+  *`desktop_notify`* _(bool)_;;
+    Whether to display errors/messages in the system's notification
+    mechanism.
+  *`notify_max_msgs`* _(int)_;;
+    Number of displayed errors at one time.
+  *`shutdown_check`* _(bool)_;;
+    Whether to pop a confirmation dialog.
+  *`sound_player_on`* _(bool)_;;
+    Turns all sounds on or off.
+*`[MCH_MSG_OPTIONS]`*::
+  *`mchnMsg_play_sound`* _(bool)_;;
+    To play alert sound when dialog pops.
+  *`mchnMsg_speak_errors`* _(bool)_;;
+    To use Espeak to speak error messages.
+  *`mchnMsg_speak_text`* _(bool)_;;
+    To use Espeak to speak all other messages.
+  *`mchnMsg_sound_type`* _(str)_;;
+    Sound to play when messages displayed. See notes below.
+*`[USER_MSG_OPTIONS]`*::
+  *`usermsg_play_sound`* _(bool)_;;
+    To play alert sound when dialog pops.
+  *`userMsg_sound_type`* _(str)_;;
+    Sound to play when user messages displayed. See notes below.
+  *`userMsg_use_focusOverlay`* _(bool)_;;
+*`[SHUTDOWN_OPTIONS]`*::
+  *`shutdown_play_sound`* _(bool)_;;
+  *`shutdown_alert_sound_type`* _(str)_;;
+    Sound to play when messages displayed. See notes below.
+  *`shutdown_exit_sound_type`* _(str)_;;
+    Sound to play when messages displayed. See notes below.
+  *`shutdown_msg_title`* _(str)_;;
+    Short title string to display in dialog.
+  *`shutdown_msg_focus_text`* _(str)_;;
+    Large text string to superimpose in focus layer.
+  *`shutdown_msg_detail`* _(str)_;;
+    Longer descriptive string to display in dialog
+*`NOTIFY_OPTIONS`*::
+  *`notify_start_greeting`* _(bool)_;;
+    Whether to display a greeting dialog on start up.
+  *`notify_start_title`* _(str)_;;
+    Short Title string. +
+    If the speak option is also selected it will be spoken with Espeak.
+  *`notify_start_detail`* _(str)_;;
+    Longer description string.
+  *`notify_start_timeout`* _(int)_;;
+    Time in seconds to display before closing.
 
-Under the heading: 'MCH_MSG_OPTIONS'
+.`*_sound_type` entries
 
-* 'mchnMsg_play_sound =' -True or False (to play alert sound when dialog
-  pops)
-* 'mchnMsg_speak_errors =' -True or False (to use Espeak to speak error
-  messages)
-* 'mchnMsg_speak_text =' -True or False (to use Espeak to speak all other
-  messages)
-* 'mchnMsg_sound_type =' -sound to play when messages displayed
+* *System Sounds* +
+  In Debian/Ubuntu/Mint based installations these _system sounds_ should
+  be available as sound-type entries above:
 
-Under the heading: 'USER_MSG_OPTIONS'
+** `ERROR`
+** `READY`
+** `DONE`
+** `ATTENTION`
+** `RING`
+** `LOGIN`
+** `LOGOUT`
+** `BELL`
 
-* 'usermsg_play_sound =' -True or False (to play alert sound when dialog
-  pops)
-* 'userMsg_sound_type =' -sound to play when user messages displayed
-* 'userMsg_use_focusOverlay =' -True or False
++
+These Sound options require `python3-gst1.0` installed.
 
-Under the heading: 'SHUTDOWN_OPTIONS'
+* *Audio Files* +
+  You can also specify a _file path to an arbitrary audio file_. +
+  You can use `~` in path to substitute for the user home file path.
 
-* 'shutdown_play_sound =' -True or False
-* 'shutdown_alert_sound_type =' -sound to play when messages displayed
-* 'shutdown_exit_sound_type =' -sound to play when messages displayed
-* 'shutdown_msg_title =' -Short title string to display in dialog
-* 'shutdown_msg_focus_text =' -Large text string to superimpose in focus
-  layer
-* 'shutdown_msg_detail =' -Longer descriptive string to display in dialog
+* *Kernel Beeps* +
+  If the `beep` _kernel module_ is installed and it is not disabled, these
+  sound-type entries are available:
 
-Under the heading: 'NOTIFY_OPTIONS'
+** `BEEP`
+** `BEEP_RING`
+** `BEEP_START`
 
-* 'notify_start_greeting =' - True or False (whether to display a
-  greeting dialog on start up)
-* 'notify_start_title =' - Short Title string. If the speak option is
-  also selected it will be spoken with Espeak.
-* 'notify_start_detail =' - Longer description string.
-* 'notify_start_timeout =' - time in seconds to display before closing.
+* *Text-To-Speech* +
+If the _Espeak_ module (`python3-espeak`) is installed, you can use the
+`SPEAK` entry to pronounce text:
 
-[NOTE]
-====
-In Debian/Ubuntu/Mint based systems these sounds should be available as
-sound-type entries above:
-(These Sound options require python3-gst1.0 installed.)
+* *`SPEAK '_my message_'`*
 
-* ERROR
-* READY
-* DONE
-* ATTENTION
-* RING
-* LOGIN
-* LOGOUT
-* BELL
+[[sub:qtvcp:widgets:statusslider]]
+=== `StatusSlider` - Controller Setting Adjustment Slider Widget
 
-====
+//TODO StatusSlider widget capture
 
-[NOTE]
-You can also specify a file path to an arbitrary audio file.
-(You can use ~ in path to substitute for the user home file path)
+This widget allow the user to *adjust a LinuxCNC setting via a slider*.
 
-[NOTE]
-====
-If the Beep kernel module is installed and it is not disabled, these
-sound-type entries are available:
+The widget can adjust:
 
-* BEEP
-* BEEP_RING
-* BEEP_START
-
-====
-
-[NOTE]
-====
-If the Espeak module (python3-espeak) is install you can use the entry
-'SPEAK' to pronounce text:
-
-* SPEAK 'my message'
-
-====
-
-=== StatusSlider Widget
-
-This widget allow the user to adjust LinuxCNC setting via a slide.
-
-.The widget can adjust:
 * Jog rate
 * Angular jog rate
 * Feed rate
-* spindle override rate
+* Spindle override rate
 * Rapid override rate
 
-==== Properties
+.Properties
 
-StatusSlider has properties that can be set in designer, in Python
-handler code or (if appropriate) in stylesheets.
+`StatusSlider` has the following properties:
 
-* halpin_option - sets option to make a HAL float pin that reflects
-  current value.
-* rapid_rate - selects a rapid override rate slider
-* feed_rate - selects a feed override rate slider
-* spindle_rate - selects a spindle override rate slider
-* jograte_rate - selects a linear jograte slider
-* jograte_angular_rate - selects a angular jograte slider
-* max_velocity_rate - selects a maximum velocity rate slider
-* alertState - a string to define style change. (read-only - 'under',
-  'over' and 'normal')
-* alertUnder - set the float value that signals the stylesheet for
-  'under' warning.
-* alertOver - set the float value that signals the stylesheet for 'over'
-  warning.
+*`halpin_option`*::
+  Sets option to make a HAL float pin that reflects current value.
+*`rapid_rate`*::
+  Selects a rapid override rate slider.
+*`feed_rate`*::
+  Selects a feed override rate slider.
+*`spindle_rate`*::
+  Selects a spindle override rate slider.
+*`jograte_rate`*::
+  Selects a linear jograte slider.
+*`jograte_angular_rate`*::
+  Selects a angular jograte slider.
+*`max_velocity_rate`*::
+  Selects a maximum velocity rate slider.
+*`alertState`*::
+  String to define style change: `read-only`, `under`, `over` and
+  `normal`.
+*`alertUnder`*::
+  Sets the float value that signals the stylesheet for 'under' warning.
+*`alertOver`*::
+  Sets the float value that signals the stylesheet for 'over' warning.
 
-ie. in handler file:
+These can be set in:
 
+* Qt Designer
+* Python handler code,
++
 [source,python]
 ----
 self.w.status_slider.setProperty('spindle_rate',True)
@@ -1476,105 +1679,140 @@ self.w.status_slider.setProperty('alertUnder',35)
 self.w.status_slider.setProperty('alertOver',100)
 ----
 
-ie. In style sheets:
+* Or (if appropriate) in stylesheets.
++
+[source,{css}]
 ----
 /* warning colors for overrides if out of normal range*/
 /* widget object name is slider_spindle_ovr */
 
-    #slider_spindle_ovr[alertState='over'] {
-        background: red;
-    }
-    #slider_spindle_ovr[alertState='under'] {
-        background: yellow;
-    }
-----
-
-It is based on PyQt's QSlider
-
-=== State LED Widget
-
-This widget gives status on the selected LinuxCNC state.
-
-The state options are:
-
-* is_paused_status
-* is_estopped_status
-* is_on_status
-* is_idle_status_
-* is_homed_status
-* is_flood_status
-* is_mist_status
-* is_block_delete_status
-* is_optional_stop_status
-* is_joint_homed_status
-* is_limits_overridden_status
-* is_manual_status
-* is_mdi_status
-* is_auto_status
-* is_spindle_stopped_status
-* is_spindle_fwd_status
-* is_spindle_rev_status
-* is_spindle_at_speed_status
-
-There are properties that can be changed:
-
-* halpin_option - Adds an output pin that reflects selected state
-* invert_state_status - Invert the LED state compared to the LinuxCNC
-  state.
-* diameter -Diameter of the LED
-* color - Color of the LED when on.
-* off_color - Color of the LED when off.
-* alignment - Qt Aliment hint.
-* state - Current state of LED (for testing in designer)
-* flashing - Turns flashing option on and off.
-* flashRate - Sets the flash rate.
-
-The LED properties can be defined in a stylesheet with the following
-code added to the .qss file.
-The name_of_led would be the name defined Designer's editor.
-
-----
-State_LED #name_0f_led{
-    qproperty-color: red;
-    qproperty-diameter: 20;
-    qproperty-flashRate: 150;
+#slider_spindle_ovr[alertState='over'] {
+    background: red;
+}
+#slider_spindle_ovr[alertState='under'] {
+    background: yellow;
 }
 ----
 
-It is based on the LED widget
+It is based on PyQt's _QSlider_.
 
-=== StatusAdjustmentBar
+[[sub:qtvcp:widgets:stateled]]
+=== `StateLED` - Controller State LED Widget
 
-This widget allows setting values using buttons while displaying a bar.
-It also has an optional hi/low toggle button that can be held down to
-set the levels.
+//TODO StateLED widget capture/example
 
-.The widget can adjust:
+This widget gives *status on the selected LinuxCNC state*.
+
+.States
+The state options are:
+
+*`is_paused_status`*::
+*`is_estopped_status`*::
+*`is_on_status`*::
+*`is_idle_status_`*::
+*`is_homed_status`*::
+*`is_flood_status`*::
+*`is_mist_status`*::
+*`is_block_delete_status`*::
+*`is_optional_stop_status`*::
+*`is_joint_homed_status`*::
+*`is_limits_overridden_status`*::
+*`is_manual_status`*::
+*`is_mdi_status`*::
+*`is_auto_status`*::
+*`is_spindle_stopped_status`*::
+*`is_spindle_fwd_status`*::
+*`is_spindle_rev_status`*::
+*`is_spindle_at_speed_status`*::
+*`is_neg_limit_tripped`*::
+*`is_pos_limit_tripped`*::
+*`is_limits_tripped`*::
+// end defintion list
+
+.Properties
+There are properties that can be changed:
+
+*`halpin_option`*::
+  Adds an output pin that reflects selected state.
+*`invert_state_status`*::
+  Invert the LED state compared to the LinuxCNC state.
+*`diameter`*::
+  Diameter of the LED.
+*`color`*::
+  Color of the LED when on.
+*`off_color`*::
+  Color of the LED when off.
+*`alignment`*::
+  Qt Alignment hint.
+*`state`*::
+  Current state of LED (for testing in Qt Designer).
+*`flashing`*::
+  Turns flashing option on and off.
+*`flashRate`*::
+  Sets the flash rate.
+
+The LED properties can be defined in a stylesheet with the following
+code added to the `.qss` file. +
+
+[source,{css}]
+----
+State_LED #name_of_led{       <1>
+  qproperty-color: red;
+  qproperty-diameter: 20;
+  qproperty-flashRate: 150;
+}
+----
+
+<1> `name_of_led` would be the name defined in Qt Designer's editor.
+
+It is based on the _LED_ widget.
+
+[[sub:qtvcp:widgets:statusadjustmentbar]]
+=== `StatusAdjustmentBar` - Controller Value Setting Widget
+
+//TODO StatusAdjustmentBar widget capture
+
+This widget allows *setting values using buttons while displaying a bar*.
+
+It also has an _optional hi/low toggle button_ that can be held down to
+set the *levels*.
+
+The widget can adjust:
+
 * Jog rate
-* angular jog rate
+* Angular jog rate
 * Feed rate
 * Spindle override rate
 * Rapid override rate
 
-It is based on PyQt's QProgressBar
+It is based on PyQt's _QProgressBar_.
 
-=== SystemToolButton
-This widget allows you to manually select a user system by pressing and
-holding.
+[[sub:qtvcp:widgets:systemtoolbutton]]
+=== `SystemToolButton` - User System Selection Widget
+
+//TODO SystemToolButton widget capture/example
+
+//FIXME what/which "user system" ?
+This widget allows you to *manually select a user system by pressing and
+holding*.
+
 If you don't set the button text it will automatically update to the
 current system.
 
-It is based on PyQt's QToolButton
+It is based on PyQt's _QToolButton_.
 
-=== MacroTab Widget
+[[sub:qtvcp:widgets:macrotab]]
+=== `MacroTab` - Special Macros Widget
 
-.Macrotab
-image::images/qtvcp_macro.png["QtVCP led",scale="25%"]
+.QtVCP `MacroTab`: Special Macros Widget
+image::images/qtvcp_macro.png["QtVCP MacroTab: Special Macros Widget",scale="25%"]
 
-This Widget allows a user to select and adjust special macro programs
+This widget allows a user to *select and adjust special macro programs*
 for doing small jobs.
-It uses images for visual representation of the macro and for an icon.
-It searches for special macros using the INI definition:
+
+It uses _images for visual representation_ of the macro and for an icon.
+
+It searches for special macros using the _INI definition_:
 
 [source,{ini}]
 ----
@@ -1582,173 +1820,260 @@ It searches for special macros using the INI definition:
 SUBROUTINE_PATH =
 ----
 
-The macros are Oword subroutine with special comments to work with the
-launcher.
-The first three lines must have the keywords: (The forth is optional)
-Here is a sample for the first four lines in an Oword file:
+The macros are *`Oword` subroutines with special comments* to work with
+the launcher. +
+The first three lines _must_ have the keywords below, the fourth is
+optional.
 
+Here is a sample for the first four lines in an _Oword file_:
+
+[source,{ini}]
 ----
-; MACROCOMMAND=Entry1,Entry2
-; MACRODEFAULTS=0,true
-; MACROIMAGE=my_image.svg,Icon layer number, Macro layer number
-; MACROOPTIONS=load:yes,save:yes,default:default.txt,path:~/macros
+; MACROCOMMAND = Entry1,Entry2
+; MACRODEFAULTS = 0,true
+; MACROIMAGE = my_image.svg,Icon layer number,Macro layer number
+; MACROOPTIONS = load:yes,save:yes,default:default.txt,path:~/macros
 ----
 
-==== MACROCOMMAND
+.`MACROCOMMAND`
 
-This is the first line in the Oword file.
-It is a comma separated list of text to display above an entry.
-There will be one for every variable required in the Oword function.
-If the macro does not require variables, only add '; MACROCOMMAND='
+This is the _first line_ in the Oword file.
 
-==== MACRODEFAULT
+It is a *comma separated list of text to display above an entry*. +
+There will be *one for every variable required* in the Oword function.
 
-This must be the second line in the Oword file.
-It is a comma separated list of the default values for each variable in
-the Oword function.
-If you use the word 'true' or 'false' in the list, a checkbutton will be
-shown.
+If the macro does not require variables, leave it empty:
 
-==== MACROIMAGE
+[source,{ini}]
+----
+; MACROCOMMAND=
+----
 
-This must be the third line in the Oword file.
-if using a SVG image file, the must end b .svg
-The image must be added to an svg layer.
-It uses layers to define different images for macro and icon.
-The first entry will be the SVG image file name.
-It is assumed to be in the same folder as the Oword file.
-The second item will be the image layer.
-the optional third entry will be the icon layer.
-If the third entry is missing, the same image will be used for macro and
-icon.
+.`MACRODEFAULTS`
 
-If using a png/jpg image file.
-The first entry is the image filename.
-It is assumed the image file are in the same folder an the macro.
-The optional second entry will be the icon filename.
-If the second entry is missing the same image will be used for macro and
-image.
+This must be the _second line_ in the Oword file.
 
-If the keyword is present but the entries are missing , no images will
+It is a *comma separated list of the default values for each variable*
+in the Oword function.
+
+If you use the word `true` or `false` in the list, a `*checkbutton*`
+will be shown.
+
+.`MACROIMAGE`
+
+This must be the _third line_ in the Oword file.
+
+* *SVG Images* +
+  If using SVG image files, they must end with the `.svg` extension. +
++
+The images must be added to _SVG layers_ which are used to define
+the different images for macro and icon.
++
+Value is comma separated list of three ordered fields:
++
+[source,{ini}]
+----
+; MACROIMAGE=filename.svg,macro_layer_name[,icon_layer_name]
+----
++
+With:
++
+*`_filename_.svg`*::
+  SVG image file name as first field. +
+  It is assumed to be in the same folder as the Oword file.
+*`*macro_layer_name`*::
+  Macro image layer name as second field.
+*`icon_layer_name`*::
+  Icon image layer name as optional third field.
+  If the third entry is missing, the same image will be used for macro
+  and icon.
+
+* *PNG/JPG Images*: +
+  Value remains a comma separated list:
++
+[source,{ini}]
+----
+; MACROIMAGE=macro_image.(png|jpg)[,icon_image.(png|jpg)]
+----
++
+With:
++
+*`_macro_image_.(png|jpg)`*::
+  Macro image file name as first field. +
+  It is assumed that the image file are in the same folder than the
+  macro.
+*`_icon_image_.(png|jpg)`*::
+ *Icon image file name* as optional second field. +
+  If the second entry is missing the same image will be used for macro
+  and image.
+
+If the keyword is present but the entries are missing, no images will
 be used.
 
-==== MACRODEFAULT
-This optional line must be the forth line in the Oword file.
-It is a comma separated list of keyword and data.
+.`MACROOPTIONS`
 
- * 'LOAD:yes' - show a load button
- * 'SAVE:yes' -show a save button
+This _optional line must be the fourth_ line in the Oword file.
 
-=== MDILine Widget
+It is a comma separated list of keyword and data:
 
-One can enter MDI commands here. A popup keyboard is available.
-There are also embedded commands available from this Widget.
-Enter any of these case sensitive commands to load the respective
+*`LOAD:yes`*::
+  Shows a load button.
+ *`SAVE:yes`*::
+  Shows a save button.
+
+[[sub:qtvcp:widgets:mdiline]]
+=== `MDILine` - MDI Commands Line Entry Widget
+
+//TODO MDILine widget capture
+
+One can *enter MDI commands* here.
+
+A popup keyboard is available.
+
+.Embedded Commands
+There are also *embedded commands* available from this Widget.
+
+Enter any of these _case sensitive_ commands to load the respective
 program or access the feature:
 
-* `HALMETER` - Starts LinuxCNC utility
-  link:../hal/tools.html#sec:halmeter[`halmeter`]
-* `HALSHOW` - Starts LinuxCNC utility
-  link:../hal/halshow.html#cha:halshow[`halshow`]
-* `HALSCOPE` - Starts LinuxCNC utility
-  link:../hal/tutorial.html#sec:tutorial-halscope[`halscope`]
-* `STATUS` - Starts LinuxCNC utility
-  link:../man/man1/linuxcnctop.1.html[`status`]
-* `CALIBRATION` - Starts LinuxCNC utility
-  link:../getting-started/updating-linuxcnc.html#_calibration_emccalib_tcl[`calibration`]
-* `CLASSICLADDER` - Starts the
-  link:../ladder/classic-ladder.html[ClassicLadder GUI] if the ClassicLadder realtime HAL component was loaded by the machine's config files
-* `PREFERENCE` - Loads the preference file onto the gcodeEditor
-* `CLEAR HISTORY` - Clears the MDI History
-* `net` - See link:../man/man1/halcmd.1.html#COMMANDS[halcmd net COMMAND].
+*`HALMETER`*::
+  Starts LinuxCNC
+  link:../hal/tools.html#sec:halmeter[`halmeter`]utility.
+*`HALSHOW`*::
+  Starts LinuxCNC
+  link:../hal/halshow.html#cha:halshow[`halshow`] utility.
+*`HALSCOPE`*::
+  Starts LinuxCNC
+  link:../hal/tutorial.html#sec:tutorial-halscope[`halscope`] utility.
+*`STATUS`*::
+  Starts LinuxCNC
+  link:../man/man1/linuxcnctop.1.html[`status`] utility.
+*`CALIBRATION`*::
+  Starts LinuxCNC
+  link:../getting-started/updating-linuxcnc.html#_calibration_emccalib_tcl[calibration]
+  utility.
+*`CLASSICLADDER`*::
+  Starts the
+  link:../ladder/classic-ladder.html[ClassicLadder GUI] if the
+  _ClassicLadder realtime HAL component_ was loaded by the machine's config
+  files.
+*`PREFERENCE`*::
+  _Loads the preference file_ into the `gcodeEditor`.
+*`CLEAR HISTORY`*::
+  _Clears the MDI History_.
+*`net`*::
+  See link:../man/man1/halcmd.1.html#COMMANDS[`halcmd net` commands]. +
   An error will result if the command is unsuccessful.
-** _Syntax_: `net <signal name> <pin name>`
-** __Example__: `net plasmac:jog-inhibit motion.jog-stop`
-* `setp` - Sets the value of a pin or a parameter. Valid values depend
-  on the object type of the pin or parameter. An error will result if
-  the data types do not match or the pin is connected to a signal.
-** _Syntax_: `setp <pin/parameter-name> <value>`
-** __Example__: `setp plasmac.resolution 100`
-* `unlinkp` - Disconnects a pin from a signal. An error will result
-  if the pin does not exist. Running LinuxCNC from terminal
-  may help determine the root cause as error messages from hal_lib.c
-  will be displayed there.
-** _Syntax_: `unlinkp <pin name>`
-** __Example__: `unlinkp motion.jog-stop`
+  * _Syntax_: `net <signal name> <pin name>`
+  * __Example__: `net plasmac:jog-inhibit motion.jog-stop`
+*`setp`*::
+  _Sets the value of a pin or a parameter_. +
+  Valid values depend on the object type of the pin or parameter. +
+  It results in an error if the data types do not match or the pin is
+  connected to a signal.
+  * _Syntax_: `setp <pin/parameter-name> <value>`
+  * _Example_: `setp plasmac.resolution 100`
+*`unlinkp`*::
+  _Disconnects a pin from a signal_. +
+  An error will result if the pin does not exist. +
+  Running LinuxCNC from terminal may help determine the root cause as
+  error messages from `hal_lib.c` will be displayed there.
+  * _Syntax_: `unlinkp <pin name>`
+  * __Example__: `unlinkp motion.jog-stop`
 
-Note that the MDILine function "spindle_inhibit" can be used by a GUI's
-handler file to inhibit M3, M4, and M5 spindle commands if necessary.
+NOTE: The `MDILine` function *`spindle_inhibit`* can be used by a GUI's
+handler file to inhibit `M3`, `M4`, and `M5` spindle commands if
+necessary.
 
-It is based on PyQt's QLineEdit.
+It is based on PyQt's _QLineEdit_.
 
-=== MDIHistory
+[[sub:qtvcp:widgets:mdihistory]]
+=== `MDIHistory` - MDI Commands History Widget
 
-Displays a scrollable list of past MDI command.
-A edit line is embedded for MDI commands.
-The same MDILine embedded commands may be accessed from this Widget.
+//TODO MDIHistory widget capture
+//TODO Merge MDILine and MDIHistory sections ?
 
-The history is recorded in a file defined in the INI.
-under the heading [DISPLAY] (this shows the default)
+Displays a *scrollable list of past MDI command*.
+
+An edit line is embedded for MDI commands.
+
+The same MDILine embedded commands may be accessed from this widget.
+
+The history is _recorded on a file defined in the INI_ under the heading
+`[DISPLAY]` (this shows the default):
 
 [source,{ini}]
 ----
 MDI_HISTORY_FILE = '~/.axis_mdi_history'
 ----
 
-=== MDITouchy
+[[sub:qtvcp:widgets:mditouchy]]
+=== `MDITouchy` - Touch Screen MDI Entry Widget
 
-.MDI Touchy
-image::images/qtvcp_mdiTouchy.png["QtVCP MDI Touchy",scale="25%"]
+.QtVCP `MDITouchy`: Touch Screen MDI Entry Widget
+image::images/qtvcp_mdiTouchy.png["QtVCP MDITouchy: Touch Screen MDI Entry Widget",scale="25%"]
 
-This widget display button and entry lines for use with entering MDI
-commands.
-It is based on Linuxcnc's Touchy screen's MDI entry process.
-It's large buttons are most useful for touch screens.
+This widget displays *buttons and entry lines to use for entering MDI
+commands*.
 
-To use MDITouchy, first press one of the 'G/XY', 'G/RO', 'M' or 'T'
-button.
-On the left, will show the current line that can be filled out, then
-press 'Next' for the next line.
-'Calc' will pop up a calculator dialog.
-'Clear' clears th ecurrent entry.
-'Back' allows you to change previous line entries.
+Based on LinuxCNC's Touchy screen's MDI entry process, its large
+buttons are most useful for touch screens.
 
-The widget requires an explicied call to MDITouchu's Python code to
-actually run the MDI command
-For handler file code: if the widget was named mditouchy in designer,
-this command would
-run the displayed MDI command.
+To use `MDITouchy`:
 
+* First press one of the `G/XY`, `G/RO`, `M` or `T` button.
+  On the left will show the entry fields that can be filled out,
+* Then press `Next` and `Back` to navigate between fields.
+* `Calc` will pop up a calculator dialog.
+* `Clear` clears the ecurrent entry.
+* `Set Tool` FIXME
+* `Set Origin` FIXME
+* `Macro` FIXME
+
+The widget _requires an explicit call to MDITouchy Python code to
+actually run the MDI command_:
+
+* *For handler file code* +
+  If the widget was named 'mditouchy' in Qt Designer, the command below
+  would run the displayed MDI command:
++
 [source,python]
 ----
 self.w.mditouchy.run_command()
 ----
 
-For action button use: if the widget was named mditouchy in designer,
-use the action button's 'Call Python commands' option and enter:
-
+* *For action button use* +
+  If the widget was named 'mditouchy' in Qt Designer, use the action
+  button's 'Call python commands' option and enter:
++
 [source,python]
 ----
 INSTANCE.mditouchy.run_command()
 ----
 
-The macro button will cycle though macro's defined in the INI heading
-[DISPLAY] add one or more 'MACRO = ' lines.  Each should be of the
-format:
+The macro button _cycles though macros defined in the INI [DISPLAY] heading_.
+
+Add one or more `MACRO` lines of the following format:
 
 [source,{ini}]
 ----
-MACRO = increment xinc yinc
+MACRO = macro_name [param1] [... paramN]
 ----
 
-In this example, increment is the name of the macro, and it accepts two
-parameters, named xinc and yinc.
+In the example below, `increment` is the name of the macro, and it
+accepts two parameters, named `xinc` and `yinc`.
 
-Now, place the macro in a file named 'increment.ngc', in the
-'PROGRAM_PREFIX' directory or any directory in the 'SUBROUTINE_PATH'.
-(specified in the INI file)
+[source,{ini}]
+----
+MACRO = incerment xinc yinc
+----
 
-It should look like:
+Now, place the macro in a file named `macro_name.ngc`, in the
+`PROGRAM_PREFIX` directory, or any directory in the `SUBROUTINE_PATH`
+specified in the INI file.
+
+Keeping on with the example above, it would be named `increment.ngc` and
+its content could look like:
 
 [source,{ngc}]
 ----
@@ -1758,16 +2083,17 @@ G90
 O<increment> endsub
 ----
 
-Notice the name of the sub matches the file name and macro name exactly,
+Notice the _name of the sub matches the file name and macro name exactly_,
 including case.
 
-When you invoke the macro by pressing the Macro button
-you can enter values for xinc and yinc.  These are
-passed to the macro as '#1' and '#2' respectively.  Parameters you
-leave empty are passed as value 0.
+When you invoke the macro by pressing the Macro button you can enter
+values for parameters (`xinc` and `yinc` in our example). +
+These are passed to the macro as positional parameters: `#1`, `#2`...
+`#N` respectively. +
+Parameters you leave empty are passed as value `0`.
 
-If there are several different macros, press the Macro button
-repeatedly to cycle through them.
+If there are several different macros, press the Macro button repeatedly
+to cycle through them.
 
 In this simple example, if you enter -1 for xinc and invoke the running
 of the MDI cycle, a rapid 'G0' move will be invoked, moving one unit to
@@ -1778,85 +2104,115 @@ tasks, as well as perhaps hole milling or other simple operations
 that can be done from the panel without requiring specially-written
 G-code programs.
 
-=== OriginOffsetView Widget
+[[sub:qtvcp:widgets:originoffsetview]]
+=== `OriginOffsetView` - Origins View and Setting Widget
 
-.origin Offset View
-image::images/qtvcp_originoffsetview.png["QtVCP Origin Offset View"]
+.QtVCP `OriginOffsetsView`: Origins View and Setting Widget
+image::images/qtvcp_originoffsetview.png["QtVCP OriginOffsetsView: Origins View and Setting Widget"]
 
-This widget allows one to modify User System origin offsets directly
-It will update LinuxCNC's Parameter file for changes made or found.
+This widget allows one to *visualize and modify User System Origin offsets*
+directly.
+
+It will _update LinuxCNC's Parameter file_ for changes made or found.
+
 The settings can only be changed in LinuxCNC after homing and
 when the motion controller is idle.
+
 The display and entry will change between metric and imperial based
-on LinuxCNC's current G20/G21 setting.
-The current in-use user system will be highlighted
-Extra actions can be integrated to manipulate settings.
-These actions depend on extra code added either to a combined widget
-like originoffsetview dialog or the screens handler code.
-Typical actions might be 'Clear Current User offsets', 'Zero X'
+on LinuxCNC's _current_ `G20` / `G21` setting.
+
+The current in-use user system will be highlighted.
+
+Extra actions can be integrated to manipulate settings. +
+These actions depend on extra code added either to a combined widget,
+like `originoffsetview` dialog, or the screens handler code. +
+Typical actions might be 'Clear Current User offsets' or 'Zero X'.
+
 Clicking on the columns and rows allows one to adjust the settings.
+
 A dialog can be made to popup for data or text entry.
+
 The comments section will be recorded in the preference file.
 
-It is based on PyQt's QTableView, QAbstractTableModel, and
-ItemEditorFactory.
+It is based on PyQt's _QTableView_, _QAbstractTableModel_, and
+_ItemEditorFactory_. +
 Properties, functions and styles of the PyQt base objects are always
 available.
 
-==== Properties
+.Properties
+`OriginOffsetView` has the following properties:
 
-OriginOffsetView has properties that can be set in designer, in Python
-handler code or (if appropriate) in stylesheets.
+*`dialog_code_string`*::
+  Sets which dialog will pop up with numerical entry.
+*`test_dialog_code_string`*::
+  Sets which dialog will pop up with text entry.
+*`metric_template`*::
+  Metric numerical data format.
+*`imperial_template`*::
+  Imperial numerical data format.
+*`styleCodeHighlight`*::
+  Current in-use user system highlight color.
 
-* dialog_code_string - sets which dialog will pop up with numerical
-  entry.
-* test_dialog_code_string - sets which dialog will pop up with text
-  entry.
-* metric_template - metric numerical data format.
-* imperial_template - imperial numerical data format.
-* styleCodeHighlight - current in-use user system highlight color.
+These can be set in:
 
-ie. in the handler file:
-
+* Qt Designer, in
+* Python handler code
++
 [source,python]
 ----
 self.w.originoffsetview.setProperty('dialog_code','CALCULATOR')
 self.w.originoffsetview.setProperty('metric_template','%10.3f')
 ----
-
-ie. In style sheets:
-
+* Or (if appropriate) in stylesheets
++
+[source,{css}]
 ----
 OriginOffsetView{
   qproperty-styleColorHighlist: lightblue;
 }
 ----
 
-=== State Enable Gridlayout Widgets
+[[sub:qtvcp:widgets:stateenablegridlayout]]
+=== `StateEnableGridlayout` - Controller State Enabled Container Widget
 
-This is a container that other widgets can be placed in.
-It will 'grey-out' (disable) the widgets inside it depending on
-LinuxCNC's current state.
+//TODO StateEnableGridlayout widget capture/example
+
+ _disable the widgets inside it depending on
+LinuxCNC's current state_.
+
+This is a *container that other widgets can be placed in*.
+
+Embedded widgets are be greyed-out when the `StateEnableGridlayout` is
+disabled.
+
 It can selectably react to:
 
-* machine on
-* interpreter idle
-* estop off
-* all-homed
+* Machine on
+* Interpreter idle
+* Estop off
+* All-homed
 
-It is based on PyQt's QGridLayout
+It is based on PyQt's _QGridLayout_.
 
-=== MachineLog
+[[sub:qtvcp:widgets:machinelog]]
+=== `MachineLog` - Machine Events Journal Display Widget
 
-It is based on PyQt's
+//TODO MachineLog widget capture/example
+FIXME MachineLog documentation
 
-=== JointEnableWidget
+[[sub:qtvcp:widgets:jointenabledwidget]]
+=== `JointEnableWidget` - FIXME
 
-It is based on PyQt's
+//TODO JointEnableWidget widget capture/example
+FIXME JointEnableWidget documentation
 
-=== StatusImageSwitcher
+[[sub:qtvcp:widgets:statusimageswitcher]]
+=== `StatusImageSwitcher` - Controller Status Image Switching Widget
 
-This widget will display images based on LinuxCNC status.
+//TODO StatusImageSwitcher widget capture/example
+
+This widget will *display images based on LinuxCNC status*.
+
 You can watch:
 
 * the state of the spindle.
@@ -1864,20 +2220,22 @@ You can watch:
 * the state of a certain axis homed
 * the state of hard limits
 
-It is based on PyQt's
+It is based on PyQt's FIXME
 
-=== FileManager
+[[sub:qtvcp:widgets:filemanager]]
+=== `FileManager` - File Loading Selector Widget
 
-.FileManager
-image::images/qtvcp_fileManager.png["QtVCP File Manager Widget",scale="25%"]
+.QtVCP `FileManager`: File Loading Selector Widget
+image::images/qtvcp_fileManager.png["QtVCP FileManager: File Loading Selector Widget",scale="25%"]
 
-This widget is used to select files to load.
+This widget is used to *select files to load*.
+
 It has a the ability to scroll the names with hardware such as a MPG.
 
-one can class patch the function 'load(self,fname):' to customize file
+One can class patch the function `load(self,fname)` to customize file
 loading.
 
-the function 'getCurrentSelected()' will return a Python tuple,
+The function `getCurrentSelected()` will return a python tuple,
 containing the file path and whether it's a file.
 
 [source,python]
@@ -1888,54 +2246,71 @@ if temp[1]:
     print('Is a file')
 ----
 
-It is based on PyQt's
+It is based on PyQt's FIXME
 
-=== RadioAxisSelector
+[[sub:qtvcp:widgets:radioaxisselector]]
+=== `RadioAxisSelector` - FIXME
 
-It is based on PyQt's
+//TODO RadioAxisSelector widget capture/example
+FIXME RadioAxisSelector documentation
 
-=== ToolOffsetView
+[[sub:qtvcp:widgets:tooloffsetview]]
+=== `ToolOffsetView` - Tools Offsets View And Edit Widget
 
-.Tool Offset View
-image::images/qtvcp_tooloffsetview.png["QtVCP Tool Offset View"]
+.QtVCP `ToolOffsetView`: Tools Offsets View And Edit Widget
+image::images/qtvcp_tooloffsetview.png["QtVCP ToolOffsetView: Tools Offsets View And Edit Widget"]
 
-This widget will display and allows one to modify tool offsets
-It will update LinuxCNC's tool table for changes made or found.
+This widget *displays and allows one to modify tools offsets*.
+
+It will _update LinuxCNC's tool table_ for changes made or found.
+
 The tool settings can only be changed in LinuxCNC after homing and
 when the motion controller is idle.
+
 The display and entry will change between metric and imperial based
-on LinuxCNC's current G20/G21 setting.
-The current in-use tool will be highlighted
-The current selected tool will be highlighted in a different color.
-The checkbox beside each tool can be used to select a tool(s) for an
-action.
-This action depends on extra code added either to a combined widget like
-tooloffsetview dialog or the screens handler code.
-Typical actions are 'load selected tool', 'delete selected tools'
+on LinuxCNC's _current_ `G20`/`G21` setting.
+
+The current in-use tool will be highlighted, and the current selected
+tool will be highlighted in a different color.
+
+The checkbox beside each tool can be used to select too for an
+_action_ that depends on extra code added either to a combined widget
+like the `toolOffsetView` dialog or the screens handler code. +
+Typical actions are 'load selected tool', 'delete selected tools', etc.
+
 Clicking on the columns and rows allows one to adjust the settings.
+
 A dialog can be made to popup for data or text entry.
+
 The comments section will typically be displayed in the manual tool
 change dialog.
-If using a lathe configuration, there can be columns for X and Z wear.
-To use these columns to adjust the tool for wear, requires a remapped
+
+If using a _lathe configuration_, there can be columns for X and Z wear.
+
+To use these columns to adjust the _tool wear_, it requires a remapped
 tool change routine.
 
-It is based on PyQt's QTableView, QAbstractTableModel, and
-ItemEditorFactory.
+It is based on PyQt's _QTableView_, _QAbstractTableModel_, and
+_ItemEditorFactory_. +
 Properties, functions and styles of the PyQt base objects are always
 available.
 
-==== Properties
+.Properties
+`ToolOffsetView` has properties that can be set in Qt Designer, in
+Python handler code or (if appropriate) in stylesheets:
 
-ToolOfsetView has properties that can be set in designer, in Python
-handler code or (if appropriate) in stylesheets.
-
-* dialog_code_string - sets which dialog will pop up with numerical entry.
-* test_dialog_code_string - sets which dialog will pop up with text entry.
-* metric_template - metric numerical data format.
-* imperial_template - imperial numerical data format.
-* styleCodeHighlight - current tool-in-use highlight color.
-* styleCodeSelected - selected highlight color
+*`dialog_code_string`*::
+  Sets which dialog will pop up with numerical entry.
+*`test_dialog_code_string`*::
+  Sets which dialog will pop up with text entry.
+*`metric_template`*::
+  Metric numerical data format.
+*`imperial_template`*::
+  Imperial numerical data format.
+*`styleCodeHighlight`*::
+  Current tool-in-use highlight color.
+*`styleCodeSelected`*::
+  Selected highlight color.
 
 ie. In handler file:
 
@@ -1946,23 +2321,29 @@ self.w.tooloffsetview.setProperty('metric_template','%10.3f')
 ----
 
 ie. In style sheets:
+
+[source,{css}]
 ----
 ToolOffsetView{
-    qproperty-styleColorHighlist: lightblue;
-    qproperty-styleColorSelected: #444;
+  qproperty-styleColorHighlist: lightblue;
+  qproperty-styleColorSelected: #444;
 }
 ----
 
-==== Functions
+.Functions
+`ToolOffsetView` has some functions useful for screen builders to add
+actions:
 
-ToolOffsetView has some function that are useful for screen builders
-to add actions.
+*`add_tool()`*::
+  Adds a blank dummy tool (99) that the user can edit to suit.
+*`delete_tools()`*::
+  Deletes the currently checkbox selected tools.
+*`get_checked_list()`*::
+  Returns a list of tools selected by checkboxs.
+*`set_all_unchecked()`*::
+  Uncheck all selected tools.
 
-* add_tool() - adds a blank dummy tool (99) that the user can edit to
-  suit.
-* delete_tools() - deletes the currently checkbox selected tools
-* get_checked_list() - returns a list of tools selected by checkboxes.
-* set_all_unchecked() - uncheck all selected tools.
+ie. In handler file:
 
 [source,python]
 ----
@@ -1972,126 +2353,165 @@ toolList = self.w.tooloffsetview.get_checked_list()
 self.w.tooloffsetview.set_all_unchecked()
 ----
 
-=== BasicProbe
+[[sub:qtvcp:widgets:basicprobe]]
+=== `BasicProbe` - Simple Mill Probing Widget
 
-.BasicProbe
-image::images/qtvcp_basicProbe.png["QtVCP basicProbe widget",scale="25%"]
+.QtVCP `BasicProbe`: Simple Mill Probing Widget
+image::images/qtvcp_basicProbe.png["QtVCP BasicProbe: Simple Mill Probing Widget",scale="25%"]
 
-Widget for probing on a mill. Used by the QtDragon screen.
+Widget for *probing on a mill*.
+
+Used by the _QtDragon_ screen.
 
 
+[[sec:qtvcp:widgets:dialog]]
 == Dialog Widgets
 
-Dialogs are used to present or request immediately required information
+Dialogs are used to *present or request immediately required information*
 in a focused way.
-The typical used dialogs can be loaded using the screenoptions widget.
-You can also add them directly to the ui - but each dialog must have a
+
+The typical used dialogs can be loaded using the `ScreenOptions` _widget_.
+
+You can also add them directly to the _UI_ - but each dialog must have a
 unique launch name or you will see multiple dialogs displayed, one after
 another.
-You can show dialogs directly with Python code but a safer way is to use
-STATUS messages to request the dialog to launch and to return the
-gathered information.
 
-To set this up first register to catch the 'general' message from STATUS:
+.Use dialogs from Python Code
+You can show dialogs directly with _Python code_ but a safer way is to
+*use `STATUS` messages* to request the dialog to launch and to return
+the gathered information.
 
+* *Register to `STATUS` channel*: +
+  To set this up, first register to catch the `general` message from
+  `STATUS`:
++
 [source,python]
 ----
 STATUS.connect('general',self.return_value)
 ----
 
-Add a function to call a dialog:
-This function must build a message DICT to send to the dialog.
-This message will be passed back in the general message with the addition
-of the RETURN variable. It is possible to add extra user information to
-the message.
-The dialog will ignore these and pass them back.
-'NAME' = launch code name of dialog to show.
-'ID' = a unique id so we process only a dialog that we requested.
-'TITLE' = the title to use on the dialog
+* *Add a function to call a dialog*: +
+  This function must _build a message `dict` to send to the dialog_. +
+  This message will be passed back in the general message with the
+  addition of the _`return` variable_. +
+  It is possible to add _extra user information_ to the message. The
+  dialog will ignore these and pass them back.
+  `NAME`::
+    Launches code name of dialog to show.
+  `ID`::
+    A unique id so we process only a dialog that we requested.
+  `TITLE`::
+    The title to use on the dialog.
 
++
 [source,python]
 ----
-        def show_dialog(self):
-            mess = {'NAME':'ENTRY','ID':'__test1__',
-                    'TITLE':'Test Entry'}
-            ACTION.CALL_DIALOG, mess)
+def show_dialog(self):
+    mess = {'NAME':'ENTRY','ID':'__test1__',
+            'TITLE':'Test Entry'}
+    ACTION.CALL_DIALOG, mess)
 ----
 
-Add a callback function that processes the general message:
-This function should check the the name and id is the same as
-we sent, then it can extract the return value and any user variables.
-Keep in mind this function will get all general messages so the DICT
-keynames are not guaranteed to be there. Using the .get() function and
-or using try/except is advisable.
+* *Add a callback function that processes the general message*: +
+  Keep in mind this function will _get all general messages_ so the
+  `dict` keynames are not guaranteed to be there. +
+  Using the `.get()` function and/or using `try`/`except` is advisable. +
+  This function should:
+  ** check the name and id is the same as we sent,
+  ** then extract the return value and any user variables.
 
++
 [source,python]
 ----
-    # process the STATUS return message
-    def return_value(self, w, message):
-        rtn = message.get('RETURN')
-        code = bool(message.get('ID') == '__test1__')
-        name = bool(message.get('NAME') == 'ENTRY')
-        if code and name and not rtn is None:
-            print('Entry return value from {} = {}'.format(code, rtn))
+# process the STATUS return message
+def return_value(self, w, message):
+    rtn = message.get('RETURN')
+    code = bool(message.get('ID') == '__test1__')
+    name = bool(message.get('NAME') == 'ENTRY')
+    if code and name and not rtn is None:
+        print('Entry return value from {} = {}'.format(code, rtn))
 ----
 
+[[sub:qtvcp:widgets:lcncdialog]]
+=== `LcncDialog` - General Message Dialog Widget
 
-=== Lcnc_Dialog
+//TODO LcncDialog widget capture
 
-This is a general message dialog widget.
-If there is an Focus Overlay widget present, it can signal it to display.
-If the sound library is set up it can play sounds.
-There are options that can be set when requesting a dialog, these would
-be added to the message dict.
+This is a *general message dialog widget*.
 
-* 'TITLE': 'Attention'      -Title of the dialog window
-* 'MESSAGE': 'your text'    -Title message text in bold
-* 'MORE': 'your more text' - standard text under the heading
-* 'DETAILS': 'hidden text' - initial hidden text
-* 'TYPE': 'OK' - type can be 'OK', 'YESNO', 'OKCANCEL'
-* 'ICON': 'INFO' - icon can be 'QUESTION','INFO','CRITICAL','WARNING'
-* 'PINNAME' - not implemented yet
-* 'FOCUSTEXT':None - text to display if focus overlay is used. Use None for no text.
-* 'FOCUSCOLOR':QColor(0, 0, 0, 150) - color to use if focus overlay is used
-* 'PLAYALERT':'SPEAK alert!'- sound to play if sound is available
+If there is a Focus Overlay widget present, it can signal it to display.
 
-When using STATUS's 'request-dialog' function, the default launch name
-is 'MESSAGE'.
+If the sound library is set up it can _play sounds_.
 
-It is based on PyQt's QMessagebox.
+There are _options_ that can be set when requesting a dialog, these would
+be added to the message `dict`.
 
-=== Dialog Tool Change Widget
+*`TITLE`*::
+  Title of the dialog window.
+*`MESSAGE`*::
+  Title message text in bold.
+*`MORE`*::
+  Standard text under the heading.
+*`DETAILS`*::
+  Initial hidden text.
+*`TYPE`* _(`OK`|`YESNO`|`OKCANCEL`)_::
+*`ICON`* (`QUESTION`|`INFO`|`CRITICAL`|`WARNING`)::
+*`PINNAME`*::
+  Not implemented yet.
+*`FOCUSTEXT`* _(overlay text|`None`)_::
+  Text to display if focus overlay is used.
+  Use None for no text.
+*`FOCUSCOLOR`* (`QColor(_R, G, B, A_)`)::
+  Color to use if focus overlay is used.
+*`PLAYALERT`*::
+  Sound to play if sound is available. +
+  ie `SPEAK` _<spoken_message>_
 
-.Manual Tool Change
-image::images/qtvcp_toolChange.png["QtVCP Manual Tool Change Dialog",scale="25%"]
+When using `STATUS` 's `request-dialog` function, the _default launch name_
+is *`MESSAGE`*.
 
-This is used as a manual tool change prompt.
-It has HAL pins to connect to the machine controller.
+It is based on PyQt's _QMessagebox_.
+
+[[sub:qtvcp:widgets:tooldialog]]
+=== `ToolDialog` - Manual Tool Change Dialog Widget
+
+.QtVCP `ToolDialog`: Manual Tool Change Dialog
+image::images/qtvcp_toolChange.png["QtVCP ToolDialog: Manual Tool Change Dialog",scale="25%"]
+
+This is used as a *manual tool change prompt*.
+
+It has _HAL pins to connect to the machine controller_. +
 The pins are named the same as the original AXIS manual tool prompt and
 works the same.
-the tool change dialog can only be launched by HAL pins.
+
+The tool change dialog _can only be launched by HAL pins_.
+
 If there is a Focus Overlay widget present, it will signal it to display.
 
-It is based on PyQt's QMessagebox.
+It is based on PyQt's _QMessagebox_.
 
-=== Dialog File Chooser Widget
+[[sub:qtvcp:widgets:filedialog]]
+=== `FileDialog` - Load and Save File Chooser Dialog Widget
 
-.File Dialog
-image::images/qtvcp_fileDialog.png["QtVCP file dialog",scale="25%"]
+.QtVCP `FileDialog`: Load and Save File Chooser Widget
+image::images/qtvcp_fileDialog.png["QtVCP FileDialog: Load and Save File Chooser Widget",scale="25%"]
 
-This is used to load G-code files.
+This is used to *load G-code files*.
+
 If there is a Focus Overlay widget present, it will signal it to display.
-When using STATUS's 'request-dialog' function, the default launch names
-are 'LOAD' or 'SAVE'.
 
-There are options that can be set when requesting a dialog, these would
-be added to the message dict.
+When using `STATUS` 's `request-dialog` function, the default launch names
+are *`LOAD`* or *`SAVE`*.
 
-* EXTENSIONS
-* FILENAME
-* DIRECTORY
+There are _options_ that can be set when requesting a dialog, these would
+be added to the message dict:
 
-An example Python call, for a load dialog:
+*`EXTENSIONS`*::
+*`FILENAME`*::
+*`DIRECTORY`*::
+// end definition list
+
+An example Python call, for a _load dialog_:
 
 [source,python]
 ----
@@ -2103,7 +2523,7 @@ mess = {'NAME':'LOAD','ID':'_MY_DIALOG_',
 ACTION.CALL_DIALOG(mess)
 ----
 
-And for saving
+And for a _save dialog_
 
 [source,python]
 ----
@@ -2115,155 +2535,201 @@ mess = {'NAME':'SAVE','ID':'_MY_DIALOG_',
 ACTION.CALL_DIALOG(mess)
 ----
 
-It is based on PyQt's QMessagebox.
+It is based on PyQt's _QMessagebox_.
 
-=== Dialog Origin Offset Widget
+[[sub:qtvcp:widgets:originoffsetdialog]]
+=== `OriginOffsetDialog` - Origin Offset Setting Dialog Widget
 
-.Offsets
-image::images/qtvcp_offsetpage.png["QtVCP origin Offset Page",scale="25%"]
+.QtVCP `OriginOffsetDialog`: Origin Offset Setting Widget
+image::images/qtvcp_offsetpage.png["QtVCP OriginOffsetDialog: Origin Offset Setting Widget",scale="25%"]
 
-This widget allows one to modify User System origin offsets directly.
-It is in a dialog form.
+This widget allows one to *modify User System origin offsets directly*
+in a dialog form.
+
 If there is an Focus Overlay widget present, it will signal it to
 display.
-When using STATUS's 'request-dialog' function, the default launch name
-is 'ORIGINOFFSET'.
 
-It is based on PyQt's QDialog.
+When using `STATUS` 's `request-dialog` function, the default launch name
+is *`ORIGINOFFSET`*.
 
-=== Dialog tool Offset Widget
+It is based on PyQt's _QDialog_.
 
-.Tool Offsets
-image::images/qtvcp_toolOffset.png["QtVCP Tool Offset Page",scale="25%"]
+[[sub:qtvcp:widgets:tooloffsetdialog]]
+=== `ToolOffsetDialog` - Tool Offset Setting Dialog Widget
 
-This widget allows one to modify Tool offsets directly.
-It is in a dialog form.
+.QtVCP `ToolOffsetDialog`: Tool Offset Setting Dialog Widget
+image::images/qtvcp_toolOffset.png["QtVCP ToolOffsetDialog: Tool Offset Setting Dialog Widget",scale="25%"]
+
+This widget allows one to *modify Tool offsets directly* in a dialog
+form.
+
 If there is an Focus Overlay widget present, it will signal it to display.
-When using STATUS's 'request-dialog' function, the default launch name
-is 'TOOLOFFSET'.
 
-It is based on PyQt's QDialog.
+When using `STATUS` 's `request-dialog` function, the default launch name
+is *`TOOLOFFSET`*.
 
-=== Dialog MacroTab
+It is based on PyQt's _QDialog_.
 
-This is a dialog for displaying the macrotab widget.
-Macrotab displays a choice of macro programs to run using icons.
+[[sub:qtvcp:widgets:macrotabdialog]]
+=== `MacroTabDialog` - Macro Launch Dialog Widget
+
+//TODO MacroTab dialog capture
+
+This is a dialog to *display the macrotab widget*.
+
+`MacroTab` displays a _choice of macro programs to run using icons_.
+
 If there is a Focus Overlay widget present, it will signal it to display.
-When using STATUS's 'request-dialog' function, the default launch name
-is 'MACROTAB'.
 
-=== Dialog camview
+When using `STATUS` 's `request-dialog` function, the default launch name
+is *`MACROTAB`*.
 
-This is a dialog to display the camview object for Webcam part alignment.
-When using STATUS's 'request-dialog' function, the default launch name
-is 'CAMVIEW'.
-It is based on PyQt's QDialog.
+It is based on PyQt's _QDialog_.
 
-=== Dialog entry
+[[sub:qtvcp:widgets:camviewdialog]]
+=== `CamViewDialog` - WebCam Part Alignment Dialog Widget
 
-This is a dialog to display an edit line for information entry, such as
-origin offset.
-It returns the entry via STATUS messages using a Python dict.
-The DICT contains at minimum, the name of the dialog requested and an id
+//TODO CamView dialog capture
+
+This is a dialog to *display the CamView widget for Webcam part alignment*.
+
+When using `STATUS` 's `request-dialog` function, the default launch name
+is *`CAMVIEW`*.
+
+It is based on PyQt's _QDialog_.
+
+[[sub:qtvcp:widgets:entrydialog]]
+=== `EntryDialog` - Edit Line Dialog Widget
+
+//TODO EntryDialog dialog capture
+
+This is a dialog to *display an edit line for information entry*, such
+as origin offset.
+
+It returns the entry via `STATUS` messages using a Python `DICT`.
+
+The `DICT` contains at minimum, the name of the dialog requested and an id
 code.
-When using STATUS's 'request-dialog' function, the default launch name
-is 'ENTRY'.
 
-It is based on PyQt's QDialog
+When using `STATUS` 's `request-dialog` function, the default launch name
+is *`ENTRY`*.
 
-=== Dialog Calculator
+It is based on PyQt's _QDialog_.
 
-.Calculator
-image::images/qtvcp_calculator.png["QtVCP Calculator",scale="25%"]
+[[sub:qtvcp:widgets:calculatordialog]]
+=== `CalculatorDialog` - Calculator Dialog Widget
 
-This is a dialog to display a calculator for numeric entry, such as
+.QtVCP `CalculatorDialog`: Calculator Dialog Widget
+image::images/qtvcp_calculator.png["QtVCP CalculatorDialog: Calculator Dialog Widget",scale="25%"]
+
+This is a dialog to *display a calculator for numeric entry*, such as
 origin offset.
-It returns the entry via STATUS messages using a Python dict.
-The DICT contains at minimum, the name of the dialog requested and an
+
+It returns the entry via `STATUS` messages using a Python `DICT`.
+
+The `DICT` contains at minimum, the name of the dialog requested and an
 id code.
-When using STATUS's 'request-dialog' function, the default launch name
-is 'CALCULATOR'.
-It is based on PyQt's QDialog.
 
-=== Dialog Run From Line
+When using `STATUS` 's `request-dialog` function, the default launch name
+is *`CALCULATOR`*.
 
-.Run-from-line Dialog
-image::images/qtvcp_runFromLine.png["QtVCP Run-from-line",scale="25%"]
+It is based on PyQt's _QDialog_.
 
-Dialog to preset  spindle settings before running a program from a
-specific line.
+[[sub:qtvcp:widgets:runfromlinedialog]]
+=== `RunFromLine` - Run-From-Line Dialog Widget
 
-=== Dialog VersaProbe
+.QtVCP `RunFromLine`: Run-From-Line Dialog Widget
+image::images/qtvcp_runFromLine.png["QtVCP RunFromLine: Run-From-Line Dialog Widget",scale="25%"]
 
-.Versa Probe Dialog
-image::images/qtvcp_versaProbe.png["QtVCP Versa Probe",scale="25%"]
+Dialog to *preset spindle settings before running a program from a
+specific line*.
 
-This is a dialog to display A probing screen based on Versa Probe.
-It is based on PyQt's QDialog
+It is based on PyQt's _QDialog_.
 
-=== Dialog MachineLogDialog
+[[sub:qtvcp:widgets:versaprobedialog]]
+=== `VersaProbeDialog` - Part Touch Probing Dialog Widget
 
-.Machine Log Dialog
-image::images/qtvcp_machineLog.png["QtVCP MachineLog Dialog",scale="25%"]
+.QtVCP `VersaProbeDialog`: Part Touch Probing Dialog Widget
+image::images/qtvcp_versaProbe.png["QtVCP VersaProbeDialog: Part Touch Probing Dialog Widget",scale="25%"]
 
-This is a dialog to display the user machine log and qtvcp's debugging
-log.
-It is based on PyQt's QDialog
+This is a dialog to display a *part probing screen based on Versa Probe*.
 
-== Other
+It is based on PyQt's _QDialog_.
 
-Other available widgets
+[[sub:qtvcp:widgets:machinelogdialog]]
+=== `MachineLogDialog` - Machine and Debugging Logs Dialog Widget
 
-=== Nurbs Editor
+.QtVCP `MachineLogDialog`: Machine and Debugging Logs Dialog Widget
+image::images/qtvcp_machineLog.png["QtVCP MachineLogDialog: Machine and Debugging Logs Dialog Widget",scale="25%"]
 
-.Nurbs Editor
-image::images/qtvcp_nurbsEditor.png["QtVCP nurbs editor",scale="25%"]
+This is a dialog to *display the machine log and QtVCP's debugging log*.
 
-The Nurbs editor allows you to manipulate a nurbs based geometry on
-screen and then
-convert this to G-code. you can edit the G-code on screen and then send
-it to LinuxCNC.
+It is based on PyQt's _QDialog_.
 
-=== JoyPad
+[[sec:qtvcp:widgets:other]]
+== Other Widgets
 
-It is the base class for the HALPad widget.
-This widget looks and acts like a 5 button D-pad, with an LED like
-indicators in a ring.
+Other available widgets:
+
+[[sub:qtvcp:widgets:nurbseditor]]
+=== `NurbsEditor` - NURBS Editing Widget
+
+.QtVCP `NurbsEditor`: NURBS Editing Widget
+image::images/qtvcp_nurbsEditor.png["QtVCP NurbsEditor: NURBS Editing Widget",scale="25%"]
+
+The Nurbs editor allows you to *manipulate a NURBS based geometry* on
+screen and then *convert NURBS to G-code*.
+
+You can edit the G-code on screen and then send it to LinuxCNC.
+
+It is based on PyQt's _QDialog_.
+
+[[sub:qtvcp:widgets:joypad]]
+=== `JoyPad` - 5 button D-pad Widget
+
+//TODO JoyPad widget capture
+
+It is the base class for the `HALPad` widget.
+
+This widget looks and acts like a *5 button D-pad, with a LED like
+indicators in a ring*.
+
 You can put text or icons in each of the button positions.
-You can connect to output signals when the buttons are pressed.
-There are also input slots to change the color of the indicator(s).
 
-==== ENUMS
+You can _connect to output signals_ when the buttons are pressed.
 
-There are enumerated constants used to reference indicator positions.
-They are used in the Designer editor's property editor or used if using
-Python code.
+There are also _input slots_ to change the color of the indicator(s).
 
-----
-NONE
-LEFT
-RIGHT
-CENTER
-TOP
-BOTTOM
-LEFTRIGHT
-TOPBOTTOM
-----
+.ENUMS
+There are *enumerated constants used to reference indicator positions*. +
+They are used in Qt Designer editor's property editor or in Python code.
 
-For Python handler code, you use the widget Designer name plus the
-reference constant.
+*`NONE`*::
+*`LEFT`, `L`*::
+*`RIGHT`, `R`*::
+*`CENTER`, `C`*::
+*`TOP`, `T`*::
+*`BOTTOM`, `B`*::
+*`LEFTRIGHT`, `X`*::
+*`TOPBOTTOM`, `A`*::
+
+For Python handler code, you use the widget name in Qt Designer plus the
+reference constant:
 
 [source,python]
 ----
 self.w.joypadname.set_highlight(self.w.joypadname.LEFT)
 ----
 
-==== Useful Override-able Functions
+.Useful Override-able Functions
 
-As coded they issue signals for the button pressed or released.
+As coded they _issue signals for the button pressed or released_.
+
+//FIXME Is this really clear ?
 On signal outputs a string code for the button, one signal outputs a
 bool value.
 
+[source,python]
 ----
 def _pressedOutput(self, btncode):
     self.joy_btn_pressed.emit(btncode)
@@ -2274,211 +2740,230 @@ def _releasedOutput(self, btncode):
     self['joy_{}_pressed'.format(btncode.lower())].emit(False)
 ----
 
-==== Callable Functions
-
-* 'reset_highlight()': +
+.Callable Functions
+*`reset_highlight()`*::
   Clears the highlight indicator.
-* 'set_highlight(button, state=True)': +
-  Set the highlight indicator in position 'button' to state 'state'
-  You can use strings letters (LRCTBXA) or position ENUMS for the button
-  argument.
-* 'set_button_icon(button, pixmap)': +
+*`set_highlight(_button_, state=_True_)`*::
+  Set the highlight indicator in position `button` to state `state`. +
+//FIXME Document "strings letters"
+  You can use _strings letters_ (`LRCTBXA`) or _position_ `ENUMS` for
+  the button argument.
+*`set_button_icon(_button_, _pixmap_)`*::
   Sets the button's icon pixmap.
-* 'set_button_text(button, text)': +
+*`set_button_text(_button_, _text_)`*::
   Sets the button's icon text.
-* 'set_tooltip(button, text)': +
-  Sets the buttons popup tooltip descriptive text.
-* 'setLight(state)':
-  Sets the highlight indicator to the true color or false color.
-  The set_highlight() function must be used prior to set the indicator
+*`set_tooltip(_button_, _text_)`*::
+  Sets the buttons pop-up tooltip descriptive text.
+*`setLight(_state_)`*::
+  Sets the highlight indicator to the `True` color or `False` color. +
+  The `set_highlight()` function must be used prior to set the indicator
   to use.
 
-==== signals
+.Signals
+These signals will be *sent when buttons are pressed*.
 
-These signals will be sent when buttons are pressed.
-They can be connected to in the Designer editor or Python code.
-The first two output a string the indicates the button pressed.
+They can be connected to in Qt Designer editor or Python code.
 
-----
-joy_btn_pressed = QtCore.pyqtSignal(str)
-joy_btn_released = QtCore.pyqtSignal(str)
-joy_l_pressed = QtCore.pyqtSignal(bool)
-joy_l_released = QtCore.pyqtSignal(bool)
-joy_r_pressed = QtCore.pyqtSignal(bool)
-joy_r_released = QtCore.pyqtSignal(bool)
-joy_c_pressed = QtCore.pyqtSignal(bool)
-joy_c_released = QtCore.pyqtSignal(bool)
-joy_t_pressed = QtCore.pyqtSignal(bool)
-joy_t_released = QtCore.pyqtSignal(bool)
-joy_b_pressed = QtCore.pyqtSignal(bool)
-joy_b_released = QtCore.pyqtSignal(bool)
-----
+The first two output a string that indicates the button pressed:
 
-==== slots
+*`joy_btn_pressed`* _(string)_::
+*`joy_btn_released`* _(string)_::
+*`joy_l_pressed`* _(bool)_::
+*`joy_l_released`* _(bool)_::
+*`joy_r_pressed`* _(bool)_::
+*`joy_r_released`* _(bool)_::
+*`joy_c_pressed`* _(bool)_::
+*`joy_c_released`* _(bool)_::
+*`joy_t_pressed`* _(bool)_::
+*`joy_t_released`* _(bool)_::
+*`joy_b_pressed`* _(bool)_::
+*`joy_b_released`* _(bool)_::
+// end definition list
 
-Slots can be connected to in the Designer editor or Python code.
+They are based on PyQt's  _Signal_ (`QtCore.pyqtSignal()`)
 
-----
-set_colorStateTrue()
-set_colorStateFalse()
-set_colorState(bool)
+.Slots
+Slots can be connected to in Qt Designer editor or Python code:
 
-set_true_color(str)
-set_true_color(qcolor)
+*`set_colorStateTrue()`*::
+*`set_colorStateFalse()`*::
+*`set_colorState(_bool_)`*::
 
-set_false_color(str)
-set_false_color(qcolor)
-----
+*`set_true_color(_str_)`*::
+*`set_true_color(_qcolor_)`*::
 
-==== Properties
+*`set_false_color(_str_)`*::
+*`set_false_color(_qcolor_)`*::
+// end definition list
 
-These can be set in stylesheets or Python code to change it's properties.
+.Properties
+These can be set in stylesheets or Python code:
 
-* 'highlightPosition': +
+*`highlightPosition`*::
   Set the indicator position.
-* 'setColorState': +
+*`setColorState`*::
   Select the color state of the indicator.
-* 'left_image_path':
-* 'right_image_path':
-* 'center_image_path':
-* 'top_image_path':
-* 'bottom_image_path': +
+*`left_image_path`*::
+*`right_image_path`*::
+*`center_image_path`*::
+*`top_image_path`*::
+*`bottom_image_path`*::
   A file path or resource path to an image to display in the described
-  button location.
-  If the reset button is pressed in the Designer editor property, the
-  image will not be displayed (allowing optionally text).
-* 'left_text':
-* 'right_text':
-* 'center_text':
-* 'top_text':
-* 'bottom_text': +
-  A text string to be displayed in the described button location.
+  button location. +
+  If the reset button is pressed in Qt Designer editor property, the
+  image will not be displayed. (allowing optionally text).
+*`left_text`*::
+*`right_text`*::
+*`center_text`*::
+*`top_text`*::
+*`bottom_text`*::
+  A text string to be displayed in the described button location. +
   If left blank an image can be designated to be displayed.
-* 'true_color':
-* 'false_color': +
+*`true_color`*::
+*`false_color`*::
   Color selection for the center LED ring to be displayed when the
-  'BASENAME.light.center' HAL pin is True or False.
-* 'text_color': +
+  `BASENAME.light.center` _HAL pin_ is `True` or `False`.
+*`text_color`*::
   Color selection for the button text.
-* 'button_font': +
+*`button_font`*::
   Font selection for the button text.
 
-===== StyleSheets
+The above properties could be set in:
 
-The above properties could be set in styles sheets.
-You would usually use the designer widget name with '#' to set individual
-widget properties, other wise you the class name 'JoyPad' to set all
-JoyPad widgets the same.
-
+* *Stylesheets*: +
+  You would usually use the Qt Designer widget name with `#` _prefix_ to
+  set individual widget properties, otherwise you would use the `JoyPad`
+  _class name_ to set all `JoyPad` widgets the same:
++
+[source,{css}]
 ----
 #joypadname{
-    qproperty-true_color: #000;
-    qproperty-false_color: #444;
+  qproperty-true_color: #000;
+  qproperty-false_color: #444;
 }
 ----
 
-===== Python Code
-
+* *In Python handler code*: +
++
 [source,python]
 ----
 self.w.joypadename.setProperty('true_color','green')
 self.w.joypadename.setProperty('false_color','red')
 ----
 
-== BaseClass/Mixin widgets
-These widgets are used combine different properties and behaviours into
-other widgets. You will seem them as a collapsible header in the Designer
- properties column.
 
-=== IndicatedPushButtons
-This class modifies QPushButton behaviour.
+[[sec:qtvcp:widgets:baseclass-mixin]]
+== BaseClass/Mixin Widgets
 
+These widgets are used *combine different properties and behaviours into other widgets*.
+
+You will see them as a collapsible header in the Qt Designer properties
+column.
+
+[[sub:qtvcp:widgets:indicatedpushbutton]]
+=== `IndicatedPushButtons`
+
+This class *modifies `QPushButton` behaviour*.
+
+[[sub:qtvcp:widgets:indicatedpushbutton:led]]
 ==== Indicator Option
-Indicator_option puts a 'LED' on the top of the button.
-It can be a triangle, circle, top bar or side bar.
-The size and position can be adjusted
-It will indicated the current state of the button, the state of a HAL
-pin or LinuxCNC status.
-Use properties to customized the indicator (not all are applicable to
-every LED shape).
 
-----
-on_color
-off_color
-indicator_size
-circle_diameter
-shape_option
-right_edge_offset
-top_edge_offset
-height_fraction
-width_fraction
-corner_radius
-----
+*`indicator_option`* _puts a 'LED' on the top of the button_.
 
-The LED indicator color can be defined in a stylesheet with the following
-code added to the .qss file.
+.QtVCP `PushButton`: Indicated Action Button, LED Indicator Option
+image::images/qtvcp_actionButton.png["QtVCP PushButton: Indicated Action Button, LED Indicator Option",scale="25%",align="center"]
 
+//FIXME Better document IndicatedPushButton
+// https://github.com/LinuxCNC/linuxcnc/blob/master/lib/python/qtvcp/widgets/simple_widgets.py#L317
+It can be a _triangle_, _circle_, _top bar_, or _side bar_. +
+The _size_ and _position_ can be adjusted.
+
+It will indicate:
+
+* the *current state of the button*, or
+* the *state of a HAL pin*, or
+* *LinuxCNC status*.
+
+.Properties
+These properties are available to customize the indicator (not all are
+applicable to every LED shape):
+
+*`on_color`*::
+*`off_color`*::
+*`indicator_size`*::
+*`circle_diameter`*::
+*`shape_option`*::
+*`right_edge_offset`*::
+*`top_edge_offset`*::
+*`height_fraction`*::
+*`width_fraction`*::
+*`corner_radius`*::
+  Indicator corner radius.
+
+The LED indicator color can be defined in a _stylesheet_ with the
+following code added to the `.qss` file:
+
+[source,{css}]
 ----
 Indicated_PushButton{
-    qproperty-on_color: #000;
-    qproperty-off_color: #444;
+  qproperty-on_color: #000;
+  qproperty-off_color: #444;
 }
 ----
 
-or for a particular button:
+Or for a particular button:
 
+[source,{css}]
 ----
 Indicated_PushButton #button_estop{
-    qproperty-on_color: black;
-    qproperty-off_color: yellow;
+  qproperty-on_color: black;
+  qproperty-off_color: yellow;
 }
 ----
 
-Indicated PushButtons have exclusive options:
+.Options
+`IndicatedPushButton` have *exclusive options*:
 
-* indicator_HAL_pin_option
-* indicator_status_option
+*`indicator_HAL_pin_option`*::
+  Adds a `halpin`, named `<buttonname>-led` that controls the button
+  indicator state.
+*`indicator_status_option`*::
+  Makes the LED indicate the state of these selectable LinuxCNC status:
++
+* _Is Estopped_
+* _Is On_
+* _All Homed_
+* _Is Joint Homed_
+* _Idle_
+* _Paused_
+* _Flood_
+* _Mist_
+* _Block Delete_
+* _Optional Stop_
+* _Manual_
+* _MDI_
+* _Auto_
+* _Spindle Stopped_
+* _Spindle Forward_
+* _Spindle Reverse_
+* _On Limits_
 
-Indicator_HAL_pin_option will add a halpin, using the button name +
-'-led', that controls the button indicator state.
++
+Some `indicator_status_options` holds a property that can be used with
+a _stylesheet_ to change the color of the button based on the state of
+the property in LinuxCNC. +
+Currently these status properties can be used to auto style buttons:
 
-indicator_status_option will make the LED indicate the state of these
-selectable LinuxCNC status:
+* `is_estopped_status` will toggle the `isEstop` property
+* `is_on_status` will toggle the `isStateOn` property
+* `is_manual_status`, `is_mdi_status`, `is_auto_status` will toggle the
+  `isManual`, `isMDI`, `isAuto` properties.
+* `is_homed_status` will toggle the 'isAllHomed' property
 
-----
-Is Estopped
-Is On
-All Homed
-Is Joint Homed
-Idle
-Paused
-Flood
-Mist
-Block Delete
-Optional Stop
-Manual
-MDI
-Auto
-Spindle Stopped
-Spindle Fwd
-Spindle Reverse
-On Limits
-----
+Here is a sample stylesheet entry setting the background of mode button
+widgets when LinuxCNC is in that mode:
 
-The some indicator_status_options holds a property that can be used with
-a stylesheet to change the color of the button based on the state of the
-property in LinuxCNC.
-Currently these status options can be used to auto style buttons:
-
-* 'is_estopped_status' will toggle the property 'isEstop'
-* 'is_on_status' will toggle the property 'isStateOn'
-* 'is_manual_status,is_mdi_status,is_auto_status' will toggle the
-  'isManual, isMDI, isAuto'  properties.
-* 'is_homed_status' will toggle the 'isAllHomed' property
-
-Here is a sample stylesheet entry.
-It sets the background of mode button widgets when LinuxCNC is in that mode.
-
+[source,{css}]
 ----
 ActionButton[isManual=true] {
     background: red;
@@ -2491,80 +2976,132 @@ ActionButton[isAuto=true] {
 }
 ----
 
-Here is how you specify a particular widget - by it's objectName in
-designer.
+Here is how you specify a particular widget by it's objectName in
+Qt Designer:
 
+[source,{css}]
 ----
 ActionButton #estop button [isEstopped=false] {
     color: yellow;
 }
 ----
 
-=== Enabled by linuxcnc state
-Often having the button disabled and enabled based on the state of 
-linuxcnc's motion controller is necessary.
+[[sub:qtvcp:widgets:indicatedpushbutton:state-enabled]]
+==== Enabled by LinuxCNC State
+
+Often, having the button disabled and enabled based on the state of
+LinuxCNC's motion controller is necessary.
+
 There are several properties that can be selected to aid with this:
 
-* 'isAllHomedSentive'
-* 'isOnSensitive'
-* 'isIdleSensitive'
-* 'isRunSensitive'
-* 'isManSensitive'
-* 'isMDISensitive'
-* 'isAitoSensitive'
+*`isAllHomedSentive`*::
+*`isOnSensitive`*::
+*`isIdleSensitive`*::
+*`isRunSensitive`*::
+*`isManSensitive`*::
+*`isMDISensitive`*::
+*`isAitoSensitive`*::
 
 You can select multiple properties for combined requirements.
 
-==== Text changes on state
+[[sub:qtvcp:widgets:indicatedpushbutton:state-text]]
+==== Text Changes On State
 
-Choosing the checked_state_text_option allows a 'checkable' button to
-change the text based on it's checked state. It uses the properties
-'true_state_string' and 'false_state_string' to specify the text for
-each state.
+//FIXME What is a 'checkable' button ? A checkbox ?
+Choosing the *`checked_state_text_option`* allows a 'checkable' button
+to _change the text based on it's checked state_.
 
-'\\n' will be converted to a newline.
+It uses the following properties to specify the text for each state:
 
-You can set/change these in style sheets:
+*`true_state_string`*::
+*`false_state_string`*::
 
+`\\n` will be converted to a newline.
+
+You can set/change these in stylesheets:
+
+[source,{css}]
 ----
 ActionButton #action_aux{
-    qproperty-true_state_string: "Air\\nOn";
-    qproperty-false_state_string: "Air\\nOff";
+  qproperty-true_state_string: "Air\\nOn";
+  qproperty-false_state_string: "Air\\nOff";
 }
 ----
 
-==== Call Python commands on state
+[[sub:qtvcp:widgets:indicatedpushbutton:python-command]]
+==== Call Python Commands On State
 
-The python_command_option allow small snippets of Python code to be run
-from the push of a button, with out having to edit the handler file
-(though it can call functions in the handler file).
-When using the command_string properties.
+The *`python_command_option`* allow small snippets of python code to be
+run from the push of a button, without having to edit the handler file.
+Though, it can call functions in the handler file.
 
-* 'true_python_cmd_string' - a python command that will be called when
-  the button is toggled true
-* 'false_python_cmd_string' - a python command that will be called when
-  the button is toggled false
+When using the `command_string` properties.
 
-The capitalized words
+*`true_python_cmd_string`*::
+  A Python command that will be called when the button is toggled `True`.
+*`false_python_cmd_string`*::
+  A python command that will be called when the button is toggled `False`.
 
-INSTANCE:: will give access to the widgets instances and handler functions, e.g.. 'INSTANCE.my_handler_function_call(True)'.
-ACTION:: will give access to qtvcp's ACTION library, e.g., 'ACTION.TOGGLE_FLOOD()'.
-PROGRAM_LOADER:: will give access to QtVCP's PROGRAM_LOADER library, e.g., 'PROGRAM_LOADER.load_halshow()'.
-HAL:: will give access to HAL's python module, e.g., 'HAL.set_p('motion.probe-input','1')'.
+_Special capitalized words_ will give access to the following:
 
-== Import only Widgets
-These widgets are usually the base class widget for other QtVCP widgets.
-They are not available directly from the Designer editor but could be
-imported and manually inserted in the handler file.
-They could also be subclassed to make a similar widget with new features.
+*`INSTANCE`*::
+  Will give access to the widgets instances and handler functions. +
+  Eg. `INSTANCE.my_handler_function_call(True)`
+*`ACTION`*::
+  Will give access to QtVCP's `ACTION` library. +
+  Eg. `ACTION.TOGGLE_FLOOD()`
+*`PROGRAM_LOADER`*::
+  Will give access to QtVCP's `PROGRAM_LOADER` library. +
+  Eg. `PROGRAM_LOADER.load_halshow()`
+*`HAL`*::
+  Will give access to HAL's Python module. +
+  Eg. `HAL.set_p('motion.probe-input','1')`
 
-Auto Height:: Widget for measuring two heights with a probe. For setup
-Gcode Utility:: Widgets for preforming common machining processes.
-Facing::Slab or face a definable area with different strategies
-Hole Cicle:: Drill multiple holes on a bolt hole circle
-Qt NGCGUI:: QtVcp's version of NGC subroutine selector.
-Qt PDF:: Allows adding loadable PDFs to a screen
-Qt Vismach:: Use this to build/add OpenGl simulated machines
+[[sec:qtvcp:widgets:import-only]]
+== Import Only Widgets
+
+These widgets are usually the *base class widget for other QtVCP widgets*.
+
+They are _not available directly from the Qt Designer editor_ but could
+be *imported and manually inserted*.
+
+They could also be *subclassed* to make a similar widget with new features.
+
+[[sub:qtvcp:widgets:auto-height]]
+=== Auto Height
+
+Widget for measuring two heights with a probe. +
+For setup.
+
+[[sub:qtvcp:widgets:gcode-utility]]
+=== Gcode Utility
+
+Widgets for preforming common machining processes.
+
+[[sub:qtvcp:widgets:facing]]
+=== Facing
+
+Slab or face a definable area with different strategies.
+
+[[sub:qtvcp:widgets:hole-circle]]
+=== Hole Cicle
+
+Drill multiple holes on a bolt hole circle.
+
+[[sub:qtvcp:widgets:qt-ngcgui]]
+=== Qt NGCGUI
+
+QtVCP's version of NGC subroutine selector.
+
+[[sub:qtvcp:widgets:qt-pdf]]
+=== Qt PDF
+
+Allows adding loadable PDFs to a screen.
+
+[[sub:qtvcp:widgets:qt-vismach]]
+=== Qt Vismach
+
+Use this to build/add OpenGl simulated machines.
 
 
 // vim: set syntax=asciidoc:
