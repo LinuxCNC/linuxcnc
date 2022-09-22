@@ -266,7 +266,7 @@ run on any 64-bit x86 system)
 
 [options="header"]
 |===
-| Distribution   | Architecture  | kernel     | package name    | Typical use
+| Distribution   | Architecture  | Kernel     | Package name    | Typical use
 | Debian Buster  | amd64 & i386  | Stock      | linuxcnc-uspace | simulation only
 | Debian Buster  | amd64 & armhf | preemp-rt  | linuxcnc-uspace | machine control & simulation
 | Debian Buster  | amd64         | RTAI       | linuxcnc        | machine control (known issues)

@@ -43,11 +43,11 @@ wiki site of more drives.
 
 [width="100%",options="header"]
 |===
-|Axis | Drive Type | Step Time ns | Step Space ns | Dir. Hold ns | Dir. Setup ns
-|X    |            |              |               |              | 
-|Y    |            |              |               |              | 
-|Z    |            |              |               |              | 
-|     |            |              |               |              | 
+|Axis | Drive Type | Step Time (ns) | Step Space (ns) | Dir. Hold (ns) | Dir. Setup (ns)
+|X    |            |                |                 |                | 
+|Y    |            |                |                 |                | 
+|Z    |            |                |                 |                | 
+|     |            |                |                 |                | 
 |===
 
 == Pinout Information
@@ -78,15 +78,15 @@ These can always be changed later by running Stepconf again.
 == Mechanical Information
 
 Gather information on steps and gearing. The result of this is steps
-per user unit which is used for SCALE in the .ini file.
+per user unit which is used for SCALE in the INI file.
 
 [width="100%",options="header"]
 |===
-|Axis | Steps/Rev. | Micro Steps | Motor Teeth | Leadscrew Teeth | Leadscrew Pitch
-|X    |            |             |             |                 | 
-|Y    |            |             |             |                 | 
-|Z    |            |             |             |                 | 
-|     |            |             |             |                 | 
+| Axis | Steps/Rev. | Micro Steps | Motor Teeth | Leadscrew Teeth | Leadscrew Pitch
+| X    |            |             |             |                 | 
+| Y    |            |             |             |                 | 
+| Z    |            |             |             |                 | 
+|      |            |             |             |                 | 
 |===
 
 * 'Steps per revolution' - is how many stepper-motor-steps it takes to turn
