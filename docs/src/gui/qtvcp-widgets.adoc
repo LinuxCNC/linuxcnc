@@ -1820,12 +1820,12 @@ It searches for special macros using the _INI definition_:
 SUBROUTINE_PATH =
 ----
 
-The macros are *`Oword` subroutines with special comments* to work with
-the launcher. +
+The macros are *`O-word` subroutines with special comments* to work with
+the launcher.
 The first three lines _must_ have the keywords below, the fourth is
 optional.
 
-Here is a sample for the first four lines in an _Oword file_:
+Here is a sample for the first four lines in an _O-word file_:
 
 [source,{ini}]
 ----
@@ -1837,10 +1837,10 @@ Here is a sample for the first four lines in an _Oword file_:
 
 .`MACROCOMMAND`
 
-This is the _first line_ in the Oword file.
+This is the _first line_ in the O-word file.
 
 It is a *comma separated list of text to display above an entry*. +
-There will be *one for every variable required* in the Oword function.
+There will be *one for every variable required* in the O-word function.
 
 If the macro does not require variables, leave it empty:
 
@@ -1851,17 +1851,17 @@ If the macro does not require variables, leave it empty:
 
 .`MACRODEFAULTS`
 
-This must be the _second line_ in the Oword file.
+This must be the _second line_ in the O-word file.
 
 It is a *comma separated list of the default values for each variable*
-in the Oword function.
+in the O-word function.
 
 If you use the word `true` or `false` in the list, a `*checkbutton*`
 will be shown.
 
 .`MACROIMAGE`
 
-This must be the _third line_ in the Oword file.
+This must be the _third line_ in the O-word file.
 
 * *SVG Images* +
   If using SVG image files, they must end with the `.svg` extension. +
@@ -1880,7 +1880,7 @@ With:
 +
 *`_filename_.svg`*::
   SVG image file name as first field. +
-  It is assumed to be in the same folder as the Oword file.
+  It is assumed to be in the same folder as the O-word file.
 *`*macro_layer_name`*::
   Macro image layer name as second field.
 *`icon_layer_name`*::
@@ -1912,7 +1912,7 @@ be used.
 
 .`MACROOPTIONS`
 
-This _optional line must be the fourth_ line in the Oword file.
+This _optional line must be the fourth_ line in the O-word file.
 
 It is a comma separated list of keyword and data:
 
@@ -2044,7 +2044,7 @@ self.w.mditouchy.run_command()
 
 * *For action button use* +
   If the widget was named 'mditouchy' in Qt Designer, use the action
-  button's 'Call python commands' option and enter:
+  button's 'Call Python commands' option and enter:
 +
 [source,python]
 ----
@@ -2215,10 +2215,10 @@ This widget will *display images based on LinuxCNC status*.
 
 You can watch:
 
-* the state of the spindle.
-* the state of all homed
-* the state of a certain axis homed
-* the state of hard limits
+* the state of the spindle,
+* the state of all homed,
+* the state of a certain axis homed,
+* the state of hard limits.
 
 It is based on PyQt's FIXME
 
@@ -2235,7 +2235,7 @@ It has a the ability to scroll the names with hardware such as a MPG.
 One can class patch the function `load(self,fname)` to customize file
 loading.
 
-The function `getCurrentSelected()` will return a python tuple,
+The function `getCurrentSelected()` will return a Python tuple,
 containing the file path and whether it's a file.
 
 [source,python]
@@ -2312,7 +2312,7 @@ Python handler code or (if appropriate) in stylesheets:
 *`styleCodeSelected`*::
   Selected highlight color.
 
-ie. In handler file:
+In a handler file:
 
 [source,python]
 ----
@@ -2343,7 +2343,7 @@ actions:
 *`set_all_unchecked()`*::
   Uncheck all selected tools.
 
-ie. In handler file:
+I.e., in handler file:
 
 [source,python]
 ----
@@ -2360,7 +2360,6 @@ self.w.tooloffsetview.set_all_unchecked()
 image::images/qtvcp_basicProbe.png["QtVCP BasicProbe: Simple Mill Probing Widget",scale="25%"]
 
 Widget for *probing on a mill*.
-
 Used by the _QtDragon_ screen.
 
 
@@ -2460,12 +2459,12 @@ be added to the message `dict`.
   Not implemented yet.
 *`FOCUSTEXT`* _(overlay text|`None`)_::
   Text to display if focus overlay is used.
-  Use None for no text.
+  Use `None` for no text.
 *`FOCUSCOLOR`* (`QColor(_R, G, B, A_)`)::
   Color to use if focus overlay is used.
 *`PLAYALERT`*::
-  Sound to play if sound is available. +
-  ie `SPEAK` _<spoken_message>_
+  Sound to play if sound is available,
+  i.e., `SPEAK` _<spoken_message>_ .
 
 When using `STATUS` 's `request-dialog` function, the _default launch name_
 is *`MESSAGE`*.
@@ -2480,7 +2479,7 @@ image::images/qtvcp_toolChange.png["QtVCP ToolDialog: Manual Tool Change Dialog"
 
 This is used as a *manual tool change prompt*.
 
-It has _HAL pins to connect to the machine controller_. +
+It has _HAL pins to connect to the machine controller_.
 The pins are named the same as the original AXIS manual tool prompt and
 works the same.
 
@@ -2581,7 +2580,7 @@ This is a dialog to *display the macrotab widget*.
 
 If there is a Focus Overlay widget present, it will signal it to display.
 
-When using `STATUS` 's `request-dialog` function, the default launch name
+When using ``STATUS``'s `request-dialog` function, the default launch name
 is *`MACROTAB`*.
 
 It is based on PyQt's _QDialog_.
@@ -2593,7 +2592,7 @@ It is based on PyQt's _QDialog_.
 
 This is a dialog to *display the CamView widget for Webcam part alignment*.
 
-When using `STATUS` 's `request-dialog` function, the default launch name
+When using ``STATUS``'s `request-dialog` function, the default launch name
 is *`CAMVIEW`*.
 
 It is based on PyQt's _QDialog_.
@@ -2611,7 +2610,7 @@ It returns the entry via `STATUS` messages using a Python `DICT`.
 The `DICT` contains at minimum, the name of the dialog requested and an id
 code.
 
-When using `STATUS` 's `request-dialog` function, the default launch name
+When using ``STATUS``'s `request-dialog` function, the default launch name
 is *`ENTRY`*.
 
 It is based on PyQt's _QDialog_.
@@ -2630,7 +2629,7 @@ It returns the entry via `STATUS` messages using a Python `DICT`.
 The `DICT` contains at minimum, the name of the dialog requested and an
 id code.
 
-When using `STATUS` 's `request-dialog` function, the default launch name
+When using ``STATUS``'s `request-dialog` function, the default launch name
 is *`CALCULATOR`*.
 
 It is based on PyQt's _QDialog_.
@@ -2811,7 +2810,7 @@ These can be set in stylesheets or Python code:
   A file path or resource path to an image to display in the described
   button location. +
   If the reset button is pressed in Qt Designer editor property, the
-  image will not be displayed. (allowing optionally text).
+  image will not be displayed (allowing optionally text).
 *`left_text`*::
 *`right_text`*::
 *`center_text`*::
@@ -3031,7 +3030,7 @@ ActionButton #action_aux{
 [[sub:qtvcp:widgets:indicatedpushbutton:python-command]]
 ==== Call Python Commands On State
 
-The *`python_command_option`* allow small snippets of python code to be
+The *`python_command_option`* allow small snippets of Python code to be
 run from the push of a button, without having to edit the handler file.
 Though, it can call functions in the handler file.
 
@@ -3040,7 +3039,7 @@ When using the `command_string` properties.
 *`true_python_cmd_string`*::
   A Python command that will be called when the button is toggled `True`.
 *`false_python_cmd_string`*::
-  A python command that will be called when the button is toggled `False`.
+  A Python command that will be called when the button is toggled `False`.
 
 _Special capitalized words_ will give access to the following:
 
