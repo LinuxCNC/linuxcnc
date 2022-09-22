@@ -3093,7 +3093,7 @@ LINUXNC_AUX_GLADEVCP (e.g., /usr/share/linuxcnc/aux_gladevcp).
 This provision allows a developer to test an application
 by exporting GLADEVCP_EXTRAS to specify a private application
 directory without removing a system-installed application directory.
-Messages inidicating rejected duplicates are printed to
+Messages indicating rejected duplicates are printed to
 stdout.
 
 [NOTE]

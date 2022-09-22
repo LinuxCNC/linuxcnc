@@ -272,7 +272,7 @@ When using [EMCIO]RANDOM_TOOLCHANGER = 0 (the default), the 'P'
 pocket number is a parameter of the tooldata that is retrieved from
 the tooldata source ([EMCIO]TOOL_TABLE or [EMCIO]DB_PROGRAM).  In many
 applications it is fixed but it may be changed by edits to the
-[EMCIO]TOOL_TABLE or programatically when the [EMCIO]DB_PROGRAM is
+[EMCIO]TOOL_TABLE or programmatically when the [EMCIO]DB_PROGRAM is
 used.  LinuxCNC pushes updates to the data source ([EMCIO]TOOL_TABLE
 or [EMCIO]DB_PROGRAM) for gcodes G10L1,G10L10,G10L11,M61.  LinuxCNC
 can pull tooldata updates from the data source by UI (user-interface)

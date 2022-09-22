@@ -1086,7 +1086,7 @@ will print the value rounded to an integer.
 * %f = four decimals
 * %.xf = x (0-9) number of decimals
 
-The formatting will be preformed on all parameters in the same line unless
+The formatting will be performed on all parameters in the same line unless
 changed, i.e., multiple formatting is allowed in one line.
 
 The formatting string does not need to be right beside the parameter.
