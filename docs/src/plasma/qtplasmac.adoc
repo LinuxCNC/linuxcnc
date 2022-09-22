@@ -1104,15 +1104,15 @@ Two methods of THC activation are available and are selected with the *Auto Acti
 |===
 |Name|Modes|Description
 |Delay|0, 1, 2|This sets the delay (in seconds) measured from the time the Arc OK signal is received until Torch Height Controller (THC) activates.
-    This is only available when Auto THC is not enabled.
+               This is only available when Auto THC is not enabled.
 |Sample Counts|0, 1|This sets the number of consecutive arc voltage readings within THC Sample Threshold required to activate the Torch Height Controller (THC).
-    This is only available when Auto THC is enabled.
+                    This is only available when Auto THC is enabled.
 |Sample Threshold|0, 1|This sets the maximum voltage deviation allowed for THC Sample Counts.
-    This is only available when Auto THC is enabled.
+                       This is only available when Auto THC is enabled.
 |Threshold|0, 1|This sets the voltage variation allowed from the target voltage before for THC makes movements to correct the torch height.
 |Speed (PID-P)|0, 1, 2|This sets the Proportional gain for the THC PID loop. This roughly equates to how quickly the THC attempts to correct changes in height.
 |VAD Threshold|0, 1, 2|(Velocity Anti Dive) This sets the percentage of the current cut feed rate the machine can slow to before locking the THC to prevent torch dive.
-|Void Override|0, 1|This sets the size of the change in cut voltage necessary to lock the THC to prevent torch dive (higher values need greater voltage change to lock THC).
+|Void Slope|0, 1|(Void Anti Dive) This sets the size of the change in cut voltage per seconds necessary to lock the THC to prevent torch dive (higher values need greater voltage change to lock THC).
 |PID-I|0, 1|This sets the Integral gain for the THC PID loop. Integral gain is associated with the sum of errors in the system over time and is not always needed.
 |PID-D|0, 1|This sets the Derivative gain for the THC PID loop. Derivative gain works to dampen the system and reduce over correction oscillations and is not always needed.
 |===
@@ -3469,7 +3469,7 @@ The following HAL bit pins are always created. The HAL pin has the identical beh
 |Toggle THC enable|qtplasmac.ext_thc_enable|THC ENABLE
 |Toggle torch enable|qtplasmac.ext_torch_enable|TORCH ENABLE
 |Toggle corner Lock enable|qtplasmac.ext_cornerlock_enable|VELOCITY ANTI DIVE ENABLE
-|Toggle kerfkross enable|qtplasmac.ext_kerfcross_enable|VOID ANTI DIVE ENABLE
+|Toggle voidlock enable|qtplasmac.ext_voidlock_enable|VOID ANTI DIVE ENABLE
 |Toggle use auto volts|qtplasmac.ext_auto_volts_enable|AUTO VOLTS
 |Toggle ohmic probe enable|qtplasmac.ext_ohmic_probe_enable|OHMIC ENABLE
 |Toggle mesh mode |qtplasmac.ext_mesh_mode|MESH MODE
@@ -3533,25 +3533,43 @@ Hide abort = True
 
 For the 16:9 or 4:3 GUIs, the hiding of each of these GUI buttons will expose two more custom user buttons in the GUI.
 
-=== Tuning Void Sensing
+[[mode0-arcok]]
+=== Tuning Mode 0 Arc OK
 
-Void sensing may be further tuned by adjusting the required number of consecutive times that the threshold has been exceeded before applying the void lock to the THC.
+Mode 0 Arc OK relies on the arc voltage to set the Arc OK signal.
+This is accomplished by sampling the arc voltage every servo thread cycle.
+There needs to be a specified number of consecutive samples, all within a specified threshold for the Arc OK signal to be set.
+These voltages are also required to be within a specified range.
 
-The HAL pin for adjusting this is named plasmac.kerf-errors-max and the default value is 2. To change this value, add the pin and the required value to the custom.hal file.
-The following example would set the required number of consecutive times to exceed the threshold to 3:
+There are two settings in the <<qt_parameters-tab, PARAMETERS Tab>> for setting the range, these are:
+
+- *OK High Volts* which is the upper value of the voltage range. The default is 250V.
+
+- *OK Low Volts* which is the lower value of the voltage range. The default is 60V.
+
+Both of these values may be changed by direct entry or by the use of the increment/decrement buttons.
+
+There are also two HAL pins that have been provided to allow the user to tune the set point. These HAL pins are:
+
+- *plasmac.arc-ok-counts* which is the number of consecutive readings within the threshold that are required to set the Arc OK signal. The default is 10.
+
+- *plasmac.arc-ok-threshold* which is the maximum voltage deviation that is allowed for a valid voltage to set the Arc OK signal. The default is 10.
+
+The following example would set the number of valid consecutive readings required to 6:
 
 [source,{hal}]
 ----
-setp plasmac.kerf-error-max 3
+setp plasmac.arc-ok-counts 6
 ----
+
+These settings if used should be in the custom.hal file of the configuration.
 
 === Lost Arc Delay
 
-Some plasma power sources/machine configurations may lose the Arc OK signal either momentarily during a cut,
-or permanently near the end of a cut causing QtPlasmaC to pause the program and report a "valid arc lost" error.
-There is a HAL pin named *plasmac.arc-lost-delay* that may be used to set a delay (in seconds)
-that will prevent a paused program/error if the lost Arc OK signal is regained,
-or the *M5* command is reached before the set delay period expires.
+Some plasma power sources/machine configurations may lose the Arc OK signal either momentarily during a cut, or permanently near the end of a cut causing QtPlasmaC to pause the program and report a "valid arc lost" error.
+
+There is a HAL pin named *plasmac.arc-lost-delay* that may be used to set a delay (in seconds) that will prevent a paused program/error if the lost Arc OK signal is regained, or the *M5* command is reached before the set delay period expires.
+
 It is important to note that the THC will be disabled and locked at the cutting height at the time the Arc OK signal was lost.
 
 The following code would set a delay of 0.1 seconds:
@@ -3564,47 +3582,43 @@ setp plasmac.arc-lost-delay 0.1
 It is recommended that the user set this pin in the custom.hal file.
 
 This setting should only be used if the user experiences the above symptoms.
-It should also be noted that the user could use the appropriate <<qt_ignore-ok,Ignore Arc OK>> G-code commands to achieve a similar result.
-
-[[mode0-arcok]]
-=== Tuning Mode 0 Arc OK
-
-Mode 0 Arc OK relies on the arc voltage to set the Arc OK signal.
-This is accomplished by sampling the arc voltage every servo thread cycle.
-There needs to be a specified number of consecutive samples all within a specified threshold for the Arc OK signal to be set.
-These voltages are also required to be within a specified range.
-
-There are two settings in the <<qt_parameters-tab,PARAMETERS Tab>> for setting the range, these are:
-
-- *OK HIGH VOLTS* which is the upper value of the voltage range. The default is 250V.
-- *OK LOW VOLTS* which is the lower value of the voltage range. The default is 60V.
-
-Both of these values may be changed by direct entry or by the use of the increment/decrement buttons.
-
-There are also two HAL pins that have been provided to allow the user to tune the set point. These HAL pins are:
-
-- *plasmac.arc-ok-counts* which is the number of consecutive readings within the threshold that are required to set the Arc OK signal. The default is 10.
-- *plasmac.arc-ok-threshold* which is the maximum voltage deviation that is allowed for a valid voltage to set the Arc OK signal. The default is 10.
-
-The following example would set the number of valid consecutive readings required to 6:
-
-[source,{hal}]
-----
-setp plasmac.arc-ok-counts 6
-----
+It should also be noted that the user could use the appropriate <<qt_ignore-ok, Ignore Arc OK>> G-Code commands to achieve a similar result.
 
 === Zero Window
 
 Small fluctuations in the arc voltage displayed while the machine is at idle are possible depending on many different variables (electrical noise, incorrect THCAD tuning, etc.).
+
 After all contributing factors have been mitigated, if a small fluctuation still exists it is possible to eliminate it by widening the voltage window for which QtPlasmaC will display 0v.
 
-The pin for adjusting this value is named plasmac.zero-window and the default value is set to 0.1. To change this value, add the pin and the required value to the custom.hal file.
+The pin for adjusting this value is named plasmac.zero-window and the default value is set to 0.1.
+To change this value, add the pin and the required value to the custom.hal file.
+
 The following example would set the voltage window to be displayed as 0v from -5v to +5v:
 
 [source,{hal}]
 ----
 setp plasmac.zero-window 5
 ----
+
+=== Tuning Void Sensing
+
+In addition to the *Void Slope* setting in the <<qt_parameters-tab, PARAMETERS Tab>> there are two HAL pins to aid in the fine tuning of void anti-dive. These HAL pins are:
+
+- *plasmac.void-on-cycles* which is the number of times the slope rate needs to be exceeded to activate void anti-dive. The default is 2.
+
+- *plasmac.void-off-cycles* which is the number of cycles without the slope rate being exceeded to deactivate void anti-dive. The default is 10.
+
+The following example would set the number of on cycles required to 3:
+
+[source,{hal}]
+----
+setp plasmac.void-on-cycles 3
+----
+
+The objective is to have as low a value of Void Slope as possible without any false triggering then adjust on and off cycles to ensure clean activation and deactivation of void anti-dive.
+In most cases it should not be necessary to change on and off cycles from the default value.
+
+These settings if used should be in the custom.hal file of the configuration.
 
 === Max Offset
 

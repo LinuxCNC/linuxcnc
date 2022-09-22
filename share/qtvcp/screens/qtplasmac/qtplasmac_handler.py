@@ -1,4 +1,4 @@
-VERSION = '1.232.245'
+VERSION = '1.233.246'
 
 '''
 qtplasmac_handler.py
@@ -683,7 +683,7 @@ class HandlerClass:
         self.extHeightOvrScalePin = self.h.newpin('ext_height_ovr_scale', hal.HAL_FLOAT, hal.HAL_IN)
         self.extIgnoreArcOkPin = self.h.newpin('ext_ignore_arc_ok', hal.HAL_BIT, hal.HAL_IN)
         self.extJogSlowPin = self.h.newpin('ext_jog_slow', hal.HAL_BIT, hal.HAL_IN)
-        self.extKerfCrossEnablePin = self.h.newpin('ext_kerfcross_enable', hal.HAL_BIT, hal.HAL_IN)
+#        self.extKerfCrossEnablePin = self.h.newpin('ext_kerfcross_enable', hal.HAL_BIT, hal.HAL_IN)
         self.extLaserTouchOffPin = self.h.newpin('ext_laser_touchoff', hal.HAL_BIT, hal.HAL_IN)
         self.extMeshModePin = self.h.newpin('ext_mesh_mode', hal.HAL_BIT, hal.HAL_IN)
         self.extOhmicProbeEnablePin = self.h.newpin('ext_ohmic_probe_enable', hal.HAL_BIT, hal.HAL_IN)
@@ -694,6 +694,7 @@ class HandlerClass:
         self.extThcEnablePin = self.h.newpin('ext_thc_enable', hal.HAL_BIT, hal.HAL_IN)
         self.extTorchEnablePin = self.h.newpin('ext_torch_enable', hal.HAL_BIT, hal.HAL_IN)
         self.extTouchOffPin = self.h.newpin('ext_touchoff', hal.HAL_BIT, hal.HAL_IN)
+        self.extVoidLockEnablePin = self.h.newpin('ext_voidlock_enable', hal.HAL_BIT, hal.HAL_IN)
         self.gcodeScalePin = self.h.newpin('gcode_scale', hal.HAL_FLOAT, hal.HAL_OUT)
         self.heightOverridePin = self.h.newpin('height_override', hal.HAL_FLOAT, hal.HAL_OUT)
         self.jogInhibited = self.h.newpin('jog_inhibited', hal.HAL_BIT, hal.HAL_IN)
@@ -750,10 +751,10 @@ class HandlerClass:
         CALL(['halcmd', 'net', 'plasmac:thc-sample-threshold', 'qtplasmac.thc_sample_threshold-f', 'plasmac.thc-sample-threshold'])
         CALL(['halcmd', 'net', 'plasmac:thc-threshold', 'qtplasmac.thc_threshold-f', 'plasmac.thc-threshold'])
         CALL(['halcmd', 'net', 'plasmac:pid-p-gain', 'qtplasmac.pid_p_gain-f', 'plasmac.pid-p-gain'])
-        CALL(['halcmd', 'net', 'plasmac:cornerlock-threshold', 'qtplasmac.cornerlock_threshold-f', 'plasmac.cornerlock-threshold'])
-        CALL(['halcmd', 'net', 'plasmac:kerfcross-override', 'qtplasmac.kerfcross_override-f', 'plasmac.kerfcross-override'])
         CALL(['halcmd', 'net', 'plasmac:pid-i-gain', 'qtplasmac.pid_i_gain-f', 'plasmac.pid-i-gain'])
         CALL(['halcmd', 'net', 'plasmac:pid-d-gain', 'qtplasmac.pid_d_gain-f', 'plasmac.pid-d-gain'])
+        CALL(['halcmd', 'net', 'plasmac:cornerlock-threshold', 'qtplasmac.cornerlock_threshold-f', 'plasmac.cornerlock-threshold'])
+        CALL(['halcmd', 'net', 'plasmac:voidlock-slope', 'qtplasmac.voidlock_slope-s', 'plasmac.voidlock-slope'])
         #probe parameters
         CALL(['halcmd', 'net', 'plasmac:float-switch-travel', 'qtplasmac.float_switch_travel-f', 'plasmac.float-switch-travel'])
         CALL(['halcmd', 'net', 'plasmac:probe-feed-rate', 'qtplasmac.probe_feed_rate-f', 'plasmac.probe-feed-rate'])
@@ -787,7 +788,7 @@ class HandlerClass:
         CALL(['halcmd', 'net', 'plasmac:breakaway-switch-out', 'qtplasmac.led_breakaway_switch'])
         CALL(['halcmd', 'net', 'plasmac:cornerlock-is-locked', 'plasmac.cornerlock-is-locked', 'qtplasmac.led_corner_lock'])
         CALL(['halcmd', 'net', 'plasmac:float-switch-out', 'qtplasmac.led_float_switch'])
-        CALL(['halcmd', 'net', 'plasmac:kerfcross-is-locked', 'plasmac.kerfcross-is-locked', 'qtplasmac.led_kerf_lock'])
+        CALL(['halcmd', 'net', 'plasmac:voidlock-is-locked', 'plasmac.voidlock-is-locked', 'qtplasmac.led_void_lock'])
         CALL(['halcmd', 'net', 'plasmac:led-up', 'plasmac.led-up', 'qtplasmac.led_thc_up'])
         CALL(['halcmd', 'net', 'plasmac:led-down', 'plasmac.led-down', 'qtplasmac.led_thc_down'])
         CALL(['halcmd', 'net', 'plasmac:ohmic-probe-out', 'qtplasmac.led_ohmic_probe'])
@@ -796,7 +797,7 @@ class HandlerClass:
         CALL(['halcmd', 'net', 'plasmac:torch-on', 'qtplasmac.led_torch_on'])
         #control
         CALL(['halcmd', 'net', 'plasmac:cornerlock-enable', 'qtplasmac.cornerlock_enable', 'plasmac.cornerlock-enable'])
-        CALL(['halcmd', 'net', 'plasmac:kerfcross-enable', 'qtplasmac.kerfcross_enable', 'plasmac.kerfcross-enable'])
+        CALL(['halcmd', 'net', 'plasmac:voidlock-enable', 'qtplasmac.voidlock_enable', 'plasmac.voidlock-enable'])
         CALL(['halcmd', 'net', 'plasmac:mesh-enable', 'qtplasmac.mesh_enable', 'plasmac.mesh-enable'])
         CALL(['halcmd', 'net', 'plasmac:ignore-arc-ok-1', 'qtplasmac.ignore_arc_ok', 'plasmac.ignore-arc-ok-1'])
         CALL(['halcmd', 'net', 'plasmac:ohmic-probe-enable', 'qtplasmac.ohmic_probe_enable', 'plasmac.ohmic-probe-enable'])
@@ -897,7 +898,7 @@ class HandlerClass:
         self.w.chk_override_jog.setEnabled(False)
         self.w.thc_enable.setChecked(self.PREFS.getpref('THC enable', True, bool, 'ENABLE_OPTIONS'))
         self.w.cornerlock_enable.setChecked(self.PREFS.getpref('Corner lock enable', True, bool, 'ENABLE_OPTIONS'))
-        self.w.kerfcross_enable.setChecked(self.PREFS.getpref('Kerf cross enable', True, bool, 'ENABLE_OPTIONS'))
+        self.w.voidlock_enable.setChecked(self.PREFS.getpref('Void lock enable', False, bool, 'ENABLE_OPTIONS'))
         self.w.use_auto_volts.setChecked(self.PREFS.getpref('Use auto volts', True, bool, 'ENABLE_OPTIONS'))
         self.w.ohmic_probe_enable.setChecked(self.PREFS.getpref('Ohmic probe enable', False, bool, 'ENABLE_OPTIONS'))
         self.w.thc_auto.setChecked(self.PREFS.getpref('THC auto', False, bool, 'ENABLE_OPTIONS'))
@@ -1091,7 +1092,7 @@ class HandlerClass:
         self.PREFS.putpref('Override jog inhibit via Z+', self.zPlusOverrideJog, bool, 'GUI_OPTIONS')
         self.PREFS.putpref('THC enable', self.w.thc_enable.isChecked(), bool, 'ENABLE_OPTIONS')
         self.PREFS.putpref('Corner lock enable', self.w.cornerlock_enable.isChecked(), bool, 'ENABLE_OPTIONS')
-        self.PREFS.putpref('Kerf cross enable', self.w.kerfcross_enable.isChecked(), bool, 'ENABLE_OPTIONS')
+        self.PREFS.putpref('Void lock enable', self.w.voidlock_enable.isChecked(), bool, 'ENABLE_OPTIONS')
         self.PREFS.putpref('Use auto volts', self.w.use_auto_volts.isChecked(), bool, 'ENABLE_OPTIONS')
         self.PREFS.putpref('Ohmic probe enable', self.w.ohmic_probe_enable.isChecked(), bool, 'ENABLE_OPTIONS')
 
@@ -2347,7 +2348,7 @@ class HandlerClass:
         self.PREFS.putpref('Velocity Anti Dive Threshold', self.w.cornerlock_threshold.value(), float, 'PLASMA_PARAMETERS')
         self.PREFS.putpref('Float Switch Travel', self.w.float_switch_travel.value(), float, 'PLASMA_PARAMETERS')
         self.PREFS.putpref('Height Per Volt', self.w.height_per_volt.value(), float, 'PLASMA_PARAMETERS')
-        self.PREFS.putpref('Void Sense Override', self.w.kerfcross_override.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Void Sense Slope', self.w.voidlock_slope.value(), int, 'PLASMA_PARAMETERS')
         self.PREFS.putpref('Ohmic Maximum Attempts', self.w.ohmic_max_attempts.value(), int, 'PLASMA_PARAMETERS')
         self.PREFS.putpref('Ohmic Probe Offset', self.w.ohmic_probe_offset.value(), float, 'PLASMA_PARAMETERS')
         self.PREFS.putpref('Pid P Gain', self.w.pid_p_gain.value(), float, 'PLASMA_PARAMETERS')
@@ -2380,7 +2381,7 @@ class HandlerClass:
         self.w.cornerlock_threshold.setValue(self.PREFS.getpref('Velocity Anti Dive Threshold', 90, float, 'PLASMA_PARAMETERS'))
         self.w.float_switch_travel.setValue(self.PREFS.getpref('Float Switch Travel', round(1.5 * self.unitsPerMm, 2), float, 'PLASMA_PARAMETERS'))
         self.w.height_per_volt.setValue(self.PREFS.getpref('Height Per Volt', round(0.1 * self.unitsPerMm, 3), float, 'PLASMA_PARAMETERS'))
-        self.w.kerfcross_override.setValue(self.PREFS.getpref('Void Sense Override', 100, float, 'PLASMA_PARAMETERS'))
+        self.w.voidlock_slope.setValue(self.PREFS.getpref('Void Sense Slope', 500, int, 'PLASMA_PARAMETERS'))
         self.w.ohmic_max_attempts.setValue(self.PREFS.getpref('Ohmic Maximum Attempts', 0, int, 'PLASMA_PARAMETERS'))
         self.w.ohmic_probe_offset.setValue(self.PREFS.getpref('Ohmic Probe Offset', 0, float, 'PLASMA_PARAMETERS'))
         self.w.pid_p_gain.setValue(self.PREFS.getpref('Pid P Gain', 10, float, 'PLASMA_PARAMETERS'))
@@ -2598,7 +2599,7 @@ class HandlerClass:
         self.extTorchEnablePin.value_changed.connect(lambda v:self.ext_torch_enable_changed(v))
         self.extThcEnablePin.value_changed.connect(lambda v:self.ext_thc_enable_changed(v))
         self.extCornerLockEnablePin.value_changed.connect(lambda v:self.ext_corner_lock_enable_changed(v))
-        self.extKerfCrossEnablePin.value_changed.connect(lambda v:self.ext_kerf_cross_enable_changed(v))
+        self.extVoidLockEnablePin.value_changed.connect(lambda v:self.ext_void_lock_enable_changed(v))
         self.extIgnoreArcOkPin.value_changed.connect(lambda v:self.ext_ignore_arc_ok_changed(v))
         self.extMeshModePin.value_changed.connect(lambda v:self.ext_mesh_mode_changed(v))
         self.extOhmicProbeEnablePin.value_changed.connect(lambda v:self.ext_ohmic_probe_enable_changed(v))
@@ -2691,11 +2692,11 @@ class HandlerClass:
     def set_mode(self):
         block1 = ['arc_ok_high', 'arc_ok_high_lbl', 'arc_ok_low', 'arc_ok_low_lbl' ]
         block2 = ['arc_voltage_scale', 'arc_voltage_scale_lbl', 'arc_voltage_offset', 'arc_voltage_offset_lbl',
-                  'kerfcross_frm', 'height_per_volt', 'height_per_volt_lbl', 'thc_delay', 'thc_delay_lbl',
+                  'voidlock_frm', 'height_per_volt', 'height_per_volt_lbl', 'thc_delay', 'thc_delay_lbl',
                   'thc_sample_counts', 'thc_sample_counts_lbl', 'thc_sample_threshold', 'thc_sample_threshold_lbl',
                   'thc_threshold', 'thc_threshold_lbl', 'pid_i_gain', 'pid_i_gain_lbl', 'pid_d_gain', 'pid_d_gain_lbl',
                   'use_auto_volts', 'use_auto_volts_lbl', 'led_thc_active', 'led_thc_active_lbl', 'arc_voltage',
-                  ' arc_override_frm', 'kerfcross_override', 'kerfcross_override_lbl', 'thc_auto', 'thc_auto_lbl' ]
+                  'arc_override_frm', 'voidlock_slope', 'voidlock_slope_lbl', 'thc_auto', 'thc_auto_lbl' ]
         if self.mode == 1:
             hal.set_p('plasmac.mode', '1')
             for widget in block1:
@@ -3676,9 +3677,9 @@ class HandlerClass:
         if (state):
             self.w.cornerlock_enable.setChecked(not (self.w.cornerlock_enable.isChecked()))
 
-    def ext_kerf_cross_enable_changed(self, state):
+    def ext_void_lock_enable_changed(self, state):
         if (state):
-            self.w.kerfcross_enable.setChecked(not (self.w.kerfcross_enable.isChecked()))
+            self.w.voidlock_enable.setChecked(not (self.w.voidlock_enable.isChecked()))
 
     def ext_ignore_arc_ok_changed(self, state):
         if (state):

@@ -366,7 +366,7 @@ QCheckBox::indicator:checked:pressed {
     background: backgnd }
 
 /****** CHECK BOX CONTROL ************/
-#torch_enable, #cornerlock_enable, #kerfcross_enable,
+#torch_enable, #cornerlock_enable, #voidlock_enable,
 #use_auto_volts, #ohmic_probe_enable, #mesh_enable,
 #ignore_arc_ok, #pmx485_enable, #thc_auto, #thc_enable {
     border: none;
@@ -374,7 +374,7 @@ QCheckBox::indicator:checked:pressed {
 
 #torch_enable::indicator,
 #cornerlock_enable::indicator,
-#kerfcross_enable::indicator,
+#voidlock_enable::indicator,
 #use_auto_volts::indicator,
 #ohmic_probe_enable::indicator,
 #mesh_enable::indicator,
@@ -390,7 +390,7 @@ QCheckBox::indicator:checked:pressed {
 
 #torch_enable::indicator:checked,
 #cornerlock_enable::indicator:checked,
-#kerfcross_enable::indicator:checked,
+#voidlock_enable::indicator:checked,
 #use_auto_volts::indicator:checked,
 #ohmic_probe_enable::indicator:checked,
 #mesh_enable::indicator:checked,
@@ -403,7 +403,7 @@ QCheckBox::indicator:checked:pressed {
 
 #torch_enable::indicator:!checked,
 #cornerlock_enable::indicator:!checked,
-#kerfcross_enable::indicator:!checked,
+#voidlock_enable::indicator:!checked,
 #use_auto_volts::indicator:!checked,
 #ohmic_probe_enable::indicator:!checked,
 #mesh_enable::indicator:!checked,
@@ -416,7 +416,7 @@ QCheckBox::indicator:checked:pressed {
 
 #torch_enable::indicator:pressed,
 #cornerlock_enable::indicator:pressed,
-#kerfcross_enable::indicator:pressed,
+#voidlock_enable::indicator:pressed,
 #use_auto_volts::indicator:pressed,
 #ohmic_probe_enable::indicator:pressed,
 #mesh_enable::indicator:pressed,
@@ -428,7 +428,7 @@ QCheckBox::indicator:checked:pressed {
 
 #torch_enable::indicator:checked:pressed,
 #cornerlock_enable::indicator:checked:pressed,
-#kerfcross_enable::indicator:checked:pressed,
+#voidlock_enable::indicator:checked:pressed,
 #use_auto_volts::indicator:checked:pressed,
 #ohmic_probe_enable::indicator:checked:pressed,
 #mesh_enable::indicator:checked:pressed,

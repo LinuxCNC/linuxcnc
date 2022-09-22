@@ -2590,7 +2590,7 @@ ORIGIN</string>
                           <double>0.300000000000000</double>
                          </property>
                          <property name="circle_diameter" stdset="0">
-                          <double>10.000000000000000</double>
+                          <number>10</number>
                          </property>
                          <property name="right_edge_offset" stdset="0">
                           <number>0</number>
@@ -4262,7 +4262,7 @@ HOME</string>
                              <double>0.300000000000000</double>
                             </property>
                             <property name="circle_diameter" stdset="0">
-                             <double>10.000000000000000</double>
+                             <number>10</number>
                             </property>
                             <property name="right_edge_offset" stdset="0">
                              <number>0</number>
@@ -7798,7 +7798,7 @@ MOVE</string>
                               <number>0</number>
                              </property>
                              <item>
-                              <widget class="LED" name="led_kerf_lock">
+                              <widget class="LED" name="led_void_lock">
                                <property name="minimumSize">
                                 <size>
                                  <width>0</width>
@@ -7878,7 +7878,7 @@ MOVE</string>
                               </widget>
                              </item>
                              <item>
-                              <widget class="CheckBox" name="kerfcross_enable">
+                              <widget class="CheckBox" name="voidlock_enable">
                                <property name="sizePolicy">
                                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                                  <horstretch>0</horstretch>
@@ -10441,7 +10441,7 @@ MOVE</string>
                               </widget>
                              </item>
                              <item row="8" column="0">
-                              <widget class="DoubleScale" name="kerfcross_override">
+                              <widget class="DoubleScale" name="voidlock_slope">
                                <property name="sizePolicy">
                                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                                  <horstretch>0</horstretch>
@@ -10473,7 +10473,7 @@ MOVE</string>
                                 <bool>true</bool>
                                </property>
                                <property name="suffix">
-                                <string> %</string>
+                                <string> V/sec</string>
                                </property>
                                <property name="decimals">
                                 <number>0</number>
@@ -10482,7 +10482,7 @@ MOVE</string>
                                 <double>1.000000000000000</double>
                                </property>
                                <property name="maximum">
-                                <double>1000.000000000000000</double>
+                                <double>10000.000000000000000</double>
                                </property>
                               </widget>
                              </item>
@@ -10512,7 +10512,7 @@ MOVE</string>
                               </widget>
                              </item>
                              <item row="8" column="1">
-                              <widget class="QLabel" name="kerfcross_override_lbl">
+                              <widget class="QLabel" name="voidlock_slope_lbl">
                                <property name="sizePolicy">
                                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                                  <horstretch>0</horstretch>
@@ -10532,7 +10532,7 @@ MOVE</string>
                                 </size>
                                </property>
                                <property name="text">
-                                <string>Void Override</string>
+                                <string>Void Slope</string>
                                </property>
                               </widget>
                              </item>
@@ -10868,11 +10868,11 @@ MOVE</string>
                                <property name="alignment">
                                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                                </property>
-                               <property name="suffix">
-                                <string> V</string>
-                               </property>
                                <property name="accelerated">
                                 <bool>true</bool>
+                               </property>
+                               <property name="suffix">
+                                <string> V</string>
                                </property>
                                <property name="maximum">
                                 <double>99.000000000000000</double>

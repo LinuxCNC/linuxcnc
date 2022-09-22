@@ -50,11 +50,11 @@ def clear_tool_tips(W):
     'height_raise']
 
     main_control_widgets = [
-    'led_torch_on','led_corner_lock','led_kerf_lock']
+    'led_torch_on','led_corner_lock','led_void_lock']
 
     main_sensor_widgets = [
     'mesh_enable','ignore_arc_ok','pmx485_label','torch_enable',
-    'cornerlock_enable','kerfcross_enable','use_auto_volts',
+    'cornerlock_enable','voidlock_enable','use_auto_volts',
     'ohmic_probe_enable','pmx485_enable']
 
     main_thc_widgets = [
@@ -94,8 +94,8 @@ def clear_tool_tips(W):
     parameters_configuration_widgets = [
     'arc_fail_delay','arc_max_starts','arc_restart_delay','arc_voltage_scale',
     'arc_voltage_offset','height_per_volt','arc_ok_high','arc_ok_low',
-    'thc_delay','thc_threshold','pid_p_gain','cornerlock_threshold',
-    'kerfcross_override','pid_i_gain','pid_d_gain','float_switch_travel',
+    'thc_delay','thc_threshold','pid_p_gain','pid_i_gain','pid_d_gain',
+    'cornerlock_threshold','voidlock_slope','float_switch_travel',
     'probe_feed_rate','probe_start_height','ohmic_probe_offset',
     'ohmic_max_attempts','skip_ihs_distance','safe_height','scribe_arm_delay',
     'scribe_on_delay','spotting_threshold','spotting_time',
@@ -218,14 +218,14 @@ def set_tool_tips(W):
 
     # main_control_widgets
     W.led_torch_on.setToolTip(_translate('ToolTips', 'Shows the status of the torch on signal'))
-    W.led_corner_lock.setToolTip(_translate('ToolTips', 'Shows the velocity anti dive status'))
-    W.led_kerf_lock.setToolTip(_translate('ToolTips', 'Shows the void anti dive status'))
+    W.led_corner_lock.setToolTip(_translate('ToolTips', 'Shows the velocity anti-dive status'))
+    W.led_void_lock.setToolTip(_translate('ToolTips', 'Shows the void anti-dive status'))
     W.mesh_enable.setToolTip(_translate('ToolTips', 'Toggles the use of mesh mode cutting'))
     W.ignore_arc_ok.setToolTip(_translate('ToolTips', 'Toggles the need for an Arc OK signal before XY motion begins'))
     W.pmx485_label.setToolTip(_translate('ToolTips', 'Shows the status of PMX485 communications'))
     W.torch_enable.setToolTip(_translate('ToolTips', 'Toggles the use of the torch'))
-    W.cornerlock_enable.setToolTip(_translate('ToolTips', 'Toggles the use of velocity anti dive'))
-    W.kerfcross_enable.setToolTip(_translate('ToolTips', 'Toggles the use of void anti dive'))
+    W.cornerlock_enable.setToolTip(_translate('ToolTips', 'Toggles the use of velocity anti-dive'))
+    W.voidlock_enable.setToolTip(_translate('ToolTips', 'Toggles the use of void anti-dive'))
     W.use_auto_volts.setToolTip(_translate('ToolTips', 'Toggles the use of automatic voltage for THC'))
     W.ohmic_probe_enable.setToolTip(_translate('ToolTips', 'Toggles the use of ohmic probing'))
     W.pmx485_enable.setToolTip(_translate('ToolTips', 'Toggles the use of Powermax communications'))
@@ -357,7 +357,7 @@ def set_tool_tips(W):
     W.thc_threshold.setToolTip(_translate('ToolTips', 'Deviation from target voltage before THC attempts correction'))
     W.pid_p_gain.setToolTip(_translate('ToolTips', 'Proportional gain for the THC PID loop'))
     W.cornerlock_threshold.setToolTip(_translate('ToolTips', 'Percentage of cut feed rate reduction before THC locks'))
-    W.kerfcross_override.setToolTip(_translate('ToolTips', 'Percent change in cut voltage before THC locks'))
+    W.voidlock_slope.setToolTip(_translate('ToolTips', 'Voltage change required to activate void anti-dive in volts per second'))
     W.pid_i_gain.setToolTip(_translate('ToolTips', 'Integral gain for the THC PID loop'))
     W.pid_d_gain.setToolTip(_translate('ToolTips', 'Derivative gain for the THC PID loop'))
     W.float_switch_travel.setToolTip(_translate('ToolTips', 'Distance of float travel before switch activation'))

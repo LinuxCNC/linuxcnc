@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-1.232
+1.233
 
 .I SUMMARY:
 .br
@@ -70,9 +70,6 @@ pin in  float   kerf_width                  "placeholder for better gcode portab
 pin in  bit     override_jog                "override jog inhibit";
 pin in  bit     offset_set_probe            "deploy probe for setting offsets";
 pin in  bit     offset_set_scribe           "deploy scribe for setting offsets";
-pin in  s32     kerf_errors_max = 2         "allowable kerfcross threshold errors";
-pin in  bit     kerfcross_enable            "enable kerf crossing [mode 0 & mode 1]";
-pin in  float   kerfcross_override          "kerf crossing threshold override as a percentage";
 pin in  s32     laser_recovery_start        "start laser offset for cut recovery";
 pin in  s32     laser_x_offset              "alignment laser x axis offset (scaled units)";
 pin in  s32     laser_y_offset              "alignment laser y axis offset (scaled units)";
@@ -143,6 +140,10 @@ pin in  bit     torch_pulse_start           "torch pulse start";
 pin in  float   torch_pulse_time            "torch pulse time (seconds)";
 pin in  float   units_per_mm                "for scale calcs, connect to halui.machine.units-per-mm";
 pin in  bit     use_auto_volts              "use calculated voltage for thc baseline";
+pin in  bit     voidlock_enable             "enable voidlock [mode 0 & mode 1]";
+pin in  s32     voidlock_on_cycles = 2      "number of sampling cycles to activate voidlock ";
+pin in  s32     voidlock_off_cycles = 10    "number of sampling cycles to deactivate voidlock";
+pin in  s32     voidlock_slope = 500        "voidlock slope in volts per second";
 pin in  s32     x_offset                    "offset to apply to axis x for consumable change and cut recovery (scaled units)";
 pin in  float   x_offset_current            "current x axis offset, connect to axis.x.eoffset";
 pin in  float   xy_feed_rate                "feed-rate for consumable change";
@@ -163,7 +164,6 @@ pin out float   cut_time                    "cut time of current job";
 pin out bit     cutting_stop                "stop manual cut, connect to halui.spindle.0.stop";
 pin out bit     feed_hold                   "feed hold, connect to motion.feed-hold";
 pin out bit     jog_inhibit                 "jog inhibit, connect to motion.jog-inhibit";
-pin out bit     kerfcross_is_locked         "kerf crossing locked indicator [mode 0 & mode 1]";
 pin out s32     laser_recovery_state        "laser recovery status";
 pin out bit     led_down                    "thc move down indicator";
 pin out bit     led_up                      "thc move up indicator";
@@ -191,6 +191,7 @@ pin out bit     thc_active                  "thc status output";
 pin out bit     thc_enabled                 "thc is enabled";
 pin out bit     torch_on                    "turn torch on, connect to your torch on input";
 pin out float   torch_time                  "torch on time of current job";
+pin out bit     voidlock_is_locked          "voidlock is locked indicator [mode 0 & mode 1]";
 pin out s32     x_offset_counts             "x offset for consumable change, connect to axis.x.eoffset-counts";
 pin out bit     xy_offset_enable            "enable x and y offsets, connect to axis.<x & y>.eoffset-enable";
 pin out s32     y_offset_counts             "y offset for consumable change, connect to axis.y.eoffset-counts";
@@ -231,9 +232,6 @@ variable bool   float_detected;             /* float switch detected */
 variable int    height_ovr_counts;          /* number of counts to change height via override */
 variable float  height_ovr_old;             /* old height override value */
 variable bool   initialized;                /* initialization flag */
-variable int    kerf_errors;                /* number of times kerfcross threshold exceeded */
-variable float  kerf_ratio;                 /* kerf crossing height to distance ratio */
-variable float  kerf_threshold;             /* kerf crossing threshold voltage */
 variable int    laser_x_target;             /* target count for laser recovery x offset */
 variable int    laser_y_target;             /* target count for laser recovery y offset */
 variable float  last_arc_voltage;           /* last sensed arc voltage */
@@ -292,8 +290,10 @@ variable bool   spotting;                   /* spotting flag */
 variable float  spotting_timer;             /* spotting timer */
 variable int    state_old = -1;             /* old state */
 variable int    statistics_reset;           /* statistics are reset */
+//temp for testing forum post #210558
 //variable int    target_samples = 6;         /* number of samples for setting target_volts */
 variable float  target_total;               /* total voltage of samples for setting target_volts */
+//temp for testing forum post #210558
 //variable float  target_volts;               /* target voltage for thc, set by arc voltage at cut height */
 variable bool   thc_activated;              /* thc was activated */
 variable float  thc_activated_timer;        /* timer to reset thc_activated - end of cut is detected from userspace :( */
@@ -303,13 +303,17 @@ variable int    thc_velocity;               /* velocity for thc moves */
 variable float  torch_off_timer;            /* arc off delay timer */
 variable float  torch_pulse_timer;          /* torch pulse timer */
 variable float  velocity_scale;             /* the velocity multiplier */
+variable float  voidlock_change;            /* voltage change this cycle */
+variable float  voidlock_off_count;         /* current count of voidlock deactivate cycles */
+variable int    voidlock_on_count;          /* current count of voidlock activate cycles */
+variable float  voidlock_threshold;         /* voidlock threshold voltage per cycle */
 variable int    x_velocity;                 /* velocity for x motion for consumable change */
 variable int    y_velocity;                 /* velocity for y motion for consumable change */
 variable int    z_max;                      /* max height for testing against pierce height*/
 variable int    z_pierce;                   /* pierce height for testing against max height*/
 variable int    zero_target;                /* zero height target offset */
 
-//temp for testing forum post #210558
+// temp for testing forum post #210558
 // https://forum.linuxcnc.org/plasmac/42690-is-this-qtplasmac-expected-behaviour-cycle-start-and-jog-disabled?start=0#210558
 pin in  s32     low_cut_volts               "low cut voltage threshold while thc active";
 pin in  s32     target_samples = 6          "number of samples for setting target_volts";
@@ -577,7 +581,7 @@ FUNCTION(_) {
     thc_enabled = (thc_enable && !thc_disable && !mesh_enable && !ignore_arc_ok_0 && !ignore_arc_ok_1 && (arc_lost_timer > arc_lost_delay - 0.000001) ? 1:0);
 
     /* set THC status */
-    thc_active = (state == CUT_MODE_01 || state == CUT_MODE_2) && ((mode < 2 && target_volts) || (mode == 2 && arc_ok_out)) && thc_enabled && !cornerlock_is_locked && !kerfcross_is_locked ? 1:0;
+    thc_active = (state == CUT_MODE_01 || state == CUT_MODE_2) && ((mode < 2 && target_volts) || (mode == 2 && arc_ok_out)) && thc_enabled && !cornerlock_is_locked && !voidlock_is_locked ? 1:0;
     if(thc_active){
         thc_activated = TRUE;
         thc_activated_timer = 0.25;
@@ -1528,6 +1532,7 @@ FUNCTION(_) {
                             feed_hold = FALSE;
                             thc_delay_timer = thc_delay;
                             if(mode < 2){
+                                voidlock_on_count = 0;
                                 state = CUT_MODE_01;
                             }else{
                                 state = CUT_MODE_2;
@@ -1564,7 +1569,7 @@ FUNCTION(_) {
                 /* while cutting and it is not a dry run and mesh mode is not enabled:
                  * if thc is enabled then vary the torch height to keep the arc voltage constant
                  * if corner lock enabled, only allow THC if current velocity is greater than the threshold percentage of requested velocity
-                 * if kerf crossing is enabled, only allow THC if the voltage change is less than the threshold voltage
+                 * if voidlock is enabled, only allow THC if the voltage change is less than the threshold voltage
                  * adjust torch height and target voltage to suit if height override requested */
                 if(torch_on && !mesh_enable && !ignore_arc_ok_0 && !ignore_arc_ok_1){
                     if(target_volts == 0){
@@ -1624,38 +1629,32 @@ FUNCTION(_) {
                         }else{
                             cornerlock_is_locked = FALSE;
                         }
-                        /* unlock kerfcross lock if voltage reduced to safe level  */
-                        if(kerfcross_is_locked){
-//                                if(arc_voltage_out < last_arc_voltage + (kerf_threshold * 0.05)){
-//                                if(arc_voltage_out < target_volts + (kerf_threshold * 0.5)){
-                            if(arc_voltage_out <= target_volts + kerf_threshold){
-                                kerfcross_is_locked = FALSE;
-                                kerf_errors = 0;
-                            }
+                        if(voidlock_enable){
+                            voidlock_threshold = (voidlock_slope * voidlock_on_cycles * fperiod);
+                            voidlock_change = fabs(arc_voltage_out - last_arc_voltage);
                             last_arc_voltage = arc_voltage_out;
-                        /* set kerfcross lock if voltage change > kerfcross threshold volts */
-                        }else if(kerfcross_enable){
-                            if(thc_feed_rate < current_velocity * 60){
-                                kerf_ratio = thc_feed_rate / (current_velocity * 60);
-                            }else{
-                                kerf_ratio = 1; /* 45 degree ramp */
-                            }
-                            kerf_threshold = ((kerf_ratio * current_velocity * fperiod) / height_per_volt) * (kerfcross_override * 0.01);
-                            if(arc_voltage_out > last_arc_voltage + kerf_threshold){
-//                                if(arc_voltage_out > target_volts + kerf_threshold){
-                                if(kerf_errors < kerf_errors_max){
-                                    kerf_errors += 1;
+                            if(voidlock_change > voidlock_threshold){
+                                if(voidlock_on_count >= voidlock_on_cycles){
+                                    voidlock_off_count = 0;
+                                    voidlock_is_locked = TRUE;
+                                }else{
+                                    voidlock_on_count += 1;
                                 }
-                                if(kerf_errors == kerf_errors_max){
-                                    kerfcross_is_locked = TRUE;
-                                }
+                            }else if(voidlock_is_locked){
+                                voidlock_off_count += 1;
                             }else{
-                                kerf_errors = 0;
+                                voidlock_on_count = 0;
                             }
+                            if(voidlock_is_locked && voidlock_off_count >= voidlock_off_cycles){
+                                    voidlock_is_locked = FALSE;
+                            }
+                        }else{
+                            voidlock_is_locked = FALSE;
+                            voidlock_on_count = 0;
                             last_arc_voltage = arc_voltage_out;
                         }
                         /* do thc if ok to go */
-                        if(!cornerlock_is_locked && !kerfcross_is_locked){
+                        if(!cornerlock_is_locked && !voidlock_is_locked){
                             pid_error_now = (target_volts + height_override - arc_voltage_out) * 0.1;
                             if(fabs(pid_error_now) < fabs(thc_threshold * 0.1)){
                                 pid_error_now = 0;
@@ -1721,7 +1720,7 @@ FUNCTION(_) {
                 cut_time = cut_time + fperiod;
                 break;
             case CUT_MODE_2:
-                /* thc control for mode 2 by move-up and move-down inputs (no kerf crossing in this mode) */
+                /* thc control for mode 2 by move-up and move-down inputs (no void lock in this mode) */
                 /* if program is idle and spindle.0 is off then we shouldn't be here */
                 if(program_is_idle && !cutting_start){
                     state = IDLE;
@@ -1885,7 +1884,7 @@ FUNCTION(_) {
                 /* clean up and return to idle state */
                 target_volts = 0;
                 cornerlock_is_locked = FALSE;
-                kerfcross_is_locked = FALSE;
+                voidlock_is_locked = FALSE;
                 led_down = FALSE;
                 led_up = FALSE;
                 ohmic_enable = FALSE;
@@ -2220,6 +2219,7 @@ FUNCTION(_) {
                             feed_hold = FALSE;
                             thc_delay_timer = thc_delay;
                             if(mode < 2){
+                                voidlock_on_count = 0;
                                 state = CUT_MODE_01;
                             }else{
                                 state = CUT_MODE_2;

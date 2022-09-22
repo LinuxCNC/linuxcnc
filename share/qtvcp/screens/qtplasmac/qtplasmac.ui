@@ -1975,7 +1975,7 @@ EDGE</string>
                        <double>0.300000000000000</double>
                       </property>
                       <property name="circle_diameter" stdset="0">
-                       <double>10.000000000000000</double>
+                       <number>10</number>
                       </property>
                       <property name="right_edge_offset" stdset="0">
                        <number>0</number>
@@ -3975,7 +3975,7 @@ EDGE</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="LED" name="led_kerf_lock">
+                        <widget class="LED" name="led_void_lock">
                          <property name="minimumSize">
                           <size>
                            <width>0</width>
@@ -4055,7 +4055,7 @@ EDGE</string>
                         </widget>
                        </item>
                        <item>
-                        <widget class="CheckBox" name="kerfcross_enable">
+                        <widget class="CheckBox" name="voidlock_enable">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                            <horstretch>0</horstretch>
@@ -7626,7 +7626,7 @@ HOME</string>
                        <double>0.300000000000000</double>
                       </property>
                       <property name="circle_diameter" stdset="0">
-                       <double>10.000000000000000</double>
+                       <number>10</number>
                       </property>
                       <property name="right_edge_offset" stdset="0">
                        <number>0</number>
@@ -9814,7 +9814,7 @@ HOME ALL</string>
                            </widget>
                           </item>
                           <item row="8" column="0">
-                           <widget class="DoubleScale" name="kerfcross_override">
+                           <widget class="DoubleScale" name="voidlock_slope">
                             <property name="sizePolicy">
                              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                               <horstretch>0</horstretch>
@@ -9846,7 +9846,7 @@ HOME ALL</string>
                              <bool>true</bool>
                             </property>
                             <property name="suffix">
-                             <string notr="true"> %</string>
+                             <string notr="true"> V/sec</string>
                             </property>
                             <property name="decimals">
                              <number>0</number>
@@ -9855,7 +9855,7 @@ HOME ALL</string>
                              <double>1.000000000000000</double>
                             </property>
                             <property name="maximum">
-                             <double>1000.000000000000000</double>
+                             <double>10000.000000000000000</double>
                             </property>
                            </widget>
                           </item>
@@ -9941,11 +9941,11 @@ HOME ALL</string>
                             <property name="alignment">
                              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                             </property>
-                            <property name="suffix">
-                             <string> V</string>
-                            </property>
                             <property name="accelerated">
                              <bool>true</bool>
+                            </property>
+                            <property name="suffix">
+                             <string> V</string>
                             </property>
                             <property name="maximum">
                              <double>99.000000000000000</double>
@@ -10105,7 +10105,7 @@ HOME ALL</string>
                            </widget>
                           </item>
                           <item row="8" column="1">
-                           <widget class="QLabel" name="kerfcross_override_lbl">
+                           <widget class="QLabel" name="voidlock_slope_lbl">
                             <property name="sizePolicy">
                              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
                               <horstretch>0</horstretch>
@@ -10125,7 +10125,7 @@ HOME ALL</string>
                              </size>
                             </property>
                             <property name="text">
-                             <string>Void Override</string>
+                             <string>Void Slope</string>
                             </property>
                            </widget>
                           </item>
@@ -15406,7 +15406,7 @@ CONFIG</string>
   <tabstop>thc_threshold</tabstop>
   <tabstop>pid_p_gain</tabstop>
   <tabstop>cornerlock_threshold</tabstop>
-  <tabstop>kerfcross_override</tabstop>
+  <tabstop>voidlock_slope</tabstop>
   <tabstop>pid_i_gain</tabstop>
   <tabstop>pid_d_gain</tabstop>
   <tabstop>float_switch_travel</tabstop>
@@ -15522,7 +15522,7 @@ CONFIG</string>
   <tabstop>torch_enable</tabstop>
   <tabstop>mesh_enable</tabstop>
   <tabstop>use_auto_volts</tabstop>
-  <tabstop>kerfcross_enable</tabstop>
+  <tabstop>voidlock_enable</tabstop>
   <tabstop>jogincrements</tabstop>
   <tabstop>jog_slow</tabstop>
   <tabstop>jog_a_minus</tabstop>
