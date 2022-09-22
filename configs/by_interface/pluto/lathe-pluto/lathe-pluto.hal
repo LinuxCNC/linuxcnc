@@ -1,7 +1,7 @@
 # load realtime modules
 loadrt [KINS]KINEMATICS
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
-loadrt at_pid num_chan=2 debug=1
+loadrt pid num_chan=2 debug=1
 loadrt ddt count=4 
 loadrt pluto_servo
 loadrt scale
