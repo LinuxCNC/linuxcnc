@@ -75,7 +75,7 @@ DISPLAY = qtvcp qtdragon
 To keep track of preferences, QtDragon looks for a preference text file.
 add the following entry under the '[DISPLAY]' heading.
 This will save the file in the config folder of the launch screen.
-(other options are possible see the qtvcp's screenoption widget docs.)
+(other options are possible see the QtVCP's screenoption widget docs.)
 
 [source,{ini}]
 ----
@@ -196,7 +196,7 @@ You can control what programs are displayed in the filemanager window with
 program extensions:
 Create a line with the . endings you wish to use separated by commas, then a
 space and the description.
-You can add multiple lines for different selections in the combo box
+You can add multiple lines for different selections in the combo box.
 
 [source,{ini}]
 ----
@@ -216,7 +216,7 @@ This program is given the name of the input file as its first argument,
 and must write rs274ngc code to standard output. This output is what
 will be displayed in the text area, previewed in the display area, and
 executed by LinuxCNC when 'Run'. The following lines add support for the
-'image-to-gcode' converter included with LinuxCNC and running Python based
+`image-to-gcode` converter included with LinuxCNC and running Python based
 filter programs:
 
 [source,{ini}]
@@ -531,7 +531,7 @@ While jogging that display should change based on the compensation component.
 
 [NOTE]
 If you use auto raise Z to lift the spindle on pause, you must combine the two 
-with a HAL component and feed that to linuxcnc's motion component.
+with a HAL component and feed that to LinuxCNC's motion component.
 
 sample postgui HAL file for combined spindle raise and Z Level compensation
 [source,{hal}]
@@ -548,7 +548,7 @@ loadusr -Wn z_level_compensation z_level_compensation
 setp z_level_compensation.method 1
 setp z_level_compensation.fade-height 0.0
 
-# connect signals to linuxcnc's motion component
+# connect signals to LinuxCNC's motion component
 ########################################################################
 
 net eoffset-clear    axis.z.eoffset-clear
@@ -1002,7 +1002,7 @@ This tabs will display another stab election of G-code utility programs. +
   90 degrees
 * 'Hole Circle': allows quick setting of a program to drill a bolt circle of
   definable diameter and number of holes.
-* 'NgcGui': is a QtVCP version of the popular G-code subroutine builder/selector.
+* 'NGCGUI': is a QtVCP version of the popular G-code subroutine builder/selector.
 
 == Styles
 

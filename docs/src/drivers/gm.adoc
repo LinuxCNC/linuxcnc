@@ -409,8 +409,7 @@ gm.<nr of card>.write
 [width="80%",options="header",cols="<3,^2,<6"]
 |===
 | Pins    | Type and direction | Pin description
-| .enable | (bit, In)          | Enable DAC output. When enable is
-  false, DAC output is 0.0 V.
+| .enable | (bit, In)          | Enable DAC output. When enable is false, DAC output is 0.0 V.
 | .value  | (float, In)        | Value of DAC output in Volts.
 |===
 
@@ -419,12 +418,9 @@ gm.<nr of card>.write
 [width="80%",options="header",cols="<3,^2,<6"]
 |===
 | Parameters     | Type and direction | Parameter description
-| .offset        | (float, R/W)       | Offset is added to the value before
-                                        the hardware is updated
-| .high-limit    | (float, R/W)       | Maximum output voltage of the
-                                        hardware in volts.
-| .low-limit     | (float, R/W)       | Minimum output voltage of the
-                                        hardware in volts.
+| .offset        | (float, R/W)       | Offset is added to the value before the hardware is updated.
+| .high-limit    | (float, R/W)       | Maximum output voltage of the hardware in volts.
+| .low-limit     | (float, R/W)       | Minimum output voltage of the hardware in volts.
 | .invert-serial | (float, R/W)       | GM6-PCI card is communicating with DAC
   hardware via fast serial communication
   to highly reduce time delay compared to
@@ -506,7 +502,7 @@ gm.<nr of card>.read
 .Watchdog pins
 [width="80%",options="header",cols="<3,^2,<6"]
 |===
-| Pins                             | Type and direction | Pin description
+| Pins                               | Type and direction | Pin description
 | gm._<nr of card>_.watchdog-expired | (bit, Out)         | Indicates that watchdog timer is expired.
 |===
 
@@ -517,18 +513,14 @@ Watchdog timer overrun causes the set of power-enable to low in hardware.
 .Watchdog parameters
 [width="80%",options="header",cols="<3,^2,<6"]
 |===
-| Parameters                          | Type and direction | Parameter description
+| Parameters                            | Type and direction | Parameter description
 | gm._<nr of card>_.watchdog-enable     | (bit, R/W)         | Enable watchdog timer.
-  It is strongly recommended to
-  enable watchdog timer, because
-  it can disables all the servo
-  amplifiers by pulling down all
+  It is strongly recommended to enable watchdog timer, because
+  it can disables all the servo amplifiers by pulling down all
   enable signal in case of PC error.
 | gm._<nr of card>_.watchdog-timeout-ns | (float, R/W)       | Time interval in within the
-  gm._<nr of card>_.read function
-  must be executed. The gm._<nr of card>_.read
-  is typically added to servo-thread, so
-  watch timeout is typically set to 3 times
+  gm._<nr of card>_.read function must be executed. The gm._<nr of card>_.read
+  is typically added to servo-thread, so watch timeout is typically set to 3 times
   of the servo period.
 |===
 

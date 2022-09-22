@@ -104,7 +104,7 @@ example G-code subroutine (.ngc) files and G-code-meta-compiler (.gcmc) files:
 
 * 'nc_files/ngcgui_lib/lathe'
 ** 'ngcgui-lathe' - Example lathe subroutine
-** 'g76base.ngc' - GUI for g76 threading
+** 'g76base.ngc' - GUI for G76 threading
 ** 'g76diam.ngc' - threading speced by major, minor diameters
 ** 'id.ngc' - bores the inside diameter
 ** 'od.ngc' - turns the outside diameter
@@ -231,8 +231,8 @@ For usage, type in a terminal:
 ngcgui --help
 Usage:
   ngcgui --help | -?
-  ngcgui [Options] -D nc_files_directory_name
-  ngcgui [Options] -i LinuxCNC_inifile_name
+  ngcgui [Options] -D <nc files directory name>
+  ngcgui [Options] -i <LinuxCNC INI file name>
   ngcgui [Options]
 
 Options:
@@ -265,18 +265,18 @@ For usage, type in a terminal:
 ----
 pyngcgui --help
 Usage:
-pyngcgui [Options] [sub_filename]
+pyngcgui [Options] [<sub_filename>]
 Options requiring values:
     [-d | --demo] [0|1|2] (0: DEMO standalone toplevel)
                           (1: DEMO embed new notebook)
                           (2: DEMO embed within existing notebook)
-    [-S | --subfile       sub_filename]
-    [-p | --preamble      preamble_filename]
-    [-P | --postamble     postamble_filename]
-    [-i | --ini           inifile_name]
-    [-a | --autofile      auto_filename]
-    [-t | --test          testno]
-    [-K | --keyboardfile  glade_file] (use custom popupkeyboard glade file)
+    [-S | --subfile       <sub file name>]
+    [-p | --preamble      <preamble file name>]
+    [-P | --postamble     <postamble file name>]
+    [-i | --ini           <INI file name>]
+    [-a | --autofile      <auto file name>]
+    [-t | --test          <testno>]
+    [-K | --keyboardfile  <glade_file>] (use custom popupkeyboard glade file)
 Solo Options:
     [-v | --verbose]
     [-D | --debug]
@@ -290,7 +290,7 @@ Notes:
       One set of files can be specified from cmdline.
       Multiple sets of files can be specified from an INI file.
       If --ini is NOT specified:
-         search for a running LinuxCNC and use its INI file
+         search for a running LinuxCNC and use its INI file.
 ----
 
 [NOTE]

@@ -289,9 +289,9 @@ move it to a second screen if the system is capable. If you press the 'Display
 sample panel' button the size and placement options will be honored.
 
 GladeVCP::
-GladeVCPs fit naturally inside of Touchy screen as they both use GTK to draw
-them, but by changing GladeVCP's theme it can be made to blend pretty well in
-AXIS (try Redmond).
+ GladeVCPs fit naturally inside of Touchy screen as they both use GTK to draw
+ them, but by changing GladeVCP's theme it can be made to blend pretty well in
+ AXIS (try Redmond).
 
 It uses a graphical editor to build its XML files.
 HAL pins are created for the user to connect to, inside of their custom HAL
@@ -299,7 +299,7 @@ file.
 
 GladeVCP also allows much more sophisticated (and complicated) programming
 interaction, which PnCconf currently doesn't leverage (see GladeVCP in the
-manual)
+manual).
 
 PnCconf has sample panels for the user to use as-is or build on.
 With GladeVCP PnCconf will allow you to select different options on your

@@ -231,7 +231,7 @@ ini.N.max_acceleration
 ini.N.max_velocity
 ----
 
-The relevant ini-HAL pins for an axis coordinate (L) are:
+The relevant INI-HAL pins for an axis coordinate (_L_) are:
 
 [source,{hal}]
 ----
