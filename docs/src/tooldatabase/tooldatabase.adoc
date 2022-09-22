@@ -261,7 +261,8 @@ usage for multiple tools having equal diameters.  The database rules
 support selection of the tool having the lowest operating time.
 
 The sim configs use a primary task to monitor and respond to tool
-updates initiated from within LinuxCNC.  Separate, concurrent tasks
+updates initiated from within LinuxCNC.  A periodic task updates
+tool time usage at reguar intervals.  Separate, concurrent tasks
 are implemented as threads to demonstrate the code required when changes
 are initiated by the *db_program* and demonstrate methods for synchronizing
 LinuxCNC internal tooldata.
