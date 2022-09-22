@@ -4749,8 +4749,6 @@ class gmoccapy(object):
     def on_btn_new_clicked(self, widget, data=None):
         tempfilename = os.path.join(_TEMPDIR, "temp.ngc")
         content = self.get_ini_info.get_RS274_start_code()
-        if content == None:
-            content = " "
         content += "\n\n\n\nM2"
         gcodefile = open(tempfilename, "w")
         gcodefile.write(content)
