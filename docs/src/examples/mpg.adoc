@@ -4,6 +4,12 @@
 [[cha:mpg-pendant]]
 = MPG Pendant
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 This example is to explain how to hook up the common MPG pendants
 found on the market today. This example uses an MPG3 pendant and a
 C22 pendant interface card from CNC4PC connected to a second parallel
@@ -15,15 +21,15 @@ sure you don't have mux4 or an encoder already in use. If you do just
 increase the counts and change the reference numbers. More information
 about mux4 and encoder can be found in the HAL manual or the man page.
 
-See the <<sub:ini:sec:hal,HAL Ini Section>> of the manual for more
-information on adding a hal file.
-
+See the <<sub:ini:sec:hal,INI HAL Section>> of the documentation for more
+information on adding a HAL file.
 Jog management pins are provided for each joint and all coordinate
 letters.  This example uses the axis jog pins for jogging in world
 mode.  Machines with non-identity kinematics may need use additional
 connections for jogging in joint mode.
 
 .jog.hal
+[source,{hal}]
 ----
 # Jog Pendant
 loadrt encoder num_chan=1
@@ -82,6 +88,7 @@ for each click of the MPG use the link:../man/man9/ilowpass.9.html[ilowpass] com
 limit the acceleration.
 
 .jog.hal with ilowpass
+[source,{hal}]
 ----
 loadrt encoder num_chan=1
 loadrt mux4 count=1
