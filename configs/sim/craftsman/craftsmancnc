@@ -261,7 +261,7 @@ class craftsman(object):
 			self.call_mdi('G92 A0')
 	
 	###############
-	### feed overides ###
+	### feed overrides ###
 	def overide_reset(self,  widget,  arg):
 		self.set_label_text('feed_label',  3,  '100')
 		self.feed_overide = float(self.builder.get_object("feed_label1_3").get_text())
@@ -284,7 +284,7 @@ class craftsman(object):
 			self.lc.feedrate(float(self.feed_overide)/100)
 		self.change_focus()
 	####################
-	### spindle overides ###
+	### spindle overrides ###
 	def spindle_reset(self,  widget,  arg):
 		self.set_label_text('spindle_label',  2,  '100')
 		self.spindle_speedoveride =  float(self.builder.get_object("spindle_label1_2").get_text())
@@ -1275,7 +1275,7 @@ class craftsman(object):
 			self.set_ops_leds(5,  5,   False)
 			self.machine_overide_limits = False
 
-		##Soft limts LED			
+		##Soft limits LED			
 		if self.soft_limits:		
 			self.set_ops_leds(6,  6,   True)			
 		else:
