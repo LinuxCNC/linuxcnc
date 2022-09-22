@@ -110,13 +110,13 @@ at load-time.
 If the firmware includes a watchdog, the following HAL objects will be
 exported:
 
-=== Pins:
+=== Pins
 
 * 'has_bit' - (bit i/o) True if the watchdog has bit, False if the
   watchdog has not bit. If the watchdog has bit and the has_bit bit is
   True, the user can reset it to False to resume operation.
 
-=== Parameters:
+=== Parameters
 
 * 'timeout_ns' - (u32 read/write) Watchdog timeout, in nanoseconds.
   This is initialized to 5,000,000 (5 milliseconds) at module load time.
@@ -407,7 +407,7 @@ by an active module instance are constrained by the requirements of the
 owning module, and have a restricted HAL interface.
 
 GPIOs have names like 'hm2_<BoardType>.<BoardNum>.gpio.<IONum>.'
-IONum. is a three-digit number. The mapping from IONum to connector and
+IONum is a three-digit number. The mapping from IONum to connector and
 pin-on-that-connector is written to the syslog when the driver loads,
 and it's documented in Mesa's manual for the Anything I/O boards.
 
@@ -748,7 +748,7 @@ following pins and parameters:
 === Firmware
 
 The 5i25 firmware comes preloaded for the daughter card it is purchased with.
-So the 'firmware=xxx.BIT' is not part of the hm2_pci configuration string when
+So the `firmware=xxx.BIT` is not part of the hm2_pci configuration string when
 using a 5i25.
 
 === Configuration
@@ -760,6 +760,7 @@ If you like to roll your own configuration the following examples show how
 to load the drivers in the HAL file.
 
 .5i25 + 7i76 Card
+[source,{hal}]
 ----
 # load the generic driver
 loadrt hostmot2
@@ -769,6 +770,7 @@ loadrt hm2_pci config="num_encoders=1 num_stepgens=5 sserial_port_0=0XXX"
 ----
 
 .5i25 + 7i77 Card
+[source,{hal}]
 ----
 # load the generic driver
 loadrt hostmot2
@@ -779,9 +781,11 @@ loadrt hm2_pci config="num_encoders=6 num_pwmgens=6 sserial_port_0=0XXX"
 
 === SSERIAL Configuration
 
-The 'sserial_port_0=0XXX' configuration string sets some options for the smart
+The `sserial_port_0=0XXX` configuration string sets some options for the smart
 serial daughter card. These options are specific for each daughter card. See
-the Mesa manual for more information on the exact usage. 
+the Mesa manual for more information on the exact usage (typically in the section
+called SOFTWARE PROCESS DATA MODES) or see the manual page of
+link:../man/man9/sserial.9.html[SSERIAL(9)].
 
 === 7i77 Limits
 
@@ -791,25 +795,25 @@ out value) fullscalemax is the scale factor.
 These are by default set to the analog in or analog range (most likely in
 volts).
 
-So for example on the 7I77 +-10V analog outputs, the default values are:
+So for example on the 7i77 +-10V analog outputs, the default values are:
 
-minlimit -10
-maxlimit +10
-maxfullscale 10
+minlimit: -10 +
+maxlimit: +10 +
+maxfullscale: 10 +
 
 If you wanted to say scale the analog out of a channel to IPS for a velocity
 mode servo (say 24 IPS max) you could set the limits like this:
 
-minlimit -24
-maxlimit +24
-maxfullscale 24
+minlimit: -24 +
+maxlimit: +24 +
+maxfullscale: 24 +
 
 If you wanted to scale the analog out of a channel to RPM for a 0 to 6000 RPM
 spindle with 0-10V control you could set the limits like this:
 
-minlimit 0
-maxlimit 6000
-maxfullscale 6000
+minlimit: 0 +
+maxlimit: 6000 +
+maxfullscale: 6000 +
 (this would prevent unwanted negative output voltages from being set)
 
 == Example Configurations

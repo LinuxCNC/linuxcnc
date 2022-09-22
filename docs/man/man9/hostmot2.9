@@ -209,25 +209,26 @@ only two pins (step and dir) but the Hostmot2 stepgen can drive up to 8 output
 pins for specialised applications (depending on firmware). This parameter
 applies to all stepgen instances. Unused, masked pins will be available as GPIO.
 .TP
-\fBsserial_port_N (N = 0 .. 3)\fR [optional, default: 00000000 for all ports]
+\fBsserial_port_\fIN\fR (\fIN\fR = 0 .. 3)\fR [optional, default: 00000000 for all ports]
 Up to 32 Smart Serial devices can be connected to a Mesa Anything IO board
 depending on the firmware used and the number of physical connections on the
-board. These are arranged in 1-4 ports of 1 to 8 channels.
+board. These are arranged in 1-4 ports (N) of 1 to 8 channels.
  Some Smart Serial (SSLBP) cards offer more than one load-time configuration,
 for example all inputs, or all outputs, or offering additional analogue input on
 some digital pins.
- To set the modes for port 0 use, for example \fBsserial_port_0=0120xxxx\fR
- A "0" in the string sets the corresponding port to mode 0, 1 to mode 1, and so
+ To set the modes for port 0 use for example \fBsserial_port_0=0120xxxx\fR.
+ A "0" in the string sets the corresponding channel to mode 0, a "1" to mode 1, and so
 on up to mode 9. An "x" in any position disables that channel and makes the
 corresponding FPGA pins available as GPIO.
  The string can be up to 8 characters long, and if it defines more
 modes than there are channels on the port then the extras are ignored. Channel
 numbering is left to right so the example above would set sserial device 0.0
-to mode 0, 0.2 to mode2 and disable channels 0.4 onwards.
+to mode 0, 0.1 to mode 1, 0.2 to mode 2, 0.3 to mode 0 and disables channels 0.4 onwards.
  The sserial driver will auto-detect connected devices, no further configuration
 should be needed. Unconnected channels will default to GPIO, but the pin values
 will vary semi-randomly during boot when card-detection runs, to it is best to
 actively disable any channel that is to be used for GPIO.
+See SSERIAL(9) for more information.
 .TP
 \fBnum_bspis\fR [optional, default: \-1]
 Only enable the first N Buffered SPI drivers. If N is \-1 then all the drivers

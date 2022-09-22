@@ -30,7 +30,7 @@ not necessarily always the case.
 In addition to the per-channel/device pins detailed below there are three
 per-port pins and three parameters.
 
-Pins:
+\fBPins:\fR
 
 (bit, in) .sserial.port\-N.run: Enables the specific Smart Serial module.
 Setting this pin low will disable all boards on the port and puts the port in a
@@ -48,7 +48,7 @@ setup mode and 0x00 when the "run" pin is false.
 (u32, ro) .error\-count: Indicates the state of the Smart Serial error handler,
 see the parameters sections for more details. 
 
-Parameters:
+\fBParameters:\fR
 
 (u32 r/w) .fault\-inc: Any over-run or handshaking error in the SmartSerial
 communications will increment the .fault\-count pin by the amount specified by
@@ -86,8 +86,8 @@ Unchanged values will not be re-written so it is safe to leave the
 The other pins and parameters created in HAL depend on the devices detected.
 The following list of Smart Serial devices is by no means exhaustive. 
 
-.TP
-.SH 8i20
+
+.SS 8i20
 The 8i20 is a 2.2 kW three-phase drive for brushless DC motors and AC servo
 motors.
 8i20 pins and parameters have names like
@@ -97,7 +97,7 @@ connected to the fourth channel of the second sserial port of the first 5i23
 board. Note that the sserial ports do not necessarily correlate in layout or
 number to the physical ports on the card.
 
-Pins:
+\fBPins:\fR
 
 .TP
 (float in) angle
@@ -131,10 +131,10 @@ The temperature of the driver in degrees C.
 The communication status of the drive. See the manual for
 more details.
 
-.TP 
-(bit, ro) status and fault. 
+.TP
+(bit, ro) status and fault.
 The following fault/status bits are exported. For further details see the
-8i20 manual. 
+8i20 manual.
 fault.U\-current / fault.U\-current\-not
 fault.V\-current / fault.V\-current\-not
 fault.W\-current / fault.W\-current\-not
@@ -160,7 +160,7 @@ status.sw\-reset / status.sw\-reset\-not
 status.wd\-reset / status.wd\-reset\-not
 
 .TP
-Parameters:
+\fBParameters:\fR
 The following parameters are exported. See the PDF documentation downloadable
 from Mesa for further details
 
@@ -199,13 +199,14 @@ maximum is requested.
 (u32, ro) serial_number
 The serial number of the connected drive. This is
 also shown on the label on the drive.
-.TP
-.SH 7i64
+
+.SS 7i64
 The 7i64 is a 24-input 24-output IO card.
 7i64 pins and parameters have names like "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.7i64.
 <PortNum>.<ChanNum>.<Pin>", for example hm2_5i23.0.7i64.1.3.output\-01
 
-Pins:
+\fBPins:\fR
+
 (bit, in) 7i64.0.0.output\-NN: Writing a 1 or TRUE to this pin will enable output
 driver NN. Note that the outputs are drivers (switches) rather than voltage
 outputs. The LED adjacent to the connector on the board shows the status.
@@ -220,20 +221,20 @@ the ground of the signal. This need not be the ground of the board.)
 (float, out) 7i64.0.0.analog0 & 7i64.0.0.analog1: The two analogue inputs 
 (0 to 3.3V) on the board.
 
-Parameters:
+\fBParameters:\fR
+
 (bit, rw) 7i64.0.0.output\-NN\-invert: Setting this parameter to 1 / TRUE will invert
 the output value, such that writing 0 to .gpio.NN.out will enable the output
 and vice-versa.
 
-.TP
-.SH 7i76
-The 7i76 is not only a smart-serial device. It also serves as a breakout for a
+.SS 7i76
+The 7i76 is not really a smart-serial device. It serves as a breakout for a
 number of other Hostmot2 functions. There are connections for 5 step generators
 (for which see the main hostmot2 manpage). The stepgen pins are associated with 
 the 5i25 (hm2_5i25.0.stepgen.00....) whereas the smart-serial pins are 
 associated with the 7i76 (hm2_5i25.0.7i76.0.0.output\-00).
 
-Pins:
+\fBPins:\fR
 
 (float out) .7i76.0.0.analogN (modes 1 and 2 only) Analogue input values. 
 
@@ -257,7 +258,7 @@ the signal can be set via a parameter
 provided for convenience. The two complementary pins may be connected to 
 different signal nets. 
 
-Parameters:
+\fBParameters:\fR
 
 (u32 ro) .7i76.0.0.nvbaudrate: Indicates the vbaud rate. This probably should 
 not be altered.
@@ -290,13 +291,14 @@ spinout\-maxlim were set to 5,000 rpm then no voltage above 5V would be output.
 (u32 ro) .7i76.0.0.swrevision: The onboard firmware revision number. 
 Utilities (man setsserial for details) exist to update and change this firmware.
 
-.TP
-.SH 7i77
+.SS 7i77
+
 The 7i77 is an 6-axis servo control card. The analogue outputs are smart-serial
 devices but the encoders are conventional hostmot2 encoders and further details 
 of them may be found in the hostmot2 manpage. 
 
-Pins:
+\fBPins:\fR
+
 (bit out) .7i77.0.0.input\-NN: (NN = 0 to 31) 32 digital inputs.
 
 (bit in) .7i77.0.0.input\-NN\-not: (NN = 0 to 31) An inverted copy of the inputs
@@ -321,7 +323,8 @@ This is intended as a speed control signal for a VFD.
 (float in) .7i77.0.1.analogoutN: (N = 0 to 5) This controls the analog output
 of the 7i77.
 
-Parameters:
+\fBParameters:\fR
+
 (bit rw) .7i77.0.0.output\-NN\-invert: Invert the sense of the corresponding
 output pin.
 
@@ -351,17 +354,18 @@ value of 10,000 rpm on the spinout pin would produce 10V output. However, if
 spinout\-maxlim were set to 5,000 rpm then no voltage above 5V would be output.
 
 
-.TP
-.SH 7i69
+.SS 7i69
 The 7i69 is a 48 channel digital IO card. It can be configured in four
 different modes:
-Mode 0 B 48 pins bidirectional (all outputs can be set high then driven low to 
-work as inputs)
- Mode 1 48 pins, input only 
- Mode 2 48 pins, all outputs
- Mode 3 24 inputs and 24 outputs. 
 
-Pins: 
+ MODE 0: Bidirectional mode (48 bits in 48 bits out)
+ MODE 1: Input only mode (48 bits in)
+ MODE 2: Output only mode (48 bits out)
+ MODE 3: 24/24mode (24 bits in = bits 0..23 and 24 bits out = bits 24..47)
+ MODE 4: Bidirectional mode (48 bits in 48 bits out) plus 4 MPG encoder channels oninputs 0 through 7
+
+\fBPins:\fR
+
 (bit in) .7i69.0.0.output\-NN: Digital output. Sense can be inverted with
 the corresponding Parameter
 
@@ -369,7 +373,7 @@ the corresponding Parameter
 
 (bit out) .7i69.0.0.input\-NN\-not: Digital input, inverted.
 
-Parameters:
+\fBParameters:\fR
 
 (u32 ro) .7i69.0.0.nvbaudrate: Indicates the vbaud rate. This probably should 
 not be altered.
@@ -388,8 +392,7 @@ output pin.
 (u32 ro) .7i69.0.0.swrevision: The onboard firmware revision number. 
 Utilities exist to update and change this firmware.
 
-.TP
-.SH 7i70
+.SS 7i70
 
 The 7I70 is a remote isolated 48 input card. The 7I70 inputs sense positive 
 inputs relative to a common field ground. Input impedance is 10K Ohms and input 
@@ -403,11 +406,11 @@ during real time process data exchanges. For high speed applications,
 choosing the correct mode can reduced the data transfer sizes, resulting in 
 higher maximum update rates.
 
- MODE 0 Input mode (48 bits input data only
- MODE 1 Input plus analog mode (48 bits input data plus 6 channels of analog data)
- MODE 2 Input plus field voltage
+ MODE 0: Input mode (48 bits input data only
+ MODE 1: Input plus analog mode (48 bits input data plus 6 channels of analog data)
+ MODE 2: Input plus field voltage
  
-Pins: 
+\fBPins:\fR 
 
 (float out) .7i70.0.0.analogN (modes 1 and 2 only) Analogue input values. 
 
@@ -419,7 +422,7 @@ Pins:
 provided for convenience. The two complementary pins may be connected to 
 different signal nets. 
  
-Parameters:
+\fBParameters:\fR
 
 (u32 ro) .7i70.0.0.nvbaudrate: Indicates the vbaud rate. This probably should 
 not be altered.
@@ -435,8 +438,7 @@ changed.
 (u32 ro) .7i69.0.0.swrevision: The onboard firmware revision number. 
 Utilities exist to update and change this firmware.
 
-.TP
-.SH 7i71
+.SS 7i71
 
 The 7I71 is a remote isolated 48 output card. The 48 outputs are 8VDC to 28VDC 
 sourcing drivers (common + field power) with 300 mA maximum current capability. 
@@ -446,18 +448,18 @@ The 7I71 has two software selectable modes. For high speed applications,
 choosing the correct mode can reduced the data transfer sizes, resulting in 
 higher maximum update rates
 
- MODE 0 Output only mode (48 bits output data only) 
- MODE 1 Outputs plus read back field voltage
+ MODE 0: Output only mode (48 bits output data only) 
+ MODE 1: Outputs plus read back field voltage
 
 
-Pins: 
+\fBPins:\fR 
 
 (float out) .7i71.0.0.fieldvoltage (mode 2 only) Field voltage monitoring pin. 
 
 (bit out) .7i71.0.0.output\-NN: (NN = 0 to 47) 48 digital outputs. The sense may
 be inverted by the invert parameter. 
  
-Parameters:
+\fBParameters:\fR
 
 (bit rw) .7i71.0.0.output\-NN\-invert: Invert the sense of the corresponding
 output pin. 
@@ -476,8 +478,7 @@ changed.
 (u32 ro) .7i69.0.0.swrevision: The onboard firmware revision number. 
 Utilities exist to update and change this firmware.
 
-.TP
-.SH 7i73
+.SS 7i73
 The 7I73 is a remote real time pendant or control panel interface. 
 
 The 7I73 supports up to four 50 kHz encoder inputs for MPGs, 8 digital inputs 
@@ -491,11 +492,12 @@ select different sets of 7I73 data to be transferred between the host and the 7
 I73 during real time process data exchanges. For high speed applications, 
 choosing the correct mode can reduced the data transfer sizes, resulting in 
 higher maximum update rates
- MODE 0 I/O + ENCODER
- MODE 1 I/O + ENCODER +ANALOG IN
- MODE 2 I/O + ENCODER +ANALOG IN FAST DISPLAY
 
-Pins:
+ MODE 0: I/O + ENCODER
+ MODE 1: I/O + ENCODER + ANALOG IN
+ MODE 2: I/O + ENCODER + ANALOG IN FAST DISPLAY
+
+\fBPins:\fR
 
 (float out) .7i73.0.0.analoginN: Analogue inputs. Up to 8 channels may be 
 available dependent on software and hardware configuration modes. 
@@ -517,9 +519,9 @@ This mode is not supported by the HAL "lcd" component.
 
 (bit in) .7i73.0.1.output\-NN: Up to 22 digital outputs (dependent on config)
 
-Parameters: 
+\fBParameters:\fR 
 
- (u32 ro) .7i73.0.1.nvanalogfilter:
+ (u32 ro) .7i73.0.1.nvanalogfilter
  (u32 ro) .7i73.0.1.nvbaudrate
  (u32 ro) .7i73.0.1.nvcontrast
  (u32 ro) .7i73.0.1.nvdispmode
@@ -538,6 +540,7 @@ Parameters:
 
 (s32 ro) .7i73.0.1.swrevision: The version of firmware installed.
 
-TODO: Add 7i77, 7i66, 7i72, 7i83, 7i84, 7i87. 
+
+\# TODO: Add 7i66, 7i72, 7i83, 7i84, 7i87. 
 
 
