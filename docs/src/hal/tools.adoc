@@ -93,7 +93,7 @@ Halshow (<<cha:halshow,complete usage description>>)
 can be started from the command line to show details for selected
 components, pins, parameters, signals, functions, and threads of a running HAL.
 The WATCH tab provides a continuous display of selected pin, parameters, and signal items.
-The File menu provides buttons to 1) save the watch items to
+The "File" menu provides buttons to 1) save the watch items to
 a watch list and to load and existing watch list.
 The watch list items can also be loaded automatically on startup.
 For command line usage:
@@ -151,7 +151,7 @@ operating instructions should be located here eventually. For now,
 refer to section  <<sec:tutorial-halscope>> in the tutorial chapter,
 which explains the basics.
 
-The halscope File menu selector provides buttons to save a configuration
+The halscope "File" menu selector provides buttons to save a configuration
 or open a previously saved configuration.  When halscope is terminated,
 the last configuration is saved in a file named autosave.halscope.
 
@@ -185,7 +185,7 @@ writable pins, parameters or signals.
             param:  RW
             signal: connected to a writable pin
 
-         HAL item types bit,s32,u32,float are supported
+         HAL item types bit, s32, u32, float are supported
 
          When a bit item is specified, a pushbutton is created
          to manage the item in one of three manners specified
@@ -305,9 +305,11 @@ APP = halreport /tmp/halreport.txt
 
 The function addf-ordering can be important for servo loops where
 the sequence of the functions computed at each servo period is
-important.  Typically, the order is: read input pins, do the
-motion command-handler and motion-controller functions, perform
-pid calculations, and finally write output pins.
+important.  Typically, the order is:
+. read input pins,
+. do the motion command-handler and motion-controller functions,
+. perform pid calculations, and finally
+. write output pins.
 
 For each signal in a critical path, the addf-order of the output
 pin should be numerically lower than the addf-order of the
@@ -366,10 +368,10 @@ Component pins that cannot be associated with a known thread
 function report the function as "Unknown".
 
 [NOTE]
-halreport generates a connections report for a running HAL
-application to aid in designing and verifying connections.
-Pin types and current values are not shown.  For this information use
-applications like halshow, halmeter, halscope or the 'show'
-command available with command-line halcmd program.
+`halreport` generates a connections report for a running HAL
+application to aid in designing and verifying connections.  Pin
+types and current values are not shown.  For this information use
+applications like `halshow`, `halmeter`, `halscope` or the 'show'
+command available with command-line `halcmd` program.
 
 // vim: set syntax=asciidoc:

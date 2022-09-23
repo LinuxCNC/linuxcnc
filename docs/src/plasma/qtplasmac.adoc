@@ -3602,7 +3602,7 @@ setp plasmac.zero-window 5
 
 === Tuning Void Sensing
 
-In addition to the *Void Slope* setting in the <<qt_parameters-tab, PARAMETERS Tab>> there are two HAL pins to aid in the fine tuning of void anti-dive. These HAL pins are:
+In addition to the *Void Slope* setting in the <<qt_parameters-tab,PARAMETERS Tab>> there are two HAL pins to aid in the fine tuning of void anti-dive. These HAL pins are:
 
 - *plasmac.void-on-cycles* which is the number of times the slope rate needs to be exceeded to activate void anti-dive. The default is 2.
 

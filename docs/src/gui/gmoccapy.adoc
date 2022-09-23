@@ -373,7 +373,7 @@ You can add macros to GMOCCAPY, similar to Touchy's way. A macro is nothing
 else than an NGC file. You are able to execute complete CNC programs in MDI
 mode, by just pushing one button. To do so, you first have to add a section like this:
 
-.Configuration of five macros in the INI fileto MDI button list.
+.Configuration of five macros in the INI file for the MDI button list
 [source,{ini}]
 ----
 [MACROS]

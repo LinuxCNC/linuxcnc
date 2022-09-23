@@ -180,7 +180,7 @@ def get_handlers(halcomp,builder,useropts):
 ==  Messages
 
 *periodic* :: '(returns nothing)' -
-sent every 100 ms.
+sent every 100&thinsp;ms.
 
 *state-estop* :: '(returns nothing)' -
 Sent when LinuxCNC is goes into estop.
@@ -204,7 +204,7 @@ Sent when all defined joints are homed.
 Sends a list of joints not currently homed.
 
 *override_limits_changed* :: '(returns string)' -
-Sent if LinuxCNC has been directed to override it's limits.
+Sent if LinuxCNC has been directed to override its limits.
 
 *hard-limits-tripped* :: '(returns bool, Python List)' -
 Sent when any hard limit is tripped.
@@ -245,25 +245,25 @@ Sent when LinuxCNC's interpreter is waiting.
 
 *jograte-changed* :: '(returns float)' -
 Sent when jog rate has changed. +
-Linuxcnc does not have an internal jog rate. +
+LinuxCNC does not have an internal jog rate. +
 This is GStat's internal jog rate. +
 It is expected to be in the machine's native units regardless of the current unit mode .
 
 *jograte-angular-changed* :: '(returns float)' -
 Sent when the angular jog rate has changed. +
-Linuxcnc does not have an internal angular jog rate. +
+LinuxCNC does not have an internal angular jog rate. +
 This is GStat's internal jog rate. +
 It is expected to be in the machine's native units regardless of the current unit mode .
 
 *jogincrement-changed* :: '(returns float, text)' -
 Sent when jog increment has changed. +
-Linuxcnc does not have an internal jog increment. +
+LinuxCNC does not have an internal jog increment. +
 This is GStat's internal jog increment. +
 It is expected to be in the machine's native units regardless of the current unit mode .
 
 *jogincrement-angular-changed* :: '(returns float, text)' -
 Sent when angular jog increment has changed. +
-Linuxcnc does not have an internal angular jog increment. +
+LinuxCNC does not have an internal angular jog increment. +
 This is GStat's internal angular jog increment. +
 It is expected to be in the machine's native units regardless of the current unit mode .
 
@@ -284,7 +284,7 @@ Sent when there is a request to reload the display
 
 *line-changed* :: '(returns integer)' -
 Sent when LinuxCNC has read a new line. +
-Linuxcnc does not update this for every type of line.
+LinuxCNC does not update this for every type of line.
 
 *tool-in-spindle-changed* :: '(returns integer)' -
 Sent when the tool has changed.
@@ -306,13 +306,12 @@ Sent when spindle direction or running status changes or at-speed changes.
 Sent when the current feed rate changes.
 
 *current-x-rel-position* :: '(returns float)' -
-Sent every 100ms.
+Sent every 100&thinsp;ms.
 
 *current-position* :: '(returns pyobject, pyobject, pyobject, pyobject)' -
-Sent every 100ms. +
-returns tuples of position, relative position, distance-to-go and +
-the joint actual position. Before homing, on multi-joint axes, only joint +
-position is valid.
+Sent every 100&thinsp;ms. +
+returns tuples of position, relative position, distance-to-go and
+the joint actual position. Before homing, on multi-joint axes, only joint position is valid.
 
 *current-z-rotation* :: '(returns float)' -
 Sent as the current rotatated angle around the Z axis changes +
@@ -333,11 +332,11 @@ in percent
 
 *rapid-override-changed* :: '(returns float)' -
 Sent when the rapid override value changes +
-in percent 0-100
+in percent (0-100)
 
 *max-velocity-override-changed* :: '(returns float)' -
 Sent when the maximum velocity override value changes +
-in units per minute +
+in units per minute
 
 *feed-hold-enabled-changed* :: '(returns bool)' -
 Sent when feed hold status changes
@@ -390,51 +389,51 @@ Sent when the reference coordinate system (G5x) changes
 
 *mdi-line-selected* :: '(returns string, string)' -
 intended to be sent when an MDI line is selected by user. +
-This depends on the widget/libraries used. +
+This depends on the widget/libraries used.
 
 *gcode-line-selected* :: '(returns integer)' -
 intended to be sent when a G-code line is selected by user. +
-This depends on the widget/libraries used. +
+This depends on the widget/libraries used.
 
 *graphics-line-selected* :: '(returns integer)' -
 intended to be sent when graphics line is selected by user. +
-This depends on the widget/libraries used. +
+This depends on the widget/libraries used.
 
 *graphics-loading-progress* :: '(returns integer)' -
 intended to return percentage done of loading a program or running a program. +
-This depends on the widget/libraries used. +
+This depends on the widget/libraries used.
 
 *graphics-gcode-error* :: '(returns string)' -
 intended to be sent when a G-code error is found when loading. +
-This depends on the widget/libraries used. +
+This depends on the widget/libraries used.
 
 *graphics-gcode-properties* :: '(returns string)' -
 intended to be sent when G-code is loaded. +
-This depends on the widget/libraries used. +
+This depends on the widget/libraries used.
 
 *graphics-view-changed* :: '(returns string, Python dict or None)' -
 intended to be sent when graphics view is changed. +
-This depends on the widget/libraries used. +
+This depends on the widget/libraries used.
 
 *mdi-history-changed* :: '(returns None)' -
 intended to be sent when an MDI history needs to be reloaded. +
-This depends on the widget/libraries used. +
+This depends on the widget/libraries used.
 
 *machine-log-changed* :: '(returns None)' -
 intended to be sent when machine log has changed. +
-This depends on the widget/libraries used. +
+This depends on the widget/libraries used.
 
 *update-machine-log* :: '(returns string, string)' -
 intended to be sent when updating the machine. +
-This depends on the widget/libraries used. +
+This depends on the widget/libraries used.
 
 *move-text-lineup* :: '(returns None)' -
 intended to be sent when moving the cursor one line up in G-code display. +
-This depends on the widget/libraries used. +
+This depends on the widget/libraries used.
 
 *move-text-linedown* :: '(returns None)' -
 intended to be sent when moving the cursor one line down in G-code display. +
-This depends on the widget/libraries used. +
+This depends on the widget/libraries used.
 
 *dialog-request* :: '(returns Python dict)' -
 intended to be sent when requesting a gui dialog. +
@@ -443,38 +442,38 @@ The dict must include the following keyname pair: +
 * NAME: 'requested dialog name' +
   The dict usually has several keyname pairs - it depends on the dialog. +
   dialogs return information using a general message +
-  This depends on the widget/libraries used. +
+  This depends on the widget/libraries used.
 
 *focus-overlay-changed* :: '(returns bool, string, Python object)' -
 intended to be sent when requesting an overlay to be put over the display. +
-This depends on the widget/libraries used. +
+This depends on the widget/libraries used.
 
 *play-sound* :: '(returns string)' -
 intended to be sent when requesting a specific sound file to be played. +
-This depends on the widget/libraries used. +
+This depends on the widget/libraries used.
 
 *virtual-keyboard* :: '(returns string)' -
 intended to be sent when requesting a on screen keyboard. +
-This depends on the widget/libraries used. +
+This depends on the widget/libraries used.
 
 *dro-reference-change-request* :: '(returns integer)' -
-intended to be sent when requesting a DRO widget to change it's reference. +
+intended to be sent when requesting a DRO widget to change its reference. +
 0 = machine, 1 = relative, 3 = distance-to-go +
-This depends on the widget/libraries used. +
+This depends on the widget/libraries used.
 
 *show-preferences* :: '(returns None)' -
 intended to be sent when requesting the screen preferences to be displayed. +
-This depends on the widget/libraries used. +
+This depends on the widget/libraries used.
 
 *shutdown* :: '(returns None)' -
 intended to be sent when requesting LinuxCNC to shutdown. +
-This depends on the widget/libraries used. +
+This depends on the widget/libraries used.
 
 *error* :: '(returns integer, string)' -
 intended to be sent when an error has been reported . +
 integer represents the kind of error. ERROR, TEXT or DISPLAY +
 string is the actual error message. +
-This depends on the widget/libraries used. +
+This depends on the widget/libraries used.
 
 *general* :: '(returns Python dict)' -
 intended to be sent when message must be sent that is not covered by a more specific message. +
@@ -482,30 +481,29 @@ General message should be used a sparsely as reasonable because all object conne
 It uses a Python dict for communication. +
 The dict should include and be checked for a unique id  keyname pair: +
 * ID: 'UNIQUE_ID_CODE' +
-The dict usually has more keyname pair - it depends on implementation. +
+The dict usually has more keyname pair - it depends on implementation.
 
 *forced-update* :: '(returns None)' -
 intended to be sent when one wishes to initialize or arbitrarily update an object. +
-This depends on the widget/libraries used. +
+This depends on the widget/libraries used.
 
 *progress* :: '(returns integer, Python object)' -
 intended to be sent to indicate the progress of a filter program. +
-This depends on the widget/libraries used. +
+This depends on the widget/libraries used.
 
 *following-error* :: '(returns Python list)' -
-returns a list of all joints current following error. +
+returns a list of all joints current following error.
 
 == Functions
 
 These are convenience functions that are commonly used in programming.
 
 *set_jograte* :: '(float)' -
-Linuxcnc has no internal concept of jog rate -each GUI has it's own. +
+LinuxCNC has no internal concept of jog rate -each GUI has its own.
 This is not always convenient. +
-This function allows one to set a jog rate for all objects connected to the +
-signal 'jograte-changed'. +
-It defaults to 15 +
-GSTAT.set_jog_rate(10) would set the jog rate to 10 machine-units-per-minute and emit the jograte-changed signal. +
+This function allows one to set a jog rate for all objects connected to the signal 'jograte-changed'. +
+It defaults to 15. +
+GSTAT.set_jog_rate(10) would set the jog rate to 10 machine-units-per-minute and emit the jograte-changed signal.
 
 *get_jograte()* :: '(Nothing)' -
 x = GSTAT.get_jograte() would return GSTAT's current internal jograte (float).
@@ -532,19 +530,23 @@ This will return the current state of machine (BOOL).
 This will return the state of Estop (BOOL)
 
 *set_tool_touchoff* :: '(tool,axis,value)' -
-This command will record the current mode, switch to MDI mode, +
-invoke the MDI command: G10 L10 P[TOOL] [AXIS] [VALUE] +
-wait for it to complete +
-invoke G43 +
-wait for it to complete +
-switch back to the original mode. +
+This command will
+. record the current mode,
+. switch to MDI mode,
+. invoke the MDI command: G10 L10 P[TOOL] [AXIS] [VALUE],
+. wait for it to complete,
+. invoke G43,
+. wait for it to complete,
+. switch back to the original mode.
 
 *set_axis_origin* :: '(axis,value)' -
-This command will record the current mode, switch to MDI mode, +
-invoke the MDI command: G10 L20 P0 [AXIS] [VALUE] +
-wait for it to complete +
-switch back to the original mode. +
-emit a 'reload-display' signal. +
+This command will
+. record the current mode,
+. switch to MDI mode,
+. invoke the MDI command: G10 L20 P0 [AXIS] [VALUE],
+. wait for it to complete,
+. switch back to the original mode,
+. emit a 'reload-display' signal.
 
 *do_jog* :: '(axis_number,direction, distance)' -
 This will jog an axis continuously or at a set distance. +
@@ -554,11 +556,11 @@ You must be in the proper mode to jog.
 This function checks for required LinuxCNC mode. +
 It returns a Python tuple (state, mode) +
 mode will be set the mode the system is in +
-state will set to: +
-false if mode is 0 +
-false if machine is busy +
-true if LinuxCNC is in the requested mode +
-None if possible to change, but not in requested mode +
+state will set to:
+- false if mode is 0
+- false if machine is busy
+- true if LinuxCNC is in the requested mode
+- None if possible to change, but not in requested mode
 
 *get_current_mode* :: '(nothing)' -
 returns integer: the current LinuxCNC mode. +
@@ -566,18 +568,18 @@ returns integer: the current LinuxCNC mode. +
 *set_selected_joint* :: '(integer)' -
 records the selected joint number internally. +
 requests the joint to be selected by emitting the +
-'joint-selection-changed' message. +
+'joint-selection-changed' message.
 
 *get_selected_joint* :: '(None)' -
-returns integer representing the internal selected joint number. +
+returns integer representing the internal selected joint number.
 
 *set_selected_axis* :: '(string)' -
 records the selected axis letter internally. +
-requests the axis to be selected by emitting the +
-'axis-selection-changed' message. +
+Requests the axis to be selected by emitting the
+'axis-selection-changed' message.
 
 *get_selected_axis* :: '(None)' -
-returns string representing the internal selected axis letter. +
+returns string representing the internal selected axis letter.
 
 *is_man_mode* :: '(None)' -
 
