@@ -30,5 +30,6 @@ It should be used inside a function in a realtime or userspace HAL component.
 Returns the number of bytes sent on success and \-1 on failure.
 
 .SH SEE ALSO
-man hm2_uart_setup, man hm2_uart_read
+\fBhm2_uart_setup\fR(3hm2), \fBhm2_uart_read\fR(3hm2)
+.TP
 See src/hal/drivers mesa_uart.comp for an example usage.

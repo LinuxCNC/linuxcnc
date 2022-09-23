@@ -47,6 +47,6 @@ Numeric values of HM2_PKTUART_ error codes are defined in src/hal/drivers/mesa-h
 
 
 .SH SEE ALSO
-.B man hm2_pktuart_setup, man hm2_pktuart_read
+\fBhm2_pktuart_setup\fR(3hm2), \fBhm2_pktuart_read\fR(3hm2)
 .TP
 See src/hal/drivers/mesa_pktgyro_test.comp for an example usage.

@@ -1202,7 +1202,7 @@ The driver auto-detects the connected hardware port, channel and device type.
 Devices can be connected in any order to any active channel of an active port.
 (see the config modparam definition above).
 
-For full details of the smart-serial devices see \fBman sserial\fR.
+For full details of the smart-serial devices see \fBsserial\fR(9).
 
 .SS BSPI
 The BSPI (Buffered SPI) driver is unusual in that it does not create any HAL
@@ -1210,11 +1210,12 @@ pins. Instead the driver exports a set of functions that can be used by a sub-dr
 for the attached hardware. Typically these would be written in the "comp"
 
 pre-processing language: see http://linuxcnc.org/docs/html/hal/comp.html or man
-halcompile for further details. See man mesa_7i65 and the source of mesa_7i65.comp for
+halcompile for further details. See mesa_7i65(9) and the source of mesa_7i65.comp for
 details of a typical sub-driver.
-See man hm2_bspi_setup_chan, man hm2_bspi_write_chan, man hm2_tram_add_bspi_frame,
-man hm2_allocate_bspi_tram, man hm2_bspi_set_read_function and
-man hm2_bspi_set_write_function for the exported functions.
+See hm2_bspi_setup_chan(3hm2), hm2_bspi_write_chan(3hm2),
+hm2_tram_add_bspi_frame(3hm2), hm2_allocate_bspi_tram(3hm2),
+hm2_bspi_set_read_function(3hm2) and hm2_bspi_set_write_function(3hm2)
+for the exported functions.
 
 The names of the available channels are printed to standard output during the
 driver loading process and take the form
@@ -1225,10 +1226,10 @@ The UART driver also does not create any HAL pins, instead it declares two
 simple read/write functions and a setup function to be utilised by user-written
 code.  Typically this would be written in the "comp"
 pre-processing language: see http://linuxcnc.org/docs/html/hal/comp.html or man
-halcompile for further details. See man mesa_uart and the source of mesa_uart.comp for
+halcompile for further details. See mesa_uart(9) and the source of mesa_uart.comp for
 details of a typical sub-driver.
-See man hm2_uart_setup_chan, man hm2_uart_send, man hm2_uart_read and man
-hm2_uart_setup.
+See hm2_uart_setup_chan(3hm2), hm2_uart_send(3hm2),
+hm2_uart_read(3hm2) and hm2_uart_setup(3hm2).
 
 The names of the available uart channels are printed to standard output during the
 driver loading process and take the form
@@ -1639,7 +1640,7 @@ internal state to the syslog, and set the pin back to False.
 
 .SS Setting up Smart Serial devices
 
-See man setsserial for the current way to set smart-serial eeprom parameters.
+See setsserial(9) for the current way to set smart-serial eeprom parameters.
 
 .SH FUNCTIONS
 .TP
@@ -1695,18 +1696,12 @@ it is better to use the synchronous hm2dpll triggering function.
 
 .SH SEE ALSO
 
-hm2_pci(9)
-.br
-hm2_eth(9)
-.br
-hm2_spi(9)
-.br
-hm2_rpspi(9)
-.br
-hm2_7i43(9)
-.br
-hm2_7i90(9)
-.br
+\fBhm2_pci\fR(9),
+\fBhm2_eth\fR(9),
+\fBhm2_spi\fR(9),
+\fBhm2_rpspi\fR(9),
+\fBhm2_7i43\fR(9),
+\fBhm2_7i90\fR(9)
 
 Mesa's documentation for the Anything I/O boards, at
 .UR
