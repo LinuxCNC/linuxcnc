@@ -58,5 +58,6 @@ To change bitrate without altering mode settings send \-1 to both modes.
 Returns0 on success and \-1 on failure 
 
 .SH SEE ALSO
-man hm2_uart_send, man hm2_uart_read
+\fBhm2_uart_send\fR(3hm2), \fBhm2_uart_read\fR(3hm2)
+.TP
 See src/hal/drivers mesa_uart.comp for an example usage.

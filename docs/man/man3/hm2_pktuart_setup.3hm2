@@ -95,7 +95,7 @@ txclear!=1 or rxclear!=1 lets the corresponding registers unchanged.
 Returns 0 on success and -1 or -EINVAL on failure. 
 
 .SH SEE ALSO
-.B man hm2_pktuart_send, man hm2_pktuart_read
+\fBhm2_pktuart_send\fR(3hm2), \fBhm2_pktuart_read\fR(3hm2)
 .TP
 See src/hal/drivers/mesa_pktgyro_test.comp for an example usage. 
 

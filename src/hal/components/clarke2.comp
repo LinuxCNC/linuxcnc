@@ -9,7 +9,7 @@ two of the three are needed to completely define the current or voltage.
 \\fBclarke2\\fR assumes that the sum is zero, so it only uses phases A and
 B of the input.  Since the H (homopolar) output will always be zero in
 this case, it is not generated.""";
-see_also """\\fBclarke3\\fR for the general case, \\fBclarkeinv\\fR for
+see_also """\\fBclarke3\\fR(9) for the general case, \\fBclarkeinv\\fR(9) for
 the inverse transform.""";
 pin in float a;
 pin in float b "first two phases of three phase input";
