@@ -1305,6 +1305,10 @@ static void unit(double *x, double *y) {
 
 static void
 arc(int lineno, double x0, double y0, double x1, double y1, double dx, double dy) {
+	printf("jf (F: %s F: %s L: %d)\n",__FUNCTION__,__FILE__,__LINE__);
+	if(canon.activePlane == CANON_PLANE_XY)	printf("jf XY (F: %s L: %d)\n",__FILE__,__LINE__);
+	if(canon.activePlane == CANON_PLANE_XZ)	printf("jf XZ (F: %s L: %d)\n",__FILE__,__LINE__);
+	if(canon.activePlane == CANON_PLANE_YZ)	printf("jf YZ (F: %s L: %d)\n",__FILE__,__LINE__);
     double small = 0.000001;
     double x = x1-x0, y=y1-y0;
     double den = 2 * (y*dx - x*dy);
@@ -1314,10 +1318,35 @@ arc(int lineno, double x0, double y0, double x1, double y1, double dx, double dy
         double r = -(x*x+y*y)/den;
         double i = dy*r, j = -dx*r;
         double cx = x0+i, cy=y0+j;
-        ARC_FEED(lineno, x1, y1, cx, cy, r<0 ? 1 : -1,
-                 p.z, p.a, p.b, p.c, p.u, p.v, p.w);
+//        ARC_FEED(lineno, x1, y1, cx, cy, r<0 ? 1 : -1, p.z, p.a, p.b, p.c, p.u, p.v, p.w);
+	if(canon.activePlane==CANON_PLANE_XY)
+		{
+		ARC_FEED(lineno, x1, y1, cx, cy, r<0 ? 1 : -1, p.z, p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+	if(canon.activePlane==CANON_PLANE_YZ)
+		{
+		printf("jf das geht noch nicht? (F: %s L: %d)\n",__FILE__,__LINE__);
+		ARC_FEED(lineno, x1, y1, cx, cy, r<0 ? 1 : -1, p.x, p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+	if(canon.activePlane==CANON_PLANE_XZ)
+		{
+		printf("jf das geht noch nicht? (F: %s L: %d)\n",__FILE__,__LINE__);
+		ARC_FEED(lineno, x1, y1, cx, cy, r<0 ? 1 : -1, p.y, p.a, p.b, p.c, p.u, p.v, p.w);
+		}
     } else { 
-        STRAIGHT_FEED(lineno, x1, y1, p.z, p.a, p.b, p.c, p.u, p.v, p.w);
+//        STRAIGHT_FEED(lineno, x1, y1, p.z, p.a, p.b, p.c, p.u, p.v, p.w);
+	if(canon.activePlane==CANON_PLANE_XY)
+		{
+		STRAIGHT_FEED(lineno, x1, y1, p.z, p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+	if(canon.activePlane==CANON_PLANE_YZ)
+		{
+		STRAIGHT_FEED(lineno, p.x, x1, y1, p.a, p.b, p.c, p.u, p.v, p.w);
+		}
+	if(canon.activePlane==CANON_PLANE_XZ)
+		{
+		STRAIGHT_FEED(lineno, x1, p.y, y1, p.a, p.b, p.c, p.u, p.v, p.w);
+		}
     }
 }
 
@@ -1359,22 +1388,30 @@ biarc(int lineno, double p0x, double p0y, double tsx, double tsy,
 
 /* Canon calls */
 
-void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k) {
+void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, unsigned int nurbs_order) {
+	printf("jf (F: %s F: %s L: %d)\n",__FUNCTION__,__FILE__,__LINE__);
+	if(canon.activePlane == CANON_PLANE_XY)	printf("jf XY (F: %s L: %d)\n",__FILE__,__LINE__);
+	if(canon.activePlane == CANON_PLANE_XZ)	printf("jf XZ (F: %s L: %d)\n",__FILE__,__LINE__);
+	if(canon.activePlane == CANON_PLANE_YZ)	printf("jf YZ (F: %s L: %d)\n",__FILE__,__LINE__);
+
     flush_segments();
 
     unsigned int n = nurbs_control_points.size() - 1;
-    double umax = n - k + 2;
+    double umax = n - nurbs_order + 2;
     unsigned int div = nurbs_control_points.size()*4;
-    std::vector<unsigned int> knot_vector = knot_vector_creator(n, k);	
+	printf("jf nurbs_order: %d n: %d umax: %f div: %d (F: %s L: %d)\n",nurbs_order,n,umax,div,__FILE__,__LINE__);
+
+    std::vector<unsigned int> knot_vector = knot_vector_creator(n, nurbs_order);	
     PLANE_POINT P0, P0T, P1, P1T;
 
-    P0 = nurbs_point(0,k,nurbs_control_points,knot_vector);
-    P0T = nurbs_tangent(0, k, nurbs_control_points, knot_vector);
+    P0 = nurbs_point(0,nurbs_order,nurbs_control_points,knot_vector);
+    P0T = nurbs_tangent(0, nurbs_order, nurbs_control_points, knot_vector);
+	//printf("jf P0X: %f P0Y: %f (F: %s L: %d)\n",P0.X,P0.Y,__FILE__,__LINE__);
 
     for(unsigned int i=1; i<=div; i++) {
 	double u = umax * i / div;
-        P1 = nurbs_point(u,k,nurbs_control_points,knot_vector);
-	P1T = nurbs_tangent(u,k,nurbs_control_points,knot_vector);
+        P1 = nurbs_point(u,nurbs_order,nurbs_control_points,knot_vector);
+	P1T = nurbs_tangent(u,nurbs_order,nurbs_control_points,knot_vector);
         biarc(lineno, P0.X,P0.Y, P0T.X,P0T.Y, P1.X,P1.Y, P1T.X,P1T.Y);
         P0 = P1;
         P0T = P1T;

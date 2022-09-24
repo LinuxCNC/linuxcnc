@@ -50,6 +50,7 @@ enum CanonBool {
 struct CONTROL_POINT {          /* type for NURBS control points */
     double X,
     Y,
+		Z,	/* nurbs-xyz */
     W;
 };
 

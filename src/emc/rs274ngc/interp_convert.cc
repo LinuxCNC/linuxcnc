@@ -141,15 +141,31 @@ int Interp::convert_nurbs(int mode,
       block_pointer block,     //!< pointer to a block of RS274 instructions
       setup_pointer settings)  //!< pointer to machine settings
 {
-    double end_z, AA_end, BB_end, CC_end, u_end, v_end, w_end;
+    double end_x, end_y, end_z, AA_end, BB_end, CC_end, u_end, v_end, w_end;
     CONTROL_POINT CP;
 
     if (mode == G_5_2)  {
-	CHKS((((block->x_flag) && !(block->y_flag)) || (!(block->x_flag) && (block->y_flag))), (
-             _("You must specify both X and Y coordinates for Control Points")));
-	CHKS((!(block->x_flag) && !(block->y_flag) && (block->p_number > 0) &&
-             (!nurbs_control_points.empty())), (
-             _("Can specify P without X and Y only for the first control point")));
+	if(settings->plane == CANON_PLANE_XY)	{
+		CHKS((((block->x_flag) && !(block->y_flag)) || (!(block->x_flag) && (block->y_flag))), (
+				       _("You must specify both X and Y coordinates for Control Points")));
+		CHKS((!(block->x_flag) && !(block->y_flag) && (block->p_number > 0) &&
+				       (!nurbs_control_points.empty())), (
+				       _("Can specify P without X and Y only for the first control point")));
+	}
+	if(settings->plane == CANON_PLANE_YZ)	{
+		CHKS((((block->y_flag) && !(block->z_flag)) || (!(block->y_flag) && (block->z_flag))), (
+				 _("You must specify both Y and Z coordinates for Control Points")));
+		CHKS((!(block->y_flag) && !(block->z_flag) && (block->p_number > 0) &&
+				 (!nurbs_control_points.empty())), (
+				 _("Can specify P without Y and Z only for the first control point")));
+	}
+	if(settings->plane == CANON_PLANE_XZ) {
+		CHKS((((block->x_flag) && !(block->z_flag)) || (!(block->x_flag) && (block->z_flag))), (
+				 _("You must specify both X and Z coordinates for Control Points")));
+		CHKS((!(block->x_flag) && !(block->z_flag) && (block->p_number > 0) &&
+				 (!nurbs_control_points.empty())), (
+				 _("Can specify P without X and Z only for the first control point")));
+	}
 
         CHKS(((block->p_number <= 0) && (!nurbs_control_points.empty())), (
              _("Must specify positive weight P for every Control Point")));
@@ -160,25 +176,71 @@ int Interp::convert_nurbs(int mode,
         if (settings->motion_mode != mode) nurbs_control_points.clear();
 
         if (nurbs_control_points.empty()) {
-            CP.X = settings->current_x;
-            CP.Y = settings->current_y;
-            if (!(block->x_flag) && !(block->y_flag) && (block->p_number > 0)) {
-                CP.W = block->p_number;
-            } else {
-                CP.W = 1;
-            }
+		if(settings->plane == CANON_PLANE_XY) {
+
+		    CP.X = settings->current_x;
+		    CP.Y = settings->current_y;
+		    if (!(block->x_flag) && !(block->y_flag) && (block->p_number > 0)) {
+		        CP.W = block->p_number;
+		    } else {
+		        CP.W = 1;
+		    }
+		}
+		if(settings->plane == CANON_PLANE_YZ) {
+
+		    CP.Y = settings->current_y;
+		    CP.Z = settings->current_z;
+		    if (!(block->y_flag) && !(block->z_flag) && (block->p_number > 0)) {
+		        CP.W = block->p_number;
+		    } else {
+		        CP.W = 1;
+		    }
+		}
+		if(settings->plane == CANON_PLANE_XZ) {
+		    CP.X = settings->current_x;
+		    CP.Z = settings->current_z;
+		    if (!(block->x_flag) && !(block->z_flag) && (block->p_number > 0)) {
+		        CP.W = block->p_number;
+		    } else {
+		        CP.W = 1;
+		    }
+		}
             nurbs_order = 3;
             nurbs_control_points.push_back(CP);
         }
         if (block->l_number != -1 && block->l_number > 3) {
             nurbs_order = block->l_number;
         }
-        if ((block->x_flag) && (block->y_flag)) {
-            CHP(find_ends(block, settings, &CP.X, &CP.Y, &end_z, &AA_end, &BB_end, &CC_end,
-                          &u_end, &v_end, &w_end));
-            CP.W = block->p_number;
-            nurbs_control_points.push_back(CP);
-            }
+
+//        if ((block->x_flag) && (block->y_flag)) {
+//            CHP(find_ends(block, settings, &CP.X, &CP.Y, &end_z, &AA_end, &BB_end, &CC_end, &u_end, &v_end, &w_end));
+//            CP.W = block->p_number;
+//            nurbs_control_points.push_back(CP);
+//            }
+
+	if(settings->plane == CANON_PLANE_XY) {
+		if((block->x_flag) && (block->y_flag)) {
+			CHP(find_ends(block, settings, &CP.X, &CP.Y, &end_z, &AA_end, &BB_end, &CC_end,	&u_end, &v_end, &w_end));
+			CP.W = block->p_number;
+			nurbs_control_points.push_back(CP);
+		}
+	}
+	if(settings->plane == CANON_PLANE_YZ) {
+		if((block->y_flag) && (block->z_flag)) {
+			CHP(find_ends(block, settings, &end_x, &CP.Y, &CP.Z, &AA_end, &BB_end, &CC_end,	&u_end, &v_end, &w_end));
+			CP.W = block->p_number;
+			nurbs_control_points.push_back(CP);
+		}
+	}
+	if(settings->plane == CANON_PLANE_XZ) {
+		if((block->x_flag) && (block->z_flag)) {
+			CHP(find_ends(block, settings, &CP.X, &end_y, &CP.Z, &AA_end, &BB_end, &CC_end,	&u_end, &v_end, &w_end));
+			CP.W = block->p_number;
+			nurbs_control_points.push_back(CP);
+		}
+	}
+
+
 
 //for (i=0;i<nurbs_control_points.size();i++){
 //                printf( "X %8.4f, Y %8.4f, W %8.4f\n",
@@ -187,6 +249,17 @@ int Interp::convert_nurbs(int mode,
 //               nurbs_control_points[i].W);
 //       }
 //        printf("*-----------------------------------------*\n");
+
+	for (long unsigned int i=0;i<nurbs_control_points.size();i++) {
+		printf( "X %8.4f, Y %8.4f, Z %8.4f W %8.4f\n",
+		nurbs_control_points[i].X,
+		nurbs_control_points[i].Y,
+		nurbs_control_points[i].Z,
+		nurbs_control_points[i].W);
+	}
+	printf("*-----------------------------------------*\n");
+
+
         settings->motion_mode = mode;
     }
 
@@ -194,10 +267,24 @@ int Interp::convert_nurbs(int mode,
         CHKS((settings->motion_mode != G_5_2), (
              _("Cannot use G5.3 without G5.2 first")));
         CHKS((nurbs_control_points.size()<nurbs_order), _("You must specify a number of control points at least equal to the order L = %d"), nurbs_order);
-	settings->current_x = nurbs_control_points[nurbs_control_points.size()-1].X;
-        settings->current_y = nurbs_control_points[nurbs_control_points.size()-1].Y;
+
+//	settings->current_x = nurbs_control_points[nurbs_control_points.size()-1].X;
+//      settings->current_y = nurbs_control_points[nurbs_control_points.size()-1].Y;
+	if(settings->plane == CANON_PLANE_XY) {
+		settings->current_x = nurbs_control_points[nurbs_control_points.size()-1].X;
+		settings->current_y = nurbs_control_points[nurbs_control_points.size()-1].Y;
+	}
+	if(settings->plane == CANON_PLANE_YZ) {
+		settings->current_y = nurbs_control_points[nurbs_control_points.size()-1].Y;
+		settings->current_z = nurbs_control_points[nurbs_control_points.size()-1].Z;
+	}
+	if(settings->plane == CANON_PLANE_XZ) {
+		settings->current_x = nurbs_control_points[nurbs_control_points.size()-1].X;
+		settings->current_z = nurbs_control_points[nurbs_control_points.size()-1].Z;
+	}
+
+//        NURBS_FEED(block->line_number, nurbs_control_points, nurbs_order, settings->plane);
         NURBS_FEED(block->line_number, nurbs_control_points, nurbs_order);
-	//printf("hello\n");
 	nurbs_control_points.clear();
 	//printf("%d\n", 	nurbs_control_points.size());
 	settings->motion_mode = -1;
@@ -218,8 +305,8 @@ int Interp::convert_spline(int mode,
        block_pointer block,     //!< pointer to a block of RS274 instructions
        setup_pointer settings)  //!< pointer to machine settings
 {
-    double x1, y1, x2, y2, x3, y3;
-    double end_z, AA_end, BB_end, CC_end, u_end, v_end, w_end;
+    double x1, y1, z1, x2, y2, z2, x3, y3, z3;
+    double end_x, end_y, end_z, AA_end, BB_end, CC_end, u_end, v_end, w_end;
     CONTROL_POINT cp;
 
     CHKS((settings->cutter_comp_side), _("Cannot convert spline with cutter radius compensation")); // XXX
@@ -232,72 +319,242 @@ int Interp::convert_spline(int mode,
         NCE_F_WORD_MISSING_WITH_INVERSE_TIME_ARC_MOVE);
     }
 
-    CHKS((settings->plane != CANON_PLANE_XY), _("Splines must be in the XY plane")); // XXX
-       //Error (for now): Splines must be in XY plane
+    //CHKS((settings->plane != CANON_PLANE_XY), _("Splines must be in the XY plane")); // gone
+       //Error (for now): Splines must be in XY plane	//gone
 
-    CHKS((block->z_flag || block->a_flag || block->b_flag
-          || block->c_flag),
-          _("Splines may not have motion in Z, A, B, or C"));
+    //CHKS((block->z_flag || block->a_flag || block->b_flag || block->c_flag),_("Splines may not have motion in Z, A, B, or C"));
+    CHKS((block->a_flag || block->b_flag || block->c_flag),_("Splines may not have motion in A, B, or C"));
 
     if(mode == G_5_1) {
       CHKS(!block->i_flag || !block->j_flag,
                   _("Must specify both I and J with G5.1"));
-      x1 = settings->current_x + block->i_number;
-      y1 = settings->current_y + block->j_number;
-      CHP(find_ends(block, settings, &x2, &y2, &end_z, &AA_end, &BB_end, &CC_end,
-                    &u_end, &v_end, &w_end));
-      cp.W = 1;
-        cp.X = settings->current_x;
-        cp.Y = settings->current_y;
+
+//      x1 = settings->current_x + block->i_number;
+//      y1 = settings->current_y + block->j_number;
+//      CHP(find_ends(block, settings, &x2, &y2, &end_z, &AA_end, &BB_end, &CC_end, &u_end, &v_end, &w_end));
+	if(settings->plane == CANON_PLANE_XY) {
+		x1 = settings->current_x + block->i_number;
+		y1 = settings->current_y + block->j_number;
+		CHP(find_ends(block, settings, &x2, &y2, &end_z, &AA_end, &BB_end, &CC_end,	&u_end, &v_end, &w_end));
+	}
+	if(settings->plane == CANON_PLANE_XZ) {
+		x1 = settings->current_x + block->i_number;
+		z1 = settings->current_z + block->j_number;
+		CHP(find_ends(block, settings, &x2, &end_y, &z2, &AA_end, &BB_end, &CC_end,	&u_end, &v_end, &w_end));
+	}
+	if(settings->plane == CANON_PLANE_YZ) {
+		y1 = settings->current_y + block->i_number;
+		z1 = settings->current_z + block->j_number;
+		CHP(find_ends(block, settings, &end_x, &y2, &z2, &AA_end, &BB_end, &CC_end,	&u_end, &v_end, &w_end));
+	}
+
+	cp.W = 1;
+
+//        cp.X = settings->current_x;
+//        cp.Y = settings->current_y;
+	if(settings->plane == CANON_PLANE_XY) {
+		cp.X = settings->current_x;
+		cp.Y = settings->current_y;
+	}
+	if(settings->plane == CANON_PLANE_YZ) {
+		cp.Y = settings->current_y;
+		cp.Z = settings->current_z;
+	}
+	if(settings->plane == CANON_PLANE_XZ) {
+		cp.X = settings->current_x;
+		cp.Z = settings->current_z;
+	}
+
+	nurbs_control_points.push_back(cp);
+
+//        cp.X = x1;
+//        cp.Y = y1;
+	if(settings->plane == CANON_PLANE_XY)
+		{
+		cp.X = x1;
+		cp.Y = y1;
+		}
+	if(settings->plane == CANON_PLANE_YZ)
+		{
+		cp.Y = y1;
+		cp.Z = z1;
+		}
+	if(settings->plane == CANON_PLANE_XZ)
+		{
+		cp.X = x1;
+		cp.Z = z1;
+		}
       nurbs_control_points.push_back(cp);
-        cp.X = x1;
-        cp.Y = y1;
+
+//        cp.X = x2;
+//        cp.Y = y2;
+	if(settings->plane == CANON_PLANE_XY) {
+		cp.X = x2;
+		cp.Y = y2;
+	}
+	if(settings->plane == CANON_PLANE_YZ) {
+		cp.Y = y2;
+		cp.Z = z2;
+	}
+	if(settings->plane == CANON_PLANE_XZ) {
+		cp.X = x2;
+		cp.Z = z2;
+	}
       nurbs_control_points.push_back(cp);
-        cp.X = x2;
-        cp.Y = y2;
-      nurbs_control_points.push_back(cp);
+//      NURBS_FEED(block->line_number, nurbs_control_points, 3, settings->plane);
       NURBS_FEED(block->line_number, nurbs_control_points, 3);
       nurbs_control_points.clear();
-      settings->current_x = x2;
-      settings->current_y = y2;
-    } else {
+//      settings->current_x = x2;
+//      settings->current_y = y2;
+	if(settings->plane == CANON_PLANE_XY) {
+		settings->current_x = x2;
+		settings->current_y = y2;
+	}
+	if(settings->plane == CANON_PLANE_YZ) {
+		settings->current_y = y2;
+		settings->current_z = z2;
+	}
+	if(settings->plane == CANON_PLANE_XZ) {
+		settings->current_x = x2;
+		settings->current_z = z2;
+	}
+    } else { 		// !(mode == G_5_1)
       if(!block->i_flag || !block->j_flag) {
           CHKS(block->i_flag || block->j_flag,
                   _("Must specify both I and J, or neither"));
-          x1 = settings->current_x + settings->cycle_i;
-          y1 = settings->current_y + settings->cycle_j;
+//          x1 = settings->current_x + settings->cycle_i;
+//          y1 = settings->current_y + settings->cycle_j;
+		if(settings->plane == CANON_PLANE_XY) {
+			x1 = settings->current_x + settings->cycle_i;
+			y1 = settings->current_y + settings->cycle_j;
+		}
+		if(settings->plane == CANON_PLANE_YZ) {
+			y1 = settings->current_y + settings->cycle_i;
+			z1 = settings->current_z + settings->cycle_j;
+		}
+		if(settings->plane == CANON_PLANE_XZ) {
+			x1 = settings->current_x + settings->cycle_i;
+			z1 = settings->current_z + settings->cycle_j;
+		}
       } else {
-          x1 = settings->current_x + block->i_number;
-          y1 = settings->current_y + block->j_number;
+//          x1 = settings->current_x + block->i_number;
+//          y1 = settings->current_y + block->j_number;
+		if(settings->plane == CANON_PLANE_XY) {
+			x1 = settings->current_x + block->i_number;
+			y1 = settings->current_y + block->j_number;
+			CHP(find_ends(block, settings, &x3, &y3, &end_z, &AA_end, &BB_end, &CC_end,	&u_end, &v_end, &w_end));
+		}
+		if(settings->plane == CANON_PLANE_YZ) {
+			y1 = settings->current_y + block->i_number;
+			z1 = settings->current_z + block->j_number;
+			CHP(find_ends(block, settings, &end_x, &y3, &z3, &AA_end, &BB_end, &CC_end,	&u_end, &v_end, &w_end));
+		}
+		if(settings->plane == CANON_PLANE_XZ) {
+			x1 = settings->current_x + block->i_number;
+			z1 = settings->current_z + block->j_number;
+			CHP(find_ends(block, settings, &x3, &end_y, &z3, &AA_end, &BB_end, &CC_end,	&u_end, &v_end, &w_end));
+		}
       }
-      CHP(find_ends(block, settings, &x3, &y3, &end_z, &AA_end, &BB_end, &CC_end,
-                    &u_end, &v_end, &w_end));
+//      CHP(find_ends(block, settings, &x3, &y3, &end_z, &AA_end, &BB_end, &CC_end, &u_end, &v_end, &w_end));
 
       CHKS(!block->p_flag || !block->q_flag,
 	      _("Must specify both P and Q with G5"));
-      x2 = x3 + block->p_number;
-      y2 = y3 + block->q_number;
+//      x2 = x3 + block->p_number;
+//      y2 = y3 + block->q_number;
+	if(settings->plane == CANON_PLANE_XY) {
+		x2 = x3 + block->p_number;
+		y2 = y3 + block->q_number;
+	}
+	if(settings->plane == CANON_PLANE_YZ) {
+		y2 = y3 + block->p_number;
+		z2 = z3 + block->q_number;
+	}
+	if(settings->plane == CANON_PLANE_XZ) {
+		x2 = x3 + block->p_number;
+		z2 = z3 + block->q_number;
+	}
 
       cp.W = 1;
-      cp.X = settings->current_x;
-      cp.Y = settings->current_y;
+//      cp.X = settings->current_x;
+//      cp.Y = settings->current_y;
+	if(settings->plane == CANON_PLANE_XY) {
+		cp.X = settings->current_x;
+		cp.Y = settings->current_y;
+	}
+	if(settings->plane == CANON_PLANE_YZ) {
+		cp.Y = settings->current_y;
+		cp.Z = settings->current_z;
+	}
+	if(settings->plane == CANON_PLANE_XZ) {
+		cp.X = settings->current_x;
+		cp.Z = settings->current_z;
+	}
       nurbs_control_points.push_back(cp);
-      cp.X = x1;
-      cp.Y = y1;
+//      cp.X = x1;
+//      cp.Y = y1;
+	if(settings->plane == CANON_PLANE_XY) {
+		cp.X = x1;
+		cp.Y = y1;
+	}
+	if(settings->plane == CANON_PLANE_YZ) {
+		cp.Y = y1;
+		cp.Z = z1;
+	}
+	if(settings->plane == CANON_PLANE_XZ) {
+		cp.X = x1;
+		cp.Z = z1;
+	}
       nurbs_control_points.push_back(cp);
-      cp.X = x2;
-      cp.Y = y2;
+//      cp.X = x2;
+//      cp.Y = y2;
+	if(settings->plane == CANON_PLANE_XY) {
+		cp.X = x2;
+		cp.Y = y2;
+	}
+	if(settings->plane == CANON_PLANE_YZ) {
+		cp.Y = y2;
+		cp.Z = z2;
+	}
+	if(settings->plane == CANON_PLANE_XZ) {
+		cp.X = x2;
+		cp.Y = z2;
+	}
       nurbs_control_points.push_back(cp);
-      cp.X = x3;
-      cp.Y = y3;
+//      cp.X = x3;
+//      cp.Y = y3;
+	if(settings->plane == CANON_PLANE_XY) {
+		cp.X = x3;
+		cp.Y = y3;
+	}
+	if(settings->plane == CANON_PLANE_YZ) {
+		cp.Y = y3;
+		cp.Z = z3;
+	}
+	if(settings->plane == CANON_PLANE_XZ) {
+		cp.X = x3;
+		cp.Z = z3;
+	}
       nurbs_control_points.push_back(cp);
+//      NURBS_FEED(block->line_number, nurbs_control_points, 4, settings->plane);
       NURBS_FEED(block->line_number, nurbs_control_points, 4);
       nurbs_control_points.clear();
 
       settings->cycle_i = -block->p_number;
       settings->cycle_j = -block->q_number;
-      settings->current_x = x3;
-      settings->current_y = y3;
+//      settings->current_x = x3;
+//      settings->current_y = y3;
+	if(settings->plane == CANON_PLANE_XY) {
+		settings->current_x = x3;
+		settings->current_y = y3;
+	}
+	if(settings->plane == CANON_PLANE_YZ) {
+		settings->current_y = y3;
+		settings->current_z = z3;
+	}
+	if(settings->plane == CANON_PLANE_XZ) {
+		settings->current_x = x3;
+		settings->current_z = z3;
+	}
     }
     return INTERP_OK;
 }
