@@ -634,17 +634,15 @@ $(DOC_SRCDIR)/%.html: STYLES_SCRIPTS=$(shell \
 )
 
 $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_EN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_en.links $(LOC_LANG_MAP)
-	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
-		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
-		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
+		 asciidoctor \
 		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
-		 -a linkcss \
+         -a linkcss\
 		 $(STYLES_SCRIPTS) \
 	         -a "scriptdir=$(DOC_SRCDIR)/" \
 	         -a "relindir=$(shell dirname $*)" \
-	         -a "linksfile=objects/xref_en.links" \
-		 -a stylesheet=linuxcnc.css \
-		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
+             -a "linksfile=objects/xref_en.links" \
+         -a "docinfodir=../" -a docinfo=shared\
+         -d book -a toc -a numbered -b xhtml5 $< || (X=$$?; rm -f $@; exit $$X)
 
 $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_DE_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_de.links $(LOC_LANG_MAP)
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \

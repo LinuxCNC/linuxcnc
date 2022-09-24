@@ -47,3 +47,5 @@ figcaption.title {
 dt.hdlist1 {
 	font-weight: normal;
 }
+
+ul > li > a  { color: blue; }

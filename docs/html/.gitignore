@@ -1,6 +1,7 @@
 *.js
 *.css
 !linuxcnc.css
+!asciidoc.css
 *.html
 !gcode*.html
 *.xml
