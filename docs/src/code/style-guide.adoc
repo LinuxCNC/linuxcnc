@@ -3,6 +3,8 @@
 
 = Coding Style
 
+== General comments
+
 LinuxCNC is developed in C/C++, Python, BASH and Tcl/Tk.
 Documentation is written in asciidoc, which includes the
 UNIX man pages written in Groff.
@@ -20,9 +22,8 @@ This chapter hence describes the source code style preferred by the
 LinuxCNC team. This shall improve the readability of source code and documentation and shall avoid
 intensive discussions (aka bike-shedding) about how to style it best.
 
-== General comments
 
-=== Do no harm
+=== Do no Harm
 
 When making small edits to code in a style different than the one
 described below, observe the local coding style. Rapid changes from one
@@ -350,12 +351,12 @@ and structure declarations, not code (unless the functions are declared
 inline).
 
 
-== Python coding standards
+== Python Coding standards
 
 Use the http://www.python.org/dev/peps/pep-0008/[PEP 8] style for
 Python code.
 
-== Comp coding standards
+== Comp Coding standards
 
 In the declaration portion of a .comp file, begin each declaration at
 the first column. Insert extra blank lines when they help group related
@@ -363,7 +364,7 @@ items.
 
 In the code portion of a .comp file, follow normal C coding style.
 
-== Style for the Documentation
+== Documentation Style
 
 This is a very recent (09/2022) part of this document. Please help shaping it if you are familiar with asciidoc.
 
@@ -388,7 +389,7 @@ This is a very recent (09/2022) part of this document. Please help shaping it if
 // included file includes it.
 
 
-=== Header, tags, toc, anchors etc.
+=== Preamble, TOC, Anchors etc.
 
 Every file should start with a header. This is typically
 ----
@@ -419,11 +420,26 @@ short name identifying the object.
 
 //    ?
 
-=== Lists
+=== Heading/Title Capitalization
 
-I think we should not define whether we should have a dot at the end of list items or not
+The documentation prefers the "Title Case Capitalization". It is defined by several associations. Here the definition by the APA:
 
-=== Sections and subsections
+.Title Case Capitalization
+[quote, APA, 'link:https://apastyle.apa.org/style-grammar-guidelines/capitalization/title-case[]']
+____
+
+In title case, major words are capitalized, and most minor words are lowercase. [...]
+
+- *major words*: Nouns, verbs (including linking verbs), adjectives, adverbs, pronouns, and all words of four letters or more are considered major words.
+- *minor words*: Short (i.e., three letters or fewer) conjunctions, short prepositions, and all articles are considered minor words.
+
+____
+
+// === Lists
+
+// I think we should not define whether we should have a dot at the end of list items or not
+
+=== Sections and Subsections
 
 The depth of sections shall not exceed 3 levels. If more structure is needed,
 subheadings can be inserted like this:
@@ -433,8 +449,40 @@ subheadings can be inserted like this:
 === Subsection
 .Subheading
 ----
+While "Chapter" corresponds to the document's title.
 
-=== Code blocks
+
+
+=== Usage of Italic and Monospace Font
+
+Highlighting of special elements like component names, pin names etc. shall be italic.
+Short code snippets shall be in monospaecd font.
+Headings shall not be formatted either itlaic nor monospaced.
+
+.Example
+====
+----
+If you are using _component_a_ you have to set the use `parameter_x = 500.0`.
+----
+
+If you are using _component_a_ you have to set the use `parameter_x = 500.0`.
+
+If you have direction control of your spindle, then the HAL pins _spindle.N.forward_ and _spindle.N.reverse_ are controlled by the G-codes _M3_ and _M4_.
+====
+
+
+=== Values and Units
+
+Between a value and its unit shall be always a space, preferably a thin space (U+2009). +
+To enter Unicode characters in most graphical editors,
+
+1. press and hold the Left Ctrl and Shift keys and hit the u key and then
+2. type the Unicode code with Ctrl + Shift still pressed.
+
+In VIM, press Ctrl + v and then enter the Unicode code with prefixed "u".
+
+
+=== Code Blocks
 
 Asciidoc supports syntax highlighting for several languages.
 The most common used in LinuxCNC are: _c, python, sh, tcl, xml_. +
@@ -463,8 +511,9 @@ The keywords for those need to be surrounded by curly braces:
  ----
 ----
 
-=== Pin listings
 
+
+=== Pin Listings
 
 .Compact Form
 
@@ -478,36 +527,9 @@ Example:
 * **halui.joint.**_N_**.is-selected** '(bit, out)' - Status pin that joint N is selected
 * **halui.joint.**_N_**.has-fault** '(bit, out)' - Status pin telling that joint N has a fault
 ====
-Where _N_ is the instance number of the component. If it's a componemt/module that can only be loaded once, a zero could/should replace the _N_:
+Where _N_ is the instance number of the component. If it's a component/module that can only be loaded once, a zero could/should replace _N_.
 
-====
-* *iocontrol.0.coolant-flood* '(Bit, Out)' TRUE when flood coolant is requested
-
-* *iocontrol.0.coolant-mist* '(Bit, Out)' TRUE when mist coolant is requested
-
-* *iocontrol.0.emc-enable-in* '(Bit, In)' Should be driven FALSE when an external
-  estop condition exists.
-====
-
-[NOTE]
-(Bit, In) or (bit, in) ?
-
-.Expanded (extended, enlarged?) Form, variant 1
-
-----
-* **comp.group.**_N_**.pin**:: '(type, direction)' - Functional description
-----
-
-Example:
-====
-**pid.**_N_**.Pgain**:: '(float, in)' - Proportional gain. Results in a contribution to the output that is the error multiplied by Pgain.
-
-**pid.**_N_**.Igain**:: '(float, in)' - Integral gain. Results in a contribution to the output that is the integral of the error multiplied by Igain. For example an error of 0.02 that lasted 10 seconds would result in an integrated error '(errorI)' of 0.2, and if Igain is 20, the integral term would add 4.0 to the output.
-
-**pid.**_N_**.Dgain**:: '(float, in)'- Derivative gain. Results in a contribution to the output that is the rate of change (derivative) of the error multiplied by Dgain. For example an error that changed from 0.02 to 0.03 over 0.2 seconds would result in an error derivative (errorD) of of 0.05, and if Dgain is 5, the derivative term would add 0.25 to the output.
-====
-
-.Expanded (extended, enlarged?) Form, variant 2
+.Indented Form with Line Break
 ----
 * **comp.group.**_N_**.pin** '(type, direction)':: Functional description
 ----
@@ -569,21 +591,24 @@ position is valid.
 
 
 
-=== Values and Units
+// === ??
+// * usage of lists vs titles +
+// ?
 
-Between a value and its unit shall be always a space, preferably a thin space (\&thinsp;). +
-Example: `100\&thinsp;kHz` -> 100&thinsp;kHz
+// * use of bold and italic
+// * structure/page splitting guidance
+//   - avoid 2k+ char long lines
 
+=== Images
 
+- Shall be centered
+- Shall have a caption if not embedded in the text
+----
+.Caption
+image::image.png["Description",align="center"]
+----
 
-* usage of lists vs titles +
-?
-
-* use of bold and italic
-* structure/page splitting guidance
-  - avoid 2k+ char long lines
-
-=== Table Formatting
+=== Table Formatting (to be filled by smoe 😉)
 Tables can be presented with a series of options.
 
 - header +
@@ -606,10 +631,14 @@ Another line could be motivated between the header and the main body.
 Asciidoc makes it difficult to nicely prepare captions. At the same time,
 captions are the only bit of the whole document that even with the first flick
 through the document will not escape the reader's attention.
+
+- spaces between ? for po4a
+
 ----
 Instruction needs to be added
 ----
 
+=== ?
 - reference
 * figure formatting (captions)
   - reference
