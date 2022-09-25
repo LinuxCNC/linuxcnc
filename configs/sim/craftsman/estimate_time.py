@@ -215,7 +215,7 @@ def calculate_move_time(dist, feed):
 	if feed == 0:
 		feed = 1
 		
-	#calculate accelaration
+	#calculate acceleration
 	ft = 0
 	acc = 900
 	at = float(acc) / feed 
