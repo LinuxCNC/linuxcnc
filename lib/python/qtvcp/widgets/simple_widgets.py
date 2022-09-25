@@ -468,7 +468,8 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
                 self.setEnabled(temp)
             else:
                 self.setEnabled(False)
-            self.connectSignals()
+
+        self.connectSignals()
 
     # Disconnect our standard signals
     def disconnectSignals(self):
@@ -1255,27 +1256,19 @@ class PushButton(IndicatedPushButton, _HalWidgetBase):
 
     # make the super class (pushbutton) HAL pins
     # then the button pins
+    # this overrides the super class function
+    # but then calls it after to connect signals etc.
     def _hal_init(self):
-        super(PushButton, self)._hal_init()
         if self._pin_name_ == '':
             pname = self.HAL_NAME_
         else:
             pname = self._pin_name_
         self.hal_pin = self.HAL_GCOMP_.newpin(str(pname), hal.HAL_BIT, hal.HAL_OUT)
-        self.connectSignals()
-
-    # Disconnect our standard signals
-    def disconnectSignals(self):
-        try:
-            self.toggled.disconnect()
-        except Exception: pass
-        try:
-            self.pressed.disconnect()
-            self.released.disconnect()
-        except Exception: pass
+        super(PushButton, self)._hal_init()
 
     # done so we can adjust 'checkable' signals at run time
     # ie delete all signals an re apply them
+    # this overrides the super class function
     def connectSignals(self):
         super().connectSignals()
         def _update(state):
