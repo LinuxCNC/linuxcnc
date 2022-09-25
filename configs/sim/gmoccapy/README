@@ -1,11 +1,8 @@
-This is a simulation of an XYZ axis mill 
-and also a lathe.
+A touch screen unser interface for mills, lathes and plasma cutters.
+Based of the design of moccagui, a GUI coded in FreePascal.
+GMOCCAPY is using Python instead.
 
-This screen is based of the design of moccagui, an GUI coded in FreePascal.
-
-gmoccapy is using Python instead.
-
-gmoccapy is designed to bring the feel of industrial controls to LinuxCNC users,
+GMOCCAPY is designed to bring the feel of industrial controls to LinuxCNC users,
 most controls can be used with a touch screen and also most are accessible through
 hal pins, so real hardware can be used.
 
