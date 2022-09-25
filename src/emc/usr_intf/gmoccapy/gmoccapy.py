@@ -5186,6 +5186,7 @@ class gmoccapy(object):
 
     # edit a program or make a new one
     def on_btn_edit_clicked(self, widget, data=None):
+        self.hbox2_position = self.widgets.hbox2.get_position()
         self.widgets.ntb_button.set_current_page(_BB_EDIT)
         self.widgets.ntb_preview.hide()
         self.widgets.tbl_DRO.hide()
@@ -5271,6 +5272,7 @@ class gmoccapy(object):
             self.widgets.ntb_preview.show()
             self.widgets.tbl_DRO.show()
             self.widgets.vbx_jog.set_size_request(360, -1)
+            self.widgets.hbox2.set_position(self.hbox2_position)
             self.widgets.gcode_view.set_sensitive(False)
             self.widgets.btn_save.set_sensitive(True)
             self.widgets.hal_action_reload.emit("activate")
