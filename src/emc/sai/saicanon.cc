@@ -318,7 +318,7 @@ void STOP_SPEED_FEED_SYNCH()
 /* Machining Functions */
 
 void NURBS_FEED(int lineno,
-std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k)
+std::vector<CONTROL_POINT> nurbs_control_points, unsigned int nurbs_order, int plane)
 {
   ECHO_WITH_ARGS("%lu, ...", (unsigned long)nurbs_control_points.size());
 

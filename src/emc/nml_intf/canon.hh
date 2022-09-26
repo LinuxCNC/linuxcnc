@@ -50,7 +50,7 @@ enum CanonBool {
 struct CONTROL_POINT {          /* type for NURBS control points */
     double X,
     Y,
-		Z,	/* nurbs-xyz */
+    //Z,	/* new since nurbs-xyz */
     W;
 };
 
@@ -485,7 +485,7 @@ extern double alpha_finder(double dx, double dy);
 
 /* Canon calls */
 
-extern void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k);
+extern void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, unsigned int nurbs_order, int plane);
 /* Move at the feed rate along an approximation of a NURBS with a variable number
  * of control points
  */

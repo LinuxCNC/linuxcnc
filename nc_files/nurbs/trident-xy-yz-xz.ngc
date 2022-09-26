@@ -1,0 +1,79 @@
+
+; Lo Valvo, page 178
+; Sai Ashish Kanna, OPTIMIZED NURBS CURVE BASED G-CODE PART PROGRAM FOR CNC SYSTEMS, 2018, page 54
+
+G0 X0 Y0 Z0
+G21 G40 G54 G90 G94
+G96 S200 M3
+
+;-----------------------------------------------
+G17 ; Plane XY
+
+G0 X10 Y0
+G0 Z1
+
+G1 Z-1 F100
+
+G5.2 P1 L4
+    X10 Y0 P1 
+    X20 Y20 P1
+    X12 Y8 P1
+    X10 Y20 P1
+    X8  Y8 P1
+    X0  Y20 P1
+    X10 Y0 P1
+G5.3
+
+G1 Z1
+G0 X10 Y0
+G0 X0 Y0 Z0
+
+;-----------------------------------------------
+G19 (Plane YZ)
+
+G0 Z10 Y0
+G0 X1
+
+G1 X-1 F100
+
+G5.2 P1 L4
+    Z10 Y0 P1 
+    Z20 Y20 P1
+    Z12 Y8 P1
+    Z10 Y20 P1
+    Z8  Y8 P1
+    Z0  Y20 P1
+    Z10 Y0 P1
+G5.3
+
+G1 X1
+G0 Y0 Z10
+G0 X0 Y0 Z0
+
+;-----------------------------------------------
+G18 ; Plane ZX
+
+G0 X10 Z0
+G0 Y1
+
+G1 Y-1 F100
+
+G5.2 P1 L4
+    X10 Z0 P1 
+    X20 Z20 P1
+    X12 Z8 P1
+    X10 Z20 P1
+    X8 Z8 P1
+    X0 Z20 P1
+    X10 Z0 P1
+G5.3
+
+G1 Y1
+G1 X10 Z0
+G0 X0 Y0 Z0
+
+
+M2
+
+
+

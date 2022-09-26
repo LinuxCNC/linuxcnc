@@ -170,21 +170,45 @@ static void maybe_new_line(int sequence_number) {
     Py_XDECREF(result);
 }
 
-void NURBS_FEED(int line_number, std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k) {
+void NURBS_FEED(int line_number, std::vector<CONTROL_POINT> nurbs_control_points, unsigned int nurbs_order, int plane) {
     double u = 0.0;
     unsigned int n = nurbs_control_points.size() - 1;
-    double umax = n - k + 2;
+    double umax = n - nurbs_order + 2;
     unsigned int div = nurbs_control_points.size()*15;
-    std::vector<unsigned int> knot_vector = knot_vector_creator(n, k);	
+    std::vector<unsigned int> knot_vector = knot_vector_creator(n, nurbs_order);	
     PLANE_POINT P1;
     while (u+umax/div < umax) {
-        PLANE_POINT P1 = nurbs_point(u+umax/div,k,nurbs_control_points,knot_vector);
-        STRAIGHT_FEED(line_number, P1.X,P1.Y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
+        PLANE_POINT P1 = nurbs_point(u+umax/div,nurbs_order,nurbs_control_points,knot_vector);
+        printf("P1 X: %8.4f Y: %8.4f pos_x: %8.4f pos_y: %8.4f pos_z: %8.4f (F: %s L: %d)\n",P1.X,P1.Y,_pos_x,_pos_y,_pos_z,__FILE__,__LINE__);
+
+        //STRAIGHT_FEED(line_number, P1.X,P1.Y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
+        if(plane==CANON_PLANE_XY) {
+            //printf("XY (F: %s L: %d)\n",__FILE__,__LINE__);
+            STRAIGHT_FEED(line_number, P1.X, P1.Y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w); //
+            }
+        if(plane==CANON_PLANE_YZ) {
+            //printf("YZ (F: %s L: %d)\n",__FILE__,__LINE__);
+            STRAIGHT_FEED(line_number, _pos_x, P1.X, P1.Y, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w); //
+            }
+        if(plane==CANON_PLANE_XZ) {
+            //printf("XZ (F: %s L: %d)\n",__FILE__,__LINE__);
+            STRAIGHT_FEED(line_number, P1.X, _pos_y, P1.Y, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w); //
+            }
         u = u + umax/div;
-    } 
+        } 
     P1.X = nurbs_control_points[n].X;
     P1.Y = nurbs_control_points[n].Y;
-    STRAIGHT_FEED(line_number, P1.X,P1.Y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
+    printf("Pn X: %8.4f Y: %8.4f pos_x: %8.4f pos_y: %8.4f pos_z: %8.4f (F: %s L: %d)\n",P1.X,P1.Y,_pos_x,_pos_y,_pos_z,__FILE__,__LINE__);
+    //STRAIGHT_FEED(line_number, P1.X,P1.Y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
+    if(plane==CANON_PLANE_XY) {
+        STRAIGHT_FEED(line_number, P1.X, P1.Y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w); //
+        }
+    if(plane==CANON_PLANE_YZ) {
+        STRAIGHT_FEED(line_number, _pos_x, P1.X, P1.Y, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w); //
+        }
+    if(plane==CANON_PLANE_XZ) {
+        STRAIGHT_FEED(line_number, P1.X, _pos_y, P1.Y, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w); //
+        }
     knot_vector.clear();
 }
 

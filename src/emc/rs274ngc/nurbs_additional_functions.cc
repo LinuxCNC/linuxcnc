@@ -86,10 +86,8 @@ PLANE_POINT nurbs_point(double u, unsigned int k,
     point.X = 0;
     point.Y = 0;
     for (i=0; i<(nurbs_control_points.size()); i++) {
-        point.X = point.X + nurbs_control_points[i].X*Nmix(i,k,u,knot_vector)
-	*nurbs_control_points[i].W/Rden(u,k,nurbs_control_points,knot_vector);
-        point.Y = point.Y + nurbs_control_points[i].Y*Nmix(i,k,u,knot_vector)
-	*nurbs_control_points[i].W/Rden(u,k,nurbs_control_points,knot_vector);
+        point.X = point.X + nurbs_control_points[i].X*Nmix(i,k,u,knot_vector)*nurbs_control_points[i].W/Rden(u,k,nurbs_control_points,knot_vector);
+        point.Y = point.Y + nurbs_control_points[i].Y*Nmix(i,k,u,knot_vector)*nurbs_control_points[i].W/Rden(u,k,nurbs_control_points,knot_vector);
     }
     return point;
 }

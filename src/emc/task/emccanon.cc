@@ -1388,7 +1388,7 @@ biarc(int lineno, double p0x, double p0y, double tsx, double tsy,
 
 /* Canon calls */
 
-void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, unsigned int nurbs_order) {
+void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, unsigned int nurbs_order, int plane) {
 	printf("jf (F: %s F: %s L: %d)\n",__FUNCTION__,__FILE__,__LINE__);
 	if(canon.activePlane == CANON_PLANE_XY)	printf("jf XY (F: %s L: %d)\n",__FILE__,__LINE__);
 	if(canon.activePlane == CANON_PLANE_XZ)	printf("jf XZ (F: %s L: %d)\n",__FILE__,__LINE__);
@@ -1410,13 +1410,13 @@ void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, uns
 
     for(unsigned int i=1; i<=div; i++) {
 	double u = umax * i / div;
-        P1 = nurbs_point(u,nurbs_order,nurbs_control_points,knot_vector);
+    P1 = nurbs_point(u,nurbs_order,nurbs_control_points,knot_vector);
 	P1T = nurbs_tangent(u,nurbs_order,nurbs_control_points,knot_vector);
-        biarc(lineno, P0.X,P0.Y, P0T.X,P0T.Y, P1.X,P1.Y, P1T.X,P1T.Y);
-        P0 = P1;
-        P0T = P1T;
+    biarc(lineno, P0.X,P0.Y, P0T.X,P0T.Y, P1.X,P1.Y, P1T.X,P1T.Y);
+    P0 = P1;
+    P0T = P1T;
     }
-    knot_vector.clear();
+knot_vector.clear();
 }
 
 
