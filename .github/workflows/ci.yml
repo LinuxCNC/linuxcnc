@@ -135,18 +135,6 @@ jobs:
         adduser testrunner sudo
         chmod 0777 $(find tests/ -type d) # make test dirs world-writable for the testrunner
         su -c "./scripts/runtests -p ./tests" testrunner
-    - name: Stage debs for archiving
-      run: |
-        set -e
-        set -x
-        mkdir -p built-debs/$(lsb_release -cs)
-        cp ../linuxcnc*_* built-debs/$(lsb_release -cs)
-    - name: Archive generated Debian packages
-      uses: actions/upload-artifact@v3
-      with:
-        name: debs
-        retention-days: 7
-        path: built-debs/*
 
   package-indep:
     runs-on: ubuntu-latest
@@ -215,21 +203,3 @@ jobs:
         set -e
         set -x
         apt-get --yes --quiet install ../*.deb
-    - name: Stage debs for archiving
-      run: |
-        set -e
-        set -x
-        mkdir -p built-debs/$(lsb_release -cs)
-        cp ../linuxcnc*_* built-debs/$(lsb_release -cs)
-    - name: Archive generated PDF files
-      uses: actions/upload-artifact@v3
-      with:
-        name: PDFs
-        retention-days: 7
-        path: docs/*.pdf
-    - name: Archive generated Debian packages
-      uses: actions/upload-artifact@v3
-      with:
-        name: debs
-        retention-days: 7
-        path: built-debs/*
