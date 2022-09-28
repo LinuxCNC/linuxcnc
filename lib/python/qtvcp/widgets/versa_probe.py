@@ -268,6 +268,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def process_finished(self, exitCode, exitStatus):
         LOG.info(("Probe Process finished - exitCode {} exitStatus {}".format(exitCode, exitStatus)))
         self.proc = None
+        STATUS.unblock_error_polling()
 
     def parse_input(self, line):
         line = line.decode("utf-8")
