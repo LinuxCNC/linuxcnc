@@ -2,6 +2,8 @@ component timedelta "LinuxCNC HAL component that measures thread scheduling timi
 
 pin out s32 jitter=0 "Worst-case scheduling error (in ns).  This is the largest discrepancy between ideal thread period, and actual time between sequential runs of this component.  This uses the absolute value of the error, so 'got run too early' and 'got run too late' both show up as positive jitter.";
 
+pin out s32 current_jitter=0 "Scheduling error (in ns) of the current invocation.  This is the discrepancy between ideal thread period, and actual time since the previous run of this component.  This uses the absolute value of the error, so 'got run too early' and 'got run too late' both show up as positive jitter.";
+
 pin out s32 min_=0 "Minimum time (in ns) between sequential runs of this component.";
 
 pin out s32 max_=0 "Maximum time (in ns) between sequential runs of this component.";
@@ -39,6 +41,7 @@ if(last != 0) {
 		if(del < min_) min_ = del;
 		if(del > max_) max_ = del;
 		jitter = max(max_ - period, period - min_);
+		current_jitter = max(del - period, period - del);
 	}
 	count++;
 	avg_err = err / (double)count;
