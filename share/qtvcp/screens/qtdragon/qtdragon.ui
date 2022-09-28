@@ -3015,7 +3015,7 @@ RESET</string>
                     <enum>QFrame::Raised</enum>
                    </property>
                    <property name="currentIndex">
-                    <number>0</number>
+                    <number>9</number>
                    </property>
                    <widget class="QWidget" name="main_tab_widgetPage1">
                     <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -5902,8 +5902,14 @@ TO FILE</string>
                            <verstretch>0</verstretch>
                           </sizepolicy>
                          </property>
+                         <property name="styleSheet">
+                          <string notr="true">QTabBar::tab{
+ min-height:36px;
+ min-width:80px;
+}</string>
+                         </property>
                          <property name="currentIndex">
-                          <number>1</number>
+                          <number>0</number>
                          </property>
                          <widget class="QWidget" name="tabHTML">
                           <attribute name="title">
@@ -7163,17 +7169,20 @@ TO FILE</string>
                            <set>Qt::AlignCenter</set>
                           </property>
                           <layout class="QVBoxLayout" name="verticalLayout_18">
+                           <property name="spacing">
+                            <number>4</number>
+                           </property>
                            <property name="leftMargin">
-                            <number>0</number>
+                            <number>4</number>
                            </property>
                            <property name="topMargin">
-                            <number>0</number>
+                            <number>12</number>
                            </property>
                            <property name="rightMargin">
-                            <number>0</number>
+                            <number>4</number>
                            </property>
                            <property name="bottomMargin">
-                            <number>0</number>
+                            <number>4</number>
                            </property>
                            <item>
                             <widget class="QWidget" name="widget_ext_offset" native="true">
@@ -7191,7 +7200,7 @@ TO FILE</string>
                                <number>0</number>
                               </property>
                               <property name="bottomMargin">
-                               <number>0</number>
+                               <number>4</number>
                               </property>
                               <item>
                                <widget class="QLabel" name="label_3">
@@ -7301,6 +7310,18 @@ TO FILE</string>
                         </item>
                         <item alignment="Qt::AlignHCenter">
                          <widget class="QLabel" name="silver_dragon">
+                          <property name="minimumSize">
+                           <size>
+                            <width>0</width>
+                            <height>1</height>
+                           </size>
+                          </property>
+                          <property name="sizeIncrement">
+                           <size>
+                            <width>0</width>
+                            <height>0</height>
+                           </size>
+                          </property>
                           <property name="text">
                            <string/>
                           </property>
@@ -15376,7 +15397,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>07:46:35 PM</string>
+            <string>07:57:29 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -16325,7 +16346,7 @@ ZERO</string>
   <slot>tab_utilities_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>
