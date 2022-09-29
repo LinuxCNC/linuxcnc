@@ -100,10 +100,10 @@ jobs:
       run: |
         set -e
         set -x
-        apt-get --yes --quiet install --no-install-recommends gpg software-properties-common
+        apt-get --yes --quiet install --no-install-recommends gpg
         gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
         DIST=$(echo ${{matrix.image}} | cut -d : -f 2)
-        add-apt-repository "deb http://linuxcnc.org $DIST base"
+        echo "deb http://linuxcnc.org $DIST base" >> /etc/apt/sources.list
         apt-get --quiet update
 
     - name: Build architecture-specific Debian packages
@@ -174,10 +174,10 @@ jobs:
       run: |
         set -e
         set -x
-        apt-get --yes --quiet install gpg software-properties-common
+        apt-get --yes --quiet install gpg
         gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
         DIST=$(echo ${{matrix.image}} | cut -d : -f 2)
-        add-apt-repository "deb http://linuxcnc.org $DIST base"
+        echo "deb http://linuxcnc.org $DIST base" >> /etc/apt/sources.list
         apt-get --quiet update
 
     - name: Build architecture-independent Debian packages
