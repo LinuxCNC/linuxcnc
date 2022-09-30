@@ -28,6 +28,7 @@ import time
 import traceback
 import tkinter as Tkinter
 from tkinter import *
+from importlib import reload
 
 # this statement is required so that stuff from Tkinter
 # is not included in the pydoc documentation __All__ should list all 
@@ -80,7 +81,7 @@ def nodeiterator(node,widgetparent):
       
 
 
-widgets=[]
+widgets={}
 def widget_creator(parent,widget_name,params):
     """
        creates a pyVCP widget
@@ -112,7 +113,7 @@ def widget_creator(parent,widget_name,params):
    
     # add the widget to a global list widgets
     # to enable calling update() later
-    widgets.append(widget)
+    widgets[pycomp].append(widget)
 
     return widget
 
@@ -148,11 +149,12 @@ def paramiterator(node):
 
 
 def updater():
-     """ calls pyvcp_widgets.update() on each widget repeatedly every 100 ms """
-     global widgets, pycomp
-     for a in widgets:
-          a.update(pycomp)
-     pyvcp0.after(100,updater)
+    """ calls pyvcp_widgets.update() on each widget repeatedly every 100 ms """
+    global widgets, pycomp
+    for w in widgets:
+        for a in widgets[w]:
+            a.update(w)
+    pyvcp0.after(100,updater)
 
 
 
@@ -164,6 +166,7 @@ def create_vcp(master, comp = None, compname="pyvcp"):
             comp = HAL component
             compname = name of HAL component which is created if comp=None
     """
+    reload(pyvcp_widgets)
     global pyvcp0, pycomp
     pyvcp0 = master
     if comp is None:
@@ -174,6 +177,7 @@ def create_vcp(master, comp = None, compname="pyvcp"):
             sys.exit(0)
 
     pycomp = comp
+    widgets[pycomp] = []
     read_file() 
     updater()
     return comp

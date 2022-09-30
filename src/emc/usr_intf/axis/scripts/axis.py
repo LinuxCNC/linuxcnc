@@ -4027,17 +4027,32 @@ def _dynamic_tabs(inifile):
     # may forward keyboard events to it
     rxid = root_window.winfo_id()
     os.environ['AXIS_FORWARD_EVENTS_TO'] = str(rxid)
-
     for i,t,c in zip(list(range(len(tab_cmd))), tab_names, tab_cmd):
         w = _dynamic_tab("user_" + str(i), t)
-        f = Tkinter.Frame(w, container=1, borderwidth=0, highlightthickness=0)
-        f.pack(fill="both", expand=1)
-        xid = f.winfo_id()
-        cmd = c.replace('{XID}', str(xid)).split()
-        child = Popen(cmd)
-        wait = cmd[:2] == ['halcmd', 'loadusr']
+        if c.split()[0] == 'pyvcp': # this is a pycvp panel
+            import vcpparse
+            f = Tkinter.Frame(w, borderwidth=0, highlightthickness=0)
+            pyvcp = c.split()
+            if len(pyvcp) != 2:
+                print("Invalid PyVCP tab configuration: EMBED_TAB COMMAND =", c)
+                print("Incorrect number of parameters")
+                continue
+            try:
+                f.pack(fill="y", expand=0)
+                vcpparse.filename = pyvcp[1]
+                vcpparse.create_vcp(f, comp=None, compname=t.lower().replace(' ','_'))
+            except Exception as e:
+                print("Invalid PyVCP tab configuration: EMBED_TAB COMMAND =", c)
+                print(e)
+        else: # this is a gladevcp panel
+            f = Tkinter.Frame(w, container=1, borderwidth=0, highlightthickness=0)
+            f.pack(fill="both", expand=1)
+            xid = f.winfo_id()
+            cmd = c.replace('{XID}', str(xid)).split()
+            child = Popen(cmd)
+            wait = cmd[:2] == ['halcmd', 'loadusr']
 
-        _dynamic_childs[str(w)] = (child, cmd, wait)
+            _dynamic_childs[str(w)] = (child, cmd, wait)
 
 @atexit.register
 def kill_dynamic_childs():
