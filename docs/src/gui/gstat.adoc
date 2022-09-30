@@ -8,8 +8,7 @@
 
 GStat is a Python class used to send messages from LinuxCNC to other Python programs.
 It uses GObject to deliver messages, making it easy to listen for specific information.
-This is referred to as event-driven programming, which is more efficient then every program
-polling LinuxCNC at the same time.
+This is referred to as event-driven programming, which is more efficient then every program polling LinuxCNC at the same time.
 GladeVCP, Gscreen, Gmoccapy and QtVCP use GStat extensively.
 GStat is in the `hal_glib` module.
 
@@ -310,17 +309,17 @@ Sent every 100&thinsp;ms.
 
 *current-position* :: '(returns pyobject, pyobject, pyobject, pyobject)' -
 Sent every 100&thinsp;ms. +
-returns tuples of position, relative position, distance-to-go and
-the joint actual position. Before homing, on multi-joint axes, only joint position is valid.
+Returns tuples of position, relative position, distance-to-go and the joint actual position.
+Before homing, on multi-joint axes, only joint position is valid.
 
 *current-z-rotation* :: '(returns float)' -
-Sent as the current rotatated angle around the Z axis changes +
+Sent as the current rotatated angle around the Z axis changes
 
 *requested-spindle-speed-changed* :: '(returns float)' -
 Sent when the current requested RPM changes
 
 *actual-spindle-speed-changed* :: '(returns float)' -
-Sent when the actual RPM changes based on the HAL pin 'spindle.0.speed-in'. +
+Sent when the actual RPM changes based on the HAL pin 'spindle.0.speed-in'.
 
 *spindle-override-changed* :: '(returns float)' -
 Sent when the spindle override value changes +
@@ -437,7 +436,7 @@ This depends on the widget/libraries used.
 
 *dialog-request* :: '(returns Python dict)' -
 intended to be sent when requesting a gui dialog. +
-It uses a Python dict for communication. +
+It uses a Python dict for communication.
 The dict must include the following keyname pair: +
 * NAME: 'requested dialog name' +
   The dict usually has several keyname pairs - it depends on the dialog. +
@@ -575,8 +574,7 @@ returns integer representing the internal selected joint number.
 
 *set_selected_axis* :: '(string)' -
 records the selected axis letter internally. +
-Requests the axis to be selected by emitting the
-'axis-selection-changed' message.
+Requests the axis to be selected by emitting the 'axis-selection-changed' message.
 
 *get_selected_axis* :: '(None)' -
 returns string representing the internal selected axis letter.

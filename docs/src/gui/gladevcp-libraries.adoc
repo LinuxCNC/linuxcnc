@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:gladevcp-libraries]]
-= GladeVCP Libraries modules
+= GladeVCP Library modules
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -10,12 +10,12 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-Libraries are prebuilt python modules that give added features to GladeVCP. +
-In this way you can select what features you want - yet don't have to build common ones yourself. +
+Libraries are prebuilt Python modules that give added features to GladeVCP.
+In this way you can select what features you want - yet don't have to build common ones yourself.
 
 == Info
 
-Info is a library to collect and filters data from the INI file. +
+Info is a library to collect and filters data from the INI file.
 
 The available data and defaults:
 
@@ -115,7 +115,7 @@ convert_units_9(data)
 get_filter_program(fname)
 ----
 
-To import this modules add this python code to your import section:
+To import this modules add this Python code to your import section:
 
 [source,python]
 ----
@@ -126,7 +126,7 @@ To import this modules add this python code to your import section:
 from gladevcp.core import Info
 ----
 
-To instantiate the module so you can use it in a handler file add this python code to your instantiate section:
+To instantiate the module so you can use it in a handler file add this Python code to your instantiate section:
 
 [source,python]
 ----
@@ -148,10 +148,10 @@ if INFO.MACHINE_IS_METRIC is True:
 
 == Action
 
-This library is used to command LinuxCNC's motion controller. +
-It tries to hide incidental details and add convenience methods for developers. +
+This library is used to command LinuxCNC's motion controller.
+It tries to hide incidental details and add convenience methods for developers.
 
-To import this modules add this python code to your import section:
+To import this modules add this Python code to your import section:
 
 [source,python]
 ----
@@ -162,7 +162,7 @@ To import this modules add this python code to your import section:
 from gladevcp.core import Action
 ----
 
-To instantiate the module so you can use it add this python code to your instantiate section:
+To instantiate the module so you can use it add this Python code to your instantiate section:
 
 [source,python]
 ----
@@ -172,7 +172,7 @@ To instantiate the module so you can use it add this python code to your instant
 
 ACTION = Action()
 ----
-To access Action commands use general syntax such as these: +
+To access Action commands use general syntax such as these:
 [source,python]
 ----
 ACTION.SET_ESTOP_STATE(state)
