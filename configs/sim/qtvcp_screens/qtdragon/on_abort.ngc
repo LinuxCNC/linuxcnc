@@ -10,7 +10,7 @@ o100 elseif [#1 eq 7]
 o100 elseif [#1 eq 8]
     (msg,Process Aborted)
 o100 else
-    (DEBUG,Abort Parameter is [#1])
+    (DEBUG,Abort Parameter is %d[#1])
 o100 endif
 
 o<on_abort> endsub
