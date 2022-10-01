@@ -146,12 +146,12 @@ INFO_ICON = "dialog_information"
 def _find_valid_icon_themes():
     valid_icon_themes = [
         # path, name
-        (None, "none")
     ]
     for base_dir in [e for e in [USER_ICON_THEME_DIR, ICON_THEME_DIR] if os.path.exists(e)]:
         for theme_name in os.listdir(base_dir):
             theme_dir = os.path.join(base_dir, theme_name)
             if os.path.exists(os.path.join(theme_dir, "index.theme")):
+                # Saving the directory of the theme is not needed and not used later
                 valid_icon_themes.append((theme_dir, theme_name))
     return valid_icon_themes
 
@@ -820,7 +820,7 @@ class gmoccapy(object):
             message = _("**** GMOCCAPY ERROR ****\n")
             message += _("**** could not resolv the image path '{0}' given for button '{1}' ****".format(filepath, name))
             print(message)
-            image.set_from_icon_name("gtk-missing-image", Gtk.IconSize.DIALOG)
+            image.set_from_icon_name("image-missing", Gtk.IconSize.DIALOG)
             btn.add(image)
 
         btn.show_all()
@@ -2024,9 +2024,8 @@ class gmoccapy(object):
                 print(f"Warning: preferred icon-theme '{icon_theme_preference}' not found; switching to 'default'.")
                 icon_theme_choice.set_active(0)
 
-        # switch theme if not default
-        if icon_theme_choice.get_active():
-            self._set_icon_theme(model[icon_theme_choice.get_active_iter()][1])
+        # load icon theme
+        self._set_icon_theme(model[icon_theme_choice.get_active_iter()][1])
 
 
     def _init_audio(self):
@@ -2439,7 +2438,7 @@ class gmoccapy(object):
 
     def _show_error(self, error):
         kind, text = error
-        # print kind,text
+        # print(kind,text)
         if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
             icon = ALERT_ICON
             self.halcomp["error"] = True
