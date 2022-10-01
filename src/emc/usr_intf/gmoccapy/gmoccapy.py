@@ -138,9 +138,9 @@ USER_ICON_THEME_DIR = os.path.join(os.path.expanduser("~"), ".icons")
 # path to TCL for external programs eg. halshow
 TCLPATH = os.environ['LINUXCNC_TCL_DIR']
 
-# the ICONS should must be in share/gmoccapy/images
-ALERT_ICON = os.path.join(IMAGEDIR, "applet-critical.png")
-INFO_ICON = os.path.join(IMAGEDIR, "std_info.gif")
+# the ICONS should must exist in the icon theme
+ALERT_ICON = "dialog_warning"
+INFO_ICON = "dialog_information"
 
 
 def _find_valid_icon_themes():
@@ -3330,8 +3330,13 @@ class gmoccapy(object):
             self.notification.set_property('max_messages', self.widgets.adj_max_messages.get_value())
         self.notification.set_property('use_frames', self.widgets.chk_use_frames.get_active())
         self.notification.set_property('font', self.widgets.fontbutton_popup.get_font_name())
-        self.notification.set_property('icon_size', Gtk.IconSize.LARGE_TOOLBAR)
+        self.notification.set_property('icon_size', 24)
         self.notification.set_property('top_to_bottom', True)
+        icon_theme_preference = self.prefs.getpref("icon_theme", None, str)
+        self.notification.set_property('icon_theme_name', icon_theme_preference)
+        # Append these two directories to the icon theme search path
+        self.notification.set_property('icon_theme_path', ICON_THEME_DIR)
+        self.notification.set_property('icon_theme_path', USER_ICON_THEME_DIR)
 
     def _from_internal_linear_unit(self, v, unit=None):
         if unit is None:
@@ -4453,7 +4458,7 @@ class gmoccapy(object):
             self.dialogs.warning_dialog(self, _("Just to warn you"), message)
         else:
             self.icon_theme.set_custom_theme(name)
-
+            self.notification.set_property('icon_theme_name', name)
             icon_configs = [
                 # widget, named_icon, size
                 ("img_emergency", "main_switch_on", 48),
