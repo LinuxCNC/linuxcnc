@@ -7384,6 +7384,62 @@ TO FILE</string>
                          </spacer>
                         </item>
                         <item>
+                         <widget class="PushButton" name="pushbutton_2">
+                          <property name="minimumSize">
+                           <size>
+                            <width>96</width>
+                            <height>50</height>
+                           </size>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>96</width>
+                            <height>50</height>
+                           </size>
+                          </property>
+                          <property name="text">
+                           <string>TEST BUTTON</string>
+                          </property>
+                          <property name="python_command_option" stdset="0">
+                           <bool>true</bool>
+                          </property>
+                          <property name="true_python_cmd_string" stdset="0">
+                           <string>PROGRAM_LOADER.load_test_button()</string>
+                          </property>
+                          <property name="false_python_cmd_string" stdset="0">
+                           <string/>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <widget class="PushButton" name="pushbutton">
+                          <property name="minimumSize">
+                           <size>
+                            <width>96</width>
+                            <height>50</height>
+                           </size>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>96</width>
+                            <height>50</height>
+                           </size>
+                          </property>
+                          <property name="text">
+                           <string>TEST LED</string>
+                          </property>
+                          <property name="python_command_option" stdset="0">
+                           <bool>true</bool>
+                          </property>
+                          <property name="true_python_cmd_string" stdset="0">
+                           <string>PROGRAM_LOADER.load_test_led()</string>
+                          </property>
+                          <property name="false_python_cmd_string" stdset="0">
+                           <string/>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
                          <widget class="ActionButton" name="actionbutton_lcnc_status_3">
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -15397,7 +15453,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>07:57:29 PM</string>
+            <string>09:29:15 AM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -16346,7 +16402,7 @@ ZERO</string>
   <slot>tab_utilities_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>
