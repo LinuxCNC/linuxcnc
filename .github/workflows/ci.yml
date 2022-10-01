@@ -98,6 +98,13 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
+        case "${{matrix.image}}" in
+            debian:sid|debian:bookworm)
+                exit 0
+                ;;
+            *)
+                ;;
+        esac
         set -e
         set -x
         apt-get --yes --quiet install --no-install-recommends gpg software-properties-common
@@ -172,6 +179,13 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
+        case "${{matrix.image}}" in
+            debian:sid|debian:bookworm)
+                exit 0
+                ;;
+            *)
+                ;;
+        esac
         set -e
         set -x
         apt-get --yes --quiet install gpg software-properties-common

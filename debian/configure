@@ -55,7 +55,15 @@ done
 
 DISTRIB_NAME=
 if [ "$(command -v lsb_release)" != "" ] || [ "$(which lsb_release)" != "" ]; then
-    DISTRIB_NAME="$(lsb_release -s -i)-$(lsb_release -s -r)"
+    ID="$(lsb_release --short --id)"
+    RELEASE="$(lsb_release --short --release)"
+    # Workaround for broken lsb_release, <URL: https://bugs.debian.org/1008735 >
+    case "$RELEASE" in
+      n/a)
+        RELEASE=unstable
+        ;;
+    esac
+    DISTRIB_NAME="$ID-$RELEASE"
 elif [ -f /etc/lsb-release ]; then
     source /etc/lsb-release
     DISTRIB_NAME=$DISTRIB_ID-$DISTRIB_RELEASE
