@@ -32,7 +32,7 @@ dangerous machine. Please forward reports to the forum or maillist.
 .QtDragon - 3 or 4 Axes Sample (1440x860) in silver theme
 image::images/silverdragon.png["QtDragon Router",scale="25%"]
 
-QtDragon has a resolution of 1440x900 and is not resizable. +
+QtDragon is resizabke from a  resolution of 1280x768 to 1680x1200. +
 It will work in window mode on any monitor with higher resolution but not
 on monitors with lower resolution.
 
@@ -62,7 +62,7 @@ In the section '[DISPLAY]' change the 'DISPLAY' line to read:
 * 'qtdragon' for a small version
 * 'qtdradon_hd' for the large version.
 
-You can add '-c-' or '-v' for debug output to the terminal.
+You can add '-d' or '-v' for debug output to the terminal.
 
 [source,{ini}]
 ----
@@ -74,7 +74,7 @@ DISPLAY = qtvcp qtdragon
 
 To keep track of preferences, QtDragon looks for a preference text file.
 add the following entry under the '[DISPLAY]' heading.
-This will save the file in the config folder of the launch screen.
+This example will save the file in the config folder of the launch screen.
 (other options are possible see the QtVCP's screenoption widget docs.)
 
 [source,{ini}]
@@ -146,9 +146,11 @@ DEFAULT_LINEAR_VELOCITY = 50.0
 ----
 
 === User message dialog system
-
-Popup Message dialogs, controlled by HAL pins.
+Optional popup custom message dialogs, controlled by HAL pins.
 MESSAGE_TYPE can be 'okdialog' or 'yesnodialog'.
+See qtvcp/library/messages for more information
+This example shows how to make a dialog that requires the user to select
+ 'ok' to acknowledge and hide.
 
 [source,{ini}]
 ----
@@ -166,6 +168,7 @@ You can embed QtVCP Virtual Control Panels into the QtDragon or QtDragon_hd scre
 These panels can be either user built or builtin <<cha:qtvcp:panels,QtVCP Panels>>. +
 The `TAB_NAME` entry will used as the title for the new tab. +
 Tab `TAB_LOCATION` options include: `tabWidget_utilities` and `tabWidget_setup`.
+See qtvcp/VCP panels for other available builtin panels.
 
 This sample adds a builtin panel; a graphical animated machine using the vismach library.
 
@@ -208,6 +211,7 @@ QtDragon has the ability to send loaded files through a 'filter program'.
 This filter can do any desired task: Something as simple as making sure
 the file ends with 'M2', or something as complicated as generating
 G-Code from an image.
+See <<cha:filter,Filter Programs>> for more information.
 
 The '[FILTER]'  section of the INI file controls how filters work.
 First, for each type of file, write a 'PROGRAM_EXTENSION' line.
@@ -247,7 +251,13 @@ X = 106.9
 Y = -16.85
 ----
 
-QtDragon has two optional probing tab screens:
+QtDragon has two optional probing tab screens available.
+Comment/uncomment which ever you prefer.
+
+'Versa probe' is a Qtvcp ported version of a popular Gladevcp probing panel.
+'Basic Probe' is a Qtvcp ported version based on the third party basic probe 
+screen.
+Both do similar probing routines. 
 
 [source,{ini}]
 ----
@@ -258,7 +268,7 @@ USE_PROBE = basicprobe
 
 === Macro Buttons
 
-QtDragon has up to ten convenient macro buttons.
+QtDragon has up to ten convenience macro buttons.
 In the sample configurations they are labelled for moving between
 current user system origin (zero point) and Machine system origin.
 User origin is the first MDI command in the INI list, machine origin is the
@@ -285,7 +295,7 @@ There are several others, to demonstrate different machine configurations.
 == Key Bindings
 
 QtDragon is not intended to primarily use a keyboard for machine control.
-It lacks many keyboatd short cuts that for instance AXIS has - but you can use
+It lacks many keyboard short cuts that for instance AXIS has - but you can use
 a mouse.
 There are several key presses that will control the machine for convenience.
 
@@ -295,13 +305,13 @@ F2 - Machine on/off
 F12 - Style Editor
 Home - Home All Joint of the Machine
 Escape - Abort Movement
-Pause -Pause Machine Movement
+Pause - Pause Machine Movement
 ----
 
 == Buttons
 
 Buttons that are checkable will change their text colour when checked. +
-This is controlled by the stue theme +
+This is controlled by the stylesheet/theme +
 
 == Virtual Keyboard
 
@@ -310,12 +320,10 @@ To enable the keyboard, check the Use Virtual Keyboard checkbox in the Settings
 page. +
 Clicking on any input field, such as probe parameters or tool table entries,
 will show the keyboard. +
-It can also be shown by clicking the KEYBD button on the top of the screen, +
-unless the machine is in AUTO mode. To hide the keyboard, do one of the
-following:
+To hide the keyboard, do one of the following:
 
 - click the MAIN page button
-- click the KEYBD button
+- The curently selected page button.
 - go into AUTO mode
 
 It should be noted that keyboard jogging is disabled when using the virtual
@@ -590,10 +598,13 @@ opportunity to watch the DROs and stop the routine at any time.
 [NOTE]
 Probing is very unforgiving to mistakes; be sure to check settings before using.
 
-.QtDragon - Probe Sample
+.QtDragon - Basic Probe Option
 image::images/silverdragon_probe.png["QtDragon Probe",scale="25%"]
 
-QtDragon has 2 possible methods for setting Z0. The first is a touchplate, where
+.QtDragon - Versa Probe Option
+image::images/qtdragon_versaprobe.png["QtDragon Probe",scale="25%"]
+
+QtDragon has 2 methods for setting Z0. The first is a touchplate, where
 a metal plate of known thickness is placed on top of the workpiece and then the
 tool is lowered until it touches the plate, triggering the probe signal. Z0 is
 set to probe height - plate thickness.
@@ -641,7 +652,7 @@ setting.
 == Auto Tool Measurement
 
 QtDragon can be setup to do integrated auto tool measurement using the
-Versa Probe widget.
+Versa Probe widget and remap code.
 To use this feature, you will need to do some additional settings and you may
 want to use the offered HAL pin to get values in your own ngc remap procedure.
 
@@ -762,7 +773,8 @@ Versa probe works with a M6 remap to add auto tool probing.
 [source,{ini}]
 ----
 [PROBE]
-USE_PROBE = versaprobe
+#USE_PROBE = versaprobe
+USE_PROBE = basicprobe
 ----
 
 ==== The RS274NGC section
@@ -775,11 +787,32 @@ USE_PROBE = versaprobe
 # or similarly coded custom remap files
 SUBROUTINE_PATH = ~/linuxcnc/nc_files/remap-subroutines:~/linuxcnc/nc_files/remap_lib
 
-# is the sub, with is called when a error during tool change happens, not needed on every machine configuration
+# is the sub, with is called when a error during tool change happens.
 ON_ABORT_COMMAND=O <on_abort> call
 
 # The remap code for QtVCP's versaprobe's automatic tool probe of Z
 REMAP=M6  modalgroup=6 prolog=change_prolog ngc=qt_auto_probe_tool epilog=change_epilog
+----
+
+The abort command file should be in the configuration folder and look something like this:
+
+----
+o<on_abort> sub
+
+o100 if [#1 eq 5]
+    (machine on)
+o100 elseif [#1 eq 6]
+    (machine off)
+o100 elseif [#1 eq 7]
+    (estopped)
+o100 elseif [#1 eq 8]
+    (msg,Process Aborted)
+o100 else
+    (DEBUG,Abort Parameter is %d[#1])
+o100 endif
+
+o<on_abort> endsub
+m2
 ----
 
 ==== The Tool Sensor Section
@@ -936,6 +969,7 @@ Up to tens buttons can be defined in the INI.
 
 You can use this tab to load or transfer programs. +
 Editing of G-code programs can be selected from this tab.
+With qtdragon_hd, this is where you can load 'Gcode Ripper'
 
 === Offsets Tab
 
