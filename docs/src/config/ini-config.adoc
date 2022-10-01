@@ -314,11 +314,12 @@ User Manual.
 * 'PREVIEW_TIMEOUT = 5' - Timeout (in seconds) for loading graphical preview of G-code. Currently AXIS only.
 
 [NOTE]
-The following [DISPLAY] items are used by GladeVCP, see the
-<<gladevcp:embedding-tab,embedding a tab>> section of the GladeVCP Chapter.
+The following [DISPLAY] items are used by GladeVCP and PyVCP, see the
+<<gladevcp:embedding-tab,embedding a tab>> section of the GladeVCP Chapter
+or the <<cha:pyvcp,PyVCP Chapter>> for more information.
 
-* 'EMBED_TAB_NAME=GladeVCP demo'
-* 'EMBED_TAB_COMMAND=halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x \{XID\} -u ./gladevcp/hitcounter.py ./gladevcp/manual-example.ui'
+* 'EMBED_TAB_NAME = GladeVCP demo'
+* 'EMBED_TAB_COMMAND = halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x \{XID\} -u ./gladevcp/hitcounter.py ./gladevcp/manual-example.ui'
 +
 [NOTE]
 ====

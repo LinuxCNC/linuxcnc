@@ -85,7 +85,23 @@ source that you trust.
 
 Since AXIS uses the same GUI toolkit (Tkinter) as PyVCP, it is
 possible to include a PyVCP panel at either the right side or the bottom
-of the AXIS user interface. A typical example is explained below.
+of the AXIS user interface. It is not possible to display a panel
+in both of these positions simultaneously.
+A typical example is explained below.
+
+In addition to or instead of displaying a PyVCP panel as described above, it is
+possible to display one or more PyVCP panels as embedded tabs in the AXIS GUI.
+This is achieved by the following in the `[DISPLAY]` section of the `.ini` file:
+
+[source,{ini}]
+----
+EMBED_TAB_NAME    = Spindle
+EMBED_TAB_COMMAND = pyvcp spindle.xml
+----
+
+The text label of the AXIS tab will display `Spindle`.
+
+=== Example Panel
 
 Place your PyVCP XML file describing the panel in the same directory
 where your .ini file is. Say we we want to display the current spindle
@@ -147,8 +163,10 @@ net spindle-rpm-filtered => pyvcp.spindle-speed
 ----
 
 assuming that a signal called 'spindle-rpm-filtered' already exists.
-Note that when running together with AXIS, all PyVCP widget HAL pins
-have names that start with 'pyvcp.'.
+Note that when running together with AXIS, all PyVCP panel widget 
+HAL pins have names that start with 'pyvcp.', all PyVCP embedded
+tab widget HAL pins start with the name specified as EMBED_TAB_NAME
+converted to lower case.
 
 image::images/pyvcp_axis_lathe.png[]
 

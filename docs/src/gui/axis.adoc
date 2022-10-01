@@ -961,8 +961,10 @@ of the INI Configuration Chapter.
 
 === Virtual Control Panel(((AXIS: Virtual Control Panel)))
 
-AXIS can display a custom virtual control panel in the right-hand
-pane. You can program buttons, indicators, data displays and more. For
+AXIS can display a custom virtual control panel in either the right
+side column or the bottom row.
+Additionally one or more panels may be displayed as embedded tabs.
+You can program buttons, indicators, data displays and more. For
 more information, see the <<cha:pyvcp,PyVCP>> and the <<cha:glade-vcp,GladeVCP>> chapters.
 
 [[axis:preview-control]]
