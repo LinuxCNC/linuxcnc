@@ -15,7 +15,10 @@ from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp.core import Status, Action, Info, Path, Qhal
 from qtvcp import logger
 from shutil import copyfile
-from math import dist, ceil
+try:
+    from math import dist, ceil
+except:
+    LOG.error('Is python distutils installed? (sudo apt install python3-distutils')
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
