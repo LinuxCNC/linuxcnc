@@ -26,9 +26,17 @@ if [ "$NEW_DEB_VERSION" = "$DEB_VERSION" ]; then
     exit 0
 fi
 
+# Workaround until <URL: https://bugs.debian.org/1008735 > in lsb_release is fixed.
+CODENAME="$(lsb_release --codename --short)"
+case "$CODENAME" in
+  n/a)
+    CODENAME=unstable
+    ;;
+esac
+
 set -e
 (
-echo "linuxcnc ($NEW_DEB_VERSION) $(lsb_release -cs); urgency=low"
+echo "linuxcnc ($NEW_DEB_VERSION) $CODENAME; urgency=low"
 echo
 git log --pretty=format:"  * %w(72,0,6)%s" $GIT_TAG..
 echo
