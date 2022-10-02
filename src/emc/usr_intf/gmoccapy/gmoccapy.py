@@ -3331,8 +3331,6 @@ class gmoccapy(object):
         self.notification.set_property('font', self.widgets.fontbutton_popup.get_font_name())
         self.notification.set_property('icon_size', 24)
         self.notification.set_property('top_to_bottom', True)
-        icon_theme_preference = self.prefs.getpref("icon_theme", None, str)
-        self.notification.set_property('icon_theme_name', icon_theme_preference)
         # Append these two directories to the icon theme search path
         self.notification.set_property('icon_theme_path', ICON_THEME_DIR)
         self.notification.set_property('icon_theme_path', USER_ICON_THEME_DIR)
