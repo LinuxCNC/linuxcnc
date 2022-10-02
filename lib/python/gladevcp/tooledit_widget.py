@@ -561,7 +561,7 @@ class ToolEdit(Gtk.VBox):
                 i += 1
                 if colnum + i < len(columns):
                     if columns[colnum + i].props.visible:
-                        renderer = columns[colnum + i].get_cell_renderers()
+                        renderer = columns[colnum + i].get_cells()
                         if renderer[0].props.editable:
                             next_column = columns[colnum + i]
                             cont = False
@@ -569,7 +569,7 @@ class ToolEdit(Gtk.VBox):
                 else:
                     i = 1
                     while cont2:
-                        renderer = columns[i].get_cell_renderers()
+                        renderer = columns[i].get_cells()
                         if renderer[0].props.editable:
                             next_column = columns[i]
                             cont2 = False
@@ -578,7 +578,7 @@ class ToolEdit(Gtk.VBox):
                     cont = False
 
             if keyname == 'Right':
-                renderer = columns[colnum].get_cell_renderers()
+                renderer = columns[colnum].get_cells()
                 if type(focuschild) is Gtk.Entry:
                     self.col_editted(renderer[0], path, treeview.get_focus_child().props.text, colnum, filter)
             GLib.timeout_add(50,
@@ -594,7 +594,7 @@ class ToolEdit(Gtk.VBox):
                 i -= 1
                 if colnum + i > 0:
                     if columns[colnum + i].props.visible:
-                        renderer = columns[colnum + i].get_cell_renderers()
+                        renderer = columns[colnum + i].get_cells()
                         if renderer[0].props.editable:
                             next_column = columns[colnum + i]
                             cont = False
@@ -602,7 +602,7 @@ class ToolEdit(Gtk.VBox):
                 else:
                     i = -1
                     while cont2:
-                        renderer = columns[i].get_cell_renderers()
+                        renderer = columns[i].get_cells()
                         if renderer[0].props.editable:
                             next_column = columns[i]
                             cont2 = False
@@ -610,7 +610,7 @@ class ToolEdit(Gtk.VBox):
                             i -= 1
                     cont = False
 
-            renderer = columns[colnum].get_cell_renderers()
+            renderer = columns[colnum].get_cells()
             if type(focuschild) is Gtk.Entry:
                 self.col_editted(renderer[0], path, treeview.get_focus_child().props.text, colnum, filter)
             GLib.timeout_add(50,
