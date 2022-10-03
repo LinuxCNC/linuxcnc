@@ -23,7 +23,7 @@ If you the VersaProbe option and remap code you can add auto tool length probing
 at tool changes.
 
 [NOTE]
-QtDragon and QtVcp are relatively new programs added into LinuxCNC. +
+QtDragon and QtVcp are relatively new programs added into LinuxCNC.
 Bugs and oddities are possible. Please test carefully when using a
 dangerous machine. Please forward reports to the forum or maillist.
 
@@ -32,7 +32,7 @@ dangerous machine. Please forward reports to the forum or maillist.
 .QtDragon - 3 or 4 Axes Sample (1440x860) in silver theme
 image::images/silverdragon.png["QtDragon Router",scale="25%"]
 
-QtDragon is resizabke from a  resolution of 1280x768 to 1680x1200. +
+QtDragon is resizable from a resolution of 1280x768 to 1680x1200.
 It will work in window mode on any monitor with higher resolution but not
 on monitors with lower resolution.
 
@@ -428,7 +428,7 @@ qtdragon.versaprobe-searchvel
 
 The HAL files supplied are for simulation only. A real machine needs its own
 custom HAL files. The QtDragon screen works with 3 or 4 axes with one joint per
-axis or 3 or 4 axes in a gantry configuration. (2 joints on 1 axis)
+axis or 3 or 4 axes in a gantry configuration (2 joints on 1 axis).
 
 == Manual Tool Changes
 

@@ -19,7 +19,7 @@ labels in PyQt.
 You are free to use any available *default widgets* in the _Qt Designer_ editor.
 
 There are also *special widgets* made for LinuxCNC that make integration
-easier. These are split in two heading on the right side of the editor:
+easier. These are split in two, heading on the right side of the editor:
 
 * One is for *HAL only widgets*.
 * The other is for *CNC control widgets*.
@@ -2320,7 +2320,7 @@ self.w.tooloffsetview.setProperty('dialog_code','CALCULATOR')
 self.w.tooloffsetview.setProperty('metric_template','%10.3f')
 ----
 
-ie. In style sheets:
+and in style sheets:
 
 [source,{css}]
 ----
@@ -2343,8 +2343,7 @@ actions:
 *`set_all_unchecked()`*::
   Uncheck all selected tools.
 
-I.e., in handler file:
-
+.Example for handler file executing aformentioned functions.
 [source,python]
 ----
 self.w.tooloffsetview.add_tool()
@@ -2850,7 +2849,6 @@ self.w.joypadename.setProperty('true_color','green')
 self.w.joypadename.setProperty('false_color','red')
 ----
 
-
 [[sec:qtvcp:widgets:baseclass-mixin]]
 == BaseClass/Mixin Widgets
 
@@ -3101,6 +3099,5 @@ Allows adding loadable PDFs to a screen.
 === Qt Vismach
 
 Use this to build/add OpenGl simulated machines.
-
 
 // vim: set syntax=asciidoc:

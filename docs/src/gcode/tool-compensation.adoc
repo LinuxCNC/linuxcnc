@@ -212,9 +212,9 @@ The io program provides HAL output pins to facilitate toolchanger management:
 . The pocket number for a tool is set when tooldata is loaded/reloaded
   from its data source ([EMCIO]TOOL_TABLE or [EMCIO]DB_PROGRAM).
 . At G-code *T__n__* (_n_ != 0) command:
-.. *iocontrol.0.tool-prep-index*  = idx (index based on tooldata load sequence)
+.. *iocontrol.0.tool-prep-index*  = _idx_ (index based on tooldata load sequence)
 .. *iocontrol.0.tool-prep-number* = _n_
-.. *iocontrol.0.tool-prep-pocket* = the pocketno for _n_
+.. *iocontrol.0.tool-prep-pocket* = the pocket number for _n_
 . At G-code *T0* (_n_ == 0 remove) command:
 .. *iocontrol.0.tool-prep-index*  = 0
 .. *iocontrol.0.tool-prep-number* = 0
@@ -226,7 +226,7 @@ The io program provides HAL output pins to facilitate toolchanger management:
 
 . Tool number _n_==0 is *not special*.
 . Pocket number 0 is *special* as it indicates the *spindle*.
-. The *current* pocket number for tool __N__ is the tooldata index (idx) for tool __n__.
+. The *current* pocket number for tool _n_ is the tooldata index (_idx_) for tool _n_.
 . At G-code command *T__n__*:
 .. *iocontrol.0.tool-prep-index*  = tooldata index (idx) for tool _n_
 .. *iocontrol.0.tool-prep-number* = _n_
@@ -276,7 +276,7 @@ applications it is fixed but it may be changed by edits to the
 used.  LinuxCNC pushes updates to the data source ([EMCIO]TOOL_TABLE
 or [EMCIO]DB_PROGRAM) for gcodes G10L1,G10L10,G10L11,M61.  LinuxCNC
 can pull tooldata updates from the data source by UI (user-interface)
-commands (python example: linuxcnc.command().load_tool_table()) or by
+commands (Python example: linuxcnc.command().load_tool_table()) or by
 the gcode: G10L0.
 
 .Random Location Tool Changers

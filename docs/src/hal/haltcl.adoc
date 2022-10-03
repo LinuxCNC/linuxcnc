@@ -95,7 +95,7 @@ form:
 [SECTION]ITEM
 ----
 
-The same INI file values are accessible in .tcl files using the form of a tcl
+The same INI file values are accessible in Tcl files using the form of a Tcl
 global array variable:
 
 [source,tcl]
@@ -112,7 +112,7 @@ MAX_VELOCITY = 4
 ----
 
 is expressed as   `[JOINT_0]MAX_VELOCITY`  in HAL files for halcmd +
-and as            `$::JOINT_0(MAX_VELOCITY)` in .tcl files for haltcl.
+and as            `$::JOINT_0(MAX_VELOCITY)` in Tcl files for haltcl.
 
 Because INI files can repeat the same ITEM in the same SECTION multiple times,
 `$::SECTION(ITEM)` is actually a Tcl list of each individual value.
@@ -162,9 +162,9 @@ So to get the values just as entered in the INI file, re-write the loadrt line l
 loadrt $::HOSTMOT2(DRIVER) board_ip=[lindex $::HOSTMOT2(IPADDR) 0] config=[lindex $::HOSTMOT2(CONFIG) 0]
 ----
 
-== Converting HAL files to .tcl files
+== Converting HAL files to Tcl files
 
-Existing HAL files can be converted to .tcl files by hand editing to adapt to
+Existing HAL files can be converted to Tcl files by hand editing to adapt to
 the differences mentioned above.  The process can be automated with scripts
 that convert using these substitutions.
 
@@ -255,7 +255,7 @@ puts [show sig *acc]
 
 The halrun command recognizes haltcl files.  With the -T option,
 haltcl can be run interaactively as a Tcl interpreter.  This
-capability is useful for testing and for standalone hal applications.
+capability is useful for testing and for standalone HAL applications.
 
 .Example
 ----
