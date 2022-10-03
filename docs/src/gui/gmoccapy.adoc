@@ -65,7 +65,7 @@ screens with minimum resolution of 1024x748.
 
 ==  How To Get GMOCCAPY
 
-Beginning with LinuxCNC, GMOCCAPY 3 is included in the standard installation up from LinuxCNC 2.8.
+GMOCCAPY 3 is included in the standard distribution of LinuxCNC since release 2.8.
 So the easiest way to get GMOCCAPY on your controlling PC, is just to download the
 http://www.linuxcnc.org/index.php/english/download[ISO] and install it
 from the CD/DVD/USB-stick. +
@@ -210,7 +210,7 @@ You can add embedded programs to GMOCCAPY like you can do in AXIS, Touchy and
 Gscreen. All is done by GMOCCAPY automatically if you include a few lines in
 your INI file in the DISPLAY section.
 
-If you have never used a glade panel, I recommend to read the excellent documentation
+If you have never used a Glade panel, I recommend to read the excellent documentation
 on http://www.linuxcnc.org/docs/html/gui/gladevcp.html[Glade VCP].
 
 .Embedded Tab Example
@@ -321,12 +321,12 @@ MESSAGE_PINNAME = is the name of the HAL pin group to be created
 
 The messages support pango markup language. Detailed information about the
 markup language can be found at
-https://developer.gnome.org/pango/stable/PangoMarkupFormat.html[Pango Markup]
+https://developer.gnome.org/pango/stable/PangoMarkupFormat.html[Pango Markup].
 
 The following three dialog types are available:
 
 * *status* - Will just display a message as pop up window, using the messaging
-  system of GMOCCAPY
+  system of GMOCCAPY.
 * *okdialog* - Will hold focus on the message dialog and will activate a
   `-waiting` HAL pin.
 * *yesnodialog* - Will hold focus on the message dialog and will activate
@@ -373,7 +373,7 @@ You can add macros to GMOCCAPY, similar to Touchy's way. A macro is nothing
 else than an NGC file. You are able to execute complete CNC programs in MDI
 mode, by just pushing one button. To do so, you first have to add a section like this:
 
-.Configuration of five macros in the INI fileto MDI button list
+.Configuration of five macros in the INI fileto MDI button list.
 [source,{ini}]
 ----
 [MACROS]
