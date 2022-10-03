@@ -97,7 +97,7 @@ This can be used to do such things as record preferences, etc.
 This function is not called when the Qt Designer editor displays the
 widgets.
 
-== Custom Hal Widgets
+== Custom HAL Widgets
 
 HAL widgets are the simplest to show example of. +
 `qtvcp/widgets/simple_widgets.py` holds many HAL only widgets.
@@ -498,7 +498,7 @@ from qtvcp.core import Status, Action, Info
 
 # Instantiate the libraries with global reference
 # STATUS gives us status messages from LinuxCNC
-# INFO holds ini details
+# INFO holds INI details
 # ACTION gives commands to LinuxCNC
 STATUS = Status()
 INFO = Info()
@@ -584,7 +584,6 @@ class SystemToolButton(QToolButton, _HalWidgetBase):
         return getattr(self, item)
     def __setitem__(self, item, value):
         return setattr(self, item, value)
-
 ----
 
 == Stylesheet Property Changes Based On Events
@@ -598,6 +597,7 @@ This is a relatively expensive function so should be used sparingly.
 This example sets an `isHomed` property based on LinuxCNC's homed
 state and in turn uses it to change stylesheet properties:
 
+.This example will set the property isHomed based on LinuxCNC's homed state.
 [source,python]
 ----
 class HomeLabel(QLabel, _HalWidgetBase):
