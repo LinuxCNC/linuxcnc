@@ -306,6 +306,7 @@ APP = halreport /tmp/halreport.txt
 The function addf-ordering can be important for servo loops where
 the sequence of the functions computed at each servo period is
 important.  Typically, the order is:
+
 . read input pins,
 . do the motion command-handler and motion-controller functions,
 . perform pid calculations, and finally
