@@ -477,7 +477,7 @@ can be added easily without changes to the source code.
 | G18   | 180
 | G19   | 190
 | G17.1 | 171
-| G18.1 |  181
+| G18.1 | 181
 | G19.1 | 191
 |===
 
@@ -934,14 +934,14 @@ being in effect. The modal groups are shown in the following Table.
 .M-code Modal Groups(((Modal Groups: M-codes)))
 [width="80%",cols="4,6",options="header"]
 |===
-|Modal Group Meaning           | Member Words
-|Stopping (Group 4)            | M0, M1, M2, M30, M60
-|On/Off I/O ('Group 5')        | FIXME M6 Tn
-|Toolchange ('Group 6')        | M6 Tn
-|Spindle (Group 7)             | M3, M4, M5
-|Coolant (Group 8)             | (M7 M8 can both be on), M9
-|Override Switches (Group 9)   | M48, M49
-|User Defined (Group 10)       | M100-M199
+|Modal Group Meaning         | Member Words
+|Stopping (Group 4)          | M0, M1, M2, M30, M60
+|On/Off I/O ('Group 5')      | FIXME M6 T__n__
+|Toolchange ('Group 6')      | M6 T__n__
+|Spindle (Group 7)           | M3, M4, M5
+|Coolant (Group 8)           | (M7 M8 can both be on), M9
+|Override Switches (Group 9) | M48, M49
+|User Defined (Group 10)     | M100-M199
 |===
 
 For several modal groups, when a machining center is ready to accept

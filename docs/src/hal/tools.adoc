@@ -241,15 +241,15 @@ or
 [width="90%",options="header"]
 //[grid=false,frame=false]
 |===
-|Option    |Value   |Description
-|--minvalue|minvalue|minimum bin, default: 0
-|--binsize |binsize |binsize, default: 100
-|--nbins   |nbins   |number of bins, default: 50
+|Option     |Value    |Description
+|--minvalue |minvalue |minimum bin, default: 0
+|--binsize  |binsize  |binsize, default: 100
+|--nbins    |nbins    |number of bins, default: 50
 | | |
-|--logscale|0/1     |y axis log scale, default: 1
-|--text    |note    |text display, default: ""
-|--show    |        |show count of undisplayed nbins, default off
-|--verbose |        |progress and debug, default off
+|--logscale |0/1      |y axis log scale, default: 1
+|--text     |note     |text display, default: ""
+|--show     |         |show count of undisplayed nbins, default off
+|--verbose  |         |progress and debug, default off
 |===
 
 .Notes:
@@ -367,8 +367,8 @@ function report the function as "Unknown".
 
 [NOTE]
 halreport generates a connections report for a running HAL
-application to aid in designing and verifying connections.  Pin
-types and current values are not shown.  For this information use
+application to aid in designing and verifying connections.
+Pin types and current values are not shown.  For this information use
 applications like halshow, halmeter, halscope or the 'show'
 command available with command-line halcmd program.
 

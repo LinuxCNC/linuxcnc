@@ -64,25 +64,25 @@ halcmd: unloadrt stepgen
 
 On the step type and control type selected.
 
-* '(float) stepgen.<chan>.position-cmd' - Desired motor position, in
+* '(float) stepgen._<chan>_.position-cmd' - Desired motor position, in
   position units (position mode only).
-* '(float) stepgen.<chan>.velocity-cmd' - Desired motor velocity, in
+* '(float) stepgen._<chan>_.velocity-cmd' - Desired motor velocity, in
   position units per second (velocity mode only).
-* '(s32) stepgen.<chan>.counts' - Feedback position in counts,
+* '(s32) stepgen._<chan>.counts' - Feedback position in counts,
   updated by 'capture_position()'.
-* '(float) stepgen.<chan>.position-fb' - Feedback position in
+* '(float) stepgen._<chan>_.position-fb' - Feedback position in
   position units, updated by 'capture_position()'.
-* '(bit) stepgen.<chan>.enable' - Enables output steps - when false,
+* '(bit) stepgen._<chan>_.enable' - Enables output steps - when false,
   no steps are generated.
-* '(bit) stepgen.<chan>.step' - Step pulse output (step type 0 only).
-* '(bit) stepgen.<chan>.dir' - Direction output (step type 0 only).
-* '(bit) stepgen.<chan>.up' - UP pseudo-PWM output (step type 1 only).
-* '(bit) stepgen.<chan>.down' - DOWN pseudo-PWM output (step type 1 only).
-* '(bit) stepgen.<chan>.phase-A' - Phase A output (step types 2-14 only).
-* '(bit) stepgen.<chan>.phase-B' - Phase B output (step types 2-14 only).
-* '(bit) stepgen.<chan>.phase-C' - Phase C output (step types 3-14 only).
-* '(bit) stepgen.<chan>.phase-D' - Phase D output (step types 5-14 only).
-* '(bit) stepgen.<chan>.phase-E' - Phase E output (step types 11-14 only).
+* '(bit) stepgen._<chan>_.step' - Step pulse output (step type 0 only).
+* '(bit) stepgen._<chan>_.dir' - Direction output (step type 0 only).
+* '(bit) stepgen._<chan>_.up' - UP pseudo-PWM output (step type 1 only).
+* '(bit) stepgen._<chan>_.down' - DOWN pseudo-PWM output (step type 1 only).
+* '(bit) stepgen._<chan>_.phase-A' - Phase A output (step types 2-14 only).
+* '(bit) stepgen._<chan>_.phase-B' - Phase B output (step types 2-14 only).
+* '(bit) stepgen._<chan>_.phase-C' - Phase C output (step types 3-14 only).
+* '(bit) stepgen._<chan>_.phase-D' - Phase D output (step types 5-14 only).
+* '(bit) stepgen._<chan>_.phase-E' - Phase E output (step types 11-14 only).
 
 [[sec:stepgen-parameters]]
 === Parameters(((HAL stepgen parameters)))
@@ -542,40 +542,40 @@ second.
 Each loop has two pins which are used to monitor or control the
 general operation of the component.
 
-* '(float) pid.<loopnum>.error' - Equals '.command' minus '.feedback'.
-* '(bit) pid.<loopnum>.enable' - A bit that enables the loop. If
+* '(float) pid._<loopnum>_.error' - Equals '.command' minus '.feedback'.
+* '(bit) pid._<loopnum>_.enable' - A bit that enables the loop. If
   '.enable' is false, all integrators are reset, and the output is
   forced to zero. If '.enable' is true, the loop operates normally.
 
 Pins used to report saturation. Saturation occurs when the output of
 the PID block is at its maximum or minimum limit.
 
-* '(bit) pid.<loopnum>.saturated' - True when output is saturated.
-* '(float) pid.<loopnum>.saturated_s' - The time the output has been saturated.
-* '(s32) pid.<loopnum>.saturated_count' - The time the output has been saturated.
+* '(bit) pid._<loopnum>_.saturated' - True when output is saturated.
+* '(float) pid._<loopnum>_.saturated_s' - The time the output has been saturated.
+* '(s32) pid._<loopnum>_.saturated_count' - The time the output has been saturated.
 
 The PID gains, limits, and other 'tunable' features of the loop are
 available as pins so that they can be adjusted dynamically for more
 advanced tuning possibilities.
 
-* '(float) pid.<loopnum>.Pgain' - Proportional gain
-* '(float) pid.<loopnum>.Igain' - Integral gain
-* '(float) pid.<loopnum>.Dgain' - Derivative gain
-* '(float) pid.<loopnum>.bias' - Constant offset on output
-* '(float) pid.<loopnum>.FF0' - Zeroth order feedforward - output
+* '(float) pid._<loopnum>_.Pgain' - Proportional gain
+* '(float) pid._<loopnum>_.Igain' - Integral gain
+* '(float) pid._<loopnum>_.Dgain' - Derivative gain
+* '(float) pid._<loopnum>_.bias' - Constant offset on output
+* '(float) pid._<loopnum>_.FF0' - Zeroth order feedforward - output
   proportional to command (position).
-* '(float) pid.<loopnum>.FF1' - First order feedforward - output
+* '(float) pid._<loopnum>_.FF1' - First order feedforward - output
   proportional to derivative of command (velocity).
-* '(float) pid.<loopnum>.FF2' - Second order feedforward - output
+* '(float) pid._<loopnum>_.FF2' - Second order feedforward - output
   proportional to 2^nd^ derivative
   of command (acceleration).
-* '(float) pid.<loopnum>.deadband' - Amount of error that will be ignored
-* '(float) pid.<loopnum>.maxerror' - Limit on error
-* '(float) pid.<loopnum>.maxerrorI' - Limit on error integrator
-* '(float) pid.<loopnum>.maxerrorD' - Limit on error derivative
-* '(float) pid.<loopnum>.maxcmdD' - Limit on command derivative
-* '(float) pid.<loopnum>.maxcmdDD' - Limit on command 2^nd^ derivative
-* '(float) pid.<loopnum>.maxoutput' - Limit on output value
+* '(float) pid._<loopnum>_.deadband' - Amount of error that will be ignored
+* '(float) pid._<loopnum>_.maxerror' - Limit on error
+* '(float) pid._<loopnum>_.maxerrorI' - Limit on error integrator
+* '(float) pid._<loopnum>_.maxerrorD' - Limit on error derivative
+* '(float) pid._<loopnum>_.maxcmdD' - Limit on command derivative
+* '(float) pid._<loopnum>_.maxcmdDD' - Limit on command 2^nd^ derivative
+* '(float) pid._<loopnum>_.maxoutput' - Limit on output value
 
 All _max*_ limits are implemented so that if the value of this parameter
 is zero, there is no limit.
@@ -583,10 +583,10 @@ is zero, there is no limit.
 If 'debug=1' was specified when the component was installed, four
 additional pins will be exported:
 
-* '(float) pid.<loopnum>.errorI' - Integral of error.
-* '(float) pid.<loopnum>.errorD' - Derivative of error.
-* '(float) pid.<loopnum>.commandD' - Derivative of the command.
-* '(float) pid.<loopnum>.commandDD' - 2^nd^ derivative of the command.
+* '(float) pid._<loopnum>_.errorI' - Integral of error.
+* '(float) pid._<loopnum>_.errorD' - Derivative of error.
+* '(float) pid._<loopnum>_.commandD' - Derivative of the command.
+* '(float) pid._<loopnum>_.commandDD' - 2^nd^ derivative of the command.
 
 === Functions
 
@@ -595,7 +595,7 @@ performs all the calculations needed for the loop. Since each loop has
 its own function, individual loops can be included in different threads
 and execute at different rates.
 
-* '(funct) pid.<loopnum>.do_pid_calcs' - Performs all calculations
+* '(funct) pid._<loopnum>_.do_pid_calcs' - Performs all calculations
   for a single PID loop.
 
 If you want to understand the exact algorithm used to compute the
@@ -627,18 +627,18 @@ halcmd: unloadrt sim-encoder
 
 === Pins
 
-* '(float) sim-encoder.<chan-num>.speed' - The speed command for the
+* '(float) sim-encoder._<chan-num>_.speed' - The speed command for the
   simulated shaft.
-* '(bit) sim-encoder.<chan-num>.phase-A' - Quadrature output.
-* '(bit) sim-encoder.<chan-num>.phase-B' - Quadrature output.
-* '(bit) sim-encoder.<chan-num>.phase-Z' - Index pulse output.
+* '(bit) sim-encoder._<chan-num>_.phase-A' - Quadrature output.
+* '(bit) sim-encoder._<chan-num>_.phase-B' - Quadrature output.
+* '(bit) sim-encoder._<chan-num>_.phase-Z' - Index pulse output.
 
 When '.speed' is positive, '.phase-A' leads '.phase-B'.
 
 === Parameters
 
-* '(u32) sim-encoder.<chan-num>.ppr' - Pulses Per Revolution.
-* '(float) sim-encoder.<chan-num>.scale' - Scale Factor for 'speed'.
+* '(u32) sim-encoder._<chan-num>_.ppr' - Pulses Per Revolution.
+* '(float) sim-encoder._<chan-num>_.scale' - Scale Factor for 'speed'.
   The default is 1.0, which means that 'speed' is in revolutions per
   second. Change to 60 for RPM, to 360 for
   degrees per second, 6.283185 for radians per seconed, etc.
@@ -701,8 +701,8 @@ halcmd: unloadrt debounce
 
 Each individual filter has two pins.
 
-* '(bit) debounce.<G>.<F>.in' - Input of filter '<F>' in group '<G>'.
-* '(bit) debounce.<G>.<F>.out' - Output of filter '<F>' in group '<G>'.
+* '(bit) debounce._<G>_._<F>_.in' - Input of filter _<F>_ in group _<G>_.
+* '(bit) debounce._<G>_._<F>_.out' - Output of filter _<F>_ in group _<G>_.
 
 === Parameters
 
@@ -712,7 +712,7 @@ compile time switch that can export that variable as a parameter. This
 is intended for testing, and simply wastes shared memory under normal
 circumstances.].
 
-* '(s32) debounce.<G>.delay' - Filter delay for all filters in group '<G>'.
+* '(s32) debounce._<G>_.delay' - Filter delay for all filters in group _<G>_.
 
 The filter delay is in units of thread periods. The minimum delay is
 zero. The output of a zero delay filter exactly follows its input - it
@@ -726,7 +726,7 @@ Each group of filters has one function, which updates all the filters
 in that group 'simultaneously'. Different groups of filters can be
 updated from different threads at different periods.
 
-* '(funct) debounce.<G>' - Updates all filters in group '<G>'.
+* '(funct) debounce._<G>_' - Updates all filters in group _<G>_.
 
 [[sec:siggen]]
 == Siggen(((Siggen)))
@@ -756,21 +756,21 @@ halcmd: unloadrt siggen
 
 Each generator has five output pins.
 
-* '(float) siggen.<chan>.sine' - Sine wave output.
-* '(float) siggen.<chan>.cosine' - Cosine output.
-* '(float) siggen.<chan>.sawtooth' - Sawtooth output.
-* '(float) siggen.<chan>.triangle' - Triangle wave output.
-* '(float) siggen.<chan>.square' - Square wave output.
+* '(float) siggen._<chan>_.sine' - Sine wave output.
+* '(float) siggen._<chan>_.cosine' - Cosine output.
+* '(float) siggen._<chan>_.sawtooth' - Sawtooth output.
+* '(float) siggen._<chan>_.triangle' - Triangle wave output.
+* '(float) siggen._<chan>_.square' - Square wave output.
 
 All five outputs have the same frequency, amplitude, and offset.
 
 In addition to the output pins, there are three control pins:
 
-* '(float) siggen.<chan>.frequency' - Sets the frequency in Hertz,
+* '(float) siggen._:<chan>_.frequency' - Sets the frequency in Hertz,
   default value is 1 Hz.
-* '(float) siggen.<chan>.amplitude' - Sets the peak amplitude of the
+* '(float) siggen._<chan>_.amplitude' - Sets the peak amplitude of the
   output waveforms, default is 1.
-* '(float) siggen.<chan>.offset' - Sets DC offset of the output
+* '(float) siggen._<chan>_.offset' - Sets DC offset of the output
   waveforms, default is 0.
 
 For example, if 'siggen.0.amplitude' is 1.0 and 'siggen.0.offset' is
@@ -786,7 +786,7 @@ components.]
 
 === Functions
 
-* '(funct) siggen.<chan>.update' - Calculates new values for all five outputs.
+* '(funct) siggen._<chan>_.update' - Calculates new values for all five outputs.
 
 [[sec:lut5]]
 == lut5(((lut5)))

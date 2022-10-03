@@ -120,11 +120,11 @@ They are defined in an [JOINT_n] section of the INI file.
 
 [width="80%",options="header",cols="4*^"]
 |===
-|Homing Type      |HOME_SEARCH_VEL |HOME_LATCH_VEL    |HOME_USE_INDEX
-|Immediate        |0          |0            |NO
-|Index-only       |0          |nonzero      |YES
-|Switch-only      |nonzero    |nonzero      |NO
-|Switch and Index |nonzero    |nonzero      |YES
+|Homing Type      |HOME_SEARCH_VEL |HOME_LATCH_VEL |HOME_USE_INDEX
+|Immediate        |0               |0              |NO
+|Index-only       |0               |nonzero        |YES
+|Switch-only      |nonzero         |nonzero        |NO
+|Switch and Index |nonzero         |nonzero        |YES
 |===
 
 [NOTE]

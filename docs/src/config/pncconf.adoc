@@ -494,15 +494,15 @@ DAC units, etc. To do this, follow this procedure:
   desired voltage and measuring the result:
 
 .Output Voltage Measurements
-[cols="^,^",width="50%",options="header"]
+[cols="^,^",width="25%",options="header"]
 |===
 | Raw | Measured
-| -10 | *-9.93*
-|  -9 | *-8.83*
-|   0 | *-0.96*
-|   1 | *-0.03*
-|   9 | *9.87*
-|  10 | *10.07*
+>| -10 >s| -9.93
+>|  -9 >s| -8.83
+>|   0 >s| -0.96
+>|   1 >s| -0.03
+>|   9 >s|  9.87
+>|  10 >s| 10.07
 |===
 
 * Do a least-squares linear fit to get coefficients a, b such that meas=a*raw+b
@@ -800,7 +800,7 @@ The Z auto touch-off is with a touch-off plate, the GladeVCP touch-off button
 and special HALUI commands to set the current user origin to zero and rapid
 clear.
 The serial modbus program is basically a blank template program that sets up
-ClassicLadder for serial modbus. See the << cha:classicladder,Classicladder Chapter >>
+ClassicLadder for serial modbus. See the <<cha:classicladder,ClassicLadder Chapter>>
 in the manual.
 
 .PnCconf, advanced options
