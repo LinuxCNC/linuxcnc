@@ -2320,7 +2320,7 @@ self.w.tooloffsetview.setProperty('dialog_code','CALCULATOR')
 self.w.tooloffsetview.setProperty('metric_template','%10.3f')
 ----
 
-ie. In style sheets:
+and in style sheets:
 
 [source,{css}]
 ----
@@ -2343,8 +2343,7 @@ actions:
 *`set_all_unchecked()`*::
   Uncheck all selected tools.
 
-I.e., in handler file:
-
+.Example for handler file executing aformentioned functions.
 [source,python]
 ----
 self.w.tooloffsetview.add_tool()
