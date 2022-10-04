@@ -644,10 +644,10 @@ Action buttons are subclassed from
 <<sub:qtvcp:widgets:indicatedpushbutton>>[`IndicatedPushButton`]. +
 See the following sections for more informations about:
 
-* <<sub:qtvcp:widgets:indicatedpushbutton:led,LED Indicator option>>
-* <<sub:qtvcp:widgets:indicatedpushbutton:state-enabled,Enabled on State>>
-* <<sub:qtvcp:widgets:indicatedpushbutton:state-text,Text Changes On State>>
-* <<sub:qtvcp:widgets:indicatedpushbutton:python-command,Call Python Command On State>>
+* <<sub:qtvcp:widgets:indicatedpushbutton:led,LED Indicator option>>,
+* <<sub:qtvcp:widgets:indicatedpushbutton:state-enabled,Enabled on State>>,
+* <<sub:qtvcp:widgets:indicatedpushbutton:state-text,Text Changes On State>>, and
+* <<sub:qtvcp:widgets:indicatedpushbutton:python-command,Call Python Command On State>>.
 
 [[sub:qtvcp:widgets:actiontoolbutton]]
 === `ActionToolButton` - Optional Actions Menu Button Widget

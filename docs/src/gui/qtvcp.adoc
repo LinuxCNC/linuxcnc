@@ -106,7 +106,7 @@ DISPLAY = qtvcp <options> <screen_name>
 ----
 
 [NOTE]
-All `<options>` must appear before `<screen_name>`.
+All `_<options>_` must appear before `_<screen_name>_`.
 
 .Options
 
@@ -125,9 +125,9 @@ All `<options>` must appear before `<screen_name>`.
 * `-o` Pass a string to QtVCP's handler file under `self.w.USEROPTIONS_`
   list variable. can be multiple -o
 
-.<screen_name>
-`<screen_name>` is the _base name of the .ui and _handler.py files_. +
-If `<screen_name>` is missing, the default screen will be loaded.
+._<screen_name>_
+`_<screen_name>_` is the _base name of the .ui and _handler.py files_. +
+If `_<screen_name>_` is missing, the default screen will be loaded.
 
 QtVCP assumes the UI file and the handler file use the *same base name*.
 
@@ -226,14 +226,14 @@ instead of the stock UI files.
 Local UI files allow you to use your customized designs rather than the
 default screens.
 
-QtVCP will look for a folder named <screen_name> (in the launched
+QtVCP will look for a folder named _<screen_name>_ (in the launched
 configuration folder that holds the INI file).
 
 In that folder, QtVCP will load any of the available following files:
 
-* `<screen_name>.ui`,
-* `<screen_name>_handler.py`, and
-* `<screen_name>.qss`.
+* `_<screen_name>_.ui`,
+* `__<screen_name>___handler.py`, and
+* `_<screen_name>_.qss`.
 
 === Modifying Stock Screens
 
@@ -273,7 +273,7 @@ USER_COMMAND_FILE = CONFIGDIRECTORY/<screen_name_added_commands>
 
 If no entry is found in the _INI_, QtVCP will look in the *default path*. +
 The default path is in the configuration directory as a hidden file
-using the screen basename and rc, ie: *`CONFIGDIRECTORY/.<screen_name>rc`*
+using the screen basename and rc, ie: *`CONFIGDIRECTORY/.__<screen_name>__rc`*
 
 This file will be read and executed as Python code in the
 *handler file context*.
@@ -617,7 +617,7 @@ If you are using QtVCP to make a CNC control screen, under the _INI file_
 DISPLAY = qtvcp <screen_name>
 ----
 
-`<screen_name>` is the _base name_ of the `.ui` and `_handler.py` files.
+`_<screen_name>_` is the _base name_ of the `.ui` and `_handler.py` files.
 
 In our example there is already a sim configuration called tester, that
 we will use to display our test screen.
@@ -630,8 +630,8 @@ If your screen used _widgets with HAL pins_, then you must
 QtVCP looks in the _INI file_, under the `[HAL]` heading for the entries
 below:
 
-*`POSTGUI_HALFILE=<filename>`*::
-  Typically `<filename>` would be `+<screen_name>_postgui.hal+`, but can
+*`POSTGUI_HALFILE=_<filename>_`*::
+  Typically `_<filename>_` would be `__<screen\_name>___postgui.hal`, but can
   be any legal filename. +
   You can have _multiple `POSTGUI_HALFILE` lines_ in the INI: each will
   be run one after the other in the order they appear. +
@@ -639,7 +639,7 @@ below:
   the widget HAL pins are available.
 
 *`POSTGUI_HALCMD=<command>`*::
-  `<command>` would be _any valid HAL command_. +
+  `_<command>_` would be _any valid HAL command_. +
   You can have _multiple `POSTGUI_HALCMD` lines_ in the INI: each will
   be run one after the other in the order they appear. +
   To guaranty the widget HAL pins are available, these commands are

@@ -2571,7 +2571,7 @@ This will display all of the available settings parameters that are used for G-c
 Any internal circle that has a diameter less than *Small hole diameter* is classified as a small hole and will have a straight leadin with a length that is the lesser of either the radius of the hole or the specified leadin length. It will also have its feed rate set to *Small hole speed*.
 
 Preamble and Postamble may be entered as a string of G-Codes and M-Codes separate by spaces.
-If the user wishes for the generated G-code to have each code on an individual line then this is made possible by separating the codes with *\n*.
+If the user wishes for the generated G-code to have each code on an individual line then this is made possible by separating the codes with `+\n+`.
 
 This will place all codes on the same line:
 

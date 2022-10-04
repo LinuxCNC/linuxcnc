@@ -626,7 +626,7 @@ X- Y- <P->
 G5.3
 ----
 
-WARNING: G5.2, G5.3 is experimental and not fully tested.
+WARNING: G5.2, G5.3 are experimental and not fully tested.
 
 G5.2 is for opening the data block defining a NURBS and G5.3 for
 closing the data block. In the lines between these two codes the curve
@@ -704,10 +704,9 @@ G10 L0 reload all tool table data.  Requires that there is no
 current tool loaded in spindle.
 
 [NOTE]
-
 When using G10 L0, tool parameters (#5401-#5413) will be
 updated immediately and any altered tool diameters will be
-used for subsequent G41,42 cutter radius compensation
+used for subsequent G41/G42 cutter radius compensation
 commands. Existing G43 tool length compensation values will
 remain in effect until updated by new G43 commands.
 
@@ -1025,7 +1024,7 @@ if TOOL_CHANGE_AT_G30=1 is in the [EMCIO] section of the INI file.
 * 'G30 axes' - makes a rapid move to the position specified
   by 'axes' including any offsets, then will make a rapid move to the
   'absolute' position of the values in parameters 5181-5189 for all
-  'axes' specified. Any 'axis' not specified will not move.
+  'axes' specified. Any axis not specified will not move.
 * 'G30.1' - stores the current absolute position into parameters
   5181-5186.
 
@@ -1049,18 +1048,18 @@ G33 X- Y- Z- K- $-
 
 * 'K' - distance per revolution
 
-For spindle-synchronized motion in one direction, code 'G33 X- Y- Z- K-'
+For spindle-synchronized motion in one direction, code `G33 X- Y- Z- K-`
 where K gives the distance moved in XYZ for each revolution of the
 spindle.
-For instance, if starting at 'Z=0', 'G33 Z-1 K.0625' produces a 1 inch
+For instance, if starting at 'Z=0', `G33 Z-1 K.0625` produces a 1&thinsp;inch
 motion in Z over 16 revolutions of the spindle.
-This command might be part of a program to produce a 16TPI thread.
-Another example in metric, 'G33 Z-15 K1.5' produces a movement of 15mm
-while the spindle rotates 10 times for a thread of 1.5mm.
+This command might be part of a program to produce a 16&thinsp;TPI thread.
+Another example in metric, `G33 Z-15 K1.5` produces a movement of 15&thinsp;mm
+while the spindle rotates 10 times for a thread of 1.5&thinsp;mm.
 
 The (optional) $ argument sets which spindle the motion is synchronised
-to (default is zero). For example G33 Z10 K1 $1 will move the spindle in
-synchrony with the spindle.N.revs HAL pin value.
+to (default is zero). For example `G33 Z10 K1 $1` will move the spindle in
+synchrony with the `spindle._N_.revs` HAL pin value.
 
 Spindle-synchronized motion waits for the spindle index and spindle at
 speed pins, so multiple passes line up. 'G33' moves end at the programmed
@@ -1070,7 +1069,7 @@ G33 could be used to cut tapered threads or a fusee.
 All the axis words are optional, except that at least one must be used.
 
 [NOTE]
-K follows the drive line described by 'X- Y- Z-'. K is not parallel to
+K follows the drive line described by `X- Y- Z-`. K is not parallel to
 the Z axis if X or Y endpoints are used for example when cutting tapered
 threads.
 
@@ -1086,9 +1085,9 @@ finishes accelerating to the proper speed, and can immediately begin
 cutting a good thread.
 
 .HAL Connections
-The pin 'spindle.N.at-speed' must be set or driven true for the motion to
-start. Additionally spindle.N.revs must increase by 1 for each revolution
-of the spindle and the spindle.N.index-enable pin must be connected to
+The pin `spindle._N_.at-speed` must be set or driven true for the motion to
+start. Additionally `spindle._N_.revs` must increase by 1 for each revolution
+of the spindle and the `spindle._N_.index-enable` pin must be connected to
 an encoder (or resolver) counter which resets index-enable once per rev.
 
 See the Integrators Manual for more information on spindle synchronized
@@ -1136,7 +1135,7 @@ be along the Z axis but will be a coordinated, spindle-synchronized move
 from the current location to the location specified and back.
 
 For rigid tapping (spindle synchronized motion with return), code
-'G33.1 X- Y- Z- K-' where 'K-' gives the distance moved for each
+`G33.1 X- Y- Z- K-` where 'K-' gives the distance moved for each
 revolution of the spindle.
 
 A rigid tapping move consists of the following sequence:
@@ -1928,7 +1927,7 @@ It is an error if:
 * 'E-' is greater than half the drive line length.
 
 .HAL Connections
-The pins 'spindle.N.at-speed' and the 'encoder.n.phase-Z' for the
+The pins `spindle._N_.at-speed` and the `encoder._n_.phase-Z` for the
 spindle must be connected in your HAL file before G76 will work.
 See the <<sec:motion-pins,spindle>> pins in the Motion section for more
 information.
@@ -2654,7 +2653,7 @@ rate mode does not affect G0 (<<gcode:g0,rapid move>>) motions.
   of the spindle, depending on what length units are being used and which
   axis or axes are moving. G95 is not suitable for threading, for
   threading use G33 or G76.
-  G95 requires that spindle.N.speed-in to be connected. The actual
+  G95 requires that `spindle._N_.speed-in` to be connected. The actual
   spindle to which the feed is synchronised is chosen by the $ parameter
 
 It is an error if:
