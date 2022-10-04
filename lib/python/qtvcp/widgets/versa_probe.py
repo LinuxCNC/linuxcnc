@@ -75,6 +75,10 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.outside_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
         self.skew_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
         self.length_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
+        self.pbtn_set_x.released.connect(self.pbtn_set_x_released)
+        self.pbtn_set_y.released.connect(self.pbtn_set_y_released)	
+        self.pbtn_set_z.released.connect(self.pbtn_set_z_released)
+        self.pbtn_set_angle.released.connect(self.pbtn_set_angle_released)
 
         self.buildToolTip(self.input_search_vel, 'Search Velocity', 'search_vel')
         self.buildToolTip(self.input_probe_vel, 'Probe Velocity', 'probe_vel')
