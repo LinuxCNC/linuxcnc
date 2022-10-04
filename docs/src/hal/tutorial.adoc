@@ -6,13 +6,12 @@
 
 == Introduction
 
-Configuration moves from theory to device -- HAL device that is. For
-those who have had just a bit of computer programming, this section is
-the 'Hello World' of the HAL.
+Configuration moves from theory to device -- HAL device that is.
+For those who have had just a bit of computer programming,
+this section is the 'Hello World' of the HAL.
 
-Halrun can be used to create a working system. It is a command line or
-text file tool for configuration and tuning.
-
+`halrun` can be used to create a working system.
+It is a command line or text file tool for configuration and tuning.
 The following examples illustrate its setup and operation.
 
 [[haltut-halcmd]]
@@ -65,17 +64,17 @@ halcmd: loadrt counter
 
 RTAPI stands for Real Time Application Programming Interface. Many HAL
 components work in realtime, and all HAL components store data in
-shared memory so realtime components can access it. Normal Linux does
+shared memory so realtime components can access it. Regular Linux does
 not support realtime programming or the type of shared memory that HAL
-needs. Fortunately there are realtime operating systems (RTOS's) that
+needs. Fortunately, there are realtime operating systems (RTOS's) that
 provide the necessary extensions to Linux. Unfortunately, each RTOS
 does things a little differently.
 
 To address these differences, the LinuxCNC team came up with RTAPI, which
 provides a consistent way for programs to talk to the RTOS. If you are
 a programmer who wants to work on the internals of LinuxCNC, you may want to
-study 'linuxcnc/src/rtapi/rtapi.h' to understand the API. But if you are a
-normal person all you need to
+study 'linuxcnc/src/rtapi/rtapi.h' to understand the API.
+But if you are a normal person, all you need to
 know about RTAPI is that it (and the RTOS) needs to be loaded into the
 memory of your computer before you do anything with HAL.
 
@@ -85,13 +84,13 @@ memory of your computer before you do anything with HAL.
 
 For this tutorial, we are going to assume that you have successfully
 installed the Live CD and, if using a RIP footnote:[Run In Place, when the
-source files have been downloaded to a user directory.], invoke the
+source files have been downloaded to a user directory and are compiled and executed directly from there.], invoke the
 'rip-environment' script to prepare your shell.
 In that case, all you need to do is
-load the required RTOS and RTAPI modules into memory. Just run the
-following command from a terminal window:
+load the required RTOS and RTAPI modules into memory.
+Just run the following command from a terminal window:
 
-// NOTE! add link to rip-environment explanation
+// FIXME: add link to rip-environment explanation
 
 .Loading HAL
 ----
@@ -107,7 +106,7 @@ not shell commands.
 
 For the first example, we will use a HAL component called 'siggen',
 which is a simple signal generator. A complete description of the
-'siggen' component can be found in the <<sec:siggen,Siggen>> section of
+'siggen' component can be found in the <<sec:siggen,SigGen>> section of
 this Manual.
 It is a realtime component, implemented as a Linux kernel module. To
 load 'siggen' use the HAL command 'loadrt'.
@@ -128,7 +127,7 @@ section of this document. The first
 halcmd feature is the 'show' command. This command displays information
 about the current state of the HAL. To show all installed components:
 
-.Show Components
+.Show Components with `halrun`/`halcmd``
 ----
 halcmd: show comp
 

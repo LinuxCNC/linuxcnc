@@ -23,7 +23,7 @@ If you the VersaProbe option and remap code you can add auto tool length probing
 at tool changes.
 
 [NOTE]
-QtDragon and QtVcp are relatively new programs added into LinuxCNC.
+QtDragon and QtVCP are relatively new programs added into LinuxCNC.
 Bugs and oddities are possible. Please test carefully when using a
 dangerous machine. Please forward reports to the forum or maillist.
 
@@ -42,9 +42,10 @@ on monitors with lower resolution.
 image::images/qtdragon_hd.png["QtDragon_hd",scale="25%"]
 
 QtDragon_hd is a similar design as QtDragon but modified to utilize the extra
-space of modern larger monitors. +
-There are some small differences in layout and utility. +
-QtDragon_hd has a resolution of 1920x1056 and is not realizable. +
+space of modern larger monitors.
+There are some small differences in layout and utility.
+
+QtDragon_hd has a resolution of 1920x1056 and is not realizable.
 It will work in window mode on any monitor with higher resolution but not on
 monitors with lower resolution.
 
@@ -59,10 +60,10 @@ For an exhaustive list of options, see the
 
 In the section '[DISPLAY]' change the 'DISPLAY' line to read:
 
-* 'qtdragon' for a small version
-* 'qtdradon_hd' for the large version.
+* `qtdragon` for a small version
+* `qtdradon_hd` for the large version.
 
-You can add '-d' or '-v' for debug output to the terminal.
+You can add `-d` or `-v` for debug output to the terminal.
 
 [source,{ini}]
 ----
@@ -86,7 +87,7 @@ PREFERENCE_FILE_PATH = WORKINGFOLDER/qtdragon.pref
 === Logging
 
 You can specify where to save history/logs.
-In the section '[DISPLAY]' add:
+In the section `[DISPLAY]` add:
 
 [source,{ini}]
 ----
