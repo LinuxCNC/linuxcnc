@@ -7,9 +7,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-09-18 08:05+0200\n"
-"PO-Revision-Date: 2022-09-13 06:15+0000\n"
+"PO-Revision-Date: 2022-10-04 15:29+0000\n"
 "Last-Translator: Ulices <dev.n47os@aleeas.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/es/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.14.1-dev\n"
+"X-Generator: Weblate 4.14.1\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -134,10 +134,10 @@ msgid "Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."
 msgstr "Entre códigos G5.2 y G5.3 solo se permiten códigos G5.2 adicionales."
 
 #: src/emc/rs274ngc/interp_check.cc:260
+#, fuzzy
 msgid ""
 "D word with no G41, G41.1, G42, G42.1, G71, G71.1, G71.2 or G96 to use it"
-msgstr ""
-"Palabra D sin código G41, G41.1, G42, G42.1 o G96 con el cual ser usado."
+msgstr "Palabra D sin código G41, G41.1, G42, G42.1 ó G96 con el cual ser usado"
 
 #: src/emc/rs274ngc/interp_check.cc:269
 msgid ""
@@ -145,13 +145,13 @@ msgid ""
 "use it"
 msgstr ""
 "Palabra $ (selección de husillo) sin código G41, G41.1, G42, G42.1, G76 G95 "
-"o G96 con el cual ser usado."
+"o G96 con el cual ser usado"
 
 #: src/emc/rs274ngc/interp_check.cc:277
 msgid "E word with no G76, M3, M4, M5, M19, M51, M66, M67 or M68 to use it"
 msgstr ""
 "Palabra E sin código G76, M3, M4, M5, M19, M51, M66, M67 o M68 con el cual "
-"ser usado."
+"ser usado"
 
 #: src/emc/rs274ngc/interp_check.cc:282
 msgid "H word with no G43 or G76 to use it"
@@ -255,7 +255,7 @@ msgstr "Debe especificar tanto I como J con G5.1"
 
 #: src/emc/rs274ngc/interp_convert.cc:266
 msgid "Must specify both I and J, or neither"
-msgstr "Debe especificar ambos, I y  J, o ninguno"
+msgstr "Debe especificar ambos, I y J, o ninguno"
 
 #: src/emc/rs274ngc/interp_convert.cc:277
 msgid "Must specify both P and Q with G5"
@@ -655,8 +655,7 @@ msgid ""
 "Length of cutter compensation entry move is not greater than the tool radius"
 msgstr ""
 "La longitud del movimiento de entrada de compensación del cortador no es "
-"mayor\n"
-"que el radio de la herramienta"
+"mayor que el radio de la herramienta"
 
 #: src/emc/rs274ngc/interp_convert.cc:5404
 msgid "Zero degree inside corner is invalid for cutter compensation"
@@ -1297,7 +1296,7 @@ msgstr "Falta la palabra F con movimiento de arco de tiempo inverso"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:79
 msgid "F word missing with inverse time g1 move"
-msgstr "Falta la palabra F con  movimiento g1 de tiempo inverso"
+msgstr "Falta la palabra F con movimiento g1 de tiempo inverso"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:80
 msgid "File ended with no percent sign"
@@ -1478,7 +1477,7 @@ msgstr "Velocidad de husillo negativa"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:124
 msgid "Negative tool id (tool not found)"
-msgstr "ID  de herramienta negativo (herramienta no encontrada)"
+msgstr "ID de herramienta negativo (herramienta no encontrada)"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:125
 msgid "Nested comment found"
@@ -1918,7 +1917,9 @@ msgstr "_Cerrar"
 msgid ""
 "Usage:\n"
 "  halscope [-h] [-i infile] [-o outfile] [num_samples]\n"
-msgstr "Uso:halscope [-h] [-i archivo-in] [-o archivo-out] [num_muestras]\n"
+msgstr ""
+"Uso:\n"
+"  halscope [-h] [-i archivo-in] [-o archivo-out] [num_muestras]\n"
 
 #: src/hal/utils/scope.c:468
 msgid "Open Configuration File:"
@@ -2053,8 +2054,8 @@ msgid ""
 msgstr ""
 "HALSCOPE utiliza un componente en tiempo real llamado scope_rt'\n"
 "para muestrear señales para su visualización. Actualmente no está cargado\n"
-"y el intento de cargarlo automáticamente falló. Más informaciónpuede estar "
-"disponible en la terminal donde se inició halscope.\n"
+"y el intento de cargarlo automáticamente falló. Más información\n"
+"puede estar disponible en la terminal donde se inició halscope.\n"
 "\n"
 "Por favor, realice una de las siguientes acciones:\n"
 "\n"
@@ -2112,8 +2113,9 @@ msgstr ""
 "determinar la frecuencia de muestreo.\n"
 "\n"
 "Por favor, realice una de las siguientes acciones:\n"
+"\n"
 "Seleccione un nombre de hilo y multiplicador y luego haga clic en 'Aceptar'\n"
-"o \n"
+"o\n"
 "Haga clic en 'Salir' para salir de HALSCOPE"
 
 #: src/hal/utils/scope_horiz.c:527
@@ -2211,6 +2213,7 @@ msgstr ""
 "intentando ejecutar, o puede usar el comando 'halcmd start'.\n"
 "\n"
 "Por favor, realice una de las siguientes acciones:\n"
+"\n"
 "Inicie los hilos, luego haga clic en 'Aceptar'\n"
 "o\n"
 "Haga clic en 'Salir' para salir de HALSCOPE"
@@ -3033,7 +3036,7 @@ msgstr ""
 #: src/emc/motion/homing.c:1313
 #, c-format
 msgid "hit limit in home state j=%d"
-msgstr "alcanzado límite en  estado home a=%d"
+msgstr "alcanzado límite en estado home j=%d"
 
 #: src/emc/motion/homing.c:1361
 #, c-format
@@ -3102,11 +3105,11 @@ msgstr "Ejecutar"
 msgid "Stopped ladder program - press run button to continue."
 msgstr ""
 "Programa de escalera detenido - presione el botón de ejecución para "
-"continuar. "
+"continuar."
 
 #: src/hal/classicladder/classicladder_gtk.c:344
 msgid "Started Ladder program - press stop to pause."
-msgstr "Programa de escalera iniciado - presione detener para pausar. "
+msgstr "Programa de escalera iniciado - presione detener para pausar."
 
 #: src/hal/classicladder/classicladder_gtk.c:394
 msgid "Load Error"
@@ -3382,7 +3385,7 @@ msgstr "%d µs"
 
 #: src/hal/classicladder/classicladder_gtk.c:960
 msgid "Config hardware error occurred!"
-msgstr "¡Error  de configuración de hardware!"
+msgstr "¡Error de configuración de hardware!"
 
 #: src/hal/classicladder/classicladder_gtk.c:984
 #: src/hal/classicladder/config_gtk.c:507 src/hal/classicladder/edit.c:410
@@ -3854,7 +3857,7 @@ msgstr "Comentario"
 #: src/hal/classicladder/edit_sequential.c:151
 #, c-format
 msgid "step search posiX=%d, posiY=%d ; "
-msgstr "búsqueda por paso posiX=%d, posiY=%d ;"
+msgstr "búsqueda por paso posiX=%d, posiY=%d ; "
 
 #: src/hal/classicladder/edit_sequential.c:161
 #: src/hal/classicladder/edit_sequential.c:179
@@ -3866,12 +3869,12 @@ msgstr "encontrado=%d!!!\n"
 #: src/hal/classicladder/edit_sequential.c:169
 #, c-format
 msgid "transi search posiX=%d, posiY=%d ; "
-msgstr "búsqueda transi posiX=%d, posiY=%d ;"
+msgstr "búsqueda transi posiX=%d, posiY=%d ; "
 
 #: src/hal/classicladder/edit_sequential.c:187
 #, c-format
 msgid "comment search posiX=%d, posiY=%d ; "
-msgstr "búsqueda de comentarios posiX=%d, posiY=%d ;"
+msgstr "búsqueda de comentarios posiX=%d, posiY=%d ; "
 
 #: src/hal/classicladder/edit_sequential.c:216
 #, c-format
@@ -4363,7 +4366,7 @@ msgstr "Esclavo: %X"
 #: src/hal/classicladder/protocol_modbus_master.c:564
 #, c-format
 msgid "Function: %X  Data: "
-msgstr "Función: %X Datos:"
+msgstr "Función: %X  Datos: "
 
 #: src/hal/classicladder/protocol_modbus_master.c:566
 #: src/hal/classicladder/protocol_modbus_master.c:591
@@ -5277,7 +5280,7 @@ msgstr "Recordar lista de seguimiento"
 
 #: tcl/bin/halshow.tcl:740
 msgid "Settings stored in: "
-msgstr "Ajustes guardados en:"
+msgstr "Ajustes guardados en: "
 
 #: tcl/bin/halshow.tcl:843
 msgid "already in list"
@@ -5878,7 +5881,7 @@ msgstr "MDI:"
 
 #: tcl/tklinuxcnc.tcl:1531
 msgid "Program: "
-msgstr "Programa:"
+msgstr "Programa: "
 
 #: tcl/tklinuxcnc.tcl:1536
 msgid "  -  Status: "
@@ -6250,7 +6253,7 @@ msgstr "El eje no responde"
 
 #: tcl/ngcgui.tcl:1872
 msgid "Error: "
-msgstr "Error:"
+msgstr "Error: "
 
 #: tcl/ngcgui.tcl:1874
 msgid "Autosend disabled, Ctrl-A toggles autosend"
@@ -6606,7 +6609,7 @@ msgstr "Advertencia"
 #: tcl/ngcgui.tcl:3812
 msgid "File absolute path specifier conflicts with searchpath result"
 msgstr ""
-"Especificador de ruta absoluta del archivo en conflicto con el resultado de  "
+"Especificador de ruta absoluta del archivo en conflicto con el resultado de "
 "búsqueda de la ruta"
 
 #: tcl/ngcgui.tcl:3813
@@ -6907,7 +6910,7 @@ msgstr "Recargar Tbl"
 
 #: tcl/tooledit.tcl:478
 msgid "SaveFile"
-msgstr "Guarda Arch."
+msgstr "GuardarArchivo"
 
 #: tcl/tooledit.tcl:483
 msgid "ReRead"
@@ -6915,7 +6918,7 @@ msgstr "Releer"
 
 #: tcl/tooledit.tcl:485
 msgid "AddTool"
-msgstr "Añadir Hta."
+msgstr "AñadirHerramienta"
 
 #: tcl/tooledit.tcl:535
 #, tcl-format
@@ -7149,7 +7152,7 @@ msgstr "si los botones de radio de los ejes son visibles"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:193
 msgid ", and ."
-msgstr ", y . "
+msgstr ", y ."
 
 #: src/emc/usr_intf/axis/scripts/axis.py:193
 msgid "Select jog speed"
@@ -7698,9 +7701,13 @@ msgid ""
 "Save it to your own directory\n"
 "then open that saved, writable file"
 msgstr ""
-"Este archivo no se puede escribirPuedes Editar-solo lectura\n"
+"No se puede escribir en este archivo\n"
+"Puedes Editar-solo lectura\n"
+"\n"
 "o\n"
-"Guárdelo en su propio directorioluego abra ese archivo guardado y grabable"
+"\n"
+"Guárdelo en su propio directorio\n"
+"luego abra ese archivo guardado y ya se puede escribir en él"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2303
 msgid "Edit-readonly"
@@ -7846,7 +7853,8 @@ msgid ""
 "Individual axis homing is not currently supported for"
 msgstr ""
 "\n"
-"No diezLa referencia de eje individual no se admite actualmente para"
+"Nota:\n"
+"Actualmente no se admite el homing de ejes individuales para"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3643
 #, python-format
@@ -8158,7 +8166,8 @@ msgid ""
 "Inifile setting for this debug level:\n"
 "[EMC]DEBUG=0x%08x"
 msgstr ""
-"Configuración de archivo para este nivel de depuración:[EMC]DEBUG=0x%08x"
+"Configuración del archivo para este nivel de depuración:\n"
+"[EMC]DEBUG=0x%08x"
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:82
 msgid "  * This option can only be enabled in the inifile"
@@ -8713,11 +8722,15 @@ msgid ""
 "\n"
 "Visit the LinuxCNC web site: "
 msgstr ""
-"LinuxCNC / AXIS versión $ versión\n"
-"Copyright (C) 4, 5, 6, 7, 8, 9, 0, 1, 2, 34, 5, 6 Jeff Epler y Chris Radek.\n"
-"Este es software libre, y puede redistribuirlo bajo ciertas "
-"condicionescondiciones. Vea el archivo COPYING, incluido con LinuxCNC.\n"
-"Visite el sitio web LinuxCNC:"
+"LinuxCNC / AXIS versión $version\n"
+"\n"
+"Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, "
+"2014, 2015, 2016 Jeff Epler and Chris Radek.\n"
+"\n"
+"Este es software libre, y puede redistribuirlo bajo ciertas condiciones.  "
+"Vea el archivo COPYING, incluido con LinuxCNC.\n"
+"\n"
+"Visite el sitio web LinuxCNC: "
 
 #: share/axis/tcl/axis.tcl:1599
 msgid "About AXIS"
@@ -10318,9 +10331,9 @@ msgid ""
 "Existing Custom.clp will be renamed custom_backup.clp.\n"
 "Any existing file named -custom_backup.clp- will be lost. "
 msgstr ""
-"¿Está bien reemplazar el programa de escalera personalizado existente?El "
-"Custom.clp existente pasará a llamarse custom_backup.clp.Cualquier archivo "
-"existente llamado -custom_backup.clp- se perderá\"."
+"¿Está bien reemplazar el programa de escalera personalizado existente?\n"
+"El Custom.clp existente pasará a llamarse custom_backup.clp.\n"
+"Cualquier archivo existente llamado -custom_backup.clp- se perderá. "
 
 #: src/emc/usr_intf/stepconf/stepconf.py:267
 #: src/emc/usr_intf/pncconf/pages.py:1537
@@ -10333,7 +10346,9 @@ msgid ""
 "Are you sure?  "
 msgstr ""
 "Editó un programa de escalera y seleccionó un programa diferente para "
-"copiarsu archivo de configuración.El programa editado se perderá.\n"
+"copiarsu archivo de configuración.\n"
+"El programa editado se perderá.\n"
+"\n"
 "¿Estás seguro?  "
 
 #: src/emc/usr_intf/stepconf/stepconf.py:268
@@ -10352,8 +10367,9 @@ msgid ""
 "Any existing file named custompanel_backup.xml will be lost. "
 msgstr ""
 "¿Está bien para reemplazar el archivo de panel de pyvcp personalizado "
-"existente?Custompanel.xml existente se renombrará custompanel_backup.xml.Se "
-"perderá cualquier archivo existente llamado custompanel_backup.xml\"."
+"existente?\n"
+"El archivo Custompanel.xml existente se renombrará custompanel_backup.xml.\n"
+"Se perderá cualquier archivo existente llamado custompanel_backup.xml. "
 
 #: src/emc/usr_intf/stepconf/stepconf.py:270
 msgid "Quit Stepconf and discard changes?"
@@ -10364,7 +10380,9 @@ msgstr "¿Salir de Stepconf y descartar los cambios?"
 msgid ""
 "The configuration has been built and saved.\n"
 "Do you want to quit?"
-msgstr "La configuración se ha creado y guardado.¿Quieres renunciar?"
+msgstr ""
+"La configuración se ha creado y guardado.\n"
+"¿Quiere salir?"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:272
 #: src/emc/usr_intf/pncconf/private_data.py:1174
@@ -10412,7 +10430,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:662
 msgid "Continue? "
-msgstr "¿Continuar?"
+msgstr "¿Continuar? "
 
 #: src/emc/usr_intf/stepconf/stepconf.py:663
 #: src/emc/usr_intf/pncconf/data.py:902
@@ -10967,7 +10985,9 @@ msgstr "Temporizacion del controlador"
 msgid ""
 "_Test Base\n"
 "Period Jitter "
-msgstr "Test de Jitter del Periodo _Base"
+msgstr ""
+"Base de pruebas\n"
+"Periodo Jitter "
 
 #: src/emc/usr_intf/stepconf/base.glade:305
 msgid "D_river type:"
@@ -11053,7 +11073,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/start.glade:89
 msgid "Create a desktop _launcher to start LinuxCNC with this configuration."
 msgstr ""
-"Crear un _Lanzador en escritorio para iniciar LinuxCNC con esta configuración"
+"Crear un lanzador de escritorio para iniciar LinuxCNC con esta configuración."
 
 #: src/emc/usr_intf/stepconf/start.glade:105
 msgid "Create simulated hardware configuration."
@@ -11715,7 +11735,9 @@ msgstr "Opuesto"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
+""
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -12101,11 +12123,11 @@ msgid ""
 "change related options later -such as spindle feedback- the HAL connection "
 "will not update"
 msgstr ""
-"¿Está bien reemplazar el panel de glade existente?Se cambiará el nombre y se "
-"agregará a la carpeta 'copias de seguridad'.Hacer clic en 'programa "
-"personalizado existente' evitará esta advertencia, pero si ustedCambiar las "
-"opciones relacionadas más tarde, como la retroalimentación del husillo, la "
-"conexión HALno se actualizará"
+"¿Está bien reemplazar el panel de glade existente?\n"
+"Se cambiará el nombre y se agregará a la carpeta 'copias de seguridad'.\n"
+" Hacer clic en 'programa personalizado existente' evitará esta advertencia, "
+"pero si usted cambia las opciones relacionadas más tarde, como la "
+"retroalimentación del husillo, la conexión HAL no se actualizará"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1849
 msgid ""
@@ -12114,9 +12136,10 @@ msgid ""
 "Clicking 'existing custom program' will avoid this warning. "
 msgstr ""
 "¿Está bien reemplazar el panel pyvcp personalizado existente?\n"
-"El pyvcp-panel.xml existente se renombrará y se agregará a la carpeta "
-"'backups'\n"
-"Al hacer clic en 'programa personalizado existente' evitará esta advertencia."
+"El archivo pyvcp-panel.xml existente se renombrará y se agregará a la "
+"carpeta 'backups'\n"
+"Al hacer clic en 'programa personalizado existente' evitará esta "
+"advertencia. "
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3650
 #: src/emc/usr_intf/pncconf/private_data.py:555
@@ -12348,8 +12371,8 @@ msgid ""
 "The chosen Mesa0 board is different from the current displayed.\n"
 "please press 'Accept component changes' button'"
 msgstr ""
-"El tablero Mesa0 elegido es diferente del actual que se muestra.presione el "
-"botón 'Aceptar cambios de componentes' '"
+"El tablero Mesa0 elegido es diferente del mostrado actualmente.\n"
+"por favor presione el botón 'Aceptar cambios de componentes'"
 
 #: src/emc/usr_intf/pncconf/pages.py:1076
 msgid ""
@@ -12357,17 +12380,17 @@ msgid ""
 " Choose the board type, firmware, component amounts and press 'Accept "
 "component changes' button'"
 msgstr ""
-"Necesita configurar la página mesa1.Elija el tipo de placa, firmware, "
-"cantidades de componentes y presione el boton 'Aceptar cambios de "
-"componentes'"
+"Necesita configurar la página mesa1.\n"
+" Elija el tipo de placa, firmware, cantidades de componentes y presione el "
+"boton 'Aceptar cambios de componentes'"
 
 #: src/emc/usr_intf/pncconf/pages.py:1079
 msgid ""
 "The chosen Mesa1 board is different from the current displayed.\n"
 "please press 'Accept component changes' button'"
 msgstr ""
-"La placa Mesa1 elegida es diferente de la actual que se muestra.presione el "
-"botón 'Aceptar cambios de componentes' '"
+"La placa Mesa1 elegida es diferente de la mostrada actualmente.\n"
+"por favor presione el botón 'Aceptar cambios de componentes'"
 
 #: src/emc/usr_intf/pncconf/pages.py:1510
 msgid "You need to designate an E-stop input pin for this ladder program."
@@ -12504,9 +12527,8 @@ msgid "# ---jogwheel signals to mesa encoder - %s axis MPG---"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:572
-#, fuzzy
 msgid "# connect selectable mpg jog increments "
-msgstr "incrementos de MPG seleccionables"
+msgstr "# Conectar los incrementos mpg de jog seleccionables "
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:596
 msgid "# ---feed override signals to mesa encoder - mpg---"
@@ -12537,14 +12559,12 @@ msgid "# ---spindle override signals to mesa encoder - mpg---"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:709
-#, fuzzy
 msgid "# connect spindle override increments - MPG"
-msgstr "Ajuste del husillo incr A"
+msgstr "# Conectar los incrementos de anulación del husillo - MPG"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:724
-#, fuzzy
 msgid "# connect spindle override increments "
-msgstr "Ajuste del husillo incr A"
+msgstr "# Conectar los incrementos de anulación del husillo "
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:743
 msgid "#  ---motion control signals---"
@@ -12563,9 +12583,8 @@ msgid "#  ---manual tool change signals---"
 msgstr "# --- señales de cambio de herramienta manual ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:790
-#, fuzzy
 msgid "#  ---Use external manual tool change dialog---"
-msgstr "# --- señales de cambio de herramienta manual ---"
+msgstr "# ---Usar el diálogo de cambio de herramienta manual externo---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:802
 #, fuzzy
@@ -12690,9 +12709,8 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1065
-#, fuzzy
 msgid "#    Misubishi FR VFD for spindle control"
-msgstr "Mitsubishi FR Husillo VFD"
+msgstr "# Misubishi FR VFD para el control del husillo"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1071
 #, python-format
@@ -12742,18 +12760,16 @@ msgstr ""
 "pin# %(pinnum)d está conectado a la señal de salida:'%(data)s' %(mesag)s"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1245
-#, fuzzy
 msgid "#  SPINDLE"
-msgstr "¿HUSILLO?"
+msgstr "#  SPINDLE"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1255
 msgid "# -- BLDC setup --"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1323
-#, fuzzy
 msgid "# ---TPPWM Generator signals/setup---"
-msgstr "# --- señales de parada ---"
+msgstr "# ---Señales del generador TPPWM/configuración---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1325
 msgid "# six output 3pwg"
@@ -12772,14 +12788,12 @@ msgid "# ---8i20 amplifier card signals/setup---"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1341
-#, fuzzy
 msgid "# ---digital potentiometer output signals/setup---"
-msgstr "# --- señales digitales de entrada / salida ---"
+msgstr "# ---señales de salida del potenciómetro digital / configuración---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1358
-#, fuzzy
 msgid "# ---PWM Generator signals/setup---"
-msgstr "# --- señales de parada ---"
+msgstr "# ---Señales del generador PWM/configuración---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1383
 msgid "# enable _all_ sserial pwmgens"
@@ -12794,29 +12808,24 @@ msgid "# Step Gen signals/setup"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1446
-#, fuzzy
 msgid "# ---closedloop stepper signals---"
-msgstr "# --- señales de parada ---"
+msgstr "# ---señales de paso a paso de circuito cerrado---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1460
-#, fuzzy
 msgid "# ---Encoder feedback signals/setup---"
-msgstr "# --- señales de refrigerante ---"
+msgstr "# ---Señales de retroalimentación del endoder/configuración---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1483
-#, fuzzy
 msgid "# ---Resolver feedback signals/setup---"
-msgstr "# --- señales de parada ---"
+msgstr "# ---Señales de retroalimentación del resolver/configuración---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1502
-#, fuzzy
 msgid "# ---setup spindle control signals---"
-msgstr "# --- señales de control de movimiento ---"
+msgstr "# ---configuración de las señales de control del husillo---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1518
-#, fuzzy
 msgid "# ---Setup spindle at speed signals---"
-msgstr "# --- señales de parada ---"
+msgstr "# ---Configurar el husillo a las señales de velocidad---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1539
 msgid "#  Use ACTUAL spindle velocity from spindle encoder"
@@ -12839,14 +12848,13 @@ msgid "#  ACTUAL velocity is in RPS not RPM so we scale it."
 msgstr "# La velocidad REAL está en RPS, no en RPM, así que la escalamos\"."
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1558
-#, fuzzy
 msgid "# ---setup home / limit switch signals---"
-msgstr "# --- señales de cambio de herramienta manual ---"
+msgstr ""
+"# ---configuración de las señales de los interruptores de inicio/límite---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1566
-#, fuzzy
 msgid "# external input signals"
-msgstr "# --- señales digitales de entrada / salida ---"
+msgstr "# señales de entrada externas"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1661
 msgid "# external output signals"
@@ -12959,12 +12967,10 @@ msgid "Mesa Card 1"
 msgstr "Mesa Card 1"
 
 #: src/emc/usr_intf/pncconf/private_data.py:47
-#, fuzzy
 msgid "Parallel Port 0"
-msgstr "Puerto paralelo 1"
+msgstr "Puerto paralelo 0"
 
 #: src/emc/usr_intf/pncconf/private_data.py:49
-#, fuzzy
 msgid "Mesa THCAD"
 msgstr "Mesa THCAD"
 
@@ -13965,9 +13971,8 @@ msgid "Limits"
 msgstr "Límites"
 
 #: src/emc/usr_intf/pncconf/private_data.py:469
-#, fuzzy
 msgid "Limits/Home Shared"
-msgstr "Límites / Inicio compartido"
+msgstr "Límites/Inicio compartido"
 
 #: src/emc/usr_intf/pncconf/private_data.py:470
 #: src/emc/usr_intf/pncconf/private_data.py:534
@@ -14397,13 +14402,17 @@ msgstr "Entrada analógica no utilizada"
 msgid ""
 "7i64-Input\n"
 "P3 and P4"
-msgstr "Entrada 7i64P3 y P4"
+msgstr ""
+"7i64-Input\n"
+"P3 y P4"
 
 #: src/emc/usr_intf/pncconf/private_data.py:980
 msgid ""
 "7i64-Output\n"
 "P2 and P5"
-msgstr "Salida 7i64P2 y P5"
+msgstr ""
+"Salida 7i64\n"
+"P2 y P5"
 
 #: src/emc/usr_intf/pncconf/private_data.py:980
 msgid "7i64-Analog In"
@@ -14413,79 +14422,103 @@ msgstr "7i64-Entrada analógica"
 msgid ""
 "7i69\n"
 "P2"
-msgstr "7i69P2"
+msgstr ""
+"7i69\n"
+"P2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:993
 msgid ""
 "7i69\n"
 "P3"
-msgstr "7i69P3"
+msgstr ""
+"7i69\n"
+"P3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1005
 msgid ""
 "7i70-Input\n"
 "TB3"
-msgstr "Entrada 7i70TB3"
+msgstr ""
+"Entrada 7i70\n"
+"TB3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1005
 msgid ""
 "7i70-Input\n"
 "TB2"
-msgstr "Entrada 7i70TB2"
+msgstr ""
+"Entrada 7i70\n"
+"TB2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1017
 msgid ""
 "7i71-Output\n"
 "TB3"
-msgstr "Salida 7i71TB3"
+msgstr ""
+"Salida 7i71\n"
+"TB3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1017
 msgid ""
 "7i71-Output\n"
 "TB2"
-msgstr "Salida 7i71TB2"
+msgstr ""
+"Salida 7i71\n"
+"TB2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1029
 #: src/emc/usr_intf/pncconf/private_data.py:1041
 msgid ""
 "7i76-I/O\n"
 "TB6"
-msgstr "7i76-I / OTB6"
+msgstr ""
+"7i76-I/O\n"
+"TB6"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1029
 #: src/emc/usr_intf/pncconf/private_data.py:1041
 msgid ""
 "7i76-I/O\n"
 "TB5"
-msgstr "7i76-I / OTB5"
+msgstr ""
+"7i76-I/O\n"
+"TB5"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1029
 #: src/emc/usr_intf/pncconf/private_data.py:1041
 msgid ""
 "7i76-Analog Output\n"
 "TB4"
-msgstr "Salida analógica 7i76TB4"
+msgstr ""
+"Salida analógica 7i76\n"
+"TB4"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1053
 #: src/emc/usr_intf/pncconf/private_data.py:1065
 msgid ""
 "7i77-I/O\n"
 "TB8"
-msgstr "7i77-I / OTB8"
+msgstr ""
+"7i77-I/O\n"
+"TB8"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1053
 #: src/emc/usr_intf/pncconf/private_data.py:1065
 msgid ""
 "7i77-I/O\n"
 "TB7"
-msgstr "7i77-I / OTB7"
+msgstr ""
+"7i77-I/O\n"
+"TB7"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1053
 #: src/emc/usr_intf/pncconf/private_data.py:1065
 msgid ""
 "7i77-Analog Output\n"
 "TB5"
-msgstr "Salida analógica 7i77TB5"
+msgstr ""
+"Salida analógica 7i77\n"
+"TB5"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1077
 msgid "7i73-I/O\n"
@@ -14495,20 +14528,26 @@ msgstr "7i73-I/O\n"
 msgid ""
 "7i84-I/O\n"
 "TB3"
-msgstr "7i84-I / OTB3"
+msgstr ""
+"7i84-I/O\n"
+"TB3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1090
 #: src/emc/usr_intf/pncconf/private_data.py:1105
 msgid ""
 "7i84-I/O\n"
 "TB2"
-msgstr "7i84-I / OTB2"
+msgstr ""
+"7i84-I/O\n"
+"TB2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1105
 msgid ""
 "7i84-I/O-MPG\n"
 "TB3"
-msgstr "7i84-I / O-MPGTB3"
+msgstr ""
+"7i84-I/O-MPG\n"
+"TB3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1170
 msgid ""
@@ -14519,19 +14558,19 @@ msgid ""
 "be lost. "
 msgstr ""
 "¿Está bien reemplazar el panel pyvcp personalizado existente y el archivo "
-"custom_postgui.hal?Se cambiará el nombre de custompanel.xml y custom_postgui."
-"hal existentescustompanel_backup.xml y postgui_backup.hal.Cualquier archivo "
-"existente llamado custompanel_backup.xml y custom_postgui.hal lo haráestar "
-"perdido. "
+"custom_postgui.hal?\n"
+"Se cambiará el nombre de custompanel.xml y custom_postgui.hal "
+"existentescustompanel_backup.xml y postgui_backup.hal.\n"
+"Cualquier archivo existente llamado custompanel_backup.xml y "
+"custom_postgui.hal será perdido. "
 
 #: src/emc/usr_intf/pncconf/private_data.py:1171
 msgid "Quit PNCconf and discard changes?"
 msgstr "¿Salir de PNCconf y descartar cambios?"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1172
-#, fuzzy
 msgid "Do you want to quit?"
-msgstr "¿Realmente quiere salir?\n"
+msgstr "¿Realmente quiere salir?"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1178
 msgid ""
@@ -14647,7 +14686,6 @@ msgstr ""
 "de eje"
 
 #: src/emc/usr_intf/pncconf/tests.py:1212
-#, fuzzy
 msgid ""
 "Do to technical reasons this test panel can be loaded only once without "
 "reloading pncconf.You also will not be able to do any other testing until "
@@ -14655,11 +14693,11 @@ msgid ""
 "hesitate to even allow it's use but at times it's very useful.\n"
 "Do you wish to continue the test?"
 msgstr ""
-"Por razones técnicas, este panel de prueba solo se puede cargar una vez "
-"sinrecargando pncconf. Tampoco podrá realizar ninguna otra prueba "
-"hastarecarga pncconf y posiblemente abre un terminal y escribe 'halrun -U' "
-"Idude en permitir su uso, pero a veces es muy útil.¿Desea continuar la "
-"prueba?"
+"Por razones técnicas, este panel de prueba solo se puede cargar una vez sin "
+"recargar pncconf. Tampoco podrá realizar ninguna otra prueba hasta que "
+"recargue pncconf y posiblemente abre un terminal y escriba 'halrun -U', yo "
+"dudé en permitir su uso, pero a veces es muy útil.\n"
+"¿Desea continuar la prueba?"
 
 #: src/emc/usr_intf/pncconf/data.py:110
 msgid "my_LinuxCNC_machine"
@@ -14675,10 +14713,11 @@ msgid ""
 "version of PNConf - ask on the LinuxCNC forum - it may be possible.."
 msgstr ""
 "Esta configuración se guardó con una versión anterior de pncconf que puede "
-"serincompatible.Si no causa un error, es posible que desee guardarlo conotro "
-"nombre y verifíquelo. Es más seguro comenzar desde cero.Si tiene una "
-"configuración REALMENTE grande que desea convertir a esta nuevaversión de "
-"PNConf - pregunte en el foro LinuxCNC - puede ser posible .."
+"serincompatible.\n"
+"Si no causa un error, es posible que desee guardarlo conotro nombre y "
+"verifíquelo. Es más seguro comenzar desde cero.\n"
+"Si tiene una configuración REALMENTE grande que desea convertir a esta nueva "
+"versión de PNConf - pregunte en el foro LinuxCNC - podría ser posible.."
 
 #: src/emc/usr_intf/pncconf/data.py:879
 #, python-format
@@ -14694,9 +14733,8 @@ msgstr ""
 "configuración realizadosfuera de PNCconf\"."
 
 #: src/emc/usr_intf/pncconf/data.py:901
-#, fuzzy
 msgid "Continue? (y/n)"
-msgstr "¿Continuar?"
+msgstr "¿Continuar? (s/n)"
 
 #: src/emc/usr_intf/pncconf/data.py:1086
 msgid "Desktop Launcher for LinuxCNC config made by PNCconf"
@@ -14708,14 +14746,14 @@ msgid "PNCconf - Mesa Card Configuration Wizard"
 msgstr "PNCconf - Asistente de configuración de la tarjeta Mesa"
 
 #: src/emc/usr_intf/pncconf/main_page.glade:177
-#, fuzzy
 msgid ""
 "Save\n"
 "Data"
-msgstr "Guardar"
+msgstr ""
+"Guardar\n"
+"Datos"
 
 #: src/emc/usr_intf/pncconf/main_page.glade:286
-#, fuzzy
 msgid ""
 "This program creates configuration files (.ini and .hal) for milling "
 "machines and lathes connected to a Mesa Card.\n"
@@ -14724,11 +14762,12 @@ msgid ""
 "functional then go back and add other options such as VFD spindle control  "
 "or advanced limit/home control etc."
 msgstr ""
-"Este programa crea archivos de configuración (.ini y .hal) para "
-"fresarmáquinas y tornos conectados a una tarjeta Mesa.\n"
+"Este programa crea archivos de configuración (.ini y .hal) para fresadoras y "
+"tornos conectados a una tarjeta Mesa.\n"
+"\n"
 "Es una estrategia recomendada comenzar con opciones de ejes muy básicas, "
-"consíguelosfuncional, luego regrese y agregue otras opciones como control de "
-"husillo VFDo límite avanzado / control del hogar, etc."
+"hágalos funcionar, luego regrese y agregue otras opciones como control de "
+"husillo VFD o control avanzado de inicio/límite etc."
 
 #: src/emc/usr_intf/pncconf/main_page.glade:315
 #: src/emc/usr_intf/pncconf/mesa0.glade:20244
@@ -14772,13 +14811,14 @@ msgstr ""
 "\t\t\t\tPNCconf - Configurador Apuntar y Click\n"
 "PNCconf es un programa de configuración para Linuxcnc.\n"
 "Configura máquinas usando tarjetas Mesa I/O.\n"
-"Configura máquinas con servos, motores de pasos con bucle abierto o "
-"cerrado.\n"
+"Configura máquinas con servos, motores de pasos con bucle abierto o cerrado."
+"\n"
 "Es compatible con algunas de las tarjetas sserial de Mesa.\n"
 "Siempre será un trabajo en progreso a medida que Linuxcnc cambie.\n"
 "\n"
-"Muchas gracias a:Jeff Eppler - PNCconf se basa en stepconf - la creación de "
-"Jeff. Jeff también ayudó con dificultades técnicas.\n"
+"Muchas gracias a:\n"
+"Jeff Eppler - PNCconf se basa en stepconf - la creación de Jeff. También "
+"Jeff ayudó con dificultades técnicas.\n"
 "Big John T - John dibujó las ilustraciones originales de la máquina. Pruebas "
 "y sugerencias.\n"
 "Peter Wallace - Preguntas técnicas sobre las tarjetas de E/S de Mesa. "
@@ -14787,7 +14827,7 @@ msgstr ""
 "pines :)\n"
 "Dave Armstrong: pruebas y sugerencias, especialmente con resolvers.\n"
 "¡Todos los que dieron un informe de error! No puedo probar todo "
-"suficientemente;  los reportes ayudan.\n"
+"suficientemente; los reportes ayudan.\n"
 "\n"
 "Versión Beta 1"
 
@@ -14822,28 +14862,41 @@ msgid ""
 "  Note this is an example, Many other combinations are \n"
 "  possible"
 msgstr ""
-"Eje X:Recorrido total = 10offset de inicio = origen a distancia de cambio de "
-"inicio = 0Distancia de desplazamiento de Neg = Origen a distancia de límite "
-"de neg = 0Distancia de desplazamiento pos = recorrido total - distancia de "
-"recorrido neg = 10Posición inicial = origen a distancia de posición inicial "
-"= 6\n"
-"Eje Y:Recorrido total = 8offset de inicio = origen a distancia de cambio de "
-"inicio = 0Distancia de desplazamiento de Neg = Origen a distancia de límite "
-"de neg = -8Distancia de viaje pos = viaje total - distancia de viaje neg = "
-"0Posición inicial = Distancia de origen a posición inicial = 0\n"
-"Eje Z:Recorrido total = 12offset de inicio = origen a distancia de cambio de "
-"inicio = 0Distancia de viaje de Neg = Origen a distancia de límite de neg = "
-"-12Distancia de viaje pos = viaje total - distancia de viaje neg = 0Posición "
-"inicial = Distancia de origen a posición inicial = 0\n"
-"Tenga en cuenta que los indicadores de dirección en la parte superior "
-"derecha muestranmovimiento de la HERRAMIENTA y en la máquina real,a menudo "
-"es la tabla la que realmente se mueve. En ese caso, ellas direcciones son "
-"opuestas a las mostradas.\n"
-"Tenga en cuenta que este es un ejemplo, muchas otras combinaciones son  "
-"posible"
+"  Eje X:\n"
+"  Recorrido total = 10\n"
+"  offset de inicio = origen a distancia de cambio de inicio = 0\n"
+"  Distancia de desplazamiento de Neg = Origen a distancia de límite de neg = "
+"0\n"
+"  Distancia de desplazamiento pos = recorrido total - distancia de recorrido "
+"neg = 10\n"
+"  Posición inicial = origen a distancia de posición inicial = 6\n"
+"\n"
+"  Eje Y:\n"
+"   Recorrido total = 8\n"
+"  offset de inicio = origen a distancia de cambio de inicio = 0\n"
+"  Distancia de desplazamiento de Neg = Origen a distancia de límite de neg = "
+"-8\n"
+"  Distancia de viaje pos = viaje total - distancia de viaje neg = 0\n"
+"  Posición inicial = Distancia de origen a posición inicial = 0\n"
+"\n"
+"  Eje Z:\n"
+"  Recorrido total = 12\n"
+"  offset de inicio = origen a distancia de cambio de inicio = 0\n"
+"  Distancia de viaje de Neg = Origen a distancia de límite de neg = -12\n"
+"  Distancia de viaje pos = viaje total - distancia de viaje neg = 0\n"
+"  Posición inicial = Distancia de origen a posición inicial = 0\n"
+"\n"
+"  Tenga en cuenta que los indicadores de dirección en la parte superior "
+"derecha muestran\n"
+"  movimiento de la HERRAMIENTA y en la máquina real,\n"
+"a menudo es la tabla la que realmente se mueve. En ese caso, las direcciones "
+"\n"
+"son opuestas a las mostradas.\n"
+"\n"
+"Tenga en cuenta que este es un ejemplo, muchas otras combinaciones son\n"
+"posibles"
 
 #: src/emc/usr_intf/pncconf/help.glade:54
-#, fuzzy
 msgid ""
 "Separate Home and Limit Switches Example\n"
 "\n"
@@ -14880,33 +14933,41 @@ msgid ""
 msgstr ""
 "Ejemplo de interruptores de inicio y límite separados\n"
 "\n"
-"Las direcciones negativas y positivas se basan en el movimiento de "
+"    Las direcciones negativas y positivas se basan en el movimiento de "
 "herramientas que puede ser diferente\n"
-"entonces el movimiento real de la máquina. Es decir, en un molino, la mesa "
-"se mueve en lugar de la herramienta.\n"
+"    al movimiento real de la máquina. Es decir, en una fresadora, la mesa se "
+"mueve en lugar de la herramienta.\n"
 "\n"
-"Los límites de software (software) están dentro del área del interruptor de "
-"límite.\n"
-"(Si se utiliza el recorrido de referencia basado en conmutadores), los "
-"conmutadores de referencia utilizan el límiteinterruptores (inicio "
-"compartido / interruptor de límite)o están dentro del área del interruptor "
-"de límite cuando se usa un interruptor de inicio separado.\n"
+"    Los límites de software (software) están dentro del área del interruptor "
+"de límite.\n"
 "\n"
-"El origen cero de la máquina G53 está típicamente dentro del área de límites "
-"suaves perono necesariamente.\n"
-"Si se usa un interruptor de referencia independiente, es posible comenzar a "
-"buscarel lado equivocado del interruptor de inicio,que combinado con la "
-"opción HOME_IGNORE_LIMITS dará lugar a un durocrash.Puede evitar esto "
-"haciendo que el interruptor de inicio cambie su estado cuandoel perro de "
-"viaje está en un lado en particular hasta que regrese pasado el punto de "
-"viajede nuevo.Dicho de otra manera, el estado del interruptor de inicio debe "
-"representar la posición deel perro en relación con el cambio (es decir, "
-"antes o después del cambio),y debe permanecer así incluso si el perro pasa "
-"por el interruptor en elmisma dirección.\n"
-"La distancia entre los interruptores de límite y los límites suaves (-L <-> "
-"A yD <- + L) se amplía en este ejemploTenga en cuenta que hay una distancia "
-"entre los interruptores de límite y el realcontacto físico duro para inercia "
-"después de que el amplificador está desactivado.\n"
+"    (Si genera el cero máquina basado en interruptores), los interruptores "
+"de límite de referencia utilizan los interruptores (inicio/límite compartido)"
+"\n"
+"    o están dentro del área del interruptor de límite cuando se usa un "
+"interruptor de inicio separado.\n"
+"\n"
+"    El origen cero de la máquina G53 está típicamente dentro del área de "
+"límites suaves pero no necesariamente.\n"
+"\n"
+"    Si se usa un interruptor de inicio separado, es posible comenzar a "
+"buscar el lado equivocado del interruptor de inicio,\n"
+"    que combinado con la opción HOME_IGNORE_LIMITS dará lugar a una colisión "
+"de máquina.\n"
+"    Puede evitar esto haciendo que el interruptor de inicio cambie su estado "
+"cuando el perro de viaje está en un lado en particular hasta que regrese "
+"pasado el punto de viajede nuevo.\n"
+"    Dicho de otra manera, el estado del interruptor de inicio debe "
+"representar la posición del perro en relación con el interruptor (es decir, "
+"antes o después del cambio),\n"
+"    y debe permanecer así incluso si el perro pasa por el interruptor en la "
+"misma dirección.\n"
+"\n"
+"    La distancia entre los interruptores de límite y los límites suaves (-L "
+"<-> A y D <- + L) se amplía en este ejemplo\n"
+"    Tenga en cuenta que hay una distancia entre los interruptores de límite "
+"y el contacto físico real para la costa después de que el amplificador es "
+"deshabilitado.\n"
 
 #: src/emc/usr_intf/pncconf/help.glade:111
 msgid "Help Page"
@@ -14928,21 +14989,24 @@ msgid ""
 "  This is just a sample reference other switch combinations are\n"
 "  possible."
 msgstr ""
-"Recorrido total = 4 + 6 = 10offset de inicio Z = origen a distancia de "
-"cambio de inicio = 10Distancia de desplazamiento de Z Neg = Origen a "
-"distancia de límite de neg = 0Distancia de viaje Z Pos = Viaje total - "
-"distancia de viaje neg = 10Posición inicial Z = Distancia de origen a "
-"posición inicial = 4\n"
-"El eje X sería similar pero no se muestra completamente para mayor claridad."
-"Esta es solo una referencia de muestra, otras combinaciones de interruptores "
-"son  posible."
+"  Recorrido total = 4 + 6 = 10\n"
+"  offset de inicio Z = origen a distancia de cambio de inicio = 10\n"
+"  Distancia de desplazamiento de Z Neg = Origen a distancia de límite de neg "
+"= 0\n"
+"  Distancia de viaje Z Pos = Viaje total - distancia de viaje neg = 10\n"
+"  Posición inicial Z = Distancia de origen a posición inicial = 4\n"
+"\n"
+"  El eje X sería similar pero no se muestra completamente para mayor "
+"claridad.\n"
+"  Esta es solo una referencia de muestra, otras combinaciones de "
+"interruptores son\n"
+"  posibles."
 
 #: src/emc/usr_intf/pncconf/help.glade:235
 msgid "Lathe"
 msgstr "Torno"
 
 #: src/emc/usr_intf/pncconf/help.glade:266
-#, fuzzy
 msgid ""
 "    A is the negative software limit\n"
 "    B is the G53 machine coordinate Origin\n"
@@ -14957,25 +15021,24 @@ msgid ""
 "    B<->D is the Positive Travel Distance  = 10 units\n"
 "    A<->D is the total travel = 10 units\n"
 msgstr ""
-"A es el límite negativo del software\n"
-"B es la coordenada de máquina G53 Origen\n"
-"C es el punto de disparo del interruptor de inicio / \n"
-"Viaje límite mínimo compartido\n"
-"D es el límite positivo del software\n"
-"H es la posición de inicio final = 3 unidades\n"
-"-L y + L son los puntos de disparo de los interruptores de límite\n"
-"\n"
-"A <-> B es la distancia de viaje negativa = -0 unidades\n"
-"B <-> C es la ubicación del interruptor de inicio = -0.7 unidades\n"
-"B <-> D es la distancia de desplazamiento positiva = 10 unidades\n"
-"A <-> D es el recorrido total = 10 unidades\n"
+"    A es el límite negativo del software\n"
+"    B es la coordenada de máquina G53 Origen\n"
+"    C es el punto de disparo del interruptor de inicio / \n"
+"                    Viaje límite mínimo compartido\n"
+"    D es el límite positivo del software\n"
+"    H es la posición de inicio final = 3 unidades\n"
+"    -L y + L son los puntos de disparo de los interruptores de límite\n"
+" \n"
+"    A <-> B es la distancia de viaje negativa = -0 unidades\n"
+"    B <-> C es la ubicación del interruptor de inicio = -0.7 unidades\n"
+"    B <-> D es la distancia de desplazamiento positiva = 10 unidades\n"
+"    A <-> D es el recorrido total = 10 unidades\n"
 
 #: src/emc/usr_intf/pncconf/help.glade:324
 msgid "Shared Home Switch"
 msgstr "Interruptor de inicio compartido"
 
 #: src/emc/usr_intf/pncconf/help.glade:343
-#, fuzzy
 msgid ""
 "    A is the negative software limit\n"
 "    B is the G53 machine coordinate Origin\n"
@@ -14989,14 +15052,17 @@ msgid ""
 "    B<->D is the Positive Travel Distance  = 7 units\n"
 "    A<->D is the total travel = 10 units\n"
 msgstr ""
-"A es el límite negativo del softwareB es la coordenada de máquina G53 "
-"OrigenC es el punto de disparo del interruptor de inicioD es el límite "
-"positivo del softwareH es la posición final en casa = 0 unidades-L y + L son "
-"los puntos de disparo de los interruptores de límite\n"
-"A <-> B es la distancia de viaje negativa = -3 unidadesB <-> C es la "
-"ubicación de Swicth del hogar = -2.3 unidadesB <-> D es la distancia de "
-"desplazamiento positiva = 7 unidadesA <-> D es el recorrido total = 10 "
-"unidades\n"
+"    A es el límite negativo del software\n"
+"    B es la coordenada de máquina G53 Origen\n"
+"    C es el punto de disparo del interruptor de inicio\n"
+"    D es el límite positivo del software\n"
+"    H es la posición de inicio final = 0 unidades\n"
+"    -L y + L son los puntos de disparo de los interruptores de límite\n"
+" \n"
+"    A <-> B es la distancia de viaje negativa = -3 unidades\n"
+"    B <-> C es la ubicación del interruptor de inicio = -2.3 unidades\n"
+"    B <-> D es la distancia de desplazamiento positiva = 7 unidades\n"
+"    A <-> D es el recorrido total = 10 unidades\n"
 
 #: src/emc/usr_intf/pncconf/help.glade:412
 msgid "Separate Homing Switches"
@@ -15037,9 +15103,9 @@ msgid ""
 "Press the button to make the tabbed pages accept the changes.\n"
 "Click on each page tab to configure signal names for each connector port.\n"
 msgstr ""
-"Presione el botón para que las páginas con pestañas acepten los cambios.Haga "
-"clic en la pestaña de cada página para configurar los nombres de señal para "
-"cada puerto del conector.\n"
+"Presione el botón para que las páginas con pestañas acepten los cambios.\n"
+"Haga clic en la pestaña de cada página para configurar los nombres de señal "
+"para cada puerto del conector.\n"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:248
 #: src/emc/usr_intf/pncconf/mesa1.glade:248
@@ -15059,7 +15125,7 @@ msgstr "Firmware:"
 #: src/emc/usr_intf/pncconf/mesa0.glade:339
 #: src/emc/usr_intf/pncconf/mesa1.glade:339
 msgid "Num of 3 pwm generators: "
-msgstr "Número de 3 generadores pwm:"
+msgstr "Número de 3 generadores pwm: "
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:367
 #: src/emc/usr_intf/pncconf/mesa1.glade:367
@@ -15071,7 +15137,9 @@ msgstr "Número total de pines:"
 msgid ""
 "Accept  components\n"
 "          Changes"
-msgstr "Aceptar componentesCambios"
+msgstr ""
+"Aceptar  componentes\n"
+"          Cambios"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:408
 #: src/emc/usr_intf/pncconf/mesa1.glade:408
@@ -15101,7 +15169,7 @@ msgstr "Número de generadores pwm:"
 #: src/emc/usr_intf/pncconf/mesa0.glade:589
 #: src/emc/usr_intf/pncconf/mesa1.glade:589
 msgid "Num of step generators: "
-msgstr "Número de generadores de pasos:"
+msgstr "Número de generadores de pasos: "
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:601
 #: src/emc/usr_intf/pncconf/mesa1.glade:601
@@ -15146,7 +15214,7 @@ msgstr "<b> Comprobaciones de cordura </b>"
 #: src/emc/usr_intf/pncconf/mesa0.glade:766
 #: src/emc/usr_intf/pncconf/mesa1.glade:766
 msgid "Num of channels: "
-msgstr "Número de canales:"
+msgstr "Número de canales: "
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:778
 #: src/emc/usr_intf/pncconf/mesa1.glade:778
@@ -15158,14 +15226,18 @@ msgstr "Número de resolvers:"
 msgid ""
 "   Board\n"
 "Discovery"
-msgstr "   TarjetaDescubrimiento"
+msgstr ""
+"   Tarjeta\n"
+"Descubrimiento"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:887
 #: src/emc/usr_intf/pncconf/mesa1.glade:887
 msgid ""
 "Configuration\n"
 "     Page"
-msgstr "Configuración     Página"
+msgstr ""
+"Configuración\n"
+"     Página"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1125
 #: src/emc/usr_intf/pncconf/mesa0.glade:1390
@@ -16768,7 +16840,7 @@ msgstr "<b> Conceptos básicos de la máquina </b>"
 
 #: src/emc/usr_intf/pncconf/base.glade:351
 msgid "Actual Servo Period:             "
-msgstr "Periodo de servo real:"
+msgstr "Periodo de servo real:             "
 
 #: src/emc/usr_intf/pncconf/base.glade:403
 msgid "Recommend servo period:    1000000"
@@ -16778,7 +16850,9 @@ msgstr "Recomendar período de servo: 1000000"
 msgid ""
 " Test Base\n"
 "Period Jitter "
-msgstr "Base de pruebaPeriodo de nerviosismo"
+msgstr ""
+" Base de prueba\n"
+"Periodo de jitter"
 
 #: src/emc/usr_intf/pncconf/base.glade:444
 msgid "<b>Computer Response Time</b>"
@@ -17042,14 +17116,12 @@ msgid "Standalone Panel"
 msgstr "Panel independiente"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:691
-#, fuzzy
 msgid "Rightside Embedded"
-msgstr "Incrustar del lado derecho"
+msgstr "Incrustado del lado derecho"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:707
-#, fuzzy
 msgid "Center Tab Embedded"
-msgstr "Ficha central incrustada"
+msgstr "Incrustado en pestaña central"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:723
 msgid "Force Maximize"
@@ -17208,8 +17280,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_axis.glade:291
 msgid "Negative Travel Distance  (Machine zero Origin to end of - travel): "
 msgstr ""
-"Distancia de recorrido negativa (origen de máquina cero al final del "
-"recorrido):"
+"Distancia de recorrido negativa  (origen de máquina cero al final del "
+"recorrido): "
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:307
 #: src/emc/usr_intf/pncconf/y_axis.glade:307
@@ -17234,8 +17306,8 @@ msgstr "Velocidad de búsqueda de home:"
 #: src/emc/usr_intf/pncconf/a_axis.glade:338
 msgid "Positive Travel Distance  (Machine zero Origin to end of + travel): "
 msgstr ""
-"Distancia de recorrido positiva (origen de máquina cero al final del "
-"recorrido +):"
+"Distancia de recorrido positiva  (origen de máquina cero al final del "
+"recorrido +): "
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:354
 #: src/emc/usr_intf/pncconf/y_axis.glade:354
@@ -17366,7 +17438,9 @@ msgstr "Pulsos cuádruples / Rev:"
 msgid ""
 "Open Loop\n"
 "      Test"
-msgstr "Abrir lazo      Prueba"
+msgstr ""
+"Lazo abierto\n"
+"      Prueba"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:696
 #: src/emc/usr_intf/pncconf/y_motor.glade:696
@@ -18023,7 +18097,7 @@ msgstr "Pin 9:"
 #: src/emc/usr_intf/pncconf/pport1.glade:966
 #: src/emc/usr_intf/pncconf/pport2.glade:969
 msgid "Pin _1: "
-msgstr "Pin _1:"
+msgstr "Pin _1: "
 
 #: src/emc/usr_intf/pncconf/pport1.glade:1023
 #: src/emc/usr_intf/pncconf/pport2.glade:1026
@@ -18142,7 +18216,6 @@ msgid "Read hostmot2 PIN file From help's input tab"
 msgstr "Leer archivo PIN de hostmot2 en la ayuda de la solapa ENTRADA"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:233
-#, fuzzy
 msgid "Mesa Board Discovery<"
 msgstr "Reconocimiento de placa Mesa <"
 
@@ -18474,7 +18547,6 @@ msgid "Step Timing"
 msgstr "Tiempo de paso"
 
 #: src/emc/usr_intf/pncconf/finished.glade:6
-#, fuzzy
 msgid ""
 "All the necessary info has now been gathered. \n"
 "Click \"Done\" to write your configuration files to disk.\n"
@@ -18494,21 +18566,25 @@ msgid ""
 "-Run a more thorough latency test as described on the linuxcnc.org wiki: \n"
 "https://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting"
 msgstr ""
-"Toda la información necesaria se ha recopilado.Haga clic en \"Listo\" para "
-"escribir sus archivos de configuración en el disco.\n"
+"Toda la información necesaria se ha recopilado.\n"
+"Haga clic en \"Listo\" para escribir sus archivos de configuración en el "
+"disco.\n"
 "\n"
-"Si experimenta bloqueos mientras ejecuta LinuxCNC:-necesitará disminuir la "
-"velocidad máxima que tendrá el efectode aumentar BASE_PERIOD.\n"
-"Si experimenta pasos perdidos mientras ejecuta LinuxCNC:-primero verifique "
-"que haya ingresado los tiempos adecuados para sus controladores paso a paso"
-"\".\n"
+"Si experimenta bloqueos mientras ejecuta LinuxCNC:\n"
+"-necesitará disminuir la velocidad máxima que tendrá el efectode aumentar "
+"BASE_PERIOD.\n"
+"\n"
+"Si experimenta pasos perdidos mientras ejecuta LinuxCNC:\n"
+"-primero verifique que haya ingresado los tiempos adecuados para sus "
+"controladores paso a paso\".\n"
 "-a continuación, ejecute una prueba de latencia más exhaustiva como se "
-"describe en linuxcnc.orgwiki.http; // wiki.linuxcnc.org/cgi-bin/wiki.pl?"
-"TroubleShooting\n"
+"describe en linuxcnc.org wiki.\n"
+"https://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting\n"
 "\n"
-"Si experimenta el mensaje \"Retraso inesperado en tiempo real\":-ejecuta una "
-"prueba de latencia más completa como se describe en el wiki de linuxcnc.org:"
-"http://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting"
+"Si experimenta el mensaje \"Retraso inesperado en tiempo real\":\n"
+"-ejecuta una prueba de latencia más completa como se describe en el wiki de "
+"linuxcnc.org wiki\n"
+"https://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:285
 msgid "Manual Mode"
@@ -18948,10 +19024,9 @@ msgstr "Reiniciar Entrada"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3805
 msgid "_Up     "
-msgstr ""
+msgstr "Arriba     "
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3807
-#, fuzzy
 msgid "_Down"
 msgstr "Abajo"
 
@@ -19239,27 +19314,24 @@ msgid "Starting RPM"
 msgstr "Iniciando RPM"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2077
-#, fuzzy
 msgid "Metric"
-msgstr "Métrica\n"
+msgstr "Métrico"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2091
-#, fuzzy
 msgid ""
 "Display\n"
 "Aux Screen"
 msgstr ""
-"   Mostrar\n"
+"Mostrar\n"
 "Pantalla auxiliar"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2107
-#, fuzzy
 msgid ""
 "Diameter\n"
 "Mode"
 msgstr ""
 "Modo\n"
-"  Diámetro"
+"Diámetro"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2125
 #: src/emc/usr_intf/gscreen/gscreen.glade:3180
@@ -19311,13 +19383,12 @@ msgid "Hide Pointer"
 msgstr "Ocultar puntero"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2224
-#, fuzzy
 msgid ""
 "Desktop\n"
 "Notification"
 msgstr ""
-"  Notification\n"
-" de escritorio"
+"Notification\n"
+"de escritorio"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2297
 #: src/emc/usr_intf/gscreen/gscreen.glade:2439
@@ -19346,11 +19417,12 @@ msgid "Halmeter"
 msgstr "Halmeter"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2385
-#, fuzzy
 msgid ""
 "LinuxCNC\n"
 "Status"
-msgstr "Estado de LinuxCNC"
+msgstr ""
+"LinuxCNC\n"
+"Estado"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2398
 msgid "Halscope"
@@ -19358,7 +19430,7 @@ msgstr "Halscope"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2457
 msgid "Tooleditor"
-msgstr "Editor Herram."
+msgstr "Editor de Herramientas"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2475
 #, fuzzy
@@ -19387,22 +19459,20 @@ msgstr ""
 " Sencillo"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2733
-#, fuzzy
 msgid ""
 "Run At\n"
 "Line"
 msgstr ""
 "Correr desde\n"
-"  Linea"
+"Linea"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2746
-#, fuzzy
 msgid ""
 "Change \n"
 "View"
 msgstr ""
 "Cambiar \n"
-"  Vista"
+"Vista"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2823
 #: src/emc/usr_intf/gscreen/gscreen.glade:3241
@@ -19410,9 +19480,8 @@ msgid "\n"
 msgstr "\n"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2834
-#, fuzzy
 msgid "Homing"
-msgstr "Homing\n"
+msgstr "Homing"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2854
 msgid ""
@@ -19432,9 +19501,8 @@ msgstr ""
 "ajuste"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2899
-#, fuzzy
 msgid "Graphics"
-msgstr "Gráficos\n"
+msgstr "Gráficos"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2912
 msgid ""
@@ -19445,12 +19513,11 @@ msgstr ""
 "Menu"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2926
-#, fuzzy
 msgid ""
 "Launch\n"
 "Keyboard"
 msgstr ""
-"  Lanzar\n"
+"Lanzar\n"
 "Teclado"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2944
@@ -19458,20 +19525,20 @@ msgid "<b>Select Buttons</b>"
 msgstr "<b>Seleccionar botones</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3031
-#, fuzzy
 msgid ""
 "Unhome \n"
 "All"
-msgstr "Unhome todo"
+msgstr ""
+"Unhome \n"
+"todo"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3044
-#, fuzzy
 msgid ""
 "Unhome\n"
 "Axis"
 msgstr ""
 "Unhome\n"
-"   Eje"
+"Eje"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3057
 #: src/emc/usr_intf/gscreen/gscreen.glade:3167
@@ -19483,13 +19550,12 @@ msgstr ""
 "Lectura"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3083
-#, fuzzy
 msgid ""
 "Jogging\n"
 "Mode"
 msgstr ""
 "Modo\n"
-"  Jog"
+"Jog"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3096
 #, fuzzy
@@ -19531,11 +19597,12 @@ msgstr ""
 "Bloque"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3303
-#, fuzzy
 msgid ""
 "Optional\n"
 "Stop"
-msgstr "Parada opcional"
+msgstr ""
+"Parada\n"
+"opcional"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3316
 #, fuzzy
@@ -19556,11 +19623,12 @@ msgstr ""
 "Pestaña"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3374
-#, fuzzy
 msgid ""
 "Feed\n"
 "Override"
-msgstr "Ajuste de feed"
+msgstr ""
+"Ajuste\n"
+"de feed"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3388
 msgid ""
@@ -19580,60 +19648,68 @@ msgstr ""
 "Rápidos"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3424
-#, fuzzy
 msgid ""
 "Jog\n"
 "Speed"
 msgstr ""
 "Velocidad\n"
-"  jog"
+"jog"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3438
-#, fuzzy
 msgid ""
 "Jog\n"
 "Increments"
-msgstr "Incrementos"
+msgstr ""
+"Incrementos\n"
+"de jog"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3455
 msgid ""
 "Adjust\n"
 "Rotary"
-msgstr "AjustarGiratorio"
+msgstr ""
+"Ajustar\n"
+"Giratorio"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3478
 msgid ""
 "Change\n"
 "  View"
-msgstr "CambiarVer"
+msgstr ""
+"Cambio\n"
+"  Ver"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3527
-#, fuzzy
 msgid ""
 "Pan\n"
 "Vertical"
-msgstr "PanVertical"
+msgstr ""
+"Pan\n"
+"Vertical"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3541
-#, fuzzy
 msgid ""
 "Pan\n"
 "Horizontal"
-msgstr "PanHorizontal"
+msgstr ""
+"Pan\n"
+"Horizontal"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3555
-#, fuzzy
 msgid ""
 "Rotate\n"
 "Horiontal"
-msgstr "RotarHoriontal"
+msgstr ""
+"Rotar\n"
+"Horiontal"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3569
-#, fuzzy
 msgid ""
 "Rotate\n"
 "Vertical"
-msgstr "RotarVertical"
+msgstr ""
+"Rotar\n"
+"Vertical"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3591
 #, fuzzy
@@ -19645,11 +19721,12 @@ msgstr ""
 "Bwd"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3604
-#, fuzzy
 msgid ""
 "Search\n"
 "Fwd"
-msgstr "BuscarFwd"
+msgstr ""
+"Buscar\n"
+"Fwd"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3617
 msgid "Undo"
@@ -19720,8 +19797,9 @@ msgid ""
 "up / down buttons or entering the line\n"
 "directly."
 msgstr ""
-"Destacando el run-at-line con los botones\n"
-"arriba/abajo o ingresandola directamente."
+"Destacando el run-at-line con\n"
+"los botones arriba/abajo o ingresandola\n"
+"directamente."
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4034
 #, fuzzy
@@ -19733,23 +19811,22 @@ msgstr ""
 "Arriba"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4058
-#, fuzzy
 msgid ""
 "Line\n"
 "Down"
-msgstr "LíneaAbajo"
+msgstr ""
+"Línea\n"
+"Abajo"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4141
 msgid "S 1000"
 msgstr "S 1000"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4211
-#, fuzzy
 msgid "FWD"
 msgstr "FWD"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4246
-#, fuzzy
 msgid "REV"
 msgstr "REV"
 
@@ -19844,21 +19921,19 @@ msgstr "El archivo %r se modificó porque lo escribió stepconf"
 #: lib/python/gladevcp/gladevcp-test.glade:103
 #: lib/python/gladevcp/gladevcp-test.glade:119
 msgid "radiobutton"
-msgstr ""
+msgstr "botón de radio"
 
 #: lib/python/gladevcp/gladevcp-test.glade:159
-#, fuzzy
 msgid "checkbutton"
-msgstr "Botón de rueda"
+msgstr "botón de control"
 
 #: lib/python/gladevcp/gladevcp-test.glade:183
 msgid "button"
 msgstr "botón"
 
 #: lib/python/gladevcp/gladevcp-test.glade:194
-#, fuzzy
 msgid "togglebutton"
-msgstr "Conmutar envío automático"
+msgstr "botón de palanca"
 
 #: lib/python/gladevcp/offsetpage.glade:40
 #: lib/python/gladevcp/offsetpage.glade:54
@@ -19867,16 +19942,15 @@ msgstr "Herramienta"
 
 #: lib/python/gladevcp/offsetpage.glade:74
 msgid "Rot"
-msgstr ""
+msgstr "Rot"
 
 #: lib/python/gladevcp/offsetpage.glade:88
 msgid "Rotation of Z"
 msgstr "Rotacion de Z"
 
 #: lib/python/gladevcp/offsetpage.glade:285
-#, fuzzy
 msgid "Offset"
-msgstr "Offset:"
+msgstr "Offset"
 
 #: lib/python/gladevcp/offsetpage.glade:416
 #, fuzzy
@@ -19892,12 +19966,11 @@ msgstr ""
 "G92"
 
 #: lib/python/gladevcp/offsetpage.glade:464
-#, fuzzy
 msgid ""
 "Zero\n"
 "Rotational"
 msgstr ""
-"    Cero\n"
+"Cero\n"
 "Rotacional"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:80
@@ -19915,9 +19988,8 @@ msgstr "Herramienta#"
 #: lib/python/gladevcp/tooledit_gtk.glade:109
 #: lib/python/gladevcp/tooledit_gtk.glade:413
 #: lib/python/gladevcp/tooledit_gtk.glade:635
-#, fuzzy
 msgid "Pocket"
-msgstr "Ranuras:"
+msgstr "Ranuras"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:222
 #: lib/python/gladevcp/tooledit_gtk.glade:523
@@ -19928,16 +20000,14 @@ msgstr "Diámetro"
 #: lib/python/gladevcp/tooledit_gtk.glade:237
 #: lib/python/gladevcp/tooledit_gtk.glade:538
 #: lib/python/gladevcp/tooledit_gtk.glade:760
-#, fuzzy
 msgid "Front"
-msgstr "frontal"
+msgstr "Frente"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:259
 #: lib/python/gladevcp/tooledit_gtk.glade:560
 #: lib/python/gladevcp/tooledit_gtk.glade:782
-#, fuzzy
 msgid "Orientation"
-msgstr "Operación"
+msgstr "Orientación"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:270
 #: lib/python/gladevcp/tooledit_gtk.glade:571
@@ -19950,11 +20020,8 @@ msgid "Reload"
 msgstr "Recargar"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:369
-#, fuzzy
 msgid "All Offsets"
-msgstr ""
-"Offset\n"
-"%s"
+msgstr "Todos los Offsets"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:424
 msgid "X Wear"
@@ -19965,18 +20032,16 @@ msgid "Z Wear"
 msgstr "Desgaste Z"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:590
-#, fuzzy
 msgid "Lathe Wear Offsets"
-msgstr "Offsets de trabajo:"
+msgstr "Compensaciones por desgaste de torno"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:646
 msgid "X Tool"
 msgstr "herramienta X"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:668
-#, fuzzy
 msgid "Z Tool"
-msgstr "Herramienta:"
+msgstr "Herramienta Z"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:812
 #, fuzzy
@@ -19985,12 +20050,11 @@ msgstr "Establecer offset de herramienta"
 
 #: lib/python/gladevcp/calculator.glade:83
 msgid "CLR"
-msgstr ""
+msgstr "CLR"
 
 #: lib/python/gladevcp/calculator.glade:332
-#, fuzzy
 msgid "DEL"
-msgstr "REL"
+msgstr "DEL"
 
 #: lib/python/gladevcp/calculator.glade:346
 msgid "mm → in"
@@ -20001,12 +20065,10 @@ msgid "in → mm"
 msgstr ""
 
 #: lib/python/gladevcp/calculator.glade:376
-#, fuzzy
 msgid "_Cancel_"
 msgstr "Cancelar"
 
 #: lib/python/gladevcp/calculator.glade:393
-#, fuzzy
 msgid "_Ok"
 msgstr "Aceptar"
 
