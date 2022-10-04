@@ -6,9 +6,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-09-18 08:05+0200\n"
-"PO-Revision-Date: 2022-08-22 20:03+0000\n"
+"PO-Revision-Date: 2022-09-29 16:58+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: none\n"
 "Language: sk\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 4.14-dev\n"
+"X-Generator: Weblate 4.14.1\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:281
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:286
@@ -793,32 +793,32 @@ msgstr "_Áno"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:156
 msgid "_No"
-msgstr ""
+msgstr "_Nie"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:182
 msgid "_Ok"
-msgstr ""
+msgstr "_Ok"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:219
 #: src/emc/usr_intf/gmoccapy/dialogs.py:221
 msgid "Restart Entry"
-msgstr ""
+msgstr "Reštartujte vstup"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:233
 msgid "_Up     "
-msgstr ""
+msgstr "_Hore     "
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:235
 msgid "_Down"
-msgstr ""
+msgstr "_Dolu"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:237
 msgid "_Jump to"
-msgstr ""
+msgstr "_Skoč na"
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:98
 msgid "**** GMOCCAPY GETINIINFO : ****"
-msgstr ""
+msgstr "**** GMOCAPY ZÍSKAJTE INFORMÁCIE: ****"
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:99
 #, python-brace-format
@@ -826,572 +826,596 @@ msgid ""
 "**** gmoccapy can only handle 9 axis, ****\n"
 "**** but you have given {0} through your INI file ****\n"
 msgstr ""
+"**** gmoccapy zvládne iba 9 osí, ****\n"
+"**** ale prostredníctvom súboru INI ste poskytli {0} ****\n"
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:100
 msgid ""
 "**** gmoccapy will not start ****\n"
 "\n"
 msgstr ""
+"**** gmoccapy sa nespustí ****\n"
+"\n"
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:431
 msgid "**** GMOCCAPY GETINIINFO ****\n"
-msgstr ""
+msgstr "**** GMOCAPY ZÍSKAJTE INFORMÁCIE ****\n"
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:432
 msgid ""
 "**** No subroutine folder or program prefix is given in the ini file **** \n"
 msgstr ""
+"**** V súbore ini nie je uvedený žiadny priečinok podprogramu ani predpona "
+"programu ****\n"
 
 #: src/emc/usr_intf/gmoccapy/notification.py:209
 #, python-brace-format
 msgid "Error trying to delete the message with number {0}"
-msgstr ""
+msgstr "Chyba pri pokuse o odstránenie správy s číslom {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:1
 msgid "pause the running program"
-msgstr ""
+msgstr "pozastaviť spustený program"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:2
 msgid "left rotate,  middle move,  right zoom"
-msgstr ""
+msgstr "otáčanie doľava, pohyb v strede, priblíženie doprava"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:3
 msgid "left zoom,  middle move,  right rotate"
-msgstr ""
+msgstr "priblíženie doľava, pohyb v strede, otočenie doprava"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:4
 msgid "left move,  middle rotate,  right zoom"
-msgstr ""
+msgstr "pohyb doľava, otáčanie v strede, priblíženie doprava"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:5
 msgid "left zoom,  middle rotate,  right move"
-msgstr ""
+msgstr "priblíženie doľava, otočenie v strede, pohyb doprava"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:6
 msgid "left move,  middle zoom,  right rotate"
-msgstr ""
+msgstr "pohyb doľava, priblíženie v strede, otočenie doprava"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:7
 msgid "left rotate,  middle zoom,  right move"
-msgstr ""
+msgstr "otáčanie doľava, priblíženie v strede, pohyb doprava"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:8
 msgid "default"
-msgstr ""
+msgstr "predvolené"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:9
 msgid "No Program loaded"
-msgstr ""
+msgstr "Nie je načítaný žiadny program"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:10
 msgid "blockheight = 0.0"
-msgstr ""
+msgstr "výška bloku = 0,0"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:11
 msgid "clear plot"
-msgstr ""
+msgstr "zmazať obrobené dráhy"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:12
 msgid "Zoom in"
-msgstr ""
+msgstr "Priblížiť"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:13
 msgid "Zoom out"
-msgstr ""
+msgstr "Oddialiť"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:14
 msgid "view perspective"
-msgstr ""
+msgstr "perspektívne zobrazenie"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:15
 msgid "view along the X axis from positive to negative"
-msgstr ""
+msgstr "pohľad pozdĺž osi X z pozitívneho na negatívny"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:16
 msgid "view along the Y axis from positive to negative"
-msgstr ""
+msgstr "pohľad pozdĺž osi Y z pozitívneho na negatívny"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:17
 msgid "view along the Z axis from positive to negative"
-msgstr ""
+msgstr "pohľad pozdĺž osi Z z pozitívneho na negatívny"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:18
 msgid "Show or hide tool path"
-msgstr ""
+msgstr "Zobraziť alebo skryť dráhu nástroja"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:19
 msgid "Show or hide dimensions"
-msgstr ""
+msgstr "Zobraziť alebo skryť rozmery"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:20
 msgid ""
 "view along the Y axis from positive to negative as viewn for a back tool "
 "lathe"
 msgstr ""
+"pohľad pozdĺž osi Y od pozitívneho k negatívnemu ako pri pohľade na sústruh "
+"so zadným nástrojom"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:21
 msgid "Preview"
-msgstr ""
+msgstr "Náhľad"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:22
 msgid "Offset Page"
-msgstr ""
+msgstr "Stránka ofsetov"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:23
 msgid "Tooledit"
-msgstr ""
+msgstr "Úprava nástroja"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:24
 msgid "File Selection"
-msgstr ""
+msgstr "Výber súboru"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:25
 msgid "jog axes"
-msgstr ""
+msgstr "pohyby osí"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:26
 msgid "jog joints"
-msgstr ""
+msgstr "pohyby kĺbov"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:27
 msgid "Logo"
-msgstr ""
+msgstr "Logo"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:28
 msgid "Ignore limits"
-msgstr ""
+msgstr "Ignorovať limity"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:29
 msgid "<b>Jogging</b>"
-msgstr ""
+msgstr "<b>Pohybovanie</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:30
 msgid "Shows the code to execute"
-msgstr ""
+msgstr "Zobrazuje kód, ktorý sa má vykonať"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:31
 msgid "Information over the tool in spindle"
-msgstr ""
+msgstr "Informácie o nástroji vo vretene"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:32
 msgid "Tool no."
-msgstr ""
+msgstr "Nástroj č."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:33
 msgid "Diameter"
-msgstr ""
+msgstr "Priemer"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:34
 msgid "offset z"
-msgstr ""
+msgstr "ofset z"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:35
 msgid "offset x"
-msgstr ""
+msgstr "ofset x"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:37
 msgid "Vc= 0.00"
-msgstr ""
+msgstr "Vc=0.00"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:38
 msgid "<b>Tool information</b>"
-msgstr ""
+msgstr "<b>Informácie o nástroji</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:39
 msgid "G and M code information as well as speed and feed"
-msgstr ""
+msgstr "Informácie o kódoch G a M, ako aj o rýchlosti a posuve"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:40
 msgid "active_mcodes_label"
-msgstr ""
+msgstr "aktívny_štítok_M_kódov"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:41
 msgid "active_gcodes_label"
-msgstr ""
+msgstr "aktívny_štítok_G_kódov"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:42
 msgid "<b>G-Code</b>"
-msgstr ""
+msgstr "<b>G-kódy</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:43
 msgid "<b>Cooling</b>"
-msgstr ""
+msgstr "<b>Chladenie</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:44
 msgid "<b>Spindle [rpm]</b>"
-msgstr ""
+msgstr "<b>Vreteno [ot./min]</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:45
 msgid "Vel."
-msgstr ""
+msgstr "Rých."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:46
 msgid "Displays the current velocity"
-msgstr ""
+msgstr "Zobrazuje aktuálnu rýchlosť"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:47
 msgid "<b>Rapid Override</b>"
-msgstr ""
+msgstr "<b>Posuvník rýchloposuvov</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:48
 msgid "Displays the programmed feed rate"
-msgstr ""
+msgstr "Zobrazuje naprogramovanú rýchlosť posuvu"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:50
 msgid "reset feed override to 100 %"
-msgstr ""
+msgstr "resetovať rýchlosť obrábania na 100%"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:51
 msgid "<b>Feed Override</b>"
-msgstr ""
+msgstr "<b>Posuvník rýchlosti obrábania</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:52
 msgid "Undo"
-msgstr ""
+msgstr "Vrátiť späť"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:53
 msgid ""
 "Search\n"
 " back"
 msgstr ""
+"Vyhľadávanie\n"
+"späť"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:55
 msgid ""
 "Search\n"
 "  fwd"
 msgstr ""
+"Vyhľadávanie\n"
+"dopredu"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:57
 msgid "Redo"
-msgstr ""
+msgstr "Znovu"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:58
 msgid ""
 "Replace\n"
 "  Text:"
 msgstr ""
+"Prepísať\n"
+"text:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:60
 msgid ""
 "Replace\n"
 "   All"
 msgstr ""
+"Prepísať\n"
+"všetko"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:62
 msgid ""
 "Ignore\n"
 " Case"
 msgstr ""
+"Ignorovať\n"
+"Prípad"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:64
 msgid "Replace"
-msgstr ""
+msgstr "Nahradiť"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:65
 msgid ""
 "Search\n"
 "  Text:"
 msgstr ""
+"Vyhľadávanie\n"
+"textu:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:67
 msgid "Main"
-msgstr ""
+msgstr "Hlavné"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:68
 msgid "Start as fullscreen"
-msgstr ""
+msgstr "Spustiť ako celú obrazovku"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:69
 msgid "Start maximized"
-msgstr ""
+msgstr "Spustiť maximalizované"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:70
 msgid "Start as window"
-msgstr ""
+msgstr "Spustiť ako okno"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:71
 msgid "X Pos."
-msgstr ""
+msgstr "X poz."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:72
 msgid "Y Pos."
-msgstr ""
+msgstr "Y poz."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:73
 msgid "Width"
-msgstr ""
+msgstr "Šírka"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:74
 msgid "Height"
-msgstr ""
+msgstr "Výška"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:75
 msgid "hide cursor"
-msgstr ""
+msgstr "skryť kurzor"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:76
 msgid "hide tooltips"
-msgstr ""
+msgstr "skryť popisky"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:77
 msgid "<b>Main Window</b>"
-msgstr ""
+msgstr "<b>Hlavné okno</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:78
 msgid "Show keyboard on offset"
-msgstr ""
+msgstr "Zobraziť klávesnicu pri ofsetoch"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:79
 msgid "Show keyboard on tooledit"
-msgstr ""
+msgstr "Zobraziť klávesnicu pri úprave nástroja"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:80
 msgid "Show keyboard on MDI"
-msgstr ""
+msgstr "Zobraziť klávesnicu pri MDI"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:81
 msgid "Show keyboard on EDIT"
-msgstr ""
+msgstr "Zobraziť klávesnicu pri EDIT"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:82
 msgid "Show keyboard on load file"
-msgstr ""
+msgstr "Zobraziť klávesnicu pri načítaní súboru"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:83
 msgid "<b>Virtual Keyboard</b>"
-msgstr ""
+msgstr "<b>Virtuálna klávesnica</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:84
 msgid "show preview"
-msgstr ""
+msgstr "zobraziť náhľad"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:85
 msgid "show offsets"
-msgstr ""
+msgstr "zobraziť ofsety"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:86
 msgid "<b>On Touch off</b>"
-msgstr ""
+msgstr "<b>Pri dotyku vypnuté</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:87
 msgid "Relative Color"
-msgstr ""
+msgstr "Relatívna farba"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:88
 msgid "Absolute Color"
-msgstr ""
+msgstr "Absolútna farba"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:89
 msgid "DTG Color"
-msgstr ""
+msgstr "Farba DTG"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:90
 msgid "Homed color"
-msgstr ""
+msgstr "Farba skalibrovania"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:91
 msgid "Unhomed color"
-msgstr ""
+msgstr "Farba pri rozkalibrovaní"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:92
 msgid "Size"
-msgstr ""
+msgstr "Veľkosť"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:93
 msgid "Digits"
-msgstr ""
+msgstr "Číslice"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:94
 msgid ""
 "toggle DRO mode\n"
 "clicking on the DRO"
 msgstr ""
+"prepnúť režim DRO\n"
+"kliknutím na DRO"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:96
 msgid "<b>DRO</b>"
-msgstr ""
+msgstr "<b>DRO</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:97
 msgid "Grid size"
-msgstr ""
+msgstr "Veľkosť mriežky"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:98
 msgid "Show DRO"
-msgstr ""
+msgstr "Zobraziť DRO"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:99
 msgid "Show offsets"
-msgstr ""
+msgstr "Zobraziť ofsety"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:100
 msgid "Show DTG"
-msgstr ""
+msgstr "Zobraziť DTG"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:101
 msgid "<b>Mouse Button mode</b>"
-msgstr ""
+msgstr "<b>Režim tlačidla myši</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:102
 msgid "<b>Preview</b>"
-msgstr ""
+msgstr "<b>Ukážka</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:103
 msgid ""
 "current\n"
 "   file"
 msgstr ""
+"aktuálna\n"
+"zložka"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:105
 msgid "none"
-msgstr ""
+msgstr "žiadny"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:106
 msgid "<b>File to load on start</b>"
-msgstr ""
+msgstr "<b>Súbor, ktorý sa má načítať pri spustení</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:107
 msgid "Select user dir"
-msgstr ""
+msgstr "Vyberte užívateľský adresár"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:108
 msgid "<b>Select jump to dir</b>"
-msgstr ""
+msgstr "<b>Vyberte smer skoku</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:109
 msgid "Themes"
-msgstr ""
+msgstr "Témy"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:110
 msgid "Warning Audio"
-msgstr ""
+msgstr "Zvuková výstraha"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:111
 msgid "Alert Audio"
-msgstr ""
+msgstr "Zvukové upozornenie"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:112
 msgid "Icon Theme"
-msgstr ""
+msgstr "Téma ikony"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:113
 msgid "<b>Themes and sound</b>"
-msgstr ""
+msgstr "<b>Témy a zvuk</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:114
 msgid "Appearance"
-msgstr ""
+msgstr "Vzhľad"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:115
 msgid "Scale rapid override"
-msgstr ""
+msgstr "Mierka voľby rýchloposuvu"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:116
 msgid "Scale jog velocity"
-msgstr ""
+msgstr "Mierka voľby pohybov"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:117
 msgid "Scale feed override"
-msgstr ""
+msgstr "Mierka voľby obrábania"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:118
 msgid "Scale spindle override"
-msgstr ""
+msgstr "Mierka voľby rých. vretena"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:119
 msgid "<b>Hardware MPG Scale</b>"
-msgstr ""
+msgstr "<b>Hardvérová škála MPG</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:120
 msgid "Use keyboard shortcuts"
-msgstr ""
+msgstr "Používajte klávesové skratky"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:121
 msgid "<b>Keyboard shortcuts</b>"
-msgstr ""
+msgstr "<b>Klávesové skratky</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:122
 msgid "Use unlock code"
-msgstr ""
+msgstr "Použiť odblokovací kód"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:123
 msgid "Do not use unlock code"
-msgstr ""
+msgstr "Nepoužiť odblokovací kód"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:124
 msgid "Use hal pin to unlock"
-msgstr ""
+msgstr "Na odomknutie použite HAL pin"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:125
 msgid "<b>Unlock settings</b>"
-msgstr ""
+msgstr "<b>Nastavenia odomknutia</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:126
 msgid "Starting RPM"
-msgstr ""
+msgstr "Počiatočné otáčky"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:127
 msgid "Spindle bar min"
-msgstr ""
+msgstr "Vreteno \"bar\" min"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:128
 msgid "Spindle bar max"
-msgstr ""
+msgstr "Vreteno \"bar\" max"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:129
 msgid "<b>Spindle</b>"
-msgstr ""
+msgstr "<b>Vreteno</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:130
 msgid "Hide turtle Jog Button"
-msgstr ""
+msgstr "Skryť tlačidlo korytnačky"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:131
 msgid "Turtle jog Factor"
-msgstr ""
+msgstr "Korytnačí pohybový faktor"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:132
 msgid "<b>Turtle Jog</b>"
-msgstr ""
+msgstr "<b>Kytnačí pohyb</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:133
 msgid "Hardware"
-msgstr ""
+msgstr "Hardvér"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:134
 msgid "Use auto tool measurement"
-msgstr ""
+msgstr "Použiť automatické meranie nástroja"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:135
 msgid "Probe Height"
-msgstr ""
+msgstr "Výška sondy"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:136
 msgid "0.000"
-msgstr ""
+msgstr "0.000"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:137
 msgid "Z Pos."
-msgstr ""
+msgstr "Z Poz."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:138
 msgid "Max. Probe"
-msgstr ""
+msgstr "Max. Sonda"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:139
 msgid "<b>Probe Information</b>"
-msgstr ""
+msgstr "<b>Informácie o sonde</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:140
 msgid "Search Vel."
-msgstr ""
+msgstr "Hľadať rýchlosťou."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:141
 msgid "Probe Vel."
-msgstr ""
+msgstr "Rýchlosť hľadania sondou."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:142
 msgid "<b>Probe velocitys</b>"
-msgstr ""
+msgstr "<b>Rýchlosti hľadania</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:143
 msgid ""
@@ -1401,14 +1425,19 @@ msgid ""
 "the WIKI to check how\n"
 "to configure the settings."
 msgstr ""
+"Žiadna platná konfigurácia\n"
+"nájdené vo vašom INI súbore,\n"
+"prosím pozrite sa\n"
+"na WIKI, aby ste zistili ako\n"
+"na konfiguráciu nastavení."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:148
 msgid "<b>Tool Measurement</b>"
-msgstr ""
+msgstr "<b>Meranie nástroja</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:149
 msgid "Reload Tool on Start"
-msgstr ""
+msgstr "Znovu načítajte nástroj pri štarte"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:150
 msgid ""
@@ -1418,6 +1447,11 @@ msgid ""
 "at start of the GUI. Also it's\n"
 "length offset will be reloaded.\n"
 msgstr ""
+"Ak je začiarknuté, nástroj je vo vretene,\n"
+"bude uložený pri každej zmene\n"
+"a posledný nástroj sa znova načíta\n"
+"na začiatku GUI. Taktiež sa znova načíta\n"
+"dĺžka nástroja.\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:156
 msgid ""
@@ -1425,188 +1459,214 @@ msgid ""
 "so the reload of a tool at start\n"
 "is not possible."
 msgstr ""
+"Používate NO_FORCE_HOMING,\n"
+"takže opätovné načítanie nástroja na začiatku\n"
+"nie je možné."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:159
 msgid "<b>Reload Tool</b>"
-msgstr ""
+msgstr "<b>Znovu načítať nástroj</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:160
 msgid "Do not use run from line"
-msgstr ""
+msgstr "Nepoužiť Spustiť od riadku"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:161
 msgid "Use run from line"
-msgstr ""
+msgstr "Použiť Spustiť od riadku"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:162
 msgid "<b>Run from line</b>"
-msgstr ""
+msgstr "<b>Spustiť od riadku</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:163
 msgid "Use frames"
-msgstr ""
+msgstr "Použiť rámce"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:164
 msgid ""
 "If checked, the messages\n"
 "will be in a frame."
 msgstr ""
+"Ak je začiarknuté, správy\n"
+"budú v rámci."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:166
 msgid "Font"
-msgstr ""
+msgstr "Písmo"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:167
 msgid "Max. messages"
-msgstr ""
+msgstr "Max. správy"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:168
 msgid "The font to use"
-msgstr ""
+msgstr "Písmo, ktoré sa má použiť"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:169
 msgid "The maximum messages you want to be shown\t"
-msgstr ""
+msgstr "Maximálny počet správ, ktoré chcete zobraziť"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:170
 msgid "The width of the messages"
-msgstr ""
+msgstr "Šírka správ"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:171
 msgid "X-position in pixel from top left corner of the screen"
-msgstr ""
+msgstr "Pozícia X v pixeloch od ľavého horného rohu obrazovky"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:172
 msgid "Y-position in pixel from top left corner of the screen"
-msgstr ""
+msgstr "Y-pozícia v pixeloch z ľavého horného rohu obrazovky"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:173
 msgid "Launch test message"
-msgstr ""
+msgstr "Spustit testovaciu správu"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:174
 msgid ""
 "Push here to launch a test message\n"
 "to test your settings."
 msgstr ""
+"Stlačením tu, spustíte testovaciu správu,\n"
+"aby ste otestovali svoje nastavenia."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:176
 msgid ""
 "<b>      gmoccapy message\n"
 " behavior and appearance </b>"
 msgstr ""
+"<b> správa gmoccapy\n"
+"správanie a vzhľad </b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:178
 msgid ""
 "Advanced\n"
 " Settings"
 msgstr ""
+"Pokročilé\n"
+"nastavenia"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:180
 msgid "Settings"
-msgstr ""
+msgstr "Nastavenia"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:181
 msgid "User tab 1"
-msgstr ""
+msgstr "Používateľská karta 1"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:182
 msgid "User tabs"
-msgstr ""
+msgstr "Používateľské karty"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:183
 msgid ""
 "Estop the machine\n"
 "[F1]"
 msgstr ""
+"Núdzové zastavenie\n"
+"[F1]"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:185
 msgid ""
 "Turn the machine on/off\n"
 "[F2]"
 msgstr ""
+"Zapnite/vypnite stroj\n"
+"[F2]"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:187
 msgid ""
 "enter manual mode to jog axis by hand or touch off\n"
 "[F3]"
 msgstr ""
+"vstup do manuálneho režimu\n"
+"[F3]"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:189
 msgid ""
 "enter MDI mode to launch G-code commands\n"
 "[F5]"
 msgstr ""
+"vstup do režimu MDI\n"
+"[F5]"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:191
 msgid "enter auto mode to run programs"
-msgstr ""
+msgstr "vstup do automatického režimu pre spustenie programov"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:192
 msgid "Enter the settings page, the default code is \"123\""
-msgstr ""
+msgstr "Stránku nastavení, predvolený kód je \"123\""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:193
 msgid "show user tabs"
-msgstr ""
+msgstr "zobraziť používateľské karty"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:194
 msgid "open homing button list"
-msgstr ""
+msgstr "Otvoriť zoznam tlačidiel kalibrácií"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:195
 msgid "open touch off button list"
-msgstr ""
+msgstr "otvoriť zoznam dotykových tlačidiel"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:196
 msgid "Open the tooleditor page"
-msgstr ""
+msgstr "Otvoriť stránku editácií nástrojov"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:197
 msgid ""
 "World\n"
 "Mode"
 msgstr ""
+"Svetový\n"
+"režim"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:199
 msgid ""
 "Switch motion mode between Joint and World mode\n"
 "F12 or $ key does the same"
 msgstr ""
+"Prepnúť režim pohybu medzi režimom kĺbu a svetovým režimom\n"
+"Kláves F12 alebo $ robí to isté"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:201
 msgid "make the preview as large as possible"
-msgstr ""
+msgstr "Vytvoriť náhľad čo najväčší"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:202
 msgid "Close gmoccapy / leave the program"
-msgstr ""
+msgstr "Zatvorte gmoccapy / opustite program"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:203
 msgid "Load a new program"
-msgstr ""
+msgstr "Načítať nový program"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:204
 msgid "Run the loaded program"
-msgstr ""
+msgstr "Spustiť načítaný program"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:205
 msgid "Stop the running program"
-msgstr ""
+msgstr "Zastaviť spustený program"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:206
 msgid "Pause the running program"
-msgstr ""
+msgstr "Pozastaviť spustený program"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:207
 msgid "Run the  loaded program step by step"
-msgstr ""
+msgstr "Spustiť načítaný program riadok za riadkom"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:208
 msgid ""
 "run the program from a certain line, attention, that is dangerous, because "
 "the previous lines will not checked!"
 msgstr ""
+"spustiť program od určitého riadku. Môže to byť nebezpečné, pretože "
+"predchádzajúce riadky nebudú kontrolované! Je potrebné najskôr spustiť "
+"vreteno a funkcie!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:209
 msgid ""
@@ -1614,180 +1674,186 @@ msgid ""
 "the optional blocks will not be machined. The button will indicate this by a "
 "yellow background."
 msgstr ""
+"Vykonať, alebo nevykonať bloky programu. Stlačením tlačidla sa voliteľné "
+"bloky nevykonajú. Tlačidlo to bude indikovať žltým pozadím."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:210
 msgid "Edit the loaded program"
-msgstr ""
+msgstr "Upraviť načítaný program"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:211
 msgid "delete MDI"
-msgstr ""
+msgstr "vymazať MDI"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:212
 msgid "delete MDI history"
-msgstr ""
+msgstr "vymazať históriu MDI"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:213
 msgid "Cl.-ladder"
-msgstr ""
+msgstr "Cl.-ladder"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:214
 msgid "Open classicladder"
-msgstr ""
+msgstr "Otvoriť classicladder"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:215
 msgid "Hal-Scope"
-msgstr ""
+msgstr "Hal-Osciloskop"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:216
 msgid "launch hal scope"
-msgstr ""
+msgstr "spustiť HAL osciloskop"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:217
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:218
 msgid "launch linuxcnc status"
-msgstr ""
+msgstr "spustiť stav Linuxcnc"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:219
 msgid "Hal Meter"
-msgstr ""
+msgstr "Hal parametre"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:220
 msgid "launch hal meter"
-msgstr ""
+msgstr "spustiť HAL parametre"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:221
 msgid "Calibration"
-msgstr ""
+msgstr "Kalibrácia"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:222
 msgid "launch calibration"
-msgstr ""
+msgstr "spustiť kalibráciu"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:223
 msgid "Halshow"
-msgstr ""
+msgstr "Zobraziť HAL"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:224
 msgid "opens the show hal tool"
-msgstr ""
+msgstr "otvoriť nástroj zobrazenia HAL"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:225
 msgid "save the file using the original name"
-msgstr ""
+msgstr "uložiť súbor s pôvodným názvom"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:226
 msgid "save the file with a new name"
-msgstr ""
+msgstr "uložiť súbor s novým názvom"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:227
 msgid "clear the edit field and make a new file"
-msgstr ""
+msgstr "vymazať pole úprav a vytvoriť nový súbor"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:228
 msgid "Show or hide the virtual keyboard"
-msgstr ""
+msgstr "Zobraziť alebo skryť virtuálnu klávesnicu"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:229
 msgid "Go back to main button list"
-msgstr ""
+msgstr "Vrátiť sa na zoznam hlavných tlačidiel"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:230
 msgid "Delete"
-msgstr ""
+msgstr "Vymazať"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:231
 msgid "delete selected tool or tools"
-msgstr ""
+msgstr "odstrániť vybraný nástroj alebo nástroje"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:232
 msgid "Add"
-msgstr ""
+msgstr "Pridať"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:233
 msgid "add a new tool to tool table"
-msgstr ""
+msgstr "pridať nový nástroj do tabuľky nástrojov"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:234
 msgid "Reload"
-msgstr ""
+msgstr "Znovu načítať"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:235
 msgid "reload tool table from file"
-msgstr ""
+msgstr "znovu načítať tabuľku nástrojov zo súboru"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:236
 msgid "Apply"
-msgstr ""
+msgstr "Použiť"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:237
 msgid ""
 "apply the changes you made, G43 will be executed only if it is active G-code"
-msgstr ""
+msgstr "Použiť zmeny. G43 sa vykoná iba vtedy, ak je aktívny určitý G-kód"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:238
 msgid "Select a tool by number"
-msgstr ""
+msgstr "Vyberte nástroj podľa čísla"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:239
 msgid "change tool with the command M61 Q?, no machine move will be done"
-msgstr ""
+msgstr "vymeniť nástroj príkazom M61 Qx. Stroj zostane bez pohybu"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:240
 msgid "change tool to the selected one"
-msgstr ""
+msgstr "zmeniť nástroj na vybraný"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:241
 msgid "touch off the tool and set the value to the tool table"
-msgstr ""
+msgstr "dotknúť sa sondy a nastaviť hodnotu do tabuľky nástrojov"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:242
 msgid ""
 "touchoff\n"
 "tool x"
 msgstr ""
+"dotyk\n"
+"nástroj x"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:244
 msgid ""
 "touchoff\n"
 "tool z"
 msgstr ""
+"dotyk\n"
+"nástroj z"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:246
 msgid "Move to your home directory"
-msgstr ""
+msgstr "Presunúť sa do svojho domovského adresára"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:247
 msgid "Move to parent directory"
-msgstr ""
+msgstr "Presunúť sa do nadradeného adresára"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:248
 msgid "Select the previous file"
-msgstr ""
+msgstr "Vybrať predchádzajúci súbor"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:249
 msgid "Select the next file"
-msgstr ""
+msgstr "Vybrať nasledujúci súbor"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:250
 msgid "Jump to user defined directory"
-msgstr ""
+msgstr "Skok do užívateľom definovaného adresára"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:251
 msgid "select the highlighted file and return the path"
-msgstr ""
+msgstr "vybrať zvýraznený súbor a vrátiť cestu"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:252
 msgid "Close without returning a file path"
-msgstr ""
+msgstr "Zatvoriť bez vrátenia cesty k súboru"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:253
 msgid "Load File"
-msgstr ""
+msgstr "Načítať súbor"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:254
 msgid "home joints"
-msgstr ""
+msgstr "skalibrovať kĺby"
