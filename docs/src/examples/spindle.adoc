@@ -111,7 +111,7 @@ net spindle-speed-scale spindle.0.speed-out => scale.0.in
 
 is changed as shown in the following example:
 
-=== Intro to HAL components limit2 and near
+.Intro to HAL components limit2 and near
 
 In case you have not run across them before, here's a quick introduction
 to the two HAL components used in the following example.
