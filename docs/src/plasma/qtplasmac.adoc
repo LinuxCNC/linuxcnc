@@ -182,12 +182,12 @@ Refer to the <<qt_initial-setup,Heights Diagram>> diagram for a visual represent
 
 * *[AXIS_Z] MIN_LIMIT* should be just below top of the slats with
   allowances for float_switch_travel and over travel tolerance. For example,
-  if the user's float switch takes 4mm (0.157") to activate then set the Z
-  minimum to 5mm (0.2") plus an allowance for overrun (either calculated
-  using the equation below or allow 5mm (0.2") below the lowest slat).
+  if the user's float switch takes 4&thinsp;mm (0.157") to activate then set the Z
+  minimum to 5&thinsp;mm (0.2") plus an allowance for overrun (either calculated
+  using the equation below or allow 5&thinsp;mm (0.2") below the lowest slat).
 * *[AXIS_Z] MAX_LIMIT* should be the highest the user wants the Z axis
   to travel (it must not be lower than Z HOME_OFFSET).
-* *[AXIS_Z] HOME* should be set to be approximately 5mm-10mm (0.2"-0.4")
+* *[AXIS_Z] HOME* should be set to be approximately 5&thinsp;mm to 10&thinsp;mm (0.2"-0.4")
   below the maximum limit.
 * *Floating Head* - it is recommended that a floating head be used and
   that it has enough movement to allow for overrun during probing. Overrun
@@ -197,9 +197,9 @@ Refer to the <<qt_initial-setup,Heights Diagram>> diagram for a visual represent
 o = 0.5 * a * (v / a)^2
 ----
 
-where: o = overrun, a = acceleration in units/sec2 and v = velocity in units/sec.
+where: o = overrun, a = acceleration in units/s^2^ and v = velocity in units/s.
 
-Metric example:  given a Z axis MAX_ACCELERATION of 600mm/s^2^ and MAX_VELOCITY of 60mm/s, the overrun would be 3mm.
+Metric example:  given a Z axis MAX_ACCELERATION of 600mm/s^2^ and MAX_VELOCITY of 60mm/s, the overrun would be 3&thinsp;mm.
 
 Imperial example: given a Z axis MAX_ACCELERATION of 24in/s^2^ and MAX_VELOCITY of 2.4in/s, the overrun would be 0.12in.
 
@@ -1669,7 +1669,7 @@ qtplasmac.laser_on
 
 *To turn the laser off and cancel an alignment:*
 
-. Press the *LASER* button and hold for longer than 750 mSec.
+. Press the *LASER* button and hold for longer than 750&thinsp;ms.
 . *LASER* button label will change to *LASER* and the HAL pin named qtplasmac.laser_on will be turned off.
 . Release the *LASER* button.
 
@@ -1684,7 +1684,7 @@ The default LinuxCNC path tolerance is set for maximum speed which will severely
 
 It is recommended that the path tolerance is set by placing the appropriate G64 command and P value in the header of each G-code file.
 
-The provided G-code filter program will test for the existence of a G64 P__n__ command prior to the first motion command. If no G64 command is found it will insert a G64 P0.1 command which sets the path tolerance to 0.1 mm. For a imperial config the command will be G64 P0.004.
+The provided G-code filter program will test for the existence of a G64 P__n__ command prior to the first motion command. If no G64 command is found it will insert a G64 P0.1 command which sets the path tolerance to 0.1&thinsp;mm. For a imperial config the command will be G64 P0.004.
 
 For Metric:
 [source,{ngc}]
@@ -1904,7 +1904,7 @@ Offset Probing is the use of a probe that is offset from the torch.
 This method is an alternative to Ohmic Probing and uses the plasmac.ohmic-enable output pin to operate a solenoid for extending and retracting the probe.
 The plasmac.ohmic-probe input pin is used to detect the material and the *Ohmic Offset* in the PROBING frame of the CONFIGURATION section of the <<qt_parameters-tab,PARAMETERS Tab>> is used to set the correct measured height.
 
-The probe could be a mechanically deployed probe, a permanently mounted proximity sensor or even simply a stiff piece of wire extending about 0.5mm (0.2") below the torch tip.
+The probe could be a mechanically deployed probe, a permanently mounted proximity sensor or even simply a stiff piece of wire extending about 0.5&thinsp;mm (0.2") below the torch tip.
 If the probe is mechanically deployed then it needs to extend/retract rather quickly to avoid excessive probing times and would commonly be pneumatically operated.
 
 To use this feature, the user must set the probe's offset from the torch center by following the procedure described in <<peripheral-offsets,Peripheral Offsets>>.
@@ -2008,10 +2008,10 @@ This method can be invoked by setting the <<qt_pause-at-end,Pause At End>> param
 [[qt_overcut]]
 [underline]*Over cut*
 
-The torch can be turned off at the end of the hole by setting the *motion.digital-out-03* pin with the M-Codes *M62 (Synchronized with Motion)* or *M64 (Immediate)*.
-After turning the torch off it is necessary to allow the torch to be turned on again before beginning the next cut by resetting the *motion.digital-out-03* pin with the M-Codes *M63* or *M65*, this will be done automatically by the QtPlasmaC G-code parser if it reaches an M5 command without seeing a *M63 P3* or *M65 P3*.
+The torch can be turned off at the end of the hole by setting the `motion.digital-out-03` pin with the M-Codes *M62 (Synchronized with Motion)* or *M64 (Immediate)*.
+After turning the torch off it is necessary to allow the torch to be turned on again before beginning the next cut by resetting the `motion.digital-out-03` pin with the M-codes *M63* or *M65*, this will be done automatically by the QtPlasmaC G-code parser if it reaches an M5 command without seeing a `M63 P3` or `M65 P3`.
 
-After the torch is turned off the hole path will be followed for a default length of 4mm (0.157"). This distance may be specified by adding *#<oclength> = _n_* to the G-code file.
+After the torch is turned off the hole path will be followed for a default length of 4&thinsp;mm (0.157"). This distance may be specified by adding `#<oclength> = _n_` to the G-code file.
 
 * *M62 P3* will turn the torch off (Synchronized with Motion)
 * *M63 P3* will allow the torch to be turned on (Synchronized with Motion)
@@ -2039,7 +2039,7 @@ G1 X0
 M67 E3 Q60 (reduce feed rate to 60%)
 G3 I10 (the hole)
 M62 P3 (turn torch off)
-G3 X0.8 Y6.081 I10 (continue motion for 4mm)
+G3 X0.8 Y6.081 I10 (continue motion for 4 mm)
 M63 P3 (allow torch to be turned on)
 M67 E3 Q0 (restore feed rate to 100%)
 M5 $0 (end cut)
@@ -2057,26 +2057,26 @@ For valid hole sensing it is required that all values in the G2 or G3 G-code lin
 QtPlasmaC Hole Sensing is disabled by default. It can be enabled/disabled by using the following G-code parameters to select the desired hole sensing mode:
 
 * *#<holes> = 0* - Causes QtPlasmaC to disable hole sensing if it was previously enabled.
-* *#<holes> = 1* - Causes QtPlasmaC to reduce the speed of holes less than 32mm (1.26") to 60% of *CutFeedRate*.
+* *#<holes> = 1* - Causes QtPlasmaC to reduce the speed of holes less than 32&thinsp;mm (1.26") to 60% of *CutFeedRate*.
 * *#<holes> = 2* - Causes QtPlasmaC to <<qt_overcut,Over cut>> the hole in addition to the velocity changes in setting 1.
-* *#<holes> = 3* - Causes QtPlasmaC to reduce the speed of holes less than 32mm (1.26") and arcs less than 16mm (0.63") to 60% of *CutFeedRate*.
+* *#<holes> = 3* - Causes QtPlasmaC to reduce the speed of holes less than 32&thinsp;mm (1.26") and arcs less than 16&thinsp;mm (0.63") to 60% of *CutFeedRate*.
 * *#<holes> = 4* - Causes QtPlasmaC to <<qt_overcut,Over cut>> the hole in addition to the velocity change in setting 3.
 
-The default hole size for QtPlasmaC hole sensing is 32mm (1.26"). It is possible to change this value with the following command in a G-code file:
+The default hole size for QtPlasmaC hole sensing is 32&thinsp;mm (1.26"). It is possible to change this value with the following command in a G-code file:
 
-* *#<h_diameter> = nn* - To set a diameter (nn) in the same units system as the rest of the G-code file.
+* *#<h_diameter> = _nn_* - To set a diameter (_nn_) in the same units system as the rest of the G-code file.
 
 The default velocity for QtPlasmaC small holes is 60% of the current feed rate. It is possible to change this value with the following command in a G-code file:
 
-* *#<h_velocity> = nn* - to set the percentage (nn) of the current feed rate required.
+* *#<h_velocity> = _nn_* - to set the percentage (_nn_) of the current feed rate required.
 
 [underline]*Over cut*
 
 If Hole Sensing modes 2 or 4 are active, QtPlasmaC will over cut the hole in addition to the velocity changes associated with modes 1 and 3.
 
-The default over cut length for QtPlasmaC hole sensing is 4mm (0.157"). It is possible to change this value with the following command in a G-code file:
+The default over cut length for QtPlasmaC hole sensing is 4&thinsp;mm (0.157"). It is possible to change this value with the following command in a G-code file:
 
-* *#<oclength> = nn* to specify an over cut length (nn) in the same units system as the rest of the G-code file.
+* *#<oclength> = _nn_* to specify an over cut length (_nn_) in the same units system as the rest of the G-code file.
 
 [underline]*Arc Dwell (Pause At End)*
 
@@ -2091,7 +2091,7 @@ G64 P0.005
 M52 P1 (allow paused motion)
 F#<_hal[plasmac.cut-feed-rate]> (feed rate from cut parameters)
 #<holes> = 2 (over cut for holes)
-#<oclength> = 6.5 (optional, 6.5mm over cut length)
+#<oclength> = 6.5 (optional, 6.5 mm over cut length)
 G0 X10 Y10
 M3 $0 S1 (start cut)
 G1 X0
@@ -3324,7 +3324,7 @@ The laser enable HAL pin (qtplasmac.laser_on) will be turned on during the frami
 and any X/Y offsets for the laser pointer in the <machine_name>.prefs file will also be applied to the X/Y motion.
 After the framing motion is completed, the torch will move to the X0 Y0 position to clear any applied laser offsets and qtplasmac.laser_on will be turned off.
 
-Upon starting a Framing cycle, it is important to note that by default the Z axis will be moved to a height of [AXIS_Z]MAX_LIMIT - 5mm (0.2") before X/Y motion begins.
+Upon starting a Framing cycle, it is important to note that by default the Z axis will be moved to a height of [AXIS_Z]MAX_LIMIT - 5&thinsp;mm (0.2") before X/Y motion begins.
 
 The velocity for the XY movements of the Framing motion can be specified so that Framing motion always occurs at a set velocity.
 This can be achieved by adding the feed rate (F) as the as the last portion of the button code.
@@ -3625,9 +3625,9 @@ Max Offset is the distance (in millimeters) away from the Z MAX_LIMIT that QtPla
 
 The pin for adjusting this value is named plasmac.max-offset and the default value (in millimeters) is set to 5.
 To change this value, add the pin and the required value to the custom.hal file.
-It is not recommended to use values less than 5mm as offset overrun may cause unforeseen issues.
+It is not recommended to use values less than 5&thinsp;mm as offset overrun may cause unforeseen issues.
 
-The following example would set the distance from Z MAX_LIMIT to 10 mm:
+The following example would set the distance from Z MAX_LIMIT to 10&thinsp;mm:
 
 [source,{hal}]
 ----
@@ -3923,17 +3923,17 @@ _n_ is the percentage to set +
 |Cutter <<qt_cutter-compensation,compensation>> off |G40 +
 *Note that M62 through M68 are invalid while cutter compensation is on*
 |Cut <<qt_hole-cutting,holes>> at 60% feed rate |#<holes> = 1 +
-for holes less than 32 mm (1.26") diameter
+for holes less than 32&thinsp;mm (1.26") diameter
 |Cut <<qt_hole-cutting,holes>> at 60% feed rate, turn torch off at hole end, continue hole path for over cut |#<holes> = 2 +
-for holes less than 32 mm (1.26") diameter +
-over cut length = 4mm (0.157")
+for holes less than 32&thinsp;mm (1.26") diameter +
+over cut length = 4&thinsp;mm (0.157")
 |Cut <<qt_hole-cutting,holes>> and arcs at 60% feed rate |#<holes> = 3 +
-for holes less than 32 mm (1.26") diameter +
-for arcs less than 16 mm (0.63") radius
+for holes less than 32&thinsp;mm (1.26") diameter +
+for arcs less than 16&thinsp;mm (0.63") radius
 |Cut <<qt_hole-cutting,holes>> and arcs at 60% feed rate, turn torch off at hole end, continue hole path for over cut |#<holes> = 4 +
-for holes less than 32 mm (1.26") diameter +
-for arcs less than 16 mm (0.63") radius +
-over cut length = 4 mm (0.157")
+for holes less than 32&thinsp;mm (1.26") diameter +
+for arcs less than 16&thinsp;mm (0.63") radius +
+over cut length = 4&thinsp;mm (0.157")
 |Specify <<qt_hole-cutting,hole>> diameter for +
  #<holes> = 1-4 |#<h_diameter> = _n_ +
 (_n_ is the diameter, use the same units system as the rest of the G-code file)
@@ -3941,7 +3941,7 @@ over cut length = 4 mm (0.157")
  #<holes>=1-4 |#<h_velocity> = _n_ +
 (_n_ is the percentage, set the percentage of the current feed rate)
 |Specify <<qt_overcut,over cut>> length |#<oclength> = _n_ +
-    (_n_ is the length, use the same units system as the rest of the G-code file)
+(_n_ is the length, use the same units system as the rest of the G-code file)
 |Specify <<qt_cut-types,pierce-only>> mode |#<pierce-only> = _n_ +
 (_n_ is the mode, 0=normal cut mode, 1=pierce only mode)
 |Create or edit materials. +
@@ -4005,12 +4005,12 @@ G1 X0 +
 M67 E3 Q60 (reduce feed rate to 60%) +
 G3 I10 (the hole) +
 M62 P3 (turn torch off) +
-G3 X0.8 Y6.081 I10 (continue motion for 4mm) +
+G3 X0.8 Y6.081 I10 (continue motion for 4 mm) +
 M63 P3 (allow torch to be turned on) +
 M67 E3 Q0 (restore feed rate to 100%) +
 M5 $0 (end cut) +
 G0 X0 Y0 +
-M2 (end job)
+M2 (end job) +
 |Cut a hole with over cut using the #<holes> command |G21 (metric) +
 G64 P0.05 +
 M52 P1 (allow paused motion) +
@@ -4023,11 +4023,11 @@ G3 I10 (the hole) +
 M5 $0 (end cut) +
 G0 X0 Y0 +
 M2 (end job) +
-|Cut a hole with 6.5mm over cut using the #<holes> command |G21 (metric) +
+|Cut a hole with 6.5&thinsp;mm over cut using the #<holes> command |G21 (metric) +
 G64 P0.05 +
 M52 P1 (allow paused motion) +
 \#<holes> = 2 (over cut for holes) +
-#<oclength> = 6.5 (6.5mm over cut length) +
+#<oclength> = 6.5 (6.5 mm over cut length) +
 F#<_hal[plasmac.cut-feed-rate]> +
 G0 X10 Y10 +
 M3 $0 S1 (start cut) +
