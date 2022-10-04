@@ -3896,7 +3896,7 @@ There are some sample G-code files in the ~/linuxcnc/nc_files/examples/plasmac d
 |End all the above |`M5 $-1`
 |Select a <<qt_material-handling,material>> |`M190 P__n__` +
 `_n_` denotes the material number
-|Wait for <<qt_material-handling,material>> change confirmation |`M66 P3 L3 Qn` +
+|Wait for <<qt_material-handling,material>> change confirmation |`M66 P3 L3 Q__n__` +
 `_n_` is delay time (in seconds) +
 This value may need to be increased for very large material files.
 |Set feed rate from <<qt_material-handling,material>> |`F#<_hal[plasmac.cut-feed-rate]>`
@@ -3912,8 +3912,8 @@ This value may need to be increased for very large material files.
 `M64 P3` (immediate)
 |Enable <<qt_overcut,Torch>> |`M63 P3` (synchronized with motion) +
 `M65 P3` (immediate)
-|Set <<qt_velocity_thc,velocity>> to a percentage of feed rate |`M67 E3 Qn` (synchronized with motion) +
-`M68 E3 Qn` (immediate) +
+|Set <<qt_velocity_thc,velocity>> to a percentage of feed rate |`M67 E3 Q__n__` (synchronized with motion) +
+`M68 E3 Q__n__` (immediate) +
 `_n_` is the percentage to set +
 10 is the minimum, below this will be set to 100% +
 100 is the maximum, above this will be set to 100% +
@@ -4025,7 +4025,7 @@ optional parameters: +
 `G64 P0.05` +
 `M52 P1` (allow paused motion) +
 `\#<holes> = 2` (over cut for holes) +
-``#<oclength> = 6.5` (6.5 mm over cut length) +
+`#<oclength> = 6.5` (6.5 mm over cut length) +
 `F#<_hal[plasmac.cut-feed-rate]>` +
 `G0 X10 Y10` +
 `M3 $0 S1` (start cut) +
