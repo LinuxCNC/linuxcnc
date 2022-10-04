@@ -93,8 +93,8 @@ Halshow (<<cha:halshow,complete usage description>>)
 can be started from the command line to show details for selected
 components, pins, parameters, signals, functions, and threads of a running HAL.
 The WATCH tab provides a continuous display of selected pin, parameters, and signal items.
-The "File" menu provides buttons to 1) save the watch items to
-a watch list and to load and existing watch list.
+The File menu provides buttons to save the watch items to
+a watch list and to load an existing watch list.
 The watch list items can also be loaded automatically on startup.
 For command line usage:
 
@@ -111,8 +111,6 @@ Notes:
   Create watchfile in halshow using: 'File/Save Watch List'.
   LinuxCNC must be running for standalone usage.
 ----
-
-LinuxCNC must be running for standalone usage.
 
 .Halshow Watch Tab
 image::images/halshow-4.png["Halshow Watch Tab",align="center"]
@@ -151,7 +149,7 @@ operating instructions should be located here eventually. For now,
 refer to section  <<sec:tutorial-halscope>> in the tutorial chapter,
 which explains the basics.
 
-The halscope "File" menu selector provides buttons to save a configuration
+The halscope File menu selector provides buttons to save a configuration
 or open a previously saved configuration.  When halscope is terminated,
 the last configuration is saved in a file named autosave.halscope.
 
