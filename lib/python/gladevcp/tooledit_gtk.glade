@@ -35,7 +35,7 @@
       <!-- column-name back -->
       <column type="gchararray"/>
       <!-- column-name orient -->
-      <column type="gchararray"/>
+      <column type="gint"/>
       <!-- column-name comments -->
       <column type="gchararray"/>
     </columns>
