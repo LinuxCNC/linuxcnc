@@ -72,7 +72,8 @@ table in the GUI.
 .Tool Table Format
 [width="100%",options="header"]
 |===
-|;T#   |P#  |X  |Y  |Z  |A  |B  |C  |U  |V  |W  |Dia |FA |BA |Ori |Rem
+|T#   |P#  |X  |Y  |Z  |A  |B  |C  |U  |V  |W  |Dia |FA |BA |Ori |Rem
+|; 15+^|(no data after opening semicolon)
 |T1    |P17 |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem
 |T2    |P5  |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem
 |T3    |P12 |X0 |Y0 |Z0 |A0 |B0 |C0 |U0 |V0 |W0 |D0  |I0 |J0 |Q0  |;rem
@@ -98,6 +99,7 @@ You will probably want to keep the tool entries in ascending order,
 especially if you are going to be using a randomizing tool changer.
 Although the tool table does allow for tool numbers in any order.
 
+One line may contain as many as 16 entries, but will likely contain much fewer.
 The entries for T (tool number) and P (pocket number) are required.
 The last entry (a remark or comment, preceded by a semicolon) is
 optional. It makes reading easier if the entries are arranged in
