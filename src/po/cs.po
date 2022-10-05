@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
-"POT-Creation-Date: 2022-09-18 08:05+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-10-05 07:53+0200\n"
 "PO-Revision-Date: 2022-10-04 09:32+0000\n"
 "Last-Translator: Jan Mrázek <email@honzamrazek.cz>\n"
 "Language-Team: \n"
@@ -99,8 +99,8 @@ msgid ""
 "center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f abs_err=%.4g "
 "rel_err=%.4f%%"
 msgstr ""
-"Poloměr k začátku oblouku se liší od poloměru ke konci oblouku: začátek=(%c%."
-"4f,%c%.4f) střed=(%c%.4f,%c%.4f) konec=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f "
+"Poloměr k začátku oblouku se liší od poloměru ke konci oblouku: začátek=(%c"
+"%.4f,%c%.4f) střed=(%c%.4f,%c%.4f) konec=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f "
 "abs_err=%.4g rel_err=%.4f%%"
 
 #: src/emc/rs274ngc/interp_check.cc:89
@@ -666,7 +666,8 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:5658
 msgid "Cannot change tool offset with cutter radius compensation on"
-msgstr "Není možné změnit odsazení nástroj, když je zapnuta kompenzace nástroje"
+msgstr ""
+"Není možné změnit odsazení nástroj, když je zapnuta kompenzace nástroje"
 
 #: src/emc/rs274ngc/interp_convert.cc:5709
 msgid "G43.2: Can not have both H and axis words"
@@ -732,7 +733,8 @@ msgstr "Nelze realizovat posuv s nulovou rychlostí"
 
 #: src/emc/rs274ngc/interp_cycles.cc:725
 msgid "Cannot use inverse time feed with canned cycles"
-msgstr "Není možné použít posuny specifikované skrze čas v programových cyklech"
+msgstr ""
+"Není možné použít posuny specifikované skrze čas v programových cyklech"
 
 #: src/emc/rs274ngc/interp_cycles.cc:726
 msgid "Cannot use canned cycles with cutter compensation on"
@@ -949,7 +951,8 @@ msgstr "%d: duplikovaný parametr O návěstí: '%s' – definováno na řádku 
 #: src/emc/rs274ngc/interp_o_word.cc:977
 #, c-format
 msgid "%d: duplicate O-word label - already defined in line %d: '%s'"
-msgstr "%d: duplikovaný parametr O návěstí – definováno dříve na řádku %d: '%s'"
+msgstr ""
+"%d: duplikovaný parametr O návěstí – definováno dříve na řádku %d: '%s'"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1001
 #: src/emc/rs274ngc/interp_o_word.cc:1059
@@ -998,7 +1001,8 @@ msgstr "nelze otevřít konfigurační ini soubor %s"
 #: src/emc/rs274ngc/interp_namedparams.cc:232
 #, c-format
 msgid "Named ini parameter #<%s> not found in inifile '%s': error=0x%x"
-msgstr "Pojmenovaný parametr #<%s> nebyl nalezen v INI souboru '%s': chyba=0x%x"
+msgstr ""
+"Pojmenovaný parametr #<%s> nebyl nalezen v INI souboru '%s': chyba=0x%x"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:257
 #, c-format
@@ -1220,7 +1224,8 @@ msgstr "Není možné použít hodnoty os bez G-kódu, který by je použil"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:66
 msgid "Cannot use g28 or g30 with cutter radius comp"
-msgstr "Není možné použít G28 nebo G30 se zapnutou kompenzací poloměru nástroje"
+msgstr ""
+"Není možné použít G28 nebo G30 se zapnutou kompenzací poloměru nástroje"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:67
 msgid "Cannot use g53 incremental"
@@ -1281,8 +1286,8 @@ msgstr "Soubor skončil bez znaku procenta (%)"
 #: src/emc/rs274ngc/rs274ngc_return.hh:81
 msgid "File ended with no percent sign or program end"
 msgstr ""
-"Ukončení souboru neobsahuje znak procenta nebo jiné ukončení programu ("
-"například M2, M30)"
+"Ukončení souboru neobsahuje znak procenta nebo jiné ukončení programu "
+"(například M2, M30)"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:82
 msgid "File name too long"
@@ -1738,7 +1743,8 @@ msgstr "Soubor není otevřen"
 #: src/emc/rs274ngc/rs274ngc_return.hh:194
 #, c-format
 msgid "cannot reopen file %s - removed or renamed? (%s)"
-msgstr "Není možné znovu otevřít soubor %s – byl odebrán nebo přejmenován? (%s)"
+msgstr ""
+"Není možné znovu otevřít soubor %s – byl odebrán nebo přejmenován? (%s)"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:195
 msgid "Need tool prepared -Txx- for toolchange"
@@ -1787,8 +1793,8 @@ msgstr "Fronta není prázdná po vnějším vstupu"
 #: src/emc/rs274ngc/rs274ngc_return.hh:206
 msgid "Can't select analog input with wait type != immediate return"
 msgstr ""
-"Není možné vybrat analogový vstup s typem čekáním jiným než \"okamžitý "
-"návrat\""
+"Není možné vybrat analogový vstup s typem čekáním jiným než \"okamžitý návrat"
+"\""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:207
 msgid "Zero timeout with wait type != immediate return"
@@ -2036,7 +2042,7 @@ msgstr ""
 #: src/emc/usr_intf/axis/scripts/axis.py:1296
 #: src/emc/usr_intf/axis/scripts/axis.py:1656
 #: src/emc/usr_intf/axis/scripts/axis.py:2955
-#: src/emc/usr_intf/axis/scripts/axis.py:4196
+#: src/emc/usr_intf/axis/scripts/axis.py:4211
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:725
 #: lib/python/propertywindow.py:35 share/axis/tcl/axis.tcl:1580
 #: share/axis/tcl/axis.tcl:1617
@@ -3553,7 +3559,7 @@ msgstr ""
 
 #: src/hal/classicladder/edit.c:164 src/hal/classicladder/edit.c:173
 #: src/hal/classicladder/edit.c:181 src/hal/classicladder/edit.c:190
-#: src/emc/usr_intf/stepconf/pport1.glade:1303
+#: src/emc/usr_intf/stepconf/pport1.glade:1319
 msgid "Preset"
 msgstr ""
 
@@ -5432,7 +5438,7 @@ msgstr ""
 #: src/emc/usr_intf/axis/scripts/axis.py:2619
 #: src/emc/usr_intf/touchy/touchy.glade:3272
 #: src/emc/usr_intf/stepconf/stepconf.py:1567
-#: src/emc/usr_intf/stepconf/pages.py:960
+#: src/emc/usr_intf/stepconf/pages.py:961
 #: src/emc/usr_intf/stepconf/main_page.glade:240
 #: src/emc/usr_intf/pncconf/tests.py:517
 #: src/emc/usr_intf/pncconf/external.glade:1960
@@ -7280,7 +7286,7 @@ msgstr ""
 #: src/emc/usr_intf/axis/scripts/axis.py:2046
 #: src/emc/usr_intf/axis/scripts/axis.py:2620
 #: src/emc/usr_intf/stepconf/stepconf.py:1581
-#: src/emc/usr_intf/stepconf/pages.py:966
+#: src/emc/usr_intf/stepconf/pages.py:967
 msgid "in"
 msgstr ""
 
@@ -7600,7 +7606,7 @@ msgstr ""
 msgid "Show PyVCP pan_el"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:4195
+#: src/emc/usr_intf/axis/scripts/axis.py:4210
 msgid "Error in ~/.axisrc"
 msgstr ""
 
@@ -10117,22 +10123,22 @@ msgid "%s Axis Test"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1551
-#: src/emc/usr_intf/stepconf/pages.py:952
+#: src/emc/usr_intf/stepconf/pages.py:953
 msgid "deg / s"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1552
-#: src/emc/usr_intf/stepconf/pages.py:953
+#: src/emc/usr_intf/stepconf/pages.py:954
 msgid "deg / s²"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1553
-#: src/emc/usr_intf/stepconf/pages.py:954
+#: src/emc/usr_intf/stepconf/pages.py:955
 msgid "deg"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1565
-#: src/emc/usr_intf/stepconf/pages.py:958
+#: src/emc/usr_intf/stepconf/pages.py:959
 #: src/emc/usr_intf/stepconf/axisx.glade:304
 #: src/emc/usr_intf/stepconf/axisy.glade:302
 #: src/emc/usr_intf/stepconf/axisz.glade:302
@@ -10148,7 +10154,7 @@ msgid "mm / s"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1566
-#: src/emc/usr_intf/stepconf/pages.py:959
+#: src/emc/usr_intf/stepconf/pages.py:960
 #: src/emc/usr_intf/stepconf/axisx.glade:317
 #: src/emc/usr_intf/stepconf/axisy.glade:315
 #: src/emc/usr_intf/stepconf/axisz.glade:315
@@ -10164,33 +10170,33 @@ msgid "mm / s²"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1579
-#: src/emc/usr_intf/stepconf/pages.py:964
+#: src/emc/usr_intf/stepconf/pages.py:965
 msgid "in / s"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1580
-#: src/emc/usr_intf/stepconf/pages.py:965
+#: src/emc/usr_intf/stepconf/pages.py:966
 msgid "in / s²"
 msgstr ""
 
-#: src/emc/usr_intf/stepconf/pages.py:230
+#: src/emc/usr_intf/stepconf/pages.py:228
 msgid "LinuxCNC 'stepconf' configuration files"
 msgstr ""
 
-#: src/emc/usr_intf/stepconf/pages.py:232
+#: src/emc/usr_intf/stepconf/pages.py:230
 #: src/emc/usr_intf/pncconf/pncconf.py:904
 msgid "Modify Existing Configuration"
 msgstr ""
 
-#: src/emc/usr_intf/stepconf/pages.py:951
+#: src/emc/usr_intf/stepconf/pages.py:952
 msgid "degree / rev"
 msgstr ""
 
-#: src/emc/usr_intf/stepconf/pages.py:955
+#: src/emc/usr_intf/stepconf/pages.py:956
 msgid "Steps / deg"
 msgstr ""
 
-#: src/emc/usr_intf/stepconf/pages.py:957
+#: src/emc/usr_intf/stepconf/pages.py:958
 #: src/emc/usr_intf/stepconf/axisx.glade:291
 #: src/emc/usr_intf/stepconf/axisy.glade:289
 #: src/emc/usr_intf/stepconf/axisz.glade:289
@@ -10202,7 +10208,7 @@ msgstr ""
 msgid "mm / rev"
 msgstr ""
 
-#: src/emc/usr_intf/stepconf/pages.py:961
+#: src/emc/usr_intf/stepconf/pages.py:962
 #: src/emc/usr_intf/stepconf/axisx.glade:28
 #: src/emc/usr_intf/stepconf/axisy.glade:28
 #: src/emc/usr_intf/stepconf/axisz.glade:28
@@ -10213,11 +10219,11 @@ msgstr ""
 msgid "Steps / mm"
 msgstr ""
 
-#: src/emc/usr_intf/stepconf/pages.py:963
+#: src/emc/usr_intf/stepconf/pages.py:964
 msgid "rev / in"
 msgstr ""
 
-#: src/emc/usr_intf/stepconf/pages.py:967
+#: src/emc/usr_intf/stepconf/pages.py:968
 msgid "Steps / in"
 msgstr ""
 
@@ -10709,49 +10715,49 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/pport1.glade:132
 #: src/emc/usr_intf/stepconf/pport2.glade:131
-#: src/emc/usr_intf/stepconf/pport2.glade:973
+#: src/emc/usr_intf/stepconf/pport2.glade:992
 msgid " Pin _2:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/pport1.glade:190
 #: src/emc/usr_intf/stepconf/pport2.glade:188
-#: src/emc/usr_intf/stepconf/pport2.glade:1089
+#: src/emc/usr_intf/stepconf/pport2.glade:1108
 msgid " Pin _4:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/pport1.glade:248
 #: src/emc/usr_intf/stepconf/pport2.glade:245
-#: src/emc/usr_intf/stepconf/pport2.glade:1031
+#: src/emc/usr_intf/stepconf/pport2.glade:1050
 msgid " Pin _3:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/pport1.glade:306
 #: src/emc/usr_intf/stepconf/pport2.glade:302
-#: src/emc/usr_intf/stepconf/pport2.glade:1147
+#: src/emc/usr_intf/stepconf/pport2.glade:1166
 msgid " Pin _5:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/pport1.glade:364
 #: src/emc/usr_intf/stepconf/pport2.glade:359
-#: src/emc/usr_intf/stepconf/pport2.glade:1205
+#: src/emc/usr_intf/stepconf/pport2.glade:1224
 msgid " Pin _6:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/pport1.glade:422
 #: src/emc/usr_intf/stepconf/pport2.glade:416
-#: src/emc/usr_intf/stepconf/pport2.glade:1263
+#: src/emc/usr_intf/stepconf/pport2.glade:1282
 msgid " Pin _7:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/pport1.glade:480
 #: src/emc/usr_intf/stepconf/pport2.glade:473
-#: src/emc/usr_intf/stepconf/pport2.glade:1321
+#: src/emc/usr_intf/stepconf/pport2.glade:1340
 msgid " Pin _8:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/pport1.glade:538
 #: src/emc/usr_intf/stepconf/pport2.glade:530
-#: src/emc/usr_intf/stepconf/pport2.glade:1379
+#: src/emc/usr_intf/stepconf/pport2.glade:1398
 msgid " Pin _9:"
 msgstr ""
 
@@ -10786,7 +10792,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/pport1.glade:795
 #: src/emc/usr_intf/stepconf/pport1.glade:1159
 #: src/emc/usr_intf/stepconf/pport2.glade:787
-#: src/emc/usr_intf/stepconf/pport2.glade:949
+#: src/emc/usr_intf/stepconf/pport2.glade:968
 #: src/emc/usr_intf/pncconf/pport1.glade:113
 #: src/emc/usr_intf/pncconf/pport1.glade:942
 #: src/emc/usr_intf/pncconf/pport2.glade:116
@@ -10795,42 +10801,42 @@ msgid "Invert"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/pport1.glade:839
-#: src/emc/usr_intf/stepconf/pport2.glade:1443
+#: src/emc/usr_intf/stepconf/pport2.glade:1462
 #: src/emc/usr_intf/pncconf/pport1.glade:603
 #: src/emc/usr_intf/pncconf/pport2.glade:606
 msgid "Pin 1_0:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/pport1.glade:898
-#: src/emc/usr_intf/stepconf/pport2.glade:1503
+#: src/emc/usr_intf/stepconf/pport2.glade:1522
 #: src/emc/usr_intf/pncconf/pport1.glade:662
 #: src/emc/usr_intf/pncconf/pport2.glade:665
 msgid "Pin 1_1:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/pport1.glade:957
-#: src/emc/usr_intf/stepconf/pport2.glade:1563
+#: src/emc/usr_intf/stepconf/pport2.glade:1582
 #: src/emc/usr_intf/pncconf/pport1.glade:721
 #: src/emc/usr_intf/pncconf/pport2.glade:724
 msgid "Pin 1_2:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/pport1.glade:1016
-#: src/emc/usr_intf/stepconf/pport2.glade:1623
+#: src/emc/usr_intf/stepconf/pport2.glade:1642
 #: src/emc/usr_intf/pncconf/pport1.glade:780
 #: src/emc/usr_intf/pncconf/pport2.glade:783
 msgid "Pin 1_3:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/pport1.glade:1075
-#: src/emc/usr_intf/stepconf/pport2.glade:1683
+#: src/emc/usr_intf/stepconf/pport2.glade:1702
 #: src/emc/usr_intf/pncconf/pport1.glade:839
 #: src/emc/usr_intf/pncconf/pport2.glade:842
 msgid "Pin 1_5:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/pport1.glade:1134
-#: src/emc/usr_intf/stepconf/pport2.glade:924
+#: src/emc/usr_intf/stepconf/pport2.glade:943
 #: src/emc/usr_intf/pncconf/pport1.glade:99
 #: src/emc/usr_intf/pncconf/pport2.glade:102
 msgid "Inputs (Mill to PC):"
@@ -10838,10 +10844,10 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/pport1.glade:1222
 #: src/emc/usr_intf/stepconf/pport2.glade:817
-msgid "Parport _Number:"
+msgid "Parport _Base Address:"
 msgstr ""
 
-#: src/emc/usr_intf/stepconf/pport1.glade:1273
+#: src/emc/usr_intf/stepconf/pport1.glade:1289
 msgid "Output pinout presets:"
 msgstr ""
 
@@ -11327,9 +11333,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid ""
-"_:"
-""
+msgid "_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: it_rs274_err\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-18 08:05+0200\n"
+"POT-Creation-Date: 2022-10-05 07:53+0200\n"
 "PO-Revision-Date: 2022-04-01 14:13+0000\n"
 "Last-Translator: elovalvoc047faba7aa1427f <ernesto.lovalvo@unipa.it>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/linuxcnc/"
@@ -2090,7 +2090,7 @@ msgstr ""
 #: src/emc/usr_intf/axis/scripts/axis.py:1296
 #: src/emc/usr_intf/axis/scripts/axis.py:1656
 #: src/emc/usr_intf/axis/scripts/axis.py:2955
-#: src/emc/usr_intf/axis/scripts/axis.py:4196
+#: src/emc/usr_intf/axis/scripts/axis.py:4211
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:725
 #: lib/python/propertywindow.py:35 share/axis/tcl/axis.tcl:1580
 #: share/axis/tcl/axis.tcl:1617
@@ -3702,7 +3702,7 @@ msgstr "Base"
 
 #: src/hal/classicladder/edit.c:164 src/hal/classicladder/edit.c:173
 #: src/hal/classicladder/edit.c:181 src/hal/classicladder/edit.c:190
-#: src/emc/usr_intf/stepconf/pport1.glade:1303
+#: src/emc/usr_intf/stepconf/pport1.glade:1319
 msgid "Preset"
 msgstr "Preset"
 
@@ -5669,7 +5669,7 @@ msgstr "pollici"
 #: src/emc/usr_intf/axis/scripts/axis.py:2619
 #: src/emc/usr_intf/touchy/touchy.glade:3272
 #: src/emc/usr_intf/stepconf/stepconf.py:1567
-#: src/emc/usr_intf/stepconf/pages.py:960
+#: src/emc/usr_intf/stepconf/pages.py:961
 #: src/emc/usr_intf/stepconf/main_page.glade:240
 #: src/emc/usr_intf/pncconf/tests.py:517
 #: src/emc/usr_intf/pncconf/external.glade:1960
@@ -7534,7 +7534,7 @@ msgstr "T     Tabella Utensile"
 #: src/emc/usr_intf/axis/scripts/axis.py:2046
 #: src/emc/usr_intf/axis/scripts/axis.py:2620
 #: src/emc/usr_intf/stepconf/stepconf.py:1581
-#: src/emc/usr_intf/stepconf/pages.py:966
+#: src/emc/usr_intf/stepconf/pages.py:967
 msgid "in"
 msgstr "in"
 
@@ -7883,7 +7883,7 @@ msgstr "alternare la visibilità del pannello PYVCP"
 msgid "Show PyVCP pan_el"
 msgstr "Mostra pan_el pyVCP"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:4195
+#: src/emc/usr_intf/axis/scripts/axis.py:4210
 msgid "Error in ~/.axisrc"
 msgstr "Errore in ~/.axisrc"
 
@@ -10457,22 +10457,22 @@ msgid "%s Axis Test"
 msgstr "Test Asse %s"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1551
-#: src/emc/usr_intf/stepconf/pages.py:952
+#: src/emc/usr_intf/stepconf/pages.py:953
 msgid "deg / s"
 msgstr "gradi / s"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1552
-#: src/emc/usr_intf/stepconf/pages.py:953
+#: src/emc/usr_intf/stepconf/pages.py:954
 msgid "deg / s²"
 msgstr "gradi / s²"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1553
-#: src/emc/usr_intf/stepconf/pages.py:954
+#: src/emc/usr_intf/stepconf/pages.py:955
 msgid "deg"
 msgstr "gradi"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1565
-#: src/emc/usr_intf/stepconf/pages.py:958
+#: src/emc/usr_intf/stepconf/pages.py:959
 #: src/emc/usr_intf/stepconf/axisx.glade:304
 #: src/emc/usr_intf/stepconf/axisy.glade:302
 #: src/emc/usr_intf/stepconf/axisz.glade:302
@@ -10488,7 +10488,7 @@ msgid "mm / s"
 msgstr "mm / s"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1566
-#: src/emc/usr_intf/stepconf/pages.py:959
+#: src/emc/usr_intf/stepconf/pages.py:960
 #: src/emc/usr_intf/stepconf/axisx.glade:317
 #: src/emc/usr_intf/stepconf/axisy.glade:315
 #: src/emc/usr_intf/stepconf/axisz.glade:315
@@ -10504,33 +10504,33 @@ msgid "mm / s²"
 msgstr "mm / s²"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1579
-#: src/emc/usr_intf/stepconf/pages.py:964
+#: src/emc/usr_intf/stepconf/pages.py:965
 msgid "in / s"
 msgstr "in / s"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1580
-#: src/emc/usr_intf/stepconf/pages.py:965
+#: src/emc/usr_intf/stepconf/pages.py:966
 msgid "in / s²"
 msgstr "in / s²"
 
-#: src/emc/usr_intf/stepconf/pages.py:230
+#: src/emc/usr_intf/stepconf/pages.py:228
 msgid "LinuxCNC 'stepconf' configuration files"
 msgstr "File configurazioni LinuxCNC 'stepconf"
 
-#: src/emc/usr_intf/stepconf/pages.py:232
+#: src/emc/usr_intf/stepconf/pages.py:230
 #: src/emc/usr_intf/pncconf/pncconf.py:904
 msgid "Modify Existing Configuration"
 msgstr "Modifica Configurazione Esistente"
 
-#: src/emc/usr_intf/stepconf/pages.py:951
+#: src/emc/usr_intf/stepconf/pages.py:952
 msgid "degree / rev"
 msgstr "gradi / giro"
 
-#: src/emc/usr_intf/stepconf/pages.py:955
+#: src/emc/usr_intf/stepconf/pages.py:956
 msgid "Steps / deg"
 msgstr "Passi / grado"
 
-#: src/emc/usr_intf/stepconf/pages.py:957
+#: src/emc/usr_intf/stepconf/pages.py:958
 #: src/emc/usr_intf/stepconf/axisx.glade:291
 #: src/emc/usr_intf/stepconf/axisy.glade:289
 #: src/emc/usr_intf/stepconf/axisz.glade:289
@@ -10542,7 +10542,7 @@ msgstr "Passi / grado"
 msgid "mm / rev"
 msgstr "mm / giro"
 
-#: src/emc/usr_intf/stepconf/pages.py:961
+#: src/emc/usr_intf/stepconf/pages.py:962
 #: src/emc/usr_intf/stepconf/axisx.glade:28
 #: src/emc/usr_intf/stepconf/axisy.glade:28
 #: src/emc/usr_intf/stepconf/axisz.glade:28
@@ -10553,11 +10553,11 @@ msgstr "mm / giro"
 msgid "Steps / mm"
 msgstr "Passi / mm"
 
-#: src/emc/usr_intf/stepconf/pages.py:963
+#: src/emc/usr_intf/stepconf/pages.py:964
 msgid "rev / in"
 msgstr "giro / in"
 
-#: src/emc/usr_intf/stepconf/pages.py:967
+#: src/emc/usr_intf/stepconf/pages.py:968
 msgid "Steps / in"
 msgstr "Passi / in"
 
@@ -11090,49 +11090,49 @@ msgstr " Pin _1:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:132
 #: src/emc/usr_intf/stepconf/pport2.glade:131
-#: src/emc/usr_intf/stepconf/pport2.glade:973
+#: src/emc/usr_intf/stepconf/pport2.glade:992
 msgid " Pin _2:"
 msgstr " Pin _2:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:190
 #: src/emc/usr_intf/stepconf/pport2.glade:188
-#: src/emc/usr_intf/stepconf/pport2.glade:1089
+#: src/emc/usr_intf/stepconf/pport2.glade:1108
 msgid " Pin _4:"
 msgstr " Pin _4:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:248
 #: src/emc/usr_intf/stepconf/pport2.glade:245
-#: src/emc/usr_intf/stepconf/pport2.glade:1031
+#: src/emc/usr_intf/stepconf/pport2.glade:1050
 msgid " Pin _3:"
 msgstr " Pin _3:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:306
 #: src/emc/usr_intf/stepconf/pport2.glade:302
-#: src/emc/usr_intf/stepconf/pport2.glade:1147
+#: src/emc/usr_intf/stepconf/pport2.glade:1166
 msgid " Pin _5:"
 msgstr " Pin _5:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:364
 #: src/emc/usr_intf/stepconf/pport2.glade:359
-#: src/emc/usr_intf/stepconf/pport2.glade:1205
+#: src/emc/usr_intf/stepconf/pport2.glade:1224
 msgid " Pin _6:"
 msgstr " Pin _6:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:422
 #: src/emc/usr_intf/stepconf/pport2.glade:416
-#: src/emc/usr_intf/stepconf/pport2.glade:1263
+#: src/emc/usr_intf/stepconf/pport2.glade:1282
 msgid " Pin _7:"
 msgstr " Pin _7:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:480
 #: src/emc/usr_intf/stepconf/pport2.glade:473
-#: src/emc/usr_intf/stepconf/pport2.glade:1321
+#: src/emc/usr_intf/stepconf/pport2.glade:1340
 msgid " Pin _8:"
 msgstr " Pin _8:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:538
 #: src/emc/usr_intf/stepconf/pport2.glade:530
-#: src/emc/usr_intf/stepconf/pport2.glade:1379
+#: src/emc/usr_intf/stepconf/pport2.glade:1398
 msgid " Pin _9:"
 msgstr " Pin _9:"
 
@@ -11167,7 +11167,7 @@ msgstr "Outputs (PC verso Fresatrice):"
 #: src/emc/usr_intf/stepconf/pport1.glade:795
 #: src/emc/usr_intf/stepconf/pport1.glade:1159
 #: src/emc/usr_intf/stepconf/pport2.glade:787
-#: src/emc/usr_intf/stepconf/pport2.glade:949
+#: src/emc/usr_intf/stepconf/pport2.glade:968
 #: src/emc/usr_intf/pncconf/pport1.glade:113
 #: src/emc/usr_intf/pncconf/pport1.glade:942
 #: src/emc/usr_intf/pncconf/pport2.glade:116
@@ -11176,42 +11176,42 @@ msgid "Invert"
 msgstr "Inverti"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:839
-#: src/emc/usr_intf/stepconf/pport2.glade:1443
+#: src/emc/usr_intf/stepconf/pport2.glade:1462
 #: src/emc/usr_intf/pncconf/pport1.glade:603
 #: src/emc/usr_intf/pncconf/pport2.glade:606
 msgid "Pin 1_0:"
 msgstr "Pin 1_0:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:898
-#: src/emc/usr_intf/stepconf/pport2.glade:1503
+#: src/emc/usr_intf/stepconf/pport2.glade:1522
 #: src/emc/usr_intf/pncconf/pport1.glade:662
 #: src/emc/usr_intf/pncconf/pport2.glade:665
 msgid "Pin 1_1:"
 msgstr "Pin 1_1:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:957
-#: src/emc/usr_intf/stepconf/pport2.glade:1563
+#: src/emc/usr_intf/stepconf/pport2.glade:1582
 #: src/emc/usr_intf/pncconf/pport1.glade:721
 #: src/emc/usr_intf/pncconf/pport2.glade:724
 msgid "Pin 1_2:"
 msgstr "Pin 1_2:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:1016
-#: src/emc/usr_intf/stepconf/pport2.glade:1623
+#: src/emc/usr_intf/stepconf/pport2.glade:1642
 #: src/emc/usr_intf/pncconf/pport1.glade:780
 #: src/emc/usr_intf/pncconf/pport2.glade:783
 msgid "Pin 1_3:"
 msgstr "Pin 1_3:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:1075
-#: src/emc/usr_intf/stepconf/pport2.glade:1683
+#: src/emc/usr_intf/stepconf/pport2.glade:1702
 #: src/emc/usr_intf/pncconf/pport1.glade:839
 #: src/emc/usr_intf/pncconf/pport2.glade:842
 msgid "Pin 1_5:"
 msgstr "Pin 1_5:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:1134
-#: src/emc/usr_intf/stepconf/pport2.glade:924
+#: src/emc/usr_intf/stepconf/pport2.glade:943
 #: src/emc/usr_intf/pncconf/pport1.glade:99
 #: src/emc/usr_intf/pncconf/pport2.glade:102
 msgid "Inputs (Mill to PC):"
@@ -11219,10 +11219,10 @@ msgstr "Inputs (Fresatrice a PC):"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:1222
 #: src/emc/usr_intf/stepconf/pport2.glade:817
-msgid "Parport _Number:"
-msgstr "Numero _Parport:"
+msgid "Parport _Base Address:"
+msgstr "Indirizzo _Base Porta Parallela:"
 
-#: src/emc/usr_intf/stepconf/pport1.glade:1273
+#: src/emc/usr_intf/stepconf/pport1.glade:1289
 msgid "Output pinout presets:"
 msgstr "Presets pinout output:"
 
@@ -20051,6 +20051,9 @@ msgstr "_Cancella"
 msgid "_Ok"
 msgstr "Ok"
 
+#~ msgid "Parport _Number:"
+#~ msgstr "Numero _Parport:"
+
 #~ msgid "Show pyVCP pan_el"
 #~ msgstr "Mostra pan_el pyVCP"
 
@@ -21504,9 +21507,6 @@ msgstr "Ok"
 #, fuzzy
 #~ msgid "unhome_joint <%s> Use joint mode for unhoming"
 #~ msgstr "azzeramento asse <%s> Usa la modalità assi per eseguire azzeramento"
-
-#~ msgid "Parport _Base Address:"
-#~ msgstr "Indirizzo _Base Porta Parallela:"
 
 #~ msgid "Spindle ($) number out of range in M4 Command"
 #~ msgstr ""
