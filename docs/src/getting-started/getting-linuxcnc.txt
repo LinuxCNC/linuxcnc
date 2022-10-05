@@ -111,8 +111,8 @@ sha256sum linuxcnc-2.8.4-buster.iso
 . Then compare to these checksums
 +
 -----
-md5sum: 4496eae88a1d66f457205d0d5b69c3c2
-sha256sum: 94a6dc7ef12fbdc0bafd9259ce36797a8b3410ad22e73c4ab57b8e937a924e1a
+md5sum: 8a6e6abd2c792c3e06fbee0ed049ed41
+sha256sum: 0bfeac3ddfe1bdbf5ca4dad84eeec165741d3f253a16b75e4405c06b7b489700
 -----
 
 .Verify md5sum on Windows or Mac
