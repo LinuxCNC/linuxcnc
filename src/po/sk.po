@@ -2,9 +2,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sk\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-09-18 08:05+0200\n"
-"PO-Revision-Date: 2022-08-06 19:17+0000\n"
+"PO-Revision-Date: 2022-09-29 16:58+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
 "Language: sk\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 4.14-dev\n"
+"X-Generator: Weblate 4.14.1\n"
 "X-Poedit-Language: Slovak\n"
 "X-Poedit-Country: SLOVAKIA\n"
 
@@ -7609,9 +7609,8 @@ msgid "%s: Image to G-code"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:515
-#, fuzzy
 msgid "Image to G-code"
-msgstr "Uložiť G-kód ako"
+msgstr "Obrázok do G-kódu"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:525
 #, python-format
@@ -7853,9 +7852,8 @@ msgid "_Reload"
 msgstr ""
 
 #: share/axis/tcl/axis.tcl:76
-#, fuzzy
 msgid "_Save G-code as..."
-msgstr "_Uložiť gkód ako..."
+msgstr "_Uložiť g-kód ako..."
 
 #: share/axis/tcl/axis.tcl:80
 msgid "_Properties..."
@@ -11295,7 +11293,8 @@ msgstr "Opačný"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -12505,9 +12504,8 @@ msgid "SSR Output"
 msgstr "SSR výstup"
 
 #: src/emc/usr_intf/pncconf/private_data.py:119
-#, fuzzy
 msgid "OUTM Output"
-msgstr "Vreteno vypni"
+msgstr "OUTM Výstup"
 
 #: src/emc/usr_intf/pncconf/private_data.py:121
 msgid "INM Input"
@@ -12980,22 +12978,20 @@ msgstr "Krok incr D"
 #: src/emc/usr_intf/pncconf/private_data.py:432
 #, fuzzy
 msgid "Spindle Override incr A"
-msgstr "Nastaviť zmenu vretena"
+msgstr "Prepis vretena incr A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:433
 #, fuzzy
 msgid "Spindle Override incr B"
-msgstr "Nastaviť zmenu vretena"
+msgstr "Prepis vretena incr B"
 
 #: src/emc/usr_intf/pncconf/private_data.py:433
-#, fuzzy
 msgid "Spindle Override incr C"
-msgstr "Nastaviť zmenu vretena"
+msgstr "Prepis vretena incr C"
 
 #: src/emc/usr_intf/pncconf/private_data.py:433
-#, fuzzy
 msgid "Spindle Override incr D"
-msgstr "Nastaviť zmenu vretena"
+msgstr "Prepis vretena incr D"
 
 #: src/emc/usr_intf/pncconf/private_data.py:434
 msgid "Max Vel Override incr A"
@@ -13018,37 +13014,32 @@ msgid "Feed Override enable"
 msgstr "Zmena kroku povolená"
 
 #: src/emc/usr_intf/pncconf/private_data.py:435
-#, fuzzy
 msgid "Spindle Override enable"
-msgstr "Nastaviť zmenu vretena"
+msgstr "Povoliť prekročenie rých. vretena"
 
 #: src/emc/usr_intf/pncconf/private_data.py:436
 msgid "Max Vel Override enable"
 msgstr "Zmena celkových rýchlostí povolená"
 
 #: src/emc/usr_intf/pncconf/private_data.py:437
-#, fuzzy
 msgid "Manual Spindle CW"
-msgstr "Vreteno vypni"
+msgstr "Manuálne vreteno CW"
 
 #: src/emc/usr_intf/pncconf/private_data.py:437
-#, fuzzy
 msgid "Manual Spindle CCW"
-msgstr "Vreteno vypni"
+msgstr "Manuálne vreteno CCW"
 
 #: src/emc/usr_intf/pncconf/private_data.py:437
-#, fuzzy
 msgid "Manual Spindle Stop"
-msgstr "Vreteno Pomalšie"
+msgstr "Manuálne zastavenie vretena"
 
 #: src/emc/usr_intf/pncconf/private_data.py:438
 msgid "Spindle Up-To-Speed"
 msgstr "vreteno do otáčok"
 
 #: src/emc/usr_intf/pncconf/private_data.py:438
-#, fuzzy
 msgid "Gear Select A"
-msgstr "Vybrať všetky"
+msgstr "Výber prevodového stupňa A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:439
 msgid "Cycle Start"
@@ -13059,19 +13050,16 @@ msgid "Abort"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:439
-#, fuzzy
 msgid "Single Step"
-msgstr "Jedna medzera"
+msgstr "Jediný krok"
 
 #: src/emc/usr_intf/pncconf/private_data.py:441
-#, fuzzy
 msgid "Jog X +"
-msgstr "X +"
+msgstr "Pohyb X +"
 
 #: src/emc/usr_intf/pncconf/private_data.py:441
-#, fuzzy
 msgid "Jog X -"
-msgstr "X -"
+msgstr "Pohyb X -"
 
 #: src/emc/usr_intf/pncconf/private_data.py:441
 msgid "Jog Y +"
@@ -13247,21 +13235,18 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:452
 #: src/emc/usr_intf/pncconf/private_data.py:528
-#, fuzzy
 msgid "S HALL 1"
-msgstr "Uložiť HAL Ini"
+msgstr "S HALL 1"
 
 #: src/emc/usr_intf/pncconf/private_data.py:452
 #: src/emc/usr_intf/pncconf/private_data.py:528
-#, fuzzy
 msgid "S HALL 2"
-msgstr "Uložiť HAL Ini"
+msgstr "S HALL 2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:452
 #: src/emc/usr_intf/pncconf/private_data.py:528
-#, fuzzy
 msgid "S HALL 3"
-msgstr "Uložiť HAL Ini"
+msgstr "S HALL 3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:453
 #: src/emc/usr_intf/pncconf/private_data.py:529
@@ -13332,9 +13317,8 @@ msgid "A Both Limit"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:457
-#, fuzzy
 msgid "All Limits"
-msgstr "Všetky súbory"
+msgstr "Všetky limity"
 
 #: src/emc/usr_intf/pncconf/private_data.py:458
 msgid "X2 Minimum Limit"
@@ -13381,9 +13365,8 @@ msgid "Z2 Both Limit"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:460
-#, fuzzy
 msgid "A2 Both Limit"
-msgstr "Všetky súbory"
+msgstr "A2 Oba Limity"
 
 #: src/emc/usr_intf/pncconf/private_data.py:462
 #: src/emc/usr_intf/pncconf/private_data.py:463
@@ -13391,9 +13374,8 @@ msgstr "Všetky súbory"
 #: src/emc/usr_intf/pncconf/private_data.py:481
 #: src/emc/usr_intf/pncconf/private_data.py:491
 #: src/emc/usr_intf/pncconf/private_data.py:507
-#, fuzzy
 msgid "Main Axis"
-msgstr "Os"
+msgstr "Hlavná os"
 
 #: src/emc/usr_intf/pncconf/private_data.py:462
 #: src/emc/usr_intf/pncconf/private_data.py:463
@@ -13401,23 +13383,20 @@ msgstr "Os"
 #: src/emc/usr_intf/pncconf/private_data.py:481
 #: src/emc/usr_intf/pncconf/private_data.py:491
 #: src/emc/usr_intf/pncconf/private_data.py:507
-#, fuzzy
 msgid "Tandem Axis"
-msgstr "Domov"
+msgstr "Tandemová os"
 
 #: src/emc/usr_intf/pncconf/private_data.py:465
 msgid "Arc OK"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:465
-#, fuzzy
 msgid "Ohmic Contact"
-msgstr "Vreteno Pomalšie"
+msgstr "Ohmický kontakt"
 
 #: src/emc/usr_intf/pncconf/private_data.py:465
-#, fuzzy
 msgid "Float Switch"
-msgstr "inch"
+msgstr "Plávajúci spínač"
 
 #: src/emc/usr_intf/pncconf/private_data.py:466
 msgid "Breakaway"
@@ -13428,9 +13407,8 @@ msgid "Unused Input"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:468
-#, fuzzy
 msgid "Limits"
-msgstr "Všetky súbory"
+msgstr "Limity"
 
 #: src/emc/usr_intf/pncconf/private_data.py:469
 msgid "Limits/Home Shared"
@@ -13443,9 +13421,8 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:470
 #: src/emc/usr_intf/pncconf/private_data.py:972
-#, fuzzy
 msgid "Axis Selection"
-msgstr "Nastavenie HAL"
+msgstr "Výber osi"
 
 #: src/emc/usr_intf/pncconf/private_data.py:470
 #, fuzzy
@@ -19126,9 +19103,8 @@ msgid "Offset"
 msgstr "Ofset"
 
 #: lib/python/gladevcp/offsetpage.glade:416
-#, fuzzy
 msgid "Offset Name"
-msgstr "Offset hodnota"
+msgstr "Názov ofsetu"
 
 #: lib/python/gladevcp/offsetpage.glade:444
 msgid ""
@@ -19172,9 +19148,8 @@ msgstr "Priemer"
 #: lib/python/gladevcp/tooledit_gtk.glade:237
 #: lib/python/gladevcp/tooledit_gtk.glade:538
 #: lib/python/gladevcp/tooledit_gtk.glade:760
-#, fuzzy
 msgid "Front"
-msgstr "Neuložiť"
+msgstr "Predok"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:259
 #: lib/python/gladevcp/tooledit_gtk.glade:560
@@ -19237,7 +19212,7 @@ msgstr ""
 
 #: lib/python/gladevcp/calculator.glade:361
 msgid "in → mm"
-msgstr ""
+msgstr "palce → mm"
 
 #: lib/python/gladevcp/calculator.glade:376
 #, fuzzy

@@ -2,13 +2,14 @@
 # Hans U. <hansunzner@gmail.com>, 2022.
 # Michael Stellmacher <michaelst78@gmail.com>, 2022.
 # mk00002 <codo1983@gmail.com>, 2022.
+# Hans Unzner <hansunzner@gmail.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-09-18 08:05+0200\n"
-"PO-Revision-Date: 2022-08-04 07:50+0000\n"
-"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
+"PO-Revision-Date: 2022-10-04 01:46+0000\n"
+"Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -16,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.14-dev\n"
+"X-Generator: Weblate 4.14.1\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -8247,9 +8248,8 @@ msgid "_Reload"
 msgstr "_Neu laden"
 
 #: share/axis/tcl/axis.tcl:76
-#, fuzzy
 msgid "_Save G-code as..."
-msgstr "_Speichern unter..."
+msgstr "G-code _speichern unter..."
 
 #: share/axis/tcl/axis.tcl:80
 msgid "_Properties..."
@@ -8397,7 +8397,7 @@ msgstr "Antasten auf Werkstüc_k"
 
 #: share/axis/tcl/axis.tcl:263
 msgid "Tool touch off to _fixture"
-msgstr "Anstasten an Spannvorrichtung"
+msgstr "Antasten an Spannvorrichtung"
 
 #: share/axis/tcl/axis.tcl:271
 msgid "_Top view"
@@ -11799,7 +11799,8 @@ msgstr "Entgegengesetzt"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249

@@ -8,22 +8,22 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-09-18 08:05+0200\n"
-"PO-Revision-Date: 2022-09-13 12:04+0200\n"
-"Last-Translator: \n"
+"PO-Revision-Date: 2022-10-03 17:24+0000\n"
+"Last-Translator: Jan Mrázek <email@honzamrazek.cz>\n"
 "Language-Team: \n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.2.1\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"X-Generator: Weblate 4.14.1\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:281
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:286
-#, fuzzy
 msgid "**** GMOCCAPY INI Entry ****"
-msgstr "**** GMOCCAPY načítání INI souboru **** \n"
+msgstr "**** GMOCCAPY položka INI souboru ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:282
 msgid "user mode selected"
@@ -37,7 +37,7 @@ msgstr "nalezeno vstupní logo = {0}"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:292
 #, fuzzy
 msgid "**** GMOCCAPY INI Entry Error ****"
-msgstr "**** GMOCCAPY načítání INI souboru - chyba**** \n"
+msgstr "**** GMOCCAPY INI Chyba pri zadávaní****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:293
 msgid "Logofile entry found, but could not be converted to path."
@@ -120,10 +120,7 @@ msgstr "editování souřadných systémů"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1008
 #, python-brace-format
 msgid "Press to set touch off value for axis {0}"
-msgstr ""
-"Nastavit nulový bod \n"
-"souřadného systému \n"
-"pro osu {0}"
+msgstr "Nastavit nulový bod souřadného systému pro osu {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1041
 msgid "Press to reset all G92 offsets"
@@ -1088,9 +1085,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:57
 msgid "Redo"
-msgstr ""
-"Vrá\n"
-"tit"
+msgstr "Opakovat"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:58
 msgid ""
@@ -1118,9 +1113,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:64
 msgid "Replace"
-msgstr ""
-"Nahra\n"
-"   dit"
+msgstr "Nahradit"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:65
 msgid ""

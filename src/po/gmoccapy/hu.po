@@ -6,10 +6,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-09-18 08:05+0200\n"
-"PO-Revision-Date: 2022-06-26 11:30+0000\n"
-"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
+"PO-Revision-Date: 2022-10-01 04:25+0000\n"
+"Last-Translator: Csa söl <endolomit@gmail.com>\n"
 "Language-Team: Hungarian <https://hosted.weblate.org/projects/linuxcnc/"
 "gmocappy/hu/>\n"
 "Language: hu\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.13.1-dev\n"
+"X-Generator: Weblate 4.14.1\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:281
@@ -48,12 +48,11 @@ msgstr "A fájl elérési útja nem tartalmazhat szóközt"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:673
 msgid "axis"
-msgstr ""
+msgstr "tengely"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:674
-#, fuzzy
 msgid "axes"
-msgstr "jog tengelyek"
+msgstr "mozgási tengelyek"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:679
 #, fuzzy
@@ -68,7 +67,7 @@ msgstr "jog jointok"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:696
 #, python-brace-format
 msgid "Press to home all {0}"
-msgstr "Nyomd meg az összes ref. pont felvételhez {0}"
+msgstr "Nyomd meg ezt az összes ref. pont felvételhez {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:709
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:996
@@ -78,7 +77,7 @@ msgstr "Nyomd meg, hogy az előző Homing gomb látszodjon"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:725
 #, python-brace-format
 msgid "Press to home {0} {1}"
-msgstr "Nyomd meg a ref. gombot {0} {1}"
+msgstr "Nyomd meg a home gombot {0} {1}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:742
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1025
