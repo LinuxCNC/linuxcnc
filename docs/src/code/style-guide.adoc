@@ -37,16 +37,6 @@ Do not use an editor that makes unneeded changes to whitespace (e.g.,
 which replaces 8 spaces with a tabstop on a line not otherwise
 modified, or word-wraps lines not otherwise modified).
 
-=== Translations
-
-All program code and documentation is written in US English.
-All translations (which soon includes the documentation) are performed
-with the help of the (https://hosted.weblate.org/projects/linuxcnc/)[weblate]
-services. Our users and developers are kindly asked to help with the
-translation. The source tree then maintains the .po files in sync with that online
-representation.
-
-
 
 == C/C++ coding standards
 
