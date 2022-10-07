@@ -1,5 +1,6 @@
 :lang: en
 :toc:
+:source-highlighter: highlight.js
 
 [[cha:ini-configuration]]
 = INI Configuration(((INI Configuration)))
@@ -106,7 +107,7 @@ whitespace following the trailing backslash character.
 Section identifiers may not be extended to multiple lines.
 
 .Variable with Line extends Example
-[source,{ini}]
+[source,ini]
 ----
 APP = sim_pin \
 ini.0.max_acceleration \
@@ -134,7 +135,7 @@ To add a custom variable to an existing LinuxCNC section, simply include
 the variable in that section.
 
 .Custom Variable Example
-[source,{ini}]
+[source,ini]
 ----
 [JOINT_0]
 TYPE = LINEAR
@@ -482,7 +483,7 @@ path to the program or be located in a directory that is on the system path.
 
 It is also possible to specify an interpreter:
 
-[source,{ini}]
+[source,ini]
 ----
 PROGRAM_EXTENSION = .py Python Script
   py = python

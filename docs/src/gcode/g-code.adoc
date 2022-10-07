@@ -1,5 +1,6 @@
 :lang: en
 :toc:
+:source-highlighter: highlight.js
 
 [[cha:g-codes]]
 = G-Codes
@@ -1094,8 +1095,9 @@ an encoder (or resolver) counter which resets index-enable once per rev.
 See the Integrators Manual for more information on spindle synchronized
 motion.
 
+// this seems to enable auto detection of source type
 .G33 Example
-[source,{ngc}]
+[source,'']
 ----
 G90 (absolute distance mode)
 G0 X1 Z0.1 (rapid to position)
@@ -1119,7 +1121,8 @@ It is an error if:
 [[gcode:g33.1]]
 == G33.1 Rigid Tapping(((G33.1 Rigid Tapping)))
 
-[source,{ngc}]
+// this should force gcode style, but doesn't actually
+[source,gcode]
 ----
 G33.1 X- Y- Z- K- I- $-
 ----
