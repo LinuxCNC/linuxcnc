@@ -1,5 +1,6 @@
 :lang: en
 :toc:
+:relfileprefix: ../
 
 [[cha:linuxcnc-user-introduction]]
 = LinuxCNC User Introduction(((LinuxCNC User Introduction,User Introduction)))
@@ -24,7 +25,7 @@ complete system:
 
 * a Graphical User Interface (GUI), which forms the basic interface between the operator, the software
   and the CNC machine itself;
-* the <<cha:hal-introduction,Hardware Abstraction Layer>> (HAL), which provides a method of linking all
+* the <<hal/intro.adoc#cha:hal-introduction,Hardware Abstraction Layer>> (HAL), which provides a method of linking all
   the various internal virtual signals generated and received by LinuxCNC with the outside world, and
 * the high level controllers that coordinate the generation and execution of motion control of the CNC
   machine, namely the motion controller (EMCMOT), the discrete input/output controller (EMCIO) and the
@@ -44,12 +45,12 @@ second signal that defines the speed at which that stepper motor rotates.
 While a stepper motor system under parallel port control is illustrated, a LinuxCNC system can also take
 advantage of a wide variety of dedicated hardware motion control interfaces for increased speed and I/O
 capabilities. A full list of interfaces supported by LinuxCNC can be found on
-the http://http://wiki.linuxcnc.org/cgi-bin/wiki.pl?LinuxCNC_Supported_Hardware[Supported Hardware] page of the
+the http://wiki.linuxcnc.org/cgi-bin/wiki.pl?LinuxCNC_Supported_Hardware[Supported Hardware] page of the
 Wiki.
 
 In most circumstances, users will create a configuration specific to their mill setup using either the
-<<cha:stepconf-wizard,Stepper Configuration Wizard>> (for CNC systems operating using the computers'
-parallel port) or the <<cha:pncconf-wizard,Mesa Hardware Wizard>> (for more advanced systems utilising a
+<<config/stepconf.adoc#cha:stepconf-wizard,Stepper Configuration Wizard>> (for CNC systems operating using the computers'
+parallel port) or the <<config/pncconf.adoc#cha:pncconf-wizard,Mesa Hardware Wizard>> (for more advanced systems utilising a
 Mesa Anything I/O PCI card). Running either wizard will create several folders on the computers' hard drive
 containing a number of configuration files specific to that CNC machine, and an icon placed on the desktop
 to allow easy launching of LinuxCNC.
@@ -98,35 +99,35 @@ following files:
 
 A graphical user interface is the part of the LinuxCNC that the machine tool operator interacts with.
 LinuxCNC comes with several types of user interfaces which may be chosen from by editing
-certain fields contained in the <<cha:ini-configuration,INI file>>:
+certain fields contained in the <<config/ini-config.adoc#cha:ini-configuration,INI file>>:
 
-AXIS:: <<cha:axis-gui,AXIS>>, the standard keyboard GUI interface. This is also the default GUI launched when a
+AXIS:: <<gui/axis.adoc#cha:axis-gui,AXIS>>, the standard keyboard GUI interface. This is also the default GUI launched when a
   Configuration Wizard is used to create a desktop icon launcher:
 
 [[fig:axis-graphical-interface]]
 .AXIS, the standard keyboard GUI interface
 image::../gui/images/axis.png["AXIS, the standard keyboard GUI interface",align="center"]
 
-Touchy:: <<cha:touchy-gui,Touchy>>, a touch screens GUI:
+Touchy:: <<gui/touchy.adoc#cha:touchy-gui,Touchy>>, a touch screens GUI:
 
 [[fig:touchy-graphical-interface]]
 .Touchy, a touch screen GUI
 image::../gui/images/touchy.png["Touchy, a touch screen GUI",align="center"]
 
-Gscreen:: <<cha:gscreen,Gscreen>>, a user-configurable touch screen GUI:
+Gscreen:: <<gui/gscreen.adoc#cha:gscreen,Gscreen>>, a user-configurable touch screen GUI:
 
 [[fig:gscreen-graphical-interface]]
 .Gscreen, a configurable base touch screen GUI
 image::../gui/images/gscreen-mill.png["Gscreen, a configurable base touch screen GUI",align="center"]
 
-GMOCCAPY:: <<cha:gmoccapy,GMOCCAPY>>, a touch screen GUI based on Gscreen. GMOCCAPY is also designed to work equally
+GMOCCAPY:: <<gui/gmoccapy.adoc#cha:gmoccapy,GMOCCAPY>>, a touch screen GUI based on Gscreen. GMOCCAPY is also designed to work equally
   well in applications where a keyboard and mouse are the preferred methods of controlling the GUI:
 
 [[fig:gmoccapy-graphical-interface]]
 .GMOCCAPY, a touch screen GUI based on Gscreen
 image::../gui/images/gmoccapy_3_axis.png["GMOCCAPY, a touch screen GUI based on Gscreen",align="center"]
 
-NGCGUI:: <<cha:ngcgui,NGCGUI>>, a subroutine GUI that provides wizard-style programming of G code. NGCGUI may be
+NGCGUI:: <<gui/ngcgui.adoc#cha:ngcgui,NGCGUI>>, a subroutine GUI that provides wizard-style programming of G code. NGCGUI may be
   run as a standalone program or embedded into another GUI as a series of tabs. The following screen shot
   shows NGCGUI embedded into Axis:
 
@@ -134,7 +135,7 @@ NGCGUI:: <<cha:ngcgui,NGCGUI>>, a subroutine GUI that provides wizard-style prog
 .NGCGUI, a graphical interface integrated into AXIS
 image::../gui/images/ngcgui.png["NGCGUI, a graphical interface integrated into AXIS",align="center"]
 
-TkLinuxCNC:: <<sec:tklinuxcnc-intro,TkLinuxCNC>>, another interface based on Tcl/Tk.
+TkLinuxCNC:: <<gui/tklinuxcnc.adoc#sec:tklinuxcnc-intro,TkLinuxCNC>>, another interface based on Tcl/Tk.
   Once the most popular interface after AXIS.
 
 [[fig:tklinuxcnc-gui]]
@@ -155,7 +156,7 @@ As mentioned above, many of LinuxCNC's GUIs may be customized by the user. This 
 indicators, readouts, switches or sliders to the basic appearance of one of the GUIs for increased
 flexibility or functionality. Two styles of Virtual Control Panel are offered in LinuxCNC:
 
-PyVCP:: <<cha:pyvcp,'PyVCP'>>, a Python-based virtual control panel that can be added to the Axis GUI. PyVCP only
+PyVCP:: <<gui/pyvcp.adoc#cha:pyvcp,'PyVCP'>>, a Python-based virtual control panel that can be added to the Axis GUI. PyVCP only
   utilises virtual signals contained within the Hardware Abstraction Layer, such as the spindle-at-speed
   indicator or the Emergency Stop output signal, and has a simple no-frills appearance. This makes it an
   excellent choice if the user wants to add a Virtual Control Panel with minimal fuss.
@@ -163,7 +164,7 @@ PyVCP:: <<cha:pyvcp,'PyVCP'>>, a Python-based virtual control panel that can be 
 .PyVCP Example Embedded Into AXIS GUI
 image::../gui/images/axis-pyvcp.png["PyVCP embedded into Axis",align="center"]
 
-GladeVCP:: <<cha:glade-vcp,'GladeVCP'>>, a Glade-based virtual control panel that can be added to the Axis or Touchy
+GladeVCP:: <<gui/gladevcp.adoc#cha:glade-vcp,'GladeVCP'>>, a Glade-based virtual control panel that can be added to the Axis or Touchy
   GUIs. GladeVCP has the advantage over PyVCP in that it is not limited to the display or control of HAL
   virtual signals, but can include other external interfaces outside LinuxCNC such as window or network
   events. GladeVCP is also more flexible in how it may be configured to appear on the GUI:
