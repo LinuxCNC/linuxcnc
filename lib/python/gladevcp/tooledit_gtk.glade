@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="2.18"/>
+  <requires lib="gtk+" version="3.0"/>
   <!-- interface-naming-policy project-wide -->
   <object class="GtkListStore" id="liststore1">
     <columns>
@@ -35,7 +35,7 @@
       <!-- column-name back -->
       <column type="gchararray"/>
       <!-- column-name orient -->
-      <column type="gchararray"/>
+      <column type="gint"/>
       <!-- column-name comments -->
       <column type="gchararray"/>
     </columns>
@@ -49,17 +49,19 @@
   <object class="GtkWindow" id="window1">
     <property name="can_focus">False</property>
     <child>
-      <object class="GtkVBox" id="tooledit_box">
+      <object class="GtkBox" id="tooledit_box">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
         <child>
           <object class="GtkNotebook" id="tool_offset_notebook">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <child>
-              <object class="GtkVBox" id="vbox1">
+              <object class="GtkBox" id="vbox1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkScrolledWindow" id="all_window">
                     <property name="visible">True</property>
@@ -286,7 +288,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHButtonBox" id="buttonbox">
+                  <object class="GtkButtonBox" id="buttonbox">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="layout_style">center</property>
