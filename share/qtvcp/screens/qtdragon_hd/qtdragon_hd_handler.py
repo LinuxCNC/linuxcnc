@@ -15,10 +15,7 @@ from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp.core import Status, Action, Info, Path, Qhal
 from qtvcp import logger
 from shutil import copyfile
-try:
-    from math import dist, ceil
-except:
-    LOG.error('Is python distutils installed? (sudo apt install python3-distutils')
+from math import sqrt, ceil
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -1207,7 +1204,7 @@ class HandlerClass:
     def calc_mdi_move_wait_time(self, dest_x, dest_y, wait_buffer_secs=1):
         move_speed = (STATUS.stat.rapidrate * STATUS.get_max_velocity()) / 60
         pos_cur,pos_rel,dtg, = STATUS.get_position()
-        move_dist = dist([pos_cur[0],pos_cur[1]], [dest_x,dest_y])
+        move_dist = sqrt((dest_x - pos_cur[0]) ** 2 + (dest_y - pos_cur[1]) ** 2)
         return ceil(move_dist / move_speed) + wait_buffer_secs
 
 
