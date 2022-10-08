@@ -2,9 +2,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sk\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-10-05 07:53+0200\n"
-"PO-Revision-Date: 2022-09-29 16:58+0000\n"
+"PO-Revision-Date: 2022-10-08 16:56+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
 "Language: sk\n"
@@ -1905,7 +1905,7 @@ msgstr ""
 
 #: src/hal/utils/scope.c:692
 msgid "Single"
-msgstr "Jeden kanál"
+msgstr "Jedna udalosť"
 
 #: src/hal/utils/scope.c:694
 msgid "Roll"
@@ -11294,7 +11294,8 @@ msgstr "Opačný"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
