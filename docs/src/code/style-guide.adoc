@@ -40,6 +40,7 @@ Do not use an editor that makes unneeded changes to whitespace (e.g., which
 replaces 8 spaces with a tabstop on a line not otherwise modified, or word-wraps
 lines not otherwise modified).
 
+:leveloffset: 1
 
 include::style-c-cpp.adoc[leveloffset=+1]
 
