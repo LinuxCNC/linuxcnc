@@ -8,6 +8,8 @@ QStatusBar {
     color: #FFFFD0;
 }
 
+/** Pushbuttons **/
+QToolButton,
 QPushButton,
 ActionButton,
 SystemToolButton,
@@ -168,7 +170,6 @@ QComboBox:drop-down {
 
 QComboBox::item {
     background-color: #404040;
-    font: 10pt "Lato Heavy";
     color: white;
 }
 
