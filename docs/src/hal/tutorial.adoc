@@ -122,12 +122,12 @@ halcmd: loadrt siggen
 Now that the module is loaded, it is time to introduce 'halcmd' , the
 command line tool used to configure the HAL. This tutorial will
 introduce some halcmd features, for a more complete description try
-'man halcmd', or see the reference in <<sec:hal-commands,Hal Commands>>
+'man halcmd', or see the reference in <<sec:hal-commands,HAL Commands>>
 section of this document. The first
 halcmd feature is the 'show' command. This command displays information
 about the current state of the HAL. To show all installed components:
 
-.Show Components with `halrun`/`halcmd``
+.Show Components with `halrun`/`halcmd`
 ----
 halcmd: show comp
 
@@ -212,8 +212,8 @@ Owner   CodeAddr  Arg       FP   Users  Name
 
 The siggen component exported a single function. It requires floating
 point. It is not currently linked to any threads, so 'users' is
-zero. footnote:[CodeAddr and Arg fields were used during development and
-should probably disappear.]
+zero footnote:[CodeAddr and Arg fields were used during development and
+should probably disappear.].
 
 === Making realtime code run
 
@@ -834,7 +834,7 @@ halcmd: setp stepgen.0.enable 1
 halcmd: setp stepgen.1.enable 1
 ----
 
-This velocity scaling means that when the pin 'stepgen.0.velocity-cmd'
+This velocity scaling means that when the pin `stepgen.0.velocity-cmd``
 is 1.0, the step generator will generate 10000 pulses per second
 (10 kHz). With the motor and leadscrew described above, that will result
 in the axis moving at exactly 1.0 inches per second. This illustrates
@@ -1031,17 +1031,14 @@ image::images/halscope-09.png["Waveforms with Triggering",align="center"]
 
 To look closely at part of a waveform, you can use the zoom slider at
 the top of the screen to expand the waveforms horizontally, and the
-position slider to determine which part of the zoomed waveform is
-visible. However, sometimes simply expanding the waveforms isn't enough
-and you need to increase the sampling rate. For example, we would like
-to look at the actual step pulses that are being generated in our
-example. Since the step pulses may be only 50 µs long, sampling at 1 kHz
-isn't fast enough. To change the sample rate, click on the button that
-displays the number of samples and sample rate to bring up the 'Select
-Sample Rate' dialog, figure . For this example, we will click on the
-50 µs thread, 'fast', which gives us a sample rate of about 20 kHz. Now
-instead of displaying about 4 seconds worth of data, one record is 4000
-samples at 20 kHz, or about 0.20 seconds.
+position slider to determine which part of the zoomed waveform is visible.
+However, sometimes simply expanding the waveforms isn't enough and you need to increase the sampling rate.
+For example, we would like to look at the actual step pulses that are being generated in our example.
+Since the step pulses may be only 50&thinsp;µs long, sampling at 1&thinsp;kHz isn't fast enough.
+To change the sample rate, click on the button that displays the number
+of samples and sample rate to bring up the 'Select Sample Rate' dialog figure.
+For this example, we will click on the 50&thinsp;µs thread, 'fast', which gives us a sample rate of about 20&thinsp;kHz.
+Now instead of displaying about 4 seconds worth of data, one record is 4000 samples at 20&thinsp;kHz, or about 0.20&thinsp;seconds.
 
 [[fig:halscope-sample-rate-choice]]
 .Sample Rate Dialog
@@ -1049,22 +1046,20 @@ image::images/halscope-10.png["Sample Rate Dialog",align="center"]
 
 === More Channels
 
-Now let's look at the step pulses. Halscope has 16 channels, but for
-this example we are using only 4 at a time. Before we select any more
-channels, we need to turn off a couple. Click on the channel 2 button,
-then click the 'Chan Off' button at the bottom of the 'Vertical' box.
+Now let's look at the step pulses.
+Halscope has 16 channels, but for this example we are using only 4 at a time.
+Before we select any more channels, we need to turn off a couple.
+Click on the channel 2 button, then click the 'Chan Off' button at the bottom of the 'Vertical' box.
 Then click on channel 3, turn if off, and do the same for channel 4.
 Even though the channels are turned off, they still remember what they
-are connected to, and in fact we will continue to use channel 3 as the
-trigger source. To add new channels, select channel 5, and choose pin
-'stepgen.0.dir', then channel 6, and select 'stepgen.0.step'. Then
-click run mode 'Normal' to start the scope, and adjust the horizontal
-zoom to 5 ms per division. You should see the step pulses slow down as
-the velocity command (channel 1) approaches zero, then the direction
-pin changes state and the step pulses speed up again. You might want to
-increase the gain on channel 1 to about 20 milli per division to better see
-the change in the velocity command. The result should look like  the
-following figure.
+are connected to, and in fact we will continue to use channel 3 as the trigger source.
+To add new channels, select channel 5, and choose pin `stepgen.0.dir`, then channel 6, and select `stepgen.0.step`.
+Then click run mode 'Normal' to start the scope, and adjust the horizontal zoom to 5&thinsp;ms per division.
+You should see the step pulses slow down as the velocity command (channel 1) approaches zero,
+then the direction pin changes state and the step pulses speed up again.
+You might want toincrease the gain on channel 1 to about 20 milli per division to better see
+the change in the velocity command.
+The result should look like the following figure.
 
 [[fig:halscope-step-pulses]]
 .Step Pulses

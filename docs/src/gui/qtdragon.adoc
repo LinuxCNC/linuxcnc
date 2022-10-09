@@ -169,7 +169,7 @@ You can embed QtVCP Virtual Control Panels into the QtDragon or QtDragon_hd scre
 These panels can be either user built or builtin <<cha:qtvcp:panels,QtVCP Panels>>. +
 The `TAB_NAME` entry will used as the title for the new tab. +
 Tab `TAB_LOCATION` options include: `tabWidget_utilities` and `tabWidget_setup`.
-See qtvcp/VCP panels for other available builtin panels.
+See QtVCP/VCP panels for other available builtin panels.
 
 This sample adds a builtin panel; a graphical animated machine using the vismach library.
 
@@ -186,7 +186,7 @@ EMBED_TAB_LOCATION = tabWidget_utilities
 Magic comments can be used to control the G-code preview. +
 On very large programs the preview can take a long time to load. You can control
 what is shown and what is hidden the the graphics screen by adding the appropriate
-comments from this list into your gcode:
+comments from this list into your G-code:
 
 ----
 (PREVIEW,stop)
@@ -705,7 +705,7 @@ This is only available in the QtDragon_hd version.
 * This allows the user to automatically fill in the X, Y and Z parameters with the current position as displayed on the DROs.
 
 .Autofill Workpiece Height on Main Screen
-* When checked, the calculated height is automatically transferred to the Workpice Height field in the main screen.
+* When checked, the calculated height is automatically transferred to the Workpiece Height field in the main screen.
 * Otherwise, the main screen is not affected.
 
 .Workpiece Probe At

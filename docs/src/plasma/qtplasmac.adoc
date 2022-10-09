@@ -780,26 +780,26 @@ If ESTOP_TYPE = 1 in the <machine_name>.prefs file, this button will not be visi
 If ESTOP_TYPE = 2 in the <machine_name>.prefs file, this button will act as a GUI ESTOP. +
 If ESTOP_TYPE is omitted from the <machine_name>.prefs file, this button will default to being an indicator of the hardware ESTOP's status only.
 |POWER |This button turns the GUI on and allows QtPlasmaC/LinuxCNC to control the hardware. +
-    Pressing and holding the *POWER* button for longer than two seconds will bring up a dialog to exit the QtPlasmaC application.
+Pressing and holding the *POWER* button for longer than two seconds will bring up a dialog to exit the QtPlasmaC application.
 |CYCLE START |This button starts the cycle for any loaded G-code file.
 |CYCLE PAUSE |This button pauses the cycle for any loaded G-code file. +
-    If a cycle is paused, this button will display *CYCLE RESUME* and flash. +
-    Pressing *CYCLE RESUME* will resume the cycle.
+If a cycle is paused, this button will display *CYCLE RESUME* and flash. +
+Pressing *CYCLE RESUME* will resume the cycle.
 |CYCLE STOP |This button stops any actively running or paused cycle. +
-    This includes: +
-    - G-code Programs +
-    - Torch pulse if the pulse was started during *CYCLE PAUSE* (this will cancel the paused G-code program execution as well) +
-    - Probe Test +
-    - Framing +
-    - Manual Cut
+This includes: +
+- G-code Programs +
+- Torch pulse if the pulse was started during *CYCLE PAUSE* (this will cancel the paused G-code program execution as well) +
+- Probe Test +
+- Framing +
+- Manual Cut
 |FEED |This slider overrides the feed rate for all feed moves. +
-    Any value other than 100% will cause the label to flash. +
-    Clicking the label will return the slider to 100%.
+Any value other than 100% will cause the label to flash. +
+Clicking the label will return the slider to 100%.
 |RAPID |This slider overrides the rapid rate for all rapid moves. +
-    Any value other than 100% will cause the label to flash. +
-    Clicking the label will return the slider to 100%.
+Any value other than 100% will cause the label to flash. +
+Clicking the label will return the slider to 100%.
 |JOG |This slider sets the jog rate. +
-    Clicking the label will return the slider to the default linear velocity as set in the <machine_name).ini file.
+Clicking the label will return the slider to the default linear velocity as set in the <machine_name).ini file.
 |===
 
 [underline]*BUTTONS*
@@ -815,11 +815,11 @@ See <<qt_custom-user-buttons,custom user buttons>> for detailed information on c
 |Name |Description
 |EDIT |This button opens a G-code editor for the currently loaded program.
 |MDI |This button places QtPlasmaC into Manual Data Input (MDI) mode which will display the MDI HISTORY and an entry box over top of the G-code window. +
-    Once pressed, this button will display "MDI CLOSE". +
-    Pressing *MDI CLOSE* will close the MDI. +
-    Please see the <<qt_mdi, MDI>> section for additional MDI information.
+Once pressed, this button will display "MDI CLOSE". +
+Pressing *MDI CLOSE* will close the MDI. +
+Please see the <<qt_mdi, MDI>> section for additional MDI information.
 |OHMIC TEST |This button will enable the Ohmic Probe Enable output signal and if the Ohmic Probe input is sensed, the LED indicator in the SENSOR Panel will light. +
-    The main purpose of this is to allow a quick test for a shorted torch tip.
+The main purpose of this is to allow a quick test for a shorted torch tip.
 |PROBE TEST |This button will initiate a <<qt_probe-test,Probe Test>>.
 |SINGLE CUT |This button will show the dialog box to start an automatic <<qt_single-cut,Single Cut>>.
 |NORMAL CUT |This button will toggle between <<qt_cut-types,Cut Types>> (NORMAL CUT and PIERCE ONLY).
@@ -3542,9 +3542,9 @@ These voltages are also required to be within a specified range.
 
 There are two settings in the <<qt_parameters-tab, PARAMETERS Tab>> for setting the range, these are:
 
-- *OK High Volts* which is the upper value of the voltage range. The default is 250V.
+- *OK High Volts* which is the upper value of the voltage range. The default is 250&thinsp;V.
 
-- *OK Low Volts* which is the lower value of the voltage range. The default is 60V.
+- *OK Low Volts* which is the lower value of the voltage range. The default is 60&thinsp;V.
 
 Both of these values may be changed by direct entry or by the use of the increment/decrement buttons.
 
@@ -3581,18 +3581,18 @@ setp plasmac.arc-lost-delay 0.1
 It is recommended that the user set this pin in the custom.hal file.
 
 This setting should only be used if the user experiences the above symptoms.
-It should also be noted that the user could use the appropriate <<qt_ignore-ok, Ignore Arc OK>> G-Code commands to achieve a similar result.
+It should also be noted that the user could use the appropriate <<qt_ignore-ok,Ignore Arc OK>> G-code commands to achieve a similar result.
 
 === Zero Window
 
 Small fluctuations in the arc voltage displayed while the machine is at idle are possible depending on many different variables (electrical noise, incorrect THCAD tuning, etc.).
 
-After all contributing factors have been mitigated, if a small fluctuation still exists it is possible to eliminate it by widening the voltage window for which QtPlasmaC will display 0v.
+After all contributing factors have been mitigated, if a small fluctuation still exists it is possible to eliminate it by widening the voltage window for which QtPlasmaC will display 0&thinsp;V.
 
 The pin for adjusting this value is named plasmac.zero-window and the default value is set to 0.1.
 To change this value, add the pin and the required value to the custom.hal file.
 
-The following example would set the voltage window to be displayed as 0v from -5v to +5v:
+The following example would set the voltage window to be displayed as 0&thinsp;V from -5&thinsp; to +5&thinsp;:
 
 [source,{hal}]
 ----

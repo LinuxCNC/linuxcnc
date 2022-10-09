@@ -48,7 +48,7 @@ MPG + jogwheel changes the feed override.
 Each tick will increment/decrement the feed override.
 
 *-B*
-Add 5mm and 10mm to Step feedrate output
+Add 5&thinsp;mm and 10&thinsp;mm to Step feedrate output
 
 *-t*
 Wait with timeout for USB device then proceed, exit otherwise.
@@ -98,7 +98,7 @@ Start in userspace mode (simulation) and prints HAL pin names and events distrib
 *xhc-whb04b-6 -H*::
 Start in HAL mode (Normal mode for real machine use).
 *xhc-whb04b-6 -HsfB*::
-Start in HAL mode + Spindle Override + Feedrate Override + Big step 5/10mm).
+Start in HAL mode + Spindle Override + Feedrate Override + Big step 5/10&thinsp;mm).
 
 
 == Hal Usage

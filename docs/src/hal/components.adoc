@@ -101,8 +101,8 @@ link:../man/[directory listing].
 | link:../man/man1/vfs11_vfd.1.html[vfs11_vfd] |HAL userspace component for Toshiba-Schneider VF-S11 Variable Frequency Drives ||
 | link:../man/man1/wj200_vfd.1.html[wj200_vfd] |Hitachi wj200 modbus driver ||
 | link:../man/man1/xhc-hb04.1.html[xhc-hb04] |User-space HAL component for the xhc-hb04 pendant ||
-| link:../man/man1/xhc-hb04-accels.1.html[xhc-hb04-accels] |Obsolete script for jogging wheel||
-| link:../man/man1/xhc-whb04b-6.1.html[xhc-whb04b-6] |Userspace jog dial HAL component for the wireless XHC WHB04B-6 USB device||
+| link:../man/man1/xhc-hb04-accels.1.html[xhc-hb04-accels] |Obsolete script for jogging wheel ||
+| link:../man/man1/xhc-whb04b-6.1.html[xhc-whb04b-6] |Userspace jog dial HAL component for the wireless XHC WHB04B-6 USB device ||
 |===
 
 === Mesa and other I/O Cards (Realtime)
@@ -152,7 +152,7 @@ link:../man/[directory listing].
 | link:../man/man9/setsserial.9.html[setsserial] |Utility for setting Smart Serial NVRAM parameters.
 NOTE: This rather clunky utility is no longer needed except for flashing new smart-serial remote firmware.
 Smart-serial remote parameters can now be set in the HAL file in the normal way. ||
-| link:../man/man1/sim_pin.1.html[sim_pin] |GUI for displaying and setting one or more Hal inputs ||
+| link:../man/man1/sim_pin.1.html[sim_pin] |GUI for displaying and setting one or more HAL inputs ||
 | link:../man/man1/stepconf.1.html[stepconf] |Configuration wizard for parallel-port based machines ||
 |===
 
@@ -182,7 +182,7 @@ Smart-serial remote parameters can now be set in the HAL file in the normal way.
 | link:../man/man9/toggle2nist.9.html[toggle2nist] |Toggle button to nist logic ||
 | link:../man/man9/ton.9.html[ton]                 |IEC TON timer - delay rising edge on a signal ||
 | link:../man/man9/timedelay.9.html[timedelay]     |Equivalent of a time-delay relay. ||
-| link:../man/man9/tp.9.html[tp]                   |IEC TP timer - generate a high pulse of defined duration on rising edge||
+| link:../man/man9/tp.9.html[tp]                   |IEC TP timer - generate a high pulse of defined duration on rising edge ||
 | link:../man/man9/tristate_bit.9.html[tristate_bit] |Places signal on an I/O pin only when enabled, similar to a tristate buffer in electronics ||
 | link:../man/man9/tristate_float.9.html[tristate_float] |Places signal on an I/O pin only when enabled, similar to a tristatebuffer in electronics ||
 | link:../man/man9/xor2.9.html[xor2]               |Two-input XOR (exclusive OR) gate ||
@@ -258,7 +258,7 @@ the input is a position, this means that the 'position', 'velocity', and 'accele
 |===
 | link:../man/man9/corexy_by_hal.9.html[corexy_by_hal] |CoreXY kinematics ||
 | link:../man/man9/differential.9.html[differential] |Kinematics for a differential transmission ||
-| link:../man/man9/gantry.9.html[gantry] |LinuxCNC HAL component for driving multiple joints from a single axis||
+| link:../man/man9/gantry.9.html[gantry] |LinuxCNC HAL component for driving multiple joints from a single axis ||
 | link:../man/man9/gantrykins.9.html[gantrykins] |Kinematics module that maps one axis to multiple joints. ||
 | link:../man/man9/genhexkins.9.html[genhexkins] |Gives six degrees of freedom in position and orientation (XYZABC). The location of the motors is defined at compile time. ||
 | link:../man/man9/genserkins.9.html[genserkins] |Kinematics that can model a general serial-link manipulator with up to 6 angular joints. ||
@@ -307,8 +307,8 @@ is 0.0001 seconds and the formula would be 1/(0.0001 x 2) = 5,000 Hz or 5 kHz. |
 | link:../man/man9/gearchange.9.html[gearchange] | Select from one of two speed ranges. ||
 | link:../man/man9/joyhandle.9.html[joyhandle] | Sets nonlinear joypad movements, deadbands and scales. ||
 | link:../man/man9/sampler.9.html[sampler] | Sample data from HAL in real time. ||
-| link:../man/man9/siggen.9.html[siggen] | Signal generator. <<sec:siggen,Description>>. ||
-| link:../man/man9/sim_encoder.9.html[sim_encoder] | Simulated quadrature encoder. <<sec:simulated-encoder,Description>>. ||
+| link:../man/man9/siggen.9.html[siggen] | Signal generator, see <<sec:siggen,Description>>. ||
+| link:../man/man9/sim_encoder.9.html[sim_encoder] | Simulated quadrature encoder, see <<sec:simulated-encoder,Description>>. ||
 | link:../man/man9/sphereprobe.9.html[sphereprobe] | Probe a pretend hemisphere. ||
 | link:../man/man9/steptest.9.html[steptest] | Used by Stepconf to allow testing of acceleration and velocity values for an axis. ||
 | link:../man/man9/streamer.9.html[streamer] | Stream file data into HAL in real time. ||
