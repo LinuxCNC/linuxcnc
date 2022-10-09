@@ -117,8 +117,8 @@ class GcodeLexer(QsciLexerCustom):
             1: r"(?:[N]\d+|\(.*\)|;.*)",                                        # LineNo and Comment
             2: r"[G]\d{1,4}\.?\d*",                                             # Gcode
             3: r"[M]\d{1,4}\.?\d*",                                             # Mcode
-            4: r"[XYZABCUVWIJK]{1}(?:[+-]?[\d\.]+|\#\<.*?\>|\[.*?\]|\#\d+)",    # Axis
-            5: r"[EFHDQLRPST]{1}(?:[+-]?[\d\.]+|\#\<.*?\>|\[.*?\]|\#\d+)",      # Other (feed,rpm,radius,etc)
+            4: r"[XYZABCUVW]{1}(?:[+-]?[\d\.]+|\#\<.*?\>|\[.*?\]|\#\d+)",       # Axis
+            5: r"[EFHIJKDQLRPST]{1}(?:[+-]?[\d\.]+|\#\<.*?\>|\[.*?\]|\#\d+)",   # Other (feed,rpm,radius,etc)
             0: r"\s+|\w+|\W", # Default (fallback)
         }
 
