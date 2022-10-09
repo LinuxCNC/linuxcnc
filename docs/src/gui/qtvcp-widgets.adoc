@@ -807,8 +807,7 @@ This can also display:
 
 * *MDI history* when LinuxCNC is in `MDI` mode.
 * *Log entries* when LinuxCNC is in `MANUAL` mode.
-* *Preference file entries* if you enter `PREFERENCE` in capitals into
-  the `MDILine` widget.
+* *Preference file entries* if you enter `PREFERENCE` in capitals into the `MDILine` widget.
 
 It has a _signal_ *`percentDone(int)`* that can be connected to a slot
 (such as a `progressBar` to display percent run).

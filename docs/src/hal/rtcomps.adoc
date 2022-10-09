@@ -68,7 +68,7 @@ On the step type and control type selected.
   position units (position mode only).
 * '(float) stepgen._<chan>_.velocity-cmd' - Desired motor velocity, in
   position units per second (velocity mode only).
-* '(s32) stepgen._<chan>.counts' - Feedback position in counts,
+* '(s32) stepgen._<chan>_.counts' - Feedback position in counts,
   updated by 'capture_position()'.
 * '(float) stepgen._<chan>_.position-fb' - Feedback position in
   position units, updated by 'capture_position()'.
