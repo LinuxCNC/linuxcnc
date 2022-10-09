@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-05 07:53+0200\n"
+"POT-Creation-Date: 2022-10-09 15:50+0200\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
@@ -3627,7 +3627,7 @@ msgid "Edit mode..."
 msgstr "Editeaza"
 
 #: src/hal/classicladder/edit_gtk.c:186 src/hal/classicladder/edit_gtk.c:360
-#: tcl/tooledit.tcl:488 lib/python/gladevcp/tooledit_gtk.glade:295
+#: tcl/tooledit.tcl:488 lib/python/gladevcp/tooledit_gtk.glade:297
 msgid "Delete"
 msgstr "Sterge"
 
@@ -3636,7 +3636,7 @@ msgid "Do you really want to delete the current rung ?"
 msgstr ""
 
 #: src/hal/classicladder/edit_gtk.c:350
-#: lib/python/gladevcp/tooledit_gtk.glade:310
+#: lib/python/gladevcp/tooledit_gtk.glade:312
 msgid "Add"
 msgstr "Aduna"
 
@@ -3853,7 +3853,7 @@ msgid "Parameter"
 msgstr "Fisier parametri"
 
 #: src/hal/classicladder/editproperties_gtk.c:213 tcl/bin/halshow.tcl:734
-#: lib/python/gladevcp/tooledit_gtk.glade:340
+#: lib/python/gladevcp/tooledit_gtk.glade:342
 msgid "Apply"
 msgstr ""
 
@@ -10971,9 +10971,9 @@ msgstr "label42"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:553
 #: src/emc/usr_intf/pncconf/main_page.glade:201
-#: lib/python/gladevcp/tooledit_gtk.glade:248
-#: lib/python/gladevcp/tooledit_gtk.glade:549
-#: lib/python/gladevcp/tooledit_gtk.glade:771
+#: lib/python/gladevcp/tooledit_gtk.glade:250
+#: lib/python/gladevcp/tooledit_gtk.glade:551
+#: lib/python/gladevcp/tooledit_gtk.glade:773
 msgid "Back"
 msgstr "Inapoi"
 
@@ -19958,25 +19958,45 @@ msgstr "Sterge ofset sistem coordinate"
 msgid "tooledit_widget error: cannot select tool number"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:246
+#: lib/python/gladevcp/tooledit_widget.py:239
+#, python-brace-format
+msgid "Error in tool table line {0} in column "
+msgstr ""
+
+#: lib/python/gladevcp/tooledit_widget.py:239
+#: lib/python/gladevcp/tooledit_gtk.glade:261
+#: lib/python/gladevcp/tooledit_gtk.glade:562
+#: lib/python/gladevcp/tooledit_gtk.glade:784
+#, fuzzy
+msgid "Orientation"
+msgstr "Accelerare"
+
+#: lib/python/gladevcp/tooledit_widget.py:240
+msgid ""
+".\n"
+"Valid range is 0 - 9."
+msgstr ""
+
+#: lib/python/gladevcp/tooledit_widget.py:257
 #, fuzzy
 msgid "Toolfile does not exist"
 msgstr "Fisier scula este %s"
 
-#: lib/python/gladevcp/tooledit_widget.py:280
+#: lib/python/gladevcp/tooledit_widget.py:296
 msgid "Tooledit widget int error"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:285
-msgid "Tooledit_widget float error"
+#: lib/python/gladevcp/tooledit_widget.py:306
+#: lib/python/gladevcp/tooledit_widget.py:311
+msgid "Tooledit widget float error"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:322
+#: lib/python/gladevcp/tooledit_widget.py:358
 #, fuzzy
 msgid "Reloading tooltable into linuxcnc failed"
 msgstr "Incarca tabela scule"
 
-#: lib/python/gladevcp/tooledit_widget.py:482
+#: lib/python/gladevcp/tooledit_widget.py:527
 #, fuzzy
 msgid "Tool file was modified since it was last read"
 msgstr "Fisierul %r a fost modificat decand a fost generat de stepconf"
@@ -20040,88 +20060,81 @@ msgid ""
 "Rotational"
 msgstr "Pozitie 0:"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:80
-#: lib/python/gladevcp/tooledit_gtk.glade:391
-#: lib/python/gladevcp/tooledit_gtk.glade:613
+#: lib/python/gladevcp/tooledit_gtk.glade:82
+#: lib/python/gladevcp/tooledit_gtk.glade:393
+#: lib/python/gladevcp/tooledit_gtk.glade:615
 #, fuzzy
 msgid "Select"
 msgstr "Selectare totala"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:93
-#: lib/python/gladevcp/tooledit_gtk.glade:402
-#: lib/python/gladevcp/tooledit_gtk.glade:624
+#: lib/python/gladevcp/tooledit_gtk.glade:95
+#: lib/python/gladevcp/tooledit_gtk.glade:404
+#: lib/python/gladevcp/tooledit_gtk.glade:626
 #, fuzzy
 msgid "Tool#"
 msgstr "Scula #:"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:109
-#: lib/python/gladevcp/tooledit_gtk.glade:413
-#: lib/python/gladevcp/tooledit_gtk.glade:635
+#: lib/python/gladevcp/tooledit_gtk.glade:111
+#: lib/python/gladevcp/tooledit_gtk.glade:415
+#: lib/python/gladevcp/tooledit_gtk.glade:637
 msgid "Pocket"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_gtk.glade:222
-#: lib/python/gladevcp/tooledit_gtk.glade:523
-#: lib/python/gladevcp/tooledit_gtk.glade:745
+#: lib/python/gladevcp/tooledit_gtk.glade:224
+#: lib/python/gladevcp/tooledit_gtk.glade:525
+#: lib/python/gladevcp/tooledit_gtk.glade:747
 #, fuzzy
 msgid "Diameter"
 msgstr "Diametru:"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:237
-#: lib/python/gladevcp/tooledit_gtk.glade:538
-#: lib/python/gladevcp/tooledit_gtk.glade:760
+#: lib/python/gladevcp/tooledit_gtk.glade:239
+#: lib/python/gladevcp/tooledit_gtk.glade:540
+#: lib/python/gladevcp/tooledit_gtk.glade:762
 #, fuzzy
 msgid "Front"
 msgstr "Vedere din _fata"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:259
-#: lib/python/gladevcp/tooledit_gtk.glade:560
-#: lib/python/gladevcp/tooledit_gtk.glade:782
-#, fuzzy
-msgid "Orientation"
-msgstr "Accelerare"
-
-#: lib/python/gladevcp/tooledit_gtk.glade:270
-#: lib/python/gladevcp/tooledit_gtk.glade:571
-#: lib/python/gladevcp/tooledit_gtk.glade:793
+#: lib/python/gladevcp/tooledit_gtk.glade:272
+#: lib/python/gladevcp/tooledit_gtk.glade:573
+#: lib/python/gladevcp/tooledit_gtk.glade:795
 #, fuzzy
 msgid "Comments"
 msgstr "Comanda:"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:325
+#: lib/python/gladevcp/tooledit_gtk.glade:327
 #, fuzzy
 msgid "Reload"
 msgstr "_Reincarca"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:369
+#: lib/python/gladevcp/tooledit_gtk.glade:371
 #, fuzzy
 msgid "All Offsets"
 msgstr "Ofset axa"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:424
+#: lib/python/gladevcp/tooledit_gtk.glade:426
 msgid "X Wear"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_gtk.glade:446
+#: lib/python/gladevcp/tooledit_gtk.glade:448
 msgid "Z Wear"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_gtk.glade:590
+#: lib/python/gladevcp/tooledit_gtk.glade:592
 #, fuzzy
 msgid "Lathe Wear Offsets"
 msgstr "Ofseturi de lucru:"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:646
+#: lib/python/gladevcp/tooledit_gtk.glade:648
 #, fuzzy
 msgid "X Tool"
 msgstr "Scula:"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:668
+#: lib/python/gladevcp/tooledit_gtk.glade:670
 #, fuzzy
 msgid "Z Tool"
 msgstr "Scula:"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:812
+#: lib/python/gladevcp/tooledit_gtk.glade:814
 #, fuzzy
 msgid "Lathe Tool Offsets"
 msgstr "Seteaza offset scula"
