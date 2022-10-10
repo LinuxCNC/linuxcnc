@@ -55,7 +55,7 @@ screens with minimum resolution of 1024x748
 
 Beginning with LinuxCNC 2.8 gmoccapy 3 is included in the standard installation.
 So the easiest way to get gmoccapy on you controlling PC, is just to get the
-http://www.linuxcnc.org/index.php/english/download[ISO] and install
+http://www.linuxcnc.org/downloads/[ISO] and install
 from the CD / DVD /USB-Stick.
 
 You will receive updates with the regular deb packages.
