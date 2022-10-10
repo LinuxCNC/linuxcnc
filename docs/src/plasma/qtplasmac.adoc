@@ -3061,6 +3061,7 @@ n Name = PIERCE\&&CUT
 Buttons can run the following:
 
 . <<qt_button-cmds,External commands>>
+. <<qt_button-py,External python scripts>>
 . <<qt_button-code,G-code commands>>
 . <<qt_button-toggle,Toggle a HAL pin>>
 . <<qt_button-laser,Toggle the alignment laser HAL pin>>
@@ -3085,6 +3086,17 @@ To run an external command, the command is preceded by a % character.
 [source,{ini}]
 ----
 n Code = %halshow
+----
+
+[[qt_button-py]]
+[underline]*External Python Scripts*
+
+To run an external python script, the script name is preceded by a % character and it also requires a .py extension.
+It is valid to use the ~ character as a shortcut for the users home directory.
+
+[source,{ini}]
+----
+n Code = %my_python_script.py
 ----
 
 [[qt_button-code]]

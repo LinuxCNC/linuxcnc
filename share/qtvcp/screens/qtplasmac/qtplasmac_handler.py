@@ -1,4 +1,4 @@
-VERSION = '1.233.246'
+VERSION = '1.233.247'
 
 '''
 qtplasmac_handler.py
@@ -3482,7 +3482,10 @@ class HandlerClass:
                             self.idleHomedList.append('button_{}'.format(str(bNum)))
                     elif command and command[0] == '%':
                         cmd = command.lstrip('%').lstrip(' ').split(' ', 1)[0]
-                        reply = Popen('which {}'.format(cmd), stdout=PIPE, stderr=PIPE, shell=True).communicate()[0]
+                        if cmd[-3:] == '.py':
+                            reply = os.path.exists(os.path.expanduser(cmd))
+                        else:
+                            reply = Popen('which {}'.format(cmd), stdout=PIPE, stderr=PIPE, shell=True).communicate()[0]
                         if not reply:
                             head = _translate('HandlerClass', 'External Code Error')
                             msg1 = _translate('HandlerClass', 'External command')
@@ -3640,8 +3643,13 @@ class HandlerClass:
                 command = newCommand
             ACTION.CALL_MDI(command)
         elif command and command[0] == '%':
-            command = command.lstrip('%').lstrip() + '&'
-            Popen(command, stdout=PIPE, stderr=PIPE, shell=True)
+            command = command.lstrip('%').lstrip()
+            if command[-3:] == '.py':
+                cmd = 'python3 ' + command
+                Popen(cmd, stdin = None, stdout=PIPE, stderr=PIPE, shell=True)
+            else:
+                command += '&'
+                Popen(command, stdout=PIPE, stderr=PIPE, shell=True)
         else:
             head = _translate('HandlerClass', 'Code Error')
             msg0 = _translate('HandlerClass', 'Invalid code for user button')
