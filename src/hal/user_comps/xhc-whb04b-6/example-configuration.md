@@ -1,5 +1,5 @@
 #//////////////////////////////////////////////////////////////////////////
-### Example edit your ini and add :
+### Example edit your INI and add :
 #
 #[HAL]
 #HALFILE = <your-machine-hal>.hal

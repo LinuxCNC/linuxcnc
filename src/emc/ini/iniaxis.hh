@@ -16,7 +16,7 @@
 
 #include "emc.hh"		// EMC_AXIS_STAT
 
-/* initializes axis modules from ini file */
+/* initializes axis modules from INI file */
 extern int iniAxis(int axis, const char *filename);
 
 extern double ext_offset_a_or_v_ratio[];

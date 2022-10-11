@@ -192,7 +192,7 @@ public:
 
 /*! \todo Another #if 0 */
 #if 0
-  NML_MODULE_INI_INFO *ini;	// pointer to an area of data from which ini file info is gathered.
+  NML_MODULE_INI_INFO *ini;	// pointer to an area of data from which INI file info is gathered.
 #endif
 
   RCS_CMD_CHANNEL *commandIn;	// NML channel for command from supervisor

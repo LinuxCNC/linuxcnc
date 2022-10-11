@@ -3,7 +3,7 @@
 #  2) signals   with no inputs (not an error)
 #  3) signals   with no output (not an error)
 #
-# Usage in ini file (must be the last HALFILE):
+# Usage in INI file (must be the last HALFILE):
 # [HAL]
 # ...
 # HALFILE = LIB:halcheck.tcl

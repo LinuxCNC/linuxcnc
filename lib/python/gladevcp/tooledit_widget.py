@@ -154,7 +154,7 @@ class ToolEdit(Gtk.VBox):
         # If the toolfile was specified when tooledit was created load it
         if toolfile:
             self.reload(None)
-        # check the ini file if display-type: LATHE is set
+        # check the INI file if display-type: LATHE is set
         try:
             self.inifile = linuxcnc.ini(INIPATH)
             test = self.inifile.find("DISPLAY", "LATHE")

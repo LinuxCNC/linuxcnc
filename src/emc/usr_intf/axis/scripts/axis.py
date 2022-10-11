@@ -3356,7 +3356,7 @@ for j in range(jointcount):
 
 axis_type = [None] * linuxcnc.MAX_AXIS
 for a in range(linuxcnc.MAX_AXIS):
-    # supply defaults, supersede with ini [AXIS_*]TYPE
+    # supply defaults, supersede with INI [AXIS_*]TYPE
     letter = "xyzabcuvw"[a]
     if not (letter in trajcoordinates): continue
     if letter in "abc":
@@ -3492,7 +3492,7 @@ if db_program is not None: default_tooleditor = None
 tooleditor = inifile.find("DISPLAY","TOOL_EDITOR") or default_tooleditor
 
 if inifile.find("RS274NGC", "PARAMETER_FILE") is None:
-    raise SystemExit("Missing ini file setting for [RS274NGC]PARAMETER_FILE")
+    raise SystemExit("Missing INI file setting for [RS274NGC]PARAMETER_FILE")
 try:
     lu = units(inifile.find("TRAJ", "LINEAR_UNITS"))
 except TypeError:

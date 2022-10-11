@@ -35,7 +35,7 @@ extern value_inihal_data old_inihal_data;
 /*
   loadSpindls(int spindle)
 
-  Loads ini file params for the specified spindle
+  Loads INI file params for the specified spindle
   spindle max and min velocities
   */
 
@@ -107,7 +107,7 @@ static int loadSpindle(int spindle, EmcIniFile *spindleIniFile)
 /*
   iniAxis(int axis, const char *filename)
 
-  Loads ini file parameters for specified axis, [0 .. AXES - 1]
+  Loads INI file parameters for specified axis, [0 .. AXES - 1]
 
  */
 int iniSpindle(int spindle, const char *filename)

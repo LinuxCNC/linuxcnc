@@ -87,7 +87,7 @@ filename = re.sub(r'\.expanded', '', filename)
 try:
     ini = linuxcnc.ini(filename)
 except:
-    t =  "%s is not a valid ini file" % filename
+    t =  "%s is not a valid INI file" % filename
     if dialogs:
         messagebox.showerror('invalid options', t)
     elif not force:

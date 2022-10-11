@@ -193,7 +193,7 @@ static int iniLoad(const char *filename)
     const char *inistring;
     bool tooltable_specified = 0;
 
-    /* Open the ini file */
+    /* Open the INI file */
     if (inifile.Open(filename) == false) {
         return -1;
     }
@@ -673,7 +673,7 @@ static void do_hal_exit(void) {
 *                sent to the console indicating which IO command was
 *                executed if debug level is set to RTAPI_MSG_DBG.
 *
-* Return Value: Zero or -1 if ini file not found or failure to connect
+* Return Value: Zero or -1 if INI file not found or failure to connect
 *                to NML buffers.
 *
 * Side Effects: None.
@@ -705,7 +705,7 @@ int main(int argc, char *argv[])
                 return -1;
             } else {
                 if (strlen(argv[t+1]) >= LINELEN) {
-                    rtapi_print_msg(RTAPI_MSG_ERR, "ini file name too long (max %d)\n", LINELEN);
+                    rtapi_print_msg(RTAPI_MSG_ERR, "INI file name too long (max %d)\n", LINELEN);
                     rtapi_print_msg(RTAPI_MSG_ERR, "    %s\n", argv[t+1]);
                     return -1;
                 }
@@ -734,7 +734,7 @@ int main(int argc, char *argv[])
 #endif //}
 
     if (0 != iniLoad(emc_inifile)) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "can't open ini file %s\n",
+        rtapi_print_msg(RTAPI_MSG_ERR, "can't open INI file %s\n",
                         emc_inifile);
         return -1;
     }

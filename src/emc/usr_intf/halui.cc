@@ -241,8 +241,8 @@ static int have_home_all = 0;
 
 static int comp_id, done;				/* component ID, main while loop */
 
-static int num_axes = 0; //number of axes, taken from the ini [TRAJ] section
-static int num_joints = 3; //number of joints, taken from the ini [KINS] section
+static int num_axes = 0; //number of axes, taken from the INI [TRAJ] section
+static int num_joints = 3; //number of joints, taken from the INI [KINS] section
 static int num_spindles = 1; // number of spindles, [TRAJ]SPINDLES
 
 static double maxFeedOverride=1;

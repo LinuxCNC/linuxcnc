@@ -26,13 +26,13 @@
 *   5)  Write a function emcSetFoo() in taskintf.cc to issue the command.
 *   6)  Add a prototype for emcSetFoo() to emc.hh
 *   7)  Add code to iniaxis.cc (or one of the other inixxx.cc files) to
-*       get the value from the ini file and call emcSetFoo().  (Note
+*       get the value from the INI file and call emcSetFoo().  (Note
 *       that each parameter has about 16 lines of code, but the code
 *       is identical except for variable/parameter names.)
 *   8)  Add more code to iniaxis.cc to write the new value back out
-*       to the ini file.
+*       to the INI file.
 *   After all that, you have the abililty to get a number from the
-*   ini file to a structure in shared memory where the motion controller
+*   INI file to a structure in shared memory where the motion controller
 *   can actually use it.  However, if you want to manipulate that number
 *   using NML, you have to do more:
 *   9)  Add a #define EMC_SET_FOO_TYPE to emc.hh

@@ -44,7 +44,7 @@ else:
 from hal_glib import GStat
 
 def get_linuxcnc_ini_file():
-    """find linuxcnc ini file with pgrep"""
+    """find LinuxCNC INI file with pgrep"""
     import subprocess
     ps   = subprocess.Popen('ps -C linuxcncsvr --no-header -o args'.split(),
                              stdout=subprocess.PIPE
@@ -52,7 +52,7 @@ def get_linuxcnc_ini_file():
     p,e = ps.communicate()
 
     if ps.returncode:
-        print(_('\nhal_gremlin: cannot find inifile\n'))
+        print(_('\nhal_gremlin: cannot find INI file\n'))
         return None
 
     ans = p.split()[p.split().index('-ini')+1]

@@ -581,7 +581,7 @@ class Gscreen:
             if i in self.data.axis_list:
                 self.data.rotary_joints = True
                 break
-        # check the ini file if UNITS are set to mm"
+        # check the INI file if UNITS are set to mm"
         # first check the global settings
         units=self.inifile.find("TRAJ","LINEAR_UNITS")
         if units==None:
@@ -801,7 +801,7 @@ class Gscreen:
         else:
             self.initialize_widgets()
 
-        # see if there are user messages in the ini file 
+        # see if there are user messages in the INI file 
         self.message_setup()
 
         # ok everything that might make HAL pins should be done now - let HAL know that
@@ -1189,7 +1189,7 @@ class Gscreen:
                 self.show_try_errors()
 
     def init_dynamic_tabs(self):
-        """ add external programs to tabs as per ini file settings
+        """ add external programs to tabs as per INI file settings
         """
         # dynamic tabs setup
         self._dynamic_childs = {}

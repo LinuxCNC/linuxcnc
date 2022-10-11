@@ -7,13 +7,13 @@ source [file join $::env(HALLIB_DIR) hal_procs_lib.tcl]
 #   3) addf the moveoff component functions in required sequence
 #   4) reconnect the pos-cmd and pos-fb pins to use the component
 #
-# Support for demo type ini files where the pos-cmd  and pos-fb pins are
+# Support for demo type INI files where the pos-cmd  and pos-fb pins are
 # 'shortcircuit' connected together is included.
 #
-# The moveoff component may be initialized with settings from the ini file
+# The moveoff component may be initialized with settings from the INI file
 #
 # Usage:
-#   1) Specify this file in the ini file as [HAL]HALFILE
+#   1) Specify this file in the INI file as [HAL]HALFILE
 #      Its position must follow halfiles that connect the pos-cmd and
 #      pos-fb pins.
 #      [HAL]
@@ -21,24 +21,24 @@ source [file join $::env(HALLIB_DIR) hal_procs_lib.tcl]
 #      HALFILE = hookup_moveoff.tcl
 #      ...
 #
-#   2) Include ini file entries for moveoff component settings:
+#   2) Include INI file entries for moveoff component settings:
 #      [MOVEOFF]
 #      EPSILON =
 #      WAYPOINT_SAMPLE_SECS =
 #      WAYPOINT_THRESHOLD =
 #      BACKTRACK_ENABLE =
 #
-#      If these settings are not found in the ini file, the moveoff
+#      If these settings are not found in the INI file, the moveoff
 #      component defaults will be used.
 #
-#   3) Include ini file entries for the per-joint settings
+#   3) Include INI file entries for the per-joint settings
 #      [MOVEOFF_n]
 #      MAX_VELOCITY =
 #      MAX_ACCELERATION =
 #      MAX_LIMIT =
 #      MIN_LIMIT =
 #
-#      If settings are not found in the ini file, the items 
+#      If settings are not found in the INI file, the items 
 #      [JOINT_n]
 #      MAX_VELOCITY =
 #      MAX_ACCELERATION =
@@ -48,7 +48,7 @@ source [file join $::env(HALLIB_DIR) hal_procs_lib.tcl]
 #      defaults are used.
 #
 #   To use the (optional) demonstration gui named moveoff_gui,
-#   include an ini entry:
+#   include an INI entry:
 #
 #   [APPLICATIONS]
 #   APP = moveoff_gui option1 option2 ...

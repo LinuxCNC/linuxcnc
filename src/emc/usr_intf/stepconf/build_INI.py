@@ -47,7 +47,7 @@ class INI:
         defvel = min(maxvel, max(.1, maxvel/10.))
 
         filename = os.path.join(base, self.d.machinename + ".ini")
-        # make a backup copy if ini file exists
+        # make a backup copy if INI file exists
         if os.path.exists(filename):
             shutil.copy2(filename, filename.replace(".ini", "_" + str(int(time.time())) + ".ini"))
         file = open(filename, "w")

@@ -190,7 +190,7 @@ int Interp::read_named_parameter(
 // if the variable is of the form '_ini[section]name', then treat it as
 // an inifile  variable. Lookup section/name and cache the value
 // as global and read-only.
-// the shortest possible ini variable is '_ini[s]n' or 8 chars long .
+// the shortest possible INI variable is '_ini[s]n' or 8 chars long .
 int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
 {
     char *s;
@@ -206,13 +206,13 @@ int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
 	int closeBracket = s - nameBuf;
 
 	if ((iniFileName = getenv("INI_FILE_NAME")) == NULL) {
-	    logNP("warning: referencing ini parameter '%s': no ini file",nameBuf);
+	    logNP("warning: referencing INI parameter '%s': no INI file",nameBuf);
 	    *status = 0;
 	    return INTERP_OK;
 	}
 	if (!inifile.Open(iniFileName)) {
 	    *status = 0;
-	    ERS(_("can\'t open ini file '%s'"), iniFileName);
+	    ERS(_("can\'t open INI file '%s'"), iniFileName);
 	}
 
 	char capName[LINELEN];
@@ -229,7 +229,7 @@ int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
 	} else {
 	    inifile.Close();
 	    *status = 0;
-	    ERS(_("Named ini parameter #<%s> not found in inifile '%s': error=0x%x"),
+	    ERS(_("Named INI parameter #<%s> not found in INI file '%s': error=0x%x"),
 		nameBuf, iniFileName, retval);
 	}
     }
@@ -239,7 +239,7 @@ int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
 // if the variable is of the form '_hal[hal_name]', then treat it as
 // a HAL pin, signal or param. Lookup value, convert to float, and export as global and read-only.
 // do not cache.
-// the shortest possible ini variable is '_hal[x]' or 7 chars long .
+// the shortest possible INI variable is '_hal[x]' or 7 chars long .
 int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
 {
     static int comp_id;

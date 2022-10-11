@@ -21,7 +21,7 @@
 extern "C" {
 #endif
 
-/* default name of EMC ini file */
+/* default name of EMC INI file */
 #define DEFAULT_EMC_INIFILE "emc.ini"
 
 /* default name of EMC NML file */

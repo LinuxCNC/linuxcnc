@@ -304,7 +304,7 @@ class gmoccapy(object):
             page1 = self.widgets.ntb_jog_JA.get_nth_page(1)
             self.widgets.ntb_jog_JA.reorder_child(page1, -1)
 
-        # Our own class to get information from ini the file we use this way, to be sure
+        # Our own class to get information from INI the file we use this way, to be sure
         # to get a valid result, as the checks are done in that module
         self._get_ini_data()
 
@@ -548,7 +548,7 @@ class gmoccapy(object):
         self.dro_actual = self.get_ini_info.get_position_feedback_actual()
         # the given Jog Increments
         self.jog_increments = self.get_ini_info.get_increments()
-        # check if NO_FORCE_HOMING is used in ini
+        # check if NO_FORCE_HOMING is used in INI
         self.no_force_homing = self.get_ini_info.get_no_force_homing()
         # do we use a identity kinematics or do we have to distinguish
         # JOINT and Axis modes?
@@ -1752,7 +1752,7 @@ class gmoccapy(object):
         self.widgets.tbl_jog_btn_joints.show_all()
 
     def _init_preferences(self):
-        # check if NO_FORCE_HOMING is used in ini
+        # check if NO_FORCE_HOMING is used in INI
         # disable reload tool on start up, if True
         if self.no_force_homing:
             self.widgets.chk_reload_tool.set_sensitive(False)

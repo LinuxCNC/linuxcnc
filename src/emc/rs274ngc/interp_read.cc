@@ -1559,7 +1559,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
       // m98 or m99 found
       if (oNumber == 98) {
 	  CHKS(_setup.disable_fanuc_style_sub,
-	       "DISABLE_FANUC_STYLE_SUB set in .ini file, but found m98");
+	       "DISABLE_FANUC_STYLE_SUB set in INI file, but found m98");
 
 	  // Fanuc-style subroutine call with loop: "m98"
 	  block->o_type = M_98;
@@ -1585,7 +1585,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	  // Error checks:
 	  // - Fanuc-style subs disabled
 	  CHKS(_setup.disable_fanuc_style_sub,
-	       "DISABLE_FANUC_STYLE_SUB set in .ini file, but found m99");
+	       "DISABLE_FANUC_STYLE_SUB set in INI file, but found m99");
 	  // - Empty stack M99 (endless program) handled in read_m()
 	  CHKS(_setup.defining_sub,
 	       "Found 'M99' instead of 'O endsub' after 'O sub'");
@@ -1659,7 +1659,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	      || (line+*counter)[0] == 0) {
 	  // Fanuc-style subroutine definition:  "O2000" with no following args
 	  CHKS(_setup.disable_fanuc_style_sub,
-	       "DISABLE_FANUC_STYLE_SUB disabled in .ini file, but found "
+	       "DISABLE_FANUC_STYLE_SUB disabled in INI file, but found "
 	       "bare O-word");
 
 	  block->o_type = O_;

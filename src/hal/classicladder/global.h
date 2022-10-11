@@ -59,7 +59,7 @@ extern StrGeneralParams GeneralParamsMirror;
 
 #ifdef MODBUS_IO_MASTER
 extern StrModbusMasterReq ModbusMasterReq[ NBR_MODBUS_MASTER_REQ ];
-// if '\0' => IP mode used for I/O modbus modules
+// if '\0' => IP mode used for I/O Modbus modules
 extern char ModbusSerialPortNameUsed[ 30 ];
 extern int ModbusSerialSpeed;
 extern int ModbusSerialDataBits;

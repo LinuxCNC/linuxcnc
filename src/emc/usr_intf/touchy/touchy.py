@@ -181,7 +181,7 @@ class touchy:
                 if not self.theme_name == "Follow System Theme":
                     settings.set_string_property("gtk-theme-name", self.theme_name, "")
 
-                # interactive mdi command builder and issuer
+                # interactive MDI command builder and issuer
                 mdi_labels = []
                 mdi_eventboxes = []
                 for i in range(self.num_mdi_labels):
@@ -254,7 +254,7 @@ class touchy:
                                                        opstop, blockdel)
 
                 self.current_file = self.status.emcstat.file
-                # check the ini file if UNITS are set to mm"
+                # check the INI file if UNITS are set to mm"
                 # first check the global settings
                 units=self.ini.find("TRAJ","LINEAR_UNITS")
 
@@ -869,7 +869,7 @@ class touchy:
 
 if __name__ == "__main__":
         if len(sys.argv) > 2 and sys.argv[1] == '-ini':
-            print("ini", sys.argv[2])
+            print("INI", sys.argv[2])
             hwg = touchy(sys.argv[2])
         else:
             hwg = touchy()
