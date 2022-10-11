@@ -232,7 +232,7 @@ self.w.halpadname.set_highlight(self.w.halpadname.LEFTRIGHT)
 ** `NONE`
 ** `BIT`
 ** `S32`
-** `FlOAT`
+** `FLOAT`
 
 //FIXME Does this really need to be repeated ?
 

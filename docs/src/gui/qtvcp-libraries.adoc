@@ -986,14 +986,12 @@ SOUND = Player()
 SOUND._register_messages()
 ----
 +
-*`_register_messages()`* function connects the audio player to the
-`STATUS` library so sounds can be played with the `STATUS` message
-system.
+The *`_register_messages()`* function connects the audio player to the
+`STATUS` library so sounds can be played with the `STATUS` message system.
 
 === Example
 
-
-To play sounds uppon `STATUS` messages, use these general syntaxes:
+To play sounds upon `STATUS` messages, use these general syntaxes:
 
 [source,python]
 ----

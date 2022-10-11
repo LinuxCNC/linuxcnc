@@ -410,7 +410,7 @@ model = Collection([base, saddle, head, carousel])
   `_rotation_vectors_` or `_lat, lon_`;; Can be used to set
     the original viewpoint. +
     It is advisable to do as the default initial viewpoint is rather
-    unhelpfully from immediately overhead.
+    unhelpful from immediately overhead.
 
 [[sec:qtvcp:vismach:structure]]
 == Basic structure of a `QtVismach` script
