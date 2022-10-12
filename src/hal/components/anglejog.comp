@@ -23,6 +23,13 @@ to support integer (s32) calculations for counting.  The current-scale-out
 is divided by the same amount.  The pin is sampled only when the
 enable-in pin is false.  The default value should work in most
 applications.\n
+5. For identity kins machines that support both world jogging (axis letter)
+and joint jogging (joint number), connections are needed for both the
+axis pins: axis.[MN].jog-enable,jog-scale,jog-counts and the corresponding
+joint pins: joint.[mn].jog-enable,jog-scale,jog-counts where [mn] are
+the joint numbers corresponding to the [MN] axis letters.
+6. The current-scale pin is for information, the required output scaling
+pin is current-scale-out as it depends on the iscale-factor setting.
 
 \\fBSimulation Config\\fR: configs/sim/axis/anglejog/anglejog.in
 """;
@@ -36,9 +43,9 @@ pin in  float max_vel "vector max velocity magnitude";
 pin in  float max_accel "vector max acceleration magnitude";
 pin in  float accel_fraction_in = 1 "acceleration fraction input";
 
-pin out bit   enable_out "to: axis.N.jog-enable AND axis.M.jog-enable";
+pin out bit   enable_out "to: axis.M.jog-enable AND axis.N.jog-enable";
 pin out float current_scale "effective scale (informational)";
-pin out float current_scale_out "to: axis.N.scale AND axis.M.jog-scale";
+pin out float current_scale_out "to: axis.M.jog-scale AND axis.N.jog-scale";
 pin out s32   coscounts  "to: axis.M.jog-counts (cosine counts)";
 pin out s32   sincounts  "to: axis.N.jog-counts (sine   counts)";
 pin out float cos_accel_fraction "to: axis.M.jog-accel-fraction";
