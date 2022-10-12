@@ -380,7 +380,7 @@ Axis gui, then the following INI entries for that joint are needed.
 HOME_SEARCH_VEL = 0
 HOME_LATCH_VEL = 0
 HOME_USE_INDEX = NO
-HOME equals to HOME_OFFSET
+HOME_OFFSET = 0 (Or the home position offset)
 HOME_SEQUENCE = 0 (or other valid sequence number)
 ```
 
