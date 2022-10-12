@@ -7,8 +7,8 @@
 == Introduction
 
 This document is focused on the use of LinuxCNC, it is intended for readers who
-have already installed and configured it. Some information on installation is
-given in the following chapters.
+have already installed and configured it.
+Some information on installation is given in the following chapters.
 The complete documentation on installation and configuration can be
 found in the integrator's manual.
 
@@ -30,7 +30,7 @@ complete system:
   machine, namely the motion controller (EMCMOT), the discrete input/output controller (EMCIO) and the
   task executor (EMCTASK).
 
-The below illustration is a simple block diagram showing what a typical 3-axis, CNC mill with stepper
+The below illustration is a simple block diagram showing what a typical 3-axis CNC mill with stepper
 motors might look like:
 
 .Simple LinuxCNC Controlled Machine
@@ -50,9 +50,8 @@ Wiki.
 In most circumstances, users will create a configuration specific to their mill setup using either the
 <<cha:stepconf-wizard,Stepper Configuration Wizard>> (for CNC systems operating using the computers'
 parallel port) or the <<cha:pncconf-wizard,Mesa Hardware Wizard>> (for more advanced systems utilising a
-Mesa Anything I/O PCI card). Running either wizard will create several folders on the computers' hard drive
-containing a number of configuration files specific to that CNC machine, and an icon placed on the desktop
-to allow easy launching of LinuxCNC.
+Mesa Anything I/O PCI card).
+Running either wizard will create several folders on the computers' hard drive containing a number of configuration files specific to that CNC machine, and an icon placed on the desktop to allow easy launching of LinuxCNC.
 
 For example, if the Stepper Configuration Wizard was used to create a setup for the 3-axis CNC mill
 illustrated above entitled 'My_CNC', the folders created by the wizard would typically contain the
@@ -151,9 +150,10 @@ linuxcncrsh:: A telnet based user interface allowing to send commands
 
 == Virtual Control Panels
 
-As mentioned above, many of LinuxCNC's GUIs may be customized by the user. This may be done to add
-indicators, readouts, switches or sliders to the basic appearance of one of the GUIs for increased
-flexibility or functionality. Two styles of Virtual Control Panel are offered in LinuxCNC:
+As mentioned above, many of LinuxCNC's GUIs may be customized by the user.
+This may be done to add indicators, readouts, switches or sliders to the basic appearance of one of the GUIs for increased
+flexibility or functionality.
+Two styles of Virtual Control Panel are offered in LinuxCNC:
 
 PyVCP:: <<cha:pyvcp,'PyVCP'>>, a Python-based virtual control panel that can be added to the Axis GUI. PyVCP only
   utilises virtual signals contained within the Hardware Abstraction Layer, such as the spindle-at-speed
@@ -161,7 +161,7 @@ PyVCP:: <<cha:pyvcp,'PyVCP'>>, a Python-based virtual control panel that can be 
   excellent choice if the user wants to add a Virtual Control Panel with minimal fuss.
 
 .PyVCP Example Embedded Into AXIS GUI
-image::../gui/images/axis-pyvcp.png["PyVCP embedded into Axis",align="center"]
+image::../gui/images/axis-pyvcp.png["PyVCP embedded into AXIS",align="center"]
 
 GladeVCP:: <<cha:glade-vcp,'GladeVCP'>>, a Glade-based virtual control panel that can be added to the Axis or Touchy
   GUIs. GladeVCP has the advantage over PyVCP in that it is not limited to the display or control of HAL
@@ -169,58 +169,59 @@ GladeVCP:: <<cha:glade-vcp,'GladeVCP'>>, a Glade-based virtual control panel tha
   events. GladeVCP is also more flexible in how it may be configured to appear on the GUI:
 
 .GladeVCP Example Embedded Into AXIS GUI
-image::../gui/images/axis-gladevcp.png["GladeVCP embedded into Axis",align="center"]
+image::../gui/images/axis-gladevcp.png["GladeVCP embedded into AXIS",align="center"]
 
 == Languages
 
 LinuxCNC uses translation files to translate LinuxCNC User Interfaces into many languages including French,
 German, Italian, Finnish, Russian, Romanian, Portuguese and Chinese.  Assuming a translation has been
 created, LinuxCNC will automatically use whatever native language you log in with when starting the Linux
-operating system. If your language has not been translated, contact a developer on the IRC, the mailing
+operating system. If your language has not been translated, contact a developer on IRC, the mailing
 list or the User Forum for assistance.
 
 [[sec:thinking-operator]]
 == Think Like a CNC Operator
 
-This manual does not pretend to teach you how to use a lathe or a milling
-machine. Becoming an experienced operator takes a lot of time and requires
-a lot of work. An author once said, _We learn by experience, if one possesses it all_.
-Broken tools, vices attacked and the scars are evidence of the lessons
-learned. A beautiful finish, tight tolerances and caution during the work
-are evidence of lessons learned. No machine nor program can replace
-human experience.
+This manual does not pretend to teach you how to use a lathe or a milling machine.
+Becoming an experienced operator takes a lot of time and requires a lot of work.
+An author once said, _We learn by experience, if one possesses it all_.
+Broken tools, vices attacked and the scars are evidence of the lessons learned.
+A beautiful finish, tight tolerances and caution during the work are evidence of lessons learned.
+No machine nor program can replace human experience.
 
-Now that you start working with the LinuxCNC software, you have to put
-yourself in the shoes of an operator. You must be in the role of someone
-in charge of a machine. It's a machine that will wait for your commands
-and then execute the orders that you will give it. In these pages, we
-will give the explanations which will help you to become a good CNC
-operator with LinuxCNC.
+Now that you start working with the LinuxCNC software, you have to put yourself in the shoes of an operator.
+You must be in the role of someone in charge of a machine.
+It's a machine that will wait for your commands and then execute the orders that you will give it.
+In these pages, we will give the explanations which will help you to become a good CNC operator with LinuxCNC.
 
 [[sec:modes-of-operations]]
 == Modes of Operation
 
-When LinuxCNC is running, there are three different major modes used for inputting commands. These are
-Manual, Auto, and Manual Data Input (MDI). Changing from one mode to another makes a big difference in the
-way that the LinuxCNC control behaves. There are specific things that can be done in one mode that cannot
-be done in another. An operator can home an axis in manual mode but not in auto or MDI modes. An operator
-can cause the machine to execute a whole file full of G-codes in the auto mode but not in manual or MDI.
+When LinuxCNC is running, there are three different major modes used for inputting commands.
+These are Manual, Auto, and Manual Data Input (MDI).
+Changing from one mode to another makes a big difference in the way that the LinuxCNC control behaves.
+There are specific things that can be done in one mode that cannot be done in another.
+An operator can home an axis in manual mode but not in auto or MDI modes.
+An operator can cause the machine to execute a whole file full of G-codes in the auto mode but not in manual or MDI.
 
-In manual mode, each command is entered separately. In human terms a manual command might be "turn on
-coolant" or "jog X at 25 inches per minute". These are roughly equivalent to flipping a switch or turning the
-hand wheel for an axis. These commands are normally handled on one of the graphical interfaces by pressing
-a button with the mouse or holding down a key on the keyboard. In auto mode, a similar button or key press
-might be used to load or start the running of a whole program of G-code that is stored in a file. In the
-MDI mode the operator might type in a block of code and tell the machine to execute it by pressing the
-<return> or <enter> key on the keyboard.
+In manual mode, each command is entered separately.
+In human terms a manual command might be "turn on coolant" or "jog X at 25 inches per minute".
+These are roughly equivalent to flipping a switch or turning the hand wheel for an axis.
+These commands are normally handled on one of the graphical interfaces
+by pressing a button with the mouse or holding down a key on the keyboard.
+In auto mode, a similar button or key press might be used to load or start the running of a whole program of G-code
+that is stored in a file.
+In the MDI mode the operator might type in a block of code and tell the machine to execute it
+by pressing the <return> or <enter> key on the keyboard.
 
-Some motion control commands are available concurrently and will cause the same changes in motion in all
-modes. These include Abort, Emergency Stop, and Feed Rate Override. Commands like these should be self
-explanatory.
+Some motion control commands are available concurrently and will cause the same changes in motion in all modes.
+These include Abort, Emergency Stop, and Feed Rate Override.
+Commands like these should be self explanatory.
 
-The AXIS user interface hides some of the distinctions between Auto and the other modes by making
-Auto-commands available at most times. It also blurs the distinction between Manual and MDI because some
-Manual commands like Touch Off are actually implemented by sending MDI commands. It does this by
-automatically changing to the mode that is needed for the action the user has requested.
+The AXIS user interface hides some of the distinctions between Auto and the other modes
+by making auto-commands available at most times.
+It also blurs the distinction between Manual and MDI,
+because some Manual commands like Touch Off are actually implemented by sending MDI commands.
+It does this by automatically changing to the mode that is needed for the action the user has requested.
 
 // vim: set syntax=asciidoc:
