@@ -47,7 +47,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
             self.qpa[i] = QPointF(x, y)
 
     def paintEvent(self, event):
-        w = min(event.rect().width(), event.rect().height())
+        w = int(min(event.rect().width(), event.rect().height()))
         painter = QPainter(self)
         painter.setRenderHint(painter.Antialiasing)
         self.draw_background(painter, event, w)
