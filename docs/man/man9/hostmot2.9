@@ -114,6 +114,7 @@ The valid entries in the format string are:
  [num_resolvers=\fIN\fB]
  [num_pwmgens=\fIN\fB]
  [num_3pwmgens=\fIN\fB]
+ [num_oneshots=\fIN\fB]
  [num_rcpwmgens=\fIN\fB]
  [num_stepgens=\fIN\fB]
  [stepgen_width=\fIN\fB]
@@ -967,6 +968,94 @@ that affects all instances:
 Sets the master PWM frequency. Maximum is approx 48 kHz, minimum
 is 1 kHz. Defaults to 20 kHz.
 
+.SS oneshot
+The oneshot is a hardware one-shot device suitable for various timing, delay, 
+signal conditioning and watchdog functions. The oneshot module includes 2 timers
+to allow variable pulse delays for applications like phase control.
+Trigger sources can be software, external inputs, the DPLL timer, a built in 
+rate generator or the other timer.
+Oneshots have names like "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.oneshot.\fI<Instance>\fR"
+where <Instance> is a 2-digit number. There will be num_oneshots instances,
+starting at 00. Each instance allocates up to two input and two output pins.
+
+Pins:
+
+.TP
+(float rw) width1
+Sets the pulse width of timer1 in ms. Default is 1 ms (1/1000 s).
+
+.TP
+(float rw) width2 
+Sets the pulse width of timer2 in ms. Default is 1 ms (1/1000 s).
+
+.TP
+(float rw) filter1
+Sets digital filter time constant for timer1's external trigger input
+Filter time is in ms. Default filter time constant time is 0.1 ms.
+External trigger response will be delayed by the filter time setting
+
+.TP
+(float rw) filter2
+Sets digital filter time constant for timer1's external trigger input
+Filter time is in ms. Default filter time constant time is 0.1 ms.
+External trigger response will be delayed by the filter time setting
+
+.TP
+(float rw) rate
+Sets the frequency of the built in rate generator (in Hz)
+
+.TP
+(u32 rw) trigger_select1,trigger_select2 
+Sets the trigger source for timer1,timer2 respectively.
+Trigger sources are:
+.nf
+0 Trigger disabled
+1 Software trigger: triggered when hal pin swtrigger1 is true
+2 External hardware: trigger
+3 DPLL trigger: triggered by selected DPLL timer
+4 Rate trigger: triggered by build in rate generator.
+5 Timer1 trigger: triggered by timer1 output
+6 Timer2 trigger: triggered by timer2 output
+
+.TP
+(bit rw) trigger_on_rise1,trigger_on_rise2
+When true,trigger timer1,timer2 respectively on the
+rising edge of the trigger source.
+
+.TP
+(bit rw) trigger_on_fall1,trigger_on_fall2
+When true, trigger timer1,timer2 respectively on the
+falling edge of the trigger source.
+
+.TP
+(bit rw) retriggerable1,retriggerable2
+When true, the associated timer is retriggerable, meaning
+the timer will reset to full time on a trigger event
+even durin the output pulse period.
+When false the timer is not retriggerable, meaning
+it will ignore trigger events during the output 
+pulse period.
+ 
+.TP
+(bit rw) enable1,enable2
+trigger enable for timer1 and timer2 respectively
+True to enable.
+
+.TP
+(bit rw) reset1,reset2
+If true, resets timer1,timer2 respectively,
+aborting any pulse in progress.
+
+.TP
+(bit ro) out1,out2
+Pulse output status bit for timer 1,timer2
+
+.TP
+(bit ro) exttrigger1,exttrigger2
+External trigger input status bits for timer 1,timer2.
+These monitor the filtered inputs.
+
+
 .SS rcpwmgen
 The rcpwmgen is a simple PWM generator optimized for use with standard RC servos
 that use pulse width to determine position.
@@ -998,7 +1087,6 @@ mS for 1-2 mS servos for a 0 center position.
 Sets the per channel pulse width scaling, for example, setting the scale to 90
 and the offset to 1.5 mS would result in a position range of +-45 degrees
 scale in degrees for 1-2 mS servos with a full motion range of 90 degrees
-
 
 .SS stepgen
 

@@ -132,6 +132,7 @@
 #define HM2_GTAG_TWIDDLER          (194) // Not supported
 #define HM2_GTAG_SSR               (195)
 #define HM2_GTAG_SMARTSERIALB      (198) // smart-serial with 224 data bits
+#define HM2_GTAG_ONESHOT           (199) // One shot
 
 
 //
@@ -574,6 +575,79 @@ typedef struct {
     rtapi_u32 enable_addr;
     rtapi_u32 enable_reg;  // one register for the whole Function
 } hm2_pwmgen_t;
+
+//
+// oneshot
+// 
+
+
+typedef struct {
+
+    struct {
+
+        struct {
+            hal_float_t *width1;
+            hal_float_t *width2; 
+            hal_float_t *filter1;
+            hal_float_t *filter2;
+            hal_float_t *rate;
+            hal_u32_t *trigselect1;
+            hal_u32_t *trigselect2;
+            hal_bit_t *trigrise1;
+            hal_bit_t *trigrise2;
+            hal_bit_t *trigfall1;
+            hal_bit_t *trigfall2;
+            hal_bit_t *retrig1;
+            hal_bit_t *retrig2;
+            hal_bit_t *enable1;
+            hal_bit_t *enable2;
+            hal_bit_t *reset1;
+            hal_bit_t *reset2;
+            hal_bit_t *swtrig1;
+            hal_bit_t *swtrig2;
+            hal_bit_t *exttrig1;
+            hal_bit_t *exttrig2;
+            hal_bit_t *out1;
+            hal_bit_t *out2;
+            
+            hal_s32_t *dpll_timer_num;
+        } pin;
+
+    } hal;
+
+} hm2_oneshot_instance_t;
+
+
+
+typedef struct {
+    int num_instances;
+    hm2_oneshot_instance_t *instance;
+
+    rtapi_u32 clock_frequency;
+    rtapi_u8 version;
+
+    rtapi_u32 width1_addr;
+    rtapi_u32 *width1_reg;
+
+    rtapi_u32 width2_addr;
+    rtapi_u32 *width2_reg;
+
+    rtapi_u32 filter1_addr;
+    rtapi_u32 *filter1_reg;
+
+    rtapi_u32 filter2_addr;
+    rtapi_u32 *filter2_reg;
+
+    rtapi_u32 rate_addr;
+    rtapi_u32 *rate_reg;
+
+    rtapi_u32 control_addr;
+    rtapi_u32 *control_reg;
+
+    rtapi_u32 control_read_addr;
+    rtapi_u32 *control_read_reg;
+
+} hm2_oneshot_t;
 
 //
 // rcpwmgen pwmgen optimized for RC servos
@@ -1489,6 +1563,7 @@ typedef struct {
         int num_xy2mods;
         int num_ssrs;
         int num_outms;
+        int num_oneshots;
         char sserial_modes[4][8];
         int enable_raw;
         char *firmware;
@@ -1538,6 +1613,7 @@ typedef struct {
     hm2_led_t led;
     hm2_ssr_t ssr;
     hm2_outm_t outm;
+    hm2_oneshot_t oneshot;
 
     hm2_raw_t *raw;
 
@@ -1685,6 +1761,18 @@ void hm2_pwmgen_cleanup(hostmot2_t *hm2);
 void hm2_pwmgen_write(hostmot2_t *hm2);
 void hm2_pwmgen_force_write(hostmot2_t *hm2);
 void hm2_pwmgen_prepare_tram_write(hostmot2_t *hm2);
+
+//
+// oneshot functions
+//
+
+int hm2_oneshot_parse_md(hostmot2_t *hm2, int md_index);
+void hm2_oneshot_print_module(hostmot2_t *hm2);
+void hm2_oneshot_cleanup(hostmot2_t *hm2);
+void hm2_oneshot_write(hostmot2_t *hm2);
+void hm2_oneshot_force_write(hostmot2_t *hm2);
+void hm2_oneshot_prepare_tram_write(hostmot2_t *hm2);
+void hm2_oneshot_process_tram_read(hostmot2_t *hm2);
 
 //
 // rcpwmgen functions
@@ -1890,6 +1978,16 @@ void hm2_outm_cleanup(hostmot2_t *hm2);
 void hm2_outm_force_write(hostmot2_t *hm2);
 void hm2_outm_prepare_tram_write(hostmot2_t *hm2);
 void hm2_outm_print_module(hostmot2_t *hm2);
+
+//
+// ONESHOT functions
+//
+
+int hm2_oneshot_parse_md(hostmot2_t *hm2, int md_index);
+void hm2_oneshot_cleanup(hostmot2_t *hm2);
+void hm2_oneshot_force_write(hostmot2_t *hm2);
+void hm2_oneshot_prepare_tram_write(hostmot2_t *hm2);
+void hm2_oneshot_print_module(hostmot2_t *hm2);
 
 
 //
