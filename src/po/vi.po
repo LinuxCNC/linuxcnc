@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-05 07:53+0200\n"
+"POT-Creation-Date: 2022-10-09 15:50+0200\n"
 "PO-Revision-Date: 2022-07-04 12:42+0000\n"
 "Last-Translator: Trần Ngọc Quân <vnwildman@gmail.com>\n"
 "Language-Team: none\n"
@@ -3633,7 +3633,7 @@ msgid "Edit mode..."
 msgstr "Chế độ sửa đổi..."
 
 #: src/hal/classicladder/edit_gtk.c:186 src/hal/classicladder/edit_gtk.c:360
-#: tcl/tooledit.tcl:488 lib/python/gladevcp/tooledit_gtk.glade:295
+#: tcl/tooledit.tcl:488 lib/python/gladevcp/tooledit_gtk.glade:297
 msgid "Delete"
 msgstr "Xóa"
 
@@ -3642,7 +3642,7 @@ msgid "Do you really want to delete the current rung ?"
 msgstr ""
 
 #: src/hal/classicladder/edit_gtk.c:350
-#: lib/python/gladevcp/tooledit_gtk.glade:310
+#: lib/python/gladevcp/tooledit_gtk.glade:312
 msgid "Add"
 msgstr "Thêm"
 
@@ -3854,7 +3854,7 @@ msgid "Parameter"
 msgstr "Tham số"
 
 #: src/hal/classicladder/editproperties_gtk.c:213 tcl/bin/halshow.tcl:734
-#: lib/python/gladevcp/tooledit_gtk.glade:340
+#: lib/python/gladevcp/tooledit_gtk.glade:342
 msgid "Apply"
 msgstr "Áp dụng"
 
@@ -10560,9 +10560,9 @@ msgstr "nhãn"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:553
 #: src/emc/usr_intf/pncconf/main_page.glade:201
-#: lib/python/gladevcp/tooledit_gtk.glade:248
-#: lib/python/gladevcp/tooledit_gtk.glade:549
-#: lib/python/gladevcp/tooledit_gtk.glade:771
+#: lib/python/gladevcp/tooledit_gtk.glade:250
+#: lib/python/gladevcp/tooledit_gtk.glade:551
+#: lib/python/gladevcp/tooledit_gtk.glade:773
 msgid "Back"
 msgstr "Trước"
 
@@ -19028,23 +19028,42 @@ msgstr ""
 msgid "tooledit_widget error: cannot select tool number"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:246
+#: lib/python/gladevcp/tooledit_widget.py:239
+#, python-brace-format
+msgid "Error in tool table line {0} in column "
+msgstr ""
+
+#: lib/python/gladevcp/tooledit_widget.py:239
+#: lib/python/gladevcp/tooledit_gtk.glade:261
+#: lib/python/gladevcp/tooledit_gtk.glade:562
+#: lib/python/gladevcp/tooledit_gtk.glade:784
+msgid "Orientation"
+msgstr "Hướng"
+
+#: lib/python/gladevcp/tooledit_widget.py:240
+msgid ""
+".\n"
+"Valid range is 0 - 9."
+msgstr ""
+
+#: lib/python/gladevcp/tooledit_widget.py:257
 msgid "Toolfile does not exist"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:280
+#: lib/python/gladevcp/tooledit_widget.py:296
 msgid "Tooledit widget int error"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:285
-msgid "Tooledit_widget float error"
+#: lib/python/gladevcp/tooledit_widget.py:306
+#: lib/python/gladevcp/tooledit_widget.py:311
+msgid "Tooledit widget float error"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:322
+#: lib/python/gladevcp/tooledit_widget.py:358
 msgid "Reloading tooltable into linuxcnc failed"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:482
+#: lib/python/gladevcp/tooledit_widget.py:527
 msgid "Tool file was modified since it was last read"
 msgstr ""
 
@@ -19102,77 +19121,71 @@ msgstr ""
 "Không\n"
 "Quay vòng"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:80
-#: lib/python/gladevcp/tooledit_gtk.glade:391
-#: lib/python/gladevcp/tooledit_gtk.glade:613
+#: lib/python/gladevcp/tooledit_gtk.glade:82
+#: lib/python/gladevcp/tooledit_gtk.glade:393
+#: lib/python/gladevcp/tooledit_gtk.glade:615
 msgid "Select"
 msgstr "Chọn"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:93
-#: lib/python/gladevcp/tooledit_gtk.glade:402
-#: lib/python/gladevcp/tooledit_gtk.glade:624
+#: lib/python/gladevcp/tooledit_gtk.glade:95
+#: lib/python/gladevcp/tooledit_gtk.glade:404
+#: lib/python/gladevcp/tooledit_gtk.glade:626
 msgid "Tool#"
 msgstr "Công cụ#"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:109
-#: lib/python/gladevcp/tooledit_gtk.glade:413
-#: lib/python/gladevcp/tooledit_gtk.glade:635
+#: lib/python/gladevcp/tooledit_gtk.glade:111
+#: lib/python/gladevcp/tooledit_gtk.glade:415
+#: lib/python/gladevcp/tooledit_gtk.glade:637
 msgid "Pocket"
 msgstr "Hốc"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:222
-#: lib/python/gladevcp/tooledit_gtk.glade:523
-#: lib/python/gladevcp/tooledit_gtk.glade:745
+#: lib/python/gladevcp/tooledit_gtk.glade:224
+#: lib/python/gladevcp/tooledit_gtk.glade:525
+#: lib/python/gladevcp/tooledit_gtk.glade:747
 msgid "Diameter"
 msgstr "Đường kính"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:237
-#: lib/python/gladevcp/tooledit_gtk.glade:538
-#: lib/python/gladevcp/tooledit_gtk.glade:760
+#: lib/python/gladevcp/tooledit_gtk.glade:239
+#: lib/python/gladevcp/tooledit_gtk.glade:540
+#: lib/python/gladevcp/tooledit_gtk.glade:762
 msgid "Front"
 msgstr "Mặt trước"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:259
-#: lib/python/gladevcp/tooledit_gtk.glade:560
-#: lib/python/gladevcp/tooledit_gtk.glade:782
-msgid "Orientation"
-msgstr "Hướng"
-
-#: lib/python/gladevcp/tooledit_gtk.glade:270
-#: lib/python/gladevcp/tooledit_gtk.glade:571
-#: lib/python/gladevcp/tooledit_gtk.glade:793
+#: lib/python/gladevcp/tooledit_gtk.glade:272
+#: lib/python/gladevcp/tooledit_gtk.glade:573
+#: lib/python/gladevcp/tooledit_gtk.glade:795
 msgid "Comments"
 msgstr "Chú thích"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:325
+#: lib/python/gladevcp/tooledit_gtk.glade:327
 msgid "Reload"
 msgstr "Tải lại"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:369
+#: lib/python/gladevcp/tooledit_gtk.glade:371
 msgid "All Offsets"
 msgstr "Mọi bù"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:424
+#: lib/python/gladevcp/tooledit_gtk.glade:426
 msgid "X Wear"
 msgstr "Mòn X"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:446
+#: lib/python/gladevcp/tooledit_gtk.glade:448
 msgid "Z Wear"
 msgstr "Mòn Z"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:590
+#: lib/python/gladevcp/tooledit_gtk.glade:592
 msgid "Lathe Wear Offsets"
 msgstr "Bù mòn tiện"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:646
+#: lib/python/gladevcp/tooledit_gtk.glade:648
 msgid "X Tool"
 msgstr "Công cụ X"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:668
+#: lib/python/gladevcp/tooledit_gtk.glade:670
 msgid "Z Tool"
 msgstr "Công cụ Z"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:812
+#: lib/python/gladevcp/tooledit_gtk.glade:814
 msgid "Lathe Tool Offsets"
 msgstr "Bù dụng cụ tiện"
 

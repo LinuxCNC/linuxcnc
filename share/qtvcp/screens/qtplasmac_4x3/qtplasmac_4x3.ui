@@ -7742,7 +7742,7 @@ MOVE</string>
                         </widget>
                        </item>
                        <item row="5" column="1">
-                        <widget class="QFrame" name="kerfcross_frm">
+                        <widget class="QFrame" name="voidlock_frm">
                          <property name="maximumSize">
                           <size>
                            <width>16777215</width>
@@ -7830,7 +7830,7 @@ MOVE</string>
                            </spacer>
                           </item>
                           <item>
-                           <widget class="QLabel" name="kerfcross_enable_lbl">
+                           <widget class="QLabel" name="voidlock_enable_lbl">
                             <property name="minimumSize">
                              <size>
                               <width>0</width>

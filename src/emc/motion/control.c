@@ -1482,7 +1482,7 @@ static void get_pos_cmds(long period)
 	if ( ! emcmotStatus->on_soft_limit ) {
         /* Unexpectedly hit a joint soft limit.
         ** Possible causes:
-        **  1) a joint positional limit was reduced by an ini halpin
+        **  1) a joint positional limit was reduced by an INI halpin
         **     (like ini.N.max_limit) -- undetected by trajectory planning
         **     including simple_tp
         **  2) issues like https://github.com/LinuxCNC/linuxcnc/issues/80

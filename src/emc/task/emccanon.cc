@@ -2584,7 +2584,7 @@ void INIT_CANON()
 
     /* 
        to set the units, note that GET_EXTERNAL_LENGTH_UNITS() returns
-       traj->linearUnits, which is already set from the .ini file in
+       traj->linearUnits, which is already set from the INI file in
        iniTraj(). This is a floating point number, in user units per mm. We
        can compare this against known values and set the symbolic values
        accordingly. If it doesn't match, we have an error. */

@@ -31,7 +31,7 @@ def move_port(prefs):
     prefs.write(open(prefs.fn, "w"))
     update_notify('V1.232.240')
 
-# move qtplasmac options from ini file to prefs file pre V1.227.219 2022/07/14)
+# move qtplasmac options from INI file to prefs file pre V1.227.219 2022/07/14)
 def move_options_to_prefs_file(inifile, prefs):
     text = prefs.getpref('shutdown_msg_detail', '', str, 'SHUTDOWN_OPTIONS')
     prefs.putpref('Exit warning text', text, str, 'GUI_OPTIONS')

@@ -5,6 +5,6 @@ executing
     4 N..... SET_XY_ROTATION(0.0000)
     5 N..... SET_FEED_REFERENCE(CANON_XYZ)
     6 N..... ON_RESET()
- MixedCase param42=20.000000 named=4711.000000 ini=3.140000
-     (abort, MixedCase param42=#42 named=#<named> ini=#<_ini[a]value>)
+ MixedCase param42=20.000000 named=4711.000000 INI=3.140000
+     (abort, MixedCase param42=#42 named=#<named> INI=#<_ini[a]value>)
     7 N..... ON_RESET()

@@ -150,7 +150,7 @@ class Cfg2Prefs(QMainWindow, object):
         options |= QFileDialog.DontUseNativeDialog
         name, _ = QFileDialog.getOpenFileName(
                     parent=self,
-                    caption=self.tr("Select a ini file"),
+                    caption=self.tr("Select an INI file"),
                     filter=self.tr('INI files (*.ini);;INI files (*.[iI][nN][iI])'),
                     directory=self.DIR,
                     options=options
@@ -170,7 +170,7 @@ class Cfg2Prefs(QMainWindow, object):
         options |= QFileDialog.DontUseNativeDialog
         name, _ = QFileDialog.getOpenFileName(
                     parent=self,
-                    caption=self.tr("Select a ini file"),
+                    caption=self.tr("Select an INI file"),
                     filter=self.tr('INI files (*.ini);;INI files (*.[iI][nN][iI])'),
                     directory=self.DIR,
                     options=options
@@ -214,14 +214,14 @@ class Cfg2Prefs(QMainWindow, object):
             while(1):
                 line = inFile.readline()
                 if not line:
-                    print('cannot find [EMC] section in ini file')
+                    print('cannot find [EMC] section in INI file')
                     return
                 if line.startswith('[EMC]'):
                     break
             while(1):
                 line = inFile.readline()
                 if not line:
-                    print('cannot find MACHINE variable in ini file')
+                    print('cannot find MACHINE variable in INI file')
                     return
                 if line.startswith('MACHINE'):
                     self.fromMachine = line.split('=')[1].strip().lower()
@@ -230,14 +230,14 @@ class Cfg2Prefs(QMainWindow, object):
             while(1):
                 line = inFile.readline()
                 if not line:
-                    print('cannot find [EMC] section in ini file')
+                    print('cannot find [EMC] section in INI file')
                     return
                 if line.startswith('[EMC]'):
                     break
             while(1):
                 line = inFile.readline()
                 if not line:
-                    print('cannot find MACHINE variable in ini file')
+                    print('cannot find MACHINE variable in INI file')
                     return
                 if line.startswith('MACHINE'):
                     self.toMachine = line.split('=')[1].strip().lower()

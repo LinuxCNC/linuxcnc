@@ -32,7 +32,7 @@ extern value_inihal_data old_inihal_data;
 /*
   loadJoint(int joint)
 
-  Loads ini file params for joint, joint = 0, ...
+  Loads INI file params for joint, joint = 0, ...
 
   TYPE <LINEAR ANGULAR>        type of joint
   MAX_VELOCITY <float>         max vel for joint
@@ -250,7 +250,7 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
 /*
   iniJoint(int joint, const char *filename)
 
-  Loads ini file parameters for specified joint
+  Loads INI file parameters for specified joint
 
   Looks for [KINS]JOINTS for how many to do, up to EMC_JOINT_MAX.
  */

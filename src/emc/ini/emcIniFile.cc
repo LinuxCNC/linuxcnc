@@ -73,7 +73,7 @@ EmcIniFile::Find(bool *result, const char *tag, const char *section, int num)
 
 // The next const struct holds pairs for linear units which are 
 // valid under the [TRAJ] section. These are of the form {"name", value}.
-// If the name "name" is encountered in the ini, the value will be used.
+// If the name "name" is encountered in the INI, the value will be used.
 EmcIniFile::StrDoublePair   EmcIniFile::linearUnitsMap[] = {
     { "mm",         1.0 },
     { "metric",     1.0 },
@@ -93,7 +93,7 @@ EmcIniFile::FindLinearUnits(EmcLinearUnits *result,
 
 // The next const struct holds pairs for angular units which are 
 // valid under the [TRAJ] section. These are of the form {"name", value}.
-// If the name "name" is encountered in the ini, the value will be used.
+// If the name "name" is encountered in the INI, the value will be used.
 EmcIniFile::StrDoublePair   EmcIniFile::angularUnitsMap[] = {
     { "deg",        1.0 },
     { "degree",     1.0 },

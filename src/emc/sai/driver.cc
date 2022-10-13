@@ -610,7 +610,7 @@ usage:
             "    -b: Toggle the 'block delete' flag (default: OFF)\n"
             "    -s: Toggle the 'print stack' flag (default: OFF)\n"
             "    -g: Toggle the 'go (batch mode)' flag (default: OFF)\n"
-            "    -i: specify the .ini file (default: no ini file)\n"
+            "    -i: specify the INI file (default: no INI file)\n"
             "    -T: call task_init()\n"
             "    -l: specify the log_level (default: -1)\n"
             , argv[0]);

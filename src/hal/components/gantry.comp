@@ -47,7 +47,7 @@ pin in  float position-cmd "Commanded position from motion";
 pin out float position-fb "Position feedback to motion";
 pin out bit   home "Combined home signal, true if all joint home inputs are true";
 pin out bit   limit "Combined limit signal, true if any joint home input is true";
-pin in  float search-vel "HOME_SEARCH_VEL from ini file";
+pin in  float search-vel "HOME_SEARCH_VEL from INI file";
 function read  fp "Update position-fb and home/limit outputs based on joint values";
 function write fp "Update joint pos-cmd outputs based on position-cmd in";
 description """

@@ -62,7 +62,7 @@ inline int round_to_int(T x) {
 /* numerical constants */
 
 /*****************************************************************************
-The default tolerance (if none tighter is specified in the ini file) should be:
+The default tolerance (if none tighter is specified in the INI file) should be:
 2 * 0.001 * sqrt(2) for inch, and 2 * 0.01 * sqrt(2) for mm.
 This would mean that any valid arc where the endpoints and/or centerpoint
 got rounded or truncated to 0.001 inch or 0.01 mm precision would be accepted.
@@ -565,7 +565,7 @@ typedef parameter_map::iterator parameter_map_iterator;
 #define PA_GLOBAL	2
 #define PA_UNSET	4
 #define PA_USE_LOOKUP	8   // use lookup_named_param() to retrieve value
-#define PA_FROM_INI	16  // a variable of the form '_[section]value' was retrieved from the ini file
+#define PA_FROM_INI	16  // a variable of the form '_[section]value' was retrieved from the INI file
 #define PA_PYTHON	32  // call namedparams.<varname>() to retrieve the value
 
 // optional 3rd arg to store_named_param()
@@ -708,8 +708,8 @@ struct setup
   FILE *file_pointer;           // file pointer for open NC code file
   bool flood;                 // whether flood coolant is on
   CANON_UNITS length_units;     // millimeters or inches
-  double center_arc_radius_tolerance_inch; // modify with ini setting
-  double center_arc_radius_tolerance_mm;   // modify with ini setting
+  double center_arc_radius_tolerance_inch; // modify with INI setting
+  double center_arc_radius_tolerance_mm;   // modify with INI setting
   int line_length;              // length of line last read
   char linetext[LINELEN];       // text of most recent line read
   bool mist;                  // whether mist coolant is on
@@ -776,7 +776,7 @@ struct setup
   bool adaptive_feed;              // adaptive feed is enabled
   bool feed_hold;                  // feed hold is enabled
   int loggingLevel;                  // 0 means logging is off
-  int debugmask;                     // from ini  EMC/DEBUG
+  int debugmask;                     // from INI EMC/DEBUG
   char log_file[PATH_MAX];
   char program_prefix[PATH_MAX];            // program directory
   const char *subroutines[MAX_SUB_DIRS];  // subroutines directories

@@ -3,7 +3,7 @@
 # first load the core RT modules that will be needed
 # kinematics
 loadrt [KINS]KINEMATICS
-# motion controller, get name and thread periods from ini file
+# motion controller, get name and thread periods from INI file
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 # stepper module, three step generators, all three using step/dir
 loadrt stepgen step_type=0,0,0
@@ -41,12 +41,12 @@ net Ydir  <= stepgen.1.dir
 net Zstep <= stepgen.2.step
 net Zdir  <= stepgen.2.dir
 
-# set stepgen module scaling - get values from ini file
+# set stepgen module scaling - get values from INI file
 setp stepgen.0.position-scale [JOINT_0]SCALE
 setp stepgen.1.position-scale [JOINT_1]SCALE
 setp stepgen.2.position-scale [JOINT_2]SCALE
 
-# set stepgen module accel limits - get values from ini file
+# set stepgen module accel limits - get values from INI file
 setp stepgen.0.maxaccel [JOINT_0]STEPGEN_MAXACCEL
 setp stepgen.1.maxaccel [JOINT_1]STEPGEN_MAXACCEL
 setp stepgen.2.maxaccel [JOINT_2]STEPGEN_MAXACCEL

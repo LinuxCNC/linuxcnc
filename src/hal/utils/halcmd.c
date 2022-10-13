@@ -691,7 +691,7 @@ static int strlimcpy(char **dest, char *src, int srclen, int *destspace) {
 }
 
 /* replace_vars:
-   replaces environment and ini var references in source_str.
+   replaces environment and INI var references in source_str.
    This routine does string replacement only
    return value is 0 on success (ie, no variable lookups failed)
    The source string is not modified
@@ -704,17 +704,17 @@ static int strlimcpy(char **dest, char *src, int srclen, int *destspace) {
    $envvar<whitespace>
    $(envvar)<any char>
 
-   ini vars are in the following formats:
+   INI vars are in the following formats:
    [SECTION]VAR<whitespace>
    [SECTION](VAR)<any char>
    
    return values:
    0	success
    -1	missing close parenthesis
-   -2	null variable name (either environment or ini varname)
+   -2	null variable name (either environment or INI varname)
    -3	missing close square bracket
    -4	environment variable not found
-   -5	ini variable not found
+   -5	INI variable not found
    -6	replacement would overflow output buffer
    -7	var name exceeds limit
 */
@@ -791,7 +791,7 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars, char **
 		strncpy(var, varP, next_delim);
 		var[next_delim]='\0';
 		if ( strlen(sec) > 0 ) {
-		/* get value from ini file */
+		/* get value from INI file */
 		/* cast to char ptr, we are discarding the 'const' */
 		    replacement = (char *) iniFind(halcmd_inifile, var, sec);
 		} else {

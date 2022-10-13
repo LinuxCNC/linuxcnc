@@ -409,7 +409,7 @@ int emcJointSetMaxAcceleration(int joint, double acc)
 	acc = 0.0;
     }
     JointConfig[joint].MaxAccel = acc;
-    //FIXME-AJ: need functions for setting the AXIS_MAX_ACCEL (either from the ini, or from kins..)
+    //FIXME-AJ: need functions for setting the AXIS_MAX_ACCEL (either from the INI, or from kins..)
     emcmotCommand.command = EMCMOT_SET_JOINT_ACC_LIMIT;
     emcmotCommand.joint = joint;
     emcmotCommand.acc = acc;
@@ -1297,7 +1297,7 @@ int emcTrajInit()
 	}
     }
     TrajConfig.Inited = 1;
-    // initialize parameters from ini file
+    // initialize parameters from INI file
     if (0 != iniTraj(emc_inifile)) {
 	retval = -1;
     }
@@ -1650,7 +1650,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 
 int setup_inihal(void) {
     // Must be called after emcTrajInit(), which loads the number of
-    // joints from the ini file.
+    // joints from the INI file.
     if (emcmotion_initialized != 1) {
         rcs_print_error("%s: emcMotionInit() has not completed, can't setup inihal\n", __FUNCTION__);
         return -1;

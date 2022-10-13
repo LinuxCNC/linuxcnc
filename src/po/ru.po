@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: emc 2.2.8\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-05 07:53+0200\n"
+"POT-Creation-Date: 2022-10-09 15:50+0200\n"
 "PO-Revision-Date: 2022-08-08 19:59+0000\n"
 "Last-Translator: Дмитрий <krdima352@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/linuxcnc/"
@@ -3758,7 +3758,7 @@ msgid "Edit mode..."
 msgstr "Изменить..."
 
 #: src/hal/classicladder/edit_gtk.c:186 src/hal/classicladder/edit_gtk.c:360
-#: tcl/tooledit.tcl:488 lib/python/gladevcp/tooledit_gtk.glade:295
+#: tcl/tooledit.tcl:488 lib/python/gladevcp/tooledit_gtk.glade:297
 msgid "Delete"
 msgstr "Удалить"
 
@@ -3767,7 +3767,7 @@ msgid "Do you really want to delete the current rung ?"
 msgstr "Вы действительно хотите удалить текущий рунг?"
 
 #: src/hal/classicladder/edit_gtk.c:350
-#: lib/python/gladevcp/tooledit_gtk.glade:310
+#: lib/python/gladevcp/tooledit_gtk.glade:312
 msgid "Add"
 msgstr "Добавить"
 
@@ -3982,7 +3982,7 @@ msgid "Parameter"
 msgstr "Параметр"
 
 #: src/hal/classicladder/editproperties_gtk.c:213 tcl/bin/halshow.tcl:734
-#: lib/python/gladevcp/tooledit_gtk.glade:340
+#: lib/python/gladevcp/tooledit_gtk.glade:342
 msgid "Apply"
 msgstr "Применить"
 
@@ -10775,9 +10775,9 @@ msgstr "метка"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:553
 #: src/emc/usr_intf/pncconf/main_page.glade:201
-#: lib/python/gladevcp/tooledit_gtk.glade:248
-#: lib/python/gladevcp/tooledit_gtk.glade:549
-#: lib/python/gladevcp/tooledit_gtk.glade:771
+#: lib/python/gladevcp/tooledit_gtk.glade:250
+#: lib/python/gladevcp/tooledit_gtk.glade:551
+#: lib/python/gladevcp/tooledit_gtk.glade:773
 msgid "Back"
 msgstr "Назад"
 
@@ -19382,23 +19382,42 @@ msgstr "Отступ всех координат"
 msgid "tooledit_widget error: cannot select tool number"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:246
+#: lib/python/gladevcp/tooledit_widget.py:239
+#, python-brace-format
+msgid "Error in tool table line {0} in column "
+msgstr ""
+
+#: lib/python/gladevcp/tooledit_widget.py:239
+#: lib/python/gladevcp/tooledit_gtk.glade:261
+#: lib/python/gladevcp/tooledit_gtk.glade:562
+#: lib/python/gladevcp/tooledit_gtk.glade:784
+msgid "Orientation"
+msgstr "Ориентация"
+
+#: lib/python/gladevcp/tooledit_widget.py:240
+msgid ""
+".\n"
+"Valid range is 0 - 9."
+msgstr ""
+
+#: lib/python/gladevcp/tooledit_widget.py:257
 msgid "Toolfile does not exist"
 msgstr "Файл инструмента не существует"
 
-#: lib/python/gladevcp/tooledit_widget.py:280
+#: lib/python/gladevcp/tooledit_widget.py:296
 msgid "Tooledit widget int error"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:285
-msgid "Tooledit_widget float error"
+#: lib/python/gladevcp/tooledit_widget.py:306
+#: lib/python/gladevcp/tooledit_widget.py:311
+msgid "Tooledit widget float error"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:322
+#: lib/python/gladevcp/tooledit_widget.py:358
 msgid "Reloading tooltable into linuxcnc failed"
 msgstr "Не удалось перегрузить таблицу инструментов в LinuxCNC"
 
-#: lib/python/gladevcp/tooledit_widget.py:482
+#: lib/python/gladevcp/tooledit_widget.py:527
 msgid "Tool file was modified since it was last read"
 msgstr "Файл инструмента был изменен после последнего чтения"
 
@@ -19461,80 +19480,74 @@ msgstr ""
 "    Обнулить\n"
 "Поворот"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:80
-#: lib/python/gladevcp/tooledit_gtk.glade:391
-#: lib/python/gladevcp/tooledit_gtk.glade:613
+#: lib/python/gladevcp/tooledit_gtk.glade:82
+#: lib/python/gladevcp/tooledit_gtk.glade:393
+#: lib/python/gladevcp/tooledit_gtk.glade:615
 #, fuzzy
 msgid "Select"
 msgstr "Выбрать"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:93
-#: lib/python/gladevcp/tooledit_gtk.glade:402
-#: lib/python/gladevcp/tooledit_gtk.glade:624
+#: lib/python/gladevcp/tooledit_gtk.glade:95
+#: lib/python/gladevcp/tooledit_gtk.glade:404
+#: lib/python/gladevcp/tooledit_gtk.glade:626
 msgid "Tool#"
 msgstr "Номер инструмента"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:109
-#: lib/python/gladevcp/tooledit_gtk.glade:413
-#: lib/python/gladevcp/tooledit_gtk.glade:635
+#: lib/python/gladevcp/tooledit_gtk.glade:111
+#: lib/python/gladevcp/tooledit_gtk.glade:415
+#: lib/python/gladevcp/tooledit_gtk.glade:637
 msgid "Pocket"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_gtk.glade:222
-#: lib/python/gladevcp/tooledit_gtk.glade:523
-#: lib/python/gladevcp/tooledit_gtk.glade:745
+#: lib/python/gladevcp/tooledit_gtk.glade:224
+#: lib/python/gladevcp/tooledit_gtk.glade:525
+#: lib/python/gladevcp/tooledit_gtk.glade:747
 msgid "Diameter"
 msgstr "Диаметр"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:237
-#: lib/python/gladevcp/tooledit_gtk.glade:538
-#: lib/python/gladevcp/tooledit_gtk.glade:760
+#: lib/python/gladevcp/tooledit_gtk.glade:239
+#: lib/python/gladevcp/tooledit_gtk.glade:540
+#: lib/python/gladevcp/tooledit_gtk.glade:762
 #, fuzzy
 msgid "Front"
 msgstr "Вид спереди"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:259
-#: lib/python/gladevcp/tooledit_gtk.glade:560
-#: lib/python/gladevcp/tooledit_gtk.glade:782
-msgid "Orientation"
-msgstr "Ориентация"
-
-#: lib/python/gladevcp/tooledit_gtk.glade:270
-#: lib/python/gladevcp/tooledit_gtk.glade:571
-#: lib/python/gladevcp/tooledit_gtk.glade:793
+#: lib/python/gladevcp/tooledit_gtk.glade:272
+#: lib/python/gladevcp/tooledit_gtk.glade:573
+#: lib/python/gladevcp/tooledit_gtk.glade:795
 msgid "Comments"
 msgstr "Комментарий"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:325
+#: lib/python/gladevcp/tooledit_gtk.glade:327
 #, fuzzy
 msgid "Reload"
 msgstr "Перегрузить"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:369
+#: lib/python/gladevcp/tooledit_gtk.glade:371
 msgid "All Offsets"
 msgstr "Все отступы"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:424
+#: lib/python/gladevcp/tooledit_gtk.glade:426
 msgid "X Wear"
 msgstr "X Износ"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:446
+#: lib/python/gladevcp/tooledit_gtk.glade:448
 msgid "Z Wear"
 msgstr "Z Износ"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:590
+#: lib/python/gladevcp/tooledit_gtk.glade:592
 msgid "Lathe Wear Offsets"
 msgstr "Отступы износа"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:646
+#: lib/python/gladevcp/tooledit_gtk.glade:648
 msgid "X Tool"
 msgstr "X Инструмент"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:668
+#: lib/python/gladevcp/tooledit_gtk.glade:670
 msgid "Z Tool"
 msgstr "Z Инструмент"
 
-#: lib/python/gladevcp/tooledit_gtk.glade:812
+#: lib/python/gladevcp/tooledit_gtk.glade:814
 msgid "Lathe Tool Offsets"
 msgstr "Отступы токарного инструмента"
 

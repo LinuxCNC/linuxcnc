@@ -26,7 +26,7 @@ extern "C" {
 #endif
 
 /* usrmotIniLoad() loads params (SHMEM_KEY) from
-   named ini file */
+   named INI file */
     extern int usrmotIniLoad(const char *file);
 
 /* usrmotReadEmcmotStatus() gets the status info out of

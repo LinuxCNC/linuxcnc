@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-05 07:53+0200\n"
-"PO-Revision-Date: 2022-10-04 09:32+0000\n"
+"POT-Creation-Date: 2022-10-09 15:50+0200\n"
+"PO-Revision-Date: 2022-10-08 16:56+0000\n"
 "Last-Translator: Jan Mrázek <email@honzamrazek.cz>\n"
 "Language-Team: \n"
 "Language: cs\n"
@@ -1835,147 +1835,152 @@ msgstr "Parametr V nebyl specifikovaný pro strojový cyklus v rovině UW"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:216
 msgid "R less than W in cycle in UV plane"
-msgstr ""
+msgstr "Parametr R je menší než W v rámci cyklu probíhajícího v rovině UV"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:217
 msgid "R less than U in cycle in VW plane"
-msgstr ""
+msgstr "Parametr R je menší než U v rámci cyklu probíhajícího v rovině VW"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:218
 msgid "R less than V in cycle in UW plane"
-msgstr ""
+msgstr "Parametr R je menší než V v rámci cyklu probíhajícího v rovině UW"
 
 #: src/hal/utils/meter.c:205
 #, c-format
 msgid "ERROR: '%s' is not a valid probe type\n"
-msgstr ""
+msgstr "CHYBA: '%s' není validní typ sondy \n"
 
 #: src/hal/utils/meter.c:213
 #, c-format
 msgid "ERROR: no pin/signal/parameter name\n"
-msgstr ""
+msgstr "CHYBA: žádný takový název pinu/signálu/parametru \n"
 
 #: src/hal/utils/meter.c:219
 #, c-format
 msgid ""
 "ERROR: -s option requires a probe type and a pin/signal/parameter name\n"
 msgstr ""
+"CHYBA: přepínač -s vyžaduje typ sondy a název pinu/signálu/parametru \n"
 
 #: src/hal/utils/meter.c:243 tcl/tklinuxcnc.tcl:793
+#, fuzzy
 msgid "Hal Meter"
-msgstr ""
+msgstr "Hal Meter"
 
 #: src/hal/utils/meter.c:292
 msgid "_Select"
-msgstr ""
+msgstr "_Vybrat"
 
 #: src/hal/utils/meter.c:293
 msgid "E_xit"
-msgstr ""
+msgstr "_Ukončit"
 
 #: src/hal/utils/meter.c:336 src/hal/utils/meter.c:364
 msgid "Select Item to Probe"
-msgstr ""
+msgstr "Vyberte položku k měření"
 
 #: src/hal/utils/meter.c:616
 msgid " _Pins "
-msgstr ""
+msgstr " _Piny "
 
 #: src/hal/utils/meter.c:617
 msgid " _Signals "
-msgstr ""
+msgstr " _Signály "
 
 #: src/hal/utils/meter.c:618
 msgid " Para_meters "
-msgstr ""
+msgstr " Para_metry "
 
 #: src/hal/utils/meter.c:649
 msgid "_Close"
-msgstr ""
+msgstr "_Zavřít"
 
 #: src/hal/utils/scope.c:126
 msgid ""
 "Usage:\n"
 "  halscope [-h] [-i infile] [-o outfile] [num_samples]\n"
 msgstr ""
+"Použití: \n"
+"  halscope [-h] [-i vstupni_soubor] [-o vystupni_soubor] [pocet_vzorku] \n"
 
 #: src/hal/utils/scope.c:468
 msgid "Open Configuration File:"
-msgstr ""
+msgstr "Otevřít konfigurační soubor:"
 
 #: src/hal/utils/scope.c:470 src/hal/utils/scope.c:493
 #: src/hal/utils/scope_horiz.c:808 src/hal/utils/scope_vert.c:713
 #: src/hal/utils/scope_vert.c:933 src/hal/utils/scope_trig.c:315
 msgid "_Cancel"
-msgstr ""
+msgstr "_Zrušit"
 
 #: src/hal/utils/scope.c:471
 msgid "_Open"
-msgstr ""
+msgstr "_Otevřít"
 
 #: src/hal/utils/scope.c:491
 msgid "Save Configuration File:"
-msgstr ""
+msgstr "Uložit konfigurační soubor:"
 
 #: src/hal/utils/scope.c:494 src/hal/utils/scope_horiz.c:809
 msgid "_Save"
-msgstr ""
+msgstr "_Uložit"
 
 #: src/hal/utils/scope.c:525
 msgid "_Open Configuration..."
-msgstr ""
+msgstr "_Otevřít konfiguraci..."
 
 #: src/hal/utils/scope.c:531
 msgid "_Save Configuration..."
-msgstr ""
+msgstr "_Uložit konfiguraci..."
 
 #: src/hal/utils/scope.c:540
 msgid "O_pen Log File"
-msgstr ""
+msgstr "O_tevřít soubor protokolu"
 
 #: src/hal/utils/scope.c:547
 msgid "S_ave Log File"
-msgstr ""
+msgstr "_Uložit soubor protokolu"
 
 #: src/hal/utils/scope.c:556 share/axis/tcl/axis.tcl:102
 msgid "_Quit"
-msgstr ""
+msgstr "_Ukončit"
 
 #: src/hal/utils/scope.c:562
+#, fuzzy
 msgid "_About Halscope"
-msgstr ""
+msgstr "_O Halscope"
 
 #: src/hal/utils/scope.c:568 share/axis/tcl/axis.tcl:470
 msgid "_File"
-msgstr ""
+msgstr "_Soubor"
 
 #: src/hal/utils/scope.c:572 share/axis/tcl/axis.tcl:482
 msgid "_Help"
-msgstr ""
+msgstr "_Nápověda"
 
 #: src/hal/utils/scope.c:627
 msgid "HAL Oscilloscope"
-msgstr ""
+msgstr "HAL Osciloskop"
 
 #: src/hal/utils/scope.c:655
 msgid "Horizontal"
-msgstr ""
+msgstr "Horizontální"
 
 #: src/hal/utils/scope.c:665
 msgid "Selected Channel"
-msgstr ""
+msgstr "Vyberte kanál"
 
 #: src/hal/utils/scope.c:671
 msgid "Run Mode"
-msgstr ""
+msgstr "Mód spuštění"
 
 #: src/hal/utils/scope.c:674
 msgid "Trigger"
-msgstr ""
+msgstr "Spoušť"
 
 #: src/hal/utils/scope.c:680
 msgid "Vertical"
-msgstr ""
+msgstr "Vertikální"
 
 #: src/hal/utils/scope.c:688 src/hal/classicladder/classicladder_gtk.c:343
 #: src/hal/classicladder/classicladder_gtk.c:856 share/axis/tcl/axis.tcl:144
@@ -1983,37 +1988,39 @@ msgstr ""
 #: src/emc/usr_intf/gscreen/gscreen.py:4482
 #: src/emc/usr_intf/gscreen/gscreen.glade:2685
 msgid "Stop"
-msgstr ""
+msgstr "Zastavit"
 
 #: src/hal/utils/scope.c:690 src/hal/utils/scope_trig.c:201
 msgid "Normal"
-msgstr ""
+msgstr "Normální"
 
 #: src/hal/utils/scope.c:692
 msgid "Single"
-msgstr ""
+msgstr "Jedna událost"
 
 #: src/hal/utils/scope.c:694
 msgid "Roll"
-msgstr ""
+msgstr "Průběžný"
 
 #: src/hal/utils/scope_horiz.c:139 src/emc/usr_intf/gscreen/gscreen.glade:3515
 msgid "Zoom"
-msgstr ""
+msgstr "Přiblížit"
 
 #: src/hal/utils/scope_horiz.c:140
 msgid " Pos "
-msgstr ""
+msgstr " Pozice "
 
 #: src/hal/utils/scope_horiz.c:175
 msgid ""
 "----- Samples\n"
 "at ---- kHz"
 msgstr ""
+"----- vzorků\n"
+"na ---- kHz"
 
 #: src/hal/utils/scope_horiz.c:474
 msgid "Realtime component not loaded"
-msgstr ""
+msgstr "Komponenta RT není načtena"
 
 #: src/hal/utils/scope_horiz.c:477
 msgid ""
@@ -2028,6 +2035,15 @@ msgid ""
 "or\n"
 "Click 'Quit' to exit HALSCOPE"
 msgstr ""
+"HALSCOPE používá realtimovou komponentu nazvanout scope_rt' pro zachycení "
+"vzorků. Tato komponenta není aktuálně načtena a automatické načtení selhalo. "
+"Více informací o chybě je k nalezení v terminálu, kde byl halscope spuštěn.\n"
+"\n"
+"Prosím, udělejte jedno z následujících:\n"
+"\n"
+"Načtěte komponentu (pomocí 'halcmd loadrt scope_rt'), poté klikněte na OK\n"
+"nebo\n"
+"Klikněte na 'Ukončit' pro ukončení HALSCOPE"
 
 #: src/hal/utils/scope_horiz.c:485 src/hal/utils/scope_horiz.c:762
 #: tcl/bin/emccalib.tcl:276 tcl/bin/emcdebug.tcl:201 tcl/bin/genedit.tcl:180
@@ -2047,7 +2063,7 @@ msgstr ""
 #: lib/python/propertywindow.py:35 share/axis/tcl/axis.tcl:1580
 #: share/axis/tcl/axis.tcl:1617
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: src/hal/utils/scope_horiz.c:486 src/hal/utils/scope_horiz.c:536
 #: src/hal/utils/scope_horiz.c:763
@@ -2055,11 +2071,11 @@ msgstr ""
 #: tcl/bin/halconfig.tcl:103 tcl/tooledit.tcl:468
 #: src/emc/usr_intf/pncconf/dialogs.glade:602
 msgid "Quit"
-msgstr ""
+msgstr "Ukončit"
 
 #: src/hal/utils/scope_horiz.c:519
 msgid "Realtime function not linked"
-msgstr ""
+msgstr "Funkce RT není připojena"
 
 #: src/hal/utils/scope_horiz.c:520
 msgid ""
@@ -2073,79 +2089,91 @@ msgid ""
 "or\n"
 "Click 'Quit' to exit HALSCOPE"
 msgstr ""
+"RT snímkovací funkce HALSCOPE musí být zavolána z vlákna HALu se jménem "
+"'in', aby bylo možné určit vzorkovací frekvenci.\n"
+"\n"
+"Prosím, udělejte jedno z následujícího:\n"
+"\n"
+"Vyberte jméno vlákna a klikněte na 'OK'\n"
+"nebo\n"
+"Klikněte na 'Ukončit' pro ukončení HALSCOPE"
 
 #: src/hal/utils/scope_horiz.c:527
 msgid "Select Sample Rate"
-msgstr ""
+msgstr "Vyberte rychlost vzorkování"
 
 #: src/hal/utils/scope_horiz.c:528
+#, fuzzy
 msgid ""
 "Select a thread name and multiplier then click 'OK'\n"
 "or\n"
 "Click 'Quit' to exit HALSCOPE"
 msgstr ""
+"Vyberte jméno vlákna a násobič; poté klidněte na 'OK'\n"
+"nebo\n"
+"Klikněte na 'Ukončit' pro ukočení HALSCOPE"
 
 #: src/hal/utils/scope_horiz.c:535 src/hal/utils/scope_vert.c:712
 msgid "_OK"
-msgstr ""
+msgstr "_OK"
 
 #: src/hal/utils/scope_horiz.c:555
 msgid "Thread:"
-msgstr ""
+msgstr "Vlákno:"
 
 #: src/hal/utils/scope_horiz.c:564
 msgid "Sample Period:"
-msgstr ""
+msgstr "Vzorkovací perioda:"
 
 #: src/hal/utils/scope_horiz.c:573
 msgid "Sample Rate:"
-msgstr ""
+msgstr "Vzorkovací rychlost:"
 
 #: src/hal/utils/scope_horiz.c:589 src/emc/usr_intf/touchy/mdi.py:83
 #: src/emc/usr_intf/gscreen/mdi.py:78
 msgid "Thread"
-msgstr ""
+msgstr "Vlákno"
 
 #: src/hal/utils/scope_horiz.c:590
 msgid "Period"
-msgstr ""
+msgstr "Perioda"
 
 #: src/hal/utils/scope_horiz.c:637
 msgid "Multiplier:"
-msgstr ""
+msgstr "Násobič:"
 
 #: src/hal/utils/scope_horiz.c:657
 msgid "Record Length"
-msgstr ""
+msgstr "Délka záznamu"
 
 #: src/hal/utils/scope_horiz.c:662
 #, c-format
 msgid "%5d samples (1 channel)"
-msgstr ""
+msgstr "%5d vzorků (1 kanál)"
 
 #: src/hal/utils/scope_horiz.c:664
 #, c-format
 msgid "%5d samples (2 channels)"
-msgstr ""
+msgstr "%5d vzorků (2 kanály)"
 
 #: src/hal/utils/scope_horiz.c:668
 #, c-format
 msgid "%5d samples (4 channels)"
-msgstr ""
+msgstr "%5d vzorků (4 kanály)"
 
 #: src/hal/utils/scope_horiz.c:672
 #, c-format
 msgid "%5d samples (8 channels)"
-msgstr ""
+msgstr "%5d vzorků (8 kanálů)"
 
 #: src/hal/utils/scope_horiz.c:676
 #, c-format
 msgid "%5d samples (16 channels)"
-msgstr ""
+msgstr "%5d vzorků (16 kanálů)"
 
 #: src/hal/utils/scope_horiz.c:751
 msgid "Realtime thread(s) not running"
-msgstr ""
+msgstr "RT vlákno/vlákna neběží"
 
 #: src/hal/utils/scope_horiz.c:754
 msgid ""
@@ -2160,22 +2188,32 @@ msgid ""
 "or\n"
 "Click 'Quit' to exit HALSCOPE"
 msgstr ""
+"HALSCOPE používá kód uvnitř RT vlákna HALu pro vzorkování signálů k "
+"zobrazení. Toto vlákno/vlákna však neběží. Vlákna jsou obvykle spuštěna "
+"aplikací, kterou se pokoušíte spustit nebo je můžete přímo spustit pomocí "
+"'halcmd start'.\n"
+"\n"
+"Prosím, udělejte jedno z následujícího:\n"
+"\n"
+"Spusťte vlákna a klikněte na 'OK'\n"
+"nebo\n"
+"Klikněte na 'Ukončit' pro ukončení HALSCOPE"
 
 #: src/hal/utils/scope_horiz.c:793
 msgid "No channels selected"
-msgstr ""
+msgstr "Nebyly vybrány žádné kanály"
 
 #: src/hal/utils/scope_horiz.c:796
 msgid "You need to choose at least one channel."
-msgstr ""
+msgstr "Je třeba vybrat alespoň jeden kanál."
 
 #: src/hal/utils/scope_horiz.c:806
 msgid "Pick log file to write to:"
-msgstr ""
+msgstr "Vyberte prosím soubor protokolu, kam se bude zapisovat:"
 
 #: src/hal/utils/scope_horiz.c:976
 msgid "Not enough channels"
-msgstr ""
+msgstr "Nedostatek kanálů"
 
 #: src/hal/utils/scope_horiz.c:979
 msgid ""
@@ -2183,6 +2221,8 @@ msgid ""
 "that are currently enabled.  Pick a shorter\n"
 "record length that supports more channels."
 msgstr ""
+"Tato délka záznamu není schopna pojmout všechny zapnuté kanály. Vyberte "
+"prosím kratší délku záznamu, která podporuje více kanálů."
 
 #: src/hal/utils/scope_horiz.c:1067
 #, c-format
@@ -2190,6 +2230,8 @@ msgid ""
 "%s\n"
 "per div"
 msgstr ""
+"%s \n"
+"na dílek"
 
 #: src/hal/utils/scope_horiz.c:1082
 #, c-format
@@ -2197,6 +2239,8 @@ msgid ""
 "%s samples\n"
 "at %s"
 msgstr ""
+"%s vzorků \n"
+"na %s"
 
 #: src/hal/utils/scope_horiz.c:1186 src/emc/usr_intf/stepconf/base.glade:113
 #: src/emc/usr_intf/stepconf/base.glade:141
@@ -2207,15 +2251,17 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:471
 #: src/emc/usr_intf/pncconf/base.glade:384
 msgid "ns"
-msgstr ""
+msgstr "ns"
 
 #: src/hal/utils/scope_horiz.c:1189
+#, fuzzy
 msgid "µs"
-msgstr ""
+msgstr "µs"
 
 #: src/hal/utils/scope_horiz.c:1193
+#, fuzzy
 msgid "ms"
-msgstr ""
+msgstr "ms"
 
 #: src/hal/utils/scope_horiz.c:1197 src/emc/usr_intf/stepconf/axisx.glade:345
 #: src/emc/usr_intf/stepconf/axisy.glade:343
@@ -2224,7 +2270,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisv.glade:345
 #: src/emc/usr_intf/stepconf/axisa.glade:343
 msgid "s"
-msgstr ""
+msgstr "s"
 
 #: src/hal/utils/scope_horiz.c:1214 src/emc/usr_intf/stepconf/spindle.glade:112
 #: src/emc/usr_intf/stepconf/axisx.glade:359
@@ -2240,15 +2286,17 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:444
 #: src/emc/usr_intf/pncconf/mesa1.glade:457
 msgid "Hz"
-msgstr ""
+msgstr "Hz"
 
 #: src/hal/utils/scope_horiz.c:1217
+#, fuzzy
 msgid "kHz"
-msgstr ""
+msgstr "kHz"
 
 #: src/hal/utils/scope_horiz.c:1221
+#, fuzzy
 msgid "MHz"
-msgstr ""
+msgstr "MHz"
 
 #: src/hal/utils/scope_vert.c:411 src/hal/utils/scope_vert.c:1126
 #, c-format
@@ -2256,14 +2304,16 @@ msgid ""
 "Offset\n"
 "%s"
 msgstr ""
+"Posunutí \n"
+"%s"
 
 #: src/hal/utils/scope_vert.c:607
 msgid "Gain"
-msgstr ""
+msgstr "Zesílení"
 
 #: src/hal/utils/scope_vert.c:620 src/hal/utils/scope_trig.c:257
 msgid "Pos"
-msgstr ""
+msgstr "Pozice"
 
 #: src/hal/utils/scope_vert.c:635 tcl/ngcgui_ttt.tcl:215
 #: src/emc/usr_intf/pncconf/x_motor.glade:1672
@@ -2273,17 +2323,19 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/s_motor.glade:1821
 #: lib/python/gladevcp/gladevcp-test.glade:222
 msgid "Scale"
-msgstr ""
+msgstr "Měřítko"
 
 #: src/hal/utils/scope_vert.c:640
 msgid ""
 "Offset\n"
 "----"
 msgstr ""
+"Odsazení \n"
+"----"
 
 #: src/hal/utils/scope_vert.c:648
 msgid "Chan Off"
-msgstr ""
+msgstr "Kanál vypnut"
 
 #: src/hal/utils/scope_vert.c:706
 #, c-format
@@ -2291,18 +2343,20 @@ msgid ""
 "Set the vertical offset\n"
 "for channel %d."
 msgstr ""
+"Nastavit vertikální odsazení \n"
+"pro kanál %d."
 
 #: src/hal/utils/scope_vert.c:710
 msgid "Set Offset"
-msgstr ""
+msgstr "Nastavit odsazení"
 
 #: src/hal/utils/scope_vert.c:729
 msgid "AC Coupled"
-msgstr ""
+msgstr "AC-vazba"
 
 #: src/hal/utils/scope_vert.c:831
 msgid "Too many channels"
-msgstr ""
+msgstr "Příliš mnoho kanálů"
 
 #: src/hal/utils/scope_vert.c:834
 msgid ""
@@ -2311,6 +2365,10 @@ msgid ""
 "Either turn off one or more channels, or shorten\n"
 "the record length to allow for more channels"
 msgstr ""
+"Není možné přidat další kanál. \n"
+"\n"
+"Buď vypněte jeden nebo více kanálů, nebo zkraťte \n"
+"délku záznamu, což umožní zachytit více kanálů."
 
 #: src/hal/utils/scope_vert.c:927
 #, c-format
@@ -2318,38 +2376,42 @@ msgid ""
 "Select a pin, signal, or parameter\n"
 "as the source for channel %d."
 msgstr ""
+"Vyberte pin, signál nebo parametr \n"
+"jako zdroj pro kanál %d."
 
 #: src/hal/utils/scope_vert.c:931
 msgid "Select Channel Source"
-msgstr ""
+msgstr "Vyberte zdroj kanálu"
 
 #: src/hal/utils/scope_vert.c:955
 msgid "Pins"
-msgstr ""
+msgstr "Piny"
 
 #: src/hal/utils/scope_vert.c:956
 msgid "Signals"
-msgstr ""
+msgstr "Signály"
 
 #: src/hal/utils/scope_vert.c:957
 msgid "Parameters"
-msgstr ""
+msgstr "Parametry"
 
 #: src/hal/utils/scope_trig.c:115
 #, c-format
 msgid "Falling"
-msgstr ""
+msgstr "Sestupná"
 
 #: src/hal/utils/scope_trig.c:117 src/hal/utils/scope_trig.c:281
 #, c-format
 msgid "Rising"
-msgstr ""
+msgstr "Náběžná"
 
 #: src/hal/utils/scope_trig.c:124 src/hal/utils/scope_trig.c:289
 msgid ""
 "Source\n"
 "None"
 msgstr ""
+"Zdroj \n"
+"Žádný"
 
 #: src/hal/utils/scope_trig.c:129
 #, c-format
@@ -2357,111 +2419,115 @@ msgid ""
 "Source\n"
 "Chan %2d"
 msgstr ""
+"Zdroj \n"
+"Kanál %2d"
 
 #: src/hal/utils/scope_trig.c:203 tcl/tklinuxcnc.tcl:856
 #: src/emc/usr_intf/touchy/touchy.glade:2443
 msgid "Auto"
-msgstr ""
+msgstr "Auto"
 
 #: src/hal/utils/scope_trig.c:205
 msgid "Force"
-msgstr ""
+msgstr "Vynutit"
 
 #: src/hal/utils/scope_trig.c:239 src/hal/utils/scope_trig.c:275
 msgid "Level"
-msgstr ""
+msgstr "Úroveň"
 
 #: src/hal/utils/scope_trig.c:310
 msgid "Select a channel to use for triggering."
-msgstr ""
+msgstr "Vyberte kanál určený pro spoušť."
 
 #: src/hal/utils/scope_trig.c:313
 msgid "Trigger Source"
-msgstr ""
+msgstr "Zdroj spouště"
 
 #: src/hal/utils/scope_trig.c:336
 msgid "Chan"
-msgstr ""
+msgstr "Kanál"
 
 #: src/hal/utils/scope_trig.c:337
 msgid "Source"
-msgstr ""
+msgstr "Zdroj"
 
 #: src/emc/motion/control.c:526
 #, c-format
 msgid "fault %d during orient in progress"
-msgstr ""
+msgstr "selhání %d během probíhající orientace vřetene"
 
 #: src/emc/motion/control.c:709
 msgid "G38.4 move finished without breaking contact."
-msgstr ""
+msgstr "G38.4 dokončil pohyb aniž by rozpojil sondu."
 
 #: src/emc/motion/control.c:712
 msgid "G38.2 move finished without making contact."
-msgstr ""
+msgstr "G38.4 dokončil pohyb aniž by sepnul sondu."
 
 #: src/emc/motion/control.c:725
 msgid "Probe tripped during non-probe move."
-msgstr ""
+msgstr "Sonda byla sepnuta během nesondovacího příkazu."
 
 #: src/emc/motion/control.c:756
 msgid "Probe tripped during homing motion."
-msgstr ""
+msgstr "Sonda byla sepnuta během homovacího pohybu."
 
 #: src/emc/motion/control.c:760
 msgid "Probe tripped during a joint jog."
-msgstr ""
+msgstr "Sonda byla sepnuta během ručního pohybu osou."
 
 #: src/emc/motion/control.c:763
 msgid "Probe tripped during a coordinate jog."
-msgstr ""
+msgstr "Sonda byla sepnuta během ručního pohybu na souřadnice."
 
 #: src/emc/motion/control.c:779
 msgid "motion stopped by enable input"
-msgstr ""
+msgstr "pohyb byl zastaven vstupem 'enable'"
 
 #: src/emc/motion/control.c:786
 #, c-format
 msgid "spindle %d amplifier fault"
-msgstr ""
+msgstr "selhání zesilovače vřetena %d"
 
 #: src/emc/motion/control.c:809
 #, c-format
 msgid "joint %d on limit switch error"
-msgstr ""
+msgstr "chyba: fyzická osa %d na koncovém spínači"
 
 #: src/emc/motion/control.c:821
 #, c-format
 msgid "joint %d amplifier fault"
-msgstr ""
+msgstr "selhání zesilovače fyzické osy %d"
 
 #: src/emc/motion/control.c:830
 #, c-format
 msgid "joint %d following error"
-msgstr ""
+msgstr "fyzická osa %d nezvládá sledovat pohyb"
 
 #: src/emc/motion/control.c:843
 #, c-format
 msgid "Motion Stopped by misc error %d"
-msgstr ""
+msgstr "Pohyb zastaven kvůli chybě %d"
 
 #: src/emc/motion/control.c:1346 src/emc/motion/control.c:1406
 #, c-format
 msgid "kinematicsInverse gave non-finite joint location on joint %d"
-msgstr ""
+msgstr "kinematicInverse vrátilo nekonečnou pozici fyzické osy %d"
 
 #: src/emc/motion/control.c:1363 src/emc/motion/control.c:1425
 msgid "kinematicsInverse failed"
-msgstr ""
+msgstr "kinematicsInverse selhalo"
 
 #: src/emc/motion/control.c:1502
 #, c-format
 msgid "Exceeded NEGATIVE soft limit (%.5f) on joint %d\n"
-msgstr ""
+msgstr "Překročen záporný měkký limit (%.5f) fyzické osy %d \n"
 
 #: src/emc/motion/control.c:1505 src/emc/motion/control.c:1514
 msgid "Joint must be unhomed, jogged into limits, rehomed"
 msgstr ""
+"Fyzická osa musí být nezahomovaná, ručně najeta na koncové spínače nebo "
+"znovu zahomovaná"
 
 #: src/emc/motion/control.c:1507 src/emc/motion/control.c:1516
 msgid "Hint: switch to joint mode to jog off soft limit"
@@ -3659,7 +3725,7 @@ msgid "Edit mode..."
 msgstr ""
 
 #: src/hal/classicladder/edit_gtk.c:186 src/hal/classicladder/edit_gtk.c:360
-#: tcl/tooledit.tcl:488 lib/python/gladevcp/tooledit_gtk.glade:295
+#: tcl/tooledit.tcl:488 lib/python/gladevcp/tooledit_gtk.glade:297
 msgid "Delete"
 msgstr ""
 
@@ -3668,7 +3734,7 @@ msgid "Do you really want to delete the current rung ?"
 msgstr ""
 
 #: src/hal/classicladder/edit_gtk.c:350
-#: lib/python/gladevcp/tooledit_gtk.glade:310
+#: lib/python/gladevcp/tooledit_gtk.glade:312
 msgid "Add"
 msgstr ""
 
@@ -3880,7 +3946,7 @@ msgid "Parameter"
 msgstr ""
 
 #: src/hal/classicladder/editproperties_gtk.c:213 tcl/bin/halshow.tcl:734
-#: lib/python/gladevcp/tooledit_gtk.glade:340
+#: lib/python/gladevcp/tooledit_gtk.glade:342
 msgid "Apply"
 msgstr ""
 
@@ -10529,9 +10595,9 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/main_page.glade:553
 #: src/emc/usr_intf/pncconf/main_page.glade:201
-#: lib/python/gladevcp/tooledit_gtk.glade:248
-#: lib/python/gladevcp/tooledit_gtk.glade:549
-#: lib/python/gladevcp/tooledit_gtk.glade:771
+#: lib/python/gladevcp/tooledit_gtk.glade:250
+#: lib/python/gladevcp/tooledit_gtk.glade:551
+#: lib/python/gladevcp/tooledit_gtk.glade:773
 msgid "Back"
 msgstr ""
 
@@ -18887,23 +18953,42 @@ msgstr ""
 msgid "tooledit_widget error: cannot select tool number"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:246
+#: lib/python/gladevcp/tooledit_widget.py:239
+#, python-brace-format
+msgid "Error in tool table line {0} in column "
+msgstr ""
+
+#: lib/python/gladevcp/tooledit_widget.py:239
+#: lib/python/gladevcp/tooledit_gtk.glade:261
+#: lib/python/gladevcp/tooledit_gtk.glade:562
+#: lib/python/gladevcp/tooledit_gtk.glade:784
+msgid "Orientation"
+msgstr ""
+
+#: lib/python/gladevcp/tooledit_widget.py:240
+msgid ""
+".\n"
+"Valid range is 0 - 9."
+msgstr ""
+
+#: lib/python/gladevcp/tooledit_widget.py:257
 msgid "Toolfile does not exist"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:280
+#: lib/python/gladevcp/tooledit_widget.py:296
 msgid "Tooledit widget int error"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:285
-msgid "Tooledit_widget float error"
+#: lib/python/gladevcp/tooledit_widget.py:306
+#: lib/python/gladevcp/tooledit_widget.py:311
+msgid "Tooledit widget float error"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:322
+#: lib/python/gladevcp/tooledit_widget.py:358
 msgid "Reloading tooltable into linuxcnc failed"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:482
+#: lib/python/gladevcp/tooledit_widget.py:527
 msgid "Tool file was modified since it was last read"
 msgstr ""
 
@@ -18957,77 +19042,71 @@ msgid ""
 "Rotational"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_gtk.glade:80
-#: lib/python/gladevcp/tooledit_gtk.glade:391
-#: lib/python/gladevcp/tooledit_gtk.glade:613
+#: lib/python/gladevcp/tooledit_gtk.glade:82
+#: lib/python/gladevcp/tooledit_gtk.glade:393
+#: lib/python/gladevcp/tooledit_gtk.glade:615
 msgid "Select"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_gtk.glade:93
-#: lib/python/gladevcp/tooledit_gtk.glade:402
-#: lib/python/gladevcp/tooledit_gtk.glade:624
+#: lib/python/gladevcp/tooledit_gtk.glade:95
+#: lib/python/gladevcp/tooledit_gtk.glade:404
+#: lib/python/gladevcp/tooledit_gtk.glade:626
 msgid "Tool#"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_gtk.glade:109
-#: lib/python/gladevcp/tooledit_gtk.glade:413
-#: lib/python/gladevcp/tooledit_gtk.glade:635
+#: lib/python/gladevcp/tooledit_gtk.glade:111
+#: lib/python/gladevcp/tooledit_gtk.glade:415
+#: lib/python/gladevcp/tooledit_gtk.glade:637
 msgid "Pocket"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_gtk.glade:222
-#: lib/python/gladevcp/tooledit_gtk.glade:523
-#: lib/python/gladevcp/tooledit_gtk.glade:745
+#: lib/python/gladevcp/tooledit_gtk.glade:224
+#: lib/python/gladevcp/tooledit_gtk.glade:525
+#: lib/python/gladevcp/tooledit_gtk.glade:747
 msgid "Diameter"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_gtk.glade:237
-#: lib/python/gladevcp/tooledit_gtk.glade:538
-#: lib/python/gladevcp/tooledit_gtk.glade:760
+#: lib/python/gladevcp/tooledit_gtk.glade:239
+#: lib/python/gladevcp/tooledit_gtk.glade:540
+#: lib/python/gladevcp/tooledit_gtk.glade:762
 msgid "Front"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_gtk.glade:259
-#: lib/python/gladevcp/tooledit_gtk.glade:560
-#: lib/python/gladevcp/tooledit_gtk.glade:782
-msgid "Orientation"
-msgstr ""
-
-#: lib/python/gladevcp/tooledit_gtk.glade:270
-#: lib/python/gladevcp/tooledit_gtk.glade:571
-#: lib/python/gladevcp/tooledit_gtk.glade:793
+#: lib/python/gladevcp/tooledit_gtk.glade:272
+#: lib/python/gladevcp/tooledit_gtk.glade:573
+#: lib/python/gladevcp/tooledit_gtk.glade:795
 msgid "Comments"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_gtk.glade:325
+#: lib/python/gladevcp/tooledit_gtk.glade:327
 msgid "Reload"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_gtk.glade:369
+#: lib/python/gladevcp/tooledit_gtk.glade:371
 msgid "All Offsets"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_gtk.glade:424
+#: lib/python/gladevcp/tooledit_gtk.glade:426
 msgid "X Wear"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_gtk.glade:446
+#: lib/python/gladevcp/tooledit_gtk.glade:448
 msgid "Z Wear"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_gtk.glade:590
+#: lib/python/gladevcp/tooledit_gtk.glade:592
 msgid "Lathe Wear Offsets"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_gtk.glade:646
+#: lib/python/gladevcp/tooledit_gtk.glade:648
 msgid "X Tool"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_gtk.glade:668
+#: lib/python/gladevcp/tooledit_gtk.glade:670
 msgid "Z Tool"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_gtk.glade:812
+#: lib/python/gladevcp/tooledit_gtk.glade:814
 msgid "Lathe Tool Offsets"
 msgstr ""
 

@@ -1,4 +1,4 @@
-VERSION = '1.233.246'
+VERSION = '1.233.248'
 
 '''
 qtplasmac_handler.py
@@ -392,7 +392,7 @@ class HandlerClass:
             self.firstRun = False
         self.startupTimer.start(250)
 
-# called by qtvcp.py, can override qtvcp settings or qtvcp allowed user options (via ini)
+# called by qtvcp.py, can override qtvcp settings or qtvcp allowed user options (via INI)
     def before_loop__(self):
         self.w.setWindowTitle('{} - QtPlasmaC v{}, powered by QtVCP on LinuxCNC v{}'.format(self.machineName, VERSION, linuxcnc.version.split(':')[0]))
         self.w.setWindowIcon(QIcon(os.path.join(self.IMAGES, 'Chips_Plasma.png')))
@@ -810,7 +810,7 @@ class HandlerClass:
         CALL(['halcmd', 'net', 'plasmac:offsets-active', 'qtplasmac.offsets_active'])
         #override
         CALL(['halcmd', 'net', 'plasmac:height-override','qtplasmac.height_override','plasmac.height-override'])
-        #ini
+        #INI
         CALL(['halcmd', 'net', 'plasmac:axis-x-max-limit', 'ini.x.max_limit', 'plasmac.axis-x-max-limit'])
         CALL(['halcmd', 'net', 'plasmac:axis-x-min-limit', 'ini.x.min_limit', 'plasmac.axis-x-min-limit'])
         CALL(['halcmd', 'net', 'plasmac:axis-y-max-limit', 'ini.y.max_limit', 'plasmac.axis-y-max-limit'])
@@ -2179,7 +2179,7 @@ class HandlerClass:
 
     def update_check(self):
         # newest update must be added last in this function
-        # if any writing to the ini file is required then that needs
+        # if any writing to the INI file is required then that needs
         # to be done later in the update_iniwrite function
         halfiles = self.iniFile.findall('HAL', 'HALFILE') or None
         machinePrefsFile = os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs')
@@ -2214,7 +2214,7 @@ class HandlerClass:
             else:
                 if os.path.islink(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac')):
                     os.unlink(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'))
-        # move qtplasmac options from ini file to prefs file pre V1.227.219 2022/07/14)
+        # move qtplasmac options from INI file to prefs file pre V1.227.219 2022/07/14)
         if not self.PREFS.has_section('BUTTONS'):
             UPDATER.move_options_to_prefs_file(self.iniFile, self.PREFS)
             self.updateIni.append(219)
@@ -2225,7 +2225,7 @@ class HandlerClass:
                 UPDATER.move_port(self.PREFS)
 
     def update_iniwrite(self):
-        # this is for updates that write to the ini file
+        # this is for updates that write to the INI file
         if 154 in self.updateIni:
             UPDATER.add_component_hal_file_iniwrite(INIPATH)
         if 207 in self.updateIni:
@@ -2662,7 +2662,7 @@ class HandlerClass:
                 self.coordinates = kinematics.split('coordinates')[1].lower()
         else:
             head = _translate('HandlerClass', 'INI File Error')
-            msg0  = _translate('HandlerClass', 'Error in [KINS]KINEMATICS in the ini file')
+            msg0  = _translate('HandlerClass', 'Error in [KINS]KINEMATICS in the INI file')
             msg1 = _translate('HandlerClass', 'reverting to default coordinates of xyz')
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
         # hide axis a if not being used
@@ -3482,7 +3482,10 @@ class HandlerClass:
                             self.idleHomedList.append('button_{}'.format(str(bNum)))
                     elif command and command[0] == '%':
                         cmd = command.lstrip('%').lstrip(' ').split(' ', 1)[0]
-                        reply = Popen('which {}'.format(cmd), stdout=PIPE, stderr=PIPE, shell=True).communicate()[0]
+                        if cmd[-3:] == '.py':
+                            reply = os.path.exists(os.path.expanduser(cmd))
+                        else:
+                            reply = Popen('which {}'.format(cmd), stdout=PIPE, stderr=PIPE, shell=True).communicate()[0]
                         if not reply:
                             head = _translate('HandlerClass', 'External Code Error')
                             msg1 = _translate('HandlerClass', 'External command')
@@ -3640,8 +3643,13 @@ class HandlerClass:
                 command = newCommand
             ACTION.CALL_MDI(command)
         elif command and command[0] == '%':
-            command = command.lstrip('%').lstrip() + '&'
-            Popen(command, stdout=PIPE, stderr=PIPE, shell=True)
+            command = command.lstrip('%').lstrip()
+            if command[-3:] == '.py':
+                cmd = 'python3 ' + command
+                Popen(cmd, stdin = None, stdout=PIPE, stderr=PIPE, shell=True)
+            else:
+                command += '&'
+                Popen(command, stdout=PIPE, stderr=PIPE, shell=True)
         else:
             head = _translate('HandlerClass', 'Code Error')
             msg0 = _translate('HandlerClass', 'Invalid code for user button')
