@@ -280,13 +280,13 @@ The newly created QtPlasmaC configuration can be run by entering the following c
 For a package installation (Buildbot):
 
 ----
-linuxcnc ~/linuxcnc/configs/<machine_name>/<machine_name>.ini
+linuxcnc ~/linuxcnc/configs/<machine_name>/_<machine_name>_.ini
 ----
 
 For a run in place installation:
 
 ----
-~/linuxcnc-dev/scripts/linuxcnc ~/linuxcnc/configs/<machine_name>/<machine_name>.ini
+~/linuxcnc-dev/scripts/linuxcnc ~/linuxcnc/configs/<machine_name>/_<machine_name>_.ini
 ----
 
 After running the above command LinuxCNC should be running with the QtPlasmaC GUI visible.
@@ -338,7 +338,7 @@ If the machine is equipped with a float switch then the user will need to set th
 . If the machine is not already homed and in the home position, home the machine.
 . Place some material on the slats under the torch.
 . Press the *PROBE TEST* button.
-. The Z axis will probe down, find the material then move up to the specified *Pierce Height* as set by the currently selected material. The torch will wait in this position for the time set in the <machine_name>.prefs file. The default probe test hold time is 10 seconds, this value may be edited in the <machine_name>.prefs file. After this the torch will return to the starting height.
+. The Z axis will probe down, find the material then move up to the specified *Pierce Height* as set by the currently selected material. The torch will wait in this position for the time set in the _<machine_name>_.prefs file. The default probe test hold time is 10 seconds, this value may be edited in the _<machine_name>_.prefs file. After this the torch will return to the starting height.
 . Measure the distance between the material and the tip of the torch while the torch is waiting at *Pierce Height*.
 . If the measurement is greater than the *Pierce Height* of the currently selected material, then reduce the "Float Travel" in the *CONFIGURATION* section of the *PARAMETERS* tab by the difference between the measured value and the specified value. If the measurement is less than *Pierce Height* of the currently selected material, then increase the "Float Travel" in the *CONFIGURATION* section of the *PARAMETERS* tab by the difference between the specified value and the measured value.
 . After the adjustments to the "Float Travel" have been made, repeat the process from #4 above until the measured distance between the material and the torch tip matches the *Pierce Height* of the currently selected material.
@@ -391,7 +391,7 @@ image::images/qtplasmac_plasmac2qt.png[width=500,align="center"]
 [width="100%",cols="4,10,6",options="header"]
 |===
 |Field |Description |Examples
-|INI FILE IN EXISTING PLASMAC CONFIG |This is the INI file of the PlasmaC config that requires migrating.|<machine_name>.ini
+|INI FILE IN EXISTING PLASMAC CONFIG |This is the INI file of the PlasmaC config that requires migrating.|_<machine_name>_.ini
 |MONITOR ASPECT RATIO |This is the <<qt_formats, aspect ratio format>> for the GUI.|16:9
 |ESTOP |Selects the required Estop type based on the following criteria: +
     0 - Estop is an indicator only. +
@@ -419,7 +419,7 @@ This method will not change any existing debounce components to the new dbounce 
 
 === New Base Config Method
 
-This method to move to QtPlasmaC from PlasmaC (loaded on top of either Axis or Gmoccapy) is to use a <<configuring, configuration wizard>> to create a new configuration. This method then allows changing of the base machine configuration at a later date via the configuration wizard provided that the base ini and base HAL files have not been edited.
+This method to move to QtPlasmaC from PlasmaC (loaded on top of either Axis or Gmoccapy) is to use a <<configuring, configuration wizard>> to create a new configuration. This method then allows changing of the base machine configuration at a later date via the configuration wizard provided that the base INI and base HAL files have not been edited.
 
 This method requires that the user take note of all HAL pins used in the existing config so they can be entered into the configuration wizard. Any custom HAL commands will also need to be noted and added manually to either the custom.hal file or the custom_postgui.hal file which will be created by the configuration wizard.
 
@@ -429,7 +429,7 @@ Prior to running this conversion program, it is mandatory that the user have bot
 
 The program will create a time stamped backup of the original preferences file and the existing materials file (if it exists).
 
-It will read the existing <machine_name>_config.cfg, <machine_name>_run.cfg, <machine_name>_wizards.cfg, and plasmac_stats.var files and write them to an existing <machine_name>.prefs file. It will also copy the <machine_name>_material.cfg file to the existing QtPlasmaC configuration.
+It will read the existing <machine_name>_config.cfg, <machine_name>_run.cfg, <machine_name>_wizards.cfg, and plasmac_stats.var files and write them to an existing _<machine_name>_.prefs file. It will also copy the <machine_name>_material.cfg file to the existing QtPlasmaC configuration.
 
 To run the cfg2prefs conversion program, use the following instructions:
 
@@ -570,9 +570,9 @@ After a successful QtPlasmaC installation, the following files are created in th
 [width="100%",cols="1,2"]
 |===
 |*Filename*|*Function*
-|<machine_name>.ini |A configuration file for the machine.
-|<machine_name>.hal |A HAL for the machine.
-|<machine_name>.prefs |A configuration file for QtPlasmaC specific parameters and preferences.
+|_<machine_name>_.ini |A configuration file for the machine.
+|_<machine_name>_.hal |A HAL for the machine.
+|_<machine_name>_.prefs |A configuration file for QtPlasmaC specific parameters and preferences.
 |custom.hal |A HAL file for user customization.
 |custom_postgui.hal |A HAL file for user customization which is run after the GUI has initialized.
 |shutdown.hal |A HAL file which is run during the shutdown sequence.
@@ -598,14 +598,14 @@ After running a new configuration for the first time the following files will be
 |===
 
 [NOTE]
-The configuration files (<machine_name>.ini and <machine_name>.hal) that are created by configuration wizard are notated to explain the requirements to aid in manual manipulation of these configurations. They may be edited with any text editor.
+The configuration files (_<machine_name>_.ini and _<machine_name>_.hal) that are created by configuration wizard are notated to explain the requirements to aid in manual manipulation of these configurations. They may be edited with any text editor.
 
 [NOTE]
-The <machine_name>.prefs file is plain text and may be edited with any text editor.
+The _<machine_name>_.prefs file is plain text and may be edited with any text editor.
 
 === INI File
 
-QtPlasmaC has some specific <machine_name>.ini file variables as follows:
+QtPlasmaC has some specific _<machine_name>_.ini file variables as follows:
 
 *[FILTER]* Section
 
@@ -645,7 +645,7 @@ These variables are mandatory.
 [source,{ini}]
 ----
 HALUI           = halui (required)
-HALFILE         = <machine_name>.hal (the machine HAL file)
+HALFILE         = _<machine_name>_.hal (the machine HAL file)
 HALFILE         = plasmac.tcl (the standard QtPlasmaC HAL file )
 HALFILE         = custom.hal (Users custom HAL commands)
 POSTGUI_HALFILE = postgui_call_list.hal (required)
@@ -775,10 +775,10 @@ Some functions/features are only used for particular modes and are not displayed
 [width="100%",cols="4,16",options="header"]
 |===
 |Name |Description
-|ESTOP |If ESTOP_TYPE = 0 in the <machine_name>.prefs file, this button becomes an indicator of the hardware ESTOP's status only. +
-If ESTOP_TYPE = 1 in the <machine_name>.prefs file, this button will not be visible. +
-If ESTOP_TYPE = 2 in the <machine_name>.prefs file, this button will act as a GUI ESTOP. +
-If ESTOP_TYPE is omitted from the <machine_name>.prefs file, this button will default to being an indicator of the hardware ESTOP's status only.
+|ESTOP |If ESTOP_TYPE = 0 in the _<machine_name>_.prefs file, this button becomes an indicator of the hardware ESTOP's status only. +
+If ESTOP_TYPE = 1 in the _<machine_name>_.prefs file, this button will not be visible. +
+If ESTOP_TYPE = 2 in the _<machine_name>_.prefs file, this button will act as a GUI ESTOP. +
+If ESTOP_TYPE is omitted from the _<machine_name>_.prefs file, this button will default to being an indicator of the hardware ESTOP's status only.
 |POWER |This button turns the GUI on and allows QtPlasmaC/LinuxCNC to control the hardware. +
 Pressing and holding the *POWER* button for longer than two seconds will bring up a dialog to exit the QtPlasmaC application.
 |CYCLE START |This button starts the cycle for any loaded G-code file.
@@ -806,7 +806,7 @@ Clicking the label will return the slider to the default linear velocity as set 
 
 The Button Panel contains buttons useful for the operation of the machine.
 
-The *EDIT* and *MDI* buttons are permanent, all other buttons are user programmable in the <machine_name>.prefs file.
+The *EDIT* and *MDI* buttons are permanent, all other buttons are user programmable in the _<machine_name>_.prefs file.
 
 See <<qt_custom-user-buttons,custom user buttons>> for detailed information on custom user buttons.
 
@@ -908,8 +908,8 @@ During Paused Motion, this section will become <<qt_cut-recovery,CUT RECOVERY>>
 [width="100%",cols="4,16",options="header"]
 |===
 |Name       |Description
-|CONTINUOUS |This drop down button will change the jog increment. Options are determined by the values in the *[DISPLAY]* section of the <machine_name>.ini file and begin with the label "INCREMENTS =".
-|FAST       |This button will toggle between FAST which is the default linear velocity in the <machine_name>.ini file or SLOW which is 10% of the default value.
+|CONTINUOUS |This drop down button will change the jog increment. Options are determined by the values in the *[DISPLAY]* section of the _<machine_name>_.ini file and begin with the label "INCREMENTS =".
+|FAST       |This button will toggle between FAST which is the default linear velocity in the _<machine_name>_.ini file or SLOW which is 10% of the default value.
 |Y+         |This button moves the Y axis in the positive direction.
 |Y-         |This button moves the Y axis in the negative direction.
 |X+         |This button moves the X axis in the positive direction.
@@ -954,7 +954,7 @@ The torch (T0) will be selected if it was not the active tool.
 [width="100%",cols="4,16",options="header"]
 |===
 |Name |Description
-|HOME ALL |This button will home all of the axes in the order set by HOME_SEQUENCE in the <machine_name>.ini file.
+|HOME ALL |This button will home all of the axes in the order set by HOME_SEQUENCE in the _<machine_name>_.ini file.
 |WCS G54 |This drop down button will change the current work offset.
 |CAMERA |This button will display a CAMVIEW panel on top of the PREVIEW WINDOW and will allow the user to set an origin with or without rotation. See the <<qt_camera,CAMERA section>> for detailed instructions.
 |LASER |This button will allow the user to use a laser to set an origin with or without rotation. See the <<qt_laser,LASER section>> for detailed instructions.
@@ -1088,7 +1088,7 @@ This allows the scribe to reach surface of the material before activating the sc
 [width="100%",cols="4,16",options="header"]
 |===
 |Name        |Description
-|Max. Speed  |Displays the maximum velocity the Z axis is capable of (this is controlled by the <machine_name>.ini file).
+|Max. Speed  |Displays the maximum velocity the Z axis is capable of (this is controlled by the _<machine_name>_.ini file).
 |Setup Speed |The Z axis velocity for setup moves (movements to Probe Height, Pierce Height, Cut Height, etc.).
 |===
 
@@ -1127,9 +1127,9 @@ Large P gain adjustments can result in over correction and oscillations.
 
 [underline]*SAVE & RELOAD Buttons*
 
-The **SAVE** button will save the currently displayed parameters to the <machine_name>.prefs file.
+The **SAVE** button will save the currently displayed parameters to the _<machine_name>_.prefs file.
 
-The **RELOAD** button will reload all the parameters from the <machine_name>.prefs file.
+The **RELOAD** button will reload all the parameters from the _<machine_name>_.prefs file.
 
 [[qt_material]]
 [underline]*MATERIAL*
@@ -1217,7 +1217,8 @@ In addition to the standard jog keys, a list of the additional shortcuts is avai
 |View Material |This radio button allows the user to enable or disable the addition of a visual reference showing key material cut settings to the Preview Windows of the <<qt_main-tab,MAIN>> and <<qt_conversational-tab,CONVERSATIONAL>> tabs. +
 Examples are:  Feed Rate, Pierce Height, Pierce Delay, and Cut Height. Cut Amps will be shown if PowerMax communications are enabled.
 |Exit Warning |This radio button allows the user to enable or disable whether a warning will always be displayed during shutdown. +
-It is possible to add a custom message to the warning by editing the <<qt_exit-warning, EXIT WARNING MESSAGE>>.
+It is possible to add a custom message to the warning by editing the <<qt_exit-warning,EXIT WARNING MESSAGE>> in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file. +
+The custom message can be made multi-line by adding a "\" between lines.
 |Optional Stop |This radio button allows the user to enable or disable whether or not a running program will pause at an *M1* command.
 |Run From Line |This radio button allows the user to enable or disable <<qt_run-from-line,Run From Line>>. If enabled, the user can click on a line of G-code and have the program start from that line.
 |Override Limits |This radio button allows the user to temporarily Override the input from a Limit Switch in the event the limit switch becomes tripped during operation. This button can only be clicked when a limit switch is tripped.
@@ -1313,7 +1314,7 @@ QtPlasmaC will automatically add a line of G-code to move the Z axis to the corr
 
 === Units Systems
 
-All settings and parameters in QtPlasmaC are required to be in the same units as specified in the ini file, being either metric or imperial.
+All settings and parameters in QtPlasmaC are required to be in the same units as specified in the INI file, being either metric or imperial.
 
 If the user is attempting to run a G-code file that is in the "other" units system then all parameters including the material file parameters are still required to be in the native machines units. Any further conversions necessary to run the G-code file will be handled automatically by the G-code filter program.
 
@@ -1349,9 +1350,9 @@ For backwards compatibility it is permissible to use *M3 S1* in lieu of *M3 $0 S
 
 See <<qt_z-settings,recommended Z axis>> settings.
 
-Each time LinuxCNC (QtPlasmaC) is started Joint homing is required. This allows LinuxCNC (QtPlasmaC) to establish the known coordinates of each axis and set the soft limits to the values specified in the <machine_name>.ini file in order to prevent the machine from crashing into a hard stop during normal use.
+Each time LinuxCNC (QtPlasmaC) is started Joint homing is required. This allows LinuxCNC (QtPlasmaC) to establish the known coordinates of each axis and set the soft limits to the values specified in the _<machine_name>_.ini file in order to prevent the machine from crashing into a hard stop during normal use.
 
-If the machine does not have home switches then the user needs to ensure that all axes are at the home coordinates specified in the <machine_name>.ini file before homing.
+If the machine does not have home switches then the user needs to ensure that all axes are at the home coordinates specified in the _<machine_name>_.ini file before homing.
 
 If the machine has home switches then it will move to the specified home coordinates when the Joints are homed.
 
@@ -1499,8 +1500,8 @@ M5 $0
 
 By using "magic comments" in a G-code file it is possible to do the following:
 
-- Add new materials to the <machine_name>_material.cfg file.
-- Edit existing materials in the <machine_name>_material.cfg file.
+- Add new materials to the __<machine_name>___material.cfg file.
+- Edit existing materials in the __<machine_name>___material.cfg file.
 - Use one or more temporary materials.
 
 Temporary materials are numbered automatically by QtPlasmaC and the material change will also be done by QtPlasmaC and should not be added to the G-code file by CAM software or otherwise.
@@ -1574,9 +1575,11 @@ This application is used to convert existing tool tables into QtPlasmaC material
 
 At this stage the only conversions available are for tool tables exported from either SheetCam or Fusion 360.
 
-SheetCam tool tables are complete and the conversion is fully automatic. The SheetCam tool file must be in the SheetCam .tools format.
+SheetCam tool tables are complete and the conversion is fully automatic.
+The SheetCam tool file must be in the SheetCam .tools format.
 
-Fusion 360 tool tables do not have all of the required fields so the user will be prompted for missing parameters. The Fusion 360 tool file must be in the Fusion 360 .json format.
+Fusion 360 tool tables do not have all of the required fields so the user will be prompted for missing parameters.
+The Fusion 360 tool file must be in the JSON format of Fusion 360.
 
 If the user has a format from a different CAM software they would like converted, create a *New Topic* in the https://forum.linuxcnc.org/plasmac[PlasmaC forum] section of the https://forum.linuxcnc.org/[LinuxCNC forum] to request this addition.
 
@@ -1638,7 +1641,7 @@ QtPlasmaC has the ability to use a USB camera to set the origin with or without 
 
 To use this feature, the user must set the camera's offset from the torch center by following the procedure described in <<peripheral-offsets,Peripheral Offsets>>.
 
-To modify the offsets manually, the user could edit either or both the following lines in the *[CAMERA_OFFSET]* section of the <machine_name>.prefs file:
+To modify the offsets manually, the user could edit either or both the following lines in the *[CAMERA_OFFSET]* section of the _<machine_name>_.prefs file:
 
 [source,{ini}]
 ----
@@ -1679,7 +1682,7 @@ QtPlasmaC has the ability to use a laser to set the origin with or without rotat
 
 To use this feature, the user must set the laser's offset from the torch center by following the procedure described in <<peripheral-offsets,Peripheral Offsets>>.
 
-To modify the offsets manually, the user could edit either or both the following lines in the *[LASER_OFFSET]* section of the <machine_name>.prefs file:
+To modify the offsets manually, the user could edit either or both the following lines in the *[LASER_OFFSET]* section of the _<machine_name>_.prefs file:
 
 [source,{ini}]
 ----
@@ -1734,15 +1737,15 @@ The default LinuxCNC path tolerance is set for maximum speed which will severely
 
 It is recommended that the path tolerance is set by placing the appropriate G64 command and P value in the header of each G-code file.
 
-The provided G-code filter program will test for the existence of a G64 P__n__ command prior to the first motion command. If no G64 command is found it will insert a G64 P0.1 command which sets the path tolerance to 0.1&#8239;mm. For a imperial config the command will be G64 P0.004.
+The provided G-code filter program will test for the existence of a `G64 P__n__` command prior to the first motion command. If no G64 command is found it will insert a `G64 P0.1` command which sets the path tolerance to 0.1&#8239;mm. For a imperial config the command will be `G64 P0.004`.
 
-For Metric:
+.For Metric:
 [source,{ngc}]
 ----
 G64 P0.1
 ----
 
-For Imperial:
+.For Imperial:
 [source,{ngc}]
 ----
 G64 P0.004
@@ -1772,7 +1775,8 @@ M52 P0
 [[qt_pause-at-end]]
 === Pause At End Of Cut
 
-This feature can be used to allow the arc to "catch up" to the torch position to fully finish the cut. It is usually required for thicker materials and is especially useful when cutting stainless steel.
+This feature can be used to allow the arc to "catch up" to the torch position to fully finish the cut.
+It is usually required for thicker materials and is especially useful when cutting stainless steel.
 
 Using this feature will cause all motion to pause at the end of the cut while the torch is still on.
 After the dwell time (in seconds) set by the *Pause At End* parameter in the MATERIAL section of the <<qt_parameters-tab,PARAMETERS Tab>> has expired, QtPlasmaC will proceed with the M5 command to turn off and raise the torch.
@@ -1900,12 +1904,9 @@ IMPORTANT: IF *CUTTER COMPENSATION* IS IN EFFECT *G-CODE THC*, *VELOCITY BASED T
 
 Initial Height Sense may be skipped in one of two different ways:
 
-. If the THC is disabled, or the THC is enabled but not active, then the
-  IHS skip will occur if the start of the cut is less than *Skip IHS*
+. If the THC is disabled, or the THC is enabled but not active, then the IHS skip will occur if the start of the cut is less than *Skip IHS*
   distance from the last successful probe.
-. If the THC is enabled and active, then the IHS skip will occur if the
-  start of the cut is less than *Skip IHS* distance from the end of the
-  last cut.
+. If the THC is enabled and active, then the IHS skip will occur if the start of the cut is less than *Skip IHS* distance from the end of the last cut.
 
 A value of zero for *Skip IHS* will disable all IHS skipping.
 
@@ -1915,7 +1916,8 @@ Any errors encountered during a cut will disable IHS skipping for the next cut i
 === Probing
 
 Probing may be done with either ohmic sensing or a float switch.
-It is also possible to combine the two methods, in which case the float switch will provide a fallback to ohmic probing. An alternative to ohmic probing is <<qt_offset_probing,Offset Probing>>
+It is also possible to combine the two methods, in which case the float switch will provide a fallback to ohmic probing.
+An alternative to ohmic probing is <<qt_offset_probing,Offset Probing>>
 
 If the machine's torch does not support ohmic probing, the user could have a separate probe next to the torch.
 In this case the user would extend the probe below the torch.
@@ -1928,7 +1930,7 @@ QtPlasmaC can probe at the full Z axis velocity so long as the machine has enoug
 Some float switches can exhibit a large switching hysteresis which shows up in the probing sequence as an excessive time to complete the final probe up.
 
 * This time may be decreased by changing the speed of the final probe up.
-* This speed defaults to 0.001mm (0.000039") per servo cycle.
+* This speed defaults to 0.001&thinsp;mm (0.000039") per servo cycle.
 * It is possible to increase this speed by up to a factor of 10 by adding the following line to the custom.hal file:
 
 [source,{hal}]
@@ -1954,12 +1956,12 @@ Offset Probing is the use of a probe that is offset from the torch.
 This method is an alternative to Ohmic Probing and uses the plasmac.ohmic-enable output pin to operate a solenoid for extending and retracting the probe.
 The plasmac.ohmic-probe input pin is used to detect the material and the *Ohmic Offset* in the PROBING frame of the CONFIGURATION section of the <<qt_parameters-tab,PARAMETERS Tab>> is used to set the correct measured height.
 
-The probe could be a mechanically deployed probe, a permanently mounted proximity sensor or even simply a stiff piece of wire extending about 0.5mm (0.2") below the torch tip.
+The probe could be a mechanically deployed probe, a permanently mounted proximity sensor or even simply a stiff piece of wire extending about 0.5&thinsp;mm (0.2") below the torch tip.
 If the probe is mechanically deployed then it needs to extend/retract rather quickly to avoid excessive probing times and would commonly be pneumatically operated.
 
 To use this feature, the user must set the probe's offset from the torch center by following the procedure described in <<peripheral-offsets,Peripheral Offsets>>.
 
-To modify the offsets manually, the user could edit either or both the following lines in the *[OFFSET_PROBING]* section of the <machine_name>.prefs file:
+To modify the offsets manually, the user could edit either or both the following lines in the *[OFFSET_PROBING]* section of the _<machine_name>_.prefs file:
 
 [source,{ini}]
 ----
@@ -2004,7 +2006,7 @@ If using a custom user button is utilized then QtPlasmaC will automatically relo
 
 It is recommended that any holes to be cut have a diameter no less than one and a half times the thickness of the material to be cut.
 
-It is also recommended that holes with a diameter of less than 32mm (1.26") are cut at 60% of the feed rate used for profile cuts. This should also lock out THC due to velocity constraints.
+It is also recommended that holes with a diameter of less than 32&thinsp;mm (1.26") are cut at 60% of the feed rate used for profile cuts. This should also lock out THC due to velocity constraints.
 
 QtPlasmaC can utilize G-code commands usually set by a CAM Post Processor (PP) to aid in hole cutting or if the user does not have a PP or the user's PP does not support these methods then QtPlasmaC can automatically adapt the G-code to suit. This automatic mode is disabled by default.
 
@@ -2107,12 +2109,12 @@ For valid hole sensing it is required that all values in the G2 or G3 G-code lin
 QtPlasmaC Hole Sensing is disabled by default. It can be enabled/disabled by using the following G-code parameters to select the desired hole sensing mode:
 
 * *#<holes> = 0* - Causes QtPlasmaC to disable hole sensing if it was previously enabled.
-* *#<holes> = 1* - Causes QtPlasmaC to reduce the speed of holes less than 32mm (1.26") to 60% of *CutFeedRate*.
+* *#<holes> = 1* - Causes QtPlasmaC to reduce the speed of holes less than 32&thinsp;mm (1.26") to 60% of *CutFeedRate*.
 * *#<holes> = 2* - Causes QtPlasmaC to <<qt_overcut,Over cut>> the hole in addition to the velocity changes in setting 1.
-* *#<holes> = 3* - Causes QtPlasmaC to reduce the speed of holes less than 32mm (1.26") and arcs less than 16mm (0.63") to 60% of *CutFeedRate*.
+* *#<holes> = 3* - Causes QtPlasmaC to reduce the speed of holes less than 32&thinsp;mm (1.26") and arcs less than 16&thinsp;mm (0.63") to 60% of *CutFeedRate*.
 * *#<holes> = 4* - Causes QtPlasmaC to <<qt_overcut,Over cut>> the hole in addition to the velocity change in setting 3.
 
-The default hole size for QtPlasmaC hole sensing is 32mm (1.26"). It is possible to change this value with the following command in a G-code file:
+The default hole size for QtPlasmaC hole sensing is 32&thinsp;mm (1.26"). It is possible to change this value with the following command in a G-code file:
 
 * *#<h_diameter> = nn* - To set a diameter (nn) in the same units system as the rest of the G-code file.
 
@@ -2169,22 +2171,22 @@ This is the preferred method. The parameters for this method are entered in the 
 
 image::images/qtplasmac_single_cut.png[width=300,align="center"]
 
-. Jog to the required X/Y start position. +
-. Set required appropriate material, or edit the Feed Rate for the default material in the <<qt_parameters-tab,PARAMETERS Tab>>. +
-. Press the assigned single cut user button. +
-. Enter the length of the cut along the X and/or Y axes. +
+. Jog to the required X/Y start position.
+. Set required appropriate material, or edit the Feed Rate for the default material in the <<qt_parameters-tab,PARAMETERS Tab>>.
+. Press the assigned single cut user button.
+. Enter the length of the cut along the X and/or Y axes.
 . Press the *CUT* button and the cut will commence.
 
 [underline]*Pendant Single Cut*
 
 If the machine is equipped with a pendant that can start and stop the spindle plus jog the X and Y axes, the user can manually perform a single cut.
 
-. Jog to the required X/Y start position. +
-. Set the required feed rate with the Jog Speed slider. +
-. Start the cut process by starting the spindle. +
-. After probing the torch will fire. +
-. When the Arc OK is received the machine can be jogged along the cut line using the jog buttons. +
-. When the cut is complete stop the spindle. +
+. Jog to the required X/Y start position.
+. Set the required feed rate with the Jog Speed slider.
+. Start the cut process by starting the spindle.
+. After probing the torch will fire.
+. When the Arc OK is received the machine can be jogged along the cut line using the jog buttons.
+. When the cut is complete stop the spindle.
 . The torch will turn off and the Z axis will return to the starting position.
 
 [[qt_manual-single-cut]]
@@ -2414,7 +2416,7 @@ The user can switch between the torch and the scribe any number of times during 
 
 Issuing *M3 S1* (without $_n_) will cause the machine to behave as if an *M3 $0 S1* had been issued and issuing *M5* (without $_n_) will cause the machine to behave as if an *M5 $0* had been issued. This will control the torch firing by default in order to provide backward compatibility for previous G-code files.
 
-WARNING: If there is an existing manual tool change parameter set in the <machine_name>.hal file then QtPlasmaC will convert it to an automatic tool change.
+WARNING: If there is an existing manual tool change parameter set in the _<machine_name>_.hal file then QtPlasmaC will convert it to an automatic tool change.
 
 [[qt_spotting]]
 === Spotting
@@ -2499,10 +2501,10 @@ In order to utilize them, *KB Shortcuts* must be enabled in the *GUI SETTINGS* s
 |ALT+RETURN |Places QtPlasmaC into Manual Data Input (MDI) mode. +
 Note that ALT + ENTER will achieve the same result. +
 In addition, pressing RETURN (or ENTER) with no entry in the MDI will close the MDI window.
-|`, 1-9, 0 |Changes jog speed to 0%, 10%-90%, 100% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the *[DISPLAY]* section of the <machine_name>.ini file.
+|`, 1-9, 0 |Changes jog speed to 0%, 10%-90%, 100% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the *[DISPLAY]* section of the _<machine_name>_.ini file.
 |SHIFT+`, 1-9, 0 |Changes rapid speed to 0%, 10%-90%, 100%.
 |CTRL+1-9, 0 |Changes feed rate to 10%-90%, 100%.
-|CTRL+HOME |Homes all axes if they are not yet homed and have a homing sequence set in the <machine_name>.ini file. If they are already homed, they will no longer be homed.
+|CTRL+HOME |Homes all axes if they are not yet homed and have a homing sequence set in the _<machine_name>_.ini file. If they are already homed, they will no longer be homed.
 |CTRL+R |Cycle Start if the program is not already running. Cycle Resume if the program is paused.
 |END |Touches off X and Y to 0.
 |DEL |Allows the user to use a laser to set an origin with or without rotation. See the <<qt_laser,LASER section>> for detailed instructions.
@@ -2782,16 +2784,16 @@ In addition, QtPlasmaC will alert the user that an error has been sent to the ma
 
 The user may opt to disable the Operator Error popup window,
 and view the error messages by going to the <<qt_statistics-tab,STATISTICS Tab>>
-by changing the following preference to *False* in the *[SCREEN_OPTIONS]* of the <machine_name>.prefs file in the <machine_name> directory:
+by changing the following preference to *False* in the *[SCREEN_OPTIONS]* of the _<machine_name>_.prefs file in the <machine_name> directory:
 
 ----
 desktop_notify
 ----
 
 [NOTE]
-<machine_name>.prefs must be edited with QtPlasmaC closed or any changes will be overwritten on exit.
+_<machine_name>_.prefs must be edited with QtPlasmaC closed or any changes will be overwritten on exit.
 
-Additionally, it is possible for *ERROR SENT TO MACHINE LOG* to flash to get the user's attention by adding or editing the following line in the *[GUI_OPTIONS]* section of the <machine_name>.prefs file:
+Additionally, it is possible for *ERROR SENT TO MACHINE LOG* to flash to get the user's attention by adding or editing the following line in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file:
 
 [source,{ini}]
 ----
@@ -2932,7 +2934,7 @@ There are two ways to modify an existing QtPlasmaC configuration:
 . Running the appropriate <<configuring,configuration wizard>> and loading the conf file saved by the wizard.
 . Manually edit the INI and/or the HAL file of the configuration.
 
-IMPORTANT: Any manual modification to the <machine_name>.ini and <machine_name>.hal files will not be registered in PnCconf or StepConf.
+IMPORTANT: Any manual modification to the _<machine_name>_.ini and _<machine_name>_.hal files will not be registered in PnCconf or StepConf.
 
 [NOTE]
 If unsure of the HAL pin's full name, the user may start LinuxCNC and run *HalShow* for a full listing of all HAL pins.
@@ -2973,7 +2975,7 @@ This would be done with the following code in qtplasmac_custom.qss:
 
 === Create A New Style
 
-Custom stylesheets are enable by a setting in the *[GUI_OPTIONS]* section of the <machine_name>.prefs file giving the filename of the stylesheet.
+Custom stylesheets are enable by a setting in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file giving the filename of the stylesheet.
 
 [source,{ini}]
 ----
@@ -3040,14 +3042,14 @@ The user may return to the default styling at any time by following the followin
 . Close QtPlasmaC if open.
 . Delete qtplasmac.qss from the machine config directory.
 . Delete qtplasmac_custom.qss from the machine config directory (if it exists).
-. Open <machine_name>.prefs file.
+. Open _<machine_name>_.prefs file.
 . Delete the *[COLOR_OPTIONS]* section.
 . Delete the Custom style line from the *[GUI_OPTIONS]* section.
 . Save the file.
 
 The next time QtPlasmaC is loaded all custom styling will be removed and the default styling will return.
 
-Below is an example of the section to be deleted from <machine_name>.prefs:
+Below is an example of the section to be deleted from _<machine_name>_.prefs:
 
 ----
 [COLOR_OPTIONS]
@@ -3081,7 +3083,7 @@ A user periodic file must be named user_periodic.py and must be loated in the ma
 [[qt_custom-user-buttons]]
 === Custom User Buttons
 
-The QtPlasmaC GUI offers user buttons that can be customized by adding commands in the <<qt_button_entries, USER BUTTON ENTRIES>> section of the <<qt_settings-tab, SETTINGS Tab>>.
+The QtPlasmaC GUI offers user buttons that can be customized by adding commands in the <<qt_button_entries,USER BUTTON ENTRIES>> section of the <<qt_settings-tab,SETTINGS Tab>> in the _<machine_name>_.prefs file.
 
 The number of user buttons varies by display type and resolution as follows:
 
@@ -3090,7 +3092,7 @@ The number of user buttons varies by display type and resolution as follows:
 
 The user will need to run QtPlasmaC at the desired screen size to determine how many user buttons are available for use.
 
-All <machine_name>.prefs file settings for the buttons are found in the *[BUTTONS]* section.
+All _<machine_name>_.prefs file settings for the buttons are found in the *[BUTTONS]* section.
 
 .Button Names
 
@@ -3177,7 +3179,7 @@ To run an existing subroutine.
 n Code = o<the_subroutine> call
 ----
 
-<machine_name>.ini file variables can be entered by using {} (a space must be placed after the })
+_<machine_name>_.ini file variables can be entered by using {} (a space must be placed after the })
 
 [source,{ini}]
 ----
@@ -3242,7 +3244,7 @@ The button colors will follow the state of the alignment laser HAL pin.
 
 After setting the code, upon clicking, the button will invert colors and the alignment laser HAL pin will invert pin state. The button will stay "latched" until the button is clicked again, which will return the button to the original colors and the alignment laser HAL pin to the original pin state.
 
-The following code would allow the user to use a button to invert the current state of the alignment laser HAL bit pin and then move the X and Y axes to the offset for the alignment laser as specified in the <machine_name>.prefs file:
+The following code would allow the user to use a button to invert the current state of the alignment laser HAL bit pin and then move the X and Y axes to the offset for the alignment laser as specified in the _<machine_name>_.prefs file:
 
 [source,{ini}]
 ----
@@ -3343,7 +3345,7 @@ HAL connections to this HAL pin needs to be specified in a postgui HAL file as t
 [[qt_button-load]]
 .Load
 
-Loading a G-code program from the directory specified by the *PROGRAM_PREFIX* variable in the <machine_name>.ini file (usually ~/linuxcnc/nc_files) is possible by using the following format:
+Loading a G-code program from the directory specified by the *PROGRAM_PREFIX* variable in the _<machine_name>_.ini file (usually ~/linuxcnc/nc_files) is possible by using the following format:
 
 [source,{ini}]
 ----
@@ -3394,7 +3396,7 @@ n Code = single-cut
 Framing is the ability to move the torch around the perimeter of a rectangle that encompasses the bounds of the current job.
 
 The laser enable HAL pin (qtplasmac.laser_on) will be turned on during the framing moves
-and any X/Y offsets for the laser pointer in the <machine_name>.prefs file will also be applied to the X/Y motion.
+and any X/Y offsets for the laser pointer in the _<machine_name>_.prefs file will also be applied to the X/Y motion.
 After the framing motion is completed, the torch will move to the X0 Y0 position to clear any applied laser offsets and qtplasmac.laser_on will be turned off.
 
 Upon starting a Framing cycle, it is important to note that by default the Z axis will be moved to a height of [AXIS_Z]MAX_LIMIT - 5mm (0.2") before X/Y motion begins.
@@ -3594,7 +3596,7 @@ The following HAL bit output pins are always created and can be used by either t
 === Hide Program Buttons
 
 If the user has external buttons and/or a pendant that emulates any of the program buttons, CYCLE START, CYCLE PAUSE, or CYCLE STOP
-then it is possible to hide any or all of these GUI program buttons by adding the following code to the *[GUI_OPTIONS]* section of the <machine_name>.prefs file:
+then it is possible to hide any or all of these GUI program buttons by adding the following code to the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file:
 
 [source,{ini}]
 ----
@@ -3727,7 +3729,7 @@ If using only a touchscreen to navigate the QtPlasmaC GUI, there is no way to st
 
 It is possible to override the jog inhibit by using the GUI or keyboard to jog in the Z+ direction rather than checking the Override Jog box on the <<qt_settings-tab, SETTINGS Tab>>.
 
-This is done by changing the following preference to *True* in the *[GUI_OPTIONS]* of the <machine_name>.prefs file in the <machine_name> folder:
+This is done by changing the following preference to *True* in the *[GUI_OPTIONS]* of the _<machine_name>_.prefs file in the <machine_name> folder:
 
 ----
 Override jog inhibit via Z+
@@ -3792,8 +3794,8 @@ Changing the cutting mode will set the gas pressure to zero causing the machine 
 The maximum and minimum values of these parameters are read from the plasma cutter and the related spin-buttons in the Cut Parameters are then limited by these values.
 Gas pressure cannot be changed from zero until communications have been established.
 
-This feature is enabled by setting the correct port name for the PM_PORT option in the *[POWERMAX]* section of the <machine_name>.prefs file.
-If the PM_PORT option is not set in the <machine_name>.prefs file then the widgets associated with this feature will not be visible.
+This feature is enabled by setting the correct port name for the PM_PORT option in the *[POWERMAX]* section of the _<machine_name>_.prefs file.
+If the PM_PORT option is not set in the _<machine_name>_.prefs file then the widgets associated with this feature will not be visible.
 
 Example showing enabling the Hypertherm PowerMax Communications on USB0:
 
@@ -4293,7 +4295,7 @@ QtPlasmaC uses this disabling feature by default for all keys only when the <<qt
 with the following exceptions when autorepeat is allowed with the <<qt_main-tab,MAIN Tab>> visible:
 G-code editor is active, MDI is active. When QtPlasmaC is shut down, the Operating System's autorepeat feature will be enabled for all keys.
 
-If the user wishes to prevent QtPlasmaC from changing the Operating System's autorepeat settings, enter the following in the *[GUI_OPTIONS]* section of the <machine_name>.prefs file:
+If the user wishes to prevent QtPlasmaC from changing the Operating System's autorepeat settings, enter the following in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file:
 
 [source,{ini}]
 ----

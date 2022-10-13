@@ -43,7 +43,7 @@ HAL.
 
 The supported boards are: 7I76E, 7I80DB, 7I80HD, 7I92, 7I93, 7I94, 7I95, 7I96, 7I96S, 7I97, 7I98.
 
-The board must have its hardware loaded on the board by the mesaflash(1) program.
+The board must have its firmware loaded on the board by the mesaflash(1) program.
 
 hm2_eth is only available when LinuxCNC is configured with "uspace" realtime.
 
@@ -172,7 +172,7 @@ high can cause realtime delay errors.
 
 .SH NOTES
 hm2_eth uses an iptables chain called "hm2\-eth\-rules\-output" to control access
-to the network interface while hal is running.  The chain is created if it does
+to the network interface while HAL is running.  The chain is created if it does
 not exist, and a jump to it is inserted at the beginning of the OUTPUT chain if
 it is not there already.  If you have an existing iptables setup, you can insert
 a direct jump from OUTPUT to hm2\-eth\-rules\-output in an order appropriate to
