@@ -161,7 +161,10 @@ image::images/qtvcp_toolChange.png["QtVCP tool_dialog - Manual Tool Change Dialo
 
 
 [[sub:qtvcp:panels:vismach]]
-== `vismach_*` 3D Simulation Panels
+== `vismach` 3D Simulation Panels
+These panels are prebuilt simulation of common machine types.
+
+These are also embed-able in other screens such as AXIS or GMOCCAPY.
 
 === QtVCP `vismach_mill_xyz`
 
