@@ -381,6 +381,7 @@ class HandlerClass:
             self.w.cut_mode.hide()
             self.w.cut_mode_label.hide()
             self.w.pmx485_frame.hide()
+            self.w.pmx_stats_frame.hide()
         if self.w.mdihistory.rows:
             self.mdiLast = self.w.mdihistory.model.item(self.w.mdihistory.rows - 1).text()
         else:
@@ -3162,7 +3163,6 @@ class HandlerClass:
         if not self.w.pmx485_enable.isChecked():
             self.w.pmx485_label.setText('')
             self.pmx485LabelState = None
-            self.w.pmx_stats_frame.hide()
         elif self.pmx485CommsError:
             if self.flashState:
                 self.w.pmx485_label.setText(_translate('HandlerClass', 'COMMS ERROR'))
@@ -4993,7 +4993,6 @@ class HandlerClass:
             else:
                 self.w.pmx485_label.setText(_translate('HandlerClass', 'CONNECTING'))
                 self.pmx485LabelState = 'CONNECT'
-                self.w.pmx_stats_frame.hide()
                 self.pmx485CommsTimer.start(3000)
         else:
             self.pmx485Connected = False
@@ -5056,7 +5055,6 @@ class HandlerClass:
             else:
                 self.w.pmx485_label.setText(_translate('HandlerClass', 'COMMS ERROR'))
                 self.pmx485LabelState = None
-                self.w.pmx_stats_frame.hide()
                 self.pmx485CommsError = True
                 self.pmx485Connected = False
                 self.pmx485RetryTimer.start(3000)
@@ -5064,7 +5062,6 @@ class HandlerClass:
     def pmx485_arc_time_changed(self, time):
         if self.pmx485Connected:
             self.pmx485ArcTime = self.pmx485ArcTimePin.get()
-            self.w.pmx_stats_frame.show()
             self.w.pmx_arc_time_label.setText(_translate('HandlerClass', 'ARC ON TIME'))
             self.display_hms('pmx_arc_time_t', self.pmx485ArcTime)
 
@@ -5113,7 +5110,6 @@ class HandlerClass:
         self.pmx485CommsTimer.stop()
         self.w.pmx485_label.setText(_translate('HandlerClass', 'COMMS ERROR'))
         self.pmx485LabelState = None
-        self.w.pmx_stats_frame.hide()
         self.pmx485CommsError = True
         self.pmx485Connected = False
         self.pmx485RetryTimer.start(3000)
