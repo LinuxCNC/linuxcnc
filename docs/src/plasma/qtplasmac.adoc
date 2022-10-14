@@ -735,7 +735,7 @@ Exiting or shutting down QtPlasmaC is done by either:
 . Click the window shutdown button on the window title bar
 . Long press the *POWER* button on the MAIN Tab.
 
-A shutdown warning can be displayed on every shutdown by checking the *Exit Warning* checkbox on the <<qt_parameters-tab,PARAMETERS Tab>>.
+A shutdown warning can be displayed on every shutdown by checking the *Exit Warning* checkbox on the <<qt_settings-tab, SETTINGS Tab>>.
 
 [[qt_main-tab]]
 === MAIN Tab
@@ -753,11 +753,11 @@ Some functions/features are only used for particular modes and are not displayed
 |Name |Description
 |Material |The top header is clickable in this area to reveal a drop down menu. It is used to manually select the current material cut parameters. If there are no materials in the material file then only the default material will be displayed.
 |VEL:|This displays the actual cut feed rate the table is moving at.
-|FR:|If "View Material" is selected on the <<qt_parameters-tab,PARAMETERS Tab>>, this displays the currently selected material's Feed Rate.
-|PH:|If "View Material" is selected on the <<qt_parameters-tab,PARAMETERS Tab>>, this displays the currently selected material's Pierce Height.
-|PD:|If "View Material" is selected on the <<qt_parameters-tab,PARAMETERS Tab>>, this displays the currently selected material's Pierce Delay.
-|CH:|If "View Material" is selected on the <<qt_parameters-tab,PARAMETERS Tab>>, this displays the currently selected material's Cut Height.
-|CA:|If "View Material" is selected on the <<qt_parameters-tab,PARAMETERS Tab>>, and RS485 communications are enabled, this displays the currently selected material's Cut Amperage.
+|FR:|If "View Material" is selected on the <<qt_settings-tab, SETTINGS Tab>>, this displays the currently selected material's Feed Rate.
+|PH:|If "View Material" is selected on the <<qt_settings-tab, SETTINGS Tab>>, this displays the currently selected material's Pierce Height.
+|PD:|If "View Material" is selected on the <<qt_settings-tab, SETTINGS Tab>>, this displays the currently selected material's Pierce Delay.
+|CH:|If "View Material" is selected on the <<qt_settings-tab, SETTINGS Tab>>, this displays the currently selected material's Cut Height.
+|CA:|If "View Material" is selected on the <<qt_settings-tab, SETTINGS Tab>>, and RS485 communications are enabled, this displays the currently selected material's Cut Amperage.
 |T |This button changes the <<sub:qt-preview-views,preview>> to a top down full table view.
 |P |This button changes the <<sub:qt-preview-views,preview>> to an isometric view.
 |Z |This button changes the <<sub:qt-preview-views,preview>> to a top down view.
@@ -1004,9 +1004,7 @@ image::images/qtplasmac_parameters.png[width=800,align="center"]
 
 Some functions/features are only used for particular modes and are not displayed if they are not required by the chosen QtPlasmaC mode.
 
-Due to space constraints, the 4x3 GUI's <<qt_parameters-tab,PARAMETERS Tab>> will be spread across two tabs, PARAMETERS and SETTINGS.
-
-This tab is used to display configuration parameters that are modified infrequently.
+This tab is used to display plasma configuration parameters that are modified infrequently.
 
 It is possible to disable this tab so machine settings cannot be modified by unauthorized personnel. This may be achieved either by wiring the pin to a physical key-switch or similar or it may also be set in a HAL file using the following command:
 
@@ -1173,6 +1171,23 @@ The **NEW** button will allow a new material to be added to the material file. T
 
 The **DELETE** this button is used to delete a material. After pressing it, the user will be prompted for a material number to be deleted, and prompted again to ensure the user is sure. After deletion, the material file will be reloaded and the drop down list will display the default material.
 
+
+[[qt_settings-tab]]
+=== SETTINGS Tab
+
+Screenshot example of the QtPlasmaC <<qt_settings-tab,SETTINGS Tab>> in *16:9* aspect ratio:
+
+image::images/qtplasmac_parameters.png[width=800,align="center"]
+
+This tab is used to display GUI configuration parameters, button text, and shutdown text that are modified infrequently as well as some utility buttons.
+
+It is possible to disable this tab so machine settings cannot be modified by unauthorized personnel. This may be achieved either by wiring the pin to a physical key-switch or similar or it may also be set in a HAL file using the following command:
+
+[source,{hal}]
+----
+setp qtplasmac.settings_disable 1
+----
+
 [underline]*GUI SETTINGS*
 
 This section shows parameters that effect the GUI appearance and GUI behaviors.
@@ -1198,8 +1213,7 @@ In addition to the standard jog keys, a list of the additional shortcuts is avai
 |View Material |This radio button allows the user to enable or disable the addition of a visual reference showing key material cut settings to the Preview Windows of the <<qt_main-tab,MAIN>> and <<qt_conversational-tab,CONVERSATIONAL>> tabs. +
 Examples are:  Feed Rate, Pierce Height, Pierce Delay, and Cut Height. Cut Amps will be shown if PowerMax communications are enabled.
 |Exit Warning |This radio button allows the user to enable or disable whether a warning will always be displayed during shutdown. +
-It is possible to add a custom message to the warning by adding the message to the *Exit warning text* option in the *[GUI_OPTIONS]* section of the <machine_name>.prefs file. +
-The custom message can be made multi-line by adding a "\" between lines.
+It is possible to add a custom message to the warning by editing the <<qt_exit-warning, EXIT WARNING MESSAGE>>.
 |Optional Stop |This radio button allows the user to enable or disable whether or not a running program will pause at an *M1* command.
 |Run From Line |This radio button allows the user to enable or disable <<qt_run-from-line,Run From Line>>. If enabled, the user can click on a line of G-code and have the program start from that line.
 |Override Limits |This radio button allows the user to temporarily Override the input from a Limit Switch in the event the limit switch becomes tripped during operation. This button can only be clicked when a limit switch is tripped.
@@ -1209,6 +1223,37 @@ The custom message can be made multi-line by adding a "\" between lines.
 |Cone Size |This allows a user to change the size of the cone (which represents the current tool) in the Preview Window on the <<qt_main-tab,MAIN Tab>>.
 |Table Zoom |This allows a user to change the default zoom level for the top down full table view in the Preview Window on the <<qt_main-tab,MAIN Tab>>.
 |===
+
+[[qt_button_entries]]
+[underline]*USER BUTTON ENTRIES* USERBUTTON
+
+This section shows the text that appears on the <<qt_custom-user-buttons, Custom User Buttons>> as well as the code associated with the user button.
+User buttons may be changed and the new settings used without restarting LinuxCNC.
+
+The text and/or code may be edited at any time and will be loaded ready for use if the *SAVE* button is clicked.
+
+Deleting the *Name* and *Code* text will cause that user button to be hidden if the *SAVE* button is clicked.
+
+To return all the *Name* and *Code* text to their last saved values press the *RELOAD* button.
+
+[width="100%",cols="1,1",options="header"]
+|===
+|Name |Code
+|The text that is displayed on the button |The code that is run when the button is pressed.
+|===
+
+[NOTE]
+There are 20 user buttons available but not all may be displayed depending on the window size.
+
+[[qt_exit-warning]]
+[underline]*EXIT WARNING MESSAGE*
+
+This section shows the text that appears on the shutdown dialog if the *Exit Warning* is enabled .
+
+The text may be edited at any time and will be loaded ready for use if the *SAVE* button is clicked.
+
+To return the *EXIT WARNING MESSAGE* text to the last saved value press the *RELOAD* button.
+
 
 [underline]*UTILITIES*
 
@@ -1248,7 +1293,7 @@ The *RS485 PMX STATISTICS* panel will be only be displayed if the user has Hyper
 This panel will show the *ARC ON TIME* for the PowerMax in hh:mm:ss format.
 
 The *MACHINE LOG* is also displayed on the <<qt_statistics-tab,STATISTICS Tab>>, this log will display any errors and/or important information that occurs during the current LinuxCNC session.
-If the user makes a backup of the configuration from the <<qt_parameters-tab,PARAMETERS Tab>> then the machine log is also included in the backup.
+If the user makes a backup of the configuration from the <<qt_settings-tab, SETTINGS Tab>> then the machine log is also included in the backup.
 
 image::images/qtplasmac_stats.png[width=800,align="center"]
 
@@ -2140,7 +2185,7 @@ If the machine is equipped with a pendant that can start and stop the spindle pl
 [[qt_manual-single-cut]]
 [underline]*Manual Single Cut*
 
-Manual single cut requires that either <<qt_keyboard-shortcuts,keyboard shortcuts>> are enabled in the GUI SETTINGS section of the <<qt_parameters-tab,PARAMETERS Tab>>,
+Manual single cut requires that either <<qt_keyboard-shortcuts,keyboard shortcuts>> are enabled in the GUI SETTINGS section of the <<qt_settings-tab, SETTINGS Tab>>,
 or a custom user button is specified as a <<qt_button-mancut,manual cut>> button.
 
 If the user is using a custom user button then substitute *F9* with *User Button* in the following description.
@@ -2263,7 +2308,7 @@ IMPORTANT: PUDDLE JUMP IS DISABLED DURING CUT RECOVERY
 [[qt_run-from-line]]
 === Run From Line
 
-If the user has the Run From Line option enabled in the GUI SETTINGS section of the <<qt_parameters-tab,PARAMETERS Tab>> they will have the ability to start from any line in a G-code program via the following methods:
+If the user has the Run From Line option enabled in the GUI SETTINGS section of the <<qt_settings-tab, SETTINGS Tab>> they will have the ability to start from any line in a G-code program via the following methods:
 
 . Clicking any line in the Preview Window
 . Clicking any line in the G-code Window
@@ -2436,7 +2481,7 @@ Below is a list of all available keyboard shortcuts in QtPlasmaC.
 [NOTE]
 All keyboard shortcuts are disabled by default.
 
-In order to utilize them, *KB Shortcuts* must be enabled in the *GUI SETTINGS* section of the <<qt_parameters-tab,PARAMETERS Tab>>.
+In order to utilize them, *KB Shortcuts* must be enabled in the *GUI SETTINGS* section of the <<qt_settings-tab, SETTINGS Tab>>.
 
 [width="100%",cols="4,16",options="header"]
 |===
@@ -2529,7 +2574,7 @@ The general functions are as follows:
 |===
 |Name               |Description
 |Material Drop Down |Allows the user to select the desired material for cutting. +
-If "VIEW MATERIAL" is selected on the <<qt_parameters-tab,PARAMETERS Tab>>, a visual reference showing key material cut settings will be displayed on the Conversational Preview Window. +
+If "VIEW MATERIAL" is selected on the <<qt_settings-tab, SETTINGS Tab>>, a visual reference showing key material cut settings will be displayed on the Conversational Preview Window. +
 Examples are:  Feed Rate, Pierce Height, Pierce Delay, Cut Height, and Kerf Width (for Conversational only). Cut Amps will be shown if PowerMax communications are enabled.
 |NEW |Removes the current G-code file and load a blank G-code file.
 |SAVE |Opens a dialog box allowing the current shape to be saved as a G-code file.
@@ -2964,7 +3009,7 @@ color5 = #808080
 The colors may be expressed in any valid stylesheet format.
 
 The above colors are used for the following widgets. So any custom styling will need to take these into account.
-The colors shown below are the defaults used in QtPlasmaC along with the color name from the <<qt_parameters-tab,PARAMETERS Tab>>.
+The colors shown below are the defaults used in QtPlasmaC along with the color name from the <<qt_settings-tab, SETTINGS Tab>>.
 
 [width="100%",cols="1,1,2",options="header"]
 |===
@@ -3015,12 +3060,26 @@ Disabled = #b0b0b0
 Preview = #000000
 ----
 
+=== Custom Python Code
+
+It is possible to add custom python code to change some existing functions or to add new ones.
+Custom code can be added in two different way, a user command file or a user periodic file.
+
+A user command file is specified in the DISPLAY section of the <machine_name>.ini file and contains python code that is processed during startup.
+
+[source,{ini}]
+----
+n USER_COMMAND_FILE = my_custom_code.py
+----
+
+A user periodic file must be named user_periodic.py and must be loated in the machines config directory. This file is processed every cycle (usually 100mS) and is used for functions that require regular updating.
+
 == QtPlasmaC Advanced Topics
 
 [[qt_custom-user-buttons]]
 === Custom User Buttons
 
-The QtPlasmaC GUI offers user buttons that can be customized by adding commands in the <machine_name>.prefs file.
+The QtPlasmaC GUI offers user buttons that can be customized by adding commands in the <<qt_button_entries, USER BUTTON ENTRIES>> section of the <<qt_settings-tab, SETTINGS Tab>>.
 
 The number of user buttons varies by display type and resolution as follows:
 
@@ -3217,7 +3276,7 @@ HAL connections to these HAL pins need to be specified in a postgui HAL file as 
 [underline]*Probe Test*
 
 QtPlasmaC will begin a probe and when the material is detected, the Z axis will rise to the Pierce Height currently displayed in the MATERIAL section of the <<qt_parameters-tab,PARAMETERS Tab>>.
-If the user has "View Material" selected in the GUI SETTINGS section of the <<qt_parameters-tab, PARAMETERS Tab>>, this value will be displayed in the top left corner of the PREVIEW Window next to *PH:*.
+If the user has "View Material" selected in the GUI SETTINGS section of the <<qt_settings-tab, SETTINGS Tab>>, this value will be displayed in the top left corner of the PREVIEW Window next to *PH:*.
 
 QtPlasmaC will then wait in this state for the time specified (rounded to no decimal places) before returning the Z axis to the starting position.
 An example of a 6 second delay is below. If there is no time specified then the probe time will default to 10 seconds.
@@ -3303,7 +3362,7 @@ Note that the first "/" is not necessary as it will be added automatically.
 
 Pulse the torch on for a predetermined time. The time must be specified in seconds using up to one decimal place. The maximum allowable time is 3 seconds, anything specified above that value will be limited to 3 seconds. An example of a 0.5 second pulse is below. It there is no time specified then it will default to 1 second. Pulse times with more than one decimal place will be rounded to one decimal place.
 
-Pressing the button again during the countdown will cause the torch to be turned off, as will pressing Esc if keyboard shortcuts are enabled in the <<qt_parameters-tab,PARAMETERS Tab>>.
+Pressing the button again during the countdown will cause the torch to be turned off, as will pressing Esc if keyboard shortcuts are enabled in the <<qt_settings-tab, SETTINGS Tab>>.
 
 If the button is released before the countdown is complete then the torch will turn off at countdown completion,
 holding the button on until after the countdown has completed will cause the torch to remain on until the button has been released.
@@ -3342,7 +3401,7 @@ The velocity for the XY movements of the Framing motion can be specified so that
 This can be achieved by adding the feed rate (F) as the as the last portion of the button code.
 If the feed rate is omitted from the button code, framing motion velocity will default to the feed rate for the currently selected material.
 
-The following GUI buttons and Keyboard Shortcuts (if enabled in the <<qt_parameters-tab,PARAMETERS Tab>>) are valid during Framing motion:
+The following GUI buttons and Keyboard Shortcuts (if enabled in the <<qt_settings-tab, SETTINGS Tab>>) are valid during Framing motion:
 
 . Pressing *CYCLE STOP* or the ESC <<qt_keyboard-shortcuts,keyboard shortcut>> - Stops Framing motion.
 . Pressing *CYCLE PAUSE* or the SPACE BAR <<qt_keyboard-shortcuts,keyboard shortcut>>- Pauses Framing motion.
@@ -3420,7 +3479,7 @@ Use the following sequence to set the offsets for a laser, camera, scribe, or of
 
 . Place a piece of scrap material under the torch.
 . The machine must be homed and idle before proceeding.
-. Open the <<qt_parameters-tab,PARAMETERS Tab>> (or SETTINGS tab for 4x3 GUI).
+. Open the <<qt_settings-tab, SETTINGS Tab>>.
 . Click the SET OFFSETS button which opens the Set Peripheral Offsets dialog.
 . Click the X0Y0 button to set the torch position to zero.
 . Make a mark on the material by one of:
@@ -3664,7 +3723,7 @@ If using only a touchscreen to navigate the QtPlasmaC GUI, there is no way to st
 
 === Override Jog Inhibit Via Z+ Jog
 
-It is possible to override the jog inhibit by using the GUI or keyboard to jog in the Z+ direction rather than checking the Override Jog box on the <<qt_parameters-tab,PARAMETERS Tab>>.
+It is possible to override the jog inhibit by using the GUI or keyboard to jog in the Z+ direction rather than checking the Override Jog box on the <<qt_settings-tab, SETTINGS Tab>>.
 
 This is done by changing the following preference to *True* in the *[GUI_OPTIONS]* of the <machine_name>.prefs file in the <machine_name> folder:
 

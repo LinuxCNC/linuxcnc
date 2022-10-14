@@ -1,4 +1,4 @@
-VERSION = '1.233.248'
+VERSION = '1.233.249'
 
 '''
 qtplasmac_handler.py
@@ -148,9 +148,7 @@ class HandlerClass:
         self.landscape = True
         if os.path.basename(self.PATHS.XML) == 'qtplasmac_9x16.ui':
             self.landscape = False
-        self.gui43 = False
-        if os.path.basename(self.PATHS.XML) == 'qtplasmac_4x3.ui':
-            self.gui43 = True
+        self.upFile = os.path.join(self.PATHS.CONFIGPATH, 'user_periodic.py')
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         KEYBIND.add_call('Key_F9','on_keycall_F9')
         KEYBIND.add_call('Key_Plus', 'on_keycall_PLUS')
@@ -381,6 +379,7 @@ class HandlerClass:
             self.w.cut_mode.hide()
             self.w.cut_mode_label.hide()
             self.w.pmx485_frame.hide()
+            self.w.pmx_stats_frame.hide()
         if self.w.mdihistory.rows:
             self.mdiLast = self.w.mdihistory.model.item(self.w.mdihistory.rows - 1).text()
         else:
@@ -710,6 +709,7 @@ class HandlerClass:
         self.motionTypePin = self.h.newpin('motion_type', hal.HAL_S32, hal.HAL_IN)
         self.offsetsActivePin = self.h.newpin('offsets_active', hal.HAL_BIT, hal.HAL_IN)
         self.paramTabDisable = self.h.newpin('param_disable', hal.HAL_BIT, hal.HAL_IN)
+        self.settingsTabDisable = self.h.newpin('settings_disable', hal.HAL_BIT, hal.HAL_IN)
         self.plasmacStatePin = self.h.newpin('plasmac_state', hal.HAL_S32, hal.HAL_IN)
         self.pmx485CurrentPin = self.h.newpin('pmx485_current', hal.HAL_FLOAT, hal.HAL_IN)
         self.pmx485CurrentMaxPin = self.h.newpin('pmx485_current_max', hal.HAL_FLOAT, hal.HAL_IN)
@@ -867,10 +867,9 @@ class HandlerClass:
         self.cone_size_changed(self.w.cone_size.value())
         self.grid_size_changed(self.w.grid_size.value())
         self.set_basic_colors()
+        self.w.sd_text.setText(self.exitMessage)
 
     def hide_widgets(self):
-        if not self.gui43:
-            self.w.main_tab_widget.removeTab(3)
         for b in ['RUN', 'PAUSE', 'ABORT']:
             if self.PREFS.getpref('Hide {}'.format(b.lower()), False, bool,'GUI_OPTIONS'):
                 self.w[b.lower()].hide()
@@ -1157,6 +1156,9 @@ class HandlerClass:
                    isinstance(receiver2, QtWidgets.QPushButton) or \
                    isinstance(receiver2, QtWidgets.QRadioButton)):
                     conversational = True
+                    flag = True
+                    break
+                if self.w.main_tab_widget.currentIndex() == 3:
                     flag = True
                     break
                 receiver2 = receiver2.parent()
@@ -2036,8 +2038,8 @@ class HandlerClass:
         elif tab == 2:
             self.vkb_show(True)
             self.autorepeat_keys(True)
-        elif tab == 3 and self.gui43:
-            self.vkb_show(True)
+        elif tab == 3:
+            self.vkb_show()
             self.autorepeat_keys(True)
         if self.w.main_tab_widget.currentIndex() == self.w.main_tab_widget.count() - 1:
             self.vkb_hide()
@@ -2125,18 +2127,62 @@ class HandlerClass:
     def param_tab_changed(self, state):
         if state:
             self.w.main_tab_widget.setTabEnabled(2, False)
-            if self.gui43:
-                self.w.main_tab_widget.setTabEnabled(3, False)
         else:
             self.w.main_tab_widget.setTabEnabled(2, True)
-            if self.gui43:
-                self.w.main_tab_widget.setTabEnabled(3, True)
+
+    def settings_tab_changed(self, state):
+        if state:
+            self.w.main_tab_widget.setTabEnabled(3, False)
+        else:
+            self.w.main_tab_widget.setTabEnabled(3, True)
 
     def conv_tab_changed(self, state):
         if state:
             self.w.main_tab_widget.setTabEnabled(1, False)
         else:
             self.w.main_tab_widget.setTabEnabled(1, True)
+
+    def save_shutdown_message_clicked(self):
+        self.PREFS.putpref('Exit warning text', self.w.sd_text.text(), str, 'GUI_OPTIONS')
+        self.exitMessage = self.w.sd_text.text()
+
+    def reload_shutdown_message_clicked(self):
+        self.w.sd_text.setText(self.PREFS.getpref('Exit warning text', '', str, 'GUI_OPTIONS'))
+
+    def save_user_button_clicked(self):
+        self.estopOnList = []
+        self.idleList = ['file_clear', 'file_open', 'file_reload']
+        self.idleOnList = ['home_x', 'home_y', 'home_z', 'home_a', 'home_all']
+        self.idleHomedList = ['touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_b', 'touch_xy', \
+                              'mdi_show', 'height_lower', 'height_raise', 'wcs_button', 'set_offsets']
+        self.ccButton, self.otButton, self.ptButton, self.tpButton = '', '', '', ''
+        self.ctButton, self.scButton, self.frButton, self.mcButton = '', '', '', ''
+        self.ovButton, self.llButton, self.tlButton = '', '', ''
+        self.halTogglePins = {}
+        self.halPulsePins = {}
+        for n in range(1, 21):
+            self.PREFS.putpref('{} Name'.format(n), self.w['ub_name_{}'.format(n)].text(), str, 'BUTTONS')
+            self.PREFS.putpref('{} Code'.format(n), self.w['ub_code_{}'.format(n)].text(), str, 'BUTTONS')
+        self.user_button_setup()
+        self.set_buttons_state([self.estopOnList], True)
+        if STATUS.is_interp_idle():
+            self.set_buttons_state([self.idleList], True)
+            if STATUS.machine_is_on():
+                self.set_buttons_state([self.idleOnList], True)
+                if STATUS.is_all_homed():
+                    self.set_buttons_state([self.idleHomedList], True)
+                else:
+                    self.set_buttons_state([self.idleHomedList], False)
+            else:
+                self.set_buttons_state([self.idleOnList, self.idleHomedList], False)
+        else:
+            self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], False)
+
+    def reload_user_button_clicked(self):
+        for n in range(1, 21):
+            self.w['ub_name_{}'.format(n)].clear()
+            self.w['ub_code_{}'.format(n)].clear()
+        self.user_button_setup()
 
 
 #########################################################################################################################
@@ -2449,6 +2495,10 @@ class HandlerClass:
         self.w.materials_box.currentIndexChanged.connect(lambda w:self.material_changed(w))
         self.w.material_selector.currentIndexChanged.connect(lambda w:self.selector_changed(w))
         self.w.conv_material.currentIndexChanged.connect(lambda w:self.conv_material_changed(w))
+        self.w.sd_save.clicked.connect(self.save_shutdown_message_clicked)
+        self.w.sd_reload.clicked.connect(self.reload_shutdown_message_clicked)
+        self.w.ub_save.clicked.connect(self.save_user_button_clicked)
+        self.w.ub_reload.clicked.connect(self.reload_user_button_clicked)
         self.materialChangePin.value_changed.connect(lambda w:self.material_change_pin_changed(w))
         self.materialChangeNumberPin.value_changed.connect(lambda w:self.material_change_number_pin_changed(w))
         self.materialChangeTimeoutPin.value_changed.connect(lambda w:self.material_change_timeout_pin_changed(w))
@@ -2562,6 +2612,7 @@ class HandlerClass:
         self.w.rapid_label.pressed.connect(self.rapid_label_pressed)
         self.w.jogs_label.pressed.connect(self.jogs_label_pressed)
         self.paramTabDisable.value_changed.connect(lambda v:self.param_tab_changed(v))
+        self.settingsTabDisable.value_changed.connect(lambda v:self.settings_tab_changed(v))
         self.convTabDisable.value_changed.connect(lambda v:self.conv_tab_changed(v))
         self.motionTypePin.value_changed.connect(lambda v:self.motion_type_changed(v))
         self.w.cut_time_reset.pressed.connect(lambda:self.statistic_reset('cut_time', 'Cut time'))
@@ -2795,9 +2846,10 @@ class HandlerClass:
             self.w.gcode_editor.editor.SendScintilla(QsciScintilla.SCI_SETEXTRAASCENT, 4)
             self.w.gcode_editor.editor.SendScintilla(QsciScintilla.SCI_SETEXTRADESCENT, 4)
             self.vkb_check()
-            if (self.w.main_tab_widget.currentIndex() == 2 and not self.gui43) or \
-               (self.w.main_tab_widget.currentIndex() == 3 and self.gui43):
+            if self.w.main_tab_widget.currentIndex() == 2:
                 self.vkb_show(True)
+            elif self.w.main_tab_widget.currentIndex() == 3:
+                self.vkb_show()
         else:
             inputType = 'ENTRY'
             self.w.originoffsetview.setProperty('dialog_code_string','')
@@ -3106,6 +3158,8 @@ class HandlerClass:
             self.flasher = self.flashRate
             self.flashState = not self.flashState
             self.flasher_timeout()
+        if not self.firstRun and os.path.isfile(self.upFile):
+            exec(open(self.upFile).read())
 
     def flasher_timeout(self):
         if STATUS.is_auto_paused():
@@ -3162,7 +3216,6 @@ class HandlerClass:
         if not self.w.pmx485_enable.isChecked():
             self.w.pmx485_label.setText('')
             self.pmx485LabelState = None
-            self.w.pmx_stats_frame.hide()
         elif self.pmx485CommsError:
             if self.flashState:
                 self.w.pmx485_label.setText(_translate('HandlerClass', 'COMMS ERROR'))
@@ -3260,8 +3313,11 @@ class HandlerClass:
         head = _translate('HandlerClass', 'User Button Error')
         for bNum in range(1,21):
             self.w['button_{}'.format(str(bNum))].setEnabled(False)
-            bName = self.PREFS.getpref('{} Name'.format(bNum), '', str, 'BUTTONS')
-            bCode = self.PREFS.getpref('{} Code'.format(bNum), '', str, 'BUTTONS')
+            bName = self.PREFS.getpref('{} Name'.format(bNum), '', str, 'BUTTONS') or None
+            bCode = self.PREFS.getpref('{} Code'.format(bNum), '', str, 'BUTTONS') or None
+            if bName or bCode:
+                self.w['ub_name_{}'.format(bNum)].setText(bName)
+                self.w['ub_code_{}'.format(bNum)].setText(bCode)
             if (bCode and not bName) or (not bCode and bName):
                 msg0 = _translate('HandlerClass', 'are both required')
                 msg1 = _translate('HandlerClass', 'only one has been specified for')
@@ -4993,7 +5049,6 @@ class HandlerClass:
             else:
                 self.w.pmx485_label.setText(_translate('HandlerClass', 'CONNECTING'))
                 self.pmx485LabelState = 'CONNECT'
-                self.w.pmx_stats_frame.hide()
                 self.pmx485CommsTimer.start(3000)
         else:
             self.pmx485Connected = False
@@ -5056,7 +5111,6 @@ class HandlerClass:
             else:
                 self.w.pmx485_label.setText(_translate('HandlerClass', 'COMMS ERROR'))
                 self.pmx485LabelState = None
-                self.w.pmx_stats_frame.hide()
                 self.pmx485CommsError = True
                 self.pmx485Connected = False
                 self.pmx485RetryTimer.start(3000)
@@ -5064,7 +5118,6 @@ class HandlerClass:
     def pmx485_arc_time_changed(self, time):
         if self.pmx485Connected:
             self.pmx485ArcTime = self.pmx485ArcTimePin.get()
-            self.w.pmx_stats_frame.show()
             self.w.pmx_arc_time_label.setText(_translate('HandlerClass', 'ARC ON TIME'))
             self.display_hms('pmx_arc_time_t', self.pmx485ArcTime)
 
@@ -5113,7 +5166,6 @@ class HandlerClass:
         self.pmx485CommsTimer.stop()
         self.w.pmx485_label.setText(_translate('HandlerClass', 'COMMS ERROR'))
         self.pmx485LabelState = None
-        self.w.pmx_stats_frame.hide()
         self.pmx485CommsError = True
         self.pmx485Connected = False
         self.pmx485RetryTimer.start(3000)
