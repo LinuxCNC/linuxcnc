@@ -27,7 +27,8 @@
 #include "tooldata.hh"
 #include <sys/poll.h>
 
-#define DB_VERSION "v2.0"
+#define DB_VERSION "v2.1"
+#define MAX_DB_PROGRAM_ARGS 10
 #define UNEXPECTED_MSG fprintf(stderr,"UNEXPECTED %s %d\n",__FILE__,__LINE__);
 
 static bool db_live  = 0;
@@ -235,20 +236,28 @@ int tooldata_db_getall() {
     return 0;
 } // tooldata_db_getall()
 
-int tooldata_db_init(char progname[],int random_toolchanger)
+int tooldata_db_init(char progname_plus_args[],int random_toolchanger)
 {
     if (getenv( (char*)"DB_DEBUG") ) {db_debug = 1;}
     if (getenv( (char*)"DB_SHOW") )  {db_show  = 1;}
-    int   child_argc = 2;
-    char *child_argv[3];
-    child_argv[0] = progname;
-    child_argv[1] = (char*)DB_VERSION;
-    child_argv[2] = 0;
-    snprintf(db_childname,sizeof(db_childname),"%s",progname);
+    int   child_argc = 0;
+    char* child_argv[MAX_DB_PROGRAM_ARGS];
+    char* token = strtok(progname_plus_args, " ");
+    while (token != NULL) {
+        child_argv[child_argc] = token;
+        child_argc++;
+        if (child_argc >= MAX_DB_PROGRAM_ARGS) {
+            fprintf(stderr,"!!!!db_init: argc exceeds MAX_DB_PROGRAM_ARGS=%d\n"
+                   ,MAX_DB_PROGRAM_ARGS);
+            return -1;
+        }
+        token = strtok(NULL, " ");
+    }
+    snprintf(db_childname,sizeof(db_childname),"%s",child_argv[0]);
     is_random_toolchanger = random_toolchanger;
 
-    if (access(progname,X_OK)) {
-        fprintf(stderr,"!!!!db_init: <%s> not executable\n",progname);
+    if (access(child_argv[0],X_OK)) {
+        fprintf(stderr,"!!!!db_init: <%s> not executable\n",child_argv[0]);
         return -1;
     }
     //fprintf(stderr,"=====db_childname=%s\n",db_childname);
@@ -262,7 +271,7 @@ int tooldata_db_init(char progname[],int random_toolchanger)
 
     // block for response
     fprintf(stderr,"====Waiting for %s version reply from %s\n",
-            DB_VERSION,progname);
+            DB_VERSION,child_argv[0]);
     char reply[CANON_TOOL_ENTRY_LEN];
 
     if (read_reply(reply,sizeof(reply)) < 0 ) {
@@ -277,7 +286,7 @@ int tooldata_db_init(char progname[],int random_toolchanger)
             db_live = 0;
             return -1;
         } else {
-            fprintf(stderr,"====Connected to %s\n",progname);
+            fprintf(stderr,"====Connected to %s\n",child_argv[0]);
         }
     }
     if (db_debug) {
