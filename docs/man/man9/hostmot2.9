@@ -970,8 +970,8 @@ is 1 kHz. Defaults to 20 kHz.
 
 .SS oneshot
 The oneshot is a hardware one-shot device suitable for various timing, delay, 
-signal conditioning and watchdog functions. The oneshot module includes 2 timers
-to allow variable pulse delays for applications like phase control.
+signal conditioning, PWM generation, and watchdog functions. The oneshot module 
+includes 2 timers to allow variable pulse delays for applications like phase control.
 Trigger sources can be software, external inputs, the DPLL timer, a built in 
 rate generator or the other timer.
 Oneshots have names like "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.oneshot.\fI<Instance>\fR"
@@ -996,7 +996,7 @@ External trigger response will be delayed by the filter time setting
 
 .TP
 (float rw) filter2
-Sets digital filter time constant for timer1's external trigger input
+Sets digital filter time constant for timer2's external trigger input
 Filter time is in ms. Default filter time constant time is 0.1 ms.
 External trigger response will be delayed by the filter time setting
 
@@ -1031,7 +1031,7 @@ falling edge of the trigger source.
 (bit rw) retriggerable1,retriggerable2
 When true, the associated timer is retriggerable, meaning
 the timer will reset to full time on a trigger event
-even durin the output pulse period.
+even during the output pulse period.
 When false the timer is not retriggerable, meaning
 it will ignore trigger events during the output 
 pulse period.
