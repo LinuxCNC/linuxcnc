@@ -353,7 +353,8 @@ retCode parse_transaction_section(const int mb_tx_num)
                 break;
             }
         }
-        if (this_mb_tx->mb_tx_fnct <= mbtxERR || this_mb_tx->mb_tx_fnct >= mbtxMAX) {
+        int max = gbl.version<1001?mbtx_01_READ_COILS:mbtxMAX;
+        if (this_mb_tx->mb_tx_fnct <= mbtxERR || this_mb_tx->mb_tx_fnct >= max) {
             ERR(gbl.init_dbg, "[%s] [%s] [%s] out of range", section, tag, tmpstr);
             return retERR;
         }

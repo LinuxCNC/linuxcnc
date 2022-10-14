@@ -1,5 +1,4 @@
 #include <sys/time.h>
-//#include <stdint.h>
 #include "mb2hal.h"
 
 retCode fnct_01_read_coils(mb_tx_t *this_mb_tx, mb_link_t *this_mb_link)
