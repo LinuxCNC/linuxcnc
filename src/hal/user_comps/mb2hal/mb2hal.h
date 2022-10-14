@@ -139,7 +139,8 @@ typedef struct {
     FILE *ini_file_ptr;
     char *ini_file_path;
     //INI config, common section
-    int    init_dbg;
+    int   init_dbg;
+    int   version;
     double slowdown;
     //HAL related
     int   hal_mod_id;

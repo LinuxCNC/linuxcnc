@@ -89,6 +89,15 @@ retCode parse_common_section()
     iniFindInt(gbl.ini_file_ptr, tag, section, &gbl.init_dbg);
     DBG(gbl.init_dbg, "[%s] [%s] [%d]", section, tag, gbl.init_dbg);
 
+    tag     = "VERSION"; //optional
+    tmpstr = iniFind(gbl.ini_file_ptr, tag, section);
+    if (tmpstr != NULL) {
+        int major, minor;
+        sscanf(tmpstr, "%d.%d", &major, &minor);
+        gbl.version = major*1000 + minor;
+    }
+    DBG(gbl.init_dbg, "[%s] [%s] [%d]", section, tag, gbl.version);
+
     tag    = "HAL_MODULE_NAME"; //optional
     tmpstr = iniFind(gbl.ini_file_ptr, tag, section);
     if (tmpstr != NULL) {
