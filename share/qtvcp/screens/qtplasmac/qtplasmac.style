@@ -21,7 +21,7 @@
 #scribe_config, #spotting_config, #utility_frame,
 #gui_frame, #materials_frame, #camview_frame,
 #conv_frame, #stats_frame, #pmx_stats_frame,
-#machinelog_frame {
+#machinelog_frame, #ub_frame, #sd_frame {
     border: 1px solid frames;
     background: backgnd;
     border-radius: 4px }
@@ -29,19 +29,23 @@
 /****** LABEL ************/
 #dro_label, #file_button_label,
 #machine_label, #button_label, #edit_label,
-#file_label, #jog_label,
-#cut_rec_label, #thc_label, #sensor_label,
-#arc_label, #control_label, #open_label,
-#mdi_label, #config_label, #config_conf_lbl,
-#arc_conf_lbl, #thc_conf_lbl, #motion_conf_lbl,
-#probe_conf_lbl, #safety_conf_lbl, #scribe_conf_lbl,
+#file_label, #jog_label, #cut_rec_label,
+#thc_label, #sensor_label, #arc_label, 
+#control_label, #open_label, #mdi_label,
+#config_conf_lbl, #arc_conf_lbl, #thc_conf_lbl,
+#motion_conf_lbl, #probe_conf_lbl, 
+#safety_conf_lbl, #scribe_conf_lbl,
 #spotting_conf_lbl, #utility_label, #gui_label,
-#materials_label, #camview_label, #conv_label,
-#stats_label, #pmx_stats_label, #machinelog_label {
+#camview_label, #conv_label, #stats_label,
+#pmx_stats_label, #machinelog_label {
     color: backgnd;
     background: frames;
     border-top-left-radius: 2px;
     border-top-right-radius: 2px }
+
+/****** MAX VELOCITY ************/
+#max_offset_velocity_in {
+    font: 11pt }
 
 /****** TOOLTIPS ************/
 QToolTip {
@@ -219,42 +223,10 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
 #cut_rec_se:pressed, #cut_rec_sw:pressed {
     background: backalt }
 
-/****** OPEN BUTTON<<<<<<<<<<<<*/
-#file_open {
-    color: backgnd;
-    background: frames;
-    border: none;
-    border-top-left-radius: 0px;
-    border-top-right-radius: 0px;
-    border-bottom-left-radius: 0px;
-    border-bottom-right-radius: 0px }
-
-#file_open:disabled {
-    background: inactive }
-
-#file_open:pressed {
-    color: frames;
-    background: backgnd }
-
-/****** RELOAD BUTTON<<<<<<<<<<<<*/
-#file_reload {
-    color: backgnd;
-    background: frames;
-    border: none;
-    border-top-left-radius: 0px;
-    border-top-right-radius: 2px;
-    border-bottom-left-radius: 0px;
-    border-bottom-right-radius: 0px }
-
-#file_reload:disabled {
-    background: inactive }
-
-#file_reload:pressed {
-    color: frames;
-    background: backgnd }
-
-/****** CLEAR BUTTON<<<<<<<<<<<<*/
-#file_clear {
+/****** HEADERS WITH BUTTONS <<<<<<<<<<<<*/
+/* LEFT */
+#file_clear, #ub_save, #sd_save,
+#save_plasma, #save_material {
     color: backgnd;
     background: frames;
     border: none;
@@ -263,10 +235,57 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
     border-bottom-left-radius: 0px;
     border-bottom-right-radius: 0px }
 
-#file_clear:disabled {
+#file_clear:disabled, #ub_save:disabled,
+#sd_save:disabled, #save_plasma:disabled,
+#save_material:disabled {
     background: inactive }
 
-#file_clear:pressed {
+#file_clear:pressed, #ub_save:pressed,
+#sd_save:pressed, #save_plasma:pressed,
+#save_material:pressed {
+    color: frames;
+    background: backgnd }
+
+/* CENTER */
+#file_open, #ub_label, #sd_label,
+#materials_label, #new_material,
+#delete_material, #config_label {
+    color: backgnd;
+    background: frames;
+    border: none;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px }
+
+#file_open:disabled, #materials_label:disabled,
+#new_material:disabled, #delete_material:disabled {
+    background: inactive }
+
+#file_open:pressed, #materials_label:pressed,
+#new_material:pressed, #delete_material:pressed {
+    color: frames;
+    background: backgnd }
+
+/* RIGHT */
+#file_reload, #ub_reload, #sd_reload,
+#reload_plasma, #reload_material {
+    color: backgnd;
+    background: frames;
+    border: none;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 2px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px }
+
+#file_reload:disabled, #sd_reload:disabled,
+#ub_reload:disabled, #reload_plasma:disabled,
+#reload_material:disabled {
+    background: inactive }
+
+#file_reload:pressed, #up_reload:pressed,
+#sd_reload:pressed, #reload_plasma:pressed,
+#reload_material:pressed {
     color: frames;
     background: backgnd }
 
