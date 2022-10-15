@@ -130,7 +130,11 @@ class Notification(Gtk.Window):
         btn_close.set_image(image)
         btn_close.set_border_width(2)
         btn_close.connect('clicked', self._on_btn_close_clicked, labelnumber.get_text())
-        hbox.pack_end(btn_close, False, False, 0)
+        btn_close.set_size_request(48, 48)
+        btn_box = Gtk.Box.new(Gtk.Orientation.VERTICAL,0)
+        btn_box.set_center_widget(btn_close)
+        btn_box.show()
+        hbox.pack_end(btn_box, False, False, 0)
         if self.use_frames:
             widget = frame
         else:
@@ -286,7 +290,7 @@ def main():
 
     notification = Notification()
     notification.add_message('Halo World out there', '/usr/share/gmoccapy/images/applet-critical.png')
-    notification.add_message('Hallo World this is a long string that have a linebreak ', '/usr/share/gmoccapy/images/std_info.gif')
+    notification.add_message('Hallo World this is a long long long long long long long long long long string that have a linebreak ', '/usr/share/gmoccapy/images/std_info.gif')
     notification.add_message('This has a default icon')
     notification.show()
     #def debug(self, text):
