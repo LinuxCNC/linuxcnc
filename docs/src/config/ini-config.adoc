@@ -117,6 +117,10 @@ ini.1.max_velocity \
 ini.2.max_velocity
 ----
 
+.Boolean Variables
+
+Boolean values can be on one of `TRUE`, `YES` or `1` for true/enabled and one of `FALSE`, `NO` or `0` for false/disabled. The case is ignored.
+
 The following sections detail each section of the configuration file,
 using sample values for the configuration lines.
 
