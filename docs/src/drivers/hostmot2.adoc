@@ -612,12 +612,12 @@ component. Each pwmgen instance has the following pins and parameters:
   a space.
   Each pulse (and space) in the PDM pulse train has a duration of
   1/pdm_frequency seconds.
-  For example, setting the pdm_frequency to 2*10^6^ (2&thinsp;MHz) and the duty
+  For example, setting the pdm_frequency to 2*10^6^&thinsp;Hz (2&thinsp;MHz) and the duty
   cycle to 50% results in a 1&thinsp;MHz square wave, identical to a 1&thinsp;MHz
   PWM signal with 50% duty cycle. The effective range of this parameter
   is from about 1525&thinsp;Hz up to just under 100&thinsp;MHz. Note that the max
   frequency is determined by the ClockHigh frequency of the Anything I/O
-  board; the 5i20 and 7i43 both have a 100&thinsp;MHz clock, resulting in a
+  board; the 5I20 and 7I43 both have a 100&thinsp;MHz clock, resulting in a
   100&thinsp;MHz max PDM frequency. Other boards may have different clocks,
   resulting in different max PDM frequencies. If the user attempts to
   set the frequency too high, it will be clipped to the max supported
@@ -633,28 +633,27 @@ component. Each pwmgen instance has the following pins and parameters:
   boards may have different clocks, resulting in different max PWM
   frequencies. If the user attempts to set the frequency too high, it
   will be clipped to the max supported frequency of the board.
-  Frequencies below about 5&thinsp;Hz are not terribly accurate, but above 5&thinsp;Hz
-  they're pretty close.
+  Frequencies below about 5&thinsp;Hz are not terribly accurate,
+  but above 5&thinsp;Hz they are pretty close.
 
 === Output Parameters
 
 The output pins of each PWMGen have two additional parameters. To find
-which I/O pin belongs to which output run 'dmesg' as described above.
+which I/O pin belongs to which output run `dmesg` as described above.
 
-* 'invert_output' - (Bit, RW) This parameter only has an effect if the
-  'is_output' parameter is true. If this parameter is true, the output
-  value of the GPIO will be the inverse of the value on the 'out' HAL
-  pin.
+* `invert_output` - (Bit, RW) This parameter only has an effect if the
+  `is_output` parameter is true. If this parameter is true, the output
+  value of the GPIO will be the inverse of the value on the `out` HAL pin.
 
-* 'is_opendrain' - (Bit, RW) If this parameter is false, the GPIO behaves
+* `is_opendrain` - (Bit, RW) If this parameter is false, the GPIO behaves
   as a normal output pin: the I/O pin on the connector is driven to the
-  value specified by the 'out' HAL pin (possibly inverted).
+  value specified by the `out` HAL pin (possibly inverted).
   If this parameter is true, the GPIO behaves as an open-drain pin.
-  Writing 0 to the 'out' HAL pin drives the I/O pin low, writing 1 to
-  the 'out' HAL pin puts the I/O pin in a high-impedance state. In this
+  Writing 0 to the `out` HAL pin drives the I/O pin low, writing 1 to
+  the `out` HAL pin puts the I/O pin in a high-impedance state. In this
   high-impedance state the I/O pin floats (weakly pulled high), and other
   devices can drive the value; the resulting value on the I/O pin is
-  available on the 'in' and 'in_not' pins.
+  available on the `in` and `in_not` pins.
   Only full GPIO pins and I/O pins used as outputs by active module
   instances have this parameter.
 
@@ -662,78 +661,63 @@ which I/O pin belongs to which output run 'dmesg' as described above.
 == Encoder
 
 Encoders have names like
-'hm2_<BoardType>.<BoardNum>.encoder.<Instance>.'. 'Instance' is a
-two-digit number that corresponds to the HostMot2 encoder instance
-number. There are 'num_encoders' instances, starting with 00.
+`hm2_<BoardType>.<BoardNum>.encoder.<Instance>.`.
+`Instance` is a two-digit number that corresponds to the HostMot2 encoder instance number.
+There are _num_encoders_ instances, starting with 00.
 
-Each encoder uses three or four input I/O pins, depending on how the
-firmware was compiled. Three-pin encoders use A, B, and Index
-(sometimes also known as Z). Four-pin encoders use A, B, Index, and
-Index-mask.
+Each encoder uses three or four input I/O pins, depending on how the firmware was compiled.
+Three-pin encoders use A, B, and Index (sometimes also known as Z).
+Four-pin encoders use A, B, Index, and Index-mask.
 
 The hm2 encoder representation is similar to the one described by the
 Canonical Device Interface (in the HAL General Reference document), and
-to the software encoder component. Each encoder instance has the
-following pins and parameters:
+to the software encoder component.
+Each encoder instance has the following pins and parameters:
 
 === Pins
 
-* 'count' - (s32, Out) Number of encoder counts since the previous reset.
-
-* 'index-enable' - (Bit, I/O) When this pin is set to True, the count
-  (and therefore also
-  position) are reset to zero on the next Index (Phase-Z) pulse. At the
-  same time, index-enable is reset to zero to indicate that the pulse has
-  occurred.
-
-* 'position' - (Float, Out) Encoder position in position units
-  (count / scale).
-
-* 'rawcounts' - (s32, Out) Total number of encoder counts since the
-  start, not adjusted for index or reset.
-
-* 'reset' - (Bit, In) When this pin is TRUE, the count and position pins
-  are set to 0.
+* `count` - (s32, Out) Number of encoder counts since the previous reset.
+* `index-enable` - (Bit, I/O) When this pin is set to True,
+  the count (and therefore also position) are reset to zero on the next Index (Phase-Z) pulse.
+  At the same time, index-enable is reset to zero to indicate that the pulse has occurred.
+* `position` - (Float, Out) Encoder position in position units (count / scale).
+* `rawcounts` - (s32, Out) Total number of encoder counts since the start, not adjusted for index or reset.
+* `reset` - (Bit, In) When this pin is TRUE, the count and position pins are set to 0.
   The value of the velocity pin is not affected by this.
-  The driver does not reset this pin to FALSE after resetting the count
-  to 0, that is the user's job.
-
-* 'velocity' - (Float, Out) Estimated encoder velocity in position units
-  per second.
+  The driver does not reset this pin to FALSE after resetting the count to 0, that is the user's job.
+* `velocity` - (Float, Out) Estimated encoder velocity in position units per second.
 
 === Parameters
 
-* 'counter-mode' - (Bit, RW) Set to False (the default) for Quadrature.
-  Set to True for
-  Up/Down or for single input on Phase A. Can be used for a frequency to
-  velocity converter with a single input on Phase A when set to true.
+* `counter-mode` - (Bit, RW) Set to False (the default) for Quadrature.
+  Set to True for Up/Down or for single input on Phase A.
+  Can be used for a frequency to velocity converter with a single input on Phase A when set to true.
 
-* 'filter' - (Bit, RW) If set to True (the default), the quadrature
+* `filter` - (Bit, RW) If set to True (the default), the quadrature
   counter needs 15 clocks to register a change on any of the three input
   lines (any pulse shorter than this is rejected as noise).
-  If set to False, the quadrature counter needs only 3 clocks to register
-  a change. The encoder sample clock runs at 33&thinsp;MHz on the PCI Anything
-  I/O cards and 50&thinsp;MHz on the 7i43.
+  If set to False, the quadrature counter needs only 3 clocks to register a change.
+  The encoder sample clock runs at 33&thinsp;MHz on the PCI Anything I/O cards and 50&thinsp;MHz on the 7I43.
 
-* 'index-invert' - (Bit, RW) If set to True, the rising edge of the
-  Index input pin triggers the Index event (if index-enable is True). If
-  set to False, the falling edge triggers.
+* `index-invert` - (Bit, RW) If set to True, the rising edge of the
+  Index input pin triggers the Index event (if index-enable is True).
+  If set to False, the falling edge triggers.
 
-* 'index-mask' - (Bit, RW) If set to True, the Index input pin only has
+* `index-mask` - (Bit, RW) If set to True, the Index input pin only has
   an effect if the Index-Mask input pin is True (or False, depending on
-  the index-mask-invert pin below).
+  the `index-mask-invert` pin below).
 
-* 'index-mask-invert' - (Bit, RW) If set to True, Index-Mask must be
+* `index-mask-invert` - (Bit, RW) If set to True, Index-Mask must be
   False for Index to have an effect.
-  If set to False, the Index-Mask pin must be True.
+  If set to False, the `Index-Mask` pin must be True.
 
-* 'scale' - (Float, RW) Converts from 'count' units to 'position' units.
+* `scale` - (Float, RW) Converts from 'count' units to 'position' units.
   A quadrature encoder will normally have 4 counts per pulse so a 100 PPR
-  encoder would be 400 counts per revolution. In '.counter-mode' a 100
+  encoder would be 400 counts per revolution. In `.counter-mode` a 100
   PPR encoder would have 100 counts per revolution as it only uses the
   rising edge of A and direction is B.
 
-* 'vel-timeout' - (Float, RW) When the encoder is moving slower than one
+* `vel-timeout` - (Float, RW) When the encoder is moving slower than one
   pulse for each time that the driver reads the count from the FPGA (in
   the hm2_read() function), the velocity is harder to estimate.
   The driver can wait several iterations for the next pulse to arrive,
@@ -743,23 +727,23 @@ following pins and parameters:
   reporting the encoder stopped.
   This parameter is in seconds.
 
-== 5i25 Configuration
+== 5I25 Configuration
 
 === Firmware
 
-The 5i25 firmware comes preloaded for the daughter card it is purchased with.
+The 5I25 firmware comes preloaded for the daughter card it is purchased with.
 So the `firmware=xxx.BIT` is not part of the hm2_pci configuration string when
-using a 5i25.
+using a 5I25.
 
 === Configuration
 
-Example configurations of the 5i25/7i76 and 5i25/7i77 cards are included in
+Example configurations of the 5I25/7I76 and 5I25/7I77 cards are included in
 the <<sub:configuration-selector,Configuration Selector>>.
 
 If you like to roll your own configuration the following examples show how
 to load the drivers in the HAL file.
 
-.5i25 + 7i76 Card
+.5I25 + 7I76 Card
 [source,{hal}]
 ----
 # load the generic driver
@@ -769,7 +753,7 @@ loadrt hostmot2
 loadrt hm2_pci config="num_encoders=1 num_stepgens=5 sserial_port_0=0XXX"
 ----
 
-.5i25 + 7i77 Card
+.5I25 + 7I77 Card
 [source,{hal}]
 ----
 # load the generic driver
@@ -787,15 +771,14 @@ the Mesa manual for more information on the exact usage (typically in the sectio
 called SOFTWARE PROCESS DATA MODES) or see the manual page of
 link:../man/man9/sserial.9.html[SSERIAL(9)].
 
-=== 7i77 Limits
+=== 7I77 Limits
 
 The minlimit and maxlimit are bounds on the pin value (in this case the analog
 out value) fullscalemax is the scale factor.
 
-These are by default set to the analog in or analog range (most likely in
-volts).
+These are by default set to the analog in or analog range (most likely in Volts).
 
-So for example on the 7i77 +-10V analog outputs, the default values are:
+So for example on the 7I77 +-10&thinsp;V analog outputs, the default values are:
 
 minlimit: -10 +
 maxlimit: +10 +
@@ -809,7 +792,7 @@ maxlimit: +24 +
 maxfullscale: 24 +
 
 If you wanted to scale the analog out of a channel to RPM for a 0 to 6000 RPM
-spindle with 0-10V control you could set the limits like this:
+spindle with 0-10&thinsp;V control you could set the limits like this:
 
 minlimit: 0 +
 maxlimit: 6000 +
@@ -826,7 +809,7 @@ load. The examples are a good place to start and will save you time.
 Just pick the proper example from the LinuxCNC Configuration Selector and
 save a copy to your computer so you can edit it. To see the exact pins
 and parameters that your configuration gave you, open the Show HAL
-Configuration window from the Machine menu, or do 'dmesg' as outlined
+Configuration window from the Machine menu, or do `dmesg` as outlined
 above.
 
 // vim: set syntax=asciidoc:
