@@ -6,8 +6,12 @@
 
 # Example [EMCIO]DB_PROGRAM:
 # Demonstrate LinuxCNC interface for a database of tools
-# with tool time usage monitoriing
+# with tool time usage monitoring
+# ini file examples:
+#   [EMCIO]DB_PROGRAM=./db_nonran.py [nonran_filename]
+#   [EMCIO]DB_PROGRAM=./db_ran.py    [ran_filename]
 
+# defaults for *_filename:
 db_ran_savefile    = "/tmp/db_ran_file"     # db flatfile
 db_nonran_savefile = "/tmp/db_nonran_file"  # db flatfile
 
@@ -17,6 +21,7 @@ import sys
 import time
 import signal
 import threading
+import getopt
 import linuxcnc
 #-----------------------------------------------------------
 # LinuxCNC tooldb module for low-level interface:
@@ -93,7 +98,7 @@ from tooldb import tooldb_loop      # main loop
 #     may be able to detect and notify for some anomalies.
 
 #-----------------------------------------------------------
-# globals
+# globals init
 prog = sys.argv[0]         # this program
 toollist = []              # list of tool numbers
 tools = dict()             # tools[tno]: dict of text toollines
@@ -107,7 +112,7 @@ sync_fail_reason = ""      # why sync failed
 cmdline_only = 0           # 1: for cmdline debugging
 history = [];              # history logging
 history_max_ct = 10        # history logging
-period_minutes = 1      # periodic_task
+period_minutes = 1         # default for periodic_task
 mutex = threading.Lock()           # lock for all threads
 disconnect_evt = threading.Event() # set at disconnect
 
@@ -125,7 +130,7 @@ alphabet="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 def  msg(txt): sys.stderr.write("%s: %s\n"%(prog,txt))
 def umsg(txt): msg("UNEXPECTED: %s"%txt) # debug usage
 
-try: # environ override period_minutes for testing:
+try: # environ override default period_minutes for testing:
     period_minutes = float(os.environ['DB_PERIOD_MINUTES'])
     msg("period_minutes=%f"%period_minutes)
 except Exception as e: pass
@@ -164,17 +169,48 @@ available_pockets  =  []
 for i in range(n_pockets): available_pockets.append(pockets_base + i)
 
 #-----------------------------------------------------------
-# Default: support random_toolchanger
-# Use symbolic link with "nonran" in its name to implement
-# a nonrandom_toolchanger
-if sys.argv[0].find("nonran")>=0:
-    msg("starting(nonrandom_toolchanger)")
-    random_toolchanger = 0
-    db_savefile = db_nonran_savefile
-else:
-    msg("starting(random_toolchanger) n_pockets = %d"%n_pockets)
-    random_toolchanger = 1
-    db_savefile = db_ran_savefile
+def start_db_program():
+    global db_savefile, period_minutes, random_toolchanger
+    # Default: support random_toolchanger
+    # Use symbolic link with "nonran" in its name to implement
+    # a nonrandom_toolchanger
+    if sys.argv[0].find("nonran")>=0:
+        msg("starting(nonrandom_toolchanger)")
+        random_toolchanger = 0
+        db_savefile = db_nonran_savefile # default file
+    else:
+        msg("starting(random_toolchanger) n_pockets = %d"%n_pockets)
+        random_toolchanger = 1
+        db_savefile = db_ran_savefile # default file
+    
+    # handle options and args:
+    try: opts,remainder = getopt.getopt(sys.argv[1:]
+                                      ,shortopts='hp:'
+                                      ,longopts=['help','period_minutes=']
+                                      )
+    except getopt.GetoptError as emsg:
+        msg("GetoptError:%s"%emsg)
+        sys.exit(1)
+    for opt,arg in opts:
+        if opt in ('-p','--period_minutes'):
+            period_minutes=float(arg)
+            msg("period_minutes=%f"%period_minutes)
+        if opt in ('-h','--help'):
+            msg("""
+        Usage: %s [Options] [flat_filename]
+        Default flat_filename = %s
+        Options:
+            -h|--help (and exit)
+            -p|--period_minutes value (default=%f)
+         
+        bye!"""%(prog,db_savefile,period_minutes))
+            sys.exit(1)
+    if remainder:
+        db_savefile = remainder[0] # superseded default
+        msg("db_savefile = %s"%db_savefile)
+    if len(remainder) >1:
+        msg("Unknown arguments %s"%remainder[1:])
+        sys.exit(1)
 
 #-----------------------------------------------------------
 # functions
@@ -628,6 +664,8 @@ def user_unload_spindle_ran_tc(tno,params):
     mutex.release()
 
 #-----------------------------------------------------------
+start_db_program() # handle random/nonrandom toolchanger, args 
+
 # begin interface to LinuxCNC
 debug = 0 # debug var for command line testing
 if (len(sys.argv) > 1 and sys.argv[1] == 'debug'): debug = 1
@@ -674,7 +712,7 @@ def cmd_loop(*args):
 # start cmd_loop thread (primary interface to LinuxCNC):
 threading.Thread(target=cmd_loop,args=(disconnect_evt,),daemon=1).start()
 
-# demonstrate periodic updates to database
+# task to demonstrate periodic updates to database
 def periodic_task(fini):
     if fini.is_set(): return # end task
     global start_time, elapsed_time, spindle_tool
