@@ -114,35 +114,48 @@ class GcodeLexer(QsciLexerCustom):
             return
 
         re_tokens = {
-            1: r"(?:[N]\d+|\(.*\)|;.*)",                                        # LineNo and Comment
+            1: r"(?:[N]\d+|\(.*?\)|;.*)",                                       # LineNo and Comment
             2: r"[G]\d{1,4}\.?\d*",                                             # Gcode
             3: r"[M]\d{1,4}\.?\d*",                                             # Mcode
             4: r"[XYZABCUVW]{1}(?:[+-]?[\d\.]+|\#\<.*?\>|\[.*?\]|\#\d+)",       # Axis
             5: r"[EFHIJKDQLRPST]{1}(?:[+-]?[\d\.]+|\#\<.*?\>|\[.*?\]|\#\d+)",   # Other (feed,rpm,radius,etc)
-            0: r"\s+|\w+|\W", # Default (fallback)
+            0: r"\s+|\w+|\W",                                                   # Default (fallback)
         }
+
+        re_comment_cmd = r"(?:\(\s*(?:print|debug|msg|logopen|logappend|logclose|log|pyrun|pyreload|abort|probeopen|probeclose)|\;py)(?:,|\s*)"
 
         re_string = "|".join(re_tokens.values())
         p = re.compile(re_string, re.IGNORECASE)
 
-        token_list = [(token, len(bytearray(token, "utf-8"))) for token in p.findall(source)]
+        for line in source.splitlines(True):
+            token_list = [(token, len(bytearray(token, "utf-8"))) for token in p.findall(line)]
+            num_comment_cmds = len(re.findall(re_comment_cmd, line, re.IGNORECASE))
 
-        for token in token_list:
-            if re.match(re_tokens[self.Comment], token[0], re.IGNORECASE):
-                self.setStyling(token[1], self.Comment)
-                # print("{}:{} ({})".format(token[0], token[1], "Comment"))
-            elif re.match(re_tokens[self.Gcode], token[0], re.IGNORECASE):
-                self.setStyling(token[1], self.Gcode)
-            elif re.match(re_tokens[self.Mcode], token[0], re.IGNORECASE):
-                self.setStyling(token[1], self.Mcode)
-            elif re.match(re_tokens[self.Axis], token[0], re.IGNORECASE):
-                self.setStyling(1, self.Axis)
-                self.setStyling(token[1] - 1, self.AxisValue)
-            elif re.match(re_tokens[self.Other], token[0], re.IGNORECASE):
-                self.setStyling(1, self.Other)
-                self.setStyling(token[1] - 1, self.OtherValue)
-            else:
-                self.setStyling(token[1], self.Default)
+            for token in token_list:
+                if re.match(re_tokens[self.Comment], token[0], re.IGNORECASE):
+                    m = re.search(re_comment_cmd, token[0], re.IGNORECASE)
+                    if m:
+                        num_comment_cmds -= 1
+
+                    if m and num_comment_cmds == 0:
+                        # Only highlight last comment_cmd on line
+                        self.setStyling(1, self.Comment)
+                        self.setStyling(m.span()[1] - 1, self.Other)
+                        self.setStyling(len(token[0]) - m.span()[1], self.Comment)
+                    else:
+                        self.setStyling(token[1], self.Comment)
+                elif re.match(re_tokens[self.Gcode], token[0], re.IGNORECASE):
+                    self.setStyling(token[1], self.Gcode)
+                elif re.match(re_tokens[self.Mcode], token[0], re.IGNORECASE):
+                    self.setStyling(token[1], self.Mcode)
+                elif re.match(re_tokens[self.Axis], token[0], re.IGNORECASE):
+                    self.setStyling(1, self.Axis)
+                    self.setStyling(token[1] - 1, self.AxisValue)
+                elif re.match(re_tokens[self.Other], token[0], re.IGNORECASE):
+                    self.setStyling(1, self.Other)
+                    self.setStyling(token[1] - 1, self.OtherValue)
+                else:
+                    self.setStyling(token[1], self.Default)
 
 
 ##########################################################
@@ -157,10 +170,10 @@ class EditorBase(QsciScintilla):
     # styleFont[0] and _styleColor[0] as defaults when they are not
     # set in the dict manually, or by CSS properties.
     _styleFont = {
-        0: QFont("Deja Vu Sans Mono", 10),                    # Default Font
-#        2: QFont("Deja Vu Sans Mono", 20, weight=QFont.Bold), # Gcode
-#        5: QFont("Deja Vu Sans Mono", 11, weight=QFont.Bold), # Other
-#        "Margins": QFont("Deja Vu Sans Mono", 9),            # Margins
+        0: QFont("Courier", 11),                    # Default Font
+#        2: QFont("Courier", 20, weight=QFont.Bold), # Gcode
+#        5: QFont("Courier", 11, weight=QFont.Bold), # Other
+#        "Margins": QFont("Courier", 9),            # Margins
     }
 
     _styleColor = {
