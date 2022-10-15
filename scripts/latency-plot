@@ -173,15 +173,6 @@ proc init_hal_timedelta {} {
 } ;# init_hal_timedelta
 
 proc check {} {
-  if {[string first rtai [exec lsmod]] < 0} {
-    #puts "ok -- no rtai modules currently loaded"
-  } else {
-    set msg "Cannot start with rtai modules loaded.\
-Stop all programs (linuxcnc) using realtime first and then run:\n\n\
-halrun -U\n"
-    popup $msg
-    exit 1
-  }
   switch $::sc(data,source) {
     hal_timedelta  {}
     default {return -code error "init: unknown data,source: <$::sc(data,source)>"}
