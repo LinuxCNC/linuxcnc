@@ -29,12 +29,13 @@
 
 import sys
 import os
+import re
 
 from PyQt5.QtCore import pyqtProperty, pyqtSignal, QSize
 from PyQt5.QtGui import QFont, QFontMetrics, QColor, QIcon
 from PyQt5.QtWidgets import QWidget, QAction,\
-         QVBoxLayout, QToolBar, QLineEdit, QHBoxLayout, QMessageBox, \
-            QFrame, QLabel
+        QVBoxLayout, QToolBar, QLineEdit, QHBoxLayout, QMessageBox, \
+        QFrame, QLabel
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Info, Action
@@ -59,79 +60,40 @@ except ImportError as e:
     LOG.critical("Can't import QsciScintilla - is package python3-pyqt5.qsci installed?", exc_info=e)
     sys.exit(1)
 
-##############################################################
-# Simple custom lexer for Gcode
-##############################################################
+
 class GcodeLexer(QsciLexerCustom):
-    def __init__(self, parent=None):
+    """ QSciLexer for parsing and highlighting G-code """
+
+    def __init__(self, parent):
         super(GcodeLexer, self).__init__(parent)
+
+        # Style/Token Types (Used for Styling & Regex)
         self._styles = {
             0: 'Default',
             1: 'Comment',
-            2: 'Key',
-            3: 'Assignment',
-            4: 'Value',
-            5: 'Axes',
-            6: 'Code1',
-            7: 'Code2'
-            }
+            2: 'Gcode',
+            3: 'Mcode',
+            4: 'Axis',
+            5: 'Other',
+            6: 'AxisValue',
+            7: 'OtherValue',
+        }
+
         for key, value in self._styles.items():
             setattr(self, value, key)
-        self._color6Codes = 'gst'
-        self._color7Codes = 'mfpq'
-
-    def setColor6Codes(self, data):
-        self._color6Codes = data.lower()
-    def getColor6Codes(self):
-        return self._color6Codes
-
-    def setColor7Codes(self, data):
-        self._color7Codes = data.lower()
-    def getColor7Codes(self):
-        return self._color7Codes
-
-    # Paper sets the background color of each style of text
-    def setPaperBackground(self, color, style=None):
-        if style is None:
-            for i in range(0, 8):
-                self.setPaper(color, i)
-        else:
-            self.setPaper(color, style)
 
     def language(self):
-        return"G-code"
+        return "G-code"
 
     def description(self, style):
-        if style < len(self._styles):
-            description = "Custom lexer for the G-code programming languages"
-        else:
-            description = ""
-        return description
-
-    def defaultColor(self, style):
-        if style == self.Default:
-            return QColor('#000000')  # black
-        elif style == self.Comment:
-            return QColor('#000000')  # black
-        elif style == self.Key:
-            return QColor('#0000CC')  # blue
-        elif style == self.Assignment:
-            return QColor('#CC0000')  # red
-        elif style == self.Value:
-            return QColor('#00CC00')  # green
-        elif style == self.Axes:
-            return QColor('darkgreen')
-        elif style == self.Code1:
-            return QColor('darkred')
-        elif style == self.Code2:
-            return QColor('deeppink')
-
-        return QsciLexerCustom.defaultColor(self, style)
+        return self._styles.get(style, "")
 
     def styleText(self, start, end):
         editor = self.editor()
         if editor is None:
             return
+
+        self.startStyling(start)
 
         # scintilla works with encoded bytes, not decoded characters.
         # this matters if the source contains non-ascii characters and
@@ -145,79 +107,55 @@ class GcodeLexer(QsciLexerCustom):
                 source = bytearray(end - start)
                 editor.SendScintilla(
                     editor.SCI_GETTEXTRANGE, start, end, source)
+                source = source.decode("utf-8")
             else:
                 source = str(editor.text())[start:end]
         if not source:
             return
 
-        # the line index will also be needed to implement folding
-        index = editor.SendScintilla(editor.SCI_LINEFROMPOSITION, start)
-        if index > 0:
-            # the previous state may be needed for multi-line styling
-            pos = editor.SendScintilla(
-                      editor.SCI_GETLINEENDPOSITION, index - 1)
-            state = editor.SendScintilla(editor.SCI_GETSTYLEAT, pos)
-        else:
-            state = self.Default
+        re_tokens = {
+            1: r"(?:[N]\d+|\(.*?\)|;.*)",                                       # LineNo and Comment
+            2: r"[G]\d{1,4}\.?\d*",                                             # Gcode
+            3: r"[M]\d{1,4}\.?\d*",                                             # Mcode
+            4: r"[XYZABCUVW]{1}(?:[+-]?[\d\.]+|\#\<.*?\>|\[.*?\]|\#\d+)",       # Axis
+            5: r"[EFHIJKDQLRPST]{1}(?:[+-]?[\d\.]+|\#\<.*?\>|\[.*?\]|\#\d+)",   # Other (feed,rpm,radius,etc)
+            0: r"\s+|\w+|\W",                                                   # Default (fallback)
+        }
 
-        set_style = self.setStyling
-        self.startStyling(start, 0x1f)
-        try:
-            # scintilla always asks to style whole lines
-            for line in source.splitlines(True):
-                #print (line.decode('utf-8'))
-                graymode = notcode = False
-                line = line.decode('utf-8')
-                msg = ('msg' in line.lower() or 'debug' in line.lower())
-                for char in line:
-                    #print (char,msg)
-                    if char in('(',';'):
-                        graymode = True
-                        set_style(1, self.Comment)
-                        continue
-                    elif char == (')'):
-                        graymode = False
-                        set_style(1, self.Comment)
-                        continue
-                    elif graymode:
-                        if (msg and char.lower() in ('m', 's', 'g', ',', 'd', 'e', 'b', 'u')):
-                            set_style(1, self.Assignment)
-                            if char == ',': msg = False
-                        else:
-                            set_style(1, self.Comment)
-                        continue
-                    elif char == ('<'):
-                        notcode = True
-                        set_style(1, self.Assignment)
-                        continue
-                    elif char == ('>'):
-                        notcode = False
-                        set_style(1, self.Assignment)
-                        continue
-                    elif char in ('%', '#', '='):
-                        state = self.Assignment
-                    elif char in ('[', ']'):
-                        state = self.Value
-                    elif char.isalpha():
-                        if not notcode:
-                            if char.lower() in self._color6Codes:
-                                state = self.Code1
-                            elif char.lower() in self._color7Codes:
-                                state = self.Code2
-                            elif char.lower() in ('x','y','z','a','b','c','u','v','w'):
-                                state = self.Axes
-                        else:
-                            state = self.Key
-                    elif char.isdigit():
-                        state = self.Default
+        re_comment_cmd = r"(?:\(\s*(?:print,|debug,|msg,|logopen,|logappend,|logclose|log,|pyrun,|pyreload|abort,|probeopen|probeclose)|\;py,)"
+
+        re_string = "|".join(re_tokens.values())
+        p = re.compile(re_string, re.IGNORECASE)
+
+        for line in source.splitlines(True):
+            token_list = [(token, len(bytearray(token, "utf-8"))) for token in p.findall(line)]
+            num_comment_cmds = len(re.findall(re_comment_cmd, line, re.IGNORECASE))
+
+            for token in token_list:
+                if re.match(re_tokens[self.Comment], token[0], re.IGNORECASE):
+                    m = re.search(re_comment_cmd, token[0], re.IGNORECASE)
+                    if m:
+                        num_comment_cmds -= 1
+
+                    if m and num_comment_cmds == 0:
+                        # Only highlight last comment_cmd on line
+                        self.setStyling(1, self.Comment)
+                        self.setStyling(m.span()[1] - 1, self.Other)
+                        self.setStyling(len(token[0]) - m.span()[1], self.Comment)
                     else:
-                        state = self.Default
-                    set_style(1, state)
-
-                # folding implementation goes here
-                index += 1
-        except Exception as e:
-            print(e)
+                        self.setStyling(token[1], self.Comment)
+                elif re.match(re_tokens[self.Gcode], token[0], re.IGNORECASE):
+                    self.setStyling(token[1], self.Gcode)
+                elif re.match(re_tokens[self.Mcode], token[0], re.IGNORECASE):
+                    self.setStyling(token[1], self.Mcode)
+                elif re.match(re_tokens[self.Axis], token[0], re.IGNORECASE):
+                    self.setStyling(1, self.Axis)
+                    self.setStyling(token[1] - 1, self.AxisValue)
+                elif re.match(re_tokens[self.Other], token[0], re.IGNORECASE):
+                    self.setStyling(1, self.Other)
+                    self.setStyling(token[1] - 1, self.OtherValue)
+                else:
+                    self.setStyling(token[1], self.Default)
 
 
 ##########################################################
@@ -226,50 +164,69 @@ class GcodeLexer(QsciLexerCustom):
 class EditorBase(QsciScintilla):
     CURRENT_MARKER_NUM = 0
     USER_MARKER_NUM = 1
-    _styleMarginsForegroundColor = QColor("#000000")
-    _styleMarginsBackgroundColor = QColor("#000000")
-    _styleBackgroundColor = QColor("#000000")
+
+    # Default Styles
+    # get/set function for font and colors styles will return
+    # styleFont[0] and _styleColor[0] as defaults when they are not
+    # set in the dict manually, or by CSS properties.
+    _styleFont = {
+        0: QFont("Courier", 11),                    # Default Font
+#        2: QFont("Courier", 20, weight=QFont.Bold), # Gcode
+#        5: QFont("Courier", 11, weight=QFont.Bold), # Other
+#        "Margins": QFont("Courier", 9),            # Margins
+    }
+
+    _styleColor = {
+        0: QColor("#000000"),               # Color0 (Default)
+        1: QColor("#434d3f"),               # Color1 (Lexer Comment)
+        2: QColor("#ba220b"),               # Color2 (Lexer Gcode)
+        3: QColor("#f56b1b"),               # Color3 (Lexer Mcode)
+        4: QColor("#1883c9"),               # Color4 (Lexer Axis)
+        5: QColor("#dd30f0"),               # Color5 (Lexer Other)
+        6: QColor("#0e5482"),               # Color6 (Lexer Axis Value)
+        7: QColor("#a420b3"),               # Color7 (Lexer Other Value)
+        "Margins":  QColor("#666769"),      # Margins
+    }
+
+    _styleBackgroundColor = QColor("#c0c0c0")
+    _styleMarginsBackgroundColor = QColor("#cccccc")
+    _styleMarkerBackgroundColor = QColor("#a5a526")
+    _styleSelectionBackgroundColor = QColor("#001111")
     _styleSelectionForegroundColor = QColor("#ffffff")
-    _styleSelectionBackgroundColor = QColor("#000000")
-    _styleMarkerBackgroundColor = QColor("yellow")
+    _styleSyntaxHighlightEnabled = True
 
     def __init__(self, parent=None):
         super(EditorBase, self).__init__(parent)
-        # don't allow editing by default
-        self.setReadOnly(True)
-        # Set the default font
-        self.font = QFont()
-        self.font.setFamily('Courier')
-        self.font.setFixedPitch(True)
-        self.font.setPointSize(12)
-        self.setFont(self.font)
+
+        self.lexer = None
+        self.lexer_num_styles = 0   # updated when lexer is loaded
+
         self._lastUserLine = 0
+        self.setReadOnly(True)      # don't allow editing by default
+
+        self.set_lexer("g-code")
 
         # Margin 0 is used for line numbers
-        self.setMarginsFont(self.font)
-        self.set_margin_width(7)
+        self.set_margin_width(1)
+        self.linesChanged.connect(self.on_lines_changed)
         self.setMarginLineNumbers(0, True)
-        self.setMarginsBackgroundColor(QColor("#cccccc"))
 
         # Clickable margin for showing markers
         self.marginClicked.connect(self.on_margin_clicked)
-
         self.setMarginMarkerMask(0, 0b1111)
         self.setMarginSensitivity(0, True)
         # setting marker margin width to zero make the marker highlight line
         self.setMarginWidth(1, 5)
 
-
-        # Gcode highlight line
+        # Gcode highlight current line
         self.currentHandle = self.markerDefine(QsciScintilla.Background,
                           self.CURRENT_MARKER_NUM)
-        self.setMarkerBackgroundColor(self.markerBackgroundColor(),
-                                      self.CURRENT_MARKER_NUM)
+        self.setColorMarkerBackground(self.getColorMarkerBackground())
 
-        # user Highlight line
+        # User Highlight line (when clicking margin)
         self.userHandle = self.markerDefine(QsciScintilla.Background,
                           self.USER_MARKER_NUM)
-        self.setMarkerBackgroundColor(QColor("red"),
+        self.setMarkerBackgroundColor(QColor("#ffc0c0"),
                                       self.USER_MARKER_NUM)
 
         # Brace matching: enable for a brace immediately before or after
@@ -282,74 +239,59 @@ class EditorBase(QsciScintilla):
         self.setCaretLineBackgroundColor(QColor("#ffe4e4"))
         self.ensureLineVisible(True)
 
-        # Set custom gcode lexer
-        self.set_gcode_lexer()
-
         # Don't want to see the horizontal scrollbar at all
         # Use raw message to Scintilla here (all messages are documented
         # here: http://www.scintilla.org/ScintillaDoc.html)
         #self.SendScintilla(QsciScintilla.SCI_SETHSCROLLBAR, 0)
-        self.SendScintilla(QsciScintilla.SCI_SETSCROLLWIDTH,700)
+        self.SendScintilla(QsciScintilla.SCI_SETSCROLLWIDTH, 700)
         self.SendScintilla(QsciScintilla.SCI_SETSCROLLWIDTHTRACKING)
-
-        # default gray background
-        self.set_background_color('#C0C0C0')
-        self._styleBackgroundColor = QColor('#C0C0C0')
 
         # not too small
         self.setMinimumSize(200, 100)
         self.filepath = None
 
-    def mouseDoubleClickEvent(self, event):
-        pass
+    def set_lexer(self, lexer_type=None):
+        self.lexer = None
+        self.lexer_num_styles = 0
 
-    def setMarginsForegroundColor(self, color):
-        super(EditorBase, self).setMarginsForegroundColor(color)
-        self._styleMarginsForegroundColor = color
+        if lexer_type is None or not self._styleSyntaxHighlightEnabled:
+            self.lexer = None
+        elif lexer_type.lower() == "g-code":
+            self.lexer = GcodeLexer(self)
+        elif lexer_type.lower() == "python":
+            self.lexer = QsciLexerPython(self)
 
-    def marginsForegroundColor(self):
-        return self._styleMarginsForegroundColor
+        # Get Number of lexer styles
+        if self.lexer is not None:
+            while self.lexer.description(self.lexer_num_styles) != "":
+                self.lexer_num_styles += 1
 
-    def setMarginsBackgroundColor(self, color):
-        super(EditorBase, self).setMarginsBackgroundColor(color)
-        self._styleMarginsBackgroundColor = color
+        self.setLexer(self.lexer)
+        self.refresh_styles()
+        #print("Loaded Lexer {} with {} Styles".format(lexer_type, self.lexer_num_styles))
 
-    def marginsBackgroundColor(self):
-        return self._styleMarginsBackgroundColor
+    def refresh_styles(self):
+        self.setDefaultFont(self.getDefaultFont())
+        self.set_font_colors()
+        self.setColorBackground(self.getColorBackground())
+        self.setColorMarginsBackground(self.getColorMarginsBackground())
+        self.setSelectionBackgroundColor(self.getColorSelectionBackground())
+        self.setSelectionForegroundColor(self.getColorSelectionForeground())
+
+    def set_font_colors(self):
+        self.setColor(self.getColor0())
+        self.setColorMarginsForeground(self.getColorMarginsForeground())
+
+        if self.lexer is not None:
+            for i in range(0, self.lexer_num_styles):
+                self.lexer.setColor(self._styleColor.get(i, self._styleColor[0]), i)
 
     def set_margin_width(self, width):
-        fontmetrics = QFontMetrics(self.font)
-        self.setMarginsFont(self.font)
-        self.setMarginWidth(0, fontmetrics.width("0"*width) + 6)
+        fontmetrics = QFontMetrics(self.getFontMargins())
+        self.setMarginWidth(0, fontmetrics.width("0" * width) + 6)
 
-    def setBackgroundColor(self, color):
-        self._styleBackgroundColor = color
-        self.set_background_color(color)
-
-    def backgroundColor(self):
-        return self._styleBackgroundColor
-
-    def markerBackgroundColor(self):
-        return self._styleMarkerBackgroundColor
-
-    # must set lexer paper background color _and_ editor background color it seems
-    def set_background_color(self, color):
-        self.SendScintilla(QsciScintilla.SCI_STYLESETBACK, QsciScintilla.STYLE_DEFAULT, QColor(color))
-        self.lexer.setPaperBackground(QColor(color))
-
-    def setSelectionBackgroundColor(self, color):
-        super(EditorBase, self).setSelectionBackgroundColor(color)
-        self._styleSelectionBackgroundColor = color
-
-    def selectionBackgroundColor(self):
-        return self._styleSelectionBackgroundColor
-
-    def setSelectionForegroundColor(self, color):
-        super(EditorBase, self).setSelectionForegroundColor(color)
-        self._styleSelectionForegroundColor = color
-
-    def selectionForegroundColor(self):
-        return self._styleSelectionForegroundColor
+    def on_lines_changed(self):
+        self.set_margin_width(len(str(self.lines())))
 
     def on_margin_clicked(self, nmargin, nline, modifiers):
         # Toggle marker for the line the margin was clicked on
@@ -366,19 +308,8 @@ class EditorBase(QsciScintilla):
             return
         self._lastUserLine = nline
 
-    def set_python_lexer(self):
-        self.lexer = QsciLexerPython()
-        self.lexer.setDefaultFont(self.font)
-        self.setLexer(self.lexer)
-        #self.set_background_color(self.backgroundColor())
-        #self.SendScintilla(QsciScintilla.SCI_STYLESETFONT, 1, 'Courier')
-
-    def set_gcode_lexer(self):
-        self.lexer = GcodeLexer(self)
-        self.lexer.setDefaultFont(self.font)
-        self.setLexer(self.lexer)
-        self.set_background_color(self.backgroundColor())
-        self.setMarginsBackgroundColor(self._styleMarginsBackgroundColor)
+    def mouseDoubleClickEvent(self, event):
+        pass
 
     def new_text(self):
         self.setText('')
@@ -387,9 +318,10 @@ class EditorBase(QsciScintilla):
         self.filepath = filepath
         try:
             fp = os.path.expanduser(filepath)
-            self.setText(open(fp).read())
-        except:
-            LOG.error('File path is not valid: {}'.format(filepath))
+            with open(fp) as f:
+                self.setText(f.read())
+        except OSError as e:
+            LOG.error("load_text(): {}".format(e))
             self.setText('')
             return
         self.ensureCursorVisible()
@@ -397,174 +329,240 @@ class EditorBase(QsciScintilla):
         self.setModified(False)
 
     def save_text(self):
-        with open(self.filepath + 'text', "w") as text_file:
-            text_file.write(self.text())
+        try:
+            with open(self.filepath + 'text', "w") as f:
+                f.write(self.text())
+        except OSError as e:
+            LOG.error("save_text(): {}".format(e))
 
     def replace_text(self, text):
         self.replace(text)
 
-    def search(self, text, re = False,case= False, word=False, wrap= False, fwd=True):
+    def search(self, text, re=False, case=False, word=False, wrap=False, fwd=True):
         self.findFirst(text, re, case, word, wrap, fwd)
 
     def search_Next(self):
         self.SendScintilla(QsciScintilla.SCI_SEARCHANCHOR)
         self.findNext()
 
-    # this allows setting these properties in a stylesheet
+    # Style get/set functions
+
+    # Default Color
     def getColor0(self):
-        return self.lexer.color(0)
+        return self._styleColor[0]
     def setColor0(self, value):
-        self.lexer.setColor(value,0)
+        self._styleColor[0] = value
+        self.setColor(value)
+        if self.lexer is not None:
+            self.lexer.setColor(value, 0)
     styleColor0 = pyqtProperty(QColor, getColor0, setColor0)
 
+    # Lexer Colors
     def getColor1(self):
-        return self.lexer.color(1)
+        return self._styleColor.get(1, self._styleColor[0])
     def setColor1(self, value):
-        self.lexer.setColor(value,1)
+        self._styleColor[1] = value
+        if self.lexer is not None:
+            self.lexer.setColor(value, 1)
     styleColor1 = pyqtProperty(QColor, getColor1, setColor1)
 
     def getColor2(self):
-        return self.lexer.color(2)
+        return self._styleColor.get(2, self._styleColor[0])
     def setColor2(self, value):
-        self.lexer.setColor(value,2)
+        self._styleColor[2] = value
+        if self.lexer is not None:
+            self.lexer.setColor(value, 2)
     styleColor2 = pyqtProperty(QColor, getColor2, setColor2)
 
     def getColor3(self):
-        return self.lexer.color(3)
+        return self._styleColor.get(3, self._styleColor[0])
     def setColor3(self, value):
-        self.lexer.setColor(value,3)
+        self._styleColor[3] = value
+        if self.lexer is not None:
+            self.lexer.setColor(value, 3)
     styleColor3 = pyqtProperty(QColor, getColor3, setColor3)
 
     def getColor4(self):
-        return self.lexer.color(4)
+        return self._styleColor.get(4, self._styleColor[0])
     def setColor4(self, value):
-        self.lexer.setColor(value,4)
+        self._styleColor[4] = value
+        if self.lexer is not None:
+            self.lexer.setColor(value, 4)
     styleColor4 = pyqtProperty(QColor, getColor4, setColor4)
 
     def getColor5(self):
-        return self.lexer.color(5)
+        return self._styleColor.get(5, self._styleColor[0])
     def setColor5(self, value):
-        self.lexer.setColor(value,5)
+        self._styleColor[5] = value
+        if self.lexer is not None:
+            self.lexer.setColor(value, 5)
     styleColor5 = pyqtProperty(QColor, getColor5, setColor5)
 
     def getColor6(self):
-        return self.lexer.color(6)
+        return self._styleColor.get(6, self._styleColor[0])
     def setColor6(self, value):
-        self.lexer.setColor(value,6)
+        self._styleColor[6] = value
+        if self.lexer is not None:
+            self.lexer.setColor(value, 6)
     styleColor6 = pyqtProperty(QColor, getColor6, setColor6)
 
     def getColor7(self):
-        return self.lexer.color(7)
+        return self._styleColor.get(7, self._styleColor[0])
     def setColor7(self, value):
-        self.lexer.setColor(value,7)
+        self._styleColor[7] = value
+        if self.lexer is not None:
+            self.lexer.setColor(value, 7)
     styleColor7 = pyqtProperty(QColor, getColor7, setColor7)
 
-    def getColor6Codes(self):
-        return self.lexer.getColor6Codes()
-    def setColor6Codes(self, value):
-        self.lexer.setColor6Codes(value)
-    def resetColor6Codes(self):
-        self.lexer.setColor6Codes('gst')
-    color6Codes = pyqtProperty(str, getColor6Codes, setColor6Codes,resetColor6Codes)
+    # Margins Text Color
+    def getColorMarginsForeground(self):
+        return self._styleColor.get("Margins", self._styleColor[0])
+    def setColorMarginsForeground(self, value):
+        super(EditorBase, self).setMarginsForegroundColor(value)
+        self._styleColor["Margins"] = value
+    styleColorMarginText = pyqtProperty(QColor, getColorMarginsForeground, setColorMarginsForeground)
 
-    def getColor7Codes(self):
-        return self.lexer.getColor7Codes()
-    def setColor7Codes(self, value):
-        self.lexer.setColor7Codes(value)
-    def resetColor7Codes(self):
-        self.lexer.setColor7Codes('fmpq')
-    color7Codes = pyqtProperty(str, getColor7Codes, setColor7Codes, resetColor7Codes)
+    # Backgrounds
+    def getColorBackground(self):
+        return self._styleBackgroundColor
+    def setColorBackground(self, color):
+        self._styleBackgroundColor = color
+        #self.SendScintilla(QsciScintilla.SCI_STYLESETBACK, QsciScintilla.STYLE_DEFAULT, color)
+        self.setPaper(color)
+        if self.lexer is not None:
+            self.lexer.setDefaultPaper(color)
+            for i in range(0, self.lexer_num_styles):
+                self.lexer.setPaper(color, i)
+    styleColorBackground = pyqtProperty(QColor, getColorBackground, setColorBackground)
 
-    def getColorMarginText(self):
-        return self.marginsForegroundColor()
-    def setColorMarginText(self, value):
-        self.setMarginsForegroundColor(value)
-    styleColorMarginText = pyqtProperty(QColor, getColorMarginText, setColorMarginText)
+    # Margins Background
+    def setColorMarginsBackground(self, color):
+        super(EditorBase, self).setMarginsBackgroundColor(color)
+        self._styleMarginsBackgroundColor = color
+    def getColorMarginsBackground(self):
+        return self._styleMarginsBackgroundColor
+    styleColorMarginBackground = pyqtProperty(QColor, getColorMarginsBackground, setColorMarginsBackground)
 
-    def getColorMarginBackground(self):
-        return self.marginsBackgroundColor()
-    def setColorMarginBackground(self, value):
-        self.setMarginsBackgroundColor(value)
-    styleColorMarginBackground = pyqtProperty(QColor, getColorMarginBackground, setColorMarginBackground)
-
-    def getColorSelectionText(self):
-        return self.selectionForegroundColor()
-    def setColorSelectionText(self, value):
-        self.setSelectionForegroundColor(value)
-    styleColorSelectionText = pyqtProperty(QColor, getColorSelectionText, setColorSelectionText)
-
+    # Selection Highlight Background & Foreground
     def getColorSelectionBackground(self):
-        return self.selectionBackgroundColor()
+        return self._styleSelectionBackgroundColor
     def setColorSelectionBackground(self, value):
+        self._styleSelectionBackgroundColor = value
         self.setSelectionBackgroundColor(value)
     styleColorSelectionBackground = pyqtProperty(QColor, getColorSelectionBackground, setColorSelectionBackground)
 
-    def getColorBackground(self):
-        return self.backgroundColor()
-    def setColorBackground(self, value):
-        self.setBackgroundColor(value)
-    styleColorBackground = pyqtProperty(QColor, getColorBackground, setColorBackground)
+    def getColorSelectionForeground(self):
+        return self._styleSelectionForegroundColor
+    def setColorSelectionForeground(self, value):
+        self._styleSelectionForegroundColor = value
+        self.setSelectionForegroundColor(value)
+    styleColorSelectionText = pyqtProperty(QColor, getColorSelectionForeground, setColorSelectionForeground)
 
+    # Current Line Marker Background
     def getColorMarkerBackground(self):
-        return self.markerBackgroundColor()
+        return self._styleMarkerBackgroundColor
     def setColorMarkerBackground(self, value):
-        self.setMarkerBackgroundColor(QColor(value), self.CURRENT_MARKER_NUM)
-        self._styleMarkerBackgroundColor = QColor(value)
+        self._styleMarkerBackgroundColor = value
+        self.setMarkerBackgroundColor(value, self.CURRENT_MARKER_NUM)
     styleColorMarkerBackground = pyqtProperty(QColor, getColorMarkerBackground, setColorMarkerBackground)
 
+    # Fonts
+    def setDefaultFont(self, value):
+        self._styleFont[0] = value
+        self.setFont(value)
+        self.setFontMargins(self.getFontMargins())
+
+        if self.lexer is not None:
+            self.lexer.setFont(value)
+            for i in range(0, self.lexer_num_styles):
+                self.lexer.setFont(self._styleFont.get(i, self._styleFont[0]), i)
+    def getDefaultFont(self):
+        return self._styleFont[0]
+    styleFont = pyqtProperty(QFont, getDefaultFont, setDefaultFont)
+
     def getFont0(self):
-        return self.lexer.font(0)
+        return self._styleFont[0]
     def setFont0(self, value):
-        self.lexer.setFont(value,0)
+        self._styleFont[0] = value
+        self.setFont(value)
+        if self.lexer is not None:
+            self.lexer.setFont(value, 0)
     styleFont0 = pyqtProperty(QFont, getFont0, setFont0)
 
     def getFont1(self):
-        return self.lexer.font(1)
+        return self._styleFont.get(1, self._styleFont[0])
     def setFont1(self, value):
-        self.lexer.setFont(value,1)
+        self._styleFont[1] = value
+        if self.lexer is not None:
+            self.lexer.setFont(value, 1)
     styleFont1 = pyqtProperty(QFont, getFont1, setFont1)
 
     def getFont2(self):
-        return self.lexer.font(2)
+        return self._styleFont.get(2, self._styleFont[0])
     def setFont2(self, value):
-        self.lexer.setFont(value,2)
+        self._styleFont[2] = value
+        if self.lexer is not None:
+            self.lexer.setFont(value, 2)
     styleFont2 = pyqtProperty(QFont, getFont2, setFont2)
 
     def getFont3(self):
-        return self.lexer.font(3)
+        return self._styleFont.get(3, self._styleFont[0])
     def setFont3(self, value):
-        self.lexer.setFont(value,3)
+        self._styleFont[3] = value
+        if self.lexer is not None:
+            self.lexer.setFont(value, 3)
     styleFont3 = pyqtProperty(QFont, getFont3, setFont3)
 
     def getFont4(self):
-        return self.lexer.font(4)
+        return self._styleFont.get(4, self._styleFont[0])
     def setFont4(self, value):
-        self.lexer.setFont(value,4)
+        self._styleFont[4] = value
+        if self.lexer is not None:
+            self.lexer.setFont(value, 4)
     styleFont4 = pyqtProperty(QFont, getFont4, setFont4)
 
     def getFont5(self):
-        return self.lexer.font(5)
+        return self._styleFont.get(5, self._styleFont[0])
     def setFont5(self, value):
-        self.lexer.setFont(value,5)
+        self._styleFont[5] = value
+        if self.lexer is not None:
+            self.lexer.setFont(value, 5)
     styleFont5 = pyqtProperty(QFont, getFont5, setFont5)
 
     def getFont6(self):
-        return self.lexer.font(6)
+        return self._styleFont.get(6, self._styleFont[0])
     def setFont6(self, value):
-        self.lexer.setFont(value,6)
+        self._styleFont[6] = value
+        if self.lexer is not None:
+            self.lexer.setFont(value, 6)
     styleFont6 = pyqtProperty(QFont, getFont6, setFont6)
 
     def getFont7(self):
-        return self.lexer.font(7)
+        return self._styleFont.get(7, self._styleFont[0])
     def setFont7(self, value):
-        self.lexer.setFont(value,7)
+        self._styleFont[7] = value
+        if self.lexer is not None:
+            self.lexer.setFont(value, 7)
     styleFont7 = pyqtProperty(QFont, getFont7, setFont7)
 
-    def getFontMargin(self):
-        return self.font
-    def setFontMargin(self, value):
+    def getFontMargins(self):
+        return self._styleFont.get("Margins", self._styleFont[0])
+    def setFontMargins(self, value):
+        self._styleFont["Margins"] = value
         self.setMarginsFont(value)
-    styleFontMargin = pyqtProperty(QFont, getFontMargin, setFontMargin)
+    styleFontMargin = pyqtProperty(QFont, getFontMargins, setFontMargins)
+
+    # Syntax Highlighting Bool
+    def getSyntaxHighlightEnabled(self):
+        return self._styleSyntaxHighlightEnabled
+    def setSyntaxHighlightEnabled(self, value):
+        if value is not self._styleSyntaxHighlightEnabled:
+            self._styleSyntaxHighlightEnabled = value
+            if not value:
+                self.set_lexer(None)
+            else:
+                self.set_lexer("g-code")
+    styleSyntaxHighlightEnabled = pyqtProperty(bool, getSyntaxHighlightEnabled, setSyntaxHighlightEnabled)
 
 
 ##########################################################
@@ -573,6 +571,7 @@ class EditorBase(QsciScintilla):
 class GcodeDisplay(EditorBase, _HalWidgetBase):
     CURRENT_MARKER_NUM = 0
     USER_MARKER_NUM = 1
+
     def __init__(self, parent=None):
         super(GcodeDisplay, self).__init__(parent)
         # linuxcnc defaults
@@ -626,9 +625,6 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
     def load_mdi(self, w):
         self.load_text(INFO.MDI_HISTORY_PATH)
         self._last_filename = INFO.MDI_HISTORY_PATH
-        #print 'font point size', self.font().pointSize()
-        #self.zoomTo(10)
-        #print 'font point size', self.font().pointSize()
         self.setCursorPosition(self.lines(), 0)
 
     # With the auto_show__mdi option, MDI history is shown
@@ -638,21 +634,8 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
             self.setCursorPosition(self.lines(), 0)
 
     def load_preference(self, w):
-            self.load_text(self.PATHS_.PREFS_FILENAME)
-            self.setCursorPosition(self.lines(), 0)
-
-    def load_text(self, filename):
-        if filename:
-            try:
-                fp = os.path.expanduser(filename)
-                self.setText(open(fp).read())
-                self.last_line = 0
-                self.ensureCursorVisible()
-                self.SendScintilla(QsciScintilla.SCI_VERTICALCENTRECARET)
-                return
-            except:
-                LOG.error('File path is not valid: {}'.format(filename))
-        self.setText('')
+        self.load_text(self.PATHS_.PREFS_FILENAME)
+        self.setCursorPosition(self.lines(), 0)
 
     # external line numbers start at 1 - convert that to start at 0
     def external_highlight_request(self, w, line):
@@ -953,7 +936,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
     def gcodeLexerCall(self):
         self.gcodeLexer()
     def gcodeLexer(self):
-        self.editor.set_gcode_lexer()
+        self.editor.set_lexer("g-code")
 
     def nextCall(self):
         self.next()
@@ -984,7 +967,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
     def pythonLexerCall(self):
         self.pythonLexer()
     def pythonLexer(self):
-        self.editor.set_python_lexer()
+        self.editor.set_lexer("python")
 
     def redoCall(self):
         self.redo()
@@ -1086,12 +1069,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         self.editor.set_margin_width(width)
 
     def set_font(self, font):
-        self.editor.lexer.setFont(font)
-        for i in range(0,8):
-            self.editor.lexer.setFont(font,i)
-
-    def set_background_color(self, color):
-        self.editor.set_background_color(color)
+        self.editor.setDefaultFont(font)
 
     def isReadOnly(self):
         return self.editor.isReadOnly()
@@ -1123,26 +1101,51 @@ if __name__ == "__main__":
     from PyQt5.QtCore import *
     from PyQt5.QtGui import *
 
+    sample_text = r"""( ----- Simple G-Code -----)
+G17 G20 G40 G49 G54 G80 G90 G94
+M7
+
+G0 Z10
+F400
+G1 Z1
+
+
+G3 X50 Y50 Z1 I-7.5 J0
+G0 Z30
+
+
+G5.2 X3.53   Y-1.50   P2
+     X5.33   Y-11.01  P1
+     X3.52   Y-24.00  P1
+     X0.0    Y-29.56  P1
+G5.3
+
+G0 Z2
+G1 Z-5 F100
+F600
+
+( ----- Line Numbers ----- )
+N1
+N20
+N300
+N030 (insert numbers in place of .)
+N000   G1 X20
+N98765 G0 Z30"""
+
     app = QApplication(sys.argv)
     w = GcodeEditor()
     w.editMode()
-    w.editor.setText(''' This is test text
-a
-a
-a
-B
-b
-n
-C
-C
-C
 
-This is the end of the test text.''')
+    if len(sys.argv) > 1:
+        w.editor.load_text(sys.argv[1])
+    else:
+        w.editor.setText(sample_text)
+
     if 0:
         w.toolBar.hide()
     if 1:
-        w.pythonLexerAction.setVisible(False)
-        w.gCodeLexerAction.setVisible(False)
+        w.pythonLexerAction.setVisible(True)
+        w.gCodeLexerAction.setVisible(True)
     if 1:
         w.openAction.setVisible(False)
         w.newAction.setVisible(False)
@@ -1153,5 +1156,3 @@ This is the end of the test text.''')
         w.label.setText('<b>Edit mode title label</b>')
     w.show()
     sys.exit( app.exec_() )
-
-

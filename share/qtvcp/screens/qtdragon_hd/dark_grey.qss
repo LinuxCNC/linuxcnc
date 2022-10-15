@@ -13,6 +13,7 @@ QToolTip
 }
 
 /** Pushbuttons **/
+QToolButton,
 QPushButton,
 ActionButton,
 SystemToolButton,
@@ -104,7 +105,6 @@ QComboBox::drop-down {
 
 QComboBox::item {
     background-color: #404040;
-    font: 10pt "Lato Heavy";
     color: #9ad58d;
 }
 
@@ -235,6 +235,7 @@ QListView,
 QTreeView {
     background: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 rgba(40, 40, 40, 255), stop:1 rgba(83, 83, 83, 255));
     selection-background-color: transparent;
+    qproperty-alternatingRowColors: false;
     border: 1px solid black;
     gridline-color: black;
     font: 10pt "Lato Heavy";
@@ -461,16 +462,19 @@ QStatusBar {
 
 /** GCode Display **/
 EditorBase {
-    qproperty-styleColorMarginBackground: #303030;
-    qproperty-styleColorMarginText: #E0E0E0; /* margin line numbers */
-    qproperty-styleFontMargin: "Lato Heavy, 10 ";
     qproperty-styleColorBackground: #303030;
+    qproperty-styleColorMarginBackground: #202020;
+    qproperty-styleColorMarginText: #E0E0E0; /* margin line numbers */
     qproperty-styleColorMarkerBackground: #505050; /* Current Line Marker Background */
-    qproperty-styleColor0: #9ad58d; /* digit characters */
-    qproperty-styleColor1: #9ad58d; /* comments */
-    qproperty-styleColor2: #9ad58d; /* alphabetic characters */
-    qproperty-styleColor3: #9ad58d; /* assignment characters */
-    qproperty-styleColor4: #9ad58d; /* value characters */
-    qproperty-styleFont0: "Lato Heavy, 10";
-    qproperty-styleFont2: "Lato Heavy, 10";
+    qproperty-styleFont: "Lato Heavy, 10";
+    qproperty-styleFont1: "Lato Heavy, 9";  /* comments */
+    qproperty-styleFontMargin: "Lato Heavy, 9";
+    qproperty-styleColor0: #efefef;	 /* default */
+    qproperty-styleColor1: #788a74;	 /* LineNo & Comments */
+    qproperty-styleColor2: #5f6cd9;  /* Gcodes */
+    qproperty-styleColor3: #9157cf;	 /* Mcodes */
+    qproperty-styleColor4: #598f4d;	 /* Axes */
+    qproperty-styleColor5: #598f4d;	 /* Other (feed, spindle, radius, etc) */
+    qproperty-styleColor6: #9ad58d;	 /* Axes Values */
+    qproperty-styleColor7: #9ad58d;	 /* Other Values */
 }
