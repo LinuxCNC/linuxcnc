@@ -122,7 +122,7 @@ class GcodeLexer(QsciLexerCustom):
             0: r"\s+|\w+|\W",                                                   # Default (fallback)
         }
 
-        re_comment_cmd = r"(?:\(\s*(?:print|debug|msg|logopen|logappend|logclose|log|pyrun|pyreload|abort|probeopen|probeclose)|\;py)(?:,|\s*)"
+        re_comment_cmd = r"(?:\(\s*(?:print,|debug,|msg,|logopen,|logappend,|logclose|log,|pyrun,|pyreload|abort,|probeopen|probeclose)|\;py,)"
 
         re_string = "|".join(re_tokens.values())
         p = re.compile(re_string, re.IGNORECASE)
