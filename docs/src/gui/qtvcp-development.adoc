@@ -171,10 +171,10 @@ After this function is called the widget has access to some special
 variables:
 
 *`self.HAL_GCOMP`*:: the _HAL component_ instance
-*`self.HAL_NAME`*:: This _widget's name_ as a string
-*`self.QT_OBJECT_`*:: This _widget's PyQt object instance_
-*`self.QTVCP_INSTANCE_`*:: The _very top level parent_ of the screen
-*`self.PATHS_`*:: The _instance of QtVCP's path_ library
+*`self.HAL_NAME`*:: this _widget's name_ as a string
+*`self.QT_OBJECT_`*:: this _widget's PyQt object instance_
+*`self.QTVCP_INSTANCE_`*:: the _very top level parent_ of the screen
+*`self.PATHS_`*:: the _instance of QtVCP's path_ library
 *`self.PREFS_`*:: the _instance of an optional preference file_
 *`self.SETTINGS_`*:: the `Qsettings` _object_
 

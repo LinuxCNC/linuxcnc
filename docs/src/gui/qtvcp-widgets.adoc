@@ -2410,9 +2410,8 @@ def show_dialog(self):
 ----
 
 * *Add a callback function that processes the general message*: +
-  Keep in mind this function will _get all general messages_ so the
-  `dict` keynames are not guaranteed to be there. +
-  Using the `.get()` function and/or using `try`/`except` is advisable. +
+  Keep in mind this function will _get all general messages_ so the `dict` keynames are not guaranteed to be there.
+  Using the `.get()` function and/or using `try`/`except` is advisable.
   This function should:
   ** check the name and id is the same as we sent,
   ** then extract the return value and any user variables.
@@ -2538,7 +2537,7 @@ It is based on PyQt's _QMessagebox_.
 === `OriginOffsetDialog` - Origin Offset Setting Dialog Widget
 
 .QtVCP `OriginOffsetDialog`: Origin Offset Setting Widget
-image::images/qtvcp_offsetpage.png["QtVCP OriginOffsetDialog: Origin Offset Setting Widget",scale="25%"]
+image::images/qtvcp_offsetpage.png["QtVCP `OriginOffsetDialog``: Origin Offset Setting Widget",scale="25%"]
 
 This widget allows one to *modify User System origin offsets directly*
 in a dialog form.
@@ -2555,7 +2554,7 @@ It is based on PyQt's _QDialog_.
 === `ToolOffsetDialog` - Tool Offset Setting Dialog Widget
 
 .QtVCP `ToolOffsetDialog`: Tool Offset Setting Dialog Widget
-image::images/qtvcp_toolOffset.png["QtVCP ToolOffsetDialog: Tool Offset Setting Dialog Widget",scale="25%"]
+image::images/qtvcp_toolOffset.png["QtVCP `ToolOffsetDialog`: Tool Offset Setting Dialog Widget",scale="25%"]
 
 This widget allows one to *modify Tool offsets directly* in a dialog
 form.
