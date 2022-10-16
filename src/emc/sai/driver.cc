@@ -43,7 +43,7 @@
 InterpBase *pinterp;
 #define interp_new (*pinterp)
 const char *prompt = "READ => ";
-const char *history = "~/.rs274";
+const char *histfile = "~/.rs274";
 #define RS274_HISTORY "RS274_HISTORY"
 
 #define active_settings  interp_new.active_settings
@@ -137,15 +137,15 @@ void initialize_readline ()
     rl_readline_name = "rs274";
  
     if ((s = getenv(RS274_HISTORY)))
-	history = s;
+	histfile = s;
     // tilde-expand 
-    if (wordexp(history, &p, WRDE_SHOWERR|WRDE_UNDEF )) {
+    if (wordexp(histfile, &p, WRDE_SHOWERR|WRDE_UNDEF )) {
 	perror("wordexp");
     } else {
-	history = strdup(p.we_wordv[0]);
+	histfile = strdup(p.we_wordv[0]);
     }
-    if (history)
-	read_history(history);
+    if (histfile)
+	read_history(histfile);
 }
 
 /***********************************************************************/
@@ -186,8 +186,8 @@ int interpret_from_keyboard(  /* ARGUMENTS                 */
 	{
 	    line = readline ( prompt);
 	    if (!line || strcmp (line, "quit") == 0) {
-		if (history)
-		    write_history(history);
+		if (histfile)
+		    write_history(histfile);
 		return 0;
 	    }
 	    if (*line)
