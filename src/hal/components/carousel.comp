@@ -188,7 +188,7 @@ FUNCTION(_){
     int mod_pocket = 0;
     int new_pos = 0;
     unsigned int mask;
-    int align_pin; // used for slow align move, input depends on mode for historical reasons
+    int align_pin = 0; // used for slow align move, input depends on mode for historical reasons
 
     switch inst_code{
     case 'G': // Gray Code
