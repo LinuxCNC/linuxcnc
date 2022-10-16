@@ -235,6 +235,8 @@ std::string handle_pyerror()
     bp::object formatted_list, formatted;
 
     PyErr_Fetch(&exc, &val, &tb);
+    PyErr_NormalizeException(&exc, &val, &tb);
+
     bp::handle<> hexc(exc), hval(bp::allow_null(val)), htb(bp::allow_null(tb));
     bp::object traceback(bp::import("traceback"));
     if (!tb) {
