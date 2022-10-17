@@ -2850,6 +2850,8 @@ class HandlerClass:
                 self.vkb_show(True)
             elif self.w.main_tab_widget.currentIndex() == 3:
                 self.vkb_show()
+            self.w.chk_keyboard_shortcuts.setChecked(False)
+            self.w.chk_keyboard_shortcuts.setEnabled(False)
         else:
             inputType = 'ENTRY'
             self.w.originoffsetview.setProperty('dialog_code_string','')
@@ -2859,6 +2861,7 @@ class HandlerClass:
             self.w.gcode_editor.editor.SendScintilla(QsciScintilla.SCI_SETEXTRAASCENT, 1)
             self.w.gcode_editor.editor.SendScintilla(QsciScintilla.SCI_SETEXTRADESCENT, 1)
             self.vkb_hide()
+            self.w.chk_keyboard_shortcuts.setEnabled(True)
         for axis in 'xyzab':
             button = 'touch_{}'.format(axis)
             self.w[button].dialog_code = inputType
