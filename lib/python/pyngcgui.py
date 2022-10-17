@@ -1149,6 +1149,7 @@ class LinuxcncInterface():
     def get_program_prefix(self):
         if self.ini_data:
             dir = self.ini_data.find('DISPLAY','PROGRAM_PREFIX')
+            if not dir: return(None)
             dir = os.path.expanduser(dir)
             if not os.path.isabs(dir):
                 # relative, base on inidir
