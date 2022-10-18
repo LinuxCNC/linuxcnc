@@ -873,6 +873,7 @@ static bool record_soft_error(hm2_eth_t *board) {
     if(!board->hal) return 1; // still early in hm2_eth_probe
     board->llio.needs_soft_reset = 1;
     *board->hal->packet_error = 1;
+    *board->hal->packet_error_total += 1;
     int32_t increment = board->hal->packet_error_increment;
     if(increment < 1) increment = 1;
     board->comm_error_counter += increment;
@@ -1435,6 +1436,14 @@ static int hm2_eth_items(hm2_eth_t *board) {
             board->llio.name)) < 0)
         return r;
     *board->hal->packet_error = 0;
+
+    if((r = hal_pin_u32_newf(HAL_IO,
+            &board->hal->packet_error_total,
+            board->llio.comp_id,
+            "%s.packet-error-total",
+            board->llio.name)) < 0)
+        return r;
+    *board->hal->packet_error_total = 0;
 
     if((r = hal_pin_s32_newf(HAL_OUT,
             &board->hal->packet_error_level,
