@@ -1001,6 +1001,26 @@ static int find_rt_cpu_number() {
 #endif
 }
 
+
+// Set the cpufreq scaling governor of the specified CPU to "performance",
+// to disable power savings which may slow the CPU down and introduce
+// latency.
+static void set_cpufreq_governor_to_performance(int rt_cpu_number) {
+    char filename[PATH_MAX];
+
+    WITH_ROOT;
+
+    snprintf(filename, PATH_MAX, "/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor", rt_cpu_number);
+    FILE *f = fopen(filename, "w");
+    if (f == NULL) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "failed to open %s: %s\n", filename, strerror(errno));
+    } else {
+        fprintf(f, "performance\n");
+        fclose(f);
+    }
+}
+
+
 int Posix::task_start(int task_id, unsigned long int period_nsec)
 {
   auto task = ::rtapi_get_task<PosixTask>(task_id);
@@ -1034,6 +1054,8 @@ int Posix::task_start(int task_id, unsigned long int period_nsec)
   if(nprocs > 1) {
       const static int rt_cpu_number = find_rt_cpu_number();
       if(rt_cpu_number != -1) {
+          set_cpufreq_governor_to_performance(rt_cpu_number);
+
 #ifdef __FreeBSD__
           cpuset_t cpuset;
 #else
