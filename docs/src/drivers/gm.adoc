@@ -267,7 +267,7 @@ gm.<card_no>.write
 ----
 
 .StepGen module pins
-[width="80%",options="header",cols="<3,^2,<6"]
+[width="90%",options="header",cols="<3,^2,<6"]
 |===
 | Pins           | Type and direction | Pin description
 m| .enable       | (bit, In)          | StepGen produces pulses only when this pin is true.
@@ -456,7 +456,7 @@ gm.<card_no>.read
 === Pins
 
 .Watchdog pins
-[width="80%",options="header",cols="<3,^2,<6"]
+[width="90%",options="header",cols="<3,^2,<6"]
 |===
 | Pins                             | Type and direction | Pin description
 m| gm._<card_no>_.watchdog-expired | (bit, Out)         | Indicates that watchdog timer is expired.
@@ -467,13 +467,13 @@ Watchdog timer overrun causes the set of power-enable to low in hardware.
 === Parameters
 
 .Watchdog parameters
-[width="100%",options="header",cols="<3,^2,<6"]
+[width="90%",options="header",cols="<3,^2,<6"]
 |===
 | Parameters                          | Type and direction | Parameter description
 m| gm._<card_no>_.watchdog-enable     | (bit, R/W)         |
-Enable watchdog timer.
-It is strongly recommended to enable watchdog timer,
-because it can disables all the servo amplifiers by pulling down all enable signal in case of PC error.
+Enables watchdog timer. +
+It is strongly recommended to enable the watchdog timer,
+because it can disable all the servo amplifiers by pulling down all enable signals in case of a PC error.
 m| gm._<card_no>_.watchdog-timeout-ns | (float, R/W)       |
 Time interval in within the gm._<card_no>_.read function must be executed.
 The gm._<card_no>_.read is typically added to servo-thread,
