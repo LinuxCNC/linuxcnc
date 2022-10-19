@@ -735,7 +735,7 @@ static rtapi_s64 rtapi_cycle_counter_get_freq(void) {
 
 #else
     // FIXME: alternatively we could claim "1 GHz" and use rtapi_get_time()
-    rtapi_print_msg(RTAPI_MSG_WARN, "%s: no hardware cycle counter found, falling back to time- and sleep-based timing\n", __FUNCTION__);
+    rtapi_print_msg(RTAPI_MSG_ERR, "%s: no hardware cycle counter found, falling back to time- and sleep-based timing\n", __FUNCTION__);
     rtapi_cycle_counter_frequency = 0;
 #endif
 
