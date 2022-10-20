@@ -838,7 +838,17 @@ struct rtapi_task *task_array[MAX_TASKS];
 
 int RtapiApp::prio_highest() const
 {
-    return sched_get_priority_max(policy);
+    // In Linux 5.19, SCHED_FIFO's priority can be between 1-99 and
+    // SCHED_OTHER's can only be 0.
+    //
+    // Some important kernel threads need to run occasionally on all CPUs
+    // (even with isolcpus, irq_affinity, rcu_nocbs, and nohz_full).
+    // They run at SCHED_FIFO with priorities between 50-99 so we pick
+    // a max SCHED_FIFO priority well below those to avoid starvation.
+    // Experimentally, 20 works fine, and leaves plenty of room for
+    // multiple threads at decreasing priority.
+
+    return min(20, sched_get_priority_max(policy));
 }
 
 int RtapiApp::prio_lowest() const
