@@ -376,8 +376,8 @@ connected in your HAL file to outputs.
 M66 P- | E- <L->
 ----
 
-* 'P-' - specifies the digital input number from 0 to 3.
-* 'E-' - specifies the analog input number from 0 to 3.
+* 'P-' - specifies the digital input number from 0 to 3. (Adjustable from motmod argument num_dio)
+* 'E-' - specifies the analog input number from 0 to 3.  (Adjustable from motmod argument num_aio)
 * 'L-' - specifies the wait mode type.
 ** 'Mode 0: IMMEDIATE' - no waiting, returns immediately.
    The current value of the input is stored in parameter #5399
@@ -428,7 +428,7 @@ M67 E- Q-
 ----
 
 * 'M67' - set an analog output synchronized with motion.
-* 'E-' - output number ranging from 0 to 3.
+* 'E-' - output number ranging from 0 to 3 (Adjustable from motmod argument num_aio)
 * 'Q-' - is the value to set (set to 0 to turn off).
 
 The actual change of the specified outputs will happen at the
@@ -454,7 +454,7 @@ M68 E- Q-
 ----
 
 * 'M68' - set an analog output immediately.
-* 'E-' - output number ranging from 0 to 3.
+* 'E-' - output number ranging from 0 to 3. (Adjustable from motmod argument num_aio)
 * 'Q-' - is the value to set (set to 0 to turn off).
 
 M68 output happen immediately as they are received by the motion
