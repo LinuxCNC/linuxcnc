@@ -3071,7 +3071,7 @@ For setup.
 [[sub:qtvcp:widgets:gcode-utility]]
 === G-code Utility
 
-Widgets for preforming common machining processes.
+Widgets for performing common machining processes.
 
 [[sub:qtvcp:widgets:facing]]
 === Facing
