@@ -129,13 +129,13 @@ Base machine requirements such as limit switches, home switches, etc. are in add
     If used and no ohmic probe is configured, this is the probing method. +
     If used and an ohmic probe is configured, this is the fallback probing method.
 |Ohmic Probe |0, 1, 2 |Digital input; *optional, see info below table:* +
-    HAL pin name plasmac.ohmic-probe +
+    HAL pin name `plasmac.ohmic-probe` +
     Connected from to the ohmic probe's output to a breakout board input.
     This signal is used to probe electronically by completing a circuit using the work piece and the torch consumables and set Z zero at the top of the work piece. +
     If used, this is the primary probing method.
     If an ohmic probe fails to locate the work piece, and there is no float switch is present, probing will continue until the torch breaks away or the minimum Z limit is reached.
 |Ohmic Probe Enable |0, 1, 2 |Digital output; *optional, see info below table:* +
-    HAL pin name plasmac.ohmic-enable +
+    HAL pin name `plasmac.ohmic-enable` +
     Connected from a breakout board output to an input to control the ohmic probe's power.
 |Breakaway Switch |0, 1, 2 |Digital input; *optional, see info below table:* +
     HAL pin name plasmac.breakaway +
@@ -199,9 +199,9 @@ o = 0.5 * a * (v / a)^2
 
 where: o = overrun, a = acceleration in units/sec2 and v = velocity in units/sec.
 
-Metric example:  given a Z axis MAX_ACCELERATION of 600&thinsp;mm/s^2^ and MAX_VELOCITY of 60&thinsp;mm/s, the overrun would be 3&thinsp;mm.
+Metric example:  given a Z axis MAX_ACCELERATION of 600&#8239;mm/s^2^ and MAX_VELOCITY of 60&#8239;mm/s, the overrun would be 3&#8239;mm.
 
-Imperial example: given a Z axis MAX_ACCELERATION of 24&thinsp;in/s^2^ and MAX_VELOCITY of 2.4&thinsp;in/s, the overrun would be 0.12&thinsp;in.
+Imperial example: given a Z axis MAX_ACCELERATION of 24&#8239;in/s^2^ and MAX_VELOCITY of 2.4&#8239;in/s, the overrun would be 0.12&#8239;in.
 
 On machines that will utilize an ohmic probe as the primary method of probing, it is highly recommended to install a switch on the floating head as a backup means of stopping Z motion in the event of ohmic probe failure due to dirty surfaces.
 
@@ -1079,7 +1079,7 @@ This allows the scribe to reach surface of the material before activating the sc
 |===
 |Name      |Description
 |Threshold |This sets the arc voltage at which the delay timer will begin. +
-0&thinsp;V starts the delay when the torch on signal is activated.
+0&#8239;V starts the delay when the torch on signal is activated.
 |Time On   |This sets the length of time (in milliseconds) the torch is on after threshold voltage is reached.
 |===
 
@@ -1930,7 +1930,7 @@ QtPlasmaC can probe at the full Z axis velocity so long as the machine has enoug
 Some float switches can exhibit a large switching hysteresis which shows up in the probing sequence as an excessive time to complete the final probe up.
 
 * This time may be decreased by changing the speed of the final probe up.
-* This speed defaults to 0.001&thinsp;mm (0.000039") per servo cycle.
+* This speed defaults to 0.001&#8239;mm (0.000039") per servo cycle.
 * It is possible to increase this speed by up to a factor of 10 by adding the following line to the custom.hal file:
 
 [source,{hal}]
@@ -1953,10 +1953,10 @@ Probe Height refers to the height above the Z axis MINIMUM_LIMIT.
 === Offset Probing
 
 Offset Probing is the use of a probe that is offset from the torch.
-This method is an alternative to Ohmic Probing and uses the plasmac.ohmic-enable output pin to operate a solenoid for extending and retracting the probe.
-The plasmac.ohmic-probe input pin is used to detect the material and the *Ohmic Offset* in the PROBING frame of the CONFIGURATION section of the <<qt_parameters-tab,PARAMETERS Tab>> is used to set the correct measured height.
+This method is an alternative to Ohmic Probing and uses the `plasmac.ohmic-enable` output pin to operate a solenoid for extending and retracting the probe.
+The `plasmac.ohmic-probe` input pin is used to detect the material and the *Ohmic Offset* in the PROBING frame of the CONFIGURATION section of the <<qt_parameters-tab,PARAMETERS Tab>> is used to set the correct measured height.
 
-The probe could be a mechanically deployed probe, a permanently mounted proximity sensor or even simply a stiff piece of wire extending about 0.5&thinsp;mm (0.2") below the torch tip.
+The probe could be a mechanically deployed probe, a permanently mounted proximity sensor or even simply a stiff piece of wire extending about 0.5&#8239;mm (0.2") below the torch tip.
 If the probe is mechanically deployed then it needs to extend/retract rather quickly to avoid excessive probing times and would commonly be pneumatically operated.
 
 To use this feature, the user must set the probe's offset from the torch center by following the procedure described in <<peripheral-offsets,Peripheral Offsets>>.
@@ -1975,7 +1975,7 @@ where _n.n_ is the offset of the probe from the torch center in machine units fo
 Each of these parameters is optional and also may appear in any order. If a parameter is not detected then the default is 0.0. There can be no space after the X or Z, lower case is permissible.
 
 When this variable appears in the INI file with either X or Y not equal to zero then QtPlasmaC will do *all* Ohmic Probing as Offset Probing.
-When a probe sequence has begun, the plasmac.ohmic-enable pin will be set True causing the probe to extend. When the material is detected the plasmac.ohmic-enable pin will be reset to false causing the probe to retract.
+When a probe sequence has begun, the `plasmac.ohmic-enable` pin will be set True causing the probe to extend. When the material is detected the `plasmac.ohmic-enable` pin will be reset to false causing the probe to retract.
 
 The probe will begin moving to the offset position simultaneously with the Z axis moving down to the Probe Height, probing will not commence unless the deployment timer has completed.
 It is required that the *Probe Height* in the PROBING frame of the CONFIGURATION section of the <<qt_parameters-tab,PARAMETERS Tab>> is above the top of the material to ensure that the probe is fully offset to the correct X/Y position before the final vertical probe down movement.
@@ -2006,7 +2006,7 @@ If using a custom user button is utilized then QtPlasmaC will automatically relo
 
 It is recommended that any holes to be cut have a diameter no less than one and a half times the thickness of the material to be cut.
 
-It is also recommended that holes with a diameter of less than 32&thinsp;mm (1.26") are cut at 60% of the feed rate used for profile cuts. This should also lock out THC due to velocity constraints.
+It is also recommended that holes with a diameter of less than 32&#8239;mm (1.26") are cut at 60% of the feed rate used for profile cuts. This should also lock out THC due to velocity constraints.
 
 QtPlasmaC can utilize G-code commands usually set by a CAM Post Processor (PP) to aid in hole cutting or if the user does not have a PP or the user's PP does not support these methods then QtPlasmaC can automatically adapt the G-code to suit. This automatic mode is disabled by default.
 
@@ -2109,12 +2109,12 @@ For valid hole sensing it is required that all values in the G2 or G3 G-code lin
 QtPlasmaC Hole Sensing is disabled by default. It can be enabled/disabled by using the following G-code parameters to select the desired hole sensing mode:
 
 * *#<holes> = 0* - Causes QtPlasmaC to disable hole sensing if it was previously enabled.
-* *#<holes> = 1* - Causes QtPlasmaC to reduce the speed of holes less than 32&thinsp;mm (1.26") to 60% of *CutFeedRate*.
+* *#<holes> = 1* - Causes QtPlasmaC to reduce the speed of holes less than 32&#8239;mm (1.26") to 60% of *CutFeedRate*.
 * *#<holes> = 2* - Causes QtPlasmaC to <<qt_overcut,Over cut>> the hole in addition to the velocity changes in setting 1.
-* *#<holes> = 3* - Causes QtPlasmaC to reduce the speed of holes less than 32&thinsp;mm (1.26") and arcs less than 16&thinsp;mm (0.63") to 60% of *CutFeedRate*.
+* *#<holes> = 3* - Causes QtPlasmaC to reduce the speed of holes less than 32&#8239;mm (1.26") and arcs less than 16&#8239;mm (0.63") to 60% of *CutFeedRate*.
 * *#<holes> = 4* - Causes QtPlasmaC to <<qt_overcut,Over cut>> the hole in addition to the velocity change in setting 3.
 
-The default hole size for QtPlasmaC hole sensing is 32&thinsp;mm (1.26"). It is possible to change this value with the following command in a G-code file:
+The default hole size for QtPlasmaC hole sensing is 32&#8239;mm (1.26"). It is possible to change this value with the following command in a G-code file:
 
 * *#<h_diameter> = nn* - To set a diameter (nn) in the same units system as the rest of the G-code file.
 
@@ -3069,14 +3069,14 @@ Preview = #000000
 It is possible to add custom python code to change some existing functions or to add new ones.
 Custom code can be added in two different way, a user command file or a user periodic file.
 
-A user command file is specified in the DISPLAY section of the <machine_name>.ini file and contains python code that is processed during startup.
+A user command file is specified in the DISPLAY section of the _<machine_name>_.ini file and contains python code that is processed during startup.
 
 [source,{ini}]
 ----
 n USER_COMMAND_FILE = my_custom_code.py
 ----
 
-A user periodic file must be named user_periodic.py and must be loated in the machines config directory. This file is processed every cycle (usually 100mS) and is used for functions that require regular updating.
+A user periodic file must be named user_periodic.py and must be loated in the machines config directory. This file is processed every cycle (usually 100&#8239;ms) and is used for functions that require regular updating.
 
 == QtPlasmaC Advanced Topics
 
@@ -3528,37 +3528,37 @@ The following HAL bit pins are always created. The HAL pin has the identical beh
 [width="100%",cols="3,2,3",options="header"]
 |===
 |User Button Function |HAL Pin |GUI Function
-|Toggle machine power |qtplasmac.ext_power |POWER
-|Run the loaded G-code program |qtplasmac.ext_run |CYCLE START
-|Pause/Resume the loaded G-code program |qtplasmac.ext_pause |CYCLE PAUSE
-|Abort the loaded G-code program |qtplasmac.ext_abort |CYCLE STOP
-|Touchoff X & Y axes to zero |qtplasmac.ext_touchoff |X0Y0
-|Use a laser to set an origin with or without rotation |qtplasmac.ext_laser_touchoff |LASER
-|Run/Pause/Resume the loaded G-code program |qtplasmac.ext_run_pause |CYCLE START, CYCLE PAUSE, CYCLE RESUME in sequence
-|Torch height override plus |qtplasmac.ext_height_ovr_plus |OVERRIDE + 
-|Torch height override minus |qtplasmac.ext_height_ovr_minus |OVERRIDE -
-|Torch height override reset |qtplasmac.ext_height_ovr_reset |OVERRIDE RESET TO 0.00
-|Torch height override scale |qtplasmac.ext_height_ovr_scale |N/A
-|Toggle jogging speed between fast and slow |qtplasmac.ext_jog_slow |JOGGING FAST/SLOW
-|Toggle THC enable |qtplasmac.ext_thc_enable |THC ENABLE
-|Toggle torch enable |qtplasmac.ext_torch_enable |TORCH ENABLE
-|Toggle corner Lock enable |qtplasmac.ext_cornerlock_enable |VELOCITY ANTI DIVE ENABLE
-|Toggle voidlock enable |qtplasmac.ext_voidlock_enable |VOID ANTI DIVE ENABLE
-|Toggle use auto volts |qtplasmac.ext_auto_volts_enable |AUTO VOLTS
-|Toggle ohmic probe enable |qtplasmac.ext_ohmic_probe_enable |OHMIC ENABLE
-|Toggle mesh mode |qtplasmac.ext_mesh_mode |MESH MODE
-|Toggle arc ignore OK |qtplasmac.ext_ignore_arc_ok |IGNORE OK
-|Forward along the programmed path |qtplasmac.ext_cutrec_fwd |CUT RECOVERY FWD
-|Reverse along the programmed path |qtplasmac.ext_cutrec_rev |CUT RECOVERY REV
-|Cancel any Cut Recovery movement |qtplasmac.ext_cutrec_cancel | CUT RECOVERY CANCEL MOVE
-|Move up |qtplasmac.ext_cutrec_n | CUT RECOVERY arrow up
-|Move down |qtplasmac.ext_cutrec_s | CUT RECOVERY arrow down
-|Move right |qtplasmac.ext_cutrec_e | CUT RECOVERY arrow right
-|Move left |qtplasmac.ext_cutrec_w | CUT RECOVERY arrow left
-|Move up-right |qtplasmac.ext_cutrec_ne | CUT RECOVERY arrow up-right
-|Move up-left |qtplasmac.ext_cutrec_nw | CUT RECOVERY arrow up-left
-|Move down-right |qtplasmac.ext_cutrec_se | CUT RECOVERY arrow down-right
-|Move down-left |qtplasmac.ext_cutrec_sw | CUT RECOVERY arrow down-left
+|Toggle machine power m|qtplasmac.ext_power |POWER
+|Run the loaded G-code program m|qtplasmac.ext_run |CYCLE START
+|Pause/Resume the loaded G-code program m|qtplasmac.ext_pause |CYCLE PAUSE
+|Abort the loaded G-code program m|qtplasmac.ext_abort |CYCLE STOP
+|Touchoff X & Y axes to zero m|qtplasmac.ext_touchoff |X0Y0
+|Use a laser to set an origin with or without rotation m|qtplasmac.ext_laser_touchoff |LASER
+|Run/Pause/Resume the loaded G-code program m|qtplasmac.ext_run_pause |CYCLE START, CYCLE PAUSE, CYCLE RESUME in sequence
+|Torch height override plus m|qtplasmac.ext_height_ovr_plus |OVERRIDE + 
+|Torch height override minus m|qtplasmac.ext_height_ovr_minus |OVERRIDE -
+|Torch height override reset m|qtplasmac.ext_height_ovr_reset |OVERRIDE RESET TO 0.00
+|Torch height override scale m|qtplasmac.ext_height_ovr_scale |N/A
+|Toggle jogging speed between fast and slow m|qtplasmac.ext_jog_slow |JOGGING FAST/SLOW
+|Toggle THC enable m|qtplasmac.ext_thc_enable |THC ENABLE
+|Toggle torch enable m|qtplasmac.ext_torch_enable |TORCH ENABLE
+|Toggle corner Lock enable m|qtplasmac.ext_cornerlock_enable |VELOCITY ANTI DIVE ENABLE
+|Toggle voidlock enable m|qtplasmac.ext_voidlock_enable |VOID ANTI DIVE ENABLE
+|Toggle use auto volts m|qtplasmac.ext_auto_volts_enable |AUTO VOLTS
+|Toggle ohmic probe enable m|qtplasmac.ext_ohmic_probe_enable |OHMIC ENABLE
+|Toggle mesh mode m|qtplasmac.ext_mesh_mode |MESH MODE
+|Toggle arc ignore OK m|qtplasmac.ext_ignore_arc_ok |IGNORE OK
+|Forward along the programmed path m|qtplasmac.ext_cutrec_fwd |CUT RECOVERY FWD
+|Reverse along the programmed path m|qtplasmac.ext_cutrec_rev |CUT RECOVERY REV
+|Cancel any Cut Recovery movement m|qtplasmac.ext_cutrec_cancel | CUT RECOVERY CANCEL MOVE
+|Move up m|qtplasmac.ext_cutrec_n | CUT RECOVERY arrow up
+|Move down m|qtplasmac.ext_cutrec_s | CUT RECOVERY arrow down
+|Move right m|qtplasmac.ext_cutrec_e | CUT RECOVERY arrow right
+|Move left m|qtplasmac.ext_cutrec_w | CUT RECOVERY arrow left
+|Move up-right m|qtplasmac.ext_cutrec_ne | CUT RECOVERY arrow up-right
+|Move up-left m|qtplasmac.ext_cutrec_nw | CUT RECOVERY arrow up-left
+|Move down-right m|qtplasmac.ext_cutrec_se | CUT RECOVERY arrow down-right
+|Move down-left m|qtplasmac.ext_cutrec_sw | CUT RECOVERY arrow down-left
 |===
 
 The following HAL pins which allow the use of an MPG to control height override are always created.
@@ -3566,8 +3566,8 @@ The following HAL pins which allow the use of an MPG to control height override 
 [width="100%",cols="2,3",options="header"]
 |===
 |Function                  |HAL Pin
-|Enable MPG height control |qtplasmac.ext_height_ovr_count_enable
-|MPG height change         |qtplasmac.ext_height_ovr_counts
+|Enable MPG height control m|qtplasmac.ext_height_ovr_count_enable
+|MPG height change         m|qtplasmac.ext_height_ovr_counts
 |===
 
 The following HAL bit pins are only created if the function is specified in a <<qt_custom-user-buttons,custom user button>>.
@@ -3576,11 +3576,11 @@ The HAL pin has the identical behaviour of the related custom user button.
 [width="50%",cols="1,1",options="header"]
 |===
 |User Button Function |HAL Pin
-|Probe Test           |qtplasmac.ext_probe
-|Torch Pulse          |qtplasmac.ext_pulse
-|Ohmic Test           |qtplasmac.ext_ohmic
-|Change Consumables   |qtplasmac.ext_consumables
-|Framing              |qtplasmac.ext_frame_job
+|Probe Test           m|qtplasmac.ext_probe
+|Torch Pulse          m|qtplasmac.ext_pulse
+|Ohmic Test           m|qtplasmac.ext_ohmic
+|Change Consumables   m|qtplasmac.ext_consumables
+|Framing              m|qtplasmac.ext_frame_job
 |===
 
 The following HAL bit output pins are always created and can be used by either the <<qt_button-toggle,Toggle HAL Pin>> or <<qt_button-pulse,Pulse HAL Pin>> custom user buttons to change the state of an output.
@@ -3617,9 +3617,9 @@ These voltages are also required to be within a specified range.
 
 There are two settings in the <<qt_parameters-tab,PARAMETERS Tab>> for setting the range, these are:
 
-- *OK High Volts* which is the upper value of the voltage range. The default is 250&thinsp;V.
+- *OK High Volts* which is the upper value of the voltage range. The default is 250&#8239;V.
 
-- *OK Low Volts* which is the lower value of the voltage range. The default is 60&thinsp;V.
+- *OK Low Volts* which is the lower value of the voltage range. The default is 60&#8239;V.
 
 Both of these values may be changed by direct entry or by the use of the increment/decrement buttons.
 
@@ -3662,7 +3662,7 @@ It should also be noted that the user could use the appropriate <<qt_ignore-ok,I
 
 Small fluctuations in the arc voltage displayed while the machine is at idle are possible depending on many different variables (electrical noise, incorrect THCAD tuning, etc.).
 
-After all contributing factors have been mitigated, if a small fluctuation still exists it is possible to eliminate it by widening the voltage window for which QtPlasmaC will display 0&thinsp;V.
+After all contributing factors have been mitigated, if a small fluctuation still exists it is possible to eliminate it by widening the voltage window for which QtPlasmaC will display 0&#8239;V.
 
 The pin for adjusting this value is named plasmac.zero-window and the default value is set to 0.1.
 To change this value, add the pin and the required value to the custom.hal file.
@@ -4197,7 +4197,7 @@ _r_ = divider ratio (see below).
 
 _f_ = full scale value from calibration sticker.
 
-_z_ = 0&thinsp;V value from calibration sticker.
+_z_ = 0&#8239;V value from calibration sticker.
 
 _d_ = value from jumper above.
 
@@ -4209,7 +4209,7 @@ _THCAD-5 or THCAD-10_
 
 If connecting to a plasma CNC port then the divider ratio is selected from the plasma machine. A common ratio used is 20:1
 
-If connecting to the plasma machines full arc voltage then a common setup for a THCAD-10 is to use a 1 M&ohm; resistor from arc negative to THCAD negative and a 1 M&ohm; resistor from arc positive to THCAD positive.
+If connecting to the plasma machines full arc voltage then a common setup for a THCAD-10 is to use a 1 MΩ; resistor from arc negative to THCAD negative and a 1 MΩ; resistor from arc positive to THCAD positive.
 The divider ratio is obtained by:
 
 ----
