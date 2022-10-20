@@ -9,10 +9,10 @@ work cleanly for both HTML and PDF.
 Highlighting is for HTML output only at this point in time.  To have
 PDFs highlighted, the file
 /usr/share/texmf-texlive/tex/latex/listings/lstlang1.sty needs to be
-extended to deal with ngc, HAL and INI formats, and put into the build
+extended to deal with NGC, HAL and INI formats, and put into the build
 directory so dblatex can find it.
 
-Highlighting halcmd, INI and ngc source in HTML is now integrated into
+Highlighting halcmd, INI and NGC source in HTML is now integrated into
 the documentation build process. Tcl, Python, sh etc keep working out
 of the box.
 
@@ -22,7 +22,7 @@ directory (/usr/share/source-highlight) needs to be replicated under 'local',
 and a new lang.map generated in there (all language definitions are
 relative to this directory, and include each other).
 
-Using ngc, HAL and INI file snippets in your .txt files:
+Using NGC, HAL and INI file snippets in your .txt files:
 ========================================================
 Copy this to the top of your txt file:
 ----------------- snip ----------------
@@ -30,7 +30,7 @@ Copy this to the top of your txt file:
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-// Begin a listing of ini/hal/ngc files like so:
+// Begin a listing of INI/HAL/NGC files like so:
 //[source,{ini}]
 //[source,{hal}]
 //[source,{ngc}]

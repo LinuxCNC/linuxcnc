@@ -431,7 +431,7 @@ left/right: joint0,
 up/down: joint1, page up/page down: joint2, left/right bracket: joint3
 
 * 'USER_COMMAND_FILE = mycommands.py' - The name of an optional, configuration-specific
-  python file sourced by the axis GUI instead of the user-specific file `~/.axisrc`.
+  Python file sourced by the axis GUI instead of the user-specific file `~/.axisrc`.
 
 [NOTE]
 The following [DISPLAY] item is used by the TKLinuxCNC interface only.

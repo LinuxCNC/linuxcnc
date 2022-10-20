@@ -21,7 +21,7 @@ image::images/ngcgui.png[align="center"]
   subroutines into one file for a complete part program.
 * 'NGCGUI' can run as a standalone application or can be embedded in
   multiple tab pages in the AXIS GUI.
-* 'PyNGCGUI' is an alternate, python implementation of NGCGUI.
+* 'PyNGCGUI' is an alternate, Python implementation of NGCGUI.
 * 'PyNGCGUI' can run as a standalone application or can be embedded as
   a tab page (with its own set of multiple subroutine tabs) in any
   GUI that supports embedding of GladeVCP applications AXIS, Touchy, Gscreen
@@ -283,7 +283,7 @@ Solo Options:
     [-N | --nom2]         (no m2 terminator (use %))
     [-n | --noauto]       (save but do not automatically send result)
     [-k | --keyboard]     (use default popupkeybaord)
-    [-s | --sendtoaxis]   (send generated ngc file to AXIS GUI)
+    [-s | --sendtoaxis]   (send generated NGC file to AXIS GUI)
 Notes:
       A set of files is comprised of a preamble, subfile, postamble.
       The preamble and postamble are optional.

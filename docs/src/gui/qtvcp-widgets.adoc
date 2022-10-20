@@ -3053,7 +3053,7 @@ _Special capitalized words_ will give access to the following:
   E.g., `HAL.set_p('motion.probe-input','1')`
 
 [[sec:qtvcp:widgets:import-only]]
-== Import Only Widgets
+== Import-Only Widgets
 
 These widgets are usually the *base class widget for other QtVCP widgets*.
 

@@ -7,7 +7,7 @@
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
-// begin a listing of ini/hal/ngc files like so:
+// begin a listing of INI/HAL/NGC files like so:
 //[source,{ini}]
 //[source,{hal}]
 //[source,{ngc}]
