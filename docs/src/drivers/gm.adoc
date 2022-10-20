@@ -308,7 +308,7 @@ image::images/GM_RefSignals.png["Reference signal timing diagrams",align="center
 .HAL example
 
 .Setting StepGen module of axis 0 to generate 1000 step pulse per position unit
-[source,{hal}]]
+[source,{hal}]
 ----
 setp gm.0.stepgen.0.step-type 0         # 0:stepDir, 1:UpDown, 2:Quad
 setp gm.0.stepgen.0.control-type 0      # 0:Pos. control, 1:Vel. Control
