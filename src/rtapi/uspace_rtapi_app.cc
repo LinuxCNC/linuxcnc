@@ -787,6 +787,13 @@ static rtapi_u64 rtapi_cycle_counter_get_count(void) {
 }
 
 
+static void rtapi_busywait(unsigned long delay_ns) {
+    uint64_t const clocks_when_done = rtapi_cycle_counter_get_count() + (delay_ns * rtapi_cycle_counter_frequency / (1000*1000*1000));
+    do {
+    } while (rtapi_cycle_counter_get_count() < clocks_when_done);
+}
+
+
 const size_t PRE_ALLOC_SIZE = 1024*1024*32;
 const static struct rlimit unlimited = {RLIM_INFINITY, RLIM_INFINITY};
 static void configure_memory()
