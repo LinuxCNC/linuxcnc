@@ -105,7 +105,7 @@ CheckConfig(){
     case $RTPREFIX in
     (*rtai*)
         MODULES_LOAD="$MODULES_LOAD $RTLIB_DIR/rtapi$MODULE_EXT $RTLIB_DIR/hal_lib$MODULE_EXT"
-        MODULES_UNLOAD="hal_lib rtapi"
+        MODULES_UNLOAD="hal_lib rtapi $MODULES_UNLOAD"
         SHM_DEV=/dev/rtai_shm
 	;;
     (*)

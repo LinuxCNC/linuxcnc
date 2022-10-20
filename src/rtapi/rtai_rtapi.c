@@ -774,6 +774,7 @@ static int task_delete(int task_id)
     if (rtapi_data->task_count == 0) {
 	if (rtapi_data->timer_running != 0) {
 	    stop_rt_timer();
+	    rt_free_timers();
 	    rtapi_data->timer_period = 0;
 	    max_delay = DEFAULT_MAX_DELAY;
 	    rtapi_data->timer_running = 0;
