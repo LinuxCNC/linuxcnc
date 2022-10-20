@@ -69,7 +69,7 @@ realtime. See below for the LinuxCNC version to install.
 
 === Preempt-RT with 'linuxcnc-uspace' package
 
-Preempt-RT is the newst of the realtime systems, and is also the version
+Preempt-RT is the newest of the realtime systems, and is also the version
 that is closest to a mainline kernel. Preempt-RT kernels are available
 as precompiled packages from the main repositories. The search term
 "PREEMPT_RT" will find them, and one can be downloaded and installed
