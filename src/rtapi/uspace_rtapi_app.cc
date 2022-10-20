@@ -58,7 +58,6 @@
 #include "hal/hal_priv.h"
 #include "rtapi_uspace.hh"
 
-#include <string.h>
 #include <boost/lockfree/queue.hpp>
 
 std::atomic<int> WithRoot::level;
