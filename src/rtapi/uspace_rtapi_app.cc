@@ -683,6 +683,91 @@ static void signal_handler(int sig, siginfo_t *si, void *uctx)
     exit(1);
 }
 
+
+//
+// Hardware cycle-counter timing functions.
+//
+// Supported hardware:
+//     * Intel/AMD amd64: Time Stamp Counter (TSC) register (constant
+//       rate only, not the older variable-rate TSC).
+//     * ARM (7 and 8): Counter-timer Virtual Count (CNTVCT).
+//
+// x86intrin.h?
+// "constant_tsc" flag in /proc/cpuinfo
+// clock_gettime(CLOCK_MONOTONIC_RAW) (this is as slow as CLOCK_MONOTONIC on arm64)
+
+static rtapi_s64 rtapi_cycle_counter_frequency = -1;
+
+// Sets `rtapi_cycle_counter_frequency` to the frequency of the hardware
+// cycle counter (in Hz), or 0 if no fixed-rate hardware cycle counter
+// is available.
+// Returns the frequency.
+static rtapi_s64 rtapi_cycle_counter_get_freq(void) {
+    if (rtapi_cycle_counter_frequency != -1) {
+        // We initialized it already.
+        return rtapi_cycle_counter_frequency;
+    }
+
+#if defined(__i386__) || defined(__amd64__)
+    // Must have `constant_tsc` in /proc/cpuinfo.
+    FILE *cpuinfo = fopen("/proc/cpuinfo", "r");
+    if (cpuinfo == NULL) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "failed to open /proc/cpuinfo: %s\n", strerror(errno));
+        rtapi_cycle_counter_frequency = 0;
+        return 0;
+    }
+
+    char line[1024];
+    while (fgets(line, sizeof(line), cpuinfo) != NULL) {
+        if (strncmp(line, "flags", 5) == 0) {
+            printf("cpuinfo flags: %s\n", line);
+            break;
+        }
+    }
+
+    // cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq (that's in kHz, return *1000)
+    //rtapi_cycle_counter_frequency = 4500000000LL;
+    rtapi_cycle_counter_frequency = 1601000LL * 1000LL;
+
+#elif defined(__aarch64__)
+    rtapi_u32 freq;
+    asm volatile("mrs %0, cntfrq_el0" : "=r" (freq));
+    rtapi_cycle_counter_frequency = freq;
+
+#elif defined (__arm__)
+    rtapi_u32 freq;
+    asm volatile("mrs %0, cntfrq" : "=r" (freq));
+    rtapi_cycle_counter_frequency = freq;
+
+#else
+#warning "*** hardware architecture has no cycle counter implementation"
+    // FIXME: alternatively we could claim "1 GHz" and use rtapi_get_time()
+    rtapi_print_msg(RTAPI_MSG_ERR, "%s: no hardware cycle counter found, falling back to time- and sleep-based timing\n", __FUNCTION__);
+    rtapi_cycle_counter_frequency = 0;
+#endif
+
+    return rtapi_cycle_counter_frequency;
+}
+
+
+// Returns the number of (constant-frequency) cycles elapsed since some
+// arbitrary point in the past.
+static rtapi_u64 rtapi_cycle_counter_get_count(void) {
+#if defined(__i386__) || defined(__amd64__)
+    return __builtin_ia32_rdtsc();
+
+#elif defined(__aarch64__)
+    rtapi_u64 val;
+    asm volatile("mrs %0, cntvct_el0" : "=r" (val));
+    return val;
+
+#else
+    rtapi_print_msg(RTAPI_MSG_WARN, "%s: no hardware cycle counter found\n", __FUNCTION__);
+    return rtapi_get_time();
+#endif
+}
+
+
 const size_t PRE_ALLOC_SIZE = 1024*1024*32;
 const static struct rlimit unlimited = {RLIM_INFINITY, RLIM_INFINITY};
 static void configure_memory()
