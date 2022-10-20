@@ -768,6 +768,47 @@ static void rtapi_busywait(unsigned long delay_ns) {
 }
 
 
+//
+// RTAPI manages realtime threads.  Each realtime thread executes
+// periodically, at some constant frequency.  Uspace RTAPI offers two
+// ways to ensure that each thread runs when it's supposed to: "sleep"
+// until it's time to run, or "busywait" until it's time to run.
+//
+// In "sleep" mode there is one pthread per RTAPI realtime thread.
+// Each thread blocks in `clock_nanosleep()` until it is time for it to
+// run.  All these threads run on the same CPU, using scheduling policy
+// SCHED_FIFO, with different priorities.  Higher-priority threads can
+// preempt running lower-priority threads, and can prevent lower-priority
+// threads from starting on time.
+//
+// In "busywait" mode too there is one pthread per RTAPI realtime thread.
+// Each thread runs on its own CPU.  Each thread busywaits (reading a
+// constant-rate hardware cycle-timer) until it is time for it to run.
+// Because each thread has its own CPU, threads run simultaneously,
+// independent of each other, and do not preempt each other.  CPU 0 is
+// reserved for non-realtime stuff so you don't totally lock up your
+// machine if you start too many realtime threads.
+//
+// Which of these timing options works better depends on many things:
+// Linux kernel version, Preempt-RT version, kernel command-line
+// arguments, number of CPUs and other hardware configuration details,
+// etc.  The machine builder/integrator should experiment and optimize
+// the setup.
+//
+// Thread timing defaults to the good old tried-and-true "sleep"
+// mode.  The user can control which mode is used by setting the
+// RTAPI_THREAD_TIMING_MODE environment variable to "sleep" or "busywait".
+//
+
+typedef enum {
+    RTAPI_THREAD_TIMING_MODE_UNSPECIFIED,
+    RTAPI_THREAD_TIMING_MODE_SLEEP,
+    RTAPI_THREAD_TIMING_MODE_BUSYWAIT
+} rtapi_thread_timing_mode_t;
+
+static rtapi_thread_timing_mode_t rtapi_thread_timing_mode = RTAPI_THREAD_TIMING_MODE_UNSPECIFIED;
+
+
 const size_t PRE_ALLOC_SIZE = 1024*1024*32;
 const static struct rlimit unlimited = {RLIM_INFINITY, RLIM_INFINITY};
 static void configure_memory()
@@ -875,6 +916,31 @@ static int harden_rt()
         // deliberately leak fd until program exit
     }
 #endif /* __linux__ */
+
+    char * const env_cstr = getenv("RTAPI_THREAD_TIMING_MODE");
+    if (env_cstr != NULL) {
+        std::string const env_str { env_cstr };
+        if (env_str == "busywait") {
+            rtapi_thread_timing_mode = RTAPI_THREAD_TIMING_MODE_BUSYWAIT;
+        } else if (env_str == "sleep") {
+            rtapi_thread_timing_mode = RTAPI_THREAD_TIMING_MODE_SLEEP;
+        } else {
+            rtapi_print_msg(RTAPI_MSG_ERR, "requested unknown RTAPI_THREAD_TIMING_MODE '%s'\n", env_cstr);
+        }
+    }
+
+    if (rtapi_thread_timing_mode == RTAPI_THREAD_TIMING_MODE_BUSYWAIT) {
+        rtapi_s64 freq = rtapi_cycle_counter_get_freq();
+        if (freq > 0) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "using 'busywait' thread timing mode (cycle-counter freq %ld Hz)\n", freq);
+        } else {
+            rtapi_print_msg(RTAPI_MSG_ERR, "no cycle-counter available, falling back to 'sleep' thread timing mode\n");
+            rtapi_thread_timing_mode = RTAPI_THREAD_TIMING_MODE_SLEEP;
+        }
+    } else if (rtapi_thread_timing_mode == RTAPI_THREAD_TIMING_MODE_SLEEP) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "using 'sleep' thread timing mode\n");
+    }
+
     return 0;
 }
 
@@ -1038,52 +1104,38 @@ int Posix::task_delete(int id)
   return 0;
 }
 
+
+//
+// Find a suitable CPU to run a new realtime thread on.  Returns the
+// CPU number to run the thread on, or -1 if no suitable CPU is found.
+//
+// When using the RTAPI thread timing mode "sleep", all realtime threads
+// run on the last (highest-numbered) CPU in the system.
+//
+// When using the RTAPI thread timing mode "busywait", each realtime
+// thread gets its own CPU, starting with the last (highest-numbered) CPU
+// and going down from there, except CPU 0 is reserved for non-realtime
+// stuff so it's an error if you try to run a realtime thread there.
+//
+
 static int find_rt_cpu_number() {
-    if(getenv("RTAPI_CPU_NUMBER")) return atoi(getenv("RTAPI_CPU_NUMBER"));
-
 #ifdef __linux__
-    cpu_set_t cpuset_orig;
-    int r = sched_getaffinity(getpid(), sizeof(cpuset_orig), &cpuset_orig);
-    if(r < 0)
-        // if getaffinity fails, (it shouldn't be able to), just use CPU#0
-        return 0;
+    if (rtapi_thread_timing_mode == RTAPI_THREAD_TIMING_MODE_SLEEP) {
+        return sysconf(_SC_NPROCESSORS_CONF) - 1;
 
-    cpu_set_t cpuset;
-    CPU_ZERO(&cpuset);
-    long top_probe = sysconf(_SC_NPROCESSORS_CONF);
-    // in old glibc versions, it was an error to pass to sched_setaffinity bits
-    // that are higher than an imagined/probed kernel-side CPU mask size.
-    // this caused the message
-    //     sched_setaffinity: Invalid argument
-    // to be printed at startup, and the probed CPU would not take into
-    // account CPUs masked from this process by default (whether by
-    // isolcpus or taskset).  By only setting bits up to the "number of
-    // processes configured", the call is successful on glibc versions such as
-    // 2.19 and older.
-    for(long i=0; i<top_probe && i<CPU_SETSIZE; i++) CPU_SET(i, &cpuset);
-
-    r = sched_setaffinity(getpid(), sizeof(cpuset), &cpuset);
-    if(r < 0)
-        // if setaffinity fails, (it shouldn't be able to), go on with
-        // whatever the default CPUs were.
-        perror("sched_setaffinity");
-
-    r = sched_getaffinity(getpid(), sizeof(cpuset), &cpuset);
-    if(r < 0) {
-        // if getaffinity fails, (it shouldn't be able to), copy the
-        // original affinity list in and use it
-        perror("sched_getaffinity");
-        CPU_AND(&cpuset, &cpuset_orig, &cpuset);
+    } else {
+        static int next_rt_cpu = sysconf(_SC_NPROCESSORS_CONF) - 1;
+        if (next_rt_cpu == 0) {
+            rtapi_print_msg(RTAPI_MSG_ERR, "rtapi: too many realtime threads for number of CPUs in the system!\n");
+            return -1;
+        }
+        int rt_cpu = next_rt_cpu;
+        --next_rt_cpu;
+        return rt_cpu;
     }
-
-    int top = -1;
-    for(int i=0; i<CPU_SETSIZE; i++) {
-        if(CPU_ISSET(i, &cpuset)) top = i;
-    }
-    return top;
-#else
-    return (-1);
 #endif
+
+    return -1;
 }
 
 
@@ -1137,7 +1189,7 @@ int Posix::task_start(int task_id, unsigned long int period_nsec)
   if(pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED) < 0)
       return -errno;
   if(nprocs > 1) {
-      const static int rt_cpu_number = find_rt_cpu_number();
+      int rt_cpu_number = find_rt_cpu_number();
       if(rt_cpu_number != -1) {
           set_cpufreq_governor_to_performance(rt_cpu_number);
 
@@ -1240,8 +1292,14 @@ void Posix::wait() {
     }
     else
     {
-        int res = rtapi_clock_nanosleep(RTAPI_CLOCK, TIMER_ABSTIME, &task->nextstart, nullptr, &now);
-        if(res < 0) perror("clock_nanosleep");
+        if (rtapi_thread_timing_mode == RTAPI_THREAD_TIMING_MODE_BUSYWAIT) {
+            struct timespec until_next_start;
+            rtapi_timespec_sub(until_next_start, task->nextstart, now);
+            rtapi_busywait(until_next_start.tv_nsec + (until_next_start.tv_sec * 1000*1000*1000));
+        } else {
+            int res = rtapi_clock_nanosleep(RTAPI_CLOCK, TIMER_ABSTIME, &task->nextstart, nullptr, &now);
+            if(res < 0) perror("clock_nanosleep");
+        }
     }
     if(do_thread_lock)
         pthread_mutex_lock(&thread_lock);
