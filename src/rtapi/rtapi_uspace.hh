@@ -33,6 +33,16 @@ inline void rtapi_timespec_add(timespec &result, const timespec &ta, const times
     }
 }
 
+// result = a - b
+inline void rtapi_timespec_sub(timespec & result, timespec const & ta, timespec const & tb) {
+    result.tv_sec = ta.tv_sec - tb.tv_sec;
+    result.tv_nsec = ta.tv_nsec - tb.tv_nsec;
+    if (result.tv_nsec < 0) {
+        result.tv_sec--;
+        result.tv_nsec += 1000000000L;
+    }
+}
+
 inline bool rtapi_timespec_less(const struct timespec &ta, const struct timespec &tb) {
     if(ta.tv_sec < tb.tv_sec) return 1;
     if(ta.tv_sec > tb.tv_sec) return 0;
