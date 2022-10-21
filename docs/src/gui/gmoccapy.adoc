@@ -476,186 +476,128 @@ If that value is also not given, it will default to 180.
 If 'MAX_LINEAR_VELOCITY' is not given, it will default to 600.
 
 
-// TODO continue here
 
 == HAL Pins
 
-GMOCCAPY exports several HAL pin to be able to react to hardware devices.
+GMOCCAPY exports several HAL pins to be able to react to hardware devices.
 The goal is to get a GUI that may be operated in a tool shop, completely/mostly
 without mouse or keyboard.
 
 [NOTE]
+====
 You will have to do all connections to GMOCCAPY pins in your postgui.hal file.
 When GMOCCAPY is started it creates the HAL pins for the GUI then it executes
-the HAL file named in the INI file: '[HAL]POSTGUI_HALFILE=<filename>'. +
-Typically '<filename>' would be the configs base name + '_postgui' + '.hal'
-eg. 'lathe_postgui.hal', but can be any legal filename. +
+the post-GUI HAL file named in the INI file:
+[source,{ini}]
+----
+[HAL]
+POSTGUI_HALFILE=<filename>
+----
+
+Typically `<filename>` would be the configs base name + `_postgui` + `.hal`
+e.g. `lathe_postgui.hal`, but can be any legal filename. +
 These commands are executed after the screen is built, guaranteeing the widget's HAL
 pins are available. +
-You can have multiple line of 'POSTGUI_HALFILE=<filename>' in the INI. +
+You can have multiple line of `POSTGUI_HALFILE=<filename>` in the INI file.
 Each will be run one after the other in the order they appear.
+====
 
-See <<gmoccapy:configuration-of-tabs-and-side-panels,Tabs and side panels>> for details.
+// See <<gmoccapy:configuration-of-tabs-and-side-panels,Tabs and side panels>> for details.
 
-=== Right And Bottom Button Lists
+// TODO continue here
+
+=== Right and Bottom Button Lists
 
 The screen has two main button lists, one on the right side an one on the
 bottom. The right handed buttons will not change during operation, but the
 bottom button list will change very often. The buttons are count from up to
 down and from left to right beginning with "0".
 
-=== Pin names have changed
+[NOTE]
+The pin names have changed in GMOCCAPY 2 to order them in a better way.
 
-The pin name for *GMOCCAPY2* has changed to order them in a better way.
+In <<cha:halshow,Halshow>> you will see the pins for the right (vertical) buttons are:
 
-In hal_show you will see the right (vertical) buttons are:
+* *gmoccapy.v-button.button-0*
+* *gmoccapy.v-button.button-1*
+* *gmoccapy.v-button.button-2*
+* *gmoccapy.v-button.button-3*
+* *gmoccapy.v-button.button-4*
+* *gmoccapy.v-button.button-5*
+* *gmoccapy.v-button.button-6*
 
-* gmoccapy.v-button.button-0
-* gmoccapy.v-button.button-1
-* gmoccapy.v-button.button-2
-* gmoccapy.v-button.button-3
-* gmoccapy.v-button.button-4
-* gmoccapy.v-button.button-5
-* gmoccapy.v-button.button-6
+For the bottom (horizontal) buttons they are:
 
-and the bottom (horizontal) buttons are:
+* *gmoccapy.h-button.button-0*
+* *gmoccapy.h-button.button-1*
+* *gmoccapy.h-button.button-2*
+* *gmoccapy.h-button.button-3*
+* *gmoccapy.h-button.button-4*
+* *gmoccapy.h-button.button-5*
+* *gmoccapy.h-button.button-6*
+* *gmoccapy.h-button.button-7*
+* *gmoccapy.h-button.button-8*
+* *gmoccapy.h-button.button-9*
 
-* gmoccapy.h-button.button-0
-* gmoccapy.h-button.button-1
-* gmoccapy.h-button.button-2
-* gmoccapy.h-button.button-3
-* gmoccapy.h-button.button-4
-* gmoccapy.h-button.button-5
-* gmoccapy.h-button.button-6
-* gmoccapy.h-button.button-7
-* gmoccapy.h-button.button-8
-* gmoccapy.h-button.button-9
-
-As the buttons in the bottom list will change according the mode and other
-influences, the hardware buttons will activate different functions, and you
+As the buttons in the bottom list will change according to the mode and other
+influences, the hardware buttons will activate the corresponding functions. So you
 don't have to take care about switching functions around in HAL, because that
 is done completely by GMOCCAPY!
 
-For a 3 axes XYZ machine the HAL pin will react as follows.
+For a three axes XYZ machine the HAL pins will react as shown in the following three tables:
 
-In manual mode:
+[[table:a]]
+.Functional assignment of horizontal buttons (1)
+[cols="10,10,10,10",  options="header"]
+|====
+| Pin                        | Manual Mode                                   | MDI Mode                                    | Auto Mode
+| gmoccapy.h-button.button-0 | open homing button                            | macro_0 or nothing                          | open file
+| gmoccapy.h-button.button-1 | open touch off stuff                          | macro_1 or nothing                          | reload program
+| gmoccapy.h-button.button-2 |                                               | macro_2 or nothing                          | run
+| gmoccapy.h-button.button-3 | open tool dialogs                             | macro_3 or nothing                          | stop
+| gmoccapy.h-button.button-4 |                                               | macro_4 or nothing                          | pause
+| gmoccapy.h-button.button-5 |                                               | macro_5 or nothing                          | step by step
+| gmoccapy.h-button.button-6 |                                               | macro_6 or nothing                          | run from line if enabled in settings, otherwise Nothing
+| gmoccapy.h-button.button-7 |                                               | macro_7 or nothing                          | optional blocks
+| gmoccapy.h-button.button-8 | full-size preview                             | macro_8 or switch page to additional macros | full-size preview
+| gmoccapy.h-button.button-9 | exit if machine is off, otherwise no reaction | open keyboard or abort if macro is running  | edit code
+|====
 
-* gmoccapy.h-button.button-0 == open homing button
-* gmoccapy.h-button.button-1 == open touch off stuff
-* gmoccapy.h-button.button-2 ==
-* gmoccapy.h-button.button-3 == open tool dialogs
-* gmoccapy.h-button.button-4 ==
-* gmoccapy.h-button.button-5 ==
-* gmoccapy.h-button.button-6 ==
-* gmoccapy.h-button.button-7 ==
-* gmoccapy.h-button.button-8 == full-size preview
-* gmoccapy.h-button.button-9 == exit if machine is off, otherwise no reaction
+[[table:b]]
+.Functional assignment of horizontal buttons (2)
+[cols="10,10,10,10", options="header"]
+|====
+| Pin                        | Settings Mode         | Homing Mode | Touch off Mode
+| gmoccapy.h-button.button-0 | delete MDI history    |             | edit offsets
+| gmoccapy.h-button.button-1 |                       | home all    | touch X
+| gmoccapy.h-button.button-2 |                       |             | touch Y
+| gmoccapy.h-button.button-3 |                       | home x      | touch Z
+| gmoccapy.h-button.button-4 | open classic ladder   | home y      |
+| gmoccapy.h-button.button-5 | open HAL scope        | home z      |
+| gmoccapy.h-button.button-6 | open HAL status       |             | zero G92
+| gmoccapy.h-button.button-7 | open HAL meter        |             |
+| gmoccapy.h-button.button-8 | open HAL calibration  | unhome all  | set selected
+| gmoccapy.h-button.button-9 | open HAL show         | back        | back
+|====
 
-In mdi mode:
+[[table:c]]
+.Functional assignment of horizontal buttons (3)
+[cols="10,10,10,10", options="header"]
+|====
+| Pin                        | Tool Mode                                | Edit Mode     | Select File
+| gmoccapy.h-button.button-0 | delete tool(s)                           |               | go to home
+| gmoccapy.h-button.button-1 | new tool                                 | reload file   | one directo
+| gmoccapy.h-button.button-2 | reload tool table                        | save          |
+| gmoccapy.h-button.button-3 | apply changes                            | save as       | move select
+| gmoccapy.h-button.button-4 | change tool by number T? M6              |               | move select
+| gmoccapy.h-button.button-5 | set tool by number without change M61 Q? |               | jump to dir
+| gmoccapy.h-button.button-6 | change tool to the selected one          | new file      |
+| gmoccapy.h-button.button-7 |                                          |               | select / EN
+| gmoccapy.h-button.button-8 | touch of tool in Z                       | show keyboard |
+| gmoccapy.h-button.button-9 | back                                     | back          | back
+|====
 
-* gmoccapy.h-button.button-0 == macro_0 or nothing
-* gmoccapy.h-button.button-1 == macro_1 or nothing
-* gmoccapy.h-button.button-2 == macro_2 or nothing
-* gmoccapy.h-button.button-3 == macro_3 or nothing
-* gmoccapy.h-button.button-4 == macro_4 or nothing
-* gmoccapy.h-button.button-5 == macro_5 or nothing
-* gmoccapy.h-button.button-6 == macro_6 or nothing
-* gmoccapy.h-button.button-7 == macro_7 or nothing
-* gmoccapy.h-button.button-8 == macro_8 or switch page to additional macros
-* gmoccapy.h-button.button-9 == open keyboard or abort if macro is running
-
-In auto mode:
-
-* gmoccapy.h-button.button-0 == open file
-* gmoccapy.h-button.button-1 == reload program
-* gmoccapy.h-button.button-2 == run
-* gmoccapy.h-button.button-3 == stop
-* gmoccapy.h-button.button-4 == pause
-* gmoccapy.h-button.button-5 == step by step
-* gmoccapy.h-button.button-6 == run from line if enabled in settings, otherwise Nothing
-* gmoccapy.h-button.button-7 == optional blocks
-* gmoccapy.h-button.button-8 == full-size preview
-* gmoccapy.h-button.button-9 == edit code
-
-In settings mode:
-
-* gmoccapy.h-button.button-0 == delete MDI history
-* gmoccapy.h-button.button-1 ==
-* gmoccapy.h-button.button-2 ==
-* gmoccapy.h-button.button-3 ==
-* gmoccapy.h-button.button-4 == open classic ladder
-* gmoccapy.h-button.button-5 == open HAL scope
-* gmoccapy.h-button.button-6 == open HAL status
-* gmoccapy.h-button.button-7 == open HAL meter
-* gmoccapy.h-button.button-8 == open HAL calibration
-* gmoccapy.h-button.button-9 == open HAL show
-
-In homing mode:
-
-* gmoccapy.h-button.button-0 ==
-* gmoccapy.h-button.button-1 == home all
-* gmoccapy.h-button.button-2 ==
-* gmoccapy.h-button.button-3 == home x
-* gmoccapy.h-button.button-4 == home y
-* gmoccapy.h-button.button-5 == home z
-* gmoccapy.h-button.button-6 ==
-* gmoccapy.h-button.button-7 ==
-* gmoccapy.h-button.button-8 == unhome all
-* gmoccapy.h-button.button-9 == back
-
-In touch off mode:
-
-* gmoccapy.h-button.button-0 == edit offsets
-* gmoccapy.h-button.button-1 == touch X
-* gmoccapy.h-button.button-2 == touch Y
-* gmoccapy.h-button.button-3 == touch Z
-* gmoccapy.h-button.button-4 ==
-* gmoccapy.h-button.button-5 ==
-* gmoccapy.h-button.button-6 == zero G92
-* gmoccapy.h-button.button-7 ==
-* gmoccapy.h-button.button-8 == set selected
-* gmoccapy.h-button.button-9 == back
-
-In tool mode:
-
-* gmoccapy.h-button.button-0 == delete tool(s)
-* gmoccapy.h-button.button-1 == new tool
-* gmoccapy.h-button.button-2 == reload tool table
-* gmoccapy.h-button.button-3 == apply changes
-* gmoccapy.h-button.button-4 == change tool by number T? M6
-* gmoccapy.h-button.button-5 == set tool by number without change M61 Q?
-* gmoccapy.h-button.button-6 == change tool to the selected one
-* gmoccapy.h-button.button-7 ==
-* gmoccapy.h-button.button-8 == touch of tool in Z
-* gmoccapy.h-button.button-9 == back
-
-In edit mode:
-
-* gmoccapy.h-button.button-0 ==
-* gmoccapy.h-button.button-1 == reload file
-* gmoccapy.h-button.button-2 == save
-* gmoccapy.h-button.button-3 == save as
-* gmoccapy.h-button.button-4 ==
-* gmoccapy.h-button.button-5 ==
-* gmoccapy.h-button.button-6 == new file
-* gmoccapy.h-button.button-7 ==
-* gmoccapy.h-button.button-8 == show keyboard
-* gmoccapy.h-button.button-9 == back
-
-In select file mode:
-
-* gmoccapy.h-button.button-0 == go to home directory
-* gmoccapy.h-button.button-1 == one directory level up
-* gmoccapy.h-button.button-2 ==
-* gmoccapy.h-button.button-3 == move selection left
-* gmoccapy.h-button.button-4 == move selection right
-* gmoccapy.h-button.button-5 == jump to directory as set in settings
-* gmoccapy.h-button.button-6 ==
-* gmoccapy.h-button.button-7 == select / ENTER
-* gmoccapy.h-button.button-8 ==
-* gmoccapy.h-button.button-9 == back
-
-*So we have 67 reactions with only 10 HAL pin!*
+So we have 67 reactions with only 10 HAL pins!
 
 These pins are made available to be able to use the screen without an touch
 panel, or protect it from excessive use by placing hardware buttons around
@@ -980,7 +922,7 @@ net tooloffset-z gmoccapy.tooloffset-z <= motion.tooloffset.z
 ----
 
 Please note, that GMOCCAPY takes care of its own to update the offsets,
-sending an G43 after any tool change, *but not in auto mode*!
+sending an G43 after any tool change, *but not in auto mode!*
 
 [IMPORTANT]
 So writing a program makes you responsible to include an G43 after
@@ -1004,7 +946,7 @@ see <<gmoccapy:tool-measurement-videos,tool measurement related videos>>.
 Tool Measurement in GMOCCAPY is done a little bit different to many other GUI.
 You should follow these steps:
 
-* Touch-off your workpiece in X and Y.
+* Touch off your workpiece in X and Y.
 * Measure the height of your block from the base where your tool switch is
   located, to the upper face of the block (including chuck etc.).
 * Push the button block height and enter the measured value.
@@ -1191,7 +1133,7 @@ You have three options:
   One time set, the GUI will start every time on the place and with the size selected.
   Nevertheless the user can change the size and position using the mouse, but that will
   not have any influence on the settings.
-* 'hide the cursor*' does allow to hide the cursor, what is very useful if you use a touch screen.
+* 'hide the cursor' does allow to hide the cursor, what is very useful if you use a touch screen.
 
 ==== Keyboard
 
@@ -1245,14 +1187,14 @@ corresponding bottom button.
 As the notebook tabs are shown, you are able to switch between both views in
 any case.
 
-==== Show Auxiliary Screen (Is this still valid?)
+// ==== Show Auxiliary Screen (Is this still valid?)
 
-Clicking this button will open an additional window.
-This button is only sensitive if a file named 'Gmoccapy 3.glade' is in your configuration folder.
-You can build the Aux screen using Glade.
+// Clicking this button will open an additional window.
+// This button is only sensitive if a file named 'Gmoccapy 3.glade' is in your configuration folder.
+// You can build the Aux screen using Glade.
 
-[WARNING]
-The main window of the auxiliary screen must be named 'window2'.
+// [WARNING]
+// The main window of the auxiliary screen must be named 'window2'.
 
 ==== DRO Options
 
@@ -1301,7 +1243,7 @@ toggle DRO mode::
 
 ==== Preview
 
-'Grid Size'::
+Grid Size::
   Sets the grid size of the preview window.
   Unfortunately the size *has to be set in inches*, even if your machine units are metric.
   We do hope to fix that in a future release.
@@ -1596,13 +1538,15 @@ GMOCCAPY scans the following directories for icon themes:
 === Custom Icon Theme
 
 Creating a custom icon theme is pretty easy. All you need is a text editor and of course the desired icons as pixel or vector graphics.
-Details about how exactly an icon theme is built can be found at the https://specifications.freedesktop.org/icon-theme-spec/icon-theme-spec-latest.html[Freedesktop: Icon Theme Specification].
+Details about how exactly an icon theme is built can be found at the https://specifications.freedesktop.org/icon-theme-spec/icon-theme-spec-latest.html[Freedesktop Icon Theme Specification].
 
 Start by creating an empty directory with the name of the icon theme. Place the directory in one of GMOCCAPY's icon theme directories.
 Then we need a file called index.theme in the root folder of our icon theme which contains the required metadata for the theme.
 That's a simple text file with at least the following sections:
 
-.Icon theme metadata that is found as file 'index.theme'.
+- [Icon Theme]
++
+--
 ----
 [Icon Theme]
 Name=YOUR_THEME_NAME
@@ -1614,18 +1558,15 @@ Directories=16x16/actions,24x24/actions,32x32/actions,48x48/actions,scalable/act
 * Name: The name of your icon theme.
 * Comment: A description of your icon theme.
 * Inherits: A icon theme can derive from another icon theme, the default is hicolor.
-* Directories: A comma separated list of all the directories of your icon theme.
-
+* Directories: A comma separated list of all the directories of your icon theme. +
 Each directory usually contains all the icons of the theme in a specific size, for example 16x16/actions should contain all icons with the category "actions" in the size 16x16 pixels as pixel-graphics (e.g. png files).
-A special case is the directory called "scalable/actions", this contains scalable icons not tied to a specific size (e.g. svg files).
-
+A special case is the directory called "scalable/actions", this contains scalable icons not tied to a specific size (e.g. svg files). +
 By supplying different sized versions of the icons,
 we can guarantee a nice looking icon if different sizes and we also have the ability to change the icon according to its size,
 for example a 64x64 px sized icon may contain more details than its 16x16 px version.
-
-For each directory we also have to write a section in the index.theme file:
-
-.Sections with details for each subdirectory declared for an icon theme.
+--
+- For each directory we also have to write a section in the index.theme file:
++
 ----
 [16x16/actions]
 Size=16
@@ -1656,17 +1597,17 @@ To make use of the symbolic feature, a icon file has to have the suffix .symboli
 With that name, GTK treats this image as symbolic icon and applies some recoloring when loading the icon.
 There are only four colors allowed to use:
 
-[frame="none",grid="none",options="header"]
+[frame="none",grid="none",cols="10,10,40",options="header"]
 |===
 |Color  |Hex Code   |Description
 |black  |#000000    |Primary color, gets changed to match the desktop themes primary color.
-|red    |#ff0000    |Success: this color indicates "success" (usually somethin green'ish).
-|green  |#00ff00    |Warning: this color indicates "warning"  (usually somethin yellow/orange'ish).
-|blue   |#0000ff    |Error: this color indicates "error" (usually somethin red'ish).
+|red    |#ff0000    |Success: this color indicates "success" (usually something green'ish).
+|green  |#00ff00    |Warning: this color indicates "warning"  (usually something yellow/orange'ish).
+|blue   |#0000ff    |Error: this color indicates "error" (usually something red'ish).
 |===
 
 [TIP]
-Examples of symbolic icons can be found at linuxcnc/share/gmoccapy/icons/material Theme.
+Examples of symbolic icons can be found at `linuxcnc/share/gmoccapy/icons/material`.
 
 
 [[gmoccapy:lathe-section]]
