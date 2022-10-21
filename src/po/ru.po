@@ -7,13 +7,14 @@
 # Juraj Adamkovic <stroje.hcnc@gmail.com>, 2022.
 # Дмитрий <krdima352@gmail.com>, 2022.
 # Nikita Shubin <nikita.shubin@maquefel.me>, 2022.
+# ekam230 <ekamyshov@yandex.ru>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: emc 2.2.8\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-10-09 15:50+0200\n"
-"PO-Revision-Date: 2022-08-08 19:59+0000\n"
-"Last-Translator: Дмитрий <krdima352@gmail.com>\n"
+"PO-Revision-Date: 2022-10-18 16:10+0000\n"
+"Last-Translator: ekam230 <ekamyshov@yandex.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/ru/>\n"
 "Language: ru\n"
@@ -22,7 +23,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.14-dev\n"
+"X-Generator: Weblate 4.15-dev\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -3402,15 +3403,14 @@ msgid "Rung Refresh Rate (milliseconds)"
 msgstr "Скорость обновления Рунга (миллисекунды)"
 
 #: src/hal/classicladder/config_gtk.c:114
-#, fuzzy
 msgid "Number of rungs"
-msgstr "Количество разъемов:"
+msgstr "Количество разъемов"
 
 #: src/hal/classicladder/config_gtk.c:114
 #: src/hal/classicladder/config_gtk.c:143
 #, fuzzy
 msgid "used"
-msgstr "Не подключен"
+msgstr "использован"
 
 #: src/hal/classicladder/config_gtk.c:118
 msgid "Number of Bits                  "
@@ -3437,9 +3437,8 @@ msgid "Number of Arithmetic Expressions "
 msgstr "Количество арифметических выражений "
 
 #: src/hal/classicladder/config_gtk.c:143
-#, fuzzy
 msgid "Number of Sections"
-msgstr "Количество разъемов:"
+msgstr "Количество разъемов"
 
 #: src/hal/classicladder/config_gtk.c:147
 msgid "Number of Symbols                "
@@ -5135,19 +5134,16 @@ msgid "Tree View"
 msgstr "Вид дерева"
 
 #: tcl/bin/halshow.tcl:245
-#, fuzzy
 msgid "Expand All"
-msgstr "Раскрыть подпрограмму"
+msgstr "Развернуть все"
 
 #: tcl/bin/halshow.tcl:247
-#, fuzzy
 msgid "Collapse All"
-msgstr "Скрыть дерево"
+msgstr "Свернуть все"
 
 #: tcl/bin/halshow.tcl:257
-#, fuzzy
 msgid "Reload tree view"
-msgstr "Вращать"
+msgstr "Перезагрузить tree вид"
 
 #: tcl/bin/halshow.tcl:263
 msgid "Add pin"
@@ -5163,9 +5159,8 @@ msgid "Add signal"
 msgstr "Добавить сигнал"
 
 #: tcl/bin/halshow.tcl:266
-#, fuzzy
 msgid "Signal"
-msgstr "Сигналы"
+msgstr "Сигнал"
 
 #: tcl/bin/halshow.tcl:267
 msgid "Add parameter"
@@ -5197,9 +5192,8 @@ msgid "Filter tree"
 msgstr "Ошибка фильтра"
 
 #: tcl/bin/halshow.tcl:663
-#, fuzzy
 msgid "HAL command :"
-msgstr "Проверить команду HAL:"
+msgstr "Команда HAL:"
 
 #: tcl/bin/halshow.tcl:723
 msgid "Update interval (in ms)"
@@ -5218,9 +5212,8 @@ msgid "Float"
 msgstr ""
 
 #: tcl/bin/halshow.tcl:728
-#, fuzzy
 msgid "Integer"
-msgstr "Интерпретатор"
+msgstr "Целое"
 
 #: tcl/bin/halshow.tcl:731
 msgid ""
@@ -5258,14 +5251,12 @@ msgid "Remove"
 msgstr ""
 
 #: tcl/bin/halshow.tcl:976
-#, fuzzy
 msgid "Add as Pin(s)"
-msgstr "Добавить сигнал"
+msgstr "Добавить Пин(ы)"
 
 #: tcl/bin/halshow.tcl:977
-#, fuzzy
 msgid "Add as Signal(s)"
-msgstr "Добавить сигнал"
+msgstr "Добавить как сигнал(ы)"
 
 #: tcl/bin/halshow.tcl:978
 msgid "Add as Param(s)"
@@ -5288,9 +5279,8 @@ msgid "Update interval for this session (ms)"
 msgstr ""
 
 #: tcl/bin/halshow.tcl:1104
-#, fuzzy
 msgid "Value out of range"
-msgstr "G-код вне дипазона"
+msgstr "Значение вне диапазона"
 
 #: tcl/bin/halshow.tcl:1172
 msgid "removed from list"
@@ -5301,9 +5291,8 @@ msgid "Load a watch list"
 msgstr ""
 
 #: tcl/bin/halshow.tcl:1229
-#, fuzzy
 msgid "loaded"
-msgstr "Перегрузить"
+msgstr "загрузить"
 
 #: tcl/bin/halshow.tcl:1229
 msgid "saved backup for old watchlist in"
@@ -6073,9 +6062,8 @@ msgid "expected"
 msgstr ""
 
 #: tcl/ngcgui.tcl:739
-#, fuzzy
 msgid "no 'sub' found in file"
-msgstr "вызвать файл подпрограмм"
+msgstr "'подпрограммы' не найдена в файле"
 
 #: tcl/ngcgui.tcl:742
 msgid "no 'endsub' found in file"
@@ -7307,7 +7295,7 @@ msgstr "Ctrl-S"
 #: src/emc/usr_intf/axis/scripts/axis.py:232
 #, fuzzy
 msgid "Save G-code as"
-msgstr "Сохранить программу как"
+msgstr "Сохранить G-code как"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:233
 msgid "Run program"
@@ -7587,13 +7575,13 @@ msgid "generated from %s"
 msgstr "получено из %s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2038
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "%(size)s bytes\n"
 "%(lines)s G-code lines"
 msgstr ""
 "%(size)s байт\n"
-"%(lines)s строк gcode"
+"%(lines)s строк G-code"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2064
 #, python-format
@@ -7850,9 +7838,8 @@ msgid "%s: Image to G-code"
 msgstr "%s: Картинку в код"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:515
-#, fuzzy
 msgid "Image to G-code"
-msgstr "Картинку в код"
+msgstr "Картинку в G-код"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:525
 #, python-format
@@ -11603,7 +11590,8 @@ msgstr "Обратное"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249

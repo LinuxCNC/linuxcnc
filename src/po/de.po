@@ -6,10 +6,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-10-09 15:50+0200\n"
-"PO-Revision-Date: 2022-10-04 01:46+0000\n"
-"Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
+"PO-Revision-Date: 2022-10-21 17:34+0000\n"
+"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.14.1\n"
+"X-Generator: Weblate 4.14.2-dev\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -5409,9 +5409,8 @@ msgid "loaded"
 msgstr "geladen"
 
 #: tcl/bin/halshow.tcl:1229
-#, fuzzy
 msgid "saved backup for old watchlist in"
-msgstr "Aktuelle Beobachtungsliste speichern"
+msgstr "Gesichertes Backup für alte Beobachtungsliste in"
 
 #: tcl/bin/halshow.tcl:1240
 msgid "Save current watch list"
@@ -5432,6 +5431,7 @@ msgstr "Kommazahl (nicht aktiv durch \"--fformat\"-Argument)"
 #: tcl/bin/halshow.tcl:1319
 msgid "\"--noprefs\" option set. Settings will not be saved!"
 msgstr ""
+"Option \"--noprefs\" gesetzt. Die Einstellungen werden nicht gespeichert!"
 
 #: tcl/bin/pickconfig.tcl:99
 msgid ""
@@ -7359,7 +7359,6 @@ msgid "Rotate Wheel"
 msgstr "Mausrad"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:219
-#, fuzzy
 msgid "Ctrl+Left Button"
 msgstr "Strg+Linke Maustaste"
 
@@ -7545,7 +7544,7 @@ msgstr "Werkzeug %(tool)d, Zo %(zo)g, Xo %(xo)g, Durchmesser %(dia)g"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1095
 msgid "G-code preview loading timed out"
-msgstr ""
+msgstr "Zeitüberschreitung beim Laden der G-Code-Vorschau"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1122
 msgid "Filtering..."
@@ -7700,7 +7699,7 @@ msgid "generated from %s"
 msgstr "Erstellt durch %s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2038
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "%(size)s bytes\n"
 "%(lines)s G-code lines"
@@ -7944,9 +7943,8 @@ msgid "toggle PYVCP panel visibility"
 msgstr "Wechsel PyVCP Panel Sichtbarkeit"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3924 share/axis/tcl/axis.tcl:387
-#, fuzzy
 msgid "Show PyVCP pan_el"
-msgstr "Zeige pyVCP pan_el"
+msgstr "Zeige PyVCP pan_el"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:4210
 msgid "Error in ~/.axisrc"
@@ -7994,12 +7992,11 @@ msgstr ""
 "Sekunden selbst."
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:514
-#, fuzzy, python-format
+#, python-format
 msgid "%s: Image to G-code"
 msgstr "%s: Bild in G-Code umwandeln"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:515
-#, fuzzy
 msgid "Image to G-code"
 msgstr "Bild in G-Code umwandeln"
 
@@ -8544,7 +8541,6 @@ msgid "Open G-Code file [O]"
 msgstr "Datei öffnen [O]"
 
 #: share/axis/tcl/axis.tcl:519
-#, fuzzy
 msgid "Reopen current file [Ctrl-R]"
 msgstr "Aktuelle Datei neu laden [Strg-R]"
 
@@ -11304,7 +11300,6 @@ msgstr "Eingänge (von der Maschine zum PC):"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:1222
 #: src/emc/usr_intf/stepconf/pport2.glade:817
-#, fuzzy
 msgid "Parport _Base Address:"
 msgstr "Adresse der ersten _parallelen Schnittstelle:"
 
@@ -11800,7 +11795,9 @@ msgstr "Entgegengesetzt"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
+""
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -12092,7 +12089,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1296
 msgid "PIN file is empty:\n"
-msgstr ""
+msgstr "PIN-Datei ist leer:\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1297
 msgid "To use PIN file discovery mode, the contents of the"
@@ -12108,25 +12105,25 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1308
 msgid "Address is required for ethernet card"
-msgstr ""
+msgstr "Adresse wird für Ethernet-Karte benötigt"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1316
-#, fuzzy, python-format
+#, python-format
 msgid "%s board was not found"
-msgstr "Kein Board gefunden\n"
+msgstr "%s Board wurde nicht gefunden"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1318
 msgid "Is the address correct?"
-msgstr ""
+msgstr "Ist die Adresse korrekt?"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1322
 #, python-format
 msgid "%s is an unsupported device"
-msgstr ""
+msgstr "%s ist ein nicht unterstütztes Gerät"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1335
 msgid "Unspecified Error with Discovery option"
-msgstr ""
+msgstr "Nicht spezifizierter Fehler mit Erkennungs-Option"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1377
 #, python-format
@@ -12149,11 +12146,11 @@ msgstr "Erkennung (Discovery) ist nicht verfügbar\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1606
 msgid "The pasted PIN file may be an invalid format"
-msgstr ""
+msgstr "Die eingefügte PIN-Datei hat möglicherweise ein ungültiges Format"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1608
 msgid "The data returned from discovery is invalid"
-msgstr ""
+msgstr "Die von der Erkennung zurückgegebenen Daten sind ungültig"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1681
 msgid "USB device Info Search"
@@ -12943,13 +12940,12 @@ msgid "# external output signals"
 msgstr "# externe Signalausgänge"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1822
-#, fuzzy
 msgid ""
 "\n"
 "# ---PLASMA INPUT DEBOUNCE---"
 msgstr ""
 "\n"
-"# ---PLASMA EINGANG ENTPRELLEN---"
+"# ---PLASMA EINGANGSENTPRELLUNG---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1823
 msgid "#values for these are in custom.hal"
@@ -13017,10 +13013,14 @@ msgid ""
 "\n"
 "# ---COMMON PLASMAC DEBOUNCE---"
 msgstr ""
+"\n"
+"# ---GEMEINSAME PLASMAC-ENTPRELLUNG---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1891
 msgid "# for the float and ohmic inputs each increment in delay is"
 msgstr ""
+"# Für die float- und ohmschen Eingänge beträgt jeder Schritt in der "
+"Verzögerung"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1892
 msgid "# is a 0.001mm (0.00004\") increase in any probed height result"
@@ -13036,6 +13036,8 @@ msgid ""
 "\n"
 "# ---OHMIC SENSE CONTACT DEBOUNCE---"
 msgstr ""
+"\n"
+"# ---ENTPRELLUNG DES OHMSCHEN SENSORKONTAKTS---"
 
 #: src/emc/usr_intf/pncconf/private_data.py:38
 msgid "PNCconf"
@@ -13156,14 +13158,12 @@ msgid "SSR Output"
 msgstr "SSR Ausgabe"
 
 #: src/emc/usr_intf/pncconf/private_data.py:119
-#, fuzzy
 msgid "OUTM Output"
-msgstr "POT Ausgabe"
+msgstr "OUTM Ausgabe"
 
 #: src/emc/usr_intf/pncconf/private_data.py:121
-#, fuzzy
 msgid "INM Input"
-msgstr "GPIO-Eingang"
+msgstr "INM-Eingang"
 
 #: src/emc/usr_intf/pncconf/private_data.py:124
 msgid "Quad Enc-A"
@@ -16529,7 +16529,6 @@ msgid "<b>USB Jogging</b>"
 msgstr "<b>USB Schnellauf</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:711
-#, fuzzy
 msgid ""
 "Use the checkboxes to enable options.\n"
 "Press the corresponding info button to\n"
