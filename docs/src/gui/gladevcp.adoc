@@ -149,7 +149,7 @@ parts of the interface.
 === Exploring the example panel
 
 While running configs/sim/axis/gladevcp_panel.ini or configs/sim/axis/gladevcp_tab.ini,
-explore 'Show HAL Configuration' - you will find the 'gladevcp' HAL component and may
+explore 'Show HAL Configuration' - you will find the `gladevcp` HAL component and may
 observe their pin values while interacting with the widgets in the panel. The HAL setup can be
 found in 'configs/axis/gladevcp/manual-example.hal'.
 
@@ -273,18 +273,17 @@ gladevcp myui.ui
 ----
 
 GladeVCP creates a HAL component named like the basename of the UI
-file - 'myui' in this case - unless overridden by the +-c <component
-name>+ option.  If running AXIS, just try 'Show HAL configuration' and
-inspect its pins.
+file - 'myui' in this case - unless overridden by the `-c <component name>` option.
+If running AXIS, just try 'Show HAL configuration' and inspect its pins.
 
 You might wonder why widgets contained a 'HAL_Hbox' or 'HAL_Table' appear
 greyed out (inactive). HAL containers have an associated HAL pin which
 is off by default, which causes all contained widgets to render
 inactive. A common use case would be to associate these container HAL
-pins with +halui.machine.is-on+ or one of the +halui.mode.+ signals,
+pins with `halui.machine.is-on` or one of the `halui.mode` signals,
 to assure some widgets appear active only in a certain state.
 
-To just activate a container, execute the HAL command +setp gladevcp.<container-name> 1+.
+To just activate a container, execute the HAL command `setp gladevcp.<container-name> 1`.
 
 === Preparing the HAL command file
 
@@ -316,7 +315,7 @@ POSTGUI_HALFILE =  ./manual-example.hal
 SUBROUTINE_PATH = ../../nc_files/gladevcp_lib
 ----
 
-The default HAL component name of a GladeVCP application started with the GLADEVCP option is:  +gladevcp+.
+The default HAL component name of a GladeVCP application started with the GLADEVCP option is:  `gladevcp`.
 
 The command line actually run by AXIS in the above configuration is as follows:
 
@@ -324,7 +323,7 @@ The command line actually run by AXIS in the above configuration is as follows:
 halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x {XID} -u ./hitcounter.py ./manual-example.ui
 ----
 
-You may add arbitrary gladevcp options here, as long as they dont collide with
+You may add arbitrary `gladevcp` options here, as long as they dont collide with
 the above command line options.
 
 It is possible to create a custom HAL component name by adding the +-c+ option:
@@ -376,7 +375,7 @@ POSTGUI_HALFILE =  ./gladevcp/manual-example.hal
 SUBROUTINE_PATH = ../../nc_files/gladevcp_lib
 ----
 
-Note the 'halcmd loadusr' way of starting the tab command - this
+Note the `halcmd loadusr` way of starting the tab command - this
 assures that 'POSTGUI_HALFILE' will only be run after the HAL
 component is ready. In rare cases you might run a command here which
 uses a tab but does not have an associated HAL component. Such a
@@ -385,7 +384,7 @@ AXIS that it does not have to wait for a HAL component since there is
 none.
 
 When changing the component name in the above example, note that the
-names used in +-Wn <component>+ and +-c <component>+ must be
+names used in `-Wn <component>` and `-c <component>` must be
 identical.
 
 Try it out by running AXIS - there should be a new tab called
@@ -394,7 +393,7 @@ example panel nicely fit within AXIS.
 
 [NOTE]
 Make sure the UI file is the last option passed to GladeVCP in
-both the +GLADEVCP=+ and +EMBED_TAB_COMMAND=+ statements.
+both the `GLADEVCP=` and `EMBED_TAB_COMMAND=` statements.
 
 === Integrating into Touchy
 
@@ -427,7 +426,7 @@ Note the following differences to the AXIS tab setup:
 
 == GladeVCP command line options
 
-See also 'man gladevcp'. These are the GladeVCP command line options:
+See also `man gladevcp`. These are the GladeVCP command line options:
 
 ----
 Usage: gladevcp [options] myfile.ui
@@ -514,7 +513,7 @@ started by the GUI in an embedded fashion):
   commands being run 'at the right point in time', so comment that out
   in the INI file.
 - Explicitly pass the HAL command file which refers to GladeVCP pins
-  to GladeVCP with the '-H <halcmd file>' option (see previous section).
+  to GladeVCP with the `-H <halcmd file>` option (see previous section).
 
 == HAL Widget reference
 
@@ -648,13 +647,13 @@ the widget. Buttons have no additional properties compared to their
 base Gtk classes.
 
 - HAL_Button: instantaneous action, does not retain state. Important
-  signal: +pressed+
+  signal: `pressed`
 - HAL_ToggleButton, HAL_CheckButton: retains on/off state. Important
-  signal: +toggled+
-- HAL_RadioButton: a one-of-many group. Important signal: +toggled+ (per
+  signal: `toggled`
+- HAL_RadioButton: a one-of-many group. Important signal: `toggled` (per
   button).
-- Important common methods: +set_active()+, +get_active()+
-- Important properties: +label+, +image+
+- Important common methods: `set_active()`, `get_active()`
+- Important properties: `label`, `image`
 
 //.Buttons
 .Check button
@@ -1036,26 +1035,33 @@ text_template::
 === Containers
 
 * HAL_HideTable
-* HAL_Table State_Sensitive_Table
-* HAL_HBox
+* HAL_Table
+* State_Sensitive_Table
+* HAL_HBox (deprecated)
 
 These containers are meant to be used to insensitize (grey out) or hide their children. +
 Insensitized children will not respond to input.
 
-`hal_hidetable` has one HAL BIT input pin which controls if it's child widgets are hidden or not.
-
-<Panel_basename>.<widgetname>:: FIXME pin name
-  If the pin is low then child widgets are visible which is the default state.
-
-`hal_table` and `hal_hbox` have one HAL BIT input pin which controls if their child widgets are sensitive or not. +
-These widgets's pin name uses the convention:
-
-<Panel_basename>.<widgetname>:: FIXME pin name
-  If the pin is low then child widgets are inactive which is the default state.
-
-`state_sensitive_table` responds to the state to LinuxCNC's interpreter. +
-Optionally selectable to respond to 'must-be-all-homed','must-be-on' and 'must-be-idle'. +
-You can combine them. It will always be insensitive at Estop.
+*HAL_HideTable*:: Has one HAL BIT input pin which controls if it's child widgets are hidden or not.
++
+*Pin*::
+--
+`<Panel_basename>.<widgetname>`:: in bit pin +
+If the pin is low then child widgets are visible which is the default state.
+--
+*HAL_Table* and *HAL_Hbox*::
+Have one HAL BIT input pin which controls if their child widgets are sensitive or not. +
++
+--
+*Pin*::
+`<Panel_basename>.<widgetname>`:: in bit pin +
+If the pin is low then child widgets are inactive which is the default state.
+--
+*State_Sensitive_Table*::
+Responds to the state to LinuxCNC's interpreter. +
+Optionally selectable to respond to 'must-be-all-homed', 'must-be-on' and 'must-be-idle'. +
+You can combine them. It will always be insensitive at Estop. +
+(Has no pin).
  +
 [WARNING]
 **HAL_Hbox is deprecated - use HAL_Table.** +
@@ -1331,8 +1337,7 @@ it, inspects the INI_FILE_NAME environment variable. Gremlin displays
 the current .ngc file - it does monitor for changes and reloads the ngc
 file if the file name in AXIS/Touchy changes. If you run it in a
 GladeVCP application when LinuxCNC is not running, you might get a traceback
-because the Gremlin widget can't find LinuxCNC status, like the current file
-name.
+because the Gremlin widget can't find LinuxCNC status, like the current file name.
 
 ==== Pins
 
@@ -1387,7 +1392,7 @@ grid size::
 use default mouse controls::
   This disables the default mouse controls. +
   This is most useful when using a touchscreen as the default controls do not work well. You can programmatically
-  add controls using python and the handler file technique. +
+  add controls using Python and the handler file technique. +
   Default = true.
 view::
   May be any of `x`, `y`, `y2` , `z`, `z2` , `p` (perspective). +
@@ -2130,7 +2135,7 @@ are for use in simple buttons, menu entries or radio/check groups.
 
 === VCP Action Python
 
-This widget is used to execute small arbitrary python code.
+This widget is used to execute small arbitrary Python code.
 
 The command string may use special keywords to access important functions.
 
@@ -2291,7 +2296,7 @@ other handler.
 
 Here's an example how a feed value might be saved and restored by such
 handlers (note that LinuxCNC command and status channels are available as
-+self.linuxcnc+ and +self.stat+ through the VCP_ActionBase class):
+`self.linuxcnc` and `self.stat` through the VCP_ActionBase class):
 
 [source,python]
 ----
@@ -2410,8 +2415,8 @@ ACTION.SET_ERROR_MESSAGE('Something went wrong')
 
 More information can be found here: <<cha:gladevcp-libraries,GladeVCP Libraries modules>>
 There is a sample configuration that demonstrates using the core library
-with gladevcp's action python widgets and with a python handler file.
-Try loading 'sim/axis/gladevcp/gladevcp_panel_tester'
+with GladeVCP's action Python widgets and with a Python handler file.
+Try loading 'sim/axis/gladevcp/gladevcp_panel_tester'.
 
 
 === An example: adding custom user callbacks in Python
@@ -2445,7 +2450,7 @@ your event handlers are spread over several files, just add multiple
 Now, pressing the button should change its label since it's set in the
 callback function.
 
-What the +-u+ flag does: all Python functions in this file are
+What the `+-u+` flag does: all Python functions in this file are
 collected and setup as potential callback handlers for your Gtk widgets -
 they can be referenced from Glade 'Signals' tabs. The callback
 handlers are called with the particular object instance as parameter,
@@ -2549,7 +2554,7 @@ code can tell that the GladeVCP panel is currently active and displayed. For
 example a panel inside the Touchy interface might well need to perform an action
 when the switch connected to touchy.cycle-start is operated (in the same way
 that the native tabs respond differently to the same button). +
-To make this possible a signal is sent from the GUI (at the time of writing, only
+To make this possible, a signal is sent from the GUI (at the time of writing, only
 Touchy) to the embedded tab. The signal is of type "Gladevcp" and the two messages
 sent are "Visible" and "Hidden". (Note that the signals  have a fixed length of 20
 characters so only the first characters should be used in any comparison, hence
@@ -2584,11 +2589,9 @@ get_handlers(halcomp,builder,useropts)
 
 The arguments are:
 
-- `halcomp` - refers to the HAL component under construction
-- `builder` - widget tree - result of reading the UI definition (either
-  referring to a GtkBuilder or libglade-type object)
-- `useropts` - a list of strings collected from the GladeVCP
-  command line `-U <useropts>` option
+- `halcomp` - refers to the HAL component under construction,
+- `builder` - widget tree - result of reading the UI definition (either referring to a GtkBuilder or libglade-type object),
+- `useropts` - a list of strings collected from the GladeVCP command line `-U <useropts>` option.
 
 GladeVCP then inspects the list of class instances and retrieves their
 method names. Qualifying method names are connected to the widget tree
@@ -2718,7 +2721,7 @@ invocations, proceed as follows:
 - Decide which instance attributes, and their default values you want to
   have retained, if any.
 - Decide which widgets should have their state retained.
-- Describe these decisions in your handler class' +__init__()+ method
+- Describe these decisions in your handler class' `\__init()__` method
   through a nested dictionary as follows:
 
 [source,python]
@@ -2798,8 +2801,8 @@ whether the panel is embedded in AXIS, or a standalone window.
 
 [CAUTION]
 ====
-Do not use +window1+ (the toplevel window) to connect a
-+destroy+ event. Due to the way a GladeVCP panel interacts with AXIS
+Do not use `window1` (the toplevel window) to connect a
+'destroy' event. Due to the way a GladeVCP panel interacts with AXIS,
 if a panel is embedded within AXIS, *window1 will not receive destroy
 events properly*. However, since on shutdown all widgets are
 destroyed, anyone will do. Recommended: use a second-level widget -
@@ -2820,8 +2823,8 @@ make sure you use the 'destroy' event from the 'GtkObject' line.
 === Saving state when Ctrl-C is pressed
 
 By default, the reaction of GladeVCP to a Ctrl-C event is to just exit -
-+without+ saving state. To make sure that this case is covered, add
-a handler call +on_unix_signal+ which will be automatically be called
+_without_ saving state. To make sure that this case is covered, add
+a handler call `on_unix_signal` which will be automatically be called
 on Ctrl-C (actually on the SIGINT and SIGTERM signals). Example:
 
 [source,python]
@@ -2854,7 +2857,7 @@ self.example_trigger = hal_glib.GPin(halcomp.newpin('example-trigger', hal.HAL_B
 ----
 
 To get a callback when this pin's value changes, associate a
-+value-change+ callback with this pin, add:
+`value-change` callback with this pin, add:
 
 [source,python]
 ----
@@ -2862,7 +2865,7 @@ self.example_trigger.connect('value-changed', self._on_example_trigger_change)
 ----
 
 and define a callback method (or function, in this case leave out the
-+self+ parameter):
+`self` parameter):
 
 [source,python]
 ----
@@ -2935,7 +2938,7 @@ def get_handlers(halcomp,builder,useropts):
 
 === Examples, and rolling your own GladeVCP application
 
-Visit +linuxcnc_root_directory/configs/apps/gladevcp+ for running
+Visit `linuxcnc_root_directory/configs/apps/gladevcp` for running
 examples and starters for your own projects.
 
 == FAQ
@@ -3006,10 +3009,10 @@ I defined a `hal_spinbutton` widget in Glade, and set a default `value` property
   don't need the axisrc file any more, this was mentioned in the old
   GladeVCP wiki page.
 - Run GladeVCP or AXIS from a terminal window. If you get Python errors,
-  check whether there's still a +/usr/lib/python2.6/dist-packages/hal.so+
+  check whether there's still a `/usr/lib/python2.6/dist-packages/hal.so`
   file lying around besides the newer
-  +/usr/lib/python2.6/dist-packages/_hal.so+ (note underscore); if yes,
-  remove the +hal.so+ file. It has been superseded by hal.py in the same
+  `/usr/lib/python2.6/dist-packages/_hal.so` (note the underscore); if yes,
+  remove the `hal.so` file. It has been superseded by hal.py in the same
   directory and  confuses the import mechanism.
 - If you're using run-in-place, do a 'make clean' to remove any
   accidentally left over hal.so file, then 'make'.
