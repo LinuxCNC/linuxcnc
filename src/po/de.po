@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-10-09 15:50+0200\n"
 "PO-Revision-Date: 2022-10-21 17:34+0000\n"
-"Last-Translator: mk00002 <codo1983@gmail.com>\n"
+"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -13158,14 +13158,12 @@ msgid "SSR Output"
 msgstr "SSR Ausgabe"
 
 #: src/emc/usr_intf/pncconf/private_data.py:119
-#, fuzzy
 msgid "OUTM Output"
-msgstr "POT Ausgabe"
+msgstr "OUTM Ausgabe"
 
 #: src/emc/usr_intf/pncconf/private_data.py:121
-#, fuzzy
 msgid "INM Input"
-msgstr "GPIO-Eingang"
+msgstr "INM-Eingang"
 
 #: src/emc/usr_intf/pncconf/private_data.py:124
 msgid "Quad Enc-A"
@@ -16531,7 +16529,6 @@ msgid "<b>USB Jogging</b>"
 msgstr "<b>USB Schnellauf</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:711
-#, fuzzy
 msgid ""
 "Use the checkboxes to enable options.\n"
 "Press the corresponding info button to\n"
