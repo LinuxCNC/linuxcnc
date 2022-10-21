@@ -7,9 +7,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-10-09 15:50+0200\n"
-"PO-Revision-Date: 2022-10-04 15:29+0000\n"
+"PO-Revision-Date: 2022-10-20 01:20+0000\n"
 "Last-Translator: Ulices <dev.n47os@aleeas.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/es/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.14.1\n"
+"X-Generator: Weblate 4.14.2-dev\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -134,11 +134,9 @@ msgid "Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."
 msgstr "Entre códigos G5.2 y G5.3 solo se permiten códigos G5.2 adicionales."
 
 #: src/emc/rs274ngc/interp_check.cc:260
-#, fuzzy
 msgid ""
 "D word with no G41, G41.1, G42, G42.1, G71, G71.1, G71.2 or G96 to use it"
-msgstr ""
-"Palabra D sin código G41, G41.1, G42, G42.1 ó G96 con el cual ser usado"
+msgstr "Palabra D sin código G41, G41.1, G42, G42.1 ó G96 con el cual ser usado"
 
 #: src/emc/rs274ngc/interp_check.cc:269
 msgid ""
@@ -2958,9 +2956,10 @@ msgid "Cannot unhome while moving, joint %d"
 msgstr "No se puede hacer unhome mientras se mueve, articulacion %d"
 
 #: src/emc/motion/homing.c:311
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot unhome extrajoint <%d> with motion enabled"
-msgstr "No se puede deshacer el extrajoint <%d> con el movimiento habilitado"
+msgstr ""
+"No se puede deshacer el home del extrajoint <%d> con el movimiento habilitado"
 
 #: src/emc/motion/homing.c:366
 #, c-format
@@ -5348,9 +5347,8 @@ msgid "loaded"
 msgstr "cargado"
 
 #: tcl/bin/halshow.tcl:1229
-#, fuzzy
 msgid "saved backup for old watchlist in"
-msgstr "Guardar lista de vigilancia actual"
+msgstr "Copia de seguridad guardada para la lista de seguimiento antigua en"
 
 #: tcl/bin/halshow.tcl:1240
 msgid "Save current watch list"
@@ -5370,7 +5368,7 @@ msgstr "Flotante (deshabilitado por el argumento \"--fformat\")"
 
 #: tcl/bin/halshow.tcl:1319
 msgid "\"--noprefs\" option set. Settings will not be saved!"
-msgstr ""
+msgstr "\"--noprefs\" opción establecida. ¡La configuración no se guardará!"
 
 #: tcl/bin/pickconfig.tcl:99
 msgid ""
@@ -7306,9 +7304,8 @@ msgid "Rotate Wheel"
 msgstr "Girar rueda"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:219
-#, fuzzy
 msgid "Ctrl+Left Button"
-msgstr "Control + Botón izquierdo"
+msgstr "Ctrl+botón izquierdo"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:222
 msgid "Manual control"
@@ -7648,13 +7645,13 @@ msgid "generated from %s"
 msgstr "generado a partir de %s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2038
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "%(size)s bytes\n"
 "%(lines)s G-code lines"
 msgstr ""
 "%(size)s bytes\n"
-"%(lines)s líneas de gcode"
+"%(lines)s líneas de código G"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2064
 #, python-format
@@ -7889,9 +7886,8 @@ msgid "toggle PYVCP panel visibility"
 msgstr "alternar la visibilidad del panel PYVCP"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3924 share/axis/tcl/axis.tcl:387
-#, fuzzy
 msgid "Show PyVCP pan_el"
-msgstr "Mostrar pyVCP pan_el"
+msgstr "Mostrar PyVCP pan_el"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:4210
 msgid "Error in ~/.axisrc"
@@ -7937,14 +7933,13 @@ msgstr ""
 "después de unos segundos."
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:514
-#, fuzzy, python-format
+#, python-format
 msgid "%s: Image to G-code"
-msgstr "%s: imagen a gcode"
+msgstr "%s: Imagen a código G"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:515
-#, fuzzy
 msgid "Image to G-code"
-msgstr "Imagen para gcode"
+msgstr "Imagen a código G"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:525
 #, python-format
@@ -8191,9 +8186,8 @@ msgid "_Reload"
 msgstr "_Recargar"
 
 #: share/axis/tcl/axis.tcl:76
-#, fuzzy
 msgid "_Save G-code as..."
-msgstr "Guardar g-code como..."
+msgstr "_Guardar código G como..."
 
 #: share/axis/tcl/axis.tcl:80
 msgid "_Properties..."
@@ -8488,9 +8482,8 @@ msgid "Open G-Code file [O]"
 msgstr "Abrir archivo de código G [O]"
 
 #: share/axis/tcl/axis.tcl:519
-#, fuzzy
 msgid "Reopen current file [Ctrl-R]"
-msgstr "Reabrir el archivo actual [Control-R]"
+msgstr "Reabrir el archivo actual [Ctrl-R]"
 
 #: share/axis/tcl/axis.tcl:529
 msgid "Begin executing current file [R]"
@@ -8822,11 +8815,9 @@ msgid "Set G54 offset for active axis [End]"
 msgstr "Establecer el offset G54 para el eje activo [Fin]"
 
 #: share/axis/tcl/axis.tcl:2260
-#, fuzzy
 msgid "Set tool offset for loaded tool [Ctrl-End]"
 msgstr ""
-"Establecer el offset de la herramienta para la herramienta cargada [Control-"
-"Fin]"
+"Establecer el offset de la herramienta para la herramienta cargada [Ctrl-Fin]"
 
 #: share/axis/tcl/axis.tcl:2261
 msgid "Activate axis [X]"
@@ -11736,7 +11727,9 @@ msgstr "Opuesto"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
+""
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -12087,7 +12080,7 @@ msgstr "El descubrimiento no está disponible\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1606
 msgid "The pasted PIN file may be an invalid format"
-msgstr ""
+msgstr "El archivo PIN pegado puede tener un formato no válido"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1608
 msgid "The data returned from discovery is invalid"
@@ -12473,6 +12466,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/build_HAL.py:351
 msgid "# ---Chargepump StepGen: 0.25 velocity = 10Khz square wave output---"
 msgstr ""
+"# ---Chargepump StepGen: 0,25 de velocidad = 10Khz de salida de onda "
+"cuadrada---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:439
 msgid "# connect miscellaneous signals"
@@ -12504,11 +12499,11 @@ msgstr "# --- Señales del botón de avance del dispositivo USB ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:496
 msgid "# connect selectable mpg jog speeds "
-msgstr ""
+msgstr "# Conecta las velocidades de desplazamiento de mpg seleccionables "
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:526
 msgid "# ---jogwheel signals to mesa encoder - shared MPG---"
-msgstr ""
+msgstr "# --- señales de la rueda jog al codificador mesa - MPG compartido---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:535
 #: src/emc/usr_intf/pncconf/build_HAL.py:561
@@ -12523,7 +12518,7 @@ msgstr "#       para el eje %s MPG"
 #: src/emc/usr_intf/pncconf/build_HAL.py:553
 #, python-format
 msgid "# ---jogwheel signals to mesa encoder - %s axis MPG---"
-msgstr ""
+msgstr "# --- señales de la rueda jog al codificador mesa - %s eje MPG---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:572
 msgid "# connect selectable mpg jog increments "
@@ -12531,31 +12526,32 @@ msgstr "# Conectar los incrementos mpg de jog seleccionables "
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:596
 msgid "# ---feed override signals to mesa encoder - mpg---"
-msgstr ""
+msgstr "# ---Señales de anulación de avance al codificador mesa - MPG---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:606
 msgid "# connect feed override increments - MPG"
-msgstr ""
+msgstr "# Conectar incrementos de alimentación - MPG"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:621
 msgid "# connect feed override increments - switches"
-msgstr ""
+msgstr "# Conectar los incrementos de la alimentación - interruptores"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:646
 msgid "# ---max velocity override signals to mesa encoder - mpg---"
 msgstr ""
+"# ---señales de anulación de la velocidad máxima al codificador mesa - mpg---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:660
 msgid "# connect max velocity override increments - MPG"
-msgstr ""
+msgstr "# conectar incrementos de velocidad máxima - MPG"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:675
 msgid "# connect max velocity override increments - switches"
-msgstr ""
+msgstr "# Conectar los incrementos de velocidad máxima - interruptores"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:700
 msgid "# ---spindle override signals to mesa encoder - mpg---"
-msgstr ""
+msgstr "# ---señales de anulación de husillo al codificador Mesa - mpg---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:709
 msgid "# connect spindle override increments - MPG"
@@ -12586,14 +12582,12 @@ msgid "#  ---Use external manual tool change dialog---"
 msgstr "# ---Usar el diálogo de cambio de herramienta manual externo---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:802
-#, fuzzy
 msgid "#  ---manual tool change signals to gmoccapy's dialog---"
-msgstr "# --- señales de cambio de herramienta manual ---"
+msgstr "# ---señal de cambio de herramienta manual al diálogo de gmoccapy---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:812
-#, fuzzy
 msgid "#  ---manual tool change signals to qtdragon's dialog---"
-msgstr "# --- señales de cambio de herramienta manual ---"
+msgstr "# ---señal de cambio de herramienta manual al diálogo de qtdragon---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:819
 msgid "#  ---ignore tool prepare requests---"
@@ -12610,6 +12604,8 @@ msgid ""
 "\n"
 "# ---QTPLASMAC TOOLCHANGE PASSTHROUGH---"
 msgstr ""
+"\n"
+"# ---PASO DE CAMBIO DE HERRAMIENTA QTPLASMAC---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:852
 msgid "#  --- Classicladder signals for Z axis Auto touch off program---"
@@ -12674,38 +12670,47 @@ msgstr "# Estos comandos son necesarios para la GUI Touchy"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1045
 msgid "#    Automation Direct GS2 VFD for spindle control"
-msgstr ""
+msgstr "# Automatización directa GS2 VFD para el control del husillo"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1047
 msgid "#    The communications switches must be set to RS-232C"
-msgstr ""
+msgstr "# Los interruptores de comunicaciones deben estar ajustados a RS-232C"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1048
 msgid "#    The motor parameters must be set to match the motor"
 msgstr ""
+"# Los parámetros del motor deben ajustarse para que coincidan con el motor"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1049
 msgid ""
 "#    P3.00 (Source of Operation Command) must be set to Operation determined "
 "by RS-485 interface, 03 or 04"
 msgstr ""
+"# P3.00 (Fuente del comando de operación) debe ser ajustado a Operación "
+"determinada por la interfaz RS-485, 03 o 04"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1050
 msgid ""
 "#    P4.00 (Source of Frequency Command) must be set to Frequency determined "
 "by RS232C/RS485 communication interface, 05"
 msgstr ""
+"# P4.00 (Fuente del comando de frecuencia) debe ajustarse a Frecuencia "
+"determinada por la interfaz de comunicación RS232C/RS485, 05"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1051
 msgid ""
 "#    P9.01 (Transmission Speed) must be set to the specified baud, 9600 = 01"
 msgstr ""
+"# P9.01 (velocidad de transmisión) debe establecerse al baudio especificado, "
+"9600 = 01"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1052
 msgid ""
 "#    P9.02 (Communication Protocol) must be set to \"Modbus RTU mode, 8 data "
 "bits, no parity, 2 stop bits\", 03"
 msgstr ""
+"# P9.02 (Protocolo de comunicación) debe ajustarse a \"Modo Modbus RTU, 8 "
+"bits de datos, sin paridad, 2 bits de parada\", 03"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1065
 msgid "#    Misubishi FR VFD for spindle control"
@@ -12764,7 +12769,7 @@ msgstr "#  SPINDLE"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1255
 msgid "# -- BLDC setup --"
-msgstr ""
+msgstr "# -- Configuración del BLDC --"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1323
 msgid "# ---TPPWM Generator signals/setup---"
@@ -12772,19 +12777,19 @@ msgstr "# ---Señales del generador TPPWM/configuración---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1325
 msgid "# six output 3pwg"
-msgstr ""
+msgstr "# seis salidas 3pwg"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1326
 msgid "# three output 3pwg"
-msgstr ""
+msgstr "# tres salidas 3pwg"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1327
 msgid "# TODO write some commands!"
-msgstr ""
+msgstr "# TODO ¡escribir algunos comandos!"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1331
 msgid "# ---8i20 amplifier card signals/setup---"
-msgstr ""
+msgstr "# ---señales / configuración de la tarjeta amplificadora 8i20---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1341
 msgid "# ---digital potentiometer output signals/setup---"
@@ -12796,15 +12801,15 @@ msgstr "# ---Señales del generador PWM/configuración---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1383
 msgid "# enable _all_ sserial pwmgens"
-msgstr ""
+msgstr "# habilitar _all_ sserial pwmgens"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1413
 msgid "# Step Gen signals/setup for tandem axis"
-msgstr ""
+msgstr "# Señales/configuración de Step Gen para el eje tándem"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1415
 msgid "# Step Gen signals/setup"
-msgstr ""
+msgstr "# Señales/configuración Step Gen"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1446
 msgid "# ---closedloop stepper signals---"
@@ -12857,17 +12862,19 @@ msgstr "# señales de entrada externas"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1661
 msgid "# external output signals"
-msgstr ""
+msgstr "# señales de salida externas"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1822
 msgid ""
 "\n"
 "# ---PLASMA INPUT DEBOUNCE---"
 msgstr ""
+"\n"
+"# ---ANTI-REBOTE DE ENTRADA DE PLASMA---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1823
 msgid "#values for these are in custom.hal"
-msgstr ""
+msgstr "#los valores para estos están en custom.hal"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1829
 msgid ""
