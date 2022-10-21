@@ -733,7 +733,13 @@ static rtapi_s64 rtapi_cycle_counter_get_freq(void) {
     asm volatile("mrs %0, cntfrq_el0" : "=r" (freq));
     rtapi_cycle_counter_frequency = freq;
 
+#elif defined (__arm__)
+    rtapi_u32 freq;
+    asm volatile("mrs %0, cntfrq" : "=r" (freq));
+    rtapi_cycle_counter_frequency = freq;
+
 #else
+#warning "*** hardware architecture has no cycle counter implementation"
     // FIXME: alternatively we could claim "1 GHz" and use rtapi_get_time()
     rtapi_print_msg(RTAPI_MSG_ERR, "%s: no hardware cycle counter found, falling back to time- and sleep-based timing\n", __FUNCTION__);
     rtapi_cycle_counter_frequency = 0;
@@ -934,7 +940,7 @@ static int harden_rt()
     if (rtapi_thread_timing_mode == RTAPI_THREAD_TIMING_MODE_BUSYWAIT) {
         rtapi_s64 freq = rtapi_cycle_counter_get_freq();
         if (freq > 0) {
-            rtapi_print_msg(RTAPI_MSG_ERR, "using 'busywait' thread timing mode (cycle-counter freq %ld Hz)\n", freq);
+            rtapi_print_msg(RTAPI_MSG_ERR, "using 'busywait' thread timing mode (cycle-counter freq %" PRId64 " Hz)\n", freq);
         } else {
             rtapi_print_msg(RTAPI_MSG_ERR, "no cycle-counter available, falling back to 'sleep' thread timing mode\n");
             rtapi_thread_timing_mode = RTAPI_THREAD_TIMING_MODE_SLEEP;
