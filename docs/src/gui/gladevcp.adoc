@@ -273,9 +273,8 @@ gladevcp myui.ui
 ----
 
 GladeVCP creates a HAL component named like the basename of the UI
-file - 'myui' in this case - unless overridden by the `-c _<component
-name>_` option.  If running AXIS, just try 'Show HAL configuration' and
-inspect its pins.
+file - 'myui' in this case - unless overridden by the `-c <component name>` option.
+If running AXIS, just try 'Show HAL configuration' and inspect its pins.
 
 You might wonder why widgets contained a 'HAL_Hbox' or 'HAL_Table' appear
 greyed out (inactive). HAL containers have an associated HAL pin which
@@ -284,7 +283,7 @@ inactive. A common use case would be to associate these container HAL
 pins with `halui.machine.is-on` or one of the `halui.mode` signals,
 to assure some widgets appear active only in a certain state.
 
-To just activate a container, execute the HAL command `setp gladevcp._<container-name>_ 1`.
+To just activate a container, execute the HAL command `setp gladevcp.<container-name> 1`.
 
 === Preparing the HAL command file
 
@@ -514,7 +513,7 @@ started by the GUI in an embedded fashion):
   commands being run 'at the right point in time', so comment that out
   in the INI file.
 - Explicitly pass the HAL command file which refers to GladeVCP pins
-  to GladeVCP with the `-H _<halcmd file>_` option (see previous section).
+  to GladeVCP with the `-H <halcmd file>` option (see previous section).
 
 == HAL Widget reference
 
@@ -1044,13 +1043,13 @@ Insensitized children will not respond to input.
 
 `hal_hidetable` has one HAL BIT input pin which controls if it's child widgets are hidden or not.
 
-`_<Panel_basename>_._<widgetname>_`:: FIXME pin name
+`<Panel_basename>.<widgetname>`:: FIXME pin name
   If the pin is low then child widgets are visible which is the default state.
 
 `hal_table` and `hal_hbox` have one HAL BIT input pin which controls if their child widgets are sensitive or not. +
 These widgets's pin name uses the convention:
 
-`_<Panel_basename>_._<widgetname>_`:: FIXME pin name
+`<Panel_basename>.<widgetname>`:: FIXME pin name
   If the pin is low then child widgets are inactive which is the default state.
 
 `state_sensitive_table` responds to the state to LinuxCNC's interpreter. +
@@ -2584,10 +2583,8 @@ get_handlers(halcomp,builder,useropts)
 The arguments are:
 
 - `halcomp` - refers to the HAL component under construction,
-- `builder` - widget tree - result of reading the UI definition (either
-  referring to a GtkBuilder or libglade-type object),
-- `useropts` - a list of strings collected from the GladeVCP
-  command line `-U <useropts>` option.
+- `builder` - widget tree - result of reading the UI definition (either referring to a GtkBuilder or libglade-type object),
+- `useropts` - a list of strings collected from the GladeVCP command line `-U <useropts>` option.
 
 GladeVCP then inspects the list of class instances and retrieves their
 method names. Qualifying method names are connected to the widget tree
