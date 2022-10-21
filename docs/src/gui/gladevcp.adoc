@@ -1035,26 +1035,33 @@ text_template::
 === Containers
 
 * HAL_HideTable
-* HAL_Table State_Sensitive_Table
-* HAL_HBox
+* HAL_Table
+* State_Sensitive_Table
+* HAL_HBox (deprecated)
 
 These containers are meant to be used to insensitize (grey out) or hide their children. +
 Insensitized children will not respond to input.
 
-`hal_hidetable` has one HAL BIT input pin which controls if it's child widgets are hidden or not.
-
-`<Panel_basename>.<widgetname>`:: FIXME pin name
-  If the pin is low then child widgets are visible which is the default state.
-
-`hal_table` and `hal_hbox` have one HAL BIT input pin which controls if their child widgets are sensitive or not. +
-These widgets's pin name uses the convention:
-
-`<Panel_basename>.<widgetname>`:: FIXME pin name
-  If the pin is low then child widgets are inactive which is the default state.
-
-`state_sensitive_table` responds to the state to LinuxCNC's interpreter. +
-Optionally selectable to respond to 'must-be-all-homed','must-be-on' and 'must-be-idle'. +
-You can combine them. It will always be insensitive at Estop.
+*HAL_HideTable*:: Has one HAL BIT input pin which controls if it's child widgets are hidden or not.
++
+*Pin*::
+--
+`<Panel_basename>.<widgetname>`:: in bit pin +
+If the pin is low then child widgets are visible which is the default state.
+--
+*HAL_Table* and *HAL_Hbox*::
+Have one HAL BIT input pin which controls if their child widgets are sensitive or not. +
++
+--
+*Pin*::
+`<Panel_basename>.<widgetname>`:: in bit pin +
+If the pin is low then child widgets are inactive which is the default state.
+--
+*State_Sensitive_Table*::
+Responds to the state to LinuxCNC's interpreter. +
+Optionally selectable to respond to 'must-be-all-homed', 'must-be-on' and 'must-be-idle'. +
+You can combine them. It will always be insensitive at Estop. +
+(Has no pin).
  +
 [WARNING]
 **HAL_Hbox is deprecated - use HAL_Table.** +
