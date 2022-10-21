@@ -1,7 +1,6 @@
 :lang: en
 :pin_tab_options: cols="10,10,50", frame="none", grid="none", options="header"
 :toc:
-:toclevels: 4
 
 [[cha:gmoccapy]]
 = GMOCCAPY
@@ -204,8 +203,132 @@ Is the entry to tell LinuxCNC/GMOCCAPY where to look for the NGC files.
 If not specified GMOCCAPY will look in the following order for NGC files:
 linuxcnc/nc_files and then the users home directory.
 
+
+[[gmoccapy:traj-section]]
+=== The TRAJ Section
+
+[source,{ini}]
+----
+[TRAJ]
+DEFAULT_LINEAR_VELOCITY = 85.0
+MAX_LINEAR_VELOCITY = 230.000
+----
+
+Sets the maximal velocity and the default jog velocity of the machine.
+
+[NOTE]
+If 'DEFAULT_LINEAR_VELOCITY' is not given, half of 'MAX_LINEAR_VELOCITY' will be used.
+If that value is also not given, it will default to 180.
+If 'MAX_LINEAR_VELOCITY' is not given, it will default to 600.
+
+
+[[gmoccapy:macros]]
+=== Macro Buttons
+
+You can add macros to GMOCCAPY, similar to Touchy's way. A macro is nothing
+else than a NGC file. You are able to execute complete CNC programs in MDI
+mode by just pushing one button. To do so, you first have to specify the search
+path for macros:
+
+[[gmocappy:rs274ngc]]
+[source,{ini}]
+----
+[RS274NGC]
+SUBROUTINE_PATH = macros
+----
+This sets the path to search for macros and other subroutines. Several subroutine
+paths can be separeted ":".
+
+Then you just have to add a section like this:
+
+.Configuration of Five Macros to be Shown in the MDI Button List
+[source,{ini}]
+----
+[MACROS]
+MACRO = i_am_lost
+MACRO = hello_world
+MACRO = jog_around
+MACRO = increment xinc yinc
+MACRO = go_to_position X-pos Y-pos Z-pos
+----
+
+Then you have to provide the corresponding NGC files which have to follow these rules:
+
+* The name of the file need to be exactly the same as the name mentioned in the macro
+  line, just with the ".ngc" extension (case sensitive).
+* The file must contain a subroutine like '*O<i_am_lost> sub*', the name
+  of the sub must match exactly (case sensitive) the name of the macro.
+* The file must end with an endsub '*O<i_am_lost> endsub*' followed by an '*M2*' command.
+* The files need to be placed in a folder specified in your INI file by 'SUBROUTINE_PATH' in the
+  RS274NGC section
+
+The code between sub and endsub will be executed by pushing the
+corresponding macro button.
+
+[NOTE]
+A maximum of 16 macros will be shown in the GUI. Due to space reasons you may need to
+click on an arrow to switch the page and display hidden macro buttons.
+The macro buttons will be displayed in the order of the INI entries.
+It is no error placing more than 16 macros in your INI file, they will just not be shown.
+
+//.Macros example
+//image::images/gmoccapy_mdi_hidden_keyboard.png[align="left"]
+
+[NOTE]
+You will find the sample macros in a folder named 'macros' placed in the GMOCCAPY
+sim folder. If you have given several subroutine paths, they will be searched
+in the order of the given paths. The first file found will be used.
+
+GMOCCAPY will also accept macros asking for parameters like:
+[source,{ini}]
+----
+[MACRO]
+MACRO = go_to_position X-pos Y-pos Z-pos
+----
+
+The parameters must be separated by spaces.
+This example calls a file 'go_to_position.ngc' with the following content:
+[source,{ngc}]
+----
+; Test file "go to position"
+; will jog the machine to a given position
+
+O<go_to_position> sub
+
+G17
+G21
+G54
+G61
+G40
+G49
+G80
+G90
+
+;#1 = <X-Pos>
+;#2 = <Y-Pos>
+;#3 = <Z-Pos>
+
+(DBG, Will now move machine to X = #1 , Y = #2 , Z = #3)
+G0 X #1 Y #2 Z #3
+
+O<go_to_position> endsub
+M2
+----
+
+After pushing the '*execute macro button*', you will be asked to enter the
+values for '*X-pos Y-pos Z-pos*' and the macro will only run if all values
+have been given.
+
+[NOTE]
+If you would like to use a macro without any movement,
+see also the notes in <<sub:NOT_ENDING_MACROS,known problems>>.
+
+.Macro example using the "go to position"-macro
+image::images/gmoccapy_getting_macro_info.png[align="left"]
+
+
 [[gmoccapy:configuration-of-tabs-and-side-panels]]
-==== Configuration of Embedded Tabs and Panels
+=== Embedded Tabs and Panels
 You can add embedded programs to GMOCCAPY like you can do in AXIS, Touchy and
 Gscreen. All is done by GMOCCAPY automatically if you include a few lines in
 your INI file in the DISPLAY section.
@@ -307,7 +430,7 @@ image::images/gmoccapy_with_left_box_in_edit_mode.png[align="left"]
 image::images/gmoccapy_with_right_panel_in_MDI_mode.png[align="left"]
 
 [[sub:gmocccapy-configuration-user-messages]]
-==== Configuration of User Created Messages
+=== User Created Messages
 GMOCCAPY has the ability to create HAL driven user messages. To use them you
 need to introduce some lines in the [DISPLAY] section of the INI file.
 
@@ -354,128 +477,17 @@ MESSAGE_PINNAME = okdialog
 Currently the formatting doesn't work.
 
 
-[[gmocappy:rs274ngc]]
-=== The RS274NGC Section
 
-[source,{ini}]
+=== Preview Control
+
+Magic comments can be used to control the G-code preview.
+On very large programs the preview can take a long time to load. You can control what is shown and what is hidden on the graphics screen by adding the appropriate comments from this list into your gcode:
+
 ----
-[RS274NGC]
-SUBROUTINE_PATH = macros
+(PREVIEW,hide)
+<G-code to be hidden>
+(PREVIEW,show)
 ----
-
-Sets the path to search for macros and other subroutines. If you want to use
-several subroutine paths, just separate them with ":".
-
-[[gmoccapy:macros]]
-=== The MACRO Section
-
-You can add macros to GMOCCAPY, similar to Touchy's way. A macro is nothing
-else than an NGC file. You are able to execute complete CNC programs in MDI
-mode, by just pushing one button. To do so, you first have to add a section like this:
-
-.Configuration of five macros in the INI file for the MDI button list
-[source,{ini}]
-----
-[MACROS]
-MACRO = i_am_lost
-MACRO = hello_world
-MACRO = jog_around
-MACRO = increment xinc yinc
-MACRO = go_to_position X-pos Y-pos Z-pos
-----
-
-Then you have to provide the corresponding NGC files which have to follow these rules:
-
-* The name of the file need to be exactly the same as the name mentioned in the macro
-  line, just with the ".ngc" extension (case sensitive).
-* The file must contain a subroutine like '*O<i_am_lost> sub*', the name
-  of the sub must match exactly (case sensitive) the name of the macro.
-* The file must end with an endsub '*O<i_am_lost> endsub*' followed by an '*M2*' command.
-* The files need to be placed in a folder specified in your INI file by 'SUBROUTINE_PATH' in the
-  <<gmocappy:rs274ngc,RS274NGC section>>.
-
-The code between sub and endsub will be executed by pushing the
-corresponding macro button.
-
-[NOTE]
-A maximum of 16 macros will be shown in the GUI. Due to space reasons you may need to
-click on an arrow to switch the page and display hidden macro buttons.
-The macro buttons will be displayed in the order of the INI entries.
-It is no error placing more than 16 macros in your INI file, they will just not be shown.
-
-//.Macros example
-//image::images/gmoccapy_mdi_hidden_keyboard.png[align="left"]
-
-[NOTE]
-You will find the sample macros in a folder named 'macros' placed in the GMOCCAPY
-sim folder. If you have given several subroutine paths, they will be searched
-in the order of the given paths. The first file found will be used.
-
-GMOCCAPY will also accept macros asking for parameters like:
-[source,{ini}]
-----
-[MACRO]
-MACRO = go_to_position X-pos Y-pos Z-pos
-----
-
-The parameters must be separated by spaces.
-This example calls a file 'go_to_position.ngc' with the following content:
-[source,{ngc}]
-----
-; Test file "go to position"
-; will jog the machine to a given position
-
-O<go_to_position> sub
-
-G17
-G21
-G54
-G61
-G40
-G49
-G80
-G90
-
-;#1 = <X-Pos>
-;#2 = <Y-Pos>
-;#3 = <Z-Pos>
-
-(DBG, Will now move machine to X = #1 , Y = #2 , Z = #3)
-G0 X #1 Y #2 Z #3
-
-O<go_to_position> endsub
-M2
-----
-
-After pushing the '*execute macro button*', you will be asked to enter the
-values for '*X-pos Y-pos Z-pos*' and the macro will only run if all values
-have been given.
-
-[NOTE]
-If you would like to use a macro without any movement,
-see also the notes in <<sub:NOT_ENDING_MACROS,known problems>>.
-
-.Macro example using the "go to position"-macro
-image::images/gmoccapy_getting_macro_info.png[align="left"]
-
-[[gmoccapy:traj-section]]
-=== The TRAJ Section
-
-[source,{ini}]
-----
-[TRAJ]
-DEFAULT_LINEAR_VELOCITY = 85.0
-MAX_LINEAR_VELOCITY = 230.000
-----
-
-Sets the maximal velocity and the default jog velocity of the machine.
-
-[NOTE]
-If 'DEFAULT_LINEAR_VELOCITY' is not given, half of 'MAX_LINEAR_VELOCITY' will be used.
-If that value is also not given, it will default to 180.
-If 'MAX_LINEAR_VELOCITY' is not given, it will default to 600.
-
-
 
 == HAL Pins
 
@@ -1113,7 +1125,7 @@ The page is separated in three main tabs:
 
 On this tab you will find the following options:
 
-==== Main Window
+.Main Window
 
 Here you can select how you wish the GUI to start. The main reason for this was the wish to get an easy
 way for the user to set the starting options without the need to touch code.
@@ -1128,7 +1140,7 @@ You have three options:
   not have any influence on the settings.
 * 'hide the cursor' does allow to hide the cursor, what is very useful if you use a touch screen.
 
-==== Keyboard
+.Keyboard
 
 The check-boxes allows the user to select if he want the on board keyboard to be shown immediately,
 when entering the MDI Mode, when entering the offset page, the tooledit widget or when open a program
@@ -1169,7 +1181,7 @@ So that the layout is set automatically on starting.
 For matchbox-keyboard you will have to make your own layout, for a German
 layout ask in the forum.
 
-==== On Touch Off
+.On Touch Off
 
 give the option to show the preview tab or the offset page tab if you enter the touch off mode by clicking the
 corresponding bottom button.
@@ -1189,7 +1201,7 @@ any case.
 // [WARNING]
 // The main window of the auxiliary screen must be named 'window2'.
 
-==== DRO Options
+.DRO Options
 
 You have the option to select the background colors of the different DRO states.
 So users suffering from protanopia (red/green weakness) are able to select proper colors.
@@ -1234,7 +1246,7 @@ toggle DRO mode::
   By default this checkbox is active, so every click on any DRO will toggle the DRO readout from actual to relative to DTG (distance to go). +
   Neverthereless a click on the axis letter will open the popup dialog to set the axis value.
 
-==== Preview
+.Preview
 
 Grid Size::
   Sets the grid size of the preview window.
@@ -1277,7 +1289,7 @@ If you select an element in the preview, the selected element will be
 taken as rotation center point and in auto mode the corresponding code line will be highlighted.
 ====
 
-==== File to load on start up
+.File to load on start up
 
 Select the file you want to be loaded on start up.
 In other GUI changing this was very cumbersome, because the users where forced to edit the INI file.
@@ -1290,14 +1302,14 @@ The file selection screen will use the filters you have set in the INI file,
 if there aren't any filters given, you will only see *NGC* files. The path
 will be set according to the INI settings in [DISPLAY] PROGRAM_PREFIX.
 
-==== Jump to dir
+.Jump to dir
 
 You can set here the directory to jump to if you press the corresponding button
 in the file selection dialog.
 
 image::images/gmoccapy_file_selection_dialog_with_keyboard.png["Directory selection",align="left"]
 
-==== Themes and Sounds
+.Themes and Sounds
 
 This lets the user select what desktop theme to apply and what error and
 messages sounds should be played.
@@ -1310,7 +1322,7 @@ See section <<gmoccapy:icon-theme-section,Icon Theme>> for details.
 // FIXME: GMOCCAPY Hardware Settings screenshot
 image::images/gmoccapy_settings_hardware.png["Hardware settings",align="left"]
 
-==== Hardware MPG Scales
+.Hardware MPG Scales
 
 For the different HAL Pin to connect MPG Wheels to, you may select individual scales to be applied.
 The main reason for this was my own test to solve this through HAL connections, resulting in a very
@@ -1325,7 +1337,7 @@ By default all scales are set using the calculation:
 (MAX - MIN)/100
 ----
 
-==== Keyboard shortcuts
+.Keyboard shortcuts
 
 Some users want to jog there machine using the keyboard buttons and there are others that will never allow this.
 So everybody can select whether to use them or not.
@@ -1362,7 +1374,7 @@ There are additional keys for message handling, see
  * WINDOWS = Delete last message
  * <CTRL><SPACE> = Delete all messages
 
-==== Unlock options
+.Unlock options
 
 There are three options to unlock the settings page:
 
@@ -1373,7 +1385,7 @@ There are three options to unlock the settings page:
 
 Default is use unlock code (default = *123*)
 
-==== Spindle
+.Spindle
 
 The start RPM sets the rpm to be used if the spindle is started and no S value has been set.
 
@@ -1395,7 +1407,8 @@ MAX = 6000
 ----
 
 [[gmoccapy:turtle-jog]]
-Turtle Jog:: [[sub:turtle_jog]]
+[[sub:turtle_jog]]
+.Turtle Jog
   This settings will have influence on the jog velocities.
 
 * 'hide turtle jog button' will hide the button right of the jog velocity
@@ -1418,7 +1431,7 @@ image::images/gmoccapy_settings_advanced.png["Advanced settings",align="left"]
 If this part is not sensitive, you do not have a valid INI file configuration
 to use tool measurement.
 
-==== Tool Measurement
+.Tool Measurement
 
 Please check <<gmoccapy:auto-tool-measurement,Auto Tool Measurement>>
 
@@ -1426,8 +1439,9 @@ Please check <<gmoccapy:auto-tool-measurement,Auto Tool Measurement>>
   measurement will be done, the result will be stored in the tool table and an
   G43 will be executed after the change..
 
-===== Probe Information
-
+Probe Information::
++
+--
 The following information is taken from your INI file and must be given
 in absolute coordinates.
 
@@ -1439,9 +1453,10 @@ in absolute coordinates.
 * Probe Height = is the height of your probe switch, you can measure it.
   Just touch off the base where the probe switch is located and set that to zero.
   Then make a tool change and watch the tool_offset_z value, that is the height you must enter here.
-
-===== Probe velocities
-
+--
+Probe velocities::
++
+--
 * Search Vel. = The velocity to search for the tool switch, after contact
   the tool will go up again and then goes toward the probe again with probe
   vel, so you will get better results.
@@ -1449,9 +1464,10 @@ in absolute coordinates.
   should be slower to get better touch results. (In sim mode, this is
   commented out in macros/change.ngc, otherwise the  user would have to click
   twice on the probe button.)
-
-==== Tool Changer
-
+--
+Tool Changer::
++
+--
 If your fourth axis is used as a tool changer, you may want to hide the
 DRO and all other buttons related to that axis.
 
@@ -1469,9 +1485,10 @@ file, making it possible to reload the last mounted tool on start up.
 The tool will be loaded after all axes are homed, because before it is not
 allowed to execute MDI commands. If you use NO_FORCE_HOMING you can not use
 this feature, because the needed all_homed_signal will never be emitted.
+--
 
 [[gmoccapy:message-behavior]]
-==== Message Behavior And Appearance
+.Message Behavior And Appearance
 
 This will display small pop up windows displaying the message or error text,
 the behavior is very similar to the one axis uses. You can delete a specific
@@ -1497,7 +1514,7 @@ You are able to set some options:
   show a message, so you can see the changes of your settings without the need
   to generate an error.
 
-==== Run From Line Option
+.Run From Line Option
 
 You can allow or disallow the run from line. This will set the corresponding
 button insensitive (grayed out), so the user will not be able to use this
@@ -1506,7 +1523,7 @@ option. The default is disable run from line.
 [WARNING]
 It is not recommend to use run from line, as LinuxCNC will not take care of
 any previous lines in the code before the starting line. So errors or crashes
-are very probable.
+are fairly likely.
 
 [[gmoccapy:icon-theme-section]]
 
