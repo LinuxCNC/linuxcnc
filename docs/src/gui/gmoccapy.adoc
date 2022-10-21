@@ -1,5 +1,5 @@
 :lang: en
-:pin_tab_options: cols="40,10,50", frame="none", grid="none", options="header"
+:pin_tab_options: cols="10,10,50", frame="none", grid="none", options="header"
 :toc:
 :toclevels: 4
 
@@ -518,26 +518,26 @@ The pin names have changed in GMOCCAPY 2 to order them in a better way.
 
 In <<cha:halshow,Halshow>> you will see the pins for the right (vertical) buttons are:
 
-* *gmoccapy.v-button.button-0*
-* *gmoccapy.v-button.button-1*
-* *gmoccapy.v-button.button-2*
-* *gmoccapy.v-button.button-3*
-* *gmoccapy.v-button.button-4*
-* *gmoccapy.v-button.button-5*
-* *gmoccapy.v-button.button-6*
+* *gmoccapy.v-button.button-0* _(bit IN)_
+* *gmoccapy.v-button.button-1* _(bit IN)_
+* *gmoccapy.v-button.button-2* _(bit IN)_
+* *gmoccapy.v-button.button-3* _(bit IN)_
+* *gmoccapy.v-button.button-4* _(bit IN)_
+* *gmoccapy.v-button.button-5* _(bit IN)_
+* *gmoccapy.v-button.button-6* _(bit IN)_
 
 For the bottom (horizontal) buttons they are:
 
-* *gmoccapy.h-button.button-0*
-* *gmoccapy.h-button.button-1*
-* *gmoccapy.h-button.button-2*
-* *gmoccapy.h-button.button-3*
-* *gmoccapy.h-button.button-4*
-* *gmoccapy.h-button.button-5*
-* *gmoccapy.h-button.button-6*
-* *gmoccapy.h-button.button-7*
-* *gmoccapy.h-button.button-8*
-* *gmoccapy.h-button.button-9*
+* *gmoccapy.h-button.button-0* _(bit IN)_
+* *gmoccapy.h-button.button-1* _(bit IN)_
+* *gmoccapy.h-button.button-2* _(bit IN)_
+* *gmoccapy.h-button.button-3* _(bit IN)_
+* *gmoccapy.h-button.button-4* _(bit IN)_
+* *gmoccapy.h-button.button-5* _(bit IN)_
+* *gmoccapy.h-button.button-6* _(bit IN)_
+* *gmoccapy.h-button.button-7* _(bit IN)_
+* *gmoccapy.h-button.button-8* _(bit IN)_
+* *gmoccapy.h-button.button-9* _(bit IN)_
 
 As the buttons in the bottom list will change according to the mode and other
 influences, the hardware buttons will activate the corresponding functions. So you
@@ -614,70 +614,63 @@ for GMOCCAPY 3 the HAL pin name has changed, as new controls has been implemente
 max velocity does not exist any more, as rapid override has been implemented.
 This change has been done as many user ask for that.
 
-To connect 'encoders' the following pin are exported:
+To connect encoders, the following pin are exported:
 
-[{pin_tab_options}]
-|===
-|                   PIN                           |  TYPE   |  FUNCTION
-| gmoccapy.jog.jog-velocity.counts                | HAL_S32 | Jog velocity
-| gmoccapy.jog.jog-velocity.count-enable          | HAL_BIT | Must be True, to enable counts
-| gmoccapy.feed.feed-override.counts              | HAL_S32 | feed override
-| gmoccapy.feed.feed-override.count-enable        | HAL_BIT | Must be True, to enable counts
-| gmoccapy.feed.reset-feed-override               | HAL_BIT | reset the feed override to 100%
-| gmoccapy.spindle.spindle-override.counts        | HAL_S32 | spindle override
-| gmoccapy.spindle.spindle-override.count-enable  | HAL_BIT | Must be True, to enable counts
-| gmoccapy.spindle.reset-spindle-override         | HAL_BIT | reset the spindle override to 100%
-| gmoccapy.rapid.rapid-override.counts            | HAL_S32 | Maximal Velocity of the machine
-| gmoccapy.rapid.rapid-override.count-enable      | HAL_BIT | Must be True, to enable counts
-|===
 
-To connect 'potentiometers', use the following HAL pin:
+- *gmoccapy.jog.jog-velocity.counts*                _(s32 IN)_ - Jog velocity
+- *gmoccapy.jog.jog-velocity.count-enable*          _(bit IN)_ - Must be True, to enable counts
+- *gmoccapy.feed.feed-override.counts*              _(s32 IN)_ - feed override
+- *gmoccapy.feed.feed-override.count-enable*        _(bit IN)_ - Must be True, to enable counts
+- *gmoccapy.feed.reset-feed-override*               _(bit IN)_ - reset the feed override to *0%
+- *gmoccapy.spindle.spindle-override.counts*        _(s32 IN)_ - spindle override
+- *gmoccapy.spindle.spindle-override.count-enable*  _(bit IN)_ - Must be True, to enable counts
+- *gmoccapy.spindle.reset-spindle-override*         _(bit IN)_ - reset the spindle override to *0%
+- *gmoccapy.rapid.rapid-override.counts*            _(s32 IN)_ - Maximal Velocity of the *chine
+- *gmoccapy.rapid.rapid-override.count-enable*      _(bit IN)_ - Must be True, to enable counts
 
-[{pin_tab_options}]
-|===
-|                   PIN                           |  TYPE     |  FUNCTION
-| gmoccapy.jog.jog-velocity.direct-value          | HAL_FLOAT | To adjust the jog velocity slider
-| gmoccapy.jog.jog-velocity.analog-enable         | HAL_BIT   | Must be True, to allow analog inputs
-| gmoccapy.feed.feed-override.direct-value        | HAL_FLOAT | To adjust the feed override slider
-| gmoccapy.feed.feed-override.analog-enable       | HAL_BIT   | Must be True, to allow analog inputs
-| gmoccapy.spindle.spindle-override.direct-value  | HAL_FLOAT | To adjust the spindle override slider
-| gmoccapy.spindle.spindle-override.analog-enable | HAL_BIT   | Must be True, to allow analog inputs
-| gmoccapy.rapid.rapid-override.direct-value      | HAL_FLOAT | To adjust the max velocity slider
-| gmoccapy.rapid.rapid-override.analog-enable     | HAL_BIT   | Must be True, to allow analog inputs
-|===
+
+To connect potentiometers, use the following HAL pin:
+
+
+- *gmoccapy.jog.jog-velocity.direct-value*          _(float IN)_ - To adjust the jog velocity slider
+- *gmoccapy.jog.jog-velocity.analog-enable*         _(bit IN)_   - Must be True, to allow analog inputs
+- *gmoccapy.feed.feed-override.direct-value*        _(float IN)_ - To adjust the feed override slider
+- *gmoccapy.feed.feed-override.analog-enable*       _(bit IN)_   - Must be True, to allow analog inputs
+- *gmoccapy.spindle.spindle-override.direct-value*  _(float IN)_ - To adjust the spindle override slider
+- *gmoccapy.spindle.spindle-override.analog-enable* _(bit IN)_   - Must be True, to allow analog inputs
+- *gmoccapy.rapid.rapid-override.direct-value*      _(float)_    - To adjust the max velocity slider
+- *gmoccapy.rapid.rapid-override.analog-enable*     _(bit IN)_   - Must be True, to allow analog inputs
+
 
 In addition GMOCCAPY 3 offers additional HAL pin to control the new slider widgets with momentary switches.
 The values how fast the increase or decrease will be, must be set in the glade file.
 In a future release it will be integrated in the settings page.
 
-[{pin_tab_options}]
-|===
-|              PIN                 | TYPE         | FUNCTION
-|SPEED                             |              |
-|gmoccapy.spc_jog_vel.increase     |HAL_BIT IN    |as long as True the value of the slider will increase
-|gmoccapy.spc_jog_vel.decrease     |HAL_BIT IN    |as long as True the value of the slider will decrease
-|gmoccapy.spc_jog_vel.scale        |HAL_FLOAT IN  |A value to scale the output value (Handy to change units/min to units/sec
-|gmoccapy.spc_jog_vel.value        |HAL_FLOAT OUT |value of the widget
-|gmoccapy.spc_jog_vel.scaled-value |HAL_FLOAT OUT |scaled value of the widget
-|FEED                              |              |
-|gmoccapy.spc_feed.increase        |HAL_BIT IN    |as long as True the value of the slider will increase
-|gmoccapy.spc_feed.decrease        |HAL_BIT IN    |as long as True the value of the slider will decrease
-|gmoccapy.spc_feed.scale           |HAL_FLOAT IN  |A value to scale the output value (Handy to change units/min to units/sec
-|gmoccapy.spc_feed.value           |HAL_FLOAT OUT |value of the widget
-|gmoccapy.spc_feed.scaled-value    |HAL_FLOAT OUT |scaled value of the widget
-|SPINDLE                           |              |
-|gmoccapy.spc_spindle.increase     |HAL_BIT IN    |as long as True the value of the slider will increase
-|gmoccapy.spc_spindle.decrease     |HAL_BIT IN    |as long as True the value of the slider will decrease
-|gmoccapy.spc_spindle.scale        |HAL_FLOAT IN  |A value to scale the output value (Handy to change units/min to units/sec
-|gmoccapy.spc_spindle.value        |HAL_FLOAT OUT |value of the widget
-|gmoccapy.spc_spindle.scaled-value |HAL_FLOAT OUT |scaled value of the widget
-|RAPIDS                            |              |
-|gmoccapy.spc_rapid.increase       |HAL_BIT IN    |as long as True the value of the slider will increase
-|gmoccapy.spc_rapid.decrease       |HAL_BIT IN    |as long as True the value of the slider will decrease
-|gmoccapy.spc_rapid.scale          |HAL_FLOAT IN  |A value to scale the output value (Handy to change units/min to units/sec)
-|gmoccapy.spc_rapid.value          |HAL_FLOAT OUT |value of the widget
-|gmoccapy.spc_rapid.scaled-value   |HAL_FLOAT OUT |scaled value of the widget
-|===
+
+.SPEED
+- *gmoccapy.spc_jog_vel.increase*      _(bit IN)_    - as long as True the value of the slider will increase
+- *gmoccapy.spc_jog_vel.decrease*      _(bit IN)_    - as long as True the value of the slider will decrease
+- *gmoccapy.spc_jog_vel.scale*         _(float IN)_  - A value to scale the output value (Handy to change units/min to units/sec
+- *gmoccapy.spc_jog_vel.value*         _(float OUT)_ - value of the widget
+- *gmoccapy.spc_jog_vel.scaled-value*  _(float OUT)_ - scaled value of the widget
+.FEED
+- *gmoccapy.spc_feed.increase*         _(bit IN)_    - as long as True the value of the slider will increase
+- *gmoccapy.spc_feed.decrease*         _(bit IN)_    - as long as True the value of the slider will decrease
+- *gmoccapy.spc_feed.scale*            _(float IN)_  - A value to scale the output value (Handy to change units/min to units/sec
+- *gmoccapy.spc_feed.value*            _(float OUT)_ - value of the widget
+- *gmoccapy.spc_feed.scaled-value*     _(float OUT)_ - scaled value of the widget
+.SPINDLE
+- *gmoccapy.spc_spindle.increase*      _(bit IN)_    - as long as True the value of the slider will increase
+- *gmoccapy.spc_spindle.decrease*      _(bit IN)_    - as long as True the value of the slider will decrease
+- *gmoccapy.spc_spindle.scale*         _(float IN)_  - A value to scale the output value (Handy to change units/min to units/sec
+- *gmoccapy.spc_spindle.value*         _(float OUT)_ - value of the widget
+- *gmoccapy.spc_spindle.scaled-value*  _(float OUT)_ - scaled value of the widget
+.RAPIDS
+- *gmoccapy.spc_rapid.increase*        _(bit IN)_    - as long as True the value of the slider will increase
+- *gmoccapy.spc_rapid.decrease*        _(bit IN)_    - as long as True the value of the slider will decrease
+- *gmoccapy.spc_rapid.scale*           _(float IN)_  - A value to scale the output value (Handy to change units/min to units/sec)
+- *gmoccapy.spc_rapid.value*           _(float OUT)_ - value of the widget
+- *gmoccapy.spc_rapid.scaled-value*    _(float OUT)_ - scaled value of the widget
 
 The float pin do accept values from 0.0 to 1.0, being the percentage value
 you want to set the slider value.
@@ -716,22 +709,22 @@ naming of this HAL pin has changed for GMOCCAPY2
 
 For the standard XYZ config following HAL Pin will be available:
 
-* gmoccapy.jog.axis.jog-x-plus
-* gmoccapy.jog.axis.jog-x-minus
-* gmoccapy.jog.axis.jog-y-plus
-* gmoccapy.jog.axis.jog-y-minus
-* gmoccapy.jog.axis.jog-z-plus
-* gmoccapy.jog.axis.jog-z-minus
+- *gmoccapy.jog.axis.jog-x-plus*  _(bit IN)_
+- *gmoccapy.jog.axis.jog-x-minus* _(bit IN)_
+- *gmoccapy.jog.axis.jog-y-plus*  _(bit IN)_
+- *gmoccapy.jog.axis.jog-y-minus* _(bit IN)_
+- *gmoccapy.jog.axis.jog-z-plus*  _(bit IN)_
+- *gmoccapy.jog.axis.jog-z-minus* _(bit IN)_
 
 If you use a 4 axes INI file, there will be two additional pins
 
-* gmoccapy.jog.jog-<your fourth axis letter >-plus
-* gmoccapy.jog.jog-<your fourth axis letter >-minus
+- *gmoccapy.jog.jog-<your fourth axis letter >-plus*  _(bit IN)_
+- *gmoccapy.jog.jog-<your fourth axis letter >-minus* _(bit IN)_
 
 For a "C" axis you will see:
 
-* gmoccapy.jog.axis.jog-c-plus
-* gmoccapy.jog.axis.jog-c-minus
+- *gmoccapy.jog.axis.jog-c-plus*  _(bit IN)_
+- *gmoccapy.jog.axis.jog-c-minus* _(bit IN)_
 
 [[gmoccapy:jog-velocity]]
 === Jog Velocities And Turtle-Jog HAL Pin
@@ -748,7 +741,7 @@ So using a touch screen it is much easier to select smaller velocities.
 
 GMOCCAPY offers a HAL pin to toggle between turtle and rabbit jogging
 
-* gmoccapy.jog.turtle-jog   (HAL Bit In)
+- *gmoccapy.jog.turtle-jog* _(bit IN)_
 
 === Jog Increment HAL Pins
 
@@ -761,17 +754,17 @@ will not be displayed.
 If you have 6 increments in your HAL you will get *7* pins:
 jog-inc-0 is unchangeable and will represent continuous jogging.
 
-* gmoccapy.jog.jog-inc-0
-* gmoccapy.jog.jog-inc-1
-* gmoccapy.jog.jog-inc-2
-* gmoccapy.jog.jog-inc-3
-* gmoccapy.jog.jog-inc-4
-* gmoccapy.jog.jog-inc-5
-* gmoccapy.jog.jog-inc-6
+- *gmoccapy.jog.jog-inc-0* _(bit IN)_
+- *gmoccapy.jog.jog-inc-1* _(bit IN)_
+- *gmoccapy.jog.jog-inc-2* _(bit IN)_
+- *gmoccapy.jog.jog-inc-3* _(bit IN)_
+- *gmoccapy.jog.jog-inc-4* _(bit IN)_
+- *gmoccapy.jog.jog-inc-5* _(bit IN)_
+- *gmoccapy.jog.jog-inc-6* _(bit IN)_
 
 GMOCCAPY offers also a HAL pin to output the selected jog increment:
 
-* gmoccapy.jog.jog-increment
+- *gmoccapy.jog.jog-increment* _(float OUT)_
 
 [[gmoccapy:hardware-unlock]]
 === Hardware Unlock Pin
@@ -779,16 +772,16 @@ GMOCCAPY offers also a HAL pin to output the selected jog increment:
 To be able to use a key switch to unlock the settings page the following
 pin is exported.
 
-* gmoccapy.unlock-settings
+- *gmoccapy.unlock-settings* _(bit IN)_
 
 The settings page is unlocked if the pin is high.
 To use this pin, you need to activate it on the settings page.
 
 === Error/Warning Pins
 
-* gmoccapy.error _BIT OUT_
-* gmoccapy.delete-message _BIT IN_
-* gmoccapy.warning-confirm _BIT IN_ Confirms warning dialog like click on OK
+- *gmoccapy.error* _(bit OUT)_
+- *gmoccapy.delete-message* _(bit IN)_
+- *gmoccapy.warning-confirm* _(bit IN)_ - Confirms warning dialog like click on OK
 
 gmoccapy.error is an bit out pin, to indicate an error, so a light can lit or even the machine may
 be stopped. It will be reset with the pin gmoccapy.delete-message. gmoccapy.delete-message will
@@ -805,20 +798,20 @@ pin will delete the last message if no error is shown!
 
 GMOCCAPY may react to external errors, using 3 different user messages:
 
-*status*
+.status
 
-* 'gmoccapy.messages.status' (bit in) - Triggers the dialog.
+- *gmoccapy.messages.status* _(bit IN)_ - Triggers the dialog.
 
-*okdialog*
+.okdialog
 
-* 'gmoccapy.messages.okdialog' (bit in) - Triggers the dialog.
-* 'gmoccapy.messages.okdialog-waiting' (bit out) - Will be '1' as long as the dialog is open. Closing the message will reset the this pin.
+- *gmoccapy.messages.okdialog* _(bit IN)_ - Triggers the dialog.
+- *gmoccapy.messages.okdialog-waiting* _(bit OUT)_ - Will be '1' as long as the dialog is open. Closing the message will reset the this pin.
 
-*yesnodialog*
+.yesnodialog
 
-* 'gmoccapy.messages.yesnodialog' (bit in) - Triggers the dialog.
-* 'gmoccapy.messages.yesnodialog-waiting' (bit out) - Will be '1' as long as the dialog is open. Closing the message will reset the this pin.
-* 'gmoccapy.messages.yesnodialog-response' (bit out) - This pin will change to '1' if the user clicks OK and in all
+- *gmoccapy.messages.yesnodialog* _(bit IN)_ - Triggers the dialog.
+- *gmoccapy.messages.yesnodialog-waiting* _(bit OUT)_ - Will be '1' as long as the dialog is open. Closing the message will reset the this pin.
+- *gmoccapy.messages.yesnodialog-response* _(bit OUT)_ - This pin will change to '1' if the user clicks OK and in all
   other cases it will be '0'. This pin will remain '1' until the dialog is called again.
 
 To add a user created message you need to add the message to the INI file in the
@@ -854,8 +847,8 @@ For more information about HAL files and the net command see the
 
 There are two pins for spindle feedback:
 
-* gmoccapy.spindle_feedback_bar
-* gmoccapy.spindle_at_speed_led
+- *gmoccapy.spindle_feedback_bar* _(float IN)_
+- *gmoccapy.spindle_at_speed_led* _(bit IN)_
 
 'gmoccapy.spindle_feedback_bar' will accept an float input to show the spindle speed.
 'gmoccapy.spindle_at_speed_led' is an bit-in-pin to lit the GUI led if spindle is at speed.
@@ -864,9 +857,9 @@ There are two pins for spindle feedback:
 
 There are three pins giving information over the program progress:
 
-* gmoccapy.program.length HAL_S32 showing the total number of lines of the program
-* gmoccapy.program.current-line HAL_S32 indicating the current working line of the program
-* gmoccapy.program.progress HAL_FLOAT giving the program progress in percentage
+- *gmoccapy.program.length* _(s32 OUT)_ - showing the total number of lines of the program
+- *gmoccapy.program.current-line* _(s32 OUT)_ - indicating the current working line of the program
+- *gmoccapy.program.progress* _(float OUT)_ - giving the program progress in percentage
 
 The values may not be very accurate, if you are working with subroutines or
 large remap procedures, also loops will cause different values.
@@ -882,10 +875,10 @@ table, so it is up to you what to display.
 
 image::images/manual_toolchange.png["Manual tool change",align="left"]
 
-* gmoccapy.toolchange-number _S32 IN_ The number of the tool to be changed
-* gmoccapy.toolchange-change _BIT IN_ Indicates that a tool has to be changed
-* gmoccapy.toolchange-changed _BIT OUT_ Indicates tool has been changed
-* gmoccapy.toolchange-confirm _BIT IN_ Confirms tool change
+ - *gmoccapy.toolchange-number*  _(s32 IN)_ - The number of the tool to be changed
+ - *gmoccapy.toolchange-change*  _(bit IN)_ - Indicates that a tool has to be changed
+ - *gmoccapy.toolchange-changed* _(bit OUT)_ - Indicates tool has been changed
+ - *gmoccapy.toolchange-confirm* _(bit IN)_ - Confirms tool change
 
 Usually they are connected like this for a manual tool change:
 
@@ -906,8 +899,8 @@ tool information frame. You should know that they are only active after G43 has 
 
 image::images/gmoccapy_0_9_7_tool_info.png["Tool information",align="left"]
 
-* gmoccapy.tooloffset-x
-* gmoccapy.tooloffset-z
+- *gmoccapy.tooloffset-x* _(float IN)_
+- *gmoccapy.tooloffset-z* _(float IN)_
 
 [NOTE]
 Please take care, that this connections have to be done in the postgui HAL file!
@@ -975,11 +968,11 @@ YouTube.
 GMOCCAPY offers 5 pins for tool measurement purpose. The pins are mostly used
 to be read from a G-code subroutine, so the code can react to different values.
 
-* gmoccapy.toolmeasurement HAL_BIT enable or not tool measurement
-* gmoccapy.blockheight HAL_FLOAT the measured value of the top face of the workpiece
-* gmoccapy.probeheight HAL_FLOAT the probe switch height
-* gmoccapy.searchvel HAL_FLOAT the velocity to search for the tool probe switch
-* gmoccapy.probevel HAL_FLOAT the velocity to probe tool length
+- *gmoccapy.toolmeasurement* _(bit OUT)_ - enable or not tool measurement
+- *gmoccapy.blockheight* _(float OUT)_ - the measured value of the top face of the workpiece
+- *gmoccapy.probeheight* _(floiat OUT)_ - the probe switch height
+- *gmoccapy.searchvel* _(float OUT)_ - the velocity to search for the tool probe switch
+- *gmoccapy.probevel* _(float OUT)_ - the velocity to probe tool length
 
 === Tool Measurement INI File Modifications
 
