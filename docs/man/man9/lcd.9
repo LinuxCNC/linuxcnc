@@ -11,7 +11,7 @@ lcd \- Stream HAL data to an LCD screen
 same function. 
 
 .SH PINS
-'TP
+.TP
 .B lcd.\fINN\fB.out\fR (u32) out
 The output byte stream is sent via this pin. One character is sent every thread
 invocation. There in no handshaking provided.
@@ -25,7 +25,7 @@ between them.
 .TP
 .B lcd.\fINN\fB.contrast\fR (float) in
 Attempts to set the contrast of the LCD screen using the byte sequence ESC C and
-then a value from 0x20 to 0xBF (matching the Mesa 7i73). The value should be
+then a value from 0x20 to 0xBF (matching the Mesa 7I73). The value should be
 between 0 and 1. 
 
 .SH PARAMETERS
@@ -39,7 +39,7 @@ parameter to 44 (0x2C).
 \fBlcd\fR takes format strings much like those used in C and many other languages
 in the printf and scanf functions and their variants. 
 
-The component was written specifically to support the Mesa 7i73 pendant
+The component was written specifically to support the Mesa 7I73 pendant
 controller, however it may be of use streaming data to other character devices
 and, as the output format mimics the ADM3 terminal format, it could be used
 to stream data to a serial device. Perhaps even a genuine ADM3. 
@@ -106,31 +106,31 @@ Following the decimal separator should be a number that determines how many
 places of decimals to display. This entry is ignored in the case of integer
 formats. 
 
-All the above modifiers are optional, but to specify a decimal precision the 
-decimal point must precede the precision. For example %.3f. 
- The default decimal precision is 4.
+All the above modifiers are optional, but to specify a decimal precision the
+decimal point must precede the precision, e.g., as in "%.3f". 
+The default decimal precision is 4.
 
 The numerical formats supported are:
 
-\fB%f %F\fR (for example, %+09.3f) These create a floating-point type HAL pin. The example
-would be displayed in a 9-character field, with 3 places of decimals, . as a 
-decimal separator, padded to the left with 0s and with a sign displayed for 
+\fB%f %F\fR (for example, %+09.3f) These create a floating-point type HAL pin.
+The example would be displayed in a 9-character field, with 3 places of decimals,
+as a decimal separator, padded to the left with 0s and with a sign displayed for 
 both positive and negative. Conversely a plain %f would be 6 digits of decimal,
-variable format width, with a sign only shown for negative numbers. both %f and 
-%F create exactly the same format. 
+variable format width, with a sign only shown for negative numbers.
+Both %f and  %F create exactly the same format. 
 
-\fB%i %d\fR (For example %+ 4d) Creates a signed (s32) HAL pin. The example would 
-display the value at a fixed 4 characters, space padded, width including the + 
-giving a range of +999 to \-999. %i and %d create identical output. 
+\fB%i %d\fR (For example %+ 4d) Creates a signed (s32) HAL pin.
+The example would display the value at a fixed 4 characters, space padded,
+width including the "+" giving a range of +999 to \-999. %i and %d create identical output. 
 
-\fB%u\fR (for example %08u) Creates an unsigned (u32) HAL pin. The example would be a
-fixed 8 characters wide, padded with zeros. 
+\fB%u\fR (for example %08u) Creates an unsigned (u32) HAL pin.
+The example would be a fixed 8 characters wide, padded with zeros. 
 
 \fB%x, %X\fR Creates an unsigned (u32) HAL pin and displays the value in Hexadecimal.
-Both %x and %X display capital letters for digits ABCDEF. A width may be
-specified, though the u32 HAL type is only 8 hex digits wide. 
+Both %x and %X display capital letters for digits ABCDEF.
+A width may be specified, though the u32 HAL type is only 8 hex digits wide. 
 
-\fB%o\fR Creates an unsigned (u32) pin and displays the value in Octal. 
+\fB%o\fR Creates an unsigned (u32) pin and displays the value in octal representation. 
 
 \fB%c\fR Creates a u32 HAL pin and displays the character corresponding to the value
 of the pin. Values less than 32 (space) are suppressed. A width specifier may
@@ -147,16 +147,15 @@ right-arrow for false and left-arrow for true. An unexpected value of 'E'
 indicates a formatting error. 
 
 \fBPages\fR
-The page separator is the "|" (pipe) character. (if the actual character is 
-needed then \e7C may be used). A "Page" in this context refers to a separate 
-format which may be displayed on the same display. 
+The page separator is the "|" (pipe) character (if the actual character is needed then \e7C may be used).
+A "Page" in this context refers to a separate format which may be displayed on the same display. 
 
 \fBInstances\fR
 The instance separator is the comma. This creates a completely separate lcd
-instance, for example to drive a second lcd display on the second 7i73. 
+instance, for example to drive a second lcd display on the second 7I73. 
 The use of comma to separate instances is built in to the modparam reading code
-so not even escaped commas "\e," can be used. A comma may be displayed by using
-the \e2C sequence. 
+so not even escaped commas "\e," can be used.
+A comma may be displayed by using the \e2C sequence. 
 
 
 

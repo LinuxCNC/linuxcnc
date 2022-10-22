@@ -2,7 +2,7 @@
 
 = Source Highlight Filter Test
 
-// For now, PDF's can't have highlighted ini,hal or ngc files.
+// For now, PDF's can't have highlighted INI, HAL or NGC files.
 // For brave souls: extend /usr/share/texmf-texlive/tex/latex/listings/lstlang1.sty
 // and make it a local copy in the current directory.
 // HTML works fine.
@@ -12,7 +12,7 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-// Begin a listing of ini/hal/ngc files like so:
+// Begin a listing of INI/HAL/NGC files like so:
 //[source,{ini}]
 //[source,{hal}]
 //[source,{ngc}]

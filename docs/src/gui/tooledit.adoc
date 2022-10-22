@@ -13,9 +13,8 @@
 == Overview
 
 [NOTE]
-The tooledit elements described here are available
-in version 2.5.1 and later. In version 2.5.0, the graphical interface
-interface does not allow these adjustments.
+The tooledit elements described here are available since version 2.5.1 and later.
+In version 2.5.0, the graphical interface interface does not allow these adjustments.
 
 .Tool Edit GUI - Overview
 image::images/tooledit.png["Tool Edit GUI - Overview",align="center",width="640"]

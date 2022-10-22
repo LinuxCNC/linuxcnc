@@ -650,7 +650,7 @@ The most frequently used keyboard shortcuts are shown in the following table:
 |#                |Toggle Relative/Machine                   |Any
 |===
 
-== Show LinuxCNC Status (linuxcnctop)
+== Show LinuxCNC Status (`linuxcnctop`)
 
 AXIS includes a program called 'linuxcnctop' which shows some of the
 details of LinuxCNC's state. You can run this program by invoking Machine >
@@ -924,7 +924,7 @@ root_window.tk.call("wm","protocol",".","WM_DELETE_WINDOW","destroy .")
 
 === USER_COMMAND_FILE
 
-A configuration-specific python file may be specified with an INI file
+A configuration-specific Python file may be specified with an INI file
 setting '[DISPLAY]USER_COMMAND_FILE=filename.py'.  Like a `~/.axisrc` file,
 this file is sourced just before the AXIS GUI is displayed.  This file
 is specific to an INI file configuration not the user's home directory.
@@ -934,8 +934,8 @@ is specific to an INI file configuration not the user's home directory.
 The AXIS GUI includes a no-op (placeholder) function named
 'user_live_update()' that is executed at the conclusion of the update()
 function of its LivePlotter class.  This function may be implemented
-within a `~/.axisrc` python script or a '[DISPLAY]USER_COMMAND_FILE'
-python script to make custom, periodic actions.  The details of what may
+within a `~/.axisrc` Python script or a '[DISPLAY]USER_COMMAND_FILE'
+Python script to make custom, periodic actions.  The details of what may
 be accomplished in this function are dependent on the AXIS GUI
 implementation and subject to change during the development cycle.
 
@@ -946,8 +946,8 @@ The AXIS GUI includes a no-op (placeholder) function named
 It is executed just after the .axisrc file is called and
 just before any GladeVCP panels / embedded tabs are initialized. +
 This function may be implemented
-within a `~/.axisrc` python script or a '[DISPLAY]USER_COMMAND_FILE'
-python script to make custom HAL pins that use the 'axisui.' prefix. +
+within a `~/.axisrc` Python script or a '[DISPLAY]USER_COMMAND_FILE'
+Python script to make custom HAL pins that use the 'axisui.' prefix. +
 Use 'comp' as the HAL component instance reference. +
 HAL comp.ready() is called just after this function returns.
 
@@ -1149,11 +1149,11 @@ machine = inifile.find('EMC','MACHINE')
 print('machine name =',machine)
 ----
 
-=== Read linuxcnc Status
+=== Read LinuxCNC Status
 
 [source,python]
 ----
-# linuxcnc status can be read from s.
+# LinuxCNC status can be read from s.
 print(s.actual_position)
 print(s.paused)
 ----

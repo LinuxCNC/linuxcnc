@@ -93,13 +93,13 @@ as *`path`*:
 *`PANELDIR`*:: Path of builtin accessory panels
 *`WORKINGDIR`*:: Path of where QtVCP was launched from
 *`CONFIGPATH`*:: Path of the launched configuration
-*`BASEDIR`*:: general path, used to derive all paths
+*`BASEDIR`*:: General path, used to derive all paths
 *`BASENAME`*:: Generic name used to derive all paths
 *`LIBDIR`*:: Path of QtVCP's Python library
 *`HANDLER`*:: Path of handler file
 *`XML`*:: Path of .ui file
 *`DOMAIN`*:: Path of translation
-*`IS_SCREEN`*:: screen/panel switch
+*`IS_SCREEN`*:: Screen/panel switch
 
 == Idiosyncrasies
 
@@ -170,13 +170,13 @@ It is not called when using Qt Designer editor.
 After this function is called the widget has access to some special
 variables:
 
-*`self.HAL_GCOMP`*:: the _HAL component_ instance
+*`self.HAL_GCOMP`*:: The _HAL component_ instance
 *`self.HAL_NAME`*:: This _widget's name_ as a string
 *`self.QT_OBJECT_`*:: This _widget's PyQt object instance_
 *`self.QTVCP_INSTANCE_`*:: The _very top level parent_ of the screen
 *`self.PATHS_`*:: The _instance of QtVCP's path_ library
-*`self.PREFS_`*:: the _instance of an optional preference file_
-*`self.SETTINGS_`*:: the `Qsettings` _object_
+*`self.PREFS_`*:: The _instance of an optional preference file_
+*`self.SETTINGS_`*:: The `Qsettings` _object_
 
 When making a custom widget, _import and sub class _the
 *`+_HalWidgetBase+`* class for this behavior.

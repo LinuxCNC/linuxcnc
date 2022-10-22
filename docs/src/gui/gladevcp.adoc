@@ -13,7 +13,7 @@
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
-// begin a listing of ini/hal/ngc files like so:
+// begin a listing of INI/HAL/NGC files like so:
 //[source,{ini}]
 //[source,{hal}]
 //[source,{ngc}]
@@ -1329,12 +1329,12 @@ image::images/hal_meter.png[align="center"]
 This widget is for plotting values over time.
 
 [[gladevcp:hal-gremlin]]
-=== Gremlin tool path preview for .ngc files
+=== Gremlin tool path preview for NGC files
 
 Gremlin is a plot preview widget similar to the AXIS preview window.
 It assumes a running LinuxCNC environment like AXIS or Touchy. To connect to
 it, inspects the INI_FILE_NAME environment variable. Gremlin displays
-the current .ngc file - it does monitor for changes and reloads the ngc
+the current NGC file - it does monitor for changes and reloads the ngc
 file if the file name in AXIS/Touchy changes. If you run it in a
 GladeVCP application when LinuxCNC is not running, you might get a traceback
 because the Gremlin widget can't find LinuxCNC status, like the current file name.
