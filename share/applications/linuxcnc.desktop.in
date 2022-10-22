@@ -8,5 +8,6 @@ Icon=@EMC2_ICON@
 X-GNOME-DocPath=
 Terminal=false
 StartupNotify=false
+X-AppStream-Ignore=true
 Categories=Science;Utility;Engineering;X-CNC;
 Keywords=cnc;linuxcnc;cncprog;
