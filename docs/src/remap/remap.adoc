@@ -2542,19 +2542,18 @@ The actions happening in LinuxCNC are a bit involved, but it's necessary
 to get the overall idea what currently happens before you set out to
 adapt those workings to your own needs.
 
-Note that remapping an existing code completely disables all internal
-processing for that code. That means that beyond your desired
-behavior - probably described through an NGC Oword or Python
-procedure, you need to replicate those internal actions of the
-interpreter which together result in a complete replacement of the
-existing code. The prolog and epilog code is the place to do this.
+Note that remapping an existing code completely disables all internal processing for that code.
+That means that beyond your desired behavior (probably described through an NGC O-word or Python procedure),
+you need to replicate those internal actions of the interpreter,
+which together result in a complete replacement of the existing code.
+The prolog and epilog code is the place to do this.
 
 .How tool information is communicated
-Several processes are 'interested' in tool information: `task` and its
-interpreter, as well as the user interface. Also, the 'halui' process.
+Several processes are 'interested' in tool information: `task` and its interpreter,
+as well as the user interface. Also, the 'halui' process.
 
-Tool information is held in the 'emcStatus' structure, which is
-shared by all parties. One of its fields is the 'toolTable' array,
+Tool information is held in the 'emcStatus' structure, which is shared by all parties.
+One of its fields is the 'toolTable' array,
 which holds the description as loaded from the tool table file (tool
 number, diameter, frontangle, backangle and orientation for lathe,
 tool offset information).
@@ -2583,8 +2582,7 @@ To see fields in the global emcStatus structure, try this:
 ;py,print(emcstat.io.tool.toolTable[0])
 ----
 
-You need to have LinuxCNC started from a terminal window to see the
-results.
+You need to have LinuxCNC started from a terminal window to see the results.
 
 === How Tx (Prepare Tool) works
 
@@ -2614,7 +2612,7 @@ tool is next, raises the "tool-prepare" pin, and waits for the
 
 When the changer responds by asserting "tool-prepared", it considers
 the prepare phase to be completed and signals `task` to
-continue. (again, this 'wait' istn strictly necessary IMO)
+continue. Aagain, this 'wait' is not strictly necessary IMO.
 
 .Building the prolog and epilog for Tx
 See the Python functions `prepare_prolog` and `prepare_epilog` in
@@ -2622,9 +2620,9 @@ See the Python functions `prepare_prolog` and `prepare_epilog` in
 
 === How M6 (Change tool) works
 
-You need to understand this fully before you can adapt it. It is very
-relevant to writing a prolog and epilog handler for a remapped
-M6. Remapping an existing codes means you disable the internal steps
+You need to understand this fully before you can adapt it.
+It is very relevant to writing a prolog and epilog handler for a remapped M6.
+Remapping an existing codes means you disable the internal steps
 taken normally, and replicate them as far as needed for your own
 purposes.
 
