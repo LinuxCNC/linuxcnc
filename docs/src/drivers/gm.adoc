@@ -82,7 +82,7 @@ gm.<card_no>.gpio.<gpio_con_no>
 where _<gpio_con_no>_ is from 0 to 3.
 
 .State of the first pin of the first GPIO connector on the GM6-PCI card.
-[source,{hal}]
+
 ----
 gm.0.gpio.0.in-0
 ----
@@ -229,6 +229,7 @@ For example, if position-scale is 2000, then 1000 counts of the encoder will pro
 .HAL example
 
 .Setting encoder module of axis 0 to receive 500 CPR quadrature encoder signal and use reset to round position.
+[source,{hal}]
 ----
 setp gm.0.encoder.0.counter-mode 0         # 0: quad, 1: stepDir
 setp gm.0.encoder.0.index-mode 1           # 0: reset pos at index, 1:round pos at index
@@ -239,6 +240,7 @@ setp gm.0.encoder.0.position-scale 20000   # 10 encoder rev cause the machine to
 ----
 
 .Connect encoder position to LinuxCNC joint position feedback
+[source,{hal}]
 ----
 net Xpos-fb gm.0.encoder.0.position => joint.0.motor-pos-fb
 ----
@@ -325,6 +327,7 @@ setp gm.0.stepgen.0.dirdelay 2000       # 2000 ns = 2 µs
 ----
 
 .Connect StepGen to axis 0 position reference and enable pins
+[source,{hal}]
 ----
 net Xpos-cmd joint.0.motor-pos-cmd => gm.0.stepgen.0.position-cmd
 net Xen joint.0.amp-enable-out => gm.0.stepgen.0.enable
@@ -660,10 +663,10 @@ m| .invert-relay-<0-7> | (bit, R/W)         | Negate relay output pin
 
 .HAL example
 ----
-  gm.0.rs485.0.relay-0  # First relay of the node.
-# gm.0                  # Identifies the first GM6-PCI motion control card (PCI card address = 0)
-#    .rs485.0           # Selects node with address 0 on the RS485 bus
-#            .relay-0   # Selects the first relay
+  gm.0.rs485.0.relay-0   # First relay of the node.
+# gm.0                   # Identifies the first GM6-PCI motion control card (PCI card address = 0)
+#     .rs485.0           # Selects node with address 0 on the RS485 bus
+#             .relay-0   # Selects the first relay
 ----
 
 === Digital input module
@@ -696,10 +699,10 @@ m| .in-not-_<0-7>_ | (bit, Out)         | Negated input pin
 
 .HAL example
 ----
-gm.0.rs485.0.in-0 # First input of the node.
-# gm.0 # Identifies the first GM6-PCI motion control card (PCI card address = 0)
-#   .rs485.0 # Selects node with address 0 on the RS485 bus
-#           .in-0 # Selects the first digital input module
+  gm.0.rs485.0.in-0   # First input of the node.
+# gm.0                # Identifies the first GM6-PCI motion control card (PCI card address = 0)
+#     .rs485.0        # Selects node with address 0 on the RS485 bus
+#             .in-0   # Selects the first digital input module
 ----
 
 === DAC & ADC module
@@ -747,10 +750,10 @@ m| .dac-low-limit-_<0-3>_  | (float, R/W)       | Minimum output voltage of the 
 
 .HAL example
 ----
-gm.0.rs485.0.adc-0 # First analogue channel of the node.
-# gm.0 # Identifies the first GM6-PCI motion control card (PCI card address = 0)
-#   .rs485.0 # Selects node with address 0 on the RS485 bus
-#            .adc-0 # Selects the first analogue input of the module
+  gm.0.rs485.0.adc-0   # First analogue channel of the node.
+# gm.0                 # Identifies the first GM6-PCI motion control card (PCI card address = 0)
+#     .rs485.0         # Selects node with address 0 on the RS485 bus
+#             .adc-0   # Selects the first analogue input of the module
 ----
 
 === Teach Pendant module
@@ -801,10 +804,10 @@ m| .enc-position-scale  | (float, R/W)       | Scale in per length unit.
 
 .HAL example
 ----
-gm.0.rs485.0.adc-0 # First analogue channel of the node.
-# gm.0 # Identifies the first GM6-PCI motion control card (PCI card address = 0)
-#   .rs485.0 # Selects node with address 0 on the RS485 bus
-#           .adc-0 # Selects the first analogue input of the module
+  gm.0.rs485.0.adc-0  # First analogue channel of the node.
+# gm.0                # Identifies the first GM6-PCI motion control card (PCI card address = 0)
+#     .rs485.0        # Selects node with address 0 on the RS485 bus
+#             .adc-0  # Selects the first analogue input of the module
 ----
 
 == Errata
