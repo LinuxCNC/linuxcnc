@@ -2024,8 +2024,8 @@ class gmoccapy(object):
                 print(f"Warning: preferred icon-theme '{icon_theme_preference}' not found; switching to 'default'.")
                 icon_theme_choice.set_active(0)
 
-        # load icon theme
-        self._set_icon_theme(model[icon_theme_choice.get_active_iter()][1])
+        # load default icon theme
+        self._set_icon_theme("classic")
 
 
     def _init_audio(self):
