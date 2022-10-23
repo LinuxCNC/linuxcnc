@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Name=G-Code Quick Reference - DE
+Comment=Quick reference for G, M, and O codes in LinuxCNC (German)
+Type=Application
+Exec=x-www-browser /usr/share/doc/linuxcnc/gcode_de.html
+Icon=linuxcnc_de
+X-GNOME-DocPath=
+Terminal=false
+StartupNotify=false
+X-AppStream-Ignore=true
+Categories=Science;Engineering;X-CNC-REF;
+Keywords=cnc;linuxcnc;cncdoc;
