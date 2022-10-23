@@ -1,7 +1,7 @@
 [Desktop Entry]
 Version=1.0
 Name=Integrator Information - FR
-Comment=Documentation for the integrator of LinucCNC
+Comment=Documentation for the integrator of LinuxCNC
 Type=Application
 Exec=xdg-open /usr/share/doc/linuxcnc/LinuxCNC_Integrator_fr.pdf
 Icon=linuxcnc_fr

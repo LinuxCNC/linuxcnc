@@ -1,10 +1,10 @@
 [Desktop Entry]
 Version=1.0
-Name=Integrator Information - EN
-Comment=Documentation for the integrator of LinuxCNC
+Name=Getting Started Guide - DE
+Comment=Information on how to download and install LinuxCNC (German)
 Type=Application
-Exec=xdg-open /usr/share/doc/linuxcnc/LinuxCNC_Integrator.pdf
-Icon=linuxcnc_en
+Exec=xdg-open /usr/share/doc/linuxcnc/LinuxCNC_Getting_Started_de.pdf
+Icon=linuxcnc_de
 X-GNOME-DocPath=
 Terminal=false
 StartupNotify=false
