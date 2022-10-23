@@ -39,7 +39,7 @@ also have some disadvantages:
 - jitter in the generated pulses
 - loads the CPU
 
-The best way to find out how well your PC will lrun LinuxCNC
+The best way to find out how well your PC will run LinuxCNC
 is to run the HAL latency test.
 To run the test, open a terminal window
 (in Ubuntu, from Applications → Accessories → Terminal)
@@ -66,7 +66,7 @@ For available options, on the command line enter:
 latency-test -h
 ----
 
-After stating a latency test you should see something like this:
+After starting a latency test you should see something like this:
 
 .HAL Latency Test
 image::../config/images/latency-test_en.png["HAL Latency Test",align="center"]
