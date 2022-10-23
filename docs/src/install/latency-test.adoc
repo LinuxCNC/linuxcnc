@@ -262,5 +262,21 @@ Sysctl::
     * `sysctl.kernel.sched_rt_runtime_us`: Set to -1 to remove the limit
       on how much time realtime tasks may use.
 
+In addition, LinuxCNC (on Preempt-RT) has two different timing modes
+for realtime threads.  Which one has the best performance must also be
+experimentally determined (and the optimal kernel tuning may differ for
+the different thread timing modes, making system tuning challenging).
+
+The default thread timing mode is called "sleep", and is used by default
+if not special action is taken by the user.  In this mode, all LinuxCNC
+realtime threads share a single CPU, and sleep (yielding the CPU to
+other LinuxCNC realtime tasks) when they're not actively running.
+
+The alternate thread timing mode is called "busywait", and can be enabled
+by setting the environment variable `RTAPI_THREAD_TIMING_MODE="busywait"`.
+In this mode each LinuxCNC realtime thread runs on its own CPU, and
+busywaits (hogging all the CPU time on that CPU) until it's time to
+run again.
+
 
 // vim: set syntax=asciidoc:
