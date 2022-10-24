@@ -1,4 +1,4 @@
-GMOCCAPY_MODULES = dialogs getiniinfo notification player preferences widgets
+GMOCCAPY_MODULES = dialogs getiniinfo notification player preferences widgets icon_theme_helper
 
 PYTARGETS += ../bin/gmoccapy ../lib/python/gmoccapy/__init__.py $(patsubst %,../lib/python/gmoccapy/%.py,$(GMOCCAPY_MODULES)) \
 	../share/gmoccapy/gmoccapy.glade 
