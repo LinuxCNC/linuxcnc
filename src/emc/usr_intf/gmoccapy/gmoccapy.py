@@ -135,6 +135,7 @@ USERTHEMEDIR = os.path.join(os.path.expanduser("~"), ".themes")
 LOCALEDIR = os.path.join(BASE, "share", "locale")
 ICON_THEME_DIR = os.path.join(DATADIR, "icons")
 USER_ICON_THEME_DIR = os.path.join(os.path.expanduser("~"), ".icons")
+DEFAULT_ICON_THEME = "classic"
 
 # path to TCL for external programs eg. halshow
 TCLPATH = os.environ['LINUXCNC_TCL_DIR']
@@ -2000,7 +2001,7 @@ class gmoccapy(object):
         for icon_theme in valid_icon_themes:
             model.append(icon_theme)
 
-        icon_theme_preference = self.prefs.getpref("icon_theme", None, str)
+        icon_theme_preference = self.prefs.getpref("icon_theme", DEFAULT_ICON_THEME, str)
         icon_theme_choice = self.widgets.icon_theme_choice
         with(icon_theme_choice.handler_block(icon_theme_helper.find_handler_id_by_signal(icon_theme_choice, "changed"))):
             try:
@@ -2010,8 +2011,8 @@ class gmoccapy(object):
                 print(f"Warning: preferred icon-theme '{icon_theme_preference}' not found; switching to 'default'.")
                 icon_theme_choice.set_active(0)
 
-        # load default icon theme
-        self._set_icon_theme("classic")
+        # load icon theme
+        self._set_icon_theme(model[icon_theme_choice.get_active_iter()][1])
 
 
     def _init_audio(self):
