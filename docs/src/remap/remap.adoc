@@ -316,7 +316,7 @@ It is an error to omit the '<code>' parameter.
 The options of the REMAP statement are separated by whitespace. The options are
 keyword-value pairs and currently are:
 
-``modalgroup=``_<modal group>_::
+`modalgroup=`__<modal group>__::
   G-codes;; the only currently supported modal group is 1, which
   is also the default value if no group is given. Group 1 means
   'execute alongside other G-codes'.
@@ -1230,7 +1230,7 @@ laid out in the previous example:
 This error message will be displayed in the UI, and returning
 INTERP_ERROR will cause this error handled like any other runtime error.
 
-Note that both ``(abort, ``_msg_``)`` and returning INTERP_ERROR from an
+Note that both `(abort,` __<msg>__ `)` and returning INTERP_ERROR from an
 epilog will cause any ON_ABORT handler to be called as well if defined
 (see previous section).
 
@@ -2591,7 +2591,7 @@ tool is next, raises the "tool-prepare" pin, and waits for the
 
 When the changer responds by asserting "tool-prepared", it considers
 the prepare phase to be completed and signals `task` to
-continue. Aagain, this 'wait' is not strictly necessary IMO.
+continue. Again, this 'wait' is not strictly necessary IMO.
 
 .Building the prolog and epilog for Tx
 See the Python functions `prepare_prolog` and `prepare_epilog` in
