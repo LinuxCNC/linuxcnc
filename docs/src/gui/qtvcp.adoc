@@ -1010,8 +1010,7 @@ def closeEvent(self, event):
     event.accept()
 ----
 
-NOTE: It is usually better to use the special `closing_cleanup__`
-  function.
+NOTE: It is usually better to use the special `closing_cleanup__` function.
 
 == Connecting Widgets to Python Code
 
