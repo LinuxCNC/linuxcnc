@@ -33,7 +33,7 @@ halrmt \- remote-control interface for LinuxCNC
 .SH OPTIONS
 
   With -- --port Waits for socket connections (telnet) on specified socket, without port
-            specifcation it uses default port 5006. (note: linuxcncrsh uses 5007 as default)
+            specification it uses default port 5006. (note: linuxcncrsh uses 5007 as default)
   With -- --name <server name> Sets the server name to specified name for Hello.
   With -- --connectpw <password> Sets the connection password to 'password'. Default EMC
   With -- --enablepw <password> Sets the enable password to 'password'. Default EMCTOO
@@ -42,8 +42,8 @@ halrmt \- remote-control interface for LinuxCNC
   With -- -ini \fI<INI file>\fR, uses the specified \fIINI file\fR instead of the default emc.ini. 
 
 .SH DESCRIPTION
-\fBhalrmt\fR supports six commands of which the commands set and get contain HAL
-specific sub-commands based on the commands supported by halcmd. Commands and 
+\fBhalrmt\fR supports six commands of which the commands \fIset\fR and \fIget\fR contain HAL
+specific sub-commands based on the commands supported by \fIhalcmd\fR. Commands and 
 most parameters are not case sensitive. The exceptions are passwords, 
 file paths and text strings.
   
