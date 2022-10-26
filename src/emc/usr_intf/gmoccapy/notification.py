@@ -34,6 +34,11 @@ from gi.repository import Gtk
 from gi.repository import GObject
 from gi.repository import Pango
 
+try:
+    from gmoccapy import icon_theme_helper
+except:
+    import icon_theme_helper    # only for testing purpose, otherwise the main method in this file would fail
+
 class Notification(Gtk.Window):
     '''Notification(Gtk.Window)
        will show popup windows with messages and icon
@@ -107,7 +112,7 @@ class Notification(Gtk.Window):
         else:
             icon_name = "dialog_warning"
         default_style = Gtk.Button().get_style_context()
-        pixbuf = self._load_symbolic_from_icon_theme(icon_name, self.icon_size, default_style)
+        pixbuf = icon_theme_helper.load_symbolic_from_icon_theme(self.icon_theme, icon_name, self.icon_size, default_style)
         icon.set_from_pixbuf(pixbuf)
         hbox.pack_start(icon, False, False, 0)
         label = Gtk.Label()
@@ -131,7 +136,7 @@ class Notification(Gtk.Window):
         btn_close = Gtk.Button()
         btn_close.set_name("notification_close")
         image = Gtk.Image()
-        pixbuf = self._load_symbolic_from_icon_theme("window_close", self.icon_size, default_style)
+        pixbuf = icon_theme_helper.load_symbolic_from_icon_theme(self.icon_theme ,"window_close", self.icon_size, default_style)
         image.set_from_pixbuf(pixbuf)
         btn_close.set_image(image)
         btn_close.set_border_width(2)
@@ -295,48 +300,16 @@ class Notification(Gtk.Window):
             print('Attribute error', property, "and", type(value) , value)
             pass
 
-
-    def _load_symbolic_from_icon_theme(self, icon_name, size, style = None ):
-        """Load a symbolic icon from the current icon theme.
-        If style is given, the symolic icon will be recolored based on colors derive from the stylecontext:
-         foreground color from Gtk.StateFlags.NORMAL, success_color, warning_color and error_color by calling
-         the corresponding lookup_color method.
-        If style is None, the icon is loaded via the Gtk.IconInfo.load_icon method without recoloring.
-
-        :param icon_name: The icon name
-        :type icon_name: str
-        :param size: Icon size to load
-        :type size: int
-        :param style: The style context to derive the colors from
-        :type style: Gtk.StyleContext
-        :return: GdkPixbuf.Pixbuf
-        :raises: ValueError: if icon lookup fails (usually if the theme does not contain a icon with this name)
-        """
-        lookup_flags = Gtk.IconLookupFlags.USE_BUILTIN | Gtk.IconLookupFlags.FORCE_SYMBOLIC | Gtk.IconLookupFlags.FORCE_SIZE
-        icon_info = self.icon_theme.lookup_icon(icon_name, size, lookup_flags)
-        if icon_info is None:
-            raise ValueError(f"Lookup icon '{icon_name}' failed")
-
-        pixbuf = None
-        if style is not None:
-            fg = style.get_color(Gtk.StateFlags.NORMAL)
-            __, success_color = style.lookup_color("success_color")
-            __, warning_color = style.lookup_color("warning_color")
-            __, error_color = style.lookup_color("error_color")
-
-            pixbuf, _ = icon_info.load_symbolic(fg, success_color, warning_color, error_color)
-        else:
-            pixbuf = icon_info.load_icon()
-
-        return pixbuf
-
 # for testing without glade editor:
 def main():
 
     notification = Notification()
+    notification.icon_theme.append_search_path("../../../../share/gmoccapy/icons/") # relative from this file location
     notification.icon_theme.append_search_path("../share/gmoccapy/icons/")
     notification.icon_theme.append_search_path("/usr/share/gmoccapy/icons/")
-    notification.icon_theme.set_custom_theme("classic")
+    # notification.icon_theme.set_custom_theme("classic")
+    notification.icon_theme.set_custom_theme("material")
+    # notification.icon_theme.set_custom_theme("material-light")
     notification.add_message('This is a warning', 'dialog_warning')
     notification.add_message('Hallo World this is a long string that have a linebreak ', 'dialog_information')
     notification.add_message('This has a default icon')
