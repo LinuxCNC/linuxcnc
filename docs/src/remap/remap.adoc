@@ -327,27 +327,27 @@ keyword-value pairs and currently are:
 
   T,S,F;; for these the modal group is fixed and any `modalgroup=` option is ignored.
 
-``argspec=``__<argspec>__::
+`argspec=`__<argspec>__::
   See <<sub:argspec-parameter, description of the argspec parameter options>>. Optional.
 
-``ngc=``__<ngc_basename>__::
+`ngc=`__<ngc_basename>__::
   Basename of an O-word subroutine file name.
   Do not specify an .ngc extension.
   Searched for in the directories specified in the directory specified in `[DISPLAY]PROGRAM_PREFIX`,
   then in `[RS274NGC]SUBROUTINE_PATH`.
   Mutually exclusive with `python=`. It is an error to omit both `ngc=` and  `python=`.
 
-``python=``__<Python function name>__::
+`python=`__<Python function name>__::
   Instead of calling an ngc O-word procedure call a Python function.
   The function is expected to be defined in the `module_basename.oword` module.
   Mutually exclusive with `ngc=`.
 
-``prolog=``__<Python function name>__::
+`prolog=`__<Python function name>__::
   Before executing an ngc procedure, call this Python function.
   The function is expected to be defined in the `module_basename.remap` module.
   Optional.
 
-``epilog=``__<Python function name>__::
+`epilog=`__<Python function name>__::
   After executing an ngc procedure, call this Python function.
   The function is expected to be defined in the `module_basename.remap` module.
   Optional.
@@ -365,12 +365,12 @@ identical.
 Note that while many combinations of argspec options are possible, not
 all of them make sense. The following combinations are useful idioms:
 
-``argspec=``__<words>__ ``ngc=``__<procname>__ ``modalgroup=``___<group>__::
+`argspec=`__<words>__ `ngc=`__<procname>__ `modalgroup=`___<group>__::
   The recommended way to call an NGC procedure with a standard argspec parameter
   conversion. Used if argspec is good enough. Note it's not good
   enough for remapping the Tx and M6/M61 tool change codes.
 
-``prolog=``__<pythonprolog>__ ``ngc=``__<procname>__ ``epilog=``__<pythonepilog>__ ``modalgroup=``__<group>__::
+`prolog=`__<pythonprolog>__ `ngc=`__<procname>__ `epilog=`__<pythonepilog>__ `modalgroup=`__<group>__::
   Call a Python prolog function to take any preliminary steps, then call the NGC
   procedure. When done, call the Python epilog function to do any
   cleanup or result extraction work which cannot be handled in G-code.
@@ -379,13 +379,13 @@ all of them make sense. The following combinations are useful idioms:
   internal functions may be accessed from the prolog and epilog
   handlers. Also, a longer rope to hang yourselves.
 
-``python=``__<pythonfunction>__ ``modalgroup=``__<group>__::
+`python=`__<pythonfunction>__ `modalgroup=`__<group>__::
   Directly call to a Python function without any argument conversion.
   The most powerful way of remapping a code and going straight to
   Python. Use this if you don't need an NGC procedure, or NGC is
   just getting in your way.
 
-``argspec=``__<words>__ ``python=``__<pythonfunction>__ ``modalgroup=``__<group>__::
+`argspec=`__<words>__ `python=`__<pythonfunction>__ `modalgroup=`__<group>__::
   Convert the argspec words and pass them to a Python function as
   keyword argument dictionary. Use it when you're too lazy to
   investigate words passed on the block yourself.
@@ -661,7 +661,7 @@ $ echo 'from stdglue import *' >remap.py
 $ echo 'import remap' >toplevel.py
 ---------------------------------------------------------------------
 
-Now edit ``/home/user/``__xxx__``/``__xxx__``.ini`` and add the following:
+Now edit `/home/user/xxx/xxx.ini` and add the following:
 
 [source,{ini}]
 ---------------------------------------------------------------------
@@ -914,7 +914,7 @@ change by configuring like so:
 # loop change signals when remapping M6
 net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
 ---------------------------------------------------------------------
-If you for some reason want to remap `T__x__` (prepare), the corresponding
+If you for some reason want to remap `Tx` (prepare), the corresponding
 `iocontrol` pins need to be looped as well.
 
 === Writing the change and prepare O-word procedures
@@ -929,11 +929,11 @@ Exposed parameters are set up in the respective prolog, and inspected in the epi
 They can be changed in the remap procedure and the change will be picked up in the epilog.
 The exposed parameters for remappable built in codes are:
 
-- `T` (prepare_prolog): `#__<tool>__` , `#__<pocket>__`
-- `M6` (change_prolog): `#__<tool_in_spindle>__`, `#__<selected_tool>__`, `#__<current_pocket>__`, `#__<selected_pocket>__`
-- `M61` (settool_prolog): `#__<tool>__` , `#__<pocket>__`
-- `S` (setspeed_prolog):  `#__<speed>__`
-- `F` (setfeed_prolog):  `#__<feed>__`
+- `T` (prepare_prolog): `#<tool>` , `#<pocket>`
+- `M6` (change_prolog): `#<tool_in_spindle>`, `#<selected_tool>`, `#<current_pocket>`, `#<selected_pocket>`
+- `M61` (settool_prolog): `#<tool>` , `#<pocket>`
+- `S` (setspeed_prolog):  `#<speed>`
+- `F` (setfeed_prolog):  `#<feed>`
 
 If you have specific needs for extra parameters to be made visible,
 that can simply be added to the prolog - practically all of the interpreter internals are visible to Python.
@@ -1156,7 +1156,7 @@ If you determine in your handler procedure that some error condition
 occurred, do not use `M2` to end your handler - see above:
 
 If displaying an operator error message and stopping the current program is
-good enough, use the ``(abort, ``__<message>__``)`` feature to terminate the handler with an
+good enough, use the `(abort, `__<message>__`)` feature to terminate the handler with an
 error message. Note that you can substitute numbered, named, INI and
 HAL parameters in the text like
 in this example (see also `tests/interp/abort-hot-comment/test.ngc`):
@@ -1205,7 +1205,7 @@ spindle, mist and flood during an M0 or M1 program pause, and turn
 these settings back on when the program is resumed.
 
 For a complete example doing just that, see
-'configs/sim/axis/remap/extend-builtins/', which adapts M1 as laid out above.
+`configs/sim/axis/remap/extend-builtins/`, which adapts M1 as laid out above.
 
 == Creating new G-code cycles
 
@@ -1375,9 +1375,9 @@ which are to happen only in the milltask Interpreter instance
 this can be tested for by <<remap:axis-preview-and-remapped-code-execution,evaluating 'self.task'>>.
 
 An example use of `__init__` and `__delete__` can be found in
-'configs/sim/axis/remap/cycle/python/toplevel.py' initialising attributes
-needed to handle cycles in 'ncfiles/remap_lib/python-stdglue/stdglue.py'
-(and imported into 'configs/sim/axis/remap/cycle/python/remap.py').
+`configs/sim/axis/remap/cycle/python/toplevel.py` initialising attributes
+needed to handle cycles in `ncfiles/remap_lib/python-stdglue/stdglue.py`
+(and imported into `configs/sim/axis/remap/cycle/python/remap.py`).
 
 === Calling conventions: NGC to Python
 
@@ -1421,11 +1421,11 @@ Any other return value type will raise a Python exception.
 
 In a calling NGC environment, the following predefined named parameters are available:
 
-`#__<_value>__`::
+`#<value>`::
   Value returned by the last procedure called.
   Initialized to 0.0 on startup. Exposed in Interp as `self.return_value` (float).
 
-`#__<_value_returned>__`::
+`#<value_returned>`::
   Indicates the last procedure called did `return` or `endsub` with an explicit value.
   1.0 if true. Set to 0.0 on each `call`. Exposed in Interp was `self.value_returned` (int).
 
@@ -1465,7 +1465,7 @@ Return values:
 
 `"a message text"`::
   Returning a string from a handler means 'this is an error message,
-  abort the program'. Works like ``(abort, ``__msg__``)``.
+  abort the program'. Works like `(abort,` __<msg>__ `)`.
 
 .Calling conventions for 'python=' subroutines
 
@@ -1492,7 +1492,7 @@ Return values:
 
 `"a message text"`::
   Returning a string from a handler means 'this is an error message, abort the program'.
-  Works like `(abort, msg)`.
+  Works like `(abort,` __<msg>__ `)`.
 
 If the handler needs to execute a 'queuebuster
 operation' (tool change, probe, HAL pin reading) it is supposed
