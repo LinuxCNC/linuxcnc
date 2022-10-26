@@ -1616,8 +1616,8 @@ G64 <P- <Q->>
   The P- tolerance means that the actual path will be no more than P-
   away from the programmed endpoint. The velocity will be reduced if
   needed to maintain the path.
-  In addition, when you activate G64 P- Q- it turns on the 'Naive CAM
-  Detector'; when there are a series of linear XYZ feed moves at the
+  If you set Q to a non-zero value it turns on the 'Naive CAM
+  Detector': when there are a series of linear XYZ feed moves at the
   same <<sec:set-feed-rate,feed rate>> that are less than Q- away from
   being collinear, they are collapsed into a single linear move.
   On G2/G3 moves in the G17 (XY) plane when the maximum
@@ -1625,13 +1625,14 @@ G64 <P- <Q->>
   tolerance the arc is broken into two lines (from start of arc to
   midpoint, and from midpoint to end). those lines are then subject to
   the naive cam algorithm for lines. Thus, line-arc, arc-arc, and
-  arc-line cases as well as line-line benefit from the 'naive cam
-  detector'. This improves contouring performance by simplifying the
+  arc-line cases as well as line-line benefit from the 'Naive CAM
+  Detector'. This improves contouring performance by simplifying the
   path. It is OK to program for the mode that is already active. See
   also the <<sec:trajectory-control,Trajectory Control>> section for
   more information on these modes.
   If Q is not specified then it will have the same behavior as before
   and use the value of P-.
+  Set Q to zero to disable the 'Naive CAM Detector'.
 
 .G64 P- Example Line
 [source,{ngc}]
