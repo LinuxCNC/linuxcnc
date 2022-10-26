@@ -160,7 +160,7 @@ int main(int argc, char **argv)
 	    exit(1);
 	}
 	// make stdout be the named file
-	fd = open(argv[n], O_WRONLY | O_CREAT, 0666);
+	fd = open(argv[n], O_WRONLY | O_CREAT | O_TRUNC, 0666);
 	close(1);
 	dup2(fd, 1);
     }
