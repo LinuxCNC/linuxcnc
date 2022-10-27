@@ -4160,7 +4160,7 @@ There is a frequency divider jumper on each THCAD card which should be set accor
 |Mesa Card |F/32
 |===
 
-This value is required to be entered into PNcConf during installation.
+This value is required to be entered into PnCconf during installation.
 
 [NOTE]
 If using a parallel port it may be necessary for the user to adjust the jumper setting and the subsequent scaling values on the <<qt_parameters-tab,Parameters Tab>> to achieve optimal results.
@@ -4177,9 +4177,10 @@ Located on the rear of the THCAD is a calibration sticker showing:
  5V  925.3 kHz
 ----
 
-or similar values, these values are required to be entered into PNcConf during installation.
+or similar values, these values are required to be entered into PnCconf during installation.
 
-PNcConf has entries for all required THCAD parameters and will calculate and configure any required settings. The calculations used are as follows:
+PnCconf has entries for all required THCAD parameters and will calculate and configure any required settings.
+The calculations used are as follows:
 
 .Voltage Scale
 
@@ -4207,7 +4208,7 @@ _v_ = full scale voltage of THCAD
 
 _THCAD-5 or THCAD-10_
 
-If connecting to a plasma CNC port then the divider ratio is selected from the plasma machine. A common ratio used is 20:1
+If connecting to a plasma CNC port then the divider ratio is selected from the plasma machine. A common ratio used is 20:1.
 
 If connecting to the plasma machines full arc voltage then a common setup for a THCAD-10 is to use a 1 MΩ; resistor from arc negative to THCAD negative and a 1 MΩ; resistor from arc positive to THCAD positive.
 The divider ratio is obtained by:
@@ -4230,7 +4231,7 @@ CAUTION: IF THE USER IS USING A HF START PLASMA POWER SUPPLY THEN OHMIC SENSING 
 These values can be calculated by using https://jscalc.io/calc/NTr5QDX6WgMThBVb[this online calculator].
 
 [NOTE]
-There is a <<qt_lowpass, lowpass filter>> available which may be useful if using a THCAD and there is a lot of noise on the returned arc voltage.
+There is a <<qt_lowpass,lowpass filter>> available which may be useful if using a THCAD and there is a lot of noise on the returned arc voltage.
 
 [[qt_rs485_connections]]
 === RS485 Connections

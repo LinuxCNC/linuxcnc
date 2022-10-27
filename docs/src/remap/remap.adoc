@@ -316,7 +316,7 @@ It is an error to omit the '<code>' parameter.
 The options of the REMAP statement are separated by whitespace. The options are
 keyword-value pairs and currently are:
 
-`modalgroup=`'<modal group>'::
+`modalgroup=`__<modal group>__::
   G-codes;; the only currently supported modal group is 1, which
   is also the default value if no group is given. Group 1 means
   'execute alongside other G-codes'.
@@ -325,37 +325,32 @@ keyword-value pairs and currently are:
     5,6,7,8,9,10. If no modalgroup is give, it defaults to 10
     ('execute after all other words in the block').
 
-  T,S,F;; for these the modal group is fixed and any
-    `modalgroup=` option is ignored.
+  T,S,F;; for these the modal group is fixed and any `modalgroup=` option is ignored.
 
-`argspec=`'<argspec>'::
-  See <<sub:argspec-parameter, description of the argspec
-  parameter options>>. Optional.
+`argspec=`__<argspec>__::
+  See <<sub:argspec-parameter, description of the argspec parameter options>>. Optional.
 
-`ngc=`'<ngc_basename>'::
-  Basename of an O-word subroutine file name. Do not specify an
-  .ngc extension. Searched for in the directories specified in
-  the directory specified in `[DISPLAY]PROGRAM_PREFIX`, then in
-  `[RS274NGC]SUBROUTINE_PATH`. Mutually exclusive with
-  `python=`. It is an error to omit both `ngc=` and  `python=`.
+`ngc=`__<ngc_basename>__::
+  Basename of an O-word subroutine file name.
+  Do not specify an .ngc extension.
+  Searched for in the directories specified in the directory specified in `[DISPLAY]PROGRAM_PREFIX`,
+  then in `[RS274NGC]SUBROUTINE_PATH`.
+  Mutually exclusive with `python=`. It is an error to omit both `ngc=` and  `python=`.
 
-`python=`'<Python function name>'::
-  Instead of calling an ngc O-word procedure call a Python
-  function. The function is expected to be defined in the
-  `module_basename.oword`
-  module. Mutually exclusive with `ngc=`.
+`python=`__<Python function name>__::
+  Instead of calling an ngc O-word procedure call a Python function.
+  The function is expected to be defined in the `module_basename.oword` module.
+  Mutually exclusive with `ngc=`.
 
-`prolog=`'<Python function name>'::
+`prolog=`__<Python function name>__::
   Before executing an ngc procedure, call this Python function.
-  The function is expected to be defined in the
-  `module_basename.remap`
-  module. Optional.
+  The function is expected to be defined in the `module_basename.remap` module.
+  Optional.
 
-`epilog=`'<Python function name>'::
+`epilog=`__<Python function name>__::
   After executing an ngc procedure, call this Python function.
-  The function is expected to be defined in the
-  `module_basename.remap`
-  module. Optional.
+  The function is expected to be defined in the `module_basename.remap` module.
+  Optional.
 
 The `python`, `prolog` and `epilog` options require the Python
 Interpreter plugin to be <<remap:embedded-python,configured>>, and
@@ -370,12 +365,12 @@ identical.
 Note that while many combinations of argspec options are possible, not
 all of them make sense. The following combinations are useful idioms:
 
-`argspec=`'<words>' `ngc=`'<procname>' `modalgroup=`'<group>'::
+`argspec=`__<words>__ `ngc=`__<procname>__ `modalgroup=`___<group>__::
   The recommended way to call an NGC procedure with a standard argspec parameter
   conversion. Used if argspec is good enough. Note it's not good
   enough for remapping the Tx and M6/M61 tool change codes.
 
-`prolog=`'<pythonprolog>' `ngc=`'<procname>' `epilog=`'<pythonepilog>' `modalgroup=`'<group>'::
+`prolog=`__<pythonprolog>__ `ngc=`__<procname>__ `epilog=`__<pythonepilog>__ `modalgroup=`__<group>__::
   Call a Python prolog function to take any preliminary steps, then call the NGC
   procedure. When done, call the Python epilog function to do any
   cleanup or result extraction work which cannot be handled in G-code.
@@ -384,13 +379,13 @@ all of them make sense. The following combinations are useful idioms:
   internal functions may be accessed from the prolog and epilog
   handlers. Also, a longer rope to hang yourselves.
 
-`python=`'<pythonfunction>' `modalgroup=`'<group>'::
+`python=`__<pythonfunction>__ `modalgroup=`__<group>__::
   Directly call to a Python function without any argument conversion.
   The most powerful way of remapping a code and going straight to
   Python. Use this if you don't need an NGC procedure, or NGC is
   just getting in your way.
 
-`argspec=`'<words>' `python=`'<pythonfunction>' `modalgroup=`'<group>'::
+`argspec=`__<words>__ `python=`__<pythonfunction>__ `modalgroup=`__<group>__::
   Convert the argspec words and pass them to a Python function as
   keyword argument dictionary. Use it when you're too lazy to
   investigate words passed on the block yourself.
@@ -406,55 +401,47 @@ The argument specification (keyword `argspec`) describes required and
 optional words to be passed to an ngc procedure, as well as optional
 preconditions for that code to execute.
 
-An argspec consists of 0 or more  characters of the class
-`[@A-KMNP-Za-kmnp-z^>]` . It can by empty (like `argspec=`).
+An argspec consists of 0 or more characters of the class `[@A-KMNP-Za-kmnp-z^>]`.
+It can by empty (like `argspec=`).
 
 An empty argspec, or no argspec argument at all implies the remapped
-code does not receive  any parameters from the block. It will ignore
-any extra parameters present.
+code does not receive  any parameters from the block.
+It will ignore any extra parameters present.
 
 Note that RS274NGC rules still apply - for instance you may use axis
 words (eg X,Y,Z) only in the context of a G-code.
 
-Axis words may also only be used if the axis is enabled.  If only XYZ
-are enabled, ABCUVW will not be available to be used in argspec.
+Axis words may also only be used if the axis is enabled.
+If only XYZ are enabled, ABCUVW will not be available to be used in argspec.
 
-Words FST will have the normal functions but will be available as 
-variables in the remapped function. F will set feedrate, S will set
-spindle RPM, T will trigger the tool prepare function.  Words FST 
-should not be used if this behavior is not desired.
+Words FST will have the normal functions but will be available as variables in the remapped function.
+F will set feedrate, S will set spindle RPM, T will trigger the tool prepare function.
+Words FST should not be used if this behavior is not desired.
 
-Words DEIJKPQR have no predefined function and are recommended for
-use as argspec parameters.
+Words DEIJKPQR have no predefined function and are recommended for use as argspec parameters.
 
 `ABCDEFHIJKPQRSTUVWXYZ`::
   Defines a required word parameter: an uppercase letter specifies that
-  the corresponding word *must*
-  be present in the current block. The word`s value will be
-  passed as a local named parameter with a corresponding name.
-  If the `@` character is
-  present in the argspec, it will be passed as positional
-  parameter, see below.
+  the corresponding word *must* be present in the current block.
+  The word`s value will be passed as a local named parameter with a corresponding name.
+  If the `@` character is present in the argspec, it will be passed as positional parameter, see below.
 
 `abcdefhijkpqrstuvwxyz`::
   Defines an optional word parameter: a lowercase letter specifies that
   the corresponding word *may* be present in the current block.
-  If the word is present, the word's value will be
-  passed as a local named parameter. If the `@` character is
-  present in the argspec, it will be passed as positional
-  parameter, see below.
+  If the word is present, the word's value will be passed as a local named parameter.
+  If the `@` character is present in the argspec, it will be passed as positional parameter,
+  see below.
 
 `@`::
-  The `@` (at-sign) tells argspec to pass words as positional
-  parameters, in the order defined following the `@`
-  option. Note that when using positional parameter passing,
-  a procedure cannot tell whether a word was present or not, see
-  example below.
+  The `@` (at-sign) tells argspec to pass words as positional parameters,
+  in the order defined following the `@` option.
+  Note that when using positional parameter passing,
+  a procedure cannot tell whether a word was present or not, see example below.
 
-TIP: this helps with packaging existing NGC procedures as remapped
-codes. Existing procedures do expect positional parameters. With the
-`@` option, you can avoid rewriting them to refer to local named
-parameters.
+TIP: this helps with packaging existing NGC procedures as remapped codes.
+Existing procedures do expect positional parameters.
+With the `@` option, you can avoid rewriting them to refer to local named parameters.
 
 `^`::
   The `^` (caret) character specifies that the current
@@ -470,11 +457,10 @@ parameters.
   The `n` (greater-than) character specifies to pass the current
   line number in the `n`local named parameter.
 
-By default, parameters are passed  as local named parameter to an NGC
-procedure. These local parameters appear as 'already set' when the
-procedure starts executing, which is different from existing semantics
-(local variables start out with value 0.0 and need to be explicitly
-assigned a value).
+By default, parameters are passed  as local named parameter to an NGC procedure.
+These local parameters appear as 'already set' when the procedure starts executing,
+which is different from existing semantics
+(local variables start out with value 0.0 and need to be explicitly assigned a value).
 
 Optional word parameters may be tested for presence by the `EXISTS(#<word>)` idiom.
 
@@ -528,17 +514,15 @@ present but had the value 0, or was not present at all.
 
 .Simple example for named parameter passing to a Python function
 
-It's possible to define new codes 'without' any NGC procedure. Here's
-a simple first example, a more complex one can be found in the next
-section.
+It's possible to define new codes 'without' any NGC procedure.
+Here's a simple first example, a more complex one can be found in the next section.
 
 Assume the code is defined as
 
 `REMAP=G88.6 modalgroup=1  argspec=XYZp  python=g886`
 
 This instructs the interpreter to execute the Python function `g886`
-in the `module_basename.remap` module
-which might look like so:
+in the `module_basename.remap` module, which might look like so:
 
 [source,python]
 ---------------------------------------------------------------------
@@ -559,8 +543,8 @@ Try this with out with:
   g88.6 x1 y2 z3 p33 (a comment here)
 
 You'll notice the gradual introduction of the embedded Python
-environment - see <<remap:programming-embedded-python,here>> for details.  Note that
-with Python remapping functions, it make no sense to have Python
+environment - see <<remap:programming-embedded-python,here>> for details.
+Note that with Python remapping functions, it make no sense to have Python
 prolog or epilog functions since it's executing a Python function in
 the first place.
 
@@ -571,17 +555,16 @@ and some Canon internals, so many things which  so far required coding in
 'C/C\+\+' can be now be done in Python.
 
 The following example is based on the `nc_files/involute.py` script -
-but canned as a G-code with some parameter extraction and checking. It
-also demonstrates calling the interpreter recursively (see `self.execute()`).
+but canned as a G-code with some parameter extraction and checking.
+It also demonstrates calling the interpreter recursively (see `self.execute()`).
 
 Assuming a definition like so (NB: this does not use argspec):
 
 `REMAP=G88.1 modalgroup=1  py=involute`
 
-The `involute` function in `python/remap.py` listed below does all
-word extraction from the current block directly. Note that interpreter
-errors can be translated to Python exceptions. Remember this is
-'readahead time' - execution time errors cannot be trapped this way.
+The `involute` function in `python/remap.py` listed below does all word extraction from the current block directly.
+Note that interpreter errors can be translated to Python exceptions.
+Remember this is 'readahead time' - execution time errors cannot be trapped this way.
 
 [source,python]
 ---------------------------------------------------------------------
@@ -645,9 +628,7 @@ def involute(self, **words):
     return INTERP_OK
 ---------------------------------------------------------------------
 
-The examples described so far can be found in
-'configs/sim/axis/remap/getting-started' with complete working
-configurations.
+The examples described so far can be found in 'configs/sim/axis/remap/getting-started' with complete working configurations.
 
 [[remap:upgrading-an-existing]]
 == Upgrading an existing configuration for remapping
@@ -667,8 +648,8 @@ The minimal prerequisites for using `REMAP` statements are as follows:
   needed. Depending on your installation the path to `stdglue.py` might
   vary.
 
-Assuming your configuration lives under `/home/user/xxx` and the INI
-file is `/home/user/xxx/xxx.ini`, execute the following commands.
+Assuming your configuration lives under `/home/user/xxx` and the INI file is `/home/user/xxx/xxx.ini`,
+execute the following commands.
 
 [source,sh]
 ---------------------------------------------------------------------
@@ -689,8 +670,7 @@ TOPLEVEL=/home/user/xxx/python/toplevel.py
 PATH_APPEND=/home/user/xxx/python
 ---------------------------------------------------------------------
 
-Now verify that LinuxCNC comes up with no error messages - from a
-terminal window execute:
+Now verify that LinuxCNC comes up with no error messages - from a terminal window execute:
 
 [source,sh]
 ---------------------------------------------------------------------
@@ -730,66 +710,55 @@ Decisions, decisions:
 
 Depending on the answer, we have four different scenarios:
 
-- When using an O-word procedure, we need prolog and epilog functions
-- if using all Python code and no O-word procedure, a Python function
-  is enough
-- when using the `iocontrol` pins, our O-word procedure or Python code
-  will contain mostly moves
-- when we need a more complex interaction than offered by `iocontrol`,
-  we need to completely define our own interaction, using `motion.digital*` and
-  `motion.analog*` pins, and essentially ignore the `iocontrol` pins by
-  looping them.
+- When using an O-word procedure, we need prolog and epilog functions.
+- If using all Python code and no O-word procedure, a Python function is enough.
+- When using the `iocontrol` pins, our O-word procedure or Python code will contain mostly moves.
+- When we need a more complex interaction than offered by `iocontrol`,
+  we need to completely define our own interaction,
+  using `motion.digital*` and `motion.analog*` pins,
+  and essentially ignore the `iocontrol` pins by looping them.
 
-NOTE: If you hate O-word procedures and love Python, you're free to do it
-all in Python, in which case you would just have a `python=_<function>_`
-spec in the REMAP statement. But assuming most folks would be interested in
-using O-word procedures because they are more familiar with that, we'll do
-that as the first example.
+NOTE: If you hate O-word procedures and love Python,
+you're free to do it all in Python,
+in which case you would just have a `python=_<function>_` spec in the REMAP statement.
+But assuming most folks would be interested in using O-word procedures
+because they are more familiar with that, we'll do that as the first example.
 
 So the overall approach for our first example will be:
 
-. We'd like to do as much as possible with G-code in an O-word
-  procedure for flexibility. That includes all HAL interaction which
-  would normally be handled by `iocontrol` - because we rather would want to do
-  clever things with moves, probes, HAL pin I/O and so forth.
+. We'd like to do as much as possible with G-code in an O-word procedure for flexibility.
+  That includes all HAL interaction which would normally be handled by `iocontrol` -
+  because we rather would want to do clever things with moves, probes, HAL pin I/O and so forth.
 
 . We'll try to minimize Python code to the extent needed  to keep the interpreter happy,
-  and cause `task` to actually do anything. That will go into the
-  `prolog` and `epilog` Python functions.
+  and cause `task` to actually do anything.
+  That will go into the `prolog` and `epilog` Python functions.
 
 === Understanding the role of `iocontrol` with remapped tool change codes
 
-`iocontrol` provides two HAL interaction sequences we might or might not
-use:
+`iocontrol` provides two HAL interaction sequences we might or might not use:
 
-- When the NML message queued by a SELECT_TOOL() canon command is
-  executed, this triggers the "raise tool-prepare and wait for
-  tool-prepared to become high" HAL sequence in `iocontrol`, besides
-  setting the XXXX pins
-- When the NML message queued by the CHANGE_TOOL() canon command is
-  executed, this triggers the  "raise tool-change and wait for
-  tool-changed to become high" HAL sequence in `iocontrol`, besides
-  setting the XXXX pins
+- When the NML message queued by a SELECT_TOOL() canon command is executed,
+  this triggers the "raise tool-prepare and wait for tool-prepared to become high" HAL sequence in `iocontrol`,
+  besides setting the _XXXX_ pins
+- When the NML message queued by the CHANGE_TOOL() canon command is executed,
+  this triggers the  "raise tool-change and wait for tool-changed to become high" HAL sequence in `iocontrol`,
+  besides setting the _XXXX_ pins
 
-What you need to decide is whether the existing `iocontrol` HAL sequences
-are sufficient to drive your changer. Maybe you need a different
-interaction sequence - for instance more HAL  pins, or maybe a more
-complex interaction. Depending on the answer, we might continue to use the existing
-`iocontrol` HAL sequences, or define our own ones.
+What you need to decide is whether the existing `iocontrol` HAL sequences are sufficient to drive your changer.
+Maybe you need a different interaction sequence - for instance more HAL pins,
+or maybe a more complex interaction.
+Depending on the answer, we might continue to use the existing `iocontrol` HAL sequences, or define our own ones.
 
-For the sake of documentation, we'll disable these `iocontrol`
-sequences, and roll our own - the result will look and feel like the
-existing interaction, but now we have complete control over them
-because they are executed in our own O-word procedure.
+For the sake of documentation, we'll disable these `iocontrol` sequences, and roll our own -
+the result will look and feel like the existing interaction,
+but now we have complete control over them because they are executed in our own O-word procedure.
 
-So what we'll do is use some `motion.digital-*` and `motion.analog-*`
-pins, and the associated `M62` .. `M68` commands to do our own HAL
-interaction in our O-word procedure, and those will effectively
-replace the `iocontrol` 'tool-prepare/tool-prepared' and
-'tool-change/tool-changed' sequences. So we'll define our pins
-replacing existing `iocontrol` pins functionally, and go ahead and make
-the `iocontrol` interactions a loop. We'll use the following
-correspondence in our example:
+So what we'll do is use some `motion.digital-*` and `motion.analog-*` pins,
+and the associated `M62` .. `M68` commands to do our own HAL interaction in our O-word procedure,
+and those will effectively replace the `iocontrol` 'tool-prepare/tool-prepared' and 'tool-change/tool-changed' sequences.
+So we'll define our pins replacing existing `iocontrol` pins functionally, and go ahead and make the `iocontrol` interactions a loop.
+We'll use the following correspondence in our example:
 
 `iocontrol` pin correspondence in the examples
 
@@ -807,21 +776,18 @@ correspondence in our example:
 |tool-number|analog-out-02
 |===
 
-Let us assume you want to redefine the M6 command, and replace it by
-an O-word procedure, but other than that things 'should continue to
-work'.
+Let us assume you want to redefine the M6 command,
+and replace it by an O-word procedure,
+but other than that things 'should continue to work'.
 
-So what our O-word procedure would do is to replace the steps
-<<remap:interpreter-action-on-m6,outlined here>>. Looking through
-these steps you'll find that NGC code can be used for most of them,
-but not all. So the stuff NGC can't handle will be done in Python prolog
-and epilog functions.
+So what our O-word procedure would do is to replace the steps <<remap:interpreter-action-on-m6,outlined here>>.
+Looking through these steps you'll find that NGC code can be used for most of them, but not all.
+So the stuff NGC can't handle will be done in Python prolog and epilog functions.
 
 === Specifying the M6 replacement
 
-To convey the idea, we just replace the built in M6 semantics with our
-own. Once that works, you may go ahead and place any actions you see
-fit into the O-word procedure.
+To convey the idea, we just replace the built in M6 semantics with our own.
+Once that works, you may go ahead and place any actions you see fit into the O-word procedure.
 
 Going through the <<remap:interpreter-action-on-m6,steps>>, we find:
 
@@ -845,9 +811,9 @@ REMAP=M6   modalgroup=6  prolog=change_prolog ngc=change epilog=change_epilog
 
 So the prolog covering steps 1 and 2 would look like so - we decide to
 pass a few variables to the remap procedure which can be inspected and
-changed there, or used in a message. Those are: `tool_in_spindle`,
-`selected_tool` (tool numbers) and their respective tooldata indices
-`current_pocket` and `selected_pocket`:
+changed there, or used in a message.
+Those are: `tool_in_spindle`, `selected_tool` (tool numbers) and
+their respective tooldata indices `current_pocket` and `selected_pocket`:
 
 [NOTE]
 The legacy names *selected_pocket* and *current_pocket* actually reference
@@ -873,17 +839,15 @@ def change_prolog(self, **words):
         return "M6/change_prolog: %s" % (e)
 ---------------------------------------------------------------------
 
-You will find that most prolog functions look very similar: first test
-that all preconditions for executing the code hold, then prepare the
-environment - inject variables and/or do any preparatory processing
-steps which cannot easily be done in NGC code; then hand off to the
-NGC procedure by returning INTERP_OK.
+You will find that most prolog functions look very similar:
 
-Our first iteration of the O-word procedure is unexciting - just
-verify we got parameters right, and signal success by returning a
-positive value; steps 3-5 would eventually be covered here (see
-<<gcode:ini-hal-params,here>> for the variables referring
-to INI file settings):
+. First test that all preconditions for executing the code hold, then 
+. prepare the environment - inject variables and/or do any preparatory processing steps which cannot easily be done in NGC code;
+. then hand off to the NGC procedure by returning INTERP_OK.
+
+Our first iteration of the O-word procedure is unexciting - just verify we got parameters right,
+and signal success by returning a positive value;
+steps 3-5 would eventually be covered here (see <<gcode:ini-hal-params,here>> for the variables referring to INI file settings):
 
 [source,{ngc}]
 ---------------------------------------------------------------------
@@ -891,7 +855,7 @@ O<change> sub
 (debug, change: current_tool=#<current_tool>)
 (debug, change: selected_pocket=#<selected_pocket>)
 ;
-; insert any G-code which you see fit here, eg:
+; insert any G-code which you see fit here, e.g.:
 ; G0  #<_ini[setup]tc_x>  #<_ini[setup]tc_y>  #<_ini[setup]tc_z>
 ;
 O<change> endsub [1]
@@ -922,9 +886,10 @@ def change_epilog(self, **words):
 This replacement M6 is compatible with the built in code,
 except steps 3-5 need to be filled in with your NGC code.
 
-Again, most epilogs have a common scheme: first, determine whether
-things went right in the remap procedure, then do any commit and cleanup
-actions which can't be done in NGC code.
+Again, most epilogs have a common scheme:
+
+. First, determine whether things went right in the remap procedure,
+. then do any commit and cleanup actions which can't be done in NGC code.
 
 === Configuring `iocontrol` with a remapped M6
 
@@ -949,7 +914,7 @@ change by configuring like so:
 # loop change signals when remapping M6
 net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
 ---------------------------------------------------------------------
-If you for some reason want to remap `T__x__` (prepare), the corresponding
+If you for some reason want to remap `Tx` (prepare), the corresponding
 `iocontrol` pins need to be looped as well.
 
 === Writing the change and prepare O-word procedures
@@ -958,40 +923,33 @@ The standard prologs and epilogs found in
 `ncfiles/remap_lib/python-stdglue/stdglue.py` pass a few 'exposed
 parameters' to the remap procedure.
 
-An 'exposed parameter' is a named local variable visible in a remap
-procedure which corresponds to interpreter-internal variable which
-is relevant for the current remap. Exposed parameters
-are set up in the respective prolog, and inspected in the epilog. They
-can be changed in the remap procedure and the change will be picked up
-in the epilog. The exposed parameters for remappable built in codes are:
+An 'exposed parameter' is a named local variable visible in a remap procedure
+which corresponds to interpreter-internal variable which is relevant for the current remap.
+Exposed parameters are set up in the respective prolog, and inspected in the epilog.
+They can be changed in the remap procedure and the change will be picked up in the epilog.
+The exposed parameters for remappable built in codes are:
 
-- `T` (prepare_prolog): `#__<tool>__` , `#__<pocket>__`
-- `M6` (change_prolog): `#__<tool_in_spindle>__`, `#__<selected_tool>__`, `#__<current_pocket>__`, `#__<selected_pocket>__`
-- `M61` (settool_prolog): `#__<tool>__` , `#__<pocket>__`
-- `S` (setspeed_prolog):  `#__<speed>__`
-- `F` (setfeed_prolog):  `#__<feed>__`
+- `T` (prepare_prolog): `#<tool>` , `#<pocket>`
+- `M6` (change_prolog): `#<tool_in_spindle>`, `#<selected_tool>`, `#<current_pocket>`, `#<selected_pocket>`
+- `M61` (settool_prolog): `#<tool>` , `#<pocket>`
+- `S` (setspeed_prolog):  `#<speed>`
+- `F` (setfeed_prolog):  `#<feed>`
 
 If you have specific needs for extra parameters to be made visible,
-that can simply be added to the prolog - practically all of the
-interpreter internals are visible to Python.
+that can simply be added to the prolog - practically all of the interpreter internals are visible to Python.
 
 === Making minimal changes to the built in codes, including `M6`
 
-Remember that normally remapping a code completely disables all internal
-processing for that code.
+Remember that normally remapping a code completely disables all internal processing for that code.
 
-However, in some situations it might be sufficient to add a few codes around
-the existing `M6` built in implementation, like a tool length probe,
-but other than that retain the behavior of the built in `M6`.
+However, in some situations it might be sufficient to add a few codes around the existing `M6` built in implementation,
+like a tool length probe, but other than that retain the behavior of the built in `M6`.
 
-Since this might be a common scenario, the built in behavior of
-remapped codes has been made available within the remap
-procedure. The interpreter detects that you are referring to a
-remapped code within the procedure which is supposed to redefine its
-behavior. In this case, the built in behavior is used - this
-currently is enabled for the set: `M6`, `M61`,`T`, `S`, `F`. Note
-that otherwise referring to a code within its own remap procedure
-would be a error - a `remapping recursion`.
+Since this might be a common scenario,
+the built in behavior of remapped codes has been made available within the remap procedure.
+The interpreter detects that you are referring to a remapped code within the procedure which is supposed to redefine its behavior.
+In this case, the built in behavior is used - this currently is enabled for the set: `M6`, `M61`,`T`, `S`, `F`.
+Note that otherwise referring to a code within its own remap procedure would be a error - a `remapping recursion`.
 
 Slightly twisting a built in would look like so (in the case of `M6`):
 
@@ -1008,29 +966,27 @@ o<mychange> endsub
 m2
 ---------------------------------------------------------------------
 
-CAUTION: when redefining a built in code, *do not specify any leading
-zeroes in G- or M-codes* - for example, say `REMAP=M1 ..`, not
-`REMAP=M01 ...`.
+CAUTION: when redefining a built in code, *do not specify any leading zeroes in G- or M-codes* - for example,
+say `REMAP=M1 ..`, not `REMAP=M01 ...`.
 
-See the `configs/sim/axis/remap/extend-builtins` directory for a complete
-configuration which is the recommended starting point for own work
-when extending built in codes.
+See the `configs/sim/axis/remap/extend-builtins` directory for a complete configuration,
+which is the recommended starting point for own work when extending built in codes.
 
 === Specifying the T (prepare) replacement
 
-If you're confident with the  <<remap:interpreter-action-on-t,default
-implementation>>, you wouldn't need to do this. But remapping is also a
-way to work around deficiencies in the current implementation, for
-instance to not block until the "tool-prepared" pin is set.
+If you're confident with the  <<remap:interpreter-action-on-t,default implementation>>,
+you wouldn't need to do this.
+But remapping is also a way to work around deficiencies in the current implementation,
+for instance to not block until the "tool-prepared" pin is set.
 
 What you could do, for instance, is:
 - in a remapped T, just set the equivalent of the "tool-prepare" pin,
   but *not* wait for "tool-prepared" here
-- in the corresponding remapped M6, wait for the "tool-prepared" at
-  the very beginning of the O-word procedure.
+- in the corresponding remapped M6,
+  wait for the "tool-prepared" at the very beginning of the O-word procedure.
 
-Again, the `iocontrol` tool-prepare/tool-prepared pins would be unused
-and replaced by `motion.*` pins, so those would pins must be looped:
+Again, the `iocontrol` tool-prepare/tool-prepared pins would be unused and replaced by `motion.*` pins,
+so those would pins must be looped:
 
 [source,{hal}]
 ---------------------------------------------------------------------
@@ -1102,35 +1058,30 @@ def prepare_epilog(self, **words):
 
 ---------------------------------------------------------------------
 
-prepare_prolog and prepare_epilog are part of the 'standard glue'
+The functions 'prepare_prolog' and 'prepare_epilog' are part of the _standard glue_
 provided by 'nc_files/remap_lib/python-stdglue/stdglue.py'.
-This module is intended to cover most
-standard remapping situations in a common way.
+This module is intended to cover most standard remapping situations in a common way.
 
 === Error handling: dealing with abort
 
-The built in tool change procedure has some precautions for dealing
-with a program abort (e.g. hitting Escape in Axis during a
-change). Your remapped function has none of this, therefore some
-explicit cleanup might be needed if a remapped code is aborted. In
-particular, a remap procedure might establish modal settings which are
-undesirable to have active after an abort. For instance, if your
-remap procedure has motion codes (G0,G1,G38..) and the remap is
-aborted, then the last modal code will remain active. However, you
-very likely want to have any modal motion canceled when the remap is
-aborted.
+The built in tool change procedure has some precautions for dealing with a program abort,
+e.g., by hitting escape in AXIS during a change.
+Your remapped function has none of this, therefore some explicit cleanup might be needed if a remapped code is aborted.
+In particular, a remap procedure might establish modal settings which are undesirable to have active after an abort.
+For instance, if your remap procedure has motion codes (G0,G1,G38..) and the remap is aborted,
+then the last modal code will remain active.
+However, you very likely want to have any modal motion canceled when the remap is aborted.
 
-The way to do this is by using the `[RS274NGC]ON_ABORT_COMMAND`
-feature. This INI option specifies a O-word procedure call which is
-executed if `task` for some reason aborts program execution.
-`on_abort` receives a single parameter indicating 
-the cause for calling the abort procedure,
+The way to do this is by using the `[RS274NGC]ON_ABORT_COMMAND` feature.
+This INI option specifies a O-word procedure call which is executed
+if `task` for some reason aborts program execution.
+`on_abort` receives a single parameter indicating the cause for calling the abort procedure,
 which might be used for conditional cleanup.
 
 The reasons are defined in nml_intf/emc.hh
 
 [source,{ini}]
----------------------------------------------------------------------
+----
 EMC_ABORT_TASK_EXEC_ERROR = 1,
 EMC_ABORT_AUX_ESTOP = 2,
 EMC_ABORT_MOTION_OR_IO_RCS_ERROR = 3,
@@ -1142,20 +1093,18 @@ EMC_ABORT_TASK_ABORT = 8,
 EMC_ABORT_INTERPRETER_ERROR = 9,	// interpreter failed during readahead
 EMC_ABORT_INTERPRETER_ERROR_MDI = 10,	// interpreter failed during MDI execution
 EMC_ABORT_USER = 100  // user-defined abort codes start here
----------------------------------------------------------------------
-
+----
 
 [source,{ini}]
----------------------------------------------------------------------
+----
 [RS274NGC]
 ON_ABORT_COMMAND=O <on_abort> call
----------------------------------------------------------------------
+----
 
-The suggested on_abort procedure would look like so (adapt to
-your needs):
+The suggested on_abort procedure would look like so (adapt to your needs):
 
 [source,{ngc}]
----------------------------------------------------------------------
+----
 o<on_abort> sub
 
 G54 (origin offsets are set to the default)
@@ -1182,7 +1131,7 @@ o100 endif
 
 o<on_abort> endsub
 m2
----------------------------------------------------------------------
+----
 
 CAUTION: Never use an `M2` in a O-word subroutine, including this
 one. It will cause hard-to-find errors. For instance, using an `M2` in
@@ -1207,17 +1156,17 @@ If you determine in your handler procedure that some error condition
 occurred, do not use `M2` to end your handler - see above:
 
 If displaying an operator error message and stopping the current program is
-good enough, use the `(abort, <message>)` feature to terminate the handler with an
+good enough, use the `(abort, `__<message>__`)` feature to terminate the handler with an
 error message. Note that you can substitute numbered, named, INI and
 HAL parameters in the text like
 in this example (see also `tests/interp/abort-hot-comment/test.ngc`):
 
 [source,{ngc}]
----------------------------------------------------------------------
+----
 o100 if [..] (some error condition)
      (abort, Bad Things! p42=#42 q=#<q> INI=#<_ini[a]x> pin=#<_hal[component.pin])
 o100 endif
----------------------------------------------------------------------
+----
 
 NOTE: INI and HAL variable expansion is optional and can be disabled in
 the <<sub:ini:sec:rs274ngc,INI file>>
@@ -1225,20 +1174,18 @@ the <<sub:ini:sec:rs274ngc,INI file>>
 If more fine grained recovery action is needed, use the idiom
 laid out in the previous example:
 
-- define an epilog function, even if it's just to signal an error
-  condition
-- pass a negative value from the handler to signal
-  the error
-- inspect the return value in the epilog function.
-- take any recovery action needed
-- return the error message string from the handler, which will set the
-  interpreter error message and abort the program (pretty much like
-  `abort, message=`)
+- Define an epilog function, even if it's just to signal an error condition,
+- pass a negative value from the handler to signal the error,
+- inspect the return value in the epilog function,
+- take any recovery action needed,
+- return the error message string from the handler,
+  which will set the interpreter error message and abort the program
+  (pretty much like `abort, message=`).
 
 This error message will be displayed in the UI, and returning
 INTERP_ERROR will cause this error handled like any other runtime error.
 
-Note that both `(abort, msg)` and returning INTERP_ERROR from an
+Note that both `(abort,` __<msg>__ `)` and returning INTERP_ERROR from an
 epilog will cause any ON_ABORT handler to be called as well if defined
 (see previous section).
 
@@ -1246,10 +1193,9 @@ epilog will cause any ON_ABORT handler to be called as well if defined
 
 === Automatic gear selection be remapping  S (set spindle speed)
 
-A potential use for a remapped S code would be 'automatic gear
-selection' depending on speed. In the remap procedure one would test
-for the desired speed attainable given the current gear setting, and
-change gears appropriately if not.
+A potential use for a remapped S code would be 'automatic gear selection' depending on speed.
+In the remap procedure one would test for the desired speed attainable given the current gear setting,
+and change gears appropriately if not.
 
 === Adjusting the behavior of M0, M1, M60
 
@@ -1259,17 +1205,15 @@ spindle, mist and flood during an M0 or M1 program pause, and turn
 these settings back on when the program is resumed.
 
 For a complete example doing just that, see
-'configs/sim/axis/remap/extend-builtins/', which adapts M1 as laid out above.
+`configs/sim/axis/remap/extend-builtins/`, which adapts M1 as laid out above.
 
 == Creating new G-code cycles
 
 A G-code cycle as used here is meant to behave as follows:
 
-* On first invocation, the associated words are collected and the
-  G-code cycle is executed.
-* If subsequent lines just continue parameter words applicable to this
-  code, but no new G-code, the previous G-code is re-executed with the
-  parameters changed accordingly.
+* On first invocation, the associated words are collected and the  G-code cycle is executed.
+* If subsequent lines just continue parameter words applicable to this code,
+  but no new G-code, the previous G-code is re-executed with the parameters changed accordingly.
 
 An example: Assume you have `G84.3` defined as remapped G-code cycle
 with the following INI segment (see <<remap:cycle-stdglue,here>> for
@@ -1301,13 +1245,12 @@ causes the following (note 'R' is sticky, and 'Z' is sticky since the plane is '
 .  The `G84.3` cycle is canceled.
 
 Besides creating new cycles, this provides an easy method for
-repackaging existing G-codes which do not behave as cycles. For
-instance, the `G33.1` Rigid Tapping code does not behave as a
-cycle. With such a wrapper, a new code can be easily created which
-uses `G33.1` but behaves as a cycle.
+repackaging existing G-codes which do not behave as cycles.
+For instance, the `G33.1` Rigid Tapping code does not behave as a cycle.
+With such a wrapper, a new code can be easily created which uses `G33.1` but behaves as a cycle.
 
-See 'configs/sim/axis/remap/cycle' for a complete example of this
-feature. It contains two cycles, one with an NGC procedure like above,
+See 'configs/sim/axis/remap/cycle' for a complete example of this feature.
+It contains two cycles, one with an NGC procedure like above,
 and a cycle example using just Python.
 
 [[remap:embedded-python]]
@@ -1319,40 +1262,35 @@ configured, and hence has its own section `PYTHON` in the INI file.
 === Python plugin : INI file configuration
 
 `[PYTHON]`::
-  `TOPLEVEL =` <filename>;;
-    filename of the initial Python script to execute on
-    startup. This script is responsible for setting up the package
-    name structure, see below.
-  `PATH_PREPEND =` <directory>;;
-    prepend this directory to `PYTHON_PATH`. A repeating
-    group.
-  `PATH_APPEND =`<directory>;;
-    append this directory to `PYTHON_PATH`. A repeating
-    group.
-  `LOG_LEVEL =` <integer>;;
-    log level of plugin-related actions. Increase this if you
-    suspect problems. Can be very verbose.
+  `TOPLEVEL =` __<filename>__;;
+    Filename of the initial Python script to execute on startup.
+    This script is responsible for setting up the package name structure, see below.
+  `PATH_PREPEND =` __<directory>__;;
+    Prepend this directory to `PYTHON_PATH`. A repeating group.
+  `PATH_APPEND =` __<directory>__;;
+    Append this directory to `PYTHON_PATH`. A repeating group.
+  `LOG_LEVEL =` __<integer>__;;
+    Log level of plugin-related actions. Increase this if you suspect problems.
+    Can be very verbose.
   `RELOAD_ON_CHANGE =` [0|1];;
-    reload the 'TOPLEVEL' script if the file was changed. Handy
-    for debugging but currently incurs some runtime overhead. Turn
-    this off for production configurations.
+    Reload the 'TOPLEVEL' script if the file was changed.
+    Handy for debugging but currently incurs some runtime overhead.
+    Turn this off for production configurations.
   `PYTHON_TASK =` [0|1];;
     Start the Python task plug in. Experimental. See xxx.
 
 [[remap:executing-python-statements]]
 === Executing Python statements from the interpreter
 
-For ad-hoc execution of commands the Python 'hot comment' has been
-added. Python output by default goes to stdout, so you need to start
-LinuxCNC from a terminal window to see results. Example (eg. in the
-MDI window):
+For ad-hoc execution of commands the Python 'hot comment' has been added.
+Python output by default goes to stdout, so you need to start LinuxCNC from a terminal window to see results.
+Example (e.g. in the MDI window):
 
 ----
 ;py,print(2*3)
 ----
 
-Note that the interpreter instance is available here as `self`, so you
-could also run:
+Note that the interpreter instance is available here as `self`, so you could also run:
 
 ----
 ;py,print(self.tool_table[0].toolno)
@@ -1373,46 +1311,37 @@ The `emcStatus` structure is accessible, too:
 The namespace is expected to be laid out as follows:
 
 `oword`::
-  Any callables in this module are candidates for Python O-word
-  procedures. Note that the Python `oword` module is checked
-  *before* testing for a NGC procedure with the same name - in
-  effect names in `oword` will hide NGC files of the same
-  basename.
+  Any callables in this module are candidates for Python O-word procedures.
+  Note that the Python `oword` module is checked *before* testing for a NGC procedure with the same name -
+  in effect names in `oword` will hide NGC files of the same basename.
 
 `remap`::
-  Python callables referenced in an argspec `prolog`,`epilog` or
-  `python` option are expected to be found here.
+  Python callables referenced in an argspec `prolog`,`epilog` or `python` option are expected to be found here.
 
 `namedparams`::
-  Python funtcions int this module extend or redefine the namespace of
-  predefined named parameters, see
-  <<remap:adding-predefined-named-parameters,adding predefined parameters>>.
+  Python funtcions int this module extend or redefine the namespace of predefined named parameters,
+  see <<remap:adding-predefined-named-parameters,adding predefined parameters>>.
 
 `task`::
   Task-related callables are expected here.
 
 === The Interpreter as seen from Python
 
-The interpreter is an existing C++ class ('Interp') defined in
-'src/emc/rs274ngc'. Conceptually all `oword.<function>` and
-`remap.<function>` Python calls are methods of this Interp class,
-although there is no explicit Python definition of this class (it's a
-'Boost.Python' wrapper instance) and hence receive the as the first
-parameter `self` which can be used to access internals.
+The interpreter is an existing C++ class ('Interp') defined in 'src/emc/rs274ngc'.
+Conceptually all `oword.<function>` and `remap.<function>` Python calls are methods of this Interp class,
+although there is no explicit Python definition of this class (it's a 'Boost.Python' wrapper instance)
+and hence receive the as the first parameter `self` which can be used to access internals.
 
 === The Interpreter `__init__` and `__delete__` functions
 
-If the `TOPLEVEL`  module defines a function `__init__`, it will be
-called once the interpreter is fully configured (INI file read, and
-state synchronized with the world model).
+If the `TOPLEVEL` module defines a function `__init__`,
+it will be called once the interpreter is fully configured (INI file read, and state synchronized with the world model).
 
-If the `TOPLEVEL`  module defines a function `__delete__`, it will be
-called once before the interpreter is shutdown and after the persistent
-parameters have been saved to the `PARAMETER_FILE`.
+If the `TOPLEVEL` module defines a function `__delete__`,
+it will be called once before the interpreter is shutdown and after the persistent parameters have been saved to the `PARAMETER_FILE`.
 
-Note_ at this time, the `__delete__` handler does not work for
-interpreter instances created by importing the `gcode` module. If you
-need an equivalent functionality there (which is quite unlikely),
+Note_ at this time, the `__delete__` handler does not work for interpreter instances created by importing the `gcode` module.
+If you need an equivalent functionality there (which is quite unlikely),
 please consider the Python `atexit` module.
 
 [source,python]
@@ -1436,31 +1365,28 @@ def __delete__(self):
         pass
 ---------------------------------------------------------------------
 
-This function may be used to initialize any Python-side attributes
-which might be needed later, for instance in remap or oword
-functions, and save or restore state beyond what `PARAMETER_FILE` provides.
+This function may be used to initialize any Python-side attributes which might be needed later,
+for instance in remap or oword functions,
+and save or restore state beyond what `PARAMETER_FILE` provides.
 
-If there are setup or cleanup actions which are to happen only in the
-milltask Interpreter instance (as opposed to the interpreter instance
-which sits in the `gcode` Python module and serves preview/progress
-display purposes but nothing else), this can be tested for by
-<<remap:axis-preview-and-remapped-code-execution,evaluating 'self.task'>>.
+If there are setup or cleanup actions
+which are to happen only in the milltask Interpreter instance
+(as opposed to the interpreter instance which sits in the `gcode` Python module and serves preview/progress display purposes but nothing else),
+this can be tested for by <<remap:axis-preview-and-remapped-code-execution,evaluating 'self.task'>>.
 
 An example use of `__init__` and `__delete__` can be found in
-'configs/sim/axis/remap/cycle/python/toplevel.py' initialising attributes
-needed to handle cycles in 'ncfiles/remap_lib/python-stdglue/stdglue.py'
-(and imported into 'configs/sim/axis/remap/cycle/python/remap.py').
+`configs/sim/axis/remap/cycle/python/toplevel.py` initialising attributes
+needed to handle cycles in `ncfiles/remap_lib/python-stdglue/stdglue.py`
+(and imported into `configs/sim/axis/remap/cycle/python/remap.py`).
 
 === Calling conventions: NGC to Python
 
 Python code is called from NGC in the following situations:
 
 - during normal program execution:
-  * when an O-word call like `O<proc> call` is executed and the name
-    `oword.proc` is defined and callable
-  * when a comment like `;py,<Python statement>` is executed
-- during execution of a remapped code: any `prolog=`, `python=` and
-  `epilog=` handlers.
+  * when an O-word call like `O<proc> call` is executed and the name `oword.proc` is defined and callable
+  * when a comment like `;py,<Python statement>` is executed - during execution of a remapped code:
+    any `prolog=`, `python=` and `epilog=` handlers.
 
 [[remap:python-o-word-procs]]
 .Calling O-word Python subroutines
@@ -1468,11 +1394,11 @@ Python code is called from NGC in the following situations:
 Arguments:
 
 `self`::
-  the interpreter instance
+  The interpreter instance
 
 `*args`::
-  the list of actual positional parameters. Since the number
-  of actual parameters may vary, it is best to use this style of declaration:
+  The list of actual positional parameters.
+  Since the number of actual parameters may vary, it is best to use this style of declaration:
 
 [source,python]
 ---------------------------------------------------------------------
@@ -1484,8 +1410,8 @@ def mysub(self, *args):
 ---------------------------------------------------------------------
 
 .Return values of O-word Python subroutines
-Just as NGC procedures may return values, so do O-word Python
-subroutines. They are expected to either return
+Just as NGC procedures may return values, so do O-word Python subroutines.
+They are expected to either return
 
 - no value (no `return` statement or the value `None`),
 - a float or int value,
@@ -1493,17 +1419,15 @@ subroutines. They are expected to either return
 
 Any other return value type will raise a Python exception.
 
-In a calling NGC environment, the following predefined named parameters
-are available:
+In a calling NGC environment, the following predefined named parameters are available:
 
-`#__<_value>__`::
-  value returned by the last procedure called. Initialized
-  to 0.0 on startup. Exposed in Interp as `self.return_value` (float).
+`#<value>`::
+  Value returned by the last procedure called.
+  Initialized to 0.0 on startup. Exposed in Interp as `self.return_value` (float).
 
-`#__<_value_returned>__`::
-  indicates the last procedure called did `return`or
-  `endsub` with an explicit value. 1.0 if true. Set to 0.0 on each `call`. Exposed
-  in Interp was  `self.value_returned` (int).
+`#<value_returned>`::
+  Indicates the last procedure called did `return` or `endsub` with an explicit value.
+  1.0 if true. Set to 0.0 on each `call`. Exposed in Interp was `self.value_returned` (int).
 
 See also `tests/interp/value-returned` for an example.
 
@@ -1512,17 +1436,14 @@ See also `tests/interp/value-returned` for an example.
 Arguments are:
 
 `self`::
-  the interpreter instance
+  The interpreter instance
 
 `words`::
-  keyword parameter dictionary. If an argspec was present, words
-  are collected from the current block accordingly and passed in
-  the dictionary for  convenience (the words could as well be
-  retrieved directly from the  calling block, but this requires
-  more knowledge of interpreter internals). If no argspec was
-  passed, or only optional values were specified and none of
-  these was present in the calling block, this dict is
-  empty. Word names are converted to lowercase.
+  Keyword parameter dictionary
+  If an argspec was present, words are collected from the current block accordingly and passed in the dictionary for convenience
+  (the words could as well be retrieved directly from the calling block, but this requires more knowledge of interpreter internals).
+  If no argspec was passed, or only optional values were specified and none of these was present in the calling block, this dict is empty.
+  Word names are converted to lowercase.
 
 Example call:
 
@@ -1540,22 +1461,21 @@ def minimal_prolog(self, **words): # in remap module
 Return values:
 
 `INTERP_OK`::
-  return this on success. You need to import this from `interpreter`.
+  Return this on success. You need to import this from `interpreter`.
 
 `"a message text"`::
-  returning a string from a handler means 'this is an error message,
-  abort the program'. Works like `(abort, msg)`.
+  Returning a string from a handler means 'this is an error message,
+  abort the program'. Works like `(abort,` __<msg>__ `)`.
 
 .Calling conventions for 'python=' subroutines
 
 Arguments are:
 
 `self`::
-  the interpreter instance
+  The interpreter instance
 
 `words`::
-  keyword parameter dictionary. the same  kwargs dictionary as
-  prologs and epilogs (see above).
+  Keyword parameter dictionary. the same  kwargs dictionary as prologs and epilogs (see above).
 
 The minimum `python=` function example:
 
@@ -1568,22 +1488,20 @@ def useless(self,  **words): # in remap module
 Return values:
 
 `INTERP_OK`::
-  return this on success
+  Return this on success
 
 `"a message text"`::
-  returning a string from a handler means 'this is an error message,
-  abort the program'. Works like `(abort, msg)`.
+  Returning a string from a handler means 'this is an error message, abort the program'.
+  Works like `(abort,` __<msg>__ `)`.
 
 If the handler needs to execute a 'queuebuster
 operation' (tool change, probe, HAL pin reading) it is supposed
 to suspend execution with the following statement:
 
 `yield INTERP_EXECUTE_FINISH`::
-  This signals `task` to stop read ahead, execute all
-  queued operations, execute the 'queue-buster' operation,
-  synchronize interpreter state with machine state, and then signal
-  the interpreter to continue. At this point the function is
-  resumed at the statement following the `yield ..` statement.
+  This signals `task` to stop read ahead, execute all queued operations, execute the 'queue-buster' operation,
+  synchronize interpreter state with machine state, and then signal the interpreter to continue.
+  At this point the function is resumed at the statement following the `yield ..` statement.
 
 .Dealing with queue-buster: Probe, Tool change and waiting for a HAL pin
 
@@ -1623,9 +1541,8 @@ apply to the usage of 'yield INTERP_EXECUTE_FINISH':
 NGC code is executed from Python when
 
 - the method `self.execute(<NGC code>[,<line number>])` is executed, or
-- during execution of a remapped code, if a `prolog=` function is
-  defined, the NGC procedure given in `ngc=` is executed immediately
-  thereafter.
+- during execution of a remapped code, if a `prolog=` function is defined,
+  the NGC procedure given in `ngc=` is executed immediately thereafter.
 
 The prolog handler does not call the handler, but it prepares its call
 environment, for instance by setting up predefined local parameters.
@@ -1636,19 +1553,16 @@ Conceptually a prolog and an epilog execute at the same call level
 like the O-word procedure, that is: after the subroutine call is set
 up, and before the subroutine endsub or return.
 
-This means that any local variable created in a prolog will be a local
-variable in the O-word procedure, and any local variables created in
-the O-word procedure are still accessible when the epilog executes.
+This means that any local variable created in a prolog will be a local variable in the O-word procedure,
+and any local variables created in the O-word procedure are still accessible when the epilog executes.
 
-The `self.params` array handles reading and setting numbered and named
-parameters. If a named parameter begins with `_` (underscore), it is
-assumed to be a global parameter; if not, it is local to the calling
-procedure. Also, numbered parameters in the range 1..30 are treated
-like local variables; their original values are restored on
-return/endsub from an O-word procedure.
+The `self.params` array handles reading and setting numbered and named parameters.
+If a named parameter begins with `_` (underscore), it is assumed to be a global parameter;
+if not, it is local to the calling procedure.
+Also, numbered parameters in the range 1..30 are treated like local variables;
+their original values are restored on return/endsub from an O-word procedure.
 
-Here is an example remapped code demonstrating insertion and
-extraction of parameters into/from the O-word procedure:
+Here is an example remapped code demonstrating insertion and extraction of parameters into/from the O-word procedure:
 
 ----
 REMAP=m300 prolog=insert_param ngc=testparam epilog=retrieve_param modalgroup=10
@@ -1709,17 +1623,23 @@ You might want to test for the return value being `<
 INTERP_MIN_ERROR`. If you're using lots of execute() statements, it's
 probably easier to trap InterpreterException as per below.
 
-CAUTION: The parameter insertion/retrieval method described in the previous section does not
-work in this case. It is good enough for just executing simple NGC
-commands or a procedure call and advanced introspection into the
-procedure, and passing of local named parameters is not needed. The
-recursive call feature is fragile.
+CAUTION:
+====
+The parameter insertion/retrieval method described in the previous section does not work in this case.
+It is good enough for just
+
+- executing simple NGC commands or a procedure call and
+- advanced introspection into the procedure, and
+- passing of local named parameters is not needed.
+
+The recursive call feature is fragile.
+====
 
 .Interpreter Exception during execute()
 
-if `interpreter.throw_exceptions` is nonzero (default 1), and self.execute() returns an error, the exception
-`InterpreterException` is raised. InterpreterException has the
-following attributes:
+if `interpreter.throw_exceptions` is nonzero (default 1), and self.execute() returns an error,
+the exception `InterpreterException` is raised.
+InterpreterException has the following attributes:
 
 `line_number`::
   where the error occurred
@@ -1761,46 +1681,42 @@ def example(self,*args):
     return INTERP_OK
 ---------------------------------------------------------------------
 
-The actual canon functions are declared in `src/emc/nml_intf/canon.hh`
-and implemented in `src/emc/task/emccanon.cc`.  The implementation of
-the Python functions can be found in `src/emc/rs274ncg/canonmodule.cc`.
+The actual canon functions are declared in `src/emc/nml_intf/canon.hh` and implemented in `src/emc/task/emccanon.cc`. 
+The implementation of the Python functions can be found in `src/emc/rs274ncg/canonmodule.cc`.
 
 === Built in modules
 
 The following modules are built in:
 
 `interpreter`::
-  exposes internals of the Interp class. See
-  `src/emc/rs274ngc/interpmodule.cc`, and the
-  `tests/remap/introspect` regression test.
+  Exposes internals of the Interp class.
+  See `src/emc/rs274ngc/interpmodule.cc`, and the `tests/remap/introspect` regression test.
 
 `emccanon`::
-  exposes most calls of  `src/emc/task/emccanon.cc`.
+  Exposes most calls of  `src/emc/task/emccanon.cc`.
 
 `emctask`::
-  exposes the `emcStatus` class instance. See  `src/emc/task/taskmodule.cc`.
-  Not present when using the `gcode` module used for user
-  interfaces - only present in the milltask instance of the interpreter.
+  Exposes the `emcStatus` class instance. See `src/emc/task/taskmodule.cc`.
+  Not present when using the `gcode` module used for user interfaces - only present in the milltask instance of the interpreter.
 
 [[remap:adding-predefined-named-parameters]]
 == Adding Predefined Named Parameters
 
 The interpreter comes with a set of predefined named parameters for
-accessing internal state from the NGC language level. These parameters
-are read-only and global, and hence cannot be assigned to.
+accessing internal state from the NGC language level.
+These parameters are read-only and global, and hence cannot be assigned to.
 
-Additional parameters may be added by defining a function in the
-`namedparams` module. The name of the function defines the name of the
-new predefined named parameter, which now can be referenced in
-arbitrary expressions.
+Additional parameters may be added by defining a function in the `namedparams` module.
+The name of the function defines the name of the new predefined named parameter,
+which now can be referenced in arbitrary expressions.
 
 To add or redefine a named parameter:
 
-* add a `namedparams` module so it can be found by the interpreter
-* define new parameters by functions (see below). These functions
-  receive `self` (the interpreter instance) as parameter and so can
-  access arbitrary state. Arbitrary Python capabilities can be used to return a value.
-* import that module from the `TOPLEVEL` script
+* Add a `namedparams` module so it can be found by the interpreter,
+* define new parameters by functions (see below).
+  These functions receive `self` (the interpreter instance) as parameter and so can access arbitrary state.
+  Arbitrary Python capabilities can be used to return a value.
+* Import that module from the `TOPLEVEL` script.
 
 [source,python]
 ---------------------------------------------------------------------
@@ -1815,34 +1731,30 @@ def _pi(self):
 #<circumference> = [2 * #<radius> * #<_pi>]
 ---------------------------------------------------------------------
 
-Functions in `namedparams.py` are expected to return a float or int
-value. If a string is returned, this sets the interpreter error
-message and aborts execution.
+Functions in `namedparams.py` are expected to return a float or int value.
+If a string is returned, this sets the interpreter error message and aborts execution.
 
 Ònly functions with a leading underscore are added as parameters,
 since this is the RS274NGC convention for globals.
 
 It is possible to redefine an existing predefined parameter by adding
-a Python function of the same name to the `namedparams` module. In
-this case, a warning is generated during startup.
+a Python function of the same name to the `namedparams` module.
+In this case, a warning is generated during startup.
 
-While the above example isn't terribly useful, note that pretty much
-all of the interpreter internal state is accessible from Python, so
-arbitrary predicates may be defined this way. For a slightly more
-advanced example, see `tests/remap/predefined-named-params`.
+While the above example isn't terribly useful,
+note that pretty much all of the interpreter internal state is accessible from Python,
+so arbitrary predicates may be defined this way.
+For a slightly more advanced example, see `tests/remap/predefined-named-params`.
 
 [[remap:standard-glue]]
 == Standard Glue routines
 
-Since many remapping tasks are very similar, I've started collecting
-working prolog and epilog routines in a single Python module. These
-can currently be found in
-'ncfiles/remap_lib/python-stdglue/stdglue.py' and provide the
-following routines:
+Since many remapping tasks are very similar, I've started collecting working prolog and epilog routines in a single Python module.
+These can currently be found in 'ncfiles/remap_lib/python-stdglue/stdglue.py' and provide the following routines:
 
 === T: +prepare_prolog+ and +prepare_epilog+
 
-These wrap a NGC procedure for Tx Tool Prepare.
+These wrap a NGC procedure for T__x__ Tool Prepare.
 
 .Actions of +prepare_prolog+
 
@@ -1851,8 +1763,8 @@ The following parameters are made visible to the NGC procedure:
 - `#<tool>` - the parameter of the `T` word
 - `#<pocket>` - the corresponding pocket
 
-If tool number zero is requested (meaning Tool unload), the
-corresponding pocket is passed as -1.
+If tool number zero is requested (meaning Tool unload),
+the corresponding pocket is passed as -1.
 
 It is an error if:
 
@@ -1860,22 +1772,19 @@ It is an error if:
 - the tool cannot be found in the tool table.
 
 Note that unless you set the `[EMCIO] RANDOM_TOOLCHANGER=1` parameter,
-tool and pocket number are identical, and the pocket number from the
-tool table is ignored. This is currently a restriction.
+tool and pocket number are identical,
+and the pocket number from the tool table is ignored.
+This is currently a restriction.
 
 .Actions of +prepare_epilog+
 
 - The NGC procedure is expected to return a positive value, otherwise
-  and error message containing the return value is given and the
-  interpreter aborts.
-- In case the NGC procedure executed the T command (which then refers
-  to the built in T behavior), no further action is taken. This can be
-  used for instance to minimally adjust the built in behavior be
-  preceding or following it with some other statements.
-- Otherwise, the `#<tool>` and `#<pocket>` parameters are extracted
-  from the subroutine's parameter space. This means that the NGC
-  procedure could change these values, and the epilog takes the
-  changed values in account.
+  an error message containing the return value is given and the interpreter aborts.
+- In case the NGC procedure executed the T command (which then refers to the built in T behavior), no further action is taken.
+  This can be used for instance to minimally adjust the built in behavior be preceding or following it with some other statements.
+- Otherwise, the `#<tool>` and `#<pocket>` parameters are extracted from the subroutine's parameter space.
+  This means that the NGC procedure could change these values,
+  and the epilog takes the changed values in account.
 - then, the Canon command `SELECT_TOOL(#<tool>)` is executed.
 
 === M6: +change_prolog+ and +change_epilog+
@@ -1885,16 +1794,15 @@ These wrap a NGC procedure for M6 Tool Change.
 .Actions of +change_prolog+
 
 * The following three steps are applicable only if the `iocontrol-v2` component is used:
-** If parameter 5600 (fault indicator) is greater than zero, this indicates a Toolchanger
-   fault, which is handled as follows:
+** If parameter 5600 (fault indicator) is greater than zero,
+   this indicates a Toolchanger fault, which is handled as follows:
 ** if parameter 5601 (error code) is negative, this indicates a hard
    fault and the prolog aborts with an error message.
-** if parameter 5601 (error code) is greater equal zero, this indicates a soft
-   fault. An informational message is displayed and the prolog continues.
-* If there was no preceding T command which caused a pocket to be
-  selected, the prolog aborts with an error message.
-* If cutter radius compensation is on, the prolog aborts with an error
-  message.
+** if parameter 5601 (error code) is greater equal zero, this indicates a soft fault.
+   An informational message is displayed and the prolog continues.
+* If there was no preceding T command which caused a pocket to be selected,
+  the prolog aborts with an error message.
+* If cutter radius compensation is on, the prolog aborts with an error message.
 
 Then, the following parameters are exported to the NGC procedure:
 
@@ -1904,42 +1812,38 @@ Then, the following parameters are exported to the NGC procedure:
 
 .Actions of +change_epilog
 
-* The NGC procedure is expected to return a positive value, otherwise
-  and error message containing the return value is given and the
-  interpreter aborts.
-* If parameter 5600 (fault indicator) is greater than zero, this indicates a Toolchanger
-  fault, which is handled as follows (`iocontrol-v2`-only):
-** If parameter 5601 (error code) is negative, this indicates a hard
-   fault and the epilog aborts with an error message.
-** If parameter 5601 (error code) is greater equal zero, this indicates a soft
-   fault. An informational message is displayed and the epilog continues.
+* The NGC procedure is expected to return a positive value,
+  otherwise an error message containing the return value is given and the interpreter aborts.
+* If parameter 5600 (fault indicator) is greater than zero, this indicates a Toolchanger fault,
+  which is handled as follows (`iocontrol-v2`-only):
+** If parameter 5601 (error code) is negative,
+   this indicates a hard fault and the epilog aborts with an error message.
+** If parameter 5601 (error code) is greater equal zero, this indicates a soft fault.
+   An informational message is displayed and the epilog continues.
 * In case the NGC procedure executed the M6 command (which then refers
-  to the built in M6 behavior), no further action is taken. This can be
-  used for instance to minimally adjust the built in behavior be
-  preceding or following it with some other statements.
+  to the built in M6 behavior), no further action is taken.
+  This can be used for instance to minimally adjust the built in behavior be preceding
+  or following it with some other statements.
 * Otherwise, the `#<selected_pocket>` parameter is extracted
   from the subroutine's parameter space, and used to set the
-  interpreter's `current_pocket` variable. Again, the
-  procedure could change this value, and the epilog takes the
-  changed value in account.
-* Then, the Canon command `CHANGE_TOOL(#<selected_pocket>)` is
-  executed.
+  interpreter's `current_pocket` variable.
+  Again, the procedure could change this value,
+  and the epilog takes the changed value in account.
+* Then, the Canon command `CHANGE_TOOL(#<selected_pocket>)` is executed.
 * The new tool parameters (offsets, diameter etc) are set.
 
 [[remap:cycle-stdglue]]
 === G-code Cycles: +cycle_prolog+ and +cycle_epilog+
 
-These wrap a NGC procedure so it can act as a cycle, meaning the
-motion code is retained after finishing execution. If the next line
-just contains parameter words (e.g. new X,Y values), the code is
-executed again with the new parameter words merged into the set of the
-parameters given in the first invocation.
+These wrap a NGC procedure so it can act as a cycle,
+meaning the motion code is retained after finishing execution.
+If the next line just contains parameter words (e.g. new X,Y values),
+the code is executed again with the new parameter words merged into the set of the parameters given in the first invocation.
 
-These routines are designed to work in conjunction with an
-<<sub:argspec-parameter,`argspec=<words>` parameter>>. While this is
-easy to use, in a realistic scenario you would avoid argspec and do a
-more thorough investigation of the block manually in order to give better
-error messages.
+These routines are designed to work in conjunction with an <<sub:argspec-parameter,`argspec=<words>` parameter>>.
+While this is easy to use, in a realistic scenario you would avoid argspec and
+do a more thorough investigation of the block manually
+in order to give better error messages.
 
 The suggested argspec is as follows:
 
@@ -1948,30 +1852,27 @@ The suggested argspec is as follows:
 REMAP=G<somecode> argspec=xyzabcuvwqplr prolog=cycle_prolog ngc=<ngc procedure> epilog=cycle_epilog modalgroup=1
 ---------------------------------------------------------------------
 
-This will permit +cycle_prolog+ to determine the compatibility of any
-axis words give in the block, see below.
+This will permit +cycle_prolog+ to determine the compatibility of any axis words give in the block, see below.
 
 .Actions of +cycle_prolog+
 * Determine whether the words passed in from the current block fulfill
   the conditions outlined under <<gcode:canned-cycle-errors,Canned Cycle Errors>>.
-** Export the axis words as +<x>+, +#<y>+ etc; fail if axis words from
-   different groups (XYZ) (UVW) are used together, or any of (ABC) is given.
+** Export the axis words as +<x>+, +#<y>+ etc;
+   fail if axis words from different groups (XYZ) (UVW) are used together, or any of (ABC) is given.
 ** Export 'L-' as +#<l>+; default to 1 if not given.
 ** Export 'P-' as +#<p>+; fail if p less than 0.
 ** Export 'R-' as +#<r>+; fail if r not given, or less equal 0 if given.
-** Fail if feed rate is zero, or inverse time feed or cutter
-   compensation is on.
+** Fail if feed rate is zero, or inverse time feed or cutter compensation is on.
 * Determine whether this is the first invocation of a cycle G-code, if so:
-** Add the words passed in (as per argspec) into a set of sticky
-   parameters, which is retained across several invocations.
+** Add the words passed in (as per argspec) into a set of sticky parameters,
+   which is retained across several invocations.
 * If not (a continuation line with new parameters) then
 ** merge the words passed in into the existing set of sticky parameters.
 * Export the set of sticky parameters to the NGC procedure.
 
 .Actions of +cycle_epilog+
 * Determine if the current code was in fact a cycle, if so, then
-** retain the current motion mode so a continuation line without a
-   motion code will execute the same motion code.
+** retain the current motion mode so a continuation line without a motion code will execute the same motion code.
 
 === S (Set Speed) : +setspeed_prolog+ and +setspeed_epilog+
 
@@ -1990,26 +1891,23 @@ TBD
 === NGC procedure call environment during remaps
 
 Normally, an O-word procedure is called with positional parameters.
-This scheme is very limiting in particular in the presence of optional
-parameters. Therefore, the calling convention has been extended to use
-something remotely similar to the Python keyword arguments model.
+This scheme is very limiting in particular in the presence of optional parameters.
+Therefore, the calling convention has been extended to use something remotely similar to the Python keyword arguments model.
 
-see LINKTO gcode/main Subroutines: sub, endsub, return, call.
+See LINKTO G-code/main Subroutines: sub, endsub, return, call.
 
 === Nested remapped codes
 
-Remapped codes may be nested just like procedure calls - that is, a
-remapped code whose NGC procedure refers to some other remapped code
-will execute properly.
+Remapped codes may be nested just like procedure calls - that is,
+a remapped code whose NGC procedure refers to some other remapped code will execute properly.
 
 The maximum nesting level remaps is currently 10.
 
 === Sequence number  during remaps
 
-Sequence numbers are propagated and restored like with O-word
-calls. See `tests/remap/nested-remaps/word` for the regression test,
-which shows sequence number tracking during nested remaps three levels
-deep.
+Sequence numbers are propagated and restored like with O-word calls.
+See `tests/remap/nested-remaps/word` for the regression test,
+which shows sequence number tracking during nested remaps three levels deep.
 
 === Debugging flags
 
@@ -2024,18 +1922,16 @@ execution:
   EMC_DEBUG_USER1             0x10000000  user-defined - not interpreted by LinuxCNC
   EMC_DEBUG_USER2             0x20000000  user-defined - not interpreted by LinuxCNC
 
-'or' these flags into the `[EMC]DEBUG` variable as needed. For a current
-list of debug flags see 'src/emc/nml_intf/debugflags.h'.
+'or' these flags into the `[EMC]DEBUG` variable as needed.
+For a current list of debug flags see 'src/emc/nml_intf/debugflags.h'.
 
 === Debugging Embedded Python code
 
-Debugging of embedded Python code is harder than debugging normal
-Python scripts, and only a limited supply of debuggers exists. A
-working open-source based solution is to use the
-http://www.eclipse.org[Eclipse IDE], and the http://www.pydev.org[PydDev]
-Eclipse plug in and its
-http://pydev.org/manual_adv_remote_debugger.html[remote debugging
-feature].
+Debugging of embedded Python code is harder than debugging normal Python scripts,
+and only a limited supply of debuggers exists.
+A working open-source based solution is to use the http://www.eclipse.org[Eclipse IDE],
+and the http://www.pydev.org[PydDev] Eclipse plug in and its
+http://pydev.org/manual_adv_remote_debugger.html[remote debugging feature].
 
 To use this approach:
 
@@ -2044,13 +1940,12 @@ To use this approach:
 - Setup the LinuxCNC source tree as an Eclipse project.
 - Start the Pydev Debug Server in Eclipse.
 - Make sure the embedded Python code can find the `pydevd.py` module
-  which comes with that plug in - it's buried somewhere deep under the
-  Eclipse install directory. Set the the `pydevd` variable in `util.py`
-  to reflect this directory location.
+  which comes with that plug in - it's buried somewhere deep under the Eclipse install directory.
+  Set the the `pydevd` variable in `util.py` to reflect this directory location.
 - Add `import pydevd` to your Python module - see example `util.py` and `remap.py`.
 - Call `pydevd.settrace()` in your module at some point to connect to
-  the Eclipse Python debug server - here you can set breakpoints in your
-  code, inspect variables, step etc as usual.
+  the Eclipse Python debug server - here you can set breakpoints in your code,
+  inspect variables, step etc. as usual.
 
 CAUTION: `pydevd.settrace()` will block execution if Eclipse and the
 Pydev debug server have not been started.
@@ -2059,8 +1954,7 @@ To cover the last two steps: the `o<pydevd>` procedure helps to get
 into the debugger from MDI mode. See also the `call_pydevd` function
 in `util.py` and its usage in `remap.involute` to set a breakpoint.
 
-Here's a screen-shot of Eclipse/PyDevd debugging the `involute`
-procedure from above:
+Here's a screen-shot of Eclipse/PyDevd debugging the `involute` procedure from above:
 
 image::images/debug_embedded_python.png[Debugging with Eclipse]
 
@@ -2069,43 +1963,36 @@ See the Python code in `configs/sim/axis/remap/getting-started/python` for detai
 [[remap:axis-preview-and-remapped-code-execution]]
 == Axis Preview and Remapped code execution
 
-For complete preview of a remapped code's tool path some precautions
-need to be taken. To understand what is going on, let's review the
-preview and execution process (this covers the Axis case, but others
-are similar):
+For complete preview of a remapped code's tool path some precautions need to be taken.
+To understand what is going on,
+let's review the preview and execution process (this covers the AXIS case, but others are similar):
 
 First, note that there are *two* independent interpreter instances
 involved:
 
-- One instance in the milltask program, which executes a program when
-  you hit the 'Start' button, and actually makes the machine move.
-- A second instance in the user interface whose primary purpose is to
-  generate the tool path preview. This one 'executes' a program once it
-  is loaded, but it doesn't actually cause machine movements.
+- One instance in the milltask program, which executes a program when you hit the 'Start' button,
+  and actually makes the machine move.
+- A second instance in the user interface whose primary purpose is to generate the tool path preview.
+  This one 'executes' a program once it is loaded, but it doesn't actually cause machine movements.
 
 Now assume that your remap procedure contains a G38 probe operation,
-for example as part of a tool change with automatic tool length
-touch off. If the probe fails, that would clearly be an error, so you'd
-display a message and abort the program.
+for example as part of a tool change with automatic tool length touch off.
+If the probe fails, that would clearly be an error, so you'd display a message and abort the program.
 
-Now, what about preview of this procedure?  At preview time, of course
-it's not known whether the probe succeeds or fails - but you would
-likely want to see what the maximum depth of the probe is, and assume
-it  succeeds and continues execution to
-preview further movements. Also, there is no point in displaying a
-'probe failed' message and aborting *during preview*.
+Now, what about preview of this procedure?
+At preview time, of course it's not known whether the probe succeeds or fails -
+but you would likely want to see what the maximum depth of the probe is,
+and assume it succeeds and continues execution to preview further movements.
+Also, there is no point in displaying a 'probe failed' message and aborting *during preview*.
 
-The way to address this issue is to test in your procedure whether it
-executes in preview or execution mode. This can be checked for by
-testing the `#<_task>` <<gcode:predefined-named-parameters,predefined
-named parameter>> - it will be 1 during actual execution and 0 during
-preview. See
-'configs/sim/axis/remap/manual-toolchange-with-tool-length-switch/nc_subroutines/manual_change.ngc'
+The way to address this issue is to test in your procedure whether it executes in preview or execution mode.
+This can be checked for by testing the `#<_task>` <<gcode:predefined-named-parameters,predefined named parameter>> -
+it will be 1 during actual execution and 0 during preview.
+See 'configs/sim/axis/remap/manual-toolchange-with-tool-length-switch/nc_subroutines/manual_change.ngc'
 for a complete usage example.
 
-Within Embedded Python, the `task` instance can be checked for by
-testing 'self.task' - this will be 1 in the milltask instance, and 0
-in the preview instance(s).
+Within Embedded Python, the `task` instance can be checked for by testing 'self.task' -
+this will be 1 in the milltask instance, and 0 in the preview instance(s).
 
 [[remap:remappable-codes]]
 == Remappable Codes
@@ -2129,11 +2016,9 @@ Note that the use of M61 currently requires the use of `iocontrol-v2`.
 [[remap:unallocated-g-codes]]
 === Currently unallocated G-codes:
 
-Currently unallocated G-codes (for remapping) must be selected from the blank
-areas of the following tables. All the listed G-codes are already defined in
-the current implementation of LinuxCNC and may *not* be used to remap new
-G-codes. (Developers who add new G-codes to LinuxCNC are encouraged to also
-add their new G-codes to these tables.)
+Currently unallocated G-codes (for remapping) must be selected from the blank areas of the following tables.
+All the listed G-codes are already defined in the current implementation of LinuxCNC and may *not* be used to remap new G-codes.
+(Developers who add new G-codes to LinuxCNC are encouraged to also add their new G-codes to these tables.)
 
 .Table of Allocated G-codes 00-09
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
@@ -2378,46 +2263,40 @@ the following categories:
 1. _Configuration information_ (typically from INI file)
 2. _The 'World model'_  - a representation of actual machine state
 3. _Modal state and settings_ -
-   Refers to state which is 'carried over' between executing
-   individual NGC codes - for instance, once the spindle is turned on and
-   the speed is set, it remains at this setting until turned off. The
-   same goes for many codes, like feed, units, motion modes (feed or
-   rapid)  and so forth.
+   Refers to state which is 'carried over' between executing individual NGC codes -
+   for instance, once the spindle is turned on and the speed is set,
+   it remains at this setting until turned off.
+   The same goes for many codes, like feed, units, motion modes (feed or rapid)  and so forth.
 4. _Interpreter execution state_ -
-   Holds information about the block currently executed, whether we
-   are in a subroutine, interpreter variables, etc. .
-   Most of this state is aggregated in a - fairly unsystematic -
-   `structure _setup` (see interp_internals.hh).
+   Holds information about the block currently executed,
+   whether we are in a subroutine, interpreter variables, etc. .
+   Most of this state is aggregated in a - fairly unsystematic - `structure _setup` (see interp_internals.hh).
 
 === Task and Interpreter interaction, Queuing and Read-Ahead
 
-The `task` part of LinuxCNC is responsible for coordinating actual machine
-commands - movement, HAL interactions and so forth. It does not by
-itself handle the RS274NGC language. To do so, `task` calls upon the
-interpreter to parse and execute the next command - either from MDI or
-the current file.
+The `task` part of LinuxCNC is responsible for coordinating actual machine commands - movement, HAL interactions and so forth.
+It does not by itself handle the RS274NGC language.
+To do so, `task` calls upon the interpreter to parse and execute the next command - either from MDI or the current file.
 
-The interpreter execution generates canonical machine operations, which
-actually move something. These are, however, not immediately executed but
-put on a queue. The actual execution of these codes happens in the `task`
-part of LinuxCNC: canon commands are pulled off that interpreter queue,
+The interpreter execution generates canonical machine operations, which actually move something.
+These are, however, not immediately executed but put on a queue.
+The actual execution of these codes happens in the `task` part of LinuxCNC: canon commands are pulled off that interpreter queue,
 and executed resulting in actual machine movements.
 
 This means that typically the interpreter is far ahead of the actual
 execution of commands - the parsing of the program might well be
-finished before any noticeable movement starts. This behavior is
-called 'read-ahead'.
+finished before any noticeable movement starts.
+This behavior is called 'read-ahead'.
 
 === Predicting the machine position
 
 To compute canonical machine operations in advance during read ahead,
-the interpreter must be able to predict the machine position after
-each line of G-code, and that is not always possible.
+the interpreter must be able to predict the machine position after each line of G-code,
+and that is not always possible.
 
-Let's look at a simple example program which does relative moves
-(G91), and assume the machine starts at x=0,y=0,z=0. Relative moves
-imply that the outcome of the next move relies on the position of the
-previous one:
+Let's look at a simple example program which does relative moves (G91),
+and assume the machine starts at x=0,y=0,z=0.
+Relative moves imply that the outcome of the next move relies on the position of the previous one:
 
 [source,{ngc}]
 ----
@@ -2432,14 +2311,13 @@ Here the interpreter can clearly predict machine positions for each line:
 
 After N20: x=10 y=-5 z=20; after N30: x=10 y=15 z=15; after N40: x=10 y=15 z=45
 
-and so can parse the whole program and generate canonical operations
-well in advance.
+and so can parse the whole program and generate canonical operations well in advance.
 
 === Queue-busters break position prediction
 
-However, complete read ahead is only possible when the
-interpreter can predict the position impact for *every* line in the
-program in advance. Let's look at a modified example:
+However, complete read ahead is only possible
+when the interpreter can predict the position impact for *every* line in the program in advance.
+Let's look at a modified example:
 
 [source,{ngc}]
 ----
@@ -2460,8 +2338,8 @@ where the machine is after line N80 - and that depends on whether the
 probe command succeeded or not, which is not known until it's actually
 executed.
 
-So, some operations are incompatible with further read-ahead. These
-are called 'queue busters', and they are:
+So, some operations are incompatible with further read-ahead.
+These are called _queue busters_, and they are:
 
 - Reading a HAL pin's value with M66: value of HAL pin not predictable.
 - Loading a new tool with M6: tool geometry not predictable.
@@ -2469,47 +2347,45 @@ are called 'queue busters', and they are:
 
 === How queue-busters are dealt with
 
-Whenever the interpreter encounters a queue-buster, it needs to stop
-read ahead and wait until the relevant result is available. The way
-this works is:
+Whenever the interpreter encounters a queue-buster,
+it needs to stop read ahead and wait until the relevant result is available.
+The way this works is:
 
-- When such a code is encountered, the interpreter returns a
-  special return code to `task` ('INTERP_EXECUTE_FINISH').
-- This return code signals to `task` to stop read ahead for now, execute
-  all queued canonical commands built up so far (including the last one,
-  which is the queue buster), and then 'synchronize
-  the interpreter state with the world model'. Technically, this means
-  updating internal variables to reflect HAL pin values, reload tool
-  geometries after an M6, and convey results of a probe.
+- When such a code is encountered,
+  the interpreter returns a special return code to `task` ('INTERP_EXECUTE_FINISH').
+- This return code signals to `task` to stop read ahead for now,
+  execute all queued canonical commands built up so far (including the last one,
+  which is the queue buster),
+  and then 'synchronize the interpreter state with the world model'.
+  Technically, this means updating internal variables to reflect HAL pin values,
+  reload tool geometries after an M6, and convey results of a probe.
 - The interpreter's 'synch()' method is called by `task` and does just
   that - read all the world model 'actual' values which are relevant for
   further execution.
-- At this point, `task` goes ahead and calls the interpreter for more
-  read ahead - until either the program ends or another queue-buster is encountered.
+- At this point, `task` goes ahead and calls the interpreter for more read ahead -
+  until either the program ends or another queue-buster is encountered.
 
 === Word order and execution order
 
-One or several 'words' may be present on an NGC 'block' if they are
-compatible (some are mutually exclusive and must be on different
-lines).  The execution model however prescribes a strict ordering of
-execution of codes, regardless of their appearance on the source line
+One or several 'words' may be present on an NGC 'block' if they are compatible
+(some are mutually exclusive and must be on different lines).
+The execution model however prescribes a strict ordering of execution of codes,
+regardless of their appearance on the source line
 (<<gcode:order-of-execution,G-code Order of Execution>>).
 
 === Parsing
 
-Once a line is read (in either MDI mode, or from the current NGC
-file), it is parsed and flags and parameters are set in a 'struct
-block' (struct _setup, member block1). This struct holds all information
-about the current source line, but independent of different ordering
-of codes on the current line: as long as several codes are compatible,
-any source ordering will result in the same variables set in the
-struct block. Right after parsing, all codes on a block are checked for
-compatibility.
+Once a line is read (in either MDI mode, or from the current NGC file),
+it is parsed and flags and parameters are set in a 'struct block' (struct _setup, member block1).
+This struct holds all information about the current source line,
+but independent of different ordering of codes on the current line:
+As long as several codes are compatible, any source ordering will result in the same variables set in the struct block.
+Right after parsing, all codes on a block are checked for compatibility.
 
 === Execution
 
-After successful parsing the block is executed by execute_block(), and
-here the different items are handled according to execution order.
+After successful parsing the block is executed by execute_block(),
+and here the different items are handled according to execution order.
 
 If a "queue buster" is found, a corresponding flag is set in the
 interpreter state (toolchange_flag, input_flag, probe_flag) and the
@@ -2542,19 +2418,18 @@ The actions happening in LinuxCNC are a bit involved, but it's necessary
 to get the overall idea what currently happens before you set out to
 adapt those workings to your own needs.
 
-Note that remapping an existing code completely disables all internal
-processing for that code. That means that beyond your desired
-behavior - probably described through an NGC Oword or Python
-procedure, you need to replicate those internal actions of the
-interpreter which together result in a complete replacement of the
-existing code. The prolog and epilog code is the place to do this.
+Note that remapping an existing code completely disables all internal processing for that code.
+That means that beyond your desired behavior (probably described through an NGC O-word or Python procedure),
+you need to replicate those internal actions of the interpreter,
+which together result in a complete replacement of the existing code.
+The prolog and epilog code is the place to do this.
 
 .How tool information is communicated
-Several processes are 'interested' in tool information: `task` and its
-interpreter, as well as the user interface. Also, the 'halui' process.
+Several processes are 'interested' in tool information: `task` and its interpreter,
+as well as the user interface. Also, the 'halui' process.
 
-Tool information is held in the 'emcStatus' structure, which is
-shared by all parties. One of its fields is the 'toolTable' array,
+Tool information is held in the 'emcStatus' structure, which is shared by all parties.
+One of its fields is the 'toolTable' array,
 which holds the description as loaded from the tool table file (tool
 number, diameter, frontangle, backangle and orientation for lathe,
 tool offset information).
@@ -2583,8 +2458,7 @@ To see fields in the global emcStatus structure, try this:
 ;py,print(emcstat.io.tool.toolTable[0])
 ----
 
-You need to have LinuxCNC started from a terminal window to see the
-results.
+You need to have LinuxCNC started from a terminal window to see the results.
 
 === How Tx (Prepare Tool) works
 
@@ -2614,7 +2488,7 @@ tool is next, raises the "tool-prepare" pin, and waits for the
 
 When the changer responds by asserting "tool-prepared", it considers
 the prepare phase to be completed and signals `task` to
-continue. (again, this 'wait' istn strictly necessary IMO)
+continue. Again, this 'wait' is not strictly necessary IMO.
 
 .Building the prolog and epilog for Tx
 See the Python functions `prepare_prolog` and `prepare_epilog` in
@@ -2622,9 +2496,9 @@ See the Python functions `prepare_prolog` and `prepare_epilog` in
 
 === How M6 (Change tool) works
 
-You need to understand this fully before you can adapt it. It is very
-relevant to writing a prolog and epilog handler for a remapped
-M6. Remapping an existing codes means you disable the internal steps
+You need to understand this fully before you can adapt it.
+It is very relevant to writing a prolog and epilog handler for a remapped M6.
+Remapping an existing codes means you disable the internal steps
 taken normally, and replicate them as far as needed for your own
 purposes.
 
