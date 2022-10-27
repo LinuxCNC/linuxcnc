@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-10-09 15:50+0200\n"
-"PO-Revision-Date: 2022-10-20 01:20+0000\n"
+"PO-Revision-Date: 2022-10-27 16:28+0000\n"
 "Last-Translator: Ulices <dev.n47os@aleeas.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/es/>\n"
@@ -12881,72 +12881,88 @@ msgid ""
 "\n"
 "# ---JOINT ASSOCIATED WITH THE Z AXIS---"
 msgstr ""
+"\n"
+"# ---ARTICULACIÓN ASOCIADA AL EJE Z---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1840
 msgid ""
 "\n"
 "# ---PLASMA INPUTS---"
 msgstr ""
+"\n"
+"# -ENTRADAS DE PLASMA---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1841
 #: src/emc/usr_intf/pncconf/build_HAL.py:1854
 msgid "# ---all modes---"
-msgstr ""
+msgstr "# ---Todos los modos---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1846
 msgid "# ---modes 0 & 1"
-msgstr ""
+msgstr "# --- modos 0 y 1"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1848
 msgid "# ---modes 1 & 2"
-msgstr ""
+msgstr "# --- modos 1 y 2"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1850
 msgid "# ---mode 2"
-msgstr ""
+msgstr "# - Modo 2"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1853
 msgid ""
 "\n"
 "# ---PLASMA OUTPUTS---"
 msgstr ""
+"\n"
+"# ---SALIDAS DE PLASMA---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1872
 msgid ""
 "\n"
 "# ---ARC VOLTAGE ENCODER---"
 msgstr ""
+"\n"
+"# --- CODIFICADOR DE VOLTAJE DE ARCO---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1882
 msgid ""
 "\n"
 "# ---OHMIC SENSE LINK---"
 msgstr ""
+"\n"
+"# ---ENLACE DE SENSADO ÓHMICO---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1890
 msgid ""
 "\n"
 "# ---COMMON PLASMAC DEBOUNCE---"
 msgstr ""
+"\n"
+"# ---ANTIREBOTE DE PLASMA COMÚN---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1891
 msgid "# for the float and ohmic inputs each increment in delay is"
-msgstr ""
+msgstr "# Para las entradas flotantes y óhmicas cada incremento de retardo es"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1892
 msgid "# is a 0.001mm (0.00004\") increase in any probed height result"
 msgstr ""
+"# es un aumento de 0.001mm (0.00004\") en cualquier resultado de altura "
+"sondeado"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1895
 #: src/emc/usr_intf/pncconf/build_HAL.py:1940
 msgid "# set to zero if using internal ohmic sensing"
-msgstr ""
+msgstr "# establecer en cero si se utiliza la detección óhmica interna"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1973
 msgid ""
 "\n"
 "# ---OHMIC SENSE CONTACT DEBOUNCE---"
 msgstr ""
+"\n"
+"# ---ANTIREBOTE DE CONTACTO DE SENSADO ÓHMICO---"
 
 #: src/emc/usr_intf/pncconf/private_data.py:38
 msgid "PNCconf"
@@ -13067,14 +13083,12 @@ msgid "SSR Output"
 msgstr "Salida SSR"
 
 #: src/emc/usr_intf/pncconf/private_data.py:119
-#, fuzzy
 msgid "OUTM Output"
-msgstr "Salida POT"
+msgstr "Salida OUTM"
 
 #: src/emc/usr_intf/pncconf/private_data.py:121
-#, fuzzy
 msgid "INM Input"
-msgstr "Entrada GPIO"
+msgstr "Entrada INM"
 
 #: src/emc/usr_intf/pncconf/private_data.py:124
 msgid "Quad Enc-A"
@@ -13950,19 +13964,16 @@ msgid "Tandem Axis"
 msgstr "Eje en tándem"
 
 #: src/emc/usr_intf/pncconf/private_data.py:465
-#, fuzzy
 msgid "Arc OK"
-msgstr "Arco CW"
+msgstr "Arco OK"
 
 #: src/emc/usr_intf/pncconf/private_data.py:465
-#, fuzzy
 msgid "Ohmic Contact"
-msgstr "Habilitar POT"
+msgstr "Contacto óhmico"
 
 #: src/emc/usr_intf/pncconf/private_data.py:465
-#, fuzzy
 msgid "Float Switch"
-msgstr "Interruptores"
+msgstr "Interruptor de nivel"
 
 #: src/emc/usr_intf/pncconf/private_data.py:466
 msgid "Breakaway"
@@ -14217,9 +14228,8 @@ msgid "Override MPG control"
 msgstr "Anular el control MPG"
 
 #: src/emc/usr_intf/pncconf/private_data.py:510
-#, fuzzy
 msgid "Plasma Encoder"
-msgstr "Codificador X"
+msgstr "Codificador de plasma"
 
 #: src/emc/usr_intf/pncconf/private_data.py:513
 msgid "Unused Unused"
@@ -14254,23 +14264,20 @@ msgid "Force Pin True"
 msgstr "Pin de fuerza verdadero"
 
 #: src/emc/usr_intf/pncconf/private_data.py:530
-#, fuzzy
 msgid "Ohmic Enable"
-msgstr "Habilitar POT"
+msgstr "Activación óhmica"
 
 #: src/emc/usr_intf/pncconf/private_data.py:530
 msgid "Scribe Arm"
 msgstr "Brazo trazador"
 
 #: src/emc/usr_intf/pncconf/private_data.py:530
-#, fuzzy
 msgid "Scribe On"
-msgstr "Máquina On"
+msgstr "Scribe On"
 
 #: src/emc/usr_intf/pncconf/private_data.py:530
-#, fuzzy
 msgid "Torch On"
-msgstr "Touch Off"
+msgstr "Soplete On"
 
 #: src/emc/usr_intf/pncconf/private_data.py:530
 msgid "Laser On"
@@ -16448,7 +16455,6 @@ msgid "<b>USB Jogging</b>"
 msgstr "<b> USB Jogging </b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:711
-#, fuzzy
 msgid ""
 "Use the checkboxes to enable options.\n"
 "Press the corresponding info button to\n"
@@ -17093,9 +17099,8 @@ msgid "10 1 .1 .01 .001"
 msgstr "10 1 .1 .01 .001"
 
 #: src/emc/usr_intf/pncconf/screen.glade:3919
-#, fuzzy
 msgid "QtPlasmaC Options"
-msgstr "Opciones de muestra"
+msgstr "Opciones de QtPlasmaC"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:26
 msgid "<b>Virtual Control Panel</b>"
@@ -17260,9 +17265,8 @@ msgstr "Velocidad de latch de home:"
 #: src/emc/usr_intf/pncconf/y_axis.glade:240
 #: src/emc/usr_intf/pncconf/z_axis.glade:240
 #: src/emc/usr_intf/pncconf/a_axis.glade:240
-#, fuzzy
 msgid "Use Compensation Filename:"
-msgstr "Usar archivo de compensación:"
+msgstr "Utilice el nombre de archivo de compensación:"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:256
 #: src/emc/usr_intf/pncconf/y_axis.glade:256
@@ -17275,10 +17279,10 @@ msgstr "Usar compensación de contragolpe:"
 #: src/emc/usr_intf/pncconf/y_axis.glade:274
 #: src/emc/usr_intf/pncconf/z_axis.glade:274
 #: src/emc/usr_intf/pncconf/a_axis.glade:274
-#, fuzzy
 msgid "Final Home Position location   (Offset from machine zero Origin):"
 msgstr ""
-"Ubicación de la posición home (offset desde el origen de la máquina cero):"
+"Ubicación de la posición home final (offset desde el origen del cero "
+"máquina):"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:291
 #: src/emc/usr_intf/pncconf/y_axis.glade:291
@@ -17293,11 +17297,10 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/y_axis.glade:307
 #: src/emc/usr_intf/pncconf/z_axis.glade:307
 #: src/emc/usr_intf/pncconf/a_axis.glade:307
-#, fuzzy
 msgid "Tandem Home Switch location   (Offset from machine zero Origin):"
 msgstr ""
-"Ubicación del interruptor de inicio (offset desde el origen de la máquina "
-"cero):"
+"Ubicación del interruptor de inicio tándem (offset desde el origen del cero "
+"máquina):"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:323
 #: src/emc/usr_intf/pncconf/y_axis.glade:323
@@ -17326,11 +17329,10 @@ msgstr "Secuencia de búsqueda de inicio:"
 #: src/emc/usr_intf/pncconf/y_axis.glade:369
 #: src/emc/usr_intf/pncconf/z_axis.glade:369
 #: src/emc/usr_intf/pncconf/a_axis.glade:369
-#, fuzzy
 msgid "Home Switch location   (offset from machine zero Origin):"
 msgstr ""
-"Ubicación del interruptor de inicio (offset desde el origen de la máquina "
-"cero):"
+"Ubicación del interruptor de inicio   (offset desde el origen del cero "
+"máquina):"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:184
 #: src/emc/usr_intf/pncconf/y_motor.glade:184
@@ -18280,7 +18282,6 @@ msgid "<b>frame2</b>"
 msgstr "<b> marco2 </b>"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:589
-#, fuzzy
 msgid "Save & Quit"
 msgstr "Guardar y salir"
 
@@ -19038,7 +19039,7 @@ msgstr "Abajo"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3809
 msgid "_Jump to"
-msgstr ""
+msgstr "Saltar a"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3829
 #, python-format
@@ -19275,13 +19276,12 @@ msgstr ""
 "todo"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1801
-#, fuzzy
 msgid ""
 "Ignore\n"
 "Case"
 msgstr ""
 "Ignorar\n"
-" caso"
+"Caso"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1828
 msgid "<b>Mode</b>"
@@ -19341,12 +19341,11 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2125
 #: src/emc/usr_intf/gscreen/gscreen.glade:3180
-#, fuzzy
 msgid ""
 "Show\n"
 "Offsets"
 msgstr ""
-" Mostrar\n"
+"Mostrar\n"
 "Offsets"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2143
@@ -19358,30 +19357,27 @@ msgstr ""
 "DTG"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2161
-#, fuzzy
 msgid ""
 "Gscreen\n"
 "Fullscreen"
 msgstr ""
-" Gscreen\n"
+"Gscreen\n"
 "pantalla completa"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2184
-#, fuzzy
 msgid ""
 "On M7 Use\n"
 "Aux Coolant"
 msgstr ""
-" En M7 Use\n"
+"En M7 Use\n"
 "refrigerante Aux"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2198
-#, fuzzy
 msgid ""
 "On M8 Use\n"
 "Aux Coolant"
 msgstr ""
-" En M8 Use\n"
+"En M8 Use\n"
 "refrigerante Aux"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2212
@@ -19406,12 +19402,11 @@ msgid "Alarm History"
 msgstr "Historial de alarmas"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2350
-#, fuzzy
 msgid ""
 "Launch\n"
 "Halshow"
 msgstr ""
-" Lanzar\n"
+"Lanzar\n"
 "Halshow"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2363
@@ -19439,13 +19434,12 @@ msgid "Tooleditor"
 msgstr "Editor de Herramientas"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2475
-#, fuzzy
 msgid ""
 "Offset\n"
 "Page"
 msgstr ""
-"Pagina\n"
-" Offset"
+"Página\n"
+"Offset"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2599
 msgid "Zero Origin"
@@ -19456,13 +19450,12 @@ msgid "Tool Setting"
 msgstr "Configuración de herramienta"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2719
-#, fuzzy
 msgid ""
 "Single\n"
 "Step"
 msgstr ""
 "Paso\n"
-" Sencillo"
+"Sencillo"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2733
 msgid ""
@@ -19498,13 +19491,12 @@ msgstr ""
 "Límites"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2884
-#, fuzzy
 msgid ""
 "Set\n"
 "Override"
 msgstr ""
-" establecer\n"
-"ajuste"
+"Establecer\n"
+"Anular"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2899
 msgid "Graphics"
@@ -19564,7 +19556,6 @@ msgstr ""
 "Jog"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3096
-#, fuzzy
 msgid ""
 "coordinate\n"
 "System"
@@ -19573,12 +19564,11 @@ msgstr ""
 "Coordenadas"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3141
-#, fuzzy
 msgid ""
 "Index\n"
 "Tool"
 msgstr ""
-"Índice\n"
+"Índice de\n"
 "Herramienta"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3154
@@ -19594,12 +19584,11 @@ msgid "Open"
 msgstr "Abrir"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3290
-#, fuzzy
 msgid ""
 "Block\n"
 "Delete"
 msgstr ""
-" Borrar\n"
+"Borrar\n"
 "Bloque"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3303
@@ -19611,7 +19600,6 @@ msgstr ""
 "opcional"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3316
-#, fuzzy
 msgid ""
 "Full\n"
 "View"
@@ -19620,7 +19608,6 @@ msgstr ""
 "Completa"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3353
-#, fuzzy
 msgid ""
 "Next\n"
 "Tab"
@@ -19645,13 +19632,12 @@ msgstr ""
 "Husillo"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3402
-#, fuzzy
 msgid ""
 "Rapid\n"
 "Override"
 msgstr ""
 "Ajuste\n"
-"Rápidos"
+"Rápido"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3424
 msgid ""
@@ -19718,7 +19704,6 @@ msgstr ""
 "Vertical"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3591
-#, fuzzy
 msgid ""
 "Search\n"
 "Bwd"
@@ -19743,7 +19728,6 @@ msgid "Redo"
 msgstr "Rehacer"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3663
-#, fuzzy
 msgid ""
 "Reload\n"
 "Program"
@@ -19752,7 +19736,6 @@ msgstr ""
 "Programa"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3677
-#, fuzzy
 msgid ""
 "Replace\n"
 "Text"
@@ -19761,12 +19744,11 @@ msgstr ""
 "Texto"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3716
-#, fuzzy
 msgid ""
 "Clear\n"
 "status"
 msgstr ""
-"Borrar\n"
+"Limpiar\n"
 "estado"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3747
@@ -19808,7 +19790,6 @@ msgstr ""
 "directamente."
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4034
-#, fuzzy
 msgid ""
 "Line\n"
 "Up"
@@ -19845,14 +19826,12 @@ msgid "Move to your home directory"
 msgstr "Mover al directorio home"
 
 #: lib/python/gladevcp/iconview.py:130
-#, fuzzy
 msgid "Move to parent directory"
-msgstr "Mover al directorio de padres"
+msgstr "Mover al directorio principal"
 
 #: lib/python/gladevcp/iconview.py:139
-#, fuzzy
 msgid "Select the previous file"
-msgstr "Seleccione el archivo previos"
+msgstr "Seleccionar el archivo previo"
 
 #: lib/python/gladevcp/iconview.py:148
 msgid "Select the next file"
@@ -19876,7 +19855,7 @@ msgstr "Comando"
 
 #: lib/python/gladevcp/hal_mdihistory.py:271
 msgid "ERROR loading halshow"
-msgstr ""
+msgstr "ERROR cargando halshow"
 
 #: lib/python/gladevcp/offsetpage_widget.py:354
 msgid "offsetpage widget error: unrecognized float input"
@@ -19892,21 +19871,22 @@ msgstr "Error MDI en offsetpage widget -zero G92"
 
 #: lib/python/gladevcp/offsetpage_widget.py:427
 msgid "MDI error in offsetpage widget-zero rotational offset"
-msgstr ""
+msgstr "Error del widget de desplazamiento: girando cero offset"
 
 #: lib/python/gladevcp/offsetpage_widget.py:506
-#, fuzzy
 msgid "offsetpage_widget error: cannot select coordinate system"
-msgstr "Offset todos los sistemas de coordenadas"
+msgstr ""
+"Error de offsetpage_widget: no se puede seleccionar el sistema de coordenadas"
 
 #: lib/python/gladevcp/tooledit_widget.py:227
 msgid "tooledit_widget error: cannot select tool number"
 msgstr ""
+"error de tooledit_widget: no se puede seleccionar el número de herramienta"
 
 #: lib/python/gladevcp/tooledit_widget.py:239
 #, python-brace-format
 msgid "Error in tool table line {0} in column "
-msgstr ""
+msgstr "Error en la línea de la tabla de herramientas {0} en la columna "
 
 #: lib/python/gladevcp/tooledit_widget.py:239
 #: lib/python/gladevcp/tooledit_gtk.glade:261
@@ -19920,10 +19900,12 @@ msgid ""
 ".\n"
 "Valid range is 0 - 9."
 msgstr ""
+".\n"
+"El rango válido es de 0 a 9."
 
 #: lib/python/gladevcp/tooledit_widget.py:257
 msgid "Toolfile does not exist"
-msgstr ""
+msgstr "El archivo de herramientas no existe"
 
 #: lib/python/gladevcp/tooledit_widget.py:296
 msgid "Tooledit widget int error"
@@ -19931,18 +19913,17 @@ msgstr "error en widgetTooledit"
 
 #: lib/python/gladevcp/tooledit_widget.py:306
 #: lib/python/gladevcp/tooledit_widget.py:311
-#, fuzzy
 msgid "Tooledit widget float error"
-msgstr "error en widgetTooledit"
+msgstr "Error flotante del widget Tooledit"
 
 #: lib/python/gladevcp/tooledit_widget.py:358
 msgid "Reloading tooltable into linuxcnc failed"
 msgstr "Fallo al recargar la tabla de herramientas en linuxcnc"
 
 #: lib/python/gladevcp/tooledit_widget.py:527
-#, fuzzy
 msgid "Tool file was modified since it was last read"
-msgstr "El archivo %r se modificó porque lo escribió stepconf"
+msgstr ""
+"El archivo de la herramienta fue modificado desde la última vez que se leyó"
 
 #: lib/python/gladevcp/gladevcp-test.glade:103
 #: lib/python/gladevcp/gladevcp-test.glade:119
@@ -19979,9 +19960,8 @@ msgid "Offset"
 msgstr "Offset"
 
 #: lib/python/gladevcp/offsetpage.glade:416
-#, fuzzy
 msgid "Offset Name"
-msgstr "Página de offset"
+msgstr "Nombre del desplazamiento"
 
 #: lib/python/gladevcp/offsetpage.glade:444
 msgid ""
@@ -20045,7 +20025,7 @@ msgstr "Todos los Offsets"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:426
 msgid "X Wear"
-msgstr ""
+msgstr "Desgaste en X"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:448
 msgid "Z Wear"
@@ -20064,9 +20044,8 @@ msgid "Z Tool"
 msgstr "Herramienta Z"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:814
-#, fuzzy
 msgid "Lathe Tool Offsets"
-msgstr "Establecer offset de herramienta"
+msgstr "Desplazamientos de la herramienta de torno"
 
 #: lib/python/gladevcp/calculator.glade:83
 msgid "CLR"
@@ -20078,11 +20057,11 @@ msgstr "DEL"
 
 #: lib/python/gladevcp/calculator.glade:346
 msgid "mm → in"
-msgstr ""
+msgstr "mm → in"
 
 #: lib/python/gladevcp/calculator.glade:361
 msgid "in → mm"
-msgstr ""
+msgstr "in → mm"
 
 #: lib/python/gladevcp/calculator.glade:376
 msgid "_Cancel_"
