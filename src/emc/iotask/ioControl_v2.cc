@@ -1033,7 +1033,9 @@ int main(int argc, char *argv[])
             int toolno = ((EMC_TOOL_PREPARE*)emcioCommand)->tool;
             CANON_TOOL_TABLE tdata;
             idx = tooldata_find_index_for_tool(toolno);
-
+#ifdef TOOL_NML
+            if (!random_toolchanger && toolno == 0) { idx = 0; }
+#endif
             rtapi_print_msg(RTAPI_MSG_DBG, "EMC_TOOL_PREPARE tool=%d pocket=%d\n", toolno, idx);
 
             // it doesn't make sense to prep the spindle pocket

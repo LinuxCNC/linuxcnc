@@ -882,7 +882,10 @@ int main(int argc, char *argv[])
                 int idx = 0;
                 int toolno = ((EMC_TOOL_PREPARE*)emcioCommand)->tool;
                 CANON_TOOL_TABLE tdata;
-                idx   = tooldata_find_index_for_tool(toolno);
+                idx  = tooldata_find_index_for_tool(toolno);
+#ifdef TOOL_NML
+                if (!random_toolchanger && toolno == 0) { idx = 0; }
+#endif
                 if (idx == -1) {  // not found
                     emcioStatus.tool.pocketPrepped = -1;
                 } else {
