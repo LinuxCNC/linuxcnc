@@ -676,7 +676,7 @@ install-dirs:
 		$(DESTDIR)$(datadir)/qtvcp/screens \
 		$(DESTDIR)$(datadir)/qtvcp/panels \
 		$(DESTDIR)$(datadir)/qtvcp/widgets_ui \
-		$(DESTDIR)$(datadir)/gmoccapy/images \
+		$(DESTDIR)$(datadir)/gmoccapy/icons \
 		$(DESTDIR)$(datadir)/glade3/catalogs \
 		$(DESTDIR)$(datadir)/glade3/pixmaps \
 		$(DESTDIR)$(datadir)/gtksourceview-2.0/language-specs \
@@ -831,7 +831,7 @@ install-python: install-dirs
 	$(TREE) ../share/qtvcp/screens/* $(DESTDIR)$(datadir)/qtvcp/screens
 	$(TREE) ../share/qtvcp/panels/* $(DESTDIR)$(datadir)/qtvcp/panels
 	$(TREE) ../share/qtvcp/widgets_ui/* $(DESTDIR)$(datadir)/qtvcp/widgets_ui
-	$(FILE) ../share/gmoccapy/images/*.png ../share/gmoccapy/images/*.gif ../share/gmoccapy/images/*.svg $(DESTDIR)$(datadir)/gmoccapy/images
+	$(TREE) ../share/gmoccapy/icons/* $(DESTDIR)$(datadir)/gmoccapy/icons
 
 install-kernel-dep:
 	$(DIR)	$(DESTDIR)$(moduledir)/linuxcnc \
