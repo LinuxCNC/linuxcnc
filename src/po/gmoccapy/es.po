@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-18 08:05+0200\n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
+"POT-Creation-Date: 2022-10-29 11:14+0200\n"
 "PO-Revision-Date: 2022-08-02 15:21+0000\n"
 "Last-Translator: Ulices <dev.n47os@aleeas.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
@@ -337,7 +337,7 @@ msgid "**** Entering init gremlin ****"
 msgstr "**** entrando inicialisacion gremlin ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2079
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5346
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5348
 msgid ""
 " Joint\n"
 "mode"
@@ -746,7 +746,7 @@ msgstr ""
 "No se puede entender el número de la herramienta introducida. ¡No va a "
 "cambiar nada!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5351
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5353
 msgid ""
 "World\n"
 "mode"
@@ -754,46 +754,46 @@ msgstr ""
 "Modo\n"
 "ejes"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5537
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5539
 msgid "Axis jogging is only allowed in world mode, but you are in joint mode!"
 msgstr ""
 "El jogging de ejes solo esta permitido en modo universal, pero se encuentra "
 "en modo articulación!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5573
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5575
 #, python-brace-format
 msgid "Received a not classified signal from pin {0}"
 msgstr "Se ha recibido una señal no clasificada del pin {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5578
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5580
 #, python-brace-format
 msgid "Could not translate {0} to number"
 msgstr "No se pudo traducir {0} a un numero"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5583
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5585
 msgid "no button here"
 msgstr "ningún botton aqui"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5586
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5588
 msgid "the button is not sensitive"
 msgstr "el botón no es sensible"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5591
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5593
 #, python-brace-format
 msgid "Button {0} has been toggled"
 msgstr "Se ha cambiado el botón {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5595
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5597
 #, python-brace-format
 msgid "Button {0} has been pressed"
 msgstr "botón {0} ha sido presionado"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5598
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5600
 #, python-brace-format
 msgid "Button {0} has been clicked"
 msgstr "Se ha hecho clic en el botón {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5611
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5613
 msgid "got wrong location to locate the childs"
 msgstr "obtuve una ubicación incorrecta para ubicar a los elementos niños"
 
@@ -871,11 +871,12 @@ msgid "**** GMOCCAPY GETINIINFO ****\n"
 msgstr "**** GMOCCAPY GETINIINFO ****\n"
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:432
+#, fuzzy
 msgid ""
-"**** No subroutine folder or program prefix is given in the ini file **** \n"
+"**** No subroutine folder or program prefix is given in the INI file **** \n"
 msgstr "**** No archivo para subrutinas o programas en el archivo INI **** \n"
 
-#: src/emc/usr_intf/gmoccapy/notification.py:209
+#: src/emc/usr_intf/gmoccapy/notification.py:213
 #, python-brace-format
 msgid "Error trying to delete the message with number {0}"
 msgstr "Error al intentar borrar el mensaje con el número {0}"

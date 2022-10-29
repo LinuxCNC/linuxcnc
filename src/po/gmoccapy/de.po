@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-18 08:05+0200\n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
+"POT-Creation-Date: 2022-10-29 11:14+0200\n"
 "PO-Revision-Date: 2022-06-27 21:55+0000\n"
 "Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
@@ -332,7 +332,7 @@ msgid "**** Entering init gremlin ****"
 msgstr "**** Gremlin Einrichtung gestartet ****"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2079
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5346
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5348
 msgid ""
 " Joint\n"
 "mode"
@@ -742,7 +742,7 @@ msgstr ""
 "Die eingegebene Werkzeugnummer wurde nicht verstanden. Es wird nichts "
 "geändert!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5351
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5353
 msgid ""
 "World\n"
 "mode"
@@ -750,46 +750,46 @@ msgstr ""
 "Koordinaten\n"
 " Modus"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5537
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5539
 msgid "Axis jogging is only allowed in world mode, but you are in joint mode!"
 msgstr ""
 "Das verfahren von Achsen ist nur im Koordinatenmodus erlaubt, doch Sie sind "
 "im Gemeinsam-Modus!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5573
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5575
 #, python-brace-format
 msgid "Received a not classified signal from pin {0}"
 msgstr "Nicht registriertes Signal von Pin {0} erhalten"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5578
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5580
 #, python-brace-format
 msgid "Could not translate {0} to number"
 msgstr "Konnte {0} nicht zu einer Nummer konvertieren"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5583
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5585
 msgid "no button here"
 msgstr "Kein Knopf hier"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5586
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5588
 msgid "the button is not sensitive"
 msgstr "Dieser Knopf ist nicht aktiv"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5591
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5593
 #, python-brace-format
 msgid "Button {0} has been toggled"
 msgstr "Knopf {0} wurde gewechselt"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5595
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5597
 #, python-brace-format
 msgid "Button {0} has been pressed"
 msgstr "Knopf {0} wurde gedrückt"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5598
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5600
 #, python-brace-format
 msgid "Button {0} has been clicked"
 msgstr "Knopf {0} wurde geklickt"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5611
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5613
 msgid "got wrong location to locate the childs"
 msgstr "Habe falschen Ort für das Finden der Kinderelemente erhalten"
 
@@ -867,13 +867,14 @@ msgid "**** GMOCCAPY GETINIINFO ****\n"
 msgstr "**** GMOCCAPY GETINIINFO ****\n"
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:432
+#, fuzzy
 msgid ""
-"**** No subroutine folder or program prefix is given in the ini file **** \n"
+"**** No subroutine folder or program prefix is given in the INI file **** \n"
 msgstr ""
 "**** Kein Subroutine Ordner oder Programm Prefix Eintrag in der INI Datei "
 "gefunden ****\n"
 
-#: src/emc/usr_intf/gmoccapy/notification.py:209
+#: src/emc/usr_intf/gmoccapy/notification.py:213
 #, python-brace-format
 msgid "Error trying to delete the message with number {0}"
 msgstr "Fehler beim Versuch die Meldung Nummer {0} zu löschen"

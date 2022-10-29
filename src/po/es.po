@@ -136,7 +136,8 @@ msgstr "Entre códigos G5.2 y G5.3 solo se permiten códigos G5.2 adicionales."
 #: src/emc/rs274ngc/interp_check.cc:260
 msgid ""
 "D word with no G41, G41.1, G42, G42.1, G71, G71.1, G71.2 or G96 to use it"
-msgstr "Palabra D sin código G41, G41.1, G42, G42.1 ó G96 con el cual ser usado"
+msgstr ""
+"Palabra D sin código G41, G41.1, G42, G42.1 ó G96 con el cual ser usado"
 
 #: src/emc/rs274ngc/interp_check.cc:269
 msgid ""
@@ -11727,9 +11728,7 @@ msgstr "Opuesto"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid ""
-"_:"
-""
+msgid "_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249

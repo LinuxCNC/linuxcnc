@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: LinuxCNC EMC2.8.0\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-10-09 15:50+0200\n"
 "PO-Revision-Date: 2022-07-20 00:40+0000\n"
 "Last-Translator: whatawhiz <pink0floyd@vip.qq.com>\n"

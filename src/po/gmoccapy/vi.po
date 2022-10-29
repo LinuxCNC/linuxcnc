@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-18 08:05+0200\n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
+"POT-Creation-Date: 2022-10-29 11:14+0200\n"
 "PO-Revision-Date: 2022-02-13 01:34+0000\n"
 "Last-Translator: Trần Ngọc Quân <vnwildman@gmail.com>\n"
 "Language-Team: none\n"
@@ -309,7 +309,7 @@ msgid "**** Entering init gremlin ****"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2079
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5346
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5348
 msgid ""
 " Joint\n"
 "mode"
@@ -688,50 +688,50 @@ msgstr ""
 msgid "Could not understand the entered tool number. Will not change anything!"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5351
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5353
 msgid ""
 "World\n"
 "mode"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5537
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5539
 msgid "Axis jogging is only allowed in world mode, but you are in joint mode!"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5573
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5575
 #, python-brace-format
 msgid "Received a not classified signal from pin {0}"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5578
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5580
 #, python-brace-format
 msgid "Could not translate {0} to number"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5583
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5585
 msgid "no button here"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5586
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5588
 msgid "the button is not sensitive"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5591
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5593
 #, python-brace-format
 msgid "Button {0} has been toggled"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5595
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5597
 #, python-brace-format
 msgid "Button {0} has been pressed"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5598
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5600
 #, python-brace-format
 msgid "Button {0} has been clicked"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5611
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5613
 msgid "got wrong location to locate the childs"
 msgstr ""
 
@@ -806,10 +806,10 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:432
 msgid ""
-"**** No subroutine folder or program prefix is given in the ini file **** \n"
+"**** No subroutine folder or program prefix is given in the INI file **** \n"
 msgstr ""
 
-#: src/emc/usr_intf/gmoccapy/notification.py:209
+#: src/emc/usr_intf/gmoccapy/notification.py:213
 #, python-brace-format
 msgid "Error trying to delete the message with number {0}"
 msgstr ""

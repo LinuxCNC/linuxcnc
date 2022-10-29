@@ -10,7 +10,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Emc2-axis cvs-head to 2.1\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-10-09 15:50+0200\n"
 "PO-Revision-Date: 2022-08-15 16:24+0000\n"
 "Last-Translator: Bruno Lualdi <blibr68@gmail.com>\n"

@@ -11256,8 +11256,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid ""
-"_:"
+msgid "_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
