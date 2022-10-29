@@ -558,14 +558,14 @@ For a three axes XYZ machine the HAL pins will react as shown in the following t
 [cols="10,10,10,10", options="header"]
 |====
 | Pin                        | Tool Mode                                | Edit Mode     | Select File
-| gmoccapy.h-button.button-0 | delete tool(s)                           |               | go to home
-| gmoccapy.h-button.button-1 | new tool                                 | reload file   | one directo
+| gmoccapy.h-button.button-0 | delete tool(s)                           |               | go to home directory
+| gmoccapy.h-button.button-1 | new tool                                 | reload file   | one directory level up
 | gmoccapy.h-button.button-2 | reload tool table                        | save          |
-| gmoccapy.h-button.button-3 | apply changes                            | save as       | move select
-| gmoccapy.h-button.button-4 | change tool by number T? M6              |               | move select
-| gmoccapy.h-button.button-5 | set tool by number without change M61 Q? |               | jump to dir
+| gmoccapy.h-button.button-3 | apply changes                            | save as       | move selection left
+| gmoccapy.h-button.button-4 | change tool by number T? M6              |               | move selection right
+| gmoccapy.h-button.button-5 | set tool by number without change M61 Q? |               | jump to directory as set in settings
 | gmoccapy.h-button.button-6 | change tool to the selected one          | new file      |
-| gmoccapy.h-button.button-7 |                                          |               | select / EN
+| gmoccapy.h-button.button-7 |                                          |               | select / ENTER
 | gmoccapy.h-button.button-8 | touch of tool in Z                       | show keyboard |
 | gmoccapy.h-button.button-9 | back                                     | back          | back
 |====
