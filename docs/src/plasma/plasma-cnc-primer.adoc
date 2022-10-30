@@ -45,7 +45,7 @@ For entry level air plasma CNC systems, the blowback style is much preferred to 
 Plasma operations on CNC machines is quite unique in comparison to milling or turning and is a bit of an orphan process.
 Uneven heating of the material from the plasma arc will cause the sheet to bend and buckle.
 Most sheets of metal do not come out of the mill or press in a very even or flat state.
-Thick sheets (30&#8239;mm plus) can be out of plane as much as 50&#8239;mm to 100&#8239;mm.
+Thick sheets (30 mm plus) can be out of plane as much as 50 mm to 100 mm.
 Most other CNC G-code operations will start from a known reference or a piece of stock that has a known size and shape and the G-code is written to rough the excess off and then finally cut the finished part.
 With plasma the unknown state of the sheet makes it impossible to generate G-code that will cater for these variances in the material.
 
@@ -72,7 +72,7 @@ Torch voltage then becomes an ideal process control variable to use to adjust th
 Let's assume for simplicity that voltage changes by 10 V/mm.
 This can be restated to be 1 Volt per 0.1 mm (0.004").
 Major plasma machine manufacturers (eg Hypertherm, Thermal Dynamics and ESAB), produce cut charts that specify the recommended cut height and estimated arc voltage at this height as well as some additional data.
-So if the arc voltage is 1&#8239;V higher than the manufacturers specification, the controller simply needs to lower the torch by 0.1&#8239;mm (0.004") to move back to the desired cut height.
+So if the arc voltage is 1 V higher than the manufacturers specification, the controller simply needs to lower the torch by 0.1 mm (0.004") to move back to the desired cut height.
 A torch height control unit (THC) is traditionally used to manage this process.
 
 == Choosing a Plasma Machine for CNC operations
@@ -154,7 +154,7 @@ The following circuit diagram shows how to implement a hypersensing circuit.
 
 image::images/primer_hypersensing.png[width=75%]
 
-We used a 15&#8239;W Mean Well HDR-15 Ultra Slim DIN Rail Supply 24&#8239;V DIN rail based isolated power supply.
+We used a 15 W Mean Well HDR-15 Ultra Slim DIN Rail Supply 24 V DIN rail based isolated power supply.
 This is a double insulated Isolation Class II device that will withstand any arc voltage that might be applied to the terminals.
 
 === Example HAL Code for Hypersensing
@@ -259,7 +259,7 @@ One experimental LinuxCNC branch that would be useful for plasma cutting was the
 
 Plasma cutters require several additional pins. In LinuxCNC, there are no hard and fast rules about which pin does what. In this discussion we will assume the plasma inverter has a CNC interface and the controller card has active high inputs are in use (e.g., Mesa 7i76e).
 
-Plasma tables can be large machines and we recommend that you take the time to install separate max/min limit switches and homing switches for each joint. The exception might be the Z axis lower limit. When a homing switch is triggered the joint decelerates fairly slowly for maximum accuracy. This means that if you wish to use homing velocities that are commensurate with table size, you can overshoot the initial trigger point by 50-100&#8239;mm. If you use a shared home/limit switch, you have to move the sensor off the trigger point with the final HOME_OFFSET or you will trigger a limit switch fault as the machine comes out of homing. This means you could lose 50&#8239;mm or more of axis travel with shared home/limit switches. This does not happen if separate home and limit switches are used.
+Plasma tables can be large machines and we recommend that you take the time to install separate max/min limit switches and homing switches for each joint. The exception might be the Z axis lower limit. When a homing switch is triggered the joint decelerates fairly slowly for maximum accuracy. This means that if you wish to use homing velocities that are commensurate with table size, you can overshoot the initial trigger point by 50-100 mm. If you use a shared home/limit switch, you have to move the sensor off the trigger point with the final HOME_OFFSET or you will trigger a limit switch fault as the machine comes out of homing. This means you could lose 50 mm or more of axis travel with shared home/limit switches. This does not happen if separate home and limit switches are used.
 
 The following pins are usually required (note that suggested connections may not be appropriate for a QtPlasmaC configuration):
 
@@ -364,7 +364,7 @@ External Offsets were introduced to LinuxCNC with version 2.8. By external, it m
 External offsets are a very powerful method to make torch height adjustments to the Z axis via a THC. But plasma is all about high velocities and rapid acceleration so it makes no sense to limit these parameters. Fortunately in a plasma machine, the Z axis is either 100% controlled by the THC or it isn't. During the development of LinuxCNC's external offsets it was recognised that Z axis motion by G-code and by THC were mutually exclusive. This allows us to trick external offsets into giving 100 % of velocity and acceleration all of the time. We can do this by doubling the machine's Z axis velocity and acceleration settings in the ini file and set OFFSET_AV_RATIO = 0.5. That way 100% of the maximum velocity and acceleration will be available for both probing and THC.
 
 Example:
-On a metric machine with a NEMA23 motor with a direct drive to a 5&#8239;mm ball screw, 60&#8239;mm/s maximum velocity and 700&#8239;mm/s^2^ acceleration were determined to be safe values without loss of steps. For this machine, set the Z axis in the ini file as follows:
+On a metric machine with a NEMA23 motor with a direct drive to a 5 mm ball screw, 60 mm/s maximum velocity and 700 mm/s^2^ acceleration were determined to be safe values without loss of steps. For this machine, set the Z axis in the ini file as follows:
 
 [source,{ini}]
 ----
@@ -387,24 +387,24 @@ For further information about external offsets (for version 2.8 or later) please
 
 == Reading Arc Voltage With The Mesa THCAD
 
-The Mesa THCAD board is a remarkably well priced and accurate voltage to frequency converter that is designed for the hostile noisy electrical environment associated with plasma cutting. Internally it has a 0-10&#8239;V range. This range can be simply extended by the addition of some resistors as described in the documentation. This board is available in three versions, the newer THCAD-5 with a 0-5&#8239;V range, the THCAD-10 with a 0-10 Volt range and the THCAD-300 which is pre-calibrated for a 300 Volt extended range. Each board is individually calibrated and a sticker is applied to the board that states the frequency at 0 Volts and full scale. For use with LinuxCNC, it is recommended that the 1/32 divisor be selected by the appropriate link on the board. In this case, be sure to also divide the stated frequencies by 32. This is more appropriate for the 1&#8239;kHz servo thread and also allows more time for the THCAD to average and smooth the output.
+The Mesa THCAD board is a remarkably well priced and accurate voltage to frequency converter that is designed for the hostile noisy electrical environment associated with plasma cutting. Internally it has a 0-10 V range. This range can be simply extended by the addition of some resistors as described in the documentation. This board is available in three versions, the newer THCAD-5 with a 0-5 V range, the THCAD-10 with a 0-10 Volt range and the THCAD-300 which is pre-calibrated for a 300 Volt extended range. Each board is individually calibrated and a sticker is applied to the board that states the frequency at 0 Volts and full scale. For use with LinuxCNC, it is recommended that the 1/32 divisor be selected by the appropriate link on the board. In this case, be sure to also divide the stated frequencies by 32. This is more appropriate for the 1 kHz servo thread and also allows more time for the THCAD to average and smooth the output.
 
 There is a lot of confusion around how to decode the THCAD output so lets consider the Mesa 7i76e and the THCAD-10 for a moment with the following hypothetical calibration data:
 
-* Full scale 928,000&#8239;Hz (1/32 29,000 Hz)
-* 0 volt 121,600&#8239;Hz (1/32 3,800 Hz)
+* Full scale 928,000 Hz (1/32 29,000 Hz)
+* 0 volt 121,600 Hz (1/32 3,800 Hz)
 
 Because the full scale is 10 Volts, then the frequency per Volt is:
 
-(29,000&#8239;Hz - 3,800&#8239;Hz) / 10&#8239;V = 2,520&#8239;Hz per Volt
+(29,000 Hz - 3,800 Hz) / 10 V = 2,520 Hz per Volt
 
 So assuming we have a 5 Volt input, the calculated frequency would be:
 
-(2520&#8239;Hz/V * 5&#8239;V) + 3,800&#8239;Hz = 16,400&#8239;Hz
+(2520 Hz/V * 5 V) + 3,800 Hz = 16,400 Hz
 
 So now it should be fairly clear how to convert the frequency to its voltage equivalent:
 
-Volts = (frequency&#8239;(Hz) - 3,800&#8239;Hz) / 2,520&#8239;Hz/V
+Volts = (frequency (Hz) - 3,800 Hz) / 2,520 Hz/V
 
 === THCAD Connections
 
@@ -416,8 +416,8 @@ On the high voltage side:
 
 Assuming it is connected to a Mesa 7I76E, connect the output to the spindle encoder input:
 
-* THCAD +5&#8239;V to TB3 Pin 6 (+5 VP)
-* THCAD -5&#8239;V to TB3 Pin 1 (GND)
+* THCAD +5 V to TB3 Pin 6 (+5 VP)
+* THCAD -5 V to TB3 Pin 1 (GND)
 * THCAD FOUT+ to TB3 Pin 7 (ENC A+)
 * THCAD FOUT- to TB3 Pin 8 (ENC A-)
 
@@ -499,7 +499,7 @@ Tommy Berisha, the master of building plasma machines on a budget says: “If on
 
 == Water Tables
 
-The minimum water level under the cut level of the torch should be around 40&#8239;mm, having space under slats is nice so the water can level and escape during cutting, having a bit of water above the metal plate being cut is really nice as it gets rid of the little bit of dust, running it submerged is the best way but not preferable for systems with part time use as it will corrode the torch. Adding baking soda to the water will keep the table in a nice condition for many years as it does not allow corrosion while the slats are under water and it also reduces the smell of water vapour. Some people use a water reservoir with a compressed air inlet so they can push the water from the reservoir up to the water table on demand and thus allow changes in water levels.
+The minimum water level under the cut level of the torch should be around 40 mm, having space under slats is nice so the water can level and escape during cutting, having a bit of water above the metal plate being cut is really nice as it gets rid of the little bit of dust, running it submerged is the best way but not preferable for systems with part time use as it will corrode the torch. Adding baking soda to the water will keep the table in a nice condition for many years as it does not allow corrosion while the slats are under water and it also reduces the smell of water vapour. Some people use a water reservoir with a compressed air inlet so they can push the water from the reservoir up to the water table on demand and thus allow changes in water levels.
 
 == Downdraft Tables
 
@@ -507,7 +507,7 @@ Many commercial tables utilise a down draft design so fans are used to suck air 
 
 == Designing For Speed And Acceleration
 
-In plasma cutting, speed and acceleration are king. The higher the acceleration, the less the machine needs to slow down when negotiating corners. This implies that the gantry should be as light as possible without sacrificing torsional stiffness. A 100&#8239;mm x 100&#8239;mm x 2&#8239;mm aluminium box section has equivalent torsional stiffness to an 80&#8239;mm x 80&#8239;mm T slot extrusion yet is 62% lighter. So does the convenience of T slots outweigh the additional construction?
+In plasma cutting, speed and acceleration are king. The higher the acceleration, the less the machine needs to slow down when negotiating corners. This implies that the gantry should be as light as possible without sacrificing torsional stiffness. A 100 mm x 100 mm x 2 mm aluminium box section has equivalent torsional stiffness to an 80 mm x 80 mm T slot extrusion yet is 62% lighter. So does the convenience of T slots outweigh the additional construction?
 
 == Distance Travelled Per Motor Revolution
 

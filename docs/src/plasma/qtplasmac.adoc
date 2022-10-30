@@ -199,9 +199,9 @@ o = 0.5 * a * (v / a)^2
 
 where: o = overrun, a = acceleration in units/sec2 and v = velocity in units/sec.
 
-Metric example:  given a Z axis MAX_ACCELERATION of 600&#8239;mm/s^2^ and MAX_VELOCITY of 60&#8239;mm/s, the overrun would be 3&#8239;mm.
+Metric example:  given a Z axis MAX_ACCELERATION of 600 mm/s^2^ and MAX_VELOCITY of 60 mm/s, the overrun would be 3 mm.
 
-Imperial example: given a Z axis MAX_ACCELERATION of 24&#8239;in/s^2^ and MAX_VELOCITY of 2.4&#8239;in/s, the overrun would be 0.12&#8239;in.
+Imperial example: given a Z axis MAX_ACCELERATION of 24 in/s^2^ and MAX_VELOCITY of 2.4 in/s, the overrun would be 0.12 in.
 
 On machines that will utilize an ohmic probe as the primary method of probing, it is highly recommended to install a switch on the floating head as a backup means of stopping Z motion in the event of ohmic probe failure due to dirty surfaces.
 
@@ -515,10 +515,10 @@ More information on contact switching load can be seen on page III of link:https
 
 [underline]*Calculations:*
 
-If using a Mesa card, the input resistance of a 7i96 is 4700&#8239;Ω (always consult the product manual associated with the revision being used as these values sometimes vary between revisions), giving a contact current of 5.1&#8239;mA assuming a supply voltage of 24&#8239;V (I = V/R).
+If using a Mesa card, the input resistance of a 7i96 is 4700 Ω (always consult the product manual associated with the revision being used as these values sometimes vary between revisions), giving a contact current of 5.1 mA assuming a supply voltage of 24 V (I = V/R).
 
-As an example, the typical relay used in a Hypertherm Powermax 65 plasma cutter (link:https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Data+Sheet%7F1308242_T77%7F1011%7Fpdf%7FEnglish%7FENG_DS_1308242_T77_1011.pdf%7F1-1393194-0[TE T77S1D10-24]) requires a minimum contact load of 100&#8239;mA @ 5&#8239;VDC which will dissipate 0.5&#8239;W (P = I * V).
-If using a 24&#8239;VDC power supply this would then equate to a minimum current of 20.8&#8239;mA.
+As an example, the typical relay used in a Hypertherm Powermax 65 plasma cutter (link:https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Data+Sheet%7F1308242_T77%7F1011%7Fpdf%7FEnglish%7FENG_DS_1308242_T77_1011.pdf%7F1-1393194-0[TE T77S1D10-24]) requires a minimum contact load of 100 mA @ 5 VDC which will dissipate 0.5 W (P = I * V).
+If using a 24 VDC power supply this would then equate to a minimum current of 20.8 mA.
 Because there is less current drawn by the Mesa input than is required by the relay there needs to be an increase in the current.
 
 The resistance can be calculated using R = U~s~ / (I~m~ - I~i~) where:
@@ -528,8 +528,8 @@ The resistance can be calculated using R = U~s~ / (I~m~ - I~i~) where:
 - I~m~ = minimum current required
 - I~i~ = input current
 
-Using a 7i96 with an input current of 5.1&#8239;mA gives a calculated value of 1529&#8239;Ω ( = 24&#8239;V / (.0208 - .0051)&#8239;A).
-This could then be rounded down to a commonly available 1500&#8239;Ω resistor, giving a small safety margin.
+Using a 7i96 with an input current of 5.1 mA gives a calculated value of 1529 Ω ( = 24 V / (.0208 - .0051) A).
+This could then be rounded down to a commonly available 1500 Ω resistor, giving a small safety margin.
 
 The power dissipation can by calculated using P = U~s~^2^ / R~s~ where:
 
@@ -537,7 +537,7 @@ The power dissipation can by calculated using P = U~s~^2^ / R~s~ where:
 - U~s~ = supply voltage
 - R~s~ = selected resistance
 
-This gives a value of 0.38&#8239;W. This could then be rounded up to 1&#8239;W, giving a good safety margin. The final selection would be a 1500&#8239;Ω 1&#8239;W resistor.
+This gives a value of 0.38 W. This could then be rounded up to 1 W, giving a good safety margin. The final selection would be a 1500 Ω 1 W resistor.
 
 === Desktop Launcher
 
@@ -1079,7 +1079,7 @@ This allows the scribe to reach surface of the material before activating the sc
 |===
 |Name      |Description
 |Threshold |This sets the arc voltage at which the delay timer will begin. +
-0&#8239;V starts the delay when the torch on signal is activated.
+0 V starts the delay when the torch on signal is activated.
 |Time On   |This sets the length of time (in milliseconds) the torch is on after threshold voltage is reached.
 |===
 
@@ -1737,7 +1737,7 @@ The default LinuxCNC path tolerance is set for maximum speed which will severely
 
 It is recommended that the path tolerance is set by placing the appropriate G64 command and P value in the header of each G-code file.
 
-The provided G-code filter program will test for the existence of a `G64 P__n__` command prior to the first motion command. If no G64 command is found it will insert a `G64 P0.1` command which sets the path tolerance to 0.1&#8239;mm. For a imperial config the command will be `G64 P0.004`.
+The provided G-code filter program will test for the existence of a `G64 P__n__` command prior to the first motion command. If no G64 command is found it will insert a `G64 P0.1` command which sets the path tolerance to 0.1 mm. For a imperial config the command will be `G64 P0.004`.
 
 .For Metric:
 [source,{ngc}]
@@ -1930,7 +1930,7 @@ QtPlasmaC can probe at the full Z axis velocity so long as the machine has enoug
 Some float switches can exhibit a large switching hysteresis which shows up in the probing sequence as an excessive time to complete the final probe up.
 
 * This time may be decreased by changing the speed of the final probe up.
-* This speed defaults to 0.001&#8239;mm (0.000039") per servo cycle.
+* This speed defaults to 0.001 mm (0.000039") per servo cycle.
 * It is possible to increase this speed by up to a factor of 10 by adding the following line to the custom.hal file:
 
 [source,{hal}]
@@ -1956,7 +1956,7 @@ Offset Probing is the use of a probe that is offset from the torch.
 This method is an alternative to Ohmic Probing and uses the `plasmac.ohmic-enable` output pin to operate a solenoid for extending and retracting the probe.
 The `plasmac.ohmic-probe` input pin is used to detect the material and the *Ohmic Offset* in the PROBING frame of the CONFIGURATION section of the <<qt_parameters-tab,PARAMETERS Tab>> is used to set the correct measured height.
 
-The probe could be a mechanically deployed probe, a permanently mounted proximity sensor or even simply a stiff piece of wire extending about 0.5&#8239;mm (0.2") below the torch tip.
+The probe could be a mechanically deployed probe, a permanently mounted proximity sensor or even simply a stiff piece of wire extending about 0.5 mm (0.2") below the torch tip.
 If the probe is mechanically deployed then it needs to extend/retract rather quickly to avoid excessive probing times and would commonly be pneumatically operated.
 
 To use this feature, the user must set the probe's offset from the torch center by following the procedure described in <<peripheral-offsets,Peripheral Offsets>>.
@@ -2006,7 +2006,7 @@ If using a custom user button is utilized then QtPlasmaC will automatically relo
 
 It is recommended that any holes to be cut have a diameter no less than one and a half times the thickness of the material to be cut.
 
-It is also recommended that holes with a diameter of less than 32&#8239;mm (1.26") are cut at 60% of the feed rate used for profile cuts. This should also lock out THC due to velocity constraints.
+It is also recommended that holes with a diameter of less than 32 mm (1.26") are cut at 60% of the feed rate used for profile cuts. This should also lock out THC due to velocity constraints.
 
 QtPlasmaC can utilize G-code commands usually set by a CAM Post Processor (PP) to aid in hole cutting or if the user does not have a PP or the user's PP does not support these methods then QtPlasmaC can automatically adapt the G-code to suit. This automatic mode is disabled by default.
 
@@ -2109,12 +2109,12 @@ For valid hole sensing it is required that all values in the G2 or G3 G-code lin
 QtPlasmaC Hole Sensing is disabled by default. It can be enabled/disabled by using the following G-code parameters to select the desired hole sensing mode:
 
 * *#<holes> = 0* - Causes QtPlasmaC to disable hole sensing if it was previously enabled.
-* *#<holes> = 1* - Causes QtPlasmaC to reduce the speed of holes less than 32&#8239;mm (1.26") to 60% of *CutFeedRate*.
+* *#<holes> = 1* - Causes QtPlasmaC to reduce the speed of holes less than 32 mm (1.26") to 60% of *CutFeedRate*.
 * *#<holes> = 2* - Causes QtPlasmaC to <<qt_overcut,Over cut>> the hole in addition to the velocity changes in setting 1.
-* *#<holes> = 3* - Causes QtPlasmaC to reduce the speed of holes less than 32&#8239;mm (1.26") and arcs less than 16&#8239;mm (0.63") to 60% of *CutFeedRate*.
+* *#<holes> = 3* - Causes QtPlasmaC to reduce the speed of holes less than 32 mm (1.26") and arcs less than 16 mm (0.63") to 60% of *CutFeedRate*.
 * *#<holes> = 4* - Causes QtPlasmaC to <<qt_overcut,Over cut>> the hole in addition to the velocity change in setting 3.
 
-The default hole size for QtPlasmaC hole sensing is 32&#8239;mm (1.26"). It is possible to change this value with the following command in a G-code file:
+The default hole size for QtPlasmaC hole sensing is 32 mm (1.26"). It is possible to change this value with the following command in a G-code file:
 
 * *#<h_diameter> = nn* - To set a diameter (nn) in the same units system as the rest of the G-code file.
 
@@ -3076,7 +3076,7 @@ A user command file is specified in the DISPLAY section of the _<machine_name>_.
 n USER_COMMAND_FILE = my_custom_code.py
 ----
 
-A user periodic file must be named user_periodic.py and must be loated in the machines config directory. This file is processed every cycle (usually 100&#8239;ms) and is used for functions that require regular updating.
+A user periodic file must be named user_periodic.py and must be loated in the machines config directory. This file is processed every cycle (usually 100 ms) and is used for functions that require regular updating.
 
 == QtPlasmaC Advanced Topics
 
@@ -3617,9 +3617,9 @@ These voltages are also required to be within a specified range.
 
 There are two settings in the <<qt_parameters-tab,PARAMETERS Tab>> for setting the range, these are:
 
-- *OK High Volts* which is the upper value of the voltage range. The default is 250&#8239;V.
+- *OK High Volts* which is the upper value of the voltage range. The default is 250 V.
 
-- *OK Low Volts* which is the lower value of the voltage range. The default is 60&#8239;V.
+- *OK Low Volts* which is the lower value of the voltage range. The default is 60 V.
 
 Both of these values may be changed by direct entry or by the use of the increment/decrement buttons.
 
@@ -3662,12 +3662,12 @@ It should also be noted that the user could use the appropriate <<qt_ignore-ok,I
 
 Small fluctuations in the arc voltage displayed while the machine is at idle are possible depending on many different variables (electrical noise, incorrect THCAD tuning, etc.).
 
-After all contributing factors have been mitigated, if a small fluctuation still exists it is possible to eliminate it by widening the voltage window for which QtPlasmaC will display 0&#8239;V.
+After all contributing factors have been mitigated, if a small fluctuation still exists it is possible to eliminate it by widening the voltage window for which QtPlasmaC will display 0 V.
 
 The pin for adjusting this value is named plasmac.zero-window and the default value is set to 0.1.
 To change this value, add the pin and the required value to the custom.hal file.
 
-The following example would set the voltage window to be displayed as 0&#8239;V from -5&#8239;V to +5&#8239;V:
+The following example would set the voltage window to be displayed as 0 V from -5 V to +5 V:
 
 [source,{hal}]
 ----
@@ -3702,7 +3702,7 @@ The pin for adjusting this value is named plasmac.max-offset and the default val
 To change this value, add the pin and the required value to the custom.hal file.
 It is not recommended to use values less than 5mm as offset overrun may cause unforeseen issues.
 
-The following example would set the distance from Z MAX_LIMIT to 10&#8239;mm:
+The following example would set the distance from Z MAX_LIMIT to 10 mm:
 
 [source,{hal}]
 ----
@@ -3997,17 +3997,17 @@ _n_ is the percentage to set +
 |Cutter <<qt_cutter-compensation,compensation>> off |G40 +
 *Note that M62 through M68 are invalid while cutter compensation is on*
 |Cut <<qt_hole-cutting,holes>> at 60% feed rate |#<holes> = 1 +
-for holes less than 32&#8239;mm (1.26") diameter
+for holes less than 32 mm (1.26") diameter
 |Cut <<qt_hole-cutting,holes>> at 60% feed rate, turn torch off at hole end, continue hole path for over cut |#<holes> = 2 +
-for holes less than 32&#8239;mm (1.26") diameter +
-over cut length = 4&#8239;mm (0.157")
+for holes less than 32 mm (1.26") diameter +
+over cut length = 4 mm (0.157")
 |Cut <<qt_hole-cutting,holes>> and arcs at 60% feed rate |#<holes> = 3 +
-for holes less than 32&#8239;mm (1.26") diameter +
-for arcs less than 16&#8239;mm (0.63") radius
+for holes less than 32 mm (1.26") diameter +
+for arcs less than 16 mm (0.63") radius
 |Cut <<qt_hole-cutting,holes>> and arcs at 60% feed rate, turn torch off at hole end, continue hole path for over cut |#<holes> = 4 +
-for holes less than 32&#8239;mm (1.26") diameter +
-for arcs less than 16&#8239;mm (0.63") radius +
-over cut length = 4&#8239;mm (0.157")
+for holes less than 32 mm (1.26") diameter +
+for arcs less than 16 mm (0.63") radius +
+over cut length = 4 mm (0.157")
 |Specify <<qt_hole-cutting,hole>> diameter for +
  #<holes> = 1-4 |#<h_diameter> = _n_ +
 (_n_ is the diameter, use the same units system as the rest of the G-code file)
@@ -4198,7 +4198,7 @@ _r_ = divider ratio (see below).
 
 _f_ = full scale value from calibration sticker.
 
-_z_ = 0&#8239;V value from calibration sticker.
+_z_ = 0 V value from calibration sticker.
 
 _d_ = value from jumper above.
 
