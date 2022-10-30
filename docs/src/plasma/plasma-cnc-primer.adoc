@@ -460,7 +460,7 @@ Install the THCAD at the inverter as the frequency signal is far more immune to 
 
 .Raw Arc voltage presented on a connector
 
-In this case, regardless of the arc starting method, there are probably already resistors included in the circuitry to avoid lethal shocks so a THCAD-10 is advised so this resistance (typically 200 k&ohm;) can be accounted for when choosing a scaling resistor as these resistors will distort the voltage reported by the THCAD-300.
+In this case, regardless of the arc starting method, there are probably already resistors included in the circuitry to avoid lethal shocks so a THCAD-10 is advised so this resistance (typically 200 kΩ) can be accounted for when choosing a scaling resistor as these resistors will distort the voltage reported by the THCAD-300.
 
 == Post Processors And Nesting
 

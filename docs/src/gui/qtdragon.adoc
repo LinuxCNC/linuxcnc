@@ -929,14 +929,14 @@ import remap
 Make a symbolic link or copy the following files into the 'python' folder
 described above.
 
-In '~/linuxcnc/nc_files/examples/remap_subroutine/' folder
+In`~/linuxcnc/nc_files/examples/remap_subroutine/` folder
 
-In '~/linuxcnc/nc_files/examples/remap_lib/python_stdglue/' folder
+In `~/linuxcnc/nc_files/examples/remap_lib/python_stdglue/` folder
 
 [NOTE]
 These file names and location could be different depending on installed verses
 development (RIP) version of LinuxCNC.
-For instance '&ndash;/linuxcnc/nc_files/macros' is '&ndash;/linuxcnc/nc_files/examples/macros'
+For instance `~/linuxcnc/nc_files/macros` is `~/linuxcnc/nc_files/examples/macros`
 in installed versions of LinuxCNC.
 You could use customized versions of the same files or name them differently.
 The entries in the '[RS274NGC]' section dictate to LinuxCNC what and where to

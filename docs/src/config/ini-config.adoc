@@ -950,7 +950,7 @@ small, tight corners, since you're limited by cornering acceleration.
   This does not affect the linear units in NC code (the G20 and G21 words do this).
 * 'ANGULAR_UNITS = <units>' - (((ANGULAR UNITS))) Specifies the 'machine units' for rotational axes.
   Possible choices are 'deg', 'degree' (360 per circle), 'rad', 'radian'
-  (2*&pi; per circle), 'grad', or 'gon' (400 per circle).
+  (2*π per circle), 'grad', or 'gon' (400 per circle).
   This does not affect the angular units of NC code. In RS274NGC, A-, B- and C- words are always expressed in degrees.
 * 'DEFAULT_LINEAR_VELOCITY = 0.0167' - The initial rate for jogs of linear axes, in
   machine units per second. The value shown in 'Axis' equals machine units per minute.
