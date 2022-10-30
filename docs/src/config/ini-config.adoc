@@ -853,8 +853,8 @@ config:
 # t_c = servo period (seconds)
 ----
 +
-So, a machine with a maximum axis velocity of 10&thinsp;IPS, a max acceleration
-of 100&thinsp;IPS^2^, and a servo period of 0.001&thinsp;s would need:
+So, a machine with a maximum axis velocity of 10 IPS, a max acceleration
+of 100 IPS^2^, and a servo period of 0.001 s would need:
 +
 10 / (2.0 * 100 * 0.001) = 50 segments to always reach maximum velocity
 along the fastest axis.
@@ -921,14 +921,14 @@ velocity that a trapezoidal profile reaches vs. the ramp:
 # f = cutoff frequency from INI
 ----
 +
-For the aforementioned machine, the ripple for a 20&thinsp;Hz cutoff frequency
-is 100 / (4 * 20) = 1.25&thinsp;IPS. This seems high, but keep in mind that it
+For the aforementioned machine, the ripple for a 20 Hz cutoff frequency
+is 100 / (4 * 20) = 1.25 IPS. This seems high, but keep in mind that it
 is only a worst-case estimate. In reality , the trapezoidal motion
 profile is limited by other factors, such as normal acceleration or
 requested velocity, and so the actual performance loss should be much
 smaller. Increasing the cutoff frequency can squeeze out more
 performance, but make the motion rougher due to acceleration
-discontinuities. A value in the range 20&thinsp;Hz to 200&thinsp;Hz should be reasonable
+discontinuities. A value in the range 20 Hz to 200 Hz should be reasonable
 to start.
 
 Finally, no amount of tweaking will speed up a tool path with lots of
@@ -1348,7 +1348,7 @@ This scaling looks like: image:images/output-offset.png[]
 The value for scale can be obtained analytically by doing a unit
 analysis, i.e., units are [output SI units]/[actuator units]. For
 example, on a machine with a velocity mode amplifier such that
-1&thinsp;V results in 250&thinsp;mm/s velocity.
+1 V results in 250 mm/s velocity.
 
 image::images/scale-math.png[align="center"]
 

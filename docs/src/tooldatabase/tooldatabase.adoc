@@ -117,9 +117,9 @@ provides support for new database functionality for tool management.
 
 For example, a *db_program* database application can maintain the
 operating hours for all tools by tracking each load/unload of a tool.
-A machine could then have three 6&thinsp;mm endmills in pockets 111, 112, and
+A machine could then have three 6 mm endmills in pockets 111, 112, and
 113 with the database application programmed to assign tool number 110
-to the 6&thinsp;mm endmill with the fewest operating hours.  Then, when a
+to the 6 mm endmill with the fewest operating hours.  Then, when a
 LinuxCNC program requests tool 110, the database would specify the
 appropriate pocket based on tool usage history.
 

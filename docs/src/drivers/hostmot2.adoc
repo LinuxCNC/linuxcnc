@@ -612,13 +612,13 @@ component. Each pwmgen instance has the following pins and parameters:
   a space.
   Each pulse (and space) in the PDM pulse train has a duration of
   1/pdm_frequency seconds.
-  For example, setting the pdm_frequency to 2*10^6^&thinsp;Hz (2&thinsp;MHz) and the duty
-  cycle to 50% results in a 1&thinsp;MHz square wave, identical to a 1&thinsp;MHz
+  For example, setting the pdm_frequency to 2*10^6^ Hz (2 MHz) and the duty
+  cycle to 50% results in a 1 MHz square wave, identical to a 1 MHz
   PWM signal with 50% duty cycle. The effective range of this parameter
-  is from about 1525&thinsp;Hz up to just under 100&thinsp;MHz. Note that the max
+  is from about 1525 Hz up to just under 100 MHz. Note that the max
   frequency is determined by the ClockHigh frequency of the Anything I/O
-  board; the 5I20 and 7I43 both have a 100&thinsp;MHz clock, resulting in a
-  100&thinsp;MHz max PDM frequency. Other boards may have different clocks,
+  board; the 5I20 and 7I43 both have a 100 MHz clock, resulting in a
+  100 MHz max PDM frequency. Other boards may have different clocks,
   resulting in different max PDM frequencies. If the user attempts to
   set the frequency too high, it will be clipped to the max supported
   frequency of the board.
@@ -627,14 +627,14 @@ component. Each pwmgen instance has the following pins and parameters:
   of all the pwmgen instances running in the PWM modes (modes 1 and 2).
   This is the
   frequency of the variable-duty-cycle wave. Its effective range is from
-  1&thinsp;Hz up to 193&thinsp;kHz. Note that the max frequency is determined by the
+  1 Hz up to 193 kHz. Note that the max frequency is determined by the
   ClockHigh frequency of the Anything I/O board; the 5i20 and 7i43 both
-  have a 100&thinsp;MHz clock, resulting in a 193&thinsp;kHz max PWM frequency. Other
+  have a 100 MHz clock, resulting in a 193 kHz max PWM frequency. Other
   boards may have different clocks, resulting in different max PWM
   frequencies. If the user attempts to set the frequency too high, it
   will be clipped to the max supported frequency of the board.
-  Frequencies below about 5&thinsp;Hz are not terribly accurate,
-  but above 5&thinsp;Hz they are pretty close.
+  Frequencies below about 5 Hz are not terribly accurate,
+  but above 5 Hz they are pretty close.
 
 === Output Parameters
 
@@ -697,7 +697,7 @@ Each encoder instance has the following pins and parameters:
   counter needs 15 clocks to register a change on any of the three input
   lines (any pulse shorter than this is rejected as noise).
   If set to False, the quadrature counter needs only 3 clocks to register a change.
-  The encoder sample clock runs at 33&thinsp;MHz on the PCI Anything I/O cards and 50&thinsp;MHz on the 7I43.
+  The encoder sample clock runs at 33 MHz on the PCI Anything I/O cards and 50 MHz on the 7I43.
 
 * `index-invert` - (Bit, RW) If set to True, the rising edge of the
   Index input pin triggers the Index event (if index-enable is True).
@@ -778,7 +778,7 @@ out value) fullscalemax is the scale factor.
 
 These are by default set to the analog in or analog range (most likely in Volts).
 
-So for example on the 7I77 +-10&thinsp;V analog outputs, the default values are:
+So for example on the 7I77 +-10 V analog outputs, the default values are:
 
 minlimit: -10 +
 maxlimit: +10 +
@@ -792,7 +792,7 @@ maxlimit: +24 +
 maxfullscale: 24 +
 
 If you wanted to scale the analog out of a channel to RPM for a 0 to 6000 RPM
-spindle with 0-10&thinsp;V control you could set the limits like this:
+spindle with 0-10 V control you could set the limits like this:
 
 minlimit: 0 +
 maxlimit: 6000 +

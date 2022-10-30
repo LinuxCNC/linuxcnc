@@ -381,7 +381,7 @@ gm.<card_no>.write
 [width="80%",options="header",cols="<3,^2,<6"]
 |===
 | Pins     | Type and direction | Pin description
-m| .enable | (bit, In)          | Enable DAC output. When enable is false, DAC output is 0.0&thinsp;V.
+m| .enable | (bit, In)          | Enable DAC output. When enable is false, DAC output is 0.0 V.
 m| .value  | (float, In)        | Value of DAC output in Volts.
 |===
 
@@ -731,7 +731,7 @@ where _<module ID>_ is from 00 to 15.
 | Pins                 | Type and direction | Pin description
 m| .adc-_<0-7>_        | (float, Out)       | Value of ADC input in Volts.
 m| .dac-enable-_<0-3>_ | (bit, In)          |
-Enable DAC output. When enable is false then DAC output is set to 0.0&thinsp;V.
+Enable DAC output. When enable is false then DAC output is set to 0.0 V.
 m| .dac-_<0-3>_        | (float, In)        | Value of DAC output in Volts.
 |===
 

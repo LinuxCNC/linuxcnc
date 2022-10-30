@@ -219,7 +219,7 @@ should probably disappear.].
 
 To actually run the code contained in the function `siggen.0.update`, we need a realtime thread.
 The component called 'threads' that is used to create a new thread.
-Lets create a thread called "test-thread" with a period of 1&thinsp;ms (1,000&thinsp;µs or 1,000,000&thinsp;ns):
+Lets create a thread called "test-thread" with a period of 1 ms (1,000 µs or 1,000,000 ns):
 
 ----
 halcmd: loadrt threads name1=test-thread period1=1000000
@@ -236,7 +236,7 @@ Realtime Threads:
      999855  YES    test-thread        (        0,        0 )
 ----
 
-It did. The period is not exactly 1,000,000&thinsp;ns because of hardware
+It did. The period is not exactly 1,000,000 ns because of hardware
 limitations, but we have a thread that runs at approximately the
 correct rate, and which can handle floating point functions.
 The next step is to connect the function to the thread:
@@ -807,7 +807,7 @@ halcmd: setp stepgen.1.enable 1
 ----
 
 This velocity scaling means that when the pin `stepgen.0.velocity-cmd` is 1.0,
-the step generator will generate 10000 pulses per second (10&thinsp;kHz).
+the step generator will generate 10000 pulses per second (10 kHz).
 With the motor and leadscrew described above, that will result in the axis moving at exactly 1.0 inches per second.
 This illustrates a key HAL concept - things like scaling are done at the lowest possible level,
 in this case in the step pulse generator.
@@ -825,8 +825,8 @@ halcmd: start
 ----
 
 Although nothing appears to happen, inside the computer the step pulse
-generator is cranking out step pulses, varying from 10&thinsp;kHz forward to
-10&thinsp;kHz reverse and back again every second. Later in this tutorial we'll
+generator is cranking out step pulses, varying from 10 kHz forward to
+10 kHz reverse and back again every second. Later in this tutorial we'll
 see how to bring those internal signals out to run motors in the real
 world, but first we want to look at them and see what is happening.
 
@@ -860,7 +860,7 @@ left click on the samples box.
 image::images/halscope-01.png["Realtime function not linked dialog",align="center"]
 
 This dialog is where you set the sampling rate for the oscilloscope.
-For now we want to sample once per millisecond, so click on the 989&thinsp;µs
+For now we want to sample once per millisecond, so click on the 989 µs
 thread 'slow' and leave the multiplier at 1. We will also leave the
 record length at 4000 samples, so that we can use up to four channels
 at one time. When you select a thread and then click 'OK', the dialog
@@ -1004,11 +1004,11 @@ the top of the screen to expand the waveforms horizontally, and the
 position slider to determine which part of the zoomed waveform is visible.
 However, sometimes simply expanding the waveforms isn't enough and you need to increase the sampling rate.
 For example, we would like to look at the actual step pulses that are being generated in our example.
-Since the step pulses may be only 50&thinsp;µs long, sampling at 1&thinsp;kHz isn't fast enough.
+Since the step pulses may be only 50 µs long, sampling at 1 kHz isn't fast enough.
 To change the sample rate, click on the button that displays the number
 of samples and sample rate to bring up the 'Select Sample Rate' dialog figure.
-For this example, we will click on the 50&thinsp;µs thread, 'fast', which gives us a sample rate of about 20&thinsp;kHz.
-Now instead of displaying about 4 seconds worth of data, one record is 4000 samples at 20&thinsp;kHz, or about 0.20&thinsp;seconds.
+For this example, we will click on the 50 µs thread, 'fast', which gives us a sample rate of about 20 kHz.
+Now instead of displaying about 4 seconds worth of data, one record is 4000 samples at 20 kHz, or about 0.20 seconds.
 
 [[fig:halscope-sample-rate-choice]]
 .Sample Rate Dialog
@@ -1024,7 +1024,7 @@ Then click on channel 3, turn if off, and do the same for channel 4.
 Even though the channels are turned off, they still remember what they
 are connected to, and in fact we will continue to use channel 3 as the trigger source.
 To add new channels, select channel 5, and choose pin `stepgen.0.dir`, then channel 6, and select `stepgen.0.step`.
-Then click run mode 'Normal' to start the scope, and adjust the horizontal zoom to 5&thinsp;ms per division.
+Then click run mode 'Normal' to start the scope, and adjust the horizontal zoom to 5 ms per division.
 You should see the step pulses slow down as the velocity command (channel 1) approaches zero,
 then the direction pin changes state and the step pulses speed up again.
 You might want toincrease the gain on channel 1 to about 20 milli per division to better see

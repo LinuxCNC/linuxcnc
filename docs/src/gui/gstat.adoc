@@ -15,7 +15,7 @@ GStat is in the `hal_glib` module.
 .Overview
 * First, a program imports the `hal_glib` module and instantiates GStat.
 * Then it 'connects' to the messages it wishes to monitor.
-* GStat checks LinuxCNC's status every 100&thinsp;ms and if there are differences from
+* GStat checks LinuxCNC's status every 100 ms and if there are differences from
   the last check, it will send a callback message to all the connected programs
   with the current status.
 * When GStat calls the registered function, it sends the GStat object plus any return codes from the message.
@@ -179,7 +179,7 @@ def get_handlers(halcomp,builder,useropts):
 ==  Messages
 
 *periodic* :: '(returns nothing)' -
-sent every 100&thinsp;ms.
+sent every 100 ms.
 
 *state-estop* :: '(returns nothing)' -
 Sent when LinuxCNC is goes into estop.
@@ -305,10 +305,10 @@ Sent when spindle direction or running status changes or at-speed changes.
 Sent when the current feed rate changes.
 
 *current-x-rel-position* :: '(returns float)' -
-Sent every 100&thinsp;ms.
+Sent every 100 ms.
 
 *current-position* :: '(returns pyobject, pyobject, pyobject, pyobject)' -
-Sent every 100&thinsp;ms. +
+Sent every 100 ms. +
 Returns tuples of position, relative position, distance-to-go and the joint actual position.
 Before homing, on multi-joint axes, only joint position is valid.
 

@@ -107,7 +107,7 @@ PC.02 = 0::
 
 PC.03 = 1::
 
-    Set Communication Delay Time to 1&thinsp;ms.  This is expected by the
+    Set Communication Delay Time to 1 ms.  This is expected by the
     hy_gt_vfd driver.
 
 

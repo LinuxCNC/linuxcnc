@@ -138,7 +138,7 @@ the LinuxCNC community.
 === Drawings from QCAD
 
 - Save as .dxf to the same directory as the image.
-- Set line thickness to 0.50&thinsp;mm.
+- Set line thickness to 0.50 mm.
 - Export the  image as 480 x 480 Resolution Auto .png.
 
 == Provide translated documentation

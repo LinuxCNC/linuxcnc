@@ -145,14 +145,14 @@ The important numbers are the 'max jitter'. In the example above 9075
 nanoseconds (ns), or 9.075 microseconds (µs), is the highest jitter.
 Record this number, and enter it in the Base Period Maximum Jitter box.
 
-If your Max Jitter number is less than about 15-20&thinsp;µs
-(15000-20000&thinsp;ns), the computer should give very nice results
-with software stepping. If the max latency is more like 30-50&thinsp;µs,
+If your Max Jitter number is less than about 15-20 µs
+(15000-20000 ns), the computer should give very nice results
+with software stepping. If the max latency is more like 30-50 µs,
 you can still get good results, but your maximum step
 rate might be a little disappointing, especially if you use
 microstepping or have very fine pitch leadscrews. If the numbers are
-100&thinsp;µs or more (100,000&thinsp;ns), then the PC is not a good
-candidate for software stepping. Numbers over 1 millisecond (1,000,000&thinsp;ns)
+100 µs or more (100,000 ns), then the PC is not a good
+candidate for software stepping. Numbers over 1 millisecond (1,000,000 ns)
 mean the PC is not a good candidate for LinuxCNC, regardless of
 whether you use software stepping or not.
 
@@ -475,7 +475,7 @@ must be checked on the pinout configuration page.
 The pull up resistor show in the diagrams pulls the input high
 until the connection to ground is made and then the input goes low.
 Otherwise the input might float between on and off when the circuit is open.
-Typically for a parallel port you might use 47&thinsp;kΩ;.
+Typically for a parallel port you might use 47 kΩ;.
 
 .Normally Closed Switches (N/C) wiring in series (simplified diagram)
 image::images/switch-nc-series_en.svg["Normally Closed Switches",align="center"]

@@ -65,12 +65,12 @@ The ability to precisely control the cutting height in such a hostile and ever c
 
 image::images/primer_volts-height.png[width=50%]
 
-This graph was prepared from a sample of about 16,000 readings at varying cut height and the regression analysis shows 7.53&thinsp;V/mm with 99.4% confidence.
-In this particular instance this sample was taken from an Everlast 50&thinsp;A machine being controlled by LinuxCNC.
+This graph was prepared from a sample of about 16,000 readings at varying cut height and the regression analysis shows 7.53 V/mm with 99.4% confidence.
+In this particular instance this sample was taken from an Everlast 50 A machine being controlled by LinuxCNC.
 
 Torch voltage then becomes an ideal process control variable to use to adjust the cut height.
-Let's assume for simplicity that voltage changes by 10&thinsp;V/mm.
-This can be restated to be 1&thinsp;Volt per 0.1&thinsp;mm (0.004").
+Let's assume for simplicity that voltage changes by 10 V/mm.
+This can be restated to be 1 Volt per 0.1 mm (0.004").
 Major plasma machine manufacturers (eg Hypertherm, Thermal Dynamics and ESAB), produce cut charts that specify the recommended cut height and estimated arc voltage at this height as well as some additional data.
 So if the arc voltage is 1&#8239;V higher than the manufacturers specification, the controller simply needs to lower the torch by 0.1&#8239;mm (0.004") to move back to the desired cut height.
 A torch height control unit (THC) is traditionally used to manage this process.
@@ -195,7 +195,7 @@ image::images/primer_thc-delay.png[width=100%]
 
 It is important for the plasma controller to “wait it out" before auto sampling the torch voltage and commencing THC control. If enabled too early, the voltage will be above the desired cut Volts and the torch will be driven down in an attempt to address a perceived over-height condition.
 
-In our testing this varies between machines and material from 0.5 to 1.5 seconds. Therefore a delay of 1.5&thinsp;s after a valid ArcOK signal is received before enabling THC control is a safe initial setting. If you want to shorten this for a given material, LinuxCNC's Halscope will allow you to plot the torch voltage and make informed decisions about the shortest safe delay is used.
+In our testing this varies between machines and material from 0.5 to 1.5 seconds. Therefore a delay of 1.5 s after a valid ArcOK signal is received before enabling THC control is a safe initial setting. If you want to shorten this for a given material, LinuxCNC's Halscope will allow you to plot the torch voltage and make informed decisions about the shortest safe delay is used.
 
 [NOTE]
 If the cut velocity is not near the desired cut speed at the end of this delay, the controller should wait until this is achieved before enabling the THC.
@@ -448,7 +448,7 @@ Remembering that plasma arc voltages are potentially lethal, here are some sugge
 Because there is not likely to be any significant EMI, you should be able to safely install the THCAD in your control panel if you have followed our construction guidelines.
 
 * If you do not have a voltage divider, either install scaling resistors inside the plasma cutter and install the THCAD in the control panel or follow the suggestions for HF start machines.
-* If you have a voltage divider, install a THCAD-10 in your control panel. We've had no problems with this configuration with a 120&thinsp;A Thermal Dynamics plasma cutter.
+* If you have a voltage divider, install a THCAD-10 in your control panel. We've had no problems with this configuration with a 120 A Thermal Dynamics plasma cutter.
 
 .HF Start
 
@@ -460,7 +460,7 @@ Install the THCAD at the inverter as the frequency signal is far more immune to 
 
 .Raw Arc voltage presented on a connector
 
-In this case, regardless of the arc starting method, there are probably already resistors included in the circuitry to avoid lethal shocks so a THCAD-10 is advised so this resistance (typically 200&thinsp;k&ohm;) can be accounted for when choosing a scaling resistor as these resistors will distort the voltage reported by the THCAD-300.
+In this case, regardless of the arc starting method, there are probably already resistors included in the circuitry to avoid lethal shocks so a THCAD-10 is advised so this resistance (typically 200 k&ohm;) can be accounted for when choosing a scaling resistor as these resistors will distort the voltage reported by the THCAD-300.
 
 == Post Processors And Nesting
 
@@ -512,8 +512,8 @@ In plasma cutting, speed and acceleration are king. The higher the acceleration,
 == Distance Travelled Per Motor Revolution
 
 Stepper motors suffer from resonance and a direct drive pinion is likely to mean that the motor is operating under unfavourable conditions.
-Ideally, for plasma machines a distance of around 15-25&thinsp;mm per motor revolution is considered ideal but even around 30&thinsp;mm per revolutions is still acceptable.
-A 5&thinsp;mm pitch ball screw with a 3:1 or 5:1 reduction drive is ideal for the Z axis.
+Ideally, for plasma machines a distance of around 15-25 mm per motor revolution is considered ideal but even around 30 mm per revolutions is still acceptable.
+A 5 mm pitch ball screw with a 3:1 or 5:1 reduction drive is ideal for the Z axis.
 
 == QtPlasmaC LinuxCNC Plasma Configuration
 
