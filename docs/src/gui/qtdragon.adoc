@@ -599,9 +599,6 @@ opportunity to watch the DROs and stop the routine at any time.
 [NOTE]
 Probing is very unforgiving to mistakes; be sure to check settings before using.
 
-.QtDragon - Basic Probe Option
-image::images/silverdragon_probe.png["QtDragon Probe",scale="25%"]
-
 .QtDragon - Versa Probe Option
 image::images/qtdragon_versaprobe.png["QtDragon Probe",scale="25%"]
 
@@ -621,6 +618,53 @@ For touching off with a touch probe, whether you use the touchplate operation
 with thickness set to 0 or use a probing routine, the height from table to top
 of workpiece parameter is not taken into account and can be ignored. It is only
 for the tool setter.
+
+=== Basic probe
+
+.QtDragon - Basic Probe Option
+image::images/silverdragon_probe.png["QtDragon Probe",scale="25%"]
+
+Basic probe is used to semi-automatically probe work pieces to find edges, centers
+and angles. +
+The combo box allows selecting the basic type of probing buttons shown:
+
+* Outside Corners
+* Inside Corners
+* Edge Angles
+* Boss and Pockets
+* Ridge and Valleys
+* Calibration
+
+You must carefully set the 'Probing Parameters':
+
+* 'Probe Tool': will only allow probing if this tool number is in the spindle 
+* 'Probe Diameter': the size of the probe tip
+* 'Probe Rapid': the speed of rapid moves in machine units
+* 'Probe Search': the speed of the first 'rough' search in machine units
+* 'Probe Feed': the speed of the second 'fine' search in machine units
+* 'Extra Depth': Lowers the probe further by this much
+* 'Step Off': back off and re-probe distance
+* 'Max XY Distance': the maximum distance the probe will search for in X and Y before erroring
+* 'Max Z Distance':  the maximum distance the probe will search for in Z before erroring
+* 'XY Clearance': move away distance from probed point before rapid traversing in X and Y
+* 'Z Clearance': move away distance from probed point before rapid traversing in Z
+
+There are also hint parameters depending on selected probing type:
+
+* 'Edge Width': approximate distance the probe start position is from edge
+* 'Diameter Hint': used by Round Boss or Round Pocket probing (start move: 1/2 diameter plus XY clearance)
+* 'X Hint': used by Rectangular Boss/Pocket probing (start move: 1/2 X length plus XY clearance)
+* 'Y Hint': used by Rectangular Boss/Pocket probing (start move: 1/2 Y length plus XY clearance)
+
+After setting the parameters and hints:
+
+* Manually move the probe to the approximate position represented by the purple circle on the button.
+* Confirm the parameters are reasonable.
+* Press the desired probing button.
+
+The probing routine will start immediately.
+[NOTE]
+Pressing the stop button or the keyboard escape key, will abort the probing.
 
 == Touch plate
 
