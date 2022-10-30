@@ -115,14 +115,14 @@ class GcodeLexer(QsciLexerCustom):
 
         re_tokens = {
             1: r"(?:[N]\d+|\(.*?\)|;.*)",                                       # LineNo and Comment
-            2: r"[G]\d{1,4}\.?\d*",                                             # Gcode
-            3: r"[M]\d{1,4}\.?\d*",                                             # Mcode
-            4: r"[XYZABCUVW]{1}(?:[+-]?[\d\.]+|\#\<.*?\>|\[.*?\]|\#\d+)",       # Axis
-            5: r"[EFHIJKDQLRPST]{1}(?:[+-]?[\d\.]+|\#\<.*?\>|\[.*?\]|\#\d+)",   # Other (feed,rpm,radius,etc)
+            2: r"[G]\d{1,2}\.\d|[G]\d{1,2}",                                    # Gcode
+            3: r"[M]\d{1,3}",                                                   # Mcode
+            4: r"[XYZABCUVW]{1}(?:[+-]?[\d\.]+|\#\<.*\>|\[.*\]|\#\d+)",         # Axis
+            5: r"[EFHIJKDQLRPST$]{1}(?:[+-]?[\d\.]+|\#\<.*\>|\[.*\]|\#\d+)",    # Other (feed,rpm,radius,etc)
             0: r"\s+|\w+|\W",                                                   # Default (fallback)
         }
 
-        re_comment_cmd = r"(?:\(\s*(?:print,|debug,|msg,|logopen,|logappend,|logclose|log,|pyrun,|pyreload|abort,|probeopen|probeclose)|\;py,)"
+        re_comment_cmd = r"(?:\(\s*(?:print,|debug,|msg,|logopen,|logappend,|logclose|log,|pyrun,|pyreload|abort,|probeopen|probeclose)|^\s*\;py,)"
 
         re_string = "|".join(re_tokens.values())
         p = re.compile(re_string, re.IGNORECASE)
