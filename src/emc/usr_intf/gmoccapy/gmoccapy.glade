@@ -183,12 +183,10 @@
   <object class="GtkImage" id="img_auto">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/auto_mode.png</property>
   </object>
   <object class="GtkImage" id="img_auto_on">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/auto_mode.png</property>
   </object>
   <object class="GtkImage" id="img_back_file_load">
     <property name="visible">True</property>
@@ -203,22 +201,18 @@
   <object class="GtkImage" id="img_close">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/exit_application.png</property>
   </object>
   <object class="GtkImage" id="img_coolant_off">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/coolant_off.png</property>
   </object>
   <object class="GtkImage" id="img_coolant_on">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/coolant_on.gif</property>
   </object>
   <object class="GtkImage" id="img_dimensions">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/dimensions.png</property>
   </object>
   <object class="GtkImage" id="img_dir_up">
     <property name="visible">True</property>
@@ -233,12 +227,10 @@
   <object class="GtkImage" id="img_edit_menu_keyboard">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/keyboard.png</property>
   </object>
   <object class="GtkImage" id="img_edit_menu_keyboard_hide">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/keyboard.png</property>
   </object>
   <object class="GtkImage" id="img_edit_menu_new">
     <property name="visible">True</property>
@@ -263,39 +255,32 @@
   <object class="GtkImage" id="img_editor">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/editor.png</property>
   </object>
   <object class="GtkImage" id="img_emergency">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/estopred.png</property>
   </object>
   <object class="GtkImage" id="img_emergency_off">
     <property name="width_request">48</property>
     <property name="height_request">48</property>
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/E-Stop.gif</property>
   </object>
   <object class="GtkImage" id="img_fullsize_preview0_close">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/fullscreen_preview.png</property>
   </object>
   <object class="GtkImage" id="img_fullsize_preview0_open">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/fullscreen_preview.png</property>
   </object>
   <object class="GtkImage" id="img_fullsize_preview1_close">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/fullscreen_preview.png</property>
   </object>
   <object class="GtkImage" id="img_fullsize_preview1_open">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/fullscreen_preview.png</property>
   </object>
   <object class="GtkImage" id="img_home">
     <property name="visible">True</property>
@@ -310,27 +295,22 @@
   <object class="GtkImage" id="img_machine_off">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/machine_off.png</property>
   </object>
   <object class="GtkImage" id="img_machine_on">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/machine_on.png</property>
   </object>
   <object class="GtkImage" id="img_macro_menu_keyboard">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/keyboard.png</property>
   </object>
   <object class="GtkImage" id="img_macro_menu_keyboard_hide">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/keyboard.png</property>
   </object>
   <object class="GtkImage" id="img_macro_menu_stop">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/stop.png</property>
   </object>
   <object class="GtkImage" id="img_macro_paginate_next">
     <property name="visible">True</property>
@@ -345,32 +325,26 @@
   <object class="GtkImage" id="img_manual">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/manual_mode.png</property>
   </object>
   <object class="GtkImage" id="img_manual_on">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/manual_mode.png</property>
   </object>
   <object class="GtkImage" id="img_mdi">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/mdi_mode.png</property>
   </object>
   <object class="GtkImage" id="img_mdi_on">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/mdi_mode.png</property>
   </object>
   <object class="GtkImage" id="img_mist_off">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/mist_off.png</property>
   </object>
   <object class="GtkImage" id="img_mist_on">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/mist_on.gif</property>
   </object>
   <object class="GtkImage" id="img_open">
     <property name="visible">True</property>
@@ -381,78 +355,63 @@
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="tooltip_text" translatable="yes">pause the running program</property>
-    <property name="pixbuf">images/pause.png</property>
   </object>
   <object class="GtkImage" id="img_pause_active">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="tooltip_text" translatable="yes">pause the running program</property>
-    <property name="pixbuf">images/pause.png</property>
   </object>
   <object class="GtkImage" id="img_ref_0">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/ref_0.png</property>
   </object>
   <object class="GtkImage" id="img_ref_1">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/ref_1.png</property>
   </object>
   <object class="GtkImage" id="img_ref_2">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/ref_2.png</property>
   </object>
   <object class="GtkImage" id="img_ref_3">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/ref_3.png</property>
   </object>
   <object class="GtkImage" id="img_ref_4">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/ref_4.png</property>
   </object>
   <object class="GtkImage" id="img_ref_5">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/ref_5.png</property>
   </object>
   <object class="GtkImage" id="img_ref_6">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/ref_6.png</property>
   </object>
   <object class="GtkImage" id="img_ref_7">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/ref_7.png</property>
   </object>
   <object class="GtkImage" id="img_ref_a">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/ref_a.png</property>
   </object>
   <object class="GtkImage" id="img_ref_all">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/ref_all.png</property>
   </object>
   <object class="GtkImage" id="img_ref_b">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/ref_b.png</property>
   </object>
   <object class="GtkImage" id="img_ref_c">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/ref_c.png</property>
   </object>
   <object class="GtkImage" id="img_ref_menu">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/ref_all.png</property>
   </object>
   <object class="GtkImage" id="img_ref_menu_close">
     <property name="visible">True</property>
@@ -472,43 +431,35 @@
   <object class="GtkImage" id="img_ref_u">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/ref_u.png</property>
   </object>
   <object class="GtkImage" id="img_ref_v">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/ref_v.png</property>
   </object>
   <object class="GtkImage" id="img_ref_w">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/ref_w.png</property>
   </object>
   <object class="GtkImage" id="img_ref_x">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/ref_x.png</property>
   </object>
   <object class="GtkImage" id="img_ref_y">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/ref_y.png</property>
   </object>
   <object class="GtkImage" id="img_ref_z">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/ref_z.png</property>
   </object>
   <object class="GtkImage" id="img_run">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/start.png</property>
   </object>
   <object class="GtkImage" id="img_run_from">
     <property name="visible">True</property>
     <property name="sensitive">False</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/runfrom.png</property>
   </object>
   <object class="GtkImage" id="img_sel_next">
     <property name="visible">True</property>
@@ -538,119 +489,98 @@
   <object class="GtkImage" id="img_select">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/gtk-ok.png</property>
   </object>
   <object class="GtkImage" id="img_settings">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/configure-2.png</property>
   </object>
   <object class="GtkImage" id="img_settings_on">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/configure-2.png</property>
   </object>
   <object class="GtkImage" id="img_skip_optional_active">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/tool_blockdelete.gif</property>
   </object>
   <object class="GtkImage" id="img_skip_optional_inactive">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/tool_blockdelete.gif</property>
   </object>
   <object class="GtkImage" id="img_spindle_forward">
     <property name="width_request">48</property>
     <property name="height_request">48</property>
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/forward.png</property>
   </object>
   <object class="GtkImage" id="img_spindle_forward_on">
     <property name="width_request">48</property>
     <property name="height_request">48</property>
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/forward_on.gif</property>
   </object>
   <object class="GtkImage" id="img_spindle_reverse">
     <property name="width_request">48</property>
     <property name="height_request">48</property>
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/reverse.png</property>
   </object>
   <object class="GtkImage" id="img_spindle_reverse_on">
     <property name="width_request">48</property>
     <property name="height_request">48</property>
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/reverse_on.gif</property>
   </object>
   <object class="GtkImage" id="img_spindle_stop">
     <property name="width_request">48</property>
     <property name="height_request">48</property>
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/stop.gif</property>
   </object>
   <object class="GtkImage" id="img_spindle_stop_on">
     <property name="width_request">48</property>
     <property name="height_request">48</property>
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/stop_on.gif</property>
   </object>
   <object class="GtkImage" id="img_step">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/step.png</property>
   </object>
   <object class="GtkImage" id="img_stop">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/stop.png</property>
   </object>
   <object class="GtkImage" id="img_tool_clear">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/clear.png</property>
   </object>
   <object class="GtkImage" id="img_tool_path">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/toolpath.png</property>
   </object>
   <object class="GtkImage" id="img_toolchange">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/toolchange.png</property>
   </object>
   <object class="GtkImage" id="img_toolchange1">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/toolchange.png</property>
   </object>
   <object class="GtkImage" id="img_tools">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/tools.png</property>
   </object>
   <object class="GtkImage" id="img_touch_a">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/touch_a.png</property>
   </object>
   <object class="GtkImage" id="img_touch_b">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/touch_b.png</property>
   </object>
   <object class="GtkImage" id="img_touch_c">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/touch_c.png</property>
   </object>
   <object class="GtkImage" id="img_touch_menu_close">
     <property name="visible">True</property>
@@ -660,7 +590,6 @@
   <object class="GtkImage" id="img_touch_off">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/touchoff.png</property>
   </object>
   <object class="GtkImage" id="img_touch_paginate_next">
     <property name="visible">True</property>
@@ -675,89 +604,72 @@
   <object class="GtkImage" id="img_touch_u">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/touch_u.png</property>
   </object>
   <object class="GtkImage" id="img_touch_v">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/touch_v.png</property>
   </object>
   <object class="GtkImage" id="img_touch_w">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/touch_w.png</property>
   </object>
   <object class="GtkImage" id="img_touch_x">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/touch_x.png</property>
   </object>
   <object class="GtkImage" id="img_touch_y">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/touch_y.png</property>
   </object>
   <object class="GtkImage" id="img_touch_z">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/touch_z.png</property>
   </object>
   <object class="GtkImage" id="img_turtle_jog">
     <property name="width_request">36</property>
     <property name="height_request">36</property>
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/turtle_jog.png</property>
   </object>
   <object class="GtkImage" id="img_unref_all">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/unhome.png</property>
   </object>
   <object class="GtkImage" id="img_user_tabs">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/user_tabs.png</property>
   </object>
   <object class="GtkImage" id="img_user_tabs_on">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/user_tabs.png</property>
   </object>
   <object class="GtkImage" id="img_view_p">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/toolaxisp.png</property>
   </object>
   <object class="GtkImage" id="img_view_x">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/toolaxisx.png</property>
   </object>
   <object class="GtkImage" id="img_view_y">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/toolaxisy.png</property>
   </object>
   <object class="GtkImage" id="img_view_y2">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/toolaxisy2.png</property>
   </object>
   <object class="GtkImage" id="img_view_z">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/toolaxisz.png</property>
   </object>
   <object class="GtkImage" id="img_zoom_in">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/zoom-in.png</property>
   </object>
   <object class="GtkImage" id="img_zoom_out">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/zoom-out.png</property>
   </object>
   <object class="GtkListStore" id="lst_button_mode">
     <columns>
@@ -832,7 +744,7 @@
     <property name="height_request">750</property>
     <property name="can_focus">False</property>
     <property name="title">gmoccapy</property>
-    <property name="icon">images/Logo.png</property>
+    <property name="icon">icons/Logo.png</property>
     <signal name="destroy" handler="on_window1_destroy" swapped="no"/>
     <signal name="show" handler="on_window1_show" swapped="no"/>
     <signal name="focus-out-event" handler="on_focus_out" swapped="no"/>
@@ -1422,7 +1334,6 @@
                                                             <property name="height_request">36</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="pixbuf">images/rabbit_jog.png</property>
                                                           </object>
                                                         </child>
                                                       </object>
@@ -1885,7 +1796,6 @@
                                                             <object class="GtkImage" id="img_logo">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="pixbuf">images/Logo.png</property>
                                                             </object>
                                                             <packing>
                                                             <property name="position">2</property>
@@ -7568,7 +7478,6 @@ F12 or $ key does the same</property>
                       <object class="GtkImage" id="img_tool_by_no">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="pixbuf">images/tool_by_no.svg</property>
                       </object>
                     </child>
                   </object>
@@ -7592,7 +7501,6 @@ F12 or $ key does the same</property>
                       <object class="GtkImage" id="img_index_tool">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="pixbuf">images/index_tool.svg</property>
                       </object>
                     </child>
                   </object>

@@ -116,6 +116,7 @@ from gmoccapy import notification  # this is the module we use for our error han
 from gmoccapy import preferences   # this handles the preferences
 from gmoccapy import getiniinfo    # this handles the INI File reading so checking is done in that module
 from gmoccapy import dialogs       # this takes the code of all our dialogs
+from gmoccapy import icon_theme_helper
 
 _AUDIO_AVAILABLE = False
 try:
@@ -134,30 +135,16 @@ USERTHEMEDIR = os.path.join(os.path.expanduser("~"), ".themes")
 LOCALEDIR = os.path.join(BASE, "share", "locale")
 ICON_THEME_DIR = os.path.join(DATADIR, "icons")
 USER_ICON_THEME_DIR = os.path.join(os.path.expanduser("~"), ".icons")
+DEFAULT_ICON_THEME = "classic"
 
 # path to TCL for external programs eg. halshow
 TCLPATH = os.environ['LINUXCNC_TCL_DIR']
 
-# the ICONS should must be in share/gmoccapy/images
-ALERT_ICON = os.path.join(IMAGEDIR, "applet-critical.png")
-INFO_ICON = os.path.join(IMAGEDIR, "std_info.gif")
+# the ICONS should must exist in the icon theme
+ALERT_ICON = "dialog_warning"
+INFO_ICON = "dialog_information"
 
 
-def _find_valid_icon_themes():
-    valid_icon_themes = [
-        # path, name
-        (None, "none")
-    ]
-    for base_dir in [e for e in [USER_ICON_THEME_DIR, ICON_THEME_DIR] if os.path.exists(e)]:
-        for theme_name in os.listdir(base_dir):
-            theme_dir = os.path.join(base_dir, theme_name)
-            if os.path.exists(os.path.join(theme_dir, "index.theme")):
-                valid_icon_themes.append((theme_dir, theme_name))
-    return valid_icon_themes
-
-def find_handler_id_by_signal(obj, signal_name):
-    signal_id, detail = GObject.signal_parse_name(signal_name, obj, True)
-    return GObject.signal_handler_find(obj, GObject.SignalMatchType.ID, signal_id, detail, None, None, None)
 
 class gmoccapy(object):
     def __init__(self, argv):
@@ -820,7 +807,7 @@ class gmoccapy(object):
             message = _("**** GMOCCAPY ERROR ****\n")
             message += _("**** could not resolv the image path '{0}' given for button '{1}' ****".format(filepath, name))
             print(message)
-            image.set_from_icon_name("gtk-missing-image", Gtk.IconSize.DIALOG)
+            image.set_from_icon_name("image-missing", Gtk.IconSize.DIALOG)
             btn.add(image)
 
         btn.show_all()
@@ -2007,16 +1994,16 @@ class gmoccapy(object):
         #    settings.set_string_property("Gtk-theme-name", theme_name, "")
 
     def _init_icon_themes(self):
-        valid_icon_themes = _find_valid_icon_themes()
+        valid_icon_themes = icon_theme_helper.find_valid_icon_themes([USER_ICON_THEME_DIR, ICON_THEME_DIR])
 
         model = self.widgets.icon_theme_choice.get_model()
         model.clear()
         for icon_theme in valid_icon_themes:
             model.append(icon_theme)
 
-        icon_theme_preference = self.prefs.getpref("icon_theme", None, str)
+        icon_theme_preference = self.prefs.getpref("icon_theme", DEFAULT_ICON_THEME, str)
         icon_theme_choice = self.widgets.icon_theme_choice
-        with(icon_theme_choice.handler_block(find_handler_id_by_signal(icon_theme_choice, "changed"))):
+        with(icon_theme_choice.handler_block(icon_theme_helper.find_handler_id_by_signal(icon_theme_choice, "changed"))):
             try:
                 selected_index = [icon_theme[1] for icon_theme in valid_icon_themes].index(icon_theme_preference)
                 icon_theme_choice.set_active(selected_index)
@@ -2024,9 +2011,8 @@ class gmoccapy(object):
                 print(f"Warning: preferred icon-theme '{icon_theme_preference}' not found; switching to 'default'.")
                 icon_theme_choice.set_active(0)
 
-        # switch theme if not default
-        if icon_theme_choice.get_active():
-            self._set_icon_theme(model[icon_theme_choice.get_active_iter()][1])
+        # load icon theme
+        self._set_icon_theme(model[icon_theme_choice.get_active_iter()][1])
 
 
     def _init_audio(self):
@@ -2439,7 +2425,7 @@ class gmoccapy(object):
 
     def _show_error(self, error):
         kind, text = error
-        # print kind,text
+        # print(kind,text)
         if kind in (linuxcnc.NML_ERROR, linuxcnc.OPERATOR_ERROR):
             icon = ALERT_ICON
             self.halcomp["error"] = True
@@ -3330,8 +3316,11 @@ class gmoccapy(object):
             self.notification.set_property('max_messages', self.widgets.adj_max_messages.get_value())
         self.notification.set_property('use_frames', self.widgets.chk_use_frames.get_active())
         self.notification.set_property('font', self.widgets.fontbutton_popup.get_font_name())
-        self.notification.set_property('icon_size', Gtk.IconSize.LARGE_TOOLBAR)
+        self.notification.set_property('icon_size', 24)
         self.notification.set_property('top_to_bottom', True)
+        # Append these two directories to the icon theme search path
+        self.notification.set_property('icon_theme_path', ICON_THEME_DIR)
+        self.notification.set_property('icon_theme_path', USER_ICON_THEME_DIR)
 
     def _from_internal_linear_unit(self, v, unit=None):
         if unit is None:
@@ -3915,7 +3904,7 @@ class gmoccapy(object):
         # "synchronize" all fullscreen toggle buttons
         for tbtn_fullscreen, num in [(self.widgets[f"tbtn_fullsize_preview{n}"], n) for n in range(2)]:
             if tbtn_fullscreen.get_active() is not state:
-                with(tbtn_fullscreen.handler_block(find_handler_id_by_signal(tbtn_fullscreen, "toggled"))):
+                with(tbtn_fullscreen.handler_block(icon_theme_helper.find_handler_id_by_signal(tbtn_fullscreen, "toggled"))):
                     tbtn_fullscreen.set_active(state)
             tbtn_fullscreen.set_image(self.widgets[f"img_fullsize_preview{num}_" + ("close" if state else "open")])
 
@@ -4453,7 +4442,7 @@ class gmoccapy(object):
             self.dialogs.warning_dialog(self, _("Just to warn you"), message)
         else:
             self.icon_theme.set_custom_theme(name)
-
+            self.notification.set_property('icon_theme_name', name)
             icon_configs = [
                 # widget, named_icon, size
                 ("img_emergency", "main_switch_on", 48),
@@ -4593,7 +4582,7 @@ class gmoccapy(object):
                     #  image is assigned at a time) and the default_style is maybe to inaccurate in terms of overridden
                     #  style attributes used by the icon loading mechanism (fg, succcss, warning and error colors)
                     # style = image.get_parent().get_style_context() if image.get_parent() else default_style
-                    pixbuf = self._load_symbolic_from_icon_theme(icon_name, size, default_style)
+                    pixbuf = icon_theme_helper.load_symbolic_from_icon_theme(self.icon_theme, icon_name, size, default_style)
                     image.set_from_pixbuf(pixbuf)
                     image.set_size_request(size, size)
                 except BaseException as err:
@@ -4602,41 +4591,6 @@ class gmoccapy(object):
 
             if failed_icons > 0:
                 print(f"Warning: {failed_icons} icons failed to load! (Maybe the icon theme is incomplete?)")
-
-
-    def _load_symbolic_from_icon_theme(self, icon_name, size, style = None ):
-        """Load a symbolic icon from the current icon theme.
-        If style is given, the symolic icon will be recolored based on colors derive from the stylecontext:
-         foreground color from Gtk.StateFlags.NORMAL, success_color, warning_color and error_color by calling
-         the corresponding lookup_color method.
-        If style is None, the icon is loaded via the Gtk.IconInfo.load_icon method without recoloring.
-
-        :param icon_name: The icon name
-        :type icon_name: str
-        :param size: Icon size to load
-        :type size: int
-        :param style: The style context to derive the colors from
-        :type style: Gtk.StyleContext
-        :return: GdkPixbuf.Pixbuf
-        :raises: ValueError: if icon lookup fails (usually if the theme does not contain a icon with this name)
-        """
-        lookup_flags = Gtk.IconLookupFlags.USE_BUILTIN | Gtk.IconLookupFlags.FORCE_SYMBOLIC | Gtk.IconLookupFlags.FORCE_SIZE
-        icon_info = self.icon_theme.lookup_icon(icon_name, size, lookup_flags)
-        if icon_info is None:
-            raise ValueError(f"Lookup icon '{icon_name}' failed")
-
-        pixbuf = None
-        if style is not None:
-            fg = style.get_color(Gtk.StateFlags.NORMAL)
-            __, success_color = style.lookup_color("success_color")
-            __, warning_color = style.lookup_color("warning_color")
-            __, error_color = style.lookup_color("error_color")
-
-            pixbuf, _ = icon_info.load_symbolic(fg, success_color, warning_color, error_color)
-        else:
-            pixbuf = icon_info.load_icon()
-
-        return pixbuf
 
     def on_icon_theme_choice_changed(self, widget):
         active = widget.get_active_iter()
