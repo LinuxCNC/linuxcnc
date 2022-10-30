@@ -818,7 +818,7 @@ It has a _signal_ *`percentDone(int)`* that can be connected to a slot
   Set true to have the widget switch to machine log when in Manual mode.
 
 The `GcodeDisplay` properties can be set in a stylesheet with the following
-code added to the .qss file.
+code added to the .qss file (the following color choices are random).
 
 [source,{css}]
 ----
@@ -826,9 +826,12 @@ EditorBase{
     qproperty-styleColorBackground: lightblue;
     qproperty-styleColor0: black;
     qproperty-styleColor1: #000000; /* black */
-    qproperty-styleColor2: red;
-    qproperty-styleColor3: black;
-    qproperty-styleColor4: yellow;
+    qproperty-styleColor2: blue;
+    qproperty-styleColor3: red;
+    qproperty-styleColor4: green;
+    qproperty-styleColor5: darkgreen;
+    qproperty-styleColor6: darkred;
+    qproperty-styleColor7: deeppink;
     qproperty-styleColorMarginText: White;
     qproperty-styleColorMarginBackground: blue;
     qproperty-styleFont0: "Times,12,-1,0,90,0,0,0,0,0";
@@ -836,17 +839,25 @@ EditorBase{
     qproperty-styleFont2: "Times,12,-1,0,90,0,0,0,0,0";
     qproperty-styleFont3: "Times,12,-1,0,90,0,0,0,0,0";
     qproperty-styleFont4: "Times,12,-1,0,90,0,0,0,0,0";
+    qproperty-styleFont5: "Times,12,-1,0,90,0,0,0,0,0";
+    qproperty-styleFont6: "Times,12,-1,0,90,0,0,0,0,0";
+    qproperty-styleFont7: "Times,12,-1,0,90,0,0,0,0,0";
     qproperty-styleFontMargin: "Times,14,-1,0,90,0,0,0,0,0";
 }
 ----
 
 For `GcodeDisplay` widget's _default G-code lexer_:
 
-* *styleColor0 = Default*: digit characters
-* *styleColor1 = Comments*: characters inside of 'msg()'
-* *styleColor2 = Key*: alphabetic characters
-* *styleColor3 = Assignment*: ('%', '<', '>', '#', '=')
-* *styleColor4 = Value*: ('[', ']')
+* *styleColor0 = Default*: Everything not part of the groups below
+* *styleColor1 = LineNo and Comments*: Nxxx and comments (characters inside of and including '()' or anything after ';' (when used outside of parenthesis) with the exception of the note below)
+* *styleColor2 = Gcode*: G and the digits after
+* *styleColor3 = Mcode*: M and the digits after
+* *styleColor4 = Axis*: XYZABCUVW
+* *styleColor5 = Other*: EFHIJKDQLRPST (feed, rpm, radius, etc.)
+* *styleColor6 = AxisValue*: Values following XYZABCUVW
+* *styleColor7 = OtherValue*: Values following EFHIJKDQLRPST$
+
+NOTE: For comments, the "OtherValue" color (Color 5) can be used to highlight "print," "debug," "msg," "logopen," "logappend," "logclose" "log," "pyrun," "pyreload" "abort," "probeopen" "probeclose" inside of a parenthesis comment in a line of G-code. As well as "py," if a line that starts with ";py,". Examples: (print, text), (log, text), (msg, text), or (debug, text). Only the last of the examples will be highlighted if there are more than one on the same line.
 
 //FIXME Explain/explicit
 _Font definitions_:
