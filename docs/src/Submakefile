@@ -589,16 +589,23 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 # Hack to avoid ../../../src/ style include which do not work with
 # translated documents.  Copy the ini file where the documentation
 # build can find it without ../.. paths.
-.include-stamp: hal/user_comps/mb2hal/mb2hal_HOWTO.ini
+.include-stamp: hal/user_comps/mb2hal/mb2hal_HOWTO.ini emc/usr_intf/gmoccapy/release_notes.txt
 	(set -x; set -e; \
 	cp -f hal/user_comps/mb2hal/mb2hal_HOWTO.ini $(DOC_DIR)/src/drivers/;\
 	mkdir -p $(DOC_DIR)/html/drivers/; \
 	cp -f hal/user_comps/mb2hal/mb2hal_HOWTO.ini $(DOC_DIR)/html/drivers/;\
+	cp -f emc/usr_intf/gmoccapy/release_notes.txt $(DOC_DIR)/src/gui/gmoccapy_release_notes.txt;\
+	mkdir -p $(DOC_DIR)/html/gui/; \
+	cp -f emc/usr_intf/gmoccapy/release_notes.txt $(DOC_DIR)/html/gui/gmoccapy_release_notes.txt;\
 	for lang in $(LANGUAGES); do \
 		mkdir -p $(DOC_DIR)/src/$$lang/drivers/; \
 		mkdir -p $(DOC_DIR)/html/$$lang/drivers/; \
 		cp -f hal/user_comps/mb2hal/mb2hal_HOWTO.ini $(DOC_DIR)/src/$$lang/drivers/ ; \
 		cp -f hal/user_comps/mb2hal/mb2hal_HOWTO.ini $(DOC_DIR)/html/$$lang/drivers/ ; \
+		mkdir -p $(DOC_DIR)/src/$$lang/gui/; \
+		mkdir -p $(DOC_DIR)/html/$$lang/gui/; \
+		cp -f emc/usr_intf/gmoccapy/release_notes.txt $(DOC_DIR)/src/$$lang/gui/gmoccapy_release_notes.txt ; \
+		cp -f emc/usr_intf/gmoccapy/release_notes.txt $(DOC_DIR)/html/$$lang/gui/gmoccapy_release_notes.txt ; \
 	done) > $@.new && mv $@.new $@
 
 # Copy all images used by translated adoc files into the directories
@@ -771,6 +778,13 @@ docclean:
 	-rm -f $(DOC_SRCDIR)/*/*.html
 	-rm -f $(DOC_SRCDIR)/index_*.tmpl
 	-rm -f $(DOC_SRCDIR)/drivers/mb2hal_HOWTO.ini
+	-rm -f $(DOC_SRCDIR)/*/drivers/mb2hal_HOWTO.ini
+	-rm -f $(DOC_SRCDIR)/gui/gmoccapy_release_notes.txt
+	-rm -f $(DOC_SRCDIR)/*/gui/gmoccapy_release_notes.txt
+	-rm -f $(DOC_DIR)/html/*/drivers/mb2hal_HOWTO.ini
+	-rm -f $(DOC_DIR)/html/drivers/mb2hal_HOWTO.ini
+	-rm -f $(DOC_DIR)/html/gui/gmoccapy_release_notes.txt
+	-rm -f $(DOC_DIR)/html/*/gui/gmoccapy_release_notes.txt
 	-rm -f $(DOC_DIR)/html/code/*.*
 	-rm -f $(DOC_DIR)/html/common/images/*.*
 	-rm -f $(DOC_DIR)/html/config/images/*.*

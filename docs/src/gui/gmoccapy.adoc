@@ -64,11 +64,12 @@ screens with minimum resolution of 1024x748.
 
 ==  How To Get GMOCCAPY
 
-GMOCCAPY 3 is included in the standard distribution of LinuxCNC since release 2.8.
+GMOCCAPY 3 is included in the standard distribution of LinuxCNC since release 2.7.
 So the easiest way to get GMOCCAPY on your controlling PC, is just to download the
-http://www.linuxcnc.org/downloads/[ISO] and install it
-from the CD/DVD/USB-stick. +
+http://www.linuxcnc.org/downloads/[ISO] and install it from the CD/DVD/USB-stick.
 This allows you to receive updates with the regular Debian packages.
+
+In the link:gmoccapy_release_notes.txt[*release notes*] aka changelist you can track the latest bugfixes and features.
 
 You will get a similar screen to the following (the design may vary depending on your config):
 
