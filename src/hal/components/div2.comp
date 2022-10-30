@@ -1,0 +1,53 @@
+//   This is a component for LinuxCNC HAL
+//   Copyright 2021 Noel Rodes
+//
+//   This program is free software; you can redistribute it and/or
+//   modify it under the terms of version 2 of the GNU General
+//   Public License as published by the Free Software Foundation.
+//
+//   This program is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with this program; if not, write to the Free Software
+//   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
+//   Do not use a zero Divisor.
+//   Dividing by zero creates a bad, indefinite result.  NOT ALLOWED
+//   This is simple math.
+//
+
+component div2 "Quotient of two floating point inputs";
+pin in  float in0 "the Dividend";
+pin in  float in1 "the Divisor";
+pin out float out "the Quotient   out = in0 / in1";
+
+description """
+A very simple comp to divide a floating point number
+by another floating point number, to get a floating point result.
+Remember, not to use a zero divisor. 
+A zero divisor creates an indefinte result.
+This is simple mathematics. """;
+
+license "GPL"; // indicates GPL v2 or later
+author "Noel Rodes";
+see_also "mult2 ";
+function _;
+
+;;
+
+#include <rtapi_math.h>
+
+FUNCTION(_) {
+    if (in1 == 0)  {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                    "\n Hey, no divide by 0 allowed. \n"
+                    " Check your div2 comp inputs. \n");
+        out = NAN;
+        return;
+    }
+    out = ( in0 / in1 );
+}
+
