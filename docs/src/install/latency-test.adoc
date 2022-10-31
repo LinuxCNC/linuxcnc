@@ -4,18 +4,15 @@
 [[cha:latency-testing]]
 = Latency Testing(((Latency Testing)))
 
-[[sec:latency-test]]
-== Latency Test(((Latency Test)))
 
-This test is the first test that should be performed on a PC
-to see if it is able to drive a CNC machine.
+[[sec:what-is-latency]]
+== What is latency?
 
-Latency is how long it takes the PC to stop what it is doing and
-respond to an external request. For LinuxCNC the request is
-BASE_THREAD that makes the periodic 'heartbeat' that serves as a
-timing reference for the step pulses. The lower the latency, the
-faster you can run the heartbeat, and the faster and smoother the
-step pulses will be.
+Latency is how long it takes the PC to stop what it is doing and respond
+to an external request, such as running one of LinuxCNC's periodic
+realtime threads.  The lower the latency, the faster you can run the
+realtime threads, and the smoother motion will be (and potentially faster,
+in the case of software stepping).
 
 Latency is far more important than CPU speed.
 A lowly Pentium II that responds to interrupts within 10 microseconds
@@ -26,7 +23,7 @@ The CPU isn't the only factor in determining latency.
 Motherboards, video cards, USB ports, and
 a number of other things can hurt the latency.
 The best way to find out what you are dealing with is
-to run the RTAI latency test.
+to run the latency test.
 
 Generating step pulses in software
 has one very big advantage - it's free.
@@ -39,8 +36,21 @@ also have some disadvantages:
 - jitter in the generated pulses
 - loads the CPU
 
-The best way to find out how well your PC will lrun LinuxCNC
-is to run the HAL latency test.
+
+[[sec:latency-tests]]
+== Latency Tests(((Latency Tests)))
+
+LinuxCNC includes several latency tests.  They all produce equivalent
+information.  Running these tests will help determine if a computers is
+suitable for driving a CNC machine.
+
+[NOTE]
+Do not run LinuxCNC or Stepconf while the latency test is running.
+
+
+[[sec:latency-test]]
+=== Latency Test(((Latency Test)))
+
 To run the test, open a terminal window
 (in Ubuntu, from Applications → Accessories → Terminal)
 and run the following command:
@@ -66,7 +76,7 @@ For available options, on the command line enter:
 latency-test -h
 ----
 
-After stating a latency test you should see something like this:
+After starting a latency test you should see something like this:
 
 .HAL Latency Test
 image::../config/images/latency-test_en.png["HAL Latency Test",align="center"]
@@ -77,9 +87,6 @@ around on the disk. Play some music.
 Run an OpenGL program such as glxgears.
 The idea is to put the PC through its paces while
 the latency test checks to see what the worst case numbers are.
-
-[NOTE]
-Do not run LinuxCNC or Stepconf while the latency test is running.
 
 The important number for software stepping is the 'max jitter' of the base thread.
 In the example above, that is 6693 nanoseconds, or 6.693 microseconds.
@@ -118,7 +125,7 @@ For more information on stepper tuning see the
 *Additional command line tools are available for examining latency
 when LinuxCNC is not running.*
 
-== Latency Plot
+=== Latency Plot
 
 latency-plot makes a strip chart recording for a base and a servo thread.
 It may be useful to see spikes in latency when other
@@ -142,7 +149,8 @@ Options:
 .`latency-plot` Window
 image::../config/images/latency-plot.png["latency-plot Window"]
 
-== Latency Histogram
+
+=== Latency Histogram
 
 latency-histogram displays a histogram of latency (jitter) for
 a base and servo thread.
@@ -177,5 +185,82 @@ Notes:
 
 .`latency-histogram` Window
 image::../config/images/latency-histogram.png["latency-histogram Window"]
+
+
+== Latency tuning
+
+LinuxCNC can run on many different hardware platforms and with many
+different realtime kernels, and they all may benefit from tuning for
+optimal latency.
+
+A primary goal in tuning the system for LinuxCNC is to reserve one or
+more CPUs for the exclusive use of LinuxCNC's realtime tasks, so that
+other tasks (both user programs and kernel threads) do not interfere
+with LinuxCNC's access to those CPUs.
+
+When specific tuning options are believed to be universally helpful
+LinuxCNC does this tuning automatically at startup, but many tuning
+options are machine-specific and cannot be done automatically.  The person
+installing LinuxCNC will need to experimentally determine the optimal
+tuning for their system.
+
+
+=== Tuning the BIOS for latency
+
+PC BIOSes vary wildly in their latency behavior.
+
+Tuning the BIOS is tedious because you have to reboot the computer,
+make one small tweak in the BIOS, boot Linux, and run the latency test
+(potentially for a long time) to see what effects your BIOS change had.
+Then repeat for all the other BIOS settings you want to try.
+
+Because BIOSes are all different and non-standard, providing a detailed
+BIOS tuning guide is not practical.  In general, some things to try
+tuning in the BIOS are:
+
+* Disable ACPI, APM, and any other power-saving features.  This includes
+anything related to power saving, suspending, CPU sleep states, CPU
+frequency scaling, etc.
+
+* Disable CPU "turbo" mode.
+
+* Disable CPU hyperthreading.
+
+* Disable (or otherwise control) System Management Interrupt (SMI).
+
+* Disable any hardware you do not intend to use.
+
+
+=== Tuning Preempt-RT for latency
+
+The Preempt-RT kernel may benefit from tuning in order to provide the
+best latency for LinuxCNC.  Tuning may be done via the kernel command
+line, sysctl, and via files in `/proc` and `/sys`.
+
+Some tuning parameters to look into:
+
+Kernel command line::
+
+    Details here: <https://www.kernel.org/doc/Documentation/admin-guide/kernel-parameters.txt>
+
+    * `isolcpus`: Prevent most non-LinuxCNC processes from using these
+      CPUs, leaving more CPU time available for LinuxCNC.
+
+    * `irqaffinity`: Select which CPUs service interrupts, so that the
+      CPUs reserved for LinuxCNC realtime don't have to perform this task.
+
+    * `rcu_nocbs`: Prevent RCU callbacks from running on these CPUs.
+
+    * `rcu_nocb_poll`: Poll for RCU callbacks instead of using sleep/wake.
+
+    * `nohz_full`: Disable clock tick on these CPUs.
+
+Sysctl::
+
+    Details here: <https://www.kernel.org/doc/html/latest/scheduler/sched-rt-group.html>
+
+    * `sysctl.kernel.sched_rt_runtime_us`: Set to -1 to remove the limit
+      on how much time realtime tasks may use.
+
 
 // vim: set syntax=asciidoc:
