@@ -33,7 +33,7 @@ This is simple mathematics. """;
 
 license "GPL"; // indicates GPL v2 or later
 author "Noel Rodes";
-see_also "mult2 ";
+see_also "mult2, invert ";
 function _;
 
 ;;
