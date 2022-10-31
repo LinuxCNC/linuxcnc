@@ -420,7 +420,7 @@ net signal-name motion.digital-in-00 <= parport.0.pin10-in
 ----
 
 [[mcode:m67]]
-== M67 Analog Output,Synchronized(((M67 Analog Output, Synchronized)))
+== M67 Analog Output, Synchronized(((M67 Analog Output, Synchronized)))
 
 [source,{ngc}]
 ----
