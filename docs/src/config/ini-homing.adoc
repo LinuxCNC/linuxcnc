@@ -376,11 +376,13 @@ home position like a rotary joint and you want that joint to home at
 the current position when the "Home All" button is pressed in the
 Axis gui, then the following INI entries for that joint are needed.
 
-. HOME_SEARCH_VEL = 0
-. HOME_LATCH_VEL = 0
-. HOME_USE_INDEX = NO
-. HOME equals to HOME_OFFSET
-. HOME_SEQUENCE = 0 (or other valid sequence number)
+----
+HOME_SEARCH_VEL = 0
+HOME_LATCH_VEL = 0
+HOME_USE_INDEX = NO
+HOME_OFFSET = 0 (Or the home position offset (HOME))
+HOME_SEQUENCE = 0 (or other valid sequence number)
+----
 
 [NOTE]
 The default values for unspecified HOME_SEARCH_VEL, HOME_LATCH_VEL,
