@@ -23,6 +23,7 @@ component div2 "Quotient of two floating point inputs";
 pin in  float in0 "the Dividend";
 pin in  float in1 "the Divisor";
 pin out float out "the Quotient   out = in0 / in1";
+param rw float deadband "The \\fBout\\fR will be zero if \\fBin\\fR is between -\\fBdeadband\\fR and +\\fBdeadband\\fR" ;
 
 description """
 A very simple comp to divide a floating point number
@@ -33,21 +34,34 @@ This is simple mathematics. """;
 
 license "GPL"; // indicates GPL v2 or later
 author "Noel Rodes";
-see_also "mult2, invert ";
+see_also "mult2(9), invert(9) ";
 function _;
 
 ;;
 
 #include <rtapi_math.h>
 
+static bool error_msg = 0;
+
 FUNCTION(_) {
-    if (in1 == 0)  {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                    "\n Hey, no divide by 0 allowed. \n"
-                    " Check your div2 comp inputs. \n");
-        out = NAN;
-        return;
+    double dividend = in0;
+    double divisor = in1;
+    if ( deadband < 1e-6 ) deadband = 1e-6;
+    if ( divisor > -deadband && divisor < 0 ) {
+        out = ( dividend / -deadband );
+        if (!error_msg)
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                            "\n \n DIV2 DIVISOR IS TOO CLOSE TO -ZERO,\n THEREFORE -DEADBAND IS USED.\n INCREASE THE DEVISOR, in1.\n \n \n");
+        error_msg = 1;
+    } else if (divisor >= 0 && divisor < deadband) {
+        out = ( dividend / deadband );
+        if (!error_msg)
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                            "\n \n DIV2 DIVISOR IS TOO CLOSE TO +ZERO,\n THEREFORE +DEADBAND IS USED.\n INCREASE THE DEVISOR, in1.\n \n \n");
+        error_msg = 1;
+    } else {
+        out = ( dividend / divisor );
+        error_msg = 0;
     }
-    out = ( in0 / in1 );
 }
 
