@@ -5,7 +5,7 @@ pin out float out "out = in0 * in1";
 function _;
 license "GPL";
 author "John Kasunich";
-see_also " invert, div2 ";
+see_also " invert(9), div2(9) ";
 
 ;;
 FUNCTION(_) {
