@@ -468,16 +468,16 @@ This shows ways to get the pin value and information.
 
 == Project ideas
 
-* Create an external control panel with buttons, switches, and
-  indicators. Connect everything to a microcontroller, and connect the
-  microcontroller to the PC using a serial interface. Python has a very
-  capable serial interface module called
+* Create an external control panel with buttons, switches, and indicators.
+  Connect everything to a microcontroller,
+  and connect the microcontroller to the PC using a serial interface.
+  Python has a very capable serial interface module called
   https://pyserial.readthedocs.io/en/latest/[pyserial]
-  (Ubuntu package name "python3-serial", in the universe repository)
+  (Ubuntu package name "python3-serial", in the universe repository).
 * Attach a http://lcdproc.omnipotent.net/[LCDProc]-compatible LCD module
   and use it to display a digital readout with information of your choice
-  (Ubuntu package name "lcdproc", in the universe repository)
-* Create a virtual control panel using any GUI library supported by
-  Python (gtk, Qt, wxWindows, etc.)
+  (Ubuntu package name "lcdproc", in the universe repository).
+* Create a virtual control panel using any GUI library supported by Python
+  (gtk, Qt, wxWindows, etc.).
 
 // vim: set syntax=asciidoc:

@@ -1,8 +1,8 @@
-component moveoff "Component for Hal-only offsets";
+component moveoff "Component for HAL-only offsets";
 
 description
 """
-The moveoff component is used to offset joint positions using custom Hal
+The moveoff component is used to offset joint positions using custom HAL
 connections.  Implementing an offset-while-program-is-paused functionality is
 supported with appropriate connections for the input pins.  Nine joints are
 supported.
@@ -51,11 +51,11 @@ when offsetting during a pause), offsets are returned to zero (respecting
 limits) and an \\fBError\\fR message is issued.
 
 \\fBCaution:\\fR If offsets are enabled and applied and the machine is turned off
-for any reason, any \\fBexternal\\fR Hal logic that manages the enabling pins
+for any reason, any \\fBexternal\\fR HAL logic that manages the enabling pins
 and the offset-in-M inputs is responsible for their state when the
 machine is subsequently turned on again.
 
-This Hal-only means of offsetting is typically not known to LinuxCNC
+This HAL-only means of offsetting is typically not known to LinuxCNC
 nor available in GUI preview displays.  \\fBNo protection is provided\\fR for
 offset moves that exceed soft limits managed by LinuxCNC.  Since soft limits
 are not honored, an offset move may encounter hard limits (or \\fBCRASH\\fR if
@@ -64,7 +64,7 @@ to limit travel is recommended.  Triggering a hard limit will turn off
 the machine -- see \\fBCaution\\fR above.
 
 The offset-in-M values may be set with inifile settings, controlled by a GUI,
-or managed by other Hal components and connections.  Fixed values may be
+or managed by other HAL components and connections.  Fixed values may be
 appropriate in simple cases where the direction and amount of offset is
 well-defined but a control method is required to deactivate an enabling
 pin in order to return offsets to zero.  GUIs may provide means for users to
@@ -73,7 +73,7 @@ set offset-in-M values to zero before deasserting an enabling pin.
 
 The default values for accel, vel, min, max, epsilon, waypoint-sample-secs, and
 waypoint-threshold may not be suitable for any particular application.  This
-Hal component is unaware of limits enforced elsewhere by LinuxCNC.
+HAL component is unaware of limits enforced elsewhere by LinuxCNC.
 Users should test usage in a simulator application and understand all
 hazards \\fBbefore\\fR use on hardware.
 

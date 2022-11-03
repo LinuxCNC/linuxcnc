@@ -3991,7 +3991,7 @@ M68 E3 Qn (immediate) +
 _n_ is the percentage to set +
 10 is the minimum, below this will be set to 100% +
 100 is the maximum, above this will be set to 100% +
-*It is recommended to have M68 E3 Q0 in both the preamble and postamble*
+*It is recommended to have M68 E3 Q0 in both the preamble and postamble.*
 |Cutter <<qt_cutter-compensation,compensation>> - left of path |G41.1 D#<_hal[plasmac.kerf-width]>
 |Cutter <<qt_cutter-compensation,compensation>> - right of path |G42.1 D#<_hal[plasmac.kerf-width]>
 |Cutter <<qt_cutter-compensation,compensation>> off |G40 +

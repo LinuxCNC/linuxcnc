@@ -2176,7 +2176,7 @@ Example command to call a handler function that passes data:
 EXT.on_button_press(self, 100)
 ----
 
-You can use a semicolon to separate multiple commands:
+You can use a semicolon to separate multiple commands;
 
 [source,python]
 ----

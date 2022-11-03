@@ -40,7 +40,7 @@ encoder index resets will cause the motor commutation to fail""";
 pin io bit index-enable if personality & 0x08 """This pin should be connected to
 the associated encoder index-enable pin to zero the encoder when it passes index
 This is only used indicate to the bldc control component that an index has been
-seen""";
+seen.""";
 
 pin in bit init if (personality & 0x05) == 4
 """A rising edge on this pin starts the motor alignment sequence. This pin
@@ -56,7 +56,7 @@ to handle the required sequencing.
 
 Both pins can be ignored if the encoder offset is known explicitly, such as is
 the case with an absolute encoder. In that case the \\fBoffset\\fP parameter
-can be set directly in the HAL file""";
+can be set directly in the HAL file.""";
 
 pin out bit init-done = 0 if (personality & 0x05) == 4
 "Indicates homing sequence complete";
@@ -92,13 +92,13 @@ pin out bit C8-out if (personality & 0x800) "Fanuc Gray-code bit 3 output";
 pin out float phase-angle = 0
 """Phase angle including lead/lag angle after encoder zeroing etc. Useful for
 angle/current drives. This value has a range of 0 to 1 and measures electrical
-revolutions. It will have two zeros for a 4 pole motor, three for a 6-pole etc""";
+revolutions. It will have two zeros for a 4 pole motor, three for a 6-pole etc.""";
 
 pin out float rotor-angle = 0
 """Rotor angle after encoder zeroing etc. Useful for angle/current drives which
-add their own phase offset such as the 8i20. This value has a range of 0 to 1
+add their own phase offset such as the 8I20. This value has a range of 0 to 1
 and measures electrical revolutions. It will have two zeros for a 4 pole motor,
-three for a 6-pole etc""";
+three for a 6-pole etc.""";
 
 pin out float out
 "Current output, including the effect of the dir pin and the alignment sequence";
@@ -116,7 +116,7 @@ param rw signed scale = 512 if personality & 0x06
 "The number of encoder counts per rotor revolution.";
 param rw signed poles = 4 if personality & 0x06
 """The number of motor poles. The encoder scale will be divided by this value
-to determine the number of encoder counts per electrical revolution""";
+to determine the number of encoder counts per electrical revolution.""";
 param rw signed encoder-offset = 0 if personality & 0x0A
 """The offset, in encoder counts, between the motor electrical zero and the
 encoder zero modulo the number of counts per electrical revolution""";
@@ -127,11 +127,11 @@ applied to the commanded angle by the drive in degrees. This value is only used
 during the homing sequence of drives with incremental encoder feedback. It is
 used to back-calculate from commanded angle to actual phase angle. It is only
 relevant to drives which expect rotor-angle input rather than phase-angle
-demand. Should be 0 for most drives. """;
+demand. Should be 0 for most drives.""";
 
 param rw unsigned output-pattern=25 if personality & 0x400
 """Commutation pattern to be output in Hall Signal translation mode. See the
-description of /fBpattern/fR for details""";
+description of /fBpattern/fR for details.""";
 
 param rw unsigned pattern=25 if personality & 0x01
 """Commutation pattern to use, from 0 to 47. Default is type 25.
@@ -315,7 +315,7 @@ Output type descriptions are all upper-case.
 
 \\fBDefaults\\fR The component will always calculate rotor angle, phase angle
 and the absolute value of the input \\fBvalue\\fR for interfacing with drives
-such as the Mesa 8i20. It will also default to three individual, bipolar phase
+such as the Mesa 8I20. It will also default to three individual, bipolar phase
 output values if no other output type modifiers are used.
 
 \\fBB\\fR Bit level outputs. Either 3 or 6 logic-level outputs indicating which

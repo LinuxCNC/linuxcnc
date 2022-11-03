@@ -608,18 +608,18 @@ coils are internal coils used to control program flow.
 * 'N.C. COIL' - A relay coil that inverses its contacts: When coil is
   energized, then its contact that is normally closed (short: N.C.) will be opened
   (turned off, false, etc) and the current flow is interrupted.
-* 'SET COIL' - A relay coil with latching contacts: When coil is energized
-  then its N.O. contact will be latched closed.
-* 'RESET COIL' - A relay coil with latching contacts: When coil is
-  energized then its N.O. contact will be latched open.
-* 'JUMP COIL' - A 'goto' coil: When coil is energized then the
-  ladder program jumps
-  to a rung (in the CURRENT section) - jump points are designated by a
-  rung label. (Add rung labels in the section display, top left label box.)
-* 'CALL COIL' - A 'gosub' coil: When coil is energized then the program
-  jumps to a
+* 'SET COIL' - A relay coil with latching contacts:
+  When coil is energized then its N.O. contact will be latched closed.
+* 'RESET COIL' - A relay coil with latching contacts:
+  When coil is energized then its N.O. contact will be latched open.
+* 'JUMP COIL' - A 'goto' coil:
+  When coil is energized then the ladder program jumps to a rung
+  (in the CURRENT section) - jump points are designated by a rung label.
+  (Add rung labels in the section display, top left label box.)
+* 'CALL COIL' - A 'gosub' coil:
+  When coil is energized then the program jumps to a
   subroutine section designated by a subroutine number - subroutines are
-  designated SR0 to SR9 (designate them in the section manager)
+  designated SR0 to SR9 (designate them in the section manager).
 
 [WARNING]
 If you use a N.C. contact with a N.C. coil the logic

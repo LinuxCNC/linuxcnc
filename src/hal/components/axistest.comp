@@ -1,5 +1,5 @@
 component axistest """\
-Used to allow testing of an axis. Used IN PNCconf""";
+Used to allow testing of an axis. Used IN PnCconf.""";
 pin in bit jog-minus "Drive TRUE to jog the axis in its minus direction";
 pin in bit jog-plus "Drive TRUE to jog the axis in its positive direction";
 pin in bit run "Drive TRUE to run the axis near its current position_fb with a trapezoidal velocity profile";
@@ -13,7 +13,7 @@ pin out float run-target;
 pin out float run-start;
 pin out float run-low;
 pin out float run-high;
-pin in s32 pause = 0 "pause time for each end of run in seconds";
+pin in s32 pause = 0 "Pause time for each end of run in seconds";
 param rw float epsilon = .001;
 variable double timer;
 param r float elapsed "Current value of the internal timer";
