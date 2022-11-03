@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-10-29 11:14+0200\n"
-"PO-Revision-Date: 2022-09-29 16:58+0000\n"
+"PO-Revision-Date: 2022-11-02 21:59+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: none\n"
 "Language: sk\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 4.14.1\n"
+"X-Generator: Weblate 4.14.2-dev\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:281
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:286
@@ -842,12 +842,11 @@ msgid "**** GMOCCAPY GETINIINFO ****\n"
 msgstr "**** GMOCAPY ZÍSKAJTE INFORMÁCIE ****\n"
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:432
-#, fuzzy
 msgid ""
 "**** No subroutine folder or program prefix is given in the INI file **** \n"
 msgstr ""
-"**** V súbore ini nie je uvedený žiadny priečinok podprogramu ani predpona "
-"programu ****\n"
+"**** V súbore ini nie je uvedený žiadny priečinok podprogramov a ani "
+"preferované programy ****\n"
 
 #: src/emc/usr_intf/gmoccapy/notification.py:213
 #, python-brace-format
