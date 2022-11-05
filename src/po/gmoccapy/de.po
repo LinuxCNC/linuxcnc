@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-10-29 11:14+0200\n"
-"PO-Revision-Date: 2022-11-05 18:34+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"PO-Revision-Date: 2022-11-05 22:28+0000\n"
+"Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
 "Language: de\n"
@@ -233,7 +233,7 @@ msgstr "Drücken um Makro {0} auszuführen"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1359
 msgid "Press to display next macro button"
-msgstr "Drücken um nächsten Makro Button zu zeigen"
+msgstr "Drücken um nächsten Makro-Button zu zeigen"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1379
 msgid "Press to display the virtual keyboard"
@@ -334,8 +334,8 @@ msgid ""
 " Joint\n"
 "mode"
 msgstr ""
-" Joint\n"
-"mode"
+" Joint-\n"
+"Modus"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2124
 msgid "**** virtual keyboard program found : <onboard>"
@@ -750,8 +750,8 @@ msgstr ""
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5539
 msgid "Axis jogging is only allowed in world mode, but you are in joint mode!"
 msgstr ""
-"Das verfahren von Achsen ist nur im Koordinatenmodus erlaubt, doch Sie sind "
-"im Gemeinsam-Modus!"
+"Das Verfahren von Achsen ist nur im Koordinatenmodus erlaubt, doch Sie sind "
+"im Joint-Modus!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5575
 #, python-brace-format
@@ -977,11 +977,11 @@ msgstr "Dateiauswahl"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:25
 msgid "jog axes"
-msgstr "Achse verfahren"
+msgstr "Achsen verfahren"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:26
 msgid "jog joints"
-msgstr "Joint verfahren"
+msgstr "Gelenke (Joints) verfahren"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:27
 msgid "Logo"
@@ -1337,7 +1337,7 @@ msgstr "Faktor Eilgangübersteuerung"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:116
 msgid "Scale jog velocity"
-msgstr "Schrittweitengeschw."
+msgstr "Faktor man. Verfahrgeschw."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:117
 msgid "Scale feed override"
@@ -1349,7 +1349,7 @@ msgstr "Faktor Spindelübersteuerung"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:119
 msgid "<b>Hardware MPG Scale</b>"
-msgstr "<b>Hardware MPG Faktor</b>"
+msgstr "<b>Hardware MPG-Faktor</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:120
 msgid "Use keyboard shortcuts"
@@ -1393,15 +1393,15 @@ msgstr "<b>Spindel</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:130
 msgid "Hide turtle Jog Button"
-msgstr "Knopf verbergen"
+msgstr "Schildkröten-Knopf verbergen"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:131
 msgid "Turtle jog Factor"
-msgstr "Geschw. Faktor"
+msgstr "Geschw.-Faktor \"Schildkrötenmodus\""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:132
 msgid "<b>Turtle Jog</b>"
-msgstr "<b>Schildkröten Modus</b>"
+msgstr "<b>Schildkrötenmodus</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:133
 msgid "Hardware"
