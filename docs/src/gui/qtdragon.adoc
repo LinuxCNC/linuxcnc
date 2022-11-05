@@ -658,7 +658,7 @@ There are also hint parameters depending on selected probing type:
 
 After setting the parameters and hints:
 
-* Manually move the probe to the approximate position represented by the purple circle on the button.
+* Manually move the probe to the approximate position represented by the green target on the button.
 * Confirm the parameters are reasonable.
 * Press the desired probing button.
 
