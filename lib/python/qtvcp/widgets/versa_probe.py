@@ -333,6 +333,12 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         s +=  " R%.4f"% float(self.input_adj_angle.text())
         ACTION.CALL_MDI_WAIT(s, 30)
 
+    def input_next(self):
+        next = self.stackedWidget_probe_type.currentIndex() +1
+        if next == self.stackedWidget_probe_type.count():
+            next = 0
+        self.stackedWidget_probe_type.setCurrentIndex(next)
+
 #####################################################
 # Entry callbacks
 #####################################################
@@ -378,6 +384,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def pop_help(self):
         d = QtWidgets.QDialog(self)
         d.setMinimumWidth(600)
+        d.setMinimumHeight(600)
         l = QtWidgets.QVBoxLayout()
         t = QtWidgets.QTextEdit()
         t.setReadOnly(False)
@@ -386,6 +393,8 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         bBox = QtWidgets.QDialogButtonBox()
         bBox.addButton('Ok', QtWidgets.QDialogButtonBox.AcceptRole)
         bBox.accepted.connect(d.accept)
+        #bBox.addButton('Next', QtWidgets.QDialogButtonBox.ApplyRole)
+        #bBox.accepted.connect(d.accept)
         l.addWidget(bBox)
         d.setLayout(l)
 
