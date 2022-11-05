@@ -1022,6 +1022,7 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
 		// because no pulses arrived
 		if(e->prev_control & (HM2_ENCODER_LATCH_ON_INDEX | HM2_ENCODER_LATCH_ON_PROBE)) {
 			hm2_encoder_instance_update_rawcounts_and_handle_index(hm2, instance);
+			hm2_encoder_instance_update_position(hm2, instance);
 		}
 
                 e->prev_time_of_interest = time_of_interest;
