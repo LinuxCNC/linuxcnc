@@ -62,7 +62,7 @@ The minimum screen resolution for GMOCCAPY, using it without side panels is
 *979 x 750 Pixel*, so it should fit to every standard screen. It is recommended to use
 screens with minimum resolution of 1024x748.
 
-==  How To Get GMOCCAPY
+== How to Get GMOCCAPY
 
 GMOCCAPY 3 is included in the standard distribution of LinuxCNC since release 2.7.
 So the easiest way to get GMOCCAPY on your controlling PC, is just to download the
@@ -109,10 +109,6 @@ You will find a lot of simulation configurations (INI files) included, just to s
 The names should explain the main intention of the different INI files.
 
 If you use an existing configuration of your machine, just edit your INI according to this document.
-
-[IMPORTANT]
-If you want to use <<gmoccapy:macros,MACROS>>, don't forget to set the path to your macros or
-subroutines folder as described below.
 
 So let us take a closer look at the INI file and what you need to include
 to use GMOCCAPY on your machine:
@@ -387,11 +383,15 @@ postgui HAL file specified in your INI file, because these pins do not exist pri
 
 Here are some examples:
 
-.ntb_preview
-image:images/gmoccapy_ntb_preview_small.png[align="left",link="images/gmoccapy_ntb_preview.png"]
 
+
+[cols="10a,13a", grid="none", frame="none"]
+|===
+|.ntb_preview
+image:images/gmoccapy_ntb_preview_small.png[align="left",link="images/gmoccapy_ntb_preview.png"] |
 .box_right - and GMOCCAPY in MDI mode
 image:images/gmoccapy_with_right_panel_in_MDI_mode_small.png[align="left",link="images/gmoccapy_with_right_panel_in_MDI_mode.png"]
+|===
 
 [[sub:gmocccapy-configuration-user-messages]]
 === User Created Messages
@@ -578,7 +578,7 @@ the panel. They are available in a sample configuration like shown in the <<gmoc
 .Sample configuration "gmoccapy_sim_hardware_button" showing the side buttons
 image:images/gmoccapy_sim_hardware_button_mid.png[align="left",link="images/gmoccapy_sim_hardware_button.png"]
 
-=== Velocities And Overrides
+=== Velocities and Overrides
 
 All sliders from GMOCCAPY can be connected to hardware encoders or hardware potentiometers.
 
@@ -822,7 +822,7 @@ There are two pins for spindle feedback:
 - *gmoccapy.spindle_at_speed_led* _(bit IN)_ - Pin to lit the is-at-speed-led.
 
 
-=== Pins To Indicate Program Progress Information
+=== Pins to Indicate Program Progress Information
 
 There are three pins giving information about the program progress:
 
@@ -833,7 +833,7 @@ There are three pins giving information about the program progress:
 The values may not be very accurate if you are working with subroutines or
 large remap procedures. Also loops will cause different values.
 
-=== Tool related pins
+=== Tool Related Pins
 
 .Tool Change Pins
 These pins are provided to use GMOCCAPY's internal tool change dialog, similar to
@@ -842,6 +842,7 @@ get the message to change to 'tool number 3', but also the description of that
 tool like '7.5 mm 3 flute cutter'. The information is taken from the tool
 table, so it is up to you what to display.
 
+.GMOCCAPY tool change dialog
 image::images/gmoccapy_manual_toolchange.png["Manual tool change",align="left"]
 
  - *gmoccapy.toolchange-number*  _(s32 IN)_ - The number of the tool to be changed
@@ -866,6 +867,7 @@ Please take care, that this connections have to be done in the postgui HAL file.
 These pins allow you to show the active tool offset values for X and Z in the
 tool information frame. You should know that they are only active after G43 has been sent.
 
+.Tool information area
 image::images/gmoccapy_tool_info.png["Tool information",align="left"]
 
 - *gmoccapy.tooloffset-x* _(float IN)_
@@ -1610,7 +1612,7 @@ image::images/gmoccapy_plasma.png["Plasma GUI",align="left"]
 There is a very good WIKI, which is actually growing, maintained by Marius
 see http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[Plasma wiki page].
 
-== Videos On YouTube
+== Videos on YouTube
 
 Below is a series of videos that show GMOCCAPY in action.
 Unfortunately, these videos don't show the latest version of GMOCCAPY,
