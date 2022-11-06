@@ -332,7 +332,10 @@ image::images/qtvcp_test_panel.png["QtVCP HAL Test Builtin Panel",align="center"
 
 *`cam_align`*::
   A camera display widget for rotational alignment.
-//FIXME Add cam_align VCP capture
++
+.cam_align - Camera Alignment VCP
+image::images/qtvcp-cam-align.png["Qtscreen x1mill",align="center"]
+
 *`sim_panel`*::
   A small control panel to simulate MPG jogging controls etc. +
   For simulated configurations.

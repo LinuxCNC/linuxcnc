@@ -125,6 +125,26 @@ A *camera display widget for rotational alignment*.
 .QtVCP `cam_align` Panel - Camera Based Alignment Panel
 image::images/qtvcp-cam-align.png["QtVCP cam_align Panel - Camera Based Alignment Panel",align="center"]
 
+.Usage
+Add these lines to the INI file:
+[source,{ini}]
+----
+[DISPLAY]
+EMBED_TAB_NAME = cam_align
+EMBED_TAB_COMMAND = halcmd loadusr -Wn qtvcp_embed qtvcp -d -c qtvcp_embed -x {XID} cam_align
+# The following line is needed if embedding in GMOCCAPY
+EMBED_TAB_LOCATION = ntb_preview
+----
+
+To use the buttons you have to assign a command (or a sub-routine). This could look like this:
+[source,{ini}]
+----
+[MDI_COMMAND_LIST]
+MDI_COMMAND=G10 L20 P1 X0 Y0
+MDI_COMMAND=G0 X0 Y0
+----
+Where the first command is referring to the button "SET origin" and the second to the button "GOTO Origin".
+
 [[sub:qtvcp:panels:sim-panel]]
 === `sim_panel`
 
