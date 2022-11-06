@@ -405,7 +405,7 @@ Files: src/rtapi/*
 Copyright: the LinuxCNC developers
 License: LGPL-2.1+
 
-Files: share/qtvcp/images/widgets/writer/icons
+Files: share/qtvcp/images/widgets/writer/icons/*
 Copyright: 2013 Yusuke Kamiyamane
 License: CC-BY-3.0
 
