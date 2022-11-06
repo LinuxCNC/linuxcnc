@@ -45,7 +45,7 @@ Spanish, Polish, Serbian and Hungarian. Feel free to help me to introduce more
 languages, be it locally or via the web.
 If you need help, don't hesitate to contact me on *nieson@web.de*.
 
-image::images/gmoccapy_5_axis.png[align="left"]
+image:images/gmoccapy_5_axis_mid.png[align="left",link="images/gmoccapy_5_axis.png"]
 
 == Requirements
 
@@ -73,7 +73,7 @@ In the link:gmoccapy_release_notes.txt[*release notes*] aka changelist you can t
 
 You will get a similar screen to the following (the design may vary depending on your config):
 
-image::images/gmoccapy_3_axis.png[align="left"]
+image:images/gmoccapy_3_axis_mid.png[align="left",link="images/gmoccapy_3_axis.png"]
 
 == Basic Configuration
 
@@ -294,7 +294,7 @@ If you would like to use a macro without any movement,
 see also the notes in <<sub:NOT_ENDING_MACROS,known problems>>.
 
 .Macro example using the "go to position"-macro
-image::images/gmoccapy_getting_macro_info.png[align="left"]
+image:images/gmoccapy_getting_macro_info_mid.png[align="left",link="images/gmoccapy_getting_macro_info.png"]
 
 
 [[gmoccapy:configuration-of-tabs-and-side-panels]]
@@ -387,14 +387,11 @@ postgui HAL file specified in your INI file, because these pins do not exist pri
 
 Here are some examples:
 
-.ntb_preview - in maximized view
-image::images/gmoccapy_ntb_preview_maximized_2.png[align="left"]
-
 .ntb_preview
-image::images/gmoccapy_ntb_preview.png[align="left"]
+image:images/gmoccapy_ntb_preview_small.png[align="left",link="images/gmoccapy_ntb_preview.png"]
 
 .box_right - and GMOCCAPY in MDI mode
-image::images/gmoccapy_with_right_panel_in_MDI_mode.png[align="left"]
+image:images/gmoccapy_with_right_panel_in_MDI_mode_small.png[align="left",link="images/gmoccapy_with_right_panel_in_MDI_mode.png"]
 
 [[sub:gmocccapy-configuration-user-messages]]
 === User Created Messages
@@ -578,8 +575,8 @@ panel, or protect it from excessive use by placing hardware buttons around
 the panel. They are available in a sample configuration like shown in the <<gmoccapy-sim-hardware-button,image below>>.
 
 [[gmoccapy-sim-hardware-button]]
-.Sample configuration "gmoccapy_sim_hardware_button" showing the buttons
-image::images/gmoccapy_sim_hardware_button.png[align="left"]
+.Sample configuration "gmoccapy_sim_hardware_button" showing the side buttons
+image:images/gmoccapy_sim_hardware_button_mid.png[align="left",link="images/gmoccapy_sim_hardware_button.png"]
 
 === Velocities And Overrides
 
@@ -845,7 +842,7 @@ get the message to change to 'tool number 3', but also the description of that
 tool like '7.5 mm 3 flute cutter'. The information is taken from the tool
 table, so it is up to you what to display.
 
-image::images/manual_toolchange.png["Manual tool change",align="left"]
+image::images/gmoccapy_manual_toolchange.png["Manual tool change",align="left"]
 
  - *gmoccapy.toolchange-number*  _(s32 IN)_ - The number of the tool to be changed
  - *gmoccapy.toolchange-change*  _(bit IN)_ - Indicates that a tool has to be changed
@@ -1139,7 +1136,7 @@ For matchbox-keyboard you will have to make your own layout, for a German
 layout ask in the forum.
 
 .Gmoccapy with Onboard keyboard in edit mode
-image::images/gmoccapy_keyboard_edit_mode.png["Onboard keyboard",align="left"]
+image:images/gmoccapy_keyboard_edit_mode_mid.png["Onboard keyboard",align="left",link="images/gmoccapy_keyboard_edit_mode.png"]
 
 .On Touch Off
 
@@ -1479,7 +1476,7 @@ Icon themes are used to customize the look and feel of GMOCCAPY's icons.
 
 GMOCCAPY ships with three different icon themes:
 
-* _classic_- The classic GMOCCAPY icons.
+* _classic_ - The classic GMOCCAPY icons.
 * _material_ - A modern icon theme inspired by Google's Material Icons that automatically adopts its coloring from the selected desktop theme.
 * _material-light_ -  Derived from material but optimized for light desktop themes.
 
