@@ -1,6 +1,7 @@
 Package: linuxcnc-doc-de
 Provides: linuxcnc-doc
 Architecture: all
+Multi-Arch: foreign
 Depends: ${misc:Depends}
 Recommends: xdg-utils
 Suggests: pdf-viewer
