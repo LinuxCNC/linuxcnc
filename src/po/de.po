@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-10-09 15:50+0200\n"
-"PO-Revision-Date: 2022-10-21 17:34+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"PO-Revision-Date: 2022-11-05 22:28+0000\n"
+"Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.14.2-dev\n"
+"X-Generator: Weblate 4.14.2\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -8877,9 +8877,8 @@ msgid "Set G54 offset for active axis [End]"
 msgstr "Nullpunktverschiebung für die aktive Achse setzen [Ende]"
 
 #: share/axis/tcl/axis.tcl:2260
-#, fuzzy
 msgid "Set tool offset for loaded tool [Ctrl-End]"
-msgstr "Setze Kompensation für das geladene Werkzeug [Steuerung-Ende]"
+msgstr "Werkzeuglängenkorrektur für geladenes Werkzeug setzen [Strg-Ende]"
 
 #: share/axis/tcl/axis.tcl:2261
 msgid "Activate axis [X]"
@@ -11795,7 +11794,8 @@ msgstr "Entgegengesetzt"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -14825,7 +14825,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/data.py:901
 #, fuzzy
 msgid "Continue? (y/n)"
-msgstr "Fortsetzen? "
+msgstr "Fortsetzen? (y/n)"
 
 #: src/emc/usr_intf/pncconf/data.py:1086
 msgid "Desktop Launcher for LinuxCNC config made by PNCconf"
@@ -14846,7 +14846,6 @@ msgstr ""
 "Speichern"
 
 #: src/emc/usr_intf/pncconf/main_page.glade:286
-#, fuzzy
 msgid ""
 "This program creates configuration files (.ini and .hal) for milling "
 "machines and lathes connected to a Mesa Card.\n"
@@ -14856,11 +14855,11 @@ msgid ""
 "or advanced limit/home control etc."
 msgstr ""
 "Dieses Programm erzeugt Konfigurationsdateien (.ini und .hal) zur "
-"Ansteuerung von Fräs- und Drehmaschinen mit Mesa Karten.\n"
+"Ansteuerung von Fräs- und Drehmaschinen mit Mesa-Karten.\n"
 "\n"
 "Es ist empfohlen, zunächst mit den grundlegenden Optionen für die Achsen zu "
-"beginnen, und nachdem dieses funktionieren, weitere Optionen hinzuzufügen "
-"zur Einbindung der Spindel und Endschalter."
+"beginnen, und nachdem diese funktionieren, weitere Optionen hinzuzufügen wie "
+"Steuerung der Spindel oder erweiterte End-/Referenzschalter."
 
 #: src/emc/usr_intf/pncconf/main_page.glade:315
 #: src/emc/usr_intf/pncconf/mesa0.glade:20244
@@ -17916,7 +17915,7 @@ msgstr "Encoder Skala:"
 #: src/emc/usr_intf/pncconf/s_motor.glade:2223
 #, fuzzy
 msgid "Stepper Scale:"
-msgstr "Schrittmotor-Übersetzung"
+msgstr "Schrittmotor-Faktor:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:2298
 #: src/emc/usr_intf/pncconf/y_motor.glade:2292
@@ -19285,19 +19284,16 @@ msgid "MV:100%"
 msgstr "MV:100%"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1504
-#, fuzzy
 msgid "Flood "
-msgstr " Kühlmittel "
+msgstr "Kühlmittel "
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1556
-#, fuzzy
 msgid "At Speed "
-msgstr " auf Drehzahl "
+msgstr "auf Drehzahl "
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1569
-#, fuzzy
 msgid "Jog mode"
-msgstr " Gelenk-Modus"
+msgstr "Manueller Verfahrmodus"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1623
 msgid "10 DPM"
@@ -19312,32 +19308,30 @@ msgid "<b>Status</b>"
 msgstr "<b>Status</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1738
-#, fuzzy
 msgid ""
 "Search\n"
 "Text:"
 msgstr ""
-"Suche\n"
-"Text:"
+"Text\n"
+"suchen:"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1767
-#, fuzzy
 msgid ""
 "Replace\n"
 "Text:"
 msgstr ""
-"Ersetze\n"
-"Text:"
+"Text\n"
+"ersetzen:"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1787
-#, fuzzy
 msgid ""
 "Replace\n"
 "All"
-msgstr "Alle ersetzen"
+msgstr ""
+"Alles\n"
+"ersetzen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1801
-#, fuzzy
 msgid ""
 "Ignore\n"
 "Case"
@@ -19382,36 +19376,32 @@ msgid "Starting RPM"
 msgstr "Anfangsdrehzahl"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2077
-#, fuzzy
 msgid "Metric"
-msgstr "metrisch\n"
+msgstr "metrisch"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2091
-#, fuzzy
 msgid ""
 "Display\n"
 "Aux Screen"
 msgstr ""
-"   Anzeige\n"
-"Aux-Bildschirm"
+"Aux-Seite\n"
+"anzeigen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2107
-#, fuzzy
 msgid ""
 "Diameter\n"
 "Mode"
 msgstr ""
-"Durchmesser\n"
-"   Modus"
+"Durchmesser-\n"
+"Modus"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2125
 #: src/emc/usr_intf/gscreen/gscreen.glade:3180
-#, fuzzy
 msgid ""
 "Show\n"
 "Offsets"
 msgstr ""
-" Versatz\n"
+"Versatz\n"
 "anzeigen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2143
@@ -19423,12 +19413,11 @@ msgstr ""
 "Anzeigen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2161
-#, fuzzy
 msgid ""
 "Gscreen\n"
 "Fullscreen"
 msgstr ""
-" G-Bildschirm\n"
+"Gscreen\n"
 "Vollbild"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2184
@@ -19437,7 +19426,7 @@ msgid ""
 "On M7 Use\n"
 "Aux Coolant"
 msgstr ""
-" Bei M7 nutze\n"
+"Bei M7 nutze\n"
 "Hilfskühlmittel"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2198
@@ -19454,12 +19443,11 @@ msgid "Hide Pointer"
 msgstr "Verstecke Zeiger"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2224
-#, fuzzy
 msgid ""
 "Desktop\n"
 "Notification"
 msgstr ""
-"  Desktop\n"
+"Desktop\n"
 "Benachrichtigung"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2297
@@ -19472,12 +19460,11 @@ msgid "Alarm History"
 msgstr "Alarm Verlauf"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2350
-#, fuzzy
 msgid ""
 "Launch\n"
 "Halshow"
 msgstr ""
-" Starte\n"
+"Starte\n"
 "Halshow"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2363
@@ -19489,11 +19476,12 @@ msgid "Halmeter"
 msgstr "Halmeter"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2385
-#, fuzzy
 msgid ""
 "LinuxCNC\n"
 "Status"
-msgstr "LinuxCNC-Status"
+msgstr ""
+"LinuxCNC-\n"
+"Status"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2398
 msgid "Halscope"
@@ -19521,31 +19509,28 @@ msgid "Tool Setting"
 msgstr "Werkzeugeinstellung"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2719
-#, fuzzy
 msgid ""
 "Single\n"
 "Step"
 msgstr ""
-"Einzelner\n"
-" Schritt"
+"Einzel-\n"
+"schritt"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2733
-#, fuzzy
 msgid ""
 "Run At\n"
 "Line"
 msgstr ""
 "Start bei\n"
-"  Zeile"
+"Zeile"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2746
-#, fuzzy
 msgid ""
 "Change \n"
 "View"
 msgstr ""
-"Ändere \n"
-"  Ansicht"
+"Ansicht\n"
+"ändern"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2823
 #: src/emc/usr_intf/gscreen/gscreen.glade:3241
@@ -19553,9 +19538,8 @@ msgid "\n"
 msgstr "\n"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2834
-#, fuzzy
 msgid "Homing"
-msgstr "Referenzfahrt\n"
+msgstr "Referenzfahrt"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2854
 msgid ""
@@ -19566,18 +19550,16 @@ msgstr ""
 "Grenzen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2884
-#, fuzzy
 msgid ""
 "Set\n"
 "Override"
 msgstr ""
-"Vorschubübersteuerung\n"
+"Übersteuerung\n"
 "setzen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2899
-#, fuzzy
 msgid "Graphics"
-msgstr "Grafiken\n"
+msgstr "Grafiken"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2912
 msgid ""
@@ -19588,33 +19570,32 @@ msgstr ""
 "Ebene"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2926
-#, fuzzy
 msgid ""
 "Launch\n"
 "Keyboard"
 msgstr ""
-"  Starte\n"
-"Keyboard"
+"Tastatur\n"
+"starten"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2944
 msgid "<b>Select Buttons</b>"
 msgstr "<b>Auswahl Buttons</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3031
-#, fuzzy
 msgid ""
 "Unhome \n"
 "All"
-msgstr "Referenzfahrt aufheben bei allen Achsen"
+msgstr ""
+"Referenzfahrt aufheben\n"
+"bei allen Achsen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3044
-#, fuzzy
 msgid ""
 "Unhome\n"
 "Axis"
 msgstr ""
 "Referenzfahrt aufheben\n"
-"   bei Achse"
+"bei Achse"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3057
 #: src/emc/usr_intf/gscreen/gscreen.glade:3167
@@ -19626,7 +19607,6 @@ msgstr ""
 "Auslesen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3083
-#, fuzzy
 msgid ""
 "Jogging\n"
 "Mode"
@@ -19635,13 +19615,12 @@ msgstr ""
 "modus"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3096
-#, fuzzy
 msgid ""
 "coordinate\n"
 "System"
 msgstr ""
 "Koordinaten-\n"
-"  system"
+" system"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3141
 #, fuzzy
@@ -19674,11 +19653,12 @@ msgstr ""
 "löschen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3303
-#, fuzzy
 msgid ""
 "Optional\n"
 "Stop"
-msgstr "Wahlweiser Halt"
+msgstr ""
+"Optionaler\n"
+"Halt"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3316
 #, fuzzy
@@ -19690,20 +19670,20 @@ msgstr ""
 "Darstellung"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3353
-#, fuzzy
 msgid ""
 "Next\n"
 "Tab"
 msgstr ""
-"Nächste\n"
-"Registerkarte"
+"Nächster\n"
+"Tab"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3374
-#, fuzzy
 msgid ""
 "Feed\n"
 "Override"
-msgstr "Vorschubübersteuerung"
+msgstr ""
+"Vorschub-\n"
+"übersteuerung"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3388
 msgid ""
@@ -19714,29 +19694,28 @@ msgstr ""
 "übersteuerung"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3402
-#, fuzzy
 msgid ""
 "Rapid\n"
 "Override"
 msgstr ""
-"  Eilgang\n"
-"Übersteuerung"
+"Eilgang-\n"
+"übersteuerung"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3424
-#, fuzzy
 msgid ""
 "Jog\n"
 "Speed"
 msgstr ""
-"   Schritt-\n"
+"Schritt-\n"
 "geschwindigkeit"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3438
-#, fuzzy
 msgid ""
 "Jog\n"
 "Increments"
-msgstr "Inkremente"
+msgstr ""
+"Schritt-\n"
+"weite"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3455
 msgid ""
@@ -19755,58 +19734,52 @@ msgstr ""
 "Ansicht"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3527
-#, fuzzy
 msgid ""
 "Pan\n"
 "Vertical"
 msgstr ""
-"   vertikal\n"
+"Vertikal\n"
 "verschieben"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3541
-#, fuzzy
 msgid ""
 "Pan\n"
 "Horizontal"
 msgstr ""
-"     horizontal\n"
+"Horizontal\n"
 "verschieben"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3555
-#, fuzzy
 msgid ""
 "Rotate\n"
 "Horiontal"
 msgstr ""
-"  horizontal\n"
+"Horizontal\n"
 "rotieren"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3569
-#, fuzzy
 msgid ""
 "Rotate\n"
 "Vertical"
 msgstr ""
-" vertikal\n"
+"Vertikal\n"
 "rotieren"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3591
-#, fuzzy
 msgid ""
 "Search\n"
 "Bwd"
 msgstr ""
-"Suche\n"
-"Rückw."
+"Rückw.\n"
+"suchen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3604
-#, fuzzy
 msgid ""
 "Search\n"
 "Fwd"
 msgstr ""
-"Suche\n"
-"Vorw."
+"Vorw.\n"
+"suchen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3617
 msgid "Undo"
@@ -19821,31 +19794,28 @@ msgstr ""
 "herstellen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3663
-#, fuzzy
 msgid ""
 "Reload\n"
 "Program"
 msgstr ""
-" Programm\n"
+"Programm\n"
 "neu laden"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3677
-#, fuzzy
 msgid ""
 "Replace\n"
 "Text"
 msgstr ""
-"Ersetze\n"
-"  Text"
+"Text\n"
+"ersetzen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3716
-#, fuzzy
 msgid ""
 "Clear\n"
 "status"
 msgstr ""
-" Löschen\n"
-"Status"
+"Status\n"
+"zurücksetzen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3747
 msgid "G54"
@@ -19886,21 +19856,19 @@ msgstr ""
 "oder direkt eingeben."
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4034
-#, fuzzy
 msgid ""
 "Line\n"
 "Up"
 msgstr ""
 "Zeile\n"
-" hoch"
+"hoch"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4058
-#, fuzzy
 msgid ""
 "Line\n"
 "Down"
 msgstr ""
-" Zeile\n"
+"Zeile\n"
 "Runter"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4141
@@ -19908,14 +19876,12 @@ msgid "S 1000"
 msgstr "S 1000"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4211
-#, fuzzy
 msgid "FWD"
 msgstr " VORW"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4246
-#, fuzzy
 msgid "REV"
-msgstr " RÜCKW"
+msgstr "RÜCKW"
 
 #: src/emc/usr_intf/gscreen/gscreen2.glade:35
 msgid "screen 2"
@@ -19984,7 +19950,7 @@ msgstr "tooledit_widget Fehler: Kann Werkzeug nicht ausgewählt mit Nummer"
 #: lib/python/gladevcp/tooledit_widget.py:239
 #, python-brace-format
 msgid "Error in tool table line {0} in column "
-msgstr ""
+msgstr "Fehler in der Werkzeugtabelle Zeile {0} in Spalte "
 
 #: lib/python/gladevcp/tooledit_widget.py:239
 #: lib/python/gladevcp/tooledit_gtk.glade:261
@@ -19998,6 +19964,8 @@ msgid ""
 ".\n"
 "Valid range is 0 - 9."
 msgstr ""
+".\n"
+"Gültiger Bereich ist 0 - 9."
 
 #: lib/python/gladevcp/tooledit_widget.py:257
 msgid "Toolfile does not exist"
@@ -20009,7 +19977,6 @@ msgstr "Wekzeugeditor: Fehler bei Ganzzahl"
 
 #: lib/python/gladevcp/tooledit_widget.py:306
 #: lib/python/gladevcp/tooledit_widget.py:311
-#, fuzzy
 msgid "Tooledit widget float error"
 msgstr "Werkzeugeditor: Fehler bei Gleitkommazahl"
 
