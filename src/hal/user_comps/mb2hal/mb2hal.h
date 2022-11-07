@@ -42,14 +42,14 @@ typedef enum { linkRTU,
              } link_type_t;
 
 typedef enum { mbtxERR,
-               mbtx_01_READ_COILS,
                mbtx_02_READ_DISCRETE_INPUTS,
                mbtx_03_READ_HOLDING_REGISTERS,
                mbtx_04_READ_INPUT_REGISTERS,
-               mbtx_05_WRITE_SINGLE_COIL,
                mbtx_06_WRITE_SINGLE_REGISTER,
                mbtx_15_WRITE_MULTIPLE_COILS,
                mbtx_16_WRITE_MULTIPLE_REGISTERS,
+               mbtx_01_READ_COILS,
+               mbtx_05_WRITE_SINGLE_COIL,
                mbtxMAX
              } mb_tx_fnct; //modbus transaction code
 typedef enum { debugSILENT, debugERR, debugOK, debugDEBUG, debugMAX
@@ -139,7 +139,8 @@ typedef struct {
     FILE *ini_file_ptr;
     char *ini_file_path;
     //INI config, common section
-    int    init_dbg;
+    int   init_dbg;
+    int   version;
     double slowdown;
     //HAL related
     int   hal_mod_id;

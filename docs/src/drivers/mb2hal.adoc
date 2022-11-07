@@ -65,8 +65,8 @@ m|INIT_DEBUG | Integer | No | Debug level of init and INI file parsing. +
 2 = OK confirmation messages +
 3 = debugging messages +
 4 = maximum debugging messages (only in transactions) +
-m|HAL_MODULE_NAME | String | No | HAL module (component) name. Defaults
-to "mb2hal".
+m|VERSION | String | No | Version number in the format N.N[NN]. Defaults to 1.0.
+m|HAL_MODULE_NAME | String | No | HAL module (component) name. Defaults to "mb2hal".
 m|SLOWDOWN | Float | No | Insert a delay of "FLOAT seconds" between
 transactions in order to not to have a lot of logging and facilitate the debugging.
 Useful when using `DEBUG=3` (NOT `INIT_DEBUG=3`).
@@ -195,7 +195,18 @@ include::mb2hal_HOWTO.ini[]
 == Pins
 
 [NOTE]
-[yellow yellow-background]#Yellow# = New in LinuxCNC 2.9
+====
+[yellow yellow-background]#Yellow# = New in MB2HAL 1.1 (LinuxCNC 2.9)
+To use these new features you have to set `VERSION = 1.1`
+
+m = Value of `HAL_TX_NAME` if set or transaction number +
+n = element number (`NELEMENTS`) or name from `PIN_NAMES`
+
+Example:
+
+* `mb2hal.00.01.int` (TRANSACTION_00, second register)
+* `mb2hal.readStatus.01.bit` (HAL_TX_NAME=readStatus, first bit)
+====
 
 === [yellow-background]#fnct_01_read_coils#
 
@@ -243,15 +254,5 @@ let the other open (read as 0).
 
 Both pin values are added and limited to 65535 (UINT16_MAX). Use one and
 let the other open (read as 0).
-
-==========================
-m = `HAL_TX_NAME` or transaction number if not set, n = element number
-(`NELEMENTS`) or name from `PIN_NAMES`
-
-Example:
-
-* `mb2hal.00.01.<type>` (transaction=00, second register=01 (00 is the first one))
-* `mb2hal.TxName.01.<type>` (HAL_TX_NAME=TxName, second register=01 (00 is the first one))
-==========================
 
 // vim: set syntax=asciidoc:
