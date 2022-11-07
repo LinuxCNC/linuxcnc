@@ -452,9 +452,6 @@ class gmoccapy(object):
         self.widgets.gcode_view.set_sensitive(False)
         self.widgets.ntb_user_tabs.remove_page(0)
 
-        if not self.get_ini_info.get_embedded_tabs()[2]:
-            self.widgets.tbtn_user_tabs.set_sensitive(False)
-
         # call the function to change the button status
         # so every thing is ready to start
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
@@ -1698,6 +1695,8 @@ class gmoccapy(object):
 
         tab_names, tab_locations, tab_cmd = self.get_ini_info.get_embedded_tabs()
         if not tab_names:
+            self.widgets.tbtn_user_tabs.set_sensitive( False )
+            self.user_tabs_enabled = False
             print (_("**** GMOCCAPY INFO ****"))
             print (_("**** Invalid embedded tab configuration ****"))
             print (_("**** No tabs will be added! ****"))
@@ -1745,8 +1744,10 @@ class gmoccapy(object):
             # if no ntb_user_tabs in location is given
             if "ntb_user_tabs" in tab_locations:
                 self.widgets.tbtn_user_tabs.set_sensitive( True )
+                self.user_tabs_enabled = True
             else:
                 self.widgets.tbtn_user_tabs.set_sensitive( False )
+                self.user_tabs_enabled = False
 
             if "ntb_preview" in tab_locations:
                 self.widgets.ntb_preview.set_property( "show-tabs", True )
@@ -4018,7 +4019,7 @@ class gmoccapy(object):
 
         widgetlist = ["ntb_jog", "rbt_mdi","rbt_auto","tbtn_setup"]
 
-        if self.widgets.tbtn_user_tabs.get_sensitive():
+        if self.user_tabs_enabled:
             widgetlist.append("tbtn_user_tabs")
         self._sensitize_widgets( widgetlist, not state )
 
