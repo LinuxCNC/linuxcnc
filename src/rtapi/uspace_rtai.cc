@@ -165,6 +165,14 @@ struct RtaiApp : RtapiApp {
     void do_delay(long ns) {
         rt_sleep(nano2count(ns));
     }
+
+    int prio_highest() const {
+        return RT_SCHED_HIGHEST_PRIORITY;
+    }
+
+    int prio_lowest() const {
+        return RT_SCHED_LOWEST_PRIORITY;
+    }
 };
 
 pthread_once_t RtaiApp::key_once;

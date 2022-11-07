@@ -834,37 +834,52 @@ struct rtapi_task *task_array[MAX_TASKS];
 
 /* Priority functions.  Uspace uses POSIX task priorities. */
 
-int RtapiApp::prio_highest()
+int RtapiApp::prio_highest() const
 {
     return sched_get_priority_max(policy);
 }
 
-int RtapiApp::prio_lowest()
+int RtapiApp::prio_lowest() const
 {
   return sched_get_priority_min(policy);
 }
 
-int RtapiApp::prio_next_higher(int prio)
-{
-  /* return a valid priority for out of range arg */
-  if (prio >= rtapi_prio_highest())
-    return rtapi_prio_highest();
-  if (prio < rtapi_prio_lowest())
-    return rtapi_prio_lowest();
-
-  /* return next higher priority for in-range arg */
-  return prio + 1;
+int RtapiApp::prio_higher_delta() const {
+    if(rtapi_prio_highest() > rtapi_prio_lowest()) {
+        return 1;
+    }
+    return -1;
 }
 
-int RtapiApp::prio_next_lower(int prio)
+int RtapiApp::prio_bound(int prio) const {
+    if(rtapi_prio_highest() > rtapi_prio_lowest()) {
+        if (prio >= rtapi_prio_highest())
+            return rtapi_prio_highest();
+        if (prio < rtapi_prio_lowest())
+            return rtapi_prio_lowest();
+    } else {
+        if (prio <= rtapi_prio_highest())
+            return rtapi_prio_highest();
+        if (prio > rtapi_prio_lowest())
+            return rtapi_prio_lowest();
+    }
+    return prio;
+}
+
+int RtapiApp::prio_next_higher(int prio) const
 {
-  /* return a valid priority for out of range arg */
-  if (prio <= rtapi_prio_lowest())
-    return rtapi_prio_lowest();
-  if (prio > rtapi_prio_highest())
-    return rtapi_prio_highest();
-  /* return next lower priority for in-range arg */
-  return prio - 1;
+    prio = prio_bound(prio);
+    if(prio != rtapi_prio_highest())
+        return prio + prio_higher_delta();
+    return prio;
+}
+
+int RtapiApp::prio_next_lower(int prio) const
+{
+    prio = prio_bound(prio);
+    if(prio != rtapi_prio_lowest())
+        return prio - prio_higher_delta();
+    return prio;
 }
 
 int RtapiApp::allocate_task_id()
