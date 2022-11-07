@@ -1,3 +1,16 @@
+linuxcnc (1:2.10.0~pre0) UNRELEASED; urgency=medium
+
+  * Master branch open for new features.
+
+ -- Andy Pugh <bodgesoc@gmail.com>  Mon, 7 Nov 2022 23:31:00 +0000
+
+linuxcnc (1:2.9.0~pre1) UNRELEASED; urgency=medium
+
+  * First 2.9 pre-release preparatory to release.
+  * Bugfixes welcome, new features by negotiation
+
+ -- Andy Pugh <bodgesoc@gmail.com>  Mon, 7 Nov 2022 23:31:00 +0000
+
 linuxcnc (1:2.9.0~pre0) UNRELEASED; urgency=medium
 
   * Master branch open for new features.
