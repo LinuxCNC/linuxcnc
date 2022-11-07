@@ -2656,13 +2656,13 @@ rate mode does not affect G0 (<<gcode:g0,rapid move>>) motions.
   axis or axes are moving. G95 is not suitable for threading, for
   threading use G33 or G76.
   G95 requires that spindle.N.speed-in to be connected. The actual
-  spindle to which the feed is synchronised is chosen by the $ parameter
+  spindle to which the feed is synchronised is chosen by the $ parameter.
 
 It is an error if:
 
 * Inverse time feed mode is active and a line with G1, G2, or G3
   (explicitly or implicitly) does not have an F word.
-* A new feed rate is not specified after switching to G94 or G95
+* A new feed rate is not specified after switching to G94 or G95.
 
 [[gcode:g96-g97]]
 == G96, G97 Spindle Control Mode(((G96, G97 Spindle Control Mode)))

@@ -42,9 +42,8 @@ latency-histogram \- plot a histogram of machine latency
 .RB [ \-\-nox ]
 .SH DESCRIPTION
 The latency test is important when configuring a LinuxCNC system.
-An adjunct to the standard latency-test latency-histogram plots the
-distribution of latency. This can be useful to get a feel for how frequent
-the high latency excursions are.
+An adjunct to the standard latency-test latency-histogram plots the distribution of latency.
+This can be useful to get a feel for how frequent the high latency excursions are.
 .PP
 LinuxCNC and HAL should not be running, stop with
 .IR "halrun \-U" .
@@ -52,10 +51,10 @@ Large number of bins and/or small binsizes will slow updates.
 For single thread, specify
 .B \-\-nobase
 (and options for servo thread).
-Measured latencies outside of the +/\- bin range are reported
-with special end bars.  Use
+Measured latencies outside of the +/\- bin range are reported with special end bars.
+Use
 .B \-\-show
-to show count for the off-chart [pos|neg] bin
+to show count for the off-chart [pos|neg] pin.
 .PP
 More details:
 \%https://linuxcnc.org/docs/html/install/latency-test.html

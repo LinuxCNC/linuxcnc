@@ -101,7 +101,7 @@ Anything following '\fB#\fR' on a line is a comment.
 module called \fImodname\fR.  \fBhalcmd\fR looks for the module
 in a directory specified at compile time.
 
-In systems with realtime, \fBhalcmd\fR calls the
+In systems with realtime-support, \fBhalcmd\fR calls the
 \fBlinuxcnc_module_helper\fR to load realtime modules.
 \fBlinuxcnc_module_helper\fR is a setuid program and is compiled with
 a whitelist of modules it is allowed to load.  This is currently
@@ -112,7 +112,7 @@ restrict which users can load these \fBLinuxCNC\fR-related kernel
 modules can do this by setting the permissions and group on
 \fBlinuxcnc_module_helper\fR appropriately.
 
-In systems without realtime \fBhalcmd\fR calls the
+In systems without realtime-support \fBhalcmd\fR calls the
 \fBrtapi_app\fR which creates the simulated realtime environment
 if it did not yet exist, and then loads the requested component
 with a call to \fBdlopen(3)\fR.
@@ -299,27 +299,21 @@ generates a \fBnewsig\fR command for each signal, and "\fBsigu\fR" generates a
 \fBnewsig\fR command for each unlinked signal (for use with \fBnetl\fR and
 \fBnetla\fR).
 
-"\fBlink\fR" and "\fBlinka\fR" both generate \fBlinkps\fR
-commands for each link. (\fBlinka\fR includes arrows, while \fBlink\fR does
-not.)
+"\fBlink\fR" and "\fBlinka\fR" both generate \fBlinkps\fR commands for each link.
+(\fBlinka\fR includes arrows, while \fBlink\fR does not.)
 
- "\fBnet\fR" and "\fBneta\fR" both generate one \fBnewsig\fR command for
-each signal, followed by \fBlinksp\fR commands for each pin linked to that
-signal.  (\fBneta\fR includes arrows.)
+ "\fBnet\fR" and "\fBneta\fR" both generate one \fBnewsig\fR command for each signal,
+followed by \fBlinksp\fR commands for each pin linked to that signal.
+(\fBneta\fR includes arrows.)
 
-"\fBnetl\fR" generates one \fBnet\fR
-command for each linked signal, and "\fBnetla\fR" (or "\fBnetal\fR")
-generates a similar command
-using arrows.
+"\fBnetl\fR" generates one \fBnet\fR command for each linked signal,
+and "\fBnetla\fR" (or "\fBnetal\fR") generates a similar command using arrows.
 
-"\fBparam\fR" (or "\fBparameter\fR) "generates one \fBsetp\fR command for each
-parameter.
+"\fBparam\fR" (or "\fBparameter\fR) "generates one \fBsetp\fR command for each parameter.
 
-"\fBthread\fR" generates one \fBaddf\fR command for each function
-in each realtime thread.
+"\fBthread\fR" generates one \fBaddf\fR command for each function in each realtime thread.
 
-"\fBunconnectedinpins\fR" generates a setp command for each unconnected
-HAL input pin.
+"\fBunconnectedinpins\fR" generates a setp command for each unconnected HAL input pin.
 
 If \fIitem\fR is \fBallu\fR), \fBsave\fR does the
 equivalent of \fBcomp\fR, \fBalias\fR, \fBsigu\fR, \fBnetla\fR, \fBparam\fR,

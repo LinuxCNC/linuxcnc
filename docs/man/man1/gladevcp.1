@@ -23,7 +23,7 @@
 .SH NAME
 GladeVCP \- Virtual Control Panel for LinuxCNC based on Glade, Gtk and HAL widgets
 .SH SYNOPSIS
-\fBgladevcp\fR [\-g \fIWxH+X+Y\fR] [\-c \fIcomponent-name\fR] [\-u \fIhandler\fR] [\-U \fIuseroption\fR] [\-H \fIhalfile\fR] [\-d] \fImyfile.ui\fR
+\fBgladevcp\fR [\-g \fIWxH+X+Y\fR] [\-c \fIcomponent-name\fR] [\-u \fIhandler\fR] [\-U \fIuseroption\fR] [\-H \fIHAL-file\fR] [\-d] \fImyfile.ui\fR
 .SH OPTIONS
 .TP
 \fB\-g\fR \fIWxH+X+Y\fR
@@ -48,7 +48,7 @@ Reparent GladeVCP into an existing window \fIXID\fR instead of
 creating a new top level window.\fR
 .TP
 \fB\-H\fR \fIhalfile\fR
-GladeVCP runs \fIhalfile\fR - a list of HAL commands - by executing \fIhalcmd \-c halfile\fR
+GladeVCP runs \fIHAL file\fR - a list of HAL commands - by executing \fIhalcmd \-c filename\fR
 after the HAL component is finalized.\fR
 
 .TP

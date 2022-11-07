@@ -149,9 +149,9 @@ def request_number(self):
     STATUS.emit('dialog-request', mess)
 ----
 
-The function:
+The function
 
-* Creates a Python `dict` with:
+* creates a Python `dict` with:
 ** *`NAME`* - needs to be set to the _dialogs unique launch name_. +
   `NAME` sets which dialog to request. +
   `ENTRY` or `CALCULATOR` allows entering numbers.
@@ -722,7 +722,7 @@ def update_spindle(self, data):
 Sometimes you need to *update a widget or read a value regularly* that
 isn't covered by normal libraries.
 
-Here we update an LED based on a watched HAL pin every 100ms.
+Here we update an LED based on a watched HAL pin every 100&#8239;ms.
 
 We assume there is an LED named `led` in the Qt Designer UI file.
 
@@ -745,7 +745,7 @@ QHAL = Qhal()
 Now add/modify these sections to include code that is similar to this:
 
 .Register a function to be called at `CYCLE_TIME` period
-This is usually every 100ms
+This is usually every 100&#8239;ms.
 
 [source,python]
 ----
@@ -759,7 +759,7 @@ def __init__(self,halcomp,widgets,paths):
     self.w = widgets
     self.PATHS = paths
 
-    # register a function to be called at CYCLE_TIME period (usually every 100ms)
+    # register a function to be called at CYCLE_TIME period (usually every 100 ms)
     STATUS.connect('periodic', lambda w: self.update_periodic())
 ----
 

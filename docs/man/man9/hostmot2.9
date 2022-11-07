@@ -82,7 +82,7 @@ wrap the whole thing in double-quotes (the " character).
 The comma character (,) separates members of the config array from
 each other.
 
-For example, if your control computer has one 5i20 and one 5i23 you
+For example, if your control computer has one 5I20 and one 5I23 you
 might load the hm2_pci driver with a HAL command (in halcmd) something
 like this:
 
@@ -91,8 +91,8 @@ like this:
 loadrt hm2_pci config="firmware=hm2/5i20/SVST8_4.BIT num_encoders=3 num_pwmgens=3 num_stepgens=3,firmware=hm2/5i23/SVSS8_8.BIT sserial_port_0=0000 num_encoders=4"
 .fi
 
-Note: this assumes that the hm2_pci driver detects the 5i20 first and
-the 5i23 second.  If the detection order does not match the order
+Note: this assumes that the hm2_pci driver detects the 5I20 first and
+the 5I23 second.  If the detection order does not match the order
 of the config strings, the hostmot2 driver will refuse to load the
 firmware and the board-driver (hm2_pci etc) will fail to load.
 To the best of my knowledge, there is no way to predict the order in
@@ -138,7 +138,7 @@ F typically has the form "hm2/<BoardType>/file.bit"; a typical value
 for F might be "hm2/5i20/SVST8_4.BIT".  The hostmot2 firmware files are
 supplied by the hostmot2\-firmware packages, available from linuxcnc.org and can
 normally be installed by entering the command "sudo apt\-get install
-hostmot2\-firmware\-5i23" to install the support files for the 5i23 for example.
+hostmot2\-firmware\-5i23" to install the support files for the 5I23 for example.
 
 Newer FPGA cards come pre-programmed with firmware and no "firmware=" string
 should be used with these cards. To change the firmware on these cards the
@@ -176,7 +176,7 @@ rates and bit lengths)
 Only enable the first N resolvers. If N = \-1 then all resolvers are enabled.
 This module does not work with generic resolvers (unlike the encoder module
 which works with any encoder). At the time of writing thex Hostmot2 Resolver
-function only works with the Mesa 7i49 card.
+function only works with the Mesa 7I49 card.
 .TP
 \fBnum_pwmgens\fR [optional, default: \-1]
 Only enable the first N pwmgens.  If N is \-1, all pwmgens are enabled.
@@ -324,7 +324,7 @@ Encoders have names like
 instance number.  There are "num_encoders" instances, starting with 00.
 
 So, for example, the HAL pin that has the current position of the second
-encoder of the first 5i25 board is: hm2_5i25.0.encoder.01.position (this
+encoder of the first 5I25 board is: hm2_5i25.0.encoder.01.position (this
 assumes that the firmware in that board is configured so that this HAL
 object is available)
 
@@ -629,14 +629,15 @@ channel.
 f: (bitField): No parameters.
 .TP
 e: (Encoder):
- (float, r/w) hm2_XXXX.N.ssi.MM.<name>.scale: (float, r.w) The encoder scale in
-counts per machine unit.
- (u32, r/w) hm2_XXXX.N.ssi.MM.<name>.counts\-per\-rev (u32, r/w) Used to emulate
-the index behaviour of an incremental+index encoder. This would normally be set
-to the actual counts per rev of the encoder, but can be any whole number of
-revs. Integer divisors or multipliers of the true PPR might be useful for
-index-homing. Non-integer factors might be appropriate where there is a
-synchronous drive ratio between the encoder and the spindle or ballscrew.
+ (float, r/w) hm2_XXXX.N.ssi.MM.<name>.scale: (float, r.w)
+The encoder scale in counts per machine unit.
+ (u32, r/w) hm2_XXXX.N.ssi.MM.<name>.counts\-per\-rev (u32, r/w)
+Used to emulate the index behaviour of an incremental+index encoder.
+This would normally be set to the actual counts per rev of the encoder,
+but can be any whole number of revs.
+Integer divisors or multipliers of the true PPR might be useful for index-homing.
+Non-integer factors might be appropriate where there is a synchronous drive ratio
+between the encoder and the spindle or ballscrew.
 
 
 .SS BiSS
@@ -682,9 +683,9 @@ a Fanuc Aa64 encoder. The pins created are:
 .SS resolver
 Resolvers have names like
 hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.resolver.\fI<Instance>\fR.
-<Instance> is a 2-digit number, which for the 7i49 board will be between 00 and
+<Instance> is a 2-digit number, which for the 7I49 board will be between 00 and
 05. This function only works with the Mesa Resolver interface boards (of which
-the 7i49 is the only example at the time of writing). This board uses an SPI
+the 7I49 is the only example at the time of writing). This board uses an SPI
 interface to the FPGA card, and will only work with the correct firmware.
 The pins allocated will be listed in the dmesg output, but are unlikely to be
 usefully probed with HAL tools.
@@ -803,7 +804,7 @@ pwmgens have names like
 instance number.  There are "num_pwmgens" instances, starting with 00.
 
 So, for example, the HAL pin that enables output from the fourth pwmgen
-of the first 7i43 board is: hm2_7i43.0.pwmgen.03.enable (this assumes
+of the first 7I43 board is: hm2_7i43.0.pwmgen.03.enable (this assumes
 that the firmware in that board is configured so that this HAL object
 is available)
 
@@ -864,7 +865,7 @@ This specifies the PWM frequency, in Hz, of all
 the pwmgen instances running in the PWM modes (modes 1 and 2).  This is
 the frequency of the variable-duty-cycle wave.  Its effective range is
 from 1 Hz up to 386 kHz.  Note that the max frequency is determined by the
-ClockHigh frequency of the Anything IO board; the 5i25 and 7I92 both have
+ClockHigh frequency of the Anything IO board; the 5I25 and 7I92 both have
 a 200 MHz clock, resulting in a 386 kHz max PWM frequency.  Other boards
 may have different clocks, resulting in different max PWM frequencies.
 If the user attempts to set the frequency too high, it will be clipped
@@ -884,7 +885,7 @@ to 50% results in a 1 MHz square wave, identical to a 1 MHz PWM signal
 with 50% duty cycle.  The effective range of this parameter is from
 about 1525 Hz up to just under 200 MHz.  Note that the max frequency
 is determined by the ClockHigh frequency of the Anything IO board; the
-5i25 and 7i92 both have a 100 MHz clock, resulting in a 100 MHz max
+5I25 and 7I92 both have a 100 MHz clock, resulting in a 100 MHz max
 PDM frequency.  Other boards may have different clocks, resulting in
 different max PDM frequencies.  If the user attempts to set the frequency
 too high, it will be clipped to the max supported frequency of the board.
@@ -1096,7 +1097,7 @@ stepgens have names like
 instance number.  There are "num_stepgens" instances, starting with 00.
 
 So, for example, the HAL pin that has the current position
-feedback from the first stepgen of the second 5i22 board is:
+feedback from the first stepgen of the second 5I22 board is:
 hm2_5i22.1.stepgen.00.position\-fb (this assumes that the firmware in
 that board is configured so that this HAL object is available)
 
@@ -1284,7 +1285,7 @@ reduces following errors.
 .SS Smart Serial Interface
 
 The Smart Serial Interface allows up to 32 different devices such as the Mesa
-8i20 2.2 kW 3-phase drive or 7i64 48-way IO cards to be connected to a single
+8i20 2.2 kW 3-phase drive or 7I64 48-way IO cards to be connected to a single
 FPGA card.
 The driver auto-detects the connected hardware port, channel and device type.
 Devices can be connected in any order to any active channel of an active port.
@@ -1337,11 +1338,11 @@ pin-on-that-connector is written to the syslog when the driver loads,
 and it is documented in Mesa's manual for the Anything I/O boards.
 
 So, for example, the HAL pin that has the current inverted input value
-read from GPIO 012 of the second 7i43 board is: hm2_7i43.1.gpio.012.in\-not
+read from GPIO 012 of the second 7I43 board is: hm2_7i43.1.gpio.012.in\-not
 (this assumes that the firmware in that board is configured so that this
 HAL object is available)
 
-The HAL parameter that controls whether the last GPIO of the first 5i22
+The HAL parameter that controls whether the last GPIO of the first 5I22
 is an input or an output is: hm2_5i22.0.gpio.095.is_output (this assumes
 that the firmware in that board is configured so that this HAL object
 is available)
@@ -1760,14 +1761,14 @@ Read the GPIO input pins.  Note that the effect of this function is a
 subset of the effect of the .read() function described above.  Normally
 only .read() is used.  The only reason to call this function is if you
 want to do GPIO things in a faster-than-servo thread.  (This function
-is not available on the 7i43 due to limitations of the EPP bus.)
+is not available on the 7I43 due to limitations of the EPP bus.)
 .TP
 \fBhm2_\fI<BoardType>\fB.\fI<BoardNum>\fB.write_gpio\fR
 Write the GPIO control registers and output pins.  Note that the effect of
 this function is a subset of the effect of the .write() function described
 above.  Normally only .write() is used.  The only reason to call this
 function is if you want to do GPIO things in a faster-than-servo thread.
-(This function is not available on the 7i43 due to limitations of the
+(This function is not available on the 7I43 due to limitations of the
 EPP bus.)
 .TP
 \fBhm2_\fI<BoardType>\fB.\fI<BoardNum>\fB.trigger\-encoders\fR

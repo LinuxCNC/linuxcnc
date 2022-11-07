@@ -4,5 +4,5 @@
 undocumented \- undocumented functions in HAL
 
 .SH SEE ALSO
-The header file \fIhal.h\fR.  Most hal functions have documentation
+The header file \fIhal.h\fR.  Most HAL functions have documentation
 in that file.
