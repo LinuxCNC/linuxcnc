@@ -1181,7 +1181,7 @@ The **DELETE** this button is used to delete a material. After pressing it, the 
 
 Screenshot example of the QtPlasmaC <<qt_settings-tab,SETTINGS Tab>> in *16:9* aspect ratio:
 
-image::images/qtplasmac_parameters.png[width=800,align="center"]
+image::images/qtplasmac_settings.png[width=800,align="center"]
 
 This tab is used to display GUI configuration parameters, button text, and shutdown text that are modified infrequently as well as some utility buttons.
 
@@ -3179,13 +3179,17 @@ To run an existing subroutine.
 n Code = o<the_subroutine> call
 ----
 
-_<machine_name>_.ini file variables can be entered by using {} (a space must be placed after the })
+_<machine_name>_.ini file variables can be entered by using the standard LinuxCNC G-code format.
+If expressions are included then they need to be surrounded by brackets.
 
 [source,{ini}]
 ----
-n Code = G0 X{JOINT_0 HOME} Y1
-n Code = G53 G0 Z[{AXIS_Z MAX_LIMIT} - 1.001]
+n Code = G0 X#<_ini[joint_0]home> Y1
+n Code = G53 G0 Z[#<_ini[axis_z]max_limit> - 1.001]
 ----
+
+[NOTE]
+The original method of entering _<machine_name>_.ini file variables by enclosing in braces is deprecated and may be removed in the future.
 
 Multiple codes can be run by separating the codes with a "\" (backslash) character.
 The exception is the special commands which are required to be a single command per button.
