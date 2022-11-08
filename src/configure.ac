@@ -112,6 +112,7 @@ AC_CHECK_HEADER([rpc/rpc.h],[], [
   ])
 ])
 
+DEPFOUND=true
 
 ##############################################################################
 # Section 2                                                                  #
@@ -1001,7 +1002,11 @@ AX_BOOST_BASE(,,AC_MSG_ERROR([libboost not found]))
 AX_PYTHON
 AC_PATH_PROG(PYTHON,[$PYTHON_BIN])
 AX_PYTHON_DEVEL(,,AC_MSG_ERROR([python-dev not found]))
-AX_BOOST_PYTHON(,,AC_MSG_ERROR([libboost-python not found]))
+AX_BOOST_PYTHON()
+if test "x" = "x$BOOST_PYTHON_LIB"; then
+    AC_MSG_NOTICE([error: libboost-python not found])
+    DEPFOUND=false
+fi
 
 AC_MSG_CHECKING([whether to build documentation])
 AC_ARG_ENABLE(build-documentation,
@@ -1744,8 +1749,12 @@ echo "#   tools such as milling machines. LinuxCNC is released under the   #"
 echo "#   GPL.  Check out http://www.linuxcnc.org/ for more details.       #"
 echo "#                                                                    #"
 echo "#                                                                    #"
-echo "#   It seems that ./configure completed successfully.                #"
-echo "#   This means that RT is properly installed                         #"
+if $DEPFOUND ; then
+  echo "#   It seems that ./configure completed successfully.                #"
+  echo "#   This means that RT is properly installed                         #"
+else
+  echo "#   It seems that ./configure detected a problem.                    #"
+fi
 echo "#   If things don't work check config.log for errors & warnings      #"
 echo "#                                                                    #"
 
@@ -1780,3 +1789,5 @@ echo "#                                                                    #"
 echo "######################################################################"
 echo ""
 echo ""
+
+$DEPFOUND
