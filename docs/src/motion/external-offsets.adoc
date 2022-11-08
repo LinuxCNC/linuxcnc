@@ -40,7 +40,7 @@ For each axis letter (*L* in xyzabcuvw):
 planning max velocity        = (1-r) * MAX_VELOCITY
 external offset velocity     = (  r) * MAX_VELOCITY
 
-planning max acceleration    = (1-r) * MAX_ACCELERATIOIN
+planning max acceleration    = (1-r) * MAX_ACCELERATION
 external offset acceleration = (  r) * MAX_ACCELERATION
 ----
 
