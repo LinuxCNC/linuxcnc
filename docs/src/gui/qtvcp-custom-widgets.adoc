@@ -179,7 +179,7 @@ This LED indicator widget will respond to selectable LinuxCNC controller
 states.
 
 //TODO Link external file for code block content, or as a linked asset to
-//  strip the looong listing as it is detailed chunck by chunk beneath ?
+//  strip the looong listing as it is detailed chunk by chunk beneath ?
 
 [source,python]
 ----
@@ -684,7 +684,7 @@ They would need to be added to `qtvcp/plugins/` +
 Then `qtvcp/plugins/qtvcp_plugin.py` would need to be adjusted to
 _import_ them.
 
-//FIXME split samples bellow in independent py files and simply link them
+//FIXME split samples below in independent py files and simply link them
 //      as they're not documented, or possibly include them if we really
 //      want to have them here in full text
 

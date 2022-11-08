@@ -203,7 +203,7 @@ path for macros:
 SUBROUTINE_PATH = macros
 ----
 This sets the path to search for macros and other subroutines. Several subroutine
-paths can be separeted ":".
+paths can be separated ":".
 
 Then you just have to add a section like this:
 
@@ -1100,7 +1100,7 @@ You have three options:
 
 The checkboxes allow the user to select if he wants the on board keyboard to be shown immediately,
 when entering the MDI Mode, when entering the offset page, the tooledit widget or when open a program
-in the EDIT mode. The keyboard button on the bottom button list will not be affected by theese settings,
+in the EDIT mode. The keyboard button on the bottom button list will not be affected by these settings,
 so you are able to show or hide the keyboard by pressing the button. The default behavior will be set by
 the checkboxes.
 
@@ -1407,7 +1407,7 @@ Probe velocities::
   commented out in macros/change.ngc, otherwise the user would have to click
   twice on the probe button.)
 --
-// TODO: check if this option is accidently gone in 2.9
+// TODO: check if this option is accidentally gone in 2.9
 // Tool Changer::
 // +
 // --

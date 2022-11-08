@@ -83,7 +83,7 @@ Finally when QtVCP is asked to shutdown:
 
 == Path Information
 
-When QtVCP loads it collects paths informations.
+When QtVCP loads it collects paths information.
 
 This is available in the handler file's `+__init__()+` function
 as *`path`*:
@@ -154,7 +154,7 @@ should be checked for in the `processed_key_event__` function.
 === Preference File
 
 Some QtVCP widgets use the preference file to record important
-informations.
+information.
 
 This _requires the preference file to be set up early_ in the widget
 initialization process. +

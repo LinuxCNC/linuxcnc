@@ -114,7 +114,7 @@
 
    The use of version codes  means that any subsequent changes to
    the structs will be fully protected, with a clean shutdown and
-   meaningfull error messages in case of a mismatch.
+   meaningful error messages in case of a mismatch.
 */
 
 #define HAL_KEY   0x48414C32	/* key used to open HAL shared memory */
