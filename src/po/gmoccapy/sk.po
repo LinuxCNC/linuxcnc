@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-10-29 11:14+0200\n"
-"PO-Revision-Date: 2022-11-02 21:59+0000\n"
+"PO-Revision-Date: 2022-11-09 19:47+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: none\n"
 "Language: sk\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 4.14.2-dev\n"
+"X-Generator: Weblate 4.15-dev\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:281
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:286
@@ -723,7 +723,7 @@ msgid ""
 "World\n"
 "mode"
 msgstr ""
-"Režim svetového\n"
+"Režim svet.\n"
 "módu"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5539
@@ -1375,7 +1375,7 @@ msgstr "Korytnačí pohybový faktor"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:132
 msgid "<b>Turtle Jog</b>"
-msgstr "<b>Kytnačí pohyb</b>"
+msgstr "<b>Korytnačí pohyb</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:133
 msgid "Hardware"
@@ -1572,7 +1572,7 @@ msgid ""
 "Turn the machine on/off\n"
 "[F2]"
 msgstr ""
-"Zapnite/vypnite stroj\n"
+"Zapnúť/vypnúť stroj\n"
 "[F2]"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:187
@@ -1580,7 +1580,7 @@ msgid ""
 "enter manual mode to jog axis by hand or touch off\n"
 "[F3]"
 msgstr ""
-"vstup do manuálneho režimu\n"
+"Vstup do manuálneho režimu\n"
 "[F3]"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:189
@@ -1588,16 +1588,16 @@ msgid ""
 "enter MDI mode to launch G-code commands\n"
 "[F5]"
 msgstr ""
-"vstup do režimu MDI\n"
+"Vstup do režimu MDI\n"
 "[F5]"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:191
 msgid "enter auto mode to run programs"
-msgstr "vstup do automatického režimu pre spustenie programov"
+msgstr "Vstup do automatického režimu pre spustenie programov"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:192
 msgid "Enter the settings page, the default code is \"123\""
-msgstr "Stránku nastavení, predvolený kód je \"123\""
+msgstr "Stránka nastavení, predvolený kód je \"123\""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:193
 msgid "show user tabs"
@@ -1620,7 +1620,7 @@ msgid ""
 "World\n"
 "Mode"
 msgstr ""
-"Svetový\n"
+"Svet.\n"
 "režim"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:199
@@ -1637,7 +1637,7 @@ msgstr "Vytvoriť náhľad čo najväčší"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:202
 msgid "Close gmoccapy / leave the program"
-msgstr "Zatvorte gmoccapy / opustite program"
+msgstr "Zatvoriť gmoccapy / opustiť program"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:203
 msgid "Load a new program"
@@ -1683,11 +1683,11 @@ msgstr "Upraviť načítaný program"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:211
 msgid "delete MDI"
-msgstr "vymazať MDI"
+msgstr "Vymazať MDI"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:212
 msgid "delete MDI history"
-msgstr "vymazať históriu MDI"
+msgstr "Vymazať históriu MDI"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:213
 msgid "Cl.-ladder"
@@ -1723,11 +1723,11 @@ msgstr "spustiť HAL parametre"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:221
 msgid "Calibration"
-msgstr "Kalibrácia"
+msgstr "Kalib.osi"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:222
 msgid "launch calibration"
-msgstr "spustiť kalibráciu"
+msgstr "spustiť ladenie osí"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:223
 msgid "Halshow"
