@@ -4,6 +4,7 @@
 *               This file, 'hal_speaker.c', drives the PC speaker based
 *               on up to 8 bit outputs.  When the new outputs differ
 *               from the old outputs, a click is output on the speaker.
+*               This implementation only work on the x86 architecture.
 *               
 * Author: John Kasunich and Jeff Epler
 * License: GPL Version 2
@@ -60,6 +61,7 @@
     information, go to www.linuxcnc.org.
 */
 
+#include "config.h"     /* environment flags */
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
@@ -68,12 +70,14 @@
    instead of rtapi_outb() and rtapi_inb() - the <asm.io> ones
    are inlined, and save a microsecond or two (on my 233MHz box)
 */
+#if defined(RTAPI_RTAI)
 #define FASTIO
+#endif /* RTAPI_RTAI */
 
 #ifdef FASTIO
 #define rtapi_inb inb
 #define rtapi_outb outb
-#include <sys/io.h>
+#include <asm/io.h>
 #endif
 
 /* module information */
@@ -155,13 +159,15 @@ int rtapi_app_main(void)
 	return -1;
     }
 
-    /* STEP 1.1: get access to port */
+#if !defined(RTAPI_RTAI)
+    /* STEP 1.1: get access to port, only needed in uspace builds */
     if (ioperm(SPEAKER_PORT, 1, 1) < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SPEAKER: ERROR: ioperm() failed\n");
 	hal_exit(comp_id);
 	return -1;
     }
+#endif /* RTAPI_RTAI */
 
     /* STEP 2: allocate shared memory for skeleton data */
     port_data_array = hal_malloc(num_ports * sizeof(speaker_t));
