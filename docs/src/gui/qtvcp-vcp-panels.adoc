@@ -146,9 +146,9 @@ mouse controls:
 * left mouse single click - increase cross hair rotation one increment
 * right mouse single click - decrease cross hair rotation one increment
 * middle mouse single click - cycle through rotation increments
-* left mouse hold and scroll - scroll zoom 
+* left mouse hold and scroll - scroll camera zoom 
 * right mouse hold and scroll - scroll cross hair rotation angle
-* middle mouse hold and scroll - scroll circle diameter
+* mouse scroll only - scroll circle diameter
 * left mouse double click - reset zoom
 * right mouse double click - reset rotation
 * middle mouse double click - reset circle diameter
