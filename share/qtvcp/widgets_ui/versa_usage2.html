@@ -1,0 +1,20 @@
+<H1>Versa Probe Usage (pg2)</H1>
+
+<H3>DIAMETER</H3>
+This is the diameter of the probe tip. The accuracy of probe measurements is directly affected by the accuracy of the probe tip diameter.
+
+<H3>TRAVEL</H3>
+<p>The distance that the probe will travel during the initial search. If the search distance is too short, you will receive a message like "G38 finished without making contact". For safety reasons, it is recommended to set this parameter to 3-4 mm more than probe stylus diameter.</p>
+
+<H3>LATCH RTN</H3>
+<p>The distance the probe is retracted after making initial contact with the workpiece. This should be a short distance because the second approach will be at a slow speed, but large enough for the probe to break contact and bring it to the search ready state. If the Latch Rtn distance too large, you will end up spending a lot of time waiting for the search to complete. Recommendation: 1-2 mm</p>
+
+<H3>SEARCH</H3>
+This is the feed rate at which the probe searches for the target workpiece in machine units per minute. The search speed should be slow enough to give an acceptable initial accuracy, but fast enough to not waste time waiting for movement. Recommendation: 200-500 mm/min.
+
+<H3>PROBE</H3>
+<p>Once initial contact has been made and the probe is retracted, it will wait for 0.5 seconds before performing the search again at a lower speed, the probe velocity. This lower speed ensures the machine can stop movement as quickly as possible on contact with the workpiece.</p>
+
+<H3>RAPID</H3>
+<p>Axis movements not associated with searching are done at the speed defined by RAPID in machine units per minute.</p>
+

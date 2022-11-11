@@ -1,0 +1,16 @@
+<H1>Versa Probe Usage (pg3)</H1>
+
+<H3>SIDE/EDGE LENGTH</H3>
+<p>This is the distance the probe will move at the rapid rate to the position where it will begin a search. If measuring a corner, it will move EDGE LENGTH units away from the corner, then move away from the workpiece by XY CLEARANCE, lower by Z CLEARANCE and begin the initial search. If measuring an inner circle, then EDGE LENGTH should be set to the approximate radius of the circle. <b>Note: NOT the diameter.</b> </p>
+<H3>PROBE HT</H3>
+<p>The height of the tool sensor from the machine table surface. This value is used to calculate the Z zero height for the current work coordinate system when using the probe with a tool setter sensor.</p>
+
+<H3>BLOCK HT</H3>
+<p>The height of the top of the workpiece from the machine table surface. This value is used to calculate the Z zero height for the current work coordinate system when using the probe with a tool setter sensor.</p>
+
+<H3>XY CLEARANCE</H3>
+<p>The distance that the probe will move away from an edge or corner before performing a search. It should be large enough to ensure that the probe will not contact the workpiece or any other fixtures before moving down. It should be small enough to avoid excessive waiting for movement while searching.</p>
+
+<H3>Z CLEARANCE</H3>
+<p>The distance that the probe will move down before performing a search. If measuring an inside hole, the probe could be manually jogged to the starting Z height and then set Z CLEARANCE to 0.</p>
+
