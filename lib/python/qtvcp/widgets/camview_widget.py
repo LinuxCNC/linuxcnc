@@ -68,6 +68,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         self.cross_color = QtCore.Qt.yellow
         self.cross_pointer_color = QtCore.Qt.white
         self.font = QFont("arial,helvetica", 40)
+        self.SUB = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
         if LIB_GOOD:
             self.text = 'No Image'
         else:
@@ -117,6 +118,10 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         if event.button() & QtCore.Qt.LeftButton:
             if not self._noRotate:
                 self.rotation += self.rotationIncrement
+                self.limitChecks()
+        elif event.button() & QtCore.Qt.RightButton:
+            if not self._noRotate:
+                self.rotation -= self.rotationIncrement
                 self.limitChecks()
         elif event.button() & QtCore.Qt.MiddleButton:
             self.rotation_increments_changed()
@@ -312,8 +317,13 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         h = size.height()
         qp.setPen(self.text_color)
         qp.setFont(self.font)
+        if self._noRotate:
+            inc =''
+        else:
+            inc = str(self.rotationIncrement).translate(self.SUB)
         if self.pix:
-            qp.drawText(self.rect(), QtCore.Qt.AlignTop, '{}{}'.format(self.rotation,self.degree))
+            qp.drawText(self.rect(), QtCore.Qt.AlignTop, '{:.1f}{} {:>}'.format(self.rotation,self.degree,
+            inc))
         else:
             qp.drawText(self.rect(), QtCore.Qt.AlignCenter, self.text)
 
@@ -347,7 +357,10 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         if self.rotationIncrement == 5.00:
             self.rotationIncrement = 1
         elif self.rotationIncrement == 1:
+            self.rotationIncrement = 0.5
+        elif self.rotationIncrement == 0.5:
             self.rotationIncrement = 0.1
+
         else:
             self.rotationIncrement = 5
 
