@@ -136,15 +136,34 @@ EMBED_TAB_COMMAND = halcmd loadusr -Wn qtvcp_embed qtvcp -d -c qtvcp_embed -x {X
 EMBED_TAB_LOCATION = ntb_preview
 ----
 
-To use the buttons you have to assign a command (or a sub-routine). This could look like this:
+You can add window width and height size, rotation increment, and camera number from the INI with -o options.
+----
+EMBED_TAB_COMMAND = halcmd loadusr -Wn qtvcp_embed qtvcp -d -c qtvcp_embed -x {XID} -o size=400,400 -o rotincr=.2 -o camnumber=0 cam_align
+----
+
+mouse controls:
+
+* left mouse single click - increase cross hair rotation one increment
+* right mouse single click - decrease cross hair rotation one increment
+* middle mouse single click - cycle through rotation increments
+* left mouse hold and scroll - scroll zoom 
+* right mouse hold and scroll - scroll cross hair rotation angle
+* middle mouse hold and scroll - scroll circle diameter
+* left mouse double click - reset zoom
+* right mouse double click - reset rotation
+* middle mouse double click - reset circle diameter
+
+To use the top buttons you have to assign a command (or a sub-routine). This could look like this:
 [source,{ini}]
 ----
 [MDI_COMMAND_LIST]
-MDI_COMMAND=G10 L20 P1 X0 Y0
-MDI_COMMAND=G0 X0 Y0
+MDI_COMMAND=G10 L20 P1 X0 Y0,Set XY\nOrigin
+MDI_COMMAND=G0 X0 Y0,Go To\nOrigin
 ----
-Where the first command is referring to the button "SET origin" and the second to the button "GOTO Origin".
-
+Where the first command is referring to the button "SET origin" and the second to the button "GOTO Origin". +
+Note the comma and text after is optional - it will override the default button text. +
+These buttons are Qtvcp action buttons and follow those rules.
+ 
 [[sub:qtvcp:panels:sim-panel]]
 === `sim_panel`
 
