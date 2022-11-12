@@ -2371,6 +2371,14 @@ image::images/qtvcp_basicProbe.png["QtVCP BasicProbe: Simple Mill Probing Widget
 Widget for *probing on a mill*.
 Used by the _QtDragon_ screen.
 
+[[sub:qtvcp:widgets:vesaprobe]]
+=== `VersaProbe` - Mill Probing Widget
+
+.QtVCP `VersaProbe`: Mill Probing Widget
+image::images/qtvcp_versaProbe.png["QtVCP VersaProbe: Mill Probing Widget",scale="25%"]
+
+Widget for *probing on a mill*.
+Used by the _QtDragon_ screen.
 
 [[sec:qtvcp:widgets:dialog]]
 == Dialog Widgets
@@ -2659,7 +2667,7 @@ It is based on PyQt's _QDialog_.
 .QtVCP `VersaProbeDialog`: Part Touch Probing Dialog Widget
 image::images/qtvcp_versaProbe.png["QtVCP VersaProbeDialog: Part Touch Probing Dialog Widget",scale="25%"]
 
-This is a dialog to display a *part probing screen based on Versa Probe*.
+This is a dialog to display a *part probing screen based on Verser Probe v2*.
 
 It is based on PyQt's _QDialog_.
 
