@@ -32,10 +32,10 @@ Unlike PyVCP, GladeVCP is not limited to displaying and setting HAL pins,
 as arbitrary actions can be executed in Python code - in fact, a
 complete LinuxCNC user interface could be built with GladeVCP and Python.
 
-GladeVCP uses the http://glade.gnome.org/[Glade] WYSIWYG user
+GladeVCP uses the https://glade.gnome.org/[Glade] WYSIWYG user
 interface editor, which makes it easy to create visually pleasing
 panels. It relies on the https://pygobject.readthedocs.io/en/latest/[PyGObject] bindings to the
-rich http://www.gtk.org/[GTK+] widget set, and in fact all of these
+rich https://www.gtk.org/[GTK+] widget set, and in fact all of these
 may be used in a GladeVCP application - not just the specialized
 widgets for interacting with HAL and LinuxCNC, which are documented here.
 
@@ -54,8 +54,8 @@ linked to a HAL pin, which in turn interfaces to the rest of LinuxCNC.
 
 *GladeVCP:*
 
-- Widget set: relies on the  http://www.gtk.org/[GTK+] widget set.
-- User interface creation: uses the  http://glade.gnome.org/[Glade] WYSIWYG user interface editor.
+- Widget set: relies on the  https://www.gtk.org/[GTK+] widget set.
+- User interface creation: uses the  https://glade.gnome.org/[Glade] WYSIWYG user interface editor.
 - Any HAL pin change may be directed to call back into a user-defined Python event handler.
 - Any GTK signal (key/button press, window, I/O, timer, network events) may be associated with user-defined handlers in Python.
 - Direct LinuxCNC interaction: arbitrary command execution, like initiating MDI
@@ -239,7 +239,7 @@ Older versions will not work, you will get a Python error.
 This section just outlines the initial LinuxCNC-specific steps. For more
 information and a tutorial on Glade, see http://glade.gnome.org. Some
 Glade tips & tricks may also be found on
-http://www.youtube.com[youtube].
+https://www.youtube.com[youtube].
 
 Either modify an existing UI component by running +glade <file>.ui+
 or start a new one by just running the +glade+ command from the shell.
@@ -458,7 +458,7 @@ Options:
 
 -t THEME::
     Set gtk theme. Default is system theme. Different panels can have different themes.
-    An example theme can be found in the http://wiki.linuxcnc.org/cgi-bin/wiki.pl?GTK_Themes[EMC Wiki].
+    An example theme can be found in the https://wiki.linuxcnc.org/cgi-bin/wiki.pl?GTK_Themes[EMC Wiki].
 
 -x XID::
     Re-parent GladeVCP into an existing window XID instead of creating a
@@ -566,8 +566,8 @@ HAL widgets are instances of GtKWidgets and hence inherit the methods,
 properties and signals of the applicable GtkWidget class. For
 instance, to figure out which GtkWidget-related methods, properties
 and signals a 'HAL_Button' has, lookup the description of
-http://www.pygtk.org/docs/pygtk/class-gtkbutton.html[GtkButton] in the
-http://www.pygtk.org/docs/pygtk[PyGtk Reference Manual].
+https://www.pygtk.org/docs/pygtk/class-gtkbutton.html[GtkButton] in the
+https://www.pygtk.org/docs/pygtk[PyGtk Reference Manual].
 
 An easy way to find out the inheritance relationship of a given HAL
 widget is as follows: run glade, place the widget in a window, and
@@ -1210,7 +1210,7 @@ There's an example in
 mode to pick a float value from the ListStore.
 
 If you're confused like me about how to edit ComboBox ListStores and
-CellRenderer, see http://www.youtube.com/watch?v=Z5_F-rW2cL8.
+CellRenderer, see https://youtu.be/Z5_F-rW2cL8.
 
 [[gladevcp:hal-bars]]
 === Bars
@@ -2877,7 +2877,7 @@ def _on_example_trigger_change(self,pin,userdata=None):
 === Adding timers
 
 Since GladeVCP uses Gtk widgets which rely on the
-http://www.pygtk.org/pygtk2reference/gobject-functions.html[GObject]
+https://www.pygtk.org/pygtk2reference/gobject-functions.html[GObject]
 base class, the full glib functionally is available. Here is an
 example for a timer callback:
 
@@ -3049,7 +3049,7 @@ arise. For details, see the `keyboard_forward()` function in
 == Adding Custom Widgets
 
 The LinuxCNC Wiki has information on adding custom widgets to GladeVCP.
-link:http://wiki.linuxcnc.org/cgi-bin/wiki.pl?GladeVCP_Custom_Widgets[GladeVCP Custom Widgets]
+link:https://wiki.linuxcnc.org/cgi-bin/wiki.pl?GladeVCP_Custom_Widgets[GladeVCP Custom Widgets]
 
 == Auxiliary GladeVCP Applications
 

@@ -103,7 +103,7 @@ still be able to improve it.
 
 TIP: There is a user compiled list of equipment and the
 latency obtained on the LinuxCNC wiki :
-http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Latency-Test
+https://wiki.linuxcnc.org/cgi-bin/wiki.pl?Latency-Test
 Please consider adding your info to the list. Also on that page are links to
 info about fixing some latency problems.
 
@@ -313,7 +313,7 @@ Auto Z touch-off also requires the classic ladder touch-off program and a probe
 input selected. It requires a conductive touch-off plate and a grounded
 conductive tool. For an idea on how it works see:
 
-http://wiki.linuxcnc.org/cgi-bin/wiki.pl?ClassicLadderExamples#Single_button_probe_touchoff
+https://wiki.linuxcnc.org/cgi-bin/wiki.pl?ClassicLadderExamples#Single_button_probe_touchoff
 
 Under 'Display Options', size, position, and force max can be used on a
 'stand-alone' panel for such things as placing the screen on a second monitor if
@@ -531,7 +531,7 @@ set up and read a dial indicator to see if you are losing steps.
 Stepper Timing::
 Stepper timing needs to be tailored to the step controller's requirements.
 PnCconf supplies some default controller timing or allows custom timing settings.
-See http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Stepper_Drive_Timing for
+See https://wiki.linuxcnc.org/cgi-bin/wiki.pl?Stepper_Drive_Timing for
 some more known timing numbers (feel free to add ones you have figured out). If
 in doubt use large numbers such as 5000 this will only limit max speed.
 

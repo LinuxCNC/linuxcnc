@@ -12,7 +12,7 @@
 
 General Mechatronics GM6-PCI card based motion control system
 
-For detailed description, please refer to the http://www.generalmechatronics.com/data/products/robot_controller/PCI_UserManual_eng.pdf[System integration manual].
+For detailed description, please refer to the https://www.generalmechatronics.com/data/products/robot_controller/PCI_UserManual_eng.pdf[System integration manual].
 
 The GM6-PCI motion control card is based on an FPGA and a PCI bridge
 interface ASIC. A small automated manufacturing cell can be controlled,
@@ -138,7 +138,7 @@ image::images/GM_AXISpinout.png["Pin numbering of axis connectors",align="center
 Small sized DIN rail mounted interface modules gives easy way of connecting
 different types of servo modules to the axis connectors.
 Seven different system configurations are presented in the
-http://www.generalmechatronics.com/data/products/robot_controller/PCI_UserManual_eng.pdf[System integration manual]
+https://www.generalmechatronics.com/data/products/robot_controller/PCI_UserManual_eng.pdf[System integration manual]
 for evaluating typical applications. Also the detailed description of the
 Axis modules can be found in the System integration manual.
 
@@ -630,7 +630,7 @@ A green LED indicates the status of the module:
 === Relay output module
 
 For pinout, connection and electrical charasteristics of the module, please refer to the
-http://www.generalmechatronics.com/data/products/robot_controller/PCI_UserManual_eng.pdf[System integration manual].
+https://www.generalmechatronics.com/data/products/robot_controller/PCI_UserManual_eng.pdf[System integration manual].
 
 All the pins and parameters are updated by the following function:
 
@@ -672,7 +672,7 @@ m| .invert-relay-<0-7> | (bit, R/W)         | Negate relay output pin
 === Digital input module
 
 For pinout, connection and electrical charasteristics of the module, please refer to the
-http://www.generalmechatronics.com/data/products/robot_controller/PCI_UserManual_eng.pdf[System integration manual].
+https://www.generalmechatronics.com/data/products/robot_controller/PCI_UserManual_eng.pdf[System integration manual].
 
 All the pins and parameters are updated by the following function:
 
@@ -708,7 +708,7 @@ m| .in-not-_<0-7>_ | (bit, Out)         | Negated input pin
 === DAC & ADC module
 
 For pinout, connection and electrical charasteristics of the module, please refer to the
-http://www.generalmechatronics.com/data/products/robot_controller/PCI_UserManual_eng.pdf[System integration manual].
+https://www.generalmechatronics.com/data/products/robot_controller/PCI_UserManual_eng.pdf[System integration manual].
 
 All the pins and parameters are updated by the following function:
 
@@ -759,7 +759,7 @@ m| .dac-low-limit-_<0-3>_  | (float, R/W)       | Minimum output voltage of the 
 === Teach Pendant module
 
 For pinout, connection and electrical charasteristics of the module, please refer to the
-http://www.generalmechatronics.com/data/products/robot_controller/PCI_UserManual_eng.pdf[System integration manual].
+https://www.generalmechatronics.com/data/products/robot_controller/PCI_UserManual_eng.pdf[System integration manual].
 
 All the pins and parameters are updated by the following function:
 

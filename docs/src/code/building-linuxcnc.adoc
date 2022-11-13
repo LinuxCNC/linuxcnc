@@ -68,7 +68,7 @@ to do this job. This version of LinuxCNC supports three realtime platforms
 
 RTAI::
   From https://www.rtai.org. A Linux kernel with the RTAI patch is
-  available from the Debian archive at http://www.linuxcnc.org. See
+  available from the Debian archive at https://linuxcnc.org. See
   <<cha:getting-linuxcnc,Getting LinuxCNC>> for installation instructions.
 
 Xenomai::
@@ -375,7 +375,7 @@ way to get started.  However, there are other options to consider.
 
 === Fork us on Github
 
-The LinuxCNC project git repo is at http://github.com/LinuxCNC/linuxcnc.
+The LinuxCNC project git repo is at https://github.com/LinuxCNC/linuxcnc.
 github is a popular git hosting service and code sharing website.
 You can easily (and for no cost) create a fork of our git repo at github,
 and use that to track and publish your changes.

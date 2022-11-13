@@ -256,7 +256,7 @@ inline).
 
 == Python coding standards
 
-Use the http://www.python.org/dev/peps/pep-0008/[PEP 8] style for
+Use the https://www.python.org/dev/peps/pep-0008/[PEP 8] style for
 Python code.
 
 == Comp coding standards

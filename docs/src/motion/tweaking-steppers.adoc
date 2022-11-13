@@ -44,7 +44,7 @@ happens when you do some particular action. I had one Intel motherboard
 that worked pretty well most of the time, but every 64 seconds it had a
 very bad 300 µs latency.
 Fortunately that is fixable, see
-http://wiki.linuxcnc.org/cgi-bin/wiki.pl?FixingSMIIssues[Fixing SMI
+https://wiki.linuxcnc.org/cgi-bin/wiki.pl?FixingSMIIssues[Fixing SMI
 issues on the LinuxCNC Wiki]
 
 So, what do the results mean? If your 'Max Jitter' number is less than
@@ -230,7 +230,7 @@ measurements on your computer, and do the math to ensure that your
 drives get the signals they need.
 
 To make the math easier, I've created an Open Office spreadsheet
-http://wiki.linuxcnc.org/uploads/StepTimingCalculator.ods[Step Timing Calculator].
+https://wiki.linuxcnc.org/uploads/StepTimingCalculator.ods[Step Timing Calculator].
 You enter your latency test result and your stepper drive timing
 requirements and the spreadsheet calculates the optimum BASE_PERIOD.
 Next, you test the period to make sure it won't slow down or lock up

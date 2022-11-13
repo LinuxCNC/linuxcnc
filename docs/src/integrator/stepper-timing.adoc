@@ -55,7 +55,7 @@ nanoseconds (ns)
 |*Intelligent Motion System |IM483 |1000 |1000 |1000 |1000 |Rising Edge |http://www.imshome.com/im483.html | 
 |Keling |4030 |5000 |5000 |20000 |20000 |?|http://www.| 
 |Keling |6852 |1750 |1750 |10000 |10000 |Rising Edge |http://www.kelinginc.net/kL-6852.pdf | 
-|Sherline |8760 |1000 |6000 |24000 |24000 |?|http://www.sherline.com/| 
+|Sherline |8760 |1000 |6000 |24000 |24000 |?|https://www.sherline.com/| 
 |Burkhard Lewetz |Step3S |6000 |15000 |?|5000 |?|http://www.lewetz.de/download/ibstep3se.pdf | 
 |Parker Compumotor |Zeta 4 |200 |200 |?(200)|?(200)|Rising Edge |http://www.compumotor.com/manuals/ZETA/ZETA_Rev_A_Entire.pdf | 
 |www.cncdrive.com |Dugong |1000 |2500 |1000 |1000 |?|http://www.cncdrive.com/content/dugong.htm | 

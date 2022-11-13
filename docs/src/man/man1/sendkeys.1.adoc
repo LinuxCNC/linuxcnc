@@ -26,7 +26,7 @@ scancodes will be supported and how many individual pins are created.
 
 Multiple configs separated by commas will create multiple instances of
 the component. The accepted codes can be seen in the extract from the
-linux headers here: <http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Scancodes>
+linux headers here: <https://wiki.linuxcnc.org/cgi-bin/wiki.pl?Scancodes>
 
 The component requires the user to have write permissions to /dev/uinput
 which is not available by default. To give access:
