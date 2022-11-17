@@ -1,16 +1,17 @@
+# Eric Featherstone <eric.featherstone@gmail.com>, 2022.
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-10-09 15:50+0200\n"
-"PO-Revision-Date: 2021-12-09 03:52+0000\n"
-"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"PO-Revision-Date: 2022-11-13 18:47+0000\n"
+"Last-Translator: Eric Featherstone <eric.featherstone@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/ja/>\n"
 "Language: ja\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.10-dev\n"
+"X-Generator: Weblate 4.15-dev\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -5290,7 +5291,7 @@ msgstr "EMCの診断"
 
 #: tcl/tklinuxcnc.tcl:264
 msgid "Task"
-msgstr "Task"
+msgstr "タスク"
 
 #: tcl/tklinuxcnc.tcl:266 tcl/tklinuxcnc.tcl:289 tcl/tklinuxcnc.tcl:312
 msgid "Heartbeat:"
@@ -11532,7 +11533,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
