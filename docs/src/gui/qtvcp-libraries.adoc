@@ -449,19 +449,16 @@ _QtVCP's tool array includes entries for X and Z axis tool wear_.
 _LinuxCNC supports tool wear_ by adding *tool wear information into tool
 entries above 10000*.
 +
-NOTE: This also *requires remap code to add the wear offsets at tool
-  change time*.
+NOTE: This also *requires remap code to add the wear offsets at tool change time*.
 
 *`CONVERT_TO_STANDARD_TYPE(_toolarray_)`*::
   This function *converts QtVCP's tool array into a LinuxCNC raw tool array*.
 +
 _QtVCP's array includes entries for X and Z axis tool wear_.
 +
-_LinuxCNC supports tool wear_ by adding *tool wear information into tool
-entries above 10000*.
+_LinuxCNC supports tool wear_ by adding *tool wear information into tool entries above 10000*.
 +
-NOTE: This also *requires remap code to add the wear offsets t tool
-  change time*.
+NOTE: This also *requires remap code to add the wear offsets t tool change time*.
 
 //TODO Tools: Usage
 
@@ -561,9 +558,8 @@ PATH = Path()
 
 *`VCPWindow`* module gives *reference to the `MainWindow` and widgets*.
 
-Typically this would be used for a library (eg, toolbar library uses
-it) as the widgets get a reference to the `MainWindow` from the
-`_hal_init()` function.
+Typically this would be used for a library (e.g., toolbar library uses it)
+as the widgets get a reference to the `MainWindow` from the `_hal_init()` function.
 
 === Usage
 
@@ -594,8 +590,7 @@ WIDGETS = VCPWindow()
 == `Aux_program_loader`
 
 //FIXME Aux_program_loader: load (into QtVCP) or launch ?
-*`Aux_program_loader`* module allows an easy way to
-*load auxiliary programs LinuxCNC often uses*.
+*`Aux_program_loader`* module allows an easy way to *load auxiliary programs LinuxCNC often uses*.
 
 === Helpers
 
@@ -694,11 +689,9 @@ AUX_PRGM = Aux_program_loader()
 
 //FIXME Shouldn't it be Keylookup ?!
 
-*`Keylookup`* module is used to *allow keypresses to control behaviors*
-such as jogging.
+*`Keylookup`* module is used to *allow keypresses to control behaviors* such as jogging.
 
-It's used inside the handler file to facilitate creation of *key bindings*
-such as keyboard jogging etc.
+It's used inside the handler file to facilitate creation of *key bindings* such as keyboard jogging etc.
 
 === Usage
 
@@ -717,8 +710,8 @@ from qtvcp.lib.keybindings import Keylookup
 
 .Instantiate `Keylookup` module
 
-To instantiate `Keylookup` module* so you can use it, add this
-Python code to your instantiate section:
+To instantiate `Keylookup` module* so you can use it,
+add this Python code to your instantiate section:
 
 [source,python]
 ----
@@ -731,12 +724,10 @@ KEYBIND = Keylookup()
 
 .Add Key Bindings
 
-NOTE: `Keylookup` requires code under the `processed_key_event` function
-  to call `KEYBIND.call()`. +
-  Most handler files already have this code.
+NOTE: `Keylookup` requires code under the `processed_key_event` function to call `KEYBIND.call()`. +
+Most handler files already have this code.
 
-In the handler file, under the _initialized function_ use this general
-syntax to *create keybindings*:
+In the handler file, under the _initialized function_ use this general syntax to *create keybindings*:
 
 [source,python]
 ----
@@ -814,15 +805,13 @@ These messages are:
 
 //FIXME Messages: means STATUS messages will be generated each
 //  time a focus_overlay is called or an alert sound emitted ?
-By default it will send `STATUS` messages for `focus_overlay` and alert
-sound. +
+By default it will send `STATUS` messages for `focus_overlay` and alert sound. +
 
 //FIXME Messages: Usage
 
 === Examples
 
-Here are sample INI message definition code blocks that would be found
-under the `[DISPLAY]` heading:
+Here are sample INI message definition code blocks that would be found under the `[DISPLAY]` heading:
 
 * Status bar and desktop notify pop up message:
 +
@@ -866,16 +855,14 @@ desktop*.
 
 It uses the `pynotify` library.
 
-Ubuntu/Mint does not follow the standard so you can't set how long the
-message stays up for. +
+Ubuntu/Mint does not follow the standard so you can't set how long the message stays up for. +
 I suggest fixing this with the `notify-osd` package available from
 https://launchpad.net/~leolik/+archive/leolik?field.series_filter=lucid[this PPA]
 (DISCONTINUED due to move of Ubuntu to Gnome).
 
 Notify _keeps a list of all the alarm messages since starting_ in
 *`self.alarmpage`*. +
-If you click _'Show all messages'_ in the notify popup, it will print
-them to the terminal.
+If you click _'Show all messages'_ in the notify popup, it will print them to the terminal.
 
 The `ScreenOptions` widget can automatically set up the notify system.
 
@@ -903,16 +890,12 @@ permanently to storage media*.
 
 The `ScreenOptions` widget can automatically set up the preference system.
 
-QtVCP searches for the `ScreenOptions` widget first and, if found, calls
-*`+_pref_init()+`*. +
-This will _create the preferences object_ and return it to QtVCP to pass
-to all the widgets and add it to the window object attributes. +
-In this case the preferences object would be accessable from the handler
-file's `initialized_` method as *`self.w.PREFS_`*.
+QtVCP searches for the `ScreenOptions` widget first and, if found, calls *`+_pref_init()+`*. +
+This will _create the preferences object_ and return it to QtVCP to pass to all the widgets and add it to the window object attributes. +
+In this case the preferences object would be accessable from the handler file's `initialized_` method as *`self.w.PREFS_`*.
 
 //FIXME Global or per widget prefs file ?
-Also all widgets can have access to a specific preferences file at
-initialization time.
+Also all widgets can have access to a specific preferences file at initialization time.
 
 // FIXME Preference file vs preference system ?
 The `ScreenOptions` widget can automatically set up the preference file.
@@ -1021,8 +1004,7 @@ for the keyboard.
 
 == Toolbar Actions
 
-This library supplies *prebuilt submenus and actions for toolbar menus
-and toolbar buttons*.
+This library supplies *prebuilt submenus and actions for toolbar menus and toolbar buttons*.
 
 Toolbuttons, menu and toolbar menus are:
 
@@ -1144,8 +1126,7 @@ _Vismach_:
 * _displays the model_ in a *3D viewport*
 * _animates the model parts_ as the values of associated HAL pins change.
 
-This is the _Qt based version_ of the library, there is also a tkinter
-version available in LinuxCNC.
+This is the _Qt based version_ of the library, there is also a tkinter version available in LinuxCNC.
 
 The Qt version _allows embedding the simulation in other screens_.
 
@@ -1178,24 +1159,21 @@ Provides the *basic building blocks of a simulated machine*.
 *`Collection`*::
   A `collection` is an *object of individual machine parts*.
 +
-This holds a *hierarchical list* of primitive shapes or _STL objects_
-that operations can be applied to.
+This holds a *hierarchical list* of primitive shapes or _STL objects_ that operations can be applied to.
 //TODO Can't a collection hold other collections ?
 
 *`Translate`*::
-  This object will perform an *OpenGL translation* calculation
-  _on a Collection object_.
+  This object will perform an *OpenGL translation* calculation _on a Collection object_.
 //TODO Not on primitives ?
 +
-Translation refers to _moving an object in straight line_ to a different
-position on screen.
+Translation refers to _moving an object in straight line_ to a different position on screen.
 
 *`Scale`*::
   This object will perform an *OpenGL scale* function _on a collection object_.
 
 *`HalTranslate`*::
-  This object will perform an *OpenGL translation* calculation
-  _on a Collection object_, *offset by the HAL pin value*.
+  This object will perform an *OpenGL translation* calculation _on a Collection object_,
+  *offset by the HAL pin value*.
 +
 Translation refers to moving an object in straight line to a different
 position on screen.
@@ -1207,22 +1185,20 @@ You can either:
   `None`.
 
 *`Rotate`*::
-  This object will perform an *OpenGL rotation* calculation
-  _on a Collection object_.
+  This object will perform an *OpenGL rotation* calculation _on a Collection object_.
 
 *`HalRotate`*::
-  This object will perform an *OpenGL rotation* calculation
-  _on a Collection object_, *offset by the HAL pin value*.
+  This object will perform an *OpenGL rotation* calculation _on a Collection object_,
+  *offset by the HAL pin value*.
 +
 You can either:
 +
 * _read a pin from a component owned by the vismach_ object, or
-* _read a HAL system pin directly_ if the component argument is set to
-  `None`.
+* _read a HAL system pin directly_ if the component argument is set to `None`.
 
 *`HalToolCylinder`*::
-  This object will build a _CylinderZ object_ that will *change size and
-  length based on loaded tool dimensition* (from the tool table) +
+  This object will build a _CylinderZ object_ that will
+  *change size and length based on loaded tool dimensition* (from the tool table) +
 +
 It reads the `halui.tool.diameter` and `motion.tooloffset.z` _HAL pins_.
 +
@@ -1245,16 +1221,14 @@ tool = Collection([
 Base object to _hold coordinates for primitive shapes_.
 
 *`CylinderX`, `CylinderY`, `CylinderZ`*::
-  *Build a cylinder on the X, Y or Z axis* by giving _endpoint_ (X, Y, or Z)
-  and _radii_ coordinates.
+  *Build a cylinder on the X, Y or Z axis* by giving _endpoint_ (X, Y, or Z) and _radii_ coordinates.
 
 *`Sphere`*::
   *Build a sphere* from _center_ and _radius_ coordinates.
 
 //FIXME Vismach: Triangle: Don't coordinates need 2 axes and not be limited to Z !?
 *`TriangleXY`, `TriangleXZ`, `TriangleYZ`*::
-  *Build a triangle* in the _specified plane_ by giving the
-  _corners Z coordinates_ for each side
+  *Build a triangle* in the _specified plane_ by giving the _corners Z coordinates_ for each side
 
 //FIXME Vismach: Arc: how to specify ?
 *`ArcX`*::
@@ -1268,15 +1242,13 @@ Base object to _hold coordinates for primitive shapes_.
   and the _height in Z_.
 
 *`BoxCenteredXY`*::
-  *Build a box centered in X and Y, and running from Z=0*, by specifying
-  the _width in X and Y_, and running up or down to the specified
-  _height in Z_.
+  *Build a box centered in X and Y, and running from Z=0*,
+  by specifying the _width in X and Y_, and running up or down to the specified _height in Z_.
 
 *`Capture`*::
   *Capture current transformation matrix of a collection*.
 +
-NOTE: This _transforms from the current coordinate system to the
-  viewport system_, NOT to the world system.
+NOTE: This _transforms from the current coordinate system to the viewport system_, NOT to the world system.
 
 *`Hud`*::
   *Heads up display* draws a _semi-transparent text box_.
@@ -1297,8 +1269,7 @@ Use:
 === Usage
 
 .Import a simulation
-Here is how one might import the XYZ_mill simulation in a QtVCP panel
-or screen handler file.
+Here is how one might import the XYZ_mill simulation in a QtVCP panel or screen handler file.
 
 [source,python]
 ----
@@ -1310,21 +1281,20 @@ import mill_xyz as MILL
 ----
 
 .Instantiate and use the simulation widget
-Instantiate the simulation widget and add it to the screen's main
-layout:
+Instantiate the simulation widget and add it to the screen's main layout:
 
 [source,python]
 ----
-    ##########################################
-    # Special Functions called from QtVCP
-    ##########################################
+##########################################
+# Special Functions called from QtVCP
+##########################################
 
-    # At this point:
-    #   * the widgets are instantiated,
-    #   * the HAL pins are built but HAL is not set ready.
-    def initialized__(self):
-        machine = MILL.Window()
-        self.w.mainLayout.addWidget(machine)
+# At this point:
+#   * the widgets are instantiated,
+#   * the HAL pins are built but HAL is not set ready.
+def initialized__(self):
+    machine = MILL.Window()
+    self.w.mainLayout.addWidget(machine)
 ----
 
 === More Information
