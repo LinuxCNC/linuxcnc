@@ -5500,7 +5500,7 @@ class gmoccapy(object):
         else:
             self._on_btn_jog_released(None, button_name)
 
-    def _reset_overide(self, pin, type):
+    def _reset_override(self, pin, type):
         if pin.get():
             if type == "rapid":
                 self.command.rapidrate(1.0)
@@ -5700,15 +5700,15 @@ class gmoccapy(object):
 
         # make a pin to reset feed override to 100 %
         pin = self.halcomp.newpin("feed.reset-feed-override", hal.HAL_BIT, hal.HAL_IN)
-        hal_glib.GPin(pin).connect("value_changed", self._reset_overide, "feed")
+        hal_glib.GPin(pin).connect("value_changed", self._reset_override, "feed")
 
         # make a pin to reset rapid override to 100 %
         pin = self.halcomp.newpin("rapid.reset-rapid-override", hal.HAL_BIT, hal.HAL_IN)
-        hal_glib.GPin(pin).connect("value_changed", self._reset_overide, "rapid")
+        hal_glib.GPin(pin).connect("value_changed", self._reset_override, "rapid")
 
         # make a pin to reset spindle override to 100 %
         pin = self.halcomp.newpin("spindle.reset-spindle-override", hal.HAL_BIT, hal.HAL_IN)
-        hal_glib.GPin(pin).connect("value_changed", self._reset_overide, "spindle")
+        hal_glib.GPin(pin).connect("value_changed", self._reset_override, "spindle")
 
         # make an error pin to indicate a error to hardware
         self.halcomp.newpin("error", hal.HAL_BIT, hal.HAL_OUT)
