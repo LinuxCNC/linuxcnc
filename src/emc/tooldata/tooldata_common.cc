@@ -1,4 +1,3 @@
-#include <rtapi.h>
 /*
 ** This file is part of a refactor of internal  tool data management
 ** and incorporates work from removed files:
