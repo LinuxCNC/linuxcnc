@@ -14002,7 +14002,7 @@ LINEAR</string>
                     <set>Qt::AlignCenter</set>
                    </property>
                    <property name="textTemplate" stdset="0">
-                    <string>%d</string>
+                    <string>%.1f</string>
                    </property>
                    <property name="alt_textTemplate" stdset="0">
                     <string>%d</string>
@@ -15107,7 +15107,7 @@ ANGULAR</string>
                <number>2</number>
               </property>
               <property name="text">
-               <string>08:56:24 PM</string>
+               <string>09:51:54 AM</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
