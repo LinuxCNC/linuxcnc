@@ -235,6 +235,7 @@ In that folder, QtVCP will load any of the available following files:
 * `<screen_name>_handler.py`, and
 * `<screen_name>.qss`.
 
+[[cha:qtvcp:modifying-screens]]
 === Modifying Stock Screens
 
 There are _three ways_ to customize a screen/panel.
