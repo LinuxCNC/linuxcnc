@@ -1088,12 +1088,16 @@ image::images/style-comparison.png["QtDragon styles",scale="25%"]
 
 == Customization
 
+A general overview of <<cha:qtvcp:modifying-screens,Customizing Stock Screens>>
+
 === Stylesheets
 
 Stylesheets can be leveraged to do a fair amount of customization, but you
 usually need to know a bit about the widget names.
 Pressing F12 will display a stylesheet editor dialog to load/test/save
-modification.
+modification. Some times these lines will be present and you can change them 
+sometimes yo need to add them.
+
 For instance:
 
 To change the DRO font (look for this entry and change the font name):
@@ -1108,13 +1112,52 @@ StatusLabel#status_rpm {
 }
 ----
 
+To change the DRO display font and display format:
+
+[source,{ini}]
+----
+DROLabel {
+    font: 25pt "Lato Heavy";
+    qproperty-imperial_template: '%9.5f';
+    qproperty-metric_template: '%10.4f';
+    qproperty-angular_template: '%11.2f';
+} 
+----
+
 To change the text of the mist button to 'air' (add these lines)
 
 [source,{ini}]
 ----
 #action_mist{
-qproperty-true_state_string: "Air\\nOn";
-qproperty-false_state_string: "Air\\nOff";
+    qproperty-true_state_string: "Air\\nOn";
+    qproperty-false_state_string: "Air\\nOff";
+}
+----
+
+To change the Offsets display font and format:
+
+[source,{ini}]
+----
+ToolOffsetView {
+    font: 20pt "Lato Heavy";
+    qproperty-imperial_template: '%9.1f';
+    qproperty-metric_template: '%10.1f';
+
+}
+
+OriginOffsetView {
+    font: 12pt "Lato Heavy";
+    qproperty-imperial_template: '%9.1f';
+    qproperty-metric_template: '%10.1f';
+} 
+----
+
+To stop the blur effect with dialogs:
+
+[source,{ini}]
+----
+#screen_options {
+    qproperty-focusBlur_option: false;
 }
 ----
 

@@ -60,7 +60,8 @@ class HandlerClass:
         KEYBIND.add_call('Key_F4', 'on_keycall_F4')
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         KEYBIND.add_call('Key_Pause', 'on_keycall_PAUSE')
-        KEYBIND.add_call('Key_Space', 'on_keycall_PAUSE')
+        KEYBIND.add_call('Key_Any', 'on_keycall_PAUSE')
+
         # some global variables
         self.factor = 1.0
         self.probe = None
@@ -1236,6 +1237,7 @@ class HandlerClass:
             ACTION.SET_MACHINE_HOMING(-1)
 
     def on_keycall_PAUSE(self,event,state,shift,cntrl):
+        print(state,STATUS.is_auto_mode(),self.use_keyboard())
         if state and STATUS.is_auto_mode() and self.use_keyboard():
             ACTION.PAUSE()
 
