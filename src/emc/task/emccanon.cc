@@ -3018,8 +3018,6 @@ int GET_EXTERNAL_TOOL_SLOT()
 {
     int toolno = emcStatus->io.tool.toolInSpindle;
 
-    if (toolno == -1) {return -1;} // detect request for invalid tool
-
     return tooldata_find_index_for_tool(toolno);
 }
 

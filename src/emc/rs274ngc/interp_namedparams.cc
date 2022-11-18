@@ -671,6 +671,10 @@ int Interp::lookup_named_param(const char *nameBuf,
 	break;
 
     case NP_CURRENT_POCKET:
+    if (_setup.current_pocket == -1) {
+	    *value = -1;
+	    break;
+    }
     if(_setup.random_toolchanger){//random changers already report the real pocket number
 	    *value = _setup.current_pocket;
     }

@@ -42,7 +42,7 @@ struct CANON_TOOL_TABLE tooldata_entry_init()
 {
     struct CANON_TOOL_TABLE tdata;
     tdata.toolno      = -1;
-    tdata.pocketno    =  0;
+    tdata.pocketno    = -1;
     tdata.diameter    =  0;
     tdata.frontangle  =  0;
     tdata.backangle   =  0;
@@ -194,10 +194,8 @@ int tooldata_read_entry(const char *input_line,
     if (valid) {
         CANON_TOOL_TABLE tdata = tooldata_entry_init();
         // verify no prior tool in pocket
-        toolidx_t ans;
-        ans = tooldata_get(&tdata,idx);
-        if (ans != IDX_OK) { UNEXPECTED_MSG; }
-        if (is_random_toolchanger && tdata.pocketno != 0) {
+        if (tooldata_get(&tdata,idx) != IDX_OK) { UNEXPECTED_MSG; }
+        if (is_random_toolchanger && tdata.toolno != -1) {
             fprintf(stderr,"WARNING: Attempt to assign multiple toolno.s to pocket %d\n",realpocket);
             fprintf(stderr,"         %s %s()\n",__FILE__,__FUNCTION__);
             fprintf(stderr,"    WAS: pocket=%3d toolno=%3d\n",tdata.pocketno,tdata.toolno);
