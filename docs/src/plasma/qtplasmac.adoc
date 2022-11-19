@@ -2846,9 +2846,9 @@ When the error is cleared the program may be resumed.
 
 These errors indicate the corresponding sensor was activated during cutting:
 
-* *breakaway switch activated program is paused*
-* *float switch activated program is paused*
-* *ohmic probe activated program is paused*
+* *breakaway switch activated, program is paused*
+* *float switch activated, program is paused*
+* *ohmic probe activated, program is paused*
 
 These errors indicate the corresponding sensor was activated before probing commenced:
 
@@ -2866,11 +2866,11 @@ The Z axis reached the bottom limit before the work piece was detected:
 
 The work piece is too high for any safe rapid removes:
 
-* *material too high for safe traverse program is paused*
+* *material too high for safe traverse, program is paused*
 
 One of these values in MATERIAL section of the <<qt_parameters-tab,PARAMETERS Tab>> is invalid (For example: if they are set to zero):
 
-* *invalid pierce height or invalid cut height or invalid cut volts program is paused*
+* *invalid pierce height or invalid cut height or invalid cut volts, program is paused*
 
 No arc has been detected after attempting to start the number of times indicated by *Max Starts* in the ARC frame of the CONFIGURATION section of the <<qt_parameters-tab,PARAMETERS Tab>>:
 
@@ -2895,11 +2895,11 @@ These errors indicate the move to pierce height would exceed the Z axis maximum 
 * *pierce height would exceed Z axis maximum safe height condition found while float switch probing*
 * *pierce height would exceed Z axis maximum safe height condition found while ohmic probing*
 
-=== Warning Errors
+=== Warnings
 
-Warning errors will not pause a running program and are informational only.
+Warning messages will not pause a running program and are informational only.
 
-These errors indicate the corresponding sensor was activated before a probe test commenced:
+These messages indicate the corresponding sensor was activated before a probe test commenced:
 
 * *ohmic probe detected before probing probe test aborted*
 * *float switch detected before probing probe test aborted*
@@ -2965,7 +2965,7 @@ If the user wishes to update whenever a new QtPlasmaC version has been pushed, t
 
 There are two ways to modify an existing QtPlasmaC configuration:
 
-. Running the appropriate <<configuring,configuration wizard>> and loading the conf file saved by the wizard.
+. Running the appropriate <<configuring,configuration wizard>> and loading the .conf file saved by the wizard.
 . Manually edit the INI and/or the HAL file of the configuration.
 
 IMPORTANT: Any manual modification to the _<machine_name>_.ini and _<machine_name>_.hal files will not be registered in PnCconf or StepConf.
@@ -2988,7 +2988,7 @@ There are two methods available to apply custom styles:
 
 === Add A Custom Style
 
-Adding style changes to the default stylesheet is achieved by creating a file in the <machine_name> configuration directory.
+Adding style changes to the default stylesheet is achieved by creating a file in the _<machine_name>_ configuration directory.
 This file MUST be named qtplasmac_custom.qss. Any required style changes are then added to this file.
 
 For example the user may want the arc voltage display in red, a green Torch On LED of a larger size and a larger Torch Enable button.
@@ -3047,7 +3047,7 @@ color5 = #808080
 The colors may be expressed in any valid stylesheet format.
 
 The above colors are used for the following widgets. So any custom styling will need to take these into account.
-The colors shown below are the defaults used in QtPlasmaC along with the color name from the <<qt_settings-tab, SETTINGS Tab>>.
+The colors shown below are the defaults used in QtPlasmaC along with the color name from the <<qt_settings-tab,SETTINGS Tab>>.
 
 [width="100%",cols="1,1,2",options="header"]
 |===
@@ -3603,7 +3603,7 @@ The following HAL pins which allow the use of an MPG to control height override 
 
 [width="100%",cols="2,3",options="header"]
 |===
-|Function                  |HAL Pin
+|Function                   |HAL Pin
 |Enable MPG height control m|qtplasmac.ext_height_ovr_count_enable
 |MPG height change         m|qtplasmac.ext_height_ovr_counts
 |===
@@ -3613,7 +3613,7 @@ The HAL pin has the identical behaviour of the related custom user button.
 
 [width="50%",cols="1,1",options="header"]
 |===
-|User Button Function |HAL Pin
+|User Button Function  |HAL Pin
 |Probe Test           m|qtplasmac.ext_probe
 |Torch Pulse          m|qtplasmac.ext_pulse
 |Ohmic Test           m|qtplasmac.ext_ohmic
@@ -4321,7 +4321,7 @@ image::images/qtplasmac_reed_arc_ok.png[width=600,align="center"]
 
 image::images/qtplasmac_relay_contact.png[width=600,align="center"]
 
-A full description is at <<qt-contact-load,Contact Load>>
+A full description is at <<qt-contact-load,Contact Load>>.
 
 == Known Issues
 

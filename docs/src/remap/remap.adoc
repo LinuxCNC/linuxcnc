@@ -766,14 +766,14 @@ We'll use the following correspondence in our example:
 [frame="topbot",grid="none"]
 [options="header"]
 |===
-|iocontrol.0 pin|motion pin
-|tool-prepare|digital-out-00
-|tool-prepared|digital-in-00
-|tool-change|digital-out-01
-|tool-changed|digital-in-01
-|tool-prep-number|analog-out-00
-|tool-prep-pocket|analog-out-01
-|tool-number|analog-out-02
+|iocontrol.0 pin    |motion pin
+m|tool-prepare     m|digital-out-00
+m|tool-prepared    m|digital-in-00
+m|tool-change      m|digital-out-01
+m|tool-changed     m|digital-in-01
+m|tool-prep-number m|analog-out-00
+m|tool-prep-pocket m|analog-out-01
+m|tool-number      m|analog-out-02
 |===
 
 Let us assume you want to redefine the M6 command,
@@ -800,10 +800,10 @@ Going through the <<remap:interpreter-action-on-m6,steps>>, we find:
 .. generate rapid move to the G30 position - *can be done in NGC*
 . send a CHANGE_TOOL Canon command to `task`  - *execute in Python epilog*
 . set the numberer parameters 5400-5413 according to the new tool - *execute in Python epilog*
-. signal to `task` to stop calling the interpreter for readahead until
-  tool change complete - *execute in Python epilog*
+. signal to `task` to stop calling the interpreter for readahead until tool change complete - *execute in Python epilog*
 
-So we need a prolog, and an epilog. Lets assume our INI file incantation of the M6 remap looks as follows:
+So we need a prolog, and an epilog.
+Lets assume our INI file incantation of the M6 remap looks as follows:
 
 ----
 REMAP=M6   modalgroup=6  prolog=change_prolog ngc=change epilog=change_epilog
@@ -893,21 +893,17 @@ Again, most epilogs have a common scheme:
 
 === Configuring `iocontrol` with a remapped M6
 
-Note that the sequence of operations has changed: we do everything
-required in the O-word procedure - including any HAL pin
-setting/reading to get a changer going, and to acknowledge a tool
-change - likely with `motion.digital-*` and `motion-analog-*` IO
-pins. When we finally execute the `CHANGE_TOOL()` command, all
-movements and HAL interactions are already completed.
+Note that the sequence of operations has changed:
+we do everything required in the O-word procedure - including any HAL pin setting/reading to get a changer going,
+and to acknowledge a tool change - likely with `motion.digital-*` and `motion-analog-*` IO pins.
+When we finally execute the `CHANGE_TOOL()` command,
+all movements and HAL interactions are already completed.
 
-Normally only now `iocontrol` would do its thing as outlined
-<<remap:iocontrol-action-on-load,here>>. However, we don't need the
-HAL pin wiggling anymore - all `iocontrol` is left to do is to accept
-we're done with prepare and change.
+Normally only now `iocontrol` would do its thing as outlined <<remap:iocontrol-action-on-load,here>>.
+However, we don't need the HAL pin wiggling anymore - all `iocontrol` is left to do is to accept we're done with prepare and change.
 
-This means that the corresponding `iocontrol` pins have no function any
-more. Therefore, we configure `iocontrol` to immediately acknowledge a
-change by configuring like so:
+This means that the corresponding `iocontrol` pins have no function any more.
+Therefore, we configure `iocontrol` to immediately acknowledge a change by configuring like so:
 
 [source,{hal}]
 ---------------------------------------------------------------------
@@ -980,10 +976,8 @@ But remapping is also a way to work around deficiencies in the current implement
 for instance to not block until the "tool-prepared" pin is set.
 
 What you could do, for instance, is:
-- in a remapped T, just set the equivalent of the "tool-prepare" pin,
-  but *not* wait for "tool-prepared" here
-- in the corresponding remapped M6,
-  wait for the "tool-prepared" at the very beginning of the O-word procedure.
+- In a remapped T, just set the equivalent of the "tool-prepare" pin, but *not* wait for "tool-prepared" here.
+- In the corresponding remapped M6, wait for the "tool-prepared" at the very beginning of the O-word procedure.
 
 Again, the `iocontrol` tool-prepare/tool-prepared pins would be unused and replaced by `motion.*` pins,
 so those would pins must be looped:
