@@ -2,7 +2,7 @@
 # to load a completely custom glade screen.
 # The only thing that really matters is that it's saved as a GTK builder project,
 # the toplevel window is called window1 (The default name) and you connect a destroy
-# window signal otherwise you can't close down linuxcnc 
+# window signal otherwise you can't close down linuxcnc
 
 import gi
 from gi.repository import Gtk as gtk
@@ -277,7 +277,7 @@ class HandlerClass:
         else:
             self.laser_x = xpos
             self.laser_y = ypos
-            
+
     def init_button_colors(self):
         # set the button background colors and digits of the DRO
         self.homed_textcolor = self.gscreen.prefs.getpref("homed_textcolor", "#00FF00", str)     # default green
@@ -312,7 +312,7 @@ class HandlerClass:
     def init_sensitive_on_off(self):
         self.data.sensitive_on_off = ["table_run", "tbl_dro", "vbox_overrides",
                                       "vbox_tool", "hbox_spindle_ctl"]
-        
+
     def init_sensitive_run_idle(self):
         self.data.sensitive_run_idle = ["rbt_manual", "rbt_mdi", "rbt_auto",
                                         "tbtn_optional_blocks", "tbtn_optional_stops",
@@ -337,7 +337,7 @@ class HandlerClass:
         pin = self.halcomp.newpin("clear_mdi-waiting", hal.HAL_BIT, hal.HAL_OUT)
         pin = self.halcomp.newpin("clear_mdi-response", hal.HAL_BIT, hal.HAL_OUT)
         hal_glib.GPin(pin).connect("value_changed", self.on_clear_mdi_changed)
-        
+
     # every 100 milli seconds this gets called
     # add pass so gscreen doesn't try to update it's regular widgets or
     # add the individual function names that you would like to call.
@@ -373,7 +373,7 @@ class HandlerClass:
         self.widgets.rbt_rel.set_label(self.system_list[self.stat.g5x_index])
         self.widgets.entry_clock.set_text(strftime("%H:%M:%S"))
         return True
-    
+
 # ========================
 # Start of widget handlers
 # ========================
@@ -410,7 +410,7 @@ class HandlerClass:
 
     # estop machine before closing
     def on_window1_destroy(self, widget, data=None):
-        print "estopping / killing silverdragon"
+        print("estopping / killing silverdragon")
         self.command.state(linuxcnc.STATE_OFF)
         self.command.state(linuxcnc.STATE_ESTOP)
         gtk.main_quit()
@@ -631,7 +631,7 @@ class HandlerClass:
         command = "G53 G0 X{} Y{}".format(self.home_x, self.home_y)
         self.command.mdi(command)
         self.command.wait_complete()
-            
+
     def on_btn_laser_zero_clicked(self, widget, data=None):
         if self.stat.task_mode != linuxcnc.MODE_MDI:
             self.gscreen.notify(_("INFO"), _("Must be in MDI mode"), INFO_ICON)
@@ -660,7 +660,7 @@ class HandlerClass:
         command = "G53 G0 X{} Y{}".format(self.tool_sensor_x, self.tool_sensor_y)
         self.command.mdi(command)
         self.command.wait_complete()
-        
+
     def on_btn_blockheight_clicked(self, widget, data=None):
         title = "Enter Block Height"
         callback = "on_blockheight_return"
@@ -688,17 +688,17 @@ class HandlerClass:
 
     def jog_x(self,widget,direction,state):
         self.gscreen.do_key_jog(0,direction,state)
-        
+
     def jog_y(self,widget,direction,state):
         self.gscreen.do_key_jog(1,direction,state)
-        
+
     def jog_z(self,widget,direction,state):
         self.gscreen.do_key_jog(2,direction,state)
-        
+
     def jog_speed_changed(self,widget):
         value = widget.get_value()
         self.gscreen.set_jog_rate(absolute = value)
-        
+
     def on_cmb_increments_changed(self, widget, data=None):
         index = widget.get_active()
         if index == 0:
@@ -980,7 +980,7 @@ class HandlerClass:
             self.command.wait_complete()
             self.tool_change = False
         self.current_line = 0
-        
+
     def on_hal_status_interp_run(self, widget):
         print("RUN")
         self.gscreen.sensitize_widgets(self.data.sensitive_run_idle, False)
@@ -1012,7 +1012,7 @@ class HandlerClass:
         self.widgets.chk_ignore_limits.set_sensitive(True)
         self.widgets.tbtn_on.set_label("OFF")
         self.gscreen.sensitize_widgets(self.data.sensitive_on_off, False)
-        
+
     def on_hal_status_state_on(self, widget):
         if not self.widgets.tbtn_on.get_active():
             self.widgets.tbtn_on.set_active(True)
@@ -1432,7 +1432,7 @@ class HandlerClass:
 
         self.scale_jog_vel = self.scale_jog_vel * self.factor
         self.fast_jog = self.fast_jog * self.factor
-        self.slow_jog = self.slow_jog * self.factor            
+        self.slow_jog = self.slow_jog * self.factor
 
     def init_offsetpage(self):
         self.gscreen.init_offsetpage()

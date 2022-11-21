@@ -101,7 +101,7 @@ class HandlerClass:
             LOG.debug('Exception in KEYBINDING: {}'.format (e))
         except Exception as e:
             LOG.debug('Exception in KEYBINDING:', exc_info=e)
-            print 'Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key)
+            print('Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key))
             return False
 
     ########################
@@ -117,7 +117,7 @@ class HandlerClass:
     #####################
 
     # keyboard jogging from key binding calls
-    # double the rate if fast is true 
+    # double the rate if fast is true
     def kb_jog(self, state, joint, direction, fast = False, linear = True):
         if not STATUS.is_man_mode() or not STATUS.machine_is_on():
             return

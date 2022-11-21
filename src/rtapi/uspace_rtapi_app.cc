@@ -58,7 +58,6 @@
 #include "hal/hal_priv.h"
 #include "rtapi_uspace.hh"
 
-#include <string.h>
 #include <boost/lockfree/queue.hpp>
 
 std::atomic<int> WithRoot::level;
@@ -105,6 +104,9 @@ static void set_namef(const char *fmt, ...) {
     va_end(ap);
 
     int res = pthread_setname_np(pthread_self(), buf);
+    if (res) {
+        fprintf(stderr, "pthread_setname_np() failed for %s: %d\n", buf, res);
+    }
     free(buf);
 }
 
@@ -455,7 +457,8 @@ static int master(int fd, vector<string> args) {
         perror("pthread_create (queue function)");
         return -1;
     }
-    do_load_cmd("hal_lib", vector<string>()); instance_count = 0;
+    do_load_cmd("hal_lib", vector<string>());
+    instance_count = 0;
     App(); // force rtapi_app to be created
     int result=0;
     if(args.size()) {
@@ -520,14 +523,14 @@ int main(int argc, char **argv) {
                 "    sudo env RTAPI_UID=`id -u` RTAPI_FIFO_PATH=$HOME/.rtapi_fifo gdb " EMC2_BIN_DIR "/rtapi_app\n");
             exit(1);
         }
-        setreuid(fallback_uid, 0);
+        if (setreuid(fallback_uid, 0) != 0) { perror("setreuid"); abort(); }
         fprintf(stderr,
             "Running with fallback_uid.  getuid()=%d geteuid()=%d\n",
             getuid(), geteuid());
     }
     ruid = getuid();
     euid = geteuid();
-    setresuid(euid, euid, ruid);
+    if (setresuid(euid, euid, ruid) != 0) { perror("setresuid"); abort(); }
 #ifdef __linux__
     setfsuid(ruid);
 #endif
@@ -831,37 +834,52 @@ struct rtapi_task *task_array[MAX_TASKS];
 
 /* Priority functions.  Uspace uses POSIX task priorities. */
 
-int RtapiApp::prio_highest()
+int RtapiApp::prio_highest() const
 {
     return sched_get_priority_max(policy);
 }
 
-int RtapiApp::prio_lowest()
+int RtapiApp::prio_lowest() const
 {
   return sched_get_priority_min(policy);
 }
 
-int RtapiApp::prio_next_higher(int prio)
-{
-  /* return a valid priority for out of range arg */
-  if (prio >= rtapi_prio_highest())
-    return rtapi_prio_highest();
-  if (prio < rtapi_prio_lowest())
-    return rtapi_prio_lowest();
-
-  /* return next higher priority for in-range arg */
-  return prio + 1;
+int RtapiApp::prio_higher_delta() const {
+    if(rtapi_prio_highest() > rtapi_prio_lowest()) {
+        return 1;
+    }
+    return -1;
 }
 
-int RtapiApp::prio_next_lower(int prio)
+int RtapiApp::prio_bound(int prio) const {
+    if(rtapi_prio_highest() > rtapi_prio_lowest()) {
+        if (prio >= rtapi_prio_highest())
+            return rtapi_prio_highest();
+        if (prio < rtapi_prio_lowest())
+            return rtapi_prio_lowest();
+    } else {
+        if (prio <= rtapi_prio_highest())
+            return rtapi_prio_highest();
+        if (prio > rtapi_prio_lowest())
+            return rtapi_prio_lowest();
+    }
+    return prio;
+}
+
+int RtapiApp::prio_next_higher(int prio) const
 {
-  /* return a valid priority for out of range arg */
-  if (prio <= rtapi_prio_lowest())
-    return rtapi_prio_lowest();
-  if (prio > rtapi_prio_highest())
-    return rtapi_prio_highest();
-  /* return next lower priority for in-range arg */
-  return prio - 1;
+    prio = prio_bound(prio);
+    if(prio != rtapi_prio_highest())
+        return prio + prio_higher_delta();
+    return prio;
+}
+
+int RtapiApp::prio_next_lower(int prio) const
+{
+    prio = prio_bound(prio);
+    if(prio != rtapi_prio_lowest())
+        return prio - prio_higher_delta();
+    return prio;
 }
 
 int RtapiApp::allocate_task_id()

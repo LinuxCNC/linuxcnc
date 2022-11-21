@@ -62,7 +62,7 @@ try:
     pmx485.newpin('arcTime', hal.HAL_FLOAT, hal.HAL_OUT)      #arc on time feedback
     pmx485.ready()
 except:
-    print('\nERROR: pmx485 component could not be initialize \n'.format(comPort))
+    print('\nERROR: pmx485 component could not be initialized\n')
     raise(SystemExit)
 
 enabled = pmx485.enable

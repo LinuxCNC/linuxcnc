@@ -30,7 +30,7 @@ class Calculator(QDialog):
 
         self.display = QLineEdit('0')
         self.display.setMinimumHeight(30)
-        self.display.setReadOnly(True)
+        self.display.setReadOnly(False)
         self.display.setAlignment(Qt.AlignRight)
         self.display.setMaxLength(15)
 

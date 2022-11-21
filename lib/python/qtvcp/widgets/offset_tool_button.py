@@ -14,9 +14,7 @@
 # GNU General Public License for more details.
 ###############################################################################
 
-import hal
-
-from PyQt5.QtWidgets import QWidget, QToolButton, QMenu, QAction
+from PyQt5.QtWidgets import QToolButton, QMenu, QAction
 from PyQt5.QtCore import pyqtProperty
 from PyQt5.QtGui import QIcon
 
@@ -25,10 +23,10 @@ from qtvcp.core import Status, Action, Info
 from qtvcp import logger
 
 # Instiniate the libraries with global reference
-# STATUS gives us status messages from linuxcnc
+# STATUS gives us status messages from LinuxCNC
 # AUX_PRGM holds helper program loader
-# INI holds ini details
-# ACTION gives commands to linuxcnc
+# INI holds INI details
+# ACTION gives commands to LinuxCNC
 # LOG is for running code logging
 STATUS = Status()
 INFO = Info()

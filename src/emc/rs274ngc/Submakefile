@@ -36,7 +36,8 @@ LIBRS274SRCS := $(addprefix emc/rs274ngc/, \
 	interp_inspection.cc)
 USERSRCS += $(LIBRS274SRCS)
 
-$(call TOOBJSDEPS, $(LIBRS274SRCS)) : EXTRAFLAGS=-fPIC $(BOOST_DEBUG_FLAGS)
+$(call TOOBJSDEPS, $(LIBRS274SRCS)) : EXTRAFLAGS+=-fPIC $(BOOST_DEBUG_FLAGS)
+$(call TOOBJSDEPS, emc/rs274ngc/pyinterp1.cc emc/rs274ngc/pyparamclass.cc emc/rs274ngc/pyinterp1.cc emc/rs274ngc/pyblock.cc emc/rs274ngc/pyarrays.cc emc/rs274ngc/interpmodule.cc): EXTRAFLAGS += $(SILENCE_BOOST_INTERNAL_DIAGNOSTICS_FLAGS)
 
 TARGETS += ../lib/librs274.so ../lib/librs274.so.0
 

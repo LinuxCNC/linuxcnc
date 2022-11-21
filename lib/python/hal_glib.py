@@ -228,6 +228,21 @@ class _GStat(GObject.GObject):
              , linuxcnc.INTERP_IDLE: 'interp-idle'
              }
 
+    TEMPARARY_MESSAGE = 255
+    OPERATOR_ERROR = linuxcnc.OPERATOR_ERROR
+    OPERATOR_TEXT = linuxcnc.OPERATOR_TEXT
+    NML_ERROR = linuxcnc.NML_ERROR
+    NML_TEXT = linuxcnc.NML_TEXT
+
+    MANUAL = linuxcnc.MODE_MANUAL
+    AUTO = linuxcnc.MODE_AUTO
+    MDI = linuxcnc.MODE_MDI
+
+    STATE_ESTOP = linuxcnc.STATE_ESTOP
+    STATE_ESTOP_RESET = linuxcnc.STATE_ESTOP_RESET
+    STATE_ON = linuxcnc.STATE_ON
+    STATE_OFF = linuxcnc.STATE_OFF
+
     def __init__(self, stat = None):
         GObject.Object.__init__(self)
         self.stat = stat or linuxcnc.stat()
@@ -1000,7 +1015,8 @@ class _GStat(GObject.GObject):
         return self.old['state']  > linuxcnc.STATE_OFF
 
     def estop_is_clear(self):
-        return self.old['state'] > linuxcnc.STATE_ESTOP
+        self.stat.poll()
+        return self.stat.task_state > linuxcnc.STATE_ESTOP
 
     def is_man_mode(self):
         self.stat.poll()

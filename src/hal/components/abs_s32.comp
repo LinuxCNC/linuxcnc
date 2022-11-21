@@ -23,6 +23,7 @@ pin out bit is_negative "TRUE if input is negative, FALSE if input is 0 or posit
 
 function _ nofp;
 license "GPL";
+author "Sebastian Kuzminsky";
 ;;
 FUNCTION(_) {
     rtapi_s32 tmp = in;

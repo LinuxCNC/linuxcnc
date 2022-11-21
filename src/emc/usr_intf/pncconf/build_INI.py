@@ -28,10 +28,6 @@ class INI:
         # will try to update for joints_axes if no VERSION is set
         print("VERSION = 1.1", file=file)
 
-        # write the qtplasmac section
-        if self.d.frontend == _PD._QTPLASMAC:
-            self.write_qtplasmac_section(file)
-
         print(file=file)
         print("[DISPLAY]", file=file)
         if self.d.frontend == _PD._AXIS:
@@ -127,14 +123,21 @@ class INI:
         print("GEOMETRY = %s"% self.d.geometry, file=file)
         print("CYCLE_TIME = 100", file=file)
 
+        # set up MDI macro buttons
+        if self.d.frontend == _PD._QTDRAGON:
+            print(file=file)
+            print("[MDI_COMMAND_LIST]", file=file)
+            print("MDI_COMMAND = G0 Z0;X0 Y0", file=file)
+            print("MDI_COMMAND = G53 G0 Z0;G53 G0 X0 Y0", file=file)
+
         print(file=file)
         print("[FILTER]", file=file)
         # qtplasmac has a different filter section
         if self.d.frontend == _PD._QTPLASMAC:
             print("PROGRAM_EXTENSION = .ngc,.nc,.tap GCode File (*.ngc, *.nc, *.tap)", file=file)
-            print("ngc = ./qtplasmac/qtplasmac_gcode.py", file=file)
-            print("nc  = ./qtplasmac/qtplasmac_gcode.py", file=file)
-            print("tap = ./qtplasmac/qtplasmac_gcode.py", file=file)
+            print("ngc = qtplasmac_gcode", file=file)
+            print("nc  = qtplasmac_gcode", file=file)
+            print("tap = qtplasmac_gcode", file=file)
         else:
             print("PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image", file=file)
             print("PROGRAM_EXTENSION = .py Python Script", file=file)
@@ -153,14 +156,19 @@ class INI:
         print("PARAMETER_FILE = linuxcnc.var", file=file)
         # qtplasmac has extra rs274ngc variables
         if self.d.frontend == _PD._QTPLASMAC:
-            if self.d.units == _PD._METRIC:
-                units = "metric"
-            else:
-                units = "imperial"
-            print("RS274NGC_STARTUP_CODE = o<{}_startup> call".format(units), file=file)
-            print("SUBROUTINE_PATH = ./:./qtplasmac:../../nc_files/subroutines", file=file)
-            print("USER_M_PATH = ./:./qtplasmac", file=file)
+            code = 21 if self.d.units == _PD._METRIC else 20
+            print("RS274NGC_STARTUP_CODE = G{} G40 G49 G80 G90 G92.1 G94 G97 M52P1".format(code), file=file)
+            print("SUBROUTINE_PATH = ./:../../nc_files", file=file)
+            print("USER_M_PATH = ./:../../nc_files", file=file)
             print("", file=file)
+        else:
+            if self.d.units == _PD._METRIC:
+                unit = 21
+                p = .025
+            else:
+                unit = 20
+                p =.001
+            print ("RS274NGC_STARTUP_CODE = G{} G40 G90 G94 G97 G64 P{}".format(unit,p), file=file)
 
         #base_period = self.d.ideal_period()
 
@@ -550,38 +558,6 @@ class INI:
             print("MIN_LIMIT = %s" % minlim, file=file)
             print("MAX_LIMIT = %s" % maxlim, file=file)
 
-    # write the qtplasmac section
-    def write_qtplasmac_section(self, file):
-        print(file=file)
-        print("[QTPLASMAC]", file=file)
-        print(_("# set the operating mode (default is 0)"), file=file)
-        print("MODE = {}".format(self.d.qtplasmacmode), file=file)
-        print(_("# set the estop type (0=indicator, 1=hidden, 2=button)"), file=file)
-        print("ESTOP_TYPE = {}".format(self.d.qtplasmacestop), file=file)
-        print(_("# set the dro position ('top' or 'bottom')"), file=file)
-        dro = 'top' if self.d.qtplasmacdro else 'bottom'
-        print("DRO_POSITION = {}".format(dro), file=file)
-        print(_("# error message flash (0=no, 1=yes)"), file=file)
-        print("FLASH_ERROR = {}".format(self.d.qtplasmacerror), file=file)
-        print(_("# hide buttons (0=no, 1=yes)"), file=file)
-        print("HIDE_RUN = {}".format(self.d.qtplasmacstart), file=file)
-        print("HIDE_PAUSE = {}".format(self.d.qtplasmacpause), file=file)
-        print("HIDE_ABORT = {}".format(self.d.qtplasmacstop), file=file)
-        print(_("# laser touchoff"), file=file)
-        print("#LASER_TOUCHOFF = X0.0 Y0.0", file=file)
-        print(_("# camera touchoff"), file=file)
-        print("#CAMERA_TOUCHOFF = X0.0 Y0.0 ", file=file)
-        print(_("# powermax communications"), file=file)
-        if self.d.qtplasmacpmx:
-            print("PM_PORT = {}".format(self.d.qtplasmacpmx), file=file)
-        else:
-            print("#PM_PORT = /dev/ttyUSB0", file=file)
-        print(_("# user buttons"), file=file)
-        for ub in range(1, 21):
-            if self.d.qtplasmac_bnames[ub-1]:
-                print("BUTTON_{}_NAME = {}".format(ub ,self.d.qtplasmac_bnames[ub-1]), file=file)
-                print("BUTTON_{}_CODE = {}".format(ub ,self.d.qtplasmac_bcodes[ub-1]), file=file)
-
     # linuxcnc doesn't like having home right on an end of travel,
     # so extend the travel limit by up to .001in or .01mm
     def find_limits(self, letter):
@@ -589,10 +565,11 @@ class INI:
         minlim = -abs(get("minlim"))
         maxlim = get("maxlim")
         home = get("homepos")
-        if self.d.units == _PD._METRIC: extend = .01
-        else: extend = .001
-        minlim = min(minlim, home) - extend
-        maxlim = max(maxlim, home) + extend
+        extend = 0.01 if self.d.units == _PD._METRIC else 0.001
+        if minlim == home:
+            minlim = minlim - extend
+        elif maxlim == home:
+            maxlim = maxlim + extend
         return (minlim, maxlim)
 
 # BOILER CODE

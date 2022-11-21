@@ -21,6 +21,7 @@ param rw bit reverse = 0 "Set to 1 to reverse the spindle in second gear";
 
 function _;
 license "GPL";
+author "Stephen Wille Padnos";
 ;;
 FUNCTION(_) {
     hal_float_t temp_in = speed_in;

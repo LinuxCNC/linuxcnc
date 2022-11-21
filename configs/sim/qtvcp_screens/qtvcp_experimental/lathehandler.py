@@ -2,7 +2,7 @@
 # vim: sts=4 sw=4 et
 #    This is a component of EMC
 #    savestate.py copyright 2013 Andy Pugh
-#    based on code from 
+#    based on code from
 #    probe.py Copyright 2010 Michael Haberler
 #
 #
@@ -51,7 +51,7 @@ class HandlerClass:
 
     # This catches our messages from another program
     def event(self,w,event):
-        print event.message_type,event.data
+        print(event.message_type,event.data)
         if event.message_type == 'Gladevcp':
             if event.data[:7] == 'Visible':
                 self.active = True
@@ -63,7 +63,7 @@ class HandlerClass:
     # We connect to client-events from the new toplevel widget
     def on_map_event(self, widget, data=None):
         top = widget.get_toplevel()
-        print "map event"
+        print("map event")
         top.connect('client-event', self.event)
 
     def on_destroy(self,obj,data=None):
@@ -93,8 +93,8 @@ class HandlerClass:
 
         # A pin to mask cycle-start so that Touchy doesn't run auto.
         self.visible = hal_glib.GPin(halcomp.newpin('visible', hal.HAL_BIT, hal.HAL_OUT))
- 
-        # This catches the signal from Touchy to say that the tab is exposed 
+
+        # This catches the signal from Touchy to say that the tab is exposed
         t = self.builder.get_object('eventbox1')
         t.connect('map-event',self.on_map_event)
         t.add_events(gtk.gdk.STRUCTURE_MASK)
@@ -141,7 +141,7 @@ class HandlerClass:
             data = data[1:]
         else:
             data = '-' + data
-        self.entry.set_text(data) 
+        self.entry.set_text(data)
 
     def keyb_convert_click(self, obj, data=None):
         v = float(self.entry.get_text())
@@ -179,10 +179,10 @@ class HandlerClass:
     def cycle_pin(self, pin, data = None):
         if pin.get() == 0:
             return
-        print 'cycle pin'
+        print('cycle pin')
         if self.active:
             nb = self.builder.get_object('tabs1')
-            print 'current tab', nb.get_current_page()
+            print('current tab', nb.get_current_page())
             tab = nb.get_nth_page(nb.get_current_page())
             for c in tab.get_children():
                 if c.name.partition('.')[2] == 'action':
@@ -192,7 +192,7 @@ class HandlerClass:
                     c.emit('clicked')
 
     def gash(self, obj, data = None):
-        print 'event', data
+        print('event', data)
 
 def get_handlers(halcomp,builder,useropts):
 

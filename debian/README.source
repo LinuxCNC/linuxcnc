@@ -35,11 +35,15 @@ required for Debian unstable.
    If the current source tree is not the regular release but git checkout also
    create the fitting tarball:
 
+   echo -n "I: Version: $VERSION -> "
    VERSION=$(git log --date=format:%Y%m%d --pretty=${VERSION}+git%cd.%h| head -n1)
    echo $VERSION
    foldername=$(basename $(pwd))
-   (cd .. && tar --exclude=.git -cJvf "linuxcnc_${VERSION}.orig.tar.xz" "$foldername")
+   if [ -d debian/patches ]; then quilt pop -a && rm -rf .pc; fi
+   echo "I: taring up CWD into linuxcnc_${VERSION}.orig.tar.xz - this will take a minute or two"
+   (cd .. && tar --exclude=.git* --exclude=.pc -cJf "linuxcnc_${VERSION}.orig.tar.xz" "$foldername")
    du -sh ../$foldername
+   echo "I: Please inspect with 'tar Jtf ../linuxcnc_${VERSION}.orig.tar.xz'"
 
 2. Prepare shell to work in temp directory
 
@@ -51,9 +55,9 @@ required for Debian unstable.
 
 3. Unpack
 
+   echo -n "I: Unpacking source tree to build from newly generated orig.tar.xz"
    tar xJvf linuxcnc_*.orig.tar.xz
    cd linuxcnc
-
 
 4. Configure debian directory for the "uspace" packages that are
    prepared for the Non-RTAI but preempt realtime kernels that are
@@ -63,13 +67,11 @@ required for Debian unstable.
 
 5. Slightly adapt for upload to d/unstable
 
-   sed -i '1s/ UNRELEASED;/ unstable;/' debian/changelog
-
    mkdir -p debian/source
    echo "3.0 (quilt)" > debian/source/format
 
-   # debian version
-   sed -i "1s/^.*;/linuxcnc ($VERSION-1) unstable;/" debian/changelog
+   # dch is from the devscripts package
+   dch -b -m -v "$VERSION" --distribution unstable  "New upstream version."
 
 6a. build Debian package if in doubt - optional
 

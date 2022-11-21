@@ -262,6 +262,15 @@ class Keylookup:
         except:
             raise NameError("Binding %s could not be added" % binding)
 
+    # remove a keyname binding
+    def del_call(self, binding):
+        try:
+            delattr(self.keycall, binding)
+        except AttributeError:
+            raise NameError("Binding %s could not be found" % binding)
+        except Exception as e:
+            raise NameError("Binding %s could not be removed: %s" % (binding, e))
+
     def manage_function_calls(self, handler, event, is_pressed, key, shift, cntrl):
         try:
             b = self.call(handler, event, is_pressed, shift, cntrl)

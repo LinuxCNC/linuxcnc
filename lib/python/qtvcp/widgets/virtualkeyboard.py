@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import os
-from PyQt5 import QtCore, QtGui, QtWidgets, uic
+from PyQt5 import QtGui, QtWidgets, uic
 from PyQt5.QtCore import Qt, QEvent
 
 from qtvcp.core import Info
@@ -93,7 +93,7 @@ class VirtualKeyboard(QtWidgets.QWidget):
         self.numbers_buttonGroup.buttonClicked.connect(self.special_clicked)
         self.special_buttonGroup.buttonClicked.connect(self.special_clicked)
         self.control_buttonGroup.buttonClicked.connect(self.button_clicked)
-        
+
     def init_letters(self):
         for val in self.letter_list:
             self['btn_' + val].setText(val)
@@ -173,7 +173,7 @@ class VirtualKeyboard(QtWidgets.QWidget):
 
     def __setitem__(self, item, value):
         return setattr(self, item, value)
-        
+
     #############################
     # Testing                   #
     #############################

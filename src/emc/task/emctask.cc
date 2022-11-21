@@ -184,7 +184,7 @@ int emcTaskInit()
 		    // set the user_defined_fmt string with dirname
 		    // note the %%02d means 2 digits after the M code
 		    // and we need two % to get the literal %
-		    ret = snprintf(user_defined_fmt[dct], sizeof(user_defined_fmt[0]),
+		    ret = snprintf(user_defined_fmt[dct], sizeof(user_defined_fmt[dct]),
 			     "%s/M1%%02d", expanddir); // update global
 		    if(ret >= sizeof(user_defined_fmt[0])){
 			return -EMSGSIZE; // name truncated
@@ -217,16 +217,13 @@ int emcTaskHalt()
 
 int emcTaskStateRestore()
 {
-    int res;
+    int res = 0;
     // Do NOT restore on MDI command
     if (emcStatus->task.mode == EMC_TASK_MODE_AUTO) {
         // Validity of state tag checked within restore function
         res = pinterp->restore_from_tag(emcStatus->motion.traj.tag);
-	if (res != INTERP_OK)
-	    // Print error but don't bail
-	    print_interp_error(res);
     }
-    return 0;
+    return res;
 }
 
 int emcTaskAbort()
@@ -271,6 +268,11 @@ int emcTaskAbort()
 int emcTaskSetMode(int mode)
 {
     int retval = 0;
+
+    if (jogging_is_active()) {
+        emcOperatorError(0, "Ignoring task mode change while jogging");
+        return 0;
+    }
 
     switch (mode) {
     case EMC_TASK_MODE_MANUAL:

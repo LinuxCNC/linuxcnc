@@ -34,14 +34,14 @@
 */
 
 /** This library is free software; you can redistribute it and/or
-    modify it under the terms of version 2.1 of the GNU Lesser General
+    modify it under the terms of version 2 of the GNU Library General
     Public License as published by the Free Software Foundation.
     This library is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Lesser General Public License for more details.
 
-    You should have received a copy of the GNU Lesser General Public
+    You should have received a copy of the GNU Library General Public
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
@@ -216,6 +216,13 @@ extern void *hal_malloc(long int size);
     component 'hal_example' is ready before continuing.
 */
 extern int hal_ready(int comp_id);
+
+/** hal_unready() indicates that this component is ready.  This allows
+    halcmd 'loadusr -W hal_example' to wait until the userspace
+    component 'hal_example' is ready before continuing.
+*/
+extern int hal_unready(int comp_id);
+
 
 /** hal_comp_name() returns the name of the given component, or NULL
     if comp_id is not a loaded component

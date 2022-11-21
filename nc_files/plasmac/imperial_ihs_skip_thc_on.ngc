@@ -1,4 +1,4 @@
-;skip ihs with thc enabled
+;imperial skip ihs with thc enabled
 
 G20
 G64 P0.0004

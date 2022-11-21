@@ -107,6 +107,7 @@ class HandlerClass:
         TOOLBAR.configure_action(self.w.actionOpen, 'load')
         TOOLBAR.configure_action(self.w.actionReload, 'Reload')
         TOOLBAR.configure_action(self.w.actionRun, 'run')
+        TOOLBAR.configure_action(self.w.actionStep, 'step')
         TOOLBAR.configure_action(self.w.actionPause, 'pause')
         TOOLBAR.configure_action(self.w.actionStop, 'abort')
         TOOLBAR.configure_action(self.w.actionSkip, 'block_delete')
@@ -158,8 +159,8 @@ class HandlerClass:
         self.make_progressbar()
 
         if INFO.MACHINE_IS_LATHE:
-            self.w.dro_relative_y.setVisible(False)
-            self.w.dro_absolute_y.setVisible(False)
+            self.w.dro_label_g5x_y.setVisible(False)
+            self.w.dro_label_g53_y.setVisible(False)
         self.restoreSettings()
         #QtWidgets.QApplication.instance().event_filter.focusIn.connect(self.focusInChanged)
 
@@ -187,7 +188,11 @@ class HandlerClass:
                 if isinstance(receiver2, GCODE):
                     flag = True
                     break
+                if isinstance(receiver2, QtWidgets.QLineEdit):
+                    flag = True
+                    break
                 receiver2 = receiver2.parent()
+
             if flag:
                 if isinstance(receiver2, GCODE):
                     # send events to gcode widget if in edit mode
@@ -377,14 +382,8 @@ class HandlerClass:
     def _set_user_system_text(self, w, data):
         convert = { 1:"G54 ", 2:"G55 ", 3:"G56 ", 4:"G57 ", 5:"G58 ", 6:"G59 ", 7:"G59.1 ", 8:"G59.2 ", 9:"G59.3 "}
         unit = convert[int(data)]
-        for i in ('x','y','z'):
-            self.w['dro_label_g5x_%s'%i].imperial_template = unit + i.upper() + '%9.4f'
-            self.w['dro_label_g5x_%s'%i].metric_template = unit + i.upper() + '%10.3f'
-            self.w['dro_label_g5x_%s'%i].update_units()
-            self.w['dro_label_g53_%s'%i].imperial_template = i.upper() + '%9.4f'
-            self.w['dro_label_g53_%s'%i].metric_template = i.upper() + '%10.3f'
-            self.w['dro_label_g53_%s'%i].update_units()
-        self.w.dro_label_g5x_r.angular_template = unit + 'R      %3.2f'
+        rtext = '''<html><head/><body><p><span style=" color:gray;">{} </span> %3.2f<span style=" color:gray;"> R</span></p></body></html>'''.format(unit)
+        self.w.dro_label_g5x_r.angular_template = rtext
         self.w.dro_label_g5x_r.update_units()
         self.w.dro_label_g5x_r.update_rotation(None, STATUS.stat.rotation_xy)
 
@@ -544,10 +543,10 @@ class HandlerClass:
 
         # containers
         w = QtWidgets.QWidget()
-        w.setContentsMargins(0,0,0,6)
-        w.setMinimumHeight(40)
+        w.setContentsMargins(0,0,0,0)
 
         hbox = QtWidgets.QHBoxLayout()
+        hbox.setContentsMargins(0,0,0,0)
         hbox.addWidget(self.w.rpm_bar)
         hbox.addWidget(self.w.led)
         w.setLayout(hbox)

@@ -56,7 +56,7 @@ class SpeedControl(Gtk.VBox, _HalSpeedControlBase):
                             allowed values are 0.001, 99999.0
                             default is 100.0
     increment   = float   : sets the applied increment per mouse click,
-                            -1 means 100 increments fom min to max
+                            -1 means 100 increments from min to max
     inc_speed   = integer : Sets the timer delay for the increment speed holding pressed the buttons
                             allowed values are 20 to 300
                             default is 100

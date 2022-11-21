@@ -24,6 +24,7 @@ notes "Note that if enable is false, out = in";
 
 function _;
 license "GPL";
+author "Eric H. Johnson";
 ;;
 FUNCTION(_) {
   if (enable) out = in * (vel / feed);

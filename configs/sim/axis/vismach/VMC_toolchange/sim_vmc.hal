@@ -8,16 +8,15 @@ loadusr -W ./vmcgui
 
 loadrt wcomp names=xlim,ylim,zlim,armsw,drawsw,locksw
 loadrt mux2 names=armpos,drawpos,lockpos,mux2.0
-loadrt mux4 names=cardir
 loadrt sum2 names=carpos,spindlepos
-loadrt limit2 names=armlim,drawlim,locklim,spindlelim
+loadrt limit2 names=armlim,drawlim,locklim,spindlelim,carlim
 
 addf xlim servo-thread
 addf ylim servo-thread
 addf zlim servo-thread 
 
 addf carpos servo-thread
-addf cardir servo-thread
+addf carlim servo-thread
 
 setp xlim.max 301
 setp xlim.min -301
@@ -56,13 +55,9 @@ net arm-out armsw.under
 net arm-in armsw.over
 
 #simulated carousel with 5 Gray-coded outputs
-setp cardir.in0 0
-setp cardir.in1 0.001
-setp cardir.in2 -0.001
-setp cardir.in3 0
-net car-fwd cardir.sel0
-net car-rev cardir.sel1
-net car-dir cardir.out carpos.in0
+setp carlim.maxv 0.01
+net car-vel carlim.in
+net car-vel-lim carlim.out carpos.in0
 net car-pos carpos.out carpos.in1 vmcgui.carousel
 loadrt conv_float_u32
 addf conv-float-u32.0 servo-thread

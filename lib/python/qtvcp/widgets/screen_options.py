@@ -15,7 +15,6 @@
 ###############################################################################
 
 import os
-import time
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 import linuxcnc
@@ -61,7 +60,7 @@ def import_ZMQ():
     try:
         import zmq
     except:
-        LOG.warning('Problem importing zmq - Is python-zmg installed?')
+        LOG.warning('Problem importing zmq - Is python3-zmq installed?')
         # nope no messaging for you
         return False
     else:
@@ -76,7 +75,6 @@ def import_ZMQ():
 class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(ScreenOptions, self).__init__(parent)
-        self.error = linuxcnc.error_channel()
         self.catch_errors = True
         self.desktop_notify = True
         self.notify_max_msgs = 10
@@ -108,6 +106,9 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.add_tool_dialog = False
         self.add_file_dialog = False
         self.add_focus_overlay = False
+        self.add_focus_effect = False
+        self.use_focus_tint = False
+        self.use_focus_blur = False
         self.add_keyboard_dialog = False
         self.add_versaprobe_dialog = False
         self.add_macrotab_dialog = False
@@ -166,6 +167,9 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
         if self.add_focus_overlay:
             self.init_focus_overlay()
+
+        if self.add_focus_effect:
+            self.init_focus_effect()
 
         if self.add_keyboard_dialog:
             self.init_keyboard_dialog()
@@ -282,7 +286,6 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             self.init_zmq_publish()
         if self.add_receive_zmq:
             self.init_zmg_subscribe()
-            
 
     # This is called early by qt_makegui.py for access to
     # be able to pass the preference object to the widgets
@@ -311,7 +314,8 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
     def on_periodic(self, w):
         try:
-            e = self.error.poll()
+            e = STATUS.poll_error()
+            #if not e is None:print ('error stat',e)
             if e:
                 kind, text = e
                 STATUS.emit('error',kind,text)
@@ -385,21 +389,25 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             # system shutdown
             HANDLER = self.QTVCP_INSTANCE_.handler_instance
             if answer == QtWidgets.QMessageBox.DestructiveRole:
+                self.QTVCP_INSTANCE_.settings.sync()
+                self.QTVCP_INSTANCE_.shutdown()
+                self.QTVCP_INSTANCE_.panel_.shutdown()
+                STATUS.shutdown()
                 if 'system_shutdown_request__' in dir(HANDLER):
                     HANDLER.system_shutdown_request__()
                 else:
                     from qtvcp.core import Action
                     ACTION = Action()
                     ACTION.SHUT_SYSTEM_DOWN_PROMPT()
-                if '_hal_cleanup' in dir(HANDLER):
-                    HANDLER._hal_cleanup()
                 event.accept()
             # close linuxcnc
             elif answer:
                 if self.PREFS_ and self.play_sounds and self.shutdown_play_sound:
                     STATUS.emit('play-sound', self.shutdown_exit_sound_type)
-                if '_hal_cleanup' in dir(HANDLER):
-                    HANDLER._hal_cleanup()
+                self.QTVCP_INSTANCE_.settings.sync()
+                self.QTVCP_INSTANCE_.shutdown()
+                self.QTVCP_INSTANCE_.panel_.shutdown()
+                STATUS.shutdown()
                 event.accept()
             # cancel
             elif answer == False:
@@ -445,23 +453,34 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             os.environ['QTVCP_FORWARD_EVENTS_TO'] = str(wid)
 
             for name, loc, cmd in INFO.ZIPPED_TABS:
-                LOG.debug('Processing Embedded tab:{}, {}, {}'.format(name,loc,cmd))
+                LOG.info('green<Installing Embedded tab:{}, {}, {}>'.format(name,loc,cmd))
                 if loc == 'default':
                     loc = 'rightTab'
+
                 try:
-                    if isinstance(self.QTVCP_INSTANCE_[loc], QtWidgets.QTabWidget):
-                        tw = QtWidgets.QWidget()
-                        self.QTVCP_INSTANCE_[loc].addTab(tw, name)
-                    elif isinstance(self.QTVCP_INSTANCE_[loc], QtWidgets.QStackedWidget):
-                        tw = QtWidgets.QWidget()
-                        self.QTVCP_INSTANCE_[loc].addWidget(tw)
-                    else:
-                        LOG.warning('tab location {} is not a Tab or stacked Widget - skipping'.format(loc))
+                    if 'qtvcp' in cmd.split()[0].lower():
+                        rtn = ACTION.ADD_WIDGET_TO_TAB(self.QTVCP_INSTANCE_[loc],
+                                self.QTVCP_INSTANCE_[name.replace(' ','_')],name)
+                        if not rtn:
+                            raise Exception
                         continue
+
+                    else:
+                        if isinstance(self.QTVCP_INSTANCE_[loc], QtWidgets.QTabWidget):
+                            tw = QtWidgets.QWidget()
+                            self.QTVCP_INSTANCE_[loc].addTab(tw, name)
+                        elif isinstance(self.QTVCP_INSTANCE_[loc], QtWidgets.QStackedWidget):
+                            tw = QtWidgets.QWidget()
+                            self.QTVCP_INSTANCE_[loc].addWidget(tw)
+                        else:
+                            LOG.warning('tab location {} is not a Tab or stacked Widget - skipping'.format(loc))
+                            continue
+                    self._embed(cmd,loc,tw)
                 except Exception as e:
                     LOG.warning("problem inserting VCP '{}' to location: {} :\n {}".format(name, loc, e))
-                    return
-                self._embed(cmd,loc,tw)
+                    continue
+
+
 
     def _embed(self, cmd,loc,twidget):
             if twidget is None:
@@ -536,6 +555,10 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         w.focusOverlay_ = FocusOverlay(w)
         w.focusOverlay_.setObjectName('focusOverlay_')
         w.focusOverlay_.hal_init(HAL_NAME='')
+
+    def init_focus_effect(self):
+        STATUS.connect('focus-overlay-changed', lambda w, data, text, color:
+                        self.effect(data, text, color))
 
     def init_keyboard_dialog(self):
         from qtvcp.widgets.dialog_widget import KeyboardDialog
@@ -679,6 +702,26 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             ACTION.TOGGLE_LIMITS_OVERRIDE()
         ACTION.SET_MACHINE_STATE(True)
 
+    def effect(self, data, text, color):
+        if self.use_focus_blur:
+            ACTION.SET_BLUR(self.QTVCP_INSTANCE_,data)
+        elif self.use_focus_tint:
+            ACTION.SET_TINT(self.QTVCP_INSTANCE_, data, color)
+
+    #########################################################################
+    # This is how designer can interact with our widget properties.
+    # designer will show the pyqtProperty properties in the editor
+    # it will use the get set and reset calls to do those actions
+    #
+    # _toggle_properties makes it so we can only select one option
+    ########################################################################
+
+    def _toggle_properties(self, picked):
+        data = ('focusBlur','focusTint')
+        for i in data:
+            if not i == picked:
+                self[i+'_option'] = False
+
     ########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
@@ -790,6 +833,34 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def reset_focusOverlay(self):
         self.add_focus_overlay = False
     focusOverlay_option = QtCore.pyqtProperty(bool, get_focusOverlay, set_focusOverlay, reset_focusOverlay)
+
+    def set_focusEffect(self, data):
+        self.add_focus_effect = data
+    def get_focusEffect(self):
+        return self.add_focus_effect
+    def reset_focusEffect(self):
+        self.add_focus_effect = False
+    focusEffect_option = QtCore.pyqtProperty(bool, get_focusEffect, set_focusEffect, reset_focusEffect)
+
+    def set_focusBlur(self, data):
+        self.use_focus_blur = data
+        if data:
+            self._toggle_properties('focusBlur')
+    def get_focusBlur(self):
+        return self.use_focus_blur
+    def reset_focusBlur(self):
+        self.use_focus_blur = False
+    focusBlur_option = QtCore.pyqtProperty(bool, get_focusBlur, set_focusBlur, reset_focusBlur)
+
+    def set_focusTint(self, data):
+        self.use_focus_tint = data
+        if data:
+            self._toggle_properties('focusTint')
+    def get_focusTint(self):
+        return self.use_focus_tint
+    def reset_focusTint(self):
+        self.use_focus_tint = False
+    focusTint_option = QtCore.pyqtProperty(bool, get_focusTint, set_focusTint, reset_focusTint)
 
     # Dialogs ##########################################
 

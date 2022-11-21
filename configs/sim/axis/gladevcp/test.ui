@@ -1,21 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.22.2 -->
 <interface>
-  <requires lib="gtk+" version="2.24"/>
-  <!-- interface-requires gladevcp 0.0 -->
-  <!-- interface-naming-policy project-wide -->
-  <object class="EMC_Action_Python" id="vcp_action_python1">
-    <property name="command">import math;print 'Button pressed';print math</property>
+  <requires lib="gtk+" version="3.20"/>
+  <requires lib="gladevcp" version="0.0"/>
+  <object class="EMC_Action_Python" id="print_message">
+    <property name="command">print(ACTION.SET_DISPLAY_MESSAGE('GLADE defined button Pressed'))</property>
+    <property name="is_homed">False</property>
+    <property name="is_idle">False</property>
+    <property name="is_on">False</property>
   </object>
   <object class="GtkWindow" id="window1">
     <property name="can_focus">False</property>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
     <child>
-      <object class="GtkButton" id="button1">
-        <property name="label" translatable="yes">button</property>
+      <object class="GtkGrid" id="grid1">
         <property name="visible">True</property>
-        <property name="can_focus">True</property>
-        <property name="receives_default">True</property>
-        <property name="related_action">vcp_action_python1</property>
-        <property name="use_action_appearance">False</property>
+        <property name="can_focus">False</property>
+        <child>
+          <object class="GtkButton" id="button1">
+            <property name="label" translatable="yes">button python command</property>
+            <property name="related_action">print_message</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <property name="action_name">print_message</property>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="button2">
+            <property name="label" translatable="yes">button handler call
+</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <signal name="clicked" handler="on_button_press" swapped="no"/>
+          </object>
+          <packing>
+            <property name="left_attach">0</property>
+            <property name="top_attach">1</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
       </object>
     </child>
   </object>

@@ -2569,7 +2569,6 @@ void INIT_CANON()
     canon.g92Offset.w = 0.0;
     SELECT_PLANE(CANON_PLANE_XY);
     canonUpdateEndPoint(0, 0, 0, 0, 0, 0, 0, 0, 0);
-    SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, 0);
     SET_NAIVECAM_TOLERANCE(0);
     for (int s = 0; s < EMCMOT_MAX_SPINDLES; s++) {
         canon.spindle[s].speed = 0.0;
@@ -2585,7 +2584,7 @@ void INIT_CANON()
 
     /* 
        to set the units, note that GET_EXTERNAL_LENGTH_UNITS() returns
-       traj->linearUnits, which is already set from the .ini file in
+       traj->linearUnits, which is already set from the INI file in
        iniTraj(). This is a floating point number, in user units per mm. We
        can compare this against known values and set the symbolic values
        accordingly. If it doesn't match, we have an error. */
@@ -2598,6 +2597,12 @@ void INIT_CANON()
 	CANON_ERROR
 	    ("non-standard length units, setting interpreter to mm");
 	canon.lengthUnits = CANON_UNITS_MM;
+    }
+    /* Set blending tolerance default depending on units machine is based on*/
+    if (canon.lengthUnits == CANON_UNITS_INCHES) {
+        SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS, .001);
+    } else {
+        SET_MOTION_CONTROL_MODE(CANON_CONTINUOUS,  .001 * MM_PER_INCH);
     }
 }
 
@@ -3012,8 +3017,6 @@ int GET_EXTERNAL_QUEUE_EMPTY(void)
 int GET_EXTERNAL_TOOL_SLOT()
 {
     int toolno = emcStatus->io.tool.toolInSpindle;
-
-    if (toolno == -1) {return -1;} // detect request for invalid tool
 
     return tooldata_find_index_for_tool(toolno);
 }

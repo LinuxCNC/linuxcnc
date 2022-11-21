@@ -64,6 +64,7 @@ kinematics for an xyz machine employing 3 joints
 // Use the *_setup() function for actual pins and params.
 pin out bit dummy=1;
 license "GPL";
+author "Dewey Garrett";
 ;;
 
 #include "rtapi_math.h"

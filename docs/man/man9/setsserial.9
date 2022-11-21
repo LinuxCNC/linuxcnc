@@ -1,11 +1,6 @@
 \# Author Andy Pugh
 \# Issued under the terms of the GPL v2 License or any later version
 .TH SETSERIAL "9" "2012-10-28" "LinuxCNC Documentation" "HAL Component"
-.de TQ
-.br
-.ns
-.TP \\$1
-..
 
 .SH NAME
 setsserial - a utility for setting Smart Serial NVRAM parameters. 
@@ -41,7 +36,7 @@ A typical command sequence would be:
  loadrt setsserial cmd="set hm2_8i20.001f.nvmaxcurrent 750"
  exit
  
-This example uses the option to have the hal pins and parameters labelled by 
+This example uses the option to have the HAL pins and parameters labelled by 
 the serial number of the remote. This is not necessary but can reduce the scope
 for confusion. (The serial number is normally on a sticker on the device.) 
 
@@ -59,7 +54,7 @@ value.
 The next line invokes setsserial. This is run in a slightly strange way in order
 to have kernel-level access to a live Hostmot2 config. It is basically a 
 HAL module that always fails to load. This may lead to error messages being
-printed to the halcmd prompt. These can often be ignored. 
+printed to the `halcmd:` prompt. These can often be ignored. 
 All the real feedback is via the dmesg command. It is suggested to have a second
 terminal window open to run dmesg after each command. 
 

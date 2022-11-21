@@ -1,5 +1,5 @@
-; MACROCOMMAND=X,SFM,DOC,Z,Tool Number,Chamfer size,Front Outside,Front Inside,Back Outside
-; MACRODEFAULTS=1,300,.5,1,1,.015,true,false,false
+; MACROCOMMAND=X,SFM,DOC,Z,Tool Number,Chamfer size,Front Outside,Front Inside,Back Outside,Max RPM
+; MACRODEFAULTS=1,300,.5,1,1,.015,true,false,false,1500
 ; MACROSVG=LatheMacro.svg,4
 
 ; O<chamfer>call [${chamfer.x-f}] [${chamfer.sf-f}] [0.5] [${chamfer.z-f}] [${chamfer.tool-s}] [${chamfer.size-f}]  [${chamfer.fo}] [${chamfer.fi}] [${chamfer.bo}]
@@ -13,6 +13,7 @@
 ; #7 front outside switch *
 ; #8 front inside switch *
 ; #9 back outside switch *
+; #10 Max RPM
 
 ;chamfer
 
@@ -21,7 +22,7 @@ O<chamfer> sub
 O107 IF [#<_imperial>]
     (MSG, IMPERIAL ON)
     #1 = [#1 * 25.4]; X
-    #2 = [#2 * 3.28]; surface speed
+    #2 = [#2 * 304.8] ; sf/m to mm/m
     #3 = [#3 * 25.4]; doc?
     #4 = [#4 * 25.4]; Z
     #6 = [#6 * 25.4]; chanfer size
@@ -34,14 +35,18 @@ G18 ; XZ Plane
 G21 ; Metric Units
 G90 ; Absolute Distance
 
-M6 T#5 G43
 
 #1 = [#1 / 2] ; because of radius mode
 
 #14 = [#<_x>] (starting X)
 #13 = [#<_z>] (starting Z)
 
-G96 D1500 S#2 ; Constant Surface Speed Mode
+(MSG, Unpause To start Chamfer Macro)
+m0
+
+M6 T#5 G43
+
+G96 D#10 S#2 ; Constant Surface Speed Mode
 M3
 g95 F0.1 ; Feed-Per-Rev Mode
 

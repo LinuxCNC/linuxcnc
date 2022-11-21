@@ -400,6 +400,10 @@ static PyMemberDef Stat_members[] = {
     {(char*)"tool_in_spindle", T_INT, O(io.tool.toolInSpindle), READONLY,
         (char*)"The tool number of the currently loaded tool, or 0 if no tool is loaded."
     },
+    {(char*)"tool_from_pocket", T_INT, O(io.tool.toolFromPocket), READONLY,
+        (char*)"The pocket number that the currently loaded tool was retrieved from,\n"
+        "or 0 if no tool is loaded."
+    },
 
 // EMC_COOLANT_STAT io.cooland
     {(char*)"mist", T_INT, O(io.coolant.mist), READONLY},
@@ -722,11 +726,6 @@ static PyObject *Stat_tool_table(pyStatChannel *s) {
     return res;
 }
 
-static PyObject *Stat_axes(pyStatChannel *s) {
-    PyErr_WarnEx(PyExc_DeprecationWarning, "stat.axes is deprecated and will be removed in the future", 0);
-    return PyLong_FromLong(s->status.motion.traj.deprecated_axes);
-}
-
 // XXX io.tool.toolTable
 // XXX EMC_JOINT_STAT motion.joint[]
 
@@ -761,7 +760,6 @@ static PyGetSetDef Stat_getsetlist[] = {
         (char*)"The tooltable, expressed as a list of tools.  Each tool is a dict with the\n"
         "tool id (tool number), diameter, offsets, etc."
     },
-    {(char*)"axes", (getter)Stat_axes},
     {NULL}
 };
 
@@ -923,7 +921,8 @@ static PyObject *spindleoverride(pyCommandChannel *s, PyObject *o) {
 static PyObject *spindle(pyCommandChannel *s, PyObject *o) {
     int dir;
     double arg1 = 0,arg2 = 0;
-    if(!PyArg_ParseTuple(o, "i|dd", &dir, &arg1, &arg2)) return NULL;
+    int arg3 = 0;
+    if(!PyArg_ParseTuple(o, "i|ddi", &dir, &arg1, &arg2, &arg3)) return NULL;
     switch(dir) {
         case LOCAL_SPINDLE_FORWARD:
         case LOCAL_SPINDLE_REVERSE:
@@ -931,6 +930,7 @@ static PyObject *spindle(pyCommandChannel *s, PyObject *o) {
             EMC_SPINDLE_ON m;
             m.speed = dir * arg1;
             m.spindle = (int)arg2;
+            m.wait_for_spindle_at_speed = arg3;
             emcSendCommand(s, m);
         }
             break;
@@ -1090,7 +1090,7 @@ static PyObject *brake(pyCommandChannel *s, PyObject *o) {
 
 static PyObject *load_tool_table(pyCommandChannel *s, PyObject *o) {
     EMC_TOOL_LOAD_TOOL_TABLE m;
-    m.file[0] = '\0'; // don't override the ini file
+    m.file[0] = '\0'; // don't override the INI file
     emcSendCommand(s, m);
     Py_INCREF(Py_None);
     return Py_None;
@@ -2490,6 +2490,9 @@ PyMODINIT_FUNC PyInit_linuxcnc(void)
     ENUMX(4, EMC_DEBUG_INTERP);
     ENUMX(4, EMC_DEBUG_RCS);
     ENUMX(4, EMC_DEBUG_INTERP_LIST);
+    ENUMX(4, EMC_DEBUG_OWORD);
+    ENUMX(4, EMC_DEBUG_REMAP);
+    ENUMX(4, EMC_DEBUG_PYTHON);
     ENUMX(4, EMC_DEBUG_STATE_TAGS);
 
     ENUMX(9, EMC_TASK_EXEC_ERROR);

@@ -17,6 +17,10 @@ G96 D200 S#2 ; Constant Surface Speed Mode
 M3
 g95 F0.25 ; Feed-Per-Rev Mode
 
+O90 IF [#8 GT 0.5]
+	M8
+O90 ENDIF
+
 g4p1 ; Wait to reach speed
 
 ;Threading
@@ -49,7 +53,7 @@ g4p1 ; Wait to reach speed
 		
         O51 ENDIF
 	G0 Z #13
-	m5
+	m5 M9
 O<threading> endsub
 
 M2

@@ -1,6 +1,16 @@
-[[cha:o-codes]]
+:lang: en
+:toc:
 
-= O Codes
+[[cha:o-codes]]
+= O Codes(((O Codes)))
+
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
+== Use of O-codes
 
 O-codes provide for flow control in NC programs. Each block has an
 associated number, which is the number used after O. Care must be taken
@@ -9,8 +19,10 @@ number zero as the first character in the number like O100 or o100.
 
 == Numbering
 
-Numbered O codes must have a unique number for each subroutine, 
+Numbered O codes must have a unique number for each subroutine,
+
 .Numbering Example
+[source,{ngc}]
 ----
 (the start of o100)
 o100 sub
@@ -26,32 +38,31 @@ o100 endsub
 ----
 
 [[ocode:comments]]
-== Comments
-(((Comments)))
+== Comments(((Comments)))
 
 Comments on the same line as the O word should not be used as the behavior can
 change in the future.
 
 The behavior is undefined if:
 
-* The same number is used for more than one block
-* Other words are used on a line with an O- word
-* Comments are used on a line with an O-word
+* The same number is used for more than one block.
+* Other words are used on a line with an O- word.
+* Comments are used on a line with an O-word.
 
 [NOTE]
-Using the lower case o makes it easier to distinguish from a 0
-that might have been mistyped. For example o100 is easier to
-see than O100 that it is not a 0.
+Using the lower case 'o' makes it easier to distinguish from a 0
+that might have been mistyped. For example 'o100' is easier to
+see than 'O100' that it is not a '0'.
 
 [[ocode:subroutines]]
-== Subroutines
-(((Subroutines)))
+== Subroutines(((Subroutines)))
 
 Subroutines starts at 'Onnn sub' and ends at 'Onnn endsub'. The lines between
 'Onnn sub' and 'Onnn endsub' are not executed until the subroutine is called
 with 'Onnn call'. Each subroutine must use a unique number.
 
 .Subroutine Example
+[source,{ngc}]
 ----
 o100 sub
   G53 G0 X0 Y0 Z0 (rapid move to machine home)
@@ -61,14 +72,15 @@ o100 endsub
 o100 call
 M2
 ----
-See <<gcode:g53,G53>> & <<gcode:g0,G0>> & <<mcode:m2-m30,M2>> sections for more
-information.
+
+See <<gcode:g53,G53>>, <<gcode:g0,G0>> and <<mcode:m2-m30,M2>> sections for more information.
 
 .O- Return
 Inside a subroutine, 'O- return' can be executed. This immediately
 returns to the calling code, just as though 'O- endsub' was encountered.
 
 .O- Return Example
+[source,{ngc}]
 ----
 o100 sub
   (test if parameter #2 is greater than 5)
@@ -80,23 +92,23 @@ o100 sub
     (DEBUG, parameter 1 is [#1])
 o100 endsub
 ----
-See the <<gcode:binary-operators,Binary Operators>> & <<gcode:parameters,Parameters>> sections for more information.
+
+See the <<gcode:binary-operators,Binary Operators>> and <<sec:overview-parameters,Parameters>> sections for more information.
 
 .O- Call
-'O- Call' takes up to 30 optional arguments, which are passed to the
-subroutine
- as '#1', '#2' , ..., #N. Parameters from #N+1 to #30 have the same
-value as in the
-calling context. On return from the subroutine, the values of
+'O- Call' takes up to 30 optional arguments, which are passed to the subroutine
+as '#1', '#2' , ..., #N. Parameters from #N+1 to #30 have the same
+value as in the calling context.
+On return from the subroutine, the values of
 parameters #1 through #30 (regardless of the number of arguments) will
 be restored to the values they had before the call. Parameters #1 - #30
 are local to the subroutine.
 
 Because '1 2 3' is parsed as the number 123, the parameters must be
-enclosed in
-square brackets. The following calls a subroutine with 3 arguments:
+enclosed in square brackets. The following calls a subroutine with 3 arguments:
 
 .O- Call Example
+[source,{ngc}]
 ----
 o100 sub
   (test if parameter #2 is greater than 5)
@@ -122,8 +134,7 @@ be visible to the calling code. Subroutines may also change the value of global
 named parameters.
 
 [[ocode:fanuc-style-programs]]
-=== Fanuc-Style Numbered Programs ===
-(((Subroutines, M98, M99)))
+=== Fanuc-Style Numbered Programs(((Subroutines,M98,M99)))
 
 Numbered programs (both main and subprograms), the 'M98' call and
 'M99' return M-codes, and their respective semantic differences are an
@@ -131,11 +142,9 @@ alternative to the rs274ngc subroutines described above, provided for
 compatibility with Fanuc and other machine controllers.
 
 Numbered programs are enabled by default, and may be disabled by
-placing `DISABLE_FANUC_STYLE_SUB = 1` in the `[RS274NGC]` section
-of the `.ini` file.
+placing `DISABLE_FANUC_STYLE_SUB = 1` in the `[RS274NGC]` section of the `.ini` file.
 
 [NOTE]
-
 Numbered main and subprogram definitions and calls differ from
 traditional rs274ngc both in syntax and execution.  To reduce the
 possibility of confusion, the interpreter will raise an error if
@@ -153,33 +162,28 @@ o100              ; Beginning of subprogram 100
 M99               ; Return from subprogram 100
 ----
 
-.`o1 (Title)`
-
+.'o1 (Title)'
 The optional main program beginning block gives the main program the
 number `1`.  Some controllers treat an optional following
 parenthesized comment as a program title, `Example 1` in this example,
 but this has no special meaning in the rs274ngc interpreter.
 
-.`M98 P- <L\->`
-
+.'M98 P- <L\->'
 Call a numbered subprogram.  The block `M98 P100` is analogous to the
 traditional `o100 call` syntax, but may only be used to call a
 following numbered subprogram defined with `o100`...`M99`.  An
 optional 'L'-word specifies a loop count.
 
-.`M30`
-
+.'M30'
 The main program must be terminated with `M02` or `M30` (or `M99`; see
 below).
 
-.`O-` subprogram definition start
-
+.'O-' subprogram definition start
 Marks the start of a numbered subprogram definition.  The block `O100`
 is similar to `o100 sub`, except that it must be placed later in the
 file than the `M98 P100` calling block.
 
-.`M99` return from numbered subroutine
-
+.'M99' return from numbered subroutine
 The block `M99` is analogous to the traditional `o100 endsub` syntax,
 but may only terminate a numbered program (`o100` in this example),
 and may not terminate a subroutine beginning with the `o100 sub`
@@ -188,22 +192,17 @@ syntax.
 The `M98` subprogram call differs from rs274ngc `O call` in the
 following ways:
 
-* The numbered subprogram must follow the `M98` call in the program
-file.  The interpreter will throw an error if the subprogram precedes
-the call block.
-
+* The numbered subprogram must follow the `M98` call in the program file.
+  The interpreter will throw an error if the subprogram precedes the call block.
 * Parameters `#1`, `#2`, ..., `#30` are global and accessible in
-numbered subprograms, similar to higher-numbered parameters in
-traditional style calls.  Modifications to these parameters within a
-subprogram are global modifications, and will be persist after
-subprogram return.
-
+  numbered subprograms, similar to higher-numbered parameters in
+  traditional style calls.  Modifications to these parameters within
+  a subprogram are global modifications, and will be persist after
+  subprogram return.
 * `M98` subprogram calls have no return value.
-
-* `M98` subprogram call blocks may contain an optional L-word
-specifying a loop repeat count.  Without the L-word, the subprogram
-will execute once only (equivalent to `M98 L1`).  An `M98 L0` block
-will not execute the subprogram.
+* `M98` subprogram call blocks may contain an optional L-word specifying a loop repeat count.
+  Without the L-word, the subprogram will execute once only (equivalent to `M98 L1`).
+  An `M98 L0` block will not execute the subprogram.
 
 In rare cases, the `M99` M-code may be used to terminate the main
 program, where it indicates an 'endless program'.  When the
@@ -244,8 +243,7 @@ Note that parameter `#1` is global.  At the end of the main program,
 after updates within `O100` and `O200`, its value will equal `5.25`.
 
 [[ocode:looping]]
-== Looping
-(((Subroutines, Looping)))
+== Looping(((Subroutines,Looping)))
 
 The 'while loop' has two structures: 'while/endwhile', and 'do/while'. In
 each case, the loop is exited when the 'while' condition evaluates to
@@ -254,6 +252,7 @@ loop runs the code in the loop then checks the test condition. The
 'while/endwhile' loop does the test first.
 
 .While Endwhile Example
+[source,{ngc}]
 ----
 (draw a sawtooth shape)
 G0 X1 Y0 (move to start position)
@@ -268,6 +267,7 @@ M2 (end program)
 ----
 
 .Do While Example
+[source,{ngc}]
 ----
 #1 = 0 (assign parameter #1 the value of 0)
 o100 do
@@ -290,15 +290,14 @@ condition. If it is still true, the loop begins again at the top. If
 it is false, it exits the loop.
 
 [[ocode:conditional]]
-== Conditional
-(((Subroutines, Conditional Loops)))
+== Conditional(((Subroutines,Conditional Loops)))
 
 The 'if' conditional consists of a group of statements with the same 'o' number
 that start with 'if' and end with 'endif'. Optional 'elseif' and 'else' conditions
 may be between the starting 'if' and the ending 'endif'.
 
 If the 'if' conditional evaluates to true then the group of statements
-following the 'if' up to the next conditional line are executed. 
+following the 'if' up to the next conditional line are executed.
 
 If the 'if' conditional evaluates to false then the 'elseif' conditions are
 evaluated in order until one evaluates to true. If the 'elseif' condition is
@@ -308,6 +307,7 @@ then the statements following the 'else' are executed. When a condition is
 evaluated to true no more conditions are evaluated in the group.
 
 .If Endif Example
+[source,{ngc}]
 ----
 (if parameter #31 is equal to 3 set S2000)
 o101 if [#31 EQ 3]
@@ -316,6 +316,7 @@ o101 endif
 ----
 
 .If ElseIf Else EndIf Example
+[source,{ngc}]
 ----
 (if parameter #2 is greater than 5 set F100)
 o102 if [#2 GT 5]
@@ -333,6 +334,7 @@ Several conditions may be tested for by 'elseif' statements until the
 'else' path is finally executed if all preceding conditions are false:
 
 .If Elseif Else Endif Example
+[source,{ngc}]
 ----
 (if parameter #2 is greater than 5 set F100)
 O102 if [#2 GT 5]
@@ -347,15 +349,15 @@ O102 endif
 ----
 
 [[ocode:repeat]]
-== Repeat
-(((Subroutines, Repeat Loop)))
+== Repeat(((Subroutines,Repeat Loop)))
 
 The 'repeat' will execute the statements inside of the
 repeat/endrepeat the specified number of times. The example shows how
 you might mill a diagonal series of shapes starting at the present
 position.
 
-.Repeat Example
+.Example with 'repeat'
+[source,{ngc}]
 ----
 (Mill 5 diagonal shapes)
 G91 (Incremental mode)
@@ -367,40 +369,41 @@ G90 (Absolute mode)
 ----
 
 [[ocode:indirection]]
-== Indirection
-(((Indirection)))
+== Indirection(((Indirection)))
 
 The O-number may be given by a parameter and/or calculation.
 
 .Indirection Example
+[source,{ngc}]
 ----
 o[#101+2] call
 ----
 
 .Computing values in O-words
-For more information on computing values see the following sections
+For more information on computing values see the following sections:
 
-* <<gcode:parameters,Parameters>>
+* <<sec:overview-parameters,Parameters>>
 * <<gcode:expressions,Expressions>>
 * <<gcode:binary-operators,Binary Operators>>
 * <<gcode:functions,Functions>>
 
 [[ocode:calling-files]]
-== Calling Files
-(((Calling Files)))
+== Calling Files(((Calling Files)))
 
 To call a separate file with a subroutine name the file the same as
 your call and include a sub and endsub in the file. The file must be in the
-directory pointed to by 'PROGRAM_PREFIX' or 'SUBROUTINE_PATH' in the ini file.
+directory pointed to by 'PROGRAM_PREFIX' or 'SUBROUTINE_PATH' in the INI file.
 The file name can include *lowercase* letters, numbers, dash, and underscore
 only. A named subroutine file can contain only a single subroutine definition.
 
 .Named File Example
+[source,{ngc}]
 ----
 o<myfile> call
 ----
 
 .Numbered File Example
+[source,{ngc}]
 ----
 o123 call
 ----
@@ -409,6 +412,7 @@ In the called file you must include the oxxx sub and endsub and the
 file must be a valid file.
 
 .Called File Example
+[source,{ngc}]
 ----
 (filename myfile.ngc)
 o<myfile> sub
@@ -420,7 +424,7 @@ M2
 [NOTE]
 The file names are lowercase letters only so 'o<MyFile>' is converted to 'o<myfile>'
 by the interpreter. More information about the search path and options for the
-search path are in the INI Configuration Section.
+search path are in the INI configuration section.
 
 == Subroutine return values(((Return Values)))
 
@@ -428,6 +432,7 @@ Subroutines may optionally return a value by an optional expression at
 an 'endsub' or 'return' statement.
 
 .Return value example
+[source,{ngc}]
 ----
 o123 return [#2 *5]
 ...
@@ -435,14 +440,13 @@ o123 endsub [3 * 4]
 ----
 
 A subroutine return value is stored in the '#<_value>'
-<<gcode:predefined-named-parameters, predefined named parameter>> , and
+<<gcode:predefined-named-parameters,predefined named parameter>> , and
 the '#<_value_returned>' predefined parameter is set to 1, to indicate
 a value was returned. Both parameters are global, and are cleared just
 before the next subroutine call.
 
 [[ocode:errors]]
-== Errors
-(((O-Code Errors)))
+== Errors(((O-Code Errors)))
 
 The following statements  cause an error message and  abort the
 interpreter:
@@ -455,9 +459,8 @@ interpreter:
  - a label on `else`, `elseif` or `endif` not pointing to a matching `if`
  - a label on `break` or `continue` which does not point to a matching `while` or `do`
  - a label on `endrepeat` or `endwhile` no referring to a corresponding `while` or `repeat`
-    
-To make these errors non-fatal  warnings on stderr, set bit 0x20 in
-the `[RS274NGC]FEATURE=` mask ini option. 
 
+To make these errors non-fatal  warnings on stderr, set bit 0x20 in
+the `[RS274NGC]FEATURE=` mask ini option.
 
 // vim: set syntax=asciidoc:

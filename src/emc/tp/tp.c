@@ -839,6 +839,9 @@ STATIC int tpInitBlendArcFromPrev(TP_STRUCT const * const tp,
     //In the future, radius may be adjustable.
     tcFinalizeLength(blend_tc);
 
+    // copy state tag from previous segment during blend motion
+    blend_tc->tag = prev_tc->tag;
+
     return TP_ERR_OK;
 }
 
@@ -2407,8 +2410,8 @@ void tpCalculateTrapezoidalAccel(TP_STRUCT const * const tp, TC_STRUCT * const t
 
     double discr = discr_term1 + discr_term2 + discr_term3;
 
-    // Descriminant is a little more complicated with final velocity term. If
-    // descriminant < 0, we've overshot (or are about to). Do the best we can
+    // Discriminant is a little more complicated with final velocity term. If
+    // discriminant < 0, we've overshot (or are about to). Do the best we can
     // in this situation
 #ifdef TP_PEDANTIC
     if (discr < 0.0) {

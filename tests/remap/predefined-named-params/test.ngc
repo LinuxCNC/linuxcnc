@@ -1,6 +1,6 @@
 ; add a python predefined named parameter which does the same thing as the builtin
 ; _motion_mode
-; assert accessability and results at Python and NGC level
+; assert accessibility and results at Python and NGC level
 
 ;py,from interpreter import *
 

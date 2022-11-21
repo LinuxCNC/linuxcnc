@@ -1,12 +1,20 @@
-= Moveoff Component
+:lang: en
+:toc:
 
 [[cha:moveoff]]
+= Moveoff Component(((Moveoff)))
 
-The moveoff Hal component is a Hal-only method
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
+The moveoff HAL component is a HAL-only method
 for implementing offsets.  See the manpage ('$ man moveoff')
 for the IMPORTANT limitations and warnings.
 
-The moveoff component is used to offset joint positions using custom Hal
+The moveoff component is used to offset joint positions using custom HAL
 connections.  Implementing an offset-while-program-is-paused functionality is
 supported with appropriate connections for the input pins.  Nine joints are
 supported.
@@ -15,7 +23,7 @@ The axis offset pin values (offset-in-M) are continuously applied (respecting
 limits on value, velocity, and acceleration) to the output pins
 (offset-current-M, pos-plusoffset-M, fb-minusoffset-M) when both enabling input
 pins (apply-offsets and move-enable) are TRUE.  The two enabling inputs are
-anded internally.   A 'warning pin' is set and a message issued if the
+anded internally. A 'warning pin' is set and a message issued if the
 apply-offsets pin is deasserted while offsets are applied.  The warning pin
 remains TRUE until the offsets are removed or the apply-offsets pin is set.
 
@@ -56,11 +64,11 @@ limits) and an 'Error' message is issued.
 
 [CAUTION]
 If offsets are enabled and applied and the machine is turned off for any
-reason, any 'external' Hal logic that manages the enabling pins and the
+reason, any 'external' HAL logic that manages the enabling pins and the
 offset-in-M inputs is responsible for their state when the machine is
 subsequently turned on again.
 
-This Hal-only means of offsetting is typically not known to LinuxCNC
+This HAL-only means of offsetting is typically not known to LinuxCNC
 nor available in GUI preview displays. *No protection is provided* for
 offset moves that exceed soft limits managed by LinuxCNC. Since soft limits
 are not honored, an offset move may encounter hard limits (or *CRASH* if
@@ -68,8 +76,8 @@ there are no limit switches). Use of the offset-min-M and offset-max-M inputs
 to limit travel is recommended. Triggering a hard limit will turn off
 the machine -- see *Caution* above.
 
-The offset-in-M values may be set with inifile settings, controlled by a GUI,
-or managed by other Hal components and connections.  Fixed values may be
+The offset-in-M values may be set with INI file settings, controlled by a GUI,
+or managed by other HAL components and connections.  Fixed values may be
 appropriate in simple cases where the direction and amount of offset is
 well-defined but a control method is required to deactivate an enabling
 pin in order to return offsets to zero.  GUIs may provide means for users to
@@ -78,37 +86,34 @@ set offset-in-M values to zero before deasserting an enabling pin.
 
 The default values for accel, vel, min, max, epsilon, waypoint-sample-secs, and
 waypoint-threshold may not be suitable for any particular application.  This
-Hal component is unaware of limits enforced elsewhere by LinuxCNC.
+HAL component is unaware of limits enforced elsewhere by LinuxCNC.
 Users should test usage in a simulator application and understand all
 hazards before use on hardware.
 
-
 Sim configurations that demonstrate the component and a
-gui (moveoff_gui) are located in:
+GUI (moveoff_gui) are located in:
 
-* configs/sim/axis/moveoff     (axis-ui)
-* configs/sim/touchy/ngcgui    (touchy-ui)
-
+* configs/sim/axis/moveoff  (axis-ui)
+* configs/sim/touchy/ngcgui (touchy-ui)
 
 == Modifying an existing configuration
 
-A system-provided halfile (LIB:hookup_moveoff.tcl) can be used to adapt an
-existing configuration to use the moveoff component.  Additional ini file
-settings support the use of a simple gui (moveoff_gui) for controlling offsets.
+A system-provided HAL file (LIB:hookup_moveoff.tcl) can be used to adapt an
+existing configuration to use the moveoff component.  Additional INI file
+settings support the use of a simple GUI (moveoff_gui) for controlling offsets.
 
-When the system halfile (LIB:hookup_moveoff.tcl) is properly specified in
-a configuration ini file, it will:
+When the system HAL file (LIB:hookup_moveoff.tcl) is properly specified in
+a configuration INI file, it will:
 
 . Disconnect the original joint.N.motor-pos-cmd and joint.N.motor-pos-fb pin
   connections
 . Load (loadrt) the moveoff component (using the name mv) with a personality
-  set to accommodate all axes identified in the ini file
+  set to accommodate all axes identified in the INI file
 . Add (addf) the moveoff component functions in the required sequence
 . Reconnect the joint.N.motor-pos-cmd and joint.N.motor-pos-fb pins to use
   the moveoff component
 . Set the moveoff component operating parameters and limits for each axis
-  in accordance with additional ini file settings
-
+  in accordance with additional INI file settings
 
 Note: The moveoff_gui application supports configurations that use known
 kinematics modules with KINEMATICS_TYPE=KINEMATICS_IDENTITY.  Supported
@@ -118,13 +123,14 @@ to the corresponding joint.
 
 Modify an existing configuration as follows:
 
-Make sure there is an ini file entry for [HAL]HALUI and create a new
+Make sure there is an INI file entry for [HAL]HALUI and create a new
 [HAL]HALFILE entry for LIB:hookup_moveoff.tcl.
 The entry for LIB:hookup_moveoff.tcl should follow all HALFILE= entries
-for halfiles that connect the pins for joint.N.motor-pos-cmd,
+for HAL files that connect the pins for joint.N.motor-pos-cmd,
 joint.N.motor-pos-fb, and any components connected to these pins (pid
 and encoder components in a servo system for instance).
 
+[source,{ini}]
 ----
 [HAL]
 HALUI   = halui
@@ -134,11 +140,15 @@ HALFILE = existing_configuration_halfile_n
 HALFILE = LIB:hookup_moveoff.tcl
 ----
 
-Add ini file entries for the per-axis settings for each axis in use (if an
+Add INI file entries for the per-axis settings for each axis in use (if an
 entry is not defined, the corresponding entry from the [AXIS_n] section will be
-used, if no entry is found, then the moveoff component default will be used.
-Note: Using component defaults or [AXIS_n] section values for per-axis offset
+used, if no entry is found, then the moveoff component default will be used).
+
+[NOTE]
+Using component defaults or [AXIS_n] section values for per-axis offset
 settings is NOT recommended.
+
+[source,{ini}]
 ----
 [MOVEOFF_n]
 MAX_LIMIT =
@@ -147,8 +157,9 @@ MAX_VELOCITY =
 MAX_ACCELERATION =
 ----
 
-Add ini file entries for moveoff component settings
-(omit to use moveoff defaults):
+Add INI file entries for moveoff component settings (omit to use moveoff defaults):
+
+[source,{ini}]
 ----
 [MOVEOFF]
 EPSILON =
@@ -157,7 +168,7 @@ WAYPOINT_THRESHOLD =
 ----
 
 The moveoff_gui is used to make additional required connections and provide
-a popup gui to:
+a popup GUI to:
 
 . Provide a control togglebutton to Enable/Disable offsets
 . Provide a control togglebutton to Enable/Disable backtracking
@@ -186,28 +197,32 @@ The mv.apply-offsets is connected to halui.program.is-paused or set to 1
 depending upon the command line option -mode [ onpause | always ].  A new signal
 is automatically created if necessary.
 
-To use the moveoff_gui, add an entry in the ini file [APPLICATIONS]
+To use the moveoff_gui, add an entry in the INI file [APPLICATIONS]
 section as follows:
+
+[source,{ini}]
 ----
 [APPLICATIONS]
 # Note: a delay (specified in seconds) may be required if connections
-# are made using postgui halfiles ([HAL]POSTGUI_HALFILE=)
+# are made using postgui HAL files ([HAL]POSTGUI_HALFILE=)
 DELAY = 0
 APP = moveoff_gui option1 option2 ...
 ----
 
-When the halfile LIB:hookup_moveoff.tcl is used to load and connect the
+When the HAL file LIB:hookup_moveoff.tcl is used to load and connect the
 moveoff component, the mv.move-enable pin will not be connected and
-local controls provided by the moveoff_gui will be used.  This is the 
+local controls provided by the moveoff_gui will be used.  This is the
 simplest method to test or demonstrate the moveoff component when
-modifying an existing ini configuration.
+modifying an existing INI configuration.
 
 To enable external controls while using the moveoff_gui display
-for offset values and status, halfiles that follow LIB:hookup_moveoff.tcl
+for offset values and status, HAL files that follow LIB:hookup_moveoff.tcl
 must make additional connections.  For example, the supplied demonstration
-configs (configs/sim/axis/moveoff/*.ini) use a simple system halfile
-(named LIB:moveoff_external.hal) to connect the mv.move-enable,mv.offset-in-M,
+configs (configs/sim/axis/moveoff/*.ini) use a simple system HAL file
+(named LIB:moveoff_external.hal) to connect the mv.move-enable, mv.offset-in-M,
 and mv.bactrack-enable pins to signals:
+
+[source,{ini}]
 ----
 [HAL]
 HALUI = halui
@@ -218,8 +233,10 @@ HALFILE = LIB:moveoff_external.hal
 
 The connections made by LIB:moveoff_external.hal (for a three axis
 configuration) are:
+
+[source,{hal}]
 ----
-net external_enable    mv.move-enable
+net external_enable mv.move-enable
 
 net external_offset_0 mv.offset-in-0
 net external_offset_1 mv.offset-in-1
@@ -229,17 +246,19 @@ net external_backtrack_en mv.backtrack-enable
 ----
 
 These signals (external_enable, external_offset_M, external_backtrack_en) may
-be managed by subsequent HALFILES (including POSTGUI_HALFILEs) to provide 
+be managed by subsequent HALFILES (including POSTGUI_HALFILEs) to provide
 customized control of the component while using the moveoff_gui display
 for current offset values and offset status.
 
 The moveoff_gui is configured with command line options.  For details
 on the operation of moveoff_gui, see the man page:
+
 ----
 $ man moveoff_gui
 ----
-For a brief listing of command line options for moveoff_gui, use the command
-line help option:
+
+For a brief listing of command line options for moveoff_gui, use the command line help option:
+
 ----
 $ moveoff_gui --help
 
@@ -261,7 +280,7 @@ Options:
     [-inc incrementvalue]   (default: 0.001 0.01 0.10 1.0 )
                               (specify one per -inc (up to 4) )
                               (example: -inc 0.001 -inc 0.01 -inc 0.1 )
-    [-size integer]         (default: 14
+    [-size integer]         (default: 14)
                               (Overall gui popup size is based on font size)
     [-loc center|+x+y]      (default: center)
                               (example: -loc +10+200)
@@ -271,19 +290,21 @@ Options:
 
 Options for special cases:
     [-noentry]              (default: notused)
-                              (don't create entry widgets)
+                             (don't create entry widgets)
     [-no_resume_inhibit]    (default: notused)
-                              (do not use a resume-inhibit-pin)
+                             (do not use a resume-inhibit-pin)
     [-no_pause_requirement] (default: notused)
-                              (no check for halui.program.is-paused)
+                             (no check for halui.program.is-paused)
     [-no_cancel_autoresume] (default: notused)
-                              (useful for retraact offsets with simple)
-                              (external control                       )
+                             (useful for retraact offsets with simple)
+                             (external control)
     [-no_display]           (default: notused)
-                              (Use when both external controls and displays)
-                              (are in use (see Note))                      )
+                             (Use when both external controls and displays)
+                             (are in use (see Note))
 
 Note: If the moveoff move-enable pin (mv.move-enable) is connected when
       moveoff_gui is started, external controls are required and only
       displays are provided.
 ----
+
+// vim: set syntax=asciidoc:

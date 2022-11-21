@@ -120,7 +120,7 @@ public:
  char *stack_name(int stack_index, char *function_name,
                                 size_t max_size);
 
-// Get the parameter file name from the ini file.
+// Get the parameter file name from the INI file.
  int ini_load(const char *filename);
 
  int line() { return sequence_number(); }
@@ -586,7 +586,7 @@ int read_inputs(setup_pointer settings);
   setup_pointer settings);   /* pointer to machine settings */
 
 
- // parse a REMAP= descriptor from the ini file
+ // parse a REMAP= descriptor from the INI file
  int parse_remap(const char *inistring, int lineno);
 
  // step through parsed block and collect remapped items in

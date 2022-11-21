@@ -22,9 +22,9 @@ import emccanon
 
 try:
     import emctask
-    print "plugins: milltask=",os.getpid()
+    print("plugins: milltask=",os.getpid())
 except ImportError:
-    print "plugins: axis=",os.getpid()
+    print("plugins: axis=",os.getpid())
     pass
 
 

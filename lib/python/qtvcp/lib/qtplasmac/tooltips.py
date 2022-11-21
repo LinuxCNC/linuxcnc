@@ -2,7 +2,7 @@
 tooltips.py
 
 Copyright (C) 2021  Phillip A Carter
-Copyright (C) 2021  Gregory D Carl
+Copyright (C) 2021, 2022  Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -19,7 +19,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
-from PyQt5.QtCore import Qt, QCoreApplication
+from PyQt5.QtCore import QCoreApplication
 
 _translate = QCoreApplication.translate
 
@@ -50,16 +50,16 @@ def clear_tool_tips(W):
     'height_raise']
 
     main_control_widgets = [
-    'led_torch_on','led_corner_lock','led_kerf_lock']
+    'led_torch_on','led_corner_lock','led_void_lock']
 
     main_sensor_widgets = [
     'mesh_enable','ignore_arc_ok','pmx485_label','torch_enable',
-    'cornerlock_enable','kerfcross_enable','use_auto_volts',
+    'cornerlock_enable','voidlock_enable','use_auto_volts',
     'ohmic_probe_enable','pmx485_enable']
 
     main_thc_widgets = [
-    'led_float_switch','led_ohmic_probe','led_breakaway_switch','thc_enable',
-    'led_thc_up','led_thc_enabled','led_thc_down','led_thc_active']
+    'led_float_switch','led_ohmic_probe','led_breakaway_switch','thc_auto',
+    'thc_enable','led_thc_up','led_thc_enabled','led_thc_down','led_thc_active']
 
     main_jog_widgets = [
     'jogincrements','jog_slow','jog_z_minus','jog_z_plus','jog_x_minus',
@@ -94,8 +94,8 @@ def clear_tool_tips(W):
     parameters_configuration_widgets = [
     'arc_fail_delay','arc_max_starts','arc_restart_delay','arc_voltage_scale',
     'arc_voltage_offset','height_per_volt','arc_ok_high','arc_ok_low',
-    'thc_delay','thc_threshold','pid_p_gain','cornerlock_threshold',
-    'kerfcross_override','pid_i_gain','pid_d_gain','float_switch_travel',
+    'thc_delay','thc_threshold','pid_p_gain','pid_i_gain','pid_d_gain',
+    'cornerlock_threshold','voidlock_slope','float_switch_travel',
     'probe_feed_rate','probe_start_height','ohmic_probe_offset',
     'ohmic_max_attempts','skip_ihs_distance','safe_height','scribe_arm_delay',
     'scribe_on_delay','spotting_threshold','spotting_time',
@@ -204,7 +204,7 @@ def set_tool_tips(W):
     W.file_edit.setToolTip(_translate('ToolTips', 'Toggles the use of the G-Code file editor'))
     W.mdi_show.setToolTip(_translate('ToolTips', 'Toggles the use of Manual Data Input mode'))
     text0 = _translate('ToolTips', 'User button')
-    text1 = _translate('ToolTips', 'configured in the ini file')
+    text1 = _translate('ToolTips', 'configured in the INI file')
     for b in range(1,21):
         W['button_{}'.format(b)].setToolTip(_translate('ToolTips', '{} #{} {}'.format(text0, b, text1)))
 
@@ -218,14 +218,14 @@ def set_tool_tips(W):
 
     # main_control_widgets
     W.led_torch_on.setToolTip(_translate('ToolTips', 'Shows the status of the torch on signal'))
-    W.led_corner_lock.setToolTip(_translate('ToolTips', 'Shows the velocity anti dive status'))
-    W.led_kerf_lock.setToolTip(_translate('ToolTips', 'Shows the void anti dive status'))
+    W.led_corner_lock.setToolTip(_translate('ToolTips', 'Shows the velocity anti-dive status'))
+    W.led_void_lock.setToolTip(_translate('ToolTips', 'Shows the void anti-dive status'))
     W.mesh_enable.setToolTip(_translate('ToolTips', 'Toggles the use of mesh mode cutting'))
     W.ignore_arc_ok.setToolTip(_translate('ToolTips', 'Toggles the need for an Arc OK signal before XY motion begins'))
     W.pmx485_label.setToolTip(_translate('ToolTips', 'Shows the status of PMX485 communications'))
     W.torch_enable.setToolTip(_translate('ToolTips', 'Toggles the use of the torch'))
-    W.cornerlock_enable.setToolTip(_translate('ToolTips', 'Toggles the use of velocity anti dive'))
-    W.kerfcross_enable.setToolTip(_translate('ToolTips', 'Toggles the use of void anti dive'))
+    W.cornerlock_enable.setToolTip(_translate('ToolTips', 'Toggles the use of velocity anti-dive'))
+    W.voidlock_enable.setToolTip(_translate('ToolTips', 'Toggles the use of void anti-dive'))
     W.use_auto_volts.setToolTip(_translate('ToolTips', 'Toggles the use of automatic voltage for THC'))
     W.ohmic_probe_enable.setToolTip(_translate('ToolTips', 'Toggles the use of ohmic probing'))
     W.pmx485_enable.setToolTip(_translate('ToolTips', 'Toggles the use of Powermax communications'))
@@ -236,6 +236,7 @@ def set_tool_tips(W):
     W.led_breakaway_switch.setToolTip(_translate('ToolTips', 'Shows the breakaway switch status'))
 
     # main_thc_widgets
+    W.thc_auto.setToolTip(_translate('ToolTips', 'Toggles the type of automatic THC activation'))
     W.thc_enable.setToolTip(_translate('ToolTips', 'Toggles the use of torch height control'))
     W.led_thc_up.setToolTip(_translate('ToolTips', 'Shows the THC is moving the Z axis up'))
     W.led_thc_enabled.setToolTip(_translate('ToolTips', 'Shows the THC status'))
@@ -351,10 +352,12 @@ def set_tool_tips(W):
     W.arc_ok_high.setToolTip(_translate('ToolTips', 'Voltage value below which Arc OK is valid'))
     W.arc_ok_low.setToolTip(_translate('ToolTips', 'Voltage value above which Arc OK is valid'))
     W.thc_delay.setToolTip(_translate('ToolTips', 'Delay between Arc OK and THC activation (seconds)'))
+    W.thc_sample_counts.setToolTip(_translate('ToolTips', 'Number of consecutive arc voltage readings within the sample threshold required to activate THC'))
+    W.thc_sample_threshold.setToolTip(_translate('ToolTips', 'Maximum voltage deviation allowed for THC Sample Counts'))
     W.thc_threshold.setToolTip(_translate('ToolTips', 'Deviation from target voltage before THC attempts correction'))
     W.pid_p_gain.setToolTip(_translate('ToolTips', 'Proportional gain for the THC PID loop'))
     W.cornerlock_threshold.setToolTip(_translate('ToolTips', 'Percentage of cut feed rate reduction before THC locks'))
-    W.kerfcross_override.setToolTip(_translate('ToolTips', 'Percent change in cut voltage before THC locks'))
+    W.voidlock_slope.setToolTip(_translate('ToolTips', 'Voltage change required to activate void anti-dive in volts per second'))
     W.pid_i_gain.setToolTip(_translate('ToolTips', 'Integral gain for the THC PID loop'))
     W.pid_d_gain.setToolTip(_translate('ToolTips', 'Derivative gain for the THC PID loop'))
     W.float_switch_travel.setToolTip(_translate('ToolTips', 'Distance of float travel before switch activation'))

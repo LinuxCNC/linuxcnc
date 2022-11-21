@@ -94,6 +94,7 @@ class StatusSlider(DoubleSlider, _HalWidgetBase):
         STATUS.connect('state-estop-reset', lambda w: self.setEnabled(True))
         if self.rapid:
             STATUS.connect('rapid-override-changed', lambda w, data: self.setValue(data))
+            self.setMaximum(100)
         elif self.feed:
             STATUS.connect('feed-override-changed', lambda w, data: self.setValue(data))
             self.setMaximum(int(INFO.MAX_FEED_OVERRIDE))

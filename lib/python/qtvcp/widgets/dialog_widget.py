@@ -189,6 +189,7 @@ class LcncDialog(QMessageBox, GeometryMixin):
         self._use_exec = False
         self.set_default_geometry()
         self.hide()
+        self.buttonClicked.connect(self.msgbtn)
 
     def _hal_init(self):
         self.read_preference_geometry('LncMessage-geometry')
@@ -307,7 +308,6 @@ class LcncDialog(QMessageBox, GeometryMixin):
         elif display_type == LcncDialog.NONE:
             self.setStandardButtons(QMessageBox.NoButton)
 
-        self.buttonClicked.connect(self.msgbtn)
 
         if not nblock:
             STATUS.emit('focus-overlay-changed', True, focus_text, color)
@@ -381,11 +381,14 @@ class LcncDialog(QMessageBox, GeometryMixin):
         if not self._return_callback is None:
             self._return_callback(self, result)
         # these return via status messages
-        else:
+        elif self._message is not None:
             self._message['RETURN'] = result
             STATUS.emit('general', self._message)
             STATUS.emit('focus-overlay-changed', False, None, None)
             self._message = None
+        # just return result
+        else:
+            LOG.error('No callback or STATUS message specified for: {}'.format(self.objectName()))
 
     # **********************
     # Designer properties
@@ -525,7 +528,7 @@ class ToolDialog(LcncDialog, GeometryMixin):
             self.changed.set(False)
 
     # process callback for 'change-button' HAL pin
-    # hide the message dialog or destop notify message
+    # hide the message dialog or desktop notify message
     def external_acknowledge(self, state):
         #print('external acklnowledge: {}'.format(state))
         if state:
@@ -733,13 +736,13 @@ class FileDialog(QFileDialog, GeometryMixin):
             ACTION.OPEN_PROGRAM(fname)
             STATUS.emit('update-machine-log', 'Loaded: ' + fname, 'TIME')
             # overlay hides it's self after loading
-        else:
-            STATUS.emit('focus-overlay-changed', False, None, None)
+        STATUS.emit('focus-overlay-changed', False, None, None)
         return fname
 
     def save_dialog(self, extensions = None, preselect = None, directory = None):
         self.setFileMode(QFileDialog.AnyFile)
         self.setAcceptMode(QFileDialog.AcceptSave)
+        self.setDefaultSuffix('ngc')
         if extensions:
             self.setNameFilter(extensions)
         else:

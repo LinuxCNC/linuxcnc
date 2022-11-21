@@ -1,5 +1,3 @@
 #!/bin/bash
 
-linuxcnc -r interp.ini
-exit $?
-
+exec linuxcnc -r interp.ini

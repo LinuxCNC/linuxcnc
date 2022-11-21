@@ -3,10 +3,17 @@ Bug-Database: https://github.com/LinuxCNC/linuxcnc/issues
 Bug-Submit: https://github.com/LinuxCNC/linuxcnc/issues/new
 Documentation: http://linuxcnc.org/docs/2.8/html/
 Repository-Browse: https://github.com/LinuxCNC/linuxcnc
-References:
+Reference:
+ - Author: Ronald Lumia
+   Title: The enhanced Machine Controller Architecture
+   Year: 1994
+   ePrint: https://www.nist.gov/publications/enhanced-machine-controller-architecture
  - Author: William P. Shackleford and Frederick M. Proctor
    Title: Use of Open Source Distribution for a Machine Tool Controller
+   Publisher: International Society for Optical Engineering
+   Year: 2001
    ePrint: http://www.isd.mel.nist.gov/documents/shackleford/4191_05.pdf
+   DOI: 10.1117/12.417244
 Registry:
  - Name: conda:conda-forge
    Entry: NA

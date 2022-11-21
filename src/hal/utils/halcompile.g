@@ -47,6 +47,7 @@ parser Hal:
       | "see_also" String ";"   {{ see_also(String) }}
       | "notes" String ";"   {{ notes(String) }}
       | "description" String ";"   {{ description(String) }}
+      | "examples" String ";"   {{ examples(String) }}
       | "license" String ";"   {{ license(String) }}
       | "author" String ";"   {{ author(String) }}
       | "include" Header ";"   {{ include(Header) }}
@@ -177,6 +178,9 @@ def comp(name, doc):
 
 def description(doc):
     docs.append(('descr', doc));
+
+def examples(doc):
+    docs.append(('examples', doc));
 
 def license(doc):
     docs.append(('license', doc));
@@ -794,7 +798,9 @@ def build_usr(tempdir, filename, mode, origfilename):
     makefile = os.path.join(tempdir, "Makefile")
     f = open(makefile, "w")
     print("%s: %s" % (binname, filename), file=f)
-    print("\t$(CC) -I$(EMC2_HOME)/include -I/usr/include/linuxcnc -URTAPI -U__MODULE__ -DULAPI -Os %s -o $@ $< -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -llinuxcnchal %s" % (
+    print("\t$(CC) -I%s -I$(EMC2_HOME)/include -I/usr/include/linuxcnc -URTAPI -U__MODULE__ -DULAPI -Os %s -o $@ $< -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -llinuxcnchal %s" % (
+
+        os.path.abspath(os.path.dirname(origfilename)),
         options.get("extra_compile_args", ""),
         options.get("extra_link_args", "")), file=f)
     print("include %s" % find_modinc(), file=f)
@@ -883,10 +889,18 @@ def document(filename, outfilename):
         if personality: has_personality = True
         if isinstance(array, tuple): has_personality = True
 
+    print("""
+.\\"*******************************************************************
+.\\"
+.\\" This file was extracted from %s using halcompile.g.
+.\\" Modify the source file.
+.\\"
+.\\"*******************************************************************
+""" % filename, file=f)
+
     print(".TH %s \"%s\" \"%s\" \"LinuxCNC Documentation\" \"HAL Component\"" % (
         comp_name.upper(), "1" if options.get("userspace") else "9",
         time.strftime("%F")), file=f)
-    print(".de TQ\n.br\n.ns\n.TP \\\\$1\n..\n", file=f)
 
     print(".SH NAME\n", file=f)
     doc = finddoc('component')    
@@ -985,7 +999,7 @@ def document(filename, outfilename):
             print(doc, file=f)
             lead = ".TP"
         else:
-            lead = ".TQ"
+            lead = ".br\n.ns\n.TP"
 
     lead = ".TP"
     if params:
@@ -1010,7 +1024,12 @@ def document(filename, outfilename):
                 print(doc, file=f)
                 lead = ".TP"
             else:
-                lead = ".TQ"
+                lead = ".br\n.ns\n.TP"
+
+    doc = finddoc('examples')
+    if doc and doc[1]:
+        print(".SH EXAMPLES\n", file=f)
+        print("%s" % doc[1], file=f)
 
     doc = finddoc('see_also')    
     if doc and doc[1]:

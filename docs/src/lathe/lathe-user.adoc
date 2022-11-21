@@ -1,83 +1,98 @@
-[[cha:lathe-user-information]]
+:lang: en
+:toc:
 
-= Lathe User Information
+[[cha:lathe-user-information]]
+= Lathe User Information(((Lathe User Information)))
+
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
+This chapter will provide information specific to lathes.
 
 == Lathe Mode
 
 If your CNC machine is a lathe, there are some specific changes you
-will probably want to make to your ini file in order to get the
+will probably want to make to your INI file in order to get the
 best results from LinuxCNC.
 
-If you are using the AXIS display,
-have Axis display your lathe tools properly.
+If you are using the AXIS display, have AXIS display your lathe tools properly.
 See the <<cha:ini-configuration,INI Configuration>> section for more details.
 
 To set up AXIS for Lathe Mode.
 
----------------------------------------
+[source,{ini}]
+----
 [DISPLAY]
 
-# Tell the Axis Display our machine is a lathe.
+# Tell the AXIS GUI our machine is a lathe.
 LATHE = TRUE
----------------------------------------
+----
 
-Lathe Mode in Axis does not set your default plane to G18 (XZ). You
+Lathe Mode in AXIS does not set your default plane to G18 (XZ). You
 must program that in the preamble of each G-code file or
-(better) add it to your ini file, like this:
+(better) add it to your INI file, like this:
 
----------------------------------------
+[source,{ini}]
+----
 [RS274NGC]
 
-# G-code modal codes (modes) that the interpreter is initialized with on startup
+# G-code modal codes (modes) that the interpreter is initialized with
+# on startup
 RS274NGC_STARTUP_CODE = G18 G20 G90
----------------------------------------
+----
 
-If your using Gmoccapy then see the
-<<gmoccapy:lathe-section,the Gmoccapy Lathe section>>.
+If your using GMOCCAPY then see the
+<<gmoccapy:lathe-section,the GMOCCAPY Lathe>> section.
 
-== Lathe Tool Table [[sec:lathe-tool-table]]
+[[sec:lathe-tool-table]]
+== Lathe Tool Table(((Lathe Tool Table)))
 
 The "Tool Table" is a text file that contains information about each tool.
-The file is located in the same directory as your configuration and is called "tool.tbl" by default.
+The file is located in the same directory as your configuration and is
+called "tool.tbl" by default.
 The tools might be in a tool changer or just changed manually.
 The file can be edited with a text editor or be updated using G10 L1,L10,L11.
-There is also a built-in tool table editor in the Axis display.
+There is also a built-in tool table editor in the AXIS display.
 The maximum number of entries in the tool table is 56.
 The maximum tool and pocket number is 99999.
 
-Earlier versions of LinuxCNC had two different tool table formats for mills and lathes,
-but since the 2.4.x release, one tool table format is used for all machines.
-Just ignore the parts of the tool table that don't pertain to your machine,
-or which you don't need to use.
-For more information on the specifics of the tool table format,
-see the <<sec:tool-table,Tool Table>> Section.
+Earlier versions of LinuxCNC had two different tool table formats for
+mills and lathes, but since the 2.4.x release, one tool table format is
+used for all machines. Just ignore the parts of the tool table that don't
+pertain to your machine, or which you don't need to use. For more
+information on the specifics of the tool table format, see
+the <<sec:tool-table,Tool Table>> Section.
 
-== Lathe Tool Orientation[[lathe-tool-orientation]]
+[[sec:lathe-tool-orientation]]
+== Lathe Tool Orientation(((Lathe Tool Orientation)))
 
-The following figure shows the lathe tool orientations
-with the center line angle of each orientation and
-info on FRONTANGLE and BACKANGLE.
+The following figure shows the lathe tool orientations with the center line
+angle of each orientation and info on FRONTANGLE and BACKANGLE.
+
 The FRONTANGLE and BACKANGLE are clockwise starting at a line parallel to Z+.
 
 .Lathe Tool Orientations
+image::images/tool-positions_en.svg["Lathe Tool Orientations",align="center"]
 
-image::images/tool-positions_en.svg[align="center", alt="Lathe Tool Orientations"]
+In AXIS the following figures show what the Tool Positions look like, as
+entered in the tool table.
 
-In AXIS the following figures show what the Tool Positions look like, as entered in the tool table.
+[[fig:Outil-Positions-1-2-3-4]]
+.Tool Positions 1, 2, 3 & 4(((Tool Positions 1, 2, 3 & 4)))
+image:images/tool-pos-1_en.svg["Tool Position 1"]
+image:images/tool-pos-2_en.svg["Tool Position 2"]
+image:images/tool-pos-3_en.svg["Tool Position 3"]
+image:images/tool-pos-4_en.svg["Tool Position 4"]
 
-.Tool Positions 1, 2, 3 & 4
-
-image:images/tool-pos-1_en.svg[alt="Tool Position 1"]
-image:images/tool-pos-2_en.svg[alt="Tool Position 2"]
-image:images/tool-pos-3_en.svg[alt="Tool Position 3"]
-image:images/tool-pos-4_en.svg[alt="Tool Position 4"]
-
-.Tool Positions 5, 6, 7 & 8
-
-image:images/tool-pos-5_en.svg[alt="Tool Position 5"]
-image:images/tool-pos-6_en.svg[alt="Tool Position 6"]
-image:images/tool-pos-7_en.svg[alt="Tool Position 7"]
-image:images/tool-pos-8_en.svg[alt="Tool Position 8"]
+[[fig:Outil-Positions-5-6-7-8]]
+.Tool Positions 5, 6, 7 & 8(((Tool Positions 5, 6, 7 & 8)))
+image:images/tool-pos-5_en.svg["Tool Position 5"]
+image:images/tool-pos-6_en.svg["Tool Position 6"]
+image:images/tool-pos-7_en.svg["Tool Position 7"]
+image:images/tool-pos-8_en.svg["Tool Position 8"]
 
 == Tool Touch Off
 
@@ -86,36 +101,33 @@ table using the Touch Off window. If you have a tool turret you normally
 have 'Touch off to fixture' selected when setting up your turret. When
 setting the material Z zero you have 'Touch off to material' selected.
 For more information on the G-codes used for tools see
-<<mcode:m6,M6>>, <<sec:select-tool,Tn>>, and <<gcode:g43,G43>>.
-For more information on tool touch off options in Axis see
-<<axis:tool-touch-off,Tool Touch Off>>.
+<<mcode:m6,M6>>, <<sec:select-tool,T__n__>>, and <<gcode:g43,G43>>.
+For more information on tool touch off options in AXIS see
+<<sub:axis-machine-menu,Tool Touch Off>>.
 
 === X Touch Off
 
-The X axis offset for each tool is normally an offset
-from the center line of the spindle.
+The X axis offset for each tool is normally an offset from the center
+line of the spindle.
 
-One method is to take your normal turning tool and
-turn down some stock to a known diameter.
-Using the Tool Touch Off window enter the measured diameter
-(or radius if in radius mode) for that tool.
-Then using some layout fluid or a marker to coat the part
-bring each tool up
-till it just touches the dye and set it's X offset to
-the diameter of the part used using the tool touch off.
-Make sure any tools in the corner quadrants have the nose radius
-set properly in the tool table so the control point is correct.
-Tool touch off automatically adds a G43
-so the current tool is the current offset.
+One method is to take your normal turning tool and turn down some stock
+to a known diameter. Using the Tool Touch Off window enter the measured
+diameter (or radius if in radius mode) for that tool. Then using some
+layout fluid or a marker to coat the part bring each tool up till it
+just touches the dye and set it's X offset to the diameter of the part
+used using the tool touch off. Make sure any tools in the corner quadrants
+have the nose radius set properly in the tool table so the control point
+is correct. Tool touch off automatically adds a G43 so the current tool
+is the current offset.
 
 A typical session might be:
 
- . Home each axis if not homed.
- . Set the current tool with 'Tn M6 G43' where 'n' is the tool number.
- . Select the X axis in the Manual Control window.
- . Move the X to a known position or take a test cut and measure the diameter.
- . Select Touch Off and pick Tool Table then enter the position or the diameter.
- . Follow the same sequence to correct the Z axis.
+. Home each axis if not homed.
+. Set the current tool with 'T__n__ M6 G43' where _n_ is the tool number.
+. Select the X axis in the 'Manual Control window'.
+. Move the X to a known position or take a test cut and measure the diameter.
+. Select Touch Off and pick Tool Table then enter the position or the diameter.
+. Follow the same sequence to correct the Z axis.
 
 Note: if you are in Radius Mode you must enter the radius, not the diameter.
 
@@ -133,15 +145,15 @@ set its Z offset without having to reset all the tools.
 
 A typical session might be:
 
- . Home each axis if not homed.
- . Make sure no offsets are in effect for the current coordinate system.
- . Set the current tool with 'Tn M6 G43' where 'n' is the tool number.
- . Select the Z axis in the Manual Control window.
- . Bring the tool close to the control surface. Using a cylinder move the
-   Z away from the control surface until the cylinder just passes between
-   the tool and the control surface.
- . Select Touch Off and pick Tool Table and set the position to 0.0.
- . Repeat for each tool using the same cylinder.
+. Home each axis if not homed.
+. Make sure no offsets are in effect for the current coordinate system.
+. Set the current tool with 'T__n__ M6 G43' where _n_ is the tool number.
+. Select the Z axis in the Manual Control window.
+. Bring the tool close to the control surface.
+. Using a cylinder move the Z away from the control surface until the
+  cylinder just passes between the tool and the control surface.
+. Select Touch Off and pick Tool Table and set the position to 0.0.
+. Repeat for each tool using the same cylinder.
 
 Now all the tools are offset the same distance from a standard position.
 If you change a tool like a drill bit you repeat the above and
@@ -160,10 +172,10 @@ using the machine coordinate system.
 
 A typical session might be:
 
- . Home each axis if not homed.
- . Set the current tool with "Tn M6" where "n" is the tool number.
- . Issue a G43 so the current tool offset is in effect.
- . Bring the tool to the work piece and set the machine Z offset.
+. Home each axis if not homed.
+. Set the current tool with 'T__n__ M6' where _n_ is the tool number.
+. Issue a G43 so the current tool offset is in effect.
+. Bring the tool to the work piece and set the machine Z offset.
 
 If you forget to set the G43 for the current tool when you set the
 machine coordinate system offset, you will not get what you expect,
@@ -184,7 +196,7 @@ For more information see the <<gcode:g76,G76>> Section.
 .Constant Surface Speed
 CSS or Constant Surface Speed uses the machine X origin modified by the tool X
 offset to compute the spindle speed in RPM. CSS will track changes in tool
-offsets. The X <<sec.machine-coordinate-system,machine origin>> should be when
+offsets. The X <<sec:machine-coordinate-system,machine origin>> should be when
 the reference tool (the one with zero offset) is at the center of rotation.
 For more information see the <<gcode:g96-g97,G96>> Section.
 
@@ -199,7 +211,7 @@ Calculating arcs can be mind challenging enough without considering
 radius and diameter mode on lathes as well as machine coordinate system
 orientation. The following applies to center format arcs. On a lathe
 you should include G18 in your preamble as the default is G17 even if
-you're in lathe mode, in the user interface Axis. Arcs in G18 XZ plane
+you're in lathe mode, in the user interface AXIS. Arcs in G18 XZ plane
 use I (X axis) and K (Z axis) offsets.
 
 === Arcs and Lathe Design
@@ -210,9 +222,9 @@ typically set up with the imaginary Y axis (+) pointing at the floor.
 
 The following will be true on this type of setup:
 
- - The Z axis (+) points to the right, away from the spindle.
- - The X axis (+) points toward the operator, and when on the operator
-   side of the spindle the X values are positive.
+- The Z axis (+) points to the right, away from the spindle.
+- The X axis (+) points toward the operator, and when on the operator
+  side of the spindle the X values are positive.
 
 Some lathes with tools on the back side have the imaginary Y axis (+)
 pointing up.
@@ -228,12 +240,12 @@ arc to appear to go in the correct direction.
 When calculating arcs in radius mode you only have to remember the
 direction of rotation as it applies to your lathe.
 
-When calculating arcs in diameter mode X is diameter and the X offset
-(I) is radius even if you're in G7 diameter mode.
+When calculating arcs in diameter mode X is diameter and the X offset (I)
+is radius even if you're in G7 diameter mode.
 
 == Tool Path
 
-=== Control Point
+=== Control point
 
 The control point for the tool follows the programmed path. The
 control point is the intersection of a line parallel to the X and Z
@@ -245,9 +257,8 @@ the programmed path unless cutter comp is in effect. In the following
 figures you can see how the control point does not follow the tool edge
 as you might assume.
 
-.Control Point
-
-image::images/control-point_en.svg[align="center", alt="Control Point"]
+.Control point
+image::images/control-point_en.svg["Control point",align="center"]
 
 === Cutting Angles without Cutter Comp
 
@@ -257,8 +268,7 @@ programmed path and the desired cut path are one and the same as long
 as we are moving in an X or Z direction only.
 
 .Ramp Entry
-
-image::images/ramp-entry_en.svg[align="center", alt="Ramp Entry"]
+image::images/ramp-entry_en.svg["Ramp Entry",align="center"]
 
 Now as the control point progresses along the programmed path the
 actual cutter edge does not follow the programmed path as shown in the
@@ -266,8 +276,7 @@ following figure. There are two ways to solve this, cutter comp and
 adjusting your programmed path to compensate for tip radius.
 
 .Ramp Path
-
-image::images/ramp-cut_en.svg[align="center", alt="Ramp Path"]
+image::images/ramp-cut_en.svg["Ramp Path",align="center"]
 
 In the above example it is a simple exercise to adjust the programmed
 path to give the desired actual path by moving the programmed path for
@@ -281,8 +290,7 @@ of the part. The control point of the tool is following the programmed
 path and the tool is touching the OD of the part.
 
 .Turning Cut
-
-image::images/radius-1_en.svg[align="center", alt="Turning Cut"]
+image::images/radius-1_en.svg["Turning Cut",align="center"]
 
 In this next figure you can see as the tool approaches the end of the
 part the control point still follows the path but the tool tip has left
@@ -290,15 +298,13 @@ the part and is cutting air. You can also see that even though a radius
 has been programmed the part will actually end up with a square corner.
 
 .Radius Cut
-
-image::images/radius-2_en.svg[align="center", alt="Radius Cut"]
+image::images/radius-2_en.svg["Radius Cut",align="center"]
 
 Now you can see as the control point follows the radius programmed the
 tool tip has left the part and is now cutting air.
 
 .Radius Cut
-
-image::images/radius-3_en.svg[align="center", alt="Radius Cut"]
+image::images/radius-3_en.svg["Radius Cut",align="center"]
 
 In the final figure we can see the tool tip will finish cutting the
 face but leave a square corner instead of a nice radius. Notice also
@@ -308,17 +314,14 @@ a face cut to the center of a part you have to program the tool to go
 past center at least the nose radius of the tool.
 
 .Face Cut
-
-image::images/radius-4_en.svg[align="center", alt="Face Cut"]
+image::images/radius-4_en.svg["Face Cut",align="center"]
 
 === Using Cutter Comp
 
-When using cutter comp on a lathe think of the tool tip radius as the
-radius of a round cutter. When using cutter comp the path must be large
-enough for a round tool that will not gouge into the next line. When
-cutting straight lines on the lathe you might not want to use cutter
-comp. For example boring a hole with a tight fitting boring bar you may
-not have enough room to do the exit move. The entry move into a cutter
-comp arc is important to get the correct results.
+- When using cutter comp on a lathe think of the tool tip radius as the radius of a round cutter.
+- When using cutter comp the path must be large enough for a round tool that will not gouge into the next line.
+- When cutting straight lines on the lathe you might not want to use cutter comp.
+  For example boring a hole with a tight fitting boring bar you may not have enough room to do the exit move.
+- The entry move into a cutter comp arc is important to get the correct results.
 
-
+// vim: set syntax=asciidoc:

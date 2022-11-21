@@ -1,10 +1,10 @@
 #!/bin/bash
 ################################################################################
-# usage: linuxcnc [options] [<ini-file>]
+# usage: linuxcnc [options] [<INI file>]
 #
 # options: see usage() function below
 #
-# this version calls pickconfig.tcl to pick an ini file if one
+# this version calls pickconfig.tcl to pick an INI file if one
 # is not specified on the command line
 #
 ################################################################################
@@ -101,13 +101,13 @@ Usage:
     This help
 
   $ $P [Options]
-    Choose the configuration inifile graphically
+    Choose the configuration INI file graphically
 
   $ $P [Options] path/to/your_ini_file
-    Name the configuration inifile using its path
+    Name the configuration INI file using its path
 
   $ $P [Options] -l
-    Use the previously used configuration inifile
+    Use the previously used configuration INI file
 
 Options:
     -d: Turn on "debug" mode
@@ -115,12 +115,12 @@ Options:
     -k: Continue in the presence of errors in .hal files
     -t "tpmodulename [parameters]"
             specify custom trajectory_planning_module
-            overrides optional ini setting [TRAJ]TPMOD
+            overrides optional INI setting [TRAJ]TPMOD
     -m "homemodulename [parameters]"
             specify custom homing_module
-            overrides optional ini setting [EMCMOT]HOMEMOD
-    -H "dirname": search dirname for Halfiles before searching
-                  ini directory and system library:
+            overrides optional INI setting [EMCMOT]HOMEMOD
+    -H "dirname": search dirname for HAL files before searching
+                  INI directory and system library:
                   $HALLIB_DIR
 Note:
     The -H "dirname" option may be specified multiple times
@@ -248,7 +248,7 @@ as well as in the output of the shell command 'dmesg' and in the terminal"
 trap ErrorCheck EXIT
 
 ################################################################################
-# 1.3. INIFILE                           find inifile to use                   #
+# 1.3. INIFILE                           find INI file to use                   #
 ################################################################################
 
 if [ ! -z "$1" ]; then
@@ -295,10 +295,10 @@ export LINUXCNC_NCFILES_DIR
 
 [ -z $RUNTESTS ] && echo "LINUXCNC - $LINUXCNCVERSION" 
 
-# was an inifile specified on the command line?
+# was an INI file specified on the command line?
 if [ ! -z "$USE_LAST_INIFILE" ]; then
     INIFILE=$($INIVAR -ini ~/.linuxcncrc -var LAST_CONFIG -sec PICKCONFIG 2>>$DEBUG_FILE)
-    echo "Using previous inifile: $INIFILE" >> $PRINT_FILE
+    echo "Using previous INI file: $INIFILE" >> $PRINT_FILE
 fi
 
 if [ ! -n "$INIFILE" ] ; then
@@ -384,7 +384,7 @@ function run_applications () {
        case "$app_name" in
          /*) # absolute pathname
              exe_name=$app_name;;
-       \./*) # name relative to inifile directory
+       \./*) # name relative to INI file directory
              exe_name="$(pwd)/$app_name";;
           *) # try local first then PATH
              exe_name=$(pwd)/$app_name
@@ -419,18 +419,18 @@ export PATH=$CONFIG_DIR/bin:$PATH
 [ -z $RUNTESTS ] && echo "Machine configuration directory is '$INI_DIR'"
 echo "Machine configuration file is '$INI_NAME'"
 
-# make sure ini file exists (the tcl script just did this, so we could 
+# make sure INI file exists (the tcl script just did this, so we could 
 # eliminate this test, but it does no harm)
 
 if [ ! -f "$INIFILE" ] ; then
-    echo "Could not find ini file '$INIFILE'"
+    echo "Could not find INI file '$INIFILE'"
     trap '' EXIT
     exit -1
 fi
 echo INIFILE="$INIFILE" >>$PRINT_FILE
 
 ################################################################################
-# 2.  extract info from the ini file that we will need later
+# 2.  extract info from the INI file that we will need later
 ################################################################################
 retval=
 
@@ -475,7 +475,7 @@ function GetFromIniEx {
 GetFromIni VERSION EMC
 if [ "$retval" != "1.1" ]; then
     if [ -z "$DISPLAY" ]; then
-        echo "ini file [EMC]VERSION indicates update is needed, but the update GUI can't run without an X display"
+        echo "INI file [EMC]VERSION indicates update is needed, but the update GUI can't run without an X display"
         exit 1
     fi
     update_ini -d "$INIFILE"
@@ -516,14 +516,14 @@ RS274NGC_PARAMFILE=$retval
 GetFromIniEx MOT MOT EMCMOT EMCMOT motmod
 EMCMOT=$retval$MODULE_EXT # add module extension
 
-# commandline -t option supersedes inifile setting
+# commandline -t option supersedes INI file setting
 if [ -z "$TPMOD" ] ; then
-    GetFromIni TPMOD   TRAJ
+    GetFromIniQuiet TPMOD   TRAJ
     TPMOD=${retval:-tpmod} #use default if not found
 fi
-# commandline -m option supersedes inifile setting
+# commandline -m option supersedes INI file setting
 if [ -z "$HOMEMOD" ] ; then
-    GetFromIni HOMEMOD EMCMOT
+    GetFromIniQuiet HOMEMOD EMCMOT
     HOMEMOD=${retval:-homemod} #use default if not found
 fi
 
@@ -757,7 +757,7 @@ echo Starting LinuxCNC...
 # trap ^C so that it's called if user interrupts script
 trap 'Cleanup ; exit 0' SIGINT SIGTERM
 
-# go to the dir where the ini file is
+# go to the dir where the INI file is
 # either configs/<specific-config> when run-in-place, or
 # /usr/local/share/linuxcnc/configs/<specific-config> (wherever it was installed)
 cd "$INI_DIR"
@@ -857,7 +857,7 @@ if [ -n "$TWOPASS" ] ; then
   fi
 else
     # 4.3.6.2. conventional execution of  HALCMD config files
-    # get first config file name from ini file
+    # get first config file name from INI file
     NUM=1
     CFGFILE=`$INIVAR -tildeexpand -ini "$INIFILE" -var HALFILE -sec HAL -num $NUM 2> /dev/null`
     while [ -n "$CFGFILE" ] ; do
@@ -916,7 +916,7 @@ else
                 exit -1
             fi
         esac
-        # get next config file name from ini file
+        # get next config file name from INI file
         NUM=$(($NUM+1))
         CFGFILE=`$INIVAR -tildeexpand -ini "$INIFILE" -var HALFILE -sec HAL -num $NUM 2> /dev/null`
     done
@@ -933,20 +933,20 @@ fi
 
 halcmd loadusr -Wn inihal $EMCTASK -ini "$INIFILE" &
 
-# 4.3.8. execute discrete HAL commands from ini file (if any)
-# get first command from ini file
+# 4.3.8. execute discrete HAL commands from INI file (if any)
+# get first command from INI file
 NUM=1
 HALCOMMAND=`$INIVAR -ini "$INIFILE" -var HALCMD -sec HAL -num $NUM 2> /dev/null`
 while [ -n "$HALCOMMAND" ] ; do
     if [ -n "$HALCOMMAND" ] ; then
 	echo "Running HAL command: $HALCOMMAND" >>$PRINT_FILE
 	if ! $HALCMD $HALCOMMAND && [ "$DASHK" = "" ]; then
-	    echo "ini file HAL command $HALCOMMAND failed."
+	    echo "INI file HAL command $HALCOMMAND failed."
 	    Cleanup
 	    exit -1
 	fi
     fi
-    # get next command from ini file
+    # get next command from INI file
     NUM=$(($NUM+1))
     HALCOMMAND=`$INIVAR -ini "$INIFILE" -var HALCMD -sec HAL -num $NUM 2> /dev/null`
 done

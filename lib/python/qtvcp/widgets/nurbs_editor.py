@@ -43,11 +43,10 @@ import os
 import sys
 import traceback
 from PyQt5 import uic
-from PyQt5.QtCore import pyqtSlot, QFile, QRegExp, Qt, QTextStream
-from PyQt5.QtWidgets import (QApplication, QDialog, QFileDialog, QMessageBox,
-        QStyleFactory, QWidget, QColorDialog)
-from PyQt5 import QtGui, QtCore
+from PyQt5.QtCore import pyqtSlot, QFile, QTextStream
+from PyQt5.QtWidgets import (QApplication, QDialog)
 
+import gcode
 from qt5_graphics import Lcnc_3dGraphics
 from qtvcp.core import Info, Path, Action
 
@@ -101,7 +100,7 @@ class NurbsEditor(QDialog):
         self.update()
 
     def setGraphicsDisplay(self):
-        # class patch to catch gcode errors - in theory 
+        # class patch to catch gcode errors - in theory
         self.graphics.report_gcode_error = self.report_gcode_error
         # reset trverse color so other displays don;t change
         self.defaultColor = self.graphics.colors['traverse']
@@ -300,9 +299,8 @@ if __name__ == '__main__':
     elif len(sys.argv) == 2:
         inifilename = sys.argv[1]
     else:
-        usage()
+        sys.exit(1)
     window = NurbsEditor(path = inifilename)
     window.load_dialog()
     sys.exit(app.exec_())
-  
 

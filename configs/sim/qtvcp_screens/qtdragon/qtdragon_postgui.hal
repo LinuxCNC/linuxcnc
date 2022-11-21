@@ -1,6 +1,3 @@
-loadrt abs names=abs_spindle_feedback
-addf abs_spindle_feedback servo-thread
-
 net spindle-speed-limited  =>  spindle.0.speed-out-rps => spindle.0.speed-in
 
 # the unlink pin commands are only used, because they are connected 

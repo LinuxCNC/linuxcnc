@@ -18,6 +18,10 @@ G96 D2400 S#2 ; Constant Surface Speed Mode
 M3
 g95 F0.1 ; Feed-Per-Rev Mode
 
+O90 IF [#12 GT 0.5]
+	M8
+O90 ENDIF
+
 #20 = 0
 O101 if [#9 GT 0.5] ; Front outside
 	o100 while [[#20 + #3] lt #8]
@@ -65,6 +69,7 @@ O101 elseif [#11 GT 0.5] ; back outside
 	g1 x #14
 	g0 z#13
 O101 endif
+M5 M9
 G7
 O<radius> endsub
 m2

@@ -12,6 +12,12 @@
     <xsl:value-of select='@src'/><xsl:text>
 </xsl:text>
   </xsl:for-each>
+  <xsl:for-each select='//html:a'>
+    <xsl:if test="@class='image'">
+       <xsl:value-of select='@href'/><xsl:text>
+</xsl:text>
+    </xsl:if>
+  </xsl:for-each>
 </xsl:template>
 
 </xsl:stylesheet>

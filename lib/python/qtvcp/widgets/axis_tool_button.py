@@ -14,11 +14,10 @@
 # GNU General Public License for more details.
 ###############################################################################
 
-import os
 import hal
 
-from PyQt5.QtWidgets import QWidget, QToolButton, QMenu, QAction
-from PyQt5.QtCore import Qt, QEvent, pyqtProperty, QBasicTimer, pyqtSignal
+from PyQt5.QtWidgets import QToolButton, QMenu, QAction
+from PyQt5.QtCore import pyqtProperty
 from PyQt5.QtGui import QIcon
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -94,7 +93,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         STATUS.connect('interp-run', lambda w: self._enableGroup(False))
         STATUS.connect('all-homed', lambda w: self._enableGroup(homed_on_test()))
         STATUS.connect('not-all-homed', lambda w, data: self._enableGroup(False))
-        STATUS.connect('interp-paused', lambda w: self._enableGroup(homed_on_test()))
+        STATUS.connect('interp-paused', lambda w: self._enableGroup(False))
         STATUS.connect('motion-mode-changed', lambda w,data: self.modeChanged(data))
         STATUS.connect('joint-selection-changed', lambda w,data: self.ChangeState(joint = data, axis= STATUS.get_selected_axis()))
         STATUS.connect('axis-selection-changed', lambda w,data: self.ChangeState(joint = STATUS.get_selected_joint(), axis = data))
@@ -107,6 +106,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         for i in(self.zeroButton, self.setButton,self.divideButton,
                 self.lastButton, ):
             i.setEnabled(state)
+        self.setEnabled(state)
 
     def Zero(self):
         axis, now = self._a_from_j(self._axis)

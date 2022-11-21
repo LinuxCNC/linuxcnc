@@ -17,10 +17,8 @@
 
 import sys
 import os
-import hal
 
-from PyQt5 import QtGui, QtCore, QtWidgets, uic
-from PyQt5.QtCore import QProcess, QByteArray
+from PyQt5 import QtWidgets, uic
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
@@ -49,7 +47,7 @@ class RunFromLineDialog(QtWidgets.QDialog, _HalWidgetBase):
 
     def _hal_init(self):
         def homed_on_test():
-            return (self.probe_enable and STATUS.machine_is_on() 
+            return (self.probe_enable and STATUS.machine_is_on()
                     and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
 
         STATUS.connect('state-off', lambda w: self.setEnabled(False))

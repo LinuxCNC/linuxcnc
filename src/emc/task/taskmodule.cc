@@ -168,7 +168,6 @@ struct TaskWrap : public Task, public bp::wrapper<Task> {
 
 };
 
-typedef pp::array_1_t< EMC_AXIS_STAT, EMCMOT_MAX_AXIS> axis_array, (*axis_w)( EMC_MOTION_STAT &m );
 typedef pp::array_1_t< EMC_SPINDLE_STAT, EMCMOT_MAX_SPINDLES> spindle_array, (*spindle_w)( EMC_MOTION_STAT &m );
 typedef pp::array_1_t< int, EMCMOT_MAX_DIO> synch_dio_array, (*synch_dio_w)( EMC_MOTION_STAT &m );
 typedef pp::array_1_t< double, EMCMOT_MAX_AIO> analog_io_array, (*analog_io_w)( EMC_MOTION_STAT &m );
@@ -184,10 +183,6 @@ static  tool_array tool_wrapper ( EMC_TOOL_STAT & t) {
     return tool_array(t.toolTable);
 }
 #endif //}
-
-static  axis_array axis_wrapper ( EMC_MOTION_STAT & m) {
-    return axis_array(m.axis);
-}
 
 static  spindle_array spindle_wrapper ( EMC_MOTION_STAT & m) {
     return spindle_array(m.spindle);
@@ -329,13 +324,10 @@ BOOST_PYTHON_MODULE(emctask) {
 	.def_readonly("tooltable_filename", &Task::tooltable_filename)
 	;
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     class_ <EMC_TRAJ_STAT, boost::noncopyable>("EMC_TRAJ_STAT",no_init)
 	.def_readwrite("linearUnits", &EMC_TRAJ_STAT::linearUnits )
 	.def_readwrite("angularUnits", &EMC_TRAJ_STAT::angularUnits )
 	.def_readwrite("cycleTime", &EMC_TRAJ_STAT::cycleTime )
-	.def_readwrite("axes", &EMC_TRAJ_STAT::axes )
 	.def_readwrite("axis_mask", &EMC_TRAJ_STAT::axis_mask )
 	.def_readwrite("mode", &EMC_TRAJ_STAT::mode )
 	.def_readwrite("enabled", &EMC_TRAJ_STAT::enabled )
@@ -365,7 +357,6 @@ BOOST_PYTHON_MODULE(emctask) {
 	.def_readwrite("adaptive_feed_enabled", &EMC_TRAJ_STAT::adaptive_feed_enabled )
 	.def_readwrite("feed_hold_enabled", &EMC_TRAJ_STAT::feed_hold_enabled )
 	;
-#pragma GCC diagnostic pop
     class_ <EMC_JOINT_STAT, boost::noncopyable>("EMC_JOINT_STAT",no_init)
 	.def_readwrite("units", &EMC_JOINT_STAT::units)
 	.def_readwrite("backlash", &EMC_JOINT_STAT::backlash)
@@ -414,9 +405,6 @@ BOOST_PYTHON_MODULE(emctask) {
 
     class_ <EMC_MOTION_STAT, boost::noncopyable>("EMC_MOTION_STAT",no_init)
 	.def_readwrite("traj", &EMC_MOTION_STAT::traj)
-	.add_property( "axis",
-		       bp::make_function( axis_w(&axis_wrapper),
-					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
 	.add_property( "spindle",
 			   bp::make_function( spindle_w(&spindle_wrapper),
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))

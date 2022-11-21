@@ -307,6 +307,8 @@ int tooldata_find_index_for_tool(int toolno)
     tool_mmap_mutex_get();
     int idx;
 
+    if (toolno == -1) {tool_mmap_mutex_give(); return -1;}
+
     if (!hptr->is_random_toolchanger && toolno == 0) {
         tool_mmap_mutex_give(); return 0;
     }

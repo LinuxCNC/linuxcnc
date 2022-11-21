@@ -189,7 +189,7 @@ class EMC_JOINT_CMD_MSG:public RCS_CMD_MSG {
 
 /**
  * Set the joint type to linear or angular.
- * Similar to the JOINT_TYPE field in the ".ini" file.
+ * Similar to the JOINT_TYPE field in the INI file.
  */
 class EMC_JOINT_SET_JOINT:public EMC_JOINT_CMD_MSG {
   public:
@@ -1033,10 +1033,6 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
     double cycleTime;		// cycle time, in seconds
     int joints;			// maximum joint number
     int spindles;			// maximum spindle number
-    union {
-        int deprecated_axes;
-        int axes __attribute__((deprecated));			// maximum axis number
-    };
     int axis_mask;		// mask of axes actually present
     enum EMC_TRAJ_MODE_ENUM mode;	// EMC_TRAJ_MODE_FREE,
     // EMC_TRAJ_MODE_COORD
@@ -1232,6 +1228,7 @@ class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
     int external_offsets_applied;
     EmcPose eoffset_pose;
     int numExtraJoints;
+    bool jogging_active;
 };
 
 // declarations for EMC_TASK classes
@@ -1669,6 +1666,7 @@ class EMC_TOOL_STAT:public EMC_TOOL_STAT_MSG {
 
     int pocketPrepped;		// idx ready for loading from
     int toolInSpindle;		// tool loaded, 0 is no tool
+    int toolFromPocket;     // tool was loaded from this pocket
 #ifdef TOOL_NML //{
     CANON_TOOL_TABLE toolTable[CANON_POCKETS_MAX];
 #else //}{

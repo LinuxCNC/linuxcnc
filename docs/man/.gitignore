@@ -19,6 +19,7 @@ man1/xhc-whb04b-6.1
 man9/abs.9
 man9/abs_s32.9
 man9/and2.9
+man9/anglejog.9
 man9/axistest.9
 man9/bin2gray.9
 man9/biquad.9
@@ -53,6 +54,7 @@ man9/conv_s8_float.9
 man9/conv_s8_s32.9
 man9/conv_s8_u32.9
 man9/conv_s8_u8.9
+man9/div2.9
 man9/tof.9
 man9/ton.9
 man9/tp.9
@@ -72,6 +74,7 @@ man9/ddt.9
 man9/deadzone.9
 man9/demux.9
 man9/differential.9
+man9/div2.9
 man9/edge.9
 man9/eoffset_per_angle.9
 man9/estop_latch.9
@@ -127,6 +130,7 @@ man9/pluto_servo.9
 man9/pluto_step.9
 man9/sample_hold.9
 man9/scale.9
+man9/scaled_s32_sums.9
 man9/select8.9
 man9/serport.9
 man9/sim_axis_hardware.9
@@ -157,3 +161,21 @@ man9/userkins.9
 man9/wcomp.9
 man9/xhc_hb04_util.9
 man9/xor2.9
+# Ignore po4a-generated files for other languages
+cs/*
+da/*
+de/*
+es/*
+fr/*
+hu/*
+it/*
+ka/*
+nb/*
+pt/*
+pt_BR/*
+ru/*
+sk/*
+tr/*
+uk/*
+vi/*
+zh_CN/*

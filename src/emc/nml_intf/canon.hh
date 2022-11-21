@@ -213,9 +213,9 @@ extern void SET_G92_OFFSET(double x, double y, double z,
 extern void SET_XY_ROTATION(double t);
 
 /* Offset the origin to the point with absolute coordinates x, y, z,
-a, b, and c. Values of x, y, z, a, b, and c are real numbers. The units
-are whatever length units are being used at the time this command is
-given. */
+a, b, c, u, v, and w. Values of x, y, z, a, b, c, u, v, and w are real 
+numbers. The units are whatever length units are being used at the time 
+this command is given. */
 
 extern void CANON_UPDATE_END_POINT(double x, double y, double z, 
 				   double a, double b, double c,
@@ -287,13 +287,22 @@ workpiece.
 
 2. If the feed_reference mode is CANON_XYZ:
 A. For motion including one rotational axis only: degrees per minute.
-B. For motion including two rotational axes only: degrees per minute
-   In this case, the rate applies to the axis with the larger angle
-   to cover, and the second rotational axis rotates so that it has
-   always completed the same proportion of its required motion as has
-   the rotational axis to which the feed rate applies.
-C. For motion involving one or more of the XYZ axes (with or without
-   simultaneous rotational axis motion): length units (inches or
+B. For motion of two or three rotational axes with X, Y, Z, U, V, and W 
+   axes not moving, the rate is applied as follows. Let dA, dB, and dC 
+   be the angles in degrees through which the A, B, and C axes, 
+   respectively, must move. Let D = sqrt(dA*dA + dB*dB + dC*dC). 
+   Conceptually, D is a measure of total angular motion, using the usual 
+   Euclidean metric. Let T be the amount of time required to move through 
+   D degrees at the current feed rate in degrees per minute. The 
+   rotational axes should be moved in coordinated linear motion so that 
+   the elapsed time from the start to the end of the motion is T plus any 
+   time required for acceleration or deceleration.
+C. For motion of secondary linear axes (U, V, and/or W) with X, Y, and Z 
+   axes not moving (with or without simultaneous rotational axis motion): 
+   length units (inches or millimeters according to the setting of 
+   CANON_UNITS) per minute in the UVW cartesian system.
+D. For motion involving one or more of the XYZ axes (with or without
+   simultaneous motion of other axes): length units (inches or
    millimeters according to the setting of CANON_UNITS) per minute
    along the programmed XYZ path.
 

@@ -33,13 +33,15 @@ fi
 AC_PROG_CXX
 AC_PROG_INSTALL
 
-m4_include([m4/ax_cxx_compile_stdcxx_11.m4])
+m4_include([m4/ax_require_defined.m4])
+m4_include([m4/ax_cxx_compile_stdcxx.m4])
+m4_include([m4/ax_cxx_compile_stdcxx_17.m4])
 m4_include([m4/ax_python.m4])
 m4_include([m4/ax_python_devel.m4])
 m4_include([m4/ax_boost_base.m4])
 m4_include([m4/ax_boost_python.m4])
 # make this optional - it will likely only result in warnings
-AX_CXX_COMPILE_STDCXX_11(noext,optional)
+AX_CXX_COMPILE_STDCXX_17(ext,mandatory)
 
 AC_MSG_CHECKING(build toplevel)
 BUILD_TOPLEVEL="$(cd ..; pwd -P)"
@@ -110,6 +112,7 @@ AC_CHECK_HEADER([rpc/rpc.h],[], [
   ])
 ])
 
+DEPFOUND=true
 
 ##############################################################################
 # Section 2                                                                  #
@@ -675,6 +678,7 @@ fe () {
 
 if test "xyes" = "x$RUN_IN_PLACE"; then
     EMC2_LATENCY_SCRIPT=$EMC2_HOME/scripts/latency-test
+    EMC2_LATENCY_HISTOGRAM_SCRIPT=$EMC2_HOME/scripts/latency-histogram
     EMC2_SCRIPT=$EMC2_HOME/scripts/linuxcnc
     EMC2_SUFFIX=" (run-in-place)"
     EMC2_ICON=$EMC2_HOME/linuxcncicon.png
@@ -694,6 +698,7 @@ else
     EMC2_HOME=${prefix}
     EMC2_BIN_DIR=${prefix}/bin
     EMC2_LATENCY_SCRIPT=$EMC2_BIN_DIR/latency-test
+    EMC2_LATENCY_HISTOGRAM_SCRIPT=$EMC2_BIN_DIR/latency-histogram
     EMC2_SCRIPT=$EMC2_BIN_DIR/linuxcnc
     EMC2_SUFFIX=""
     EMC2_ICON=linuxcncicon
@@ -735,6 +740,7 @@ AC_SUBST([REALTIME])
 AC_SUBST([EMC2_IMAGE_DIR])
 AC_SUBST([EMC2_SCRIPT])
 AC_SUBST([EMC2_LATENCY_SCRIPT])
+AC_SUBST([EMC2_LATENCY_HISTOGRAM_SCRIPT])
 AC_SUBST([EMC2_SUFFIX])
 AC_SUBST([EMC2_ICON])
 AC_SUBST([HALLIB_DIR])
@@ -996,7 +1002,11 @@ AX_BOOST_BASE(,,AC_MSG_ERROR([libboost not found]))
 AX_PYTHON
 AC_PATH_PROG(PYTHON,[$PYTHON_BIN])
 AX_PYTHON_DEVEL(,,AC_MSG_ERROR([python-dev not found]))
-AX_BOOST_PYTHON(,,AC_MSG_ERROR([libboost-python not found]))
+AX_BOOST_PYTHON()
+if test "x" = "x$BOOST_PYTHON_LIB"; then
+    AC_MSG_NOTICE([error: libboost-python not found])
+    DEPFOUND=false
+fi
 
 AC_MSG_CHECKING([whether to build documentation])
 AC_ARG_ENABLE(build-documentation,
@@ -1039,12 +1049,14 @@ AC_ARG_ENABLE(build-documentation,
 if ( test "$BUILD_DOCS" = "yes" ) ; then
     AC_PATH_PROG(ASCIIDOC,asciidoc,"none")
     if ( test "none" = "$ASCIIDOC" ) ; then
-	AC_MSG_ERROR([no AsciiDoc, documentation cannot be built])
+	AC_MSG_WARN([no AsciiDoc, documentation cannot be built])
+        BUILD_DOCS=no
     fi
 
     AC_PATH_PROG(A2X,a2x,"none")
     if ( test "none" = "$A2X" ) ; then
-	AC_MSG_ERROR([no a2x, documentation cannot be built])
+	AC_MSG_WARN([no a2x, documentation cannot be built])
+        BUILD_DOCS=no
     fi
 
     AC_MSG_CHECKING([whether to specify latex.encoding])
@@ -1070,35 +1082,47 @@ EOF
 
     AC_PATH_PROG(DBLATEX,dblatex,"none")
     if ( test "none" = "$DBLATEX" ) ; then
-	AC_MSG_ERROR([no dblatex, documentation cannot be built])
+	AC_MSG_WARN([no dblatex, documentation cannot be built])
+        BUILD_DOCS=no
     fi
 
-    AC_MSG_CHECKING([dblatex version])
-    set -- `dblatex --version`; DBLATEX_VER=$3
-    set -- `echo $DBLATEX_VER | sed 's/[[.-]]/ /g'`
-    micro=`echo $3 | sed 's/\([[0-9]]*\).*/\1/g'`
+    if ( test "$BUILD_DOCS" = "yes" ) ; then
+        AC_MSG_CHECKING([dblatex version])
+        set -- `dblatex --version`; DBLATEX_VER=$3
+        set -- `echo $DBLATEX_VER | sed 's/[[.-]]/ /g'`
+        micro=`echo $3 | sed 's/\([[0-9]]*\).*/\1/g'`
 
-    if test $1 -eq 0 -a \( $2 -lt 2 -o \( $2 -eq 2 -a ${micro:-0} -lt 12 \) \); then
-        AC_MSG_ERROR([dblatex version $DBLATEX_VER less than 0.2.12.
+        if test $1 -eq 0 -a \( $2 -lt 2 -o \( $2 -eq 2 -a ${micro:-0} -lt 12 \) \); then
+            AC_MSG_WARN([dblatex version $DBLATEX_VER less than 0.2.12.
 Documentation cannot be built.])
-    fi
-    AC_MSG_RESULT([$DBLATEX_VER])
-
-
-    AC_PATH_PROG(SOURCE_HIGHLIGHT,source-highlight,"none")
-    if ( test "none" = "$SOURCE_HIGHLIGHT" ) ; then
-	AC_MSG_ERROR([no source-highlight, documentation cannot be built])
+            BUILD_DOCS=no
+        else
+            AC_MSG_RESULT([$DBLATEX_VER])
+        fi
     fi
 
-
-    AC_PATH_PROG(CONVERT,convert,"none")
-    if ( test "none" = "$CONVERT" ) ; then
-	AC_MSG_ERROR([no convert, documentation cannot be built])
+    if ( test "$BUILD_DOCS" = "yes" ) ; then
+        AC_PATH_PROG(SOURCE_HIGHLIGHT,source-highlight,"none")
+        if ( test "none" = "$SOURCE_HIGHLIGHT" ) ; then
+            AC_MSG_WARN([no source-highlight, documentation cannot be built])
+            BUILD_DOCS=no
+        fi
     fi
 
-    AC_PATH_PROG(GS,gs,"none")
-    if ( test "none" = "$GS" ) ; then
-	AC_MSG_ERROR([no gs, documentation cannot be built])
+    if ( test "$BUILD_DOCS" = "yes" ) ; then
+        AC_PATH_PROG(CONVERT,convert,"none")
+        if ( test "none" = "$CONVERT" ) ; then
+            AC_MSG_WARN([no convert, documentation cannot be built])
+            BUILD_DOCS=no
+        fi
+    fi
+
+    if ( test "$BUILD_DOCS" = "yes" ) ; then
+        AC_PATH_PROG(GS,gs,"none")
+        if ( test "none" = "$GS" ) ; then
+            AC_MSG_WARN([no gs, documentation cannot be built])
+            BUILD_DOCS=no
+        fi
     fi
 fi
 
@@ -1106,7 +1130,8 @@ fi
 if ( test "$BUILD_DOCS_PDF" = "yes" ) ; then
     AC_PATH_PROG(PDFLATEX,pdflatex,"none")
     if ( test "none" = "$PDFLATEX" ) ; then
-	AC_MSG_ERROR([no pdflatex, PDF documentation cannot be built])
+	AC_MSG_WARN([no pdflatex, PDF documentation cannot be built])
+        BUILD_DOCS=no
     fi
 fi
 
@@ -1114,30 +1139,86 @@ fi
 if ( test "$BUILD_DOCS_HTML" = "yes" ) ; then
     AC_PATH_PROG(XSLTPROC,xsltproc,"none")
     if ( test "none" = "$XSLTPROC" ) ; then
-	AC_MSG_ERROR([no xsltproc, HTML documentation cannot be built])
+	AC_MSG_WARN([no xsltproc, HTML documentation cannot be built])
+        BUILD_DOCS=no
     fi
 
     AC_PATH_PROG(DVIPNG,dvipng,"none")
     if ( test "none" = "$DVIPNG" ) ; then
-	AC_MSG_ERROR([no dvipng, HTML documentation cannot be built])
+	AC_MSG_WARN([no dvipng, HTML documentation cannot be built])
+        BUILD_DOCS=no
     fi
 
     AC_MSG_CHECKING([for HTML support in groff])
     if ! groff -Thtml < /dev/null > /dev/null 2>&1 ; then
-        AC_MSG_ERROR([no groff -Thtml, HTML documentation cannot be built])
+        AC_MSG_WARN([no groff -Thtml, HTML documentation cannot be built])
+        BUILD_DOCS=no
     else
         AC_MSG_RESULT(yes)
     fi
 
     AC_PATH_PROG(CHECKLINK,checklink,"none")
     if ( test "none" = "$CHECKLINK" ) ; then
-	AC_MSG_ERROR([no checklink, HTML documentation cannot be built
+	AC_MSG_WARN([no checklink, HTML documentation cannot be built
 install with "sudo apt-get install w3c-linkchecker"])
+        BUILD_DOCS=no
+    fi
+fi
+
+AC_ARG_ENABLE(build-documentation-translation,
+    AS_HELP_STRING(
+        [--disable-build-documentation-translation],
+        [Disable building documention in other languages than English.]
+    ),
+    [
+    case "$enableval" in
+	Y*|y*)
+	    BUILD_DOCS_TRANSLATED_EXPLICIT=yes ;;
+	no)
+	    BUILD_DOCS_TRANSLATED_EXPLICIT=no ;;
+	*)
+	    BUILD_DOCS_TRANSLATED_EXPLICIT=$enableval ;;
+	esac
+    ],
+    [
+        BUILD_DOCS_TRANSLATED_EXPLICIT=not_set
+    ])
+
+if ( test "$BUILD_DOCS" = "yes" && test "$BUILD_DOCS_TRANSLATED_EXPLICIT" != "no") ; then
+    AC_PATH_PROG(PO4A, po4a, "none")
+    BUILD_DOCS_TRANSLATED=yes
+    if test $PO4A = "none"
+    then
+        if test "$BUILD_DOCS_TRANSLATED_EXPLICIT" = "not_set"
+        then
+            AC_MSG_WARN([po4a not found, not building translated docs])
+        else
+            AC_MSG_ERROR([po4a not found, not building translated docs])
+        fi
+        BUILD_DOCS_TRANSLATED=no
+    else
+        # Version 0.35 support asciidoc without tables
+        # Version 0.56 support the tablecells asciidoc option
+        # Version 0.62 correctly write UTF-8 into translated adocs
+        # Version 0.65 support grouping several doc files into different POTs
+        # Version 0.66 handle empty table cells in asciidoc
+        # Version 0.67 handle enforced linbreaks
+        V=$(po4a --version| awk '/po4a version/ {print $3}')
+        if dpkg --compare-versions 0.67 gt "$V"; then
+            if test "$BUILD_DOCS_TRANSLATED_EXPLICIT" = "not_set"
+            then
+                AC_MSG_WARN([po4a version too old, need version 0.67 or newer, not building translated docs])
+            else
+                AC_MSG_ERROR([po4a version too old, need version 0.67 or newer, not building translated docs])
+            fi
+	    BUILD_DOCS_TRANSLATED=no
+        fi
     fi
 fi
 AC_SUBST(BUILD_DOCS)
 AC_SUBST(BUILD_DOCS_PDF)
 AC_SUBST(BUILD_DOCS_HTML)
+AC_SUBST(BUILD_DOCS_TRANSLATED)
 
 if test "$RTS" '!=' uspace
 then
@@ -1267,7 +1348,7 @@ if (test "x$TCLCONFIG" = "x"); then
    AC_MSG_RESULT([tclConfig.sh not found, trying tcl.h and libs.
 		  If it doesn't work try running ./configure --with-tclConfig=<path to tclConfig.sh>])
    AC_CHECK_HEADERS([tcl.h])
-   AC_SEARCH_LIBS(Tcl_Init,[tcl tcl8.1 tcl8.2 tcl8.3 tcl8.4 tcl8.5],[],[AC_MSG_ERROR([tcl lib not found])])
+   AC_SEARCH_LIBS(Tcl_Init,[tcl tcl8.7 tcl8.6],[],[AC_MSG_ERROR([tcl lib not found])])
 else
 # tclConfig.sh found,
 # extracting vars
@@ -1307,7 +1388,7 @@ if (test "x$TKCONFIG" = "x"); then
    AC_MSG_RESULT([tkConfig.sh not found, trying tk.h and libs.
 		  If it doesn't work try running ./configure --with-tkConfig=<path to tkConfig.sh>])
    AC_CHECK_HEADERS([tk.h])
-   AC_SEARCH_LIBS(Tk_Init,[tk tk80 tk8.0 tk8.1 tk8.2 tk8.3 tk8.4 tk8.5],[],[AC_MSG_ERROR([tk lib not found])])
+   AC_SEARCH_LIBS(Tk_Init,[tk tcl8.7 tcl8.6],[],[AC_MSG_ERROR([tk lib not found])])
 else
 # tkConfig.sh found,
 # extracting vars
@@ -1365,16 +1446,6 @@ if test "$RUNTIME_CHECK" = "yes"; then
         AC_MSG_RESULT([found])
     else
         AC_MSG_RESULT([not found])
-    fi
-
-    AC_MSG_CHECKING([for img::png using $TCLSH])
-    if (unset DISPLAY; echo ["catch { package require img::png }; exit [expr [lsearch [package names] img::png] == -1]"] | $TCLSH); then
-        AC_MSG_RESULT([found])
-        HAVE_WORKING_BLT=yes
-    else
-        AC_MSG_RESULT(no)
-        AC_MSG_ERROR([Tk img::png not found!
-    install with "sudo apt-get install libtk-img"])
     fi
 
     AC_MSG_CHECKING([for tclX using $TCLSH])
@@ -1640,6 +1711,9 @@ AC_CONFIG_FILES(../tcl/linuxcnc.tcl)
 AC_CONFIG_FILES(../lib/python/nf.py)
 AC_CONFIG_FILES([../scripts/linuxcncmkdesktop], [chmod +x ../scripts/linuxcncmkdesktop])
 AC_CONFIG_FILES(../share/applications/linuxcnc-latency.desktop)
+AC_CONFIG_FILES(../share/applications/linuxcnc-latency-histogram.desktop)
+AC_CONFIG_FILES(../share/applications/linuxcnc-pncconf.desktop)
+AC_CONFIG_FILES(../share/applications/linuxcnc-stepconf.desktop)
 AC_CONFIG_FILES(../share/applications/linuxcnc.desktop)
 AC_CONFIG_FILES(../share/desktop-directories/linuxcnc-cnc.directory)
 AC_CONFIG_FILES(../share/desktop-directories/linuxcnc-ref.directory)
@@ -1675,8 +1749,12 @@ echo "#   tools such as milling machines. LinuxCNC is released under the   #"
 echo "#   GPL.  Check out http://www.linuxcnc.org/ for more details.       #"
 echo "#                                                                    #"
 echo "#                                                                    #"
-echo "#   It seems that ./configure completed successfully.                #"
-echo "#   This means that RT is properly installed                         #"
+if $DEPFOUND ; then
+  echo "#   It seems that ./configure completed successfully.                #"
+  echo "#   This means that RT is properly installed                         #"
+else
+  echo "#   It seems that ./configure detected a problem.                    #"
+fi
 echo "#   If things don't work check config.log for errors & warnings      #"
 echo "#                                                                    #"
 
@@ -1711,3 +1789,5 @@ echo "#                                                                    #"
 echo "######################################################################"
 echo ""
 echo ""
+
+$DEPFOUND

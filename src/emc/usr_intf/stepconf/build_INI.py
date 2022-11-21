@@ -47,7 +47,7 @@ class INI:
         defvel = min(maxvel, max(.1, maxvel/10.))
 
         filename = os.path.join(base, self.d.machinename + ".ini")
-        # make a backup copy if ini file exists
+        # make a backup copy if INI file exists
         if os.path.exists(filename):
             shutil.copy2(filename, filename.replace(".ini", "_" + str(int(time.time())) + ".ini"))
         file = open(filename, "w")
@@ -63,10 +63,6 @@ class INI:
         # the joints_axes conversion script named 'update_ini'
         # will try to update for joints_axes if no VERSION is set
         print("VERSION = 1.1", file=file)
-
-        # write the qtplasmac section
-        if self.d.select_qtplasmac:
-            self.write_qtplasmac_section(file)
 
         print(file=file)
         print("[DISPLAY]", file=file)
@@ -173,9 +169,9 @@ class INI:
         # qtplasmac has a different filter section
         if self.d.select_qtplasmac:
             print("PROGRAM_EXTENSION = .ngc,.nc,.tap GCode File (*.ngc, *.nc, *.tap)", file=file)
-            print("ngc = ./qtplasmac/qtplasmac_gcode.py", file=file)
-            print("nc  = ./qtplasmac/qtplasmac_gcode.py", file=file)
-            print("tap = ./qtplasmac/qtplasmac_gcode.py", file=file)
+            print("ngc = qtplasmac_gcode", file=file)
+            print("nc  = qtplasmac_gcode", file=file)
+            print("tap = qtplasmac_gcode", file=file)
         else:
             print("PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image", file=file)
             print("PROGRAM_EXTENSION = .py Python Script", file=file)
@@ -195,13 +191,10 @@ class INI:
         print("PARAMETER_FILE = linuxcnc.var", file=file)
         # qtplasmac has extra rs274ngc variables
         if self.d.select_qtplasmac:
-            if self.d.units:
-                units = "metric"
-            else:
-                units = "imperial"
-            print("RS274NGC_STARTUP_CODE = o<{}_startup> call".format(units), file=file)
-            print("SUBROUTINE_PATH = ./:./qtplasmac:../../nc_files/subroutines", file=file)
-            print("USER_M_PATH = ./:./qtplasmac", file=file)
+            code = 21 if self.d.units else 20
+            print("RS274NGC_STARTUP_CODE = G{} G40 G49 G80 G90 G92.1 G94 G97 M52P1".format(code), file=file)
+            print("SUBROUTINE_PATH = ./:../../nc_files", file=file)
+            print("USER_M_PATH = ./:../../nc_files", file=file)
             print("", file=file)
 
         base_period = self.d.ideal_period()
@@ -284,10 +277,11 @@ class INI:
         minlim = get("minlim")
         maxlim = get("maxlim")
         home = get("homepos")
-        if self.d.units: extend = .001
-        else: extend = .01
-        minlim = min(minlim, home) - extend
-        maxlim = max(maxlim, home) + extend
+        extend = 0.001 if self.d.units else 0.01
+        if minlim == home:
+            minlim = minlim - extend
+        elif maxlim == home:
+            maxlim = maxlim + extend
         axis_letter = letter.upper()
         if not tandem:
             print(file=file)
@@ -393,38 +387,6 @@ class INI:
             return abs(.95 * 1e9 / self.d.ideal_period() / scale)
         else:
             return abs(.95 * .5 * 1e9 / self.d.ideal_period() / scale)
-
-    # write the qtplasmac section
-    def write_qtplasmac_section(self, file):
-        print(file=file)
-        print("[QTPLASMAC]", file=file)
-        print("# set the operating mode (default is 0)", file=file)
-        print("MODE = {}".format(self.d.qtplasmacmode), file=file)
-        print("# set the estop type (0=indicator, 1=hidden, 2=button)", file=file)
-        print("ESTOP_TYPE = {}".format(self.d.qtplasmacestop), file=file)
-        print(_("# set the dro position ('top' or 'bottom')"), file=file)
-        dro = 'top' if self.d.qtplasmacdro else 'bottom'
-        print("DRO_POSITION = {}".format(dro), file=file)
-        print(_("# error message flash (0=no, 1=yes)"), file=file)
-        print("FLASH_ERROR = {}".format(self.d.qtplasmacerror), file=file)
-        print(_("# hide buttons (0=no, 1=yes)"), file=file)
-        print("HIDE_RUN = {}".format(self.d.qtplasmacstart), file=file)
-        print("HIDE_PAUSE = {}".format(self.d.qtplasmacpause), file=file)
-        print("HIDE_ABORT = {}".format(self.d.qtplasmacstop), file=file)
-        print("# laser touchoff", file=file)
-        print("#LASER_TOUCHOFF = X0.0 Y0.0", file=file)
-        print("# camera touchoff", file=file)
-        print("#CAMERA_TOUCHOFF = X0.0 Y0.0 ", file=file)
-        print("# powermax communications", file=file)
-        if self.d.qtplasmacpmx:
-            print("PM_PORT = {}".format(self.d.qtplasmacpmx), file=file)
-        else:
-            print("#PM_PORT = /dev/ttyUSB0", file=file)
-        print("# user buttons", file=file)
-        for ub in range(1, 21):
-            if self.d.qtplasmac_bnames[ub-1]:
-                print("BUTTON_{}_NAME = {}".format(ub ,self.d.qtplasmac_bnames[ub-1]), file=file)
-                print("BUTTON_{}_CODE = {}".format(ub ,self.d.qtplasmac_bcodes[ub-1]), file=file)
 
     # Boiler code
     def __getitem__(self, item):

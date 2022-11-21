@@ -103,6 +103,34 @@
      </hbox>
 
      <hbox>
+       <s32>
+         <halpin>"tool-from-pocket"</halpin>
+         <format>"4d"</format>
+         <width>"6"</width>
+         <bg>"black"</bg>
+         <fg>"cyan"</fg>
+       </s32>
+       <label>
+         <text>"tool-from-pocket"</text>
+         <anchor>"w"</anchor>
+       </label>
+     </hbox>
+
+     <hbox>
+       <number>
+         <halpin>"tooldiam"</halpin>
+         <format>"6.3f"</format>
+         <width>"6"</width>
+         <bg>"black"</bg>
+         <fg>"cyan"</fg>
+       </number>
+       <label>
+         <text>"tooldiameter"</text>
+         <anchor>"w"</anchor>
+       </label>
+     </hbox>
+
+     <hbox>
        <number>
          <halpin>"tooloffset.x"</halpin>
          <format>"6.3f"</format>

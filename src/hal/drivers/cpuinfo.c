@@ -1,10 +1,10 @@
 /*
 Copyright (c) 2012 Ben Croston
 
-Revised by Ernesto Lo Valvo  (ernesto.lovalvo@unipa.it) (12/01/2021)
+Revised by Ernesto Lo Valvo  (ernesto.lovalvo@unipa.it) (19/03/2022)
  Added new version of Raspberry Pi4 and Raspberry Pi 400
  Revised for version 3B (15/01/2021)
- https://www.raspberrypi.org/documentation/hardware/raspberrypi/revision-codes/README.md
+ https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-revision-codes
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -91,16 +91,20 @@ int get_rpi_revision(void)
              (strcmp(revision, "a22083") == 0) ||
              (strcmp(revision, "a020d3") == 0))     /* Raspberry Pi 3B+ */
         return 4;
-    else if ((strcmp(revision, "a03111") == 0) ||   /* Raspberry Pi 4B */
+    else if ((strcmp(revision, "a03111") == 0) ||   /* Raspberry Pi 4B  rev. 1.1, 1.2, 1.4, 1.5 */
              (strcmp(revision, "b03111") == 0) ||
+			          (strcmp(revision, "c03111") == 0) ||
              (strcmp(revision, "b03112") == 0) ||
+			          (strcmp(revision, "c03112") == 0) ||
              (strcmp(revision, "b03114") == 0) ||
-             (strcmp(revision, "c03111") == 0) ||
-             (strcmp(revision, "c03112") == 0) ||
              (strcmp(revision, "c03114") == 0) ||
-             (strcmp(revision, "d03114") == 0))
+			          (strcmp(revision, "d03114") == 0) ||
+			          (strcmp(revision, "b03115") == 0) ||
+             (strcmp(revision, "c03115") == 0) ||
+             (strcmp(revision, "d03115") == 0))
         return 5;
-    else if  (strcmp(revision, "c03130") == 0)      /* Raspberry Pi 400 */
+    else if ((strcmp(revision, "c03130") == 0) ||   /* Raspberry Pi 400 */
+             (strcmp(revision, "c03131") == 0))
         return 6;
     else                                            /* assume rev 7 */
         return 7;

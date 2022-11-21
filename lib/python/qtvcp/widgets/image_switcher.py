@@ -16,7 +16,6 @@
 #################################################################################
 
 import os
-import sys
 
 from PyQt5.QtCore import pyqtSignal, pyqtProperty, QVariant
 from PyQt5.QtWidgets import QLabel
@@ -195,7 +194,7 @@ class StatusImageSwitcher(ImageSwitcher):
             self.set_image_number(data)
 
     def switch_on_axis_homed(self, num):
-        data = INFO.GET_NAME_FROM_JOINT[int(num)] 
+        data = INFO.GET_NAME_FROM_JOINT[int(num)]
         if data == self.axis:
             self.set_image_number(1)
 

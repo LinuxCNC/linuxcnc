@@ -98,7 +98,7 @@ include an option for suppressing superfluous commands.
 #include "interp_internal.hh"	// interpreter private definitions
 #include "interp_queue.hh"
 #include "rs274ngc_interp.hh"
-
+#include <wordexp.h>
 #include "units.h"
 
 #include <unordered_set>
@@ -853,7 +853,7 @@ int Interp::init()
   _setup.num_spindles = 1;
 
   // default arc radius tolerances
-  // we'll try to override these from the ini file below
+  // we'll try to override these from the INI file below
   _setup.center_arc_radius_tolerance_inch = CENTER_ARC_RADIUS_TOLERANCE_INCH;
   _setup.center_arc_radius_tolerance_mm = CENTER_ARC_RADIUS_TOLERANCE_MM;
 
@@ -1033,7 +1033,7 @@ int Interp::init()
 	      n++;
 	  }
 
-          // if exist and within bounds, apply ini file arc tolerances
+          // if exist and within bounds, apply INI file arc tolerances
           // limiting figures are defined in interp_internal.hh
 
           r = inifile.Find(
@@ -1044,7 +1044,7 @@ int Interp::init()
               "RS274NGC"
           );
           if ((r != IniFile::ERR_NONE) && (r != IniFile::ERR_TAG_NOT_FOUND)) {
-              Error("invalid [RS274NGC]CENTER_ARC_RADIUS_TOLERANCE_INCH in ini file\n");
+              Error("invalid [RS274NGC]CENTER_ARC_RADIUS_TOLERANCE_INCH in INI file\n");
           }
 
           r = inifile.Find(
@@ -1055,15 +1055,15 @@ int Interp::init()
               "RS274NGC"
           );
           if ((r != IniFile::ERR_NONE) && (r != IniFile::ERR_TAG_NOT_FOUND)) {
-              Error("invalid [RS274NGC]CENTER_ARC_RADIUS_TOLERANCE_MM in ini file\n");
+              Error("invalid [RS274NGC]CENTER_ARC_RADIUS_TOLERANCE_MM in INI file\n");
           }
 
-	  // ini file g52/g92 offset persistence default setting
+	  // INI file g52/g92 offset persistence default setting
 	  inifile.Find(&_setup.disable_g92_persistence,
 		       "DISABLE_G92_PERSISTENCE",
 		       "RS274NGC");
 
-	  // ini file m98/m99 subprogram default setting
+	  // INI file m98/m99 subprogram default setting
 	  inifile.Find(&_setup.disable_fanuc_style_sub,
 		       "DISABLE_FANUC_STYLE_SUB",
 		       "RS274NGC");
@@ -1110,7 +1110,7 @@ int Interp::init()
                  _setup.v_origin_offset ,
                  _setup.w_origin_offset);
 
-  // Restore G92 offset if DISABLE_G92_PERSISTENCE not set in .ini file.
+  // Restore G92 offset if DISABLE_G92_PERSISTENCE not set in INI file.
   // This can't be done with the static _required_parameters[], where
   // the .vars file contents would reflect that setting, so instead
   // edit the restored parameters here.
@@ -2504,10 +2504,11 @@ int Interp::ini_load(const char *filename)
         logDebug("did not find PARAMETER_FILE");
     }
     SET_PARAMETER_FILE_NAME(parameter_file_name);
-    CHKS(strlen(parameter_file_name) > 0, _("Parameter file name is missing"));
 
     // close it
     inifile.Close();
+
+    CHKS((strlen(parameter_file_name) == 0), _("Parameter file name is missing"));
 
     return 0;
 }
@@ -2650,6 +2651,12 @@ int Interp::on_abort(int reason, const char *message)
 
 // spun out from interp_o_word so we can use it to test ngc file accessibility during
 // config file parsing (REMAP... ngc=<basename>)
+// Will expand ~ to user's home path
+// searches this sequence until it finds a match:
+// 1) checks if path is already the full path
+// 2) tries adding the INI defined program prefix to path
+// 3) tries adding the INI defined subroutine prefix to path
+// 4) tries adding the INI defined whizard prefix to path
 FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *foundhere )
 {
     FILE *newFP = NULL;
@@ -2657,48 +2664,83 @@ FILE *Interp::find_ngc_file(setup_pointer settings,const char *basename, char *f
     char newFileName[PATH_MAX+1];
     char foundPlace[PATH_MAX+1];
     int  dct;
+    wordexp_t exp_result;
 
-    // look for a new file
-    snprintf(tmpFileName, sizeof(tmpFileName), "%s.ngc", basename);
+    // #1 check if this is the full path already
 
-    // find subroutine by search: program_prefix, subroutines, wizard_root
-    // use first file found
+    // expand user path
+    wordexp(basename, &exp_result, 0);
+    // add .ngc to expanded path
+    snprintf(tmpFileName, sizeof(tmpFileName), "%s.ngc", exp_result.we_wordv[0]);
 
-    // first look in the program_prefix place
-    size_t chk = snprintf(newFileName, sizeof(newFileName), "%s/%s", settings->program_prefix, tmpFileName);
+    // copy to newFileName - in case this is the one...
+    size_t chk = snprintf(newFileName, sizeof(newFileName), "%s", tmpFileName);
+
+    // found a file we can open?
     if (chk < sizeof(newFileName)){
         newFP = fopen(newFileName, "r");
     }
 
-    // then look in the subroutines place
+    // #2 then look in the program_prefix place
     if (!newFP) {
-	for (dct = 0; dct < MAX_SUB_DIRS; dct++) {
-	    if (!settings->subroutines[dct])
-		continue;
-	    chk = snprintf(newFileName, sizeof(newFileName), "%s/%s", settings->subroutines[dct], tmpFileName);
-        if (chk <  sizeof(newFileName)){
-            newFP = fopen(newFileName, "r");
-            if (newFP) {
-            // logOword("fopen: |%s|", newFileName);
-            break; // use first occurrence in dir search
-            }
-	    }
-	}
-    }
-    // if not found, search the wizard tree
-    if (!newFP) {
-	int ret;
-	ret = findFile(settings->wizard_root, tmpFileName, foundPlace);
 
-	if (INTERP_OK == ret) {
-	    // create the long name
-	    chk = snprintf(newFileName, sizeof(newFileName), "%s/%s",
-		    foundPlace, tmpFileName);
-	    if (chk < sizeof(newFileName)) newFP = fopen(newFileName, "r");
-	}
+        // expand '~' into user path
+        wordexp(settings->program_prefix, &exp_result, 0);
+        chk = snprintf(newFileName, sizeof(newFileName), "%s/%s", exp_result.we_wordv[0], tmpFileName);
+
+         // found a file we can open?
+        if (chk < sizeof(newFileName)){
+            newFP = fopen(newFileName, "r");
+        }
     }
+    
+    // #3 then look in the list of subroutines prefixes
+    if (!newFP) {
+        for (dct = 0; dct < MAX_SUB_DIRS; dct++) {
+            if (!settings->subroutines[dct])
+            continue;
+
+            // expand '~' into user path
+            wordexp(settings->subroutines[dct], &exp_result, 0);
+            chk = snprintf(newFileName, sizeof(newFileName), "%s/%s", exp_result.we_wordv[0], tmpFileName);
+
+            // found a file we can open?
+            if (chk <  sizeof(newFileName)){
+                newFP = fopen(newFileName, "r");
+                if (newFP) {
+                // logOword("fopen: |%s|", newFileName);
+                break; // use first occurrence in dir search
+                }
+            }
+         }
+    }
+
+    // #4 if still not found, search the wizard tree
+    // Wiz directory already expands the '~' to user path
+    if (!newFP) {
+        int ret;
+
+        // walks the directory hierarchy ? 
+        ret = findFile(settings->wizard_root, tmpFileName, foundPlace);
+
+        if (INTERP_OK == ret) {
+            // create the long name
+            chk = snprintf(newFileName, sizeof(newFileName), "%s/%s",
+            foundPlace, tmpFileName);
+
+            // found a file we can open?
+            if (chk < sizeof(newFileName)){
+            newFP = fopen(newFileName, "r");
+            }
+        }
+    }
+
+    // pass what we found
     if (foundhere && (newFP != NULL)) 
-	strcpy(foundhere, newFileName);
+        strcpy(foundhere, newFileName);
+
+    // Not sure this is needed but the internet told me
+    wordfree(&exp_result);
     return newFP;
 }
 

@@ -48,6 +48,7 @@ switches triggered by the \\fB j0,j1 motor\\fR positions.
 """;
 
 license "GPL";
+author "Dewey Garrett based on forum post from nbremond";
 ;;
 
 FUNCTION(_) {

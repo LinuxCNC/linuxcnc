@@ -1,16 +1,24 @@
-[[cha:halui-examples]]
+:lang: en
+:toc:
 
-= Halui Examples
+[[cha:halui-examples]]
+= Halui Examples(((Halui Examples)))
+
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
 
 For any Halui examples to work you need to add the following line to the [HAL]
 section of the ini file.
 
+[source,{ini}]
 ----
 HALUI = halui
 ----
 
 [[sec:halui-remote-start]]
-
 == Remote Start
 
 To connect a remote program start button to LinuxCNC you use the
@@ -25,19 +33,25 @@ If both the inputs to the `and2.0` component are on the
 `and2.0.out` will be on and this will start the program.
 
 .Remote Start Example
-image::images/remote-start.png[alt="Remote Start Example"]
+image::images/remote-start.png["Remote Start Example"]
 
 The hal commands needed to accomplish the above are:
 
-    net program-start-btn halui.mode.auto and2.0.in0 <= <your input pin>
-    net program-run-ok and2.0.in1 <= halui.mode.is-auto
-    net remote-program-run halui.program.run <= and2.0.out
+[source,{hal}]
+----
+net program-start-btn halui.mode.auto and2.0.in0 <= <your input pin>
+net program-run-ok and2.0.in1 <= halui.mode.is-auto
+net remote-program-run halui.program.run <= and2.0.out
+----
 
 Notice on line one that there are two reader pins, this can also be split
 up to two lines like this:
 
-    net program-start-btn halui.mode.auto <= <your input pin>
-    net program-start-btn and2.0.in0
+[source,{hal}]
+----
+net program-start-btn halui.mode.auto <= <your input pin>
+net program-start-btn and2.0.in0
+----
 
 == Pause & Resume
 
@@ -46,16 +60,19 @@ rotary axis on a signal from an external machine.
 The coordination between the two systems will be
 provided by two Halui components:
 
- - halui.program.is-paused
- - halui.program.resume
+- halui.program.is-paused
+- halui.program.resume
 
 In your customized hal file, add the following
 two lines that will be connected to your I/O to turn
 on the program pause or to resume when the external
 system wants LinuxCNC to continue.
 
-    net ispaused halui.program.is paused => "your output pin"
-    net resume halui.program.resume <= "your input pin"
+[source,{hal}]
+----
+net ispaused halui.program.is paused => "your output pin"
+net resume halui.program.resume <= "your input pin"
+----
 
 Your input and output pins are connected to the pins
 wired to the other controller. They may be parallel port
@@ -72,16 +89,15 @@ LinuxCNC that it should resume executing G-code.
 
 Difficulties in timing
 
- - The "resume" input return signal should not be
-   longer than the time required to get the G-code
-   running again.
-
- - The "is-paused" output should no longer be active
-   by the time the "resume" signal ends.
+- The "resume" input return signal should not be
+  longer than the time required to get the G-code
+  running again.
+- The "is-paused" output should no longer be active
+  by the time the "resume" signal ends.
 
 These timing problems could be avoided by using
 ClassicLadder to activate the "is-paused" output via a
 monostable timer to deliver one narrow output pulse.
 The "resume" pulse could also be received via a monostable timer.
 
-
+// vim: set syntax=asciidoc:

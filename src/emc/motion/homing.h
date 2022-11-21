@@ -13,16 +13,6 @@
 #define HOME_NO_FINAL_MOVE           64
 #define HOME_INDEX_NO_ENCODER_RESET 128
 
-// SEQUENCE states
-typedef enum {
-  HOME_SEQUENCE_IDLE = 0,        // valid start state
-  HOME_SEQUENCE_START,           // valid start state
-  HOME_SEQUENCE_DO_ONE_JOINT,    // valid start state
-  HOME_SEQUENCE_DO_ONE_SEQUENCE, // valid start state
-  HOME_SEQUENCE_START_JOINTS,    // homing.c internal usage
-  HOME_SEQUENCE_WAIT_JOINTS,     // homing.c internal usage
-} home_sequence_state_t;
-
 //---------------------------------------------------------------------
 // INTERFACE routines
 
@@ -48,54 +38,47 @@ void update_joint_homing_params (int    jno,
 //---------------------------------------------------------------------
 // CONTROL routines
 
-// one-time initialization:
-int  homing_init(int id, int njoints);
+// one-time initialization (return 0 if ok):
+int  homing_init(int id,
+                 double servo_period,
+                 int n_joints,            // total no of joints
+                 int n_extrajoints,       // extra joints (non-kins)
+                 emcmot_joint_t* pjoints
+                 );
 
 // once-per-servo-period functions:
 void read_homing_in_pins(int njoints);
-void do_homing_sequence(void);
-bool do_homing(void);
+bool do_homing(void);  //return 1 if allhomed
 void write_homing_out_pins(int njoints);
 
-// overall sequence control:
-void set_home_sequence_state(home_sequence_state_t);
-
-// per-joint control of internal state machine:
-void set_home_start(int jno);
-void set_home_abort(int jno);
-void set_home_idle( int jno);
-
-// per-joint set status items:
-void set_joint_homing( int jno, bool value);
-void set_joint_homed(  int jno, bool value);
-void set_joint_at_home(int jno, bool value);
+// responses to EMCMOT_JOINT_HOME message:
+void do_home_joint(int jno);
+// per-joint controls
+void do_cancel_homing(int jno);
+void set_unhomed(int jno,motion_state_t motstate);
 
 //---------------------------------------------------------------------
 // QUERIES
 
 // overall status:
 bool get_allhomed(void);
-home_sequence_state_t get_home_sequence_state(void);
 bool get_homing_is_active(void);
 
 // per-joint information:
-int  get_home_sequence(int jno);
+int  get_home_sequence(int jno); //return s
 bool get_homing(int jno);
 bool get_homed(int jno);
 bool get_index_enable(int jno);
-bool get_home_is_volatile(int jno);
 bool get_home_needs_unlock_first(int jno);
 bool get_home_is_idle(int jno);
-bool get_homing_at_index_search_wait(int jno);
 bool get_home_is_synchronized(int jno);
+bool get_homing_at_index_search_wait(int jno);
 
 //---------------------------------------------------------------------
 // Module interface
+// motmod provided ptrs for functions called by homing:
 void homeMotFunctions(void(*pSetRotaryUnlock)(int,int)
                      ,int( *pGetRotaryUnlock)(int)
                      );
 
-void homeMotData(emcmot_config_t*
-                ,emcmot_joint_t*
-                );
 #endif /* HOMING_H */

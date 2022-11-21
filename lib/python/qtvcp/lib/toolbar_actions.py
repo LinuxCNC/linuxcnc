@@ -15,7 +15,6 @@
 
 import os
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtGui import QIcon
 from qtvcp.core import Status, Action, Info
 from qtvcp.qt_makegui import VCPWindow
 from qtvcp.lib.aux_program_loader import Aux_program_loader
@@ -74,8 +73,8 @@ class ToolBarActions():
                 self.runfromLineWidget.setText('Run From Line: {}'.format(line))
 
         if action == 'estop':
-            STATUS.connect('state-estop', lambda w: widget.setChecked(True))
-            STATUS.connect('state-estop-reset', lambda w: widget.setChecked(False))
+            STATUS.connect('state-estop', lambda w: self.statusOfEstop(widget,True))
+            STATUS.connect('state-estop-reset', lambda w: self.statusOfEstop(widget,False))
             function = (self.actOnEstop)
         elif action == 'power':
             STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
@@ -116,6 +115,13 @@ class ToolBarActions():
             STATUS.connect('interp-paused', lambda w: widget.setEnabled(homed_on_test()))
             STATUS.connect('file-loaded', lambda w, f: widget.setEnabled(homed_on_test()))
             function = (self.actOnRun)
+        elif action == 'step':
+            STATUS.connect('state-off', lambda w: widget.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: widget.setEnabled(homed_on_test()))
+            STATUS.connect('all-homed', lambda w: widget.setEnabled(True))
+            STATUS.connect('not-all-homed', lambda w, data: widget.setEnabled(False))
+            function = (self.actOnStep)
         elif action == 'pause':
             STATUS.connect('state-off', lambda w: widget.setEnabled(False))
             STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
@@ -353,13 +359,30 @@ class ToolBarActions():
         elif option == 'message_close':
             self.addMessageControlsClose(widget)
         else:
-            LOG.warning('Unrecogzied statusbar command: {}'.format(submenu))
+            LOG.warning('Unrecogzied statusbar command: {}'.format(option))
 
     #########################################################
     # Standard Actions
     #########################################################
+
+    # estop button checked status follows linuxcnc E stop state
+    # we kep the button state the same, while we request a linuxcnc state
+    # change
     def actOnEstop(self, widget, state):
-        ACTION.SET_ESTOP_STATE(state)
+            widget.blockSignals(True)
+            if STATUS.estop_is_clear():
+                widget.setChecked(False)
+            else:
+                widget.setChecked(True)
+            widget.blockSignals(False)
+            ACTION.SET_ESTOP_STATE(state)
+
+    # estop button checked status follows linuxcnc E stop state
+    def statusOfEstop(self, widget, state):
+        if STATUS.estop_is_clear():
+            widget.setChecked(False)
+        else:
+            widget.setChecked(True)
 
     def actOnPower(self, widget, state):
         ACTION.SET_MACHINE_STATE(state)
@@ -387,6 +410,9 @@ class ToolBarActions():
 
     def actOnRun(self, widget, state=None):
         ACTION.RUN()
+
+    def actOnStep(self, widget, state=None):
+        ACTION.STEP()
 
     def actOnPause(self, widget, state=None):
         ACTION.PAUSE()
@@ -469,7 +495,7 @@ class ToolBarActions():
             WIDGETS.system_shutdown_request__()
             # make sure to close qtvcp/linuxcnc properly
             # screenoptions widget redirects the close function to add a prompt
-            # now we re-redirect to remove the prompt 
+            # now we re-redirect to remove the prompt
             WIDGETS.closeEvent = WIDGETS.originalCloseEvent_
             WIDGETS.close()
         else:
@@ -667,7 +693,7 @@ class ToolBarActions():
                 return
 
         # are we past 5 files? remove the lowest
-        # else update cuurrent number
+        # else update current number
         if self.recentNum > self.maxRecent:
             widget.removeAction(alist[self.maxRecent])
         else:

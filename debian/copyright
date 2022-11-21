@@ -215,10 +215,9 @@ Files:
  src/emc/nml_intf/*
  src/emc/kinematics/*
  src/emc/motion/*
- src/emc/canterp/canterp.cc:* License: GPL Version 2
- src/emc/sai/driver.cc:* License: GPL Version 2
- src/emc/sai/saicanon.cc:* License: GPL Version 2
- src/emc/linuxcnc.h
+ src/emc/canterp/canterp.cc
+ src/emc/sai/driver.cc
+ src/emc/sai/saicanon.cc
  src/emc/usr_intf/*
  src/emc/tp/*
  src/emc/ini/*
@@ -235,12 +234,10 @@ Files:
  src/rtapi/rtai_ulapi.c
  src/hal/classicladder/README.txt
  src/hal/hal.h
- src/hal/hal_lib.c
- src/hal/hal_priv.h
  src/hal/utils/bitfile.c
  src/hal/utils/bitfile.h
  src/hal/utils/halcmd.c
- src/hal/utils/halcmd_commands.c
+ src/hal/utils/halcmd_commands.cc
  src/hal/utils/halcmd_commands.h
  src/hal/utils/halcmd_completion.c
  src/hal/utils/halcmd_completion.h
@@ -329,7 +326,7 @@ Copyright: 2008 Thomas Porschberg <thomas@randspringer.de>
            2008 Benjamin Kosnik <bkoz@redhat.com>
            2012 Zack Weinberg <zackw@panix.com>
            2013 Roy Stogner <roystgnr@ices.utexas.edu>
-License: custom
+License: GNU-All-Permissive
  Copying and distribution of this file, with or without modification, are
  permitted in any medium without royalty provided the copyright notice
  and this notice are preserved. This file is offered as-is, without any
@@ -352,7 +349,7 @@ Comment: The origin of this subtree is the Classic Ladder Project
  http://membres.lycos.fr/mavati/classicladder/ 
  http://www.sourceforge.net/projects/classicladder
 
-Files: qtvcp/screens/woodpecker/images/QTvcp Widgets_files/asciidoc.js
+Files: share/qtvcp/screens/woodpecker/images/QTvcp?Widgets_files/asciidoc.js
 Copyright:      2002 Mihai Bazon
  modified by
                 2006 Troy D. Hanson
@@ -372,7 +369,9 @@ Copyright: The LinuxCNC developers derived this work from
 License: LGPL-2
 
 Files: src/libnml/inifile/*
-       src/libnml/nml/*
+       src/libnml/nml/nml_mod.cc
+       src/libnml/nml/nml_mod.hh
+       src/libnml/nml/nml_type.hh
        src/libnml/buffer/tcpmem.cc
        src/libnml/buffer/tcpmem.hh
        src/libnml/buffer/shmem.cc
@@ -382,7 +381,7 @@ Copyright: The LinuxCNC developers derived this work from
 License: GPL-2
 
 Files: 
- lib/python/gladevcp/iconview.py:    the original code is under the BSD license
+ lib/python/gladevcp/iconview.py
 Copyright: 2012 Norbert Schechner <nieson@web.de>
 Comment: based on a tutorial from ZetCode PyGTK tutorial
  the original code is under the BSD license
@@ -393,22 +392,22 @@ Files:
  lib/python/rs274/OpenGLTk.py
 Copyright:      Mike Hartshorn
                 Department of Chemistry, University of York, UK
-Copyright: BSD-3-Clause
+License: BSD-3-Clause
 
 Files:
  lib/python/qtvcp/widgets/stylesheeteditor.py
  lib/python/qtvcp/widgets/nurbs_editor.py
 Copyright: 2010 Hans-Peter Jansen <hpj@urpla.net>.
                 Nokia Corporation and/or its subsidiary(-ies).
-Copyright: BSD-3-Clause
+License: BSD-3-Clause
 
 Files: src/rtapi/*
 Copyright: the LinuxCNC developers
 License: LGPL-2.1+
 
-Files: share/qtvcp/images/widgets/writer/icons
+Files: share/qtvcp/images/widgets/writer/icons/*
 Copyright: 2013 Yusuke Kamiyamane
-License: CC-3.0
+License: CC-BY-3.0
 
 Files: unit_tests/catch.hpp
 Copyright: 2019 Two Blue Cubes Ltd. All rights reserved.
@@ -424,7 +423,7 @@ License: MIT
 
 Files: unit_tests/greatest.h
 Copyright: 2011-2019 Scott Vokes <vokes.s@gmail.com>
-License: custom
+License: ISC
  Permission to use, copy, modify, and/or distribute this software for any
  purpose with or without fee is hereby granted, provided that the above
  copyright notice and this permission notice appear in all copies.
@@ -472,19 +471,19 @@ License: GPL-2+
 
 License: LGPL-2
  This program is free software; you can redistribute it and/or modify
- it under the terms of the GNU Lesser General Public License as published by
- the Free Software Foundation; version 2.0 of the license.
+ it under the terms of the GNU Library General Public License as published by
+ the Free Software Foundation; version 2 of the license.
  .
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU Lesser General Public License for more details.
  .
- You should have received a copy of the GNU Lesser General Public License along
+ You should have received a copy of the GNU Library General Public License along
  with this program. If not, see <https://www.gnu.org/licenses/>
  .
- On Debian systems, the complete text of the GNU Lesser General Public
- License version 2.1 can be found in ‘/usr/share/common-licenses/LGPL-2’.
+ On Debian systems, the complete text of the GNU Library General Public
+ License version 2 can be found in '/usr/share/common-licenses/LGPL-2'.
 
 License: LGPL-2.1+
  This program is free software; you can redistribute it and/or modify
@@ -501,7 +500,24 @@ License: LGPL-2.1+
  with this program. If not, see <https://www.gnu.org/licenses/>
  .
  On Debian systems, the complete text of the GNU Lesser General Public
- License version 2.1 can be found in ‘/usr/share/common-licenses/LGPL-2.1’.
+ License version 2.1 can be found in '/usr/share/common-licenses/LGPL-2.1'.
+
+License: GPL-3+
+ This package is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 3 of the License, or
+ (at your option) any later version.
+ .
+ This package is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this program. If not, see <https://www.gnu.org/licenses/>
+ .
+ On Debian systems, the complete text of the GNU General
+ Public License version 3 can be found in "/usr/share/common-licenses/GPL-3".
 
 License: MIT
  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -576,14 +592,14 @@ License: BSD-3-Clause
  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  SUCH DAMAGE.
 
-License: CC-3.0
+License: CC-BY-3.0
  CREATIVE COMMONS CORPORATION IS NOT A LAW FIRM AND DOES NOT PROVIDE LEGAL
  SERVICES. DISTRIBUTION OF THIS LICENSE DOES NOT CREATE AN ATTORNEY-CLIENT
  RELATIONSHIP. CREATIVE COMMONS PROVIDES THIS INFORMATION ON AN "AS-IS"
  BASIS. CREATIVE COMMONS MAKES NO WARRANTIES REGARDING THE INFORMATION
  PROVIDED, AND DISCLAIMS LIABILITY FOR DAMAGES RESULTING FROM ITS USE.
  .
-License
+ License
  .
  THE WORK (AS DEFINED BELOW) IS PROVIDED UNDER THE TERMS OF THIS CREATIVE
  COMMONS PUBLIC LICENSE ("CCPL" OR "LICENSE"). THE WORK IS PROTECTED BY
@@ -867,6 +883,3 @@ License
     such additional rights are deemed to be included in the License;
     this License is not intended to restrict the license of any rights
     under applicable law.
-    announcement including an appropriate copyright notice and a
-a notice placed by the copyright holder saying it may be distributed
-certain countries either by patents or by copyrighted interfaces, the

@@ -62,7 +62,7 @@ def ui():
         g = Tkinter.Frame(f)
         w = Tkinter.Checkbutton(g, variable=var, text="Yes")
         w.pack(side="left")
-        return g, var 
+        return g, var
 
     def intscale(k, v, min=1, max = 100):
         var = Tkinter.IntVar(f)
@@ -88,7 +88,7 @@ def ui():
             v = 0
             opt = options[0]
 
-        var = Tkinter.IntVar(f)    
+        var = Tkinter.IntVar(f)
         var.set(v)
         svar = Tkinter.StringVar(f)
         svar.set(options[v])
@@ -183,8 +183,8 @@ def ui():
         else: bb.configure(state="disabled")
         # This line creates an error when you load holecircle twice
         # from inside linuxcnc eg. gladevcp filechooser or AXIS GUI
-        #print >>sys.stderr, "update_ok", args
-    
+        #print(("update_ok", args), file=sys.stderr)
+
     vars['count'].trace('w', update_preview)
     vars['inc'].trace('w', update_preview)
     vars['th0'].trace('w', update_preview)
@@ -198,7 +198,7 @@ def ui():
     bb.pack(side="left", padx=4, pady=4)
     bc = Tkinter.Button(b, text=_("Cancel"), command=lambda:status.set(-1), width=8, default="normal")
     bc.pack(side="left", padx=4, pady=4)
-    
+
     app.bind("<Escape>", lambda evt: bc.invoke())
     app.bind("<Return>", lambda evt: bb.invoke())
     app.wm_protocol("WM_DELETE_WINDOW", lambda: bc.invoke())
@@ -223,8 +223,8 @@ def ui():
 
 unitcodes = ['G20', 'G21']
 u = ui()
-print unitcodes[u['units']]
-print "F%.1f" % u['feedrate']
+print(unitcodes[u['units']])
+print("F%.1f" % u['feedrate'])
 
 count = u['count']
 th0 = u['th0']
@@ -241,5 +241,5 @@ for i in range(count):
     th = (th0 + i * inc) * math.pi / 180
     x = cx + rad * math.cos(th)
     y = cy + rad * math.sin(th)
-    print "%s X% 8.4f Y% 8.4f Z% 8.4f R% 8.4f" % (cycle, x, y, depth, retract)
-print "M2"
+    print("%s X% 8.4f Y% 8.4f Z% 8.4f R% 8.4f" % (cycle, x, y, depth, retract))
+print("M2")

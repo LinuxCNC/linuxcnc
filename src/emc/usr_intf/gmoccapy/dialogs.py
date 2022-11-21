@@ -26,6 +26,7 @@ import gi
 gi.require_version("Gtk","3.0")
 from gi.repository import Gtk
 from gi.repository import GObject
+from gi.repository import GLib
 from gi.repository import Pango
 import gladevcp
 
@@ -108,7 +109,8 @@ class Dialogs(GObject.GObject):
         return "CANCEL"
 
     # display warning dialog
-    def warning_dialog(self, caller, message, secondary = None, title = _("Operator Message"), sound = True):
+    def warning_dialog(self, caller, message, secondary = None, title = _("Operator Message"),\
+        sound = True, confirm_pin = 'warning-confirm', active_pin = None):
         dialog = Gtk.MessageDialog(caller.widgets.window1,
                                    Gtk.DialogFlags.DESTROY_WITH_PARENT,
                                    Gtk.MessageType.INFO, Gtk.ButtonsType.NONE, message)
@@ -126,6 +128,18 @@ class Dialogs(GObject.GObject):
         if sound:
             self.emit("play_sound", "alert")
         dialog.set_title(title)
+
+        def periodic():
+            if caller.halcomp[confirm_pin]:
+                dialog.response(Gtk.ResponseType.OK)
+                return False
+            if active_pin is not None:
+                if not caller.halcomp[active_pin]:
+                    dialog.response(Gtk.ResponseType.CANCEL)
+                    return False
+            return True
+        GLib.timeout_add(100, periodic)
+
         response = dialog.run()
         dialog.destroy()
         return response == Gtk.ResponseType.OK

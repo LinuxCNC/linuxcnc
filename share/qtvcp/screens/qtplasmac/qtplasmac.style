@@ -21,7 +21,7 @@
 #scribe_config, #spotting_config, #utility_frame,
 #gui_frame, #materials_frame, #camview_frame,
 #conv_frame, #stats_frame, #pmx_stats_frame,
-#machinelog_frame {
+#machinelog_frame, #ub_frame, #sd_frame {
     border: 1px solid frames;
     background: backgnd;
     border-radius: 4px }
@@ -29,19 +29,23 @@
 /****** LABEL ************/
 #dro_label, #file_button_label,
 #machine_label, #button_label, #edit_label,
-#file_label, #jog_label,
-#cut_rec_label, #thc_label, #sensor_label,
-#arc_label, #control_label, #open_label,
-#mdi_label, #config_label, #config_conf_lbl,
-#arc_conf_lbl, #thc_conf_lbl, #motion_conf_lbl,
-#probe_conf_lbl, #safety_conf_lbl, #scribe_conf_lbl,
+#file_label, #jog_label, #cut_rec_label,
+#thc_label, #sensor_label, #arc_label, 
+#control_label, #open_label, #mdi_label,
+#config_conf_lbl, #arc_conf_lbl, #thc_conf_lbl,
+#motion_conf_lbl, #probe_conf_lbl, 
+#safety_conf_lbl, #scribe_conf_lbl,
 #spotting_conf_lbl, #utility_label, #gui_label,
-#materials_label, #camview_label, #conv_label,
-#stats_label, #pmx_stats_label, #machinelog_label {
+#camview_label, #conv_label, #stats_label,
+#pmx_stats_label, #machinelog_label {
     color: backgnd;
     background: frames;
     border-top-left-radius: 2px;
     border-top-right-radius: 2px }
+
+/****** MAX VELOCITY ************/
+#max_offset_velocity_in {
+    font: 11pt }
 
 /****** TOOLTIPS ************/
 QToolTip {
@@ -219,42 +223,10 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
 #cut_rec_se:pressed, #cut_rec_sw:pressed {
     background: backalt }
 
-/****** OPEN BUTTON<<<<<<<<<<<<*/
-#file_open {
-    color: backgnd;
-    background: frames;
-    border: none;
-    border-top-left-radius: 0px;
-    border-top-right-radius: 0px;
-    border-bottom-left-radius: 0px;
-    border-bottom-right-radius: 0px }
-
-#file_open:disabled {
-    background: inactive }
-
-#file_open:pressed {
-    color: frames;
-    background: backgnd }
-
-/****** RELOAD BUTTON<<<<<<<<<<<<*/
-#file_reload {
-    color: backgnd;
-    background: frames;
-    border: none;
-    border-top-left-radius: 0px;
-    border-top-right-radius: 2px;
-    border-bottom-left-radius: 0px;
-    border-bottom-right-radius: 0px }
-
-#file_reload:disabled {
-    background: inactive }
-
-#file_reload:pressed {
-    color: frames;
-    background: backgnd }
-
-/****** CLEAR BUTTON<<<<<<<<<<<<*/
-#file_clear {
+/****** HEADERS WITH BUTTONS <<<<<<<<<<<<*/
+/* LEFT */
+#file_clear, #ub_save, #sd_save,
+#save_plasma, #save_material {
     color: backgnd;
     background: frames;
     border: none;
@@ -263,10 +235,57 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
     border-bottom-left-radius: 0px;
     border-bottom-right-radius: 0px }
 
-#file_clear:disabled {
+#file_clear:disabled, #ub_save:disabled,
+#sd_save:disabled, #save_plasma:disabled,
+#save_material:disabled {
     background: inactive }
 
-#file_clear:pressed {
+#file_clear:pressed, #ub_save:pressed,
+#sd_save:pressed, #save_plasma:pressed,
+#save_material:pressed {
+    color: frames;
+    background: backgnd }
+
+/* CENTER */
+#file_open, #ub_label, #sd_label,
+#materials_label, #new_material,
+#delete_material, #config_label {
+    color: backgnd;
+    background: frames;
+    border: none;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px }
+
+#file_open:disabled, #materials_label:disabled,
+#new_material:disabled, #delete_material:disabled {
+    background: inactive }
+
+#file_open:pressed, #materials_label:pressed,
+#new_material:pressed, #delete_material:pressed {
+    color: frames;
+    background: backgnd }
+
+/* RIGHT */
+#file_reload, #ub_reload, #sd_reload,
+#reload_plasma, #reload_material {
+    color: backgnd;
+    background: frames;
+    border: none;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 2px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px }
+
+#file_reload:disabled, #sd_reload:disabled,
+#ub_reload:disabled, #reload_plasma:disabled,
+#reload_material:disabled {
+    background: inactive }
+
+#file_reload:pressed, #up_reload:pressed,
+#sd_reload:pressed, #reload_plasma:pressed,
+#reload_material:pressed {
     color: frames;
     background: backgnd }
 
@@ -366,20 +385,21 @@ QCheckBox::indicator:checked:pressed {
     background: backgnd }
 
 /****** CHECK BOX CONTROL ************/
-#torch_enable, #cornerlock_enable, #kerfcross_enable,
+#torch_enable, #cornerlock_enable, #voidlock_enable,
 #use_auto_volts, #ohmic_probe_enable, #mesh_enable,
-#ignore_arc_ok, #pmx485_enable, #thc_enable {
+#ignore_arc_ok, #pmx485_enable, #thc_auto, #thc_enable {
     border: none;
     spacing: 0px }
 
 #torch_enable::indicator,
 #cornerlock_enable::indicator,
-#kerfcross_enable::indicator,
+#voidlock_enable::indicator,
 #use_auto_volts::indicator,
 #ohmic_probe_enable::indicator,
 #mesh_enable::indicator,
 #ignore_arc_ok::indicator,
 #pmx485_enable::indicator,
+#thc_auto::indicator,
 #thc_enable::indicator {
     background: backgnd;
     border: 1px solid foregnd;
@@ -389,47 +409,51 @@ QCheckBox::indicator:checked:pressed {
 
 #torch_enable::indicator:checked,
 #cornerlock_enable::indicator:checked,
-#kerfcross_enable::indicator:checked,
+#voidlock_enable::indicator:checked,
 #use_auto_volts::indicator:checked,
 #ohmic_probe_enable::indicator:checked,
 #mesh_enable::indicator:checked,
 #ignore_arc_ok::indicator:checked,
 #pmx485_enable::indicator:checked,
+#thc_auto::indicator:checked,
 #thc_enable::indicator:checked {
     background: highlight;
     border-color: foregnd }
 
 #torch_enable::indicator:!checked,
 #cornerlock_enable::indicator:!checked,
-#kerfcross_enable::indicator:!checked,
+#voidlock_enable::indicator:!checked,
 #use_auto_volts::indicator:!checked,
 #ohmic_probe_enable::indicator:!checked,
 #mesh_enable::indicator:!checked,
 #ignore_arc_ok::indicator:!checked,
 #pmx485_enable::indicator:!checked,
+#thc_auto::indicator:!checked,
 #thc_enable::indicator:!checked {
     background: backgnd;
     border-color: foregnd }
 
 #torch_enable::indicator:pressed,
 #cornerlock_enable::indicator:pressed,
-#kerfcross_enable::indicator:pressed,
+#voidlock_enable::indicator:pressed,
 #use_auto_volts::indicator:pressed,
 #ohmic_probe_enable::indicator:pressed,
 #mesh_enable::indicator:pressed,
 #ignore_arc_ok::indicator:pressed,
 #pmx485_enable::indicator:pressed,
+#thc_auto::indicator:pressed,
 #thc_enable::indicator:pressed {
     background: highlight }
 
 #torch_enable::indicator:checked:pressed,
 #cornerlock_enable::indicator:checked:pressed,
-#kerfcross_enable::indicator:checked:pressed,
+#voidlock_enable::indicator:checked:pressed,
 #use_auto_volts::indicator:checked:pressed,
 #ohmic_probe_enable::indicator:checked:pressed,
 #mesh_enable::indicator:checked:pressed,
 #ignore_arc_ok::indicator:checked:pressed,
 #pmx485_enable::indicator:checked:pressed,
+#thc_auto::indicator:checked:pressed,
 #thc_enable::indicator:checked:pressed {
     background: backgnd }
 
@@ -562,16 +586,20 @@ QHeaderView::section {
 
 #filemanager QComboBox {
     height: 40px;
-    font: 11pt }
+    padding-right: 6px}
 
 #filemanager QLineEdit {
     height: 40px;
     font: 11pt }
 
 #filemanager QToolButton {
-    font: 11pt;
-    height: 40px;
-    margin: 0px }
+    height: 40px }
+
+#filemanager QPushButton {
+    height: 40px }
+
+#file_buttons_2 QPushButton {
+    height: 40px }
 
 /****** ORIGIN OFFSET VIEW ************/
 /* this also uses QHeaderView from FILEMANAGER */
@@ -779,6 +807,9 @@ EditorBase {
 #gcode_editor QToolBar {
     spacing: 4 }
 
+#gcode_editor QToolBar::separator {
+    width: 8 }
+
 #gcode_editor QToolButton {
     width: 40px;
     height: 37px }
@@ -786,6 +817,7 @@ EditorBase {
 #gcode_editor QLineEdit {
     border: 1px solid foregnd;
     border-radius: 4px;
+    width: 94px;
     height: 40px }
 
 /****** MESSAGE BOX ************/

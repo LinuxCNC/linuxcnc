@@ -12,7 +12,7 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 ###############################################################################
 
 import os
@@ -53,6 +53,7 @@ class _PStat(object):
             self.SCREENDIR = os.path.join(self.BASEDIR, "share", "qtvcp", "screens")
             self.PANELDIR = os.path.join(self.BASEDIR, "share", "qtvcp", "panels")
             self.RIPCONFIGDIR = os.path.join(self.BASEDIR, "configs", "sim", "qtvcp_screens")
+            self.VISMACHDIR = os.path.join(self.BASEDIR, "lib", "python", "qtvcp", "lib", "qt_vismach")
             # python RIP library directory
             self.PYDIR = os.path.join(self.BASEDIR, "lib", "python")
             sys.path.insert(0, self.PYDIR)
@@ -78,7 +79,7 @@ class _PStat(object):
 
         # record the original argument passed to us
         self.ARGUMENT = filename
-        # PyQt's .ui file's basename 
+        # PyQt's .ui file's basename
         self.BASENAME = os.path.splitext(os.path.basename(filename))[0]
         # base path (includes any extra path commands
         self.BASEPATH = os.path.splitext(filename)[0]
@@ -104,7 +105,11 @@ class _PStat(object):
                 LOG.info("Using DEFAULT handler file path: yellow<{}>".format(self.HANDLER))
             else:
                 self.HANDLER = None
-                LOG.info("No handler file found")
+                LOG.info("No handler file found.")
+        if not self.HANDLER is None:
+            self.HANDLERDIR = os.path.dirname(self.HANDLER)
+        else:
+            self.HANDLERDIR = None
 
         # look for custom ui file
         ui_fn = "{}.ui".format(self.BASEPATH)
@@ -117,12 +122,12 @@ class _PStat(object):
             defaultui = os.path.join(self.PANELDIR, self.BASEPATH, ui_fn)
         LOG.debug("Checking for .ui in: yellow<{}>".format(localui))
         if os.path.exists(localui):
-            LOG.info("Using LOCAL ui file from yellow<{}>".format(localui))
+            LOG.info("Using LOCAL ui file from: yellow<{}>".format(localui))
             self.XML = localui
         else:
             LOG.debug("Checking for .ui in: yellow<{}>".format(defaultui))
             if os.path.exists(defaultui):
-                LOG.info("Using DEFAULT ui file from yellow<{}>".format(defaultui))
+                LOG.info("Using DEFAULT ui file from: yellow<{}>".format(defaultui))
                 self.XML = defaultui
             else:
                 # error
@@ -137,6 +142,11 @@ class _PStat(object):
                     print(('{}'.format(i)))
                 print('')
                 return True # error
+        self.XMLDIR = os.path.dirname(self.HANDLER)
+        if not self.HANDLER is None:
+            self.XMLDIR = os.path.dirname(self.HANDLER)
+        else:
+            self.XMLDIR = None
 
         # check for qss file
         qss_fn = "{}.qss".format(self.BASEPATH)
@@ -149,16 +159,16 @@ class _PStat(object):
 
         LOG.debug("Checking for .qss in: yellow<{}>".format(localqss))
         if os.path.exists(localqss):
-            LOG.info("Using LOCAL qss file from yellow<{}>".format(localqss))
+            LOG.info("Using LOCAL qss file from: yellow<{}>".format(localqss))
             self.QSS = localqss
         else:
             LOG.debug("Checking for .qss in: yellow<{}>".format(defaultqss))
             if os.path.exists(defaultqss):
-                LOG.info("Using DEFAULT qss file from yellow<{}>".format(defaultqss))
+                LOG.info("Using DEFAULT qss file from: yellow<{}>".format(defaultqss))
                 self.QSS = defaultqss
             else:
                 self.QSS = None
-                LOG.info("No qss file found")
+                LOG.info("No qss file found.")
 
         # check for qrc file
         qrc_fn = "{}.qrc".format(self.BASEPATH)
@@ -171,18 +181,18 @@ class _PStat(object):
 
         LOG.debug("Checking for .qrc in: yellow<{}>".format(localqrc))
         if os.path.exists(localqrc):
-            LOG.info("Using LOCAL qrc file from yellow<{}>".format(localqrc))
+            LOG.info("Using LOCAL qrc file from: yellow<{}>".format(localqrc))
             self.QRC = localqrc
             self.QRC_IS_LOCAL = True
         else:
             LOG.debug("Checking for .qrc in: yellow<{}>".format(defaultqrc))
             if os.path.exists(defaultqrc):
-                LOG.info("Using DEFAULT qrc file from yellow<{}>".format(defaultqrc))
+                LOG.info("Using DEFAULT qrc file from: yellow<{}>".format(defaultqrc))
                 self.QRC = defaultqrc
                 self.QRC_IS_LOCAL = False
             else:
                 self.QRC = None
-                LOG.info("No qrc file found")
+                LOG.info("No qrc file found.")
 
         # check for qrcpy file
         qrcpy_fn = 'resources.py'
@@ -196,14 +206,14 @@ class _PStat(object):
         # if there is a local resource file or a QRC to compile it from:
         if os.path.exists(localqrcpy) or self.QRC is not None:
             if os.path.exists(localqrcpy):
-                LOG.info("Using LOCAL resources.py file from yellow<{}>".format(localqrcpy))
+                LOG.info("Using LOCAL resources.py file from: yellow<{}>".format(localqrcpy))
             else:
                 LOG.info("Resources.py file needs to be compiled at: {}".format(localqrcpy))
             self.QRCPY = localqrcpy
             self.QRCPY_IS_LOCAL = True
         else:
             self.QRCPY = None
-            LOG.info("No resources.py file found, No QRC file to compile one from.")
+            LOG.info("No resources.py file found, no QRC file to compile one from.")
 
         # translation path
         lang = QtCore.QLocale.system().name().split('_')[0]
@@ -212,15 +222,15 @@ class _PStat(object):
         localqm = os.path.join(self.CONFIGPATH, self.BASEPATH, qm_fn)
         LOG.debug("Checking for translation file in: yellow<{}>".format(localqm))
         if os.path.exists(localqm):
-            LOG.info("Using LOCAL translation file from yellow<{}>".format(localqm))
+            LOG.info("Using LOCAL translation file from: yellow<{}>".format(localqm))
             self.LOCALEDIR = localqm
         else:
             LOG.debug("Checking for translation file in: yellow<{}>".format(defaultqm))
             if os.path.exists(defaultqm):
-                LOG.info("Using DEFAULT translation file from yellow<{}>".format(defaultqm))
+                LOG.info("Using DEFAULT translation file from: yellow<{}>".format(defaultqm))
                 self.LOCALEDIR = defaultqm
             else:
-                LOG.info("Using no translations. Default system locale is: yellow<{}>".format(lang))
+                LOG.info("Using no translations, default system locale is: yellow<{}>".format(lang))
                 self.LOCALEDIR = None
 
     def find_screen_dirs(self):
@@ -231,3 +241,10 @@ class _PStat(object):
         dirs = next(os.walk(self.PANELDIR))[1]
         return dirs
 
+    def find_vismach_files(self):
+        tmp = []
+        for file in os.listdir(self.VISMACHDIR):
+            if file.endswith(".py"):
+                if not file in ('__init__.py', 'qt_vismach.py', 'primitives.py'):
+                    tmp.append(file)
+        return tmp

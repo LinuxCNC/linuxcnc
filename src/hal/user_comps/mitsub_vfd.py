@@ -18,7 +18,7 @@
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 # user space component for controlling a misubishi inverter over the serial port using rs485 standard
-# specifcally the A500 F500 E500 A500 D700 E700 F700 series - others may work or need adjustment
+# specifically the A500 F500 E500 A500 D700 E700 F700 series - others may work or need adjustment
 # tested on A500 E500 and E700
 # I referenced manual 'communication option reference manual' and A500 technical manual for 500 series.
 # 'Fr-A700 F700 E700 D700 technical manual' for the 700 series

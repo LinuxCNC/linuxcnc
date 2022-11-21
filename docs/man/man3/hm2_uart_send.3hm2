@@ -23,12 +23,13 @@ the available channels are printed to standard output during the driver loading
 process and take the form:
 hm2_<board name>.<board index>.uart.<index> For example hm2_5i23.0.uart.0
 
-This function performs writes of data to the specified UART.It should be used 
-inside a function in a realtime or userspace HAL component.
+This function performs writes of data to the specified UART.
+It should be used inside a function in a realtime or userspace HAL component.
 
 .SH RETURN VALUE
 Returns the number of bytes sent on success and \-1 on failure.
 
 .SH SEE ALSO
-man hm2_uart_setup, man hm2_uart_read
+\fBhm2_uart_setup\fR(3hm2), \fBhm2_uart_read\fR(3hm2)
+.TP
 See src/hal/drivers mesa_uart.comp for an example usage.

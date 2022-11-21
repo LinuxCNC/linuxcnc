@@ -181,7 +181,7 @@ class touchy:
                 if not self.theme_name == "Follow System Theme":
                     settings.set_string_property("gtk-theme-name", self.theme_name, "")
 
-                # interactive mdi command builder and issuer
+                # interactive MDI command builder and issuer
                 mdi_labels = []
                 mdi_eventboxes = []
                 for i in range(self.num_mdi_labels):
@@ -254,7 +254,7 @@ class touchy:
                                                        opstop, blockdel)
 
                 self.current_file = self.status.emcstat.file
-                # check the ini file if UNITS are set to mm"
+                # check the INI file if UNITS are set to mm"
                 # first check the global settings
                 units=self.ini.find("TRAJ","LINEAR_UNITS")
 
@@ -400,30 +400,31 @@ class touchy:
         def quit(self, unused):
                 Gtk.main_quit()
 
-        def send_message(self,socket,dest_xid,message):
-            event = Gdk.Event(Gdk.CLIENT_EVENT)
-            event.window = socket.get_window()                  # needs sending Gdk window
-            event.message_type = Gdk.atom_intern('Gladevcp')    # change to any text you like
-            event.data_format = 8                               # 8 bit (char) data (options: long,short)
-            event.data = message                                # must be exactly 20 char bytes (options: 5 long or 10 short)
-            event.send_event = True                             # signals this was sent explicedly
-            event.send_client_message(dest_xid)                 # uses destination XID window number
+# This does not work in GTK3 - https://github.com/LinuxCNC/linuxcnc/blob/master/src/emc/usr_intf/touchy/touchy.py#L403
+
+        # def send_message(self,socket,dest_xid,message):
+            # event = Gdk.Event(Gdk.CLIENT_EVENT)
+            # event.window = socket.get_window()                  # needs sending Gdk window
+            # event.message_type = Gdk.atom_intern('Gladevcp')    # change to any text you like
+            # event.data_format = 8                               # 8 bit (char) data (options: long,short)
+            # event.data = message                                # must be exactly 20 char bytes (options: 5 long or 10 short)
+            # event.send_event = True                             # signals this was sent explicedly
+            # event.send_client_message(dest_xid)                 # uses destination XID window number
 
 
         def tabselect(self, notebook, b, tab):
-                new_tab=notebook.get_nth_page(tab)
-                old_tab=notebook.get_nth_page(self.tab)
+                # new_tab=notebook.get_nth_page(tab)
+                # old_tab=notebook.get_nth_page(self.tab)
                 self.tab = tab
-                for c in self._dynamic_childs:
-                    if new_tab.__gtype__.name =='GtkSocket':
-                        w= new_tab.get_plug_window()
-                        if new_tab.get_id()==c:
-                                self.send_message(new_tab,w.xid,"Visible\0\0\0\0\0\0\0\0\0\0\0\0\0")
-
-                    if old_tab.__gtype__.name =='GtkSocket':
-                        w= old_tab.get_plug_window()
-                        if old_tab.get_id()==c:
-                                self.send_message(old_tab,w.xid,"Hidden\0\0\0\0\0\0\0\0\0\0\0\0\0\0")
+                # for c in self._dynamic_childs:
+                    # if new_tab.__gtype__.name =='GtkSocket':
+                        # w= new_tab.get_plug_window()
+                        # if new_tab.get_id()==c:
+                                # self.send_message(new_tab,w.xid,"Visible\0\0\0\0\0\0\0\0\0\0\0\0\0")
+                    # if old_tab.__gtype__.name =='GtkSocket':
+                        # w= old_tab.get_plug_window()
+                        # if old_tab.get_id()==c:
+                                # self.send_message(old_tab,w.xid,"Hidden\0\0\0\0\0\0\0\0\0\0\0\0\0\0")
 
         def pointer_hide(self, b = None):
                 if self.radiobutton_mask: return
@@ -868,7 +869,7 @@ class touchy:
 
 if __name__ == "__main__":
         if len(sys.argv) > 2 and sys.argv[1] == '-ini':
-            print("ini", sys.argv[2])
+            print("INI", sys.argv[2])
             hwg = touchy(sys.argv[2])
         else:
             hwg = touchy()

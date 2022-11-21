@@ -1,0 +1,5 @@
+%
+(Test simple move)
+G0 X0 Y0 Z0
+G1 X1 Y1 Z1 F10
+%

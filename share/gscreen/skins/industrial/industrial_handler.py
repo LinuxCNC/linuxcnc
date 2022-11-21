@@ -29,7 +29,7 @@ _MAN = 0;_MDI = 1;_AUTO = 2;_LOCKTOGGLE = 1
 # to load a completely custom glade screen
 # The only things that really matters is that it's saved as a GTK builder project,
 # the toplevel window is caller window1 (The default name) and you connect a destroy
-# window signal else you can't close down linuxcnc 
+# window signal else you can't close down linuxcnc
 class HandlerClass:
 
     # This will be pretty standard to gain access to everything
@@ -59,7 +59,7 @@ class HandlerClass:
 
     def on_diameter_mode_pressed(self, widget):
         data = widget.get_active()
-        print "switch diam mode",data
+        print("switch diam mode",data)
         self.gscreen.set_diameter_mode(data)
         for i in ("1","2","3"):
             axis = "dro_x%s"% (i)
@@ -69,9 +69,9 @@ class HandlerClass:
                 self.widgets[axis].set_to_radius()
 
     # This is a new method for our button
-    # we selected this method name in the glade file as a signal callback 
+    # we selected this method name in the glade file as a signal callback
     def on_estop_clicked(self,*args):
-        print "estop"
+        print("estop")
         if self.data.estopped:
             self.emc.estop_reset(1)
             self.gscreen.add_alarm_entry("Machine Estop Reset")
@@ -83,7 +83,7 @@ class HandlerClass:
         return True
 
     # This is a new method for our new button
-    # we selected this method name in the glade file as a signal callback 
+    # we selected this method name in the glade file as a signal callback
     def on_machine_state_clicked(self,widget):
         if self.data.estopped:
             return
@@ -328,7 +328,7 @@ class HandlerClass:
         for i in ("setup_button","mdi_button","run_button","tooledit_button","offsetpage_button","button_index_tool"):
             self.data.sensitive_override_mode.append(i)
             self.data.sensitive_graphics_mode.append(i)
-            self.data.sensitive_origin_mode.append(i) 
+            self.data.sensitive_origin_mode.append(i)
         self.widgets["spindle-at-speed"].set_property("on_color","black")
         self.gscreen.init_unlock_code()
         self.gscreen.init_state()
@@ -366,7 +366,7 @@ class HandlerClass:
         self.widgets.show_dtg.set_active(self.data.show_dtg)
         self.on_show_dtg_pressed(self.widgets.show_dtg)
         self.gscreen.init_dro()
-        data = self.data.dro_units 
+        data = self.data.dro_units
         for i in ("1","2","3"):
             for letter in self.data.axis_list:
                 axis = "dro_%s%s"% (letter,i)
@@ -377,7 +377,7 @@ class HandlerClass:
 
     # every 100 milli seconds this gets called
     # we add calls to the regular functions for the widgets we are using.
-    # and add any extra calls/code 
+    # and add any extra calls/code
     def periodic(self):
         self.update_mdi_spindle_button() # local method
         self.gscreen.update_spindle_bar()

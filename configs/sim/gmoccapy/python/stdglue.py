@@ -24,7 +24,7 @@
 
 import os
 import sys
-import emccanon 
+import emccanon
 from interpreter import *
 from gscreen import preferences
 throw_exceptions = 1
@@ -61,7 +61,7 @@ def change_prolog(self, **words):
             if self.params[5601] < 0.0:
                 self.set_errormsg("Toolchanger hard fault %d" % (int(self.params[5601])))
                 return INTERP_ERROR
-            print "change_prolog: Toolchanger soft fault %d" % int(self.params[5601])
+            print("change_prolog: Toolchanger soft fault %d" % int(self.params[5601]))
 
         if self.selected_pocket < 0:
             self.set_errormsg("M6: no tool prepared")
@@ -76,7 +76,7 @@ def change_prolog(self, **words):
         self.params["selected_pocket"] = self.selected_pocket
         return INTERP_OK
 
-    except Exception, e:
+    except Exception as e:
         self.set_errormsg("M6/change_prolog: %s" % (e))
         return INTERP_ERROR
 
@@ -105,7 +105,7 @@ def change_epilog(self, **words):
             self.set_errormsg(message)
             return INTERP_ERROR
 
-    except Exception, e:
+    except Exception as e:
         self.set_errormsg("M6/change_epilog: %s" % (e))
         return INTERP_ERROR
 
@@ -120,7 +120,7 @@ _compat = {
     emccanon.CANON_PLANE_XZ : (("y","r"),_uvw,"XZ"),
     emccanon.CANON_PLANE_UV : (("w","r"),_xyz,"UV"),
     emccanon.CANON_PLANE_VW : (("u","r"),_xyz,"VW"),
-    emccanon.CANON_PLANE_UW : (("v","r"),_xyz,"UW")}           
+    emccanon.CANON_PLANE_UW : (("v","r"),_xyz,"UW")}
 
 # extract and pass parameters from current block, merged with extra parameters on a continuation line
 # keep tjose parameters across invocations
@@ -129,7 +129,7 @@ def cycle_prolog(self,**words):
     # self.sticky_params is assumed to have been initialized by the
     # init_stgdlue() method below
     global _compat
-    try:    
+    try:
         # determine whether this is the first or a subsequent call
         c = self.blocks[self.remap_level]
         r = c.executing_remap
@@ -138,14 +138,14 @@ def cycle_prolog(self,**words):
             self.sticky_params[r.name] = dict()
 
         self.params["motion_code"] = c.g_modes[1]
-        
+
         (sw,incompat,plane_name) =_compat[self.plane]
         for (word,value) in words.items():
             # inject current parameters
             self.params[word] = value
             # record sticky words
             if word in sw:
-                if self.debugmask & 0x00080000: print "%s: record sticky %s = %.4f" % (r.name,word,value)
+                if self.debugmask & 0x00080000: print("%s: record sticky %s = %.4f" % (r.name,word,value))
                 self.sticky_params[r.name][word] = value
             if word in incompat:
                 return "%s: Cannot put a %s in a canned cycle in the %s plane" % (r.name, word.upper(), plane_name)
@@ -153,7 +153,7 @@ def cycle_prolog(self,**words):
         # inject sticky parameters which were not in words:
         for (key,value) in self.sticky_params[r.name].items():
             if not key in words:
-                if self.debugmask & 0x00080000: print "%s: inject sticky %s = %.4f" % (r.name,key,value)
+                if self.debugmask & 0x00080000: print("%s: inject sticky %s = %.4f" % (r.name,key,value))
                 self.params[key] = value
 
         if not "r" in self.sticky_params[r.name]:
@@ -166,7 +166,7 @@ def cycle_prolog(self,**words):
             # checked in interpreter during block parsing
             # if l <= 0 or l not near an int
             self.params["l"] = words["l"]
-            
+
         if "p" in words:
             p = words["p"]
             if p < 0.0:
@@ -180,8 +180,8 @@ def cycle_prolog(self,**words):
         if self.cutter_comp_side:
             return "%s: Cannot use canned cycles with cutter compensation on" % (r.name)
         return INTERP_OK
-    
-    except Exception, e:
+
+    except Exception as e:
         raise
         return "cycle_prolog failed: %s" % (e)
 
@@ -192,7 +192,7 @@ def cycle_epilog(self,**words):
         c = self.blocks[self.remap_level]
         self.motion_mode = c.executing_remap.motion_code # retain the current motion mode
         return INTERP_OK
-    except Exception, e:
+    except Exception as e:
         return "cycle_epilog failed: %s" % (e)
 
 # this should be called from TOPLEVEL __init__()

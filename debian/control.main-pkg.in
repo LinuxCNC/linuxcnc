@@ -1,9 +1,12 @@
 Package: @MAIN_PACKAGE_NAME@
-Conflicts: linuxcnc-sim, @OTHER_MAIN_PACKAGE_NAME@
+Conflicts:
+    linuxcnc-sim,
+    @OTHER_MAIN_PACKAGE_NAME@
+Breaks:
+    linuxcnc-doc-en (<= 2.9.0~pre0+git20220402.2500863908-4),
+    linuxcnc-doc-es (<= 2.9.0~pre0+git20220402.2500863908-4),
+    linuxcnc-doc-fr (<= 2.9.0~pre0+git20220402.2500863908-4)
 Architecture: any
-Recommends: linuxcnc-doc-en | linuxcnc-doc,
-    librsvg2-dev,
-    @EXTRA_RECOMMENDS@
 Depends:
     ${misc:Depends},
     ${python3:Depends},
@@ -14,17 +17,26 @@ Depends:
     mesa-utils,
     python3-tk,
     python3-numpy,
-    python3-cairo, python3-gi-cairo, python3-opengl, python3-configobj,
+    python3-cairo,
+    python3-gi-cairo,
+    python3-opengl,
+    python3-configobj,
     python3-xlib,
-    @PYTHON_IMAGING@,
-    @PYTHON_IMAGING_TK@,
-    @QTVCP_DEPENDS@,
     libgtksourceview-3.0-dev,
-    tcl@TCLTK_VERSION@, tk@TCLTK_VERSION@, bwidget (>= 1.7), libtk-img (>=1.13),
+    tcl@TCLTK_VERSION@,
+    tk@TCLTK_VERSION@,
+    bwidget (>= 1.7),
     tclreadline,
     tclx,
     procps, psmisc,
     udev
+Recommends:
+    linuxcnc-doc-en | linuxcnc-doc,
+    librsvg2-dev,
+    @EXTRA_RECOMMENDS@,
+    @PYTHON_IMAGING@,
+    @PYTHON_IMAGING_TK@,
+    @QTVCP_DEPENDS@
 Suggests: mesaflash
 Description: motion controller for CNC machines and robots
  LinuxCNC is a fully-realised CNC machine controller that can interpret

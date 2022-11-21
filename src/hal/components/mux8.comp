@@ -43,6 +43,7 @@ pin in float in6;
 pin in float in7;
 function _;
 license "GPL";
+author "Stuart Stevenson";
 ;;
 FUNCTION(_) {
     if(sel0) {

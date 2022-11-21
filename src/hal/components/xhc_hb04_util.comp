@@ -47,6 +47,7 @@ variable double value3;
 
 function _;
 license "GPL";
+author "Dewey Garrett";
 ;;
 #include <rtapi_math.h>
 

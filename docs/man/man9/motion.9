@@ -1,25 +1,31 @@
 .TH MOTION "9" "" "LinuxCNC Documentation" "HAL Component"
-.de TQ
-.br
-.ns
-.TP \\$1
-..
 
 .SH NAME
 motion \- accepts NML motion commands, interacts with HAL in realtime
+
 .SH SYNOPSIS
 \fBloadrt motmod [base_period_nsec=\fIperiod\fB] [base_thread_fp=\fI0 or 1\fB] [servo_period_nsec=\fIperiod\fB] [traj_period_nsec=\fIperiod\fB] [num_joints=\fI[1-16]\fB] [num_dio=\fI[1-64]\fB] [num_aio=\fI[1-64]\fB] [num_misc_error=\fI[0-64]\fB] [num_spindles=\fI[1-8]\fB]\fR  \fB[unlock_joints_mask=\fR\fIjointmask\fR\fB]\fR \fB[num_extrajoints=\fI[0-16]\fB]\fR
 
 The limits for the following items are compile-time settings:
-.TQ
+.br
+.ns
+.TP
 \fBnum_joints\fR: Maximum number of joints is set by EMCMOT_MAX_JOINTS.
-.TQ
+.br
+.ns
+.TP
 \fBnum_dio\fR: Maximum number of digital inputs is set by EMCMOT_MAX_DIO.
-.TQ
+.br
+.ns
+.TP
 \fBnum_aio\fR: Maximum number of analog inputs is set by EMCMOT_MAX_AIO.
-.TQ
+.br
+.ns
+.TP
 \fBnum_misc_error\fR: Maximum number of extra error inputs is set by EMCMOT_MAX_MISC_ERRORS.
-.TQ
+.br
+.ns
+.TP
 \fBnum_spindles\fR: Maximum number of spindles is set by EMCMOT_MAX_SPINDLES
 
 .P
@@ -38,9 +44,9 @@ These pins and parameters are created by the realtime \fBmotmod\fR module. This 
 The optional \fBnum_extrajoints\fR parameter specifies a quantity of joints
 that participate in homing but are not used by kinematics transformations.
 After homing, control of an 'extra' joint is transferred to a posthome command
-hal pin (joint.N.posthome-cmd) and the motor feedback value is ignored.  'Extra'
+HAL pin (joint.N.posthome-cmd) and the motor feedback value is ignored.  'Extra'
 joints must be managed by independent motion planners/controllers (typically
-using limit3 hal components).  Extra joints maybe unhomed only when motion is
+using limit3 HAL components).  Extra joints maybe unhomed only when motion is
 disabled.
 
 The maximum \fBnum_extrajoints\fR value is equal to the \fBnum_joints\fR value.
@@ -49,7 +55,7 @@ coordinates).  The \fBnum_joints\fR value must be equal to the sum of the
 number of joints used for kinematics calculations plus the number of 'extra'
 joints.
 
-The \fBnum_joints\fR parameter is conventionally set using the ini file
+The \fBnum_joints\fR parameter is conventionally set using the INI file
 setting \fB[KINS]JOINTS=\fRvalue.  The \fBnum_extrajoints\fR is set by
 the additional motmod parameter \fB[EMCMOT]motmod num_extrajoints=\fRvalue.
 Hal pin numbering for all joints is zero based [\fB0 ... num_joints-1\fR].
@@ -110,11 +116,15 @@ Distance remaining in the current move
 \fBmotion.enable\fR IN BIT
 If this bit is driven FALSE, motion stops, the machine is placed in the "machine off" state, and a message is displayed for the operator. For normal motion, drive this bit TRUE.
 
-.TQ
+.br
+.ns
+.TP
 \fBmotion.eoffset-active\fR OUT BIT
 Indicates external offsets are active (non-zero)
 
-.TQ
+.br
+.ns
+.TP
 \fBmotion.eoffset-limited\fR OUT BIT
 Indicates motion with external offsets was limited by
 a soft limit constraint ([AXIS_L]MIN_LIMIT,MAX_LIMIT).
@@ -144,7 +154,7 @@ Note: feed-inhibit applies to G-code commands -- not jogs.
 
 .TP
 \fBmotion.feed\-upm\fR OUT FLOAT
-Current feed rate in G-code program units per minute for motion.motion-types
+Current feed rate in G-code program units per minute for motion.motion-type
 feed(2) and arc(3).
 Value is the G-code program F value multiplied by the current feed override
 value and the motion.adaptive-feed setting (if M52 active).
@@ -154,7 +164,7 @@ be the last units used.
 
 .TP
 \fBmotion.feed\-inches-per-minute\fR OUT FLOAT
-Current feed rate in inches per minute for motion.motion-types
+Current feed rate in inches per minute for motion.motion-type
 feed(2) and arc(3).
 Value is the inch equivalent of the G-code program F value multiplied by the
 current feed override value and the motion.adaptive-feed setting
@@ -163,7 +173,7 @@ Value is zero if motion.feed-hold or motion.feed-inhibit are asserted.
 
 .TP
 \fBmotion.feed\-inches-per-second\fR OUT FLOAT
-Current feed rate in inches per second for motion.motion-types
+Current feed rate in inches per second for motion.motion-type
 feed(2) and arc(3).
 Value is the inch equivalent of the G-code program F value multiplied by the
 current feed override value and the motion.adaptive-feed setting
@@ -172,7 +182,7 @@ Value is zero if motion.feed-hold or motion.feed-inhibit are asserted.
 
 .TP
 \fBmotion.feed\-mm-per-minute\fR OUT FLOAT
-Current feed rate in mm per minute for motion.motion-types
+Current feed rate in mm per minute for motion.motion-type
 feed(2) and arc(3).
 Value is the mm equivalent of the G-code program F value multiplied by the
 current feed override value and the motion.adaptive-feed setting
@@ -181,7 +191,7 @@ Value is zero if motion.feed-hold or motion.feed-inhibit are asserted.
 
 .TP
 \fBmotion.feed\-mm-per-second\fR OUT FLOAT
-Current feed rate in mm per second for motion.motion-types
+Current feed rate in mm per second for motion.motion-type
 feed(2) and arc(3).
 Value is the mm equivalent of the G-code program F value multiplied by the
 current feed override value and the motion.adaptive-feed setting
@@ -195,14 +205,26 @@ is disallowed and an error is reported.  By default, homing is allowed in joint
 mode whenever motion is enabled.
 
 .TP
+\fBmotion.is\-all\-homed\fR OUT BIT
+TRUE if all active joints is homed.
+
+.TP
 \fBmotion.jog\-inhibit\fR IN BIT
 If this bit is TRUE, jogging of any joint or axis is disallowed and an error
 is reported.
-If any jog is active when the pin state changes to TRUE then that jog will be
-stopped.
 
 .TP
-\fBmotion.jog\-is-active\fR OUT BIT
+\fBmotion.jog\-stop\fR IN BIT
+If any jog is active when the pin state changes to TRUE then that jog will be
+stopped following the associated acceleration values.
+
+.TP
+\fBmotion.jog\-stop\-immediate\fR IN BIT
+If any jog is active when the pin state changes to TRUE then that jog will be
+stopped immediately.
+
+.TP
+\fBmotion.jog\-is\-active\fR OUT BIT
 TRUE if any joint or axis is jogging.
 
 .TP
@@ -213,7 +235,7 @@ the commanded position).
 .TP
 \fBmotion.misc\-error\-\fINN\fR IN BIT
 Extra error inputs for faults such as over-temperature sensors, low coolant
-warnings, custom hal component errors. If driven TRUE this will disable a
+warnings, custom HAL component errors. If driven TRUE this will disable a
 machine. Similar to spindle.amp-fault-in
 
 .TP
@@ -276,7 +298,9 @@ to the pin value.
 \fBmotion.teleop\-mode\fR OUT BIT
 Motion mode is teleop (axis coordinate jogging available).
 
-.TQ
+.br
+.ns
+.TP
 \fBmotion.tooloffset.L\fR OUT FLOAT
 Current tool offset for each axis where
 (\fBL\fR is the axis letter, one of: \fBx y z a b c u v w\fR)
@@ -309,7 +333,7 @@ to zero before restarting.
 
 .TP
 \fBaxis.\fIL\fB.eoffset-enable\fR IN BIT
-Enable for external offset (also requires ini file
+Enable for external offset (also requires INI file
 setting for [AXIS_L]OFFSET_AV_RATIO)
 
 .TP
@@ -322,7 +346,7 @@ Scale for external offset.
 
 .TP
 \fBaxis.\fIL\fB.jog\-accel\-fraction\fR IN FLOAT
-Sets acceleration for wheel jogging to a fraction of the ini max_acceleration for
+Sets acceleration for wheel jogging to a fraction of the INI max_acceleration for
 the axis. Values greater than 1 or less than zero are ignored.
 
 .TP
@@ -459,13 +483,15 @@ TRUE if the joint is using the "free planner" and has come to a stop
 \fBjoint.\fIN\fB.index\-enable\fR IO BIT
 Should be attached to the index\-enable pin of the joint's encoder to enable homing to index pulse
 
-.TQ
+.br
+.ns
+.TP
 \fBjoint.N.is\-unlocked\fR IN BIT
 Indicates joint is unlocked (see JOINT UNLOCK PINS).
 
 .TP
 \fBjoint.\fIN\fB.jog\-accel\-fraction\fR IN FLOAT
-Sets acceleration for wheel jogging to a fraction of the ini max_acceleration for
+Sets acceleration for wheel jogging to a fraction of the INI max_acceleration for
 the joint.  Values greater than 1 or less than zero are ignored.
 
 .TP
@@ -537,7 +563,7 @@ The joint's commanded velocity
 \fBjoint.\fIN\fB.wheel\-jog\-active\fR OUT BIT \fB(DEBUG)\fR
 
 .SH JOINT posthome pins
-Each joint designated as an 'extra' joint is provided with a hal pin
+Each joint designated as an 'extra' joint is provided with a HAL pin
 \fBjoint.N.posthome-cmd\fR.  The pin value is ignored prior to homing.
 After homing, the pin value is augmented by the motor offset value
 and routed to the \fBjoint.N.motor-pos-cmd\fR.
@@ -549,7 +575,9 @@ are created according to the \fBunlock_joints_mask=\fRjointmask parameter for mo
 
 The jointmask bits are: (lsb)0:joint0, 1:joint1, 2:joint2, ...
 
-.TQ
+.br
+.ns
+.TP
 Example: loadrt motmod ... \fBunlock_joints_mask=\fR0x38 creates unlock pins for joints 3,4,5
 
 .SH  SPINDLE PINS
@@ -602,7 +630,7 @@ If spindle\-orient\-fault is not zero during spindle\-orient true, the M19 comma
 
 .TP
 \fBspindle.M.orient\-angle\fR OUT FLOAT
-Desired spindle orientation for M19. Value of the M19 R word parameter plus the value of the [RS274NGC]ORIENT_OFFSET ini parameter.
+Desired spindle orientation for M19. Value of the M19 R word parameter plus the value of the [RS274NGC]ORIENT_OFFSET INI parameter.
 
 .TP
 \fBspindle.M.orient\-fault\fR IN S32
@@ -648,18 +676,26 @@ Desired spindle speed in rotations per second, always positive regardless of spi
 
 Many of the parameters serve as debugging aids, and are subject to change or removal at any time.
 
-.TQ
+.br
+.ns
+.TP
 \fBmotion\-command\-handler.tmax\fR RW S32
 Show information about the execution time of these HAL functions in CPU clocks
 
-.TQ
+.br
+.ns
+.TP
 \fBmotion\-command\-handler.tmax\-increased\fR RO S32
 
-.TQ
+.br
+.ns
+.TP
 \fBmotion\-controller.tmax\fR RW S32
 Show information about the execution time of these HAL functions in CPU clocks
 
-.TQ
+.br
+.ns
+.TP
 \fBmotion\-controller.tmax\-increased\fR RO BIT
 
 .TP
@@ -686,7 +722,9 @@ this function.
 
 .SH BUGS
 This manual page is incomplete.
-.TQ
+.br
+.ns
+.TP
 Identification of pins categorized with \fB(DEBUG)\fR is dubious.
 
 .SH SEE ALSO

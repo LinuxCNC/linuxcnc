@@ -12,6 +12,7 @@ variable int olddown;
 variable int first = 1;
 function _ nofp "Process inputs and update count if necessary";
 license "GPL";
+author "Stephen Wille Padnos";
 
 ;;
 

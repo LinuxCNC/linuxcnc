@@ -131,7 +131,7 @@ class Combi_DRO(Gtk.VBox):
         self.machine_units = _MM
         self.unit_convert = 1
         self._auto_units = True
-        self.toggle_readout = True
+        self.toggle_readout_enable = True
         self.cycle_time = 150
         self.diameter = False
         self.actual = True
@@ -241,12 +241,14 @@ class Combi_DRO(Gtk.VBox):
         self.gstat.connect('all-homed', self._all_homed )
         self.gstat.connect('homed', self._homed )
         self.gstat.connect('current-position', self._position)
+        self.gstat.connect('user-system-changed', self._user_system_changed)
+        self._set_labels()
 
         # This try is only needed because while working with glade
         # linuxcnc may not be working
         try:
             self.inifile = self.linuxcnc.ini(INIPATH)
-            # check the ini file if UNITS are set to mm"
+            # check the INI file if UNITS are set to mm"
             # first check the global settings
             units = self.inifile.find("TRAJ", "LINEAR_UNITS")
             if units == None:
@@ -268,9 +270,9 @@ class Combi_DRO(Gtk.VBox):
             self.emit('axis_clicked', self.widgets["lbl_axisletter"].get_text().lower())
             #self.set_style("labelcolor", "#00FF00")
         else:
-            if not self.toggle_readout:
+            if not self.toggle_readout_enable:
                 return
-            self.set_toggle_readout()
+            self.toggle_readout()
 
     # Get propertys
     def do_get_property(self, property):
@@ -328,7 +330,7 @@ class Combi_DRO(Gtk.VBox):
                     self.font_size = int(value)
                     self.set_style("size", self.font_size)
                 if name == "toggle_readout":
-                    self.toggle_readout = value
+                    self.toggle_readout_enable = value
                 if name == "cycle_time":
                     self.cycle_time = value
                 if name in ('metric_units', 'actual', 'diameter'):
@@ -351,14 +353,16 @@ class Combi_DRO(Gtk.VBox):
 
     # Get the units used according to gcode
     def _get_current_units(self):
-            gcode = self.status.gcodes[1:]
-            for code in gcode:
-                if code >= 200 and code <= 210:
-                    return (code / 10)
-            return False
+        self.status.poll()
+        gcode = self.status.gcodes[1:]
+        for code in gcode:
+            if code >= 200 and code <= 210:
+                return (code // 10)
+        return False
 
     # update the labels
     def _set_labels(self):
+        self.status.poll()
         if self._ORDER[0] == "Rel":
             self.widgets["lbl_sys_main"].set_text(self._get_current_system())
         else:
@@ -419,13 +423,16 @@ class Combi_DRO(Gtk.VBox):
                 
         self.queue_draw()
 
+    def _user_system_changed(self, object, system):
+        self._set_labels()
+
     def _position(self, object, p, rel_p, dtg, joint_actual_position):
         # object = hal_glib Object
         # p = self.stat.actual_position
         # rel_p = relative position
         # dtg = distance to go
         # joint_actual_position = joint positions, not needed here
-        
+
         try:
             dtg = dtg[self.axis_no]
             abs_pos = p[self.axis_no]
@@ -433,13 +440,30 @@ class Combi_DRO(Gtk.VBox):
         except:
             return
 
+        if (self._get_current_units() == 20 and self.metric_units) or (self._get_current_units() == 21 and not self.metric_units):
+            if self._auto_units:
+                self.metric_units = not self.metric_units
+            self.emit("units_changed", self.metric_units)
+
+        if self.metric_units and self.machine_units == _INCH:
+            if self.axis_no not in (3, 4, 5):
+                abs_pos = abs_pos * 25.4
+                rel_pos = rel_pos * 25.4
+                dtg = dtg * 25.4
+
+        if not self.metric_units and self.machine_units == _MM:
+            if self.axis_no not in (3, 4, 5):
+                abs_pos = abs_pos / 25.4
+                rel_pos = rel_pos / 25.4
+                dtg = dtg / 25.4
+
         if self._ORDER == ["Rel", "Abs", "DTG"]:
             main, left, right = rel_pos, abs_pos, dtg
         if self._ORDER == ["DTG", "Rel", "Abs"]:
             main, left, right =  dtg, rel_pos, abs_pos
         if self._ORDER == ["Abs", "DTG", "Rel"]:
             main, left, right =  abs_pos, dtg, rel_pos
-        
+
         if self.metric_units:
             tmpl = lambda s: self.mm_text_template % s
         else:
@@ -529,30 +553,31 @@ class Combi_DRO(Gtk.VBox):
     # this will toggle the DRO around, mainly used to maintain all DRO
     # at the same state, because a click on one will only change that DRO
     # This can be used to change also the others
-    def set_toggle_readout(self, Data = None):
+    def toggle_readout(self, Data = None):
         '''
         toggles the order of the DRO in the widget
 
         Combi_DRO.toggle_readout()
 
         '''
-        self._ORDER = [self._ORDER[2], self._ORDER[0], self._ORDER[1]]
-        
+        if not Data:
+            self._ORDER = [self._ORDER[2], self._ORDER[0], self._ORDER[1]]
+
         if self._ORDER[0] == "Abs":
             bg_color = self.abs_color
         elif self._ORDER[0] == "DTG":
             bg_color = self.dtg_color
         else:
             bg_color = self.rel_color
-            
-        self.set_style("background", bg_color)
 
-        # if Data is True, we only updated the colors of the background
-        # so we won#t emit a click event
+        self.set_style("background", bg_color)
+        self._set_labels()
+
+        # if Data is True, we only update the colors of the background
+        # so we won't emit a click event
         if Data:
             return
 
-        self._set_labels()
         self.emit("clicked", self.joint_number, self._ORDER)
 
     # You can change the automatic given axisletter using this function
@@ -614,8 +639,7 @@ class Combi_DRO(Gtk.VBox):
                 ["Abs", "DTG", "Rel"]
         '''
         self._ORDER = order
-        self._set_labels()
-        self.set_toggle_readout(Data=True)
+        self.toggle_readout(Data=True)
 
     # This will return the position information of all three DRO
     # it will be in the order Abs, Rel, DTG

@@ -59,7 +59,6 @@ EMC_TRAJ_STAT_MSG(EMC_TRAJ_STAT_TYPE, sizeof(EMC_TRAJ_STAT)),
     angularUnits = 1.0;
     cycleTime = 0.0;
     joints = 1;
-    deprecated_axes = 1;
     axis_mask = 1;
     mode = EMC_TRAJ_MODE_FREE;
     enabled = OFF;
@@ -158,6 +157,7 @@ EMC_TOOL_STAT_MSG(EMC_TOOL_STAT_TYPE, sizeof(EMC_TOOL_STAT))
 {
     pocketPrepped = 0; // idx
     toolInSpindle = 0; // toolno
+    toolFromPocket = 0; // tool_from_pocket
 #ifdef TOOL_NML //{
     int idx;
     for (idx = 0; idx < CANON_POCKETS_MAX; idx++) {
@@ -207,6 +207,7 @@ EMC_TOOL_STAT EMC_TOOL_STAT::operator =(EMC_TOOL_STAT s)
 {
     pocketPrepped = s.pocketPrepped; // idx
     toolInSpindle = s.toolInSpindle; // toolno
+    toolFromPocket = s.toolFromPocket; // tool_from_pocket
 
 #ifdef TOOL_NML //{
     int idx;

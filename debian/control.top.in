@@ -10,7 +10,14 @@ Build-Depends:
     @KERNEL_HEADERS@,
     @MODUTILS_DEPENDS@,
     @EXTRA_BUILD@,
+    docbook-xsl,
+    asciidoc,
+    ghostscript,
+    imagemagick,
+    source-highlight,
+    asciidoc-dblatex,
     autoconf,
+    automake,
     bwidget (>= 1.7),
     desktop-file-utils,
     gettext,
@@ -24,10 +31,10 @@ Build-Depends:
     libmodbus-dev (>= 3.0),
     @LIBREADLINE_DEV@,
     libtirpc-dev,
-    libtk-img,
     libusb-1.0-0-dev,
     libxmu-dev,
     netcat,
+    po4a,
     procps,
     psmisc,
     python3,
@@ -38,8 +45,10 @@ Build-Depends:
     tclx,
     tk@TCLTK_VERSION@-dev,
     yapps2
-Build-Depends-Indep: @DOC_DEPENDS@
-Standards-Version: 4.6.0
+Build-Depends-Indep:
+    @DOC_DEPENDS@,
+Standards-Version: 4.6.1
+Homepage: https://linuxcnc.org/
 Vcs-Browser: https://github.com/LinuxCNC/linuxcnc
 Vcs-Git: https://github.com/LinuxCNC/linuxcnc.git
 Rules-Requires-Root: binary-targets
@@ -48,9 +57,9 @@ Package: @MAIN_PACKAGE_NAME@-dev
 Architecture: any
 Conflicts: linuxcnc-sim-dev, @OTHER_MAIN_PACKAGE_NAME@-dev
 Depends: ${misc:Depends},
+         ${python3:Depends},
          @KERNEL_HEADERS@,
          python3-serial,
-         ${python3:Depends},
          @MAIN_PACKAGE_NAME@ (= ${binary:Version}),
          udev,
          @YAPPS_RUNTIME@

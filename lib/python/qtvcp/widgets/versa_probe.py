@@ -21,10 +21,10 @@ import hal
 import json
 
 from PyQt5 import QtGui, QtCore, QtWidgets, uic
-from PyQt5.QtCore import QProcess, QByteArray, QEvent
+from PyQt5.QtCore import QProcess, QEvent
+from PyQt5.QtWidgets import QDialogButtonBox
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.widgets.simple_widgets import PushButton
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
 # Instantiate the libraries with global reference
@@ -34,10 +34,12 @@ STATUS = Status()
 ACTION = Action()
 INFO = Info()
 LOG = logger.getLogger(__name__)
+# Force the log level for this module
+LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 current_dir = os.path.dirname(__file__)
 SUBPROGRAM = os.path.abspath(os.path.join(current_dir, 'probe_subprog.py'))
-HELP = os.path.join(INFO.LIB_PATH,'widgets_ui', 'versa_usage.html')
+HELP = os.path.join(INFO.LIB_PATH,'widgets_ui')
 ICONPATH = os.path.join(INFO.IMAGE_PATH, 'probe_icons')
 
 class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
@@ -74,6 +76,10 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.outside_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
         self.skew_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
         self.length_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
+        self.pbtn_set_x.released.connect(self.pbtn_set_x_released)
+        self.pbtn_set_y.released.connect(self.pbtn_set_y_released)	
+        self.pbtn_set_z.released.connect(self.pbtn_set_z_released)
+        self.pbtn_set_angle.released.connect(self.pbtn_set_angle_released)
 
         self.buildToolTip(self.input_search_vel, 'Search Velocity', 'search_vel')
         self.buildToolTip(self.input_probe_vel, 'Probe Velocity', 'probe_vel')
@@ -90,6 +96,10 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         #self.buildToolTip(self.input_adj_z, '', '')
         #self.buildToolTip(self.input_adj_angle, '', '')
         self.buildToolTip(self.input_rapid_vel, 'Rapid Velocity', 'rapid_vel')
+        self.helpPages = ['versa_usage.html','versa_usage1.html','versa_usage2.html',
+                        'versa_usage3.html','versa_usage4.html','versa_usage5.html',
+                        'versa_usage6.html','versa_usage7.html','versa_usage8.html']
+        self.currentHelpPage = 0
 
     # catch focusIn event to pop calculator dialog
     def eventFilter(self, obj, event):
@@ -247,7 +257,8 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             return
         self.start_process()
         string_to_send = cmd + '$' + json.dumps(self.send_dict) + '\n'
-#        print("String to send ", string_to_send)
+        #print("String to send ", string_to_send)
+        STATUS.block_error_polling()
         self.proc.writeData(bytes(string_to_send, 'utf-8'))
 
     def process_started(self):
@@ -266,17 +277,21 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def process_finished(self, exitCode, exitStatus):
         LOG.info(("Probe Process finished - exitCode {} exitStatus {}".format(exitCode, exitStatus)))
         self.proc = None
+        STATUS.unblock_error_polling()
 
     def parse_input(self, line):
         line = line.decode("utf-8")
         if "ERROR" in line:
-            print(line)
+            #print(line)
+            STATUS.unblock_error_polling()
+            ACTION.SET_ERROR_MESSAGE('Versa Probe process finished in error')
         elif "DEBUG" in line:
             print(line)
         elif "INFO" in line:
             print(line)
         elif "COMPLETE" in line:
-            LOG.info("Probing routine completed without errors")
+            STATUS.unblock_error_polling()
+            LOG.info("Versa Probing routine completed without errors")
             return_data = line.rstrip().split('$')
             data = json.loads(return_data[1])
             self.show_results(data)
@@ -323,6 +338,12 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         s +=  " R%.4f"% float(self.input_adj_angle.text())
         ACTION.CALL_MDI_WAIT(s, 30)
 
+    def input_next(self):
+        next = self.stackedWidget_probe_type.currentIndex() +1
+        if next == self.stackedWidget_probe_type.count():
+            next = 0
+        self.stackedWidget_probe_type.setCurrentIndex(next)
+
 #####################################################
 # Entry callbacks
 #####################################################
@@ -354,40 +375,76 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         for key in ['allow_auto_zero', 'allow_auto_skew']:
             val = '1' if self[key].isChecked() else '0'
             self.send_dict.update( {key: val} )
-        
+
     def check_probe(self):
-        self.led_probe_function_chk.setState(hal.get_value('motion.probe-input'))
+        try:
+            self.led_probe_function_chk.setState(hal.get_value('motion.probe-input'))
+        except:
+            pass
 
     def show_results(self, line):
         for key in self.status_list:
             self['status_' + key].setText(line[key])
 
     def pop_help(self):
+        def next(self,t,direction):
+            if direction:
+                self.currentHelpPage +=1
+                if self.currentHelpPage > len(self.helpPages)-1:
+                    self.currentHelpPage = len(self.helpPages)-1
+            else:
+                self.currentHelpPage -=1
+                if self.currentHelpPage < 0:
+                    self.currentHelpPage = 0
+            try:
+                pagePath = os.path.join(HELP, self.helpPages[self.currentHelpPage])
+                file = QtCore.QFile(pagePath)
+                file.open(QtCore.QFile.ReadOnly)
+                html = file.readAll()
+                html = str(html, encoding='utf8')
+                html = html.replace("../images/probe_icons/","{}/probe_icons/".format(INFO.IMAGE_PATH))
+                t.setHtml(html)
+            except Exception as e:
+                t.setText('Versa Probe Help file Unavailable:\n\n{}'.format(e))
+
         d = QtWidgets.QDialog(self)
         d.setMinimumWidth(600)
+        d.setMinimumHeight(600)
         l = QtWidgets.QVBoxLayout()
-        t = QtWidgets.QTextEdit()
+        t = QtWidgets.QTextEdit('Versa Probe Help')
         t.setReadOnly(False)
-        l.addWidget(t)
-
-        bBox = QtWidgets.QDialogButtonBox()
-        bBox.addButton('Ok', QtWidgets.QDialogButtonBox.AcceptRole)
-        bBox.accepted.connect(d.accept)
-        l.addWidget(bBox)
-        d.setLayout(l)
-
         try:
-            file = QtCore.QFile(HELP)
+            pagePath = os.path.join(HELP, 'versa_usage.html')
+            file = QtCore.QFile(pagePath)
             file.open(QtCore.QFile.ReadOnly)
             html = file.readAll()
             html = str(html, encoding='utf8')
             html = html.replace("../images/probe_icons/","{}/probe_icons/".format(INFO.IMAGE_PATH))
             t.setHtml(html)
         except Exception as e:
-            t.setText('Versa Probe Help file Unavailable:\n\n{}'.format(e))
+                t.setText('Versa Probe Help file Unavailable:\n\n{}'.format(e))
+
+        l.addWidget(t)
+
+        num = 0
+        buttons = QDialogButtonBox.Close
+        nextbutton = QtWidgets.QPushButton('Next\nPage')
+        nextbutton.clicked.connect(lambda : next(self,t,True))
+        previousbutton = QtWidgets.QPushButton('Page\nBack')
+        previousbutton.clicked.connect(lambda : next(self,t,False))
+
+        bBox = QDialogButtonBox(buttons)
+        bBox.addButton(previousbutton, QDialogButtonBox.ActionRole)
+        bBox.addButton(nextbutton, QDialogButtonBox.ActionRole)
+        bBox.rejected.connect(d.reject)
+
+        l.addWidget(bBox)
+        d.setLayout(l)
+
 
         d.show()
         d.exec_()
+
 
 ########################################
 # required boiler code

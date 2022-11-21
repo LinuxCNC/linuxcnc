@@ -1,5 +1,7 @@
-[[cha:gcode-examples]]
+:lang: en
+:toc:
 
+[[cha:gcode-examples]]
 = G-Code Examples
 
 After you install LinuxCNC several sample files are placed in the
@@ -10,41 +12,42 @@ machine before running.
 
 === Helical Hole Milling
 
-File Name: useful-subroutines.ngc
-
-Description: Subroutine for milling a hole using parameters.
+- File Name: useful-subroutines.ngc
+- Description: Subroutine for milling a hole using parameters.
 
 === Slotting
 
-File Name: useful-subroutines.ngc
+- File Name: useful-subroutines.ngc
+- Description: Subroutine for milling a slot using parameters.
 
-Description: Subroutine for milling a slot using parameters.
+image::images/useful-subroutines-ngc.png["Useful subroutines"]
 
 === Grid Probe
 
-File Name: gridprobe.ngc
-
-Description: Rectangular Probing
+- File Name: gridprobe.ngc
+- Description: Rectangular Probing
 
 This program repeatedly probes in a regular XY grid and writes the
 probed location to the file 'probe-results.txt' in the same directory
 as the .ini file.
 
+image::images/gridprobe-ngc.png["Grill probe"]
+
 === Smart Probe
 
-File Name: smartprobe.ngc
-
-Description: Rectangular Probing
+- File Name: smartprobe.ngc
+- Description: Rectangular Probing
 
 This program repeatedly probes in a regular XY grid and writes the
 probed location to the file 'probe-results.txt' in the same directory
 as the .ini file. This is improved from the grid probe file.
 
+image::images/smartprobe-ngc.png["The finer probing grid"]
+
 === Tool Length Probe
 
-File Name: tool-length-probe.ngc
-
-Description: Tool Length Probing
+- File Name: tool-length-probe.ngc
+- Description: Tool Length Probing
 
 This program shows an example of how to measure tool lengths
 automatically using a switch hooked to the probe input. This is useful
@@ -53,24 +56,28 @@ different every time it is inserted.
 
 === Hole Probe
 
-File Name: probe-hole.ngc
-
-Description: Finding the Center and Diameter of a hole.
+- File Name: probe-hole.ngc
+- Description: Finding the Center and Diameter of a hole.
 
 The program demonstrates how to find the center of a hole, measure the
 hole diameter and record the results.
 
 === Cutter Compensation
 
-To be added
+- File Name: comp-g1.ngc
+- Description: Entry and exit movements with compensation of tool radius.
+
+This program demonstrates the peculiarity of the toolpath without and with
+tool radius compensation. The tool radius is taken from the
+tool table.
 
 == Lathe Examples
 
 === Threading
 
-File Name lathe-g76.ngc
-
-Description: Facing, threading and parting off.
+- File Name lathe-g76.ngc
+- Description: Facing, threading and parting off.
 
 This file shows an example of threading on a lathe using parameters.
 
+// vim: set syntax=asciidoc:

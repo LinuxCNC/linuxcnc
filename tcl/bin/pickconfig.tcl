@@ -724,7 +724,7 @@ proc prompt_copy configname {
         puts $fd "   #<parm1> = #1 (=123 pvalue)"
         puts $fd "   (debug, readme.ngc: pvalue = #<parm1>)"
         puts $fd "o<readme> endsub"
-        # include m2 to preculde message:
+        # include m2 to preclude message:
         #        "File ended with no percent sign or program end"
         puts $fd "m2"
         close $fd

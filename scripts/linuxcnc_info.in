@@ -46,7 +46,8 @@ git_commit () {
 
 # try to find a visual editor to show created file
 # use list with existing preference first, then other common editors
-editors="$VISUAL gedit mousepad geany nedit gvim abiword"
+editors="$VISUAL gedit mousepad geany nedit nano gvim abiword"
+VIEWER=""
 for e in $editors ; do
   if [  -x "$(command -v $e)" ] ; then
     VIEWER=$e
@@ -61,6 +62,8 @@ while getopts hs OPT; do
     *) usage;;
   esac
 done
+
+[ -z "$VIEWER" ] && echo "No VIEWER: output to $ofile"
 
 # all subsequent output:
 exec 1>$ofile

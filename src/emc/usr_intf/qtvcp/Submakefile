@@ -1,3 +1,4 @@
+PYTARGETS += ../bin/qtvcp
 ../bin/qtvcp: emc/usr_intf/qtvcp/qtvcp.py
 	@$(ECHO) Syntax checking python script $(notdir $@)
 	$(Q)$(PYTHON) -m py_compile $<

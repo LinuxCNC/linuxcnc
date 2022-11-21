@@ -116,6 +116,8 @@ class DummyPin(QObject):
     def set(self, *a, **kw):
         pass
 
+    def get_name(self):
+        return self._a[0]
 
 class _QHal(object):
     HAL_BIT = hal.HAL_BIT
@@ -147,6 +149,23 @@ class _QHal(object):
     def newpin(self, *a, **kw):
         try:
             p = QPin(_hal.component.newpin(self.comp, *a, **kw))
+        except ValueError as e:
+            # if pin is already made, find a new name
+            if 'Duplicate pin name' in '{}'.format(e):
+                try:
+                    # tuples are immutable, convert to list
+                    y = list(a)
+                    y[0] = self.makeUniqueName(y[0])
+                    a = tuple(y)
+                    # this late in the game, component is probably already 'ready'
+                    if self.hal.component_is_ready(self.comp.getprefix()):
+                        self.comp.unready()
+                        p = QPin(_hal.component.newpin(self.comp, *a, **kw))
+                        self.comp.ready()
+                    else:
+                        p = QPin(_hal.component.newpin(self.comp, *a, **kw))
+                except Exception as e:
+                    raise
         except Exception as e:
             if log.getEffectiveLevel() == logger.VERBOSE:
                 raise
@@ -173,6 +192,22 @@ class _QHal(object):
 
     def exit(self, *a, **kw): return self.comp.exit(*a, **kw)
 
+    # find a unique HAL pin name by adding '-x' to the base name
+    # x being an ever increasing number till name is unique
+    def makeUniqueName(self, name):
+        num = 2
+        base = self.comp.getprefix()
+        while True:
+            trial = ('{}.{}-{}').format(base,name,num)
+            for i in hal.get_info_pins():
+                if i['NAME'] == trial:
+                    num +=1
+                    trial = ('{}.{}-{}').format(base,name,num)
+                    break
+            else:
+                break
+        return ('{}-{}').format(name,num)
+
     def __getitem__(self, k): return self.comp[k]
     def __setitem__(self, k, v): self.comp[k] = v
 
@@ -195,11 +230,6 @@ class Status(GStat):
     __gsignals__ = {
         'toolfile-stale': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
     }
-    TEMPARARY_MESSAGE = 255
-    OPERATOR_ERROR = linuxcnc.OPERATOR_ERROR
-    OPERATOR_TEXT = linuxcnc.OPERATOR_TEXT
-    NML_ERROR = linuxcnc.NML_ERROR
-    NML_TEXT = linuxcnc.NML_TEXT
 
     # only make one instance of the class - pass it to all other
     # requested instances
@@ -217,14 +247,32 @@ class Status(GStat):
         super(GStat, self).__init__()
         self.current_jog_rate = INI.DEFAULT_LINEAR_JOG_VEL
         self.angular_jog_velocity = INI.DEFAULT_ANGULAR_JOG_VEL
+        # can only have ONE error channel instance in qtvcp
+        self.ERROR = linuxcnc.error_channel()
+        self._block_polling = False
 
     # we override this function from hal_glib
-    # TODO why do we need to do this with qt5 and not qt4?
-    # seg fault without it
     def set_timer(self):
         GObject.threads_init()
         GObject.timeout_add(int(INI.CYCLE_TIME), self.update)
 
+    # error polling is usually set up by screen_option widget
+    # to call this function
+    # but when using MDI subprograms, the subprogram must be the only
+    # polling instance.
+    # this is done by blocking the main screen polling untill the
+    # subprogram is done.
+    def poll_error(self):
+        if self._block_polling: return None
+        return self.ERROR.poll()
+
+    def block_error_polling(self, name=''):
+        if name: print(name,'block')
+        self._block_polling = True
+
+    def unblock_error_polling(self,name=''):
+        if name: print(name,'unblock')
+        self._block_polling = False
 
 ################################################################
 # Lcnc_Action class

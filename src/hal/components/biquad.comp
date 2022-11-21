@@ -70,6 +70,7 @@ option extra_setup;
 function _;
 
 license "GPL";
+author "Peter G. Vavaroutsos";
 ;;
 
 

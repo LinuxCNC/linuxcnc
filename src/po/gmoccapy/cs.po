@@ -1,0 +1,2033 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# zz912 <zz912@seznam.cz>, 2022.
+# Uvítám spolupráci na zdokonalování tohoto překladu
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
+"POT-Creation-Date: 2022-10-29 11:14+0200\n"
+"PO-Revision-Date: 2022-10-03 17:24+0000\n"
+"Last-Translator: Jan Mrázek <email@honzamrazek.cz>\n"
+"Language-Team: \n"
+"Language: cs\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"X-Generator: Weblate 4.14.1\n"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:281
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:286
+msgid "**** GMOCCAPY INI Entry ****"
+msgstr "**** GMOCCAPY položka INI souboru ****"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:282
+msgid "user mode selected"
+msgstr "zvolen \"user mode\""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:287
+#, python-brace-format
+msgid "logo entry found = {0}"
+msgstr "nalezeno vstupní logo = {0}"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:292
+#, fuzzy
+msgid "**** GMOCCAPY INI Entry Error ****"
+msgstr "**** GMOCCAPY INI Chyba pri zadávaní****"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:293
+msgid "Logofile entry found, but could not be converted to path."
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:294
+msgid "The file path should not contain any spaces"
+msgstr "Název souboru by neměl obsahovat žádné mezery"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:673
+msgid "axis"
+msgstr "osa"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:674
+msgid "axes"
+msgstr "os"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:679
+msgid "joint"
+msgstr "aktuátor"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:680
+msgid "joints"
+msgstr "aktuátory"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:696
+#, python-brace-format
+msgid "Press to home all {0}"
+msgstr "referování všech {0}"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:709
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:996
+msgid "Press to display previous homing button"
+msgstr "zobrazit předchozí referovací tlačítko"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:725
+#, python-brace-format
+msgid "Press to home {0} {1}"
+msgstr "referování {0} {1}"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:742
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1025
+msgid "Press to display next homing button"
+msgstr "zobrazit další referovací tlačítko"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:757
+#, python-brace-format
+msgid "Press to unhome all {0}"
+msgstr "zrušení zreferování {0}"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:766
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1070
+msgid "Press to return to main button list"
+msgstr "návrat do hlavní záložky"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:820
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1949
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2205
+msgid "**** GMOCCAPY ERROR ****\n"
+msgstr "**** GMOCCAPY CHYBA ****\n"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:821
+#, python-brace-format
+msgid "**** could not resolv the image path '{0}' given for button '{1}' ****"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:977
+#, fuzzy
+msgid ""
+"edit\n"
+"offsets"
+msgstr ""
+"  Editace\n"
+"souř. sys."
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:983
+msgid "Press to edit the offsets"
+msgstr "editování souřadných systémů"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1008
+#, python-brace-format
+msgid "Press to set touch off value for axis {0}"
+msgstr "Nastavit nulový bod souřadného systému pro osu {0}"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1041
+msgid "Press to reset all G92 offsets"
+msgstr "vynulování G92"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1047
+msgid ""
+" Block\n"
+"Height"
+msgstr "Výška polotovaru"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1049
+msgid "Press to enter new value for block height"
+msgstr "nastavit novou výšku polotovaru"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1054
+#, fuzzy
+msgid ""
+"set\n"
+"selected"
+msgstr ""
+"  Aktivovat\n"
+"zvolený sys."
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1060
+msgid "Press to set the selected coordinate system to be the active one"
+msgstr "aktivovat zvolený souřadný systém"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1085
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1101
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1247
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1826
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2035
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2048
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2058
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2123
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2126
+msgid "**** GMOCCAPY INFO ****"
+msgstr "**** GMOCCAPY INFO ****"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1086
+msgid "**** no valid probe config in INI File ****"
+msgstr "**** žádná konfigurace sondy v INI souboru ****"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1087
+msgid "**** disabled tool measurement ****"
+msgstr "**** měření nástroje zakázáno ****"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1102
+msgid "**** found valid probe config in INI File ****"
+msgstr "**** zjištěna konfigurace sondy v INI souboru ****"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1103
+msgid "**** will use auto tool measurement ****"
+msgstr "**** bude použito automatické měření nástroje ****"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1118
+msgid "**** GMOCCAPY build_GUI INFO ****"
+msgstr "**** GMOCCAPY vytváří GUI INFO ****"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1119
+msgid "**** To many increments given in INI File for this screen ****"
+msgstr "**** V INI souboru příliš mnoho velikostí kroku ****"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1120
+msgid "**** Only the first 10 will be reachable through this screen ****"
+msgstr "**** Pouze prvních 10 bude použito ****"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1129
+msgid "Continuous"
+msgstr "plynule"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1248
+#, python-brace-format
+msgid "unknown jog command {0}"
+msgstr "neznámý manuální příkaz {0}"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1275
+#, python-brace-format
+msgid "Press to jog axis {0}"
+msgstr ""
+"manuální\n"
+"pohyb osy {0}"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1294
+#, python-brace-format
+msgid "Press to jog joint {0}"
+msgstr ""
+"Stiskni k manuálnímu\n"
+"pohybu aktuátoru {0}"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1317
+msgid "**** GMOCCAPY INFO ****\n"
+msgstr "**** GMOCCAPY INFO ****\n"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1318
+msgid "**** found more than 16 macros, will use only the first 16 ****"
+msgstr "**** nalezeno více jak 16 maker, bude použitou pouze prvních 16 ****"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1329
+msgid "Press to display previous macro button"
+msgstr "zobrazit předchozí tlačítka maker"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1348
+#, python-brace-format
+msgid "Press to run macro {0}"
+msgstr "spustit makro {0}"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1359
+msgid "Press to display next macro button"
+msgstr "zobrazit další tlačítka maker"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1379
+msgid "Press to display the virtual keyboard"
+msgstr "zobrazit virtuální klávesnici"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1476
+msgid "*****  GMOCCAPY ERROR  *****"
+msgstr "*****  GMOCCAPY CHYBA  *****"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1477
+msgid "this is not a lathe, as a lathe must have at least\n"
+msgstr "toto není soustruh, je potřeba mít alespoň\n"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1478
+msgid "an X and an Z axis\n"
+msgstr ""
+"osu X a Z\n"
+"\n"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1479
+msgid "Wrong lathe configuration, we will leave here"
+msgstr "Špatná konfigurace soustruhu, program bude ukončen"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1480
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1952
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2208
+msgid "Very critical situation"
+msgstr "Velmi kritická situace"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1630
+msgid "*****  GMOCCAPY INFO  *****"
+msgstr "*****  GMOCCAPY INFO  *****"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1631
+msgid "this is not a usual config\n"
+msgstr "toto není obvyklá konfigurace\n"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1632
+msgid "we miss one of X , Y or Z axis\n"
+msgstr "chybí jedna z os X, Y, nebo Z\n"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1633
+msgid "We will use by axisletter ordered jog button"
+msgstr "použije se písmeno osy přiřazené k manuálnímu (jog) tlačítku"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1799
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2921
+msgid "mm/min"
+msgstr "mm/min"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1802
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2924
+msgid "inch/min"
+msgstr "palců/min"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1827
+msgid "**** Invalid embedded tab configuration ****"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1828
+msgid "**** No tabs will be added! ****"
+msgstr "**** Žádná tabulka nebyla přidána! ****"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1845
+msgid "ERROR, trying to initialize the user tabs or panels, check for typos"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1950
+msgid "**** Did not find a toolfile file in [EMCIO] TOOL_TABLE ****"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2036
+msgid "**** audio available! ****"
+msgstr "**** Zvuk zapnutý! ****"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2049
+msgid "**** no audio available! ****"
+msgstr "**** Zvuk vypnutý ****"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2050
+#, fuzzy
+msgid "**** PYGST library not installed? ****"
+msgstr "**** knihovna PYGST není instalována? ****"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2051
+msgid "**** is python-gstX.XX installed? ****"
+msgstr "**** je python-gstX.XX instalován? ****"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2059
+msgid "**** Entering init gremlin ****"
+msgstr "**** Inicializace komponenty gremlin ****"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2079
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5348
+msgid ""
+" Joint\n"
+"mode"
+msgstr ""
+" Aktuátor\n"
+"mód"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2124
+msgid "**** virtual keyboard program found : <onboard>"
+msgstr "**** program virtuální klávesnice nalezen: <onboard>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2127
+#, fuzzy
+msgid "**** No virtual keyboard installed, we checked for <onboard> ."
+msgstr ""
+"**** Virtuální klávesnice nebyla nainstalována, bylo kontrolováno <onboard> "
+"a <matchbox-keyboard>."
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2128
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2143
+msgid "**** try sudo apt-get install onboard"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2140
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3372
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3382
+msgid "**** GMOCCAPY ERROR ****"
+msgstr "**** GMOCCAPY CHYBA ****"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2141
+msgid "**** Error with launching virtual keyboard,"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2142
+#, fuzzy
+msgid "**** is onboard installed? ****"
+msgstr "**** je python-gstX.XX instalován? ****"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2175
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3051
+msgid "interrupt running macro"
+msgstr "přerušení běžícího makra"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2206
+msgid "**** Did not find a parameter file in [RS274NGC] PARAMETER_FILE ****"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2276
+msgid "Select the file you want to be loaded at program start"
+msgstr "Zvolte soubor, který chcete načíst, při startu"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2310
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2334
+#, python-brace-format
+msgid "**** GMOCCAPY ERROR **** /n Message type {0} not supported"
+msgstr "**** GMOCCAPY CHYBA **** /n zpráva typu {0} není podorována"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2453
+msgid "Unknown error type and no error text given"
+msgstr "Neznámý typ chyby - bez textu"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2467
+msgid "Important Warning"
+msgstr "Důležité varování"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2487
+msgid "External ESTOP is set, could not change state!"
+msgstr "Aktivován externí ESTOP, nelze změnit tento stav!"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2500
+msgid "Could not switch the machine on, is limit switch activated?"
+msgstr "Není možné zapnout stroj. Je sepnutý koncový spínač?"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2583
+msgid "No file loaded"
+msgstr "Není načten žádný soubor"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2801
+msgid "It is not possible to change to MDI Mode at the moment"
+msgstr "V tento moment není možné nastavit MDI mód"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2835
+msgid "It is not possible to change to Auto Mode at the moment"
+msgstr "V tento moment není možné nastavit Auto mód"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3016
+msgid "Enter value:"
+msgstr "Vlož hodnotu:"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3017
+#, python-brace-format
+msgid "Set parameter {0} to:"
+msgstr "Nastav parametr {0}:"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3019
+msgid "conversion error"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3020
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4985
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5008
+msgid "Conversion error !"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3049
+msgid "This button will show or hide the keyboard"
+msgstr "Toto tlačítko zobrazí nebo skryje klávesnici"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3157
+msgid "Mode change is only allowed if the interpreter is idle!"
+msgstr "Změna módu je povolena pouze v případě, že interpretr nepracuje!"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3373
+#, python-brace-format
+msgid "**** {0} ****"
+msgstr "**** {0} ****"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3383
+#, python-brace-format
+msgid "**** No widget named: {0} to sensitize ****"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3549
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:36
+msgid "No tool description available"
+msgstr "Informace o nástroji není dostupná"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3689
+#, python-brace-format
+msgid "Halo, welcome to the test message {0}"
+msgstr "Ahoooj, vítám Tě u testu zprávy {0}"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3800
+msgid "Hal Pin is low, Access denied"
+msgstr "Hardwerový klíč zamknut, přístup zamítnut"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3802
+msgid "wrong code entered, Access denied"
+msgstr "Zadán špatný kód, přístup zamítnut"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3803
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4453
+msgid "Just to warn you"
+msgstr "Jen abych tě varoval"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3957
+msgid "INFO:"
+msgstr "INFO:"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:3958
+msgid "Classicladder real-time component not detected"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4073
+#, python-brace-format
+msgid "Something went wrong, we have an unknown spindle widget {0}"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4186
+msgid "Do you really want to delete the MDI history?\n"
+msgstr "Skutečně smazat MDI historii?\n"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4187
+#, fuzzy
+msgid "This will not delete the MDI History file, but will\n"
+msgstr "Nebude smazán soubor MDI historie,\n"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4188
+#, fuzzy
+msgid "delete the listbox entries for this session."
+msgstr "ale bude smazán seznam příkazů pro tuto relaci."
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4189
+msgid "Attention!!"
+msgstr "Pozor!!"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4246
+msgid "Exit and discard changes?"
+msgstr "Ukončit a zahodit změny?"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4247
+#, fuzzy
+msgid "Attention!"
+msgstr "Pozor!!"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4329
+msgid "Enter value for diameter"
+msgstr "Vložení hodnoty pro průměr"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4330
+msgid "Set diameter to:"
+msgstr "Nastav průměr:"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4333
+msgid "Enter value for radius"
+msgstr "Vložení hodnoty pro rádius"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4334
+msgid "Set radius to:"
+msgstr "Nastav rádius:"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4337
+#, python-brace-format
+msgid "Enter value for axis {0}"
+msgstr "Vložení hodnoty pro osu {0}"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4338
+#, python-brace-format
+msgid "Set axis {0} to:"
+msgstr "Nastav osu {0} :"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4342
+msgid "Conversion error in btn_set_value"
+msgstr "Konverzní chyba v btn_set_value"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4343
+msgid "Conversion error in btn_set_value!"
+msgstr "Konverzní chyba v btn_set_value!"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4344
+msgid "Please enter only numerical values. Values have not been applied"
+msgstr "Používejte prosím jen číselné hodnoty. Hodnota nebyla použita."
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4358
+#, fuzzy
+msgid ""
+"You did not select a system to be changed to, so nothing will be changed"
+msgstr "nebyl vybrán systém ke změně, takže se ni nestane"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4359
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5014
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5028
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5032
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5047
+msgid "Important Warning!"
+msgstr "Důležité varování!"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4409
+msgid "Enter the block height"
+msgstr "Zadat výšku bloku"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4410
+msgid "Block height measured from base table"
+msgstr "Výška bloku měřena od základny stolu"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4422
+msgid "Conversion error in btn_block_height!"
+msgstr "Konverzní chyba v btn_block_height!"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4423
+msgid ""
+"Please enter only numerical values\n"
+"Values have not been applied"
+msgstr ""
+"Používejte prosím jen číselné hodnoty\n"
+"Hodnota nebyla použita."
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4902
+msgid "Please remove the mounted tool and press OK when done"
+msgstr "Prosím výjměnte nástroj z vřetene a až budete hotoví stiskněte OK"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4906
+#, python-brace-format
+msgid ""
+"Please change to tool\n"
+"\n"
+"# {0:d}     {1}\n"
+"\n"
+" then click OK."
+msgstr ""
+"Prosím vyměňte nástroj\n"
+"\n"
+"# {0:d}     {1}\n"
+"\n"
+" a poté stiskněte OK."
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4908
+#, python-brace-format
+msgid ""
+"Tool\n"
+"\n"
+"# {0:d}\n"
+"\n"
+" not in the tool table!"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4910
+msgid "Manual Tool change"
+msgstr "Manuální výměna nástroje"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4920
+msgid "Tool Change has been aborted!\n"
+msgstr "Výměna nástroje byla zrušena!\n"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4921
+msgid "The old tool will remain set!"
+msgstr "Starý nástroj zůstane nastavený!"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4929
+msgid "You are trying to delete the tool mounted in the spindle\n"
+msgstr "Pokoušíte se smazat nástroj upnutý ve vřeteni\n"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4930
+msgid "This is not allowed, please change tool prior to delete it"
+msgstr "Toto není povoleno, vyměňte nástroj před jeho odstraněním"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4931
+msgid "Warning Tool can not be deleted!"
+msgstr "Varování - nástroj nemůže být smazán!"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4950
+#, fuzzy
+msgid "No or multiple tools selected in the tool table. "
+msgstr "Vybrán žádný nebo více jak jeden nástroj. "
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4951
+#, fuzzy
+msgid "Please select only one tool in the table!"
+msgstr "Vyberte prosím pouze jeden nástroj v tabulce."
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4952
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4958
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4966
+msgid "Warning Tool Touch off not possible!"
+msgstr "Varování - dotyk nástroje není možný!"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4956
+#, fuzzy
+msgid "You can not touch off a tool, which is not mounted in the spindle! "
+msgstr "nemůžete realizovat dotyk nástroje, který není upnut ve vřeteni"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4957
+#, fuzzy
+msgid "Your selection has been reset to the tool in spindle."
+msgstr "váš výběr byl resetován na nástroj upnutý ve vřeteni"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4964
+msgid ""
+"Tool touch off is not possible with cutter radius compensation switched on!\n"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4965
+msgid "Please emit an G40 before tool touch off."
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4974
+msgid "Real big error!"
+msgstr "Skutečná velká chyba!"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4975
+msgid ""
+"You managed to come to a place that is not possible in on_btn_tool_touchoff"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4979
+#, python-brace-format
+msgid "Enter value for axis {0} to set:"
+msgstr "Vložit hodnotu pro osu {0}:"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4980
+#, python-brace-format
+msgid "Set parameter of tool {0:d} and axis {1} to:"
+msgstr "Nastavit parametr nástroje {0:d} a osy {1}:"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4984
+#, python-brace-format
+msgid "Conversion error because of wrong entry for touch off axis {0}"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5003
+msgid "Enter the tool number as integer "
+msgstr "Formát čísla nástroje musí být celočíselný"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5004
+msgid "Select the tool to change"
+msgstr "Vybrat nástroj pro výměnu"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5006
+msgid "Conversion error because of wrong entry for tool number.\n"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5007
+#, fuzzy
+msgid "Enter only integer numbers!"
+msgstr "vložit jen celočíselná čísla"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5013
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5031
+msgid "Selected tool is already in spindle, no change needed."
+msgstr "Zvolený nástroj je již ve vřeteni. Výměna nástroje nenastane."
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5027
+msgid ""
+"you selected no or more than one tool, the tool selection must be unique"
+msgstr ""
+"Vybrán žádný nebo více jak jeden nástroj. Musí být vybrán pouze jen jeden "
+"nástroj."
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5046
+#, fuzzy
+msgid "Could not understand the entered tool number. Will not change anything!"
+msgstr "Nerozpoznáno číslo nástroje. Výměna nástroje nenastane."
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5353
+msgid ""
+"World\n"
+"mode"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5539
+msgid "Axis jogging is only allowed in world mode, but you are in joint mode!"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5575
+#, python-brace-format
+msgid "Received a not classified signal from pin {0}"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5580
+#, python-brace-format
+msgid "Could not translate {0} to number"
+msgstr "Není možné převést {0} na číslo"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5585
+msgid "no button here"
+msgstr "není zde žádné tlačítko"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5588
+msgid "the button is not sensitive"
+msgstr "tlačítko není citlivé"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5593
+#, python-brace-format
+msgid "Button {0} has been toggled"
+msgstr "Přepnutí tlačítka {0}"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5597
+#, python-brace-format
+msgid "Button {0} has been pressed"
+msgstr "Stisknutí tlačítka {0}"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5600
+#, python-brace-format
+msgid "Button {0} has been clicked"
+msgstr "Kliknutí na tlačítko {0}"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5613
+msgid "got wrong location to locate the childs"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/dialogs.py:47
+#: src/emc/usr_intf/gmoccapy/dialogs.py:50
+msgid "Enter System Unlock Code"
+msgstr "Zadejte systémový kód"
+
+#: src/emc/usr_intf/gmoccapy/dialogs.py:73
+msgid "Enter value"
+msgstr "Zadat hodnotu"
+
+#: src/emc/usr_intf/gmoccapy/dialogs.py:73
+msgid "Enter the value to set"
+msgstr "zadat hodnotu"
+
+#: src/emc/usr_intf/gmoccapy/dialogs.py:112
+#: src/emc/usr_intf/gmoccapy/dialogs.py:147
+#: src/emc/usr_intf/gmoccapy/dialogs.py:174
+msgid "Operator Message"
+msgstr "Zpráva pro operátora"
+
+#: src/emc/usr_intf/gmoccapy/dialogs.py:155
+msgid "_Yes"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/dialogs.py:156
+msgid "_No"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/dialogs.py:182
+msgid "_Ok"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/dialogs.py:219
+#: src/emc/usr_intf/gmoccapy/dialogs.py:221
+msgid "Restart Entry"
+msgstr "Restartovat vstup"
+
+#: src/emc/usr_intf/gmoccapy/dialogs.py:233
+msgid "_Up     "
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/dialogs.py:235
+#, fuzzy
+msgid "_Down"
+msgstr "Dolů"
+
+#: src/emc/usr_intf/gmoccapy/dialogs.py:237
+msgid "_Jump to"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/getiniinfo.py:98
+msgid "**** GMOCCAPY GETINIINFO : ****"
+msgstr "**** GMOCCAPY ZÍSKÁNÍ INFORMACÍ INI SOUBORU: ****"
+
+#: src/emc/usr_intf/gmoccapy/getiniinfo.py:99
+#, python-brace-format
+msgid ""
+"**** gmoccapy can only handle 9 axis, ****\n"
+"**** but you have given {0} through your INI file ****\n"
+msgstr ""
+"**** gmoccapy umí pouze 9 os, ****\n"
+"**** ale v INI souboru jich je {0} ****\n"
+
+#: src/emc/usr_intf/gmoccapy/getiniinfo.py:100
+msgid ""
+"**** gmoccapy will not start ****\n"
+"\n"
+msgstr ""
+"**** gmoccapy se nespustí ****\n"
+"\n"
+
+#: src/emc/usr_intf/gmoccapy/getiniinfo.py:431
+msgid "**** GMOCCAPY GETINIINFO ****\n"
+msgstr "**** GMOCCAPY ZÍSKÁNÍ INFORMACÍ INI SOUBORU ****\n"
+
+#: src/emc/usr_intf/gmoccapy/getiniinfo.py:432
+msgid ""
+"**** No subroutine folder or program prefix is given in the INI file **** \n"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/notification.py:213
+#, fuzzy, python-brace-format
+msgid "Error trying to delete the message with number {0}"
+msgstr "Chyba při pokusu smazat zprávu číslo {0}"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:1
+msgid "pause the running program"
+msgstr ""
+"pozastavit / pokračovat \n"
+"běžící program"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:2
+msgid "left rotate,  middle move,  right zoom"
+msgstr "levé rotace, prostřední pohyb, pravé přiblížení"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:3
+msgid "left zoom,  middle move,  right rotate"
+msgstr "levé přiblížení, prostřední pohyb, pravé rotace"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:4
+msgid "left move,  middle rotate,  right zoom"
+msgstr "levé pohyb, prostřední rotace, pravé přiblížení"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:5
+msgid "left zoom,  middle rotate,  right move"
+msgstr "levé přiblížení, prostřední rotace, pravé pohyb"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:6
+msgid "left move,  middle zoom,  right rotate"
+msgstr "levé pohyb, prostřední přiblížení, pravé rotace"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:7
+msgid "left rotate,  middle zoom,  right move"
+msgstr "levé rotace, prostřední přiblížení, pravé pohyb"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:8
+msgid "default"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:9
+msgid "No Program loaded"
+msgstr "Žádný program nenačten"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:10
+msgid "blockheight = 0.0"
+msgstr "výška bloku = 0.0"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:11
+msgid "clear plot"
+msgstr "odstranit ujeté dráhy nástroje"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:12
+msgid "Zoom in"
+msgstr "přiblížit"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:13
+msgid "Zoom out"
+msgstr "oddálit"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:14
+msgid "view perspective"
+msgstr "perspektivní pohled"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:15
+msgid "view along the X axis from positive to negative"
+msgstr "pohled podél osy X"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:16
+msgid "view along the Y axis from positive to negative"
+msgstr "pohled podél osy Y"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:17
+msgid "view along the Z axis from positive to negative"
+msgstr "pohled podél osy Z"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:18
+msgid "Show or hide tool path"
+msgstr "zobrazit nebo skrýt cesty nástroje"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:19
+msgid "Show or hide dimensions"
+msgstr "zobrazit nebo skrýt kóty"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:20
+msgid ""
+"view along the Y axis from positive to negative as viewn for a back tool "
+"lathe"
+msgstr "pohled podél osy Y pro soustruh se zadním nástrojem"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:21
+msgid "Preview"
+msgstr "Náhled"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:22
+msgid "Offset Page"
+msgstr "Souřadné systémy"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:23
+msgid "Tooledit"
+msgstr "editace nástroje"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:24
+msgid "File Selection"
+msgstr "výběr souboru"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:25
+msgid "jog axes"
+msgstr "jog os"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:26
+msgid "jog joints"
+msgstr "jog aktuátorů"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:27
+msgid "Logo"
+msgstr "Logo"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:28
+msgid "Ignore limits"
+msgstr "Ignorace koncových snímačů"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:29
+msgid "<b>Jogging</b>"
+msgstr "<b>Jog - Manuální mód</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:30
+msgid "Shows the code to execute"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:31
+msgid "Information over the tool in spindle"
+msgstr ""
+"Informace o nástroji ve vřeteni,\n"
+"Vc - řezná rychlost"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:32
+msgid "Tool no."
+msgstr "Nástroj č."
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:33
+msgid "Diameter"
+msgstr "Průměr"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:34
+msgid "offset z"
+msgstr "Odsazení z"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:35
+msgid "offset x"
+msgstr "Odsazení x"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:37
+msgid "Vc= 0.00"
+msgstr "Vc= 0.00"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:38
+msgid "<b>Tool information</b>"
+msgstr "<b>Informace o nástroji</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:39
+msgid "G and M code information as well as speed and feed"
+msgstr "Aktivní G-kódy, M-funkce a aktuální otáčky vřetene a posuv"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:40
+msgid "active_mcodes_label"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:41
+msgid "active_gcodes_label"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:42
+msgid "<b>G-Code</b>"
+msgstr "<b>Aktivované G-kódy a M-funkce</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:43
+msgid "<b>Cooling</b>"
+msgstr "<b>Chlazení</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:44
+msgid "<b>Spindle [rpm]</b>"
+msgstr "<b>Vřeteno [ot/min]</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:45
+msgid "Vel."
+msgstr "G0"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:46
+msgid "Displays the current velocity"
+msgstr "Zobrazení aktuální rychlosti"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:47
+msgid "<b>Rapid Override</b>"
+msgstr "<b>Rychloposuv</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:48
+#, fuzzy
+msgid "Displays the programmed feed rate"
+msgstr "Zobrazení naprogramované rychlosti posuvu"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:50
+msgid "reset feed override to 100 %"
+msgstr "resetování rychlosti posuvů na 100%"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:51
+msgid "<b>Feed Override</b>"
+msgstr "<b>Posuv</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:52
+msgid "Undo"
+msgstr "Zpět"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:53
+msgid ""
+"Search\n"
+" back"
+msgstr ""
+"Hledat\n"
+"dozadu"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:55
+msgid ""
+"Search\n"
+"  fwd"
+msgstr ""
+"Hledat\n"
+"dopředu"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:57
+msgid "Redo"
+msgstr "Opakovat"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:58
+msgid ""
+"Replace\n"
+"  Text:"
+msgstr ""
+"Nahradit\n"
+"text:"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:60
+msgid ""
+"Replace\n"
+"   All"
+msgstr ""
+"Nahradit\n"
+" vše"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:62
+msgid ""
+"Ignore\n"
+" Case"
+msgstr ""
+"ignorovat\n"
+"Abc/abc"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:64
+msgid "Replace"
+msgstr "Nahradit"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:65
+msgid ""
+"Search\n"
+"  Text:"
+msgstr ""
+"Hledat\n"
+"Text:"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:67
+msgid "Main"
+msgstr "Hlavní"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:68
+msgid "Start as fullscreen"
+msgstr "Spustit na celou obrazovku"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:69
+msgid "Start maximized"
+msgstr "Spustit maximalizovaně"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:70
+msgid "Start as window"
+msgstr "Spustit v okně"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:71
+msgid "X Pos."
+msgstr "X Poz."
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:72
+msgid "Y Pos."
+msgstr "Y Poz."
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:73
+msgid "Width"
+msgstr "Šířka"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:74
+msgid "Height"
+msgstr "Výška"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:75
+msgid "hide cursor"
+msgstr "skrýt kurzor"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:76
+msgid "hide tooltips"
+msgstr "skrýt nápovědu tlačítek"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:77
+msgid "<b>Main Window</b>"
+msgstr "<b>Hlavní okno</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:78
+msgid "Show keyboard on offset"
+msgstr "u souřadných systémů"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:79
+msgid "Show keyboard on tooledit"
+msgstr "u tabulky nástrojů"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:80
+msgid "Show keyboard on MDI"
+msgstr "u MDI"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:81
+msgid "Show keyboard on EDIT"
+msgstr "u EDIT"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:82
+msgid "Show keyboard on load file"
+msgstr "při otvírání souboru"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:83
+#, fuzzy
+msgid "<b>Virtual Keyboard</b>"
+msgstr "<b>Zobrazit klávesnici</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:84
+msgid "show preview"
+msgstr "zobrazit náhled"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:85
+msgid "show offsets"
+msgstr "zobrazit souřadné systémy"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:86
+msgid "<b>On Touch off</b>"
+msgstr "<b>Souřadné systémy</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:87
+msgid "Relative Color"
+msgstr ""
+"Relativní\n"
+"odměřování"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:88
+msgid "Absolute Color"
+msgstr ""
+"Absolutní\n"
+"odměřování"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:89
+msgid "DTG Color"
+msgstr ""
+"DTG\n"
+"vzdálenost k pozici"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:90
+msgid "Homed color"
+msgstr "Zreferováno"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:91
+msgid "Unhomed color"
+msgstr "Nezreferováno"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:92
+msgid "Size"
+msgstr "Velikost"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:93
+msgid "Digits"
+msgstr "Desetiná místa"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:94
+#, fuzzy
+msgid ""
+"toggle DRO mode\n"
+"clicking on the DRO"
+msgstr ""
+"Přepínání DRO módu\n"
+"klikáním na DRO"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:96
+msgid "<b>DRO</b>"
+msgstr ""
+"<b>DRO - zobrazování pozice,\n"
+"měření</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:97
+msgid "Grid size"
+msgstr "Velikost mřížky"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:98
+msgid "Show DRO"
+msgstr "Zobrazit DRO v náhledu"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:99
+msgid "Show offsets"
+msgstr "Zobrazit souřadné systémy"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:100
+msgid "Show DTG"
+msgstr ""
+"Zobrazit DTG\n"
+"(vzdálenost k žádané pozici)"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:101
+msgid "<b>Mouse Button mode</b>"
+msgstr "<b>Režim tlačítek myši</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:102
+msgid "<b>Preview</b>"
+msgstr "<b>Náhled</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:103
+msgid ""
+"current\n"
+"   file"
+msgstr ""
+"načtený\n"
+"   soubor"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:105
+msgid "none"
+msgstr "žádný"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:106
+msgid "<b>File to load on start</b>"
+msgstr "<b>Načíst při startu</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:107
+msgid "Select user dir"
+msgstr "vyber uživatelskou složku"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:108
+msgid "<b>Select jump to dir</b>"
+msgstr "<b>Uživatelská složka</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:109
+msgid "Themes"
+msgstr "Scény"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:110
+msgid "Warning Audio"
+msgstr "Zvuk varování"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:111
+msgid "Alert Audio"
+msgstr "Zvuk upozornění"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:112
+#, fuzzy
+msgid "Icon Theme"
+msgstr "Scény"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:113
+msgid "<b>Themes and sound</b>"
+msgstr "<b>Scény a zvuk</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:114
+msgid "Appearance"
+msgstr "Vzhled"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:115
+msgid "Scale rapid override"
+msgstr "Rychloposuv"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:116
+msgid "Scale jog velocity"
+msgstr "Manuální režim"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:117
+msgid "Scale feed override"
+msgstr "Posuv"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:118
+msgid "Scale spindle override"
+msgstr "Vřeteno"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:119
+msgid "<b>Hardware MPG Scale</b>"
+msgstr ""
+"<b>Fyzický MPG ovladač\n"
+"  nastavení citlivosti</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:120
+msgid "Use keyboard shortcuts"
+msgstr "Použití klávesových zkratek"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:121
+msgid "<b>Keyboard shortcuts</b>"
+msgstr "<b>Klávesové </b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:122
+msgid "Use unlock code"
+msgstr "Používat odemykací kód"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:123
+msgid "Do not use unlock code"
+msgstr "Nepoužívat odemykací kód"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:124
+msgid "Use hal pin to unlock"
+msgstr "Odemykat HAL pinem"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:125
+msgid "<b>Unlock settings</b>"
+msgstr "Nastavení kódu"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:126
+msgid "Starting RPM"
+msgstr "Výchozí otáčky/min"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:127
+msgid "Spindle bar min"
+msgstr "Vřeteno-ukazatel min."
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:128
+msgid "Spindle bar max"
+msgstr "Vřeteno-ukazatel max."
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:129
+msgid "<b>Spindle</b>"
+msgstr "<b>Vřeteno</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:130
+msgid "Hide turtle Jog Button"
+msgstr "Skrýt tlačítko želví pohyb"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:131
+msgid "Turtle jog Factor"
+msgstr "Faktor želvího pohybu"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:132
+msgid "<b>Turtle Jog</b>"
+msgstr "<b>Želví pohyb</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:133
+msgid "Hardware"
+msgstr "Hardware"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:134
+msgid "Use auto tool measurement"
+msgstr "Použít automatické měření nástroje"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:135
+msgid "Probe Height"
+msgstr "Výška sondy"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:136
+msgid "0.000"
+msgstr "0.000"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:137
+msgid "Z Pos."
+msgstr "Z Poz."
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:138
+msgid "Max. Probe"
+msgstr "Max. sonda"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:139
+#, fuzzy
+msgid "<b>Probe Information</b>"
+msgstr "<b>Informace o sondě</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:140
+msgid "Search Vel."
+msgstr "Rychlost hledání"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:141
+msgid "Probe Vel."
+msgstr "Rychlost sondy"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:142
+msgid "<b>Probe velocitys</b>"
+msgstr "<b>Rychlosti sondy</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:143
+#, fuzzy
+msgid ""
+"No valid configuration\n"
+"found in your INI file,\n"
+"please take a look at\n"
+"the WIKI to check how\n"
+"to configure the settings."
+msgstr ""
+"V *.ini souboru nebyla\n"
+"nalezena žádná správná\n"
+"konfigurace. \n"
+"Ve WIKI naleznete jak\n"
+"konfiguraci nastavit."
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:148
+msgid "<b>Tool Measurement</b>"
+msgstr "<b>Měření nástroje</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:149
+msgid "Reload Tool on Start"
+msgstr ""
+"Znovu načíst nástroj\n"
+"při startu"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:150
+#, fuzzy
+msgid ""
+"If checked, the tool in spindle\n"
+"will be saved on each change\n"
+"and the last tool will be reloaded\n"
+"at start of the GUI. Also it's\n"
+"length offset will be reloaded.\n"
+msgstr ""
+"Pokud je zaškrtnuto\n"
+"zvolené nástroje ve vřetenu\n"
+"budou uloženy při každé výměně\n"
+"a poslední nástroj bude znovu \n"
+"načten při spuštění GUI. Taktéž\n"
+"odsazení nástroje bude znovu načteno.\n"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:156
+msgid ""
+"You use NO_FORCE_HOMING,\n"
+"so the reload of a tool at start\n"
+"is not possible."
+msgstr ""
+"Používáš NO_FORCE_HOMING,\n"
+"(nevynucovat referování),\n"
+"takže znovu načtení nástroj\n"
+"není možné."
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:159
+msgid "<b>Reload Tool</b>"
+msgstr "<b>Znovu načíst nástroj</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:160
+msgid "Do not use run from line"
+msgstr "Nepoužívat \"spustit od řádku\""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:161
+msgid "Use run from line"
+msgstr "Použít \"spustit od řádku\""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:162
+msgid "<b>Run from line</b>"
+msgstr "<b>Spustit od řádku</b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:163
+msgid "Use frames"
+msgstr "Použití rámečku"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:164
+msgid ""
+"If checked, the messages\n"
+"will be in a frame."
+msgstr ""
+"Pokud je zaškrtnuto, zprávy\n"
+"budou v rámečku."
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:166
+msgid "Font"
+msgstr "Font"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:167
+msgid "Max. messages"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:168
+msgid "The font to use"
+msgstr "Použitý font"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:169
+msgid "The maximum messages you want to be shown\t"
+msgstr "Maximální počet zpráv k zobrazení"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:170
+msgid "The width of the messages"
+msgstr "Šířka zpráv"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:171
+msgid "X-position in pixel from top left corner of the screen"
+msgstr "X-pozice horní levý roh obrazovky"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:172
+msgid "Y-position in pixel from top left corner of the screen"
+msgstr "Y-pozice horní levý roh obrazovky"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:173
+msgid "Launch test message"
+msgstr "Spustit testovací zprávu"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:174
+msgid ""
+"Push here to launch a test message\n"
+"to test your settings."
+msgstr ""
+"Spustit testovací zprávu\n"
+"pro otestování nastavení."
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:176
+msgid ""
+"<b>      gmoccapy message\n"
+" behavior and appearance </b>"
+msgstr ""
+"<b>Vzhled a chování\n"
+" gmoccapy zpráv </b>"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:178
+msgid ""
+"Advanced\n"
+" Settings"
+msgstr ""
+"Pokročilá\n"
+" nastavení"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:180
+msgid "Settings"
+msgstr "Nastavení"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:181
+msgid "User tab 1"
+msgstr "Uživatelská tabulka 1"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:182
+msgid "User tabs"
+msgstr "Uživatelské tabulky"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:183
+msgid ""
+"Estop the machine\n"
+"[F1]"
+msgstr ""
+"nouzové zastavení stroje\n"
+"[F1]"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:185
+msgid ""
+"Turn the machine on/off\n"
+"[F2]"
+msgstr ""
+"zapnutí/vypnutí stroje\n"
+"[F2]"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:187
+msgid ""
+"enter manual mode to jog axis by hand or touch off\n"
+"[F3]"
+msgstr ""
+"manuální mód k ručnímu pojezdu os,\n"
+"referování a nastavení souřadných systémů\n"
+"[F3]"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:189
+#, fuzzy
+msgid ""
+"enter MDI mode to launch G-code commands\n"
+"[F5]"
+msgstr ""
+"MDI mód k zadávání jednotlivých\n"
+"G-kód příkazů\n"
+"[F5]"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:191
+msgid "enter auto mode to run programs"
+msgstr ""
+"automatický mód ke spouštění,\n"
+"vytváření a editování programů"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:192
+msgid "Enter the settings page, the default code is \"123\""
+msgstr "stránka nastavení, výchozí kód \"123\""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:193
+msgid "show user tabs"
+msgstr "uživatelská stránka"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:194
+msgid "open homing button list"
+msgstr "otevřít záložku referovacích tlačítek"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:195
+msgid "open touch off button list"
+msgstr "otevřít záložku souřadných systémů"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:196
+msgid "Open the tooleditor page"
+msgstr "tabulka nástrojů"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:197
+msgid ""
+"World\n"
+"Mode"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:199
+msgid ""
+"Switch motion mode between Joint and World mode\n"
+"F12 or $ key does the same"
+msgstr ""
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:201
+msgid "make the preview as large as possible"
+msgstr "maximální zvětšení náhledu"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:202
+msgid "Close gmoccapy / leave the program"
+msgstr "zavřít gmoccapy / ukončit program"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:203
+msgid "Load a new program"
+msgstr "načíst program"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:204
+msgid "Run the loaded program"
+msgstr "spustit načtený program"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:205
+msgid "Stop the running program"
+msgstr "ukončit běžící program"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:206
+msgid "Pause the running program"
+msgstr ""
+"pozastavit / pokračovat \n"
+"běžící program"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:207
+msgid "Run the  loaded program step by step"
+msgstr "spustit načtený program řádek po řádku"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:208
+#, fuzzy
+msgid ""
+"run the program from a certain line, attention, that is dangerous, because "
+"the previous lines will not checked!"
+msgstr ""
+"spustit načtený program od určitého řádku\n"
+"Upozornění na nebezpečí:\n"
+"předchozí řádky nebudou zkontrolovány"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:209
+msgid ""
+"Machine or not the optional blocks of the program. If the button is pressed, "
+"the optional blocks will not be machined. The button will indicate this by a "
+"yellow background."
+msgstr ""
+"Stroj nebo volitelné bloky programu. Pokud je tlačítko stisknuto, volitelné "
+"bloky nebudou realizovány. Tlačítko to bude indikovat žlutým pozadím."
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:210
+msgid "Edit the loaded program"
+msgstr "Editace načteného programu"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:211
+msgid "delete MDI"
+msgstr ""
+"Smazat\n"
+"  MDI"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:212
+msgid "delete MDI history"
+msgstr "smazat MDI historii"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:213
+msgid "Cl.-ladder"
+msgstr ""
+"  PLC\n"
+"ladder"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:214
+msgid "Open classicladder"
+msgstr "otevřít PLC ladder"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:215
+msgid "Hal-Scope"
+msgstr "Hal-Scope"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:216
+msgid "launch hal scope"
+msgstr ""
+"spustit osciloskop\n"
+"HAL hodnot - Hal-Scope"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:217
+msgid "Status"
+msgstr ""
+"  Status\n"
+"LinuxuCNC"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:218
+msgid "launch linuxcnc status"
+msgstr "zobrazit status LinuxuCNC"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:219
+msgid "Hal Meter"
+msgstr "Hal Meter"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:220
+msgid "launch hal meter"
+msgstr "spustit Hal Meter"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:221
+msgid "Calibration"
+msgstr "Kalibrace"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:222
+msgid "launch calibration"
+msgstr "spustit kalibraci"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:223
+msgid "Halshow"
+msgstr "Halshow"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:224
+msgid "opens the show hal tool"
+msgstr ""
+"spustit nástroj na zobrazení\n"
+"HAL hodnot - Halshow"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:225
+msgid "save the file using the original name"
+msgstr "uložit soubor pod stejným názvem"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:226
+msgid "save the file with a new name"
+msgstr "uložit soubor pod novým názvem"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:227
+msgid "clear the edit field and make a new file"
+msgstr "načtený soubor zahodit a vytvořit nový prázdný"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:228
+msgid "Show or hide the virtual keyboard"
+msgstr "zobrazit nebo skrýt virtuální klávesnici"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:229
+msgid "Go back to main button list"
+msgstr "vrátit se do hlavní záložky tlačítek"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:230
+msgid "Delete"
+msgstr "Smazat"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:231
+msgid "delete selected tool or tools"
+msgstr "smazat vybraný nástroj nebo nástroje"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:232
+msgid "Add"
+msgstr "Přidat"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:233
+msgid "add a new tool to tool table"
+msgstr "přidat nový nástroj do tabulky"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:234
+msgid "Reload"
+msgstr ""
+"Znovu\n"
+"načíst"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:235
+msgid "reload tool table from file"
+msgstr "znovu načíst tabulku ze souboru"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:236
+msgid "Apply"
+msgstr "Aplikovat"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:237
+#, fuzzy
+msgid ""
+"apply the changes you made, G43 will be executed only if it is active G-code"
+msgstr ""
+"aplikovat udělané změny\n"
+"kód G43 se provede pouze pokud je aktivován"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:238
+msgid "Select a tool by number"
+msgstr ""
+"zvolit nástroj\n"
+"zadáním jeho čísla"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:239
+msgid "change tool with the command M61 Q?, no machine move will be done"
+msgstr ""
+"zvolit vybraný nástroj\n"
+"bez realizace výměny nástroje"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:240
+msgid "change tool to the selected one"
+msgstr "zvolit vybraný nástroj"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:241
+msgid "touch off the tool and set the value to the tool table"
+msgstr "dotyk nástroje a nastavení hodnoty do tabulky"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:242
+#, fuzzy
+msgid ""
+"touchoff\n"
+"tool x"
+msgstr ""
+"  Dotyk\n"
+"nástroje x"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:244
+#, fuzzy
+msgid ""
+"touchoff\n"
+"tool z"
+msgstr ""
+"  Dotyk\n"
+"nástroje z"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:246
+msgid "Move to your home directory"
+msgstr "přesunout se do domovské složky"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:247
+msgid "Move to parent directory"
+msgstr "přesunout se do nadřazené složky"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:248
+msgid "Select the previous file"
+msgstr "vybrat předchozí soubor"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:249
+msgid "Select the next file"
+msgstr "vybrat další soubor"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:250
+msgid "Jump to user defined directory"
+msgstr "přesunout se do uživatelské složky"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:251
+msgid "select the highlighted file and return the path"
+msgstr "vybrat zvolený soubor"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:252
+msgid "Close without returning a file path"
+msgstr "zavřít, příště bude nastavena výchozí cesta"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:253
+msgid "Load File"
+msgstr "Načíst soubor"
+
+#: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:254
+msgid "home joints"
+msgstr "referování aktuátorů"
+
+#~ msgid ""
+#~ "zero\n"
+#~ " G92"
+#~ msgstr ""
+#~ "Nulování\n"
+#~ "    G92"
+
+#~ msgid "**** virtual keyboard program found : <matchbox-keyboard>"
+#~ msgstr "**** program virtuální klávesnice nalezen: <matchbox-keyboard>"
+
+#~ msgid "Up"
+#~ msgstr "Nahoru"
+
+#~ msgid "Enter"
+#~ msgstr "Vstup"
+
+#~ msgid "Reverts your edit"
+#~ msgstr "odebrat poslední změny textu"
+
+#~ msgid "Finds text searching backwards"
+#~ msgstr "najít hledaný text směrem dozadu"
+
+#~ msgid "Finds text searching forwards"
+#~ msgstr "najít hledaný text směrem dopředu"
+
+#~ msgid "Returns your edit"
+#~ msgstr "vrátit poslední změny textu"
+
+#~ msgid "Replace all found text"
+#~ msgstr "nahradit všechen hledaný text"
+
+#~ msgid "Ignore capitalisation"
+#~ msgstr ""
+#~ "Ignorovat velká a malá písmena\n"
+#~ "ve vyhledávaném textu"
+
+#~ msgid "Replace found text"
+#~ msgstr "nahradit hledaný text:"
+
+#~ msgid "max."
+#~ msgstr "Počet zpráv"
+
+#~ msgid "Toolfile does not exist"
+#~ msgstr "Soubor nástrojů neexistuje"
+
+#~ msgid "Reloading tooltable into linuxcnc failed"
+#~ msgstr "Znovu načtení tabulky nástrojů do LinuxuCNC selhalo"
+
+#~ msgid "Tool file was modified since it was last read"
+#~ msgstr "Soubor nástrojů byl změněn od posledního načtení"
+
+#~ msgid "Tool"
+#~ msgstr "Nástroj"
+
+#~ msgid "Rotation of Z"
+#~ msgstr "Rotace osy Z"
+
+#~ msgid "Offset"
+#~ msgstr ""
+#~ "Souřadný\n"
+#~ "systém"
+
+#~ msgid "Offset Name"
+#~ msgstr "Pojmenování"
+
+#~ msgid ""
+#~ "Zero\n"
+#~ "G92"
+#~ msgstr ""
+#~ "Nulování\n"
+#~ "    G92"
+
+#~ msgid ""
+#~ "    Zero\n"
+#~ "Rotational"
+#~ msgstr ""
+#~ "Vynulování\n"
+#~ "     rotace"
+
+#~ msgid "Edit"
+#~ msgstr "Editovat"
+
+#~ msgid "Select"
+#~ msgstr "Zvolit"
+
+#~ msgid "Tool#"
+#~ msgstr "Nástroj#"
+
+#~ msgid "Pocket"
+#~ msgstr ""
+#~ "Lůžko\n"
+#~ "nástroje"
+
+#~ msgid "Front"
+#~ msgstr "Přední"
+
+#~ msgid "Back"
+#~ msgstr "Zadní"
+
+#~ msgid "Orientation"
+#~ msgstr "Orientace"
+
+#~ msgid "Comments"
+#~ msgstr "Komentáře"
+
+#~ msgid "All Offsets"
+#~ msgstr "Všechny souřadné systémy"
+
+#~ msgid "DIameter"
+#~ msgstr "Průměr"
+
+#~ msgid "X Tool"
+#~ msgstr "X nástroj"
+
+#~ msgid "Z Tool"
+#~ msgstr "Z nástroj"

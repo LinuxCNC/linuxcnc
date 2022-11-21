@@ -98,7 +98,7 @@ int Interp::convert_remapped_code(block_pointer block,
     // remapped handlers may use Python code to
     // setup environment before, and finish work after doing theirs.
     // That's what prolog and epilog functions are for.
-    // These are described in the remap descriptor as read from ini.
+    // These are described in the remap descriptor as read from INI.
 
     // Since a remap is always executed in the context of a controlling block,
     // this block now contains fields which hold dynamic remap information, like
@@ -451,8 +451,8 @@ int Interp::parse_remap(const char *inistring, int lineno)
 		r.remap_ngc = strstore(arg);
 		fclose(fp);
 	    } else {
-		Error("NGC file not found: ngc=%s - %d:REMAP = %s",
-		      arg, lineno,inistring);
+		Error("INTERP_REMAP: NGC file not found: ngc=%s\nREMAP INI Line:%d = %s\n",
+		      arg, lineno, inistring);
 		errored = true;
 	    }
 	    continue;
@@ -465,7 +465,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 		continue;
 	    }
 	    if (!PYUSABLE) {
-		Error("Python plugin required for python=, but not available: %d:REMAP = %s",
+		Error("iNTERP_REMAP: Python plugin required for python=, but not available:\nREMAP INI line:%d = %s\n",
 		      lineno,inistring);
 		errored = true;
 		continue;

@@ -11,7 +11,7 @@
 ..
 .SH NAME
 
-hal_port \- a hal pin type that acts as an asynchronous one way byte stream
+hal_port \- a HAL pin type that acts as an asynchronous one way byte stream
 
 .SH SYNOPSIS
 
@@ -34,21 +34,23 @@ hal_port \- a hal pin type that acts as an asynchronous one way byte stream
 
 
 .SH DESCRIPTION
-A HAL port pin is a hal pin that acts as a one way byte oriented data stream in real time.
-An output port on any component may be connected to an input port on any other component via a signal. Data written on the output pin becomes accessible to the input pin.
+A HAL port pin is a HAL pin that acts as a one way byte oriented data stream in real-time.
+An output port on any component may be connected to an input port on any other component via a signal.
+Data written on the output pin becomes accessible to the input pin.
 A HAL port signal may link only a single writer and a single reader.
 
 A port also buffers data. Users should determine the proper buffer size based upon their intended application.
 
 
 .SS \fBhal_port_read\fR
-Reads count bytes from the port into destination buffer dest. hal_port_read will read \fIcount\fR bytes if and only if \fIcount\fR bytes are available for reading and otherwise it will leave the port unaffected.
+Reads count bytes from the port into destination buffer dest.
+hal_port_read will read \fIcount\fR bytes if and only if \fIcount\fR bytes are available for reading and otherwise it will leave the port unaffected.
 Returns true if count bytes were read and false otherwise.
 This function should only be called by the component that owns the IN PORT pin.
 
 
 .SS \fBhal_port_peek\fR
-Behaves the same as hal_port_read, however it does not consume bytes from the hal port.
+Behaves the same as hal_port_read, however it does not consume bytes from the HAL port.
 Repeated calls to hal_port_peek will return the same data.
 Returns true if count bytes were read and false otherwise.
 This function should only be called by the component that owns the IN PORT pin.

@@ -32,7 +32,7 @@ variable double value;
 function _ "Update the output based on the input and parameters";
 
 license "GPL";
-author "Jeff Epler <jepler@unpythonic.net>";
+author "Jeff Epler";
 ;;
 #include <rtapi_math.h>
 

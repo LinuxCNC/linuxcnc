@@ -32,6 +32,12 @@
       <property name="focusOverlay_option" stdset="0">
        <bool>true</bool>
       </property>
+      <property name="focusEffect_option" stdset="0">
+       <bool>true</bool>
+      </property>
+      <property name="focusBlur_option" stdset="0">
+       <bool>true</bool>
+      </property>
       <property name="entryDialog_option" stdset="0">
        <bool>true</bool>
       </property>
@@ -117,11 +123,20 @@
                 <enum>QFrame::Sunken</enum>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_2">
+                <property name="spacing">
+                 <number>4</number>
+                </property>
                 <property name="leftMargin">
-                 <number>0</number>
+                 <number>3</number>
                 </property>
                 <property name="topMargin">
                  <number>0</number>
+                </property>
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>3</number>
                 </property>
                 <item>
                  <widget class="QTabWidget" name="leftTab">
@@ -149,7 +164,7 @@
                    </attribute>
                    <layout class="QVBoxLayout" name="verticalLayout_5">
                     <property name="spacing">
-                     <number>6</number>
+                     <number>2</number>
                     </property>
                     <property name="leftMargin">
                      <number>0</number>
@@ -757,7 +772,7 @@
                      </layout>
                     </item>
                     <item>
-                     <layout class="QHBoxLayout" name="horizontalLayout_4">
+                     <layout class="QHBoxLayout" name="horizontalLayout_spindle">
                       <property name="spacing">
                        <number>0</number>
                       </property>
@@ -949,6 +964,452 @@
                       </item>
                      </layout>
                     </item>
+                    <item>
+                     <layout class="QHBoxLayout" name="horizontalLayout_coolant">
+                      <property name="spacing">
+                       <number>0</number>
+                      </property>
+                      <property name="leftMargin">
+                       <number>6</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>6</number>
+                      </property>
+                      <item>
+                       <widget class="QLabel" name="label_12">
+                        <property name="maximumSize">
+                         <size>
+                          <width>16777215</width>
+                          <height>35</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Flood&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="ActionButton" name="actionbutton_8">
+                        <property name="maximumSize">
+                         <size>
+                          <width>50</width>
+                          <height>40</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string/>
+                        </property>
+                        <property name="icon">
+                         <iconset resource="qtaxis.qrc">
+                          <normaloff>:/buttons/images/coolant_flood_inactive.png</normaloff>
+                          <normalon>:/buttons/images/coolant_flood_active.png</normalon>:/buttons/images/coolant_flood_inactive.png</iconset>
+                        </property>
+                        <property name="iconSize">
+                         <size>
+                          <width>48</width>
+                          <height>48</height>
+                         </size>
+                        </property>
+                        <property name="checkable">
+                         <bool>true</bool>
+                        </property>
+                        <property name="indicator_option" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="indicator_HAL_pin_option" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="indicator_status_option" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="checked_state_text_option" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="python_command_option" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="on_color" stdset="0">
+                         <color>
+                          <red>255</red>
+                          <green>0</green>
+                          <blue>0</blue>
+                         </color>
+                        </property>
+                        <property name="shape_option" stdset="0">
+                         <number>0</number>
+                        </property>
+                        <property name="off_color" stdset="0">
+                         <color>
+                          <red>0</red>
+                          <green>0</green>
+                          <blue>0</blue>
+                         </color>
+                        </property>
+                        <property name="indicator_size" stdset="0">
+                         <double>0.300000000000000</double>
+                        </property>
+                        <property name="circle_diameter" stdset="0">
+                         <double>10.000000000000000</double>
+                        </property>
+                        <property name="right_edge_offset" stdset="0">
+                         <number>0</number>
+                        </property>
+                        <property name="top_edge_offset" stdset="0">
+                         <number>0</number>
+                        </property>
+                        <property name="corner_radius" stdset="0">
+                         <double>5.000000000000000</double>
+                        </property>
+                        <property name="height_fraction" stdset="0">
+                         <double>0.300000000000000</double>
+                        </property>
+                        <property name="width_fraction" stdset="0">
+                         <double>0.900000000000000</double>
+                        </property>
+                        <property name="true_state_string" stdset="0">
+                         <string>True</string>
+                        </property>
+                        <property name="false_state_string" stdset="0">
+                         <string>False</string>
+                        </property>
+                        <property name="true_python_cmd_string" stdset="0">
+                         <string>print(&quot;true command&quot;)</string>
+                        </property>
+                        <property name="false_python_cmd_string" stdset="0">
+                         <string>print(&quot;false command&quot;)</string>
+                        </property>
+                        <property name="invert_the_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_paused_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_estopped_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_on_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_idle_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_homed_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_flood_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_mist_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_block_delete_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_optional_stop_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_joint_homed_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_limits_overridden_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_manual_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_mdi_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_auto_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_spindle_stopped_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_spindle_fwd_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_spindle_rev_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="joint_number_status" stdset="0">
+                         <number>0</number>
+                        </property>
+                        <property name="spindle_rev_action" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="spindle_down_action" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="flood_action" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="template_label_option" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="joint_number" stdset="0">
+                         <number>0</number>
+                        </property>
+                        <property name="incr_imperial_number" stdset="0">
+                         <double>0.010000000000000</double>
+                        </property>
+                        <property name="incr_mm_number" stdset="0">
+                         <double>0.025000000000000</double>
+                        </property>
+                        <property name="incr_angular_number" stdset="0">
+                         <double>-1.000000000000000</double>
+                        </property>
+                        <property name="toggle_float_option" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="float_num" stdset="0">
+                         <double>0.300000000000000</double>
+                        </property>
+                        <property name="float_alt_num" stdset="0">
+                         <double>50.000000000000000</double>
+                        </property>
+                        <property name="view_type_string" stdset="0">
+                         <string>P</string>
+                        </property>
+                        <property name="command_text_string" stdset="0">
+                         <string/>
+                        </property>
+                        <property name="ini_mdi_number" stdset="0">
+                         <number>0</number>
+                        </property>
+                        <property name="textTemplate" stdset="0">
+                         <string>%1.3f in</string>
+                        </property>
+                        <property name="alt_textTemplate" stdset="0">
+                         <string>%1.2f mm</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <spacer name="horizontalSpacer_3">
+                        <property name="orientation">
+                         <enum>Qt::Horizontal</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                         <size>
+                          <width>40</width>
+                          <height>20</height>
+                         </size>
+                        </property>
+                       </spacer>
+                      </item>
+                      <item>
+                       <widget class="QLabel" name="label_13">
+                        <property name="maximumSize">
+                         <size>
+                          <width>16777215</width>
+                          <height>35</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Mist&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="ActionButton" name="actionbutton_10">
+                        <property name="maximumSize">
+                         <size>
+                          <width>50</width>
+                          <height>40</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string/>
+                        </property>
+                        <property name="icon">
+                         <iconset resource="qtaxis.qrc">
+                          <normaloff>:/buttons/images/coolant_mist_inactive.png</normaloff>
+                          <normalon>:/buttons/images/coolant_mist_active.png</normalon>:/buttons/images/coolant_mist_inactive.png</iconset>
+                        </property>
+                        <property name="iconSize">
+                         <size>
+                          <width>48</width>
+                          <height>48</height>
+                         </size>
+                        </property>
+                        <property name="checkable">
+                         <bool>true</bool>
+                        </property>
+                        <property name="indicator_option" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="indicator_HAL_pin_option" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="indicator_status_option" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="checked_state_text_option" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="python_command_option" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="on_color" stdset="0">
+                         <color>
+                          <red>255</red>
+                          <green>0</green>
+                          <blue>0</blue>
+                         </color>
+                        </property>
+                        <property name="shape_option" stdset="0">
+                         <number>0</number>
+                        </property>
+                        <property name="off_color" stdset="0">
+                         <color>
+                          <red>0</red>
+                          <green>0</green>
+                          <blue>0</blue>
+                         </color>
+                        </property>
+                        <property name="indicator_size" stdset="0">
+                         <double>0.300000000000000</double>
+                        </property>
+                        <property name="circle_diameter" stdset="0">
+                         <double>10.000000000000000</double>
+                        </property>
+                        <property name="right_edge_offset" stdset="0">
+                         <number>0</number>
+                        </property>
+                        <property name="top_edge_offset" stdset="0">
+                         <number>0</number>
+                        </property>
+                        <property name="corner_radius" stdset="0">
+                         <double>5.000000000000000</double>
+                        </property>
+                        <property name="height_fraction" stdset="0">
+                         <double>0.300000000000000</double>
+                        </property>
+                        <property name="width_fraction" stdset="0">
+                         <double>0.900000000000000</double>
+                        </property>
+                        <property name="true_state_string" stdset="0">
+                         <string>True</string>
+                        </property>
+                        <property name="false_state_string" stdset="0">
+                         <string>False</string>
+                        </property>
+                        <property name="true_python_cmd_string" stdset="0">
+                         <string>print(&quot;true command&quot;)</string>
+                        </property>
+                        <property name="false_python_cmd_string" stdset="0">
+                         <string>print(&quot;false command&quot;)</string>
+                        </property>
+                        <property name="invert_the_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_paused_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_estopped_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_on_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_idle_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_homed_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_flood_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_mist_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_block_delete_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_optional_stop_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_joint_homed_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_limits_overridden_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_manual_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_mdi_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_auto_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_spindle_stopped_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_spindle_fwd_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="is_spindle_rev_status" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="joint_number_status" stdset="0">
+                         <number>0</number>
+                        </property>
+                        <property name="spindle_fwd_action" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="spindle_up_action" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="mist_action" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="template_label_option" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="joint_number" stdset="0">
+                         <number>0</number>
+                        </property>
+                        <property name="incr_imperial_number" stdset="0">
+                         <double>0.010000000000000</double>
+                        </property>
+                        <property name="incr_mm_number" stdset="0">
+                         <double>0.025000000000000</double>
+                        </property>
+                        <property name="incr_angular_number" stdset="0">
+                         <double>-1.000000000000000</double>
+                        </property>
+                        <property name="toggle_float_option" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="float_num" stdset="0">
+                         <double>0.300000000000000</double>
+                        </property>
+                        <property name="float_alt_num" stdset="0">
+                         <double>50.000000000000000</double>
+                        </property>
+                        <property name="view_type_string" stdset="0">
+                         <string>P</string>
+                        </property>
+                        <property name="command_text_string" stdset="0">
+                         <string/>
+                        </property>
+                        <property name="ini_mdi_number" stdset="0">
+                         <number>0</number>
+                        </property>
+                        <property name="textTemplate" stdset="0">
+                         <string>%1.3f in</string>
+                        </property>
+                        <property name="alt_textTemplate" stdset="0">
+                         <string>%1.2f mm</string>
+                        </property>
+                       </widget>
+                      </item>
+                     </layout>
+                    </item>
                    </layout>
                   </widget>
                   <widget class="QWidget" name="tab_4">
@@ -987,46 +1448,6 @@
                       </property>
                      </widget>
                     </item>
-                    <item>
-                     <layout class="QHBoxLayout" name="horizontalLayout_11">
-                      <property name="spacing">
-                       <number>0</number>
-                      </property>
-                      <item>
-                       <widget class="StatusLabel" name="statuslabel_8">
-                        <property name="textTemplate" stdset="0">
-                         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ACTIVE: &lt;/span&gt;F %0.1f&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                        </property>
-                        <property name="fcode_status" stdset="0">
-                         <bool>true</bool>
-                        </property>
-                        <property name="mcodes_status" stdset="0">
-                         <bool>false</bool>
-                        </property>
-                       </widget>
-                      </item>
-                      <item>
-                       <widget class="StatusLabel" name="statuslabel_2">
-                        <property name="mcodes_status" stdset="0">
-                         <bool>true</bool>
-                        </property>
-                       </widget>
-                      </item>
-                     </layout>
-                    </item>
-                    <item>
-                     <widget class="StatusLabel" name="statuslabel">
-                      <property name="scaledContents">
-                       <bool>true</bool>
-                      </property>
-                      <property name="wordWrap">
-                       <bool>true</bool>
-                      </property>
-                      <property name="gcodes_status" stdset="0">
-                       <bool>true</bool>
-                      </property>
-                     </widget>
-                    </item>
                    </layout>
                   </widget>
                  </widget>
@@ -1045,10 +1466,60 @@
                  </spacer>
                 </item>
                 <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_13"/>
+                 <layout class="QHBoxLayout" name="horizontalLayout_11">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="StatusLabel" name="statuslabel_8">
+                    <property name="textTemplate" stdset="0">
+                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;ACTIVE: &lt;/span&gt;F %0.1f&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    </property>
+                    <property name="fcode_status" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                    <property name="mcodes_status" stdset="0">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="StatusLabel" name="statuslabel_2">
+                    <property name="mcodes_status" stdset="0">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </item>
                 <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_5">
+                 <widget class="StatusLabel" name="statuslabel">
+                  <property name="scaledContents">
+                   <bool>true</bool>
+                  </property>
+                  <property name="wordWrap">
+                   <bool>true</bool>
+                  </property>
+                  <property name="gcodes_status" stdset="0">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="verticalSpacer">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_feedOverride">
                   <item>
                    <widget class="QLabel" name="label_6">
                     <property name="text">
@@ -1079,6 +1550,9 @@
                     <property name="textTemplate" stdset="0">
                      <string>%s</string>
                     </property>
+                    <property name="feed_override_status" stdset="0">
+                     <bool>true</bool>
+                    </property>
                    </widget>
                   </item>
                   <item>
@@ -1103,7 +1577,7 @@
                  </layout>
                 </item>
                 <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_6">
+                 <layout class="QHBoxLayout" name="horizontalLayout_rapidOverride">
                   <item>
                    <widget class="QLabel" name="label_8">
                     <property name="text">
@@ -1155,7 +1629,7 @@
                  </layout>
                 </item>
                 <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_7">
+                 <layout class="QHBoxLayout" name="horizontalLayout_spindleOverride">
                   <item>
                    <widget class="QLabel" name="label_9">
                     <property name="text">
@@ -1213,7 +1687,7 @@
                  </layout>
                 </item>
                 <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_8">
+                 <layout class="QHBoxLayout" name="horizontalLayout_jograte">
                   <item>
                    <widget class="QLabel" name="label_10">
                     <property name="text">
@@ -1271,7 +1745,7 @@
                  </layout>
                 </item>
                 <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_9">
+                 <layout class="QHBoxLayout" name="horizontalLayout_maxVelocity">
                   <item>
                    <widget class="QLabel" name="label_11">
                     <property name="text">
@@ -1372,7 +1846,10 @@
                      <property name="lineWidth">
                       <number>2</number>
                      </property>
-                     <layout class="QGridLayout" name="gridLayout_3">
+                     <layout class="QVBoxLayout" name="verticalLayout_9">
+                      <property name="spacing">
+                       <number>0</number>
+                      </property>
                       <property name="sizeConstraint">
                        <enum>QLayout::SetDefaultConstraint</enum>
                       </property>
@@ -1388,124 +1865,7 @@
                       <property name="bottomMargin">
                        <number>0</number>
                       </property>
-                      <property name="spacing">
-                       <number>0</number>
-                      </property>
-                      <item row="3" column="0">
-                       <layout class="QHBoxLayout" name="horizontalLayout_14" stretch="1">
-                        <property name="spacing">
-                         <number>0</number>
-                        </property>
-                        <item>
-                         <widget class="DROLabel" name="dro_label_g5x_x">
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="text">
-                           <string>%10.3f</string>
-                          </property>
-                          <property name="textFormat">
-                           <enum>Qt::PlainText</enum>
-                          </property>
-                          <property name="alignment">
-                           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                          </property>
-                          <property name="Qreference_type" stdset="0">
-                           <number>1</number>
-                          </property>
-                          <property name="metric_template" stdset="0">
-                           <string>X %10.3f</string>
-                          </property>
-                          <property name="imperial_template" stdset="0">
-                           <string>X %9.4f</string>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
-                      </item>
-                      <item row="5" column="0">
-                       <layout class="QHBoxLayout" name="horizontalLayout_19">
-                        <property name="spacing">
-                         <number>0</number>
-                        </property>
-                        <item>
-                         <widget class="DROLabel" name="dro_label_g5x_z">
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="text">
-                           <string>%10.3f</string>
-                          </property>
-                          <property name="textFormat">
-                           <enum>Qt::PlainText</enum>
-                          </property>
-                          <property name="alignment">
-                           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                          </property>
-                          <property name="Qjoint_number" stdset="0">
-                           <number>2</number>
-                          </property>
-                          <property name="Qreference_type" stdset="0">
-                           <number>1</number>
-                          </property>
-                          <property name="metric_template" stdset="0">
-                           <string>%10.3f</string>
-                          </property>
-                          <property name="imperial_template" stdset="0">
-                           <string>%9.4f</string>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
-                      </item>
-                      <item row="6" column="0">
-                       <layout class="QHBoxLayout" name="horizontalLayout_20">
-                        <property name="spacing">
-                         <number>0</number>
-                        </property>
-                        <item>
-                         <widget class="DROLabel" name="dro_label_g5x_r">
-                          <property name="sizePolicy">
-                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                            <horstretch>0</horstretch>
-                            <verstretch>0</verstretch>
-                           </sizepolicy>
-                          </property>
-                          <property name="text">
-                           <string>%10.3f</string>
-                          </property>
-                          <property name="textFormat">
-                           <enum>Qt::PlainText</enum>
-                          </property>
-                          <property name="alignment">
-                           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                          </property>
-                          <property name="Qjoint_number" stdset="0">
-                           <number>10</number>
-                          </property>
-                          <property name="Qreference_type" stdset="0">
-                           <number>0</number>
-                          </property>
-                          <property name="metric_template" stdset="0">
-                           <string>%10.3f</string>
-                          </property>
-                          <property name="imperial_template" stdset="0">
-                           <string>%9.4f</string>
-                          </property>
-                          <property name="angular_template" stdset="0">
-                           <string>%4.2f</string>
-                          </property>
-                         </widget>
-                        </item>
-                       </layout>
-                      </item>
-                      <item row="0" column="0">
+                      <item>
                        <widget class="QWidget" name="widget_dro_g53" native="true">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -1583,6 +1943,9 @@
                                   <verstretch>0</verstretch>
                                  </sizepolicy>
                                 </property>
+                                <property name="textSpaceSample" stdset="0">
+                                 <string/>
+                                </property>
                                 <property name="Qjoint_number" stdset="0">
                                  <number>1</number>
                                 </property>
@@ -1628,57 +1991,175 @@
                         </layout>
                        </widget>
                       </item>
-                      <item row="4" column="0">
-                       <widget class="QWidget" name="dro_relative_y" native="true">
-                        <layout class="QHBoxLayout" name="horizontalLayout_18">
-                         <property name="spacing">
-                          <number>0</number>
-                         </property>
-                         <property name="leftMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="topMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="rightMargin">
-                          <number>0</number>
-                         </property>
-                         <property name="bottomMargin">
-                          <number>0</number>
-                         </property>
-                         <item>
-                          <widget class="DROLabel" name="dro_label_g5x_y">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="text">
-                            <string>%10.3f</string>
-                           </property>
-                           <property name="textFormat">
-                            <enum>Qt::PlainText</enum>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                           </property>
-                           <property name="Qjoint_number" stdset="0">
-                            <number>1</number>
-                           </property>
-                           <property name="Qreference_type" stdset="0">
-                            <number>1</number>
-                           </property>
-                           <property name="metric_template" stdset="0">
-                            <string>%10.3f</string>
-                           </property>
-                           <property name="imperial_template" stdset="0">
-                            <string>%9.4f</string>
-                           </property>
-                          </widget>
-                         </item>
-                        </layout>
-                       </widget>
+                      <item>
+                       <layout class="QHBoxLayout" name="horizontalLayout_14" stretch="0">
+                        <property name="spacing">
+                         <number>0</number>
+                        </property>
+                        <item>
+                         <widget class="DROLabel" name="dro_label_g5x_x_">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="frameShape">
+                           <enum>QFrame::NoFrame</enum>
+                          </property>
+                          <property name="text">
+                           <string>%10.3f</string>
+                          </property>
+                          <property name="textFormat">
+                           <enum>Qt::RichText</enum>
+                          </property>
+                          <property name="alignment">
+                           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                          </property>
+                          <property name="textSpaceSample" stdset="0">
+                           <string> -000.0000 X</string>
+                          </property>
+                          <property name="Qreference_type" stdset="0">
+                           <number>1</number>
+                          </property>
+                          <property name="metric_template" stdset="0">
+                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;%10.2f&lt;span style=&quot; color:gray;&quot;&gt; X&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                          </property>
+                          <property name="imperial_template" stdset="0">
+                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;%9.4f&lt;span style=&quot; color:gray;&quot;&gt; X&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
+                      </item>
+                      <item>
+                       <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0">
+                        <property name="spacing">
+                         <number>0</number>
+                        </property>
+                        <item>
+                         <widget class="DROLabel" name="dro_label_g5x_y">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="frameShape">
+                           <enum>QFrame::NoFrame</enum>
+                          </property>
+                          <property name="text">
+                           <string>%10.3f</string>
+                          </property>
+                          <property name="textFormat">
+                           <enum>Qt::RichText</enum>
+                          </property>
+                          <property name="alignment">
+                           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                          </property>
+                          <property name="textSpaceSample" stdset="0">
+                           <string> -000.0000 X</string>
+                          </property>
+                          <property name="Qjoint_number" stdset="0">
+                           <number>1</number>
+                          </property>
+                          <property name="Qreference_type" stdset="0">
+                           <number>1</number>
+                          </property>
+                          <property name="metric_template" stdset="0">
+                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;%10.2f&lt;span style=&quot; color:gray;&quot;&gt; Y&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                          </property>
+                          <property name="imperial_template" stdset="0">
+                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;%9.4f&lt;span style=&quot; color:gray;&quot;&gt; Y&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
+                      </item>
+                      <item>
+                       <layout class="QHBoxLayout" name="horizontalLayout_19" stretch="0">
+                        <property name="spacing">
+                         <number>0</number>
+                        </property>
+                        <item>
+                         <widget class="DROLabel" name="dro_label_g5x_z">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="frameShape">
+                           <enum>QFrame::NoFrame</enum>
+                          </property>
+                          <property name="textFormat">
+                           <enum>Qt::RichText</enum>
+                          </property>
+                          <property name="alignment">
+                           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                          </property>
+                          <property name="textSpaceSample" stdset="0">
+                           <string> -000.0000 X</string>
+                          </property>
+                          <property name="Qjoint_number" stdset="0">
+                           <number>2</number>
+                          </property>
+                          <property name="Qreference_type" stdset="0">
+                           <number>1</number>
+                          </property>
+                          <property name="metric_template" stdset="0">
+                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;%10.2f&lt;span style=&quot; color:gray;&quot;&gt; Z&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                          </property>
+                          <property name="imperial_template" stdset="0">
+                           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;%9.4f&lt;span style=&quot; color:gray;&quot;&gt; Z&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
+                      </item>
+                      <item>
+                       <layout class="QHBoxLayout" name="horizontalLayout_20">
+                        <property name="spacing">
+                         <number>0</number>
+                        </property>
+                        <item>
+                         <widget class="DROLabel" name="dro_label_g5x_r">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="frameShape">
+                           <enum>QFrame::Panel</enum>
+                          </property>
+                          <property name="text">
+                           <string>%10.3f</string>
+                          </property>
+                          <property name="textFormat">
+                           <enum>Qt::RichText</enum>
+                          </property>
+                          <property name="alignment">
+                           <set>Qt::AlignCenter</set>
+                          </property>
+                          <property name="Qjoint_number" stdset="0">
+                           <number>10</number>
+                          </property>
+                          <property name="Qreference_type" stdset="0">
+                           <number>0</number>
+                          </property>
+                          <property name="metric_template" stdset="0">
+                           <string>%10.3f</string>
+                          </property>
+                          <property name="imperial_template" stdset="0">
+                           <string>%9.4f</string>
+                          </property>
+                          <property name="angular_template" stdset="0">
+                           <string>%4.2f</string>
+                          </property>
+                         </widget>
+                        </item>
+                       </layout>
                       </item>
                      </layout>
                     </widget>
@@ -1995,8 +2476,8 @@
   </action>
   <action name="actionReload">
    <property name="icon">
-    <iconset>
-     <normaloff>../../../axis/images/tool_reload.gif</normaloff>../../../axis/images/tool_reload.gif</iconset>
+    <iconset resource="qtaxis.qrc">
+     <normaloff>:/toolbar/images/tool_reload.gif</normaloff>:/toolbar/images/tool_reload.gif</iconset>
    </property>
    <property name="text">
     <string>Reload</string>
@@ -2014,8 +2495,8 @@
   </action>
   <action name="actionQuit">
    <property name="icon">
-    <iconset>
-     <normaloff>../../../axis/images/close.gif</normaloff>../../../axis/images/close.gif</iconset>
+    <iconset resource="qtaxis.qrc">
+     <normaloff>:/toolbar/images/close.gif</normaloff>:/toolbar/images/close.gif</iconset>
    </property>
    <property name="text">
     <string>Quit</string>
@@ -2026,8 +2507,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../../../axis/images/tool_estop.gif</normaloff>../../../axis/images/tool_estop.gif</iconset>
+    <iconset resource="qtaxis.qrc">
+     <normaloff>:/toolbar/images/tool_estop.gif</normaloff>:/toolbar/images/tool_estop.gif</iconset>
    </property>
    <property name="text">
     <string>Estop</string>
@@ -2038,8 +2519,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../../../axis/images/tool_power.gif</normaloff>../../../axis/images/tool_power.gif</iconset>
+    <iconset resource="qtaxis.qrc">
+     <normaloff>:/toolbar/images/tool_power.gif</normaloff>:/toolbar/images/tool_power.gif</iconset>
    </property>
    <property name="text">
     <string>Machine On</string>
@@ -2047,8 +2528,8 @@
   </action>
   <action name="actionOpen">
    <property name="icon">
-    <iconset>
-     <normaloff>../../../axis/images/tool_open.gif</normaloff>../../../axis/images/tool_open.gif</iconset>
+    <iconset resource="qtaxis.qrc">
+     <normaloff>:/toolbar/images/tool_open.gif</normaloff>:/toolbar/images/tool_open.gif</iconset>
    </property>
    <property name="text">
     <string>Open</string>
@@ -2056,9 +2537,9 @@
   </action>
   <action name="actionRun">
    <property name="icon">
-    <iconset>
-     <normalon>../../../axis/images/tool_run.gif</normalon>
-    </iconset>
+    <iconset resource="qtaxis.qrc">
+     <normaloff>:/toolbar/images/tool_run.gif</normaloff>
+     <normalon>../../../axis/images/tool_run.gif</normalon>:/toolbar/images/tool_run.gif</iconset>
    </property>
    <property name="text">
     <string>Run</string>
@@ -2066,8 +2547,8 @@
   </action>
   <action name="actionStep">
    <property name="icon">
-    <iconset>
-     <normaloff>../../../axis/images/tool_step.gif</normaloff>../../../axis/images/tool_step.gif</iconset>
+    <iconset resource="qtaxis.qrc">
+     <normaloff>:/toolbar/images/tool_step.gif</normaloff>:/toolbar/images/tool_step.gif</iconset>
    </property>
    <property name="text">
     <string>Step</string>
@@ -2078,8 +2559,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../../../axis/images/tool_pause.gif</normaloff>../../../axis/images/tool_pause.gif</iconset>
+    <iconset resource="qtaxis.qrc">
+     <normaloff>:/toolbar/images/tool_pause.gif</normaloff>:/toolbar/images/tool_pause.gif</iconset>
    </property>
    <property name="text">
     <string>Pause</string>
@@ -2087,8 +2568,8 @@
   </action>
   <action name="actionStop">
    <property name="icon">
-    <iconset>
-     <normaloff>../../../axis/images/tool_stop.gif</normaloff>../../../axis/images/tool_stop.gif</iconset>
+    <iconset resource="qtaxis.qrc">
+     <normaloff>:/toolbar/images/tool_stop.gif</normaloff>:/toolbar/images/tool_stop.gif</iconset>
    </property>
    <property name="text">
     <string>Stop</string>
@@ -2099,8 +2580,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../../../axis/images/tool_blockdelete.gif</normaloff>../../../axis/images/tool_blockdelete.gif</iconset>
+    <iconset resource="qtaxis.qrc">
+     <normaloff>:/toolbar/images/tool_blockdelete.gif</normaloff>:/toolbar/images/tool_blockdelete.gif</iconset>
    </property>
    <property name="text">
     <string>Skip</string>
@@ -2111,8 +2592,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../../../axis/images/tool_optpause.gif</normaloff>../../../axis/images/tool_optpause.gif</iconset>
+    <iconset resource="qtaxis.qrc">
+     <normaloff>:/toolbar/images/tool_optpause.gif</normaloff>:/toolbar/images/tool_optpause.gif</iconset>
    </property>
    <property name="text">
     <string>Optional Stop</string>
@@ -2120,8 +2601,8 @@
   </action>
   <action name="actionZoomIn">
    <property name="icon">
-    <iconset>
-     <normaloff>../../../axis/images/tool_zoomin.gif</normaloff>../../../axis/images/tool_zoomin.gif</iconset>
+    <iconset resource="qtaxis.qrc">
+     <normaloff>:/toolbar/images/tool_zoomin.gif</normaloff>:/toolbar/images/tool_zoomin.gif</iconset>
    </property>
    <property name="text">
     <string>Zoom In</string>
@@ -2129,8 +2610,8 @@
   </action>
   <action name="actionZoomOut">
    <property name="icon">
-    <iconset>
-     <normaloff>../../../axis/images/tool_zoomout.gif</normaloff>../../../axis/images/tool_zoomout.gif</iconset>
+    <iconset resource="qtaxis.qrc">
+     <normaloff>:/toolbar/images/tool_zoomout.gif</normaloff>:/toolbar/images/tool_zoomout.gif</iconset>
    </property>
    <property name="text">
     <string>Zoom Out</string>
@@ -2141,8 +2622,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../../../axis/images/tool_axis_z.gif</normaloff>../../../axis/images/tool_axis_z.gif</iconset>
+    <iconset resource="qtaxis.qrc">
+     <normaloff>:/toolbar/images/tool_axis_z.gif</normaloff>:/toolbar/images/tool_axis_z.gif</iconset>
    </property>
    <property name="text">
     <string>Top View</string>
@@ -2153,8 +2634,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../../../axis/images/tool_axis_z2.gif</normaloff>../../../axis/images/tool_axis_z2.gif</iconset>
+    <iconset resource="qtaxis.qrc">
+     <normaloff>:/toolbar/images/tool_axis_z2.gif</normaloff>:/toolbar/images/tool_axis_z2.gif</iconset>
    </property>
    <property name="text">
     <string>Rotated View</string>
@@ -2165,8 +2646,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../../../axis/images/tool_axis_x.gif</normaloff>../../../axis/images/tool_axis_x.gif</iconset>
+    <iconset resource="qtaxis.qrc">
+     <normaloff>:/toolbar/images/tool_axis_x.gif</normaloff>:/toolbar/images/tool_axis_x.gif</iconset>
    </property>
    <property name="text">
     <string>Side View</string>
@@ -2177,8 +2658,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../../../axis/images/tool_axis_y.gif</normaloff>../../../axis/images/tool_axis_y.gif</iconset>
+    <iconset resource="qtaxis.qrc">
+     <normaloff>:/toolbar/images/tool_axis_y.gif</normaloff>:/toolbar/images/tool_axis_y.gif</iconset>
    </property>
    <property name="text">
     <string>Front View</string>
@@ -2189,8 +2670,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../../../axis/images/tool_axis_p.gif</normaloff>../../../axis/images/tool_axis_p.gif</iconset>
+    <iconset resource="qtaxis.qrc">
+     <normaloff>:/toolbar/images/tool_axis_p.gif</normaloff>:/toolbar/images/tool_axis_p.gif</iconset>
    </property>
    <property name="text">
     <string>Perspective View</string>
@@ -2201,8 +2682,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>../../../axis/images/tool_rotate.gif</normaloff>../../../axis/images/tool_rotate.gif</iconset>
+    <iconset resource="qtaxis.qrc">
+     <normaloff>:/toolbar/images/tool_rotate.gif</normaloff>:/toolbar/images/tool_rotate.gif</iconset>
    </property>
    <property name="text">
     <string>Tool Rotate</string>
@@ -2210,8 +2691,8 @@
   </action>
   <action name="actionClearPlot">
    <property name="icon">
-    <iconset>
-     <normaloff>../../../axis/images/tool_clear.gif</normaloff>../../../axis/images/tool_clear.gif</iconset>
+    <iconset resource="qtaxis.qrc">
+     <normaloff>:/toolbar/images/tool_clear.gif</normaloff>:/toolbar/images/tool_clear.gif</iconset>
    </property>
    <property name="text">
     <string>Clear Plot</string>
@@ -2278,8 +2759,8 @@
   </action>
   <action name="actionToolOffsetDialog">
    <property name="icon">
-    <iconset>
-     <normaloff>../../../gmoccapy/images/editor.png</normaloff>../../../gmoccapy/images/editor.png</iconset>
+    <iconset resource="qtaxis.qrc">
+     <normaloff>:/toolbar/images/editor.png</normaloff>:/toolbar/images/editor.png</iconset>
    </property>
    <property name="text">
     <string>Edit tooltable</string>
@@ -2287,8 +2768,8 @@
   </action>
   <action name="actionOriginOffsetDialog">
    <property name="icon">
-    <iconset>
-     <normaloff>../../../gmoccapy/images/editor.png</normaloff>../../../gmoccapy/images/editor.png</iconset>
+    <iconset resource="qtaxis.qrc">
+     <normaloff>:/toolbar/images/editor.png</normaloff>:/toolbar/images/editor.png</iconset>
    </property>
    <property name="text">
     <string>View Origintable</string>
@@ -2341,8 +2822,8 @@
   </action>
   <action name="actionVersaProbe">
    <property name="icon">
-    <iconset>
-     <normaloff>../../images/probe_icons/down.png</normaloff>../../images/probe_icons/down.png</iconset>
+    <iconset resource="qtaxis.qrc">
+     <normaloff>:/toolbar/images/down.png</normaloff>:/toolbar/images/down.png</iconset>
    </property>
    <property name="text">
     <string>Versa Probe</string>
@@ -2453,7 +2934,9 @@
    <header>qtvcp.widgets.jog_increments</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="qtaxis.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>leftTab</sender>

@@ -104,7 +104,7 @@
        </widget>
       </item>
       <item>
-       <widget class="DROLabel" name="dro_label">
+       <widget class="DROLabel" name="dro_label_x">
         <property name="Qreference_type" stdset="0">
          <number>1</number>
         </property>
@@ -117,7 +117,7 @@
        </widget>
       </item>
       <item>
-       <widget class="DROLabel" name="dro_label_2">
+       <widget class="DROLabel" name="dro_label_y">
         <property name="Qjoint_number" stdset="0">
          <number>1</number>
         </property>
@@ -128,12 +128,12 @@
          <string>Y %10.3f</string>
         </property>
         <property name="imperial_template" stdset="0">
-         <string>X %9.4f</string>
+         <string>Y %9.4f</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="DROLabel" name="dro_label_3">
+       <widget class="DROLabel" name="dro_label_z">
         <property name="Qjoint_number" stdset="0">
          <number>2</number>
         </property>
@@ -144,7 +144,7 @@
          <string>Z %10.3f</string>
         </property>
         <property name="imperial_template" stdset="0">
-         <string>X %9.4f</string>
+         <string>Z %9.4f</string>
         </property>
        </widget>
       </item>
@@ -181,7 +181,7 @@
      <x>0</x>
      <y>0</y>
      <width>688</width>
-     <height>27</height>
+     <height>24</height>
     </rect>
    </property>
   </widget>
@@ -189,9 +189,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>CamView</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.camview_widget</header>
+   <class>IndicatedPushButton</class>
+   <extends>QPushButton</extends>
+   <header>qtvcp.widgets.simple_widgets</header>
   </customwidget>
   <customwidget>
    <class>DROLabel</class>
@@ -201,8 +201,13 @@
   </customwidget>
   <customwidget>
    <class>ActionButton</class>
-   <extends>QPushButton</extends>
+   <extends>IndicatedPushButton</extends>
    <header>qtvcp.widgets.action_button</header>
+  </customwidget>
+  <customwidget>
+   <class>CamView</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.camview_widget</header>
   </customwidget>
  </customwidgets>
  <resources/>

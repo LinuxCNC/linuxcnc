@@ -14,11 +14,8 @@
 # GNU General Public License for more details.
 ###############################################################################
 
-import os
-import hal
-
-from PyQt5.QtWidgets import QWidget, QToolButton, QMenu, QAction
-from PyQt5.QtCore import Qt, QEvent, pyqtProperty, QBasicTimer, pyqtSignal
+from PyQt5.QtWidgets import QToolButton, QMenu, QAction
+from PyQt5.QtCore import pyqtProperty
 from PyQt5.QtGui import QIcon
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -43,8 +40,6 @@ class ActionToolButton(QToolButton, _HalWidgetBase):
         super(ActionToolButton, self).__init__(parent)
         self._userView = True
 
-        self.buildMenu()
-
     def buildMenu(self):
         if self._userView:
             SettingMenu = QMenu(self)
@@ -59,6 +54,7 @@ class ActionToolButton(QToolButton, _HalWidgetBase):
         def homed_on_test():
             return (STATUS.machine_is_on()
                     and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
+        self.buildMenu()
 
     def recordView(self):
         ACTION.SET_GRAPHICS_VIEW('record-view')

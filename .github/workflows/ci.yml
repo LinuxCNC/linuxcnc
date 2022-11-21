@@ -1,3 +1,5 @@
+# vim: sw=2
+
 name: Build CI
 
 on:
@@ -9,6 +11,7 @@ on:
     types: [rerequested]
 
 jobs:
+
   rip-and-test:
     runs-on: ubuntu-20.04
     steps:
@@ -24,13 +27,16 @@ jobs:
     - name: Build RIP & test
       run: |
         ./scripts/travis-install-build-deps.sh
+        sudo apt-get install -y eatmydata
+        curl -O https://snapshot.debian.org/archive/debian/20220716T154603Z/pool/main/p/po4a/po4a_0.67-2_all.deb
+        sudo apt install ./po4a_0.67-2_all.deb
         cd src
-        ./autogen.sh
-        ./configure --with-realtime=uspace --disable-check-runtime-deps
-        make -O -j$((1+$(nproc))) default pycheck V=1
+        eatmydata ./autogen.sh
+        eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps
+        eatmydata make -O -j$((1+$(nproc))) default pycheck V=1
         # Note that the package build covers html docs
-        ../scripts/rip-environment runtests -p
-    
+        eatmydata ../scripts/rip-environment runtests -p
+
   htmldocs:
     runs-on: ubuntu-20.04
     steps:
@@ -46,31 +52,168 @@ jobs:
     - name: Build HTML docmentation
       run: |
         ./scripts/travis-install-build-deps.sh
+        sudo apt-get install -y eatmydata
+        curl -O https://snapshot.debian.org/archive/debian/20220716T154603Z/pool/main/p/po4a/po4a_0.67-2_all.deb
+        sudo apt install ./po4a_0.67-2_all.deb
         cd src
-        ./autogen.sh
-        ./configure --with-realtime=uspace --disable-check-runtime-deps --enable-build-documentation=html
-        make -O -j$((1+$(nproc))) docs
+        eatmydata ./autogen.sh
+        eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps --enable-build-documentation=html
+        eatmydata make -O -j$((1+$(nproc))) manpages
+        eatmydata make -O -j$((1+$(nproc))) translateddocs
+        eatmydata make -O -j$((1+$(nproc))) docs
         # Note that the package build covers html docs
 
-  package:
-    runs-on: ubuntu-20.04
+  package-arch:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image: ["debian:buster", "debian:bullseye", "debian:bookworm", "debian:sid"]
+    container:
+      image: ${{ matrix.image }}
+      # IPC_OWNER is needed for shmget IPC_CREAT
+      # SYS_ADMIN is needed for shmctl IPC_SET
+      options: --cpus=2 --cap-add=IPC_OWNER --cap-add=SYS_ADMIN
     steps:
     - name: Dump GitHub context
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
       run: echo "$GITHUB_CONTEXT"
-    - uses: actions/checkout@v2
-      with:
-        submodules: true
-        fetch-depth: 0
-    - name: Build Debian package
+    - name: Install pre-dependencies
+      env:
+        DEBIAN_FRONTEND: noninteractive
       run: |
+        set -e
         set -x
-        git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc refs/tags/*:refs/tags/*
-        ./scripts/travis-install-build-deps.sh
-        codename=$(grep VERSION_CODENAME /etc/os-release | cut -d = -f 2)
-        dch --maintmaint --distribution $codename "GitHub test package."
-        fakeroot ./debian/rules binary
-        sudo apt-get install ../*.deb
-        ./scripts/runtests -p tests/
-        lintian --info --display-info --pedantic --display-experimental ../*.deb
+        apt-get --quiet update
+        apt-get --yes --quiet install eatmydata
+        # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
+        eatmydata apt-get --yes --quiet install --no-install-suggests git lsb-release python3 devscripts
+
+    - uses: actions/checkout@v3
+      with:
+        # "fetch-depth: 0" fetches all of history, this is needed by
+        # our build system to determine the version from tags
+        fetch-depth: 0
+
+    - name: Add linuxcnc.org deb archive
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        case "${{matrix.image}}" in
+            debian:sid|debian:bookworm)
+                exit 0
+                ;;
+            *)
+                ;;
+        esac
+        set -e
+        set -x
+        eatmydata apt-get --yes --quiet install --no-install-recommends gpg software-properties-common
+        eatmydata gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
+        DIST=$(echo ${{matrix.image}} | cut -d : -f 2)
+        eatmydata add-apt-repository "deb http://linuxcnc.org $DIST base"
+        eatmydata apt-get --quiet update
+
+    - name: Build architecture-specific Debian packages
+      env:
+        DEBEMAIL: emc-developers@lists.sourceforge.net
+        DEBFULLNAME: LinuxCNC Github CI Robot
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        set -e
+        set -x
+        eatmydata git config --global --add safe.directory "${PWD}"
+        eatmydata debian/configure
+        eatmydata debian/update-dch-from-git
+        eatmydata scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
+        eatmydata git diff
+        eatmydata apt-get --yes --quiet build-dep --arch-only .
+        eatmydata debuild -us -uc --build=any
+    - name: Test debian packages
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        set -e
+        set -x
+        eatmydata apt-get --yes --quiet install ../*.deb
+        eatmydata apt-get --yes --quiet install sudo # some tests run sudo...
+        eatmydata adduser --disabled-password --gecos "" testrunner
+        eatmydata passwd -d testrunner
+        eatmydata adduser testrunner sudo
+        chmod 0777 $(find tests/ -type d) # make test dirs world-writable for the testrunner
+        su -c "eatmydata ./scripts/runtests -p ./tests" testrunner
+
+  package-indep:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image: ["debian:buster", "debian:bullseye", "debian:bookworm", "debian:sid"]
+    container:
+      image: ${{ matrix.image }}
+      # IPC_OWNER is needed for shmget IPC_CREAT
+      # SYS_ADMIN is needed for shmctl IPC_SET
+      options: --cpus=2 --cap-add=IPC_OWNER --cap-add=SYS_ADMIN
+    steps:
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: echo "$GITHUB_CONTEXT"
+
+    - name: Install pre-dependencies
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        set -e
+        set -x
+        apt-get --quiet update
+        apt-get --yes --quiet install eatmydata
+        # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
+        eatmydata apt-get --yes --quiet install --no-install-suggests git lsb-release python3 devscripts
+
+    - uses: actions/checkout@v3
+      with:
+        # "fetch-depth: 0" fetches all of history, this is needed by
+        # our build system to determine the version from tags
+        fetch-depth: 0
+
+    - name: Add linuxcnc.org deb archive
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        case "${{matrix.image}}" in
+            debian:sid|debian:bookworm)
+                exit 0
+                ;;
+            *)
+                ;;
+        esac
+        set -e
+        set -x
+        eatmydata apt-get --yes --quiet install gpg software-properties-common
+        eatmydata gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
+        DIST=$(echo ${{matrix.image}} | cut -d : -f 2)
+        eatmydata add-apt-repository "deb http://linuxcnc.org $DIST base"
+        eatmydata apt-get --quiet update
+
+    - name: Build architecture-independent Debian packages
+      env:
+        DEBEMAIL: emc-developers@lists.sourceforge.net
+        DEBFULLNAME: LinuxCNC Github CI Robot
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        set -e
+        set -x
+        eatmydata git config --global --add safe.directory "${PWD}"
+        eatmydata debian/configure
+        eatmydata debian/update-dch-from-git
+        eatmydata scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
+        eatmydata git diff
+        eatmydata apt-get --yes --quiet build-dep --indep-only .
+        eatmydata debuild -us -uc --build=all
+    - name: Test install debian packages
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        set -e
+        set -x
+        eatmydata apt-get --yes --quiet install ../*.deb

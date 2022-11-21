@@ -23,6 +23,7 @@ pin out bit is_negative "TRUE if input is negative, FALSE if input is 0 or posit
 
 function _;
 license "GPL";
+author "John Kasunich";
 ;;
 FUNCTION(_) {
     double tmp = in;

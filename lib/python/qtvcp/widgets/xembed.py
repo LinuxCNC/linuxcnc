@@ -3,12 +3,15 @@ import sys, time
 import os
 import subprocess
 
-from PyQt5.QtCore import QSize, QEvent, pyqtProperty
+from PyQt5.QtCore import QEvent, pyqtProperty
 from PyQt5.QtGui import QWindow, QResizeEvent, QMoveEvent
 from PyQt5.QtWidgets import QWidget
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.lib import xembed
+try:
+    from qtvcp.lib import xembed
+except:
+    pass
 from qtvcp import logger
 
 # Instantiate the libraries with global reference
@@ -47,8 +50,8 @@ class XEmbeddable(QWidget, _HalWidgetBase):
         # there seems to be a race - sometimes the foreign window doesn't embed
         time.sleep(.2)
 
-    # we embed foreign program into our window 
-    def embed_program(self, command): 
+    # we embed foreign program into our window
+    def embed_program(self, command):
         try:
             self.external_id = self.launch_xid(command)
             window = QWindow.fromWinId(self.external_id)

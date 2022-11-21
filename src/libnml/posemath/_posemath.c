@@ -1846,7 +1846,7 @@ int pmCircleInit(PmCircle * const circle,
        2PI. */
     pmCartCartCross(&circle->rTan, &rEnd, &v);
     pmCartCartDot(&v, &circle->normal, &d);
-    if (d < 0.0) {
+    if (d < DOUBLE_FUZZ) {
         circle->angle = PM_2_PI - circle->angle;
     }
     /* Issue #1528 24-Jan-2022. Additional test for nearly-straight   *

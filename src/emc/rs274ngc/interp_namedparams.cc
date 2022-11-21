@@ -190,7 +190,7 @@ int Interp::read_named_parameter(
 // if the variable is of the form '_ini[section]name', then treat it as
 // an inifile  variable. Lookup section/name and cache the value
 // as global and read-only.
-// the shortest possible ini variable is '_ini[s]n' or 8 chars long .
+// the shortest possible INI variable is '_ini[s]n' or 8 chars long .
 int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
 {
     char *s;
@@ -206,13 +206,13 @@ int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
 	int closeBracket = s - nameBuf;
 
 	if ((iniFileName = getenv("INI_FILE_NAME")) == NULL) {
-	    logNP("warning: referencing ini parameter '%s': no ini file",nameBuf);
+	    logNP("warning: referencing INI parameter '%s': no INI file",nameBuf);
 	    *status = 0;
 	    return INTERP_OK;
 	}
 	if (!inifile.Open(iniFileName)) {
 	    *status = 0;
-	    ERS(_("can\'t open ini file '%s'"), iniFileName);
+	    ERS(_("can\'t open INI file '%s'"), iniFileName);
 	}
 
 	char capName[LINELEN];
@@ -229,7 +229,7 @@ int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
 	} else {
 	    inifile.Close();
 	    *status = 0;
-	    ERS(_("Named ini parameter #<%s> not found in inifile '%s': error=0x%x"),
+	    ERS(_("Named INI parameter #<%s> not found in INI file '%s': error=0x%x"),
 		nameBuf, iniFileName, retval);
 	}
     }
@@ -239,7 +239,7 @@ int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
 // if the variable is of the form '_hal[hal_name]', then treat it as
 // a HAL pin, signal or param. Lookup value, convert to float, and export as global and read-only.
 // do not cache.
-// the shortest possible ini variable is '_hal[x]' or 7 chars long .
+// the shortest possible INI variable is '_hal[x]' or 7 chars long .
 int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
 {
     static int comp_id;
@@ -671,6 +671,10 @@ int Interp::lookup_named_param(const char *nameBuf,
 	break;
 
     case NP_CURRENT_POCKET:
+    if (_setup.current_pocket == -1) {
+	    *value = -1;
+	    break;
+    }
     if(_setup.random_toolchanger){//random changers already report the real pocket number
 	    *value = _setup.current_pocket;
     }
@@ -720,27 +724,42 @@ int Interp::lookup_named_param(const char *nameBuf,
 	break;
 
     case NP_ABS_X:  // abs position
-	*value = _setup.current_x + _setup.origin_offset_x + _setup.tool_offset.tran.x;
+        {
+            double x = _setup.current_x + _setup.axis_offset_x;
+            double y = _setup.current_y + _setup.axis_offset_y;
+            rotate(&x, &y, _setup.rotation_xy);
+	    *value = x + _setup.origin_offset_x + _setup.tool_offset.tran.x;
+        }
 	break;
 
     case NP_ABS_Y:  // abs position
-	*value = _setup.current_y + _setup.origin_offset_y + _setup.tool_offset.tran.y;
+        {
+            double x = _setup.current_x + _setup.axis_offset_x;
+            double y = _setup.current_y + _setup.axis_offset_y;
+            rotate(&x, &y, _setup.rotation_xy);
+	    *value = y + _setup.origin_offset_y + _setup.tool_offset.tran.y;
+        }
 	break;
 
+
     case NP_ABS_Z:  // abs position
-	*value = _setup.current_z + _setup.origin_offset_z + _setup.tool_offset.tran.z;
+	*value = _setup.current_z + _setup.axis_offset_z +
+                 _setup.origin_offset_z + _setup.tool_offset.tran.z;
 	break;
 
     case NP_ABS_A:  // abs position
-	*value = _setup.AA_current + _setup.AA_origin_offset + _setup.tool_offset.a;
+	*value = _setup.AA_current + _setup.AA_axis_offset +
+                 _setup.AA_origin_offset + _setup.tool_offset.a;
 	break;
 
     case NP_ABS_B:  // abs position
-	*value = _setup.BB_current + _setup.BB_origin_offset + _setup.tool_offset.b;
+	*value = _setup.BB_current + _setup.BB_axis_offset +
+                 _setup.BB_origin_offset + _setup.tool_offset.b;
 	break;
 
     case NP_ABS_C:  // abs position
-	*value = _setup.CC_current + _setup.CC_origin_offset + _setup.tool_offset.c;
+	*value = _setup.CC_current + _setup.CC_axis_offset +
+                 _setup.CC_origin_offset + _setup.tool_offset.c;
 	break;
 
 	// o-word subs may optionally have an

@@ -50,7 +50,7 @@
 
   linuxcncrsh {-- --port <port number> --name <server name> --connectpw <password>
              --enablepw <password> --sessions <max sessions> --path <path>
-             -ini<inifile>}
+             -ini<INI file>}
 
   With -- --port Waits for socket connections (Telnet) on specified socket, without port
             uses default port 5007.
@@ -61,7 +61,7 @@
             to max sessions. Default is no limit (-1).
   With -- --path Sets the base path to program (G-Code) files, default is "../../nc_files/".
             Make sure to include the final slash (/).
-  With -- -ini <inifile>, uses inifile instead of emc.ini. 
+  With -- -ini <INI file>, uses specified INI file instead of default emc.ini. 
 
   There are six commands supported, Where the commands set and get contain LinuxCNC
   specific sub-commands based on the commands supported by linuxcncrsh, but where the 
@@ -159,7 +159,7 @@
   With get, returns the integer value of EMC_DEBUG, in LinuxCNC. Note that
   it may not be true that the local EMC_DEBUG variable here (in linuxcncrsh and
   the GUIs that use it) is the same as the EMC_DEBUG value in the LinuxCNC. This
-  can happen if LinuxCNC is started from one .ini file, and the GUI is started
+  can happen if LinuxCNC is started from one INI file, and the GUI is started
   with another that has a different value for DEBUG.
   With set, sends a command to the LinuxCNC to set the new debug level,
   and sets the EMC_DEBUG global here to the same value. This will make
@@ -2925,7 +2925,7 @@ static void usage(char* pname) {
            "         --sessions   <max sessions> (default=%d) (-1 ==> no limit) \n"
            "         --path       <path>         (default=%s)\n"
            "LinuxCNC_Options:\n"
-           "          -ini        <inifile>      (default=%s)\n"
+           "          -ini        <INI file>      (default=%s)\n"
           ,pname,port,serverName,pwd,enablePWD,maxSessions,defaultPath,emc_inifile
           );
 }
@@ -2939,12 +2939,12 @@ int main(int argc, char *argv[])
     while((opt = getopt_long(argc, argv, "he:n:p:s:w:d:", longopts, NULL)) != - 1) {
       switch(opt) {
         case 'h': usage(argv[0]); exit(1);
-        case 'e': strncpy(enablePWD, optarg, strlen(optarg) + 1); break;
-        case 'n': strncpy(serverName, optarg, strlen(optarg) + 1); break;
+        case 'e': snprintf(enablePWD, sizeof(enablePWD), "%s", optarg); break;
+        case 'n': snprintf(serverName, sizeof(serverName), "%s", optarg); break;
         case 'p': sscanf(optarg, "%d", &port); break;
         case 's': sscanf(optarg, "%d", &maxSessions); break;
-        case 'w': strncpy(pwd, optarg, strlen(optarg) + 1); break;
-        case 'd': strncpy(defaultPath, optarg, strlen(optarg) + 1);
+        case 'w': snprintf(pwd, sizeof(pwd), "%s", optarg); break;
+        case 'd': snprintf(defaultPath, sizeof(defaultPath), "%s", optarg); break;
         }
       }
 

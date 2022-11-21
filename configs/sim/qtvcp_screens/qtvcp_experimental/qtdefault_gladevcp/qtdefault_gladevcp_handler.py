@@ -67,7 +67,7 @@ class HandlerClass:
                     event.accept()
                 return True
             if isinstance(receiver,QtWidgets.QDialog):
-                print 'dialog'
+                print('dialog')
                 return True
         if event.isAutoRepeat():return True
         try:
@@ -75,10 +75,10 @@ class HandlerClass:
             return True
         except Exception as e:
             #log.debug('Exception loading Macros:', exc_info=e)
-            print 'Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key)
+            print('Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key))
             if e:
-                print e
-            #print 'from %s'% receiver
+                print(e)
+            #print('from %s'% receiver)
             return False
 
     ########################
@@ -94,7 +94,7 @@ class HandlerClass:
     #####################
 
     # keyboard jogging from key binding calls
-    # double the rate if fast is true 
+    # double the rate if fast is true
     def kb_jog(self, state, joint, direction, fast = False, linear = True):
         if linear:
             distance = STATUS.get_jog_increment()

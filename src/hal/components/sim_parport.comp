@@ -128,7 +128,7 @@ function read nofp;
 function write nofp;
 function reset nofp;
 license "GPL";
-author "Chris Morley";
+author "Chris S Morley";
 ;;
 
 FUNCTION(read) {

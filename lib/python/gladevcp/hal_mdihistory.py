@@ -32,6 +32,15 @@ else:
 
 import linuxcnc
 from hal_glib import GStat
+from gladevcp.core import Info
+
+GSTAT = GStat()
+INFO = Info()
+
+# Set up logging
+from qtvcp import logger
+LOG = logger.getLogger(__name__)
+# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL, VERBOSE
 
 # path to TCL for external programs eg. halshow
 try:
@@ -67,13 +76,7 @@ class EMC_MDIHistory(Gtk.VBox, _EMC_ActionBase):
         Gtk.VBox.__init__(self, *a, **kw)
 
         self.use_double_click = False
-        self.gstat = GStat()
-        # if 'NO_FORCE_HOMING' is true, MDI  commands are allowed before homing.
-        inifile = os.environ.get('INI_FILE_NAME', '/dev/null')
-        self.ini = linuxcnc.ini(inifile)
-        self.no_home_required = int(self.ini.find("TRAJ", "NO_FORCE_HOMING") or 0)
-        path = self.ini.find('DISPLAY', 'MDI_HISTORY_FILE') or '~/.axis_mdi_history'
-        self.filename = os.path.expanduser(path)
+        self.filename = os.path.expanduser(INFO.MDI_HISTORY_PATH)
 
         self.model = Gtk.ListStore(str)
 
@@ -111,16 +114,16 @@ class EMC_MDIHistory(Gtk.VBox, _EMC_ActionBase):
 
         self.pack_start(scroll, True, True, 0)
         self.pack_start(self.entry, False, False, 0)
-        self.gstat.connect('state-off', lambda w: self.set_sensitive(False))
-        self.gstat.connect('state-estop', lambda w: self.set_sensitive(False))
-        self.gstat.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on()))
-        self.gstat.connect('interp-run', lambda w: self.set_sensitive(not self.is_auto_mode()))
-        self.gstat.connect('all-homed', lambda w: self.set_sensitive(self.machine_on()))
+        GSTAT.connect('state-off', lambda w: self.set_sensitive(False))
+        GSTAT.connect('state-estop', lambda w: self.set_sensitive(False))
+        GSTAT.connect('interp-idle', lambda w: self.set_sensitive(self.machine_on()))
+        GSTAT.connect('interp-run', lambda w: self.set_sensitive(not self.is_auto_mode()))
+        GSTAT.connect('all-homed', lambda w: self.set_sensitive(self.machine_on()))
         # this time lambda with two parameters, as not all homed will send also the unhomed joints
-        self.gstat.connect('not-all-homed', lambda w,uj: self.set_sensitive(self.no_home_required) )
+        GSTAT.connect('not-all-homed', lambda w,uj: self.set_sensitive(INFO.NO_HOME_REQUIRED) )
         self.reload()
         self.show_all()
-
+        
     def reload(self):
         self.model.clear()
 
@@ -153,7 +156,7 @@ class EMC_MDIHistory(Gtk.VBox, _EMC_ActionBase):
             return
         if not cmd:
             return
-        ensure_mode(self.gstat.stat, self.linuxcnc, linuxcnc.MODE_MDI)
+        ensure_mode(GSTAT.stat, self.linuxcnc, linuxcnc.MODE_MDI)
 
         self.linuxcnc.mdi(cmd)
         self.entry.set_text('')

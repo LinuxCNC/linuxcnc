@@ -64,7 +64,7 @@
     No step type uses all five, and only those which will be used are
     exported to HAL.  The values of these parameters are in nano-seconds,
     so no recalculation is needed when changing thread periods.  In
-    the timing diagrams that follow, they are identfied by the
+    the timing diagrams that follow, they are identified by the
     following numbers:
 
     (1): 'stepgen.n.steplen' = length of the step pulse

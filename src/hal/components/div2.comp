@@ -1,0 +1,67 @@
+//   This is a component for LinuxCNC HAL
+//   Copyright 2021 Noel Rodes
+//
+//   This program is free software; you can redistribute it and/or
+//   modify it under the terms of version 2 of the GNU General
+//   Public License as published by the Free Software Foundation.
+//
+//   This program is distributed in the hope that it will be useful,
+//   but WITHOUT ANY WARRANTY; without even the implied warranty of
+//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//   GNU General Public License for more details.
+//
+//   You should have received a copy of the GNU General Public License
+//   along with this program; if not, write to the Free Software
+//   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
+//   Do not use a zero Divisor.
+//   Dividing by zero creates a bad, indefinite result.  NOT ALLOWED
+//   This is simple math.
+//
+
+component div2 "Quotient of two floating point inputs";
+pin in  float in0 "the Dividend";
+pin in  float in1 "the Divisor";
+pin out float out "the Quotient   out = in0 / in1";
+param rw float deadband "The \\fBout\\fR will be zero if \\fBin\\fR is between -\\fBdeadband\\fR and +\\fBdeadband\\fR" ;
+
+description """
+A very simple comp to divide a floating point number
+by another floating point number, to get a floating point result.
+Remember, not to use a zero divisor. 
+A zero divisor creates an indefinte result.
+This is simple mathematics. """;
+
+license "GPL"; // indicates GPL v2 or later
+author "Noel Rodes";
+see_also "mult2(9), invert(9) ";
+function _;
+
+;;
+
+#include <rtapi_math.h>
+
+static bool error_msg = 0;
+
+FUNCTION(_) {
+    double dividend = in0;
+    double divisor = in1;
+    if ( deadband < 1e-12 ) deadband = 1e-12;
+    if ( divisor > -deadband && divisor < 0 ) {
+        out = ( dividend / -deadband );
+        if (!error_msg)
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                            "\n \n DIV2 DIVISOR IS TOO CLOSE TO -ZERO,\n THEREFORE -DEADBAND IS USED.\n INCREASE THE DIVISOR, in1.\n \n \n");
+        error_msg = 1;
+    } else if (divisor >= 0 && divisor < deadband) {
+        out = ( dividend / deadband );
+        if (!error_msg)
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                            "\n \n DIV2 DIVISOR IS TOO CLOSE TO +ZERO,\n THEREFORE +DEADBAND IS USED.\n INCREASE THE DIVISOR, in1.\n \n \n");
+        error_msg = 1;
+    } else {
+        out = ( dividend / divisor );
+        error_msg = 0;
+    }
+}
+

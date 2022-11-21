@@ -1,11 +1,12 @@
 import os
 import subprocess
-
-from PyQt5.QtWidgets import QApplication
+from time import sleep
+from PyQt5.QtWidgets import (QApplication, QTabWidget, QStackedWidget,
+    QWidget, QGridLayout,QGraphicsBlurEffect, QGraphicsDropShadowEffect,
+                QGraphicsColorizeEffect)
 from PyQt5.QtCore import Qt, QProcess
 
 import linuxcnc
-import hal
 
 # Set up logging
 from . import logger
@@ -36,17 +37,26 @@ class _Lcnc_Action(object):
         self.home_all_warning_flag = False
         self.proc = None
 
+    def SET_DEBUG_LEVEL(self, level):
+        self.cmd.debug(level)
+
     def SET_ESTOP_STATE(self, state):
-        if state:
-            self.cmd.state(linuxcnc.STATE_ESTOP)
-        else:
-            self.cmd.state(linuxcnc.STATE_ESTOP_RESET)
+        if isinstance(state, bool):
+            if state:
+                self.cmd.state(linuxcnc.STATE_ESTOP)
+            else:
+                self.cmd.state(linuxcnc.STATE_ESTOP_RESET)
+        elif state in (state,linuxcnc.STATE_ESTOP,linuxcnc.STATE_ESTOP_RESET):
+            self.cmd.state(state)
 
     def SET_MACHINE_STATE(self, state):
-        if state:
-            self.cmd.state(linuxcnc.STATE_ON)
-        else:
-            self.cmd.state(linuxcnc.STATE_OFF)
+        if isinstance(state, bool):
+            if state:
+                self.cmd.state(linuxcnc.STATE_ON)
+            else:
+                self.cmd.state(linuxcnc.STATE_OFF)
+        elif state in (state,linuxcnc.STATE_ON,linuxcnc.STATE_ESTOP_OFF):
+            self.cmd.state(state)
 
     def SET_MOTION_TELEOP(self, value):
         # 1:teleop, 0: joint
@@ -165,6 +175,9 @@ class _Lcnc_Action(object):
 
     def CALL_MDI(self, code):
         LOG.debug('CALL_MDI Command: {}'.format(code))
+        if STATUS.is_auto_running():
+            LOG.error('Can not run MDI command:{} when linuxcnc is running in auto mode'.format(code))
+            return -1
         self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi('%s' % code)
 
@@ -183,10 +196,13 @@ class _Lcnc_Action(object):
             elif result == linuxcnc.RCS_ERROR:
                 LOG.debug('CALL_MDI_WAIT RCS error: {}'.format(time, result))
                 return -1
-            result = linuxcnc.error_channel().poll()
-            if result:
-                STATUS.emit('error', result[0], result[1])
-                LOG.error('CALL_MDI_WAIT Error: {}'.format(result[1]))
+            sleep(.5)
+            error = STATUS.ERROR.poll()
+            # next commented line just for debugging
+            #self.cmd.error_msg('returned:'+str(error))
+            if error:
+                STATUS.emit('error', error[0], error[1])
+                LOG.error('CALL_MDI_WAIT Error: {}'.format(error[1]))
                 return -1
         if mode_return:
             self.ensure_mode(premode)
@@ -627,7 +643,7 @@ class _Lcnc_Action(object):
         try:
             a = command['NAME']
         except:
-            LOG.warning("Call Dialog command Dict not recogzied: {}".format(option))
+            LOG.warning("Call Dialog command Dict not recogzied: {}".format(command))
         STATUS.emit('dialog-request', command)
 
     def HIDE_POINTER(self, state):
@@ -703,7 +719,8 @@ class _Lcnc_Action(object):
     def SET_ERROR_MESSAGE(self, msg):
         self.cmd.error_msg(msg)
 
-    def TOUCHPLATE_TOUCHOFF(self, search_vel, probe_vel, max_probe, z_offset):
+    def TOUCHPLATE_TOUCHOFF(self, search_vel, probe_vel, max_probe,
+            z_offset, retract_distance, z_safe_travel):
         if self.proc is not None:
             return 0
         self.proc = QProcess()
@@ -714,12 +731,72 @@ class _Lcnc_Action(object):
         self.proc.finished.connect(self.touchoff_finished)
         self.proc.start('python3 {}'.format(TOUCHPLATE_SUBPROGRAM))
         # probe
-        string_to_send = "probe_down${}${}${}${}\n".format(str(search_vel),
+        string_to_send = "touchoff${}${}${}${}${}${}\n".format(str(search_vel),
                                         str(probe_vel),
                                         str(max_probe),
+                                        str(retract_distance),
+                                        str(z_safe_travel),
                                         str(z_offset))
+        #print(string_to_send)
+        STATUS.block_error_polling()
         self.proc.writeData(bytes(string_to_send, 'utf-8'))
         return 1
+
+    def ADD_WIDGET_TO_TAB(self, widgetTo, widget,name):
+        try:
+            if isinstance(widgetTo, QTabWidget):
+                tw = QWidget()
+                widgetTo.addTab(tw, name)
+            elif isinstance(widgetTo, QStackedWidget):
+                tw = QWidget()
+                widgetTo.setMinimumWidth(widget.minimumWidth())
+                widgetTo.setMaximumWidth(widget.maximumWidth())
+                widgetTo.addWidget(tw)
+            else:
+                LOG.warning('Widget {} is not a Tab or stacked Widget - skipping'.format(widgetTo))
+                return False
+        except Exception as e:
+            LOG.warning("problem inserting child into location: {},{}".format(widget,e))
+            return False
+
+        layout = QGridLayout(tw)
+        layout.setContentsMargins(0,0,0,0)
+        layout.addWidget(widget, 0, 0)
+
+        return True
+
+    def SET_BLUR(self, widget, state, radius = 15):
+        if state:
+            blur = QGraphicsBlurEffect()
+            blur.setBlurRadius(radius)
+            widget.setGraphicsEffect(blur)
+            widget.hide()
+            widget.show()
+        else:
+            widget.setGraphicsEffect(None)
+
+    def SET_TINT(self, widget, state, color):
+        if state:
+            c = QGraphicsColorizeEffect()
+            c.setColor(color)
+            c.setStrength(1)
+            widget.setGraphicsEffect(c)
+            widget.hide()
+            widget.show()
+        else:
+            widget.setGraphicsEffect(None)
+
+    def SET_SHADOW(self, widget,state,color):
+        if state:
+            shadow = QGraphicsDropShadowEffect()
+            shadow.setBlurRadius(30)
+            shadow.setColor(color)
+            shadow.setOffset(10, 10)
+            widget.setGraphicsEffect(shadow)
+            widget.hide()
+            widget.show()
+        else:
+            widget.setGraphicsEffect(None)
 
     ######################################
     # Action Helper functions
@@ -727,7 +804,7 @@ class _Lcnc_Action(object):
 
     # In free (joint) mode we use the plain joint number.
     # In axis mode we convert the joint number to the equivalent
-    # axis number 
+    # axis number
     def get_jog_info(self, num):
         if STATUS.stat.motion_mode == linuxcnc.TRAJ_MODE_FREE:
             return True, self.jnum_check(num)
@@ -832,11 +909,13 @@ class _Lcnc_Action(object):
     def parse_line(self, line):
         line = line.decode("utf-8")
         if "COMPLETE" in line:
+            STATUS.unblock_error_polling()
             self.SET_DISPLAY_MESSAGE("Touchplate touchoff routine returned successfully")
         elif "DEBUG" in line: # must set DEBUG level on LOG in top of this file
             LOG.debug(line[line.find('DEBUG')+6:])
         # This also gets error text sent from logging of ACTION library in the subprogram
         elif "ERROR" in line:
+            STATUS.unblock_error_polling()
             # remove preceding text
             s = line[line.find('ERROR')+6:]
             s = s[s.find(']')+1:]
@@ -902,7 +981,7 @@ class Progress:
 ###########################################
 # Filter Class
 ########################################################################
-import os, sys, time, select, re
+import os, sys, select, re
 import tempfile, atexit, shutil
 
 # slightly reworked code from gladevcp
@@ -972,7 +1051,7 @@ class FilterProgram:
 
     # request an error dialog box
     def error(self, exitcode, stderr):
-        message = '''The filter program '{}' that was filtering '{}' 
+        message = '''The filter program '{}' that was filtering '{}'
                         exited with an error'''.format(self.program_filter, self.filtered_program)
         if stderr != '':
             more = "The error messages it produced are shown below:"

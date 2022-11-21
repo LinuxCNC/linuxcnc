@@ -34,9 +34,3 @@ class GCodes:
                 self.w.gcode_parameters.setText(parm)
             else:
                 self.w.gcode_parameters.setText('')
-
-    def mdiClear(self):
-        for index in range(1, 8):
-            getattr(parent, 'gcodeParameter_' + str(index)).setText('')
-        self.w.gcode_description.setText('')
-        self.w.gcodeHelpLabel.setText('')

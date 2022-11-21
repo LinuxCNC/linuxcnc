@@ -108,20 +108,20 @@ for r in refs:
         good.add(r)
 
 if missing_file:
-    print "Files linked to in %s but could not be found:" % (
-        os.path.basename(ref),)
+    print("Files linked to in %s but could not be found:" % (
+        os.path.basename(ref),))
     for i in sorted(missing_file):
-        print "\t%r" % i
+        print("\t%r" % i)
 if missing_anchor:
-    print "Anchors used in %s but not defined in linked file:" % (
-        os.path.basename(ref),)
+    print("Anchors used in %s but not defined in linked file:" % (
+        os.path.basename(ref),))
     for i in sorted(missing_anchor):
-        print "\t%r" % i
+        print("\t%r" % i)
 if unlisted_targets:
-    print "Links to files not listed as targets:"
+    print("Links to files not listed as targets:")
     for i in sorted(unlisted_targets):
-        print "\t%r" % i
-    print "If all link targets are not listed in the Submakefile, then the results of this program is unreliable."
-print "Good links: %d/%d" % (len(good), len(refs))
+        print("\t%r" % i)
+    print("If all link targets are not listed in the Submakefile, then the results of this program is unreliable.")
+print("Good links: %d/%d" % (len(good), len(refs)))
 if missing_anchor or missing_file or unlisted_targets:
     raise SystemExit, 1

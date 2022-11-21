@@ -1,6 +1,8 @@
-[[cha:halmodule]]
+:lang: en
+:toc:
 
-= Creating Userspace Python Components
+[[cha:halmodule]]
+= Creating Userspace Python Components(((Creating Userspace Python Components)))
 
 == Basic usage
 
@@ -36,24 +38,24 @@ halcmd: loadusr passthrough
 
 halcmd: show pin
 
-    Component Pins: 
-    Owner Type  Dir     Value  Name 
-     03   float IN          0  passthrough.in 
-     03   float OUT         0  passthrough.out 
+    Component Pins:
+    Owner Type  Dir     Value  Name
+     03   float IN          0  passthrough.in
+     03   float OUT         0  passthrough.out
 
-halcmd: setp passthrough.in 3.14 
+halcmd: setp passthrough.in 3.14
 
 halcmd: show pin
 
-    Component Pins: 
-    Owner Type  Dir     Value  Name 
-     03   float IN       3.14  passthrough.in 
-     03   float OUT      3.14  passthrough.out 
+    Component Pins:
+    Owner Type  Dir     Value  Name
+     03   float IN       3.14  passthrough.in
+     03   float OUT      3.14  passthrough.out
 ----
 
 == Userspace components and delays
 
-If you typed “show pin” quickly, you may see that 'passthrough.out' 
+If you typed "show pin" quickly, you may see that 'passthrough.out'
 still had its old value of 0. This is because of the call to
 'time.sleep(1)', which makes the assignment to the output pin occur at
 most once per second. Because this is a userspace component, the actual
@@ -73,9 +75,8 @@ microseconds, no matter what).
 h = hal.component("passthrough")
 ----
 
-The component itself is created by a call to the constructor
-'hal.component'. The arguments are the HAL component name and
-(optionally) the
+The component itself is created by a call to the constructor 'hal.component'.
+The arguments are the HAL component name and (optionally) the
 prefix used for pin and parameter names. If the prefix is not
 specified, the component name is used.
 
@@ -90,11 +91,11 @@ and parameter direction.
 
 .HAL Option Names
 [width="100%",cols="<3s,4*<"]
-|===========================================================
+|===
 |Pin and Parameter Types: |HAL_BIT |HAL_FLOAT |HAL_S32 |HAL_U32
-|Pin Directions:          |HAL_IN  |HAL_OUT   |HAL_IO  | 
-|Parameter Directions:    |HAL_RO  |HAL_RW    |        | 
-|===========================================================
+|Pin Directions:          |HAL_IN  |HAL_OUT   |HAL_IO  |
+|Parameter Directions:    |HAL_RO  |HAL_RW    |        |
+|===
 
 The full pin or parameter name is formed by joining the prefix and the
 suffix with a ".", so in the example the pin created is called
@@ -154,64 +155,97 @@ encoder interface, the encoder component only sets the 'index-enable'
 pin to *FALSE* (when an index pulse is seen and the old value is
 *TRUE*), but never sets it to *TRUE*. Repeatedly driving the pin
 *FALSE*  might cause the other connected component to act as though
-another index pulse had been seen. 
+another index pulse had been seen.
 
 == Exiting
 
-A 'halcmd unload' request for the component is delivered as a 
-'KeyboardInterrupt' exception. When an unload request arrives, the 
-process should either 
-exit in a short time, or call the '.exit()' method on the component 
-if substantial work (such as reading or 
+A 'halcmd unload' request for the component is delivered as a
+'KeyboardInterrupt' exception. When an unload request arrives, the
+process should either
+exit in a short time, or call the '.exit()' method on the component
+if substantial work (such as reading or
 writing files) must be done to complete the shutdown process.
 
 == Helpful Functions
 
+=== ready
+Tells the HAL system the component is initialized. Locks out adding pins.
+
+=== unready
+Allows a component to add pins after 'ready()' has been called.
+One should call 'ready()' on the component after.
+
 === component_exists
 
-Does the specified component exist at this time. +
-Example: +
-hal.component_exists("testpanel") +
+Does the specified component exist at this time.
+
+.Example
+----
+hal.component_exists("testpanel")
+----
 
 === component_is_ready
-Is the specified component ready at this time. +
-Example: +
-hal.component_is_ready("testpanel") +
+
+Is the specified component ready at this time.
+
+.Example
+----
+hal.component_is_ready("testpanel")
+----
 
 === get_msg_level
 
-Get the current Realtime msg level. +
+Get the current Realtime msg level.
 
 === set_msg_level
 
-set the current Realtime msg level. +
-used for debugging information. +
+Set the current Realtime msg level.
+used for debugging information.
 
 === connect
 
-Connect a pin to a signal. +
-example: +
+Connect a pin to a signal.
+
+.Example
+----
 hal.connect("pinname","signal_name")
+----
+
+=== disconnect
+
+Disconnect a pin from a signal.
+
+.Example
+----
+hal.disconnect("pinname")
+----
 
 === get_value
 
-read a pin, param or signal directly. +
-example: +
-value = hal.get_value("iocontrol.0.emc-enable-in") +
+Read a pin, param, or signal directly.
+
+.Example
+----
+value = hal.get_value("iocontrol.0.emc-enable-in")
+----
 
 === get_info_pins()
 
-returns a list of dicts of all system pins. +
+Returns a list of dicts of all system pins.
+
 [source,python]
 ----
 listOfDicts = hal.get_info_pins()
 pinName1 = listOfDicts[0].get('NAME')
 pinValue1 = listOfDicts[0].get('VALUE')
+pinType1 = listOfDicts[0].get('TYPE')
 pinDirection1 = listOfDicts[0].get('DIRECTION')
 ----
 
 === get_info_signals()
-returns a list of dicts of all system signals. +
+
+Returns a list of dicts of all system signals.
+
 [source,python]
 ----
 listOfDicts = hal.get_info_signals()
@@ -219,103 +253,127 @@ signalName1 = listOfDicts[0].get('NAME')
 signalValue1 = listOfDicts[0].get('VALUE')
 driverPin1 = listOfDicts[0].get('DRIVER')
 ----
+
 === get_info_params()
 
-returns a list of dicts of all system parameters. +
+Returns a list of dicts of all system parameters.
+
 [source,python]
 ----
 listOfDicts = hal.get_info_params()
 paramName1 = listOfDicts[0].get('NAME')
 paramValue1 = listOfDicts[0].get('VALUE')
+paramDirection1 = listOfDicts[0].get('DIRECTION')
 ----
 
-=== new_signal
-Create a New signal of the type specified. +
-example" +
+=== new_sig
+
+Create a new signal of the type specified.
+
+.Example
+----
 hal.new_sig("signalname",hal.HAL_BIT)
+----
 
 === pin_has_writer
 
 Does the specified pin have a driving pin connected. +
-Returns True or False. +
+Returns True or False.
+
+----
 h.in.pin_has_writer()
+----
 
 === get_name
-Get the HAL object name +
-h.in.get_name() +
-return a string
+
+Get the HAL object name. +
+Return a string.
+
+----
+h.in.get_name()
+----
 
 === get_type
-Get the HAL object's type +
-h.in.get_type() +
-returns an integer
+
+Get the HAL object's type. +
+Returns an integer.
+
+----
+h.in.get_type()
+----
 
 === get_dir
-Get the HAL object direction type +
-h.in.get_dir() +
-returns an integer
+
+Get the HAL object direction type. +
+Returns an integer.
+
+----
+h.in.get_dir()
+----
 
 === get
-get the HAL object value +
+
+Get the HAL object value.
+
+----
 h.in.get()
+----
 
 === set
-set the HAL object value +
+
+Set the HAL object value.
+
+----
 h.out.set(10)
+----
 
 === is_pin
+
 Is the object a pin or parameter? +
-h.in.is_pin() +
-returns bool
+Returns True or False.
+
+----
+h.in.is_pin()
+----
 
 === sampler_base
 
-TODO +
+TODO
 
 === stream_base
 
-TODO +
+TODO
 
 === stream
 
-TODO +
+TODO
 
 === set_p
 
-Set a pin value of any pin in the HAL system. +
-example: +
-hal.set_p("pinname","10") +
+Set a pin value of any pin in the HAL system.
+
+.Example
+----
+hal.set_p("pinname","10")
+----
 
 == Constants
 
-Use These To specify details rather then the value they hold.
+Use these to specify details rather then the value they hold.
 
 * HAL_BIT
-
 * HAL_FLOAT
-
 * HAL_S32
-
 * HAL_U32
-
 * HAL_IN
-
 * HAL_OUT
-
 * HAL_RO
-
 * HAL_RW
-
 * MSG_NONE
-
 * MSG_ALL
-
 * MSG_DBG
-
 * MSG_ERR
-
 * MSG_INFO
-
 * MSG_WARN
 
 == System Information
@@ -323,14 +381,12 @@ Use These To specify details rather then the value they hold.
 Read these to acquire information about the realtime system.
 
 * is_kernelspace
-
 * is_rt
-
 * is_sim
-
 * is_userspace
 
 == Use with hal_glib in GladeVCP Handler
+
 GladeVCP uses the hal_glib library, which can be used to connect a "watcher" signal on a HAL input pin. +
 This signal can be used to register a function to call when the HAL pin changes state. +
 
@@ -343,6 +399,7 @@ import hal
 ----
 
 Then make a pin and connect a 'value-changed' (the watcher) signal to a function call:
+
 [source,python]
 ----
 class HandlerClass:
@@ -352,18 +409,20 @@ class HandlerClass:
 ----
 
 And have a function to be called:
+
 [source,python]
 ----
     def _on_example_trigger_change(self,pin,userdata=None):
-        print "pin value changed to:" % (pin.get())
-        print "pin name= %s" % (pin.get_name())
-        print "pin type= %d" % (pin.get_type())
+        print("pin value changed to:" % (pin.get()))
+        print("pin name= %s" % (pin.get_name()))
+        print("pin type= %d" % (pin.get_type()))
 
         # this can be called outside the function
         self.example_trigger.get()
 ----
 
 == Use with hal_glib in QtVCP Handler
+
 QtVCP uses the hal_glib library, which can be used to connect a "watcher" signal on a HAL input pin. +
 This signal can be used to register a function to call when the HAL pin changes state. +
 
@@ -375,49 +434,50 @@ import hal
 ----
 
 Then make a pin and connect a 'value_changed' (the watcher) signal to a function call:
+
 [source,python]
 ----
     ########################
     # **** INITIALIZE **** #
     ########################
     # widgets allows access to  widgets from the qtvcp files
-    # at this point the widgets and hal pins are not instantiated
+    # at this point the widgets and HAL pins are not instantiated
     def __init__(self, halcomp,widgets,paths):
         self.hal = halcomp
         self.testPin = self.hal.newpin('test-pin', hal.HAL_BIT, hal.HAL_IN)
         self.testPin.value_changed.connect(lambda s: self.setTestPin(s))
 ----
 
-And have a function to be called. +
-This shows ways to get the pin value and information. +
+And have a function to be called.
+This shows ways to get the pin value and information.
+
 [source,python]
 ----
     #####################
     # general functions #
     #####################
     def setTestPin(self, data):
-        print "Test pin value changed to:" % (data)
-        print 'halpin object =', self.w.sender()
-        print 'Halpin name: ',self.sender().text()
-        print 'Halpin type: ',self.sender().get_type()
+        print("Test pin value changed to:" % (data))
+        print('halpin object =', self.w.sender())
+        print('halpin name: ',self.sender().text())
+        print('halpin type: ',self.sender().get_type())
 
         # this can be called outside the function
-        print self.testPin.get()
+        print(self.testPin.get())
 ----
-
 
 == Project ideas
 
-* Create an external control panel with buttons, switches, and
-   indicators. Connect everything to a microcontroller, and connect the
-   microcontroller to the PC using a serial interface. Python has a very
-   capable serial interface module called
-   http://pyserial.sourceforge.net/[pyserial] 
-   (Ubuntu package name “python-serial”, in the universe repository)
+* Create an external control panel with buttons, switches, and indicators.
+  Connect everything to a microcontroller,
+  and connect the microcontroller to the PC using a serial interface.
+  Python has a very capable serial interface module called
+  https://pyserial.readthedocs.io/en/latest/[pyserial]
+  (Ubuntu package name "python3-serial", in the universe repository).
 * Attach a http://lcdproc.omnipotent.net/[LCDProc]-compatible LCD module
-   and use it to display a digital readout with information of your choice
-   (Ubuntu package name “lcdproc”, in the universe repository)
-* Create a virtual control panel using any GUI library supported by
-   Python (gtk, qt, wxwindows, etc)
+  and use it to display a digital readout with information of your choice
+  (Ubuntu package name "lcdproc", in the universe repository).
+* Create a virtual control panel using any GUI library supported by Python
+  (gtk, Qt, wxWindows, etc.).
 
-
+// vim: set syntax=asciidoc:

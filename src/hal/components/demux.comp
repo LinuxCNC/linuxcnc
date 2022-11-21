@@ -8,7 +8,7 @@ or the other, but it is possible to use the bits as a ""shift"" if
 required.
 An optional operating mode is enabled by setting the "bargraph"
 parameter to true, in this case all bits up to the selected bit will be
-set, as might be required for an LED bargraph display""";
+set, as might be required for an LED bargraph display.""";
 
 pin in bit sel-bit-## [5] "Binary-number bit selectors";
 pin in unsigned sel-u32 "Integer selection input";
@@ -18,7 +18,7 @@ option default_personality 32;
 param rw bit bargraph = 0;
 
 license "GPL 2+";
-author "andypugh";
+author "Andy Pugh";
 
 function _;
 

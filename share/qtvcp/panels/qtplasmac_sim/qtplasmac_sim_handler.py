@@ -21,37 +21,42 @@ with this program; if not, write to the Free Software Foundation, Inc
 '''
 
 import os
-import linuxcnc
 import hal
-import time
-from subprocess import call as CALL
+from subprocess import run as RUN
 from PyQt5 import QtCore
-from PyQt5.QtGui import QPalette, QColor, QIcon
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMessageBox
+from qtvcp.core import Info
+from qtvcp.lib.preferences import Access
+
+INFO = Info()
 
 class HandlerClass:
-
     def __init__(self, halcomp, widgets, paths):
         self.hal = halcomp
         self.w = widgets
-        self.PATHS = paths
+        self.paths = paths
+        self.iniFile = INFO.INI
         self.w.setWindowFlags(QtCore.Qt.CustomizeWindowHint | \
                               QtCore.Qt.WindowTitleHint | \
                               QtCore.Qt.WindowStaysOnTopHint )
-        self.prefsFile = '{}/qtplasmac.prefs'.format(paths.CONFIGPATH)
+        self.machineName = self.iniFile.find('EMC', 'MACHINE')
+        self.prefs = Access(os.path.join(self.paths.CONFIGPATH, self.machineName + '.prefs'))
         self.styleFile = '{}/qtplasmac_sim.qss'.format(paths.CONFIGPATH)
+        self.set_estop()
         self.set_style()
 
     def initialized__(self):
         self.w.setWindowTitle('QtPlasmaC Sim')
-        self.IMAGES = os.path.join(self.PATHS.IMAGEDIR, 'qtplasmac/images/')
-        self.w.setWindowIcon(QIcon(os.path.join(self.IMAGES, 'linuxcncicon.png')))
+        self.images = os.path.join(self.paths.IMAGEDIR, 'qtplasmac/images/')
+        self.w.setWindowIcon(QIcon(os.path.join(self.images, 'Chips_Plasma.png')))
         self.breakPin = self.hal.newpin('sensor_breakaway', hal.HAL_BIT, hal.HAL_OUT)
         self.floatPin = self.hal.newpin('sensor_float', hal.HAL_BIT, hal.HAL_OUT)
         self.ohmicPin = self.hal.newpin('sensor_ohmic', hal.HAL_BIT, hal.HAL_OUT)
         self.torchPin = self.hal.newpin('torch_on', hal.HAL_BIT, hal.HAL_IN)
         self.statePin = self.hal.newpin('state', hal.HAL_S32, hal.HAL_IN)
         self.zPosPin = self.hal.newpin('z_position', hal.HAL_FLOAT, hal.HAL_IN)
+        self.materialPin = self.hal.newpin('material_height', hal.HAL_FLOAT, hal.HAL_IN)
         self.arcVoltsOffsetPin = self.hal.newpin('arc_voltage_offset-f', hal.HAL_FLOAT, hal.HAL_OUT)
         simStepconf = False
         for sig in hal.get_info_signals():
@@ -59,10 +64,10 @@ class HandlerClass:
                 simStepconf = True
                 break
         if simStepconf:
-            CALL(['halcmd', 'net', 'Zjoint-pos-fb', 'qtplasmac_sim.z_position'])
+            RUN(['halcmd', 'net', 'Zjoint-pos-fb', 'qtplasmac_sim.z_position'])
         else:
-            CALL(['halcmd', 'net', 'plasmac:axis-position', 'qtplasmac_sim.z_position'])
-        CALL(['halcmd', 'net', 'plasmac:state', 'qtplasmac_sim.state'])
+            RUN(['halcmd', 'net', 'plasmac:axis-position', 'qtplasmac_sim.z_position'])
+        RUN(['halcmd', 'net', 'plasmac:state', 'qtplasmac_sim.state'])
         self.torchPin.value_changed.connect(self.torch_changed)
         self.zPosPin.value_changed.connect(lambda v:self.z_position_changed(v))
         self.statePin.value_changed.connect(lambda v:self.plasmac_state_changed(v))
@@ -91,28 +96,20 @@ class HandlerClass:
         mode = hal.get_value('plasmac.mode')
         self.set_mode(mode)
         hal.set_p('estop_or.in0', '1')
-        zMin = hal.get_value('ini.z.min_limit')
-        self.zProbe = zMin + (10 * hal.get_value('halui.machine.units-per-mm'))
+        self.height = 5 if hal.get_value('halui.machine.units-per-mm') == 1 else 0.2
+        self.materialPin.set(self.height)
         self.w.estop.setStyleSheet('color: {}; background: {}'.format(self.foreColor, self.estopColor))
 
+    def set_estop(self):
+        if self.prefs.getpref('Estop type', 0, int, 'GUI_OPTIONS') == 2:
+            RUN(['halcmd', 'net', 'sim:estop-1-raw', 'iocontrol.0.user-enable-out', 'estop_not_1.in'])
+            RUN(['halcmd', 'net', 'sim:estop-1-in', 'estop_not_1.out', 'estop_or.in1'])
+
     def set_style(self):
-        self.foreColor = '#ffee06'
-        self.backColor = '#16160e'
-        self.backAlt = '#36362e'
-        self.estopColor = '#ff0000'
-        try:
-            with open(self.prefsFile, 'r') as inFile:
-                for line in inFile:
-                    if line.startswith('Foreground'):
-                        self.foreColor = line.split('=')[1].strip()
-                    elif line.startswith('Background Alt'):
-                        self.backAlt = line.split('=')[1].strip()
-                    elif line.startswith('Background'):
-                        self.backColor = line.split('=')[1].strip()
-                    elif line.startswith('Estop'):
-                        self.estopColor = line.split('=')[1].strip()
-        except:
-            pass
+        self.foreColor = self.prefs.getpref('Foreground', '', str, 'COLOR_OPTIONS')
+        self.backColor = self.prefs.getpref('Background', '', str, 'COLOR_OPTIONS')
+        self.backAlt = self.prefs.getpref('Background Alt', '', str, 'COLOR_OPTIONS')
+        self.estopColor = self.prefs.getpref('Estop', '', str, 'COLOR_OPTIONS')
         with open(self.styleFile, 'w') as outFile:
             outFile.write(
             '\n/****** DEFAULT ************/\n'\
@@ -288,15 +285,17 @@ class HandlerClass:
             self.w.arc_voltage_offset.setValue(0)
 
     def z_position_changed(self, height):
+        mThick = self.materialPin.get() if self.materialPin.get() >= 0 else 0
+        mTop = hal.get_value('ini.z.min_limit') + self.height + mThick if mThick else 0
         if self.w.auto_flt.isChecked():
-            if height < self.zProbe and not self.floatPin.get() and (self.statePin.get() == 1 or self.statePin.get() == 2):
+            if height < mTop and not self.floatPin.get() and (self.statePin.get() == 1 or self.statePin.get() == 2):
                 self.float_pressed()
-            elif (height > self.zProbe) and self.floatPin.get() and self.statePin.get() == 3:
+            elif (height > mTop) and self.floatPin.get() and self.statePin.get() == 3:
                 self.float_pressed()
         elif self.w.auto_ohm.isChecked():
-            if height < self.zProbe and not self.ohmicPin.get() and (self.statePin.get() == 1 or self.statePin.get() == 2):
+            if height < mTop and not self.ohmicPin.get() and (self.statePin.get() == 1 or self.statePin.get() == 2):
                 self.ohmic_pressed()
-            elif (height > self.zProbe) and self.ohmicPin.get() and self.statePin.get() == 3:
+            elif (height > mTop) and self.ohmicPin.get() and self.statePin.get() == 3:
                 self.ohmic_pressed()
 
     def help_pressed(self):

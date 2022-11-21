@@ -33,7 +33,6 @@ if [ "$1" == "-h" -o "$1" == "-help" -o "$1" == "--help" ]; then
     exit 0
 fi
 
-EXTRA_FILES=
 EXTRA_BUILD=
 PYTHON_VERSION_NEXT=$(python3 -c 'import sys; print (sys.version[:2] + str(1+int(sys.version[2])))')
 LIBREADLINE_DEV="libreadline-gplv2-dev | libreadline-dev"
@@ -56,22 +55,23 @@ done
 
 DISTRIB_NAME=
 if [ "$(command -v lsb_release)" != "" ] || [ "$(which lsb_release)" != "" ]; then
-    DISTRIB_NAME="$(lsb_release -s -i)-$(lsb_release -s -r)"
+    ID="$(lsb_release --short --id)"
+    RELEASE="$(lsb_release --short --release)"
+    # Workaround for broken lsb_release, <URL: https://bugs.debian.org/1008735 >
+    case "$RELEASE" in
+      n/a)
+        RELEASE=unstable
+        ;;
+    esac
+    DISTRIB_NAME="$ID-$RELEASE"
 elif [ -f /etc/lsb-release ]; then
     source /etc/lsb-release
     DISTRIB_NAME=$DISTRIB_ID-$DISTRIB_RELEASE
 fi
 
-EXTRAS=extras
-
 if [ -n "$ENABLE_BUILD_DOCUMENTATION" ]; then
-    DOC_DEPENDS='asciidoc (>= 8.5), dblatex (>= 0.2.12), docbook-xsl, \
-        dvipng, ghostscript, graphviz, groff, imagemagick, inkscape, \
-        python3-lxml, source-highlight, w3c-linkchecker, xsltproc, \
-        texlive-extra-utils, texlive-font-utils, texlive-fonts-recommended, \
-        texlive-lang-cyrillic, texlive-lang-french, texlive-lang-german, \
-        texlive-lang-polish, texlive-lang-spanish, texlive-latex-recommended, \
-        asciidoc-dblatex'
+    DOC_DEPENDS="dblatex (>= 0.2.12),\n    dvipng,\n    graphviz,\n    groff,\n    inkscape,\n    python3-lxml,\n    w3c-linkchecker,\n    xsltproc,\n    texlive-extra-utils,\n    texlive-font-utils,\n    texlive-fonts-recommended,\n    texlive-lang-cyrillic,\n    texlive-lang-european,\n    texlive-lang-french,\n    texlive-lang-german,\n    texlive-lang-polish,\n    texlive-lang-spanish,\n    texlive-latex-recommended,\n    fonts-dejavu"
+
     case $DISTRIB_NAME in
 	Debian-9)
 	    ;; # No xetex in Debian 9 Stretch
@@ -79,7 +79,7 @@ if [ -n "$ENABLE_BUILD_DOCUMENTATION" ]; then
 	    # Not quite sure which packages is needed for xetex, but
 	    # texlive-xetex seem like a safe choice.  Need xetex to be
 	    # able to build Chinese PDF.
-	    DOC_DEPENDS="$DOC_DEPENDS,texlive-xetex"
+	    DOC_DEPENDS="$DOC_DEPENDS,\n    texlive-xetex"
 	    ;;
     esac
 else
@@ -92,14 +92,10 @@ PYTHON_GST=python3-gst-1.0,gstreamer1.0-plugins-base
 TCLTK_VERSION=8.6
 PYTHON_IMAGING=python3-pil
 PYTHON_IMAGING_TK=python3-pil.imagetk
-QTVCP_DEPENDS="python3-pyqt5,python3-pyqt5.qsci,python3-pyqt5.qtsvg, \
-        python3-pyqt5.qtopengl, python3-opencv,python3-dbus,python3-espeak, \
-        python3-dbus.mainloop.pyqt5,python3-pyqt5.qtwebkit,python3-xlib, \
-        espeak-ng,python3-numpy,pyqt5-dev-tools,gstreamer1.0-tools,espeak, \
-        sound-theme-freedesktop"
+QTVCP_DEPENDS="python3-pyqt5,\n    python3-pyqt5.qsci,\n    python3-pyqt5.qtsvg,\n    python3-pyqt5.qtopengl,\n    python3-opencv,\n    python3-dbus,python3-espeak,\n    python3-dbus.mainloop.pyqt5,\n    python3-pyqt5.qtwebkit,\n    espeak-ng,\n    pyqt5-dev-tools,\n    gstreamer1.0-tools,espeak,\n    sound-theme-freedesktop"
 YAPPS_RUNTIME="python3-yapps"
-DEBHELPER="debhelper (>= 9)"
-COMPAT="9"
+DEBHELPER="debhelper (>= 12)"
+COMPAT="12"
 
 case $DISTRIB_NAME in
     Ubuntu-21.*|Debian-11|Debian-11.*|Debian-testing|Debian-unstable)
@@ -129,7 +125,6 @@ KERNEL_DEPENDS_BUILD=libudev-dev
 KERNEL_HEADERS=
 KERNEL_VERSION=uspace
 MODUTILS_DEPENDS=
-EXTRA_FILES="usr/bin/rtapi_app"
 DISTRIB_NAME=uspace-$DISTRIB_NAME
 MAIN_PACKAGE_NAME=linuxcnc-uspace
 OTHER_MAIN_PACKAGE_NAME=linuxcnc
@@ -144,9 +139,7 @@ sed \
     -e "s#@DISTRIB_NAME@#$DISTRIB_NAME#g" \
     -e "s#@DOC_DEPENDS@#$DOC_DEPENDS#g" \
     -e "s#@EXTRA_BUILD@#$EXTRA_BUILD#g" \
-    -e "s#@EXTRA_FILES@#$EXTRA_FILES#g" \
     -e "s#@EXTRA_RECOMMENDS@#$EXTRA_RECOMMENDS#g" \
-    -e "s#@EXTRAS@#$EXTRAS#g" \
     -e "s#@KERNEL_DEPENDS@#$KERNEL_DEPENDS#g" \
     -e "s#@KERNEL_DEPENDS_BUILD@#$KERNEL_DEPENDS_BUILD#g" \
     -e "s#@KERNEL_HEADERS@#$KERNEL_HEADERS#g" \

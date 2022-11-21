@@ -75,7 +75,7 @@ def verify_stable_pin_values(pins, duration=1):
         for pin_name in list(pins.keys()):
             val = h[pin_name]
             if val != pins[pin_name]:
-                print("ERROR: pin %s = %f (expected %f)" % (pin_name, val, pin[pin_name]))
+                print("ERROR: pin %s = %f (expected %f)" % (pin_name, val, pins[pin_name]))
                 sys.exit(1)
         time.sleep(0.010)
 
@@ -128,6 +128,7 @@ h = hal.component("python-ui")
 h.newpin("tool-number", hal.HAL_S32, hal.HAL_IN)
 h.newpin("tool-prep-number", hal.HAL_S32, hal.HAL_IN)
 h.newpin("tool-prep-pocket", hal.HAL_S32, hal.HAL_IN)
+h.newpin("tool-from-pocket", hal.HAL_S32, hal.HAL_IN)
 
 h.newpin("tool-prepare", hal.HAL_BIT, hal.HAL_IN)
 h.newpin("tool-prepared", hal.HAL_BIT, hal.HAL_OUT)
@@ -230,7 +231,8 @@ verify_stable_pin_values(
         'tool-change': 0,
         'tool-prep-number': 0,
         'tool-prep-pocket': 0,
-        'tool-prepare': 0
+        'tool-prepare': 0,
+        'tool-from-pocket': 1
     },
     duration=1
 )

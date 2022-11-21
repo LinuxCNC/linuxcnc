@@ -1,0 +1,946 @@
+:lang: en
+:toc:
+
+[[cha:qtvcp:custom-widgets]]
+= QtVCP: Building Custom Widgets
+
+== Overview
+
+Building custom widgets allows one to *use the Qt Designer editor to
+place a custom widget* _rather than doing it manually in a handler file_.
+
+A useful custom widgets would be a great way to contribute back to
+LinuxCNC.
+
+=== Widgets
+
+*Widget* is the _general name for the UI objects_ such as buttons and
+labels in PyQt.
+
+There are also *special widgets made for LinuxCNC* that make integration
+easier.
+
+All these widgets can be _placed with Qt Designer editor_ - allowing one
+to _see the result_ before actually loading the panel in LinuxCNC.
+
+=== Qt Designer
+
+*Qt Designer* is a _WYSIWYG (What You See is What You Get) editor for
+placing PyQt widgets_.
+
+It's original intend was for building the graphic widgets for programs. +
+We leverage it to *build screens and panels for LinuxCNC*.
+
+In Qt Designer, on the left side of the editor, you find *three
+categories of LinuxCNC widgets*:
+
+* _HAL only widgets_.
+* _LinuxCNC controller widgets_.
+* _dialog widgets_.
+
+For Qt Designer to _add custom widgets_ to it's editor it must have a
+*plugin* added to the right folder.
+
+//FIXME Aren't the following two sub-sections duplicates of the 'startup
+//  to shutdown section in qtvcp-development.adoc ?
+//  Shouldn't they be merged in one place, and linked in others when
+//  needed
+
+=== Initialization Process
+
+QtVCP does _extra setup_ for *widgets subclassed from `_HALWidgetBase`*,
+aka "HAL-ified" widgets.
+
+This includes:
+
+* Injecting _important variables_,
+* Calling an _extra setup function_
+* Calling a _closing cleanup function_ at shutdown.
+
+These functions are not called when the Qt Designer editor displays the
+widgets.
+
+When QtVCP builds a screen from the `.ui` file:
+
+. It searches for all the HAL-ified widgets.
+. It finds the `ScreenOptions` widget, to collect information it needs
+  to inject into the other widgets
+. It instantiates each widget and if it is a HAL-ified widget, calls the
+  `hal_init()` function. +
+  *`hal_init()`* is defined in the base class and it:
+.. Adds variables such as the preference file to every HAL-ified widget.
+.. Call `+_hal_init()+` on the widget. +
+   `+_hal_init()+` allows the widget designer to do setup that requires
+   access to the extra variables.
+
+Here is a description of the extra variables injected into "HAL-ified"
+widgets:
+
+*`self.HAL_GCOMP`*:: The _HAL component instance_
+*`self.HAL_NAME`*:: This _widget's name_ as a string
+*`self.QT_OBJECT_`*:: This _widget's object instance_
+*`self.QTVCP_INSTANCE_`*:: The _very top level parent_ of the screen
+*`self.PATHS_`*:: The _QtVCP's path library instance_
+*`self.PREFS_`*:: The _optional preference file instance_
+*`self.SETTINGS_`*:: The `Qsettings` _object instance_
+
+=== cleanup process
+
+When QtVCP closes, it calls the *`+_hal_cleanup()+`* function
+_on all HAL-ified widgets_.
+
+The base class creates an empty `+_hal_cleanup()+` function, which can
+be redefined in the custom widget subclass.
+
+This can be used to do such things as record preferences, etc.
+
+This function is not called when the Qt Designer editor displays the
+widgets.
+
+== Custom HAL Widgets
+
+HAL widgets are the simplest to show example of. +
+`qtvcp/widgets/simple_widgets.py` holds many HAL only widgets.
+
+Lets look at a snippet of `simple_widgets.py`:
+
+.In the 'Imports' section
+This is where we import libraries that our widget class needs.
+
+[source,python]
+----
+#!/usr/bin/env python3
+
+###############################
+# Imports
+###############################
+from PyQt5 import QtWidgets                     # <1>
+from qtvcp.widgets.widget_baseclass \
+    import _HalWidgetBase, _HalSensitiveBase    # <2>
+import hal                                      # <3>
+----
+
+In this case we need access to:
+
+<1> PyQt's QtWidgets library,
+<2> LinuxCNC's HAL library, and
+<3> QtVCP's widget `baseclass` 's *`_HalSensitiveBase`* for _automatic
+    HAL pin setup_ and to _disable/enable the widget_ (also known as
+    input sensitivity). +
+    There is also `_HalToggleBase`, and `_HalScaleBase` functions
+    available in the library.`_HalToggleBase`, and `_HalScaleBase`
+//TODO explain `_HalToggleBase` and `_HalScaleBase` too
+
+.In the 'WIDGET' section
+Here is a _custom widget_ based on PyQt's *`QGridLayout`* widget.
+
+`QGridLayout` allows one to:
+
+* _Place objects in a grid_ fashion.
+* _Enable/disable all widgets inside it_ based on a *HAL pin state*.
+
+[source,python]
+----
+######################
+# WIDGET
+######################
+
+class Lcnc_GridLayout(QtWidgets.QWidget, _HalSensitiveBase):    # <1>
+    def __init__(self, parent = None):                          # <2>
+        super(GridLayout, self).__init__(parent)                # <3>
+----
+
+Line by Line:
+
+<1> This defines the _class name_ and the _libraries it inherits from_. +
+    This class, named `Lcnc_GridLayout`, inherits the functions of
+    `QWidget` and `+_HalSensitiveBase+`. +
+    `+_HalSensitiveBase+` is 'subclass' of *`+_HalWidgetBase+`*, the
+    _base class of most QtVCP widgets_, meaning it has all the functions
+    of `+_HalWidgetBase+` plus the functions of `+_HalSensitiveBase+`. +
+    It adds the function to make the widget be enabled or disabled based
+    on a HAL input BIT pin.
+<2> This is the function _called when the widget is first made_ (said
+    instantiated) - this is pretty standard.
+<3> This function initializes our widget's *`Super` classes*. +
+    `Super` just means the _inherited baseclasses_, that is `QWidget`
+    and `_HalSensitiveBase`. +
+    Pretty standard other than the widget name will change.
+
+== Custom Controller Widgets Using `STATUS`
+
+Widget that interact with LinuxCNC's controller are only a little more
+complicated and they require some _extra libraries_.
+
+In this cut down example we will add properties that can be changed in
+Qt Designer.
+
+This LED indicator widget will respond to selectable LinuxCNC controller
+states.
+
+//TODO Link external file for code block content, or as a linked asset to
+//  strip the looong listing as it is detailed chunck by chunk beneath ?
+
+[source,python]
+----
+#!/usr/bin/env python3
+
+###############################
+# Imports
+###############################
+from PyQt5.QtCore import pyqtProperty
+from qtvcp.widgets.led_widget import LED
+from qtvcp.core import Status
+
+###########################################
+# **** instantiate libraries section **** #
+###########################################
+STATUS = Status()
+
+##########################################
+# custom widget class definition
+##########################################
+class StateLED(LED):
+    def __init__(self, parent=None):
+        super(StateLED, self).__init__(parent)
+        self.has_hal_pins = False
+        self.setState(False)
+        self.is_estopped = False
+        self.is_on = False
+        self.invert_state = False
+
+    def _hal_init(self):
+        if self.is_estopped:
+            STATUS.connect('state-estop', lambda w:self._flip_state(True))
+            STATUS.connect('state-estop-reset', lambda w:self._flip_state(False))
+        elif self.is_on:
+            STATUS.connect('state-on', lambda w:self._flip_state(True))
+            STATUS.connect('state-off', lambda w:self._flip_state(False))
+
+    def _flip_state(self, data):
+            if self.invert_state:
+                data = not data
+            self.change_state(data)
+
+    #########################################################################
+    # Qt Designer properties setter/getters/resetters
+    ########################################################################
+
+    # invert status
+    def set_invert_state(self, data):
+        self.invert_state = data
+    def get_invert_state(self):
+        return self.invert_state
+    def reset_invert_state(self):
+        self.invert_state = False
+
+    # machine is estopped status
+    def set_is_estopped(self, data):
+        self.is_estopped = data
+    def get_is_estopped(self):
+        return self.is_estopped
+    def reset_is_estopped(self):
+        self.is_estopped = False
+
+    # machine is on status
+    def set_is_on(self, data):
+        self.is_on = data
+    def get_is_on(self):
+        return self.is_on
+    def reset_is_on(self):
+        self.is_on = False
+
+    #######################################
+    # Qt Designer properties
+    #######################################
+    invert_state_status = pyqtProperty(bool, get_invert_state, set_invert_state, reset_invert_state)
+    is_estopped_status = pyqtProperty(bool, get_is_estopped, set_is_estopped, reset_is_estopped)
+    is_on_status = pyqtProperty(bool, get_is_on, set_is_on, reset_is_on)
+----
+
+=== In The 'Imports' Section
+
+This is where we import libraries that our widget class needs.
+
+[source,python]
+----
+#!/usr/bin/env python3
+
+###############################
+# Imports
+###############################
+from PyQt5.QtCore import pyqtProperty       # <1>
+from qtvcp.widgets.led_widget import LED    # <2>
+from qtvcp.core import Status               # <3>
+----
+
+We import
+
+<1> `pyqtProperty` so we can interact with the Qt Designer editor,
+<2> `LED` because our custom widget is based on it,
+<3> `Status` because it gives us status messages from LinuxCNC. +
+
+=== In The 'Instantiate Libraries' Section
+
+Here we create the `Status` library instance:
+
+[source,python]
+----
+###########################################
+# **** instantiate libraries section **** #
+###########################################
+STATUS = Status()
+----
+
+Typically we instantiated the library _outside of the widget class_ so
+that the reference to it is *global* - meaning you don't need to use
+`self.` in front of it.
+
+By convention we use _all capital_ letters in the name for global
+references.
+
+=== In The 'Custom Widget Class Definition' Section
+
+This is the meat and potatoes of our custom widget.
+
+.Class definition and instance initialization function
+[source,python]
+----
+class StateLed(LED):                            # <1>
+    def __init__(self, parent=None):            # <2>
+        super(StateLed, self).__init__(parent)  # <3>
+        self.has_hal_pins = False               # <4>
+        self.setState(False)                    # <5>
+        self.is_estopped = False
+        self.is_on = False
+        self.invert_state = False
+----
+
+<1> Defines the *name* _of our custom widget_ and what other _class it
+    inherits from_. +
+    In this case we inherit `LED` - a QtVCP widget that represents a
+    status light.
+<2> Typical of most widgets - called when the widget is first made.
+<3> Typical of most widgets - calls the parent (super) widget
+    initialization code.
++
+Then we set some attributes:
+
+<4> Inherited from `Lcnc_Led` - we set it here so no HAL pin is made.
+<5> Inherited from `Lcnc_led` - we set it to make sure the LED is off.
+
+The other attributes are for the selectable options of our widget.
+
+.Widget's HAL initialization function
+[source,python]
+----
+    def _hal_init(self):
+        if self.is_estopped:
+            STATUS.connect('state-estop', lambda w:self._flip_state(True))
+            STATUS.connect('state-estop-reset', lambda w:self._flip_state(False))
+        elif self.is_on:
+            STATUS.connect('state-on', lambda w:self._flip_state(True))
+            STATUS.connect('state-off', lambda w:self._flip_state(False))
+----
+
+This function connects `STATUS` (LinuxCNC status message library) to our
+widget so that the LED will on or off based on the selected state of the
+controller.
+
+We have two states we can choose from `is_estopped` or `is_on`. +
+Depending on which is active our widget get connected to the appropriate
+STATUS messages.
+
+*`+_hal_init()+`* is _called on each widget that inherits_ `+_HalWidgetBase+`,
+when QtVCP first builds the screen. +
+You might wonder why it's called on this widget since we didn't have
+`+_HalWidgetBase+` in our class definition (`class Lcnc_State_Led(Lcnc_Led):`) -
+it's called because `Lcnc_Led` inherits `+_HalWidgetBase+`.
+
+In this function you have access to some extra information (though we
+don't use them in this example):
+
+*`self.HAL_GCOMP`*:: the _HAL component_ instance
+*`self.HAL_NAME`*:: This _widget's name_ as a string
+*`self.QT_OBJECT_`*:: This _widget's PyQt object instance_
+*`self.QTVCP_INSTANCE_`*:: The _very top level parent_ of the screen
+*`self.PATHS_`*:: The _instance of QtVCP's path_ library
+*`self.PREFS_`*:: the _instance of an optional preference file_
+*`self.SETTINGS_`*:: the `Qsettings` _object_
+
+We could use this information to create HAL pins or look up image paths
+etc.
+
+[source,python]
+----
+            STATUS.connect('state-estop', lambda w:self._flip_state(True))
+----
+
+Lets look at this line more closely:
+
+* `STATUS` is very common theme is widget building. +
+  `STATUS` uses `GObject` message system to send messages to widgets
+  that register to it. +
+  This line is the registering process.
+* `state-estop` is the message we wish to listen for and act on. There
+  are many messages available.
+* `lambda w:self._flip_state(True)` is what happens when the message is
+  caught. +
+  The lambda function accepts the widget instance (`w`) that GObject sends
+  it and then calls the function `self._flip_state(True)`. +
+  Lambda was used to strip the (`w`) object before calling the
+  `self._flip_state` function. +
+  It also allowed use to send `self._flip_state()` the True state.
+
+[source,python]
+----
+    def _flip_state(self, data):
+            if self.invert_state:
+                data = not data
+            self.change_state(data)
+----
+
+This is the function that actually flips the state of the LED. +
+It is what gets called when the appropriate STATUS message is accepted.
+
+[source,python]
+----
+STATUS.connect('current-feed-rate', self._set_feedrate_text)
+----
+
+The function called looks like this:
+
+[source,python]
+----
+    def _set_feedrate_text(self, widget, data):
+----
+
+in which the widget and any data must be accepted by the function.
+
+==== In the 'Designer Properties Setter/Getters/Resetters' Section
+
+[source,python]
+----
+    #########################################################################
+    # Qt Designer properties setter/getters/resetters
+    ########################################################################
+
+    # invert status
+    def set_invert_state(self, data):
+        self.invert_state = data
+    def get_invert_state(self):
+        return self.invert_state
+    def reset_invert_state(self):
+        self.invert_state = False
+
+    # machine is estopped status
+    def set_is_estopped(self, data):
+        self.is_estopped = data
+    def get_is_estopped(self):
+        return self.is_estopped
+    def reset_is_estopped(self):
+        self.is_estopped = False
+
+    # machine is on status
+    def set_is_on(self, data):
+        self.is_on = data
+    def get_is_on(self):
+        return self.is_on
+    def reset_is_on(self):
+        self.is_on = False
+----
+
+This is _how Qt Designer sets the attributes of the widget_. +
+This _can also be called directly_ in the widget.
+
+==== In the 'Designer properties' section
+
+[source,python]
+----
+    #######################################
+    # Qt Designer properties
+    #######################################
+    invert_state_status = pyqtProperty(bool, get_invert_state, set_invert_state, reset_invert_state)
+    is_estopped_status = pyqtProperty(bool, get_is_estopped, set_is_estopped, reset_is_estopped)
+    is_on_status = pyqtProperty(bool, get_is_on, set_is_on, reset_is_on)
+----
+
+This is the *registering of properties in Qt Designer*.
+
+The *property name*:
+
+* is the _text used in Qt Designer_,
+* _cannot be the same as the attributes_ they represent.
+
+These properties show in Qt Designer in the order they appear here.
+
+== Custom Controller Widgets with Actions
+
+Here is an example of a widget that sets the user reference system.
+
+It changes:
+
+* the machine controller state using the `ACTION` library,
+* whether the button can be clicked or not using the `STATUS` library.
+
+[source,python]
+----
+import os
+import hal
+
+from PyQt5.QtWidgets import QWidget, QToolButton, QMenu, QAction
+from PyQt5.QtCore import Qt, QEvent, pyqtProperty, QBasicTimer, pyqtSignal
+from PyQt5.QtGui import QIcon
+
+from qtvcp.widgets.widget_baseclass import _HalWidgetBase
+from qtvcp.widgets.dialog_widget import EntryDialog
+from qtvcp.core import Status, Action, Info
+
+# Instantiate the libraries with global reference
+# STATUS gives us status messages from LinuxCNC
+# INFO holds INI details
+# ACTION gives commands to LinuxCNC
+STATUS = Status()
+INFO = Info()
+ACTION = Action()
+
+class SystemToolButton(QToolButton, _HalWidgetBase):
+    def __init__(self, parent=None):
+        super(SystemToolButton, self).__init__(parent)
+        self._joint = 0
+        self._last = 0
+        self._block_signal = False
+        self._auto_label_flag = True
+        SettingMenu = QMenu()
+        for system in('G54', 'G55', 'G56', 'G57', 'G58', 'G59', 'G59.1', 'G59.2', 'G59.3'):
+
+            Button = QAction(QIcon('exit24.png'), system, self)
+            Button.triggered.connect(self[system.replace('.','_')])
+            SettingMenu.addAction(Button)
+
+        self.setMenu(SettingMenu)
+        self.dialog = EntryDialog()
+
+    def _hal_init(self):
+        if not self.text() == '':
+            self._auto_label_flag = False
+        def homed_on_test():
+            return (STATUS.machine_is_on()
+                    and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
+
+        STATUS.connect('state-off', lambda w: self.setEnabled(False))
+        STATUS.connect('state-estop', lambda w: self.setEnabled(False))
+        STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_test()))
+        STATUS.connect('interp-run', lambda w: self.setEnabled(False))
+        STATUS.connect('all-homed', lambda w: self.setEnabled(True))
+        STATUS.connect('not-all-homed', lambda w, data: self.setEnabled(False))
+        STATUS.connect('interp-paused', lambda w: self.setEnabled(True))
+        STATUS.connect('user-system-changed', self._set_user_system_text)
+
+    def G54(self):
+        ACTION.SET_USER_SYSTEM('54')
+
+    def G55(self):
+        ACTION.SET_USER_SYSTEM('55')
+
+    def G56(self):
+        ACTION.SET_USER_SYSTEM('56')
+
+    def G57(self):
+        ACTION.SET_USER_SYSTEM('57')
+
+    def G58(self):
+        ACTION.SET_USER_SYSTEM('58')
+
+    def G59(self):
+        ACTION.SET_USER_SYSTEM('59')
+
+    def G59_1(self):
+        ACTION.SET_USER_SYSTEM('59.1')
+
+    def G59_2(self):
+        ACTION.SET_USER_SYSTEM('59.2')
+
+    def G59_3(self):
+        ACTION.SET_USER_SYSTEM('59.3')
+
+    def _set_user_system_text(self, w, data):
+        convert = { 1:"G54", 2:"G55", 3:"G56", 4:"G57", 5:"G58", 6:"G59", 7:"G59.1", 8:"G59.2", 9:"G59.3"}
+        if self._auto_label_flag:
+            self.setText(convert[int(data)])
+
+    def ChangeState(self, joint):
+        if int(joint) != self._joint:
+            self._block_signal = True
+            self.setChecked(False)
+            self._block_signal = False
+            self.hal_pin.set(False)
+
+    ##############################
+    # required class boiler code #
+    ##############################
+
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
+----
+
+== Stylesheet Property Changes Based On Events
+
+It's possible to *have widgets restyled when events change*.
+
+//FIXME What does "polish" really mean ?
+You must explicitly _"polish" the widget_ to have PyQt redo the style. +
+This is a relatively expensive function so should be used sparingly.
+
+This example sets an `isHomed` property based on LinuxCNC's homed
+state and in turn uses it to change stylesheet properties:
+
+.This example will set the property isHomed based on LinuxCNC's homed state.
+[source,python]
+----
+class HomeLabel(QLabel, _HalWidgetBase):
+    def __init__(self, parent=None):
+        super(HomeLabel, self).__init__(parent)
+        self.joint_number = 0
+        # for stylesheet reading
+        self._isHomed = False
+
+    def _hal_init(self):
+        super(HomeLabel, self)._hal_init()
+        STATUS.connect('homed', lambda w,d: self._home_status_polish(int(d), True))
+        STATUS.connect('unhomed', lambda w,d: self._home_status_polish(int(d), False))
+
+    # update ishomed property
+    # polish widget so stylesheet sees the property change
+    # some stylesheets color the text on home/unhome
+    def _home_status_polish(self, d, state):
+        if self.joint_number = d:
+            self.setProperty('isHomed', state)
+            self.style().unpolish(self)
+            self.style().polish(self)
+
+    # Qproperty getter and setter
+    def getisHomed(self):
+        return self._isHomed
+    def setisHomed(self, data):
+        self._isHomed = data
+
+    # Qproperty
+    isHomed = QtCore.pyqtProperty(bool, getisHomed, setisHomed)
+----
+
+Here is a sample stylesheet to change text color based on home state.
+
+In this case any widget based on the HomeLabel widget above will change
+text color. +
+You would usually pick specific widgets using
+`HomeLabel #specific_widget_name[homed=true]`:
+
+[source,{css}]
+----
+HomeLabel[homed=true] {
+    color: green;
+}
+HomeLabel[homed=false] {
+    color: red;
+}
+----
+
+== Use Stylesheets To Change Custom Widget Properties
+
+[source,python]
+----
+class Label(QLabel):
+    def __init__(self, parent=None):
+        super(Label, self).__init__(parent)
+        alternateFont0 = self.font
+
+    # Qproperty getter and setter
+    def getFont0(self):
+        return self.aleternateFont0
+    def setFont0(self, value):
+        self.alternateFont0(value)
+    # Qproperty
+    styleFont0 = pyqtProperty(QFont, getFont0, setFont0)
+----
+
+Sample stylesheet that sets a custom widget property.
+
+[source,{css}]
+----
+Label{
+    qproperty-styleFont0: "Times,12,-1,0,90,0,0,0,0,0";
+}
+----
+
+== Widget Plugins
+
+We must _register our custom widget_ for Qt Designer to use them. +
+
+Here are a typical samples. +
+They would need to be added to `qtvcp/plugins/` +
+Then `qtvcp/plugins/qtvcp_plugin.py` would need to be adjusted to
+_import_ them.
+
+//FIXME split samples bellow in independent py files and simply link them
+//      as they're not documented, or possibly include them if we really
+//      want to have them here in full text
+
+=== Gridlayout Example
+
+[source,python]
+----
+#!/usr/bin/env python3
+
+from PyQt5 import QtCore, QtGui
+from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
+from qtvcp.widgets.simple_widgets import Lcnc_GridLayout
+from qtvcp.widgets.qtvcp_icons import Icon
+ICON = Icon()
+
+####################################
+# GridLayout
+####################################
+class LcncGridLayoutPlugin(QPyDesignerCustomWidgetPlugin):
+    def __init__(self, parent = None):
+        QPyDesignerCustomWidgetPlugin.__init__(self)
+        self.initialized = False
+    def initialize(self, formEditor):
+        if self.initialized:
+            return
+        self.initialized = True
+    def isInitialized(self):
+        return self.initialized
+    def createWidget(self, parent):
+        return Lcnc_GridLayout(parent)
+    def name(self):
+        return "Lcnc_GridLayout"
+    def group(self):
+        return "LinuxCNC - HAL"
+    def icon(self):
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('lcnc_gridlayout')))
+    def toolTip(self):
+        return "HAL enable/disable GridLayout widget"
+    def whatsThis(self):
+        return ""
+    def isContainer(self):
+        return True
+    def domXml(self):
+        return '<widget class="Lcnc_GridLayout" name="lcnc_gridlayout" />\n'
+    def includeFile(self):
+        return "qtvcp.widgets.simple_widgets"
+----
+
+=== SystemToolbutton Example
+
+[source,python]
+----
+#!/usr/bin/env python3
+
+from PyQt5 import QtCore, QtGui
+from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
+from qtvcp.widgets.system_tool_button import SystemToolButton
+from qtvcp.widgets.qtvcp_icons import Icon
+ICON = Icon()
+
+####################################
+# SystemToolButton
+####################################
+class SystemToolButtonPlugin(QPyDesignerCustomWidgetPlugin):
+    def __init__(self, parent = None):
+        super(SystemToolButtonPlugin, self).__init__(parent)
+        self.initialized = False
+    def initialize(self, formEditor):
+        if self.initialized:
+            return
+        self.initialized = True
+    def isInitialized(self):
+        return self.initialized
+    def createWidget(self, parent):
+        return SystemToolButton(parent)
+    def name(self):
+        return "SystemToolButton"
+    def group(self):
+        return "LinuxCNC - Controller"
+    def icon(self):
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('systemtoolbutton')))
+    def toolTip(self):
+        return "Button for selecting a User Coordinate System"
+    def whatsThis(self):
+        return ""
+    def isContainer(self):
+        return False
+    def domXml(self):
+        return '<widget class="SystemToolButton" name="systemtoolbutton" />\n'
+    def includeFile(self):
+        return "qtvcp.widgets.system_tool_button"
+----
+
+=== Making a plugin with a MenuEntry dialog box
+
+It possible to add an entry to the dialog that pops up when you right
+click the widget in the layout.
+
+This can do things such as selecting options in a more convenient way.
+
+This is the plugin used for _action buttons_.
+
+[source,python]
+----
+#!/usr/bin/env python3
+
+import sip
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin, \
+                QPyDesignerTaskMenuExtension, QExtensionFactory, \
+                QDesignerFormWindowInterface, QPyDesignerMemberSheetExtension
+from qtvcp.widgets.action_button import ActionButton
+from qtvcp.widgets.qtvcp_icons import Icon
+ICON = Icon()
+
+Q_TYPEID = {
+    'QDesignerContainerExtension':     'org.qt-project.Qt.Designer.Container',
+    'QDesignerPropertySheetExtension': 'org.qt-project.Qt.Designer.PropertySheet',
+    'QDesignerTaskMenuExtension': 'org.qt-project.Qt.Designer.TaskMenu',
+    'QDesignerMemberSheetExtension': 'org.qt-project.Qt.Designer.MemberSheet'
+}
+
+####################################
+# ActionBUTTON
+####################################
+class ActionButtonPlugin(QPyDesignerCustomWidgetPlugin):
+
+    # The __init__() method is only used to set up the plugin and define its
+    # initialized variable.
+    def __init__(self, parent=None):
+        super(ActionButtonPlugin, self).__init__(parent)
+        self.initialized = False
+
+    # The initialize() and isInitialized() methods allow the plugin to set up
+    # any required resources, ensuring that this can only happen once for each
+    # plugin.
+    def initialize(self, formEditor):
+
+        if self.initialized:
+            return
+        manager = formEditor.extensionManager()
+        if manager:
+            self.factory = ActionButtonTaskMenuFactory(manager)
+            manager.registerExtensions(self.factory, Q_TYPEID['QDesignerTaskMenuExtension'])
+        self.initialized = True
+
+    def isInitialized(self):
+        return self.initialized
+
+    # This factory method creates new instances of our custom widget
+    def createWidget(self, parent):
+        return ActionButton(parent)
+
+    # This method returns the name of the custom widget class
+    def name(self):
+        return "ActionButton"
+
+    # Returns the name of the group in Qt Designer's widget box
+    def group(self):
+        return "LinuxCNC - Controller"
+
+    # Returns the icon
+    def icon(self):
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('actionbutton')))
+
+    # Returns a tool tip short description
+    def toolTip(self):
+        return "Action button widget"
+
+    # Returns a short description of the custom widget for use in a "What's
+    # This?" help message for the widget.
+    def whatsThis(self):
+        return ""
+
+    # Returns True if the custom widget acts as a container for other widgets;
+    def isContainer(self):
+        return False
+
+    # Returns an XML description of a custom widget instance that describes
+    # default values for its properties.
+    def domXml(self):
+        return '<widget class="ActionButton" name="actionbutton" />\n'
+
+    # Returns the module containing the custom widget class. It may include
+    # a module path.
+    def includeFile(self):
+        return "qtvcp.widgets.action_button"
+
+
+class ActionButtonDialog(QtWidgets.QDialog):
+
+   def __init__(self, widget, parent = None):
+
+      QtWidgets.QDialog.__init__(self, parent)
+
+      self.widget = widget
+
+      self.previewWidget = ActionButton()
+
+      buttonBox = QtWidgets.QDialogButtonBox()
+      okButton = buttonBox.addButton(buttonBox.Ok)
+      cancelButton = buttonBox.addButton(buttonBox.Cancel)
+
+      okButton.clicked.connect(self.updateWidget)
+      cancelButton.clicked.connect(self.reject)
+
+      layout = QtWidgets.QGridLayout()
+      self.c_estop = QtWidgets.QCheckBox("Estop Action")
+      self.c_estop.setChecked(widget.estop )
+      layout.addWidget(self.c_estop)
+
+      layout.addWidget(buttonBox, 5, 0, 1, 2)
+      self.setLayout(layout)
+
+      self.setWindowTitle(self.tr("Set Options"))
+
+   def updateWidget(self):
+
+      formWindow = QDesignerFormWindowInterface.findFormWindow(self.widget)
+      if formWindow:
+          formWindow.cursor().setProperty("estop_action",
+              QtCore.QVariant(self.c_estop.isChecked()))
+      self.accept()
+
+class ActionButtonMenuEntry(QPyDesignerTaskMenuExtension):
+
+    def __init__(self, widget, parent):
+        super(QPyDesignerTaskMenuExtension, self).__init__(parent)
+        self.widget = widget
+        self.editStateAction = QtWidgets.QAction(
+          self.tr("Set Options..."), self)
+        self.editStateAction.triggered.connect(self.updateOptions)
+
+    def preferredEditAction(self):
+        return self.editStateAction
+
+    def taskActions(self):
+        return [self.editStateAction]
+
+    def updateOptions(self):
+        dialog = ActionButtonDialog(self.widget)
+        dialog.exec_()
+
+class ActionButtonTaskMenuFactory(QExtensionFactory):
+    def __init__(self, parent = None):
+        QExtensionFactory.__init__(self, parent)
+
+    def createExtension(self, obj, iid, parent):
+
+        if not isinstance(obj, ActionButton):
+            return None
+        if iid == Q_TYPEID['QDesignerTaskMenuExtension']:
+            return ActionButtonMenuEntry(obj, parent)
+        elif iid == Q_TYPEID['QDesignerMemberSheetExtension']:
+            return ActionButtonMemberSheet(obj, parent)
+        return None
+----
+
+// vim: set syntax=asciidoc:

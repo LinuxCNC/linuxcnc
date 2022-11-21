@@ -129,9 +129,12 @@ typedef struct {
     hal_bit_t *feed_inhibit;	/* RPI: set TRUE to stop motion (non maskable)*/
     hal_bit_t *homing_inhibit;	/* RPI: set TRUE to inhibit homing*/
     hal_bit_t *jog_inhibit;	/* RPI: set TRUE to inhibit jogging*/
+    hal_bit_t *jog_stop;	/* RPI: set TRUE to stop jogging following accel values*/
+    hal_bit_t *jog_stop_immediate;	/* RPI: set TRUE to stop jogging immediately*/
     hal_bit_t *jog_is_active;	/* RPI: TRUE if active jogging*/
     hal_bit_t *tp_reverse;	/* Set true if trajectory planner is running in reverse*/
     hal_bit_t *motion_enabled;	/* RPI: motion enable for all joints */
+    hal_bit_t *is_all_homed;	/* RPI: TRUE if all active joints is homed */
     hal_bit_t *in_position;	/* RPI: all joints are in position */
     hal_bit_t *coord_mode;	/* RPA: TRUE if coord, FALSE if free */
     hal_bit_t *teleop_mode;	/* RPA: TRUE if teleop mode */
@@ -188,7 +191,7 @@ typedef struct {
     hal_bit_t   *eoffset_active; /* ext offsets active */
     hal_bit_t   *eoffset_limited; /* ext offsets exceed limit */
 
-    hal_float_t *feed_upm; /* feed gcode units per minute*/
+    hal_float_t *feed_upm; /* feed G-code units per minute*/
     hal_float_t *feed_inches_per_minute; /* feed inches per minute*/
     hal_float_t *feed_inches_per_second; /* feed inches per second*/
     hal_float_t *feed_mm_per_minute; /* feed mm per minute*/
@@ -254,10 +257,18 @@ extern void refresh_jog_limits(emcmot_joint_t *joint,int joint_num);
 extern void clearHomes(int joint_num);
 
 extern void emcmot_config_change(void);
-extern void reportError(const char *fmt, ...) __attribute((format(printf,1,2))); /* Use the rtapi_print call */
+extern void reportError(const char *fmt, ...) __attribute__((format(printf,1,2))); /* Use the rtapi_print call */
+
 
 int joint_is_lockable(int joint_num);
 
+#define ALL_JOINTS emcmotConfig->numJoints
+// number of kinematics-only joints:
+#define NO_OF_KINS_JOINTS (ALL_JOINTS - emcmotConfig->numExtraJoints)
+#define IS_EXTRA_JOINT(jno) (jno >= NO_OF_KINS_JOINTS)
+// 0-based Joint numbering:
+// kinematic-only jno.s: [0                 ... (NO_OF_KINS_JOINTS -1) ]
+// extrajoint     jno.s: [NO_OF_KINS_JOINTS ... (ALL_JOINTS  -1) ]
 
  /* rtapi_get_time() returns a nanosecond value. In time, we should use a u64
     value for all calcs and only do the conversion to seconds when it is
@@ -294,11 +305,7 @@ int joint_is_lockable(int joint_num);
 
 #define SET_JOINT_ENABLE_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_ENABLE_BIT; else (joint)->flag &= ~EMCMOT_JOINT_ENABLE_BIT;
 
-#define GET_JOINT_ACTIVE_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_ACTIVE_BIT ? 1 : 0)
-
 #define SET_JOINT_ACTIVE_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_ACTIVE_BIT; else (joint)->flag &= ~EMCMOT_JOINT_ACTIVE_BIT;
-
-#define GET_JOINT_INPOS_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_INPOS_BIT ? 1 : 0)
 
 #define SET_JOINT_INPOS_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_INPOS_BIT; else (joint)->flag &= ~EMCMOT_JOINT_INPOS_BIT;
 

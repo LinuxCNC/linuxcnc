@@ -409,7 +409,7 @@ int emcJointSetMaxAcceleration(int joint, double acc)
 	acc = 0.0;
     }
     JointConfig[joint].MaxAccel = acc;
-    //FIXME-AJ: need functions for setting the AXIS_MAX_ACCEL (either from the ini, or from kins..)
+    //FIXME-AJ: need functions for setting the AXIS_MAX_ACCEL (either from the INI, or from kins..)
     emcmotCommand.command = EMCMOT_SET_JOINT_ACC_LIMIT;
     emcmotCommand.joint = joint;
     emcmotCommand.acc = acc;
@@ -422,7 +422,7 @@ int emcJointSetMaxAcceleration(int joint, double acc)
     return retval;
 }
 
-/*! functions involving carthesian Axes (X,Y,Z,A,B,C,U,V,W) */
+/*! functions involving cartesian Axes (X,Y,Z,A,B,C,U,V,W) */
     
 int emcAxisSetMinPositionLimit(int axis, double limit)
 {
@@ -686,13 +686,14 @@ int emcJointHalt(int joint)
     return 0;
 }
 
-int emcJointAbort(int joint)
+int emcJogAbort(int joint)
 {
     if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
 	return 0;
     }
-    emcmotCommand.command = EMCMOT_JOINT_ABORT;
+    emcmotCommand.command = EMCMOT_JOG_ABORT;
     emcmotCommand.joint = joint;
+    emcmotCommand.axis  = -1; //NA
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
@@ -881,7 +882,7 @@ int emcJogStop(int nr, int jjogmode)
         emcmotCommand.joint = -1; //NA
         emcmotCommand.axis = nr;
     }
-    emcmotCommand.command = EMCMOT_JOINT_ABORT;
+    emcmotCommand.command = EMCMOT_JOG_ABORT;
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
@@ -1020,7 +1021,6 @@ int emcTrajSetAxes(int axismask)
     for(int i=0; i<EMCMOT_MAX_AXIS; i++)
         if(axismask & (1<<i)) axes = i+1;
 
-    TrajConfig.DeprecatedAxes = axes;
     TrajConfig.AxisMask = axismask;
     
     if (emc_debug & EMC_DEBUG_CONFIG) {
@@ -1283,7 +1283,6 @@ int emcTrajInit()
     TrajConfig.Inited = 0;
     TrajConfig.Joints = 0;
     TrajConfig.MaxAccel = DBL_MAX;
-    TrajConfig.DeprecatedAxes = 0;
     TrajConfig.AxisMask = 0;
     TrajConfig.LinearUnits = 1.0;
     TrajConfig.AngularUnits = 1.0;
@@ -1298,7 +1297,7 @@ int emcTrajInit()
 	}
     }
     TrajConfig.Inited = 1;
-    // initialize parameters from ini file
+    // initialize parameters from INI file
     if (0 != iniTraj(emc_inifile)) {
 	retval = -1;
     }
@@ -1544,7 +1543,6 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 
     stat->joints = TrajConfig.Joints;
     stat->spindles = TrajConfig.Spindles;
-    stat->deprecated_axes = TrajConfig.DeprecatedAxes;
     stat->axis_mask = TrajConfig.AxisMask;
     stat->linearUnits = TrajConfig.LinearUnits;
     stat->angularUnits = TrajConfig.AngularUnits;
@@ -1652,7 +1650,7 @@ int emcTrajUpdate(EMC_TRAJ_STAT * stat)
 
 int setup_inihal(void) {
     // Must be called after emcTrajInit(), which loads the number of
-    // joints from the ini file.
+    // joints from the INI file.
     if (emcmotion_initialized != 1) {
         rcs_print_error("%s: emcMotionInit() has not completed, can't setup inihal\n", __FUNCTION__);
         return -1;
@@ -1806,7 +1804,7 @@ int emcMotionAbort()
 
     r1 = -1;
     for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	if (0 == emcJointAbort(t)) {
+	if (0 == emcJogAbort(t)) {
 	    r1 = 0;		// at least one is okay
 	}
     }
@@ -2060,7 +2058,8 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
       stat->misc_error[num_error] = emcmotStatus.misc_error[num_error];
     }
 
-    stat->numExtraJoints=emcmotStatus.numExtraJoints;
+    stat->jogging_active = emcmotStatus.jogging_active;
+    stat->numExtraJoints = emcmotStatus.numExtraJoints;
 
     // set the status flag
     error = 0;

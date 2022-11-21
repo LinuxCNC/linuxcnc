@@ -14,11 +14,8 @@
 # GNU General Public License for more details.
 ###############################################################################
 
-import os
-import hal
 
-from PyQt5.QtWidgets import QWidget, QToolButton, QMenu, QAction
-from PyQt5.QtCore import Qt, QEvent, pyqtProperty, QBasicTimer, pyqtSignal
+from PyQt5.QtWidgets import QToolButton, QMenu, QAction
 from PyQt5.QtGui import QIcon
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -70,7 +67,7 @@ class SystemToolButton(QToolButton, _HalWidgetBase):
         STATUS.connect('interp-run', lambda w: self.setEnabled(False))
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
         STATUS.connect('not-all-homed', lambda w, data: self.setEnabled(False))
-        STATUS.connect('interp-paused', lambda w: self.setEnabled(True))
+        STATUS.connect('interp-paused', lambda w: self.setEnabled(False))
         STATUS.connect('user-system-changed', self._set_user_system_text)
 
     def G54(self):

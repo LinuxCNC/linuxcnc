@@ -2076,10 +2076,10 @@ file</string>
         <number>0</number>
        </property>
        <property name="image_path" stdset="0">
-        <pixmap>../../../gmoccapy/images/zoom-in.png</pixmap>
+        <pixmap>../../images/zoom-in.png</pixmap>
        </property>
        <property name="false_image_path" stdset="0">
-        <pixmap>../../../gmoccapy/images/zoom-in.png</pixmap>
+        <pixmap>../../images/zoom-in.png</pixmap>
        </property>
       </widget>
       <widget class="RoundButton" name="Roundbutton_2">
@@ -2128,10 +2128,10 @@ file</string>
         <number>0</number>
        </property>
        <property name="image_path" stdset="0">
-        <pixmap>../../../gmoccapy/images/zoom-out.png</pixmap>
+        <pixmap>../../images/zoom-out.png</pixmap>
        </property>
        <property name="false_image_path" stdset="0">
-        <pixmap>../../../gmoccapy/images/zoom-out.png</pixmap>
+        <pixmap>../../images/zoom-out.png</pixmap>
        </property>
       </widget>
       <widget class="ActionButton" name="actionbutton_17">

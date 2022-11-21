@@ -82,13 +82,13 @@ extern int do_unlinkp_cmd(char *mod_name);
 extern int do_unload_cmd(char *mod_name);
 extern int do_unloadrt_cmd(char *mod_name);
 extern int do_unloadusr_cmd(char *mod_name);
-extern int do_loadusr_cmd(char *args[]);
+extern int do_loadusr_cmd(const char *args[]);
 extern int do_waitusr_cmd(char *comp_name);
-extern int do_save_cmd(char *type, char *filename);
+extern int do_save_cmd(const char *type, char *filename);
 extern int do_setexact_cmd(void);
 
-pid_t hal_systemv_nowait(char *const argv[]);
-int hal_systemv(char *const argv[]);
+pid_t hal_systemv_nowait(const char *const argv[]);
+int hal_systemv(const char *const argv[]);
 
 extern int scriptmode, comp_id;
 

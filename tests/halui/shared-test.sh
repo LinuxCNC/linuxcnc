@@ -1,5 +1,4 @@
 #!/bin/bash
 
-linuxcnc -r halui.ini
-exit $?
+exec linuxcnc -r halui.ini
 

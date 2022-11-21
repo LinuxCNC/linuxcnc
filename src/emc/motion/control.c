@@ -86,6 +86,15 @@ static double *pcmd_p[EMCMOT_MAX_AXIS];
 */
 static void process_inputs(void);
 
+/* 'joint_jog_abort_all()' if either jog-stop or jog-stop-immediate
+   become True while jogging then the jog will abort.
+   jog-stop will stop the active jog following the associated
+   acceleration values.
+   jog-stop-immediate will immediately stop jogging (potentially
+   causing joint following errors).
+*/
+static void joint_jog_abort_all(bool immediate);
+
 /* 'do forward kins()' takes the position feedback in joint coords
    and applies the forward kinematics to it to generate feedback
    in Cartesean coordinates.  It has code to handle machines that
@@ -249,7 +258,6 @@ void emcmotController(void *arg, long period)
     if (!emcmotStatus->on_soft_limit && !*emcmot_hal_data->jog_inhibit) {  // change from teleop to move off joint soft limit
         axis_handle_jogwheels(GET_MOTION_TELEOP_FLAG(), GET_MOTION_ENABLE_FLAG(), get_homing_is_active());
     }
-    do_homing_sequence();
     if (   (emcmotStatus->motion_state == EMCMOT_MOTION_FREE)
         && do_homing()) {
         switch_to_teleop_mode();
@@ -275,6 +283,16 @@ void emcmotController(void *arg, long period)
    at the top of the file in the section called "local function
    prototypes"
 */
+
+static bool joint_jog_is_active(void) {
+    int jno;
+    for (jno = 0; jno < EMCMOT_MAX_JOINTS; jno++) {
+        if ( (&joints[jno])->kb_jjog_active || (&joints[jno])->wheel_jjog_active) {
+            return 1;
+        }
+    }
+    return 0;
+}
 
 static void handle_kinematicsSwitch(void) {
     int joint_num;
@@ -520,24 +538,30 @@ static void process_inputs(void)
 			}
 		}
     }
-    // if jog in progress
-    if (enables & *(emcmot_hal_data->jog_inhibit) && *(emcmot_hal_data->jog_is_active)) {
-        // stop any joint jog
-        int jNum;
-        for (jNum = 0; jNum < NO_OF_KINS_JOINTS; jNum++) {
-            joint = &joints[jNum];
-            if (joint->kb_jjog_active || joint->wheel_jjog_active) {
-                joint->free_tp.enable = 0;
-                joint->free_tp.curr_vel = 0.0;
-                joint->kb_jjog_active = 0;
-                joint->wheel_jjog_active = 0;
-            }
+    // if jog in progress stop the jog if requested
+    if (enables & *(emcmot_hal_data->jog_is_active) && (*(emcmot_hal_data->jog_stop) || *(emcmot_hal_data->jog_stop_immediate))) {
+        joint_jog_abort_all(*(emcmot_hal_data->jog_stop_immediate));
+        axis_jog_abort_all(*(emcmot_hal_data->jog_stop_immediate));
+        if (*(emcmot_hal_data->jog_stop_immediate)) {
+          reportError("Jog aborted by jog-stop-immediate");
+        } else {
+          reportError("Jog aborted by jog-stop");
         }
-        // stop any axis jog
-        axis_jog_inhibit_all();
+    }
+}
 
-        *(emcmot_hal_data->jog_is_active) = 0;
-        reportError("Jog aborted by jog-inhibit");
+static void joint_jog_abort_all(bool immediate)
+{
+    int jNum;
+    emcmot_joint_t *joint;
+    for (jNum = 0; jNum < NO_OF_KINS_JOINTS; jNum++) {
+        joint = &joints[jNum];
+        joint->free_tp.enable = 0;
+        joint->kb_jjog_active = 0;
+        joint->wheel_jjog_active = 0;
+        if (immediate) {
+          joint->free_tp.curr_vel = 0.0;
+        }
     }
 }
 
@@ -712,7 +736,7 @@ static void process_probe_inputs(void)
 
             // abort any homing
             if(get_homing(i)) {
-                set_home_abort(i);
+                do_cancel_homing(i);
                 aborted=1;
             }
 
@@ -724,7 +748,7 @@ static void process_probe_inputs(void)
                 if(!aborted) aborted=2;
             }
         }
-        if (axis_jog_immediate_stop_all()) {
+        if (axis_jog_abort_all(1)) {
             aborted = 3;
         }
 
@@ -843,14 +867,13 @@ static void set_operating_mode(void)
 	    if (GET_JOINT_ACTIVE_FLAG(joint)) {
 		SET_JOINT_INPOS_FLAG(joint, 1);
 		SET_JOINT_ENABLE_FLAG(joint, 0);
-		set_joint_homing(joint_num,0);
-		set_home_idle(joint_num);
+		do_cancel_homing(joint_num);
 	    }
 	    /* don't clear the joint error flag, since that may signify why
 	       we just went into disabled state */
 	}
 
-    axis_jog_immediate_stop_all();
+    axis_jog_abort_all(1);
 
 	SET_MOTION_ENABLE_FLAG(0);
 	/* don't clear the motion error flag, since that may signify why we
@@ -872,8 +895,7 @@ static void set_operating_mode(void)
 	    joint->free_tp.curr_pos = joint->pos_cmd;
 	    if (GET_JOINT_ACTIVE_FLAG(joint)) {
 		SET_JOINT_ENABLE_FLAG(joint, 1);
-		set_joint_homing(joint_num,0);
-                set_home_idle(joint_num);
+		do_cancel_homing(joint_num);
 	    }
 	    /* clear any outstanding joint errors when going into enabled
 	       state */
@@ -1230,8 +1252,6 @@ static void get_pos_cmds(long period)
 		/* active TP means we're moving, so not in position */
 		SET_JOINT_INPOS_FLAG(joint, 0);
 		SET_MOTION_INPOS_FLAG(0);
-                /* if we move at all, clear at_home flag */
-		set_joint_at_home(joint_num,0);
 		/* is any limit disabled for this move? */
 		if ( emcmotStatus->overrideLimitMask ) {
                     emcmotInternal->overriding = 1;
@@ -1296,7 +1316,7 @@ static void get_pos_cmds(long period)
 	break;
 
     case EMCMOT_MOTION_COORD:
-        axis_jog_immediate_stop_all();
+        axis_jog_abort_all(1);
 
 	/* check joint 0 to see if the interpolators are empty */
 	coord_cubic_active = 1;
@@ -1462,7 +1482,7 @@ static void get_pos_cmds(long period)
 	if ( ! emcmotStatus->on_soft_limit ) {
         /* Unexpectedly hit a joint soft limit.
         ** Possible causes:
-        **  1) a joint positional limit was reduced by an ini halpin
+        **  1) a joint positional limit was reduced by an INI halpin
         **     (like ini.N.max_limit) -- undetected by trajectory planning
         **     including simple_tp
         **  2) issues like https://github.com/LinuxCNC/linuxcnc/issues/80
@@ -1507,7 +1527,7 @@ static void get_pos_cmds(long period)
         && GET_MOTION_TELEOP_FLAG()
         && emcmotStatus->on_soft_limit ) {
         SET_MOTION_ERROR_FLAG(1);
-        axis_jog_immediate_stop_all();
+        axis_jog_abort_all(1);
     }
     if (ext_offset_teleop_limit || ext_offset_coord_limit) {
         *(emcmot_hal_data->eoffset_limited) = 1;
@@ -1805,7 +1825,6 @@ static void output_to_hal(void)
     joint_hal_t *joint_data;
     static int old_motion_index[EMCMOT_MAX_SPINDLES] = {0};
     static int old_hal_index[EMCMOT_MAX_SPINDLES] = {0};
-    bool activeJog = 0;
 
     /* output machine info to HAL for scoping, etc */
     *(emcmot_hal_data->motion_enabled) = GET_MOTION_ENABLE_FLAG();
@@ -1878,7 +1897,8 @@ static void output_to_hal(void)
 	*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_rps) = speed/60.;
 	*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_abs) = fabs(speed);
 	*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_rps_abs) = fabs(speed / 60);
-	*(emcmot_hal_data->spindle[spindle_num].spindle_on) = (speed != 0) ? 1 : 0;
+	*(emcmot_hal_data->spindle[spindle_num].spindle_on) = 
+        ((emcmotStatus->spindle_status[spindle_num].state * speed) !=0) ? 1 : 0;
 	*(emcmot_hal_data->spindle[spindle_num].spindle_forward) = (speed > 0) ? 1 : 0;
 	*(emcmot_hal_data->spindle[spindle_num].spindle_reverse) = (speed < 0) ? 1 : 0;
 	*(emcmot_hal_data->spindle[spindle_num].spindle_brake) =
@@ -2009,17 +2029,12 @@ static void output_to_hal(void)
 	                                 + joint->motor_offset;
 	    continue;
 	}
-        // joint jog is in progress
-        if (joint->kb_jjog_active || joint->wheel_jjog_active) {
-                activeJog = 1;
-        }
     } // for joint_num
 
     axis_output_to_hal(pcmd_p);
-    if (axis_jog_is_active()) {
-        activeJog = 1;
-    }
-    *(emcmot_hal_data->jog_is_active) = activeJog;
+
+    *(emcmot_hal_data->jog_is_active) = axis_jog_is_active() || joint_jog_is_active();
+
 }
 
 static void update_status(void)
@@ -2063,6 +2078,12 @@ static void update_status(void)
 	joint_status->min_ferror = joint->min_ferror;
 	joint_status->max_ferror = joint->max_ferror;
     }
+    if (get_allhomed()) {
+        *emcmot_hal_data->is_all_homed = 1;
+    } else {
+        *emcmot_hal_data->is_all_homed = 0;
+    }
+
 
     for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
         /* point to axis status */
@@ -2097,6 +2118,8 @@ static void update_status(void)
     for (misc_error=0; misc_error < emcmotConfig->numMiscError; misc_error++){
       emcmotStatus->misc_error[misc_error] = *(emcmot_hal_data->misc_error[misc_error]);
     }
+
+    emcmotStatus->jogging_active = *(emcmot_hal_data->jog_is_active);
 
     /*! \todo FIXME - the rest of this function is stuff that was apparently
        dropped in the initial move from emcmot.c to control.c.  I

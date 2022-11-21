@@ -1,9 +1,4 @@
 .TH STEPGEN "9" "2007-01-16" "LinuxCNC Documentation" "HAL Component"
-.de TQ
-.br
-.ns
-.TP \\$1
-..
 
 .SH NAME
 stepgen \- software step pulse generation
@@ -13,7 +8,7 @@ stepgen \- software step pulse generation
 .SH DESCRIPTION
 \fBstepgen\fR is used to control stepper motors.  The maximum
 step rate depends on the CPU and other factors, and is usually in the range
-of 5KHz to 25KHz.  If higher rates are needed, a hardware step generator
+of 5 kHz to 25 kHz.  If higher rates are needed, a hardware step generator
 is a better choice.
 .P
 \fBstepgen\fR has two control modes, which can be selected on a channel
@@ -136,9 +131,10 @@ The position in counts, as updated by \fBmake\-pulses\fR.  (Note: this is update
 \fBstepgen.\fIN\fB.steplen\fR u32 rw
 The length of the step pulses, in nanoseconds.  Measured from rising edge to falling edge.
 .TP
-\fBstepgen.\fIN\fB.stepspace\fR u32 rw (step types 0 and 1 only) The minimum
-space between step pulses, in nanoseconds.  Measured from falling edge to
-rising edge.  The actual time depends on the step rate and can be much longer.
+\fBstepgen.\fIN\fB.stepspace\fR u32 rw (step types 0 and 1 only)
+The minimum space between step pulses, in nanoseconds.
+Measured from falling edge to rising edge.
+The actual time depends on the step rate and can be much longer.
 If \fBstepspace\fR is 0, then \fBstep\fR can be asserted every period.    This
 can be used in conjunction with \fBhal_parport\fR's auto-resetting pins to
 output one step pulse per period.  In this mode, \fBsteplen\fR must be set for
@@ -157,7 +153,7 @@ The minimum time between a forward step and a reverse step, in nanoseconds.
 There are five timing parameters which control the output waveform.  No step type
 uses all five, and only those which will be used are exported to HAL.  The values
 of these parameters are in nano-seconds, so no recalculation is needed when
-changing thread periods.  In the timing diagrams that follow, they are identfied
+changing thread periods.  In the timing diagrams that follow, they are identified
 by the following numbers:
 .P
 (1) \fBstepgen.n.steplen\fR

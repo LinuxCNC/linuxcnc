@@ -45,6 +45,7 @@ from .lib.colored_formatter import ColoredFormatter
 
 # Global name of the base logger
 BASE_LOGGER_NAME = None
+BASE_LOGGER_FILE = None
 
 # Define the log message formats
 TERM_FORMAT = '[%(name)s][%(levelname)s]  %(message)s (%(filename)s:%(lineno)d)'
@@ -63,7 +64,8 @@ def getLogger(name):
 def setGlobalLevel(level):
     base_log = logging.getLogger(BASE_LOGGER_NAME)
     base_log.setLevel(level)
-    base_log.info('Base log level set to {}'.format(level))
+    base_log.info('Logging to: yellow<{}>'.format(BASE_LOGGER_FILE))
+    base_log.info('Base log level set to: yellow<{}>'.format(level))
 
 
 # Initialize the base logger
@@ -74,6 +76,9 @@ def initBaseLogger(name, log_file=None, log_level=DEBUG):
 
     if not log_file:
         log_file = getLogFile(name)
+
+    global BASE_LOGGER_FILE
+    BASE_LOGGER_FILE = log_file
 
     # Clear the previous sessions log file
     with open(log_file, 'w') as fh:
@@ -99,7 +104,7 @@ def initBaseLogger(name, log_file=None, log_level=DEBUG):
 
     # Get logger for logger
     log = getLogger(__name__)
-    base_log.info('Logging to "{}"'.format(log_file))
+    base_log.info('Logging to: yellow<{}>'.format(log_file))
 
     return base_log
 

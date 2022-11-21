@@ -159,21 +159,16 @@ void gtk_label_size_to_fit(GtkLabel * label, const gchar * str)
 {
     GtkRequisition req;
     const gchar *current_text;
-    gint text_len;
     gchar *text_buf;
 
     /* get a pointer to the current text */
     current_text = gtk_label_get_text(label);
-    /* how long is it */
-    text_len = strlen(current_text);
-    /* allocate memory to save it */
-    text_buf = malloc(text_len + 2);
+    /* make a temporary copy */
+    text_buf = strdup(current_text);
     if (text_buf == NULL) {
-	printf("gtk_label_size_to_fit() - malloc failed\n");
+	printf("gtk_label_size_to_fit() - strdup failed\n");
 	return;
     }
-    /* save the text */
-    strncpy(text_buf, current_text, text_len + 1);
     /* set the label to display the new text */
     gtk_label_set_text(label, str);
     /* how big is the label with the new text? */

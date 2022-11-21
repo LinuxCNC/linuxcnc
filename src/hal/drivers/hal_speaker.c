@@ -4,6 +4,7 @@
 *               This file, 'hal_speaker.c', drives the PC speaker based
 *               on up to 8 bit outputs.  When the new outputs differ
 *               from the old outputs, a click is output on the speaker.
+*               This implementation only work on the x86 architecture.
 *               
 * Author: John Kasunich and Jeff Epler
 * License: GPL Version 2
@@ -60,6 +61,7 @@
     information, go to www.linuxcnc.org.
 */
 
+#include "config.h"     /* environment flags */
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
@@ -68,7 +70,9 @@
    instead of rtapi_outb() and rtapi_inb() - the <asm.io> ones
    are inlined, and save a microsecond or two (on my 233MHz box)
 */
+#if defined(RTAPI_RTAI)
 #define FASTIO
+#endif /* RTAPI_RTAI */
 
 #ifdef FASTIO
 #define rtapi_inb inb
@@ -108,6 +112,8 @@ static int num_ports;		/* number of ports configured */
 * REALTIME PORT WRITE FUNCTION                                *
 **************************************************************/
 
+#define SPEAKER_PORT 0x61
+
 static void write_port(void *arg, long period)
 {
     uint8_t v = 0;
@@ -121,12 +127,12 @@ static void write_port(void *arg, long period)
     }
 
     /* write it to the hardware */
-    oldval = rtapi_inb(0x61) & 0xfc;
+    oldval = rtapi_inb(SPEAKER_PORT) & 0xfc;
 
     if(v != port->last) {
-        rtapi_outb(oldval | 2, 0x61);
+        rtapi_outb(oldval | 2, SPEAKER_PORT);
     } else {
-        rtapi_outb(oldval, 0x61);
+        rtapi_outb(oldval, SPEAKER_PORT);
     }
 
     port->last = v;
@@ -152,6 +158,16 @@ int rtapi_app_main(void)
 	    "SPEAKER: ERROR: hal_init() failed\n");
 	return -1;
     }
+
+#if !defined(RTAPI_RTAI)
+    /* STEP 1.1: get access to port, only needed in uspace builds */
+    if (ioperm(SPEAKER_PORT, 1, 1) < 0) {
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "SPEAKER: ERROR: ioperm() failed\n");
+	hal_exit(comp_id);
+	return -1;
+    }
+#endif /* RTAPI_RTAI */
 
     /* STEP 2: allocate shared memory for skeleton data */
     port_data_array = hal_malloc(num_ports * sizeof(speaker_t));

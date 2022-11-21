@@ -1,9 +1,4 @@
 .TH PWMGEN "9" "2007-01-16" "LinuxCNC Documentation" "HAL Component"
-.de TQ
-.br
-.ns
-.TP \\$1
-..
 
 .SH NAME
 pwmgen \- software PWM/PDM generation
@@ -93,7 +88,9 @@ when the pwm generator is disabled, the outputs are constantly low,
 regardless of the setting of \fBmin\-dc\fR.
 .TP
 \fBpwmgen.\fIN\fB.scale\fR float in/out
-.TQ
+.br
+.ns
+.TP
 \fBpwmgen.\fIN\fB.offset\fR float in/out
 These parameters provide a scale and offset from the \fBvalue\fR pin to the
 actual duty cycle.  The duty cycle is calculated according to \fIdc =
@@ -110,7 +107,7 @@ Modulation.
 \fBpwmgen.\fIN\fB.dither\-pwm\fR bit in/out
 Because software-generated PWM uses a fairly slow timebase (several to many
 microseconds), it has limited resolution.  For example, if \fBmake\-pulses\fR
-is called at a 20KHz rate, and \fBpwm\-freq\fR is 2KHz, there are only 10
+is called at a 20 kHz rate, and \fBpwm\-freq\fR is 2 kHz, there are only 10
 possible duty cycles.  If \fBdither\-pwm\fR is false, the commanded duty cycle
 will be rounded to the nearest of those values.  Assuming \fBvalue\fR remains
 constant, the same output will repeat every PWM cycle.  If \fBdither\-pwm\fR is

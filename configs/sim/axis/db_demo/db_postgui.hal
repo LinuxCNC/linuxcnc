@@ -59,6 +59,8 @@ net db:tool-prep-number => pyvcp.tool-prep-number
 net db:tool-prep-pocket <= iocontrol.0.tool-prep-pocket
 net db:tool-prep-pocket => pyvcp.tool-prep-pocket
 
+net db:tool-from-pocket <= iocontrol.0.tool-from-pocket
+net db:tool-from-pocket => pyvcp.tool-from-pocket
 #==========================================================
 # tooloffsets
 net db:tooloffset.x <= motion.tooloffset.x
@@ -87,3 +89,6 @@ net db:tooloffset.v => pyvcp.tooloffset.v
 
 net db:tooloffset.w <= motion.tooloffset.w
 net db:tooloffset.w => pyvcp.tooloffset.w
+
+net db:tooldiam     <= halui.tool.diameter
+net db:tooldiam     => pyvcp.tooldiam

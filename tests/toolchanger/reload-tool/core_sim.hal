@@ -58,4 +58,5 @@ net tool-changed => iocontrol.0.tool-changed
 net tool-number <= iocontrol.0.tool-number
 net tool-prep-number <= iocontrol.0.tool-prep-number
 net tool-prep-pocket <= iocontrol.0.tool-prep-pocket
+net tool-from-pocket <= iocontrol.0.tool-from-pocket
 

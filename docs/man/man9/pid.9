@@ -1,12 +1,7 @@
 .TH PID "9" "2007-01-16" "LinuxCNC Documentation" "HAL Component"
-.de TQ
-.br
-.ns
-.TP \\$1
-..
 
 .SH NAME
-pid \- proportional/integral/derivative controller
+pid \- proportional/integral/derivative controller with automatic tuning support
 .SH SYNOPSIS
 \fBloadrt pid [num_chan=\fInum\fB | names=\fIname1\fB[,\fIname2...\fB]] [\fBdebug=\fIdbg\fR]
 
@@ -25,6 +20,181 @@ If neither \fBnum_chan=\fR nor \fBnames=\fR are specified, the default
 value is three.  If \fBdebug\fR is set to 1 (the default is 0), some
 additional HAL parameters will be exported, which might be useful
 for tuning, but are otherwise unnecessary.
+
+.P
+In the following description, it is assumed that we are discussing
+position loops.  However this component can be used to implement other
+loops such as speed loops, torch height control, and others.
+
+.P
+Each loop has a number of pins and parameters, whose names begin
+with 'pid.N.', where 'N' is the channel number.  Channel numbers start
+at zero.
+.P
+The three most important pins are 'command', 'feedback', and 'output'.
+For a position loop, 'command' and 'feedback' are in position units.
+For a linear axis, this could be inches, mm, metres, or whatever is
+relevant.  Likewise, for a angular axis, it could be degrees, radians,
+etc.  The units of the 'output' pin represent the change needed to
+make the feedback match the command.  As such, for a position
+loop 'Output' is a velocity, in inches/sec, mm/sec, degrees/sec, etc.
+.P
+Each loop has several other pins as well.  'error' is equal
+to 'command' minus 'feedback'.  'enable' is a bit that enables the
+loop.  If 'enable' is false, all integrators are reset, and the output
+is forced to zero.  If 'enable' is true, the loop operates normally.
+.P
+The PID gains, limits, and other 'tunable' features of the loop are
+implemented as parameters.  These are as follows:
+
+.PP
+\fBPgain\fR Proportional gain
+.PD 0
+.P
+.PD
+\fBIgain\fR Integral gain
+.PD 0
+.P
+.PD
+\fBDgain\fR Derivative gain
+.PD 0
+.P
+.PD
+\fBbias\fR Constant offset on output
+.PD 0
+.P
+.PD
+\fBFF0\fR \fR Zeroth order Feedforward gain
+.PD 0
+.P
+.PD
+\fBFF1\fR \fR First order Feedforward gain
+.PD 0
+.P
+.PD
+\fBFF2\fR \fR Second order Feedforward gain
+.PD 0
+.P
+.PD
+\fBFF3\fR \fR Third order Feedforward gain
+.PD 0
+.P
+.PD
+\fBdeadband\fR Amount of error that will be ignored
+.PD 0
+.P
+.PD
+\fBmaxerror\fR Limit on error
+.PD 0
+.P
+.PD
+\fBmaxerrorI\fR Limit on error integrator
+.PD 0
+.P
+.PD
+\fBmaxerrorD\fR Limit on error differentiator
+.PD 0
+.P
+.PD
+\fBmaxcmdD\fR Limit on command differentiator
+.PD 0
+.P
+.PD
+\fBmaxcmdDD\fR Limit on command 2nd derivative
+.PD 0
+.P
+.PD
+\fBmaxcmdDDD\fR Limit on command 3rd derivative
+.PD 0
+.P
+.PD
+\fBmaxoutput\fR Limit on output value
+.P
+All of the limits (max____) are implemented such that if the parameter
+value is zero, there is no limit.
+.P
+A number of internal values which may be useful for testing and tuning
+are also available as parameters.  To avoid cluttering the parameter
+list, these are only exported if "debug=1" is specified on the insmod
+command line.
+
+.PP
+\fBerrorI\fR Integral of error
+.PD 0
+.P
+.PD
+\fBerrorD\fR Derivative of error
+.PD 0
+.P
+.PD
+\fBcommandD\fR Derivative of the command
+.PD 0
+.P
+.PD
+\fBcommandDD\fR 2nd derivative of the command
+.PD 0
+.P
+.PD
+\fBcommandDDD\fR 3rd derivative of the command
+
+.P
+The PID loop calculations are as follows (see the code in pid.c for
+all the nitty gritty details):
+.IP
+.nf
+error = command - feedback
+if ( abs(error) < deadband ) then error = 0
+limit error to +/- maxerror
+errorI += error * period
+limit errorI to +/- maxerrorI
+errorD = (error - previouserror) / period
+limit errorD to +/- maxerrorD
+commandD = (command - previouscommand) / period
+limit commandD to +/- maxcmdD
+commandDD = (commandD - previouscommandD) / period
+limit commandDD to +/- maxcmdDD
+commandDDD = (commandDD - previouscommandDD) / period
+limit commandDDD to +/- maxcmdDDD
+output = bias + error * Pgain + errorI * Igain +
+         errorD * Dgain + command * FF0 + commandD * FF1 +
+         commandDD * FF2 + commandDDD * FF3
+limit output to +/- maxoutput
+.fi
+
+.P
+This component has a built in auto tune mode. It works by setting up a
+limit cycle to characterize the process.  This is called the Relay
+method and described in the 1984 Automation paper \fBAutomatic Tuning
+of Simple Regulators with Specifications on Phase and Amplitude
+Margins\fR by Karl Johan Åström and Tore Hägglund
+(doi:10.1016/0005-1098(84)90014-1),
+https://lup.lub.lu.se/search/ws/files/6340936/8509157.pdf. Using this
+method, \fBPgain/Igain/Dgain\fR or \fBPgain/Igain/FF1\fR can be
+determined using the Ziegler-Nichols algorithm.  When using \fBFF1\fR
+tuning, scaling must be set so that \fBoutput\fR is in user units per
+second.
+
+.P
+During auto tuning, the \fBcommand\fR input should not change. The
+limit cycle is setup around the commanded position. No initial tuning
+values are required to start auto tuning.  Only \fBtune\-cycles\fR,
+\fBtune\-effort\fR and \fBtune\-mode\fR need be set before starting
+auto tuning.  Note that setting \fBtune\-mode\fR to true disable the
+control loop.  When auto tuning completes, the tuning parameters will
+be set, the output set to bias and the controller still be
+disabled. If running from LinuxCNC, the FERROR setting for the axis
+being tuned may need to be loosened up as it must be larger than the
+limit cycle amplitude in order to avoid a following error.
+.P
+To perform auto tuning, take the following steps.  Move the axis to be
+tuned somewhere near the center of it's travel.  Set
+\fBtune\-cycles\fR (the default value should be fine in most cases)
+and \fBtune\-mode\fR. Set \fBtune\-effort\fR to a small value. Set
+\fBenable\fR to true. Set \fBtune\-mode\fR to true. Set
+\fBtune\-start\fR to true. If no oscillation occurs, or the
+oscillation is too small, slowly increase \fBtune\-effort\fR.  Auto
+tuning can be aborted at any time by setting \fBenable\fR or
+\fBtune\-mode\fR to false.
 
 .SH NAMING
 The names for pins, parameters, and functions are prefixed as:
@@ -198,10 +368,46 @@ When true, the current PID output is saturated.  That is,
 .RE
 .TP
 \fBpid.\fIN\fB.saturated\-s\fR float out
-.TQ
+.br
+.ns
+.TP
 \fBpid.\fIN\fB.saturated\-count\fR s32 out
 When true, the output of PID was continually saturated for this many seconds
 (\fBsaturated\-s\fR) or periods (\fBsaturated\-count\fR).
+
+.SS Additional auto tuning pins
+.TP
+\fBpid.\fIN\fB.tune\-mode\fR bit in
+When true, enables auto tune mode.  When false, normal PID calculations are
+performed.
+.TP
+\fBpid.\fIN\fB.tune\-start\fR bit io
+When set to true, starts auto tuning.  Cleared when the auto tuning completes.
+.TP
+\fBpid.\fIN\fB.tune\-type\fR u32 rw
+When set to 0, \fBPgain/Igain/Dgain\fR are calculated. When set to 1,
+\fBPgain/Igain/FF1\fR are calculated.
+.TP
+\fBpid.\fIN\fB.tune\-cycles\fR u32 rw
+Determines the number of cycles to run to characterize the process.
+\fBtune\-cycles\fR actually sets the number of half cycles. More cycles results
+in a more accurate characterization as the average of all cycles is used.
+.TP
+\fBpid.\fIN\fB.tune\-effort\fR float rw
+Determines the effort used in setting up the limit cycle in the process.
+\fBtune\-effort\fR should be set to a positive value less than \fBmaxoutput\fR.
+Start with something small and work up to a value that results in a good
+portion of the maximum motor current being used. The smaller the value, the
+smaller the amplitude of the limit cycle.
+.TP
+\fBpid.\fIN\fB.ultimate\-gain\fR float ro (only if debug=1)
+Determined from process characterization. \fBultimate\-gain\fR is the ratio of
+\fBtune\-effort\fR to the limit cycle amplitude multiplied by 4.0 divided by Pi.
+.TP
+\fBpid.\fIN\fB.ultimate\-period\fR float ro (only if debug=1)
+Determined from process characterization. \fBultimate\-period\fR is the period
+of the limit cycle.
+
 .SH PARAMETERS
 .TP
 \fBpid.\fIN\fB.errorI\fR float ro (only if debug=1)

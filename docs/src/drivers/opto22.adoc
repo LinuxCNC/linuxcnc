@@ -1,8 +1,16 @@
-[[cha:opto22-driver]]
+:lang: en
+:toc:
 
+[[cha:opto22]]
 = Opto22 Driver
 
-PCI AC5 ADAPTER CARD / HAL DRIVER
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
+*PCI AC5 ADAPTER CARD / HAL DRIVER*
 
 == The Adapter Card
 
@@ -12,7 +20,7 @@ can control up to 24 points each and has 4 on board LEDs. The ports use
 50 pin connectors the same as Mesa boards. Any relay racks/breakout
 boards that work with Mesa Cards should work with this card with the
 understanding any encoder counters, PWM, etc., would have to be done in
-software. The AC5 does not have any 'smart' logic on board, it is just 
+software. The AC5 does not have any 'smart' logic on board, it is just
 an adapter.
 
 See the manufacturer's website for more info:
@@ -22,13 +30,14 @@ http://www.opto22.com/site/pr_details.aspx?cid=4&item=PCI-AC5
 I would like to thank Opto22 for releasing info in their manual,
 easing the writing of this driver!
 
-== The Driver 
+== The Driver
 
 This driver is for the PCI AC5 card and will not work with the ISA AC5
 card. The HAL driver is a realtime module. It will support 4 cards as
-is (more cards are possible with a change in the source code). Load the 
-basic driver like so: 
+is (more cards are possible with a change in the source code). Load the
+basic driver like so:
 
+[source,{hal}]
 ----
 loadrt opto_ac5
 ----
@@ -39,30 +48,30 @@ configuration is for 12 inputs then 12 outputs. The pin name numbers
 correspond to the position on the relay rack. For example the pin names
 for the default I/O setting of port 0 would be:
 
-* 'opto_ac5.0.port0.in-00' - They would be numbered from 00 to 11
-
-* 'opto_ac5.0.port0.out-12' - They would be numbered 12 to 23 port 1 would 
-be the same.
+* 'opto_ac5.0.port0.in-00' -
+  They would be numbered from 00 to 11
+* 'opto_ac5.0.port0.out-12' -
+  They would be numbered 12 to 23 port 1 would be the same.
 
 == Pins
 
-* 'opto_ac5.[BOARDNUMBER].port[PORTNUMBER].in-[PINNUMBER] OUT bit' -
+ * 'opto_ac5.[BOARDNUMBER].port[PORTNUMBER].in-[PINNUMBER] OUT bit' -
 
-* 'opto_ac5.[BOARDNUMBER].port[PORTNUMBER].in-[PINNUMBER]-not OUT bit' -
-Connect a HAL bit signal to this pin to read an I/O point from the
-card. The PINNUMBER represents the position in the relay rack. Eg.
-PINNUMBER 0 is position 0 in a Opto22 relay rack and would be pin 47 on
-the 50 pin header connector. The -not pin is inverted so that LOW gives
-TRUE and HIGH gives FALSE.
+ * 'opto_ac5.[BOARDNUMBER].port[PORTNUMBER].in-[PINNUMBER]-not OUT bit' -
+   Connect a HAL bit signal to this pin to read an I/O point from the
+   card. The PINNUMBER represents the position in the relay rack. Eg.
+   PINNUMBER 0 is position 0 in a Opto22 relay rack and would be pin 47
+   on the 50 pin header connector. The -not pin is inverted so that LOW
+   gives TRUE and HIGH gives FALSE.
 
-* 'opto_ac5.[BOARDNUMBER].port[PORTNUMBER].out-[PINNUMBER] IN bit' -
-Connect a HAL bit signal to this pin to write to an I/O point of the
-card. The PINNUMBER represents the position in the relay rack.Eg.
-PINNUMBER 23 is position 23 in a Opto22 relay rack and would be pin 1
-on the 50 pin header connector.
+ * 'opto_ac5.[BOARDNUMBER].port[PORTNUMBER].out-[PINNUMBER] IN bit' -
+   Connect a HAL bit signal to this pin to write to an I/O point of the
+   card. The PINNUMBER represents the position in the relay rack.Eg.
+   PINNUMBER 23 is position 23 in a Opto22 relay rack and would be pin 1
+   on the 50 pin header connector.
 
-* 'opto_ac5.[BOARDNUMBER].led[NUMBER] OUT bit' -
-Turns one of the 4 onboard LEDs on/off. LEDs are numbered 0 to 3.
+ * 'opto_ac5.[BOARDNUMBER].led[NUMBER] OUT bit' -
+   Turns one of the 4 onboard LEDs on/off. LEDs are numbered 0 to 3.
 
 BOARDNUMBER can be 0-3 PORTNUMBER can be 0 or 1. Port 0 is closest to
 the card bracket.
@@ -70,16 +79,16 @@ the card bracket.
 == Parameters
 
 * 'opto_ac5.[BOARDNUMBER].port[PORTNUMBER].out-[PINNUMBER]-invert W bit' -
-When TRUE, invert the meaning of the corresponding -out pin so that
-TRUE gives LOW and FALSE gives HIGH.
+  When TRUE, invert the meaning of the corresponding -out pin so that
+  TRUE gives LOW and FALSE gives HIGH.
 
-== FUNCTIONS 
+== FUNCTIONS
 
-* 'opto_ac5.0.digital-read' - Add this to a thread to read all the input
-points.
+* 'opto_ac5.0.digital-read' -
+  Add this to a thread to read all the input points.
 
-* 'opto_ac5.0.digital-write' - Add this to a thread to write all the output
-points and LEDs.
+* 'opto_ac5.0.digital-write' -
+  Add this to a thread to write all the output points and LEDs.
 
 For example the pin names for the default I/O setting of port 0 would
 be:
@@ -100,6 +109,7 @@ They would be numbered 12 to 23 port 1 would be the same.
 
 To change the default setting load the driver something like so:
 
+[source,{hal}]
 ----
 loadrt opto_ac5 portconfig0=0xffff portconfig1=0xff0000
 ----
@@ -130,13 +140,14 @@ designating it as a HEX number).
 
 Another example: To set the port for 8 outputs and 16 inputs (the
 same as a Mesa card). Here is the 24 bits represented in a BINARY
-number. Bit 1 is the rightmost number.
+number. Bit 1 is the rightmost number:
 
+.16 zeros for the 16 inputs and 8 ones for the 8 outputs
+----
 000000000000000011111111
+----
 
-16 zeros for the 16 inputs and 8 ones for the 8 outputs
-
-Which converts to FF on the calculator so 0xff is the number to use
+This converts to FF on the calculator, so 0xff is the number to use
 for portconfig0 and/or portconfig1 when loading the driver.
 
 == Pin Numbering
@@ -151,9 +162,9 @@ HAL pin 00 connects to pin 47 on the 50 pin connector of each port.
 HAL pin 01 connects to pin 45 on the 50 pin connector of each port.
 HAL pin 23 connects to pin 1 on the 50 pin connector of each port.
 
-Note that Opto22 and Mesa use opposite numbering systems: Opto22 
-position 23 = connector pin 1, and the position goes down as the 
-connector pin number goes up. Mesa Hostmot2 position 1 = connector pin 
-1, and the position number goes up as the connector pin number goes up. 
+Note that Opto22 and Mesa use opposite numbering systems: Opto22
+position 23 = connector pin 1, and the position goes down as the
+connector pin number goes up. Mesa Hostmot2 position 1 = connector pin
+1, and the position number goes up as the connector pin number goes up.
 
-
+// vim: set syntax=asciidoc:

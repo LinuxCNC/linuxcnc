@@ -74,6 +74,7 @@ pin out bit watchdog;
 function _ nofp;
 option data estop_data;
 license "GPL";
+author "John Kasunich";
 ;;
 
 typedef struct { int old_reset; } estop_data;

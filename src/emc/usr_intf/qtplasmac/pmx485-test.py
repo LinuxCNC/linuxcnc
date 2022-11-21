@@ -22,7 +22,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import os
 import sys
-import time
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -60,11 +59,10 @@ class App(QWidget):
             response.setText(msg)
             response.exec_()
             raise SystemExit
-        if os.path.isfile('/usr/share/linuxcnc/linuxcncicon.png'):
-            self.windowIcon = QIcon('/usr/share/linuxcnc/linuxcncicon.png')
-            self.setWindowIcon(self.windowIcon)
-        else:
-            self.windowIcon = None
+        self.iconPath = 'share/qtvcp/images/qtplasmac/images/Chips_Plasma.png'
+        appPath = os.path.realpath(os.path.dirname(sys.argv[0]))
+        self.iconBase = '/usr' if appPath == '/bin' else appPath.replace('/bin', '')
+        self.setWindowIcon(QIcon(os.path.join(self.iconBase, self.iconPath)))
         self.setWindowTitle('Powermax Communicator')
         qtRectangle = self.frameGeometry()
         centerPoint = QDesktopWidget().availableGeometry().center()
@@ -114,9 +112,9 @@ class App(QWidget):
                 self.openPort.close()
             except:
                 pass
-            result = self.dialog_ok(
+            self.dialog_ok(
                         QMessageBox.Warning,\
-                        'ERROR',\
+                        'Error',\
                         '\nCommunications device lost.\n'\
                         '\nA Port Scan is required.\n')
         if self.connected:
@@ -178,9 +176,9 @@ class App(QWidget):
                 if errors == 3:
                     self.connected = False
                     self.usePanel.setChecked(True)
-                    result = self.dialog_ok(
+                    self.dialog_ok(
                                 QMessageBox.Warning,\
-                                'ERROR',\
+                                'Error',\
                                 '\nNo reply while writing to plasma unit.\n'\
                                 '\nCheck connections and retry when ready.\n')
                     return False
@@ -198,8 +196,8 @@ class App(QWidget):
         else:
             self.connected = False
             self.usePanel.setChecked(True)
-            result = self.dialog_ok(QMessageBox.Warning,\
-                        'ERROR',\
+            self.dialog_ok(QMessageBox.Warning,\
+                        'Error',\
                         '\nNo reply while reading from plasma unit.\n'\
                         '\nCheck connections and retry when ready.\n')
             return None
@@ -300,7 +298,7 @@ class App(QWidget):
             if self.currentSet.value() == 0:
                 result = self.dialog_ok(
                         QMessageBox.Warning,\
-                        'ERROR',\
+                        'Error',\
                         '\nA value is required for Current.\n')
                 if result:
                     self.usePanel.setEnabled(True)
@@ -373,9 +371,9 @@ class App(QWidget):
                     )
             print('\n{} is open...\n'.format(self.portName.currentText()))
         except:
-            result = self.dialog_ok(
+            self.dialog_ok(
                     QMessageBox.Warning,\
-                    'ERROR',\
+                    'Error',\
                     '\nCould not open {}\n'.format(self.portName.currentText()))
             return
         self.usePanel.setEnabled(True)
@@ -401,8 +399,7 @@ class App(QWidget):
     def dialog_ok(self,icon,title,text):
         response = QMessageBox()
         response.setIcon(icon)
-        if self.windowIcon:
-            response.setWindowIcon(self.windowIcon)
+        response.setWindowIcon(QIcon(os.path.join(self.iconBase, self.iconPath)))
         response.setWindowTitle(title)
         response.setText(text);
         response.exec_()

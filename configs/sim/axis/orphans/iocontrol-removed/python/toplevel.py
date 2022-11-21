@@ -22,9 +22,9 @@ import emccanon
 
 try:
     import emctask
-    print "toplevel: milltask=",os.getpid()
+    print("toplevel: milltask=",os.getpid())
 except ImportError:
-    print "toplevel: axis=",os.getpid()
+    print("toplevel: axis=",os.getpid())
     pass
 
 

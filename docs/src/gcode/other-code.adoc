@@ -1,10 +1,11 @@
-[[cha:other-codes]]
+:lang: en
+:toc:
 
-= Other Codes
+[[cha:other-codes]]
+= Other Codes(((Other Codes)))
 
 [[sec:set-feed-rate]]
-== F: Set Feed Rate
-(((F: Set Feed Rate)))
+== F: Set Feed Rate(((F: Set Feed Rate)))
 
 'Fx' - set the feed rate to 'x'.  'x' is usually in machine units
 (inches or millimeters) per minute.
@@ -12,20 +13,19 @@
 The application of the feed rate is as described in the
 <<sub:feed-rate,Feed Rate>> Section, unless 'inverse time feed rate mode'
 or 'feed per revolution mode' are in effect, in which case the feed rate
-is as described in the <<gcode:g93-g94-g95,G93 G94 G95>> Section.
+is as described in the <<gcode:g93-g94-g95,G93 G94 G95>> section.
 
 [[sec:set-spindle-speed]]
-== S: Set Spindle Speed
-(((S: Set Spindle Speed)))
+== S: Set Spindle Speed(((S: Set Spindle Speed)))
 
 'Sx [$n]' - set the speed of the spindle to 'x' revolutions per minute (RPM)
 with the optional $ set the spindle speed for a specific spindle. Without the $
-the command will default to spindle.0
+the command will default to spindle.0.
 
 The spindle(s) or selected spindle will turn at that speed when a 'M3' or 'M4'
 is in effect. It is OK to program an S word whether the spindle is turning or
 not. If the speed override switch is enabled and not set at 100%, the speed will
-be different from what is programmed. 
+be different from what is programmed.
 
 It is OK to program S0, the spindle will not turn if that is done.
 
@@ -33,9 +33,15 @@ It is an error if:
 
 * the S number is negative.
 
+As described in the section <<gcode:g84, Right-hand Tapping Cycle with Dwell>>,
+if a 'G84' (tapping) drilling cycle is active and the speed and feed
+potentiometers are enabled, the one with the lowest setting will be used.
+The rotational speed and feed rate will remain synchronized. In this case, the
+speed may differ from the one programmed, even if the speed correction potentiometer
+is set to 100%.
+
 [[sec:select-tool]]
-== T: Select Tool
-(((T: Select Tool)))
+== T: Select Tool(((T: Select Tool)))
 
 'Tx' - prepare to change to tool 'x'.
 
@@ -46,13 +52,13 @@ lines with no tool change. Only the the most recent T word will take
 effect at the next tool change.
 
 NOTE: When LinuxCNC is configured for a nonrandom toolchanger (see
-the entry for RANDOM_TOOLCHANGER in the <<sec:emcio-section,EMCIO
-Section>>), 'T0' gets special handling: no tool will be selected. This
+the entry for RANDOM_TOOLCHANGER in the <<sub:ini:sec:emcio,EMCIO Section>>),
+'T0' gets special handling: no tool will be selected. This
 is useful if you want the spindle to be empty after a tool change.
 
 NOTE: When LinuxCNC is configured for a random toolchanger (see
-the entry for RANDOM_TOOLCHANGER in the <<sec:emcio-section,EMCIO
-Section>>), 'T0' does not get any special treatment: T0 is a valid
+the entry for RANDOM_TOOLCHANGER in the <<sub:ini:sec:emcio,EMCIO Section>>),
+'T0' does not get any special treatment: T0 is a valid
 tool like any other.  It is customary to use T0 on a random toolchanger
 machine to track an empty pocket, so that it behaves like a nonrandom
 toolchanger machine and unloads the spindle.
@@ -60,10 +66,9 @@ toolchanger machine and unloads the spindle.
 It is an error if:
 
 * a negative T number is used,
-
-* T number is used that does not appear in the tool table file (with
-    the exception that T0 on nonrandom toolchangers *is* accepted,
-    as noted above).
+* T number is used that does not appear in the tool table file
+  (with the exception that T0 on nonrandom toolchangers *is* accepted,
+  as noted above).
 
 On some machines, the carousel will move when a T word is programmed,
 at the same time machining is occurring. On such machines, programming

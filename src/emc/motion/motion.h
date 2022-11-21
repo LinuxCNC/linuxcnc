@@ -156,7 +156,7 @@ extern "C" {
 	EMCMOT_JOG_INCR,	/* incremental jog */
 	EMCMOT_JOG_ABS,		/* absolute jog */
 
-	EMCMOT_JOINT_ABORT,             /* abort one joint */
+	EMCMOT_JOG_ABORT,               /* abort one joint num or axis num */
 	EMCMOT_JOINT_ACTIVATE,          /* make joint active */
 	EMCMOT_JOINT_DEACTIVATE,        /* make joint inactive */
 	EMCMOT_JOINT_ENABLE_AMPLIFIER,  /* enable amp outputs */
@@ -220,7 +220,7 @@ extern "C" {
 	int turn;		/* turns for circle or joint number for a locking indexer*/
 	double vel;		/* max velocity */
         double ini_maxvel;      /* max velocity allowed by machine
-                                   constraints (the ini file) */
+                                   constraints (the INI file) */
         int motion_type;        /* this move is because of traverse, feed, arc, or toolchange */
         double spindlesync;     /* user units per spindle revolution, 0 = no sync */
 	double acc;		/* max acceleration */
@@ -244,7 +244,7 @@ extern "C" {
 	double minFerror;	/* min following error */
 	double maxFerror;	/* max following error */
 	int wdWait;		/* cycle to wait before toggling wd */
-	int debug;		/* debug level, from DEBUG in .ini file */
+	int debug;		/* debug level, from DEBUG in INI file */
 	unsigned char now, out, start, end;	/* these are related to synched AOUT/DOUT. now=whether now or synched, out = which gets set, start=start value, end=end value */
 	unsigned char mode;	/* used for turning overrides etc. on/off */
 	double comp_nominal, comp_forward, comp_reverse; /* compensation triplet, nominal, forward, reverse */
@@ -564,7 +564,7 @@ Suggestion: Split this in to an Error and a Status flag register..
    memory, and it reports motion controller status to higher level
    code in user space.  For the most part, this structure contains
    higher level variables - low level stuff is made visible to the
-   HAL and troubleshooting, etc, is done using the HAL oscilliscope.
+   HAL and troubleshooting, etc, is done using the HAL oscilloscope.
 */
 
 /*! \todo FIXME - this struct is broken into two parts... at the top are
@@ -656,6 +656,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	EmcPose eoffset_pose;
 	int numExtraJoints;
     int stepping;
+    bool jogging_active;
     } emcmot_status_t;
 
 /*********************************
@@ -716,7 +717,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 				   approx line 50 */
 
 	double limitVel;	/* scalar upper limit on vel */
-	int debug;		/* copy of DEBUG, from .ini file */
+	int debug;		/* copy of DEBUG, from INI file */
 	unsigned char tail;	/* flag count for mutex detect */
         int arcBlendOptDepth;
         int arcBlendEnable;
@@ -753,10 +754,6 @@ typedef struct emcmot_internal_t {
     int idForStep;      /* status id while stepping */
     } emcmot_internal_t;
 
-/*
-  function prototypes for emcmot code
-*/
-
 /* error ring buffer access functions */
     extern int emcmotErrorInit(emcmot_error_t * errlog);
     extern int emcmotErrorPut(emcmot_error_t * errlog, const char *error);
@@ -764,15 +761,8 @@ typedef struct emcmot_internal_t {
     extern int emcmotErrorPutf(emcmot_error_t * errlog, const char *fmt, ...);
     extern int emcmotErrorGet(emcmot_error_t * errlog, char *error);
 
-#define ALL_JOINTS emcmotConfig->numJoints
-// number of kinematics-only joints:
-#define NO_OF_KINS_JOINTS (ALL_JOINTS - emcmotConfig->numExtraJoints)
-#define IS_EXTRA_JOINT(jno) (jno >= NO_OF_KINS_JOINTS)
-// 0-based Joint numbering:
-// kinematic-only jno.s: [0                 ... (NO_OF_KINS_JOINTS -1) ]
-// extrajoint     jno.s: [NO_OF_KINS_JOINTS ... (ALL_JOINTS  -1) ]
-
 #define GET_JOINT_ACTIVE_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_ACTIVE_BIT ? 1 : 0)
+#define GET_JOINT_INPOS_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_INPOS_BIT ? 1 : 0)
 
 #ifdef __cplusplus
 }

@@ -25,9 +25,9 @@ In this case, the circuit will remain protected by the THCAD's ability to tolera
 .br
 It is optional that power to the Ohmic sensing circuit be disconnected unless probing is in progress ut this adds additional complexity.
 .br
+""";
 
-
-\\fBEXAMPLE:\\fR
+examples """
 .br
 THCAD5 card using a 1/32 frequency setting and a voltage divider internal to the plasma cutter with range extended
 to 24.5 volts with a 390K external resistor as per the manual. Additional information and wiring diagram is contained in the Plasma Primer in the main Linuxcnc documents.

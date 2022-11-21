@@ -33,7 +33,7 @@ iov2 \- interacts with HAL or G-code in userspace
 
 .SH DESCRIPTION
 
-I/O control handles I/O tasks like coolant, toolchange, e-stop and lube. The signals are turned on and off in userspace with G-code or in the case of e-stop in hal. 
+I/O control handles I/O tasks like coolant, toolchange, E-stop and lube. The signals are turned on and off in userspace with G-code or in the case of E-stop in HAL. 
 .br
 I/O Control V2 (iov2) adds more toolchager support for communication with the toolchanger.
 
@@ -44,12 +44,11 @@ Whether \fBio\fR or \fBiov2\fR is used can be chosen in the [EMCIO] section of t
 
 .TP
 \fBiocontrol.0.coolant\-flood
-(Bit, Out) TRUE when flood coolant is requested
-
+(Bit, Out) TRUE when flood coolant is requested.
 
 .TP
 \fBiocontrol.0.coolant\-mist 
-(Bit, Out) TRUE when mist coolant is requested
+(Bit, Out) TRUE when mist coolant is requested.
 
 .TP
 \fBiocontrol.0.emc\-enable\-in 
@@ -68,7 +67,7 @@ into E-stop, and when the "Lube Off" command gets sent to the controller.
 
 .TP
 \fBiocontrol.0.tool\-change 
-(Bit, Out) TRUE when a tool change is requested
+(Bit, Out) TRUE when a tool change is requested.
 
 .TP
 \fBiocontrol.0.tool\-changed 
@@ -76,11 +75,11 @@ into E-stop, and when the "Lube Off" command gets sent to the controller.
 
 .TP
 \fBiocontrol.0.tool\-number
-(s32, Out) Current tool number
+(s32, Out) Current tool number.
 
 .TP
 \fBiocontrol.0.tool\-prep\-number 
-(s32, Out) The number of the next tool, from the RS274NGC T-word
+(s32, Out) The number of the next tool, from the RS274NGC T-word.
 
 .TP
 \fBiocontrol.0.tool\-prep\-pocket
@@ -89,7 +88,7 @@ mechanism) of the tool requested by the most recent T-word.
 
 .TP
 \fBiocontrol.0.tool\-prepare 
-(Bit, Out) TRUE when a T\fIn\fR tool prepare is requested
+(Bit, Out) TRUE when a T\fIn\fR tool prepare is requested.
 
 .TP
 \fBiocontrol.0.tool\-prepared 
@@ -97,66 +96,24 @@ mechanism) of the tool requested by the most recent T-word.
 
 .TP
 \fBiocontrol.0.user\-enable\-out 
-(Bit, Out) FALSE when an internal estop condition exists
+(Bit, Out) FALSE when an internal estop condition exists.
 
 .TP
 \fBiocontrol.0.user\-request\-enable 
-(Bit, Out) TRUE when the user has requested that estop be cleared
+(Bit, Out) TRUE when the user has requested that estop be cleared.
 
 
 .SS Additional IO v2 pins
-.TP
-\fBiocontrol.0.coolant\-flood
-(Bit, Out) TRUE when flood coolant is requested
-.TP
-\fBiocontrol.0.coolant\-mist 
-(Bit, Out) TRUE when mist coolant is requested
-.TP
-\fBiocontrol.0.emc\-enable\-in 
-(Bit, In) Should be driven FALSE when an external estop condition exists.
-.TP
-\fBiocontrol.0.lube 
-(Bit, Out) TRUE when lube is requested.  This pin gets driven True when
-the controller comes out of E-stop, and when the "Lube On" command gets
-sent to the controller.  It gets driven False when the controller goes
-into E-stop, and when the "Lube Off" command gets sent to the controller.
-.TP
-\fBiocontrol.0.lube_level 
-(Bit, In) Should be driven FALSE when lubrication tank is empty.
-.TP
-\fBiocontrol.0.tool\-change 
-(Bit, Out) TRUE when a tool change is requested
-.TP
-\fBiocontrol.0.tool\-changed 
-(Bit, In) Should be driven TRUE when a tool change is completed.
-.TP
-\fBiocontrol.0.tool\-number
-(s32, Out) Current tool number
-.TP
-\fBiocontrol.0.tool\-prep\-number 
-(s32, Out) The number of the next tool, from the RS274NGC T-word
-.TP
-\fBiocontrol.0.tool\-prep\-pocket
-(s32, Out) This is the pocket number (location in the tool storage
-mechanism) of the tool requested by the most recent T-word.
-.TP
-\fBiocontrol.0.tool\-prepare 
-(Bit, Out) TRUE when a T\fIn\fR tool prepare is requested
-.TP
-\fBiocontrol.0.tool\-prepared 
-(Bit, In) Should be driven TRUE when a tool prepare is completed.
-.TP
-\fBiocontrol.0.user\-enable\-out 
-(Bit, Out) FALSE when an internal estop condition exists
-.TP
 \fBiocontrol.0.emc\-abort
 (BIT,OUT) Signals emc\-originated abort to toolchanger.
 .TP
 \fBiocontrol.0.emc\-abort\-ack
-(BIT,IN) Acknowledge line from toolchanger for previous signal, or jumpered to abort\-tool\-change if not used in toolchanger. NB: after signaling an emc\-abort, iov2 will block until emc\-abort\-ack is raised. 
+(BIT,IN) Acknowledge line from toolchanger for previous signal, or jumpered to abort\-tool\-change if not used in toolchanger.
+NB: after signaling an emc\-abort, iov2 will block until emc\-abort\-ack is raised. 
 .TP
 \fBiocontrol.0.emc\-reason
-(S32,OUT) Convey cause for EMC\-originated abort to toolchanger. Usage: UI informational. Valid during emc\-abort True. 
+(S32,OUT) Convey cause for EMC\-originated abort to toolchanger.
+Usage: UI informational. Valid during emc\-abort True. 
 .TP
 \fBiocontrol.0.start\-change
 (BIT,OUT) Asserted at the very beginning of an M6 operation, before any spindle\-off, quill\-up, or move\-to\-toolchange\-position oeprations are executed.
@@ -165,25 +122,28 @@ mechanism) of the tool requested by the most recent T-word.
 (BIT,IN) Acknowledgment line for start\-change.
 .TP
 \fBiocontrol.0.toolchanger\-fault
-(BIT,IN) Toolchanger signals fault. This line is contionuously monitored. A fault toggles a flag in iocontrol which is reflected in the toolchanger\-faulted pin.
+(BIT,IN) Toolchanger signals fault.
+This line is contionuously monitored.
+A fault toggles a flag in iocontrol which is reflected in the toolchanger\-faulted pin.
 .TP
 \fBiocontrol.0.toolchanger\-fault\-ack
-(BIT,OUT) Handshake line for above signal. will be set by iov2 after above fault line True is recognized and deasserted when toolchanger\-fault drops. Toolchanger is free to interpret the ack; reading the \-ack lines assures fault has been received and acted upon.
+(BIT,OUT) Handshake line for above signal.
+Will be set by iov2 after above fault line True is recognized and deasserted when toolchanger\-fault drops.
+Toolchanger is free to interpret the ack; reading the \-ack lines assures fault has been received and acted upon.
 .TP
 \fBiocontrol.0.toolchanger\-reason
 (S32,IN) Convey reason code for toolchanger\-originated fault to iov2. Usage
 .TP
 \fBiocontrol.0.toolchanger\-faulted
-(BIT,OUT) Signals toolchanger\-notify line has toggled and toolchanger\-reason\-code was in the fault range. Next M6 will abort.
+(BIT,OUT) Signals toolchanger\-notify line has toggled and toolchanger\-reason\-code was in the fault range.
+Next M6 will abort.
 .TP
 \fBiocontrol.0.toolchanger\-clear\-fault
-(BIT,IN) Resets TC fault condition. Deasserts toolchanger\-faulted if toolchanger\-notify is line False. Usage. UI \- e.g. clear fault condition button.
-.TP
-\fBiocontrol.0.user\-request\-enable 
-(Bit, Out) TRUE when the user has requested that estop be cleared
+(BIT,IN) Resets TC fault condition. Deasserts toolchanger\-faulted if toolchanger\-notify is line False.
+Usage: UI \- e.g. clear fault condition button.
 .TP
 \fBiocontrol.0.state
-(S32,OUT) Debugging pin reflecting internal state
+(S32,OUT) Debugging pin reflecting internal state.
 
 .PP
 See 

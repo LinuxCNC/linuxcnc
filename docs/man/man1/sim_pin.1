@@ -24,7 +24,7 @@
 .\"
 .TH sim_pin "1"  "2014-12-18" "LinuxCNC Documentation" "LinuxCNC"
 .SH NAME
-\fBsim_pin\fR \- gui for displaying and setting one or more Hal inputs
+\fBsim_pin\fR \- GUI for displaying and setting one or more HAL inputs
 
 .SH SYNOPSIS
 .B \fBsim_pin\fR \fI[Options]\fR \fIname1\fR [\fIname2\fR [\fIname3\fR ...]]
@@ -39,9 +39,9 @@ For bit items, the name may include a /mode= specifier:
 .PP
 
 .SH DESCRIPTION
-Hal boolean items (bit) and numerical items (u32, s32, float) are supported.
+HAL boolean items (bit) and numerical items (u32, s32, float) are supported.
 
-If the named input is a numerical type, the gui displays:
+If the named input is a numerical type, the GUI displays:
 .P
    \fBEntry\fR  Entry widget for value or a valid Tcl expression.
 .br
@@ -49,7 +49,7 @@ If the named input is a numerical type, the gui displays:
 .br
    \fBReset\fR  Pushbutton to reset to the value present on initiation
    
-If the input is a \fBbit\fR type, the gui shows a single pushbutton
+If the input is a \fBbit\fR type, the GUI shows a single pushbutton
 that is controlled by radio\-button selectors:
 .P
    mode=\fBpulse\fR   Pulse input to 1 for each pushbutton press
@@ -62,9 +62,8 @@ If the bit item mode begins with an uppercase letter,
 the radio buttons for selecting other modes are not shown
 
 
-
 .SH NOTE
-LinuxCNC or a standalone Hal application must be running
+LinuxCNC or a standalone HAL application must be running
 .P
 A named item can specify a \fBpin\fR, \fBparam\fR, or \fBsignal\fR.
 The named item must be writable:
@@ -77,10 +76,10 @@ The named item must be writable:
 
 .SH USAGE
 \fBsim_pin\fR can be used interactively from a shell command line or
-started automatically from a configuration ini file.
+started automatically from a configuration INI file.
 
 .SH EXAMPLE
-Example for ini file usage:
+Example for INI file usage:
 
    [APPLICATIONS]
    DELAY = 5

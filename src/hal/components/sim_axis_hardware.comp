@@ -160,7 +160,7 @@ pin in float limit_offset =.01 "how much the limit switches are offset from inpu
 
 function update fp;
 license "GPL";
-author "Chris Morley";
+author "Chris S Morley";
 ;;
 
     /* private comparator function */

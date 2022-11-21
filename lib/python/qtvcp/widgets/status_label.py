@@ -16,7 +16,7 @@
 
 import time
 import os
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore
 
 from qtvcp import logger
 from qtvcp.widgets.simple_widgets import ScaledLabel
@@ -47,7 +47,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         self._state_label_list = ['Estopped','Running','Stopped','Paused','Waiting','Reading']
         self._halpin_name = 'remapStat.tool'
 
-        self.feed_override = True
+        self.feed_override = False
         self.rapid_override = False
         self.max_velocity_override = False
         self.spindle_override = False

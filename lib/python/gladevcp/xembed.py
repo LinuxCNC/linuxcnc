@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # vim: sts=4 sw=4 et
 """
-XEmbed helper functions to allow correct embeding inside Axis
+XEmbed helper functions to allow correct embedding inside Axis
 """
 
 import gi

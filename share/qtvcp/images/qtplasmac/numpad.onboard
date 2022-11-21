@@ -20,7 +20,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 	  <key id="AE01" action="single-stroke"/>
 	  <key id="AE02" action="single-stroke"/>
 	  <key id="AE03" action="single-stroke"/>
-	  <key group="bottomrow" id="move"/>
+	  <key id="move" action="single-stroke"/>
 	  <key id="bktb" action="single-stroke" keysym="0xfe20" label="⇤"/>
 	  <key id="AE04" action="single-stroke"/>
 	  <key id="AE05" action="single-stroke"/>
@@ -29,13 +29,15 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 	  <key id="AE07" action="single-stroke"/>
 	  <key id="AE08" action="single-stroke"/>
 	  <key id="AE09" action="single-stroke"/>
+	  <key id="UP"   action="single-stroke"/>
 	  <key id="RGHT" action="single-stroke"/>
 	  <key id="AE11" action="single-stroke"/>
 	  <key id="AE10" action="single-stroke"/>
 	  <key id="AB09" action="single-stroke"/>
+	  <key id="DOWN" action="single-stroke"/>
 	  <key id="BKSP" action="single-stroke"/>
+	  <key id="DELE" action="single-stroke"/>
 	  <key id="RTRN" action="single-stroke" label_x_align="0.5"/>
-	  <key group="bottomrow" id="DELE.next-to-backspace"/>
     </panel>
   </box>
 </keyboard>

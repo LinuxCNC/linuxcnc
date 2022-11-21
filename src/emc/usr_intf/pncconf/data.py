@@ -19,11 +19,9 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 import os
-import sys
-import errno
 import hashlib
 import xml.dom.minidom
-
+import textwrap
 import subprocess
 
 def md5sum(filename):
@@ -879,28 +877,28 @@ If you have a REALLY large config that you wish to convert to this newer version
             m1 = md5sum(f)
             if m1 and m != m1:
                 warnings2.append(_("File %r was modified since it was written by PNCconf") % f)
+
+        # no warnings ? return to pncconf APP
         if not warnings and not warnings2: return
+
         if warnings2:
             warnings.append("")
             warnings.append(_("Saving this configuration file will discard configuration changes made outside PNCconf."))
         if warnings:
             warnings = warnings + warnings2
         self.pncconf_loaded_version = self._pncconf_version
-        if app:
-            dialog = gtk.MessageDialog(app.widgets.window1,
-                gtk.DIALOG_MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT,
-                gtk.MESSAGE_WARNING, gtk.ButtonsType.OK,
-                     "\n".join(warnings))
-            dialog.show_all()
-            dialog.run()
-            dialog.destroy()
+
+        # if we have a GUI running, pop a dialog
+        # else print to terminal
+        if not app is None:
+            _APP.warning_dialog("\n".join(warnings),  True)
         else:
             for para in warnings:
                 for line in textwrap.wrap(para, 78): print(line)
                 print()
             print()
             if force: return
-            response = input(_("Continue? "))
+            response = input(_("Continue? (y/n)"))
             if response[0] not in _("yY"): raise SystemExit(1)
 
     def add_md5sum(self, filename, mode="r"):
@@ -1021,7 +1019,7 @@ If you have a REALLY large config that you wish to convert to this newer version
             templist = {"touchyabscolor":"abs_textcolor","touchyrelcolor":"rel_textcolor",
                         "touchydtgcolor":"dtg_textcolor","touchyerrcolor":"err_textcolor"}
             for key,value in templist.items():
-                prefs.putpref(value, self[key], str)
+                _APP.set_touchy_preference(value, self[key], str)
             if self.touchyposition[0] or self.touchysize[0]:
                     pos = size = ""
                     if self.touchyposition[0]:
@@ -1030,9 +1028,9 @@ If you have a REALLY large config that you wish to convert to this newer version
                         size = "%dx%d"% (self.touchysize[1],self.touchysize[2])
                     geo = "%s%s"%(size,pos)
             else: geo = "default"
-            prefs.putpref('window_geometry',geo, str)
-            prefs.putpref('gtk_theme',self.touchytheme, str)
-            prefs.putpref('window_force_max', self.touchyforcemax, bool)
+            _APP.set_touchy_preference('window_geometry',geo, str)
+            _APP.set_touchy_preference('gtk_theme',self.touchytheme, str)
+            _APP.set_touchy_preference('window_force_max', self.touchyforcemax, bool)
 
         # write AXIS rc file for geometry
         if self.frontend == _PD._AXIS and (self.axisposition[0] or self.axissize[0] or self.axisforcemax):

@@ -21,7 +21,6 @@ import locale
 from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtProperty
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QTableView, QAbstractItemView
-import linuxcnc
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
@@ -223,7 +222,16 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
 
     # Reload the offsets into display
     def reload_offsets(self):
-        g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3 = self.read_file()
+
+        # read the var file so we get all of the user offsets.
+        temp = self.read_file()
+
+        # overwrite with motion's version of the current system offset
+        # this should be more up to date
+        STATUS.stat.poll()
+        temp[STATUS.stat.g5x_index-1] = STATUS.stat.g5x_offset
+
+        g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3 = temp
         if g54 is None: return
 
         # fake if linuxcnc is not running
@@ -316,9 +324,9 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
                     g59_2[param - 5361] = data
                 elif 5389 >= param >= 5381:
                     g59_3[param - 5381] = data
-            return g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3
+            return [g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3]
         except:
-            return None, None, None, None, None, None, None, None, None
+            return [None, None, None, None, None, None, None, None, None]
 
     def dataChanged(self, new, old, x):
         row = new.row()
@@ -503,16 +511,6 @@ class MyTableModel(QAbstractTableModel):
         if orientation != Qt.Horizontal and role == Qt.DisplayRole:
             return QVariant(self.Vheaderdata[col])
         return QVariant()
-
-    def sort(self, Ncol, order):
-        """
-        Sort table by given column number.
-        """
-        self.emit(SIGNAL("layoutAboutToBeChanged()"))
-        self.arraydata = sorted(self.arraydata, key=operator.itemgetter(Ncol))
-        if order == Qt.DescendingOrder:
-            self.arraydata.reverse()
-        self.emit(SIGNAL("layoutChanged()"))
 
 if __name__ == "__main__":
     from PyQt5.QtWidgets import QApplication

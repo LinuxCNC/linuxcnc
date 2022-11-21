@@ -44,7 +44,6 @@ class LinuxCNC:
         while time.time() - start_time < timeout:
             self.status.poll()
             if (self.status.angular_units == 0.0) \
-                or (self.status.axes == 0) \
                 or (self.status.axis_mask == 0) \
                 or (self.status.cycle_time == 0.0) \
                 or (self.status.exec_state != linuxcnc.EXEC_DONE) \

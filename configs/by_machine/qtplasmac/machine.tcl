@@ -19,7 +19,10 @@ loadrt hypot names=sim:hyp_xy,sim:hyp_xyz
 # ---THREAD LINKS---
 addf motion-command-handler servo-thread
 addf motion-controller servo-thread
-addf plasmac servo-thread
+# don't add the plasmac component if it already exists
+if {[hal list pin plasmac.mode] == {}} {
+    addf plasmac servo-thread
+}
 for {set jnum 0} {$jnum < $numJoints} {incr jnum} {
     addf sim:${jnum}_pid.do-pid-calcs servo-thread
     addf sim:${jnum}_mux servo-thread

@@ -41,13 +41,42 @@ class HandlerClass:
     def initialized__(self):
         if self.w.PREFS_:
             print('Using preference file:',self.w.PREFS_.fn)
+        number = 0
         if self.w.USEROPTIONS_ is not None:
-            try:
-                num = int(self.w.USEROPTIONS_[0])
-            except:
-                print('Error with cam_align camera selection - not a number - using 0')
-                num = 0
-            self.w.camview._camNum = num
+            for num, i in enumerate(self.w.USEROPTIONS_):
+
+                # override the default width and height of the window
+                if 'size=' in self.w.USEROPTIONS_[num]:
+                    try:
+                        strg = self.w.USEROPTIONS_[num].strip('size=')
+                        arg = strg.split(',')
+                        self.w.resize(int(arg[0]),int(arg[1]))
+                    except Exception as e:
+                        print('Error with cam_align size setting:',self.w.USEROPTIONS_[num])
+
+
+                elif 'rotincr=' in self.w.USEROPTIONS_[num]:
+                    try:
+                        strg = self.w.USEROPTIONS_[num].strip('rotincr=')
+                        self.w.camview.rotationIncrement = float(strg)
+                    except Exception as e:
+                        print('Error with cam_align rotation increment setting:',self.w.USEROPTIONS_[num])
+
+                # camera number to use
+                elif 'camnumber=' in self.w.USEROPTIONS_[num]:
+                    try:
+                        number = int(self.w.USEROPTIONS_[num])
+                    except:
+                        print('Error with cam_align camera selection - not a number - using 0')
+
+
+                # camera number to use (legacy)
+                elif len(self.w.USEROPTIONS_[num]) == 1 and self.w.USEROPTIONS_[num].isdigit():
+                    try:
+                        number = int(self.w.USEROPTIONS_[num])
+                    except:
+                        print('Error with cam_align camera selection - not a number - using 0')
+        self.w.camview._camNum = number
 
     ########################
     # callbacks from STATUS #

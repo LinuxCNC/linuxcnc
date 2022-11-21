@@ -15,6 +15,7 @@
 #
 # use open cv to do camera alignment
 
+import os
 import _thread as Thread
 
 import hal
@@ -29,8 +30,9 @@ from qtvcp import logger
 # STATUS gives us status messages from linuxcnc
 # LOG is for running code logging
 if __name__ != '__main__':  # This avoids segfault when testing directly in python
-    from qtvcp.core import Status
+    from qtvcp.core import Status, Info
     STATUS = Status()
+    INFO = Info()
 LOG = logger.getLogger(__name__)
 
 # If the library is missing don't crash the GUI
@@ -66,6 +68,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         self.cross_color = QtCore.Qt.yellow
         self.cross_pointer_color = QtCore.Qt.white
         self.font = QFont("arial,helvetica", 40)
+        self.SUB = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
         if LIB_GOOD:
             self.text = 'No Image'
         else:
@@ -73,6 +76,11 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         self.pix = None
         self.stopped = False
         self.degree = str("\N{DEGREE SIGN}")
+        if INFO.PROGRAM_PREFIX is not None:
+            self.user_path = os.path.expanduser(INFO.PROGRAM_PREFIX)
+        else:
+            self.user_path = (os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files'))
+
         #self.blobInit()
 
     def _hal_init(self):
@@ -110,6 +118,10 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         if event.button() & QtCore.Qt.LeftButton:
             if not self._noRotate:
                 self.rotation += self.rotationIncrement
+                self.limitChecks()
+        elif event.button() & QtCore.Qt.RightButton:
+            if not self._noRotate:
+                self.rotation -= self.rotationIncrement
                 self.limitChecks()
         elif event.button() & QtCore.Qt.MiddleButton:
             self.rotation_increments_changed()
@@ -164,7 +176,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         return  CV.cvtColor(img, CV.COLOR_BGR2GRAY)
 
     def blur(self, img, B=7):
-        return CV.GaussingBlur(img, (b,b), CV.BORDER_DEFAULT)
+        return CV.GaussingBlur(img, (B,B), CV.BORDER_DEFAULT)
 
     def canny(self, img, x=125, y=175):
         return CV.Canny(img , x, y)
@@ -205,12 +217,12 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         return frame[ch-coh:ch+coh, cw-cow:cw+cow]
 
     # draw a circle around small holes
-    # 
+    #
     def findCircles(self,frame):
         # Our operations on the frame come here
         gray = CV.cvtColor(frame, CV.COLOR_BGR2GRAY)
         # Display the resulting frame
- 
+
         circles = CV.HoughCircles(gray,CV.cv.CV_HOUGH_GRADIENT,1,20,param1=50,param2=30,minRadius=10,maxRadius=15)
         # print circles
         if circles is not None:
@@ -228,27 +240,27 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         # Setup BlobDetector
         detector = CV.SimpleBlobDetector()
         params = CV.SimpleBlobDetector_Params()
-	 
+
         # Filter by Area.
         params.filterByArea = True
         params.minArea = 20000
         params.maxArea = 40000
-	 
+
         # Filter by Circularity
         params.filterByCircularity = True
         params.minCircularity = 0.5
- 
+
         # Filter by Convexity
         params.filterByConvexity = False
         #params.minConvexity = 0.87
-	 
+
         # Filter by Inertia
         params.filterByInertia = True
         params.minInertiaRatio = 0.8
 
         # Distance Between Blobs
         params.minDistBetweenBlobs = 200
-	 
+
         # Create a detector with the parameters
         self.detector = CV.SimpleBlobDetector(params)
 
@@ -259,9 +271,9 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
 
         keypoints = self.detector.detect(image)
         for k in keypoints:
-        	CV.circle(overlay, (int(k.pt[0]), int(k.pt[1])), int(k.size/2), (0, 0, 255), -1)
-        	CV.line(overlay, (int(k.pt[0])-20, int(k.pt[1])), (int(k.pt[0])+20, int(k.pt[1])), (0,0,0), 3)
-        	CV.line(overlay, (int(k.pt[0]), int(k.pt[1])-20), (int(k.pt[0]), int(k.pt[1])+20), (0,0,0), 3)
+            CV.circle(overlay, (int(k.pt[0]), int(k.pt[1])), int(k.size/2), (0, 0, 255), -1)
+            CV.line(overlay, (int(k.pt[0])-20, int(k.pt[1])), (int(k.pt[0])+20, int(k.pt[1])), (0,0,0), 3)
+            CV.line(overlay, (int(k.pt[0]), int(k.pt[1])-20), (int(k.pt[0]), int(k.pt[1])+20), (0,0,0), 3)
 
         opacity = 0.5
         CV.addWeighted(overlay, opacity, image, 1 - opacity, 0, image)
@@ -273,9 +285,14 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
     def showEvent(self, event):
         if LIB_GOOD:
             try:
-                self.video = WebcamVideoStream(src=self._camNum).start()
-            except:
-                LOG.error('Video capture error: {}'.format(self.video))
+                self.video = WebcamVideoStream(src=self._camNum)
+                if not self.video.isOpened:
+                    p = self.video.list_ports()[1]
+                    self.text = 'Error with video {}\nAvailable ports:\n{}'.format(self._camNum, p)
+                else:
+                    self.video.start()
+            except Exception as e:
+                LOG.error('Video capture error: {}'.format(e))
 
     def hideEvent(self, event):
         if LIB_GOOD:
@@ -300,8 +317,13 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         h = size.height()
         qp.setPen(self.text_color)
         qp.setFont(self.font)
+        if self._noRotate:
+            inc =''
+        else:
+            inc = str(self.rotationIncrement).translate(self.SUB)
         if self.pix:
-            qp.drawText(self.rect(), QtCore.Qt.AlignTop, '{}{}'.format(self.rotation,self.degree))
+            qp.drawText(self.rect(), QtCore.Qt.AlignTop, '{:.1f}{} {:>}'.format(self.rotation,self.degree,
+            inc))
         else:
             qp.drawText(self.rect(), QtCore.Qt.AlignCenter, self.text)
 
@@ -335,7 +357,10 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         if self.rotationIncrement == 5.00:
             self.rotationIncrement = 1
         elif self.rotationIncrement == 1:
+            self.rotationIncrement = 0.5
+        elif self.rotationIncrement == 0.5:
             self.rotationIncrement = 0.1
+
         else:
             self.rotationIncrement = 5
 
@@ -347,6 +372,10 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
 
     def setPointerColor(self, color):
         self.cross_pointer_color = color
+
+    def saveImage(self):
+        filepath = '{}/camImage.png'.format(self.user_path)
+        self.video.writeFrame(filepath)
 
     #########################################################################
     # This is how designer can interact with our widget properties.
@@ -374,15 +403,23 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
     camera_number = QtCore.pyqtProperty(int, get_camnum, set_camnum, reset_camnum)
 
 class WebcamVideoStream:
-    def __init__(self, src=0):
+    def __init__(self, src=0, api=CV.CAP_ANY):
         # initialize the video camera stream and read the first frame
         # from the stream
-        self.stream = CV.VideoCapture(src)
+        try:
+            self.stream = CV.VideoCapture(src, api)
+        except:
+            # try using an older function signature
+            self.stream = CV.VideoCapture(src)
+
         # initialize the variable used to indicate if the thread should
         # be stopped
         self.stopped = False
         self.grabbed = None
         self.frame = None
+        self.isOpened = self.stream.isOpened()
+        if not (self.stream.isOpened()):
+            print('Could not open video device {}'.format(src))
 
     def start(self):
         # start the thread to read frames from the video stream
@@ -406,6 +443,37 @@ class WebcamVideoStream:
     def stop(self):
         # indicate that the thread should be stopped
         self.stopped = True
+
+    # TODO path checking
+    def writeFrame(self, filepath):
+        CV.imwrite(filepath, self.frame)
+        print('saved camview image to: {}'.format(filepath))
+
+    def list_ports(self):
+        """
+        Test the ports and returns a tuple with the available ports and the ones that are working.
+        """
+        non_working_ports = []
+        dev_port = 0
+        working_ports = []
+        available_ports = []
+        while len(non_working_ports) < 6: # if there are more than 5 non working ports stop the testing.
+            camera = CV.VideoCapture(dev_port)
+            if not camera.isOpened():
+                non_working_ports.append(dev_port)
+                print("Port %s is not working." %dev_port)
+            else:
+                is_reading, img = camera.read()
+                w = camera.get(3)
+                h = camera.get(4)
+                if is_reading:
+                    print("Port %s is working and reads images (%s x %s)" %(dev_port,h,w))
+                    working_ports.append(dev_port)
+                else:
+                    print("Port %s for camera ( %s x %s) is present but does not read." %(dev_port,h,w))
+                    available_ports.append(dev_port)
+            dev_port +=1
+        return available_ports,working_ports,non_working_ports
 
 if __name__ == '__main__':
 

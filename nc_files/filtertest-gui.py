@@ -28,19 +28,19 @@ class CustomDialog(QDialog):
 
     def reject(self):
         # This provides an error message
-        print >>sys.stderr, 'You asked to cancel before finished.'
+        print('You asked to cancel before finished.', file=sys.stderr)
         raise SystemExit(1)
 
     def process(self):
         try:
             # output a line of gcode
-            print >>sys.stdout, '(MSG, made line of code : {})'.format(self._percentDone)
+            print('(MSG, made line of code : {})'.format(self._percentDone), file=sys.stdout)
 
             # keep track of progress
             self._percentDone +=1
 
             # update progress
-            print >>sys.stderr, 'FILTER_PROGRESS={}'.format(self._percentDone)
+            print('FILTER_PROGRESS={}'.format(self._percentDone), file=sys.stderr)
 
             # if done end with no error/error message
             if self._percentDone == 100:
@@ -48,7 +48,7 @@ class CustomDialog(QDialog):
 
         except Exception as e:
             # This provides an error message
-            print >>sys.stderr, 'Something bad happened:',e
+            print(('Something bad happened:',e), file=sys.stderr)
             # this signals the error message should be shown
             raise SystemExit(1)
 

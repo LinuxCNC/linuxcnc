@@ -115,7 +115,7 @@ void display_help (void)
 	       "   --nogui            do not create a GUI, only load a configuration\n"
 	       "   --config=filename  initialize modbus master I/O & load config file-( deprecated- use --modmaster)\n"
 	       "   --modmaster        initialize modbus master I/O ( modbus config is loaded with other objects )\n"
-	       "   --modslave         initialize modbus slave I/O (TCP only- B and W variables accesable\n"
+	       "   --modslave         initialize modbus slave I/O (TCP only- B and W variables accessible\n"
 	       "   --modbus_port=portnumber  used for modbus slave using TCP ( ethernet )\n"
 	       "   --debug            sets the RTAPI debuglevel for printing debug messages\n"
 	       "Please also note that the classicladder realtime module must be loaded first\n"
