@@ -28,8 +28,6 @@ description """During operation laserpower must be scaled proportionally to actu
                 Velocity mode (when raster_mode = 0). 
                     During velocity mode vector_power corresponds to the power level desired when reaching the next control point.
                     This allows vector power to be scaled along moves.
-                    So if one were to set vector power to 0 at the beginning on a move. Then 
-            
             """;
 
 function _;
