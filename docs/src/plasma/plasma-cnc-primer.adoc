@@ -400,11 +400,11 @@ Because the full scale is 10 Volts, then the frequency per Volt is:
 
 So assuming we have a 5 Volt input, the calculated frequency would be:
 
-(2520 Hz/V * 5 V) + 3,800 Hz = 16,400 Hz
+(2,520 Hz/V * 5 V) + 3,800 Hz = 16,400 Hz
 
 So now it should be fairly clear how to convert the frequency to its voltage equivalent:
 
-Volts = (frequency (Hz) - 3,800 Hz) / 2,520 Hz/V
+Volts = (frequency [Hz] - 3,800 Hz) / 2,520 Hz/V
 
 === THCAD Connections
 
@@ -423,7 +423,7 @@ Assuming it is connected to a Mesa 7I76E, connect the output to the spindle enco
 
 === THCAD Initial Testing
 
-Make sure you have the following lines in your ini file (assuming a Mesa 7I76E):
+Make sure you have the following lines in your INI file (assuming a Mesa 7I76E):
 
 [source,{hal}]
 ----
@@ -437,7 +437,7 @@ Grab a 9 Volt battery and connect it to I~N~+ and I~N~-.
 For a THCAD-10 you can now calculate the expected velocity (26,480 in our hypothetical example).
 If you pass this test, then you are ready to configure your LinuxCNC plasma controller.
 
-=== Which Model THCAD To Use
+=== Which Model THCAD To Use?
 
 The THCAD-5 is useful if you intend to use it for ohmic sensing. There is no doubt the THCAD-10 is the more flexible device and it is easy to alter the scaling. However, there is one caveat that can come into play with some cheaper plasma cutters with an inbuilt voltage divider. That is, the internal resistors may be sensed by the THCAD as being part of its own external resistance and return erroneous results. For example, the 16:1 divider on the Everlast plasma cutters needs to be treated as 24:1 (and 50:1 becomes 75:1). This is not a problem with more reputable brands (e.g., Thermal Dynamics, Hypertherm, ESAB etc). So if you are seeing lower than expected cutting voltages, it might be preferable to reconfigure the THCAD to read raw arc voltage.
 
