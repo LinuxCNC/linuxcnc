@@ -2041,11 +2041,11 @@ static cmdResponseType getJointHomed(char *s, connectionRecType *context)
 static cmdResponseType getProgram(char *s, connectionRecType *context)
 {
   const char *pProgram = "PROGRAM %s";
-  
-//  snprintf(outBuf, sizeof(outBuf), pProgram, progName);
-//  printf("Program name = %s", emcStatus->task.file[0]);
+
   if (emcStatus->task.file[0] != 0)
     snprintf(context->outBuf, sizeof(context->outBuf), pProgram, emcStatus->task.file);
+  else
+    snprintf(context->outBuf, sizeof(context->outBuf), pProgram, "NONE");
   return rtNoError;
 }
 
