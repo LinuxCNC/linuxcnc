@@ -1,4 +1,4 @@
-VERSION = '1.233.249'
+VERSION = '1.233.250'
 
 '''
 qtplasmac_handler.py
@@ -310,6 +310,7 @@ class HandlerClass:
         # ensure we get all startup errors
         STATUS.connect('error', self.error_update)
         STATUS.connect('graphics-gcode-error', lambda o, e:self.error_update(o, linuxcnc.OPERATOR_ERROR, e))
+        STATUS.emit('update-machine-log', '--- {} - QtPlasmaC v{}, powered by QtVCP on LinuxCNC v{} ---'.format(self.machineName, VERSION, linuxcnc.version.split(':')[0]), None)
         self.make_hal_pins()
         self.init_preferences()
         self.hide_widgets()
@@ -387,8 +388,6 @@ class HandlerClass:
         self.w.mdihistory.MDILine.spindle_inhibit(True)
         if self.updateIni:
             self.update_iniwrite()
-        if self.firstRun is True:
-            self.firstRun = False
         self.startupTimer.start(250)
 
 # called by qtvcp.py, can override qtvcp settings or qtvcp allowed user options (via INI)
@@ -1243,6 +1242,9 @@ class HandlerClass:
                     QPushButton {{ color: {2}; background: {1}; border-color: {2} }} \
                     QPushButton:pressed {{ color: {2}; background: {1}; border-color: {0} }}' \
                     .format(self.foreColor, self.backColor, self.disabledColor))
+            if not self.firstRun:
+                log = _translate('HandlerClass', 'Emergency stop pressed')
+                STATUS.emit('update-machine-log', log, 'TIME')
         else:
             self.w.power.setStyleSheet(' \
                     QPushButton {{ color: {0}; background: {1}; border-color: {0} }} \
@@ -1250,6 +1252,9 @@ class HandlerClass:
                     QPushButton:checked {{ color: {1}; background: {3}; border-color: {0} }} \
                     QPushButton:checked:pressed {{ color: {0}; background: {1}; border-color: {0} }}' \
                     .format(self.foreColor, self.backColor, self.disabledColor, self.fore1Color))
+            if not self.firstRun:
+                log = _translate('HandlerClass', 'Emergency stop cleared')
+                STATUS.emit('update-machine-log', log, 'TIME')
 
     def power_state(self, state):
         if state:
@@ -1265,11 +1270,17 @@ class HandlerClass:
                     self.wcs_rotation('set')
             else:
                 self.set_buttons_state([self.idleHomedList], False)
+            if not self.firstRun:
+                log = _translate('HandlerClass', 'GUI power on')
+                STATUS.emit('update-machine-log', log, 'TIME')
         else:
             self.w.power.setChecked(False)
             self.set_buttons_state([self.idleOnList, self.idleHomedList], False)
             if self.ptButton and hal.get_value('plasmac.probe-test'):
                 self.probe_test(False)
+            if not self.firstRun:
+                log = _translate('HandlerClass', 'GUI power off')
+                STATUS.emit('update-machine-log', log, 'TIME')
         self.set_run_button_state()
         self.set_jog_button_state()
 
@@ -1313,6 +1324,8 @@ class HandlerClass:
                 self.statistics_save()
             else:
                 self.jobRunning = False
+            log = _translate('HandlerClass', 'Machine idle')
+            STATUS.emit('update-machine-log', log, 'TIME')
             self.statistics_show()
         ACTION.SET_MANUAL_MODE()
 
@@ -1394,6 +1407,8 @@ class HandlerClass:
                 self.w[self.otButton].setEnabled(True)
             self.w.wcs_button.setEnabled(False)
             self.set_tab_jog_states(True)
+            log = _translate('HandlerClass', 'Cycle paused')
+            STATUS.emit('update-machine-log', log, 'TIME')
         else:
             self.w.jog_stack.setCurrentIndex(0)
             if self.ccButton:
@@ -1510,6 +1525,8 @@ class HandlerClass:
             self.set_blank_gcodeprops()
         self.w.gcodegraphics.updateGL()
         self.w.conv_preview.updateGL()
+        log = _translate('HandlerClass', 'Machine homed')
+        STATUS.emit('update-machine-log', log, 'TIME')
 
     def joint_homed(self, obj, joint):
         dro = self.coordinates[int(joint)]
@@ -1755,9 +1772,18 @@ class HandlerClass:
                     txt0 = _translate('HandlerClass', 'RUN FROM LINE')
                     txt1 = _translate('HandlerClass', 'CYCLE START')
                     self.runText = '{}\n{}'.format(txt0, txt1)
+                    log = _translate('HandlerClass', 'Run from line loaded')
+                    log1 = _translate('HandlerClass', 'Start line')
+                    STATUS.emit('update-machine-log', '{} - {}: {}'.format(log, log1, (self.startLine + 1)), 'TIME')
         elif not self.run_critical_check():
             self.jobRunning = True
             ACTION.RUN(0)
+            log = _translate('HandlerClass', 'Cycle started')
+            if self.w.torch_enable.isChecked():
+                log1 = _translate('HandlerClass', 'Torch enabled')
+            else:
+                log1 = _translate('HandlerClass', 'Torch disabled')
+            STATUS.emit('update-machine-log', '{} - {}'.format(log, log1), 'TIME')
 
     def abort_pressed(self):
         if self.manualCut:
@@ -1766,20 +1792,28 @@ class HandlerClass:
                 self.button_normal(self.mcButton)
                 self.w[self.mcButton].setEnabled(False)
             self.w.abort.setEnabled(False)
+            log = _translate('HandlerClass', 'Manual cut aborted')
+            STATUS.emit('update-machine-log', log, 'TIME')
             return
         elif self.probeTest:
             self.probe_test_stop()
+            log = _translate('HandlerClass', 'Probe test aborted')
+            STATUS.emit('update-machine-log', log, 'TIME')
             return
+        elif self.torchPulse:
+            self.torch_pulse(True)
+            log = _translate('HandlerClass', 'Torch pulse aborted')
+            STATUS.emit('update-machine-log', log, 'TIME')
         else:
             ACTION.ABORT()
-            if self.torchPulse:
-                self.torch_pulse(True)
             if hal.get_value('plasmac.cut-recovery'):
                 hal.set_p('plasmac.cut-recovery', '0')
                 self.laserOnPin.set(0)
             self.interp_idle(None)
             if self.convBlockLoaded.get():
                 self.wcs_rotation('set')
+            log = _translate('HandlerClass', 'Cycle aborted')
+            STATUS.emit('update-machine-log', log, 'TIME')
 
     def pause_pressed(self):
         if hal.get_value('plasmac.cut-recovering'):
@@ -1787,6 +1821,9 @@ class HandlerClass:
             self.laserOnPin.set(0)
         self.cancelWait = False
         self.w.laser.setEnabled(False)
+        if STATUS.is_auto_paused():
+            log = _translate('HandlerClass', 'Cycle resumed')
+            STATUS.emit('update-machine-log', log, 'TIME')
 
     def user_button_pressed(self, button):
         self.user_button_down(button)
@@ -1840,8 +1877,30 @@ class HandlerClass:
         self.save_logfile(6)
         bkpPath = '{}'.format(os.path.expanduser('~'))
         bkpName = '{}_V{}_{}.tar.gz'.format(self.machineName, VERSION, time.strftime('%y-%m-%d_%H-%M-%S'))
+        tmpFile = os.path.join(self.PATHS.CONFIGPATH, 'config_info.txt')
+        lcncInfo = (Popen('linuxcnc_info -s', stdout=PIPE, stderr=PIPE, shell=True).communicate()[0]).decode('utf-8')
+        network = (Popen('lspci | grep -i net', stdout=PIPE, stderr=PIPE, shell=True).communicate()[0]).decode('utf-8')
+        with open(tmpFile, 'a') as outFile:
+            if network:
+                outFile.write('lspci | grep -i net:\n{}\n'.format(network))
+            else:
+                outFile.write('Unknown error with "lspci | grep -i net" command\n\n')
+            if lcncInfo:
+                outFile.write('linuxcnc_info:\n')
+                try:
+                    with open('/tmp/linuxcnc_info.txt', 'r') as inFile:
+                        for line in inFile:
+                            outFile.write(line)
+                except:
+                    outFile.write("Unknown error opening /tmp/linuxcnc_info.txt\n")
+            else:
+                outFile.write('Unknown error creating /tmp/linuxcnc_info.txt\n')
         with tarfile.open('{}/{}'.format(bkpPath, bkpName), mode='w:gz', ) as archive:
             archive.add('{}'.format(self.PATHS.CONFIGPATH))
+        try:
+            os.remove(tmpFile)
+        except:
+            print("Unknown error removing config_info.txt")
         head = _translate('HandlerClass', 'Backup Complete')
         msg0 = _translate('HandlerClass', 'A compressed backup of the machine configuration including the machine logs has been saved in your home directory as')
         msg1 = _translate('HandlerClass', 'It is safe to delete this file at any time')
@@ -1962,6 +2021,8 @@ class HandlerClass:
                 ACTION.CALL_MDI_WAIT('T0 M6')
                 ACTION.CALL_MDI_WAIT('G43 H0')
                 ACTION.SET_MANUAL_MODE()
+            log = _translate('HandlerClass', 'Program cleared')
+            STATUS.emit('update-machine-log', log, 'TIME')
         else:
             self.view_t_pressed()
 
@@ -2066,6 +2127,8 @@ class HandlerClass:
                     self.w[self.tpButton].setEnabled(False)
                 if self.otButton:
                     self.w[self.otButton].setEnabled(False)
+                log = _translate('HandlerClass', 'Consumable change initiated')
+                STATUS.emit('update-machine-log', log, 'TIME')
             else:
                 self.cutrec_buttons_enable(True)
                 self.cutrec_motion_enable(True)
@@ -2080,6 +2143,8 @@ class HandlerClass:
                     if self.ccButton:
                         self.w[self.ccButton].setEnabled(False)
                 self.button_normal(self.ccButton)
+                log = _translate('HandlerClass', 'Consumable change completed')
+                STATUS.emit('update-machine-log', log, 'TIME')
 
     def plasmac_state_changed(self, state):
         if ((state > self.PROBE_UP and not STATUS.is_interp_idle()) or state == self.PROBE_TEST) and hal.get_value('axis.z.eoffset-counts'):
@@ -2098,6 +2163,8 @@ class HandlerClass:
             if os.path.exists(file):
                 self.overlayProgress.setValue(0)
                 ACTION.OPEN_PROGRAM(file)
+                log = _translate('HandlerClass', 'Reloaded')
+                STATUS.emit('update-machine-log', '{}: {}'.format(log, file), 'TIME')
             else:
                 head = _translate('HandlerClass', 'File Error')
                 msg0 = _translate('HandlerClass', 'does not exist')
@@ -3147,6 +3214,8 @@ class HandlerClass:
         self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.view_t_pressed()
         self.set_signal_connections()
+        if self.firstRun is True:
+            self.firstRun = False
 
     def update_periodic(self):
         if self.framing and STATUS.is_interp_idle():
@@ -3241,6 +3310,8 @@ class HandlerClass:
             self.w[self.ptButton].setText('{}'.format(self.probeTime))
         else:
             self.probe_test_stop()
+            log = _translate('HandlerClass', 'Probe test completed')
+            STATUS.emit('update-machine-log', log, 'TIME')
 
     def torch_timeout(self):
         if self.torchTime:
@@ -3252,6 +3323,8 @@ class HandlerClass:
             self.torchTime = 0
             if not self.w[self.tpButton].isDown() and not self.extPulsePin.get():
                 self.torch_pulse_states(True)
+                log = _translate('HandlerClass', 'Torch pulse completed')
+                STATUS.emit('update-machine-log', log, 'TIME')
             else:
                 text0 = _translate('HandlerClass', 'TORCH')
                 text1 = _translate('HandlerClass', 'ON')
@@ -3877,8 +3950,12 @@ class HandlerClass:
                 self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], False)
                 self.w[self.ptButton].setEnabled(True)
                 self.set_tab_jog_states(False)
+                log = _translate('HandlerClass', 'Probe test started')
+                STATUS.emit('update-machine-log', log, 'TIME')
             else:
                 self.probe_test_stop()
+                log = _translate('HandlerClass', 'Probe test aborted')
+                STATUS.emit('update-machine-log', log, 'TIME')
 
     def probe_test_stop(self):
         self.probeTimer.stop()
@@ -3909,6 +3986,8 @@ class HandlerClass:
                 self.w[self.tpButton].setText('{}'.format(self.torchTime))
                 self.button_active(self.tpButton)
                 self.torch_pulse_states(False)
+                log = _translate('HandlerClass', 'Torch pulse started')
+                STATUS.emit('update-machine-log', log, 'TIME')
             else:
                 self.torchTimer.stop()
                 self.torchTime = 0.0
@@ -3917,6 +3996,8 @@ class HandlerClass:
             hal.set_p('plasmac.torch-pulse-start','0')
             if self.torchTime == 0:
                 self.torch_pulse_states(True)
+                log = _translate('HandlerClass', 'Torch pulse ended manually')
+                STATUS.emit('update-machine-log', log, 'TIME')
 
     def torch_pulse_states(self, state):
         self.set_tab_jog_states(state)
@@ -4063,6 +4144,8 @@ class HandlerClass:
             if self.mcButton:
                 self.w[self.mcButton].setEnabled(False)
                 self.button_normal(self.mcButton)
+            log = _translate('HandlerClass', 'Manual cut aborted')
+            STATUS.emit('update-machine-log', log, 'TIME')
         elif STATUS.machine_is_on() and STATUS.is_all_homed() and STATUS.is_interp_idle():
             self.manualCut = True
             self.set_mc_states(False)
@@ -4072,6 +4155,8 @@ class HandlerClass:
                 self.w[self.mcButton].setEnabled(True)
                 self.button_active(self.mcButton)
             ACTION.SET_SPINDLE_ROTATION(1 ,1 , 0)
+            log = _translate('HandlerClass', 'Manual cut started')
+            STATUS.emit('update-machine-log', log, 'TIME')
         self.set_run_button_state()
 
     def button_active(self, button):

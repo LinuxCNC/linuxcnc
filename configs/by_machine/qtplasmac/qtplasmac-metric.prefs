@@ -1,0 +1,24 @@
+[GUI_OPTIONS]
+Mode = 0
+Estop type = 0
+
+[LASER_OFFSET]
+X axis = -25.0
+Y axis = 0.0
+
+[CAMERA_OFFSET]
+X axis = 25.0
+Y axis = 0.0
+
+[BUTTONS]
+1 Name = OHMIC\TEST
+1 Code = ohmic-test
+2 Name = PROBE\TEST
+2 Code = probe-test 10
+3 Name = SINGLE\CUT
+3 Code = single-cut
+4 Name = NORMAL\CUT
+4 Code = cut-type
+5 Name = TORCH\PULSE
+5 Code = torch-pulse .5
+

@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-10-09 15:50+0200\n"
-"PO-Revision-Date: 2022-11-05 22:28+0000\n"
+"PO-Revision-Date: 2022-11-09 19:47+0000\n"
 "Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.14.2\n"
+"X-Generator: Weblate 4.15-dev\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -1088,7 +1088,7 @@ msgstr "Eine Datei ist bereits geöffnet"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:21
 msgid "All axes missing with g52 or g92"
-msgstr "Keine Axen fur G52 oder G92 angegeben"
+msgstr "Keine Achsen für G52 oder G92 angegeben"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:22
 msgid "All axes missing with motion code"
@@ -11796,6 +11796,7 @@ msgstr "Entgegengesetzt"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
 msgid ""
 "_:"
+""
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249

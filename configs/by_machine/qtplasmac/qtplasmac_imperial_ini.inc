@@ -1,36 +1,4 @@
 
-[QTPLASMAC]
-# set the operating mode (default is 0)
-MODE                    = 0
-
-# estop is a indicator only
-ESTOP_TYPE = 0
-# estop is hidden
-#ESTOP_TYPE = 1
-# estop is a button
-#ESTOP_TYPE = 2
-
-CAMERA_TOUCHOFF         =  X1.0 Y0
-LASER_TOUCHOFF          =  X-1  Y0
-
-# user buttons in the main window
-BUTTON_1_NAME           = OHMIC\TEST
-BUTTON_1_CODE           = ohmic-test
-BUTTON_2_NAME           = PROBE\TEST
-BUTTON_2_CODE           = probe-test 10
-BUTTON_3_NAME           = 
-BUTTON_3_CODE           = 
-BUTTON_4_NAME           = NORMAL\CUT
-BUTTON_4_CODE           = cut-type
-BUTTON_5_NAME           = TORCH\PULSE
-BUTTON_5_CODE           = torch-pulse .5
-BUTTON_6_NAME           = SINGLE\CUT
-BUTTON_6_CODE           = single-cut
-
-# powermax communications
-#PM_PORT                 = /dev/ttyUSB0
-#PM_PORT                 = /dev/ttyS0
-
 # this section required as is for removing z axis moves from the loaded gcode file
 [FILTER]
 PROGRAM_EXTENSION       = .ngc,.nc,.tap GCode File (*.ngc, *.nc, *.tap)

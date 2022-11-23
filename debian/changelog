@@ -6,6 +6,26 @@ linuxcnc (1:2.10.0~pre0) UNRELEASED; urgency=medium
 
 linuxcnc (1:2.9.0~pre1) UNRELEASED; urgency=medium
 
+  * githelper.sh: New master glob
+  * qtplasmac: add event logging
+  * qtplasmac: update sim configs
+  * qtvcp -docs: add update versaprobe details
+  * qtdragon -docs: update versaprobe image
+  * qtvcp -versaprobe: improve help dialog layout/use
+  * qtvcp -panels: fix details of cam_align controls
+  * qtvcp -docs: cam_align controls, loading options
+  * qtvcp -axis embeded cam_align: add size and rotation increment
+  * qtvcp -cam_align panel: add ability to set rotation increment
+  * qtvcp -camview_widget: add the rotation increment display
+  * qtvcp -cam_align panel: add window size setting option
+  * docs: qtplasmac fix image, add deprication notice
+  * docs: add div2 to .gitignore
+  * Merge pull request #2119 from Roguish000/component-div2
+
+ -- andypugh <andy@bodgesoc.org>  Sun, 13 Nov 2022 17:36:52 +0000
+
+linuxcnc (1:2.9.0~pre1) UNRELEASED; urgency=medium
+
   * First 2.9 pre-release preparatory to release.
   * Bugfixes welcome, new features by negotiation
 

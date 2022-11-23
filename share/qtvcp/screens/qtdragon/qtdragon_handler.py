@@ -58,6 +58,7 @@ class HandlerClass:
         KEYBIND.add_call('Key_F11','on_keycall_F11')
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         KEYBIND.add_call('Key_Pause', 'on_keycall_pause')
+        KEYBIND.add_call('Key_Any', 'on_keycall_pause')
 
         # some global variables
         self.probe = None
