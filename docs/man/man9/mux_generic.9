@@ -49,8 +49,7 @@ The possible output values that are selected by the selection pins.
 .SH PARAMETERS
 .TP
 .B mux\-gen.\fIN\fB.elapsed\fR float r \fR
-Current value of the internal debounce timer
-for debugging.
+Current value of the internal debounce timer for debugging.
 .TP
 .B mux\-gen.\fIN\fB.selected\fR s32 r \fR
 Current value of the internal selection variable after conversion for debugging.
@@ -60,24 +59,22 @@ Possibly useful for setting up gray-code switches.
 This component is a more general version of the other multiplexing components.
 It allows the creation of arbitrary-size multiplexers (up to 1024 entries) and
 also supports differing data types on the input and output pins. 
-The configuration string is a comma-separated list of code-letters and numbers,
-such as "bb4,fu12" This would create a 4-element bit-to-bit mux and a 
-12-element float-to-unsigned mux. The code letters are b = bit, f = float, s =
-signed integer, u = unsigned integer. The first letter code is the input type,
-the second is the output type. The codes are not case-sensitive. The order of
-the letters is significant but the position in the string is not. Do not
-insert any spaces in the config string. 
-Any non-zero float value will be converted to a "true" output in bit form. Be
-wary that float datatypes can be very, very, close to zero and not actually be
-equal to zero. 
+The configuration string is a comma-separated list of code-letters and numbers, such as "bb4,fu12".
+ This would create a 4-element bit-to-bit mux and a 12-element float-to-unsigned mux.
+The code letters are b = bit, f = float, s = signed integer, u = unsigned integer.
+The first letter code is the input type, the second is the output type.
+The codes are not case-sensitive. The order of the letters is significant but the position in the string is not.
+Do not insert any spaces in the config string. 
+Any non-zero float value will be converted to a "true" output in bit form.
+Be wary that float datatypes can be very, very, close to zero and not actually be equal to zero. 
 
 Each mux has its own HAL function and must be added to a thread separately. 
-If neither input nor output is of type float then the function is base-thread
-(non floating-point) safe. Any mux_generic with a floating point input or 
-output can only be added to a floating-point thread. 
+If neither input nor output is of type float then the function is base-thread (non floating-point) safe.
+Any mux_generic with a floating point input or output can only be added to a floating-point thread. 
+
+.SH AUTHOR
+Andy Pugh
 
 .SH LICENSE
 GPL
 
-.SH AUTHOR
-Andy Pugh
