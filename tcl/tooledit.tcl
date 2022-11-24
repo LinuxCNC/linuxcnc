@@ -227,16 +227,16 @@ proc ::tooledit::validateNumber {varname widget current new} {
 } ;# validateNumber
 
 proc ::tooledit::invalidNumber {varname widget} {
-  tk_dialog .problem \
-            Problem \
-            "[format [_ "%s must be a number"] $varname]" \
-            {} \
-            0 \
-            ok
+  tk_messageBox \
+          -title [_ Problem] \
+          -message [_ "Bad Entry"] \
+          -detail  [_ "(must be a number)"] \
+          -type ok
   $widget configure -validate all ;# restore validation
 } ;# invalidNumber
 
 proc ::tooledit::readfile {filename} {
+  set filename [file normalize $filename]
   if {[file exists $filename] && ![file readable $filename]} {
     lappend msg [format [_ "filename: <%s> not readable"] $filename]
   }
@@ -258,6 +258,34 @@ proc ::tooledit::readfile {filename} {
     message newfile
     return
   }
+
+  set tooledit_pids ""
+  # count howmany tooledits (exclusive of this one) are running
+  # Note: pidof ignores defunct processes
+  # catch required since child error returned if no other pids:
+  catch { set tooledit_pids [eval exec pidof -x -o[pid] tooledit]} emsg
+
+  # determine if axis is running with same filename
+  catch {
+    sendaxis ping
+    set axis_is_running [sendaxis tool_table_filename]
+    set tooledit_pid_ct [llength $tooledit_pids]
+    if {$axis_is_running  && $tooledit_pid_ct > 0} {
+      set msg [_ "Current file:"]
+      set detail "$filename"
+      if {"$::te(axis,filename)" == "$filename"} {
+        tk_messageBox \
+           -title [_ "Tooledit already running"] \
+           -message $msg \
+           -detail  $detail \
+           -type ok
+        # try to raise it:
+        catch {send $::te(axis,tooledit) [list wm deiconify $::te(top)]}
+        exit 1
+      }
+    }
+  } emsg
+  #if {$emsg != ""} {puts emsg=$emsg}
 
   set fd [open $filename r]
 
@@ -391,6 +419,8 @@ proc ::tooledit::watch {args} {
 
 proc ::tooledit::tooledit {filename {columns ""} } {
   package require Tk
+  # name to identify tooledit used by first axis invocation:
+  set ::te(axis,tooledit) axis_tooledit
   if {[package vcompare $::tcl_version 8.5] >= 0} {
     # tcl8.5 lsort -indices available
     set ::te(enable_column_sorting) 1
@@ -400,7 +430,7 @@ proc ::tooledit::tooledit {filename {columns ""} } {
                          $prog $::tcl_version]
   }
   ::tooledit::init $columns
-  set ::te(filename) $filename
+  set ::te(filename) [file normalize $filename]
 
   # allow for translated names for header columns:
   foreach h $::te(header) {
@@ -421,7 +451,7 @@ proc ::tooledit::tooledit {filename {columns ""} } {
   wm withdraw $::te(top); update
   wm resizable $::te(top) 1 1
   wm protocol $::te(top) WM_DELETE_WINDOW ::tooledit::bye
-  wm title $::te(top) "tooledit: [file tail $::te(filename)]"
+  wm title $::te(top) "tooledit: $::te(filename)"
   if [info exists ::te(tooledit,geometry)] {
     wm geometry $::te(top) $::te(tooledit,geometry)
   }
@@ -457,6 +487,7 @@ proc ::tooledit::tooledit {filename {columns ""} } {
   }
 
   readfile $::te(filename)
+  set ::te(filename) [file normalize $::te(filename)]
   if [file exists $::te(filename)] {watch start}
 
   pack $::te(scroll,window) -side top -fill x -expand 0 -anchor nw
@@ -469,7 +500,11 @@ proc ::tooledit::tooledit {filename {columns ""} } {
        -command ::tooledit::bye] \
        -side right -fill x -expand 1
 
-  if {[sendaxis ping] && [sendaxis tool_table_filename]} {
+  if {   ![info exists ::te(load,button)]
+      && [sendaxis ping] && [sendaxis tool_table_filename]
+      && "$::te(axis,filename)" == "$::te(filename)"
+     } {
+    tk appname $::te(axis,tooledit)
     set ::te(load,button) [button $bf.[qid] -text "[_ "ReLoadTable"]" \
          -state disabled \
          -command [list ::tooledit::sendaxis reload_tool_table]]
@@ -898,13 +933,12 @@ proc ::tooledit::showerr {msg} {
 
 proc ::tooledit::bye {} {
   if $::te(filemod) {
-    set ans [tk_dialog .filemod \
-              "[_ "File Modified"]" \
-              "[_ "Save Modifications to File?"]" \
-              {} \
-              0 \
-              [_ "Yes"] [_ "No"]]
-    if {$ans == 0} {
+    set ans [tk_messageBox \
+           -title   "[_ "File Modified"]" \
+           -message "[_ "Save Modifications to File?"]" \
+           -detail  $::te(filename) \
+           -type yesno]
+    if {$ans == yes} {
       ::tooledit::writefile $::te(filename)
     }
   }
@@ -983,13 +1017,20 @@ proc ::tooledit::sendaxis {cmd} {
       if {[file pathtype $f] == "relative"} {
         set f [file join $::te(axis,pwd) $f]
       }
+
+      if [info exists ::te(axis,filename)] {return 1} ;# already done
       set ::te(axis,filename) [file normalize $f]
       if {"$::te(axis,filename)" == [file normalize $::te(filename)]} {
         return 1 ;# ok
       } else {
-        puts stderr [format [_ "%s: Warning: Axis is running but the tool table file <%s>\
-                               \ndiffers from the standalone startup file <%s>"]\
-                     $prog $::te(axis,filename) $::te(filename)]
+        set msg [format [_ "%s"] $::te(axis,filename)]
+        set detail [format [_ "differs from the the ini specified file:\n%s"]\
+                             $::te(filename)]
+        tk_messageBox \
+           -title   "[_ "Axis is Running"]" \
+           -message $msg \
+           -detail  $detail \
+           -type ok
       }
     }
     check_for_reload {
@@ -1116,4 +1157,3 @@ proc standalone_tooledit {args} {
 } ;# standalone_tooledit
 
 if {[info script] == $::argv0} standalone_tooledit
-
