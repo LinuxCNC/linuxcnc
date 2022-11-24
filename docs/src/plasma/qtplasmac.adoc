@@ -180,30 +180,25 @@ The minimum I/O requirement for a QtPlasmaC configuration to function are:  *Arc
 
 Refer to the <<qt_initial-setup,Heights Diagram>> diagram for a visual representation of the terms below.
 
-* *[AXIS_Z] MIN_LIMIT* should be just below top of the slats with
-  allowances for float_switch_travel and over travel tolerance. For example,
-  if the user's float switch takes 4mm (0.157") to activate then set the Z
-  minimum to 5mm (0.2") plus an allowance for overrun (either calculated
-  using the equation below or allow 5mm (0.2") below the lowest slat).
-* *[AXIS_Z] MAX_LIMIT* should be the highest the user wants the Z axis
-  to travel (it must not be lower than Z HOME_OFFSET).
-* *[AXIS_Z] HOME* should be set to be approximately 5mm-10mm (0.2"-0.4")
-  below the maximum limit.
-* *Floating Head* - it is recommended that a floating head be used and
-  that it has enough movement to allow for overrun during probing. Overrun
-  can be calculated using the following formula:
+* *[AXIS_Z] MIN_LIMIT* should be just below top of the slats with allowances for float_switch_travel and over travel tolerance.
+  For example, if the user's float switch takes 4mm (0.157") to activate then set the Z minimum to 5mm (0.2") plus an allowance for overrun (either calculated using the equation below or allow 5mm (0.2") below the lowest slat).
+* *[AXIS_Z] MAX_LIMIT* should be the highest the user wants the Z axis to travel (it must not be lower than Z HOME_OFFSET).
+* *[AXIS_Z] HOME* should be set to be approximately 5mm-10mm (0.2"-0.4") below the maximum limit.
+* *Floating Head* - it is recommended that a floating head be used and that it has enough movement to allow for overrun during probing.
+  Overrun can be calculated using the following formula:
 
 ----
 o = 0.5 * a * (v / a)^2
 ----
 
-where: o = overrun, a = acceleration in units/sec2 and v = velocity in units/sec.
+where: o = overrun, a = acceleration in units/s^2^ and v = velocity in units/sec.
 
 Metric example:  given a Z axis MAX_ACCELERATION of 600 mm/s^2^ and MAX_VELOCITY of 60 mm/s, the overrun would be 3 mm.
 
 Imperial example: given a Z axis MAX_ACCELERATION of 24 in/s^2^ and MAX_VELOCITY of 2.4 in/s, the overrun would be 0.12 in.
 
-On machines that will utilize an ohmic probe as the primary method of probing, it is highly recommended to install a switch on the floating head as a backup means of stopping Z motion in the event of ohmic probe failure due to dirty surfaces.
+On machines that will utilize an ohmic probe as the primary method of probing,
+it is highly recommended to install a switch on the floating head as a backup means of stopping Z motion in the event of ohmic probe failure due to dirty surfaces.
 
 [[configuring]]
 === Configuring
