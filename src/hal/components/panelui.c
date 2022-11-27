@@ -67,7 +67,7 @@
     codes, and the authors of this software can not, and do not, take
     any responsibility for such compliance.
 
-    This code was written as part of the LINUXCNC HAL project.  For more
+    This code was written as part of the LinuxCNC HAL project.  For more
     information, go to www.linuxcnc.org.
 */
 #include <Python.h>

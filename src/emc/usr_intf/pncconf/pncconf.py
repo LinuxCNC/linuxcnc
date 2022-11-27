@@ -1718,7 +1718,7 @@ Discovery option requires the advanced options checked on this page."""%self._p.
             if not self.warning_dialog("\n".join(text),False):return
             tempname = sourcefile+"LINUXCNCtempspecific.rules"
             file = open(tempname, "w")
-            print(("# This is a rule for LINUXCNC's hal_input\n"), file=file)
+            print(("# This is a rule for LinuxCNC's hal_input\n"), file=file)
             print(("# For devicename=%s\n"% name), file=file)
             print(("""SYSFS{idProduct}=="%s", SYSFS{idVendor}=="%s", MODE="0660", GROUP="plugdev" """%(product,vendor)), file=file)
             file.close()
