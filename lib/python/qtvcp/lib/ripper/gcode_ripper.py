@@ -51,7 +51,7 @@
 
     Version 0.11 - Fixed a minor bug that cause a failed file read in rare cases (tries to calculate square root of negative number)
 
-    Version 0.12 - Updated the probe data file reading routine to be less sensitive to file formating
+    Version 0.12 - Updated the probe data file reading routine to be less sensitive to file formatting
                  - Fixed error in probe Z offsets when using an external probe data file
 
     Version 0.13 - Changed "Probe & Cut" to add the "Probe Z Safe" value to the height of the rapid moves ensuring the tool does not crash
@@ -73,12 +73,12 @@
                  - Fixed problem that made the rapid height to high in adjusted g-code because the calculated maximum probe value would never go below zero.
                  - Added option for selecting if all points are probed or just required points
                  - Added option for selecting if probe data is saved when running probe and cut operation
-                 - G-code ripper no longer takes into acount the rapid moved when determining the design size
+                 - G-code ripper no longer takes into account the rapid moved when determining the design size
                  - Changed so G-Code Ripper does not try to load a file on startup.
 
     Version 0.19 - Changed autoprobe safe height calculation with MACH3/4 for "Probe and Cut" Mach was unable to perform the calculated height like LinuxCNC.
 
-    Version 0.20 - Fixed problem that occured when the Z position was not set by a rapid move before and X,Y move when probing.
+    Version 0.20 - Fixed problem that occurred when the Z position was not set by a rapid move before and X,Y move when probing.
                    (It now uses the first Z position in the g-code for the z-safe for probe moves before a z position is specified.)
 
     Version 0.21 - Added option to disable the g-code path display (might speed things up for large g-code files
@@ -222,7 +222,7 @@ def error_message(message):
     root.wait_window(error_report)
     return return_value.get()
 
-#Define cmp_new, cmp replacement for Python 3 compatability
+#Define cmp_new, cmp replacement for Python 3 compatibility
 def cmp_new(A,B):
     if A==B:
         return False
@@ -365,7 +365,7 @@ class Application(Frame):
         self.current_input_file = StringVar()
          
         ###########################################################################
-        #                         INITILIZE VARIABLES                             #
+        #                         INITIALIZE VARIABLES                            #
         #    if you want to change a default setting this is the place to do it   #
         ###########################################################################
         self.show_axis.set(1)
@@ -482,7 +482,7 @@ class Application(Frame):
         self.gpost.set("(G-Code Postamble)")
         
         ##########################################################################
-        ###                     END INITILIZING VARIABLES                      ###
+        ###                     END INITIALIZING VARIABLES                     ###
         ##########################################################################
         self.config_file = "g-code-ripper_config.ngc"
         home_config1 = self.HOME_DIR + "/" + self.config_file
@@ -5294,7 +5294,7 @@ class G_Code_Rip:
                 dz = coordA[2]-LASTZ
 
                 # Check if next point is coincident with the
-                # current point withing the set accuracy
+                # current point within the set accuracy
                 if sqrt((dx+0j).real**2 + (dy+0j).real**2 + (dz+0j).real**2) > self.accuracy and gen_rapids == True:
                     ### Move tool to safe height (z_safe) ###
                     if no_variables==False:
@@ -6125,12 +6125,12 @@ class G_Code_Rip:
             #fmessage(MSG)
             raise ValueError(MSG)
         
-        #################################################################    
+        #################################################################
         ###  While there are still brackets "[...]" keep processing   ###
         #################################################################
         while s != -1:
             ##############################################################
-            ### Find the first occurance of "]" after the current "["  ###
+            ### Find the first occurence of "]" after the current "["  ###
             ##############################################################
             e=-1
             for cnt in range(len(line)-1,s,-1):
@@ -6365,7 +6365,7 @@ class G_Code_Rip:
         return loc
 
     ############################################################################
-    # routine takes an x and a y coords and does a cordinate transformation    #
+    # routine takes an x and a y coords and does a coordinate transformation   #
     # to a new coordinate system at angle from the initial coordinate system   #
     # Returns new x,y tuple                                                    #
     ############################################################################
