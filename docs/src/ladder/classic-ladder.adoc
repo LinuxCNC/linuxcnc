@@ -908,10 +908,10 @@ Serial:
 * The IP address can be followed per the port number to use
   (xx.xx.xx.xx:pppp) else the port 9502 will be used per default.
 * 2 products have been used for tests: a Modbus/TCP one (Adam-6051,
-  http://www.advantech.com) and a serial Modbus/RTU one
+  https://www.advantech.com) and a serial Modbus/RTU one
   (http://www.ipac.ws).
 * See examples: adam-6051 and modbus_rtu_serial.
-* Web links: http://www.modbus.org and this interesting one:
+* Web links: https://www.modbus.org and this interesting one:
   http://www.iatips.com/modbus.html
 * MODBUS TCP SERVER INCLUDED
 * ClassicLadder has a Modbus/TCP server integrated. Default port is 9502.
@@ -923,7 +923,7 @@ Serial:
 
 More information on modbus protocol is available on the internet.
 
-http://www.modbus.org/[http://www.modbus.org/]
+https://www.modbus.org/[https://www.modbus.org/]
 
 === Communication Errors
 
@@ -935,7 +935,7 @@ error. A timer could be used to stop the machine if timed out, etc.
 == Debugging modbus problems
 
 A good reference for the protocol:
-http://www.modbus.org/docs/Modbus_Application_Protocol_V1_1b.pdf
+https://www.modbus.org/docs/Modbus_Application_Protocol_V1_1b.pdf
 If you run linuxcnc/classocladder from a terminal, it will print
 the Modbus commands and slave responses.
 

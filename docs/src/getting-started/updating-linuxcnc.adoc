@@ -24,7 +24,7 @@ new 2.8.0 version.  It assumes that you have an existing 2.7 install that you
 want to update.
 
 To upgrade LinuxCNC from a version older than 2.7, you have to first
-http://linuxcnc.org/docs/2.7/html/getting-started/updating-linuxcnc.html[upgrade your old install to 2.7],
+https://linuxcnc.org/docs/2.7/html/getting-started/updating-linuxcnc.html[upgrade your old install to 2.7],
 then follow these instructions to upgrade to the new version.
 
 If you do not have an old version of LinuxCNC to upgrade, then you're
@@ -102,13 +102,13 @@ realtime. See below for the LinuxCNC version to install.
 [options="header"]
 |===
 | Platform                | apt source line
-| Debian Stretch          | `deb http://linuxcnc.org stretch base 2.8-rtpreempt`
-| Debian Wheezy           | `deb http://linuxcnc.org wheezy base 2.8-rt`
-| Ubuntu Precise          | `deb http://linuxcnc.org precise base 2.8-rt`
-| Debian Jessie - preempt | `deb http://linuxcnc.org jessie base 2.8-rtpreempt`
-| Debian Jessie - RTAI    | `deb http://linuxcnc.org jessie base 2.8-rt`
-| Debian Buster - preempt | `deb http://linuxcnc.org buster base 2.8-rtpreempt`
-| Debian Buster - RTAI    | `deb http://linuxcnc.org buster base 2.8-rt`
+| Debian Stretch          | `deb https://linuxcnc.org stretch base 2.8-rtpreempt`
+| Debian Wheezy           | `deb https://linuxcnc.org wheezy base 2.8-rt`
+| Ubuntu Precise          | `deb https://linuxcnc.org precise base 2.8-rt`
+| Debian Jessie - preempt | `deb https://linuxcnc.org jessie base 2.8-rtpreempt`
+| Debian Jessie - RTAI    | `deb https://linuxcnc.org jessie base 2.8-rt`
+| Debian Buster - preempt | `deb https://linuxcnc.org buster base 2.8-rtpreempt`
+| Debian Buster - RTAI    | `deb https://linuxcnc.org buster base 2.8-rt`
 |===
 
 image::images/upgrading-to-2.8.png["Setting apt sources",align="center"]
@@ -154,7 +154,7 @@ Debian Wheezy and Stretch both use the Synaptic Package Manager.
 == Updating without Network
 
 To update without a network connection you need to download the .deb then install
-it with dpkg. The .debs can be found in http://linuxcnc.org/dists/ .
+it with dpkg. The .debs can be found in https://linuxcnc.org/dists/ .
 
 You have to drill down from the above link to find the correct deb for your
 installation. Open a <<faq:terminal,terminal>> and type in 'lsb_release -ic'

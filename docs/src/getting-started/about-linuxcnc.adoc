@@ -77,9 +77,9 @@ Sharing Files::
 The most common way to share files on the IRC is to upload the file
 to one of the following or a similar service and paste the link:
 
-* 'For text': http://pastebin.com/, http://pastie.org/, https://gist.github.com/
-* 'For pictures': http://imagebin.org/, http://imgur.com/, http://bayimg.com/
-* 'For files': https://filedropper.com/, http://filefactory.com/, http://1fichier.com/
+* 'For text': https://pastebin.com/, http://pastie.org/, https://gist.github.com/
+* 'For pictures': https://imagebin.org/, https://imgur.com/, https://bayimg.com/
+* 'For files': https://filedropper.com/, https://filefactory.com/, https://1fichier.com/
 
 === Mailing List
 
@@ -108,11 +108,11 @@ A Wiki site is a user maintained web site that anyone can add to or edit.
 
 The user maintained LinuxCNC Wiki site contains a
 wealth of information and tips at:
-link:http://wiki.linuxcnc.org/[http://wiki.linuxcnc.org]
+link:https://wiki.linuxcnc.org/[https://wiki.linuxcnc.org]
 
 === Bug Reports
 
 Report bugs to the LinuxCNC
-link:http:///github.com/LinuxCNC/linuxcnc/issues[github bug tracker].
+link:https:///github.com/LinuxCNC/linuxcnc/issues[github bug tracker].
 
 // vim: set syntax=asciidoc:

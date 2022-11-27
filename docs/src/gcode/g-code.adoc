@@ -664,7 +664,7 @@ image:images/nurbs01.png["Sample NURBS Output",align="center"]
 
 More information on NURBS can be found here:
 
-http://wiki.linuxcnc.org/cgi-bin/wiki.pl?NURBS[http://wiki.linuxcnc.org/cgi-bin/wiki.pl?NURBS]
+https://wiki.linuxcnc.org/cgi-bin/wiki.pl?NURBS[https://wiki.linuxcnc.org/cgi-bin/wiki.pl?NURBS]
 
 [[gcode:g7]]
 == G7 Lathe Diameter Mode(((G7 Lathe Diameter Mode)))

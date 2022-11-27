@@ -40,11 +40,11 @@ Image.
 
 For x86 PCs Download the Live/Install CD by clicking here:
 
-http://www.linuxcnc.org/iso/linuxcnc-2.8.2-buster.iso
+https://linuxcnc.org/iso/linuxcnc-2.8.2-buster.iso
 
 For the Raspberry Pi a complete SD card image is available here:
 
-http://www.linuxcnc.org/iso/linuxcnc-2.8.1-pi4.zip (this will auto-update
+https://linuxcnc.org/iso/linuxcnc-2.8.1-pi4.zip (this will auto-update
 to 2.8.2)
 
 This can be installed using the normal Pi
@@ -80,13 +80,13 @@ sudo apt-get install zsync
 * Then run this command to download the iso to your computer
 +
 ----
-zsync http://www.linuxcnc.org/iso/linuxcnc-2.8.2-buster.iso
+zsync https://linuxcnc.org/iso/linuxcnc-2.8.2-buster.iso
 ----
 +
 or
 +
 ----
-zsync http://www.linuxcnc.org/iso/linuxcnc-2.8.1-pi4.zip.zsync
+zsync https://linuxcnc.org/iso/linuxcnc-2.8.1-pi4.zip.zsync
 ----
 
 .zsync in Windows
@@ -291,9 +291,9 @@ Synaptic Package manager or with apt-get at the command-line.
 The RTAI kernels are available for download from the linuxcnc.org
 debian archive.  The apt source is:
 
-* Debian Buster: `deb http://linuxcnc.org buster base`
-* Debian Wheezy: `deb http://linuxcnc.org wheezy base`
-* Ubuntu Precise: `deb http://linuxcnc.org precise base`
+* Debian Buster: `deb https://linuxcnc.org buster base`
+* Debian Wheezy: `deb https://linuxcnc.org wheezy base`
+* Ubuntu Precise: `deb https://linuxcnc.org precise base`
 
 [NOTE]
 Debian Wheezy and Ubuntu Precise are both extremely old, and
@@ -372,8 +372,8 @@ Alternate keyserver: keyserver.ubuntu.com
 . Add the apt repository:
 +
 ----
-echo deb http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
-echo deb-src http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
+echo deb https://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
+echo deb-src https://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
 ----
 
 . Update the package list from linuxcnc.org
@@ -416,8 +416,8 @@ sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
 . Add the apt repository:
 +
 ----
-echo deb http://linuxcnc.org/ buster base 2.8-rt | sudo tee /etc/apt/sources.list.d/linuxcnc.list
-echo deb-src http://linuxcnc.org/ buster base 2.8-rt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
+echo deb https://linuxcnc.org/ buster base 2.8-rt | sudo tee /etc/apt/sources.list.d/linuxcnc.list
+echo deb-src https://linuxcnc.org/ buster base 2.8-rt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
 ----
 
 . Update the package list from linuxcnc.org
@@ -461,7 +461,7 @@ sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
 . Add the apt repository:
 +
 -----
-echo deb http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee /etc/apt/sources.list.d/linuxcnc.list
+echo deb https://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee /etc/apt/sources.list.d/linuxcnc.list
 -----
 
 . Update the package list from linuxcnc.org
@@ -509,7 +509,7 @@ sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
 . Add a new apt source
 +
 ----
-sudo add-apt-repository "deb http://linuxcnc.org/ precise base 2.8-rt"
+sudo add-apt-repository "deb https://linuxcnc.org/ precise base 2.8-rt"
 ----
 
 . Fetch the package list from linuxcnc.org.

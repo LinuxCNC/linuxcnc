@@ -75,7 +75,7 @@ image::images/stepconf-base_en.png["Basic Information Page",align="center"]
 +
 A list of some popular drives, along with their timing values, is on the
 LinuxCNC.org Wiki under
-http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Stepper_Drive_Timing[Stepper Drive Timing].
+https://wiki.linuxcnc.org/cgi-bin/wiki.pl?Stepper_Drive_Timing[Stepper Drive Timing].
 +
 Additional signal conditioning or isolation such as optocouplers and RC filters
 on break out boards can impose timing constraints of their own, in addition
@@ -138,7 +138,7 @@ SMI issues, and a number of other things can hurt the latency.
 ************************************************************
 Fixing Realtime problems caused by SMI on Ubuntu
 
-http://wiki.linuxcnc.org/cgi-bin/wiki.pl?FixingSMIIssues
+https://wiki.linuxcnc.org/cgi-bin/wiki.pl?FixingSMIIssues
 ************************************************************
 
 The important numbers are the 'max jitter'. In the example above 9075

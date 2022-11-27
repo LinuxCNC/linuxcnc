@@ -21,7 +21,7 @@ The Pluto P board  will work on some computers and not on others.
 There is no known pattern to which computers work and which don't work.
 
 For more information on PCI EPP compatible parallel port cards see the
-http://wiki.linuxcnc.org/cgi-bin/wiki.pl?LinuxCNC_Supported_Hardware[LinuxCNC Supported Hardware] page on the wiki.
+https://wiki.linuxcnc.org/cgi-bin/wiki.pl?LinuxCNC_Supported_Hardware[LinuxCNC Supported Hardware] page on the wiki.
 
 === Connectors
 
@@ -104,7 +104,7 @@ although there is apparently a paid version that runs on Linux.
 === For more information
 
 Some additional information about it is available from
-http://www.knjn.com/FPGA-Parallel.html[KNJC LLC]
+https://www.knjn.com/FPGA-Parallel.html[KNJC LLC]
 and from http://emergent.unpy.net/01165081407[the developer's blog].
 
 == Pluto Servo

@@ -498,7 +498,7 @@ treated as G-code. One such example script is available at
 nc_files/holecircle.py. This script creates G-code for drilling a
 series of holes along the circumference of a circle. Many more G-code
 generators are on the LinuxCNC Wiki site
-http://wiki.linuxcnc.org/[http://wiki.linuxcnc.org/].
+https://wiki.linuxcnc.org/[https://wiki.linuxcnc.org/].
 
 Python filters should use the print function to output the result to Axis.
 
