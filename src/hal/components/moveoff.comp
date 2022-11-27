@@ -129,7 +129,7 @@ pin out s32   dbg_state "Debug output for current state of state machine";
 
 option personality;
 option extra_setup;
-function read_inputs "Read all inputs.";
+function read_inputs "Read all inputs";
 function write_outputs "Write computed offset outputs\n(offset-current-M, pos-plusoffset-M, fb-minusoffset-M).\nAll other outputs are updated by read-inputs().";
 
 license "GPL";

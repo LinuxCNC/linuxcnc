@@ -105,7 +105,7 @@ These are as follows:
 .P
 All of the limits (max____) are implemented such that if the parameter value is zero, there is no limit.
 .P
-A number of internal values which may be useful for testing and tuning are also available as parameters. 
+A number of internal values which may be useful for testing and tuning are also available as parameters.
 To avoid cluttering the parameter list, these are only exported if "debug=1" is specified on the insmod command line.
 
 .PP
@@ -165,13 +165,15 @@ No initial tuning values are required to start auto tuning.
 Only \fBtune\-cycles\fR, \fBtune\-effort\fR and \fBtune\-mode\fR need be set before starting auto tuning.
 Note that setting \fBtune\-mode\fR to true disable the control loop.
 When auto tuning completes, the tuning parameters will be set, the output set to bias and the controller still be disabled.
-If running from LinuxCNC, the FERROR setting for the axis being tuned may need to be loosened up as it must be larger than the limit cycle amplitude in order to avoid a following error.
+If running from LinuxCNC, the FERROR setting for the axis being tuned may need to be loosened up, as it must be larger than the limit cycle amplitude in order to avoid a following error.
 .P
 To perform auto tuning, take the following steps.
 Move the axis to be tuned somewhere near the center of it's travel.
 Set \fBtune\-cycles\fR (the default value should be fine in most cases) and \fBtune\-mode\fR.
 Set \fBtune\-effort\fR to a small value. Set \fBenable\fR to true. Set \fBtune\-mode\fR to true.
 Set \fBtune\-start\fR to true. If no oscillation occurs, or the oscillation is too small, slowly increase \fBtune\-effort\fR.
+Set \fBtune\-start\fR to true.
+If no oscillation occurs, or the oscillation is too small, slowly increase \fBtune\-effort\fR
 Auto tuning can be aborted at any time by setting \fBenable\fR or \fBtune\-mode\fR to false.
 
 .SH NAMING
