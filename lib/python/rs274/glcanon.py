@@ -91,15 +91,27 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.arcfeed = []; self.arcfeed_append = self.arcfeed.append
         # dwell list - [line number, color, pos x, pos y, pos z, plane]
         self.dwells = []; self.dwells_append = self.dwells.append
+        # preview list - combines the unrotated points of the lists: self.traverse, self.feed, self.arcfeed
+        self.preview_zero_rxy = []
         self.choice = None
         self.feedrate = 1
         self.lo = (0,) * 9
         self.first_move = True
         self.geometry = geometry
+        # min and max extents - the largest bounding box around the currently displayed preview
+        # bounding box is parallel to the machine axes
         self.min_extents = [9e99,9e99,9e99]
         self.max_extents = [-9e99,-9e99,-9e99]
         self.min_extents_notool = [9e99,9e99,9e99]
         self.max_extents_notool = [-9e99,-9e99,-9e99]
+        # min and max extents at zero rotation - the largest bounding box around the preview
+        # after unrotating it by the amount of current g5x offset XY rotation
+        # bounding box is parallel to the machine axes. If the box is rotated by the g5x offset XY rotation amount
+        # it can be used to give a more accurate visual of where the cut will occur
+        self.min_extents_zero_rxy = [9e99,9e99,9e99]
+        self.max_extents_zero_rxy = [-9e99,-9e99,-9e99]
+        self.min_extents_notool_zero_rxy = [9e99,9e99,9e99]
+        self.max_extents_notool_zero_rxy = [-9e99,-9e99,-9e99]
         self.colors = colors
         self.in_arc = 0
         self.xo = self.yo = self.zo = self.ao = self.bo = self.co = self.uo = self.vo = self.wo = 0
@@ -195,6 +207,8 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
 
     def calc_extents(self):
         self.min_extents, self.max_extents, self.min_extents_notool, self.max_extents_notool = gcode.calc_extents(self.arcfeed, self.feed, self.traverse)
+        self.unrotate_preview()
+        self.min_extents_zero_rxy, self.max_extents_zero_rxy, self.min_extents_notool_zero_rxy, self.max_extents_notool_zero_rxy = gcode.calc_extents(self.preview_zero_rxy)
         if self.is_foam:
             min_z = min(self.foam_z, self.foam_w)
             max_z = max(self.foam_z, self.foam_w)
@@ -204,6 +218,38 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
                 self.min_extents_notool[0], self.min_extents_notool[1], min_z
             self.max_extents_notool = \
                 self.max_extents_notool[0], self.max_extents_notool[1], max_z
+
+    # unrotates the current preview points defined by self.feed, self.arcfeed, self.traverse
+    # and populates self.preview_zero_rxy. Because this is only used to calculate the extents
+    # and not to draw to the screen, this can all be contained in the same list.
+    def unrotate_preview(self):
+        angle = math.radians(-self.rotation_xy)
+        cos = math.cos(angle)
+        sin = math.sin(angle)
+        g5x_x = self.g5x_offset_x
+        g5x_y = self.g5x_offset_y
+        for list in self.feed, self.arcfeed:
+            for linenum, start, end, feed, tooloffset in list:
+                tsx = start[0] - g5x_x
+                tsy = start[1] - g5x_y
+                tex = end[0] - g5x_x
+                tey = end[1] - g5x_y
+                rsx = (tsx * cos) - (tsy * sin) + g5x_x
+                rsy = (tsx * sin) + (tsy * cos) + g5x_y
+                rex = (tex * cos) - (tey * sin) + g5x_x
+                rey = (tex * sin) + (tey * cos) + g5x_y
+                self.preview_zero_rxy.append((linenum, (rsx, rsy) + start[2:], (rex, rey) + end[2:], feed, tooloffset))
+        for linenum, start, end, tooloffset in self.traverse:
+            tsx = start[0] - g5x_x
+            tsy = start[1] - g5x_y
+            tex = end[0] - g5x_x
+            tey = end[1] - g5x_y
+            rsx = (tsx * cos) - (tsy * sin) + g5x_x
+            rsy = (tsx * sin) + (tsy * cos) + g5x_y
+            rex = (tex * cos) - (tey * sin) + g5x_x
+            rey = (tex * sin) + (tey * cos) + g5x_y
+            self.preview_zero_rxy.append((linenum, (rsx, rsy) + start[2:], (rex, rey) + end[2:], tooloffset))
+
     def tool_offset(self, xo, yo, zo, ao, bo, co, uo, vo, wo):
         self.first_move = True
         x, y, z, a, b, c, u, v, w = self.lo
