@@ -3334,8 +3334,8 @@ The X and Y coordinates are in absolute machine coordinates. If X or Y are missi
 There are three methods to return to the previous coordinates:
 
 . Press the *Change Consumables* button again - the torch will return to the original coordinates and the machine will wait in this position for the user to resume the program.
-. Press *CYCLE RESUME* - the torch to return to the original coordinates and the program will resume.
-. Press *CYCLE STOP* - the torch to return to the original coordinates and the program will abort.
+. Press *CYCLE RESUME* - the torch will return to the original coordinates and the program will resume.
+. Press *CYCLE STOP* - the torch will return to the original coordinates and the program will abort.
 
 [source,{ini}]
 ----
@@ -3368,9 +3368,15 @@ Note that the first "/" is not necessary as it will be added automatically.
 [[qt_button-torch]]
 .Torch Pulse
 
-Pulse the torch on for a predetermined time. The time must be specified in seconds using up to one decimal place. The maximum allowable time is 3 seconds, anything specified above that value will be limited to 3 seconds. An example of a 0.5 second pulse is below. It there is no time specified then it will default to 1 second. Pulse times with more than one decimal place will be rounded to one decimal place.
+Pulse the torch on for a predetermined time.
+The time must be specified in seconds using up to one decimal place.
+The maximum allowable time is 3 seconds, anything specified above that value will be limited to 3 seconds.
+An example of a 0.5 second pulse is below.
+It there is no time specified then it will default to 1 second.
+Pulse times with more than one decimal place will be rounded to one decimal place.
 
-Pressing the button again during the countdown will cause the torch to be turned off, as will pressing Esc if keyboard shortcuts are enabled in the <<qt_settings-tab, SETTINGS Tab>>.
+Pressing the button again during the countdown will cause the torch to be turned off,
+as will pressing 'Esc' if keyboard shortcuts are enabled in the <<qt_settings-tab, SETTINGS Tab>>.
 
 If the button is released before the countdown is complete then the torch will turn off at countdown completion,
 holding the button on until after the countdown has completed will cause the torch to remain on until the button has been released.
@@ -3381,7 +3387,7 @@ n Code = torch-pulse 0.5
 ----
 
 [NOTE]
-Enabling a user button as a Torch Pulse button will add an <<qt_ext-hal-pin,external HAL pin>> that may be connected from a pendant etc.
+Enabling a user button as a Torch Pulse button will add an <<qt_ext-hal-pin,external HAL pin>> that may be connected from a pendant, etc.
 HAL connections to this HAL pin needs to be specified in a postgui HAL file as the HAL pin is not available until the QtPlasmac GUI has loaded.
 
 [[qt_button-single]]
@@ -3401,9 +3407,11 @@ Framing is the ability to move the torch around the perimeter of a rectangle tha
 
 The laser enable HAL pin (qtplasmac.laser_on) will be turned on during the framing moves
 and any X/Y offsets for the laser pointer in the _<machine_name>_.prefs file will also be applied to the X/Y motion.
-After the framing motion is completed, the torch will move to the X0 Y0 position to clear any applied laser offsets and qtplasmac.laser_on will be turned off.
+After the framing motion is completed,
+the torch will move to the X0 Y0 position to clear any applied laser offsets and qtplasmac.laser_on will be turned off.
 
-Upon starting a Framing cycle, it is important to note that by default the Z axis will be moved to a height of [AXIS_Z]MAX_LIMIT - 5mm (0.2") before X/Y motion begins.
+Upon starting a Framing cycle,
+it is important to note that by default the Z axis will be moved to a height of [AXIS_Z]MAX_LIMIT - 5mm (0.2") before X/Y motion begins.
 
 The velocity for the XY movements of the Framing motion can be specified so that Framing motion always occurs at a set velocity.
 This can be achieved by adding the feed rate (F) as the as the last portion of the button code.

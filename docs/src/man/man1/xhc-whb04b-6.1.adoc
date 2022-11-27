@@ -278,8 +278,7 @@ By default the more frequent used orange buttons are executed,
 whereas blue ones (whb.button.macro-<M>) by combining them with Fn
 (press Fn first then button).
 
-Button macro needs to be added to your ini and needs to be edited for
-your own use :
+Button macro needs to be added to your INI and needs to be edited for your own use :
 
 ----
 [HALUI]
@@ -305,103 +304,84 @@ MDI_COMMAND=(debug,macro16)
 *<M>* ... denotes an arbitrary macro number which is of {1, 2, ..., 16}
 
 *whb.button.reset* (bit,out)::
- see *whb.halui.estop.{activate, reset}* True one Reset button down,
- false otherwise. For toggling E-stop use whb.halui.estop .active and .reset.
+ see *whb.halui.estop.{activate, reset}* True one Reset button down, false otherwise.
+ For toggling E-stop use whb.halui.estop .active and .reset.
 *whb.button.stop* (bit,out)::
  see *whb.halui.program.stop* True on Stop button down, false otherwise.
  For stopping a program use whb.halui.program.stop.
 *whb.button.start-pause* (bit,out)::
- see *whb.halui.program.{run, pause, resume}* True on Start-Pause button
- down, false otherwise.For toggling start-pause use whb.halui.program
- .run, .pause, and .resume.
+ see *whb.halui.program.{run, pause, resume}* True on Start-Pause button down, false otherwise.
+ For toggling start-pause use whb.halui.program.run, .pause, and .resume.
 *whb.button.feed-plus* (bit,out)::
  True on Feed+ button down, false otherwise.
 *whb.button.feed-minus* (bit,out)::
  True on Feed- button down, false otherwise.
 *whb.button.spindle-plus* (bit,out)::
- see *halui.spindle.0.override.increase* True on Spindle+ button down,
- false otherwise. This button is meant to manipulate the spindle
- override. For increasing the spindle override use
- *halui.spindle.0.override.increase*
+ see *halui.spindle.0.override.increase* True on Spindle+ button down, false otherwise.
+ This button is meant to manipulate the spindle override.
+ For increasing the spindle override use *halui.spindle.0.override.increase*.
 *whb.button.spindle-minus* (bit,out)::
- see *halui.spindle.0.override.decrease* True on Spindle- button down,
- false otherwise. This button is meant to manipulate the spindle
- override.For decreasing the spindle override use
- *halui.spindle.0.override.decrease*
+ see *halui.spindle.0.override.decrease* True on Spindle- button down, false otherwise.
+ This button is meant to manipulate the spindle override.
+ For decreasing the spindle override use *halui.spindle.0.override.decrease*.
 *whb.button.m-home* (bit,out)::
  connect to *halui.home-all* True on M-Home button down, false otherwise.
  Requests MDI mode before button pin is set. See also *whb.halui.mode.mdi*.
 *whb.button.safe-z* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Safe-Z button down, false
- otherwise. Requests MDI mode before button pin is set. See also
- *whb.halui.mode.mdi*.
+ connect to *halui.mdi-command-*<M> True on Safe-Z button down, false otherwise.
+ Requests MDI mode before button pin is set. See also *whb.halui.mode.mdi*.
 *whb.button.w-home* (bit,out)::
- connect to *halui.mdi-command-*<M> True on W-Home button down, false
- otherwise. Requests MDI mode before button pin is set. See also
- *whb.halui.mode.mdi*.
+ connect to *halui.mdi-command-*<M> True on W-Home button down, false otherwise.
+ Requests MDI mode before button pin is set. See also *whb.halui.mode.mdi*.
 *whb.button.s-on-off* (bit,out)::
- see *whb.halui.spindle.{start, stop}*  True on S-ON/OFF button down,
- false otherwise.For toggling spindle on-off use halui.spindle.0.start.
+ see *whb.halui.spindle.{start, stop}*  True on S-ON/OFF button down, false otherwise.
+ For toggling spindle on-off use halui.spindle.0.start.
  For toggling spindle on-off use halui.spindle.0.stop.
 *whb.button.fn* (bit,out)::
  True on Fn button down, false otherwise.
 *whb.button.probe-z* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Probe-Z button down, false
- otherwise.Requests MDI mode before button pin is set. See also
- *whb.halui.mode.mdi*.
+ connect to *halui.mdi-command-*<M> True on Probe-Z button down, false otherwise.
+ Requests MDI mode before button pin is set. See also *whb.halui.mode.mdi*.
 *whb.button.macro-1* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Macro-1 button (Fn + Feed+)
- down, false otherwise.
+ connect to *halui.mdi-command-*<M> True on Macro-1 button (Fn + Feed+) down, false otherwise.
 *whb.button.macro-2* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Macro-2 button (Fn + Feed-)
- down, false otherwise.
+ connect to *halui.mdi-command-*<M> True on Macro-2 button (Fn + Feed-) down, false otherwise.
 *whb.button.macro-3* (bit,out)::
- see *whb.halui.spindle.increase* True on Macro-3 button (Fn + Spindle+)
- down, false otherwise. This button is meant to manipulate the spindle
- speed. For decreasing the spindle speed use whb.halui.spindle.increase.
+ see *whb.halui.spindle.increase* True on Macro-3 button (Fn + Spindle+) down, false otherwise.
+ This button is meant to manipulate the spindle speed.
+ For decreasing the spindle speed use whb.halui.spindle.increase.
 *whb.button.macro-4* (bit,out)::
- see *whb.halui.spindle.decrease* True on Macro-4 button down
- (Fn + Spindle-), false otherwise This button is meant to manipulate the
- spindle speed. For decreasing the spindle speed use
- *whb.halui.spindle.decrease*
+ see *whb.halui.spindle.decrease* True on Macro-4 button down (Fn + Spindle-), false otherwise.
+ This button is meant to manipulate the spindle speed.
+ For decreasing the spindle speed use *whb.halui.spindle.decrease*.
 *whb.button.macro-5* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Macro-5 button down
- (Fn + M-HOME), false otherwise.
+ connect to *halui.mdi-command-*<M> True on Macro-5 button down (Fn + M-HOME), false otherwise.
 *whb.button.macro-6* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Macro-6 button down
- (Fn + Safe-Z), false otherwise.
+ connect to *halui.mdi-command-*<M> True on Macro-6 button down (Fn + Safe-Z), false otherwise.
 *whb.button.macro-7* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Macro-7 button down
- (Fn + W-HOME), false otherwise.
+ connect to *halui.mdi-command-*<M> True on Macro-7 button down (Fn + W-HOME), false otherwise.
 *whb.button.macro-8* (bit,out)::
- reserved for Spindle Direction True on Macro-8 button down
- (Fn + S-ON/OFF), false otherwise.
+ reserved for Spindle Direction True on Macro-8 button down (Fn + S-ON/OFF), false otherwise.
 *whb.button.macro-9* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Macro-9 button down
- (Fn + Probe-Z), false otherwise.
+ connect to *halui.mdi-command-*<M> True on Macro-9 button down (Fn + Probe-Z), false otherwise.
 *whb.button.macro-10* (bit,out)::
- reserved for toggle DRO Abs/rel. True on Macro-10 button down, false
- otherwise. Switches the display coordinates to relative coordinates.On
- display the axis are denoted then as X1, Y1, Z1, A1, B1 and C1.
+ reserved for toggle DRO Abs/rel.
+ True on Macro-10 button down, false otherwise.
+ Switches the display coordinates to relative coordinates.
+ On display the axis are denoted then as X1, Y1, Z1, A1, B1 and C1.
  See also *whb.halui.axis._<N>_.pos-relative*.
 *whb.button.macro-11* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Macro-11 button down
- (Fn + RESET), false otherwise.
+ connect to *halui.mdi-command-*<M> True on Macro-11 button down (Fn + RESET), false otherwise.
 *whb.button.macro-12* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Macro-12 button
- (Fn + Stop) down, false otherwise.
+ connect to *halui.mdi-command-*<M> True on Macro-12 button (Fn + Stop) down, false otherwise.
 *whb.button.macro-13* (bit,out)::
- connect to *halui.mdi-command-*<M> rue on Macro-13 button (Fn +
- Start/Pause) down, false otherwise.
+ connect to *halui.mdi-command-*<M> True on Macro-13 button (Fn + Start/Pause) down, false otherwise.
 *whb.button.macro-14* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Macro-14 button
- (Fn + Macro-10) down, false otherwise.
+ connect to *halui.mdi-command-*<M> True on Macro-14 button (Fn + Macro-10) down, false otherwise.
 *whb.button.macro-15* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Macro-15 button down
- (Fn + MPG), false otherwise.
+ connect to *halui.mdi-command-*<M> True on Macro-15 button down (Fn + MPG), false otherwise.
 *whb.button.macro-16* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Macro-16 button (Fn + Step)
- down, false otherwise.
+ connect to *halui.mdi-command-*<M> True on Macro-16 button (Fn + Step) down, false otherwise.
 *whb.button.mode-continuous* (bit,out)::
  True on Continuous mode button down, false otherwise.
 *whb.button.mode-step* (bit,out)::
@@ -411,17 +391,15 @@ MDI_COMMAND=(debug,macro16)
 ==== Pendant
 
 *whb.pendant.is-sleeping* (bit,out)::
- True as long pendant is in sleep mode (usually a few seconds after
- turned off), false otherwise.
+ True as long pendant is in sleep mode (usually a few seconds after turned off), false otherwise.
 *whb.pendant.is-connected* (bit,out)::
  True as long pendant is not in sleep mode (turned on), false otherwise.
 
 == HAL Configuration Example
 
-Exercise caution if using copy and paste of this example code from the
-online web docs. Certain characters are incompatibly encoded by the web
-site (minus becomes em-dash). It is safer to copy and paste from
-https://raw.githubusercontent.com/LinuxCNC/linuxcnc/2.8/src/hal/user_comps/xhc-whb04b-6/example-configuration.md[].
+Exercise caution if using copy and paste of this example code from the online web docs.
+Certain characters are incompatibly encoded by the web site (minus becomes em-dash).
+It is safer to copy and paste from https://raw.githubusercontent.com/LinuxCNC/linuxcnc/2.8/src/hal/user_comps/xhc-whb04b-6/example-configuration.md[].
 
 ----
 #

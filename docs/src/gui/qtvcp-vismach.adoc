@@ -153,8 +153,7 @@ c.ready()
 It is probably easiest to:
 
 * _create geometry in a CAD package_
-* _import into the model script using the `AsciiSTL()` or `AsciiOBJ()`
-  functions_.
+* _import into the model script using the `AsciiSTL()` or `AsciiOBJ()` functions_.
 
 //FIXME Ascii(STL|OBJ): what's the second arg ?
 Both functions can take one of two named arguments, either a _filename_
@@ -258,8 +257,7 @@ The *rotation axis and translation vector move with the part*:
 
 *`part = HalTranslate([part], hal_comp, hal_pin, xs, ys, zs)`*::
   `part`;; A _collection or part_. +
-    It can be pre-created earlier in the script, or could be created at
-    this point if preferred eg +
+    It can be pre-created earlier in the script, or could be created at this point if preferred, e.g., +
 +
 [source,python]
 ----
@@ -280,38 +278,31 @@ The *rotation axis and translation vector move with the part*:
 Otherwise the component instance would be specified and the pin name of
 that component would be specified.
   `xs, ys, zs`;; The _X, Y, Z scales_. +
-    For a Cartesian machine created at 1:1 scale this would typically
-    be `1,0,0` for a motion in the positive X direction. +
-    However if the STL file happened to be in cm and the machine was in
-    inches, this could be fixed at this point by using 0.3937
-    (1cm /2.54in) as the scale.
+    For a Cartesian machine created at 1:1 scale this would typically be `1,0,0` for a motion in the positive X direction. +
+    However if the STL file happened to be in cm and the machine was in inches,
+    this could be fixed at this point by using 0.3937 (1cm /2.54in) as the scale.
 
 [[sub:qtvcp:vismach:halrotate]]
 === `HalRotate`
 
 *`part = HalRotate([part], hal_comp, hal_pin, angle_scale, x, y, z)`*::
-  This command is similar in its operation to `HalTranslate` except that
-  it is typically necessary to move the part to the origin first to
-  define the axis. +
+  This command is similar in its operation to `HalTranslate`,
+  except that it is typically necessary to move the part to the origin first to define the axis. +
   `x, y, z`;; Defines the _axis of rotation_ from the origin the point
     of coordinates (x,y,z). +
-    When the part is moved back away from the origin to its correct
-    location the axis of rotation can be considered to remain "embedded"
-    in the part.
-  `angle_scale`;; _Rotation angles_ are in degrees, so for a rotary
-    joint with a 0-1 scaling you would need to use an angle scale of 360.
+    When the part is moved back away from the origin to its correct location,
+    the axis of rotation can be considered to remain "embedded" in the part.
+  `angle_scale`;; _Rotation angles_ are in degrees,
+    so for a rotary joint with a 0-1 scaling you would need to use an angle scale of 360.
 
 [[sec:qtvcp:vismach:assembly]]
 == Assembling the model
 
-In order for parts to move together they need to be assembled with the
-*`Collection()` command*.
+In order for parts to move together they need to be assembled with the *`Collection()` command*.
 
-It is important to *assemble the parts and define their motions in the
-correct sequence*.
+It is important to *assemble the parts and define their motions in the correct sequence*.
 
-For example to create a moving head milling machine with a rotating
-spindle and an animated draw bar you would:
+For example to create a moving head milling machine with a rotating spindle and an animated draw bar you would:
 
 * Create the head main body.
 * Create the spindle at the origin.
@@ -322,8 +313,7 @@ spindle and an animated draw bar you would:
 * Assemble the three parts into a head assembly
 * Define the motion of the head assembly.
 
-In this example the spindle rotation is indicated by rotation of a set
-of drive dogs:
+In this example the spindle rotation is indicated by rotation of a set of drive dogs:
 
 [source,python]
 ----
@@ -353,16 +343,14 @@ base = Color([0.5,0.5,0.5,1],[base])
 base = Collection([head, base])
 ----
 
-Finally a *single collection of all the machine parts, floor and work*
-(if any) needs to be created.
+Finally a *single collection of all the machine parts, floor and work* (if any) needs to be created.
 
-For a _serial machine_ each new part will be added to the collection of
-the previous part.
+For a _serial machine_ each new part will be added to the collection of the previous part.
 
 For a _parallel machine_ there may be several "base" parts.
 
-Thus, for example, in `scaragui.py` link3 is added to link2, link2
-to link1 and link1 to link0, so the final model is created by:
+Thus, for example, in `scaragui.py` link3 is added to link2,
+link2 to link1 and link1 to link0, so the final model is created by:
 
 [source,python]
 ----
@@ -395,22 +383,16 @@ model = Collection([base, saddle, head, carousel])
   This sets the current position in the model.
 
 *`main(model, tooltip, work, size=10, hud=myhud, rotation_vectors=None, lat=0, lon=0)`*::
-  This is the command that makes it all happen, creates the display etc.
-  if invoked directly from Python. +
-  Usually this file is imported by QtVCP and the `window()` object is
-  instantiated and embedded into another screen.
+  This is the command that makes it all happen, creates the display etc., if invoked directly from Python. +
+  Usually this file is imported by QtVCP and the `window()` object is instantiated and embedded into another screen.
   `_model_`;; Should be a collection that contains all the machine parts.
   `_tooltip_` and `_work_`;; Need to be created by `Capture()` to
     visualize their motion in the backplot. +
-    See `mill_xyz.py` for an example of how to connect the tool tip to a
-    tool and the tool to the model.
-  `_size_`;; Sets the extent of the volume visualized in the initial
-    view. +
+    See `mill_xyz.py` for an example of how to connect the tool tip to a tool and the tool to the model.
+  `_size_`;; Sets the extent of the volume visualized in the initial view. +
     hud refers to a head-up display of axis positions.
-  `_rotation_vectors_` or `_lat, lon_`;; Can be used to set
-    the original viewpoint. +
-    It is advisable to do as the default initial viewpoint is rather
-    unhelpful from immediately overhead.
+  `_rotation_vectors_` or `_lat, lon_`;; Can be used to set the original viewpoint. +
+    It is advisable to do as the default initial viewpoint is rather unhelpful from immediately overhead.
 
 [[sec:qtvcp:vismach:structure]]
 == Basic structure of a `QtVismach` script
