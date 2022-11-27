@@ -1643,9 +1643,6 @@ class HandlerClass:
                 self.set_blank_gcodeprops()
             else:
                 self.gcodeProps = props
-                for axis in 'XY':
-                    if not axis in self.gcodeProps:
-                        self.gcodeProps[axis] = '{0} to {0} = {1}'.format(STATUS.stat.g5x_offset['XY'.index(axis)], 0)
             if props['GCode Units'] == 'in':
                 STATUS.emit('metric-mode-changed', False)
             else:
