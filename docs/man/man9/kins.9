@@ -22,6 +22,8 @@ For additional information, see the Documents 'Advanced Topics':
 .PP
 .B loadrt lineardeltakins (see separate manpage)
 .PP
+.B loadrt matrixkins
+.PP
 .B loadrt maxkins
 .PP
 .B loadrt pentakins
@@ -320,6 +322,10 @@ https://w.wiki/NcY
 .TP
 .B genserkins.D\-\fIN
 Parameters describing the \fIN\fRth joint's geometry.
+
+.SS matrixkins \- Calibrated kinematics for 3-axis cartesian machines
+Similar to trivkins, but allows calibrating out small imperfections in axis
+alignment. See matrixkins(9) man page for detailed instructions.
 
 .SS maxkins \- 5-axis kinematics example
 Kinematics for Chris Radek's tabletop 5 axis mill named 'max' with tilting
