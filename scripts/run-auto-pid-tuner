@@ -1,0 +1,155 @@
+#!/usr/bin/env python3
+#
+# Copyright 2022 Petter Reinholdtsen
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301 USA.
+
+"""
+
+LinuxCNC automated PID auto-tuner
+=================================
+
+Automatically conduct a automatic PID tuning using the pid
+LinuxCNC component.
+
+This script first home the axis, then move it to the middle of its range.
+Also extend the f-error value used by the PID controller.  Next, disable
+the PID controller (tune-mode=1), start the tuning process (tune-start=1)
+and wait for it to finish before enabling the PID controller again.
+
+This script assume the pid component is configured like this:
+
+  loadrt pid names=pid.x,pid.y,pid.z
+
+It also assume the axis ranges are correct to be able to position the axes
+in their middle positions.
+"""
+
+import time
+
+import linuxcnc
+import linuxcnc_util
+import hal
+
+axis = 'x'
+axisid = 0
+
+# Some values that need to be replaced during tuning
+replace = {
+#    f"pid.{axis}.tune-cycles": "0x40",  # Increse number of back and forth movement (default 50)
+    f"pid.{axis}.tune-effort": "0.2",  # Set effort, should start low
+    f"ini.{axisid}.ferror": "100",     # Extend to not trigger following error
+    f"ini.{axisid}.min_ferror": "100", # Extend to not trigger following error
+    }
+
+def set_mode(mode):
+    s.poll()
+    if linuxcnc.MODE_MDI != s.task_mode:
+        c.mode(linuxcnc.MODE_MDI)
+        c.wait_complete()
+        s.poll()
+def is_homed():
+    isHomed=True
+    for i,h in enumerate(s.homed):
+        if i >= s.joints: break
+        isHomed = isHomed and h
+    return isHomed
+
+c = linuxcnc.command()
+s = linuxcnc.stat();
+e = linuxcnc.error_channel()
+l = linuxcnc_util.LinuxCNC(command=c, status=s, error=e)
+
+s.poll()
+
+# Bootstrap hal library
+hc = hal.component("hal-watcher")
+
+error = []
+
+# Make sure machine is turned on and out of estop
+if linuxcnc.STATE_ESTOP == s.task_state or linuxcnc.STATE_OFF == s.task_state:
+    error.append("error: You need to start the machine and make sure ESTOP is not active")
+
+effortpin = f"pid.{axis}.tune-effort"
+try:
+    v = hal.get_value(effortpin)
+except RuntimeError as e:
+    error.append(f"error: failed to find at_pin specific pin {effortpin} in HAL")
+    error.append(f"error: Did you remember to replace 'loadrt pid' with 'loadrt at_pid' for axis {axis}?")
+
+if error:
+    print("\n".join(error))
+    exit(1)
+
+# Start homing, wait for it to complete
+set_mode(linuxcnc.MODE_MANUAL)
+if not is_homed():
+    print("Requesting axis homing.")
+    c.teleop_enable(0)
+    c.wait_complete()
+    c.home(-1)
+    c.wait_complete()
+    l.wait_for_home([1, 1, 1, 0, 0, 0, 0, 0, 0])
+else:
+    print("Already homed, skipping axis homing.")
+
+# Locate mid range and move to the middle, switch to MDI mode while moving
+
+midpos = (
+    s.joint[axisid]["max_position_limit"]
+    + s.joint[axisid]["min_position_limit"]
+) / 2
+print(f"Moving {axis} to position {midpos}")
+set_mode(linuxcnc.MODE_MDI)
+c.mdi(f"G0 {axis}{midpos}")
+c.wait_complete()
+set_mode(linuxcnc.MODE_MANUAL)
+
+
+print("info: Will start PID auto tuning in 5 seconds")
+time.sleep(5)
+
+# Replace some old values
+oldvals = {}
+for pin in replace.keys():
+    print(f"Keeping {pin}")
+    oldvals[pin] = hal.get_value(pin)
+    hal.set_p(pin, replace[pin])
+
+# Run PID autotuning
+print("Starting PID tuning")
+hal.set_p(f"pid.{axis}.tune-mode", "1")
+hal.set_p(f"pid.{axis}.tune-start", "1")
+
+startpin = f"pid.{axis}.tune-start"
+tunerunning = hal.get_value(startpin)
+while hal.get_value(startpin) == tunerunning:
+    time.sleep(0.1)
+hal.set_p(f"pid.{axis}.tune-mode", "0")
+print(f"PID tuning of axis {axis} completed.")
+
+# Give axis time to return to where it want to be before restoring old
+# error limits.  Reissuing G0 from above to be able to use
+# wait_complete() to detect when it is done.
+set_mode(linuxcnc.MODE_MDI)
+c.mdi(f"G0 {axis}{midpos}")
+c.wait_complete()
+set_mode(linuxcnc.MODE_MANUAL)
+
+# Reinsert old values
+for pin in replace.keys():
+    hal.set_p(pin, "%s" % oldvals[pin])
