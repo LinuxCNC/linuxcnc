@@ -125,13 +125,13 @@ pin in  bit move_enable   "Enable offsets (Enabling requires apply-offset TRUE a
 pin in  bit apply_offsets "Enable offsets (Enabling requires move-enable TRUE also)";
 pin in  bit backtrack-enable = 1 "Enable backtrack on auto-return";
 
-pin in  float epsilon=0.0005 "When enabling pins are deactivated, return to un-offsetted position within epsilon units.  Warning: values that are too small in value may cause overshoot,  A minimum value of 0.0001 is \\fBsilently enforced\\fR";
+pin in  float epsilon=0.0005 "When enabling pins are deactivated, return to un-offsetted position within epsilon units.  Warning: values that are too small in value may cause overshoot.  A minimum value of 0.0001 is \\fBsilently enforced\\fR";
 pin in float waypoint-threshold = 0.02 "Minimum distance (in a single axis) for a new waypoint";
 pin in float waypoint-sample-secs = 0.02 "Minimum sample interval (in seconds) for a new waypoint";
 
 pin out bit warning "Set TRUE if apply-offsets is deasserted while offset-applied is TRUE";
 pin out bit offset_applied "TRUE if one or more offsets are applied";
-pin out bit waypoint-limit = 0 "Indicates waypoint limit reached (motion ceases), an enabling pin must be deasserted to initiate return to original position";
+pin out bit waypoint-limit = 0 "Indicates waypoint limit reached (motion ceases), an enabling pin must be deasserted to initiate return to original position.";
 pin out s32 waypoint-ct "Waypoint count (for debugging)";
 pin out s32 waypoint-percent-used "Percent of available waypoints used";
 
@@ -157,7 +157,7 @@ pin out s32   dbg_state "Debug output for current state of state machine";
 option personality;
 option extra_setup;
 function read_inputs "Read all inputs";
-function write_outputs "Write computed offset outputs\n(offset-current-M, pos-plusoffset-M, fb-minusoffset-M).\nAll other outputs are updated by read-inputs()";
+function write_outputs "Write computed offset outputs\n(offset-current-M, pos-plusoffset-M, fb-minusoffset-M).\nAll other outputs are updated by read-inputs().";
 
 license "GPL";
 author "Dewey Garrett and Andy Pugh";

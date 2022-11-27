@@ -154,8 +154,7 @@ Note: feed-inhibit applies to G-code commands -- not jogs.
 
 .TP
 \fBmotion.feed\-upm\fR OUT FLOAT
-Current feed rate in G-code program units per minute for motion.motion-type
-feed(2) and arc(3).
+Current feed rate in G-code program units per minute for motion.motion-type feed(2) and arc(3).
 Value is the G-code program F value multiplied by the current feed override
 value and the motion.adaptive-feed setting (if M52 active).
 Value is zero if motion.feed-hold or motion.feed-inhibit are asserted.
@@ -167,35 +166,28 @@ be the last units used.
 Current feed rate in inches per minute for motion.motion-type
 feed(2) and arc(3).
 Value is the inch equivalent of the G-code program F value multiplied by the
-current feed override value and the motion.adaptive-feed setting
-(if M52 active).
+current feed override value and the motion.adaptive-feed setting (if M52 active).
 Value is zero if motion.feed-hold or motion.feed-inhibit are asserted.
 
 .TP
 \fBmotion.feed\-inches-per-second\fR OUT FLOAT
-Current feed rate in inches per second for motion.motion-type
-feed(2) and arc(3).
+Current feed rate in inches per second for motion.motion-type feed(2) and arc(3).
 Value is the inch equivalent of the G-code program F value multiplied by the
-current feed override value and the motion.adaptive-feed setting
-(if M52 active).
+current feed override value and the motion.adaptive-feed setting (if M52 active).
 Value is zero if motion.feed-hold or motion.feed-inhibit are asserted.
 
 .TP
 \fBmotion.feed\-mm-per-minute\fR OUT FLOAT
-Current feed rate in mm per minute for motion.motion-type
-feed(2) and arc(3).
+Current feed rate in mm per minute for motion.motion-type feed(2) and arc(3).
 Value is the mm equivalent of the G-code program F value multiplied by the
-current feed override value and the motion.adaptive-feed setting
-(if M52 active).
+current feed override value and the motion.adaptive-feed setting (if M52 active).
 Value is zero if motion.feed-hold or motion.feed-inhibit are asserted.
 
 .TP
 \fBmotion.feed\-mm-per-second\fR OUT FLOAT
-Current feed rate in mm per second for motion.motion-type
-feed(2) and arc(3).
+Current feed rate in mm per second for motion.motion-type feed(2) and arc(3).
 Value is the mm equivalent of the G-code program F value multiplied by the
-current feed override value and the motion.adaptive-feed setting
-(if M52 active).
+current feed override value and the motion.adaptive-feed setting (if M52 active).
 Value is zero if motion.feed-hold or motion.feed-inhibit are asserted.
 
 .TP
@@ -210,8 +202,7 @@ TRUE if all active joints is homed.
 
 .TP
 \fBmotion.jog\-inhibit\fR IN BIT
-If this bit is TRUE, jogging of any joint or axis is disallowed and an error
-is reported.
+If this bit is TRUE, jogging of any joint or axis is disallowed and an error is reported.
 
 .TP
 \fBmotion.jog\-stop\fR IN BIT
@@ -236,14 +227,14 @@ the commanded position).
 \fBmotion.misc\-error\-\fINN\fR IN BIT
 Extra error inputs for faults such as over-temperature sensors, low coolant
 warnings, custom HAL component errors. If driven TRUE this will disable a
-machine. Similar to spindle.amp-fault-in
+machine. Similar to spindle.amp-fault-in.
 
 .TP
 \fBmotion.motion\-enabled\fR OUT BIT
 
 .TP
 \fBmotion.motion\-type\fR OUT S32
-These values are from src/emc/nml_intf/motion_types.h
+These values are from src/emc/nml_intf/motion_types.h.
 .RS
 .RS
 .TP
@@ -268,12 +259,12 @@ These values are from src/emc/nml_intf/motion_types.h
 
 .TP
 \fBmotion.probe\-input\fR IN BIT
-G38.n uses the value on this pin to determine when the probe has made contact. TRUE for probe contact closed (touching), FALSE for probe contact open.
+G38.n uses the value on this pin to determine when the probe has made contact.
+TRUE for probe contact closed (touching), FALSE for probe contact open.
 
 .TP
 \fBmotion.program\-line\fR OUT S32
-The current program line while executing. Zero if not running or between
-lines while single stepping.
+The current program line while executing. Zero if not running or between lines while single stepping.
 
 .TP
 \fBmotion.requested\-vel\fR OUT FLOAT
@@ -284,15 +275,16 @@ not reflect the feed override or any other adjustments.
 
 .TP
 \fBmotion.servo.last\-period\fR OUT U32
-The number of CPU clocks between invocations of the servo thread. Typically, this number divided by the CPU speed gives the time in seconds, and can be used to determine whether the realtime motion controller is meeting its timing constraints
+The number of CPU clocks between invocations of the servo thread.
+Typically, this number divided by the CPU speed gives the time in seconds,
+and can be used to determine whether the realtime motion controller is meeting its timing constraints
 
 .TP
 \fBmotion.switchkins-type\fR IN float
 Kinematics modules that define the functions kinematicsSwitchable()
 and kinematicsSwitch() receive the \fBinteger\fR value of this pin to
-select the machine kinematics functions.  Extra G-code commands
-may be required to synchronize task and motion before and after changes
-to the pin value.
+select the machine kinematics functions.
+Extra G-code commands may be required to synchronize task and motion before and after changes to the pin value.
 
 .TP
 \fBmotion.teleop\-mode\fR OUT BIT
@@ -323,18 +315,15 @@ Clear external offset request
 .TP
 \fBaxis.\fIL\fB.eoffset-counts\fR IN S32
 Counts input for external offset.
-The eoffset-counts are transferred to an internal
-register.  The applied external offset is the
-product of the register counts and the eoffset-scale
-value.  The register is \fBreset to zero at each machine
-startup\fR.  If the machine is turned off with an external
-offset active, the eoffset-counts pin should be set
-to zero before restarting.
+The eoffset-counts are transferred to an internal register.
+The applied external offset is the product of the register counts and the eoffset-scale value.
+The register is \fBreset to zero at each machine startup\fR.
+If the machine is turned off with an external offset active,
+the eoffset-counts pin should be set to zero before restarting.
 
 .TP
 \fBaxis.\fIL\fB.eoffset-enable\fR IN BIT
-Enable for external offset (also requires INI file
-setting for [AXIS_L]OFFSET_AV_RATIO)
+Enable for external offset (also requires INI file setting for [AXIS_L]OFFSET_AV_RATIO)
 
 .TP
 \fBaxis.\fIL\fB.eoffset-request\fR OUT FLOAT
@@ -346,8 +335,8 @@ Scale for external offset.
 
 .TP
 \fBaxis.\fIL\fB.jog\-accel\-fraction\fR IN FLOAT
-Sets acceleration for wheel jogging to a fraction of the INI max_acceleration for
-the axis. Values greater than 1 or less than zero are ignored.
+Sets acceleration for wheel jogging to a fraction of the INI max_acceleration for the axis.
+Values greater than 1 or less than zero are ignored.
 
 .TP
 \fBaxis.\fIL\fB.jog\-counts\fR IN S32
@@ -363,7 +352,9 @@ Sets the distance moved for each count on "jog\-counts", in machine units.
 
 .TP
 \fBaxis.\fIL\fB.jog\-vel\-mode\fR IN BIT
-When FALSE (the default), the jogwheel operates in position mode. The axis will move exactly jog\-scale units for each count, regardless of how long that might take. When TRUE, the wheel operates in velocity mode - motion stops when the wheel stops, even if that means the commanded motion is not completed.
+When FALSE (the default), the jogwheel operates in position mode.
+The axis will move exactly jog\-scale units for each count, regardless of how long that might take.
+When TRUE, the wheel operates in velocity mode - motion stops when the wheel stops, even if that means the commanded motion is not completed.
 
 .TP
 \fBaxis.\fIL\fB.kb\-jog\-active\fR OUT BIT
@@ -371,22 +362,24 @@ When FALSE (the default), the jogwheel operates in position mode. The axis will 
 
 .TP
 \fBaxis.\fIL\fB.pos\-cmd\fR OUT FLOAT
-The axis commanded position. There may be several offsets between the axis and motor coordinates: backlash compensation, screw error compensation, and home offsets.  External offsets are reported separately (axis.\fBL\fR.eoffset).
+The axis commanded position.
+There may be several offsets between the axis and motor coordinates: backlash compensation, screw error compensation, and home offsets.
+External offsets are reported separately (axis.\fBL\fR.eoffset).
 
 .TP
 \fBaxis.\fIL\fB.teleop\-pos\-cmd\fR OUT FLOAT
 
 .TP
 \fBaxis.\fIL\fB.teleop\-tp\-enable\fR OUT BIT
-TRUE when the "teleop planner" is enabled for this axis
+TRUE when the "teleop planner" is enabled for this axis.
 
 .TP
 \fBaxis.\fIL\fB.teleop\-vel\-cmd\fR OUT FLOAT
-The axis's commanded velocity
+The axis's commanded velocity.
 
 .TP
 \fBaxis.\fIL\fB.teleop\-vel\-lim\fR OUT FLOAT
-The velocity limit for the teleop planner
+The velocity limit for the teleop planner.
 
 .TP
 \fBaxis.\fIL\fB.wheel\-jog\-active\fR OUT BIT
@@ -394,55 +387,54 @@ The velocity limit for the teleop planner
 .SH JOINT PINS
 \fBN\fR is the joint number (\fB0\fR ... \fBnum_joints\-1\fR))
 .TP
-(\fBNote:\fR pins marked \fB(DEBUG)\fR serve as debugging aids
-and are subject to change or removal at any time.)
+(\fBNote:\fR pins marked \fB(DEBUG)\fR serve as debugging aids and are subject to change or removal at any time.)
 
 .TP
 \fBjoint.\fIN\fB.joint\-acc\-cmd\fR OUT FLOAT \fB(DEBUG)\fR
-The joint's commanded acceleration
+The joint's commanded acceleration.
 
 .TP
 \fBjoint.\fIN\fB.active\fR OUT BIT \fB(DEBUG)\fR
-TRUE when this joint is active
+TRUE when this joint is active.
 
 .TP
 \fBjoint.\fIN\fB.amp\-enable\-out\fR OUT BIT
-TRUE if the amplifier for this joint should be enabled
+TRUE if the amplifier for this joint should be enabled.
 
 .TP
 \fBjoint.\fIN\fB.amp\-fault\-in\fR IN BIT
-Should be driven TRUE if an external fault is detected with the amplifier for this joint
+Should be driven TRUE if an external fault is detected with the amplifier for this joint.
 
 .TP
 \fBjoint.\fIN\fB.backlash\-corr\fR OUT FLOAT \fB(DEBUG)\fR
-Backlash or screw compensation raw value
+Backlash or screw compensation raw value.
 
 .TP
 \fBjoint.\fIN\fB.backlash\-filt\fR OUT FLOAT \fB(DEBUG)\fR
-Backlash or screw compensation filtered value (respecting motion limits)
+Backlash or screw compensation filtered value (respecting motion limits).
 
 .TP
 \fBjoint.\fIN\fB.backlash\-vel\fR OUT FLOAT \fB(DEBUG)\fR
-Backlash or screw compensation velocity
+Backlash or screw compensation velocity.
 
 .TP
 \fBjoint.\fIN\fB.coarse\-pos\-cmd\fR OUT FLOAT \fB(DEBUG)\fR
 
 .TP
 \fBjoint.\fIN\fB.error\fR OUT BIT \fB(DEBUG)\fR
-TRUE when this joint has encountered an error, such as a limit switch closing
+TRUE when this joint has encountered an error, such as a limit switch closing.
 
 .TP
 \fBjoint.\fIN\fB.f\-error\fR OUT FLOAT \fB(DEBUG)\fR
-The actual following error
+The actual following error.
 
 .TP
 \fBjoint.\fIN\fB.f\-error\-lim\fR OUT FLOAT \fB(DEBUG)\fR
-The following error limit
+The following error limit.
 
 .TP
 \fBjoint.\fIN\fB.f\-errored\fR OUT BIT \fB(DEBUG)\fR
-TRUE when this joint has exceeded the following error limit
+TRUE when this joint has exceeded the following error limit.
 
 .TP
 \fBjoint.\fIN\fB.faulted\fR OUT BIT \fB(DEBUG)\fR
@@ -453,11 +445,11 @@ The "free planner" commanded position for this joint.
 
 .TP
 \fBjoint.\fIN\fB.free\-tp\-enable\fR OUT BIT \fB(DEBUG)\fR
-TRUE when the "free planner" is enabled for this joint
+TRUE when the "free planner" is enabled for this joint.
 
 .TP
 \fBjoint.\fIN\fB.free\-vel\-lim\fR OUT FLOAT \fB(DEBUG)\fR
-The velocity limit for the free planner
+The velocity limit for the free planner.
 
 .TP
 \fBjoint.\fIN\fB.home\-state\fR OUT S32 \fB(DEBUG)\fR
@@ -465,23 +457,23 @@ homing state machine state
 
 .TP
 \fBjoint.\fIN\fB.home\-sw\-in\fR IN BIT
-Should be driven TRUE if the home switch for this joint is closed
+Should be driven TRUE if the home switch for this joint is closed.
 
 .TP
 \fBjoint.\fIN\fB.homed\fR OUT BIT \fB(DEBUG)\fR
-TRUE if the joint has been homed
+TRUE if the joint has been homed.
 
 .TP
 \fBjoint.\fIN\fB.homing\fR OUT BIT
-TRUE if the joint is currently homing
+TRUE if the joint is currently homing.
 
 .TP
 \fBjoint.\fIN\fB.in\-position\fR OUT BIT \fB(DEBUG)\fR
-TRUE if the joint is using the "free planner" and has come to a stop
+TRUE if the joint is using the "free planner" and has come to a stop.
 
 .TP
 \fBjoint.\fIN\fB.index\-enable\fR IO BIT
-Should be attached to the index\-enable pin of the joint's encoder to enable homing to index pulse
+Should be attached to the index\-enable pin of the joint's encoder to enable homing to index pulse.
 
 .br
 .ns
@@ -491,8 +483,8 @@ Indicates joint is unlocked (see JOINT UNLOCK PINS).
 
 .TP
 \fBjoint.\fIN\fB.jog\-accel\-fraction\fR IN FLOAT
-Sets acceleration for wheel jogging to a fraction of the INI max_acceleration for
-the joint.  Values greater than 1 or less than zero are ignored.
+Sets acceleration for wheel jogging to a fraction of the INI max_acceleration for the joint.
+Values greater than 1 or less than zero are ignored.
 
 .TP
 \fBjoint.\fIN\fB.jog\-counts\fR IN S32
@@ -508,7 +500,9 @@ Sets the distance moved for each count on "jog\-counts", in machine units.
 
 .TP
 \fBjoint.\fIN\fB.jog\-vel\-mode\fR IN BIT
-When FALSE (the default), the jogwheel operates in position mode. The joint will move exactly jog\-scale units for each count, regardless of how long that might take. When TRUE, the wheel operates in velocity mode - motion stops when the wheel stops, even if that means the commanded motion is not completed.
+When FALSE (the default), the jogwheel operates in position mode.
+The joint will move exactly jog\-scale units for each count, regardless of how long that might take.
+When TRUE, the wheel operates in velocity mode - motion stops when the wheel stops, even if that means the commanded motion is not completed.
 
 .TP
 \fBjoint.\fIN\fB.kb\-jog\-active\fR OUT BIT \fB(DEBUG)\fR
@@ -536,15 +530,18 @@ Should be driven TRUE if the negative limit switch for this joint is tripped.
 
 .TP
 \fBjoint.\fIN\fB.pos\-cmd\fR OUT FLOAT
-The joint (as opposed to motor) commanded position. There may be several offsets between the joint and motor coordinates: backlash compensation, screw error compensation, and home offsets.
+The joint (as opposed to motor) commanded position.
+There may be several offsets between the joint and motor coordinates: backlash compensation, screw error compensation, and home offsets.
 
 .TP
 \fBjoint.\fIN\fB.pos\-fb\fR OUT FLOAT
-The joint feedback position. This value is computed from the actual motor position minus joint offsets. Useful for machine visualization.
+The joint feedback position.
+This value is computed from the actual motor position minus joint offsets.
+Useful for machine visualization.
 
 .TP
 \fBjoint.\fIN\fB.pos\-hard\-limit\fR OUT BIT \fB(DEBUG)\fR
-The positive hard limit for the joint
+The positive hard limit for the joint.
 
 .TP
 \fBjoint.\fIN\fB.pos\-lim\-sw\-in\fR IN BIT
@@ -552,8 +549,7 @@ Should be driven TRUE if the positive limit switch for this joint is tripped.
 
 .TP
 \fBjoint.\fIN\fB.unlock\fR OUT BIT
-TRUE if the axis is a locked joint (typically a rotary) and a move
-is commanded (see JOINT UNLOCK PINS).
+TRUE if the axis is a locked joint (typically a rotary) and a move is commanded (see JOINT UNLOCK PINS).
 
 .TP
 \fBjoint.\fIN\fB.joint\-vel\-cmd\fR OUT FLOAT \fB(DEBUG)\fR
@@ -563,15 +559,14 @@ The joint's commanded velocity
 \fBjoint.\fIN\fB.wheel\-jog\-active\fR OUT BIT \fB(DEBUG)\fR
 
 .SH JOINT posthome pins
-Each joint designated as an 'extra' joint is provided with a HAL pin
-\fBjoint.N.posthome-cmd\fR.  The pin value is ignored prior to homing.
-After homing, the pin value is augmented by the motor offset value
-and routed to the \fBjoint.N.motor-pos-cmd\fR.
+Each joint designated as an 'extra' joint is provided with a HAL pin \fBjoint.N.posthome-cmd\fR.
+The pin value is ignored prior to homing.
+After homing, the pin value is augmented by the motor offset value and routed to the \fBjoint.N.motor-pos-cmd\fR.
 
 .SH JOINT unlock pins
-The joint pins used for unlocking a joint
-(\fBjoint.N.unlock\fR, \fBjoint.N.is-unlocked\fR),
-are created according to the \fBunlock_joints_mask=\fRjointmask parameter for motmod.  These pins may be required for locking indexers (typically a rotary joint)
+The joint pins used for unlocking a joint (\fBjoint.N.unlock\fR, \fBjoint.N.is-unlocked\fR),
+are created according to the \fBunlock_joints_mask=\fRjointmask parameter for motmod.
+These pins may be required for locking indexers (typically a rotary joint)
 
 The jointmask bits are: (lsb)0:joint0, 1:joint1, 2:joint2, ...
 
@@ -585,21 +580,22 @@ Example: loadrt motmod ... \fBunlock_joints_mask=\fR0x38 creates unlock pins for
 
 .TP
 \fBspindle.M\fB.amp\-fault\-in\fR IN BIT
-Should be driven TRUE if an external fault is detected with the amplifier for this spindle
+Should be driven TRUE if an external fault is detected with the amplifier for this spindle.
 
 .TP
 \fBspindle.M.at\-speed\fR IN BIT
-Motion will pause until this pin is TRUE, under the following conditions: before the
-first feed move after each spindle start or speed change; before the start of every
-chain of spindle\-synchronized moves; and if in CSS mode, at every rapid\->feed transition.
+Motion will pause until this pin is TRUE, under the following conditions:
+before the first feed move after each spindle start or speed change;
+before the start of every chain of spindle\-synchronized moves;
+and if in CSS mode, at every rapid\->feed transition.
 
 .TP
 \fBspindle.M.brake\fR OUT BIT
-TRUE when the spindle brake should be applied
+TRUE when the spindle brake should be applied.
 
 .TP
 \fBspindle.M.forward\fR OUT BIT
-TRUE when the spindle should rotate forward
+TRUE when the spindle should rotate forward.
 
 .TP
 \fBspindle.M.index\-enable\fR I/O BIT
@@ -611,8 +607,10 @@ When TRUE, the spindle speed is set and held to 0.
 
 .TP
 \fBspindle.M.is\-oriented\fR IN BIT
-Acknowledge pin for spindle\-orient. Completes orient cycle. If spindle\-orient was true when spindle\-is\-oriented
-was asserted, the spindle\-orient pin is cleared and the spindle\-locked pin is asserted. Also, the spindle\-brake pin is asserted.
+Acknowledge pin for spindle\-orient. Completes orient cycle.
+If spindle\-orient was true when spindle\-is\-oriented was asserted,
+the spindle\-orient pin is cleared and the spindle\-locked pin is asserted.
+Also, the spindle\-brake pin is asserted.
 
 .TP
 \fBspindle.M.locked\fR OUT BIT
@@ -620,7 +618,7 @@ Spindle orient complete pin. Cleared by any of M3,M4,M5.
 
 .TP
 \fBspindle.M.on\fR OUT BIT
-TRUE when spindle should rotate
+TRUE when spindle should rotate.
 
 .TP
 \fBspindle.M.orient\fR OUT BIT
@@ -642,7 +640,7 @@ Desired spindle rotation mode. Reflects M19 P parameter word.
 
 .TP
 \fBspindle.M.reverse\fR OUT BIT
-TRUE when the spindle should rotate backward
+TRUE when the spindle should rotate backward.
 
 .TP
 \fBspindle.M.revs\fR IN FLOAT
@@ -650,7 +648,7 @@ For correct operation of spindle synchronized moves, this signal must be hooked 
 
 .TP
 \fBspindle.M.speed\-cmd\-rps\fR FLOAT OUT
-Commanded spindle speed in units of revolutions per second
+Commanded spindle speed in units of revolutions per second.
 
 .TP
 \fBspindle.M.speed\-in\fR IN FLOAT
@@ -658,7 +656,7 @@ Actual spindle speed feedback in revolutions per second; used for G96 (constant 
 
 .TP
 \fBspindle.M.speed\-out\fR OUT FLOAT
-Desired spindle speed in rotations per minute
+Desired spindle speed in rotations per minute.
 
 .TP
 \fBspindle.M.speed\-out\-abs\fR OUT FLOAT
@@ -666,7 +664,7 @@ Desired spindle speed in rotations per minute, always positive regardless of spi
 
 .TP
 \fBspindle.M.speed\-out\-rps\fR OUT FLOAT
-Desired spindle speed in rotations per second
+Desired spindle speed in rotations per second.
 
 .TP
 \fBspindle.M.speed\-out\-rps\-abs\fR OUT FLOAT
@@ -680,7 +678,7 @@ Many of the parameters serve as debugging aids, and are subject to change or rem
 .ns
 .TP
 \fBmotion\-command\-handler.tmax\fR RW S32
-Show information about the execution time of these HAL functions in CPU clocks
+Show information about the execution time of these HAL functions in CPU clocks.
 
 .br
 .ns
@@ -691,7 +689,7 @@ Show information about the execution time of these HAL functions in CPU clocks
 .ns
 .TP
 \fBmotion\-controller.tmax\fR RW S32
-Show information about the execution time of these HAL functions in CPU clocks
+Show information about the execution time of these HAL functions in CPU clocks.
 
 .br
 .ns
@@ -710,15 +708,13 @@ Generally, these functions are both added to the servo-thread in the order shown
 \fBmotion\-command\-handler\fR
 Processes motion commands coming from user space.
 The pin named \fBmotion-command-handler.time\fR and parameters
-\fBmotion-command-handler.tmax,tmax-increased\fRare created for
-this function.
+\fBmotion-command-handler.tmax,tmax-increased\fRare created for this function.
 
 .TP
 \fBmotion\-controller\fR
-Runs the LinuxCNC motion controller
+Runs the LinuxCNC motion controller.
 The pin named \fBmotion-controller.time\fR and parameters
-\fBmotion-controller.tmax,tmax-increased\fR are created for
-this function.
+\fBmotion-controller.tmax,tmax-increased\fR are created for this function.
 
 .SH BUGS
 This manual page is incomplete.
