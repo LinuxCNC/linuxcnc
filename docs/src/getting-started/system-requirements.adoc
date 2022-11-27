@@ -18,7 +18,7 @@ specially modified kernel,
 see <<sec:kernel_and_version_requirements,Kernel and Version Requirements>>.
 
 Additional information is on the LinuxCNC Wiki site:
-http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Hardware_Requirements[Hardware Requirements]
+https://wiki.linuxcnc.org/cgi-bin/wiki.pl?Hardware_Requirements[Hardware Requirements]
 
 LinuxCNC and Debian Linux should run reasonably well on a computer with
 the following minimum hardware specification. These numbers are not the

@@ -12,7 +12,7 @@
 
 == Preamble
 
-*Except where noted, this guide assumes the user is using the latest version of QtPlasmaC. Version history can be seen by visiting this http://htmlpreview.github.io/?https://github.com/LinuxCNC/linuxcnc/blob/master/share/qtvcp/screens/qtplasmac/versions.html[link] which will show the latest available version. The installed QtPlasmaC version is displayed in the title bar. See <<qt_update, Update QtPlasmaC>> for information on updating QtPlasmaC.*
+*Except where noted, this guide assumes the user is using the latest version of QtPlasmaC. Version history can be seen by visiting this https://htmlpreview.github.io/?https://github.com/LinuxCNC/linuxcnc/blob/master/share/qtvcp/screens/qtplasmac/versions.html[link] which will show the latest available version. The installed QtPlasmaC version is displayed in the title bar. See <<qt_update, Update QtPlasmaC>> for information on updating QtPlasmaC.*
 
 == License
 
@@ -20,7 +20,7 @@ QtPlasmaC and all of its related software are released under GPLv2.
 
 == Introduction
 
-QtPlasmaC is a GUI for plasma cutting which utilises the http://linuxcnc.org/docs/devel/html/man/man9/plasmac.9.html[plasmac component] for controlling a plasma table from LinuxCNC v2.9 or later using the Debian Buster or similar distribution.
+QtPlasmaC is a GUI for plasma cutting which utilises the https://linuxcnc.org/docs/devel/html/man/man9/plasmac.9.html[plasmac component] for controlling a plasma table from LinuxCNC v2.9 or later using the Debian Buster or similar distribution.
 
 The QtPlasmaC GUI supports up to five axes and uses the QtVCP infrastructure provided with LinuxCNC.
 
@@ -2267,7 +2267,7 @@ It is possible to use near-end-of-life consumables for piercing and then they ca
 [underline]*Puddle Jump*
 
 *Puddle Jump* is the height that the torch will move to after piercing and prior to moving to *Cut Height* and is expressed as a percentage of *Pierce Height*.
-This allows the torch to clear any puddle of molten material tht may be caused by piercing. The maximum allowable height is 200% of the *Pierce Height*
+This allows the torch to clear any puddle of molten material that may be caused by piercing. The maximum allowable height is 200% of the *Pierce Height*
 
 Setting for *Puddle Jump* are described in <<qt_material,cut parameters>>
 

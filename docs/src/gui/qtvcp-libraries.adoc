@@ -402,7 +402,7 @@ This library *handles tool offset file changes*.
 WARNING: *LinuxCNC doesn't handle third party manipulation of the tool
   file well.*
 
-//FIXME Tools: Objets properties ?
+//FIXME Tools: Objects properties ?
 
 === Helpers
 
@@ -418,12 +418,12 @@ This is a raw list formed _from the system tool file_.
   This will return a Python *tuple of two Python lists of Python lists of
 tool information*:
 +
-* *`[0]`* will be _real tools informations_
-* *`[1]`* will be _wear tools informations_ (tool numbers will be over
+* *`[0]`* will be _real tools information_
+* *`[1]`* will be _wear tools information_ (tool numbers will be over
   10000; Fanuc style tool wear)
 
 +
-By default, adds a blanck tool entry with tool number -99. +
+By default, adds a blank tool entry with tool number -99. +
 You can preload the `newtool` array with tool information.
 
 *`DELETE_TOOLS(_toolnumber_)`*::
@@ -890,9 +890,13 @@ permanently to storage media*.
 
 The `ScreenOptions` widget can automatically set up the preference system.
 
-QtVCP searches for the `ScreenOptions` widget first and, if found, calls *`+_pref_init()+`*. +
-This will _create the preferences object_ and return it to QtVCP to pass to all the widgets and add it to the window object attributes. +
-In this case the preferences object would be accessable from the handler file's `initialized_` method as *`self.w.PREFS_`*.
+
+QtVCP searches for the `ScreenOptions` widget first and, if found, calls
+*`+_pref_init()+`*. +
+This will _create the preferences object_ and return it to QtVCP to pass
+to all the widgets and add it to the window object attributes. +
+In this case the preferences object would be accessible from the handler
+file's `initialized_` method as *`self.w.PREFS_`*.
 
 //FIXME Global or per widget prefs file ?
 Also all widgets can have access to a specific preferences file at initialization time.

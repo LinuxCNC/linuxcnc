@@ -22,7 +22,7 @@ It offers the possibility to display up to 9 axes, support a lathe mode for
 normal and back tool lathe and can be adapted to nearly every need, because
 GMOCCAPY supports embedded tabs and side panels.
 As a good example for that see
-http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[gmoccapy_plasma].
+https://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[gmoccapy_plasma].
 
 GMOCCAPY 3 does support up to 9 axes and 9 joints. As GMOCCAPY 3 has been
 changed in code to support the joint / axis changes in LinuxCNC it does not
@@ -54,7 +54,7 @@ with LinuxCNC master and 2.8 release. It fully support joint / axis changes of L
 it suitable as GUI for Scara, Robots or any other config with more joints than
 axes. So it supports also gantry configs. If you use other versions, please
 inform about problems and / or solutions on the
-http://www.linuxcnc.org/index.php/english/forum/41-guis/26314-gmoccapy-a-new-screen-for-linuxcnc[LinuxCNC forum] or the
+https://linuxcnc.org/index.php/english/forum/41-guis/26314-gmoccapy-a-new-screen-for-linuxcnc[LinuxCNC forum] or the
 http://www.cncecke.de/forum/showthread.php?t=78549[German CNC Ecke Forum] or
 https://lists.sourceforge.net/lists/listinfo/emc-users[LinuxCNC users mailing list].
 
@@ -66,7 +66,7 @@ screens with minimum resolution of 1024x748.
 
 GMOCCAPY 3 is included in the standard distribution of LinuxCNC since release 2.7.
 So the easiest way to get GMOCCAPY on your controlling PC, is just to download the
-http://www.linuxcnc.org/downloads/[ISO] and install it from the CD/DVD/USB-stick.
+https://linuxcnc.org/downloads/[ISO] and install it from the CD/DVD/USB-stick.
 This allows you to receive updates with the regular Debian packages.
 
 In the link:gmoccapy_release_notes.txt[*release notes*] aka changelist you can track the latest bugfixes and features.
@@ -203,7 +203,7 @@ path for macros:
 SUBROUTINE_PATH = macros
 ----
 This sets the path to search for macros and other subroutines. Several subroutine
-paths can be separeted ":".
+paths can be separated ":".
 
 Then you just have to add a section like this:
 
@@ -300,7 +300,7 @@ Gscreen. All is done by GMOCCAPY automatically if you include a few lines in
 your INI file in the DISPLAY section.
 
 If you have never used a Glade panel, I recommend to read the excellent documentation
-on http://www.linuxcnc.org/docs/2.9/html/gui/gladevcp.html[Glade VCP].
+on https://linuxcnc.org/docs/2.9/html/gui/gladevcp.html[Glade VCP].
 
 .Embedded Tab Example
 
@@ -1100,7 +1100,7 @@ You have three options:
 
 The checkboxes allow the user to select if he wants the on board keyboard to be shown immediately,
 when entering the MDI Mode, when entering the offset page, the tooledit widget or when open a program
-in the EDIT mode. The keyboard button on the bottom button list will not be affected by theese settings,
+in the EDIT mode. The keyboard button on the bottom button list will not be affected by these settings,
 so you are able to show or hide the keyboard by pressing the button. The default behavior will be set by
 the checkboxes.
 
@@ -1407,7 +1407,7 @@ Probe velocities::
   commented out in macros/change.ngc, otherwise the user would have to click
   twice on the probe button.)
 --
-// TODO: check if this option is accidently gone in 2.9
+// TODO: check if this option is accidentally gone in 2.9
 // Tool Changer::
 // +
 // --
@@ -1610,7 +1610,7 @@ offset and the tool table is showing all lathe relevant information.
 image::images/gmoccapy_plasma.png["Plasma GUI",align="left"]
 
 There is a very good WIKI, which is actually growing, maintained by Marius
-see http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[Plasma wiki page].
+see https://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[Plasma wiki page].
 
 == Videos on YouTube
 
@@ -1621,34 +1621,34 @@ I will update the videos as soon as possible.
 
 === Basic Usage
 
-https://www.youtube.com/watch?v=O5B-s3uiI6g
+https://youtu.be/O5B-s3uiI6g
 
 === Simulated Jog Wheels
 
-http://youtu.be/ag34SGxt97o
+https://youtu.be/ag34SGxt97o
 
 === Settings Page
 
-https://www.youtube.com/watch?v=AuwhSHRJoiI
+https://youtu.be/AuwhSHRJoiI
 
 === Simulated Hardware Button
 
-German: http://www.youtube.com/watch?v=DTqhY-MfzDE
+German: https://youtu.be/DTqhY-MfzDE
 
-English: http://www.youtube.com/watch?v=ItVWJBK9WFA
+English: https://youtu.be/ItVWJBK9WFA
 
 === User Tabs
 
-http://www.youtube.com/watch?v=rG1zmeqXyZI
+https://youtu.be/rG1zmeqXyZI
 
 [[gmoccapy:tool-measurement-videos]]
 === Tool Measurement Videos
 
-Auto Tool Measurement Simulation: http://youtu.be/rrkMw6rUFdk
+Auto Tool Measurement Simulation: https://youtu.be/rrkMw6rUFdk
 
-Auto Tool Measurement Screen: http://youtu.be/Z2ULDj9dzvk
+Auto Tool Measurement Screen: https://youtu.be/Z2ULDj9dzvk
 
-Auto Tool Measurement Machine: http://youtu.be/1arucCaDdX4
+Auto Tool Measurement Machine: https://youtu.be/1arucCaDdX4
 
 == Known problems
 

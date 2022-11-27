@@ -369,7 +369,7 @@ See <<cha:gmoccapy,gmoccapy>> document for Gmoccapy details.
 * 'BACK_TOOL_LATHE = 1' - Any non-empty value (including "0") causes axis to use "back tool lathe mode" with inverted X axis.
 * 'FOAM = 1' - Any non-empty value (including "0") causes axis to change the display for foam-cutter mode.
 * 'GEOMETRY = XYZABCUVW' - Controls the *preview* and *backplot* of motion.
-  This item consists of a sequence of axis letters and control characters, optionally preceeded with a "-" sign:
+  This item consists of a sequence of axis letters and control characters, optionally preceded with a "-" sign:
 
 . The letters X, Y, Z specify translation along the named coordinate.
 . The letters A, B, C specify rotation about the corresponding axes X, Y, Z.
@@ -498,7 +498,7 @@ treated as G-code. One such example script is available at
 nc_files/holecircle.py. This script creates G-code for drilling a
 series of holes along the circumference of a circle. Many more G-code
 generators are on the LinuxCNC Wiki site
-http://wiki.linuxcnc.org/[http://wiki.linuxcnc.org/].
+https://wiki.linuxcnc.org/[https://wiki.linuxcnc.org/].
 
 Python filters should use the print function to output the result to Axis.
 

@@ -848,7 +848,7 @@ linuxcnc (1:2.7.8) unstable; urgency=medium
 
 linuxcnc (1:2.7.7) unstable; urgency=medium
 
-  * docs: fix example scrips so they work when copied and pasted
+  * docs: fix example scripts so they work when copied and pasted
   * docs: fix minor mux_generic(9) manpage quibbles
 
   * Axis GUI: work around python-tk "True" bug

@@ -8,6 +8,6 @@ Usage:
   Ctrl-Home -- Home All
   R ---------- Run
 
-Example gocde (.ngc) files are:
+Example G-code (.ngc) files are:
 ./puma_cube.ngc
 ./puma_seam_weld.ngc

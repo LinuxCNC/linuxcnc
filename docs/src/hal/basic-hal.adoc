@@ -320,7 +320,7 @@ can move as needed.
 
 For more information on floating point numbers see:
 
-http://en.wikipedia.org/wiki/Floating_point[http://en.wikipedia.org/wiki/Floating_point]
+https://en.wikipedia.org/wiki/Floating_point[https://en.wikipedia.org/wiki/Floating_point]
 
 [[sub:hal-s32]]
 === s32(((HAL s32,s32)))

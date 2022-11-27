@@ -9,7 +9,7 @@
 A proportional-integral-derivative controller (PID controller) is a
 common feedback loop component in industrial control
 systems. footnote:[This Subsection is taken from an much more extensive
-article found at http://en.wikipedia.org/wiki/PID_controller]
+article found at https://en.wikipedia.org/wiki/PID_controller]
 
 The Controller compares a measured value from a process (typically an
 industrial process) with a reference set point value. The difference

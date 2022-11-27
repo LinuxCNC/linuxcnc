@@ -475,7 +475,7 @@ class NgcGui(QtWidgets.QWidget):
 
     ###################################################################
     #Function to automatically add preconfigured NGCGUI files form the Linuxcnc INI as tabs in NGCGUI for QTVCP
-    #The funtion is called by the Ngcgui class constructor and relies on the following INI enteries
+    #The function is called by the Ngcgui class constructor and relies on the following INI entries
     #NGCGUI_SUBFILE : name of the NGCGUI file (including extension) to be automatically loaded
     #NGCGUI_SUBFILE_PATH : path of the directory where the files can be found, relative to the root of the launched Linuxcnc INI
     ###################################################################

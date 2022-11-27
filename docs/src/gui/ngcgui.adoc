@@ -40,7 +40,7 @@ Using NGCGUI or PyNGCGUI:
 * Any single-file G-code subroutine that conforms to NGCGUI conventions can be used.
 * Any gcmc (G-code-meta-compiler) program that conforms to NGCGUI conventions
   for tagging variables can be used. (The gcmc executable must be installed
-  separately, see: http://www.vagrearg.org/content/gcmc)
+  separately, see: https://www.vagrearg.org/content/gcmc)
 
 [NOTE]
 ====

@@ -1931,12 +1931,12 @@ Debugging of embedded Python code is harder than debugging normal Python scripts
 and only a limited supply of debuggers exists.
 A working open-source based solution is to use the http://www.eclipse.org[Eclipse IDE],
 and the http://www.pydev.org[PydDev] Eclipse plug in and its
-http://pydev.org/manual_adv_remote_debugger.html[remote debugging feature].
+https://pydev.org/manual_adv_remote_debugger.html[remote debugging feature].
 
 To use this approach:
 
 - Install Eclipse via the the 'Ubuntu Software Center' (choose first selection).
-- Install the PyDev plug in from the http://pydev.org/updates[Pydev Update Site].
+- Install the PyDev plug in from the https://pydev.org/updates[Pydev Update Site].
 - Setup the LinuxCNC source tree as an Eclipse project.
 - Start the Pydev Debug Server in Eclipse.
 - Make sure the embedded Python code can find the `pydevd.py` module

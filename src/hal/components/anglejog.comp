@@ -137,7 +137,7 @@ static int  ifactor = 0;
         /* and set command to present magnitude to avoid movement when
            next enabled */
         mag_cmd = current_mag;
-        //NOTE: changes allowd only when disabled:
+        //NOTE: changes allowed only when disabled:
         if (!enable_in) {
             static bool gave_msg = 0;
             bool new_ifactor = 0;

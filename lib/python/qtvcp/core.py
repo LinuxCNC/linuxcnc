@@ -260,7 +260,7 @@ class Status(GStat):
     # to call this function
     # but when using MDI subprograms, the subprogram must be the only
     # polling instance.
-    # this is done by blocking the main screen polling untill the
+    # this is done by blocking the main screen polling until the
     # subprogram is done.
     def poll_error(self):
         if self._block_polling: return None

@@ -1168,7 +1168,7 @@ fi
 AC_ARG_ENABLE(build-documentation-translation,
     AS_HELP_STRING(
         [--disable-build-documentation-translation],
-        [Disable building documention in other languages than English.]
+        [Disable building documentation in languages other than English.]
     ),
     [
     case "$enableval" in

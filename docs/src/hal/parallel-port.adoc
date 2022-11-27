@@ -323,7 +323,7 @@ setp stepgen.0.stepspace 0
 ----
 
 More information on DoubleStep can be found on the
-http://wiki.linuxcnc.org/cgi-bin/wiki.pl?TweakingSoftwareStepGeneration[wiki].
+https://wiki.linuxcnc.org/cgi-bin/wiki.pl?TweakingSoftwareStepGeneration[wiki].
 
 [[sec:probe_parport]]
 == probe_parport
