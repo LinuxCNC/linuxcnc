@@ -2202,8 +2202,6 @@ proc updateStatus {} {
     set teleop_mode [emc_teleop_enable]
     if {$::jointworld == "joint" && $teleop_mode} {
       set ::jointworld "world" ;# radiobutton var
-    } elseif {$::jointworld == "world" && !$teleop_mode} {
-      set ::jointworld "joint"
     }
 
     # format the numbers with 4 digits-dot-4 digits
