@@ -24,8 +24,7 @@ In a terminal type `qtvcp list` to see a list.
 [[sub:qtvcp:panels:copy]]
 === `copy`
 
-Used for *copying QtVCP's builtin Screens/VCP Panels/QtVismach code to
-a folder* so one can _customize_ it.
+Used for *copying QtVCP's builtin Screens/VCP Panels/QtVismach code to a folder* so one can _customize_ it.
 
 In a terminal run:
 
@@ -43,8 +42,7 @@ image::images/qtvcp_copy_dialog.png["QtVCP copy Dialog - Screen, Panel or Vismac
 - This panel has a *dial that adjusts S32 and Float HAL output pins*.
 - The dial's range can be adjusted from a drop down menu.
 - The output can be scaled with the `spinbox`.
-- A `combobox` can be used to automatically select and connect to a
-  signal.
+- A `combobox` can be used to automatically select and connect to a signal.
 
 [source,{hal}]
 ----
@@ -84,8 +82,7 @@ image::images/qtvcp_test_button.png["QtVCP test_button - Test Button VCP",align=
 - This panel has an *LED that can selected to watch HAL bit pins/signals*.
 - The LED's color can be adjusted from a drop down menu.
 - The text box and state can be output as speech if sound is selected.
-- A `combobox` can be used to automatically select and connect to a
-  pin/signal.
+- A `combobox` can be used to automatically select and connect to a pin/signal.
 - You can add more LEDs from the drop down menu.
 - The LED can be detached from the main windows.
 
@@ -141,7 +138,7 @@ You can add window width and height size, rotation increment, and camera number 
 EMBED_TAB_COMMAND = halcmd loadusr -Wn qtvcp_embed qtvcp -d -c qtvcp_embed -x {XID} -o size=400,400 -o rotincr=.2 -o camnumber=0 cam_align
 ----
 
-mouse controls:
+Mouse controls:
 
 * left mouse single click - increase cross hair rotation one increment
 * right mouse single click - decrease cross hair rotation one increment
@@ -162,7 +159,7 @@ MDI_COMMAND=G0 X0 Y0,Go To\nOrigin
 ----
 Where the first command is referring to the button "SET origin" and the second to the button "GOTO Origin". +
 Note the comma and text after is optional - it will override the default button text. +
-These buttons are Qtvcp action buttons and follow those rules.
+These buttons are QtVCP action buttons and follow those rules.
  
 [[sub:qtvcp:panels:sim-panel]]
 === `sim_panel`
@@ -271,8 +268,8 @@ image::images/qtvismach_fanuc_200f.png["QtVCP vismach_fanuc_200f - 6 Joint Robot
 
 You can of course *make your own panel and load it*.
 
-If you made a UI file named `my_panel.ui` and a HAL file named
-`my_panel.hal`, you would then load this from a terminal with:
+If you made a UI file named `my_panel.ui` and a HAL file named `my_panel.hal`,
+you would then load this from a terminal with:
 
 ----
 halrun -I -f my_panel.hal
@@ -305,9 +302,7 @@ net s32-in1        test_panel.doublescale_1-s   classicladder.0.s32in-00
 start
 ----
 
-<1> In this case we load `qtvcp` using *`-Wn`* which waits for the panel
-    to finish loading before continuing to run the next HAL command. +
-    This is to _ensure that the panel created HAL pins are actually done_
-    in case they are used in the rest of the file.
+<1> In this case we load `qtvcp` using *`-Wn`* which waits for the panel to finish loading before continuing to run the next HAL command. +
+    This is to _ensure that the panel created HAL pins are actually done_ in case they are used in the rest of the file.
 
 // vim: set syntax=asciidoc:

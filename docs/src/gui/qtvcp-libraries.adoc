@@ -57,7 +57,7 @@ For example, you can catch machine on and off messages.
 The example below shows the _two common ways of connecting signals_, one of them _using lambda_. +
 *`lambda`* is _used to strip off or manipulate arguments_ from the status message before calling the function. +
 You can see the difference in the called function signature:
-the one that uses lambda does not accept the status object - lambda did not pass it to the function.
+The one that uses lambda does not accept the status object - lambda did not pass it to the function.
 
 * Place these commands into the `[INITIALIZE]` section of the Python handler file:
 +
@@ -82,7 +82,7 @@ def on_state_off(self):
 
 == `Info`
 
-*`Info`* is a library to *collect and filter data from the INI file*. +
+*`Info`* is a library to *collect and filter data from the INI file*.
 
 === Available data and defaults
 
@@ -189,8 +189,7 @@ There are some _helper functions_ - mostly used for widget support:
 *`convert_units(_data_)`*::
 *`convert_units_9(_data_)`*::
 *`get_filter_program(_fname_)`*::
-*`get_qt_filter_extensions()`*::
-    Get filter extensions in Qt format.
+*`get_qt_filter_extensions()`*:: Get filter extensions in Qt format.
 
 === Usage
 
@@ -218,8 +217,7 @@ from qtvcp.core import Info
 INFO = Info()
 ----
 
-* *Access `INFO` data*
-  Use this general syntax:
+* *Access `INFO` data* Use this general syntax:
 +
 [source,python]
 ----
@@ -238,14 +236,12 @@ It tries to hide incidental details and add convenience methods for developers.
 
 === Helpers
 
-There are some *helper functions*, mostly used for this library's
-support:
+There are some *helper functions*, mostly used for this library's support:
 
 *`get_jog_info (_num_)`*::
 *`jnum_check(_num_)`*::
 *`ensure_mode(_modes_)`*::
-*`open_filter_program(_filename_, _filter_)`*::
-  Open G-code filter program.
+*`open_filter_program(_filename_, _filter_)`*:: Open G-code filter program.
 
 === Usage
 
@@ -420,7 +416,7 @@ You can preload the `newtool` array with tool information.
 +
 This tool _array must contain all the available tools information_.
 +
-This array is expected to use the LinuxCNC _raw tool array_, i.e. doesn't have tool wear entries.
+This array is expected to use the LinuxCNC _raw tool array_, i.e. it does not feature tool wear entries.
 +
 //FIXME Really ??
 It will return True if there was an error.
@@ -708,8 +704,7 @@ KEYBIND = Keylookup()
 
 .Add Key Bindings
 
-NOTE: `Keylookup` requires code under the `processed_key_event` function
-  to call `KEYBIND.call()`. +
+NOTE: `Keylookup` requires code under the `processed_key_event` function to call `KEYBIND.call()`. +
   Most handler files already have this code.
 
 In the handler file, under the _initialized function_ use this general
@@ -856,14 +851,10 @@ Typically `STATUS` _messages_ are used to sent notify messages. +
 
 You can set the:
 
-*`title`*::
-  Notification message title text.
-*`message`*::
-  Notification message content text.
-*`icon`*::
-  Notification message icon.
-*`timeout`*::
-  How long the message stays up for.
+*`title`*:: Notification message title text.
+*`message`*:: Notification message content text.
+*`icon`*:: Notification message icon.
+*`timeout`*:: How long the message stays up for.
 
 //TODO Notify: Usage
 
@@ -952,8 +943,8 @@ SOUND = Player()
 SOUND._register_messages()
 ----
 +
-The *`_register_messages()`* function connects the audio player to the
-`STATUS` library so sounds can be played with the `STATUS` message system.
+The *`_register_messages()`* function connects the audio player to the `STATUS` library
+so sounds can be played with the `STATUS` message system.
 
 === Example
 
@@ -971,8 +962,7 @@ STATUS.emit('play-sound', 'PATH TO SOUND')
 
 This library allows you to *use `STATUS` messages to launch a virtual keyboard*.
 
-It uses https://launchpad.net/onboard[`Onboard`] or
-https://git.yoctoproject.org/matchbox-keyboard/[`Matchbox`] libraries for the keyboard.
+It uses https://launchpad.net/onboard[`Onboard`] or https://git.yoctoproject.org/matchbox-keyboard/[`Matchbox`] libraries for the keyboard.
 
 //TODO Virtual Keyboard: usage
 
@@ -1031,8 +1021,7 @@ Toolbuttons, menu and toolbar menus are:
 *`calculatordialog`*::
 *`alphamode`*::
 *`inhibit_selection`*::
-*`show_dimensions`*::
-  Toggles dimensions display.
+*`show_dimensions`*:: Toggles dimensions display.
 
 === Submenus
 
@@ -1040,8 +1029,7 @@ Toolbuttons, menu and toolbar menus are:
 *`home_submenu`*::
 *`unhome_submenu`*::
 *`zero_systems_submenu`*::
-*`grid_size_submenu`*::
-  Menu to set graphic grid size
+*`grid_size_submenu`*:: Menu to set graphic grid size
 
 === Usage
 
@@ -1208,7 +1196,7 @@ Base object to _hold coordinates for primitive shapes_.
 
 //FIXME Vismach: Triangle: Don't coordinates need 2 axes and not be limited to Z !?
 *`TriangleXY`, `TriangleXZ`, `TriangleYZ`*::
-  *Build a triangle* in the _specified plane_ by giving the _corners Z coordinates_ for each side
+  *Build a triangle* in the _specified plane_ by giving the _corners Z coordinates_ for each side.
 
 //FIXME Vismach: Arc: how to specify ?
 *`ArcX`*::
