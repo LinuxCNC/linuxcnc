@@ -484,11 +484,15 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
             min_extents = from_internal_units(canon.min_extents, conv)
             max_extents = from_internal_units(canon.max_extents, conv)
+            min_extents_zero_rxy = from_internal_units(canon.min_extents_zero_rxy, conv)
+            max_extents_zero_rxy = from_internal_units(canon.max_extents_zero_rxy, conv)
             for (i, c) in enumerate("XYZ"):
                 a = min_extents[i]
                 b = max_extents[i]
-                if a != b:
-                    props[c] = "%(a)f to %(b)f = %(diff)f %(units)s".replace("%f", fmt) % {'a': a, 'b': b, 'diff': b-a, 'units': units}
+                d = min_extents_zero_rxy[i]
+                e = max_extents_zero_rxy[i]
+                props[c] = "%(a)f to %(b)f = %(diff)f %(units)s".replace("%f", fmt) % {'a': a, 'b': b, 'diff': b-a, 'units': units}
+                props[c + '_zero_rxy'] = "%(d)f to %(e)f = %(diff)f %(units)s".replace("%f", fmt) % {'d': d, 'e': e, 'diff': e-d, 'units': units}
             props['Units'] = units
 
             if self.metric_units:
