@@ -8,7 +8,7 @@ import linuxcnc
 import linuxcnc_util
 import hal
 
-def wait_for_hal_pin(name, value, timeout=10):
+def wait_for_hal_pin(name, value, timeout=30):
     start_time = time.time()
     while (time.time() - start_time) < timeout:
         if hal.get_value(name) == value:
