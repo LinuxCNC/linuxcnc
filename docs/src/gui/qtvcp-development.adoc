@@ -1,4 +1,4 @@
-luz paz <luzpaz@pm.me>:lang: en
+:lang: en
 :toc:
 
 [[cha:qtvcp:devel]]
