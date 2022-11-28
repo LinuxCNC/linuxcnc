@@ -832,7 +832,10 @@ typedef struct {
 
     //scanwidth for this instance	
     rtapi_u32 scanwidth;	
-
+    
+    //number of encoders for this instance    
+	 rtapi_u32 num_encoders;
+	 	
     //previous MPG counts for this instance	
     rtapi_s8 prev_enc0_count;	
     rtapi_s8 prev_enc1_count;	
