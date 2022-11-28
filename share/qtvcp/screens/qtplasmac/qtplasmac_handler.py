@@ -1676,7 +1676,7 @@ class HandlerClass:
             self.touch_xy_clicked()
 
     def ext_laser_touch_off(self, state):
-        if self.w.laser.isEnabled():
+        if self.w.laser.isVisible():
             if state:
                 self.extLaserButton = True
                 self.laser_pressed()
@@ -5773,7 +5773,7 @@ class HandlerClass:
             self.touch_xy_clicked()
 
     def on_keycall_DELETE(self, event, state, shift, cntrl):
-        if self.keyboard_shortcuts() and not self.w.main_tab_widget.currentIndex() and self.w.laser.isEnabled():
+        if self.keyboard_shortcuts() and not self.w.main_tab_widget.currentIndex() and self.w.laser.isVisible():
             if state and not event.isAutoRepeat():
                 self.extLaserButton = True
                 self.laser_pressed()
