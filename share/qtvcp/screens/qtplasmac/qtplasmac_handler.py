@@ -1897,7 +1897,8 @@ class HandlerClass:
         try:
             os.remove(tmpFile)
         except:
-            print("Unknown error removing config_info.txt")
+            log = _translate('HandlerClass', 'Unknown error removing')
+            STATUS.emit('update-machine-log', '{} config_info.txt'.format(log, file), 'TIME')
         head = _translate('HandlerClass', 'Backup Complete')
         msg0 = _translate('HandlerClass', 'A compressed backup of the machine configuration including the machine logs has been saved in your home directory as')
         msg1 = _translate('HandlerClass', 'It is safe to delete this file at any time')

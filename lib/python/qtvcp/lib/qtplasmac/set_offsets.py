@@ -89,8 +89,6 @@ def dlg_laser_clicked(P, W, prefs, STATUS, dlg, btn1, btn2, btn3, btn4):
         prefs.putpref('X axis', P.laserOffsetX, float, 'LASER_OFFSET')
         prefs.putpref('Y axis', P.laserOffsetY, float, 'LASER_OFFSET')
         if P.laserOffsetX or P.laserOffsetY:
-            print("X:", P.laserOffsetX)
-            print("Y:", P.laserOffsetY)
             W.laser.show()
         else:
             W.laser.hide()
@@ -210,9 +208,6 @@ def dlg_probe_clicked(P, prefs, STATUS, dlg, btn1, btn2, btn3, btn4):
         P.offsetSetProbePin.set(0)
         return
     if get_reply(P, STATUS, P.probeOffsetX, P.probeOffsetY, True, P.probeDelay, new):
-        print(round(STATUS.get_position()[1][0], 4) + 0)
-        print(round(STATUS.get_position()[1][1], 4) + 0)
-        print(new)
         P.probeOffsetX = round(STATUS.get_position()[1][0], 4) + 0
         P.probeOffsetY = round(STATUS.get_position()[1][1], 4) + 0
         P.probeDelay = new
