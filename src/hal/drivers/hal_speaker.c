@@ -64,6 +64,7 @@
 #include "config.h"     /* environment flags */
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "rtapi_io.h"
 #include "hal.h"		/* HAL public API decls */
 
 /* If FASTIO is defined, uses outb() and inb() from <asm.io>,
@@ -161,7 +162,7 @@ int rtapi_app_main(void)
 
 #if !defined(RTAPI_RTAI)
     /* STEP 1.1: get access to port, only needed in uspace builds */
-    if (ioperm(SPEAKER_PORT, 1, 1) < 0) {
+    if (rtapi_ioperm(SPEAKER_PORT, 1, 1) < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SPEAKER: ERROR: ioperm() failed\n");
 	hal_exit(comp_id);
