@@ -802,6 +802,7 @@ proc ::tooledit::writefile {filename} {
   set allheader [concat $::te(autocolumns) $::te(allcolumns) comment]
 
   foreach i $::te(items) {
+    set line ""
     foreach h $allheader {
       set j ""
       set w $::te($h,width)
@@ -812,10 +813,10 @@ proc ::tooledit::writefile {filename} {
       }
       set value [string trim $::te(parm,$i,$h)]
       if {"$value" != ""} {
-        puts -nonewline $fd "$::te($h,tag)$value "
+        set line "$line $::te($h,tag)$value "
       }
     }
-    puts $fd "" ;# new line
+    puts $fd [string trim "$line"]
   }
   watch stop
   close $fd
