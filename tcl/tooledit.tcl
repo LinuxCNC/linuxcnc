@@ -113,6 +113,7 @@ proc ::tooledit::init { {columns ""} } {
   set ::te(type,poc)     integer
   set ::te(type,orien)   integer
   set ::te(type,comment) ascii
+  set ::te(tool_changer) unknown
 
   # include values for each (header) item:
   set ::te(tool,width)     5; set ::te(tool,tag)     T
@@ -269,6 +270,18 @@ proc ::tooledit::readfile {filename} {
   catch {
     sendaxis ping
     set axis_is_running [sendaxis tool_table_filename]
+
+    if $axis_is_running {
+      set tchanger nonrandom ;# default if not specified
+      if [catch {set tchanger [send axis inifindall EMCIO RANDOM_TOOLCHANGER]} msg ] {
+          puts "UNEXPECTED: $msg"
+      }
+      switch "$tchanger" {
+        1       {set ::te(tool_changer)    random}
+        default {set ::te(tool_changer) nonrandom}
+      }
+    }
+
     set tooledit_pid_ct [llength $tooledit_pids]
     if {$axis_is_running  && $tooledit_pid_ct > 0} {
       set msg [_ "Current file:"]
@@ -802,6 +815,7 @@ proc ::tooledit::writefile {filename} {
   set allheader [concat $::te(autocolumns) $::te(allcolumns) comment]
 
   foreach i $::te(items) {
+    set line ""
     foreach h $allheader {
       set j ""
       set w $::te($h,width)
@@ -812,10 +826,10 @@ proc ::tooledit::writefile {filename} {
       }
       set value [string trim $::te(parm,$i,$h)]
       if {"$value" != ""} {
-        puts -nonewline $fd "$::te($h,tag)$value "
+        set line "$line $::te($h,tag)$value "
       }
     }
-    puts $fd "" ;# new line
+    puts $fd [string trim "$line"]
   }
   watch stop
   close $fd
@@ -872,8 +886,7 @@ proc ::tooledit::toolvalidate {args} {
     set pocs ""
     foreach i $::te(items) {
       set p $::te(parm,$i,poc)
-
-      if {[lsearch $pocs $p] >= 0} {
+      if { "$::te(tool_changer)" == "random" && [lsearch $pocs $p] >= 0 } {
         set nextmsg [format [_ "Pocket <%s> specified multiple times"]  $p]
         if {[lsearch $msg $nextmsg] >= 0} continue
         lappend msg $nextmsg
