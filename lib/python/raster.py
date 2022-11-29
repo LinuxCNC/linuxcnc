@@ -28,7 +28,7 @@ class RasterProgrammer(object):
     """
         The programmer component is used to program the realtime raster component
 
-        The raster component operates on line at a time. 
+        The raster component operates one line at a time. 
 
         Example:
             Assuming rastering is done accross the X axis.
@@ -73,9 +73,11 @@ class RasterProgrammer(object):
         timeout = clock() + self.__timeout
         while self.enabled.value != enabled:
             if clock() > timeout:
+                self.run.value = False
                 raise ProgrammerException("Raster failed to respond before the timeout was reached")
 
             if self.faultCode.value != FaultCodes.OK.value:
+                self.run.value = False
                 raise ProgrammerException("Raster faulted with error {0}".format(FaultCodes(self.faultCode.value)))
         
     def begin(self, offset, bpp, ppu, count):
@@ -136,7 +138,10 @@ class RasterProgrammer(object):
             Commands the raster to begin running the program
             Waits until the raster is enabled and running
         """
-        assert self.enabled.value == False, "Raster is in an enabled state which is not expected."
+        if self.enabled.value:
+            self.enabled.value = False
+            raise ProgrammerException("Raster cannot start. It is already running.")
+
         self.run.value = True
         self.__waitEnabled(True)
 

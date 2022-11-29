@@ -185,13 +185,11 @@ def testProgram(pos, offset, bpp, dpu, program, data):
     for (pos, pow) in data:
         position.value = pos
         time.sleep(0.001)
-        #assert (output.value - pow) < theta, "output at position {0} should be {1}. Got {2}".format(pos, pow, output.value)
+        assert (output.value - pow) < theta, "output at position {0} should be {1}. Got {2}".format(pos, pow, output.value)
         #once prosition is exceeded the program should be finished and raster should reset
-        print "expected {0}, got {1}. position {2}, bitmap pos {3}, pixel_index {4}, prev_v {5}, cur_v {6}, fraction {7}".format(pow, output.value, position.value, bitmap_position.value, current_pixel_index.value, previous_pixel_value.value, current_pixel_value.value, fraction.value)
     assert enabled.value == True, "raster should still be enabled"
     prog.stop()
 
-    print "done"
 
 
 testInvalidOffset()
@@ -320,8 +318,8 @@ testProgram(-1.0,
 #              (1000.0, -1.0)])
 
              
-#c.exit()
-#prog.exit()
-#os.system('halrun -U')
+c.exit()
+prog.exit()
+os.system('halrun -U')
 exit(0)
 

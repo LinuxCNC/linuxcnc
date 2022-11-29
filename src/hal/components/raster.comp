@@ -12,13 +12,49 @@ pin out signed state = 0    "current state";
 pin out float program_position = 0.0 "base position of program at run start";
 pin out float program_offset = 0.0  "offset to start of pixel data";
 pin out signed bpp = 0         "bits per pixel.";
-pin out float ppu = 0.0            "points per unit";
+pin out float ppu = 0.0            "pixels per unit";
 pin out signed count = 0       "pixel count";
 pin out float bitmap_position = 0.0 "calculated position in bitmap";
 pin out float current_pixel_value = -1.0 "current loaded pixel value";
 pin out float previous_pixel_value = -1.0 "previously loaded pixel value";
 pin out signed current_pixel_index = -1 "currently loaded pixel index";
 pin out float fraction = 0.0;
+
+description """The raster componenet converts a single raster program line to laser output.
+               The position pin is slaved to the axis that the raster line maps too. 
+               The raster program must be programmed for each raster line that is to be executed.
+               The port must be programmed prior to a raster line being executed.
+
+               A python component RasterProgrammer (lib/python/RasterProgrammer.py) is provided to ease programming of the raster component.
+               congifs/sim/axis/laser shows an example of how these pieces could be integrated for a functional laser engraver config.
+
+               A program line format is as follows:
+               {program_offset};{bits_per_pixel};{pixels_per_unit};{number_of_ pixels};{pixel_data ....}
+
+               program_offset: a float. It indicates the start position of the raster line relative to the current axis postion. 
+                  A negative program_offset indicates that the raster sweeps from positive to negatve
+                  A zero or positive program_offset indicates that the raster sweeps from negative to positive direction
+
+               bits_per_pixel: an integer. It indicates the precision of a pixel value and consequently the number of bytes consumed per pixel value.
+                  A bits per pixel of 4 takes 1 character (0-F) and scales out from from 0.0 to 1.0 (0 being 0 and E being 1.0). F corresponds to off or -1.0
+                  A bits per pixel of 8 takes 2 characters per pixel, 12 takes 3 characters per pixel etc...
+
+               pixels_per_unit: a float that represents the size of a pixel in machine units. 
+                   1 would correspond to 1 pixel per machine unit, 100 would corrsepond to 100 pixels per machine unit.
+
+               number_of_pixels: an integer that indicates the length of the raster line in pixels.
+                          The length of the rasterline in machine units would be number_of_pixels / pixels_per_unit
+               
+               pixel_data: a series of hexadeicmal digits ([0-9][a-f][A-F]) the represents the pixel data.
+                       bits_per_pixel determines the resolution of a pixel and how many hexadecimal digits per pixel.
+                       pixel data characters have no delimiter between each pixel.
+                       4 bpp is one character per pixel
+                       8 bpp is 2 characters per pixel
+                       12 bpp is 3
+                       etc...
+""";
+               
+            
 
 function _;
 license "GPL";
@@ -77,7 +113,7 @@ bool read_float(hal_port_t port, hal_float_t* value) {
 bool read_int(hal_port_t port, hal_s32_t* value) {
     char data[10];
     long val;
-     int available = hal_port_readable(port);
+    int available = hal_port_readable(port);
     char* pos;
 
     hal_port_peek(port, data, available < 10 ? available : 10);
@@ -110,6 +146,7 @@ bool read_int(hal_port_t port, hal_s32_t* value) {
     reads and consumes a pixel value for the program port. 
     pixel data is encoded as ascii hex values [0-9][A-F] with each character representing 4 bits of data
     pixels bpp must be defined in increments of 4.
+    a pixel value with all 1 bits is a special value considered "off" for the raster and no power will be output
 */
 bool read_pixel_data(hal_port_t port, int bits_per_pixel, hal_float_t* power) {
     char data[8];
@@ -135,7 +172,6 @@ bool read_pixel_data(hal_port_t port, int bits_per_pixel, hal_float_t* power) {
         return false;
     }
     
-    /*a value with all 1 bits in the pixel is a special value considered "off" for the raster and no power will be output*/
     if(value == off) {
         *power = -1.0;
     } else {
@@ -163,7 +199,9 @@ FUNCTION(_) {
         previous_pixel_value = -1.0;
         current_pixel_index = -1;        
 
+        //when run is asserted, the port must be full of 1 line of raster data
         if(run) {
+
             if(!read_float(program, &program_offset)) {
                 state = FAULT;
                 fault_code = ERROR_INVALID_OFFSET;
@@ -192,6 +230,8 @@ FUNCTION(_) {
             hal_port_clear(program);
         } else {
             enabled = 1;
+
+            //consume pixel data as needed from programng port
             while((current_pixel_index < (((int)count)-1)) && ((hal_float_t)current_pixel_index < bitmap_position)) {
                 current_pixel_index = current_pixel_index+1;
                 previous_pixel_value = current_pixel_value;
@@ -202,7 +242,8 @@ FUNCTION(_) {
                     return;
                 }
             }
-
+    
+            //compute current output value
             if(float_eq(bitmap_position, (hal_float_t)current_pixel_index)) {
                 output = current_pixel_value;
             } else if(float_eq(bitmap_position, (hal_float_t)(current_pixel_index-1))) {
