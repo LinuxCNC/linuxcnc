@@ -740,7 +740,7 @@ m| .dac-_<0-3>_        | (float, In)        | Value of DAC output in Volts.
 |===
 | Parameters               | Type and direction | Parameter description
 m| .adc-scale-_<0-7>_      | (float, R/W)       |
-The input voltage will be multiplied bymscale before being output to .adc- pin.
+The input voltage will be multiplied by scale before being output to .adc- pin.
 m| .adc-offset-_<0-7>_     | (float, R/W)       |
 Offset is subtracted from the hardware input voltage after the scale multiplier has been applied.
 m| .dac-offset-_<0-3>_     | (float, R/W)       | Offset is added to the value before the hardware is updated.

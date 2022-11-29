@@ -6,8 +6,7 @@
 
 == Overview
 
-The intention of QtVCP is to *supply an infrastructure to support
-screen and VCP panel building for LinuxCNC*.
+The intention of QtVCP is to *supply an infrastructure to support screen and VCP panel building for LinuxCNC*.
 
 By providing a _diverse widget_ set and supporting _custom coding_,
 QtVCP hopes that development energy will be expended in _one toolkit_
@@ -63,8 +62,7 @@ When QtVCP first starts:
 .. Adds handler extensions,
 .. Installs an event filter.
 
-+
-Now the window/widgets are instantiated, the HAL pins are built. +
+Now the window/widgets are instantiated, the HAL pins are built.
 This also initiates the `+_init_hal()+` function of the widgets.
 . The `+initialized__()+` handler function is called
 . The `STATUS` library is forced to update.
