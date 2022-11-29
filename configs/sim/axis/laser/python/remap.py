@@ -7,16 +7,8 @@ rasterProgrammer = None
 def init(self):
     global rasterProgrammer
     rasterProgrammer = RasterProgrammer("raster-programmer")
-    print "raster initialized"
+    print("raster initialized")
        
-
-def rasterClear(self, **words):
-    #machine must be in position before clear issued
-    #make motion complete queue prior to clearing raster
-    yield INTERP_EXECUTE_FINISH
-    global rasterProgrammer
-    if rasterProgrammer:
-        rasterProgrammer.clear()
         
 def rasterBegin(self, **words):
     global rasterProgrammer
@@ -24,29 +16,33 @@ def rasterBegin(self, **words):
     #make motion complete queue prior to begin program
     yield INTERP_EXECUTE_FINISH
     if rasterProgrammer:
-        count = int(words['p'])
-        rasterProgrammer.begin(count)
+        offset = float(words['p'])
+        bpp = int(words['q'])
+        ppu = float(words['r'])
+        count = int(words['s'])
+        rasterProgrammer.begin(offset, bpp, ppu, count)
 
 
 def rasterData(self, **words):
     global rasterProgrammer
     if rasterProgrammer:
-        comment = self.blocks[self.remap_level].comment
-        data = comment.strip(',').split(',')
-        if len(data) % 2 != 0:
-            "raster data must have an even number of arguments. given {0}".format(len(data))
-        else:
-            for i in range(0, len(data), 2):
-                rasterProgrammer.data(float(data[i]), float(data[i+1]))
+        comment = self.blocks[self.remap_level].comment.strip()
+        rasterProgrammer.data(comment)
     return INTERP_OK
 
 
-def rasterRun(self, **words):
+def rasterStart(self, **words):
     global rasterProgrammer
     #matchine must be in position before run issued
     #make motion complete queue prior to run program command
     yield INTERP_EXECUTE_FINISH
     if rasterProgrammer:
-        rasterProgrammer.run()
+        rasterProgrammer.start()
+
+def rasterStop(self, **words):
+    global rasterProgrammer
+    yield INTERP_EXECUTE_FINISH
+    if rasterProgrammer:
+        rasterProgrammer.stop()
     
 
