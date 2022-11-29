@@ -5,7 +5,7 @@ from re import match
 from enum import Enum
 from pyhal import *
 from struct import *
-from time import clock
+import time
 
 class ProgrammerException(Exception):
     """exception type raised by the raster programmer"""
@@ -70,9 +70,9 @@ class RasterProgrammer(object):
         self.component.exit()
             
     def __waitEnabled(self, enabled):
-        timeout = clock() + self.__timeout
+        timeout = time.process_time() + self.__timeout
         while self.enabled.value != enabled:
-            if clock() > timeout:
+            if time.process_time() > timeout:
                 raise ProgrammerException("Raster failed to respond before the timeout was reached")
 
             if self.faultCode.value != FaultCodes.OK.value:

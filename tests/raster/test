@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from pyhal import *
 import time
 from struct import *
@@ -47,35 +47,35 @@ def assertIdle():
     assert state.value == 0, "raster not idle"
 
 def waitEnabled():
-    stop = time.clock() + timeout
+    stop = time.process_time() + timeout
     while not enabled.value:
         assert fault.value == 0, "Fault occured. Code {0}".format(fault_code.value)
-        assert time.clock() < stop, "Timeout while wainting" 
+        assert time.process_time() < stop, "Timeout while wainting" 
 
         
 def waitDisabled():
-    stop = time.clock() + timeout
+    stop = time.process_time() + timeout
     while enabled.value:
         assert fault.value == 0, "Fault occured. Code {0}".format(fault_code.value)
-        assert time.clock() < stop, "Timeout while waiting"
+        assert time.process_time() < stop, "Timeout while waiting"
 
 def waitFault():
-    stop = time.clock() + timeout
+    stop = time.process_time() + timeout
     while not fault.value:
-        assert time.clock() < stop, "Timeout while waiting"
+        assert time.process_time() < stop, "Timeout while waiting"
 
 def waitIdle():
-    stop = time.clock() + timeout
+    stop = time.process_time() + timeout
     while state.value != 0:
         assert fault.value == 0, "Fault occured. Code {0}".format(fault_code.value)
-        assert time.clock() < stop, "Timeout while waiting"
+        assert time.process_time() < stop, "Timeout while waiting"
 
 def resetRaster():
-    stop = time.clock() + timeout
+    stop = time.process_time() + timeout
     prog.run.value = 0
     reset.value = 1
     while state.value != 0:
-        assert time.clock() < stop, "Timeout while waiting"
+        assert time.process_time() < stop, "Timeout while waiting"
     reset.value = 0
     assertIdle()    
 
@@ -119,7 +119,7 @@ def testInvalidBPP():
 def testValidBPP():
     for bpp in [4, 8, 12, 16, 20, 24, 28, 32]:
         resetRaster()
-        prog.port.write("123.45;{0};1.0;2;{1}".format(bpp, "0" * 2 * (bpp/4)))
+        prog.port.write("123.45;{0};1.0;2;{1}".format(bpp, "0" * 2 * int(bpp/4)))
         prog.run.value = 1
         waitEnabled()
        
@@ -178,7 +178,7 @@ def testWrongDirection():
 
 def testProgram(pos, offset, bpp, dpu, program, data):
     position.value = pos
-    prog.begin(offset, bpp, dpu, len(program)/(bpp/4))
+    prog.begin(offset, bpp, dpu, int(len(program)/(bpp/4)))
     prog.data(program)
 
     prog.start()
@@ -187,11 +187,9 @@ def testProgram(pos, offset, bpp, dpu, program, data):
         time.sleep(0.001)
         #assert (output.value - pow) < theta, "output at position {0} should be {1}. Got {2}".format(pos, pow, output.value)
         #once prosition is exceeded the program should be finished and raster should reset
-        print "expected {0}, got {1}. position {2}, bitmap pos {3}, pixel_index {4}, prev_v {5}, cur_v {6}, fraction {7}".format(pow, output.value, position.value, bitmap_position.value, current_pixel_index.value, previous_pixel_value.value, current_pixel_value.value, fraction.value)
     assert enabled.value == True, "raster should still be enabled"
     prog.stop()
 
-    print "done"
 
 
 testInvalidOffset()
@@ -252,76 +250,9 @@ testProgram(-1.0,
               (1.1, -1.0)])
 
 
-
-
-
-#testProgram(-1.0, 
-#             0.0, 
-#               4, 
-#             1.0, 
-#             "01234F43210", 
-#             [(-1.0, -1.0),
-#              (-0.01, -1.0),
-#              (0.0, 0.0),
-#              (0.5, 0.5),
-#              (1.0, 1.0),
-#              (2.0, 2.0),
-#              (3.0, 3.0),
-#              (3.9, 3.9),
-#              (4.0, -1.0),
-#              (5.0, -1.0),
-#              (6.0, -1.0),
-#              (6.001, 4.0),
-#              (6.5, 3.5),
-#              (7.0, 3.0),
-#              (8.0, 2.0),
-#              (8.5, 1.5),
-#              (9.0, 1.0),
-#              (10.0, 0.0),
-#              (10.1, -1.0),
-#              (1000.0, -1.0)])
-#
-
-#testProgram(10.0,
-#            -0.0,
-#               4,
-#             2.0,
-#             "0A",
-#             [(10.0, -1.0),
-#              (8.0, 5.0),
-#              (7.0, 10.0),
-#              (6.9, -1.0)])
-
-
-#testProgram(-1.0, 
-#             0.0, 
-#               12, 
-#             1.0, 
-#             "000100200300400FFF400300200100000",
-#             [(-1.0, -1.0),
-#              (-0.01, -1.0),
-#              (0.0, 0.0),
-#              (0.5, 0.5),
-#              (1.0, 1.0),
-#              (2.0, 2.0),
-#              (3.0, 3.0),
-#              (3.9, 3.9),
-#              (4.0, -1.0),
-#              (5.0, -1.0),
-#              (6.0, -1.0),
-#              (6.001, 4.0),
-#              (6.5, 3.5),
-#              (7.0, 3.0),
-#              (8.0, 2.0),
-#              (8.5, 1.5),
-#              (9.0, 1.0),
-#              (10.0, 0.0),
-#              (10.1, -1.0),
-#              (1000.0, -1.0)])
-
              
-#c.exit()
-#prog.exit()
-#os.system('halrun -U')
+c.exit()
+prog.exit()
+os.system('halrun -U')
 exit(0)
 
