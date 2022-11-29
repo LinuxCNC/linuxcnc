@@ -252,7 +252,8 @@ using the screen basename and rc, i.e. *`CONFIGDIRECTORY/.<screen_name>rc`*.
 This file will be read and executed as Python code in the *handler file context*.
 
 *Only local functions and local attributes* can be referenced. +
-Global libraries can not be referenced. (usualy seen as all capital words with no preceding self.) +
+Global libraries can not be referenced. (usually seen as all capital
+words with no preceding self.) +
 
 What can be used can vary by screen and development cycle.
 
@@ -830,7 +831,7 @@ By instantiating the libraries here we *create global reference*.
 
 You can note this by the commands that don't have `self.` in front of them.
 
-By convention we _capitalize the names of globaly referenced libraries_.
+By convention we _capitalize the names of globally referenced libraries_.
 
 === HANDLER CLASS Section
 
@@ -1025,7 +1026,7 @@ Save the handler file.
 Now when you load your screen and press the button it should print the
 name of the button in the terminal.
 
-== More Informations
+== More Information
 
 <<cha:qtvcp:panels,QtVCP Builtin Virtual Control Panels>>
 

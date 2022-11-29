@@ -17,7 +17,7 @@ Modbus devices. So far, there are two options to communicate with a Modbus
 device:
 
 . One option is to create a HAL component as a driver see
-  http://wiki.linuxcnc.org/cgi-bin/wiki.pl?VFD_Modbus[VFD Modbus].
+  https://wiki.linuxcnc.org/cgi-bin/wiki.pl?VFD_Modbus[VFD Modbus].
 . Another option is to use Classic Ladder which has Modbus built in
   see << cha:classicladder,ClassicLadder >>.
 . Now there is a third option that consists of a "generic" driver

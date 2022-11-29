@@ -305,7 +305,7 @@ In most cases you can right click on the file and select 'open with text editor'
 .Colors
 
 Colors can be specified using the X11 rgb colors by name 'gray75' or hex '#0000ff'.
-A complete list is located here http://sedition.com/perl/rgb.html[http://sedition.com/perl/rgb.html].
+A complete list is located here https://sedition.com/perl/rgb.html[https://sedition.com/perl/rgb.html].
 
 Common Colors (colors with numbers indicate shades of that color)
 

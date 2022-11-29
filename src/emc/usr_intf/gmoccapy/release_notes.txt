@@ -504,7 +504,7 @@ ver. 2.2.2
 
 ver. 2.2.1
 - if linuxcnc is restarted without shutting down gmoccapy, it was not possible
-  to close gmoccapy (except from comandline with killall -9 gmoccapy
+  to close gmoccapy (except from commandline with killall -9 gmoccapy
   I added a check to status.poll and now a raise SystemExit will be called.
   as this also applies to CombiDRO a added that there too.
   I added gmoccapy to the linuxcnc script to be killed on restart
@@ -566,7 +566,7 @@ ver. 2.1.5
 ver. 2.1.4
 - lathe wear offsets has been displayed by default, IMHO that
   disturbs most users, as the wear offsets do only work with
-  remaped code. That part is only weak documented.
+  remapped code. That part is only weak documented.
 - If the user wants to use wear offsets, he will have to include
   in [DISPLAY] LATHE_WEAR_OFFSETS = 1, otherwise the additional tabs
   will be hidden.
@@ -1833,7 +1833,7 @@ ver. 0.9.1.2
 
 ver. 0.9.1
 - show offsets and show dtg for gremlin are only sensitive if show gremlin DRO 
-  is actice, other behavior makes no sense
+  is active, other behavior makes no sense
 - settings page can be reached now also in estop state
 - desktop notify can be disabled in settings page, makes the gui faster
 - file to load on start up can be selected on settings page

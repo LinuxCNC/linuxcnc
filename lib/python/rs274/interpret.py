@@ -35,7 +35,7 @@ class Translated:
         u += self.g92_offset_u
         v += self.g92_offset_v
         w += self.g92_offset_w
-        
+
         if self.rotation_xy:
             rotx = x * self.rotation_cos - y * self.rotation_sin
             y = x * self.rotation_sin + y * self.rotation_cos
@@ -51,7 +51,7 @@ class Translated:
         v += self.g5x_offset_v
         w += self.g5x_offset_w
 
-        return [x, y, z, a, b, c, u, v, w]
+        return (x, y, z, a, b, c, u, v, w)
 
     def straight_traverse(self, *args):
         self.straight_traverse_translated(*self.rotate_and_translate(*args))
@@ -92,7 +92,6 @@ class ArcsToSegmentsMixin:
         self.plane = plane
 
     def arc_feed(self, x1, y1, cx, cy, rot, z1, a, b, c, u, v, w):
-        self.lo = tuple(self.lo)
         segs = gcode.arc_to_segments(self, x1, y1, cx, cy, rot, z1, a, b, c, u, v, w, self.arcdivision)
         self.straight_arcsegments(segs)
 

@@ -152,7 +152,7 @@ require you to install Glade 3.8.0 - 3.8.6 (you may need to compile it yourself)
 
 .RIP compiled commands
 Using a compiled from source version of
-http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Installing_LinuxCNC[LinuxCNC] open
+https://wiki.linuxcnc.org/cgi-bin/wiki.pl?Installing_LinuxCNC[LinuxCNC] open
 a terminal and <<faq:cd,cd>> to the top of the LinuxCNC folder. Set up the
 environment by entering '. ./scripts/rip-environment' now enter 'glade', you
 see a bunch of warnings in the terminal that you can ignore and the editor

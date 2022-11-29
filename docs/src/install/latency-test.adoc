@@ -98,7 +98,7 @@ the worst case latency doesn't happen very often, or only happens
 when you do some particular action. For instance, one Intel
 motherboard worked pretty well most of the time, but every 64
 seconds it had a very bad 300 us latency. Fortunately that was
-fixable, see http://wiki.linuxcnc.org/cgi-bin/wiki.pl?FixingSMIIssues
+fixable, see https://wiki.linuxcnc.org/cgi-bin/wiki.pl?FixingSMIIssues
 
 So, what do the results mean? If your Max Jitter number is less
 than about 15-20 microseconds (15000-20000 nanoseconds), the

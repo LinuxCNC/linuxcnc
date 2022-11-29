@@ -387,7 +387,7 @@ In Qt Designer:
 * Use Qt Designer's slot editor to use the button signal `clicked(bool)`
   to call form's handler function `toggle_continuous_clicked()`. +
   See <<sub:qtvcp:designer-slots,Using Qt Designer To Add Slots>>
-  section for more informations.
+  section for more information.
 
 Then add this code snippets to the handler file under the `initialized__`
 function:

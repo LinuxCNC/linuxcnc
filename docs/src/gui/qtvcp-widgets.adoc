@@ -642,7 +642,7 @@ MDI_COMMAND = G53 G0 Z0;G53 G0 X0 Y0, Goto\nMachn\nZero
 //FIXME add link to Indicated_PushButton section
 Action buttons are subclassed from
 <<sub:qtvcp:widgets:indicatedpushbutton>>[`IndicatedPushButton`]. +
-See the following sections for more informations about:
+See the following sections for more information about:
 
 * <<sub:qtvcp:widgets:indicatedpushbutton:led,LED Indicator option>>
 * <<sub:qtvcp:widgets:indicatedpushbutton:state-enabled,Enabled on State>>
@@ -1084,7 +1084,7 @@ as plasma or some Lathes and have no rotate button assigned.
 |===
 
 *`MouseWheelInvertZoom`* _(bool)_::
-  Determines wether or not to _invert the zoom direction_ when zooming
+  Determines whether or not to _invert the zoom direction_ when zooming
   with the mouse wheel. +
   The following shows an example of how to set this property:
 +
@@ -1737,7 +1737,7 @@ The state options are:
 *`is_neg_limit_tripped`*::
 *`is_pos_limit_tripped`*::
 *`is_limits_tripped`*::
-// end defintion list
+// end definition list
 
 .Properties
 There are properties that can be changed:
@@ -2353,7 +2353,7 @@ actions:
 *`set_all_unchecked()`*::
   Uncheck all selected tools.
 
-.Example for handler file executing aformentioned functions.
+.Example for handler file executing aforementioned functions.
 [source,python]
 ----
 self.w.tooloffsetview.add_tool()

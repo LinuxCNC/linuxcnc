@@ -1,4 +1,4 @@
-VERSION = '1.233.250'
+VERSION = '1.233.253'
 
 '''
 qtplasmac_handler.py
@@ -1643,9 +1643,6 @@ class HandlerClass:
                 self.set_blank_gcodeprops()
             else:
                 self.gcodeProps = props
-                for axis in 'XY':
-                    if not axis in self.gcodeProps:
-                        self.gcodeProps[axis] = '{0} to {0} = {1}'.format(STATUS.stat.g5x_offset['XY'.index(axis)], 0)
             if props['GCode Units'] == 'in':
                 STATUS.emit('metric-mode-changed', False)
             else:
@@ -1679,7 +1676,7 @@ class HandlerClass:
             self.touch_xy_clicked()
 
     def ext_laser_touch_off(self, state):
-        if self.w.laser.isEnabled():
+        if self.w.laser.isVisible():
             if state:
                 self.extLaserButton = True
                 self.laser_pressed()
@@ -1900,7 +1897,8 @@ class HandlerClass:
         try:
             os.remove(tmpFile)
         except:
-            print("Unknown error removing config_info.txt")
+            log = _translate('HandlerClass', 'Unknown error removing')
+            STATUS.emit('update-machine-log', '{} config_info.txt'.format(log, file), 'TIME')
         head = _translate('HandlerClass', 'Backup Complete')
         msg0 = _translate('HandlerClass', 'A compressed backup of the machine configuration including the machine logs has been saved in your home directory as')
         msg1 = _translate('HandlerClass', 'It is safe to delete this file at any time')
@@ -2363,6 +2361,9 @@ class HandlerClass:
         self.gcodeProps['X'] = '0.0 to 0.0 = 0.0 {}'.format(self.units)
         self.gcodeProps['Y'] = '0.0 to 0.0 = 0.0 {}'.format(self.units)
         self.gcodeProps['Z'] = '0.0 to 0.0 = 0.0 {}'.format(self.units)
+        self.gcodeProps['X_zero_rxy'] = '0.0 to 0.0 = 0.0 {}'.format(self.units)
+        self.gcodeProps['Y_zero_rxy'] = '0.0 to 0.0 = 0.0 {}'.format(self.units)
+        self.gcodeProps['Z_zero_rxy'] = '0.0 to 0.0 = 0.0 {}'.format(self.units)
         self.gcodeProps['Units'] = '{}'.format(self.units)
         self.gcodeProps['GCode Units'] = '{}'.format(self.units)
 
@@ -2413,7 +2414,8 @@ class HandlerClass:
                 self.file_reload_clicked()
             ACTION.SET_MANUAL_MODE()
 
-    def bounds_check(self, boundsType, xOffset , yOffset):
+    def bounds_check(self, boundsType, xOffset, yOffset):
+        framing = True if 'framing' in boundsType else False
         self.boundsError[boundsType] = False
         msgList = []
         boundsMultiplier = 1
@@ -2421,35 +2423,67 @@ class HandlerClass:
             boundsMultiplier = 0.03937
         elif self.units == 'mm' and self.gcodeProps['Units'] == 'in':
             boundsMultiplier = 25.4
-        xMin = round(float(self.gcodeProps['X'].split()[0]) * boundsMultiplier + xOffset, 5)
+        if framing:
+            xStart = STATUS.stat.g5x_offset[0] + xOffset
+            yStart = STATUS.stat.g5x_offset[1] + yOffset
+            xMin = round(float(self.gcodeProps['X_zero_rxy'].split()[0]) * boundsMultiplier + xOffset, 5)
+            xMax = round(float(self.gcodeProps['X_zero_rxy'].split()[2]) * boundsMultiplier + xOffset, 5)
+            yMin = round(float(self.gcodeProps['Y_zero_rxy'].split()[0]) * boundsMultiplier + yOffset, 5)
+            yMax = round(float(self.gcodeProps['Y_zero_rxy'].split()[2]) * boundsMultiplier + yOffset, 5)
+            coordinates = [[xStart, yStart], [xMin, yMin], [xMin, yMax], [xMax, yMax], [xMax, yMin]]
+            frame_points, xMin, yMin, xMax, yMax = self.rotate_frame(coordinates)
+        else:
+            xMin = round(float(self.gcodeProps['X'].split()[0]) * boundsMultiplier + xOffset, 5)
+            xMax = round(float(self.gcodeProps['X'].split()[2]) * boundsMultiplier + xOffset, 5)
+            yMin = round(float(self.gcodeProps['Y'].split()[0]) * boundsMultiplier + yOffset, 5)
+            yMax = round(float(self.gcodeProps['Y'].split()[2]) * boundsMultiplier + yOffset, 5)
         if xMin < self.xMin:
             amount = float(self.xMin - xMin)
             msgList.append('X')
             msgList.append('MIN')
             msgList.append('{:0.2f}'.format(amount))
             self.boundsError[boundsType] = True
-        xMax = round(float(self.gcodeProps['X'].split()[2]) * boundsMultiplier + xOffset, 5)
         if xMax > self.xMax:
             amount = float(xMax - self.xMax)
             msgList.append('X')
             msgList.append('MAX')
             msgList.append('{:0.2f}'.format(amount))
             self.boundsError[boundsType] = True
-        yMin = round(float(self.gcodeProps['Y'].split()[0]) * boundsMultiplier + yOffset, 5)
         if yMin < self.yMin:
             amount = float(self.yMin - yMin)
             msgList.append('Y')
             msgList.append('MIN')
             msgList.append('{:0.2f}'.format(amount))
             self.boundsError[boundsType] = True
-        yMax = round(float(self.gcodeProps['Y'].split()[2]) * boundsMultiplier + yOffset, 5)
         if yMax > self.yMax:
             amount = float(yMax - self.yMax)
             msgList.append('Y')
             msgList.append('MAX')
             msgList.append('{:0.2f}'.format(amount))
             self.boundsError[boundsType] = True
-        return msgList, self.units, xMin, yMin, xMax, yMax
+        if framing:
+            return msgList, self.units, xMin, yMin, xMax, yMax, frame_points
+        else:
+            return msgList, self.units, xMin, yMin, xMax, yMax
+
+    def rotate_frame(self, coordinates):
+        angle = math.radians(STATUS.stat.rotation_xy)
+        cos = math.cos(angle)
+        sin = math.sin(angle)
+        frame_points = [coordinates[0]]
+        ox = frame_points[0][0]
+        oy = frame_points[0][1]
+        for x, y in coordinates[1:]:
+            tox = x - ox
+            toy = y - oy
+            rx = (tox * cos) - (toy * sin) + ox
+            ry = (tox * sin) + (toy * cos) + oy
+            frame_points.append([rx, ry])
+        xMin = min(frame_points[1:])[0]
+        xMax = max(frame_points[1:])[0]
+        yMin = min(frame_points[1:])[1]
+        yMax = max(frame_points[1:])[1]
+        return frame_points, xMin, yMin, xMax, yMax
 
     def save_plasma_parameters(self):
         self.PREFS.putpref('Arc OK High', self.w.arc_ok_high.value(), float, 'PLASMA_PARAMETERS')
@@ -4035,47 +4069,74 @@ class HandlerClass:
 
     def frame_job(self, state):
         if self.gcodeProps and state:
-            self.framing = True
             self.w.run.setEnabled(False)
             response = False
-            msgList, units, xMin, yMin, xMax, yMax = self.bounds_check('framing', self.laserOffsetX, self.laserOffsetY)
-            if self.boundsError['framing']:
-                head = _translate('HandlerClass', 'Axis Limit Error')
-                btn1 = _translate('HandlerClass', 'YES')
-                btn2 = _translate('HandlerClass', 'NO')
-                msgs = ''
-                msg1 = _translate('HandlerClass', 'due to laser offset')
-                for n in range(0, len(msgList), 3):
-                    if msgList[n + 1] == 'MAX':
-                        msg0 = _translate('HandlerClass', 'move would exceed the maximum limit by')
-                    else:
-                        msg0 = _translate('HandlerClass', 'move would exceed the minimum limit by')
-                    fmt = '\n{} {} {}{} {}' if msgs else '{} {} {}{} {}'
-                    msgs += fmt.format(msgList[n], msg0, msgList[n + 2], units, msg1)
-                msgs += _translate('HandlerClass', '\n\nDo you want to try with the torch?\n')
-                response = self.dialog_show_yesno(QMessageBox.Warning, '{}'.format(head), '\n{}'.format(msgs), '{}'.format(btn1), '{}'.format(btn2))
+            if self.w.laser.isVisible():
+                msgList, units, xMin, yMin, xMax, yMax, frame_points = self.bounds_check('framing', self.laserOffsetX, self.laserOffsetY)
+                if self.boundsError['framing']:
+                    head = _translate('HandlerClass', 'Axis Limit Error')
+                    btn1 = _translate('HandlerClass', 'YES')
+                    btn2 = _translate('HandlerClass', 'NO')
+                    msgs = ''
+                    msg1 = _translate('HandlerClass', 'due to laser offset')
+                    for n in range(0, len(msgList), 3):
+                        if msgList[n + 1] == 'MAX':
+                            msg0 = _translate('HandlerClass', 'portion of move would exceed the maximum limit by')
+                        else:
+                            msg0 = _translate('HandlerClass', 'portion of move would exceed the minimum limit by')
+                        fmt = '\n{} {} {}{} {}' if msgs else '{} {} {}{} {}'
+                        msgs += fmt.format(msgList[n], msg0, msgList[n + 2], units, msg1)
+                    msgs += _translate('HandlerClass', '\n\nDo you want to try with the torch?\n')
+                    response = self.dialog_show_yesno(QMessageBox.Warning, '{}'.format(head), '\n{}'.format(msgs), '{}'.format(btn1), '{}'.format(btn2))
+                    if not response:
+                        self.w.run.setEnabled(True)
+                        return
+                    msgList, units, xMin, yMin, xMax, yMax, frame_points = self.bounds_check('framing', 0, 0)
+                    if self.boundsError['framing']:
+                        self.w.run.setEnabled(True)
+                        head = _translate('HandlerClass', 'Axis Limit Error')
+                        msgs = ''
+                        for n in range(0, len(msgList), 3):
+                            if msgList[n + 1] == 'MAX':
+                                msg0 = _translate('HandlerClass', 'portion of move would exceed the maximum limit by')
+                            else:
+                                msg0 = _translate('HandlerClass', 'portion of move would exceed the minimum limit by')
+                            fmt = '\n{} {} {}{}' if msgs else '{} {} {}{}'
+                            msgs += fmt.format(msgList[n], msg0, msgList[n + 2], units)
+                        self.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '\n{}'.format(msgs))
+                        return
                 if not response:
-                    self.framing = False
+                    self.laserOnPin.set(1)
+            else:
+                msgList, units, xMin, yMin, xMax, yMax, frame_points = self.bounds_check('framing', 0, 0)
+                if self.boundsError['framing']:
                     self.w.run.setEnabled(True)
-                    self.boundsError['framing'] = False
+                    head = _translate('HandlerClass', 'Axis Limit Error')
+                    msgs = ''
+                    for n in range(0, len(msgList), 3):
+                        if msgList[n + 1] == 'MAX':
+                            msg0 = _translate('HandlerClass', 'move would exceed the maximum limit by')
+                        else:
+                            msg0 = _translate('HandlerClass', 'move would exceed the minimum limit by')
+                        fmt = '\n{} {} {}{}' if msgs else '{} {} {}{}'
+                        msgs += fmt.format(msgList[n], msg0, msgList[n + 2], units)
+                    self.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '\n{}'.format(msgs))
                     return
-                msgList, units, xMin, yMin, xMax, yMax = self.bounds_check('framing', 0, 0)
             if not self.frFeed:
                 feed = float(self.w.cut_feed_rate.text())
             else:
                 feed = self.frFeed
             zHeight = self.zMax - (hal.get_value('plasmac.max-offset') * self.unitsPerMm)
             if STATUS.is_on_and_idle() and STATUS.is_all_homed():
-                if not response:
-                    self.laserOnPin.set(1)
+                self.framing = True
                 ACTION.CALL_MDI_WAIT('G64 P{:0.3f}'.format(0.25 * self.unitsPerMm))
                 if self.defaultZ:
                     ACTION.CALL_MDI('G53 G0 Z{:0.4f}'.format(zHeight))
-                ACTION.CALL_MDI('G53 G0 X{:0.2f} Y{:0.2f}'.format(xMin, yMin))
-                ACTION.CALL_MDI('G53 G1 Y{:0.2f} F{:0.0f}'.format(yMax, feed))
-                ACTION.CALL_MDI('G53 G1 X{:0.2f}'.format(xMax))
-                ACTION.CALL_MDI('G53 G1 Y{:0.2f}'.format(yMin))
-                ACTION.CALL_MDI('G53 G1 X{:0.2f}'.format(xMin))
+                ACTION.CALL_MDI('G53 G0 X{:0.2f} Y{:0.2f}'.format(frame_points[1][0], frame_points[1][1]))
+                ACTION.CALL_MDI('G53 G1 X{:0.2f} Y{:0.2f} F{:0.0f}'.format(frame_points[2][0], frame_points[2][1], feed))
+                ACTION.CALL_MDI('G53 G1 X{:0.2f} Y{:0.2f}'.format(frame_points[3][0], frame_points[3][1]))
+                ACTION.CALL_MDI('G53 G1 X{:0.2f} Y{:0.2f}'.format(frame_points[4][0], frame_points[4][1]))
+                ACTION.CALL_MDI('G53 G1 X{:0.2f} Y{:0.2f}'.format(frame_points[1][0], frame_points[1][1]))
                 ACTION.CALL_MDI('G0 X0 Y0')
 
     def single_cut(self):
@@ -5775,7 +5836,7 @@ class HandlerClass:
             self.touch_xy_clicked()
 
     def on_keycall_DELETE(self, event, state, shift, cntrl):
-        if self.keyboard_shortcuts() and not self.w.main_tab_widget.currentIndex() and self.w.laser.isEnabled():
+        if self.keyboard_shortcuts() and not self.w.main_tab_widget.currentIndex() and self.w.laser.isVisible():
             if state and not event.isAutoRepeat():
                 self.extLaserButton = True
                 self.laser_pressed()

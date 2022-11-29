@@ -44,7 +44,7 @@ second signal that defines the speed at which that stepper motor rotates.
 While a stepper motor system under parallel port control is illustrated, a LinuxCNC system can also take
 advantage of a wide variety of dedicated hardware motion control interfaces for increased speed and I/O
 capabilities. A full list of interfaces supported by LinuxCNC can be found on
-the http://http://wiki.linuxcnc.org/cgi-bin/wiki.pl?LinuxCNC_Supported_Hardware[Supported Hardware] page of the
+the https://wiki.linuxcnc.org/cgi-bin/wiki.pl?LinuxCNC_Supported_Hardware[Supported Hardware] page of the
 Wiki.
 
 In most circumstances, users will create a configuration specific to their mill setup using either the

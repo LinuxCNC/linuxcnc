@@ -272,6 +272,7 @@ def joints_mode():
     return s.motion_mode == linuxcnc.TRAJ_MODE_FREE
 
 def set_motion_teleop(value):
+    if running(): return
     # 1:teleop, 0: joint
     vars.teleop_mode.set(value)
     c.teleop_enable(value)
@@ -962,7 +963,9 @@ class LivePlotter:
 
 def running(do_poll=True):
     if do_poll: s.poll()
-    return s.task_mode == linuxcnc.MODE_AUTO and s.interp_state != linuxcnc.INTERP_IDLE
+    return ( (s.task_mode == linuxcnc.MODE_AUTO or s.task_mode == linuxcnc.MODE_MDI)
+             and s.interp_state != linuxcnc.INTERP_IDLE)
+
 
 def manual_tab_visible():
     page = root_window.tk.call(widgets.tabs, "raise")
@@ -977,6 +980,7 @@ initiated action (whether an MDI command or a jog) is acceptable.
 This means this function returns True when the mdi tab is visible."""
     if do_poll: s.poll()
     if s.task_state != linuxcnc.STATE_ON: return False
+    if running(): return 0
     return s.interp_state == linuxcnc.INTERP_IDLE or (s.task_mode == linuxcnc.MODE_MDI and s.queued_mdi_commands < vars.max_queued_mdi_commands.get())
 
 # If LinuxCNC is not already in one of the modes given, switch it to the
