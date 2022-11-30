@@ -107,7 +107,7 @@ class GcodeLexer(QsciLexerCustom):
                 source = bytearray(end - start)
                 editor.SendScintilla(
                     editor.SCI_GETTEXTRANGE, start, end, source)
-                source = source.decode("utf-8")
+                source = source.decode("utf-8", "ignore")
             else:
                 source = str(editor.text())[start:end]
         if not source:
