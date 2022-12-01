@@ -1,2 +1,2 @@
 # xhc-hb04 mpg pendant
-SUBSYSTEM=="usb", ATTR{idProduct}=="eb70", ATTR{idVendor}=="10ce", MODE="0666", OWNER="root", GROUP="plugdev", TAG+="uaccess"
+SUBSYSTEM=="usb", ATTR{idProduct}=="eb70", ATTR{idVendor}=="10ce", MODE="0600", TAG+="uaccess"
