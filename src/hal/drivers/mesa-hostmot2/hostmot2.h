@@ -302,6 +302,10 @@ typedef struct {
 
     rtapi_u32 prev_control;
 
+    hal_bit_t prev_quadrature_error_enable; // shadow for detecting rising edge on the quadrature_error_enable
+    hal_bit_t reset_quadrature_error; // bit to indicate if we want to reset the quadrature error
+
+
     // these two are the datapoint last time we moved (only valid if state == HM2_ENCODER_MOVING)
     rtapi_s32 prev_event_rawcounts;
     rtapi_u16 prev_event_reg_timestamp;

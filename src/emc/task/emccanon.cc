@@ -984,6 +984,10 @@ struct pt { double x, y, z, a, b, c, u, v, w; int line_no;};
 
 static std::vector<struct pt> chained_points;
 
+static void drop_segments(void) {
+    chained_points.clear();
+}
+
 static void flush_segments(void) {
     if(chained_points.empty()) return;
 
@@ -1038,7 +1042,7 @@ static void flush_segments(void) {
     }
     canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
 
-    chained_points.clear();
+    drop_segments();
 }
 
 static void get_last_pos(double &lx, double &ly, double &lz) {
@@ -1116,6 +1120,11 @@ see_segment(int line_number,
 void FINISH() {
     flush_segments();
 }
+
+void ON_RESET() {
+    drop_segments();
+}
+
 
 void STRAIGHT_TRAVERSE(int line_number,
                        double x, double y, double z,
@@ -2774,7 +2783,7 @@ CANON_POSITION GET_EXTERNAL_POSITION()
     CANON_POSITION position;
     EmcPose pos;
 
-    chained_points.clear();
+    drop_segments();
 
     pos = emcStatus->motion.traj.position;
 

@@ -17,6 +17,8 @@ Build-Depends: debhelper (>= 6),
     graphviz, inkscape,
     intltool,
     desktop-file-utils,
+    yapps2,
+    @YAPPS_RUNTIME@,
 Standards-Version: 2.1.0
 
 Package: @MAIN_PACKAGE_NAME@-dev
@@ -26,7 +28,7 @@ Depends: g++, @KERNEL_HEADERS@,
     python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
     ${python:Depends}, ${misc:Depends},
     @MAIN_PACKAGE_NAME@ (= ${binary:Version}),
-    yapps2-runtime
+    @YAPPS_RUNTIME@
 Section: libs
 Description: motion controller for CNC machines and robots (development files)
  LinuxCNC is the next-generation Enhanced Machine Controller which
@@ -45,11 +47,10 @@ Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
     python (>= @PYTHON_VERSION@), python (<< @PYTHON_VERSION_NEXT@),
     ${python:Depends}, ${misc:Depends},
     python@PYTHON_VERSION@-tk,
-    python@PYTHON_VERSION@-gnome2 | python-gnome2,
     python@PYTHON_VERSION@-glade2 | python-glade2,
     python@PYTHON_VERSION@-numpy | python-numpy,
-    python@PYTHON_VERSION@-imaging | python-imaging,
-    python@PYTHON_VERSION@-imaging-tk | python-imaging-tk,
+    @PYTHON_IMAGING@,
+    @PYTHON_IMAGING_TK@,
     python-gtksourceview2,
     python-vte,
     @PYTHON_GST@,

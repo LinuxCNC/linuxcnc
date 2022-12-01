@@ -94,7 +94,7 @@ class EMC_MDIHistory(gtk.VBox, _EMC_ActionBase):
         cmd = self.entry.get_text()
         if not cmd:
             return
-        ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_MDI)
+        ensure_mode(self.gstat.stat, self.linuxcnc, linuxcnc.MODE_MDI)
 
         try:
             fp = open(self.filename, 'a')

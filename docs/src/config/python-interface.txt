@@ -41,16 +41,15 @@ The general pattern for `linuxcnc` usage is roughly like this:
 - poll the status channel, either periodically or as needed
 - before sending a command, determine from status whether it is in
  fact OK to do so (for instance, there is no point in sending a 'Run'
- command if task is in the ESTOP state, or the interpreter is not
- idle)
-- send the command by using one of  the `linuxcnc`  command channel methods
+ command if task is in the ESTOP state, or the interpreter is not idle)
+- send the command by using one of the `linuxcnc` command channel methods
 
 
 To retrieve messages from the error channel, poll the error channel
 periodically, and process any messages retrieved.
 
 - poll the status channel, either periodically or as needed
-- print any error message FIXME: explore the exception code
+- print any error message and explore the exception code
 
 `linuxcnc` also defines the `error` Python exception type to support error reporting.
 
@@ -509,7 +508,7 @@ c = linuxcnc.command()
 
 def ok_for_mdi():
 	s.poll()
-	return not s.estop and s.enabled and s.homed and (s.interp_state == linuxcnc.INTERP_IDLE)
+	return not s.estop and s.enabled and (s.homed.count(1) == s.axes) and (s.interp_state == linuxcnc.INTERP_IDLE)
 
 if ok_for_mdi():
 	c.mode(linuxcnc.MODE_MDI)

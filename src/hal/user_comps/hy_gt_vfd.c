@@ -485,12 +485,14 @@ int main(int argc, char **argv) {
         modbus_set_response_timeout(mb, &t);
 #endif
 
-        // Set the byte timeout to -1, to just wait for the complete
+        // Disable the byte timeout so it just waits for the complete
         // response timeout instead.
-        t.tv_sec = -1;
 #if (LIBMODBUS_VERSION_CHECK(3, 1, 2))
-        modbus_set_response_timeout(mb, t.tv_sec, t.tv_usec);
+        t.tv_sec = 0;
+        t.tv_usec = 0;
+        modbus_set_byte_timeout(mb, t.tv_sec, t.tv_usec);
 #else
+        t.tv_sec = -1;
         modbus_set_byte_timeout(mb, &t);
 #endif
     }

@@ -133,7 +133,7 @@ process. The default value is zero. Note that even if this parameter is the
 same as HOME_OFFSET, the joint will slightly overshoot the latched position as
 it stops. Therefore there will always be a small move at this time (unless
 HOME_SEARCH_VEL is zero, and the entire search/latch stage was skipped). This
-final move will be made at the joint's maximum velocity unless HOME_FINAL has
+final move will be made at the joint's maximum velocity unless HOME_FINAL_VEL has
 been set.
 
 [NOTE]

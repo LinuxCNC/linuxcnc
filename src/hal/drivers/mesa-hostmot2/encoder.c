@@ -110,32 +110,36 @@ static void hm2_encoder_update_control_register(hostmot2_t *hm2) {
             e->hal.param.filter,
             HM2_ENCODER_FILTER
         );
+        do_flag(
+            &hm2->encoder.control_reg[i],
+            e->reset_quadrature_error,
+            HM2_ENCODER_QUADRATURE_ERROR
+        );
     }
 }
 
 
 static void hm2_encoder_read_control_register(hostmot2_t *hm2) {
     int i;
-    static int last_error_enable = 0;
 
     for (i = 0; i < hm2->encoder.num_instances; i ++) {
         hm2_encoder_instance_t *e = &hm2->encoder.instance[i];
 
         if (*e->hal.pin.quadrature_error_enable) {
-            if (!last_error_enable) {
+            e->reset_quadrature_error=0;
+            if(!e->prev_quadrature_error_enable){ // detect rising edge of pin quadrature_error_enable
+                e->reset_quadrature_error = 1;
                 hm2_encoder_force_write(hm2);
-                last_error_enable = 1;
-            } else {
-                int state = (hm2->encoder.read_control_reg[i] & HM2_ENCODER_CONTROL_MASK) & HM2_ENCODER_QUADRATURE_ERROR;
-                if ((*e->hal.pin.quadrature_error == 0) && state) {
-                    HM2_ERR("Encoder %d: quadrature count error", i);
-                }
-                *e->hal.pin.quadrature_error = (hal_bit_t) state;
             }
-        } else {
+            int state = (hm2->encoder.read_control_reg[i] & HM2_ENCODER_CONTROL_MASK) & HM2_ENCODER_QUADRATURE_ERROR;
+            if ((*e->hal.pin.quadrature_error == 0) && state) {
+                HM2_ERR("Encoder %d: quadrature count error\n", i);
+            }
+            *e->hal.pin.quadrature_error = (hal_bit_t) state;
+        } else{ // quadrature error disabled, set reported error to 0
             *e->hal.pin.quadrature_error = 0;
-            last_error_enable = 0;
         }
+        e->prev_quadrature_error_enable = *e->hal.pin.quadrature_error_enable;
 
         *e->hal.pin.input_a = hm2->encoder.read_control_reg[i] & HM2_ENCODER_INPUT_A;
         *e->hal.pin.input_b = hm2->encoder.read_control_reg[i] & HM2_ENCODER_INPUT_B;
@@ -155,7 +159,9 @@ static void hm2_encoder_set_filter_rate_and_skew(hostmot2_t *hm2) {
     *hm2->encoder.hal->pin.sample_frequency = hm2->encoder.clock_frequency/(filter_rate + 2);
     HM2_DBG("Setting encoder QFilterRate to %d\n", filter_rate);
     if (hm2->encoder.has_skew) {
-        rtapi_u32 skew = (*hm2->encoder.hal->pin.skew)/(1e9/hm2->encoder.clock_frequency);
+        rtapi_u32 divisor = (1e9/hm2->encoder.clock_frequency);
+        // Unsigned division rounding for integers. This is only valid for unsigned division 
+        rtapi_u32 skew = (*hm2->encoder.hal->pin.skew + (divisor/2))/divisor;
         
         if (skew > 15) {
             skew = 15;

@@ -92,8 +92,16 @@ fi
 
 PYTHON_PACKAGING=dh_pysupport
 PYTHON_GST=python-gst0.10,gstreamer0.10-plugins-base
+PYTHON_IMAGING="python${PYTHON_VERSION}-imaging | python-imaging | python-pil"
+PYTHON_IMAGING_TK="python${PYTHON_VERSION}-imaging-tk | python-imaging-tk"
+YAPPS_RUNTIME="yapps2-runtime"
 
 case $DISTRIB_NAME in
+Ubuntu-16.*|LinuxMint-18.*)
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-polish,texlive-font-utils,kmod,dh-python
+	TCLTK_VERSION=8.6
+        PYTHON_PACKAGING=dh_python2
+        ;;
 Ubuntu-14.*|Ubuntu-15.04|LinuxMint-17.*) # Trusty Tahr (LTS) through Vivid
 	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-font-utils,module-init-tools,python-support
 	TCLTK_VERSION=8.6
@@ -117,13 +125,16 @@ Ubuntu-8.04)
 	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,module-init-tools,libgnomeprintui2.2-dev,python-support
 	TCLTK_VERSION=8.4
 	;;
-Debian-testing)
-	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-polish,texlive-font-utils,kmod,dh-python
+Debian-testing|Debian-10|Debian-10.*)
+	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-polish,texlive-font-utils,kmod,dh-python,asciidoc-dblatex
 	TCLTK_VERSION=8.6
         PYTHON_PACKAGING=dh_python2
         PYTHON_GST=python-gst-1.0,gstreamer1.0-plugins-base
+        PYTHON_IMAGING="python${PYTHON_VERSION}-pil"
+        PYTHON_IMAGING_TK="python${PYTHON_VERSION}-pil.imagetk"
+        YAPPS_RUNTIME="python-yapps"
 	;;
-Debian-9.*)
+Debian-9.*|Ubuntu-18.*|LinuxMint-19.*)
 	EXTRA_BUILD=dvipng,texlive-extra-utils,texlive-latex-recommended,texlive-fonts-recommended,ghostscript,imagemagick,texlive-lang-polish,texlive-font-utils,kmod,dh-python,asciidoc-dblatex
 	TCLTK_VERSION=8.6
         PYTHON_PACKAGING=dh_python2
@@ -210,7 +221,10 @@ sed -e "s|@MODULE_PATH@|$MODULE_PATH|g" \
     -e "s|@TCLTK_VERSION@|$TCLTK_VERSION|g" \
     -e "s|@PYTHON_VERSION_NEXT@|$PYTHON_VERSION_NEXT|g" \
     -e "s|@PYTHON_GST@|$PYTHON_GST|g" \
+    -e "s/@PYTHON_IMAGING@/$PYTHON_IMAGING/g" \
+    -e "s/@PYTHON_IMAGING_TK@/$PYTHON_IMAGING_TK/g" \
     -e "s|@PYTHON_PACKAGING@|$PYTHON_PACKAGING|g" \
+    -e "s|@YAPPS_RUNTIME@|$YAPPS_RUNTIME|g" \
     $*
 }
 

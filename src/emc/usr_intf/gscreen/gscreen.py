@@ -727,14 +727,14 @@ class Gscreen:
         else:
             self.connect_signals(handlers)
 
+        # see if there are user messages in the ini file 
+        self.message_setup()
+
         # Set up the widgets
         if "initialize_widgets" in dir(self.handler_instance):
             self.handler_instance.initialize_widgets()
         else:
             self.initialize_widgets()
-
-        # see if there are user messages in the ini file 
-        self.message_setup()
 
         # ok everything that might make HAL pins should be done now - let HAL know that
         self.halcomp.ready()
@@ -2751,8 +2751,8 @@ class Gscreen:
                 continue
             if not name == None:
                 # this is how we make a pin that can be connected to a callback 
-                self.data['name'] = hal_glib.GPin(self.halcomp.newpin(name, hal.HAL_BIT, hal.HAL_IN))
-                self.data['name'].connect('value-changed', self.on_printmessage,name,bt,t,c)
+                self.data[name] = hal_glib.GPin(self.halcomp.newpin(name, hal.HAL_BIT, hal.HAL_IN))
+                self.data[name].connect('value-changed', self.on_printmessage,name,bt,t,c)
                 if ("dialog" in c):
                     self.halcomp.newpin(name+"-waiting", hal.HAL_BIT, hal.HAL_OUT)
                     if not ("ok" in c):
@@ -2851,7 +2851,7 @@ class Gscreen:
     def restart_dialog_return(self,widget,result,calc):
         value = 0
         if not result == gtk.RESPONSE_REJECT:
-            value = calc.get_value()
+            value = int(calc.get_value())
             if value == None:value = 0
         self.widgets.gcode_view.set_line_number(value)
         self.add_alarm_entry(_("Ready to Restart program from line %d"%value))

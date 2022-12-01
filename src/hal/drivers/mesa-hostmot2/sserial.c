@@ -1811,7 +1811,7 @@ int hm2_sserial_check_remote_errors(hostmot2_t *hm2, hm2_sserial_instance_t *ins
         if((chan->status & 0x100) == 0) return 0;
         buff = chan->status & ~chan->seen_remote_errors & err_mask;
         chan->seen_remote_errors |= chan->status;
-        for (i = 31 ; i >= 0 ; i--){
+        for (i = 31 ; i >= 23 ; i--){
             if (buff & (1 << i) && err_list[i]) {
                 HM2_ERR("Smart serial card %s remote error = (%i) %s\n",
                         chan->name, i, err_list[i]);
