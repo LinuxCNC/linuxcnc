@@ -907,6 +907,21 @@ class Private_Data:
         [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
+    ['7i96-Internal Data', '7i96', '7i96d_1pwm', '7i96', 'hm2_eth',
+        1,3, 0,0, 1,2, 0,0, 4,2, 1,1, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [1, 2, 3],
+        # TAB 1
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.GPIOI, 0],[S.SSR0, 100],[S.SSR0, 101],[S.SSR0, 102],[S.SSR0, 103],[S.SSR0, 104],[S.SSR0, 105],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 2
+        [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],[S.STEPB,3],[S.STEPA,3],[S.PWMP,0],[S.PWMD,0],
+        [S.ENCA,0],[S.ENCB,0],[S.ENCI,0],[S.RXDATA0,0],[S.TXDATA0,0],[S.TXEN0,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 3
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
+
     # 7i96s ####################
     ['7i96s-Internal Data', '7i96s', '7i96s_d', '7i96s', 'hm2_eth',
         1,3, 0,0, 1,3, 0,0, 5,2, 1,1, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [1, 2, 3],

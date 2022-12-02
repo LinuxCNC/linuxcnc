@@ -1286,7 +1286,6 @@ IONum is a three-digit number.
 The mapping from IONum to connector and pin-on-that-connector is written to the syslog when the driver loads,
 and it is documented in Mesa's manual for the Anything I/O boards.
 
-<<<<<<< HEAD
 So, for example, the HAL pin that has the current inverted input value
 read from GPIO 012 of the second 7I43 board is: hm2_7i43.1.gpio.012.in\-not
 (this assumes that the firmware in that board is configured so that this
@@ -1296,14 +1295,6 @@ The HAL parameter that controls whether the last GPIO of the first 5I22
 is an input or an output is: hm2_5i22.0.gpio.095.is_output (this assumes
 that the firmware in that board is configured so that this HAL object
 is available)
-=======
-So, for example, the HAL pin that has the current inverted input value read from GPIO 012 of the second 7I43 board is:
-hm2_7i43.1.gpio.012.in\-not
-(this assumes that the firmware in that board is configured so that this HAL object is available).
-
-The HAL parameter that controls whether the last GPIO of the first 5I22 is an input or an output is:
-hm2_5i22.0.gpio.095.is_output (this assumes that the firmware in that board is configured so that this HAL object is available).
->>>>>>> 35cc92aa0f (docs: series of smallish changes while translating)
 
 The hm2 GPIO representation is modeled after the Digital Inputs and
 Digital Outputs described in the Canonical Device Interface (part of the HAL General Reference document).
@@ -1486,7 +1477,6 @@ There are "num_outms" instances, starting with 00.
 Each instance has between 1 and 32 output pins.
 
 Pins:
-
 
 .TP
 (bit in) out-NN
@@ -1681,7 +1671,6 @@ This updates the PWM duty cycles, stepgen rates, and GPIO outputs on the FPGA.
 Any changes to configuration pins such as stepgen timing, GPIO inversions, etc., are also effected by this function.
 .TP
 \fBhm2_\fI<BoardType>\fB.\fI<BoardNum>\fB.read_gpio\fR
-<<<<<<< HEAD
 Read the GPIO input pins.  Note that the effect of this function is a
 subset of the effect of the .read() function described above.  Normally
 only .read() is used.  The only reason to call this function is if you
@@ -1695,20 +1684,6 @@ above.  Normally only .write() is used.  The only reason to call this
 function is if you want to do GPIO things in a faster-than-servo thread.
 (This function is not available on the 7I43 due to limitations of the
 EPP bus.)
-=======
-Read the GPIO input pins.
-Note that the effect of this function is a subset of the effect of the .read() function described above.
-Normally only .read() is used.
-The only reason to call this function is if you want to do GPIO things in a faster-than-servo thread.
-(This function is not available on the 7I43 due to limitations of the EPP bus.)
-.TP
-\fBhm2_\fI<BoardType>\fB.\fI<BoardNum>\fB.write_gpio\fR
-Write the GPIO control registers and output pins.
-Note that the effect of this function is a subset of the effect of the .write() function described above.
-Normally only .write() is used.
-The only reason to call this function is if you want to do GPIO things in a faster-than-servo thread.
-(This function is not available on the 7I43 due to limitations of the EPP bus.)
->>>>>>> 35cc92aa0f (docs: series of smallish changes while translating)
 .TP
 \fBhm2_\fI<BoardType>\fB.\fI<BoardNum>\fB.trigger\-encoders\fR
 This function will only appear if the firmware contains a BiSS, Fanuc or SSI encoder module and if the firmware does not contain a hm2dpll

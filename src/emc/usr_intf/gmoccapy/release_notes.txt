@@ -1,3 +1,7 @@
+- fixed sensitizing of user tab button on toggling "edit offsets" (#2111)
+- fix error on creating new G-code file when RS274NGC_STARTUP_CODE is not set
+  (#2057)
+
 ver 3.4.0
 
   New features:
