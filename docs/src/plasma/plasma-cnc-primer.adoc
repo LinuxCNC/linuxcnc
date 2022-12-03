@@ -221,7 +221,7 @@ The advantage this has is the THCAD is designed for the hostile plasma electrica
 To implement this method, a second encoder input is required.
 
 If using a mesa card, different firmware is available to provide 2 additional Encoder A inputs on the Encoder B and Encoder Index pins.
-This firmware is available for download for the 7I76e and 7I96 boards from the Mesa web site on the product pages.
+This firmware is available for download for the 7I76E and 7I96 boards from the Mesa web site on the product pages.
 
 The THCAD is sensitive enough to see the ramp up in  circuit voltage as contact pressure increases.
 The ohmic.comp component included in LinuxCNC can monitor the sensing voltage and set a voltage threshold above which it is deemed contact is made and an output is enabled.
@@ -240,7 +240,7 @@ This is a double insulated Isolation Class II device that will withstand any arc
 
 === Example HAL Code for Hypersensing
 
-The following HAL code can be pasted into your QtPlasmaC's custom.hal to enable Ohmic sensing on Encoder 2 of a 7I76e.
+The following HAL code can be pasted into your QtPlasmaC's custom.hal to enable Ohmic sensing on Encoder 2 of a 7I76E.
 Install the correct bit file and connect the THCAD to IDX+ and IDX-.
 Be sure to change the calibration settings to agree with your THCAD-5.
 
@@ -250,7 +250,7 @@ Be sure to change the calibration settings to agree with your THCAD-5.
 loadrt ohmic names=ohmicsense
 addf ohmicsense servo-thread
 
-# --- 7I76e ENCODER 2 SETUP FOR OHMIC SENSING---
+# --- 7I76E ENCODER 2 SETUP FOR OHMIC SENSING---
 setp hm2_7i76e.0.encoder.02.scale -1
 setp hm2_7i76e.0.encoder.02.counter-mode 1
 
@@ -272,7 +272,8 @@ net plasmac:ohmic-enable    =>  ohmicsense.is-probing
 
 == THC Delay
 
-When an arc is established, arc voltage peaks significantly and then settles back to a stable voltage at cut height. As shown by the green line in the image below.
+When an arc is established, arc voltage peaks significantly and then settles back to a stable voltage at cut height.
+As shown by the green line in the image below.
 
 image::images/primer_thc-delay.png[width=100%]
 
@@ -281,7 +282,8 @@ If enabled too early, the voltage will be above the desired cut Volts and the to
 
 In our testing this varies between machines and material from 0.5 to 1.5 seconds.
 Therefore a delay of 1.5 s after a valid ArcOK signal is received before enabling THC control is a safe initial setting.
-If you want to shorten this for a given material, LinuxCNC's Halscope will allow you to plot the torch voltage and make informed decisions about the shortest safe delay is used.
+If you want to shorten this for a given material,
+LinuxCNC's Halscope will allow you to plot the torch voltage and make informed decisions about the shortest safe delay is used.
 
 [NOTE]
 If the cut velocity is not near the desired cut speed at the end of this delay, the controller should wait until this is achieved before enabling the THC.
@@ -307,12 +309,14 @@ So it becomes a trivial matter to monitor the current velocity (`motion.current-
 
 == Void / Kerf Crossing
 
-If the plasma torch passes over a void while cutting, arc voltage rapidly rises and the THC responds by violent downward motion which can smash the torch into the material possibly damaging it.
+If the plasma torch passes over a void while cutting,
+arc voltage rapidly rises and the THC responds by violent downward motion which can smash the torch into the material possibly damaging it.
 This is a situation that is difficult to detect and handle.
 To a certain extent it can be mitigated by good nesting techniques but can still occur on thicker material when a slug falls away.
 This is the one problem that has yet to be solved within the LinuxCNC open source movement.
 
-One suggested technique is to monitor the rate of change in torch Volts over time (dv/dt) because this parameter is orders of magnitude higher when crossing a void than what occurs due to normal warpage of the material.
+One suggested technique is to monitor the rate of change in torch Volts over time (dv/dt)
+because this parameter is orders of magnitude higher when crossing a void than what occurs due to normal warpage of the material.
 The following graph shows a low resolution plot of dv/dt (in blue) while crossing a void.
 The red curve is a moving average of torch Volts.
 
@@ -325,7 +329,7 @@ More work needs to be done in this area to come up with a working solution in Li
 
 It is recommended that you slow down cutting when cutting holes and small shapes.
 
-John Moore says: “If you want details on cutting accurate small holes look up the sales sheets on Hypertherm's "True Hole Technology" also look on PlasmaSpider, user seanp has posted extensively on his work using simple air plasma.
+John Moore says: “If you want details on cutting accurate small holes look up the sales sheets on Hypertherm's 'True Hole Technology' also look on PlasmaSpider, user seanp has posted extensively on his work using simple air plasma.
 
 The generally accepted method to get good holes from 37mm dia. and down to material thickness with minimal taper using an air plasma is:
 
@@ -357,7 +361,7 @@ This adds a “tag" that is available to motion containing the current feed and 
 
 Plasma cutters require several additional pins.
 In LinuxCNC, there are no hard and fast rules about which pin does what.
-In this discussion we will assume the plasma inverter has a CNC interface and the controller card has active high inputs are in use (e.g., Mesa 7I76e).
+In this discussion we will assume the plasma inverter has a CNC interface and the controller card has active high inputs are in use (e.g., Mesa 7I76E).
 
 Plasma tables can be large machines and we recommend that you take the time to install separate max/min limit switches and homing switches for each joint.
 The exception might be the Z axis lower limit.
@@ -374,7 +378,7 @@ The following pins are usually required (note that suggested connections may not
 * Inverter closes dry contacts when a valid arc is established
 * Connect Field power to one Inverter ArcOK terminal.
 * Connect other Inverter Ok Terminal to input pin.
-* Usually connected to one of the `motion.digital-_<nn>_` pins for use from G-code with M66
+* Usually connected to one of the ``motion.digital-``_<nn>_ pins for use from G-code with M66
 
 === Torch On (output)
 
@@ -399,7 +403,7 @@ WARNING: It is strongly recommended that the torch cannot be enabled while this 
 
 * See the <<ohmic-sensing,ohmic sensing>> schematic.
 * Connect output pin to one side of the isolation relays and the other side to field power ground.
-* In a non-QtPlasmaC configuration, usually triggered by a `motion.digital-out-_<nn>_` so it can be controlled in G-code by M62/M63/M64/M65.
+* In a non-QtPlasmaC configuration, usually triggered by a ``motion.digital-out-``_<nn>_ so it can be controlled in G-code by `M62`/`M63`/`M64`/`M65`
 
 === Ohmic Sensing (input)
 
@@ -409,8 +413,9 @@ WARNING: It is strongly recommended that the torch cannot be enabled while this 
 * Take care to observe relay polarity if opto-coupled solid State relays are used.
 * Usually connected to `motion.probe-input` and may be or'd with the float switch.
 
-As can be seen, plasma tables are pin intensive and we have already consumed about 15 inputs before the normal E-stops are added.
-Others have other views but it is the writer's opinion that the Mesa 7I76e is preferred over the cheaper 7I96 to allow for MPG's, scale and axis selection switch and other features you may wish to add over time.
+As can be seen, plasma tables are pin intensive and we have already consumed about 15 inputs before the normal estops are added.
+Others have other views but it is the writer's opinion that the Mesa 7I76E is preferred over the cheaper 7I96 to allow for MPG's,
+scale and axis selection switch and other features you may wish to add over time.
 If your table uses servos, there are a number of alternatives.
 Whilst there are other suppliers, designing your machine around the Mesa ecosystem will simplify use of their THCAD board to read arc voltage.
 
@@ -422,12 +427,11 @@ Whilst there are other suppliers, designing your machine around the Mesa ecosyst
 == G-code For Plasma Controllers
 
 Most plasma controllers offer a method to change settings from G-code.
-LinuxCNC support this via M67/M68 for analog commands and M62-M65 for digital (on/off commands).
+LinuxCNC support this via `M67`/`M68` for analog commands and `M62`-`M65` for digital (on/off commands).
 How this is implemented is totally arbitrary.
 Lets look at how the LinuxCNC QtPlasmaC configuration does this:
 
-=== Select Material Settings In QtPlasmaC And Use The Feedrate For That Material:
-
+.Select Material Settings In QtPlasmaC And Use The Feedrate For That Material
 [source,{ngc}]
 ----
 M190 Pn
@@ -448,8 +452,7 @@ M64 P2 will disable THC (immediately)
 M65 P2 will enable THC (immediately)
 ----
 
-=== Reduce Cutting Speeds: (eg for hole cutting)
-
+.Reduce Cutting Speeds: (e.g., for hole cutting)
 [source,{ngc}]
 ----
 M67 E3 Q0 would set the velocity to 100% of requested~speed
@@ -458,8 +461,7 @@ M67 E3 Q60 would set the velocity to 60% of requested~speed
 M67 E3 Q100 would set the velocity to 100% of requested~speed
 ----
 
-=== Cutter Compensation:
-
+.Cutter Compensation:
 [source,{ngc}]
 ----
 G41.1 D#<_hal[plasmac_run.kerf-width-f]> ; for left of programmed path
@@ -526,7 +528,8 @@ For use with LinuxCNC, it is recommended that the 1/32 divisor be selected by th
 In this case, be sure to also divide the stated frequencies by 32.
 This is more appropriate for the 1 kHz servo thread and also allows more time for the THCAD to average and smooth the output.
 
-There is a lot of confusion around how to decode the THCAD output so lets consider the Mesa 7I76e and the THCAD-10 for a moment with the following hypothetical calibration data:
+There is a lot of confusion around how to decode the THCAD output.
+So let's consider the Mesa 7I76E and the THCAD-10 for a moment with the following hypothetical calibration data:
 
 * Full scale ≙ 928 kHz (928 kHz/32 = 29 kHz)
 * 0 V ≙ 121.6 kHz (121.6 kHz/32 = 3.8 kHz)
@@ -638,7 +641,8 @@ If you have a manual plasma source and you are reading raw plasma voltage, I wou
 In this case, make sure that all low side THCAD connections are fully isolated from the plasma source.
 If you use a shielded box for the THCAD, the shield should connect to your electronic enclosure ground, not the plasma source ground."
 
-It is recommended to run a separate earth wire from motor cases and the torch back to a central star grounding point on the machine. Connect the plasma ground lead to this point and optionally an earth rod driven into the ground as close as possible to the machine (particularly if its a HF start plasma machine).
+It is recommended to run a separate earth wire from motor cases and the torch back to a central star grounding point on the machine.
+Connect the plasma ground lead to this point and optionally an earth rod driven into the ground as close as possible to the machine (particularly if its a HF start plasma machine).
 
 External wiring to motors should be shielded and appropriately sized to handle the current passing through the circuit.
 The shield should be left unconnected at the motor end and earthed at the control box end.
@@ -647,16 +651,18 @@ Consider using an additional pin on any connectors into the control box so the e
 We are aware of at least one commercial system builder who has had problems with induced electrical noise on the ohmic sensing circuit.
 Whilst this can be mitigated by using ferrite beads and coiling the cable, adding a feed through power line filter is also recommended where the ohmic sensing signal enters the electronics enclosure.
 
-Tommy Berisha, the master of building plasma machines on a budget says: “If on a budget, consider using old laptop power bricks.
+Tommy Berisha, the master of building plasma machines on a budget says:
+“If on a budget, consider using old laptop power bricks.
 They are very good, filtering is good, completely isolated, current limited (this becomes very important when something goes wrong),
-and fitting 2 or 3 of them in series is easy as they are isolated ( be aware that some do have the grounding wired to the negative output terminal, so.
-It has to be disconnected, simply done by using a power cable with no ground contacts)".
+and fitting 2 or 3 of them in series is easy as they are isolated.
+Be aware that some do have the grounding wired to the negative output terminal, so it has to be disconnected, simply done by using a power cable with no ground contacts."
 
 == Water Tables
 
-The minimum water level under the cut level of the torch should be around 40 mm, having space under slats is nice so the water can level and escape during cutting,
-having a bit of water above the metal plate being cut is really nice as it gets rid of the little bit of dust,
-running it submerged is the best way but not preferable for systems with part time use as it will corrode the torch.
+The minimum water level under the cut level of the torch should be around 40 mm,
+having space under slats is nice so the water can level and escape during cutting,
+having a bit of water above the metal plate being cut is really nice
+as it gets rid of the little bit of dust, running it submerged is the best way but not preferable for systems with part time use as it will corrode the torch.
 Adding baking soda to the water will keep the table in a nice condition for many years as it does not allow corrosion while the slats are under water and it also reduces the smell of water vapour.
 Some people use a water reservoir with a compressed air inlet so they can push the water from the reservoir up to the water table on demand and thus allow changes in water levels.
 
@@ -700,10 +706,11 @@ A number of people have used a userspace component written in Python to achieve 
 More recently, QtPlasmaC now supports this interface natively.
 Refer to the QtPlasmaC documentation for how to use it.
 
-The combination of a slow baud rate used by Hypertherm and the userspace component, make this fairly slow to alter machine states so it generally not viable to change settings on the fly while cutting.
+The combination of a slow baud rate used by Hypertherm and the userspace component,
+make this fairly slow to alter machine states so it generally not viable to change settings on the fly while cutting.
 
 When selecting a RS485 interface to use at the PC end, users have reported that USB to RS485 interfaces are not reliable.
-Good reliable results have been achieved using a hardware based RS232 interface (eg PCI/PCIe or motherboard port) and an appropriate RS485 converter.
+Good reliable results have been achieved using a hardware based RS232 interface (e.g., PCI/PCIe or motherboard port) and an appropriate RS485 converter.
 Some users have reported success with a Sunix P/N: SER5037A PCI RS2322 card a generic XC4136 RS232 to RS485 converter (which may sometimes include a USB cable as well).
 
 == Post Processors For Plasma Cutting
@@ -712,7 +719,8 @@ CAM programs (Computer Aided Manufacture) are the bridge between CAD (Computer A
 They often include a user configurable post processor to define the code that is generated for a specific machine or dialect of G-code.
 
 Many LinuxCNC users are perfectly happy with using Inkscape to convert SVG vector based files to G-code.
-If you are using a plasma for hobby or home use, consider this option.
+If you are using a plasma cutter for hobby or home use, consider this option.
+
 However, if your needs are more complex, probably the best and most reasonably priced solution is SheetCam.
 SheetCam supports both Windows and Linux and post processors are available for it including the QtPlasmaC configuration.
 SheetCam allows you to nest parts over a full sheet of material and allows you to configure toolsets and code snippets to suit your needs.
