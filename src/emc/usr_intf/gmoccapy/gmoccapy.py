@@ -163,9 +163,6 @@ class gmoccapy(object):
                 padding: 3px;
                 margin: 1px;
             }
-            #notification_close {
-                padding: 8px;
-            }
         """
         screen = Gdk.Screen.get_default()
         provider = Gtk.CssProvider()

@@ -114,7 +114,7 @@ class Notification(Gtk.Window):
         default_style = Gtk.Button().get_style_context()
         pixbuf = icon_theme_helper.load_symbolic_from_icon_theme(self.icon_theme, icon_name, self.icon_size, default_style)
         icon.set_from_pixbuf(pixbuf)
-        hbox.pack_start(icon, False, False, 0)
+        hbox.pack_start(icon, False, False, 3)
         label = Gtk.Label()
         label.set_line_wrap(True)
         label.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR)
@@ -132,6 +132,7 @@ class Notification(Gtk.Window):
             label.set_markup(text)
         else:
             label.set_text(text)
+        label.set_xalign(0)
         hbox.pack_start(label, False, False, 0)
         btn_close = Gtk.Button()
         btn_close.set_name("notification_close")
@@ -307,8 +308,8 @@ def main():
     notification.icon_theme.append_search_path("../../../../share/gmoccapy/icons/") # relative from this file location
     notification.icon_theme.append_search_path("../share/gmoccapy/icons/")
     notification.icon_theme.append_search_path("/usr/share/gmoccapy/icons/")
-    # notification.icon_theme.set_custom_theme("classic")
-    notification.icon_theme.set_custom_theme("material")
+    notification.icon_theme.set_custom_theme("classic")
+    # notification.icon_theme.set_custom_theme("material")
     # notification.icon_theme.set_custom_theme("material-light")
     notification.add_message('This is a warning', 'dialog_warning')
     notification.add_message('Hallo World this is a long string that have a linebreak ', 'dialog_information')
