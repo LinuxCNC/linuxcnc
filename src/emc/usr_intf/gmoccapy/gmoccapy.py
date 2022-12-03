@@ -516,6 +516,22 @@ class gmoccapy(object):
         cycle_time = self.get_ini_info.get_cycle_time()
         GLib.timeout_add( cycle_time, self._periodic )  # time between calls to the function, in milliseconds
 
+        # This allows sourcing an user defined file
+        rcfile = "~/.gmoccapyrc"
+        user_command_file = self.get_ini_info.get_user_command_file()
+        if user_command_file:
+            rcfile = user_command_file
+        rcfile = os.path.expanduser(rcfile)
+        if os.path.exists(rcfile):
+            try:
+                exec(compile(open(rcfile, "rb").read(), rcfile, 'exec'))
+            except:
+                tb = traceback.format_exc()
+                print(tb, file=sys.stderr)
+                self.notification.add_message(_("Error in ") + rcfile + "\n" \
+                    + _("Please check the console output."), ALERT_ICON)
+
+
     def _get_ini_data(self):
         self.get_ini_info = getiniinfo.GetIniInfo()
         # get the axis list from INI

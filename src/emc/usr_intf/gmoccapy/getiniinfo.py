@@ -472,3 +472,9 @@ class GetIniInfo:
             print("**** GMOCCAPY GETINIINFO **** \nERROR getting machine units \n"
                   "please check [TRAJ] LINEAR_UNITS for a valid entry, found {0}".format(units))
             return None
+
+    def get_user_command_file(self):
+        temp = self.inifile.find("DISPLAY", "USER_COMMAND_FILE")
+        if temp:
+            print("**** USER_COMMAND_FILE = " + temp)
+        return temp
