@@ -478,3 +478,9 @@ class GetIniInfo:
         if temp:
             print("**** USER_COMMAND_FILE = " + temp)
         return temp
+
+    def get_user_css_file(self):
+        temp = self.inifile.find("DISPLAY", "USER_CSS_FILE")
+        if temp:
+            print("**** USER_CSS_FILE = " + temp)
+        return temp

@@ -155,10 +155,6 @@ class gmoccapy(object):
         gettext.install("gmoccapy", localedir=LOCALEDIR)
 
         # CSS styling
-        screen = Gdk.Screen.get_default()
-        provider = Gtk.CssProvider()
-        style_context = Gtk.StyleContext()
-        style_context.add_provider_for_screen(screen, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
         css = b"""
             button {
                 padding: 0;
@@ -171,7 +167,11 @@ class gmoccapy(object):
                 padding: 8px;
             }
         """
+        screen = Gdk.Screen.get_default()
+        provider = Gtk.CssProvider()
         provider.load_from_data(css)
+        style_context = Gtk.StyleContext()
+        style_context.add_provider_for_screen(screen, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
         # needed components to communicate with hal and linuxcnc
         self.halcomp = hal.component("gmoccapy")
@@ -530,6 +530,28 @@ class gmoccapy(object):
                 print(tb, file=sys.stderr)
                 self.notification.add_message(_("Error in ") + rcfile + "\n" \
                     + _("Please check the console output."), ALERT_ICON)
+
+        # Custom css file, e.g.:
+        #     button:checked {
+        #         background: rgba(230,230,50,0.8);
+        #     }
+
+        css_file = "~/.gmoccapy_css"
+        user_css_file = self.get_ini_info.get_user_css_file()
+        if user_css_file:
+            css_file = user_css_file
+        css_file = os.path.expanduser(css_file)
+        if os.path.exists(css_file):
+            provider_custom = Gtk.CssProvider()
+            try:
+                provider_custom.load_from_path(css_file)
+                style_context.add_provider_for_screen(screen, provider_custom, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+            except:
+                tb = traceback.format_exc()
+                print(tb, file=sys.stderr)
+                self.notification.add_message(_("Error in ") + css_file + "\n" \
+                    + _("Please check the console output."), ALERT_ICON)
+
 
 
     def _get_ini_data(self):
