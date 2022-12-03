@@ -445,7 +445,7 @@ Currently the formatting doesn't work.
 === Preview Control
 
 Magic comments can be used to control the G-code preview.
-On very large programs the preview can take a long time to load. You can control what is shown and what is hidden on the graphics screen by adding the appropriate comments from this list into your gcode:
+On very large programs the preview can take a long time to load. You can control what is shown and what is hidden on the graphics screen by adding the appropriate comments from this list into your G-code:
 
 ----
 (PREVIEW,hide)
@@ -940,7 +940,7 @@ to be read from a G-code subroutine, so the code can react to different values.
 
 - *gmoccapy.toolmeasurement* _(bit OUT)_ - Enable or not tool measurement
 - *gmoccapy.blockheight* _(float OUT)_ - The measured value of the top face of the workpiece
-- *gmoccapy.probeheight* _(floiat OUT)_ - The probe switch height
+- *gmoccapy.probeheight* _(float OUT)_ - The probe switch height
 - *gmoccapy.searchvel* _(float OUT)_ - The velocity to search for the tool probe switch
 - *gmoccapy.probevel* _(float OUT)_ - The velocity to probe tool length
 

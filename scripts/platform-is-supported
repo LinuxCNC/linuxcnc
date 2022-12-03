@@ -72,8 +72,13 @@ if os == 'linux':
     except ValueError as e:
         major = release
         minor = "0"
-    release_major = int(major)
-    release_minor = int(minor)
+    try:
+        release_major = int(major)
+        release_minor = int(minor)
+    except ValueError as e:
+	# Debian Unstable and Testing do not have a release number, the value is 'n/a'
+        release_major = 666
+        release_minor = 0
 
     uname = subprocess.check_output(['uname', '-r']).strip().decode()
     kernel_flavor = detect_kernel_flavor(uname)

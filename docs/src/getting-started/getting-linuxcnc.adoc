@@ -40,12 +40,12 @@ Image.
 
 For x86 PCs Download the Live/Install CD by clicking here:
 
-https://linuxcnc.org/iso/linuxcnc-2.8.2-buster.iso
+https://linuxcnc.org/iso/linuxcnc-2.8.4-buster.iso
 
 For the Raspberry Pi a complete SD card image is available here:
 
 https://linuxcnc.org/iso/linuxcnc-2.8.1-pi4.zip (this will auto-update
-to 2.8.2)
+to 2.8.4)
 
 This can be installed using the normal Pi
 https://www.raspberrypi.org/documentation/installation/installing-images/README.md[install process]
@@ -80,7 +80,7 @@ sudo apt-get install zsync
 * Then run this command to download the iso to your computer
 +
 ----
-zsync https://linuxcnc.org/iso/linuxcnc-2.8.2-buster.iso
+zsync https://linuxcnc.org/iso/linuxcnc-2.8.4-buster.iso
 ----
 +
 or
@@ -103,13 +103,13 @@ https://www.assembla.com/spaces/zsync-windows/documents
 . After downloading, verify the checksum of the image to ensure integrity.
 +
 ----
-md5sum linuxcnc-2.8.2-buster.iso
+md5sum linuxcnc-2.8.4-buster.iso
 ----
 +
 or
 +
 ----
-sha256sum linuxcnc-2.8.2-buster.iso
+sha256sum linuxcnc-2.8.4-buster.iso
 ----
 
 . Then compare to these checksums
@@ -145,7 +145,7 @@ used to boot a computer. The image is too large to fit on a CD.
   then use this command:
 +
 -----
-dd if=linuxcnc-2.8.2-buster.iso of=/dev/sde
+dd if=linuxcnc-2.8.4-buster.iso of=/dev/sde
 -----
 
 .Writing the image to a USB storage device in Mac OSX
@@ -345,7 +345,8 @@ sudo apt-get dist-upgrade
 sudo apt-get install linux-image-rt-amd64
 ----
 
-. Re-boot, and select the Linux 4.19.0-9-rt-amd64 kernel. This might be
+. Re-boot, and select the Linux 4.19.0-9-rt-amd64 kernel (the exact
+  kernel version might be different, look for the "-rt" suffix. This might be
   hidden in the "Advanced options for Debian Buster" sub-menu in Grub.
   When you log in, verify that `PREEMPT RT`is reported by the following
   command.

@@ -277,3 +277,11 @@ arguments all agree with the info on the motor's name plate.  If you
 still aren't getting the speed you expect, zero the VFD's frequency
 offset by starting the motor running, then pressing the Up/Down buttons
 to zero the offset.
+
+== AUTHOR
+
+Sebastian Kuzminsky
+
+== LICENSE
+
+GPL-2.0+

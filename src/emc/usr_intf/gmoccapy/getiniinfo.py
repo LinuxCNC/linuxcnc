@@ -446,7 +446,7 @@ class GetIniInfo:
     def get_RS274_start_code(self):
         temp = self.inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE")
         if not temp:
-            return False
+            temp = ""
         return  temp
 
     def get_user_messages(self):

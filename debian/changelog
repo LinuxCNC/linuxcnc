@@ -132,6 +132,19 @@ linuxcnc (2.9.0~pre0+git20220224.3ba0951743-1) unstable; urgency=medium
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Fri, 25 Feb 2022 18:40:12 +0100
 
+linuxcnc (1:2.8.4) buster; urgency=medium
+
+  * Add driver support for Mesa 7i96S
+  * Add pncconf support fo Mesa 7i96S
+  * calculatorwidget: increased buttons to be more touch-friendly
+  * gmoccapy: Fix jogging with max velocity (SHIFT + jog key)
+  * Czech translation for Gmoccapy
+  * gmoccapy: fix attribute error in tooltip text
+  * gmoccapy: fix "spindle speed override wasn't applied in reverse direction"
+  * docs: add note to obsolete property 'FEATURES'
+
+ -- andypugh <andy@bodgesoc.org>  Sun, 18 Sep 2022 20:33:29 +0100
+
 linuxcnc (1:2.8.3) buster; urgency=low
 
   * CraftsmanCNC: A new GUI written from scratch Intended for CNC router

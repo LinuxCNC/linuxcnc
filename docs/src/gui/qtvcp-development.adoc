@@ -6,27 +6,25 @@
 
 == Overview
 
-The intention of QtVCP is to *supply an infrastructure to support
-screen and VCP panel building for LinuxCNC*.
+The intention of QtVCP is to *supply an infrastructure to support screen and VCP panel building for LinuxCNC*.
 
 By providing a _diverse widget_ set and supporting _custom coding_,
 QtVCP hopes that development energy will be expended in _one toolkit_
 rather than continuous re-invention.
 
-By using the same toolkit across many screens/panels users should have
-an easier time customizing/creating these, and developers should find it
-easier to help trouble shoot with less effort.
+By using the same toolkit across many screens/panels,
+users should have an easier time customizing/creating these,
+and developers should find it easier to help trouble shoot with less effort.
 
 QtVCP uses a *Qt Designer built `.ui` file* and a *Python handler file*
-to *load and control a screen/panel that displays Qt widgets* to *control
-LinuxCNC's motion controller or HAL pins*.
 
-There are _builtin screens and panels_, easily loaded by a user, or
-users can build/modify one of their own.
+* to *load and control a screen/panel that displays Qt widgets* and
+* to *control LinuxCNC's motion controller or HAL pins*.
 
-QtVCP uses *libraries and custom widgets* to hide some of the complexity
-of interfacing to LinuxCNC. By using QtVCP's library rather than
-LinuxCNC's, we can mitigate minor LinuxCNC code changes.
+There are _builtin screens and panels_, easily loaded by a user, or users can build/modify one of their own.
+
+QtVCP uses *libraries and custom widgets* to hide some of the complexity of interfacing to LinuxCNC.
+By using QtVCP's library rather than LinuxCNC's, we can mitigate minor LinuxCNC code changes.
 
 == Builtin Locations
 
@@ -36,8 +34,7 @@ Builtin screens and panels are stored in separate folders:
 * _Panels_ in `share/qtvcp/panels`
 * _Stock images_ in `share/qtvcp/images`
 
-Screens and panels are sorted by their folder name, which is
-also the name used to load them.
+Screens and panels are sorted by their folder name, which is also the name used to load them.
 
 Inside the folder would be:
 
@@ -47,8 +44,7 @@ Inside the folder would be:
 
 == QtVCP Startup To Shutdown
 
-*QtVCP source* is located in `+src/emc/usr_intf/qtvcp+` folder of
-LinuxCNC source tree.
+*QtVCP source* is located in `+src/emc/usr_intf/qtvcp+` folder of LinuxCNC source tree.
 
 === QtVCP Startup
 
@@ -62,8 +58,7 @@ When QtVCP first starts:
 .. Adds handler extensions,
 .. Installs an event filter.
 
-+
-Now the window/widgets are instantiated, the HAL pins are built. +
+Now the window/widgets are instantiated, the HAL pins are built.
 This also initiates the `+_init_hal()+` function of the widgets.
 . The `+initialized__()+` handler function is called
 . The `STATUS` library is forced to update.
@@ -83,8 +78,7 @@ Finally when QtVCP is asked to shutdown:
 
 When QtVCP loads it collects paths information.
 
-This is available in the handler file's `+__init__()+` function
-as *`path`*:
+This is available in the handler file's `+__init__()+` function as *`path`*:
 
 *`IMAGEDIR`*:: Path of builtin images
 *`SCREENDIR`*:: Path of builtin motion controller screens
@@ -110,8 +104,7 @@ These try to cover non-obvious situations.
 
 When read, it is *'consumed'*, i.e. _no other object can read it_.
 
-In QtVCP screens, it is recommended to _use the_ `ScreenOptions`
-_widget to set up error reading_.
+In QtVCP screens, it is recommended to _use the_ `ScreenOptions` _widget to set up error reading_.
 
 _Errors are then *sent to other objects* via_ *`STATUS`* _signals_.
 
