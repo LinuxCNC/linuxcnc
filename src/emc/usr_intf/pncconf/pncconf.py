@@ -1544,7 +1544,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         driver, boardname, firmname, path = self.parse_discovery(info,boardnum=bdnum)
         print driver, boardname, firmname, path 
         boardname = 'Discovered:%s'% boardname
-        firmdata = self.parse_xml( driver,boardname,firmname,path,boardnum)
+        firmdata = self.parse_xml( driver,boardname,firmname,path,bdnum)
         self._p.MESA_FIRMWAREDATA.append(firmdata)
         self._p.MESA_INTERNAL_FIRMWAREDATA.append(firmdata)
         self._p.MESA_BOARDNAMES.append(boardname)
