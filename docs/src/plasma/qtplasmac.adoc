@@ -180,35 +180,32 @@ The minimum I/O requirement for a QtPlasmaC configuration to function are:  *Arc
 
 Refer to the <<qt_initial-setup,Heights Diagram>> diagram for a visual representation of the terms below.
 
-* *[AXIS_Z] MIN_LIMIT* should be just below top of the slats with
-  allowances for float_switch_travel and over travel tolerance. For example,
-  if the user's float switch takes 4mm (0.157") to activate then set the Z
-  minimum to 5mm (0.2") plus an allowance for overrun (either calculated
-  using the equation below or allow 5mm (0.2") below the lowest slat).
-* *[AXIS_Z] MAX_LIMIT* should be the highest the user wants the Z axis
-  to travel (it must not be lower than Z HOME_OFFSET).
-* *[AXIS_Z] HOME* should be set to be approximately 5mm-10mm (0.2"-0.4")
-  below the maximum limit.
-* *Floating Head* - it is recommended that a floating head be used and
-  that it has enough movement to allow for overrun during probing. Overrun
-  can be calculated using the following formula:
+* *[AXIS_Z] MIN_LIMIT* should be just below top of the slats with allowances for float_switch_travel and over travel tolerance.
+  For example, if the user's float switch takes 4 mm (0.157") to activate then set the Z minimum to 5 mm (0.2")
+  plus an allowance for overrun (either calculated using the equation below or allow 5 mm (0.2") below the lowest slat).
+* *[AXIS_Z] MAX_LIMIT* should be the highest the user wants the Z axis to travel (it must not be lower than Z HOME_OFFSET).
+* *[AXIS_Z] HOME* should be set to be approximately 5 mm-10 mm (0.2"-0.4") below the maximum limit.
+* *Floating Head* - it is recommended that a floating head be used and that it has enough movement to allow for overrun during probing.
+  Overrun can be calculated using the following formula:
 
 ----
 o = 0.5 * a * (v / a)^2
 ----
 
-where: o = overrun, a = acceleration in units/sec2 and v = velocity in units/sec.
+where: o = overrun, a = acceleration in units/s^2^ and v = velocity in units/s.
 
 Metric example:  given a Z axis MAX_ACCELERATION of 600 mm/s^2^ and MAX_VELOCITY of 60 mm/s, the overrun would be 3 mm.
 
 Imperial example: given a Z axis MAX_ACCELERATION of 24 in/s^2^ and MAX_VELOCITY of 2.4 in/s, the overrun would be 0.12 in.
 
-On machines that will utilize an ohmic probe as the primary method of probing, it is highly recommended to install a switch on the floating head as a backup means of stopping Z motion in the event of ohmic probe failure due to dirty surfaces.
+On machines that will utilize an ohmic probe as the primary method of probing,
+it is highly recommended to install a switch on the floating head as a backup means of stopping Z motion in the event of ohmic probe failure due to dirty surfaces.
 
 [[configuring]]
 === Configuring
 
-LinuxCNC provides two configuration wizards which can be used to build a machine configuration. The choice of these wizards is dependent on the hardware used to control the machine.
+LinuxCNC provides two configuration wizards which can be used to build a machine configuration.
+The choice of these wizards is dependent on the hardware used to control the machine.
 
 If the user wishes to use a Run In Place installation then prior to running one of the following commands they will need to run the following command from a terminal:
 
@@ -243,15 +240,12 @@ https://forum.linuxcnc.org/39-pncconf[PnCconf Wizard]
 
 Fill in the required entries to suit the machine wiring/breakout board configuration.
 
-QtPlasmaC adds two pages to the LinuxCNC configuration wizards for
-QtPlasmaC specific parameters, the two pages are QtPlasmaC options and
-<<qt_custom-user-buttons,User Buttons>>. Complete each of the wizards
-QtPlasmaC page to suit the machine that is being configured and the user
-button requirements.
+QtPlasmaC adds two pages to the LinuxCNC configuration wizards for QtPlasmaC specific parameters,
+the two pages are QtPlasmaC options and <<qt_custom-user-buttons,User Buttons>>.
+Complete each of the wizards QtPlasmaC page to suit the machine that is being configured and the user button requirements.
 
-Note that PnCconf options allow user selection of Feed Override, Linear
-Velocity, and Jog Increments whereas in StepConf these are automatically
-calculated and set.
+Note that PnCconf options allow user selection of Feed Override, Linear Velocity, and Jog Increments,
+whereas in StepConf these are automatically calculated and set.
 
 *PnCconf QtPlasmaC Options:*
 
@@ -481,9 +475,10 @@ Due to the fact that the software is capable of sampling rates faster than the c
 
 Debounce delay periods can be changed by editing the appropriate debounce value in the custom.hal file in the <machine_name> config directory.
 
-Each increment of delay adds one servo thread cycle to the debounce time. For example: given a servo thread period of 1000000 (measured in nano seconds), a debounce delay of 5 would equate to 5000000ns, or 5ms.
+Each increment of delay adds one servo thread cycle to the debounce time.
+For example: given a servo thread period of 1000000 (measured in nano seconds), a debounce delay of 5 would equate to 5000000 ns, or 5 ms.
 
-For the Float and Ohmic switches this equates to a 0.001mm (0.00004") increase in the probed height result.
+For the Float and Ohmic switches this equates to a 0.001 mm (0.00004") increase in the probed height result.
 
 It is recommended to keep the debounce values as low as possible while still achieving consistent results. Using link:../hal/tutorial.html#sec:tutorial-halscope[Halscope] to plot the inputs is a good way to establish the correct value.
 
@@ -506,8 +501,8 @@ Most relays using gold contacts will not require any additional current for reli
 
 There are two different methods available to provide this minimum current if it is required:
 
-. A 0.1μF film capacitor placed across the contacts.
-. A 1200Ω 1W resistor across the load (see calculations below).
+. A 0.1 μF film capacitor placed across the contacts.
+. A 1200 Ω 1 W resistor across the load (see calculations below).
 
 Schematics are shown at <<qt_contact-load-schematics,contact load schematics>>.
 
@@ -515,7 +510,9 @@ More information on contact switching load can be seen on page III of link:https
 
 [underline]*Calculations:*
 
-If using a Mesa card, the input resistance of a 7i96 is 4700 Ω (always consult the product manual associated with the revision being used as these values sometimes vary between revisions), giving a contact current of 5.1 mA assuming a supply voltage of 24 V (I = V/R).
+If using a Mesa card, the input resistance of a 7I96 is 4700 Ω
+(always consult the product manual associated with the revision being used as these values sometimes vary between revisions),
+giving a contact current of 5.1 mA assuming a supply voltage of 24 V (I = V/R).
 
 As an example, the typical relay used in a Hypertherm Powermax 65 plasma cutter (link:https://www.te.com/commerce/DocumentDelivery/DDEController?Action=showdoc&DocId=Data+Sheet%7F1308242_T77%7F1011%7Fpdf%7FEnglish%7FENG_DS_1308242_T77_1011.pdf%7F1-1393194-0[TE T77S1D10-24]) requires a minimum contact load of 100 mA @ 5 VDC which will dissipate 0.5 W (P = I * V).
 If using a 24 VDC power supply this would then equate to a minimum current of 20.8 mA.
@@ -528,7 +525,7 @@ The resistance can be calculated using R = U~s~ / (I~m~ - I~i~) where:
 - I~m~ = minimum current required
 - I~i~ = input current
 
-Using a 7i96 with an input current of 5.1 mA gives a calculated value of 1529 Ω ( = 24 V / (.0208 - .0051) A).
+Using a 7I96 with an input current of 5.1 mA gives a calculated value of 1529 Ω ( = 24 V / (.0208 - .0051) A).
 This could then be rounded down to a commonly available 1500 Ω resistor, giving a small safety margin.
 
 The power dissipation can by calculated using P = U~s~^2^ / R~s~ where:
@@ -537,7 +534,8 @@ The power dissipation can by calculated using P = U~s~^2^ / R~s~ where:
 - U~s~ = supply voltage
 - R~s~ = selected resistance
 
-This gives a value of 0.38 W. This could then be rounded up to 1 W, giving a good safety margin. The final selection would be a 1500 Ω 1 W resistor.
+This gives a value of 0.38 W. This could then be rounded up to 1 W, giving a good safety margin.
+The final selection would be a 1500 Ω 1 W resistor.
 
 === Desktop Launcher
 
@@ -2063,7 +2061,7 @@ This method can be invoked by setting the <<qt_pause-at-end,Pause At End>> param
 The torch can be turned off at the end of the hole by setting the *motion.digital-out-03* pin with the M-Codes *M62 (Synchronized with Motion)* or *M64 (Immediate)*.
 After turning the torch off it is necessary to allow the torch to be turned on again before beginning the next cut by resetting the *motion.digital-out-03* pin with the M-Codes *M63* or *M65*, this will be done automatically by the QtPlasmaC G-code parser if it reaches an M5 command without seeing a *M63 P3* or *M65 P3*.
 
-After the torch is turned off the hole path will be followed for a default length of 4mm (0.157"). This distance may be specified by adding *#<oclength> = _n_* to the G-code file.
+After the torch is turned off the hole path will be followed for a default length of 4 mm (0.157"). This distance may be specified by adding *#<oclength> = _n_* to the G-code file.
 
 * *M62 P3* will turn the torch off (Synchronized with Motion)
 * *M63 P3* will allow the torch to be turned on (Synchronized with Motion)
@@ -2126,7 +2124,8 @@ The default velocity for QtPlasmaC small holes is 60% of the current feed rate. 
 
 If Hole Sensing modes 2 or 4 are active, QtPlasmaC will over cut the hole in addition to the velocity changes associated with modes 1 and 3.
 
-The default over cut length for QtPlasmaC hole sensing is 4mm (0.157"). It is possible to change this value with the following command in a G-code file:
+The default over cut length for QtPlasmaC hole sensing is 4 mm (0.157").
+It is possible to change this value with the following command in a G-code file:
 
 * *#<oclength> = nn* to specify an over cut length (nn) in the same units system as the rest of the G-code file.
 
@@ -2308,7 +2307,8 @@ If an alignment laser has been set up then it is possible to use the laser durin
 If a laser offset is in effect when *CANCEL MOVE* is pressed then this offset will also be cleared.
 
 [NOTE]
-Cut recovery movements will be limited to a radius of 10mm (0.4") from either the point the program was paused, or from the last point on the cut path if paused motion was used.
+Cut recovery movements will be limited to a radius of 10 mm (0.4") from either the point the program was paused,
+or from the last point on the cut path if paused motion was used.
 
 IMPORTANT: PUDDLE JUMP IS DISABLED DURING CUT RECOVERY
 
@@ -3411,7 +3411,7 @@ After the framing motion is completed,
 the torch will move to the X0 Y0 position to clear any applied laser offsets and qtplasmac.laser_on will be turned off.
 
 Upon starting a Framing cycle,
-it is important to note that by default the Z axis will be moved to a height of [AXIS_Z]MAX_LIMIT - 5mm (0.2") before X/Y motion begins.
+it is important to note that by default the Z axis will be moved to a height of [AXIS_Z]MAX_LIMIT - 5 mm (0.2") before X/Y motion begins.
 
 The velocity for the XY movements of the Framing motion can be specified so that Framing motion always occurs at a set velocity.
 This can be achieved by adding the feed rate (F) as the as the last portion of the button code.
@@ -3712,7 +3712,7 @@ Max Offset is the distance (in millimeters) away from the Z MAX_LIMIT that QtPla
 
 The pin for adjusting this value is named plasmac.max-offset and the default value (in millimeters) is set to 5.
 To change this value, add the pin and the required value to the custom.hal file.
-It is not recommended to use values less than 5mm as offset overrun may cause unforeseen issues.
+It is not recommended to use values less than 5 mm as offset overrun may cause unforeseen issues.
 
 The following example would set the distance from Z MAX_LIMIT to 10 mm:
 
@@ -4091,7 +4091,7 @@ G1 X0 +
 M67 E3 Q60 (reduce feed rate to 60%) +
 G3 I10 (the hole) +
 M62 P3 (turn torch off) +
-G3 X0.8 Y6.081 I10 (continue motion for 4mm) +
+G3 X0.8 Y6.081 I10 (continue motion for 4 mm) +
 M63 P3 (allow torch to be turned on) +
 M67 E3 Q0 (restore feed rate to 100%) +
 M5 $0 (end cut) +
@@ -4109,11 +4109,11 @@ G3 I10 (the hole) +
 M5 $0 (end cut) +
 G0 X0 Y0 +
 M2 (end job) +
-|Cut a hole with 6.5mm over cut using the #<holes> command |G21 (metric) +
+|Cut a hole with 6.5 mm over cut using the #<holes> command |G21 (metric) +
 G64 P0.05 +
 M52 P1 (allow paused motion) +
 \#<holes> = 2 (over cut for holes) +
-#<oclength> = 6.5 (6.5mm over cut length) +
+#<oclength> = 6.5 (6.5 mm over cut length) +
 F#<_hal[plasmac.cut-feed-rate]> +
 G0 X10 Y10 +
 M3 $0 S1 (start cut) +
