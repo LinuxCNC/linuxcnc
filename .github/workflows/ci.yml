@@ -129,6 +129,16 @@ jobs:
         eatmydata git diff
         eatmydata apt-get --yes --quiet build-dep --arch-only .
         eatmydata debuild -us -uc --build=any
+
+    - name: lintian
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        set -e
+        set -x
+        eatmydata apt-get --yes --quiet install lintian
+        eatmydata lintian --info --display-info --pedantic --display-experimental ../*.deb
+
     - name: Test debian packages
       env:
         DEBIAN_FRONTEND: noninteractive
@@ -210,6 +220,16 @@ jobs:
         eatmydata git diff
         eatmydata apt-get --yes --quiet build-dep --indep-only .
         eatmydata debuild -us -uc --build=all
+
+    - name: lintian
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        set -e
+        set -x
+        eatmydata apt-get --yes --quiet install lintian
+        eatmydata lintian --info --display-info --pedantic --display-experimental ../*.deb
+
     - name: Test install debian packages
       env:
         DEBIAN_FRONTEND: noninteractive
