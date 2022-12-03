@@ -217,6 +217,14 @@ extern void *hal_malloc(long int size);
 */
 extern int hal_ready(int comp_id);
 
+/** hal_set_unready() sets a component state to unready so
+    additional pins can be added.  A subsequent call to
+    hal_ready() must be issued to make the component ready
+    again. Kinematics modules created with halcompile use
+    this function to add pins to a parent component.
+*/
+extern int hal_set_unready(int comp_id);
+
 /** hal_unready() indicates that this component is ready.  This allows
     halcmd 'loadusr -W hal_example' to wait until the userspace
     component 'hal_example' is ready before continuing.
