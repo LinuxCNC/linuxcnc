@@ -537,7 +537,7 @@ PATH = Path()
 
 *`VCPWindow`* module gives *reference to the `MainWindow` and widgets*.
 
-Typically this would be used for a library, e.g., the toolbar library uses it,
+Typically this would be used for a library (e.g., the toolbar library uses it)
 as the widgets get a reference to the `MainWindow` from the `_hal_init()` function.
 
 === Usage
