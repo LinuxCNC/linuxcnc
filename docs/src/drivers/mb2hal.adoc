@@ -162,7 +162,7 @@ include::mb2hal_HOWTO.ini[]
 To use these new features you have to set `VERSION = 1.1`.
 
 _m_ = Value of `HAL_TX_NAME` if set or transaction number +
-_n_ = element number (`NELEMENTS`) or name from `PIN_NAMES`
+_n_ = Element number (`NELEMENTS`) or name from `PIN_NAMES`
 
 Example:
 
