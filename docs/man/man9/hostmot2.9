@@ -1252,7 +1252,7 @@ For full details of the smart-serial devices see \fBsserial\fR(9).
 .SS BSPI
 The BSPI (Buffered SPI) driver is unusual in that it does not create any HAL pins.
 Instead the driver exports a set of functions that can be used by a sub-driver for the attached hardware.
-Typically these would be written in the "comp"
+Typically, these would be written in the "comp".
 
 pre-processing language: see http://linuxcnc.org/docs/html/hal/comp.html or man halcompile for further details.
 See mesa_7i65(9) and the source of mesa_7i65.comp for details of a typical sub-driver.
@@ -1286,15 +1286,12 @@ IONum is a three-digit number.
 The mapping from IONum to connector and pin-on-that-connector is written to the syslog when the driver loads,
 and it is documented in Mesa's manual for the Anything I/O boards.
 
-So, for example, the HAL pin that has the current inverted input value
-read from GPIO 012 of the second 7I43 board is: hm2_7i43.1.gpio.012.in\-not
-(this assumes that the firmware in that board is configured so that this
-HAL object is available)
+So, for example, the HAL pin that has the current inverted input value read from GPIO 012 of the second 7I43 board is:
+hm2_7i43.1.gpio.012.in\-not
+(this assumes that the firmware in that board is configured so that this HAL object is available).
 
-The HAL parameter that controls whether the last GPIO of the first 5I22
-is an input or an output is: hm2_5i22.0.gpio.095.is_output (this assumes
-that the firmware in that board is configured so that this HAL object
-is available)
+The HAL parameter that controls whether the last GPIO of the first 5I22 is an input or an output is:
+hm2_5i22.0.gpio.095.is_output (this assumes that the firmware in that board is configured so that this HAL object is available).
 
 The hm2 GPIO representation is modeled after the Digital Inputs and
 Digital Outputs described in the Canonical Device Interface (part of the HAL General Reference document).
@@ -1671,24 +1668,23 @@ This updates the PWM duty cycles, stepgen rates, and GPIO outputs on the FPGA.
 Any changes to configuration pins such as stepgen timing, GPIO inversions, etc., are also effected by this function.
 .TP
 \fBhm2_\fI<BoardType>\fB.\fI<BoardNum>\fB.read_gpio\fR
-Read the GPIO input pins.  Note that the effect of this function is a
-subset of the effect of the .read() function described above.  Normally
-only .read() is used.  The only reason to call this function is if you
-want to do GPIO things in a faster-than-servo thread.  (This function
-is not available on the 7I43 due to limitations of the EPP bus.)
+Read the GPIO input pins.
+Note that the effect of this function is a subset of the effect of the .read() function described above.
+Normally only .read() is used.
+The only reason to call this function is if you want to do GPIO things in a faster-than-servo thread.
+(This function is not available on the 7I43 due to limitations of the EPP bus.)
 .TP
 \fBhm2_\fI<BoardType>\fB.\fI<BoardNum>\fB.write_gpio\fR
-Write the GPIO control registers and output pins.  Note that the effect of
-this function is a subset of the effect of the .write() function described
-above.  Normally only .write() is used.  The only reason to call this
-function is if you want to do GPIO things in a faster-than-servo thread.
-(This function is not available on the 7I43 due to limitations of the
-EPP bus.)
+Write the GPIO control registers and output pins.
+Note that the effect of this function is a subset of the effect of the .write() function described above.
+Normally only .write() is used.
+The only reason to call this function is if you want to do GPIO things in a faster-than-servo thread.
+(This function is not available on the 7I43 due to limitations of the EPP bus.)
 .TP
 \fBhm2_\fI<BoardType>\fB.\fI<BoardNum>\fB.trigger\-encoders\fR
 This function will only appear if the firmware contains a BiSS, Fanuc or SSI encoder module and if the firmware does not contain a hm2dpll
 module (qv) or if the modparam contains num_dplls=0.
-This function should be inserted first in the thread so that the encoder data is ready when the main \fBhm2_XXXX.NN.read\fR function runs.
+This function should be inserted first in the thread so that the encoder data is ready when the main \fBhm2_\fR\fIXXXX\fR\fB.\fR\fINN\fR\fB.read\fR function runs.
 An error message will be printed if the encoder read is not finished in time.
 It may be possible to avoid this by increasing the data rate.
 If the problem persists and if "stale" data is acceptable then the function may be placed later in the thread,
