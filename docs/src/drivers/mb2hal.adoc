@@ -19,19 +19,19 @@ device:
 . One option is to create a HAL component as a driver see
   https://wiki.linuxcnc.org/cgi-bin/wiki.pl?VFD_Modbus[VFD Modbus].
 . Another option is to use Classic Ladder which has Modbus built in
-  see << cha:classicladder,ClassicLadder >>.
+  see <<cha:classicladder,ClassicLadder>>.
 . Now there is a third option that consists of a "generic" driver
   configured by text file, this is called MB2HAL.
 
 Why MB2HAL?
-Consider using Mb2hal if:
+Consider using MB2HAL if:
 
 * You have to write a new driver and you don't know anything about
   programming.
 * You need to use Classic Ladder "only" to manage the Modbus connections.
 * You have to discover and configure first time the Modbus transactions.
-  Mb2hal have debug levels to facilitate the low level protocol debug.
-* You have more than one device to connect. Mb2hal is very efficient
+  MB2HAL have debug levels to facilitate the low level protocol debug.
+* You have more than one device to connect. MB2HAL is very efficient
   managing multiple devices, transactions and links.
   Currently I am monitoring two axis drivers using a Rs232 port, a VFD
   driver using another Rs232 port, and a remote I/O using TCP/IP.
