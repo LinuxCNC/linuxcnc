@@ -5,7 +5,7 @@ Authors ArcEye 15122011 schooner30@tiscali.co.uk / Andy Pugh andy@bodgesoc.org
 License GPL
 Copyright 2011 
 
-example Hal linkages required:-
+example HAL linkages required:-
 ################################
 loadrt multiswitch cfg=4,6,8
 addf multiswitch.0 servo-thread
@@ -32,7 +32,7 @@ pin out bit bit-##[32:personality] = false       "Output bits";
 
 modparam dummy cfg              """cfg should be a comma-separated list of sizes
 for example cfg=2,4,6 would create 3 instances of 2, 4 and 6 bits respectively.
- Ignore the "personality" parameter, that is auto-generated""";
+Ignore the "personality" parameter, that is auto-generated""";
 
 function _ ;
 option extra_setup yes;
