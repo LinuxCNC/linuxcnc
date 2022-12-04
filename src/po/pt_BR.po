@@ -10,8 +10,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Emc2-axis cvs-head to 2.1\n"
-"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
-"POT-Creation-Date: 2022-10-09 15:50+0200\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-12-04 09:18+0100\n"
 "PO-Revision-Date: 2022-08-15 16:24+0000\n"
 "Last-Translator: Bruno Lualdi <blibr68@gmail.com>\n"
 "Language-Team: Portuguese/Brazil <none>\n"
@@ -881,88 +881,88 @@ msgstr ""
 msgid "Polar coordinates can only be used for motion"
 msgstr "Coordenadas polares só podem ser usadas para movimentação"
 
-#: src/emc/rs274ngc/interp_read.cc:1208 src/emc/rs274ngc/interp_read.cc:1212
+#: src/emc/rs274ngc/interp_read.cc:1207 src/emc/rs274ngc/interp_read.cc:1211
 #, c-format
 msgid "Bad character '\\%03o' used"
 msgstr "Caractere inválido usado no programa: '\\%03o'"
 
-#: src/emc/rs274ngc/interp_read.cc:1212
+#: src/emc/rs274ngc/interp_read.cc:1211
 #, c-format
 msgid "Bad character '%c' used"
 msgstr "Caractere inválido usado no programa: '%c'"
 
-#: src/emc/rs274ngc/interp_read.cc:1603
+#: src/emc/rs274ngc/interp_read.cc:1602
 #, c-format
 msgid "%d: Bug:  Non-m98/m99 M-code passed to read_o(): '%s'"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_read.cc:1807
+#: src/emc/rs274ngc/interp_read.cc:1806
 #, fuzzy
 msgid "Left bracket missing after 'while'"
 msgstr "Fecha colchetes faltando após barra com 'atan'"
 
-#: src/emc/rs274ngc/interp_read.cc:1822
+#: src/emc/rs274ngc/interp_read.cc:1821
 #, fuzzy
 msgid "Left bracket missing after 'repeat'"
 msgstr "Fecha colchetes faltando após nome de operação com 1 parâmetro"
 
-#: src/emc/rs274ngc/interp_read.cc:1837
+#: src/emc/rs274ngc/interp_read.cc:1836
 #, fuzzy
 msgid "Left bracket missing after 'if'"
 msgstr "Fecha colchetes faltando após barra com 'atan'"
 
-#: src/emc/rs274ngc/interp_read.cc:1852
+#: src/emc/rs274ngc/interp_read.cc:1851
 #, fuzzy
 msgid "Left bracket missing after 'elseif'"
 msgstr "Fecha colchetes faltando após barra com 'atan'"
 
-#: src/emc/rs274ngc/interp_read.cc:2056
+#: src/emc/rs274ngc/interp_read.cc:2055
 #, fuzzy
 msgid "Cannot read current position with cutter radius compensation on"
 msgstr ""
 "Impossível setar saída do movimento quando compensação de raio de corte está "
 "ativado"
 
-#: src/emc/rs274ngc/interp_read.cc:2071
+#: src/emc/rs274ngc/interp_read.cc:2070
 msgid "Expected # reading parameter"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_read.cc:2073
+#: src/emc/rs274ngc/interp_read.cc:2072
 msgid "Expected ] reading bracketed parameter"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_read.cc:2745
+#: src/emc/rs274ngc/interp_read.cc:2744
 #, c-format
 msgid "bad number format (conversion failed) parsing '%s'"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_read.cc:2746
+#: src/emc/rs274ngc/interp_read.cc:2745
 #, c-format
 msgid "bad number format (trailing characters) parsing '%s'"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_read.cc:2836
+#: src/emc/rs274ngc/interp_read.cc:2835
 msgid "Calculation resulted in 'not a number'"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_read.cc:2838
+#: src/emc/rs274ngc/interp_read.cc:2837
 msgid "Calculation resulted in 'infinity'"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_read.cc:3131
+#: src/emc/rs274ngc/interp_read.cc:3130
 #, c-format
 msgid "EOF in file:%s seeking o-word: o<%s> from line: %d"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_read.cc:3243
+#: src/emc/rs274ngc/interp_read.cc:3242
 msgid "Multiple U words on one line"
 msgstr "Múltiplos parâmetros U em uma linha"
 
-#: src/emc/rs274ngc/interp_read.cc:3259
+#: src/emc/rs274ngc/interp_read.cc:3258
 msgid "Multiple V words on one line"
 msgstr "Múltiplaos parâmetros V em uma linha"
 
-#: src/emc/rs274ngc/interp_read.cc:3275
+#: src/emc/rs274ngc/interp_read.cc:3274
 msgid "Multiple W words on one line"
 msgstr "Múltiplos parâmetros W em uma linha"
 
@@ -1030,12 +1030,12 @@ msgstr "Parâmetro nomeado #<%s> não definido"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:215
 #, fuzzy, c-format
-msgid "can't open ini file '%s'"
+msgid "can't open INI file '%s'"
 msgstr "impossível abrir %s"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:232
 #, fuzzy, c-format
-msgid "Named ini parameter #<%s> not found in inifile '%s': error=0x%x"
+msgid "Named INI parameter #<%s> not found in INI file '%s': error=0x%x"
 msgstr "Parâmetro nomeado #<%s> não definido"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:257
@@ -1058,7 +1058,7 @@ msgstr "Erro interno: impossível atribuir #<%s>"
 msgid "Cannot assign to read-only parameter #<%s>"
 msgstr ""
 
-#: src/emc/rs274ngc/interp_namedparams.cc:787
+#: src/emc/rs274ngc/interp_namedparams.cc:791
 #, c-format
 msgid "BUG: lookup_named_param(%s): unhandled index=%fn"
 msgstr ""
@@ -1944,7 +1944,7 @@ msgstr " Parâ_metros"
 msgid "_Close"
 msgstr "_Fechar"
 
-#: src/hal/utils/scope.c:126
+#: src/hal/utils/scope.c:132
 msgid ""
 "Usage:\n"
 "  halscope [-h] [-i infile] [-o outfile] [num_samples]\n"
@@ -1952,97 +1952,97 @@ msgstr ""
 "Utilização:\n"
 "  halscope [-h] [-i infile] [-o outfile] [num_samples]\n"
 
-#: src/hal/utils/scope.c:468
+#: src/hal/utils/scope.c:476
 #, fuzzy
 msgid "Open Configuration File:"
 msgstr "Mostrar _Configuração Hal"
 
-#: src/hal/utils/scope.c:470 src/hal/utils/scope.c:493
+#: src/hal/utils/scope.c:478 src/hal/utils/scope.c:501
 #: src/hal/utils/scope_horiz.c:808 src/hal/utils/scope_vert.c:713
 #: src/hal/utils/scope_vert.c:933 src/hal/utils/scope_trig.c:315
 #, fuzzy
 msgid "_Cancel"
 msgstr "Cancelar"
 
-#: src/hal/utils/scope.c:471
+#: src/hal/utils/scope.c:479
 #, fuzzy
 msgid "_Open"
 msgstr "_Abrir"
 
-#: src/hal/utils/scope.c:491
+#: src/hal/utils/scope.c:499
 #, fuzzy
 msgid "Save Configuration File:"
 msgstr "Mostrar _Configuração Hal"
 
-#: src/hal/utils/scope.c:494 src/hal/utils/scope_horiz.c:809
+#: src/hal/utils/scope.c:502 src/hal/utils/scope_horiz.c:809
 #, fuzzy
 msgid "_Save"
 msgstr "_Arquivo"
 
-#: src/hal/utils/scope.c:525
+#: src/hal/utils/scope.c:533
 #, fuzzy
 msgid "_Open Configuration..."
 msgstr "Mostrar _Configuração Hal"
 
-#: src/hal/utils/scope.c:531
+#: src/hal/utils/scope.c:539
 #, fuzzy
 msgid "_Save Configuration..."
 msgstr "Mostrar _Configuração Hal"
 
-#: src/hal/utils/scope.c:540
+#: src/hal/utils/scope.c:548
 #, fuzzy
 msgid "O_pen Log File"
 msgstr "_Abrir arquivo de dados"
 
-#: src/hal/utils/scope.c:547
+#: src/hal/utils/scope.c:555
 #, fuzzy
 msgid "S_ave Log File"
 msgstr "_Arquivo"
 
-#: src/hal/utils/scope.c:556 share/axis/tcl/axis.tcl:102
+#: src/hal/utils/scope.c:564 share/axis/tcl/axis.tcl:102
 #, fuzzy
 msgid "_Quit"
 msgstr "_Sair"
 
-#: src/hal/utils/scope.c:562
+#: src/hal/utils/scope.c:570
 msgid "_About Halscope"
 msgstr "S_obre Halscope"
 
-#: src/hal/utils/scope.c:568 share/axis/tcl/axis.tcl:470
+#: src/hal/utils/scope.c:576 share/axis/tcl/axis.tcl:470
 #, fuzzy
 msgid "_File"
 msgstr "_Arquivo"
 
-#: src/hal/utils/scope.c:572 share/axis/tcl/axis.tcl:482
+#: src/hal/utils/scope.c:580 share/axis/tcl/axis.tcl:482
 #, fuzzy
 msgid "_Help"
 msgstr "_Ajuda"
 
-#: src/hal/utils/scope.c:627
+#: src/hal/utils/scope.c:635
 msgid "HAL Oscilloscope"
 msgstr "Osciloscópio HAL"
 
-#: src/hal/utils/scope.c:655
+#: src/hal/utils/scope.c:663
 msgid "Horizontal"
 msgstr "Horizontal"
 
-#: src/hal/utils/scope.c:665
+#: src/hal/utils/scope.c:673
 msgid "Selected Channel"
 msgstr "Canal Selecionado"
 
-#: src/hal/utils/scope.c:671
+#: src/hal/utils/scope.c:679
 msgid "Run Mode"
 msgstr "Modo execução"
 
-#: src/hal/utils/scope.c:674
+#: src/hal/utils/scope.c:682
 msgid "Trigger"
 msgstr "Gatilho"
 
-#: src/hal/utils/scope.c:680
+#: src/hal/utils/scope.c:688
 msgid "Vertical"
 msgstr "Vertical"
 
-#: src/hal/utils/scope.c:688 src/hal/classicladder/classicladder_gtk.c:343
+#: src/hal/utils/scope.c:696 src/hal/classicladder/classicladder_gtk.c:343
 #: src/hal/classicladder/classicladder_gtk.c:856 share/axis/tcl/axis.tcl:144
 #: share/axis/tcl/axis.tcl:1044 src/emc/usr_intf/gscreen/gscreen.py:4481
 #: src/emc/usr_intf/gscreen/gscreen.py:4482
@@ -2051,16 +2051,16 @@ msgstr "Vertical"
 msgid "Stop"
 msgstr "Parar"
 
-#: src/hal/utils/scope.c:690 src/hal/utils/scope_trig.c:201
+#: src/hal/utils/scope.c:698 src/hal/utils/scope_trig.c:201
 msgid "Normal"
 msgstr "Normal"
 
-#: src/hal/utils/scope.c:692
+#: src/hal/utils/scope.c:700
 #, fuzzy
 msgid "Single"
 msgstr "Spindle:"
 
-#: src/hal/utils/scope.c:694
+#: src/hal/utils/scope.c:702
 msgid "Roll"
 msgstr "Rolar"
 
@@ -2109,11 +2109,11 @@ msgstr ""
 #: tcl/tklinuxcnc.tcl:1225 tcl/tklinuxcnc.tcl:1296 tcl/tklinuxcnc.tcl:1327
 #: tcl/tklinuxcnc.tcl:1358 tcl/tklinuxcnc.tcl:1892 tcl/tklinuxcnc.tcl:1911
 #: tcl/tklinuxcnc.tcl:1930 tcl/tklinuxcnc.tcl:1977
-#: src/emc/usr_intf/axis/scripts/axis.py:1191
-#: src/emc/usr_intf/axis/scripts/axis.py:1296
-#: src/emc/usr_intf/axis/scripts/axis.py:1656
-#: src/emc/usr_intf/axis/scripts/axis.py:2955
-#: src/emc/usr_intf/axis/scripts/axis.py:4211
+#: src/emc/usr_intf/axis/scripts/axis.py:1195
+#: src/emc/usr_intf/axis/scripts/axis.py:1300
+#: src/emc/usr_intf/axis/scripts/axis.py:1660
+#: src/emc/usr_intf/axis/scripts/axis.py:2959
+#: src/emc/usr_intf/axis/scripts/axis.py:4215
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:725
 #: lib/python/propertywindow.py:35 share/axis/tcl/axis.tcl:1580
 #: share/axis/tcl/axis.tcl:1617
@@ -2123,7 +2123,7 @@ msgstr "OK"
 #: src/hal/utils/scope_horiz.c:486 src/hal/utils/scope_horiz.c:536
 #: src/hal/utils/scope_horiz.c:763
 #: src/hal/classicladder/classicladder_gtk.c:899 tcl/bin/emccalib.tcl:104
-#: tcl/bin/halconfig.tcl:103 tcl/tooledit.tcl:468
+#: tcl/bin/halconfig.tcl:103 tcl/tooledit.tcl:512
 #: src/emc/usr_intf/pncconf/dialogs.glade:602
 #, fuzzy
 msgid "Quit"
@@ -3154,7 +3154,7 @@ msgstr ""
 #: src/hal/classicladder/symbols_gtk.c:122
 #: src/hal/classicladder/symbols_gtk.c:138
 #: src/hal/classicladder/symbols_gtk.c:140
-#: src/emc/usr_intf/axis/scripts/axis.py:1600
+#: src/emc/usr_intf/axis/scripts/axis.py:1604
 msgid "Ok"
 msgstr ""
 
@@ -3241,7 +3241,7 @@ msgid "Okay"
 msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:649 tcl/bin/pickconfig.tcl:625
-#: tcl/tooledit.tcl:906 src/emc/usr_intf/axis/scripts/axis.py:156
+#: src/emc/usr_intf/axis/scripts/axis.py:156
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:570
 #: src/emc/usr_intf/stepconf/options.glade:388
 #: src/emc/usr_intf/stepconf/options.glade:405
@@ -3258,7 +3258,7 @@ msgstr ""
 msgid "Yes"
 msgstr ""
 
-#: src/hal/classicladder/classicladder_gtk.c:650 tcl/tooledit.tcl:906
+#: src/hal/classicladder/classicladder_gtk.c:650
 #: src/emc/usr_intf/axis/scripts/axis.py:156
 #: src/emc/usr_intf/stepconf/options.glade:315
 #: src/emc/usr_intf/stepconf/options.glade:329
@@ -3325,7 +3325,7 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:841 tcl/bin/emccalib.tcl:123
 #: tcl/bin/genedit.tcl:82 tcl/bin/halconfig.tcl:155
-#: src/emc/usr_intf/axis/scripts/axis.py:2304
+#: src/emc/usr_intf/axis/scripts/axis.py:2308
 msgid "Save"
 msgstr ""
 
@@ -3414,7 +3414,7 @@ msgstr ""
 #: src/hal/classicladder/symbols_gtk.c:122
 #: src/hal/classicladder/symbols_gtk.c:138
 #: src/hal/classicladder/symbols_gtk.c:140 tcl/bin/halshow.tcl:101
-#: tcl/tklinuxcnc.tcl:1885 tcl/tooledit.tcl:889
+#: tcl/tklinuxcnc.tcl:1885 tcl/tooledit.tcl:937
 msgid "Error"
 msgstr ""
 
@@ -3803,7 +3803,7 @@ msgid "Edit mode..."
 msgstr "Modo Joint"
 
 #: src/hal/classicladder/edit_gtk.c:186 src/hal/classicladder/edit_gtk.c:360
-#: tcl/tooledit.tcl:488 lib/python/gladevcp/tooledit_gtk.glade:297
+#: tcl/tooledit.tcl:536 lib/python/gladevcp/tooledit_gtk.glade:297
 msgid "Delete"
 msgstr ""
 
@@ -3830,10 +3830,10 @@ msgstr ""
 #: tcl/bin/pickconfig.tcl:432 tcl/bin/pickconfig.tcl:625 tcl/tklinuxcnc.tcl:163
 #: tcl/tklinuxcnc.tcl:214 tcl/tklinuxcnc.tcl:421 tcl/tklinuxcnc.tcl:1227
 #: tcl/tklinuxcnc.tcl:1297 tcl/tklinuxcnc.tcl:1328 tcl/tklinuxcnc.tcl:1359
-#: tcl/tklinuxcnc.tcl:1978 src/emc/usr_intf/axis/scripts/axis.py:1601
-#: src/emc/usr_intf/axis/scripts/axis.py:1657
-#: src/emc/usr_intf/axis/scripts/axis.py:1887
-#: src/emc/usr_intf/axis/scripts/axis.py:2305
+#: tcl/tklinuxcnc.tcl:1978 src/emc/usr_intf/axis/scripts/axis.py:1605
+#: src/emc/usr_intf/axis/scripts/axis.py:1661
+#: src/emc/usr_intf/axis/scripts/axis.py:1891
+#: src/emc/usr_intf/axis/scripts/axis.py:2309
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:727
 #: src/emc/usr_intf/stepconf/main_page.glade:475
 #: src/emc/usr_intf/pncconf/main_page.glade:101
@@ -4464,18 +4464,18 @@ msgstr ""
 
 #: src/hal/classicladder/socket_modbus_master.c:111
 #, c-format
-msgid "ERROR CLASSICLADDER-   Failed to create thread I/O modbus master...\n"
+msgid "ERROR CLASSICLADDER-   Failed to create thread I/O Modbus master...\n"
 msgstr ""
 
 #: src/hal/classicladder/socket_modbus_master.c:121
 #, c-format
 msgid ""
-"INFO CLASSICLADDER---I/O modbus master Data bits %i Stop bits %i Parity %i\n"
+"INFO CLASSICLADDER---I/O Modbus master Data bits %i Stop bits %i Parity %i\n"
 msgstr ""
 
 #: src/hal/classicladder/socket_modbus_master.c:124
 #, c-format
-msgid "INFO CLASSICLADDER---I/O modbus master (%s) init ok !\n"
+msgid "INFO CLASSICLADDER---I/O Modbus master (%s) init ok !\n"
 msgstr ""
 
 #: src/hal/classicladder/socket_modbus_master.c:124
@@ -4506,7 +4506,7 @@ msgstr ""
 
 #: src/hal/classicladder/socket_modbus_master.c:220
 #, c-format
-msgid "Not able to retrieve IP address in modbus table, huhh?!!!\n"
+msgid "Not able to retrieve IP address in Modbus table, huhh?!!!\n"
 msgstr ""
 
 #: src/hal/classicladder/socket_modbus_master.c:225
@@ -4536,7 +4536,7 @@ msgstr ""
 
 #: src/hal/classicladder/socket_modbus_master.c:307
 #, c-format
-msgid "INFO CLASSICLADDER---I/O modbus master closed!\n"
+msgid "INFO CLASSICLADDER---I/O Modbus master closed!\n"
 msgstr ""
 
 #: src/hal/classicladder/socket_modbus_master.c:356
@@ -5563,7 +5563,7 @@ msgstr ""
 msgid "Tool:"
 msgstr "Ordem das ferramentas:"
 
-#: tcl/tklinuxcnc.tcl:466 src/emc/usr_intf/axis/scripts/axis.py:2225
+#: tcl/tklinuxcnc.tcl:466 src/emc/usr_intf/axis/scripts/axis.py:2229
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:763
 msgid "All files"
 msgstr "Todos os arquivos"
@@ -5639,9 +5639,9 @@ msgstr ""
 msgid "inches"
 msgstr ""
 
-#: tcl/tklinuxcnc.tcl:786 src/emc/usr_intf/axis/scripts/axis.py:1756
-#: src/emc/usr_intf/axis/scripts/axis.py:2042
-#: src/emc/usr_intf/axis/scripts/axis.py:2619
+#: tcl/tklinuxcnc.tcl:786 src/emc/usr_intf/axis/scripts/axis.py:1760
+#: src/emc/usr_intf/axis/scripts/axis.py:2046
+#: src/emc/usr_intf/axis/scripts/axis.py:2623
 #: src/emc/usr_intf/touchy/touchy.glade:3272
 #: src/emc/usr_intf/stepconf/stepconf.py:1567
 #: src/emc/usr_intf/stepconf/pages.py:961
@@ -6035,7 +6035,7 @@ msgid "Coordinate System Control Window"
 msgstr ""
 
 #: tcl/scripts/Set_Coordinates.tcl:83
-#: src/emc/usr_intf/axis/scripts/axis.py:3638
+#: src/emc/usr_intf/axis/scripts/axis.py:3642
 #, fuzzy
 msgid "Axis "
 msgstr "Eixo:"
@@ -6448,7 +6448,7 @@ msgstr ""
 msgid "Finalize Canceled"
 msgstr ""
 
-#: tcl/ngcgui.tcl:2732 tcl/ngcgui.tcl:2888 tcl/tooledit.tcl:885
+#: tcl/ngcgui.tcl:2732 tcl/ngcgui.tcl:2888 tcl/tooledit.tcl:933
 msgid "Dismiss"
 msgstr ""
 
@@ -6633,8 +6633,8 @@ msgstr ""
 msgid "using path"
 msgstr ""
 
-#: tcl/ngcgui.tcl:3811 src/emc/usr_intf/axis/scripts/axis.py:2680
-#: src/emc/usr_intf/axis/scripts/axis.py:2706
+#: tcl/ngcgui.tcl:3811 src/emc/usr_intf/axis/scripts/axis.py:2684
+#: src/emc/usr_intf/axis/scripts/axis.py:2710
 msgid "Warning"
 msgstr ""
 
@@ -6863,208 +6863,225 @@ msgstr ""
 msgid "Unknown column: %s"
 msgstr "Ferramenta desconhecida %d"
 
-#: tcl/tooledit.tcl:210 tcl/tooledit.tcl:213 tcl/tooledit.tcl:598
-#: tcl/tooledit.tcl:599 tcl/tooledit.tcl:1032
+#: tcl/tooledit.tcl:211 tcl/tooledit.tcl:214 tcl/tooledit.tcl:646
+#: tcl/tooledit.tcl:647 tcl/tooledit.tcl:1086
 msgid "NEW"
 msgstr ""
 
 #: tcl/tooledit.tcl:232
-#, tcl-format
-msgid "%s must be a number"
+msgid "Problem"
 msgstr ""
 
-#: tcl/tooledit.tcl:241
+#: tcl/tooledit.tcl:233
+#, fuzzy
+msgid "Bad Entry"
+msgstr "Ultrapassar limites"
+
+#: tcl/tooledit.tcl:234
+msgid "(must be a number)"
+msgstr ""
+
+#: tcl/tooledit.tcl:242
 #, fuzzy, tcl-format
 msgid "filename: <%s> not readable"
 msgstr "Arquivo não aberto"
 
-#: tcl/tooledit.tcl:245
+#: tcl/tooledit.tcl:246
 #, fuzzy, tcl-format
 msgid "filename: <%s> not writable"
 msgstr "Arquivo não aberto"
 
-#: tcl/tooledit.tcl:250
+#: tcl/tooledit.tcl:251
 #, tcl-format
 msgid "directory: <%s> not writable"
 msgstr ""
 
-#: tcl/tooledit.tcl:294
+#: tcl/tooledit.tcl:287
+#, fuzzy
+msgid "Current file:"
+msgstr "Recarrega Código G [Control-R]"
+
+#: tcl/tooledit.tcl:291
+msgid "Tooledit already running"
+msgstr ""
+
+#: tcl/tooledit.tcl:335
 #, tcl-format
 msgid "Skipping linenumber %d for tag %s, value <%s> is not a number"
 msgstr ""
 
-#: tcl/tooledit.tcl:300
+#: tcl/tooledit.tcl:341
 #, tcl-format
 msgid "Skipping linenumber %d for tag %s, expected integer not <%s>"
 msgstr ""
 
-#: tcl/tooledit.tcl:316
+#: tcl/tooledit.tcl:357
 #, tcl-format
 msgid "At linenumber %d, Unknown tag <%s>"
 msgstr ""
 
-#: tcl/tooledit.tcl:399
+#: tcl/tooledit.tcl:442
 #, tcl-format
 msgid "%s: Column sorting not available with tcl_version==%s"
 msgstr ""
 
-#: tcl/tooledit.tcl:408
+#: tcl/tooledit.tcl:451
 #, fuzzy
 msgid "tool"
 msgstr "Hehe Sem ferramenta"
 
-#: tcl/tooledit.tcl:409
+#: tcl/tooledit.tcl:452
 msgid "poc"
 msgstr ""
 
-#: tcl/tooledit.tcl:410
+#: tcl/tooledit.tcl:453
 msgid "diam"
 msgstr ""
 
-#: tcl/tooledit.tcl:411
+#: tcl/tooledit.tcl:454
 msgid "front"
 msgstr ""
 
-#: tcl/tooledit.tcl:412
+#: tcl/tooledit.tcl:455
 msgid "back"
 msgstr ""
 
-#: tcl/tooledit.tcl:413
+#: tcl/tooledit.tcl:456
 msgid "orien"
 msgstr ""
 
-#: tcl/tooledit.tcl:414
+#: tcl/tooledit.tcl:457
 #, fuzzy
 msgid "comment"
 msgstr "Seleciona incremento de Jog"
 
-#: tcl/tooledit.tcl:444
+#: tcl/tooledit.tcl:487
 msgid "Del"
 msgstr ""
 
-#: tcl/tooledit.tcl:473
+#: tcl/tooledit.tcl:521
 #, fuzzy
 msgid "ReLoadTable"
 msgstr "Recarrega.lista de ferramentas"
 
-#: tcl/tooledit.tcl:478
+#: tcl/tooledit.tcl:526
 #, fuzzy
 msgid "SaveFile"
 msgstr "_Arquivo"
 
-#: tcl/tooledit.tcl:483
+#: tcl/tooledit.tcl:531
 msgid "ReRead"
 msgstr ""
 
-#: tcl/tooledit.tcl:485
+#: tcl/tooledit.tcl:533
 #, fuzzy
 msgid "AddTool"
 msgstr "Ordem das ferramentas:"
 
-#: tcl/tooledit.tcl:535
+#: tcl/tooledit.tcl:583
 #, tcl-format
 msgid "Opened %s"
 msgstr ""
 
-#: tcl/tooledit.tcl:536
+#: tcl/tooledit.tcl:584
 #, tcl-format
 msgid "Created %s"
 msgstr ""
 
-#: tcl/tooledit.tcl:537
+#: tcl/tooledit.tcl:585
 msgid "File updated"
 msgstr ""
 
-#: tcl/tooledit.tcl:538
+#: tcl/tooledit.tcl:586
 msgid "File modified"
 msgstr ""
 
-#: tcl/tooledit.tcl:539
+#: tcl/tooledit.tcl:587
 msgid "File check errors"
 msgstr ""
 
-#: tcl/tooledit.tcl:540
+#: tcl/tooledit.tcl:588
 msgid "File checked"
 msgstr ""
 
-#: tcl/tooledit.tcl:541
+#: tcl/tooledit.tcl:589
 msgid "File items deleted"
 msgstr ""
 
-#: tcl/tooledit.tcl:542
+#: tcl/tooledit.tcl:590
 msgid "Bogus lines in file ignored"
 msgstr ""
 
-#: tcl/tooledit.tcl:543
+#: tcl/tooledit.tcl:591
 msgid "File errors -- Check Entries"
 msgstr ""
 
-#: tcl/tooledit.tcl:544
+#: tcl/tooledit.tcl:592
 msgid "Warning: File changed by another process"
 msgstr ""
 
-#: tcl/tooledit.tcl:545
+#: tcl/tooledit.tcl:593
 msgid "Warning: File deleted by another process"
 msgstr ""
 
-#: tcl/tooledit.tcl:546
+#: tcl/tooledit.tcl:594
 #, fuzzy
 msgid "Added Tool"
 msgstr "Sem ferramenta"
 
-#: tcl/tooledit.tcl:550
+#: tcl/tooledit.tcl:598
 #, tcl-format
 msgid "Sorted by %s, increasing"
 msgstr ""
 
-#: tcl/tooledit.tcl:551
+#: tcl/tooledit.tcl:599
 #, tcl-format
 msgid "Sorted by %s, decreasing"
 msgstr ""
 
-#: tcl/tooledit.tcl:593
+#: tcl/tooledit.tcl:641
 msgid "Added"
 msgstr ""
 
-#: tcl/tooledit.tcl:802
+#: tcl/tooledit.tcl:851
 #, tcl-format
 msgid "Tool %s, Column %s, parameter %s is not a number"
 msgstr ""
 
-#: tcl/tooledit.tcl:811
+#: tcl/tooledit.tcl:860
 #, tcl-format
 msgid "Tool %s, parameter %s must be nonnegative integer"
 msgstr ""
 
-#: tcl/tooledit.tcl:819
+#: tcl/tooledit.tcl:868
 #, tcl-format
 msgid "Tool %s: <Orientation> must be 0..9 integer"
 msgstr ""
 
-#: tcl/tooledit.tcl:826
+#: tcl/tooledit.tcl:875
 #, fuzzy, tcl-format
 msgid "Tool %s: <%s> must be between -360 and 360"
 msgstr "MOTION: num_dio é %d, precisa ser entre 1 e %d\n"
 
-#: tcl/tooledit.tcl:842
+#: tcl/tooledit.tcl:890
 #, tcl-format
 msgid "Pocket <%s> specified multiple times"
 msgstr ""
 
-#: tcl/tooledit.tcl:857
+#: tcl/tooledit.tcl:905
 #, tcl-format
 msgid "Tool <%s> specified multiple times"
 msgstr ""
 
-#: tcl/tooledit.tcl:902
+#: tcl/tooledit.tcl:950
 msgid "File Modified"
 msgstr ""
 
-#: tcl/tooledit.tcl:903
+#: tcl/tooledit.tcl:951
 msgid "Save Modifications to File?"
 msgstr ""
 
-#: tcl/tooledit.tcl:930
+#: tcl/tooledit.tcl:977
 #, tcl-format
 msgid ""
 "Only these columns are currently used:\n"
@@ -7072,68 +7089,77 @@ msgid ""
 " %s"
 msgstr ""
 
-#: tcl/tooledit.tcl:931
+#: tcl/tooledit.tcl:978
 msgid "Limit display to these columns by specifying"
 msgstr ""
 
-#: tcl/tooledit.tcl:933
+#: tcl/tooledit.tcl:980
 #, fuzzy
 msgid "Format for ini file is"
 msgstr "impossível abrir %s"
 
-#: tcl/tooledit.tcl:935
+#: tcl/tooledit.tcl:982
 msgid "For standalone use, invoke as"
 msgstr ""
 
-#: tcl/tooledit.tcl:936
+#: tcl/tooledit.tcl:983
 msgid "tool_table_filename"
 msgstr ""
 
-#: tcl/tooledit.tcl:956
+#: tcl/tooledit.tcl:1003
 #, tcl-format
 msgid "Created by %s"
 msgstr ""
 
-#: tcl/tooledit.tcl:957
+#: tcl/tooledit.tcl:1004
 msgid "Saved geometry (updated on program termination)"
 msgstr ""
 
-#: tcl/tooledit.tcl:980
+#: tcl/tooledit.tcl:1027
 #, tcl-format
 msgid ""
 "%s: Axis inifile specifies multiple inifile items for: [EMCIO]TOOL_TABLE"
 msgstr ""
 
-#: tcl/tooledit.tcl:981
+#: tcl/tooledit.tcl:1028
 #, tcl-format
 msgid "%s: Using: %s"
 msgstr ""
 
-#: tcl/tooledit.tcl:990
+#: tcl/tooledit.tcl:1039
+#, fuzzy, tcl-format
+msgid "%s"
+msgstr "%"
+
+#: tcl/tooledit.tcl:1040
 #, tcl-format
 msgid ""
-"%s: Warning: Axis is running but the tool table file <%s> \n"
-"differs from the standalone startup file <%s>"
+"differs from the the ini specified file:\n"
+"%s"
 msgstr ""
 
-#: tcl/tooledit.tcl:1004
+#: tcl/tooledit.tcl:1043
+msgid "Axis is Running"
+msgstr ""
+
+#: tcl/tooledit.tcl:1058
 msgid "Must be On and Idle to reload tool table"
 msgstr ""
 
-#: tcl/tooledit.tcl:1093
+#: tcl/tooledit.tcl:1147
 msgid "Usage"
 msgstr ""
 
-#: tcl/tooledit.tcl:1094 tcl/tooledit.tcl:1095
+#: tcl/tooledit.tcl:1148 tcl/tooledit.tcl:1149
 msgid "filename"
 msgstr ""
 
-#: tcl/tooledit.tcl:1096
+#: tcl/tooledit.tcl:1150
 #, tcl-format
 msgid "Allowed column_ names are: %s"
 msgstr ""
 
-#: tcl/tooledit.tcl:1106
+#: tcl/tooledit.tcl:1160
 #, fuzzy
 msgid "Missing filename"
 msgstr " Parâ_metros"
@@ -7531,52 +7557,52 @@ msgstr ""
 msgid "Open a Menu"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:918
+#: src/emc/usr_intf/axis/scripts/axis.py:919
 #, python-format
 msgid "Unknown tool %d"
 msgstr "Ferramenta desconhecida %d"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:920 share/axis/tcl/axis.tcl:1872
+#: src/emc/usr_intf/axis/scripts/axis.py:921 share/axis/tcl/axis.tcl:1872
 msgid "No tool"
 msgstr "Hehe Sem ferramenta"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:922
+#: src/emc/usr_intf/axis/scripts/axis.py:923
 #, fuzzy, python-format
 msgid "Tool %(tool)d, offset %(zo)g, diameter %(dia)g"
 msgstr "Ferramenta %d, offset %g, diâmetro %g"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:924
+#: src/emc/usr_intf/axis/scripts/axis.py:925
 #, fuzzy, python-format
 msgid "Tool %(tool)d, zo %(zo)g, xo %(xo)g, dia %(dia)g"
 msgstr "Ferramenta %d, zo %g, xo%, dia %g"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1095
+#: src/emc/usr_intf/axis/scripts/axis.py:1099
 msgid "G-code preview loading timed out"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1122
+#: src/emc/usr_intf/axis/scripts/axis.py:1126
 #, fuzzy
 msgid "Filtering..."
 msgstr "Alternada"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1187
+#: src/emc/usr_intf/axis/scripts/axis.py:1191
 #, fuzzy
 msgid "Filter failed"
 msgstr "Filtro de programa %r falhado"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1188
+#: src/emc/usr_intf/axis/scripts/axis.py:1192
 #, python-format
 msgid ""
 "The program %(program)r exited with code %(code)d.  Any error messages it "
 "produced are shown below:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1294
+#: src/emc/usr_intf/axis/scripts/axis.py:1298
 #, python-format
 msgid "G-Code error in %s"
 msgstr "Erro no Código-G em %s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1295
+#: src/emc/usr_intf/axis/scripts/axis.py:1299
 #, fuzzy, python-format
 msgid ""
 "Near line %(seq)d of %(f)s:\n"
@@ -7585,173 +7611,173 @@ msgstr ""
 "Próximo da linha %d de %s:\n"
 "%s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1484
-#: src/emc/usr_intf/axis/scripts/axis.py:3241 share/axis/tcl/axis.tcl:922
+#: src/emc/usr_intf/axis/scripts/axis.py:1488
+#: src/emc/usr_intf/axis/scripts/axis.py:3245 share/axis/tcl/axis.tcl:922
 #: share/axis/tcl/axis.tcl:924 share/axis/tcl/axis.tcl:2051
 msgid "Continuous"
 msgstr "Contínuo"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1747
+#: src/emc/usr_intf/axis/scripts/axis.py:1751
 msgid "T    Tool Table"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1757
-#: src/emc/usr_intf/axis/scripts/axis.py:2046
-#: src/emc/usr_intf/axis/scripts/axis.py:2620
+#: src/emc/usr_intf/axis/scripts/axis.py:1761
+#: src/emc/usr_intf/axis/scripts/axis.py:2050
+#: src/emc/usr_intf/axis/scripts/axis.py:2624
 #: src/emc/usr_intf/stepconf/stepconf.py:1581
 #: src/emc/usr_intf/stepconf/pages.py:967
 msgid "in"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1760
+#: src/emc/usr_intf/axis/scripts/axis.py:1764
 msgid " radius"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1762
+#: src/emc/usr_intf/axis/scripts/axis.py:1766
 msgid " diameter"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1763
+#: src/emc/usr_intf/axis/scripts/axis.py:1767
 msgid "°"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1773
+#: src/emc/usr_intf/axis/scripts/axis.py:1777
 msgid "Coordinate System:"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1791
+#: src/emc/usr_intf/axis/scripts/axis.py:1795
 msgid "fixture"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1792
+#: src/emc/usr_intf/axis/scripts/axis.py:1796
 msgid "workpiece"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1813
+#: src/emc/usr_intf/axis/scripts/axis.py:1817
 msgid "Name:"
 msgstr "Nome:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1813
+#: src/emc/usr_intf/axis/scripts/axis.py:1817
 msgid "Size:"
 msgstr "Tamanho:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1814
+#: src/emc/usr_intf/axis/scripts/axis.py:1818
 msgid "Tool order:"
 msgstr "Ordem das ferramentas:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1814
+#: src/emc/usr_intf/axis/scripts/axis.py:1818
 msgid "Rapid distance:"
 msgstr "Distância em posicionamento:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1815
+#: src/emc/usr_intf/axis/scripts/axis.py:1819
 msgid "Feed distance:"
 msgstr "Distância em trabalho:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1815
+#: src/emc/usr_intf/axis/scripts/axis.py:1819
 msgid "Total distance:"
 msgstr "Distância total"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1816
+#: src/emc/usr_intf/axis/scripts/axis.py:1820
 msgid "Run time:"
 msgstr "Tempo de execução:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1816
+#: src/emc/usr_intf/axis/scripts/axis.py:1820
 msgid "X bounds:"
 msgstr "Limites em X:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1817
+#: src/emc/usr_intf/axis/scripts/axis.py:1821
 msgid "Y bounds:"
 msgstr "Limites em Y:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1817
+#: src/emc/usr_intf/axis/scripts/axis.py:1821
 msgid "Z bounds:"
 msgstr "Limites em Z:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1818
+#: src/emc/usr_intf/axis/scripts/axis.py:1822
 msgid "A bounds:"
 msgstr "Limites em A:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1818
+#: src/emc/usr_intf/axis/scripts/axis.py:1822
 msgid "B bounds:"
 msgstr "Limites em B"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1819
+#: src/emc/usr_intf/axis/scripts/axis.py:1823
 msgid "C bounds:"
 msgstr "Limites em C"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1876
+#: src/emc/usr_intf/axis/scripts/axis.py:1880
 #, python-format
 msgid "Program exceeds machine minimum on axis %s"
 msgstr "O programa excede o limite inferior no eixo %s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1879
+#: src/emc/usr_intf/axis/scripts/axis.py:1883
 #, python-format
 msgid "Program exceeds machine maximum on axis %s"
 msgstr "O programa excede o limite superior no eixo %s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1884
+#: src/emc/usr_intf/axis/scripts/axis.py:1888
 msgid "Program exceeds machine limits"
 msgstr "O programa excede os limites da máquina"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1887
+#: src/emc/usr_intf/axis/scripts/axis.py:1891
 msgid "Run Anyway"
 msgstr "Ignorar e rodar programa"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2024
+#: src/emc/usr_intf/axis/scripts/axis.py:2028
 msgid "No file loaded"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2032
+#: src/emc/usr_intf/axis/scripts/axis.py:2036
 #, python-format
 msgid "generated from %s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2038
+#: src/emc/usr_intf/axis/scripts/axis.py:2042
 #, python-format
 msgid ""
 "%(size)s bytes\n"
 "%(lines)s G-code lines"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2064
+#: src/emc/usr_intf/axis/scripts/axis.py:2068
 #, python-format
 msgid "%.1f minutes"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2066
+#: src/emc/usr_intf/axis/scripts/axis.py:2070
 #, fuzzy, python-format
 msgid "%d seconds"
 msgstr "Jog no segundo eixo"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2074
+#: src/emc/usr_intf/axis/scripts/axis.py:2078
 #, fuzzy, python-format
 msgid "%(a)f to %(b)f = %(diff)f %(units)s"
 msgstr "%f até %f = %f %s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2075
+#: src/emc/usr_intf/axis/scripts/axis.py:2079
 #, fuzzy
 msgid "G-Code Properties"
 msgstr "Erro no Código-G em %s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2223
+#: src/emc/usr_intf/axis/scripts/axis.py:2227
 msgid "All machinable files"
 msgstr "Todos arquivos usináveis"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2224
-#: src/emc/usr_intf/axis/scripts/axis.py:2942
+#: src/emc/usr_intf/axis/scripts/axis.py:2228
+#: src/emc/usr_intf/axis/scripts/axis.py:2946
 msgid "rs274ngc files"
 msgstr "Arquivos rs274ngc"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2240
+#: src/emc/usr_intf/axis/scripts/axis.py:2244
 msgid "axis cannot accept remote command while running"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2295
+#: src/emc/usr_intf/axis/scripts/axis.py:2299
 #, fuzzy
 msgid "File not Writable:"
 msgstr "Arquivo não aberto"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2296
+#: src/emc/usr_intf/axis/scripts/axis.py:2300
 msgid ""
 "This file is not writable\n"
 "You can Edit-readonly\n"
@@ -7762,60 +7788,60 @@ msgid ""
 "then open that saved, writable file"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2303
+#: src/emc/usr_intf/axis/scripts/axis.py:2307
 msgid "Edit-readonly"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2621
+#: src/emc/usr_intf/axis/scripts/axis.py:2625
 #, fuzzy
 msgid "Custom Grid"
 msgstr "S_inais"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2621
+#: src/emc/usr_intf/axis/scripts/axis.py:2625
 msgid "Enter grid size"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2680
+#: src/emc/usr_intf/axis/scripts/axis.py:2684
 msgid "Joint is already homed, are you sure you want to re-home?"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2694
+#: src/emc/usr_intf/axis/scripts/axis.py:2698
 #, fuzzy, python-format
 msgid "home_joint <%s> Use joint mode for homing"
 msgstr "precisa estar em modo JOINT para efetuar processo de homing"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2697
+#: src/emc/usr_intf/axis/scripts/axis.py:2701
 #, python-format
 msgid ""
 "\n"
 "Individual axis homing disallowed for duplicated letter:<%s> "
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2706
+#: src/emc/usr_intf/axis/scripts/axis.py:2710
 msgid "This joint is already homed, are you sure you want to re-home?"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2744
+#: src/emc/usr_intf/axis/scripts/axis.py:2748
 #, fuzzy
 msgid "Touch Off (system)"
 msgstr "Apalpador"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2745
-#: src/emc/usr_intf/axis/scripts/axis.py:2786
+#: src/emc/usr_intf/axis/scripts/axis.py:2749
+#: src/emc/usr_intf/axis/scripts/axis.py:2790
 #, fuzzy, python-format
 msgid "Enter %s coordinate relative to %%s:"
 msgstr "Digite %s coordenada em relação a peça de trabalho"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2785
+#: src/emc/usr_intf/axis/scripts/axis.py:2789
 #, fuzzy, python-format
 msgid "Tool %s TouchOff"
 msgstr "Apalpador"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2954
+#: src/emc/usr_intf/axis/scripts/axis.py:2958
 msgid "Error saving file"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3410
+#: src/emc/usr_intf/axis/scripts/axis.py:3414
 #, python-format
 msgid ""
 "\n"
@@ -7824,7 +7850,7 @@ msgid ""
 "See the 'INI Configuration' documents\n"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3423
+#: src/emc/usr_intf/axis/scripts/axis.py:3427
 #, python-format
 msgid ""
 "\n"
@@ -7833,7 +7859,7 @@ msgid ""
 "See the 'INI Configuration' documents\n"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3436
+#: src/emc/usr_intf/axis/scripts/axis.py:3440
 #, python-format
 msgid ""
 "\n"
@@ -7842,92 +7868,92 @@ msgid ""
 "See the 'INI Configuration' documents\n"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3555
+#: src/emc/usr_intf/axis/scripts/axis.py:3559
 msgid "Axes"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3557
+#: src/emc/usr_intf/axis/scripts/axis.py:3561
 #, fuzzy
 msgid "Joints"
 msgstr "Modo Joint"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3559
+#: src/emc/usr_intf/axis/scripts/axis.py:3563
 #: src/emc/usr_intf/touchy/touchy.glade:584
 #: src/emc/usr_intf/gscreen/gscreen.glade:3009
 #, fuzzy
 msgid "Home All"
 msgstr "Home"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3561
+#: src/emc/usr_intf/axis/scripts/axis.py:3565
 #, python-format
 msgid "Home all %s [Ctrl-Home]"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3564
+#: src/emc/usr_intf/axis/scripts/axis.py:3568
 #, fuzzy, python-format
 msgid "Home All %s"
 msgstr "Home"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3566
+#: src/emc/usr_intf/axis/scripts/axis.py:3570
 #, fuzzy, python-format
 msgid "Unhome All %s"
 msgstr "Home"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3607
+#: src/emc/usr_intf/axis/scripts/axis.py:3611
 #, python-format
 msgid "Warning: Forward kinematics must handle duplicate coordinate letters:%s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3610
+#: src/emc/usr_intf/axis/scripts/axis.py:3614
 #, python-format
 msgid "Note: number of [TRAJ]COORDINATES=%(t)s exceeds [KINS]JOINTS=%(l)d"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3642
+#: src/emc/usr_intf/axis/scripts/axis.py:3646
 msgid ""
 "\n"
 "Note:\n"
 "Individual axis homing is not currently supported for"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3643
+#: src/emc/usr_intf/axis/scripts/axis.py:3647
 #, python-format
 msgid "KINEMATICS_IDENTITY with duplicate axis letter <%s>\n"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3655
+#: src/emc/usr_intf/axis/scripts/axis.py:3659
 #, fuzzy
 msgid "Joint"
 msgstr "Modo Joint"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3657
+#: src/emc/usr_intf/axis/scripts/axis.py:3661
 #, fuzzy
 msgid "Home Joint"
 msgstr "Home"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3665
+#: src/emc/usr_intf/axis/scripts/axis.py:3669
 #, python-format
 msgid "Home %(name)s _%(id)s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3667
+#: src/emc/usr_intf/axis/scripts/axis.py:3671
 #, python-format
 msgid "Unhome %(name)s _%(id)s"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3861
+#: src/emc/usr_intf/axis/scripts/axis.py:3865
 msgid "Run from here"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3922
+#: src/emc/usr_intf/axis/scripts/axis.py:3926
 msgid "toggle PYVCP panel visibility"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3924 share/axis/tcl/axis.tcl:387
+#: src/emc/usr_intf/axis/scripts/axis.py:3928 share/axis/tcl/axis.tcl:387
 msgid "Show PyVCP pan_el"
 msgstr ""
 
-#: src/emc/usr_intf/axis/scripts/axis.py:4210
+#: src/emc/usr_intf/axis/scripts/axis.py:4214
 msgid "Error in ~/.axisrc"
 msgstr ""
 
@@ -9833,7 +9859,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/stepconf.py:263
 #: src/emc/usr_intf/stepconf/main_page.glade:581
 #: src/emc/usr_intf/pncconf/private_data.py:39
-#: src/emc/usr_intf/pncconf/private_data.py:1164
+#: src/emc/usr_intf/pncconf/private_data.py:1179
 #: src/emc/usr_intf/pncconf/main_page.glade:229
 #: src/emc/usr_intf/gscreen/gscreen.py:4479
 #: src/emc/usr_intf/gscreen/gscreen.py:4480
@@ -9920,78 +9946,78 @@ msgid "Almost Done"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:155
-#: src/emc/usr_intf/pncconf/private_data.py:1125
+#: src/emc/usr_intf/pncconf/private_data.py:1140
 msgid "Gecko 201"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:156
-#: src/emc/usr_intf/pncconf/private_data.py:1126
+#: src/emc/usr_intf/pncconf/private_data.py:1141
 msgid "Gecko 202"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:157
-#: src/emc/usr_intf/pncconf/private_data.py:1127
+#: src/emc/usr_intf/pncconf/private_data.py:1142
 msgid "Gecko 203v"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:158
-#: src/emc/usr_intf/pncconf/private_data.py:1128
+#: src/emc/usr_intf/pncconf/private_data.py:1143
 msgid "Gecko 210"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:159
-#: src/emc/usr_intf/pncconf/private_data.py:1129
+#: src/emc/usr_intf/pncconf/private_data.py:1144
 msgid "Gecko 212"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:160
-#: src/emc/usr_intf/pncconf/private_data.py:1130
+#: src/emc/usr_intf/pncconf/private_data.py:1145
 msgid "Gecko 320"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:161
-#: src/emc/usr_intf/pncconf/private_data.py:1131
+#: src/emc/usr_intf/pncconf/private_data.py:1146
 msgid "Gecko 540"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:162
-#: src/emc/usr_intf/pncconf/private_data.py:1132
+#: src/emc/usr_intf/pncconf/private_data.py:1147
 msgid "L297"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:163
-#: src/emc/usr_intf/pncconf/private_data.py:1133
+#: src/emc/usr_intf/pncconf/private_data.py:1148
 msgid "PMDX-150"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:164
 #: src/emc/usr_intf/stepconf/pport1.glade:43
-#: src/emc/usr_intf/pncconf/private_data.py:1134
+#: src/emc/usr_intf/pncconf/private_data.py:1149
 msgid "Sherline"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:165
-#: src/emc/usr_intf/pncconf/private_data.py:1135
+#: src/emc/usr_intf/pncconf/private_data.py:1150
 msgid "Xylotex 8S-3"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:166
-#: src/emc/usr_intf/pncconf/private_data.py:1136
+#: src/emc/usr_intf/pncconf/private_data.py:1151
 msgid "Parker-Compumotor oem750"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:167
-#: src/emc/usr_intf/pncconf/private_data.py:1137
+#: src/emc/usr_intf/pncconf/private_data.py:1152
 msgid "JVL-SMD41 or 42"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:168
-#: src/emc/usr_intf/pncconf/private_data.py:1138
+#: src/emc/usr_intf/pncconf/private_data.py:1153
 msgid "Hobbycnc Pro Chopper"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:169
-#: src/emc/usr_intf/pncconf/private_data.py:1139
+#: src/emc/usr_intf/pncconf/private_data.py:1154
 msgid "Keling 4030"
 msgstr ""
 
@@ -10494,18 +10520,18 @@ msgid "Plasma Move Down"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:264
-#: src/emc/usr_intf/pncconf/private_data.py:1165
+#: src/emc/usr_intf/pncconf/private_data.py:1180
 #, fuzzy
 msgid "Forward"
 msgstr "Freio do spindle ativado"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:265
-#: src/emc/usr_intf/pncconf/private_data.py:1166
+#: src/emc/usr_intf/pncconf/private_data.py:1181
 msgid "Done"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:266
-#: src/emc/usr_intf/pncconf/private_data.py:1167
+#: src/emc/usr_intf/pncconf/private_data.py:1182
 msgid ""
 "OK to replace existing custom ladder program?\n"
 "Existing Custom.clp will be renamed custom_backup.clp.\n"
@@ -10514,7 +10540,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:267
 #: src/emc/usr_intf/pncconf/pages.py:1537
-#: src/emc/usr_intf/pncconf/private_data.py:1168
+#: src/emc/usr_intf/pncconf/private_data.py:1183
 msgid ""
 "You edited a ladder program and have selected a different program to copy to "
 "your configuration file.\n"
@@ -10524,7 +10550,7 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:268
-#: src/emc/usr_intf/pncconf/private_data.py:1169
+#: src/emc/usr_intf/pncconf/private_data.py:1184
 msgid ""
 "You need to designate an E-stop input pin in the Parallel Port Setup page "
 "for this program."
@@ -10542,21 +10568,21 @@ msgid "Quit Stepconf and discard changes?"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:271
-#: src/emc/usr_intf/pncconf/private_data.py:1173
+#: src/emc/usr_intf/pncconf/private_data.py:1188
 msgid ""
 "The configuration has been built and saved.\n"
 "Do you want to quit?"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:272
-#: src/emc/usr_intf/pncconf/private_data.py:1174
+#: src/emc/usr_intf/pncconf/private_data.py:1189
 msgid ""
 "You are using a simulated-realtime version of LinuxCNC, so testing / tuning "
 "of hardware is unavailable."
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:273
-#: src/emc/usr_intf/pncconf/private_data.py:1175
+#: src/emc/usr_intf/pncconf/private_data.py:1190
 msgid ""
 "You are using a realtime version of LinuxCNC but didn't load a realtime "
 "kernel so testing / tuning of hardware is                 unavailable.\n"
@@ -10769,9 +10795,8 @@ msgid "# **** Setup for external estop ladder program -END ****"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:332
-#: src/emc/usr_intf/pncconf/build_HAL.py:841
 msgid ""
-"# Load Classicladder with modbus master included (GUI must run for Modbus)"
+"# Load Classicladder with Modbus master included (GUI must run for Modbus)"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:335
@@ -11041,7 +11066,7 @@ msgstr "Freio"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:642
 msgid ""
-"This program creates configuration files (.ini and .hal) for \"step and "
+"This program creates configuration files (INI and HAL) for \"step and "
 "direction\" milling machines and lathes connected to the PC parallel port.\n"
 "\n"
 "Stepconf requires a minimum 800 X 600 display resolution."
@@ -11633,7 +11658,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/options.glade:1074
 #: src/emc/usr_intf/pncconf/options.glade:732
-msgid "Include modbus master support"
+msgid "Include Modbus master support"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/options.glade:1125
@@ -11651,7 +11676,7 @@ msgstr "Pára o carregamento da vista preliminar"
 #: src/emc/usr_intf/stepconf/options.glade:1155
 #: src/emc/usr_intf/pncconf/options.glade:971
 #, fuzzy
-msgid "Serial modbus program"
+msgid "Serial Modbus program"
 msgstr "Recarrega o programa"
 
 #: src/emc/usr_intf/stepconf/options.glade:1240
@@ -12656,6 +12681,11 @@ msgstr ""
 msgid ""
 "\n"
 "# ---QTPLASMAC TOOLCHANGE PASSTHROUGH---"
+msgstr ""
+
+#: src/emc/usr_intf/pncconf/build_HAL.py:841
+msgid ""
+"# Load Classicladder with modbus master included (GUI must run for Modbus)"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:852
@@ -14074,7 +14104,7 @@ msgid "Digital"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:470
-#: src/emc/usr_intf/pncconf/private_data.py:972
+#: src/emc/usr_intf/pncconf/private_data.py:987
 #, fuzzy
 msgid "Axis Selection"
 msgstr "Eixo:"
@@ -14535,124 +14565,124 @@ msgstr ""
 msgid "Unused Analog In"
 msgstr "Canal Selecionado"
 
-#: src/emc/usr_intf/pncconf/private_data.py:980
+#: src/emc/usr_intf/pncconf/private_data.py:995
 msgid ""
 "7i64-Input\n"
 "P3 and P4"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:980
+#: src/emc/usr_intf/pncconf/private_data.py:995
 msgid ""
 "7i64-Output\n"
 "P2 and P5"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:980
+#: src/emc/usr_intf/pncconf/private_data.py:995
 msgid "7i64-Analog In"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:993
+#: src/emc/usr_intf/pncconf/private_data.py:1008
 msgid ""
 "7i69\n"
 "P2"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:993
+#: src/emc/usr_intf/pncconf/private_data.py:1008
 msgid ""
 "7i69\n"
 "P3"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1005
+#: src/emc/usr_intf/pncconf/private_data.py:1020
 msgid ""
 "7i70-Input\n"
 "TB3"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1005
+#: src/emc/usr_intf/pncconf/private_data.py:1020
 msgid ""
 "7i70-Input\n"
 "TB2"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1017
+#: src/emc/usr_intf/pncconf/private_data.py:1032
 msgid ""
 "7i71-Output\n"
 "TB3"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1017
+#: src/emc/usr_intf/pncconf/private_data.py:1032
 msgid ""
 "7i71-Output\n"
 "TB2"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1029
-#: src/emc/usr_intf/pncconf/private_data.py:1041
+#: src/emc/usr_intf/pncconf/private_data.py:1044
+#: src/emc/usr_intf/pncconf/private_data.py:1056
 msgid ""
 "7i76-I/O\n"
 "TB6"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1029
-#: src/emc/usr_intf/pncconf/private_data.py:1041
+#: src/emc/usr_intf/pncconf/private_data.py:1044
+#: src/emc/usr_intf/pncconf/private_data.py:1056
 msgid ""
 "7i76-I/O\n"
 "TB5"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1029
-#: src/emc/usr_intf/pncconf/private_data.py:1041
+#: src/emc/usr_intf/pncconf/private_data.py:1044
+#: src/emc/usr_intf/pncconf/private_data.py:1056
 msgid ""
 "7i76-Analog Output\n"
 "TB4"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1053
-#: src/emc/usr_intf/pncconf/private_data.py:1065
+#: src/emc/usr_intf/pncconf/private_data.py:1068
+#: src/emc/usr_intf/pncconf/private_data.py:1080
 msgid ""
 "7i77-I/O\n"
 "TB8"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1053
-#: src/emc/usr_intf/pncconf/private_data.py:1065
+#: src/emc/usr_intf/pncconf/private_data.py:1068
+#: src/emc/usr_intf/pncconf/private_data.py:1080
 msgid ""
 "7i77-I/O\n"
 "TB7"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1053
-#: src/emc/usr_intf/pncconf/private_data.py:1065
+#: src/emc/usr_intf/pncconf/private_data.py:1068
+#: src/emc/usr_intf/pncconf/private_data.py:1080
 msgid ""
 "7i77-Analog Output\n"
 "TB5"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1077
+#: src/emc/usr_intf/pncconf/private_data.py:1092
 msgid "7i73-I/O\n"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1090
+#: src/emc/usr_intf/pncconf/private_data.py:1105
 msgid ""
 "7i84-I/O\n"
 "TB3"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1090
 #: src/emc/usr_intf/pncconf/private_data.py:1105
+#: src/emc/usr_intf/pncconf/private_data.py:1120
 msgid ""
 "7i84-I/O\n"
 "TB2"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1105
+#: src/emc/usr_intf/pncconf/private_data.py:1120
 msgid ""
 "7i84-I/O-MPG\n"
 "TB3"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1170
+#: src/emc/usr_intf/pncconf/private_data.py:1185
 msgid ""
 "OK to replace existing custom pyvcp panel and custom_postgui.hal file ?\n"
 "Existing custompanel.xml and custom_postgui.hal will be renamed "
@@ -14661,15 +14691,15 @@ msgid ""
 "be lost. "
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1171
+#: src/emc/usr_intf/pncconf/private_data.py:1186
 msgid "Quit PNCconf and discard changes?"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1172
+#: src/emc/usr_intf/pncconf/private_data.py:1187
 msgid "Do you want to quit?"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/private_data.py:1178
+#: src/emc/usr_intf/pncconf/private_data.py:1193
 msgid ""
 "Ok to replace AXIS's .axisrc file?\n"
 " If you haven't added custom commands to this hidden file, outside of "
@@ -14826,8 +14856,8 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/main_page.glade:286
 msgid ""
-"This program creates configuration files (.ini and .hal) for milling "
-"machines and lathes connected to a Mesa Card.\n"
+"This program creates configuration files (INI and HAL) for milling machines "
+"and lathes connected to a Mesa Card.\n"
 "\n"
 "It is a recommended strategy to start with very basic axes options, get them "
 "functional then go back and add other options such as VFD spindle control  "
@@ -20203,12 +20233,6 @@ msgstr "OK"
 #, fuzzy
 #~ msgid "<b>Preview</b>"
 #~ msgstr "Vista lateral"
-
-#, fuzzy
-#~ msgid ""
-#~ "current\n"
-#~ "   file"
-#~ msgstr "Recarrega Código G [Control-R]"
 
 #, fuzzy
 #~ msgid "Select user dir"
