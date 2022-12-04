@@ -189,12 +189,15 @@ static struct haldata {
     hal_float_t C_zz;
 } *haldata;
 
-static int userkins_setup(void) {
+static int matrixkins_setup(void) {
     int res=0;
-    int comp_id;
-    // this name must be different than the comp name:
-    comp_id = hal_init("matrixkinsdata");
+
+    // inherit comp_id from rtapi_main()
     if (comp_id < 0) goto error;
+
+    res = hal_set_unready(comp_id);
+    if (res) goto error;
+
     haldata = hal_malloc(sizeof(struct haldata));
     if (!haldata) goto error;
 
@@ -214,7 +217,10 @@ static int userkins_setup(void) {
     haldata->C_zx = haldata->C_zy = 0.0;
 
     if (res) goto error;
-    hal_ready(comp_id);
+
+    res = hal_ready(comp_id);
+    if (res) goto error;
+
     rtapi_print("*** %s setup ok\n",__FILE__);
     return 0;
 error:
@@ -232,8 +238,8 @@ EXPORT_SYMBOL(kinematicsForward);
 
 KINEMATICS_TYPE kinematicsType()
 {
-static bool is_setup=0;
-    if (!is_setup) userkins_setup();
+    static bool is_setup=0;
+    if (!is_setup) matrixkins_setup();
     return KINEMATICS_BOTH;
 }
 
