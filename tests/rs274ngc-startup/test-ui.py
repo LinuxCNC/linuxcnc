@@ -21,7 +21,11 @@ s = linuxcnc.stat()
 e = linuxcnc.error_channel()
 l = linuxcnc_util.LinuxCNC(command=c, status=s, error=e)
 
-l.wait_for_linuxcnc_startup()
+try:
+    l.wait_for_linuxcnc_startup(timeout=20)
+except RuntimeError as e:
+    print("error: Wait for LinuxCNC to start timed out after 20 seconds")
+    sys.exit(1)
 
 s.poll()
 
