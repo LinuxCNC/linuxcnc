@@ -3087,10 +3087,10 @@ Preview = #000000
 
 === Custom Python Code
 
-It is possible to add custom python code to change some existing functions or to add new ones.
+It is possible to add custom Python code to change some existing functions or to add new ones.
 Custom code can be added in two different way, a user command file or a user periodic file.
 
-A user command file is specified in the DISPLAY section of the _<machine_name>_.ini file and contains python code that is processed during startup.
+A user command file is specified in the DISPLAY section of the _<machine_name>_.ini file and contains Python code that is processed during startup.
 
 [source,{ini}]
 ----
@@ -3146,7 +3146,7 @@ n Name = PIERCE\&&CUT
 Buttons can run the following:
 
 . <<qt_button-cmds,External commands>>
-. <<qt_button-py,External python scripts>>
+. <<qt_button-py,External Python scripts>>
 . <<qt_button-code,G-code commands>>
 . <<qt_button-toggle,Toggle a HAL pin>>
 . <<qt_button-laser,Toggle the alignment laser HAL pin>>
@@ -3176,7 +3176,7 @@ n Code = %halshow
 [[qt_button-py]]
 [underline]*External Python Scripts*
 
-To run an external python script, the script name is preceded by a % character and it also requires a .py extension.
+To run an external Python script, the script name is preceded by a % character and it also requires a .py extension.
 It is valid to use the ~ character as a shortcut for the users home directory.
 
 [source,{ini}]
@@ -3845,7 +3845,7 @@ Example showing enabling the Hypertherm PowerMax Communications on USB0:
 Port = /dev/ttyusb0
 ----
 
-If the user is unsure of the name of the port, there is a python script in the configuration directory
+If the user is unsure of the name of the port, there is a Python script in the configuration directory
 that will show all available ports and can also be used to test communications with the plasma unit prior to enabling this feature in the QtPlasmaC GUI.
 
 To use the test script follow these instructions:
@@ -3878,7 +3878,7 @@ To switch the PowerMax back to local mode the user can either:
 TIP: If PowerMax communications is active then selecting <<qt_mesh-mode,Mesh Mode>> will automatically select CPA mode on the PowerMax unit.
 
 [NOTE]
-To use the PowerMax communications feature it is necessary to have the python pyserial module installed. +
+To use the PowerMax communications feature it is necessary to have the Python pyserial module installed. +
 If pyserial is not installed an error message will be displayed.
 
 To install pyserial, enter the following command into a terminal window:
@@ -3901,7 +3901,7 @@ The *$* indicates a terminal prompt.
 
 All language files are kept in ~/linuxcnc-dev/share/screens/qtplasmac/languages.
 
-The qtplasmac.py file is a python version of the GUI file used for translation purposes.
+The qtplasmac.py file is a Python version of the GUI file used for translation purposes.
 
 The .ts files are the translation source files for the translations.
 These are the files that require creating/editing for each language.
@@ -3925,7 +3925,7 @@ Change to the languages directory:
 $ cd ~/linuxcnc-dev/share/qtvcp/screens/qtplasmac/languages
 ----
 
-If any text changes have been made to the GUI then run the following to update the GUI python file:
+If any text changes have been made to the GUI then run the following to update the GUI Python file:
 ----
 $ pyuic5 ../qtplasmac.ui > qtplasmac.py
 ----
@@ -4059,10 +4059,10 @@ over cut length = 4 mm (0.157")
 |Specify <<qt_cut-types,pierce-only>> mode. |`#<pierce-only> =` _n_ +
 (_n_ is the mode, 0=normal cut mode, 1=pierce only mode)
 |Create or edit materials. +
- options: +
- 0 - Create temporary default +
- 1 - Add if not existing +
- 2 - Overwrite if existing else add new |mandatory parameters: +
+Options: +
+0 - Create temporary default +
+1 - Add if not existing +
+2 - Overwrite if existing else add new |mandatory parameters: +
 (o=<option>, nu=<nn>, na=<ll>, ph=<nn>, pd=<nn>, ch=<nn>, fr=<nn>) +
 optional parameters: +
 (kw=<nn>, th=<nn>, ca=<nn>, cv=<nn>, pe=<nn>, gp=<nn>, cm=<nn>, jh=<nn>, jd=<nn>)
