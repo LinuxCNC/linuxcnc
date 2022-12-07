@@ -87,12 +87,12 @@ QtPlasmaC requires the selection of one of following three operating modes:
 
 [width="100%",cols="4,16"]
 |===
-|*Mode*|*Description*
+|*Mode* |*Description*
 |0 |Uses an external arc voltage input to calculate both Arc Voltage (for Torch Height Control) and Arc OK.
 |1 |Uses an external arc voltage input to calculate Arc Voltage (for Torch Height Control). +
-   Uses an external Arc OK input for Arc OK.
+Uses an external Arc OK input for Arc OK.
 |2 |Uses an external Arc OK input for Arc OK. +
-   Use external up/down signals for Torch Height Control.
+Use external up/down signals for Torch Height Control.
 |===
 
 [IMPORTANT]

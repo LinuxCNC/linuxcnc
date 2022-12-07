@@ -452,7 +452,7 @@ NOTE: This also *requires remap code to add the wear offsets t tool change time*
 *`PATH.WORKINGDIR`*::
   The directory QtVCP was launched from.
 *`PATH.IS_SCREEN`*::
-  Is this a screen or a VCP ?
+  Is this a screen or a VCP?
 *`PATH.CONFIGPATH`*::
   Launched configuration folder.
 *`PATH.RIPCONFIGDIR`*::

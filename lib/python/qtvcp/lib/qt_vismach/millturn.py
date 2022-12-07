@@ -40,41 +40,6 @@ c.ready()
 toolshape = TriangleXZ(0)
 toolshape = Color([1, 1, 0, 1],[toolshape])
 
-# we use a triangle for the tool
-# since we need to visualize a lathe tool here
-# not great for the mill bit but it will do for now
-class HalToolTriangle(TriangleXZ):
-    def __init__(self, comp, *args):
-        # get machine access so it can
-        # change itself as it runs
-        # specifically tool cylinder in this case.
-        TriangleXZ.__init__(self, *args)
-        self.comp = c
-    def coords(self):
-        #print(self.comp["tooldiameter"])
-        try:
-            leng = hal.get_value('motion.tooloffset.z') * self.MODEL_SCALING
-        except:
-            leng = 0
-        try:
-            xleng = hal.get_value('motion.tooloffset.x') * self.MODEL_SCALING
-        except:
-            xleng = 0
-
-        x1 = leng
-        z1 = -xleng
-        x2 = 1#self.comp["tool-x-offset"]+10
-        z2 = -leng/2
-        x3 = 2#self.comp["tooldiameter"]
-        z3 = 0
-        if self.comp["millkins"] :
-            x1 = 0
-            z1 = -leng
-            x2 = -2 #-self.comp["tooldiameter"]/2-0.01
-            z2 = 0
-            x3 = 2 #self.comp["tooldiameter"]/2+0.01
-            z3 = 0
-        return (x1, z1, x2, z2, x3, z3, 0, 1)
 
 
 # updates tool cylinder shape.

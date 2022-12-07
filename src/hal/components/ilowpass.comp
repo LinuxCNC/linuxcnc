@@ -25,11 +25,11 @@ param rw float gain = .5 """Together with the period, sets the rate at
 which the output changes.  Useful range is between 0 and 1, with higher
 values causing the input value to be tracked more quickly.  For
 instance, a setting of 0.9 causes the output value to go 90% of the way
-towards the input value in each period""";
+towards the input value in each period.""";
 
 variable double value;
 
-function _ "Update the output based on the input and parameters";
+function _ "Update the output based on the input and parameters.";
 
 license "GPL";
 author "Jeff Epler";

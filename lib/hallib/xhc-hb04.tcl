@@ -483,6 +483,35 @@ if ![file exists $cfg] {
   return ;# not an exit
 }
 
+# handle keywords with either upper or lower case
+foreach name [array names ::XHC_HB04_CONFIG] {
+  set lname [string tolower $name]
+  set uname [string toupper $name]
+  if ![info exists ::XHC_HB04_CONFIG($uname)] {
+    continue
+  } else {
+    if {   [info exists ::XHC_HB04_CONFIG($lname)]
+        && "$::XHC_HB04_CONFIG($lname)" != "$::XHC_HB04_CONFIG($uname)"} {
+      puts "duplicated item: \[XHC_HB04_CONFIG\]$uname = $::XHC_HB04_CONFIG($uname)"
+      puts "superseded with: \[XHC_HB04_CONFIG\]$lname = $::XHC_HB04_CONFIG($lname)"
+      unset ::XHC_HB04_CONFIG($uname)
+    }
+  }
+}
+foreach name [array names ::XHC_HB04_BUTTONS] {
+  set lname [string tolower $name]
+  set uname [string toupper $name]
+  if ![info exists ::XHC_HB04_BUTTONS($uname)] {
+    continue
+  } else {
+    if {   [info exists ::XHC_HB04_BUTTONS($lname)]
+        && "$::XHC_HB04_BUTTONS($lname)" != "$::XHC_HB04_BUTTONS($uname)"} {
+      puts "duplicated item: \[XHC_HB04_BUTTONS\]$uname = $::XHC_HB04_BUTTONS($uname)"
+      puts "superseded with: \[XHC_HB04_BUTTONS\]$lname = $::XHC_HB04_BUTTONS($lname)"
+      unset ::XHC_HB04_BUTTONS($uname)
+    }
+  }
+}
 # require_pendant==yes: use -x, dont create pins unless connected
 # require_pendant==no:          create pins if not connected
 if ![info exists ::XHC_HB04_CONFIG(require_pendant)] {
