@@ -54,7 +54,6 @@ man9/conv_s8_float.9
 man9/conv_s8_s32.9
 man9/conv_s8_u32.9
 man9/conv_s8_u8.9
-man9/div2.9
 man9/tof.9
 man9/ton.9
 man9/tp.9
@@ -92,6 +91,7 @@ man9/integ.9
 man9/invert.9
 man9/joyhandle.9
 man9/knob2float.9
+man9/laserpower.9
 man9/latencybins.9
 man9/limit1.9
 man9/limit2.9
@@ -102,6 +102,7 @@ man9/lowpass.9
 man9/lut5.9
 man9/maj3.9
 man9/match8.9
+man9/matrixkins.9
 man9/max31855.9
 man9/mesa_7i65.9
 man9/mesa_pktgyro_test.9
@@ -128,6 +129,8 @@ man9/pcl720.9
 man9/plasmac.9
 man9/pluto_servo.9
 man9/pluto_step.9
+man9/raster.9
+man9/reset.9
 man9/sample_hold.9
 man9/scale.9
 man9/scaled_s32_sums.9
