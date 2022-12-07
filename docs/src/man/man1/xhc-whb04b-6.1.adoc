@@ -1,12 +1,15 @@
 = xhc-whb04b-6(1)
 
 == NAME
+
 xhc-whb04b-6 - Userspace jog dial HAL component for the wireless XHC WHB04B-6 USB device.
 
 == SYNOPSIS
+
 xhc-whb04b-6 [-h] | [-H] [OPTIONS]
 
 == DESCRIPTION
+
 The xhc-whb04b-6 HAL component supports the XHC WHB04B-6, a 6-axis wireless USB pendant.
 It provides a number of push-buttons, a jogwheel, two rotary buttons for axis and
 speed / step selection and an ordinary LCD display.
@@ -14,18 +17,17 @@ speed / step selection and an ordinary LCD display.
 The LCD display, having a very simple firmware interface, indicates the following listed information only.
 No other information, such as custom data, can be printed.
 
-Activated axis (X, Y, Z, A, B or C). +
-Current axis position of X, Y, Z and separately of A, B, C. +
-Whether machine (X, Y, Z, A, B or C) or relative (X1, Y1, Z1, A1, B1 or C1) coordinates are displayed. +
-Step size or velocity depending on the operating mode (MPG or Step or Continuous). +
-Feedrate override
-Spindle Feedrate override
-Machine state such as reset. +
-Battery level +
-Wireless signal strength
+* Activated axis (X, Y, Z, A, B or C)
+* Current axis position of X, Y, Z and separately of A, B, C.
+* Whether machine (X, Y, Z, A, B or C) or relative (X1, Y1, Z1, A1, B1 or C1) coordinates are displayed.
+* Step size or velocity depending on the operating mode (MPG or Step or Continuous).
+* Feedrate override
+* Spindle Feedrate override
+* Machine state such as reset.
+* Battery level
+* Wireless signal strength
 
-
-The pendant display, its rotary selector switch, and the component pin names use designators x,y,z,a,b and c.
+The pendant display, its rotary selector switch, and the component pin names use designators x, y, z, a, b and c.
 While this arrangement presumes a machine configured as X, Y, Z, A, B an C,
 the pins can be assigned independently as required in a HAL configuration.
 
@@ -78,7 +80,7 @@ This will also inhibit messages prefixed with "init".
 
 
 == UDEV
-The xhc-whb04b-6 executable needs permission for reading the pendant's USB device.
+The `xhc-whb04b-6` executable needs permission for reading the pendant's USB device.
 There may be the need for additional udev rules.
 If so, this file +
 `/etc/udev/rules.d/99-xhc-whb04b-6.rules` +
@@ -86,196 +88,196 @@ should be created with the single line +
 `ATTR{idProduct}=="eb93", ATTR{idVendor}=="10ce", MODE="0666", OWNER="root", GROUP="plugdev"`.
 
 == Standalone Usage
-The xhc-whb04b-6 program can be run from the command line without LinuxCNC to test a pendant.
+The `xhc-whb04b-6` program can be run from the command line without LinuxCNC to test a pendant.
 This standalone mode is used to identify the button codes produced for each button press and debug transmitted USB data.
 
 === EXAMPLES
 
-*xhc-whb04b-6 -ue*::
+`xhc-whb04b-6 -ue`::
 Start in userspace mode (simulation) and prints incoming USB data transfer and generated key pressed/released events.
-*xhc-whb04b-6 -p*::
+`xhc-whb04b-6 -p`::
 Start in userspace mode (simulation) and prints HAL pin names and events distributed to HAL memory.
-*xhc-whb04b-6 -H*::
+`xhc-whb04b-6 -H`::
 Start in HAL mode (Normal mode for real machine use).
-*xhc-whb04b-6 -HsfB*::
-Start in HAL mode + Spindle Override + Feedrate Override + Big step 5/10 mm).
+`xhc-whb04b-6 -HsfB`::
+Start in HAL mode + Spindle Override + Feedrate Override + Big step 5/10&#8239;mm).
 
 
 == Hal Usage
 Use the -H option to specify HAL mode and other options as required: +
-*loadusr -W xhc-whb04b-6 -HsfB*
+`loadusr -W xhc-whb04b-6 -HsfB`
 
 === Input/Output Signals
-*Note:* For each button an output pin is provided even if no functionality is realized with that signal.
-For example, to stop a running program the Stop button pin may be directly connected to halui.program.stop.
-However, to start/pause/resume a program, the corresponding button toggles besides whb.button.start-pause
-also the whb.halui.program.{run,pause,resume} signals accordingly. +
-*Note:* The Spindle+/Spindle- buttons do manipulate the spindle override.
-The spindle speed is set with the respective combos Fn + Spindle- and FN + Spindle+.
 
-The following tables list all in-/output pins and state which signals they are meant to be connected to. +
+Note:
+For each button an output pin is provided even if no functionality is realized with that signal.
+For example, to stop a running program the Stop button pin may be directly connected to `halui.program.stop`.
+However, to start/pause/resume a program, the corresponding button toggles besides `whb.button.start-pause`
+also the ``whb.halui.program.``{`run`,`pause`,`resume`} signals accordingly.
+
+Note:
+The Spindle+/Spindle- buttons do manipulate the spindle override.
+The spindle speed is set with the respective combos Fn + Spindle^-^ and FN + Spindle^+^.
+
+The following tables list all in-/output pins and state which signals they are meant to be connected to.
 
 ==== Axis and Stepgen
 
 Signals utilized for moving axis.
 
-*_<N>_*  ... denotes the axis number, which is of {x, y, z, a, b, c}
+_<N>_  ... denotes the axis number, which is of {x, y, z, a, b, c}
 
-*whb.halui.home-all* (bit,out)::
-  connect to *halui.home-all*, driven by M-Home Pin for requesting all axis
-  to home. See also *whb.button.m-home*.
-*whb.halui.axis._<N>_.select* (bit,out)::
- connect to *halui.axis._<N>_.select* Pin to select axis.
-*whb.axis._<N>_.jog-counts* (s32,out)::
- connect to *axis._<N>_.jog-counts* The count pin of the jogwheel.
-*whb.axis._<N>_.jog-enable* (bit,out)::
- connect to *axis._<N>_.jog-enable* If true (and in manual mode), any
- change to "jog-counts" will result in motion. If false, "jog-counts"
- is ignored.
-*whb.axis._<N>_.jog-scale* (float,out)::
- connect to *axis._<N>_.jog-scale* The distance to move for each count on
- "jog-counts", in machine units.
-*whb.axis._<N>_.jog-vel-mode* (bit,out)::
- connect to *axis._<N>_.jog-jog-vel-mode* If false the jogwheel operates
- in position mode. The axis will move exactly jog-scale units for each count, regardless of how long that might take. If true, the jogwheel operates in velocity mode - motion stops when the wheel stops, even if that means the commanded motion is not completed.
-*whb.halui.max-velocity.value* (float,in)::
- connect to *halui.max-velocity.value* The maximum allowable velocity,
- in units per second (_<N>_ is two digit '0'-padded).
-*whb.halui.feed-override.scale* (float,in)::
- connect to *halui.feed-override.scale* The scaling for feed override
- value.
-*whb.halui.axis._<N>_.pos-feedback* (float,in)::
- connect to *halui.axis._<N>_.pos-feedback* Feedback axis position in
- machine coordinates to be displayed.
-*whb.halui.axis._<N>_.pos-relative* (float,in)::
- connect to *halui.axis._<N>_.pos-relative* Commanded axis position in
- relative coordinates to be displayed.
+`whb.halui.home-all` (bit,out)::
+ connect to `halui.home-all`, driven by M-Home.
+ Pin for requesting all axis to home.  See also `whb.button.m-home`.
+`whb.halui.axis._<N>_.select` (bit,out)::
+ connect to `halui.axis._<N>_.select`.  Pin to select axis.
+`whb.axis._<N>_.jog-counts` (s32,out)::
+ connect to `axis._<N>_.jog-counts`.  The count pin of the jogwheel.
+`whb.axis._<N>_.jog-enable` (bit,out)::
+ connect to `axis._<N>_.jog-enable`.
+ If true (and in manual mode), any change to "jog-counts" will result in motion.
+ If false, "jog-counts" is ignored.
+`whb.axis._<N>_.jog-scale` (float,out)::
+ connect to `axis.`__<N>__`.jog-scale`.
+ The distance to move for each count on "jog-counts", in machine units.
+`whb.axis._<N>_.jog-vel-mode` (bit,out)::
+ connect to `axis.`__<N>__`.jog-jog-vel-mode`.
+ If false the jogwheel operates in position mode.
+ The axis will move exactly jog-scale units for each count, regardless of how long that might take.
+ If true, the jogwheel operates in velocity mode - motion stops when the wheel stops, even if that means the commanded motion is not completed.
+`whb.halui.max-velocity.value` (float,in)::
+ connect to `halui.max-velocity.value`.
+ The maximum allowable velocity, in units per second (_<N>_ is two digit '0'-padded).
+`whb.halui.feed-override.scale` (float,in)::
+ connect to `halui.feed-override.scale`.  The scaling for feed override value.
+`whb.halui.axis.`__<N>__`.pos-feedback` (float,in)::
+ connect to `halui.axis.`__<N>__`.pos-feedback`.
+ Feedback axis position in machine coordinates to be displayed.
+`whb.halui.axis._<N>_.pos-relative` (float,in)::
+ connect to `halui.axis.`__<N>__`.pos-relative`.
+ Commanded axis position in relative coordinates to be displayed.
 
 ==== Machine
 
 Signals utilized for toggling machine status.
 
-*whb.halui.machine.on* (bit,out)::
- connect to *halui.machine.on* Pin for requesting machine on.
-*whb.halui.machine.is-on* (bit,in)::
- connect to *halui.machine.is-on* Pin that indicates machine is on.
-*whb.halui.machine.off* (bit,out)::
- connect to *halui.machine.off* Pin for requesting machine off.
+`whb.halui.machine.on` (bit,out)::
+ connect to `halui.machine.on`. Pin for requesting machine on.
+`whb.halui.machine.is-on` (bit,in)::
+ connect to `halui.machine.is-on`. Pin that indicates machine is on.
+`whb.halui.machine.off` (bit,out)::
+ connect to `halui.machine.off`. Pin for requesting machine off.
 
 ==== Spindle
 
-Signals utilized for operating a spindle.
-
-*whb.halui.spindle.start* (bit,out)::
- connect to *halui.spindle.0.start* Pin to start the spindle.
-*whb.halui.spindle.is-on* (bit,in)::
- connect to *halui.spindle.0.on* Pin to indicate spindle is on (either
- direction).
-*whb.halui.spindle.stop* (bit,out)::
- connect to *halui.spindle.0.stop* Pin to stop the spindle.
-*whb.halui.spindle.forward* (bit,out)::
- connect to *halui.spindle.0.forward* Pin to make the spindle go forward.
-*whb.halui.spindle.reverse* (bit,out)::
- connect to *halui.spindle.0.reverse* Pin to make the spindle go reverse.
-*whb.halui.spindle.decrease* (bit,out)::
- connect to *halui.spindle.0.decrease* Pin to decrease the spindle speed.
-*whb.halui.spindle.increase* (bit,out)::
- connect to *halui.spindle.0.increase* Pin to increase the spindle speed.
-*whb.halui.spindle-override.increase* (bit,out)::
- connect to *halui.spindle.0.override.increase* Pin for increasing the
- spindle override by the amount of scale.
-*whb.halui.spindle-override.decrease* (bit,out)::
- connect to *halui.spindle.0.override.decrease* Pin for decreasing the
- spindle override by the amount of scale.
-*whb.halui.spindle-override.value* (float,in)::
- connect to *halui.spindle.0.override.value* The current spindle override
- value.
-*whb.halui.spindle-override.scale* (float,in)::
- connect to *halui.spindle.0.override.scale* The current spindle scaling
- override value.
+.Signals utilized for operating a spindle.
+`whb.halui.spindle.start` (bit,out)::
+ connect to `halui.spindle.0.start`. Pin to start the spindle.
+`whb.halui.spindle.is-on` (bit,in)::
+ connect to `halui.spindle.0.on`. Pin to indicate spindle is on (either direction).
+`whb.halui.spindle.stop` (bit,out)::
+ connect to `halui.spindle.0.stop`. Pin to stop the spindle.
+`whb.halui.spindle.forward` (bit,out)::
+ connect to `halui.spindle.0.forward`. Pin to make the spindle go forward.
+`whb.halui.spindle.reverse` (bit,out)::
+ connect to `halui.spindle.0.reverse`. Pin to make the spindle go reverse.
+`whb.halui.spindle.decrease` (bit,out)::
+ connect to `halui.spindle.0.decrease`. Pin to decrease the spindle speed.
+`whb.halui.spindle.increase` (bit,out)::
+ connect to `halui.spindle.0.increase`. Pin to increase the spindle speed.
+`whb.halui.spindle-override.increase` (bit,out)::
+ connect to `halui.spindle.0.override.increase`.
+ Pin for increasing the spindle override by the amount of scale.
+`whb.halui.spindle-override.decrease` (bit,out)::
+ connect to `halui.spindle.0.override.decrease`.
+ Pin for decreasing the spindle override by the amount of scale.
+`whb.halui.spindle-override.value` (float,in)::
+ connect to `halui.spindle.0.override.value`.
+ The current spindle override value.
+`whb.halui.spindle-override.scale` (float,in)::
+ connect to `halui.spindle.0.override.scale`.
+ The current spindle scaling override value.
 
 ==== Feed
 
 Signals utilized for operating spindle and feed override.
 The feed rotary button can serve in
-Continuous move x% from max velocity
-Step move x mm
-Mpg override feed/spindle
-the special position Lead. +
-*Continuous:* In this mode jogging is performed at the selected feed rate.
-As long the jogwheel turns, the selected axis moves. +
-*Step:* In this mode the machine moves steps * wheel_counts at the currently selected step size and the
-current set feed rate in machine units.
+
+* Continuous move x% from max velocity
+* Step move x mm
+* MPG override feed/spindle the special position Lead. +
+*Continuous:* In this mode jogging is performed at the selected feed rate. As long the jogwheel turns, the selected axis moves. +
+*Step:* In this mode the machine moves steps * wheel_counts at the currently selected step size and the current set feed rate in machine units.
 If the commanded position is not reached the machine keeps moving even the jogwheel is not turning. +
-*Lead:* Manipulates the spindle override.+
-*Mpg:* Manipulates the feedrate override.+
+*Lead:* Manipulates the spindle override. +
+*Mpg:* Manipulates the feedrate override.
 
-*Note:* As a consequence of 3 modes from manufacturer, switching the feed rotary button back from Lead revert to Mpg mode,
- Mpg mode is default mode at startup.
+Note:
+As a consequence of 3 modes from manufacturer, switching the feed rotary button back from Lead revert to MPG mode, MPG mode is default mode at startup.
 Depending on the mode before turning the rotary button, the feed override results in different values.
-In MPG/CON the feed rate will change to 100%, 60%, ... and so forth. In Step mode the feed rate is mm.
+In MPG/CON the feed rate will change to 100%, 60%, ... and so forth. In Step mode the feed rate is specified in mm.
 
-*whb.halui.feed-override.value* (float,in)::
- connect to *halui.feed-override.value* The current feed override value.
-*whb.halui.feed-override.decrease* (bit,out)::
- connect to *halui.feed-override.decrease* Pin for decreasing the feed
+`whb.halui.feed-override.value` (float,in)::
+ connect to `halui.feed-override.value`. The current feed override value.
+`whb.halui.feed-override.decrease` (bit,out)::
+ connect to `halui.feed-override.decrease`. Pin for decreasing the feed
  override by amount of scale.
-*whb.halui.feed-override.increase* (bit,out)::
- connect to *halui.feed-override.increase* Pin for increasing the feed
+`whb.halui.feed-override.increase` (bit,out)::
+ connect to `halui.feed-override.increase`. Pin for increasing the feed
  override by amount of scale.
-*whb.halui.feed-override.scale* (float,out)::
- connect to *halui.feed-override.scale* Pin for setting the scale on
+`whb.halui.feed-override.scale` (float,out)::
+ connect to `halui.feed-override.scale`. Pin for setting the scale on
  changing the feed override.
-*whb.halui.max-velocity.value* (float,out)::
- connect to *halui.max-velocity.value*
+`whb.halui.max-velocity.value` (float,out)::
+ connect to `halui.max-velocity.value`.
 
 
 ==== Program
 
 Signals for operating program and MDI mode.
 
-*whb.halui.program.run* (bit,out)::
- connect to *halui.program.run* in for running a program.
-*whb.halui.program.is-running* (bit,in)::
- connect to *halui.program.is-running* in indicating a program is running.
-*whb.halui.program.pause* (bit,out)::
- connect to *halui.program.pause* Pin for pausing a program.
-*whb.halui.program.is-paused* (bit,in)::
- connect to *halui.program.is-paused* Pin indicating a program is pausing.
-*whb.halui.program.resume* (bit,out)::
- connect to *halui.program.resume* Pin for resuming a program.
-*whb.halui.program.stop* (bit,out)::
- connect to *program.stop* Pin for stopping a program.
-*whb.halui.program.is-idle* (bit,in)::
- connect to *halui.program.is-idle* Pin indicating no program is running.
-*whb.halui.mode.auto* (bit,out)::
- connect to *halui.mode.auto*  Pin for requesting auto mode.
-*whb.halui.mode.is-auto* (bit,in)::
- connect to *halui.mode.is-auto* Pin for indicating auto mode is on.
-*whb.halui.mode.joint* (bit,out)::
- connect to *halui.mode.joint* Pin for requesting joint by joint mode.
-*whb.halui.mode.is-joint* (bit,in)::
- connect to *halui.mode.is-joint* Pin indicating joint by joint mode is on.
-*whb.halui.mode.manual* (bit,out)::
- connect to *halui.mode.manual* Pin for requesting manual mode.
-*whb.halui.mode.is-manual* (bit,in)::
- connect to *halui.mode.is-manual*  Pin indicating manual mode is on.
-*whb.halui.mode.mdi* (bit,out)::
- connect to *halui.mode.mdi*  Pin for requesting MDI mode.
-*whb.halui.mode.is-mdi* (bit,in)::
- connect to *halui.mode.is-mdi*  Pin indicating MDI mode is on.
-*whb.halui.mode.teleop* (bit,out)::
- connect to *halui.mode.teleop* + Pin for requesting axis by axis mode.
-*whb.halui.mode.is-teleop* (bit,in)::
- connect to *halui.mode.is-teleop* Pin indicating axis by axis mode is on.
+`whb.halui.program.run` (bit,out)::
+ connect to `halui.program.run` in for running a program.
+`whb.halui.program.is-running` (bit,in)::
+ connect to `halui.program.is-running` in indicating a program is running.
+`whb.halui.program.pause` (bit,out)::
+ connect to `halui.program.pause`. Pin for pausing a program.
+`whb.halui.program.is-paused` (bit,in)::
+ connect to `halui.program.is-paused`. Pin indicating a program is pausing.
+`whb.halui.program.resume` (bit,out)::
+ connect to `halui.program.resume`. Pin for resuming a program.
+`whb.halui.program.stop` (bit,out)::
+ connect to `program.stop`. Pin for stopping a program.
+`whb.halui.program.is-idle` (bit,in)::
+ connect to `halui.program.is-idle`. Pin indicating no program is running.
+`whb.halui.mode.auto` (bit,out)::
+ connect to `halui.mode.auto`. Pin for requesting auto mode.
+`whb.halui.mode.is-auto` (bit,in)::
+ connect to `halui.mode.is-auto`. Pin for indicating auto mode is on.
+`whb.halui.mode.joint` (bit,out)::
+ connect to `halui.mode.joint` Pin for requesting joint by joint mode.
+`whb.halui.mode.is-joint` (bit,in)::
+ connect to `halui.mode.is-joint`. Pin indicating joint by joint mode is on.
+`whb.halui.mode.manual` (bit,out)::
+ connect to `halui.mode.manual`. Pin for requesting manual mode.
+`whb.halui.mode.is-manual` (bit,in)::
+ connect to `halui.mode.is-manual`.  Pin indicating manual mode is on.
+`whb.halui.mode.mdi` (bit,out)::
+ connect to `halui.mode.mdi`.  Pin for requesting MDI mode.
+`whb.halui.mode.is-mdi` (bit,in)::
+ connect to `halui.mode.is-mdi`.  Pin indicating MDI mode is on.
+`whb.halui.mode.teleop` (bit,out)::
+ connect to `halui.mode.teleop`. Pin for requesting axis by axis mode.
+`whb.halui.mode.is-teleop` (bit,in)::
+ connect to `halui.mode.is-teleop`. Pin indicating axis by axis mode is on.
 
 ==== Buttons
-For flexibility reasons each button provides an output pin even if no
-functionality is realized directly with that signal.
+For flexibility reasons each button provides an output pin even if no functionality is realized directly with that signal.
 The Fn button can be combined with each other push-button.
 This includes also RESET, Stop, Start/Pause, Macro-10, and Step|Continuous.
 By default the more frequent used orange buttons are executed,
-whereas blue ones (whb.button.macro-<M>) by combining them with Fn
+whereas blue ones (``whb.button.macro-``_<M>_) by combining them with Fn
 (press Fn first then button).
 
 Button macro needs to be added to your INI and needs to be edited for your own use :
@@ -301,98 +303,98 @@ MDI_COMMAND=(debug,macro15)
 MDI_COMMAND=(debug,macro16)
 ----
 
-*<M>* ... denotes an arbitrary macro number which is of {1, 2, ..., 16}
+*_<M>_* ... denotes an arbitrary macro number which is of {1, 2, ..., 16}
 
-*whb.button.reset* (bit,out)::
- see *whb.halui.estop.{activate, reset}* True one Reset button down, false otherwise.
+`whb.button.reset` (bit,out)::
+ see `whb.halui.estop.`{`activate`, `reset`} True one Reset button down, false otherwise.
  For toggling E-stop use whb.halui.estop .active and .reset.
-*whb.button.stop* (bit,out)::
- see *whb.halui.program.stop* True on Stop button down, false otherwise.
+`whb.button.stop` (bit,out)::
+ see *whb.halui.program.stop` True on Stop button down, false otherwise.
  For stopping a program use whb.halui.program.stop.
-*whb.button.start-pause* (bit,out)::
+`whb.button.start-pause` (bit,out)::
  see *whb.halui.program.{run, pause, resume}* True on Start-Pause button down, false otherwise.
- For toggling start-pause use whb.halui.program.run, .pause, and .resume.
-*whb.button.feed-plus* (bit,out)::
+ For toggling start-pause use `whb.halui.program.run`, `.pause`, and `.resume`.
+`whb.button.feed-plus` (bit,out)::
  True on Feed+ button down, false otherwise.
-*whb.button.feed-minus* (bit,out)::
+`whb.button.feed-minus` (bit,out)::
  True on Feed- button down, false otherwise.
-*whb.button.spindle-plus* (bit,out)::
+`whb.button.spindle-plus` (bit,out)::
  see *halui.spindle.0.override.increase* True on Spindle+ button down, false otherwise.
  This button is meant to manipulate the spindle override.
- For increasing the spindle override use *halui.spindle.0.override.increase*.
-*whb.button.spindle-minus* (bit,out)::
+ For increasing the spindle override use `halui.spindle.0.override.increase`.
+`whb.button.spindle-minus* (bit,out)::
  see *halui.spindle.0.override.decrease* True on Spindle- button down, false otherwise.
  This button is meant to manipulate the spindle override.
- For decreasing the spindle override use *halui.spindle.0.override.decrease*.
-*whb.button.m-home* (bit,out)::
+ For decreasing the spindle override use `halui.spindle.0.override.decrease`.
+`whb.button.m-home* (bit,out)::
  connect to *halui.home-all* True on M-Home button down, false otherwise.
- Requests MDI mode before button pin is set. See also *whb.halui.mode.mdi*.
-*whb.button.safe-z* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Safe-Z button down, false otherwise.
- Requests MDI mode before button pin is set. See also *whb.halui.mode.mdi*.
-*whb.button.w-home* (bit,out)::
- connect to *halui.mdi-command-*<M> True on W-Home button down, false otherwise.
- Requests MDI mode before button pin is set. See also *whb.halui.mode.mdi*.
-*whb.button.s-on-off* (bit,out)::
- see *whb.halui.spindle.{start, stop}*  True on S-ON/OFF button down, false otherwise.
- For toggling spindle on-off use halui.spindle.0.start.
- For toggling spindle on-off use halui.spindle.0.stop.
-*whb.button.fn* (bit,out)::
+ Requests MDI mode before button pin is set. See also `whb.halui.mode.mdi`.
+`whb.button.safe-z` (bit,out)::
+ connect to *halui.mdi-command-`__<M>__ True on Safe-Z button down, false otherwise.
+ Requests MDI mode before button pin is set. See also `whb.halui.mode.mdi`.
+`whb.button.w-home` (bit,out)::
+ connect to *halui.mdi-command-`__<M>__ True on W-Home button down, false otherwise.
+ Requests MDI mode before button pin is set. See also `whb.halui.mode.mdi`.
+`whb.button.s-on-off` (bit,out)::
+ see `whb.halui.spindle.`{`start`, `stop`}  True on S-ON/OFF button down, false otherwise.
+ For toggling spindle on-off use `halui.spindle.0.start`.
+ For toggling spindle on-off use `halui.spindle.0.stop`.
+`whb.button.fn` (bit,out)::
  True on Fn button down, false otherwise.
-*whb.button.probe-z* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Probe-Z button down, false otherwise.
+`whb.button.probe-z` (bit,out)::
+ connect to `halui.mdi-command-`__<M>__ True on Probe-Z button down, false otherwise.
  Requests MDI mode before button pin is set. See also *whb.halui.mode.mdi*.
-*whb.button.macro-1* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Macro-1 button (Fn + Feed+) down, false otherwise.
-*whb.button.macro-2* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Macro-2 button (Fn + Feed-) down, false otherwise.
-*whb.button.macro-3* (bit,out)::
- see *whb.halui.spindle.increase* True on Macro-3 button (Fn + Spindle+) down, false otherwise.
+`whb.button.macro-1` (bit,out)::
+ connect to `halui.mdi-command-`__<M>__ True on Macro-1 button (Fn + Feed+) down, false otherwise.
+`whb.button.macro-2` (bit,out)::
+ connect to `halui.mdi-command-`__<M>__ True on Macro-2 button (Fn + Feed-) down, false otherwise.
+`whb.button.macro-3` (bit,out)::
+ see `whb.halui.spindle.increase` True on Macro-3 button (Fn + Spindle+) down, false otherwise.
  This button is meant to manipulate the spindle speed.
  For decreasing the spindle speed use whb.halui.spindle.increase.
-*whb.button.macro-4* (bit,out)::
- see *whb.halui.spindle.decrease* True on Macro-4 button down (Fn + Spindle-), false otherwise.
+`whb.button.macro-4` (bit,out)::
+ see `whb.halui.spindle.decrease` True on Macro-4 button down (Fn + Spindle-), false otherwise.
  This button is meant to manipulate the spindle speed.
  For decreasing the spindle speed use *whb.halui.spindle.decrease*.
-*whb.button.macro-5* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Macro-5 button down (Fn + M-HOME), false otherwise.
-*whb.button.macro-6* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Macro-6 button down (Fn + Safe-Z), false otherwise.
-*whb.button.macro-7* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Macro-7 button down (Fn + W-HOME), false otherwise.
-*whb.button.macro-8* (bit,out)::
+`whb.button.macro-5` (bit,out)::
+ connect to `halui.mdi-command-`__<M>__ True on Macro-5 button down (Fn + M-HOME), false otherwise.
+`whb.button.macro-6` (bit,out)::
+ connect to `halui.mdi-command-`__<M>__ True on Macro-6 button down (Fn + Safe-Z), false otherwise.
+`whb.button.macro-7` (bit,out)::
+ connect to `halui.mdi-command-`__<M>__ True on Macro-7 button down (Fn + W-HOME), false otherwise.
+`whb.button.macro-8` (bit,out)::
  reserved for Spindle Direction True on Macro-8 button down (Fn + S-ON/OFF), false otherwise.
-*whb.button.macro-9* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Macro-9 button down (Fn + Probe-Z), false otherwise.
-*whb.button.macro-10* (bit,out)::
+`whb.button.macro-9` (bit,out)::
+ connect to `halui.mdi-command-`__<M>__ True on Macro-9 button down (Fn + Probe-Z), false otherwise.
+`whb.button.macro-10` (bit,out)::
  reserved for toggle DRO Abs/rel.
  True on Macro-10 button down, false otherwise.
  Switches the display coordinates to relative coordinates.
  On display the axis are denoted then as X1, Y1, Z1, A1, B1 and C1.
- See also *whb.halui.axis._<N>_.pos-relative*.
-*whb.button.macro-11* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Macro-11 button down (Fn + RESET), false otherwise.
-*whb.button.macro-12* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Macro-12 button (Fn + Stop) down, false otherwise.
-*whb.button.macro-13* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Macro-13 button (Fn + Start/Pause) down, false otherwise.
-*whb.button.macro-14* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Macro-14 button (Fn + Macro-10) down, false otherwise.
-*whb.button.macro-15* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Macro-15 button down (Fn + MPG), false otherwise.
-*whb.button.macro-16* (bit,out)::
- connect to *halui.mdi-command-*<M> True on Macro-16 button (Fn + Step) down, false otherwise.
-*whb.button.mode-continuous* (bit,out)::
+ See also `whb.halui.axis.`__<N>__`.pos-relative`.
+`whb.button.macro-11` (bit,out)::
+ connect to `halui.mdi-command-`__<M>__ True on Macro-11 button down (Fn + RESET), false otherwise.
+`whb.button.macro-12` (bit,out)::
+ connect to `halui.mdi-command-`__<M>__ True on Macro-12 button (Fn + Stop) down, false otherwise.
+`whb.button.macro-13` (bit,out)::
+ connect to `halui.mdi-command-`__<M>__ True on Macro-13 button (Fn + Start/Pause) down, false otherwise.
+`whb.button.macro-14` (bit,out)::
+ connect to `halui.mdi-command-`__<M>__ True on Macro-14 button (Fn + Macro-10) down, false otherwise.
+`whb.button.macro-15` (bit,out)::
+ connect to `halui.mdi-command-`__<M>__ True on Macro-15 button down (Fn + MPG), false otherwise.
+`whb.button.macro-16` (bit,out)::
+ connect to `halui.mdi-command-`__<M>__ True on Macro-16 button (Fn + Step) down, false otherwise.
+`whb.button.mode-continuous` (bit,out)::
  True on Continuous mode button down, false otherwise.
-*whb.button.mode-step* (bit,out)::
+`whb.button.mode-step` (bit,out)::
  True on Step mode button down, false otherwise.
 
 
 ==== Pendant
 
-*whb.pendant.is-sleeping* (bit,out)::
+`whb.pendant.is-sleeping` (bit,out)::
  True as long pendant is in sleep mode (usually a few seconds after turned off), false otherwise.
-*whb.pendant.is-connected* (bit,out)::
+`whb.pendant.is-connected` (bit,out)::
  True as long pendant is not in sleep mode (turned on), false otherwise.
 
 == HAL Configuration Example
