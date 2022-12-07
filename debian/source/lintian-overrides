@@ -1,2 +1,8 @@
 # False positive - python3 is invoked in d/rules.
 linuxcnc source: python3-depends-but-no-python3-helper linuxcnc-uspace linuxcnc-uspace-dev
+
+# These *are* the source - they're hand-written HTML files.
+linuxcnc source: source-is-missing [configs/sim/craftsman/screens/gcodes.htm]
+linuxcnc source: source-is-missing [configs/sim/craftsman/screens/mcodes.htm]
+linuxcnc source: source-is-missing [share/qtvcp/screens/woodpecker/images/QTvcp Widgets.html]
+linuxcnc source: source-is-missing [share/qtvcp/screens/woodpecker/images/QTvcp Widgets_files/blank.html]

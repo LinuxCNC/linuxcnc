@@ -994,12 +994,11 @@ class HalToolCylinder(CylinderZ):
     IMPERIAL = 25.4
     MODEL_SCALING = IMPERIAL
 
-    def __init__(self, comp, *args):
+    def __init__(self, comp=None, *args):
         # get machine access so it can
         # change itself as it runs
         # specifically tool cylinder in this case.
         CylinderZ.__init__(self, *args)
-        self.comp = comp
 
     def coords(self):
         # get diameter and divide by 2 to get radius.
@@ -1026,7 +1025,7 @@ class HalToolCylinder(CylinderZ):
 # we use a triangle for the tool
 # since we need to visualize a lathe tool here
 class HalToolTriangle(TriangleXZ):
-    def __init__(self, comp, *args):
+    def __init__(self, comp=None, *args):
         # get machine access so it can
         # change itself as it runs
         # specifically tool cylinder in this case.

@@ -766,14 +766,14 @@ We'll use the following correspondence in our example:
 [frame="topbot",grid="none"]
 [options="header"]
 |===
-|iocontrol.0 pin|motion pin
-|tool-prepare|digital-out-00
-|tool-prepared|digital-in-00
-|tool-change|digital-out-01
-|tool-changed|digital-in-01
-|tool-prep-number|analog-out-00
-|tool-prep-pocket|analog-out-01
-|tool-number|analog-out-02
+|iocontrol.0 pin  |motion pin
+|tool-prepare     |digital-out-00
+|tool-prepared    |digital-in-00
+|tool-change      |digital-out-01
+|tool-changed     |digital-in-01
+|tool-prep-number |analog-out-00
+|tool-prep-pocket |analog-out-01
+|tool-number      |analog-out-02
 |===
 
 Let us assume you want to redefine the M6 command,
@@ -1319,7 +1319,7 @@ The namespace is expected to be laid out as follows:
   Python callables referenced in an argspec `prolog`,`epilog` or `python` option are expected to be found here.
 
 `namedparams`::
-  Python funtcions int this module extend or redefine the namespace of predefined named parameters,
+  Python functions in this module extend or redefine the namespace of predefined named parameters,
   see <<remap:adding-predefined-named-parameters,adding predefined parameters>>.
 
 `task`::

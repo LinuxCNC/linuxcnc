@@ -95,35 +95,32 @@ successfully negotiated.
 .B HAL sub-commands:
   
   echo on | off
-With get will return the current echo state, with set, sets the echo
-state. When echo is on, all commands will be echoed upon receipt. This
-state is local to each connection.
+With get will return the current echo state, with set, sets the echo state.
+When echo is on, all commands will be echoed upon receipt.
+This state is local to each connection.
   
   verbose on | off
-With get will return the current verbose state, with set, sets the
-verbose state. When in verbose mode is on, all set commands return
-positive acknowledgement in the form SET <COMMAND> ACK. In addition,
-text error messages will be issued when in verbose mode. This state
-is local to each connection.
+With get will return the current verbose state, with set, sets the verbose state.
+When in verbose mode is on, all set commands return positive acknowledgement in the form SET <COMMAND> ACK.
+In addition, text error messages will be issued when in verbose mode.
+This state is local to each connection.
   
   enable <pwd> | off
-With get will return On or Off to indicate whether the current connection
-is enabled to perform control functions. With set and a valid password,
-the current connection is enabled for control functions. "OFF" may not
-be used as a password and disables control functions for this connection.
+With get will return On or Off to indicate whether the current connection is enabled to perform control functions.
+With set and a valid password, the current connection is enabled for control functions.
+"OFF" may not be used as a password and disables control functions for this connection.
 
   config [TBD]
   
   comm_mode ascii | binary
-With get, will return the current communications mode. With set, will
-set the communications mode to the specified mode. The binary protocol 
-is TBD.
+With get, will return the current communications mode.
+With set, will set the communications mode to the specified mode.
+The binary protocol is TBD.
   
   comm_prot <version no>
 With get, returns the current protocol version used by the server,
 with set, sets the server to use the specified protocol version,
-provided it is lower than or equal to the highest version number
-supported by the server implementation.
+provided it is lower than or equal to the highest version number supported by the server implementation.
 
   Comps [<substring>]
 
@@ -132,41 +129,38 @@ If no substring is specified then it returns all components.
 
   Pins [<substring>]
 
-Get only, returns all information about all pins beginning with the
-specified substring. If no substring is specified then it returns all pins.
+Get only, returns all information about all pins beginning with the specified substring.
+If no substring is specified then it returns all pins.
 
   PinVals [<substring>]
 
-Get only, returns only value information about all pins beginning with the
-specified substring. If no substring is specified then it returns all pins.
+Get only, returns only value information about all pins beginning with the specified substring.
+If no substring is specified then it returns all pins.
 
   Signals [<substring>]
 
-Get only, returns all information about all signals beginning with the
-specified substring. If no substring is specified then it returns all signals.
+Get only, returns all information about all signals beginning with the specified substring.
+If no substring is specified then it returns all signals.
 
   SigVals [<substring>]
 
-Get only, returns only value information about all signals beginning with the
-specified substring. If no substring is specified then it returns all pins.
+Get only, returns only value information about all signals beginning with the specified substring.
+If no substring is specified then it returns all pins.
 
   Params [<substring>]
 
-Get only, returns all information about all parameters beginning with the
-specified substring. If no substring is specified then it returns all 
-parameters.
+Get only, returns all information about all parameters beginning with the specified substring.
+If no substring is specified then it returns all parameters.
 
   ParamVals [<substring>]
 
-Get only, returns only value information about all parameters beginning with the
-specified substring. If no substring is specified then it returns all pins
-parameters.
+Get only, returns only value information about all parameters beginning with the specified substring.
+If no substring is specified then it returns all pins parameters.
 
   Functs [<substring>]
 
-Get only, returns all information about all functions beginning with the
-specified substring. If no substring is specified then it returns all 
-functions.
+Get only, returns all information about all functions beginning with the specified substring.
+If no substring is specified then it returns all functions.
   
   Threads
 
@@ -186,7 +180,7 @@ Get only, returns the value of the pin matching the specified name.
 
   Sig <name>
 
-Get only, returns all information about the pin matching the specified name.y
+Get only, returns all information about the pin matching the specified name.
 
   SigVal <name>
 
@@ -194,8 +188,7 @@ Get only, returns just the value of the signal matching the specified name.
   
   Param <name>
 
-Get only, returns all information about the parameter matching the 
-specified name.
+Get only, returns all information about the parameter matching the specified name.
 
   ParamVal <name>
 
@@ -239,7 +232,7 @@ Set only, nets the specified net list.
 
   Unlinkp <pin name 1> <pin name 2>
 
-Set only, unlinks the specified pins
+Set only, unlinks the specified pins.
 
   Lock
 

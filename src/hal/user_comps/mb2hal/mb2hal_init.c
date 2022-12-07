@@ -148,7 +148,7 @@ retCode parse_pin_names(const char * names_string, mb_tx_t *this_mb_tx)
         }
         if(name_count >= name_buf_size)
         {
-            name_count += NAME_ALLOC_SIZE;
+            name_buf_size += NAME_ALLOC_SIZE;
             name_ptrs = realloc(name_ptrs, sizeof(char *) * name_buf_size);
             if(name_ptrs == NULL)
             {

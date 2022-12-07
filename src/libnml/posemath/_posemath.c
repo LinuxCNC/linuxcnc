@@ -1774,6 +1774,8 @@ int pmCircleInit(PmCircle * const circle,
     PmCartesian v;
     double d;
     int r1;
+    PmCartesian p1;
+    PmCartesian p2;
 
 #ifdef PM_DEBUG
     if (0 == circle) {
@@ -1850,8 +1852,12 @@ int pmCircleInit(PmCircle * const circle,
         circle->angle = PM_2_PI - circle->angle;
     }
     /* Issue #1528 24-Jan-2022. Additional test for nearly-straight   *
-     * short arcs of very large radius becoming circles               */
-    pmCartCartDisp(start, end, &d);
+     * short arcs of very large radius becoming circles               *
+     * Revisited 4-Dec-2022 Issue #2169 - endpoints of spirals are not*
+     * close to each other, project to working plane                  */
+    pmCartPlaneProj(start, normal, &p1);
+    pmCartPlaneProj(end, normal, &p2);
+    pmCartCartDisp(&p1, &p2, &d);
     if (d < CART_FUZZ){
         circle->angle = PM_2_PI;
     }
@@ -1862,7 +1868,7 @@ int pmCircleInit(PmCircle * const circle,
     }
 
     /* FIXME: some code has an unguarded division by circle->angle */
-    if (circle->angle == 0) circle->angle += CIRCLE_FUZZ;
+    if (circle->angle == 0) circle->angle += CIRCLE_FUZZ / 2;
 
     //Default to invalid
 /* if 0'ed out while not debugging*/

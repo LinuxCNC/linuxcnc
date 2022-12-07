@@ -4,16 +4,16 @@
 [[cha:qtvcp:vismach]]
 = QtVismach
 
-*Vismach* is a set of *Python functions that can be used to create and
-animate models of machines*.
+*Vismach* is a set of *Python functions that can be used to create and animate models of machines*.
 
 This chapter is about the Qt embedded version of <<cha:vismach,Vismach>>.
+Also see: https://sa-cnc.com/linuxcnc-vismach/
 
 [[sec:qtvcp:vismach:intro]]
 == Introduction
 
-Vismach displays the model in a *3D viewport* and the *model parts are
-animated as the values of associated HAL pins change*.
+Vismach displays the model in a *3D viewport*
+and the *model parts are animated as the values of associated HAL pins change*.
 
 .QtVismach 3D Viewport
 image::images/qtvismach.png["QtVismach 3D Viewport",align="center"]
@@ -25,12 +25,10 @@ The Vismach 3D viewport view can be manipulated as follows:
 * *rotate* by _right-button drag_
 * *tilt* by _left button drag_
 
-A *Vismach model* takes the form of a _Python script_ and can use
-standard Python syntax.
+A *Vismach model* takes the form of a _Python script_ and can use standard Python syntax.
 
-This means that there is more than one way to lay out the script, but
-in the examples given in this document the simplest and most basic of
-them will be used.
+This means that there is more than one way to lay out the script,
+but in the examples given in this document the simplest and most basic of them will be used.
 
 The basic sequence in creating the Vismach model is:
 
@@ -44,20 +42,18 @@ The basic sequence in creating the Vismach model is:
 The model follows *logical tree design*.
 
 Picture the tree, with root/trunk, branches and smaller branches off it.
-If you move the larger branch, smaller branches will move with it, but
-if you move smaller branch larger will not.
+If you move the larger branch, smaller branches will move with it,
+but if you move the smaller branch, the larger will not.
 
 _Machine design follows that conceptual design_.
 
 Taking the mill shown in the 3D Viewport picture above for example:
 
-* if you move X, it can move on its own,
-* but if you move Y, it will also move X assembly, as it is attached to
-  Y assembly.
+* If you move X, it can move on its own,
+* but if you move Y, it will also move X assembly, as it is attached to Y assembly.
 
-So for this machine, tree looks like this:
+So for this machine, the tree looks like this:
 
-//FIXME Shouldn't yassembly be a branch of base and zassembly a branch of column ?
 ----
 model
   |
@@ -98,21 +94,19 @@ model
                          |---(tool cylinder function)
 ----
 
-As you can see, _lowest parts must exist first before it can be grouped
-with others into assembly_.
-So you _build upwards_ from lowest point in tree and assemble them
-together.
+As you can see, the _lowest parts must exist_ first _before those can be grouped with others into an assembly_.
+So you _build upwards_ from lowest point in tree and assemble them together.
 
-Same is applicable for any design of machine: look at machine arm
-example and you will see that it starts with tip and adds to larger part
-of arm then it finally groups with base.
+The same is applicable for any design of machine:
+look at the machine arm example and you will see that it starts with the tip and adds to the larger part of the arm,
+then it finally groups with the base.
 
 
 [[sec:qtvcp:vismach:start]]
 == Start the script
 
-It is useful for testing to include the `#!/usr/bin/env python3` shebang
-to _allow the file to be run as a script_.
+It is useful for testing to include the `#!/usr/bin/env python3` shebang line
+to _allow the file to be executed directly from the command line.
 
 The first thing to do is to _import the required libraries_.
 
@@ -133,8 +127,8 @@ from qtvcp.lib.qt_vismach.qt_vismach import *
 Originally the vismach library required creating a component and
 connecting HAL pins to control the simulation.
 
-`qt_vismach` can read the HAL system pins directly or if you wish, to
-use separate HAL pins that you must define in a HAL component:
+`qt_vismach` can read the HAL system pins directly or if you wish,
+to use separate HAL pins that you must define in a HAL component:
 
 [source,python]
 ----
@@ -153,12 +147,9 @@ c.ready()
 It is probably easiest to:
 
 * _create geometry in a CAD package_
-* _import into the model script using the `AsciiSTL()` or `AsciiOBJ()`
-  functions_.
+* _import into the model script using the `AsciiSTL()` or `AsciiOBJ()` functions_.
 
-//FIXME Ascii(STL|OBJ): what's the second arg ?
-Both functions can take one of two named arguments, either a _filename_
-or _raw data_:
+Both functions can take one of two named arguments, either a _filename_ or _data_:
 
 [source,python]
 ----
@@ -168,44 +159,41 @@ part = AsciiOBJ(filename="path/to/file.obj")
 part = AsciiOBJ(data="v 0.123 0.234 0.345 1.0 ...")
 ----
 
-The parts will be created in the Vismach space in the _same locations as
-they occupy in the STL or OBJ space_, meaning it may be possible to
-assemble the model in the CAD package.
+- STL model parts are added to the Vismach space in the _same locations as they were created in the STL or OBJ space_,
+ie ideally with a rotational point at their origin.
+
+[NOTE]
+It is much easier to move while building if the origin of the model is at 
+a rotational pivot point.
 
 [[sub:qtvcp:vismach:primitives]]
 === Build from Geometric Primitives
 
-Alternatively parts can be _created inside the model script from a range
-of shape primitives_.
+Alternatively parts can be _created inside the model script from a range of shape primitives_.
 
-Many shapes are _created at the origin_ and need to be _moved to
-the required location_ after creation.
+Many shapes are _created at the origin_ and need to be _moved to the required location_ after creation.
 
 *`cylinder = CylinderX(x1, r1, x2, r2)`*::
 *`cylinder = CylinderY(y1, r1, y2, r2)`*::
 *`cylinder = CylinderZ(z1, r1, z2, r2)`*::
-  Creates a _(optionally tapered) cylinder on the given axis_ with the
-  given radii at the given points on the axis.
+  Creates a _(optionally tapered) cylinder on the given axis_ with the given radii at the given points on the axis.
 *`sphere = Sphere(x, y, z, r)`*::
   Creates a _sphere of radius r at (x,y,z)_.
 *`triangle = TriangleXY(x1, y1, x2, y2, x3, y3, z1, z2)`*::
 *`triangle = TriangleXZ(x1, z1, x2, z2, x3, z3, y1, y2)`*::
 *`triangle = TriangleYZ(y1, z1, y2, z2, y3, z3, x1, x2)`*::
-  Creates a _triangular plate between planes_ defined by the last two
-  values parallel to the specified plane, with vertices given by the
-  three coordinate pairs.
+  Creates a _triangular plate between planes_ defined by the last two values parallel to the specified plane,
+  with vertices given by the three coordinate pairs.
 *`arc = ArcX(x1, x2, r1, r2, a1, a2)`*::
   Create an _arc shape_.
 *`box = Box(x1, y1, z1, x2, y2, z2)`*::
-  Creates a _rectangular prism with opposite corners_ at the specified
-  positions and edges parallel to the XYZ axes.
+  Creates a _rectangular prism with opposite corners_ at the specified positions and edges parallel to the XYZ axes.
 *`box = BoxCentered(xw, yw, zw)`*::
   Creates an xw by yw by zw _box centred on the origin_.
 *`box = BoxCenteredXY(xw, yw, z)`*::
   Creates a _box ground on WY plane_ of width xw / yw and height z.
 
-Composite parts may be created by assembling these primitives either at
-creation time or subsequently:
+Composite parts may be created by assembling these primitives either at creation time or subsequently:
 
 [source,python]
 ----
@@ -219,6 +207,8 @@ part4 = Collection([part1, part2])
 == Moving Model Parts
 
 Parts may need to be moved in the Vismach space to assemble the model.
+The origin does not move - Translate() and Rotate() move the Collection 
+as you add parts, relative to a stationary origin.
 
 //FIXME unclear
 They may also need to be moved to create the animation as the animation
@@ -227,15 +217,13 @@ rotation axis is created at the origin (but moves with the Part).
 [[sub:qtvcp:vismach:translate]]
 === Translating Model parts
 
-*`part1 = Translate([part1], x, y, z)`*::
-  Move part1 the specified distances in x, y and z.
+*`part1 = Translate([part1], x, y, z)`*:: Move part1 the specified distances in x, y and z.
 
 [[sub:qtvcp:vismach:rotate]]
 === Rotating Model Parts
 
-//FIXME angle unit ?
 *`part1 = Rotate([part1], theta, x, y, z)`*::
-  Rotate the part by angle theta about an axis between the origin and
+  Rotate the part by angle theta degrees about an axis between the origin and
   x, y, z.
 
 [[sec:qtvcp:vismach:animate]]
@@ -243,7 +231,7 @@ rotation axis is created at the origin (but moves with the Part).
 
 //FIXME 2 or 3 functions ? HalToolCylinder not documented here ?
 To *animate the model controlled by the values of HAL pins* there are
-two functions `HalTranslate`, `HalRotate` and `HalToolCylinder`.
+four functions `HalTranslate`, `HalRotate`, `HalToolCylinder` and 'HalToolTriangle'.
 
 _For parts to move inside an assembly they need to have their HAL motions
 defined before being assembled with the "Collection" command_.
@@ -258,60 +246,77 @@ The *rotation axis and translation vector move with the part*:
 
 *`part = HalTranslate([part], hal_comp, hal_pin, xs, ys, zs)`*::
   `part`;; A _collection or part_. +
-    It can be pre-created earlier in the script, or could be created at
-    this point if preferred eg +
+    It can be pre-created earlier in the script, or could be created at this point if preferred, e.g., +
 +
 [source,python]
 ----
 `part1 = HalTranslate([Box(....)], ...)`. +
 ----
   `hal_comp`;; The _HAL component_ is the next argument. +
-    In QtVCP if you are reading _system pins_ directly then the component
-    argument is set to `None`. +
+    In QtVCP if you are reading _system pins_ directly then the component argument is set to `None`. +
   `hal_pin`;; The _name of the HAL pin_ that will animate the motion. +
-    This needs to match an existing HAL pin that describes the joint
-    position such as:
+    This needs to match an existing HAL pin that describes the joint position such as:
 +
 [source,{hal}]
 ----
 "joint.2.pos-fb"
 ----
 +
-Otherwise the component instance would be specified and the pin name of
-that component would be specified.
+Otherwise the component instance would be specified and the pin name of that component would be specified.
   `xs, ys, zs`;; The _X, Y, Z scales_. +
-    For a Cartesian machine created at 1:1 scale this would typically
-    be `1,0,0` for a motion in the positive X direction. +
-    However if the STL file happened to be in cm and the machine was in
-    inches, this could be fixed at this point by using 0.3937
-    (1cm /2.54in) as the scale.
+    For a Cartesian machine created at 1:1 scale this would typically be `1,0,0` for a motion in the positive X direction. +
+    However if the STL file happened to be in cm and the machine was in inches,
+    this could be fixed at this point by using 0.3937 ( = 1&#8239;cm/1&#8239;inch = 1&#8239;cm /2.54&#8239;cm ) as the scale.
 
 [[sub:qtvcp:vismach:halrotate]]
 === `HalRotate`
 
 *`part = HalRotate([part], hal_comp, hal_pin, angle_scale, x, y, z)`*::
-  This command is similar in its operation to `HalTranslate` except that
-  it is typically necessary to move the part to the origin first to
-  define the axis. +
-  `x, y, z`;; Defines the _axis of rotation_ from the origin the point
-    of coordinates (x,y,z). +
-    When the part is moved back away from the origin to its correct
-    location the axis of rotation can be considered to remain "embedded"
-    in the part.
-  `angle_scale`;; _Rotation angles_ are in degrees, so for a rotary
-    joint with a 0-1 scaling you would need to use an angle scale of 360.
+  This command is similar in its operation to `HalTranslate`,
+  except that it is typically necessary to move the part to the origin first to define the axis. +
+  `x, y, z`;; Defines the _axis of rotation_ from the origin the point of coordinates (x,y,z). +
+    When the part is moved back away from the origin to its correct location,
+    the axis of rotation can be considered to remain "embedded" in the part.
+  `angle_scale`;; _Rotation angles_ are in degrees, so for a rotary joint with a 0-1 scaling you would need to use an angle scale of 360.
+
+=== 'HalToolCylinder'
+
+*`tool = HalToolCylinder()`*::
+ Make a cylinder to represent a cylindrical mill tool, based on the tool table 
+ and current loaded tool.
+
+[source,python]
+----
+tool = HalToolCylinder()
+toolshape = Color([1, .5, .5, .5],[tool])
+
+# or more compact:
+toolshape = Color([1, .5, .5, .5], [HalToolCylinder()])
+----
+
+=== 'HalToolTriangle'
+
+*`tool = HalToolTriangle()`*::
+ Make a triangle to represent a triangular lathe tool, based on the tool table 
+ and current loaded tool.
+
+[source,python]
+----
+tool = HalToolTriangle()
+toolshape = Color([1, 1, 0, 1],[tool])
+
+# or more compact:
+toolshape = Color([1, 1, 0, 1],[HalToolTriangle()])
+----
 
 [[sec:qtvcp:vismach:assembly]]
 == Assembling the model
 
-In order for parts to move together they need to be assembled with the
-*`Collection()` command*.
+In order for parts to move together they need to be assembled with the *`Collection()` command*.
 
-It is important to *assemble the parts and define their motions in the
-correct sequence*.
+It is important to *assemble the parts and define their motions in the correct sequence*.
 
-For example to create a moving head milling machine with a rotating
-spindle and an animated draw bar you would:
+For example to create a moving head milling machine with a rotating spindle and an animated draw bar you would:
 
 * Create the head main body.
 * Create the spindle at the origin.
@@ -322,8 +327,7 @@ spindle and an animated draw bar you would:
 * Assemble the three parts into a head assembly
 * Define the motion of the head assembly.
 
-In this example the spindle rotation is indicated by rotation of a set
-of drive dogs:
+In this example the spindle rotation is indicated by rotation of a set of drive dogs:
 
 [source,python]
 ----
@@ -353,16 +357,14 @@ base = Color([0.5,0.5,0.5,1],[base])
 base = Collection([head, base])
 ----
 
-Finally a *single collection of all the machine parts, floor and work*
-(if any) needs to be created.
+Finally a *single collection of all the machine parts, floor and work* (if any) needs to be created.
 
-For a _serial machine_ each new part will be added to the collection of
-the previous part.
+For a _serial machine_ each new part will be added to the collection of the previous part.
 
 For a _parallel machine_ there may be several "base" parts.
 
-Thus, for example, in `scaragui.py` link3 is added to link2, link2
-to link1 and link1 to link0, so the final model is created by:
+Thus, for example, in `scaragui.py` link3 is added to link2, link2 to link1 and link1 to link0,
+so the final model is created by:
 
 [source,python]
 ----
@@ -381,36 +383,54 @@ model = Collection([base, saddle, head, carousel])
 
 *`part = Color([_colorspec_], [_part_])`*::
   Sets the _display color of the part_. +
-  Note that unlike the other functions, the part definition comes second
-  in this case. +
+  Note that unlike the other functions, the part definition comes second in this case. +
   `_colorspec_`;; Three RGB values and opacity. +
   For example [1,0,0,0.5] for a 50% opacity red.
 
 *`myhud = Hud()`*::
 *`myhud.show("_Mill_XYZ_")`*::
-  Creates a _heads-up display_ in the Vismach GUI to display items such
-  as axis positions, titles, or messages.
+  Creates a _heads-up display_ in the Vismach GUI to display items such as axis positions, titles, or messages.
 
 *`part = Capture()`*::
   This sets the current position in the model.
 
 *`main(model, tooltip, work, size=10, hud=myhud, rotation_vectors=None, lat=0, lon=0)`*::
-  This is the command that makes it all happen, creates the display etc.
-  if invoked directly from Python. +
-  Usually this file is imported by QtVCP and the `window()` object is
-  instantiated and embedded into another screen.
+  This is the command that makes it all happen, creates the display, etc. if invoked directly from Python. +
+  Usually this file is imported by QtVCP and the `window()` object is instantiated and embedded into another screen.
   `_model_`;; Should be a collection that contains all the machine parts.
-  `_tooltip_` and `_work_`;; Need to be created by `Capture()` to
-    visualize their motion in the backplot. +
-    See `mill_xyz.py` for an example of how to connect the tool tip to a
-    tool and the tool to the model.
-  `_size_`;; Sets the extent of the volume visualized in the initial
-    view. +
+  `_tooltip_` and `_work_`;; Need to be created by `Capture()` to visualize their motion in the backplot. +
+    See `mill_xyz.py` for an example of how to connect the tool tip to a tool and the tool to the model.
+  `_size_`;; Sets the extent of the volume visualized in the initial view. +
     hud refers to a head-up display of axis positions.
-  `_rotation_vectors_` or `_lat, lon_`;; Can be used to set
-    the original viewpoint. +
-    It is advisable to do as the default initial viewpoint is rather
-    unhelpful from immediately overhead.
+  `_rotation_vectors_` or `_lat, lon_`;; Can be used to set the original viewpoint. +
+    It is advisable to do as the default initial viewpoint is rather unhelpful from immediately overhead.
+
+
+== Tips
+create an axes origin marker to be able to see parts relative to it, for 
+construction purposes. You can remove it when you are done.
+
+[source,python]
+----
+# build axis origin markers
+X = CylinderX(-500,1,500,1)
+X = Color([1, 0, 0, 1], [X])
+Y = CylinderY(-500,1,500,1)
+Y = Color([0, 1, 0, 1], [Y])
+Z = CylinderZ(-500,1,500,1)
+Z = Color([0, 0, 1, 1], [Z])
+origin = Collection([X,Y,Z])
+----
+
+ Add it to the Window class Collection so it is never moved from the origin.
+[source,python]
+----
+v.model = Collection([origin, model, world])
+----
+
+Start from the cutting tip and work your way back.
+add each collection to the model at the origin and run the script to confirm 
+the location, then rotate/translate and run the script to confirm again.
 
 [[sec:qtvcp:vismach:structure]]
 == Basic structure of a `QtVismach` script

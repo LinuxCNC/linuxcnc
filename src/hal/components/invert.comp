@@ -18,9 +18,9 @@ The output will be the mathematical inverse of the input, ie \\fBout\\fR = 1/\\f
 The parameter \\fBdeadband\\fR can be used to control how close to 0 the denominator can be
 before the output is clamped to 0.  \\fBdeadband\\fR must be at least 1e-8, and must be positive.""";
 
-pin in float in "Analog input value" ;
+pin in float in "Analog input value";
 pin out float out "Analog output value";
-param rw float deadband "The \\fBout\\fR will be zero if \\fBin\\fR is between -\\fBdeadband\\fR and +\\fBdeadband\\fR" ;
+param rw float deadband "The \\fBout\\fR will be zero if \\fBin\\fR is between -\\fBdeadband\\fR and +\\fBdeadband\\fR.";
 
 function _;
 license "GPL";

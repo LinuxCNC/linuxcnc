@@ -429,6 +429,18 @@ int hal_set_constructor(int comp_id, constructor make) {
 }
 #endif
 
+int hal_set_unready(int comp_id) {
+    hal_comp_t *comp;
+    rtapi_mutex_get(&(hal_data->mutex));
+    comp = halpr_find_comp_by_id(comp_id);
+    if (comp) { comp->ready = 0; }
+    rtapi_mutex_give(&(hal_data->mutex));
+    if (comp) {return 0;}
+    rtapi_print_msg(RTAPI_MSG_ERR,
+         "HAL: ERROR: hal_set_unready(): component %d not found\n", comp_id);
+    return -EINVAL;
+}
+
 int hal_ready(int comp_id) {
     int next;
     hal_comp_t *comp;
@@ -4191,6 +4203,7 @@ int hal_stream_num_underruns(hal_stream_t *stream) {
 
 EXPORT_SYMBOL(hal_init);
 EXPORT_SYMBOL(hal_ready);
+EXPORT_SYMBOL(hal_set_unready);
 EXPORT_SYMBOL(hal_exit);
 EXPORT_SYMBOL(hal_malloc);
 EXPORT_SYMBOL(hal_comp_name);

@@ -435,7 +435,7 @@ intended to be sent when moving the cursor one line down in G-code display. +
 This depends on the widget/libraries used.
 
 *dialog-request* :: '(returns Python dict)' -
-intended to be sent when requesting a gui dialog. +
+intended to be sent when requesting a GUI dialog. +
 It uses a Python dict for communication.
 The dict must include the following keyname pair: +
 * NAME: 'requested dialog name' +

@@ -86,7 +86,7 @@ notes """
 .TP
 .B The following pins are created depending the 'numgears=' parameter.
 One of each pin is created for each gear. If no gears are specified then one
-gear will be created. For instance if you have gears=2 on your command line,
+gear will be created. For instance if you have numgears=2 on your command line,
 you will have  two scale pins:
  \\fBspindle.\\fP\\fIN\\fB.scale.0\\fP
  \\fBspindle.\\fP\\fIN\\fB.scale.1\\fP

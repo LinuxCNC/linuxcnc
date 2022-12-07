@@ -6,22 +6,19 @@
 
 == Overview
 
-Building custom widgets allows one to *use the Qt Designer editor to
-place a custom widget* _rather than doing it manually in a handler file_.
+Building custom widgets allows one to *use the Qt Designer editor to place a custom widget*
+_rather than doing it manually in a handler file_.
 
-A useful custom widgets would be a great way to contribute back to
-LinuxCNC.
+A useful custom widgets would be a great way to contribute back to LinuxCNC.
 
 === Widgets
 
-*Widget* is the _general name for the UI objects_ such as buttons and
-labels in PyQt.
+*Widget* is the _general name for the UI objects_ such as buttons and labels in PyQt.
 
-There are also *special widgets made for LinuxCNC* that make integration
-easier.
+There are also *special widgets made for LinuxCNC* that make integration easier.
 
-All these widgets can be _placed with Qt Designer editor_ - allowing one
-to _see the result_ before actually loading the panel in LinuxCNC.
+All these widgets can be _placed with Qt Designer editor_ - allowing one to _see the result_
+before actually loading the panel in LinuxCNC.
 
 === Qt Designer
 
@@ -31,15 +28,13 @@ placing PyQt widgets_.
 It's original intend was for building the graphic widgets for programs. +
 We leverage it to *build screens and panels for LinuxCNC*.
 
-In Qt Designer, on the left side of the editor, you find *three
-categories of LinuxCNC widgets*:
+In Qt Designer, on the left side of the editor, you find *three categories of LinuxCNC widgets*:
 
 * _HAL only widgets_.
 * _LinuxCNC controller widgets_.
 * _dialog widgets_.
 
-For Qt Designer to _add custom widgets_ to it's editor it must have a
-*plugin* added to the right folder.
+For Qt Designer to _add custom widgets_ to it's editor it must have a *plugin* added to the right folder.
 
 //FIXME Aren't the following two sub-sections duplicates of the 'startup
 //  to shutdown section in qtvcp-development.adoc ?
@@ -57,24 +52,19 @@ This includes:
 * Calling an _extra setup function_
 * Calling a _closing cleanup function_ at shutdown.
 
-These functions are not called when the Qt Designer editor displays the
-widgets.
+These functions are not called when the Qt Designer editor displays the widgets.
 
 When QtVCP builds a screen from the `.ui` file:
 
 . It searches for all the HAL-ified widgets.
-. It finds the `ScreenOptions` widget, to collect information it needs
-  to inject into the other widgets
-. It instantiates each widget and if it is a HAL-ified widget, calls the
-  `hal_init()` function. +
+. It finds the `ScreenOptions` widget, to collect information it needs to inject into the other widgets
+. It instantiates each widget and if it is a HAL-ified widget, calls the `hal_init()` function. +
   *`hal_init()`* is defined in the base class and it:
 .. Adds variables such as the preference file to every HAL-ified widget.
 .. Call `+_hal_init()+` on the widget. +
-   `+_hal_init()+` allows the widget designer to do setup that requires
-   access to the extra variables.
+   `+_hal_init()+` allows the widget designer to do setup that requires access to the extra variables.
 
-Here is a description of the extra variables injected into "HAL-ified"
-widgets:
+Here is a description of the extra variables injected into "HAL-ified" widgets:
 
 *`self.HAL_GCOMP`*:: The _HAL component instance_
 *`self.HAL_NAME`*:: This _widget's name_ as a string
@@ -86,16 +76,13 @@ widgets:
 
 === cleanup process
 
-When QtVCP closes, it calls the *`+_hal_cleanup()+`* function
-_on all HAL-ified widgets_.
+When QtVCP closes, it calls the *`+_hal_cleanup()+`* function _on all HAL-ified widgets_.
 
-The base class creates an empty `+_hal_cleanup()+` function, which can
-be redefined in the custom widget subclass.
+The base class creates an empty `+_hal_cleanup()+` function, which can be redefined in the custom widget subclass.
 
 This can be used to do such things as record preferences, etc.
 
-This function is not called when the Qt Designer editor displays the
-widgets.
+This function is not called when the Qt Designer editor displays the widgets.
 
 == Custom HAL Widgets
 
@@ -127,8 +114,7 @@ In this case we need access to:
 <3> QtVCP's widget `baseclass` 's *`_HalSensitiveBase`* for _automatic
     HAL pin setup_ and to _disable/enable the widget_ (also known as
     input sensitivity). +
-    There is also `_HalToggleBase`, and `_HalScaleBase` functions
-    available in the library.`_HalToggleBase`, and `_HalScaleBase`
+    There is also `_HalToggleBase`, and `_HalScaleBase` functions available in the library.`_HalToggleBase`, and `_HalScaleBase`.
 //TODO explain `_HalToggleBase` and `_HalScaleBase` too
 
 .In the 'WIDGET' section
@@ -169,14 +155,11 @@ Line by Line:
 
 == Custom Controller Widgets Using `STATUS`
 
-Widget that interact with LinuxCNC's controller are only a little more
-complicated and they require some _extra libraries_.
+Widget that interact with LinuxCNC's controller are only a little more complicated and they require some _extra libraries_.
 
-In this cut down example we will add properties that can be changed in
-Qt Designer.
+In this cut down example we will add properties that can be changed in Qt Designer.
 
-This LED indicator widget will respond to selectable LinuxCNC controller
-states.
+This LED indicator widget will respond to selectable LinuxCNC controller states.
 
 //TODO Link external file for code block content, or as a linked asset to
 //  strip the looong listing as it is detailed chunk by chunk beneath ?
@@ -293,11 +276,9 @@ STATUS = Status()
 ----
 
 Typically we instantiated the library _outside of the widget class_ so
-that the reference to it is *global* - meaning you don't need to use
-`self.` in front of it.
+that the reference to it is *global* - meaning you don't need to use `self.` in front of it.
 
-By convention we use _all capital_ letters in the name for global
-references.
+By convention we use _all capital_ letters in the name for global references.
 
 === In The 'Custom Widget Class Definition' Section
 
@@ -316,13 +297,10 @@ class StateLed(LED):                            # <1>
         self.invert_state = False
 ----
 
-<1> Defines the *name* _of our custom widget_ and what other _class it
-    inherits from_. +
-    In this case we inherit `LED` - a QtVCP widget that represents a
-    status light.
+<1> Defines the *name* _of our custom widget_ and what other _class it inherits from_. +
+    In this case we inherit `LED` - a QtVCP widget that represents a status light.
 <2> Typical of most widgets - called when the widget is first made.
-<3> Typical of most widgets - calls the parent (super) widget
-    initialization code.
+<3> Typical of most widgets - calls the parent (super) widget initialization code.
 +
 Then we set some attributes:
 
@@ -343,22 +321,18 @@ The other attributes are for the selectable options of our widget.
             STATUS.connect('state-off', lambda w:self._flip_state(False))
 ----
 
-This function connects `STATUS` (LinuxCNC status message library) to our
-widget so that the LED will on or off based on the selected state of the
-controller.
+This function connects `STATUS` (LinuxCNC status message library) to our widget,
+so that the LED will on or off based on the selected state of the controller.
 
 We have two states we can choose from `is_estopped` or `is_on`. +
-Depending on which is active our widget get connected to the appropriate
-STATUS messages.
+Depending on which is active our widget get connected to the appropriate STATUS messages.
 
 *`+_hal_init()+`* is _called on each widget that inherits_ `+_HalWidgetBase+`,
 when QtVCP first builds the screen. +
-You might wonder why it's called on this widget since we didn't have
-`+_HalWidgetBase+` in our class definition (`class Lcnc_State_Led(Lcnc_Led):`) -
+You might wonder why it's called on this widget since we didn't have `+_HalWidgetBase+` in our class definition (`class Lcnc_State_Led(Lcnc_Led):`) -
 it's called because `Lcnc_Led` inherits `+_HalWidgetBase+`.
 
-In this function you have access to some extra information (though we
-don't use them in this example):
+In this function you have access to some extra information (though we don't use them in this example):
 
 *`self.HAL_GCOMP`*:: the _HAL component_ instance
 *`self.HAL_NAME`*:: This _widget's name_ as a string
@@ -368,28 +342,23 @@ don't use them in this example):
 *`self.PREFS_`*:: the _instance of an optional preference file_
 *`self.SETTINGS_`*:: the `Qsettings` _object_
 
-We could use this information to create HAL pins or look up image paths
-etc.
+We could use this information to create HAL pins or look up image paths etc.
 
 [source,python]
 ----
-            STATUS.connect('state-estop', lambda w:self._flip_state(True))
+STATUS.connect('state-estop', lambda w:self._flip_state(True))
 ----
 
 Lets look at this line more closely:
 
 * `STATUS` is very common theme is widget building. +
-  `STATUS` uses `GObject` message system to send messages to widgets
-  that register to it. +
+  `STATUS` uses `GObject` message system to send messages to widgets that register to it. +
   This line is the registering process.
-* `state-estop` is the message we wish to listen for and act on. There
-  are many messages available.
-* `lambda w:self._flip_state(True)` is what happens when the message is
-  caught. +
-  The lambda function accepts the widget instance (`w`) that GObject sends
-  it and then calls the function `self._flip_state(True)`. +
-  Lambda was used to strip the (`w`) object before calling the
-  `self._flip_state` function. +
+* `state-estop` is the message we wish to listen for and act on.
+  There are many messages available.
+* `lambda w:self._flip_state(True)` is what happens when the message is caught. +
+  The lambda function accepts the widget instance (`w`) that GObject sends it and then calls the function `self._flip_state(True)`. +
+  Lambda was used to strip the (`w`) object before calling the `self._flip_state` function. +
   It also allowed use to send `self._flip_state()` the True state.
 
 [source,python]
@@ -594,8 +563,7 @@ It's possible to *have widgets restyled when events change*.
 You must explicitly _"polish" the widget_ to have PyQt redo the style. +
 This is a relatively expensive function so should be used sparingly.
 
-This example sets an `isHomed` property based on LinuxCNC's homed
-state and in turn uses it to change stylesheet properties:
+This example sets an `isHomed` property based on LinuxCNC's homed state and in turn uses it to change stylesheet properties:
 
 .This example will set the property isHomed based on LinuxCNC's homed state.
 [source,python]
@@ -633,10 +601,8 @@ class HomeLabel(QLabel, _HalWidgetBase):
 
 Here is a sample stylesheet to change text color based on home state.
 
-In this case any widget based on the HomeLabel widget above will change
-text color. +
-You would usually pick specific widgets using
-`HomeLabel #specific_widget_name[homed=true]`:
+In this case any widget based on the HomeLabel widget above will change text color. +
+You would usually pick specific widgets using `HomeLabel #specific_widget_name[homed=true]`:
 
 [source,{css}]
 ----
@@ -681,8 +647,7 @@ We must _register our custom widget_ for Qt Designer to use them. +
 
 Here are a typical samples. +
 They would need to be added to `qtvcp/plugins/` +
-Then `qtvcp/plugins/qtvcp_plugin.py` would need to be adjusted to
-_import_ them.
+Then `qtvcp/plugins/qtvcp_plugin.py` would need to be adjusted to _import_ them.
 
 //FIXME split samples below in independent py files and simply link them
 //      as they're not documented, or possibly include them if we really
@@ -780,8 +745,7 @@ class SystemToolButtonPlugin(QPyDesignerCustomWidgetPlugin):
 
 === Making a plugin with a MenuEntry dialog box
 
-It possible to add an entry to the dialog that pops up when you right
-click the widget in the layout.
+It possible to add an entry to the dialog that pops up when you right click the widget in the layout.
 
 This can do things such as selecting options in a more convenient way.
 

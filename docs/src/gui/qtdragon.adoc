@@ -45,7 +45,7 @@ QtDragon_hd is a similar design as QtDragon but modified to utilize the extra
 space of modern larger monitors.
 There are some small differences in layout and utility.
 
-QtDragon_hd has a resolution of 1920x1056 and is not realizable.
+QtDragon_hd has a resolution of 1920x1056 and is not resizeable.
 It will work in window mode on any monitor with higher resolution but not on
 monitors with lower resolution.
 

@@ -144,7 +144,7 @@ static void hm2_write(void *void_hm2, long period) {
     hm2_stepgen_prepare_tram_write(hm2, period);
     hm2_sserial_prepare_tram_write(hm2, period);
     hm2_bspi_prepare_tram_write(hm2, period);
-    hm2_ssr_prepare_tram_write(hm2);    
+    hm2_ssr_prepare_tram_write(hm2);
     hm2_outm_prepare_tram_write(hm2);
     //UARTS need to be explicitly handled by an external component
     hm2_tram_write(hm2);
@@ -1061,7 +1061,7 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
             case HM2_GTAG_ONESHOT:
                 md_accepted = hm2_oneshot_parse_md(hm2, md_index);
                 break;
-  
+
           case HM2_GTAG_RCPWMGEN:
                 md_accepted = hm2_rcpwmgen_parse_md(hm2, md_index);
                 break;

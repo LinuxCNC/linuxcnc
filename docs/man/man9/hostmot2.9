@@ -9,20 +9,16 @@ hostmot2 is loaded with no parameters unless debugging is required.
 .B loadrt hostmot2 [debug_idrom=\fIN\fB] [debug_module_descriptors=\fIN\fB] [debug_pin_descriptors=\fIN\fB] [debug_modules=\fIN\fB]
 .TP
 \fBdebug_idrom\fR [default: 0]
-Developer/debug use only!  Enable debug logging of the HostMot2
-IDROM header.
+Developer/debug use only!  Enable debug logging of the HostMot2 IDROM header.
 .TP
 \fBdebug_module_descriptors\fR [default: 0]
-Developer/debug use only!  Enable debug logging of the HostMot2
-Module Descriptors.
+Developer/debug use only!  Enables debug logging of the HostMot2 Module Descriptors.
 .TP
 \fBdebug_pin_descriptors\fR [default: 0]
-Developer/debug use only!  Enable debug logging of the HostMot2
-Pin Descriptors.
+Developer/debug use only!  Enables debug logging of the HostMot2 Pin Descriptors.
 .TP
 \fBdebug_modules\fR [default: 0]
-Developer/debug use only!  Enable debug logging of the HostMot2
-Modules used.
+Developer/debug use only!  Enables debug logging of the HostMot2 Modules used.
 .TP
 \fBuse_serial_numbers\fR [default: 0]
 When creating HAL pins for smart-serial devices name the pins by the board serial
@@ -267,7 +263,7 @@ Pins:
 (float, in) hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.dpll.NN.timer\-us
 This pin sets the triggering offset of the associated timer. There are 4 timers
 numbered 01 to 04, represented by the NN digits in the pin name.  The units are
-micro-seconds.  Generally the value for reads will be negative, and positive for
+microseconds (µs).  Generally the value for reads will be negative, and positive for
 writes so that input data is sampled prior to the main hostmot read  and output data
 is written some time after the main hostmot2 read.
 .
@@ -516,17 +512,15 @@ format string for each channel specified in the loadrt command line.
 A typical format string might be
  \fBssi_chan_0=error%1bposition%24g\fR.
 
-This would interpret the LSB of the bit-stream as a bit-type pin named "error"
-and the next 24 bits as a Gray-coded encoder counter. The encoder-related HAL
-pins would all begin with "position".
+This would interpret the LSB of the bit-stream as a bit-type pin named "error" and the next 24 bits as a Gray-coded encoder counter.
+The encoder-related HAL pins would all begin with "position".
 
-There should be no spaces in the format string, as this is used as a delimiter
-by the low-level code.
+There should be no spaces in the format string, as this is used as a delimiter by the low-level code.
 
 The format consists of a string of alphanumeric characters that will form the
 HAL pin names, followed by a % symbol, a bit-count and a data type. All bits
-in the packet must be defined, even if they are not used. There is a limit of
-64 bits in total.
+in the packet must be defined, even if they are not used.
+There is a limit of 64 bits in total.
 
 The valid format characters and the pins they create are:
 .TP
@@ -584,9 +578,8 @@ the behaviour with multiple such channels will be undefined.
 l: (Split encoder, low-order bits)
 Low order bits (see "h")
 .TP
-g: (Gray-code). This is a modifier that indicates that the following
-format string is gray-code encoded. This is only valid for encoders (e, h l) and
-unsigned (u) data types.
+g: (Gray-code). This is a modifier that indicates that the following format string is gray-code encoded.
+This is only valid for encoders (e, h l) and unsigned (u) data types.
 .TP
 m: (Multi-turn). This is a modifier that indicates that the following
 format string is a multi-turn encoder. This is only valid for encoders (e, h l).
@@ -935,10 +928,10 @@ Sets the dead-time between the high-side driver turning off and
 the low-side driver turning on and vice-versa. Deadtime is subtracted from on time
 and added to off time symmetrically. For example with 20 kHz PWM (50 uSec period),
 50% duty cycle and zero dead time, the PWM and NPWM outputs would be square
-waves (NPWM being inverted from PWM) with high times of 25 uS. With the same
-settings but 1 uS of deadtime, the PWM and NPWM outputs would both have high
-times of 23 uS (25 \- (2X 1 uS), 1 uS per edge).
-The value is specified in nS and defaults to a rather conservative 5000nS. Setting
+waves (NPWM being inverted from PWM) with high times of 25 µs. With the same
+settings but 1 µs of deadtime, the PWM and NPWM outputs would both have high
+times of 23 µs (25 \- (2X 1 µs), 1 µs per edge).
+The value is specified in nanoseconds (ns) and defaults to a rather conservative 5000 ns. Setting
 this parameter to too low a value could be both expensive and dangerous as if both
 gates are open at the same time there is effectively a short circuit across the
 supply.
@@ -1020,32 +1013,26 @@ Trigger sources are:
 
 .TP
 (bit rw) trigger_on_rise1,trigger_on_rise2
-When true,trigger timer1,timer2 respectively on the
-rising edge of the trigger source.
+When true, triggers timer1, timer2 respectively on the rising edge of the trigger source.
 
 .TP
 (bit rw) trigger_on_fall1,trigger_on_fall2
-When true, trigger timer1,timer2 respectively on the
-falling edge of the trigger source.
+When true, triggers timer1,timer2 respectively on the falling edge of the trigger source.
 
 .TP
 (bit rw) retriggerable1,retriggerable2
-When true, the associated timer is retriggerable, meaning
-the timer will reset to full time on a trigger event
-even during the output pulse period.
-When false the timer is not retriggerable, meaning
-it will ignore trigger events during the output 
-pulse period.
+When true, the associated timer is retriggerable,
+meaning the timer will reset to full time on a trigger event even during the output pulse period.
+When false the timer is not retriggerable,
+meaning it will ignore trigger events during the output pulse period.
  
 .TP
 (bit rw) enable1,enable2
-trigger enable for timer1 and timer2 respectively
-True to enable.
+trigger enable for timer1 and timer2 respectively True to enable.
 
 .TP
 (bit rw) reset1,reset2
-If true, resets timer1,timer2 respectively,
-aborting any pulse in progress.
+If true, resets timer1,timer2 respectively, aborting any pulse in progress.
 
 .TP
 (bit ro) out1,out2
@@ -1058,51 +1045,46 @@ These monitor the filtered inputs.
 
 
 .SS rcpwmgen
-The rcpwmgen is a simple PWM generator optimized for use with standard RC servos
-that use pulse width to determine position.
-rcpwmgens have names like "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.rcpwmgen.\fI<Instance>\fR"
-where <Instance> is a 2-digit number. There will be num_rcpwmgens instances,
-starting at 00. Each instance allocates a single output pin. Unlike the standard PWM generator,
-the rcpwmgen output is specified in width rather than duty cycle so the pulse width is
-independent of the operating frequency. Resolution is approximately 1/2000 for standard
-1 to 2 mS range RC servos.
+The rcpwmgen is a simple PWM generator optimized for use with standard RC servos that use pulse width to determine position.
+rcpwmgens have names like "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.rcpwmgen.\fI<Instance>\fR" where <Instance> is a 2-digit number.
+There will be num_rcpwmgens instances, starting at 00.
+Each instance allocates a single output pin. Unlike the standard PWM generator,
+the rcpwmgen output is specified in width rather than duty cycle so the pulse width is independent of the operating frequency.
+Resolution is approximately 1/2000 for standard 1 to 2 ms range RC servos.
 
 Pins:
 
 .TP
 (float rw) rate
-Sets the master  RC PWM frequency. Maximum is 1 kHz, minimum
-is .01 Hz. Defaults to 50 Hz.
+Sets the master  RC PWM frequency. Maximum is 1 kHz, minimum is .01 Hz. Defaults to 50 Hz.
 
 .TP
 (float rw) width
-Sets the per channel pulse width in (mS/scale)
+Sets the per channel pulse width in (ms/scale)
 
 .TP
 (float rw) offset
-Sets the per channel pulse width offset in mS. This would be set to 1.5
-mS for 1-2 mS servos for a 0 center position.
+Sets the per channel pulse width offset in ms.
+This would be set to 1.5 ms for 1-2 ms servos for a 0 center position.
 
 .TP
 (float rw) scale
 Sets the per channel pulse width scaling, for example, setting the scale to 90
-and the offset to 1.5 mS would result in a position range of +-45 degrees
-scale in degrees for 1-2 mS servos with a full motion range of 90 degrees
+and the offset to 1.5 ms would result in a position range of +-45 degrees
+scale in degrees for 1-2 ms servos with a full motion range of 90 degrees
 
 .SS stepgen
 
 stepgens have names like
 "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.stepgen.\fI<Instance>\fR".
-"Instance" is a two-digit number that corresponds to the HostMot2 stepgen
-instance number.  There are "num_stepgens" instances, starting with 00.
+"Instance" is a two-digit number that corresponds to the HostMot2 stepgen instance number.
+There are "num_stepgens" instances, starting with 00.
 
-So, for example, the HAL pin that has the current position
-feedback from the first stepgen of the second 5I22 board is:
-hm2_5i22.1.stepgen.00.position\-fb (this assumes that the firmware in
-that board is configured so that this HAL object is available)
+So, for example, the HAL pin that has the current position feedback from the first stepgen of the second 5I22 board is:
+hm2_5i22.1.stepgen.00.position\-fb (this assumes that the firmware in that board is configured so that this HAL object is available)
 
-Each stepgen uses between 2 and 8 IO pins.  The signals on these pins depends on
-the step_type parameter (described below).
+Each stepgen uses between 2 and 8 IO pins.
+The signals on these pins depends on the step_type parameter (described below).
 
 The stepgen representation is modeled on the stepgen software component.
 Each stepgen instance has the following pins and parameters:
@@ -1111,15 +1093,13 @@ Pins:
 
 .TP
 (float input) position\-cmd
-Target position of stepper motion, in
-arbitrary position units.  This pin is only used when the stepgen is in
-position control mode (control\-type=0).
+Target position of stepper motion, in arbitrary position units.
+This pin is only used when the stepgen is in position control mode (control\-type=0).
 
 .TP
 (float input) velocity\-cmd
-Target velocity of stepper motion, in
-arbitrary position units per second.  This pin is only used when the
-stepgen is in velocity control mode (control\-type=1).
+Target velocity of stepper motion, in arbitrary position units per second.
+This pin is only used when the stepgen is in velocity control mode (control\-type=1).
 
 .TP
 (s32 output) counts
@@ -1128,14 +1108,12 @@ Feedback position in counts (number of steps).
 .TP
 (float output) position\-fb
 Feedback position in scaled position units.
-This is similar to "counts/position_scale", but has finer than
-step resolution.
+This is similar to "counts/position_scale", but has finer than step resolution.
 
 .TP
 (float output) position-latched
 latched-position in scaled position units.
-This is similar to "counts/position_scale", but has finer than
-step resolution.
+This is similar to "counts/position_scale", but has finer than step resolution.
 
 
 .TP
@@ -1146,47 +1124,40 @@ units per second.
 .TP
 (bit input) enable
 This pin enables the step generator instance.
-When True, the stepgen instance works as expected.  When False, no steps
-are generated and velocity\-fb goes immediately to 0.  If the stepgen is
-moving when enable goes False it stops immediately, without obeying the
-maxaccel limit.
+When True, the stepgen instance works as expected.
+When False, no steps are generated and velocity\-fb goes immediately to 0.
+If the stepgen is moving when enable goes False it stops immediately,
+without obeying the maxaccel limit.
 
 .TP
 (bit input) position\-reset
 Resets position to 0 when True.
-Useful for step/dir controlled spindles when switching between
-spindle and joint modes.
+Useful for step/dir controlled spindles when switching between spindle and joint modes.
 
 .TP
 (bit input) control\-type
-Switches between position control mode (0)
-and velocity control mode (1).  Defaults to position control (0).
+Switches between position control mode (0) and velocity control mode (1).
+Defaults to position control (0).
 
 .TP
 (bit in/out) index\-enable
-When this pin is set to True, the step count
-(and therefore also position) are reset to zero on the next stepgen
-index pulse.  At the same time, index\-enable is reset to zero to
-indicate that the pulse has occurred.
+When this pin is set to True, the step count (and therefore also position) are reset to zero on the next stepgen index pulse.
+At the same time, index\-enable is reset to zero to indicate that the pulse has occurred.
 
 .TP
 (bit r/w) index\-invert
-If set to True, the rising edge of the index
-input pin triggers the position clear event (if index\-enable is True).
+If set to True, the rising edge of the index input pin triggers the position clear event (if index\-enable is True).
 If set to False, the falling edge triggers.
 
 .TP
 (bit in/out) probe\-enable
-When this pin is set to True, the step count
-(and therefore also position) are latched on the the next stepgen
-probe active edge.  At the same time, probe\-enable is reset to zero to
-indicate that a latch event has occurred.
+When this pin is set to True, the step count (and therefore also position) are latched on the the next stepgen probe active edge.
+At the same time, probe\-enable is reset to zero to indicate that a latch event has occurred.
 
 .TP
 (bit r/w) probe\-invert
-If set to True, the rising edge of the probe
-input pin triggers the latch event (if probe\-enable is True).  If set
-to False, the falling edge triggers.
+If set to True, the rising edge of the probe input pin triggers the latch event (if probe\-enable is True).
+If set to False, the falling edge triggers.
 
 Parameters:
 
@@ -1197,19 +1168,16 @@ position = counts / position_scale
 
 .TP
 (float r/w) maxvel
-Maximum speed, in position units per second.  If set
-to 0, the driver will always use the maximum possible velocity based
-on the current step timings and position\-scale.  The max velocity will
-change if the step timings or position\-scale changes.  Defaults to 0.
+Maximum speed, in position units per second.
+If set to 0, the driver will always use the maximum possible velocity based on the current step timings and position\-scale.
+The max velocity will change if the step timings or position\-scale changes.  Defaults to 0.
 
 .TP
 (float r/w) maxaccel
-Maximum acceleration, in position units per second
-per second.  Defaults to 1.0.  If set to 0, the driver will not limit its
-acceleration at all - this requires that the position\-cmd or velocity\-cmd
-pin is driven in a way that does not exceed the machine's capabilities.
-This is probably what you want if you are going to be using the LinuxCNC
-trajectory planner to jog or run G-code.
+Maximum acceleration, in position units per second per second.
+Defaults to 1.0.
+If set to 0, the driver will not limit its acceleration at all - this requires that the position\-cmd or velocity\-cmd pin is driven in a way that does not exceed the machine's capabilities.
+This is probably what you want if you are going to be using the LinuxCNC trajectory planner to jog or run G-code.
 
 .TP
 (u32 r/w) steplen
@@ -1217,90 +1185,77 @@ Duration of the step signal, in nanoseconds.
 
 .TP
 (u32 r/w) stepspace
-Minimum interval between step signals, in
-nanoseconds.
+Minimum interval between step signals, in nanoseconds.
 
 .TP
 (u32 r/w) dirsetup
-Minimum duration of stable Direction signal before
-a step begins, in nanoseconds.
+Minimum duration of stable Direction signal before a step begins, in nanoseconds.
 
 .TP
 (u32 r/w) dirhold
-Minimum duration of stable Direction signal after a
-step ends, in nanoseconds.
+Minimum duration of stable Direction signal after a step ends, in nanoseconds.
 
 .TP
 (u32 r/w) step_type
-Output format, like the step_type modparam to the
-software stepgen(9) component.  0 = Step/Dir, 1 = Up/Down, 2 = Quadrature, 3+ =
-table-lookup mode. In this mode the step_type parameter determines how long the
-step sequence is. Additionally the stepgen_width parameter in the loadrt
-config string must be set to suit the number of pins per stepgen required. Any
-stepgen pins above this number will be available for GPIO. This mask defaults
-to 2.
+Output format, like the step_type modparam to the software stepgen(9) component.  0 = Step/Dir, 1 = Up/Down, 2 = Quadrature, 3+ = table-lookup mode.
+In this mode the step_type parameter determines how long the step sequence is.
+Additionally the stepgen_width parameter in the loadrt config string must be set to suit the number of pins per stepgen required.
+Any stepgen pins above this number will be available for GPIO.
+This mask defaults to 2.
 The maximum length is 16.
-Note that Table mode is not enabled in all firmwares but if you see GPIO
-pins between the stepgen instances in the dmesg/log hardware pin list then
-the option may be available.
+Note that Table mode is not enabled in all firmwares but if you see GPIO pins between the stepgen instances in the dmesg/log hardware pin list then the option may be available.
 
-In Quadrature mode (step_type=2), the stepgen outputs one complete Gray
-cycle (00 → 01 → 11 → 10 → 00) for each "step" it takes, so the scale
-must be divided by 4 relative to standard step/dir. In table mode up to
-6 IO pins are individually controlled in an arbitrary sequence up to 16
-phases long.
+In Quadrature mode (step_type=2), the stepgen outputs one complete Gray cycle (00 → 01 → 11 → 10 → 00) for each "step" it takes,
+so the scale must be divided by 4 relative to standard step/dir.
+In table mode up to 6 IO pins are individually controlled in an arbitrary sequence up to 16 phases long.
 
 .TP
 (bit input) swap_step_dir
-This swaps the step and direction outputs on the selected stepgen. This parameter
-is only available if the firmware supports this option.
+This swaps the step and direction outputs on the selected stepgen.
+This parameter is only available if the firmware supports this option.
 
 .TP
 (u32 r/w) table\-data\-N
-There are 4 table\-data\-N parameters, table\-data\-0 to table\-data\-3. These each
-contain 4 bytes corresponding to 4 stages in the step sequence. For example
-table\-data\-0 = 0x00000001 would set stepgen pin 0 (always called "Step" in
-the dmesg output) on the first phase of the step sequence, and table\-data\-4 =
-0x20000000 would set stepgen pin 6 ("Table5Pin" in the dmesg output) on the 16th
-stage of the step sequence.
+There are 4 table\-data\-N parameters, table\-data\-0 to table\-data\-3.
+These each contain 4 bytes corresponding to 4 stages in the step sequence.
+For example table\-data\-0 = 0x00000001 would set stepgen pin 0 (always called "Step" in the dmesg output) on the first phase of the step sequence, and table\-data\-4 =
+0x20000000 would set stepgen pin 6 ("Table5Pin" in the dmesg output) on the 16th stage of the step sequence.
 
 .TP
 (s32 r/w) hm2_XXXX.N.stepgen.timer\-number (default: \-1)
-Sets the hm2dpll timer instance to be used to latch stepgen counts.  A setting
-of \-1 does not latch stepgen counts.  A setting of 0 latches at the same time
-as the main hostmot2 read.  A setting of 1..4 uses a time offset from the main
-hostmot2 read according to the dpll's timer\-us setting.
+Sets the hm2dpll timer instance to be used to latch stepgen counts.
+A setting of \-1 does not latch stepgen counts.
+A setting of 0 latches at the same time as the main hostmot2 read.
+A setting of 1..4 uses a time offset from the main hostmot2 read according to the dpll's timer\-us setting.
 
-Typically, timer\-us should be a negative number with a magnitude larger than
-the largest latency (e.g., \-100 for a system with mediocre latency, \-50 for a
-system with good latency). A negative number specifies latching the specified
-time before the nominal hostmot2 read time.
+Typically, timer\-us should be a negative number with a magnitude larger than the largest latency
+(e.g., \-100 for a system with mediocre latency, \-50 for a system with good latency).
+A negative number specifies latching the specified time before the nominal hostmot2 read time.
 
-If no DPLL module is present in the FPGA firmware, or if the stepgen module
-does not support DPLL, then this pin is not created.
+If no DPLL module is present in the FPGA firmware, or if the stepgen module does not support DPLL,
+then this pin is not created.
 
-When available, this feature should typically be enabled.  Doing so generally
-reduces following errors.
+When available, this feature should typically be enabled.
+Doing so generally reduces following errors.
 
 .SS Smart Serial Interface
 
-The Smart Serial Interface allows up to 32 different devices such as the Mesa
-8i20 2.2 kW 3-phase drive or 7I64 48-way IO cards to be connected to a single
-FPGA card.
+The Smart Serial Interface allows up to 32 different devices,
+such as the Mesa 8I20 2.2&#8239;kW 3-phase drive or 7I64 48-way IO cards,
+to be connected to a single FPGA card.
 The driver auto-detects the connected hardware port, channel and device type.
-Devices can be connected in any order to any active channel of an active port.
+Devices can be connected in any order to any active channel of an active port
 (see the config modparam definition above).
 
 For full details of the smart-serial devices see \fBsserial\fR(9).
 
 .SS BSPI
-The BSPI (Buffered SPI) driver is unusual in that it does not create any HAL
-pins. Instead the driver exports a set of functions that can be used by a sub-driver
-for the attached hardware. Typically these would be written in the "comp"
+The BSPI (Buffered SPI) driver is unusual in that it does not create any HAL pins.
+Instead the driver exports a set of functions that can be used by a sub-driver for the attached hardware.
+Typically, these would be written in the "comp".
 
-pre-processing language: see http://linuxcnc.org/docs/html/hal/comp.html or man
-halcompile for further details. See mesa_7i65(9) and the source of mesa_7i65.comp for
-details of a typical sub-driver.
+pre-processing language: see http://linuxcnc.org/docs/html/hal/comp.html or man halcompile for further details.
+See mesa_7i65(9) and the source of mesa_7i65.comp for details of a typical sub-driver.
 See hm2_bspi_setup_chan(3hm2), hm2_bspi_write_chan(3hm2),
 hm2_tram_add_bspi_frame(3hm2), hm2_allocate_bspi_tram(3hm2),
 hm2_bspi_set_read_function(3hm2) and hm2_bspi_set_write_function(3hm2)
@@ -1312,104 +1267,88 @@ hm2_<board name>.<board index>.bspi.<index>, e.g., hm2_5i23.0.bspi.0.
 
 .SS UART
 The UART driver also does not create any HAL pins, instead it declares two
-simple read/write functions and a setup function to be utilised by user-written
-code.  Typically this would be written in the "comp"
-pre-processing language: see http://linuxcnc.org/docs/html/hal/comp.html or man
-halcompile for further details. See mesa_uart(9) and the source of mesa_uart.comp for
-details of a typical sub-driver.
-See hm2_uart_setup_chan(3hm2), hm2_uart_send(3hm2),
-hm2_uart_read(3hm2) and hm2_uart_setup(3hm2).
+simple read/write functions and a setup function to be utilised by user-written code.
+Typically this would be written in the "comp" pre-processing language:
+see http://linuxcnc.org/docs/html/hal/comp.html or man halcompile for further details.
+See mesa_uart(9) and the source of mesa_uart.comp for details of a typical sub-driver.
+See hm2_uart_setup_chan(3hm2), hm2_uart_send(3hm2), hm2_uart_read(3hm2) and hm2_uart_setup(3hm2).
 
 The names of the available uart channels are printed to standard output during the
-driver loading process and take the form
-hm2_<board name>.<board index>uart.<index>, e.g., hm2_5i23.0.uart.0.
-.SS General Purpose I/O
+driver loading process and take the form hm2_<board name>.<board index>uart.<index>, e.g., hm2_5i23.0.uart.0.
 
-I/O pins on the board which are not used by a module instance are exported
-to HAL as "full" GPIO pins.  Full GPIO pins can be configured at run-time
-to be inputs, outputs, or open drains, and have a HAL interface that
-exposes this flexibility.  IO pins that are owned by an active module
-instance are constrained by the requirements of the owning module,
-and have a restricted HAL interface.
+.SS General Purpose I/O
+I/O pins on the board which are not used by a module instance are exported to HAL as "full" GPIO pins.
+Full GPIO pins can be configured at run-time to be inputs, outputs, or open drains, and have a HAL interface that exposes this flexibility.
+IO pins that are owned by an active module instance are constrained by the requirements of the owning module, and have a restricted HAL interface.
 
 GPIOs have names like "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.gpio.\fI<IONum>\fR".
-IONum is a three-digit number.  The mapping from IONum to connector and
-pin-on-that-connector is written to the syslog when the driver loads,
+IONum is a three-digit number.
+The mapping from IONum to connector and pin-on-that-connector is written to the syslog when the driver loads,
 and it is documented in Mesa's manual for the Anything I/O boards.
 
-So, for example, the HAL pin that has the current inverted input value
-read from GPIO 012 of the second 7I43 board is: hm2_7i43.1.gpio.012.in\-not
-(this assumes that the firmware in that board is configured so that this
-HAL object is available)
+So, for example, the HAL pin that has the current inverted input value read from GPIO 012 of the second 7I43 board is:
+hm2_7i43.1.gpio.012.in\-not
+(this assumes that the firmware in that board is configured so that this HAL object is available).
 
-The HAL parameter that controls whether the last GPIO of the first 5I22
-is an input or an output is: hm2_5i22.0.gpio.095.is_output (this assumes
-that the firmware in that board is configured so that this HAL object
-is available)
+The HAL parameter that controls whether the last GPIO of the first 5I22 is an input or an output is:
+hm2_5i22.0.gpio.095.is_output (this assumes that the firmware in that board is configured so that this HAL object is available).
 
 The hm2 GPIO representation is modeled after the Digital Inputs and
-Digital Outputs described in the Canonical Device Interface (part of
-the HAL General Reference document).  Each GPIO can have the following
-HAL Pins:
+Digital Outputs described in the Canonical Device Interface (part of the HAL General Reference document).
+Each GPIO can have the following HAL Pins:
 
 .TP
 (bit out) in & in_not
-State (normal and inverted) of the hardware
-input pin.  Both full GPIO pins and IO pins used as inputs by active
-module instances have these pins.
+State (normal and inverted) of the hardware input pin.
+Both full GPIO pins and IO pins used as inputs by active module instances have these pins.
 
 .TP
 (bit in) out
-Value to be written (possibly inverted) to the hardware
-output pin.  Only full GPIO pins have this pin.
+Value to be written (possibly inverted) to the hardware output pin.
+Only full GPIO pins have this pin.
 
 .PP
 Each GPIO can have the following Parameters:
 
 .TP
 (bit r/w) is_output
-If set to 0, the GPIO is an input.  The IO pin
-is put in a high-impedance state (weakly pulled high), to be driven by
-other devices.  The logic value on the IO pin is available in the "in" and
-"in_not" HAL pins.  Writes to the "out" HAL pin have no effect.  If this
-parameter is set to 1, the GPIO is an output; its behavior then depends
-on the "is_opendrain" parameter.  Only full GPIO pins have this parameter.
+If set to 0, the GPIO is an input.
+The IO pin is put in a high-impedance state (weakly pulled high), to be driven by other devices.
+The logic value on the IO pin is available in the "in" and "in_not" HAL pins.
+Writes to the "out" HAL pin have no effect.
+If this parameter is set to 1, the GPIO is an output; its behavior then depends on the "is_opendrain" parameter.
+Only full GPIO pins have this parameter.
 
 .TP
 (bit r/w) is_opendrain
-This parameter only has an effect if the
-"is_output" parameter is True.  If this parameter is False, the GPIO
-behaves as a normal output pin: the IO pin on the connector is driven
-to the value specified by the "out" HAL pin (possibly inverted), and the
-value of the "in" and "in_not" HAL pins is undefined.  If this parameter
-is True, the GPIO behaves as an open-drain pin.  Writing 0 to the "out"
-HAL pin drives the IO pin low, writing 1 to the "out" HAL pin puts the
-IO pin in a high-impedance state.  In this high-impedance state the IO
-pin floats (weakly pulled high), and other devices can drive the value;
-the resulting value on the IO pin is available on the "in" and "in_not"
-pins.  Only full GPIO pins and IO pins used as outputs by active module
-instances have this parameter.
+This parameter only has an effect if the "is_output" parameter is True.
+If this parameter is False, the GPIO behaves as a normal output pin:
+The IO pin on the connector is driven to the value specified by the "out" HAL pin (possibly inverted),
+and the value of the "in" and "in_not" HAL pins is undefined. 
+If this parameter is True, the GPIO behaves as an open-drain pin.
+Writing 0 to the "out" HAL pin drives the IO pin low, writing 1 to the "out" HAL pin puts the IO pin in a high-impedance state.
+In this high-impedance state the IO pin floats (weakly pulled high), and other devices can drive the value;
+the resulting value on the IO pin is available on the "in" and "in_not" pins.
+Only full GPIO pins and IO pins used as outputs by active module instances have this parameter.
 
 .TP
 (bit r/w) invert_output
-This parameter only has an effect if the
-"is_output" parameter is True.  If this parameter is True, the output
-value of the GPIO will be the inverse of the value on the "out" HAL pin.
-Only full GPIO pins and IO pins used as outputs by active module instances
-have this parameter.
+This parameter only has an effect if the "is_output" parameter is True.
+If this parameter is True, the output value of the GPIO will be the inverse of the value on the "out" HAL pin.
+Only full GPIO pins and IO pins used as outputs by active module instances have this parameter.
 
 .PP
 When a physical I/O pin is used by a special function, the related
 .BR is_output ", and " is_opendrain
-HAL parameters are aliased to the special function.  For instance, if gpio 1
-is taken over by pwmgen 0's first output, then aliases like
+HAL parameters are aliased to the special function.
+For instance, if gpio 1 is taken over by pwmgen 0's first output, then aliases like
 .B hm2_7i92.0.pwmgen.00.out0.invert_output
 (referring to
 .BR hm2_7i92.0.gpio.001.invert_output )
-will be automatically created.  When more than one GPIO is connected to the
-same special function, an extra .#. is inserted so that the settings for
-each related GPIO can be set separately.  For example, for the firmware
-SV12IM_2X7I48_72, the alias
+will be automatically created.
+When more than one GPIO is connected to the same special function,
+an extra .#. is inserted so that the settings for each related GPIO can be set separately.
+For example, for the firmware SV12IM_2X7I48_72, the alias
 .B hm2_5i20.0.pwmgen.00.0.enable.invert_output
 (referring to
 .BR hm2_5i20.0.gpio.000.invert_output )
@@ -1421,19 +1360,18 @@ are both created.
 
 .SS inm and inmux
 inm/inmuxs are input debouncing modules that support hardware digital filtering of input pins.
-In addition to the input filtering function, the inm/inmux modules support up to 4 simple quadrature
-counters for MPG use. The quadrature inputs for MPG encoders 0 through 3 are inm/inmux pins 0 through 7.
-MPG A,B inputs use the filter time constants programmed for inputs 0..7 Each inm/inmux input pin can have
-a slow or fast filter constant. Filter time constants are specified in units of scan times.
-inms have names like
-"hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.inm.\fI<Instance>\fR".
+In addition to the input filtering function, the inm/inmux modules support up to 4 simple quadrature counters for MPG use.
+The quadrature inputs for MPG encoders 0 through 3 are inm/inmux pins 0 through 7.
+MPG A,B inputs use the filter time constants programmed for inputs 0..7.
+Each inm/inmux input pin can have a slow or fast filter constant.
+Filter time constants are specified in units of scan times.
+inms have names like "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.inm.\fI<Instance>\fR".
 inmuxes have names like "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.inmux.\fI<Instance>\fR".
-"Instance" is a two-digit number that corresponds to the HostMot2 inm or inmux
-instance number.  There are "num_inms" or numx_inmuxs" instances, starting
-with 00.
+"Instance" is a two-digit number that corresponds to the HostMot2 inm or inmux instance number.
+There are "num_inms" or numx_inmuxs" instances, starting with 00.
 
-Each instance reads between 8 and 32 input pins. inm and inmux are identical except
-for pin names and the physical interface.
+Each instance reads between 8 and 32 input pins.
+inm and inmux are identical except for pin names and the physical interface.
 
 
 Pins:
@@ -1465,25 +1403,23 @@ Parameters:
 
 .TP
 (u32 in) scan_rate
-This sets the input scan rate in Hz. Default scan rate is 20 kHz
-(50 µs scan period).
+This sets the input scan rate in Hz. Default scan rate is 20 kHz (50 µs scan period).
 
 .TP
 (u32 in) fast_scans
-This sets the fast time constant for all input pins. This is the time constant
-used when the input-slow pin for the corresponding input is False. The range is 0 to
-63 scan periods and the default value is 5 = 250 µs at the default 20 kHz scan_rate.
+This sets the fast time constant for all input pins.
+This is the time constant used when the input-slow pin for the corresponding input is False.
+The range is 0 to 63 scan periods and the default value is 5 = 250 µs at the default 20 kHz scan_rate.
 
 .TP
 (u32 in) slow_scans
-This sets the slow time constant for all input pins. This is the time constant
-used when the input-slow pin for the corresponding input is True. The range is 0 to 1023
-scan periods and the default value is 500 = 25 ms at the default 20 kHz scan_rate.
+This sets the slow time constant for all input pins.
+This is the time constant used when the input-slow pin for the corresponding input is True.
+The range is 0 to 1023 scan periods and the default value is 500 = 25 ms at the default 20 kHz scan_rate.
 
 .TP
 (bit in) enc0_4xmode, enc1_4xmode, enc2_4xmode, and enc3_4xmode
-These set the MPG encoder operating modes to 4X when True and 1X
-when False.
+These set the MPG encoder operating modes to 4X when True and 1X when False.
 
 .TP
 (u32 out) scan_width
@@ -1491,24 +1427,21 @@ This read only parameter specifies the number of inputs scanned by the module.
 
 
 .SS led
-
 Creates HAL pins for the LEDs on the FPGA board.
 
 Pins:
 
 .TP
 (bit in) CR<NN>
-The pins are numbered from CR01 upwards with the name
-corresponding to the PCB silkscreen. Setting the bit to "True" or 1 lights
-the LED.
+The pins are numbered from CR01 upwards with the name corresponding to the PCB silkscreen. 
+Setting the bit to "True" or 1 lights the LED.
 
 .SS Solid State Relay
 
 SSRs have names like
 "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.ssr.\fI<Instance>\fR".
-"Instance" is a two-digit number that corresponds to the HostMot2 SSR
-instance number.  There are "num_ssrs" instances, starting
-with 00.
+"Instance" is a two-digit number that corresponds to the HostMot2 SSR instance number.
+There are "num_ssrs" instances, starting with 00.
 
 Each instance has a rate control pin and between 1 and 32 output pins.
 
@@ -1517,66 +1450,59 @@ Pins:
 .TP
 (u32 in) rate
 Set the internal frequency of the SSR instance, in Hz (approximate).
-The valid range is 25 kHz to 25 MHz.  Values below the minimum will
-use the minimum, and values above the max will use the max.  1 MHz is a
-typical value, and appropriate for all Mesa cards, and is the default.
+The valid range is 25 kHz to 25 MHz.
+Values below the minimum will use the minimum, and values above the max will use the max.
+1 MHz is a typical value, and appropriate for all Mesa cards, and is the default.
 Set to 0 to disable this SSR instance.
 
 .TP
 (bit in) out-NN
-The state of this SSR instance's NNth output.  Set to 0 to make
-the output pins act like an open switch (no connection), set to 1 to
-make them act like a closed switch.
+The state of this SSR instance's NNth output.
+Set to 0 to make the output pins act like an open switch (no connection), set to 1 to make them act like a closed switch.
 
 .TP
 (bit in) invert-NN
 Inverts the state of this SSR instance's NNth output, defaults to 0.
-When invert-NN is set to 1, SSR output NN is closed when the out-NN
-pin is 0 and open when the out-NN pin is 1.
+When invert-NN is set to 1, SSR output NN is closed when the out-NN pin is 0 and open when the out-NN pin is 1.
 
 .SH OutM Simple output module
 
-OutMs have names like
-"hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.OutM.\fI<Instance>\fR".
-"Instance" is a two-digit number that corresponds to the HostMot2 OutM
-instance number.  There are "num_outms" instances, starting
-with 00.
+OutMs have names like "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.OutM.\fI<Instance>\fR".
+"Instance" is a two-digit number that corresponds to the HostMot2 OutM instance number.
+There are "num_outms" instances, starting with 00.
 
 Each instance has between 1 and 32 output pins.
 
 Pins:
 
-
 .TP
 (bit in) out-NN
-The sets the state of this OutM instance's NNth output. Normally the output
-pin follows the state of this pin but may be inverted by the invert-nn HAL pin.
+The sets the state of this OutM instance's NNth output.
+Normally the output pin follows the state of this pin but may be inverted by the invert-nn HAL pin.
 
 .TP
 (bit in) invert-NN
 Inverts the state of the this OutM instance's NNth output, defaults to 0.
-When invert-NN is set to 1, OutM output NN is high when the out-NN
-pin is 0 and low when the out-NN pin is 1.
+When invert-NN is set to 1, OutM output NN is high when the out-NN pin is 0 and low when the out-NN pin is 1.
 
 .SH xy2mod
 
-The xy2mod is a xy2-100 galvanometer interface. It supports 16 and 18 bit
-data modes and includes parabolic interpolation to provide position updates
-between servo thread invocations.
+The xy2mod is a xy2-100 galvanometer interface.
+It supports 16 and 18 bit data modes and includes parabolic interpolation to provide position updates between servo thread invocations.
 
 .TP
 Pins:
 
 .TP
 (float in) posx_cmd, posy_cmd
-X and Y position commands. Full scale is +-posn_scale
-default full scale (set by posx_scale and posy_scale) is +- 1
+X and Y position commands.
+Full scale is +-posn_scale default full scale (set by posx_scale and posy_scale) is +- 1
 
 .TP
 (float out) posx_fb, posy_fb
-X and Y position feedback. Full scale is +-posN_scale
-default full scale is +- 1. This is feedback from the interpolator
-not the galvanometer.
+X and Y position feedback.
+Full scale is +-posN_scale default full scale is +- 1.
+This is feedback from the interpolator not the galvanometer.
 
 .TP
 (float in) velx_cmd, vely_cmd
@@ -1597,14 +1523,14 @@ default is +- 1.0.
 
 .TP
 (bit in) enable
-when False, output data is 0, all interpolator values are set to 0
-and overflow flags are cleared. Must be True for normal operation.
+when False, output data is 0, all interpolator values are set to 0 and overflow flags are cleared.
+Must be True for normal operation.
 
 .TP
 (u32 in) controlx, controly
-These set the galvanometer control bits. There 3 bits per channel in 16 bit mode but just 1
-control bit in 18 bit mode, so values from 0..7 are valid in 16 bit mode but only 0 and 4
-are valid in 18 bit mode.
+These set the galvanometer control bits.
+There 3 bits per channel in 16 bit mode but just 1 control bit in 18 bit mode,
+so values from 0..7 are valid in 16 bit mode but only 0 and 4 are valid in 18 bit mode.
 
 .TP
 (u32 in) commandx, commandy
@@ -1645,51 +1571,44 @@ If set to -1, post write update is disabled.
 
 .SS Watchdog
 
-The HostMot2 firmware may include a watchdog Module; if it does, the
-hostmot2 driver will use it.  The HAL representation of the watchdog is
-named "hm2_\fB<BoardType>\fR.\fB<BoardNum>\fR.watchdog".
+The HostMot2 firmware may include a watchdog Module; if it does, the hostmot2 driver will use it.
+The HAL representation of the watchdog is named "hm2_\fB<BoardType>\fR.\fB<BoardNum>\fR.watchdog".
 
-The watchdog starts out asleep and inactive.  Once you access the board
-the first time by running the hm2 write() HAL function (see below), the
-watchdog wakes up.  From them on it must be petted periodically or it will
-bite.  Pet the watchdog by running the hm2 write() HAL function.
+The watchdog starts out asleep and inactive.
+Once you access the board the first time by running the hm2 write() HAL function (see below), the watchdog wakes up.
+From them on it must be petted periodically or it will bite.
+Pet the watchdog by running the hm2 write() HAL function.
 
-When the watchdog bites, all the board's I/O pins are disconnected from
-their Module instances and become high-impedance inputs (pulled high),
-and all communication with the board stops.  The state of the HostMot2
-firmware modules is not disturbed (except for the configuration of the
-IO Pins).  Encoder instances keep counting quadrature pulses, and pwm-
-and step-generators keep generating signals (which are *not* relayed to
-the motors, because the IO Pins have become inputs).
+When the watchdog bites,
+all the board's I/O pins are disconnected from their Module instances and become high-impedance inputs (pulled high),
+and all communication with the board stops.
+The state of the HostMot2 firmware modules is not disturbed (except for the configuration of the IO Pins).
+Encoder instances keep counting quadrature pulses,
+and pwm- and step-generators keep generating signals (which are *not* relayed to the motors, because the IO Pins have become inputs).
 
-Resetting the watchdog (by clearing the has_bit pin, see below) resumes
-communication and resets the I/O pins to the configuration chosen at
-load-time.
+Resetting the watchdog (by clearing the has_bit pin, see below) resumes communication and
+resets the I/O pins to the configuration chosen at load-time.
 
-If the firmware includes a watchdog, the following HAL objects will
-be exported:
+If the firmware includes a watchdog, the following HAL objects will be exported:
 
 Pins:
 
 .TP
 (bit in/out) has_bit
-True if the watchdog has bit, False if the watchdog has
-not bit.  If the watchdog has bit and the has_bit bit is True, the user
-can reset it to False to resume operation.
+True if the watchdog has bit, False if the watchdog has not bit.
+If the watchdog has bit and the has_bit bit is True, the user can reset it to False to resume operation.
 
 Parameters:
 
 .TP
 (u32 read/write) timeout_ns
-Watchdog timeout, in nanoseconds.  This is
-initialized to 5,000,000 (5 milliseconds) at module load time.  If more
-than this amount of time passes between calls to the hm2 write()
-function, the watchdog will bite.
-.SS Raw Mode
+Watchdog timeout, in nanoseconds.
+This is initialized to 5,000,000 (5 milliseconds) at module load time.
+If more than this amount of time passes between calls to the hm2 write() function, the watchdog will bite.
 
-If the "enable_raw" config keyword is specified, some extra debugging
-pins are made available in HAL.  The raw mode HAL pin names begin with
-"hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.raw".
+.SS Raw Mode
+If the "enable_raw" config keyword is specified, some extra debugging pins are made available in HAL.
+The raw mode HAL pin names begin with "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.raw".
 
 With Raw mode enabled, a user may peek and poke the firmware from HAL,
 and may dump the internal state of the hostmot2 driver to the syslog.
@@ -1698,18 +1617,15 @@ Pins:
 
 .TP
 (u32 in) read_address
-The bottom 16 bits of this is used as the address
-to read from.
+The bottom 16 bits of this is used as the address to read from.
 
 .TP
 (u32 out) read_data
-Each time the hm2_read() function is called, this
-pin is updated with the value at .read_address.
+Each time the hm2_read() function is called, this pin is updated with the value at .read_address.
 
 .TP
 (u32 in) write_address
-The bottom 16 bits of this is used as the address
-to write to.
+The bottom 16 bits of this is used as the address to write to.
 
 .TP
 (u32 in) write_data
@@ -1717,15 +1633,13 @@ This is the value to write to .write_address.
 
 .TP
 (bit in) write_strobe
-Each time the hm2_write() function is called, this
-pin is examined.  If it is True, then value in .write_data is written
-to the address in .write_address, and .write_strobe is set back to False.
+Each time the hm2_write() function is called, this pin is examined.
+If it is True, then value in .write_data is written to the address in .write_address, and .write_strobe is set back to False.
 
 .TP
 (bit in/out) dump_state
-This pin is normally False.  If it gets set to
-True the hostmot2 driver will write its representation of the board's
-internal state to the syslog, and set the pin back to False.
+This pin is normally False.
+If it gets set to True the hostmot2 driver will write its representation of the board's internal state to the syslog, and set the pin back to False.
 
 .SS Setting up Smart Serial devices
 
@@ -1734,54 +1648,48 @@ See setsserial(9) for the current way to set smart-serial eeprom parameters.
 .SH FUNCTIONS
 .TP
 \fBhm2_\fI<BoardType>\fB.\fI<BoardNum>\fB.read\-request\fR
-On boards with long turn around time for reads (at the time of writing, this
-applies only to ethernet boards), this function sends a read request.  When
-multiple boards are used, this can reduce the servo thread execution time.  In
-this case, the appropriate thread order would be
+On boards with long turn around time for reads (at the time of writing,
+this applies only to ethernet boards), this function sends a read request.
+When multiple boards are used, this can reduce the servo thread execution time.
+In this case, the appropriate thread order would be
 .EX
 addf hm2_7i80.0.read\-request
 addf hm2_7i80.1.read\-request
 addf hm2_7i80.0.read
 addf hm2_7i80.1.read
 .EE
-which causes the read request to be sent to board 1 before waiting for the
-response to the read request to arrive from board 0.
+which causes the read request to be sent to board 1 before waiting for the response to the read request to arrive from board 0.
 .TP
 \fBhm2_\fI<BoardType>\fB.\fI<BoardNum>\fB.read\fR
-This reads the encoder counters, stepgen feedbacks, and GPIO input pins
-from the FPGA.
+This reads the encoder counters, stepgen feedbacks, and GPIO input pins from the FPGA.
 .TP
 \fBhm2_\fI<BoardType>\fB.\fI<BoardNum>\fB.write\fR
-This updates the PWM duty cycles, stepgen rates, and GPIO outputs on
-the FPGA.  Any changes to configuration pins such as stepgen timing,
-GPIO inversions, etc, are also effected by this function.
+This updates the PWM duty cycles, stepgen rates, and GPIO outputs on the FPGA.
+Any changes to configuration pins such as stepgen timing, GPIO inversions, etc., are also effected by this function.
 .TP
 \fBhm2_\fI<BoardType>\fB.\fI<BoardNum>\fB.read_gpio\fR
-Read the GPIO input pins.  Note that the effect of this function is a
-subset of the effect of the .read() function described above.  Normally
-only .read() is used.  The only reason to call this function is if you
-want to do GPIO things in a faster-than-servo thread.  (This function
-is not available on the 7I43 due to limitations of the EPP bus.)
+Read the GPIO input pins.
+Note that the effect of this function is a subset of the effect of the .read() function described above.
+Normally only .read() is used.
+The only reason to call this function is if you want to do GPIO things in a faster-than-servo thread.
+(This function is not available on the 7I43 due to limitations of the EPP bus.)
 .TP
 \fBhm2_\fI<BoardType>\fB.\fI<BoardNum>\fB.write_gpio\fR
-Write the GPIO control registers and output pins.  Note that the effect of
-this function is a subset of the effect of the .write() function described
-above.  Normally only .write() is used.  The only reason to call this
-function is if you want to do GPIO things in a faster-than-servo thread.
-(This function is not available on the 7I43 due to limitations of the
-EPP bus.)
+Write the GPIO control registers and output pins.
+Note that the effect of this function is a subset of the effect of the .write() function described above.
+Normally only .write() is used.
+The only reason to call this function is if you want to do GPIO things in a faster-than-servo thread.
+(This function is not available on the 7I43 due to limitations of the EPP bus.)
 .TP
 \fBhm2_\fI<BoardType>\fB.\fI<BoardNum>\fB.trigger\-encoders\fR
-This function will only appear if the firmware contains a BiSS, Fanuc or SSI
-encoder module and if the firmware does not contain a hm2dpll
+This function will only appear if the firmware contains a BiSS, Fanuc or SSI encoder module and if the firmware does not contain a hm2dpll
 module (qv) or if the modparam contains num_dplls=0.
-This function should be inserted first in the thread so that the encoder data is
-ready when the main \fBhm2_XXXX.NN.read\fR function runs. An error message will
-be printed if the encoder read is not finished in time. It may be possible to
-avoid this by increasing the data rate. If the problem persists and if "stale"
-data is acceptable then the function may be placed later in the thread, allowing
-a full servo cycle for the data to be transferred from the devices. If available
-it is better to use the synchronous hm2dpll triggering function.
+This function should be inserted first in the thread so that the encoder data is ready when the main \fBhm2_\fR\fIXXXX\fR\fB.\fR\fINN\fR\fB.read\fR function runs.
+An error message will be printed if the encoder read is not finished in time.
+It may be possible to avoid this by increasing the data rate.
+If the problem persists and if "stale" data is acceptable then the function may be placed later in the thread,
+allowing a full servo cycle for the data to be transferred from the devices.
+If available it is better to use the synchronous hm2dpll triggering function.
 
 .SH SEE ALSO
 

@@ -92,10 +92,9 @@ see_also """
 
 examples """
 Example simulator configs that demonstrate the moveoff component and a simple gui
-(scripts/moveoff_gui) are located in configs/sim/axis/moveoff. The axis gui is
-used for the demonstrations and the configs can be adapted for other guis like
-touchy and gscreen.  An example with the touchy gui is provided in
-configs/sim/touchy/ngcgui/.
+(scripts/moveoff_gui) are located in configs/sim/axis/moveoff. The AXIS GUI is
+used for the demonstrations and the configs can be adapted for other GUIs like
+Touchy and Gscreen.  An example with the Touchy GUI is provided in configs/sim/touchy/ngcgui/.
 
 """;
 

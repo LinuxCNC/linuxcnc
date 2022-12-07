@@ -54,7 +54,6 @@ class HandlerClass:
                     except Exception as e:
                         print('Error with cam_align size setting:',self.w.USEROPTIONS_[num])
 
-
                 elif 'rotincr=' in self.w.USEROPTIONS_[num]:
                     try:
                         strg = self.w.USEROPTIONS_[num].strip('rotincr=')

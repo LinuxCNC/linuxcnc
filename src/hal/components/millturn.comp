@@ -28,10 +28,10 @@ switchable kinematics in particular see the switchkins document
 chapter (docs/src/motion/switchkins.txt)
 
 """;
-// The halcompile utility requires a pin definition but
-// the dummy pin is not accessible in kinematics functions.
-// Use the *_setup() function for actual pins and params.
-pin out bit dummy=1;
+// The fpin pin is not accessible in kinematics functions.
+// Use the *_setup() function for pins and params used by kinematics.
+pin out s32 fpin=0"pin to demonstrate use of a conventional (non-kinematics) function fdemo";
+function fdemo;
 license "GPL";
 author "David Mueller";
 ;;
@@ -52,13 +52,24 @@ static struct haldata {
   hal_bit_t   *kinstype_is_1;
 } *haldata;
 
+FUNCTION(fdemo) {
+   // This function can be added to a thread (addf) for
+   // purposes not related to the kinematics functions.
+   if (fpin == 0) {
+       rtapi_print("fdemo function added to thread\n");
+   }
+   fpin++;
+}
+
 static int millturn_setup(void) {
 #define HAL_PREFIX "millturn"
     int res=0;
-    int comp_id;
-    // this name must be different than the component name:
-    comp_id = hal_init("millturndata");
+
+    // inherit comp_id from rtapi_main()
     if (comp_id < 0) goto error;
+    // set unready to allow creation of pins
+    if (hal_set_unready(comp_id)) goto error;
+
     haldata = hal_malloc(sizeof(struct haldata));
     if (!haldata) goto error;
 
@@ -133,7 +144,7 @@ static bool is_setup=0;
            //       joint values in preview prior to homing
 } // kinematicsType()
 
-static bool is_homed=0;
+static bool is_ready=0;
 int kinematicsForward(const double *j,
                       EmcPose * pos,
                       const KINEMATICS_FORWARD_FLAGS * fflags,
@@ -163,9 +174,9 @@ int kinematicsForward(const double *j,
     pos->v = 0;
     pos->w = 0;
 
-    if (*haldata->in && !is_homed && !gave_msg) {
+    if (*haldata->in && !is_ready && !gave_msg) {
        rtapi_print_msg(RTAPI_MSG_ERR,
-                       "%s in pin not echoed until homed\n",
+                       "%s the 'in' pin not echoed until Inverse called\n",
                       __FILE__);
        gave_msg=1;
     }
@@ -177,7 +188,7 @@ int kinematicsInverse(const EmcPose * pos,
                       const KINEMATICS_INVERSE_FLAGS * iflags,
                       KINEMATICS_FORWARD_FLAGS * fflags)
 {
-    is_homed = 1; // Inverse is not called until homed
+    is_ready = 1; // Inverse is not called until homed for KINEMATICS_BOTH
 
     // Update the kinematic joints specified by the
     // [KINS]JOINTS setting (4 required for this template).
