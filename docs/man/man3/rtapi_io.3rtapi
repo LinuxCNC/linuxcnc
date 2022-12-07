@@ -38,6 +38,10 @@ unsigned void rtapi_outb(unsigned char value, unsigned short int port);
 .HP
 unsigned void rtapi_outw(unsigned short value, unsigned short int port);
 .HP
+unsigned void rtapi_inl(unsigned int value, unsigned short int port);
+.HP
+int rtapi_ioperm(unsigned long from, unsigned long num, int turn_on);
+.HP
 unsigned void rtapi_outl(unsigned int value, unsigned short int port);
 
 .SH DESCRIPTION
@@ -47,7 +51,8 @@ underlying kernel functionality, if available.
 In userspace, or in kernels where the underlying functionality is not provided
 by a kernel, generally another implementation--possibly with reduced
 functionality--is provided.  (For example, the userspace implementation for
-rtapi_device_register always succeeds)
+rtapi_device_register and the kernel space implementation of rtapi_ioperm always
+succeeds)
 .SH REALTIME CONSIDERATIONS
 Call from init/cleanup code and from realtime tasks.  These functions will
 cause illegal instruction exceptions in userspace components, as well as in
