@@ -795,54 +795,11 @@ if test "$BUILD_GTK" = "yes"; then
   fi
 fi
 
-AC_SUBST(HAVE_GNOMEPRINT)
 AC_SUBST(GTK_VER)
 AC_SUBST(GTK_LIBS)
 AC_SUBST(GTK_CFLAGS)
 AC_SUBST(GLIB_LIBS)
 AC_SUBST(GLIB_CFLAGS)
-
-AC_ARG_ENABLE(gtk2,
-    AS_HELP_STRING(
-        [--disable-gtk2],
-        [Disable the parts of LinuxCNC that depend on GTK2. Ónly needed for classicladder)]
-    ),
-    [
-	case "$enableval" in
-	Y*|y*)
-	    BUILD_GTK2=yes ;;
-	*)
-	    BUILD_GTK2=no ;;
-	esac
-    ],
-    [BUILD_GTK2=yes])
-
-if test "$BUILD_GTK2" = "yes"; then
-  AC_MSG_CHECKING([for GTK 2.4.0 or above])
-  if pkg-config gtk+-2.0 --atleast-version 2.4.0 >/dev/null 2>&1; then
-    GTK2_VER=`pkg-config gtk+-2.0 --modversion`
-    AC_MSG_RESULT(yes - $GTK2_VER)
-    GTK2_CFLAGS=`pkg-config gtk+-2.0 --cflags`
-    GTK2_LIBS=`pkg-config gtk+-2.0 --libs`
-    AC_MSG_CHECKING(for libgnomeprintui-2.2)
-    if pkg-config --exists libgnomeprintui-2.2; then
-      AC_MSG_RESULT(yes)
-      GTK2_CFLAGS="$GTK2_CFLAGS `pkg-config --cflags libgnomeprintui-2.2`"
-      GTK2_LIBS="$GTK2_LIBS `pkg-config --libs libgnomeprintui-2.2`"
-      HAVE_GNOMEPRINT=yes
-    else
-      AC_MSG_RESULT(no -- printing from classicladder will not be possible)
-      HAVE_GNOMEPRINT=
-    fi
-  else
-    AC_MSG_RESULT(no)
-    AC_MSG_ERROR([GTK2 missing.  Install with "sudo apt install libgtk2.0-dev" or specify --disable-gtk2 to skip building classicladder])
-  fi
-fi
-
-AC_SUBST(GTK2_VER)
-AC_SUBST(GTK2_LIBS)
-AC_SUBST(GTK2_CFLAGS)
 
 ##############################################################################
 # Subsection 3.6 - check for utility programs needed to build and run EMC    #

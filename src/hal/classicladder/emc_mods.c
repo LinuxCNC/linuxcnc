@@ -38,12 +38,12 @@
 // This function is a development of Jeff's original work for ver 7.100
 // it converts variables or symbols to HAL signal names (if present)
 
-// It is called from the GetElementPropertiesForStatusBar function in edit.c 
+// It is called from the GetElementPropertiesForStatusBar function in edit.c
 // it checks to see if the VarsNameParam is a symbol, if it is, converts it to a variable name
-// if Variable is B or W then exports that it is a memory variable 
+// if Variable is B or W then exports that it is a memory variable
 //also checks to see if in the range of max number of word variables loaded by realtime
-// if not I, Q, QW, or IW  then returns an error message 
-// then checks for what the pinname would be if it is a I, Q, IW or QW  variable 
+// if not I, Q, QW, or IW  then returns an error message
+// then checks for what the pinname would be if it is a I, Q, IW or QW  variable
 // (these are the only variables that can connect to the outside world)
 // if I or Q checks to see it is really QW or QI then checks
 // if in the range of number of HAL pins loaded by realtime module
@@ -51,14 +51,17 @@
 // if there is a signal returns that name with an arrow to show if the signal is coming in or going out
 // if there is no signal connected returns that fact
 // anything else should return an error
-// edit.c uses this function 
+// edit.c uses this function
 // Chris Morley NOV 08
 
 
-char * ConvVarNameToHalSigName( char * VarNameParam ) 
+char * ConvVarNameToHalSigName(char * VarNameParam)
 {
     if( (VarNameParam[0]=='\0') ||  (VarNameParam[0]==' ')) {return _("Error blank symbol name");}
     if( VarNameParam[0] != '%') {VarNameParam= ConvSymbolToVarName(VarNameParam);}
+    // We need to test for 'NULL', since ConvSymbolToVarName()
+    // returns NULL, if no symbols is found.
+    if( VarNameParam == NULL) {return _("Error unknown symbol name");}
     if( VarNameParam[0] == '%'){
         char pin_name[100] = {0};
         int arrowside=0;
@@ -159,7 +162,7 @@ char * ConvVarNameToHalSigName( char * VarNameParam )
 // ultimately so we can check for a HAL signal name
 // It finds the first Variable or symbol name
 // sends that to ConvVarNameToHalSigName() which returns status or
-// name of a HAL signal connected .
+// name of a HAL signal connected.
 // then we piece together the signal name, first variable/symbolname
 // and  expression so it can be returned to be printed in the status bar
 // Edit.c uses this function
@@ -167,168 +170,167 @@ char * ConvVarNameToHalSigName( char * VarNameParam )
 
 char * FirstVariableInArithm(char * Expr)
 {
-		static char Buffer[100];
-		static char Tempbuf[100];
-		char * Ptr = Expr;
-		int i;
-		Buffer[0] = '\0';
+    static char Buffer[100];
+    static char Tempbuf[100];
+    char * Ptr = Expr;
+    int i;
+    Buffer[0] = '\0';
 
-	if (Expr[0]=='\0' || Expr[0]=='#')
-		return _("No expression");
-	
-//parse expression till we find a symbol that marks the end of a variable or symbol name , or find the end of expression
+    if (Expr[0] == '\0' || Expr[0] == '#')
+        return _("No expression");
 
-	for (i=0;i<100;i++)
-	{
+    // parse expression till we find a symbol that marks the end of a variable
+    // or symbol name, or find the end of expression.
 
-		switch (Ptr[i])
-		{
-			case ':' :
-			case '=' :
-			case '\0':
-			case '&' :
-			case '!' :
-			case '|' :
-			case '[' :
-			case '(' :
-
-			snprintf(Buffer, i+1, "%s", Expr);
-			snprintf(Tempbuf, 100, _(" %s (for %s)  Exprsn~ %s"),ConvVarNameToHalSigName(Buffer),Buffer,Expr);
-			return Tempbuf;
-			break;
-
-			default:;
-		}
-	}
-	return _("first var. expression error");
+    for (i = 0; i < 100; i++) {
+        switch (Ptr[i]) {
+            case ':' :
+            case '=' :
+            case '\0':
+            case '&' :
+            case '!' :
+            case '|' :
+            case '[' :
+            case '(' :
+                snprintf(Buffer, i + 1, "%s", Expr);
+                snprintf(Tempbuf, 100, _(" %s (for %s)  Exprsn~ %s"), ConvVarNameToHalSigName(Buffer), Buffer, Expr);
+                return Tempbuf;
+            default:;
+        }
+    }
+    return _("first var. expression error");
 }
 
-//auto assignment of names for symbols of s32in,s32out, bitin 
-//and bitout if not already assigned a name
-// you must assign s32in before s32out unless there are no s32in
-void SymbolsAutoAssign (void)
+// Auto assignment of names for symbols of s32in, s32out, bitin and bitout
+// if not already assigned a name.
+// You must assign s32in before s32out unless there are no s32in
+void SymbolsAutoAssign(void)
 {
-       
-	enum pinnames
-		{BITINS=0,BITOUTS,BITS,WORDS,S32INS,S32OUTS,FLOATINS,FLOATOUTS,TIMERS,IEC_TIMERS,MONOS,COUNTERS,ERRORS};
-#define NUMVARTYPES 13
-	int scansymb,found = FALSE,i,v,numofvariable;
-	char Buffer[30],SymbolBuf[5],CommentBuf[40]="";
-	
-        for (v=0;v<NUMVARTYPES;v++)
-        {
-	        switch(v)
-	        {
-			case BITINS:
-                                    numofvariable= NBR_PHYS_INPUTS ;
-                                    rtapi_strxcpy(SymbolBuf,"I");
-                                    break;
-			case BITOUTS:
-                                    numofvariable= NBR_PHYS_OUTPUTS;
-                                    rtapi_strxcpy(SymbolBuf,"Q");
-                                    break;
-                        case BITS:
-                                    numofvariable= NBR_BITS;
-                                    rtapi_strxcpy(SymbolBuf,"B");
-                                    break;
-                        case WORDS:
-                                    numofvariable= NBR_WORDS;
-                                    rtapi_strxcpy(SymbolBuf,"W");
-                                    break;
-			case S32INS:
-                                    numofvariable= NBR_PHYS_WORDS_INPUTS ;
-                                    rtapi_strxcpy(SymbolBuf,"IW");
-                                    break;
-			case S32OUTS:
-                                    numofvariable= NBR_PHYS_WORDS_OUTPUTS;
-                                    rtapi_strxcpy(SymbolBuf,"QW");
-                                    break;
-                        case FLOATINS:
-                                    numofvariable= NBR_PHYS_FLOAT_INPUTS ;
-                                    rtapi_strxcpy(SymbolBuf,"IF");
-                                    break;
-			case FLOATOUTS:
-                                    numofvariable= NBR_PHYS_FLOAT_OUTPUTS;
-                                    rtapi_strxcpy(SymbolBuf,"QF");
-                                    break;
-		        case TIMERS:
-                                    numofvariable= NBR_TIMERS;
-                                    rtapi_strxcpy(SymbolBuf,"T");
-                                    rtapi_strxcpy(CommentBuf,_("Old Timer"));
-                                    break;
-                        case IEC_TIMERS:
-                                    numofvariable= NBR_TIMERS_IEC ;
-                                    rtapi_strxcpy(SymbolBuf,"TM");
-                                    rtapi_strxcpy(CommentBuf,_("New Timer"));
-                                    break;
-                        case MONOS:
-                                    numofvariable= NBR_MONOSTABLES;
-                                    rtapi_strxcpy(SymbolBuf,"M");
-                                    rtapi_strxcpy(CommentBuf,_("One-shot"));
-                                    break;
-			case COUNTERS:
-                                    numofvariable= NBR_COUNTERS;
-                                    rtapi_strxcpy(SymbolBuf,"C");
-                                    rtapi_strxcpy(CommentBuf,_("Counter"));
-                                    break;
-		        case ERRORS:
-                                    numofvariable= NBR_ERROR_BITS;
-                                    rtapi_strxcpy(SymbolBuf,"E");
-                                    rtapi_strxcpy(CommentBuf,_("Error Flag Bit"));
-                                    break;
-			default : 
-                                 rtapi_print_msg(RTAPI_MSG_ERR, _("Cannot auto assign symbol names-wrong variable name"));
-                                 return;
-	        }
-         //printf("symbol-%s number-%i\n",SymbolBuf,v);
-	        for (i=0;i<numofvariable;i++)
-	
-                 {
-   	                  found = FALSE;
-	                //set buffer to variable to check variable name
-    	                rtapi_strxcpy(Buffer,"");
-   	                 snprintf(Buffer, sizeof(Buffer),"%%%s%d",SymbolBuf,i);  
+    enum pinnames {
+        BITINS = 0,
+        BITOUTS,
+        BITS,
+        WORDS,
+        S32INS,
+        S32OUTS,
+        FLOATINS,
+        FLOATOUTS,
+        TIMERS,
+        IEC_TIMERS,
+        MONOS,
+        COUNTERS,
+        ERRORS,
+        NUMVARTYPES
+    };
+    int scansymb, found = FALSE, i, v, numofvariable;
+    char Buffer[30], SymbolBuf[5], CommentBuf[40] = "";
 
-	               // printf("%s\n",Buffer);
-		        scansymb=0;	
-	                // scan all symbol variables
-		        while ( scansymb<NBR_SYMBOLS  ) 
-		                { 
-	                        // check for existing variable/symbol name
-		                if (strcmp(SymbolArray[ scansymb ].VarName, Buffer) == FALSE)
-			                {
-				                found = TRUE ; // already a symbol for this variable
-				                break;// stop looking then
-			                }
-	                        scansymb ++;// check the rest
-	                        }
-	
-	                  scansymb=0;
-                         // this assigns a symbol to an unassigned variable
-                         // while there is no symbol already assigned and we are not at the
-                         // end of the symbol data..
-	                 while ( found == FALSE && scansymb<NBR_SYMBOLS)
-	                      {
-	                            // look for an empty spot...
-		                    if (SymbolArray[ scansymb ].VarName[ 0 ] == '\0')
-		                       { 
-                                           //copy variable name already in Buffer to VarName array
-			                  rtapi_strxcpy( SymbolArray[scansymb].VarName, Buffer ); 
-	
-		                           //put a symbol name (and it's number) in buffer
-		        	          rtapi_strxcpy( SymbolArray[scansymb].Symbol, Buffer );
-	    	        	        //printf("%s\n",Buffer);
-                                        // copy a comment if there is one...
-		        	        rtapi_strxcpy(Buffer,"");
-		        	        size_t ret = snprintf(Buffer, sizeof(Buffer),"%s",CommentBuf);
-					if (ret >= sizeof(Buffer)) snprintf(Buffer, sizeof(Buffer),"<comment too long>");
-		        	        rtapi_strxcpy( SymbolArray[scansymb].Comment, Buffer );
-	
-		       	                 break;// we are done looking
-		                         }	
-		                scansymb ++;// keep looking for empty spot if not done
-	                         }	
+    for (v = 0; v < NUMVARTYPES; v++) {
+        switch(v) {
+        case BITINS:
+            numofvariable = NBR_PHYS_INPUTS ;
+            rtapi_strxcpy(SymbolBuf, "I");
+            break;
+        case BITOUTS:
+            numofvariable = NBR_PHYS_OUTPUTS;
+            rtapi_strxcpy(SymbolBuf, "Q");
+            break;
+        case BITS:
+            numofvariable = NBR_BITS;
+            rtapi_strxcpy(SymbolBuf, "B");
+            break;
+        case WORDS:
+            numofvariable = NBR_WORDS;
+            rtapi_strxcpy(SymbolBuf, "W");
+            break;
+        case S32INS:
+            numofvariable = NBR_PHYS_WORDS_INPUTS ;
+            rtapi_strxcpy(SymbolBuf, "IW");
+            break;
+        case S32OUTS:
+            numofvariable = NBR_PHYS_WORDS_OUTPUTS;
+            rtapi_strxcpy(SymbolBuf, "QW");
+            break;
+        case FLOATINS:
+            numofvariable = NBR_PHYS_FLOAT_INPUTS ;
+            rtapi_strxcpy(SymbolBuf, "IF");
+            break;
+        case FLOATOUTS:
+            numofvariable = NBR_PHYS_FLOAT_OUTPUTS;
+            rtapi_strxcpy(SymbolBuf, "QF");
+            break;
+        case TIMERS:
+            numofvariable = NBR_TIMERS;
+            rtapi_strxcpy(SymbolBuf, "T");
+            rtapi_strxcpy(CommentBuf, _("Old Timer"));
+            break;
+        case IEC_TIMERS:
+            numofvariable = NBR_TIMERS_IEC ;
+            rtapi_strxcpy(SymbolBuf, "TM");
+            rtapi_strxcpy(CommentBuf, _("New Timer"));
+            break;
+        case MONOS:
+            numofvariable = NBR_MONOSTABLES;
+            rtapi_strxcpy(SymbolBuf, "M");
+            rtapi_strxcpy(CommentBuf, _("One-shot"));
+            break;
+        case COUNTERS:
+            numofvariable = NBR_COUNTERS;
+            rtapi_strxcpy(SymbolBuf, "C");
+            rtapi_strxcpy(CommentBuf, _("Counter"));
+            break;
+        case ERRORS:
+            numofvariable = NBR_ERROR_BITS;
+            rtapi_strxcpy(SymbolBuf, "E");
+            rtapi_strxcpy(CommentBuf, _("Error Flag Bit"));
+            break;
+        default :
+            rtapi_print_msg(RTAPI_MSG_ERR, _("Cannot auto assign symbol names-wrong variable name"));
+            return;
+        }
+        //printf("symbol-%s number-%i\n",SymbolBuf,v);
+        for (i = 0; i < numofvariable; i++) {
+            found = FALSE;
+            //set buffer to variable to check variable name
+            rtapi_strxcpy(Buffer, "");
+            snprintf(Buffer, sizeof(Buffer), "%%%s%d", SymbolBuf, i);
+
+            // printf("%s\n",Buffer);
+            scansymb = 0;
+            // scan all symbol variables
+            while (scansymb < NBR_SYMBOLS) {
+                // check for existing variable/symbol name
+                if (strcmp(SymbolArray[scansymb].VarName, Buffer) == FALSE) {
+                    found = TRUE ; // already a symbol for this variable
+                    break; // stop looking then
                 }
-          }
-         return;
+                scansymb++; // check the rest
+            }
+
+            scansymb = 0;
+            // this assigns a symbol to an unassigned variable
+            // while there is no symbol already assigned and we are not at the
+            // end of the symbol data..
+            while (found == FALSE && scansymb < NBR_SYMBOLS) {
+                // look for an empty spot...
+                if (SymbolArray[scansymb].VarName[0] == '\0') {
+                    //copy variable name already in Buffer to VarName array
+                    rtapi_strxcpy(SymbolArray[scansymb].VarName, Buffer );
+
+                    //put a symbol name (and it's number) in buffer
+                    rtapi_strxcpy(SymbolArray[scansymb].Symbol, Buffer );
+                    //printf("%s\n",Buffer);
+                    // copy a comment if there is one...
+                    rtapi_strxcpy(Buffer, "");
+                    size_t ret = snprintf(Buffer, sizeof(Buffer), "%s", CommentBuf);
+                    if (ret >= sizeof(Buffer)) snprintf(Buffer, sizeof(Buffer), "<comment too long>");
+                        rtapi_strxcpy(SymbolArray[scansymb].Comment, Buffer );
+
+                    break; // we are done looking
+                }
+                scansymb++; // keep looking for empty spot if not done
+            }
+        }
+    }
+    return;
 }
