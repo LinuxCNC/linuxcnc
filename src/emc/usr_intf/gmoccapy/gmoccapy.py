@@ -3211,6 +3211,13 @@ class gmoccapy(object):
         # tooledit page is active, so keys must go through
         if self.widgets.ntb_preview.get_current_page() == 2:
             return
+            
+        if (self.widgets.ntb_preview.get_current_page() == 4 and
+            keyname in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            'comma', 'period', 'BackSpace', 'Return']):
+            #user Tab, pass numbers through
+            return False
+            
 
         # take care of different key handling for lathe operation
         if self.lathe_mode:
