@@ -592,7 +592,7 @@ function KillTaskWithTimeout() {
     fi
     local NPROCS
     for KILL_PID in $KILL_PIDS ; do
-        if $PS -o comm= $KILL_PID | $GREP -q '<defunct>'; then
+        if $PS -o stat= -o comm= $KILL_PID | $GREP -q '^Z'; then
             echo "Skipping defunct task $KILL_TASK, PID=$KILL_PID" >>$PRINT_FILE
             continue
         fi
@@ -602,7 +602,7 @@ function KillTaskWithTimeout() {
 	# wait and see if it disappears
 	while [ $WAIT -gt 1 ] ; do
 	    # see if it's still alive
-            NPROCS=$($PS -o comm= $KILL_PID | $GREP -v '<defunct>' | wc -l)
+            NPROCS=$($PS -o stat= -o comm= $KILL_PID | $GREP -v '^Z' | wc -l)
             if [ $NPROCS -gt 0 ]; then
 		WAIT=$(($WAIT-1))
 		sleep .1
@@ -618,7 +618,7 @@ function KillTaskWithTimeout() {
 	    # wait and see if it disappears
 	    while [ $WAIT -gt 1 ] ; do
 		# see if it's still alive
-                NPROCS=$($PS -o comm= $KILL_PID | $GREP -v '<defunct>' | wc -l)
+                NPROCS=$($PS -o stat= -o comm= $KILL_PID | $GREP -v '^Z' | wc -l)
                 if [ $NPROCS -gt 0 ]; then
 		    WAIT=$(($WAIT-1))
 		    sleep .1
