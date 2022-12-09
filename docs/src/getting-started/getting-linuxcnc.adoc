@@ -281,58 +281,50 @@ run on any 64-bit x86 system)
 NOTE: LinuxCNC v2.8 is not supported on Ubuntu Lucid or older.
 
 .Preempt-RT kernels
-The Preempt-rt kernels are available for Debian from the regular
-debian.org archive. The preempt-rt kernel for RaspBerry Pi is available
-from the LinuxCNC repository.  The package is called `linux-image-rt-*`
-Simply install the package in the same way as any other package from the
-Synaptic Package manager or with apt-get at the command-line.
+The Preempt-rt kernels are available for Debian from the regular debian.org archive.
+The preempt-rt kernel for RaspBerry Pi is available from the LinuxCNC repository.
+The package is called `linux-image-rt-*`.
+Simply install the package in the same way as any other package from the Synaptic Package manager or with `apt-get` at the command-line.
 
 .RTAI Kernels
-The RTAI kernels are available for download from the linuxcnc.org
-debian archive.  The apt source is:
+The RTAI kernels are available for download from the linuxcnc.org debian archive.
+The apt source is:
 
 * Debian Buster: `deb https://linuxcnc.org buster base`
 * Debian Wheezy: `deb https://linuxcnc.org wheezy base`
 * Ubuntu Precise: `deb https://linuxcnc.org precise base`
 
 [NOTE]
-Debian Wheezy and Ubuntu Precise are both extremely old, and
-are out of their support period. It is strongly advised not to use either
-for a new install, and to seriously consider upgrading an existing
-installation.
+Debian Wheezy and Ubuntu Precise are both extremely old, and are out of their support period.
+It is strongly advised not to use either for a new install, and to seriously consider upgrading an existing installation.
 
-The Buster / RTAI package is only available on amd64, but there are very
-few surviving systems that can not run a 64-bit OS.
+The Buster / RTAI package is only available on amd64, but there are very few surviving systems that can not run a 64-bit OS.
 
 [WARNING]
-There are known issues with the 64-bit RTAI 5.2 kernel with
-this version of LinuxCNC. The system will occasionally lock solid.
-However, this has, so far, been seen only during system exit. While
-running the system appears to be stable. But should nevertheless be
-considered experimental at this point.
+There are known issues with the 64-bit RTAI 5.2 kernel with this version of LinuxCNC.
+The system will occasionally lock solid.
+However, this has, so far, been seen only during system exit.
+While running the system appears to be stable.
+But should nevertheless be considered experimental at this point.
 
 [NOTE]
-If you decide to use the RTAI 5.2 kernel and see a problem outside the
-circumstances described above then please report it immediately to the
-project developers.
+If you decide to use the RTAI 5.2 kernel and see a problem outside the circumstances described above,
+then please report it immediately to the project developers.
 
 === Installing on Debian Buster (with Preempt-RT kernel)
 
 . Install Debian Buster (Debian 10), amd64 version. You can download the
-  installer here: https://www.debian.org/releases/buster/
+  installer here: https://www.debian.org/releases/buster/ .
 
-. After burning the iso and booting up if you don't want Gnome desktop
-  select 'Advanced Options' > 'Alternative desktop environments' and
-  pick the one you like.
+. After burning the iso and booting up, if you don't want Gnome desktop,
+  select 'Advanced Options' > 'Alternative desktop environments' and pick the one you like.
 
 . Then select 'Install' or 'Graphical Install'.
 
 [WARNING]
-Do not enter a root password, if you do sudo is disabled and you won't
-be able to complete the following steps.
+Do not enter a root password, if you do sudo is disabled and you won't be able to complete the following steps.
 
-. Run the following in a <<faq:terminal,terminal>> to bring the machine
-  up to date with the latest packages.
+. Run the following in a <<faq:terminal,terminal>> to bring the machine up to date with the latest packages.
 +
 ----
 sudo apt-get update
@@ -345,23 +337,19 @@ sudo apt-get dist-upgrade
 sudo apt-get install linux-image-rt-amd64
 ----
 
-. Re-boot, and select the Linux 4.19.0-9-rt-amd64 kernel (the exact
-  kernel version might be different, look for the "-rt" suffix. This might be
-  hidden in the "Advanced options for Debian Buster" sub-menu in Grub.
-  When you log in, verify that `PREEMPT RT`is reported by the following
-  command.
+. Re-boot, and select the Linux 4.19.0-9-rt-amd64 kernel (the exact kernel version might be different, look for the "-rt" suffix).
+  This might be hidden in the "Advanced options for Debian Buster" sub-menu in Grub.
+  When you log in, verify that `PREEMPT RT`is reported by the following command.
 +
 ----
 uname -v
 ----
 
-. Open Applications Menu > System > Synaptic Package Manager search for
-  'linux-image' and right click on the original non-rt  and select
-  'Mark for Complete Removal'. Reboot.
-  This is to force the system to boot from the RT kernel. If you prefer
-  to retain both kernels then the other kernels need not be deleted, but
-  grub boot configuration changes will be needed beyond the scope of
-  this document.
+. Open Applications Menu > System > Synaptic Package Manager,
+  search for 'linux-image', right click on the original non-rt and select 'Mark for Complete Removal'.
+  Reboot. This is to force the system to boot from the RT kernel.
+  If you prefer to retain both kernels then the other kernels need not be deleted,
+  but grub boot configuration changes will be needed beyond the scope of this document.
 
 . Add the LinuxCNC Archive Signing Key to your apt keyring by running
 +
@@ -399,15 +387,13 @@ sudo apt install mesaflash
 === Installing on Debian Buster (with experimental RTAI kernel)
 
 [WARNING]
-This kernel has known stability problems. It appears to run
-reliably once LinuxCNC is loaded. However kernel panics have been seen
-at system shut-down.
+This kernel has known stability problems. It appears to run reliably once LinuxCNC is loaded.
+However, kernel panics have been seen at system shut-down.
 
-. This kernel and LinuxCNC version can be installed on top of the LiveDVD
-  install, or alternatively on a fresh Install of Debian Buster 64-bit
-  as described above
-. Add the LinuxCNC Archive Signing Key to your apt keyring (Not
-  necessary if switching the realtime mode of a LinuxCNC Live-CD image)
+. This kernel and LinuxCNC version can be installed on top of the LiveDVD install,
+  or alternatively on a fresh Install of Debian Buster 64-bit as described above.
+. Add the LinuxCNC Archive Signing Key to your apt keyring
+  (Not necessary if switching the realtime mode of a LinuxCNC Live-CD image).
 +
 ----
 # Alternate keyserver: keyserver.ubuntu.com
@@ -450,9 +436,9 @@ Reboot the machine, ensuring that the system boots from the new 4.19.195-rtai ke
 === Installing on Raspbian 10
 
 . Download a stock Raspbian image to an SD card and install in the
-  https://www.raspberrypi.org/documentation/installation/installing-images/README.md[usual way]
-. Boot the Pi and open a terminal
-. Add the LinuxCNC Archive Signing Key to your apt keyring
+  https://www.raspberrypi.org/documentation/installation/installing-images/README.md[usual way].
+. Boot the Pi and open a terminal.
+. Add the LinuxCNC Archive Signing Key to your apt keyring.
 +
 ----
 # Alternate keyserver: keyserver.ubuntu.com
@@ -485,15 +471,13 @@ sudo apt-get install linuxcnc-uspace
 
 === Installing on Ubuntu Precise
 
-. Install Ubuntu Precise 12.04 x86 (32-bit). Any flavor should
-  work (regular Ubuntu, Xubuntu, Lubuntu, etc). 64-bit (AMD64)
-  is currently not supported. You can download the installer here:
+. Install Ubuntu Precise 12.04 x86 (32-bit). Any flavor should work (regular Ubuntu, Xubuntu, Lubuntu, etc).
+  64-bit (AMD64) is currently not supported. You can download the installer here:
   http://releases.ubuntu.com/precise/
-  Note the warnings that this release is out of support. But it is a way
-  to install LinuxCNC with a well-tested RTAI kernel.
+  Note the warnings that this release is out of support.
+  But it is a way to install LinuxCNC with a well-tested RTAI kernel.
 
-. Run the following to bring the machine up to date with the latest
-  packages in Ubuntu Precise.
+. Run the following to bring the machine up to date with the latest packages in Ubuntu Precise.
 +
 ----
 sudo apt-get update
@@ -525,8 +509,7 @@ sudo apt-get update
 sudo apt-get install linux-image-3.4-9-rtai-686-pae rtai-modules-3.4-9-rtai-686-pae
 ----
 
-. If you want to be able to build LinuxCNC from source using the git
-  repo, also run
+. If you want to be able to build LinuxCNC from source using the git repo, also run
 +
 ----
 sudo apt-get install linux-headers-3.4-9-rtai-686-pae
