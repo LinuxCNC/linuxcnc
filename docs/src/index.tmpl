@@ -27,6 +27,7 @@ function toggle(sec){
   if(e.style.display=="none"){
     e.style.display="block"
     i.src = 'minus.png';
+    i.alt = '-';
     if (storeOK()){localStorage.setItem(sec, "block");}
   }
   else {
@@ -44,6 +45,7 @@ function toggle_section(a){
     for (var i in sections[s]){
       document.getElementById(sections[s][i]).style.display = 'block';
       document.getElementById(sections[s][i] + '_image').src = 'minus.png';
+      document.getElementById(sections[s][i] + '_image').alt = '-';
       if (storeOK()){localStorage.setItem(sections[s][i], "block");}
     }
   }
@@ -51,6 +53,7 @@ function toggle_section(a){
     for (var i in sections[s]){
       document.getElementById(sections[s][i]).style.display = 'none';
       document.getElementById(sections[s][i] + '_image').src = 'plus.png';
+      document.getElementById(sections[s][i] + '_image').alt = '+';
       if (storeOK()){localStorage.setItem(sections[s][i], "none");}
     }
   }
@@ -63,15 +66,18 @@ function setup_page(){
         if (localStorage.getItem(sections[s][i]) === "block"){
           document.getElementById(sections[s][i]).style.display = 'block';
           document.getElementById(sections[s][i] + '_image').src = 'minus.png';
+          document.getElementById(sections[s][i] + '_image').alt = '-';
         }
         else{
           document.getElementById(sections[s][i]).style.display = 'none';
           document.getElementById(sections[s][i] + '_image').src = 'plus.png';
+          document.getElementById(sections[s][i] + '_image').alt = '+';
         }
       }
       else{
         document.getElementById(sections[s][i]).style.display = 'none';
         document.getElementById(sections[s][i] + '_image').src = 'plus.png';
+        document.getElementById(sections[s][i] + '_image').alt = '+';
       }
     }
   }
@@ -126,7 +132,7 @@ function setup_page(){
 
 <h3>Getting Started &amp; Configuration</h3>
 
-<p><a onclick="return toggle('sec0')"><img alt="plus" id="sec0_image" style="border:0; margin-right:5px; vertical-align:middle;" src="plus.png"/>Getting Started with LinuxCNC</a></p>
+<p><a onclick="return toggle('sec0')"><img src="plus.png" alt="+" id="sec0_image" style="border:0; margin-right:5px; vertical-align:middle;"/>Getting Started with LinuxCNC</a></p>
 <div id="sec0">
 	<ul>
 		<li><a href="getting-started/about-linuxcnc.html">About LinuxCNC</a></li>
@@ -138,7 +144,7 @@ function setup_page(){
 	</ul>
 </div>
 
-<p><a onclick="return toggle('sec2')"><img src="plus.png" id="sec2_image" style="border:0;margin-right:5px;vertical-align:middle;" alt="plus"/>General User Information</a></p>
+<p><a onclick="return toggle('sec2')"><img src="plus.png" alt="+" id="sec2_image" style="border:0;margin-right:5px;vertical-align:middle;"/>General User Information</a></p>
 <div id="sec2">
 	<ul>
 		<li><a href="user/user-foreword.html">User Foreword</a></li>
@@ -151,7 +157,7 @@ function setup_page(){
 	</ul>
 </div>
 
-<p><a onclick="return toggle('sec1')"><img src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" id="sec1_image" alt="plus"/>Configuration Wizards</a></p>
+<p><a onclick="return toggle('sec1')"><img src="plus.png" alt="+" style="border:0;margin-right:5px;vertical-align:middle;" id="sec1_image"/>Configuration Wizards</a></p>
 <div id="sec1">
 	<ul>
 		<li><a href="config/stepconf.html" class="tooltips">Stepconf, Parallel Port Stepper Configurator</a></li>
@@ -159,7 +165,7 @@ function setup_page(){
 	</ul>
 </div>
 
-<p><a onclick="return toggle('sec5')"><img src="plus.png" alt="plus" style="border:0;margin-right:5px;vertical-align:middle;" id="sec5_image"/>Configuration</a></p>
+<p><a onclick="return toggle('sec5')"><img src="plus.png" alt="+" style="border:0;margin-right:5px;vertical-align:middle;" id="sec5_image"/>Configuration</a></p>
 <div id="sec5">
 	<ul>
 		<li><a href="config/integrator-concepts.html">Integrator Concepts</a></li>
@@ -175,7 +181,7 @@ function setup_page(){
 	</ul>
 </div>
 
-<p><a onclick="return toggle('sec11')"><img alt="plus" style="border:0;margin-right:5px;vertical-align:middle;" id="sec11_image" src="plus.png"/>HAL (Hardware Abstraction Layer)</a></p>
+<p><a onclick="return toggle('sec11')"><img src="plus.png" alt="+" style="border:0;margin-right:5px;vertical-align:middle;" id="sec11_image"/>HAL (Hardware Abstraction Layer)</a></p>
 <div id="sec11">
 	<ul>
 		<li><a href="hal/intro.html">HAL Introduction</a></li>
@@ -194,7 +200,7 @@ function setup_page(){
 	</ul>
 </div>
 
-<p><a onclick="return toggle('sec8')"><img alt="plus" id="sec8_image" style="border:0;margin-right:5px;vertical-align:middle;" src="plus.png"/>Hardware Drivers</a></p>
+<p><a onclick="return toggle('sec8')"><img src="plus.png" alt="+" id="sec8_image" style="border:0;margin-right:5px;vertical-align:middle;"/>Hardware Drivers</a></p>
 <div id="sec8">
 	<ul>
 		<li><a href="hal/parallel-port.html">Parallel Port Driver</a></li>
@@ -215,7 +221,7 @@ function setup_page(){
 	</ul>
 </div>
 
-<p><a onclick="return toggle('sec10')"><img src="plus.png" alt="plus" style="border:0;margin-right:5px;vertical-align:middle;" id="sec10_image"/>Hardware Examples</a></p>
+<p><a onclick="return toggle('sec10')"><img src="plus.png" alt="+" style="border:0;margin-right:5px;vertical-align:middle;" id="sec10_image"/>Hardware Examples</a></p>
 <div id="sec10">
 	<ul>
 		<li><a href="examples/pci-parallel-port.html">PCI Parallel Port Example</a></li>
@@ -225,7 +231,7 @@ function setup_page(){
 	</ul>
 </div>
 
-<p><a onclick="return toggle('sec9')"><img alt="plus" style="border:0;margin-right:5px;vertical-align:middle;" id="sec9_image" src="plus.png"/>ClassicLadder</a></p>
+<p><a onclick="return toggle('sec9')"><img src="plus.png" alt="+" style="border:0;margin-right:5px;vertical-align:middle;" id="sec9_image"/>ClassicLadder</a></p>
 <div id="sec9">
 
 	<ul>
@@ -236,7 +242,7 @@ function setup_page(){
 	</ul>
 </div>
 
-<p><a onclick="return toggle('sec12')"><img alt="plus" id="sec12_image" style="border:0;margin-right:5px;vertical-align:middle;" src="plus.png"/>Advanced Topics</a></p>
+<p><a onclick="return toggle('sec12')"><img src="plus.png" alt="+" id="sec12_image" style="border:0;margin-right:5px;vertical-align:middle;"/>Advanced Topics</a></p>
 <div id="sec12">
 	<ul>
 		<li><a href="motion/kinematics.html">Kinematics</a></li>
@@ -252,7 +258,7 @@ function setup_page(){
 	</ul>
 </div>
 
-<p><a onclick="return toggle('sec13')"><img src="plus.png" alt="plus" id="sec13_image" style="border:0;margin-right:5px;vertical-align:middle;"/>Integrator Information</a></p>
+<p><a onclick="return toggle('sec13')"><img src="plus.png" alt="+" id="sec13_image" style="border:0;margin-right:5px;vertical-align:middle;"/>Integrator Information</a></p>
 <div id="sec13">
 	<ul>
 		<li><a href="integrator/steppers.html">Stepper Information</a></li>
@@ -263,7 +269,7 @@ function setup_page(){
 
 <h3>Usage</h3>
 
-<p><a onclick="return toggle('sec3')"><img alt="plus" id="sec3_image" style="border:0;margin-right:5px;vertical-align:middle;" src="plus.png"/>User Interfaces</a></p>
+<p><a onclick="return toggle('sec3')"><img src="plus.png" alt="+" id="sec3_image" style="border:0;margin-right:5px;vertical-align:middle;"/>User Interfaces</a></p>
 <div id="sec3">
 	<ul>
 		<li><a href="gui/axis.html">AXIS, Keyboard GUI</a></li>
@@ -278,7 +284,7 @@ function setup_page(){
 	</ul>
 </div>
 
-<p><a onclick="return toggle('sec4')"><img src="plus.png" style="border:0;margin-right:5px;vertical-align:middle;" id="sec4_image" alt="plus"/>G-code Programming</a></p>
+<p><a onclick="return toggle('sec4')"><img src="plus.png" alt="+" style="border:0;margin-right:5px;vertical-align:middle;" id="sec4_image"/>G-code Programming</a></p>
 <div id="sec4">
 	<ul>
 		<li><a href="gcode/coordinates.html">Coordinate System</a></li>
@@ -297,7 +303,7 @@ function setup_page(){
 
 <h3>Customization &amp; Development</h3>
 
-<p><a onclick="return toggle('sec6')"><img src="plus.png" alt="plus" id="sec6_image" style="border:0;margin-right:5px;vertical-align:middle;"/>Virtual Control Panels</a></p>
+<p><a onclick="return toggle('sec6')"><img src="plus.png" alt="+" id="sec6_image" style="border:0;margin-right:5px;vertical-align:middle;"/>Virtual Control Panels</a></p>
 <div id="sec6">
 	<ul>
 		<li><a href="gui/pyvcp.html">Python Virtual Control Panel (PyVCP)</a></li>
@@ -315,7 +321,7 @@ function setup_page(){
 	</ul>
 </div>
 
-<p><a onclick="return toggle('sec7')"><img src="plus.png" alt="plus" style="border:0;margin-right:5px;vertical-align:middle;" id="sec7_image"/>User Interface Programming</a></p>
+<p><a onclick="return toggle('sec7')"><img src="plus.png" alt="+" style="border:0;margin-right:5px;vertical-align:middle;" id="sec7_image"/>User Interface Programming</a></p>
 <div id="sec7">
 	<ul>
 		<li><a href="gui/panelui.html">Panelui</a></li>
@@ -329,7 +335,7 @@ function setup_page(){
 </div>
 
 
-<p><a onclick="return toggle('sec14')"><img src="plus.png" id="sec14_image" style="border:0;margin-right:5px;vertical-align:middle;" alt="plus"/>Developer Information</a></p>
+<p><a onclick="return toggle('sec14')"><img src="plus.png" alt="+" id="sec14_image" style="border:0;margin-right:5px;vertical-align:middle;"/>Developer Information</a></p>
 <div id="sec14">
 	<ul>
 		<li><a href="hal/general-ref.html">General Reference</a></li>
@@ -344,7 +350,7 @@ function setup_page(){
 
 <h3>General Information</h3>
 
-<p><a onclick="return toggle('sec15')"><img src="plus.png" alt="plus" id="sec15_image" style="border:0;margin-right:5px;vertical-align:middle;"/>Glossary, Copyright, History &amp; Overview</a></p>
+<p><a onclick="return toggle('sec15')"><img src="plus.png" alt="+" id="sec15_image" style="border:0;margin-right:5px;vertical-align:middle;"/>Glossary, Copyright, History &amp; Overview</a></p>
 	<div id="sec15">
 	<ul>
 		<li><a href="common/overleaf.html">LinuxCNC Document Overview</a></li>
