@@ -459,7 +459,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
             hm2->config.num_outms = simple_strtol(token, NULL, 0);
 
         } else if (strncmp(token, "num_oneshots=", 13) == 0) {
-            token += 10;
+            token += 13;
             hm2->config.num_oneshots = simple_strtol(token, NULL, 0);
 
         } else if (strncmp(token, "num_ssrs=", 9) == 0) {

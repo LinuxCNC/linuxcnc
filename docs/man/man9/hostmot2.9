@@ -1010,7 +1010,7 @@ Trigger sources are:
 4 Rate trigger: triggered by build in rate generator.
 5 Timer1 trigger: triggered by timer1 output
 6 Timer2 trigger: triggered by timer2 output
-
+.fi
 .TP
 (bit rw) trigger_on_rise1,trigger_on_rise2
 When true, triggers timer1, timer2 respectively on the rising edge of the trigger source.
@@ -1032,17 +1032,20 @@ trigger enable for timer1 and timer2 respectively True to enable.
 
 .TP
 (bit rw) reset1,reset2
-If true, resets timer1,timer2 respectively, aborting any pulse in progress.
+If true, resets timer1 and timer2 respectively, aborting any pulse in progress.
 
 .TP
 (bit ro) out1,out2
-Pulse output status bit for timer 1,timer2
+Pulse output status bits for timer1 and timer2.
 
 .TP
 (bit ro) exttrigger1,exttrigger2
-External trigger input status bits for timer 1,timer2.
+External trigger input status bits for timer1 and timer2.
 These monitor the filtered inputs.
 
+.TP
+(bit rw) swtrigger1,swtrigger2
+software trigger inputs to trigger timer1 and timer2.
 
 .SS rcpwmgen
 The rcpwmgen is a simple PWM generator optimized for use with standard RC servos that use pulse width to determine position.
