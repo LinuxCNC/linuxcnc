@@ -77,7 +77,7 @@ Sharing Files::
 The most common way to share files on the IRC is to upload the file
 to one of the following or a similar service and paste the link:
 
-* 'For text': https://pastebin.com/, http://pastie.org/, https://gist.github.com/
+* 'For text': https://pastebin.com/, https://gist.github.com/, https://0bin.net/, https://paste.debian.net/
 * 'For pictures': https://imagebin.org/, https://imgur.com/, https://bayimg.com/
 * 'For files': https://filedropper.com/, https://filefactory.com/, https://1fichier.com/
 
