@@ -10,6 +10,9 @@ on:
   check_suite:
     types: [rerequested]
 
+permissions:
+  contents: read #  to fetch code (actions/checkout)
+
 jobs:
 
   rip-and-test:
