@@ -112,7 +112,7 @@ like this:
 * Communicate with the project developers and let us know what you're hacking on.  Explain what you are doing, and why.
 * Clone the git repo.
 * Make your changes in a local branch.
-* Adding documentation and tests is an important part of adding a new feature.  Otherwise, others won't know how to use your feature, and if other changes break your feature it can go unnoticed without a test.
+* Adding documentation and <<cha:writing-tests,writing tests>> is an important part of adding a new feature.  Otherwise, others won't know how to use your feature, and if other changes break your feature it can go unnoticed without a test.
 * Share your changes with the other project developers in one of these ways:
 ** Push your branch to github and create a github pull request to <https://github.com/linuxcnc/linuxcnc> (this requires a github account), or
 ** Push your branch to a publicly visible git repo (such as github, or your own publicly-accessible server, etc) and share that location on the emc-developers mailing list, or
