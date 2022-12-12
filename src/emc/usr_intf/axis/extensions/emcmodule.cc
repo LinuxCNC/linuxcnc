@@ -1978,7 +1978,7 @@ struct logger_point {
 };
 
 #define NUMCOLORS (6)
-#define MAX_POINTS (10000)
+#define MAX_POINTS (100000)
 typedef struct {
     PyObject_HEAD
     int npts, mpts, lpts;
