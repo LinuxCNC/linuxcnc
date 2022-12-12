@@ -511,7 +511,7 @@ def spath_from_inifile(fname):
         return []
     ini = linuxcnc.ini(fname)
     homedir = os.path.dirname(os.path.realpath(fname))
-    # http://www.linuxcnc.org/docs/devel/html/config/ini_config.html
+    # http://www.linuxcnc.org/docs/2.9/html/config/ini_config.html
     l = []
     p = ini.find('DISPLAY','PROGRAM_PREFIX')
     if p:
