@@ -1,4 +1,4 @@
-VERSION = '1.233.253'
+VERSION = '1.233.254'
 
 '''
 qtplasmac_handler.py
@@ -2536,7 +2536,7 @@ class HandlerClass:
         self.w.pid_i_gain.setValue(self.PREFS.getpref('Pid I Gain', 0, float, 'PLASMA_PARAMETERS'))
         self.w.probe_feed_rate.setValue(self.PREFS.getpref('Probe Feed Rate', round(300 * self.unitsPerMm, 0), float, 'PLASMA_PARAMETERS'))
         self.w.probe_start_height.setValue(self.PREFS.getpref('Probe Start Height', round(25 * self.unitsPerMm, 0), float, 'PLASMA_PARAMETERS'))
-        self.w.arc_restart_delay.setValue(self.PREFS.getpref('Arc Restart Delay', 0, float, 'PLASMA_PARAMETERS'))
+        self.w.arc_restart_delay.setValue(self.PREFS.getpref('Arc Restart Delay', 1, float, 'PLASMA_PARAMETERS'))
         self.w.safe_height.setValue(self.PREFS.getpref('Safe Height', round(25 * self.unitsPerMm, 0), float, 'PLASMA_PARAMETERS'))
         self.w.setup_feed_rate.setValue(self.PREFS.getpref('Setup Feed Rate', self.thcFeedRate * 0.8, float, 'PLASMA_PARAMETERS'))
         self.w.scribe_arm_delay.setValue(self.PREFS.getpref('Scribe Arming Delay', 0, float, 'PLASMA_PARAMETERS'))
