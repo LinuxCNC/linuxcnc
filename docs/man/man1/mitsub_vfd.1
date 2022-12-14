@@ -1,6 +1,5 @@
 .TH mitsub_vfd "1" "2018-10-25" "LinuxCNC Documentation" "HAL Component"
 
-
 .SH NAME
 mitsub_vfd \- HAL userspace component for Mitsubishi A500 F500
 E500 A500 D700 E700 F700-series VFDs (others may work)
@@ -25,7 +24,6 @@ The connection is made through the PU connector.
 
 The mitsub_vfd component interfaces a Mitsubishi VFD to LinuxCNC.
 The VFD is connected via RS-485 serial to the computer's USB or serial port using a RS-232/RS-485 converter.
-
 
 .SH HARDWARE SETUP
 reference manual 'communication option reference manual' and A500 technical manual for 500 series.
@@ -224,7 +222,6 @@ net estop-out                     coolant.estop
 
 .SH ISSUES
 
-some models (eg E500) cannot monitor status, so set the 
-monitor pin to false. In this case, pins such as up-to-speed,
-amps, alarm and status bits are not useful.
+Some models (eg E500) cannot monitor status, so set the monitor pin to false.
+In this case, pins such as up-to-speed, amps, alarm and status bits are not useful.
 

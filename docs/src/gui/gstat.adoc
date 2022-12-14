@@ -85,9 +85,9 @@ except KeyboardInterrupt:
     raise SystemExit
 ----
 
-This would be loaded with 'loadusr python PATH-TO-FILE/FILENAME.py' or if you need to wait for the pins to be made before continuing: +
+This would be loaded with `loadusr python PATH-TO-FILE/FILENAME.py` or if you need to wait for the pins to be made before continuing: +
 `loadusr python -Wn metric_status PATH-TO-FILE/FILENAME.py` +
-The pins would be: 'metric_status.g20' and 'metric_status.g21'.
+The pins would be: `metric_status.g20` and `metric_status.g21`.
 
 === GladeVCP Python extension code pattern
 
@@ -231,7 +231,7 @@ Sent when there is a command error
 Sent when LinuxCNC's interpreter is running an MDI or program.
 
 *interp-idle* :: '(returns nothing)' -
-Sent when LinuxCNC's interpreter idle.
+Sent when LinuxCNC's interpreter is idle.
 
 *interp-paused* :: '(returns nothing)' -
 Sent when LinuxCNC's interpreter is paused.
@@ -319,7 +319,7 @@ Sent as the current rotatated angle around the Z axis changes
 Sent when the current requested RPM changes
 
 *actual-spindle-speed-changed* :: '(returns float)' -
-Sent when the actual RPM changes based on the HAL pin 'spindle.0.speed-in'.
+Sent when the actual RPM changes based on the HAL pin `spindle.0.speed-in`.
 
 *spindle-override-changed* :: '(returns float)' -
 Sent when the spindle override value changes +
@@ -500,9 +500,9 @@ These are convenience functions that are commonly used in programming.
 *set_jograte* :: '(float)' -
 LinuxCNC has no internal concept of jog rate -each GUI has its own.
 This is not always convenient. +
-This function allows one to set a jog rate for all objects connected to the signal 'jograte-changed'. +
+This function allows one to set a jog rate for all objects connected to the signal `jograte-changed`. +
 It defaults to 15. +
-GSTAT.set_jog_rate(10) would set the jog rate to 10 machine-units-per-minute and emit the jograte-changed signal.
+GSTAT.set_jog_rate(10) would set the jog rate to 10 machine-units-per-minute and emit the `jograte-changed` signal.
 
 *get_jograte()* :: '(Nothing)' -
 x = GSTAT.get_jograte() would return GSTAT's current internal jograte (float).
@@ -574,7 +574,7 @@ returns integer representing the internal selected joint number.
 
 *set_selected_axis* :: '(string)' -
 records the selected axis letter internally. +
-Requests the axis to be selected by emitting the 'axis-selection-changed' message.
+Requests the axis to be selected by emitting the `axis-selection-changed` message.
 
 *get_selected_axis* :: '(None)' -
 returns string representing the internal selected axis letter.
