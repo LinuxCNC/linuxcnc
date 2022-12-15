@@ -320,6 +320,7 @@ void STOP_SPEED_FEED_SYNCH()
 void NURBS_FEED(int lineno,
 std::vector<CONTROL_POINT> nurbs_control_points, unsigned int nurbs_order, int plane)
 {
+	printf("jf (F: %s F: %s L: %d)\n",__FUNCTION__,__FILE__,__LINE__);
   ECHO_WITH_ARGS("%lu, ...", (unsigned long)nurbs_control_points.size());
 
   _sai._program_position_x = nurbs_control_points[nurbs_control_points.size()].X;
@@ -335,6 +336,7 @@ void ARC_FEED(int line_number,
  , double u, double v, double w
 )
 {
+	printf("jf (F: %s F: %s L: %d)\n",__FUNCTION__,__FILE__,__LINE__);
   ECHO_WITH_ARGS("%.4f, %.4f, %.4f, %.4f, %d, %.4f"
          ", %.4f" /*AA*/
          ", %.4f" /*BB*/
@@ -376,6 +378,7 @@ void STRAIGHT_FEED(int line_number,
  , double u, double v, double w
 )
 {
+	printf("jf (F: %s F: %s L: %d)\n",__FUNCTION__,__FILE__,__LINE__);
   ECHO_WITH_ARGS("%.4f, %.4f, %.4f"
          ", %.4f" /*AA*/
          ", %.4f" /*BB*/

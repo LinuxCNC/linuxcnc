@@ -1304,115 +1304,136 @@ static void unit(double *x, double *y) {
 }
 
 static void
-arc(int lineno, double x0, double y0, double x1, double y1, double dx, double dy) {
-	printf("jf (F: %s F: %s L: %d)\n",__FUNCTION__,__FILE__,__LINE__);
+arc(int lineno, double x0, double y0, double x1, double y1, double dx, double dy) 
+	{
+	//printf("jf (F: %s F: %s L: %d)\n",__FUNCTION__,__FILE__,__LINE__);
+/*
 	if(canon.activePlane == CANON_PLANE_XY)	printf("jf XY (F: %s L: %d)\n",__FILE__,__LINE__);
 	if(canon.activePlane == CANON_PLANE_XZ)	printf("jf XZ (F: %s L: %d)\n",__FILE__,__LINE__);
 	if(canon.activePlane == CANON_PLANE_YZ)	printf("jf YZ (F: %s L: %d)\n",__FILE__,__LINE__);
-    double small = 0.000001;
-    double x = x1-x0, y=y1-y0;
-    double den = 2 * (y*dx - x*dy);
-    CANON_POSITION p = unoffset_and_unrotate_pos(canon.endPoint);
-    to_prog(p);
-    if (fabs(den) > small) {
-        double r = -(x*x+y*y)/den;
-        double i = dy*r, j = -dx*r;
-        double cx = x0+i, cy=y0+j;
-//        ARC_FEED(lineno, x1, y1, cx, cy, r<0 ? 1 : -1, p.z, p.a, p.b, p.c, p.u, p.v, p.w);
-	if(canon.activePlane==CANON_PLANE_XY)
+*/
+	//printf("    x0: %f y0: %f x1: %f y1: %f dx: %f dy. %f (F: %s L: %d) %s \n",x0,y0,x1,y1,dx,dy,__FILE__,__LINE__,__FUNCTION__);
+
+	double small = 0.000001;
+	double x = x1-x0, y=y1-y0;
+	double den = 2 * (y*dx - x*dy);
+	CANON_POSITION p = unoffset_and_unrotate_pos(canon.endPoint);
+	to_prog(p);
+	if (fabs(den) > small) 
 		{
-		ARC_FEED(lineno, x1, y1, cx, cy, r<0 ? 1 : -1, p.z, p.a, p.b, p.c, p.u, p.v, p.w);
-		}
-	if(canon.activePlane==CANON_PLANE_YZ)
-		{
-		printf("jf das geht noch nicht? (F: %s L: %d)\n",__FILE__,__LINE__);
-		ARC_FEED(lineno, x1, y1, cx, cy, r<0 ? 1 : -1, p.x, p.a, p.b, p.c, p.u, p.v, p.w);
-		}
-	if(canon.activePlane==CANON_PLANE_XZ)
-		{
-		printf("jf das geht noch nicht? (F: %s L: %d)\n",__FILE__,__LINE__);
-		ARC_FEED(lineno, x1, y1, cx, cy, r<0 ? 1 : -1, p.y, p.a, p.b, p.c, p.u, p.v, p.w);
-		}
-    } else { 
-//        STRAIGHT_FEED(lineno, x1, y1, p.z, p.a, p.b, p.c, p.u, p.v, p.w);
-	if(canon.activePlane==CANON_PLANE_XY)
-		{
-		STRAIGHT_FEED(lineno, x1, y1, p.z, p.a, p.b, p.c, p.u, p.v, p.w);
-		}
-	if(canon.activePlane==CANON_PLANE_YZ)
-		{
-		STRAIGHT_FEED(lineno, p.x, x1, y1, p.a, p.b, p.c, p.u, p.v, p.w);
-		}
-	if(canon.activePlane==CANON_PLANE_XZ)
-		{
-		STRAIGHT_FEED(lineno, x1, p.y, y1, p.a, p.b, p.c, p.u, p.v, p.w);
-		}
+		double r = -(x*x+y*y)/den;
+		double i = dy*r, j = -dx*r;
+		double cx = x0+i, cy=y0+j;
+		//printf("    p.x: %f p.y. %f p.z. %f p.u: %f p.v: %f p.w: %f (F: %s L: %d) %s \n",p.x,p.y,p.z,p.u,p.v,p.w,__FILE__,__LINE__,__FUNCTION__);
+		//printf("    r: %f i: %f j: %f cx: %f cy: %f den: %f (F: %s L: %d) %s \n",r,i,j,cx,cy,den,__FILE__,__LINE__,__FUNCTION__);
+
+		//ARC_FEED(first_end, second_end, first_axis, second_axis, rotation, axis_end_point, a, b, c, u, v, w)
+
+
+//  ARC_FEED(lineno, x1, y1, cx, cy, r<0 ? 1 : -1, p.z, p.a, p.b, p.c, p.u, p.v, p.w);
+		if(canon.activePlane==CANON_PLANE_XY)
+			{
+			//printf("    x1: %f y1: %f cx: %f cy: %f p.z. %f Ebene XY (F: %s L: %d) %s \n",x1,y1,cx,cy,p.z,__FILE__,__LINE__,__FUNCTION__);
+			ARC_FEED(lineno, x1, y1, cx, cy, r<0 ? 1 : -1, p.z, p.a, p.b, p.c, p.u, p.v, p.w);
+			}
+		if(canon.activePlane==CANON_PLANE_YZ)
+			{
+			//printf("    x1: %f y1: %f cx: %f cy: %f p.x: %f Ebene YZ (F: %s L: %d) %s \n",x1,y1,cx,cy,p.x,__FILE__,__LINE__,__FUNCTION__);
+			ARC_FEED(lineno, x1, y1, cx, cy, r<0 ? 1 : -1, p.x, p.a, p.b, p.c, p.u, p.v, p.w);
+			}
+		if(canon.activePlane==CANON_PLANE_XZ)
+			{
+			//printf("    x1: %f y1: %f cx: %f cy: %f p.y. %f Ebene XZ (F: %s L: %d) %s \n",x1,y1,cx,cy,p.y,__FILE__,__LINE__,__FUNCTION__);
+			ARC_FEED(lineno, x1, y1, cx, cy, r<0 ? 1 : -1, p.y, p.a, p.b, p.c, p.u, p.v, p.w);
+			}
+    } 
+	else 
+		{ 
+//  STRAIGHT_FEED(lineno, x1, y1, p.z, p.a, p.b, p.c, p.u, p.v, p.w);
+		if(canon.activePlane==CANON_PLANE_XY)
+			{
+			STRAIGHT_FEED(lineno, x1, y1, p.z, p.a, p.b, p.c, p.u, p.v, p.w);
+			}
+		if(canon.activePlane==CANON_PLANE_YZ)
+			{
+			STRAIGHT_FEED(lineno, p.x, x1, y1, p.a, p.b, p.c, p.u, p.v, p.w);
+			}
+		if(canon.activePlane==CANON_PLANE_XZ)
+			{
+			STRAIGHT_FEED(lineno, x1, p.y, y1, p.a, p.b, p.c, p.u, p.v, p.w);
+			}
     }
-}
+	}
 
 static int
-biarc(int lineno, double p0x, double p0y, double tsx, double tsy,
-      double p4x, double p4y, double tex, double tey, double r=1.0) {
-    unit(&tsx, &tsy);
-    unit(&tex, &tey);
+biarc(int lineno, double p0x, double p0y, double tsx, double tsy, double p4x, double p4y, double tex, double tey, double r=1.0) 
+	{
+	//printf("jf (F: %s F: %s L: %d)\n",__FUNCTION__,__FILE__,__LINE__);
+	unit(&tsx, &tsy);
+	unit(&tex, &tey);
 
-    double vx = p0x - p4x, vy = p0y - p4y;
-    double c = vx*vx + vy*vy;
-    double b = 2 * (vx * (r*tsx + tex) + vy * (r*tsy + tey));
-    double a = 2 * r * (tsx * tex + tsy * tey - 1);
+	double vx = p0x - p4x, vy = p0y - p4y;
+	double c = vx*vx + vy*vy;
+	double b = 2 * (vx * (r*tsx + tex) + vy * (r*tsy + tey));
+	double a = 2 * r * (tsx * tex + tsy * tey - 1);
 
-    double discr = b*b - 4*a*c;
-    if(discr < 0) return 0;
+	double discr = b*b - 4*a*c;
+	if(discr < 0) return 0;
 
-    double disq = sqrt(discr);
-    double beta1 = (-b-disq) / 2 / a;
-    double beta2 = (-b+disq) / 2 / a;
+	double disq = sqrt(discr);
+	double beta1 = (-b-disq) / 2 / a;
+	double beta2 = (-b+disq) / 2 / a;
+	if(beta1 > 0 && beta2 > 0)	return 0;
 
-    if(beta1 > 0 && beta2 > 0)
-      return 0;
-    double beta = max(beta1, beta2);
-    double alpha = beta * r;
-    double ab = alpha + beta;
-    double p1x = p0x + alpha * tsx, p1y = p0y + alpha * tsy,
-         p3x = p4x - beta * tex, p3y = p4y - beta * tey,
-         p2x = (p1x*beta + p3x*alpha) / ab,
-         p2y = (p1y*beta + p3y*alpha) / ab;
-    double tmx = p3x-p2x, tmy = p3y-p2y;
-    unit(&tmx, &tmy);
+	double beta = max(beta1, beta2);
+	double alpha = beta * r;
+	double ab = alpha + beta;
+	double p1x = p0x + alpha * tsx, p1y = p0y + alpha * tsy,
+		 p3x = p4x - beta * tex, p3y = p4y - beta * tey,
+		 p2x = (p1x*beta + p3x*alpha) / ab,
+		 p2y = (p1y*beta + p3y*alpha) / ab;
+	double tmx = p3x-p2x, tmy = p3y-p2y;
+	unit(&tmx, &tmy);
 
-    arc(lineno, p0x, p0y, p2x, p2y, tsx, tsy);
-    arc(lineno, p2x, p2y, p4x, p4y, tmx, tmy);
-    return 1;
-}
+	//printf("  p0x: %f p0y: %f p2x: %f p2y: %f tsx: %f tsy. %f (F: %s L: %d) %s \n",p0x,p0y,p2x,p2y,tsx,tsy,__FILE__,__LINE__,__FUNCTION__);
+	//printf("  p2x: %f p2y: %f p4x: %f p4y: %f tmx: %f tmy. %f (F: %s L: %d) %s \n",p2x,p2y,p4x,p4y,tmx,tmy,__FILE__,__LINE__,__FUNCTION__);
+	//printf("  p2x: %f p2y: %f tmx: %f tmy. %f (F: %s L: %d)\n",p2x,p2y,tmx,tmy,__FILE__,__LINE__);
+	arc(lineno, p0x, p0y, p2x, p2y, tsx, tsy);
+	arc(lineno, p2x, p2y, p4x, p4y, tmx, tmy);
+	return 1;
+	}
 
 
 /* Canon calls */
 
-void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, unsigned int nurbs_order, int plane) {
-	printf("jf (F: %s F: %s L: %d)\n",__FUNCTION__,__FILE__,__LINE__);
-	if(canon.activePlane == CANON_PLANE_XY)	printf("jf XY (F: %s L: %d)\n",__FILE__,__LINE__);
-	if(canon.activePlane == CANON_PLANE_XZ)	printf("jf XZ (F: %s L: %d)\n",__FILE__,__LINE__);
-	if(canon.activePlane == CANON_PLANE_YZ)	printf("jf YZ (F: %s L: %d)\n",__FILE__,__LINE__);
+void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, unsigned int nurbs_order, int plane) 
+	{
+	//printf("jf (F: %s F: %s L: %d)\n",__FUNCTION__,__FILE__,__LINE__);
+	//if(canon.activePlane == CANON_PLANE_XY)	printf("jf XY (F: %s L: %d)\n",__FILE__,__LINE__);
+	//if(canon.activePlane == CANON_PLANE_XZ)	printf("jf XZ (F: %s L: %d)\n",__FILE__,__LINE__);
+	//if(canon.activePlane == CANON_PLANE_YZ)	printf("jf YZ (F: %s L: %d)\n",__FILE__,__LINE__);
 
-    flush_segments();
+   flush_segments();
 
-    unsigned int n = nurbs_control_points.size() - 1;
-    double umax = n - nurbs_order + 2;
-    unsigned int div = nurbs_control_points.size()*4;
-	printf("jf nurbs_order: %d n: %d umax: %f div: %d (F: %s L: %d)\n",nurbs_order,n,umax,div,__FILE__,__LINE__);
+	unsigned int n = nurbs_control_points.size() - 1;
+	double umax = n - nurbs_order + 2;
+	unsigned int div = nurbs_control_points.size()*4;
+	//printf("jf nurbs_order: %d n: %d umax: %f div: %d (F: %s L: %d)\n",nurbs_order,n,umax,div,__FILE__,__LINE__);
 
-    std::vector<unsigned int> knot_vector = knot_vector_creator(n, nurbs_order);	
-    PLANE_POINT P0, P0T, P1, P1T;
+  std::vector<unsigned int> knot_vector = knot_vector_creator(n, nurbs_order);	
+  PLANE_POINT P0, P0T, P1, P1T;
 
-    P0 = nurbs_point(0,nurbs_order,nurbs_control_points,knot_vector);
-    P0T = nurbs_tangent(0, nurbs_order, nurbs_control_points, knot_vector);
-	//printf("jf P0X: %f P0Y: %f (F: %s L: %d)\n",P0.X,P0.Y,__FILE__,__LINE__);
+  P0 = nurbs_point(0,nurbs_order,nurbs_control_points,knot_vector);
+  P0T = nurbs_tangent(0, nurbs_order, nurbs_control_points, knot_vector);
+	//printf("P0X: %f P0T: %f P0TX: %f P0TY: %f (F: %s L: %d)\n",P0.X,P0.Y,P0T.X,P0T.Y,__FILE__,__LINE__);
 
-    for(unsigned int i=1; i<=div; i++) {
-	double u = umax * i / div;
+  for(unsigned int i=1; i<=div; i++) 
+		{
+		double u = umax * i / div;
     P1 = nurbs_point(u,nurbs_order,nurbs_control_points,knot_vector);
-	P1T = nurbs_tangent(u,nurbs_order,nurbs_control_points,knot_vector);
-    biarc(lineno, P0.X,P0.Y, P0T.X,P0T.Y, P1.X,P1.Y, P1T.X,P1T.Y);
+		P1T = nurbs_tangent(u,nurbs_order,nurbs_control_points,knot_vector);
+		//printf("P1X: %f P1T: %f P1TX: %f P1TY: %f u: %f ln: %d (F: %s L: %d)\n",P1.X,P1.Y,P1T.X,P1T.Y,u,lineno,__FILE__,__LINE__);
+    biarc(lineno, P0.X, P0.Y, P0T.X, P0T.Y, P1.X,P1.Y, P1T.X, P1T.Y);
     P0 = P1;
     P0T = P1T;
     }
@@ -1516,56 +1537,63 @@ static double axis_acc_time(const CANON_POSITION & start, const CANON_POSITION &
 }
 #endif
 
-void ARC_FEED(int line_number,
-              double first_end, double second_end,
+void ARC_FEED(int line_number, 
+				double first_end, double second_end,
 	      double first_axis, double second_axis, int rotation,
 	      double axis_end_point, 
-              double a, double b, double c,
-              double u, double v, double w)
-{
+        double a, double b, double c,
+        double u, double v, double w)
+	{
+	//if(canon.activePlane == CANON_PLANE_XY)	printf("jf XY (F: %s L: %d)\n",__FILE__,__LINE__);
+	//if(canon.activePlane == CANON_PLANE_XZ)	printf("jf XZ (F: %s L: %d)\n",__FILE__,__LINE__);
+	//if(canon.activePlane == CANON_PLANE_YZ)	printf("jf YZ (F: %s L: %d)\n",__FILE__,__LINE__);
+	//printf("      rot: %d a: %f b: %f c: %f u: %f v. %f w. %f (F: %s L: %d) %s \n",rotation, a, b, c, u, v, w, __FILE__,__LINE__,__FUNCTION__);
+	//printf("      fe: %f se: %f fa: %f sa: %f aep: %f (F: %s L: %d) %s \n",first_end, second_end, first_axis, second_axis, axis_end_point, __FILE__,__LINE__,__FUNCTION__);
 
-    EMC_TRAJ_CIRCULAR_MOVE circularMoveMsg;
-    EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
+  EMC_TRAJ_CIRCULAR_MOVE circularMoveMsg;
+  EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
 
-    canon_debug("line = %d\n", line_number);
-    canon_debug("first_end = %f, second_end = %f\n", first_end,second_end);
+  canon_debug("line = %d\n", line_number);
+  canon_debug("first_end = %f, second_end = %f\n", first_end,second_end);
 
-    if( canon.activePlane == CANON_PLANE_XY && canon.motionMode == CANON_CONTINUOUS) {
-        double mx, my;
-        double lx, ly, lz;
-        double unused = 0;
+	if( canon.activePlane == CANON_PLANE_XY && canon.motionMode == CANON_CONTINUOUS) 
+		{
+		double mx, my;
+		double lx, ly, lz;
+		double unused = 0;
 
-        get_last_pos(lx, ly, lz);
+		get_last_pos(lx, ly, lz);
 
-        double fe=FROM_PROG_LEN(first_end), se=FROM_PROG_LEN(second_end), ae=FROM_PROG_LEN(axis_end_point);
-        double fa=FROM_PROG_LEN(first_axis), sa=FROM_PROG_LEN(second_axis);
-        rotate_and_offset_pos(fe, se, ae, unused, unused, unused, unused, unused, unused);
-        rotate_and_offset_pos(fa, sa, unused, unused, unused, unused, unused, unused, unused);
-        if (chord_deviation(lx, ly, fe, se, fa, sa, rotation, mx, my) < canon.naivecamTolerance) {
-            a = FROM_PROG_ANG(a);
-            b = FROM_PROG_ANG(b);
-            c = FROM_PROG_ANG(c);
-            u = FROM_PROG_LEN(u);
-            v = FROM_PROG_LEN(v);
-            w = FROM_PROG_LEN(w);
+		double fe=FROM_PROG_LEN(first_end),  se=FROM_PROG_LEN(second_end), ae=FROM_PROG_LEN(axis_end_point);
+		double fa=FROM_PROG_LEN(first_axis), sa=FROM_PROG_LEN(second_axis);
+		rotate_and_offset_pos(fe, se, ae, unused, unused, unused, unused, unused, unused);
+		rotate_and_offset_pos(fa, sa, unused, unused, unused, unused, unused, unused, unused);
+		if (chord_deviation(lx, ly, fe, se, fa, sa, rotation, mx, my) < canon.naivecamTolerance) 
+			{
+			a = FROM_PROG_ANG(a);
+			b = FROM_PROG_ANG(b);
+			c = FROM_PROG_ANG(c);
+			u = FROM_PROG_LEN(u);
+			v = FROM_PROG_LEN(v);
+			w = FROM_PROG_LEN(w);
 
-            rotate_and_offset_pos(unused, unused, unused, a, b, c, u, v, w);
-            see_segment(line_number, _tag, mx, my,
-                        (lz + ae)/2, 
-                        (canon.endPoint.a + a)/2, 
-                        (canon.endPoint.b + b)/2, 
-                        (canon.endPoint.c + c)/2, 
-                        (canon.endPoint.u + u)/2, 
-                        (canon.endPoint.v + v)/2, 
-                        (canon.endPoint.w + w)/2);
-            see_segment(line_number, _tag, fe, se, ae, a, b, c, u, v, w);
-            return;
-        }
-    }
+			rotate_and_offset_pos(unused, unused, unused, a, b, c, u, v, w);
+			see_segment(line_number, _tag, mx, my,
+									(lz + ae)/2, 
+									(canon.endPoint.a + a)/2, 
+									(canon.endPoint.b + b)/2, 
+									(canon.endPoint.c + c)/2, 
+									(canon.endPoint.u + u)/2, 
+									(canon.endPoint.v + v)/2, 
+									(canon.endPoint.w + w)/2);
+			see_segment(line_number, _tag, fe, se, ae, a, b, c, u, v, w);
+			return;
+			}
+		}
 
-    linearMoveMsg.feed_mode = canon.feed_mode;
-    circularMoveMsg.feed_mode = canon.feed_mode;
-    flush_segments();
+  linearMoveMsg.feed_mode = canon.feed_mode;
+  circularMoveMsg.feed_mode = canon.feed_mode;
+  flush_segments();
 
     // Start by defining 3D points for the motion end and center.
     PM_CARTESIAN end_cart(first_end, second_end, axis_end_point);
@@ -1732,7 +1760,7 @@ void ARC_FEED(int line_number,
     canon_debug("angle = %f\n", angle);
     canon_debug("full turns = %d\n", full_turns);
 
-	canon_debug("full_angle = %.17e\n", full_angle);
+		canon_debug("full_angle = %.17e\n", full_angle);
 
     //Use total angle to get spiral properties
     double spiral = end_radius - start_radius;
