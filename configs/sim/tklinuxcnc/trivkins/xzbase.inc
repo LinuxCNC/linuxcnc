@@ -14,7 +14,7 @@ MAX_LINEAR_ACCELERATION = 22.2222
 [DISPLAY]
              DISPLAY = tklinuxcnc
                LATHE = 1
-              #EDITOR = gedit
+              #EDITOR = geany
          TOOL_EDITOR = tooledit diam z
       PROGRAM_PREFIX = ../../nc_files/
           CYCLE_TIME = 0.100
