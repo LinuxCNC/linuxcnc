@@ -283,6 +283,7 @@ assert(h['tool-prep-number'] == 0)
 assert(h['tool-prep-pocket'] == 0)
 assert(h['tool-from-pocket'] == 46)
 
+time.sleep(stat_poll_wait)
 s.poll()
 assert(s.tool_in_spindle == 2)
 assert(s.tool_from_pocket == 46);
