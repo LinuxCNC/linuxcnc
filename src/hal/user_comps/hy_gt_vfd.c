@@ -64,9 +64,18 @@ typedef struct {
     // Multiply the uint16 value read by this multiplier to get the human-
     // readable value.
     float multiplier;
-
-    hal_float_t *hal_pin;
+    int type;
+    union {
+        hal_float_t *hal_pin_float;
+        hal_u32_t *hal_pin_u32;
+    };
 } modbus_register_t;
+
+typedef enum {
+    REGISTER_UNKNOWN = 0,
+    REGISTER_FLOAT = 1,
+    REGISTER_U32 = 2,
+} register_type_t;
 
 int num_modbus_registers = 0;
 modbus_register_t *modbus_register;
@@ -246,7 +255,14 @@ int read_modbus_register(modbus_t *mb, modbus_register_t *reg) {
         hy_modbus_sleep();
         r = modbus_read_registers(mb, reg->address, 1, &data);
         if (r == 1) {
-            *reg->hal_pin = data * reg->multiplier;
+            switch (reg->type) {
+            case REGISTER_FLOAT:
+                *reg->hal_pin_float = data * reg->multiplier;
+                ;;
+            case REGISTER_U32:
+                *reg->hal_pin_u32 = data;
+                ;;
+            }
             return 0;
         }
         fprintf(stderr, "%s: error reading %s (register 0x%04x): %s\n", __func__, reg->name, reg->address, modbus_strerror(errno));
@@ -263,13 +279,14 @@ void read_modbus_registers(modbus_t *mb) {
 }
 
 
-modbus_register_t *add_modbus_register(modbus_t *mb, int address, const char *pin_name, float multiplier) {
+modbus_register_t *add_modbus_register_float(modbus_t *mb, int address, const char *pin_name, float multiplier) {
     int r;
     modbus_register_t *reg;
 
     reg = &modbus_register[num_modbus_registers];
+    reg->type = REGISTER_FLOAT;
 
-    r = hal_pin_float_newf(HAL_OUT, &reg->hal_pin, hal_comp_id, "%s.%s", modname, pin_name);
+    r = hal_pin_float_newf(HAL_OUT, &reg->hal_pin_float, hal_comp_id, "%s.%s", modname, pin_name);
     if (r != 0) {
         return NULL;
     }
@@ -277,6 +294,30 @@ modbus_register_t *add_modbus_register(modbus_t *mb, int address, const char *pi
     reg->address = address;
     reg->name = pin_name;
     reg->multiplier = multiplier;
+
+    read_modbus_register(mb, reg);
+
+    num_modbus_registers ++;
+
+    return reg;
+}
+
+
+modbus_register_t *add_modbus_register_u32(modbus_t *mb, int address, const char *pin_name, float multiplier) {
+    int r;
+    modbus_register_t *reg;
+
+    reg = &modbus_register[num_modbus_registers];
+    reg->type = REGISTER_U32;
+
+    r = hal_pin_u32_newf(HAL_OUT, &reg->hal_pin_u32, hal_comp_id, "%s.%s", modname, pin_name);
+    if (r != 0) {
+        return NULL;
+    }
+
+    reg->address = address;
+    reg->name = pin_name;
+    reg->multiplier = 0;
 
     read_modbus_register(mb, reg);
 
@@ -554,56 +595,60 @@ int main(int argc, char **argv) {
         goto out_closeHAL;
     }
 
-    if (add_modbus_register(mb, 0x3000, "freq-fb", 0.01) == NULL) {
+    if (add_modbus_register_float(mb, 0x3000, "freq-fb", 0.01) == NULL) {
         goto out_closeHAL;
     }
 
-    if (add_modbus_register(mb, 0x3002, "dc-bus-voltage", 0.1) == NULL) {
+    if (add_modbus_register_float(mb, 0x3002, "dc-bus-voltage", 0.1) == NULL) {
         goto out_closeHAL;
     }
 
-    if (add_modbus_register(mb, 0x3003, "output-voltage", 1.0) == NULL) {
+    if (add_modbus_register_float(mb, 0x3003, "output-voltage", 1.0) == NULL) {
         goto out_closeHAL;
     }
 
-    if (add_modbus_register(mb, 0x3004, "output-current", 1.0) == NULL) {
+    if (add_modbus_register_float(mb, 0x3004, "output-current", 1.0) == NULL) {
         goto out_closeHAL;
     }
 
-    speed_fb_reg = add_modbus_register(mb, 0x3005, "speed-fb", 1.0);
+    speed_fb_reg = add_modbus_register_float(mb, 0x3005, "speed-fb", 1.0);
     if (speed_fb_reg == NULL) {
         goto out_closeHAL;
     }
 
-    if (add_modbus_register(mb, 0x3006, "output-power", 1.0) == NULL) {
+    if (add_modbus_register_float(mb, 0x3006, "output-power", 1.0) == NULL) {
         goto out_closeHAL;
     }
 
-    if (add_modbus_register(mb, 0x300a, "input-terminal", 1.0) == NULL) {
+    if (add_modbus_register_float(mb, 0x300a, "input-terminal", 1.0) == NULL) {
         goto out_closeHAL;
     }
 
-    if (add_modbus_register(mb, 0x300b, "output-terminal", 1.0) == NULL) {
+    if (add_modbus_register_float(mb, 0x300b, "output-terminal", 1.0) == NULL) {
         goto out_closeHAL;
     }
 
-    if (add_modbus_register(mb, 0x300c, "AI1", 1.0) == NULL) {
+    if (add_modbus_register_float(mb, 0x300c, "AI1", 1.0) == NULL) {
         goto out_closeHAL;
     }
 
-    if (add_modbus_register(mb, 0x300d, "AI2", 1.0) == NULL) {
+    if (add_modbus_register_float(mb, 0x300d, "AI2", 1.0) == NULL) {
         goto out_closeHAL;
     }
 
-    if (add_modbus_register(mb, 0x3010, "HDI-frequency", 1.0) == NULL) {
+    if (add_modbus_register_float(mb, 0x3010, "HDI-frequency", 1.0) == NULL) {
         goto out_closeHAL;
     }
 
-    if (add_modbus_register(mb, 0x3014, "external-counter", 1.0) == NULL) {
+    if (add_modbus_register_float(mb, 0x3014, "external-counter", 1.0) == NULL) {
         goto out_closeHAL;
     }
 
-    if (add_modbus_register(mb, 0x5000, "fault-info", 1.0) == NULL) {
+    if (add_modbus_register_float(mb, 0x5000, "fault-info", 1.0) == NULL) {
+        goto out_closeHAL;
+    }
+
+    if (add_modbus_register_u32(mb, 0x5000, "fault-info-code", 1.0) == NULL) {
         goto out_closeHAL;
     }
 
@@ -624,7 +669,7 @@ int main(int argc, char **argv) {
             *haldata->freq_cmd = (*haldata->speed_cmd / motor_max_speed) * max_freq;
             set_motor_frequency(mb, *haldata->freq_cmd);
 
-            if ((fabs(*haldata->speed_cmd - *speed_fb_reg->hal_pin) / *haldata->speed_cmd) < 0.02) {
+            if ((fabs(*haldata->speed_cmd - *speed_fb_reg->hal_pin_float) / *haldata->speed_cmd) < 0.02) {
                 *haldata->at_speed = 1;
             } else {
                 *haldata->at_speed = 0;
