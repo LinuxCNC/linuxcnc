@@ -125,7 +125,7 @@ The following tables list all in-/output pins and state which signals they are m
 
 Signals utilized for moving axis.
 
-_<N>_  ... denotes the axis number, which is of {x, y, z, a, b, c}
+_<N>_  ... denotes the axis number, which is of {x, y, z, a, b, c}.
 
 `whb.halui.home-all` (bit,out)::
  connect to `halui.home-all`, driven by M-Home.

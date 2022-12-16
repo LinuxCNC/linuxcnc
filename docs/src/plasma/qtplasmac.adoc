@@ -592,7 +592,7 @@ After a successful QtPlasmaC installation, the following files are created in th
 |===
 
 [NOTE]
-<machine_name> is whatever name the user entered into the "Machine Name" field of the configuration wizard program
+_<machine_name>_ is whatever name the user entered into the "Machine Name" field of the configuration wizard program.
 
 [NOTE]
 Custom commands are allowed in custom.hal and the custom_postgui.hal files as they are not overwritten during updates.
@@ -3513,7 +3513,7 @@ Use the following sequence to set the offsets for a laser, camera, scribe, or of
 . Make a mark on the material by one of:
 .. Jog the torch down to pierce height then pulse the torch on to make a dimple in the material.
 .. Place marking dye on the torch shield then jog the torch down to mark the material.
-. Raise the Z axis so the torch and peripheral are clear of the material
+. Raise the Z axis so the torch and peripheral are clear of the material.
 . Jog the X/Y axes so that the peripheral is close to the mark from the torch.
 . Click the appropriate button to activate the peripheral.
 . Jog the X/Y axes so that the peripheral is centered in the mark from the torch.
@@ -4298,7 +4298,8 @@ is to mount a reed relay inside a non-conductive tube and wrap and secure three 
 
 This assembly will now act as a relay that will switch on when current is flowing through the work lead which only occurs when a cutting arc has been established.
 
-This will require that QtPlasmaC be operated in Mode 1 rather than Mode 0. See the <<qt_mode,QtPlasmaC Modes>> sections for more information.
+This will require that QtPlasmaC be operated in Mode 1 rather than Mode 0.
+See the <<qt_mode,QtPlasmaC Modes>> sections for more information.
 
 image::images/qtplasmac_reed_arc_ok.png[width=600,align="center"]
 
@@ -4307,7 +4308,7 @@ image::images/qtplasmac_reed_arc_ok.png[width=600,align="center"]
 
 image::images/qtplasmac_relay_contact.png[width=600,align="center"]
 
-A full description is at <<qt-contact-load,Contact Load>>
+A full description is at <<qt-contact-load,Contact Load>>.
 
 == Known Issues
 
