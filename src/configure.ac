@@ -30,7 +30,7 @@ if test "$srcdir" != "."; then
     AC_MSG_ERROR([Building outside of srcdir is not supported])
 fi
 
-AC_PROG_CXX
+AC_PROG_CXX([$RTSCC c++ clang++])
 AC_PROG_INSTALL
 
 m4_include([m4/ax_require_defined.m4])
