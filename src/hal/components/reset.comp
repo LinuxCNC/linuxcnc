@@ -73,5 +73,5 @@ FUNCTION(_) {
     }
     last_trigger = trigger;
 
-    return 0;
+    return;
 }
