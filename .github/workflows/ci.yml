@@ -29,13 +29,41 @@ jobs:
     - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc refs/tags/*:refs/tags/*
     - name: Build RIP & test
       run: |
-        ./scripts/travis-install-build-deps.sh
+        set -x
         sudo apt-get install -y eatmydata
-        curl -O https://snapshot.debian.org/archive/debian/20220716T154603Z/pool/main/p/po4a/po4a_0.67-2_all.deb
-        sudo apt install ./po4a_0.67-2_all.deb
+        eatmydata ./scripts/travis-install-build-deps.sh
+        eatmydata curl -O https://snapshot.debian.org/archive/debian/20220716T154603Z/pool/main/p/po4a/po4a_0.67-2_all.deb
+        sudo eatmydata apt install ./po4a_0.67-2_all.deb
         cd src
         eatmydata ./autogen.sh
         eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps
+        eatmydata make -O -j$((1+$(nproc))) default pycheck V=1
+        # Note that the package build covers html docs
+        eatmydata ../scripts/rip-environment runtests -p
+
+  rip-and-test-clang:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: echo "$GITHUB_CONTEXT"
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+        fetch-depth: 0
+    - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc refs/tags/*:refs/tags/*
+    - name: Clang build RIP & test
+      run: |
+        set -x
+        sudo apt-get install -y eatmydata
+        eatmydata ./scripts/travis-install-build-deps.sh
+        sudo eatmydata apt-get install -y clang
+        eatmydata curl -O https://snapshot.debian.org/archive/debian/20220716T154603Z/pool/main/p/po4a/po4a_0.67-2_all.deb
+        sudo eatmydata apt install ./po4a_0.67-2_all.deb
+        cd src
+        eatmydata ./autogen.sh
+        CC=clang CXX=clang++ eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps
         eatmydata make -O -j$((1+$(nproc))) default pycheck V=1
         # Note that the package build covers html docs
         eatmydata ../scripts/rip-environment runtests -p
