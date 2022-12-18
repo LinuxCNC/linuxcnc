@@ -29,7 +29,7 @@ _translate = QCoreApplication.translate
 
 def dialog_show(P, W, prefs, iniPath, STATUS, ACTION, TOOL):
     dlg = QDialog(W)
-    dlg.setWindowIcon(QIcon(os.path.join(P.IMAGES, 'Chips_Plasma.png')))
+    dlg.setWindowIcon(QIcon(os.path.join(P.iconBase, P.iconPath)))
     dlg.setWindowTitle(_translate('Offsets', 'Set Peripheral Offsets'))
     dlg.setModal(False)
     grid = QGridLayout()

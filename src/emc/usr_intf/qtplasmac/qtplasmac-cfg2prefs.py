@@ -46,9 +46,9 @@ class Cfg2Prefs(QMainWindow, object):
         self.setCentralWidget(wid)
         layout = QHBoxLayout()
         wid.setLayout(layout)
-        iconPath = 'share/qtvcp/images/qtplasmac/images/Chips_Plasma.png'
+        iconPath = 'share/icons/hicolor/scalable/apps/linuxcnc_alt/linuxcncicon_plasma.svg'
         appPath = os.path.realpath(os.path.dirname(sys.argv[0]))
-        iconBase = '/usr' if appPath == '/bin' else appPath.replace('/bin', '')
+        iconBase = '/usr' if appPath == '/usr/bin' else appPath.replace('/bin', '/debian/extras/usr')
         self.setWindowIcon(QIcon(os.path.join(iconBase, iconPath)))
         self.setWindowTitle('QtPlasmaC Cfg2Prefs')
         vBox = QVBoxLayout()
