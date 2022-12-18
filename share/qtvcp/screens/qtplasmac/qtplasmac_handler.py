@@ -1,4 +1,4 @@
-VERSION = '1.233.254'
+VERSION = '1.233.255'
 
 '''
 qtplasmac_handler.py
@@ -22,6 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc
 '''
 
 import os
+import sys
 from shutil import copy as COPY
 from shutil import move as MOVE
 from subprocess import Popen, PIPE
@@ -393,7 +394,10 @@ class HandlerClass:
 # called by qtvcp.py, can override qtvcp settings or qtvcp allowed user options (via INI)
     def before_loop__(self):
         self.w.setWindowTitle('{} - QtPlasmaC v{}, powered by QtVCP on LinuxCNC v{}'.format(self.machineName, VERSION, linuxcnc.version.split(':')[0]))
-        self.w.setWindowIcon(QIcon(os.path.join(self.IMAGES, 'Chips_Plasma.png')))
+        self.iconPath = 'share/icons/hicolor/scalable/apps/linuxcnc_alt/linuxcncicon_plasma.svg'
+        appPath = os.path.realpath(os.path.dirname(sys.argv[0]))
+        self.iconBase = '/usr' if appPath == '/usr/bin' else appPath.replace('/bin', '/debian/extras/usr')
+        self.w.setWindowIcon(QIcon(os.path.join(self.iconBase, self.iconPath)))
 
 
 #########################################################################################################################
