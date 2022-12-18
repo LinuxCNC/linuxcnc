@@ -72,6 +72,4 @@ FUNCTION(_) {
         out_bit = reset_bit;
     }
     last_trigger = trigger;
-
-    return 0;
 }
