@@ -111,7 +111,7 @@ static bp::object errorStack(Interp &interp)
 
     for (int i = 0; i < settings->stack_index; i++)
 	msgs.append(bp::object( (const char *) settings->stack[i]));
-    return msgs;
+    return std::move(msgs);
 }
 
 static bp::object wrap_find_tool_pocket(Interp &interp, int toolno)
