@@ -408,6 +408,14 @@ elif ! test `$CC -dumpversion | cut -d '.' -f 1` -gt 2 ; then
   AC_MSG_ERROR([Compilers older than gcc 3.x are no longer supported])
 fi
 
+# Set flags for C and C++ if supported
+for commonflag in -Wno-stringop-truncation ; do
+  if echo "int main() { return 0;}" | $CC -Werror $commonflag -E - > /dev/null; then
+    CFLAGS="$CFLAGS $flag"
+    CXXFLAGS="$CXXFLAGS $flag"
+  fi
+done
+
 AC_MSG_CHECKING([for usability of linux/hidraw.h])
 AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/ioctl.h>
