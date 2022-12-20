@@ -94,21 +94,18 @@ $ sudo make setuid
 LinuxCNC can also be built and run on non-realtime platforms, such as
 a regular install of Debian or Ubuntu without any special realtime kernel.
 
-In this mode LinuxCNC is not useful for controlling machine tools, but
-it is useful for simulating the execution of G-code and for testing the
-non-realtime parts of the system (such as the user interfaces, and some
-kinds of components and device drivers).
+In this mode LinuxCNC is not useful for controlling machine tools,
+but it is useful for simulating the execution of G-code and for testing the non-realtime parts of the system
+(such as the user interfaces, and some kinds of components and device drivers).
 
 == Build modes
 
-There are two ways to build LinuxCNC: the developer-friendly "run in
-place" mode and the user-friendly Debian packaging mode.
+There are two ways to build LinuxCNC: the developer-friendly "run in place" mode and the user-friendly Debian packaging mode.
 
 === Building for Run In Place
 
-In a Run-In-Place build, the LinuxCNC programs are compiled from source
-and then run directly from within the build directory.  Nothing is
-installed outside the build directory.
+In a Run-In-Place build, the LinuxCNC programs are compiled from source and then run directly from within the build directory.
+Nothing is installed outside the build directory.
 
 This is quick and easy, and suitable for rapid iteration of changes.
 
@@ -116,15 +113,14 @@ The LinuxCNC test suite runs only in a Run-In-Place build.
 
 Most LinuxCNC developers primarily build using this mode.
 
-Building for Run-In-Place follows the steps in the <<Quick-Start,Quick Start>>
-section at the top of this document, possibly with different arguments
-to `src/configure` and `make`.
+Building for Run-In-Place follows the steps in the <<Quick-Start,Quick Start>> section at the top of this document,
+possibly with different arguments to `src/configure` and `make`.
 
 [[src-configure-arguments]]
 ==== `src/configure` arguments
 
-The `src/configure` script configures how the source code will be
-compiled.  It takes many optional arguments.
+The `src/configure` script configures how the source code will be compiled.
+It takes many optional arguments.
 
 List all arguments to `src/configure` by running this:
 
@@ -198,9 +194,9 @@ internet access.
 Building Debian packages requires the `dpkg-buildpackage` tool, from the
 `dpkg-dev` package:
 
------
+----
 $ sudo apt-get install dpkg-dev
------
+----
 
 Building Debian packages also requires that all build dependencies are
 installed, as described in the section <<Satisfying-Build-Dependencies,
@@ -212,38 +208,35 @@ of two steps.
 The first step is generating the Debian package scripts and meta-data
 from the git repo by running this:
 
------
+----
 $ cd linuxcnc-dev/debian
 $ ./configure uspace
 $ cd ..
------
+----
 
 [NOTE]
-=====
-The `debian/configure` script is different from the `src/configure`
-script!
+====
+The `debian/configure` script is different from the `src/configure` script!
 
-The `debian/configure` script needs different arguments depending on the
-platform you're building on/for, see the <<debian-configure-arguments,
-`debian/configure` arguments>> section.
-=====
+The `debian/configure` script needs different arguments depending on the platform you're building on/for,
+see the <<debian-configure-arguments, `debian/configure` arguments>> section.
+====
 
-Once the Debian package scripts and meta-data are configured, build the
-package by running `dpkg-buildpackage` (note that it needs to run from
-the `linuxcnc-dev` directory, *not* from `linuxcnc-dev/debian`):
+Once the Debian package scripts and meta-data are configured, build the package by running `dpkg-buildpackage`
+(note that it needs to run from the `linuxcnc-dev` directory, *not* from `linuxcnc-dev/debian`):
 
------
+----
 $ dpkg-buildpackage -b -uc
------
+----
 
 [[debian-configure-arguments]]
 ==== `debian/configure` arguments
 
-The `debian/configure` script configures the Debian packaging.  It must
-be run before `dpkg-checkbuilddeps` and `dpkg-buildpackage` can be run.
+The `debian/configure` script configures the Debian packaging.
+It must be run before `dpkg-checkbuilddeps` and `dpkg-buildpackage` can be run.
 
-It takes a single argument which specifies the realtime or non-realtime
-platform to build for.  The normal values for this argument are:
+It takes a single argument which specifies the realtime or non-realtime platform to build for.
+The normal values for this argument are:
 
 `uspace`::
   Configure the Debian package for Preempt-RT realtime or for
