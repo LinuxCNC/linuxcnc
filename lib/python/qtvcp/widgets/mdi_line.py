@@ -116,6 +116,7 @@ class MDI(QLineEdit):
             return
         else:
             ACTION.CALL_MDI(text+'\n')
+            ACTION.RELOAD_DISPLAY()
         t = time.time() + 0.1
         while time.time() < t:
             QApplication.processEvents()
