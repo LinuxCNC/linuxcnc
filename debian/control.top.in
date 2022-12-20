@@ -32,7 +32,7 @@ Build-Depends:
     libtirpc-dev,
     libusb-1.0-0-dev,
     libxmu-dev,
-    netcat,
+    netcat-traditional | netcat-openbsd | netcat,
     po4a,
     procps,
     psmisc,
