@@ -336,6 +336,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             self.display_loaded = True
 
     def load(self,filename = None):
+        linuxcnc.command().task_plan_synch()
         s = self.stat
         s.poll()
         if not filename and s.file:
