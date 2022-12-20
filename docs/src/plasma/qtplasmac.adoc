@@ -385,7 +385,7 @@ image::images/qtplasmac_plasmac2qt.png[width=500,align="center"]
 [width="100%",cols="4,10,6",options="header"]
 |===
 |Field |Description |Examples
-|INI FILE IN EXISTING PLASMAC CONFIG |This is the INI file of the PlasmaC config that requires migrating.|_<machine_name>_.ini
+|INI FILE IN EXISTING PLASMAC CONFIG |This is the INI file of the PlasmaC config that requires migrating. |_<machine_name>_.ini
 |MONITOR ASPECT RATIO |This is the <<qt_formats, aspect ratio format>> for the GUI.|16:9
 |ESTOP |Selects the required Estop type based on the following criteria: +
     0 - Estop is an indicator only. +
@@ -751,11 +751,11 @@ Some functions/features are only used for particular modes and are not displayed
 |Name |Description
 |Material |The top header is clickable in this area to reveal a drop down menu. It is used to manually select the current material cut parameters. If there are no materials in the material file then only the default material will be displayed.
 |VEL:|This displays the actual cut feed rate the table is moving at.
-|FR:|If "View Material" is selected on the <<qt_settings-tab, SETTINGS Tab>>, this displays the currently selected material's Feed Rate.
-|PH:|If "View Material" is selected on the <<qt_settings-tab, SETTINGS Tab>>, this displays the currently selected material's Pierce Height.
-|PD:|If "View Material" is selected on the <<qt_settings-tab, SETTINGS Tab>>, this displays the currently selected material's Pierce Delay.
-|CH:|If "View Material" is selected on the <<qt_settings-tab, SETTINGS Tab>>, this displays the currently selected material's Cut Height.
-|CA:|If "View Material" is selected on the <<qt_settings-tab, SETTINGS Tab>>, and RS485 communications are enabled, this displays the currently selected material's Cut Amperage.
+|FR:|If "View Material" is selected on the <<qt_settings-tab,SETTINGS Tab>>, this displays the currently selected material's Feed Rate.
+|PH:|If "View Material" is selected on the <<qt_settings-tab,SETTINGS Tab>>, this displays the currently selected material's Pierce Height.
+|PD:|If "View Material" is selected on the <<qt_settings-tab,SETTINGS Tab>>, this displays the currently selected material's Pierce Delay.
+|CH:|If "View Material" is selected on the <<qt_settings-tab,SETTINGS Tab>>, this displays the currently selected material's Cut Height.
+|CA:|If "View Material" is selected on the <<qt_settings-tab,SETTINGS Tab>>, and RS485 communications are enabled, this displays the currently selected material's Cut Amperage.
 |T |This button changes the <<sub:qt-preview-views,preview>> to a top down full table view.
 |P |This button changes the <<sub:qt-preview-views,preview>> to an isometric view.
 |Z |This button changes the <<sub:qt-preview-views,preview>> to a top down view.
@@ -2315,7 +2315,7 @@ IMPORTANT: PUDDLE JUMP IS DISABLED DURING CUT RECOVERY
 [[qt_run-from-line]]
 === Run From Line
 
-If the user has the Run From Line option enabled in the GUI SETTINGS section of the <<qt_settings-tab, SETTINGS Tab>> they will have the ability to start from any line in a G-code program via the following methods:
+If the user has the Run From Line option enabled in the GUI SETTINGS section of the <<qt_settings-tab,SETTINGS Tab>> they will have the ability to start from any line in a G-code program via the following methods:
 
 . Clicking any line in the Preview Window
 . Clicking any line in the G-code Window
@@ -2581,7 +2581,7 @@ The general functions are as follows:
 |===
 |Name               |Description
 |Material Drop Down |Allows the user to select the desired material for cutting. +
-If "VIEW MATERIAL" is selected on the <<qt_settings-tab, SETTINGS Tab>>, a visual reference showing key material cut settings will be displayed on the Conversational Preview Window. +
+If "VIEW MATERIAL" is selected on the <<qt_settings-tab,SETTINGS Tab>>, a visual reference showing key material cut settings will be displayed on the Conversational Preview Window. +
 Examples are:  Feed Rate, Pierce Height, Pierce Delay, Cut Height, and Kerf Width (for Conversational only). Cut Amps will be shown if PowerMax communications are enabled.
 |NEW |Removes the current G-code file and load a blank G-code file.
 |SAVE |Opens a dialog box allowing the current shape to be saved as a G-code file.
@@ -3756,34 +3756,34 @@ The different states QtPlasmaC could encounter are as follows:
 [width="100%",cols="1,4,12",options="header"]
 |===
 |State |Name                  |Description
-|0     |IDLE                  |idle and waiting for a start command
-|1     |PROBE_HEIGHT          |move down to probe height
-|2     |PROBE_DOWN            |probe down until material sensed
-|3     |PROBE_UP              |probe up until material not sensed, this sets the zero height
-|4     |ZERO_HEIGHT           |not used at present
-|5     |PIERCE_HEIGHT         |move up to pierce height
-|6     |TORCH_ON              |turn the torch on
-|7     |ARC_OK                |wait until arc ok detected
-|8     |PIERCE_DELAY          |wait for pierce delay time
-|9     |PUDDLE_JUMP           |xy motion begins, move to puddle jump height
-|10    |CUT_HEIGHT            |move to cut height
-|11    |CUT_MODE_01           |cutting in either mode 0 or mode 1
-|12    |CUT_MODE_2            |cutting in mode 2
-|13    |PAUSE_AT_END          |pause motion at end of cut
-|14    |SAFE_HEIGHT           |move to safe height
-|15    |MAX_HEIGHT            |move to maximum height
-|16    |END_CUT               |end the current cut
-|17    |END_JOB               |end the current job
-|18    |TORCHPULSE            |a torch pulse is active
-|19    |PAUSED_MOTION         |cut recovery motion is active while paused
-|20    |OHMIC_TEST            |an ohmic test is active
-|21    |PROBE_TEST            |a probe test is active
-|22    |SCRIBING              |a scribing job is active
-|23    |CONSUMABLE_CHANGE_ON  |move to consumable change coordinates
-|24    |CONSUMABLE_CHANGE_OFF |return from consumable change coordinates
-|25    |CUT_RECOVERY_ON       |cut recovery is active
-|26    |CUT_RECOVERY_OFF      |cut recovery is deactivated
-|27    |DEBUG
+|0    m|IDLE                  |idle and waiting for a start command
+|1    m|PROBE_HEIGHT          |move down to probe height
+|2    m|PROBE_DOWN            |probe down until material sensed
+|3    m|PROBE_UP              |probe up until material not sensed, this sets the zero height
+|4    m|ZERO_HEIGHT           |not used at present
+|5    m|PIERCE_HEIGHT         |move up to pierce height
+|6    m|TORCH_ON              |turn the torch on
+|7    m|ARC_OK                |wait until arc ok detected
+|8    m|PIERCE_DELAY          |wait for pierce delay time
+|9    m|PUDDLE_JUMP           |xy motion begins, move to puddle jump height
+|10   m|CUT_HEIGHT            |move to cut height
+|11   m|CUT_MODE_01           |cutting in either mode 0 or mode 1
+|12   m|CUT_MODE_2            |cutting in mode 2
+|13   m|PAUSE_AT_END          |pause motion at end of cut
+|14   m|SAFE_HEIGHT           |move to safe height
+|15   m|MAX_HEIGHT            |move to maximum height
+|16   m|END_CUT               |end the current cut
+|17   m|END_JOB               |end the current job
+|18   m|TORCHPULSE            |a torch pulse is active
+|19   m|PAUSED_MOTION         |cut recovery motion is active while paused
+|20   m|OHMIC_TEST            |an ohmic test is active
+|21   m|PROBE_TEST            |a probe test is active
+|22   m|SCRIBING              |a scribing job is active
+|23   m|CONSUMABLE_CHANGE_ON  |move to consumable change coordinates
+|24   m|CONSUMABLE_CHANGE_OFF |return from consumable change coordinates
+|25   m|CUT_RECOVERY_ON       |cut recovery is active
+|26   m|CUT_RECOVERY_OFF      |cut recovery is deactivated
+|27   m|DEBUG
 |===
 
 The DEBUG state is for testing purposes only and will not normally be encountered.
@@ -3987,17 +3987,17 @@ _n_ is delay time (in seconds). +
 This value may need to be increased for very large material files.
 |Set feed rate from <<qt_material-handling,material>> |F#<_hal[plasmac.cut-feed-rate]>
 |Enable <<qt_ignore-ok,Ignore Arc OK>> |M62 P1 (synchronized with motion) +
-    M64 P1 (immediate)
+M64 P1 (immediate)
 |Disable <<qt_ignore-ok,Ignore Arc OK>> |M63 P1 (synchronized with motion) +
-    M65 P1 (immediate)
+M65 P1 (immediate)
 |Disable <<qt_thc,THC>> |M62 P2 (synchronized with motion) +
-    M64 P2 (immediate)
+M64 P2 (immediate)
 |Enable <<qt_thc,THC>> |M63 P2 (synchronized with motion) +
-    M65 P2 (immediate)
+M65 P2 (immediate)
 |Disable <<qt_overcut,Torch>> |M62 P3 (synchronized with motion) +
-    M64 P3 (immediate)
+M64 P3 (immediate)
 |Enable <<qt_overcut,Torch>> |M63 P3 (synchronized with motion) +
-    M65 P3 (immediate)
+M65 P3 (immediate)
 |Set <<qt_velocity_thc,velocity>> to a percentage of feed rate |M67 E3 Qn (synchronized with motion) +
 M68 E3 Qn (immediate) +
 _n_ is the percentage to set +
@@ -4222,7 +4222,8 @@ _THCAD-5 or THCAD-10_
 
 If connecting to a plasma CNC port then the divider ratio is selected from the plasma machine. A common ratio used is 20:1.
 
-If connecting to the plasma machines full arc voltage then a common setup for a THCAD-10 is to use a 1 MΩ; resistor from arc negative to THCAD negative and a 1 MΩ; resistor from arc positive to THCAD positive.
+If connecting to the plasma machines full arc voltage then a common setup for a THCAD-10 is to use a 1 MΩ resistor from arc negative to THCAD negative
+and a 1 MΩ resistor from arc positive to THCAD positive.
 The divider ratio is obtained by:
 
 ----
@@ -4308,7 +4309,8 @@ QtPlasmaC uses this disabling feature by default for all keys only when the <<qt
 with the following exceptions when autorepeat is allowed with the <<qt_main-tab,MAIN Tab>> visible:
 G-code editor is active, MDI is active. When QtPlasmaC is shut down, the Operating System's autorepeat feature will be enabled for all keys.
 
-If the user wishes to prevent QtPlasmaC from changing the Operating System's autorepeat settings, enter the following in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file:
+If the user wishes to prevent QtPlasmaC from changing the Operating System's autorepeat settings,
+enter the following in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file:
 
 [source,{ini}]
 ----

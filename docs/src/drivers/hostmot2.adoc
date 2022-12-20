@@ -136,7 +136,7 @@ exported:
    (This function is not available on the 7i43 due to limitations of the EPP bus.)
 
 [NOTE]
-=====================================================================
+====
 The above 'read_gpio' and 'write_gpio' functions should not
 normally be needed, since the GPIO bits are read and written along
 with everything else in the standard 'read' and 'write'
@@ -147,7 +147,7 @@ case some very fast (frequently updated) I/O is needed. These
 functions should be run in the base thread. If you have need for
 this, please send an email and tell us about it, and what your
 application is.
-=====================================================================
+====
 
 == Pinouts
 

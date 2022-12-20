@@ -539,16 +539,16 @@ For a three axes XYZ machine the HAL pins will react as shown in the following t
 [cols="10,10,10,10", options="header"]
 |====
 | Pin                        | Settings Mode         | Homing Mode | Touch off Mode
-| gmoccapy.h-button.button-0 | delete MDI history    |             | edit offsets
-| gmoccapy.h-button.button-1 |                       | home all    | touch X
-| gmoccapy.h-button.button-2 |                       |             | touch Y
-| gmoccapy.h-button.button-3 |                       | home x      | touch Z
-| gmoccapy.h-button.button-4 | open classic ladder   | home y      |
-| gmoccapy.h-button.button-5 | open HAL scope        | home z      |
-| gmoccapy.h-button.button-6 | open HAL status       |             | zero G92
-| gmoccapy.h-button.button-7 | open HAL meter        |             |
-| gmoccapy.h-button.button-8 | open HAL calibration  | unhome all  | set selected
-| gmoccapy.h-button.button-9 | open HAL show         | back        | back
+m|gmoccapy.h-button.button-0 | delete MDI history    |             | edit offsets
+m|gmoccapy.h-button.button-1 |                       | home all    | touch X
+m|gmoccapy.h-button.button-2 |                       |             | touch Y
+m|gmoccapy.h-button.button-3 |                       | home x      | touch Z
+m|gmoccapy.h-button.button-4 | open classic ladder   | home y      |
+m|gmoccapy.h-button.button-5 | open HAL scope        | home z      |
+m|gmoccapy.h-button.button-6 | open HAL status       |             | zero G92
+m|gmoccapy.h-button.button-7 | open HAL meter        |             |
+m|gmoccapy.h-button.button-8 | open HAL calibration  | unhome all  | set selected
+m|gmoccapy.h-button.button-9 | open HAL show         | back        | back
 |====
 
 [[table:c]]
@@ -556,23 +556,23 @@ For a three axes XYZ machine the HAL pins will react as shown in the following t
 [cols="10,10,10,10", options="header"]
 |====
 | Pin                        | Tool Mode                                | Edit Mode     | Select File
-| gmoccapy.h-button.button-0 | delete tool(s)                           |               | go to home directory
-| gmoccapy.h-button.button-1 | new tool                                 | reload file   | one directory level up
-| gmoccapy.h-button.button-2 | reload tool table                        | save          |
-| gmoccapy.h-button.button-3 | apply changes                            | save as       | move selection left
-| gmoccapy.h-button.button-4 | change tool by number T? M6              |               | move selection right
-| gmoccapy.h-button.button-5 | set tool by number without change M61 Q? |               | jump to directory as set in settings
-| gmoccapy.h-button.button-6 | change tool to the selected one          | new file      |
-| gmoccapy.h-button.button-7 |                                          |               | select / ENTER
-| gmoccapy.h-button.button-8 | touch of tool in Z                       | show keyboard |
-| gmoccapy.h-button.button-9 | back                                     | back          | back
+m|gmoccapy.h-button.button-0 | delete tool(s)                           |               | go to home directory
+m|gmoccapy.h-button.button-1 | new tool                                 | reload file   | one directory level up
+m|gmoccapy.h-button.button-2 | reload tool table                        | save          |
+m|gmoccapy.h-button.button-3 | apply changes                            | save as       | move selection left
+m|gmoccapy.h-button.button-4 | change tool by number T? M6              |               | move selection right
+m|gmoccapy.h-button.button-5 | set tool by number without change M61 Q? |               | jump to directory as set in settings
+m|gmoccapy.h-button.button-6 | change tool to the selected one          | new file      |
+m|gmoccapy.h-button.button-7 |                                          |               | select / ENTER
+m|gmoccapy.h-button.button-8 | touch of tool in Z                       | show keyboard |
+m|gmoccapy.h-button.button-9 | back                                     | back          | back
 |====
 
 So we have 67 reactions with only 10 HAL pins!
 
-These pins are made available to be able to use the screen without an touch
-panel, or protect it from excessive use by placing hardware buttons around
-the panel. They are available in a sample configuration like shown in the <<gmoccapy-sim-hardware-button,image below>>.
+These pins are made available to be able to use the screen without an touch panel,
+or protect it from excessive use by placing hardware buttons around the panel.
+They are available in a sample configuration like shown in the <<gmoccapy-sim-hardware-button,image below>>.
 
 [[gmoccapy-sim-hardware-button]]
 .Sample configuration "gmoccapy_sim_hardware_button" showing the side buttons
@@ -641,20 +641,16 @@ In a future release it will be integrated in the settings page.
 - *gmoccapy.spc_rapid.value*           _(float OUT)_ - Value of the widget
 - *gmoccapy.spc_rapid.scaled-value*    _(float OUT)_ - Scaled value of the widget
 
-The float pins do accept values from 0.0 to 1.0, being the percentage value
-you want to set the slider value.
+The float pins do accept values from 0.0 to 1.0, being the percentage value you want to set the slider value.
 
 [WARNING]
-If you use both connection types, do not connect the same slider to
-both pin, as the influences between the two has not been tested! Different
-sliders may be connected to the one or other HAL connection type.
+If you use both connection types, do not connect the same slider to both pin as the influences between the two has not been tested!
+Different sliders may be connected to the one or other HAL connection type.
 
 [IMPORTANT]
 Please be aware that the jog velocity depends on the turtle button state.
-It will lead to different slider scales depending on the mode
-(turtle or rabbit). Please take also a look at
-<<gmoccapy:jog-velocity,jog velocities and turtle-jog HAL pin>> for more
-details.
+It will lead to different slider scales depending on the mode (turtle or rabbit).
+Please take also a look at <<gmoccapy:jog-velocity,jog velocities and turtle-jog HAL pin>> for more details.
 
 .Setting a slider value
 ====
@@ -670,8 +666,7 @@ value to set = 45 % +
 
 === Jog HAL Pins
 
-All axes given in the INI file have a jog-plus and a jog-minus pin, so
-hardware momentary switches can be used to jog the axes.
+All axes given in the INI file have a jog-plus and a jog-minus pin, so hardware momentary switches can be used to jog the axes.
 
 [NOTE]
 Naming of these HAL pins have changed in GMOCCAPY 2.
@@ -698,13 +693,12 @@ For a C-axis you will see:
 [[gmoccapy:jog-velocity]]
 === Jog Velocities and Turtle-Jog HAL Pin
 
-The jog velocity can be selected with the corresponding slider. The scale of
-the slider will be modified if the turtle button (the one showing a rabbit or a
-turtle) has been toggled. If the button is not visible, it might have been
-disabled on the <<gmoccapy:turtle-jog,settings page>>. If the button shows the
-rabbit-icon, the scale is from min to max machine velocity. If it shows the
-turtle, the scale will reach only 1/20 of max velocity by default. The used
-divider can be set on the <<gmoccapy:turtle-jog,settings page>>.
+The jog velocity can be selected with the corresponding slider.
+The scale of the slider will be modified if the turtle button (the one showing a rabbit or a turtle) has been toggled.
+If the button is not visible, it might have been disabled on the <<gmoccapy:turtle-jog,settings page>>.
+If the button shows the rabbit-icon, the scale is from min to max machine velocity.
+If it shows the turtle, the scale will reach only 1/20 of max velocity by default.
+The used divider can be set on the <<gmoccapy:turtle-jog,settings page>>.
 
 So using a touch screen it is much easier to select smaller velocities.
 
@@ -720,12 +714,9 @@ The jog increments given in the INI file like
 [DISPLAY]
 INCREMENTS = 5mm 1mm .5mm .1mm .05mm .01mm
 ----
-are selectable through HAL pins, so a selection hardware
-switch can be used to select the increment to use. There will be a maximum
-of 10 HAL pins for the increments given in the INI file.
-If you give more
-increments in your INI file, they will be not reachable from the GUI as they
-will not be displayed.
+are selectable through HAL pins, so a selection hardware switch can be used to select the increment to use.
+There will be a maximum of 10 HAL pins for the increments given in the INI file.
+If you give more increments in your INI file, they will be not reachable from the GUI as they will not be displayed.
 
 If you have 6 increments in your INI file like in the example above, you will get *7* pins:
 
@@ -752,16 +743,14 @@ To use this pin, you need to activate it on the settings page.
 
 === Error/Warning Pins
 
-- *gmoccapy.error* _(bit OUT)_ - Indicates an error, so a light can lit or even the machine may
-be stopped. It will be reset with the pin `gmoccapy.delete-message`.
+- *gmoccapy.error* _(bit OUT)_ - Indicates an error, so a light can lit or even the machine may be stopped. It will be reset with the pin `gmoccapy.delete-message`.
 - *gmoccapy.delete-message* _(bit IN)_ - Will delete the first error and reset the `gmoccapy.error` pin to false after the last error has been cleared.
 - *gmoccapy.warning-confirm* _(bit IN)_ - Confirms warning dialog like click on OK
 
 
 [NOTE]
 ====
-Messages or user infos will not affect the `gmoccapy.error` pin, but the `gmoccapy.delete-message`
-pin will delete the last message if no error is shown!
+Messages or user infos will not affect the `gmoccapy.error` pin, but the `gmoccapy.delete-message` pin will delete the last message if no error is shown!
 ====
 
 [[gmoccapy:user-created-message]]
@@ -782,11 +771,11 @@ GMOCCAPY may be configured to react to external errors, using 3 different user m
 
 - *gmoccapy.messages.yesnodialog* _(bit IN)_ - Triggers the dialog.
 - *gmoccapy.messages.yesnodialog-waiting* _(bit OUT)_ - Will be '1' as long as the dialog is open. Closing the message will reset the this pin.
-- *gmoccapy.messages.yesnodialog-response* _(bit OUT)_ - This pin will change to '1' if the user clicks OK and in all
-  other cases it will be '0'. This pin will remain '1' until the dialog is called again.
+- *gmoccapy.messages.yesnodialog-response* _(bit OUT)_ - This pin will change to '1' if the user clicks OK and in all other cases it will be '0'.
+  This pin will remain '1' until the dialog is called again.
 
-To add a user created message you need to add the message to the INI file in the
-DISPLAY section. See <<sub:gmocccapy-configuration-user-messages,Configuration of User Created Messages>>.
+To add a user created message you need to add the message to the INI file in the DISPLAY section.
+See <<sub:gmocccapy-configuration-user-messages,Configuration of User Created Messages>>.
 
 .User Message Example (INI file)
 [source,{ini}]
@@ -826,21 +815,19 @@ There are two pins for spindle feedback:
 
 There are three pins giving information about the program progress:
 
-- *gmoccapy.program.length* _(s32 OUT)_ - Shows the total number of lines of the program
-- *gmoccapy.program.current-line* _(s32 OUT)_ - Indicates the current working line of the program
-- *gmoccapy.program.progress* _(float OUT)_ - Gives the program progress in percentage
+- *gmoccapy.program.length* _(s32 OUT)_ - Shows the total number of lines of the program.
+- *gmoccapy.program.current-line* _(s32 OUT)_ - Indicates the current working line of the program.
+- *gmoccapy.program.progress* _(float OUT)_ - Gives the program progress in percentage.
 
-The values may not be very accurate if you are working with subroutines or
-large remap procedures. Also loops will cause different values.
+The values may not be very accurate if you are working with subroutines or large remap procedures.
+Also loops will cause different values.
 
 === Tool Related Pins
 
 .Tool Change Pins
-These pins are provided to use GMOCCAPY's internal tool change dialog, similar to
-the one known from AXIS, but with several modifications. So you will not only
-get the message to change to 'tool number 3', but also the description of that
-tool like '7.5 mm 3 flute cutter'. The information is taken from the tool
-table, so it is up to you what to display.
+These pins are provided to use GMOCCAPY's internal tool change dialog, similar to the one known from AXIS, but with several modifications.
+So you will not only get the message to change to 'tool number 3', but also the description of that tool like '7.5 mm 3 flute cutter'.
+The information is taken from the tool table, so it is up to you what to display.
 
 .GMOCCAPY tool change dialog
 image::images/gmoccapy_manual_toolchange.png["Manual tool change",align="left"]
@@ -864,8 +851,8 @@ net tool-prep-loop iocontrol.0.tool-prepare <= iocontrol.0.tool-prepared
 Please take care, that this connections have to be done in the postgui HAL file.
 
 .Tool Offset Pins
-These pins allow you to show the active tool offset values for X and Z in the
-tool information frame. You should know that they are only active after G43 has been sent.
+These pins allow you to show the active tool offset values for X and Z in the tool information frame.
+You should know that they are only active after G43 has been sent.
 
 .Tool information area
 image::images/gmoccapy_tool_info.png["Tool information",align="left"]
@@ -874,8 +861,7 @@ image::images/gmoccapy_tool_info.png["Tool information",align="left"]
 - *gmoccapy.tooloffset-z* _(float IN)_
 
 [NOTE]
-The tooloffset-x line is not needed on a mill,
-and will not be displayed on a mill with trivial kinematics.
+The tooloffset-x line is not needed on a mill, and will not be displayed on a mill with trivial kinematics.
 
 To display the current offsets, the pins have to be connected like this in the postgui HAL file:
 
@@ -886,22 +872,18 @@ net tooloffset-z gmoccapy.tooloffset-z <= motion.tooloffset.z
 ----
 
 [IMPORTANT]
-Please note, that GMOCCAPY takes care of its own to update the offsets,
-sending an G43 after any tool change, *but not in auto mode!* +
-So writing a program makes you responsible to include an G43 after
-each tool change!
+Please note, that GMOCCAPY takes care of its own to update the offsets, sending an G43 after any tool change, *but not in auto mode!* +
+So writing a program makes you responsible to include an G43 after each tool change!
 
 [[gmoccapy:auto-tool-measurement]]
 == Auto Tool Measurement
 
-GMOCCAPY offers an integrated auto tool measurement. To use this feature, you
-will need to do some additional settings and you may want to use the
-offered HAL pin to get values in your own NGC remap procedure.
+GMOCCAPY offers an integrated auto tool measurement.
+To use this feature, you will need to do some additional settings and you may want to use the offered HAL pin to get values in your own NGC remap procedure.
 
 [IMPORTANT]
-Before starting the first test, do not forget to enter the probe
-height and probe velocities on the settings page! See
-<<gmoccapy:tool-measurement,Settings Page Tool Measurement>>
+Before starting the first test, do not forget to enter the probe height and probe velocities on the settings page!
+See <<gmoccapy:tool-measurement,Settings Page Tool Measurement>>.
 
 It might be also a good idea to take a look at the tool measurement video:
 see <<gmoccapy:tool-measurement-videos,tool measurement related videos>>.
@@ -920,23 +902,21 @@ Here is a small sketch:
 .Tool measurement data
 image::images/sketch_auto_tool_measurement.png[align="left"]
 
-With the first given tool change the tool will be measured and the offset will
-be set automatically to fit the block height. The advantage of the GMOCCAPY
-way is, that you do not need a reference tool.
+With the first given tool change the tool will be measured and the offset will be set automatically to fit the block height.
+The advantage of the GMOCCAPY way is, that you do not need a reference tool.
 
 [NOTE]
 ====
-Your program must contain a tool change at the beginning! The tool will be
-measured, even it has been used before, so there is no danger, if the block
-height has changed. There are several videos showing the way to do that on
-YouTube.
+Your program must contain a tool change at the beginning! The tool will be measured,
+even it has been used before, so there is no danger, if the block height has changed.
+There are several videos showing the way to do that on YouTube.
 ====
 
 
 === Tool Measurement Pins
 
-GMOCCAPY offers five pins for tool measurement purposes. These pins are mostly used
-to be read from a G-code subroutine, so the code can react to different values.
+GMOCCAPY offers five pins for tool measurement purposes.
+These pins are mostly used to be read from a G-code subroutine, so the code can react to different values.
 
 - *gmoccapy.toolmeasurement* _(bit OUT)_ - Enable or not tool measurement
 - *gmoccapy.blockheight* _(float OUT)_ - The measured value of the top face of the workpiece
@@ -961,11 +941,9 @@ REMAP=M6  modalgroup=6 prolog=change_prolog ngc=change epilog=change_epilog
 [NOTE]
 Make sure INI_VARS and HAL_PIN_VARS are not set to 0. They are set to 1 by default.
 
-
 .The Tool Sensor Section
 The position of the tool sensor and the start position of the probing movement,
-all values are absolute coordinates, except MAXPROBE, which must be given in
-relative movement.
+all values are absolute coordinates, except MAXPROBE, which must be given in relative movement.
 
 [source,{ini}]
 ----
@@ -977,9 +955,8 @@ MAXPROBE = -20
 ----
 
 .The Change Position Section
-This is not named TOOL_CHANGE_POSITION  on purpose - *canon uses that name and
-will interfere otherwise.* The position to move the machine before giving the
-change tool command. All values are in absolute coordinates.
+This is not named TOOL_CHANGE_POSITION  on purpose - *canon uses that name and will interfere otherwise.*
+The position to move the machine before giving the change tool command. All values are in absolute coordinates.
 
 [source,{ini}]
 ----
@@ -1015,11 +992,9 @@ From `<your_linuxcnc-dev_directory>/configs/sim/gmoccapy/macros` copy
 - `on_abort.ngc`
 - `change.ngc`
 
-to the directory specified as `SUBROUTINE_PATH`, see
-<<gmocappy:rs274ngc,RS274NGC Section>>.
+to the directory specified as `SUBROUTINE_PATH`, see <<gmocappy:rs274ngc,RS274NGC Section>>.
 
-Open `change.ngc` with a editor and uncomment the following lines
-(49 and 50):
+Open `change.ngc` with a editor and uncomment the following lines (49 and 50):
 
 
 [source,{ngc}]
@@ -1067,11 +1042,8 @@ net tool-prep-loop iocontrol.0.tool-prepare <= iocontrol.0.tool-prepared
 [[gmoccapy:settings-page]]
 == The Settings Page
 
-To enter the page you will have to click on
-image:images/gmoccapy_settings_button.png[align="left"]
-and give an unlock code, which is *123* by default. If you want to change it
-at this time you will have to edit the hidden preference file, see
-<<gmoccapy:display-section,the display section>> for details.
+To enter the page you will have to click on image:images/gmoccapy_settings_button.png[align="left"] and give an unlock code, which is *123* by default.
+If you want to change it at this time you will have to edit the hidden preference file, see <<gmoccapy:display-section,the display section>> for details.
 
 The page is separated in three main tabs:
 
@@ -1084,16 +1056,15 @@ On this tab you will find the following options:
 
 .Main Window
 
-Here you can select how you wish the GUI to start. The main reason for this was the wish to get an easy
-way for the user to set the starting options without the need to touch code.
+Here you can select how you wish the GUI to start.
+The main reason for this was the wish to get an easy way for the user to set the starting options without the need to touch code.
 You have three options:
 
 * _Start as full screen_
 * _Start maximized_
 * _Start as window_  - If you select start as window the spinboxes to set the position and size will get active.
   One time set, the GUI will start every time on the place and with the size selected.
-  Nevertheless the user can change the size and position using the mouse, but that will
-  not have any influence on the settings.
+  Nevertheless the user can change the size and position using the mouse, but that will not have any influence on the settings.
 * _hide the cursor_ - Does allow to hide the cursor, what is very useful if you use a touch screen.
 
 .Keyboard
@@ -1115,18 +1086,16 @@ If this section is not sensitive, you have not installed a virtual keyboard, sup
 * _Show keyboard on EDIT_
 * _Show keyboard on load file_
 
-If the keyboard layout is not correct, i.e. clicking Y gives Z, than the
-layout has not been set properly, related to your locale settings. For
-onboard it can be solved with a small batch file with the following content:
+If the keyboard layout is not correct, i.e. clicking Y gives Z, than the layout has not been set properly, related to your locale settings.
+For onboard it can be solved with a small batch file with the following content:
 
 ----
 #!/bin/bash
 setxkbmap -model pc105 -layout de -variant basic
 ----
 
-The letters "de" are for German, you will have to set them according to your
-locale settings. Just execute this file before starting LinuxCNC, it can be
-done also adding a starter to your local folder.
+The letters "de" are for German, you will have to set them according to your locale settings.
+Just execute this file before starting LinuxCNC, it can be done also adding a starter to your local folder.
 
 ----
 ./config/autostart
@@ -1134,16 +1103,14 @@ done also adding a starter to your local folder.
 
 So that the layout is set automatically on starting.
 
-For matchbox-keyboard you will have to make your own layout, for a German
-layout ask in the forum.
+For matchbox-keyboard you will have to make your own layout, for a German layout ask in the forum.
 
 .GMOCCAPY with Onboard keyboard in edit mode
 image:images/gmoccapy_keyboard_edit_mode_mid.png["Onboard keyboard",align="left",link="images/gmoccapy_keyboard_edit_mode.png"]
 
 .On Touch Off
 
-This gives the option whether to show the preview tab or the offset page tab when
- you enter the touch off mode by clicking the corresponding bottom button.
+This gives the option whether to show the preview tab or the offset page tab when you enter the touch off mode by clicking the corresponding bottom button.
 
 * _show preview_
 * _show offsets_
@@ -1167,7 +1134,8 @@ The foreground color of the DRO can be selected with:
 [NOTE]
 You can change through the DRO modes (absolute, relative, distance
 to go) by clicking the number on the DRO!
-If you click on the left side letter of the DRO a popup window will allow you to set the value of the axes, making it easier to set the value, as you will not need to go over the touch off bottom button.
+If you click on the left side letter of the DRO a popup window will allow you to set the value of the axes,
+making it easier to set the value, as you will not need to go over the touch off bottom button.
 
 size::
   Allows to set the size of the DRO font, default is 28, if you use a bigger screen you may want to increase the size up to 56.
@@ -1194,15 +1162,11 @@ toggle DRO mode::
 
 NOTE: The grid will not be shown in perspective view.
 
-- _Show DRO_ - Will show the a DRO also in the preview pane, it will be always
-shown in fullsize preview.
-- _Show DTG_ -  Will show the DTG (direct distance to end point) in the
-preview pane if Show DRO is active. Otherwise only in full size preview.
-- _Show Offsets_ -  Will show the offsets in the preview pane when Show DRO is
-active. Otherwise only in full size preview.
+- _Show DRO_ - Will show the a DRO also in the preview pane, it will be always shown in fullsize preview.
+- _Show DTG_ -  Will show the DTG (direct distance to end point) in the preview pane if Show DRO is active. Otherwise only in full size preview.
+- _Show Offsets_ -  Will show the offsets in the preview pane when Show DRO is active. Otherwise only in full size preview.
 
-- _Mouse Button Mode_ -  This combobox allows you to select the button behavior of the
-  mouse to rotate, move or zoom within the preview:
+- _Mouse Button Mode_ -  This combobox allows you to select the button behavior of the mouse to rotate, move or zoom within the preview:
 +
 * left rotate, middle move, right zoom
 * left zoom, middle move, right rotate
@@ -1217,31 +1181,28 @@ The mouse wheel will still zoom the preview in every mode.
 
 [TIP]
 ====
-If you select an element in the preview, the selected element will be
-taken as rotation center point and in auto mode the corresponding code line will be highlighted.
+If you select an element in the preview, the selected element will be taken as rotation center point and in auto mode the corresponding code line will be highlighted.
 ====
 
 .File to load on start up
 
-Select the file you want to be loaded on start up. If a file is loaded, it can
-be set by pressing the current button. To avoid that any program is loaded at
-start up, just press the None button.
+Select the file you want to be loaded on start up.
+If a file is loaded, it can be set by pressing the current button.
+To avoid that any program is loaded at start up, just press the None button.
 
 The file selection screen will use the filters you have set in the INI file,
-if there aren't any filters given, you will only see *NGC files*. The path
-will be set according to the INI settings in `[DISPLAY] PROGRAM_PREFIX`.
+if there aren't any filters given, you will only see *NGC files*.
+The path will be set according to the INI settings in `[DISPLAY] PROGRAM_PREFIX`.
 
 .Jump to dir
 
-You can set here the directory to jump to if you press the corresponding button
-in the file selection dialog.
+You can set here the directory to jump to if you press the corresponding button in the file selection dialog.
 
 // image::images/gmoccapy_file_selection_dialog_with_keyboard.png["Directory selection",align="left"]
 
 .Themes and Sounds
 
-This lets the user select what desktop theme to apply and what error and
-messages sounds should be played.
+This lets the user select what desktop theme to apply and what error and messages sounds should be played.
 By default "Follow System Theme" is set.
 
 It further allows to change the icon theme.
@@ -1260,11 +1221,11 @@ image::images/gmoccapy_settings_hardware.png["Hardware settings",align="left"]
 .Hardware MPG Scale
 
 For the different HAL pins to connect MPG wheels to, you may select individual scales to be applied.
-The main reason for this was my own test to solve this through HAL connections, resulting in a very
-complex HAL file. Imagine a user having an MPG Wheel with 100 ipr and he wants to slow down the max.
-vel. from 14000 to 2000 mm/min, that needs 12000 impulses, resulting in 120 turns of the wheel!
-Or an other user having a MPG Wheel with 500 ipr and he wants to set the spindle override witch has
-limits from 50 to 120 % so he goes from min to max within 70 impulses, meaning not even 1/4 turn.
+The main reason for this was my own test to solve this through HAL connections, resulting in a very complex HAL file.
+Imagine a user having an MPG Wheel with 100 ipr and he wants to slow down the max.  vel. from 14000 to 2000 mm/min,
+that needs 12000 impulses, resulting in 120 turns of the wheel!
+Or an other user having a MPG Wheel with 500 ipr and he wants to set the spindle override
+witch has limits from 50 to 120 % so he goes from min to max within 70 impulses, meaning not even 1/4 turn.
 
 By default all scales are set using the calculation:
 
@@ -1274,7 +1235,8 @@ By default all scales are set using the calculation:
 
 .Keyboard shortcuts
 
-Some users want to jog there machine using the keyboard buttons and there are others that will never allow this. So everybody can select whether to use them or not. +
+Some users want to jog there machine using the keyboard buttons and there are others that will never allow this.
+So everybody can select whether to use them or not. +
 Keyboard shortcuts are disabled by default.
 
 [WARNING]
@@ -1327,13 +1289,10 @@ Default is _use unlock code_ (default = *123*)
 * _Starting RPM_ - Sets the rpm to be used if the spindle is started and no S value has been set.
 +
 [NOTE]
-This value will be presetted according to your settings in
-`[DISPLAY] DEFAULT_SPINDLE_SPEED` of your INI file. If you change the settings on the
-settings page, that value will be default from that moment, your INI file will
-not be modified.
+This value will be presetted according to your settings in `[DISPLAY] DEFAULT_SPINDLE_SPEED` of your INI file.
+If you change the settings on the settings page, that value will be default from that moment, your INI file will not be modified.
 
-* _Spindle bar min_ and _Spindle bar max_ - Sets the limits of the spindle bar shown in
-the INFO frame on the main screen. 
+* _Spindle bar min_ and _Spindle bar max_ - Sets the limits of the spindle bar shown in the INFO frame on the main screen. 
 +
 ====
 Default values are: +
@@ -1342,22 +1301,20 @@ MAX = 6000
 ====
 +
 [NOTE]
-It is no error giving wrong values. If you
-give a maximum of 2000 and your spindle makes 4000 rpm, only the bar level will
-be wrong on higher speeds than 2000 rpm.
+It is no error giving wrong values.
+If you give a maximum of 2000 and your spindle makes 4000 rpm, only the bar level will be wrong on higher speeds than 2000 rpm.
 
 
 [[gmoccapy:turtle-jog]]
 .Turtle Jog
 This settings will have influence on the jog velocities.
 
-* _Hide turtle jog button_ - Will hide the button right of the jog velocity
-  slider. If you hide this button, please take care that the "rabbit
-  mode" is activated, otherwise you will not be able to jog faster than the turtle jog
-  velocity, which is calculated using the turtle jog factor.
-* _Turtle jog factor_ - Sets the scale to apply for turtle jog mode (button pressed,
-showing the turtle). If you set a factor of 20, the turtle max. jog velocity will
-be 1/20 of the max. velocity of the machine.
+* _Hide turtle jog button_ - Will hide the button right of the jog velocity slider.
+  If you hide this button, please take care that the "rabbit mode" is activated,
+  otherwise you will not be able to jog faster than the turtle jog velocity,
+  which is calculated using the turtle jog factor.
+* _Turtle jog factor_ - Sets the scale to apply for turtle jog mode (button pressed, showing the turtle).
+  If you set a factor of 20, the turtle max. jog velocity will be 1/20 of the max. velocity of the machine.
 
 [NOTE]
 This button can be controlled using the <<gmoccapy:jog-velocity,Turtle-Jog HAL Pin>>.
@@ -1399,13 +1356,11 @@ in absolute coordinates.
 Probe velocities::
 +
 --
-* _Search Vel._ - The velocity to search for the tool switch. After contact
-  the tool will go up again and then goes towards the probe again with probe
-  vel, so you will get better results.
-* _Probe Vel._ - The velocity for the second movement to the switch. It
-  should be slower to get better touch results. (In simulation mode, this is
-  commented out in macros/change.ngc, otherwise the user would have to click
-  twice on the probe button.)
+* _Search Vel._ - The velocity to search for the tool switch.
+  After contact the tool will go up again and then goes towards the probe again with probe vel, so you will get better results.
+* _Probe Vel._ - The velocity for the second movement to the switch.
+  It should be slower to get better touch results.
+  In simulation mode, this is commented out in macros/change.ngc, otherwise the user would have to click twice on the probe button.
 --
 // TODO: check if this option is accidentally gone in 2.9
 // Tool Changer::
@@ -1436,40 +1391,32 @@ Reload Tool::
 
 .Run From Line Option
 
-You can allow or disallow the run from line. This will set the corresponding
-button insensitive (grayed out), so the user will not be able to use this
-option. The default is disable run from line.
+You can allow or disallow the run from line.
+This will set the corresponding button insensitive (grayed out), so the user will not be able to use this option.
+The default is disable run from line.
 
 [WARNING]
-It is not recommend to use run from line, as LinuxCNC will not take care of
-any previous lines in the code before the starting line. So errors or crashes
-are fairly likely.
+It is not recommend to use run from line, as LinuxCNC will not take care of any previous lines in the code before the starting line.
+So errors or crashes are fairly likely.
 
 [[gmoccapy:message-behavior]]
 .Message Behavior And Appearance
 
-This will display small pop up windows displaying a message or error text,
-similar to the ones known from AXIS. You can delete a specific
-message by clicking on its close button. If you want to delete the last one,
-just hit the `WINDOWS` key on your keyboard, or delete all messages at once
-with `Control + Space`.
+This will display small pop up windows displaying a message or error text, similar to the ones known from AXIS.
+You can delete a specific message by clicking on its close button.
+If you want to delete the last one, just hit the `WINDOWS` key on your keyboard, or delete all messages at once with `Control + Space`.
 
 You are able to set some options:
 
-* _X Pos_ - The position of the top left corner of the message in X counted
-  in pixel from the top left corner of the screen.
-* _Y Pos_ - The position of the top left corner of the message in Y counted
-  in pixel from the top left corner of the screen.
+* _X Pos_ - The position of the top left corner of the message in X counted in pixel from the top left corner of the screen.
+* _Y Pos_ - The position of the top left corner of the message in Y counted in pixel from the top left corner of the screen.
 * _Width_ - The width of the message box.
 * _Max Messages_ - The maximum number of messages you want to see at once.
-  If you set this to 10, the 11^th^ message will delete the first one, so you
-  will only see the last 10.
+  If you set this to 10, the 11^th^ message will delete the first one, so you will only see the last 10.
 * _Font_ - The font and size you want to use to display the messages.
-* _Use frames_ - If you activate the checkbox, each message will be displayed
-  in a frame, so it is much easier to distinguish the messages. But you will
-  need a little bit more space.
-* _Launch test message_-button - It will show a message, so you can see the
-  changes of your settings without the need to generate an error.
+* _Use frames_ - If you activate the checkbox, each message will be displayed in a frame,
+  so it is much easier to distinguish the messages. But you will need a little bit more space.
+* _Launch test message_-button - It will show a message, so you can see the changes of your settings without the need to generate an error.
 
 [[gmoccapy:icon-theme-section]]
 == Icon Theme
@@ -1492,10 +1439,12 @@ GMOCCAPY scans the following directories for icon themes:
 
 === Custom Icon Theme
 
-Creating a custom icon theme is pretty easy. All you need is a text editor and of course the desired icons as pixel or vector graphics.
+Creating a custom icon theme is pretty easy.
+All you need is a text editor and of course the desired icons as pixel or vector graphics.
 Details about how exactly an icon theme is built can be found at the https://specifications.freedesktop.org/icon-theme-spec/icon-theme-spec-latest.html[Freedesktop Icon Theme Specification].
 
-Start by creating an empty directory with the name of the icon theme. Place the directory in one of GMOCCAPY's icon theme directories.
+Start by creating an empty directory with the name of the icon theme.
+Place the directory in one of GMOCCAPY's icon theme directories.
 Then we need a file called index.theme in the root folder of our icon theme which contains the required metadata for the theme.
 That's a simple text file with at least the following sections:
 
@@ -1568,9 +1517,8 @@ Examples of symbolic icons can be found at `linuxcnc/share/gmoccapy/icons/materi
 [[gmoccapy:lathe-section]]
 == Lathe Specific Section
 
-If in the INI file `LATHE = 1` is given, the GUI will change its appearance
-to the special needs for a lathe. Mainly the Y axis will be hidden and the
-jog buttons will be arranged in a different order.
+If in the INI file `LATHE = 1` is given, the GUI will change its appearance to the special needs for a lathe.
+Mainly the Y axis will be hidden and the jog buttons will be arranged in a different order.
 
 .Normal Lathe
 image::images/gmoccapy_lathe.png[align="left"]
@@ -1578,13 +1526,13 @@ image::images/gmoccapy_lathe.png[align="left"]
 .Back Tool Lathe
 image::images/gmoccapy_back_tool_lathe.png[align="left"]
 
-As you see the R DRO has a black background and the D DRO is gray. This will
-change according to the active G-code G7 or G8. The active mode is visible by
-the black background, meaning in the shown images G8 is active.
+As you see the R DRO has a black background and the D DRO is gray.
+This will change according to the active G-code G7 or G8.
+The active mode is visible by the black background, meaning in the shown images G8 is active.
 
 The next difference to the standard screen is the location of the jog buttons.
-X and Z have changed places and Y is gone. You will note that the X+ and X-
-buttons changes there places according to normal or back tool lathe.
+X and Z have changed places and Y is gone.
+You will note that the X+ and X- buttons changes there places according to normal or back tool lathe.
 
 Also the keyboard behavior will change:
 
@@ -1602,14 +1550,13 @@ Back Tool Lathe:
 * _Arrow_up_ or _NumPad_Up_ - Jog X plus
 * _Arrow_Down_ or _NumPad_Down_ - Jog X minus
 
-The tool information frame will show not only the Z offset, but also the X
-offset and the tool table is showing all lathe relevant information.
+The tool information frame will show not only the Z offset, but also the X offset and the tool table is showing all lathe relevant information.
 
 == Plasma Specific Section
 
 image::images/gmoccapy_plasma.png["Plasma GUI",align="left"]
 
-There is a very good WIKI, which is actually growing, maintained by Marius
+There is a very good WIKI, which is actually growing, maintained by Marius,
 see https://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[Plasma wiki page].
 
 == Videos on YouTube
@@ -1659,8 +1606,8 @@ If you get strange numbers in the info area of GMOCCAPY like:
 image::images/strange_numbers.png["Strange numbers",align="left"]
 
 You have made your config file using an older version of StepConfWizard.
-It has made a wrong entry in the INI file under the [TRAJ] named
-MAX_LINEAR_VELOCITY = xxx. Change that entry to MAX_VELOCITY = xxx.
+It has made a wrong entry in the INI file under the [TRAJ] named MAX_LINEAR_VELOCITY = xxx.
+Change that entry to MAX_VELOCITY = xxx.
 
 [[sub:NOT_ENDING_MACROS]]
 === Not ending macro
@@ -1682,9 +1629,9 @@ o<zeroxy> endsub
 m2
 ---------
 
-GMOCCAPY will not see the end of the macro, because the interpreter needs to
-change its state to IDLE, but the macro does not even set the interpreter to
-a new state. To avoid that just add a G4 P0.1 line to get the needed signal.
+GMOCCAPY will not see the end of the macro, because the interpreter needs to change its state to IDLE,
+but the macro does not even set the interpreter to a new state.
+To avoid that just add a G4 P0.1 line to get the needed signal.
 The correct macro would be:
 
 [source,{ngc}]
