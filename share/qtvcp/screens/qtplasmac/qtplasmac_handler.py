@@ -373,8 +373,11 @@ class HandlerClass:
         # set hal pins only after initialized__ has begun
         # some locales won't set pins before this phase
         self.thcFeedRatePin.set(self.thcFeedRate)
+        self.pmPort = None
         if self.PREFS.getpref('Port', '', str, 'POWERMAX'):
-            self.pmx485_startup(self.PREFS.getpref('Port', '', str, 'POWERMAX'))
+            self.pmPort = self.PREFS.getpref('Port', '', str, 'POWERMAX')
+        if self.pmPort and self.pmx485_check(self.pmPort):
+            self.pmx485_startup(self.pmPort)
         else:
             self.w.gas_pressure.hide()
             self.w.gas_pressure_label.hide()
@@ -3268,6 +3271,15 @@ class HandlerClass:
             self.flasher = self.flashRate
             self.flashState = not self.flashState
             self.flasher_timeout()
+        if not self.firstRun and self.pmPort and not hal.component_exists('pmx485'):
+            if self.pmx485_check(self.pmPort, True):
+                self.w.gas_pressure.show()
+                self.w.gas_pressure_label.show()
+                self.w.cut_mode.show()
+                self.w.cut_mode_label.show()
+                self.w.pmx485_frame.show()
+                self.w.pmx_stats_frame.show()
+                self.pmx485_startup(self.pmPort)
         if not self.firstRun and os.path.isfile(self.upFile):
             exec(open(self.upFile).read())
 
@@ -5124,6 +5136,37 @@ class HandlerClass:
 #########################################################################################################################
 # POWERMAX COMMUNICATIONS FUNCTIONS #
 #########################################################################################################################
+    def pmx485_check(self, port, periodic=False):
+        try:
+            import serial
+            import serial.tools.list_ports as PORTS
+            head = _translate('HandlerClass', 'Port Error')
+            msg1 = _translate('HandlerClass', 'Powermax communications are disabled')
+            ports = []
+            for p in PORTS.comports():
+                ports.append(p[0])
+            if port in ports:
+                try:
+                    sPort = serial.Serial(port, 19200)
+                    sPort.close()
+                except Exception as err:
+                    if not periodic:
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}'.format(head, err, msg1))
+                    return False
+            else:
+                if not periodic:
+                    msg0 = _('cannot be found')
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} {}\n{}'.format(head, port, msg0, msg1))
+                return False
+        except:
+            if not periodic:
+                head = _translate('HandlerClass', 'Module Error')
+                msg0 = _translate('HandlerClass', 'python3-serial cannot be found')
+                msg1 = _translate('HandlerClass', 'Install python3-serial or linuxcnc-dev')
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}'.format(head, msg0, msg1))
+            return False
+        return True
+
     def pmx485_startup(self, port):
         self.pmx485CommsError = False
         self.w.pmx485Status = False
