@@ -1342,6 +1342,7 @@ static int base_1joint_state_machine(int joint_num)
             H[joint_num].homing = 0;
             H[joint_num].homed = 1; // finished
             H[joint_num].home_state = HOME_IDLE;
+            joints[joint_num].free_tp.curr_pos = H[joint_num].home;
             immediate_state = 1;
             H[joint_num].joint_in_sequence = 0;
             break;
