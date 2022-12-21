@@ -265,16 +265,15 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
       (motion != G_95) && (motion != G_96) && (motion != G_97) &&
       (block->m_modes[7] != 3) && (block->m_modes[7] != 4) &&
       (block->m_modes[7] != 5) && (block->m_modes[7] != 19) &&
-      (! block->s_flag)),
-      _("$ (spindle selection) word with no G41, G41.1, G42, G42.1, G76 G95 or G96 to use it"));
+      (block->m_modes[9] != 51) && (! block->s_flag)),
+      _("$ (spindle selection) word with no M3, M4, M5, M19, M51, G33, G33.1, G76, G95, G96 or G97 to use it"));
   }
 
   if (block->e_flag) {
     CHKS(((motion != G_76) && (motion != G_33) && (motion != G_33_1) &&
-      (motion != G_70) &&
-      (block->m_modes[9] != 51) &&  (block->m_modes[5] != 66) &&
+      (motion != G_70) && (block->m_modes[5] != 66) &&
       (block->m_modes[5] != 67) && (block->m_modes[5] != 68)),
-       _("E word with no G76, M3, M4, M5, M19, M51, M66, M67 or M68 to use it"));
+       _("E word with no G70, G76, M66, M67 or M68 to use it"));
   }
 
   if (block->h_flag) {
