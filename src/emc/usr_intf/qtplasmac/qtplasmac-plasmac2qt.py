@@ -48,9 +48,9 @@ class Converter(QMainWindow, object):
             self.mode = ''
             self.iniIn = ''
         if 'usr' in self.appPath:
-            self.simPath = '/usr/share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac'
+            self.simPath = '/usr/share/doc/linuxcnc/examples/sample-configs/sim/qtplasmac'
         else:
-            self.simPath = self.appPath.replace('bin', 'configs/by_machine/qtplasmac')
+            self.simPath = self.appPath.replace('bin', 'configs/sim/qtplasmac')
         self.setFixedWidth(600)
         self.setFixedHeight(400)
         wid = QWidget(self)

@@ -3980,7 +3980,7 @@ QtPlasmaC will be translated to the language of the current locale on the next s
 
 There are example configuration files which use the QtPlasmaC GUI to simulate plasma cutting machines.
 
-They can be found in the LinuxCNC chooser under: Sample Configurations -> by_machine -> qtplasmac
+They can be found in the LinuxCNC chooser under: Sample Configurations -> sim -> qtplasmac
 
 Three versions are available in both metric and imperial units:
 
