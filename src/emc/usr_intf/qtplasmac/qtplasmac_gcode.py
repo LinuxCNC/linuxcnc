@@ -271,7 +271,7 @@ def check_if_hole():
         isHole = True
     diameter = get_hole_diameter(I, J, isHole)
     gcodeList.append(line)
-    if isHole and overCut and diameter <= minDiameter:
+    if isHole and overCut and diameter <= minDiameter and ocLength:
         overburn(I, J, diameter / 2)
         return
     else:
