@@ -335,9 +335,9 @@ class App:
         if self.d.frontend == _PD._QTPLASMAC:
             # copy M190 file
             if BASE == "/usr":
-                m190Path = os.path.join(BASE, 'share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac/M190')
+                m190Path = os.path.join(BASE, 'share/doc/linuxcnc/examples/sample-configs/sim/qtplasmac/M190')
             else:
-                m190Path = os.path.join(BASE, 'configs/by_machine/qtplasmac/M190')
+                m190Path = os.path.join(BASE, 'configs/sim/qtplasmac/M190')
             shutil.copy(m190Path, os.path.join(base, 'M190'))
             # different looking tool table for qtplasmac
             filename = os.path.join(base, "tool.tbl")

@@ -122,9 +122,9 @@ class HandlerClass:
         # ensure M190 exists in config directory
         if not os.path.isfile(os.path.join(self.PATHS.CONFIGPATH, 'M190')):
             if '/usr' in self.PATHS.BASEDIR:
-                m190Path = os.path.join(self.PATHS.BASEDIR, 'share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac')
+                m190Path = os.path.join(self.PATHS.BASEDIR, 'share/doc/linuxcnc/examples/sample-configs/sim/qtplasmac')
             else:
-                m190Path = os.path.join(self.PATHS.BASEDIR, 'configs/by_machine/qtplasmac')
+                m190Path = os.path.join(self.PATHS.BASEDIR, 'configs/sim/qtplasmac')
             # M190 already exists for RIP sims
             if os.path.realpath(m190Path) != os.path.realpath(self.PATHS.CONFIGPATH):
                 COPY(os.path.join(m190Path, 'M190'), os.path.join(self.PATHS.CONFIGPATH, 'M190'))
