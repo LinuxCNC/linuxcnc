@@ -205,7 +205,7 @@ There are some _helper functions_ - mostly used for widget support:
 from qtvcp.core import Info
 ----
 
-* *Instantiate `Info` module* +
+* *Instantiate `Info` module*. +
   Add this Python code to your instantiate section:
 +
 [source,python]

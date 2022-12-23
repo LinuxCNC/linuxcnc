@@ -114,7 +114,7 @@ pin in  float fb-#[9 : personality] "Joint feedback (typ from encoder and input 
 
 pin out float offset-current-#[9 : personality]"Joint offset current value";
 pin out float pos-plusoffset-#[9 : personality] "Computed joint position plus offset (typically connect to pid command input)";
-pin out float fb-minusoffset-#[9 : personality] "Computed Joint feedback minus offset (typically connected to axis.0.motor-pos-fb";
+pin out float fb-minusoffset-#[9 : personality] "Computed Joint feedback minus offset (typically connected to axis.0.motor-pos-fb)";
 
 pin in  float offset-vel-#[9 : personality]=10 "Joint offset velocity limit";
 pin in  float offset-accel-#[9 : personality]=100 "Joint offset acceleration limit";

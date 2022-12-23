@@ -11,10 +11,10 @@
 :ngc: {basebackend@docbook:'':ngc}
 
 == Preamble
-*Except where noted, this guide assumes the user is using the latest version of QtPlasmaC.
-Version history can be seen by visiting this https://htmlpreview.github.io/?https://github.com/LinuxCNC/linuxcnc/blob/master/share/qtvcp/screens/qtplasmac/versions.html[link] which will show the latest available version.
-The installed QtPlasmaC version is displayed in the title bar.
-See <<qt_update, Update QtPlasmaC>> for information on updating QtPlasmaC.*
+*Except where noted, this guide assumes the user is using the latest version of QtPlasmaC.*
+*Version history can be seen by visiting this https://htmlpreview.github.io/?https://github.com/LinuxCNC/linuxcnc/blob/master/share/qtvcp/screens/qtplasmac/versions.html[link] which will show the latest available version.*
+*The installed QtPlasmaC version is displayed in the title bar.*
+*See <<qt_update,Update QtPlasmaC>> for information on updating QtPlasmaC.*
 
 == License
 
@@ -428,7 +428,7 @@ If the user wishes to change to the new dbounce component then the New Base Conf
 
 === New Base Config Method
 
-This method to move to QtPlasmaC from PlasmaC (loaded on top of either Axis or Gmoccapy) is to use a <<configuring,configuration wizard>> to create a new configuration.
+This method to move to QtPlasmaC from PlasmaC (loaded on top of either AXIS or GMOCCAPY) is to use a <<configuring,configuration wizard>> to create a new configuration.
 This method then allows changing of the base machine configuration at a later date via the configuration wizard provided that the base INI and base HAL files have not been edited.
 
 This method requires that the user take note of all HAL pins used in the existing config so they can be entered into the configuration wizard. Any custom HAL commands will also need to be noted and added manually to either the custom.hal file or the custom_postgui.hal file which will be created by the configuration wizard.

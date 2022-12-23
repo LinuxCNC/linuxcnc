@@ -1180,11 +1180,11 @@ These states are selectable:
   This uses _Python formatting rules_ to set the text output. +
   One can use `%s` for no conversion, `%d` for integer conversion, `%f` for float conversion, etc. +
   You can also use _Qt rich text_ code. +
-  Typical template used for formatting imperial float numbers to text would be `%9.4f` or `%9.4f inch`.
+  Typical template used for formatting imperial float numbers to text would be `%9.4f` or `%9.4f inch`.
 *`alt_textTemplate`*::
   This is usually used for *metric (`G21`) numerical settings*. +
   This uses _Python formatting rules_ to set the text output. +
-  Typical template used for formatting metric float to text would be `%10.3f` or `%10.3f mm`.
+  Typical template used for formatting metric float to text would be `%10.3f` or `%10.3f mm`.
 
 It is based on PyQt's _QLabel_.
 
