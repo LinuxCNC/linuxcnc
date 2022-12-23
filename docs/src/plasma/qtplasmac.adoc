@@ -538,7 +538,7 @@ More information on contact switching load can be seen on page III of link:https
 
 [underline]*Calculations:*
 
-If using a Mesa card, the input resistance of a 7I96 is 47006#8239;Ω
+If using a Mesa card, the input resistance of a 7I96 is 47006&#8239;Ω
 (always consult the product manual associated with the revision being used as these values sometimes vary between revisions),
 giving a contact current of 5.1&#8239;mA assuming a supply voltage of 24&#8239;V (I = V/R).
 
