@@ -107,32 +107,24 @@ of values. Examples are digital to analog converters or PWM generators.
 [[sub:hal-cdi:ao:parameters]]
 === Parameters(((HAL Analog Output Parameters)))
 
-(float) *offset*:: This will be added to the *value* before the
-  hardware is updated.
-(float) *scale*:: This should be set so that an input of 1 on the
-  *value* pin will cause the analog output pin to read 1 volt.
-(float) *high_limit* (optional):: When calculating the value to
-  output to the hardware, if *value* + *offset* is greater than
-  *high_limit*, then *high_limit* will be used instead.
-(float) *low_limit* (optional):: When calculating the value to output
-  to the hardware, if *value* + *offset* is less than *low_limit*, then
-  *low_limit* will be used instead.
-(float) *bit_weight* (optional):: The value of one least significant
-  bit (LSB), in volts (or mA, for current outputs).
-(float) *hw_offset*  (optional):: The actual voltage (or current)
-  that will be output if 0 is written to the hardware.
+(float) *offset*:: This will be added to the *value* before the hardware is updated.
+(float) *scale*:: This should be set so that an input of 1 on the *value* pin will cause the analog output pin to read 1 volt.
+(float) *high_limit* (optional):: When calculating the value to output to the hardware,
+  if *value* + *offset* is greater than *high_limit*, then *high_limit* will be used instead.
+(float) *low_limit* (optional):: When calculating the value to output to the hardware,
+  if *value* + *offset* is less than *low_limit*, then *low_limit* will be used instead.
+(float) *bit_weight* (optional):: The value of one least significant bit (LSB), in volts (or mA, for current outputs).
+(float) *hw_offset*  (optional):: The actual voltage (or current) that will be output if 0 is written to the hardware.
 
 [[sub:hal-cdi:ao:functions]]
 === Functions(((HAL Analog Output Functions)))
 
 (funct) *write*::
-  This causes the calculated value to be output to
-  the hardware. If enable is false, then the output will be 0,
-  regardless of *value*, *scale*, and *offset*.
-  The meaning of "0" is dependent on the hardware. For example, a
-  bipolar 12-bit A/D may need to write 0x1FF (mid scale) to the D/A get 0
-  volts from the hardware pin. If enable is true, read scale, offset and
-  value and output to the adc (*scale* * *value*) + *offset*. If enable
-  is false, then output 0.
+  This causes the calculated value to be output to the hardware.
+  If enable is false, then the output will be 0, regardless of *value*, *scale*, and *offset*.
+  The meaning of "0" is dependent on the hardware.
+  For example, a bipolar 12-bit A/D may need to write 0x1FF (mid scale) to the D/A get 0 volts from the hardware pin.
+  If enable is true, read scale, offset and value and output to the adc (*scale* * *value*) + *offset*.
+  If enable is false, then output 0.
 
 // vim: set syntax=asciidoc:

@@ -2344,7 +2344,7 @@ It is based on PyQt's _QMessagebox_.
 === `OriginOffsetDialog` - Origin Offset Setting Dialog Widget
 
 .QtVCP `OriginOffsetDialog`: Origin Offset Setting Widget
-image::images/qtvcp_offsetpage.png["QtVCP `OriginOffsetDialog``: Origin Offset Setting Widget",scale="25%"]
+image::images/qtvcp_offsetpage.png["QtVCP `OriginOffsetDialog`: Origin Offset Setting Widget",scale="25%"]
 
 This widget allows one to *modify User System origin offsets directly* in a dialog form.
 
