@@ -150,7 +150,7 @@ deprmap = {'s32': 'signed', 'u32': 'unsigned'}
 deprecated = ['s32', 'u32']
 
 def initialize():
-    global functions, params, pins, options, comp_name, names, docs, variables
+    global functions, params, pins, comp_name, names, docs, variables
     global modparams, includes
 
     functions = []; params = []; pins = []; options = {}; variables = []
@@ -1092,6 +1092,11 @@ Usage:
 
 Option to set maximum 'personalities' items:
     --personalities=integer_value   (default is %(dflt)d)
+
+Options to add compile and link flags (only for userspace, only for .c files)
+    --extra_compile_args="-I/usr/include/..."
+    --extra_link_args="-l..."
+
 """ % {'name': os.path.basename(sys.argv[0]),'dflt':MAX_PERSONALITIES})
     raise SystemExit(exitval)
 
@@ -1105,15 +1110,17 @@ def main():
     mode = PREPROCESS
     outfile = None
     userspace = False
+    global options
+    options = {}
     try:
         opts, args = getopt.getopt(sys.argv[1:], "Uluijcpdo:h?P:",
                            ['unix', 'install', 'compile', 'preprocess', 'outfile=',
                             'document', 'help', 'userspace', 'install-doc',
                             'view-doc', 'require-license', 'print-modinc',
-                            'personalities='])
+                            'personalities=', "extra_compile_args=",
+                            'extra_link_args='])
     except getopt.GetoptError:
         usage(1)
-
     for k, v in opts:
         if k in ("-U", "--unix"):
             require_unix_line_endings = True
@@ -1145,6 +1152,10 @@ def main():
                 print("MAX_PERSONALITIES=%d"%(MAX_PERSONALITIES))
             except Exception as detail:
                 raise SystemExit("Bad value for -P (--personalities)=",v,"\n",detail)
+        if k in ("--extra_compile_args"):
+            option("extra_compile_args", v)
+        if k in ("--extra_link_args"):
+            option("extra_link_args", v)
         if k in ("-?", "-h", "--help"):
             usage(0)
 
