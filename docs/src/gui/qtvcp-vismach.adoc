@@ -6,8 +6,8 @@
 
 *Vismach* is a set of *Python functions that can be used to create and animate models of machines*.
 
-This chapter is about the Qt embedded version of <<cha:vismach,Vismach>>.
-Also see: https://sa-cnc.com/linuxcnc-vismach/
+This chapter is about the Qt embedded version of <<cha:vismach,Vismach>>,
+also see: https://sa-cnc.com/linuxcnc-vismach/ .
 
 [[sec:qtvcp:vismach:intro]]
 == Introduction
@@ -223,18 +223,17 @@ rotation axis is created at the origin (but moves with the Part).
 === Rotating Model Parts
 
 *`part1 = Rotate([part1], theta, x, y, z)`*::
-  Rotate the part by angle theta degrees about an axis between the origin and
+  Rotate the part by angle theta [degrees] about an axis between the origin and
   x, y, z.
 
 [[sec:qtvcp:vismach:animate]]
 == Animating Parts
 
 //FIXME 2 or 3 functions ? HalToolCylinder not documented here ?
-To *animate the model controlled by the values of HAL pins* there are
-four functions `HalTranslate`, `HalRotate`, `HalToolCylinder` and 'HalToolTriangle'.
+To *animate the model controlled by the values of HAL pins*
+there are four functions `HalTranslate`, `HalRotate`, `HalToolCylinder` and 'HalToolTriangle'.
 
-_For parts to move inside an assembly they need to have their HAL motions
-defined before being assembled with the "Collection" command_.
+_For parts to move inside an assembly they need to have their HAL motions defined before being assembled with the "Collection" command_.
 
 The *rotation axis and translation vector move with the part*:
 
@@ -395,20 +394,21 @@ model = Collection([base, saddle, head, carousel])
   This sets the current position in the model.
 
 *`main(model, tooltip, work, size=10, hud=myhud, rotation_vectors=None, lat=0, lon=0)`*::
-  This is the command that makes it all happen, creates the display, etc. if invoked directly from Python. +
+  This is the command that makes it all happen, creates the display, etc. if invoked directly from Python.
   Usually this file is imported by QtVCP and the `window()` object is instantiated and embedded into another screen.
   `_model_`;; Should be a collection that contains all the machine parts.
-  `_tooltip_` and `_work_`;; Need to be created by `Capture()` to visualize their motion in the backplot. +
+  `_tooltip_` and `_work_`;; Need to be created by `Capture()` to visualize their motion in the backplot.
     See `mill_xyz.py` for an example of how to connect the tool tip to a tool and the tool to the model.
   `_size_`;; Sets the extent of the volume visualized in the initial view. +
     hud refers to a head-up display of axis positions.
-  `_rotation_vectors_` or `_lat, lon_`;; Can be used to set the original viewpoint. +
+  `_rotation_vectors_` or `_lat, lon_`;; Can be used to set the original viewpoint.
     It is advisable to do as the default initial viewpoint is rather unhelpful from immediately overhead.
 
 
 == Tips
-create an axes origin marker to be able to see parts relative to it, for 
-construction purposes. You can remove it when you are done.
+
+Create an axes origin marker to be able to see parts relative to it, for construction purposes.
+You can remove it when you are done.
 
 [source,python]
 ----
@@ -429,8 +429,8 @@ v.model = Collection([origin, model, world])
 ----
 
 Start from the cutting tip and work your way back.
-add each collection to the model at the origin and run the script to confirm 
-the location, then rotate/translate and run the script to confirm again.
+Add each collection to the model at the origin and run the script to confirm the location,
+then rotate/translate and run the script to confirm again.
 
 [[sec:qtvcp:vismach:structure]]
 == Basic structure of a `QtVismach` script
