@@ -6,10 +6,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-12-07 07:16+0100\n"
-"PO-Revision-Date: 2022-11-09 19:47+0000\n"
-"Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
+"PO-Revision-Date: 2022-12-26 08:37+0000\n"
+"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.15-dev\n"
+"X-Generator: Weblate 4.15.1-dev\n"
 
 #: src/emc/task/emctaskmain.cc:875
 #, c-format
@@ -10366,7 +10366,7 @@ msgid ""
 "Existing custompanel.xml will be renamed custompanel_backup.xml.\n"
 "Any existing file named custompanel_backup.xml will be lost. "
 msgstr ""
-"Mit »OK« wird das bestehende benutzerdefinierte \"pyvcp panel\"-Programm "
+"Mit »OK« wird das bestehende benutzerdefinierte \"PyVCP panel\"-Programm "
 "ersetzt.\n"
 "Eine bestehende »custompanel.xml«-Datei wird in »custompanel_backup.xml« "
 "umbenannt.\n"
@@ -10644,8 +10644,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/build_HAL.py:382
 #: src/emc/usr_intf/pncconf/build_HAL.py:941
 msgid "# **** Setup of spindle speed display using pyvcp -START ****"
-msgstr ""
-"# **** Setup der Spindel Geschwindigkeits-Anzeige mit pyvcp -START ****"
+msgstr "# **** Setup der Spindel Geschwindigkeits-Anzeige mit PyVCP -START ****"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:384
 msgid "# **** Use ACTUAL spindle velocity from spindle encoder"
@@ -11323,7 +11322,7 @@ msgstr "Achse"
 
 #: src/emc/usr_intf/stepconf/options.glade:51
 msgid "Gmoccapy"
-msgstr "Gmoccapy"
+msgstr "GMOCCAPY"
 
 #: src/emc/usr_intf/stepconf/options.glade:54
 msgid "Qtdragon"
@@ -11471,7 +11470,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/options.glade:785
 msgid "Set pyVCP options"
-msgstr "Setze pyVCP Einstellungen"
+msgstr "Setze PyVCP Einstellungen"
 
 #: src/emc/usr_intf/stepconf/options.glade:809
 #: src/emc/usr_intf/pncconf/options.glade:1098
@@ -11749,7 +11748,8 @@ msgstr "Entgegengesetzt"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -12143,7 +12143,7 @@ msgid ""
 "Existing pyvcp-panel.xml will be renamed and added to 'backups' folder\n"
 "Clicking 'existing custom program' will avoid this warning. "
 msgstr ""
-"Mit »OK« wird das bestehende benutzerdefinierte SPS-Programm ersetzt.\n"
+"Mit »OK« wird das bestehende benutzerdefinierte PyVCP Panel ersetzt.\n"
 "Bestehende »pyvcp-panel.xml«-Dateien werden umbenannt und dem 'backups' "
 "Ordner hinzugefügt.\n"
 "Die Auswahl von 'existing custom program' vermeidet diese Warnung. "
@@ -12614,7 +12614,7 @@ msgstr "#  ---Nutze externen Dialog zum Werkzeugwechsel---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:802
 msgid "#  ---manual tool change signals to gmoccapy's dialog---"
-msgstr "# ---manuelle Werkzeugwechsel-Signale zu gmoccapy's Dialog---"
+msgstr "# ---Signale für manuellen Werkzeugwechsel für GMOCCAPYs Dialog---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:812
 msgid "#  ---manual tool change signals to qtdragon's dialog---"
@@ -12688,7 +12688,7 @@ msgstr "# Die Befehle in dieser Datei werden nach dem Laden der GUI ausgeführt"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:949
 msgid "# **** Setup of spindle speed display using pyvcp -END ****"
-msgstr "# **** Setup von Spindel Geschwindigkeitsanzeite mit pyvcp -END ****"
+msgstr "# **** Setup von Spindel Geschwindigkeitsanzeige mit PyVCP -END ****"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:965
 #: src/emc/usr_intf/pncconf/build_HAL.py:1889
@@ -17124,11 +17124,11 @@ msgstr "Standardwerte für Touchy"
 
 #: src/emc/usr_intf/pncconf/screen.glade:2767
 msgid "Force Gmoccapy to Maximize after positioning"
-msgstr "strtae gmoccapy maximiert"
+msgstr "GMOCCAPY nach der Positionierung zu Maximierung zwingen"
 
 #: src/emc/usr_intf/pncconf/screen.glade:3233
 msgid "Gmoccapy Defaults"
-msgstr "gmoccapy Grundeinstellungen"
+msgstr "GMOCCAPY Grundeinstellungen"
 
 #: src/emc/usr_intf/pncconf/screen.glade:3757
 msgid "10 1 .1 .01 .001"
@@ -17152,7 +17152,7 @@ msgstr "Geometrieoptionen"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:402
 msgid "Pyvcp Details"
-msgstr "Pyvcp-Details"
+msgstr "PyVCP-Details"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:486
 msgid "Sample display  "
@@ -17224,7 +17224,7 @@ msgstr "Gladevcp-Details"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:1069
 msgid "Include custom GladeVCP GUI panel"
-msgstr "Benutzerdefiniertes PyVCP-Panel einbinden"
+msgstr "Benutzerdefiniertes GladeVCP-GUI Panel einbinden"
 
 #: src/emc/usr_intf/pncconf/thcad.glade:96
 msgid "Full Scale Frequency (kHz)"
