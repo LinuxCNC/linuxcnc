@@ -3225,7 +3225,7 @@ The button will stay "latched" until the button is clicked again, which will ret
 
 There are three <<qt_ext-hal-pin,External HAL Pins>> that are available to toggle as an output, the pin names are `qtplasmac.ext_out_0`, `qtplasmac.ext_out_1`, and `qtplasmac.ext_out_2`. HAL connections to these HAL pins need to be specified in a postgui HAL file as the HAL pins are not available until the QtPlasmac GUI has loaded.
 
-It is possible for the user to mark a toggle-halpin button's associated HAL pin as being required to be turned "ON" before *CYCLE START* can be pressed by adding "runcritical" after the HAL pin in the button code.
+For toggle-halpin buttons, it is possible for the user to mark the associated HAL pin as being required to be turned "ON" before starting a cut cycle by adding "runcritical" after the HAL pin in the button code. If *TORCH ENABLE* is checked and *CYCLE START* is pressed while the "runcritical" button is not "ON" then the user will receive a dialog warning them as such and asking to CONTINUE or CANCEL.
 
 [source,{ini}]
 ----

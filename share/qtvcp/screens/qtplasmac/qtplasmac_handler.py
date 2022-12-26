@@ -1,4 +1,4 @@
-VERSION = '1.233.256'
+VERSION = '1.233.259'
 
 '''
 qtplasmac_handler.py
@@ -3130,7 +3130,7 @@ class HandlerClass:
         for halpin in self.halTogglePins:
             if self.halTogglePins[halpin][1] and not hal.get_value(halpin):
                 rcButtonList.append(self.halTogglePins[halpin][2].replace('\n', ' '))
-        if rcButtonList:
+        if rcButtonList and self.w.torch_enable.isChecked():
             head = _translate('HandlerClass', 'Run Critical Toggle')
             btn1 = _translate('HandlerClass', 'CONTINUE')
             btn2 = _translate('HandlerClass', 'CANCEL')
