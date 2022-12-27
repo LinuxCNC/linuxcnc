@@ -577,8 +577,12 @@ class App:
                 self._p.MESA_BOARDNAMES.append(folder)
         else:
             #TODO what if there are no external firmware is this enough?
-            self.warning_dialog(_("You have no hostmot2 firmware downloaded in folder:\n%s\n\
-PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
+            self.warning_dialog(_("""Some older cards require firmware.
+You have no hostmot2 firmware downloaded in folder:
+%s
+PNCconf will use It's internal firmware data samples so you can continue.
+You could also try the discovery option if your card is connected and doesn't require firmware to be loaded at run time.
+Discovery option requires the advanced options checked on this page."""%self._p.FIRMDIR),True)
         for firmware in self._p.MESA_INTERNAL_FIRMWAREDATA:
             if 'internal' in firmware[0].lower():
                 if firmware[0] in self._p.MESA_BOARDNAMES:
