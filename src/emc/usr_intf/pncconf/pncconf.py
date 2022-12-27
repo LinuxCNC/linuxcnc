@@ -1076,8 +1076,8 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                  "RESOLVER SPIDI 1":_PD.RES1,"RESOLVER ADC CHANNEL 2":_PD.RES2,"RESOLVER ADC CHANNEL 1":_PD.RES3,
                  "RESOLVER ADC CHANNEL 0":_PD.RES4,"RESOLVER SPI CLK":_PD.RES5,"RESOLVER SPI CHIP SELECT":_PD.RESU,
                  "RESOLVER PDMM":_PD.RESU,"RESOLVER PDMP":_PD.RESU}
-            pinconvertstep = {"STEP":_PD.STEPA,"DIR":_PD.STEPB,"STEP/TABLE1":_PD.STEPA,"DIR/TABLE2":_PD.STEPB}
-                #"StepTable 2":STEPC,"StepTable 3":STEPD,"StepTable 4":STEPE,"StepTable 5":STEPF
+            pinconvertstep = {"STEP":_PD.STEPA,"DIR":_PD.STEPB,"STEP/TABLE1":_PD.STEPA,"DIR/TABLE2":_PD.STEPB,
+                "STEPTABLE 2":_PD.STEPC,"STEPTABLE 3":_PD.STEPD,"STEPTABLE 4":_PD.STEPE,"STEPTABLE 5":_PD.STEPF}
             pinconvertppwm = {"PWM/UP":_PD.PWMP,"DIR/DOWN":_PD.PWMD,"ENABLE":_PD.PWME,
                     "PWM":_PD.PWMP,"DIR":_PD.PWMD,"/ENABLE":_PD.PWME}
             pinconverttppwm = {"PWM A":_PD.TPPWMA,"PWM B":_PD.TPPWMB,"PWM C":_PD.TPPWMC,
@@ -2393,7 +2393,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                     ptypetree = self.d._tppwmliststore
                     signaltocheck = _PD.hal_tppwm_output_names
                 # type step gen
-                elif pintype in (_PD.STEPA,_PD.STEPB):
+                elif pintype in (_PD.STEPA,_PD.STEPB,_PD.STEPC,_PD.STEPD,_PD.STEPE,_PD.STEPF):
                     ptypetree = self.d._stepperliststore
                     signaltocheck = _PD.hal_stepper_names
                 # type sserial
@@ -3045,7 +3045,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                         firmptype = _PD.GPIOI
                         compnum = 0
                 # ---SETUP FOR STEPPER FAMILY COMPONENT---
-                elif firmptype in (_PD.STEPA,_PD.STEPB):
+                elif firmptype in (_PD.STEPA,_PD.STEPB,_PD.STEPC,_PD.STEPD,_PD.STEPE,_PD.STEPF):
                     if numofstepgens >= (compnum+1):
                         self.widgets[ptype].set_model(self.d._stepperliststore)
                         self.widgets[p].set_model(self.d._steppersignaltree)
@@ -3058,7 +3058,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                         if firmptype == _PD.STEPA:
                             self.widgets[complabel].set_text("%d:"%compnum)
                             self.widgets[p].set_sensitive(1)
-                        elif firmptype == _PD.STEPB:
+                        else:
                             self.widgets[complabel].set_text("")
                             self.widgets[p].set_sensitive(0)
                     else:

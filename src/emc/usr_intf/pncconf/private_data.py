@@ -132,8 +132,8 @@ class Private_Data:
 
         (   self.STEPA,self.STEPB,self.STEPC,self.STEPD,self.STEPE,self.STEPF
         ) = self.pintype_stepper = [
-            _("Step Gen-A"),_("Dir Gen-B"),_("Step/Dir Gen-C"), _("Step/Dir Gen-D"),
-            _("Step/Dir Gen-E"),_("Step/dir Gen-F") ]
+            _("Step Gen-A"),_("Dir Gen-B"),_("StepGen Phase-C"), _("StepGen Phase-D"),
+            _("StepGen Phase-E"),_("StepGen Phase-F") ]
 
         (   self.PWMP,self.PWMD,self.PWME ) = self.pintype_pwm = [ _("PWM Gen-P"),_("PWM Gen-D"),_("PWM Gen-E") ]
         (   self.PDMP,self.PDMD,self.PDME ) = self.pintype_pdm = [ _("PDM Gen-P"),_("PDM Gen-D"),_("PDM Gen-E") ]
