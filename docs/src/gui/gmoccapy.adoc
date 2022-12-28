@@ -14,59 +14,52 @@
 == Introduction
 
 GMOCCAPY is a GUI for LinuxCNC, designed to be used with a touch screen,
-but can also be used on normal screens with a mouse or hardware buttons and MPG
-wheels, as it presents HAL Pins for the most common needs. Please find more
-information in the following.
+but can also be used on normal screens with a mouse or hardware buttons and MPG wheels,
+as it presents HAL Pins for the most common needs.
+Please find more information in the following.
 
-It offers the possibility to display up to 9 axes, support a lathe mode for
-normal and back tool lathe and can be adapted to nearly every need, because
-GMOCCAPY supports embedded tabs and side panels.
-As a good example for that see
-https://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[gmoccapy_plasma].
+It offers the possibility to display up to 9 axes,
+support a lathe mode for normal and back tool lathe and can be adapted to nearly every need,
+because GMOCCAPY supports embedded tabs and side panels.
+As a good example for that see https://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[gmoccapy_plasma].
 
-GMOCCAPY 3 does support up to 9 axes and 9 joints. As GMOCCAPY 3 has been
-changed in code to support the joint / axis changes in LinuxCNC it does not
-work on 2.7 or 2.6 branch!
+GMOCCAPY 3 does support up to 9 axes and 9 joints.
+As GMOCCAPY 3 has been changed in code to support the joint / axis changes in LinuxCNC it does not work on 2.7 or 2.6 branch!
 
 It has support for integrated virtual keyboard (onboard or matchbox-keyboard),
-so there is no need for a hardware keyboard or mouse, but it can also be used
-with that hardware. GMOCCAPY offers a separate settings page to configure most
-settings of the GUI without editing files.
+so there is no need for a hardware keyboard or mouse, but it can also be used with that hardware.
+GMOCCAPY offers a separate settings page to configure most settings of the GUI without editing files.
 
-GMOCCAPY can be localized very easy, because the corresponding files are
-separated from the linuxcnc.po files, so there is no need to translate unneeded
-stuff. The files are placed in */src/po/gmoccapy*. You could just copy the gmoccapy.pot
-file to something like it.po and translate that file with gtranslator or poedit.
-After rebuilding, you'd get the GUI in your preference language. To facilitate the
-sharing of the translation, GMOCCAPY is available on the
-https://hosted.weblate.org/projects/linuxcnc/gmocappy/[Weblate web interface].
-GMOCCAPY is currently available in English, German,
-Spanish, Polish, Serbian and Hungarian. Feel free to help me to introduce more
-languages, be it locally or via the web.
+GMOCCAPY can be localized very easy, because the corresponding files are separated from the linuxcnc.po files,
+so there is no need to translate unneeded stuff.
+The files are placed in */src/po/gmoccapy*.
+You could just copy the gmoccapy.pot file to something like it.po and translate that file with gtranslator or poedit.
+After rebuilding, you'd get the GUI in your preference language.
+To facilitate the sharing of the translation,
+GMOCCAPY is available on the https://hosted.weblate.org/projects/linuxcnc/gmocappy/[Weblate web interface].
+GMOCCAPY is currently available in English, German, Spanish, Polish, Serbian and Hungarian.
+Feel free to help me to introduce more languages, be it locally or via the web.
 If you need help, don't hesitate to contact me on *nieson@web.de*.
 
 image:images/gmoccapy_5_axis_mid.png[align="left",link="images/gmoccapy_5_axis.png"]
 
 == Requirements
 
-GMOCCAPY 3 has been tested on Debian Jessie, Debian Stretch and MINT 18
-with LinuxCNC master and 2.8 release. It fully support joint / axis changes of LinuxCNC, making
-it suitable as GUI for Scara, Robots or any other config with more joints than
-axes. So it supports also gantry configs. If you use other versions, please
-inform about problems and / or solutions on the
+GMOCCAPY 3 has been tested on Debian Jessie, Debian Stretch and MINT 18 with LinuxCNC master and 2.8 release.
+It fully support joint / axis changes of LinuxCNC, making it suitable as GUI for Scara, Robots or any other config with more joints than axes.
+So it supports also gantry configs.
+If you use other versions, please inform about problems and / or solutions on the
 https://linuxcnc.org/index.php/english/forum/41-guis/26314-gmoccapy-a-new-screen-for-linuxcnc[LinuxCNC forum] or the
 http://www.cncecke.de/forum/showthread.php?t=78549[German CNC Ecke Forum] or
 https://lists.sourceforge.net/lists/listinfo/emc-users[LinuxCNC users mailing list].
 
-The minimum screen resolution for GMOCCAPY, using it without side panels is
-*979 x 750 Pixel*, so it should fit to every standard screen. It is recommended to use
-screens with minimum resolution of 1024x748.
+The minimum screen resolution for GMOCCAPY, using it without side panels is *979 x 750 Pixel*, so it should fit to every standard screen.
+It is recommended to use screens with minimum resolution of 1024x748.
 
 == How to Get GMOCCAPY
 
 GMOCCAPY 3 is included in the standard distribution of LinuxCNC since release 2.7.
-So the easiest way to get GMOCCAPY on your controlling PC, is just to download the
-https://linuxcnc.org/downloads/[ISO] and install it from the CD/DVD/USB-stick.
+So the easiest way to get GMOCCAPY on your controlling PC is just to download the https://linuxcnc.org/downloads/[ISO] and install it from the CD/DVD/USB-stick.
 This allows you to receive updates with the regular Debian packages.
 
 In the link:gmoccapy_release_notes.txt[*release notes*] aka changelist you can track the latest bugfixes and features.
@@ -82,8 +75,8 @@ GMOCCAPY 3 supports the following command line options:
  * '-user_mode': If set, the setup button will be disabled, so normal machine operators are not able to edit the settings of the machine.
  * '-logo <path to logo file>': If given, the logo will hide the jog button tab in manual mode, this is only useful for machines with hardware buttons for jogging and increment selection.
 
-There is really not to much to configure just to run GMOCCAPY, but there are some points
-you should take care off if you want to use all the features of the GUI.
+There is really not to much to configure just to run GMOCCAPY,
+but there are some points you should take care off if you want to use all the features of the GUI.
 
 You will find a lot of simulation configurations (INI files) included, just to show the basics:
 
@@ -110,8 +103,7 @@ The names should explain the main intention of the different INI files.
 
 If you use an existing configuration of your machine, just edit your INI according to this document.
 
-So let us take a closer look at the INI file and what you need to include
-to use GMOCCAPY on your machine:
+So let us take a closer look at the INI file and what you need to include to use GMOCCAPY on your machine:
 
 [[gmoccapy:display-section]]
 === The DISPLAY Section
@@ -144,23 +136,20 @@ settings will not be mixed if you use several configs. If you only want to use
 one file for several machines, you need to include `PREFERENCE_FILE_PATH` in your
 INI.
 
-- _MAX_FEED_OVERRIDE = 1.5_ - Sets the maximum feed override, in the example given,
-you will be allowed to override the feed by 150%.
+- _MAX_FEED_OVERRIDE = 1.5_ - Sets the maximum feed override, in the example given, you will be allowed to override the feed by 150%.
 +
 [NOTE]
 If no value is given, it will be set to 1.0.
 
-- _MIN_SPINDLE_OVERRIDE = 0.5_ and _MAX_SPINDLE_OVERRIDE = 1.2_ -
-Will allow you to change the spindle override within a limit from 50% to 120%.
+- _MIN_SPINDLE_OVERRIDE = 0.5_ and _MAX_SPINDLE_OVERRIDE = 1.2_ - Will allow you to change the spindle override within a limit from 50% to 120%.
 +
 [NOTE]
 If no values are given, MIN will be set to 0.1 and MAX to 1.0.
 
 - _LATHE = 1_ - Set the screen layout to control a lathe.
-- _BACK_TOOL_LATHE = 1_ - Is optional and will switch the X axis in a way you need for a
-back tool lathe. Also the keyboard shortcuts will react in a different way.
-It is allowed with GMOCCAPY to configure a lathe also with additional axes,
-so you may use also a XZCW config for a lathe.
+- _BACK_TOOL_LATHE = 1_ - Is optional and will switch the X axis in a way you need for a back tool lathe.
+Also the keyboard shortcuts will react in a different way.
+It is allowed with GMOCCAPY to configure a lathe also with additional axes, so you may use also a XZCW config for a lathe.
 +
 [TIP]
 See also the <<gmoccapy:lathe-section,Lathe Specific Section>>.
@@ -191,10 +180,10 @@ Defaults to 600 if not set.
 [[gmoccapy:macros]]
 === Macro Buttons
 
-You can add macros to GMOCCAPY, similar to Touchy's way. A macro is nothing
-else than a NGC file. You are able to execute complete CNC programs in MDI
-mode by just pushing one button. To do so, you first have to specify the search
-path for macros:
+You can add macros to GMOCCAPY, similar to Touchy's way.
+A macro is nothing else than a NGC file.
+You are able to execute complete CNC programs in MDI mode by just pushing one button.
+To do so, you first have to specify the search path for macros:
 
 [[gmocappy:rs274ngc]]
 [source,{ini}]
@@ -202,8 +191,8 @@ path for macros:
 [RS274NGC]
 SUBROUTINE_PATH = macros
 ----
-This sets the path to search for macros and other subroutines. Several subroutine
-paths can be separated ":".
+This sets the path to search for macros and other subroutines.
+Several subroutine paths can be separated ":".
 
 Then you just have to add a section like this:
 
@@ -220,20 +209,16 @@ MACRO = go_to_position X-pos Y-pos Z-pos
 
 Then you have to provide the corresponding NGC files which have to follow these rules:
 
-* The name of the file need to be exactly the same as the name mentioned in the macro
-  line, just with the ".ngc" extension (case sensitive).
-* The file must contain a subroutine like '*O<i_am_lost> sub*', the name
-  of the sub must match exactly (case sensitive) the name of the macro.
+* The name of the file need to be exactly the same as the name mentioned in the macro line, just with the ".ngc" extension (case sensitive).
+* The file must contain a subroutine like '*O<i_am_lost> sub*', the name of the sub must match exactly (case sensitive) the name of the macro.
 * The file must end with an endsub '*O<i_am_lost> endsub*' followed by an '*M2*' command.
-* The files need to be placed in a folder specified in your INI file by 'SUBROUTINE_PATH' in the
-  RS274NGC section
+* The files need to be placed in a folder specified in your INI file by 'SUBROUTINE_PATH' in the RS274NGC section
 
-The code between sub and endsub will be executed by pushing the
-corresponding macro button.
+The code between sub and endsub will be executed by pushing the corresponding macro button.
 
 [NOTE]
-A maximum of 16 macros will be shown in the GUI. Due to space reasons you may need to
-click on an arrow to switch the page and display hidden macro buttons.
+A maximum of 16 macros will be shown in the GUI.
+Due to space reasons you may need to click on an arrow to switch the page and display hidden macro buttons.
 The macro buttons will be displayed in the order of the INI entries.
 It is no error placing more than 16 macros in your INI file, they will just not be shown.
 
@@ -241,9 +226,9 @@ It is no error placing more than 16 macros in your INI file, they will just not 
 //image::images/gmoccapy_mdi_hidden_keyboard.png[align="left"]
 
 [NOTE]
-You will find the sample macros in a folder named 'macros' placed in the GMOCCAPY
-sim folder. If you have given several subroutine paths, they will be searched
-in the order of the given paths. The first file found will be used.
+You will find the sample macros in a folder named 'macros' placed in the GMOCCAPY sim folder.
+If you have given several subroutine paths, they will be searched in the order of the given paths.
+The first file found will be used.
 
 GMOCCAPY will also accept macros asking for parameters like:
 [source,{ini}]
@@ -281,13 +266,11 @@ O<go_to_position> endsub
 M2
 ----
 
-After pushing the '*execute macro button*', you will be asked to enter the
-values for '*X-pos Y-pos Z-pos*' and the macro will only run if all values
-have been given.
+After pushing the '*execute macro button*',
+you will be asked to enter the values for '*X-pos Y-pos Z-pos*' and the macro will only run if all values have been given.
 
 [NOTE]
-If you would like to use a macro without any movement,
-see also the notes in <<sub:NOT_ENDING_MACROS,known problems>>.
+If you would like to use a macro without any movement, see also the notes in <<sub:NOT_ENDING_MACROS,known problems>>.
 
 .Macro example using the "go to position"-macro
 image:images/gmoccapy_getting_macro_info_mid.png[align="left",link="images/gmoccapy_getting_macro_info.png"]
@@ -295,9 +278,8 @@ image:images/gmoccapy_getting_macro_info_mid.png[align="left",link="images/gmocc
 
 [[gmoccapy:configuration-of-tabs-and-side-panels]]
 === Embedded Tabs and Panels
-You can add embedded programs to GMOCCAPY like you can do in AXIS, Touchy and
-Gscreen. All is done by GMOCCAPY automatically if you include a few lines in
-your INI file in the DISPLAY section.
+You can add embedded programs to GMOCCAPY like you can do in AXIS, Touchy and Gscreen.
+All is done by GMOCCAPY automatically if you include a few lines in your INI file in the DISPLAY section.
 
 If you have never used a Glade panel, I recommend to read the excellent documentation
 on https://linuxcnc.org/docs/2.9/html/gui/gladevcp.html[Glade VCP].
@@ -317,8 +299,7 @@ EMBED_TAB_COMMAND = gladevcp -x {XID} vcp_box.glade
 
 All you have to take care of, is that you include for every tab or side panel the mentioned three lines:
 
-* EMBED_TAB_NAME = Represents the name of the tab or side panel, it is up to you
-  what name you use, but it must be present!
+* EMBED_TAB_NAME = Represents the name of the tab or side panel, it is up to you what name you use, but it must be present!
 * EMBED_TAB_LOCATION = The place where your program will be placed in the GUI, see figure <<fig:gmoccapy_emb_tab_locations,Embedded tab locations>>. Valid values are:
 ** *ntb_user_tabs*            (as main tab, covering the complete screen)
 ** *ntb_preview*              (as tab on the preview side *(1)*)
@@ -346,24 +327,22 @@ See also the included sample INI files to see the differences.
 gladevcp -x {XID} dro.glade
 ----
 +
-includes a custom glade file called dro.glade in the mentioned location
+includes a custom glade file called dro.glade in the mentioned location.
 The file must be placed in the config folder of your machine.
 +
 ----
 gladevcp h_buttonlist.glade
 ----
 +
-will just open a new user window called h_buttonlist.glade note the difference,
-this one is stand alone, and can be moved around independent from GMOCCAPY
-window.
+will just open a new user window called h_buttonlist.glade note the difference.
+This one is stand alone, and can be moved around independent from GMOCCAPY window.
 +
 ----
 gladevcp -c gladevcp -u hitcounter.py -H manual-example.hal manual-example.ui
 ----
 +
 will add a the panel manual-example.ui, include a custom Python handler,
-hitcounter.py and make all connections after realizing the panel according to
-manual-example.hal.
+hitcounter.py and make all connections after realizing the panel according to manual-example.hal.
 +
 ----
 hide
@@ -376,14 +355,12 @@ will hide the chosen box.
 image::images/gmoccapy_embedded_tabs.png[align="left"]
 
 [NOTE]
-If you make any HAL connections to your custom glade panel, you need to do that in the HAL file
-specified in the EMBED_TAB_COMMAND line, otherwise you may get an error that the HAL pin does not exist --
-this is because of race conditions loading the HAL files. Connections to GMOCCAPY HAL pins need to be made in the
-postgui HAL file specified in your INI file, because these pins do not exist prior of realizing the GUI.
+If you make any HAL connections to your custom glade panel, you need to do that in the HAL file specified in the EMBED_TAB_COMMAND line,
+otherwise you may get an error that the HAL pin does not exist -- this is because of race conditions loading the HAL files.
+Connections to GMOCCAPY HAL pins need to be made in the postgui HAL file specified in your INI file,
+because these pins do not exist prior of realizing the GUI.
 
 Here are some examples:
-
-
 
 [cols="10a,13a", grid="none", frame="none"]
 |===
@@ -395,8 +372,8 @@ image:images/gmoccapy_with_right_panel_in_MDI_mode_small.png[align="left",link="
 
 [[sub:gmocccapy-configuration-user-messages]]
 === User Created Messages
-GMOCCAPY has the ability to create HAL driven user messages. To use them you
-need to introduce some lines in the [DISPLAY] section of the INI file.
+GMOCCAPY has the ability to create HAL driven user messages.
+To use them you need to introduce some lines in the [DISPLAY] section of the INI file.
 
 These three lines are needed to define a user pop up message dialog:
 [source,{ini}]
@@ -412,12 +389,9 @@ https://developer.gnome.org/pango/stable/PangoMarkupFormat.html[Pango Markup].
 
 The following three dialog types are available:
 
-* *status* - Will just display a message as pop up window, using the messaging
-  system of GMOCCAPY.
-* *okdialog* - Will hold focus on the message dialog and will activate a
-  `-waiting` HAL pin.
-* *yesnodialog* - Will hold focus on the message dialog and will activate
-  a `-waiting` HAL pin and provide a `-response` HAL pin.
+* *status* - Will just display a message as pop up window, using the messaging system of GMOCCAPY.
+* *okdialog* - Will hold focus on the message dialog and will activate a `-waiting` HAL pin.
+* *yesnodialog* - Will hold focus on the message dialog and will activate a `-waiting` HAL pin and provide a `-response` HAL pin.
 
 For more detailed information of the pins see <<gmoccapy:user-created-message,User Created Message HAL Pins>>.
 
@@ -440,12 +414,11 @@ MESSAGE_PINNAME = okdialog
 [NOTE]
 Currently the formatting doesn't work.
 
-
-
 === Preview Control
 
 Magic comments can be used to control the G-code preview.
-On very large programs the preview can take a long time to load. You can control what is shown and what is hidden on the graphics screen by adding the appropriate comments from this list into your G-code:
+On very large programs the preview can take a long time to load.
+You can control what is shown and what is hidden on the graphics screen by adding the appropriate comments from this list into your G-code:
 
 ----
 (PREVIEW,hide)
@@ -456,33 +429,28 @@ On very large programs the preview can take a long time to load. You can control
 == HAL Pins
 
 GMOCCAPY exports several HAL pins to be able to react to hardware devices.
-The goal is to get a GUI that may be operated in a tool shop, completely/mostly
-without mouse or keyboard.
+The goal is to get a GUI that may be operated in a tool shop, completely/mostly without mouse or keyboard.
 
 [NOTE]
 ====
 You will have to do all connections to GMOCCAPY pins in your postgui.hal file.
-When GMOCCAPY is started, it creates the HAL pins for the GUI then it executes
-the post-GUI HAL file named in the INI file:
+When GMOCCAPY is started, it creates the HAL pins for the GUI then it executes the post-GUI HAL file named in the INI file:
 [source,{ini}]
 ----
 [HAL]
 POSTGUI_HALFILE=<filename>
 ----
-Typically `<filename>` would be the configs base name + `_postgui.hal`,
-e.g. `lathe_postgui.hal`, but can be any legal filename. +
-These commands are executed after the screen is built, guaranteeing the widget's HAL
-pins are available. +
+Typically `<filename>` would be the configs base name + `_postgui.hal`, e.g. `lathe_postgui.hal`, but can be any legal filename. +
+These commands are executed after the screen is built, guaranteeing the widget's HAL pins are available. +
 You can have multiple line of `POSTGUI_HALFILE=<filename>` in the INI file.
 Each will be run one after the other in the order they appear.
 ====
 
 === Right and Bottom Button Lists
 
-The screen has two main button lists, one on the right side an one on the
-bottom. The right handed buttons will not change during operation, but the
-bottom button list will change very often. The buttons are count from up to
-down and from left to right beginning with 0.
+The screen has two main button lists, one on the right side an one on the bottom.
+The right handed buttons will not change during operation, but the bottom button list will change very often.
+The buttons are count from up to down and from left to right beginning with 0.
 
 [NOTE]
 The pin names have changed in GMOCCAPY 2 to order them in a better way.
@@ -510,10 +478,9 @@ For the bottom (horizontal) buttons they are:
 * *gmoccapy.h-button.button-8* _(bit IN)_
 * *gmoccapy.h-button.button-9* _(bit IN)_
 
-As the buttons in the bottom list will change according to the mode and other
-influences, the hardware buttons will activate the displayed functions. So you
-don't have to take care about switching functions around in HAL, because that
-is done completely by GMOCCAPY!
+As the buttons in the bottom list will change according to the mode and other influences,
+the hardware buttons will activate the displayed functions.
+So you don't have to take care about switching functions around in HAL, because that is done completely by GMOCCAPY!
 
 For a three axes XYZ machine the HAL pins will react as shown in the following three tables:
 
@@ -521,17 +488,17 @@ For a three axes XYZ machine the HAL pins will react as shown in the following t
 .Functional assignment of horizontal buttons (1)
 [cols="10,10,10,10",  options="header"]
 |====
-| Pin                        | Manual Mode                                   | MDI Mode                                    | Auto Mode
-| gmoccapy.h-button.button-0 | open homing button                            | macro_0 or nothing                          | open file
-| gmoccapy.h-button.button-1 | open touch off stuff                          | macro_1 or nothing                          | reload program
-| gmoccapy.h-button.button-2 |                                               | macro_2 or nothing                          | run
-| gmoccapy.h-button.button-3 | open tool dialogs                             | macro_3 or nothing                          | stop
-| gmoccapy.h-button.button-4 |                                               | macro_4 or nothing                          | pause
-| gmoccapy.h-button.button-5 |                                               | macro_5 or nothing                          | step by step
-| gmoccapy.h-button.button-6 |                                               | macro_6 or nothing                          | run from line if enabled in settings, otherwise Nothing
-| gmoccapy.h-button.button-7 |                                               | macro_7 or nothing                          | optional blocks
-| gmoccapy.h-button.button-8 | full-size preview                             | macro_8 or switch page to additional macros | full-size preview
-| gmoccapy.h-button.button-9 | exit if machine is off, otherwise no reaction | open keyboard or abort if macro is running  | edit code
+| Pin                         | Manual Mode                                   | MDI Mode                                    | Auto Mode
+m| gmoccapy.h-button.button-0 | open homing button                            | macro_0 or nothing                          | open file
+m| gmoccapy.h-button.button-1 | open touch off stuff                          | macro_1 or nothing                          | reload program
+m| gmoccapy.h-button.button-2 |                                               | macro_2 or nothing                          | run
+m| gmoccapy.h-button.button-3 | open tool dialogs                             | macro_3 or nothing                          | stop
+m| gmoccapy.h-button.button-4 |                                               | macro_4 or nothing                          | pause
+m| gmoccapy.h-button.button-5 |                                               | macro_5 or nothing                          | step by step
+m| gmoccapy.h-button.button-6 |                                               | macro_6 or nothing                          | run from line if enabled in settings, otherwise Nothing
+m| gmoccapy.h-button.button-7 |                                               | macro_7 or nothing                          | optional blocks
+m| gmoccapy.h-button.button-8 | full-size preview                             | macro_8 or switch page to additional macros | full-size preview
+m| gmoccapy.h-button.button-9 | exit if machine is off, otherwise no reaction | open keyboard or abort if macro is running  | edit code
 |====
 
 [[table:b]]
@@ -1132,8 +1099,7 @@ The foreground color of the DRO can be selected with:
 * unhomed color = red
 
 [NOTE]
-You can change through the DRO modes (absolute, relative, distance
-to go) by clicking the number on the DRO!
+You can change through the DRO modes (absolute, relative, distance to go) by clicking the number on the DRO!
 If you click on the left side letter of the DRO a popup window will allow you to set the value of the axes,
 making it easier to set the value, as you will not need to go over the touch off bottom button.
 
@@ -1181,7 +1147,8 @@ The mouse wheel will still zoom the preview in every mode.
 
 [TIP]
 ====
-If you select an element in the preview, the selected element will be taken as rotation center point and in auto mode the corresponding code line will be highlighted.
+If you select an element in the preview,
+the selected element will be taken as rotation center point and in auto mode the corresponding code line will be highlighted.
 ====
 
 .File to load on start up
@@ -1222,7 +1189,7 @@ image::images/gmoccapy_settings_hardware.png["Hardware settings",align="left"]
 
 For the different HAL pins to connect MPG wheels to, you may select individual scales to be applied.
 The main reason for this was my own test to solve this through HAL connections, resulting in a very complex HAL file.
-Imagine a user having an MPG Wheel with 100 ipr and he wants to slow down the max.  vel. from 14000 to 2000 mm/min,
+Imagine a user having an MPG Wheel with 100 ipr and he wants to slow down the max. vel. from 14000 to 2000 mm/min,
 that needs 12000 impulses, resulting in 120 turns of the wheel!
 Or an other user having a MPG Wheel with 500 ipr and he wants to set the spindle override
 which has limits from 50 to 120 % so he goes from min to max within 70 impulses, meaning not even 1/4 turn.
@@ -1280,8 +1247,7 @@ There are three options to unlock the settings page:
 
 * _Use unlock code_ -  The user must give a code to get in
 * _Do not use unlock code_ - There will be no security check
-* _Use HAL pin to unlock_ - Hardware pin must be high to unlock the settings,
-  see <<gmoccapy:hardware-unlock, hardware unlock pin>>
+* _Use HAL pin to unlock_ - Hardware pin must be high to unlock the settings, see <<gmoccapy:hardware-unlock, hardware unlock pin>>.
 
 Default is _use unlock code_ (default = *123*)
 
@@ -1330,19 +1296,16 @@ image::images/gmoccapy_settings_advanced.png["Advanced settings",align="left"]
 Please check <<gmoccapy:auto-tool-measurement,Auto Tool Measurement>>
 
 [NOTE]
-If this part is not sensitive, you do not have a valid INI file configuration
-to use tool measurement.
+If this part is not sensitive, you do not have a valid INI file configuration to use tool measurement.
 
-* _Use auto tool measurement_ - If checked, after each tool change, a tool
-  measurement will be done, the result will be stored in the tool table and a
-  G43 will be executed after the change.
+* _Use auto tool measurement_ - If checked, after each tool change, a tool measurement will be done,
+  the result will be stored in the tool table and a G43 will be executed after the change.
 
 
 Probe Information::
 +
 --
-The following information is taken from your INI file and must be given
-in absolute coordinates.
+The following information is taken from your INI file and must be given in absolute coordinates.
 
 * _X Pos._ - The X position of the tool switch.
 * _Y Pos._ - The Y position of the tool switch.
@@ -1491,23 +1454,26 @@ Basically that's everything needed to create a custom icon theme.
 
 === Symbolic Icons
 
-Symbolic icons are a special type of icon, usually a monochrome image. The special feature of symbolic icons is that the icons are automatically colored at runtime to match the desktop theme.
-That way, icon themes can be created that work well with dark and also light desktop themes (in fact, that's not always the best option, that's why a dedicated "material-light" theme exists).
+Symbolic icons are a special type of icon, usually a monochrome image.
+The special feature of symbolic icons is that the icons are automatically colored at runtime to match the desktop theme.
+That way, icon themes can be created that work well with dark and also light desktop themes
+(in fact, that's not always the best option, that's why a dedicated "material-light" theme exists).
 
 image::images/gmoccapy_icon_theme_symbolic.png[align="center"]
 
-To make use of the symbolic feature, a icon file has to have the suffix .symbolic.$ext (where $ext is the regular file extension like png) for example "power_on.symbolic.png".
+To make use of the symbolic feature,
+a icon file has to have the suffix .symbolic.$ext (where $ext is the regular file extension like png) for example "power_on.symbolic.png".
 
 With that name, GTK treats this image as symbolic icon and applies some recoloring when loading the icon.
 There are only four colors allowed to use:
 
 [frame="none",grid="none",cols="10,10,40",options="header"]
 |===
-|Color  |Hex Code   |Description
-|black  |#000000    |Primary color, gets changed to match the desktop themes primary color.
-|red    |#ff0000    |Success: this color indicates "success" (usually something green'ish).
-|green  |#00ff00    |Warning: this color indicates "warning"  (usually something yellow/orange'ish).
-|blue   |#0000ff    |Error: this color indicates "error" (usually something red'ish).
+|Color   |Hex Code   |Description
+|black  m|#000000    |Primary color, gets changed to match the desktop themes primary color.
+|red    m|#ff0000    |Success: this color indicates "success" (usually something green'ish).
+|green  m|#00ff00    |Warning: this color indicates "warning"  (usually something yellow/orange'ish).
+|blue   m|#0000ff    |Error: this color indicates "error" (usually something red'ish).
 |===
 
 [TIP]
