@@ -138,31 +138,31 @@ Base machine requirements such as limit switches, home switches, etc. are in add
     HAL pin name `plasmac.ohmic-enable` +
     Connected from a breakout board output to an input to control the ohmic probe's power.
 |Breakaway Switch |0, 1, 2 |Digital input; *optional, see info below table:* +
-    HAL pin name plasmac.breakaway +
+    HAL pin name `plasmac.breakaway` +
     Connected from a breakout board input to a torch breakaway detection switch. +
     This signal senses if the torch has broken away from its cradle.
 |Torch On |0, 1, 2 |Digital output; *required.* +
-    HAL pin name plasmac.torch-on +
+    HAL pin name  `plasmac.torch-on` +
     Connected from a breakout board output to the torch-on input of the plasma power supply.
     This signal is used to control the plasma power supply and start the arc.
 |Move Up |2 |Digital input; *optional.* +
-    HAL pin name plasmac.move-up +
+    HAL pin name `plasmac.move-up` +
     Connected from the up output of the external THC control to a break out board input.
     This signal is used to control the Z axis in an upward motion and make necessary corrections to maintain the torch distance from the work piece during cutting.
 |Move Down |2 |Digital input; *optional.* +
-    HAL pin name plasmac.move-down +
+    HAL pin name `plasmac.move-down` +
     Connected from the down output of the external THC control to a break out board input.
     This signal is used to control the Z axis in a downward motion and make necessary corrections to maintain the torch distance from the work piece during cutting.
 |Scribe Arming |0, 1, 2 |Digital output; *optional.* +
-    HAL pin name plasmac.scribe-arm +
+    HAL pin name `plasmac.scribe-arm` +
     Connected from a breakout board output to the scribe arming circuit.
     This signal is used to place the scribe into position on the work piece .
 |Scribe On |0, 1, 2 |Digital output; *optional.* +
-    HAL pin name plasmac.scribe-on +
+    HAL pin name `plasmac.scribe-on` +
     Connected from a breakout board output to the scribe-on circuit.
     This signal is used to turn the scribing device on.
 |Laser On |0, 1, 2 |Digital output; *optional.* +
-    HAL pin name qtplasmac.laser_on +
+    HAL pin name `qtplasmac.laser_on` +
     This signal is used to turn the alignment laser on.
 |===
 
@@ -170,10 +170,13 @@ Only one of either *Float Switch* or *Ohmic Probe* is required. If both are used
 
 If *Ohmic Probe* is used then *Ohmic Probe Enable* is required to be checked on the QtPlasmaC GUI.
 
-*Breakaway Switch* is not mandatory because the *Float Switch* is treated the same as a breakaway when not probing. If they are two separate switches, and there are not enough inputs on the breakout board, they could be combined and connected as a *Float Switch*.
+*Breakaway Switch* is not mandatory because the *Float Switch* is treated the same as a breakaway when not probing.
+If they are two separate switches, and there are not enough inputs on the breakout board, they could be combined and connected as a *Float Switch*.
 
 [NOTE]
-The minimum I/O requirement for a QtPlasmaC configuration to function are:  *Arc Voltage* input OR *Arc OK* input, *Float Switch* input, and *Torch On* output. To reiterate, in this case QtPlasmaC will treat the float switch as a breakaway switch when it is not probing.
+The minimum I/O requirement for a QtPlasmaC configuration to function are:
+*Arc Voltage* input OR *Arc OK* input, *Float Switch* input, and *Torch On* output.
+To reiterate, in this case QtPlasmaC will treat the float switch as a breakaway switch when it is not probing.
 
 [[qt_z-settings]]
 === Recommended Settings:
@@ -295,7 +298,8 @@ It is possible to create a sim configuration using StepConf but it is not possib
 [[qt-dependency]]
 === Qt Dependency Errors
 
-If any Qt dependency errors are encountered while attempting to run the QtPlasmaC configuration, the user may need to run the QtVCP installation script to resolve these issues.
+If any Qt dependency errors are encountered while attempting to run the QtPlasmaC configuration,
+the user may need to run the QtVCP installation script to resolve these issues.
 
 For a package installation (Buildbot) enter the following command in a terminal window:
 
@@ -316,9 +320,12 @@ The following heights diagram will help the user visualize the different heights
 
 image::images/qtplasmac_heights_diagram.png[width=800,align="center"]
 
-Click on the <<qt_parameters-tab,Parameters Tab>> to view the *CONFIGURATION* section which shows the user settable parameters. It is necessary to ensure every one of these settings is tailored to the machine.
+Click on the <<qt_parameters-tab,Parameters Tab>> to view the *CONFIGURATION* section which shows the user settable parameters.
+It is necessary to ensure every one of these settings is tailored to the machine.
 
-To set the Z axis DRO relative to the Z axis MINIMUM_LIMIT, the user should perform the following steps. It is important to understand that in QtPlasmaC, touching off the Z axis DRO has no effect on the Z axis position while running a G-code program. These steps simply allow the user to more easily set the probe height as after performing the steps, the displayed Z axis DRO value will be relative to Z axis MINIMUM_LIMIT.
+To set the Z axis DRO relative to the Z axis MINIMUM_LIMIT, the user should perform the following steps.
+It is important to understand that in QtPlasmaC, touching off the Z axis DRO has no effect on the Z axis position while running a G-code program.
+These steps simply allow the user to more easily set the probe height as after performing the steps, the displayed Z axis DRO value will be relative to Z axis MINIMUM_LIMIT.
 
 . The user should be familiar with the recommended <<qt_z-settings, Z Axis Settings>>.
 . Home the Z axis.
@@ -343,7 +350,8 @@ If the machine is equipped with a float switch then the user will need to set th
 If the amount of time between the torch contacting the material and when the torch moves up and comes to rest at the Pierce Height seems excessive, see <<qt_probing,the probing section>> for a possible solution.
 
 [IMPORTANT]
-IF USING A *Mesa Electronics THCAD* THEN THE *Voltage Scale* VALUE WAS OBTAINED MATHEMATICALLY. IF THE USER INTENDS TO USE CUT VOLTAGES FROM A MANUFACTURE'S CUT CHART THEN IT WOULD BE ADVISABLE TO DO MEASUREMENTS OF ACTUAL VOLTAGES AND FINE TUNE THE *Voltage Scale* AND *Voltage Offset*.
+IF USING A *Mesa Electronics THCAD* THEN THE *Voltage Scale* VALUE WAS OBTAINED MATHEMATICALLY.
+IF THE USER INTENDS TO USE CUT VOLTAGES FROM A MANUFACTURE'S CUT CHART THEN IT WOULD BE ADVISABLE TO DO MEASUREMENTS OF ACTUAL VOLTAGES AND FINE TUNE THE *Voltage Scale* AND *Voltage Offset*.
 
 [CAUTION]
 PLASMA CUTTING VOLTAGES CAN BE LETHAL, IF THE USER IS NOT EXPERIENCED IN DOING THESE MEASUREMENTS GET SOME QUALIFIED HELP.
@@ -351,13 +359,15 @@ PLASMA CUTTING VOLTAGES CAN BE LETHAL, IF THE USER IS NOT EXPERIENCED IN DOING T
 [[qt_modify-config]]
 == Migrating to QtPlasmac From PlasmaC (Axis or Gmoccapy)
 
-There are two methods available to get from a working PlasmaC configuration to a new QtPlasmaC configuration. These methods assume the user is on LinuxCNC v2.9 or later, QtVCP is installed, and all dependency requirements are satisfied.
+There are two methods available to get from a working PlasmaC configuration to a new QtPlasmaC configuration.
+These methods assume the user is on LinuxCNC v2.9 or later, QtVCP is installed, and all dependency requirements are satisfied.
 
 If there are Qt dependency errors, the user should run the <<qt-dependency,QtVCP install script>>.
 
 === Quick Method
 
-A quick method to move to QtPlasmaC from PlasmaC (loaded on top of either Axis or Gmoccapy) is to use the plasmac2qt conversion program which will attempt to create a new QtPlasmaC configuration from an existing PlasmaC INI file. This program will convert the user's parameters, settings, and materials from the previous PlasmaC configuration and create a new QtPlasmaC configuration directory in the ~/linuxcnc/configs directory.
+A quick method to move to QtPlasmaC from PlasmaC (loaded on top of either Axis or Gmoccapy) is to use the plasmac2qt conversion program which will attempt to create a new QtPlasmaC configuration from an existing PlasmaC INI file.
+This program will convert the user's parameters, settings, and materials from the previous PlasmaC configuration and create a new QtPlasmaC configuration directory in the ~/linuxcnc/configs directory.
 
 This methods will keep the original PlasmaC config as a backup with _plasmac and a time stamp appended to the directory name.
 
@@ -385,12 +395,12 @@ image::images/qtplasmac_plasmac2qt.png[width=500,align="center"]
 [width="100%",cols="4,10,6",options="header"]
 |===
 |Field |Description |Examples
-|INI FILE IN EXISTING PLASMAC CONFIG |This is the INI file of the PlasmaC config that requires migrating.|_<machine_name>_.ini
+|INI FILE IN EXISTING PLASMAC CONFIG |This is the INI file of the PlasmaC config that requires migrating. |_<machine_name>_.ini
 |MONITOR ASPECT RATIO |This is the <<qt_formats, aspect ratio format>> for the GUI.|16:9
 |ESTOP |Selects the required Estop type based on the following criteria: +
     0 - Estop is an indicator only. +
     1 - Estop indicator is hidden. +
-    2 - Estop is a button.|ESTOP:1
+    2 - Estop is a button. |ESTOP:1
 |===
 
 *Optional Setting*
@@ -403,17 +413,19 @@ Leave this blank if it is not used/required.
 |===
 |Field |Description |Examples
 |Laser On HAL Pin |Power on a laser crosshair for sheet alignment.|*Parallel Port Example:* parport.0.pin-16-out +
-    *Mesa 7i96 Example:* hm2_7i96.0.ssr.00.out-00
+*Mesa 7i96 Example:* hm2_7i96.0.ssr.00.out-00
 |===
 
 After filling in the appropriate entries, press *CONVERT*.
 
 [NOTE]
-This method will not change any existing debounce components to the new dbounce component. If the user wishes to change to the new dbounce component then the New Base Config method should be used for migration.
+This method will not change any existing debounce components to the new dbounce component.
+If the user wishes to change to the new dbounce component then the New Base Config method should be used for migration.
 
 === New Base Config Method
 
-This method to move to QtPlasmaC from PlasmaC (loaded on top of either Axis or Gmoccapy) is to use a <<configuring, configuration wizard>> to create a new configuration. This method then allows changing of the base machine configuration at a later date via the configuration wizard provided that the base INI and base HAL files have not been edited.
+This method to move to QtPlasmaC from PlasmaC (loaded on top of either Axis or Gmoccapy) is to use a <<configuring,configuration wizard>> to create a new configuration.
+This method then allows changing of the base machine configuration at a later date via the configuration wizard provided that the base INI and base HAL files have not been edited.
 
 This method requires that the user take note of all HAL pins used in the existing config so they can be entered into the configuration wizard. Any custom HAL commands will also need to be noted and added manually to either the custom.hal file or the custom_postgui.hal file which will be created by the configuration wizard.
 

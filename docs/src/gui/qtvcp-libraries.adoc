@@ -10,12 +10,12 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-Libraries are *prebuilt Python modules that give added features to QtVCP*. +
-In this way you can select what features you want - yet don't have to build common ones yourself. +
+Libraries are *prebuilt Python modules that give added features to QtVCP*.
+In this way you can select what features you want - yet don't have to build common ones yourself.
 
 == `Status`
 
-*`Status`* is a library that *sends GObject messages based on LinuxCNC's current state*. +
+*`Status`* is a library that *sends GObject messages based on LinuxCNC's current state*.
 It is an _extension of GladeVCP's <<cha:gstat,GStat>> object_.
 
 It also has some functions to report status on such things as internal jog rate.
@@ -54,8 +54,8 @@ STATUS = Status()
 For example, you can catch machine on and off messages.
 
 [NOTE]
-The example below shows the _two common ways of connecting signals_, one of them _using lambda_. +
-*`lambda`* is _used to strip off or manipulate arguments_ from the status message before calling the function. +
+The example below shows the _two common ways of connecting signals_, one of them _using lambda_.
+*`lambda`* is _used to strip off or manipulate arguments_ from the status message before calling the function.
 You can see the difference in the called function signature:
 The one that uses lambda does not accept the status object - lambda did not pass it to the function.
 
@@ -569,8 +569,7 @@ WIDGETS = VCPWindow()
 == `Aux_program_loader`
 
 //FIXME Aux_program_loader: load (into QtVCP) or launch ?
-*`Aux_program_loader`* module allows an easy way to
-*load auxiliary programs LinuxCNC often uses*.
+*`Aux_program_loader`* module allows an easy way to *load auxiliary programs LinuxCNC often uses*.
 
 === Helpers
 
@@ -690,8 +689,7 @@ from qtvcp.lib.keybindings import Keylookup
 
 .Instantiate `Keylookup` module
 
-To instantiate `Keylookup` module* so you can use it, add this
-Python code to your instantiate section:
+To instantiate `Keylookup` module* so you can use it, add this Python code to your instantiate section:
 
 [source,python]
 ----
@@ -707,8 +705,7 @@ KEYBIND = Keylookup()
 NOTE: `Keylookup` requires code under the `processed_key_event` function to call `KEYBIND.call()`. +
   Most handler files already have this code.
 
-In the handler file, under the _initialized function_ use this general
-syntax to *create keybindings*:
+In the handler file, under the _initialized function_ use this general syntax to *create keybindings*:
 
 [source,python]
 ----
@@ -791,8 +788,7 @@ By default it will send `STATUS` messages for `focus_overlay` and alert sound. +
 
 === Examples
 
-Here are sample INI message definition code blocks that would be found
-under the `[DISPLAY]` heading:
+Here are sample INI message definition code blocks that would be found under the `[DISPLAY]` heading:
 
 * Status bar and desktop notify pop up message:
 +
@@ -1128,24 +1124,20 @@ Provides the *basic building blocks of a simulated machine*.
 *`Collection`*::
   A `collection` is an *object of individual machine parts*.
 +
-This holds a *hierarchical list* of primitive shapes or _STL objects_
-that operations can be applied to.
+This holds a *hierarchical list* of primitive shapes or _STL objects_ that operations can be applied to.
 //TODO Can't a collection hold other collections ?
 
 *`Translate`*::
-  This object will perform an *OpenGL translation* calculation
-  _on a Collection object_.
+  This object will perform an *OpenGL translation* calculation _on a Collection object_.
 //TODO Not on primitives ?
 +
-Translation refers to _moving an object in straight line_ to a different
-position on screen.
+Translation refers to _moving an object in straight line_ to a different position on screen.
 
 *`Scale`*::
   This object will perform an *OpenGL scale* function _on a collection object_.
 
 *`HalTranslate`*::
-  This object will perform an *OpenGL translation* calculation
-  _on a Collection object_, *offset by the HAL pin value*.
+  This object will perform an *OpenGL translation* calculation _on a Collection object_, *offset by the HAL pin value*.
 +
 Translation refers to moving an object in straight line to a different position on screen.
 +

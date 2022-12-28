@@ -448,8 +448,8 @@ These buttons are used for *control actions on the machine controller*.
 They are built on top of `IndicatedPushButton` so can have LEDs overlaid.
 
 [NOTE]
-If you left double click on this widget you can launch a dialog to set any of these actions. +
-The dialogs will help to set the right related data to the selected action. +
+If you left double click on this widget you can launch a dialog to set any of these actions.
+The dialogs will help to set the right related data to the selected action.
 You can also change these properties directly in the property editor.
 
 .Actions
@@ -560,7 +560,7 @@ MDI_COMMAND = G53 G0 Z0;G53 G0 X0 Y0, Goto\nMachn\nZero
 
 //FIXME add link to Indicated_PushButton section
 Action buttons are subclassed from
-<<sub:qtvcp:widgets:indicatedpushbutton>>[`IndicatedPushButton`]. +
+<<sub:qtvcp:widgets:indicatedpushbutton>>[`IndicatedPushButton`].
 See the following sections for more information about:
 
 * <<sub:qtvcp:widgets:indicatedpushbutton:led,LED Indicator option>>
@@ -666,8 +666,8 @@ This will *display the current position of an axis*.
 *`angular_template `*::
   Format of display, e.g. `%Rotational: 10.1f`.
 
-The `DROLabel` widget holds a property *`isHomed`* that can be used with a stylesheet
-to change the _color of the `DRO_Label` based on homing state of the joint_ number in LinuxCNC.
+The `DROLabel` widget holds a property *`isHomed`* that can be used with a stylesheet to change the _color of the `DRO_Label`
+based on homing state of the joint_ number in LinuxCNC.
 
 Here is a sample stylesheet entry that:
 
@@ -724,7 +724,8 @@ It has a _signal_ *`percentDone(int)`* that can be connected to a slot (such as 
 *`auto_show_manual_status`*::
   Set true to have the widget switch to machine log when in Manual mode.
 
-The `GcodeDisplay` properties can be set in a stylesheet with the following code added to the .qss file (the following color choices are random).
+The `GcodeDisplay` properties can be set in a stylesheet with the following code added to the .qss file
+(the following color choices are random).
 
 [source,{css}]
 ----
@@ -2342,7 +2343,7 @@ It is based on PyQt's _QMessagebox_.
 === `OriginOffsetDialog` - Origin Offset Setting Dialog Widget
 
 .QtVCP `OriginOffsetDialog`: Origin Offset Setting Widget
-image::images/qtvcp_offsetpage.png["QtVCP `OriginOffsetDialog``: Origin Offset Setting Widget",scale="25%"]
+image::images/qtvcp_offsetpage.png["QtVCP `OriginOffsetDialog`: Origin Offset Setting Widget",scale="25%"]
 
 This widget allows one to *modify User System origin offsets directly* in a dialog form.
 
