@@ -1225,7 +1225,7 @@ The main reason for this was my own test to solve this through HAL connections, 
 Imagine a user having an MPG Wheel with 100 ipr and he wants to slow down the max.  vel. from 14000 to 2000 mm/min,
 that needs 12000 impulses, resulting in 120 turns of the wheel!
 Or an other user having a MPG Wheel with 500 ipr and he wants to set the spindle override
-witch has limits from 50 to 120 % so he goes from min to max within 70 impulses, meaning not even 1/4 turn.
+which has limits from 50 to 120 % so he goes from min to max within 70 impulses, meaning not even 1/4 turn.
 
 By default all scales are set using the calculation:
 
