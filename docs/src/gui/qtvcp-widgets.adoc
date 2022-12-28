@@ -206,11 +206,9 @@ self.w.halpadname.set_highlight(self.w.halpadname.LEFTRIGHT)
 
 .`HALPad` Properties
 *`pin_name`*::
-  Optional name to use for the _HAL pins basename_. +
-  If left blank, the Qt Designer widget name will be used.
+  Optional name to use for the _HAL pins basename_. If left blank, the Qt Designer widget name will be used.
 *`pin_type`*::
-  Select the _HAL output pin type_.
-  This property is only used at startup.
+  Select the _HAL output pin type_. This property is only used at startup.
   Selection can be set in Qt Designer:
 +
 ** `NONE`
@@ -226,7 +224,7 @@ self.w.halpadname.set_highlight(self.w.halpadname.LEFTRIGHT)
 *`top_image_path`*::
 *`bottom_image_path`*::
   File or resource path to an image to display in the described button location. +
-  If the reset button is pressed in the Qt Designer editor property, the image will not be displayed. (allowing optional text)
+  If the reset button is pressed in the Qt Designer editor property, the image will not be displayed (allowing optional text).
 *`left_text`*::
 *`right_text`*::
 *`center_text`*::
