@@ -10,6 +10,7 @@
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
+:css: {basebackend@docbook:'':css}
 
 == Introduction
 
@@ -425,6 +426,69 @@ You can control what is shown and what is hidden on the graphics screen by addin
 <G-code to be hidden>
 (PREVIEW,show)
 ----
+
+=== User Command File
+
+If a file ~/.gmoccapyrc exists, its contents are executed as Python source code just after
+the GUI is displayed. The details of what may be written in the ~/.gmoccapyrc are subject
+to change during the development cycle.
+
+A configuration-specific Python file may be specified with an INI file setting
+[source,{ini}]
+----
+[DISPLAY]
+USER_COMMAND_FILE=filename.py
+----
+If this file is specified, this file is sourced just after the AXIS GUI is displayed
+*instead* of ~/.gmoccapyrc.
+
+
+The following example changes the size of the vertical buttons and changes the order of buttons:
+.Example of .axisrc file
+-----
+self.widgets.vbtb_main.set_size_request(85,-1)
+BB_SIZE = (70, 70) # default = (90, 56)
+self.widgets.tbtn_estop.set_size_request(*BB_SIZE)
+self.widgets.tbtn_on.set_size_request(*BB_SIZE)
+self.widgets.rbt_manual.set_size_request(*BB_SIZE)
+self.widgets.rbt_mdi.set_size_request(*BB_SIZE)
+self.widgets.rbt_auto.set_size_request(*BB_SIZE)
+self.widgets.tbtn_setup.set_size_request(*BB_SIZE)
+self.widgets.tbtn_user_tabs.set_size_request(*BB_SIZE)
+self.widgets.btn_exit.set_size_request(*BB_SIZE)
+
+self.widgets.vbtb_main.remove(self.widgets.tbtn_setup)
+self.widgets.vbtb_main.remove(self.widgets.lbl_time)
+self.widgets.vbtb_main.add(self.widgets.tbtn_setup)
+self.widgets.vbtb_main.add(self.widgets.lbl_time)
+-----
+
+The widget names can the looked up in the /usr/share/gmoccapy.glade file
+
+=== User CSS File
+
+Similar to the User command file it's possible to influence the appearance by cascading style sheets (CSS).
+If a file ~/.gmoccapy_css exists, its contents are loaded into the stylesheet provider and are so beeing applied to the GUI.
+
+A configuration-specific CSS file may be specified with an INI file setting
+[source,{ini}]
+----
+[DISPLAY]
+USER_CSS_FILE=filename.css
+----
+If this file is specified, this file is used *instead* of ~/.gmoccapy_css.
+
+Information what can be controlled by CSS can be found here: link:https://docs.gtk.org/gtk3/css-overview.html[Overview of CSS in GTK]
+
+Here an example how the color of checked buttons can be set to yellow:
+.Example Yellow color for checked buttons
+[source,{css}]
+----
+button:checked {
+    background: rgba(250,230,0,0.8);
+}
+----
+
 
 == HAL Pins
 

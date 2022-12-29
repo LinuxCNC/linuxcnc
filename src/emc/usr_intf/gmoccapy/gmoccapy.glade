@@ -6292,13 +6292,15 @@ to test your settings.</property>
                 <child>
                   <object class="GtkToggleButton" id="tbtn_estop">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Estop the machine
 [F1]</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_emergency</property>
                     <signal name="toggled" handler="on_tbtn_estop_toggled" swapped="no"/>
                   </object>
@@ -6311,13 +6313,15 @@ to test your settings.</property>
                 <child>
                   <object class="GtkToggleButton" id="tbtn_on">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Turn the machine on/off
 [F2]</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_machine_off</property>
                     <signal name="toggled" handler="on_tbtn_on_toggled" swapped="no"/>
                   </object>
@@ -6330,13 +6334,15 @@ to test your settings.</property>
                 <child>
                   <object class="GtkRadioButton" id="rbt_manual">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">enter manual mode to jog axis by hand or touch off
 [F3]</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_manual</property>
                     <property name="active">True</property>
                     <property name="draw_indicator">False</property>
@@ -6353,13 +6359,15 @@ to test your settings.</property>
                 <child>
                   <object class="GtkRadioButton" id="rbt_mdi">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="tooltip_text" translatable="yes">enter MDI mode to launch G-code commands
 [F5]</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_mdi</property>
                     <property name="draw_indicator">False</property>
                     <property name="group">rbt_auto</property>
@@ -6375,12 +6383,14 @@ to test your settings.</property>
                 <child>
                   <object class="GtkRadioButton" id="rbt_auto">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="tooltip_text" translatable="yes">enter auto mode to run programs</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_auto</property>
                     <property name="draw_indicator">False</property>
                     <signal name="pressed" handler="on_rbt_auto_pressed" swapped="no"/>
@@ -6395,12 +6405,14 @@ to test your settings.</property>
                 <child>
                   <object class="GtkToggleButton" id="tbtn_setup">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Enter the settings page, the default code is "123"</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_settings</property>
                     <signal name="toggled" handler="on_tbtn_setup_toggled" swapped="no"/>
                   </object>
@@ -6413,12 +6425,14 @@ to test your settings.</property>
                 <child>
                   <object class="GtkToggleButton" id="tbtn_user_tabs">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
                     <property name="tooltip_text" translatable="yes">show user tabs</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_user_tabs</property>
                     <signal name="toggled" handler="on_tbtn_user_tabs_toggled" swapped="no"/>
                   </object>
@@ -6458,6 +6472,7 @@ Date</property>
         </child>
         <child>
           <object class="GtkNotebook" id="ntb_button">
+            <property name="height_request">62</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="show_tabs">False</property>
@@ -6471,12 +6486,14 @@ Date</property>
                 <child>
                   <object class="GtkButton" id="btn_homing">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">open homing button list</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_ref_menu</property>
                     <signal name="clicked" handler="on_btn_homing_clicked" swapped="no"/>
                   </object>
@@ -6489,12 +6506,14 @@ Date</property>
                 <child>
                   <object class="GtkButton" id="btn_touch">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">open touch off button list</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_touch_off</property>
                     <signal name="clicked" handler="on_btn_touch_clicked" swapped="no"/>
                   </object>
@@ -6506,7 +6525,7 @@ Date</property>
                 </child>
                 <child>
                   <object class="GtkLabel" id="lbl_space_0">
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
@@ -6520,12 +6539,14 @@ Date</property>
                 <child>
                   <object class="GtkButton" id="btn_tool">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Open the tooleditor page</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_tools</property>
                     <property name="image_position">top</property>
                     <signal name="clicked" handler="on_btn_tool_clicked" swapped="no"/>
@@ -6538,7 +6559,7 @@ Date</property>
                 </child>
                 <child>
                   <object class="GtkLabel" id="lbl_space_1">
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
@@ -6551,7 +6572,7 @@ Date</property>
                 </child>
                 <child>
                   <object class="GtkLabel" id="lbl_space_2">
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
@@ -6567,13 +6588,15 @@ Date</property>
                     <property name="label" translatable="yes">World
 Mode</property>
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Switch motion mode between Joint and World mode
 F12 or $ key does the same</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <signal name="toggled" handler="on_tbtn_switch_mode_toggled" swapped="no"/>
                   </object>
                   <packing>
@@ -6584,7 +6607,7 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkLabel" id="lbl_replace_mode_btn">
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
@@ -6597,7 +6620,7 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkLabel" id="lbl_space_3">
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
@@ -6611,12 +6634,14 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkToggleButton" id="tbtn_fullsize_preview0">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">make the preview as large as possible</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_fullsize_preview0_open</property>
                     <signal name="toggled" handler="on_tbtn_fullsize_preview_toggled" swapped="no"/>
                   </object>
@@ -6629,12 +6654,14 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_exit">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Close gmoccapy / leave the program</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_close</property>
                     <signal name="clicked" handler="on_btn_exit_clicked" swapped="no"/>
                   </object>
@@ -6718,12 +6745,14 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_load">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Load a new program</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_open</property>
                     <signal name="clicked" handler="on_btn_load_clicked" swapped="no"/>
                   </object>
@@ -6736,11 +6765,13 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_reload">
                     <property name="related_action">hal_action_reload</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="use_underline">True</property>
                     <child>
                       <object class="GtkImage" id="img_reload1">
@@ -6759,12 +6790,14 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_run">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Run the loaded program</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_run</property>
                     <signal name="clicked" handler="on_btn_run_clicked" swapped="no"/>
                   </object>
@@ -6777,12 +6810,14 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_stop">
                     <property name="related_action">hal_action_stop</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Stop the running program</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_stop</property>
                     <signal name="clicked" handler="on_btn_stop_clicked" swapped="no"/>
                   </object>
@@ -6795,12 +6830,14 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkToggleButton" id="tbtn_pause">
                     <property name="related_action">hal_tgl_pause</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Pause the running program</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_pause</property>
                     <signal name="toggled" handler="on_tbtn_pause_toggled" swapped="no"/>
                   </object>
@@ -6813,12 +6850,14 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_step">
                     <property name="related_action">hal_action_step</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Run the  loaded program step by step</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_step</property>
                   </object>
                   <packing>
@@ -6830,12 +6869,14 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_from_line">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">run the program from a certain line, attention, that is dangerous, because the previous lines will not checked!</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_run_from</property>
                     <signal name="clicked" handler="on_btn_from_line_clicked" swapped="no"/>
                   </object>
@@ -6848,12 +6889,14 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkToggleButton" id="tbtn_optional_blocks">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Machine or not the optional blocks of the program. If the button is pressed, the optional blocks will not be machined. The button will indicate this by a yellow background.</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_skip_optional_inactive</property>
                     <signal name="toggled" handler="on_tbtn_optional_blocks_toggled" swapped="no"/>
                   </object>
@@ -6866,11 +6909,13 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkToggleButton" id="tbtn_fullsize_preview1">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_fullsize_preview1_open</property>
                     <signal name="toggled" handler="on_tbtn_fullsize_preview_toggled" swapped="no"/>
                   </object>
@@ -6883,12 +6928,14 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_edit">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Edit the loaded program</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_editor</property>
                     <signal name="clicked" handler="on_btn_edit_clicked" swapped="no"/>
                   </object>
@@ -7031,15 +7078,25 @@ F12 or $ key does the same</property>
                 <property name="homogeneous">True</property>
                 <child>
                   <object class="GtkButton" id="btn_delete">
-                    <property name="label" translatable="yes">delete MDI</property>
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">delete MDI history</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <signal name="clicked" handler="on_btn_delete_clicked" swapped="no"/>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Delete
+MDI history</property>
+                        <property name="justify">center</property>
+                      </object>
+                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -7049,7 +7106,7 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkLabel" id="lbl_space_4">
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
@@ -7062,7 +7119,7 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkLabel" id="lbl_version">
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
@@ -7078,7 +7135,7 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkLabel" id="lbl_space_5">
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
@@ -7093,12 +7150,14 @@ F12 or $ key does the same</property>
                   <object class="GtkButton" id="btn_classicladder">
                     <property name="label" translatable="yes">Cl.-ladder</property>
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Open classicladder</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <signal name="clicked" handler="on_btn_classicladder_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -7111,12 +7170,14 @@ F12 or $ key does the same</property>
                   <object class="GtkButton" id="btn_hal_scope">
                     <property name="label" translatable="yes">Hal-Scope</property>
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">launch hal scope</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <signal name="clicked" handler="on_btn_hal_scope_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -7129,12 +7190,14 @@ F12 or $ key does the same</property>
                   <object class="GtkButton" id="btn_status">
                     <property name="label" translatable="yes">Status</property>
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">launch linuxcnc status</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <signal name="clicked" handler="on_btn_status_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -7147,12 +7210,14 @@ F12 or $ key does the same</property>
                   <object class="GtkButton" id="btn_hal_meter">
                     <property name="label" translatable="yes">Hal Meter</property>
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">launch hal meter</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="xalign">0.51999998092651367</property>
                     <signal name="clicked" handler="on_btn_hal_meter_clicked" swapped="no"/>
                   </object>
@@ -7166,12 +7231,14 @@ F12 or $ key does the same</property>
                   <object class="GtkButton" id="btn_calibration">
                     <property name="label" translatable="yes">Calibration</property>
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">launch calibration</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <signal name="clicked" handler="on_btn_calibration_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -7184,12 +7251,14 @@ F12 or $ key does the same</property>
                   <object class="GtkButton" id="btn_show_hal">
                     <property name="label" translatable="yes">Halshow</property>
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">opens the show hal tool</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <signal name="clicked" handler="on_btn_show_hal_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -7221,7 +7290,7 @@ F12 or $ key does the same</property>
                 <property name="homogeneous">True</property>
                 <child>
                   <object class="GtkLabel" id="lbl_space_6">
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
@@ -7235,9 +7304,13 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_reload_edit">
                     <property name="related_action">hal_action_reload</property>
+                    <property name="width_request">90</property>
+                    <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_edit_menu_reload</property>
                     <property name="use_underline">True</property>
                   </object>
@@ -7250,10 +7323,14 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_save">
                     <property name="related_action">hal_action_save</property>
+                    <property name="width_request">90</property>
+                    <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">save the file using the original name</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_edit_menu_save</property>
                   </object>
                   <packing>
@@ -7265,12 +7342,14 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_save_as">
                     <property name="related_action">hal_action_saveas</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="receives_default">False</property>
                     <property name="tooltip_text" translatable="yes">save the file with a new name</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_edit_menu_save_as</property>
                   </object>
                   <packing>
@@ -7281,7 +7360,7 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkLabel" id="lbl_space_7">
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
@@ -7294,7 +7373,7 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkLabel" id="lbl_space_8">
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
@@ -7308,12 +7387,14 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_new">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="receives_default">False</property>
                     <property name="tooltip_text" translatable="yes">clear the edit field and make a new file</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_edit_menu_new</property>
                     <signal name="clicked" handler="on_btn_new_clicked" swapped="no"/>
                   </object>
@@ -7325,7 +7406,7 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkLabel" id="lbl_space_9">
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
@@ -7339,12 +7420,14 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_keyb">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="receives_default">False</property>
                     <property name="tooltip_text" translatable="yes">Show or hide the virtual keyboard</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_edit_menu_keyboard</property>
                     <signal name="clicked" handler="on_btn_show_kbd_clicked" swapped="no"/>
                   </object>
@@ -7357,12 +7440,14 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_back_edit">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="receives_default">False</property>
                     <property name="tooltip_text" translatable="yes">Go back to main button list</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_edit_menu_close</property>
                     <signal name="clicked" handler="on_btn_back_clicked" swapped="no"/>
                   </object>
@@ -7396,12 +7481,14 @@ F12 or $ key does the same</property>
                   <object class="GtkButton" id="btn_delete_tool">
                     <property name="label" translatable="yes">Delete</property>
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">delete selected tool or tools</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <signal name="clicked" handler="on_btn_delete_tool_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -7414,12 +7501,14 @@ F12 or $ key does the same</property>
                   <object class="GtkButton" id="btn_add_tool">
                     <property name="label" translatable="yes">Add</property>
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">add a new tool to tool table</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <signal name="clicked" handler="on_btn_add_tool_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -7432,12 +7521,14 @@ F12 or $ key does the same</property>
                   <object class="GtkButton" id="btn_reload_tooltable">
                     <property name="label" translatable="yes">Reload</property>
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">reload tool table from file</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <signal name="clicked" handler="on_btn_reload_tooltable_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -7450,12 +7541,14 @@ F12 or $ key does the same</property>
                   <object class="GtkButton" id="btn_apply_tool_changes">
                     <property name="label" translatable="yes">Apply</property>
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">apply the changes you made, G43 will be executed only if it is active G-code</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <signal name="clicked" handler="on_btn_apply_tool_changes_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -7467,12 +7560,14 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_select_tool_by_no">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Select a tool by number</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <signal name="clicked" handler="on_btn_select_tool_by_no_clicked" swapped="no"/>
                     <child>
                       <object class="GtkImage" id="img_tool_by_no">
@@ -7490,12 +7585,14 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_index_tool">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">change tool with the command M61 Q?, no machine move will be done</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <signal name="clicked" handler="on_btn_selected_tool_clicked" swapped="no"/>
                     <child>
                       <object class="GtkImage" id="img_index_tool">
@@ -7513,12 +7610,14 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_change_tool">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">change tool to the selected one</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_toolchange</property>
                     <signal name="clicked" handler="on_btn_selected_tool_clicked" swapped="no"/>
                   </object>
@@ -7531,13 +7630,15 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_tool_touchoff_x">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="sensitive">False</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">touch off the tool and set the value to the tool table</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <signal name="clicked" handler="on_btn_tool_touchoff_clicked" swapped="no"/>
                     <child>
                       <object class="GtkLabel">
@@ -7557,7 +7658,7 @@ tool x</property>
                 </child>
                 <child>
                   <object class="GtkLabel" id="lbl_hide_tto_x">
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
@@ -7571,13 +7672,15 @@ tool x</property>
                 <child>
                   <object class="GtkButton" id="btn_tool_touchoff_z">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="sensitive">False</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">touch off the tool and set the value to the tool table</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <signal name="clicked" handler="on_btn_tool_touchoff_clicked" swapped="no"/>
                     <child>
                       <object class="GtkLabel" id="btn_tool_touchoff_z_label">
@@ -7598,12 +7701,14 @@ tool z</property>
                 <child>
                   <object class="GtkButton" id="btn_back_tool">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Go back to main button list</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_back_tool</property>
                     <signal name="clicked" handler="on_btn_back_clicked" swapped="no"/>
                   </object>
@@ -7637,12 +7742,14 @@ tool z</property>
                 <child>
                   <object class="GtkButton" id="btn_home">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Move to your home directory</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_home</property>
                     <signal name="clicked" handler="on_btn_home_clicked" swapped="no"/>
                   </object>
@@ -7655,12 +7762,14 @@ tool z</property>
                 <child>
                   <object class="GtkButton" id="btn_dir_up">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Move to parent directory</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_dir_up</property>
                     <signal name="clicked" handler="on_btn_dir_up_clicked" swapped="no"/>
                   </object>
@@ -7672,7 +7781,7 @@ tool z</property>
                 </child>
                 <child>
                   <object class="GtkLabel" id="lbl_space_10">
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
@@ -7686,12 +7795,14 @@ tool z</property>
                 <child>
                   <object class="GtkButton" id="btn_sel_prev">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Select the previous file</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_sel_prev</property>
                     <property name="image_position">top</property>
                     <signal name="clicked" handler="on_btn_sel_prev_clicked" swapped="no"/>
@@ -7705,12 +7816,14 @@ tool z</property>
                 <child>
                   <object class="GtkButton" id="btn_sel_next">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Select the next file</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_sel_next</property>
                     <property name="image_position">top</property>
                     <signal name="clicked" handler="on_btn_sel_next_clicked" swapped="no"/>
@@ -7724,12 +7837,14 @@ tool z</property>
                 <child>
                   <object class="GtkButton" id="btn_jump_to">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Jump to user defined directory</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_jump_to</property>
                     <property name="image_position">top</property>
                     <signal name="clicked" handler="on_btn_jump_to_clicked" swapped="no"/>
@@ -7742,7 +7857,7 @@ tool z</property>
                 </child>
                 <child>
                   <object class="GtkLabel" id="lbl_space_11">
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
@@ -7756,12 +7871,14 @@ tool z</property>
                 <child>
                   <object class="GtkButton" id="btn_select">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">select the highlighted file and return the path</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_select</property>
                     <property name="image_position">top</property>
                     <signal name="clicked" handler="on_btn_select_clicked" swapped="no"/>
@@ -7774,7 +7891,7 @@ tool z</property>
                 </child>
                 <child>
                   <object class="GtkLabel" id="lbl_space_12">
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
@@ -7788,12 +7905,14 @@ tool z</property>
                 <child>
                   <object class="GtkButton" id="btn_back_file_load">
                     <property name="use_action_appearance">False</property>
-                    <property name="width_request">85</property>
+                    <property name="width_request">90</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Close without returning a file path</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
                     <property name="image">img_back_file_load</property>
                     <signal name="clicked" handler="on_btn_back_clicked" swapped="no"/>
                   </object>
