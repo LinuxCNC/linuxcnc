@@ -4036,7 +4036,7 @@ _n_ is the percentage to set +
 |Cutter <<qt_cutter-compensation,compensation>> - right of path m|G42.1 D#<_hal[plasmac.kerf-width]>
 |Cutter <<qt_cutter-compensation,compensation>> off |`G40` +
 *Note that M62 through M68 are invalid while cutter compensation is on*
-|Cut <<qt_hole-cutting,holes>> at 60% feed rate m|`#<holes> = 1` +
+|Cut <<qt_hole-cutting,holes>> at 60% feed rate |`#<holes> = 1` +
 for holes less than 32 mm (1.26") diameter
 |Cut <<qt_hole-cutting,holes>> at 60% feed rate, turn torch off at hole end, continue hole path for over cut |`#<holes> = 2` +
 for holes less than 32 mm (1.26") diameter +
