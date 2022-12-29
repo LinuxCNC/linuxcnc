@@ -4007,13 +4007,13 @@ There are some sample G-code files in the ~/linuxcnc/nc_files/examples/plasmac d
 |End <<qt_scribe,scribe>> m|M5 $1
 |Begin <<qt_spotting,center spot>> m|M3 $2 S1
 |End <<qt_spotting,center spot>> m|M5 $2
-|End all the above m|M5 $-1
-|Select a <<qt_material-handling,material>> m|`M190 P`__n__ +
+|End all the above. m|M5 $-1
+|Select a <<qt_material-handling,material>>. m|`M190 P`__n__ +
 _n_ denotes the material number.
-|Wait for <<qt_material-handling,material>> change confirmation |`M66 P3 L3 Q`__n __+
-_n_ is delay time (in seconds). +
+|Wait for <<qt_material-handling,material>> change confirmation. |`M66 P3 L3 Q`__n __+
+_n_ is delay time (in seconds).
 This value may need to be increased for very large material files.
-|Set feed rate from <<qt_material-handling,material>> |`F#<_hal[plasmac.cut-feed-rate]>
+|Set feed rate from <<qt_material-handling,material>>. m|F#<_hal[plasmac.cut-feed-rate]>
 |Enable <<qt_ignore-ok,Ignore Arc OK>> |`M62 P1` (synchronized with motion) +
 `M64 P1` (immediate)
 |Disable <<qt_ignore-ok,Ignore Arc OK>> |`M63 P1` (synchronized with motion) +
@@ -4026,7 +4026,7 @@ This value may need to be increased for very large material files.
 `M64 P3` (immediate)
 |Enable <<qt_overcut,Torch>> |`M63 P3` (synchronized with motion) +
 `M65 P3` (immediate)
-|Set <<qt_velocity_thc,velocity>> to a percentage of feed rate |`M67 E3 Q`__n__ (synchronized with motion) +
+|Set <<qt_velocity_thc,velocity>> to a percentage of feed rate. |`M67 E3 Q`__n__ (synchronized with motion) +
 `M68 E3 Q`__n__ (immediate) +
 _n_ is the percentage to set +
 10 is the minimum, below this will be set to 100% +
@@ -4035,28 +4035,28 @@ _n_ is the percentage to set +
 |Cutter <<qt_cutter-compensation,compensation>> - left of path m|G41.1 D#<_hal[plasmac.kerf-width]>
 |Cutter <<qt_cutter-compensation,compensation>> - right of path m|G42.1 D#<_hal[plasmac.kerf-width]>
 |Cutter <<qt_cutter-compensation,compensation>> off |`G40` +
-*Note that M62 through M68 are invalid while cutter compensation is on*
+*Note that M62 through M68 are invalid while cutter compensation is on.*
 |Cut <<qt_hole-cutting,holes>> at 60% feed rate |`#<holes> = 1` +
 for holes less than 32 mm (1.26") diameter
-|Cut <<qt_hole-cutting,holes>> at 60% feed rate, turn torch off at hole end, continue hole path for over cut |`#<holes> = 2` +
+|Cut <<qt_hole-cutting,holes>> at 60% feed rate, turn torch off at hole end, continue hole path for over cut. |`#<holes> = 2` +
 for holes less than 32 mm (1.26") diameter +
 over cut length = 4 mm (0.157")
-|Cut <<qt_hole-cutting,holes>> and arcs at 60% feed rate |`#<holes> = 3` +
+|Cut <<qt_hole-cutting,holes>> and arcs at 60% feed rate. |`#<holes> = 3` +
 for holes less than 32 mm (1.26") diameter +
 for arcs less than 16 mm (0.63") radius
-|Cut <<qt_hole-cutting,holes>> and arcs at 60% feed rate, turn torch off at hole end, continue hole path for over cut |`#<holes> = 4` +
+|Cut <<qt_hole-cutting,holes>> and arcs at 60% feed rate, turn torch off at hole end, continue hole path for over cut. |`#<holes> = 4` +
 for holes less than 32 mm (1.26") diameter +
 for arcs less than 16 mm (0.63") radius +
 over cut length = 4 mm (0.157")
 |Specify <<qt_hole-cutting,hole>> diameter for +
- #<holes> = 1-4 |`#<h_diameter> =` _n_ +
+ #<holes> = 1-4. |`#<h_diameter> =` _n_ +
 (_n_ is the diameter, use the same units system as the rest of the G-code file)
 |Specify <<qt_hole-cutting,hole>> velocity for +
- #<holes>=1-4 |`#<h_velocity> =` _n_ +
+ #<holes>=1-4. |`#<h_velocity> =` _n_ +
 (_n_ is the percentage, set the percentage of the current feed rate)
-|Specify <<qt_overcut,over cut>> length |`#<oclength> =` _n_ +
+|Specify <<qt_overcut,over cut>> length. |`#<oclength> =` _n_ +
 (_n_ is the length, use the same units system as the rest of the G-code file)
-|Specify <<qt_cut-types,pierce-only>> mode |`#<pierce-only> =` _n_ +
+|Specify <<qt_cut-types,pierce-only>> mode. |`#<pierce-only> =` _n_ +
 (_n_ is the mode, 0=normal cut mode, 1=pierce only mode)
 |Create or edit materials. +
  options: +
