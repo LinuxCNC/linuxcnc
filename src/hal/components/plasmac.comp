@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-1.233
+1.234
 
 .I SUMMARY:
 .br
@@ -242,6 +242,7 @@ variable int    offset_min;                 /* minimum allowed offset */
 variable float  offset_probe_timer;         /* offset probe deployment delay time */
 variable bool   offset_probing;             /* offset probing is enabled */
 variable int    offset_res;                 /* resolution for comparing offset move to target*/
+variable bool   offset_set;                 /* probe or scribe is being offset*/
 variable int    ohmic_attempts;             /* current ohmic probe attempts */
 variable bool   ohmic_detected;             /* true if ohmic probe detected */
 variable int    ohmic_sense_counts;         /* ohmic sense debounce counter */
@@ -882,8 +883,17 @@ FUNCTION(_) {
     }
 
     /* probe and scribe deployment for setting offsets */
-    ohmic_enable = offset_set_probe && homed && program_is_idle && state == IDLE;
-    scribe_arm = offset_set_scribe && homed && program_is_idle && state == IDLE;
+    if(offset_set_probe && !offset_set && homed && program_is_idle && state == IDLE){
+        offset_set = TRUE;
+        ohmic_enable = TRUE;
+    }else if(offset_set_scribe && !offset_set && homed && program_is_idle && state == IDLE){
+        offset_set = TRUE;
+        scribe_arm = TRUE;
+    }else if(offset_set && !offset_set_probe && !offset_set_scribe){
+        offset_set = FALSE;
+        ohmic_enable = FALSE;
+        scribe_arm = FALSE;
+    }
 
     if(!machine_is_on){
         /* if machine is off */
