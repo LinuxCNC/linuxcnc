@@ -255,10 +255,11 @@ This slow down can be achieved by manipulating the feed rate directly in your po
 
 From the preceding discussion it is evident that the plasma controller needs to know the feed rate set by the user. This poses a problem with LinuxCNC because the Feedrate is not saved by LinuxCNC after the G-code is buffered and parsed. There are two approaches to work around this:
 
-. Remap the F command and save the commanded feedrate set in G-code via an M67/M68 command
-. Storing the cut charts in the plasma controller and allow the current feedrate be queried by the G-code program (as QtPlasmaC does)
+. Remap the F command and save the commanded feedrate set in G-code via an M67/M68 command.
+. Storing the cut charts in the plasma controller and allow the current feedrate be queried by the G-code program (as QtPlasmaC does).
 
-One experimental LinuxCNC branch that would be useful for plasma cutting was the state tags branch. This adds a “tag" that is available to motion containing the current feed and speed rates for all active motion commands. It has been merged and will be in LinuxCNC v2.9
+A feature newly added to LinuxCNC 2.9 that is useful for plasma cutting are the state tags.
+This adds a “tag" that is available to motion containing the current feed and speed rates for all active motion commands.
 
 == I/O Pins For Plasma Controllers
 
@@ -530,7 +531,7 @@ The QtPlasmaC system is now included in Version 2.9 and above of LinuxCNC. Its n
 
 == Hypertherm RS485 Control
 
-Some Hypertherm plasma cutters have a RS485 interface to allow the controller (e.g., LinuxCNC) to set amps.pressure and mode. 
+Some Hypertherm plasma cutters have a RS485 interface to allow the controller (e.g., LinuxCNC) to set amps.pressure and mode.
 A number of people have used a userspace component written in Python to achieve this.
 More recently, QtPlasmaC now supports this interface natively.
 Refer to the QtPlasmaC documentation for how to use it.

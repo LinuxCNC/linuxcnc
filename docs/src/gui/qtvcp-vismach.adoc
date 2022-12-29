@@ -230,8 +230,8 @@ rotation axis is created at the origin (but moves with the Part).
 == Animating Parts
 
 //FIXME 2 or 3 functions ? HalToolCylinder not documented here ?
-To *animate the model controlled by the values of HAL pins*
-there are four functions `HalTranslate`, `HalRotate`, `HalToolCylinder` and 'HalToolTriangle'.
+To *animate the model controlled by the values of HAL pins* there are four functions:
+`HalTranslate`, `HalRotate`, `HalToolCylinder` and `HalToolTriangle`.
 
 _For parts to move inside an assembly they need to have their HAL motions defined before being assembled with the "Collection" command_.
 
@@ -281,8 +281,7 @@ Otherwise the component instance would be specified and the pin name of that com
 === 'HalToolCylinder'
 
 *`tool = HalToolCylinder()`*::
- Make a cylinder to represent a cylindrical mill tool, based on the tool table 
- and current loaded tool.
+ Make a cylinder to represent a cylindrical mill tool, based on the tool table and current loaded tool.
 
 [source,python]
 ----
@@ -296,8 +295,7 @@ toolshape = Color([1, .5, .5, .5], [HalToolCylinder()])
 === 'HalToolTriangle'
 
 *`tool = HalToolTriangle()`*::
- Make a triangle to represent a triangular lathe tool, based on the tool table 
- and current loaded tool.
+ Make a triangle to represent a triangular lathe tool, based on the tool table and current loaded tool.
 
 [source,python]
 ----
@@ -321,9 +319,9 @@ For example to create a moving head milling machine with a rotating spindle and 
 * Create the spindle at the origin.
 * Define the rotation.
 * Move the head to the spindle or spindle to the head.
-* Create the draw bar
-* Define the motion of the draw bar
-* Assemble the three parts into a head assembly
+* Create the draw bar.
+* Define the motion of the draw bar.
+* Assemble the three parts into a head assembly.
 * Define the motion of the head assembly.
 
 In this example the spindle rotation is indicated by rotation of a set of drive dogs:
