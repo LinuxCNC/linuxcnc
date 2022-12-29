@@ -2882,7 +2882,7 @@ These errors indicate the move to pierce height would exceed the Z axis maximum 
 * *pierce height would exceed Z axis maximum safe height condition found while float switch probing*
 * *pierce height would exceed Z axis maximum safe height condition found while ohmic probing*
 
-=== Warnings
+=== Warning Messages
 
 Warning messages will not pause a running program and are informational only.
 
