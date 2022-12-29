@@ -197,7 +197,7 @@ include::mb2hal_HOWTO.ini[]
 [NOTE]
 ====
 [yellow yellow-background]#Yellow# = New in MB2HAL 1.1 (LinuxCNC 2.9)
-To use these new features you have to set `VERSION = 1.1`
+To use these new features you have to set `VERSION = 1.1`.
 
 m = Value of `HAL_TX_NAME` if set or transaction number +
 n = element number (`NELEMENTS`) or name from `PIN_NAMES`
