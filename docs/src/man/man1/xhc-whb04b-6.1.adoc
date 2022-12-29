@@ -346,7 +346,7 @@ MDI_COMMAND=(debug,macro16)
  True on Fn button down, false otherwise.
 `whb.button.probe-z` (bit,out)::
  connect to `halui.mdi-command-`__<M>__ True on Probe-Z button down, false otherwise.
- Requests MDI mode before button pin is set. See also `*`whb.halui.mode.mdi`.
+ Requests MDI mode before button pin is set. See also `whb.halui.mode.mdi`.
 `whb.button.macro-1` (bit,out)::
  connect to `halui.mdi-command-`__<M>__ True on Macro-1 button (Fn + Feed+) down, false otherwise.
 `whb.button.macro-2` (bit,out)::
