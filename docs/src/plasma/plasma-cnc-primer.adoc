@@ -519,7 +519,7 @@ Because the full scale is 10 Volts, then the frequency per Volt is:
 
 So assuming we have a 5 Volt input, the calculated frequency would be:
 
-(2,520 Hz/V * 5 V) + 3,800 Hz = 16,400 Hz
+(2520 Hz/V * 5 V) + 3800 Hz = 16,400 Hz
 
 So now it should be fairly clear how to convert the frequency to its voltage equivalent:
 
