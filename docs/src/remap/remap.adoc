@@ -22,40 +22,31 @@ By 'remapping codes' we mean one of the following:
 The set of codes (M,G,T,S,F) currently understood by the RS274NGC
 interpreter is fixed and cannot be extended by configuration options.
 
-In particular, some of these codes implement a fixed sequence of steps
-to be executed. While some of these, like M6, can be moderately
-configured by activating or skipping some of these steps through INI
-file options, overall the behavior is fairly rigid. So - if your
-are happy with this situation, then this manual section is not for you.
+In particular, some of these codes implement a fixed sequence of steps to be executed.
+While some of these, like M6, can be moderately configured by activating or skipping some of these steps through INI file options,
+overall the behavior is fairly rigid.
+So - if your are happy with this situation, then this manual section is not for you.
 
-In many cases, this means that supporting a non 'out of the box'
-configuration or machine is either cumbersome or impossible, or
-requires resorting to changes at the 'C/C\+\+' language level. The latter
-is unpopular for good reasons - changing internals requires in-depth
-understanding of interpreter internals, and moreover brings its own
-set of support issues. While it is conceivable that certain patches
-might make their way into the main LinuxCNC distribution, the result of
-this approach is a hodge-podge of special-case solutions.
+In many cases, this means that supporting a non 'out of the box' configuration or machine is either cumbersome or impossible,
+or requires resorting to changes at the 'C/C\+\+' language level.
+The latter is unpopular for good reasons - changing internals requires in-depth understanding of interpreter internals,
+and moreover brings its own set of support issues.
+While it is conceivable that certain patches might make their way into the main LinuxCNC distribution,
+the result of this approach is a hodge-podge of special-case solutions.
 
 A good example for this deficiency is tool change support in LinuxCNC:
 While random tool changers are well supported, it is next to impossible
 to reasonably define a configuration for a manual-tool change machine
-with, for example, an automatic tool length offset switch being
-visited after a tool change, and offsets set accordingly. Also, while a
-patch for a very specific rack tool changer exists, it has not found
-its way back into the main code base.
+with, for example, an automatic tool length offset switch being visited after a tool change, and offsets set accordingly.
+Also, while a patch for a very specific rack tool changer exists, it has not found its way back into the main code base.
 
-However, many of these things may be fixed by using an O-word
-procedure instead of a built in code - whenever the - insufficient -
-built in code is to be executed, call the O-word procedure
-instead. While possible, it is cumbersome - it requires source-editing
-of NGC programs, replacing all calls to the deficient code by a an
-O-word procedure call.
+However, many of these things may be fixed by using an O-word procedure instead of a built in code -
+whenever the - insufficient - built in code is to be executed, call the O-word procedure instead.
+While possible, it is cumbersome - it requires source-editing of NGC programs,
+replacing all calls to the deficient code by a an O-word procedure call.
 
-In its simplest form, a remapped code isn't much more than a
-spontaneous call to an O-word procedure. This happens behind the scenes -
-the procedure is visible at the configuration level, but not at the
-NGC program level.
+In its simplest form, a remapped code isn't much more than a spontaneous call to an O-word procedure.
+This happens behind the scenes - the procedure is visible at the configuration level, but not at the NGC program level.
 
 Generally, the behavior of a remapped code may be defined in the following ways:
 
@@ -65,17 +56,15 @@ Generally, the behavior of a remapped code may be defined in the following ways:
 .How to glue things together
 M- and G-codes, and O-words subroutine calls have some fairly different syntax.
 
-O-word procedures, for example, take positional parameters
-with a specific syntax like so:
+O-word procedures, for example, take positional parameters with a specific syntax like so:
 
 [source,{ngc}]
 ---------------------------------------------------------------------
 o<test> call [1.234] [4.65]
 ---------------------------------------------------------------------
 
-whereas M- or G-codes typically take required or optional 'word'
-parameters. For instance, G76 (threading) requires the P,Z,I,J and K
-words, and optionally takes the R,Q,H, E and L words.
+whereas M- or G-codes typically take required or optional 'word' parameters.
+For instance, G76 (threading) requires the P,Z,I,J and K words, and optionally takes the R,Q,H, E and L words.
 
 So it isn't simply enough to say 'whenever you encounter code X, please
 call procedure Y' - at least some checking and conversion of parameters
@@ -409,7 +398,7 @@ code does not receive  any parameters from the block.
 It will ignore any extra parameters present.
 
 Note that RS274NGC rules still apply - for instance you may use axis
-words (eg X,Y,Z) only in the context of a G-code.
+words (e.g. X,Y,Z) only in the context of a G-code.
 
 Axis words may also only be used if the axis is enabled.
 If only XYZ are enabled, ABCUVW will not be available to be used in argspec.
@@ -421,23 +410,18 @@ Words FST should not be used if this behavior is not desired.
 Words DEIJKPQR have no predefined function and are recommended for use as argspec parameters.
 
 `ABCDEFHIJKPQRSTUVWXYZ`::
-  Defines a required word parameter: an uppercase letter specifies that
-  the corresponding word *must* be present in the current block.
+  Defines a required word parameter: an uppercase letter specifies that the corresponding word *must* be present in the current block.
   The word`s value will be passed as a local named parameter with a corresponding name.
   If the `@` character is present in the argspec, it will be passed as positional parameter, see below.
 
 `abcdefhijkpqrstuvwxyz`::
-  Defines an optional word parameter: a lowercase letter specifies that
-  the corresponding word *may* be present in the current block.
+  Defines an optional word parameter: a lowercase letter specifies that the corresponding word *may* be present in the current block.
   If the word is present, the word's value will be passed as a local named parameter.
-  If the `@` character is present in the argspec, it will be passed as positional parameter,
-  see below.
+  If the `@` character is present in the argspec, it will be passed as positional parameter, see below.
 
 `@`::
-  The `@` (at-sign) tells argspec to pass words as positional parameters,
-  in the order defined following the `@` option.
-  Note that when using positional parameter passing,
-  a procedure cannot tell whether a word was present or not, see example below.
+  The `@` (at-sign) tells argspec to pass words as positional parameters, in the order defined following the `@` option.
+  Note that when using positional parameter passing, a procedure cannot tell whether a word was present or not, see example below.
 
 TIP: this helps with packaging existing NGC procedures as remapped codes.
 Existing procedures do expect positional parameters.
@@ -485,9 +469,9 @@ o<m400> endsub
 M2
 ----------------------------------------------------------------------------------
 
-- executing `M400` will fail with the message `user-defined M400: missing: P`
-- executing `M400 P123` will display `P word=123.000000`
-- executing `M400 P123 Q456` will display `P word=123.000000` and `Q word set: 456.000000`
+- Executing `M400` will fail with the message `user-defined M400: missing: P`.
+- Executing `M400 P123` will display `P word=123.000000`.
+- Executing `M400 P123 Q456` will display `P word=123.000000` and `Q word set: 456.000000`
 
 .Example for positional parameter passing to NGC procedures
 
@@ -505,12 +489,11 @@ o<m410> endsub
 M2
 ----------------------------------------------------------------------------------
 
-- executing `M410 P10` will display `m410.ngc: [1]=10.000000 [2]=0.000000`
-- executing `M410 P10 Q20` will display `m410.ngc: [1]=10.000000 [2]=20.000000`
+- Executing `M410 P10` will display `m410.ngc: [1]=10.000000 [2]=0.000000`.
+- Executing `M410 P10 Q20` will display `m410.ngc: [1]=10.000000 [2]=20.000000`.
 
-NOTE: you lose the capability to distinguish more than one optional
-parameter word, and you cannot tell whether an optional parameter was
-present but had the value 0, or was not present at all.
+NOTE: you lose the capability to distinguish more than one optional parameter word,
+and you cannot tell whether an optional parameter was present but had the value 0, or was not present at all.
 
 .Simple example for named parameter passing to a Python function
 
@@ -545,14 +528,12 @@ Try this with out with:
 You'll notice the gradual introduction of the embedded Python
 environment - see <<remap:programming-embedded-python,here>> for details.
 Note that with Python remapping functions, it make no sense to have Python
-prolog or epilog functions since it's executing a Python function in
-the first place.
+prolog or epilog functions since it's executing a Python function in the first place.
 
 .Advanced example: Remapped codes in pure Python
 
-The `interpreter` and `emccanon` modules expose most of the Interpreter
-and some Canon internals, so many things which  so far required coding in
-'C/C\+\+' can be now be done in Python.
+The `interpreter` and `emccanon` modules expose most of the Interpreter and some Canon internals,
+so many things which so far required coding in 'C/C\+\+' can be now be done in Python.
 
 The following example is based on the `nc_files/involute.py` script -
 but canned as a G-code with some parameter extraction and checking.
@@ -635,18 +616,13 @@ The examples described so far can be found in 'configs/sim/axis/remap/getting-st
 
 The minimal prerequisites for using `REMAP` statements are as follows:
 
-- the Python plug in must be activated by specifying a
-  `[PYTHON]TOPLEVEL=<path-to-toplevel-script>` in the INI file.
-- the toplevel script needs to import the `remap` module, which can be
-  initially empty, but the import needs to be in place.
-- The Python interpreter needs to find the remap.py module above, so
-  the path to the directory where your Python modules live needs to be
-  added with  `[PYTHON]PATH_APPEND=<path-to-your-local-Python-directory>`
-- Recommended: import the `stdglue` handlers in the `remap` module. In
-  this case Python also needs to find `stdglue.py` - we just copy it
-  from the distribution so you can make local changes as
-  needed. Depending on your installation the path to `stdglue.py` might
-  vary.
+- The Python plug in must be activated by specifying a `[PYTHON]TOPLEVEL=<path-to-toplevel-script>` in the INI file.
+- The toplevel script needs to import the `remap` module, which can be initially empty, but the import needs to be in place.
+- The Python interpreter needs to find the remap.py module above, so the path to the directory
+  where your Python modules live needs to be added with  `[PYTHON]PATH_APPEND=<path-to-your-local-Python-directory>`
+- Recommended: import the `stdglue` handlers in the `remap` module.
+  In this case Python also needs to find `stdglue.py` - we just copy it from the distribution so you can make local changes as needed.
+  Depending on your installation the path to `stdglue.py` might vary.
 
 Assuming your configuration lives under `/home/user/xxx` and the INI file is `/home/user/xxx/xxx.ini`,
 execute the following commands.
@@ -683,22 +659,17 @@ $ linuxcnc xxx.ini
 === Overview
 
 If you are unfamiliar with LinuxCNC internals, first read the
-<<remap:how-tool-change-currently-works,How tool change currently works>>
-section (dire but necessary).
+<<remap:how-tool-change-currently-works,How tool change currently works>> section (dire but necessary).
 
 Note than when remapping an existing code, we completely disable
-<<remap:interpreter-action-on-m6,this codes' built in functionality>>
-of the interpreter.
+<<remap:interpreter-action-on-m6,this codes' built in functionality>> of the interpreter.
 
-So our remapped code will need to do a bit more
-than just generating some commands to move the machine as we like - it
-will also need to replicate those steps from this sequence which are
-needed to keep the interpreter and `task` happy.
+So our remapped code will need to do a bit more than just generating some commands to move the machine as we like -
+it will also need to replicate those steps from this sequence which are needed to keep the interpreter and `task` happy.
 
-However, this does *not* affect the processing of
-tool change-related commands in `task` and `iocontrol`. This means when we
-execute <<remap:send-tool-load-msg,step 6b>> this will still cause
-<<remap:iocontrol-action-on-load,iocontrol to do its thing>>.
+However, this does *not* affect the processing of tool change-related commands in `task` and `iocontrol`.
+This means when we execute <<remap:send-tool-load-msg,step 6b>>
+this will still cause <<remap:iocontrol-action-on-load,iocontrol to do its thing>>.
 
 Decisions, decisions:
 
@@ -713,13 +684,10 @@ Depending on the answer, we have four different scenarios:
 - When using an O-word procedure, we need prolog and epilog functions.
 - If using all Python code and no O-word procedure, a Python function is enough.
 - When using the `iocontrol` pins, our O-word procedure or Python code will contain mostly moves.
-- When we need a more complex interaction than offered by `iocontrol`,
-  we need to completely define our own interaction,
-  using `motion.digital*` and `motion.analog*` pins,
-  and essentially ignore the `iocontrol` pins by looping them.
+- When we need a more complex interaction than offered by `iocontrol`, we need to completely define our own interaction,
+  using `motion.digital*` and `motion.analog*` pins, and essentially ignore the `iocontrol` pins by looping them.
 
-NOTE: If you hate O-word procedures and love Python,
-you're free to do it all in Python,
+NOTE: If you hate O-word procedures and love Python, you're free to do it all in Python,
 in which case you would just have a `python=_<function>_` spec in the REMAP statement.
 But assuming most folks would be interested in using O-word procedures
 because they are more familiar with that, we'll do that as the first example.

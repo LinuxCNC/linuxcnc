@@ -94,7 +94,7 @@ program_available () {
 usage () {
     P=${0##*/}
     cat <<EOF
-$P: Run LINUXCNC
+$P: Run LinuxCNC
 
 Usage:
   $ $P -h
@@ -112,7 +112,7 @@ Usage:
 Options:
     -d: Turn on "debug" mode
     -v: Turn on "verbose" mode
-    -k: Continue in the presence of errors in .hal files
+    -k: Continue in the presence of errors in HAL files
     -t "tpmodulename [parameters]"
             specify custom trajectory_planning_module
             overrides optional INI setting [TRAJ]TPMOD

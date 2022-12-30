@@ -15,7 +15,7 @@ int hm2_uart_setup(char *name, int bitrate, s32 tx_mode, s32 rx_mode){
 "name" is a unique string given to each UART during hostmot2 setup.
 The names of the available UARTs are printed to standard output during the driver loading process and take the form:
 hm2_<board name>.<board index>.uart.<index>, for example hm2_5i23.0.uart.0.
-The minimum bitrate is approximately 50bps, and the maximum around the FPGA frequency, 48 MHz for a 5I23. 
+The minimum bitrate is approximately 50 bps, and the maximum around the FPGA frequency, 48 MHz for a 5I23. 
 The UART function allows different RX and TX bitrates, but that is not currently supported by this driver
 
 tx_mode is bit mask defined in the Hostmot2 regmap:

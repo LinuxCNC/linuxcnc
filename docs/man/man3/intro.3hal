@@ -68,7 +68,7 @@ For an explanation of realtime considerations, see \fBintro(3rtapi)\fR.
 
 .SH HAL STATUS CODES
 Except as noted in specific manual pages, HAL returns negative errno values
-for errors, and nonnegative values for success.
+for errors, and non-negative values for success.
 
 .SH SEE ALSO
 \fBintro(3rtapi)\fR
