@@ -368,6 +368,9 @@ class HandlerClass:
         self.laserTimer = QTimer()
         self.laserTimer.timeout.connect(self.laser_timeout)
         self.laserTimer.setSingleShot(True)
+        self.ohmicLedTimer = QTimer()
+        self.ohmicLedTimer.timeout.connect(self.ohmic_led_timeout)
+        self.ohmicLedTimer.setSingleShot(True)
         self.set_color_styles()
         self.autorepeat_keys(False)
         # set hal pins only after initialized__ has begun
@@ -714,6 +717,7 @@ class HandlerClass:
         self.materialTempPin = self.h.newpin('material_temp', hal.HAL_S32, hal.HAL_IN)
         self.motionTypePin = self.h.newpin('motion_type', hal.HAL_S32, hal.HAL_IN)
         self.offsetsActivePin = self.h.newpin('offsets_active', hal.HAL_BIT, hal.HAL_IN)
+        self.ohmicLedInPin = self.h.newpin('ohmic_led_in', hal.HAL_BIT, hal.HAL_IN)
         self.paramTabDisable = self.h.newpin('param_disable', hal.HAL_BIT, hal.HAL_IN)
         self.settingsTabDisable = self.h.newpin('settings_disable', hal.HAL_BIT, hal.HAL_IN)
         self.plasmacStatePin = self.h.newpin('plasmac_state', hal.HAL_S32, hal.HAL_IN)
@@ -797,7 +801,7 @@ class HandlerClass:
         CALL(['halcmd', 'net', 'plasmac:voidlock-is-locked', 'plasmac.voidlock-is-locked', 'qtplasmac.led_void_lock'])
         CALL(['halcmd', 'net', 'plasmac:led-up', 'plasmac.led-up', 'qtplasmac.led_thc_up'])
         CALL(['halcmd', 'net', 'plasmac:led-down', 'plasmac.led-down', 'qtplasmac.led_thc_down'])
-        CALL(['halcmd', 'net', 'plasmac:ohmic-probe-out', 'qtplasmac.led_ohmic_probe'])
+        CALL(['halcmd', 'net', 'plasmac:ohmic-probe-out', 'qtplasmac.ohmic_led_in'])
         CALL(['halcmd', 'net', 'plasmac:thc-active', 'plasmac.thc-active', 'qtplasmac.led_thc_active'])
         CALL(['halcmd', 'net', 'plasmac:thc-enabled', 'plasmac.thc-enabled', 'qtplasmac.led_thc_enabled'])
         CALL(['halcmd', 'net', 'plasmac:torch-on', 'qtplasmac.led_torch_on'])
@@ -1570,7 +1574,7 @@ class HandlerClass:
             self.w.chk_override_jog.setEnabled(state)
             self.w.releaseKeyboard()
         else:
-           if not self.w.led_float_switch.hal_pin.get() and not self.w.led_ohmic_probe.hal_pin.get() and \
+           if not self.w.led_float_switch.hal_pin.get() and not self.ohmicLedInPin.get() and \
                                                             not self.w.led_breakaway_switch.hal_pin.get():
                 self.w.chk_override_jog.setChecked(False)
                 hal.set_p('plasmac.override-jog', '0')
@@ -2791,6 +2795,7 @@ class HandlerClass:
         self.sensorActive.value_changed.connect(lambda v:self.sensor_active_changed(v))
         self.zOffsetPin.value_changed.connect(lambda v:self.z_offset_changed(v))
         self.laserRecStatePin.value_changed.connect(lambda v:self.laser_recovery_state_changed(v))
+        self.ohmicLedInPin.value_changed.connect(lambda v:self.ohmic_sensed(v))
 
     def conv_call(self, operation):
         if self.developmentPin.get():
@@ -3237,6 +3242,10 @@ class HandlerClass:
         self.preRflFile = ''
         self.w.gcodegraphics.clear_highlight()
 
+    def ohmic_sensed(self, state):
+        if state:
+            hal.set_p('qtplasmac.led_ohmic_probe', '1')
+            self.ohmicLedTimer.start(150)
 
 #########################################################################################################################
 # TIMER FUNCTIONS #
@@ -3413,6 +3422,11 @@ class HandlerClass:
             self.laserButtonState = 'reset'
             self.w.laser.setText(_translate('HandlerClass', 'LASER'))
 
+    def ohmic_led_timeout(self):
+        if not self.ohmicLedInPin.get():
+            hal.set_p('qtplasmac.led_ohmic_probe', '0')
+        else:
+            self.ohmicLedTimer.start(50)
 
 #########################################################################################################################
 # USER BUTTON FUNCTIONS #
