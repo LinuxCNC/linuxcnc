@@ -1,4 +1,4 @@
-VERSION = '1.233.259'
+VERSION = '1.234.260'
 
 '''
 qtplasmac_handler.py
@@ -607,25 +607,23 @@ class HandlerClass:
     def new_process_error(self, w, kind, text):
         O = self.w.screen_options
         N = O.QTVCP_INSTANCE_._NOTICE
+        if 'jog-inhibit' in text:
+            if self.w.led_float_switch.hal_pin.get():
+                text = _translate('HandlerClass', 'Float Switch has disabled jogging')
+            elif self.ohmicLedInPin.get():
+                text = _translate('HandlerClass', 'Ohmic Probe has disabled jogging')
+            elif self.w.led_breakaway_switch.hal_pin.get():
+                text = _translate('HandlerClass', 'Breakaway Switch has disabled jogging')
+        elif 'jog-stop' in text or 'jog-stop-immediate' in text:
+            if self.w.led_float_switch.hal_pin.get():
+                text = _translate('HandlerClass', 'Float Switch has aborted active jogging')
+            elif self.ohmicLedInPin.get():
+                text = _translate('HandlerClass', 'Ohmic Probe has aborted active jogging')
+            elif self.w.led_breakaway_switch.hal_pin.get():
+                text = _translate('HandlerClass', 'Breakaway Switch has aborted active jogging')
         if O.desktop_notify:
             if 'on limit switch error' in text:
                 N.update(O.notify_hard_limits, title='Machine Error:', message=text, msgs=O.notify_max_msgs)
-            elif 'jog-inhibit' in text:
-                if self.w.led_float_switch.hal_pin.get():
-                    text = _translate('HandlerClass', 'Float Switch has disabled jogging')
-                elif self.w.led_ohmic_probe.hal_pin.get():
-                    text = _translate('HandlerClass', 'Ohmic Probe has disabled jogging')
-                elif self.w.led_breakaway_switch.hal_pin.get():
-                    text = _translate('HandlerClass', 'Breakaway Switch has disabled jogging')
-                N.update(O.notify_critical, title='Operator Error:', message=text, msgs=O.notify_max_msgs)
-            elif 'jog-stop' in text or 'jog-stop-immediate' in text:
-                if self.w.led_float_switch.hal_pin.get():
-                    text = _translate('HandlerClass', 'Float Switch has aborted active jogging')
-                elif self.w.led_ohmic_probe.hal_pin.get():
-                    text = _translate('HandlerClass', 'Ohmic Probe has aborted active jogging')
-                elif self.w.led_breakaway_switch.hal_pin.get():
-                    text = _translate('HandlerClass', 'Breakaway Switch has aborted active jogging')
-                N.update(O.notify_critical, title='Operator Error:', message=text, msgs=O.notify_max_msgs)
             elif kind == linuxcnc.OPERATOR_ERROR:
                 N.update(O.notify_critical, title='Operator Error:', message=text, msgs=O.notify_max_msgs)
             elif kind == linuxcnc.OPERATOR_TEXT:
