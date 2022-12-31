@@ -2805,7 +2805,7 @@ class Gscreen:
         print("all-homed")
         self.data.all_homed = True
         self.widgets.button_homing.set_active(False)
-        self.widgets.statusbar1.remove_message(self.statusbar_id,self.homed_status_message)
+        self.widgets.statusbar1.remove(self.statusbar_id,self.homed_status_message)
         self.add_alarm_entry(_("All the axes have been homed"))
 
     def on_hal_status_not_all_homed(self,widget,data):
@@ -3763,7 +3763,7 @@ class Gscreen:
             self.halcomp["tool-changed"] = True
             widget.destroy()
             try:
-                self.widgets.statusbar1.remove_message(self.statusbar_id,self.data.tool_message)
+                self.widgets.statusbar1.remove(self.statusbar_id,self.data.tool_message)
             except:
                 self.show_try_errors()
             return
