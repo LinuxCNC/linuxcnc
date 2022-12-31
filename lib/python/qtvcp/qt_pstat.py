@@ -42,18 +42,21 @@ class _PStat(object):
 
         try:
             self.WORKINGDIR = os.getcwd()
+
             # widget directory
             here = os.path.dirname(os.path.realpath(__file__))
             self.LIBDIR = os.path.join(here,"lib")
             self.WIDGETDIR = os.path.join(here, "widgets")
             self.PLUGINDIR = os.path.join(here,"plugins")
+            self.VISMACHDIR = os.path.join(self.LIBDIR, "qt_vismach")
+
             # Linuxcnc project base directory
             self.BASEDIR = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
             self.IMAGEDIR = os.path.join(self.BASEDIR, "share", "qtvcp", "images")
             self.SCREENDIR = os.path.join(self.BASEDIR, "share", "qtvcp", "screens")
             self.PANELDIR = os.path.join(self.BASEDIR, "share", "qtvcp", "panels")
             self.RIPCONFIGDIR = os.path.join(self.BASEDIR, "configs", "sim", "qtvcp_screens")
-            self.VISMACHDIR = os.path.join(self.BASEDIR, "lib", "python", "qtvcp", "lib", "qt_vismach")
+
             # python RIP library directory
             self.PYDIR = os.path.join(self.BASEDIR, "lib", "python")
             sys.path.insert(0, self.PYDIR)
