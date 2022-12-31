@@ -201,7 +201,7 @@ class HandlerClass:
         label = gtk.Label("Enter System Unlock Code")
         label.modify_font(pango.FontDescription("sans 20"))
         calc = gladevcp.Calculator()
-        dialog.vbox.pack_start(label)
+        dialog.vbox.pack_start(label,True,True,0)
         dialog.vbox.add(calc)
         calc.set_value("")
         calc.set_property("font","sans 20")
