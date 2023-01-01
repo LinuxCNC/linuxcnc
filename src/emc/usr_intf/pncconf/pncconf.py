@@ -2300,7 +2300,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
         for channel in range (0,self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._MAXSSERIALCHANNELS]):
                 if channel == _PD._NUM_CHANNELS: break # TODO may not have all channels worth of glade widgets
                 subboardname = self.d["mesa%dsserial%d_%dsubboard"% (boardnum, port, channel)]
-                #print("data transfer-channel ",channel," subboard name",subboardname)
+                print("data transfer-channel ",channel," subboard name",subboardname)
                 if subboardname == "none":
                     #print("no subboard for %s"% subboardname)
                     continue
@@ -2450,8 +2450,8 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                 self.d[p] = signaltocheck[index+index2]
                 self.d[ptype] = widgetptype
                 self.d[pinv] = self.widgets[pinv].get_active()
-                #if "serial" in p:
-                #    #print("*** INFO PNCCONF mesa pin:",p,"signalname:",self.d[p],"pin type:",widgetptype)
+                if "serial" in p:
+                    print("*** INFO PNCCONF mesa pin:",p,"signalname:",self.d[p],"pin type:",widgetptype)
 
     def on_mesa_pintype_changed(self, widget,boardnum,connector,channel,pin):
                 #print("mesa pintype changed:",boardnum,connector,channel,pin)
@@ -3660,7 +3660,8 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                     relatedsearch = [_PD.TPPWMA,_PD.TPPWMB,_PD.TPPWMC,_PD.TPPWMAN,_PD.TPPWMBN,_PD.TPPWMCN,_PD.TPPWME,_PD.TPPWMF]
                     relatedending = ["-a","-b","c","-anot","-bnot","cnot","-enable","-fault"]
                     customindex = len(humansignallist)-1
-                elif widgetptype in (_PD.TXDATA0,_PD.TXDATA1,_PD.TXDATA2,_PD.TXDATA3,_PD.TXDATA4,_PD.TXDATA5,_PD.SS7I76M0,_PD.SS7I76M3,
+                elif widgetptype in (_PD.TXDATA0,_PD.TXDATA1,_PD.TXDATA2,_PD.TXDATA3,_PD.TXDATA4,_PD.TXDATA5,
+                                     _PD.TXDATA6,_PD.TXDATA7,_PD.SS7I76M0,_PD.SS7I76M3,
                                      _PD.SS7I76M2,_PD.SS7I77M0,_PD.SS7I77M1,_PD.SS7I77M3,_PD.SS7I77M4):
                     portnum = 0 #TODO support more ports
                     for count,temp in enumerate(self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._NUMOFCNCTRS]) :
@@ -3672,6 +3673,8 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                             elif widgetptype in (_PD.TXDATA3,_PD.SS7I77M3,_PD.SS7I76M3): channelnum = 3
                             elif widgetptype in (_PD.TXDATA4,_PD.SS7I77M4): channelnum = 4
                             elif widgetptype in (_PD.TXDATA5): channelnum = 5
+                            elif widgetptype in (_PD.TXDATA6): channelnum = 6
+                            elif widgetptype in (_PD.TXDATA7): channelnum = 7
                             BASE = "mesa%dsserial0_%d"% (boardnum,channelnum)
                             if self.widgets[p].get_active_text() == _("Unused Channel"):
                                 self.widgets[BASE].hide()
@@ -4937,13 +4940,18 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                         firmptype,compnum = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._STARTOFDATA+pin+(concount*24)]
                         p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
                         ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
-                        if self.d[ptype] in (_PD.TXDATA0,_PD.TXDATA1,_PD.TXDATA2,_PD.TXDATA3,_PD.TXDATA4,_PD.SS7I76M0,_PD.SS7I76M2,_PD.SS7I76M3,
+                        if self.d[ptype] in (_PD.TXDATA0,_PD.TXDATA1,_PD.TXDATA2,_PD.TXDATA3,
+                                             _PD.TXDATA4,_PD.TXDATA5,_PD.TXDATA6,_PD.TXDATA7,
+                                             _PD.SS7I76M0,_PD.SS7I76M2,_PD.SS7I76M3,
                                                 _PD.SS7I77M0,_PD.SS7I77M1,_PD.SS7I77M3,_PD.SS7I77M4) and not self.d[p] == _PD.UNUSED_SSERIAL:
                             if self.d[ptype] in (_PD.TXDATA0,_PD.SS7I76M0,_PD.SS7I77M0): channelnum = 0
                             elif self.d[ptype] in (_PD.TXDATA1,_PD.SS7I77M1): channelnum = 1
                             elif self.d[ptype] == _PD.TXDATA2: channelnum = 2
                             elif self.d[ptype] in (_PD.TXDATA3,_PD.SS7I76M3,_PD.SS7I77M3): channelnum = 3
                             elif self.d[ptype] in (_PD.TXDATA4,_PD.SS7I77M4): channelnum = 4
+                            elif self.d[ptype] in (_PD.TXDATA5): channelnum = 5
+                            elif self.d[ptype] in (_PD.TXDATA6): channelnum = 6
+                            elif self.d[ptype] in (_PD.TXDATA7): channelnum = 7
                             keeplist.append(channelnum)
             #print("board # %d sserial keeplist"%(boardnum),keeplist)
             # ok clear the sserial pins unless they are in the keeplist
