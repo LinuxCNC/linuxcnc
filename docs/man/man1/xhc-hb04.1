@@ -170,7 +170,7 @@ Current stepsize in the stepsize sequence as controlled by the stepsize\-up and/
 
 .SH Output Pins (for jogging using axis.N.jog\-counts)
 .TP
-(s32 out) \fIxhc\-hb04.jog.counts\fR 
+(s32 out) \fIxhc\-hb04.jog.counts\fR
 Number of counts of the wheel since start\-up (50 counts per wheel revolution)
 (typically connect to axis.N.jog\-counts (lowpass filtering may be helpful)).
 .TP
@@ -181,7 +181,7 @@ The value of the xhc\-hb04.jog.counts multiplied by \-1.
 Value is the current stepsize multiplied by 0.001
 (typically connect to axis.N.jog\-scale).
 
-.SH Experimental: Pins for halui plus/minus jogging
+.SH Experimental: Pins for halui plus/minus jogging.
 These pins provide some support for non\-trivkins, world mode jogging.
 .TP
 (float in) \fIxhc\-hb04.jog.max\-velocity\fR

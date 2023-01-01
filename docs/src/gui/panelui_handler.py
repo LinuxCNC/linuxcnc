@@ -6,8 +6,8 @@ def get_handlers(linuxcnc_stat, linucnc_cmd, commands, master):
 class HandlerClass:
 
     # This will be pretty standard to gain access to everything
-    # linuxcnc_stat: is the python status instance of linuxcnc
-    # linuxcnc_cmd: is the python command instance of linuxcnc
+    # linuxcnc_stat: is the python status instance of LinuxCNC
+    # linuxcnc_cmd: is the python command instance of LinuxCNC
     # commands: is the command instance so one can call the internal routines
     # master: give access to the master functions/data
 
@@ -26,12 +26,12 @@ class HandlerClass:
         print(m)     # print the argument(s)
         print(wname.metadata)    # Print the calling widgets internal metadata (from config file)
 
-        # call a mdi command to print a msg in linuxcnc
-        # This requires linuxcnc to be homed, but does not check for that.
+        # Call a mdi command to print a msg in LinuxCNC.
+        # This requires LinuxCNC to be homed, but does not check for that.
         # parent commands expect a widget_instance - None is substituted
         self.parent.mdi(None,'(MSG, Hello Linuxcnc World!)')
 
-    # Each call to this function will cycle the mode of linuxcnc
+    # Each call to this function will cycle the mode of LinuxCNC.
     def cycle_mode(self, wname, m):
         if self.current_mode == 0:
             self.current_mode = 1

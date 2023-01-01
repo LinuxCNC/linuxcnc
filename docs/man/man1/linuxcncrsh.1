@@ -23,7 +23,8 @@ Specify the port for linuxcncrsh to listen on.  Defaults to 5007 if omitted.
 .B
 \-n,\-\-name SERVER_NAME
 .RS
-Sets the server name that linuxcncrsh will use to identify itself during handshaking with a new client.  Defaults to EMCNETSVR if omitted.
+Sets the server name that linuxcncrsh will use to identify itself during handshaking with a new client.
+Defaults to EMCNETSVR if omitted.
 .RE
 .P
 .B
@@ -53,7 +54,8 @@ In addition to the options listed above, linuxcncrsh accepts an optional special
 .B
 \-ini LINUXCNC_INI_FILE
 .RS
-LinuxCNC INI file to use.  The \-ini option \fBmust\fP be preceded by two dashes: "\-\-".  Defaults to emc.ini if omitted.
+LinuxCNC INI file to use.  The \-ini option \fBmust\fP be preceded by two dashes: "\-\-".
+Defaults to emc.ini if omitted.
 .RE
 .SH Starting linuxcncrsh
 .P
@@ -106,7 +108,8 @@ The supported commands are as follows:
 \fBhello <password> <client> <version>\fR
 .RS
 <password> must match linuxcncrsh's connect password, or "EMC" if no \-\-connectpw was supplied.
-The three arguments may not contain whitespace. If a valid password was entered the server will respond with:
+The three arguments may not contain whitespace.
+If a valid password was entered the server will respond with:
 .RS
 \fIHELLO ACK <ServerName> <ServerVersion>\fR
 .RE
@@ -185,22 +188,21 @@ Unused, ignore for now.
 .RS
 With get, any parameter is ignored and the current communications mode is returned.
 With set, will set the communications mode to the specified mode.
-The ascii mode is the text request/reply mode, the binary protocol is not currently designed or implemented.
+The ASCII mode is the text request/reply mode, the binary protocol is not currently designed or implemented.
 .RE
 .P
 \fBcomm_prot <version>\fR
 .RS
-With get, any parameter is ignored and the current protocol version
-used by the server is returned.  With set, sets the server to use the
-specified protocol version, provided it is lower than or equal to the
-highest version number supported by the server implementation.
+With get, any parameter is ignored and the current protocol version used by the server is returned.
+With set, sets the server to use the specified protocol version,
+provided it is lower than or equal to the highest version number supported by the server implementation.
 .RE
 .P
 \fBinifile\fR
 .RS
 Not currently implemented!  With get, returns the string "emc.ini".
-Should return the full path and file name of the current configuration
-inifile.  Setting this does nothing.
+Should return the full path and file name of the current configuration INI file.
+Setting this does nothing.
 .RE
 .P
 \fBplat\fR
@@ -210,48 +212,45 @@ With get, returns the string "Linux".
 .P
 \fBini <var> <section>\fR
 .RS
-Not currently implemented, do not use!  Should return the string value
-of <var> in section <section> of the INI file.
+Not currently implemented, do not use!
+Should return the string value of <var> in section <section> of the INI file.
 .RE
 .P
 \fBdebug <value>\fR
 .RS
-With get, any parameter is ignored and the current integer value of
-EMC_DEBUG is returned.  Note that the value of EMC_DEBUG returned is
-the from the UI's ini file, which may be different than emc's ini file.
-With set, sends a command to the EMC to set the new debug level, and
-sets the EMC_DEBUG global here to the same value. This will make the
-two values the same, since they really ought to be the same.
+With get, any parameter is ignored and the current integer value of EMC_DEBUG is returned.
+Note that the value of EMC_DEBUG returned is the from the UI's INI file,
+which may be different than emc's INI file.
+With set, sends a command to the EMC to set the new debug level, and sets the EMC_DEBUG global here to the same value.
+This will make the two values the same, since they really ought to be the same.
 .RE
 .P
 \fBset_wait {received|done}\fR
 .RS
 The set_wait setting controls the wait after receiving a command.
-It can be "received" (after the command was sent and received) or "done"
-(after the command was done).  With get, any parameter is ignored and the
-current set_wait setting is returned.  With set, set the set_wait setting
-to the specified value.
+It can be "received" (after the command was sent and received) or "done" (after the command was done).
+With get, any parameter is ignored and the current set_wait setting is returned.
+With set, set the set_wait setting to the specified value.
 .RE
 .P
 \fBwait {received|done}\fR
 .RS
-With set, force a wait for the previous command to be received, or
-done.
+With set, force a wait for the previous command to be received, or done.
 .RE
 .P
 \fBset_timeout <timeout>\fR
 .RS
-With set, set the timeout for commands to return to <timeout>
-seconds. Timeout is a real number. If it's <= 0.0, it means wait forever.
+With set, set the timeout for commands to return to <timeout> seconds.
+Timeout is a real number. If it's <= 0.0, it means wait forever.
 Default is 0.0, wait forever.
 .RE
 .P
 \fBupdate {none|auto}\fR
 .RS
-The update mode controls whether to return fresh or stale values for
-"get" requests.  When the update mode is "none" it returns stale values,
-when it's "auto" it returns fresh values.  Defaults to "auto" for new
-connections.  Set this to "none" if you like to be confused.
+The update mode controls whether to return fresh or stale values for "get" requests.
+When the update mode is "none" it returns stale values, when it's "auto" it returns fresh values.
+Defaults to "auto" for new connections.
+Set this to "none" if you like to be confused.
 .RE
 .P
 \fBerror\fR
@@ -271,22 +270,21 @@ With get, returns the current operator text string, or "ok" if none.
 .P
 \fBtime\fR
 .RS
-With get, returns the time, in seconds, from the start of the epoch. This
-starting time depends on the platform.
+With get, returns the time, in seconds, from the start of the epoch.
+This starting time depends on the platform.
 .RE
 .P
 \fBestop {on|off}\fR
 .RS
-With get, ignores any parameters and returns the current estop setting
-as "on" or "off".  With set, sets the estop as specified.  E-stop "on"
-means the machine is in the estop state and won't run.
+With get, ignores any parameters and returns the current estop setting as "on" or "off".
+With set, sets the estop as specified.
+E-stop "on" means the machine is in the estop state and won't run.
 .RE
 .P
 \fBmachine {on|off}\fR
 .RS
-With get, ignores any parameters and returns the current machine power
-setting as "on" or "off".  With set, sets the machine on or off as
-specified.
+With get, ignores any parameters and returns the current machine power setting as "on" or "off".
+With set, sets the machine on or off as specified.
 .RE
 .P
 \fBmode {manual|auto|mdi}\fR
@@ -297,20 +295,20 @@ With set, sets the machine mode as specified.
 .P
 \fBmist {on|off}\fR
 .RS
-With get, ignores any parameters and returns the current mist coolant
-setting.  With set, sets the mist setting as specified.
+With get, ignores any parameters and returns the current mist coolant setting.
+With set, sets the mist setting as specified.
 .RE
 .P
 \fBflood {on|off}\fR
 .RS
-With get, ignores any parameters and returns the current flood coolant
-setting.  With set, sets the flood setting as specified.
+With get, ignores any parameters and returns the current flood coolant setting.
+With set, sets the flood setting as specified.
 .RE
 .P
 \fBlube {on|off}\fR
 .RS
-With get, ignores any parameters and returns the current lube pump
-setting.  With set, sets the lube pump setting as specified.
+With get, ignores any parameters and returns the current lube pump setting.
+With set, sets the lube pump setting as specified.
 .RE
 .P
 \fBlube_level\fR
@@ -322,10 +320,10 @@ With set, mocks you for wishful thinking.
 \fBspindle {forward|reverse|increase|decrease|constant|off}\fR
 .RS
 With get, any parameter is ignored and the current spindle state is
-returned as "forward", "reverse", "increase", "decrease", or "off". With
-set, sets the spindle as specified.  Note that "increase" and "decrease"
-will cause a speed change in the corresponding direction until a
-"constant" command is sent.
+returned as "forward", "reverse", "increase", "decrease", or "off".
+With set, sets the spindle as specified.
+Note that "increase" and "decrease" will cause a speed change in the corresponding direction
+until a "constant" command is sent.
 .RE
 .P
 \fBbrake {on|off}\fR
@@ -351,7 +349,7 @@ With set, loads the tool table specified by <file>.
 .P
 \fBhome {0|1|2|...} | -1\fR
 .RS
-With set, homes the indicated joint or if -1, Home All joints.
+With set, homes the indicated joint or, if -1, homes all joints.
 .RE
 .P
 \fBjog_stop joint_number|axis_letter\fR
@@ -377,7 +375,7 @@ If TELEOP_ENABLE is YES, use axis_letter.
 .P
 \fBfeed_override <percent>\fR
 .RS
-With get, any parameter is ignored and the current feed override is returns (as a percentage of commanded feed).
+With get, any parameter is ignored and the current feed override is returned (as a percentage of commanded feed).
 With set, sets the feed override as specified.
 .RE
 .P
@@ -559,7 +557,8 @@ This is effectively the value of angularUnitConversion.
 \fBlinear_unit_conversion {inch|mm|cm|auto}\fR
 .RS
 With get, any parameter is ignored and the active unit conversion is returned.
-With set, sets the unit to be displayed.  If it's "auto", the units to be displayed match the program units.
+With set, sets the unit to be displayed.
+If it's "auto", the units to be displayed match the program units.
 .RE
 .P
 \fBangular_unit_conversion {deg|rad|grad|auto}\fR
@@ -585,12 +584,14 @@ With get, return the current value of the probe signal.
 .P
 \fBprobe\fR
 .RS
-With set, move toward a certain location. If the probe is tripped on the way stop motion, record the position and raise the probe tripped flag.
+With set, move toward a certain location.
+If the probe is tripped on the way stop motion, record the position and raise the probe tripped flag.
 .RE
 .P
 \fBteleop_enable [on|off]\fR
 .RS
-With get, any parameter is ignored and the current teleop mode is returned.  With set, sets the teleop mode as specified.
+With get, any parameter is ignored and the current teleop mode is returned.
+With set, sets the teleop mode as specified.
 .RE
 .P
 \fBkinematics_type\fR
@@ -617,10 +618,10 @@ This section shows an example session to the local machine (\fBlocalhost\fR).
 Bold items are typed by you, non-bold is machine output.
 Default values  are shown for --port PORT_NUMBER (\fB5007\fR), --conectpw PASSWORD (\fBEMC\fR), and --enablepw PASSWORD (\fBEMCTOO\fR).
 .P
-The user connects to linuxcncrsh, handshakes with the server (hello), enables
-machine commanding from this session (set enable), brings the machine
-out of E-stop (set estop off) and turns it on (set machine on), homes all
-the axes, switches the machine to mdi mode, sends an MDI G-code command,
+The user connects to linuxcncrsh, handshakes with the server (hello),
+enables machine commanding from this session (set enable),
+brings the machine out of E-stop (set estop off) and turns it on (set machine on),
+homes all the axes, switches the machine to mdi mode, sends an MDI G-code command,
 then disconnects and shuts down LinuxCNC.
 .P
 > \fBtelnet localhost 5007\fR

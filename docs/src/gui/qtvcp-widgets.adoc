@@ -663,7 +663,7 @@ This will *display the current position of an axis*.
   Format of display, e.g. `%10.3f`.
 *`imperial_template`*::
   format of display, e.g. `%9.4f`.
-*`angular_template `*::
+*`angular_template`*::
   Format of display, e.g. `%Rotational: 10.1f`.
 
 The `DROLabel` widget holds a property *`isHomed`* that can be used with a stylesheet to change the _color of the `DRO_Label`

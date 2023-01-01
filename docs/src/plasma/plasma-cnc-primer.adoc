@@ -510,20 +510,20 @@ This is more appropriate for the 1 kHz servo thread and also allows more time 
 
 There is a lot of confusion around how to decode the THCAD output so lets consider the Mesa 7I76e and the THCAD-10 for a moment with the following hypothetical calibration data:
 
-* Full scale 928,000 Hz (1/32 29,000 Hz)
-* 0 volt 121,600 Hz (1/32 3,800 Hz)
+* Full scale 928 kHz (1/32 29000 Hz)
+* 0 volt 121.6 kHz (1/32 3800 Hz)
 
 Because the full scale is 10 Volts, then the frequency per Volt is:
 
-(29,000 Hz - 3,800 Hz) / 10 V = 2,520 Hz per Volt
+(29000 Hz - 3800 Hz) / 10 V = 2520 Hz per Volt
 
 So assuming we have a 5 Volt input, the calculated frequency would be:
 
-(2520 Hz/V * 5 V) + 3,800 Hz = 16,400 Hz
+(2520 Hz/V * 5 V) + 3800 Hz = 16400 Hz
 
 So now it should be fairly clear how to convert the frequency to its voltage equivalent:
 
-Volts = (frequency (Hz) - 3,800 Hz) / 2,520 Hz/V
+Volts = (frequency [Hz] - 3800 Hz) / 2520 Hz/V
 
 === THCAD Connections
 
@@ -542,7 +542,7 @@ Assuming it is connected to a Mesa 7I76E, connect the output to the spindle enco
 
 === THCAD Initial Testing
 
-Make sure you have the following lines in your ini file (assuming a Mesa 7I76E):
+Make sure you have the following lines in your INI file (assuming a Mesa 7I76E):
 
 [source,{hal}]
 ----
@@ -556,7 +556,7 @@ Grab a 9 Volt battery and connect it to I~N~+ and I~N~-.
 For a THCAD-10 you can now calculate the expected velocity (26,480 in our hypothetical example).
 If you pass this test, then you are ready to configure your LinuxCNC plasma controller.
 
-=== Which Model THCAD To Use
+=== Which Model THCAD To Use?
 
 The THCAD-5 is useful if you intend to use it for ohmic sensing.
 There is no doubt the THCAD-10 is the more flexible device and it is easy to alter the scaling.
