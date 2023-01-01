@@ -2600,6 +2600,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
 
         self.pbar.set_text("Setting up Mesa tabs")
         self.window.show()
+        error_flag = None
         for concount,connector in enumerate(self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._NUMOFCNCTRS]) :
             for pin in range (0,24):
                 self.pbar.set_fraction((pin+1)/24.0)
@@ -2621,8 +2622,16 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                 self.widgets[p].handler_block(self.d[blocksignal])
 #TODO TODO ???
 #                self.widgets[p].get_child().handler_block(self.d[actblocksignal])
-                self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,ppc,pin,numofencoders,
+                error = self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,ppc,pin,numofencoders,
                                         numofpwmgens,numoftppwmgens,numofstepgens,None,numofsserialports,numofsserialchannels,False)
+                # only show one error at end of the process
+                if type(error) == str:
+                    error_flag = error
+
+        # check is currently to see if firmware has more channels then pncconf's max
+        if error_flag is not None:
+            warnings = [error_flag +'\nfirmware has more channels then Pncconf can work with.\nSome channels will not be configurable.']
+            self.warning_dialog("\n".join(warnings),True)
 
         self.d["mesa%d_numof_stepgens"% boardnum] = numofstepgens
         self.d["mesa%d_numof_pwmgens"% boardnum] = numofpwmgens
@@ -2689,7 +2698,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
             numofpwmgens = 12
             numoftppwmgens = 0
             numofstepgens = 0
-            self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,ppc,pin,numofencoders,
+            error = self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,ppc,pin,numofencoders,
                                     numofpwmgens,numoftppwmgens,numofstepgens,subboardname,numofsserialports,numofsserialchannels,True)
         # all this to unblock signals
         for pin in range (0,self._p._SSCOMBOLEN):
@@ -2975,6 +2984,19 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                                         _PD.TXDATA6,_PD.TXDATA7,_PD.SS7I76M0,_PD.SS7I76M2,_PD.SS7I76M3,
                                         _PD.SS7I77M0,_PD.SS7I77M1,_PD.SS7I77M3,_PD.SS7I77M4):
                         CONTROL = True
+
+                    # if too many changnels, don't error, just can't configure
+                    if channelnum > _PD._NUM_CHANNELS:
+                        self.widgets[p].hide()
+                        self.widgets[pinv].hide()
+                        self.widgets[complabel].hide()
+                        self.widgets[ptype].set_model(self.d._notusedliststore)
+                        self.widgets[ptype].set_active(0)
+                        self.widgets[ptype].set_sensitive(0)
+                        self.widgets[p].set_model(self.d._notusedsignaltree)
+                        self.widgets[p].set_active(0)
+                        return 'ERROR: more then maximium channels'
+
                     #print("**** INFO: SMART SERIAL ENCODER:",firmptype," compnum = ",compnum," channel = ",channelnum)
                     #print("sserial channel:%d"% numofsserialchannels)
                     if numofsserialports >= (compnum + 1) and numofsserialchannels >= (channelnum):
