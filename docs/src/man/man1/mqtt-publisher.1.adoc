@@ -1,0 +1,128 @@
+= mqtt-publisher(1)
+
+== NAME
+mqtt-publisher - send HAL pin data to MQTT broker periodically
+
+== SYNOPSIS
+
+*loadusr -W mqtt-publisher [options] keys*=pin1[,pin2...]
+
+== DESCRIPTION
+
+*mqtt-publisher* is a user space program that reads HAL values
+periodically and passes the values to a MQTT broker.
+
+When specifying the MQTT settings in the INI file, this is the
+recommended setup:
+
+HAL file:
+
+  loadusr -W mqtt-publisher [MQTT]DRYRUN --mqtt-broker=[MQTT]BROKER \
+    --mqtt-user=[MQTT]USERNAME --mqtt-password=[MQTT]PASSWORD keys=halui.estop.is-activated
+
+INI file:
+
+  [MQTT]
+  DRYRUN = --dryrun
+  BROKER = broker.local
+  USERNAME = username
+  PASSWORD = password
+
+This component need the Paho python library installed to function.  On
+debian this is available from the `python3-paho-mqtt` package.
+
+== OPTIONS
+
+*keys*=_pin1[,pin2,...]_::
+
+    The name of HAL pins, signals and other values to publish using
+    MQTT.  The names are also used as the JSON keys in the MQTT
+    message publised with the broker.
+
+*--dryrun*::
+
+    Do not set up MQTT connection, only print message to stdout.
+    Useful for debugging and testing.
+
+*--mqtt-broker*=_FQDN_::
+
+    The fully qualified DNS name of the MQTT broker.  The default
+    broker name is "localhost".
+
+*--mqtt-port*=_PORTNUMBER_::
+
+    The port to use of the MQTT broker.  The default port is 1883.
+
+*--mqtt-user*=_USERNAME_::
+
+    The user name to use when connecting to the MQTT broker.
+
+*--mqtt-password*=_PASSWORD_::
+
+    The password to use when connecting to the MQTT broker.
+
+*--mqtt-prefix*=_PREFIX_::
+
+    The MQTT prefix/topic to use when publishing to the MQTT broker.
+    The default prefix is "devices/linuxcnc/machine".
+
+== FUNCTIONS
+
+*mqtt-publisher*::
+
+The loop reading HAL values and publishing MQTT messages.
+
+== PINS
+
+*mqtt-publisher*.*enable* bit input::
+
+    When TRUE, publish messages to MQTT broker.  When FALSE, do not
+    publish messages.  Default is TRUE.
+
+*mqtt-publisher*.*period* u32 input::
+
+    The number of seconds to sleep between publishing MQTT messages to
+    the broker.  Default is 10 seconds.
+
+*mqtt-publisher*.*lastpublish* u32 output::
+
+    When the last MQTT publication was published in number of seconds
+    since EPOC.  If no publication has taken place, the value is zero.
+
+== EXAMPLES
+
+Any set of HAL pins and signals can be published.  This setup might be
+a useful starting point:
+
+  loadusr -W mqtt-publisher [MQTT]DRYRUN --mqtt-broker=[MQTT]BROKER
+      --mqtt-user=[MQTT]USERNAME --mqtt-password=[MQTT]PASSWORD
+      keys=halui.axis.a.pos-feedback,halui.axis.b.pos-feedback,
+      halui.axis.c.pos-feedback,halui.axis.u.pos-feedback,
+      halui.axis.v.pos-feedback,halui.axis.w.pos-feedback,
+      halui.axis.x.pos-feedback,halui.axis.y.pos-feedback,
+      halui.axis.z.pos-feedback,halui.estop.is-activated,
+      halui.joint.0.is-homed,halui.joint.1.is-homed,halui.joint.2.is-homed,
+      halui.joint.3.is-homed,halui.joint.4.is-homed,halui.joint.5.is-homed,
+      halui.joint.6.is-homed,halui.joint.7.is-homed,halui.joint.8.is-homed,
+      halui.machine.is-on,halui.max-velocity.value,halui.mode.is-auto,
+      halui.mode.is-manual,halui.mode.is-mdi,halui.mode.is-teleop,
+      halui.program.is-running'
+
+Note, the list of keys can not include space after comma.  The lines
+are only broken here to avoid too long lines in the documentation.
+
+== SEE ALSO
+
+*hal*(3hal)
+
+== AUTHOR
+
+Component and documentation created by Petter Reinholdtsen, as part of
+the LinuxCNC project.
+
+== COPYRIGHT
+
+Copyright © 2023 Petter Reinholdtsen.  This is free software; see the
+source for copying conditions.  There is NO warranty; not even for
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+

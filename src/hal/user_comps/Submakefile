@@ -1,4 +1,4 @@
-USER_COMP_PY = pyvcp hal_input gladevcp scorbot-er-3 mitsub_vfd pmx485 sim-torch z_level_compensation
+USER_COMP_PY = pyvcp hal_input gladevcp scorbot-er-3 mitsub_vfd pmx485 sim-torch z_level_compensation mqtt-publisher
 
 USER_COMPS := $(sort $(wildcard hal/user_comps/*.comp))
 USER_COMP_BINS := $(patsubst hal/user_comps/%.comp, ../bin/%, $(USER_COMPS))
