@@ -779,14 +779,14 @@ class Pages:
 # THCAD (QtPlasmaC THCAD)
 #************
     def thcad_prepare(self):
-        self.w.voltsmodel.set_active(["5", "10", "300"].index(self.d.voltsmodel))
+        self.w.voltsmodel.set_active(["2 (W1 down)", "2 (W1 up)", "5", "10", "300"].index(self.d.voltsmodel))
         self.w.voltsfjumper.set_active(["1", "32", "64", "128"].index(self.d.voltsfjumper))
         self.w.voltszerof.set_value(self.d.voltszerof)
         self.w.voltsfullf.set_value(self.d.voltsfullf)
         self.w.voltsrdiv.set_value(self.d.voltsrdiv)
 
     def thcad_finish(self):
-        self.d.voltsmodel = ["5", "10", "300"][self.w.voltsmodel.get_active()]
+        self.d.voltsmodel = ["2 (W1 down)", "2 (W1 up)", "5", "10", "300"][self.w.voltsmodel.get_active()]
         self.d.voltsfjumper = ["1", "32", "64", "128"][self.w.voltsfjumper.get_active()]
         self.d.voltszerof = self.w.voltszerof.get_value()
         self.d.voltsfullf = self.w.voltsfullf.get_value()
