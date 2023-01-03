@@ -24,7 +24,7 @@
   </object>
   <object class="GtkAdjustment" id="voltsfullfadj">
     <property name="lower">800</property>
-    <property name="upper">1000</property>
+    <property name="upper">1100</property>
     <property name="value">999</property>
     <property name="step-increment">0.10</property>
     <property name="page-increment">1</property>
@@ -35,6 +35,12 @@
       <column type="gchararray"/>
     </columns>
     <data>
+      <row>
+        <col id="0" translatable="yes">2 (W1 down)</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">2 (W1 up)</col>
+      </row>
       <row>
         <col id="0" translatable="yes">5</col>
       </row>
@@ -52,7 +58,7 @@
     <property name="page-increment">10</property>
   </object>
   <object class="GtkAdjustment" id="voltszerofadj">
-    <property name="lower">100</property>
+    <property name="lower">90</property>
     <property name="upper">200</property>
     <property name="value">100</property>
     <property name="step-increment">0.10</property>
@@ -153,9 +159,11 @@
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <items>
-                              <item id="1" translatable="yes">5</item>
-                              <item id="2" translatable="yes">10</item>
-                              <item id="3" translatable="yes">300</item>
+                              <item id="1" translatable="yes">2 (W1 down)</item>
+                              <item id="2" translatable="yes">2 (W1 up)</item>
+                              <item id="3" translatable="yes">5</item>
+                              <item id="4" translatable="yes">10</item>
+                              <item id="5" translatable="yes">300</item>
                             </items>
                           </object>
                           <packing>
