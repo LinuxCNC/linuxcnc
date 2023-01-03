@@ -443,6 +443,10 @@ int emcTaskPlanInit()
 	if((inistring = inifile.Find("INTERPRETER", "TASK"))) {
 	    pinterp = interp_from_shlib(inistring);
 	    fprintf(stderr, "interp_from_shlib() -> %p\n", pinterp);
+            if (!pinterp) {
+                fprintf(stderr, "failed to load [TASK]INTERPRETER (%s)\n", inistring);
+                return -1;
+            }
 	}
         inifile.Close();
     }
