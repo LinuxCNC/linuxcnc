@@ -729,9 +729,11 @@ static int harden_rt()
 #if defined(__linux__) && (defined(__x86_64__) || defined(__i386__))
     if (iopl(3) < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
+                        "iopl() failed: %s\n"
                         "cannot gain I/O privileges - "
                         "forgot 'sudo make setuid' or using secure boot? -"
-                        "parallel port access is not allow\n");
+                        "parallel port access is not allowed\n",
+                        strerror(errno));
     }
 #endif
 
