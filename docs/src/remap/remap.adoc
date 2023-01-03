@@ -1374,7 +1374,7 @@ Arguments are:
   The interpreter instance
 
 `words`::
-  Keyword parameter dictionary
+  Keyword parameter dictionary.
   If an argspec was present, words are collected from the current block accordingly and passed in the dictionary for convenience
   (the words could as well be retrieved directly from the calling block, but this requires more knowledge of interpreter internals).
   If no argspec was passed, or only optional values were specified and none of these was present in the calling block, this dict is empty.
