@@ -1293,7 +1293,7 @@ class Pages:
         self.w.voltsbox.hide()
         if self.d._arcvpin:
             self.w.voltsbox.show()
-        self.w.voltsmodel.set_active(["5", "10", "300"].index(self.d.voltsmodel))
+        self.w.voltsmodel.set_active(["2 (W1 down)", "2 (W1 up)", "5", "10", "300"].index(self.d.voltsmodel))
         self.w.voltsfjumper.set_active(["1", "32", "64", "128"].index(self.d.voltsfjumper))
         self.w.voltszerof.set_value(self.d.voltszerof)
         self.w.voltsfullf.set_value(self.d.voltsfullf)
