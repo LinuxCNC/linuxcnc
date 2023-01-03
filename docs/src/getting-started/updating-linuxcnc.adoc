@@ -183,6 +183,27 @@ package manager with this command:
 sudo dpkg -i linuxcnc_2.8.0.deb
 ----
 
+
+== Updating Configuration Files for 2.9
+
+=== Stricter handling of pluggable interpreters
+
+If you just run regular G-code and you don't know what a pluggable
+interpreter is, then this section does not affect you.
+
+A seldom-used feature of LinuxCNC is support for pluggable interpreters,
+controlled by the undocumented `[TASK]INTERPRETER` INI setting.
+
+Versions of LinuxCNC before 2.9.0 used to handle an incorrect
+`[TASK]INTERPRETER` setting by automatically falling back to using the
+default G-code interpreter.
+
+As of 2.9.0, an incorrect `[TASK]INTERPRETER` value will cause
+LinuxCNC to refuse to start up.  Fix this condition by deleting the
+`[TASK]INTERPRETER` setting from your INI file, so that LinuxCNC will
+use the default G-code interpreter.
+
+
 == Updating Configuration Files (for 2.8.x)
 
 The new version of LinuxCNC differs from version 2.7 in some ways that
