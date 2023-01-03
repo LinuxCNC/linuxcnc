@@ -98,8 +98,7 @@ Halshow (<<cha:halshow,complete usage description>>)
 can be started from the command line to show details for selected
 components, pins, parameters, signals, functions, and threads of a running HAL.
 The WATCH tab provides a continuous display of selected pin, parameters, and signal items.
-The File menu provides buttons to save the watch items to
-a watch list and to load an existing watch list.
+The File menu provides buttons to save the watch items to a watch list and to load an existing watch list.
 The watch list items can also be loaded automatically on startup.
 For command line usage:
 

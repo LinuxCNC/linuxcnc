@@ -586,9 +586,9 @@ Displaying a terminal can be handy for error and information messages.
 
 After a successful QtPlasmaC installation, the following files are created in the configuration directory:
 
-[width="100%",cols="1,2"]
+[width="100%",cols="1,2",options="header"]
 |===
-|*Filename* |*Function*
+|Filename |Function
 |_<machine_name>_.ini |A configuration file for the machine.
 |_<machine_name>_.hal |A HAL for the machine.
 |_<machine_name>_.prefs |A configuration file for QtPlasmaC specific parameters and preferences.
@@ -901,22 +901,22 @@ For more information, see the <<qt_pm_comms,PowerMax Communications>> section.
 
 [width="100%",cols="4,16",options="header"]
 |===
-|Name  |Description
-|FLOAT |Indicates that the float switch is activated.
-|OHMIC |Indicates that the probe has sensed the material.
-|BREAK |Indicates that the torch breakaway sensor is activated.
+|Name   |Description
+m|FLOAT |Indicates that the float switch is activated.
+m|OHMIC |Indicates that the probe has sensed the material.
+m|BREAK |Indicates that the torch breakaway sensor is activated.
 |===
 
 [underline]*THC*
 
 [width="100%",cols="4,16",options="header"]
 |===
-|Name    |Description
-|ENABLE  |This box determines whether the THC will be enabled or disabled during a cut.
-|ENABLED |This LED indicates whether the THC is enabled or disabled.
-|ACTIVE  |This LED indicates that the THC is actively controlling the Z axis.
-|UP      |This LED indicates that the THC is commanding the Z axis to raise.
-|DOWN    |This LED indicates that the THC is commanding the Z axis to lower.
+|Name     |Description
+m|ENABLE  |This box determines whether the THC will be enabled or disabled during a cut.
+m|ENABLED |This LED indicates whether the THC is enabled or disabled.
+m|ACTIVE  |This LED indicates that the THC is actively controlling the Z axis.
+m|UP      |This LED indicates that the THC is commanding the Z axis to raise.
+m|DOWN    |This LED indicates that the THC is commanding the Z axis to lower.
 |===
 
 [underline]*JOGGING*
@@ -926,15 +926,15 @@ During Paused Motion, this section will become <<qt_cut-recovery,CUT RECOVERY>>
 
 [width="100%",cols="4,16",options="header"]
 |===
-|Name       |Description
-|CONTINUOUS |This drop down button will change the jog increment. Options are determined by the values in the *[DISPLAY]* section of the _<machine_name>_.ini file and begin with the label "INCREMENTS =".
-|FAST       |This button will toggle between FAST which is the default linear velocity in the _<machine_name>_.ini file or SLOW which is 10% of the default value.
-|Y+         |This button moves the Y axis in the positive direction.
-|Y-         |This button moves the Y axis in the negative direction.
-|X+         |This button moves the X axis in the positive direction.
-|X-         |This button moves the X axis in the negative direction.
-|Z+         |This button moves the Z axis in the positive direction.
-|Z-         |This button moves the Z axis in the negative direction.
+|Name        |Description
+m|CONTINUOUS |This drop down button will change the jog increment. Options are determined by the values in the *[DISPLAY]* section of the _<machine_name>_.ini file and begin with the label "INCREMENTS =".
+m|FAST       |This button will toggle between FAST which is the default linear velocity in the _<machine_name>_.ini file or SLOW which is 10% of the default value.
+m|Y+         |This button moves the Y axis in the positive direction.
+m|Y-         |This button moves the Y axis in the negative direction.
+m|X+         |This button moves the X axis in the positive direction.
+m|X-         |This button moves the X axis in the negative direction.
+m|Z+         |This button moves the Z axis in the positive direction.
+m|Z-         |This button moves the Z axis in the negative direction.
 |===
 
 [underline]*CUT RECOVERY*
@@ -945,16 +945,16 @@ During Paused Motion, this section will be shown on top of the JOGGING panel. Th
 [width="100%",cols="4,16",options="header"]
 |===
 |Name |Description
-|PAUSED MOTION FEED SLIDER |In the event of a paused program, this interface allows X/Y motion to follow the programmed path in the reverse or forward direction. +
+m|PAUSED MOTION FEED SLIDER |In the event of a paused program, this interface allows X/Y motion to follow the programmed path in the reverse or forward direction. +
 This slider's range is from 1%-100% of the Cut Feed Rate for the currently selected material.
-|FEED |This displays the paused motion feed rate.
-|REV |In the event of a paused program, this button will move the machine in reverse along the programmed path until it reaches the last M3 command that was either executed or that QtPlasmaC was attempting to execute before the program became paused.
-|FWD |In the event of a paused program, this button will move the machine forward along the programmed path indefinitely until the program's end, skipping over M3 commands.
-|CANCEL MOVE |This button will cancel any Cut Recovery movement that was made, and return the torch to the position the Cut Recovery movement was initiated. +
+m|FEED |This displays the paused motion feed rate.
+m|REV |In the event of a paused program, this button will move the machine in reverse along the programmed path until it reaches the last M3 command that was either executed or that QtPlasmaC was attempting to execute before the program became paused.
+m|FWD |In the event of a paused program, this button will move the machine forward along the programmed path indefinitely until the program's end, skipping over M3 commands.
+m|CANCEL MOVE |This button will cancel any Cut Recovery movement that was made, and return the torch to the position the Cut Recovery movement was initiated. +
 Note that if FWD or REV were used to move the torch, CANCEL will not return to the position of the torch when the pause occurred.
-|MOVE x.xxx |This displays the amount of travel that will be incurred with each press of an arrow key, in the direction the arrow key was pressed. +
+m|MOVE x.xxx |This displays the amount of travel that will be incurred with each press of an arrow key, in the direction the arrow key was pressed. +
 This value displayed below MOVE represents the Kerf Width of the currently selected material.
-|DIRECTIONAL ARROWS |These buttons will move the torch in the direction indicated by a distance of one Kerf Width (of the currently selected material) per press.
+m|DIRECTIONAL ARROWS |These buttons will move the torch in the direction indicated by a distance of one Kerf Width (of the currently selected material) per press.
 |===
 
 [underline]*G-CODE WINDOW*
@@ -962,10 +962,10 @@ This value displayed below MOVE represents the Kerf Width of the currently selec
 [width="100%",cols="4,16",options="header"]
 |===
 |Name   |Description
-|CLEAR  |This button will clear the currently opened program. +
+m|CLEAR  |This button will clear the currently opened program. +
 The torch (T0) will be selected if it was not the active tool.
-|OPEN   |This button will open a FILE OPEN panel over the PREVIEW WINDOW.
-|RELOAD |This button will reload the currently loaded G-code File.
+m|OPEN   |This button will open a FILE OPEN panel over the PREVIEW WINDOW.
+m|RELOAD |This button will reload the currently loaded G-code File.
 |===
 
 [underline]*DRO*
@@ -973,13 +973,13 @@ The torch (T0) will be selected if it was not the active tool.
 [width="100%",cols="4,16",options="header"]
 |===
 |Name |Description
-|HOME ALL |This button will home all of the axes in the order set by HOME_SEQUENCE in the _<machine_name>_.ini file.
-|WCS G54 |This drop down button will change the current work offset.
-|CAMERA |This button will display a CAMVIEW panel on top of the PREVIEW WINDOW and will allow the user to set an origin with or without rotation. See the <<qt_camera,CAMERA section>> for detailed instructions.
-|LASER |This button will allow the user to use a laser to set an origin with or without rotation. See the <<qt_laser,LASER section>> for detailed instructions.
-|X0 Y0 |This button will set the current position to X0 Y0.
-|HOME [AXIS] |This button will home the corresponding axis.
-|0 [AXIS] |This drop down button will display the following options: +
+m|HOME ALL |This button will home all of the axes in the order set by HOME_SEQUENCE in the _<machine_name>_.ini file.
+m|WCS G54 |This drop down button will change the current work offset.
+m|CAMERA |This button will display a CAMVIEW panel on top of the PREVIEW WINDOW and will allow the user to set an origin with or without rotation. See the <<qt_camera,CAMERA section>> for detailed instructions.
+m|LASER |This button will allow the user to use a laser to set an origin with or without rotation. See the <<qt_laser,LASER section>> for detailed instructions.
+m|X0 Y0 |This button will set the current position to X0 Y0.
+m|HOME [AXIS] |This button will home the corresponding axis.
+m|0 [AXIS] |This drop down button will display the following options: +
 *Zero* - zeros the axis. +
 *Set* - launches a dialog box to manually input the axis' coordinate. +
 *Divide By 2* - divides the currently displayed coordinate in the DRO by two. +
@@ -997,7 +997,8 @@ When a G-code file is loaded, the display will change to the selected view.
 
 Whenever there is no G-code file loaded, the full table will automatically be displayed irrespective of which view is currently selected (the highlighted button representing the currently selected view will not change).
 
-If a full table is displayed due to no G-code file being loaded and the user wishes to change the view orientation, then pressing either Z or P will change the display to the newly selected view. If the user then wishes to display the full table while maintaining the currently selected view as the default view for a loaded G-code file, then pressing CLEAR will achieve this and allow the selected view orientation to prevail the next time a G-code file is loaded.
+If a full table is displayed due to no G-code file being loaded and the user wishes to change the view orientation, then pressing either Z or P will change the display to the newly selected view.
+If the user then wishes to display the full table while maintaining the currently selected view as the default view for a loaded G-code file, then pressing CLEAR will achieve this and allow the selected view orientation to prevail the next time a G-code file is loaded.
 
 [[qt_conversational-tab]]
 === CONVERSATIONAL Tab
@@ -3568,37 +3569,37 @@ The following HAL bit pins are always created. The HAL pin has the identical beh
 [width="100%",cols="3,2,3",options="header"]
 |===
 |User Button Function |HAL Pin |GUI Function
-|Toggle machine power m|qtplasmac.ext_power |POWER
-|Run the loaded G-code program m|qtplasmac.ext_run |CYCLE START
-|Pause/Resume the loaded G-code program m|qtplasmac.ext_pause |CYCLE PAUSE
-|Abort the loaded G-code program m|qtplasmac.ext_abort |CYCLE STOP
-|Touchoff X & Y axes to zero m|qtplasmac.ext_touchoff |X0Y0
-|Use a laser to set an origin with or without rotation m|qtplasmac.ext_laser_touchoff |LASER
-|Run/Pause/Resume the loaded G-code program m|qtplasmac.ext_run_pause |CYCLE START, CYCLE PAUSE, CYCLE RESUME in sequence
-|Torch height override plus m|qtplasmac.ext_height_ovr_plus |OVERRIDE + 
-|Torch height override minus m|qtplasmac.ext_height_ovr_minus |OVERRIDE -
-|Torch height override reset m|qtplasmac.ext_height_ovr_reset |OVERRIDE RESET TO 0.00
+|Toggle machine power m|qtplasmac.ext_power m|POWER
+|Run the loaded G-code program m|qtplasmac.ext_run m|CYCLE START
+|Pause/Resume the loaded G-code program m|qtplasmac.ext_pause m|CYCLE PAUSE
+|Abort the loaded G-code program m|qtplasmac.ext_abort m|CYCLE STOP
+|Touchoff X & Y axes to zero m|qtplasmac.ext_touchoff m|X0Y0
+|Use a laser to set an origin with or without rotation m|qtplasmac.ext_laser_touchoff m|LASER
+|Run/Pause/Resume the loaded G-code program m|qtplasmac.ext_run_pause m|CYCLE START, CYCLE PAUSE, CYCLE RESUME in sequence
+|Torch height override plus m|qtplasmac.ext_height_ovr_plus m|OVERRIDE + 
+|Torch height override minus m|qtplasmac.ext_height_ovr_minus m|OVERRIDE -
+|Torch height override reset m|qtplasmac.ext_height_ovr_reset m|OVERRIDE RESET TO 0.00
 |Torch height override scale m|qtplasmac.ext_height_ovr_scale |N/A
-|Toggle jogging speed between fast and slow m|qtplasmac.ext_jog_slow |JOGGING FAST/SLOW
-|Toggle THC enable m|qtplasmac.ext_thc_enable |THC ENABLE
-|Toggle torch enable m|qtplasmac.ext_torch_enable |TORCH ENABLE
-|Toggle corner Lock enable m|qtplasmac.ext_cornerlock_enable |VELOCITY ANTI DIVE ENABLE
-|Toggle voidlock enable m|qtplasmac.ext_voidlock_enable |VOID ANTI DIVE ENABLE
-|Toggle use auto volts m|qtplasmac.ext_auto_volts_enable |AUTO VOLTS
-|Toggle ohmic probe enable m|qtplasmac.ext_ohmic_probe_enable |OHMIC ENABLE
-|Toggle mesh mode m|qtplasmac.ext_mesh_mode |MESH MODE
-|Toggle arc ignore OK m|qtplasmac.ext_ignore_arc_ok |IGNORE OK
-|Forward along the programmed path m|qtplasmac.ext_cutrec_fwd |CUT RECOVERY FWD
-|Reverse along the programmed path m|qtplasmac.ext_cutrec_rev |CUT RECOVERY REV
-|Cancel any Cut Recovery movement m|qtplasmac.ext_cutrec_cancel | CUT RECOVERY CANCEL MOVE
-|Move up m|qtplasmac.ext_cutrec_n | CUT RECOVERY arrow up
-|Move down m|qtplasmac.ext_cutrec_s | CUT RECOVERY arrow down
-|Move right m|qtplasmac.ext_cutrec_e | CUT RECOVERY arrow right
-|Move left m|qtplasmac.ext_cutrec_w | CUT RECOVERY arrow left
-|Move up-right m|qtplasmac.ext_cutrec_ne | CUT RECOVERY arrow up-right
-|Move up-left m|qtplasmac.ext_cutrec_nw | CUT RECOVERY arrow up-left
-|Move down-right m|qtplasmac.ext_cutrec_se | CUT RECOVERY arrow down-right
-|Move down-left m|qtplasmac.ext_cutrec_sw | CUT RECOVERY arrow down-left
+|Toggle jogging speed between fast and slow m|qtplasmac.ext_jog_slow m|JOGGING FAST/SLOW
+|Toggle THC enable m|qtplasmac.ext_thc_enable m|THC ENABLE
+|Toggle torch enable m|qtplasmac.ext_torch_enable m|TORCH ENABLE
+|Toggle corner Lock enable m|qtplasmac.ext_cornerlock_enable m|VELOCITY ANTI DIVE ENABLE
+|Toggle voidlock enable m|qtplasmac.ext_voidlock_enable m|VOID ANTI DIVE ENABLE
+|Toggle use auto volts m|qtplasmac.ext_auto_volts_enable m|AUTO VOLTS
+|Toggle ohmic probe enable m|qtplasmac.ext_ohmic_probe_enable m|OHMIC ENABLE
+|Toggle mesh mode m|qtplasmac.ext_mesh_mode m|MESH MODE
+|Toggle arc ignore OK m|qtplasmac.ext_ignore_arc_ok m|IGNORE OK
+|Forward along the programmed path m|qtplasmac.ext_cutrec_fwd m|CUT RECOVERY FWD
+|Reverse along the programmed path m|qtplasmac.ext_cutrec_rev m|CUT RECOVERY REV
+|Cancel any Cut Recovery movement m|qtplasmac.ext_cutrec_cancel m|CUT RECOVERY CANCEL MOVE
+|Move up m|qtplasmac.ext_cutrec_n m|CUT RECOVERY arrow up
+|Move down m|qtplasmac.ext_cutrec_s m|CUT RECOVERY arrow down
+|Move right m|qtplasmac.ext_cutrec_e m|CUT RECOVERY arrow right
+|Move left m|qtplasmac.ext_cutrec_w m|CUT RECOVERY arrow left
+|Move up-right m|qtplasmac.ext_cutrec_ne m|CUT RECOVERY arrow up-right
+|Move up-left m|qtplasmac.ext_cutrec_nw m|CUT RECOVERY arrow up-left
+|Move down-right m|qtplasmac.ext_cutrec_se m|CUT RECOVERY arrow down-right
+|Move down-left m|qtplasmac.ext_cutrec_sw m|CUT RECOVERY arrow down-left
 |===
 
 The following HAL pins which allow the use of an MPG to control height override are always created.
@@ -3628,9 +3629,9 @@ The following HAL bit output pins are always created and can be used by either t
 [width="50%",options="header"]
 |===
 |HAL Pin
-|qtplasmac.ext_out_0
-|qtplasmac.ext_out_1
-|qtplasmac.ext_out_2
+m|qtplasmac.ext_out_0
+m|qtplasmac.ext_out_1
+m|qtplasmac.ext_out_2
 |===
 
 === Hide Program Buttons
@@ -4081,10 +4082,10 @@ M3 $0 S1 +
 . +
 . +
 M5 $0
-|Set velocity to 100% of CutFeedRate m|M67 E3 Q0 or M67 E3 Q100
+|Set velocity to 100% of CutFeedRate |`M67 E3 Q0` or `M67 E3 Q100`
 |Set velocity to 60% of CutFeedRate m|M67 E3 Q60
 |Set velocity to 40% of CutFeedRate m|M67 E3 Q40
-|Cut a hole with 60% reduced speed using velocity setting m|G21 (metric) +
+|Cut a hole with 60% reduced speed using velocity setting |`G21` (metric) +
 G64 P0.05 +
 M52 P1 (allow paused motion) +
 F#<_hal[plasmac.cut-feed-rate]> +
@@ -4210,6 +4211,7 @@ Symptoms may include random torch raises or dives during otherwise stable cuttin
 Located on the rear of the THCAD is a calibration sticker showing:
 
 ----
+
     THCAD-nnn
 
  0V  121.1 kHz
@@ -4249,8 +4251,7 @@ _THCAD-5 or THCAD-10_
 
 If connecting to a plasma CNC port then the divider ratio is selected from the plasma machine. A common ratio used is 20:1.
 
-If connecting to the plasma machines full arc voltage then a common setup for a THCAD-10 is to use a 1 MΩ resistor from arc negative to THCAD negative
-and a 1 MΩ resistor from arc positive to THCAD positive.
+If connecting to the plasma machines full arc voltage then a common setup for a THCAD-10 is to use a 1 MΩ resistor from arc negative to THCAD negative and a 1 MΩ resistor from arc positive to THCAD positive.
 The divider ratio is obtained by:
 
 ----

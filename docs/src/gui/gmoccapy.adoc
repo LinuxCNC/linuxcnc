@@ -179,11 +179,11 @@ Defaults to 600 if not set.
 
 
 [[gmoccapy:macros]]
-=== Macro Buttons
+=== The MACRO Section
 
 You can add macros to GMOCCAPY, similar to Touchy's way.
-A macro is nothing else than a NGC file.
-You are able to execute complete CNC programs in MDI mode by just pushing one button.
+A macro is no different from an NGC file.
+You are able to execute complete CNC programs in MDI mode, just by pushing one button.
 To do so, you first have to specify the search path for macros:
 
 [[gmocappy:rs274ngc]]
@@ -197,7 +197,7 @@ Several subroutine paths can be separated ":".
 
 Then you just have to add a section like this:
 
-.Configuration of Five Macros to be Shown in the MDI Button List
+.Configuration of five macros in the INI file for the MDI button list
 [source,{ini}]
 ----
 [MACROS]
