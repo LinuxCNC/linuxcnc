@@ -317,7 +317,7 @@ keyword-value pairs and currently are:
   T,S,F;; for these the modal group is fixed and any `modalgroup=` option is ignored.
 
 `argspec=`__<argspec>__::
-  See <<sub:argspec-parameter, description of the argspec parameter options>>. Optional.
+  See <<sub:argspec-parameter,description of the argspec parameter options>>. Optional.
 
 `ngc=`__<ngc_basename>__::
   Basename of an O-word subroutine file name.
@@ -527,16 +527,15 @@ Try this with out with:
 
 You'll notice the gradual introduction of the embedded Python
 environment - see <<remap:programming-embedded-python,here>> for details.
-Note that with Python remapping functions, it make no sense to have Python
-prolog or epilog functions since it's executing a Python function in the first place.
+Note that with Python remapping functions, it make no sense to have Python prolog or epilog functions
+since it is executing a Python function in the first place.
 
 .Advanced example: Remapped codes in pure Python
 
 The `interpreter` and `emccanon` modules expose most of the Interpreter and some Canon internals,
 so many things which so far required coding in 'C/C\+\+' can be now be done in Python.
 
-The following example is based on the `nc_files/involute.py` script -
-but canned as a G-code with some parameter extraction and checking.
+The following example is based on the `nc_files/involute.py` script - but canned as a G-code with some parameter extraction and checking.
 It also demonstrates calling the interpreter recursively (see `self.execute()`).
 
 Assuming a definition like so (NB: this does not use argspec):
@@ -637,7 +636,7 @@ $ echo 'from stdglue import *' >remap.py
 $ echo 'import remap' >toplevel.py
 ---------------------------------------------------------------------
 
-Now edit `/home/user/xxx/xxx.ini` and add the following:
+Now edit ``/home/user/``__xxx__``/``__xxx__``.ini`` and add the following:
 
 [source,{ini}]
 ---------------------------------------------------------------------
@@ -674,10 +673,8 @@ this will still cause <<remap:iocontrol-action-on-load,iocontrol to do its thing
 Decisions, decisions:
 
 - Do we want to use an O-word procedure or do it all in Python code?
-- Is the `iocontrol` HAL sequence (tool-prepare/tool-prepared and
-  tool-change/tool-changed pins) good enough or do we need a different kind
-  of HAL interaction for our tool changer (for example: more HAL pins
-  involved with a  different interaction sequence)?
+- Is the `iocontrol` HAL sequence (tool-prepare/tool-prepared and tool-change/tool-changed pins) good enough or
+  do we need a different kind of HAL interaction for our tool changer (for example: more HAL pins involved with a different interaction sequence)?
 
 Depending on the answer, we have four different scenarios:
 
@@ -689,8 +686,7 @@ Depending on the answer, we have four different scenarios:
 
 NOTE: If you hate O-word procedures and love Python, you're free to do it all in Python,
 in which case you would just have a `python=_<function>_` spec in the REMAP statement.
-But assuming most folks would be interested in using O-word procedures
-because they are more familiar with that, we'll do that as the first example.
+But assuming most folks would be interested in using O-word procedures because they are more familiar with that, we'll do that as the first example.
 
 So the overall approach for our first example will be:
 
@@ -698,8 +694,7 @@ So the overall approach for our first example will be:
   That includes all HAL interaction which would normally be handled by `iocontrol` -
   because we rather would want to do clever things with moves, probes, HAL pin I/O and so forth.
 
-. We'll try to minimize Python code to the extent needed  to keep the interpreter happy,
-  and cause `task` to actually do anything.
+. We'll try to minimize Python code to the extent needed  to keep the interpreter happy, and cause `task` to actually do anything.
   That will go into the `prolog` and `epilog` Python functions.
 
 === Understanding the role of `iocontrol` with remapped tool change codes
@@ -714,8 +709,7 @@ So the overall approach for our first example will be:
   besides setting the _XXXX_ pins
 
 What you need to decide is whether the existing `iocontrol` HAL sequences are sufficient to drive your changer.
-Maybe you need a different interaction sequence - for instance more HAL pins,
-or maybe a more complex interaction.
+Maybe you need a different interaction sequence - for instance more HAL pins, or maybe a more complex interaction.
 Depending on the answer, we might continue to use the existing `iocontrol` HAL sequences, or define our own ones.
 
 For the sake of documentation, we'll disable these `iocontrol` sequences, and roll our own -
@@ -744,8 +738,7 @@ m|tool-prep-pocket m|analog-out-01
 m|tool-number      m|analog-out-02
 |===
 
-Let us assume you want to redefine the M6 command,
-and replace it by an O-word procedure,
+Let us assume you want to redefine the M6 command, and replace it by an O-word procedure,
 but other than that things 'should continue to work'.
 
 So what our O-word procedure would do is to replace the steps <<remap:interpreter-action-on-m6,outlined here>>.
@@ -861,8 +854,7 @@ Again, most epilogs have a common scheme:
 Note that the sequence of operations has changed:
 we do everything required in the O-word procedure - including any HAL pin setting/reading to get a changer going,
 and to acknowledge a tool change - likely with `motion.digital-*` and `motion-analog-*` IO pins.
-When we finally execute the `CHANGE_TOOL()` command,
-all movements and HAL interactions are already completed.
+When we finally execute the `CHANGE_TOOL()` command, all movements and HAL interactions are already completed.
 
 Normally only now `iocontrol` would do its thing as outlined <<remap:iocontrol-action-on-load,here>>.
 However, we don't need the HAL pin wiggling anymore - all `iocontrol` is left to do is to accept we're done with prepare and change.
@@ -1399,8 +1391,7 @@ Return values:
   Return this on success. You need to import this from `interpreter`.
 
 `"a message text"`::
-  Returning a string from a handler means 'this is an error message,
-  abort the program'. Works like `(abort,` __<msg>__ `)`.
+  Returning a string from a handler means 'this is an error message, abort the program'. Works like `(abort,` __<msg>__ `)`.
 
 .Calling conventions for 'python=' subroutines
 

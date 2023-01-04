@@ -44,7 +44,7 @@ There are some small differences in layout and utility.
 QtDragon_hd has a resolution of 1920x1056 and is not resizeable.
 It will work in window mode on any monitor with higher resolution but not on monitors with lower resolution.
 
-== Getting Started - The INI file
+== Getting Started - The INI File
 
 If your configuration is not currently set up to use QtDragon,
 you can change it by editing the INI file [DISPLAY] section.
@@ -230,10 +230,10 @@ py = python
 QtDragon has INI entries for two optional probing tab screens available.
 Comment/uncomment which ever you prefer.
 
-* 'Versa probe' is a Qtvcp ported version of a popular GladeVCP probing panel.
-* 'Basic Probe' is a Qtvcp ported version based on the third party basic probe screen.
+* 'Versa probe' is a QtVCP ported version of a popular GladeVCP probing panel.
+* 'Basic Probe' is a QtVCP ported version based on the third party basic probe screen.
 
-Both do similar probing routines.
+Both perform similar probing routines.
 
 [source,{ini}]
 ----
