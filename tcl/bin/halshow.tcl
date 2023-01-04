@@ -1283,7 +1283,7 @@ proc usage {} {
   puts "           --help    (this help)"
   puts "           --fformat format_string_for_float"
   puts "           --iformat format_string_for_int"
-  puts "           --noprefs don't use preference file so save settings"
+  puts "           --noprefs don't use preference file to save settings"
   puts ""
   puts "Notes:"
   puts "       Create watchfile in halshow using: 'File/Save Watch List'."
