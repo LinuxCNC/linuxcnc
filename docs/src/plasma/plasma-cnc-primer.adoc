@@ -528,8 +528,8 @@ This is more appropriate for the 1 kHz servo thread and also allows more time 
 
 There is a lot of confusion around how to decode the THCAD output so lets consider the Mesa 7I76e and the THCAD-10 for a moment with the following hypothetical calibration data:
 
-* Full scale 928 kHz (1/32 29 kHz = 29000 Hz)
-* 0 V 121.6 kHz (1/32 3.8 kHz = 3800 Hz)
+* Full scale ≙ 928 kHz (1/32 29 kHz)
+* 0 V ≙ 121.6 kHz (1/32 3.8 kHz)
 
 Because the full scale is 10 Volts, then the frequency per Volt is:
 
