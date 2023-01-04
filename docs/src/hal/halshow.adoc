@@ -11,6 +11,7 @@
 :ngc: {basebackend@docbook:'':ngc}
 
 The script halshow can help you find your way around a running HAL.
+It displays chosen HAL values and update them continously. +
 This is a very specialized system and it must connect to a working HAL.
 It cannot run standalone because it relies on the ability of HAL to
 report what it knows of itself through the halcmd interface library.
@@ -18,7 +19,7 @@ Each time halshow runs with a different LinuxCNC
 configuration it will be different.
 
 As we will soon see, this ability of HAL to document itself is one key
-to make an effective CNC system.
+to establish an effective CNC system.
 
 == Starting Halshow
 
@@ -28,7 +29,7 @@ Halshow is available
 - in the TkLinuxCNC menu under Scripts/HAL Show,
 - in GMOCCAPY on the settings page.
 
-Halshow can be started from a terminal command line and specify
+Halshow can also be started from a terminal command line and specify
 formats for integer and float items (pins or signals) and identify a
 saved watchlist file to use:
 
@@ -40,7 +41,7 @@ Usage:
            --help    (this help)
            --fformat format_string_for_float
            --iformat format_string_for_int
-           --noprefs don't use preference file so save settings
+           --noprefs don't use preference file to save settings
 
 Notes:
        Create watchfile in halshow using: 'File/Save Watch List'.
@@ -63,7 +64,7 @@ image::images/halshow-layout.png["Halshow Layout",align="center"]
 
 At the left of its display as shown in figure is a tree view, somewhat like
 you might see with some file browsers. At the right is a tabbed notebook with
-tabs for show and watch and settings.
+tabs for show, watch and settings.
 
 == HAL Tree Area
 
@@ -91,8 +92,8 @@ corresponding section of the tree.
 You can also expand or collapse the tree display using the Tree View
 menu at the upper left edge of the display.
 
-Under _Tree View_ you will
-find: _Expand All_, _Collapse All_; _Expand Pins_, _Expand Parameters_,
+Under _Tree View_ you will find:
+_Expand All_, _Collapse All_; _Expand Pins_, _Expand Parameters_,
 _Expand Signals_; and _Reload tree view_. _Reload tree view_ is useful
 when new components are loaded during runtime and should be displayed.
 
@@ -105,12 +106,12 @@ image::images/halshow-show-tab.png["Halshow: Show Tab",align="center"]
 
 Clicking on the node name, "Components" in the tree for example, will
 show you (under the "Show" tab) all that HAL knows about the contents
-of that node. Figure <<fig:halshow-show-tab, Halshow Show Tab>> shows a list exactly like
-you will see if you click the "Components" name.
-The information display is exactly like
-those shown in traditional text based HAL analysis tools. The advantage
-here is that we have mouse click access, access that can be as broad or
-as focused as you need.
+of that node. Figure <<fig:halshow-show-tab,Halshow Show Tab>> shows a
+list exactly like you will see if you click the "Components" name.
+The information display is exactly like those shown in traditional text
+based HAL analysis tools.
+The advantage here is that we have mouse click access, access that can
+be as broad or as focused as you need.
 
 If we take a closer look at the tree display we can see that the six
 major parts of a HAL can all be expanded at least one level. As these
