@@ -204,6 +204,18 @@ LinuxCNC to refuse to start up.  Fix this condition by deleting the
 use the default G-code interpreter.
 
 
+=== Canterp
+
+If you just run regular G-code and you don't use the `canterp` pluggable
+interpreter, then this section does not affect you.
+
+In the extremely unlikely event that you are using `canterp`,
+know that the module has moved from `/usr/lib/libcanterp.so` to
+`/usr/lib/linuxcnc/canterp.so`, and the `[TASK]INTERPRETER` setting
+correspondingly needs to change from `libcanterp.so` to `canterp.so`.
+
+
+
 == Updating Configuration Files (for 2.8.x)
 
 The new version of LinuxCNC differs from version 2.7 in some ways that
