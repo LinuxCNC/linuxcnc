@@ -221,7 +221,7 @@ If using a Package installation then no additional action is required.
 
 If using a parallel port, use the <<cha:stepconf-wizard,StepConf wizard>> by running the `stepconf` command in a terminal window or launching it using the *Application > CNC > StepConf Wizard* desktop menu entry.
 
-If using a Mesa Electronics board, use the <<cha:pncconf-wizard,PnCconf wizard>> by running the `pncconf` command into a terminal window or launching it using the *Application > CNC > PnCConf Wizard* desktop menu entry.
+If using a Mesa Electronics board, use the <<cha:pncconf-wizard,PnCconf wizard>> by running the `pncconf` command in a terminal window or launching it using the *Application > CNC > PnCConf Wizard* desktop menu entry.
 
 If using a Pico Systems board,
 https://forum.linuxcnc.org/27-driver-boards/14977-pico-systems-faq[this LinuxCNC forum thread] may be helpful.
