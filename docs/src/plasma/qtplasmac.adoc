@@ -548,7 +548,7 @@ After the launcher appears on the desktop, right click on it and then edit it wi
 Comment=
 Terminal=false
 Name=LinuxCNC
-Exec=sh -c "linuxcnc $HOME/linuxcnc/configs/_<machine_name>_/_<machine_name>_.ini"
+Exec=sh -c "linuxcnc $HOME/linuxcnc/configs/<machine_name>/<machine_name>.ini"
 Type=Application
 Icon=/usr/share/pixmaps/linuxcncicon.png
 ----
