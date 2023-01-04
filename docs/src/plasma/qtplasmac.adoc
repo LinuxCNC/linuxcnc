@@ -802,7 +802,7 @@ Clicking the label will return the slider to 100%.
 Clicking the label will return the slider to the default linear velocity as set in the _<machine_name>_.ini file.
 |===
 
-.*BUTTONS*  The Button Panel contains buttons useful for the operation of the machine.
+.*BUTTONS*
 
 The Button Panel contains buttons useful for the operation of the machine.
 
@@ -905,7 +905,7 @@ For more information, see the <<plasma:pm_comms,PowerMax Communications>> sectio
 |DOWN    |This LED indicates that the THC is commanding the Z axis to lower.
 |===
 
-[underline]*JOGGING*
+.*JOGGING*.
 
 [NOTE]
 During Paused Motion, this section will become <<plasma:cut-recovery,CUT RECOVERY>>
@@ -945,7 +945,7 @@ This value displayed below MOVE represents the Kerf Width of the currently selec
 |DIRECTIONAL ARROWS |These buttons will move the torch in the direction indicated by a distance of one Kerf Width (of the currently selected material) per press.
 |===
 
-[underline]*G-CODE WINDOW*
+.*G-CODE WINDOW*
 
 [width="100%",cols="4,16",options="header"]
 |===
@@ -956,7 +956,8 @@ The torch (T0) will be selected if it was not the active tool.
 |RELOAD |This button will reload the currently loaded G-code File.
 |===
 
-.*THC*
+.*DRO*
+
 [cols="4,16",options="header"]
 //[frame=ends,grid=none]
 |===
@@ -1203,7 +1204,7 @@ It is possible to disable this tab so machine settings cannot be modified by una
 setp qtplasmac.settings_disable 1
 ----
 
-[underline]*GUI SETTINGS*
+.*GUI SETTINGS*
 
 This section shows parameters that effect the GUI appearance and GUI behaviors.
 
@@ -1242,7 +1243,7 @@ The custom message can be made multi-line by adding a "\" between lines.
 |===
 
 [[plasma:button_entries]]
-[underline]*USER BUTTON ENTRIES* USERBUTTON
+.*USER BUTTON ENTRIES* USERBUTTON
 
 This section shows the text that appears on the <<plasma:custom-user-buttons,Custom User Buttons>> as well as the code associated with the user button.
 User buttons may be changed and the new settings used without restarting LinuxCNC.
@@ -1263,7 +1264,7 @@ To return all the *Name* and *Code* text to their last saved values press the *R
 There are 20 user buttons available but not all may be displayed depending on the window size.
 
 [[plasma:exit-warning]]
-[underline]*EXIT WARNING MESSAGE*
+.*EXIT WARNING MESSAGE*
 
 This section shows the text that appears on the shutdown dialog if the *Exit Warning* is enabled .
 
@@ -1272,7 +1273,7 @@ The text may be edited at any time and will be loaded ready for use if the *SAVE
 To return the *EXIT WARNING MESSAGE* text to the last saved value press the *RELOAD* button.
 
 
-[underline]*UTILITIES*
+.*UTILITIES*
 
 Some standard LinuxCNC utilities are provided as an aid in the diagnosis of issues that may arise:
 
@@ -1457,11 +1458,11 @@ GAS_PRESSURE        = value (only used for PowerMax communications)
 CUT_MODE            = value (only used for PowerMax communications)
 ----
 
-It is possible to add new material, delete material, or edit existing material from the <<qt_parameters-tab,PARAMETERS tab.>>.
-It is also possible to achieve this by using <<qt_magic-comments,magic comments>> in a G-code file.
+It is possible to add new material, delete material, or edit existing material from the <<plasma:parameters-tab,PARAMETERS tab.>>.
+It is also possible to achieve this by using <<plasma:magic-comments,magic comments>> in a G-code file.
 
 The material file may be edited with a text editor while LinuxCNC is running.
-After any changes have been saved, press *Reload* in the MATERIAL section of the <<qt_parameters-tab,PARAMETERS Tab>> to reload the material file.
+After any changes have been saved, press *Reload* in the MATERIAL section of the <<plasma:parameters-tab,PARAMETERS Tab>> to reload the material file.
 
 === Manual Material Handling
 
@@ -1877,7 +1878,7 @@ QtPlasmaC uses a control voltage which is dependent on the state of the *AUTO VO
 . If *Use Auto Volts* is checked then the actual cut voltage is sampled at the end of the THC *Delay* time and this is used as the target voltage to adjust the height of the torch.
 . If *Use Auto Volts* is not checked then the voltage displayed as Cut Volts in the MATERIAL section of the <<plasma:parameters-tab,PARAMETERS Tab>> is used as the target voltage to adjust the height of the torch.
 
-[underline]*G-code THC*
+.*G-code THC*
 
 THC may be disabled and enabled directly from G-code, provided the THC is not disabled in the THC Section of the <<plasma:main-tab,MAIN Tab>>, by setting or resetting the *motion.digital-out-02* pin with the M-Codes M62-M65:
 
@@ -1892,7 +1893,7 @@ It is important to thoroughly understand the difference between *Synchronized wi
 * *M64 and M65* (Immediate) - These commands happen immediately as they are received by the motion controller. Since these are not synchronized with motion, they will break blending. This means if these codes are used in the middle of active motion codes, the motion will pause to activate these commands.
 
 [[plasma:velocity_thc]]
-[underline]*Velocity Based THC*
+.*Velocity Based THC*
 
 If the cut velocity falls below a percentage of *CutFeedRate* (as defined by the VAD Threshold % value in the THC frame of the CONFIGURATION section of the <<plasma:parameters-tab,PARAMETERS Tab>>) the THC will be locked until the cut velocity returns to at least 99.9% of *CutFeedRate*.
 This will be made apparent by the *VELOCITY ANTI DIVE* indicator illuminating in the <<plasma:control-panel,CONTROL Panel>> on the <<plasma:main-tab,MAIN Tab>>.
@@ -2044,7 +2045,7 @@ IMPORTANT: *OVER CUT* IS NOT ABLE TO BE USED IF CUTTER COMPENSATION IS IN EFFECT
 G-code commands can be set up by either by a CAM Post Processor (PP) or by hand coding.
 
 [[plasma:hole-cutting-velocity-reduction]]
-[underline]*Hole Cutting Velocity Reduction*
+.*Hole Cutting Velocity Reduction*
 
 If cutting a hole requires a reduced velocity then the user would use the following command to set the velocity:
 *M67 E3 Qnn* where nn is the percentage of the velocity desired.
@@ -2071,12 +2072,12 @@ G0 X0 Y0
 M2 (end job)
 ----
 
-[underline]*Arc Dwell (Pause At End)*
+.*Arc Dwell (Pause At End)*
 
 This method can be invoked by setting the <<plasma:pause-at-end,Pause At End>> parameter in the MATERIAL frame of the <<plasma:parameters-tab,PARAMETERS Tab>>.
 
 [[plasma:overcut]]
-[underline]*Over cut*
+.*Over cut*
 
 The torch can be turned off at the end of the hole by setting the *motion.digital-out-03* pin with the M-Codes *M62 (Synchronized with Motion)* or *M64 (Immediate)*.
 After turning the torch off it is necessary to allow the torch to be turned on again before beginning the next cut by resetting the *motion.digital-out-03* pin with the M-Codes *M63* or *M65*, this will be done automatically by the QtPlasmaC G-code parser if it reaches an M5 command without seeing a *M63 P3* or *M65 P3*.
@@ -2141,7 +2142,7 @@ It is possible to change this value with the following command in a G-code file:
 
 * *#<h_velocity> = _nn_* - to set the percentage (_nn_) of the current feed rate required.
 
-[underline]*Over cut*
+.*Over cut*
 
 If Hole Sensing modes 2 or 4 are active, QtPlasmaC will over cut the hole in addition to the velocity changes associated with modes 1 and 3.
 
@@ -2150,7 +2151,7 @@ It is possible to change this value with the following command in a G-code file:
 
 * *#<oclength> = nn* to specify an over cut length (nn) in the same units system as the rest of the G-code file.
 
-[underline]*Arc Dwell (Pause At End)*
+.*Arc Dwell (Pause At End)*
 
 This feature can be used in addition to setting the desired hole sensing mode via the appropriate G-code parameter by setting the <<plasma:pause-at-end,Pause At End>> parameter in the MATERIAL frame of the <<plasma:parameters-tab,PARAMETERS Tab>>.
 
@@ -2184,7 +2185,7 @@ The machine needs to be homed before commencing a single cut.
 A single cut will commence from the machine's current X/Y position.
 
 [[plasma:single-cut]]
-[underline]*Automatic Single Cut*
+.*Automatic Single Cut*
 
 This is the preferred method. The parameters for this method are entered in the following dialog box that is displayed after pressing a <<plasma:button-single,user button>> which has been coded to run single cut:
 
@@ -2196,7 +2197,7 @@ image::images/qtplasmac_single_cut.png[width=300,align="center"]
 . Enter the length of the cut along the X and/or Y axes.
 . Press the *CUT* button and the cut will commence.
 
-[underline]*Pendant Single Cut*
+.*Pendant Single Cut*
 
 If the machine is equipped with a pendant that can start and stop the spindle plus jog the X and Y axes, the user can manually perform a single cut.
 
@@ -2209,7 +2210,7 @@ If the machine is equipped with a pendant that can start and stop the spindle pl
 . The torch will turn off and the Z axis will return to the starting position.
 
 [[plasma:manual-single-cut]]
-[underline]*Manual Single Cut*
+.*Manual Single Cut*
 
 Manual single cut requires that either <<plasma:keyboard-shortcuts,keyboard shortcuts>> are enabled in the GUI SETTINGS section of the <<plasma:settings-tab,SETTINGS Tab>>,
 or a custom user button is specified as a <<plasma:button-mancut,manual cut>> button.
@@ -2239,7 +2240,7 @@ Cutting thick materials can be problematic in that the large amount of molten me
 
 The are two functions built into QtPlasmaC to help alleviate these issues.
 
-[underline]*Pierce Only*
+.*Pierce Only*
 
 *Pierce Only* mode converts the loaded G-code program and then runs the program to pierce the material at the start position of each cut. Scribe and Spotting commands will be ignored and no pierce will take place in those locations.
 
@@ -2249,7 +2250,7 @@ It is possible to use near-end-of-life consumables for piercing and then they ca
 
 *Pierce Only* is one of two different <<plasma:cut-types,cut types>>
 
-[underline]*Puddle Jump*
+.*Puddle Jump*
 
 *Puddle Jump* is the height that the torch will move to after piercing and prior to moving to *Cut Height* and is expressed as a percentage of *Pierce Height*.
 This allows the torch to clear any puddle of molten material tht may be caused by piercing.
@@ -3194,7 +3195,7 @@ n Code = %halshow
 ----
 
 [[plasma:button-code]]
-[underline]*G-code*
+.*G-code*
 
 To run G-code, just enter the code to be run.
 
@@ -3238,7 +3239,7 @@ n Code = %halshow \ g0x.5y.5 \ %halmeter
 ----
 
 [[plasma:button-toggle]]
-[underline]*Toggle HAL Pin*
+.*Toggle HAL Pin*
 
 The following code will allow the user to use a button to invert the current state of a HAL bit pin:
 
@@ -3266,7 +3267,7 @@ n Code = toggle-halpin the-hal-pin-name runcritical
 ----
 
 [[plasma:button-laser]]
-[underline]*Toggle Alignment Laser HAL Pin*
+.*Toggle Alignment Laser HAL Pin*
 
 The following code will allow the user to use a button to invert the current state of the alignment laser HAL bit pin:
 
