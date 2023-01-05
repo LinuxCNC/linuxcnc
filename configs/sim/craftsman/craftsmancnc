@@ -52,7 +52,7 @@ def exception_format(e):
 	#used like this
 	#try:
 	#	......
-	#except Exception, e:
+	#except Exception as e:
 	#	easygui.msgbox(exception_format(e), title="Exception")
 	
 def _message_(message):
@@ -231,7 +231,7 @@ class craftsman(object):
 				self.builder.get_object("hal_toggleaction_run").set_restart_line(self.line_number )
 				self.builder.get_object("hal_toggleaction_pause").set_active(False)
 				self.builder.get_object("hal_toggleaction_run").set_active(True)
-			except Exception,  e:
+			except Exception as e:
 				easygui.msgbox(exception_format(e), title="VFD Exception")
 			_message_('Gcode started from line....')
 		else : 
@@ -501,7 +501,7 @@ class craftsman(object):
 			self.statusbar.push(0, '')
 			self.line_number  = str(curr_line)
 			#globals.tool_change('0')
-		except Exception, e:
+		except Exception as e:
 			easygui.msgbox(exception_format(e), title="Exception")
 
 	def set_ops_leds(self,  from_no,  to_no,   arg):
@@ -598,7 +598,7 @@ class craftsman(object):
 					_message_('Touching Z axis.......')
 				self.call_mdi('o<m101> call')
 				self.change_focus()
-			except Exception, e:
+			except Exception as e:
 				easygui.msgbox(exception_format(e), title="Exception")
 		else : 
 			gtk.gdk.beep()
@@ -734,7 +734,7 @@ class craftsman(object):
 				if keytype == 'Page_Up' or keytype == 'Page_Down': self.lc.jog(self.linuxcnc.JOG_STOP, 1, 3)
 				
 				if keytype == 'Escape': self.lc.state(self.linuxcnc.STATE_ESTOP)				
-			except Exception, e:
+			except Exception as e:
 						easygui.msgbox(exception_format(e), title="Exception")
 		
 		self.change_focus()	
