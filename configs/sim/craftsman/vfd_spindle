@@ -32,7 +32,7 @@ def exception_format(e):
 	##used like this
 	##try:
 	##	......
-	##except Exception, e:
+	##except Exception as e:
 	##	easygui.msgbox(exception_format(e), title="Exception")
 
 
@@ -42,7 +42,7 @@ def start_spindle_fwd():
 	try:
 		vfd_controller.start_spindle_cw()
 		running = True	
-	except Exception,  e:
+	except Exception as e:
 		#easygui.msgbox(exception_format(e), title="VFD Exception")
 		easygui.msgbox("Unable to start the spindle!", title="Error")	
 
@@ -53,7 +53,7 @@ def start_spindle_rev():
 		vfd_controller.start_spindle_ccw()
 		running = True	
 		speed_set = False			
-	except Exception,  e:
+	except Exception as e:
 		#easygui.msgbox(exception_format(e), title="VFD Exception")
 		easygui.msgbox("Unable to start the spindle!", title="Error")	
 	
@@ -64,7 +64,7 @@ def change_spindle_speed(speed):
 		vfd_controller.set_spindle_speed(speed)
 		speed_set = True		
 		current_speed = float(speed)
-	except Exception,  e:
+	except Exception as e:
 		#easygui.msgbox(exception_format(e), title="Exception")
 		easygui.msgbox("Unable to change the spindle's speed!", title="Error")	
 	
@@ -77,7 +77,7 @@ def stop_spindle():
 	current_speed =0
 	try:
 		vfd_controller.stop_spindle()	
-	except Exception,  e:
+	except Exception as e:
 		#easygui.msgbox(exception_format(e), title="VFD Exception")
 		easygui.msgbox("Unable to stop the spindle!", title="Error")	
 
